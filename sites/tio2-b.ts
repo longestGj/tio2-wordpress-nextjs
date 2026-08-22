@@ -1,6 +1,6 @@
 import type {SiteConfig} from './types'
 
-export const tio2B: SiteConfig = {
+export const tio2B: SiteConfig = Object.freeze({
   id: 'tio2-b',
   name: 'TiO2 B',
   description: 'Titanium dioxide products and applications from TiO2 B.',
@@ -8,8 +8,8 @@ export const tio2B: SiteConfig = {
   wordpressScope: 'tio2-b',
   locale: 'en-US',
   contactEmail: 'contact@tio2-b.example.com',
-  defaultSeo: {
+  defaultSeo: Object.freeze({
     title: 'TiO2 B | Titanium Dioxide',
     description: 'Titanium dioxide products and applications from TiO2 B.',
-  },
-}
+  }),
+})

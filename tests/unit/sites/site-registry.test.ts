@@ -14,4 +14,11 @@ describe('site registry', () => {
   it('rejects a missing SITE_ID', () => {
     expect(() => getCurrentSite({})).toThrow('SITE_ID is required')
   })
+
+  it('prevents nested SEO configuration mutation', () => {
+    const site = getSiteConfig('tio2-a')
+
+    expect(() => Object.assign(site.defaultSeo, {title: 'Changed'})).toThrow(TypeError)
+    expect(getSiteConfig('tio2-a').defaultSeo.title).toBe('TiO2 A | Titanium Dioxide')
+  })
 })
