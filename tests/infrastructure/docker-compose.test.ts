@@ -16,4 +16,13 @@ describe('local WordPress compose stack', () => {
       expect.arrayContaining(['db_data', 'wp_data'])
     )
   })
+
+  it('exposes the repository site model to WordPress and WP-CLI', () => {
+    const siteModelMount =
+      './plugins/tio2-site-model:/var/www/html/wp-content/plugins/tio2-site-model:ro'
+
+    expect(compose.services.wordpress.volumes).toContain(siteModelMount)
+    expect(compose.services.wpcli.volumes).toContain(siteModelMount)
+    expect(compose.services.wpcli.volumes).toContain('..:/workspace')
+  })
 })
