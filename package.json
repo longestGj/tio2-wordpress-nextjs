@@ -25,6 +25,7 @@
     "msw": "^2.0.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.9.0",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.6",
+    "yaml": "^2.9.0"
   }
 }
