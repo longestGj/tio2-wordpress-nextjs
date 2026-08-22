@@ -154,11 +154,13 @@ WordPress 内部 slug 使用站点前缀保证唯一；Next.js 对外只暴露�
 
 ### 6.4 查询契约
 
-- 详情查询根据 `site_scope + 公开路径` 计算确定性的 WordPress 内部 slug，以 `SLUG` 查询后再次校验返回节点的 `site_scope` 与公开路径；禁止用昂贵的 ACF meta query 查找路由；
-- 列表查询必须使用 WPGraphQL cursor pagination，每批不超过 100 个节点；
+- 详情查询根据 `site_scope + 公开路径` 计算确定性的 WordPress 内部 slug，转换为平铺的 WordPress URI `/${internalSlug}/` 后以 `URI` 查询，并再次校验返回节点的 `site_scope` 与公开路径；禁止用昂贵的 ACF meta query 查找路由；
+- 列表查询从 `siteScope(id: $siteId, idType: SLUG)` 的 `pages` connection 读取，必须使用 WPGraphQL cursor pagination，每批不超过 100 个节点；
 - 禁止页面查询无界深层关系；
 - GraphQL 响应转换为项目内部 DTO，React 组件不直接依赖完整 WordPress Schema；
 - 未发布内容只能通过带签名的 Preview 流程读取。
+
+运行时 Schema 修订（2026-08-23）：本地 WPGraphQL 的 `PageIdType` 不包含 `SLUG`，Page 全局 connection 也不提供 `taxQuery`；因此使用上述 Page URI 详情查询和 SiteScope SLUG 根 connection，保持确定性查找与站点隔离语义不变。
 
 ## 7. Next.js 页面策略
 

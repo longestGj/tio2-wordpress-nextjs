@@ -412,7 +412,7 @@ Keep generated GraphQL types inside `lib/wordpress`. UI code imports only `Conte
 
 - [ ] **Step 4: Write failing MSW GraphQL tests**
 
-Cover success, not-found, GraphQL error, HTTP 500, timeout, first 100 nodes, and cursor continuation. Detail queries use `idType: SLUG` with `buildInternalSlug(siteId, path)`, then reject any node whose returned site term or `public_path` does not match the request. List queries include site scope and never request more than 100 nodes.
+Cover success, not-found, GraphQL error, HTTP 500, timeout, first 100 nodes, and cursor continuation. Detail queries use `buildInternalSlug(siteId, path)`, convert it to the flat URI `/${internalSlug}/`, and query Page with `idType: URI`; then reject any node whose returned site term or `public_path` does not match the request. List queries use the `siteScope(id: $siteId, idType: SLUG) { pages(...) }` connection and never request more than 100 nodes. This runtime-schema amendment replaces the original Page-SLUG/global-`taxQuery` assumption because the live local schema supports neither shape.
 
 - [ ] **Step 5: Run integration tests and confirm failure**
 
