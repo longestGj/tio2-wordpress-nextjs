@@ -101,10 +101,33 @@ function readSeedSummary(stdout: string) {
 
 describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
   let unrelatedPageId: number | undefined
+  let duplicatePageId: number | undefined
+  let duplicateEntityId: number | undefined
+  let ambiguousPageId: number | undefined
+
+  function deleteAndVerifyAbsent(postId: number) {
+    const before = wp(['post', 'get', String(postId), '--field=ID'])
+    if (before.status === 0) {
+      const deletion = wp(['post', 'delete', String(postId), '--force'])
+      expect(deletion.status, `${deletion.stdout}\n${deletion.stderr}`).toBe(0)
+    }
+
+    const after = wp(['post', 'get', String(postId), '--field=ID'])
+    expect(after.status, `Post ${postId} still exists after forced cleanup.`).not.toBe(0)
+  }
 
   afterAll(() => {
+    if (duplicatePageId !== undefined) {
+      deleteAndVerifyAbsent(duplicatePageId)
+    }
+    if (duplicateEntityId !== undefined) {
+      deleteAndVerifyAbsent(duplicateEntityId)
+    }
+    if (ambiguousPageId !== undefined) {
+      deleteAndVerifyAbsent(ambiguousPageId)
+    }
     if (unrelatedPageId !== undefined) {
-      wp(['post', 'delete', String(unrelatedPageId), '--force'])
+      deleteAndVerifyAbsent(unrelatedPageId)
     }
 
     const restore = seedFullScale()
@@ -113,7 +136,7 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
     expect(audit.status, `${audit.stdout}\n${audit.stderr}`).toBe(0)
   }, 240_000)
 
-  it('preserves exact managed slugs, revives trash, and remains idempotent', () => {
+  it('cleans proven collisions, revives the canonical record, and remains idempotent', () => {
     const unrelatedCreate = wp([
       'post',
       'create',
@@ -160,9 +183,81 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
         siteScopes: [],
       })
     }
+    const productBefore = initialSnapshot.sharedFixtures.find(
+      ({fixtureId}) => fixtureId === 'test-product-reference',
+    )!
 
     const trash = wp(['post', 'delete', String(targetBefore!.id)])
     expect(trash.status, `${trash.stdout}\n${trash.stderr}`).toBe(0)
+
+    const duplicatePageCreate = wp([
+      'post',
+      'create',
+      '--post_type=page',
+      '--post_status=publish',
+      '--post_title=SYNTHETIC TEST CONTENT runtime managed page duplicate',
+      '--post_content=SYNTHETIC TEST CONTENT controlled collision fixture',
+      '--post_name=runtime-managed-page-duplicate',
+      '--porcelain',
+    ])
+    expect(duplicatePageCreate.status, duplicatePageCreate.stderr).toBe(0)
+    duplicatePageId = Number(duplicatePageCreate.stdout.trim().split(/\s+/).at(-1))
+    for (const [metaKey, metaValue] of [
+      ['_tio2_seed_internal_slug', 'tio2-a--test-content--long-tail-500'],
+      ['public_path', '/test-content/long-tail-500'],
+      ['seo_title', 'Synthetic collision SEO title'],
+      ['seo_description', 'SYNTHETIC TEST CONTENT collision SEO description'],
+    ]) {
+      const metaUpdate = wp([
+        'post',
+        'meta',
+        'update',
+        String(duplicatePageId),
+        metaKey,
+        metaValue,
+      ])
+      expect(metaUpdate.status, `${metaUpdate.stdout}\n${metaUpdate.stderr}`).toBe(0)
+    }
+    const duplicatePageScope = wp([
+      'post',
+      'term',
+      'set',
+      String(duplicatePageId),
+      'site_scope',
+      'tio2-a',
+      '--by=slug',
+    ])
+    expect(
+      duplicatePageScope.status,
+      `${duplicatePageScope.stdout}\n${duplicatePageScope.stderr}`,
+    ).toBe(0)
+
+    const duplicateEntityCreate = wp([
+      'post',
+      'create',
+      '--post_type=tio2_product',
+      '--post_status=publish',
+      '--post_title=SYNTHETIC TEST CONTENT runtime shared duplicate',
+      '--post_content=SYNTHETIC TEST CONTENT controlled shared collision fixture',
+      '--post_name=runtime-managed-entity-duplicate',
+      '--porcelain',
+    ])
+    expect(duplicateEntityCreate.status, duplicateEntityCreate.stderr).toBe(0)
+    duplicateEntityId = Number(
+      duplicateEntityCreate.stdout.trim().split(/\s+/).at(-1),
+    )
+    const duplicateEntityMarker = wp([
+      'post',
+      'meta',
+      'update',
+      String(duplicateEntityId),
+      '_tio2_seed_fixture_id',
+      'test-product-reference',
+    ])
+    expect(
+      duplicateEntityMarker.status,
+      `${duplicateEntityMarker.stdout}\n${duplicateEntityMarker.stderr}`,
+    ).toBe(0)
 
     const revivalSeed = seedFullScale()
     expect(revivalSeed.status, `${revivalSeed.stdout}\n${revivalSeed.stderr}`).toBe(0)
@@ -170,6 +265,9 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       entities_created: 0,
       pages_created: 0,
       pages_updated: 1010,
+      pages_revived: 1,
+      pages_duplicates_deleted: 1,
+      entities_duplicates_deleted: 1,
     })
     const revivedSnapshot = exportSnapshot()
     const matchingTargets = revivedSnapshot.pages.filter(
@@ -185,6 +283,57 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       uriResolutionSource: 'wpgraphql',
     })
     expect(revivedSnapshot.pages.some(({status}) => status === 'trash')).toBe(false)
+    expect(
+      revivedSnapshot.sharedFixtures.find(
+        ({fixtureId}) => fixtureId === 'test-product-reference',
+      ),
+    ).toMatchObject({id: productBefore.id})
+    expect(wp(['post', 'get', String(duplicatePageId), '--field=ID']).status).not.toBe(0)
+    expect(wp(['post', 'get', String(duplicateEntityId), '--field=ID']).status).not.toBe(0)
+
+    const ambiguousCreate = wp([
+      'post',
+      'create',
+      '--post_type=page',
+      '--post_status=publish',
+      '--post_title=Unrelated ambiguous collision probe',
+      '--post_content=This record is deliberately not marked as managed seed content.',
+      '--post_name=unrelated-ambiguous-collision',
+      '--porcelain',
+    ])
+    expect(ambiguousCreate.status, ambiguousCreate.stderr).toBe(0)
+    ambiguousPageId = Number(ambiguousCreate.stdout.trim().split(/\s+/).at(-1))
+    const ambiguousPath = wp([
+      'post',
+      'meta',
+      'update',
+      String(ambiguousPageId),
+      'public_path',
+      '/test-content/long-tail-500',
+    ])
+    expect(ambiguousPath.status, `${ambiguousPath.stdout}\n${ambiguousPath.stderr}`).toBe(0)
+    const ambiguousScope = wp([
+      'post',
+      'term',
+      'set',
+      String(ambiguousPageId),
+      'site_scope',
+      'tio2-a',
+      '--by=slug',
+    ])
+    expect(
+      ambiguousScope.status,
+      `${ambiguousScope.stdout}\n${ambiguousScope.stderr}`,
+    ).toBe(0)
+
+    const ambiguousSeed = seedFullScale()
+    expect(ambiguousSeed.status).not.toBe(0)
+    expect(`${ambiguousSeed.stdout}\n${ambiguousSeed.stderr}`).toContain(
+      'Cannot safely reconcile unproven managed collision',
+    )
+    expect(wp(['post', 'get', String(ambiguousPageId), '--field=ID']).status).toBe(0)
+    deleteAndVerifyAbsent(ambiguousPageId)
+    ambiguousPageId = undefined
 
     const secondSeed = seedFullScale()
     expect(secondSeed.status, `${secondSeed.stdout}\n${secondSeed.stderr}`).toBe(0)
@@ -192,6 +341,8 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       entities_created: 0,
       pages_created: 0,
       pages_updated: 1010,
+      pages_duplicates_deleted: 0,
+      entities_duplicates_deleted: 0,
     })
     const secondSnapshot = exportSnapshot()
     expect(secondSnapshot.pages.map(({id}) => id).sort((a, b) => a - b)).toEqual(
