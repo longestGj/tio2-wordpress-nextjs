@@ -1,12 +1,21 @@
-import {getCurrentSite} from '@/lib/sites/current-site'
+import {notFound} from 'next/navigation'
 
-export default function HomePage() {
+import {ContentPage} from '@/components/content-page'
+import {SiteShell} from '@/components/site-shell'
+import {getCurrentSite} from '@/lib/sites/current-site'
+import {getContentByPath} from '@/lib/wordpress/queries'
+
+export default async function HomePage() {
   const site = getCurrentSite()
+  const page = await getContentByPath(site.id, '/')
+
+  if (!page) {
+    notFound()
+  }
 
   return (
-    <main>
-      <h1>{site.name}</h1>
-      <p>Site ID: {site.id}</p>
-    </main>
+    <SiteShell site={site}>
+      <ContentPage page={page} />
+    </SiteShell>
   )
 }

@@ -1,0 +1,232 @@
+import {renderToStaticMarkup} from 'react-dom/server'
+import {http, HttpResponse} from 'msw'
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
+
+import {
+  GraphQLResponseError,
+} from '@/lib/wordpress/client'
+import {
+  CrossSiteContentError,
+  InvalidContentPathError,
+} from '@/lib/wordpress/types'
+import {
+  graphqlEndpoint,
+  makeContentPageNode,
+} from '@/tests/mocks/handlers'
+import {server} from '@/tests/mocks/server'
+
+interface GraphQLRequestBody {
+  readonly variables?: {readonly uri?: string}
+}
+
+function contentNode(siteId: 'tio2-a' | 'tio2-b', path: string, title: string) {
+  return makeContentPageNode({
+    title,
+    content: `<p><strong>${title}</strong> body.</p>`,
+    publishingFields: {
+      __typename: 'PublishingFields',
+      publicPath: path,
+      seoTitle: `${title} SEO`,
+      seoDescription: `${title} description.`,
+    },
+    siteScopes: {
+      __typename: 'PageToSiteScopeConnection',
+      nodes: [
+        {
+          __typename: 'SiteScope',
+          id: siteId === 'tio2-a' ? 'dGVybTox' : 'dGVybToy',
+          slug: siteId,
+        },
+      ],
+    },
+  })
+}
+
+function servePage(expectedUri: string, node: ReturnType<typeof contentNode> | null) {
+  server.use(
+    http.post(graphqlEndpoint, async ({request}) => {
+      const body = (await request.json()) as GraphQLRequestBody
+
+      if (body.variables?.uri !== expectedUri) {
+        return HttpResponse.json({
+          data: {page: null},
+          errors: [{message: `Unexpected URI: ${String(body.variables?.uri)}`}],
+        })
+      }
+
+      return HttpResponse.json({data: {page: node}, extensions: {debug: []}})
+    }),
+  )
+}
+
+async function render(element: React.ReactNode) {
+  return renderToStaticMarkup(element)
+}
+
+beforeEach(() => {
+  vi.stubEnv('WORDPRESS_GRAPHQL_URL', graphqlEndpoint)
+})
+
+afterEach(() => {
+  vi.unstubAllEnvs()
+})
+
+describe('site-local route normalization and generation', () => {
+  it('normalizes absent and empty App Router parts to the root path', async () => {
+    const {normalizeRoutePath} = await import('@/app/[...path]/page')
+
+    expect(normalizeRoutePath(undefined)).toBe('/')
+    expect(normalizeRoutePath([])).toBe('/')
+  })
+
+  it('normalizes nested App Router parts to one leading-slash public path', async () => {
+    const {normalizeRoutePath} = await import('@/app/[...path]/page')
+
+    expect(normalizeRoutePath(['applications', 'coatings'])).toBe(
+      '/applications/coatings',
+    )
+  })
+
+  it('pre-generates only the four fixed core catch-all paths and keeps long-tail ISR on demand', async () => {
+    const route = await import('@/app/[...path]/page')
+
+    expect(await route.generateStaticParams()).toEqual([
+      {path: ['products']},
+      {path: ['applications']},
+      {path: ['about']},
+      {path: ['contact']},
+    ])
+    expect(route.dynamicParams).toBe(true)
+    expect(route.revalidate).toBe(3600)
+  })
+})
+
+describe('site-scoped content routes', () => {
+  it('renders the Site A root from the environment-selected site and root query', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    servePage('/tio2-a--home/', contentNode('tio2-a', '/', 'Site A Home'))
+    const {default: HomePage} = await import('@/app/page')
+
+    const markup = await render(await HomePage())
+
+    expect(markup).toContain('<main data-site-id="tio2-a"')
+    expect(markup).toContain('TiO2 A')
+    expect(markup).toContain('<h1>Site A Home</h1>')
+  })
+
+  it.each([
+    ['tio2-a', 'TiO2 A', 'Site A Products'],
+    ['tio2-b', 'TiO2 B', 'Site B Products'],
+  ] as const)(
+    'renders isolated %s branding and content for the same public path',
+    async (siteId, siteName, title) => {
+      vi.stubEnv('SITE_ID', siteId)
+      servePage(
+        `/${siteId}--products/`,
+        contentNode(siteId, '/products', title),
+      )
+      const {default: ContentRoute} = await import('@/app/[...path]/page')
+
+      const markup = await render(
+        await ContentRoute({params: Promise.resolve({path: ['products']})}),
+      )
+
+      expect(markup).toContain(`data-site-id="${siteId}"`)
+      expect(markup).toContain(siteName)
+      expect(markup).toContain(`<h1>${title}</h1>`)
+      expect(markup).not.toContain(siteId === 'tio2-a' ? 'Site B' : 'Site A')
+    },
+  )
+
+  it('renders trusted content HTML inside an article', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-b')
+    servePage(
+      '/tio2-b--applications--coatings/',
+      contentNode('tio2-b', '/applications/coatings', 'B Coatings'),
+    )
+    const {default: ContentRoute} = await import('@/app/[...path]/page')
+
+    const markup = await render(
+      await ContentRoute({
+        params: Promise.resolve({path: ['applications', 'coatings']}),
+      }),
+    )
+
+    expect(markup).toContain(
+      '<article><h1>B Coatings</h1><div><p><strong>B Coatings</strong> body.</p></div></article>',
+    )
+  })
+
+  it('uses route parts only as a path and ignores route/header site IDs', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    servePage(
+      '/tio2-a--tio2-b--about/',
+      contentNode('tio2-a', '/tio2-b/about', 'Site A Namespaced Path'),
+    )
+    const {default: ContentRoute} = await import('@/app/[...path]/page')
+
+    const markup = await render(
+      await ContentRoute({
+        params: Promise.resolve({path: ['tio2-b', 'about']}),
+        headers: new Headers({'x-site-id': 'tio2-b'}),
+        siteId: 'tio2-b',
+      } as never),
+    )
+
+    expect(markup).toContain('data-site-id="tio2-a"')
+    expect(markup).toContain('Site A Namespaced Path')
+  })
+
+  it('turns only a null content result into the Next.js not-found outcome', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    servePage('/tio2-a--missing/', null)
+    const {default: ContentRoute} = await import('@/app/[...path]/page')
+
+    await expect(
+      ContentRoute({params: Promise.resolve({path: ['missing']})}),
+    ).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
+  })
+
+  it('propagates cross-site content rejection instead of converting it to 404', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    servePage(
+      '/tio2-a--products/',
+      contentNode('tio2-b', '/products', 'Leaked Site B Products'),
+    )
+    const {default: ContentRoute} = await import('@/app/[...path]/page')
+
+    await expect(
+      ContentRoute({params: Promise.resolve({path: ['products']})}),
+    ).rejects.toBeInstanceOf(CrossSiteContentError)
+  })
+
+  it('propagates returned-path rejection instead of converting it to 404', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    servePage(
+      '/tio2-a--products/',
+      contentNode('tio2-a', '/about', 'Wrong Path'),
+    )
+    const {default: ContentRoute} = await import('@/app/[...path]/page')
+
+    await expect(
+      ContentRoute({params: Promise.resolve({path: ['products']})}),
+    ).rejects.toBeInstanceOf(InvalidContentPathError)
+  })
+
+  it('propagates GraphQL errors instead of converting them to 404', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    server.use(
+      http.post(graphqlEndpoint, () =>
+        HttpResponse.json({
+          data: {page: null},
+          errors: [{message: 'WordPress query failed'}],
+        }),
+      ),
+    )
+    const {default: ContentRoute} = await import('@/app/[...path]/page')
+
+    await expect(
+      ContentRoute({params: Promise.resolve({path: ['products']})}),
+    ).rejects.toBeInstanceOf(GraphQLResponseError)
+  })
+})
