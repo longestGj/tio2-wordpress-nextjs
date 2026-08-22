@@ -1,0 +1,141 @@
+{
+  "contentNotice": "SYNTHETIC TEST CONTENT — local integration fixture only; not verified technical or commercial TiO2 information.",
+  "sharedEntities": [
+    {
+      "id": "test-product-reference",
+      "postType": "tio2_product",
+      "title": "Synthetic Test Product Reference",
+      "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Placeholder product entity for local integration behavior only. It is not a commercial offer or specification.</p>",
+      "technicalSummary": "SYNTHETIC TEST CONTENT — intentionally contains no performance values or verified product claims.",
+      "evidenceSourceUrl": "https://example.test/synthetic-only"
+    },
+    {
+      "id": "test-grade-reference",
+      "postType": "tio2_grade",
+      "title": "Synthetic Test Grade Reference",
+      "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Placeholder grade entity for exercising shared-content queries. It is not a real grade.</p>",
+      "technicalSummary": "SYNTHETIC TEST CONTENT — no commercial grade properties are asserted.",
+      "evidenceSourceUrl": "https://example.test/synthetic-only"
+    },
+    {
+      "id": "test-application-reference",
+      "postType": "tio2_application",
+      "title": "Synthetic Test Application Reference",
+      "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Placeholder application entity for local integration testing, not application guidance.</p>",
+      "technicalSummary": "SYNTHETIC TEST CONTENT — no suitability, safety, or performance claim is made.",
+      "evidenceSourceUrl": "https://example.test/synthetic-only"
+    },
+    {
+      "id": "test-document-reference",
+      "postType": "tio2_document",
+      "title": "Synthetic Test Document Reference",
+      "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Placeholder document record. It is not a TDS, SDS, certificate, or other controlled document.</p>",
+      "technicalSummary": "SYNTHETIC TEST CONTENT — no document-backed facts are represented.",
+      "evidenceSourceUrl": "https://example.test/synthetic-only"
+    },
+    {
+      "id": "test-faq-reference",
+      "postType": "tio2_faq",
+      "title": "Synthetic Test FAQ Reference",
+      "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> What is this record? A local fixture used only to verify the shared FAQ content type.</p>",
+      "technicalSummary": "SYNTHETIC TEST CONTENT — the answer is fixture metadata, not TiO2 advice.",
+      "evidenceSourceUrl": "https://example.test/synthetic-only"
+    }
+  ],
+  "sites": [
+    {
+      "siteId": "tio2-a",
+      "sharedEntityIds": [
+        "test-product-reference",
+        "test-grade-reference",
+        "test-application-reference",
+        "test-document-reference",
+        "test-faq-reference"
+      ],
+      "pages": [
+        {
+          "publicPath": "/",
+          "title": "Site A Synthetic Test Home",
+          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Local Site A home fixture referencing the shared test entities.</p>",
+          "seoTitle": "Site A Synthetic Test Home",
+          "seoDescription": "SYNTHETIC TEST CONTENT for local Site A integration checks only."
+        },
+        {
+          "publicPath": "/products",
+          "title": "Site A Synthetic Test Products",
+          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Local products-page fixture; no products are offered.</p>",
+          "seoTitle": "Site A Synthetic Test Products",
+          "seoDescription": "SYNTHETIC TEST CONTENT for the Site A products path."
+        },
+        {
+          "publicPath": "/applications",
+          "title": "Site A Synthetic Test Applications",
+          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Local applications-page fixture; no application recommendation is made.</p>",
+          "seoTitle": "Site A Synthetic Test Applications",
+          "seoDescription": "SYNTHETIC TEST CONTENT for the Site A applications path."
+        },
+        {
+          "publicPath": "/about",
+          "title": "About Site A Synthetic Test Fixture",
+          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Local about-page fixture; it does not describe a real organization.</p>",
+          "seoTitle": "About the Site A Synthetic Test Fixture",
+          "seoDescription": "SYNTHETIC TEST CONTENT for the Site A about path."
+        },
+        {
+          "publicPath": "/contact",
+          "title": "Contact Site A Synthetic Test Fixture",
+          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Local contact-page fixture; it contains no real contact channel.</p>",
+          "seoTitle": "Contact the Site A Synthetic Test Fixture",
+          "seoDescription": "SYNTHETIC TEST CONTENT for the Site A contact path."
+        }
+      ]
+    },
+    {
+      "siteId": "tio2-b",
+      "sharedEntityIds": [
+        "test-product-reference",
+        "test-grade-reference",
+        "test-application-reference",
+        "test-document-reference",
+        "test-faq-reference"
+      ],
+      "pages": [
+        {
+          "publicPath": "/",
+          "title": "Site B Synthetic Test Home",
+          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Local Site B home fixture referencing the shared test entities.</p>",
+          "seoTitle": "Site B Synthetic Test Home",
+          "seoDescription": "SYNTHETIC TEST CONTENT for local Site B integration checks only."
+        },
+        {
+          "publicPath": "/products",
+          "title": "Site B Synthetic Test Products",
+          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Local products-page fixture; no products are offered.</p>",
+          "seoTitle": "Site B Synthetic Test Products",
+          "seoDescription": "SYNTHETIC TEST CONTENT for the Site B products path."
+        },
+        {
+          "publicPath": "/applications",
+          "title": "Site B Synthetic Test Applications",
+          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Local applications-page fixture; no application recommendation is made.</p>",
+          "seoTitle": "Site B Synthetic Test Applications",
+          "seoDescription": "SYNTHETIC TEST CONTENT for the Site B applications path."
+        },
+        {
+          "publicPath": "/about",
+          "title": "About Site B Synthetic Test Fixture",
+          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Local about-page fixture; it does not describe a real organization.</p>",
+          "seoTitle": "About the Site B Synthetic Test Fixture",
+          "seoDescription": "SYNTHETIC TEST CONTENT for the Site B about path."
+        },
+        {
+          "publicPath": "/contact",
+          "title": "Contact Site B Synthetic Test Fixture",
+          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Local contact-page fixture; it contains no real contact channel.</p>",
+          "seoTitle": "Contact the Site B Synthetic Test Fixture",
+          "seoDescription": "SYNTHETIC TEST CONTENT for the Site B contact path."
+        }
+      ]
+    }
+  ]
+}

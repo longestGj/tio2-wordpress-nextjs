@@ -115,3 +115,14 @@ function tio2_validate_public_path($valid, $value, $field, $input_name)
 
     return true;
 }
+
+function tio2_preserve_internal_slug(string $sanitized, string $raw_title, string $context): string
+{
+    $internal_slug_pattern = '~^tio2-(?:a|b)--(?:home|[a-z0-9]+(?:-[a-z0-9]+)*(?:--[a-z0-9]+(?:-[a-z0-9]+)*)*)$~';
+
+    if (strlen($raw_title) <= 180 && 1 === preg_match($internal_slug_pattern, $raw_title)) {
+        return $raw_title;
+    }
+
+    return $sanitized;
+}

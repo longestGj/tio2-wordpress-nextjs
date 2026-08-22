@@ -217,4 +217,11 @@ foreach (['products', '//example.test/path', 'https://example.test/path', '/prod
     }
 }
 
+foreach (['tio2-a--home', 'tio2-b--applications--coatings'] as $internal_slug) {
+    if ($internal_slug !== sanitize_title($internal_slug, '', 'query')) {
+        fwrite(STDERR, "Internal slug was normalized during query lookup: {$internal_slug}\n");
+        exit(1);
+    }
+}
+
 fwrite(STDOUT, "TiO2 site model smoke test passed\n");
