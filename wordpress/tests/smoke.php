@@ -32,6 +32,17 @@ function tio2_smoke_assert_acf_group($group_key, $graphql_field_name, $expected_
         }
     }
 
+    $actual_field_names = array_keys($actual_fields);
+    $expected_field_names = array_keys($expected_fields);
+    sort($actual_field_names);
+    sort($expected_field_names);
+    if ($actual_field_names !== $expected_field_names) {
+        tio2_smoke_fail(
+            "ACF field group {$group_key} contains [" . implode(', ', $actual_field_names) .
+            '], expected exactly [' . implode(', ', $expected_field_names) . ']'
+        );
+    }
+
     $actual_post_types = [];
     foreach ($group['location'] ?? [] as $rule_group) {
         if (1 !== count($rule_group)) {
