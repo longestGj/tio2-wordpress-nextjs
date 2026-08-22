@@ -154,7 +154,7 @@ WordPress 内部 slug 使用站点前缀保证唯一；Next.js 对外只暴露�
 
 ### 6.4 查询契约
 
-- 详情查询必须同时限定 `site_scope` 与公开路径；
+- 详情查询根据 `site_scope + 公开路径` 计算确定性的 WordPress 内部 slug，以 `SLUG` 查询后再次校验返回节点的 `site_scope` 与公开路径；禁止用昂贵的 ACF meta query 查找路由；
 - 列表查询必须使用 WPGraphQL cursor pagination，每批不超过 100 个节点；
 - 禁止页面查询无界深层关系；
 - GraphQL 响应转换为项目内部 DTO，React 组件不直接依赖完整 WordPress Schema；
@@ -172,7 +172,7 @@ WordPress 内部 slug 使用站点前缀保证唯一；Next.js 对外只暴露�
 - 普通文章和长尾页面使用按需静态生成与 ISR；
 - 首次生成后由 Vercel 缓存；
 - WordPress 更新通过签名 Webhook 精准触发 `revalidatePath`/`revalidateTag`；
-- 全站部署不以 WordPress 当前可用作为唯一前提，已生成类型和测试模拟数据必须支持稳定构建。
+- GraphQL Schema 生成不在普通构建中在线执行；生产构建预生成核心内容时仍要求 WordPress 内容 endpoint 可用。若该构建失败，Vercel 不提升失败部署并继续提供上一生产版本；测试环境使用固定 GraphQL fixtures 验证不依赖实时 Schema 的代码构建。
 
 ### 7.3 缓存标签
 
