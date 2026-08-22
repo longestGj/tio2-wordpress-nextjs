@@ -120,7 +120,11 @@ function tio2_preserve_internal_slug(string $sanitized, string $raw_title, strin
 {
     $internal_slug_pattern = '~^tio2-(?:a|b)--(?:home|[a-z0-9]+(?:-[a-z0-9]+)*(?:--[a-z0-9]+(?:-[a-z0-9]+)*)*)$~';
 
-    if (strlen($raw_title) <= 180 && 1 === preg_match($internal_slug_pattern, $raw_title)) {
+    if (
+        'query' === $context &&
+        strlen($raw_title) <= 180 &&
+        1 === preg_match($internal_slug_pattern, $raw_title)
+    ) {
         return $raw_title;
     }
 

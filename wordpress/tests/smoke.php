@@ -222,6 +222,12 @@ foreach (['tio2-a--home', 'tio2-b--applications--coatings'] as $internal_slug) {
         fwrite(STDERR, "Internal slug was normalized during query lookup: {$internal_slug}\n");
         exit(1);
     }
+
+    $normal_save_slug = preg_replace('~-+~', '-', $internal_slug);
+    if ($normal_save_slug !== sanitize_title($internal_slug, '', 'save')) {
+        fwrite(STDERR, "Internal-looking slug bypassed normal save sanitization: {$internal_slug}\n");
+        exit(1);
+    }
 }
 
 fwrite(STDOUT, "TiO2 site model smoke test passed\n");

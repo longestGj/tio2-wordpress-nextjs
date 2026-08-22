@@ -149,7 +149,12 @@ describe('seed execution plan', () => {
 
     expect(result.status, result.stderr).toBe(0)
     const plan = JSON.parse(result.stdout) as {
-      entities: Array<{id: string; postType: string; slug: string}>
+      entities: Array<{
+        id: string
+        postType: string
+        slug: string
+        meta: Record<string, string>
+      }>
       pages: Array<{
         siteId: string
         publicPath: string
@@ -162,6 +167,9 @@ describe('seed execution plan', () => {
 
     expect(plan.entities).toHaveLength(5)
     expect(new Set(plan.entities.map(({slug}) => slug)).size).toBe(5)
+    for (const entity of plan.entities) {
+      expect(entity.meta._tio2_seed_fixture_id).toBe(entity.id)
+    }
     expect(plan.pages).toHaveLength(16)
 
     for (const siteId of ['tio2-a', 'tio2-b']) {
@@ -177,6 +185,7 @@ describe('seed execution plan', () => {
           public_path: '/',
           seo_title: expect.any(String),
           seo_description: expect.stringContaining('SYNTHETIC TEST CONTENT'),
+          _tio2_seed_internal_slug: `${siteId}--home`,
         },
       })
       expect(
@@ -195,63 +204,69 @@ interface AuditPage {
   status: string
   publicPath: string
   siteScopes: string[]
-  uriResolvable: boolean
+  uriResolvable: boolean | null
+  uriResolutionSource: 'wpgraphql' | null
+}
+
+interface AuditSharedFixture {
+  id: number
+  fixtureId: string
+  slug: string
+  status: string
+  postType: string
+  siteScopes: string[]
 }
 
 interface AuditSnapshot {
   pages: AuditPage[]
-  sharedEntityCounts: Record<string, number>
+  sharedFixtures: AuditSharedFixture[]
 }
 
-const completeEntityCounts = {
-  tio2_product: 1,
-  tio2_grade: 1,
-  tio2_application: 1,
-  tio2_document: 1,
-  tio2_faq: 1,
-}
+const sharedFixtureTypes = {
+  'test-product-reference': 'tio2_product',
+  'test-grade-reference': 'tio2_grade',
+  'test-application-reference': 'tio2_application',
+  'test-document-reference': 'tio2_document',
+  'test-faq-reference': 'tio2_faq',
+} as const
 
-function validAuditSnapshot(): AuditSnapshot {
+const corePaths = ['/', '/products', '/applications', '/about', '/contact']
+
+function validAuditSnapshot(scalePages = 0): AuditSnapshot {
+  let pageId = 1
+  const pages = ['tio2-a', 'tio2-b'].flatMap((siteId) => {
+    const scalePaths = Array.from(
+      {length: scalePages},
+      (_, index) => `/test-content/long-tail-${String(index + 1).padStart(3, '0')}`,
+    )
+
+    return [...corePaths, ...scalePaths].map((publicPath) => ({
+      id: pageId++,
+      slug: buildInternalSlug(siteId, publicPath),
+      status: 'publish',
+      publicPath,
+      siteScopes: [siteId],
+      uriResolvable: true,
+      uriResolutionSource: 'wpgraphql' as const,
+    }))
+  })
+
   return {
-    pages: [
-      {
-        id: 1,
-        slug: 'tio2-a--home',
+    pages,
+    sharedFixtures: Object.entries(sharedFixtureTypes).map(
+      ([fixtureId, postType], index) => ({
+        id: 100 + index,
+        fixtureId,
+        slug: fixtureId,
         status: 'publish',
-        publicPath: '/',
-        siteScopes: ['tio2-a'],
-        uriResolvable: true,
-      },
-      {
-        id: 2,
-        slug: 'tio2-a--products',
-        status: 'publish',
-        publicPath: '/products',
-        siteScopes: ['tio2-a'],
-        uriResolvable: true,
-      },
-      {
-        id: 3,
-        slug: 'tio2-b--home',
-        status: 'publish',
-        publicPath: '/',
-        siteScopes: ['tio2-b'],
-        uriResolvable: true,
-      },
-      {
-        id: 4,
-        slug: 'tio2-b--products',
-        status: 'publish',
-        publicPath: '/products',
-        siteScopes: ['tio2-b'],
-        uriResolvable: true,
-      },
-    ],
-    sharedEntityCounts: {...completeEntityCounts},
+        postType,
+        siteScopes: [],
+      }),
+    ),
   }
 }
 
-function runSnapshotAudit(snapshot: AuditSnapshot) {
+function runSnapshotAudit(snapshot: AuditSnapshot, expectedPerSite = 5) {
   const temporaryDirectory = mkdtempSync(join(tmpdir(), 'tio2-seed-audit-'))
   const snapshotPath = join(temporaryDirectory, 'snapshot.json')
   writeFileSync(snapshotPath, JSON.stringify(snapshot))
@@ -259,7 +274,7 @@ function runSnapshotAudit(snapshot: AuditSnapshot) {
   try {
     return runPowerShell(auditScriptPath, [
       '-ExpectedPerSite',
-      '2',
+      String(expectedPerSite),
       '-SnapshotPath',
       snapshotPath,
     ])
@@ -269,13 +284,21 @@ function runSnapshotAudit(snapshot: AuditSnapshot) {
 }
 
 describe('seed audit validation', () => {
-  it('accepts exact counts, unique paths, exact scopes, and every shared CPT', () => {
+  it('accepts the exact five core paths and intended shared fixtures', () => {
     const result = runSnapshotAudit(validAuditSnapshot())
 
     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
-    expect(result.stdout).toContain('tio2-a: 2 published pages')
-    expect(result.stdout).toContain('tio2-b: 2 published pages')
+    expect(result.stdout).toContain('tio2-a: 5 published pages')
+    expect(result.stdout).toContain('tio2-b: 5 published pages')
     expect(result.stdout).toContain('Seed audit passed.')
+  })
+
+  it('accepts only the exact generalized deterministic scale path set', () => {
+    const result = runSnapshotAudit(validAuditSnapshot(2), 7)
+
+    expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+    expect(result.stdout).toContain('tio2-a: 7 published pages')
+    expect(result.stdout).toContain('tio2-b: 7 published pages')
   })
 
   it.each([
@@ -283,8 +306,7 @@ describe('seed audit validation', () => {
       name: 'a duplicate site path',
       expectedMessage: 'Duplicate public path',
       mutate(snapshot: AuditSnapshot) {
-        snapshot.pages[1].publicPath = '/'
-        snapshot.pages[1].slug = 'tio2-a--home-copy'
+        snapshot.pages.push({...snapshot.pages[0], id: 999})
       },
     },
     {
@@ -296,23 +318,64 @@ describe('seed audit validation', () => {
     },
     {
       name: 'an incorrect page count',
-      expectedMessage: 'Expected 2 published pages for tio2-a, found 1',
+      expectedMessage: 'Expected 5 published pages for tio2-a, found 4',
       mutate(snapshot: AuditSnapshot) {
         snapshot.pages = snapshot.pages.filter(({id}) => id !== 2)
       },
     },
     {
-      name: 'a missing shared CPT record',
-      expectedMessage: 'Missing shared entity records for tio2_faq',
+      name: 'a missing intended shared fixture',
+      expectedMessage: 'Expected exactly one shared fixture test-faq-reference, found 0',
       mutate(snapshot: AuditSnapshot) {
-        snapshot.sharedEntityCounts.tio2_faq = 0
+        snapshot.sharedFixtures = snapshot.sharedFixtures.filter(
+          ({fixtureId}) => fixtureId !== 'test-faq-reference',
+        )
+        snapshot.sharedFixtures.push({
+          id: 999,
+          fixtureId: 'unrelated-faq',
+          slug: 'unrelated-faq',
+          status: 'publish',
+          postType: 'tio2_faq',
+          siteScopes: [],
+        })
       },
     },
     {
-      name: 'an internal slug WordPress cannot resolve',
-      expectedMessage: 'is not resolvable by its internal URI',
+      name: 'a shared fixture assigned to a site',
+      expectedMessage: 'Shared fixture test-product-reference must have no site_scope',
+      mutate(snapshot: AuditSnapshot) {
+        snapshot.sharedFixtures[0].siteScopes = ['tio2-a']
+      },
+    },
+    {
+      name: 'a shared fixture with the wrong CPT',
+      expectedMessage: 'Shared fixture test-product-reference has post type tio2_faq',
+      mutate(snapshot: AuditSnapshot) {
+        snapshot.sharedFixtures[0].postType = 'tio2_faq'
+      },
+    },
+    {
+      name: 'an internal slug WPGraphQL cannot resolve',
+      expectedMessage: 'is not resolvable through WPGraphQL URI',
       mutate(snapshot: AuditSnapshot) {
         snapshot.pages[0].uriResolvable = false
+      },
+    },
+    {
+      name: 'a trashed managed fixture',
+      expectedMessage: 'Managed fixture page 1 must be published; found trash',
+      mutate(snapshot: AuditSnapshot) {
+        snapshot.pages[0].status = 'trash'
+        snapshot.pages[0].uriResolvable = null
+        snapshot.pages[0].uriResolutionSource = null
+      },
+    },
+    {
+      name: 'an arbitrary substitute for a core path',
+      expectedMessage: 'Unexpected published path for tio2-a: /arbitrary',
+      mutate(snapshot: AuditSnapshot) {
+        snapshot.pages[4].publicPath = '/arbitrary'
+        snapshot.pages[4].slug = 'tio2-a--arbitrary'
       },
     },
   ])('rejects $name', ({mutate, expectedMessage}) => {
@@ -323,5 +386,25 @@ describe('seed audit validation', () => {
 
     expect(result.status).not.toBe(0)
     expect(`${result.stdout}\n${result.stderr}`).toContain(expectedMessage)
+  })
+
+  it('rejects an arbitrary substitute for a deterministic scale path', () => {
+    const snapshot = validAuditSnapshot(2)
+    const scalePage = snapshot.pages.find(
+      ({publicPath, siteScopes}) =>
+        publicPath === '/test-content/long-tail-002' && siteScopes[0] === 'tio2-a',
+    )!
+    scalePage.publicPath = '/test-content/arbitrary'
+    scalePage.slug = 'tio2-a--test-content--arbitrary'
+
+    const result = runSnapshotAudit(snapshot, 7)
+
+    expect(result.status).not.toBe(0)
+    expect(`${result.stdout}\n${result.stderr}`).toContain(
+      'Missing expected published path for tio2-a: /test-content/long-tail-002',
+    )
+    expect(`${result.stdout}\n${result.stderr}`).toContain(
+      'Unexpected published path for tio2-a: /test-content/arbitrary',
+    )
   })
 })

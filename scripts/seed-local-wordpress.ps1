@@ -59,10 +59,12 @@ function New-PageOperation {
         [string] $SeoDescription
     )
 
+    $InternalSlug = Build-InternalSlug -SiteId $SiteId -PublicPath $PublicPath
+
     return [PSCustomObject]@{
         siteId = $SiteId
         publicPath = $PublicPath
-        internalSlug = Build-InternalSlug -SiteId $SiteId -PublicPath $PublicPath
+        internalSlug = $InternalSlug
         postStatus = 'publish'
         title = $Title
         content = $Content
@@ -71,6 +73,7 @@ function New-PageOperation {
             public_path = $PublicPath
             seo_title = $SeoTitle
             seo_description = $SeoDescription
+            _tio2_seed_internal_slug = $InternalSlug
         }
     }
 }
@@ -97,6 +100,7 @@ $Entities = @(
             meta = [PSCustomObject]@{
                 technical_summary = $Entity.technicalSummary
                 evidence_source_url = $Entity.evidenceSourceUrl
+                _tio2_seed_fixture_id = $Entity.id
             }
             referencedBySites = @($SiteIds)
         }

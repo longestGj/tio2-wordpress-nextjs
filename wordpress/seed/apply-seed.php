@@ -33,6 +33,7 @@ $summary = [
     'pages_created' => 0,
     'pages_updated' => 0,
     'pages_trashed' => 0,
+    'pages_revived' => 0,
 ];
 
 /**
@@ -59,13 +60,27 @@ function tio2_seed_upsert(
         'post_parent' => 0,
     ];
 
-    if ($existing instanceof WP_Post) {
-        $post_data['ID'] = $existing->ID;
-        $post_id = wp_update_post(wp_slash($post_data), true);
-        $summary[$summary_prefix . '_updated']++;
-    } else {
-        $post_id = wp_insert_post(wp_slash($post_data), true);
-        $summary[$summary_prefix . '_created']++;
+    $was_trashed = $existing instanceof WP_Post && 'trash' === $existing->post_status;
+    $preserve_exact_seed_slug = static function ($sanitized, $raw_title, $context) use ($required_slug) {
+        if ('save' === $context && $raw_title === $required_slug) {
+            return $required_slug;
+        }
+
+        return $sanitized;
+    };
+
+    add_filter('sanitize_title', $preserve_exact_seed_slug, 10, 3);
+    try {
+        if ($existing instanceof WP_Post) {
+            $post_data['ID'] = $existing->ID;
+            $post_id = wp_update_post(wp_slash($post_data), true);
+            $summary[$summary_prefix . '_updated']++;
+        } else {
+            $post_id = wp_insert_post(wp_slash($post_data), true);
+            $summary[$summary_prefix . '_created']++;
+        }
+    } finally {
+        remove_filter('sanitize_title', $preserve_exact_seed_slug, 10);
     }
 
     if (is_wp_error($post_id)) {
@@ -76,6 +91,15 @@ function tio2_seed_upsert(
         update_post_meta((int) $post_id, $meta_key, $meta_value);
     }
 
+    if ($was_trashed) {
+        delete_post_meta((int) $post_id, '_wp_trash_meta_status');
+        delete_post_meta((int) $post_id, '_wp_trash_meta_time');
+        delete_post_meta((int) $post_id, '_wp_desired_post_slug');
+        if ('pages' === $summary_prefix) {
+            $summary['pages_revived']++;
+        }
+    }
+
     return (int) $post_id;
 }
 
@@ -84,8 +108,42 @@ wp_defer_term_counting(true);
 wp_defer_comment_counting(true);
 
 try {
+    $planned_fixture_ids = array_column($plan['entities'], 'id');
+    $existing_entities_by_fixture = [];
+    $existing_entity_ids = get_posts([
+        'post_type' => $required_post_types,
+        'post_status' => ['publish', 'draft', 'pending', 'private', 'future', 'trash'],
+        'posts_per_page' => -1,
+        'fields' => 'ids',
+        'no_found_rows' => true,
+    ]);
+    foreach ($existing_entity_ids as $existing_entity_id) {
+        $fixture_id = (string) get_post_meta((int) $existing_entity_id, '_tio2_seed_fixture_id', true);
+        if ('' === $fixture_id) {
+            $candidate_slugs = [
+                (string) get_post_field('post_name', $existing_entity_id),
+                (string) get_post_meta((int) $existing_entity_id, '_wp_desired_post_slug', true),
+            ];
+            foreach ($candidate_slugs as $candidate_slug) {
+                if (in_array($candidate_slug, $planned_fixture_ids, true)) {
+                    $fixture_id = $candidate_slug;
+                    break;
+                }
+            }
+        }
+        if (in_array($fixture_id, $planned_fixture_ids, true)) {
+            $existing_entities_by_fixture[$fixture_id] = (int) $existing_entity_id;
+        }
+    }
+
     foreach ($plan['entities'] as $entity) {
-        $entity_id = tio2_seed_upsert($entity, $entity['postType'], $summary, 'entities');
+        $entity_id = tio2_seed_upsert(
+            $entity,
+            $entity['postType'],
+            $summary,
+            'entities',
+            $existing_entities_by_fixture[$entity['id']] ?? null
+        );
 
         // Shared facts are one global record referenced by both site manifests.
         // They deliberately have no site_scope term rather than being duplicated.
@@ -100,7 +158,7 @@ try {
     $existing_pages_by_site_path = [];
     $existing_page_ids = get_posts([
         'post_type' => 'page',
-        'post_status' => ['publish', 'draft', 'pending', 'private', 'future'],
+        'post_status' => ['publish', 'draft', 'pending', 'private', 'future', 'trash'],
         'posts_per_page' => -1,
         'fields' => 'ids',
         'no_found_rows' => true,
@@ -108,6 +166,14 @@ try {
     foreach ($existing_page_ids as $existing_page_id) {
         $existing_slug = (string) get_post_field('post_name', $existing_page_id);
         $existing_pages_by_slug[$existing_slug] = (int) $existing_page_id;
+        $managed_internal_slug = (string) get_post_meta(
+            (int) $existing_page_id,
+            '_tio2_seed_internal_slug',
+            true
+        );
+        if ('' !== $managed_internal_slug) {
+            $existing_pages_by_slug[$managed_internal_slug] = (int) $existing_page_id;
+        }
         $existing_scopes = wp_get_object_terms((int) $existing_page_id, 'site_scope', ['fields' => 'slugs']);
         if (is_wp_error($existing_scopes)) {
             WP_CLI::error($existing_scopes->get_error_message());
@@ -134,7 +200,7 @@ try {
     $managed_prefixes = $plan['managedScaleSlugPrefixes'];
     $managed_page_ids = get_posts([
         'post_type' => 'page',
-        'post_status' => ['publish', 'draft', 'pending', 'private', 'future'],
+        'post_status' => ['publish', 'draft', 'pending', 'private', 'future', 'trash'],
         'posts_per_page' => -1,
         'fields' => 'ids',
         'no_found_rows' => true,
