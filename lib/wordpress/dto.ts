@@ -1,4 +1,4 @@
-import type {ContentPageNode} from './generated'
+import type {ContentPageFieldsFragment} from './generated'
 import {
   CrossSiteContentError,
   InvalidContentPathError,
@@ -8,7 +8,7 @@ import type {ContentPageDto} from './types'
 const MAX_INTERNAL_SLUG_LENGTH = 180
 const PUBLIC_PATH_PATTERN = /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*)?$/
 
-type ContentPageSource = ContentPageNode & {
+type ContentPageSource = ContentPageFieldsFragment & {
   readonly excerpt?: string | null
   readonly relatedEntityIds?: readonly string[] | null
 }

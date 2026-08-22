@@ -426,7 +426,7 @@ Expected: FAIL because the client and queries do not exist.
 
 - [ ] **Step 7: Configure offline-safe type generation**
 
-Add `npm run codegen` as an explicit command. Commit `lib/wordpress/generated.ts`. Do not call codegen from `npm run build`.
+Add `npm run schema:refresh` as the explicit local WP-CLI SDL refresh step and commit `wordpress/schema.graphql`. Add `npm run codegen` to generate `lib/wordpress/generated.ts` deterministically from that static Schema and the committed GraphQL operations. Do not call schema refresh or codegen from `npm run build`.
 
 - [ ] **Step 8: Verify and commit**
 

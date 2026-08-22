@@ -1,10 +1,10 @@
-import type {ContentPageNode} from '@/lib/wordpress/generated'
+import type {ContentPageFieldsFragment} from '@/lib/wordpress/generated'
 
 export const graphqlEndpoint = 'http://wordpress.test/graphql'
 
 export function makeContentPageNode(
-  overrides: Partial<ContentPageNode> = {},
-): ContentPageNode {
+  overrides: Partial<ContentPageFieldsFragment> = {},
+): ContentPageFieldsFragment {
   return {
     __typename: 'Page',
     id: 'cG9zdDoxMDE=',
@@ -12,7 +12,7 @@ export function makeContentPageNode(
     content: '<p>Coatings content.</p>',
     modified: '2026-08-23T08:30:00',
     publishingFields: {
-      __typename: 'Page_Publishingfields',
+      __typename: 'PublishingFields',
       publicPath: '/applications/coatings',
       seoTitle: 'Titanium Dioxide for Coatings',
       seoDescription: 'Choose titanium dioxide grades for coatings.',

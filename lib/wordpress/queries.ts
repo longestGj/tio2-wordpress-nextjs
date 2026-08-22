@@ -1,5 +1,9 @@
 import {fetchGraphQL} from './client'
 import {buildInternalSlug, toContentPageDto} from './dto'
+import {
+  GetContentByPathDocument,
+  GetContentPageDocument,
+} from './generated'
 import type {
   GetContentByPathQuery,
   GetContentByPathQueryVariables,
@@ -8,57 +12,8 @@ import type {
 } from './generated'
 import type {ContentPageDto} from './types'
 
-export const GET_CONTENT_BY_PATH = /* GraphQL */ `
-  query GetContentByPath($uri: ID!) {
-    page(id: $uri, idType: URI) {
-      id
-      title
-      content(format: RENDERED)
-      modified
-      publishingFields {
-        publicPath
-        seoTitle
-        seoDescription
-      }
-      siteScopes {
-        nodes {
-          id
-          slug
-        }
-      }
-    }
-  }
-`
-
-export const GET_CONTENT_PAGE = /* GraphQL */ `
-  query GetContentPage($siteId: ID!, $after: String) {
-    siteScope(id: $siteId, idType: SLUG) {
-      pages(first: 100, after: $after) {
-        nodes {
-          id
-          title
-          content(format: RENDERED)
-          modified
-          publishingFields {
-            publicPath
-            seoTitle
-            seoDescription
-          }
-          siteScopes {
-            nodes {
-              id
-              slug
-            }
-          }
-        }
-        pageInfo {
-          endCursor
-          hasNextPage
-        }
-      }
-    }
-  }
-`
+export const GET_CONTENT_BY_PATH = GetContentByPathDocument
+export const GET_CONTENT_PAGE = GetContentPageDocument
 
 export interface ContentPageConnectionDto {
   readonly nodes: readonly ContentPageDto[]

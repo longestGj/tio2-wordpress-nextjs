@@ -175,6 +175,7 @@ WordPress 内部 slug 使用站点前缀保证唯一；Next.js 对外只暴露�
 - 首次生成后由 Vercel 缓存；
 - WordPress 更新通过签名 Webhook 精准触发 `revalidatePath`/`revalidateTag`；
 - GraphQL Schema 生成不在普通构建中在线执行；生产构建预生成核心内容时仍要求 WordPress 内容 endpoint 可用。若该构建失败，Vercel 不提升失败部署并继续提供上一生产版本；测试环境使用固定 GraphQL fixtures 验证不依赖实时 Schema 的代码构建。
+- 开发者显式执行 `npm run schema:refresh`，通过本地 WP-CLI 将 SDL 刷新到已提交的 `wordpress/schema.graphql`，然后执行 `npm run codegen` 从该静态 Schema 和已提交 operations 生成类型与 typed documents；普通 `npm run build` 不执行其中任何一步。
 
 ### 7.3 缓存标签
 

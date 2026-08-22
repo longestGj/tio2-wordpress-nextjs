@@ -1,3 +1,6 @@
+import type {TypedDocumentNode} from '@graphql-typed-document-node/core'
+import {print} from 'graphql'
+
 const DEFAULT_TIMEOUT_MS = 8_000
 const DEFAULT_GRAPHQL_ENDPOINT = 'http://localhost:8080/graphql'
 
@@ -68,7 +71,7 @@ export class GraphQLNetworkError extends GraphQLTransportError {
 }
 
 export async function fetchGraphQL<TData, TVariables>(
-  document: string,
+  document: string | TypedDocumentNode<TData, TVariables>,
   variables: TVariables,
   options: FetchGraphQLOptions = {},
 ): Promise<TData> {
@@ -84,7 +87,10 @@ export async function fetchGraphQL<TData, TVariables>(
       accept: 'application/json',
       'content-type': 'application/json',
     },
-    body: JSON.stringify({query: document, variables}),
+    body: JSON.stringify({
+      query: typeof document === 'string' ? document : print(document),
+      variables,
+    }),
     cache: 'force-cache',
     signal,
   }
@@ -114,6 +120,10 @@ export async function fetchGraphQL<TData, TVariables>(
   try {
     payload = (await response.json()) as GraphQLResponse<TData>
   } catch (error) {
+    if (signal.aborted) {
+      throw new GraphQLTimeoutError(timeoutMs, {cause: error})
+    }
+
     throw new GraphQLNetworkError(error)
   }
 

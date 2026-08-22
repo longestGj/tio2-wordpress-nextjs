@@ -17,7 +17,7 @@ const completeNode = {
   content: '<p>Coatings content.</p>',
   modified: '2026-08-23T08:30:00',
   publishingFields: {
-    __typename: 'Page_Publishingfields' as const,
+    __typename: 'PublishingFields' as const,
     publicPath: '/applications/coatings',
     seoTitle: 'Titanium Dioxide for Coatings',
     seoDescription: 'Choose titanium dioxide grades for coatings.',

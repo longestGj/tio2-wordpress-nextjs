@@ -3,6 +3,7 @@ import {beforeEach, describe, expect, it} from 'vitest'
 
 import {
   GraphQLHttpError,
+  GraphQLNetworkError,
   GraphQLResponseError,
   GraphQLTimeoutError,
   fetchGraphQL,
@@ -129,7 +130,7 @@ describe('getContentByPath', () => {
           data: {
             page: makeContentPageNode({
               publishingFields: {
-                __typename: 'Page_Publishingfields',
+                __typename: 'PublishingFields',
                 publicPath: '/applications/plastics',
                 seoTitle: 'Plastics',
                 seoDescription: 'Plastics description.',
@@ -209,6 +210,117 @@ describe('fetchGraphQL timeout handling', () => {
       timeoutMs: 20,
     })
   })
+
+  it(
+    'uses the 8,000 ms default timeout signal',
+    async () => {
+      server.use(
+        http.post(graphqlEndpoint, async () => {
+          await delay('infinite')
+          return HttpResponse.json({data: {page: null}})
+        }),
+      )
+      const startedAt = performance.now()
+
+      await expect(
+        fetchGraphQL<{page: null}, Record<string, never>>(
+          'query DefaultTimeout { page(id: "/missing", idType: URI) { id } }',
+          {},
+        ),
+      ).rejects.toMatchObject({
+        name: GraphQLTimeoutError.name,
+        timeoutMs: 8_000,
+      })
+
+      const elapsedMs = performance.now() - startedAt
+      expect(elapsedMs).toBeGreaterThanOrEqual(7_800)
+      expect(elapsedMs).toBeLessThan(9_500)
+    },
+    10_000,
+  )
+
+  it('classifies a headers-first stalled response body as a timeout', async () => {
+    server.use(
+      http.post(graphqlEndpoint, ({request}) => {
+        const body = new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new TextEncoder().encode('{"data":'))
+            request.signal.addEventListener(
+              'abort',
+              () => controller.error(request.signal.reason),
+              {once: true},
+            )
+          },
+        })
+
+        return new HttpResponse(body, {
+          headers: {'content-type': 'application/json'},
+        })
+      }),
+    )
+
+    await expect(
+      fetchGraphQL<{page: null}, Record<string, never>>(
+        'query BodyTimeout { page(id: "/missing", idType: URI) { id } }',
+        {},
+        {timeoutMs: 20},
+      ),
+    ).rejects.toMatchObject({
+      name: GraphQLTimeoutError.name,
+      timeoutMs: 20,
+    })
+  })
+})
+
+describe('fetchGraphQL request contract', () => {
+  beforeEach(() => {
+    process.env.WORDPRESS_GRAPHQL_URL = graphqlEndpoint
+  })
+
+  it('uses force-cache and forwards caller-supplied Next.js tags', async () => {
+    server.use(
+      http.post(graphqlEndpoint, () =>
+        HttpResponse.json({data: {viewer: {name: 'Editor'}}}),
+      ),
+    )
+    const interceptedFetch = globalThis.fetch
+    let observedInit: RequestInit & {
+      next?: {readonly tags?: readonly string[]}
+    } = {}
+    globalThis.fetch = async (input, init) => {
+      observedInit = init ?? {}
+      return interceptedFetch(input, init)
+    }
+
+    try {
+      await expect(
+        fetchGraphQL<{viewer: {name: string}}, Record<string, never>>(
+          'query Viewer { viewer { name } }',
+          {},
+          {tags: ['wordpress:tio2-a', 'wordpress:tio2-a:pages']},
+        ),
+      ).resolves.toEqual({viewer: {name: 'Editor'}})
+    } finally {
+      globalThis.fetch = interceptedFetch
+    }
+
+    expect(observedInit.cache).toBe('force-cache')
+    expect(observedInit.next?.tags).toEqual([
+      'wordpress:tio2-a',
+      'wordpress:tio2-a:pages',
+    ])
+  })
+
+  it('classifies a genuine network failure separately', async () => {
+    server.use(http.post(graphqlEndpoint, () => HttpResponse.error()))
+
+    await expect(
+      fetchGraphQL<{page: null}, Record<string, never>>(
+        'query NetworkFailure { page(id: "/missing", idType: URI) { id } }',
+        {},
+      ),
+    ).rejects.toBeInstanceOf(GraphQLNetworkError)
+  })
 })
 
 describe('getContentPage', () => {
@@ -222,7 +334,7 @@ describe('getContentPage', () => {
         id: `page-${index + 1}`,
         title: `Page ${index + 1}`,
         publishingFields: {
-          __typename: 'Page_Publishingfields',
+          __typename: 'PublishingFields',
           publicPath: `/scale/page-${index + 1}`,
           seoTitle: `Page ${index + 1}`,
           seoDescription: `Description ${index + 1}`,
@@ -300,7 +412,7 @@ describe('getContentPage', () => {
                   makeContentPageNode({
                     id: 'page-101',
                     publishingFields: {
-                      __typename: 'Page_Publishingfields',
+                      __typename: 'PublishingFields',
                       publicPath: '/scale/page-101',
                       seoTitle: 'Page 101',
                       seoDescription: 'Description 101',

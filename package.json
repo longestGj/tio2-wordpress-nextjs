@@ -4,6 +4,7 @@
     "dev": "next dev",
     "build": "next build",
     "codegen": "graphql-codegen --config codegen.ts",
+    "schema:refresh": "docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml run --rm wpcli wp graphql generate-static-schema --output=/workspace/wordpress/schema.graphql",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -13,20 +14,22 @@
     "validate": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
+    "graphql": "^16.14.2",
     "next": "^16.2.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^7.3.0",
+    "@graphql-codegen/typed-document-node": "^7.1.0",
     "@graphql-codegen/typescript": "^6.1.0",
     "@graphql-codegen/typescript-operations": "^6.1.6",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.2.6",
-    "graphql": "^16.14.2",
     "msw": "^2.0.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.9.0",

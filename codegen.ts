@@ -1,14 +1,20 @@
 import type {CodegenConfig} from '@graphql-codegen/cli'
 
 const config: CodegenConfig = {
-  schema:
-    process.env.WORDPRESS_GRAPHQL_URL ?? 'http://localhost:8080/graphql',
-  documents: ['lib/wordpress/queries.ts'],
+  schema: 'wordpress/schema.graphql',
+  documents: ['lib/wordpress/queries.graphql'],
   generates: {
     'lib/wordpress/generated.ts': {
-      plugins: ['typescript', 'typescript-operations'],
+      plugins: [
+        'typescript',
+        'typescript-operations',
+        'typed-document-node',
+      ],
       config: {
+        enumsAsTypes: true,
         immutableTypes: true,
+        onlyOperationTypes: true,
+        preResolveTypes: true,
         useTypeImports: true,
       },
     },
