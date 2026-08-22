@@ -1,5 +1,84 @@
 <?php
 
+function tio2_smoke_fail($message)
+{
+    fwrite(STDERR, $message . "\n");
+    exit(1);
+}
+
+function tio2_smoke_assert_acf_group($group_key, $graphql_field_name, $expected_fields, $expected_post_types)
+{
+    $group = acf_get_field_group($group_key);
+    if (! $group) {
+        tio2_smoke_fail("Missing ACF field group: {$group_key}");
+    }
+
+    if (($group['graphql_field_name'] ?? null) !== $graphql_field_name || empty($group['show_in_graphql'])) {
+        tio2_smoke_fail("ACF field group is not exposed as {$graphql_field_name}: {$group_key}");
+    }
+
+    $actual_fields = [];
+    foreach (acf_get_fields($group) ?: [] as $field) {
+        $actual_fields[$field['name']] = $field['type'];
+    }
+
+    foreach ($expected_fields as $field_name => $field_type) {
+        if (! isset($actual_fields[$field_name])) {
+            tio2_smoke_fail("ACF field {$field_name} is not in group {$group_key}");
+        }
+
+        if ($actual_fields[$field_name] !== $field_type) {
+            tio2_smoke_fail("ACF field {$field_name} has type {$actual_fields[$field_name]}, expected {$field_type}");
+        }
+    }
+
+    $actual_post_types = [];
+    foreach ($group['location'] ?? [] as $rule_group) {
+        if (1 !== count($rule_group)) {
+            tio2_smoke_fail("ACF field group has an unexpected compound location rule: {$group_key}");
+        }
+
+        $rule = reset($rule_group);
+        if ('post_type' !== ($rule['param'] ?? null) || '==' !== ($rule['operator'] ?? null)) {
+            tio2_smoke_fail("ACF field group has an unexpected location rule: {$group_key}");
+        }
+
+        $actual_post_types[] = $rule['value'];
+    }
+
+    sort($actual_post_types);
+    sort($expected_post_types);
+    if ($actual_post_types !== $expected_post_types) {
+        tio2_smoke_fail(
+            "ACF field group {$group_key} locations are [" . implode(', ', $actual_post_types) .
+            '], expected [' . implode(', ', $expected_post_types) . ']'
+        );
+    }
+}
+
+function tio2_smoke_assert_graphql_group($schema, $root_type_name, $group_field_name, $expected_nested_fields)
+{
+    $root_type = $schema->getType($root_type_name);
+    $root_fields = $root_type->getFields();
+    if (! isset($root_fields[$group_field_name])) {
+        tio2_smoke_fail("Missing {$group_field_name} on GraphQL type: {$root_type_name}");
+    }
+
+    $group_type = GraphQL\Type\Definition\Type::getNamedType($root_fields[$group_field_name]->getType());
+    if (! $group_type instanceof GraphQL\Type\Definition\ObjectType) {
+        tio2_smoke_fail("GraphQL field {$root_type_name}.{$group_field_name} does not unwrap to an object type");
+    }
+
+    $nested_fields = $group_type->getFields();
+    foreach ($expected_nested_fields as $nested_field_name) {
+        if (! isset($nested_fields[$nested_field_name])) {
+            tio2_smoke_fail(
+                "Missing nested GraphQL field {$nested_field_name} on {$root_type_name}.{$group_field_name}"
+            );
+        }
+    }
+}
+
 $post_types = [
     'tio2_product',
     'tio2_grade',
@@ -69,32 +148,48 @@ foreach (['Tio2Product', 'Tio2Grade', 'Tio2Application', 'Tio2Document', 'Tio2Fa
     }
 }
 
-if (! function_exists('acf_get_field')) {
+if (! function_exists('acf_get_field_group') || ! function_exists('acf_get_fields')) {
     fwrite(STDERR, "ACF is not active\n");
     exit(1);
 }
 
-foreach (['technical_summary', 'evidence_source_url', 'public_path', 'seo_title', 'seo_description'] as $field_name) {
-    if (! acf_get_field($field_name)) {
-        fwrite(STDERR, "Missing ACF field: {$field_name}\n");
-        exit(1);
-    }
-}
+tio2_smoke_assert_acf_group(
+    'group_tio2_technical_fields',
+    'technicalFields',
+    [
+        'technical_summary' => 'textarea',
+        'evidence_source_url' => 'url',
+    ],
+    $post_types
+);
+
+tio2_smoke_assert_acf_group(
+    'group_tio2_publishing_fields',
+    'publishingFields',
+    [
+        'public_path' => 'text',
+        'seo_title' => 'text',
+        'seo_description' => 'textarea',
+    ],
+    ['page', 'post']
+);
 
 foreach (['Page', 'Post'] as $graphql_type) {
-    $fields = $schema->getType($graphql_type)->getFields();
-    if (! isset($fields['publishingFields'])) {
-        fwrite(STDERR, "Missing publishingFields on GraphQL type: {$graphql_type}\n");
-        exit(1);
-    }
+    tio2_smoke_assert_graphql_group(
+        $schema,
+        $graphql_type,
+        'publishingFields',
+        ['publicPath', 'seoTitle', 'seoDescription']
+    );
 }
 
 foreach (['Tio2Product', 'Tio2Grade', 'Tio2Application', 'Tio2Document', 'Tio2Faq'] as $graphql_type) {
-    $fields = $schema->getType($graphql_type)->getFields();
-    if (! isset($fields['technicalFields'])) {
-        fwrite(STDERR, "Missing technicalFields on GraphQL type: {$graphql_type}\n");
-        exit(1);
-    }
+    tio2_smoke_assert_graphql_group(
+        $schema,
+        $graphql_type,
+        'technicalFields',
+        ['technicalSummary', 'evidenceSourceUrl']
+    );
 }
 
 foreach (['/', '/products', '/applications/coatings'] as $path) {

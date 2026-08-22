@@ -64,19 +64,19 @@ function Invoke-WpCli {
     return $CommandExitCode
 }
 
-$CoreReady = $false
+$DatabaseReady = $false
 for ($Attempt = 1; $Attempt -le 30; $Attempt++) {
-    $CoreVersionExitCode = Invoke-WpCli -Arguments @('core', 'version') -AllowFailure
-    if ($CoreVersionExitCode -eq 0) {
-        $CoreReady = $true
+    $DatabaseCheckExitCode = Invoke-WpCli -Arguments @('db', 'check', '--quiet') -AllowFailure
+    if ($DatabaseCheckExitCode -eq 0) {
+        $DatabaseReady = $true
         break
     }
 
     Start-Sleep -Seconds 2
 }
 
-if (-not $CoreReady) {
-    throw 'WordPress core did not become available to WP-CLI.'
+if (-not $DatabaseReady) {
+    throw 'WordPress database did not become available to WP-CLI.'
 }
 
 $InstalledExitCode = Invoke-WpCli -Arguments @('core', 'is-installed') -AllowFailure

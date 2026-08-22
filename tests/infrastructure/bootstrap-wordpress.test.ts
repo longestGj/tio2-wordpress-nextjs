@@ -1,0 +1,109 @@
+import {spawnSync} from 'node:child_process'
+import {
+  copyFileSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
+import {tmpdir} from 'node:os'
+import {delimiter, join} from 'node:path'
+import {afterEach, describe, expect, it} from 'vitest'
+
+describe('WordPress bootstrap readiness', () => {
+  const temporaryDirectories: string[] = []
+
+  afterEach(() => {
+    for (const directory of temporaryDirectories.splice(0)) {
+      rmSync(directory, {recursive: true, force: true})
+    }
+  })
+
+  it('waits for database connectivity before checking an installed site', () => {
+    const testRoot = mkdtempSync(join(tmpdir(), 'tio2-bootstrap-'))
+    temporaryDirectories.push(testRoot)
+
+    const scriptsDirectory = join(testRoot, 'scripts')
+    const wordpressDirectory = join(testRoot, 'wordpress')
+    const binDirectory = join(testRoot, 'bin')
+    const logFile = join(testRoot, 'docker.log')
+    const stateFile = join(testRoot, 'docker.state')
+
+    mkdirSync(scriptsDirectory)
+    mkdirSync(wordpressDirectory)
+    mkdirSync(binDirectory)
+    copyFileSync(
+      'scripts/bootstrap-wordpress.ps1',
+      join(scriptsDirectory, 'bootstrap-wordpress.ps1')
+    )
+    copyFileSync('wordpress/.env.example', join(wordpressDirectory, '.env'))
+    writeFileSync(join(wordpressDirectory, 'docker-compose.yml'), 'services: {}\n')
+    writeFileSync(
+      join(binDirectory, 'docker.ps1'),
+      `param([Parameter(ValueFromRemainingArguments = $true)][string[]] $Arguments)
+$CommandLine = $Arguments -join ' '
+Add-Content -LiteralPath $env:TIO2_FAKE_DOCKER_LOG -Value $CommandLine
+
+if ($CommandLine -match ' wp db check') {
+    $Attempt = 0
+    if (Test-Path -LiteralPath $env:TIO2_FAKE_DOCKER_STATE) {
+        $Attempt = [int](Get-Content -LiteralPath $env:TIO2_FAKE_DOCKER_STATE)
+    }
+    $Attempt++
+    Set-Content -LiteralPath $env:TIO2_FAKE_DOCKER_STATE -Value $Attempt
+    if ($Attempt -lt 2) {
+        Write-Error 'database is starting'
+        exit 1
+    }
+    exit 0
+}
+
+if ($CommandLine -match ' wp core is-installed') {
+    exit 0
+}
+
+if ($CommandLine -match ' wp core install') {
+    Write-Error 'core install must not run for an installed site'
+    exit 97
+}
+
+exit 0
+`
+    )
+
+    const result = spawnSync(
+      'powershell',
+      [
+        '-NoProfile',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-File',
+        join(scriptsDirectory, 'bootstrap-wordpress.ps1'),
+      ],
+      {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          PATH: `${binDirectory}${delimiter}${process.env.PATH ?? ''}`,
+          TIO2_FAKE_DOCKER_LOG: logFile,
+          TIO2_FAKE_DOCKER_STATE: stateFile,
+        },
+      }
+    )
+
+    const commands = readFileSync(logFile, 'utf8').trim().split(/\r?\n/)
+    const databaseChecks = commands.filter((command) =>
+      command.includes(' wp db check')
+    )
+    const installedCheckIndex = commands.findIndex((command) =>
+      command.includes(' wp core is-installed')
+    )
+    const successfulDatabaseCheckIndex = commands.lastIndexOf(databaseChecks.at(-1) ?? '')
+
+    expect(result.status, result.stderr || result.stdout).toBe(0)
+    expect(databaseChecks).toHaveLength(2)
+    expect(successfulDatabaseCheckIndex).toBeLessThan(installedCheckIndex)
+    expect(commands.some((command) => command.includes(' wp core install'))).toBe(false)
+  })
+})
