@@ -1,11 +1,14 @@
 .worktrees/
 node_modules/
 .next/
+.next-*
 coverage/
 .vercel/
 .env
 .env.*
 !.env.example
 docker-data/
+.tmp/
 *.log
+*.tsbuildinfo
 

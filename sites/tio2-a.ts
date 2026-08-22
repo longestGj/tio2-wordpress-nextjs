@@ -1,0 +1,15 @@
+import type {SiteConfig} from './types'
+
+export const tio2A: SiteConfig = {
+  id: 'tio2-a',
+  name: 'TiO2 A',
+  description: 'Titanium dioxide products and applications from TiO2 A.',
+  url: 'https://tio2-a.example.com',
+  wordpressScope: 'tio2-a',
+  locale: 'en-US',
+  contactEmail: 'contact@tio2-a.example.com',
+  defaultSeo: {
+    title: 'TiO2 A | Titanium Dioxide',
+    description: 'Titanium dioxide products and applications from TiO2 A.',
+  },
+}
