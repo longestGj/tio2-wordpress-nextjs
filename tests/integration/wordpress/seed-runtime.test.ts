@@ -3,6 +3,8 @@ import {fileURLToPath} from 'node:url'
 
 import {afterAll, describe, expect, it} from 'vitest'
 
+import {runUnconditionalRestore} from './live-seed-lifecycle'
+
 const repositoryRoot = fileURLToPath(new URL('../../../', import.meta.url))
 const seedScript = fileURLToPath(
   new URL('../../../scripts/seed-local-wordpress.ps1', import.meta.url),
@@ -117,23 +119,30 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
   }
 
   afterAll(() => {
-    if (duplicatePageId !== undefined) {
-      deleteAndVerifyAbsent(duplicatePageId)
-    }
-    if (duplicateEntityId !== undefined) {
-      deleteAndVerifyAbsent(duplicateEntityId)
-    }
-    if (ambiguousPageId !== undefined) {
-      deleteAndVerifyAbsent(ambiguousPageId)
-    }
-    if (unrelatedPageId !== undefined) {
-      deleteAndVerifyAbsent(unrelatedPageId)
-    }
-
-    const restore = seedFullScale()
-    expect(restore.status, `${restore.stdout}\n${restore.stderr}`).toBe(0)
-    const audit = auditFullScale()
-    expect(audit.status, `${audit.stdout}\n${audit.stderr}`).toBe(0)
+    runUnconditionalRestore({
+      cleanup: [
+        () => {
+          if (duplicatePageId !== undefined) deleteAndVerifyAbsent(duplicatePageId)
+        },
+        () => {
+          if (duplicateEntityId !== undefined) deleteAndVerifyAbsent(duplicateEntityId)
+        },
+        () => {
+          if (ambiguousPageId !== undefined) deleteAndVerifyAbsent(ambiguousPageId)
+        },
+        () => {
+          if (unrelatedPageId !== undefined) deleteAndVerifyAbsent(unrelatedPageId)
+        },
+      ],
+      restore: () => {
+        const restore = seedFullScale()
+        expect(restore.status, `${restore.stdout}\n${restore.stderr}`).toBe(0)
+      },
+      audit: () => {
+        const audit = auditFullScale()
+        expect(audit.status, `${audit.stdout}\n${audit.stderr}`).toBe(0)
+      },
+    })
   }, 240_000)
 
   it('cleans proven collisions, revives the canonical record, and remains idempotent', () => {

@@ -1,9 +1,11 @@
 [CmdletBinding()]
 param(
+    [switch] $Plan,
     [switch] $KeepRunning,
     [switch] $Stop,
     [switch] $Status,
     [string] $StateDirectory,
+    [string] $CancellationPath,
     [ValidateRange(10, 300)]
     [int] $HealthTimeoutSeconds = 120
 )
@@ -17,16 +19,41 @@ if (-not $StateDirectory) {
 }
 $StateDirectory = [System.IO.Path]::GetFullPath($StateDirectory)
 $StatePath = Join-Path $StateDirectory 'sites.json'
-$NodeExecutable = (Get-Command node -ErrorAction Stop).Source
-$NodeExecutable = (Resolve-Path -LiteralPath $NodeExecutable).Path
-$NextCliPath = (Resolve-Path -LiteralPath (Join-Path $RepositoryRoot 'node_modules/next/dist/bin/next')).Path
 $LocalSites = @(
     [PSCustomObject]@{siteId = 'tio2-a'; port = 3001; distDir = '.next-tio2-a'},
     [PSCustomObject]@{siteId = 'tio2-b'; port = 3002; distDir = '.next-tio2-b'}
 )
 
-if (@(@($KeepRunning, $Stop, $Status) | Where-Object { $_ }).Count -gt 1) {
-    throw 'Use only one of -KeepRunning, -Stop, or -Status.'
+if (@(@($Plan, $KeepRunning, $Stop, $Status) | Where-Object { $_ }).Count -gt 1) {
+    throw 'Use only one of -Plan, -KeepRunning, -Stop, or -Status.'
+}
+
+if ($Plan) {
+    [ordered]@{
+        mode = 'plan'
+        sites = @(
+            foreach ($Site in $LocalSites) {
+                [ordered]@{siteId = $Site.siteId; port = $Site.port; distDir = $Site.distDir}
+            }
+        )
+        startup = [ordered]@{
+            statePersistence = 'after-each-start'
+            cancellation = 'cooperative-file'
+        }
+        stop = [ordered]@{
+            preflightAllRecords = $true
+            finalIdentityCheck = 'immediate'
+            terminationTarget = 'validated-process-handle'
+        }
+    } | ConvertTo-Json -Depth 5 -Compress
+    exit 0
+}
+
+$NodeExecutable = (Get-Command node -ErrorAction Stop).Source
+$NodeExecutable = (Resolve-Path -LiteralPath $NodeExecutable).Path
+$NextCliPath = (Resolve-Path -LiteralPath (Join-Path $RepositoryRoot 'node_modules/next/dist/bin/next')).Path
+if ($CancellationPath) {
+    $CancellationPath = [System.IO.Path]::GetFullPath($CancellationPath)
 }
 
 function Test-ProcessIdentity {
@@ -101,15 +128,10 @@ function Stop-RecordedSites {
     )
 
     $Mismatches = [System.Collections.Generic.List[string]]::new()
-    $MatchedProcesses = [System.Collections.Generic.List[object]]::new()
-
     foreach ($Record in $Records) {
         $Identity = Test-ProcessIdentity -Record $Record
         if ($Identity.running -and -not $Identity.matches) {
             $Mismatches.Add("Refused to stop PID $($Record.pid) for $($Record.siteId): $($Identity.reason).")
-        }
-        elseif ($Identity.running) {
-            $MatchedProcesses.Add([PSCustomObject]@{record = $Record; process = $Identity.process})
         }
     }
 
@@ -117,11 +139,18 @@ function Stop-RecordedSites {
         throw ($Mismatches -join ' ')
     }
 
-    foreach ($Matched in $MatchedProcesses) {
-        $Record = $Matched.record
-        $Process = $Matched.process
-        Stop-Process -Id ([int]$Record.pid) -ErrorAction Stop
+    foreach ($Record in $Records) {
+        $Identity = Test-ProcessIdentity -Record $Record
+        if (-not $Identity.running) {
+            continue
+        }
+        if (-not $Identity.matches) {
+            throw "Refused to stop PID $($Record.pid) for $($Record.siteId) after final identity check: $($Identity.reason)."
+        }
+
+        $Process = [System.Diagnostics.Process]$Identity.process
         try {
+            $Process.Kill()
             [void]$Process.WaitForExit(10000)
         }
         catch {
@@ -135,6 +164,10 @@ function Stop-RecordedSites {
     if ($RemoveState -and (Test-Path -LiteralPath $StatePath)) {
         Remove-Item -LiteralPath $StatePath -Force
     }
+}
+
+function Test-CancellationRequested {
+    return [bool]($CancellationPath -and (Test-Path -LiteralPath $CancellationPath))
 }
 
 function Test-PortOpen {
@@ -165,6 +198,9 @@ function Wait-SiteHealthy {
     $Deadline = [DateTime]::UtcNow.AddSeconds($HealthTimeoutSeconds)
     $HealthUrl = "http://localhost:$($Record.port)/"
     while ([DateTime]::UtcNow -lt $Deadline) {
+        if (Test-CancellationRequested) {
+            throw "Local site startup was cancelled while waiting for $($Record.siteId)."
+        }
         if ($Process.HasExited) {
             throw "$($Record.siteId) exited with code $($Process.ExitCode). See $($Record.stderrLog)."
         }
@@ -176,11 +212,52 @@ function Wait-SiteHealthy {
             }
         }
         catch {
+            if (Test-CancellationRequested) {
+                throw "Local site startup was cancelled while waiting for $($Record.siteId)."
+            }
             Start-Sleep -Milliseconds 500
         }
     }
 
     throw "$($Record.siteId) did not become healthy at $HealthUrl within $HealthTimeoutSeconds seconds."
+}
+
+function Write-ControllerState {
+    param(
+        [Parameter(Mandatory = $true)][string] $SessionId,
+        [Parameter(Mandatory = $true)][object[]] $Records
+    )
+
+    $SerializableRecords = @(
+        foreach ($Record in $Records) {
+            [ordered]@{
+                siteId = $Record.siteId
+                port = $Record.port
+                distDir = $Record.distDir
+                pid = $Record.pid
+                startTimeUtcTicks = $Record.startTimeUtcTicks
+                executablePath = $Record.executablePath
+                nextCliPath = $Record.nextCliPath
+                stdoutLog = $Record.stdoutLog
+                stderrLog = $Record.stderrLog
+            }
+        }
+    )
+    $State = [ordered]@{
+        schemaVersion = 1
+        repositoryRoot = $RepositoryRoot
+        sessionId = $SessionId
+        startedAtUtc = [DateTime]::UtcNow.ToString('o')
+        sites = $SerializableRecords
+    }
+    $TemporaryStatePath = "$StatePath.$SessionId.tmp"
+    [System.IO.File]::WriteAllText(
+        $TemporaryStatePath,
+        ($State | ConvertTo-Json -Depth 5 -Compress),
+        [System.Text.UTF8Encoding]::new($false)
+    )
+    Move-Item -LiteralPath $TemporaryStatePath -Destination $StatePath -Force
+    return $State
 }
 
 function Start-OneSite {
@@ -296,42 +373,21 @@ foreach ($Site in $LocalSites) {
 }
 
 New-Item -ItemType Directory -Path $StateDirectory -Force | Out-Null
+$SessionId = [Guid]::NewGuid().ToString('D')
 $StartedRecords = [System.Collections.Generic.List[object]]::new()
 $LeaveRunning = $false
 try {
     foreach ($Site in $LocalSites) {
+        if (Test-CancellationRequested) {
+            throw 'Local site startup was cancelled before the next process launch.'
+        }
         $Started = Start-OneSite -Site $Site
         $StartedRecords.Add($Started)
+        $State = Write-ControllerState -SessionId $SessionId -Records @($StartedRecords)
         Wait-SiteHealthy -Record $Started -Process $Started.process
     }
 
-    $SerializableRecords = @(
-        foreach ($Record in $StartedRecords) {
-            [ordered]@{
-                siteId = $Record.siteId
-                port = $Record.port
-                distDir = $Record.distDir
-                pid = $Record.pid
-                startTimeUtcTicks = $Record.startTimeUtcTicks
-                executablePath = $Record.executablePath
-                nextCliPath = $Record.nextCliPath
-                stdoutLog = $Record.stdoutLog
-                stderrLog = $Record.stderrLog
-            }
-        }
-    )
-    $State = [ordered]@{
-        schemaVersion = 1
-        repositoryRoot = $RepositoryRoot
-        sessionId = [Guid]::NewGuid().ToString('D')
-        startedAtUtc = [DateTime]::UtcNow.ToString('o')
-        sites = $SerializableRecords
-    }
-    [System.IO.File]::WriteAllText(
-        $StatePath,
-        ($State | ConvertTo-Json -Depth 5 -Compress),
-        [System.Text.UTF8Encoding]::new($false)
-    )
+    $State = Write-ControllerState -SessionId $SessionId -Records @($StartedRecords)
 
     if ($KeepRunning) {
         $LeaveRunning = $true
@@ -339,7 +395,7 @@ try {
             mode = 'running'
             sessionId = $State.sessionId
             sites = @(
-                foreach ($Record in $SerializableRecords) {
+                foreach ($Record in @($State.sites)) {
                     [ordered]@{siteId = $Record.siteId; port = $Record.port; pid = $Record.pid}
                 }
             )
@@ -355,5 +411,8 @@ try {
 finally {
     if (-not $LeaveRunning -and $StartedRecords.Count -gt 0) {
         Stop-RecordedSites -Records @($StartedRecords) -RemoveState
+    }
+    if (-not $LeaveRunning -and $CancellationPath -and (Test-Path -LiteralPath $CancellationPath)) {
+        Remove-Item -LiteralPath $CancellationPath -Force
     }
 }

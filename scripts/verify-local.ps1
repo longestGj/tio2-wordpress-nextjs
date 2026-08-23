@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
-    [switch] $Plan
+    [switch] $Plan,
+    [switch] $CheckWorktree
 )
 
 $ErrorActionPreference = 'Stop'
@@ -22,14 +23,63 @@ $GateNames = @(
     'http-audit',
     'tracked-worktree'
 )
+$ControllerHealthTimeoutSeconds = 120
+$ControllerMaximumSequentialHealthWaitSeconds = 240
+$ControllerParentTimeoutSeconds = 270
+$ControllerCancellationGraceSeconds = 30
 
 if ($Plan) {
-    [ordered]@{mode = 'plan'; ports = @(3001, 3002); gates = $GateNames} |
-        ConvertTo-Json -Depth 4 -Compress
+    [ordered]@{
+        mode = 'plan'
+        ports = @(3001, 3002)
+        gates = $GateNames
+        controller = [ordered]@{
+            healthTimeoutSeconds = $ControllerHealthTimeoutSeconds
+            maximumSequentialHealthWaitSeconds = $ControllerMaximumSequentialHealthWaitSeconds
+            parentTimeoutSeconds = $ControllerParentTimeoutSeconds
+            cancellationGraceSeconds = $ControllerCancellationGraceSeconds
+            forceKillOnTimeout = $false
+            cleanupWithoutEmittedState = $true
+        }
+        worktree = [ordered]@{
+            requireCleanAtStart = $true
+            requireCleanAtEnd = $true
+            includeUntracked = $true
+        }
+        liveSeed = [ordered]@{
+            restoreInFinally = $true
+            auditAfterRestore = $true
+            preservePrimaryFailure = $true
+        }
+    } | ConvertTo-Json -Depth 6 -Compress
     exit 0
 }
 
 $RepositoryRoot = (Resolve-Path -LiteralPath (Split-Path -Parent $PSScriptRoot)).Path
+
+function Get-CompleteWorktreeStatus {
+    $Lines = @(& git -C $RepositoryRoot status --short --untracked-files=all)
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Could not read complete worktree status.'
+    }
+    return ($Lines -join "`n")
+}
+
+function Assert-CleanWorktree {
+    param([Parameter(Mandatory = $true)][string] $Phase)
+
+    $Status = Get-CompleteWorktreeStatus
+    if ($Status) {
+        throw "Worktree must be completely clean $Phase, including untracked files:`n$Status"
+    }
+}
+
+if ($CheckWorktree) {
+    Assert-CleanWorktree -Phase 'for local verification'
+    [ordered]@{mode = 'worktree'; clean = $true} | ConvertTo-Json -Compress
+    exit 0
+}
+
 $WordPressDirectory = Join-Path $RepositoryRoot 'wordpress'
 $EnvironmentFile = Join-Path $WordPressDirectory '.env'
 $ComposeFile = Join-Path $WordPressDirectory 'docker-compose.yml'
@@ -37,14 +87,17 @@ $Controller = Join-Path $PSScriptRoot 'start-local-sites.ps1'
 $LogDirectory = Join-Path $RepositoryRoot '.tmp/local-verify'
 $GateResults = [System.Collections.Generic.List[object]]::new()
 $SitesStartedByGate = $false
+$ControllerInvocationStarted = $false
 $LaunchState = $null
 $PendingError = $null
 $SuccessSummary = $null
 $ExpectedPerSite = 505
+$ControllerCancellationPath = Join-Path $LogDirectory 'controller-cancel.signal'
 
 if (-not (Test-Path -LiteralPath $EnvironmentFile)) {
     throw 'Missing wordpress/.env. Copy wordpress/.env.example before verification.'
 }
+Assert-CleanWorktree -Phase 'before local verification'
 New-Item -ItemType Directory -Path $LogDirectory -Force | Out-Null
 
 function Write-GateMessage {
@@ -87,18 +140,38 @@ function Invoke-ControllerStart {
             Remove-Item -LiteralPath $Path -Force
         }
     }
+    if (Test-Path -LiteralPath $ControllerCancellationPath) {
+        Remove-Item -LiteralPath $ControllerCancellationPath -Force
+    }
 
     $Process = Start-Process `
         -FilePath $PowerShell `
-        -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $Controller, '-KeepRunning') `
+        -ArgumentList @(
+            '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $Controller,
+            '-KeepRunning',
+            '-HealthTimeoutSeconds', [string]$ControllerHealthTimeoutSeconds,
+            '-CancellationPath', $ControllerCancellationPath
+        ) `
         -WorkingDirectory $RepositoryRoot `
         -WindowStyle Hidden `
         -RedirectStandardOutput $StandardOutput `
         -RedirectStandardError $StandardError `
         -PassThru
-    if (-not $Process.WaitForExit(150000)) {
-        Stop-Process -Id $Process.Id -Force -ErrorAction SilentlyContinue
-        throw 'The local site controller parent did not exit within 150 seconds.'
+    $script:ControllerInvocationStarted = $true
+    $TimedOut = -not $Process.WaitForExit($ControllerParentTimeoutSeconds * 1000)
+    if ($TimedOut) {
+        [System.IO.File]::WriteAllText(
+            $ControllerCancellationPath,
+            'cancel',
+            [System.Text.UTF8Encoding]::new($false)
+        )
+        if (-not $Process.WaitForExit($ControllerCancellationGraceSeconds * 1000)) {
+            Invoke-NativeLogged `
+                -FilePath $PowerShell `
+                -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $Controller, '-Stop') `
+                -LogName 'controller-timeout-cleanup'
+            throw "The local site controller did not exit after a $ControllerParentTimeoutSeconds-second bound and cooperative cancellation grace."
+        }
     }
     $ExitCode = $null
     try {
@@ -129,6 +202,9 @@ function Invoke-ControllerStart {
             [Console]::Error.WriteLine($Line)
         }
         throw "The local site controller exited with code $ExitCode."
+    }
+    if ($TimedOut) {
+        throw "The local site controller exceeded its $ControllerParentTimeoutSeconds-second compatible startup bound and was cooperatively cancelled."
     }
 }
 
@@ -178,14 +254,6 @@ function Invoke-Gate {
         Write-GateMessage "[$Name] failed in $($Timer.ElapsedMilliseconds) ms: $($_.Exception.Message)"
         throw
     }
-}
-
-function Get-TrackedSnapshot {
-    $Lines = @(& git status --porcelain=v1 --untracked-files=no)
-    if ($LASTEXITCODE -ne 0) {
-        throw 'Could not read tracked worktree status.'
-    }
-    return ($Lines -join "`n")
 }
 
 function Get-PassedCount {
@@ -457,7 +525,6 @@ $Npm = (Get-Command npm.cmd -ErrorAction Stop).Source
 $Npx = (Get-Command npx.cmd -ErrorAction Stop).Source
 $PowerShell = (Get-Command powershell.exe -ErrorAction Stop).Source
 $Docker = (Get-Command docker.exe -ErrorAction Stop).Source
-$TrackedBefore = Get-TrackedSnapshot
 $HttpAuditSites = $null
 
 try {
@@ -514,6 +581,7 @@ try {
         if ($BeforeHash -ne $AfterHash) {
             throw 'GraphQL code generation changed the committed generated output.'
         }
+        Assert-CleanWorktree -Phase 'after deterministic code generation'
     }
 
     Invoke-Gate -Name 'vitest' -Action {
@@ -521,16 +589,53 @@ try {
     }
 
     Invoke-Gate -Name 'vitest-live-seed' -Action {
-        Invoke-WithEnvironment -Values @{WORDPRESS_SEED_RUNTIME = '1'} -Action {
-            Invoke-NativeLogged `
-                -FilePath $Npx `
-                -Arguments @('vitest', 'run', 'tests/integration/wordpress/seed-runtime.test.ts') `
-                -LogName 'vitest-live-seed'
+        $LiveSeedError = $null
+        $RestoreError = $null
+        try {
+            Invoke-WithEnvironment -Values @{WORDPRESS_SEED_RUNTIME = '1'} -Action {
+                Invoke-NativeLogged `
+                    -FilePath $Npx `
+                    -Arguments @('vitest', 'run', 'tests/integration/wordpress/seed-runtime.test.ts') `
+                    -LogName 'vitest-live-seed'
+            }
         }
-        Invoke-NativeLogged `
-            -FilePath $PowerShell `
-            -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'audit-seed.ps1'), '-ExpectedPerSite', "$ExpectedPerSite") `
-            -LogName 'seed-audit-after-live'
+        catch {
+            $LiveSeedError = $_
+        }
+        finally {
+            try {
+                Invoke-NativeLogged `
+                    -FilePath $PowerShell `
+                    -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'seed-local-wordpress.ps1'), '-ScalePages', '500') `
+                    -LogName 'seed-restore-after-live'
+            }
+            catch {
+                $RestoreError = $_
+            }
+            try {
+                Invoke-NativeLogged `
+                    -FilePath $PowerShell `
+                    -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'audit-seed.ps1'), '-ExpectedPerSite', "$ExpectedPerSite") `
+                    -LogName 'seed-audit-after-live'
+            }
+            catch {
+                if ($null -eq $RestoreError) {
+                    $RestoreError = $_
+                }
+                else {
+                    Write-GateMessage "Live seed audit also failed after restore failure: $($_.Exception.Message)"
+                }
+            }
+        }
+        if ($null -ne $LiveSeedError) {
+            if ($null -ne $RestoreError) {
+                Write-GateMessage "Independent live seed restore/audit also failed: $($RestoreError.Exception.Message)"
+            }
+            throw $LiveSeedError
+        }
+        if ($null -ne $RestoreError) {
+            throw $RestoreError
+        }
     }
 
     foreach ($Site in @(
@@ -574,10 +679,7 @@ try {
     }
 
     Invoke-Gate -Name 'tracked-worktree' -Action {
-        $TrackedAfter = Get-TrackedSnapshot
-        if ($TrackedAfter -ne $TrackedBefore) {
-            throw 'Verification changed tracked worktree files.'
-        }
+        Assert-CleanWorktree -Phase 'after local verification'
     }
 
     $VitestCount = Get-PassedCount -LogName 'vitest' -Pattern 'Tests\s+(\d+)\s+passed'
@@ -607,7 +709,7 @@ catch {
     $PendingError = $_
 }
 finally {
-    if ($SitesStartedByGate) {
+    if ($ControllerInvocationStarted) {
         try {
             Invoke-NativeLogged `
                 -FilePath $PowerShell `
@@ -628,6 +730,9 @@ finally {
                 Write-GateMessage "Cleanup also failed: $($_.Exception.Message)"
             }
         }
+    }
+    if (Test-Path -LiteralPath $ControllerCancellationPath) {
+        Remove-Item -LiteralPath $ControllerCancellationPath -Force
     }
 }
 

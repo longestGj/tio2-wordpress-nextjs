@@ -37,9 +37,9 @@ The seed creates five representative pages plus 500 deterministic scale pages pe
 npm run verify:local
 ```
 
-The gate is fail-fast. It checks Compose configuration and service health, runs the real WordPress plugin smoke test and exact 505-per-site seed audit, lint, typecheck, deterministic GraphQL code generation, all normal Vitest tests, the opt-in live seed suite, both current-site builds, 12 Chromium acceptance tests, and independent HTTP audits. The last stdout line is one machine-readable JSON success summary. Detailed command logs are written under ignored `.tmp/local-verify`.
+The gate is fail-fast and requires a completely clean Git worktree at both the start and end, including no untracked files. Commit or remove intentional local source changes before running it; ignored `.tmp` logs and build artifacts do not affect this check. It checks Compose configuration and service health, runs the real WordPress plugin smoke test and exact 505-per-site seed audit, lint, typecheck, deterministic GraphQL code generation, all normal Vitest tests, the opt-in live seed suite, both current-site builds, 12 Chromium acceptance tests, and independent HTTP audits. The live seed stage restores and audits the exact 505-per-site baseline in `finally`, including when the live test fails. The last stdout line is one machine-readable JSON success summary. Detailed command logs are written under ignored `.tmp/local-verify`.
 
-Verification always stops only the two Node processes it started, including after a failed test. PID, executable path, process start time, Next CLI path, and port arguments are validated before any stop. It never kills a process merely by name or port.
+Verification always stops only the two Node processes it started, including after a failed test or a bounded startup timeout. The controller writes recoverable process state after every launch and accepts cooperative cancellation. PID, executable path, process start time, Next CLI path, and port arguments are validated immediately before stopping through the retained process handle. It never kills a process merely by name or port.
 
 Local output is deliberately `noindex,nofollow`, and local `robots.txt` uses `Disallow: /`. This protects local and preview evidence even though canonical and sitemap URLs use the current placeholder domain.
 
@@ -85,3 +85,4 @@ Do not add `-v`: the named local database and WordPress volumes are retained by 
 - **Port 3001 or 3002 is occupied:** inspect the owning application yourself. The controller refuses to kill unrecorded or identity-mismatched processes.
 - **A local site fails health checks:** inspect `.tmp/local-sites/tio2-a.stderr.log` and `.tmp/local-sites/tio2-b.stderr.log`.
 - **A verification gate fails:** inspect the named log under `.tmp/local-verify`; rerunning remains safe because the verifier cleans up its own child processes in `finally`.
+- **The gate reports a dirty worktree:** run `git status --short --untracked-files=all`, then commit or remove every intentional tracked and untracked source file before retrying.

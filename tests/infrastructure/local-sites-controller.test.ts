@@ -28,6 +28,27 @@ afterEach(() => {
 })
 
 describe.runIf(process.platform === 'win32')('local sites controller', () => {
+  it('describes incremental state, cancellation, and handle-based stop safety', () => {
+    const contract = JSON.parse(invokeController(['-Plan'])) as unknown
+
+    expect(contract).toEqual({
+      mode: 'plan',
+      sites: [
+        {siteId: 'tio2-a', port: 3001, distDir: '.next-tio2-a'},
+        {siteId: 'tio2-b', port: 3002, distDir: '.next-tio2-b'},
+      ],
+      startup: {
+        statePersistence: 'after-each-start',
+        cancellation: 'cooperative-file',
+      },
+      stop: {
+        preflightAllRecords: true,
+        finalIdentityCheck: 'immediate',
+        terminationTarget: 'validated-process-handle',
+      },
+    })
+  })
+
   it('reports both fixed local sites stopped when no controller state exists', () => {
     const stateDirectory = newStateDirectory()
 
