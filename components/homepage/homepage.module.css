@@ -252,6 +252,8 @@
 }
 
 .rfqSection {
+  display: grid;
+  gap: clamp(2.5rem, 6vw, 6rem);
   scroll-margin-top: 1rem;
   background: var(--home-mineral-green);
   color: var(--home-warm-white);
@@ -265,6 +267,121 @@
 
 .rfqSection h2 {
   color: var(--home-warm-white);
+}
+
+.rfqFormPanel {
+  display: grid;
+  gap: 1.25rem;
+  align-content: start;
+}
+
+.rfqForm {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.formGrid {
+  display: grid;
+  gap: 1.15rem;
+}
+
+.field,
+.checkboxField {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.field label,
+.checkboxField label {
+  font-weight: 600;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.7rem 0.8rem;
+  border: 2px solid rgb(251 250 246 / 56%);
+  border-radius: 0;
+  background: var(--home-warm-white);
+  color: var(--home-text);
+  font: inherit;
+}
+
+.field textarea {
+  min-height: 10rem;
+  resize: vertical;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible,
+.checkboxField input:focus-visible,
+.rfqForm button:focus-visible {
+  outline: 3px solid var(--home-brass);
+  outline-offset: 3px;
+}
+
+.field [aria-invalid='true'] {
+  border-color: #f2b8a8;
+}
+
+.checkboxField label {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.checkboxField input {
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: 0 0 auto;
+  margin: 0.2rem 0 0;
+  accent-color: var(--home-brass);
+}
+
+.checkboxField > p {
+  color: rgb(251 250 246 / 82%);
+  font-size: 0.9rem;
+}
+
+.fieldError {
+  color: #ffd6ca !important;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.errorSummary,
+.successStatus {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1rem;
+  border-left: 4px solid var(--home-brass);
+  background: rgb(251 250 246 / 10%);
+}
+
+.errorSummary ul {
+  margin-block: 0;
+  padding-left: 1.2rem;
+}
+
+.successStatus h3 {
+  color: var(--home-warm-white);
+}
+
+.rfqForm button {
+  min-height: 2.75rem;
+  justify-self: start;
+  padding: 0.75rem 1.4rem;
+  border: 2px solid var(--home-brass);
+  border-radius: 0;
+  background: var(--home-brass);
+  color: #18231c;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
 }
 
 .faqList {
@@ -317,6 +434,14 @@
 }
 
 @media (min-width: 48rem) {
+  .formGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fieldWide {
+    grid-column: 1 / -1;
+  }
+
   .metricGrid,
   .cardGrid,
   .applicationGrid,
@@ -331,6 +456,10 @@
 }
 
 @media (min-width: 64rem) {
+  .rfqSection {
+    grid-template-columns: minmax(16rem, 0.65fr) minmax(0, 1.35fr);
+  }
+
   .hero {
     grid-template-columns: minmax(0, 1.18fr) minmax(22rem, 0.82fr);
   }

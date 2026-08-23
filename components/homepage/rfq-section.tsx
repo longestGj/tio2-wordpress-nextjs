@@ -1,5 +1,6 @@
 import type {HomepageRfqDto} from '@/lib/wordpress/homepage-types'
 import styles from './homepage.module.css'
+import {RfqForm} from './rfq-form'
 
 interface RfqSectionProps {
   readonly rfq: HomepageRfqDto
@@ -17,6 +18,7 @@ export function RfqSection({rfq}: RfqSectionProps) {
         <h2 id="homepage-rfq-heading">{rfq.heading}</h2>
         <p>{rfq.intro}</p>
       </div>
+      <RfqForm rfq={rfq} />
     </section>
   )
 }
