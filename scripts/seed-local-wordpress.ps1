@@ -214,4 +214,4 @@ finally {
     }
 }
 
-Write-Host "Seed batch complete: $($Entities.Count) shared entities and $($Pages.Count) site pages planned."
+Write-Host "Seed batch complete: $($Entities.Count) optional schema fixtures and $($Pages.Count) site pages planned."

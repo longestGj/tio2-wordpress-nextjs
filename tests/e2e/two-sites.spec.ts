@@ -1,4 +1,7 @@
+import {spawnSync} from 'node:child_process'
 import {createHmac, randomUUID} from 'node:crypto'
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {expect, test, type Page} from '@playwright/test'
 
 const sites = [
@@ -21,7 +24,46 @@ const sites = [
 ] as const
 
 const longTailPath = '/test-content/long-tail-500'
-const revalidationSecret = 'local-revalidation-test-secret'
+const wordpressEnvPath = resolve('wordpress/.env')
+const wordpressEnv = Object.fromEntries(
+  readFileSync(wordpressEnvPath, 'utf8')
+    .split(/\r?\n/u)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('#'))
+    .map((line) => {
+      const separator = line.indexOf('=')
+      return [line.slice(0, separator), line.slice(separator + 1)]
+    }),
+)
+
+function siteSecret(
+  siteId: 'tio2-a' | 'tio2-b',
+  kind: 'PREVIEW' | 'REVALIDATION',
+): string {
+  const suffix = siteId.toUpperCase().replace('-', '_')
+  const secret = wordpressEnv[`NEXTJS_${kind}_SECRET_${suffix}`]
+  if (!secret) throw new Error(`Missing local ${kind} secret for ${siteId}`)
+  return secret
+}
+
+function signedPreviewUrl(
+  site: (typeof sites)[number],
+  path: string,
+  siteId: string = site.id,
+): string {
+  const expires = Math.floor(Date.now() / 1000) + 300
+  const signature = createHmac('sha256', siteSecret(site.id, 'PREVIEW'))
+    .update(`${expires}\n${siteId}\n${path}`)
+    .digest('hex')
+  const url = new URL('/api/preview', site.baseUrl)
+  url.search = new URLSearchParams({
+    siteId,
+    path,
+    expires: String(expires),
+    signature,
+  }).toString()
+  return url.href
+}
 
 function capturePageErrors(page: Page): string[] {
   const errors: string[] = []
@@ -33,6 +75,35 @@ function capturePageErrors(page: Page): string[] {
     errors.push(`requestfailed: ${request.url()} (${request.failure()?.errorText})`)
   })
   return errors
+}
+
+function wp(arguments_: string[]): string {
+  const result = spawnSync(
+    'docker',
+    [
+      'compose',
+      '--env-file',
+      wordpressEnvPath,
+      '-f',
+      resolve('wordpress/docker-compose.yml'),
+      'run',
+      '--rm',
+      '--user',
+      '33:33',
+      'wpcli',
+      'wp',
+      ...arguments_,
+    ],
+    {encoding: 'utf8'},
+  )
+  if (result.status !== 0) {
+    throw new Error(`WP-CLI failed: ${result.stdout}\n${result.stderr}`)
+  }
+  return result.stdout.trim()
+}
+
+function wpEval(source: string): string {
+  return wp(['eval', source]).split(/\r?\n/u).at(-1)?.trim() ?? ''
 }
 
 async function assertCurrentSiteJsonLd(
@@ -91,7 +162,7 @@ for (const site of sites) {
     expect(errors).toEqual([])
   })
 
-  test(`${site.id} renders the shared long-tail path with only its own content`, async ({
+  test(`${site.id} renders the same long-tail path with only its own content`, async ({
     page,
   }) => {
     const errors = capturePageErrors(page)
@@ -165,27 +236,28 @@ for (const site of sites) {
   test(`${site.id} preview rejects bad boundaries and accepts its own path`, async ({
     request,
   }) => {
-    const invalidSecret = await request.get(
-      `${site.baseUrl}/api/preview?secret=wrong&siteId=${site.id}&path=%2Fproducts`,
-      {maxRedirects: 0},
-    )
-    expect(invalidSecret.status()).toBe(401)
+    const invalidSignatureUrl = new URL(signedPreviewUrl(site, '/products'))
+    invalidSignatureUrl.searchParams.set('signature', '0'.repeat(64))
+    const invalidSignature = await request.get(invalidSignatureUrl.href, {
+      maxRedirects: 0,
+    })
+    expect(invalidSignature.status()).toBe(401)
 
     const otherSite = site.id === 'tio2-a' ? 'tio2-b' : 'tio2-a'
     const invalidSite = await request.get(
-      `${site.baseUrl}/api/preview?secret=local-preview-test-secret&siteId=${otherSite}&path=%2Fproducts`,
+      signedPreviewUrl(site, '/products', otherSite),
       {maxRedirects: 0},
     )
     expect(invalidSite.status()).toBe(400)
 
     const unsafePath = await request.get(
-      `${site.baseUrl}/api/preview?secret=local-preview-test-secret&siteId=${site.id}&path=https%3A%2F%2Fattacker.test`,
+      signedPreviewUrl(site, 'https://attacker.test'),
       {maxRedirects: 0},
     )
     expect(unsafePath.status()).toBe(400)
 
     const valid = await request.get(
-      `${site.baseUrl}/api/preview?secret=local-preview-test-secret&siteId=${site.id}&path=%2Fproducts`,
+      signedPreviewUrl(site, '/products'),
       {maxRedirects: 0},
     )
     expect(valid.status()).toBe(307)
@@ -205,7 +277,7 @@ for (const site of sites) {
       modified: new Date().toISOString(),
     }
     const body = JSON.stringify(payload)
-    const signature = createHmac('sha256', revalidationSecret)
+    const signature = createHmac('sha256', siteSecret(site.id, 'REVALIDATION'))
       .update(body)
       .digest('hex')
 
@@ -252,3 +324,89 @@ for (const site of sites) {
     })
   })
 }
+
+test('signed Site A preview renders a live unpublished draft and remains isolated', async ({
+  page,
+  request,
+}) => {
+  const siteA = sites[0]
+  const siteB = sites[1]
+  const path = `/preview-live-${process.pid}`
+  const title = `Live unpublished preview ${process.pid}`
+  const postId = wpEval(
+    `$id=wp_insert_post(['post_type'=>'page','post_status'=>'draft','post_title'=>'${title}','post_content'=>'<p>Live unpublished preview body ${process.pid}</p>'],true); if(is_wp_error($id)){WP_CLI::error($id->get_error_message());} update_post_meta($id,'public_path','${path}'); update_post_meta($id,'seo_title','${title} SEO'); wp_set_object_terms($id,['tio2-a'],'site_scope',false); do_action('acf/save_post',$id); echo $id;`,
+  )
+
+  try {
+    const response = await page.goto(signedPreviewUrl(siteA, path), {
+      waitUntil: 'networkidle',
+    })
+    expect(response?.status()).toBe(200)
+    await expect(page.getByRole('heading', {level: 1})).toHaveText(title)
+    await expect(page.locator('article')).toContainText(
+      `Live unpublished preview body ${process.pid}`,
+    )
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+      'content',
+      'noindex, nofollow',
+    )
+
+    const crossSite = await request.get(signedPreviewUrl(siteB, path), {
+      maxRedirects: 0,
+    })
+    expect(crossSite.status()).toBe(404)
+  } finally {
+    wp(['post', 'delete', postId, '--force'])
+  }
+})
+
+test('WordPress page edit reaches only its owning Next endpoint and is restored', async ({
+  request,
+}) => {
+  const siteA = sites[0]
+  const siteB = sites[1]
+  const fixture = JSON.parse(
+    wpEval(
+      `$ids=get_posts(['post_type'=>'page','post_status'=>'publish','posts_per_page'=>1,'fields'=>'ids','meta_key'=>'public_path','meta_value'=>'/products','tax_query'=>[['taxonomy'=>'site_scope','field'=>'slug','terms'=>['tio2-a']]]]); if(empty($ids)){WP_CLI::error('Missing Site A products page');} echo wp_json_encode(['id'=>(int)$ids[0],'title'=>get_the_title((int)$ids[0])]);`,
+    ),
+  ) as {id: number; title: string}
+  const changedTitle = `Site A webhook delivery ${process.pid}`
+  const logDirectory = resolve('.tmp/local-sites')
+  const aLogPath = resolve(logDirectory, 'tio2-a.stdout.log')
+  const bLogPath = resolve(logDirectory, 'tio2-b.stdout.log')
+  const aBefore = readFileSync(aLogPath, 'utf8').length
+  const bBefore = readFileSync(bLogPath, 'utf8').length
+  const saveThroughAdminContract = (title: string) => {
+    const encodedTitle = Buffer.from(title, 'utf8').toString('base64')
+    wpEval(
+      `$result=wp_update_post(['ID'=>${fixture.id},'post_title'=>base64_decode('${encodedTitle}')],true); if(is_wp_error($result)){WP_CLI::error($result->get_error_message());} do_action('acf/save_post',${fixture.id});`,
+    )
+  }
+
+  try {
+    saveThroughAdminContract(changedTitle)
+
+    await expect
+      .poll(
+        async () => (await request.get(`${siteA.baseUrl}/products`)).text(),
+        {timeout: 15_000},
+      )
+      .toContain(changedTitle)
+    expect(await (await request.get(`${siteB.baseUrl}/products`)).text()).not.toContain(
+      changedTitle,
+    )
+
+    const aDeliveryLog = readFileSync(aLogPath, 'utf8').slice(aBefore)
+    const bDeliveryLog = readFileSync(bLogPath, 'utf8').slice(bBefore)
+    expect(aDeliveryLog).toContain('[tio2-revalidation]')
+    expect(bDeliveryLog).not.toContain('[tio2-revalidation]')
+  } finally {
+    saveThroughAdminContract(fixture.title)
+    await expect
+      .poll(
+        async () => (await request.get(`${siteA.baseUrl}/products`)).text(),
+        {timeout: 15_000},
+      )
+      .toContain(fixture.title)
+  }
+})

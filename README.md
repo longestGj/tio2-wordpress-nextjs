@@ -1,10 +1,10 @@
 # TiO₂ local WordPress + two-site Next.js integration
 
-This repository is a local-only integration environment for one WordPress content source and two isolated Next.js sites:
+This repository is a local-only integration environment for one WordPress CMS and two isolated Next.js sites. The sites share code, schema, and the CMS instance, but each managed Page/Post belongs to exactly one site and the two content sets remain independent:
 
 - Site A: `http://localhost:3001` (`SITE_ID=tio2-a`, `.next-tio2-a`)
 - Site B: `http://localhost:3002` (`SITE_ID=tio2-b`, `.next-tio2-b`)
-- WordPress: `http://localhost:8080`
+- WordPress: `http://127.0.0.1:8080` (loopback only)
 
 GitHub, Vercel, real domains, production deployment, and Search Console work are intentionally paused. The checked-in `tio2-a.example.com` and `tio2-b.example.com` origins are placeholders used to prove canonical, sitemap, robots, and JSON-LD isolation; they are not contacted by local tests.
 
@@ -20,7 +20,7 @@ GitHub, Vercel, real domains, production deployment, and Search Console work are
 From the repository root:
 
 ```powershell
-Copy-Item wordpress/.env.example wordpress/.env
+powershell -ExecutionPolicy Bypass -File scripts/new-local-wordpress-env.ps1
 docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml up -d
 powershell -ExecutionPolicy Bypass -File scripts/bootstrap-wordpress.ps1
 powershell -ExecutionPolicy Bypass -File scripts/seed-local-wordpress.ps1 -ScalePages 500
@@ -29,7 +29,9 @@ npx playwright install chromium
 npm run verify:local
 ```
 
-The seed creates five representative pages plus 500 deterministic scale pages per site: exactly 505 published paths in each site scope. All `long-tail-*` pages are visibly labeled synthetic test content and must not be treated as verified commercial or technical claims.
+The environment generator writes the ignored `wordpress/.env` with a non-default editor name plus independent, cryptographically random admin, revalidation, and preview secrets. It refuses to overwrite an existing file unless `-Force` is explicitly supplied and never prints generated secrets.
+
+The seed creates five representative pages plus 500 deterministic scale pages per site: exactly 505 published paths in each site scope. All `long-tail-*` pages are visibly labeled synthetic test content and must not be treated as verified commercial or technical claims. The optional TiO₂ custom-post-type fixtures exercise the schema; managed pages do not depend on shared entity content or a cross-site invalidation graph.
 
 ## One-command local verification
 
@@ -37,7 +39,7 @@ The seed creates five representative pages plus 500 deterministic scale pages pe
 npm run verify:local
 ```
 
-The gate is fail-fast and requires a completely clean Git worktree at both the start and end, including no untracked files. Commit or remove intentional local source changes before running it; ignored `.tmp` logs and build artifacts do not affect this check. It checks Compose configuration and service health, runs the real WordPress plugin smoke test and exact 505-per-site seed audit, lint, typecheck, deterministic GraphQL code generation, all normal Vitest tests, the opt-in live seed suite, both current-site builds, 12 Chromium acceptance tests, and independent HTTP audits. The live seed stage restores and audits the exact 505-per-site baseline in `finally`, including when the live test fails. The last stdout line is one machine-readable JSON success summary. Detailed command logs are written under ignored `.tmp/local-verify`.
+The gate is fail-fast and requires a completely clean Git worktree at both the start and end, including no untracked files. Commit or remove intentional local source changes before running it; ignored `.tmp` logs and build artifacts do not affect this check. It checks Compose configuration and service health, runs the WordPress schema, authoring, per-site webhook, and signed-preview smoke contracts, audits exactly 505 pages per site, runs lint, typecheck, deterministic GraphQL code generation, all normal Vitest tests, the opt-in live seed suite, both current-site builds, 14 Chromium acceptance tests, and independent HTTP audits. The browser suite creates and removes a real unpublished WordPress draft and proves that a WordPress edit reaches only its owning Next endpoint. The live seed stage restores and audits the exact 505-per-site baseline in `finally`, including when a live test fails. The last stdout line is one machine-readable JSON success summary. Detailed command logs are written under ignored `.tmp/local-verify`.
 
 Verification always stops only the two Node processes it started, including after a failed test or a bounded startup timeout. The controller writes recoverable process state after every launch and accepts cooperative cancellation. PID, executable path, process start time, Next CLI path, and port arguments are validated immediately before stopping through the retained process handle. It never kills a process merely by name or port.
 
@@ -52,7 +54,7 @@ npm run sites:start
 npm run sites:status
 ```
 
-Open `http://localhost:3001` and `http://localhost:3002`. Standard output, standard error, PID identity, and controller state are stored under ignored `.tmp/local-sites`. The launcher uses hidden Windows processes but leaves the sites available after the command returns.
+Open `http://localhost:3001` and `http://localhost:3002`. Standard output, standard error, PID identity, and controller state are stored under ignored `.tmp/local-sites`. The launcher uses hidden Windows processes but leaves the sites available after the command returns. It reads each site's preview and revalidation secrets from the ignored WordPress environment; secrets are never written to logs. The Next servers listen on the local host network so the WordPress container can deliver its signed per-site webhooks, while WordPress port 8080 itself remains loopback-bound.
 
 Stop only those recorded and identity-validated processes:
 
@@ -77,7 +79,7 @@ Do not add `-v`: the named local database and WordPress volumes are retained by 
 
 ## Troubleshooting
 
-- **Missing `wordpress/.env`:** copy `wordpress/.env.example`, keep the real file local, then rerun setup.
+- **Missing `wordpress/.env`:** run `scripts/new-local-wordpress-env.ps1`; keep the generated file local and never commit it.
 - **A Compose service is unavailable:** run `docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml ps`; start it with the setup `up -d` command and rerun bootstrap if needed.
 - **Seed audit does not report exactly 505:** rerun `scripts/seed-local-wordpress.ps1 -ScalePages 500`, then `scripts/audit-seed.ps1 -ExpectedPerSite 505`.
 - **Chromium is missing:** run `npx playwright install chromium`.

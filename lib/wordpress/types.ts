@@ -13,7 +13,6 @@ export interface ContentPageDto {
   readonly modified: string
   readonly status: string
   readonly seo: ContentSeoDto
-  readonly relatedEntityIds: readonly string[]
 }
 
 export class InvalidContentPathError extends Error {

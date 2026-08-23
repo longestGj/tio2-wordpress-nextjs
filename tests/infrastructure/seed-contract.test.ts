@@ -37,7 +37,6 @@ interface RepresentativePage {
 
 interface SiteSeed {
   siteId: string
-  sharedEntityIds: string[]
   pages: RepresentativePage[]
 }
 
@@ -97,13 +96,15 @@ describe('representative WordPress seed manifest', () => {
     }
   })
 
-  it('uses the same shared records from both sites without duplicating them', () => {
+  it('keeps optional CPT fixtures independent from both site page sets', () => {
     const manifest = readManifest()
-    const knownEntityIds = new Set(manifest.sharedEntities.map(({id}) => id))
-    const [siteA, siteB] = manifest.sites
 
-    expect(new Set(siteA.sharedEntityIds)).toEqual(new Set(siteB.sharedEntityIds))
-    expect(new Set(siteA.sharedEntityIds)).toEqual(knownEntityIds)
+    for (const site of manifest.sites) {
+      expect(site).not.toHaveProperty('sharedEntityIds')
+      expect(site.pages.map(({content}) => content).join(' ')).not.toContain(
+        'shared test entities',
+      )
+    }
   })
 
   it('labels all facts and publishing copy as synthetic test content', () => {

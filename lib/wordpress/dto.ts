@@ -10,9 +10,7 @@ import {normalizeWordPressGmt} from './time'
 const MAX_INTERNAL_SLUG_LENGTH = 180
 const PUBLIC_PATH_PATTERN = /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*)?$/
 
-type ContentPageSource = ContentPageFieldsFragment & {
-  readonly relatedEntityIds?: readonly string[] | null
-}
+type ContentPageSource = ContentPageFieldsFragment
 
 export function deriveExcerptFromHtml(html: string): string {
   return htmlToPlainText(html)
@@ -48,7 +46,7 @@ export function toContentPageDto(
   const actualSiteIds =
     node.siteScopes?.nodes.flatMap(({slug}) => (slug ? [slug] : [])) ?? []
 
-  if (!actualSiteIds.includes(expectedSiteId)) {
+  if (actualSiteIds.length !== 1 || actualSiteIds[0] !== expectedSiteId) {
     throw new CrossSiteContentError(expectedSiteId, actualSiteIds)
   }
 
@@ -81,6 +79,5 @@ export function toContentPageDto(
         node.publishingFields?.seoDescription ?? '',
       ),
     },
-    relatedEntityIds: [...(node.relatedEntityIds ?? [])],
   }
 }

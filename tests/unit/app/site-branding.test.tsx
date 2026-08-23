@@ -8,6 +8,12 @@ import {
 } from '@/tests/mocks/handlers'
 import {server} from '@/tests/mocks/server'
 
+const {draftMode} = vi.hoisted(() => ({
+  draftMode: vi.fn().mockResolvedValue({isEnabled: false}),
+}))
+
+vi.mock('next/headers', () => ({draftMode}))
+
 const sites = [
   {
     id: 'tio2-a',

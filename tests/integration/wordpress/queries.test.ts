@@ -109,7 +109,6 @@ describe('getContentByPath', () => {
         title: 'Titanium Dioxide for Coatings',
         description: 'Choose titanium dioxide grades for coatings.',
       },
-      relatedEntityIds: [],
     })
   })
 

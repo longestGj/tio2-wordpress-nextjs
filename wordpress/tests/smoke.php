@@ -11,8 +11,15 @@ function tio2_smoke_fail($message)
 
 $GLOBALS['tio2_smoke_webhook_post_ids'] = [];
 $GLOBALS['tio2_smoke_webhook_term_id'] = 0;
-$GLOBALS['tio2_smoke_original_webhook_url'] = getenv('NEXTJS_REVALIDATION_URL');
-$GLOBALS['tio2_smoke_original_webhook_secret'] = getenv('NEXTJS_REVALIDATION_SECRET');
+$GLOBALS['tio2_smoke_original_webhook_environment'] = [];
+foreach ([
+    'NEXTJS_REVALIDATION_URL_TIO2_A',
+    'NEXTJS_REVALIDATION_SECRET_TIO2_A',
+    'NEXTJS_REVALIDATION_URL_TIO2_B',
+    'NEXTJS_REVALIDATION_SECRET_TIO2_B',
+] as $environment_name) {
+    $GLOBALS['tio2_smoke_original_webhook_environment'][$environment_name] = getenv($environment_name);
+}
 
 function tio2_smoke_cleanup_webhook_fixtures()
 {
@@ -32,14 +39,11 @@ function tio2_smoke_cleanup_webhook_fixtures()
     $GLOBALS['tio2_smoke_webhook_term_id'] = 0;
     $GLOBALS['tio2_webhook_queue'] = [];
 
-    $original_url = $GLOBALS['tio2_smoke_original_webhook_url'] ?? false;
-    $original_secret = $GLOBALS['tio2_smoke_original_webhook_secret'] ?? false;
-    false === $original_url
-        ? putenv('NEXTJS_REVALIDATION_URL')
-        : putenv('NEXTJS_REVALIDATION_URL=' . $original_url);
-    false === $original_secret
-        ? putenv('NEXTJS_REVALIDATION_SECRET')
-        : putenv('NEXTJS_REVALIDATION_SECRET=' . $original_secret);
+    foreach ($GLOBALS['tio2_smoke_original_webhook_environment'] ?? [] as $environment_name => $original_value) {
+        false === $original_value
+            ? putenv($environment_name)
+            : putenv($environment_name . '=' . $original_value);
+    }
 }
 
 function tio2_smoke_assert_acf_group($group_key, $graphql_field_name, $expected_fields, $expected_post_types)
@@ -279,24 +283,27 @@ foreach ([
     }
 }
 
-if (null !== tio2_get_webhook_config(['NEXTJS_REVALIDATION_URL' => '', 'NEXTJS_REVALIDATION_SECRET' => ''])) {
+if (null !== tio2_get_webhook_config('tio2-a', [
+    'NEXTJS_REVALIDATION_URL_TIO2_A' => '',
+    'NEXTJS_REVALIDATION_SECRET_TIO2_A' => '',
+])) {
     tio2_smoke_fail('Webhook configuration accepted empty URL and secret');
 }
 
-if (null !== tio2_get_webhook_config([
-    'NEXTJS_REVALIDATION_URL' => 'ftp://example.test/revalidate',
-    'NEXTJS_REVALIDATION_SECRET' => 'test-secret',
+if (null !== tio2_get_webhook_config('tio2-a', [
+    'NEXTJS_REVALIDATION_URL_TIO2_A' => 'ftp://example.test/revalidate',
+    'NEXTJS_REVALIDATION_SECRET_TIO2_A' => 'test-secret',
 ])) {
     tio2_smoke_fail('Webhook configuration accepted a non-HTTP URL');
 }
 
-$test_webhook_config = tio2_get_webhook_config([
-    'NEXTJS_REVALIDATION_URL' => 'http://host.docker.internal:3000/api/revalidate',
-    'NEXTJS_REVALIDATION_SECRET' => 'test-secret',
+$test_webhook_config = tio2_get_webhook_config('tio2-a', [
+    'NEXTJS_REVALIDATION_URL_TIO2_A' => 'http://host.docker.internal:3001/api/revalidate',
+    'NEXTJS_REVALIDATION_SECRET_TIO2_A' => 'test-secret',
 ]);
 if (
     ! is_array($test_webhook_config) ||
-    'http://host.docker.internal:3000/api/revalidate' !== $test_webhook_config['url'] ||
+    'http://host.docker.internal:3001/api/revalidate' !== $test_webhook_config['url'] ||
     'test-secret' !== $test_webhook_config['secret']
 ) {
     tio2_smoke_fail('Webhook configuration did not preserve the configured URL and secret');
@@ -351,13 +358,8 @@ if (empty($entity_ids)) {
 }
 
 $entity_payload = tio2_build_webhook_payload((int) $entity_ids[0], $event_time);
-if (
-    ! is_array($entity_payload) ||
-    ['tio2-a', 'tio2-b'] !== $entity_payload['siteIds'] ||
-    [] !== $entity_payload['paths'] ||
-    [(int) $entity_ids[0]] !== $entity_payload['entityIds']
-) {
-    tio2_smoke_fail('Unscoped shared entity payload did not target both fixed sites');
+if (null !== $entity_payload) {
+    tio2_smoke_fail('Unscoped optional entity implicitly targeted both sites');
 }
 
 $encoded_page_payload = tio2_encode_webhook_payload($page_payload);
@@ -406,64 +408,60 @@ $GLOBALS['tio2_webhook_queue'] = [];
 
 function tio2_smoke_assert_single_webhook(&$requests, $expected_sites, $expected_paths, $expected_entity_ids)
 {
-    if (1 !== count($requests)) {
-        tio2_smoke_fail('Expected exactly one intercepted webhook request, received ' . count($requests));
+    if (count($expected_sites) !== count($requests)) {
+        tio2_smoke_fail('Unexpected intercepted webhook request count: ' . count($requests));
     }
 
-    $request = $requests[0];
-    $args = $request['args'];
-    if (
-        'https://next.example.test/api/revalidate' !== $request['url'] ||
-        'POST' !== ($args['method'] ?? null) ||
-        5 !== ($args['timeout'] ?? null) ||
-        0 !== ($args['redirection'] ?? null) ||
-        'application/json' !== ($args['headers']['content-type'] ?? null) ||
-        ! is_string($args['body'] ?? null)
-    ) {
-        tio2_smoke_fail('Intercepted webhook request options do not match the transport contract');
-    }
+    $actual_sites = [];
+    foreach ($requests as $request) {
+        $args = $request['args'];
+        if (
+            'https://next.example.test/api/revalidate' !== $request['url'] ||
+            'POST' !== ($args['method'] ?? null) ||
+            5 !== ($args['timeout'] ?? null) ||
+            0 !== ($args['redirection'] ?? null) ||
+            'application/json' !== ($args['headers']['content-type'] ?? null) ||
+            ! is_string($args['body'] ?? null)
+        ) {
+            tio2_smoke_fail('Intercepted webhook request options do not match the transport contract');
+        }
 
-    $body = $args['body'];
-    $signature = $args['headers']['x-tio2-signature'] ?? null;
-    if (! is_string($signature) || hash_hmac('sha256', $body, 'runtime-smoke-secret') !== $signature) {
-        tio2_smoke_fail('Intercepted webhook signature does not match the exact posted body bytes');
-    }
+        $body = $args['body'];
+        $signature = $args['headers']['x-tio2-signature'] ?? null;
+        if (! is_string($signature) || hash_hmac('sha256', $body, 'runtime-smoke-secret') !== $signature) {
+            tio2_smoke_fail('Intercepted webhook signature does not match the exact posted body bytes');
+        }
 
-    $payload = json_decode($body, true);
-    if (
-        ! is_array($payload) ||
-        ['eventId', 'siteIds', 'contentId', 'paths', 'entityIds', 'modified'] !== array_keys($payload) ||
-        ! wp_is_uuid($payload['eventId'], 4) ||
-        abs(time() - strtotime($payload['modified'])) > 5
-    ) {
-        tio2_smoke_fail('Intercepted webhook body is not a current strict payload');
+        $payload = json_decode($body, true);
+        if (
+            ! is_array($payload) ||
+            ['eventId', 'siteIds', 'contentId', 'paths', 'entityIds', 'modified'] !== array_keys($payload) ||
+            1 !== count($payload['siteIds']) ||
+            ! wp_is_uuid($payload['eventId'], 4) ||
+            abs(time() - strtotime($payload['modified'])) > 5
+        ) {
+            tio2_smoke_fail('Intercepted webhook body is not a current per-site payload');
+        }
+
+        $actual_sites[] = $payload['siteIds'][0];
+        $actual_paths = $payload['paths'];
+        $actual_entity_ids = $payload['entityIds'];
+        sort($actual_paths, SORT_STRING);
+        sort($actual_entity_ids, SORT_NUMERIC);
+        sort($expected_paths, SORT_STRING);
+        sort($expected_entity_ids, SORT_NUMERIC);
+        if ($expected_paths !== $actual_paths || $expected_entity_ids !== $actual_entity_ids) {
+            tio2_smoke_fail('Intercepted webhook paths or entity IDs did not match');
+        }
     }
 
     sort($expected_sites, SORT_STRING);
-    sort($expected_paths, SORT_STRING);
-    sort($expected_entity_ids, SORT_NUMERIC);
-    $actual_sites = $payload['siteIds'];
-    $actual_paths = $payload['paths'];
-    $actual_entity_ids = $payload['entityIds'];
     sort($actual_sites, SORT_STRING);
-    sort($actual_paths, SORT_STRING);
-    sort($actual_entity_ids, SORT_NUMERIC);
-    if (
-        $expected_sites !== $actual_sites ||
-        $expected_paths !== $actual_paths ||
-        $expected_entity_ids !== $actual_entity_ids
-    ) {
-        tio2_smoke_fail(
-            'Intercepted webhook affected state mismatch: ' . wp_json_encode([
-                'siteIds' => $actual_sites,
-                'paths' => $actual_paths,
-                'entityIds' => $actual_entity_ids,
-            ])
-        );
+    if ($expected_sites !== $actual_sites) {
+        tio2_smoke_fail('Intercepted webhook delivery sites did not match');
     }
 
     $requests = [];
-    return $payload;
 }
 
 foreach (get_posts([
@@ -481,8 +479,10 @@ if ($stale_term) {
 }
 $GLOBALS['tio2_webhook_queue'] = [];
 
-putenv('NEXTJS_REVALIDATION_URL=https://next.example.test/api/revalidate');
-putenv('NEXTJS_REVALIDATION_SECRET=runtime-smoke-secret');
+putenv('NEXTJS_REVALIDATION_URL_TIO2_A=https://next.example.test/api/revalidate');
+putenv('NEXTJS_REVALIDATION_SECRET_TIO2_A=runtime-smoke-secret');
+putenv('NEXTJS_REVALIDATION_URL_TIO2_B=https://next.example.test/api/revalidate');
+putenv('NEXTJS_REVALIDATION_SECRET_TIO2_B=runtime-smoke-secret');
 $captured_webhook_requests = [];
 $webhook_transport_error = false;
 $webhook_interceptor = function ($preempt, $args, $url) use (&$captured_webhook_requests, &$webhook_transport_error) {
@@ -584,12 +584,9 @@ $GLOBALS['tio2_webhook_queue'] = [];
 $captured_webhook_requests = [];
 do_action('transition_post_status', 'publish', 'draft', get_post($runtime_entity_id));
 tio2_flush_webhook_queue();
-tio2_smoke_assert_single_webhook(
-    $captured_webhook_requests,
-    ['tio2-a', 'tio2-b'],
-    [],
-    [(int) $runtime_entity_id]
-);
+if (! empty($captured_webhook_requests)) {
+    tio2_smoke_fail('Unscoped optional entity emitted a webhook');
+}
 
 $unsupported_term = wp_insert_term(
     'TiO2 webhook unsupported scope',
@@ -620,12 +617,9 @@ if (true !== $removed_unsupported_scope) {
     tio2_smoke_fail('Could not directly remove unsupported-only site_scope term');
 }
 tio2_flush_webhook_queue();
-tio2_smoke_assert_single_webhook(
-    $captured_webhook_requests,
-    ['tio2-a', 'tio2-b'],
-    [],
-    [(int) $runtime_entity_id]
-);
+if (! empty($captured_webhook_requests)) {
+    tio2_smoke_fail('Removing an unsupported term implicitly broadcast an optional entity');
+}
 
 $webhook_transport_error = true;
 $GLOBALS['tio2_webhook_queue'] = [];

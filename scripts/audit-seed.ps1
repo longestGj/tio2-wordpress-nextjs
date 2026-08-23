@@ -239,6 +239,6 @@ foreach ($SiteId in $SiteIds) {
     Write-Output "$SiteId`: $($PublishedCounts[$SiteId]) published pages"
 }
 foreach ($FixtureId in $RequiredSharedFixtures.Keys) {
-    Write-Output "$($RequiredSharedFixtures[$FixtureId])`: 1 published shared fixture ($FixtureId)"
+    Write-Output "$($RequiredSharedFixtures[$FixtureId])`: 1 published optional schema fixture ($FixtureId)"
 }
 Write-Output 'Seed audit passed.'

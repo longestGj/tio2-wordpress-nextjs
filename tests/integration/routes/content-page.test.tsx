@@ -15,6 +15,14 @@ import {
 } from '@/tests/mocks/handlers'
 import {server} from '@/tests/mocks/server'
 
+const {draftMode} = vi.hoisted(() => ({
+  draftMode: vi.fn(),
+}))
+
+vi.mock('next/headers', () => ({draftMode}))
+
+const wordpressPreviewUrl = 'http://wordpress.test/wp-json/tio2/v1/preview'
+
 interface GraphQLRequestBody {
   readonly variables?: {readonly uri?: string}
 }
@@ -65,10 +73,14 @@ async function render(element: React.ReactNode) {
 
 beforeEach(() => {
   vi.stubEnv('WORDPRESS_GRAPHQL_URL', graphqlEndpoint)
+  vi.stubEnv('WORDPRESS_PREVIEW_URL', wordpressPreviewUrl)
+  vi.stubEnv('WORDPRESS_PREVIEW_SECRET', 'preview-test-secret')
+  draftMode.mockResolvedValue({isEnabled: false})
 })
 
 afterEach(() => {
   vi.unstubAllEnvs()
+  vi.clearAllMocks()
 })
 
 describe('site-local route normalization and generation', () => {
@@ -102,6 +114,39 @@ describe('site-local route normalization and generation', () => {
 })
 
 describe('site-scoped content routes', () => {
+  it('renders unpublished content from the uncached signed preview source in Draft Mode', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    draftMode.mockResolvedValue({isEnabled: true})
+    servePage(
+      '/tio2-a--draft-page/',
+      contentNode('tio2-a', '/draft-page', 'Published fallback must not render'),
+    )
+    server.use(
+      http.get(wordpressPreviewUrl, () =>
+        HttpResponse.json({
+          id: 'draft-42',
+          siteId: 'tio2-a',
+          path: '/draft-page',
+          title: 'Unpublished route title',
+          html: '<p>Unpublished route body.</p>',
+          modified: '2026-08-23T02:30:00.000Z',
+          status: 'draft',
+          seo: {title: 'Unpublished SEO title', description: 'Draft description'},
+        }),
+      ),
+    )
+    const route = await import('@/app/[...path]/page')
+    const props = {params: Promise.resolve({path: ['draft-page']})}
+
+    const markup = await render(await route.default(props))
+    const metadata = await route.generateMetadata(props)
+
+    expect(markup).toContain('<h1>Unpublished route title</h1>')
+    expect(markup).toContain('Unpublished route body.')
+    expect(markup).not.toContain('Published fallback must not render')
+    expect(metadata.robots).toEqual({index: false, follow: false})
+  })
+
   it('renders the Site A root from the environment-selected site and root query', async () => {
     vi.stubEnv('SITE_ID', 'tio2-a')
     servePage('/tio2-a--home/', contentNode('tio2-a', '/', 'Site A Home'))

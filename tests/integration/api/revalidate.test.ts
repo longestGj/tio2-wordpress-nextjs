@@ -89,6 +89,7 @@ function signedBytesRequest(bytes: Uint8Array): Request {
 
 beforeEach(() => {
   vi.stubEnv('REVALIDATION_SECRET', secret)
+  vi.stubEnv('SITE_ID', 'tio2-a')
 })
 
 afterEach(() => {
@@ -298,6 +299,7 @@ describe('POST /api/revalidate', () => {
       entityIds: [9],
     })
 
+    const diagnostic = vi.spyOn(console, 'info').mockImplementation(() => undefined)
     const response = await POST(signedRequest(payload))
 
     expect(response.status).toBe(200)
@@ -315,24 +317,25 @@ describe('POST /api/revalidate', () => {
       ['site:tio2-a', 'max'],
     ])
     expect(revalidatePath.mock.calls).toEqual([['/products']])
+    expect(diagnostic).toHaveBeenCalledWith('[tio2-revalidation]', {
+      siteId: 'tio2-a',
+      contentId: 42,
+      paths: ['/products'],
+    })
+    diagnostic.mockRestore()
   })
 
-  it('invalidates only attached site tags for a two-site shared entity', async () => {
-    const payload = validPayload({
-      siteIds: ['tio2-b', 'tio2-a'],
-      contentId: 77,
-      paths: [],
-      entityIds: [12, 5],
-    })
+  it.each([
+    ['another site', ['tio2-b']],
+    ['multiple sites', ['tio2-a', 'tio2-b']],
+  ])('rejects a signed payload targeting %s', async (_label, siteIds) => {
+    const response = await POST(
+      signedRequest(validPayload({siteIds, entityIds: [12]})),
+    )
 
-    const response = await POST(signedRequest(payload))
-    const body = await response.json()
-
-    expect(body.revalidatedTags).toEqual([
-      'site:tio2-a',
-      'site:tio2-b',
-    ])
-    expect(body.revalidatedPaths).toEqual([])
+    expect(response.status).toBe(400)
+    expect(revalidateTag).not.toHaveBeenCalled()
+    expect(revalidatePath).not.toHaveBeenCalled()
   })
 
   it('returns success for a duplicate event without repeating invalidation', async () => {

@@ -81,6 +81,12 @@ if (-not $DatabaseReady) {
 
 $InstalledExitCode = Invoke-WpCli -Arguments @('core', 'is-installed') -AllowFailure
 if ($InstalledExitCode -ne 0) {
+    if (
+        $LocalEnvironment['WORDPRESS_ADMIN_USER'] -eq 'admin' -or
+        $LocalEnvironment['WORDPRESS_ADMIN_PASSWORD'] -notmatch '^[0-9a-f]{64}$'
+    ) {
+        throw 'A fresh install requires a generated WORDPRESS_ADMIN_PASSWORD and a non-default administrator user. Run scripts/new-local-wordpress-env.ps1.'
+    }
     Invoke-WpCli -Arguments @(
         'core', 'install',
         '--url=http://localhost:8080',

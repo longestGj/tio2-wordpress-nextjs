@@ -1,16 +1,20 @@
-import {createHash, timingSafeEqual} from 'node:crypto'
+import {createHmac, timingSafeEqual} from 'node:crypto'
 import {draftMode} from 'next/headers'
 import {redirect} from 'next/navigation'
 
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {isValidPublicPath} from '@/lib/wordpress/cache-tags'
+import {getPreviewContentByPath} from '@/lib/wordpress/preview'
 
 export const runtime = 'nodejs'
 
-function secretsMatch(actual: string, expected: string): boolean {
-  const actualHash = createHash('sha256').update(actual).digest()
-  const expectedHash = createHash('sha256').update(expected).digest()
-  return timingSafeEqual(actualHash, expectedHash)
+function signatureMatches(
+  signature: string,
+  expected: Buffer,
+): boolean {
+  if (!/^[0-9a-f]{64}$/u.test(signature)) return false
+  const actual = Buffer.from(signature, 'hex')
+  return actual.length === expected.length && timingSafeEqual(actual, expected)
 }
 
 export async function GET(request: Request): Promise<Response> {
@@ -20,12 +24,6 @@ export async function GET(request: Request): Promise<Response> {
       {ok: false, error: 'Preview is not configured'},
       {status: 500},
     )
-  }
-
-  const url = new URL(request.url)
-  const suppliedSecret = url.searchParams.get('secret') ?? ''
-  if (!secretsMatch(suppliedSecret, configuredSecret)) {
-    return Response.json({ok: false, error: 'Invalid secret'}, {status: 401})
   }
 
   let currentSite
@@ -38,6 +36,7 @@ export async function GET(request: Request): Promise<Response> {
     )
   }
 
+  const url = new URL(request.url)
   const siteId = url.searchParams.get('siteId')
   const path = url.searchParams.get('path') ?? ''
   if (siteId !== currentSite.id || !isValidPublicPath(path)) {
@@ -45,6 +44,34 @@ export async function GET(request: Request): Promise<Response> {
       {ok: false, error: 'Invalid preview target'},
       {status: 400},
     )
+  }
+
+  const expiresValue = url.searchParams.get('expires') ?? ''
+  const expires = /^[1-9][0-9]{0,12}$/u.test(expiresValue)
+    ? Number(expiresValue)
+    : Number.NaN
+  const now = Math.floor(Date.now() / 1000)
+  const expectedSignature = createHmac('sha256', configuredSecret)
+    .update(`${expiresValue}\n${siteId}\n${path}`)
+    .digest()
+  if (
+    !Number.isSafeInteger(expires) ||
+    expires < now ||
+    expires > now + 300 ||
+    !signatureMatches(
+      url.searchParams.get('signature') ?? '',
+      expectedSignature,
+    )
+  ) {
+    return Response.json(
+      {ok: false, error: 'Invalid preview signature'},
+      {status: 401},
+    )
+  }
+
+  const preview = await getPreviewContentByPath(siteId, path)
+  if (!preview) {
+    return Response.json({ok: false, error: 'Preview not found'}, {status: 404})
   }
 
   const draft = await draftMode()

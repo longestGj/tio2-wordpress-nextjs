@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: TiO2 Site Model
- * Description: Registers the shared TiO2 content model and site publishing fields.
+ * Description: Registers optional TiO2 content types and isolated site publishing fields.
  * Version: 0.1.0
  * Requires at least: 6.7
  * Requires PHP: 8.1
@@ -16,10 +16,12 @@ if (! defined('ABSPATH')) {
 require_once __DIR__ . '/includes/content-types.php';
 require_once __DIR__ . '/includes/fields.php';
 require_once __DIR__ . '/includes/webhooks.php';
+require_once __DIR__ . '/includes/preview.php';
 
 add_action('init', 'tio2_register_content_types');
 add_action('acf/init', 'tio2_register_acf_fields');
 add_filter('acf/validate_value/name=public_path', 'tio2_validate_public_path', 10, 4);
+add_action('acf/save_post', 'tio2_sync_managed_post_routing', 20);
 add_filter('sanitize_title', 'tio2_preserve_internal_slug', 10, 3);
 add_action('transition_post_status', 'tio2_handle_post_transition', 10, 3);
 add_filter('update_post_metadata', 'tio2_capture_post_meta_before_mutation', 10, 5);
@@ -30,5 +32,7 @@ add_action('deleted_post_meta', 'tio2_handle_deleted_post_meta', 10, 4);
 add_action('set_object_terms', 'tio2_handle_site_scope_set', 10, 6);
 add_action('deleted_term_relationships', 'tio2_handle_deleted_term_relationships', 10, 3);
 add_action('shutdown', 'tio2_flush_webhook_queue');
+add_action('rest_api_init', 'tio2_register_preview_rest_route');
+add_filter('preview_post_link', 'tio2_filter_preview_post_link', 10, 2);
 
 register_activation_hook(__FILE__, 'tio2_activate_site_model');

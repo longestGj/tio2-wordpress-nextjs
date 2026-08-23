@@ -10,14 +10,21 @@ if (! defined('ABSPATH')) {
  * @param array<string, string>|null $environment
  * @return array{url: string, secret: string}|null
  */
-function tio2_get_webhook_config(?array $environment = null): ?array
+function tio2_get_webhook_config(string $site_id, ?array $environment = null): ?array
 {
+    if (! in_array($site_id, ['tio2-a', 'tio2-b'], true)) {
+        return null;
+    }
+
+    $suffix = strtoupper(str_replace('-', '_', $site_id));
+    $url_name = 'NEXTJS_REVALIDATION_URL_' . $suffix;
+    $secret_name = 'NEXTJS_REVALIDATION_SECRET_' . $suffix;
     $url = null === $environment
-        ? getenv('NEXTJS_REVALIDATION_URL')
-        : ($environment['NEXTJS_REVALIDATION_URL'] ?? '');
+        ? getenv($url_name)
+        : ($environment[$url_name] ?? '');
     $secret = null === $environment
-        ? getenv('NEXTJS_REVALIDATION_SECRET')
-        : ($environment['NEXTJS_REVALIDATION_SECRET'] ?? '');
+        ? getenv($secret_name)
+        : ($environment[$secret_name] ?? '');
 
     if (! is_string($url) || ! is_string($secret) || '' === $url || '' === $secret) {
         return null;
@@ -140,7 +147,7 @@ function tio2_get_webhook_affected_state(
     $site_ids = $scope_state['siteIds'];
     $entity_ids = [];
     if (in_array($post->post_type, ['page', 'post'], true)) {
-        if (empty($site_ids)) {
+        if (1 !== count($site_ids)) {
             return null;
         }
         $paths = $paths ?? [(string) get_post_meta($post_id, 'public_path', true)];
@@ -155,10 +162,7 @@ function tio2_get_webhook_affected_state(
     } else {
         $paths = [];
         if (empty($site_ids)) {
-            if ($scope_state['hasTerms']) {
-                return null;
-            }
-            $site_ids = ['tio2-a', 'tio2-b'];
+            return null;
         }
         $entity_ids = [$post_id];
     }
@@ -233,37 +237,52 @@ function tio2_sign_webhook_body(string $body, string $secret): string
  */
 function tio2_send_webhook(int $post_id, ?array $affected = null): bool
 {
-    $config = tio2_get_webhook_config();
-    if (null === $config) {
+    $affected = $affected ?? tio2_get_webhook_affected_state($post_id);
+    if (null === $affected || empty($affected['siteIds'])) {
         return false;
     }
 
-    $payload = tio2_build_webhook_payload($post_id, null, $affected);
-    if (null === $payload) {
-        return false;
+    $attempted = false;
+    $all_succeeded = true;
+    foreach ($affected['siteIds'] as $site_id) {
+        $config = tio2_get_webhook_config($site_id);
+        if (null === $config) {
+            $all_succeeded = false;
+            continue;
+        }
+
+        $site_affected = $affected;
+        $site_affected['siteIds'] = [$site_id];
+        $payload = tio2_build_webhook_payload($post_id, null, $site_affected);
+        $body = null === $payload ? null : tio2_encode_webhook_payload($payload);
+        if (null === $body) {
+            $all_succeeded = false;
+            continue;
+        }
+
+        $attempted = true;
+        $response = wp_remote_post($config['url'], [
+            'timeout' => 5,
+            'redirection' => 0,
+            'headers' => [
+                'content-type' => 'application/json',
+                'x-tio2-signature' => tio2_sign_webhook_body($body, $config['secret']),
+            ],
+            'body' => $body,
+        ]);
+
+        if (is_wp_error($response)) {
+            $all_succeeded = false;
+            continue;
+        }
+
+        $status = wp_remote_retrieve_response_code($response);
+        if ($status < 200 || $status >= 300) {
+            $all_succeeded = false;
+        }
     }
 
-    $body = tio2_encode_webhook_payload($payload);
-    if (null === $body) {
-        return false;
-    }
-
-    $response = wp_remote_post($config['url'], [
-        'timeout' => 5,
-        'redirection' => 0,
-        'headers' => [
-            'content-type' => 'application/json',
-            'x-tio2-signature' => tio2_sign_webhook_body($body, $config['secret']),
-        ],
-        'body' => $body,
-    ]);
-
-    if (is_wp_error($response)) {
-        return false;
-    }
-
-    $status = wp_remote_retrieve_response_code($response);
-    return $status >= 200 && $status < 300;
+    return $attempted && $all_succeeded;
 }
 
 function tio2_is_relevant_webhook_meta_key(string $meta_key): bool

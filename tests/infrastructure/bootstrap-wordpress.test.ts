@@ -106,4 +106,56 @@ exit 0
     expect(successfulDatabaseCheckIndex).toBeLessThan(installedCheckIndex)
     expect(commands.some((command) => command.includes(' wp core install'))).toBe(false)
   })
+
+  it('blocks a fresh install that still has placeholder administrator credentials', () => {
+    const testRoot = mkdtempSync(join(tmpdir(), 'tio2-bootstrap-secret-'))
+    temporaryDirectories.push(testRoot)
+    const scriptsDirectory = join(testRoot, 'scripts')
+    const wordpressDirectory = join(testRoot, 'wordpress')
+    const binDirectory = join(testRoot, 'bin')
+    const logFile = join(testRoot, 'docker.log')
+    mkdirSync(scriptsDirectory)
+    mkdirSync(wordpressDirectory)
+    mkdirSync(binDirectory)
+    copyFileSync(
+      'scripts/bootstrap-wordpress.ps1',
+      join(scriptsDirectory, 'bootstrap-wordpress.ps1'),
+    )
+    copyFileSync('wordpress/.env.example', join(wordpressDirectory, '.env'))
+    writeFileSync(join(wordpressDirectory, 'docker-compose.yml'), 'services: {}\n')
+    writeFileSync(
+      join(binDirectory, 'docker.ps1'),
+      `param([Parameter(ValueFromRemainingArguments = $true)][string[]] $Arguments)
+$CommandLine = $Arguments -join ' '
+Add-Content -LiteralPath $env:TIO2_FAKE_DOCKER_LOG -Value $CommandLine
+if ($CommandLine -match ' wp db check') { exit 0 }
+if ($CommandLine -match ' wp core is-installed') { exit 1 }
+if ($CommandLine -match ' wp core install') { exit 0 }
+exit 0
+`,
+    )
+
+    const result = spawnSync(
+      'powershell',
+      [
+        '-NoProfile',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-File',
+        join(scriptsDirectory, 'bootstrap-wordpress.ps1'),
+      ],
+      {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          PATH: `${binDirectory}${delimiter}${process.env.PATH ?? ''}`,
+          TIO2_FAKE_DOCKER_LOG: logFile,
+        },
+      },
+    )
+
+    expect(result.status).not.toBe(0)
+    expect(result.stderr).toContain('generated WORDPRESS_ADMIN_PASSWORD')
+    expect(readFileSync(logFile, 'utf8')).not.toContain(' wp core install')
+  })
 })

@@ -40,6 +40,8 @@ describe.runIf(process.platform === 'win32')('local sites controller', () => {
       startup: {
         statePersistence: 'after-each-start',
         cancellation: 'cooperative-file',
+        secrets: 'per-site-from-wordpress-env',
+        hostname: '0.0.0.0',
       },
       stop: {
         preflightAllRecords: true,

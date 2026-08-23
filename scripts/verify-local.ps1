@@ -95,7 +95,14 @@ $ExpectedPerSite = 505
 $ControllerCancellationPath = Join-Path $LogDirectory 'controller-cancel.signal'
 
 if (-not (Test-Path -LiteralPath $EnvironmentFile)) {
-    throw 'Missing wordpress/.env. Copy wordpress/.env.example before verification.'
+    throw 'Missing wordpress/.env. Run scripts/new-local-wordpress-env.ps1 before verification.'
+}
+$LocalWordPressEnvironment = @{}
+foreach ($Line in Get-Content -LiteralPath $EnvironmentFile) {
+    $TrimmedLine = $Line.Trim()
+    if (-not $TrimmedLine -or $TrimmedLine.StartsWith('#')) { continue }
+    $Name, $Value = $TrimmedLine -split '=', 2
+    $LocalWordPressEnvironment[$Name.Trim()] = $Value.Trim()
 }
 Assert-CleanWorktree -Phase 'before local verification'
 New-Item -ItemType Directory -Path $LogDirectory -Force | Out-Null
@@ -407,6 +414,12 @@ function Invoke-HttpAudit {
 
     $AuditSites = [System.Collections.Generic.List[object]]::new()
     foreach ($Site in $Sites) {
+        $SecretSuffix = $Site.siteId.ToUpperInvariant().Replace('-', '_')
+        $PreviewSecret = $LocalWordPressEnvironment["NEXTJS_PREVIEW_SECRET_$SecretSuffix"]
+        $RevalidationSecret = $LocalWordPressEnvironment["NEXTJS_REVALIDATION_SECRET_$SecretSuffix"]
+        if (-not $PreviewSecret -or -not $RevalidationSecret) {
+            throw "Missing per-site integration secrets for $($Site.siteId)."
+        }
         $HomeText = if ($Site.siteId -eq 'tio2-a') { 'Site A Synthetic Test Home' } else { 'Site B Synthetic Test Home' }
         Assert-PageAudit -Site $Site -Path '/' -Canonical $Site.domain -ExpectedText $HomeText
         Assert-PageAudit `
@@ -452,12 +465,30 @@ function Invoke-HttpAudit {
             throw "$($Site.siteId) 404 leaked opposite-site branding."
         }
 
-        $BadPreview = Invoke-Http -Url "$($Site.baseUrl)/api/preview?secret=wrong&siteId=$($Site.siteId)&path=%2Fproducts"
+        $PreviewExpires = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds() + 300
+        $PreviewMessage = "$PreviewExpires`n$($Site.siteId)`n/products"
+        $Encoding = [System.Text.Encoding]::UTF8
+        $PreviewHmac = [System.Security.Cryptography.HMACSHA256]::new($Encoding.GetBytes($PreviewSecret))
+        try {
+            $PreviewSignature = ([BitConverter]::ToString($PreviewHmac.ComputeHash($Encoding.GetBytes($PreviewMessage)))).Replace('-', '').ToLowerInvariant()
+        }
+        finally {
+            $PreviewHmac.Dispose()
+        }
+        $BadPreview = Invoke-Http -Url "$($Site.baseUrl)/api/preview?siteId=$($Site.siteId)&path=%2Fproducts&expires=$PreviewExpires&signature=$('0' * 64)"
         Assert-Status -Response $BadPreview -Expected 401 -Label "$($Site.siteId) bad preview"
         $OtherSiteId = if ($Site.siteId -eq 'tio2-a') { 'tio2-b' } else { 'tio2-a' }
-        $WrongSitePreview = Invoke-Http -Url "$($Site.baseUrl)/api/preview?secret=local-preview-test-secret&siteId=$OtherSiteId&path=%2Fproducts"
+        $OtherPreviewMessage = "$PreviewExpires`n$OtherSiteId`n/products"
+        $OtherPreviewHmac = [System.Security.Cryptography.HMACSHA256]::new($Encoding.GetBytes($PreviewSecret))
+        try {
+            $OtherPreviewSignature = ([BitConverter]::ToString($OtherPreviewHmac.ComputeHash($Encoding.GetBytes($OtherPreviewMessage)))).Replace('-', '').ToLowerInvariant()
+        }
+        finally {
+            $OtherPreviewHmac.Dispose()
+        }
+        $WrongSitePreview = Invoke-Http -Url "$($Site.baseUrl)/api/preview?siteId=$OtherSiteId&path=%2Fproducts&expires=$PreviewExpires&signature=$OtherPreviewSignature"
         Assert-Status -Response $WrongSitePreview -Expected 400 -Label "$($Site.siteId) cross-site preview"
-        $ValidPreview = Invoke-Http -Url "$($Site.baseUrl)/api/preview?secret=local-preview-test-secret&siteId=$($Site.siteId)&path=%2Fproducts"
+        $ValidPreview = Invoke-Http -Url "$($Site.baseUrl)/api/preview?siteId=$($Site.siteId)&path=%2Fproducts&expires=$PreviewExpires&signature=$PreviewSignature"
         Assert-Status -Response $ValidPreview -Expected 307 -Label "$($Site.siteId) valid preview"
         if ($ValidPreview.headers['location'] -ne '/products') {
             throw "$($Site.siteId) preview did not preserve a safe relative redirect."
@@ -472,9 +503,8 @@ function Invoke-HttpAudit {
             modified = [DateTime]::UtcNow.ToString('o')
         }
         $RawBody = $Payload | ConvertTo-Json -Depth 4 -Compress
-        $Encoding = [System.Text.Encoding]::UTF8
         $Hmac = [System.Security.Cryptography.HMACSHA256]::new(
-            $Encoding.GetBytes('local-revalidation-test-secret')
+            $Encoding.GetBytes($RevalidationSecret)
         )
         try {
             $Signature = ([BitConverter]::ToString($Hmac.ComputeHash($Encoding.GetBytes($RawBody)))).Replace('-', '').ToLowerInvariant()
@@ -549,13 +579,15 @@ try {
     }
 
     Invoke-Gate -Name 'wordpress-smoke' -Action {
-        Invoke-NativeLogged `
-            -FilePath $Docker `
-            -Arguments @($ComposeArguments + @(
-                'run', '--rm', '--no-TTY', 'wpcli',
-                'wp', 'eval-file', '/workspace/wordpress/tests/smoke.php'
-            )) `
-            -LogName 'wordpress-smoke'
+        foreach ($SmokeName in @('smoke', 'authoring', 'webhook-routing', 'preview')) {
+            Invoke-NativeLogged `
+                -FilePath $Docker `
+                -Arguments @($ComposeArguments + @(
+                    'run', '--rm', '--no-TTY', '--user', '33:33', 'wpcli',
+                    'wp', 'eval-file', "/workspace/wordpress/tests/$SmokeName.php"
+                )) `
+                -LogName "wordpress-$SmokeName"
+        }
     }
 
     Invoke-Gate -Name 'seed-audit' -Action {
@@ -643,12 +675,15 @@ try {
         [PSCustomObject]@{id = 'tio2-b'; dist = '.next-tio2-b'}
     )) {
         Invoke-Gate -Name "build-$($Site.id)" -Action {
+            $SecretSuffix = $Site.id.ToUpperInvariant().Replace('-', '_')
             Invoke-WithEnvironment -Values @{
                 SITE_ID = $Site.id
                 NEXT_DIST_DIR = $Site.dist
                 WORDPRESS_GRAPHQL_URL = 'http://localhost:8080/graphql'
-                PREVIEW_SECRET = 'local-preview-test-secret'
-                REVALIDATION_SECRET = 'local-revalidation-test-secret'
+                PREVIEW_SECRET = $LocalWordPressEnvironment["NEXTJS_PREVIEW_SECRET_$SecretSuffix"]
+                REVALIDATION_SECRET = $LocalWordPressEnvironment["NEXTJS_REVALIDATION_SECRET_$SecretSuffix"]
+                WORDPRESS_PREVIEW_URL = 'http://127.0.0.1:8080/wp-json/tio2/v1/preview'
+                WORDPRESS_PREVIEW_SECRET = $LocalWordPressEnvironment["NEXTJS_PREVIEW_SECRET_$SecretSuffix"]
                 VERCEL_ENV = $null
                 SEO_ALLOW_INDEXING_LOCAL_TEST = $null
             } -Action {

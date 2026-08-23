@@ -8,7 +8,21 @@ describe('local WordPress compose stack', () => {
   it('defines isolated database, WordPress, and WP-CLI services', () => {
     expect(Object.keys(compose.services)).toEqual(['db', 'wordpress', 'wpcli'])
     expect(compose.services.wordpress.depends_on.db.condition).toBe('service_healthy')
-    expect(compose.services.wordpress.ports).toContain('8080:80')
+    expect(compose.services.wordpress.ports).toEqual(['127.0.0.1:8080:80'])
+    expect(compose.services.wordpress.environment).toMatchObject({
+      NEXTJS_REVALIDATION_URL_TIO2_A:
+        '${NEXTJS_REVALIDATION_URL_TIO2_A}',
+      NEXTJS_REVALIDATION_SECRET_TIO2_A:
+        '${NEXTJS_REVALIDATION_SECRET_TIO2_A}',
+      NEXTJS_REVALIDATION_URL_TIO2_B:
+        '${NEXTJS_REVALIDATION_URL_TIO2_B}',
+      NEXTJS_REVALIDATION_SECRET_TIO2_B:
+        '${NEXTJS_REVALIDATION_SECRET_TIO2_B}',
+      NEXTJS_PREVIEW_URL_TIO2_A: '${NEXTJS_PREVIEW_URL_TIO2_A}',
+      NEXTJS_PREVIEW_SECRET_TIO2_A: '${NEXTJS_PREVIEW_SECRET_TIO2_A}',
+      NEXTJS_PREVIEW_URL_TIO2_B: '${NEXTJS_PREVIEW_URL_TIO2_B}',
+      NEXTJS_PREVIEW_SECRET_TIO2_B: '${NEXTJS_PREVIEW_SECRET_TIO2_B}',
+    })
   })
 
   it('persists database and uploads data', () => {

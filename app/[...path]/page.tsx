@@ -7,6 +7,7 @@ import {SiteShell} from '@/components/site-shell'
 import {buildPageJsonLd, serializeJsonLd} from '@/lib/seo/jsonld'
 import {buildPageMetadata} from '@/lib/seo/metadata'
 import {getCurrentSite} from '@/lib/sites/current-site'
+import {getPreviewContentByPath} from '@/lib/wordpress/preview'
 import {getContentByPath} from '@/lib/wordpress/queries'
 
 const CORE_PATHS = ['products', 'applications', 'about', 'contact'] as const
@@ -26,24 +27,34 @@ export function generateStaticParams() {
   return CORE_PATHS.map((segment) => ({path: [segment]}))
 }
 
+async function getRequestContent(siteId: string, path: string) {
+  const draft = await draftMode()
+  const page = draft.isEnabled
+    ? await getPreviewContentByPath(siteId, path)
+    : await getContentByPath(siteId, path)
+  return {page, isDraft: draft.isEnabled}
+}
+
 export async function generateMetadata({
   params,
 }: ContentRouteProps): Promise<Metadata> {
   const site = getCurrentSite()
   const {path: parts} = await params
-  const page = await getContentByPath(site.id, normalizeRoutePath(parts))
+  const {page, isDraft} = await getRequestContent(
+    site.id,
+    normalizeRoutePath(parts),
+  )
 
   if (!page) notFound()
 
-  const draft = await draftMode()
-  return buildPageMetadata(site, page, {draftMode: draft.isEnabled})
+  return buildPageMetadata(site, page, {draftMode: isDraft})
 }
 
 export default async function ContentRoute({params}: ContentRouteProps) {
   const site = getCurrentSite()
   const {path: parts} = await params
   const path = normalizeRoutePath(parts)
-  const page = await getContentByPath(site.id, path)
+  const {page} = await getRequestContent(site.id, path)
 
   if (!page) {
     notFound()

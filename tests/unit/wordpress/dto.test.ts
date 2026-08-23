@@ -32,7 +32,6 @@ const completeNode = {
       },
     ],
   },
-  relatedEntityIds: ['grade-rutile-101', 'application-coatings'],
 }
 
 describe('toContentPageDto', () => {
@@ -52,7 +51,6 @@ describe('toContentPageDto', () => {
         title: 'Titanium Dioxide for Coatings',
         description: 'Choose titanium dioxide grades for coatings.',
       },
-      relatedEntityIds: ['grade-rutile-101', 'application-coatings'],
     })
   })
 
@@ -70,7 +68,6 @@ describe('toContentPageDto', () => {
             seoTitle: null,
             seoDescription: null,
           },
-          relatedEntityIds: undefined,
         },
         'tio2-a',
       ),
@@ -84,7 +81,6 @@ describe('toContentPageDto', () => {
       modified: '',
       status: '',
       seo: {title: '', description: ''},
-      relatedEntityIds: [],
     })
   })
 
@@ -140,6 +136,28 @@ describe('toContentPageDto', () => {
   it('rejects a node assigned to another site scope', () => {
     expect(() =>
       toContentPageDto(completeNode, 'tio2-b'),
+    ).toThrow(CrossSiteContentError)
+  })
+
+  it('rejects a node assigned to the expected site plus another site scope', () => {
+    expect(() =>
+      toContentPageDto(
+        {
+          ...completeNode,
+          siteScopes: {
+            ...completeNode.siteScopes,
+            nodes: [
+              ...completeNode.siteScopes.nodes,
+              {
+                __typename: 'SiteScope' as const,
+                id: 'dGVybToy',
+                slug: 'tio2-b',
+              },
+            ],
+          },
+        },
+        'tio2-a',
+      ),
     ).toThrow(CrossSiteContentError)
   })
 

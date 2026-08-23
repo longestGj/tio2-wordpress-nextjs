@@ -19,7 +19,7 @@ $required_post_types = [
 
 foreach ($required_post_types as $post_type) {
     if (! post_type_exists($post_type)) {
-        WP_CLI::error("Missing shared content type: {$post_type}");
+        WP_CLI::error("Missing optional content type: {$post_type}");
     }
 }
 
@@ -366,8 +366,8 @@ try {
             $entity_canonical_ids[$entity['id']] ?? null
         );
 
-        // Shared facts are one global record referenced by both site manifests.
-        // They deliberately have no site_scope term rather than being duplicated.
+        // Optional schema fixtures are standalone records. Managed site pages do not
+        // reference them and they deliberately have no implicit site consumers.
         $term_result = wp_set_object_terms($entity_id, [], 'site_scope', false);
         if (is_wp_error($term_result)) {
             WP_CLI::error($term_result->get_error_message());

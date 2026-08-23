@@ -13,7 +13,7 @@
       "id": "test-grade-reference",
       "postType": "tio2_grade",
       "title": "Synthetic Test Grade Reference",
-      "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Placeholder grade entity for exercising shared-content queries. It is not a real grade.</p>",
+      "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Optional standalone grade fixture for schema checks. It is not a real grade.</p>",
       "technicalSummary": "SYNTHETIC TEST CONTENT — no commercial grade properties are asserted.",
       "evidenceSourceUrl": "https://example.test/synthetic-only"
     },
@@ -37,7 +37,7 @@
       "id": "test-faq-reference",
       "postType": "tio2_faq",
       "title": "Synthetic Test FAQ Reference",
-      "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> What is this record? A local fixture used only to verify the shared FAQ content type.</p>",
+      "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> What is this record? A local standalone fixture used only to verify the optional FAQ content type.</p>",
       "technicalSummary": "SYNTHETIC TEST CONTENT — the answer is fixture metadata, not TiO2 advice.",
       "evidenceSourceUrl": "https://example.test/synthetic-only"
     }
@@ -45,18 +45,11 @@
   "sites": [
     {
       "siteId": "tio2-a",
-      "sharedEntityIds": [
-        "test-product-reference",
-        "test-grade-reference",
-        "test-application-reference",
-        "test-document-reference",
-        "test-faq-reference"
-      ],
       "pages": [
         {
           "publicPath": "/",
           "title": "Site A Synthetic Test Home",
-          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Local Site A home fixture referencing the shared test entities.</p>",
+          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Independent local Site A home fixture.</p>",
           "seoTitle": "Site A Synthetic Test Home",
           "seoDescription": "SYNTHETIC TEST CONTENT for local Site A integration checks only."
         },
@@ -92,18 +85,11 @@
     },
     {
       "siteId": "tio2-b",
-      "sharedEntityIds": [
-        "test-product-reference",
-        "test-grade-reference",
-        "test-application-reference",
-        "test-document-reference",
-        "test-faq-reference"
-      ],
       "pages": [
         {
           "publicPath": "/",
           "title": "Site B Synthetic Test Home",
-          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Local Site B home fixture referencing the shared test entities.</p>",
+          "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Independent local Site B home fixture.</p>",
           "seoTitle": "Site B Synthetic Test Home",
           "seoDescription": "SYNTHETIC TEST CONTENT for local Site B integration checks only."
         },

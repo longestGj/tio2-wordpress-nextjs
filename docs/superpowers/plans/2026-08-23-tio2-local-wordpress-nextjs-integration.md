@@ -130,8 +130,10 @@ Create root `.env.example` with server-only integration variables:
 ```dotenv
 SITE_ID=tio2-a
 WORDPRESS_GRAPHQL_URL=http://localhost:8080/graphql
-NEXTJS_PREVIEW_SECRET=local-preview-secret
-NEXTJS_REVALIDATION_SECRET=local-revalidation-secret
+PREVIEW_SECRET=SET_TO_THIS_SITE_PREVIEW_SECRET
+REVALIDATION_SECRET=SET_TO_THIS_SITE_REVALIDATION_SECRET
+WORDPRESS_PREVIEW_URL=http://127.0.0.1:8080/wp-json/tio2/v1/preview
+WORDPRESS_PREVIEW_SECRET=SET_TO_THIS_SITE_PREVIEW_SECRET
 NEXT_DIST_DIR=.next-tio2-a
 VERCEL_ENV=development
 ```
@@ -234,7 +236,7 @@ describe('local WordPress compose stack', () => {
   it('defines isolated database, WordPress, and WP-CLI services', () => {
     expect(Object.keys(compose.services)).toEqual(['db', 'wordpress', 'wpcli'])
     expect(compose.services.wordpress.depends_on.db.condition).toBe('service_healthy')
-    expect(compose.services.wordpress.ports).toContain('8080:80')
+    expect(compose.services.wordpress.ports).toEqual(['127.0.0.1:8080:80'])
   })
 
   it('persists database and uploads data', () => {
@@ -253,11 +255,11 @@ Expected: FAIL with file-not-found for `wordpress/docker-compose.yml`.
 
 - [ ] **Step 4: Implement the Compose stack**
 
-Use `mariadb:11.4`, `wordpress:php8.3-apache`, and `wordpress:cli-php8.3`. Load credentials from `wordpress/.env`, persist `db_data` and `wp_data`, add `healthcheck: mariadb-admin ping`, mount `./plugins/tio2-site-model` to `/var/www/html/wp-content/plugins/tio2-site-model`, and expose only WordPress port `8080`.
+Use `mariadb:11.4`, `wordpress:php8.3-apache`, and `wordpress:cli-php8.3`. Load credentials from the ignored generated `wordpress/.env`, persist `db_data` and `wp_data`, add `healthcheck: mariadb-admin ping`, mount `./plugins/tio2-site-model` to `/var/www/html/wp-content/plugins/tio2-site-model`, and expose WordPress only as `127.0.0.1:8080:80`.
 
 The `wpcli` service mounts `wp_data` at `/var/www/html`, mounts the repository root (`..` relative to `wordpress/docker-compose.yml`) at `/workspace`, depends on the healthy database and running WordPress service, and uses `/var/www/html` as its working directory. This makes `wp eval-file /workspace/wordpress/tests/smoke.php` and repository scripts deterministic.
 
-Pass `NEXTJS_REVALIDATION_URL` and `NEXTJS_REVALIDATION_SECRET` from `wordpress/.env` into the WordPress service so the repository plugin can sign local webhook requests without storing secrets in PHP source.
+Pass independent A/B revalidation URLs/secrets and preview URLs/secrets from `wordpress/.env` into WordPress so the plugin can sign exact request bodies without storing credentials in PHP source. Ordinary Page/Post events target only their owning site.
 
 `wordpress/.env.example` contains these local-only names:
 
@@ -266,11 +268,17 @@ WORDPRESS_DB_NAME=tio2_local
 WORDPRESS_DB_USER=tio2
 WORDPRESS_DB_PASSWORD=local-dev-password
 WORDPRESS_DB_ROOT_PASSWORD=local-root-password
-WORDPRESS_ADMIN_USER=admin
-WORDPRESS_ADMIN_PASSWORD=local-admin-password
+WORDPRESS_ADMIN_USER=tio2-local-editor
+WORDPRESS_ADMIN_PASSWORD=GENERATE_WITH_SCRIPTS_NEW_LOCAL_WORDPRESS_ENV
 WORDPRESS_ADMIN_EMAIL=admin@example.test
-NEXTJS_REVALIDATION_URL=http://host.docker.internal:3000/api/revalidate
-NEXTJS_REVALIDATION_SECRET=local-revalidation-secret
+NEXTJS_REVALIDATION_URL_TIO2_A=http://host.docker.internal:3001/api/revalidate
+NEXTJS_REVALIDATION_SECRET_TIO2_A=GENERATE_WITH_SCRIPTS_NEW_LOCAL_WORDPRESS_ENV
+NEXTJS_REVALIDATION_URL_TIO2_B=http://host.docker.internal:3002/api/revalidate
+NEXTJS_REVALIDATION_SECRET_TIO2_B=GENERATE_WITH_SCRIPTS_NEW_LOCAL_WORDPRESS_ENV
+NEXTJS_PREVIEW_URL_TIO2_A=http://127.0.0.1:3001/api/preview
+NEXTJS_PREVIEW_SECRET_TIO2_A=GENERATE_WITH_SCRIPTS_NEW_LOCAL_WORDPRESS_ENV
+NEXTJS_PREVIEW_URL_TIO2_B=http://127.0.0.1:3002/api/preview
+NEXTJS_PREVIEW_SECRET_TIO2_B=GENERATE_WITH_SCRIPTS_NEW_LOCAL_WORDPRESS_ENV
 ```
 
 - [ ] **Step 5: Verify static and Docker configuration**
@@ -322,7 +330,7 @@ foreach (['tio2_product', 'tio2_grade', 'tio2_application', 'tio2_document', 'ti
 
 - [ ] **Step 2: Start the stack and verify the smoke test fails**
 
-Run: `Copy-Item wordpress/.env.example wordpress/.env`
+Run: `powershell -ExecutionPolicy Bypass -File scripts/new-local-wordpress-env.ps1`
 
 Run: `docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml up -d db wordpress`
 
@@ -687,7 +695,7 @@ The script exits non-zero at the first failed gate and prints a final machine-re
 README commands:
 
 ```powershell
-Copy-Item wordpress/.env.example wordpress/.env
+powershell -ExecutionPolicy Bypass -File scripts/new-local-wordpress-env.ps1
 docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml up -d
 powershell -ExecutionPolicy Bypass -File scripts/bootstrap-wordpress.ps1
 powershell -ExecutionPolicy Bypass -File scripts/seed-local-wordpress.ps1 -ScalePages 500

@@ -7,21 +7,29 @@ import {SiteShell} from '@/components/site-shell'
 import {buildPageJsonLd, serializeJsonLd} from '@/lib/seo/jsonld'
 import {buildPageMetadata} from '@/lib/seo/metadata'
 import {getCurrentSite} from '@/lib/sites/current-site'
+import {getPreviewContentByPath} from '@/lib/wordpress/preview'
 import {getContentByPath} from '@/lib/wordpress/queries'
+
+async function getRequestContent(siteId: string) {
+  const draft = await draftMode()
+  const page = draft.isEnabled
+    ? await getPreviewContentByPath(siteId, '/')
+    : await getContentByPath(siteId, '/')
+  return {page, isDraft: draft.isEnabled}
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const site = getCurrentSite()
-  const page = await getContentByPath(site.id, '/')
+  const {page, isDraft} = await getRequestContent(site.id)
 
   if (!page) notFound()
 
-  const draft = await draftMode()
-  return buildPageMetadata(site, page, {draftMode: draft.isEnabled})
+  return buildPageMetadata(site, page, {draftMode: isDraft})
 }
 
 export default async function HomePage() {
   const site = getCurrentSite()
-  const page = await getContentByPath(site.id, '/')
+  const {page} = await getRequestContent(site.id)
 
   if (!page) {
     notFound()

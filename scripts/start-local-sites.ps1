@@ -39,6 +39,8 @@ if ($Plan) {
         startup = [ordered]@{
             statePersistence = 'after-each-start'
             cancellation = 'cooperative-file'
+            secrets = 'per-site-from-wordpress-env'
+            hostname = '0.0.0.0'
         }
         stop = [ordered]@{
             preflightAllRecords = $true
@@ -52,6 +54,17 @@ if ($Plan) {
 $NodeExecutable = (Get-Command node -ErrorAction Stop).Source
 $NodeExecutable = (Resolve-Path -LiteralPath $NodeExecutable).Path
 $NextCliPath = (Resolve-Path -LiteralPath (Join-Path $RepositoryRoot 'node_modules/next/dist/bin/next')).Path
+$WordPressEnvironmentPath = Join-Path $RepositoryRoot 'wordpress/.env'
+if (-not (Test-Path -LiteralPath $WordPressEnvironmentPath)) {
+    throw 'Missing wordpress/.env. Generate it before starting the local sites.'
+}
+$WordPressEnvironment = @{}
+foreach ($Line in Get-Content -LiteralPath $WordPressEnvironmentPath) {
+    $TrimmedLine = $Line.Trim()
+    if (-not $TrimmedLine -or $TrimmedLine.StartsWith('#')) { continue }
+    $Name, $Value = $TrimmedLine -split '=', 2
+    $WordPressEnvironment[$Name.Trim()] = $Value.Trim()
+}
 if ($CancellationPath) {
     $CancellationPath = [System.IO.Path]::GetFullPath($CancellationPath)
 }
@@ -271,13 +284,28 @@ function Start-OneSite {
         }
     }
 
+    $SecretSuffix = $Site.siteId.ToUpperInvariant().Replace('-', '_')
+    $PreviewSecretName = "NEXTJS_PREVIEW_SECRET_$SecretSuffix"
+    $RevalidationSecretName = "NEXTJS_REVALIDATION_SECRET_$SecretSuffix"
+    foreach ($RequiredSecretName in @($PreviewSecretName, $RevalidationSecretName)) {
+        if (
+            -not $WordPressEnvironment.ContainsKey($RequiredSecretName) -or
+            -not $WordPressEnvironment[$RequiredSecretName] -or
+            $WordPressEnvironment[$RequiredSecretName].StartsWith('GENERATE_')
+        ) {
+            throw "Missing generated local secret $RequiredSecretName in wordpress/.env."
+        }
+    }
+
     $EnvironmentValues = [ordered]@{
         SITE_ID = $Site.siteId
         NEXT_DIST_DIR = $Site.distDir
         NODE_ENV = 'production'
         WORDPRESS_GRAPHQL_URL = 'http://localhost:8080/graphql'
-        PREVIEW_SECRET = 'local-preview-test-secret'
-        REVALIDATION_SECRET = 'local-revalidation-test-secret'
+        PREVIEW_SECRET = $WordPressEnvironment[$PreviewSecretName]
+        REVALIDATION_SECRET = $WordPressEnvironment[$RevalidationSecretName]
+        WORDPRESS_PREVIEW_URL = 'http://127.0.0.1:8080/wp-json/tio2/v1/preview'
+        WORDPRESS_PREVIEW_SECRET = $WordPressEnvironment[$PreviewSecretName]
         VERCEL_ENV = $null
         SEO_ALLOW_INDEXING_LOCAL_TEST = $null
     }
@@ -292,7 +320,7 @@ function Start-OneSite {
         }
         $Process = Start-Process `
             -FilePath $NodeExecutable `
-            -ArgumentList @($NextCliPath, 'start', '--hostname', 'localhost', '--port', [string]$Site.port) `
+            -ArgumentList @($NextCliPath, 'start', '--hostname', '0.0.0.0', '--port', [string]$Site.port) `
             -WorkingDirectory $RepositoryRoot `
             -WindowStyle Hidden `
             -RedirectStandardOutput $StandardOutput `

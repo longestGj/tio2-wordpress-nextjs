@@ -2,6 +2,7 @@ import {createHmac, timingSafeEqual} from 'node:crypto'
 import {revalidatePath, revalidateTag} from 'next/cache'
 import {z} from 'zod'
 
+import {getCurrentSite} from '@/lib/sites/current-site'
 import {
   isValidPublicPath,
   routeTag,
@@ -24,8 +25,7 @@ const payloadSchema = z
     eventId: z.uuid(),
     siteIds: z
       .array(z.enum(['tio2-a', 'tio2-b']))
-      .min(1)
-      .max(2)
+      .length(1)
       .refine(uniqueArray),
     contentId: z.number().int().positive().safe(),
     paths: z
@@ -176,6 +176,16 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const payload = parsed.data
+  let currentSite
+  try {
+    currentSite = getCurrentSite()
+  } catch {
+    return json(500, {ok: false, error: 'Site is not configured'})
+  }
+  if (payload.siteIds[0] !== currentSite.id) {
+    return json(400, {ok: false, error: 'Payload targets another site'})
+  }
+
   const now = Date.now()
   const modifiedAt = Date.parse(payload.modified)
   if (Math.abs(now - modifiedAt) > MAX_EVENT_AGE_MS) {
@@ -205,6 +215,11 @@ export async function POST(request: Request): Promise<Response> {
   for (const path of revalidatedPaths) revalidatePath(path)
 
   processedEventIds.set(payload.eventId, now + EVENT_TTL_MS)
+  console.info('[tio2-revalidation]', {
+    siteId: currentSite.id,
+    contentId: payload.contentId,
+    paths: revalidatedPaths,
+  })
 
   return json(200, {
     ok: true,
