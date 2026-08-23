@@ -611,7 +611,14 @@ if (! empty($captured_webhook_requests)) {
 
 $GLOBALS['tio2_webhook_queue'] = [];
 $captured_webhook_requests = [];
-wp_set_object_terms($runtime_entity_id, [], 'site_scope', false);
+$removed_unsupported_scope = wp_remove_object_terms(
+    $runtime_entity_id,
+    [(int) $unsupported_term['term_id']],
+    'site_scope'
+);
+if (true !== $removed_unsupported_scope) {
+    tio2_smoke_fail('Could not directly remove unsupported-only site_scope term');
+}
 tio2_flush_webhook_queue();
 tio2_smoke_assert_single_webhook(
     $captured_webhook_requests,

@@ -422,11 +422,22 @@ function tio2_handle_deleted_term_relationships(
         return;
     }
 
-    tio2_queue_webhook(
+    $removed_scope_state = tio2_site_scope_state_from_tt_ids($term_taxonomy_ids);
+    $removed_state = tio2_get_webhook_affected_state(
         $post_id,
-        tio2_get_webhook_affected_state(
-            $post_id,
-            tio2_site_scope_state_from_tt_ids($term_taxonomy_ids)
-        )
+        $removed_scope_state
     );
+    if (null !== $removed_state) {
+        tio2_queue_webhook($post_id, $removed_state);
+    }
+
+    $current_scope_state = tio2_get_site_scope_state($post_id);
+    if (null === $current_scope_state) {
+        return;
+    }
+
+    $current_state = tio2_get_webhook_affected_state($post_id, $current_scope_state);
+    if (null !== $current_state) {
+        tio2_queue_webhook($post_id, $current_state);
+    }
 }
