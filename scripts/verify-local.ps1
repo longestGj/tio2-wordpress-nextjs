@@ -9,17 +9,24 @@ Set-StrictMode -Version Latest
 
 $GateNames = @(
     'compose',
+    'wordpress-homepage',
     'wordpress-smoke',
     'seed-audit',
     'lint',
     'typecheck',
+    'schema',
     'codegen',
+    'homepage-vitest',
     'vitest',
     'vitest-live-seed',
     'build-tio2-a',
     'build-tio2-b',
     'launch',
+    'homepage-e2e',
     'playwright',
+    'homepage-bundle',
+    'homepage-lighthouse-a11y',
+    'homepage-lighthouse-performance',
     'http-audit',
     'tracked-worktree'
 )
@@ -50,6 +57,16 @@ if ($Plan) {
             restoreInFinally = $true
             auditAfterRestore = $true
             preservePrimaryFailure = $true
+        }
+        summary = [ordered]@{
+            status = 'passed'
+            sites = 2
+            publishedUrlsPerSite = 505
+            homepageClientJsGzipMaxBytes = 25600
+            lighthousePerformanceMinimum = 0.9
+            lighthouseAccessibilityMinimum = 1
+            crossSiteLeaks = 0
+            externalActions = 'none'
         }
     } | ConvertTo-Json -Depth 6 -Compress
     exit 0
@@ -355,7 +372,8 @@ function Assert-PageAudit {
         [Parameter(Mandatory = $true)][object] $Site,
         [Parameter(Mandatory = $true)][string] $Path,
         [Parameter(Mandatory = $true)][string] $Canonical,
-        [Parameter(Mandatory = $true)][string] $ExpectedText
+        [Parameter(Mandatory = $true)][string] $ExpectedText,
+        [Parameter(Mandatory = $true)][string[]] $ExpectedJsonLdTypes
     )
 
     $Response = Invoke-Http -Url "$($Site.baseUrl)$Path"
@@ -396,8 +414,8 @@ function Assert-PageAudit {
     }
     $JsonLd = @($JsonLdSource | ConvertFrom-Json)
     $Types = @($JsonLd | ForEach-Object { $_.'@type' })
-    if (($Types -join '|') -ne 'Organization|WebSite|BreadcrumbList|WebPage') {
-        throw "$($Site.siteId) $Path JSON-LD types are incomplete."
+    if (($Types -join '|') -ne ($ExpectedJsonLdTypes -join '|')) {
+        throw "$($Site.siteId) $Path has unexpected JSON-LD types: $($Types -join ', ')."
     }
 }
 
@@ -421,13 +439,24 @@ function Invoke-HttpAudit {
         if (-not $PreviewSecret -or -not $RevalidationSecret) {
             throw "Missing per-site integration secrets for $($Site.siteId)."
         }
-        $HomeText = if ($Site.siteId -eq 'tio2-a') { 'Site A Synthetic Test Home' } else { 'Site B Synthetic Test Home' }
-        Assert-PageAudit -Site $Site -Path '/' -Canonical $Site.domain -ExpectedText $HomeText
+        $HomeText = if ($Site.siteId -eq 'tio2-a') {
+            'Titanium Dioxide Supply for Formulators and Distributors'
+        }
+        else {
+            'Independent TiO2 Discovery for Site B Buyers'
+        }
+        Assert-PageAudit `
+            -Site $Site `
+            -Path '/' `
+            -Canonical $Site.domain `
+            -ExpectedText $HomeText `
+            -ExpectedJsonLdTypes @('Organization', 'WebSite', 'WebPage', 'FAQPage')
         Assert-PageAudit `
             -Site $Site `
             -Path '/test-content/long-tail-500' `
             -Canonical "$($Site.domain)/test-content/long-tail-500" `
-            -ExpectedText "Deterministic local scale fixture 500 for $($Site.siteId)"
+            -ExpectedText "Deterministic local scale fixture 500 for $($Site.siteId)" `
+            -ExpectedJsonLdTypes @('Organization', 'WebSite', 'BreadcrumbList', 'WebPage')
 
         $Robots = Invoke-Http -Url "$($Site.baseUrl)/robots.txt"
         Assert-Status -Response $Robots -Expected 200 -Label "$($Site.siteId) robots"
@@ -455,6 +484,9 @@ function Invoke-HttpAudit {
         }
         if (@($Urls | Where-Object { -not $_.StartsWith("$($Site.domain)/", [System.StringComparison]::Ordinal) }).Count -gt 0) {
             throw "$($Site.siteId) sitemap contains a foreign-domain URL."
+        }
+        if ($Urls -notcontains "$($Site.domain)/") {
+            throw "$($Site.siteId) sitemap is missing the dedicated homepage root."
         }
         if ($Urls -notcontains "$($Site.domain)/test-content/long-tail-500") {
             throw "$($Site.siteId) sitemap is missing long-tail-500."
@@ -579,8 +611,18 @@ try {
         Assert-Status -Response $WordPressHealth -Expected 200 -Label 'WordPress REST health'
     }
 
+    Invoke-Gate -Name 'wordpress-homepage' -Action {
+        Invoke-NativeLogged `
+            -FilePath $Docker `
+            -Arguments @($ComposeArguments + @(
+                'run', '--rm', '--no-TTY', '--user', '33:33', 'wpcli',
+                'wp', 'eval-file', '/workspace/wordpress/tests/homepage.php'
+            )) `
+            -LogName 'wordpress-homepage'
+    }
+
     Invoke-Gate -Name 'wordpress-smoke' -Action {
-        foreach ($SmokeName in @('homepage', 'smoke', 'authoring', 'webhook-routing', 'preview', 'admin-credentials')) {
+        foreach ($SmokeName in @('smoke', 'authoring', 'webhook-routing', 'preview', 'admin-credentials')) {
             Invoke-NativeLogged `
                 -FilePath $Docker `
                 -Arguments @($ComposeArguments + @(
@@ -606,6 +648,17 @@ try {
         Invoke-NativeLogged -FilePath $Npm -Arguments @('run', 'typecheck') -LogName 'typecheck'
     }
 
+    Invoke-Gate -Name 'schema' -Action {
+        $SchemaPath = Join-Path $RepositoryRoot 'wordpress/schema.graphql'
+        $BeforeHash = Get-Sha256 -Path $SchemaPath
+        Invoke-NativeLogged -FilePath $Npm -Arguments @('run', 'schema:refresh') -LogName 'schema'
+        $AfterHash = Get-Sha256 -Path $SchemaPath
+        if ($BeforeHash -ne $AfterHash) {
+            throw 'WordPress schema refresh changed the committed schema snapshot.'
+        }
+        Assert-CleanWorktree -Phase 'after deterministic schema refresh'
+    }
+
     Invoke-Gate -Name 'codegen' -Action {
         $GeneratedPath = Join-Path $RepositoryRoot 'lib/wordpress/generated.ts'
         $BeforeHash = Get-Sha256 -Path $GeneratedPath
@@ -615,6 +668,18 @@ try {
             throw 'GraphQL code generation changed the committed generated output.'
         }
         Assert-CleanWorktree -Phase 'after deterministic code generation'
+    }
+
+    Invoke-Gate -Name 'homepage-vitest' -Action {
+        Invoke-NativeLogged `
+            -FilePath $Npm `
+            -Arguments @(
+                'test', '--',
+                'tests/unit/homepage',
+                'tests/integration/homepage',
+                'tests/infrastructure/verify-local-contract.test.ts'
+            ) `
+            -LogName 'homepage-vitest'
     }
 
     Invoke-Gate -Name 'vitest' -Action {
@@ -700,11 +765,39 @@ try {
         }
     }
 
+    Invoke-Gate -Name 'homepage-e2e' -Action {
+        Invoke-NativeLogged `
+            -FilePath $Npm `
+            -Arguments @('run', 'test:e2e', '--', 'tests/e2e/homepage.spec.ts') `
+            -LogName 'homepage-e2e'
+    }
+
     Invoke-Gate -Name 'playwright' -Action {
         Invoke-NativeLogged `
             -FilePath $Npm `
             -Arguments @('run', 'test:e2e', '--', 'tests/e2e/two-sites.spec.ts') `
             -LogName 'playwright'
+    }
+
+    Invoke-Gate -Name 'homepage-bundle' -Action {
+        Invoke-NativeLogged `
+            -FilePath $Npm `
+            -Arguments @('run', 'audit:homepage:bundle') `
+            -LogName 'homepage-bundle'
+    }
+
+    Invoke-Gate -Name 'homepage-lighthouse-a11y' -Action {
+        Invoke-NativeLogged `
+            -FilePath $Npm `
+            -Arguments @('run', 'audit:homepage:lighthouse:a11y') `
+            -LogName 'homepage-lighthouse-a11y'
+    }
+
+    Invoke-Gate -Name 'homepage-lighthouse-performance' -Action {
+        Invoke-NativeLogged `
+            -FilePath $Npm `
+            -Arguments @('run', 'audit:homepage:lighthouse:performance') `
+            -LogName 'homepage-lighthouse-performance'
     }
 
     Invoke-Gate -Name 'http-audit' -Action {
@@ -718,27 +811,15 @@ try {
         Assert-CleanWorktree -Phase 'after local verification'
     }
 
-    $VitestCount = Get-PassedCount -LogName 'vitest' -Pattern 'Tests\s+(\d+)\s+passed'
-    $LiveVitestCount = Get-PassedCount -LogName 'vitest-live-seed' -Pattern 'Tests\s+(\d+)\s+passed'
-    $PlaywrightCount = Get-PassedCount -LogName 'playwright' -Pattern '(\d+)\s+passed'
     $SuccessSummary = [ordered]@{
-        schemaVersion = 1
         status = 'passed'
-        gates = @($GateResults)
-        sites = @($HttpAuditSites)
-        ports = @(3001, 3002)
-        counts = [ordered]@{
-            sites = 2
-            publishedUrlsPerSite = $ExpectedPerSite
-            sitemapUrls = $ExpectedPerSite * 2
-            vitest = $VitestCount
-            vitestLive = $LiveVitestCount
-            playwright = $PlaywrightCount
-            builds = 2
-            leaks = 0
-        }
-        trackedWorktreeUnchanged = $true
-        processCleanup = 'passed'
+        sites = 2
+        publishedUrlsPerSite = $ExpectedPerSite
+        homepageClientJsGzipMaxBytes = 25600
+        lighthousePerformanceMinimum = 0.9
+        lighthouseAccessibilityMinimum = 1
+        crossSiteLeaks = 0
+        externalActions = 'none'
     }
 }
 catch {

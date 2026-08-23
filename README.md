@@ -11,7 +11,7 @@ The verified code is backed up in a private GitHub repository. Vercel, DNS chang
 ## Requirements
 
 - Windows PowerShell 5.1 or newer
-- Node.js and npm
+- Node.js 20.9 or newer and npm
 - Docker Desktop with Linux containers
 - Available local ports 8080, 3001, and 3002
 
@@ -49,7 +49,9 @@ The seed creates five representative pages plus 500 deterministic scale pages pe
 npm run verify:local
 ```
 
-The gate is fail-fast and requires a completely clean Git worktree at both the start and end, including no untracked files. Commit or remove intentional local source changes before running it; ignored `.tmp` logs and build artifacts do not affect this check. It checks Compose configuration and service health, runs the WordPress schema, authoring, per-site webhook, and signed-preview smoke contracts, audits exactly 505 pages per site, runs lint, typecheck, deterministic GraphQL code generation, all normal Vitest tests, the opt-in live seed suite, both current-site builds, 14 Chromium acceptance tests, and independent HTTP audits. The browser suite creates and removes a real unpublished WordPress draft, rejects unsupported catch-all paths as real 404s, and proves that a WordPress edit reaches only its owning Next endpoint. The webhook queue preserves each site's exact old/new route pairing during an ownership move instead of forming a cross-product. The live seed stage restores and audits the exact 505-per-site baseline in `finally`, including when a live test fails. The last stdout line is one machine-readable JSON success summary. Detailed command logs are written under ignored `.tmp/local-verify`.
+The gate is fail-fast and requires a completely clean Git worktree at both the start and end, including no untracked files. Commit or remove intentional local source changes before running it; ignored `.tmp` logs and build artifacts do not affect this check. It checks Compose configuration and service health, runs the dedicated WordPress homepage smoke before the remaining schema/authoring/webhook/preview contracts, audits exactly 505 public URLs per site, runs lint, typecheck, deterministic schema refresh and GraphQL code generation, homepage-focused plus complete 4-worker Vitest suites, the opt-in live seed suites, both current-site builds, 20 Chromium acceptance tests, deterministic homepage bundle budgets, two-site mobile Lighthouse audits, and independent HTTP audits. The browser suites cover 360/768/1440 screenshots, section order, site isolation, overflow, keyboard-visible focus, RFQ anchor and local-only form behavior, native FAQ interaction, axe serious/critical findings, unexpected network requests, unpublished Preview, 404s, and owning-site webhook delivery. The webhook queue preserves each site's exact old/new route pairing during an ownership move instead of forming a cross-product. The live seed stage restores and audits the exact 505-per-site baseline in `finally`, including when a live test fails. The last stdout line is the approved machine-readable homepage success summary. Detailed command logs are written under ignored `.tmp/local-verify`.
+
+Homepage visual evidence is written to ignored `.tmp/homepage-evidence/{siteId}/{width}.png`. Lighthouse JSON reports are written to ignored `.tmp/homepage-evidence/lighthouse`. The deterministic bundle audit compares root-route client JavaScript with the shared/catch-all baseline and enforces 25,600 gzip bytes for each site. Lighthouse uses local mobile emulation only, rejects non-loopback requests or navigation, requires Performance of at least 0.90, and requires Accessibility of exactly 1.00.
 
 Verification always stops only the two Node processes it started, including after a failed test or a bounded startup timeout. The controller writes recoverable process state after every launch and accepts cooperative cancellation. PID, executable path, process start time, Next CLI path, and port arguments are validated immediately before stopping through the retained process handle. It never kills a process merely by name or port.
 
@@ -94,6 +96,7 @@ Do not add `-v`: the named local database and WordPress volumes are retained by 
 - **A Compose service is unavailable:** run `docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml ps`; start it with the setup `up -d` command and rerun bootstrap if needed.
 - **Seed audit does not report exactly 505:** rerun `scripts/seed-local-wordpress.ps1 -ScalePages 500`, then `scripts/audit-seed.ps1 -ExpectedPerSite 505`.
 - **Chromium is missing:** run `npx playwright install chromium`.
+- **A homepage bundle or Lighthouse gate fails:** inspect `.tmp/local-verify/homepage-bundle.log`, `.tmp/local-verify/homepage-lighthouse-a11y.log`, and `.tmp/local-verify/homepage-lighthouse-performance.log`; JSON reports remain under `.tmp/homepage-evidence/lighthouse`.
 - **A build directory is missing or stale:** run `npm run verify:local`; it rebuilds `.next-tio2-a` and `.next-tio2-b` from live local WordPress.
 - **Port 3001 or 3002 is occupied:** inspect the owning application yourself. The controller refuses to kill unrecorded or identity-mismatched processes.
 - **A local site fails health checks:** inspect `.tmp/local-sites/tio2-a.stderr.log` and `.tmp/local-sites/tio2-b.stderr.log`.

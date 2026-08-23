@@ -110,6 +110,7 @@ async function assertCurrentSiteJsonLd(
   page: Page,
   domain: string,
   oppositeDomain: string,
+  expectedTypes: readonly string[],
 ): Promise<void> {
   const script = page.locator('script[type="application/ld+json"]')
   await expect(script).toHaveCount(1)
@@ -119,12 +120,7 @@ async function assertCurrentSiteJsonLd(
   expect(source).not.toContain(oppositeDomain)
 
   const objects = JSON.parse(source as string) as Array<Record<string, unknown>>
-  expect(objects.map((value) => value['@type'])).toEqual([
-    'Organization',
-    'WebSite',
-    'BreadcrumbList',
-    'WebPage',
-  ])
+  expect(objects.map((value) => value['@type'])).toEqual(expectedTypes)
   expect(JSON.stringify(objects)).not.toContain('localhost:')
 }
 
@@ -146,7 +142,9 @@ for (const site of sites) {
     expect(response?.status()).toBe(200)
     await expect(page.locator(`main[data-site-id="${site.id}"]`)).toBeVisible()
     await expect(page.getByRole('heading', {level: 1})).toContainText(
-      site.id === 'tio2-a' ? 'Site A Synthetic Test Home' : 'Site B Synthetic Test Home',
+      site.id === 'tio2-a'
+        ? 'Titanium Dioxide Supply for Formulators and Distributors'
+        : 'Independent TiO2 Discovery for Site B Buyers',
     )
     await expect(page.locator('body')).toContainText(site.name)
     await expect(page.locator('body')).not.toContainText(site.oppositeName)
@@ -158,7 +156,12 @@ for (const site of sites) {
       'content',
       'noindex, nofollow',
     )
-    await assertCurrentSiteJsonLd(page, site.domain, site.oppositeDomain)
+    await assertCurrentSiteJsonLd(page, site.domain, site.oppositeDomain, [
+      'Organization',
+      'WebSite',
+      'WebPage',
+      'FAQPage',
+    ])
     expect(errors).toEqual([])
   })
 
@@ -190,7 +193,12 @@ for (const site of sites) {
       'content',
       'noindex, nofollow',
     )
-    await assertCurrentSiteJsonLd(page, site.domain, site.oppositeDomain)
+    await assertCurrentSiteJsonLd(page, site.domain, site.oppositeDomain, [
+      'Organization',
+      'WebSite',
+      'BreadcrumbList',
+      'WebPage',
+    ])
     expect(errors).toEqual([])
   })
 

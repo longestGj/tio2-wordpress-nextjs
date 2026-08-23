@@ -63,4 +63,16 @@ describe('homepage focus and motion styles', () => {
     expect(reducedMotion).not.toContain('transition-duration')
     expect(reducedMotion).not.toContain('animation-duration')
   })
+
+  it('keeps small inquiry step text at 4.5:1 contrast on warm white', () => {
+    const stepNumberRule = ruleContaining('.stepNumber')
+
+    expect(stepNumberRule).toContain('var(--home-mineral-green)')
+    expect(
+      contrast(
+        customProperty('--home-mineral-green'),
+        customProperty('--home-warm-white'),
+      ),
+    ).toBeGreaterThanOrEqual(4.5)
+  })
 })

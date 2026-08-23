@@ -11,6 +11,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test --config=playwright.config.ts",
+    "audit:homepage:bundle": "node scripts/audit-homepage-bundle.mjs",
+    "audit:homepage:lighthouse:a11y": "node scripts/audit-homepage-lighthouse.mjs --mode=a11y",
+    "audit:homepage:lighthouse:performance": "node scripts/audit-homepage-lighthouse.mjs --mode=performance",
     "verify:local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-local.ps1",
     "sites:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -KeepRunning",
     "sites:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -Stop",
@@ -25,6 +28,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@graphql-codegen/cli": "^7.3.0",
     "@graphql-codegen/typed-document-node": "^7.1.0",
     "@graphql-codegen/typescript": "^6.1.0",
@@ -39,6 +43,7 @@
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.2.6",
     "jsdom": "26.1.0",
+    "lighthouse": "12.8.2",
     "msw": "^2.0.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.9.0",
