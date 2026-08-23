@@ -65,8 +65,26 @@ describe('RFQ local-only side-effect boundary', () => {
 
     expect(fetchSpy).not.toHaveBeenCalled()
     expect(result.calls).toEqual({
-      localStorage: {getItem: 0, setItem: 0, removeItem: 0, clear: 0, namedWrite: 0},
-      sessionStorage: {getItem: 0, setItem: 0, removeItem: 0, clear: 0, namedWrite: 0},
+      localStorage: {
+        getItem: 0,
+        key: 0,
+        length: 0,
+        namedRead: 0,
+        setItem: 0,
+        removeItem: 0,
+        clear: 0,
+        namedWrite: 0,
+      },
+      sessionStorage: {
+        getItem: 0,
+        key: 0,
+        length: 0,
+        namedRead: 0,
+        setItem: 0,
+        removeItem: 0,
+        clear: 0,
+        namedWrite: 0,
+      },
       documentCookie: {get: 0, set: 0},
       cookieStore: {get: 0, getAll: 0, set: 0, delete: 0},
     })

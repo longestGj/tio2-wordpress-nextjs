@@ -7,6 +7,9 @@ export interface AuditCookieStore {
 
 interface StorageCalls {
   getItem: number
+  key: number
+  length: number
+  namedRead: number
   setItem: number
   removeItem: number
   clear: number
@@ -16,7 +19,7 @@ interface StorageCalls {
 interface AuditSnapshot {
   readonly localStorage: Readonly<Record<string, string>>
   readonly sessionStorage: Readonly<Record<string, string>>
-  readonly documentCookie: string
+  readonly documentCookie: Readonly<Record<string, string>>
 }
 
 export interface BrowserSideEffectAuditResult {
@@ -32,6 +35,7 @@ export interface BrowserSideEffectAuditResult {
     }
   }
   readonly initial: AuditSnapshot
+  readonly observed: AuditSnapshot
   readonly final: AuditSnapshot
 }
 
@@ -54,6 +58,43 @@ function cookieDescriptor(): PropertyDescriptor {
   throw new Error('document.cookie accessor is unavailable')
 }
 
+function snapshotCookies(cookie: PropertyDescriptor): Readonly<Record<string, string>> {
+  const raw = cookie.get?.call(document) as string
+  return Object.fromEntries(
+    raw
+      .split(';')
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((part) => {
+        const separator = part.indexOf('=')
+        return separator === -1
+          ? [part, '']
+          : [part.slice(0, separator), part.slice(separator + 1)]
+      })
+      .sort(([first], [second]) => first.localeCompare(second)),
+  )
+}
+
+function restoreStorage(
+  storage: Storage,
+  snapshot: Readonly<Record<string, string>>,
+): void {
+  storage.clear()
+  for (const [key, value] of Object.entries(snapshot)) storage.setItem(key, value)
+}
+
+function restoreCookies(
+  cookie: PropertyDescriptor,
+  snapshot: Readonly<Record<string, string>>,
+): void {
+  for (const name of Object.keys(snapshotCookies(cookie))) {
+    cookie.set?.call(document, `${name}=; Max-Age=0; Path=/`)
+  }
+  for (const [name, value] of Object.entries(snapshot)) {
+    cookie.set?.call(document, `${name}=${value}; Path=/`)
+  }
+}
+
 function storageProxy(storage: Storage, calls: StorageCalls): Storage {
   return new Proxy(storage, {
     get(target, property) {
@@ -62,6 +103,16 @@ function storageProxy(storage: Storage, calls: StorageCalls): Storage {
           calls.getItem += 1
           return target.getItem(key)
         }
+      }
+      if (property === 'key') {
+        return (index: number) => {
+          calls.key += 1
+          return target.key(index)
+        }
+      }
+      if (property === 'length') {
+        calls.length += 1
+        return target.length
       }
       if (property === 'setItem') {
         return (key: string, value: string) => {
@@ -80,6 +131,10 @@ function storageProxy(storage: Storage, calls: StorageCalls): Storage {
           calls.clear += 1
           target.clear()
         }
+      }
+      if (typeof property === 'string' && !(property in Storage.prototype)) {
+        calls.namedRead += 1
+        return target.getItem(property)
       }
       const value = Reflect.get(target, property, target) as unknown
       return typeof value === 'function' ? value.bind(target) : value
@@ -101,10 +156,13 @@ export function installBrowserSideEffectAudit(): {
   const initial: AuditSnapshot = {
     localStorage: snapshotStorage(realLocalStorage),
     sessionStorage: snapshotStorage(realSessionStorage),
-    documentCookie: cookie.get?.call(document) as string,
+    documentCookie: snapshotCookies(cookie),
   }
   const localStorageCalls: StorageCalls = {
     getItem: 0,
+    key: 0,
+    length: 0,
+    namedRead: 0,
     setItem: 0,
     removeItem: 0,
     clear: 0,
@@ -184,6 +242,15 @@ export function installBrowserSideEffectAudit(): {
         delete (globalThis as {cookieStore?: AuditCookieStore}).cookieStore
       }
 
+      const observed: AuditSnapshot = {
+        localStorage: snapshotStorage(realLocalStorage),
+        sessionStorage: snapshotStorage(realSessionStorage),
+        documentCookie: snapshotCookies(cookie),
+      }
+      restoreStorage(realLocalStorage, initial.localStorage)
+      restoreStorage(realSessionStorage, initial.sessionStorage)
+      restoreCookies(cookie, initial.documentCookie)
+
       finished = {
         calls: {
           localStorage: localStorageCalls,
@@ -192,10 +259,11 @@ export function installBrowserSideEffectAudit(): {
           cookieStore: cookieStoreCalls,
         },
         initial,
+        observed,
         final: {
           localStorage: snapshotStorage(realLocalStorage),
           sessionStorage: snapshotStorage(realSessionStorage),
-          documentCookie: cookie.get?.call(document) as string,
+          documentCookie: snapshotCookies(cookie),
         },
       }
       return finished

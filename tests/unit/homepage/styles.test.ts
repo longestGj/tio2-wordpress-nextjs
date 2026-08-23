@@ -41,10 +41,12 @@ function contrast(first: string, second: string): number {
 describe('homepage focus and motion styles', () => {
   it('uses focus indicators with at least 3:1 contrast on representative light and dark surfaces', () => {
     const lightRule = ruleContaining('.homepage a:focus-visible')
-    const darkRule = ruleContaining('.rfqSection:focus-visible')
+    const rfqOuterRule = ruleContaining('.rfqSection:focus-visible')
+    const rfqControlRule = ruleContaining('.field input:focus-visible')
 
     expect(lightRule).toContain('var(--home-mineral-green)')
-    expect(darkRule).toContain('var(--home-brass)')
+    expect(rfqOuterRule).toContain('var(--home-mineral-green)')
+    expect(rfqControlRule).toContain('var(--home-brass)')
     expect(
       contrast(customProperty('--home-mineral-green'), customProperty('--home-warm-white')),
     ).toBeGreaterThanOrEqual(3)

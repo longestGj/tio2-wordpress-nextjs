@@ -65,7 +65,7 @@
 }
 
 .rfqSection:focus-visible {
-  outline: 3px solid var(--home-brass);
+  outline: 3px solid var(--home-mineral-green);
   outline-offset: 4px;
 }
 
