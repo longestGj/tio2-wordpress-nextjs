@@ -2,6 +2,7 @@ import {describe, expect, it} from 'vitest'
 
 import {buildPageJsonLd, serializeJsonLd} from '@/lib/seo/jsonld'
 import {buildPageMetadata} from '@/lib/seo/metadata'
+import {htmlToPlainText} from '@/lib/seo/text'
 import {toContentPageDto} from '@/lib/wordpress/dto'
 import {getSiteConfig} from '@/sites'
 import {makeContentPageNode} from '@/tests/mocks/handlers'
@@ -26,6 +27,32 @@ function contentPage(
 }
 
 describe('single-pass SEO text pipeline', () => {
+  it.each([
+    ['<script>alert(1)', ''],
+    ['<style>body{color:red', ''],
+    ['safe <strong', 'safe'],
+    ['size &lt; 5 µm', 'size < 5 µm'],
+  ] as const)('converts raw HTML boundary input %j to %j', (html, expected) => {
+    expect(htmlToPlainText(html)).toBe(expected)
+  })
+
+  it('keeps entity-encoded tag text plain and makes JSON-LD serialization script-safe', () => {
+    const page = contentPage(
+      '<p>&lt;script&gt;alert(1)&lt;/script&gt; is documentation text.</p>',
+    )
+    const graph = buildPageJsonLd(getSiteConfig('tio2-a'), page)
+    const serialized = serializeJsonLd(graph)
+
+    expect(page.excerpt).toBe(
+      '<script>alert(1)</script> is documentation text.',
+    )
+    expect(graph.at(-1)?.description).toBe(
+      '<script>alert(1)</script> is documentation text.',
+    )
+    expect(serialized).not.toContain('<')
+    expect(serialized).toContain('\\u003cscript>alert(1)\\u003c/script>')
+  })
+
   it('preserves decoded technical comparison text from DTO through metadata and JSON-LD', () => {
     const page = contentPage(
       '<p>size &lt; 5 µm and brightness &gt; 95%</p>',

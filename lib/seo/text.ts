@@ -50,6 +50,7 @@ export function htmlToPlainText(
   const decodedText = html
     .replace(/<(script|style)\b[^>]*>[\s\S]*?(?:<\/\1\s*>|$)/giu, ' ')
     .replace(/<!--[\s\S]*?(?:-->|$)/gu, ' ')
+    .replace(/<[^>]*$/gu, ' ')
     .replace(/<[^>]*>/gu, ' ')
     .replace(HTML_ENTITY_PATTERN, decodeEntity)
 
