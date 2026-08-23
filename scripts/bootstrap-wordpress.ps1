@@ -40,13 +40,20 @@ function Invoke-WpCli {
     param(
         [Parameter(Mandatory = $true)]
         [string[]] $Arguments,
+        [AllowNull()]
+        [string] $StandardInput,
         [switch] $AllowFailure
     )
 
     $PreviousErrorActionPreference = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     try {
-        $CommandOutput = & docker @ComposeArguments run --rm --user 33:33 wpcli wp @Arguments 2>&1
+        if ($PSBoundParameters.ContainsKey('StandardInput')) {
+            $CommandOutput = $StandardInput | & docker @ComposeArguments run --rm --user 33:33 wpcli wp @Arguments 2>&1
+        }
+        else {
+            $CommandOutput = & docker @ComposeArguments run --rm --user 33:33 wpcli wp @Arguments 2>&1
+        }
         $CommandExitCode = $LASTEXITCODE
     }
     finally {
@@ -62,18 +69,6 @@ function Invoke-WpCli {
     }
 
     return $CommandExitCode
-}
-
-function New-HexSecret {
-    $Bytes = New-Object byte[] 32
-    $Generator = [System.Security.Cryptography.RandomNumberGenerator]::Create()
-    try {
-        $Generator.GetBytes($Bytes)
-    }
-    finally {
-        $Generator.Dispose()
-    }
-    return ([BitConverter]::ToString($Bytes)).Replace('-', '').ToLowerInvariant()
 }
 
 $DatabaseReady = $false
@@ -95,17 +90,15 @@ if (-not $DatabaseReady) {
 
 $InstalledExitCode = Invoke-WpCli -Arguments @('core', 'is-installed') -AllowFailure
 if ($InstalledExitCode -ne 0) {
-    $TemporaryInstallPassword = New-HexSecret
-    Invoke-WpCli -Arguments @(
+    Invoke-WpCli -StandardInput $LocalEnvironment['WORDPRESS_ADMIN_PASSWORD'] -Arguments @(
         'core', 'install',
         '--url=http://localhost:8080',
         '--title=TiO2 Local',
         "--admin_user=$($LocalEnvironment['WORDPRESS_ADMIN_USER'])",
-        "--admin_password=$TemporaryInstallPassword",
         "--admin_email=$($LocalEnvironment['WORDPRESS_ADMIN_EMAIL'])",
-        '--skip-email'
+        '--skip-email',
+        '--prompt=admin_password'
     ) | Out-Null
-    $TemporaryInstallPassword = $null
 }
 
 Invoke-WpCli -Arguments @(

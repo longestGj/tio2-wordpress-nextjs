@@ -141,6 +141,47 @@ describe('site-local route normalization and generation', () => {
 })
 
 describe('site-scoped content routes', () => {
+  it.each([
+    ['uppercase', ['Products']],
+    ['underscore', ['under_score']],
+    ['Unicode', ['钛白粉']],
+    ['overlength', ['a'.repeat(173)]],
+  ])('turns an unsupported %s request path into not-found before querying WordPress', async (_, path) => {
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    let graphQLRequests = 0
+    server.use(
+      http.post(graphqlEndpoint, () => {
+        graphQLRequests += 1
+        return HttpResponse.json({data: {page: null}})
+      }),
+    )
+    const route = await import('@/app/[...path]/page')
+
+    await expect(
+      route.default({params: Promise.resolve({path})}),
+    ).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
+    expect(graphQLRequests).toBe(0)
+  })
+
+  it('turns unsupported metadata request paths into not-found at the route boundary', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    let graphQLRequests = 0
+    server.use(
+      http.post(graphqlEndpoint, () => {
+        graphQLRequests += 1
+        return HttpResponse.json({data: {page: null}})
+      }),
+    )
+    const route = await import('@/app/[...path]/page')
+
+    await expect(
+      route.generateMetadata({
+        params: Promise.resolve({path: ['Products']}),
+      }),
+    ).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
+    expect(graphQLRequests).toBe(0)
+  })
+
   it('renders unpublished content from the uncached signed preview source in Draft Mode', async () => {
     vi.stubEnv('SITE_ID', 'tio2-a')
     draftMode.mockResolvedValue({isEnabled: true})

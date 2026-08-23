@@ -104,6 +104,28 @@ foreach (['tio2-a', 'tio2-b'] as $site_id) {
     tio2_webhook_routing_assert_request($captured_requests, $site_id);
 }
 
+$paired_page_id = tio2_webhook_routing_page('tio2-a');
+$captured_requests = [];
+$GLOBALS['tio2_webhook_queue'] = [];
+update_post_meta((int) $paired_page_id, 'public_path', '/webhook-routing/tio2-b-new');
+wp_set_object_terms((int) $paired_page_id, ['tio2-b'], 'site_scope', false);
+tio2_flush_webhook_queue();
+$paired_payloads = [];
+foreach ($captured_requests as $request) {
+    $payload = json_decode((string) ($request['args']['body'] ?? ''), true);
+    if (is_array($payload) && 1 === count($payload['siteIds'] ?? [])) {
+        $paired_payloads[$payload['siteIds'][0]] = $payload['paths'] ?? null;
+    }
+}
+if (
+    [
+        'tio2-a' => ['/webhook-routing/tio2-a'],
+        'tio2-b' => ['/webhook-routing/tio2-b-new'],
+    ] !== $paired_payloads
+) {
+    tio2_webhook_routing_fail('Webhook queue lost the exact site/path pairing across an ownership move');
+}
+
 $optional_id = wp_insert_post([
     'post_type' => 'tio2_product',
     'post_status' => 'draft',

@@ -231,6 +231,16 @@ for (const site of sites) {
           'console: Failed to load resource: the server responded with a status of 404 (Not Found)',
       ),
     ).toEqual([])
+
+    for (const invalidPath of [
+      '/Products',
+      '/under_score',
+      '/钛白粉',
+      `/${'a'.repeat(173)}`,
+    ]) {
+      const invalidResponse = await page.goto(`${site.baseUrl}${invalidPath}`)
+      expect(invalidResponse?.status(), invalidPath).toBe(404)
+    }
   })
 
   test(`${site.id} preview rejects bad boundaries and accepts its own path`, async ({

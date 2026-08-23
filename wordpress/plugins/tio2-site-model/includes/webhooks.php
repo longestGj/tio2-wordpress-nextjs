@@ -127,7 +127,7 @@ function tio2_site_scope_state_from_tt_ids(array $term_taxonomy_ids): array
 /**
  * @param array{siteIds: list<string>, hasTerms: bool}|null $scope_state
  * @param list<string>|null $paths
- * @return array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>}|null
+ * @return array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>, sitePaths: array<string, list<string>>}|null
  */
 function tio2_get_webhook_affected_state(
     int $post_id,
@@ -146,6 +146,7 @@ function tio2_get_webhook_affected_state(
 
     $site_ids = $scope_state['siteIds'];
     $entity_ids = [];
+    $site_paths = [];
     if (in_array($post->post_type, ['page', 'post'], true)) {
         if (1 !== count($site_ids)) {
             return null;
@@ -159,6 +160,7 @@ function tio2_get_webhook_affected_state(
             return null;
         }
         sort($paths, SORT_STRING);
+        $site_paths[$site_ids[0]] = $paths;
     } else {
         $paths = [];
         if (empty($site_ids)) {
@@ -173,13 +175,14 @@ function tio2_get_webhook_affected_state(
         'siteIds' => array_values(array_unique($site_ids)),
         'paths' => $paths,
         'entityIds' => $entity_ids,
+        'sitePaths' => $site_paths,
     ];
 }
 
 /**
- * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>} $left
- * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>}|null $right
- * @return array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>}
+ * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>, sitePaths: array<string, list<string>>} $left
+ * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>, sitePaths: array<string, list<string>>}|null $right
+ * @return array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>, sitePaths: array<string, list<string>>}
  */
 function tio2_merge_webhook_affected_state(array $left, ?array $right): array
 {
@@ -191,11 +194,21 @@ function tio2_merge_webhook_affected_state(array $left, ?array $right): array
         $left[$key] = array_values(array_unique(array_merge($left[$key], $right[$key])));
         sort($left[$key], 'entityIds' === $key ? SORT_NUMERIC : SORT_STRING);
     }
+    $left['sitePaths'] = isset($left['sitePaths']) && is_array($left['sitePaths'])
+        ? $left['sitePaths']
+        : [];
+    foreach (($right['sitePaths'] ?? []) as $site_id => $site_paths) {
+        $left['sitePaths'][$site_id] = array_values(array_unique(array_merge(
+            $left['sitePaths'][$site_id] ?? [],
+            $site_paths
+        )));
+        sort($left['sitePaths'][$site_id], SORT_STRING);
+    }
     return $left;
 }
 
 /**
- * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>}|null $affected
+ * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>, sitePaths: array<string, list<string>>}|null $affected
  * @return array{eventId: string, siteIds: list<string>, contentId: int, paths: list<string>, entityIds: list<int>, modified: string}|null
  */
 function tio2_build_webhook_payload(
@@ -233,7 +246,7 @@ function tio2_sign_webhook_body(string $body, string $secret): string
 }
 
 /**
- * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>}|null $affected
+ * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>, sitePaths: array<string, list<string>>}|null $affected
  */
 function tio2_send_webhook(int $post_id, ?array $affected = null): bool
 {
@@ -253,6 +266,9 @@ function tio2_send_webhook(int $post_id, ?array $affected = null): bool
 
         $site_affected = $affected;
         $site_affected['siteIds'] = [$site_id];
+        if (isset($affected['sitePaths'][$site_id])) {
+            $site_affected['paths'] = $affected['sitePaths'][$site_id];
+        }
         $payload = tio2_build_webhook_payload($post_id, null, $site_affected);
         $body = null === $payload ? null : tio2_encode_webhook_payload($payload);
         if (null === $body) {
@@ -297,7 +313,7 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key): bool
 }
 
 /**
- * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>}|null $affected
+ * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>, sitePaths: array<string, list<string>>}|null $affected
  */
 function tio2_queue_webhook(int $post_id, ?array $affected = null): void
 {
@@ -311,9 +327,9 @@ function tio2_queue_webhook(int $post_id, ?array $affected = null): void
     }
 
     $existing = $GLOBALS['tio2_webhook_queue'][$post_id] ?? null;
-    $GLOBALS['tio2_webhook_queue'][$post_id] = is_array($existing)
-        ? tio2_merge_webhook_affected_state($existing, $affected)
-        : $affected;
+    if (! is_array($existing)) {
+        $GLOBALS['tio2_webhook_queue'][$post_id] = $affected;
+    }
 }
 
 function tio2_flush_webhook_queue(): void

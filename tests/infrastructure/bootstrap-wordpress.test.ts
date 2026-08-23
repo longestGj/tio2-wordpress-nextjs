@@ -183,4 +183,92 @@ exit 0
     expect(result.stderr).toContain('generated 64-hex credentials')
     expect(readFileSync(logFile, 'utf8')).not.toContain(' wp core install')
   })
+
+  it('passes a fresh generated administrator password only through stdin', () => {
+    const testRoot = mkdtempSync(join(tmpdir(), 'tio2-bootstrap-stdin-'))
+    temporaryDirectories.push(testRoot)
+    const scriptsDirectory = join(testRoot, 'scripts')
+    const wordpressDirectory = join(testRoot, 'wordpress')
+    const binDirectory = join(testRoot, 'bin')
+    const logFile = join(testRoot, 'docker.log')
+    const stateFile = join(testRoot, 'docker.state')
+    const generatedPassword = 'a'.repeat(64)
+    mkdirSync(scriptsDirectory)
+    mkdirSync(wordpressDirectory)
+    mkdirSync(binDirectory)
+    copyFileSync(
+      'scripts/bootstrap-wordpress.ps1',
+      join(scriptsDirectory, 'bootstrap-wordpress.ps1'),
+    )
+    copyFileSync(
+      'scripts/assert-local-wordpress-env.ps1',
+      join(scriptsDirectory, 'assert-local-wordpress-env.ps1'),
+    )
+    writeFileSync(
+      join(wordpressDirectory, '.env'),
+      [
+        'WORDPRESS_ADMIN_USER=tio2-local-editor',
+        `WORDPRESS_ADMIN_PASSWORD=${generatedPassword}`,
+        'WORDPRESS_ADMIN_EMAIL=admin@example.test',
+        `NEXTJS_REVALIDATION_SECRET_TIO2_A=${'b'.repeat(64)}`,
+        `NEXTJS_REVALIDATION_SECRET_TIO2_B=${'c'.repeat(64)}`,
+        `NEXTJS_PREVIEW_SECRET_TIO2_A=${'d'.repeat(64)}`,
+        `NEXTJS_PREVIEW_SECRET_TIO2_B=${'e'.repeat(64)}`,
+      ].join('\n'),
+    )
+    writeFileSync(join(wordpressDirectory, 'docker-compose.yml'), 'services: {}\n')
+    writeFileSync(
+      join(binDirectory, 'docker.ps1'),
+      `[CmdletBinding()]
+param(
+    [Parameter(ValueFromPipeline = $true)][string] $PipedInput,
+    [Parameter(Position = 0, ValueFromRemainingArguments = $true)][string[]] $Arguments
+)
+process {
+$CommandLine = $Arguments -join ' '
+Add-Content -LiteralPath $env:TIO2_FAKE_DOCKER_LOG -Value $CommandLine
+if ($CommandLine -match ' wp db check') { exit 0 }
+if ($CommandLine -match ' wp core is-installed') { exit 1 }
+if ($CommandLine -match ' wp core install') {
+    $PasswordFromStdin = $PipedInput.Trim()
+    if ($PasswordFromStdin -match '^[0-9a-f]{64}$') {
+        Set-Content -LiteralPath $env:TIO2_FAKE_DOCKER_STATE -Value 'stdin-ok'
+        exit 0
+    }
+    exit 98
+}
+exit 0
+}
+`,
+    )
+
+    const result = spawnSync(
+      'powershell',
+      [
+        '-NoProfile',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-File',
+        join(scriptsDirectory, 'bootstrap-wordpress.ps1'),
+      ],
+      {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          PATH: `${binDirectory}${delimiter}${process.env.PATH ?? ''}`,
+          TIO2_FAKE_DOCKER_LOG: logFile,
+          TIO2_FAKE_DOCKER_STATE: stateFile,
+        },
+      },
+    )
+
+    const commandLog = readFileSync(logFile, 'utf8')
+    expect(result.status, result.stderr || result.stdout).toBe(0)
+    expect(readFileSync(stateFile, 'utf8').trim()).toBe('stdin-ok')
+    expect(commandLog).toContain(' wp core install')
+    expect(commandLog).toContain('--prompt=admin_password')
+    expect(commandLog).not.toContain('--admin_password=')
+    expect(commandLog).not.toContain(generatedPassword)
+    expect(`${result.stdout}${result.stderr}`).not.toContain(generatedPassword)
+  })
 })

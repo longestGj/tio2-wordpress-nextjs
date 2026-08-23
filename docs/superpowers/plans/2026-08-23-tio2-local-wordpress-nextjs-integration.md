@@ -259,7 +259,7 @@ Use `mariadb:11.4`, `wordpress:php8.3-apache`, and `wordpress:cli-php8.3`. Load 
 
 The `wpcli` service mounts `wp_data` at `/var/www/html`, mounts the repository root (`..` relative to `wordpress/docker-compose.yml`) at `/workspace`, depends on the healthy database and running WordPress service, and uses `/var/www/html` as its working directory. This makes `wp eval-file /workspace/wordpress/tests/smoke.php` and repository scripts deterministic.
 
-Pass independent A/B revalidation URLs/secrets and preview URLs/secrets from `wordpress/.env` into WordPress so the plugin can sign exact request bodies without storing credentials in PHP source. Pass the generated administrator identity only into the one-shot WP-CLI container so bootstrap can migrate retained local state without putting the password in process arguments or output; the long-running WordPress container does not receive the administrator password. Ordinary Page/Post events target only their owning site.
+Pass independent A/B revalidation URLs/secrets and preview URLs/secrets from `wordpress/.env` into WordPress so the plugin can sign exact request bodies without storing credentials in PHP source. Pass the generated administrator identity only into the one-shot WP-CLI container so bootstrap can migrate retained local state; a fresh `wp core install` receives its password through `--prompt=admin_password` standard input, never process/container arguments or output. The long-running WordPress container does not receive the administrator password. Ordinary Page/Post events target only their owning site.
 
 `wordpress/.env.example` contains these local-only names:
 
@@ -531,7 +531,7 @@ Use constant-time signature comparison. Limit request body size, validate with Z
 
 - [ ] **Step 4: Implement WordPress publish webhook**
 
-On `transition_post_status` and relevant metadata changes, the plugin requires exactly one owning site term for managed Page/Post content, resolves its path, creates an event UUID, signs the exact JSON body with HMAC-SHA256, and POSTs only to that site's configured URL using that site's configured secret. Optional genuinely shared objects may target multiple explicitly configured consumers in the future; unscoped objects must not implicitly fan out.
+On `transition_post_status` and relevant metadata changes, the plugin requires exactly one owning site term for managed Page/Post content, resolves its path, creates an event UUID, signs the exact JSON body with HMAC-SHA256, and POSTs only to that site's configured URL using that site's configured secret. Queue coalescing retains the initial and final site/path association: an A `/old` to B `/new` move invalidates exactly A `/old` and B `/new`, never the cross-product. Optional genuinely shared objects may target multiple explicitly configured consumers in the future; unscoped objects must not implicitly fan out.
 
 - [ ] **Step 5: Implement signed preview route**
 

@@ -212,6 +212,7 @@ WordPress 正常后台编辑流程必须从唯一 `site_scope + public_path` 确
 - WordPress 短暂不可用时，Vercel 继续提供已有 ISR 缓存；
 - 未缓存且无法取得内容的请求返回明确的临时错误，不输出空白成功页；
 - 不存在或不属于当前站点的内容返回 404；
+- 不符合受管理公开路径/内部 slug 契约的 catch-all 请求（大小写、下划线、Unicode 或超长路径等）必须在 Next 路由边界直接返回 404；该边界不得吞掉 WordPress 网络、GraphQL 或返回数据完整性错误；
 - Preview、刷新和发布操作使用独立密钥并验证签名；Preview 激活后只写入 HttpOnly、SameSite、带签名且带到期时间的精确 `site_scope + public_path` 会话，每次渲染都重新验证签名、站点、路径和到期时间，不能依赖全局 Draft Mode cookie 扩大授权；
 - 所有密钥只保存在本地 `.env`、GitHub Secrets 或 Vercel Environment Variables；
 - 本地环境必须使用生成的非 `admin` 管理员和强随机凭据；bootstrap 迁移既有数据库中的管理员密码并删除旧 `admin` 登录，验证过程不得打印密钥；
