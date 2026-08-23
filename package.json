@@ -10,7 +10,11 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --config=playwright.config.ts",
+    "verify:local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-local.ps1",
+    "sites:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -KeepRunning",
+    "sites:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -Stop",
+    "sites:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -Status",
     "validate": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
@@ -26,6 +30,7 @@
     "@graphql-codegen/typescript": "^6.1.0",
     "@graphql-codegen/typescript-operations": "^6.1.6",
     "@graphql-typed-document-node/core": "^3.2.0",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
