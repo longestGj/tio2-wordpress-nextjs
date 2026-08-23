@@ -1,6 +1,10 @@
 # Project agent routing
 
+- Homepage template design, implementation, revision, validation, or audit must be delegated to the project custom agent `tio2_home_template`, which must use the project skill `$tio2-home-template`.
+- The parent agent owns homepage clarification, approval capture, orchestration, independent review, and separately authorized external actions. It must not implement Homepage template work in place of the specialist.
 - Product detail template design, implementation, revision, or audit must be delegated to the project custom agent `tio2_product_template`, which must use the project skill `$tio2-product-template`.
 - The parent agent owns user clarification, approval capture, orchestration, independent review, and any separately authorized external action. It must not implement Product template work in place of the specialist.
 - Do not route homepage templates, bulk product content production, DNS, Vercel, indexing, or unrelated site work to the Product template agent.
+- Homepage work owns only the dedicated homepage schema, GraphQL/DTO boundary, root template, homepage SEO, fixtures, and tests. It does not own Product templates, the global shell, deployment, DNS, indexing, or production operations.
+- All Homepage template work follows `docs/agents/template-agent-shared-contract.md`. Without the complete approved proposal record, the specialist remains in read-only Design mode; Audit is always read-only and requires the proposal ID plus exact proposal artifact/path.
 - All Product template work follows `docs/agents/template-agent-shared-contract.md`. Without an approved proposal ID, the specialist remains in read-only Design mode.
