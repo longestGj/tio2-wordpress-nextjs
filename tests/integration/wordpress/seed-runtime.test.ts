@@ -24,6 +24,8 @@ interface RuntimePage {
   uriResolutionSource: string | null
   seoTitle: string
   seoDescription: string
+  previousRootStatus: string
+  previousRootSiteScopes: string[]
 }
 
 interface RuntimeSharedFixture {
@@ -35,9 +37,21 @@ interface RuntimeSharedFixture {
   siteScopes: string[]
 }
 
+interface RuntimeHomepage {
+  id: number
+  siteId: string
+  slug: string
+  status: string
+  publicPath: string
+  schemaVersion: string
+  seedMarker: string
+}
+
 interface RuntimeSnapshot {
   pages: RuntimePage[]
   sharedFixtures: RuntimeSharedFixture[]
+  homepages: RuntimeHomepage[]
+  publicUrls: Array<{ownerId: number; siteId: string; path: string; ownerType: string}>
 }
 
 function execute(command: string, arguments_: string[], timeout = 180_000) {
@@ -143,7 +157,7 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
         expect(audit.status, `${audit.stdout}\n${audit.stderr}`).toBe(0)
       },
     })
-  }, 240_000)
+  }, 360_000)
 
   it('cleans proven collisions, revives the canonical record, and remains idempotent', () => {
     const unrelatedCreate = wp([
@@ -183,7 +197,20 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       seoTitle: expect.any(String),
       seoDescription: expect.stringContaining('SYNTHETIC TEST CONTENT'),
     })
-    expect(initialSnapshot.pages).toHaveLength(1010)
+    expect(initialSnapshot.pages.filter(({status}) => status !== 'trash')).toHaveLength(1010)
+    expect(initialSnapshot.homepages).toHaveLength(2)
+    expect(initialSnapshot.publicUrls).toHaveLength(1010)
+    for (const siteId of ['tio2-a', 'tio2-b']) {
+      expect(
+        initialSnapshot.publicUrls.filter((entry) => entry.siteId === siteId),
+      ).toHaveLength(505)
+      expect(initialSnapshot.homepages.find((entry) => entry.siteId === siteId)).toMatchObject({
+        status: 'publish',
+        publicPath: '/',
+        schemaVersion: 'homepage-v0.1',
+        seedMarker: siteId,
+      })
+    }
     expect(initialSnapshot.sharedFixtures).toHaveLength(5)
     for (const fixture of initialSnapshot.sharedFixtures) {
       expect(fixture).toMatchObject({
@@ -195,6 +222,79 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
     const productBefore = initialSnapshot.sharedFixtures.find(
       ({fixtureId}) => fixtureId === 'test-product-reference',
     )!
+
+    for (const siteId of ['tio2-a', 'tio2-b']) {
+      const homepage = initialSnapshot.homepages.find((entry) => entry.siteId === siteId)!
+      const rootPage = initialSnapshot.pages.find(
+        ({publicPath, previousRootSiteScopes}) =>
+          publicPath === '/' && previousRootSiteScopes.includes(siteId),
+      )!
+      expect(rootPage).toMatchObject({
+        status: 'draft',
+        siteScopes: [],
+        previousRootStatus: 'publish',
+        previousRootSiteScopes: [siteId],
+      })
+      const previousStatus = wp([
+        'post',
+        'meta',
+        'get',
+        String(rootPage.id),
+        '_tio2_previous_root_status',
+      ])
+      expect(previousStatus.status, previousStatus.stderr).toBe(0)
+      expect(previousStatus.stdout.trim().split(/\s+/).at(-1)).toBe('publish')
+      const previousScope = wp([
+        'post',
+        'meta',
+        'get',
+        String(rootPage.id),
+        '_tio2_previous_root_site_scope',
+      ])
+      expect(previousScope.status, previousScope.stderr).toBe(0)
+      expect(previousScope.stdout).toContain(siteId)
+
+      const draftHomepage = wp([
+        'post',
+        'update',
+        String(homepage.id),
+        '--post_status=draft',
+      ])
+      expect(draftHomepage.status, draftHomepage.stderr).toBe(0)
+      const restoreScope = wp([
+        'post',
+        'term',
+        'set',
+        String(rootPage.id),
+        'site_scope',
+        siteId,
+        '--by=slug',
+      ])
+      expect(restoreScope.status, restoreScope.stderr).toBe(0)
+      const restoreStatus = wp([
+        'post',
+        'update',
+        String(rootPage.id),
+        '--post_status=publish',
+      ])
+      expect(restoreStatus.status, restoreStatus.stderr).toBe(0)
+    }
+    const rolledBackSnapshot = exportSnapshot()
+    expect(rolledBackSnapshot.homepages.every(({status}) => status === 'draft')).toBe(true)
+    expect(
+      rolledBackSnapshot.pages.filter(
+        ({publicPath, status, siteScopes}) =>
+          publicPath === '/' && status === 'publish' && siteScopes.length === 1,
+      ),
+    ).toHaveLength(2)
+    const reapplyMigration = seedFullScale()
+    expect(reapplyMigration.status, `${reapplyMigration.stdout}\n${reapplyMigration.stderr}`).toBe(0)
+    expect(readSeedSummary(reapplyMigration.stdout)).toMatchObject({
+      homepages_created: 0,
+      homepages_updated: 2,
+      root_pages_drafted: 2,
+    })
+    expect(auditFullScale().status).toBe(0)
 
     const trash = wp(['post', 'delete', String(targetBefore!.id)])
     expect(trash.status, `${trash.stdout}\n${trash.stderr}`).toBe(0)
@@ -291,7 +391,14 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       uriResolvable: true,
       uriResolutionSource: 'wpgraphql',
     })
-    expect(revivedSnapshot.pages.some(({status}) => status === 'trash')).toBe(false)
+    expect(
+      revivedSnapshot.pages.some(
+        ({publicPath, status, siteScopes}) =>
+          publicPath === '/test-content/long-tail-500' &&
+          siteScopes[0] === 'tio2-a' &&
+          status === 'trash',
+      ),
+    ).toBe(false)
     expect(
       revivedSnapshot.sharedFixtures.find(
         ({fixtureId}) => fixtureId === 'test-product-reference',
@@ -360,5 +467,5 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
 
     const audit = auditFullScale()
     expect(audit.status, `${audit.stdout}\n${audit.stderr}`).toBe(0)
-  }, 240_000)
+  }, 360_000)
 })

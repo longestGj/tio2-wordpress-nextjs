@@ -81,7 +81,70 @@
           "seoTitle": "Contact the Site A Synthetic Test Fixture",
           "seoDescription": "SYNTHETIC TEST CONTENT for the Site A contact path."
         }
-      ]
+      ],
+      "homepage": {
+        "homepage_schema_version": "homepage-v0.1",
+        "hero_eyebrow": "Synthetic local sourcing guide",
+        "hero_heading": "Titanium Dioxide Supply for Formulators and Distributors",
+        "hero_summary": "Supply coordination can include products from owned production and from OEM or partner production according to the selected product.",
+        "hero_primary_label": "Start an RFQ",
+        "hero_secondary_label": "Browse product options",
+        "hero_secondary_path": "/products",
+        "hero_image": 0,
+        "hero_image_alt": "",
+        "metrics": [],
+        "products_heading": "Synthetic product discovery",
+        "products_intro": "Review local test routes without commercial product claims.",
+        "product_routes": [
+          {"product_title":"Product options","product_summary":"Review the local synthetic product route.","product_path":"/products","product_image":0,"product_image_alt":""},
+          {"product_title":"Formulator route","product_summary":"Review a controlled long-tail sourcing route.","product_path":"/test-content/long-tail-1","product_image":0,"product_image_alt":""}
+        ],
+        "applications_heading": "Synthetic application discovery",
+        "applications_intro": "Explore five local application contexts without quantitative claims.",
+        "applications": [
+          {"application_name":"Coatings","application_summary":"Local coatings discovery context.","application_path":"/applications","application_image":0,"application_image_alt":""},
+          {"application_name":"Plastics","application_summary":"Local plastics discovery context.","application_path":"/test-content/long-tail-2","application_image":0,"application_image_alt":""},
+          {"application_name":"Masterbatch","application_summary":"Local masterbatch discovery context.","application_path":"/test-content/long-tail-3","application_image":0,"application_image_alt":""},
+          {"application_name":"Inks","application_summary":"Local inks discovery context.","application_path":"/test-content/long-tail-4","application_image":0,"application_image_alt":""},
+          {"application_name":"Paper","application_summary":"Local paper discovery context.","application_path":"/test-content/long-tail-5","application_image":0,"application_image_alt":""}
+        ],
+        "inquiry_heading": "A controlled local inquiry process",
+        "inquiry_steps": [
+          {"inquiry_step_title":"Share requirements","inquiry_step_description":"Describe the intended application and requested documents."},
+          {"inquiry_step_title":"Review product fit","inquiry_step_description":"Review owned production and partner production boundaries."},
+          {"inquiry_step_title":"Confirm next steps","inquiry_step_description":"Choose a separately authorized follow-up channel."}
+        ],
+        "trust_heading": "Production boundaries stay explicit",
+        "trust_intro": "Synthetic copy distinguishes owned production from OEM and partner production.",
+        "trust_reasons": [
+          {"trust_reason_title":"Owned production","trust_reason_description":"Some selected products may come from user-confirmed owned production.","trust_reason_claim_basis":"user_confirmed","trust_reason_evidence_url":""},
+          {"trust_reason_title":"OEM or partner production","trust_reason_description":"Other selected products may use OEM or partner production.","trust_reason_claim_basis":"user_confirmed","trust_reason_evidence_url":""},
+          {"trust_reason_title":"Document coordination","trust_reason_description":"Documents are coordinated against the selected route.","trust_reason_claim_basis":"user_confirmed","trust_reason_evidence_url":""}
+        ],
+        "rfq_heading": "Prepare a local RFQ demo",
+        "rfq_intro": "This v0.1 local demo does not send or store inquiry data.",
+        "rfq_labels": {"rfq_label_name":"Name","rfq_label_company":"Company","rfq_label_country_region":"Country or region","rfq_label_work_email":"Work email","rfq_label_buyer_type":"Buyer type","rfq_label_interest":"Product or application interest","rfq_label_expected_quantity":"Expected quantity","rfq_label_destination":"Destination","rfq_label_message":"Message","rfq_label_privacy":"I understand this local demo sends nothing","rfq_buyer_industrial_label":"Industrial","rfq_buyer_distributor_label":"Distributor","rfq_buyer_other_label":"Other"},
+        "rfq_submit_label": "Validate locally",
+        "rfq_privacy_text": "This local demo does not send or save entered information.",
+        "rfq_success_heading": "Local check complete",
+        "rfq_success_message": "Nothing was transmitted or saved by this Site A local demo.",
+        "faq_heading": "Site A sourcing questions",
+        "faqs": [
+          {"faq_question":"Which product type is shown?","faq_answer":"Only synthetic product-route labels are shown.","faq_related_label":"","faq_related_path":""},
+          {"faq_question":"How is application matching handled?","faq_answer":"Application matching remains a local discovery aid.","faq_related_label":"","faq_related_path":""},
+          {"faq_question":"What RFQ details are useful?","faq_answer":"Application, quantity, destination, and document needs help frame a request.","faq_related_label":"","faq_related_path":""},
+          {"faq_question":"Can samples be requested here?","faq_answer":"No. This local demo sends no sample request.","faq_related_label":"","faq_related_path":""},
+          {"faq_question":"Are documents supplied here?","faq_answer":"No. Document coordination requires a separately authorized channel.","faq_related_label":"","faq_related_path":""}
+        ],
+        "closing_heading": "Prepare the synthetic requirement",
+        "closing_body": "Use the local form to validate inputs before any authorized follow-up.",
+        "closing_label": "Start an RFQ",
+        "seo_title": "Synthetic TiO2 Supply Routes for Site A",
+        "seo_description": "Explore local synthetic titanium dioxide sourcing routes for Site A without commercial claims.",
+        "og_image": 0,
+        "primary_topic": "synthetic titanium dioxide sourcing",
+        "secondary_topics": [{"secondary_topic":"owned production routes"},{"secondary_topic":"partner production routes"}]
+      }
     },
     {
       "siteId": "tio2-b",
@@ -121,7 +184,39 @@
           "seoTitle": "Contact the Site B Synthetic Test Fixture",
           "seoDescription": "SYNTHETIC TEST CONTENT for the Site B contact path."
         }
-      ]
+      ],
+      "homepage": {
+        "homepage_schema_version": "homepage-v0.1",
+        "hero_eyebrow": "Independent Site B local guide",
+        "hero_heading": "Independent TiO2 Discovery for Site B Buyers",
+        "hero_summary": "Site B independently reviews synthetic routes that may distinguish owned production from OEM or partner production by selected product.",
+        "hero_primary_label": "Open the local RFQ demo",
+        "hero_secondary_label": "Review Site B routes",
+        "hero_secondary_path": "/applications",
+        "hero_image": 0,"hero_image_alt": "","metrics": [],
+        "products_heading": "Independent Site B product routes","products_intro": "Review isolated local routes for Site B buyers.",
+        "product_routes": [
+          {"product_title":"Site B product options","product_summary":"Review the isolated synthetic product route.","product_path":"/products","product_image":0,"product_image_alt":""},
+          {"product_title":"Site B buyer route","product_summary":"Review the isolated long-tail route.","product_path":"/test-content/long-tail-1","product_image":0,"product_image_alt":""}
+        ],
+        "applications_heading": "Site B application discovery","applications_intro": "Explore five isolated application contexts without quantitative claims.",
+        "applications": [
+          {"application_name":"Coatings","application_summary":"Site B coatings context.","application_path":"/applications","application_image":0,"application_image_alt":""},
+          {"application_name":"Plastics","application_summary":"Site B plastics context.","application_path":"/test-content/long-tail-2","application_image":0,"application_image_alt":""},
+          {"application_name":"Masterbatch","application_summary":"Site B masterbatch context.","application_path":"/test-content/long-tail-3","application_image":0,"application_image_alt":""},
+          {"application_name":"Inks","application_summary":"Site B inks context.","application_path":"/test-content/long-tail-4","application_image":0,"application_image_alt":""},
+          {"application_name":"Paper","application_summary":"Site B paper context.","application_path":"/test-content/long-tail-5","application_image":0,"application_image_alt":""}
+        ],
+        "inquiry_heading":"Site B local inquiry steps","inquiry_steps":[{"inquiry_step_title":"Share requirements","inquiry_step_description":"Describe the Site B application context."},{"inquiry_step_title":"Review product fit","inquiry_step_description":"Review the isolated production route."},{"inquiry_step_title":"Confirm next steps","inquiry_step_description":"Choose an authorized follow-up outside this demo."}],
+        "trust_heading":"Site B route boundaries","trust_intro":"Site B keeps owned production and OEM or partner production distinct.",
+        "trust_reasons":[{"trust_reason_title":"Owned production","trust_reason_description":"Some routes may use user-confirmed owned production.","trust_reason_claim_basis":"user_confirmed","trust_reason_evidence_url":""},{"trust_reason_title":"OEM or partner production","trust_reason_description":"Other routes may use OEM or partner production.","trust_reason_claim_basis":"user_confirmed","trust_reason_evidence_url":""},{"trust_reason_title":"Document coordination","trust_reason_description":"Documents follow the chosen Site B route.","trust_reason_claim_basis":"user_confirmed","trust_reason_evidence_url":""}],
+        "rfq_heading":"Open the Site B local RFQ demo","rfq_intro":"This v0.1 local demo does not send or store inquiry data.",
+        "rfq_labels":{"rfq_label_name":"Name","rfq_label_company":"Company","rfq_label_country_region":"Country or region","rfq_label_work_email":"Work email","rfq_label_buyer_type":"Buyer type","rfq_label_interest":"Product or application interest","rfq_label_expected_quantity":"Expected quantity","rfq_label_destination":"Destination","rfq_label_message":"Message","rfq_label_privacy":"I understand this local demo sends nothing","rfq_buyer_industrial_label":"Industrial","rfq_buyer_distributor_label":"Distributor","rfq_buyer_other_label":"Other"},
+        "rfq_submit_label":"Validate Site B locally","rfq_privacy_text":"This Site B local demo does not send or save entered information.","rfq_success_heading":"Site B local check complete","rfq_success_message":"No Site B information was transmitted or saved by this local demo.",
+        "faq_heading":"Site B discovery questions","faqs":[{"faq_question":"Which Site B product type is shown?","faq_answer":"Only isolated synthetic route labels are shown.","faq_related_label":"","faq_related_path":""},{"faq_question":"How does Site B match applications?","faq_answer":"Matching remains an isolated local discovery aid.","faq_related_label":"","faq_related_path":""},{"faq_question":"Which RFQ details help Site B?","faq_answer":"Application, quantity, destination, and document needs frame the local check.","faq_related_label":"","faq_related_path":""},{"faq_question":"Can Site B samples be requested?","faq_answer":"No. This local demo sends no request.","faq_related_label":"","faq_related_path":""},{"faq_question":"Are Site B documents supplied?","faq_answer":"No. Coordination needs a separately authorized channel.","faq_related_label":"","faq_related_path":""}],
+        "closing_heading":"Review the Site B requirement","closing_body":"Use the isolated local form before any authorized follow-up.","closing_label":"Open the local RFQ demo",
+        "seo_title":"Independent Synthetic TiO2 Routes for Site B","seo_description":"Explore independent local titanium dioxide discovery routes for Site B without commercial claims.","og_image":0,"primary_topic":"independent titanium dioxide discovery","secondary_topics":[{"secondary_topic":"Site B owned production"},{"secondary_topic":"Site B partner production"}]
+      }
     }
   ]
 }

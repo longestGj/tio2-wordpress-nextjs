@@ -108,11 +108,20 @@ $Entities = @(
 )
 
 $Pages = [System.Collections.Generic.List[object]]::new()
+$Homepages = [System.Collections.Generic.List[object]]::new()
 $PageKeys = [System.Collections.Generic.HashSet[string]]::new(
     [System.StringComparer]::Ordinal
 )
 
 foreach ($Site in $Manifest.sites) {
+    $Homepages.Add([PSCustomObject]@{
+        siteId = $Site.siteId
+        internalSlug = "$($Site.siteId)--homepage"
+        postStatus = 'draft'
+        title = $Site.homepage.hero_heading
+        fields = $Site.homepage
+        marker = $Site.siteId
+    })
     foreach ($Page in $Site.pages) {
         $PageKey = "$($Site.siteId):$($Page.publicPath)"
         if (-not $PageKeys.Add($PageKey)) {
@@ -130,19 +139,31 @@ foreach ($Site in $Manifest.sites) {
 
     for ($Index = 1; $Index -le $ScalePages; $Index++) {
         $Ordinal = $Index.ToString('D3')
-        $PublicPath = "/test-content/long-tail-$Ordinal"
+        $PublicPath = "/test-content/long-tail-$Index"
         $PageKey = "$($Site.siteId):$PublicPath"
         if (-not $PageKeys.Add($PageKey)) {
             throw "Duplicate scale page: $PageKey"
         }
 
+        $RouteTitle = "$($Site.siteId) Synthetic Test Long-tail Page $Ordinal"
+        $RouteSummary = "Deterministic local scale fixture $Ordinal for $($Site.siteId); it contains no verified commercial or technical TiO2 claim."
+        if ($Index -eq 1) {
+            $RouteTitle = $Site.homepage.product_routes[1].product_title
+            $RouteSummary = $Site.homepage.product_routes[1].product_summary
+        }
+        elseif ($Index -ge 2 -and $Index -le 5) {
+            $Application = $Site.homepage.applications[$Index - 1]
+            $RouteTitle = $Application.application_name
+            $RouteSummary = $Application.application_summary
+        }
+
         $Pages.Add((New-PageOperation `
             -SiteId $Site.siteId `
             -PublicPath $PublicPath `
-            -Title "$($Site.siteId) Synthetic Test Long-tail Page $Ordinal" `
-            -Content "<p><strong>SYNTHETIC TEST CONTENT.</strong> Deterministic local scale fixture $Ordinal for $($Site.siteId); it contains no verified commercial or technical TiO2 claim.</p>" `
-            -SeoTitle "$($Site.siteId) Synthetic Test Page $Ordinal" `
-            -SeoDescription "SYNTHETIC TEST CONTENT for deterministic local scale fixture $Ordinal on $($Site.siteId)."))
+            -Title $RouteTitle `
+            -Content "<p><strong>SYNTHETIC TEST CONTENT.</strong> $RouteSummary</p>" `
+            -SeoTitle "$($Site.siteId) $RouteTitle" `
+            -SeoDescription "SYNTHETIC TEST CONTENT. $RouteSummary"))
     }
 }
 
@@ -152,6 +173,7 @@ $Plan = [PSCustomObject]@{
     scalePagesPerSite = $ScalePages
     entities = @($Entities)
     pages = @($Pages)
+    homepages = @($Homepages)
     managedScaleSlugPrefixes = @(
         'tio2-a--test-content--long-tail-'
         'tio2-b--test-content--long-tail-'

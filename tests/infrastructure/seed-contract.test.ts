@@ -161,6 +161,8 @@ describe('seed execution plan', () => {
         publicPath: string
         internalSlug: string
         postStatus: string
+        title: string
+        content: string
         siteScopes: string[]
         meta: Record<string, string>
       }>
@@ -190,11 +192,17 @@ describe('seed execution plan', () => {
         },
       })
       expect(
-        sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-003'),
+        sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-3'),
       ).toMatchObject({
-        internalSlug: `${siteId}--test-content--long-tail-003`,
+        internalSlug: `${siteId}--test-content--long-tail-3`,
+        title: 'Masterbatch',
+        content: expect.stringContaining('masterbatch'),
         siteScopes: [siteId],
       })
+      expect(sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-1'))
+        .toMatchObject({title: siteId === 'tio2-a' ? 'Formulator route' : 'Site B buyer route'})
+      expect(sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-2'))
+        .toMatchObject({title: 'Plastics'})
     }
   })
 })
@@ -238,7 +246,7 @@ function validAuditSnapshot(scalePages = 0): AuditSnapshot {
   const pages = ['tio2-a', 'tio2-b'].flatMap((siteId) => {
     const scalePaths = Array.from(
       {length: scalePages},
-      (_, index) => `/test-content/long-tail-${String(index + 1).padStart(3, '0')}`,
+      (_, index) => `/test-content/long-tail-${index + 1}`,
     )
 
     return [...corePaths, ...scalePaths].map((publicPath) => ({
@@ -393,7 +401,7 @@ describe('seed audit validation', () => {
     const snapshot = validAuditSnapshot(2)
     const scalePage = snapshot.pages.find(
       ({publicPath, siteScopes}) =>
-        publicPath === '/test-content/long-tail-002' && siteScopes[0] === 'tio2-a',
+        publicPath === '/test-content/long-tail-2' && siteScopes[0] === 'tio2-a',
     )!
     scalePage.publicPath = '/test-content/arbitrary'
     scalePage.slug = 'tio2-a--test-content--arbitrary'
@@ -402,7 +410,7 @@ describe('seed audit validation', () => {
 
     expect(result.status).not.toBe(0)
     expect(`${result.stdout}\n${result.stderr}`).toContain(
-      'Missing expected published path for tio2-a: /test-content/long-tail-002',
+      'Missing expected published path for tio2-a: /test-content/long-tail-2',
     )
     expect(`${result.stdout}\n${result.stderr}`).toContain(
       'Unexpected published path for tio2-a: /test-content/arbitrary',

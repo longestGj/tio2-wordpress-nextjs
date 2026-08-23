@@ -63,6 +63,11 @@ foreach ($page_ids as $page_id) {
         'uriResolutionSource' => null,
         'seoTitle' => (string) get_post_meta((int) $page_id, 'seo_title', true),
         'seoDescription' => (string) get_post_meta((int) $page_id, 'seo_description', true),
+        'previousRootStatus' => (string) get_post_meta((int) $page_id, '_tio2_previous_root_status', true),
+        'previousRootSiteScopes' => json_decode(
+            (string) get_post_meta((int) $page_id, '_tio2_previous_root_site_scope', true),
+            true
+        ) ?: [],
     ];
 }
 
@@ -139,8 +144,43 @@ foreach ($shared_entity_ids as $entity_id) {
     ];
 }
 
+$homepages = [];
+$homepage_ids = get_posts([
+    'post_type' => 'tio2_homepage',
+    'post_status' => ['publish', 'draft', 'pending', 'private', 'future', 'trash'],
+    'posts_per_page' => -1,
+    'fields' => 'ids',
+    'no_found_rows' => true,
+]);
+foreach ($homepage_ids as $homepage_id) {
+    $site_id = tio2_get_homepage_site_id((int) $homepage_id);
+    $homepages[] = [
+        'id' => (int) $homepage_id,
+        'siteId' => $site_id,
+        'slug' => (string) get_post_field('post_name', $homepage_id),
+        'status' => (string) get_post_status($homepage_id),
+        'publicPath' => '/',
+        'schemaVersion' => (string) get_field('homepage_schema_version', $homepage_id, false),
+        'seedMarker' => (string) get_post_meta((int) $homepage_id, '_tio2_seed_homepage_site_id', true),
+    ];
+}
+
+$public_urls = [];
+foreach ($pages as $page) {
+    if ('publish' === $page['status']) {
+        $public_urls[] = ['siteId' => $page['siteScopes'][0] ?? null, 'path' => $page['publicPath'], 'ownerType' => 'page', 'ownerId' => $page['id']];
+    }
+}
+foreach ($homepages as $homepage) {
+    if ('publish' === $homepage['status']) {
+        $public_urls[] = ['siteId' => $homepage['siteId'], 'path' => '/', 'ownerType' => 'homepage', 'ownerId' => $homepage['id']];
+    }
+}
+
 $snapshot = [
     'pages' => $pages,
+    'homepages' => $homepages,
+    'publicUrls' => $public_urls,
     'sharedFixtures' => $shared_fixtures,
 ];
 

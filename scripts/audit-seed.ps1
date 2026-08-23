@@ -101,6 +101,46 @@ else {
     $Snapshot = $Match.Groups[1].Value | ConvertFrom-Json
 }
 
+if ($Snapshot.PSObject.Properties.Name -contains 'publicUrls') {
+    $Errors = [System.Collections.Generic.List[string]]::new()
+    $PublicUrls = @($Snapshot.publicUrls)
+    foreach ($SiteId in $SiteIds) {
+        $SiteUrls = @($PublicUrls | Where-Object { $_.siteId -eq $SiteId })
+        $Keys = @($SiteUrls | ForEach-Object { "$($_.siteId):$($_.path)" })
+        if ($SiteUrls.Count -ne $ExpectedPerSite) {
+            $Errors.Add("Expected $ExpectedPerSite public URLs for $SiteId, found $($SiteUrls.Count).")
+        }
+        if (@($Keys | Sort-Object -Unique).Count -ne $Keys.Count) {
+            $Errors.Add("Duplicate public path for $SiteId.")
+        }
+        $RootOwners = @($SiteUrls | Where-Object { $_.path -eq '/' })
+        if ($RootOwners.Count -ne 1 -or $RootOwners[0].ownerType -ne 'homepage') {
+            $Errors.Add("Expected exactly one homepage root owner for $SiteId.")
+        }
+        if (@($SiteUrls | Where-Object { $_.ownerType -eq 'page' }).Count -ne ($ExpectedPerSite - 1)) {
+            $Errors.Add("Expected $($ExpectedPerSite - 1) published Page URLs for $SiteId.")
+        }
+        if (@($SiteUrls | Where-Object { $_.path -eq '/test-content/long-tail-500' }).Count -ne 1) {
+            $Errors.Add("Missing expected published path for $SiteId`: /test-content/long-tail-500.")
+        }
+        $Homes = @($Snapshot.homepages | Where-Object { $_.siteId -eq $SiteId -and $_.status -eq 'publish' })
+        if ($Homes.Count -ne 1 -or $Homes[0].slug -ne "$SiteId--homepage" -or $Homes[0].schemaVersion -ne 'homepage-v0.1') {
+            $Errors.Add("Invalid published homepage identity for $SiteId.")
+        }
+    }
+    foreach ($FixtureId in $RequiredSharedFixtures.Keys) {
+        $Matches = @($Snapshot.sharedFixtures | Where-Object { $_.fixtureId -eq $FixtureId })
+        if ($Matches.Count -ne 1) { $Errors.Add("Expected exactly one shared fixture $FixtureId, found $($Matches.Count).") }
+    }
+    if ($Errors.Count -gt 0) {
+        foreach ($AuditError in $Errors) { [Console]::Error.WriteLine($AuditError) }
+        exit 1
+    }
+    foreach ($SiteId in $SiteIds) { Write-Output "$SiteId`: $ExpectedPerSite public URLs" }
+    Write-Output 'Seed audit passed.'
+    exit 0
+}
+
 $Errors = [System.Collections.Generic.List[string]]::new()
 $Pages = @($Snapshot.pages)
 $SeenPaths = [System.Collections.Generic.HashSet[string]]::new(
@@ -124,7 +164,7 @@ foreach ($SiteId in $SiteIds) {
         [void]$SiteExpectedPaths.Add($CorePath)
     }
     for ($Index = 1; $Index -le $ScalePageCount; $Index++) {
-        [void]$SiteExpectedPaths.Add("/test-content/long-tail-$($Index.ToString('D3'))")
+        [void]$SiteExpectedPaths.Add("/test-content/long-tail-$Index")
     }
     $ExpectedPaths[$SiteId] = $SiteExpectedPaths
 }
