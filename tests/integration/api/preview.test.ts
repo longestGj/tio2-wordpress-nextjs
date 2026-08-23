@@ -159,9 +159,7 @@ describe('GET /api/preview', () => {
     )
 
     expect(response.status).toBe(307)
-    expect(response.headers.get('location')).toBe(
-      'http://localhost/applications/coatings',
-    )
+    expect(response.headers.get('location')).toBe('/applications/coatings')
     expect(response.headers.get('set-cookie')).toContain(
       'tio2_preview_scope=',
     )

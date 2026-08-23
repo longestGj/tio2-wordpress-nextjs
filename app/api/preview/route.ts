@@ -89,7 +89,7 @@ export async function GET(request: Request): Promise<Response> {
   return new Response(null, {
     status: 307,
     headers: {
-      location: new URL(path, request.url).toString(),
+      location: path,
       'set-cookie': attributes.join('; '),
     },
   })

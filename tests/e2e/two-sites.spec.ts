@@ -262,7 +262,7 @@ for (const site of sites) {
     )
     expect(valid.status()).toBe(307)
     expect(valid.headers().location).toBe('/products')
-    expect(valid.headers()['set-cookie']).toContain('__prerender_bypass')
+    expect(valid.headers()['set-cookie']).toContain('tio2_preview_scope=')
   })
 
   test(`${site.id} revalidation validates signatures and deduplicates events`, async ({
