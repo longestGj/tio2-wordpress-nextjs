@@ -18,7 +18,7 @@
 
 1. 一个 GitHub 仓库维护共享代码和两个站点定义。
 2. 一个共享 Next.js 应用通过 `SITE_ID` 加载站点配置。
-3. 一个 WordPress 实例管理共享钛白粉资料及两个站点各自的发布内容。
+3. 一个 WordPress 实例仅作为两个完整独立内容集合的 CMS；相同的 TiO₂ 产品主题不代表两个站点共享页面、实体内容或依赖图。
 4. 两个网站分别部署为两个 Vercel Project，拥有独立域名、环境变量、缓存、日志、回滚和生产发布。
 5. WordPress 是发布内容的权威源；GitHub 是代码、Schema、站点配置和部署定义的权威源；Vercel 只承载运行状态。
 6. 页面规模采用“核心页预生成 + 长尾页按需 ISR + 精准刷新”，不在每次提交时全量重建所有页面。
@@ -57,8 +57,10 @@
                             One WordPress
                  ┌────────────────┴────────────────┐
                  │                                 │
-        Shared TiO₂ product data         Site-scoped pages/posts
+       Optional TiO₂ content types       Independent site-scoped pages/posts
 ```
+
+架构修订（用户于 2026-08-23 明确批准）：两个站点的业务内容必须彼此独立。共享的是代码、Schema 和 CMS 实例，而不是页面内容或 MVP 数据依赖。普通内容更新只能影响拥有该内容的一个站点。
 
 ### 4.1 本地环境
 
@@ -126,9 +128,9 @@ GitHub 中的 `sites/tio2-a.ts` 与 `sites/tio2-b.ts` 定义：
 
 WordPress 只保存匹配的 `site_scope` 分类项，不重复拥有域名、部署或主题配置的主权。
 
-### 6.2 共享内容
+### 6.2 可选 TiO₂ 内容类型
 
-共享内容类型包括：
+Schema 可以提供以下可选内容类型：
 
 - `tio2_product`：产品与产品线；
 - `tio2_grade`：钛白粉牌号、类型和技术指标；
@@ -136,11 +138,11 @@ WordPress 只保存匹配的 `site_scope` 分类项，不重复拥有域名、�
 - `tio2_document`：TDS、SDS、COA 等文件元数据；
 - `tio2_faq`：可复用的事实型问答。
 
-共享内容不自动产生两个站完全相同的发布正文。页面只引用相同的事实实体。
+这些类型用于保留可扩展的内容模型和本地 fixture，但不是 v0.1 页面读取、渲染、缓存或刷新所依赖的共享实体层。若以后确实引入跨站复用对象，该对象必须显式声明消费者站点；在此之前，不建立页面到共享实体的关系，也不因为一个站点的编辑刷新另一个站点。
 
 ### 6.3 站点独立内容
 
-站点独立内容使用 WordPress Page/Post 和必要的页面类型字段，并关联 `site_scope`。每条内容至少包含：
+站点独立内容使用 WordPress Page/Post 和必要的页面类型字段。每条受管理内容必须且只能关联一个有效 `site_scope`，并至少包含：
 
 - 所属站点；
 - 页面类型；
@@ -148,7 +150,6 @@ WordPress 只保存匹配的 `site_scope` 分类项，不重复拥有域名、�
 - 标题、摘要、正文和特色图；
 - SEO title、description、canonical 策略；
 - 发布状态和更新时间；
-- 引用的共享产品、牌号、应用或文档。
 
 WordPress 内部 slug 使用站点前缀保证唯一；Next.js 对外只暴露站点自己的公开路径。
 
@@ -159,6 +160,8 @@ WordPress 内部 slug 使用站点前缀保证唯一；Next.js 对外只暴露�
 - 禁止页面查询无界深层关系；
 - GraphQL 响应转换为项目内部 DTO，React 组件不直接依赖完整 WordPress Schema；
 - 未发布内容只能通过带签名的 Preview 流程读取。
+
+WordPress 正常后台编辑流程必须从唯一 `site_scope + public_path` 确定性生成并保留内部 slug。准备发布的 Page/Post 若没有 scope、具有多个 scope，或 `public_path` 无效，必须阻止发布；DTO 也必须要求返回节点恰好具有请求站点的唯一 scope。
 
 运行时 Schema 修订（2026-08-23）：本地 WPGraphQL 的 `PageIdType` 不包含 `SLUG`，Page 全局 connection 也不提供 `taxQuery`；因此使用上述 Page URI 详情查询和 SiteScope SLUG 根 connection，保持确定性查找与站点隔离语义不变。
 
@@ -184,9 +187,8 @@ WordPress 内部 slug 使用站点前缀保证唯一；Next.js 对外只暴露�
 - `site:{siteId}`；
 - `content:{contentId}`；
 - `route:{siteId}:{path}`；
-- `entity:{entityType}:{entityId}`。
 
-更新一篇文章只刷新对应站点和路径；更新共享牌号时刷新引用该实体的两个站点页面。v0.1 可以使用显式依赖记录，暂不建设通用依赖图服务。
+普通 Page/Post 更新只刷新其唯一所属站点的内容与路径，不执行无条件站点级刷新，也不得刷新另一个站点。v0.1 不建设页面到共享实体的依赖图；未来可选的跨站对象只有在显式记录消费者后才能按消费者路由刷新。
 
 ## 8. SEO 与索引准备
 
@@ -239,7 +241,7 @@ WordPress 内部 slug 使用站点前缀保证唯一；Next.js 对外只暴露�
 
 - 插件激活成功；
 - CPT、Taxonomy 和 ACF 字段可在 GraphQL Schema 中查询；
-- Seed 数据能创建两个站点的共享实体与独立页面；
+- Seed 数据能创建两个站点各自独立的页面；可选 TiO₂ CPT fixture 只验证 Schema，不形成页面共享依赖；
 - 更新、草稿、发布和删除能产生正确 Webhook 事件。
 
 ### 10.4 端到端与规模测试
@@ -272,7 +274,7 @@ v0.1 允许两个 Vercel 项目在共享核心代码变化时同时构建。站�
 
 1. 本地 WordPress、数据库和两个 Next.js 站点可重复启动；
 2. WordPress 后台可以创建、编辑、预览、发布和删除两站内容；
-3. 共享钛白粉实体可被两站引用，站点正文不会互相泄漏；
+3. 两站内容、路由和刷新完全隔离，站点正文不会互相泄漏；
 4. 每站 500 条合成页面测试通过，分页、ISR 和 Sitemap 行为正确；
 5. GitHub 仓库存在通过的 CI 记录；
 6. 两个 Vercel Project 分别连接同一仓库并成功部署；
