@@ -55,6 +55,11 @@ export function contentTag(siteId: string, contentId: number): string {
   return `content:${siteId}:${contentId}`
 }
 
+export function homepageContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  return `content:${siteId}--homepage`
+}
+
 export function routeTag(siteId: string, path: string): string {
   assertSiteId(siteId)
   assertPublicPath(path)

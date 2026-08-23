@@ -433,6 +433,8 @@ export type ContentTypeEnum =
   /** The Type of Content object */
   | 'TIO2_GRADE'
   /** The Type of Content object */
+  | 'TIO2_HOMEPAGE'
+  /** The Type of Content object */
   | 'TIO2_PRODUCT';
 
 /** Identifier types for retrieving a specific content type definition. Determines whether to look up content types by ID or name. */
@@ -510,6 +512,8 @@ export type ContentTypesOfSiteScopeEnum =
   | 'TIO2_FAQ'
   /** The Type of Content object */
   | 'TIO2_GRADE'
+  /** The Type of Content object */
+  | 'TIO2_HOMEPAGE'
   /** The Type of Content object */
   | 'TIO2_PRODUCT';
 
@@ -805,6 +809,26 @@ export type CreateTio2GradeInput = {
   readonly title?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Input for the createTio2Homepage mutation. */
+export type CreateTio2HomepageInput = {
+  /** This is an ID that can be passed to a mutation by the client to track the progress of mutations and catch possible duplicate mutation submissions. */
+  readonly clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The date of the object. Preferable to enter as year/month/day (e.g. 01/31/2017) as it will rearrange date as fit if it is not specified. Incomplete dates may have unintended results for example, "2017" as the input will use current date with timestamp 20:17  */
+  readonly date?: InputMaybe<Scalars['String']['input']>;
+  /** A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types. */
+  readonly menuOrder?: InputMaybe<Scalars['Int']['input']>;
+  /** The password used to protect the content of the object */
+  readonly password?: InputMaybe<Scalars['String']['input']>;
+  /** Set connections between the Tio2Homepage and SiteScopes */
+  readonly siteScopes?: InputMaybe<Tio2HomepageSiteScopesInput>;
+  /** The slug of the object */
+  readonly slug?: InputMaybe<Scalars['String']['input']>;
+  /** The status of the object */
+  readonly status?: InputMaybe<PostStatusEnum>;
+  /** The title of the object */
+  readonly title?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** Input for the createTio2Product mutation. */
 export type CreateTio2ProductInput = {
   /** This is an ID that can be passed to a mutation by the client to track the progress of mutations and catch possible duplicate mutation submissions. */
@@ -1034,6 +1058,18 @@ export type DeleteTio2GradeInput = {
   /** Whether the object should be force deleted instead of being moved to the trash */
   readonly forceDelete?: InputMaybe<Scalars['Boolean']['input']>;
   /** The ID of the Tio2Grade to delete */
+  readonly id: Scalars['ID']['input'];
+  /** Override the edit lock when another user is editing the post */
+  readonly ignoreEditLock?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Input for the deleteTio2Homepage mutation. */
+export type DeleteTio2HomepageInput = {
+  /** This is an ID that can be passed to a mutation by the client to track the progress of mutations and catch possible duplicate mutation submissions. */
+  readonly clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** Whether the object should be force deleted instead of being moved to the trash */
+  readonly forceDelete?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The ID of the Tio2Homepage to delete */
   readonly id: Scalars['ID']['input'];
   /** Override the edit lock when another user is editing the post */
   readonly ignoreEditLock?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3288,6 +3324,48 @@ export type RootQueryToTio2GradeConnectionWhereArgs = {
   readonly title?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Arguments for filtering the RootQueryToTio2HomepageConnection connection */
+export type RootQueryToTio2HomepageConnectionWhereArgs = {
+  /** Filter the connection based on dates */
+  readonly dateQuery?: InputMaybe<DateQueryInput>;
+  /** True for objects with passwords; False for objects without passwords; null for all objects with or without passwords */
+  readonly hasPassword?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Specific database ID of the object */
+  readonly id?: InputMaybe<Scalars['Int']['input']>;
+  /** Array of IDs for the objects to retrieve */
+  readonly in?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** True to limit the results to sticky posts; false to exclude sticky posts. Note: this filters the result set, it does not float sticky posts to the top of the results. */
+  readonly isSticky?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Get objects with a specific mimeType property */
+  readonly mimeType?: InputMaybe<MimeTypeEnum>;
+  /** Slug / post_name of the object */
+  readonly name?: InputMaybe<Scalars['String']['input']>;
+  /** Specify objects to retrieve. Use slugs */
+  readonly nameIn?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['String']['input']>>>;
+  /** Specify IDs NOT to retrieve. If this is used in the same query as "in", it will be ignored */
+  readonly notIn?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** What parameter to use to order the objects by. */
+  readonly orderby?: InputMaybe<ReadonlyArray<InputMaybe<PostObjectsConnectionOrderbyInput>>>;
+  /** Use ID to return only children. Use 0 to return only top-level items */
+  readonly parent?: InputMaybe<Scalars['ID']['input']>;
+  /** Specify objects whose parent is in an array */
+  readonly parentIn?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Specify posts whose parent is not in an array */
+  readonly parentNotIn?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Show posts with a specific password. */
+  readonly password?: InputMaybe<Scalars['String']['input']>;
+  /** Show Posts based on a keyword search */
+  readonly search?: InputMaybe<Scalars['String']['input']>;
+  /** Retrieve posts where post status is in an array. */
+  readonly stati?: InputMaybe<ReadonlyArray<InputMaybe<PostStatusEnum>>>;
+  /** Show posts with a specific status. */
+  readonly status?: InputMaybe<PostStatusEnum>;
+  /** Filter the connection to content assigned a specific template. */
+  readonly template?: InputMaybe<ContentTemplateEnum>;
+  /** Title of the object */
+  readonly title?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** Arguments for filtering the RootQueryToTio2ProductConnection connection */
 export type RootQueryToTio2ProductConnectionWhereArgs = {
   /** Filter the connection based on dates */
@@ -3696,6 +3774,48 @@ export type SiteScopeToTio2FaqConnectionWhereArgs = {
 
 /** Arguments for filtering the SiteScopeToTio2GradeConnection connection */
 export type SiteScopeToTio2GradeConnectionWhereArgs = {
+  /** Filter the connection based on dates */
+  readonly dateQuery?: InputMaybe<DateQueryInput>;
+  /** True for objects with passwords; False for objects without passwords; null for all objects with or without passwords */
+  readonly hasPassword?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Specific database ID of the object */
+  readonly id?: InputMaybe<Scalars['Int']['input']>;
+  /** Array of IDs for the objects to retrieve */
+  readonly in?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** True to limit the results to sticky posts; false to exclude sticky posts. Note: this filters the result set, it does not float sticky posts to the top of the results. */
+  readonly isSticky?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Get objects with a specific mimeType property */
+  readonly mimeType?: InputMaybe<MimeTypeEnum>;
+  /** Slug / post_name of the object */
+  readonly name?: InputMaybe<Scalars['String']['input']>;
+  /** Specify objects to retrieve. Use slugs */
+  readonly nameIn?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['String']['input']>>>;
+  /** Specify IDs NOT to retrieve. If this is used in the same query as "in", it will be ignored */
+  readonly notIn?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** What parameter to use to order the objects by. */
+  readonly orderby?: InputMaybe<ReadonlyArray<InputMaybe<PostObjectsConnectionOrderbyInput>>>;
+  /** Use ID to return only children. Use 0 to return only top-level items */
+  readonly parent?: InputMaybe<Scalars['ID']['input']>;
+  /** Specify objects whose parent is in an array */
+  readonly parentIn?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Specify posts whose parent is not in an array */
+  readonly parentNotIn?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Show posts with a specific password. */
+  readonly password?: InputMaybe<Scalars['String']['input']>;
+  /** Show Posts based on a keyword search */
+  readonly search?: InputMaybe<Scalars['String']['input']>;
+  /** Retrieve posts where post status is in an array. */
+  readonly stati?: InputMaybe<ReadonlyArray<InputMaybe<PostStatusEnum>>>;
+  /** Show posts with a specific status. */
+  readonly status?: InputMaybe<PostStatusEnum>;
+  /** Filter the connection to content assigned a specific template. */
+  readonly template?: InputMaybe<ContentTemplateEnum>;
+  /** Title of the object */
+  readonly title?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Arguments for filtering the SiteScopeToTio2HomepageConnection connection */
+export type SiteScopeToTio2HomepageConnectionWhereArgs = {
   /** Filter the connection based on dates */
   readonly dateQuery?: InputMaybe<DateQueryInput>;
   /** True for objects with passwords; False for objects without passwords; null for all objects with or without passwords */
@@ -4657,6 +4777,179 @@ export type Tio2GradeToTermNodeConnectionWhereArgs = {
   readonly updateTermMetaCache?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+/** Identifier types for retrieving a specific Tio2Homepage. Specifies which unique attribute is used to find an exact Tio2Homepage. */
+export type Tio2HomepageIdType =
+  /** Identify a resource by the Database ID. */
+  | 'DATABASE_ID'
+  /** Identify a resource by the (hashed) Global ID. */
+  | 'ID'
+  /** Identify a resource by the slug. Available to non-hierarchcial Types where the slug is a unique identifier. */
+  | 'SLUG'
+  /** Identify a resource by the URI. */
+  | 'URI';
+
+/** Set relationships between the Tio2Homepage to SiteScopes */
+export type Tio2HomepageSiteScopesInput = {
+  /** If true, this will append the SiteScope to existing related SiteScopes. If false, this will replace existing relationships. Default true. */
+  readonly append?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The input list of items to set. */
+  readonly nodes?: InputMaybe<ReadonlyArray<InputMaybe<Tio2HomepageSiteScopesNodeInput>>>;
+};
+
+/** List of SiteScopes to connect the Tio2Homepage to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists. */
+export type Tio2HomepageSiteScopesNodeInput = {
+  /** The description of the SiteScope. This field is used to set a description of the SiteScope if a new one is created during the mutation. */
+  readonly description?: InputMaybe<Scalars['String']['input']>;
+  /** The ID of the SiteScope. If present, this will be used to connect to the Tio2Homepage. If no existing SiteScope exists with this ID, no connection will be made. */
+  readonly id?: InputMaybe<Scalars['ID']['input']>;
+  /** The name of the SiteScope. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field. */
+  readonly name?: InputMaybe<Scalars['String']['input']>;
+  /** The slug of the SiteScope. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation. */
+  readonly slug?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Arguments for filtering the Tio2HomepageToRevisionConnection connection */
+export type Tio2HomepageToRevisionConnectionWhereArgs = {
+  /** Filter the connection based on dates */
+  readonly dateQuery?: InputMaybe<DateQueryInput>;
+  /** True for objects with passwords; False for objects without passwords; null for all objects with or without passwords */
+  readonly hasPassword?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Specific database ID of the object */
+  readonly id?: InputMaybe<Scalars['Int']['input']>;
+  /** Array of IDs for the objects to retrieve */
+  readonly in?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** True to limit the results to sticky posts; false to exclude sticky posts. Note: this filters the result set, it does not float sticky posts to the top of the results. */
+  readonly isSticky?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Get objects with a specific mimeType property */
+  readonly mimeType?: InputMaybe<MimeTypeEnum>;
+  /** Slug / post_name of the object */
+  readonly name?: InputMaybe<Scalars['String']['input']>;
+  /** Specify objects to retrieve. Use slugs */
+  readonly nameIn?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['String']['input']>>>;
+  /** Specify IDs NOT to retrieve. If this is used in the same query as "in", it will be ignored */
+  readonly notIn?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** What parameter to use to order the objects by. */
+  readonly orderby?: InputMaybe<ReadonlyArray<InputMaybe<PostObjectsConnectionOrderbyInput>>>;
+  /** Use ID to return only children. Use 0 to return only top-level items */
+  readonly parent?: InputMaybe<Scalars['ID']['input']>;
+  /** Specify objects whose parent is in an array */
+  readonly parentIn?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Specify posts whose parent is not in an array */
+  readonly parentNotIn?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Show posts with a specific password. */
+  readonly password?: InputMaybe<Scalars['String']['input']>;
+  /** Show Posts based on a keyword search */
+  readonly search?: InputMaybe<Scalars['String']['input']>;
+  /** Retrieve posts where post status is in an array. */
+  readonly stati?: InputMaybe<ReadonlyArray<InputMaybe<PostStatusEnum>>>;
+  /** Show posts with a specific status. */
+  readonly status?: InputMaybe<PostStatusEnum>;
+  /** Filter the connection to content assigned a specific template. */
+  readonly template?: InputMaybe<ContentTemplateEnum>;
+  /** Title of the object */
+  readonly title?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Arguments for filtering the Tio2HomepageToSiteScopeConnection connection */
+export type Tio2HomepageToSiteScopeConnectionWhereArgs = {
+  /** Unique cache key to be produced when this query is stored in an object cache. Default is 'core'. */
+  readonly cacheDomain?: InputMaybe<Scalars['String']['input']>;
+  /** Term ID to retrieve child terms of. If multiple taxonomies are passed, $child_of is ignored. Default 0. */
+  readonly childOf?: InputMaybe<Scalars['Int']['input']>;
+  /** True to limit results to terms that have no children. This parameter has no effect on non-hierarchical taxonomies. Default false. */
+  readonly childless?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Retrieve terms where the description is LIKE the input value. Default empty. */
+  readonly descriptionLike?: InputMaybe<Scalars['String']['input']>;
+  /** Array of term ids to exclude. If $include is non-empty, $exclude is ignored. Default empty array. */
+  readonly exclude?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Array of term ids to exclude along with all of their descendant terms. If $include is non-empty, $exclude_tree is ignored. Default empty array. */
+  readonly excludeTree?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Whether to hide terms not assigned to any posts. Accepts true or false. Default false */
+  readonly hideEmpty?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Whether to include terms that have non-empty descendants (even if $hide_empty is set to true). Default true. */
+  readonly hierarchical?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Array of term ids to include. Default empty array. */
+  readonly include?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Array of names to return term(s) for. Default empty. */
+  readonly name?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['String']['input']>>>;
+  /** Retrieve terms where the name is LIKE the input value. Default empty. */
+  readonly nameLike?: InputMaybe<Scalars['String']['input']>;
+  /** Array of object IDs. Results will be limited to terms associated with these objects. */
+  readonly objectIds?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Direction the connection should be ordered in */
+  readonly order?: InputMaybe<OrderEnum>;
+  /** Field(s) to order terms by. Defaults to 'name'. */
+  readonly orderby?: InputMaybe<TermObjectsConnectionOrderbyEnum>;
+  /** Whether to pad the quantity of a term's children in the quantity of each term's "count" object variable. Default false. */
+  readonly padCounts?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Parent term ID to retrieve direct-child terms of. Default empty. */
+  readonly parent?: InputMaybe<Scalars['Int']['input']>;
+  /** Search criteria to match terms. Will be SQL-formatted with wildcards before and after. Default empty. */
+  readonly search?: InputMaybe<Scalars['String']['input']>;
+  /** Array of slugs to return term(s) for. Default empty. */
+  readonly slug?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['String']['input']>>>;
+  /**
+   * Array of term taxonomy IDs, to match when querying terms.
+   * @deprecated Use `termTaxonomyId` instead. This will be removed in the next major version of WPGraphQL.
+   */
+  readonly termTaxonomId?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Array of term taxonomy IDs, to match when querying terms. */
+  readonly termTaxonomyId?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Whether to prime meta caches for matched terms. Default true. */
+  readonly updateTermMetaCache?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Arguments for filtering the Tio2HomepageToTermNodeConnection connection */
+export type Tio2HomepageToTermNodeConnectionWhereArgs = {
+  /** Unique cache key to be produced when this query is stored in an object cache. Default is 'core'. */
+  readonly cacheDomain?: InputMaybe<Scalars['String']['input']>;
+  /** Term ID to retrieve child terms of. If multiple taxonomies are passed, $child_of is ignored. Default 0. */
+  readonly childOf?: InputMaybe<Scalars['Int']['input']>;
+  /** True to limit results to terms that have no children. This parameter has no effect on non-hierarchical taxonomies. Default false. */
+  readonly childless?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Retrieve terms where the description is LIKE the input value. Default empty. */
+  readonly descriptionLike?: InputMaybe<Scalars['String']['input']>;
+  /** Array of term ids to exclude. If $include is non-empty, $exclude is ignored. Default empty array. */
+  readonly exclude?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Array of term ids to exclude along with all of their descendant terms. If $include is non-empty, $exclude_tree is ignored. Default empty array. */
+  readonly excludeTree?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Whether to hide terms not assigned to any posts. Accepts true or false. Default false */
+  readonly hideEmpty?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Whether to include terms that have non-empty descendants (even if $hide_empty is set to true). Default true. */
+  readonly hierarchical?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Array of term ids to include. Default empty array. */
+  readonly include?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Array of names to return term(s) for. Default empty. */
+  readonly name?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['String']['input']>>>;
+  /** Retrieve terms where the name is LIKE the input value. Default empty. */
+  readonly nameLike?: InputMaybe<Scalars['String']['input']>;
+  /** Array of object IDs. Results will be limited to terms associated with these objects. */
+  readonly objectIds?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Direction the connection should be ordered in */
+  readonly order?: InputMaybe<OrderEnum>;
+  /** Field(s) to order terms by. Defaults to 'name'. */
+  readonly orderby?: InputMaybe<TermObjectsConnectionOrderbyEnum>;
+  /** Whether to pad the quantity of a term's children in the quantity of each term's "count" object variable. Default false. */
+  readonly padCounts?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Parent term ID to retrieve direct-child terms of. Default empty. */
+  readonly parent?: InputMaybe<Scalars['Int']['input']>;
+  /** Search criteria to match terms. Will be SQL-formatted with wildcards before and after. Default empty. */
+  readonly search?: InputMaybe<Scalars['String']['input']>;
+  /** Array of slugs to return term(s) for. Default empty. */
+  readonly slug?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['String']['input']>>>;
+  /** The Taxonomy to filter terms by */
+  readonly taxonomies?: InputMaybe<ReadonlyArray<InputMaybe<TaxonomyEnum>>>;
+  /**
+   * Array of term taxonomy IDs, to match when querying terms.
+   * @deprecated Use `termTaxonomyId` instead. This will be removed in the next major version of WPGraphQL.
+   */
+  readonly termTaxonomId?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Array of term taxonomy IDs, to match when querying terms. */
+  readonly termTaxonomyId?: InputMaybe<ReadonlyArray<InputMaybe<Scalars['ID']['input']>>>;
+  /** Whether to prime meta caches for matched terms. Default true. */
+  readonly updateTermMetaCache?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 /** Identifier types for retrieving a specific Tio2Product. Specifies which unique attribute is used to find an exact Tio2Product. */
 export type Tio2ProductIdType =
   /** Identify a resource by the Database ID. */
@@ -5198,6 +5491,30 @@ export type UpdateTio2GradeInput = {
   readonly title?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Input for the updateTio2Homepage mutation. */
+export type UpdateTio2HomepageInput = {
+  /** This is an ID that can be passed to a mutation by the client to track the progress of mutations and catch possible duplicate mutation submissions. */
+  readonly clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The date of the object. Preferable to enter as year/month/day (e.g. 01/31/2017) as it will rearrange date as fit if it is not specified. Incomplete dates may have unintended results for example, "2017" as the input will use current date with timestamp 20:17  */
+  readonly date?: InputMaybe<Scalars['String']['input']>;
+  /** The ID of the Tio2Homepage object */
+  readonly id: Scalars['ID']['input'];
+  /** Override the edit lock when another user is editing the post */
+  readonly ignoreEditLock?: InputMaybe<Scalars['Boolean']['input']>;
+  /** A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types. */
+  readonly menuOrder?: InputMaybe<Scalars['Int']['input']>;
+  /** The password used to protect the content of the object */
+  readonly password?: InputMaybe<Scalars['String']['input']>;
+  /** Set connections between the Tio2Homepage and SiteScopes */
+  readonly siteScopes?: InputMaybe<Tio2HomepageSiteScopesInput>;
+  /** The slug of the object */
+  readonly slug?: InputMaybe<Scalars['String']['input']>;
+  /** The status of the object */
+  readonly status?: InputMaybe<PostStatusEnum>;
+  /** The title of the object */
+  readonly title?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** Input for the updateTio2Product mutation. */
 export type UpdateTio2ProductInput = {
   /** This is an ID that can be passed to a mutation by the client to track the progress of mutations and catch possible duplicate mutation submissions. */
@@ -5631,6 +5948,17 @@ export type UsersConnectionSearchColumnEnum =
   /** The URL of the user's website. */
   | 'URL';
 
+export type HomepageMediaItemFieldsFragment = { readonly mediaItemUrl: string | null, readonly altText: string | null, readonly mimeType: string | null, readonly mediaDetails: { readonly width: number | null, readonly height: number | null } | null };
+
+export type HomepageFieldsFragment = { readonly id: string, readonly databaseId: number, readonly modifiedGmt: string | null, readonly status: string | null, readonly siteScopes: { readonly nodes: ReadonlyArray<{ readonly slug: string | null }> } | null, readonly homepageFields: { readonly heroEyebrow: string | null, readonly heroHeading: string | null, readonly heroSummary: string | null, readonly heroPrimaryLabel: string | null, readonly heroSecondaryLabel: string | null, readonly heroSecondaryPath: string | null, readonly heroImageAlt: string | null, readonly productsHeading: string | null, readonly productsIntro: string | null, readonly applicationsHeading: string | null, readonly applicationsIntro: string | null, readonly inquiryHeading: string | null, readonly trustHeading: string | null, readonly trustIntro: string | null, readonly rfqHeading: string | null, readonly rfqIntro: string | null, readonly rfqSubmitLabel: string | null, readonly rfqPrivacyText: string | null, readonly rfqSuccessHeading: string | null, readonly rfqSuccessMessage: string | null, readonly faqHeading: string | null, readonly closingHeading: string | null, readonly closingBody: string | null, readonly closingLabel: string | null, readonly seoTitle: string | null, readonly seoDescription: string | null, readonly primaryTopic: string | null, readonly homepageSchemaVersion: string | null, readonly heroImage: { readonly node: { readonly mediaItemUrl: string | null, readonly altText: string | null, readonly mimeType: string | null, readonly mediaDetails: { readonly width: number | null, readonly height: number | null } | null } } | null, readonly metrics: ReadonlyArray<{ readonly metricValue: string | null, readonly metricUnit: string | null, readonly metricLabel: string | null, readonly metricContext: string | null, readonly metricClaimBasis: ReadonlyArray<string | null> | null, readonly metricEvidenceUrl: string | null } | null> | null, readonly productRoutes: ReadonlyArray<{ readonly productTitle: string | null, readonly productSummary: string | null, readonly productPath: string | null, readonly productImageAlt: string | null, readonly productImage: { readonly node: { readonly mediaItemUrl: string | null, readonly altText: string | null, readonly mimeType: string | null, readonly mediaDetails: { readonly width: number | null, readonly height: number | null } | null } } | null } | null> | null, readonly applications: ReadonlyArray<{ readonly applicationName: string | null, readonly applicationSummary: string | null, readonly applicationPath: string | null, readonly applicationImageAlt: string | null, readonly applicationImage: { readonly node: { readonly mediaItemUrl: string | null, readonly altText: string | null, readonly mimeType: string | null, readonly mediaDetails: { readonly width: number | null, readonly height: number | null } | null } } | null } | null> | null, readonly inquirySteps: ReadonlyArray<{ readonly inquiryStepTitle: string | null, readonly inquiryStepDescription: string | null } | null> | null, readonly trustReasons: ReadonlyArray<{ readonly trustReasonTitle: string | null, readonly trustReasonDescription: string | null, readonly trustReasonClaimBasis: ReadonlyArray<string | null> | null, readonly trustReasonEvidenceUrl: string | null } | null> | null, readonly rfqLabels: { readonly rfqLabelName: string | null, readonly rfqLabelCompany: string | null, readonly rfqLabelCountryRegion: string | null, readonly rfqLabelWorkEmail: string | null, readonly rfqLabelBuyerType: string | null, readonly rfqLabelInterest: string | null, readonly rfqLabelExpectedQuantity: string | null, readonly rfqLabelDestination: string | null, readonly rfqLabelMessage: string | null, readonly rfqLabelPrivacy: string | null, readonly rfqBuyerIndustrialLabel: string | null, readonly rfqBuyerDistributorLabel: string | null, readonly rfqBuyerOtherLabel: string | null } | null, readonly faqs: ReadonlyArray<{ readonly faqQuestion: string | null, readonly faqAnswer: string | null, readonly faqRelatedLabel: string | null, readonly faqRelatedPath: string | null } | null> | null, readonly ogImage: { readonly node: { readonly mediaItemUrl: string | null, readonly altText: string | null, readonly mimeType: string | null, readonly mediaDetails: { readonly width: number | null, readonly height: number | null } | null } } | null, readonly secondaryTopics: ReadonlyArray<{ readonly secondaryTopic: string | null } | null> | null } | null };
+
+export type GetHomepageQueryVariables = Exact<{
+  slug: string | number;
+}>;
+
+
+export type GetHomepageQuery = { readonly tio2Homepage: { readonly id: string, readonly databaseId: number, readonly modifiedGmt: string | null, readonly status: string | null, readonly siteScopes: { readonly nodes: ReadonlyArray<{ readonly slug: string | null }> } | null, readonly homepageFields: { readonly heroEyebrow: string | null, readonly heroHeading: string | null, readonly heroSummary: string | null, readonly heroPrimaryLabel: string | null, readonly heroSecondaryLabel: string | null, readonly heroSecondaryPath: string | null, readonly heroImageAlt: string | null, readonly productsHeading: string | null, readonly productsIntro: string | null, readonly applicationsHeading: string | null, readonly applicationsIntro: string | null, readonly inquiryHeading: string | null, readonly trustHeading: string | null, readonly trustIntro: string | null, readonly rfqHeading: string | null, readonly rfqIntro: string | null, readonly rfqSubmitLabel: string | null, readonly rfqPrivacyText: string | null, readonly rfqSuccessHeading: string | null, readonly rfqSuccessMessage: string | null, readonly faqHeading: string | null, readonly closingHeading: string | null, readonly closingBody: string | null, readonly closingLabel: string | null, readonly seoTitle: string | null, readonly seoDescription: string | null, readonly primaryTopic: string | null, readonly homepageSchemaVersion: string | null, readonly heroImage: { readonly node: { readonly mediaItemUrl: string | null, readonly altText: string | null, readonly mimeType: string | null, readonly mediaDetails: { readonly width: number | null, readonly height: number | null } | null } } | null, readonly metrics: ReadonlyArray<{ readonly metricValue: string | null, readonly metricUnit: string | null, readonly metricLabel: string | null, readonly metricContext: string | null, readonly metricClaimBasis: ReadonlyArray<string | null> | null, readonly metricEvidenceUrl: string | null } | null> | null, readonly productRoutes: ReadonlyArray<{ readonly productTitle: string | null, readonly productSummary: string | null, readonly productPath: string | null, readonly productImageAlt: string | null, readonly productImage: { readonly node: { readonly mediaItemUrl: string | null, readonly altText: string | null, readonly mimeType: string | null, readonly mediaDetails: { readonly width: number | null, readonly height: number | null } | null } } | null } | null> | null, readonly applications: ReadonlyArray<{ readonly applicationName: string | null, readonly applicationSummary: string | null, readonly applicationPath: string | null, readonly applicationImageAlt: string | null, readonly applicationImage: { readonly node: { readonly mediaItemUrl: string | null, readonly altText: string | null, readonly mimeType: string | null, readonly mediaDetails: { readonly width: number | null, readonly height: number | null } | null } } | null } | null> | null, readonly inquirySteps: ReadonlyArray<{ readonly inquiryStepTitle: string | null, readonly inquiryStepDescription: string | null } | null> | null, readonly trustReasons: ReadonlyArray<{ readonly trustReasonTitle: string | null, readonly trustReasonDescription: string | null, readonly trustReasonClaimBasis: ReadonlyArray<string | null> | null, readonly trustReasonEvidenceUrl: string | null } | null> | null, readonly rfqLabels: { readonly rfqLabelName: string | null, readonly rfqLabelCompany: string | null, readonly rfqLabelCountryRegion: string | null, readonly rfqLabelWorkEmail: string | null, readonly rfqLabelBuyerType: string | null, readonly rfqLabelInterest: string | null, readonly rfqLabelExpectedQuantity: string | null, readonly rfqLabelDestination: string | null, readonly rfqLabelMessage: string | null, readonly rfqLabelPrivacy: string | null, readonly rfqBuyerIndustrialLabel: string | null, readonly rfqBuyerDistributorLabel: string | null, readonly rfqBuyerOtherLabel: string | null } | null, readonly faqs: ReadonlyArray<{ readonly faqQuestion: string | null, readonly faqAnswer: string | null, readonly faqRelatedLabel: string | null, readonly faqRelatedPath: string | null } | null> | null, readonly ogImage: { readonly node: { readonly mediaItemUrl: string | null, readonly altText: string | null, readonly mimeType: string | null, readonly mediaDetails: { readonly width: number | null, readonly height: number | null } | null } } | null, readonly secondaryTopics: ReadonlyArray<{ readonly secondaryTopic: string | null } | null> | null } | null } | null };
+
 export type ContentPageFieldsFragment = { readonly __typename: 'Page', readonly id: string, readonly title: string | null, readonly content: string | null, readonly modifiedGmt: string | null, readonly status: string | null, readonly publishingFields: { readonly __typename: 'PublishingFields', readonly publicPath: string | null, readonly seoTitle: string | null, readonly seoDescription: string | null } | null, readonly siteScopes: { readonly __typename: 'PageToSiteScopeConnection', readonly nodes: ReadonlyArray<{ readonly __typename: 'SiteScope', readonly id: string, readonly slug: string | null }> } | null };
 
 export type GetContentByPathQueryVariables = Exact<{
@@ -5648,6 +5976,9 @@ export type GetContentPageQueryVariables = Exact<{
 
 export type GetContentPageQuery = { readonly siteScope: { readonly pages: { readonly nodes: ReadonlyArray<{ readonly __typename: 'Page', readonly id: string, readonly title: string | null, readonly content: string | null, readonly modifiedGmt: string | null, readonly status: string | null, readonly publishingFields: { readonly __typename: 'PublishingFields', readonly publicPath: string | null, readonly seoTitle: string | null, readonly seoDescription: string | null } | null, readonly siteScopes: { readonly __typename: 'PageToSiteScopeConnection', readonly nodes: ReadonlyArray<{ readonly __typename: 'SiteScope', readonly id: string, readonly slug: string | null }> } | null }>, readonly pageInfo: { readonly endCursor: string | null, readonly hasNextPage: boolean } } | null } | null };
 
+export const HomepageMediaItemFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HomepageMediaItemFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MediaItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"mediaItemUrl"}},{"kind":"Field","name":{"kind":"Name","value":"altText"}},{"kind":"Field","name":{"kind":"Name","value":"mediaDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"width"}},{"kind":"Field","name":{"kind":"Name","value":"height"}}]}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}}]}}]} as unknown as DocumentNode<HomepageMediaItemFieldsFragment, unknown>;
+export const HomepageFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HomepageFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Tio2Homepage"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"databaseId"}},{"kind":"Field","name":{"kind":"Name","value":"modifiedGmt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"siteScopes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"homepageFields"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"homepageSchemaVersion"},"name":{"kind":"Name","value":"schemaVersion"}},{"kind":"Field","name":{"kind":"Name","value":"heroEyebrow"}},{"kind":"Field","name":{"kind":"Name","value":"heroHeading"}},{"kind":"Field","name":{"kind":"Name","value":"heroSummary"}},{"kind":"Field","name":{"kind":"Name","value":"heroPrimaryLabel"}},{"kind":"Field","name":{"kind":"Name","value":"heroSecondaryLabel"}},{"kind":"Field","name":{"kind":"Name","value":"heroSecondaryPath"}},{"kind":"Field","name":{"kind":"Name","value":"heroImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"HomepageMediaItemFields"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"heroImageAlt"}},{"kind":"Field","name":{"kind":"Name","value":"metrics"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"metricValue"}},{"kind":"Field","name":{"kind":"Name","value":"metricUnit"}},{"kind":"Field","name":{"kind":"Name","value":"metricLabel"}},{"kind":"Field","name":{"kind":"Name","value":"metricContext"}},{"kind":"Field","name":{"kind":"Name","value":"metricClaimBasis"}},{"kind":"Field","name":{"kind":"Name","value":"metricEvidenceUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"productsHeading"}},{"kind":"Field","name":{"kind":"Name","value":"productsIntro"}},{"kind":"Field","name":{"kind":"Name","value":"productRoutes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productTitle"}},{"kind":"Field","name":{"kind":"Name","value":"productSummary"}},{"kind":"Field","name":{"kind":"Name","value":"productPath"}},{"kind":"Field","name":{"kind":"Name","value":"productImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"HomepageMediaItemFields"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"productImageAlt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"applicationsHeading"}},{"kind":"Field","name":{"kind":"Name","value":"applicationsIntro"}},{"kind":"Field","name":{"kind":"Name","value":"applications"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"applicationName"}},{"kind":"Field","name":{"kind":"Name","value":"applicationSummary"}},{"kind":"Field","name":{"kind":"Name","value":"applicationPath"}},{"kind":"Field","name":{"kind":"Name","value":"applicationImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"HomepageMediaItemFields"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"applicationImageAlt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"inquiryHeading"}},{"kind":"Field","name":{"kind":"Name","value":"inquirySteps"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"inquiryStepTitle"}},{"kind":"Field","name":{"kind":"Name","value":"inquiryStepDescription"}}]}},{"kind":"Field","name":{"kind":"Name","value":"trustHeading"}},{"kind":"Field","name":{"kind":"Name","value":"trustIntro"}},{"kind":"Field","name":{"kind":"Name","value":"trustReasons"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"trustReasonTitle"}},{"kind":"Field","name":{"kind":"Name","value":"trustReasonDescription"}},{"kind":"Field","name":{"kind":"Name","value":"trustReasonClaimBasis"}},{"kind":"Field","name":{"kind":"Name","value":"trustReasonEvidenceUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"rfqHeading"}},{"kind":"Field","name":{"kind":"Name","value":"rfqIntro"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabels"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rfqLabelName"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelCompany"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelCountryRegion"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelWorkEmail"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelBuyerType"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelInterest"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelExpectedQuantity"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelDestination"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelMessage"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelPrivacy"}},{"kind":"Field","name":{"kind":"Name","value":"rfqBuyerIndustrialLabel"}},{"kind":"Field","name":{"kind":"Name","value":"rfqBuyerDistributorLabel"}},{"kind":"Field","name":{"kind":"Name","value":"rfqBuyerOtherLabel"}}]}},{"kind":"Field","name":{"kind":"Name","value":"rfqSubmitLabel"}},{"kind":"Field","name":{"kind":"Name","value":"rfqPrivacyText"}},{"kind":"Field","name":{"kind":"Name","value":"rfqSuccessHeading"}},{"kind":"Field","name":{"kind":"Name","value":"rfqSuccessMessage"}},{"kind":"Field","name":{"kind":"Name","value":"faqHeading"}},{"kind":"Field","name":{"kind":"Name","value":"faqs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"faqQuestion"}},{"kind":"Field","name":{"kind":"Name","value":"faqAnswer"}},{"kind":"Field","name":{"kind":"Name","value":"faqRelatedLabel"}},{"kind":"Field","name":{"kind":"Name","value":"faqRelatedPath"}}]}},{"kind":"Field","name":{"kind":"Name","value":"closingHeading"}},{"kind":"Field","name":{"kind":"Name","value":"closingBody"}},{"kind":"Field","name":{"kind":"Name","value":"closingLabel"}},{"kind":"Field","name":{"kind":"Name","value":"seoTitle"}},{"kind":"Field","name":{"kind":"Name","value":"seoDescription"}},{"kind":"Field","name":{"kind":"Name","value":"ogImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"HomepageMediaItemFields"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"primaryTopic"}},{"kind":"Field","name":{"kind":"Name","value":"secondaryTopics"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"secondaryTopic"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HomepageMediaItemFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MediaItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"mediaItemUrl"}},{"kind":"Field","name":{"kind":"Name","value":"altText"}},{"kind":"Field","name":{"kind":"Name","value":"mediaDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"width"}},{"kind":"Field","name":{"kind":"Name","value":"height"}}]}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}}]}}]} as unknown as DocumentNode<HomepageFieldsFragment, unknown>;
 export const ContentPageFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContentPageFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Page"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"content"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"format"},"value":{"kind":"EnumValue","value":"RENDERED"}}]},{"kind":"Field","name":{"kind":"Name","value":"modifiedGmt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"publishingFields"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"publicPath"}},{"kind":"Field","name":{"kind":"Name","value":"seoTitle"}},{"kind":"Field","name":{"kind":"Name","value":"seoDescription"}}]}},{"kind":"Field","name":{"kind":"Name","value":"siteScopes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}}]}}]}}]} as unknown as DocumentNode<ContentPageFieldsFragment, unknown>;
+export const GetHomepageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetHomepage"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tio2Homepage"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}},{"kind":"Argument","name":{"kind":"Name","value":"idType"},"value":{"kind":"EnumValue","value":"SLUG"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"HomepageFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HomepageMediaItemFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MediaItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"mediaItemUrl"}},{"kind":"Field","name":{"kind":"Name","value":"altText"}},{"kind":"Field","name":{"kind":"Name","value":"mediaDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"width"}},{"kind":"Field","name":{"kind":"Name","value":"height"}}]}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HomepageFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Tio2Homepage"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"databaseId"}},{"kind":"Field","name":{"kind":"Name","value":"modifiedGmt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"siteScopes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"homepageFields"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"homepageSchemaVersion"},"name":{"kind":"Name","value":"schemaVersion"}},{"kind":"Field","name":{"kind":"Name","value":"heroEyebrow"}},{"kind":"Field","name":{"kind":"Name","value":"heroHeading"}},{"kind":"Field","name":{"kind":"Name","value":"heroSummary"}},{"kind":"Field","name":{"kind":"Name","value":"heroPrimaryLabel"}},{"kind":"Field","name":{"kind":"Name","value":"heroSecondaryLabel"}},{"kind":"Field","name":{"kind":"Name","value":"heroSecondaryPath"}},{"kind":"Field","name":{"kind":"Name","value":"heroImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"HomepageMediaItemFields"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"heroImageAlt"}},{"kind":"Field","name":{"kind":"Name","value":"metrics"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"metricValue"}},{"kind":"Field","name":{"kind":"Name","value":"metricUnit"}},{"kind":"Field","name":{"kind":"Name","value":"metricLabel"}},{"kind":"Field","name":{"kind":"Name","value":"metricContext"}},{"kind":"Field","name":{"kind":"Name","value":"metricClaimBasis"}},{"kind":"Field","name":{"kind":"Name","value":"metricEvidenceUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"productsHeading"}},{"kind":"Field","name":{"kind":"Name","value":"productsIntro"}},{"kind":"Field","name":{"kind":"Name","value":"productRoutes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productTitle"}},{"kind":"Field","name":{"kind":"Name","value":"productSummary"}},{"kind":"Field","name":{"kind":"Name","value":"productPath"}},{"kind":"Field","name":{"kind":"Name","value":"productImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"HomepageMediaItemFields"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"productImageAlt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"applicationsHeading"}},{"kind":"Field","name":{"kind":"Name","value":"applicationsIntro"}},{"kind":"Field","name":{"kind":"Name","value":"applications"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"applicationName"}},{"kind":"Field","name":{"kind":"Name","value":"applicationSummary"}},{"kind":"Field","name":{"kind":"Name","value":"applicationPath"}},{"kind":"Field","name":{"kind":"Name","value":"applicationImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"HomepageMediaItemFields"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"applicationImageAlt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"inquiryHeading"}},{"kind":"Field","name":{"kind":"Name","value":"inquirySteps"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"inquiryStepTitle"}},{"kind":"Field","name":{"kind":"Name","value":"inquiryStepDescription"}}]}},{"kind":"Field","name":{"kind":"Name","value":"trustHeading"}},{"kind":"Field","name":{"kind":"Name","value":"trustIntro"}},{"kind":"Field","name":{"kind":"Name","value":"trustReasons"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"trustReasonTitle"}},{"kind":"Field","name":{"kind":"Name","value":"trustReasonDescription"}},{"kind":"Field","name":{"kind":"Name","value":"trustReasonClaimBasis"}},{"kind":"Field","name":{"kind":"Name","value":"trustReasonEvidenceUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"rfqHeading"}},{"kind":"Field","name":{"kind":"Name","value":"rfqIntro"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabels"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rfqLabelName"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelCompany"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelCountryRegion"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelWorkEmail"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelBuyerType"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelInterest"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelExpectedQuantity"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelDestination"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelMessage"}},{"kind":"Field","name":{"kind":"Name","value":"rfqLabelPrivacy"}},{"kind":"Field","name":{"kind":"Name","value":"rfqBuyerIndustrialLabel"}},{"kind":"Field","name":{"kind":"Name","value":"rfqBuyerDistributorLabel"}},{"kind":"Field","name":{"kind":"Name","value":"rfqBuyerOtherLabel"}}]}},{"kind":"Field","name":{"kind":"Name","value":"rfqSubmitLabel"}},{"kind":"Field","name":{"kind":"Name","value":"rfqPrivacyText"}},{"kind":"Field","name":{"kind":"Name","value":"rfqSuccessHeading"}},{"kind":"Field","name":{"kind":"Name","value":"rfqSuccessMessage"}},{"kind":"Field","name":{"kind":"Name","value":"faqHeading"}},{"kind":"Field","name":{"kind":"Name","value":"faqs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"faqQuestion"}},{"kind":"Field","name":{"kind":"Name","value":"faqAnswer"}},{"kind":"Field","name":{"kind":"Name","value":"faqRelatedLabel"}},{"kind":"Field","name":{"kind":"Name","value":"faqRelatedPath"}}]}},{"kind":"Field","name":{"kind":"Name","value":"closingHeading"}},{"kind":"Field","name":{"kind":"Name","value":"closingBody"}},{"kind":"Field","name":{"kind":"Name","value":"closingLabel"}},{"kind":"Field","name":{"kind":"Name","value":"seoTitle"}},{"kind":"Field","name":{"kind":"Name","value":"seoDescription"}},{"kind":"Field","name":{"kind":"Name","value":"ogImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"HomepageMediaItemFields"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"primaryTopic"}},{"kind":"Field","name":{"kind":"Name","value":"secondaryTopics"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"secondaryTopic"}}]}}]}}]}}]} as unknown as DocumentNode<GetHomepageQuery, GetHomepageQueryVariables>;
 export const GetContentByPathDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetContentByPath"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"uri"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"page"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"uri"}}},{"kind":"Argument","name":{"kind":"Name","value":"idType"},"value":{"kind":"EnumValue","value":"URI"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContentPageFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContentPageFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Page"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"content"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"format"},"value":{"kind":"EnumValue","value":"RENDERED"}}]},{"kind":"Field","name":{"kind":"Name","value":"modifiedGmt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"publishingFields"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"publicPath"}},{"kind":"Field","name":{"kind":"Name","value":"seoTitle"}},{"kind":"Field","name":{"kind":"Name","value":"seoDescription"}}]}},{"kind":"Field","name":{"kind":"Name","value":"siteScopes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}}]}}]}}]} as unknown as DocumentNode<GetContentByPathQuery, GetContentByPathQueryVariables>;
 export const GetContentPageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetContentPage"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"siteId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"siteScope"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"siteId"}}},{"kind":"Argument","name":{"kind":"Name","value":"idType"},"value":{"kind":"EnumValue","value":"SLUG"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"pages"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContentPageFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"endCursor"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}}]}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContentPageFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Page"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"content"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"format"},"value":{"kind":"EnumValue","value":"RENDERED"}}]},{"kind":"Field","name":{"kind":"Name","value":"modifiedGmt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"publishingFields"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"publicPath"}},{"kind":"Field","name":{"kind":"Name","value":"seoTitle"}},{"kind":"Field","name":{"kind":"Name","value":"seoDescription"}}]}},{"kind":"Field","name":{"kind":"Name","value":"siteScopes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}}]}}]}}]} as unknown as DocumentNode<GetContentPageQuery, GetContentPageQueryVariables>;

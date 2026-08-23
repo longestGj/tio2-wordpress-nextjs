@@ -2,7 +2,10 @@ import type {CodegenConfig} from '@graphql-codegen/cli'
 
 const config: CodegenConfig = {
   schema: 'wordpress/schema.graphql',
-  documents: ['lib/wordpress/queries.graphql'],
+  documents: [
+    'lib/wordpress/queries.graphql',
+    'lib/wordpress/homepage-queries.graphql',
+  ],
   generates: {
     'lib/wordpress/generated.ts': {
       plugins: [

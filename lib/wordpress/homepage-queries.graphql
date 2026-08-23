@@ -1,0 +1,131 @@
+fragment HomepageMediaItemFields on MediaItem {
+  mediaItemUrl
+  altText
+  mediaDetails {
+    width
+    height
+  }
+  mimeType
+}
+
+fragment HomepageFields on Tio2Homepage {
+  id
+  databaseId
+  modifiedGmt
+  status
+  siteScopes {
+    nodes {
+      slug
+    }
+  }
+  homepageFields {
+    homepageSchemaVersion: schemaVersion
+    heroEyebrow
+    heroHeading
+    heroSummary
+    heroPrimaryLabel
+    heroSecondaryLabel
+    heroSecondaryPath
+    heroImage {
+      node {
+        ...HomepageMediaItemFields
+      }
+    }
+    heroImageAlt
+    metrics {
+      metricValue
+      metricUnit
+      metricLabel
+      metricContext
+      metricClaimBasis
+      metricEvidenceUrl
+    }
+    productsHeading
+    productsIntro
+    productRoutes {
+      productTitle
+      productSummary
+      productPath
+      productImage {
+        node {
+          ...HomepageMediaItemFields
+        }
+      }
+      productImageAlt
+    }
+    applicationsHeading
+    applicationsIntro
+    applications {
+      applicationName
+      applicationSummary
+      applicationPath
+      applicationImage {
+        node {
+          ...HomepageMediaItemFields
+        }
+      }
+      applicationImageAlt
+    }
+    inquiryHeading
+    inquirySteps {
+      inquiryStepTitle
+      inquiryStepDescription
+    }
+    trustHeading
+    trustIntro
+    trustReasons {
+      trustReasonTitle
+      trustReasonDescription
+      trustReasonClaimBasis
+      trustReasonEvidenceUrl
+    }
+    rfqHeading
+    rfqIntro
+    rfqLabels {
+      rfqLabelName
+      rfqLabelCompany
+      rfqLabelCountryRegion
+      rfqLabelWorkEmail
+      rfqLabelBuyerType
+      rfqLabelInterest
+      rfqLabelExpectedQuantity
+      rfqLabelDestination
+      rfqLabelMessage
+      rfqLabelPrivacy
+      rfqBuyerIndustrialLabel
+      rfqBuyerDistributorLabel
+      rfqBuyerOtherLabel
+    }
+    rfqSubmitLabel
+    rfqPrivacyText
+    rfqSuccessHeading
+    rfqSuccessMessage
+    faqHeading
+    faqs {
+      faqQuestion
+      faqAnswer
+      faqRelatedLabel
+      faqRelatedPath
+    }
+    closingHeading
+    closingBody
+    closingLabel
+    seoTitle
+    seoDescription
+    ogImage {
+      node {
+        ...HomepageMediaItemFields
+      }
+    }
+    primaryTopic
+    secondaryTopics {
+      secondaryTopic
+    }
+  }
+}
+
+query GetHomepage($slug: ID!) {
+  tio2Homepage(id: $slug, idType: SLUG) {
+    ...HomepageFields
+  }
+}
