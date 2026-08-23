@@ -152,8 +152,14 @@ function imageDto(
   value: unknown,
   altValue: unknown,
   fieldPath: string,
+  requiredAlt = false,
 ): HomepageImageDto | null {
-  const alt = boundedText(altValue ?? '', `${fieldPath}.alt`, 160, false)
+  const alt = boundedText(
+    altValue ?? '',
+    `${fieldPath}.alt`,
+    160,
+    requiredAlt && value !== null && value !== undefined,
+  )
   if (value === null || value === undefined) {
     if (alt) {
       throw new HomepageContractError(`${fieldPath}Alt`)
@@ -404,6 +410,13 @@ export function toHomepageDto(
     secondaryTopics,
     secondaryTopics.map((_, index) => `seo.secondaryTopics[${index}]`),
   )
+  const ogImageValue = fields.ogImage
+  const ogImageAlt = ogImageValue === null || ogImageValue === undefined
+    ? ''
+    : record(
+        record(ogImageValue, 'seo.ogImage').node,
+        'seo.ogImage.node',
+      ).altText
 
   return {
     identity: {
@@ -486,7 +499,7 @@ export function toHomepageDto(
     seo: {
       title: boundedText(fields.seoTitle, 'seo.title', 60),
       description: boundedText(fields.seoDescription, 'seo.description', 160),
-      ogImage: imageDto(fields.ogImage, fields.ogImageAlt ?? '', 'seo.ogImage'),
+      ogImage: imageDto(ogImageValue, ogImageAlt, 'seo.ogImage', true),
       primaryTopic: boundedText(fields.primaryTopic, 'seo.primaryTopic', 80),
       secondaryTopics,
     },

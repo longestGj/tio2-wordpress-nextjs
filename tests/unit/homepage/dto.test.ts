@@ -258,6 +258,42 @@ describe('toHomepageDto', () => {
     })
   })
 
+  it('maps the real GraphQL OG media item altText into the SEO image DTO', () => {
+    const node = cloneHomepage()
+    Reflect.set(node.homepageFields, 'ogImage', {
+      node: {
+        ...image.node,
+        mediaItemUrl: 'https://wordpress.test/wp-content/uploads/homepage-og.webp',
+        altText: ' Site-owned titanium dioxide facility ',
+      },
+    })
+
+    expect(toHomepageDto(node, 'tio2-a').seo.ogImage).toEqual({
+      src: 'https://wordpress.test/wp-content/uploads/homepage-og.webp',
+      alt: 'Site-owned titanium dioxide facility',
+      width: 1200,
+      height: 800,
+      mimeType: 'image/webp',
+    })
+  })
+
+  it.each([
+    ['missing', null],
+    ['HTML', '<em>Unsafe OG alt</em>'],
+  ] as const)('rejects %s OG media altText', (_label, altText) => {
+    const node = cloneHomepage()
+    Reflect.set(node.homepageFields, 'ogImage', {
+      node: {...image.node, altText},
+    })
+
+    expect(() => toHomepageDto(node, 'tio2-a')).toThrowError(
+      expect.objectContaining({
+        name: HomepageContractError.name,
+        fieldPath: 'seo.ogImage.alt',
+      }),
+    )
+  })
+
   it.each([
     ['hero.heading', (node: ReturnType<typeof cloneHomepage>) => { node.homepageFields.heroHeading = '' }],
     ['hero.heading', (node: ReturnType<typeof cloneHomepage>) => { node.homepageFields.heroHeading = '<b>Unsafe</b>' }],
