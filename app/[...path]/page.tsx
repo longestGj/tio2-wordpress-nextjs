@@ -1,5 +1,4 @@
 import type {Metadata} from 'next'
-import {draftMode} from 'next/headers'
 import {notFound} from 'next/navigation'
 
 import {ContentPage} from '@/components/content-page'
@@ -8,6 +7,7 @@ import {buildPageJsonLd, serializeJsonLd} from '@/lib/seo/jsonld'
 import {buildPageMetadata} from '@/lib/seo/metadata'
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {getPreviewContentByPath} from '@/lib/wordpress/preview'
+import {hasScopedPreviewSession} from '@/lib/wordpress/preview-session'
 import {getContentByPath} from '@/lib/wordpress/queries'
 
 const CORE_PATHS = ['products', 'applications', 'about', 'contact'] as const
@@ -28,11 +28,11 @@ export function generateStaticParams() {
 }
 
 async function getRequestContent(siteId: string, path: string) {
-  const draft = await draftMode()
-  const page = draft.isEnabled
+  const isPreview = await hasScopedPreviewSession(siteId, path)
+  const page = isPreview
     ? await getPreviewContentByPath(siteId, path)
     : await getContentByPath(siteId, path)
-  return {page, isDraft: draft.isEnabled}
+  return {page, isDraft: isPreview}
 }
 
 export async function generateMetadata({

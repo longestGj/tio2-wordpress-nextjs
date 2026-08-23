@@ -23,6 +23,11 @@ describe('local WordPress compose stack', () => {
       NEXTJS_PREVIEW_URL_TIO2_B: '${NEXTJS_PREVIEW_URL_TIO2_B}',
       NEXTJS_PREVIEW_SECRET_TIO2_B: '${NEXTJS_PREVIEW_SECRET_TIO2_B}',
     })
+    expect(compose.services.wpcli.environment).toMatchObject({
+      WORDPRESS_ADMIN_USER: '${WORDPRESS_ADMIN_USER}',
+      WORDPRESS_ADMIN_PASSWORD: '${WORDPRESS_ADMIN_PASSWORD}',
+      WORDPRESS_ADMIN_EMAIL: '${WORDPRESS_ADMIN_EMAIL}',
+    })
   })
 
   it('persists database and uploads data', () => {

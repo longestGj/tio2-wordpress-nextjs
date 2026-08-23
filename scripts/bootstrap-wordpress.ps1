@@ -64,6 +64,18 @@ function Invoke-WpCli {
     return $CommandExitCode
 }
 
+function New-HexSecret {
+    $Bytes = New-Object byte[] 32
+    $Generator = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+    try {
+        $Generator.GetBytes($Bytes)
+    }
+    finally {
+        $Generator.Dispose()
+    }
+    return ([BitConverter]::ToString($Bytes)).Replace('-', '').ToLowerInvariant()
+}
+
 $DatabaseReady = $false
 for ($Attempt = 1; $Attempt -le 30; $Attempt++) {
     $DatabaseCheckExitCode = Invoke-WpCli -Arguments @('db', 'check', '--quiet') -AllowFailure
@@ -79,24 +91,27 @@ if (-not $DatabaseReady) {
     throw 'WordPress database did not become available to WP-CLI.'
 }
 
+& (Join-Path $PSScriptRoot 'assert-local-wordpress-env.ps1') -EnvironmentPath $EnvironmentFile | Out-Null
+
 $InstalledExitCode = Invoke-WpCli -Arguments @('core', 'is-installed') -AllowFailure
 if ($InstalledExitCode -ne 0) {
-    if (
-        $LocalEnvironment['WORDPRESS_ADMIN_USER'] -eq 'admin' -or
-        $LocalEnvironment['WORDPRESS_ADMIN_PASSWORD'] -notmatch '^[0-9a-f]{64}$'
-    ) {
-        throw 'A fresh install requires a generated WORDPRESS_ADMIN_PASSWORD and a non-default administrator user. Run scripts/new-local-wordpress-env.ps1.'
-    }
+    $TemporaryInstallPassword = New-HexSecret
     Invoke-WpCli -Arguments @(
         'core', 'install',
         '--url=http://localhost:8080',
         '--title=TiO2 Local',
         "--admin_user=$($LocalEnvironment['WORDPRESS_ADMIN_USER'])",
-        "--admin_password=$($LocalEnvironment['WORDPRESS_ADMIN_PASSWORD'])",
+        "--admin_password=$TemporaryInstallPassword",
         "--admin_email=$($LocalEnvironment['WORDPRESS_ADMIN_EMAIL'])",
         '--skip-email'
     ) | Out-Null
+    $TemporaryInstallPassword = $null
 }
+
+Invoke-WpCli -Arguments @(
+    'eval-file',
+    '/workspace/wordpress/bootstrap/ensure-local-admin.php'
+) | Out-Null
 
 Invoke-WpCli -Arguments @(
     'plugin', 'install',

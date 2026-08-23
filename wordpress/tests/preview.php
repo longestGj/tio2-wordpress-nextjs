@@ -80,6 +80,28 @@ if (
     tio2_preview_smoke_fail('Signed WordPress preview endpoint did not return the exact draft');
 }
 
+$ambiguous_id = wp_insert_post([
+    'post_type' => 'post',
+    'post_status' => 'draft',
+    'post_title' => 'Ambiguous legacy preview route',
+    'post_name' => 'legacy-ambiguous-preview-route',
+], true);
+if (is_wp_error($ambiguous_id) || $ambiguous_id <= 0) {
+    tio2_preview_smoke_fail('Could not create ambiguous preview fixture');
+}
+$GLOBALS['tio2_preview_smoke_post_ids'][] = (int) $ambiguous_id;
+update_post_meta((int) $ambiguous_id, 'public_path', $path);
+wp_set_object_terms((int) $ambiguous_id, ['tio2-a'], 'site_scope', false);
+$ambiguous_response = rest_do_request($request);
+if (404 !== $ambiguous_response->get_status()) {
+    tio2_preview_smoke_fail('WordPress preview lookup did not fail closed on ambiguous route ownership');
+}
+wp_delete_post((int) $ambiguous_id, true);
+$GLOBALS['tio2_preview_smoke_post_ids'] = array_values(array_diff(
+    $GLOBALS['tio2_preview_smoke_post_ids'],
+    [(int) $ambiguous_id]
+));
+
 $bad_request = new WP_REST_Request('GET', '/tio2/v1/preview');
 $bad_request->set_query_params(['siteId' => 'tio2-a', 'path' => $path]);
 $bad_request->set_header('x-tio2-preview-timestamp', $timestamp);

@@ -37,7 +37,22 @@ describe('WordPress bootstrap readiness', () => {
       'scripts/bootstrap-wordpress.ps1',
       join(scriptsDirectory, 'bootstrap-wordpress.ps1')
     )
-    copyFileSync('wordpress/.env.example', join(wordpressDirectory, '.env'))
+    copyFileSync(
+      'scripts/assert-local-wordpress-env.ps1',
+      join(scriptsDirectory, 'assert-local-wordpress-env.ps1'),
+    )
+    writeFileSync(
+      join(wordpressDirectory, '.env'),
+      [
+        'WORDPRESS_ADMIN_USER=tio2-local-editor',
+        `WORDPRESS_ADMIN_PASSWORD=${'a'.repeat(64)}`,
+        'WORDPRESS_ADMIN_EMAIL=admin@example.test',
+        `NEXTJS_REVALIDATION_SECRET_TIO2_A=${'b'.repeat(64)}`,
+        `NEXTJS_REVALIDATION_SECRET_TIO2_B=${'c'.repeat(64)}`,
+        `NEXTJS_PREVIEW_SECRET_TIO2_A=${'d'.repeat(64)}`,
+        `NEXTJS_PREVIEW_SECRET_TIO2_B=${'e'.repeat(64)}`,
+      ].join('\n'),
+    )
     writeFileSync(join(wordpressDirectory, 'docker-compose.yml'), 'services: {}\n')
     writeFileSync(
       join(binDirectory, 'docker.ps1'),
@@ -105,6 +120,12 @@ exit 0
     expect(databaseChecks).toHaveLength(2)
     expect(successfulDatabaseCheckIndex).toBeLessThan(installedCheckIndex)
     expect(commands.some((command) => command.includes(' wp core install'))).toBe(false)
+    expect(
+      commands.some((command) =>
+        command.includes('wp eval-file /workspace/wordpress/bootstrap/ensure-local-admin.php'),
+      ),
+    ).toBe(true)
+    expect(readFileSync(logFile, 'utf8')).not.toContain('a'.repeat(64))
   })
 
   it('blocks a fresh install that still has placeholder administrator credentials', () => {
@@ -120,6 +141,10 @@ exit 0
     copyFileSync(
       'scripts/bootstrap-wordpress.ps1',
       join(scriptsDirectory, 'bootstrap-wordpress.ps1'),
+    )
+    copyFileSync(
+      'scripts/assert-local-wordpress-env.ps1',
+      join(scriptsDirectory, 'assert-local-wordpress-env.ps1'),
     )
     copyFileSync('wordpress/.env.example', join(wordpressDirectory, '.env'))
     writeFileSync(join(wordpressDirectory, 'docker-compose.yml'), 'services: {}\n')
@@ -155,7 +180,7 @@ exit 0
     )
 
     expect(result.status).not.toBe(0)
-    expect(result.stderr).toContain('generated WORDPRESS_ADMIN_PASSWORD')
+    expect(result.stderr).toContain('generated 64-hex credentials')
     expect(readFileSync(logFile, 'utf8')).not.toContain(' wp core install')
   })
 })

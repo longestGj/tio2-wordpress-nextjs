@@ -1,10 +1,12 @@
 import {createHmac, timingSafeEqual} from 'node:crypto'
-import {draftMode} from 'next/headers'
-import {redirect} from 'next/navigation'
 
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {isValidPublicPath} from '@/lib/wordpress/cache-tags'
 import {getPreviewContentByPath} from '@/lib/wordpress/preview'
+import {
+  createPreviewSessionToken,
+  PREVIEW_SESSION_COOKIE,
+} from '@/lib/wordpress/preview-session'
 
 export const runtime = 'nodejs'
 
@@ -56,7 +58,7 @@ export async function GET(request: Request): Promise<Response> {
     .digest()
   if (
     !Number.isSafeInteger(expires) ||
-    expires < now ||
+    expires <= now ||
     expires > now + 300 ||
     !signatureMatches(
       url.searchParams.get('signature') ?? '',
@@ -74,7 +76,21 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json({ok: false, error: 'Preview not found'}, {status: 404})
   }
 
-  const draft = await draftMode()
-  draft.enable()
-  return redirect(path)
+  const token = createPreviewSessionToken(siteId, path, expires, configuredSecret)
+  const attributes = [
+    `${PREVIEW_SESSION_COOKIE}=${token}`,
+    `Path=${path}`,
+    `Expires=${new Date(expires * 1000).toUTCString()}`,
+    `Max-Age=${expires - now}`,
+    'HttpOnly',
+    'SameSite=Lax',
+  ]
+  if (process.env.NODE_ENV === 'production') attributes.push('Secure')
+  return new Response(null, {
+    status: 307,
+    headers: {
+      location: new URL(path, request.url).toString(),
+      'set-cookie': attributes.join('; '),
+    },
+  })
 }

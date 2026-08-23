@@ -90,8 +90,15 @@ function tio2_preview_rest_response(WP_REST_Request $request)
         return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
     }
 
-    $post = get_page_by_path($internal_slug, OBJECT, ['page', 'post']);
-    if (! $post instanceof WP_Post) {
+    $owner_ids = tio2_find_managed_route_post_ids($site_id, $path);
+    if (1 !== count($owner_ids)) {
+        return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+    }
+    $post = get_post($owner_ids[0]);
+    if (
+        ! $post instanceof WP_Post ||
+        ! in_array($post->post_status, ['publish', 'future', 'draft', 'pending', 'private'], true)
+    ) {
         return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
     }
 

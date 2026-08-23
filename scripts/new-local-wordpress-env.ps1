@@ -41,11 +41,20 @@ foreach ($Name in $GeneratedNames) {
     $GeneratedValues[$Name] = New-HexSecret
 }
 
-$OutputLines = foreach ($Line in Get-Content -LiteralPath $TemplatePath) {
+$SourcePath = if ((Test-Path -LiteralPath $OutputPath) -and $Force) {
+    $OutputPath
+} else {
+    $TemplatePath
+}
+$OutputLines = foreach ($Line in Get-Content -LiteralPath $SourcePath) {
     if ($Line -match '^([^#=]+)=(.*)$') {
         $Name = $Matches[1]
         if ($GeneratedValues.ContainsKey($Name)) {
             "$Name=$($GeneratedValues[$Name])"
+            continue
+        }
+        if ('WORDPRESS_ADMIN_USER' -eq $Name -and $Matches[2].Trim().ToLowerInvariant() -eq 'admin') {
+            'WORDPRESS_ADMIN_USER=tio2-local-editor'
             continue
         }
     }

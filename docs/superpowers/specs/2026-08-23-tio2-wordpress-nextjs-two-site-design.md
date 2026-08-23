@@ -161,7 +161,7 @@ WordPress 内部 slug 使用站点前缀保证唯一；Next.js 对外只暴露�
 - GraphQL 响应转换为项目内部 DTO，React 组件不直接依赖完整 WordPress Schema；
 - 未发布内容只能通过带签名的 Preview 流程读取。
 
-WordPress 正常后台编辑流程必须从唯一 `site_scope + public_path` 确定性生成并保留内部 slug。准备发布的 Page/Post 若没有 scope、具有多个 scope，或 `public_path` 无效，必须阻止发布；DTO 也必须要求返回节点恰好具有请求站点的唯一 scope。
+WordPress 正常后台编辑流程必须从唯一 `site_scope + public_path` 确定性生成并保留内部 slug。Page/Post 在 `publish`、`future`、`draft`、`pending`、`private`、`trash`、`auto-draft` 任一状态下都占用其精确 `(site_scope, public_path)` 路由，直到修改路径或永久删除；另一个 Page/Post 不得取得同一路由。准备公开的内容若没有 scope、具有多个 scope、`public_path` 无效、路由重复，或 WordPress 对内部 slug 添加了冲突后缀，必须退回草稿并在后台保留错误；DTO 也必须要求返回节点恰好具有请求站点的唯一 scope。Preview 查找若发现同一路由有零个或多个候选项，必须失败关闭。
 
 运行时 Schema 修订（2026-08-23）：本地 WPGraphQL 的 `PageIdType` 不包含 `SLUG`，Page 全局 connection 也不提供 `taxQuery`；因此使用上述 Page URI 详情查询和 SiteScope SLUG 根 connection，保持确定性查找与站点隔离语义不变。
 
@@ -212,8 +212,9 @@ WordPress 正常后台编辑流程必须从唯一 `site_scope + public_path` 确
 - WordPress 短暂不可用时，Vercel 继续提供已有 ISR 缓存；
 - 未缓存且无法取得内容的请求返回明确的临时错误，不输出空白成功页；
 - 不存在或不属于当前站点的内容返回 404；
-- Preview、刷新和发布操作使用独立密钥并验证签名；
+- Preview、刷新和发布操作使用独立密钥并验证签名；Preview 激活后只写入 HttpOnly、SameSite、带签名且带到期时间的精确 `site_scope + public_path` 会话，每次渲染都重新验证签名、站点、路径和到期时间，不能依赖全局 Draft Mode cookie 扩大授权；
 - 所有密钥只保存在本地 `.env`、GitHub Secrets 或 Vercel Environment Variables；
+- 本地环境必须使用生成的非 `admin` 管理员和强随机凭据；bootstrap 迁移既有数据库中的管理员密码并删除旧 `admin` 登录，验证过程不得打印密钥；
 - GraphQL mutation 不向匿名访问者开放；
 - WordPress Admin 与 API 使用 HTTPS，生产环境启用备份和最小权限账户；
 - 用户提交内容做服务端校验、防垃圾和速率限制。

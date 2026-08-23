@@ -259,7 +259,7 @@ Use `mariadb:11.4`, `wordpress:php8.3-apache`, and `wordpress:cli-php8.3`. Load 
 
 The `wpcli` service mounts `wp_data` at `/var/www/html`, mounts the repository root (`..` relative to `wordpress/docker-compose.yml`) at `/workspace`, depends on the healthy database and running WordPress service, and uses `/var/www/html` as its working directory. This makes `wp eval-file /workspace/wordpress/tests/smoke.php` and repository scripts deterministic.
 
-Pass independent A/B revalidation URLs/secrets and preview URLs/secrets from `wordpress/.env` into WordPress so the plugin can sign exact request bodies without storing credentials in PHP source. Ordinary Page/Post events target only their owning site.
+Pass independent A/B revalidation URLs/secrets and preview URLs/secrets from `wordpress/.env` into WordPress so the plugin can sign exact request bodies without storing credentials in PHP source. Pass the generated administrator identity only into the one-shot WP-CLI container so bootstrap can migrate retained local state without putting the password in process arguments or output; the long-running WordPress container does not receive the administrator password. Ordinary Page/Post events target only their owning site.
 
 `wordpress/.env.example` contains these local-only names:
 
@@ -353,7 +353,7 @@ Register `site_scope` for `post`, `page`, and all TiO₂ CPTs with REST and Grap
 
 - [ ] **Step 4: Register ACF field groups in code**
 
-When ACF is active, register shared technical fields on TiO₂ entities and publishing fields on Page/Post. Expose the field groups through WPGraphQL for ACF. Validate `public_path` as a leading-slash path without protocol, query string, or fragment.
+When ACF is active, register shared technical fields on TiO₂ entities and publishing fields on Page/Post. Expose the field groups through WPGraphQL for ACF. Validate `public_path` as a leading-slash path without protocol, query string, or fragment. Enforce one route owner across both Page and Post for the exact scope/path in every retained status (`publish`, `future`, `draft`, `pending`, `private`, `trash`, and `auto-draft`); force public-ish collisions or slug suffixes to draft with a persistent Admin error. Preview lookups fail closed when retained data is ambiguous.
 
 - [ ] **Step 5: Implement repeatable WordPress bootstrap**
 
@@ -365,7 +365,7 @@ When ACF is active, register shared technical fields on TiO₂ entities and publ
 4. activate `tio2-site-model`;
 5. create `tio2-a` and `tio2-b` terms idempotently;
 6. run `wp rewrite structure '/%postname%/' --hard`;
-7. print installed versions without printing passwords.
+7. validate the generated local credential contract, rotate/create the configured administrator, reassign and delete any legacy `admin` login, and print installed versions without printing passwords.
 
 - [ ] **Step 6: Run bootstrap and WordPress smoke test**
 
@@ -535,7 +535,7 @@ On `transition_post_status` and relevant metadata changes, the plugin requires e
 
 - [ ] **Step 5: Implement signed preview route**
 
-Preview validates its independent per-site secret, enables draft mode, and fetches unpublished content through a least-privilege authenticated server-side WordPress path without caching. It redirects only to a relative path owned by the configured site, rejects absolute URLs/cross-site content, never exposes WordPress credentials, and renders drafts with `noindex` while leaving published reads unchanged.
+Preview validates its independent per-site secret and fetches unpublished content through a least-privilege authenticated server-side WordPress path without caching. After validating that exact WordPress target, it issues an HttpOnly, SameSite, HMAC-signed session containing only `{siteId, path, expires}`. Every page and metadata render revalidates the signature, exact current site/path, and link expiry; mismatch, tampering, ambiguity, or expiry falls back to published lookup (and therefore 404s for unpublished content). It does not use global Draft Mode authorization. The route redirects only to a relative path owned by the configured site, rejects absolute URLs/cross-site content, never exposes WordPress credentials, and renders authorized drafts with `noindex` while leaving published reads unchanged.
 
 - [ ] **Step 6: Verify and commit**
 

@@ -96,6 +96,106 @@ if ('tio2-b--authoring-smoke--renamed' !== get_post_field('post_name', $valid_id
     tio2_authoring_smoke_fail('Site-scope edit did not rederive the internal slug');
 }
 
+$duplicate_draft_id = tio2_authoring_smoke_page(
+    'duplicate draft',
+    '/authoring-smoke/renamed',
+    ['tio2-b']
+);
+$previous_post_id = $_POST['post_ID'] ?? null;
+$_POST['post_ID'] = (string) $duplicate_draft_id;
+$duplicate_validation = apply_filters(
+    'acf/validate_value/name=public_path',
+    true,
+    '/authoring-smoke/renamed',
+    [],
+    'acf[field_tio2_public_path]'
+);
+if (null === $previous_post_id) {
+    unset($_POST['post_ID']);
+} else {
+    $_POST['post_ID'] = $previous_post_id;
+}
+if (! is_string($duplicate_validation) || ! str_contains($duplicate_validation, 'already owns')) {
+    tio2_authoring_smoke_fail('Normal Admin validation did not reject duplicate route ownership before save');
+}
+tio2_authoring_smoke_save($duplicate_draft_id);
+$duplicate_draft_route = tio2_get_managed_post_route($duplicate_draft_id);
+if (
+    ! is_wp_error($duplicate_draft_route) ||
+    'tio2_duplicate_route' !== $duplicate_draft_route->get_error_code() ||
+    'tio2_duplicate_route' !== get_post_meta($duplicate_draft_id, '_tio2_route_error', true)
+) {
+    tio2_authoring_smoke_fail('Duplicate draft route ownership was not rejected with an Admin error');
+}
+
+$duplicate_publish_id = tio2_authoring_smoke_page(
+    'duplicate publish',
+    '/authoring-smoke/renamed',
+    ['tio2-b']
+);
+wp_update_post(['ID' => $duplicate_publish_id, 'post_status' => 'publish']);
+tio2_authoring_smoke_save($duplicate_publish_id);
+if (
+    'draft' !== get_post_status($duplicate_publish_id) ||
+    'tio2_duplicate_route' !== get_post_meta($duplicate_publish_id, '_tio2_route_error', true)
+) {
+    tio2_authoring_smoke_fail('Published duplicate route ownership was not forced to draft with an Admin error');
+}
+
+$trashed_owner_id = tio2_authoring_smoke_page(
+    'trashed owner',
+    '/authoring-smoke/trashed-owner',
+    ['tio2-a']
+);
+tio2_authoring_smoke_save($trashed_owner_id);
+wp_trash_post($trashed_owner_id);
+$trashed_collision_id = tio2_authoring_smoke_page(
+    'trashed collision',
+    '/authoring-smoke/trashed-owner',
+    ['tio2-a']
+);
+tio2_authoring_smoke_save($trashed_collision_id);
+$trashed_collision_route = tio2_get_managed_post_route($trashed_collision_id);
+if (! is_wp_error($trashed_collision_route) || 'tio2_duplicate_route' !== $trashed_collision_route->get_error_code()) {
+    tio2_authoring_smoke_fail('A trashed route owner did not reserve its exact site and public path');
+}
+
+$required_collision_slug = 'tio2-a--authoring-smoke--slug-collision';
+$preserve_collision_slug = static function ($sanitized, $raw_title, $context) use ($required_collision_slug) {
+    return 'save' === $context && $raw_title === $required_collision_slug
+        ? $required_collision_slug
+        : $sanitized;
+};
+add_filter('sanitize_title', $preserve_collision_slug, 10, 3);
+try {
+    $slug_blocker_id = wp_insert_post([
+        'post_type' => 'page',
+        'post_status' => 'publish',
+        'post_name' => $required_collision_slug,
+        'post_title' => 'Unmanaged slug blocker',
+    ], true);
+} finally {
+    remove_filter('sanitize_title', $preserve_collision_slug, 10);
+}
+if (is_wp_error($slug_blocker_id) || $slug_blocker_id <= 0) {
+    tio2_authoring_smoke_fail('Could not create exact slug collision fixture');
+}
+$GLOBALS['tio2_authoring_smoke_post_ids'][] = (int) $slug_blocker_id;
+$slug_collision_id = tio2_authoring_smoke_page(
+    'slug collision',
+    '/authoring-smoke/slug-collision',
+    ['tio2-a']
+);
+wp_update_post(['ID' => $slug_collision_id, 'post_status' => 'publish']);
+tio2_authoring_smoke_save($slug_collision_id);
+if (
+    'draft' !== get_post_status($slug_collision_id) ||
+    $required_collision_slug === get_post_field('post_name', $slug_collision_id) ||
+    'tio2_slug_collision' !== get_post_meta($slug_collision_id, '_tio2_route_error', true)
+) {
+    tio2_authoring_smoke_fail('WordPress slug suffixing was not detected and blocked');
+}
+
 $zero_scope_id = tio2_authoring_smoke_page('zero scope', '/authoring-smoke/zero-scope', []);
 wp_update_post(['ID' => $zero_scope_id, 'post_status' => 'publish']);
 tio2_authoring_smoke_save($zero_scope_id);

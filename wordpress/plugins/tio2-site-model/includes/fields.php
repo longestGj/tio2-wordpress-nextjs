@@ -113,7 +113,77 @@ function tio2_validate_public_path($valid, $value, $field, $input_name)
         return 'Public path must be / or lowercase slash-separated words using letters, numbers, and single hyphens.';
     }
 
+    $post_id = tio2_get_authoring_post_id();
+    $site_id = tio2_get_authoring_site_scope($post_id);
+    if (null !== $site_id) {
+        $other_owners = array_values(array_filter(
+            tio2_find_managed_route_post_ids($site_id, $value),
+            static fn (int $owner_id): bool => $owner_id !== $post_id
+        ));
+        if ([] !== $other_owners) {
+            return 'Another Page or Post already owns this site scope and public path.';
+        }
+    }
+
     return true;
+}
+
+function tio2_get_authoring_post_id(): int
+{
+    foreach (['post_ID', 'post_id'] as $key) {
+        if (isset($_POST[$key]) && is_scalar($_POST[$key])) {
+            $post_id = (int) wp_unslash((string) $_POST[$key]);
+            if ($post_id > 0) {
+                return $post_id;
+            }
+        }
+    }
+
+    if (function_exists('acf_get_form_data')) {
+        $post_id = (int) acf_get_form_data('post_id');
+        if ($post_id > 0) {
+            return $post_id;
+        }
+    }
+
+    return 0;
+}
+
+function tio2_get_authoring_site_scope(int $post_id): ?string
+{
+    $submitted = $_POST['tax_input']['site_scope'] ?? null;
+    if (null !== $submitted) {
+        $submitted = wp_unslash($submitted);
+        $values = is_array($submitted) ? $submitted : explode(',', (string) $submitted);
+        $slugs = [];
+        foreach ($values as $value) {
+            if (! is_scalar($value) || '' === trim((string) $value)) {
+                continue;
+            }
+            $term = ctype_digit((string) $value)
+                ? get_term((int) $value, 'site_scope')
+                : get_term_by('slug', sanitize_title((string) $value), 'site_scope');
+            if ($term instanceof WP_Term) {
+                $slugs[] = $term->slug;
+            }
+        }
+        $slugs = array_values(array_unique($slugs));
+        return 1 === count($slugs) && in_array($slugs[0], ['tio2-a', 'tio2-b'], true)
+            ? $slugs[0]
+            : null;
+    }
+
+    if ($post_id <= 0) {
+        return null;
+    }
+    $slugs = wp_get_post_terms($post_id, 'site_scope', ['fields' => 'slugs']);
+    if (is_wp_error($slugs)) {
+        return null;
+    }
+    $slugs = array_values(array_unique(array_map('strval', $slugs)));
+    return 1 === count($slugs) && in_array($slugs[0], ['tio2-a', 'tio2-b'], true)
+        ? $slugs[0]
+        : null;
 }
 
 function tio2_is_valid_public_path(string $path): bool
@@ -149,7 +219,7 @@ function tio2_build_internal_slug(string $site_id, string $public_path)
 /**
  * @return array{siteId: string, publicPath: string, internalSlug: string}|WP_Error
  */
-function tio2_get_managed_post_route(int $post_id)
+function tio2_get_managed_post_route_identity(int $post_id)
 {
     $post = get_post($post_id);
     if (! $post instanceof WP_Post || ! in_array($post->post_type, ['page', 'post'], true)) {
@@ -179,6 +249,93 @@ function tio2_get_managed_post_route(int $post_id)
 }
 
 /**
+ * Drafts and trashed content reserve their route until the owner is permanently
+ * deleted or assigned another route. This prevents ambiguous previews and later
+ * publication collisions.
+ *
+ * @return list<int>
+ */
+function tio2_find_managed_route_post_ids(string $site_id, string $public_path): array
+{
+    if (! in_array($site_id, ['tio2-a', 'tio2-b'], true) || ! tio2_is_valid_public_path($public_path)) {
+        return [];
+    }
+
+    $candidate_ids = get_posts([
+        'post_type' => ['page', 'post'],
+        'post_status' => ['publish', 'future', 'draft', 'pending', 'private', 'trash', 'auto-draft'],
+        'posts_per_page' => -1,
+        'fields' => 'ids',
+        'no_found_rows' => true,
+        'orderby' => 'ID',
+        'order' => 'ASC',
+        'meta_key' => 'public_path',
+        'meta_value' => $public_path,
+    ]);
+    $owners = [];
+    foreach ($candidate_ids as $candidate_id) {
+        $identity = tio2_get_managed_post_route_identity((int) $candidate_id);
+        if (
+            ! is_wp_error($identity) &&
+            $identity['siteId'] === $site_id &&
+            $identity['publicPath'] === $public_path
+        ) {
+            $owners[] = (int) $candidate_id;
+        }
+    }
+
+    return $owners;
+}
+
+/**
+ * @return array{siteId: string, publicPath: string, internalSlug: string}|WP_Error
+ */
+function tio2_get_managed_post_route(int $post_id)
+{
+    $identity = tio2_get_managed_post_route_identity($post_id);
+    if (is_wp_error($identity)) {
+        return $identity;
+    }
+    $owners = tio2_find_managed_route_post_ids($identity['siteId'], $identity['publicPath']);
+    if (1 !== count($owners) || $owners[0] !== $post_id) {
+        return new WP_Error(
+            'tio2_duplicate_route',
+            'Another Page or Post already owns this site scope and public path.'
+        );
+    }
+
+    return $identity;
+}
+
+function tio2_record_route_error(int $post_id, WP_Error $error): void
+{
+    update_post_meta($post_id, '_tio2_route_error', $error->get_error_code());
+    $status = get_post_status($post_id);
+    if (in_array($status, ['publish', 'future', 'pending', 'private'], true)) {
+        wp_update_post(['ID' => $post_id, 'post_status' => 'draft']);
+    }
+}
+
+function tio2_managed_route_admin_notice(): void
+{
+    $post_id = isset($_GET['post']) ? (int) $_GET['post'] : 0;
+    if ($post_id <= 0) {
+        return;
+    }
+    $error_code = (string) get_post_meta($post_id, '_tio2_route_error', true);
+    $messages = [
+        'tio2_duplicate_route' => 'This content is a draft because another Page or Post owns the same site scope and public path.',
+        'tio2_slug_collision' => 'This content is a draft because WordPress could not preserve its deterministic internal slug.',
+        'tio2_invalid_site_scope' => 'This content is a draft because it must have exactly one supported site scope.',
+        'tio2_invalid_public_path' => 'This content is a draft because its public path is invalid.',
+    ];
+    if (! isset($messages[$error_code])) {
+        return;
+    }
+    echo '<div class="notice notice-error"><p>' . esc_html($messages[$error_code]) . '</p></div>';
+}
+
+/**
  * Enforce the final WordPress Admin/ACF save state after terms and fields exist.
  * Invalid managed content may remain a draft, but cannot remain published.
  *
@@ -205,13 +362,12 @@ function tio2_sync_managed_post_routing($post_id): void
     $GLOBALS['tio2_syncing_managed_post_routing'] = true;
     try {
         if (is_wp_error($route)) {
-            if ('publish' === $post->post_status) {
-                wp_update_post(['ID' => $post_id, 'post_status' => 'draft']);
-            }
+            tio2_record_route_error($post_id, $route);
             return;
         }
 
         if ($route['internalSlug'] === $post->post_name) {
+            delete_post_meta($post_id, '_tio2_route_error');
             return;
         }
 
@@ -223,10 +379,19 @@ function tio2_sync_managed_post_routing($post_id): void
         };
         add_filter('sanitize_title', $preserve_required_slug, 10, 3);
         try {
-            wp_update_post(['ID' => $post_id, 'post_name' => $required_slug]);
+            $update_result = wp_update_post(['ID' => $post_id, 'post_name' => $required_slug], true);
         } finally {
             remove_filter('sanitize_title', $preserve_required_slug, 10);
         }
+        clean_post_cache($post_id);
+        if (is_wp_error($update_result) || $required_slug !== get_post_field('post_name', $post_id)) {
+            tio2_record_route_error(
+                $post_id,
+                new WP_Error('tio2_slug_collision', 'WordPress could not preserve the deterministic internal slug.')
+            );
+            return;
+        }
+        delete_post_meta($post_id, '_tio2_route_error');
     } finally {
         $GLOBALS['tio2_syncing_managed_post_routing'] = false;
     }

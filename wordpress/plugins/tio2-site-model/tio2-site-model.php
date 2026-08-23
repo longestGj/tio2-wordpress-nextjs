@@ -22,6 +22,7 @@ add_action('init', 'tio2_register_content_types');
 add_action('acf/init', 'tio2_register_acf_fields');
 add_filter('acf/validate_value/name=public_path', 'tio2_validate_public_path', 10, 4);
 add_action('acf/save_post', 'tio2_sync_managed_post_routing', 20);
+add_action('admin_notices', 'tio2_managed_route_admin_notice');
 add_filter('sanitize_title', 'tio2_preserve_internal_slug', 10, 3);
 add_action('transition_post_status', 'tio2_handle_post_transition', 10, 3);
 add_filter('update_post_metadata', 'tio2_capture_post_meta_before_mutation', 10, 5);

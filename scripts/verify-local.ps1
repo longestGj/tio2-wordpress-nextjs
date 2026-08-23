@@ -97,6 +97,7 @@ $ControllerCancellationPath = Join-Path $LogDirectory 'controller-cancel.signal'
 if (-not (Test-Path -LiteralPath $EnvironmentFile)) {
     throw 'Missing wordpress/.env. Run scripts/new-local-wordpress-env.ps1 before verification.'
 }
+& (Join-Path $PSScriptRoot 'assert-local-wordpress-env.ps1') -EnvironmentPath $EnvironmentFile | Out-Null
 $LocalWordPressEnvironment = @{}
 foreach ($Line in Get-Content -LiteralPath $EnvironmentFile) {
     $TrimmedLine = $Line.Trim()
@@ -579,7 +580,7 @@ try {
     }
 
     Invoke-Gate -Name 'wordpress-smoke' -Action {
-        foreach ($SmokeName in @('smoke', 'authoring', 'webhook-routing', 'preview')) {
+        foreach ($SmokeName in @('smoke', 'authoring', 'webhook-routing', 'preview', 'admin-credentials')) {
             Invoke-NativeLogged `
                 -FilePath $Docker `
                 -Arguments @($ComposeArguments + @(

@@ -332,9 +332,13 @@ test('signed Site A preview renders a live unpublished draft and remains isolate
   const siteA = sites[0]
   const siteB = sites[1]
   const path = `/preview-live-${process.pid}`
+  const guessedPath = `/preview-guess-${process.pid}`
   const title = `Live unpublished preview ${process.pid}`
   const postId = wpEval(
     `$id=wp_insert_post(['post_type'=>'page','post_status'=>'draft','post_title'=>'${title}','post_content'=>'<p>Live unpublished preview body ${process.pid}</p>'],true); if(is_wp_error($id)){WP_CLI::error($id->get_error_message());} update_post_meta($id,'public_path','${path}'); update_post_meta($id,'seo_title','${title} SEO'); wp_set_object_terms($id,['tio2-a'],'site_scope',false); do_action('acf/save_post',$id); echo $id;`,
+  )
+  const guessedPostId = wpEval(
+    `$id=wp_insert_post(['post_type'=>'page','post_status'=>'draft','post_title'=>'Guessable unpublished preview ${process.pid}','post_content'=>'<p>This guessed draft must stay private ${process.pid}</p>'],true); if(is_wp_error($id)){WP_CLI::error($id->get_error_message());} update_post_meta($id,'public_path','${guessedPath}'); wp_set_object_terms($id,['tio2-a'],'site_scope',false); do_action('acf/save_post',$id); echo $id;`,
   )
 
   try {
@@ -351,12 +355,21 @@ test('signed Site A preview renders a live unpublished draft and remains isolate
       'noindex, nofollow',
     )
 
+    const guessedDraft = await page.goto(`${siteA.baseUrl}${guessedPath}`, {
+      waitUntil: 'networkidle',
+    })
+    expect(guessedDraft?.status()).toBe(404)
+    await expect(page.locator('body')).not.toContainText(
+      `This guessed draft must stay private ${process.pid}`,
+    )
+
     const crossSite = await request.get(signedPreviewUrl(siteB, path), {
       maxRedirects: 0,
     })
     expect(crossSite.status()).toBe(404)
   } finally {
     wp(['post', 'delete', postId, '--force'])
+    wp(['post', 'delete', guessedPostId, '--force'])
   }
 })
 

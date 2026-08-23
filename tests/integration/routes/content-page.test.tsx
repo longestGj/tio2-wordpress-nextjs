@@ -1,3 +1,4 @@
+import {createHmac} from 'node:crypto'
 import {renderToStaticMarkup} from 'react-dom/server'
 import {http, HttpResponse} from 'msw'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
@@ -15,13 +16,37 @@ import {
 } from '@/tests/mocks/handlers'
 import {server} from '@/tests/mocks/server'
 
-const {draftMode} = vi.hoisted(() => ({
+const {cookies, draftMode} = vi.hoisted(() => ({
+  cookies: vi.fn(),
   draftMode: vi.fn(),
 }))
 
-vi.mock('next/headers', () => ({draftMode}))
+vi.mock('next/headers', () => ({cookies, draftMode}))
 
 const wordpressPreviewUrl = 'http://wordpress.test/wp-json/tio2/v1/preview'
+const previewSecret = 'preview-test-secret'
+
+function scopedPreviewCookie(
+  siteId: string,
+  path: string,
+  expires = Math.floor(Date.now() / 1000) + 300,
+) {
+  const payload = Buffer.from(
+    JSON.stringify({v: 1, siteId, path, expires}),
+    'utf8',
+  ).toString('base64url')
+  const signature = createHmac('sha256', previewSecret)
+    .update(payload)
+    .digest('base64url')
+  return `${payload}.${signature}`
+}
+
+function servePreviewCookie(value?: string) {
+  cookies.mockResolvedValue({
+    get: (name: string) =>
+      name === 'tio2_preview_scope' && value ? {value} : undefined,
+  })
+}
 
 interface GraphQLRequestBody {
   readonly variables?: {readonly uri?: string}
@@ -74,8 +99,10 @@ async function render(element: React.ReactNode) {
 beforeEach(() => {
   vi.stubEnv('WORDPRESS_GRAPHQL_URL', graphqlEndpoint)
   vi.stubEnv('WORDPRESS_PREVIEW_URL', wordpressPreviewUrl)
-  vi.stubEnv('WORDPRESS_PREVIEW_SECRET', 'preview-test-secret')
+  vi.stubEnv('WORDPRESS_PREVIEW_SECRET', previewSecret)
+  vi.stubEnv('PREVIEW_SECRET', previewSecret)
   draftMode.mockResolvedValue({isEnabled: false})
+  servePreviewCookie()
 })
 
 afterEach(() => {
@@ -117,6 +144,7 @@ describe('site-scoped content routes', () => {
   it('renders unpublished content from the uncached signed preview source in Draft Mode', async () => {
     vi.stubEnv('SITE_ID', 'tio2-a')
     draftMode.mockResolvedValue({isEnabled: true})
+    servePreviewCookie(scopedPreviewCookie('tio2-a', '/draft-page'))
     servePage(
       '/tio2-a--draft-page/',
       contentNode('tio2-a', '/draft-page', 'Published fallback must not render'),
@@ -145,6 +173,123 @@ describe('site-scoped content routes', () => {
     expect(markup).toContain('Unpublished route body.')
     expect(markup).not.toContain('Published fallback must not render')
     expect(metadata.robots).toEqual({index: false, follow: false})
+  })
+
+  it('does not expose a different guessable draft through an activated preview cookie', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    draftMode.mockResolvedValue({isEnabled: true})
+    servePreviewCookie(scopedPreviewCookie('tio2-a', '/authorized-draft'))
+    servePage('/tio2-a--guessed-draft/', null)
+    server.use(
+      http.get(wordpressPreviewUrl, () =>
+        HttpResponse.json({
+          id: 'guessed-draft',
+          siteId: 'tio2-a',
+          path: '/guessed-draft',
+          title: 'Guessable secret draft',
+          html: '<p>Must never render.</p>',
+          modified: '2026-08-23T02:30:00.000Z',
+          status: 'draft',
+          seo: {title: '', description: ''},
+        }),
+      ),
+    )
+    const route = await import('@/app/[...path]/page')
+
+    await expect(
+      route.default({params: Promise.resolve({path: ['guessed-draft']})}),
+    ).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
+  })
+
+  it('rejects an expired scoped preview cookie even when Draft Mode remains enabled', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    draftMode.mockResolvedValue({isEnabled: true})
+    servePreviewCookie(
+      scopedPreviewCookie(
+        'tio2-a',
+        '/expired-draft',
+        Math.floor(Date.now() / 1000) - 1,
+      ),
+    )
+    servePage('/tio2-a--expired-draft/', null)
+    server.use(
+      http.get(wordpressPreviewUrl, () =>
+        HttpResponse.json({
+          id: 'expired-draft',
+          siteId: 'tio2-a',
+          path: '/expired-draft',
+          title: 'Expired secret draft',
+          html: '<p>Must never render.</p>',
+          modified: '2026-08-23T02:30:00.000Z',
+          status: 'draft',
+          seo: {title: '', description: ''},
+        }),
+      ),
+    )
+    const route = await import('@/app/[...path]/page')
+
+    await expect(
+      route.default({params: Promise.resolve({path: ['expired-draft']})}),
+    ).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
+  })
+
+  it('rejects a tampered scoped preview cookie for the exact requested draft', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    const validCookie = scopedPreviewCookie('tio2-a', '/tampered-draft')
+    const replacement = validCookie.endsWith('A') ? 'B' : 'A'
+    servePreviewCookie(`${validCookie.slice(0, -1)}${replacement}`)
+    servePage('/tio2-a--tampered-draft/', null)
+    server.use(
+      http.get(wordpressPreviewUrl, () =>
+        HttpResponse.json({
+          id: 'tampered-draft',
+          siteId: 'tio2-a',
+          path: '/tampered-draft',
+          title: 'Tampered secret draft',
+          html: '<p>Must never render.</p>',
+          modified: '2026-08-23T02:30:00.000Z',
+          status: 'draft',
+          seo: {title: '', description: ''},
+        }),
+      ),
+    )
+    const route = await import('@/app/[...path]/page')
+
+    await expect(
+      route.default({params: Promise.resolve({path: ['tampered-draft']})}),
+    ).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
+  })
+
+  it('keeps published rendering unchanged when only the legacy global Draft Mode cookie exists', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    draftMode.mockResolvedValue({isEnabled: true})
+    servePreviewCookie()
+    servePage(
+      '/tio2-a--products/',
+      contentNode('tio2-a', '/products', 'Published products'),
+    )
+    server.use(
+      http.get(wordpressPreviewUrl, () =>
+        HttpResponse.json({
+          id: 'draft-products',
+          siteId: 'tio2-a',
+          path: '/products',
+          title: 'Draft must not replace published',
+          html: '<p>Must never render.</p>',
+          modified: '2026-08-23T02:30:00.000Z',
+          status: 'draft',
+          seo: {title: '', description: ''},
+        }),
+      ),
+    )
+    const route = await import('@/app/[...path]/page')
+
+    const markup = await render(
+      await route.default({params: Promise.resolve({path: ['products']})}),
+    )
+
+    expect(markup).toContain('<h1>Published products</h1>')
+    expect(markup).not.toContain('Draft must not replace published')
   })
 
   it('renders the Site A root from the environment-selected site and root query', async () => {

@@ -162,7 +162,12 @@ describe('GET /api/preview', () => {
     expect(response.headers.get('location')).toBe(
       'http://localhost/applications/coatings',
     )
-    expect(enable).toHaveBeenCalledOnce()
-    expect(redirect).toHaveBeenCalledWith('/applications/coatings')
+    expect(response.headers.get('set-cookie')).toContain(
+      'tio2_preview_scope=',
+    )
+    expect(response.headers.get('set-cookie')).toContain('HttpOnly')
+    expect(response.headers.get('set-cookie')).toContain('SameSite=Lax')
+    expect(enable).not.toHaveBeenCalled()
+    expect(redirect).not.toHaveBeenCalled()
   })
 })

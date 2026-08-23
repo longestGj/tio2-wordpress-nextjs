@@ -1,5 +1,4 @@
 import type {Metadata} from 'next'
-import {draftMode} from 'next/headers'
 import {notFound} from 'next/navigation'
 
 import {ContentPage} from '@/components/content-page'
@@ -8,14 +7,15 @@ import {buildPageJsonLd, serializeJsonLd} from '@/lib/seo/jsonld'
 import {buildPageMetadata} from '@/lib/seo/metadata'
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {getPreviewContentByPath} from '@/lib/wordpress/preview'
+import {hasScopedPreviewSession} from '@/lib/wordpress/preview-session'
 import {getContentByPath} from '@/lib/wordpress/queries'
 
 async function getRequestContent(siteId: string) {
-  const draft = await draftMode()
-  const page = draft.isEnabled
+  const isPreview = await hasScopedPreviewSession(siteId, '/')
+  const page = isPreview
     ? await getPreviewContentByPath(siteId, '/')
     : await getContentByPath(siteId, '/')
-  return {page, isDraft: draft.isEnabled}
+  return {page, isDraft: isPreview}
 }
 
 export async function generateMetadata(): Promise<Metadata> {
