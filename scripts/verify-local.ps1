@@ -580,7 +580,7 @@ try {
     }
 
     Invoke-Gate -Name 'wordpress-smoke' -Action {
-        foreach ($SmokeName in @('smoke', 'authoring', 'webhook-routing', 'preview', 'admin-credentials')) {
+        foreach ($SmokeName in @('homepage', 'smoke', 'authoring', 'webhook-routing', 'preview', 'admin-credentials')) {
             Invoke-NativeLogged `
                 -FilePath $Docker `
                 -Arguments @($ComposeArguments + @(

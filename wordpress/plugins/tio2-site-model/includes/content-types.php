@@ -68,7 +68,26 @@ function tio2_register_content_types(): void
         ]);
     }
 
-    $object_types = array_merge(['post', 'page'], array_keys($content_types));
+    register_post_type('tio2_homepage', [
+        'labels' => [
+            'name' => 'TiO2 Homepages',
+            'singular_name' => 'TiO2 Homepage',
+            'add_new_item' => 'Add New TiO2 Homepage',
+            'edit_item' => 'Edit TiO2 Homepage',
+        ],
+        'public' => false,
+        'show_ui' => true,
+        'show_in_rest' => true,
+        'show_in_graphql' => true,
+        'graphql_single_name' => 'Tio2Homepage',
+        'graphql_plural_name' => 'Tio2Homepages',
+        'publicly_queryable' => false,
+        'supports' => ['title', 'revisions'],
+        'has_archive' => false,
+        'rewrite' => false,
+    ]);
+
+    $object_types = array_merge(['post', 'page'], array_keys($content_types), ['tio2_homepage']);
 
     register_taxonomy('site_scope', $object_types, [
         'labels' => [
