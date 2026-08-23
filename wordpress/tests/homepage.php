@@ -1024,9 +1024,68 @@ tio2_homepage_test_assert('tio2-a--homepage' === get_post_field('post_name', $va
 tio2_homepage_test_assert('tio2-b--homepage' === get_post_field('post_name', $valid_b), 'Site B homepage slug drifted');
 tio2_homepage_test_assert('tio2-a' === tio2_get_homepage_site_id($valid_a), 'Site A homepage identity is wrong');
 tio2_homepage_test_assert('tio2-b' === tio2_get_homepage_site_id($valid_b), 'Site B homepage identity is wrong');
+tio2_homepage_test_assert(function_exists('graphql'), 'WPGraphQL query helper is unavailable');
+$homepage_graphql_query = static function (string $slug): array {
+    $result = graphql([
+        'query' => sprintf(
+            'query { homepage: tio2Homepage(id: %s, idType: SLUG) { databaseId slug status } }',
+            wp_json_encode($slug)
+        ),
+    ]);
+
+    return is_array($result) ? $result : [];
+};
+$published_graphql = $homepage_graphql_query('tio2-b--homepage');
+tio2_homepage_test_assert(
+    $valid_b === (int) ($published_graphql['data']['homepage']['databaseId'] ?? 0),
+    'Published homepage did not resolve through the real WPGraphQL single-node contract'
+);
+global $wpdb;
+foreach (['draft', 'future', 'pending', 'private'] as $non_public_status) {
+    $wpdb->update(
+        $wpdb->posts,
+        ['post_status' => $non_public_status],
+        ['ID' => $valid_b],
+        ['%s'],
+        ['%d']
+    );
+    clean_post_cache($valid_b);
+    $non_public_graphql = $homepage_graphql_query('tio2-b--homepage');
+    tio2_homepage_test_assert(
+        null === ($non_public_graphql['data']['homepage'] ?? null),
+        "Homepage with {$non_public_status} status was exposed by the public WPGraphQL contract"
+    );
+}
+$wpdb->update(
+    $wpdb->posts,
+    ['post_status' => 'publish'],
+    ['ID' => $valid_b],
+    ['%s'],
+    ['%d']
+);
+clean_post_cache($valid_b);
 tio2_homepage_test_assert(
     'homepage-v0.1' === get_field('homepage_schema_version', $valid_a, false),
     'Fixed homepage schema version is not registered'
+);
+
+$acf_intermediate_status = null;
+$acf_batch_update = static function ($post_id) use ($valid_a, &$acf_intermediate_status): void {
+    if ((int) $post_id !== $valid_a) {
+        return;
+    }
+    update_post_meta($valid_a, 'hero_heading', '');
+    clean_post_cache($valid_a);
+    $acf_intermediate_status = get_post_status($valid_a);
+    update_post_meta($valid_a, 'hero_heading', 'Valid final ACF heading');
+};
+add_action('acf/save_post', $acf_batch_update, 10);
+do_action('acf/save_post', $valid_a);
+remove_action('acf/save_post', $acf_batch_update, 10);
+clean_post_cache($valid_a);
+tio2_homepage_test_assert(
+    'publish' === $acf_intermediate_status && 'publish' === get_post_status($valid_a),
+    'ACF multi-field lifecycle enforced an invalid intermediate state before the final valid boundary'
 );
 
 update_post_meta($valid_a, 'hero_heading', '<em>Direct meta HTML</em>');
@@ -1079,6 +1138,51 @@ tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'Reassigned lin
 wp_set_object_terms($dependent_target_id, ['tio2-a'], 'site_scope', false);
 do_action('acf/save_post', $dependent_target_id);
 wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+
+wp_remove_object_terms($dependent_target_id, 'tio2-a', 'site_scope');
+clean_post_cache($valid_a);
+tio2_homepage_test_assert(
+    'draft' === get_post_status($valid_a),
+    'Direct site_scope term removal left a dependent homepage published'
+);
+wp_set_object_terms($dependent_target_id, ['tio2-a'], 'site_scope', false);
+do_action('acf/save_post', $dependent_target_id);
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+
+$dependent_original_slug = (string) get_post_field('post_name', $dependent_target_id);
+wp_update_post(['ID' => $dependent_target_id, 'post_name' => 'directly-moved-link-target']);
+clean_post_cache($valid_a);
+tio2_homepage_test_assert(
+    'draft' === get_post_status($valid_a),
+    'Direct Page/Post post_name change left a dependent homepage published'
+);
+wp_update_post(['ID' => $dependent_target_id, 'post_name' => $dependent_original_slug]);
+do_action('acf/save_post', $dependent_target_id);
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+
+global $wpdb;
+$wpdb->update(
+    $wpdb->posts,
+    ['post_name' => 'raw-wrong-link-target-slug'],
+    ['ID' => $dependent_target_id],
+    ['%s'],
+    ['%d']
+);
+clean_post_cache($dependent_target_id);
+$wrong_target_slug_result = tio2_validate_homepage_contract($valid_a);
+tio2_homepage_test_assert(
+    is_wp_error($wrong_target_slug_result) &&
+        'tio2_homepage_invalid_field' === $wrong_target_slug_result->get_error_code(),
+    'Homepage link validation accepted a target whose actual slug was not deterministic'
+);
+$wpdb->update(
+    $wpdb->posts,
+    ['post_name' => $dependent_original_slug],
+    ['ID' => $dependent_target_id],
+    ['%s'],
+    ['%d']
+);
+clean_post_cache($dependent_target_id);
 
 tio2_homepage_test_update_field('field_tio2_home_hero_heading', '   ', $valid_a);
 do_action('acf/save_post', $valid_a);

@@ -83,6 +83,38 @@ foreach ($SiteId in $SiteIds) {
     $ExpectedPaths[$SiteId] = $Paths
 }
 
+$CanonicalHomepages = @{}
+foreach ($Homepage in $Homepages) {
+    $IsReleasedDuplicate =
+        $Homepage.status -eq 'draft' -and
+        @($Homepage.siteScopes).Count -eq 0 -and
+        $Homepage.slug -eq "homepage-duplicate-$($Homepage.id)" -and
+        $Homepage.error -eq 'tio2_homepage_duplicate' -and
+        [string]$Homepage.seedMarker -eq ''
+    if ($IsReleasedDuplicate) { continue }
+
+    $HomepageScopes = @($Homepage.siteScopes)
+    $HomepageSiteId = if ($HomepageScopes.Count -eq 1 -and $SiteIds -contains $HomepageScopes[0]) {
+        [string]$HomepageScopes[0]
+    } else { $null }
+    if (
+        -not $HomepageSiteId -or
+        $Homepage.siteId -ne $HomepageSiteId -or
+        $Homepage.slug -ne "$HomepageSiteId--homepage" -or
+        $Homepage.seedMarker -ne $HomepageSiteId -or
+        $Homepage.schemaVersion -ne 'homepage-v0.1' -or
+        @('publish', 'future', 'draft', 'pending', 'private', 'trash') -notcontains $Homepage.status
+    ) {
+        $Errors.Add("Invalid homepage inventory record $($Homepage.id).")
+        continue
+    }
+    if ($CanonicalHomepages.ContainsKey($HomepageSiteId)) {
+        $Errors.Add("Invalid homepage inventory record $($Homepage.id): duplicate owner for $HomepageSiteId.")
+        continue
+    }
+    $CanonicalHomepages[$HomepageSiteId] = $Homepage
+}
+
 foreach ($SiteId in $SiteIds) {
     $Homes = @($Homepages | Where-Object { $_.siteId -eq $SiteId -and $_.status -eq 'publish' })
     if (
@@ -90,8 +122,13 @@ foreach ($SiteId in $SiteIds) {
         $Homes[0].slug -ne "$SiteId--homepage" -or
         $Homes[0].publicPath -ne '/' -or
         $Homes[0].schemaVersion -ne 'homepage-v0.1' -or
-        $Homes[0].seedMarker -ne $SiteId
+        $Homes[0].seedMarker -ne $SiteId -or
+        -not [bool]$Homes[0].uriResolvable -or
+        $Homes[0].uriResolutionSource -ne 'wpgraphql'
     ) { $Errors.Add("Invalid published homepage identity for $SiteId.") }
+    if (-not $CanonicalHomepages.ContainsKey($SiteId) -or -not [bool]$CanonicalHomepages[$SiteId].uriResolvable) {
+        $Errors.Add("Homepage GraphQL contract did not resolve for $SiteId.")
+    }
 
     $RootBackups = @($Routes | Where-Object {
         $_.publicPath -eq '/' -and @($_.previousRootSiteScopes) -contains $SiteId
@@ -115,6 +152,15 @@ foreach ($SiteId in $SiteIds) {
     if (@($UrlKeys | Sort-Object -Unique).Count -ne $UrlKeys.Count) {
         $Errors.Add("Duplicate public path for $SiteId.")
     }
+    $NonRootUrls = @($SiteUrls | Where-Object { $_.path -ne '/' })
+    if ($NonRootUrls.Count -ne ($ExpectedPerSite - 1)) {
+        $Errors.Add("Expected $($ExpectedPerSite - 1) non-root Page owners for $SiteId, found $($NonRootUrls.Count).")
+    }
+    foreach ($NonRootUrl in $NonRootUrls) {
+        if ($NonRootUrl.ownerType -ne 'page') {
+            $Errors.Add("Non-root URL $SiteId`:$($NonRootUrl.path) must be owned by a Page.")
+        }
+    }
 
     foreach ($Url in $SiteUrls) {
         if (-not $ExpectedPaths[$SiteId].Contains([string]$Url.path)) {
@@ -128,7 +174,7 @@ foreach ($SiteId in $SiteIds) {
                 @($Url.siteScopes).Count -ne 1 -or
                 @($Url.siteScopes)[0] -ne $SiteId -or
                 -not [bool]$Url.uriResolvable -or
-                $Url.uriResolutionSource -ne 'homepage-contract'
+                $Url.uriResolutionSource -ne 'wpgraphql'
             ) { $Errors.Add("Invalid homepage public URL for $SiteId.") }
             continue
         }
@@ -168,8 +214,40 @@ foreach ($SiteId in $SiteIds) {
 foreach ($Route in $Routes) {
     if ($Route.publicPath -eq '/') { continue }
     if ([string]$Route.supersededSeedSnapshot -ne '') {
-        if ($Route.status -ne 'draft') {
-            $Errors.Add("Superseded seed route $($Route.id) must remain recoverable as draft.")
+        $SnapshotData = $null
+        try { $SnapshotData = [string]$Route.supersededSeedSnapshot | ConvertFrom-Json }
+        catch { $SnapshotData = $null }
+        $SnapshotProperties = if ($null -ne $SnapshotData) {
+            @($SnapshotData.PSObject.Properties | ForEach-Object { $_.Name })
+        } else { @() }
+        $SnapshotHasShape = @('status', 'slug', 'publicPath', 'siteScopes') |
+            Where-Object { $SnapshotProperties -notcontains $_ } |
+            Measure-Object |
+            Select-Object -ExpandProperty Count
+        if ($null -eq $SnapshotData -or $SnapshotHasShape -ne 0) {
+            $Errors.Add("Invalid superseded seed snapshot for route $($Route.id).")
+            continue
+        }
+        $SnapshotScopes = @($SnapshotData.siteScopes)
+        $Match = [regex]::Match([string]$Route.publicPath, '^/test-content/long-tail-([1-9][0-9]{0,2})$')
+        $SiteId = if (@($Route.siteScopes).Count -eq 1) { [string]@($Route.siteScopes)[0] } else { '' }
+        $ExpectedLegacySlug = if ($Match.Success) { "$SiteId--test-content--long-tail-$($Match.Groups[1].Value)" } else { '' }
+        $PaddedPath = if ($Match.Success) { "/test-content/long-tail-$(([int]$Match.Groups[1].Value).ToString('D3'))" } else { '' }
+        if (
+            $Route.status -ne 'draft' -or
+            $SiteIds -notcontains $SiteId -or
+            $Route.slug -ne $ExpectedLegacySlug -or
+            $Route.seedMarker -ne $ExpectedLegacySlug -or
+            $SnapshotData.status -ne 'publish' -or
+            $SnapshotData.slug -ne $Route.slug -or
+            $SnapshotData.publicPath -ne $Route.publicPath -or
+            $SnapshotScopes.Count -ne 1 -or
+            $SnapshotScopes[0] -ne $SiteId -or
+            @($Route.siteScopes).Count -ne 1 -or
+            @($Route.siteScopes)[0] -ne $SiteId -or
+            -not $ExpectedPaths[$SiteId].Contains($PaddedPath)
+        ) {
+            $Errors.Add("Invalid superseded seed snapshot for route $($Route.id).")
         }
         continue
     }

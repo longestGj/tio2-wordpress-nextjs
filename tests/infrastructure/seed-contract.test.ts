@@ -17,6 +17,9 @@ const seedScriptPath = fileURLToPath(
 const auditScriptPath = fileURLToPath(
   new URL('../../scripts/audit-seed.ps1', import.meta.url),
 )
+const exportAuditPath = fileURLToPath(
+  new URL('../../wordpress/seed/export-audit.php', import.meta.url),
+)
 
 interface SharedEntity {
   id: string
@@ -146,7 +149,12 @@ describe('representative WordPress seed manifest', () => {
 
 describe('seed execution plan', () => {
   it('supports bounded migration failure injection for rollback verification', () => {
-    for (const failurePoint of ['before-homepage-write', 'after-root-release']) {
+    for (const failurePoint of [
+      'begin-failure',
+      'before-homepage-write',
+      'after-root-release',
+      'commit-failure',
+    ]) {
       const result = runPowerShell(seedScriptPath, [
         '-ScalePages',
         '3',
@@ -238,12 +246,16 @@ interface AuditPage {
 
 interface AuditHomepage {
   id: number
-  siteId: string
+  siteId: string | null
   slug: string
   status: string
   publicPath: '/'
-  schemaVersion: 'homepage-v0.1'
+  schemaVersion: string
   seedMarker: string
+  siteScopes: string[]
+  error: string
+  uriResolvable: boolean
+  uriResolutionSource: 'wpgraphql'
 }
 
 interface AuditPublicUrl {
@@ -254,7 +266,7 @@ interface AuditPublicUrl {
   slug: string
   siteScopes: string[]
   uriResolvable: boolean
-  uriResolutionSource: 'wpgraphql' | 'homepage-contract'
+  uriResolutionSource: 'wpgraphql'
 }
 
 interface AuditSharedFixture {
@@ -315,6 +327,10 @@ function validAuditSnapshot(scalePages = 0): AuditSnapshot {
     publicPath: '/' as const,
     schemaVersion: 'homepage-v0.1' as const,
     seedMarker: siteId,
+    siteScopes: [siteId],
+    error: '',
+    uriResolvable: true,
+    uriResolutionSource: 'wpgraphql' as const,
   }))
   const publicUrls: AuditPublicUrl[] = [
     ...pages.filter(({status}) => status === 'publish').map((page) => ({
@@ -335,7 +351,7 @@ function validAuditSnapshot(scalePages = 0): AuditSnapshot {
       slug: homepage.slug,
       siteScopes: [homepage.siteId],
       uriResolvable: true,
-      uriResolutionSource: 'homepage-contract' as const,
+      uriResolutionSource: 'wpgraphql' as const,
     })),
   ]
 
@@ -378,6 +394,14 @@ function runSnapshotAudit(snapshot: AuditSnapshot, expectedPerSite = 5) {
 }
 
 describe('seed audit validation', () => {
+  it('exports every homepage record without a status-filtered WordPress query', () => {
+    const source = readFileSync(exportAuditPath, 'utf8')
+
+    expect(source).toMatch(
+      /\$wpdb->get_col\(\s*"SELECT ID FROM \{\$wpdb->posts\} WHERE post_type = 'tio2_homepage' ORDER BY ID ASC"/,
+    )
+  })
+
   it('accepts the exact five core paths and intended shared fixtures', () => {
     const result = runSnapshotAudit(validAuditSnapshot())
 
@@ -395,12 +419,84 @@ describe('seed audit validation', () => {
     expect(result.stdout).toContain('tio2-b: 7 public URLs')
   })
 
+  it('accepts an exact released duplicate homepage record', () => {
+    const snapshot = validAuditSnapshot()
+    snapshot.homepages.push({
+      id: 2000,
+      siteId: null,
+      slug: 'homepage-duplicate-2000',
+      status: 'draft',
+      publicPath: '/',
+      schemaVersion: 'homepage-v0.1',
+      seedMarker: '',
+      siteScopes: [],
+      error: 'tio2_homepage_duplicate',
+      uriResolvable: false,
+      uriResolutionSource: 'wpgraphql',
+    })
+
+    const result = runSnapshotAudit(snapshot)
+
+    expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+  })
+
   it.each([
     {
       name: 'a retained root Page with a changed slug',
       expectedMessage: 'Invalid retained root Page migration snapshot',
       mutate(snapshot: AuditSnapshot) {
         snapshot.routes[0].slug = 'tio2-a-home'
+      },
+    },
+    {
+      name: 'a Post substituted for a required non-root Page owner',
+      expectedMessage: 'must be owned by a Page',
+      mutate(snapshot: AuditSnapshot) {
+        snapshot.routes[1].postType = 'post'
+        snapshot.publicUrls.find(({ownerId}) => ownerId === snapshot.routes[1].id)!.ownerType = 'post'
+      },
+    },
+    {
+      name: 'an invalid extra homepage identity',
+      expectedMessage: 'Invalid homepage inventory record',
+      mutate(snapshot: AuditSnapshot) {
+        snapshot.homepages.push({
+          id: 2001,
+          siteId: null,
+          slug: 'unclaimed-homepage',
+          status: 'auto-draft',
+          publicPath: '/',
+          schemaVersion: '',
+          seedMarker: '',
+          siteScopes: [],
+          error: '',
+          uriResolvable: false,
+          uriResolutionSource: 'wpgraphql',
+        })
+      },
+    },
+    {
+      name: 'a homepage whose GraphQL contract does not resolve',
+      expectedMessage: 'Homepage GraphQL contract did not resolve',
+      mutate(snapshot: AuditSnapshot) {
+        snapshot.homepages[0].uriResolvable = false
+      },
+    },
+    {
+      name: 'an arbitrary nonempty superseded snapshot',
+      expectedMessage: 'Invalid superseded seed snapshot',
+      mutate(snapshot: AuditSnapshot) {
+        snapshot.routes.push({
+          ...snapshot.routes[1],
+          id: 2999,
+          status: 'draft',
+          slug: 'tio2-a--obsolete',
+          publicPath: '/obsolete',
+          seedMarker: 'tio2-a--obsolete',
+          uriResolvable: null,
+          uriResolutionSource: null,
+          supersededSeedSnapshot: '{}',
+        })
       },
     },
     {

@@ -840,7 +840,13 @@ function tio2_homepage_validate_path(
         return new WP_Error('tio2_homepage_invalid_field', "Homepage field {$field_name} must be a non-root site path.");
     }
     $route_owner_ids = tio2_find_managed_route_post_ids($site_id, $path);
-    if (1 !== count($route_owner_ids) || 'publish' !== get_post_status($route_owner_ids[0])) {
+    $required_slug = tio2_build_internal_slug($site_id, $path);
+    if (
+        is_wp_error($required_slug) ||
+        1 !== count($route_owner_ids) ||
+        'publish' !== get_post_status($route_owner_ids[0]) ||
+        $required_slug !== get_post_field('post_name', $route_owner_ids[0])
+    ) {
         return new WP_Error(
             'tio2_homepage_invalid_field',
             "Homepage field {$field_name} must have exactly one published current-site target."
@@ -1315,6 +1321,31 @@ function tio2_release_duplicate_homepage_identity(int $post_id): void
     clean_post_cache($post_id);
 }
 
+function tio2_set_homepage_status_exact(int $post_id, string $post_status): void
+{
+    global $wpdb;
+
+    $previous_status = (string) get_post_status($post_id);
+    if ($previous_status === $post_status) {
+        return;
+    }
+    $updated = $wpdb->update(
+        $wpdb->posts,
+        ['post_status' => $post_status],
+        ['ID' => $post_id],
+        ['%s'],
+        ['%d']
+    );
+    if (false === $updated) {
+        return;
+    }
+    clean_post_cache($post_id);
+    $post = get_post($post_id);
+    if ($post instanceof WP_Post) {
+        wp_transition_post_status($post_status, $previous_status, $post);
+    }
+}
+
 function tio2_enforce_homepage_contract(int $post_id): void
 {
     if ($post_id <= 0 || ! empty($GLOBALS['tio2_enforcing_homepage_contract'])) {
@@ -1353,7 +1384,7 @@ function tio2_enforce_homepage_contract(int $post_id): void
         if (is_wp_error($result)) {
             if (in_array(get_post_status($post_id), ['publish', 'future', 'pending', 'private'], true)) {
                 update_post_meta($post_id, '_tio2_homepage_error', $result->get_error_code());
-                wp_update_post(['ID' => $post_id, 'post_status' => 'draft']);
+                tio2_set_homepage_status_exact($post_id, 'draft');
             }
             return;
         }
@@ -1373,7 +1404,30 @@ function tio2_enforce_homepage_from_acf($post_id): void
     if (! is_numeric($post_id) || (int) $post_id <= 0) {
         return;
     }
+    unset($GLOBALS['tio2_homepage_acf_save_in_progress'][(int) $post_id]);
     tio2_enforce_homepage_contract((int) $post_id);
+}
+
+/**
+ * ACF writes a record's fields at priority 10. Defer validation until the
+ * priority-30 final boundary so an invalid intermediate row cannot draft an
+ * otherwise valid final record.
+ *
+ * @param mixed $post_id
+ */
+function tio2_begin_homepage_acf_save($post_id): void
+{
+    if (! is_numeric($post_id) || (int) $post_id <= 0) {
+        return;
+    }
+    $post = get_post((int) $post_id);
+    if (! $post instanceof WP_Post || 'tio2_homepage' !== $post->post_type) {
+        return;
+    }
+    if (! isset($GLOBALS['tio2_homepage_acf_save_in_progress'])) {
+        $GLOBALS['tio2_homepage_acf_save_in_progress'] = [];
+    }
+    $GLOBALS['tio2_homepage_acf_save_in_progress'][(int) $post_id] = true;
 }
 
 /**
@@ -1419,6 +1473,9 @@ function tio2_enforce_homepage_after_meta_mutation($meta_id, int $post_id, strin
     }
 
     if ('tio2_homepage' === $post->post_type) {
+        if (! empty($GLOBALS['tio2_homepage_acf_save_in_progress'][$post_id])) {
+            return;
+        }
         if ('_tio2_homepage_error' !== $meta_key && in_array($post->post_status, ['publish', 'future', 'pending', 'private'], true)) {
             if (function_exists('acf_flush_value_cache')) {
                 acf_flush_value_cache($post_id, ltrim($meta_key, '_'));
@@ -1430,6 +1487,36 @@ function tio2_enforce_homepage_after_meta_mutation($meta_id, int $post_id, strin
 
     if (in_array($post->post_type, ['page', 'post'], true) && 'public_path' === $meta_key) {
         tio2_revalidate_published_homepages();
+    }
+}
+
+/**
+ * @param list<int> $term_taxonomy_ids
+ */
+function tio2_enforce_homepage_after_site_scope_removal(
+    int $post_id,
+    array $term_taxonomy_ids,
+    string $taxonomy
+): void {
+    if ('site_scope' !== $taxonomy || ! empty($GLOBALS['tio2_enforcing_homepage_site_scope_removal'])) {
+        return;
+    }
+    $post = get_post($post_id);
+    if (! $post instanceof WP_Post) {
+        return;
+    }
+
+    $GLOBALS['tio2_enforcing_homepage_site_scope_removal'] = true;
+    try {
+        if ('tio2_homepage' === $post->post_type) {
+            if (in_array($post->post_status, ['publish', 'future', 'pending', 'private'], true)) {
+                tio2_enforce_homepage_contract($post_id);
+            }
+        } elseif (in_array($post->post_type, ['page', 'post'], true)) {
+            tio2_revalidate_published_homepages();
+        }
+    } finally {
+        $GLOBALS['tio2_enforcing_homepage_site_scope_removal'] = false;
     }
 }
 
@@ -1481,6 +1568,19 @@ function tio2_enforce_homepage_dependencies_after_transition(
 function tio2_enforce_homepage_dependencies_after_delete(int $post_id, WP_Post $post): void
 {
     if (in_array($post->post_type, ['page', 'post'], true)) {
+        tio2_revalidate_published_homepages();
+    }
+}
+
+function tio2_enforce_homepage_dependencies_after_slug_change(
+    int $post_id,
+    WP_Post $post_after,
+    WP_Post $post_before
+): void {
+    if (
+        in_array($post_after->post_type, ['page', 'post'], true) &&
+        $post_after->post_name !== $post_before->post_name
+    ) {
         tio2_revalidate_published_homepages();
     }
 }

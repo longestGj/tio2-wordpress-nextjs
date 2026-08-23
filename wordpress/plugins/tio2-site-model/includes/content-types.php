@@ -104,6 +104,28 @@ function tio2_register_content_types(): void
     ]);
 }
 
+/**
+ * Keep the homepage out of WordPress front-end routing while allowing the
+ * published record to satisfy the public headless GraphQL contract.
+ *
+ * @param bool|null $is_private
+ * @param mixed     $data
+ * @return bool|null
+ */
+function tio2_homepage_graphql_visibility($is_private, string $model_name, $data)
+{
+    if (
+        'PostObject' === $model_name &&
+        $data instanceof WP_Post &&
+        'tio2_homepage' === $data->post_type &&
+        'publish' === $data->post_status
+    ) {
+        return false;
+    }
+
+    return $is_private;
+}
+
 function tio2_activate_site_model(): void
 {
     tio2_register_content_types();

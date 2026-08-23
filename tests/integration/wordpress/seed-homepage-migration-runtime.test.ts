@@ -44,14 +44,16 @@ function wp(arguments_: string[]) {
 
 function snapshotManagedState() {
   const php = String.raw`
-$ids=get_posts(['post_type'=>['page','post','tio2_homepage'],'post_status'=>['publish','future','draft','pending','private','trash'],'posts_per_page'=>-1,'fields'=>'ids','orderby'=>'ID','order'=>'ASC']);
+global $wpdb;
+$ids=array_map('intval',$wpdb->get_col("SELECT ID FROM {$wpdb->posts} WHERE post_type IN ('page','post','tio2_homepage') ORDER BY ID ASC"));
 $rows=[];
 foreach($ids as $id){
   $marker=(string)get_post_meta($id,'_tio2_seed_internal_slug',true);
   $home_marker=(string)get_post_meta($id,'_tio2_seed_homepage_site_id',true);
-  if($marker==='' && $home_marker===''){continue;}
+  $path=(string)get_post_meta($id,'public_path',true);
+  if($marker==='' && $home_marker==='' && $path!=='/' && get_post_type($id)!=='tio2_homepage'){continue;}
   $scopes=wp_get_object_terms($id,'site_scope',['fields'=>'slugs']);
-  $rows[]=['id'=>(int)$id,'type'=>(string)get_post_type($id),'status'=>(string)get_post_status($id),'slug'=>(string)get_post_field('post_name',$id),'title'=>(string)get_post_field('post_title',$id),'content'=>(string)get_post_field('post_content',$id),'path'=>(string)get_post_meta($id,'public_path',true),'marker'=>$marker,'homepageMarker'=>$home_marker,'scopes'=>is_wp_error($scopes)?[]:array_values($scopes),'previousStatus'=>(string)get_post_meta($id,'_tio2_previous_root_status',true),'previousScopes'=>(string)get_post_meta($id,'_tio2_previous_root_site_scope',true),'superseded'=>(string)get_post_meta($id,'_tio2_seed_superseded_snapshot',true)];
+  $rows[]=['id'=>(int)$id,'type'=>(string)get_post_type($id),'status'=>(string)get_post_status($id),'slug'=>(string)get_post_field('post_name',$id),'title'=>(string)get_post_field('post_title',$id),'content'=>(string)get_post_field('post_content',$id),'path'=>$path,'marker'=>$marker,'homepageMarker'=>$home_marker,'scopes'=>is_wp_error($scopes)?[]:array_values($scopes),'managedProbe'=>(string)get_post_meta($id,'seo_title',true),'unmanagedProbe'=>(string)get_post_meta($id,'_tio2_unmanaged_probe',true),'previousStatus'=>(string)get_post_meta($id,'_tio2_previous_root_status',true),'previousScopes'=>(string)get_post_meta($id,'_tio2_previous_root_site_scope',true),'superseded'=>(string)get_post_meta($id,'_tio2_seed_superseded_snapshot',true)];
 }
 echo 'TIO2_STATE '.wp_json_encode($rows);
 `
@@ -77,6 +79,23 @@ function deleteFixture(id: number) {
   fixtureIds.splice(fixtureIds.indexOf(id), 1)
 }
 
+function prepareRootMigrationState() {
+  const result = wp(['eval', String.raw`
+global $wpdb;
+foreach(['tio2-a','tio2-b'] as $site_id){
+  $ids=get_posts(['post_type'=>'page','post_status'=>['publish','draft'],'posts_per_page'=>-1,'fields'=>'ids','meta_key'=>'_tio2_seed_internal_slug','meta_value'=>$site_id.'--home']);
+  if(count($ids)!==1){WP_CLI::error('Missing unique root backup for '.$site_id);}
+  $id=(int)$ids[0];
+  wp_set_object_terms($id,[$site_id],'site_scope',false);
+  $wpdb->update($wpdb->posts,['post_status'=>'publish','post_name'=>$site_id.'--home','post_title'=>'Preserve exact root title '.$site_id,'post_content'=>'<p>Preserve exact root content '.$site_id.'</p>'],['ID'=>$id],['%s','%s','%s','%s'],['%d']);
+  update_post_meta($id,'seo_title','Preserve managed root meta '.$site_id);
+  update_post_meta($id,'_tio2_unmanaged_probe','Preserve unmanaged root meta '.$site_id);
+  clean_post_cache($id);
+}
+`])
+  expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+}
+
 describe.runIf(runLiveWordPress)('homepage seed migration transaction', () => {
   afterAll(() => {
     for (const id of [...fixtureIds]) {
@@ -86,6 +105,7 @@ describe.runIf(runLiveWordPress)('homepage seed migration transaction', () => {
   })
 
   it('restores exact managed state for failures before and after root release', () => {
+    prepareRootMigrationState()
     for (const failurePoint of ['before-homepage-write', 'after-root-release']) {
       const before = snapshotManagedState()
       const failed = powershell(seedScript, [
@@ -111,7 +131,7 @@ echo $id;
       const collisionSeed = powershell(seedScript, ['-ScalePages', '500'])
       expect(collisionSeed.status).not.toBe(0)
       expect(`${collisionSeed.stdout}\n${collisionSeed.stderr}`).toMatch(
-        /Unproven homepage candidate|Ambiguous seeded homepage identity/,
+        /Homepage preflight rejected/,
       )
       expect(snapshotManagedState()).toEqual(collisionState)
       deleteFixture(homepageId)
@@ -130,23 +150,11 @@ echo $id;
     const rootCollisionSeed = powershell(seedScript, ['-ScalePages', '500'])
     expect(rootCollisionSeed.status).not.toBe(0)
     expect(`${rootCollisionSeed.stdout}\n${rootCollisionSeed.stderr}`).toContain(
-      'Ambiguous Page/Post root ownership',
+      'Root preflight rejected',
     )
     expect(snapshotManagedState()).toEqual(rootCollisionState)
     deleteFixture(rootConflictId)
 
-    const prepareRoots = wp(['eval', String.raw`
-global $wpdb;
-foreach(['tio2-a','tio2-b'] as $site_id){
-  $ids=get_posts(['post_type'=>'page','post_status'=>['publish','draft'],'posts_per_page'=>-1,'fields'=>'ids','meta_key'=>'_tio2_seed_internal_slug','meta_value'=>$site_id.'--home']);
-  if(count($ids)!==1){WP_CLI::error('Missing unique root backup for '.$site_id);}
-  $id=(int)$ids[0];
-  wp_set_object_terms($id,[$site_id],'site_scope',false);
-  $wpdb->update($wpdb->posts,['post_status'=>'publish','post_name'=>$site_id.'--home'],['ID'=>$id],['%s','%s'],['%d']);
-  clean_post_cache($id);
-}
-`])
-    expect(prepareRoots.status, `${prepareRoots.stdout}\n${prepareRoots.stderr}`).toBe(0)
     const rootsBeforeSuccessfulMigration = snapshotManagedState().filter((entry) => {
       const route = entry as {marker: string}
       return route.marker === 'tio2-a--home' || route.marker === 'tio2-b--home'
@@ -154,10 +162,13 @@ foreach(['tio2-a','tio2-b'] as $site_id){
       id: number
       status: string
       slug: string
+      title: string
       content: string
       path: string
       marker: string
       scopes: string[]
+      managedProbe: string
+      unmanagedProbe: string
     }>
     expect(rootsBeforeSuccessfulMigration).toHaveLength(2)
 
@@ -183,10 +194,13 @@ echo $id;
         id: rootBefore.id,
         status: 'draft',
         slug: rootBefore.slug,
+        title: rootBefore.title,
         content: rootBefore.content,
         path: rootBefore.path,
         marker: rootBefore.marker,
         scopes: [],
+        managedProbe: rootBefore.managedProbe,
+        unmanagedProbe: rootBefore.unmanagedProbe,
       })
     }
     const corrected = successfulState.find(
@@ -214,8 +228,90 @@ echo $id;
       publicPath: '/test-content/long-tail-1',
       siteScopes: ['tio2-a'],
     })
+    deleteFixture(faultyUnpaddedId)
+
+    for (const failurePoint of ['begin-failure', 'commit-failure']) {
+      const before = snapshotManagedState()
+      const failed = powershell(seedScript, [
+        '-ScalePages',
+        '500',
+        '-FailurePoint',
+        failurePoint,
+      ])
+      expect(failed.status).not.toBe(0)
+      expect(`${failed.stdout}\n${failed.stderr}`).toContain('Injected seed transaction failure')
+      expect(snapshotManagedState()).toEqual(before)
+      if (failurePoint === 'commit-failure') {
+        expect(`${failed.stdout}\n${failed.stderr}`).toContain(
+          'TIO2_SEED_ROLLBACK_QUEUE_RESTORED',
+        )
+      }
+    }
+
+    const invalidHomepageFixtures = [
+      String.raw`
+global $wpdb;
+$wpdb->insert($wpdb->posts,['post_author'=>1,'post_date'=>current_time('mysql'),'post_date_gmt'=>current_time('mysql',true),'post_content'=>'','post_title'=>'Invalid auto draft homepage','post_status'=>'auto-draft','post_name'=>'','post_modified'=>current_time('mysql'),'post_modified_gmt'=>current_time('mysql',true),'post_parent'=>0,'guid'=>'','post_type'=>'tio2_homepage','comment_count'=>0]);
+echo (int)$wpdb->insert_id;
+`,
+      String.raw`
+global $wpdb;
+$term=get_term_by('slug','tio2-a','site_scope');
+$wpdb->insert($wpdb->posts,['post_author'=>1,'post_date'=>current_time('mysql'),'post_date_gmt'=>current_time('mysql',true),'post_content'=>'','post_title'=>'Invalid status homepage','post_status'=>'invalid-review','post_name'=>'tio2-a--homepage','post_modified'=>current_time('mysql'),'post_modified_gmt'=>current_time('mysql',true),'post_parent'=>0,'guid'=>'','post_type'=>'tio2_homepage','comment_count'=>0]);
+$id=(int)$wpdb->insert_id; add_post_meta($id,'_tio2_seed_homepage_site_id','tio2-a'); $wpdb->insert($wpdb->term_relationships,['object_id'=>$id,'term_taxonomy_id'=>(int)$term->term_taxonomy_id,'term_order'=>0]); echo $id;
+`,
+      String.raw`
+global $wpdb;
+$a=get_term_by('slug','tio2-a','site_scope'); $b=get_term_by('slug','tio2-b','site_scope');
+$wpdb->insert($wpdb->posts,['post_author'=>1,'post_date'=>current_time('mysql'),'post_date_gmt'=>current_time('mysql',true),'post_content'=>'','post_title'=>'Multi scope homepage','post_status'=>'draft','post_name'=>'tio2-a--homepage','post_modified'=>current_time('mysql'),'post_modified_gmt'=>current_time('mysql',true),'post_parent'=>0,'guid'=>'','post_type'=>'tio2_homepage','comment_count'=>0]);
+$id=(int)$wpdb->insert_id; add_post_meta($id,'_tio2_seed_homepage_site_id','tio2-a'); foreach([$a,$b] as $term){$wpdb->insert($wpdb->term_relationships,['object_id'=>$id,'term_taxonomy_id'=>(int)$term->term_taxonomy_id,'term_order'=>0]);} echo $id;
+`,
+      String.raw`
+global $wpdb;
+$wpdb->insert($wpdb->posts,['post_author'=>1,'post_date'=>current_time('mysql'),'post_date_gmt'=>current_time('mysql',true),'post_content'=>'','post_title'=>'Invalid unclaimed homepage','post_status'=>'draft','post_name'=>'unclaimed-homepage','post_modified'=>current_time('mysql'),'post_modified_gmt'=>current_time('mysql',true),'post_parent'=>0,'guid'=>'','post_type'=>'tio2_homepage','comment_count'=>0]);
+echo (int)$wpdb->insert_id;
+`,
+    ]
+    for (const fixturePhp of invalidHomepageFixtures) {
+      const homepageId = rawFixture(fixturePhp)
+      const before = snapshotManagedState()
+      const failed = powershell(seedScript, ['-ScalePages', '500'])
+      expect(failed.status).not.toBe(0)
+      expect(`${failed.stdout}\n${failed.stderr}`).toContain('Homepage preflight rejected')
+      expect(snapshotManagedState()).toEqual(before)
+      deleteFixture(homepageId)
+    }
+
+    const invalidRootFixtures = [
+      String.raw`
+global $wpdb;
+$a=get_term_by('slug','tio2-a','site_scope'); $b=get_term_by('slug','tio2-b','site_scope');
+$wpdb->insert($wpdb->posts,['post_author'=>1,'post_date'=>current_time('mysql'),'post_date_gmt'=>current_time('mysql',true),'post_content'=>'Invalid multi-scope root','post_title'=>'Invalid multi-scope root','post_status'=>'draft','post_name'=>'invalid-multi-root','post_modified'=>current_time('mysql'),'post_modified_gmt'=>current_time('mysql',true),'post_parent'=>0,'guid'=>'','post_type'=>'page','comment_count'=>0]);
+$id=(int)$wpdb->insert_id; add_post_meta($id,'public_path','/'); foreach([$a,$b] as $term){$wpdb->insert($wpdb->term_relationships,['object_id'=>$id,'term_taxonomy_id'=>(int)$term->term_taxonomy_id,'term_order'=>0]);} echo $id;
+`,
+      String.raw`
+global $wpdb;
+$a=get_term_by('slug','tio2-a','site_scope');
+$wpdb->insert($wpdb->posts,['post_author'=>1,'post_date'=>current_time('mysql'),'post_date_gmt'=>current_time('mysql',true),'post_content'=>'Invalid status root','post_title'=>'Invalid status root','post_status'=>'invalid-review','post_name'=>'invalid-status-root','post_modified'=>current_time('mysql'),'post_modified_gmt'=>current_time('mysql',true),'post_parent'=>0,'guid'=>'','post_type'=>'post','comment_count'=>0]);
+$id=(int)$wpdb->insert_id; add_post_meta($id,'public_path','/'); $wpdb->insert($wpdb->term_relationships,['object_id'=>$id,'term_taxonomy_id'=>(int)$a->term_taxonomy_id,'term_order'=>0]); echo $id;
+`,
+      String.raw`
+global $wpdb;
+$wpdb->insert($wpdb->posts,['post_author'=>1,'post_date'=>current_time('mysql'),'post_date_gmt'=>current_time('mysql',true),'post_content'=>'Invalid unscoped root','post_title'=>'Invalid unscoped root','post_status'=>'draft','post_name'=>'invalid-unscoped-root','post_modified'=>current_time('mysql'),'post_modified_gmt'=>current_time('mysql',true),'post_parent'=>0,'guid'=>'','post_type'=>'page','comment_count'=>0]);
+$id=(int)$wpdb->insert_id; add_post_meta($id,'public_path','/'); echo $id;
+`,
+    ]
+    for (const fixturePhp of invalidRootFixtures) {
+      const rootId = rawFixture(fixturePhp)
+      const before = snapshotManagedState()
+      const failed = powershell(seedScript, ['-ScalePages', '500'])
+      expect(failed.status).not.toBe(0)
+      expect(`${failed.stdout}\n${failed.stderr}`).toContain('Root preflight rejected')
+      expect(snapshotManagedState()).toEqual(before)
+      deleteFixture(rootId)
+    }
+
     const audit = powershell(auditScript, ['-ExpectedPerSite', '505'])
     expect(audit.status, `${audit.stdout}\n${audit.stderr}`).toBe(0)
-    deleteFixture(faultyUnpaddedId)
   }, 600_000)
 })

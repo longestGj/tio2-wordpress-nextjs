@@ -5,6 +5,8 @@ if (! defined('ABSPATH')) {
 }
 
 $GLOBALS['tio2_seed_transaction_started'] = false;
+$GLOBALS['tio2_seed_touched_post_ids'] = [];
+$GLOBALS['tio2_seed_webhook_queue_before_transaction'] = [];
 function tio2_seed_abort(string $message): void
 {
     if (! empty($GLOBALS['tio2_seed_transaction_started'])) {
@@ -13,11 +15,35 @@ function tio2_seed_abort(string $message): void
     WP_CLI::error($message);
 }
 
+function tio2_seed_touch_post(int $post_id): void
+{
+    if ($post_id > 0) {
+        $GLOBALS['tio2_seed_touched_post_ids'][$post_id] = true;
+    }
+}
+
+function tio2_seed_clear_touched_caches(): void
+{
+    foreach (array_keys($GLOBALS['tio2_seed_touched_post_ids'] ?? []) as $post_id) {
+        $post_id = (int) $post_id;
+        clean_post_cache($post_id);
+        wp_cache_delete($post_id, 'post_meta');
+        $post_type = get_post_type($post_id);
+        if (is_string($post_type) && '' !== $post_type) {
+            clean_object_term_cache($post_id, $post_type);
+        }
+        if (function_exists('acf_flush_value_cache')) {
+            acf_flush_value_cache($post_id);
+        }
+    }
+}
+
 function tio2_seed_update_post_status_exact(int $post_id, string $post_status): void
 {
     global $wpdb;
 
     $previous_status = (string) get_post_status($post_id);
+    tio2_seed_touch_post($post_id);
     if ($previous_status === $post_status) {
         return;
     }
@@ -38,6 +64,24 @@ function tio2_seed_update_post_status_exact(int $post_id, string $post_status): 
     if ($post instanceof WP_Post) {
         wp_transition_post_status($post_status, $previous_status, $post);
     }
+}
+
+function tio2_seed_update_post_slug_exact(int $post_id, string $post_name): void
+{
+    global $wpdb;
+
+    tio2_seed_touch_post($post_id);
+    $updated = $wpdb->update(
+        $wpdb->posts,
+        ['post_name' => $post_name],
+        ['ID' => $post_id],
+        ['%s'],
+        ['%d']
+    );
+    if (false === $updated) {
+        tio2_seed_abort("Failed to update post slug exactly at post {$post_id}.");
+    }
+    clean_post_cache($post_id);
 }
 
 if (empty($args[0]) || ! is_readable($args[0])) {
@@ -159,6 +203,7 @@ function tio2_seed_resolve_candidates(string $identity, array $candidates): arra
 
 function tio2_seed_delete_proven_duplicate(int $post_id, string $identity): void
 {
+    tio2_seed_touch_post($post_id);
     $deleted = wp_delete_post($post_id, true);
     if (! $deleted instanceof WP_Post) {
         tio2_seed_abort("Failed to permanently delete proven managed duplicate {$post_id} for {$identity}.");
@@ -215,6 +260,7 @@ function tio2_seed_upsert(
     if (is_wp_error($post_id)) {
         tio2_seed_abort($post_id->get_error_message());
     }
+    tio2_seed_touch_post((int) $post_id);
 
     foreach ($operation['meta'] as $meta_key => $meta_value) {
         update_post_meta((int) $post_id, $meta_key, $meta_value);
@@ -237,6 +283,7 @@ wp_defer_term_counting(true);
 wp_defer_comment_counting(true);
 
 try {
+    global $wpdb;
     $planned_entities_by_id = [];
     foreach ($plan['entities'] as $entity) {
         $planned_entities_by_id[$entity['id']] = $entity;
@@ -385,59 +432,82 @@ try {
         $page_duplicate_ids[$internal_slug] = $resolution['duplicate_ids'];
     }
 
-    $all_homepage_ids = get_posts([
-        'post_type' => 'tio2_homepage',
-        'post_status' => ['publish', 'future', 'draft', 'pending', 'private', 'trash'],
-        'posts_per_page' => -1,
-        'fields' => 'ids',
-        'no_found_rows' => true,
-    ]);
-    $homepage_ids_by_site = [];
-    $root_snapshots_by_site = [];
+    $planned_homepages_by_site = [];
     foreach ($plan['homepages'] ?? [] as $homepage) {
-        $site_id = (string) $homepage['siteId'];
-        $candidate_ids = [];
-        foreach ($all_homepage_ids as $candidate_id) {
-            $candidate_marker = (string) get_post_meta((int) $candidate_id, '_tio2_seed_homepage_site_id', true);
-            $candidate_scopes = wp_get_object_terms((int) $candidate_id, 'site_scope', ['fields' => 'slugs']);
-            if (is_wp_error($candidate_scopes)) {
-                tio2_seed_abort($candidate_scopes->get_error_message());
-            }
-            $matches_identity = $candidate_marker === $site_id ||
-                (string) get_post_field('post_name', $candidate_id) === (string) $homepage['internalSlug'] ||
-                in_array($site_id, $candidate_scopes, true);
-            if (! $matches_identity) {
-                continue;
-            }
-            if ($candidate_marker !== $site_id) {
-                tio2_seed_abort("Unproven homepage candidate {$candidate_id} claims {$site_id}.");
-            }
-            $candidate_ids[] = (int) $candidate_id;
+        $planned_homepages_by_site[(string) $homepage['siteId']] = $homepage;
+    }
+    $all_homepage_ids = array_map('intval', $wpdb->get_col(
+        "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'tio2_homepage' ORDER BY ID ASC"
+    ));
+    $homepage_ids_by_site = [];
+    $allowed_homepage_statuses = ['publish', 'future', 'draft', 'pending', 'private', 'trash'];
+    foreach ($all_homepage_ids as $candidate_id) {
+        $candidate_status = (string) get_post_status($candidate_id);
+        $candidate_slug = (string) get_post_field('post_name', $candidate_id);
+        $candidate_marker = (string) get_post_meta($candidate_id, '_tio2_seed_homepage_site_id', true);
+        $candidate_error = (string) get_post_meta($candidate_id, '_tio2_homepage_error', true);
+        $candidate_scopes = wp_get_object_terms($candidate_id, 'site_scope', ['fields' => 'slugs']);
+        if (is_wp_error($candidate_scopes)) {
+            tio2_seed_abort($candidate_scopes->get_error_message());
         }
-        if (count($candidate_ids) > 1) {
-            tio2_seed_abort("Ambiguous seeded homepage identity for {$site_id}.");
+        $candidate_scopes = array_values(array_unique(array_map('strval', $candidate_scopes)));
+        sort($candidate_scopes, SORT_STRING);
+
+        $is_released_duplicate = 'draft' === $candidate_status &&
+            [] === $candidate_scopes &&
+            '' === $candidate_marker &&
+            'tio2_homepage_duplicate' === $candidate_error &&
+            $candidate_slug === 'homepage-duplicate-' . $candidate_id;
+        if ($is_released_duplicate) {
+            continue;
         }
-        if (1 === count($candidate_ids)) {
-            $homepage_ids_by_site[$site_id] = (int) $candidate_ids[0];
+        if (! in_array($candidate_status, $allowed_homepage_statuses, true)) {
+            tio2_seed_abort("Homepage preflight rejected invalid status at post {$candidate_id}.");
         }
 
+        $claimed_sites = [];
+        foreach ($planned_homepages_by_site as $site_id => $homepage) {
+            if (
+                $candidate_marker === $site_id ||
+                $candidate_slug === (string) $homepage['internalSlug'] ||
+                in_array($site_id, $candidate_scopes, true)
+            ) {
+                $claimed_sites[] = $site_id;
+            }
+        }
+        if (1 !== count($claimed_sites)) {
+            tio2_seed_abort("Homepage preflight rejected invalid identity at post {$candidate_id}.");
+        }
+        $site_id = $claimed_sites[0];
+        $homepage = $planned_homepages_by_site[$site_id];
+        if (
+            $candidate_marker !== $site_id ||
+            $candidate_slug !== (string) $homepage['internalSlug'] ||
+            $candidate_scopes !== [$site_id]
+        ) {
+            tio2_seed_abort("Homepage preflight rejected incomplete identity at post {$candidate_id}.");
+        }
+        if (isset($homepage_ids_by_site[$site_id])) {
+            tio2_seed_abort("Homepage preflight rejected duplicate identity for {$site_id}.");
+        }
+        $homepage_ids_by_site[$site_id] = $candidate_id;
+    }
+
+    $root_snapshots_by_site = [];
+    $root_site_by_post_id = [];
+    foreach ($planned_homepages_by_site as $site_id => $homepage) {
         $root_identity = $planned_page_slug_by_site_path[$site_id . ':/'] ?? '';
         $root_page_id = '' === $root_identity ? 0 : (int) ($page_canonical_ids[$root_identity] ?? 0);
         if ($root_page_id <= 0 || ! get_post($root_page_id) instanceof WP_Post) {
-            tio2_seed_abort("Missing pre-existing root Page for {$site_id}.");
+            tio2_seed_abort("Root preflight rejected missing root Page for {$site_id}.");
         }
-        $root_owners = tio2_find_managed_route_post_ids($site_id, '/');
-        $previous_scope_json = (string) get_post_meta($root_page_id, '_tio2_previous_root_site_scope', true);
-        $is_migrated_backup = 'draft' === get_post_status($root_page_id) &&
-            [] === wp_get_object_terms($root_page_id, 'site_scope', ['fields' => 'slugs']) &&
-            in_array($site_id, json_decode($previous_scope_json, true) ?: [], true);
-        if (! ($root_owners === [$root_page_id] || ([] === $root_owners && $is_migrated_backup))) {
-            tio2_seed_abort("Ambiguous Page/Post root ownership for {$site_id}.");
-        }
+        $root_site_by_post_id[$root_page_id] = $site_id;
         $root_scopes = wp_get_object_terms($root_page_id, 'site_scope', ['fields' => 'slugs']);
         if (is_wp_error($root_scopes)) {
             tio2_seed_abort($root_scopes->get_error_message());
         }
+        $root_scopes = array_values(array_unique(array_map('strval', $root_scopes)));
+        sort($root_scopes, SORT_STRING);
         $root_snapshots_by_site[$site_id] = [
             'post_id' => $root_page_id,
             'status' => (string) get_post_status($root_page_id),
@@ -445,6 +515,46 @@ try {
             'public_path' => (string) get_post_meta($root_page_id, 'public_path', true),
             'site_scopes' => array_values($root_scopes),
         ];
+    }
+
+    $raw_root_ids = array_map('intval', $wpdb->get_col(
+        "SELECT DISTINCT p.ID
+         FROM {$wpdb->posts} p
+         INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
+         WHERE p.post_type IN ('page', 'post')
+           AND pm.meta_key = 'public_path'
+           AND pm.meta_value = '/'
+         ORDER BY p.ID ASC"
+    ));
+    foreach ($raw_root_ids as $root_candidate_id) {
+        $site_id = $root_site_by_post_id[$root_candidate_id] ?? null;
+        if (null === $site_id) {
+            tio2_seed_abort("Root preflight rejected unknown Page/Post {$root_candidate_id}.");
+        }
+        $root_identity = $planned_page_slug_by_site_path[$site_id . ':/'];
+        $root_scopes = wp_get_object_terms($root_candidate_id, 'site_scope', ['fields' => 'slugs']);
+        if (is_wp_error($root_scopes)) {
+            tio2_seed_abort($root_scopes->get_error_message());
+        }
+        $root_scopes = array_values(array_unique(array_map('strval', $root_scopes)));
+        sort($root_scopes, SORT_STRING);
+        $previous_scopes = json_decode(
+            (string) get_post_meta($root_candidate_id, '_tio2_previous_root_site_scope', true),
+            true
+        );
+        $is_live_root = 'publish' === get_post_status($root_candidate_id) && $root_scopes === [$site_id];
+        $is_migrated_backup = 'draft' === get_post_status($root_candidate_id) &&
+            [] === $root_scopes &&
+            'publish' === (string) get_post_meta($root_candidate_id, '_tio2_previous_root_status', true) &&
+            $previous_scopes === [$site_id];
+        if (
+            'page' !== get_post_type($root_candidate_id) ||
+            (string) get_post_field('post_name', $root_candidate_id) !== $root_identity ||
+            (string) get_post_meta($root_candidate_id, '_tio2_seed_internal_slug', true) !== $root_identity ||
+            (! $is_live_root && ! $is_migrated_backup)
+        ) {
+            tio2_seed_abort("Root preflight rejected invalid identity at post {$root_candidate_id}.");
+        }
     }
 
     $superseded_page_ids = [];
@@ -468,8 +578,19 @@ try {
     }
 
     wp_suspend_cache_invalidation(false);
-    global $wpdb;
-    $wpdb->query('START TRANSACTION');
+    $GLOBALS['tio2_seed_webhook_queue_before_transaction'] =
+        isset($GLOBALS['tio2_webhook_queue']) && is_array($GLOBALS['tio2_webhook_queue'])
+            ? $GLOBALS['tio2_webhook_queue']
+            : [];
+    $begin_result = 'begin-failure' === ($plan['failurePoint'] ?? '')
+        ? false
+        : $wpdb->query('START TRANSACTION');
+    if (false === $begin_result) {
+        $message = 'begin-failure' === ($plan['failurePoint'] ?? '')
+            ? 'Injected seed transaction failure at BEGIN.'
+            : 'Failed to start seed transaction.';
+        throw new RuntimeException($message);
+    }
     $GLOBALS['tio2_seed_transaction_started'] = true;
 
     // All identities have been preflighted. Only proven extras are now removed,
@@ -508,6 +629,16 @@ try {
     $seeded_page_ids = [];
     foreach ($plan['pages'] as $page) {
         $expected_page_slugs[$page['internalSlug']] = true;
+        if ('/' === (string) $page['publicPath']) {
+            $root_snapshot = $root_snapshots_by_site[(string) $page['siteId']] ?? null;
+            $root_page_id = is_array($root_snapshot) ? (int) $root_snapshot['post_id'] : 0;
+            if ($root_page_id <= 0) {
+                tio2_seed_abort("Root preflight snapshot is missing for {$page['siteId']}.");
+            }
+            tio2_seed_touch_post($root_page_id);
+            $seeded_page_ids[$page['siteId'] . ':/'] = $root_page_id;
+            continue;
+        }
         $existing_page_id = $page_canonical_ids[$page['internalSlug']] ?? null;
         $page_id = tio2_seed_upsert($page, 'page', $summary, 'pages', $existing_page_id);
         $seeded_page_ids[$page['siteId'] . ':' . $page['publicPath']] = $page_id;
@@ -518,6 +649,7 @@ try {
     }
 
     foreach ($superseded_page_ids as $page_id) {
+        tio2_seed_touch_post($page_id);
         $superseded_changed = false;
         $superseded_snapshot_json = (string) get_post_meta($page_id, '_tio2_seed_superseded_snapshot', true);
         if ('' === $superseded_snapshot_json) {
@@ -569,6 +701,7 @@ try {
                 throw new RuntimeException($homepage_id->get_error_message());
             }
             $homepage_id = (int) $homepage_id;
+            tio2_seed_touch_post($homepage_id);
             update_post_meta($homepage_id, '_tio2_seed_homepage_site_id', $site_id);
             $term_result = wp_set_object_terms($homepage_id, [$site_id], 'site_scope', false);
             if (is_wp_error($term_result)) {
@@ -617,14 +750,7 @@ try {
                 throw new RuntimeException("Site root {$site_id} still has an owner after migration release.");
             }
 
-            $wpdb->update(
-                $wpdb->posts,
-                ['post_name' => (string) $homepage['internalSlug']],
-                ['ID' => $homepage_id],
-                ['%s'],
-                ['%d']
-            );
-            clean_post_cache($homepage_id);
+            tio2_seed_update_post_slug_exact($homepage_id, (string) $homepage['internalSlug']);
             tio2_enforce_homepage_contract($homepage_id);
             $validation = tio2_validate_homepage_contract($homepage_id);
             if (is_wp_error($validation)) {
@@ -641,20 +767,38 @@ try {
                 throw new RuntimeException("Homepage {$site_id} failed to publish.");
             }
         }
-    $wpdb->query('COMMIT');
-    $GLOBALS['tio2_seed_transaction_started'] = false;
-} catch (Throwable $error) {
-    if (! empty($GLOBALS['tio2_seed_transaction_started'])) {
-        $wpdb->query('ROLLBACK');
-        $GLOBALS['tio2_seed_transaction_started'] = false;
+    $commit_result = 'commit-failure' === ($plan['failurePoint'] ?? '')
+        ? false
+        : $wpdb->query('COMMIT');
+    if (false === $commit_result) {
+        $message = 'commit-failure' === ($plan['failurePoint'] ?? '')
+            ? 'Injected seed transaction failure at COMMIT.'
+            : 'Failed to commit seed transaction.';
+        throw new RuntimeException($message);
     }
-    clean_post_cache(0);
-    WP_CLI::error('Seed transaction failed: ' . $error->getMessage());
+    $GLOBALS['tio2_seed_transaction_started'] = false;
+    tio2_seed_clear_touched_caches();
+} catch (Throwable $error) {
+    $rollback_failed = false;
+    if (! empty($GLOBALS['tio2_seed_transaction_started'])) {
+        $rollback_result = $wpdb->query('ROLLBACK');
+        $rollback_failed = false === $rollback_result;
+        $GLOBALS['tio2_seed_transaction_started'] = false;
+        $GLOBALS['tio2_webhook_queue'] = $GLOBALS['tio2_seed_webhook_queue_before_transaction'];
+        tio2_seed_clear_touched_caches();
+        WP_CLI::log(
+            'TIO2_SEED_ROLLBACK_QUEUE_RESTORED count=' .
+            count($GLOBALS['tio2_webhook_queue']) .
+            ' touched=' . count($GLOBALS['tio2_seed_touched_post_ids'])
+        );
+    }
+    $rollback_suffix = $rollback_failed ? ' Rollback command also failed.' : '';
+    WP_CLI::error('Seed transaction failed: ' . $error->getMessage() . $rollback_suffix);
 } finally {
     wp_defer_comment_counting(false);
     wp_defer_term_counting(false);
     wp_suspend_cache_invalidation(false);
-    clean_post_cache(0);
+    tio2_seed_clear_touched_caches();
 }
 
 WP_CLI::log('TIO2_SEED_SUMMARY ' . wp_json_encode($summary));

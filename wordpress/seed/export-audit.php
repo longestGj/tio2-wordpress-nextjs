@@ -153,15 +153,19 @@ foreach ($shared_entity_ids as $entity_id) {
 }
 
 $homepages = [];
-$homepage_ids = get_posts([
-    'post_type' => 'tio2_homepage',
-    'post_status' => ['publish', 'draft', 'pending', 'private', 'future', 'trash'],
-    'posts_per_page' => -1,
-    'fields' => 'ids',
-    'no_found_rows' => true,
-]);
+global $wpdb;
+$homepage_ids = array_map('intval', $wpdb->get_col(
+    "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'tio2_homepage' ORDER BY ID ASC"
+));
 foreach ($homepage_ids as $homepage_id) {
-    $site_id = tio2_get_homepage_site_id((int) $homepage_id);
+    $homepage_scopes = wp_get_object_terms((int) $homepage_id, 'site_scope', ['fields' => 'slugs']);
+    if (is_wp_error($homepage_scopes)) {
+        WP_CLI::error($homepage_scopes->get_error_message());
+    }
+    $homepage_scopes = array_values(array_unique(array_map('strval', $homepage_scopes)));
+    $site_id = 1 === count($homepage_scopes) && in_array($homepage_scopes[0], $site_ids, true)
+        ? $homepage_scopes[0]
+        : null;
     $homepages[] = [
         'id' => (int) $homepage_id,
         'siteId' => $site_id,
@@ -170,8 +174,35 @@ foreach ($homepage_ids as $homepage_id) {
         'publicPath' => '/',
         'schemaVersion' => (string) get_field('homepage_schema_version', $homepage_id, false),
         'seedMarker' => (string) get_post_meta((int) $homepage_id, '_tio2_seed_homepage_site_id', true),
-        'siteScopes' => null === $site_id ? [] : [$site_id],
+        'siteScopes' => $homepage_scopes,
+        'error' => (string) get_post_meta((int) $homepage_id, '_tio2_homepage_error', true),
+        'uriResolvable' => false,
+        'uriResolutionSource' => 'wpgraphql',
     ];
+}
+
+foreach (array_chunk(array_keys($homepages), 100) as $homepage_indexes) {
+    $aliases = [];
+    $alias_to_index = [];
+    foreach ($homepage_indexes as $homepage_index) {
+        $alias = 'homepage' . $homepage_index;
+        $aliases[] = $alias . ': tio2Homepage(id: ' .
+            wp_json_encode($homepages[$homepage_index]['slug']) .
+            ', idType: SLUG) { databaseId }';
+        $alias_to_index[$alias] = $homepage_index;
+    }
+    if ([] === $aliases) {
+        continue;
+    }
+    $result = graphql(['query' => 'query HomepageSeedAudit { ' . implode(' ', $aliases) . ' }']);
+    if (! empty($result['errors']) || ! isset($result['data']) || ! is_array($result['data'])) {
+        WP_CLI::error('WPGraphQL homepage audit query failed: ' . wp_json_encode($result['errors'] ?? []));
+    }
+    foreach ($alias_to_index as $alias => $homepage_index) {
+        $resolved_id = $result['data'][$alias]['databaseId'] ?? null;
+        $homepages[$homepage_index]['uriResolvable'] =
+            (int) $resolved_id === $homepages[$homepage_index]['id'];
+    }
 }
 
 $routes = $pages;
@@ -199,8 +230,8 @@ foreach ($homepages as $homepage) {
             'ownerId' => $homepage['id'],
             'slug' => $homepage['slug'],
             'siteScopes' => $homepage['siteScopes'],
-            'uriResolvable' => true,
-            'uriResolutionSource' => 'homepage-contract',
+            'uriResolvable' => $homepage['uriResolvable'],
+            'uriResolutionSource' => $homepage['uriResolutionSource'],
         ];
     }
 }

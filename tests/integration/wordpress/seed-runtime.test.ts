@@ -280,12 +280,18 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       ])
       expect(restoreScope.status, restoreScope.stderr).toBe(0)
       const restoreStatus = wp([
-        'post',
-        'update',
-        String(rootPage.id),
-        '--post_status=publish',
+        'eval',
+        `global $wpdb; $id=${rootPage.id}; $old=(string)get_post_status($id); if(false===$wpdb->update($wpdb->posts,['post_status'=>'publish'],['ID'=>$id],['%s'],['%d'])){WP_CLI::error('Exact root status restore failed.');} clean_post_cache($id); wp_transition_post_status('publish',$old,get_post($id));`,
       ])
       expect(restoreStatus.status, restoreStatus.stderr).toBe(0)
+      const restoredSlug = wp([
+        'post',
+        'get',
+        String(rootPage.id),
+        '--field=post_name',
+      ])
+      expect(restoredSlug.status, restoredSlug.stderr).toBe(0)
+      expect(restoredSlug.stdout.trim()).toBe(`${siteId}--home`)
     }
     const rolledBackSnapshot = exportSnapshot()
     expect(rolledBackSnapshot.homepages.every(({status}) => status === 'draft')).toBe(true)
@@ -381,7 +387,7 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
     expect(readSeedSummary(revivalSeed.stdout)).toMatchObject({
       entities_created: 0,
       pages_created: 0,
-      pages_updated: 1010,
+      pages_updated: 1008,
       pages_revived: 1,
       pages_duplicates_deleted: 1,
       entities_duplicates_deleted: 1,
@@ -464,7 +470,7 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
     expect(readSeedSummary(secondSeed.stdout)).toMatchObject({
       entities_created: 0,
       pages_created: 0,
-      pages_updated: 1010,
+      pages_updated: 1008,
       pages_duplicates_deleted: 0,
       entities_duplicates_deleted: 0,
     })

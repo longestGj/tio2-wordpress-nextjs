@@ -19,8 +19,10 @@ require_once __DIR__ . '/includes/webhooks.php';
 require_once __DIR__ . '/includes/preview.php';
 
 add_action('init', 'tio2_register_content_types');
+add_filter('graphql_pre_model_data_is_private', 'tio2_homepage_graphql_visibility', 10, 3);
 add_action('acf/init', 'tio2_register_acf_fields');
 add_filter('acf/validate_value/name=public_path', 'tio2_validate_public_path', 10, 4);
+add_action('acf/save_post', 'tio2_begin_homepage_acf_save', 1);
 add_action('acf/save_post', 'tio2_sync_managed_post_routing', 20);
 add_action('acf/save_post', 'tio2_enforce_homepage_from_acf', 30);
 add_action('save_post_tio2_homepage', 'tio2_enforce_homepage_contract', 100);
@@ -39,7 +41,9 @@ add_action('deleted_post_meta', 'tio2_enforce_homepage_after_meta_mutation', 20,
 add_action('set_object_terms', 'tio2_handle_site_scope_set', 10, 6);
 add_action('set_object_terms', 'tio2_enforce_homepage_after_site_scope_mutation', 20, 6);
 add_action('deleted_term_relationships', 'tio2_handle_deleted_term_relationships', 10, 3);
+add_action('deleted_term_relationships', 'tio2_enforce_homepage_after_site_scope_removal', 20, 3);
 add_action('transition_post_status', 'tio2_enforce_homepage_dependencies_after_transition', 20, 3);
+add_action('post_updated', 'tio2_enforce_homepage_dependencies_after_slug_change', 20, 3);
 add_action('deleted_post', 'tio2_enforce_homepage_dependencies_after_delete', 20, 2);
 add_action('shutdown', 'tio2_flush_webhook_queue');
 add_action('rest_api_init', 'tio2_register_preview_rest_route');
