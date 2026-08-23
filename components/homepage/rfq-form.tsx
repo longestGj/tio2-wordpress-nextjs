@@ -1,6 +1,6 @@
 'use client'
 
-import {useRef, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 
 import type {HomepageRfqDto} from '@/lib/wordpress/homepage-types'
 import styles from './homepage.module.css'
@@ -108,10 +108,16 @@ function validate(values: FormValues, rfq: HomepageRfqDto): FieldErrors {
 }
 
 export function RfqForm({rfq}: RfqFormProps) {
+  const [isHydrated, setIsHydrated] = useState(false)
   const [values, setValues] = useState<FormValues>(INITIAL_VALUES)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submittedLocally, setSubmittedLocally] = useState(false)
   const controls = useRef<Partial<Record<FieldName, HTMLElement>>>({})
+
+  useEffect(() => {
+    const hydrationTimer = window.setTimeout(() => setIsHydrated(true), 0)
+    return () => window.clearTimeout(hydrationTimer)
+  }, [])
 
   function updateText(field: TextFieldName, value: string) {
     setValues((current) => ({...current, [field]: value}))
@@ -167,7 +173,8 @@ export function RfqForm({rfq}: RfqFormProps) {
       ) : null}
 
       <form className={styles.rfqForm} noValidate onSubmit={handleSubmit}>
-        <div className={styles.formGrid}>
+        <fieldset className={styles.rfqFormFields} disabled={!isHydrated}>
+          <div className={styles.formGrid}>
           <div className={styles.field}>
             <label htmlFor="rfq-name">{rfq.labels.name}</label>
             <input
@@ -378,9 +385,10 @@ export function RfqForm({rfq}: RfqFormProps) {
             <p id="rfq-privacy-description">{rfq.privacyText}</p>
             {renderError('privacy')}
           </div>
-        </div>
+          </div>
 
-        <button type="submit">{rfq.submitLabel}</button>
+          <button type="submit">{rfq.submitLabel}</button>
+        </fieldset>
       </form>
     </div>
   )

@@ -17,6 +17,43 @@ const SUPPORTED_IMAGE_MIME_TYPES = new Set<HomepageImageDto['mimeType']>([
   'image/avif',
 ])
 const SITE_PATH_PATTERN = /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*)(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/u
+type RfqBehaviorFieldPath =
+  | 'rfq.intro'
+  | 'rfq.privacyText'
+  | 'rfq.success.heading'
+  | 'rfq.success.message'
+
+const RFQ_V01_APPROVED_COPY: Readonly<Record<RfqBehaviorFieldPath, readonly string[]>> = {
+  'rfq.intro': [
+    'This v0.1 local demo does not send or store inquiry data.',
+    'This local demo does not send or store your inquiry.',
+    'Inquiry data is not sent or stored by this local demo.',
+  ],
+  'rfq.privacyText': [
+    'This local demo does not send or save entered information.',
+    'This Site B local demo does not send or save entered information.',
+    'This local demo does not send or save the information entered.',
+    'The local demo does not send or save this information.',
+    'Entered information is not sent or saved by this local demo.',
+  ],
+  'rfq.success.heading': [
+    'Local review complete',
+    'Local check complete',
+    'Site B local check complete',
+    'Local validation complete',
+  ],
+  'rfq.success.message': [
+    'Nothing was transmitted or saved by this Site A local demo.',
+    'No Site B information was transmitted or saved by this local demo.',
+    'Nothing was sent, transmitted, or saved by this local interaction.',
+    'Nothing was transmitted or saved.',
+    'Nothing was sent, transmitted, or saved by this local demo.',
+  ],
+}
+
+function normalizeRfqEditorialCopy(value: string): string {
+  return value.trim().replace(/\s+/gu, ' ').toLowerCase()
+}
 
 type UnknownRecord = Record<string, unknown>
 
@@ -87,6 +124,26 @@ function boundedText(
     throw new HomepageContractError(fieldPath)
   }
 
+  return result
+}
+
+function rfqBehaviorText(
+  value: unknown,
+  fieldPath: RfqBehaviorFieldPath,
+  max: number,
+): string {
+  const result = boundedText(value, fieldPath, max)
+  const normalized = normalizeRfqEditorialCopy(result)
+  if (
+    !RFQ_V01_APPROVED_COPY[fieldPath].some(
+      (approved) => normalizeRfqEditorialCopy(approved) === normalized,
+    )
+  ) {
+    throw new HomepageContractError(
+      fieldPath,
+      `Unsupported homepage-v0.1 RFQ editorial copy: ${fieldPath}`,
+    )
+  }
   return result
 }
 
@@ -463,7 +520,7 @@ export function toHomepageDto(
     },
     rfq: {
       heading: boundedText(fields.rfqHeading, 'rfq.heading', 90),
-      intro: boundedText(fields.rfqIntro, 'rfq.intro', 260),
+      intro: rfqBehaviorText(fields.rfqIntro, 'rfq.intro', 260),
       labels: {
         name: boundedText(labels.rfqLabelName, 'rfq.labels.name', null),
         company: boundedText(labels.rfqLabelCompany, 'rfq.labels.company', null),
@@ -480,10 +537,10 @@ export function toHomepageDto(
         buyerOther: boundedText(labels.rfqBuyerOtherLabel, 'rfq.labels.buyerOther', null),
       },
       submitLabel: boundedText(fields.rfqSubmitLabel, 'rfq.submitLabel', 32),
-      privacyText: boundedText(fields.rfqPrivacyText, 'rfq.privacyText', 240),
+      privacyText: rfqBehaviorText(fields.rfqPrivacyText, 'rfq.privacyText', 240),
       success: {
-        heading: boundedText(fields.rfqSuccessHeading, 'rfq.success.heading', 80),
-        message: boundedText(fields.rfqSuccessMessage, 'rfq.success.message', 240),
+        heading: rfqBehaviorText(fields.rfqSuccessHeading, 'rfq.success.heading', 80),
+        message: rfqBehaviorText(fields.rfqSuccessMessage, 'rfq.success.message', 240),
       },
     },
     faq: {
@@ -499,7 +556,7 @@ export function toHomepageDto(
     seo: {
       title: boundedText(fields.seoTitle, 'seo.title', 60),
       description: boundedText(fields.seoDescription, 'seo.description', 160),
-      ogImage: imageDto(ogImageValue, ogImageAlt, 'seo.ogImage', true),
+      ogImage: imageDto(ogImageValue, ogImageAlt, 'seo.ogImage'),
       primaryTopic: boundedText(fields.primaryTopic, 'seo.primaryTopic', 80),
       secondaryTopics,
     },

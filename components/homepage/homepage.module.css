@@ -284,6 +284,15 @@
   gap: 1.5rem;
 }
 
+.rfqFormFields {
+  display: grid;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  gap: 1.5rem;
+}
+
 .formGrid {
   display: grid;
   gap: 1.15rem;

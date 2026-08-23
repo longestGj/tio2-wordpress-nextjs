@@ -278,12 +278,27 @@ describe('toHomepageDto', () => {
   })
 
   it.each([
-    ['missing', null],
-    ['HTML', '<em>Unsafe OG alt</em>'],
-  ] as const)('rejects %s OG media altText', (_label, altText) => {
+    ['empty', ''],
+    ['null', null],
+  ] as const)('accepts an optional OG image with %s GraphQL altText', (_label, altText) => {
     const node = cloneHomepage()
     Reflect.set(node.homepageFields, 'ogImage', {
       node: {...image.node, altText},
+    })
+
+    expect(toHomepageDto(node, 'tio2-a').seo.ogImage).toEqual({
+      src: image.node.mediaItemUrl,
+      alt: '',
+      width: 1200,
+      height: 800,
+      mimeType: 'image/webp',
+    })
+  })
+
+  it('rejects HTML in optional OG media altText', () => {
+    const node = cloneHomepage()
+    Reflect.set(node.homepageFields, 'ogImage', {
+      node: {...image.node, altText: '<em>Unsafe OG alt</em>'},
     })
 
     expect(() => toHomepageDto(node, 'tio2-a')).toThrowError(
@@ -293,6 +308,145 @@ describe('toHomepageDto', () => {
       }),
     )
   })
+
+  it.each([
+    [
+      'Site A',
+      {
+        intro: 'This v0.1 local demo does not send or store inquiry data.',
+        privacyText: 'This local demo does not send or save entered information.',
+        successHeading: 'Local check complete',
+        successMessage: 'Nothing was transmitted or saved by this Site A local demo.',
+      },
+    ],
+    [
+      'Site B',
+      {
+        intro: 'This v0.1 local demo does not send or store inquiry data.',
+        privacyText: 'This Site B local demo does not send or save entered information.',
+        successHeading: 'Site B local check complete',
+        successMessage: 'No Site B information was transmitted or saved by this local demo.',
+      },
+    ],
+    [
+      'coordinated denials',
+      {
+        intro: 'Inquiry data is not sent or stored by this local demo.',
+        privacyText: 'Entered information is not sent or saved by this local demo.',
+        successHeading: 'Local check complete',
+        successMessage: 'Nothing was sent, transmitted, or saved by this local demo.',
+      },
+    ],
+    [
+      'WordPress executable fixture',
+      {
+        intro: 'This v0.1 local demo does not send or store inquiry data.',
+        privacyText: 'This local demo does not send or save the information entered.',
+        successHeading: 'Local validation complete',
+        successMessage: 'Nothing was sent, transmitted, or saved by this local interaction.',
+      },
+    ],
+    [
+      'DTO mock fixture',
+      {
+        intro: 'This local demo does not send or store your inquiry.',
+        privacyText: 'The local demo does not send or save this information.',
+        successHeading: 'Local review complete',
+        successMessage: 'Nothing was transmitted or saved.',
+      },
+    ],
+  ] as const)('accepts the approved local-only RFQ behavior copy for %s', (_site, copy) => {
+    const node = cloneHomepage()
+    node.homepageFields.rfqIntro = copy.intro
+    node.homepageFields.rfqPrivacyText = copy.privacyText
+    node.homepageFields.rfqSuccessHeading = copy.successHeading
+    node.homepageFields.rfqSuccessMessage = copy.successMessage
+
+    expect(toHomepageDto(node, 'tio2-a').rfq).toMatchObject({
+      intro: copy.intro,
+      privacyText: copy.privacyText,
+      success: {
+        heading: copy.successHeading,
+        message: copy.successMessage,
+      },
+    })
+  })
+
+  it('matches approved RFQ behavior copy after case and whitespace normalization', () => {
+    const node = cloneHomepage()
+    node.homepageFields.rfqIntro =
+      '  INQUIRY  data is NOT sent or stored by this LOCAL demo.  '
+    node.homepageFields.rfqPrivacyText =
+      'ENTERED information is not sent or saved by this  local demo.'
+    node.homepageFields.rfqSuccessHeading = ' LOCAL  REVIEW complete '
+    node.homepageFields.rfqSuccessMessage =
+      'NOTHING was sent,  transmitted, or saved by this LOCAL demo.'
+
+    expect(() => toHomepageDto(node, 'tio2-a')).not.toThrow()
+  })
+
+  it.each([
+    ['rfq.intro', 'rfqIntro', 'Your inquiry was submitted and sent to our team.'],
+    ['rfq.privacyText', 'rfqPrivacyText', 'Your information will be stored, saved, and processed.'],
+    ['rfq.success.heading', 'rfqSuccessHeading', 'Inquiry received'],
+    ['rfq.success.message', 'rfqSuccessMessage', 'Your inquiry was transmitted, forwarded, and emailed.'],
+    ['rfq.intro', 'rfqIntro', 'This local demo does not send inquiry data.'],
+    ['rfq.privacyText', 'rfqPrivacyText', 'This local demo does not save entered information.'],
+    ['rfq.success.message', 'rfqSuccessMessage', 'No information was transmitted by this local demo.'],
+    ['rfq.intro', 'rfqIntro', 'Your request was not sent but was stored locally.'],
+    ['rfq.success.heading', 'rfqSuccessHeading', 'No worries, inquiry received'],
+    ['rfq.intro', 'rfqIntro', 'No issue, inquiry was sent and stored.'],
+    ['rfq.intro', 'rfqIntro', 'Inquiry was not sent, stored locally.'],
+    ['rfq.intro', 'rfqIntro', 'No issue because inquiry was sent and stored.'],
+    ['rfq.intro', 'rfqIntro', 'No issue after inquiry was sent and stored.'],
+    ['rfq.intro', 'rfqIntro', 'No issue therefore inquiry was sent and stored.'],
+    [
+      'rfq.intro',
+      'rfqIntro',
+      'Inquiry data was not sent and later it was stored by this local demo.',
+    ],
+    ['rfq.intro', 'rfqIntro', 'Inquiry data was not sent — stored locally.'],
+    ['rfq.intro', 'rfqIntro', 'No issue as inquiry was sent and stored.'],
+    ['rfq.success.heading', 'rfqSuccessHeading', 'No problem — inquiry received'],
+    [
+      'rfq.intro',
+      'rfqIntro',
+      'Inquiry data is not not sent or stored by this local demo.',
+    ],
+    [
+      'rfq.intro',
+      'rfqIntro',
+      'This v0.1 local demo does not send or store inquiry data. Inquiry accepted and logged.',
+    ],
+    ['rfq.success.heading', 'rfqSuccessHeading', 'Inquiry accepted'],
+    ['rfq.success.heading', 'rfqSuccessHeading', 'Inquiry delivered'],
+    ['rfq.success.heading', 'rfqSuccessHeading', 'Inquiry queued'],
+    ['rfq.success.heading', 'rfqSuccessHeading', 'Inquiry recorded'],
+    [
+      'rfq.intro',
+      'rfqIntro',
+      'Approved local copy: This v0.1 local demo does not send or store inquiry data.',
+    ],
+    [
+      'rfq.intro',
+      'rfqIntro',
+      'This local demo does not send or save entered information.',
+    ],
+    ['rfq.privacyText', 'rfqPrivacyText', '<strong>This demo does not send or save data.</strong>'],
+  ] as const)(
+    'rejects misleading or incomplete local-only behavior at %s',
+    (fieldPath, fieldName, copy) => {
+      const node = cloneHomepage()
+      Reflect.set(node.homepageFields, fieldName, copy)
+
+      expect(() => toHomepageDto(node, 'tio2-a')).toThrowError(
+        expect.objectContaining({
+          name: HomepageContractError.name,
+          fieldPath,
+        }),
+      )
+    },
+  )
 
   it.each([
     ['hero.heading', (node: ReturnType<typeof cloneHomepage>) => { node.homepageFields.heroHeading = '' }],

@@ -741,6 +741,12 @@ function tio2_homepage_string_length(string $value): int
     return function_exists('mb_strlen') ? mb_strlen($value) : strlen($value);
 }
 
+function tio2_homepage_normalize_rfq_editorial_copy(string $value): string
+{
+    $collapsed = preg_replace('/\s+/u', ' ', trim($value));
+    return strtolower(is_string($collapsed) ? $collapsed : trim($value));
+}
+
 /**
  * @param mixed $value
  * @return string|WP_Error
@@ -765,6 +771,61 @@ function tio2_homepage_validate_string(
         return new WP_Error('tio2_homepage_invalid_field', "Homepage field {$field_name} is too long.");
     }
     return $trimmed;
+}
+
+/**
+ * Enforce the closed homepage-v0.1 RFQ editorial contract. WordPress owns
+ * these values, but behavior copy is limited to the approved whole-string
+ * statements after case and whitespace normalization.
+ *
+ * @param mixed $value
+ * @return string|WP_Error
+ */
+function tio2_homepage_validate_rfq_behavior($value, string $field_name, int $maxlength)
+{
+    $text = tio2_homepage_validate_string($value, $field_name, true, $maxlength);
+    if (is_wp_error($text)) {
+        return $text;
+    }
+
+    $approved_copy = [
+        'rfq_intro' => [
+            'This v0.1 local demo does not send or store inquiry data.',
+            'This local demo does not send or store your inquiry.',
+            'Inquiry data is not sent or stored by this local demo.',
+        ],
+        'rfq_privacy_text' => [
+            'This local demo does not send or save entered information.',
+            'This Site B local demo does not send or save entered information.',
+            'This local demo does not send or save the information entered.',
+            'The local demo does not send or save this information.',
+            'Entered information is not sent or saved by this local demo.',
+        ],
+        'rfq_success_heading' => [
+            'Local review complete',
+            'Local check complete',
+            'Site B local check complete',
+            'Local validation complete',
+        ],
+        'rfq_success_message' => [
+            'Nothing was transmitted or saved by this Site A local demo.',
+            'No Site B information was transmitted or saved by this local demo.',
+            'Nothing was sent, transmitted, or saved by this local interaction.',
+            'Nothing was transmitted or saved.',
+            'Nothing was sent, transmitted, or saved by this local demo.',
+        ],
+    ];
+    $normalized = tio2_homepage_normalize_rfq_editorial_copy($text);
+    foreach ($approved_copy[$field_name] ?? [] as $approved) {
+        if (tio2_homepage_normalize_rfq_editorial_copy($approved) === $normalized) {
+            return $text;
+        }
+    }
+
+    return new WP_Error(
+        'tio2_homepage_invalid_field',
+        "Homepage field {$field_name} must match approved homepage-v0.1 RFQ editorial copy."
+    );
 }
 
 /**
@@ -980,6 +1041,22 @@ function tio2_validate_homepage_contract(int $post_id)
             get_field($field_name, $post_id, false),
             $field_name,
             $required,
+            $maxlength
+        );
+        if (is_wp_error($valid)) {
+            return $valid;
+        }
+    }
+
+    foreach ([
+        'rfq_intro' => 260,
+        'rfq_privacy_text' => 240,
+        'rfq_success_heading' => 80,
+        'rfq_success_message' => 240,
+    ] as $field_name => $maxlength) {
+        $valid = tio2_homepage_validate_rfq_behavior(
+            get_field($field_name, $post_id, false),
+            $field_name,
             $maxlength
         );
         if (is_wp_error($valid)) {
@@ -1304,7 +1381,11 @@ function tio2_force_homepage_slug(int $post_id)
     return true;
 }
 
-function tio2_release_duplicate_homepage_identity(int $post_id): void
+function tio2_release_homepage_identity(
+    int $post_id,
+    string $error_code,
+    string $slug_prefix
+): void
 {
     $post = get_post($post_id);
     if (! $post instanceof WP_Post || 'tio2_homepage' !== $post->post_type) {
@@ -1312,13 +1393,100 @@ function tio2_release_duplicate_homepage_identity(int $post_id): void
     }
 
     wp_set_object_terms($post_id, [], 'site_scope', false);
-    wp_update_post([
+    $post_update = [
         'ID' => $post_id,
-        'post_status' => 'draft',
-        'post_name' => 'homepage-duplicate-' . $post_id,
-    ]);
-    update_post_meta($post_id, '_tio2_homepage_error', 'tio2_homepage_duplicate');
+        'post_name' => $slug_prefix . '-' . $post_id,
+    ];
+    if (in_array($post->post_status, ['publish', 'future', 'pending', 'private'], true)) {
+        $post_update['post_status'] = 'draft';
+    }
+    wp_update_post($post_update);
+    update_post_meta($post_id, '_tio2_homepage_error', $error_code);
     clean_post_cache($post_id);
+}
+
+function tio2_release_duplicate_homepage_identity(int $post_id): void
+{
+    tio2_release_homepage_identity(
+        $post_id,
+        'tio2_homepage_duplicate',
+        'homepage-duplicate'
+    );
+}
+
+/**
+ * Reconcile only the site-owned homepage identity. Draft content may be
+ * incomplete, so field, link, and evidence validation remains a separate
+ * publish/preview boundary.
+ *
+ * @return true|WP_Error
+ */
+function tio2_reconcile_homepage_identity(int $post_id)
+{
+    if ($post_id <= 0 || ! empty($GLOBALS['tio2_reconciling_homepage_identity'])) {
+        return true;
+    }
+    $post = get_post($post_id);
+    if (
+        ! $post instanceof WP_Post ||
+        'tio2_homepage' !== $post->post_type ||
+        wp_is_post_revision($post_id) ||
+        wp_is_post_autosave($post_id)
+    ) {
+        return true;
+    }
+
+    $GLOBALS['tio2_reconciling_homepage_identity'] = true;
+    try {
+        $site_id = tio2_get_homepage_site_id($post_id);
+        if (null === $site_id) {
+            if ('tio2_homepage_duplicate' === get_post_meta($post_id, '_tio2_homepage_error', true)) {
+                return new WP_Error(
+                    'tio2_homepage_duplicate',
+                    'Another homepage already reserves this site identity.'
+                );
+            }
+            tio2_release_homepage_identity(
+                $post_id,
+                'tio2_homepage_invalid_site_scope',
+                'homepage-unassigned'
+            );
+            return new WP_Error(
+                'tio2_homepage_invalid_site_scope',
+                'Homepage must have exactly one supported site scope.'
+            );
+        }
+
+        $homepage_ids = tio2_find_homepage_ids($site_id);
+        if (count($homepage_ids) > 1) {
+            sort($homepage_ids, SORT_NUMERIC);
+            $identity_owner_id = $homepage_ids[0];
+            foreach (array_slice($homepage_ids, 1) as $duplicate_id) {
+                tio2_release_duplicate_homepage_identity($duplicate_id);
+            }
+            if ($post_id !== $identity_owner_id) {
+                return true;
+            }
+        }
+
+        $slug_result = tio2_force_homepage_slug($post_id);
+        if (is_wp_error($slug_result)) {
+            update_post_meta($post_id, '_tio2_homepage_error', $slug_result->get_error_code());
+            return $slug_result;
+        }
+
+        $stored_error = (string) get_post_meta($post_id, '_tio2_homepage_error', true);
+        if (in_array($stored_error, [
+            'tio2_homepage_invalid_site_scope',
+            'tio2_homepage_invalid_slug',
+            'tio2_homepage_duplicate',
+        ], true)) {
+            delete_post_meta($post_id, '_tio2_homepage_error');
+        }
+        return true;
+    } finally {
+        $GLOBALS['tio2_reconciling_homepage_identity'] = false;
+    }
 }
 
 /**
@@ -1400,24 +1568,10 @@ function tio2_enforce_homepage_contract(int $post_id)
 
     $GLOBALS['tio2_enforcing_homepage_contract'] = true;
     try {
-        $site_id = tio2_get_homepage_site_id($post_id);
-        if (null !== $site_id) {
-            $homepage_ids = tio2_find_homepage_ids($site_id);
-            if (count($homepage_ids) > 1) {
-                sort($homepage_ids, SORT_NUMERIC);
-                $identity_owner_id = $homepage_ids[0];
-                if ($post_id !== $identity_owner_id) {
-                    tio2_release_duplicate_homepage_identity($post_id);
-                    return true;
-                }
-                foreach (array_slice($homepage_ids, 1) as $duplicate_id) {
-                    tio2_release_duplicate_homepage_identity($duplicate_id);
-                }
-            }
-        }
-
-        $slug_result = tio2_force_homepage_slug($post_id);
-        $result = is_wp_error($slug_result) ? $slug_result : tio2_validate_homepage_contract($post_id);
+        $identity_result = tio2_reconcile_homepage_identity($post_id);
+        $result = is_wp_error($identity_result)
+            ? $identity_result
+            : tio2_validate_homepage_contract($post_id);
         if (is_wp_error($result)) {
             if (in_array(get_post_status($post_id), ['publish', 'future', 'pending', 'private'], true)) {
                 update_post_meta($post_id, '_tio2_homepage_error', $result->get_error_code());
@@ -1557,7 +1711,8 @@ function tio2_enforce_homepage_after_site_scope_removal(
     $GLOBALS['tio2_enforcing_homepage_site_scope_removal'] = true;
     try {
         if ('tio2_homepage' === $post->post_type) {
-            if (in_array($post->post_status, ['publish', 'future', 'pending', 'private'], true)) {
+            tio2_reconcile_homepage_identity($post_id);
+            if (in_array(get_post_status($post_id), ['publish', 'future', 'pending', 'private'], true)) {
                 tio2_enforce_homepage_contract($post_id);
             }
         } elseif (in_array($post->post_type, ['page', 'post'], true)) {
@@ -1589,7 +1744,8 @@ function tio2_enforce_homepage_after_site_scope_mutation(
         return;
     }
     if ('tio2_homepage' === $post->post_type) {
-        if (in_array($post->post_status, ['publish', 'future', 'pending', 'private'], true)) {
+        tio2_reconcile_homepage_identity($post_id);
+        if (in_array(get_post_status($post_id), ['publish', 'future', 'pending', 'private'], true)) {
             tio2_enforce_homepage_contract($post_id);
         }
         return;

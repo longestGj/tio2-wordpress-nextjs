@@ -19,6 +19,7 @@ $GateNames = @(
     'homepage-vitest',
     'vitest',
     'vitest-live-seed',
+    'vitest-live-homepage-migration',
     'build-tio2-a',
     'build-tio2-b',
     'launch',
@@ -57,6 +58,24 @@ if ($Plan) {
             restoreInFinally = $true
             auditAfterRestore = $true
             preservePrimaryFailure = $true
+            suites = @(
+                [ordered]@{
+                    gate = 'vitest-live-seed'
+                    test = 'tests/integration/wordpress/seed-runtime.test.ts'
+                    log = 'vitest-live-seed'
+                    restoreLog = 'seed-restore-after-live-seed'
+                    auditLog = 'seed-audit-after-live-seed'
+                    expectedPerSite = 505
+                },
+                [ordered]@{
+                    gate = 'vitest-live-homepage-migration'
+                    test = 'tests/integration/wordpress/seed-homepage-migration-runtime.test.ts'
+                    log = 'vitest-live-homepage-migration'
+                    restoreLog = 'seed-restore-after-live-homepage-migration'
+                    auditLog = 'seed-audit-after-live-homepage-migration'
+                    expectedPerSite = 505
+                }
+            )
         }
         summary = [ordered]@{
             status = 'passed'
@@ -278,6 +297,66 @@ function Invoke-Gate {
         $Timer.Stop()
         Write-GateMessage "[$Name] failed in $($Timer.ElapsedMilliseconds) ms: $($_.Exception.Message)"
         throw
+    }
+}
+
+function Invoke-LiveSeedSuite {
+    param(
+        [Parameter(Mandatory = $true)][string] $Name,
+        [Parameter(Mandatory = $true)][string] $TestPath,
+        [Parameter(Mandatory = $true)][string] $LogName,
+        [Parameter(Mandatory = $true)][string] $RestoreLogName,
+        [Parameter(Mandatory = $true)][string] $AuditLogName
+    )
+
+    Invoke-Gate -Name $Name -Action {
+        $LiveSuiteError = $null
+        $RestoreError = $null
+        try {
+            Invoke-WithEnvironment -Values @{WORDPRESS_SEED_RUNTIME = '1'} -Action {
+                Invoke-NativeLogged `
+                    -FilePath $Npx `
+                    -Arguments @('vitest', 'run', $TestPath) `
+                    -LogName $LogName
+            }
+        }
+        catch {
+            $LiveSuiteError = $_
+        }
+        finally {
+            try {
+                Invoke-NativeLogged `
+                    -FilePath $PowerShell `
+                    -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'seed-local-wordpress.ps1'), '-ScalePages', '500') `
+                    -LogName $RestoreLogName
+            }
+            catch {
+                $RestoreError = $_
+            }
+            try {
+                Invoke-NativeLogged `
+                    -FilePath $PowerShell `
+                    -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'audit-seed.ps1'), '-ExpectedPerSite', "$ExpectedPerSite") `
+                    -LogName $AuditLogName
+            }
+            catch {
+                if ($null -eq $RestoreError) {
+                    $RestoreError = $_
+                }
+                else {
+                    Write-GateMessage "$Name audit also failed after restore failure: $($_.Exception.Message)"
+                }
+            }
+        }
+        if ($null -ne $LiveSuiteError) {
+            if ($null -ne $RestoreError) {
+                Write-GateMessage "$Name restore/audit also failed: $($RestoreError.Exception.Message)"
+            }
+            throw $LiveSuiteError
+        }
+        if ($null -ne $RestoreError) {
+            throw $RestoreError
+        }
     }
 }
 
@@ -686,55 +765,19 @@ try {
         Invoke-NativeLogged -FilePath $Npm -Arguments @('test') -LogName 'vitest'
     }
 
-    Invoke-Gate -Name 'vitest-live-seed' -Action {
-        $LiveSeedError = $null
-        $RestoreError = $null
-        try {
-            Invoke-WithEnvironment -Values @{WORDPRESS_SEED_RUNTIME = '1'} -Action {
-                Invoke-NativeLogged `
-                    -FilePath $Npx `
-                    -Arguments @('vitest', 'run', 'tests/integration/wordpress/seed-runtime.test.ts') `
-                    -LogName 'vitest-live-seed'
-            }
-        }
-        catch {
-            $LiveSeedError = $_
-        }
-        finally {
-            try {
-                Invoke-NativeLogged `
-                    -FilePath $PowerShell `
-                    -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'seed-local-wordpress.ps1'), '-ScalePages', '500') `
-                    -LogName 'seed-restore-after-live'
-            }
-            catch {
-                $RestoreError = $_
-            }
-            try {
-                Invoke-NativeLogged `
-                    -FilePath $PowerShell `
-                    -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'audit-seed.ps1'), '-ExpectedPerSite', "$ExpectedPerSite") `
-                    -LogName 'seed-audit-after-live'
-            }
-            catch {
-                if ($null -eq $RestoreError) {
-                    $RestoreError = $_
-                }
-                else {
-                    Write-GateMessage "Live seed audit also failed after restore failure: $($_.Exception.Message)"
-                }
-            }
-        }
-        if ($null -ne $LiveSeedError) {
-            if ($null -ne $RestoreError) {
-                Write-GateMessage "Independent live seed restore/audit also failed: $($RestoreError.Exception.Message)"
-            }
-            throw $LiveSeedError
-        }
-        if ($null -ne $RestoreError) {
-            throw $RestoreError
-        }
-    }
+    Invoke-LiveSeedSuite `
+        -Name 'vitest-live-seed' `
+        -TestPath 'tests/integration/wordpress/seed-runtime.test.ts' `
+        -LogName 'vitest-live-seed' `
+        -RestoreLogName 'seed-restore-after-live-seed' `
+        -AuditLogName 'seed-audit-after-live-seed'
+
+    Invoke-LiveSeedSuite `
+        -Name 'vitest-live-homepage-migration' `
+        -TestPath 'tests/integration/wordpress/seed-homepage-migration-runtime.test.ts' `
+        -LogName 'vitest-live-homepage-migration' `
+        -RestoreLogName 'seed-restore-after-live-homepage-migration' `
+        -AuditLogName 'seed-audit-after-live-homepage-migration'
 
     foreach ($Site in @(
         [PSCustomObject]@{id = 'tio2-a'; dist = '.next-tio2-a'},

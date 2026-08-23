@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 
-import {cleanup, fireEvent, render, screen} from '@testing-library/react'
+import {cleanup, fireEvent, render, screen, waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import {renderToStaticMarkup} from 'react-dom/server'
 import {afterEach, describe, expect, it, vi} from 'vitest'
 
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
@@ -16,8 +17,13 @@ async function renderForm() {
   const {RfqForm} = await import('@/components/homepage/rfq-form')
   const rfq = rfqFixture()
   const user = userEvent.setup()
-  render(<RfqForm rfq={rfq} />)
-  return {rfq, user}
+  const {container} = render(<RfqForm rfq={rfq} />)
+  await waitFor(() =>
+    expect(
+      (container.querySelector('fieldset') as HTMLFieldSetElement).disabled,
+    ).toBe(false),
+  )
+  return {container, rfq, user}
 }
 
 async function completeRequiredFields(
@@ -46,6 +52,37 @@ afterEach(() => {
 })
 
 describe('RfqForm', () => {
+  it('server-renders every form control disabled before hydration', async () => {
+    const {RfqForm} = await import('@/components/homepage/rfq-form')
+    const host = document.createElement('div')
+    host.innerHTML = renderToStaticMarkup(<RfqForm rfq={rfqFixture()} />)
+
+    const fieldset = host.querySelector('fieldset')
+    expect(fieldset).not.toBeNull()
+    expect((fieldset as HTMLFieldSetElement).disabled).toBe(true)
+
+    const controls = host.querySelectorAll('input, select, textarea, button')
+    expect(controls.length).toBeGreaterThan(0)
+    for (const control of controls) {
+      expect(control.matches(':disabled')).toBe(true)
+    }
+  })
+
+  it('enables every form control after hydration', async () => {
+    const {container} = await renderForm()
+    const fieldset = container.querySelector('fieldset')
+
+    expect(fieldset).not.toBeNull()
+    await waitFor(() =>
+      expect((fieldset as HTMLFieldSetElement).disabled).toBe(false),
+    )
+    for (const control of container.querySelectorAll(
+      'input, select, textarea, button',
+    )) {
+      expect(control.matches(':disabled')).toBe(false)
+    }
+  })
+
   it('renders WordPress-managed labels, stable buyer values, and appropriate autocomplete', async () => {
     const {rfq} = await renderForm()
 

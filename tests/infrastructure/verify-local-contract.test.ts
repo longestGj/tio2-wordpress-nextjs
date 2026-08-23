@@ -35,6 +35,7 @@ describe.runIf(process.platform === 'win32')('local verification gate', () => {
         'homepage-vitest',
         'vitest',
         'vitest-live-seed',
+        'vitest-live-homepage-migration',
         'build-tio2-a',
         'build-tio2-b',
         'launch',
@@ -63,6 +64,24 @@ describe.runIf(process.platform === 'win32')('local verification gate', () => {
         restoreInFinally: true,
         auditAfterRestore: true,
         preservePrimaryFailure: true,
+        suites: [
+          {
+            gate: 'vitest-live-seed',
+            test: 'tests/integration/wordpress/seed-runtime.test.ts',
+            log: 'vitest-live-seed',
+            restoreLog: 'seed-restore-after-live-seed',
+            auditLog: 'seed-audit-after-live-seed',
+            expectedPerSite: 505,
+          },
+          {
+            gate: 'vitest-live-homepage-migration',
+            test: 'tests/integration/wordpress/seed-homepage-migration-runtime.test.ts',
+            log: 'vitest-live-homepage-migration',
+            restoreLog: 'seed-restore-after-live-homepage-migration',
+            auditLog: 'seed-audit-after-live-homepage-migration',
+            expectedPerSite: 505,
+          },
+        ],
       },
       summary: {
         status: 'passed',

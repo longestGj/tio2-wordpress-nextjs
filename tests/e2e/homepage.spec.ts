@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import {mkdirSync} from 'node:fs'
 import {resolve} from 'node:path'
-import {expect, test, type Page} from '@playwright/test'
+import {expect, test, type Browser, type Page} from '@playwright/test'
 
 const sites = [
   {
@@ -104,6 +104,106 @@ async function exerciseRfq(page: Page, expectedSuccess: string): Promise<void> {
   await expect(page.locator('#rfq-name')).toHaveValue('')
   await expect(page.locator('#rfq-privacy')).not.toBeChecked()
   expect(postLoadRequests).toEqual([])
+}
+
+async function exerciseNoJsRfqAttempt(
+  browser: Browser,
+  baseUrl: string,
+  trigger: 'Enter' | 'click',
+): Promise<void> {
+  const context = await browser.newContext({javaScriptEnabled: false})
+  const page = await context.newPage()
+  const postLoadRequests: string[] = []
+  const pii = `NO_JS_RFQ_PII_${trigger}`
+
+  try {
+    page.on('request', (request) => postLoadRequests.push(request.url()))
+    const response = await page.goto(baseUrl, {waitUntil: 'networkidle'})
+    expect(response?.status()).toBe(200)
+    postLoadRequests.length = 0
+
+    const initialUrl = page.url()
+    const initialHistoryLength = await page.evaluate(() => history.length)
+    const name = page.locator('#rfq-name')
+    const email = page.locator('#rfq-work-email')
+    const submit = page.locator('#rfq button[type="submit"]')
+
+    await name.fill(pii, {timeout: 250}).catch(() => undefined)
+    await email.fill(`${pii}@example.test`, {timeout: 250}).catch(() => undefined)
+    expect.soft(await name.inputValue()).toBe('')
+    expect.soft(await email.inputValue()).toBe('')
+    if (trigger === 'Enter') {
+      await name.press('Enter', {timeout: 250}).catch(() => undefined)
+    } else {
+      await submit.click({timeout: 250}).catch(() => undefined)
+    }
+
+    expect.soft(
+      await page.locator('#rfq form fieldset').evaluateAll(
+        (fieldsets) =>
+          fieldsets.length === 1 &&
+          (fieldsets[0] as HTMLFieldSetElement).disabled,
+      ),
+    ).toBe(true)
+    expect.soft(
+      await page
+        .locator(
+          '#rfq form input, #rfq form select, #rfq form textarea, #rfq form button',
+        )
+        .evaluateAll(
+          (controls) =>
+            controls.length > 0 &&
+            controls.every((control) => control.matches(':disabled')),
+        ),
+    ).toBe(true)
+
+    expect.soft(page.url()).toBe(initialUrl)
+    expect.soft(new URL(page.url()).search).toBe('')
+    expect.soft(await page.evaluate(() => history.length)).toBe(
+      initialHistoryLength,
+    )
+    expect.soft(
+      postLoadRequests.some((url) => decodeURIComponent(url).includes(pii)),
+    ).toBe(false)
+    expect.soft(postLoadRequests).toEqual([])
+  } finally {
+    await context.close()
+  }
+}
+
+for (const site of sites) {
+  test(`${site.id} RFQ remains inert without JavaScript`, async ({browser}) => {
+    await exerciseNoJsRfqAttempt(browser, site.baseUrl, 'Enter')
+    await exerciseNoJsRfqAttempt(browser, site.baseUrl, 'click')
+  })
+
+  test(`${site.id} RFQ restores local-only interaction after hydration`, async ({
+    page,
+  }) => {
+    const postLoadRequests: string[] = []
+    page.on('request', (request) => postLoadRequests.push(request.url()))
+    const response = await page.goto(site.baseUrl, {waitUntil: 'networkidle'})
+    expect(response?.status()).toBe(200)
+    postLoadRequests.length = 0
+    const initialUrl = page.url()
+
+    await expect(page.locator('#rfq form fieldset')).toBeEnabled()
+    await page.locator('#rfq-name').fill('Hydrated Buyer')
+    await page.locator('#rfq-company').fill('Hydrated Company')
+    await page.locator('#rfq-country-region').fill('China')
+    await page.locator('#rfq-work-email').fill('hydrated@example.test')
+    await page.locator('#rfq-buyer-type').selectOption('industrial')
+    await page.locator('#rfq-interest').fill('Rutile for coatings')
+    await page.locator('#rfq-message').fill('Hydrated local acceptance only')
+    await page.locator('#rfq-privacy').check()
+    await page.locator('#rfq button[type="submit"]').press('Enter')
+
+    await expect(page.locator('#rfq [role="status"]')).toBeVisible()
+    await expect(page.locator('#rfq-name')).toHaveValue('')
+    await expect(page.locator('#rfq-privacy')).not.toBeChecked()
+    expect(page.url()).toBe(initialUrl)
+    expect(postLoadRequests).toEqual([])
+  })
 }
 
 for (const site of sites) {

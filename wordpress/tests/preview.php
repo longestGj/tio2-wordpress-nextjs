@@ -274,6 +274,42 @@ if (
     tio2_preview_smoke_fail('Signed homepage preview did not return the structured Site A draft');
 }
 
+$duplicate_preview_title = 'Direct duplicate homepage preview owner';
+$duplicate_preview_content = 'This incomplete draft must remain recoverable without owning root preview.';
+$duplicate_preview_id = wp_insert_post([
+    'post_type' => 'tio2_homepage',
+    'post_status' => 'draft',
+    'post_title' => $duplicate_preview_title,
+    'post_content' => $duplicate_preview_content,
+], true);
+if (is_wp_error($duplicate_preview_id) || $duplicate_preview_id <= 0) {
+    tio2_preview_smoke_fail('Could not create the direct homepage preview duplicate fixture');
+}
+$duplicate_preview_id = (int) $duplicate_preview_id;
+$GLOBALS['tio2_preview_smoke_post_ids'][] = $duplicate_preview_id;
+wp_set_object_terms($duplicate_preview_id, ['tio2-a'], 'site_scope', false);
+clean_post_cache($duplicate_preview_id);
+$reconciled_homepage_response = rest_do_request($homepage_request);
+$reconciled_homepage_data = $reconciled_homepage_response->get_data();
+if (
+    [$homepage_id] !== tio2_find_homepage_ids('tio2-a') ||
+    null !== tio2_get_homepage_site_id($duplicate_preview_id) ||
+    'tio2-a--homepage' === get_post_field('post_name', $duplicate_preview_id) ||
+    'draft' !== get_post_status($duplicate_preview_id) ||
+    $duplicate_preview_title !== get_post_field('post_title', $duplicate_preview_id) ||
+    $duplicate_preview_content !== get_post_field('post_content', $duplicate_preview_id) ||
+    200 !== $reconciled_homepage_response->get_status() ||
+    ! is_array($reconciled_homepage_data) ||
+    (string) $homepage_id !== ($reconciled_homepage_data['id'] ?? null)
+) {
+    tio2_preview_smoke_fail('Direct draft site_scope mutation left ambiguous root preview ownership');
+}
+wp_delete_post($duplicate_preview_id, true);
+$GLOBALS['tio2_preview_smoke_post_ids'] = array_values(array_diff(
+    $GLOBALS['tio2_preview_smoke_post_ids'],
+    [$duplicate_preview_id]
+));
+
 $homepage_preview_link = apply_filters(
     'preview_post_link',
     'http://localhost:8080/?post_type=tio2_homepage&p=' . $homepage_id . '&preview=true',

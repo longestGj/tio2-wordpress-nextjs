@@ -724,6 +724,98 @@ $GLOBALS['tio2_homepage_test_post_ids'] = array_values(array_diff(
     [$zero_scope, $two_scopes, $unsupported_scope, $wrong_version]
 ));
 
+$direct_draft_title = 'Direct draft identity mutation';
+$direct_draft_content = 'Incomplete draft content must survive identity reconciliation.';
+$direct_draft_owner = tio2_homepage_test_insert([
+    'post_type' => 'tio2_homepage',
+    'post_status' => 'draft',
+    'post_title' => $direct_draft_title,
+    'post_content' => $direct_draft_content,
+]);
+wp_set_object_terms($direct_draft_owner, ['tio2-a'], 'site_scope', false);
+clean_post_cache($direct_draft_owner);
+tio2_homepage_test_assert(
+    'draft' === get_post_status($direct_draft_owner) &&
+        'tio2-a' === tio2_get_homepage_site_id($direct_draft_owner) &&
+        'tio2-a--homepage' === get_post_field('post_name', $direct_draft_owner) &&
+        $direct_draft_title === get_post_field('post_title', $direct_draft_owner) &&
+        $direct_draft_content === get_post_field('post_content', $direct_draft_owner),
+    'Direct draft site_scope assignment did not reconcile identity without validating incomplete fields'
+);
+
+$direct_duplicate_title = 'Direct duplicate identity mutation';
+$direct_duplicate_content = 'A later direct duplicate must remain recoverable.';
+$direct_duplicate = tio2_homepage_test_insert([
+    'post_type' => 'tio2_homepage',
+    'post_status' => 'draft',
+    'post_title' => $direct_duplicate_title,
+    'post_content' => $direct_duplicate_content,
+]);
+wp_set_object_terms($direct_duplicate, ['tio2-a'], 'site_scope', false);
+clean_post_cache($direct_draft_owner);
+clean_post_cache($direct_duplicate);
+tio2_homepage_test_assert(
+    [$direct_draft_owner] === tio2_find_homepage_ids('tio2-a') &&
+        'draft' === get_post_status($direct_duplicate) &&
+        null === tio2_get_homepage_site_id($direct_duplicate) &&
+        'tio2-a--homepage' !== get_post_field('post_name', $direct_duplicate) &&
+        $direct_duplicate_title === get_post_field('post_title', $direct_duplicate) &&
+        $direct_duplicate_content === get_post_field('post_content', $direct_duplicate) &&
+        'tio2_homepage_duplicate' === get_post_meta($direct_duplicate, '_tio2_homepage_error', true),
+    'Direct draft site_scope assignment left a duplicate homepage identity or lost authored content'
+);
+
+$direct_removed = wp_remove_object_terms($direct_draft_owner, 'tio2-a', 'site_scope');
+tio2_homepage_test_assert(! is_wp_error($direct_removed), 'Could not directly remove the draft homepage site scope');
+clean_post_cache($direct_draft_owner);
+tio2_homepage_test_assert(
+    'draft' === get_post_status($direct_draft_owner) &&
+        null === tio2_get_homepage_site_id($direct_draft_owner) &&
+        'tio2-a--homepage' !== get_post_field('post_name', $direct_draft_owner) &&
+        $direct_draft_title === get_post_field('post_title', $direct_draft_owner) &&
+        $direct_draft_content === get_post_field('post_content', $direct_draft_owner),
+    'Direct draft site_scope removal left a reserved slug or changed authored content'
+);
+
+$direct_trash_title = 'Direct trash identity mutation';
+$direct_trash_content = 'Trashed authored content must remain trashed and recoverable.';
+$direct_trash = tio2_homepage_test_insert([
+    'post_type' => 'tio2_homepage',
+    'post_status' => 'draft',
+    'post_title' => $direct_trash_title,
+    'post_content' => $direct_trash_content,
+]);
+wp_trash_post($direct_trash);
+wp_set_object_terms($direct_trash, ['tio2-b'], 'site_scope', false);
+clean_post_cache($direct_trash);
+tio2_homepage_test_assert(
+    'trash' === get_post_status($direct_trash) &&
+        'tio2-b' === tio2_get_homepage_site_id($direct_trash) &&
+        'tio2-b--homepage' === get_post_field('post_name', $direct_trash) &&
+        $direct_trash_title === get_post_field('post_title', $direct_trash) &&
+        $direct_trash_content === get_post_field('post_content', $direct_trash),
+    'Direct trash site_scope assignment did not reconcile identity without restoring or deleting the record'
+);
+$direct_trash_removed = wp_remove_object_terms($direct_trash, 'tio2-b', 'site_scope');
+tio2_homepage_test_assert(! is_wp_error($direct_trash_removed), 'Could not directly remove the trash homepage site scope');
+clean_post_cache($direct_trash);
+tio2_homepage_test_assert(
+    'trash' === get_post_status($direct_trash) &&
+        null === tio2_get_homepage_site_id($direct_trash) &&
+        'tio2-b--homepage' !== get_post_field('post_name', $direct_trash) &&
+        $direct_trash_title === get_post_field('post_title', $direct_trash) &&
+        $direct_trash_content === get_post_field('post_content', $direct_trash),
+    'Direct trash site_scope removal left a reserved slug or changed record state/content'
+);
+
+foreach ([$direct_duplicate, $direct_draft_owner, $direct_trash] as $post_id) {
+    wp_delete_post($post_id, true);
+}
+$GLOBALS['tio2_homepage_test_post_ids'] = array_values(array_diff(
+    $GLOBALS['tio2_homepage_test_post_ids'],
+    [$direct_duplicate, $direct_draft_owner, $direct_trash]
+));
+
 foreach (['draft', 'pending', 'private', 'publish', 'trash'] as $owner_status) {
     $owner = tio2_homepage_test_home('tio2-a', $routes_a);
     if ('trash' === $owner_status) {
@@ -787,11 +879,29 @@ $stale_duplicate = tio2_homepage_test_insert([
     'post_title' => 'Stale duplicate homepage',
     'post_content' => $stale_content,
 ]);
-wp_set_object_terms($stale_duplicate, ['tio2-a'], 'site_scope', false);
 tio2_homepage_test_set_valid_fields($stale_duplicate, $routes_a);
+$stale_site_term = get_term_by('slug', 'tio2-a', 'site_scope');
+tio2_homepage_test_assert($stale_site_term instanceof WP_Term, 'Missing Site A term for raw stale identity fixture');
+global $wpdb;
+$stale_relationship_inserted = $wpdb->insert(
+    $wpdb->term_relationships,
+    [
+        'object_id' => $stale_duplicate,
+        'term_taxonomy_id' => (int) $stale_site_term->term_taxonomy_id,
+        'term_order' => 0,
+    ],
+    ['%d', '%d', '%d']
+);
+tio2_homepage_test_assert(
+    1 === $stale_relationship_inserted,
+    'Could not create the explicit raw-database stale homepage identity fixture'
+);
+wp_update_term_count_now([(int) $stale_site_term->term_id], 'site_scope');
+clean_object_term_cache($stale_duplicate, 'tio2_homepage');
+clean_post_cache($stale_duplicate);
 tio2_homepage_test_assert(
     [$stale_owner, $stale_duplicate] === tio2_find_homepage_ids('tio2-a'),
-    'Stale duplicate fixture did not retain both claimed identities before reconciliation'
+    'Raw-database stale duplicate fixture did not retain both claimed identities before reconciliation'
 );
 wp_update_post(['ID' => $stale_owner, 'post_title' => 'Saved original stale owner']);
 clean_post_cache($stale_owner);
@@ -864,6 +974,90 @@ tio2_homepage_test_update_field(
     'Find the right titanium dioxide supply route',
     $validation_home
 );
+
+tio2_homepage_test_assert(
+    true === tio2_validate_homepage_contract($validation_home),
+    'Approved Site A local-only RFQ behavior copy was rejected'
+);
+$site_b_rfq_behavior_copy = [
+    'field_tio2_home_rfq_intro' => 'This v0.1 local demo does not send or store inquiry data.',
+    'field_tio2_home_rfq_privacy_text' => 'This Site B local demo does not send or save entered information.',
+    'field_tio2_home_rfq_success_heading' => 'Site B local check complete',
+    'field_tio2_home_rfq_success_message' => 'No Site B information was transmitted or saved by this local demo.',
+];
+foreach ($site_b_rfq_behavior_copy as $field_key => $copy) {
+    tio2_homepage_test_update_field($field_key, $copy, $validation_home);
+}
+tio2_homepage_test_assert(
+    true === tio2_validate_homepage_contract($validation_home),
+    'Approved Site B local-only RFQ behavior copy was rejected'
+);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+
+$normalized_rfq_behavior_copy = [
+    'field_tio2_home_rfq_intro' => 'INQUIRY  data is NOT sent or stored by this LOCAL demo.',
+    'field_tio2_home_rfq_privacy_text' => 'ENTERED information is not sent or saved by this  local demo.',
+    'field_tio2_home_rfq_success_heading' => 'LOCAL  REVIEW complete',
+    'field_tio2_home_rfq_success_message' => 'NOTHING was sent,  transmitted, or saved by this LOCAL demo.',
+];
+foreach ($normalized_rfq_behavior_copy as $field_key => $copy) {
+    tio2_homepage_test_update_field($field_key, $copy, $validation_home);
+}
+tio2_homepage_test_assert(
+    true === tio2_validate_homepage_contract($validation_home),
+    'Approved RFQ behavior copy was rejected after case/whitespace normalization'
+);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+
+$misleading_rfq_behavior_copy = [
+    ['field_tio2_home_rfq_intro', 'Your inquiry was submitted and sent to our team.'],
+    ['field_tio2_home_rfq_privacy_text', 'Your information will be stored, saved, and processed.'],
+    ['field_tio2_home_rfq_success_heading', 'Inquiry received'],
+    ['field_tio2_home_rfq_success_message', 'Your inquiry was transmitted, forwarded, and emailed.'],
+    ['field_tio2_home_rfq_intro', 'This local demo does not send inquiry data.'],
+    ['field_tio2_home_rfq_privacy_text', 'This local demo does not save entered information.'],
+    ['field_tio2_home_rfq_success_message', 'No information was transmitted by this local demo.'],
+    ['field_tio2_home_rfq_intro', 'Your request was not sent but was stored locally.'],
+    ['field_tio2_home_rfq_success_heading', 'No worries, inquiry received'],
+    ['field_tio2_home_rfq_intro', 'No issue, inquiry was sent and stored.'],
+    ['field_tio2_home_rfq_intro', 'Inquiry was not sent, stored locally.'],
+    ['field_tio2_home_rfq_intro', 'No issue because inquiry was sent and stored.'],
+    ['field_tio2_home_rfq_intro', 'No issue after inquiry was sent and stored.'],
+    ['field_tio2_home_rfq_intro', 'No issue therefore inquiry was sent and stored.'],
+    [
+        'field_tio2_home_rfq_intro',
+        'Inquiry data was not sent and later it was stored by this local demo.',
+    ],
+    ['field_tio2_home_rfq_intro', 'Inquiry data was not sent — stored locally.'],
+    ['field_tio2_home_rfq_intro', 'No issue as inquiry was sent and stored.'],
+    ['field_tio2_home_rfq_success_heading', 'No problem — inquiry received'],
+    ['field_tio2_home_rfq_intro', 'Inquiry data is not not sent or stored by this local demo.'],
+    [
+        'field_tio2_home_rfq_intro',
+        'This v0.1 local demo does not send or store inquiry data. Inquiry accepted and logged.',
+    ],
+    ['field_tio2_home_rfq_success_heading', 'Inquiry accepted'],
+    ['field_tio2_home_rfq_success_heading', 'Inquiry delivered'],
+    ['field_tio2_home_rfq_success_heading', 'Inquiry queued'],
+    ['field_tio2_home_rfq_success_heading', 'Inquiry recorded'],
+    [
+        'field_tio2_home_rfq_intro',
+        'Approved local copy: This v0.1 local demo does not send or store inquiry data.',
+    ],
+    [
+        'field_tio2_home_rfq_intro',
+        'This local demo does not send or save entered information.',
+    ],
+    ['field_tio2_home_rfq_privacy_text', '<strong>This demo does not send or save data.</strong>'],
+];
+foreach ($misleading_rfq_behavior_copy as [$field_key, $copy]) {
+    tio2_homepage_test_update_field($field_key, $copy, $validation_home);
+    tio2_homepage_test_assert_invalid(
+        $validation_home,
+        "Misleading or incomplete RFQ behavior copy was accepted for {$field_key}"
+    );
+    tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+}
 
 $metric_rows = [];
 for ($index = 0; $index < 5; $index++) {
