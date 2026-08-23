@@ -1321,35 +1321,72 @@ function tio2_release_duplicate_homepage_identity(int $post_id): void
     clean_post_cache($post_id);
 }
 
-function tio2_set_homepage_status_exact(int $post_id, string $post_status): void
+/**
+ * @return true|WP_Error
+ */
+function tio2_set_homepage_status_exact(int $post_id, string $post_status)
 {
     global $wpdb;
 
     $previous_status = (string) get_post_status($post_id);
     if ($previous_status === $post_status) {
-        return;
+        return true;
     }
-    $updated = $wpdb->update(
-        $wpdb->posts,
-        ['post_status' => $post_status],
-        ['ID' => $post_id],
-        ['%s'],
-        ['%d']
+    $force_failure = (bool) apply_filters(
+        'tio2_homepage_force_status_update_failure',
+        false,
+        $post_id,
+        $post_status
     );
+    $updated = $force_failure
+        ? false
+        : $wpdb->update(
+            $wpdb->posts,
+            ['post_status' => $post_status],
+            ['ID' => $post_id],
+            ['%s'],
+            ['%d']
+        );
+    $primary_failed = false === $updated;
     if (false === $updated) {
-        return;
+        $compensated = $wpdb->query($wpdb->prepare(
+            "UPDATE {$wpdb->posts} SET post_status = %s WHERE ID = %d",
+            $post_status,
+            $post_id
+        ));
+        if (false === $compensated) {
+            clean_post_cache($post_id);
+            return new WP_Error(
+                'tio2_homepage_status_write_failed',
+                'Homepage status update and exact compensation both failed.'
+            );
+        }
     }
     clean_post_cache($post_id);
     $post = get_post($post_id);
-    if ($post instanceof WP_Post) {
-        wp_transition_post_status($post_status, $previous_status, $post);
+    if (! $post instanceof WP_Post || $post_status !== $post->post_status) {
+        return new WP_Error(
+            'tio2_homepage_status_write_failed',
+            'Homepage status update did not persist the required final status.'
+        );
     }
+    wp_transition_post_status($post_status, $previous_status, $post);
+
+    return $primary_failed
+        ? new WP_Error(
+            'tio2_homepage_status_write_failed',
+            'Homepage primary status update failed; exact compensation was applied.'
+        )
+        : true;
 }
 
-function tio2_enforce_homepage_contract(int $post_id): void
+/**
+ * @return true|WP_Error
+ */
+function tio2_enforce_homepage_contract(int $post_id)
 {
     if ($post_id <= 0 || ! empty($GLOBALS['tio2_enforcing_homepage_contract'])) {
-        return;
+        return true;
     }
     $post = get_post($post_id);
     if (
@@ -1358,7 +1395,7 @@ function tio2_enforce_homepage_contract(int $post_id): void
         wp_is_post_revision($post_id) ||
         wp_is_post_autosave($post_id)
     ) {
-        return;
+        return true;
     }
 
     $GLOBALS['tio2_enforcing_homepage_contract'] = true;
@@ -1371,7 +1408,7 @@ function tio2_enforce_homepage_contract(int $post_id): void
                 $identity_owner_id = $homepage_ids[0];
                 if ($post_id !== $identity_owner_id) {
                     tio2_release_duplicate_homepage_identity($post_id);
-                    return;
+                    return true;
                 }
                 foreach (array_slice($homepage_ids, 1) as $duplicate_id) {
                     tio2_release_duplicate_homepage_identity($duplicate_id);
@@ -1384,11 +1421,22 @@ function tio2_enforce_homepage_contract(int $post_id): void
         if (is_wp_error($result)) {
             if (in_array(get_post_status($post_id), ['publish', 'future', 'pending', 'private'], true)) {
                 update_post_meta($post_id, '_tio2_homepage_error', $result->get_error_code());
-                tio2_set_homepage_status_exact($post_id, 'draft');
+                $status_result = tio2_set_homepage_status_exact($post_id, 'draft');
+                clean_post_cache($post_id);
+                if (is_wp_error($status_result)) {
+                    return $status_result;
+                }
+                if ('draft' !== get_post_status($post_id)) {
+                    return new WP_Error(
+                        'tio2_homepage_status_write_failed',
+                        'Homepage enforcement could not verify the required draft status.'
+                    );
+                }
             }
-            return;
+            return $result;
         }
         delete_post_meta($post_id, '_tio2_homepage_error');
+        return true;
     } finally {
         $GLOBALS['tio2_enforcing_homepage_contract'] = false;
     }

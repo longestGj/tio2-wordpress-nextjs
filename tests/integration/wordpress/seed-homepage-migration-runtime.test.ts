@@ -96,6 +96,31 @@ foreach(['tio2-a','tio2-b'] as $site_id){
   expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
 }
 
+function setRootRollbackMetadata(
+  siteId: 'tio2-a' | 'tio2-b',
+  previousStatus: string | null,
+  previousScopes: string | null,
+) {
+  const statusMutation = previousStatus === null
+    ? "delete_post_meta($id,'_tio2_previous_root_status');"
+    : `update_post_meta($id,'_tio2_previous_root_status',${JSON.stringify(previousStatus)});`
+  const scopeMutation = previousScopes === null
+    ? "delete_post_meta($id,'_tio2_previous_root_site_scope');"
+    : `update_post_meta($id,'_tio2_previous_root_site_scope',${JSON.stringify(previousScopes)});`
+  const result = wp(['eval', `
+$ids=get_posts(['post_type'=>'page','post_status'=>['publish','draft'],'posts_per_page'=>-1,'fields'=>'ids','meta_key'=>'_tio2_seed_internal_slug','meta_value'=>'${siteId}--home']);
+if(count($ids)!==1){WP_CLI::error('Missing unique root metadata fixture for ${siteId}.');}
+$id=(int)$ids[0]; ${statusMutation} ${scopeMutation} clean_post_cache($id); echo $id;
+`])
+  expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+}
+
+function restoreExactRootRollbackMetadata() {
+  for (const siteId of ['tio2-a', 'tio2-b'] as const) {
+    setRootRollbackMetadata(siteId, 'publish', JSON.stringify([siteId]))
+  }
+}
+
 describe.runIf(runLiveWordPress)('homepage seed migration transaction', () => {
   afterAll(() => {
     for (const id of [...fixtureIds]) {
@@ -106,6 +131,47 @@ describe.runIf(runLiveWordPress)('homepage seed migration transaction', () => {
 
   it('restores exact managed state for failures before and after root release', () => {
     prepareRootMigrationState()
+    restoreExactRootRollbackMetadata()
+
+    for (const invalidMetadata of [
+      {name: 'partial', previousStatus: 'publish', previousScopes: null},
+      {name: 'stale', previousStatus: 'draft', previousScopes: JSON.stringify(['tio2-a'])},
+      {name: 'cross-site', previousStatus: 'publish', previousScopes: JSON.stringify(['tio2-b'])},
+    ]) {
+      prepareRootMigrationState()
+      setRootRollbackMetadata('tio2-a', invalidMetadata.previousStatus, invalidMetadata.previousScopes)
+      const before = snapshotManagedState()
+      try {
+        const failed = powershell(seedScript, ['-ScalePages', '500'])
+        expect(failed.status).not.toBe(0)
+        expect(`${failed.stdout}\n${failed.stderr}`).toContain('Root preflight rejected rollback metadata')
+        expect(snapshotManagedState()).toEqual(before)
+      } finally {
+        restoreExactRootRollbackMetadata()
+        prepareRootMigrationState()
+      }
+    }
+
+    setRootRollbackMetadata('tio2-a', null, null)
+    setRootRollbackMetadata('tio2-b', null, null)
+    const emptyMetadataState = snapshotManagedState()
+    try {
+      const failedReadback = powershell(seedScript, [
+        '-ScalePages',
+        '500',
+        '-FailurePoint',
+        'root-metadata-readback-failure',
+      ])
+      expect(failedReadback.status).not.toBe(0)
+      expect(`${failedReadback.stdout}\n${failedReadback.stderr}`).toContain(
+        'Root rollback metadata read-back rejected',
+      )
+      expect(snapshotManagedState()).toEqual(emptyMetadataState)
+    } finally {
+      restoreExactRootRollbackMetadata()
+      prepareRootMigrationState()
+    }
+
     for (const failurePoint of ['before-homepage-write', 'after-root-release']) {
       const before = snapshotManagedState()
       const failed = powershell(seedScript, [
@@ -228,8 +294,6 @@ echo $id;
       publicPath: '/test-content/long-tail-1',
       siteScopes: ['tio2-a'],
     })
-    deleteFixture(faultyUnpaddedId)
-
     for (const failurePoint of ['begin-failure', 'commit-failure']) {
       const before = snapshotManagedState()
       const failed = powershell(seedScript, [
@@ -247,6 +311,7 @@ echo $id;
         )
       }
     }
+    deleteFixture(faultyUnpaddedId)
 
     const invalidHomepageFixtures = [
       String.raw`

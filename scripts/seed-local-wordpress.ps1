@@ -3,7 +3,7 @@ param(
     [ValidateRange(0, 10000)]
     [int] $ScalePages = 0,
     [switch] $PlanOnly,
-    [ValidateSet('', 'begin-failure', 'before-homepage-write', 'after-root-release', 'commit-failure')]
+    [ValidateSet('', 'begin-failure', 'before-homepage-write', 'root-metadata-readback-failure', 'after-root-release', 'commit-failure')]
     [string] $FailurePoint = ''
 )
 

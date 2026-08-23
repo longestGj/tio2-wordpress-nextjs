@@ -508,12 +508,22 @@ try {
         }
         $root_scopes = array_values(array_unique(array_map('strval', $root_scopes)));
         sort($root_scopes, SORT_STRING);
+        $rollback_status = (string) get_post_meta($root_page_id, '_tio2_previous_root_status', true);
+        $rollback_scopes_json = (string) get_post_meta($root_page_id, '_tio2_previous_root_site_scope', true);
+        $rollback_scopes = '' === $rollback_scopes_json ? null : json_decode($rollback_scopes_json, true);
+        $rollback_metadata_empty = '' === $rollback_status && '' === $rollback_scopes_json;
+        $rollback_metadata_exact = 'publish' === $rollback_status && $rollback_scopes === [$site_id];
+        if (! $rollback_metadata_empty && ! $rollback_metadata_exact) {
+            tio2_seed_abort("Root preflight rejected rollback metadata at post {$root_page_id}.");
+        }
         $root_snapshots_by_site[$site_id] = [
             'post_id' => $root_page_id,
             'status' => (string) get_post_status($root_page_id),
             'slug' => (string) get_post_field('post_name', $root_page_id),
             'public_path' => (string) get_post_meta($root_page_id, 'public_path', true),
             'site_scopes' => array_values($root_scopes),
+            'rollback_metadata_empty' => $rollback_metadata_empty,
+            'rollback_metadata_exact' => $rollback_metadata_exact,
         ];
     }
 
@@ -538,15 +548,13 @@ try {
         }
         $root_scopes = array_values(array_unique(array_map('strval', $root_scopes)));
         sort($root_scopes, SORT_STRING);
-        $previous_scopes = json_decode(
-            (string) get_post_meta($root_candidate_id, '_tio2_previous_root_site_scope', true),
-            true
-        );
-        $is_live_root = 'publish' === get_post_status($root_candidate_id) && $root_scopes === [$site_id];
+        $root_snapshot = $root_snapshots_by_site[$site_id];
+        $is_live_root = 'publish' === get_post_status($root_candidate_id) &&
+            $root_scopes === [$site_id] &&
+            (! empty($root_snapshot['rollback_metadata_empty']) || ! empty($root_snapshot['rollback_metadata_exact']));
         $is_migrated_backup = 'draft' === get_post_status($root_candidate_id) &&
             [] === $root_scopes &&
-            'publish' === (string) get_post_meta($root_candidate_id, '_tio2_previous_root_status', true) &&
-            $previous_scopes === [$site_id];
+            ! empty($root_snapshot['rollback_metadata_exact']);
         if (
             'page' !== get_post_type($root_candidate_id) ||
             (string) get_post_field('post_name', $root_candidate_id) !== $root_identity ||
@@ -721,15 +729,28 @@ try {
             }
             $previous_status = (string) $root_snapshot['status'];
             $previous_scopes = (array) $root_snapshot['site_scopes'];
-            if ('' === (string) get_post_meta($root_page_id, '_tio2_previous_root_status', true)) {
+            if (! empty($root_snapshot['rollback_metadata_empty'])) {
                 update_post_meta($root_page_id, '_tio2_previous_root_status', $previous_status);
-            }
-            if ('' === (string) get_post_meta($root_page_id, '_tio2_previous_root_site_scope', true)) {
                 update_post_meta(
                     $root_page_id,
                     '_tio2_previous_root_site_scope',
                     wp_json_encode(array_values($previous_scopes))
                 );
+            }
+            $recorded_previous_status = (string) get_post_meta(
+                $root_page_id,
+                '_tio2_previous_root_status',
+                true
+            );
+            $recorded_previous_scopes = json_decode(
+                (string) get_post_meta($root_page_id, '_tio2_previous_root_site_scope', true),
+                true
+            );
+            if ('root-metadata-readback-failure' === ($plan['failurePoint'] ?? '') && 'tio2-a' === $site_id) {
+                $recorded_previous_status = 'injected-readback-failure';
+            }
+            if ('publish' !== $recorded_previous_status || $recorded_previous_scopes !== [$site_id]) {
+                throw new RuntimeException("Root rollback metadata read-back rejected at post {$root_page_id}.");
             }
             tio2_seed_update_post_status_exact($root_page_id, 'draft');
             $released = wp_set_object_terms($root_page_id, [], 'site_scope', false);

@@ -1088,6 +1088,67 @@ tio2_homepage_test_assert(
     'ACF multi-field lifecycle enforced an invalid intermediate state before the final valid boundary'
 );
 
+$status_failure_slug = (string) get_post_field('post_name', $valid_a);
+$status_failure_content = (string) get_post_field('post_content', $valid_a);
+global $wpdb;
+$wpdb->update(
+    $wpdb->postmeta,
+    ['meta_value' => '<em>Injected invalid homepage heading</em>'],
+    ['post_id' => $valid_a, 'meta_key' => 'hero_heading'],
+    ['%s'],
+    ['%d', '%s']
+);
+if (function_exists('acf_flush_value_cache')) {
+    acf_flush_value_cache($valid_a, 'hero_heading');
+}
+$inject_status_failure = static fn ($force_failure, $post_id, $post_status): bool =>
+    (int) $post_id === $valid_a && 'draft' === $post_status ? true : (bool) $force_failure;
+add_filter('tio2_homepage_force_status_update_failure', $inject_status_failure, 10, 3);
+$status_failure_result = tio2_enforce_homepage_contract($valid_a);
+remove_filter('tio2_homepage_force_status_update_failure', $inject_status_failure, 10);
+clean_post_cache($valid_a);
+tio2_homepage_test_assert(
+    is_wp_error($status_failure_result) &&
+        'tio2_homepage_status_write_failed' === $status_failure_result->get_error_code(),
+    'Homepage status write failure was not propagated to the enforcement caller'
+);
+tio2_homepage_test_assert(
+    'draft' === get_post_status($valid_a),
+    'Homepage status write failure left an invalid homepage published'
+);
+tio2_homepage_test_assert(
+    $status_failure_slug === get_post_field('post_name', $valid_a) &&
+        $status_failure_content === get_post_field('post_content', $valid_a),
+    'Homepage status write compensation changed slug or content'
+);
+global $wpdb;
+$wpdb->update(
+    $wpdb->posts,
+    ['post_status' => 'publish'],
+    ['ID' => $valid_a],
+    ['%s'],
+    ['%d']
+);
+clean_post_cache($valid_a);
+$invalid_published_graphql = $homepage_graphql_query('tio2-a--homepage');
+tio2_homepage_test_assert(
+    null === ($invalid_published_graphql['data']['homepage'] ?? null),
+    'Public GraphQL exposed an invalid homepage after the status error boundary'
+);
+tio2_homepage_test_set_valid_fields($valid_a, $routes_a);
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+$normal_status_slug = (string) get_post_field('post_name', $valid_a);
+$normal_status_content = (string) get_post_field('post_content', $valid_a);
+$normal_status_result = tio2_set_homepage_status_exact($valid_a, 'draft');
+tio2_homepage_test_assert(true === $normal_status_result, 'Normal exact homepage status update did not report success');
+tio2_homepage_test_assert(
+    'draft' === get_post_status($valid_a) &&
+        $normal_status_slug === get_post_field('post_name', $valid_a) &&
+        $normal_status_content === get_post_field('post_content', $valid_a),
+    'Normal exact homepage status update changed identity or content'
+);
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+
 update_post_meta($valid_a, 'hero_heading', '<em>Direct meta HTML</em>');
 clean_post_cache($valid_a);
 tio2_homepage_test_assert(

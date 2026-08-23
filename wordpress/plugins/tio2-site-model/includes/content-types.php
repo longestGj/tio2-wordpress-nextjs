@@ -120,6 +120,12 @@ function tio2_homepage_graphql_visibility($is_private, string $model_name, $data
         'tio2_homepage' === $data->post_type &&
         'publish' === $data->post_status
     ) {
+        if (function_exists('tio2_validate_homepage_contract')) {
+            $validation = tio2_validate_homepage_contract((int) $data->ID);
+            if (is_wp_error($validation)) {
+                return true;
+            }
+        }
         return false;
     }
 

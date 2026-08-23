@@ -152,6 +152,7 @@ describe('seed execution plan', () => {
     for (const failurePoint of [
       'begin-failure',
       'before-homepage-write',
+      'root-metadata-readback-failure',
       'after-root-release',
       'commit-failure',
     ]) {
