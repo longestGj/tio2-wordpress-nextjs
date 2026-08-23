@@ -7,6 +7,16 @@ describe('site registry', () => {
     expect(getSiteConfig(id).id).toBe(id)
   })
 
+  it.each([
+    ['tio2-a', 'https://tio2products.com', 'contact@tio2products.com'],
+    ['tio2-b', 'https://tio2hub.com', 'contact@tio2hub.com'],
+  ])('maps %s to its approved production origin', (id, url, contactEmail) => {
+    const site = getSiteConfig(id)
+
+    expect(site.url).toBe(url)
+    expect(site.contactEmail).toBe(contactEmail)
+  })
+
   it('rejects an unknown site', () => {
     expect(() => getSiteConfig('unknown')).toThrow('Unknown SITE_ID: unknown')
   })

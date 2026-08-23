@@ -368,7 +368,7 @@ function Assert-PageAudit {
         throw "$($Site.siteId) $Path leaked opposite-site branding."
     }
     if ($Html.IndexOf($Site.oppositeDomain, [System.StringComparison]::Ordinal) -ge 0) {
-        throw "$($Site.siteId) $Path leaked the opposite placeholder domain."
+        throw "$($Site.siteId) $Path leaked the opposite approved domain."
     }
     $EscapedCanonical = [regex]::Escape($Canonical)
     if ($Html -notmatch "<link rel=`"canonical`" href=`"$EscapedCanonical`"") {
@@ -404,12 +404,12 @@ function Assert-PageAudit {
 function Invoke-HttpAudit {
     $Sites = @(
         [PSCustomObject]@{
-            siteId = 'tio2-a'; baseUrl = 'http://localhost:3001'; domain = 'https://tio2-a.example.com'
-            oppositeDomain = 'https://tio2-b.example.com'; name = 'TiO2 A'; oppositeName = 'TiO2 B'
+            siteId = 'tio2-a'; baseUrl = 'http://localhost:3001'; domain = 'https://tio2products.com'
+            oppositeDomain = 'https://tio2hub.com'; name = 'TiO2 A'; oppositeName = 'TiO2 B'
         },
         [PSCustomObject]@{
-            siteId = 'tio2-b'; baseUrl = 'http://localhost:3002'; domain = 'https://tio2-b.example.com'
-            oppositeDomain = 'https://tio2-a.example.com'; name = 'TiO2 B'; oppositeName = 'TiO2 A'
+            siteId = 'tio2-b'; baseUrl = 'http://localhost:3002'; domain = 'https://tio2hub.com'
+            oppositeDomain = 'https://tio2products.com'; name = 'TiO2 B'; oppositeName = 'TiO2 A'
         }
     )
 

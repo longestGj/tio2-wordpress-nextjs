@@ -6,7 +6,7 @@ This repository is a local-only integration environment for one WordPress CMS an
 - Site B: `http://localhost:3002` (`SITE_ID=tio2-b`, `.next-tio2-b`)
 - WordPress: `http://127.0.0.1:8080` (loopback only)
 
-GitHub, Vercel, real domains, production deployment, and Search Console work are intentionally paused. The checked-in `tio2-a.example.com` and `tio2-b.example.com` origins are placeholders used to prove canonical, sitemap, robots, and JSON-LD isolation; they are not contacted by local tests.
+The verified code is backed up in a private GitHub repository. Vercel, DNS changes, production deployment, and Search Console work remain paused. The approved origins are `tio2products.com` for Site A and `tio2hub.com` for Site B; local tests use them only for canonical, sitemap, robots, and JSON-LD assertions and never contact the public domains.
 
 ## Requirements
 
@@ -53,7 +53,7 @@ The gate is fail-fast and requires a completely clean Git worktree at both the s
 
 Verification always stops only the two Node processes it started, including after a failed test or a bounded startup timeout. The controller writes recoverable process state after every launch and accepts cooperative cancellation. PID, executable path, process start time, Next CLI path, and port arguments are validated immediately before stopping through the retained process handle. It never kills a process merely by name or port.
 
-Local output is deliberately `noindex,nofollow`, and local `robots.txt` uses `Disallow: /`. This protects local and preview evidence even though canonical and sitemap URLs use the current placeholder domain. A signed preview link creates only an HttpOnly, same-site, expiring session for its exact site and public path; it cannot authorize a second draft path and stops authorizing when the link expiry is reached. Published requests continue through the normal published GraphQL path.
+Local output is deliberately `noindex,nofollow`, and local `robots.txt` uses `Disallow: /`. This protects local and preview evidence even though canonical and sitemap URLs use the approved production domains. A signed preview link creates only an HttpOnly, same-site, expiring session for its exact site and public path; it cannot authorize a second draft path and stops authorizing when the link expiry is reached. Published requests continue through the normal published GraphQL path.
 
 ## Keep both sites running for browser review
 

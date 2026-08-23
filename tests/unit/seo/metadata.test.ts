@@ -27,8 +27,8 @@ function page(overrides: Partial<ContentPageDto> = {}): ContentPageDto {
 
 describe('page metadata', () => {
   it.each([
-    ['tio2-a', 'https://tio2-a.example.com/applications/coatings'],
-    ['tio2-b', 'https://tio2-b.example.com/applications/coatings'],
+    ['tio2-a', 'https://tio2products.com/applications/coatings'],
+    ['tio2-b', 'https://tio2hub.com/applications/coatings'],
   ] as const)(
     'keeps the same path canonical isolated to %s',
     (siteId, canonical) => {

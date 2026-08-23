@@ -8,17 +8,17 @@ const sites = [
   {
     id: 'tio2-a',
     baseUrl: 'http://localhost:3001',
-    domain: 'https://tio2-a.example.com',
+    domain: 'https://tio2products.com',
     name: 'TiO2 A',
-    oppositeDomain: 'https://tio2-b.example.com',
+    oppositeDomain: 'https://tio2hub.com',
     oppositeName: 'TiO2 B',
   },
   {
     id: 'tio2-b',
     baseUrl: 'http://localhost:3002',
-    domain: 'https://tio2-b.example.com',
+    domain: 'https://tio2hub.com',
     name: 'TiO2 B',
-    oppositeDomain: 'https://tio2-a.example.com',
+    oppositeDomain: 'https://tio2products.com',
     oppositeName: 'TiO2 A',
   },
 ] as const

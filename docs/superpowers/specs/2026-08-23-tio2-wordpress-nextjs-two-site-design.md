@@ -23,6 +23,7 @@
 5. WordPress 是发布内容的权威源；GitHub 是代码、Schema、站点配置和部署定义的权威源；Vercel 只承载运行状态。
 6. 页面规模采用“核心页预生成 + 长尾页按需 ISR + 精准刷新”，不在每次提交时全量重建所有页面。
 7. GraphQL 生成类型提交到 Git；只有 WordPress Schema 变化时才重新生成，普通 Vercel 构建不依赖在线 Schema introspection。
+8. 用户于 2026-08-23 批准首批正式域名映射：`tio2-a` 使用 `https://tio2products.com`，`tio2-b` 使用 `https://tio2hub.com`；`globaltio2.com` 保留且不在首批上线范围内。
 
 ## 3. 不在 v0.1 范围内
 
@@ -46,7 +47,7 @@
                    │                             │
            Vercel Project A              Vercel Project B
            SITE_ID=tio2-a                SITE_ID=tio2-b
-           Domain A                      Domain B
+           tio2products.com              tio2hub.com
                    │                             │
                    └──────────────┬──────────────┘
                                   │

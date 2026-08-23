@@ -97,8 +97,8 @@ afterEach(() => {
 
 describe('robots output', () => {
   it.each([
-    ['tio2-a', 'https://tio2-a.example.com'],
-    ['tio2-b', 'https://tio2-b.example.com'],
+    ['tio2-a', 'https://tio2products.com'],
+    ['tio2-b', 'https://tio2hub.com'],
   ] as const)('uses %s host and sitemap only', (siteId, origin) => {
     expect(
       buildRobots(getSiteConfig(siteId), {VERCEL_ENV: 'production'}),
@@ -160,11 +160,11 @@ describe('cursor-paginated sitemap through GraphQL', () => {
     ])
     expect(sitemap).toHaveLength(505)
     expect(sitemap[0]).toEqual({
-      url: 'https://tio2-a.example.com/',
+      url: 'https://tio2products.com/',
       lastModified: new Date('2026-08-23T08:30:00.000Z'),
     })
     expect(sitemap[504]?.url).toBe(
-      'https://tio2-a.example.com/resources/page-504',
+      'https://tio2products.com/resources/page-504',
     )
   })
 
@@ -202,11 +202,11 @@ describe('cursor-paginated sitemap through GraphQL', () => {
 
     await expect(buildSitemap(getSiteConfig('tio2-a'))).resolves.toEqual([
       {
-        url: 'https://tio2-a.example.com/',
+        url: 'https://tio2products.com/',
         lastModified: new Date('2026-08-23T08:30:00.000Z'),
       },
       {
-        url: 'https://tio2-a.example.com/resources/page-4',
+        url: 'https://tio2products.com/resources/page-4',
         lastModified: new Date('2026-08-23T08:30:00.000Z'),
       },
     ])
@@ -252,7 +252,7 @@ describe('cursor-paginated sitemap through GraphQL', () => {
 
     await expect(buildSitemap(getSiteConfig('tio2-a'))).resolves.toEqual([
       {
-        url: 'https://tio2-a.example.com/resources/page-1',
+        url: 'https://tio2products.com/resources/page-1',
         lastModified: new Date('2026-08-23T08:30:00.000Z'),
       },
     ])
@@ -302,8 +302,8 @@ describe('cursor-paginated sitemap through GraphQL', () => {
     const sitemap = await buildSitemap(getSiteConfig('tio2-a'))
 
     expect(sitemap).toEqual([
-      {url: 'https://tio2-a.example.com/resources/page-1'},
-      {url: 'https://tio2-a.example.com/resources/page-2'},
+      {url: 'https://tio2products.com/resources/page-1'},
+      {url: 'https://tio2products.com/resources/page-2'},
     ])
   })
 

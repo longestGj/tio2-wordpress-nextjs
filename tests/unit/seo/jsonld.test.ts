@@ -27,8 +27,8 @@ function page(overrides: Partial<ContentPageDto> = {}): ContentPageDto {
 
 describe('page JSON-LD', () => {
   it.each([
-    ['tio2-a', 'https://tio2-a.example.com'],
-    ['tio2-b', 'https://tio2-b.example.com'],
+    ['tio2-a', 'https://tio2products.com'],
+    ['tio2-b', 'https://tio2hub.com'],
   ] as const)('uses stable, domain-isolated graph IDs for %s', (siteId, origin) => {
     const graph = buildPageJsonLd(
       getSiteConfig(siteId),
@@ -42,7 +42,7 @@ describe('page JSON-LD', () => {
       ['WebPage', `${origin}/applications/coatings#webpage`],
     ])
     expect(JSON.stringify(graph)).not.toContain(
-      siteId === 'tio2-a' ? 'tio2-b.example.com' : 'tio2-a.example.com',
+      siteId === 'tio2-a' ? 'tio2hub.com' : 'tio2products.com',
     )
   })
 
@@ -56,21 +56,21 @@ describe('page JSON-LD', () => {
     expect(breadcrumbs).toMatchObject({
       '@type': 'BreadcrumbList',
       itemListElement: [
-        {position: 1, name: 'Home', item: 'https://tio2-a.example.com/'},
+        {position: 1, name: 'Home', item: 'https://tio2products.com/'},
         {
           position: 2,
           name: 'Applications',
-          item: 'https://tio2-a.example.com/applications',
+          item: 'https://tio2products.com/applications',
         },
         {
           position: 3,
           name: 'Coatings',
-          item: 'https://tio2-a.example.com/applications/coatings',
+          item: 'https://tio2products.com/applications/coatings',
         },
         {
           position: 4,
           name: 'Interior Coatings',
-          item: 'https://tio2-a.example.com/applications/coatings/interior',
+          item: 'https://tio2products.com/applications/coatings/interior',
         },
       ],
     })
@@ -90,8 +90,8 @@ describe('page JSON-LD', () => {
 
     expect(pageObject).toMatchObject({
       '@type': 'WebPage',
-      '@id': `https://tio2-a.example.com${path}#webpage`,
-      isPartOf: {'@id': 'https://tio2-a.example.com/#website'},
+      '@id': `https://tio2products.com${path}#webpage`,
+      isPartOf: {'@id': 'https://tio2products.com/#website'},
     })
     expect(pageObject).not.toHaveProperty('offers')
     expect(pageObject).not.toHaveProperty('sku')

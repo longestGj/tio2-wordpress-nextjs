@@ -13,6 +13,7 @@
 ## Global Constraints
 
 - Use one Next.js application and exactly two local site IDs: `tio2-a` and `tio2-b`.
+- Use the approved production-origin mapping `tio2-a` → `https://tio2products.com` and `tio2-b` → `https://tio2hub.com`; keep `globaltio2.com` outside the first release.
 - Unknown or missing `SITE_ID` must fail validation; never fall back to another site.
 - WordPress content reads use WPGraphQL cursor pagination with at most 100 nodes per request.
 - WordPress internal slugs are site-prefixed; public paths are site-local.
