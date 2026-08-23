@@ -687,11 +687,15 @@ foreach (['draft', 'pending', 'private', 'publish', 'trash'] as $owner_status) {
     } elseif ('draft' !== $owner_status) {
         wp_update_post(['ID' => $owner, 'post_status' => $owner_status]);
     }
+    $preserved_owner_status = get_post_status($owner);
     $duplicate = tio2_homepage_test_home('tio2-a', $routes_a);
-    $duplicate_result = tio2_validate_homepage_contract($duplicate);
     tio2_homepage_test_assert(
-        is_wp_error($duplicate_result) && 'tio2_homepage_duplicate' === $duplicate_result->get_error_code(),
-        "A homepage in {$owner_status} did not reserve its identity"
+        null === get_post($duplicate),
+        "A second homepage saved against a {$owner_status} owner was not rejected or removed"
+    );
+    tio2_homepage_test_assert(
+        get_post($owner) instanceof WP_Post && $preserved_owner_status === get_post_status($owner),
+        "Rejecting a duplicate changed the original {$owner_status} homepage"
     );
     wp_delete_post($duplicate, true);
     wp_delete_post($owner, true);
@@ -786,6 +790,31 @@ tio2_homepage_test_update_field(
     $validation_home
 );
 tio2_homepage_test_assert_invalid($validation_home, 'Cross-site target was accepted');
+tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+
+$draft_link_target = tio2_homepage_test_route('tio2-a', '/homepage-contract-a-draft-target');
+wp_update_post(['ID' => $draft_link_target, 'post_status' => 'draft']);
+tio2_homepage_test_update_field(
+    'field_tio2_home_hero_secondary_path',
+    '/homepage-contract-a-draft-target',
+    $validation_home
+);
+tio2_homepage_test_assert_invalid($validation_home, 'Draft-only current-site target was accepted');
+tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+
+$ambiguous_link_path = '/homepage-contract-a-ambiguous-target';
+tio2_homepage_test_route('tio2-a', $ambiguous_link_path);
+tio2_homepage_test_route('tio2-a', $ambiguous_link_path);
+tio2_homepage_test_assert(
+    count(tio2_find_managed_route_post_ids('tio2-a', $ambiguous_link_path)) > 1,
+    'Ambiguous route fixture did not create multiple current-site owners'
+);
+tio2_homepage_test_update_field(
+    'field_tio2_home_hero_secondary_path',
+    $ambiguous_link_path,
+    $validation_home
+);
+tio2_homepage_test_assert_invalid($validation_home, 'Ambiguous current-site target was accepted');
 tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
 
 tio2_homepage_test_update_field('field_tio2_home_hero_image_alt', 'Alt without an image', $validation_home);
@@ -885,14 +914,28 @@ do_action('acf/save_post', $valid_a);
 wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
 
 tio2_homepage_test_update_field('field_tio2_home_hero_heading', '   ', $valid_a);
-do_action(
-    'rest_after_insert_tio2_homepage',
-    get_post($valid_a),
-    new WP_REST_Request('POST', '/wp/v2/tio2_homepage/' . $valid_a),
-    false
-);
+$previous_acf_post = $_POST['acf'] ?? null;
+$_POST['acf'] = ['ambient' => 'spoofed'];
+wp_update_post(['ID' => $valid_a, 'post_title' => 'Ambient ACF POST save']);
+if (null === $previous_acf_post) {
+    unset($_POST['acf']);
+} else {
+    $_POST['acf'] = $previous_acf_post;
+}
 clean_post_cache($valid_a);
-tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'REST save bypassed homepage enforcement');
+tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'Ambient ACF POST state bypassed save enforcement');
+
+tio2_homepage_test_set_valid_fields($valid_a, $routes_a);
+do_action('acf/save_post', $valid_a);
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+tio2_homepage_test_update_field('field_tio2_home_hero_heading', '   ', $valid_a);
+if (! defined('REST_REQUEST')) {
+    define('REST_REQUEST', true);
+}
+tio2_homepage_test_assert(REST_REQUEST, 'Homepage test could not enter an unrelated REST request context');
+wp_update_post(['ID' => $valid_a, 'post_title' => 'Unrelated REST programmatic save']);
+clean_post_cache($valid_a);
+tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'Unrelated REST context bypassed save enforcement');
 
 tio2_homepage_test_cleanup();
 fwrite(STDOUT, "TiO2 homepage identity and field contract passed\n");

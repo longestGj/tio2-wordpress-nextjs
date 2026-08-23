@@ -730,7 +730,10 @@ function tio2_find_homepage_ids(string $site_id, bool $include_trash = true): ar
         ]],
     ]);
 
-    return array_values(array_map('intval', $candidate_ids));
+    return array_values(array_filter(
+        array_map('intval', $candidate_ids),
+        static fn (int $candidate_id): bool => $site_id === tio2_get_homepage_site_id($candidate_id)
+    ));
 }
 
 function tio2_homepage_string_length(string $value): int
@@ -833,8 +836,12 @@ function tio2_homepage_validate_path(
     if ('/' === $path || ! tio2_is_valid_public_path($path)) {
         return new WP_Error('tio2_homepage_invalid_field', "Homepage field {$field_name} must be a non-root site path.");
     }
-    if ([] === tio2_find_managed_route_post_ids($site_id, $path)) {
-        return new WP_Error('tio2_homepage_invalid_field', "Homepage field {$field_name} has no current-site target.");
+    $route_owner_ids = tio2_find_managed_route_post_ids($site_id, $path);
+    if (1 !== count($route_owner_ids) || 'publish' !== get_post_status($route_owner_ids[0])) {
+        return new WP_Error(
+            'tio2_homepage_invalid_field',
+            "Homepage field {$field_name} must have exactly one published current-site target."
+        );
     }
     return $path;
 }
@@ -1290,12 +1297,6 @@ function tio2_force_homepage_slug(int $post_id)
 
 function tio2_enforce_homepage_contract(int $post_id): void
 {
-    if (
-        'save_post_tio2_homepage' === current_filter() &&
-        ((defined('REST_REQUEST') && REST_REQUEST) || isset($_POST['acf']))
-    ) {
-        return;
-    }
     if ($post_id <= 0 || ! empty($GLOBALS['tio2_enforcing_homepage_contract'])) {
         return;
     }
@@ -1311,6 +1312,22 @@ function tio2_enforce_homepage_contract(int $post_id): void
 
     $GLOBALS['tio2_enforcing_homepage_contract'] = true;
     try {
+        $site_id = tio2_get_homepage_site_id($post_id);
+        if (null !== $site_id) {
+            $homepage_ids = tio2_find_homepage_ids($site_id);
+            if (count($homepage_ids) > 1) {
+                sort($homepage_ids, SORT_NUMERIC);
+                $identity_owner_id = $homepage_ids[0];
+                if ($post_id !== $identity_owner_id) {
+                    wp_delete_post($post_id, true);
+                    return;
+                }
+                foreach (array_slice($homepage_ids, 1) as $duplicate_id) {
+                    wp_delete_post($duplicate_id, true);
+                }
+            }
+        }
+
         $slug_result = tio2_force_homepage_slug($post_id);
         $result = is_wp_error($slug_result) ? $slug_result : tio2_validate_homepage_contract($post_id);
         if (is_wp_error($result)) {
