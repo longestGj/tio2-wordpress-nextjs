@@ -13,9 +13,8 @@ const completeNode = {
   __typename: 'Page' as const,
   id: 'cG9zdDoxMDE=',
   title: 'Coatings',
-  excerpt: 'A short coatings introduction.',
   content: '<p>Coatings content.</p>',
-  modified: '2026-08-23T08:30:00',
+  modifiedGmt: '2026-08-23T08:30:00',
   status: 'publish',
   publishingFields: {
     __typename: 'PublishingFields' as const,
@@ -45,9 +44,9 @@ describe('toContentPageDto', () => {
       siteId: 'tio2-a',
       path: '/applications/coatings',
       title: 'Coatings',
-      excerpt: 'A short coatings introduction.',
+      excerpt: 'Coatings content.',
       html: '<p>Coatings content.</p>',
-      modified: '2026-08-23T08:30:00',
+      modified: '2026-08-23T08:30:00.000Z',
       status: 'publish',
       seo: {
         title: 'Titanium Dioxide for Coatings',
@@ -63,9 +62,8 @@ describe('toContentPageDto', () => {
         {
           ...completeNode,
           title: null,
-          excerpt: null,
           content: null,
-          modified: null,
+          modifiedGmt: null,
           status: null,
           publishingFields: {
             ...completeNode.publishingFields,
@@ -88,6 +86,55 @@ describe('toContentPageDto', () => {
       seo: {title: '', description: ''},
       relatedEntityIds: [],
     })
+  })
+
+  it('derives a bounded plain-text excerpt from real HTML content', () => {
+    expect(
+      toContentPageDto(
+        {
+          ...completeNode,
+          content:
+            '<style>.hidden { color: red }</style><p>Safe&nbsp; text &amp; entities.</p><script>alert(1)</script><p>' +
+            'x'.repeat(250) +
+            '</p>',
+        },
+        'tio2-a',
+      ).excerpt,
+    ).toBe(`Safe text & entities. ${'x'.repeat(178)}`)
+  })
+
+  it('drops unclosed script and style blocks instead of leaking their content', () => {
+    expect(
+      toContentPageDto(
+        {
+          ...completeNode,
+          content: '<p>Visible summary.</p><script>never visible',
+        },
+        'tio2-a',
+      ).excerpt,
+    ).toBe('Visible summary.')
+
+    expect(
+      toContentPageDto(
+        {
+          ...completeNode,
+          content: '<p>Visible summary.</p><style>.never-visible { color: red }',
+        },
+        'tio2-a',
+      ).excerpt,
+    ).toBe('Visible summary.')
+  })
+
+  it.each([
+    ['2026-08-23T08:30:00', '2026-08-23T08:30:00.000Z'],
+    ['2026-08-23T08:30:00.125', '2026-08-23T08:30:00.125Z'],
+    ['2026-02-30T08:30:00', ''],
+    ['2026-08-23T08:30:00+08:00', ''],
+    ['', ''],
+  ] as const)('normalizes WordPress modifiedGmt %j strictly as UTC', (modifiedGmt, expected) => {
+    expect(
+      toContentPageDto({...completeNode, modifiedGmt}, 'tio2-a').modified,
+    ).toBe(expected)
   })
 
   it('rejects a node assigned to another site scope', () => {

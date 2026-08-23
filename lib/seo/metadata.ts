@@ -47,7 +47,9 @@ export function buildPageMetadata(
   options: PageMetadataOptions = {},
 ): Metadata {
   const publicIndexing =
-    !options.draftMode && isPublicIndexingEnabled(options.env)
+    page.status === 'publish' &&
+    !options.draftMode &&
+    isPublicIndexingEnabled(options.env)
 
   return {
     title: firstText(page.seo.title, page.title, site.defaultSeo.title, site.name),

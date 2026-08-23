@@ -3,7 +3,7 @@ fragment ContentPageFields on Page {
   id
   title
   content(format: RENDERED)
-  modified
+  modifiedGmt
   status
   publishingFields {
     __typename

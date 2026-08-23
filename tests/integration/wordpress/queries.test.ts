@@ -101,9 +101,9 @@ describe('getContentByPath', () => {
       siteId: 'tio2-a',
       path: '/applications/coatings',
       title: 'Coatings',
-      excerpt: '',
+      excerpt: 'Coatings content.',
       html: '<p>Coatings content.</p>',
-      modified: '2026-08-23T08:30:00',
+      modified: '2026-08-23T08:30:00.000Z',
       status: 'publish',
       seo: {
         title: 'Titanium Dioxide for Coatings',

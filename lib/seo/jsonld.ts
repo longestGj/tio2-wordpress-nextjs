@@ -1,5 +1,6 @@
 import type {SiteConfig} from '@/sites'
 import type {ContentPageDto} from '@/lib/wordpress/types'
+import {isStrictUtcInstant} from '@/lib/wordpress/time'
 
 export type JsonLdObject = Readonly<Record<string, unknown>>
 
@@ -62,10 +63,6 @@ function buildBreadcrumbs(
   }
 }
 
-function isProductDetailPath(path: string): boolean {
-  return /^\/products\/[^/]+$/u.test(path)
-}
-
 export function buildPageJsonLd(
   site: SiteConfig,
   page: ContentPageDto,
@@ -73,32 +70,25 @@ export function buildPageJsonLd(
   const canonical = new URL(page.path, site.url).href
   const organizationId = new URL('/#organization', site.url).href
   const websiteId = new URL('/#website', site.url).href
-  const title = firstText(page.seo.title, page.title, site.defaultSeo.title)
   const name = firstText(page.title, page.seo.title, site.name)
   const description = firstText(
     page.seo.description,
     page.excerpt,
     site.defaultSeo.description,
   )
-  const productDetail = isProductDetailPath(page.path)
   const pageObject: Record<string, unknown> = {
     '@context': 'https://schema.org',
-    '@type': productDetail ? 'Product' : 'Article',
-    '@id': `${canonical}#${productDetail ? 'product' : 'article'}`,
+    '@type': 'WebPage',
+    '@id': `${canonical}#webpage`,
     name,
     description,
     url: canonical,
+    isPartOf: {'@id': websiteId},
+    breadcrumb: {'@id': `${canonical}#breadcrumb`},
   }
 
-  if (productDetail) {
-    pageObject.brand = {'@id': organizationId}
-  } else {
-    pageObject.headline = title
-    pageObject.mainEntityOfPage = canonical
-    pageObject.publisher = {'@id': organizationId}
-    if (Number.isFinite(Date.parse(page.modified))) {
-      pageObject.dateModified = new Date(page.modified).toISOString()
-    }
+  if (isStrictUtcInstant(page.modified)) {
+    pageObject.dateModified = page.modified
   }
 
   return [

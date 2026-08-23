@@ -40,7 +40,7 @@ describe('page JSON-LD', () => {
       ['Organization', `${origin}/#organization`],
       ['WebSite', `${origin}/#website`],
       ['BreadcrumbList', `${origin}/applications/coatings#breadcrumb`],
-      ['Article', `${origin}/applications/coatings#article`],
+      ['WebPage', `${origin}/applications/coatings#webpage`],
     ])
     expect(JSON.stringify(graph)).not.toContain(
       siteId === 'tio2-a' ? 'tio2-b.example.com' : 'tio2-a.example.com',
@@ -78,20 +78,39 @@ describe('page JSON-LD', () => {
   })
 
   it.each([
-    ['/products', 'Article'],
-    ['/products/rutile-r-100', 'Product'],
-    ['/products/categories/rutile', 'Article'],
-    ['/applications/products', 'Article'],
-  ] as const)('classifies %s as %s without inventing offers or claims', (path, type) => {
+    '/products',
+    '/products/rutile-r-100',
+    '/products/categories/rutile',
+    '/applications/products',
+  ])('keeps generic WordPress Page %s a conservative WebPage', (path) => {
     const graph = buildPageJsonLd(
       getSiteConfig('tio2-a'),
       page({path, title: 'Page title'}),
     )
     const pageObject = graph.at(-1)
 
-    expect(pageObject?.['@type']).toBe(type)
+    expect(pageObject).toMatchObject({
+      '@type': 'WebPage',
+      '@id': `https://tio2-a.example.com${path}#webpage`,
+      isPartOf: {'@id': 'https://tio2-a.example.com/#website'},
+    })
     expect(pageObject).not.toHaveProperty('offers')
     expect(pageObject).not.toHaveProperty('sku')
+    expect(pageObject).not.toHaveProperty('headline')
+  })
+
+  it.each([
+    ['2026-08-23T08:30:00.000Z', '2026-08-23T08:30:00.000Z'],
+    ['', undefined],
+    ['2026-02-30T08:30:00.000Z', undefined],
+    ['2026-08-23T08:30:00', undefined],
+  ] as const)('uses only strict UTC modified instant %j', (modified, expected) => {
+    const pageObject = buildPageJsonLd(
+      getSiteConfig('tio2-a'),
+      page({modified}),
+    ).at(-1)
+
+    expect(pageObject?.dateModified).toBe(expected)
   })
 
   it('escapes script-breaking text and JavaScript line separators', () => {

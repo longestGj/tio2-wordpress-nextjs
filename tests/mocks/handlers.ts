@@ -10,7 +10,7 @@ export function makeContentPageNode(
     id: 'cG9zdDoxMDE=',
     title: 'Coatings',
     content: '<p>Coatings content.</p>',
-    modified: '2026-08-23T08:30:00',
+    modifiedGmt: '2026-08-23T08:30:00',
     status: 'publish',
     publishingFields: {
       __typename: 'PublishingFields',

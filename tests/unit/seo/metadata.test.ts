@@ -101,4 +101,25 @@ describe('page metadata', () => {
       ).toEqual({index: expected, follow: expected})
     },
   )
+
+  it.each(['draft', 'private', 'future', '', 'unknown'])(
+    'keeps %s content noindex even when production policy allows indexing',
+    (status) => {
+      expect(
+        buildPageMetadata(getSiteConfig('tio2-a'), page({status}), {
+          env: {VERCEL_ENV: 'production'},
+          draftMode: false,
+        }).robots,
+      ).toEqual({index: false, follow: false})
+    },
+  )
+
+  it('keeps a published page noindex when Draft Mode is independently enabled', () => {
+    expect(
+      buildPageMetadata(getSiteConfig('tio2-a'), page({status: 'publish'}), {
+        env: {VERCEL_ENV: 'production'},
+        draftMode: true,
+      }).robots,
+    ).toEqual({index: false, follow: false})
+  })
 })
