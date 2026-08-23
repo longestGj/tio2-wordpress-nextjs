@@ -4,6 +4,7 @@ fragment ContentPageFields on Page {
   title
   content(format: RENDERED)
   modified
+  status
   publishingFields {
     __typename
     publicPath

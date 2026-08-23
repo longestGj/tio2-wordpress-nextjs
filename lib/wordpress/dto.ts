@@ -69,6 +69,7 @@ export function toContentPageDto(
     excerpt: node.excerpt ?? '',
     html: node.content ?? '',
     modified: node.modified ?? '',
+    status: node.status ?? '',
     seo: {
       title: node.publishingFields?.seoTitle ?? '',
       description: node.publishingFields?.seoDescription ?? '',

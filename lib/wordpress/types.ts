@@ -11,6 +11,7 @@ export interface ContentPageDto {
   readonly excerpt: string
   readonly html: string
   readonly modified: string
+  readonly status: string
   readonly seo: ContentSeoDto
   readonly relatedEntityIds: readonly string[]
 }

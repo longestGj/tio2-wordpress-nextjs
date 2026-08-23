@@ -104,6 +104,7 @@ describe('getContentByPath', () => {
       excerpt: '',
       html: '<p>Coatings content.</p>',
       modified: '2026-08-23T08:30:00',
+      status: 'publish',
       seo: {
         title: 'Titanium Dioxide for Coatings',
         description: 'Choose titanium dioxide grades for coatings.',

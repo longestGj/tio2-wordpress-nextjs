@@ -11,6 +11,7 @@ export function makeContentPageNode(
     title: 'Coatings',
     content: '<p>Coatings content.</p>',
     modified: '2026-08-23T08:30:00',
+    status: 'publish',
     publishingFields: {
       __typename: 'PublishingFields',
       publicPath: '/applications/coatings',

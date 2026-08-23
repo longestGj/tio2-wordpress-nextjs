@@ -16,6 +16,7 @@ const completeNode = {
   excerpt: 'A short coatings introduction.',
   content: '<p>Coatings content.</p>',
   modified: '2026-08-23T08:30:00',
+  status: 'publish',
   publishingFields: {
     __typename: 'PublishingFields' as const,
     publicPath: '/applications/coatings',
@@ -47,6 +48,7 @@ describe('toContentPageDto', () => {
       excerpt: 'A short coatings introduction.',
       html: '<p>Coatings content.</p>',
       modified: '2026-08-23T08:30:00',
+      status: 'publish',
       seo: {
         title: 'Titanium Dioxide for Coatings',
         description: 'Choose titanium dioxide grades for coatings.',
@@ -64,6 +66,7 @@ describe('toContentPageDto', () => {
           excerpt: null,
           content: null,
           modified: null,
+          status: null,
           publishingFields: {
             ...completeNode.publishingFields,
             seoTitle: null,
@@ -81,6 +84,7 @@ describe('toContentPageDto', () => {
       excerpt: '',
       html: '',
       modified: '',
+      status: '',
       seo: {title: '', description: ''},
       relatedEntityIds: [],
     })
