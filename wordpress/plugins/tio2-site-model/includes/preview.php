@@ -298,7 +298,7 @@ function tio2_preview_rest_response(WP_REST_Request $request)
     $post = get_post($owner_ids[0]);
     if (
         ! $post instanceof WP_Post ||
-        'draft' !== $post->post_status
+        ! in_array($post->post_status, ['publish', 'future', 'draft', 'pending', 'private'], true)
     ) {
         return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
     }

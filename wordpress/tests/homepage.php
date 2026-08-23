@@ -1172,6 +1172,55 @@ wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
 $dependent_target_id = tio2_find_managed_route_post_ids('tio2-a', $routes_a['secondary'])[0] ?? 0;
 tio2_homepage_test_assert($dependent_target_id > 0, 'Missing homepage dependency fixture');
 
+$dependent_original_title = (string) get_post_field('post_title', $dependent_target_id);
+$dependent_stable_identity = [
+    'status' => (string) get_post_status($dependent_target_id),
+    'slug' => (string) get_post_field('post_name', $dependent_target_id),
+    'path' => (string) get_post_meta($dependent_target_id, 'public_path', true),
+    'scopes' => wp_get_post_terms($dependent_target_id, 'site_scope', ['fields' => 'slugs']),
+];
+$title_update_result = wp_update_post([
+    'ID' => $dependent_target_id,
+    'post_title' => 'Homepage dependency title-only update',
+], true);
+tio2_homepage_test_assert(! is_wp_error($title_update_result), 'Linked target title-only update failed');
+do_action('acf/save_post', $dependent_target_id);
+clean_post_cache($dependent_target_id);
+clean_post_cache($valid_a);
+$title_update_validation = tio2_validate_homepage_contract($valid_a);
+tio2_homepage_test_assert(
+    $dependent_stable_identity === [
+        'status' => (string) get_post_status($dependent_target_id),
+        'slug' => (string) get_post_field('post_name', $dependent_target_id),
+        'path' => (string) get_post_meta($dependent_target_id, 'public_path', true),
+        'scopes' => wp_get_post_terms($dependent_target_id, 'site_scope', ['fields' => 'slugs']),
+    ] &&
+        'publish' === get_post_status($valid_a) &&
+        true === $title_update_validation,
+    'Linked target title-only update drafted a currently valid homepage; recorded=' .
+        get_post_meta($valid_a, '_tio2_homepage_error', true) .
+        '; current=' . (is_wp_error($title_update_validation) ? $title_update_validation->get_error_code() : 'valid')
+);
+$title_restore_result = wp_update_post([
+    'ID' => $dependent_target_id,
+    'post_title' => $dependent_original_title,
+], true);
+tio2_homepage_test_assert(! is_wp_error($title_restore_result), 'Linked target title restore failed');
+do_action('acf/save_post', $dependent_target_id);
+clean_post_cache($dependent_target_id);
+clean_post_cache($valid_a);
+tio2_homepage_test_assert(
+    $dependent_stable_identity === [
+        'status' => (string) get_post_status($dependent_target_id),
+        'slug' => (string) get_post_field('post_name', $dependent_target_id),
+        'path' => (string) get_post_meta($dependent_target_id, 'public_path', true),
+        'scopes' => wp_get_post_terms($dependent_target_id, 'site_scope', ['fields' => 'slugs']),
+    ] &&
+        'publish' === get_post_status($valid_a) &&
+        true === tio2_validate_homepage_contract($valid_a),
+    'Linked target title restore changed route identity or drafted its valid homepage'
+);
+
 wp_update_post(['ID' => $dependent_target_id, 'post_status' => 'draft']);
 clean_post_cache($valid_a);
 tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'Drafted link target left homepage published');

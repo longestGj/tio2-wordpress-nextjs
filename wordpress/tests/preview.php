@@ -15,6 +15,23 @@ function tio2_preview_smoke_fail(string $message): void
     throw new RuntimeException($message);
 }
 
+function tio2_preview_smoke_set_status_exact(int $post_id, string $status): void
+{
+    global $wpdb;
+
+    $updated = $wpdb->update(
+        $wpdb->posts,
+        ['post_status' => $status],
+        ['ID' => $post_id],
+        ['%s'],
+        ['%d']
+    );
+    clean_post_cache($post_id);
+    if (false === $updated || $status !== get_post_status($post_id)) {
+        tio2_preview_smoke_fail("Could not set exact preview fixture status {$status}");
+    }
+}
+
 function tio2_preview_smoke_cleanup(): void
 {
     foreach ($GLOBALS['tio2_preview_smoke_restore_statuses'] ?? [] as $post_id => $status) {
@@ -85,14 +102,83 @@ if (
     tio2_preview_smoke_fail('Signed WordPress preview endpoint did not return the exact draft');
 }
 
-foreach (['publish', 'future', 'pending', 'private'] as $non_draft_status) {
-    wp_update_post(['ID' => (int) $draft_id, 'post_status' => $non_draft_status]);
-    $non_draft_response = rest_do_request($request);
-    if (404 !== $non_draft_response->get_status()) {
-        tio2_preview_smoke_fail("Signed route preview exposed {$non_draft_status} content");
+foreach (['publish', 'future', 'draft', 'pending', 'private'] as $previewable_status) {
+    tio2_preview_smoke_set_status_exact((int) $draft_id, $previewable_status);
+    $previewable_response = rest_do_request($request);
+    $previewable_data = $previewable_response->get_data();
+    if (
+        200 !== $previewable_response->get_status() ||
+        ! is_array($previewable_data) ||
+        $previewable_status !== ($previewable_data['status'] ?? null) ||
+        (string) $draft_id !== ($previewable_data['id'] ?? null)
+    ) {
+        tio2_preview_smoke_fail(sprintf(
+            'Signed non-root Page preview rejected %s content (HTTP %d, stored status %s, slug %s)',
+            $previewable_status,
+            $previewable_response->get_status(),
+            (string) get_post_status((int) $draft_id),
+            (string) get_post_field('post_name', (int) $draft_id)
+        ));
     }
 }
-wp_update_post(['ID' => (int) $draft_id, 'post_status' => 'draft']);
+tio2_preview_smoke_set_status_exact((int) $draft_id, 'draft');
+
+$cross_site_timestamp = (string) time();
+$cross_site_signature = hash_hmac(
+    'sha256',
+    $cross_site_timestamp . "\n" . 'tio2-b' . "\n" . $path,
+    'site-b-preview-smoke-secret'
+);
+$cross_site_request = new WP_REST_Request('GET', '/tio2/v1/preview');
+$cross_site_request->set_query_params(['siteId' => 'tio2-b', 'path' => $path]);
+$cross_site_request->set_header('x-tio2-preview-timestamp', $cross_site_timestamp);
+$cross_site_request->set_header('x-tio2-preview-signature', $cross_site_signature);
+if (404 !== rest_do_request($cross_site_request)->get_status()) {
+    tio2_preview_smoke_fail('Signed non-root preview crossed site ownership');
+}
+
+$post_path = '/preview-smoke/post';
+$post_id = wp_insert_post([
+    'post_type' => 'post',
+    'post_status' => 'draft',
+    'post_title' => 'TiO2 non-root Post preview smoke title',
+    'post_content' => '<p>TiO2 non-root Post preview smoke body.</p>',
+], true);
+if (is_wp_error($post_id) || $post_id <= 0) {
+    tio2_preview_smoke_fail('Could not create non-root Post preview smoke fixture');
+}
+$GLOBALS['tio2_preview_smoke_post_ids'][] = (int) $post_id;
+update_post_meta((int) $post_id, 'public_path', $post_path);
+wp_set_object_terms((int) $post_id, ['tio2-a'], 'site_scope', false);
+do_action('acf/save_post', (int) $post_id);
+
+$post_timestamp = (string) time();
+$post_signature = hash_hmac(
+    'sha256',
+    $post_timestamp . "\n" . 'tio2-a' . "\n" . $post_path,
+    'site-a-preview-smoke-secret'
+);
+$post_request = new WP_REST_Request('GET', '/tio2/v1/preview');
+$post_request->set_query_params(['siteId' => 'tio2-a', 'path' => $post_path]);
+$post_request->set_header('x-tio2-preview-timestamp', $post_timestamp);
+$post_request->set_header('x-tio2-preview-signature', $post_signature);
+foreach (['publish', 'future', 'draft', 'pending', 'private'] as $previewable_status) {
+    tio2_preview_smoke_set_status_exact((int) $post_id, $previewable_status);
+    $post_response = rest_do_request($post_request);
+    $post_data = $post_response->get_data();
+    if (
+        200 !== $post_response->get_status() ||
+        ! is_array($post_data) ||
+        $previewable_status !== ($post_data['status'] ?? null) ||
+        (string) $post_id !== ($post_data['id'] ?? null)
+    ) {
+        tio2_preview_smoke_fail("Signed non-root Post preview rejected {$previewable_status} content");
+    }
+}
+wp_trash_post((int) $post_id);
+if (404 !== rest_do_request($post_request)->get_status()) {
+    tio2_preview_smoke_fail('Signed non-root Post preview exposed trashed content');
+}
 
 $ambiguous_id = wp_insert_post([
     'post_type' => 'post',
@@ -203,13 +289,13 @@ if (
 }
 
 foreach (['publish', 'future', 'pending', 'private'] as $non_draft_status) {
-    wp_update_post(['ID' => $homepage_id, 'post_status' => $non_draft_status]);
+    tio2_preview_smoke_set_status_exact($homepage_id, $non_draft_status);
     $non_draft_response = rest_do_request($homepage_request);
     if (404 !== $non_draft_response->get_status()) {
         tio2_preview_smoke_fail("Signed homepage preview exposed {$non_draft_status} content");
     }
 }
-wp_update_post(['ID' => $homepage_id, 'post_status' => 'draft']);
+tio2_preview_smoke_set_status_exact($homepage_id, 'draft');
 
 wp_update_post(['ID' => $homepage_id, 'post_status' => $homepage_status]);
 unset($GLOBALS['tio2_preview_smoke_restore_statuses'][$homepage_id]);

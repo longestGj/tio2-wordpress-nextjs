@@ -1626,9 +1626,22 @@ function tio2_enforce_homepage_dependencies_after_slug_change(
     WP_Post $post_before
 ): void {
     if (
-        in_array($post_after->post_type, ['page', 'post'], true) &&
-        $post_after->post_name !== $post_before->post_name
+        ! in_array($post_after->post_type, ['page', 'post'], true) ||
+        $post_after->post_name === $post_before->post_name
     ) {
-        tio2_revalidate_published_homepages();
+        return;
     }
+
+    $route = tio2_get_managed_post_route($post_id);
+    if (
+        ! is_wp_error($route) &&
+        $post_after->post_status === $post_before->post_status &&
+        $post_after->post_title !== $post_before->post_title &&
+        $route['internalSlug'] === $post_before->post_name &&
+        sanitize_title($post_before->post_name) === $post_after->post_name
+    ) {
+        tio2_sync_managed_post_routing($post_id);
+    }
+
+    tio2_revalidate_published_homepages();
 }
