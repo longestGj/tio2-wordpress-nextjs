@@ -1,4 +1,5 @@
 import {fetchGraphQL} from './client'
+import {routeTag, siteTag} from './cache-tags'
 import {buildInternalSlug, toContentPageDto} from './dto'
 import {
   GetContentByPathDocument,
@@ -32,7 +33,7 @@ export async function getContentByPath(
   >(
     GET_CONTENT_BY_PATH,
     {uri: `/${internalSlug}/`},
-    {tags: [`wordpress:${siteId}`, `wordpress:${siteId}:path:${path}`]},
+    {tags: [siteTag(siteId), routeTag(siteId, path)]},
   )
 
   return data.page ? toContentPageDto(data.page, siteId, path) : null
@@ -48,7 +49,7 @@ export async function getContentPage(
   >(
     GET_CONTENT_PAGE,
     {siteId, after: after ?? null},
-    {tags: [`wordpress:${siteId}`, `wordpress:${siteId}:pages`]},
+    {tags: [siteTag(siteId)]},
   )
   const connection = data.siteScope?.pages
 

@@ -15,10 +15,16 @@ if (! defined('ABSPATH')) {
 
 require_once __DIR__ . '/includes/content-types.php';
 require_once __DIR__ . '/includes/fields.php';
+require_once __DIR__ . '/includes/webhooks.php';
 
 add_action('init', 'tio2_register_content_types');
 add_action('acf/init', 'tio2_register_acf_fields');
 add_filter('acf/validate_value/name=public_path', 'tio2_validate_public_path', 10, 4);
 add_filter('sanitize_title', 'tio2_preserve_internal_slug', 10, 3);
+add_action('transition_post_status', 'tio2_handle_post_transition', 10, 3);
+add_action('added_post_meta', 'tio2_handle_post_meta_change', 10, 4);
+add_action('updated_post_meta', 'tio2_handle_post_meta_change', 10, 4);
+add_action('deleted_post_meta', 'tio2_handle_post_meta_change', 10, 4);
+add_action('shutdown', 'tio2_flush_webhook_queue');
 
 register_activation_hook(__FILE__, 'tio2_activate_site_model');

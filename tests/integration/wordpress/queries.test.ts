@@ -48,6 +48,33 @@ describe('getContentByPath', () => {
     process.env.WORDPRESS_GRAPHQL_URL = graphqlEndpoint
   })
 
+  it('attaches the same precise site and route tags accepted by revalidation', async () => {
+    server.use(
+      http.post(graphqlEndpoint, () =>
+        HttpResponse.json({data: {page: makeContentPageNode()}}),
+      ),
+    )
+    const interceptedFetch = globalThis.fetch
+    let observedTags: readonly string[] | undefined
+    globalThis.fetch = async (input, init) => {
+      observedTags = (
+        init as RequestInit & {next?: {readonly tags?: readonly string[]}}
+      )?.next?.tags
+      return interceptedFetch(input, init)
+    }
+
+    try {
+      await getContentByPath('tio2-a', '/applications/coatings')
+    } finally {
+      globalThis.fetch = interceptedFetch
+    }
+
+    expect(observedTags).toEqual([
+      'site:tio2-a',
+      'route:tio2-a:/applications/coatings',
+    ])
+  })
+
   it('queries the deterministic flat page URI and maps a complete response', async () => {
     server.use(
       http.post(graphqlEndpoint, async ({request}) => {
@@ -326,6 +353,30 @@ describe('fetchGraphQL request contract', () => {
 describe('getContentPage', () => {
   beforeEach(() => {
     process.env.WORDPRESS_GRAPHQL_URL = graphqlEndpoint
+  })
+
+  it('attaches the site tag accepted by revalidation', async () => {
+    server.use(
+      http.post(graphqlEndpoint, () =>
+        HttpResponse.json({data: {siteScope: null}}),
+      ),
+    )
+    const interceptedFetch = globalThis.fetch
+    let observedTags: readonly string[] | undefined
+    globalThis.fetch = async (input, init) => {
+      observedTags = (
+        init as RequestInit & {next?: {readonly tags?: readonly string[]}}
+      )?.next?.tags
+      return interceptedFetch(input, init)
+    }
+
+    try {
+      await getContentPage('tio2-a')
+    } finally {
+      globalThis.fetch = interceptedFetch
+    }
+
+    expect(observedTags).toEqual(['site:tio2-a'])
   })
 
   it('reads at most the first 100 nodes from the requested site scope', async () => {
