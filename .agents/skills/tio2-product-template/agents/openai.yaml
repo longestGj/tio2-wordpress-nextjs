@@ -1,0 +1,6 @@
+interface:
+  display_name: "TiO2 Product Template Agent"
+  short_description: "Headless WordPress product-template specialist"
+  default_prompt: "Use $tio2-product-template to design a reusable product detail template for this project."
+policy:
+  allow_implicit_invocation: true
