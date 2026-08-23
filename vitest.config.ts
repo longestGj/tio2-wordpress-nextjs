@@ -9,6 +9,7 @@ export default defineConfig({
   },
   test: {
     exclude: [...configDefaults.exclude, 'tests/e2e/**'],
+    maxWorkers: 4,
     setupFiles: ['./vitest.setup.ts'],
   },
 })

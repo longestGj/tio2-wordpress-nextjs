@@ -16,6 +16,7 @@ import {
   makeHomepageNode,
 } from '@/tests/mocks/handlers'
 import {server} from '@/tests/mocks/server'
+import {tamperTokenSegmentByte} from '@/tests/utils/tamper-token'
 
 const {cookies, draftMode} = vi.hoisted(() => ({
   cookies: vi.fn(),
@@ -282,8 +283,11 @@ describe('site-scoped content routes', () => {
   it('rejects a tampered scoped preview cookie for the exact requested draft', async () => {
     vi.stubEnv('SITE_ID', 'tio2-a')
     const validCookie = scopedPreviewCookie('tio2-a', '/tampered-draft')
-    const replacement = validCookie.endsWith('A') ? 'B' : 'A'
-    servePreviewCookie(`${validCookie.slice(0, -1)}${replacement}`)
+    const tamperedCookie = tamperTokenSegmentByte(validCookie, 'signature')
+    expect(
+      Buffer.from(tamperedCookie.split('.')[1] ?? '', 'base64url'),
+    ).not.toEqual(Buffer.from(validCookie.split('.')[1] ?? '', 'base64url'))
+    servePreviewCookie(tamperedCookie)
     servePage('/tio2-a--tampered-draft/', null)
     server.use(
       http.get(wordpressPreviewUrl, () =>

@@ -1,3 +1,4 @@
+import {createElement, type ImgHTMLAttributes} from 'react'
 import {renderToStaticMarkup} from 'react-dom/server'
 import {describe, expect, expectTypeOf, it, vi} from 'vitest'
 
@@ -8,6 +9,19 @@ import {makeHomepageNode} from '@/tests/mocks/handlers'
 vi.mock('next/font/google', () => ({
   Inter: () => ({variable: 'inter-font'}),
   Source_Serif_4: () => ({variable: 'source-serif-font'}),
+}))
+
+vi.mock('next/image', () => ({
+  default: ({priority, unoptimized, ...props}: ImgHTMLAttributes<HTMLImageElement> & {
+    readonly priority?: boolean
+    readonly unoptimized?: boolean
+  }) => {
+    void unoptimized
+    return createElement('img', {
+      ...props,
+      'data-priority': priority ? 'true' : undefined,
+    })
+  },
 }))
 
 function homepageFixture(): HomepageDto {
@@ -138,5 +152,73 @@ describe('HomepageTemplate', () => {
     )
 
     expect(markup).not.toContain('<img')
+  })
+
+  it('preserves DTO image semantics and loading behavior when approved media is present', async () => {
+    const {HomepageTemplate} = await import(
+      '@/components/homepage/homepage-template'
+    )
+    const base = homepageFixture()
+    const homepage: HomepageDto = {
+      ...base,
+      hero: {
+        ...base.hero,
+        image: {
+          src: 'https://wordpress.test/uploads/hero.webp',
+          alt: 'TiO2 powder sampling bench',
+          width: 1440,
+          height: 960,
+          mimeType: 'image/webp',
+        },
+      },
+      productRoutes: base.productRoutes.map((route, index) =>
+        index === 0
+          ? {
+              ...route,
+              image: {
+                src: 'https://wordpress.test/uploads/product.webp',
+                alt: 'Rutile product sample',
+                width: 900,
+                height: 600,
+                mimeType: 'image/webp',
+              },
+            }
+          : route,
+      ),
+      applications: base.applications.map((application, index) =>
+        index === 0
+          ? {
+              ...application,
+              image: {
+                src: 'https://wordpress.test/uploads/application.webp',
+                alt: 'Coatings application panel',
+                width: 800,
+                height: 500,
+                mimeType: 'image/webp',
+              },
+            }
+          : application,
+      ),
+    }
+
+    const markup = renderToStaticMarkup(<HomepageTemplate homepage={homepage} />)
+    const imageTags = Array.from(markup.matchAll(/<img[^>]+>/gu), (match) => match[0])
+    const hero = imageTags.find((tag) => tag.includes('alt="TiO2 powder sampling bench"'))
+    const product = imageTags.find((tag) => tag.includes('alt="Rutile product sample"'))
+    const application = imageTags.find((tag) => tag.includes('alt="Coatings application panel"'))
+
+    expect(hero).toContain('width="1440"')
+    expect(hero).toContain('height="960"')
+    expect(hero).toContain('data-priority="true"')
+    expect(hero).toContain('sizes="(max-width: 767px) 100vw, (max-width: 1023px) 46vw, 40vw"')
+    expect(hero).not.toContain('loading="lazy"')
+    expect(product).toContain('width="900"')
+    expect(product).toContain('height="600"')
+    expect(product).toContain('loading="lazy"')
+    expect(product).toContain('sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 40vw"')
+    expect(application).toContain('width="800"')
+    expect(application).toContain('height="500"')
+    expect(application).toContain('loading="lazy"')
+    expect(application).toContain('sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 30vw"')
   })
 })

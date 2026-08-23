@@ -14,6 +14,16 @@ function firstText(...values: readonly string[]): string {
   return values.find(Boolean) ?? ''
 }
 
+function isCurrentSiteHttpsImage(site: SiteConfig, src: string): boolean {
+  try {
+    const siteUrl = new URL(site.url)
+    const imageUrl = new URL(src)
+    return imageUrl.protocol === 'https:' && imageUrl.origin === siteUrl.origin
+  } catch {
+    return false
+  }
+}
+
 export function buildHomepageMetadata(
   site: SiteConfig,
   homepage: HomepageDto,
@@ -42,7 +52,10 @@ export function buildHomepageMetadata(
     description,
   }
 
-  if (homepage.seo.ogImage) {
+  if (
+    homepage.seo.ogImage &&
+    isCurrentSiteHttpsImage(site, homepage.seo.ogImage.src)
+  ) {
     openGraph.images = [
       {
         url: homepage.seo.ogImage.src,

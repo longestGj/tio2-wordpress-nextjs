@@ -35,7 +35,7 @@ describe('buildHomepageMetadata', () => {
     },
   )
 
-  it('maps normalized title, description, and an optional validated OG image without keywords', async () => {
+  it('maps normalized title, description, and an exact-origin HTTPS OG image without keywords', async () => {
     const {buildHomepageMetadata} = await import(
       '@/lib/seo/homepage-metadata'
     )
@@ -47,7 +47,7 @@ describe('buildHomepageMetadata', () => {
         title: '  Titanium Dioxide Supplier  ',
         description: '  Compare site-owned supply routes.  ',
         ogImage: {
-          src: 'https://media.tio2products.com/homepage.webp',
+          src: 'https://tio2products.com/homepage.webp',
           alt: 'TiO2 supply coordination',
           width: 1200,
           height: 630,
@@ -71,7 +71,7 @@ describe('buildHomepageMetadata', () => {
       url: 'https://tio2products.com/',
       images: [
         {
-          url: 'https://media.tio2products.com/homepage.webp',
+          url: 'https://tio2products.com/homepage.webp',
           alt: 'TiO2 supply coordination',
           width: 1200,
           height: 630,
@@ -79,6 +79,48 @@ describe('buildHomepageMetadata', () => {
         },
       ],
     })
+  })
+
+  it.each([
+    ['tio2-a', 'https://tio2products.com/homepage.webp'],
+    ['tio2-b', 'https://tio2hub.com/homepage.webp'],
+  ] as const)('allows an HTTPS OG image only on the exact current %s origin', async (siteId, src) => {
+    const {buildHomepageMetadata} = await import('@/lib/seo/homepage-metadata')
+    const base = homepageFixture(siteId)
+    const homepage: HomepageDto = {
+      ...base,
+      seo: {
+        ...base.seo,
+        ogImage: {src, alt: 'Current-site image', width: 1200, height: 630, mimeType: 'image/webp'},
+      },
+    }
+
+    const metadata = buildHomepageMetadata(getSiteConfig(siteId), homepage)
+
+    expect(metadata.openGraph).toMatchObject({images: [{url: src}]})
+  })
+
+  it.each([
+    ['tio2-a', 'http://tio2products.com/homepage.webp'],
+    ['tio2-a', 'https://localhost/homepage.webp'],
+    ['tio2-a', 'https://tio2hub.com/homepage.webp'],
+    ['tio2-a', 'https://media.tio2products.com/homepage.webp'],
+    ['tio2-a', 'https://cdn.example.com/homepage.webp'],
+    ['tio2-b', 'https://tio2products.com/homepage.webp'],
+  ] as const)('omits an unapproved %s OG image source %s', async (siteId, src) => {
+    const {buildHomepageMetadata} = await import('@/lib/seo/homepage-metadata')
+    const base = homepageFixture(siteId)
+    const homepage: HomepageDto = {
+      ...base,
+      seo: {
+        ...base.seo,
+        ogImage: {src, alt: 'Unapproved image', width: 1200, height: 630, mimeType: 'image/webp'},
+      },
+    }
+
+    const metadata = buildHomepageMetadata(getSiteConfig(siteId), homepage)
+
+    expect(metadata.openGraph).not.toHaveProperty('images')
   })
 
   it('uses a safe image-free fallback when no OG image is present', async () => {

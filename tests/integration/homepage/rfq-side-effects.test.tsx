@@ -7,6 +7,10 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
 import type {HomepageRfqDto} from '@/lib/wordpress/homepage-types'
 import {makeHomepageNode} from '@/tests/mocks/handlers'
+import {
+  type BrowserSideEffectAuditResult,
+  installBrowserSideEffectAudit,
+} from '@/tests/utils/browser-side-effect-audit'
 
 function rfqFixture(): HomepageRfqDto {
   return toHomepageDto(makeHomepageNode(), 'tio2-a').rfq
@@ -39,26 +43,33 @@ describe('RFQ local-only side-effect boundary', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(
       new Error('RFQ must not fetch'),
     )
-    const cookieSpy = vi.spyOn(document, 'cookie', 'set')
-    const localStorageSpy = vi.spyOn(Storage.prototype, 'setItem')
-    const sessionStorageSpy = vi.spyOn(Storage.prototype, 'setItem')
+    const audit = installBrowserSideEffectAudit()
     const {RfqForm} = await import('@/components/homepage/rfq-form')
     const rfq = rfqFixture()
     const user = userEvent.setup()
     const {container} = render(<RfqForm rfq={rfq} />)
     const form = container.querySelector('form')
 
-    expect(form?.getAttribute('action')).toBeNull()
-    await user.click(screen.getByRole('button', {name: rfq.submitLabel}))
-    expect(screen.getByRole('alert')).toBeTruthy()
+    let result: BrowserSideEffectAuditResult
+    try {
+      expect(form?.getAttribute('action')).toBeNull()
+      await user.click(screen.getByRole('button', {name: rfq.submitLabel}))
+      expect(screen.getByRole('alert')).toBeTruthy()
 
-    await completeRequiredFields(user, rfq)
-    await user.click(screen.getByRole('button', {name: rfq.submitLabel}))
-    expect(screen.getByRole('status').textContent).toContain(rfq.success.message)
+      await completeRequiredFields(user, rfq)
+      await user.click(screen.getByRole('button', {name: rfq.submitLabel}))
+      expect(screen.getByRole('status').textContent).toContain(rfq.success.message)
+    } finally {
+      result = audit.finish()
+    }
 
     expect(fetchSpy).not.toHaveBeenCalled()
-    expect(cookieSpy).not.toHaveBeenCalled()
-    expect(localStorageSpy).not.toHaveBeenCalled()
-    expect(sessionStorageSpy).not.toHaveBeenCalled()
+    expect(result.calls).toEqual({
+      localStorage: {getItem: 0, setItem: 0, removeItem: 0, clear: 0, namedWrite: 0},
+      sessionStorage: {getItem: 0, setItem: 0, removeItem: 0, clear: 0, namedWrite: 0},
+      documentCookie: {get: 0, set: 0},
+      cookieStore: {get: 0, getAll: 0, set: 0, delete: 0},
+    })
+    expect(result.final).toEqual(result.initial)
   })
 })
