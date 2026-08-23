@@ -3,6 +3,7 @@ import {describe, expect, it} from 'vitest'
 import {
   buildSitemap,
   SitemapIntegrityError,
+  SitemapPaginationError,
 } from '@/app/sitemap'
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
 import type {ContentPageConnectionDto} from '@/lib/wordpress/queries'
@@ -61,6 +62,79 @@ describe('homepage sitemap ownership', () => {
       lastModified: new Date('2026-08-23T08:30:00.000Z'),
     })
     expect(sitemap.some(({url}) => url.endsWith('/test-content/long-tail-500'))).toBe(true)
+  })
+
+  it('rejects an empty continuation before requesting another cursor', async () => {
+    let calls = 0
+
+    await expect(
+      buildSitemap(getSiteConfig('tio2-a'), {
+        ...sources([]),
+        getSitemapContentPage: async () => {
+          calls += 1
+          if (calls > 1) throw new Error('unexpected extra sitemap request')
+          return {
+            nodes: [],
+            endCursor: 'cursor-1',
+            hasNextPage: true,
+          }
+        },
+      }),
+    ).rejects.toMatchObject({
+      name: SitemapPaginationError.name,
+      reason: 'no-progress',
+    })
+    expect(calls).toBe(1)
+  })
+
+  it('rejects a continuation immediately after collecting 504 Pages', async () => {
+    const pages = Array.from({length: 504}, (_, index) => page(index + 1))
+    let calls = 0
+
+    await expect(
+      buildSitemap(getSiteConfig('tio2-a'), {
+        ...sources(pages),
+        getSitemapContentPage: async (_siteId, after) => {
+          calls += 1
+          if (calls > 6) throw new Error('unexpected extra sitemap request')
+          const offset = after ? Number(after.slice('cursor-'.length)) : 0
+          const nodes = pages.slice(offset, offset + 100)
+          const nextOffset = offset + nodes.length
+          return {
+            nodes,
+            endCursor: `cursor-${nextOffset}`,
+            hasNextPage: true,
+          }
+        },
+      }),
+    ).rejects.toMatchObject({
+      name: SitemapPaginationError.name,
+      reason: 'record-limit',
+    })
+    expect(calls).toBe(6)
+  })
+
+  it('caps malicious one-record continuations at 504 sitemap requests', async () => {
+    let calls = 0
+
+    await expect(
+      buildSitemap(getSiteConfig('tio2-a'), {
+        ...sources([]),
+        getSitemapContentPage: async () => {
+          calls += 1
+          if (calls > 504) throw new Error('unexpected extra sitemap request')
+          return {
+            nodes: [page(calls)],
+            endCursor: `cursor-${calls}`,
+            hasNextPage: true,
+          }
+        },
+      }),
+    ).rejects.toMatchObject({
+      name: SitemapPaginationError.name,
+      reason: 'record-limit',
+    })
+    expect(calls).toBe(504)
   })
 
   it.each([503, 505])(

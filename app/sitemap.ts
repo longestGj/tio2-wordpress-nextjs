@@ -12,17 +12,27 @@ import {isStrictUtcInstant} from '@/lib/wordpress/time'
 import {CrossSiteContentError} from '@/lib/wordpress/types'
 import type {SiteConfig} from '@/sites'
 
-export type SitemapPaginationErrorReason = 'missing' | 'repeated'
+export type SitemapPaginationErrorReason =
+  | 'missing'
+  | 'no-progress'
+  | 'record-limit'
+  | 'repeated'
+
+const sitemapPaginationErrorMessages: Record<
+  SitemapPaginationErrorReason,
+  string
+> = {
+  missing: 'Sitemap page reports a continuation without an end cursor',
+  'no-progress': 'Sitemap page reports a continuation without adding a Page',
+  'record-limit': 'Sitemap pagination continues beyond the 504 Page limit',
+  repeated: 'Sitemap pagination repeated a cursor',
+}
 
 export class SitemapPaginationError extends Error {
   readonly reason: SitemapPaginationErrorReason
 
   constructor(reason: SitemapPaginationErrorReason) {
-    super(
-      reason === 'missing'
-        ? 'Sitemap page reports a continuation without an end cursor'
-        : 'Sitemap pagination repeated a cursor',
-    )
+    super(sitemapPaginationErrorMessages[reason])
     this.name = 'SitemapPaginationError'
     this.reason = reason
   }
@@ -140,6 +150,7 @@ export async function buildSitemap(
   entries.push(homepageEntry)
 
   for (;;) {
+    const previousPageCount = pageCount
     let connection
     try {
       connection = await sources.getSitemapContentPage(site.id, after)
@@ -197,6 +208,16 @@ export async function buildSitemap(
         })
       }
 
+      if (pageCount >= EXPECTED_PAGE_COUNT) {
+        throw new SitemapIntegrityError({
+          reason: 'count-mismatch',
+          firstId: 'pages',
+          path: '/',
+          expectedCount: EXPECTED_PAGE_COUNT,
+          actualCount: pageCount + 1,
+        })
+      }
+
       idPaths.set(page.id, page.path)
       pathIds.set(page.path, page.id)
       pageCount += 1
@@ -227,6 +248,12 @@ export async function buildSitemap(
     const nextCursor = connection.endCursor
     if (!nextCursor) throw new SitemapPaginationError('missing')
     if (cursors.has(nextCursor)) throw new SitemapPaginationError('repeated')
+    if (pageCount >= EXPECTED_PAGE_COUNT) {
+      throw new SitemapPaginationError('record-limit')
+    }
+    if (pageCount === previousPageCount) {
+      throw new SitemapPaginationError('no-progress')
+    }
 
     cursors.add(nextCursor)
     after = nextCursor

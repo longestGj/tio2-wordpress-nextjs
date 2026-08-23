@@ -233,6 +233,45 @@ describe('cursor-paginated sitemap through GraphQL', () => {
     },
   )
 
+  it('rejects an empty GraphQL continuation before issuing another operation', async () => {
+    const seenAfter: Array<string | null> = []
+    serveConnections(
+      [{nodes: [], endCursor: 'cursor-100', hasNextPage: true}],
+      seenAfter,
+    )
+
+    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
+      name: SitemapPaginationError.name,
+      reason: 'no-progress',
+    })
+    expect(seenAfter).toEqual([null])
+  })
+
+  it('rejects a GraphQL continuation after the 504th Page without a seventh operation', async () => {
+    const nodes = Array.from({length: 504}, (_, index) => node(index + 1))
+    const connections = paginate(nodes)
+    connections[5] = {
+      ...connections[5]!,
+      endCursor: 'cursor-600',
+      hasNextPage: true,
+    }
+    const seenAfter: Array<string | null> = []
+    serveConnections(connections, seenAfter)
+
+    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
+      name: SitemapPaginationError.name,
+      reason: 'record-limit',
+    })
+    expect(seenAfter).toEqual([
+      null,
+      'cursor-100',
+      'cursor-200',
+      'cursor-300',
+      'cursor-400',
+      'cursor-500',
+    ])
+  })
+
   it('rejects different IDs sharing one path', async () => {
     serveConnections([
       {
@@ -326,16 +365,48 @@ describe('cursor-paginated sitemap through GraphQL', () => {
     ])
   })
 
-  it.each([
-    [{nodes: [], endCursor: null, hasNextPage: true}, 'missing'],
-    [{nodes: [], endCursor: 'cursor-0', hasNextPage: true}, 'repeated'],
-  ] as const)('rejects a %s continuation cursor', async (connection, reason) => {
-    serveConnections([connection])
+  it('rejects a missing continuation cursor', async () => {
+    serveConnections([{nodes: [], endCursor: null, hasNextPage: true}])
 
     await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
       name: SitemapPaginationError.name,
-      reason,
+      reason: 'missing',
     })
+  })
+
+  it('rejects a repeated continuation cursor after otherwise valid progress', async () => {
+    let pageRequest = 0
+    server.use(
+      http.post(graphqlEndpoint, async ({request}) => {
+        const body = (await request.json()) as GraphQLRequestBody
+        if (body.query?.includes('query GetHomepage')) {
+          return HttpResponse.json({data: {tio2Homepage: makeHomepageNode()}})
+        }
+        pageRequest += 1
+        return HttpResponse.json({
+          data: {
+            siteScope: {
+              __typename: 'SiteScope',
+              pages: {
+                __typename: 'SiteScopeToPageConnection',
+                nodes: [node(pageRequest)],
+                pageInfo: {
+                  __typename: 'WPPageInfo',
+                  endCursor: 'cursor-100',
+                  hasNextPage: true,
+                },
+              },
+            },
+          },
+        })
+      }),
+    )
+
+    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
+      name: SitemapPaginationError.name,
+      reason: 'repeated',
+    })
+    expect(pageRequest).toBe(2)
   })
 
   it('propagates GraphQL errors instead of returning a partial sitemap', async () => {
