@@ -5,6 +5,7 @@ if (! defined('ABSPATH')) {
 }
 
 $GLOBALS['tio2_webhook_routing_post_ids'] = [];
+$GLOBALS['tio2_webhook_routing_restore_meta'] = [];
 
 function tio2_webhook_routing_fail(string $message): void
 {
@@ -16,6 +17,10 @@ function tio2_webhook_routing_fail(string $message): void
 
 function tio2_webhook_routing_cleanup(): void
 {
+    foreach ($GLOBALS['tio2_webhook_routing_restore_meta'] ?? [] as $post_id => $meta) {
+        update_post_meta((int) $post_id, (string) $meta['key'], (string) $meta['value']);
+    }
+    $GLOBALS['tio2_webhook_queue'] = [];
     foreach ($GLOBALS['tio2_webhook_routing_post_ids'] ?? [] as $post_id) {
         wp_delete_post((int) $post_id, true);
     }
@@ -165,6 +170,57 @@ tio2_webhook_routing_assert_request(
     'tio2-b'
 );
 
+$homepage_ids = tio2_find_homepage_ids('tio2-a');
+if (1 !== count($homepage_ids)) {
+    tio2_webhook_routing_fail('Expected one Site A homepage webhook source');
+}
+$homepage_id = (int) $homepage_ids[0];
+$homepage_old_state = tio2_get_webhook_affected_state($homepage_id, [
+    'siteIds' => ['tio2-a'],
+    'hasTerms' => true,
+]);
+$homepage_new_state = tio2_get_webhook_affected_state($homepage_id, [
+    'siteIds' => ['tio2-b'],
+    'hasTerms' => true,
+]);
+if (! is_array($homepage_old_state)) {
+    tio2_webhook_routing_fail('Could not capture old homepage webhook ownership');
+}
+$homepage_moved_state = tio2_merge_webhook_affected_state(
+    $homepage_old_state,
+    $homepage_new_state
+);
+if (
+    ['tio2-a', 'tio2-b'] !== $homepage_moved_state['siteIds'] ||
+    ['/'] !== ($homepage_moved_state['sitePaths']['tio2-a'] ?? null) ||
+    ['/'] !== ($homepage_moved_state['sitePaths']['tio2-b'] ?? null)
+) {
+    tio2_webhook_routing_fail('Homepage webhook did not retain old and new ownership snapshots');
+}
+$homepage_heading = (string) get_post_meta($homepage_id, 'hero_heading', true);
+$GLOBALS['tio2_webhook_routing_restore_meta'][$homepage_id] = [
+    'key' => 'hero_heading',
+    'value' => $homepage_heading,
+];
+$captured_requests = [];
+$GLOBALS['tio2_webhook_queue'] = [];
+update_post_meta($homepage_id, 'hero_heading', $homepage_heading . ' webhook smoke');
+tio2_flush_webhook_queue();
+tio2_webhook_routing_assert_request($captured_requests, 'tio2-a');
+$homepage_payload = json_decode((string) ($captured_requests[0]['args']['body'] ?? ''), true);
+if (
+    ! is_array($homepage_payload) ||
+    ['/'] !== ($homepage_payload['paths'] ?? null) ||
+    [] !== ($homepage_payload['entityIds'] ?? null) ||
+    false !== array_search('https://site-b.next.test/api/revalidate', array_column($captured_requests, 'url'), true)
+) {
+    tio2_webhook_routing_fail('Homepage webhook did not target only the owning Site A root');
+}
+update_post_meta($homepage_id, 'hero_heading', $homepage_heading);
+unset($GLOBALS['tio2_webhook_routing_restore_meta'][$homepage_id]);
+$GLOBALS['tio2_webhook_queue'] = [];
+
 tio2_webhook_routing_cleanup();
 $GLOBALS['tio2_webhook_routing_post_ids'] = [];
+$GLOBALS['tio2_webhook_routing_restore_meta'] = [];
 fwrite(STDOUT, "TiO2 per-site webhook routing smoke test passed\n");

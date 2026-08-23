@@ -5,6 +5,7 @@ if (! defined('ABSPATH')) {
 }
 
 $GLOBALS['tio2_preview_smoke_post_ids'] = [];
+$GLOBALS['tio2_preview_smoke_restore_statuses'] = [];
 
 function tio2_preview_smoke_fail(string $message): void
 {
@@ -16,6 +17,10 @@ function tio2_preview_smoke_fail(string $message): void
 
 function tio2_preview_smoke_cleanup(): void
 {
+    foreach ($GLOBALS['tio2_preview_smoke_restore_statuses'] ?? [] as $post_id => $status) {
+        wp_update_post(['ID' => (int) $post_id, 'post_status' => (string) $status]);
+    }
+    $GLOBALS['tio2_webhook_queue'] = [];
     foreach ($GLOBALS['tio2_preview_smoke_post_ids'] ?? [] as $post_id) {
         wp_delete_post((int) $post_id, true);
     }
@@ -139,6 +144,59 @@ if (! hash_equals($expected_link_signature, $preview_query['signature'])) {
     tio2_preview_smoke_fail('WordPress Admin preview link signature was invalid');
 }
 
+$homepage_ids = tio2_find_homepage_ids('tio2-a');
+if (1 !== count($homepage_ids)) {
+    tio2_preview_smoke_fail('Expected one Site A homepage preview source');
+}
+$homepage_id = (int) $homepage_ids[0];
+$homepage_status = (string) get_post_status($homepage_id);
+$GLOBALS['tio2_preview_smoke_restore_statuses'][$homepage_id] = $homepage_status;
+wp_update_post(['ID' => $homepage_id, 'post_status' => 'draft']);
+
+$homepage_path = '/';
+$homepage_timestamp = (string) time();
+$homepage_signature = hash_hmac(
+    'sha256',
+    $homepage_timestamp . "\n" . 'tio2-a' . "\n" . $homepage_path,
+    'site-a-preview-smoke-secret'
+);
+$homepage_request = new WP_REST_Request('GET', '/tio2/v1/preview');
+$homepage_request->set_query_params(['siteId' => 'tio2-a', 'path' => $homepage_path]);
+$homepage_request->set_header('x-tio2-preview-timestamp', $homepage_timestamp);
+$homepage_request->set_header('x-tio2-preview-signature', $homepage_signature);
+$homepage_response = rest_do_request($homepage_request);
+$homepage_data = $homepage_response->get_data();
+if (
+    200 !== $homepage_response->get_status() ||
+    ! is_array($homepage_data) ||
+    'tio2-a' !== ($homepage_data['siteId'] ?? null) ||
+    '/' !== ($homepage_data['path'] ?? null) ||
+    'homepage-v0.1' !== ($homepage_data['schemaVersion'] ?? null) ||
+    'draft' !== ($homepage_data['status'] ?? null) ||
+    (string) get_post_meta($homepage_id, 'hero_heading', true) !==
+        ($homepage_data['homepageFields']['heroHeading'] ?? null)
+) {
+    tio2_preview_smoke_fail('Signed homepage preview did not return the structured Site A draft');
+}
+
+$homepage_preview_link = apply_filters(
+    'preview_post_link',
+    'http://localhost:8080/?post_type=tio2_homepage&p=' . $homepage_id . '&preview=true',
+    get_post($homepage_id)
+);
+$homepage_preview_parts = wp_parse_url($homepage_preview_link);
+parse_str($homepage_preview_parts['query'] ?? '', $homepage_preview_query);
+if (
+    'tio2-a' !== ($homepage_preview_query['siteId'] ?? null) ||
+    '/' !== ($homepage_preview_query['path'] ?? null)
+) {
+    tio2_preview_smoke_fail('Homepage Admin preview link did not retain root ownership');
+}
+
+wp_update_post(['ID' => $homepage_id, 'post_status' => $homepage_status]);
+unset($GLOBALS['tio2_preview_smoke_restore_statuses'][$homepage_id]);
+$GLOBALS['tio2_webhook_queue'] = [];
+
 wp_trash_post((int) $draft_id);
 $trashed_response = rest_do_request($request);
 if (404 !== $trashed_response->get_status()) {
@@ -147,4 +205,5 @@ if (404 !== $trashed_response->get_status()) {
 
 tio2_preview_smoke_cleanup();
 $GLOBALS['tio2_preview_smoke_post_ids'] = [];
+$GLOBALS['tio2_preview_smoke_restore_statuses'] = [];
 fwrite(STDOUT, "TiO2 signed draft preview smoke test passed\n");

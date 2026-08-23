@@ -4,6 +4,7 @@ import {z} from 'zod'
 
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {
+  homepageContentTag,
   isValidPublicPath,
   routeTag,
   siteTag,
@@ -205,7 +206,10 @@ export async function POST(request: Request): Promise<Response> {
   const tags = new Set<string>()
   for (const siteId of payload.siteIds) {
     tags.add(siteTag(siteId))
-    for (const path of payload.paths) tags.add(routeTag(siteId, path))
+    for (const path of payload.paths) {
+      tags.add(routeTag(siteId, path))
+      if (path === '/') tags.add(homepageContentTag(siteId))
+    }
   }
 
   const revalidatedTags = [...tags].sort()

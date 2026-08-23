@@ -13,6 +13,7 @@ import {getSiteConfig} from '@/sites'
 import {
   graphqlEndpoint,
   makeContentPageNode,
+  makeHomepageNode,
 } from '@/tests/mocks/handlers'
 import {server} from '@/tests/mocks/server'
 
@@ -50,6 +51,11 @@ function serveConnections(
   server.use(
     http.post(graphqlEndpoint, async ({request}) => {
       const body = (await request.json()) as GraphQLRequestBody
+      if (body.query?.includes('query GetHomepage')) {
+        return HttpResponse.json({
+          data: {tio2Homepage: makeHomepageNode()},
+        })
+      }
       const after = body.variables?.after ?? null
       seenAfter.push(after)
       const index =
@@ -135,8 +141,8 @@ describe('robots output', () => {
 })
 
 describe('cursor-paginated sitemap through GraphQL', () => {
-  it('continues through six real 100-node operations and emits 505 URLs', async () => {
-    const nodes = Array.from({length: 505}, (_, index) => node(index))
+  it('continues through six real operations and emits one homepage plus 504 Page URLs', async () => {
+    const nodes = Array.from({length: 504}, (_, index) => node(index + 1))
     const connections = Array.from({length: 6}, (_, index) => {
       const pageNodes = nodes.slice(index * 100, index * 100 + 100)
       return {
@@ -172,7 +178,6 @@ describe('cursor-paginated sitemap through GraphQL', () => {
     serveConnections([
       {
         nodes: [
-          node(0),
           node(1, {
             siteScopes: {
               __typename: 'PageToSiteScopeConnection',
@@ -252,6 +257,10 @@ describe('cursor-paginated sitemap through GraphQL', () => {
 
     await expect(buildSitemap(getSiteConfig('tio2-a'))).resolves.toEqual([
       {
+        url: 'https://tio2products.com/',
+        lastModified: new Date('2026-08-23T08:30:00.000Z'),
+      },
+      {
         url: 'https://tio2products.com/resources/page-1',
         lastModified: new Date('2026-08-23T08:30:00.000Z'),
       },
@@ -302,6 +311,10 @@ describe('cursor-paginated sitemap through GraphQL', () => {
     const sitemap = await buildSitemap(getSiteConfig('tio2-a'))
 
     expect(sitemap).toEqual([
+      {
+        url: 'https://tio2products.com/',
+        lastModified: new Date('2026-08-23T08:30:00.000Z'),
+      },
       {url: 'https://tio2products.com/resources/page-1'},
       {url: 'https://tio2products.com/resources/page-2'},
     ])
@@ -321,12 +334,15 @@ describe('cursor-paginated sitemap through GraphQL', () => {
 
   it('propagates GraphQL errors instead of returning a partial sitemap', async () => {
     server.use(
-      http.post(graphqlEndpoint, () =>
-        HttpResponse.json({
+      http.post(graphqlEndpoint, async ({request}) => {
+        const body = (await request.json()) as GraphQLRequestBody
+        return body.query?.includes('query GetHomepage')
+          ? HttpResponse.json({data: {tio2Homepage: makeHomepageNode()}})
+          : HttpResponse.json({
           data: {siteScope: null},
           errors: [{message: 'WordPress list failed'}],
-        }),
-      ),
+            })
+      }),
     )
 
     await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
@@ -336,16 +352,25 @@ describe('cursor-paginated sitemap through GraphQL', () => {
   })
 
   it('propagates network and HTTP failures from the real sitemap loader', async () => {
-    server.use(http.post(graphqlEndpoint, () => HttpResponse.error()))
+    server.use(
+      http.post(graphqlEndpoint, async ({request}) => {
+        const body = (await request.json()) as GraphQLRequestBody
+        return body.query?.includes('query GetHomepage')
+          ? HttpResponse.json({data: {tio2Homepage: makeHomepageNode()}})
+          : HttpResponse.error()
+      }),
+    )
     await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
       name: 'GraphQLNetworkError',
     })
 
     server.use(
-      http.post(
-        graphqlEndpoint,
-        () => new HttpResponse('WordPress unavailable', {status: 503}),
-      ),
+      http.post(graphqlEndpoint, async ({request}) => {
+        const body = (await request.json()) as GraphQLRequestBody
+        return body.query?.includes('query GetHomepage')
+          ? HttpResponse.json({data: {tio2Homepage: makeHomepageNode()}})
+          : new HttpResponse('WordPress unavailable', {status: 503})
+      }),
     )
     await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
       name: 'GraphQLHttpError',
@@ -355,9 +380,12 @@ describe('cursor-paginated sitemap through GraphQL', () => {
 
   it('rejects a missing site connection instead of treating it as an empty sitemap', async () => {
     server.use(
-      http.post(graphqlEndpoint, () =>
-        HttpResponse.json({data: {siteScope: null}}),
-      ),
+      http.post(graphqlEndpoint, async ({request}) => {
+        const body = (await request.json()) as GraphQLRequestBody
+        return body.query?.includes('query GetHomepage')
+          ? HttpResponse.json({data: {tio2Homepage: makeHomepageNode()}})
+          : HttpResponse.json({data: {siteScope: null}})
+      }),
     )
 
     await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({

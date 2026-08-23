@@ -2,8 +2,11 @@ import type {MetadataRoute} from 'next'
 
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {isValidPublicPath} from '@/lib/wordpress/cache-tags'
+import {HomepageContractError} from '@/lib/wordpress/homepage-dto'
+import {getHomepage} from '@/lib/wordpress/homepage-queries'
 import {getSitemapContentPage} from '@/lib/wordpress/queries'
 import {isStrictUtcInstant} from '@/lib/wordpress/time'
+import {CrossSiteContentError} from '@/lib/wordpress/types'
 import type {SiteConfig} from '@/sites'
 
 export type SitemapPaginationErrorReason = 'missing' | 'repeated'
@@ -22,7 +25,10 @@ export class SitemapPaginationError extends Error {
   }
 }
 
-export type SitemapIntegrityErrorReason = 'path-conflict' | 'id-conflict'
+export type SitemapIntegrityErrorReason =
+  | 'path-conflict'
+  | 'id-conflict'
+  | 'source-invalid'
 
 interface SitemapIntegrityErrorDetails {
   readonly reason: SitemapIntegrityErrorReason
@@ -43,7 +49,9 @@ export class SitemapIntegrityError extends Error {
     super(
       details.reason === 'path-conflict'
         ? `Sitemap path ${details.path} belongs to multiple page IDs`
-        : `Sitemap page ${details.firstId} has conflicting paths`,
+        : details.reason === 'id-conflict'
+          ? `Sitemap page ${details.firstId} has conflicting paths`
+          : `Sitemap source for ${details.path} is invalid`,
     )
     this.name = 'SitemapIntegrityError'
     this.reason = details.reason
@@ -54,8 +62,19 @@ export class SitemapIntegrityError extends Error {
   }
 }
 
+export interface SitemapSources {
+  readonly getHomepage: typeof getHomepage
+  readonly getSitemapContentPage: typeof getSitemapContentPage
+}
+
+const defaultSitemapSources: SitemapSources = {
+  getHomepage,
+  getSitemapContentPage,
+}
+
 export async function buildSitemap(
   site: SiteConfig,
+  sources: SitemapSources = defaultSitemapSources,
 ): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = []
   const pathIds = new Map<string, string>()
@@ -63,8 +82,47 @@ export async function buildSitemap(
   const cursors = new Set<string>()
   let after: string | undefined
 
+  let homepage
+  try {
+    homepage = await sources.getHomepage(site.id)
+  } catch (error) {
+    if (
+      error instanceof HomepageContractError ||
+      error instanceof CrossSiteContentError
+    ) {
+      throw new SitemapIntegrityError({
+        reason: 'source-invalid',
+        firstId: 'homepage',
+        path: '/',
+      })
+    }
+    throw error
+  }
+  if (
+    !homepage ||
+    homepage.identity.siteId !== site.id ||
+    homepage.identity.path !== '/' ||
+    homepage.identity.status !== 'publish'
+  ) {
+    throw new SitemapIntegrityError({
+      reason: 'source-invalid',
+      firstId: homepage?.identity.id ?? 'homepage',
+      path: '/',
+    })
+  }
+
+  pathIds.set('/', homepage.identity.id)
+  idPaths.set(homepage.identity.id, '/')
+  const homepageEntry: MetadataRoute.Sitemap[number] = {
+    url: new URL('/', site.url).href,
+  }
+  if (isStrictUtcInstant(homepage.identity.modified)) {
+    homepageEntry.lastModified = new Date(homepage.identity.modified)
+  }
+  entries.push(homepageEntry)
+
   for (;;) {
-    const connection = await getSitemapContentPage(site.id, after)
+    const connection = await sources.getSitemapContentPage(site.id, after)
 
     for (const page of connection.nodes) {
       if (
@@ -86,7 +144,10 @@ export async function buildSitemap(
       }
 
       const previousId = pathIds.get(page.path)
-      if (previousId !== undefined && previousId !== page.id) {
+      if (
+        previousId !== undefined &&
+        (previousId !== page.id || page.path === '/')
+      ) {
         throw new SitemapIntegrityError({
           reason: 'path-conflict',
           firstId: previousId,

@@ -43,6 +43,10 @@ export class HomepageVersionError extends HomepageContractError {
   }
 }
 
+export interface HomepageAdapterOptions {
+  readonly readMode?: 'formal' | 'preview'
+}
+
 function record(value: unknown, fieldPath: string): UnknownRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new HomepageContractError(fieldPath)
@@ -238,6 +242,7 @@ function siteId(value: string): SiteId {
 export function toHomepageDto(
   sourceValue: HomepageFieldsFragment,
   expectedSiteIdValue: string,
+  options: HomepageAdapterOptions = {},
 ): HomepageDto {
   const source = record(sourceValue, 'homepage')
   const expectedSiteId = siteId(expectedSiteIdValue)
@@ -267,7 +272,8 @@ export function toHomepageDto(
     throw new HomepageVersionError(schemaVersion)
   }
   const status = boundedText(source.status, 'identity.status', null)
-  if (status !== 'publish') {
+  const expectedStatus = options.readMode === 'preview' ? 'draft' : 'publish'
+  if (status !== expectedStatus) {
     throw new HomepageContractError('identity.status')
   }
   const modified = normalizeWordPressGmt(

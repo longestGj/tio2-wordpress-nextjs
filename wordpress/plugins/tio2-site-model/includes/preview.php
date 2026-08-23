@@ -46,6 +46,187 @@ function tio2_preview_signature_message(string $timestamp, string $site_id, stri
 }
 
 /**
+ * @param mixed $value
+ * @return array{node: array{mediaItemUrl: string, altText: string, mediaDetails: array{width: int, height: int}, mimeType: string}}|null
+ */
+function tio2_preview_homepage_image($value): ?array
+{
+    $attachment_id = is_array($value)
+        ? (int) ($value['ID'] ?? $value['id'] ?? 0)
+        : (int) $value;
+    if ($attachment_id <= 0) {
+        return null;
+    }
+
+    $url = wp_get_attachment_url($attachment_id);
+    $metadata = wp_get_attachment_metadata($attachment_id);
+    $mime_type = get_post_mime_type($attachment_id);
+    if (
+        ! is_string($url) ||
+        '' === $url ||
+        ! is_array($metadata) ||
+        ! is_string($mime_type)
+    ) {
+        return null;
+    }
+
+    return [
+        'node' => [
+            'mediaItemUrl' => $url,
+            'altText' => (string) get_post_meta($attachment_id, '_wp_attachment_image_alt', true),
+            'mediaDetails' => [
+                'width' => (int) ($metadata['width'] ?? 0),
+                'height' => (int) ($metadata['height'] ?? 0),
+            ],
+            'mimeType' => $mime_type,
+        ],
+    ];
+}
+
+/**
+ * @param mixed $value
+ * @return list<array<string, mixed>>
+ */
+function tio2_preview_homepage_rows($value): array
+{
+    if (! is_array($value)) {
+        return [];
+    }
+
+    return array_values(array_filter($value, 'is_array'));
+}
+
+/**
+ * @param mixed $value
+ * @return list<string>
+ */
+function tio2_preview_homepage_select($value): array
+{
+    if (is_array($value)) {
+        return array_values(array_map('strval', $value));
+    }
+
+    return '' === (string) $value ? [] : [(string) $value];
+}
+
+/**
+ * @return array<string, mixed>
+ */
+function tio2_serialize_homepage_preview(WP_Post $post, string $site_id): array
+{
+    $post_id = (int) $post->ID;
+    $metrics = array_map(static fn (array $row): array => [
+        'metricValue' => (string) ($row['metric_value'] ?? ''),
+        'metricUnit' => (string) ($row['metric_unit'] ?? ''),
+        'metricLabel' => (string) ($row['metric_label'] ?? ''),
+        'metricContext' => (string) ($row['metric_context'] ?? ''),
+        'metricClaimBasis' => tio2_preview_homepage_select($row['metric_claim_basis'] ?? ''),
+        'metricEvidenceUrl' => (string) ($row['metric_evidence_url'] ?? ''),
+    ], tio2_preview_homepage_rows(get_field('metrics', $post_id)));
+    $product_routes = array_map(static fn (array $row): array => [
+        'productTitle' => (string) ($row['product_title'] ?? ''),
+        'productSummary' => (string) ($row['product_summary'] ?? ''),
+        'productPath' => (string) ($row['product_path'] ?? ''),
+        'productImage' => tio2_preview_homepage_image($row['product_image'] ?? null),
+        'productImageAlt' => (string) ($row['product_image_alt'] ?? ''),
+    ], tio2_preview_homepage_rows(get_field('product_routes', $post_id)));
+    $applications = array_map(static fn (array $row): array => [
+        'applicationName' => (string) ($row['application_name'] ?? ''),
+        'applicationSummary' => (string) ($row['application_summary'] ?? ''),
+        'applicationPath' => (string) ($row['application_path'] ?? ''),
+        'applicationImage' => tio2_preview_homepage_image($row['application_image'] ?? null),
+        'applicationImageAlt' => (string) ($row['application_image_alt'] ?? ''),
+    ], tio2_preview_homepage_rows(get_field('applications', $post_id)));
+    $inquiry_steps = array_map(static fn (array $row): array => [
+        'inquiryStepTitle' => (string) ($row['inquiry_step_title'] ?? ''),
+        'inquiryStepDescription' => (string) ($row['inquiry_step_description'] ?? ''),
+    ], tio2_preview_homepage_rows(get_field('inquiry_steps', $post_id)));
+    $trust_reasons = array_map(static fn (array $row): array => [
+        'trustReasonTitle' => (string) ($row['trust_reason_title'] ?? ''),
+        'trustReasonDescription' => (string) ($row['trust_reason_description'] ?? ''),
+        'trustReasonClaimBasis' => tio2_preview_homepage_select($row['trust_reason_claim_basis'] ?? ''),
+        'trustReasonEvidenceUrl' => (string) ($row['trust_reason_evidence_url'] ?? ''),
+    ], tio2_preview_homepage_rows(get_field('trust_reasons', $post_id)));
+    $rfq_labels = get_field('rfq_labels', $post_id);
+    $rfq_labels = is_array($rfq_labels) ? $rfq_labels : [];
+    $faqs = array_map(static fn (array $row): array => [
+        'faqQuestion' => (string) ($row['faq_question'] ?? ''),
+        'faqAnswer' => (string) ($row['faq_answer'] ?? ''),
+        'faqRelatedLabel' => (string) ($row['faq_related_label'] ?? ''),
+        'faqRelatedPath' => (string) ($row['faq_related_path'] ?? ''),
+    ], tio2_preview_homepage_rows(get_field('faqs', $post_id)));
+    $secondary_topics = array_map(static fn (array $row): array => [
+        'secondaryTopic' => (string) ($row['secondary_topic'] ?? ''),
+    ], tio2_preview_homepage_rows(get_field('secondary_topics', $post_id)));
+    $schema_version = (string) get_field('homepage_schema_version', $post_id);
+
+    return [
+        'id' => (string) $post_id,
+        'databaseId' => $post_id,
+        'siteId' => $site_id,
+        'path' => '/',
+        'schemaVersion' => $schema_version,
+        'modifiedGmt' => get_post_modified_time('Y-m-d\TH:i:s', true, $post),
+        'status' => $post->post_status,
+        'siteScopes' => ['nodes' => [['slug' => $site_id]]],
+        'homepageFields' => [
+            'homepageSchemaVersion' => $schema_version,
+            'heroEyebrow' => (string) get_field('hero_eyebrow', $post_id),
+            'heroHeading' => (string) get_field('hero_heading', $post_id),
+            'heroSummary' => (string) get_field('hero_summary', $post_id),
+            'heroPrimaryLabel' => (string) get_field('hero_primary_label', $post_id),
+            'heroSecondaryLabel' => (string) get_field('hero_secondary_label', $post_id),
+            'heroSecondaryPath' => (string) get_field('hero_secondary_path', $post_id),
+            'heroImage' => tio2_preview_homepage_image(get_field('hero_image', $post_id)),
+            'heroImageAlt' => (string) get_field('hero_image_alt', $post_id),
+            'metrics' => $metrics,
+            'productsHeading' => (string) get_field('products_heading', $post_id),
+            'productsIntro' => (string) get_field('products_intro', $post_id),
+            'productRoutes' => $product_routes,
+            'applicationsHeading' => (string) get_field('applications_heading', $post_id),
+            'applicationsIntro' => (string) get_field('applications_intro', $post_id),
+            'applications' => $applications,
+            'inquiryHeading' => (string) get_field('inquiry_heading', $post_id),
+            'inquirySteps' => $inquiry_steps,
+            'trustHeading' => (string) get_field('trust_heading', $post_id),
+            'trustIntro' => (string) get_field('trust_intro', $post_id),
+            'trustReasons' => $trust_reasons,
+            'rfqHeading' => (string) get_field('rfq_heading', $post_id),
+            'rfqIntro' => (string) get_field('rfq_intro', $post_id),
+            'rfqLabels' => [
+                'rfqLabelName' => (string) ($rfq_labels['rfq_label_name'] ?? ''),
+                'rfqLabelCompany' => (string) ($rfq_labels['rfq_label_company'] ?? ''),
+                'rfqLabelCountryRegion' => (string) ($rfq_labels['rfq_label_country_region'] ?? ''),
+                'rfqLabelWorkEmail' => (string) ($rfq_labels['rfq_label_work_email'] ?? ''),
+                'rfqLabelBuyerType' => (string) ($rfq_labels['rfq_label_buyer_type'] ?? ''),
+                'rfqLabelInterest' => (string) ($rfq_labels['rfq_label_interest'] ?? ''),
+                'rfqLabelExpectedQuantity' => (string) ($rfq_labels['rfq_label_expected_quantity'] ?? ''),
+                'rfqLabelDestination' => (string) ($rfq_labels['rfq_label_destination'] ?? ''),
+                'rfqLabelMessage' => (string) ($rfq_labels['rfq_label_message'] ?? ''),
+                'rfqLabelPrivacy' => (string) ($rfq_labels['rfq_label_privacy'] ?? ''),
+                'rfqBuyerIndustrialLabel' => (string) ($rfq_labels['rfq_buyer_industrial_label'] ?? ''),
+                'rfqBuyerDistributorLabel' => (string) ($rfq_labels['rfq_buyer_distributor_label'] ?? ''),
+                'rfqBuyerOtherLabel' => (string) ($rfq_labels['rfq_buyer_other_label'] ?? ''),
+            ],
+            'rfqSubmitLabel' => (string) get_field('rfq_submit_label', $post_id),
+            'rfqPrivacyText' => (string) get_field('rfq_privacy_text', $post_id),
+            'rfqSuccessHeading' => (string) get_field('rfq_success_heading', $post_id),
+            'rfqSuccessMessage' => (string) get_field('rfq_success_message', $post_id),
+            'faqHeading' => (string) get_field('faq_heading', $post_id),
+            'faqs' => $faqs,
+            'closingHeading' => (string) get_field('closing_heading', $post_id),
+            'closingBody' => (string) get_field('closing_body', $post_id),
+            'closingLabel' => (string) get_field('closing_label', $post_id),
+            'seoTitle' => (string) get_field('seo_title', $post_id),
+            'seoDescription' => (string) get_field('seo_description', $post_id),
+            'ogImage' => tio2_preview_homepage_image(get_field('og_image', $post_id)),
+            'primaryTopic' => (string) get_field('primary_topic', $post_id),
+            'secondaryTopics' => $secondary_topics,
+        ],
+    ];
+}
+
+/**
  * @return true|WP_Error
  */
 function tio2_preview_rest_permission(WP_REST_Request $request)
@@ -85,6 +266,26 @@ function tio2_preview_rest_response(WP_REST_Request $request)
 {
     $site_id = (string) $request->get_param('siteId');
     $path = (string) $request->get_param('path');
+    if ('/' === $path) {
+        $homepage_ids = tio2_find_homepage_ids($site_id);
+        if (1 !== count($homepage_ids)) {
+            return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+        }
+        $homepage = get_post((int) $homepage_ids[0]);
+        $validation = $homepage instanceof WP_Post
+            ? tio2_validate_homepage_contract((int) $homepage->ID)
+            : new WP_Error('tio2_preview_not_found');
+        if (
+            ! $homepage instanceof WP_Post ||
+            is_wp_error($validation) ||
+            ! in_array($homepage->post_status, ['publish', 'future', 'draft', 'pending', 'private'], true)
+        ) {
+            return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+        }
+
+        return new WP_REST_Response(tio2_serialize_homepage_preview($homepage, $site_id), 200);
+    }
+
     $internal_slug = tio2_build_internal_slug($site_id, $path);
     if (is_wp_error($internal_slug)) {
         return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
@@ -142,9 +343,20 @@ function tio2_register_preview_rest_route(): void
 
 function tio2_filter_preview_post_link(string $preview_link, WP_Post $post): string
 {
-    $route = tio2_get_managed_post_route((int) $post->ID);
-    if (is_wp_error($route)) {
-        return $preview_link;
+    if ('tio2_homepage' === $post->post_type) {
+        $site_id = tio2_get_homepage_site_id((int) $post->ID);
+        if (
+            null === $site_id ||
+            tio2_homepage_internal_slug($site_id) !== $post->post_name
+        ) {
+            return $preview_link;
+        }
+        $route = ['siteId' => $site_id, 'publicPath' => '/'];
+    } else {
+        $route = tio2_get_managed_post_route((int) $post->ID);
+        if (is_wp_error($route)) {
+            return $preview_link;
+        }
     }
 
     $config = tio2_get_preview_config($route['siteId']);

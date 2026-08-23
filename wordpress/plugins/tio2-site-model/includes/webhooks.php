@@ -50,7 +50,7 @@ function tio2_get_webhook_config(string $site_id, ?array $environment = null): ?
  */
 function tio2_webhook_post_types(): array
 {
-    return array_merge(['page', 'post'], array_keys(tio2_content_type_definitions()));
+    return array_merge(['page', 'post', 'tio2_homepage'], array_keys(tio2_content_type_definitions()));
 }
 
 function tio2_is_valid_webhook_path(string $path): bool
@@ -147,7 +147,13 @@ function tio2_get_webhook_affected_state(
     $site_ids = $scope_state['siteIds'];
     $entity_ids = [];
     $site_paths = [];
-    if (in_array($post->post_type, ['page', 'post'], true)) {
+    if ('tio2_homepage' === $post->post_type) {
+        if (1 !== count($site_ids)) {
+            return null;
+        }
+        $paths = ['/'];
+        $site_paths[$site_ids[0]] = $paths;
+    } elseif (in_array($post->post_type, ['page', 'post'], true)) {
         if (1 !== count($site_ids)) {
             return null;
         }
@@ -301,15 +307,50 @@ function tio2_send_webhook(int $post_id, ?array $affected = null): bool
     return $attempted && $all_succeeded;
 }
 
-function tio2_is_relevant_webhook_meta_key(string $meta_key): bool
+function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = null): bool
 {
-    return in_array($meta_key, [
+    if (in_array($meta_key, [
         'public_path',
         'seo_title',
         'seo_description',
         'technical_summary',
         'evidence_source_url',
-    ], true);
+    ], true)) {
+        return true;
+    }
+
+    $post = null === $post_id ? null : get_post($post_id);
+    if (! $post instanceof WP_Post || 'tio2_homepage' !== $post->post_type) {
+        return false;
+    }
+
+    $homepage_key = ltrim($meta_key, '_');
+    foreach ([
+        'homepage_',
+        'hero_',
+        'metric_',
+        'metrics',
+        'products_',
+        'product_',
+        'applications_',
+        'applications',
+        'application_',
+        'inquiry_',
+        'trust_',
+        'rfq_',
+        'faq_',
+        'faqs',
+        'closing_',
+        'og_',
+        'primary_',
+        'secondary_',
+    ] as $prefix) {
+        if (str_starts_with($homepage_key, $prefix)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /**
@@ -380,7 +421,7 @@ function tio2_capture_post_meta_before_mutation(
     if (
         null === $check &&
         'publish' === get_post_status($post_id) &&
-        tio2_is_relevant_webhook_meta_key($meta_key)
+        tio2_is_relevant_webhook_meta_key($meta_key, $post_id)
     ) {
         tio2_queue_webhook($post_id);
     }
@@ -393,7 +434,7 @@ function tio2_capture_post_meta_before_mutation(
  */
 function tio2_handle_post_meta_change($meta_id, int $post_id, string $meta_key, $meta_value): void
 {
-    if (! tio2_is_relevant_webhook_meta_key($meta_key)) {
+    if (! tio2_is_relevant_webhook_meta_key($meta_key, $post_id)) {
         return;
     }
 
