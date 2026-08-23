@@ -13,6 +13,7 @@ import {
 import {
   graphqlEndpoint,
   makeContentPageNode,
+  makeHomepageNode,
 } from '@/tests/mocks/handlers'
 import {server} from '@/tests/mocks/server'
 
@@ -22,6 +23,10 @@ const {cookies, draftMode} = vi.hoisted(() => ({
 }))
 
 vi.mock('next/headers', () => ({cookies, draftMode}))
+vi.mock('next/font/google', () => ({
+  Inter: () => ({variable: 'inter-font'}),
+  Source_Serif_4: () => ({variable: 'source-serif-font'}),
+}))
 
 const wordpressPreviewUrl = 'http://wordpress.test/wp-json/tio2/v1/preview'
 const previewSecret = 'preview-test-secret'
@@ -335,14 +340,26 @@ describe('site-scoped content routes', () => {
 
   it('renders the Site A root from the environment-selected site and root query', async () => {
     vi.stubEnv('SITE_ID', 'tio2-a')
-    servePage('/tio2-a--home/', contentNode('tio2-a', '/', 'Site A Home'))
+    const homepage = makeHomepageNode()
+    homepage.homepageFields.heroHeading = 'Site A Home'
+    server.use(
+      http.post(graphqlEndpoint, async ({request}) => {
+        const body = (await request.json()) as {
+          readonly variables?: {readonly slug?: string}
+        }
+        expect(body.variables?.slug).toBe('tio2-a--homepage')
+        return HttpResponse.json({data: {tio2Homepage: homepage}})
+      }),
+    )
     const {default: HomePage} = await import('@/app/page')
 
     const markup = await render(await HomePage())
 
     expect(markup).toContain('<main data-site-id="tio2-a"')
     expect(markup).toContain('TiO2 A')
-    expect(markup).toContain('<h1>Site A Home</h1>')
+    expect(markup).toContain(
+      '<h1 id="homepage-hero-heading">Site A Home</h1>',
+    )
   })
 
   it.each([

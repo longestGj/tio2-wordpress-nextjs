@@ -4,7 +4,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 
 import {
   graphqlEndpoint,
-  makeContentPageNode,
+  makeHomepageNode,
 } from '@/tests/mocks/handlers'
 import {server} from '@/tests/mocks/server'
 
@@ -13,6 +13,10 @@ const {draftMode} = vi.hoisted(() => ({
 }))
 
 vi.mock('next/headers', () => ({draftMode}))
+vi.mock('next/font/google', () => ({
+  Inter: () => ({variable: 'inter-font'}),
+  Source_Serif_4: () => ({variable: 'source-serif-font'}),
+}))
 
 const sites = [
   {
@@ -40,31 +44,13 @@ describe('site branding', () => {
   it.each(sites)('renders $id metadata and branding', async (site) => {
     vi.stubEnv('SITE_ID', site.id)
     vi.stubEnv('WORDPRESS_GRAPHQL_URL', graphqlEndpoint)
+    const homepage = makeHomepageNode()
+    homepage.siteScopes.nodes[0].slug = site.id
+    homepage.homepageFields.heroHeading = `${site.name} Home`
     server.use(
       http.post(graphqlEndpoint, () =>
         HttpResponse.json({
-          data: {
-            page: makeContentPageNode({
-              title: `${site.name} Home`,
-              content: `<p>${site.name} home content.</p>`,
-              publishingFields: {
-                __typename: 'PublishingFields',
-                publicPath: '/',
-                seoTitle: `${site.name} Home`,
-                seoDescription: `${site.name} home description.`,
-              },
-              siteScopes: {
-                __typename: 'PageToSiteScopeConnection',
-                nodes: [
-                  {
-                    __typename: 'SiteScope',
-                    id: site.id === 'tio2-a' ? 'dGVybTox' : 'dGVybToy',
-                    slug: site.id,
-                  },
-                ],
-              },
-            }),
-          },
+          data: {tio2Homepage: homepage},
           extensions: {debug: []},
         }),
       ),
@@ -82,6 +68,8 @@ describe('site branding', () => {
     const homeMarkup = renderToStaticMarkup(await HomePage())
     expect(homeMarkup).toContain(`data-site-id="${site.id}"`)
     expect(homeMarkup).toContain(`<p>${site.name}</p>`)
-    expect(homeMarkup).toContain(`<h1>${site.name} Home</h1>`)
+    expect(homeMarkup).toContain(
+      `<h1 id="homepage-hero-heading">${site.name} Home</h1>`,
+    )
   })
 })
