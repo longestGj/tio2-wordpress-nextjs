@@ -63,6 +63,59 @@ describe('homepage sitemap ownership', () => {
     expect(sitemap.some(({url}) => url.endsWith('/test-content/long-tail-500'))).toBe(true)
   })
 
+  it.each([503, 505])(
+    'rejects a completed pagination source containing %i Pages',
+    async (pageCount) => {
+      const pages = Array.from({length: pageCount}, (_, index) =>
+        page(index + 1),
+      )
+
+      await expect(
+        buildSitemap(getSiteConfig('tio2-a'), sources(pages)),
+      ).rejects.toMatchObject({
+        name: SitemapIntegrityError.name,
+        reason: 'count-mismatch',
+        expectedCount: 504,
+        actualCount: pageCount,
+      })
+    },
+  )
+
+  it.each([
+    ['cross-site', {...page(504), siteId: 'tio2-b'}],
+    ['unpublished', {...page(504), status: 'draft'}],
+    ['malformed', {...page(504), path: 'https://evil.example/leak'}],
+  ] as const)('rejects a %s Page source node', async (_case, invalidPage) => {
+    const pages = [
+      ...Array.from({length: 503}, (_, index) => page(index + 1)),
+      invalidPage as ContentPageDto,
+    ]
+
+    await expect(
+      buildSitemap(getSiteConfig('tio2-a'), sources(pages)),
+    ).rejects.toMatchObject({
+      name: SitemapIntegrityError.name,
+      reason: 'source-invalid',
+      firstId: 'page-504',
+    })
+  })
+
+  it('rejects an exact repeated Page ID/path instead of deduping it', async () => {
+    const pages = [
+      ...Array.from({length: 503}, (_, index) => page(index + 1)),
+      page(1),
+    ]
+
+    await expect(
+      buildSitemap(getSiteConfig('tio2-a'), sources(pages)),
+    ).rejects.toMatchObject({
+      name: SitemapIntegrityError.name,
+      reason: 'duplicate-record',
+      firstId: 'page-1',
+      path: '/test-content/long-tail-1',
+    })
+  })
+
   it('rejects an old Page that also claims the homepage root', async () => {
     await expect(
       buildSitemap(

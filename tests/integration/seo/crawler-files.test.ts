@@ -93,6 +93,18 @@ function serveConnections(
   )
 }
 
+function paginate(nodes: readonly PageNode[]) {
+  return Array.from({length: Math.ceil(nodes.length / 100)}, (_, index) => {
+    const pageNodes = nodes.slice(index * 100, index * 100 + 100)
+    const hasNextPage = (index + 1) * 100 < nodes.length
+    return {
+      nodes: pageNodes,
+      endCursor: hasNextPage ? `cursor-${(index + 1) * 100}` : null,
+      hasNextPage,
+    }
+  })
+}
+
 beforeEach(() => {
   vi.stubEnv('WORDPRESS_GRAPHQL_URL', graphqlEndpoint)
 })
@@ -143,16 +155,8 @@ describe('robots output', () => {
 describe('cursor-paginated sitemap through GraphQL', () => {
   it('continues through six real operations and emits one homepage plus 504 Page URLs', async () => {
     const nodes = Array.from({length: 504}, (_, index) => node(index + 1))
-    const connections = Array.from({length: 6}, (_, index) => {
-      const pageNodes = nodes.slice(index * 100, index * 100 + 100)
-      return {
-        nodes: pageNodes,
-        endCursor: index < 5 ? `cursor-${(index + 1) * 100}` : null,
-        hasNextPage: index < 5,
-      }
-    })
     const seenAfter: Array<string | null> = []
-    serveConnections(connections, seenAfter)
+    serveConnections(paginate(nodes), seenAfter)
 
     const sitemap = await buildSitemap(getSiteConfig('tio2-a'))
 
@@ -174,54 +178,65 @@ describe('cursor-paginated sitemap through GraphQL', () => {
     )
   })
 
-  it('skips invalid, cross-site, and draft nodes across a real continuation', async () => {
+  it.each([
+    [
+      'cross-site',
+      node(504, {
+        siteScopes: {
+          __typename: 'PageToSiteScopeConnection',
+          nodes: [{__typename: 'SiteScope', id: 'scope-b', slug: 'tio2-b'}],
+        },
+      }),
+    ],
+    [
+      'malformed',
+      node(504, {
+        publishingFields: {
+          __typename: 'PublishingFields',
+          publicPath: 'https://evil.example/leak',
+          seoTitle: '',
+          seoDescription: '',
+        },
+      }),
+    ],
+    ['unpublished', node(504, {status: 'draft'})],
+  ] as const)(
+    'rejects a %s raw WordPress Page instead of returning a partial sitemap',
+    async (_case, invalidNode) => {
+      const nodes = [
+        ...Array.from({length: 503}, (_, index) => node(index + 1)),
+        invalidNode,
+      ]
+      serveConnections(paginate(nodes))
+
+      await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
+        name: SitemapIntegrityError.name,
+        reason: 'source-invalid',
+      })
+    },
+  )
+
+  it.each([503, 505])(
+    'rejects %i raw WordPress Pages when pagination ends',
+    async (pageCount) => {
+      const nodes = Array.from({length: pageCount}, (_, index) =>
+        node(index + 1),
+      )
+      serveConnections(paginate(nodes))
+
+      await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
+        name: SitemapIntegrityError.name,
+        reason: 'count-mismatch',
+        expectedCount: 504,
+        actualCount: pageCount,
+      })
+    },
+  )
+
+  it('rejects different IDs sharing one path', async () => {
     serveConnections([
       {
         nodes: [
-          node(1, {
-            siteScopes: {
-              __typename: 'PageToSiteScopeConnection',
-              nodes: [
-                {__typename: 'SiteScope', id: 'scope-b', slug: 'tio2-b'},
-              ],
-            },
-          }),
-          node(2, {
-            publishingFields: {
-              __typename: 'PublishingFields',
-              publicPath: 'https://evil.example/leak',
-              seoTitle: '',
-              seoDescription: '',
-            },
-          }),
-        ],
-        endCursor: 'cursor-100',
-        hasNextPage: true,
-      },
-      {
-        nodes: [node(3, {status: 'draft'}), node(4)],
-        endCursor: null,
-        hasNextPage: false,
-      },
-    ])
-
-    await expect(buildSitemap(getSiteConfig('tio2-a'))).resolves.toEqual([
-      {
-        url: 'https://tio2products.com/',
-        lastModified: new Date('2026-08-23T08:30:00.000Z'),
-      },
-      {
-        url: 'https://tio2products.com/resources/page-4',
-        lastModified: new Date('2026-08-23T08:30:00.000Z'),
-      },
-    ])
-  })
-
-  it('dedupes the same ID/path but rejects different IDs sharing one path', async () => {
-    serveConnections([
-      {
-        nodes: [
-          node(1),
           node(1),
           node(2, {
             publishingFields: {
@@ -246,25 +261,19 @@ describe('cursor-paginated sitemap through GraphQL', () => {
     })
   })
 
-  it('emits one URL for an exact repeated ID/path record', async () => {
-    serveConnections([
-      {
-        nodes: [node(1), node(1)],
-        endCursor: null,
-        hasNextPage: false,
-      },
-    ])
+  it('rejects an exact repeated ID/path record', async () => {
+    const nodes = [
+      ...Array.from({length: 503}, (_, index) => node(index + 1)),
+      node(1),
+    ]
+    serveConnections(paginate(nodes))
 
-    await expect(buildSitemap(getSiteConfig('tio2-a'))).resolves.toEqual([
-      {
-        url: 'https://tio2products.com/',
-        lastModified: new Date('2026-08-23T08:30:00.000Z'),
-      },
-      {
-        url: 'https://tio2products.com/resources/page-1',
-        lastModified: new Date('2026-08-23T08:30:00.000Z'),
-      },
-    ])
+    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
+      name: SitemapIntegrityError.name,
+      reason: 'duplicate-record',
+      firstId: 'page-1',
+      path: '/resources/page-1',
+    })
   })
 
   it('rejects one ID mapped to conflicting paths', async () => {
@@ -297,20 +306,17 @@ describe('cursor-paginated sitemap through GraphQL', () => {
   })
 
   it('omits invalid or missing GMT instants', async () => {
-    serveConnections([
-      {
-        nodes: [
-          node(1, {modifiedGmt: '2026-02-30T08:30:00'} as never),
-          node(2, {modifiedGmt: null} as never),
-        ],
-        endCursor: null,
-        hasNextPage: false,
-      },
-    ])
+    const nodes = [
+      node(1, {modifiedGmt: '2026-02-30T08:30:00'} as never),
+      node(2, {modifiedGmt: null} as never),
+      ...Array.from({length: 502}, (_, index) => node(index + 3)),
+    ]
+    serveConnections(paginate(nodes))
 
     const sitemap = await buildSitemap(getSiteConfig('tio2-a'))
 
-    expect(sitemap).toEqual([
+    expect(sitemap).toHaveLength(505)
+    expect(sitemap.slice(0, 3)).toEqual([
       {
         url: 'https://tio2products.com/',
         lastModified: new Date('2026-08-23T08:30:00.000Z'),

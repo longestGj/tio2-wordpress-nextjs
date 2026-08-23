@@ -36,6 +36,29 @@ export class SitemapSourceError extends Error {
   }
 }
 
+export type SitemapPageSourceErrorReason =
+  | 'cross-site'
+  | 'malformed-path'
+  | 'unpublished'
+
+export class SitemapPageSourceError extends Error {
+  readonly siteId: string
+  readonly contentId: string
+  readonly reason: SitemapPageSourceErrorReason
+
+  constructor(
+    siteId: string,
+    contentId: string,
+    reason: SitemapPageSourceErrorReason,
+  ) {
+    super(`WordPress returned a ${reason} sitemap Page ${contentId} for ${siteId}`)
+    this.name = 'SitemapPageSourceError'
+    this.siteId = siteId
+    this.contentId = contentId
+    this.reason = reason
+  }
+}
+
 export async function getContentByPath(
   siteId: string,
   path: string,
@@ -96,17 +119,19 @@ export async function getSitemapContentPage(
     throw new SitemapSourceError(siteId)
   }
 
-  const nodes = connection.nodes.flatMap((node) => {
-    if (node.status !== 'publish') return []
+  const nodes = connection.nodes.map((node) => {
+    if (node.status !== 'publish') {
+      throw new SitemapPageSourceError(siteId, node.id, 'unpublished')
+    }
 
     try {
-      return [toContentPageDto(node, siteId)]
+      return toContentPageDto(node, siteId)
     } catch (error) {
-      if (
-        error instanceof CrossSiteContentError ||
-        error instanceof InvalidContentPathError
-      ) {
-        return []
+      if (error instanceof CrossSiteContentError) {
+        throw new SitemapPageSourceError(siteId, node.id, 'cross-site')
+      }
+      if (error instanceof InvalidContentPathError) {
+        throw new SitemapPageSourceError(siteId, node.id, 'malformed-path')
       }
 
       throw error

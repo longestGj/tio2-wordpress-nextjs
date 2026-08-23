@@ -4,7 +4,10 @@ import {getCurrentSite} from '@/lib/sites/current-site'
 import {isValidPublicPath} from '@/lib/wordpress/cache-tags'
 import {HomepageContractError} from '@/lib/wordpress/homepage-dto'
 import {getHomepage} from '@/lib/wordpress/homepage-queries'
-import {getSitemapContentPage} from '@/lib/wordpress/queries'
+import {
+  getSitemapContentPage,
+  SitemapPageSourceError,
+} from '@/lib/wordpress/queries'
 import {isStrictUtcInstant} from '@/lib/wordpress/time'
 import {CrossSiteContentError} from '@/lib/wordpress/types'
 import type {SiteConfig} from '@/sites'
@@ -26,6 +29,8 @@ export class SitemapPaginationError extends Error {
 }
 
 export type SitemapIntegrityErrorReason =
+  | 'count-mismatch'
+  | 'duplicate-record'
   | 'path-conflict'
   | 'id-conflict'
   | 'source-invalid'
@@ -36,6 +41,8 @@ interface SitemapIntegrityErrorDetails {
   readonly path: string
   readonly conflictingId?: string
   readonly conflictingPath?: string
+  readonly expectedCount?: number
+  readonly actualCount?: number
 }
 
 export class SitemapIntegrityError extends Error {
@@ -44,14 +51,20 @@ export class SitemapIntegrityError extends Error {
   readonly path: string
   readonly conflictingId?: string
   readonly conflictingPath?: string
+  readonly expectedCount?: number
+  readonly actualCount?: number
 
   constructor(details: SitemapIntegrityErrorDetails) {
     super(
-      details.reason === 'path-conflict'
-        ? `Sitemap path ${details.path} belongs to multiple page IDs`
-        : details.reason === 'id-conflict'
-          ? `Sitemap page ${details.firstId} has conflicting paths`
-          : `Sitemap source for ${details.path} is invalid`,
+      details.reason === 'count-mismatch'
+        ? `Sitemap requires exactly ${details.expectedCount} Pages; received ${details.actualCount}`
+        : details.reason === 'duplicate-record'
+          ? `Sitemap Page ${details.firstId} at ${details.path} is duplicated`
+          : details.reason === 'path-conflict'
+            ? `Sitemap path ${details.path} belongs to multiple page IDs`
+            : details.reason === 'id-conflict'
+              ? `Sitemap page ${details.firstId} has conflicting paths`
+              : `Sitemap source for ${details.path} is invalid`,
     )
     this.name = 'SitemapIntegrityError'
     this.reason = details.reason
@@ -59,6 +72,8 @@ export class SitemapIntegrityError extends Error {
     this.path = details.path
     this.conflictingId = details.conflictingId
     this.conflictingPath = details.conflictingPath
+    this.expectedCount = details.expectedCount
+    this.actualCount = details.actualCount
   }
 }
 
@@ -72,6 +87,8 @@ const defaultSitemapSources: SitemapSources = {
   getSitemapContentPage,
 }
 
+const EXPECTED_PAGE_COUNT = 504
+
 export async function buildSitemap(
   site: SiteConfig,
   sources: SitemapSources = defaultSitemapSources,
@@ -81,6 +98,7 @@ export async function buildSitemap(
   const idPaths = new Map<string, string>()
   const cursors = new Set<string>()
   let after: string | undefined
+  let pageCount = 0
 
   let homepage
   try {
@@ -122,7 +140,19 @@ export async function buildSitemap(
   entries.push(homepageEntry)
 
   for (;;) {
-    const connection = await sources.getSitemapContentPage(site.id, after)
+    let connection
+    try {
+      connection = await sources.getSitemapContentPage(site.id, after)
+    } catch (error) {
+      if (error instanceof SitemapPageSourceError) {
+        throw new SitemapIntegrityError({
+          reason: 'source-invalid',
+          firstId: error.contentId,
+          path: '/',
+        })
+      }
+      throw error
+    }
 
     for (const page of connection.nodes) {
       if (
@@ -130,7 +160,11 @@ export async function buildSitemap(
         page.status !== 'publish' ||
         !isValidPublicPath(page.path)
       ) {
-        continue
+        throw new SitemapIntegrityError({
+          reason: 'source-invalid',
+          firstId: page.id,
+          path: page.path,
+        })
       }
 
       const previousPath = idPaths.get(page.id)
@@ -144,6 +178,13 @@ export async function buildSitemap(
       }
 
       const previousId = pathIds.get(page.path)
+      if (previousPath === page.path && previousId === page.id) {
+        throw new SitemapIntegrityError({
+          reason: 'duplicate-record',
+          firstId: page.id,
+          path: page.path,
+        })
+      }
       if (
         previousId !== undefined &&
         (previousId !== page.id || page.path === '/')
@@ -156,10 +197,9 @@ export async function buildSitemap(
         })
       }
 
-      if (previousPath === page.path && previousId === page.id) continue
-
       idPaths.set(page.id, page.path)
       pathIds.set(page.path, page.id)
+      pageCount += 1
       const entry: MetadataRoute.Sitemap[number] = {
         url: new URL(page.path, site.url).href,
       }
@@ -171,7 +211,18 @@ export async function buildSitemap(
       entries.push(entry)
     }
 
-    if (!connection.hasNextPage) return entries
+    if (!connection.hasNextPage) {
+      if (pageCount !== EXPECTED_PAGE_COUNT) {
+        throw new SitemapIntegrityError({
+          reason: 'count-mismatch',
+          firstId: 'pages',
+          path: '/',
+          expectedCount: EXPECTED_PAGE_COUNT,
+          actualCount: pageCount,
+        })
+      }
+      return entries
+    }
 
     const nextCursor = connection.endCursor
     if (!nextCursor) throw new SitemapPaginationError('missing')
