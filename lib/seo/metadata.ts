@@ -2,6 +2,7 @@ import type {Metadata} from 'next'
 
 import type {SiteConfig} from '@/sites'
 import type {ContentPageDto} from '@/lib/wordpress/types'
+import {htmlToPlainText, normalizePlainText} from './text'
 
 export const LOCAL_INDEXING_OVERRIDE = 'SEO_ALLOW_INDEXING_LOCAL_TEST'
 
@@ -16,17 +17,9 @@ interface PageMetadataOptions {
   readonly env?: SeoEnvironment
 }
 
-function cleanText(value: string): string {
-  return value
-    .replace(/<[^>]*>/gu, ' ')
-    .replace(/\s+/gu, ' ')
-    .trim()
-}
-
 function firstText(...values: readonly string[]): string {
   for (const value of values) {
-    const cleaned = cleanText(value)
-    if (cleaned) return cleaned
+    if (value) return value
   }
 
   return ''
@@ -52,12 +45,17 @@ export function buildPageMetadata(
     isPublicIndexingEnabled(options.env)
 
   return {
-    title: firstText(page.seo.title, page.title, site.defaultSeo.title, site.name),
+    title: firstText(
+      normalizePlainText(page.seo.title),
+      normalizePlainText(page.title),
+      htmlToPlainText(site.defaultSeo.title),
+      htmlToPlainText(site.name),
+    ),
     description: firstText(
-      page.seo.description,
-      page.excerpt,
-      site.defaultSeo.description,
-      site.description,
+      normalizePlainText(page.seo.description),
+      normalizePlainText(page.excerpt),
+      htmlToPlainText(site.defaultSeo.description),
+      htmlToPlainText(site.description),
     ),
     alternates: {
       canonical: new URL(page.path, site.url).href,

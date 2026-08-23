@@ -57,7 +57,7 @@ describe('page metadata', () => {
         site,
         page({
           title: '  Applications Overview  ',
-          excerpt: '<p> Practical   application guidance. </p>',
+          excerpt: ' Practical   application guidance. ',
           seo: {title: ' ', description: ''},
         }),
       ),

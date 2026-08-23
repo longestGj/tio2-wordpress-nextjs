@@ -1,20 +1,13 @@
 import type {SiteConfig} from '@/sites'
 import type {ContentPageDto} from '@/lib/wordpress/types'
 import {isStrictUtcInstant} from '@/lib/wordpress/time'
+import {htmlToPlainText, normalizePlainText} from './text'
 
 export type JsonLdObject = Readonly<Record<string, unknown>>
 
-function cleanText(value: string): string {
-  return value
-    .replace(/<[^>]*>/gu, ' ')
-    .replace(/\s+/gu, ' ')
-    .trim()
-}
-
 function firstText(...values: readonly string[]): string {
   for (const value of values) {
-    const cleaned = cleanText(value)
-    if (cleaned) return cleaned
+    if (value) return value
   }
 
   return ''
@@ -38,7 +31,10 @@ function buildBreadcrumbs(
     {
       '@type': 'ListItem',
       position: 1,
-      name: page.path === '/' ? firstText(page.title, 'Home') : 'Home',
+      name:
+        page.path === '/'
+          ? firstText(normalizePlainText(page.title), 'Home')
+          : 'Home',
       item: new URL('/', site.url).href,
     },
   ]
@@ -49,7 +45,7 @@ function buildBreadcrumbs(
       '@type': 'ListItem',
       position: index + 2,
       name: isCurrentPage
-        ? firstText(page.title, titleCaseSegment(segment))
+        ? firstText(normalizePlainText(page.title), titleCaseSegment(segment))
         : titleCaseSegment(segment),
       item: new URL(`/${segments.slice(0, index + 1).join('/')}`, site.url).href,
     })
@@ -70,11 +66,15 @@ export function buildPageJsonLd(
   const canonical = new URL(page.path, site.url).href
   const organizationId = new URL('/#organization', site.url).href
   const websiteId = new URL('/#website', site.url).href
-  const name = firstText(page.title, page.seo.title, site.name)
+  const name = firstText(
+    normalizePlainText(page.title),
+    normalizePlainText(page.seo.title),
+    htmlToPlainText(site.name),
+  )
   const description = firstText(
-    page.seo.description,
-    page.excerpt,
-    site.defaultSeo.description,
+    normalizePlainText(page.seo.description),
+    normalizePlainText(page.excerpt),
+    htmlToPlainText(site.defaultSeo.description),
   )
   const pageObject: Record<string, unknown> = {
     '@context': 'https://schema.org',
@@ -96,7 +96,7 @@ export function buildPageJsonLd(
       '@context': 'https://schema.org',
       '@type': 'Organization',
       '@id': organizationId,
-      name: site.name,
+      name: htmlToPlainText(site.name),
       url: new URL('/', site.url).href,
       email: site.contactEmail,
     },
@@ -104,7 +104,7 @@ export function buildPageJsonLd(
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       '@id': websiteId,
-      name: site.name,
+      name: htmlToPlainText(site.name),
       url: new URL('/', site.url).href,
       publisher: {'@id': organizationId},
     },
