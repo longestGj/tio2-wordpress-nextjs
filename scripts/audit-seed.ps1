@@ -15,270 +15,195 @@ $ComposeFile = Join-Path $WordPressDirectory 'docker-compose.yml'
 $ExportScriptPath = Join-Path $WordPressDirectory 'seed/export-audit.php'
 $ManifestPath = Join-Path $WordPressDirectory 'seed/representative-content.json'
 $SiteIds = @('tio2-a', 'tio2-b')
-$RequiredSharedFixtures = [ordered]@{}
-if (-not (Test-Path -LiteralPath $ManifestPath)) {
-    throw "Missing representative seed manifest: $ManifestPath"
-}
-$Manifest = Get-Content -Raw -LiteralPath $ManifestPath | ConvertFrom-Json
-foreach ($Entity in $Manifest.sharedEntities) {
-    $RequiredSharedFixtures[$Entity.id] = $Entity.postType
-}
 $PublicPathPattern = '^/(?:[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)?$'
 
 function Build-InternalSlug {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string] $SiteId,
-        [Parameter(Mandatory = $true)]
-        [string] $PublicPath
-    )
-
-    if ($PublicPath -notmatch $PublicPathPattern) {
-        throw "Invalid public path: $PublicPath"
-    }
-
-    $PathSlug = if ($PublicPath -eq '/') {
-        'home'
-    }
-    else {
-        $PublicPath.Substring(1).Replace('/', '--')
-    }
-
+    param([string] $SiteId, [string] $PublicPath)
+    if ($PublicPath -notmatch $PublicPathPattern) { throw "Invalid public path: $PublicPath" }
+    $PathSlug = if ($PublicPath -eq '/') { 'home' } else { $PublicPath.Substring(1).Replace('/', '--') }
     $InternalSlug = "$SiteId--$PathSlug"
-    if ($InternalSlug.Length -gt 180) {
-        throw "Internal slug exceeds 180 characters: $InternalSlug"
-    }
-
+    if ($InternalSlug.Length -gt 180) { throw "Internal slug exceeds 180 characters: $InternalSlug" }
     return $InternalSlug
 }
 
+if (-not (Test-Path -LiteralPath $ManifestPath)) { throw "Missing representative seed manifest: $ManifestPath" }
+$Manifest = Get-Content -Raw -LiteralPath $ManifestPath | ConvertFrom-Json
+$RequiredSharedFixtures = [ordered]@{}
+foreach ($Entity in $Manifest.sharedEntities) { $RequiredSharedFixtures[$Entity.id] = $Entity.postType }
+
 if ($SnapshotPath) {
-    $ResolvedSnapshotPath = (Resolve-Path -LiteralPath $SnapshotPath).Path
-    $Snapshot = Get-Content -Raw -LiteralPath $ResolvedSnapshotPath | ConvertFrom-Json
+    $Snapshot = Get-Content -Raw -LiteralPath (Resolve-Path -LiteralPath $SnapshotPath).Path | ConvertFrom-Json
 }
 else {
     foreach ($RequiredFile in @($EnvironmentFile, $ComposeFile, $ExportScriptPath)) {
-        if (-not (Test-Path -LiteralPath $RequiredFile)) {
-            throw "Missing required local WordPress file: $RequiredFile"
-        }
+        if (-not (Test-Path -LiteralPath $RequiredFile)) { throw "Missing required local WordPress file: $RequiredFile" }
     }
-
     $DockerArguments = @(
-        'compose',
-        '--env-file', $EnvironmentFile,
-        '-f', $ComposeFile,
-        'run', '--rm', '--no-TTY', '--user', '33:33',
-        'wpcli',
+        'compose', '--env-file', $EnvironmentFile, '-f', $ComposeFile,
+        'run', '--rm', '--no-TTY', '--user', '33:33', 'wpcli',
         'wp', 'eval-file', '/workspace/wordpress/seed/export-audit.php'
     )
-
     $PreviousErrorActionPreference = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     try {
         $CommandOutput = & docker @DockerArguments 2>&1
         $CommandExitCode = $LASTEXITCODE
     }
-    finally {
-        $ErrorActionPreference = $PreviousErrorActionPreference
-    }
-
+    finally { $ErrorActionPreference = $PreviousErrorActionPreference }
     if ($CommandExitCode -ne 0) {
-        foreach ($OutputLine in $CommandOutput) {
-            [Console]::Error.WriteLine($OutputLine)
-        }
+        foreach ($OutputLine in $CommandOutput) { [Console]::Error.WriteLine($OutputLine) }
         throw "WordPress audit export failed with exit code $CommandExitCode."
     }
-
-    $CombinedOutput = $CommandOutput -join "`n"
     $Match = [regex]::Match(
-        $CombinedOutput,
+        ($CommandOutput -join "`n"),
         '(?s)TIO2_AUDIT_JSON_BEGIN\s*(.*?)\s*TIO2_AUDIT_JSON_END'
     )
-    if (-not $Match.Success) {
-        throw "WordPress audit export did not return a JSON snapshot.`n$CombinedOutput"
-    }
-
+    if (-not $Match.Success) { throw 'WordPress audit export did not return a JSON snapshot.' }
     $Snapshot = $Match.Groups[1].Value | ConvertFrom-Json
 }
 
-if ($Snapshot.PSObject.Properties.Name -contains 'publicUrls') {
-    $Errors = [System.Collections.Generic.List[string]]::new()
-    $PublicUrls = @($Snapshot.publicUrls)
-    foreach ($SiteId in $SiteIds) {
-        $SiteUrls = @($PublicUrls | Where-Object { $_.siteId -eq $SiteId })
-        $Keys = @($SiteUrls | ForEach-Object { "$($_.siteId):$($_.path)" })
-        if ($SiteUrls.Count -ne $ExpectedPerSite) {
-            $Errors.Add("Expected $ExpectedPerSite public URLs for $SiteId, found $($SiteUrls.Count).")
-        }
-        if (@($Keys | Sort-Object -Unique).Count -ne $Keys.Count) {
-            $Errors.Add("Duplicate public path for $SiteId.")
-        }
-        $RootOwners = @($SiteUrls | Where-Object { $_.path -eq '/' })
-        if ($RootOwners.Count -ne 1 -or $RootOwners[0].ownerType -ne 'homepage') {
-            $Errors.Add("Expected exactly one homepage root owner for $SiteId.")
-        }
-        if (@($SiteUrls | Where-Object { $_.ownerType -eq 'page' }).Count -ne ($ExpectedPerSite - 1)) {
-            $Errors.Add("Expected $($ExpectedPerSite - 1) published Page URLs for $SiteId.")
-        }
-        if (@($SiteUrls | Where-Object { $_.path -eq '/test-content/long-tail-500' }).Count -ne 1) {
-            $Errors.Add("Missing expected published path for $SiteId`: /test-content/long-tail-500.")
-        }
-        $Homes = @($Snapshot.homepages | Where-Object { $_.siteId -eq $SiteId -and $_.status -eq 'publish' })
-        if ($Homes.Count -ne 1 -or $Homes[0].slug -ne "$SiteId--homepage" -or $Homes[0].schemaVersion -ne 'homepage-v0.1') {
-            $Errors.Add("Invalid published homepage identity for $SiteId.")
-        }
+foreach ($RequiredProperty in @('routes', 'homepages', 'publicUrls', 'sharedFixtures')) {
+    if (-not ($Snapshot.PSObject.Properties.Name -contains $RequiredProperty)) {
+        throw "Audit snapshot is missing production property $RequiredProperty."
     }
-    foreach ($FixtureId in $RequiredSharedFixtures.Keys) {
-        $Matches = @($Snapshot.sharedFixtures | Where-Object { $_.fixtureId -eq $FixtureId })
-        if ($Matches.Count -ne 1) { $Errors.Add("Expected exactly one shared fixture $FixtureId, found $($Matches.Count).") }
-    }
-    if ($Errors.Count -gt 0) {
-        foreach ($AuditError in $Errors) { [Console]::Error.WriteLine($AuditError) }
-        exit 1
-    }
-    foreach ($SiteId in $SiteIds) { Write-Output "$SiteId`: $ExpectedPerSite public URLs" }
-    Write-Output 'Seed audit passed.'
-    exit 0
 }
 
 $Errors = [System.Collections.Generic.List[string]]::new()
-$Pages = @($Snapshot.pages)
-$SeenPaths = [System.Collections.Generic.HashSet[string]]::new(
-    [System.StringComparer]::Ordinal
-)
-$PublishedCounts = @{
-    'tio2-a' = 0
-    'tio2-b' = 0
-}
-$PublishedPaths = @{
-    'tio2-a' = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
-    'tio2-b' = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
-}
-$ExpectedPaths = @{}
+$Routes = @($Snapshot.routes)
+$Homepages = @($Snapshot.homepages)
+$PublicUrls = @($Snapshot.publicUrls)
 $ScalePageCount = $ExpectedPerSite - 5
+$ExpectedPaths = @{}
 foreach ($SiteId in $SiteIds) {
-    $SiteExpectedPaths = [System.Collections.Generic.HashSet[string]]::new(
-        [System.StringComparer]::Ordinal
-    )
-    foreach ($CorePath in @('/', '/products', '/applications', '/about', '/contact')) {
-        [void]$SiteExpectedPaths.Add($CorePath)
-    }
+    $Paths = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    foreach ($CorePath in @('/', '/products', '/applications', '/about', '/contact')) { [void]$Paths.Add($CorePath) }
     for ($Index = 1; $Index -le $ScalePageCount; $Index++) {
-        [void]$SiteExpectedPaths.Add("/test-content/long-tail-$Index")
+        [void]$Paths.Add("/test-content/long-tail-$($Index.ToString('D3'))")
     }
-    $ExpectedPaths[$SiteId] = $SiteExpectedPaths
-}
-
-foreach ($Page in $Pages) {
-    $ExpectedSiteId = $null
-    foreach ($SiteId in $SiteIds) {
-        if ([string]$Page.slug -like "$SiteId--*") {
-            $ExpectedSiteId = $SiteId
-            break
-        }
-    }
-
-    $PageScopes = @($Page.siteScopes)
-    if (-not $ExpectedSiteId -and $PageScopes.Count -eq 1 -and $SiteIds -contains $PageScopes[0]) {
-        $ExpectedSiteId = $PageScopes[0]
-    }
-
-    if (-not $ExpectedSiteId) {
-        $Errors.Add("Cannot infer site from page slug $($Page.slug) (post $($Page.id)).")
-        continue
-    }
-
-    if ($Page.status -ne 'publish') {
-        $Errors.Add("Managed fixture page $($Page.id) must be published; found $($Page.status).")
-    }
-    elseif (
-        $Page.uriResolutionSource -ne 'wpgraphql' -or
-        -not [bool]$Page.uriResolvable
-    ) {
-        $Errors.Add("Page $($Page.id) is not resolvable through WPGraphQL URI $($Page.slug).")
-    }
-
-    if ($PageScopes.Count -ne 1) {
-        $Errors.Add("Page $($Page.id) must have exactly one site_scope; found $($PageScopes.Count).")
-    }
-    elseif ($PageScopes[0] -ne $ExpectedSiteId) {
-        $Errors.Add("Page $($Page.id) scope does not match slug: expected $ExpectedSiteId, found $($PageScopes[0]).")
-    }
-
-    try {
-        $ExpectedSlug = Build-InternalSlug -SiteId $ExpectedSiteId -PublicPath ([string]$Page.publicPath)
-        if ($Page.slug -ne $ExpectedSlug) {
-            $Errors.Add("Page $($Page.id) slug mismatch: expected $ExpectedSlug, found $($Page.slug).")
-        }
-    }
-    catch {
-        $Errors.Add("Page $($Page.id) has invalid public path $($Page.publicPath): $($_.Exception.Message)")
-    }
-
-    $PathKey = "$ExpectedSiteId`:$($Page.publicPath)"
-    if (-not $SeenPaths.Add($PathKey)) {
-        $Errors.Add("Duplicate public path for $ExpectedSiteId`: $($Page.publicPath).")
-    }
-
-    if ($Page.status -eq 'publish') {
-        $PublishedCounts[$ExpectedSiteId]++
-        [void]$PublishedPaths[$ExpectedSiteId].Add([string]$Page.publicPath)
-    }
+    $ExpectedPaths[$SiteId] = $Paths
 }
 
 foreach ($SiteId in $SiteIds) {
-    $ActualCount = $PublishedCounts[$SiteId]
-    if ($ActualCount -ne $ExpectedPerSite) {
-        $Errors.Add("Expected $ExpectedPerSite published pages for $SiteId, found $ActualCount.")
+    $Homes = @($Homepages | Where-Object { $_.siteId -eq $SiteId -and $_.status -eq 'publish' })
+    if (
+        $Homes.Count -ne 1 -or
+        $Homes[0].slug -ne "$SiteId--homepage" -or
+        $Homes[0].publicPath -ne '/' -or
+        $Homes[0].schemaVersion -ne 'homepage-v0.1' -or
+        $Homes[0].seedMarker -ne $SiteId
+    ) { $Errors.Add("Invalid published homepage identity for $SiteId.") }
+
+    $RootBackups = @($Routes | Where-Object {
+        $_.publicPath -eq '/' -and @($_.previousRootSiteScopes) -contains $SiteId
+    })
+    if (
+        $RootBackups.Count -ne 1 -or
+        $RootBackups[0].postType -ne 'page' -or
+        $RootBackups[0].status -ne 'draft' -or
+        $RootBackups[0].slug -ne "$SiteId--home" -or
+        $RootBackups[0].seedMarker -ne "$SiteId--home" -or
+        @($RootBackups[0].siteScopes).Count -ne 0 -or
+        $RootBackups[0].previousRootStatus -ne 'publish' -or
+        @($RootBackups[0].previousRootSiteScopes).Count -ne 1
+    ) { $Errors.Add("Invalid retained root Page migration snapshot for $SiteId.") }
+
+    $SiteUrls = @($PublicUrls | Where-Object { $_.siteId -eq $SiteId })
+    if ($SiteUrls.Count -ne $ExpectedPerSite) {
+        $Errors.Add("Expected $ExpectedPerSite public URLs for $SiteId, found $($SiteUrls.Count).")
+    }
+    $UrlKeys = @($SiteUrls | ForEach-Object { "$($_.siteId):$($_.path)" })
+    if (@($UrlKeys | Sort-Object -Unique).Count -ne $UrlKeys.Count) {
+        $Errors.Add("Duplicate public path for $SiteId.")
+    }
+
+    foreach ($Url in $SiteUrls) {
+        if (-not $ExpectedPaths[$SiteId].Contains([string]$Url.path)) {
+            $Errors.Add("Unexpected published path for $SiteId`: $($Url.path).")
+            continue
+        }
+        if ($Url.path -eq '/') {
+            if (
+                $Url.ownerType -ne 'homepage' -or
+                $Url.slug -ne "$SiteId--homepage" -or
+                @($Url.siteScopes).Count -ne 1 -or
+                @($Url.siteScopes)[0] -ne $SiteId -or
+                -not [bool]$Url.uriResolvable -or
+                $Url.uriResolutionSource -ne 'homepage-contract'
+            ) { $Errors.Add("Invalid homepage public URL for $SiteId.") }
+            continue
+        }
+
+        $MatchingRoutes = @($Routes | Where-Object { $_.id -eq $Url.ownerId })
+        if ($MatchingRoutes.Count -ne 1) {
+            $Errors.Add("Public URL $SiteId`:$($Url.path) has no unique route owner record.")
+            continue
+        }
+        $Route = $MatchingRoutes[0]
+        $ExpectedSlug = Build-InternalSlug -SiteId $SiteId -PublicPath ([string]$Url.path)
+        if (
+            $Route.status -ne 'publish' -or
+            $Route.publicPath -ne $Url.path -or
+            $Route.slug -ne $ExpectedSlug -or
+            $Url.slug -ne $ExpectedSlug -or
+            @($Route.siteScopes).Count -ne 1 -or
+            @($Route.siteScopes)[0] -ne $SiteId -or
+            @($Url.siteScopes).Count -ne 1 -or
+            @($Url.siteScopes)[0] -ne $SiteId
+        ) { $Errors.Add("Route $($Route.id) scope/path/slug does not match $SiteId`:$($Url.path).") }
+        if (
+            $Route.uriResolutionSource -ne 'wpgraphql' -or
+            -not [bool]$Route.uriResolvable -or
+            $Url.uriResolutionSource -ne 'wpgraphql' -or
+            -not [bool]$Url.uriResolvable
+        ) { $Errors.Add("Route $($Route.id) is not resolvable through WPGraphQL URI $($Route.slug).") }
     }
 
     foreach ($ExpectedPath in $ExpectedPaths[$SiteId]) {
-        if (-not $PublishedPaths[$SiteId].Contains($ExpectedPath)) {
+        if (@($SiteUrls | Where-Object { $_.path -eq $ExpectedPath }).Count -ne 1) {
             $Errors.Add("Missing expected published path for $SiteId`: $ExpectedPath.")
         }
     }
-    foreach ($ActualPath in $PublishedPaths[$SiteId]) {
-        if (-not $ExpectedPaths[$SiteId].Contains($ActualPath)) {
-            $Errors.Add("Unexpected published path for $SiteId`: $ActualPath.")
+}
+
+foreach ($Route in $Routes) {
+    if ($Route.publicPath -eq '/') { continue }
+    if ([string]$Route.supersededSeedSnapshot -ne '') {
+        if ($Route.status -ne 'draft') {
+            $Errors.Add("Superseded seed route $($Route.id) must remain recoverable as draft.")
         }
+        continue
+    }
+    $Scopes = @($Route.siteScopes)
+    $SiteId = if ($Scopes.Count -eq 1 -and $SiteIds -contains $Scopes[0]) { [string]$Scopes[0] } else { $null }
+    if (-not $SiteId) {
+        $Errors.Add("Managed route $($Route.id) must have exactly one supported site_scope.")
+        continue
+    }
+    if (-not $ExpectedPaths[$SiteId].Contains([string]$Route.publicPath)) {
+        $Errors.Add("Unexpected retained route for $SiteId`: $($Route.publicPath).")
+    }
+    if ($Route.status -ne 'publish') {
+        $Errors.Add("Managed route $($Route.id) must be published; found $($Route.status).")
     }
 }
 
 foreach ($FixtureId in $RequiredSharedFixtures.Keys) {
     $ExpectedPostType = $RequiredSharedFixtures[$FixtureId]
-    $MatchingFixtures = @($Snapshot.sharedFixtures | Where-Object { $_.fixtureId -eq $FixtureId })
-    if ($MatchingFixtures.Count -ne 1) {
-        $Errors.Add("Expected exactly one shared fixture $FixtureId, found $($MatchingFixtures.Count).")
+    $Matches = @($Snapshot.sharedFixtures | Where-Object { $_.fixtureId -eq $FixtureId })
+    if ($Matches.Count -ne 1) {
+        $Errors.Add("Expected exactly one shared fixture $FixtureId, found $($Matches.Count).")
         continue
     }
-
-    $Fixture = $MatchingFixtures[0]
-    if ($Fixture.slug -ne $FixtureId) {
-        $Errors.Add("Shared fixture $FixtureId has slug $($Fixture.slug), expected $FixtureId.")
-    }
-    if ($Fixture.status -ne 'publish') {
-        $Errors.Add("Shared fixture $FixtureId must be published; found $($Fixture.status).")
-    }
-    if ($Fixture.postType -ne $ExpectedPostType) {
-        $Errors.Add("Shared fixture $FixtureId has post type $($Fixture.postType), expected $ExpectedPostType.")
-    }
-    $FixtureScopes = @($Fixture.siteScopes)
-    if ($FixtureScopes.Count -ne 0) {
-        $Errors.Add("Shared fixture $FixtureId must have no site_scope; found $($FixtureScopes.Count).")
-    }
+    $Fixture = $Matches[0]
+    if ($Fixture.slug -ne $FixtureId) { $Errors.Add("Shared fixture $FixtureId has slug $($Fixture.slug), expected $FixtureId.") }
+    if ($Fixture.status -ne 'publish') { $Errors.Add("Shared fixture $FixtureId must be published; found $($Fixture.status).") }
+    if ($Fixture.postType -ne $ExpectedPostType) { $Errors.Add("Shared fixture $FixtureId has post type $($Fixture.postType), expected $ExpectedPostType.") }
+    if (@($Fixture.siteScopes).Count -ne 0) { $Errors.Add("Shared fixture $FixtureId must have no site_scope; found $(@($Fixture.siteScopes).Count).") }
 }
 
 if ($Errors.Count -gt 0) {
-    foreach ($AuditError in $Errors) {
-        [Console]::Error.WriteLine($AuditError)
-    }
+    foreach ($AuditError in $Errors) { [Console]::Error.WriteLine($AuditError) }
     exit 1
 }
-
-foreach ($SiteId in $SiteIds) {
-    Write-Output "$SiteId`: $($PublishedCounts[$SiteId]) published pages"
-}
-foreach ($FixtureId in $RequiredSharedFixtures.Keys) {
-    Write-Output "$($RequiredSharedFixtures[$FixtureId])`: 1 published optional schema fixture ($FixtureId)"
-}
+foreach ($SiteId in $SiteIds) { Write-Output "$SiteId`: $ExpectedPerSite public URLs" }
 Write-Output 'Seed audit passed.'

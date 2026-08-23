@@ -278,7 +278,7 @@ function tio2_preview_rest_response(WP_REST_Request $request)
         if (
             ! $homepage instanceof WP_Post ||
             is_wp_error($validation) ||
-            ! in_array($homepage->post_status, ['publish', 'future', 'draft', 'pending', 'private'], true)
+            'draft' !== $homepage->post_status
         ) {
             return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
         }
@@ -298,7 +298,7 @@ function tio2_preview_rest_response(WP_REST_Request $request)
     $post = get_post($owner_ids[0]);
     if (
         ! $post instanceof WP_Post ||
-        ! in_array($post->post_status, ['publish', 'future', 'draft', 'pending', 'private'], true)
+        'draft' !== $post->post_status
     ) {
         return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
     }

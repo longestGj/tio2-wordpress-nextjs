@@ -2,7 +2,9 @@
 param(
     [ValidateRange(0, 10000)]
     [int] $ScalePages = 0,
-    [switch] $PlanOnly
+    [switch] $PlanOnly,
+    [ValidateSet('', 'before-homepage-write', 'after-root-release')]
+    [string] $FailurePoint = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -139,7 +141,7 @@ foreach ($Site in $Manifest.sites) {
 
     for ($Index = 1; $Index -le $ScalePages; $Index++) {
         $Ordinal = $Index.ToString('D3')
-        $PublicPath = "/test-content/long-tail-$Index"
+        $PublicPath = "/test-content/long-tail-$Ordinal"
         $PageKey = "$($Site.siteId):$PublicPath"
         if (-not $PageKeys.Add($PageKey)) {
             throw "Duplicate scale page: $PageKey"
@@ -171,6 +173,7 @@ $Plan = [PSCustomObject]@{
     schemaVersion = 1
     contentNotice = $Manifest.contentNotice
     scalePagesPerSite = $ScalePages
+    failurePoint = $FailurePoint
     entities = @($Entities)
     pages = @($Pages)
     homepages = @($Homepages)

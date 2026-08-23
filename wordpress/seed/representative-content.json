@@ -97,16 +97,16 @@
         "products_intro": "Review local test routes without commercial product claims.",
         "product_routes": [
           {"product_title":"Product options","product_summary":"Review the local synthetic product route.","product_path":"/products","product_image":0,"product_image_alt":""},
-          {"product_title":"Formulator route","product_summary":"Review a controlled long-tail sourcing route.","product_path":"/test-content/long-tail-1","product_image":0,"product_image_alt":""}
+          {"product_title":"Formulator route","product_summary":"Review a controlled long-tail sourcing route.","product_path":"/test-content/long-tail-001","product_image":0,"product_image_alt":""}
         ],
         "applications_heading": "Synthetic application discovery",
         "applications_intro": "Explore five local application contexts without quantitative claims.",
         "applications": [
           {"application_name":"Coatings","application_summary":"Local coatings discovery context.","application_path":"/applications","application_image":0,"application_image_alt":""},
-          {"application_name":"Plastics","application_summary":"Local plastics discovery context.","application_path":"/test-content/long-tail-2","application_image":0,"application_image_alt":""},
-          {"application_name":"Masterbatch","application_summary":"Local masterbatch discovery context.","application_path":"/test-content/long-tail-3","application_image":0,"application_image_alt":""},
-          {"application_name":"Inks","application_summary":"Local inks discovery context.","application_path":"/test-content/long-tail-4","application_image":0,"application_image_alt":""},
-          {"application_name":"Paper","application_summary":"Local paper discovery context.","application_path":"/test-content/long-tail-5","application_image":0,"application_image_alt":""}
+          {"application_name":"Plastics","application_summary":"Local plastics discovery context.","application_path":"/test-content/long-tail-002","application_image":0,"application_image_alt":""},
+          {"application_name":"Masterbatch","application_summary":"Local masterbatch discovery context.","application_path":"/test-content/long-tail-003","application_image":0,"application_image_alt":""},
+          {"application_name":"Inks","application_summary":"Local inks discovery context.","application_path":"/test-content/long-tail-004","application_image":0,"application_image_alt":""},
+          {"application_name":"Paper","application_summary":"Local paper discovery context.","application_path":"/test-content/long-tail-005","application_image":0,"application_image_alt":""}
         ],
         "inquiry_heading": "A controlled local inquiry process",
         "inquiry_steps": [
@@ -197,15 +197,15 @@
         "products_heading": "Independent Site B product routes","products_intro": "Review isolated local routes for Site B buyers.",
         "product_routes": [
           {"product_title":"Site B product options","product_summary":"Review the isolated synthetic product route.","product_path":"/products","product_image":0,"product_image_alt":""},
-          {"product_title":"Site B buyer route","product_summary":"Review the isolated long-tail route.","product_path":"/test-content/long-tail-1","product_image":0,"product_image_alt":""}
+          {"product_title":"Site B buyer route","product_summary":"Review the isolated long-tail route.","product_path":"/test-content/long-tail-001","product_image":0,"product_image_alt":""}
         ],
         "applications_heading": "Site B application discovery","applications_intro": "Explore five isolated application contexts without quantitative claims.",
         "applications": [
           {"application_name":"Coatings","application_summary":"Site B coatings context.","application_path":"/applications","application_image":0,"application_image_alt":""},
-          {"application_name":"Plastics","application_summary":"Site B plastics context.","application_path":"/test-content/long-tail-2","application_image":0,"application_image_alt":""},
-          {"application_name":"Masterbatch","application_summary":"Site B masterbatch context.","application_path":"/test-content/long-tail-3","application_image":0,"application_image_alt":""},
-          {"application_name":"Inks","application_summary":"Site B inks context.","application_path":"/test-content/long-tail-4","application_image":0,"application_image_alt":""},
-          {"application_name":"Paper","application_summary":"Site B paper context.","application_path":"/test-content/long-tail-5","application_image":0,"application_image_alt":""}
+          {"application_name":"Plastics","application_summary":"Site B plastics context.","application_path":"/test-content/long-tail-002","application_image":0,"application_image_alt":""},
+          {"application_name":"Masterbatch","application_summary":"Site B masterbatch context.","application_path":"/test-content/long-tail-003","application_image":0,"application_image_alt":""},
+          {"application_name":"Inks","application_summary":"Site B inks context.","application_path":"/test-content/long-tail-004","application_image":0,"application_image_alt":""},
+          {"application_name":"Paper","application_summary":"Site B paper context.","application_path":"/test-content/long-tail-005","application_image":0,"application_image_alt":""}
         ],
         "inquiry_heading":"Site B local inquiry steps","inquiry_steps":[{"inquiry_step_title":"Share requirements","inquiry_step_description":"Describe the Site B application context."},{"inquiry_step_title":"Review product fit","inquiry_step_description":"Review the isolated production route."},{"inquiry_step_title":"Confirm next steps","inquiry_step_description":"Choose an authorized follow-up outside this demo."}],
         "trust_heading":"Site B route boundaries","trust_intro":"Site B keeps owned production and OEM or partner production distinct.",

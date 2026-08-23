@@ -7,6 +7,7 @@ if (! defined('ABSPATH')) {
 $GLOBALS['tio2_homepage_test_post_ids'] = [];
 $GLOBALS['tio2_homepage_test_term_ids'] = [];
 $GLOBALS['tio2_homepage_test_root_meta'] = [];
+$GLOBALS['tio2_homepage_test_existing_homepages'] = [];
 
 function tio2_homepage_test_cleanup(): void
 {
@@ -16,6 +17,20 @@ function tio2_homepage_test_cleanup(): void
         }
     }
     $GLOBALS['tio2_homepage_test_post_ids'] = [];
+
+    foreach ($GLOBALS['tio2_homepage_test_existing_homepages'] ?? [] as $post_id => $snapshot) {
+        if (! get_post((int) $post_id)) {
+            continue;
+        }
+        wp_update_post([
+            'ID' => (int) $post_id,
+            'post_status' => 'draft',
+            'post_name' => (string) $snapshot['slug'],
+        ]);
+        wp_set_object_terms((int) $post_id, $snapshot['scopes'], 'site_scope', false);
+        wp_update_post(['ID' => (int) $post_id, 'post_status' => (string) $snapshot['status']]);
+    }
+    $GLOBALS['tio2_homepage_test_existing_homepages'] = [];
 
     foreach ($GLOBALS['tio2_homepage_test_root_meta'] ?? [] as $post_id => $public_path) {
         if (get_post((int) $post_id)) {
@@ -520,6 +535,29 @@ function tio2_homepage_test_assert_invalid(int $post_id, string $message): void
 
 register_shutdown_function('tio2_homepage_test_cleanup');
 
+$existing_homepage_ids = get_posts([
+    'post_type' => 'tio2_homepage',
+    'post_status' => ['publish', 'future', 'draft', 'pending', 'private', 'trash'],
+    'posts_per_page' => -1,
+    'fields' => 'ids',
+    'no_found_rows' => true,
+]);
+foreach ($existing_homepage_ids as $existing_homepage_id) {
+    $existing_scopes = wp_get_object_terms((int) $existing_homepage_id, 'site_scope', ['fields' => 'slugs']);
+    tio2_homepage_test_assert(! is_wp_error($existing_scopes), 'Could not snapshot existing homepage scopes');
+    $GLOBALS['tio2_homepage_test_existing_homepages'][(int) $existing_homepage_id] = [
+        'status' => (string) get_post_status((int) $existing_homepage_id),
+        'slug' => (string) get_post_field('post_name', (int) $existing_homepage_id),
+        'scopes' => array_values($existing_scopes),
+    ];
+    wp_update_post(['ID' => (int) $existing_homepage_id, 'post_status' => 'draft']);
+    wp_set_object_terms((int) $existing_homepage_id, [], 'site_scope', false);
+    wp_update_post([
+        'ID' => (int) $existing_homepage_id,
+        'post_name' => 'homepage-test-backup-' . (int) $existing_homepage_id,
+    ]);
+}
+
 if (! post_type_exists('tio2_homepage')) {
     tio2_homepage_test_fail('Missing post type: tio2_homepage');
 }
@@ -817,6 +855,12 @@ tio2_homepage_test_update_field('field_tio2_home_hero_heading', '   ', $validati
 tio2_homepage_test_assert_invalid($validation_home, 'Whitespace-only required copy was accepted');
 tio2_homepage_test_update_field(
     'field_tio2_home_hero_heading',
+    '<strong>HTML must not be accepted</strong>',
+    $validation_home
+);
+tio2_homepage_test_assert_invalid($validation_home, 'HTML in homepage plain text was accepted');
+tio2_homepage_test_update_field(
+    'field_tio2_home_hero_heading',
     'Find the right titanium dioxide supply route',
     $validation_home
 );
@@ -984,6 +1028,57 @@ tio2_homepage_test_assert(
     'homepage-v0.1' === get_field('homepage_schema_version', $valid_a, false),
     'Fixed homepage schema version is not registered'
 );
+
+update_post_meta($valid_a, 'hero_heading', '<em>Direct meta HTML</em>');
+clean_post_cache($valid_a);
+tio2_homepage_test_assert(
+    'draft' === get_post_status($valid_a) &&
+        'tio2_homepage_invalid_field' === get_post_meta($valid_a, '_tio2_homepage_error', true),
+    'Direct homepage field meta mutation bypassed final enforcement'
+);
+tio2_homepage_test_set_valid_fields($valid_a, $routes_a);
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+
+wp_set_object_terms($valid_a, [], 'site_scope', false);
+clean_post_cache($valid_a);
+tio2_homepage_test_assert(
+    'draft' === get_post_status($valid_a),
+    'Direct homepage site_scope mutation bypassed final enforcement'
+);
+wp_set_object_terms($valid_a, ['tio2-a'], 'site_scope', false);
+tio2_homepage_test_set_valid_fields($valid_a, $routes_a);
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+
+$dependent_target_id = tio2_find_managed_route_post_ids('tio2-a', $routes_a['secondary'])[0] ?? 0;
+tio2_homepage_test_assert($dependent_target_id > 0, 'Missing homepage dependency fixture');
+
+wp_update_post(['ID' => $dependent_target_id, 'post_status' => 'draft']);
+clean_post_cache($valid_a);
+tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'Drafted link target left homepage published');
+wp_update_post(['ID' => $dependent_target_id, 'post_status' => 'publish']);
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+
+update_post_meta($dependent_target_id, 'public_path', '/homepage-contract-a-moved-target');
+clean_post_cache($valid_a);
+tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'Moved link target left homepage published');
+update_post_meta($dependent_target_id, 'public_path', $routes_a['secondary']);
+do_action('acf/save_post', $dependent_target_id);
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+
+wp_trash_post($dependent_target_id);
+clean_post_cache($valid_a);
+tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'Trashed link target left homepage published');
+wp_untrash_post($dependent_target_id);
+wp_update_post(['ID' => $dependent_target_id, 'post_status' => 'publish']);
+do_action('acf/save_post', $dependent_target_id);
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+
+wp_set_object_terms($dependent_target_id, ['tio2-b'], 'site_scope', false);
+clean_post_cache($valid_a);
+tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'Reassigned link target left homepage published');
+wp_set_object_terms($dependent_target_id, ['tio2-a'], 'site_scope', false);
+do_action('acf/save_post', $dependent_target_id);
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
 
 tio2_homepage_test_update_field('field_tio2_home_hero_heading', '   ', $valid_a);
 do_action('acf/save_post', $valid_a);

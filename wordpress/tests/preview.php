@@ -85,6 +85,15 @@ if (
     tio2_preview_smoke_fail('Signed WordPress preview endpoint did not return the exact draft');
 }
 
+foreach (['publish', 'future', 'pending', 'private'] as $non_draft_status) {
+    wp_update_post(['ID' => (int) $draft_id, 'post_status' => $non_draft_status]);
+    $non_draft_response = rest_do_request($request);
+    if (404 !== $non_draft_response->get_status()) {
+        tio2_preview_smoke_fail("Signed route preview exposed {$non_draft_status} content");
+    }
+}
+wp_update_post(['ID' => (int) $draft_id, 'post_status' => 'draft']);
+
 $ambiguous_id = wp_insert_post([
     'post_type' => 'post',
     'post_status' => 'draft',
@@ -192,6 +201,15 @@ if (
 ) {
     tio2_preview_smoke_fail('Homepage Admin preview link did not retain root ownership');
 }
+
+foreach (['publish', 'future', 'pending', 'private'] as $non_draft_status) {
+    wp_update_post(['ID' => $homepage_id, 'post_status' => $non_draft_status]);
+    $non_draft_response = rest_do_request($homepage_request);
+    if (404 !== $non_draft_response->get_status()) {
+        tio2_preview_smoke_fail("Signed homepage preview exposed {$non_draft_status} content");
+    }
+}
+wp_update_post(['ID' => $homepage_id, 'post_status' => 'draft']);
 
 wp_update_post(['ID' => $homepage_id, 'post_status' => $homepage_status]);
 unset($GLOBALS['tio2_preview_smoke_restore_statuses'][$homepage_id]);

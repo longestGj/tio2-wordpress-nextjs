@@ -145,6 +145,20 @@ describe('representative WordPress seed manifest', () => {
 })
 
 describe('seed execution plan', () => {
+  it('supports bounded migration failure injection for rollback verification', () => {
+    for (const failurePoint of ['before-homepage-write', 'after-root-release']) {
+      const result = runPowerShell(seedScriptPath, [
+        '-ScalePages',
+        '3',
+        '-PlanOnly',
+        '-FailurePoint',
+        failurePoint,
+      ])
+      expect(result.status, result.stderr).toBe(0)
+      expect(JSON.parse(result.stdout)).toMatchObject({failurePoint})
+    }
+  })
+
   it('builds exact deterministic page upserts for each site', () => {
     const result = runPowerShell(seedScriptPath, ['-ScalePages', '3', '-PlanOnly'])
 
@@ -192,16 +206,16 @@ describe('seed execution plan', () => {
         },
       })
       expect(
-        sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-3'),
+        sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-003'),
       ).toMatchObject({
-        internalSlug: `${siteId}--test-content--long-tail-3`,
+        internalSlug: `${siteId}--test-content--long-tail-003`,
         title: 'Masterbatch',
         content: expect.stringContaining('masterbatch'),
         siteScopes: [siteId],
       })
-      expect(sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-1'))
+      expect(sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-001'))
         .toMatchObject({title: siteId === 'tio2-a' ? 'Formulator route' : 'Site B buyer route'})
-      expect(sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-2'))
+      expect(sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-002'))
         .toMatchObject({title: 'Plastics'})
     }
   })
@@ -209,12 +223,38 @@ describe('seed execution plan', () => {
 
 interface AuditPage {
   id: number
+  postType: 'page' | 'post'
   slug: string
   status: string
   publicPath: string
   siteScopes: string[]
   uriResolvable: boolean | null
   uriResolutionSource: 'wpgraphql' | null
+  previousRootStatus: string
+  previousRootSiteScopes: string[]
+  seedMarker: string
+  supersededSeedSnapshot: string
+}
+
+interface AuditHomepage {
+  id: number
+  siteId: string
+  slug: string
+  status: string
+  publicPath: '/'
+  schemaVersion: 'homepage-v0.1'
+  seedMarker: string
+}
+
+interface AuditPublicUrl {
+  ownerId: number
+  ownerType: 'page' | 'post' | 'homepage'
+  siteId: string
+  path: string
+  slug: string
+  siteScopes: string[]
+  uriResolvable: boolean
+  uriResolutionSource: 'wpgraphql' | 'homepage-contract'
 }
 
 interface AuditSharedFixture {
@@ -227,7 +267,9 @@ interface AuditSharedFixture {
 }
 
 interface AuditSnapshot {
-  pages: AuditPage[]
+  routes: AuditPage[]
+  homepages: AuditHomepage[]
+  publicUrls: AuditPublicUrl[]
   sharedFixtures: AuditSharedFixture[]
 }
 
@@ -246,22 +288,65 @@ function validAuditSnapshot(scalePages = 0): AuditSnapshot {
   const pages = ['tio2-a', 'tio2-b'].flatMap((siteId) => {
     const scalePaths = Array.from(
       {length: scalePages},
-      (_, index) => `/test-content/long-tail-${index + 1}`,
+      (_, index) => `/test-content/long-tail-${String(index + 1).padStart(3, '0')}`,
     )
 
     return [...corePaths, ...scalePaths].map((publicPath) => ({
       id: pageId++,
+      postType: 'page' as const,
       slug: buildInternalSlug(siteId, publicPath),
-      status: 'publish',
+      status: publicPath === '/' ? 'draft' : 'publish',
       publicPath,
-      siteScopes: [siteId],
-      uriResolvable: true,
-      uriResolutionSource: 'wpgraphql' as const,
+      siteScopes: publicPath === '/' ? [] : [siteId],
+      uriResolvable: publicPath === '/' ? null : true,
+      uriResolutionSource: publicPath === '/' ? null : 'wpgraphql' as const,
+      previousRootStatus: publicPath === '/' ? 'publish' : '',
+      previousRootSiteScopes: publicPath === '/' ? [siteId] : [],
+      seedMarker: buildInternalSlug(siteId, publicPath),
+      supersededSeedSnapshot: '',
     }))
   })
 
+  const homepages = ['tio2-a', 'tio2-b'].map((siteId, index) => ({
+    id: 1000 + index,
+    siteId,
+    slug: `${siteId}--homepage`,
+    status: 'publish',
+    publicPath: '/' as const,
+    schemaVersion: 'homepage-v0.1' as const,
+    seedMarker: siteId,
+  }))
+  const publicUrls: AuditPublicUrl[] = [
+    ...pages.filter(({status}) => status === 'publish').map((page) => ({
+      ownerId: page.id,
+      ownerType: page.postType,
+      siteId: page.siteScopes[0],
+      path: page.publicPath,
+      slug: page.slug,
+      siteScopes: page.siteScopes,
+      uriResolvable: true,
+      uriResolutionSource: 'wpgraphql' as const,
+    })),
+    ...homepages.map((homepage) => ({
+      ownerId: homepage.id,
+      ownerType: 'homepage' as const,
+      siteId: homepage.siteId,
+      path: '/',
+      slug: homepage.slug,
+      siteScopes: [homepage.siteId],
+      uriResolvable: true,
+      uriResolutionSource: 'homepage-contract' as const,
+    })),
+  ]
+
   return {
-    pages,
+    routes: pages.map((route) => ({
+      ...route,
+      siteScopes: [...route.siteScopes],
+      previousRootSiteScopes: [...route.previousRootSiteScopes],
+    })),
+    homepages,
+    publicUrls,
     sharedFixtures: Object.entries(sharedFixtureTypes).map(
       ([fixtureId, postType], index) => ({
         id: 100 + index,
@@ -297,8 +382,8 @@ describe('seed audit validation', () => {
     const result = runSnapshotAudit(validAuditSnapshot())
 
     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
-    expect(result.stdout).toContain('tio2-a: 5 published pages')
-    expect(result.stdout).toContain('tio2-b: 5 published pages')
+    expect(result.stdout).toContain('tio2-a: 5 public URLs')
+    expect(result.stdout).toContain('tio2-b: 5 public URLs')
     expect(result.stdout).toContain('Seed audit passed.')
   })
 
@@ -306,30 +391,40 @@ describe('seed audit validation', () => {
     const result = runSnapshotAudit(validAuditSnapshot(2), 7)
 
     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
-    expect(result.stdout).toContain('tio2-a: 7 published pages')
-    expect(result.stdout).toContain('tio2-b: 7 published pages')
+    expect(result.stdout).toContain('tio2-a: 7 public URLs')
+    expect(result.stdout).toContain('tio2-b: 7 public URLs')
   })
 
   it.each([
     {
+      name: 'a retained root Page with a changed slug',
+      expectedMessage: 'Invalid retained root Page migration snapshot',
+      mutate(snapshot: AuditSnapshot) {
+        snapshot.routes[0].slug = 'tio2-a-home'
+      },
+    },
+    {
       name: 'a duplicate site path',
       expectedMessage: 'Duplicate public path',
       mutate(snapshot: AuditSnapshot) {
-        snapshot.pages.push({...snapshot.pages[0], id: 999})
+        const duplicate = {...snapshot.routes[1], id: 999}
+        snapshot.routes.push(duplicate)
+        snapshot.publicUrls.push({...snapshot.publicUrls.find(({ownerId}) => ownerId === snapshot.routes[1].id)!, ownerId: 999})
       },
     },
     {
       name: 'a page with the wrong site scope',
-      expectedMessage: 'scope does not match slug',
+      expectedMessage: 'scope/path/slug does not match',
       mutate(snapshot: AuditSnapshot) {
-        snapshot.pages[0].siteScopes = ['tio2-b']
+        snapshot.routes[1].siteScopes = ['tio2-b']
+        snapshot.publicUrls.find(({ownerId}) => ownerId === snapshot.routes[1].id)!.siteScopes = ['tio2-b']
       },
     },
     {
       name: 'an incorrect page count',
-      expectedMessage: 'Expected 5 published pages for tio2-a, found 4',
+      expectedMessage: 'Expected 5 public URLs for tio2-a, found 4',
       mutate(snapshot: AuditSnapshot) {
-        snapshot.pages = snapshot.pages.filter(({id}) => id !== 2)
+        snapshot.publicUrls = snapshot.publicUrls.filter(({ownerId}) => ownerId !== 2)
       },
     },
     {
@@ -367,24 +462,28 @@ describe('seed audit validation', () => {
       name: 'an internal slug WPGraphQL cannot resolve',
       expectedMessage: 'is not resolvable through WPGraphQL URI',
       mutate(snapshot: AuditSnapshot) {
-        snapshot.pages[0].uriResolvable = false
+        snapshot.routes[1].uriResolvable = false
+        snapshot.publicUrls.find(({ownerId}) => ownerId === snapshot.routes[1].id)!.uriResolvable = false
       },
     },
     {
       name: 'a trashed managed fixture',
-      expectedMessage: 'Managed fixture page 1 must be published; found trash',
+      expectedMessage: 'Managed route 2 must be published; found trash',
       mutate(snapshot: AuditSnapshot) {
-        snapshot.pages[0].status = 'trash'
-        snapshot.pages[0].uriResolvable = null
-        snapshot.pages[0].uriResolutionSource = null
+        snapshot.routes[1].status = 'trash'
+        snapshot.routes[1].uriResolvable = null
+        snapshot.routes[1].uriResolutionSource = null
       },
     },
     {
       name: 'an arbitrary substitute for a core path',
       expectedMessage: 'Unexpected published path for tio2-a: /arbitrary',
       mutate(snapshot: AuditSnapshot) {
-        snapshot.pages[4].publicPath = '/arbitrary'
-        snapshot.pages[4].slug = 'tio2-a--arbitrary'
+        snapshot.routes[4].publicPath = '/arbitrary'
+        snapshot.routes[4].slug = 'tio2-a--arbitrary'
+        const publicUrl = snapshot.publicUrls.find(({ownerId}) => ownerId === snapshot.routes[4].id)!
+        publicUrl.path = '/arbitrary'
+        publicUrl.slug = 'tio2-a--arbitrary'
       },
     },
   ])('rejects $name', ({mutate, expectedMessage}) => {
@@ -399,18 +498,21 @@ describe('seed audit validation', () => {
 
   it('rejects an arbitrary substitute for a deterministic scale path', () => {
     const snapshot = validAuditSnapshot(2)
-    const scalePage = snapshot.pages.find(
+    const scalePage = snapshot.routes.find(
       ({publicPath, siteScopes}) =>
-        publicPath === '/test-content/long-tail-2' && siteScopes[0] === 'tio2-a',
+        publicPath === '/test-content/long-tail-002' && siteScopes[0] === 'tio2-a',
     )!
     scalePage.publicPath = '/test-content/arbitrary'
     scalePage.slug = 'tio2-a--test-content--arbitrary'
+    const scalePublicUrl = snapshot.publicUrls.find(({ownerId}) => ownerId === scalePage.id)!
+    scalePublicUrl.path = scalePage.publicPath
+    scalePublicUrl.slug = scalePage.slug
 
     const result = runSnapshotAudit(snapshot, 7)
 
     expect(result.status).not.toBe(0)
     expect(`${result.stdout}\n${result.stderr}`).toContain(
-      'Missing expected published path for tio2-a: /test-content/long-tail-2',
+      'Missing expected published path for tio2-a: /test-content/long-tail-002',
     )
     expect(`${result.stdout}\n${result.stderr}`).toContain(
       'Unexpected published path for tio2-a: /test-content/arbitrary',

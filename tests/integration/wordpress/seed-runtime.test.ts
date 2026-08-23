@@ -16,6 +16,7 @@ const runLiveWordPress = process.env.WORDPRESS_SEED_RUNTIME === '1'
 
 interface RuntimePage {
   id: number
+  postType: 'page'
   slug: string
   status: string
   publicPath: string
@@ -26,6 +27,7 @@ interface RuntimePage {
   seoDescription: string
   previousRootStatus: string
   previousRootSiteScopes: string[]
+  supersededSeedSnapshot: string
 }
 
 interface RuntimeSharedFixture {
@@ -48,7 +50,7 @@ interface RuntimeHomepage {
 }
 
 interface RuntimeSnapshot {
-  pages: RuntimePage[]
+  routes: RuntimePage[]
   sharedFixtures: RuntimeSharedFixture[]
   homepages: RuntimeHomepage[]
   publicUrls: Array<{ownerId: number; siteId: string; path: string; ownerType: string}>
@@ -59,6 +61,7 @@ function execute(command: string, arguments_: string[], timeout = 180_000) {
     cwd: repositoryRoot,
     encoding: 'utf8',
     timeout,
+    maxBuffer: 10 * 1024 * 1024,
   })
 }
 
@@ -185,7 +188,7 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
     const initialSeed = seedFullScale()
     expect(initialSeed.status, `${initialSeed.stdout}\n${initialSeed.stderr}`).toBe(0)
     const initialSnapshot = exportSnapshot()
-    const targetBefore = initialSnapshot.pages.find(
+    const targetBefore = initialSnapshot.routes.find(
       ({publicPath, siteScopes}) =>
         publicPath === '/test-content/long-tail-500' && siteScopes[0] === 'tio2-a',
     )
@@ -197,7 +200,12 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       seoTitle: expect.any(String),
       seoDescription: expect.stringContaining('SYNTHETIC TEST CONTENT'),
     })
-    expect(initialSnapshot.pages.filter(({status}) => status !== 'trash')).toHaveLength(1010)
+    expect(
+      initialSnapshot.routes.filter(
+        ({status, supersededSeedSnapshot}) =>
+          status !== 'trash' && supersededSeedSnapshot === '',
+      ),
+    ).toHaveLength(1010)
     expect(initialSnapshot.homepages).toHaveLength(2)
     expect(initialSnapshot.publicUrls).toHaveLength(1010)
     for (const siteId of ['tio2-a', 'tio2-b']) {
@@ -225,7 +233,7 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
 
     for (const siteId of ['tio2-a', 'tio2-b']) {
       const homepage = initialSnapshot.homepages.find((entry) => entry.siteId === siteId)!
-      const rootPage = initialSnapshot.pages.find(
+      const rootPage = initialSnapshot.routes.find(
         ({publicPath, previousRootSiteScopes}) =>
           publicPath === '/' && previousRootSiteScopes.includes(siteId),
       )!
@@ -282,7 +290,7 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
     const rolledBackSnapshot = exportSnapshot()
     expect(rolledBackSnapshot.homepages.every(({status}) => status === 'draft')).toBe(true)
     expect(
-      rolledBackSnapshot.pages.filter(
+      rolledBackSnapshot.routes.filter(
         ({publicPath, status, siteScopes}) =>
           publicPath === '/' && status === 'publish' && siteScopes.length === 1,
       ),
@@ -379,7 +387,7 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       entities_duplicates_deleted: 1,
     })
     const revivedSnapshot = exportSnapshot()
-    const matchingTargets = revivedSnapshot.pages.filter(
+    const matchingTargets = revivedSnapshot.routes.filter(
       ({publicPath, siteScopes}) =>
         publicPath === '/test-content/long-tail-500' && siteScopes[0] === 'tio2-a',
     )
@@ -392,7 +400,7 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       uriResolutionSource: 'wpgraphql',
     })
     expect(
-      revivedSnapshot.pages.some(
+      revivedSnapshot.routes.some(
         ({publicPath, status, siteScopes}) =>
           publicPath === '/test-content/long-tail-500' &&
           siteScopes[0] === 'tio2-a' &&
@@ -461,8 +469,8 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       entities_duplicates_deleted: 0,
     })
     const secondSnapshot = exportSnapshot()
-    expect(secondSnapshot.pages.map(({id}) => id).sort((a, b) => a - b)).toEqual(
-      revivedSnapshot.pages.map(({id}) => id).sort((a, b) => a - b),
+    expect(secondSnapshot.routes.map(({id}) => id).sort((a, b) => a - b)).toEqual(
+      revivedSnapshot.routes.map(({id}) => id).sort((a, b) => a - b),
     )
 
     const audit = auditFullScale()

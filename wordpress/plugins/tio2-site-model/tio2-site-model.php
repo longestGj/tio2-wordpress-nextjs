@@ -33,8 +33,14 @@ add_filter('delete_post_metadata', 'tio2_capture_post_meta_before_mutation', 10,
 add_action('added_post_meta', 'tio2_handle_post_meta_change', 10, 4);
 add_action('updated_post_meta', 'tio2_handle_post_meta_change', 10, 4);
 add_action('deleted_post_meta', 'tio2_handle_deleted_post_meta', 10, 4);
+add_action('added_post_meta', 'tio2_enforce_homepage_after_meta_mutation', 20, 4);
+add_action('updated_post_meta', 'tio2_enforce_homepage_after_meta_mutation', 20, 4);
+add_action('deleted_post_meta', 'tio2_enforce_homepage_after_meta_mutation', 20, 4);
 add_action('set_object_terms', 'tio2_handle_site_scope_set', 10, 6);
+add_action('set_object_terms', 'tio2_enforce_homepage_after_site_scope_mutation', 20, 6);
 add_action('deleted_term_relationships', 'tio2_handle_deleted_term_relationships', 10, 3);
+add_action('transition_post_status', 'tio2_enforce_homepage_dependencies_after_transition', 20, 3);
+add_action('deleted_post', 'tio2_enforce_homepage_dependencies_after_delete', 20, 2);
 add_action('shutdown', 'tio2_flush_webhook_queue');
 add_action('rest_api_init', 'tio2_register_preview_rest_route');
 add_filter('preview_post_link', 'tio2_filter_preview_post_link', 10, 2);

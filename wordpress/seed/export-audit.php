@@ -28,7 +28,7 @@ if (! function_exists('graphql') || ! class_exists('WPGraphQL')) {
 
 $pages = [];
 $page_ids = get_posts([
-    'post_type' => 'page',
+    'post_type' => ['page', 'post'],
     'post_status' => ['publish', 'draft', 'pending', 'private', 'future', 'trash'],
     'posts_per_page' => -1,
     'fields' => 'ids',
@@ -55,6 +55,7 @@ foreach ($page_ids as $page_id) {
 
     $pages[] = [
         'id' => (int) $page_id,
+        'postType' => (string) get_post_type($page_id),
         'slug' => $slug,
         'status' => (string) get_post_status($page_id),
         'publicPath' => (string) get_post_meta((int) $page_id, 'public_path', true),
@@ -68,6 +69,12 @@ foreach ($page_ids as $page_id) {
             (string) get_post_meta((int) $page_id, '_tio2_previous_root_site_scope', true),
             true
         ) ?: [],
+        'seedMarker' => $managed_internal_slug,
+        'supersededSeedSnapshot' => (string) get_post_meta(
+            (int) $page_id,
+            '_tio2_seed_superseded_snapshot',
+            true
+        ),
     ];
 }
 
@@ -80,7 +87,8 @@ foreach (array_chunk(array_keys($pages), 100) as $page_indexes) {
         }
         $alias = 'page' . $page_index;
         $uri = '/' . $pages[$page_index]['slug'] . '/';
-        $aliases[] = $alias . ': page(id: ' . wp_json_encode($uri) . ', idType: URI) { databaseId }';
+        $graphql_field = 'post' === $pages[$page_index]['postType'] ? 'post' : 'page';
+        $aliases[] = $alias . ': ' . $graphql_field . '(id: ' . wp_json_encode($uri) . ', idType: URI) { databaseId }';
         $alias_to_index[$alias] = $page_index;
     }
     if ([] === $aliases) {
@@ -162,23 +170,43 @@ foreach ($homepage_ids as $homepage_id) {
         'publicPath' => '/',
         'schemaVersion' => (string) get_field('homepage_schema_version', $homepage_id, false),
         'seedMarker' => (string) get_post_meta((int) $homepage_id, '_tio2_seed_homepage_site_id', true),
+        'siteScopes' => null === $site_id ? [] : [$site_id],
     ];
 }
 
+$routes = $pages;
 $public_urls = [];
-foreach ($pages as $page) {
-    if ('publish' === $page['status']) {
-        $public_urls[] = ['siteId' => $page['siteScopes'][0] ?? null, 'path' => $page['publicPath'], 'ownerType' => 'page', 'ownerId' => $page['id']];
+foreach ($routes as $route) {
+    if ('publish' === $route['status']) {
+        $public_urls[] = [
+            'siteId' => $route['siteScopes'][0] ?? null,
+            'path' => $route['publicPath'],
+            'ownerType' => $route['postType'],
+            'ownerId' => $route['id'],
+            'slug' => $route['slug'],
+            'siteScopes' => $route['siteScopes'],
+            'uriResolvable' => $route['uriResolvable'],
+            'uriResolutionSource' => $route['uriResolutionSource'],
+        ];
     }
 }
 foreach ($homepages as $homepage) {
     if ('publish' === $homepage['status']) {
-        $public_urls[] = ['siteId' => $homepage['siteId'], 'path' => '/', 'ownerType' => 'homepage', 'ownerId' => $homepage['id']];
+        $public_urls[] = [
+            'siteId' => $homepage['siteId'],
+            'path' => '/',
+            'ownerType' => 'homepage',
+            'ownerId' => $homepage['id'],
+            'slug' => $homepage['slug'],
+            'siteScopes' => $homepage['siteScopes'],
+            'uriResolvable' => true,
+            'uriResolutionSource' => 'homepage-contract',
+        ];
     }
 }
 
 $snapshot = [
-    'pages' => $pages,
+    'routes' => $routes,
     'homepages' => $homepages,
     'publicUrls' => $public_urls,
     'sharedFixtures' => $shared_fixtures,

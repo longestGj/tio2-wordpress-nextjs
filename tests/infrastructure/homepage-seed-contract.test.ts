@@ -6,9 +6,6 @@ import {describe, expect, it} from 'vitest'
 const manifestPath = fileURLToPath(
   new URL('../../wordpress/seed/representative-content.json', import.meta.url),
 )
-const applySeedPath = fileURLToPath(
-  new URL('../../wordpress/seed/apply-seed.php', import.meta.url),
-)
 
 type Homepage = Record<string, unknown> & {
   homepage_schema_version: string
@@ -62,13 +59,13 @@ describe('homepage seed contract', () => {
 
   it('uses the approved existing route inventory and bounded repeaters', () => {
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Manifest
-    const expectedProducts = ['/products', '/test-content/long-tail-1']
+    const expectedProducts = ['/products', '/test-content/long-tail-001']
     const expectedApplications = [
       '/applications',
-      '/test-content/long-tail-2',
-      '/test-content/long-tail-3',
-      '/test-content/long-tail-4',
-      '/test-content/long-tail-5',
+      '/test-content/long-tail-002',
+      '/test-content/long-tail-003',
+      '/test-content/long-tail-004',
+      '/test-content/long-tail-005',
     ]
     for (const site of manifest.sites) {
       const home = site.homepage!
@@ -106,18 +103,4 @@ describe('homepage seed contract', () => {
     }
   })
 
-  it('records root identity before release and restores it on migration failure', () => {
-    const source = readFileSync(applySeedPath, 'utf8')
-    const recordStatus = source.indexOf("update_post_meta($root_page_id, '_tio2_previous_root_status'")
-    const recordScope = source.indexOf("'_tio2_previous_root_site_scope'")
-    const releaseScope = source.indexOf("wp_set_object_terms($root_page_id, [], 'site_scope'")
-
-    expect(recordStatus).toBeGreaterThan(-1)
-    expect(recordScope).toBeGreaterThan(recordStatus)
-    expect(releaseScope).toBeGreaterThan(recordScope)
-    expect(source).toContain("do_action('tio2_seed_homepage_after_root_release'")
-    expect(source).toContain("wp_set_object_terms($rollback['root_page_id'], $rollback['site_scopes'], 'site_scope'")
-    expect(source).toContain("'post_status' => $rollback['post_status']")
-    expect(source).toContain("['ID' => $rollback['homepage_id'], 'post_status' => 'draft']")
-  })
 })
