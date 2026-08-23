@@ -1295,6 +1295,23 @@ function tio2_force_homepage_slug(int $post_id)
     return true;
 }
 
+function tio2_release_duplicate_homepage_identity(int $post_id): void
+{
+    $post = get_post($post_id);
+    if (! $post instanceof WP_Post || 'tio2_homepage' !== $post->post_type) {
+        return;
+    }
+
+    wp_set_object_terms($post_id, [], 'site_scope', false);
+    wp_update_post([
+        'ID' => $post_id,
+        'post_status' => 'draft',
+        'post_name' => 'homepage-duplicate-' . $post_id,
+    ]);
+    update_post_meta($post_id, '_tio2_homepage_error', 'tio2_homepage_duplicate');
+    clean_post_cache($post_id);
+}
+
 function tio2_enforce_homepage_contract(int $post_id): void
 {
     if ($post_id <= 0 || ! empty($GLOBALS['tio2_enforcing_homepage_contract'])) {
@@ -1319,11 +1336,11 @@ function tio2_enforce_homepage_contract(int $post_id): void
                 sort($homepage_ids, SORT_NUMERIC);
                 $identity_owner_id = $homepage_ids[0];
                 if ($post_id !== $identity_owner_id) {
-                    wp_delete_post($post_id, true);
+                    tio2_release_duplicate_homepage_identity($post_id);
                     return;
                 }
                 foreach (array_slice($homepage_ids, 1) as $duplicate_id) {
-                    wp_delete_post($duplicate_id, true);
+                    tio2_release_duplicate_homepage_identity($duplicate_id);
                 }
             }
         }

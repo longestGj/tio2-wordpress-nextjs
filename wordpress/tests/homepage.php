@@ -492,12 +492,18 @@ function tio2_homepage_test_set_valid_fields(int $post_id, array $routes): void
 /**
  * @param array<string, string> $routes
  */
-function tio2_homepage_test_home(string $site_id, array $routes): int
+function tio2_homepage_test_home(
+    string $site_id,
+    array $routes,
+    string $title = '',
+    string $content = ''
+): int
 {
     $post_id = tio2_homepage_test_insert([
         'post_type' => 'tio2_homepage',
         'post_status' => 'draft',
-        'post_title' => 'Homepage contract ' . $site_id,
+        'post_title' => '' === $title ? 'Homepage contract ' . $site_id : $title,
+        'post_content' => $content,
     ]);
     wp_set_object_terms($post_id, [$site_id], 'site_scope', false);
     tio2_homepage_test_set_valid_fields($post_id, $routes);
@@ -688,14 +694,43 @@ foreach (['draft', 'pending', 'private', 'publish', 'trash'] as $owner_status) {
         wp_update_post(['ID' => $owner, 'post_status' => $owner_status]);
     }
     $preserved_owner_status = get_post_status($owner);
-    $duplicate = tio2_homepage_test_home('tio2-a', $routes_a);
+    $duplicate_content = "Recoverable duplicate content for {$owner_status}.";
+    $duplicate = tio2_homepage_test_home(
+        'tio2-a',
+        $routes_a,
+        "Recoverable duplicate {$owner_status}",
+        $duplicate_content
+    );
+    $duplicate_post = get_post($duplicate);
     tio2_homepage_test_assert(
-        null === get_post($duplicate),
-        "A second homepage saved against a {$owner_status} owner was not rejected or removed"
+        $duplicate_post instanceof WP_Post && $duplicate_content === $duplicate_post->post_content,
+        "A second homepage saved against a {$owner_status} owner was not recoverable"
+    );
+    tio2_homepage_test_assert(
+        'draft' === get_post_status($duplicate) &&
+            null === tio2_get_homepage_site_id($duplicate) &&
+            'tio2-a--homepage' !== get_post_field('post_name', $duplicate),
+        "A second homepage saved against a {$owner_status} owner retained its claimed identity"
+    );
+    tio2_homepage_test_assert(
+        'tio2_homepage_duplicate' === get_post_meta($duplicate, '_tio2_homepage_error', true),
+        "A second homepage saved against a {$owner_status} owner did not record the duplicate error"
     );
     tio2_homepage_test_assert(
         get_post($owner) instanceof WP_Post && $preserved_owner_status === get_post_status($owner),
         "Rejecting a duplicate changed the original {$owner_status} homepage"
+    );
+    tio2_homepage_test_assert(
+        [$owner] === tio2_find_homepage_ids('tio2-a'),
+        "A second homepage saved against a {$owner_status} owner still reserved the site identity"
+    );
+    wp_update_post(['ID' => $duplicate, 'post_status' => 'publish']);
+    clean_post_cache($duplicate);
+    tio2_homepage_test_assert(
+        'draft' === get_post_status($duplicate) &&
+            $duplicate_content === get_post_field('post_content', $duplicate) &&
+            null === tio2_get_homepage_site_id($duplicate),
+        "A released duplicate against a {$owner_status} owner could publish or lost authored content"
     );
     wp_delete_post($duplicate, true);
     wp_delete_post($owner, true);
@@ -704,6 +739,51 @@ foreach (['draft', 'pending', 'private', 'publish', 'trash'] as $owner_status) {
         [$owner, $duplicate]
     ));
 }
+
+$stale_owner = tio2_homepage_test_home('tio2-a', $routes_a);
+wp_update_post(['ID' => $stale_owner, 'post_status' => 'publish']);
+$stale_content = 'Recoverable stale duplicate authored content.';
+$stale_duplicate = tio2_homepage_test_insert([
+    'post_type' => 'tio2_homepage',
+    'post_status' => 'draft',
+    'post_title' => 'Stale duplicate homepage',
+    'post_content' => $stale_content,
+]);
+wp_set_object_terms($stale_duplicate, ['tio2-a'], 'site_scope', false);
+tio2_homepage_test_set_valid_fields($stale_duplicate, $routes_a);
+tio2_homepage_test_assert(
+    [$stale_owner, $stale_duplicate] === tio2_find_homepage_ids('tio2-a'),
+    'Stale duplicate fixture did not retain both claimed identities before reconciliation'
+);
+wp_update_post(['ID' => $stale_owner, 'post_title' => 'Saved original stale owner']);
+clean_post_cache($stale_owner);
+clean_post_cache($stale_duplicate);
+tio2_homepage_test_assert(
+    get_post($stale_owner) instanceof WP_Post && get_post($stale_duplicate) instanceof WP_Post,
+    'Saving the original owner permanently deleted a stale duplicate'
+);
+tio2_homepage_test_assert(
+    'publish' === get_post_status($stale_owner) && true === tio2_validate_homepage_contract($stale_owner),
+    'Saving the original owner invalidated its homepage contract'
+);
+tio2_homepage_test_assert(
+        'draft' === get_post_status($stale_duplicate) &&
+        null === tio2_get_homepage_site_id($stale_duplicate) &&
+        'tio2-a--homepage' !== get_post_field('post_name', $stale_duplicate) &&
+        $stale_content === get_post_field('post_content', $stale_duplicate) &&
+        'tio2_homepage_duplicate' === get_post_meta($stale_duplicate, '_tio2_homepage_error', true),
+    'Stale duplicate was not recoverably released from the claimed identity'
+);
+tio2_homepage_test_assert(
+    [$stale_owner] === tio2_find_homepage_ids('tio2-a'),
+    'Stale duplicate reconciliation did not restore one homepage identity'
+);
+wp_delete_post($stale_duplicate, true);
+wp_delete_post($stale_owner, true);
+$GLOBALS['tio2_homepage_test_post_ids'] = array_values(array_diff(
+    $GLOBALS['tio2_homepage_test_post_ids'],
+    [$stale_owner, $stale_duplicate]
+));
 
 $revision_owner = tio2_homepage_test_home('tio2-a', $routes_a);
 $revision_id = tio2_homepage_test_insert([

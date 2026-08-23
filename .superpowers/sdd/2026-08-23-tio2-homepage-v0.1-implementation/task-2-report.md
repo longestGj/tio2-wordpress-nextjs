@@ -138,6 +138,24 @@ external actions: none
 
 ---
 
+## Fix Round 2 — non-destructive duplicate safety
+
+- Mode: Implement; proposal `homepage-v0.1`; approved artifact `docs/superpowers/specs/2026-08-23-tio2-homepage-v0.1-design.md`; approval quote `同意第6端，并确认为完整提案`.
+- Safety ruling: Fix Round 1's permanent deletion of later duplicate drafts was outside the approved contract and destructive-action rules.
+- Regression-first RED command: `docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml run --rm --no-TTY --user 33:33 wpcli wp eval-file /workspace/wordpress/tests/homepage.php`.
+- Captured RED: `A second homepage saved against a draft owner was not recoverable`.
+- Fix: later duplicate claimants are kept as recoverable `tio2_homepage` drafts, have `site_scope` released, receive a unique `homepage-duplicate-{ID}` recovery slug, retain authored title/body/ACF content, and record `_tio2_homepage_error=tio2_homepage_duplicate`. They cannot publish without first reclaiming a free supported identity and passing the complete contract.
+- Stale duplicate handling: when the original lowest-ID owner is saved, later stale claimants are released by the same non-destructive path; neither record is deleted, the original remains valid, and only it retains the site identity.
+- GREEN: homepage output `TiO2 homepage identity and field contract passed`; smoke output `TiO2 site model smoke test passed`; authoring output `TiO2 managed authoring smoke test passed`.
+- Files: `wordpress/plugins/tio2-site-model/includes/fields.php`, `wordpress/tests/homepage.php`, and this report.
+- Self-review: no production `wp_delete_post(..., true)` remains in duplicate reconciliation; at-most-one exact site identity is preserved; original draft/pending/private/publish/trash status is preserved; later content remains recoverable; recursion/revision/autosave guards remain; deferred Minor image MIME point remains untouched.
+- Migration impact: unchanged; Task 3 owns reversible root migration. No user-authored duplicate content is permanently removed by the contract enforcer.
+- Concerns: none within Fix Round 2 scope.
+
+external actions: none
+
+---
+
 ## Fix Round 1 — blocking review findings
 
 ### Mode and approval continuity
