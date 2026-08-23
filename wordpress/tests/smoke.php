@@ -2,8 +2,44 @@
 
 function tio2_smoke_fail($message)
 {
+    if (function_exists('tio2_smoke_cleanup_webhook_fixtures')) {
+        tio2_smoke_cleanup_webhook_fixtures();
+    }
     fwrite(STDERR, $message . "\n");
     exit(1);
+}
+
+$GLOBALS['tio2_smoke_webhook_post_ids'] = [];
+$GLOBALS['tio2_smoke_webhook_term_id'] = 0;
+$GLOBALS['tio2_smoke_original_webhook_url'] = getenv('NEXTJS_REVALIDATION_URL');
+$GLOBALS['tio2_smoke_original_webhook_secret'] = getenv('NEXTJS_REVALIDATION_SECRET');
+
+function tio2_smoke_cleanup_webhook_fixtures()
+{
+    $GLOBALS['tio2_webhook_queue'] = [];
+
+    foreach ($GLOBALS['tio2_smoke_webhook_post_ids'] ?? [] as $post_id) {
+        if (get_post((int) $post_id)) {
+            wp_delete_post((int) $post_id, true);
+        }
+    }
+    $GLOBALS['tio2_smoke_webhook_post_ids'] = [];
+
+    $term_id = (int) ($GLOBALS['tio2_smoke_webhook_term_id'] ?? 0);
+    if ($term_id > 0 && term_exists($term_id, 'site_scope')) {
+        wp_delete_term($term_id, 'site_scope');
+    }
+    $GLOBALS['tio2_smoke_webhook_term_id'] = 0;
+    $GLOBALS['tio2_webhook_queue'] = [];
+
+    $original_url = $GLOBALS['tio2_smoke_original_webhook_url'] ?? false;
+    $original_secret = $GLOBALS['tio2_smoke_original_webhook_secret'] ?? false;
+    false === $original_url
+        ? putenv('NEXTJS_REVALIDATION_URL')
+        : putenv('NEXTJS_REVALIDATION_URL=' . $original_url);
+    false === $original_secret
+        ? putenv('NEXTJS_REVALIDATION_SECRET')
+        : putenv('NEXTJS_REVALIDATION_SECRET=' . $original_secret);
 }
 
 function tio2_smoke_assert_acf_group($group_key, $graphql_field_name, $expected_fields, $expected_post_types)
@@ -342,9 +378,20 @@ foreach ([
     'transition_post_status' => 'tio2_handle_post_transition',
     'added_post_meta' => 'tio2_handle_post_meta_change',
     'updated_post_meta' => 'tio2_handle_post_meta_change',
-    'deleted_post_meta' => 'tio2_handle_post_meta_change',
+    'deleted_post_meta' => 'tio2_handle_deleted_post_meta',
+    'set_object_terms' => 'tio2_handle_site_scope_set',
+    'deleted_term_relationships' => 'tio2_handle_deleted_term_relationships',
 ] as $hook => $callback) {
     if (false === has_action($hook, $callback)) {
+        tio2_smoke_fail("Webhook callback {$callback} is not registered on {$hook}");
+    }
+}
+
+foreach ([
+    'update_post_metadata' => 'tio2_capture_post_meta_before_mutation',
+    'delete_post_metadata' => 'tio2_capture_post_meta_before_mutation',
+] as $hook => $callback) {
+    if (false === has_filter($hook, $callback)) {
         tio2_smoke_fail("Webhook callback {$callback} is not registered on {$hook}");
     }
 }
@@ -356,5 +403,249 @@ if (1 !== count($GLOBALS['tio2_webhook_queue'])) {
     tio2_smoke_fail('Webhook queue did not coalesce duplicate post changes');
 }
 $GLOBALS['tio2_webhook_queue'] = [];
+
+function tio2_smoke_assert_single_webhook(&$requests, $expected_sites, $expected_paths, $expected_entity_ids)
+{
+    if (1 !== count($requests)) {
+        tio2_smoke_fail('Expected exactly one intercepted webhook request, received ' . count($requests));
+    }
+
+    $request = $requests[0];
+    $args = $request['args'];
+    if (
+        'https://next.example.test/api/revalidate' !== $request['url'] ||
+        'POST' !== ($args['method'] ?? null) ||
+        5 !== ($args['timeout'] ?? null) ||
+        0 !== ($args['redirection'] ?? null) ||
+        'application/json' !== ($args['headers']['content-type'] ?? null) ||
+        ! is_string($args['body'] ?? null)
+    ) {
+        tio2_smoke_fail('Intercepted webhook request options do not match the transport contract');
+    }
+
+    $body = $args['body'];
+    $signature = $args['headers']['x-tio2-signature'] ?? null;
+    if (! is_string($signature) || hash_hmac('sha256', $body, 'runtime-smoke-secret') !== $signature) {
+        tio2_smoke_fail('Intercepted webhook signature does not match the exact posted body bytes');
+    }
+
+    $payload = json_decode($body, true);
+    if (
+        ! is_array($payload) ||
+        ['eventId', 'siteIds', 'contentId', 'paths', 'entityIds', 'modified'] !== array_keys($payload) ||
+        ! wp_is_uuid($payload['eventId'], 4) ||
+        abs(time() - strtotime($payload['modified'])) > 5
+    ) {
+        tio2_smoke_fail('Intercepted webhook body is not a current strict payload');
+    }
+
+    sort($expected_sites, SORT_STRING);
+    sort($expected_paths, SORT_STRING);
+    sort($expected_entity_ids, SORT_NUMERIC);
+    $actual_sites = $payload['siteIds'];
+    $actual_paths = $payload['paths'];
+    $actual_entity_ids = $payload['entityIds'];
+    sort($actual_sites, SORT_STRING);
+    sort($actual_paths, SORT_STRING);
+    sort($actual_entity_ids, SORT_NUMERIC);
+    if (
+        $expected_sites !== $actual_sites ||
+        $expected_paths !== $actual_paths ||
+        $expected_entity_ids !== $actual_entity_ids
+    ) {
+        tio2_smoke_fail(
+            'Intercepted webhook affected state mismatch: ' . wp_json_encode([
+                'siteIds' => $actual_sites,
+                'paths' => $actual_paths,
+                'entityIds' => $actual_entity_ids,
+            ])
+        );
+    }
+
+    $requests = [];
+    return $payload;
+}
+
+foreach (get_posts([
+    'post_type' => ['page', 'tio2_product'],
+    'post_status' => 'any',
+    'posts_per_page' => -1,
+    's' => 'TiO2 webhook runtime smoke fixture',
+    'fields' => 'ids',
+]) as $stale_post_id) {
+    wp_delete_post((int) $stale_post_id, true);
+}
+$stale_term = term_exists('tio2-webhook-unsupported', 'site_scope');
+if ($stale_term) {
+    wp_delete_term((int) (is_array($stale_term) ? $stale_term['term_id'] : $stale_term), 'site_scope');
+}
+$GLOBALS['tio2_webhook_queue'] = [];
+
+putenv('NEXTJS_REVALIDATION_URL=https://next.example.test/api/revalidate');
+putenv('NEXTJS_REVALIDATION_SECRET=runtime-smoke-secret');
+$captured_webhook_requests = [];
+$webhook_transport_error = false;
+$webhook_interceptor = function ($preempt, $args, $url) use (&$captured_webhook_requests, &$webhook_transport_error) {
+    $captured_webhook_requests[] = ['url' => $url, 'args' => $args];
+    if ($webhook_transport_error) {
+        return new WP_Error('tio2_smoke_transport', 'Synthetic webhook transport failure');
+    }
+    return [
+        'headers' => [],
+        'body' => '{"ok":true}',
+        'response' => ['code' => 200, 'message' => 'OK'],
+        'cookies' => [],
+        'filename' => null,
+    ];
+};
+add_filter('pre_http_request', $webhook_interceptor, 10, 3);
+
+$runtime_page_id = wp_insert_post([
+    'post_type' => 'page',
+    'post_status' => 'publish',
+    'post_title' => 'TiO2 webhook runtime smoke fixture page',
+]);
+if (is_wp_error($runtime_page_id) || $runtime_page_id <= 0) {
+    tio2_smoke_fail('Could not create webhook runtime page fixture');
+}
+$GLOBALS['tio2_smoke_webhook_post_ids'][] = (int) $runtime_page_id;
+wp_set_object_terms($runtime_page_id, ['tio2-a'], 'site_scope', false);
+update_post_meta($runtime_page_id, 'public_path', '/runtime-smoke/old-path');
+$GLOBALS['tio2_webhook_queue'] = [];
+$captured_webhook_requests = [];
+
+update_post_meta($runtime_page_id, 'public_path', '/runtime-smoke/new-path');
+tio2_flush_webhook_queue();
+tio2_smoke_assert_single_webhook(
+    $captured_webhook_requests,
+    ['tio2-a'],
+    ['/runtime-smoke/old-path', '/runtime-smoke/new-path'],
+    []
+);
+
+update_post_meta($runtime_page_id, 'public_path', '/runtime-smoke/delete-path');
+$GLOBALS['tio2_webhook_queue'] = [];
+$captured_webhook_requests = [];
+delete_post_meta($runtime_page_id, 'public_path');
+tio2_flush_webhook_queue();
+tio2_smoke_assert_single_webhook(
+    $captured_webhook_requests,
+    ['tio2-a'],
+    ['/runtime-smoke/delete-path'],
+    []
+);
+
+update_post_meta($runtime_page_id, 'public_path', '/runtime-smoke/scope-path');
+wp_set_object_terms($runtime_page_id, ['tio2-a'], 'site_scope', false);
+$GLOBALS['tio2_webhook_queue'] = [];
+$captured_webhook_requests = [];
+wp_set_object_terms($runtime_page_id, ['tio2-b'], 'site_scope', false);
+tio2_flush_webhook_queue();
+tio2_smoke_assert_single_webhook(
+    $captured_webhook_requests,
+    ['tio2-a', 'tio2-b'],
+    ['/runtime-smoke/scope-path'],
+    []
+);
+
+$GLOBALS['tio2_webhook_queue'] = [];
+$captured_webhook_requests = [];
+wp_set_object_terms($runtime_page_id, [], 'site_scope', false);
+tio2_flush_webhook_queue();
+tio2_smoke_assert_single_webhook(
+    $captured_webhook_requests,
+    ['tio2-b'],
+    ['/runtime-smoke/scope-path'],
+    []
+);
+
+wp_set_object_terms($runtime_page_id, ['tio2-a'], 'site_scope', false);
+$GLOBALS['tio2_webhook_queue'] = [];
+$captured_webhook_requests = [];
+do_action('transition_post_status', 'publish', 'draft', get_post($runtime_page_id));
+tio2_flush_webhook_queue();
+tio2_smoke_assert_single_webhook(
+    $captured_webhook_requests,
+    ['tio2-a'],
+    ['/runtime-smoke/scope-path'],
+    []
+);
+
+$runtime_entity_id = wp_insert_post([
+    'post_type' => 'tio2_product',
+    'post_status' => 'publish',
+    'post_title' => 'TiO2 webhook runtime smoke fixture entity',
+]);
+if (is_wp_error($runtime_entity_id) || $runtime_entity_id <= 0) {
+    tio2_smoke_fail('Could not create webhook runtime entity fixture');
+}
+$GLOBALS['tio2_smoke_webhook_post_ids'][] = (int) $runtime_entity_id;
+$GLOBALS['tio2_webhook_queue'] = [];
+$captured_webhook_requests = [];
+do_action('transition_post_status', 'publish', 'draft', get_post($runtime_entity_id));
+tio2_flush_webhook_queue();
+tio2_smoke_assert_single_webhook(
+    $captured_webhook_requests,
+    ['tio2-a', 'tio2-b'],
+    [],
+    [(int) $runtime_entity_id]
+);
+
+$unsupported_term = wp_insert_term(
+    'TiO2 webhook unsupported scope',
+    'site_scope',
+    ['slug' => 'tio2-webhook-unsupported']
+);
+if (is_wp_error($unsupported_term)) {
+    tio2_smoke_fail('Could not create unsupported site_scope fixture');
+}
+$GLOBALS['tio2_smoke_webhook_term_id'] = (int) $unsupported_term['term_id'];
+wp_set_object_terms($runtime_entity_id, [(int) $unsupported_term['term_id']], 'site_scope', false);
+$GLOBALS['tio2_webhook_queue'] = [];
+$captured_webhook_requests = [];
+do_action('transition_post_status', 'publish', 'draft', get_post($runtime_entity_id));
+tio2_flush_webhook_queue();
+if (! empty($captured_webhook_requests)) {
+    tio2_smoke_fail('Shared entity with unsupported-only site_scope terms was treated as globally unscoped');
+}
+
+$GLOBALS['tio2_webhook_queue'] = [];
+$captured_webhook_requests = [];
+wp_set_object_terms($runtime_entity_id, [], 'site_scope', false);
+tio2_flush_webhook_queue();
+tio2_smoke_assert_single_webhook(
+    $captured_webhook_requests,
+    ['tio2-a', 'tio2-b'],
+    [],
+    [(int) $runtime_entity_id]
+);
+
+$webhook_transport_error = true;
+$GLOBALS['tio2_webhook_queue'] = [];
+$captured_webhook_requests = [];
+do_action('transition_post_status', 'publish', 'draft', get_post($runtime_page_id));
+tio2_flush_webhook_queue();
+if (1 !== count($captured_webhook_requests) || ! empty($GLOBALS['tio2_webhook_queue'])) {
+    tio2_smoke_fail('Webhook transport errors were not contained while clearing the queue');
+}
+$webhook_transport_error = false;
+
+wp_update_post(['ID' => $runtime_page_id, 'post_status' => 'draft']);
+tio2_flush_webhook_queue();
+$captured_webhook_requests = [];
+$GLOBALS['tio2_webhook_queue'] = [];
+update_post_meta($runtime_page_id, 'public_path', '/runtime-smoke/draft-path');
+wp_set_object_terms($runtime_page_id, ['tio2-b'], 'site_scope', false);
+tio2_flush_webhook_queue();
+if (! empty($captured_webhook_requests)) {
+    tio2_smoke_fail('Draft metadata or term changes produced a public revalidation webhook');
+}
+wp_update_post(['ID' => $runtime_page_id, 'post_status' => 'publish']);
+tio2_flush_webhook_queue();
+$captured_webhook_requests = [];
+$GLOBALS['tio2_webhook_queue'] = [];
+
+remove_filter('pre_http_request', $webhook_interceptor, 10);
+tio2_smoke_cleanup_webhook_fixtures();
 
 fwrite(STDOUT, "TiO2 site model smoke test passed\n");

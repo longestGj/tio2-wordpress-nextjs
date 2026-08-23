@@ -22,9 +22,13 @@ add_action('acf/init', 'tio2_register_acf_fields');
 add_filter('acf/validate_value/name=public_path', 'tio2_validate_public_path', 10, 4);
 add_filter('sanitize_title', 'tio2_preserve_internal_slug', 10, 3);
 add_action('transition_post_status', 'tio2_handle_post_transition', 10, 3);
+add_filter('update_post_metadata', 'tio2_capture_post_meta_before_mutation', 10, 5);
+add_filter('delete_post_metadata', 'tio2_capture_post_meta_before_mutation', 10, 5);
 add_action('added_post_meta', 'tio2_handle_post_meta_change', 10, 4);
 add_action('updated_post_meta', 'tio2_handle_post_meta_change', 10, 4);
-add_action('deleted_post_meta', 'tio2_handle_post_meta_change', 10, 4);
+add_action('deleted_post_meta', 'tio2_handle_deleted_post_meta', 10, 4);
+add_action('set_object_terms', 'tio2_handle_site_scope_set', 10, 6);
+add_action('deleted_term_relationships', 'tio2_handle_deleted_term_relationships', 10, 3);
 add_action('shutdown', 'tio2_flush_webhook_queue');
 
 register_activation_hook(__FILE__, 'tio2_activate_site_model');

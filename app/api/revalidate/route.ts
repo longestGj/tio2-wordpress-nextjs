@@ -3,8 +3,6 @@ import {revalidatePath, revalidateTag} from 'next/cache'
 import {z} from 'zod'
 
 import {
-  contentTag,
-  entityTag,
   isValidPublicPath,
   routeTag,
   siteTag,
@@ -60,6 +58,58 @@ function hasValidSignature(
   return actual.length === expected.length && timingSafeEqual(actual, expected)
 }
 
+function validateDeclaredLength(value: string | null): 400 | 413 | null {
+  if (value === null) return null
+  if (!/^(?:0|[1-9][0-9]*)$/u.test(value)) return 400
+  if (value.length > 5 || Number(value) > MAX_BODY_BYTES) return 413
+  return null
+}
+
+async function readBoundedBody(
+  request: Request,
+): Promise<{bytes?: Uint8Array; status?: 400 | 413}> {
+  if (request.body === null) return {bytes: new Uint8Array()}
+
+  const reader = request.body.getReader()
+  const chunks: Uint8Array[] = []
+  let totalBytes = 0
+
+  try {
+    while (true) {
+      const {done, value} = await reader.read()
+      if (done) break
+
+      totalBytes += value.byteLength
+      if (totalBytes > MAX_BODY_BYTES) {
+        try {
+          void reader.cancel().catch(() => undefined)
+        } catch {
+          // Returning the size error must not wait on a broken source.
+        }
+        return {status: 413}
+      }
+      chunks.push(value)
+    }
+  } catch {
+    try {
+      await reader.cancel()
+    } catch {
+      // The source may already be errored; the body is rejected either way.
+    }
+    return {status: 400}
+  } finally {
+    reader.releaseLock()
+  }
+
+  const bytes = new Uint8Array(totalBytes)
+  let offset = 0
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset)
+    offset += chunk.byteLength
+  }
+  return {bytes}
+}
+
 function pruneProcessedEvents(now: number): void {
   for (const [eventId, expiresAt] of processedEventIds) {
     if (expiresAt > now) break
@@ -81,15 +131,27 @@ export async function POST(request: Request): Promise<Response> {
     return json(500, {ok: false, error: 'Revalidation is not configured'})
   }
 
-  const declaredLength = request.headers.get('content-length')
-  if (declaredLength !== null && Number(declaredLength) > MAX_BODY_BYTES) {
+  const declaredLengthStatus = validateDeclaredLength(
+    request.headers.get('content-length'),
+  )
+  if (declaredLengthStatus === 400) {
+    return json(400, {ok: false, error: 'Invalid Content-Length'})
+  }
+  if (declaredLengthStatus === 413) {
     return json(413, {ok: false, error: 'Request body is too large'})
   }
 
-  const rawBody = new Uint8Array(await request.arrayBuffer())
-  if (rawBody.byteLength > MAX_BODY_BYTES) {
-    return json(413, {ok: false, error: 'Request body is too large'})
+  const bodyResult = await readBoundedBody(request)
+  if (bodyResult.status !== undefined) {
+    return json(bodyResult.status, {
+      ok: false,
+      error:
+        bodyResult.status === 413
+          ? 'Request body is too large'
+          : 'Invalid request body',
+    })
   }
+  const rawBody = bodyResult.bytes as Uint8Array
 
   if (
     !hasValidSignature(
@@ -133,11 +195,7 @@ export async function POST(request: Request): Promise<Response> {
   const tags = new Set<string>()
   for (const siteId of payload.siteIds) {
     tags.add(siteTag(siteId))
-    tags.add(contentTag(siteId, payload.contentId))
     for (const path of payload.paths) tags.add(routeTag(siteId, path))
-    for (const entityId of payload.entityIds) {
-      tags.add(entityTag(siteId, entityId))
-    }
   }
 
   const revalidatedTags = [...tags].sort()

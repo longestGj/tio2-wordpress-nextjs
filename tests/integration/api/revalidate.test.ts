@@ -59,6 +59,34 @@ function signedRequest(
   })
 }
 
+function streamedRequest(
+  body: ReadableStream<Uint8Array>,
+  signature = '0'.repeat(64),
+): Request {
+  return new Request('http://localhost/api/revalidate', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-tio2-signature': signature,
+    },
+    body,
+    duplex: 'half',
+  } as RequestInit & {duplex: 'half'})
+}
+
+function signedBytesRequest(bytes: Uint8Array): Request {
+  const signature = createHmac('sha256', secret).update(bytes).digest('hex')
+  return streamedRequest(
+    new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(bytes)
+        controller.close()
+      },
+    }),
+    signature,
+  )
+}
+
 beforeEach(() => {
   vi.stubEnv('REVALIDATION_SECRET', secret)
 })
@@ -127,6 +155,99 @@ describe('POST /api/revalidate', () => {
     expect(response.status).toBe(413)
   })
 
+  it.each(['-1', '1.5', 'abc'])(
+    'rejects malformed Content-Length %j before reading',
+    async (contentLength) => {
+      let bodyRead = false
+      const headers = new Headers({
+        'content-length': contentLength,
+        'x-tio2-signature': '0'.repeat(64),
+      })
+      const request = {
+        headers,
+        body: {
+          getReader() {
+            bodyRead = true
+            throw new Error('body must not be read')
+          },
+        },
+      } as unknown as Request
+
+      const response = await POST(request)
+
+      expect(response.status).toBe(400)
+      expect(bodyRead).toBe(false)
+    },
+  )
+
+  it('cancels a chunked body as soon as the 64 KiB cap is exceeded', async () => {
+    let pulls = 0
+    let cancelled = false
+    const chunks = [new Uint8Array(40_000), new Uint8Array(30_000)]
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        const chunk = chunks[pulls]
+        pulls += 1
+        if (chunk) controller.enqueue(chunk)
+        else controller.close()
+      },
+      cancel() {
+        cancelled = true
+      },
+    })
+
+    const response = await POST(streamedRequest(body))
+
+    expect(response.status).toBe(413)
+    expect(pulls).toBeLessThanOrEqual(3)
+    expect(cancelled).toBe(true)
+  })
+
+  it('returns 413 without waiting for a stalled stream cancellation', async () => {
+    const chunks = [new Uint8Array(40_000), new Uint8Array(30_000)]
+    let pullIndex = 0
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        const chunk = chunks[pullIndex]
+        pullIndex += 1
+        if (chunk) controller.enqueue(chunk)
+      },
+      cancel() {
+        return new Promise<void>(() => undefined)
+      },
+    })
+
+    const result = await Promise.race([
+      POST(streamedRequest(body)),
+      new Promise<'timed-out'>((resolve) =>
+        setTimeout(() => resolve('timed-out'), 50),
+      ),
+    ])
+
+    expect(result).not.toBe('timed-out')
+    expect((result as Response).status).toBe(413)
+  })
+
+  it('rejects a signed absent body as invalid JSON', async () => {
+    const response = await POST(signedBytesRequest(new Uint8Array()))
+
+    expect(response.status).toBe(400)
+  })
+
+  it('rejects signed invalid UTF-8 without parsing JSON', async () => {
+    const response = await POST(signedBytesRequest(Uint8Array.of(0xc3, 0x28)))
+
+    expect(response.status).toBe(400)
+  })
+
+  it('rejects signed malformed JSON cleanly', async () => {
+    const response = await POST(
+      signedBytesRequest(new TextEncoder().encode('{"eventId":')),
+    )
+
+    expect(response.status).toBe(400)
+  })
+
   it.each([
     {modified: new Date(Date.now() - 5 * 60_000 - 1_000).toISOString()},
     {modified: new Date(Date.now() + 5 * 60_000 + 1_000).toISOString()},
@@ -184,23 +305,19 @@ describe('POST /api/revalidate', () => {
       ok: true,
       eventId: payload.eventId,
       revalidatedTags: [
-        'content:tio2-a:42',
-        'entity:tio2-a:9',
         'route:tio2-a:/products',
         'site:tio2-a',
       ],
       revalidatedPaths: ['/products'],
     })
     expect(revalidateTag.mock.calls).toEqual([
-      ['content:tio2-a:42', 'max'],
-      ['entity:tio2-a:9', 'max'],
       ['route:tio2-a:/products', 'max'],
       ['site:tio2-a', 'max'],
     ])
     expect(revalidatePath.mock.calls).toEqual([['/products']])
   })
 
-  it('sorts and deduplicates two-site shared entity invalidation', async () => {
+  it('invalidates only attached site tags for a two-site shared entity', async () => {
     const payload = validPayload({
       siteIds: ['tio2-b', 'tio2-a'],
       contentId: 77,
@@ -212,12 +329,6 @@ describe('POST /api/revalidate', () => {
     const body = await response.json()
 
     expect(body.revalidatedTags).toEqual([
-      'content:tio2-a:77',
-      'content:tio2-b:77',
-      'entity:tio2-a:12',
-      'entity:tio2-a:5',
-      'entity:tio2-b:12',
-      'entity:tio2-b:5',
       'site:tio2-a',
       'site:tio2-b',
     ])

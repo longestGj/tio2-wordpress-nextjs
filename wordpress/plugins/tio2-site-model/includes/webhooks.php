@@ -75,47 +75,141 @@ function tio2_is_valid_webhook_path(string $path): bool
 }
 
 /**
- * @return array{eventId: string, siteIds: list<string>, contentId: int, paths: list<string>, entityIds: list<int>, modified: string}|null
+ * @param list<string> $term_slugs
+ * @return array{siteIds: list<string>, hasTerms: bool}
  */
-function tio2_build_webhook_payload(int $post_id, ?string $modified = null): ?array
+function tio2_site_scope_state_from_slugs(array $term_slugs): array
 {
+    $term_slugs = array_values(array_unique(array_map('strval', $term_slugs)));
+    $site_ids = array_values(array_intersect(['tio2-a', 'tio2-b'], $term_slugs));
+    sort($site_ids, SORT_STRING);
+
+    return ['siteIds' => $site_ids, 'hasTerms' => ! empty($term_slugs)];
+}
+
+/**
+ * @return array{siteIds: list<string>, hasTerms: bool}|null
+ */
+function tio2_get_site_scope_state(int $post_id): ?array
+{
+    $term_slugs = wp_get_post_terms($post_id, 'site_scope', ['fields' => 'slugs']);
+    if (is_wp_error($term_slugs)) {
+        return null;
+    }
+
+    return tio2_site_scope_state_from_slugs($term_slugs);
+}
+
+/**
+ * @param list<int> $term_taxonomy_ids
+ * @return array{siteIds: list<string>, hasTerms: bool}
+ */
+function tio2_site_scope_state_from_tt_ids(array $term_taxonomy_ids): array
+{
+    $term_slugs = [];
+    foreach (array_unique(array_map('intval', $term_taxonomy_ids)) as $term_taxonomy_id) {
+        $term = get_term_by('term_taxonomy_id', $term_taxonomy_id, 'site_scope');
+        if ($term instanceof WP_Term) {
+            $term_slugs[] = $term->slug;
+        }
+    }
+
+    return tio2_site_scope_state_from_slugs($term_slugs);
+}
+
+/**
+ * @param array{siteIds: list<string>, hasTerms: bool}|null $scope_state
+ * @param list<string>|null $paths
+ * @return array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>}|null
+ */
+function tio2_get_webhook_affected_state(
+    int $post_id,
+    ?array $scope_state = null,
+    ?array $paths = null
+): ?array {
     $post = get_post($post_id);
     if (! $post instanceof WP_Post || ! in_array($post->post_type, tio2_webhook_post_types(), true)) {
         return null;
     }
 
-    $site_ids = wp_get_post_terms($post_id, 'site_scope', ['fields' => 'slugs']);
-    if (is_wp_error($site_ids)) {
+    $scope_state = $scope_state ?? tio2_get_site_scope_state($post_id);
+    if (null === $scope_state) {
         return null;
     }
 
-    $site_ids = array_values(array_unique(array_intersect(
-        ['tio2-a', 'tio2-b'],
-        array_map('strval', $site_ids)
-    )));
-    sort($site_ids, SORT_STRING);
-
-    $paths = [];
+    $site_ids = $scope_state['siteIds'];
     $entity_ids = [];
     if (in_array($post->post_type, ['page', 'post'], true)) {
-        $public_path = (string) get_post_meta($post_id, 'public_path', true);
-        if (empty($site_ids) || ! tio2_is_valid_webhook_path($public_path)) {
+        if (empty($site_ids)) {
             return null;
         }
-        $paths[] = $public_path;
+        $paths = $paths ?? [(string) get_post_meta($post_id, 'public_path', true)];
+        $paths = array_values(array_unique(array_filter(
+            array_map('strval', $paths),
+            'tio2_is_valid_webhook_path'
+        )));
+        if (empty($paths)) {
+            return null;
+        }
+        sort($paths, SORT_STRING);
     } else {
+        $paths = [];
         if (empty($site_ids)) {
+            if ($scope_state['hasTerms']) {
+                return null;
+            }
             $site_ids = ['tio2-a', 'tio2-b'];
         }
-        $entity_ids[] = $post_id;
+        $entity_ids = [$post_id];
+    }
+
+    sort($site_ids, SORT_STRING);
+    return [
+        'contentId' => $post_id,
+        'siteIds' => array_values(array_unique($site_ids)),
+        'paths' => $paths,
+        'entityIds' => $entity_ids,
+    ];
+}
+
+/**
+ * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>} $left
+ * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>}|null $right
+ * @return array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>}
+ */
+function tio2_merge_webhook_affected_state(array $left, ?array $right): array
+{
+    if (null === $right) {
+        return $left;
+    }
+
+    foreach (['siteIds', 'paths', 'entityIds'] as $key) {
+        $left[$key] = array_values(array_unique(array_merge($left[$key], $right[$key])));
+        sort($left[$key], 'entityIds' === $key ? SORT_NUMERIC : SORT_STRING);
+    }
+    return $left;
+}
+
+/**
+ * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>}|null $affected
+ * @return array{eventId: string, siteIds: list<string>, contentId: int, paths: list<string>, entityIds: list<int>, modified: string}|null
+ */
+function tio2_build_webhook_payload(
+    int $post_id,
+    ?string $modified = null,
+    ?array $affected = null
+): ?array {
+    $affected = $affected ?? tio2_get_webhook_affected_state($post_id);
+    if (null === $affected || empty($affected['siteIds'])) {
+        return null;
     }
 
     return [
         'eventId' => wp_generate_uuid4(),
-        'siteIds' => $site_ids,
+        'siteIds' => $affected['siteIds'],
         'contentId' => $post_id,
-        'paths' => $paths,
-        'entityIds' => $entity_ids,
+        'paths' => $affected['paths'],
+        'entityIds' => $affected['entityIds'],
         'modified' => $modified ?? gmdate('c'),
     ];
 }
@@ -134,14 +228,17 @@ function tio2_sign_webhook_body(string $body, string $secret): string
     return hash_hmac('sha256', $body, $secret);
 }
 
-function tio2_send_webhook(int $post_id): bool
+/**
+ * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>}|null $affected
+ */
+function tio2_send_webhook(int $post_id, ?array $affected = null): bool
 {
     $config = tio2_get_webhook_config();
     if (null === $config) {
         return false;
     }
 
-    $payload = tio2_build_webhook_payload($post_id);
+    $payload = tio2_build_webhook_payload($post_id, null, $affected);
     if (null === $payload) {
         return false;
     }
@@ -180,24 +277,42 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key): bool
     ], true);
 }
 
-function tio2_queue_webhook(int $post_id): void
+/**
+ * @param array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>}|null $affected
+ */
+function tio2_queue_webhook(int $post_id, ?array $affected = null): void
 {
+    $affected = $affected ?? tio2_get_webhook_affected_state($post_id);
+    if (null === $affected) {
+        return;
+    }
+
     if (! isset($GLOBALS['tio2_webhook_queue']) || ! is_array($GLOBALS['tio2_webhook_queue'])) {
         $GLOBALS['tio2_webhook_queue'] = [];
     }
 
-    $GLOBALS['tio2_webhook_queue'][$post_id] = true;
+    $existing = $GLOBALS['tio2_webhook_queue'][$post_id] ?? null;
+    $GLOBALS['tio2_webhook_queue'][$post_id] = is_array($existing)
+        ? tio2_merge_webhook_affected_state($existing, $affected)
+        : $affected;
 }
 
 function tio2_flush_webhook_queue(): void
 {
-    $queued_ids = isset($GLOBALS['tio2_webhook_queue']) && is_array($GLOBALS['tio2_webhook_queue'])
-        ? array_keys($GLOBALS['tio2_webhook_queue'])
+    $queued = isset($GLOBALS['tio2_webhook_queue']) && is_array($GLOBALS['tio2_webhook_queue'])
+        ? $GLOBALS['tio2_webhook_queue']
         : [];
     $GLOBALS['tio2_webhook_queue'] = [];
 
-    foreach ($queued_ids as $post_id) {
-        tio2_send_webhook((int) $post_id);
+    foreach ($queued as $post_id => $affected) {
+        if (! is_array($affected)) {
+            continue;
+        }
+        $affected = tio2_merge_webhook_affected_state(
+            $affected,
+            tio2_get_webhook_affected_state((int) $post_id)
+        );
+        tio2_send_webhook((int) $post_id, $affected);
     }
 }
 
@@ -216,9 +331,32 @@ function tio2_handle_post_transition(string $new_status, string $old_status, WP_
 }
 
 /**
+ * @param mixed $check
+ * @param mixed $meta_value
+ * @return mixed
+ */
+function tio2_capture_post_meta_before_mutation(
+    $check,
+    int $post_id,
+    string $meta_key,
+    $meta_value,
+    $extra = null
+) {
+    if (
+        null === $check &&
+        'publish' === get_post_status($post_id) &&
+        tio2_is_relevant_webhook_meta_key($meta_key)
+    ) {
+        tio2_queue_webhook($post_id);
+    }
+
+    return $check;
+}
+
+/**
  * @param mixed $meta_value
  */
-function tio2_handle_post_meta_change(int $meta_id, int $post_id, string $meta_key, $meta_value): void
+function tio2_handle_post_meta_change($meta_id, int $post_id, string $meta_key, $meta_value): void
 {
     if (! tio2_is_relevant_webhook_meta_key($meta_key)) {
         return;
@@ -234,4 +372,61 @@ function tio2_handle_post_meta_change(int $meta_id, int $post_id, string $meta_k
     }
 
     tio2_queue_webhook($post_id);
+}
+
+/**
+ * @param list<int> $meta_ids
+ * @param mixed $meta_value
+ */
+function tio2_handle_deleted_post_meta(array $meta_ids, int $post_id, string $meta_key, $meta_value): void
+{
+    tio2_handle_post_meta_change($meta_ids, $post_id, $meta_key, $meta_value);
+}
+
+/**
+ * @param mixed $terms
+ * @param list<int> $term_taxonomy_ids
+ * @param list<int> $old_term_taxonomy_ids
+ */
+function tio2_handle_site_scope_set(
+    int $post_id,
+    $terms,
+    array $term_taxonomy_ids,
+    string $taxonomy,
+    bool $append,
+    array $old_term_taxonomy_ids
+): void {
+    if ('site_scope' !== $taxonomy || 'publish' !== get_post_status($post_id)) {
+        return;
+    }
+
+    tio2_queue_webhook(
+        $post_id,
+        tio2_get_webhook_affected_state(
+            $post_id,
+            tio2_site_scope_state_from_tt_ids($old_term_taxonomy_ids)
+        )
+    );
+    tio2_queue_webhook($post_id);
+}
+
+/**
+ * @param list<int> $term_taxonomy_ids
+ */
+function tio2_handle_deleted_term_relationships(
+    int $post_id,
+    array $term_taxonomy_ids,
+    string $taxonomy
+): void {
+    if ('site_scope' !== $taxonomy || 'publish' !== get_post_status($post_id)) {
+        return;
+    }
+
+    tio2_queue_webhook(
+        $post_id,
+        tio2_get_webhook_affected_state(
+            $post_id,
+            tio2_site_scope_state_from_tt_ids($term_taxonomy_ids)
+        )
+    );
 }
