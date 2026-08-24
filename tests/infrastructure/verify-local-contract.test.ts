@@ -71,6 +71,7 @@ describe.runIf(process.platform === 'win32')('local verification gate', () => {
             log: 'vitest-live-seed',
             restoreLog: 'seed-restore-after-live-seed',
             auditLog: 'seed-audit-after-live-seed',
+            restoreSeedMode: 'LegacyBaseline',
             expectedPerSite: 505,
           },
           {
@@ -79,6 +80,7 @@ describe.runIf(process.platform === 'win32')('local verification gate', () => {
             log: 'vitest-live-homepage-migration',
             restoreLog: 'seed-restore-after-live-homepage-migration',
             auditLog: 'seed-audit-after-live-homepage-migration',
+            restoreSeedMode: 'LegacyBaseline',
             expectedPerSite: 505,
           },
         ],

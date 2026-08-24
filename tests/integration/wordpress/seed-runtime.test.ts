@@ -103,6 +103,10 @@ function seedFullScale() {
   ])
 }
 
+function seedRootOnly() {
+  return powershell(seedScript, ['-ScalePages', '500'])
+}
+
 function auditFullScale() {
   return powershell(auditScript, ['-ExpectedPerSite', '505'])
 }
@@ -122,6 +126,81 @@ function readSeedSummary(stdout: string) {
   expect(match, stdout).not.toBeNull()
   return JSON.parse(match![1]) as Record<string, number>
 }
+
+describe.runIf(runLiveWordPress)('WordPress RootOnly seed lifecycle', () => {
+  it('retains every identity while reducing each site to its published Homepage', () => {
+    try {
+      const before = exportSnapshot()
+      const beforeRouteIds = before.routes.map(({id}) => id).sort((a, b) => a - b)
+      const beforeFixtureIds = before.sharedFixtures.map(({id}) => id).sort((a, b) => a - b)
+
+      const rootOnlySeed = seedRootOnly()
+      expect(rootOnlySeed.status, `${rootOnlySeed.stdout}\n${rootOnlySeed.stderr}`).toBe(0)
+      expect(readSeedSummary(rootOnlySeed.stdout)).toMatchObject({
+        root_only_retained_page_drafts: 1008,
+        pages_duplicates_deleted: 0,
+        entities_duplicates_deleted: 0,
+      })
+
+      const rootOnly = exportSnapshot()
+      expect(rootOnly.routes.map(({id}) => id).sort((a, b) => a - b)).toEqual(
+        beforeRouteIds,
+      )
+      expect(rootOnly.sharedFixtures.map(({id}) => id).sort((a, b) => a - b)).toEqual(
+        beforeFixtureIds,
+      )
+      expect(rootOnly.routes.some(({status}) => status === 'trash')).toBe(false)
+      expect(rootOnly.publicUrls).toHaveLength(2)
+
+      for (const siteId of ['tio2-a', 'tio2-b']) {
+        expect(
+          rootOnly.homepages.filter(
+            (homepage) => homepage.siteId === siteId && homepage.status === 'publish',
+          ),
+        ).toHaveLength(1)
+        expect(
+          rootOnly.routes.filter(
+            ({postType, publicPath, siteScopes, status, supersededSeedSnapshot}) =>
+              postType === 'page' &&
+              publicPath !== '/' &&
+              siteScopes.length === 1 &&
+              siteScopes[0] === siteId &&
+              status === 'draft' &&
+              supersededSeedSnapshot === '',
+          ),
+        ).toHaveLength(504)
+        expect(
+          rootOnly.routes.filter(
+            ({postType, publicPath, previousRootSiteScopes, siteScopes, status}) =>
+              postType === 'page' &&
+              publicPath === '/' &&
+              previousRootSiteScopes.includes(siteId) &&
+              siteScopes.length === 0 &&
+              status === 'draft',
+          ),
+        ).toHaveLength(1)
+        expect(
+          rootOnly.publicUrls.filter(
+            ({siteId: ownerSiteId, ownerType, path}) =>
+              ownerSiteId === siteId && ownerType === 'homepage' && path === '/',
+          ),
+        ).toHaveLength(1)
+      }
+    } finally {
+      runUnconditionalRestore({
+        cleanup: [],
+        restore: () => {
+          const restore = seedFullScale()
+          expect(restore.status, `${restore.stdout}\n${restore.stderr}`).toBe(0)
+        },
+        audit: () => {
+          const audit = auditFullScale()
+          expect(audit.status, `${audit.stdout}\n${audit.stderr}`).toBe(0)
+        },
+      })
+    }
+  }, 300_000)
+})
 
 describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
   let unrelatedPageId: number | undefined
@@ -165,9 +244,25 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
         expect(audit.status, `${audit.stdout}\n${audit.stderr}`).toBe(0)
       },
     })
-  }, 360_000)
+  }, 480_000)
 
   it('cleans proven collisions, revives the canonical record, and remains idempotent', () => {
+    const failedLegacyEntityContext = powershell(seedScript, [
+      '-ScalePages',
+      '500',
+      '-SeedMode',
+      'LegacyBaseline',
+      '-FailurePoint',
+      'legacy-entity-context-failure',
+    ])
+    expect(failedLegacyEntityContext.status).not.toBe(0)
+    expect(`${failedLegacyEntityContext.stdout}\n${failedLegacyEntityContext.stderr}`).toContain(
+      'Injected legacy entity seed context failure',
+    )
+    expect(`${failedLegacyEntityContext.stdout}\n${failedLegacyEntityContext.stderr}`).toContain(
+      'TIO2_SEED_SAME_PROCESS_CLEANUP {"phase":"entity-exception","entityContextsClosed":true,"pageGuardRegistered":true,"ordinaryPublishRejected":true}',
+    )
+
     const failedLegacyContext = powershell(seedScript, [
       '-ScalePages',
       '500',
@@ -182,6 +277,9 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
     )
     expect(`${failedLegacyContext.stdout}\n${failedLegacyContext.stderr}`).toContain(
       'TIO2_LEGACY_PAGE_GUARD_RESTORED',
+    )
+    expect(`${failedLegacyContext.stdout}\n${failedLegacyContext.stderr}`).toContain(
+      'TIO2_SEED_SAME_PROCESS_CLEANUP {"phase":"page-exception","entityContextsClosed":true,"pageGuardRegistered":true,"ordinaryPublishRejected":true}',
     )
     const blockedOrdinaryPublish = wp([
       'post',
@@ -224,6 +322,9 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       legacy_entity_contexts: 1,
       legacy_page_guard_contexts: 1008,
     })
+    expect(initialSeed.stdout).toContain(
+      'TIO2_SEED_SAME_PROCESS_CLEANUP {"phase":"success","entityContextsClosed":true,"pageGuardRegistered":true,"ordinaryPublishRejected":true}',
+    )
     const closedLegacyContext = wp([
       'eval',
       "echo function_exists('tio2_legacy_product_fixture_seed_context_active') && !tio2_legacy_product_fixture_seed_context_active() ? 'closed' : 'open';",

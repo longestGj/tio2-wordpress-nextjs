@@ -132,6 +132,7 @@ $summary = [
     'pages_superseded' => 0,
     'legacy_entity_contexts' => 0,
     'legacy_page_guard_contexts' => 0,
+    'root_only_retained_page_drafts' => 0,
 ];
 
 /**
@@ -306,6 +307,81 @@ function tio2_seed_legacy_entity_context(array $entity): ?string
 
     $candidate = 'tio2_with_legacy_' . $match[1] . '_fixture_seed_context';
     return is_callable($candidate) ? $candidate : null;
+}
+
+function tio2_seed_legacy_entity_context_closed(string $context, int $post_id): bool
+{
+    if (
+        1 !== preg_match(
+            '/^tio2_with_legacy_([a-z0-9_]+)_fixture_seed_context$/',
+            $context,
+            $match
+        )
+    ) {
+        return false;
+    }
+
+    $active_check = 'tio2_legacy_' . $match[1] . '_fixture_seed_context_active';
+    return is_callable($active_check) && ! $active_check($post_id);
+}
+
+function tio2_seed_ordinary_invalid_publish_is_rejected(): bool
+{
+    $die_handler_filter = static function (): callable {
+        return static function ($message): void {
+            $text = is_wp_error($message) ? $message->get_error_message() : (string) $message;
+            throw new RuntimeException('TIO2_SEED_PUBLICATION_REJECTION:' . $text);
+        };
+    };
+    add_filter('wp_die_handler', $die_handler_filter);
+    try {
+        apply_filters(
+            'wp_insert_post_data',
+            ['post_type' => 'page', 'post_status' => 'publish'],
+            [],
+            [],
+            false
+        );
+    } catch (RuntimeException $error) {
+        return str_contains(
+            $error->getMessage(),
+            'TIO2_SEED_PUBLICATION_REJECTION:This Page or Post cannot be published because it must have exactly one supported site scope.'
+        );
+    } finally {
+        remove_filter('wp_die_handler', $die_handler_filter);
+    }
+
+    return false;
+}
+
+/**
+ * @param array<int, array{context: string, postId: int}> $entity_contexts
+ */
+function tio2_seed_assert_same_process_cleanup(string $phase, array $entity_contexts): void
+{
+    $entity_contexts_closed = [] !== $entity_contexts;
+    foreach ($entity_contexts as $entity_context) {
+        $entity_contexts_closed = $entity_contexts_closed && tio2_seed_legacy_entity_context_closed(
+            $entity_context['context'],
+            $entity_context['postId']
+        );
+    }
+    $page_guard_registered = false !== has_filter(
+        'wp_insert_post_data',
+        'tio2_guard_managed_publication'
+    );
+    $ordinary_publish_rejected = $page_guard_registered &&
+        tio2_seed_ordinary_invalid_publish_is_rejected();
+    $result = [
+        'phase' => $phase,
+        'entityContextsClosed' => $entity_contexts_closed,
+        'pageGuardRegistered' => $page_guard_registered,
+        'ordinaryPublishRejected' => $ordinary_publish_rejected,
+    ];
+    WP_CLI::log('TIO2_SEED_SAME_PROCESS_CLEANUP ' . wp_json_encode($result));
+    if (! $entity_contexts_closed || ! $page_guard_registered || ! $ordinary_publish_rejected) {
+        throw new RuntimeException("Legacy seed same-process cleanup failed during {$phase}.");
+    }
 }
 
 /**
@@ -682,6 +758,7 @@ try {
         }
     }
 
+    $legacy_entity_context_checks = [];
     foreach ($plan['entities'] as $entity) {
         $existing_entity_id = $entity_canonical_ids[$entity['id']] ?? null;
         $legacy_context = tio2_seed_legacy_entity_context($entity);
@@ -714,23 +791,42 @@ try {
                 'siteScopes' => array_values($entity['siteScopes']),
                 'publicPath' => $entity['publicPath'] ?? null,
             ];
-            $entity_id = $legacy_context(
-                $entity_id,
-                $target,
-                static function () use (
-                    $entity,
-                    &$summary,
-                    $entity_id
-                ): int {
-                    return tio2_seed_upsert(
+            $inject_legacy_entity_failure =
+                'legacy-entity-context-failure' === ($plan['failurePoint'] ?? '') &&
+                0 === $summary['legacy_entity_contexts'];
+            try {
+                $entity_id = $legacy_context(
+                    $entity_id,
+                    $target,
+                    static function () use (
                         $entity,
-                        $entity['postType'],
-                        $summary,
-                        'entities',
-                        $entity_id
-                    );
-                }
-            );
+                        &$summary,
+                        $entity_id,
+                        $inject_legacy_entity_failure
+                    ): int {
+                        if ($inject_legacy_entity_failure) {
+                            throw new RuntimeException('Injected legacy entity seed context failure.');
+                        }
+                        return tio2_seed_upsert(
+                            $entity,
+                            $entity['postType'],
+                            $summary,
+                            'entities',
+                            $entity_id
+                        );
+                    }
+                );
+            } catch (Throwable $error) {
+                tio2_seed_assert_same_process_cleanup('entity-exception', [[
+                    'context' => $legacy_context,
+                    'postId' => $entity_id,
+                ]]);
+                throw $error;
+            }
+            $legacy_entity_context_checks[] = [
+                'context' => $legacy_context,
+                'postId' => $entity_id,
+            ];
             $summary['legacy_entity_contexts']++;
         } else {
             $entity_id = tio2_seed_upsert(
@@ -772,18 +868,26 @@ try {
             $inject_legacy_page_failure =
                 'legacy-page-context-failure' === ($plan['failurePoint'] ?? '') &&
                 0 === $summary['legacy_page_guard_contexts'];
-            $page_id = tio2_seed_with_legacy_page_guard_context(
-                static function () use ($page, &$summary, $existing_page_id): int {
-                    return tio2_seed_upsert(
-                        $page,
-                        'page',
-                        $summary,
-                        'pages',
-                        $existing_page_id
-                    );
-                },
-                $inject_legacy_page_failure
-            );
+            try {
+                $page_id = tio2_seed_with_legacy_page_guard_context(
+                    static function () use ($page, &$summary, $existing_page_id): int {
+                        return tio2_seed_upsert(
+                            $page,
+                            'page',
+                            $summary,
+                            'pages',
+                            $existing_page_id
+                        );
+                    },
+                    $inject_legacy_page_failure
+                );
+            } catch (Throwable $error) {
+                tio2_seed_assert_same_process_cleanup(
+                    'page-exception',
+                    $legacy_entity_context_checks
+                );
+                throw $error;
+            }
             $summary['legacy_page_guard_contexts']++;
         } else {
             $page_id = tio2_seed_upsert($page, 'page', $summary, 'pages', $existing_page_id);
@@ -793,6 +897,15 @@ try {
         if (is_wp_error($term_result)) {
             tio2_seed_abort($term_result->get_error_message());
         }
+        if ('root-only' === $seed_mode) {
+            if ('draft' !== get_post_status($page_id)) {
+                throw new RuntimeException("RootOnly retained Page {$page_id} is not draft.");
+            }
+            $summary['root_only_retained_page_drafts']++;
+        }
+    }
+    if ('legacy-baseline' === $seed_mode) {
+        tio2_seed_assert_same_process_cleanup('success', $legacy_entity_context_checks);
     }
 
     foreach ($superseded_page_ids as $page_id) {

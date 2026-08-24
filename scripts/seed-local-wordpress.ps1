@@ -6,7 +6,7 @@ param(
     [string] $SeedMode = 'RootOnly',
     [string] $ManifestPath = '',
     [switch] $PlanOnly,
-    [ValidateSet('', 'begin-failure', 'before-homepage-write', 'root-metadata-readback-failure', 'after-root-release', 'commit-failure', 'legacy-page-context-failure')]
+    [ValidateSet('', 'begin-failure', 'before-homepage-write', 'root-metadata-readback-failure', 'after-root-release', 'commit-failure', 'legacy-entity-context-failure', 'legacy-page-context-failure')]
     [string] $FailurePoint = ''
 )
 
@@ -15,7 +15,11 @@ Set-StrictMode -Version Latest
 
 $RepositoryRoot = Split-Path -Parent $PSScriptRoot
 $WordPressDirectory = Join-Path $RepositoryRoot 'wordpress'
-if ([string]::IsNullOrWhiteSpace($ManifestPath)) {
+$HasCustomManifestPath = -not [string]::IsNullOrWhiteSpace($ManifestPath)
+if ($HasCustomManifestPath -and -not $PlanOnly) {
+    throw 'ManifestPath is available only with -PlanOnly.'
+}
+if (-not $HasCustomManifestPath) {
     $ManifestPath = Join-Path $WordPressDirectory 'seed/representative-content.json'
 }
 $ManifestPath = [System.IO.Path]::GetFullPath($ManifestPath)

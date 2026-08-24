@@ -180,6 +180,29 @@ describe('seed execution plan', () => {
     }
   })
 
+  it('rejects a custom manifest before any mutation-capable invocation', () => {
+    const temporaryDirectory = mkdtempSync(join(tmpdir(), 'tio2-seed-manifest-'))
+    const temporaryManifestPath = join(temporaryDirectory, 'representative-content.json')
+    writeFileSync(temporaryManifestPath, JSON.stringify(readManifest()))
+
+    try {
+      const result = runPowerShell(seedScriptPath, [
+        '-ManifestPath',
+        temporaryManifestPath,
+        '-FailurePoint',
+        'begin-failure',
+      ])
+
+      expect(result.status).not.toBe(0)
+      expect(`${result.stdout}\n${result.stderr}`).toContain(
+        'ManifestPath is available only with -PlanOnly.',
+      )
+      expect(`${result.stdout}\n${result.stderr}`).not.toContain('Container ')
+    } finally {
+      rmSync(temporaryDirectory, {recursive: true, force: true})
+    }
+  })
+
   it('defaults to a root-only plan without deleting retained Page identities', () => {
     const result = runPowerShell(seedScriptPath, ['-ScalePages', '500', '-PlanOnly'])
 
@@ -279,6 +302,7 @@ describe('seed execution plan', () => {
       'root-metadata-readback-failure',
       'after-root-release',
       'commit-failure',
+      'legacy-entity-context-failure',
       'legacy-page-context-failure',
     ]) {
       const result = runPowerShell(seedScriptPath, [

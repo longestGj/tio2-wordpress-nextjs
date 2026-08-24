@@ -35,6 +35,7 @@ $ControllerHealthTimeoutSeconds = 120
 $ControllerMaximumSequentialHealthWaitSeconds = 240
 $ControllerParentTimeoutSeconds = 270
 $ControllerCancellationGraceSeconds = 30
+$AcceptedDatasetRestoreSeedMode = 'LegacyBaseline'
 
 if ($Plan) {
     [ordered]@{
@@ -65,6 +66,7 @@ if ($Plan) {
                     log = 'vitest-live-seed'
                     restoreLog = 'seed-restore-after-live-seed'
                     auditLog = 'seed-audit-after-live-seed'
+                    restoreSeedMode = $AcceptedDatasetRestoreSeedMode
                     expectedPerSite = 505
                 },
                 [ordered]@{
@@ -73,6 +75,7 @@ if ($Plan) {
                     log = 'vitest-live-homepage-migration'
                     restoreLog = 'seed-restore-after-live-homepage-migration'
                     auditLog = 'seed-audit-after-live-homepage-migration'
+                    restoreSeedMode = $AcceptedDatasetRestoreSeedMode
                     expectedPerSite = 505
                 }
             )
@@ -327,7 +330,7 @@ function Invoke-LiveSeedSuite {
             try {
                 Invoke-NativeLogged `
                     -FilePath $PowerShell `
-                    -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'seed-local-wordpress.ps1'), '-ScalePages', '500') `
+                    -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'seed-local-wordpress.ps1'), '-ScalePages', '500', '-SeedMode', $AcceptedDatasetRestoreSeedMode) `
                     -LogName $RestoreLogName
             }
             catch {
