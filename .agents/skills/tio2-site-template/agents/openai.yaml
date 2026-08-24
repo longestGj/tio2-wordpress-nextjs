@@ -1,0 +1,6 @@
+interface:
+  display_name: "TiO2 Site Template Agent"
+  short_description: "Shared site template contract specialist"
+  default_prompt: "Use $tio2-site-template to design or work from an approved shared site template proposal for this project."
+policy:
+  allow_implicit_invocation: true
