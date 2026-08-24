@@ -33,7 +33,7 @@ const sites = [
     title: 'TiO2 B | Titanium Dioxide',
     description: 'Titanium dioxide products and applications from TiO2 B.',
   },
-]
+] as const
 
 afterEach(() => {
   vi.resetModules()
@@ -44,8 +44,7 @@ describe('site branding', () => {
   it.each(sites)('renders $id metadata and branding', async (site) => {
     vi.stubEnv('SITE_ID', site.id)
     vi.stubEnv('WORDPRESS_GRAPHQL_URL', graphqlEndpoint)
-    const homepage = makeHomepageNode()
-    homepage.siteScopes.nodes[0].slug = site.id
+    const homepage = makeHomepageNode(site.id)
     homepage.homepageFields.heroHeading = `${site.name} Home`
     server.use(
       http.post(graphqlEndpoint, () =>

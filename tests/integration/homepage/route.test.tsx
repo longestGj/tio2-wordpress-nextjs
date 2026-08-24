@@ -36,8 +36,7 @@ vi.mock('@/lib/wordpress/queries', () => ({
 }))
 
 function homepageFixture(siteId: 'tio2-a' | 'tio2-b'): HomepageDto {
-  const node = makeHomepageNode()
-  node.siteScopes.nodes[0].slug = siteId
+  const node = makeHomepageNode(siteId)
   node.id = siteId === 'tio2-a' ? 'aG9tZXBhZ2U6MTAx' : 'aG9tZXBhZ2U6MjAy'
   node.databaseId = siteId === 'tio2-a' ? 101 : 202
   node.homepageFields.heroHeading =

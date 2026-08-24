@@ -20,8 +20,7 @@ function sources(overrides: Partial<Parameters<typeof buildSitemap>[1]> = {}) {
 }
 
 function homepageFor(siteId: 'tio2-a' | 'tio2-b') {
-  const node = makeHomepageNode()
-  node.siteScopes.nodes[0] = {...node.siteScopes.nodes[0]!, slug: siteId}
+  const node = makeHomepageNode(siteId)
   return toHomepageDto(node, siteId, {
     linkPolicy: getHomepageLinkPolicy(siteId),
   })

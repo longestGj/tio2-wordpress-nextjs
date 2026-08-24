@@ -7,8 +7,7 @@ import {getSiteConfig} from '@/sites'
 import {makeHomepageNode} from '@/tests/mocks/handlers'
 
 function homepageFixture(siteId: 'tio2-a' | 'tio2-b'): HomepageDto {
-  const node = makeHomepageNode()
-  node.siteScopes.nodes[0].slug = siteId
+  const node = makeHomepageNode(siteId)
   return toHomepageDto(node, siteId, {
     linkPolicy: getHomepageLinkPolicy(siteId),
   })

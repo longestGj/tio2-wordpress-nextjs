@@ -3,8 +3,16 @@ import {fileURLToPath} from 'node:url'
 
 import {describe, expect, it} from 'vitest'
 
+import {HOMEPAGE_RFQ_COPY_CONTRACTS} from '@/lib/wordpress/homepage-rfq-copy'
+
 const manifestPath = fileURLToPath(
   new URL('../../wordpress/seed/representative-content.json', import.meta.url),
+)
+const phpRfqContractPath = fileURLToPath(
+  new URL(
+    '../../wordpress/plugins/tio2-site-model/includes/homepage-rfq-copy.php',
+    import.meta.url,
+  ),
 )
 
 type Homepage = Record<string, unknown> & {
@@ -20,6 +28,9 @@ type Homepage = Record<string, unknown> & {
   faqs: Array<{faq_question: string; faq_answer: string}>
   seo_title: string
   seo_description: string
+  rfq_intro: string
+  rfq_privacy_text: string
+  rfq_success_heading: string
   rfq_success_message: string
   secondary_topics: Array<{secondary_topic: string}>
 }
@@ -101,6 +112,27 @@ describe('homepage seed contract', () => {
       expect(serialized).not.toMatch(/certif|capacity|ranking|performance/i)
       expect(serialized).not.toMatch(/https?:\/\/(?!example\.test)/i)
     }
+  })
+
+  it('keeps current Site A/B RFQ values byte-for-byte valid under their owning contracts', () => {
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Manifest
+    for (const site of manifest.sites) {
+      const home = site.homepage!
+      const contract = HOMEPAGE_RFQ_COPY_CONTRACTS[site.siteId as 'tio2-a' | 'tio2-b']
+      expect(contract.fields['rfq.intro']).toContain(home.rfq_intro)
+      expect(contract.fields['rfq.privacyText']).toContain(home.rfq_privacy_text)
+      expect(contract.fields['rfq.success.heading']).toContain(home.rfq_success_heading)
+      expect(contract.fields['rfq.success.message']).toContain(home.rfq_success_message)
+    }
+  })
+
+  it('mechanically matches the PHP and TypeScript site-scoped RFQ contracts', () => {
+    const source = readFileSync(phpRfqContractPath, 'utf8').replaceAll('\r\n', '\n')
+    const serialized = /TIO2_HOMEPAGE_RFQ_COPY_JSON\s*=\s*<<<'JSON'\n([\s\S]*?)\nJSON;/u.exec(
+      source,
+    )
+    expect(serialized, 'missing machine-readable PHP RFQ contract').not.toBeNull()
+    expect(JSON.parse(serialized![1])).toEqual(HOMEPAGE_RFQ_COPY_CONTRACTS)
   })
 
 })

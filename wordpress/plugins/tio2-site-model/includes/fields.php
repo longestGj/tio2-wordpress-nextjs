@@ -294,7 +294,7 @@ function tio2_homepage_field_definitions(): array
             ),
         ]),
         tio2_homepage_text_field('field_tio2_home_rfq_heading', 'rfq_heading', true, 90),
-        tio2_homepage_text_field('field_tio2_home_rfq_intro', 'rfq_intro', true, 260, 'textarea'),
+        tio2_homepage_rfq_copy_field('field_tio2_home_rfq_intro', 'rfq_intro'),
         [
             'key' => 'field_tio2_home_rfq_labels',
             'label' => 'RFQ Labels',
@@ -340,15 +340,9 @@ function tio2_homepage_field_definitions(): array
             ],
         ],
         tio2_homepage_text_field('field_tio2_home_rfq_submit_label', 'rfq_submit_label', true, 32),
-        tio2_homepage_text_field('field_tio2_home_rfq_privacy_text', 'rfq_privacy_text', true, 240, 'textarea'),
-        tio2_homepage_text_field('field_tio2_home_rfq_success_heading', 'rfq_success_heading', true, 80),
-        tio2_homepage_text_field(
-            'field_tio2_home_rfq_success_message',
-            'rfq_success_message',
-            true,
-            240,
-            'textarea'
-        ),
+        tio2_homepage_rfq_copy_field('field_tio2_home_rfq_privacy_text', 'rfq_privacy_text'),
+        tio2_homepage_rfq_copy_field('field_tio2_home_rfq_success_heading', 'rfq_success_heading'),
+        tio2_homepage_rfq_copy_field('field_tio2_home_rfq_success_message', 'rfq_success_message'),
         tio2_homepage_text_field('field_tio2_home_faq_heading', 'faq_heading', true, 90),
         tio2_homepage_repeater_field('field_tio2_home_faqs', 'faqs', true, 3, 6, [
             tio2_homepage_text_field('field_tio2_home_faq_question', 'faq_question', true, 160),
@@ -749,12 +743,6 @@ function tio2_homepage_string_length(string $value): int
     return function_exists('mb_strlen') ? mb_strlen($value) : strlen($value);
 }
 
-function tio2_homepage_normalize_rfq_editorial_copy(string $value): string
-{
-    $collapsed = preg_replace('/\s+/u', ' ', trim($value));
-    return strtolower(is_string($collapsed) ? $collapsed : trim($value));
-}
-
 /**
  * @param mixed $value
  * @return string|WP_Error
@@ -789,51 +777,14 @@ function tio2_homepage_validate_string(
  * @param mixed $value
  * @return string|WP_Error
  */
-function tio2_homepage_validate_rfq_behavior($value, string $field_name, int $maxlength)
+function tio2_homepage_validate_rfq_behavior(
+    $value,
+    string $site_id,
+    string $field_name,
+    int $maxlength
+)
 {
-    $text = tio2_homepage_validate_string($value, $field_name, true, $maxlength);
-    if (is_wp_error($text)) {
-        return $text;
-    }
-
-    $approved_copy = [
-        'rfq_intro' => [
-            'This v0.1 local demo does not send or store inquiry data.',
-            'This local demo does not send or store your inquiry.',
-            'Inquiry data is not sent or stored by this local demo.',
-        ],
-        'rfq_privacy_text' => [
-            'This local demo does not send or save entered information.',
-            'This Site B local demo does not send or save entered information.',
-            'This local demo does not send or save the information entered.',
-            'The local demo does not send or save this information.',
-            'Entered information is not sent or saved by this local demo.',
-        ],
-        'rfq_success_heading' => [
-            'Local review complete',
-            'Local check complete',
-            'Site B local check complete',
-            'Local validation complete',
-        ],
-        'rfq_success_message' => [
-            'Nothing was transmitted or saved by this Site A local demo.',
-            'No Site B information was transmitted or saved by this local demo.',
-            'Nothing was sent, transmitted, or saved by this local interaction.',
-            'Nothing was transmitted or saved.',
-            'Nothing was sent, transmitted, or saved by this local demo.',
-        ],
-    ];
-    $normalized = tio2_homepage_normalize_rfq_editorial_copy($text);
-    foreach ($approved_copy[$field_name] ?? [] as $approved) {
-        if (tio2_homepage_normalize_rfq_editorial_copy($approved) === $normalized) {
-            return $text;
-        }
-    }
-
-    return new WP_Error(
-        'tio2_homepage_invalid_field',
-        "Homepage field {$field_name} must match approved homepage-v0.1 RFQ editorial copy."
-    );
+    return tio2_validate_homepage_rfq_copy($value, $site_id, $field_name, $maxlength);
 }
 
 /**
@@ -1064,6 +1015,7 @@ function tio2_validate_homepage_contract(int $post_id)
     ] as $field_name => $maxlength) {
         $valid = tio2_homepage_validate_rfq_behavior(
             get_field($field_name, $post_id, false),
+            $site_id,
             $field_name,
             $maxlength
         );

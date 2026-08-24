@@ -5,6 +5,10 @@ import {
   HomepageVersionError,
   toHomepageDto as adaptHomepageDto,
 } from '@/lib/wordpress/homepage-dto'
+import {
+  HOMEPAGE_RFQ_COPY_CONTRACTS,
+  validateHomepageRfqCopy,
+} from '@/lib/wordpress/homepage-rfq-copy'
 import {CrossSiteContentError} from '@/lib/wordpress/types'
 
 const image = {
@@ -118,7 +122,7 @@ const completeHomepage = {
       },
     ],
     rfqHeading: ' Prepare a local inquiry ',
-    rfqIntro: ' This local demo does not send or store your inquiry. ',
+    rfqIntro: ' This v0.1 local demo does not send or store inquiry data. ',
     rfqLabels: {
       rfqLabelName: ' Name ',
       rfqLabelCompany: ' Company ',
@@ -135,9 +139,9 @@ const completeHomepage = {
       rfqBuyerOtherLabel: ' Other business buyer ',
     },
     rfqSubmitLabel: ' Review inquiry ',
-    rfqPrivacyText: ' The local demo does not send or save this information. ',
-    rfqSuccessHeading: ' Local review complete ',
-    rfqSuccessMessage: ' Nothing was transmitted or saved. ',
+    rfqPrivacyText: ' This local demo does not send or save entered information. ',
+    rfqSuccessHeading: ' Local check complete ',
+    rfqSuccessMessage: ' Nothing was transmitted or saved by this Site A local demo. ',
     faqHeading: ' Frequently asked questions ',
     faqs: [
       {faqQuestion: ' Which grade should I choose? ', faqAnswer: ' Start with the application and performance target. ', faqRelatedLabel: ' Browse rutile grades ', faqRelatedPath: ' /products/rutile '},
@@ -244,13 +248,13 @@ describe('toHomepageDto', () => {
       },
       rfq: {
         heading: 'Prepare a local inquiry',
-        intro: 'This local demo does not send or store your inquiry.',
+        intro: 'This v0.1 local demo does not send or store inquiry data.',
         labels: {
           name: 'Name', company: 'Company', countryRegion: 'Country / Region', workEmail: 'Work email', buyerType: 'Buyer type', interest: 'Product or application interest', expectedQuantity: 'Expected quantity', destination: 'Destination', message: 'Message', privacy: 'I understand this is a local demo.', buyerIndustrial: 'Industrial buyer', buyerDistributor: 'Distributor', buyerOther: 'Other business buyer',
         },
         submitLabel: 'Review inquiry',
-        privacyText: 'The local demo does not send or save this information.',
-        success: {heading: 'Local review complete', message: 'Nothing was transmitted or saved.'},
+        privacyText: 'This local demo does not send or save entered information.',
+        success: {heading: 'Local check complete', message: 'Nothing was transmitted or saved by this Site A local demo.'},
       },
       faq: {
         heading: 'Frequently asked questions',
@@ -274,6 +278,11 @@ describe('toHomepageDto', () => {
   it('keeps Site B stored paths while its root-only policy disables navigation', () => {
     const node = cloneHomepage()
     node.siteScopes.nodes[0].slug = 'tio2-b'
+    const contract = HOMEPAGE_RFQ_COPY_CONTRACTS['tio2-b']
+    node.homepageFields.rfqIntro = contract.fields['rfq.intro'][0]
+    node.homepageFields.rfqPrivacyText = contract.fields['rfq.privacyText'][0]
+    node.homepageFields.rfqSuccessHeading = contract.fields['rfq.success.heading'][0]
+    node.homepageFields.rfqSuccessMessage = contract.fields['rfq.success.message'][0]
 
     const homepage = toHomepageDto(node, 'tio2-b', {
       linkPolicy: linkPolicy('tio2-b'),
@@ -399,79 +408,67 @@ describe('toHomepageDto', () => {
   })
 
   it.each([
-    [
-      'Site A',
-      {
-        intro: 'This v0.1 local demo does not send or store inquiry data.',
-        privacyText: 'This local demo does not send or save entered information.',
-        successHeading: 'Local check complete',
-        successMessage: 'Nothing was transmitted or saved by this Site A local demo.',
-      },
-    ],
-    [
-      'Site B',
-      {
-        intro: 'This v0.1 local demo does not send or store inquiry data.',
-        privacyText: 'This Site B local demo does not send or save entered information.',
-        successHeading: 'Site B local check complete',
-        successMessage: 'No Site B information was transmitted or saved by this local demo.',
-      },
-    ],
-    [
-      'coordinated denials',
-      {
-        intro: 'Inquiry data is not sent or stored by this local demo.',
-        privacyText: 'Entered information is not sent or saved by this local demo.',
-        successHeading: 'Local check complete',
-        successMessage: 'Nothing was sent, transmitted, or saved by this local demo.',
-      },
-    ],
-    [
-      'WordPress executable fixture',
-      {
-        intro: 'This v0.1 local demo does not send or store inquiry data.',
-        privacyText: 'This local demo does not send or save the information entered.',
-        successHeading: 'Local validation complete',
-        successMessage: 'Nothing was sent, transmitted, or saved by this local interaction.',
-      },
-    ],
-    [
-      'DTO mock fixture',
-      {
-        intro: 'This local demo does not send or store your inquiry.',
-        privacyText: 'The local demo does not send or save this information.',
-        successHeading: 'Local review complete',
-        successMessage: 'Nothing was transmitted or saved.',
-      },
-    ],
-  ] as const)('accepts the approved local-only RFQ behavior copy for %s', (_site, copy) => {
+    ['tio2-a', 'site-a-rfq-copy-v0.1'],
+    ['tio2-b', 'site-b-rfq-copy-v0.1-frozen'],
+  ] as const)('accepts and preserves the exact %s RFQ fixture', (siteId, contractId) => {
     const node = cloneHomepage()
-    node.homepageFields.rfqIntro = copy.intro
-    node.homepageFields.rfqPrivacyText = copy.privacyText
-    node.homepageFields.rfqSuccessHeading = copy.successHeading
-    node.homepageFields.rfqSuccessMessage = copy.successMessage
+    node.siteScopes.nodes[0].slug = siteId
+    const contract = HOMEPAGE_RFQ_COPY_CONTRACTS[siteId]
+    expect(contract.id).toBe(contractId)
+    node.homepageFields.rfqIntro = contract.fields['rfq.intro'][0]
+    node.homepageFields.rfqPrivacyText = contract.fields['rfq.privacyText'][0]
+    node.homepageFields.rfqSuccessHeading = contract.fields['rfq.success.heading'][0]
+    node.homepageFields.rfqSuccessMessage = contract.fields['rfq.success.message'][0]
 
-    expect(toHomepageDto(node, 'tio2-a').rfq).toMatchObject({
-      intro: copy.intro,
-      privacyText: copy.privacyText,
+    expect(toHomepageDto(node, siteId).rfq).toMatchObject({
+      intro: contract.fields['rfq.intro'][0],
+      privacyText: contract.fields['rfq.privacyText'][0],
       success: {
-        heading: copy.successHeading,
-        message: copy.successMessage,
+        heading: contract.fields['rfq.success.heading'][0],
+        message: contract.fields['rfq.success.message'][0],
       },
     })
   })
 
-  it('matches approved RFQ behavior copy after case and whitespace normalization', () => {
-    const node = cloneHomepage()
-    node.homepageFields.rfqIntro =
-      '  INQUIRY  data is NOT sent or stored by this LOCAL demo.  '
-    node.homepageFields.rfqPrivacyText =
-      'ENTERED information is not sent or saved by this  local demo.'
-    node.homepageFields.rfqSuccessHeading = ' LOCAL  REVIEW complete '
-    node.homepageFields.rfqSuccessMessage =
-      'NOTHING was sent,  transmitted, or saved by this LOCAL demo.'
+  it('normalizes only trim and consecutive whitespace while preserving case and punctuation', () => {
+    expect(
+      validateHomepageRfqCopy(
+        'tio2-a',
+        'rfq.intro',
+        '  This v0.1 local demo does not   send or store inquiry data.  ',
+      ),
+    ).toBe('This v0.1 local demo does not send or store inquiry data.')
+    expect(() =>
+      validateHomepageRfqCopy(
+        'tio2-a',
+        'rfq.intro',
+        'This v0.1 local demo does not send or store inquiry data!',
+      ),
+    ).toThrowError(expect.objectContaining({fieldPath: 'rfq.intro'}))
+    expect(() =>
+      validateHomepageRfqCopy(
+        'tio2-a',
+        'rfq.intro',
+        'THIS v0.1 local demo does not send or store inquiry data.',
+      ),
+    ).toThrowError(expect.objectContaining({fieldPath: 'rfq.intro'}))
+  })
 
-    expect(() => toHomepageDto(node, 'tio2-a')).not.toThrow()
+  it('rejects cross-site and cross-field approved strings', () => {
+    expect(() =>
+      validateHomepageRfqCopy(
+        'tio2-a',
+        'rfq.privacyText',
+        HOMEPAGE_RFQ_COPY_CONTRACTS['tio2-b'].fields['rfq.privacyText'][0],
+      ),
+    ).toThrowError(expect.objectContaining({fieldPath: 'rfq.privacyText'}))
+    expect(() =>
+      validateHomepageRfqCopy(
+        'tio2-a',
+        'rfq.success.message',
+        HOMEPAGE_RFQ_COPY_CONTRACTS['tio2-a'].fields['rfq.intro'][0],
+      ),
+    ).toThrowError(expect.objectContaining({fieldPath: 'rfq.success.message'}))
   })
 
   it.each([

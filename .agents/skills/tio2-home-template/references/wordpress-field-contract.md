@@ -49,12 +49,12 @@ All strings are trimmed before required/length checks. All copy is plain text; n
 | `field_tio2_home_trust_intro` / `trust_intro` | textarea, required | 1–240 | `trustIntro` → `trust.intro` → `SupplierTrust` |
 | `field_tio2_home_trust_reasons` / `trust_reasons` | repeater, 3–4 | title, description, claim basis, optional evidence URL; no empty item | `trustReasons[]` → `trust.reasons[]` → `SupplierTrust` |
 | `field_tio2_home_rfq_heading` / `rfq_heading` | text, required | 1–90 | `rfqHeading` → `rfq.heading` → `RfqSection` |
-| `field_tio2_home_rfq_intro` / `rfq_intro` | textarea, required | 1–260; state that v0.1 does not send/store | `rfqIntro` → `rfq.intro` → `RfqSection` |
+| `field_tio2_home_rfq_intro` / `rfq_intro` | select, required | owning-site controlled full-string variant; max 260 | `rfqIntro` → `rfq.intro` → `RfqSection` |
 | `field_tio2_home_rfq_labels` / `rfq_labels` | group, required | fixed label keys listed below | `rfqLabels` → `rfq.labels` → `RfqForm` |
 | `field_tio2_home_rfq_submit_label` / `rfq_submit_label` | text, required | 1–32 | `rfqSubmitLabel` → `rfq.submitLabel` → `RfqForm` |
-| `field_tio2_home_rfq_privacy_text` / `rfq_privacy_text` | textarea, required | 1–240; say local demo does not send/save | `rfqPrivacyText` → `rfq.privacyText` → `RfqForm` |
-| `field_tio2_home_rfq_success_heading` / `rfq_success_heading` | text, required | 1–80; do not claim inquiry received | `rfqSuccessHeading` → `rfq.success.heading` → success state |
-| `field_tio2_home_rfq_success_message` / `rfq_success_message` | textarea, required | 1–240; explicitly no transmission | `rfqSuccessMessage` → `rfq.success.message` → success state |
+| `field_tio2_home_rfq_privacy_text` / `rfq_privacy_text` | select, required | owning-site controlled full-string variant; max 240 | `rfqPrivacyText` → `rfq.privacyText` → `RfqForm` |
+| `field_tio2_home_rfq_success_heading` / `rfq_success_heading` | select, required | owning-site controlled full-string variant; max 80 | `rfqSuccessHeading` → `rfq.success.heading` → success state |
+| `field_tio2_home_rfq_success_message` / `rfq_success_message` | select, required | owning-site controlled full-string variant; max 240 | `rfqSuccessMessage` → `rfq.success.message` → success state |
 | `field_tio2_home_faq_heading` / `faq_heading` | text, required | 1–90 | `faqHeading` → `faq.heading` → `HomepageFaq` |
 | `field_tio2_home_faqs` / `faqs` | repeater, 3–6 | question 1–160; answer 1–600; optional related label/path; unique questions | `faqs[]` → `faqs[]` → `HomepageFaq` |
 | `field_tio2_home_closing_heading` / `closing_heading` | text, required | 1–90 | `closingHeading` → `closingCta.heading` → `ClosingInquiryCta` |
@@ -103,6 +103,8 @@ The following child keys are equally stable. Where section 7.2 assigns bounds at
 | secondary topics | `field_tio2_home_secondary_topic` / `secondary_topic` | 1–80; deduplicate; 0–10 parent rows |
 
 ## RFQ interaction contract
+
+The four behavior-critical fields `rfq_intro`, `rfq_privacy_text`, `rfq_success_heading`, and `rfq_success_message` use exact owning-site full-string choices. Site A uses contract ID `site-a-rfq-copy-v0.1`; Site B uses frozen contract ID `site-b-rfq-copy-v0.1-frozen`. Unknown or ambiguous ownership exposes no choices and validation fails closed. Normalization is limited to trimming and collapsing consecutive whitespace. Case, punctuation, sentence boundaries, prefixes, suffixes, HTML, cross-site values, and cross-field values must remain exact and are never relaxed. The stored full string remains the ACF select value, GraphQL value, and DTO display value.
 
 The visible fields are Name, Company, Country/Region, Work Email, Buyer Type, Product/Application Interest, Expected Quantity, Destination, Message, and Privacy acknowledgement. Required: name, company, country/region, work email, buyer type, interest, message, and privacy. Optional: expected quantity and destination. Exact maximum lengths are 80, 120, 80, 254, 160, 80, 120, and 1200 respectively for name, company, country/region, work email, interest, expected quantity, destination, and message. Use native `type=email`; privacy is never preselected; buyer values are exactly `industrial`, `distributor`, and `other`.
 

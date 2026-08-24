@@ -16,12 +16,12 @@ import {server} from '@/tests/mocks/server'
 const previewEndpoint = 'http://wordpress.test/wp-json/tio2/v1/preview'
 const previewSecret = 'homepage-preview-test-secret'
 
-function previewHomepage() {
-  const homepage = makeHomepageNode()
+function previewHomepage(siteId: 'tio2-a' | 'tio2-b' = 'tio2-a') {
+  const homepage = makeHomepageNode(siteId)
   homepage.status = 'draft'
   return {
     ...homepage,
-    siteId: 'tio2-a',
+    siteId,
     path: '/',
     schemaVersion: 'homepage-v0.1',
   }
@@ -95,9 +95,7 @@ describe('getPreviewHomepage', () => {
   })
 
   it('injects the Preview owner policy without activating retained draft links', async () => {
-    const siteBPreview = previewHomepage()
-    siteBPreview.siteId = 'tio2-b'
-    siteBPreview.siteScopes.nodes[0].slug = 'tio2-b'
+    const siteBPreview = previewHomepage('tio2-b')
     server.use(
       http.get(previewEndpoint, () => HttpResponse.json(siteBPreview)),
     )
@@ -130,9 +128,7 @@ describe('getPreviewHomepage', () => {
       status: 401,
     })
 
-    const foreign = previewHomepage()
-    foreign.siteId = 'tio2-b'
-    foreign.siteScopes.nodes[0].slug = 'tio2-b'
+    const foreign = previewHomepage('tio2-b')
     server.use(
       http.get(previewEndpoint, () => HttpResponse.json(foreign)),
     )

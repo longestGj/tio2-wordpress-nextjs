@@ -32,8 +32,7 @@ vi.mock('@/lib/wordpress/preview-session', () => ({
 }))
 
 function homepageFixture(siteId: 'tio2-a' | 'tio2-b'): HomepageDto {
-  const node = makeHomepageNode()
-  node.siteScopes.nodes[0].slug = siteId
+  const node = makeHomepageNode(siteId)
   node.homepageFields.heroHeading = `${siteId} visible homepage heading`
   node.homepageFields.seoTitle = `${siteId} homepage SEO title`
   return toHomepageDto(node, siteId, {

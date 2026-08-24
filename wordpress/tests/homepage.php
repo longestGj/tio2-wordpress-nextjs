@@ -140,6 +140,14 @@ function tio2_homepage_test_expected_fields(): array
         'required' => 1,
         'choices' => ['user_confirmed', 'source_required'],
     ];
+    $controlled_rfq = static fn (string $key, string $name): array => [
+        'key' => $key,
+        'name' => $name,
+        'type' => 'select',
+        'required' => 1,
+        'choices' => [],
+        'return_format' => 'value',
+    ];
     $url = static fn (string $key, string $name): array => [
         'key' => $key,
         'name' => $name,
@@ -216,7 +224,7 @@ function tio2_homepage_test_expected_fields(): array
             $url('field_tio2_home_trust_reason_evidence_url', 'trust_reason_evidence_url'),
         ]),
         $text('field_tio2_home_rfq_heading', 'rfq_heading', 1, 90),
-        $textarea('field_tio2_home_rfq_intro', 'rfq_intro', 1, 260),
+        $controlled_rfq('field_tio2_home_rfq_intro', 'rfq_intro'),
         [
             'key' => 'field_tio2_home_rfq_labels',
             'name' => 'rfq_labels',
@@ -239,9 +247,9 @@ function tio2_homepage_test_expected_fields(): array
             ],
         ],
         $text('field_tio2_home_rfq_submit_label', 'rfq_submit_label', 1, 32),
-        $textarea('field_tio2_home_rfq_privacy_text', 'rfq_privacy_text', 1, 240),
-        $text('field_tio2_home_rfq_success_heading', 'rfq_success_heading', 1, 80),
-        $textarea('field_tio2_home_rfq_success_message', 'rfq_success_message', 1, 240),
+        $controlled_rfq('field_tio2_home_rfq_privacy_text', 'rfq_privacy_text'),
+        $controlled_rfq('field_tio2_home_rfq_success_heading', 'rfq_success_heading'),
+        $controlled_rfq('field_tio2_home_rfq_success_message', 'rfq_success_message'),
         $text('field_tio2_home_faq_heading', 'faq_heading', 1, 90),
         $repeater('field_tio2_home_faqs', 'faqs', 1, 3, 6, [
             $text('field_tio2_home_faq_question', 'faq_question', 1, 160),
@@ -281,7 +289,7 @@ function tio2_homepage_test_route(string $site_id, string $path): int
 {
     $post_id = tio2_homepage_test_insert([
         'post_type' => 'page',
-        'post_status' => 'publish',
+        'post_status' => 'draft',
         'post_title' => 'Homepage test route ' . $site_id . ' ' . $path,
     ]);
     update_post_meta($post_id, 'public_path', $path);
@@ -489,9 +497,9 @@ function tio2_homepage_test_set_valid_fields(int $post_id, array $routes): void
             'field_tio2_home_rfq_buyer_other_label' => 'Other',
         ],
         'field_tio2_home_rfq_submit_label' => 'Validate inquiry locally',
-        'field_tio2_home_rfq_privacy_text' => 'This local demo does not send or save the information entered.',
-        'field_tio2_home_rfq_success_heading' => 'Local validation complete',
-        'field_tio2_home_rfq_success_message' => 'Nothing was sent, transmitted, or saved by this local interaction.',
+        'field_tio2_home_rfq_privacy_text' => 'This local demo does not send or save entered information.',
+        'field_tio2_home_rfq_success_heading' => 'Local check complete',
+        'field_tio2_home_rfq_success_message' => 'Nothing was transmitted or saved by this Site A local demo.',
         'field_tio2_home_faq_heading' => 'Homepage questions',
         'field_tio2_home_faqs' => [
             [
@@ -525,6 +533,14 @@ function tio2_homepage_test_set_valid_fields(int $post_id, array $routes): void
             ['field_tio2_home_secondary_topic' => 'application sourcing'],
         ],
     ];
+
+    if ('tio2-b' === tio2_get_homepage_site_id($post_id)) {
+        $values['field_tio2_home_rfq_privacy_text'] =
+            'This Site B local demo does not send or save entered information.';
+        $values['field_tio2_home_rfq_success_heading'] = 'Site B local check complete';
+        $values['field_tio2_home_rfq_success_message'] =
+            'No Site B information was transmitted or saved by this local demo.';
+    }
 
     foreach ($values as $field_key => $value) {
         tio2_homepage_test_update_field($field_key, $value, $post_id);
@@ -1025,8 +1041,8 @@ foreach ($site_b_rfq_behavior_copy as $field_key => $copy) {
     tio2_homepage_test_update_field($field_key, $copy, $validation_home);
 }
 tio2_homepage_test_assert(
-    true === tio2_validate_homepage_contract($validation_home),
-    'Approved Site B local-only RFQ behavior copy was rejected'
+    is_wp_error(tio2_validate_homepage_contract($validation_home)),
+    'Site B RFQ behavior copy was accepted by a Site A homepage'
 );
 tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
 
@@ -1040,8 +1056,20 @@ foreach ($normalized_rfq_behavior_copy as $field_key => $copy) {
     tio2_homepage_test_update_field($field_key, $copy, $validation_home);
 }
 tio2_homepage_test_assert(
+    is_wp_error(tio2_validate_homepage_contract($validation_home)),
+    'Case-variant RFQ behavior copy was accepted'
+);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+
+$whitespace_only_rfq_intro = '  This v0.1 local demo does not   send or store inquiry data.  ';
+tio2_homepage_test_update_field(
+    'field_tio2_home_rfq_intro',
+    $whitespace_only_rfq_intro,
+    $validation_home
+);
+tio2_homepage_test_assert(
     true === tio2_validate_homepage_contract($validation_home),
-    'Approved RFQ behavior copy was rejected after case/whitespace normalization'
+    'Trim and consecutive-whitespace normalization was rejected'
 );
 tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
 
@@ -1255,6 +1283,58 @@ tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
 
 $valid_a = $validation_home;
 $valid_b = tio2_homepage_test_home('tio2-b', $routes_b);
+
+foreach ([
+    'tio2-a' => 'site-a-rfq-copy-v0.1',
+    'tio2-b' => 'site-b-rfq-copy-v0.1-frozen',
+] as $site_id => $contract_id) {
+    $contract = tio2_homepage_rfq_copy_contract($site_id);
+    tio2_homepage_test_assert(
+        is_array($contract) && $contract_id === ($contract['id'] ?? null),
+        "Wrong RFQ behavior-copy contract ID for {$site_id}"
+    );
+}
+tio2_homepage_test_assert(
+    null === tio2_homepage_rfq_copy_contract('unknown-site'),
+    'Unknown site resolved an RFQ behavior-copy contract'
+);
+
+foreach ([
+    'field_tio2_home_rfq_intro' => 'rfq.intro',
+    'field_tio2_home_rfq_privacy_text' => 'rfq.privacyText',
+    'field_tio2_home_rfq_success_heading' => 'rfq.success.heading',
+    'field_tio2_home_rfq_success_message' => 'rfq.success.message',
+] as $field_key => $field_path) {
+    $raw_field = acf_get_field($field_key);
+    tio2_homepage_test_assert(is_array($raw_field), "Missing controlled RFQ field {$field_key}");
+    $site_a_field = tio2_prepare_homepage_rfq_copy_field($raw_field + ['post_id' => $valid_a]);
+    $site_b_field = tio2_prepare_homepage_rfq_copy_field($raw_field + ['post_id' => $valid_b]);
+    $unknown_field = tio2_prepare_homepage_rfq_copy_field($raw_field + ['post_id' => 0]);
+    $ambiguous_field = tio2_prepare_homepage_rfq_copy_field($raw_field + ['post_id' => $two_scopes]);
+    $site_a_values = tio2_homepage_rfq_copy_contract('tio2-a')['fields'][$field_path];
+    $site_b_values = tio2_homepage_rfq_copy_contract('tio2-b')['fields'][$field_path];
+    tio2_homepage_test_assert(
+        'select' === ($site_a_field['type'] ?? null) &&
+            array_keys($site_a_field['choices'] ?? []) === $site_a_values &&
+            array_values($site_a_field['choices'] ?? []) === $site_a_values,
+        "Site A ACF choices were not exact stored strings for {$field_key}"
+    );
+    tio2_homepage_test_assert(
+        'select' === ($site_b_field['type'] ?? null) &&
+            array_keys($site_b_field['choices'] ?? []) === $site_b_values &&
+            array_values($site_b_field['choices'] ?? []) === $site_b_values,
+        "Site B ACF choices were not exact stored strings for {$field_key}"
+    );
+    tio2_homepage_test_assert(
+        [] === ($unknown_field['choices'] ?? null) && ! empty($unknown_field['disabled']),
+        "Unknown ownership did not fail closed for {$field_key}"
+    );
+    tio2_homepage_test_assert(
+        [] === ($ambiguous_field['choices'] ?? null) && ! empty($ambiguous_field['disabled']),
+        "Ambiguous ownership did not fail closed for {$field_key}"
+    );
+}
+
 $prepublish_a = tio2_validate_homepage_contract($valid_a);
 $prepublish_b = tio2_validate_homepage_contract($valid_b);
 tio2_homepage_test_assert(
@@ -1554,7 +1634,7 @@ tio2_homepage_test_assert(
     'Restored draft link target did not restore valid Homepage publication'
 );
 
-tio2_homepage_test_set_route_status_exact($dependent_target_id, 'publish');
+tio2_homepage_test_set_route_status_exact($dependent_target_id, 'draft');
 wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
 
 update_post_meta($dependent_target_id, 'public_path', '/homepage-contract-a-moved-target');
@@ -1568,7 +1648,7 @@ wp_trash_post($dependent_target_id);
 clean_post_cache($valid_a);
 tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'Trashed link target left homepage published');
 wp_untrash_post($dependent_target_id);
-wp_update_post(['ID' => $dependent_target_id, 'post_status' => 'publish']);
+wp_update_post(['ID' => $dependent_target_id, 'post_status' => 'draft']);
 do_action('acf/save_post', $dependent_target_id);
 wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
 

@@ -14,6 +14,10 @@ const qualityGatesPath = resolve(
   repoRoot,
   '.agents/skills/tio2-home-template/references/quality-gates.md',
 )
+const wordpressFieldContractPath = resolve(
+  repoRoot,
+  '.agents/skills/tio2-home-template/references/wordpress-field-contract.md',
+)
 
 function parseStringOnlyToml(source: string): Record<string, string> {
   const result: Record<string, string> = {}
@@ -136,5 +140,23 @@ describe('project Homepage Agent/Skill contract', () => {
       'Verify Site A and Site B select distinct Homepage runtime entries',
     )
     expect(qualityGates).not.toContain('Preserve exactly 505 unique public URLs per site')
+  })
+
+  test('documents the stable site-scoped RFQ controlled-variant contract', () => {
+    const fieldContract = readFileSync(wordpressFieldContractPath, 'utf8')
+
+    expect(fieldContract).toContain('`site-a-rfq-copy-v0.1`')
+    expect(fieldContract).toContain('`site-b-rfq-copy-v0.1-frozen`')
+    for (const field of [
+      '`rfq_intro`',
+      '`rfq_privacy_text`',
+      '`rfq_success_heading`',
+      '`rfq_success_message`',
+    ]) {
+      expect(fieldContract).toContain(`${field} | select, required`)
+    }
+    expect(fieldContract).toContain(
+      'Normalization is limited to trimming and collapsing consecutive whitespace.',
+    )
   })
 })

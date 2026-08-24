@@ -49,8 +49,7 @@ describe('getHomepage', () => {
   })
 
   it('injects the requested Site B inventory policy instead of the Site A policy', async () => {
-    const homepage = makeHomepageNode()
-    homepage.siteScopes.nodes[0].slug = 'tio2-b'
+    const homepage = makeHomepageNode('tio2-b')
     server.use(
       http.post(graphqlEndpoint, () =>
         HttpResponse.json({data: {tio2Homepage: homepage}}),

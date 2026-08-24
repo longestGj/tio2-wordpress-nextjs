@@ -16,6 +16,7 @@ if (! defined('ABSPATH')) {
 require_once __DIR__ . '/includes/content-types.php';
 require_once __DIR__ . '/includes/publication.php';
 require_once __DIR__ . '/includes/product-publication.php';
+require_once __DIR__ . '/includes/homepage-rfq-copy.php';
 require_once __DIR__ . '/includes/fields.php';
 require_once __DIR__ . '/includes/webhooks.php';
 require_once __DIR__ . '/includes/preview.php';
@@ -30,6 +31,10 @@ add_filter('graphql_pre_model_data_is_private', 'tio2_homepage_graphql_visibilit
 add_filter('graphql_pre_model_data_is_private', 'tio2_product_graphql_visibility', 20, 3);
 add_action('wp_after_insert_post', 'tio2_backstop_product_publication', 20, 3);
 add_action('acf/init', 'tio2_register_acf_fields');
+add_filter('acf/prepare_field/key=field_tio2_home_rfq_intro', 'tio2_prepare_homepage_rfq_copy_field');
+add_filter('acf/prepare_field/key=field_tio2_home_rfq_privacy_text', 'tio2_prepare_homepage_rfq_copy_field');
+add_filter('acf/prepare_field/key=field_tio2_home_rfq_success_heading', 'tio2_prepare_homepage_rfq_copy_field');
+add_filter('acf/prepare_field/key=field_tio2_home_rfq_success_message', 'tio2_prepare_homepage_rfq_copy_field');
 add_filter('acf/validate_value/name=public_path', 'tio2_validate_public_path', 10, 4);
 add_action('acf/save_post', 'tio2_begin_homepage_acf_save', 1);
 add_action('acf/save_post', 'tio2_sync_managed_post_routing', 20);

@@ -1,4 +1,6 @@
 import type {ContentPageFieldsFragment} from '@/lib/wordpress/generated'
+import {HOMEPAGE_RFQ_COPY_CONTRACTS} from '@/lib/wordpress/homepage-rfq-copy'
+import type {SiteId} from '@/sites'
 
 export const graphqlEndpoint = 'http://wordpress.test/graphql'
 
@@ -32,7 +34,8 @@ export function makeContentPageNode(
   }
 }
 
-export function makeHomepageNode() {
+export function makeHomepageNode(siteId: SiteId = 'tio2-a') {
+  const rfqCopy = HOMEPAGE_RFQ_COPY_CONTRACTS[siteId].fields
   return {
     __typename: 'Tio2Homepage' as const,
     id: 'aG9tZXBhZ2U6MTAx',
@@ -40,7 +43,7 @@ export function makeHomepageNode() {
     modifiedGmt: '2026-08-23T08:30:00',
     status: 'publish',
     siteScopes: {
-      nodes: [{__typename: 'SiteScope' as const, slug: 'tio2-a'}],
+      nodes: [{__typename: 'SiteScope' as const, slug: siteId}],
     },
     homepageFields: {
       homepageSchemaVersion: 'homepage-v0.1',
@@ -80,7 +83,7 @@ export function makeHomepageNode() {
         {trustReasonTitle: 'Evidence-aware claims', trustReasonDescription: 'Third-party claims require a source.', trustReasonClaimBasis: ['source_required'], trustReasonEvidenceUrl: 'https://example.com/evidence'},
       ],
       rfqHeading: 'Prepare a local inquiry',
-      rfqIntro: 'This local demo does not send or store your inquiry.',
+      rfqIntro: rfqCopy['rfq.intro'][0],
       rfqLabels: {
         rfqLabelName: 'Name',
         rfqLabelCompany: 'Company',
@@ -97,9 +100,9 @@ export function makeHomepageNode() {
         rfqBuyerOtherLabel: 'Other business buyer',
       },
       rfqSubmitLabel: 'Review inquiry',
-      rfqPrivacyText: 'The local demo does not send or save this information.',
-      rfqSuccessHeading: 'Local review complete',
-      rfqSuccessMessage: 'Nothing was transmitted or saved.',
+      rfqPrivacyText: rfqCopy['rfq.privacyText'][0],
+      rfqSuccessHeading: rfqCopy['rfq.success.heading'][0],
+      rfqSuccessMessage: rfqCopy['rfq.success.message'][0],
       faqHeading: 'Frequently asked questions',
       faqs: [
         {faqQuestion: 'Which grade should I choose?', faqAnswer: 'Start with the application and performance target.', faqRelatedLabel: 'Browse rutile grades', faqRelatedPath: '/products/rutile'},
