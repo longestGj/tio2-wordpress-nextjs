@@ -48,3 +48,19 @@ No content status, CMS, cache, seed, or remote mutation occurred. The runtime no
 - Changes are restricted to Task 3’s owned routing, crawler publication, query cleanup, and test files. `git diff --check` is clean.
 
 `external actions: none`
+
+## Fix round 1 — signed Preview draft status
+
+- **Decision:** a signed non-root Preview bypasses the public inventory only after its loaded payload has `status === 'draft'`. Missing, published, future, pending, and private Preview payloads take the existing `notFound()` 404 path.
+- **RED command:** `npm test -- tests/integration/routes/content-page.test.tsx`
+- **RED output:** `Test Files 1 failed`; `Tests 4 failed | 8 passed (12)`. The four new `publish`, `future`, `pending`, and `private` cases each resolved and rendered content instead of rejecting with the Next.js 404 digest.
+- **GREEN commands and output:**
+  - `npm test -- tests/integration/routes/content-page.test.tsx` → `Test Files 1 passed`; `Tests 12 passed (12)`.
+  - `npm run typecheck` → exited successfully.
+  - `npm run lint` → exited successfully.
+  - `npm test` → `Test Files 42 passed | 2 skipped (44)`; `Tests 383 passed | 2 skipped (385)`.
+  - `git diff --check` → exited successfully.
+- **Changed files:** `app/[...path]/page.tsx`, `tests/integration/routes/content-page.test.tsx`, `tests/e2e/two-sites.spec.ts`, and this report. The E2E boundary test no longer treats the published `/products` record as a successful Preview; the existing signed draft-fixture E2E remains the positive Preview scenario.
+- **Commit:** `fix: require draft status for signed Preview` (this report update is included in that commit).
+
+`external actions: none`

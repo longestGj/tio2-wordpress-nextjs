@@ -47,6 +47,8 @@ async function getRequestContent(siteId: SiteId, path: string) {
   const page = isPreview
     ? await getPreviewContentByPath(siteId, path)
     : await getContentByPath(siteId, path)
+  if (isPreview && page?.status !== 'draft') notFound()
+
   return {page, isDraft: isPreview}
 }
 

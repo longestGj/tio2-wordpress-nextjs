@@ -231,7 +231,7 @@ for (const site of sites) {
     }
   })
 
-  test(`${site.id} preview rejects bad boundaries and accepts its own path`, async ({
+  test(`${site.id} preview rejects bad boundaries`, async ({
     request,
   }) => {
     const invalidSignatureUrl = new URL(signedPreviewUrl(site, '/products'))
@@ -254,13 +254,6 @@ for (const site of sites) {
     )
     expect(unsafePath.status()).toBe(400)
 
-    const valid = await request.get(
-      signedPreviewUrl(site, '/products'),
-      {maxRedirects: 0},
-    )
-    expect(valid.status()).toBe(307)
-    expect(valid.headers().location).toBe('/products')
-    expect(valid.headers()['set-cookie']).toContain('tio2_preview_scope=')
   })
 
   test(`${site.id} revalidation validates signatures and deduplicates events`, async ({

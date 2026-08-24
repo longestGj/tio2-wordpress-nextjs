@@ -63,7 +63,7 @@ function servePreviewCookie(value?: string) {
   })
 }
 
-function previewPayload(path: string) {
+function previewPayload(path: string, status = 'draft') {
   return {
     id: 'draft-42',
     siteId: 'tio2-a',
@@ -71,7 +71,7 @@ function previewPayload(path: string) {
     title: 'Unpublished route title',
     html: '<p>Unpublished route body.</p>',
     modified: '2026-08-23T02:30:00.000Z',
-    status: 'draft',
+    status,
     seo: {title: 'Unpublished SEO title', description: 'Draft description'},
   }
 }
@@ -153,6 +153,24 @@ describe('root-only anonymous content routes', () => {
     expect(markup).toContain('Unpublished route body.')
     expect(metadata.robots).toEqual({index: false, follow: false})
   })
+
+  it.each(['publish', 'future', 'pending', 'private'])(
+    'rejects a signed owning-site Preview when the loaded content is %s',
+    async (status) => {
+      draftMode.mockResolvedValue({isEnabled: true})
+      servePreviewCookie(scopedPreviewCookie('tio2-a', '/draft-page'))
+      server.use(
+        http.get(wordpressPreviewUrl, () =>
+          HttpResponse.json(previewPayload('/draft-page', status)),
+        ),
+      )
+      const route = await import('@/app/[...path]/page')
+
+      await expect(
+        route.default({params: Promise.resolve({path: ['draft-page']})}),
+      ).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
+    },
+  )
 
   it('rejects a cross-site scoped Preview cookie without querying formal content', async () => {
     draftMode.mockResolvedValue({isEnabled: true})
