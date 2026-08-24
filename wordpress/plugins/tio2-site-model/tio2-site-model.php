@@ -14,11 +14,15 @@ if (! defined('ABSPATH')) {
 }
 
 require_once __DIR__ . '/includes/content-types.php';
+require_once __DIR__ . '/includes/publication.php';
 require_once __DIR__ . '/includes/fields.php';
 require_once __DIR__ . '/includes/webhooks.php';
 require_once __DIR__ . '/includes/preview.php';
 
 add_action('init', 'tio2_register_content_types');
+add_filter('wp_insert_post_data', 'tio2_guard_managed_publication', 10, 4);
+add_filter('rest_pre_insert_page', 'tio2_guard_managed_rest_publication', 10, 2);
+add_filter('rest_pre_insert_post', 'tio2_guard_managed_rest_publication', 10, 2);
 add_filter('graphql_pre_model_data_is_private', 'tio2_homepage_graphql_visibility', 10, 3);
 add_action('acf/init', 'tio2_register_acf_fields');
 add_filter('acf/validate_value/name=public_path', 'tio2_validate_public_path', 10, 4);

@@ -2,94 +2,131 @@
 
 function tio2_publication_fail(string $message): void
 {
+    tio2_publication_test_cleanup();
     fwrite(STDERR, $message . "\n");
     exit(1);
 }
 
-function tio2_load_public_route_inventory_from_json(string $json): array
+$GLOBALS['tio2_publication_test_post_ids'] = [];
+$GLOBALS['tio2_publication_test_errors'] = [];
+
+function tio2_publication_test_cleanup(): void
 {
+    foreach ($GLOBALS['tio2_publication_test_post_ids'] ?? [] as $post_id) {
+        if (get_post((int) $post_id)) {
+            wp_delete_post((int) $post_id, true);
+        }
+    }
+    $GLOBALS['tio2_publication_test_post_ids'] = [];
+}
+
+function tio2_publication_test_assert(bool $condition, string $message): void
+{
+    if (! $condition) {
+        $GLOBALS['tio2_publication_test_errors'][] = $message;
+    }
+}
+
+function tio2_publication_test_insert(array $postarr): int
+{
+    $post_id = wp_insert_post($postarr, true);
+    if (is_wp_error($post_id) || $post_id <= 0) {
+        tio2_publication_fail('Could not create publication guard fixture.');
+    }
+    $GLOBALS['tio2_publication_test_post_ids'][] = (int) $post_id;
+    return (int) $post_id;
+}
+
+function tio2_publication_test_managed_post(
+    string $post_type,
+    string $path,
+    array $site_scopes = ['tio2-a']
+): int {
+    $post_id = tio2_publication_test_insert([
+        'post_type' => $post_type,
+        'post_status' => 'draft',
+        'post_title' => 'TiO2 publication guard fixture ' . wp_generate_uuid4(),
+    ]);
+    if ([] !== $site_scopes) {
+        wp_set_object_terms($post_id, $site_scopes, 'site_scope', false);
+    }
+    update_post_meta($post_id, 'public_path', $path);
+    return $post_id;
+}
+
+final class Tio2_Publication_Test_Die extends RuntimeException
+{
+    public WP_Error $error;
+
+    public function __construct(WP_Error $error)
+    {
+        parent::__construct($error->get_error_message());
+        $this->error = $error;
+    }
+}
+
+function tio2_publication_test_die_handler($message, $title = '', $args = []): void
+{
+    $error = $message instanceof WP_Error
+        ? $message
+        : new WP_Error('tio2_publication_unstable_error', (string) $message);
+    throw new Tio2_Publication_Test_Die($error);
+}
+
+/**
+ * @return WP_Error|null
+ */
+function tio2_publication_test_capture_rejection(callable $callback): ?WP_Error
+{
+    $handler_filter = static fn (): string => 'tio2_publication_test_die_handler';
+    add_filter('wp_die_handler', $handler_filter);
     try {
-        $inventory = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-    } catch (JsonException $error) {
-        throw new InvalidArgumentException('Invalid public route inventory JSON.', 0, $error);
+        $callback();
+    } catch (Tio2_Publication_Test_Die $error) {
+        return $error->error;
+    } finally {
+        remove_filter('wp_die_handler', $handler_filter);
     }
-
-    if (! is_array($inventory) || array_is_list($inventory)) {
-        throw new InvalidArgumentException('Public route inventory must be an object.');
-    }
-    tio2_assert_publication_exact_keys($inventory, ['version', 'sites'], 'root');
-    if ('root-only-v0.1' !== ($inventory['version'] ?? null) || ! is_array($inventory['sites']) || array_is_list($inventory['sites'])) {
-        throw new InvalidArgumentException('Public route inventory root is invalid.');
-    }
-    tio2_assert_publication_exact_keys($inventory['sites'], ['tio2-a', 'tio2-b'], 'sites');
-
-    $expected_templates = [
-        'tio2-a' => 'site-a-homepage-active',
-        'tio2-b' => 'site-b-homepage-v0.1-frozen',
-    ];
-    foreach ($expected_templates as $site_id => $expected_template) {
-        $site = $inventory['sites'][$site_id];
-        if (! is_array($site) || array_is_list($site)) {
-            throw new InvalidArgumentException("Public route inventory site is invalid: {$site_id}.");
-        }
-        tio2_assert_publication_exact_keys($site, ['expectedPublicUrls', 'routes'], "site {$site_id}");
-        if (! is_array($site['routes']) || ! array_is_list($site['routes'])) {
-            throw new InvalidArgumentException("Public route list is invalid: {$site_id}.");
-        }
-
-        $paths = [];
-        foreach ($site['routes'] as $route) {
-            if (! is_array($route) || array_is_list($route)) {
-                throw new InvalidArgumentException("Public route is invalid: {$site_id}.");
-            }
-            tio2_assert_publication_exact_keys($route, ['path', 'template'], "route {$site_id}");
-            if (! is_string($route['path'])) {
-                throw new InvalidArgumentException("Public route path is invalid: {$site_id}.");
-            }
-            if (in_array($route['path'], $paths, true)) {
-                throw new InvalidArgumentException("Duplicate public route: {$site_id} {$route['path']}.");
-            }
-            $paths[] = $route['path'];
-        }
-
-        if (1 !== count($site['routes'])) {
-            throw new InvalidArgumentException("Public route inventory must contain one root route: {$site_id}.");
-        }
-        if (! is_int($site['expectedPublicUrls']) || count($site['routes']) !== $site['expectedPublicUrls']) {
-            throw new InvalidArgumentException("Expected public URL count mismatch: {$site_id}.");
-        }
-
-        $route = $site['routes'][0];
-        if ('/' !== $route['path']) {
-            throw new InvalidArgumentException("Public route path is not canonical: {$site_id}.");
-        }
-        if ($expected_template !== ($route['template'] ?? null)) {
-            throw new InvalidArgumentException("Public route template is invalid: {$site_id}.");
-        }
-    }
-
-    return $inventory;
+    return null;
 }
 
-function tio2_assert_publication_exact_keys(array $value, array $expected_keys, string $context): void
-{
-    $actual_keys = array_keys($value);
-    sort($actual_keys, SORT_STRING);
-    sort($expected_keys, SORT_STRING);
-    if ($actual_keys !== $expected_keys) {
-        throw new InvalidArgumentException("Unexpected public route inventory keys: {$context}.");
+function tio2_publication_test_expect_rejected_status(
+    int $post_id,
+    string $requested_status,
+    string $expected_code,
+    string $expected_message,
+    array $extra_post_data = []
+): void {
+    $result = tio2_publication_test_capture_rejection(static function () use (
+        $post_id,
+        $requested_status,
+        $extra_post_data
+    ): void {
+        wp_update_post(array_merge([
+            'ID' => $post_id,
+            'post_status' => $requested_status,
+        ], $extra_post_data), true);
+    });
+
+    tio2_publication_test_assert(
+        $result instanceof WP_Error && $expected_code === $result->get_error_code(),
+        "{$requested_status} request did not return stable error {$expected_code}."
+    );
+    tio2_publication_test_assert(
+        $result instanceof WP_Error && $expected_message === $result->get_error_message(),
+        "{$requested_status} request did not return the stable publication message."
+    );
+    tio2_publication_test_assert(
+        'draft' === get_post_status($post_id),
+        "{$requested_status} request was persisted or silently rewritten instead of being rejected."
+    );
+
+    if ('draft' !== get_post_status($post_id)) {
+        wp_update_post(['ID' => $post_id, 'post_status' => 'draft']);
     }
 }
 
-function tio2_load_public_route_inventory(): array
-{
-    $json = file_get_contents(__DIR__ . '/../plugins/tio2-site-model/config/public-routes.json');
-    if (false === $json) {
-        throw new RuntimeException('Could not read the public route inventory.');
-    }
-
-    return tio2_load_public_route_inventory_from_json($json);
-}
+register_shutdown_function('tio2_publication_test_cleanup');
 
 function tio2_assert_public_route_inventory(): void
 {
@@ -128,4 +165,247 @@ function tio2_assert_public_route_inventory(): void
 }
 
 tio2_assert_public_route_inventory();
+
+tio2_publication_test_assert(
+    function_exists('tio2_guard_managed_publication'),
+    'Missing Page/Post publication guard.'
+);
+tio2_publication_test_assert(
+    false !== has_filter('wp_insert_post_data', 'tio2_guard_managed_publication'),
+    'Page/Post publication guard is not registered before persistence.'
+);
+tio2_publication_test_assert(
+    false !== has_filter('rest_pre_insert_page', 'tio2_guard_managed_rest_publication') &&
+        false !== has_filter('rest_pre_insert_post', 'tio2_guard_managed_rest_publication'),
+    'Page/Post REST publication guards are not registered before persistence.'
+);
+
+$stable_messages = [
+    'not_approved' => 'This Page or Post cannot be published because its exact site path is absent from the approved public route inventory.',
+    'reserved_homepage' => 'The site root can be published only by its dedicated TiO2 Homepage record.',
+    'invalid_scope' => 'This Page or Post cannot be published because it must have exactly one supported site scope.',
+    'duplicate' => 'This Page or Post cannot be published because its site scope and public path do not have exactly one owner.',
+    'invalid_path' => 'This Page or Post cannot be published because its public path is not normalized.',
+];
+
+$page_id = tio2_publication_test_managed_post('page', '/publication-guard-page');
+tio2_publication_test_expect_rejected_status(
+    $page_id,
+    'publish',
+    'tio2_publication_route_not_approved',
+    $stable_messages['not_approved']
+);
+
+$post_id = tio2_publication_test_managed_post('post', '/publication-guard-post');
+$future_local = gmdate('Y-m-d H:i:s', time() + (2 * DAY_IN_SECONDS));
+tio2_publication_test_expect_rejected_status(
+    $post_id,
+    'future',
+    'tio2_publication_route_not_approved',
+    $stable_messages['not_approved'],
+    [
+        'post_date' => get_date_from_gmt($future_local),
+        'post_date_gmt' => $future_local,
+    ]
+);
+
+if (function_exists('tio2_validate_managed_publication_candidate')) {
+    $root_error = tio2_validate_managed_publication_candidate(
+        'page',
+        'publish',
+        'tio2-a',
+        '/',
+        0
+    );
+    tio2_publication_test_assert(
+        $root_error instanceof WP_Error &&
+            'tio2_publication_homepage_reserved' === $root_error->get_error_code() &&
+            $stable_messages['reserved_homepage'] === $root_error->get_error_message(),
+        'Page root ownership did not return the stable dedicated-Homepage error.'
+    );
+} else {
+    tio2_publication_test_assert(false, 'Missing publication candidate validator.');
+}
+
+$unknown_scope_id = tio2_publication_test_managed_post('page', '/publication-guard-unknown', []);
+tio2_publication_test_expect_rejected_status(
+    $unknown_scope_id,
+    'publish',
+    'tio2_publication_invalid_site_scope',
+    $stable_messages['invalid_scope']
+);
+
+$ambiguous_scope_id = tio2_publication_test_managed_post(
+    'page',
+    '/publication-guard-ambiguous',
+    ['tio2-a', 'tio2-b']
+);
+tio2_publication_test_expect_rejected_status(
+    $ambiguous_scope_id,
+    'publish',
+    'tio2_publication_invalid_site_scope',
+    $stable_messages['invalid_scope']
+);
+
+$duplicate_owner_id = tio2_publication_test_managed_post('page', '/publication-guard-duplicate');
+$duplicate_id = tio2_publication_test_managed_post('post', '/publication-guard-duplicate');
+tio2_publication_test_expect_rejected_status(
+    $duplicate_id,
+    'publish',
+    'tio2_publication_duplicate_route',
+    $stable_messages['duplicate']
+);
+
+$unnormalized_id = tio2_publication_test_managed_post('page', '/Publication-Guard-Unnormalized');
+tio2_publication_test_expect_rejected_status(
+    $unnormalized_id,
+    'publish',
+    'tio2_publication_invalid_public_path',
+    $stable_messages['invalid_path']
+);
+
+$draft_id = tio2_publication_test_managed_post('page', '/publication-guard-draft-edit');
+$draft_update = wp_update_post([
+    'ID' => $draft_id,
+    'post_title' => 'TiO2 publication guard draft edit allowed',
+], true);
+tio2_publication_test_assert(! is_wp_error($draft_update), 'Draft edit returned an error.');
+tio2_publication_test_assert('draft' === get_post_status($draft_id), 'Draft edit changed publication status.');
+tio2_publication_test_assert(
+    'TiO2 publication guard draft edit allowed' === get_post_field('post_title', $draft_id),
+    'Draft edit was not persisted.'
+);
+
+$original_post_values = $_POST;
+try {
+    $_POST = [
+        'post_ID' => (string) $draft_id,
+        'post_status' => 'publish',
+        'tax_input' => ['site_scope' => ['tio2-a']],
+    ];
+    $acf_publish_validation = apply_filters(
+        'acf/validate_value/name=public_path',
+        true,
+        '/publication-guard-draft-edit',
+        [],
+        'acf[field_tio2_public_path]'
+    );
+    tio2_publication_test_assert(
+        $stable_messages['not_approved'] === $acf_publish_validation,
+        'ACF publish validation did not return the stable inventory rejection.'
+    );
+
+    $_POST['post_status'] = 'draft';
+    $acf_draft_validation = apply_filters(
+        'acf/validate_value/name=public_path',
+        true,
+        '/publication-guard-draft-edit',
+        [],
+        'acf[field_tio2_public_path]'
+    );
+    tio2_publication_test_assert(true === $acf_draft_validation, 'ACF draft edit was rejected.');
+} finally {
+    $_POST = $original_post_values;
+}
+
+$revision_id = tio2_publication_test_insert([
+    'post_type' => 'revision',
+    'post_status' => 'inherit',
+    'post_parent' => $draft_id,
+    'post_name' => $draft_id . '-revision-v1',
+    'post_title' => 'TiO2 publication guard revision',
+]);
+$autosave_id = tio2_publication_test_insert([
+    'post_type' => 'revision',
+    'post_status' => 'inherit',
+    'post_parent' => $draft_id,
+    'post_name' => $draft_id . '-autosave-v1',
+    'post_title' => 'TiO2 publication guard autosave',
+]);
+tio2_publication_test_assert((bool) wp_is_post_revision($revision_id), 'Revision save was not preserved.');
+tio2_publication_test_assert((bool) wp_is_post_autosave($autosave_id), 'Autosave was not preserved.');
+
+$rest_page_id = tio2_publication_test_managed_post('page', '/publication-guard-rest');
+$previous_user_id = get_current_user_id();
+$administrators = get_users(['role' => 'administrator', 'number' => 1, 'fields' => 'ID']);
+tio2_publication_test_assert([] !== $administrators, 'Missing administrator for REST publication test.');
+if ([] !== $administrators) {
+    wp_set_current_user((int) $administrators[0]);
+    remove_filter('wp_insert_post_data', 'tio2_guard_managed_publication', 10);
+    try {
+        $rest_request = new WP_REST_Request('POST', '/wp/v2/pages/' . $rest_page_id);
+        $rest_request->set_param('status', 'publish');
+        $rest_response = rest_do_request($rest_request);
+    } finally {
+        add_filter('wp_insert_post_data', 'tio2_guard_managed_publication', 10, 4);
+        wp_set_current_user($previous_user_id);
+    }
+    $rest_data = $rest_response->get_data();
+    tio2_publication_test_assert(
+        409 === $rest_response->get_status() &&
+            is_array($rest_data) &&
+            'tio2_publication_route_not_approved' === ($rest_data['code'] ?? null) &&
+            $stable_messages['not_approved'] === ($rest_data['message'] ?? null),
+        'REST publication did not return the stable inventory rejection: status=' .
+            $rest_response->get_status() . '; body=' . wp_json_encode($rest_data)
+    );
+    tio2_publication_test_assert(
+        'draft' === get_post_status($rest_page_id),
+        'REST publication rejection occurred after persistence.'
+    );
+    if ('draft' !== get_post_status($rest_page_id)) {
+        wp_update_post(['ID' => $rest_page_id, 'post_status' => 'draft']);
+    }
+}
+
+foreach (['tio2-a', 'tio2-b'] as $site_id) {
+    $homepage_ids = get_posts([
+        'post_type' => 'tio2_homepage',
+        'post_status' => 'publish',
+        'fields' => 'ids',
+        'posts_per_page' => -1,
+        'tax_query' => [[
+            'taxonomy' => 'site_scope',
+            'field' => 'slug',
+            'terms' => [$site_id],
+        ]],
+    ]);
+    tio2_publication_test_assert(1 === count($homepage_ids), "Missing unique published Homepage for {$site_id}.");
+    if (1 === count($homepage_ids)) {
+        $homepage_error = tio2_publication_test_capture_rejection(static function () use ($homepage_ids): void {
+            wp_update_post(['ID' => (int) $homepage_ids[0], 'post_status' => 'publish'], true);
+        });
+        tio2_publication_test_assert(null === $homepage_error, "Page/Post guard rejected {$site_id} Homepage.");
+        tio2_publication_test_assert(
+            'publish' === get_post_status((int) $homepage_ids[0]),
+            "Page/Post guard changed {$site_id} Homepage status."
+        );
+    }
+}
+
+$raw_publish_id = tio2_publication_test_managed_post('page', '/publication-guard-database-bypass');
+global $wpdb;
+$raw_update = $wpdb->update(
+    $wpdb->posts,
+    ['post_status' => 'publish'],
+    ['ID' => $raw_publish_id],
+    ['%s'],
+    ['%d']
+);
+clean_post_cache($raw_publish_id);
+tio2_publication_test_assert(1 === $raw_update, 'Could not create database-bypass publication fixture.');
+tio2_publication_test_assert(
+    'publish' === get_post_status($raw_publish_id),
+    'Database-bypass publication fixture did not reach publish status.'
+);
+tio2_publication_test_assert(
+    function_exists('tio2_publication_route_is_approved') &&
+        ! tio2_publication_route_is_approved('tio2-a', '/publication-guard-database-bypass'),
+    'An accidental database-level publish changed inventory authorization.'
+);
+
+if ([] !== $GLOBALS['tio2_publication_test_errors']) {
+    tio2_publication_fail(implode("\n", $GLOBALS['tio2_publication_test_errors']));
+}
+tio2_publication_test_cleanup();
 fwrite(STDOUT, "TiO2 public route inventory test passed\n");

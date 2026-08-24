@@ -394,6 +394,9 @@ foreach ([
 foreach ([
     'update_post_metadata' => 'tio2_capture_post_meta_before_mutation',
     'delete_post_metadata' => 'tio2_capture_post_meta_before_mutation',
+    'wp_insert_post_data' => 'tio2_guard_managed_publication',
+    'rest_pre_insert_page' => 'tio2_guard_managed_rest_publication',
+    'rest_pre_insert_post' => 'tio2_guard_managed_rest_publication',
 ] as $hook => $callback) {
     if (false === has_filter($hook, $callback)) {
         tio2_smoke_fail("Webhook callback {$callback} is not registered on {$hook}");
@@ -504,7 +507,7 @@ add_filter('pre_http_request', $webhook_interceptor, 10, 3);
 
 $runtime_page_id = wp_insert_post([
     'post_type' => 'page',
-    'post_status' => 'publish',
+    'post_status' => 'draft',
     'post_title' => 'TiO2 webhook runtime smoke fixture page',
 ]);
 if (is_wp_error($runtime_page_id) || $runtime_page_id <= 0) {
@@ -513,6 +516,22 @@ if (is_wp_error($runtime_page_id) || $runtime_page_id <= 0) {
 $GLOBALS['tio2_smoke_webhook_post_ids'][] = (int) $runtime_page_id;
 wp_set_object_terms($runtime_page_id, ['tio2-a'], 'site_scope', false);
 update_post_meta($runtime_page_id, 'public_path', '/runtime-smoke/old-path');
+global $wpdb;
+$raw_publish_result = $wpdb->update(
+    $wpdb->posts,
+    ['post_status' => 'publish'],
+    ['ID' => (int) $runtime_page_id],
+    ['%s'],
+    ['%d']
+);
+clean_post_cache((int) $runtime_page_id);
+if (
+    1 !== $raw_publish_result ||
+    'publish' !== get_post_status((int) $runtime_page_id) ||
+    tio2_publication_route_is_approved('tio2-a', '/runtime-smoke/old-path')
+) {
+    tio2_smoke_fail('Database-level publish bypass changed inventory authorization');
+}
 $GLOBALS['tio2_webhook_queue'] = [];
 $captured_webhook_requests = [];
 
@@ -643,8 +662,6 @@ tio2_flush_webhook_queue();
 if (! empty($captured_webhook_requests)) {
     tio2_smoke_fail('Draft metadata or term changes produced a public revalidation webhook');
 }
-wp_update_post(['ID' => $runtime_page_id, 'post_status' => 'publish']);
-tio2_flush_webhook_queue();
 $captured_webhook_requests = [];
 $GLOBALS['tio2_webhook_queue'] = [];
 

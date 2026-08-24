@@ -398,6 +398,25 @@ function tio2_validate_public_path($valid, $value, $field, $input_name)
         }
     }
 
+    $submitted_status = $_POST['post_status'] ?? null;
+    $post_status = is_scalar($submitted_status)
+        ? sanitize_key((string) wp_unslash($submitted_status))
+        : ($post_id > 0 ? (string) get_post_status($post_id) : 'draft');
+    $submitted_post_type = $_POST['post_type'] ?? null;
+    $post_type = is_scalar($submitted_post_type)
+        ? sanitize_key((string) wp_unslash($submitted_post_type))
+        : ($post_id > 0 ? (string) get_post_type($post_id) : '');
+    $publication_validation = tio2_validate_managed_publication_candidate(
+        $post_type,
+        $post_status,
+        $site_id,
+        $value,
+        $post_id
+    );
+    if (is_wp_error($publication_validation)) {
+        return $publication_validation->get_error_message();
+    }
+
     return true;
 }
 
