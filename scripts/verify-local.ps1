@@ -126,26 +126,31 @@ if ($Plan) {
                     gate = 'vitest-live-product-fixture'
                     test = 'tests/integration/wordpress/product-fixture-runtime.test.ts'
                     environment = 'WORDPRESS_PRODUCT_FIXTURE_RUNTIME'
+                    log = 'vitest-live-product-fixture'
                 },
                 [ordered]@{
                     gate = 'vitest-live-product-publication'
                     test = 'tests/integration/wordpress/product-publication-runtime.test.ts'
                     environment = 'WORDPRESS_PRODUCT_RUNTIME'
+                    log = 'vitest-live-product-publication'
                 },
                 [ordered]@{
                     gate = 'vitest-live-seed'
                     test = 'tests/integration/wordpress/seed-runtime.test.ts'
                     environment = 'WORDPRESS_SEED_RUNTIME'
+                    log = 'vitest-live-seed'
                 },
                 [ordered]@{
                     gate = 'vitest-live-homepage-migration'
                     test = 'tests/integration/wordpress/seed-homepage-migration-runtime.test.ts'
                     environment = 'WORDPRESS_SEED_RUNTIME'
+                    log = 'vitest-live-homepage-migration'
                 },
                 [ordered]@{
                     gate = 'vitest-live-root-only-migration'
                     test = 'tests/integration/wordpress/root-only-migration-runtime.test.ts'
                     environment = 'WORDPRESS_ROOT_ONLY_RUNTIME'
+                    log = 'vitest-live-root-only-migration'
                 }
             )
         }} else { $null }
@@ -452,19 +457,19 @@ function Assert-VitestRuntimeExecuted {
 
 function Invoke-LiveRuntimeSuite {
     param(
-        [Parameter(Mandatory = $true)][string] $Name,
+        [Parameter(Mandatory = $true)][Alias('Name')][string] $GateName,
         [Parameter(Mandatory = $true)][string] $EnvironmentName,
         [Parameter(Mandatory = $true)][string] $TestPath
     )
 
-    Invoke-Gate -Name $Name -Action {
+    Invoke-Gate -Name $GateName -Action {
         Invoke-WithEnvironment -Values @{$EnvironmentName = '1'} -Action {
             Invoke-NativeLogged `
                 -FilePath $Npx `
                 -Arguments @('vitest', 'run', $TestPath) `
-                -LogName $Name
+                -LogName $GateName
         }
-        Assert-VitestRuntimeExecuted -LogName $Name
+        Assert-VitestRuntimeExecuted -LogName $GateName
     }
 }
 
