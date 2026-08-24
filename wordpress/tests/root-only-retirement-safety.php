@@ -124,51 +124,84 @@ $root_backups = array_values(array_filter(
     $snapshot['retainedCorpus'] ?? [],
     static fn(array $record): bool => 'root-backup' === ($record['kind'] ?? null)
 ));
-$homepage_ids = get_posts([
-    'post_type' => 'tio2_homepage',
-    'post_status' => 'publish',
-    'posts_per_page' => 1,
-    'fields' => 'ids',
-]);
 $unrelated_page_id = count($root_backups) >= 1
     ? (int) $root_backups[0]['id']
     : 0;
-$unrelated_product_id = 1 === count($homepage_ids) ? (int) $homepage_ids[0] : 0;
-$check($unrelated_page_id > 0 && get_post($unrelated_page_id) instanceof WP_Post, 'real unrelated Page ID is missing');
-$check($unrelated_product_id > 0 && get_post($unrelated_product_id) instanceof WP_Post, 'real unrelated Product attack ID is missing');
-$inside_installed = false;
-$future_rejected = false;
-$product_future_rejected = false;
-$unrelated_page_rejected = false;
-$unrelated_product_rejected = false;
-$unrelated_backstop_enforced = false;
-$tuples_checksum_bound = false;
-$die_handler = static function (): callable {
-    return static function ($message): never {
-        $text = is_wp_error($message) ? $message->get_error_message() : (string) $message;
-        throw new RuntimeException($text);
-    };
+$probe_marker_key = '_tio2_root_only_safety_probe';
+$probe_marker_value = 'unrelated-product-v0.1';
+$find_product_probe_ids = static function () use ($probe_marker_key, $probe_marker_value): array {
+    return array_map('intval', get_posts([
+        'post_type' => 'tio2_product',
+        'post_status' => array_values(get_post_stati()),
+        'posts_per_page' => -1,
+        'fields' => 'ids',
+        'meta_key' => $probe_marker_key,
+        'meta_value' => $probe_marker_value,
+    ]));
 };
-add_filter('wp_die_handler', $die_handler, PHP_INT_MAX);
+foreach ($find_product_probe_ids() as $stale_probe_id) {
+    wp_delete_post($stale_probe_id, true);
+}
+$check([] === $find_product_probe_ids(), 'stale unrelated Product safety probe could not be removed');
+$unrelated_product_result = wp_insert_post([
+    'post_type' => 'tio2_product',
+    'post_status' => 'draft',
+    'post_name' => 'root-only-retirement-safety-unrelated-product',
+    'post_title' => 'Root-only retirement safety unrelated Product',
+    'meta_input' => [$probe_marker_key => $probe_marker_value],
+], true);
+$unrelated_product_id = is_wp_error($unrelated_product_result) ? 0 : (int) $unrelated_product_result;
 try {
-    tio2_root_only_with_restore_context(
-        $snapshot,
-        static function () use (
-            &$inside_installed,
-            &$future_rejected,
-            &$product_future_rejected,
-            &$unrelated_page_rejected,
-            &$unrelated_product_rejected,
-            &$unrelated_backstop_enforced,
-            &$tuples_checksum_bound,
-            $page_priority,
-            $product_priority,
-            $backstop_priority,
-            $first_page,
+    $check($unrelated_page_id > 0 && get_post($unrelated_page_id) instanceof WP_Post, 'real unrelated Page ID is missing');
+    $check($unrelated_product_id > 0 && get_post($unrelated_product_id) instanceof WP_Post, 'real unrelated Product attack ID is missing');
+    $check('tio2_product' === get_post_type($unrelated_product_id), 'unrelated Product probe is not a persisted tio2_product');
+    $check(
+        $probe_marker_value === get_post_meta($unrelated_product_id, $probe_marker_key, true),
+        'unrelated Product probe does not carry the stable test marker'
+    );
+    $check('draft' === get_post_status($unrelated_product_id), 'unrelated Product probe did not start as draft');
+    $initial_unrelated_product_scopes = wp_get_object_terms($unrelated_product_id, 'site_scope', ['fields' => 'slugs']);
+    $check(
+        ! is_wp_error($initial_unrelated_product_scopes) && [] === array_values($initial_unrelated_product_scopes),
+        'unrelated Product probe did not start with empty site scopes'
+    );
+    $inside_installed = false;
+    $future_rejected = false;
+    $product_future_rejected = false;
+    $unrelated_page_rejected = false;
+    $unrelated_product_publish_rejected = false;
+    $unrelated_product_future_rejected = false;
+    $unrelated_product_not_allowlisted = false;
+    $unrelated_backstop_enforced = ['publish' => false, 'future' => false];
+    $tuples_checksum_bound = false;
+    $die_handler = static function (): callable {
+        return static function ($message): never {
+            $text = is_wp_error($message) ? $message->get_error_message() : (string) $message;
+            throw new RuntimeException($text);
+        };
+    };
+    add_filter('wp_die_handler', $die_handler, PHP_INT_MAX);
+    try {
+        tio2_root_only_with_restore_context(
             $snapshot,
-            $unrelated_page_id,
-            $unrelated_product_id
-        ): void {
+            static function () use (
+                &$inside_installed,
+                &$future_rejected,
+                &$product_future_rejected,
+                &$unrelated_page_rejected,
+                &$unrelated_product_publish_rejected,
+                &$unrelated_product_future_rejected,
+                &$unrelated_product_not_allowlisted,
+                &$unrelated_backstop_enforced,
+                &$tuples_checksum_bound,
+                $page_priority,
+                $product_priority,
+                $backstop_priority,
+                $first_page,
+                $snapshot,
+                $unrelated_page_id,
+                $unrelated_product_id
+            ): void {
             $inside_installed =
                 $page_priority === has_filter('wp_insert_post_data', 'tio2_guard_managed_publication') &&
                 $product_priority === has_filter('wp_insert_post_data', 'tio2_guard_product_publication') &&
@@ -213,65 +246,123 @@ try {
                 );
                 $product_future_rejected = 'draft' === ($product_data['post_status'] ?? null);
             }
-            $unrelated_product_data = tio2_guard_product_publication(
+            $unrelated_product_not_allowlisted =
+                ! tio2_root_only_restore_candidate_allowed($unrelated_product_id, 'tio2_product', 'publish') &&
+                ! tio2_root_only_restore_candidate_allowed($unrelated_product_id, 'tio2_product', 'future');
+            $unrelated_product_publish_data = tio2_guard_product_publication(
                 ['post_type' => 'tio2_product', 'post_status' => 'publish'],
                 ['ID' => $unrelated_product_id],
                 [],
                 true
             );
-            $unrelated_product_rejected = 'draft' === ($unrelated_product_data['post_status'] ?? null);
+            $unrelated_product_publish_rejected = 'draft' === ($unrelated_product_publish_data['post_status'] ?? null);
+            $unrelated_product_future_data = tio2_guard_product_publication(
+                ['post_type' => 'tio2_product', 'post_status' => 'future'],
+                ['ID' => $unrelated_product_id],
+                [],
+                true
+            );
+            $unrelated_product_future_rejected = 'draft' === ($unrelated_product_future_data['post_status'] ?? null);
 
-            $backstop_probe = clone get_post($unrelated_page_id);
-            $backstop_probe->post_type = 'tio2_product';
-            $backstop_probe->post_status = 'publish';
-            $backstop_observer = static function (array $data, array $postarr) use (
-                $unrelated_page_id,
-                &$unrelated_backstop_enforced
-            ): array {
-                if ($unrelated_page_id === (int) ($postarr['ID'] ?? 0) && 'draft' === ($data['post_status'] ?? null)) {
-                    $unrelated_backstop_enforced = true;
-                    throw new RuntimeException('unrelated backstop write blocked by safety probe');
+            $force_unauthorized_status = static function (
+                array $data,
+                array $postarr,
+                array $unsanitized_postarr
+            ) use ($unrelated_product_id): array {
+                $requested_status = (string) ($unsanitized_postarr['post_status'] ?? '');
+                if (
+                    $unrelated_product_id === (int) ($postarr['ID'] ?? 0) &&
+                    'tio2_product' === ($data['post_type'] ?? null) &&
+                    in_array($requested_status, ['publish', 'future'], true)
+                ) {
+                    $data['post_status'] = $requested_status;
                 }
                 return $data;
             };
-            add_filter('wp_insert_post_data', $backstop_observer, 1, 4);
+            $observe_unauthorized_persistence = static function (int $post_id, WP_Post $post) use (
+                $unrelated_product_id,
+                &$unrelated_backstop_enforced
+            ): void {
+                if (
+                    $unrelated_product_id === $post_id &&
+                    'tio2_product' === $post->post_type &&
+                    in_array($post->post_status, ['publish', 'future'], true)
+                ) {
+                    $unrelated_backstop_enforced[$post->post_status] = true;
+                }
+            };
+            add_filter('wp_insert_post_data', $force_unauthorized_status, PHP_INT_MAX, 4);
+            add_action('wp_after_insert_post', $observe_unauthorized_persistence, 19, 3);
             try {
-                tio2_backstop_product_publication($unrelated_page_id, $backstop_probe, true);
-            } catch (RuntimeException $expected) {
-                if ('unrelated backstop write blocked by safety probe' !== $expected->getMessage()) {
-                    throw $expected;
+                foreach (['publish', 'future'] as $unauthorized_status) {
+                    $update_result = wp_update_post([
+                        'ID' => $unrelated_product_id,
+                        'post_status' => $unauthorized_status,
+                    ], true);
+                    if (is_wp_error($update_result) || 'draft' !== get_post_status($unrelated_product_id)) {
+                        $unrelated_backstop_enforced[$unauthorized_status] = false;
+                    }
                 }
             } finally {
-                remove_filter('wp_insert_post_data', $backstop_observer, 1);
+                remove_filter('wp_insert_post_data', $force_unauthorized_status, PHP_INT_MAX);
+                remove_action('wp_after_insert_post', $observe_unauthorized_persistence, 19);
             }
-        }
+            }
+        );
+    } finally {
+        remove_filter('wp_die_handler', $die_handler, PHP_INT_MAX);
+    }
+    $check($inside_installed, 'publication guards were removed inside restore context');
+    $check($future_rejected, 'non-allowlisted Page tuple was accepted inside restore context');
+    $check($product_future_rejected, 'non-allowlisted Product tuple was accepted inside restore context');
+    $check($unrelated_page_rejected, 'real unrelated Page ID was accepted inside restore context');
+    $check($unrelated_product_not_allowlisted, 'persisted unrelated Product ID entered the restore allowlist');
+    $check($unrelated_product_publish_rejected, 'persisted unrelated Product publish tuple was accepted');
+    $check($unrelated_product_future_rejected, 'persisted unrelated Product future tuple was accepted');
+    $check(
+        $unrelated_backstop_enforced['publish'] && $unrelated_backstop_enforced['future'],
+        'Product backstop did not draft both persisted unrelated Product publication states'
+    );
+    $check($tuples_checksum_bound, 'restore allowlist tuples were not bound to the validated snapshot checksum');
+    $check(! isset($GLOBALS['tio2_root_only_restore_context']), 'restore allowlist leaked after success');
+    $check($page_priority === has_filter('wp_insert_post_data', 'tio2_guard_managed_publication'), 'Page guard changed after success');
+    $check($product_priority === has_filter('wp_insert_post_data', 'tio2_guard_product_publication'), 'Product guard changed after success');
+    $check($backstop_priority === has_action('wp_after_insert_post', 'tio2_backstop_product_publication'), 'Product backstop changed after success');
+
+    try {
+        tio2_root_only_with_restore_context($snapshot, static function (): void {
+            throw new RuntimeException('injected restore context exception');
+        });
+    } catch (RuntimeException $expected) {
+        $check('injected restore context exception' === $expected->getMessage(), 'restore context changed callback exception');
+    }
+    $check(! isset($GLOBALS['tio2_root_only_restore_context']), 'restore allowlist leaked after exception');
+    $check($page_priority === has_filter('wp_insert_post_data', 'tio2_guard_managed_publication'), 'Page guard changed after exception');
+    $check($product_priority === has_filter('wp_insert_post_data', 'tio2_guard_product_publication'), 'Product guard changed after exception');
+    $check($backstop_priority === has_action('wp_after_insert_post', 'tio2_backstop_product_publication'), 'Product backstop changed after exception');
+
+    $final_unrelated_product_scopes = wp_get_object_terms($unrelated_product_id, 'site_scope', ['fields' => 'slugs']);
+    $check('tio2_product' === get_post_type($unrelated_product_id), 'unrelated Product probe changed post type');
+    $check('draft' === get_post_status($unrelated_product_id), 'unauthorized unrelated Product status persisted');
+    $check(
+        ! is_wp_error($final_unrelated_product_scopes) && [] === array_values($final_unrelated_product_scopes),
+        'unauthorized unrelated Product scopes persisted'
     );
 } finally {
-    remove_filter('wp_die_handler', $die_handler, PHP_INT_MAX);
+    if ($unrelated_product_id > 0) {
+        wp_clear_scheduled_hook('publish_future_post', [$unrelated_product_id]);
+        $deleted_probe = wp_delete_post($unrelated_product_id, true);
+        $check($deleted_probe instanceof WP_Post, 'unrelated Product safety probe cleanup failed');
+        $check(
+            false === wp_next_scheduled('publish_future_post', [$unrelated_product_id]),
+            'unrelated Product safety probe left a future-publication event'
+        );
+    }
+    foreach ($find_product_probe_ids() as $residual_probe_id) {
+        wp_delete_post($residual_probe_id, true);
+    }
+    $check([] === $find_product_probe_ids(), 'unrelated Product safety probe left persistent residue');
 }
-$check($inside_installed, 'publication guards were removed inside restore context');
-$check($future_rejected, 'non-allowlisted Page tuple was accepted inside restore context');
-$check($product_future_rejected, 'non-allowlisted Product tuple was accepted inside restore context');
-$check($unrelated_page_rejected, 'real unrelated Page ID was accepted inside restore context');
-$check($unrelated_product_rejected, 'real unrelated ID was accepted as a Product inside restore context');
-$check($unrelated_backstop_enforced, 'Product backstop did not reject the real unrelated ID tuple');
-$check($tuples_checksum_bound, 'restore allowlist tuples were not bound to the validated snapshot checksum');
-$check(! isset($GLOBALS['tio2_root_only_restore_context']), 'restore allowlist leaked after success');
-$check($page_priority === has_filter('wp_insert_post_data', 'tio2_guard_managed_publication'), 'Page guard changed after success');
-$check($product_priority === has_filter('wp_insert_post_data', 'tio2_guard_product_publication'), 'Product guard changed after success');
-$check($backstop_priority === has_action('wp_after_insert_post', 'tio2_backstop_product_publication'), 'Product backstop changed after success');
-
-try {
-    tio2_root_only_with_restore_context($snapshot, static function (): void {
-        throw new RuntimeException('injected restore context exception');
-    });
-} catch (RuntimeException $expected) {
-    $check('injected restore context exception' === $expected->getMessage(), 'restore context changed callback exception');
-}
-$check(! isset($GLOBALS['tio2_root_only_restore_context']), 'restore allowlist leaked after exception');
-$check($page_priority === has_filter('wp_insert_post_data', 'tio2_guard_managed_publication'), 'Page guard changed after exception');
-$check($product_priority === has_filter('wp_insert_post_data', 'tio2_guard_product_publication'), 'Product guard changed after exception');
-$check($backstop_priority === has_action('wp_after_insert_post', 'tio2_backstop_product_publication'), 'Product backstop changed after exception');
 
 if ([] !== $failures) {
     throw new RuntimeException('Root-only retirement safety failures: ' . implode('; ', $failures));
