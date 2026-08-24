@@ -200,13 +200,23 @@ if (
     tio2_webhook_routing_fail('Webhook queue lost the exact site/path pairing across an ownership move');
 }
 
+$shared_entity_type = get_post_type_object('tio2_grade');
+if (
+    ! $shared_entity_type instanceof WP_Post_Type ||
+    ! $shared_entity_type->public ||
+    ! $shared_entity_type->publicly_queryable ||
+    ! in_array('tio2_grade', tio2_webhook_post_types(), true)
+) {
+    tio2_webhook_routing_fail('Grade is not a legitimate publishable shared webhook entity');
+}
+
 $optional_id = wp_insert_post([
-    'post_type' => 'tio2_product',
+    'post_type' => 'tio2_grade',
     'post_status' => 'draft',
-    'post_title' => 'TiO2 optional webhook routing fixture',
+    'post_title' => 'TiO2 grade webhook routing fixture',
 ], true);
 if (is_wp_error($optional_id) || $optional_id <= 0) {
-    tio2_webhook_routing_fail('Could not create optional CPT webhook fixture');
+    tio2_webhook_routing_fail('Could not create Grade webhook fixture');
 }
 $GLOBALS['tio2_webhook_routing_post_ids'][] = (int) $optional_id;
 
