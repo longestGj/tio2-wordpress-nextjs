@@ -45,6 +45,14 @@ describe('getHomepage', () => {
         {path: '/products/rutile', href: null},
         {path: '/products/anatase', href: null},
       ],
+      rfq: {
+        intro: 'This v0.1 local demo does not send or store inquiry data.',
+        privacyText: 'This local demo does not send or save entered information.',
+        success: {
+          heading: 'Local check complete',
+          message: 'Nothing was transmitted or saved by this Site A local demo.',
+        },
+      },
     })
   })
 

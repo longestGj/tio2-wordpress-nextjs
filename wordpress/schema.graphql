@@ -12302,23 +12302,23 @@ type HomepageFields implements HomepageFields_Fields & AcfFieldGroup & AcfFieldG
   "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
   rfqHeading: String
 
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
-  rfqIntro: String
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
+  rfqIntro: [String]
 
   "Field of the &quot;group&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
   rfqLabels: HomepageFieldsRfqLabels
 
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
-  rfqPrivacyText: String
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
+  rfqPrivacyText: [String]
 
   "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
   rfqSubmitLabel: String
 
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
-  rfqSuccessHeading: String
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
+  rfqSuccessHeading: [String]
 
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
-  rfqSuccessMessage: String
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
+  rfqSuccessMessage: [String]
 
   "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
   schemaVersion: String
@@ -14652,23 +14652,23 @@ interface HomepageFields_Fields implements AcfFieldGroup & AcfFieldGroupFields {
   "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
   rfqHeading: String
 
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
-  rfqIntro: String
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
+  rfqIntro: [String]
 
   "Field of the &quot;group&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
   rfqLabels: HomepageFieldsRfqLabels
 
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
-  rfqPrivacyText: String
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
+  rfqPrivacyText: [String]
 
   "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
   rfqSubmitLabel: String
 
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
-  rfqSuccessHeading: String
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
+  rfqSuccessHeading: [String]
 
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
-  rfqSuccessMessage: String
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
+  rfqSuccessMessage: [String]
 
   "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
   schemaVersion: String

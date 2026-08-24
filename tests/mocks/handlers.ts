@@ -83,7 +83,7 @@ export function makeHomepageNode(siteId: SiteId = 'tio2-a') {
         {trustReasonTitle: 'Evidence-aware claims', trustReasonDescription: 'Third-party claims require a source.', trustReasonClaimBasis: ['source_required'], trustReasonEvidenceUrl: 'https://example.com/evidence'},
       ],
       rfqHeading: 'Prepare a local inquiry',
-      rfqIntro: rfqCopy['rfq.intro'][0],
+      rfqIntro: [rfqCopy['rfq.intro'][0]],
       rfqLabels: {
         rfqLabelName: 'Name',
         rfqLabelCompany: 'Company',
@@ -100,9 +100,9 @@ export function makeHomepageNode(siteId: SiteId = 'tio2-a') {
         rfqBuyerOtherLabel: 'Other business buyer',
       },
       rfqSubmitLabel: 'Review inquiry',
-      rfqPrivacyText: rfqCopy['rfq.privacyText'][0],
-      rfqSuccessHeading: rfqCopy['rfq.success.heading'][0],
-      rfqSuccessMessage: rfqCopy['rfq.success.message'][0],
+      rfqPrivacyText: [rfqCopy['rfq.privacyText'][0]],
+      rfqSuccessHeading: [rfqCopy['rfq.success.heading'][0]],
+      rfqSuccessMessage: [rfqCopy['rfq.success.message'][0]],
       faqHeading: 'Frequently asked questions',
       faqs: [
         {faqQuestion: 'Which grade should I choose?', faqAnswer: 'Start with the application and performance target.', faqRelatedLabel: 'Browse rutile grades', faqRelatedPath: '/products/rutile'},

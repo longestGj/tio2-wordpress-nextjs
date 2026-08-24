@@ -14,6 +14,28 @@ import type {
 } from './homepage-types'
 import {CrossSiteContentError} from './types'
 
+type HomepageGraphqlFields = NonNullable<HomepageFieldsFragment['homepageFields']>
+type HomepageRfqGraphqlField =
+  | 'rfqIntro'
+  | 'rfqPrivacyText'
+  | 'rfqSuccessHeading'
+  | 'rfqSuccessMessage'
+
+/** The signed Preview REST endpoint returns ACF select values as scalars. */
+export type HomepagePreviewFieldsFragment = Omit<
+  HomepageFieldsFragment,
+  'homepageFields'
+> & {
+  readonly homepageFields:
+    | (Omit<HomepageGraphqlFields, HomepageRfqGraphqlField> & {
+        readonly rfqIntro: string | null
+        readonly rfqPrivacyText: string | null
+        readonly rfqSuccessHeading: string | null
+        readonly rfqSuccessMessage: string | null
+      })
+    | null
+}
+
 const SITE_IDS = new Set<SiteId>(['tio2-a', 'tio2-b'])
 const SUPPORTED_IMAGE_MIME_TYPES = new Set<HomepageImageDto['mimeType']>([
   'image/jpeg',
@@ -101,11 +123,16 @@ function rfqBehaviorText(
   fieldPath: HomepageRfqBehaviorField,
   max: number,
 ): string {
-  if (typeof value !== 'string') {
+  const scalarValue = Array.isArray(value)
+    ? value.length === 1
+      ? value[0]
+      : undefined
+    : value
+  if (typeof scalarValue !== 'string') {
     throw new HomepageContractError(fieldPath)
   }
   try {
-    const result = validateHomepageRfqCopy(siteId, fieldPath, value)
+    const result = validateHomepageRfqCopy(siteId, fieldPath, scalarValue)
     if (result.length > max || /<[^>]*>/u.test(result)) {
       throw new HomepageContractError(fieldPath)
     }
@@ -277,7 +304,7 @@ function siteId(value: string): SiteId {
 }
 
 export function toHomepageDto(
-  sourceValue: HomepageFieldsFragment,
+  sourceValue: HomepageFieldsFragment | HomepagePreviewFieldsFragment,
   expectedSiteIdValue: string,
   options: HomepageAdapterOptions,
 ): HomepageDto {

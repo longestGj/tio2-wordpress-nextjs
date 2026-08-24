@@ -19,8 +19,16 @@ const previewSecret = 'homepage-preview-test-secret'
 function previewHomepage(siteId: 'tio2-a' | 'tio2-b' = 'tio2-a') {
   const homepage = makeHomepageNode(siteId)
   homepage.status = 'draft'
+  const fields = homepage.homepageFields
   return {
     ...homepage,
+    homepageFields: {
+      ...fields,
+      rfqIntro: fields.rfqIntro[0],
+      rfqPrivacyText: fields.rfqPrivacyText[0],
+      rfqSuccessHeading: fields.rfqSuccessHeading[0],
+      rfqSuccessMessage: fields.rfqSuccessMessage[0],
+    },
     siteId,
     path: '/',
     schemaVersion: 'homepage-v0.1',
@@ -66,6 +74,14 @@ describe('getPreviewHomepage', () => {
         status: 'draft',
       },
       hero: {heading: 'Reliable TiO2 supply', secondaryCta: null},
+      rfq: {
+        intro: 'This v0.1 local demo does not send or store inquiry data.',
+        privacyText: 'This local demo does not send or save entered information.',
+        success: {
+          heading: 'Local check complete',
+          message: 'Nothing was transmitted or saved by this Site A local demo.',
+        },
+      },
       productRoutes: [
         {path: '/products/rutile', href: null},
         {path: '/products/anatase', href: null},

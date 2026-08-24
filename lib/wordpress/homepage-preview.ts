@@ -1,9 +1,9 @@
 import {createHmac} from 'node:crypto'
 import type {SiteId} from '@/sites'
 
-import type {HomepageFieldsFragment} from './generated'
 import {
   HomepageContractError,
+  type HomepagePreviewFieldsFragment,
   HomepageVersionError,
   toHomepageDto,
 } from './homepage-dto'
@@ -12,7 +12,7 @@ import {getHomepageLinkPolicy} from './homepage-link-policy'
 import {PreviewTransportError} from './preview'
 import {CrossSiteContentError, InvalidContentPathError} from './types'
 
-type PreviewHomepagePayload = HomepageFieldsFragment & {
+type PreviewHomepagePayload = HomepagePreviewFieldsFragment & {
   readonly siteId?: unknown
   readonly path?: unknown
   readonly schemaVersion?: unknown

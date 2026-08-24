@@ -122,7 +122,7 @@ const completeHomepage = {
       },
     ],
     rfqHeading: ' Prepare a local inquiry ',
-    rfqIntro: ' This v0.1 local demo does not send or store inquiry data. ',
+    rfqIntro: [' This v0.1 local demo does not send or store inquiry data. '],
     rfqLabels: {
       rfqLabelName: ' Name ',
       rfqLabelCompany: ' Company ',
@@ -139,9 +139,9 @@ const completeHomepage = {
       rfqBuyerOtherLabel: ' Other business buyer ',
     },
     rfqSubmitLabel: ' Review inquiry ',
-    rfqPrivacyText: ' This local demo does not send or save entered information. ',
-    rfqSuccessHeading: ' Local check complete ',
-    rfqSuccessMessage: ' Nothing was transmitted or saved by this Site A local demo. ',
+    rfqPrivacyText: [' This local demo does not send or save entered information. '],
+    rfqSuccessHeading: [' Local check complete '],
+    rfqSuccessMessage: [' Nothing was transmitted or saved by this Site A local demo. '],
     faqHeading: ' Frequently asked questions ',
     faqs: [
       {faqQuestion: ' Which grade should I choose? ', faqAnswer: ' Start with the application and performance target. ', faqRelatedLabel: ' Browse rutile grades ', faqRelatedPath: ' /products/rutile '},
@@ -279,10 +279,10 @@ describe('toHomepageDto', () => {
     const node = cloneHomepage()
     node.siteScopes.nodes[0].slug = 'tio2-b'
     const contract = HOMEPAGE_RFQ_COPY_CONTRACTS['tio2-b']
-    node.homepageFields.rfqIntro = contract.fields['rfq.intro'][0]
-    node.homepageFields.rfqPrivacyText = contract.fields['rfq.privacyText'][0]
-    node.homepageFields.rfqSuccessHeading = contract.fields['rfq.success.heading'][0]
-    node.homepageFields.rfqSuccessMessage = contract.fields['rfq.success.message'][0]
+    node.homepageFields.rfqIntro = [contract.fields['rfq.intro'][0]]
+    node.homepageFields.rfqPrivacyText = [contract.fields['rfq.privacyText'][0]]
+    node.homepageFields.rfqSuccessHeading = [contract.fields['rfq.success.heading'][0]]
+    node.homepageFields.rfqSuccessMessage = [contract.fields['rfq.success.message'][0]]
 
     const homepage = toHomepageDto(node, 'tio2-b', {
       linkPolicy: linkPolicy('tio2-b'),
@@ -415,10 +415,10 @@ describe('toHomepageDto', () => {
     node.siteScopes.nodes[0].slug = siteId
     const contract = HOMEPAGE_RFQ_COPY_CONTRACTS[siteId]
     expect(contract.id).toBe(contractId)
-    node.homepageFields.rfqIntro = contract.fields['rfq.intro'][0]
-    node.homepageFields.rfqPrivacyText = contract.fields['rfq.privacyText'][0]
-    node.homepageFields.rfqSuccessHeading = contract.fields['rfq.success.heading'][0]
-    node.homepageFields.rfqSuccessMessage = contract.fields['rfq.success.message'][0]
+    node.homepageFields.rfqIntro = [contract.fields['rfq.intro'][0]]
+    node.homepageFields.rfqPrivacyText = [contract.fields['rfq.privacyText'][0]]
+    node.homepageFields.rfqSuccessHeading = [contract.fields['rfq.success.heading'][0]]
+    node.homepageFields.rfqSuccessMessage = [contract.fields['rfq.success.message'][0]]
 
     expect(toHomepageDto(node, siteId).rfq).toMatchObject({
       intro: contract.fields['rfq.intro'][0],
@@ -429,6 +429,79 @@ describe('toHomepageDto', () => {
       },
     })
   })
+
+  it.each([
+    ['tio2-a', 'site-a-rfq-copy-v0.1'],
+    ['tio2-b', 'site-b-rfq-copy-v0.1-frozen'],
+  ] as const)(
+    'normalizes the live single-value GraphQL select lists for %s into exact DTO strings',
+    (siteId, contractId) => {
+      const node = cloneHomepage()
+      node.siteScopes.nodes[0].slug = siteId
+      const contract = HOMEPAGE_RFQ_COPY_CONTRACTS[siteId]
+      expect(contract.id).toBe(contractId)
+      Reflect.set(node.homepageFields, 'rfqIntro', [contract.fields['rfq.intro'][0]])
+      Reflect.set(node.homepageFields, 'rfqPrivacyText', [
+        contract.fields['rfq.privacyText'][0],
+      ])
+      Reflect.set(node.homepageFields, 'rfqSuccessHeading', [
+        contract.fields['rfq.success.heading'][0],
+      ])
+      Reflect.set(node.homepageFields, 'rfqSuccessMessage', [
+        contract.fields['rfq.success.message'][0],
+      ])
+
+      expect(toHomepageDto(node, siteId).rfq).toMatchObject({
+        intro: contract.fields['rfq.intro'][0],
+        privacyText: contract.fields['rfq.privacyText'][0],
+        success: {
+          heading: contract.fields['rfq.success.heading'][0],
+          message: contract.fields['rfq.success.message'][0],
+        },
+      })
+    },
+  )
+
+  it('rejects a single-value GraphQL list approved only for the other site', () => {
+    const node = cloneHomepage()
+    Reflect.set(node.homepageFields, 'rfqPrivacyText', [
+      HOMEPAGE_RFQ_COPY_CONTRACTS['tio2-b'].fields['rfq.privacyText'][0],
+    ])
+
+    expect(() => toHomepageDto(node, 'tio2-a')).toThrowError(
+      expect.objectContaining({
+        name: HomepageContractError.name,
+        fieldPath: 'rfq.privacyText',
+      }),
+    )
+  })
+
+  it.each([
+    ['null', null],
+    ['empty list', []],
+    [
+      'multiple values',
+      [
+        HOMEPAGE_RFQ_COPY_CONTRACTS['tio2-a'].fields['rfq.intro'][0],
+        HOMEPAGE_RFQ_COPY_CONTRACTS['tio2-a'].fields['rfq.intro'][0],
+      ],
+    ],
+    ['empty value', ['']],
+    ['unapproved value', ['This local demo may transmit inquiry data.']],
+  ] as const)(
+    'rejects %s at the live GraphQL controlled-select boundary',
+    (_label, value) => {
+      const node = cloneHomepage()
+      Reflect.set(node.homepageFields, 'rfqIntro', value)
+
+      expect(() => toHomepageDto(node, 'tio2-a')).toThrowError(
+        expect.objectContaining({
+          name: HomepageContractError.name,
+          fieldPath: 'rfq.intro',
+        }),
+      )
+    },
+  )
 
   it('normalizes only trim and consecutive whitespace while preserving case and punctuation', () => {
     expect(
