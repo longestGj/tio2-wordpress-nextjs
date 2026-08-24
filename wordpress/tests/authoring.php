@@ -50,6 +50,23 @@ function tio2_authoring_smoke_save(int $post_id): void
     clean_post_cache($post_id);
 }
 
+function tio2_authoring_smoke_force_legacy_fixture_status(int $post_id, string $status): void
+{
+    global $wpdb;
+
+    $updated = $wpdb->update(
+        $wpdb->posts,
+        ['post_status' => $status],
+        ['ID' => $post_id],
+        ['%s'],
+        ['%d']
+    );
+    clean_post_cache($post_id);
+    if (1 !== $updated || $status !== get_post_status($post_id)) {
+        tio2_authoring_smoke_fail('Could not prepare the legacy authoring backstop fixture.');
+    }
+}
+
 register_shutdown_function('tio2_authoring_smoke_cleanup');
 
 add_filter('pre_http_request', static function ($preempt, $args, $url) {
@@ -72,10 +89,9 @@ if ('tio2-a--authoring-smoke--valid' !== get_post_field('post_name', $valid_id))
     tio2_authoring_smoke_fail('Valid authoring save did not derive the deterministic internal slug');
 }
 
-wp_update_post(['ID' => $valid_id, 'post_status' => 'publish']);
 tio2_authoring_smoke_save($valid_id);
-if ('publish' !== get_post_status($valid_id)) {
-    tio2_authoring_smoke_fail('Valid managed page was not publishable');
+if ('draft' !== get_post_status($valid_id)) {
+    tio2_authoring_smoke_fail('Valid managed draft did not remain editable under the root-only inventory');
 }
 
 wp_update_post(['ID' => $valid_id, 'post_title' => 'Updated authoring smoke title']);
@@ -133,7 +149,7 @@ $duplicate_publish_id = tio2_authoring_smoke_page(
     '/authoring-smoke/renamed',
     ['tio2-b']
 );
-wp_update_post(['ID' => $duplicate_publish_id, 'post_status' => 'publish']);
+tio2_authoring_smoke_force_legacy_fixture_status($duplicate_publish_id, 'publish');
 tio2_authoring_smoke_save($duplicate_publish_id);
 if (
     'draft' !== get_post_status($duplicate_publish_id) ||
@@ -170,7 +186,7 @@ add_filter('sanitize_title', $preserve_collision_slug, 10, 3);
 try {
     $slug_blocker_id = wp_insert_post([
         'post_type' => 'page',
-        'post_status' => 'publish',
+        'post_status' => 'draft',
         'post_name' => $required_collision_slug,
         'post_title' => 'Unmanaged slug blocker',
     ], true);
@@ -181,12 +197,13 @@ if (is_wp_error($slug_blocker_id) || $slug_blocker_id <= 0) {
     tio2_authoring_smoke_fail('Could not create exact slug collision fixture');
 }
 $GLOBALS['tio2_authoring_smoke_post_ids'][] = (int) $slug_blocker_id;
+tio2_authoring_smoke_force_legacy_fixture_status((int) $slug_blocker_id, 'publish');
 $slug_collision_id = tio2_authoring_smoke_page(
     'slug collision',
     '/authoring-smoke/slug-collision',
     ['tio2-a']
 );
-wp_update_post(['ID' => $slug_collision_id, 'post_status' => 'publish']);
+tio2_authoring_smoke_force_legacy_fixture_status($slug_collision_id, 'pending');
 tio2_authoring_smoke_save($slug_collision_id);
 if (
     'draft' !== get_post_status($slug_collision_id) ||
@@ -197,7 +214,7 @@ if (
 }
 
 $zero_scope_id = tio2_authoring_smoke_page('zero scope', '/authoring-smoke/zero-scope', []);
-wp_update_post(['ID' => $zero_scope_id, 'post_status' => 'publish']);
+tio2_authoring_smoke_force_legacy_fixture_status($zero_scope_id, 'publish');
 tio2_authoring_smoke_save($zero_scope_id);
 if ('draft' !== get_post_status($zero_scope_id)) {
     tio2_authoring_smoke_fail('Published managed page with zero site scopes was not blocked');
@@ -208,14 +225,14 @@ $multiple_scope_id = tio2_authoring_smoke_page(
     '/authoring-smoke/multiple-scope',
     ['tio2-a', 'tio2-b']
 );
-wp_update_post(['ID' => $multiple_scope_id, 'post_status' => 'publish']);
+tio2_authoring_smoke_force_legacy_fixture_status($multiple_scope_id, 'publish');
 tio2_authoring_smoke_save($multiple_scope_id);
 if ('draft' !== get_post_status($multiple_scope_id)) {
     tio2_authoring_smoke_fail('Published managed page with multiple site scopes was not blocked');
 }
 
 $invalid_path_id = tio2_authoring_smoke_page('invalid path', '/Authoring Smoke', ['tio2-a']);
-wp_update_post(['ID' => $invalid_path_id, 'post_status' => 'publish']);
+tio2_authoring_smoke_force_legacy_fixture_status($invalid_path_id, 'publish');
 tio2_authoring_smoke_save($invalid_path_id);
 if ('draft' !== get_post_status($invalid_path_id)) {
     tio2_authoring_smoke_fail('Published managed page with an invalid public path was not blocked');

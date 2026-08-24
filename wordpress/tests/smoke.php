@@ -147,7 +147,22 @@ foreach ($post_types as $post_type) {
     }
 
     $post_type_object = get_post_type_object($post_type);
-    if (! $post_type_object->public || ! $post_type_object->show_in_rest || ! $post_type_object->show_in_graphql) {
+    if ('tio2_product' === $post_type) {
+        if (
+            $post_type_object->public ||
+            $post_type_object->publicly_queryable ||
+            ! $post_type_object->exclude_from_search ||
+            $post_type_object->has_archive ||
+            false !== $post_type_object->rewrite ||
+            false !== $post_type_object->query_var ||
+            ! $post_type_object->show_ui ||
+            ! $post_type_object->show_in_rest ||
+            ! $post_type_object->show_in_graphql
+        ) {
+            fwrite(STDERR, "Product post type public-surface closure drifted\n");
+            exit(1);
+        }
+    } elseif (! $post_type_object->public || ! $post_type_object->show_in_rest || ! $post_type_object->show_in_graphql) {
         fwrite(STDERR, "Post type is not public in REST and GraphQL: {$post_type}\n");
         exit(1);
     }
@@ -285,6 +300,18 @@ foreach ([
     }
 }
 
+foreach ([
+    'tio2_product_has_approved_public_route',
+    'tio2_guard_product_publication',
+    'tio2_backstop_product_publication',
+    'tio2_product_graphql_visibility',
+    'tio2_with_legacy_product_fixture_seed_context',
+] as $product_closure_function) {
+    if (! function_exists($product_closure_function)) {
+        tio2_smoke_fail("Missing Product closure function: {$product_closure_function}");
+    }
+}
+
 if (null !== tio2_get_webhook_config('tio2-a', [
     'NEXTJS_REVALIDATION_URL_TIO2_A' => '',
     'NEXTJS_REVALIDATION_SECRET_TIO2_A' => '',
@@ -401,6 +428,14 @@ foreach ([
     if (false === has_filter($hook, $callback)) {
         tio2_smoke_fail("Webhook callback {$callback} is not registered on {$hook}");
     }
+}
+
+if (
+    false === has_filter('wp_insert_post_data', 'tio2_guard_product_publication') ||
+    false === has_action('wp_after_insert_post', 'tio2_backstop_product_publication') ||
+    false === has_filter('graphql_pre_model_data_is_private', 'tio2_product_graphql_visibility')
+) {
+    tio2_smoke_fail('Product publication closure hooks are not registered');
 }
 
 $GLOBALS['tio2_webhook_queue'] = [];

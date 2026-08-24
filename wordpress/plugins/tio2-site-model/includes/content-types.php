@@ -50,6 +50,7 @@ function tio2_register_content_types(): void
     $content_types = tio2_content_type_definitions();
 
     foreach ($content_types as $post_type => $definition) {
+        $is_product = 'tio2_product' === $post_type;
         register_post_type($post_type, [
             'labels' => [
                 'name' => $definition['plural'],
@@ -57,14 +58,18 @@ function tio2_register_content_types(): void
                 'add_new_item' => 'Add New ' . $definition['singular'],
                 'edit_item' => 'Edit ' . $definition['singular'],
             ],
-            'public' => true,
+            'public' => ! $is_product,
+            'show_ui' => true,
             'show_in_rest' => true,
             'show_in_graphql' => true,
             'graphql_single_name' => $definition['graphql_single'],
             'graphql_plural_name' => $definition['graphql_plural'],
             'supports' => ['title', 'editor', 'excerpt', 'thumbnail', 'revisions'],
-            'has_archive' => true,
-            'rewrite' => ['slug' => str_replace('_', '-', $post_type)],
+            'publicly_queryable' => ! $is_product,
+            'exclude_from_search' => $is_product,
+            'has_archive' => ! $is_product,
+            'rewrite' => $is_product ? false : ['slug' => str_replace('_', '-', $post_type)],
+            'query_var' => $is_product ? false : $post_type,
         ]);
     }
 

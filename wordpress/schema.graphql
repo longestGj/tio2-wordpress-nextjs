@@ -12853,7 +12853,7 @@ interface Tio2ProductConnectionEdge implements Edge {
 }
 
 "The Tio2Product type"
-type Tio2Product implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & Previewable & NodeWithTitle & NodeWithContentEditor & NodeWithFeaturedImage & NodeWithExcerpt & NodeWithRevisions & MenuItemLinkable & WithAcfTechnicalFields {
+type Tio2Product implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & NodeWithTitle & NodeWithContentEditor & NodeWithFeaturedImage & NodeWithExcerpt & NodeWithRevisions & WithAcfTechnicalFields {
   "The id field matches the WP_Post-&gt;ID field."
   tio2ProductId: Int! @deprecated(reason: "Deprecated in favor of the databaseId field")
 
@@ -13005,7 +13005,7 @@ type Tio2Product implements Node & ContentNode & UniformResourceIdentifiable & D
   password: String
 
   "Connection between the Tio2Product type and the Tio2Product type"
-  preview: Tio2ProductToPreviewConnectionEdge
+  preview: Tio2ProductToPreviewConnectionEdge @deprecated(reason: "The &quot;Tio2Product&quot; Type is not publicly queryable and does not support previews. This field will be removed in the future.")
 
   "The database id of the preview node"
   previewRevisionDatabaseId: Int
@@ -16598,7 +16598,7 @@ interface MenuItemLinkableConnectionEdge implements Edge {
 }
 
 "Deprecated in favor of MenuItemLinkable Interface"
-union MenuItemObjectUnion = Post | Page | Tio2Product | Tio2Grade | Tio2Application | Tio2Document | Tio2Faq | Category | Tag | PostFormat | SiteScope
+union MenuItemObjectUnion = Post | Page | Tio2Grade | Tio2Application | Tio2Document | Tio2Faq | Category | Tag | PostFormat | SiteScope
 
 "Connection between the MenuItem type and the Menu type"
 type MenuItemToMenuConnectionEdge implements OneToOneConnection & Edge & MenuConnectionEdge {
