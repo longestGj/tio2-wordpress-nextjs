@@ -495,7 +495,7 @@ test('signed Site A preview renders a live unpublished draft and remains isolate
   }
 })
 
-test('retained draft edit invalidates only its owning site and remains anonymous', async ({request}) => {
+test('retained draft edit remains anonymous without public revalidation', async ({request}) => {
   const siteA = sites[0]
   const siteB = sites[1]
   const fixture = JSON.parse(
@@ -509,26 +509,24 @@ test('retained draft edit invalidates only its owning site and remains anonymous
   const bLogPath = resolve(logDirectory, 'tio2-b.stdout.log')
   const aBefore = readFileSync(aLogPath, 'utf8').length
   const bBefore = readFileSync(bLogPath, 'utf8').length
-  const saveThroughAdminContract = (title: string) => {
+  const saveThroughAdminContract = (title: string): number => {
     const encodedTitle = Buffer.from(title, 'utf8').toString('base64')
-    wpEval(
-      `$result=wp_update_post(['ID'=>${fixture.id},'post_title'=>base64_decode('${encodedTitle}')],true); if(is_wp_error($result)){WP_CLI::error($result->get_error_message());} do_action('acf/save_post',${fixture.id});`,
+    return Number.parseInt(
+      wpEval(
+        `$result=wp_update_post(['ID'=>${fixture.id},'post_title'=>base64_decode('${encodedTitle}')],true); if(is_wp_error($result)){WP_CLI::error($result->get_error_message());} do_action('acf/save_post',${fixture.id}); echo count($GLOBALS['tio2_webhook_queue'] ?? []);`,
+      ),
+      10,
     )
   }
 
   try {
-    saveThroughAdminContract(changedTitle)
-
-    await expect.poll(
-      () => readFileSync(aLogPath, 'utf8').slice(aBefore),
-      {timeout: 15_000},
-    ).toContain('[tio2-revalidation]')
+    expect(saveThroughAdminContract(changedTitle)).toBe(0)
     expect((await request.get(`${siteA.baseUrl}/products`)).status()).toBe(404)
     expect((await request.get(`${siteB.baseUrl}/products`)).status()).toBe(404)
 
     const aDeliveryLog = readFileSync(aLogPath, 'utf8').slice(aBefore)
     const bDeliveryLog = readFileSync(bLogPath, 'utf8').slice(bBefore)
-    expect(aDeliveryLog).toContain('[tio2-revalidation]')
+    expect(aDeliveryLog).not.toContain('[tio2-revalidation]')
     expect(bDeliveryLog).not.toContain('[tio2-revalidation]')
   } finally {
     saveThroughAdminContract(fixture.title)
