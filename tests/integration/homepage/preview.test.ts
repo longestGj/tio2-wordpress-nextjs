@@ -65,7 +65,17 @@ describe('getPreviewHomepage', () => {
         schemaVersion: 'homepage-v0.1',
         status: 'draft',
       },
-      hero: {heading: 'Reliable TiO2 supply'},
+      hero: {heading: 'Reliable TiO2 supply', secondaryCta: null},
+      productRoutes: [
+        {path: '/products/rutile', href: null},
+        {path: '/products/anatase', href: null},
+      ],
+      faq: {
+        items: expect.arrayContaining([
+          expect.objectContaining({relatedLink: null}),
+        ]),
+      },
+      closingCta: {href: '#rfq'},
     })
     expect(observedCache).toBe('no-store')
   })
@@ -82,6 +92,30 @@ describe('getPreviewHomepage', () => {
       identity: {status: 'draft'},
     })
     await expect(getHomepage('tio2-a')).resolves.toBeNull()
+  })
+
+  it('injects the Preview owner policy without activating retained draft links', async () => {
+    const siteBPreview = previewHomepage()
+    siteBPreview.siteId = 'tio2-b'
+    siteBPreview.siteScopes.nodes[0].slug = 'tio2-b'
+    server.use(
+      http.get(previewEndpoint, () => HttpResponse.json(siteBPreview)),
+    )
+
+    await expect(getPreviewHomepage('tio2-b')).resolves.toMatchObject({
+      identity: {siteId: 'tio2-b', status: 'draft'},
+      hero: {secondaryCta: null},
+      applications: [
+        {path: '/applications/coatings', href: null},
+        {path: '/applications/plastics', href: null},
+        {path: '/applications/paper', href: null},
+      ],
+      faq: {
+        items: expect.arrayContaining([
+          expect.objectContaining({relatedLink: null}),
+        ]),
+      },
+    })
   })
 
   it('rejects unsigned, cross-site, and wrong-version responses', async () => {

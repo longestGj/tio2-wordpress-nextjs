@@ -26,7 +26,7 @@ export function ApplicationDiscovery({
       </div>
       <div className={styles.applicationGrid}>
         {applications.map((application) => (
-          <article className={styles.applicationCard} key={application.href}>
+          <article className={styles.applicationCard} key={application.path}>
             {application.image ? (
               <Image
                 src={application.image.src}
@@ -39,7 +39,9 @@ export function ApplicationDiscovery({
               />
             ) : null}
             <h3>
-              <a href={application.href}>{application.title}</a>
+              {application.href ? (
+                <a href={application.href}>{application.title}</a>
+              ) : application.title}
             </h3>
             <p>{application.summary}</p>
           </article>

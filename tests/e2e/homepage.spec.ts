@@ -240,6 +240,30 @@ for (const site of sites) {
         await page.evaluate(() => document.documentElement.scrollWidth),
       ).toBeLessThanOrEqual(await page.evaluate(() => document.documentElement.clientWidth))
 
+      const productCards = page.locator(
+        'section[aria-labelledby="homepage-products-heading"] article',
+      )
+      const applicationCards = page.locator(
+        'section[aria-labelledby="homepage-applications-heading"] article',
+      )
+      await expect(productCards).toHaveCount(2)
+      await expect(applicationCards).toHaveCount(3)
+      await expect(productCards.locator('a')).toHaveCount(0)
+      await expect(applicationCards.locator('a')).toHaveCount(0)
+      await expect(
+        page.locator('section[aria-labelledby="homepage-hero-heading"] a'),
+      ).toHaveCount(1)
+      await expect(
+        page.locator('section[aria-labelledby="homepage-faq-heading"] a'),
+      ).toHaveCount(0)
+      await productCards.first().hover()
+      expect(
+        await productCards.first().evaluate((card) => ({
+          cursor: getComputedStyle(card).cursor,
+          transform: getComputedStyle(card).transform,
+        })),
+      ).toEqual({cursor: 'auto', transform: 'none'})
+
       const screenshotDirectory = resolve('.tmp/homepage-evidence', site.id)
       mkdirSync(screenshotDirectory, {recursive: true})
       await page.screenshot({

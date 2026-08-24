@@ -25,7 +25,9 @@ vi.mock('next/image', () => ({
 }))
 
 function homepageFixture(): HomepageDto {
-  return toHomepageDto(makeHomepageNode(), 'tio2-a')
+  return toHomepageDto(makeHomepageNode(), 'tio2-a', {
+    linkPolicy: {siteId: 'tio2-a', isPublic: () => false},
+  })
 }
 
 describe('HomepageTemplate', () => {
@@ -111,7 +113,7 @@ describe('HomepageTemplate', () => {
     )
   })
 
-  it('keeps curated labels, native FAQ disclosure, and fixed RFQ anchors visible', async () => {
+  it('keeps root-only cards semantic while rendering only fixed RFQ anchors', async () => {
     const {HomepageTemplate} = await import(
       '@/components/homepage/homepage-template'
     )
@@ -124,22 +126,52 @@ describe('HomepageTemplate', () => {
     expect(markup).toContain(
       `<a href="#rfq">${homepage.hero.primaryCta.label}</a>`,
     )
-    expect(markup).toContain(
-      `<a href="${homepage.hero.secondaryCta.href}">${homepage.hero.secondaryCta.label}</a>`,
-    )
-    expect(markup).toContain(
-      `<a href="${homepage.productRoutes[0]?.href}">${homepage.productRoutes[0]?.title}</a>`,
-    )
+    expect(homepage.hero.secondaryCta).toBeNull()
+    expect(markup).not.toContain('href="/products')
+    expect(markup).not.toContain('href="/applications')
+    expect(markup).toMatch(/<article[^>]*><h3>Rutile grades<\/h3><p>Grades for coatings and plastics\.<\/p><\/article>/u)
+    expect(markup).toMatch(/<article[^>]*><h3>Coatings<\/h3><p>Opacity and weathering routes\.<\/p><\/article>/u)
     expect(markup).toContain('<details>')
     expect(markup).toContain(
       `<summary>${homepage.faq.items[0]?.question}</summary>`,
     )
-    expect(markup).toContain(
-      `<a href="${homepage.faq.items[0]?.relatedLink?.href}">${homepage.faq.items[0]?.relatedLink?.label}</a>`,
-    )
+    expect(homepage.faq.items[0]?.relatedLink).toBeNull()
+    expect(markup).not.toContain('Browse rutile grades</a>')
     expect(markup).toContain(
       `<a href="#rfq">${homepage.closingCta.label}</a>`,
     )
+  })
+
+  it('uses retained card paths as stable keys when every root-only href is null', async () => {
+    const {HomepageTemplate} = await import(
+      '@/components/homepage/homepage-template'
+    )
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    try {
+      renderToStaticMarkup(<HomepageTemplate homepage={homepageFixture()} />)
+      expect(consoleError).not.toHaveBeenCalled()
+    } finally {
+      consoleError.mockRestore()
+    }
+  })
+
+  it('renders an anchor only for an exact future inventory-enabled card', async () => {
+    const {HomepageTemplate} = await import(
+      '@/components/homepage/homepage-template'
+    )
+    const base = homepageFixture()
+    const homepage: HomepageDto = {
+      ...base,
+      productRoutes: base.productRoutes.map((route, index) =>
+        index === 0 ? {...route, href: route.path} : route,
+      ),
+    }
+
+    const markup = renderToStaticMarkup(<HomepageTemplate homepage={homepage} />)
+
+    expect(markup).toContain('<a href="/products/rutile">Rutile grades</a>')
+    expect(markup).not.toContain('<a href="/products/anatase">')
   })
 
   it('uses a text-first layout instead of a broken image when optional media is absent', async () => {

@@ -12,8 +12,9 @@ import {getCurrentSite} from '@/lib/sites/current-site'
 import {getPreviewHomepage} from '@/lib/wordpress/homepage-preview'
 import {getHomepage} from '@/lib/wordpress/homepage-queries'
 import {hasScopedPreviewSession} from '@/lib/wordpress/preview-session'
+import type {SiteId} from '@/sites'
 
-async function getRequestHomepage(siteId: string) {
+async function getRequestHomepage(siteId: SiteId) {
   const isPreview = await hasScopedPreviewSession(siteId, '/')
   const homepage = isPreview
     ? await getPreviewHomepage(siteId)

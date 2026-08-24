@@ -1,4 +1,5 @@
 import {createHmac} from 'node:crypto'
+import type {SiteId} from '@/sites'
 
 import type {HomepageFieldsFragment} from './generated'
 import {
@@ -7,6 +8,7 @@ import {
   toHomepageDto,
 } from './homepage-dto'
 import type {HomepageDto} from './homepage-types'
+import {getHomepageLinkPolicy} from './homepage-link-policy'
 import {PreviewTransportError} from './preview'
 import {CrossSiteContentError, InvalidContentPathError} from './types'
 
@@ -37,7 +39,7 @@ function previewConfig(): {url: URL; secret: string} {
 }
 
 export async function getPreviewHomepage(
-  siteId: string,
+  siteId: SiteId,
 ): Promise<HomepageDto | null> {
   const path = '/'
   const {url, secret} = previewConfig()
@@ -91,7 +93,10 @@ export async function getPreviewHomepage(
   }
 
   try {
-    return toHomepageDto(payload, siteId, {readMode: 'preview'})
+    return toHomepageDto(payload, siteId, {
+      readMode: 'preview',
+      linkPolicy: getHomepageLinkPolicy(siteId),
+    })
   } catch (error) {
     if (
       error instanceof HomepageContractError ||

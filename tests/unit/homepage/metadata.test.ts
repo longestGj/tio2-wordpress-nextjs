@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest'
 
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
+import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
 import type {HomepageDto} from '@/lib/wordpress/homepage-types'
 import {getSiteConfig} from '@/sites'
 import {makeHomepageNode} from '@/tests/mocks/handlers'
@@ -8,7 +9,9 @@ import {makeHomepageNode} from '@/tests/mocks/handlers'
 function homepageFixture(siteId: 'tio2-a' | 'tio2-b'): HomepageDto {
   const node = makeHomepageNode()
   node.siteScopes.nodes[0].slug = siteId
-  return toHomepageDto(node, siteId)
+  return toHomepageDto(node, siteId, {
+    linkPolicy: getHomepageLinkPolicy(siteId),
+  })
 }
 
 describe('buildHomepageMetadata', () => {

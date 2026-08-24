@@ -290,6 +290,33 @@ function tio2_homepage_test_route(string $site_id, string $path): int
     return $post_id;
 }
 
+function tio2_homepage_test_set_route_status_exact(int $post_id, string $status): void
+{
+    global $wpdb;
+    $post = get_post($post_id);
+    if (! $post instanceof WP_Post) {
+        tio2_homepage_test_fail('Could not load managed route status fixture');
+    }
+    $previous_status = $post->post_status;
+    $updated = $wpdb->update(
+        $wpdb->posts,
+        ['post_status' => $status],
+        ['ID' => $post_id],
+        ['%s'],
+        ['%d']
+    );
+    if (false === $updated) {
+        tio2_homepage_test_fail('Could not update managed route status fixture');
+    }
+    clean_post_cache($post_id);
+    $updated_post = get_post($post_id);
+    if (! $updated_post instanceof WP_Post) {
+        tio2_homepage_test_fail('Could not reload managed route status fixture');
+    }
+    wp_transition_post_status($status, $previous_status, $updated_post);
+    clean_post_cache($post_id);
+}
+
 /**
  * @return array<string, string>
  */
@@ -637,6 +664,15 @@ $homepage_graphql_fields = $homepage_fields_type->getFields();
 tio2_homepage_test_assert(
     isset($homepage_graphql_fields['schemaVersion']) && ! isset($homepage_graphql_fields['homepageSchemaVersion']),
     'Homepage schema version is not exposed as homepageFields.schemaVersion'
+);
+tio2_homepage_test_assert(
+    isset(
+        $homepage_graphql_fields['heroSecondaryPath'],
+        $homepage_graphql_fields['productRoutes'],
+        $homepage_graphql_fields['applications'],
+        $homepage_graphql_fields['faqs']
+    ),
+    'Stable Homepage dependency GraphQL field names drifted'
 );
 
 foreach ([
@@ -1102,6 +1138,18 @@ tio2_homepage_test_update_field(
 tio2_homepage_test_assert_invalid($validation_home, 'Missing current-site target was accepted');
 tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
 
+tio2_homepage_test_update_field('field_tio2_home_hero_secondary_path', '/', $validation_home);
+tio2_homepage_test_assert_invalid($validation_home, 'Root dependency target was accepted');
+tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+
+tio2_homepage_test_update_field(
+    'field_tio2_home_hero_secondary_path',
+    'https://example.test/products',
+    $validation_home
+);
+tio2_homepage_test_assert_invalid($validation_home, 'Malformed dependency target was accepted');
+tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+
 tio2_homepage_test_update_field(
     'field_tio2_home_hero_secondary_path',
     $routes_b['secondary'],
@@ -1111,13 +1159,36 @@ tio2_homepage_test_assert_invalid($validation_home, 'Cross-site target was accep
 tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
 
 $draft_link_target = tio2_homepage_test_route('tio2-a', '/homepage-contract-a-draft-target');
-wp_update_post(['ID' => $draft_link_target, 'post_status' => 'draft']);
+tio2_homepage_test_set_route_status_exact($draft_link_target, 'draft');
 tio2_homepage_test_update_field(
     'field_tio2_home_hero_secondary_path',
     '/homepage-contract-a-draft-target',
     $validation_home
 );
-tio2_homepage_test_assert_invalid($validation_home, 'Draft-only current-site target was accepted');
+tio2_homepage_test_assert(
+    true === tio2_validate_homepage_contract($validation_home),
+    'Exact draft current-site dependency target was rejected'
+);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+
+$private_link_target = tio2_homepage_test_route('tio2-a', '/homepage-contract-a-private-target');
+tio2_homepage_test_set_route_status_exact($private_link_target, 'private');
+tio2_homepage_test_update_field(
+    'field_tio2_home_hero_secondary_path',
+    '/homepage-contract-a-private-target',
+    $validation_home
+);
+tio2_homepage_test_assert_invalid($validation_home, 'Private current-site target was accepted');
+tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+
+$trash_link_target = tio2_homepage_test_route('tio2-a', '/homepage-contract-a-trash-target');
+wp_trash_post($trash_link_target);
+tio2_homepage_test_update_field(
+    'field_tio2_home_hero_secondary_path',
+    '/homepage-contract-a-trash-target',
+    $validation_home
+);
+tio2_homepage_test_assert_invalid($validation_home, 'Trash current-site target was accepted');
 tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
 
 $ambiguous_link_path = '/homepage-contract-a-ambiguous-target';
@@ -1415,10 +1486,13 @@ tio2_homepage_test_assert(
     'Linked target title restore changed route identity or drafted its valid homepage'
 );
 
-wp_update_post(['ID' => $dependent_target_id, 'post_status' => 'draft']);
+tio2_homepage_test_set_route_status_exact($dependent_target_id, 'draft');
 clean_post_cache($valid_a);
-tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'Drafted link target left homepage published');
-wp_update_post(['ID' => $dependent_target_id, 'post_status' => 'publish']);
+tio2_homepage_test_assert(
+    'publish' === get_post_status($valid_a) && true === tio2_validate_homepage_contract($valid_a),
+    'Drafted exact link target invalidated its published homepage dependency'
+);
+tio2_homepage_test_set_route_status_exact($dependent_target_id, 'publish');
 wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
 
 update_post_meta($dependent_target_id, 'public_path', '/homepage-contract-a-moved-target');

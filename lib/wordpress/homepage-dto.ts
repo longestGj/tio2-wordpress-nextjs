@@ -1,6 +1,7 @@
 import type {SiteId} from '@/sites'
 
 import type {HomepageFieldsFragment} from './generated'
+import type {HomepageLinkPolicy} from './homepage-link-policy'
 import {normalizeWordPressGmt} from './time'
 import type {
   HomepageDto,
@@ -82,6 +83,7 @@ export class HomepageVersionError extends HomepageContractError {
 
 export interface HomepageAdapterOptions {
   readonly readMode?: 'formal' | 'preview'
+  readonly linkPolicy: HomepageLinkPolicy
 }
 
 function record(value: unknown, fieldPath: string): UnknownRecord {
@@ -255,6 +257,7 @@ function unique(values: readonly string[], fieldPaths: readonly string[]): void 
 
 function linkCards(
   value: unknown,
+  linkPolicy: HomepageLinkPolicy,
   config: {
     readonly fieldPath: string
     readonly min: number
@@ -272,14 +275,16 @@ function linkCards(
     (rawRow, index) => {
       const rowPath = `${config.fieldPath}[${index}]`
       const row = record(rawRow, rowPath)
+      const path = sitePath(row[config.pathKey], `${rowPath}.href`)
       return {
+        path,
         title: boundedText(row[config.titleKey], `${rowPath}.title`, config.titleMax),
         summary: boundedText(
           row[config.summaryKey],
           `${rowPath}.summary`,
           config.summaryMax,
         ),
-        href: sitePath(row[config.pathKey], `${rowPath}.href`),
+        href: linkPolicy.isPublic(path) ? path : null,
         image: imageDto(
           row[config.imageKey],
           row[config.imageAltKey],
@@ -289,7 +294,7 @@ function linkCards(
     },
   )
   unique(
-    cards.map(({href}) => href),
+    cards.map(({path}) => path),
     cards.map((_, index) => `${config.fieldPath}[${index}].href`),
   )
   return cards
@@ -305,7 +310,7 @@ function siteId(value: string): SiteId {
 export function toHomepageDto(
   sourceValue: HomepageFieldsFragment,
   expectedSiteIdValue: string,
-  options: HomepageAdapterOptions = {},
+  options: HomepageAdapterOptions,
 ): HomepageDto {
   const source = record(sourceValue, 'homepage')
   const expectedSiteId = siteId(expectedSiteIdValue)
@@ -323,6 +328,9 @@ export function toHomepageDto(
   )
   if (actualSiteIds.length !== 1 || actualSiteIds[0] !== expectedSiteId) {
     throw new CrossSiteContentError(expectedSiteId, actualSiteIds)
+  }
+  if (options.linkPolicy.siteId !== expectedSiteId) {
+    throw new HomepageContractError('links.siteId')
   }
 
   const fields = record(source.homepageFields, 'homepageFields')
@@ -359,7 +367,7 @@ export function toHomepageDto(
       }
     },
   )
-  const productRoutes = linkCards(fields.productRoutes, {
+  const productRoutes = linkCards(fields.productRoutes, options.linkPolicy, {
     fieldPath: 'productRoutes',
     min: 2,
     max: 6,
@@ -371,7 +379,7 @@ export function toHomepageDto(
     titleMax: 80,
     summaryMax: 220,
   })
-  const applications = linkCards(fields.applications, {
+  const applications = linkCards(fields.applications, options.linkPolicy, {
     fieldPath: 'applications',
     min: 3,
     max: 6,
@@ -438,11 +446,14 @@ export function toHomepageDto(
       if (Boolean(relatedLabel) !== Boolean(relatedPath)) {
         throw new HomepageContractError(`${fieldPath}.relatedLink`)
       }
+      const path = relatedLabel
+        ? sitePath(relatedPath, `${fieldPath}.relatedPath`)
+        : null
       return {
         question: boundedText(row.faqQuestion, `${fieldPath}.question`, 160),
         answer: boundedText(row.faqAnswer, `${fieldPath}.answer`, 600),
-        relatedLink: relatedLabel
-          ? {label: relatedLabel, href: sitePath(relatedPath, `${fieldPath}.relatedPath`)}
+        relatedLink: relatedLabel && path && options.linkPolicy.isPublic(path)
+          ? {label: relatedLabel, href: path}
           : null,
       }
     },
@@ -492,10 +503,11 @@ export function toHomepageDto(
         label: boundedText(fields.heroPrimaryLabel, 'hero.primaryCta.label', 32),
         href: '#rfq',
       },
-      secondaryCta: {
-        label: boundedText(fields.heroSecondaryLabel, 'hero.secondaryCta.label', 32),
-        href: sitePath(fields.heroSecondaryPath, 'hero.secondaryCta.href'),
-      },
+      secondaryCta: (() => {
+        const label = boundedText(fields.heroSecondaryLabel, 'hero.secondaryCta.label', 32)
+        const path = sitePath(fields.heroSecondaryPath, 'hero.secondaryCta.href')
+        return options.linkPolicy.isPublic(path) ? {label, href: path} : null
+      })(),
       image: imageDto(fields.heroImage, fields.heroImageAlt, 'hero.image'),
     },
     metrics,

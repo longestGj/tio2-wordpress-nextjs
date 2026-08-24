@@ -6,11 +6,14 @@ import {renderToStaticMarkup} from 'react-dom/server'
 import {afterEach, describe, expect, it, vi} from 'vitest'
 
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
+import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
 import type {HomepageRfqDto} from '@/lib/wordpress/homepage-types'
 import {makeHomepageNode} from '@/tests/mocks/handlers'
 
 function rfqFixture(): HomepageRfqDto {
-  return toHomepageDto(makeHomepageNode(), 'tio2-a').rfq
+  return toHomepageDto(makeHomepageNode(), 'tio2-a', {
+    linkPolicy: getHomepageLinkPolicy('tio2-a'),
+  }).rfq
 }
 
 async function renderForm() {

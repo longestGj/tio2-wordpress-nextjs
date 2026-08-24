@@ -905,12 +905,12 @@ function tio2_homepage_validate_path(
     if (
         is_wp_error($required_slug) ||
         1 !== count($route_owner_ids) ||
-        'publish' !== get_post_status($route_owner_ids[0]) ||
+        ! in_array(get_post_status($route_owner_ids[0]), ['publish', 'draft'], true) ||
         $required_slug !== get_post_field('post_name', $route_owner_ids[0])
     ) {
         return new WP_Error(
             'tio2_homepage_invalid_field',
-            "Homepage field {$field_name} must have exactly one published current-site target."
+            "Homepage field {$field_name} must have exactly one published or draft current-site target."
         );
     }
     return $path;

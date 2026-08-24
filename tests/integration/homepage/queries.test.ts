@@ -40,8 +40,32 @@ describe('getHomepage', () => {
 
     await expect(getHomepage('tio2-a')).resolves.toMatchObject({
       identity: {siteId: 'tio2-a', path: '/', schemaVersion: 'homepage-v0.1'},
-      hero: {heading: 'Reliable TiO2 supply'},
-      productRoutes: [{href: '/products/rutile'}, {href: '/products/anatase'}],
+      hero: {heading: 'Reliable TiO2 supply', secondaryCta: null},
+      productRoutes: [
+        {path: '/products/rutile', href: null},
+        {path: '/products/anatase', href: null},
+      ],
+    })
+  })
+
+  it('injects the requested Site B inventory policy instead of the Site A policy', async () => {
+    const homepage = makeHomepageNode()
+    homepage.siteScopes.nodes[0].slug = 'tio2-b'
+    server.use(
+      http.post(graphqlEndpoint, () =>
+        HttpResponse.json({data: {tio2Homepage: homepage}}),
+      ),
+    )
+
+    await expect(getHomepage('tio2-b')).resolves.toMatchObject({
+      identity: {siteId: 'tio2-b'},
+      hero: {secondaryCta: null, primaryCta: {href: '#rfq'}},
+      applications: [
+        {path: '/applications/coatings', href: null},
+        {path: '/applications/plastics', href: null},
+        {path: '/applications/paper', href: null},
+      ],
+      closingCta: {href: '#rfq'},
     })
   })
 

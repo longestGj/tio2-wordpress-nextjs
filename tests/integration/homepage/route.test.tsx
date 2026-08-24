@@ -2,6 +2,7 @@ import {renderToStaticMarkup} from 'react-dom/server'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
+import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
 import type {HomepageDto} from '@/lib/wordpress/homepage-types'
 import {getSiteConfig} from '@/sites'
 import {makeHomepageNode} from '@/tests/mocks/handlers'
@@ -44,7 +45,9 @@ function homepageFixture(siteId: 'tio2-a' | 'tio2-b'): HomepageDto {
       ? 'Site A titanium dioxide supply'
       : 'Site B independent buyer discovery'
 
-  return toHomepageDto(node, siteId)
+  return toHomepageDto(node, siteId, {
+    linkPolicy: getHomepageLinkPolicy(siteId),
+  })
 }
 
 beforeEach(() => {

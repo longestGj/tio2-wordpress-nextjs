@@ -18,7 +18,7 @@ export interface HomepageHeroDto {
   readonly heading: string
   readonly summary: string
   readonly primaryCta: HomepageCtaDto & {readonly href: '#rfq'}
-  readonly secondaryCta: HomepageCtaDto
+  readonly secondaryCta: HomepageCtaDto | null
   readonly image: HomepageImageDto | null
 }
 
@@ -35,9 +35,10 @@ export interface HomepageSectionIntroDto {
 }
 
 export interface HomepageLinkCardDto {
+  readonly path: string
   readonly title: string
   readonly summary: string
-  readonly href: string
+  readonly href: string | null
   readonly image: HomepageImageDto | null
 }
 

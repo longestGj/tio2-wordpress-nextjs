@@ -1,4 +1,5 @@
 import type {FetchGraphQLOptions} from './client'
+import type {SiteId} from '@/sites'
 import {fetchGraphQL} from './client'
 import {homepageContentTag, routeTag, siteTag} from './cache-tags'
 import {
@@ -9,12 +10,13 @@ import type {
   GetHomepageQueryVariables,
 } from './generated'
 import {toHomepageDto} from './homepage-dto'
+import {getHomepageLinkPolicy} from './homepage-link-policy'
 import type {HomepageDto} from './homepage-types'
 
 export const GET_HOMEPAGE = GetHomepageDocument
 
 export async function getHomepage(
-  siteId: string,
+  siteId: SiteId,
   options: Pick<FetchGraphQLOptions, 'timeoutMs'> = {},
 ): Promise<HomepageDto | null> {
   const data = await fetchGraphQL<
@@ -34,6 +36,8 @@ export async function getHomepage(
   )
 
   return data.tio2Homepage
-    ? toHomepageDto(data.tio2Homepage, siteId)
+    ? toHomepageDto(data.tio2Homepage, siteId, {
+        linkPolicy: getHomepageLinkPolicy(siteId),
+      })
     : null
 }

@@ -23,7 +23,7 @@ export function ProductDiscovery({intro, routes}: ProductDiscoveryProps) {
       </div>
       <div className={styles.cardGrid}>
         {routes.map((route) => (
-          <article className={styles.card} key={route.href}>
+          <article className={styles.card} key={route.path}>
             {route.image ? (
               <Image
                 src={route.image.src}
@@ -35,9 +35,7 @@ export function ProductDiscovery({intro, routes}: ProductDiscoveryProps) {
                 unoptimized
               />
             ) : null}
-            <h3>
-              <a href={route.href}>{route.title}</a>
-            </h3>
+            <h3>{route.href ? <a href={route.href}>{route.title}</a> : route.title}</h3>
             <p>{route.summary}</p>
           </article>
         ))}

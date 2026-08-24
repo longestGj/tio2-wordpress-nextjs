@@ -3,7 +3,7 @@ import {describe, expect, it} from 'vitest'
 import {
   HomepageContractError,
   HomepageVersionError,
-  toHomepageDto,
+  toHomepageDto as adaptHomepageDto,
 } from '@/lib/wordpress/homepage-dto'
 import {CrossSiteContentError} from '@/lib/wordpress/types'
 
@@ -162,9 +162,35 @@ function cloneHomepage(): typeof completeHomepage {
   return structuredClone(completeHomepage)
 }
 
+function linkPolicy(
+  siteId: 'tio2-a' | 'tio2-b',
+  publicPaths: readonly string[] = [],
+) {
+  return {
+    siteId,
+    isPublic: (path: string) => publicPaths.includes(path),
+  }
+}
+
+function toHomepageDto(
+  sourceValue: Parameters<typeof adaptHomepageDto>[0],
+  expectedSiteIdValue: string,
+  options?: Parameters<typeof adaptHomepageDto>[2],
+) {
+  return adaptHomepageDto(
+    sourceValue,
+    expectedSiteIdValue,
+    options ?? {
+      linkPolicy: linkPolicy(expectedSiteIdValue as 'tio2-a' | 'tio2-b'),
+    },
+  )
+}
+
 describe('toHomepageDto', () => {
   it('maps and trims the complete WordPress payload into the stable UI DTO', () => {
-    expect(toHomepageDto(completeHomepage, 'tio2-a')).toEqual({
+    expect(toHomepageDto(completeHomepage, 'tio2-a', {
+      linkPolicy: linkPolicy('tio2-a'),
+    })).toEqual({
       identity: {
         id: 'aG9tZXBhZ2U6MTAx',
         siteId: 'tio2-a',
@@ -178,7 +204,7 @@ describe('toHomepageDto', () => {
         heading: 'Reliable TiO2 supply',
         summary: 'Owned production for selected grades; partner production for others.',
         primaryCta: {label: 'Request a quote', href: '#rfq'},
-        secondaryCta: {label: 'Explore products', href: '/products'},
+        secondaryCta: null,
         image: {
           src: 'https://wordpress.test/wp-content/uploads/hero.webp',
           alt: 'Titanium dioxide production line',
@@ -190,14 +216,14 @@ describe('toHomepageDto', () => {
       metrics: [{value: '20', unit: 'years', label: 'Export experience', context: 'User-confirmed operating history'}],
       productDiscovery: {heading: 'Product routes', intro: 'Compare grades by end use.'},
       productRoutes: [
-        {title: 'Rutile grades', summary: 'Grades for coatings and plastics.', href: '/products/rutile', image: null},
-        {title: 'Anatase grades', summary: 'Grades for fibers and specialist applications.', href: '/products/anatase', image: {src: 'https://wordpress.test/wp-content/uploads/hero.webp', alt: 'Bagged anatase titanium dioxide', width: 1200, height: 800, mimeType: 'image/webp'}},
+        {path: '/products/rutile', title: 'Rutile grades', summary: 'Grades for coatings and plastics.', href: null, image: null},
+        {path: '/products/anatase', title: 'Anatase grades', summary: 'Grades for fibers and specialist applications.', href: null, image: {src: 'https://wordpress.test/wp-content/uploads/hero.webp', alt: 'Bagged anatase titanium dioxide', width: 1200, height: 800, mimeType: 'image/webp'}},
       ],
       applicationDiscovery: {heading: 'Applications', intro: 'Start with the performance target.'},
       applications: [
-        {title: 'Coatings', summary: 'Opacity and weathering routes.', href: '/applications/coatings', image: null},
-        {title: 'Plastics', summary: 'Dispersion and processability routes.', href: '/applications/plastics', image: null},
-        {title: 'Paper', summary: 'Brightness and opacity routes.', href: '/applications/paper', image: null},
+        {path: '/applications/coatings', title: 'Coatings', summary: 'Opacity and weathering routes.', href: null, image: null},
+        {path: '/applications/plastics', title: 'Plastics', summary: 'Dispersion and processability routes.', href: null, image: null},
+        {path: '/applications/paper', title: 'Paper', summary: 'Brightness and opacity routes.', href: null, image: null},
       ],
       inquiry: {
         heading: 'A clear inquiry process',
@@ -229,7 +255,7 @@ describe('toHomepageDto', () => {
       faq: {
         heading: 'Frequently asked questions',
         items: [
-          {question: 'Which grade should I choose?', answer: 'Start with the application and performance target.', relatedLink: {label: 'Browse rutile grades', href: '/products/rutile'}},
+          {question: 'Which grade should I choose?', answer: 'Start with the application and performance target.', relatedLink: null},
           {question: 'Can I request documents?', answer: 'State the grade and document needed in the inquiry.', relatedLink: null},
           {question: 'Is every product made in an owned plant?', answer: 'No. Some products use OEM or partner production.', relatedLink: null},
         ],
@@ -243,6 +269,69 @@ describe('toHomepageDto', () => {
         secondaryTopics: ['rutile titanium dioxide', 'anatase titanium dioxide'],
       },
     })
+  })
+
+  it('keeps Site B stored paths while its root-only policy disables navigation', () => {
+    const node = cloneHomepage()
+    node.siteScopes.nodes[0].slug = 'tio2-b'
+
+    const homepage = toHomepageDto(node, 'tio2-b', {
+      linkPolicy: linkPolicy('tio2-b'),
+    })
+
+    expect(homepage.hero).toMatchObject({
+      primaryCta: {href: '#rfq'},
+      secondaryCta: null,
+    })
+    expect(homepage.productRoutes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({path: '/products/rutile', href: null}),
+      ]),
+    )
+    expect(homepage.applications).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({path: '/applications/coatings', href: null}),
+      ]),
+    )
+    expect(homepage.faq.items[0]?.relatedLink).toBeNull()
+    expect(homepage.closingCta.href).toBe('#rfq')
+  })
+
+  it('activates only exact paths authorized by the owning-site policy', () => {
+    const homepage = toHomepageDto(completeHomepage, 'tio2-a', {
+      linkPolicy: linkPolicy('tio2-a', [
+        '/products/rutile',
+        '/applications/coatings',
+      ]),
+    })
+
+    expect(homepage.hero.secondaryCta).toBeNull()
+    expect(homepage.productRoutes).toMatchObject([
+      {path: '/products/rutile', href: '/products/rutile'},
+      {path: '/products/anatase', href: null},
+    ])
+    expect(homepage.applications).toMatchObject([
+      {path: '/applications/coatings', href: '/applications/coatings'},
+      {path: '/applications/plastics', href: null},
+      {path: '/applications/paper', href: null},
+    ])
+    expect(homepage.faq.items[0]?.relatedLink).toEqual({
+      label: 'Browse rutile grades',
+      href: '/products/rutile',
+    })
+  })
+
+  it('rejects a link policy owned by the other site', () => {
+    expect(() =>
+      toHomepageDto(completeHomepage, 'tio2-a', {
+        linkPolicy: linkPolicy('tio2-b'),
+      }),
+    ).toThrowError(
+      expect.objectContaining({
+        name: HomepageContractError.name,
+        fieldPath: 'links.siteId',
+      }),
+    )
   })
 
   it('keeps optional images and metrics absent without inventing content', () => {

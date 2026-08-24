@@ -1,12 +1,15 @@
 import {describe, expect, it} from 'vitest'
 
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
+import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
 import type {HomepageDto} from '@/lib/wordpress/homepage-types'
 import {getSiteConfig} from '@/sites'
 import {makeHomepageNode} from '@/tests/mocks/handlers'
 
 function homepageFixture(): HomepageDto {
-  return toHomepageDto(makeHomepageNode(), 'tio2-a')
+  return toHomepageDto(makeHomepageNode(), 'tio2-a', {
+    linkPolicy: getHomepageLinkPolicy('tio2-a'),
+  })
 }
 
 function collectJsonLdTypes(value: unknown): string[] {

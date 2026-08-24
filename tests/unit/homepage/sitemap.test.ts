@@ -2,6 +2,7 @@ import {describe, expect, it, vi} from 'vitest'
 
 import {buildSitemap, SitemapIntegrityError} from '@/app/sitemap'
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
+import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
 import {getSiteConfig} from '@/sites'
 import {getPublicRoutes} from '@/sites/public-routes'
 import {getSiteTemplateProfile} from '@/sites/template-profiles'
@@ -9,7 +10,9 @@ import {makeHomepageNode} from '@/tests/mocks/handlers'
 
 function sources(overrides: Partial<Parameters<typeof buildSitemap>[1]> = {}) {
   return {
-    getHomepage: async () => toHomepageDto(makeHomepageNode(), 'tio2-a'),
+    getHomepage: async () => toHomepageDto(makeHomepageNode(), 'tio2-a', {
+      linkPolicy: getHomepageLinkPolicy('tio2-a'),
+    }),
     getPublicRoutes,
     getSiteTemplateProfile,
     ...overrides,
@@ -19,7 +22,9 @@ function sources(overrides: Partial<Parameters<typeof buildSitemap>[1]> = {}) {
 function homepageFor(siteId: 'tio2-a' | 'tio2-b') {
   const node = makeHomepageNode()
   node.siteScopes.nodes[0] = {...node.siteScopes.nodes[0]!, slug: siteId}
-  return toHomepageDto(node, siteId)
+  return toHomepageDto(node, siteId, {
+    linkPolicy: getHomepageLinkPolicy(siteId),
+  })
 }
 
 describe('root-only sitemap ownership', () => {
@@ -69,7 +74,9 @@ describe('root-only sitemap ownership', () => {
     ['draft status', {status: 'draft'}],
     ['wrong schema', {schemaVersion: 'homepage-v9' as never}],
   ])('fails closed for a %s homepage source', async (_label, identity) => {
-    const homepage = toHomepageDto(makeHomepageNode(), 'tio2-a')
+    const homepage = toHomepageDto(makeHomepageNode(), 'tio2-a', {
+      linkPolicy: getHomepageLinkPolicy('tio2-a'),
+    })
 
     await expect(
       buildSitemap(getSiteConfig('tio2-a'), {
@@ -88,7 +95,9 @@ describe('root-only sitemap ownership', () => {
 
   it('does not need a Page cursor source to build the sitemap', async () => {
     const getHomepage = vi.fn(async () =>
-      toHomepageDto(makeHomepageNode(), 'tio2-a'),
+      toHomepageDto(makeHomepageNode(), 'tio2-a', {
+        linkPolicy: getHomepageLinkPolicy('tio2-a'),
+      }),
     )
 
     await buildSitemap(getSiteConfig('tio2-a'), {

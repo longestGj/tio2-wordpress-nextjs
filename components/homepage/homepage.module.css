@@ -217,8 +217,8 @@
   background: #fff;
 }
 
-.card h3 a,
-.applicationCard h3 a {
+.card h3,
+.applicationCard h3 {
   display: flex;
   min-height: 2.75rem;
   align-items: center;

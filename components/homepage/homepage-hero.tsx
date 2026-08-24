@@ -16,7 +16,9 @@ export function HomepageHero({hero}: HomepageHeroProps) {
         <p className={styles.heroSummary}>{hero.summary}</p>
         <div className={styles.heroActions}>
           <a href={hero.primaryCta.href}>{hero.primaryCta.label}</a>
-          <a href={hero.secondaryCta.href}>{hero.secondaryCta.label}</a>
+          {hero.secondaryCta ? (
+            <a href={hero.secondaryCta.href}>{hero.secondaryCta.label}</a>
+          ) : null}
         </div>
       </div>
       {hero.image ? (
