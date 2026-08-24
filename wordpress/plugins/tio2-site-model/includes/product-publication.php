@@ -127,6 +127,13 @@ function tio2_guard_product_publication(
     }
 
     $post_id = isset($postarr['ID']) ? (int) $postarr['ID'] : 0;
+    if (function_exists('tio2_root_only_restore_context_active') && tio2_root_only_restore_context_active()) {
+        if (tio2_root_only_restore_candidate_allowed($post_id, 'tio2_product', (string) $data['post_status'])) {
+            return $data;
+        }
+        $data['post_status'] = 'draft';
+        return $data;
+    }
     if (tio2_product_candidate_matches_legacy_fixture_context($post_id, (string) $data['post_status'])) {
         return $data;
     }
@@ -143,7 +150,12 @@ function tio2_backstop_product_publication(int $post_id, WP_Post $post, bool $up
         $enforcing ||
         'tio2_product' !== $post->post_type ||
         ! in_array($post->post_status, ['publish', 'future'], true) ||
-        tio2_product_candidate_matches_legacy_fixture_context($post_id, $post->post_status)
+        tio2_product_candidate_matches_legacy_fixture_context($post_id, $post->post_status) ||
+        (
+            function_exists('tio2_root_only_restore_context_active') &&
+            tio2_root_only_restore_context_active() &&
+            tio2_root_only_restore_candidate_allowed($post_id, 'tio2_product', $post->post_status)
+        )
     ) {
         return;
     }

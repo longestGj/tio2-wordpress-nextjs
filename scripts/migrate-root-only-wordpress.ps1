@@ -4,7 +4,10 @@ param(
     [string] $SnapshotPath = '',
     [switch] $DryRun,
     [ValidateRange(0, 1009)]
-    [int] $FailureAfter = 0
+    [int] $FailureAfter = 0,
+    [ValidateRange(0, 1009)]
+    [int] $RollbackFailureAt = 0,
+    [switch] $PostflightFailure
 )
 
 $ErrorActionPreference = 'Stop'
@@ -17,28 +20,8 @@ $EnvironmentFile = Join-Path $WordPressDirectory '.env'
 $ComposeFile = Join-Path $WordPressDirectory 'docker-compose.yml'
 $ExportScriptPath = Join-Path $WordPressDirectory 'seed/export-route-status-snapshot.php'
 $RetireScriptPath = Join-Path $WordPressDirectory 'seed/retire-public-routes.php'
-
-function Resolve-SafeLocalPath {
-    param(
-        [Parameter(Mandatory = $true)] [string] $Path,
-        [Parameter(Mandatory = $true)] [string] $AllowedRoot,
-        [switch] $MustExist
-    )
-    if ([string]::IsNullOrWhiteSpace($Path)) { throw 'A local path is required.' }
-    $FullPath = [System.IO.Path]::GetFullPath($Path)
-    $FullAllowedRoot = [System.IO.Path]::GetFullPath($AllowedRoot).TrimEnd('\', '/')
-    $AllowedPrefix = $FullAllowedRoot + [System.IO.Path]::DirectorySeparatorChar
-    if (
-        -not $FullPath.Equals($FullAllowedRoot, [System.StringComparison]::OrdinalIgnoreCase) -and
-        -not $FullPath.StartsWith($AllowedPrefix, [System.StringComparison]::OrdinalIgnoreCase)
-    ) {
-        throw "Unsafe local path outside the allowed evidence directory: $FullPath"
-    }
-    if ($MustExist -and -not (Test-Path -LiteralPath $FullPath -PathType Leaf)) {
-        throw "Required local file does not exist: $FullPath"
-    }
-    return $FullPath
-}
+$EvidencePathLibrary = Join-Path $PSScriptRoot 'root-only-evidence-paths.ps1'
+. $EvidencePathLibrary
 
 function ConvertTo-ContainerPath {
     param([Parameter(Mandatory = $true)] [string] $LocalPath)
@@ -87,11 +70,18 @@ foreach ($RequiredFile in @($EnvironmentFile, $ComposeFile, $ExportScriptPath, $
     }
 }
 
+Assert-Tio2NoReparsePointChain -Path $RepositoryRoot
+if (-not (Test-Path -LiteralPath $LocalEvidenceRoot)) {
+    [System.IO.Directory]::CreateDirectory($LocalEvidenceRoot) | Out-Null
+}
+$LocalEvidenceRoot = Resolve-Tio2SafeLocalPath -Path $LocalEvidenceRoot -AllowedRoot $LocalEvidenceRoot
+
 if ([string]::IsNullOrWhiteSpace($EvidenceDirectory)) {
     $EvidenceDirectory = Join-Path $LocalEvidenceRoot 'root-only-retirement'
 }
-$EvidenceDirectory = Resolve-SafeLocalPath -Path $EvidenceDirectory -AllowedRoot $LocalEvidenceRoot
+$EvidenceDirectory = Resolve-Tio2SafeLocalPath -Path $EvidenceDirectory -AllowedRoot $LocalEvidenceRoot
 [System.IO.Directory]::CreateDirectory($EvidenceDirectory) | Out-Null
+$EvidenceDirectory = Resolve-Tio2SafeLocalPath -Path $EvidenceDirectory -AllowedRoot $LocalEvidenceRoot
 
 if ([string]::IsNullOrWhiteSpace($SnapshotPath)) {
     $ExportOutput = Invoke-LocalWpEvalFile `
@@ -110,21 +100,21 @@ if ([string]::IsNullOrWhiteSpace($SnapshotPath)) {
     }
     $Timestamp = [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssfffZ')
     $SnapshotPath = Join-Path $EvidenceDirectory "root-only-route-status-$Timestamp.json"
-    $SnapshotPath = Resolve-SafeLocalPath -Path $SnapshotPath -AllowedRoot $EvidenceDirectory
-    [System.IO.File]::WriteAllText(
-        $SnapshotPath,
-        ($SnapshotObject | ConvertTo-Json -Depth 12 -Compress),
-        [System.Text.UTF8Encoding]::new($false)
-    )
+    $SnapshotPath = Resolve-Tio2SafeLocalPath -Path $SnapshotPath -AllowedRoot $LocalEvidenceRoot
+    Write-Tio2ExclusiveUtf8File `
+        -Path $SnapshotPath `
+        -Content ($SnapshotObject | ConvertTo-Json -Depth 16 -Compress)
 }
 else {
-    $SnapshotPath = Resolve-SafeLocalPath -Path $SnapshotPath -AllowedRoot $EvidenceDirectory -MustExist
+    $SnapshotPath = Resolve-Tio2SafeLocalPath -Path $SnapshotPath -AllowedRoot $LocalEvidenceRoot -MustExist
 }
 
 $ContainerSnapshotPath = ConvertTo-ContainerPath -LocalPath $SnapshotPath
 $OperationArguments = @($ContainerSnapshotPath)
 if ($DryRun) { $OperationArguments += 'dry-run' }
 if ($FailureAfter -gt 0) { $OperationArguments += "failure-after=$FailureAfter" }
+if ($RollbackFailureAt -gt 0) { $OperationArguments += "rollback-failure-at=$RollbackFailureAt" }
+if ($PostflightFailure) { $OperationArguments += 'postflight-failure' }
 $RetireOutput = Invoke-LocalWpEvalFile `
     -ContainerScript '/workspace/wordpress/seed/retire-public-routes.php' `
     -ScriptArguments $OperationArguments `

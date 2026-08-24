@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateRange(5, 100000)]
+    [ValidateRange(1, 100000)]
     [int] $ExpectedPerSite = 505,
     [string] $SnapshotPath
 )
@@ -85,8 +85,98 @@ foreach ($SummaryProperty in @(
         throw "Audit summary is missing production property $SummaryProperty."
     }
 }
-$ScalePageCount = $ExpectedPerSite - 5
+
+function Test-ExactAuditInteger {
+    param($Value, [int] $Expected)
+    return ($Value -is [int] -or $Value -is [long]) -and [long]$Value -eq $Expected
+}
+
+$SummaryPublicInventoryValid =
+    (Test-ExactAuditInteger $AuditSummary.publicInventoryCount.'tio2-a' 1) -and
+    (Test-ExactAuditInteger $AuditSummary.publicInventoryCount.'tio2-b' 1)
+if (-not $SummaryPublicInventoryValid) { $Errors.Add('Invalid audit summary publicInventoryCount.') }
+$SummaryHomepageValid =
+    (Test-ExactAuditInteger $AuditSummary.publishedHomepageCount.'tio2-a' 1) -and
+    (Test-ExactAuditInteger $AuditSummary.publishedHomepageCount.'tio2-b' 1)
+if (-not $SummaryHomepageValid) { $Errors.Add('Invalid audit summary publishedHomepageCount.') }
+$LegacyDraftPages =
+    (Test-ExactAuditInteger $AuditSummary.retainedDraftPageCount.'tio2-a' 0) -and
+    (Test-ExactAuditInteger $AuditSummary.retainedDraftPageCount.'tio2-b' 0)
+$TargetDraftPages =
+    (Test-ExactAuditInteger $AuditSummary.retainedDraftPageCount.'tio2-a' 504) -and
+    (Test-ExactAuditInteger $AuditSummary.retainedDraftPageCount.'tio2-b' 504)
+if (-not $LegacyDraftPages -and -not $TargetDraftPages) {
+    $Errors.Add('Invalid audit summary retainedDraftPageCount.')
+}
+$LegacyDraftProduct = Test-ExactAuditInteger $AuditSummary.retainedDraftProductCount 0
+$TargetDraftProduct = Test-ExactAuditInteger $AuditSummary.retainedDraftProductCount 1
+if (-not $LegacyDraftProduct -and -not $TargetDraftProduct) {
+    $Errors.Add('Invalid audit summary retainedDraftProductCount.')
+}
+$IsLegacySummary = $LegacyDraftPages -and $LegacyDraftProduct
+$IsTargetSummary = $TargetDraftPages -and $TargetDraftProduct
+if (-not $IsLegacySummary -and -not $IsTargetSummary) {
+    if ($LegacyDraftPages -or $TargetDraftPages) {
+        $Errors.Add('Invalid audit summary retainedDraftProductCount.')
+    }
+    if ($LegacyDraftProduct -or $TargetDraftProduct) {
+        $Errors.Add('Invalid audit summary retainedDraftPageCount.')
+    }
+}
+if (-not (Test-ExactAuditInteger $AuditSummary.crossSiteLeaks 0)) {
+    $Errors.Add('Invalid audit summary crossSiteLeaks.')
+}
+
+$IdentityRows = [System.Collections.Generic.List[object]]::new()
+foreach ($Route in $Routes) {
+    if ($Route.publicPath -eq '/' -or [string]$Route.supersededSeedSnapshot -ne '') { continue }
+    $IdentityRows.Add([ordered]@{
+        id = [int]$Route.id
+        postType = [string]$Route.postType
+        slug = [string]$Route.slug
+        publicPath = [string]$Route.publicPath
+        siteScopes = @($Route.siteScopes | ForEach-Object { [string]$_ })
+    })
+}
+foreach ($Fixture in @($Snapshot.sharedFixtures)) {
+    $FixturePublicPath = if ($Fixture.PSObject.Properties.Name -contains 'publicPath') {
+        $Fixture.publicPath
+    } else { $null }
+    $IdentityRows.Add([ordered]@{
+        id = [int]$Fixture.id
+        postType = [string]$Fixture.postType
+        slug = [string]$Fixture.slug
+        publicPath = if ($null -eq $FixturePublicPath -or [string]$FixturePublicPath -eq '') { $null } else { [string]$FixturePublicPath }
+        siteScopes = @($Fixture.siteScopes | ForEach-Object { [string]$_ })
+    })
+}
+$IdentityJson = ConvertTo-Json -InputObject @($IdentityRows | Sort-Object { $_.id }) -Depth 6 -Compress
+$Hasher = [System.Security.Cryptography.SHA256]::Create()
+try {
+    $IdentityHash = $Hasher.ComputeHash([System.Text.UTF8Encoding]::new($false).GetBytes($IdentityJson))
+}
+finally { $Hasher.Dispose() }
+$RecomputedIdentityChecksum = 'sha256:' + (($IdentityHash | ForEach-Object { $_.ToString('x2') }) -join '')
+$SubmittedIdentityChecksum = [string]$AuditSummary.identityChecksum
+if (
+    $SubmittedIdentityChecksum -notmatch '^sha256:[0-9a-f]{64}$' -or
+    -not $SubmittedIdentityChecksum.Equals(
+        $RecomputedIdentityChecksum,
+        [System.StringComparison]::Ordinal
+    )
+) {
+    $Errors.Add('Invalid audit summary identityChecksum.')
+}
+if ($IsTargetSummary -and $ExpectedPerSite -ne 1) {
+    $Errors.Add('RootOnly target audit requires ExpectedPerSite 1.')
+}
+if ($IsLegacySummary -and $ExpectedPerSite -lt 5) {
+    $Errors.Add('LegacyBaseline audit requires at least five expected public URLs per site.')
+}
+
+$ScalePageCount = if ($IsTargetSummary) { 500 } else { $ExpectedPerSite - 5 }
 $ExpectedPaths = @{}
+$ExpectedPublicPaths = @{}
 foreach ($SiteId in $SiteIds) {
     $Paths = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     foreach ($CorePath in @('/', '/products', '/applications', '/about', '/contact')) { [void]$Paths.Add($CorePath) }
@@ -94,6 +184,9 @@ foreach ($SiteId in $SiteIds) {
         [void]$Paths.Add("/test-content/long-tail-$($Index.ToString('D3'))")
     }
     $ExpectedPaths[$SiteId] = $Paths
+    $ExpectedPublicPaths[$SiteId] = if ($IsTargetSummary) {
+        [System.Collections.Generic.HashSet[string]]::new([string[]]@('/'), [System.StringComparer]::Ordinal)
+    } else { $Paths }
 }
 
 $CanonicalHomepages = @{}
@@ -176,7 +269,7 @@ foreach ($SiteId in $SiteIds) {
     }
 
     foreach ($Url in $SiteUrls) {
-        if (-not $ExpectedPaths[$SiteId].Contains([string]$Url.path)) {
+        if (-not $ExpectedPublicPaths[$SiteId].Contains([string]$Url.path)) {
             $Errors.Add("Unexpected published path for $SiteId`: $($Url.path).")
             continue
         }
@@ -217,7 +310,7 @@ foreach ($SiteId in $SiteIds) {
         ) { $Errors.Add("Route $($Route.id) is not resolvable through WPGraphQL URI $($Route.slug).") }
     }
 
-    foreach ($ExpectedPath in $ExpectedPaths[$SiteId]) {
+    foreach ($ExpectedPath in $ExpectedPublicPaths[$SiteId]) {
         if (@($SiteUrls | Where-Object { $_.path -eq $ExpectedPath }).Count -ne 1) {
             $Errors.Add("Missing expected published path for $SiteId`: $ExpectedPath.")
         }
@@ -273,8 +366,10 @@ foreach ($Route in $Routes) {
     if (-not $ExpectedPaths[$SiteId].Contains([string]$Route.publicPath)) {
         $Errors.Add("Unexpected retained route for $SiteId`: $($Route.publicPath).")
     }
-    if ($Route.status -ne 'publish') {
-        $Errors.Add("Managed route $($Route.id) must be published; found $($Route.status).")
+    $ExpectedRouteStatus = if ($IsTargetSummary) { 'draft' } else { 'publish' }
+    if ($Route.status -ne $ExpectedRouteStatus) {
+        $ExpectedStatusLabel = if ($IsTargetSummary) { 'draft' } else { 'published' }
+        $Errors.Add("Managed route $($Route.id) must be $ExpectedStatusLabel; found $($Route.status).")
     }
 }
 
@@ -287,9 +382,17 @@ foreach ($FixtureId in $RequiredSharedFixtures.Keys) {
     }
     $Fixture = $Matches[0]
     if ($Fixture.slug -ne $FixtureId) { $Errors.Add("Shared fixture $FixtureId has slug $($Fixture.slug), expected $FixtureId.") }
-    if ($Fixture.status -ne 'publish') { $Errors.Add("Shared fixture $FixtureId must be published; found $($Fixture.status).") }
+    if ($IsTargetSummary -and $FixtureId -eq 'test-product-reference') {
+        if ($Fixture.status -ne 'draft') { $Errors.Add("Shared fixture $FixtureId must be draft; found $($Fixture.status).") }
+        if (@($Fixture.siteScopes).Count -ne 1 -or @($Fixture.siteScopes)[0] -ne 'tio2-a') {
+            $Errors.Add("Shared fixture $FixtureId must have exact target site_scope tio2-a.")
+        }
+    }
+    else {
+        if ($Fixture.status -ne 'publish') { $Errors.Add("Shared fixture $FixtureId must be published; found $($Fixture.status).") }
+        if (@($Fixture.siteScopes).Count -ne 0) { $Errors.Add("Shared fixture $FixtureId must have no site_scope; found $(@($Fixture.siteScopes).Count).") }
+    }
     if ($Fixture.postType -ne $ExpectedPostType) { $Errors.Add("Shared fixture $FixtureId has post type $($Fixture.postType), expected $ExpectedPostType.") }
-    if (@($Fixture.siteScopes).Count -ne 0) { $Errors.Add("Shared fixture $FixtureId must have no site_scope; found $(@($Fixture.siteScopes).Count).") }
 }
 
 if ($Errors.Count -gt 0) {

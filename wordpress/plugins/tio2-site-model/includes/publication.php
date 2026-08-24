@@ -292,6 +292,19 @@ function tio2_guard_managed_publication(
     }
 
     $post_id = isset($postarr['ID']) ? (int) $postarr['ID'] : 0;
+    if (function_exists('tio2_root_only_restore_context_active') && tio2_root_only_restore_context_active()) {
+        if (tio2_root_only_restore_candidate_allowed($post_id, $post_type, $post_status)) {
+            return $data;
+        }
+        wp_die(
+            new WP_Error(
+                'tio2_root_only_restore_tuple_rejected',
+                'Publication is outside the checksum-bound root-only restore allowlist.'
+            ),
+            'Publication blocked',
+            ['response' => 409, 'back_link' => true, 'code' => 'tio2_root_only_restore_tuple_rejected']
+        );
+    }
     $route = tio2_publication_resolve_candidate_route($post_id, $unsanitized_postarr + $postarr);
     $validation = tio2_validate_managed_publication_candidate(
         $post_type,

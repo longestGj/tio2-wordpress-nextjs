@@ -16,13 +16,20 @@ try {
         tio2_root_only_fail('Retirement requires an explicit snapshot path.');
     }
     $dry_run = in_array('dry-run', $args, true);
+    $postflight_failure = in_array('postflight-failure', $args, true);
     $failure_after = 0;
+    $rollback_failure_at = 0;
     foreach ($args as $argument) {
         if (str_starts_with((string) $argument, 'failure-after=')) {
             $failure_after = (int) substr((string) $argument, strlen('failure-after='));
+        } elseif (str_starts_with((string) $argument, 'rollback-failure-at=')) {
+            $rollback_failure_at = (int) substr((string) $argument, strlen('rollback-failure-at='));
         }
     }
-    if ($failure_after < 0 || $failure_after > 1009) {
+    if (
+        $failure_after < 0 || $failure_after > 1009 ||
+        $rollback_failure_at < 0 || $rollback_failure_at > 1009
+    ) {
         tio2_root_only_fail('Invalid transition failure injection boundary.');
     }
 
@@ -88,56 +95,41 @@ try {
                 }
             }
         });
+        $target = tio2_root_only_preflight($snapshot, true);
+        if ($postflight_failure) {
+            tio2_root_only_fail('Injected retirement postflight failure.');
+        }
+        if ('target' !== $target['state']) {
+            tio2_root_only_fail('Retirement postflight did not reach the complete target state.');
+        }
     } catch (Throwable $mutation_error) {
-        $rollback_errors = [];
+        $rollback_errors = tio2_root_only_compensate_records(
+            $snapshot,
+            $mutated_records,
+            'legacy',
+            $rollback_failure_at,
+            'retirement'
+        );
+        $source_verified = false;
+        $verification_error = '';
         try {
-            tio2_root_only_without_webhook_fanout(static function () use (
-                $snapshot,
-                $mutated_records,
-                &$rollback_errors
-            ): void {
-                try {
-                    tio2_root_only_with_restore_context(
-                        $snapshot,
-                        static function () use ($mutated_records): void {
-                            foreach (array_reverse($mutated_records) as $record) {
-                                $post_id = (int) $record['id'];
-                                if ('page-route' === $record['kind']) {
-                                    tio2_root_only_update_status($post_id, 'publish');
-                                    continue;
-                                } elseif ('product-fixture' === $record['kind']) {
-                                    tio2_root_only_update_scopes($post_id, []);
-                                    tio2_root_only_update_status($post_id, 'publish');
-                                } else {
-                                    tio2_root_only_fail('Retirement compensation encountered an unknown typed snapshot record.');
-                                }
-                            }
-                        }
-                    );
-                } catch (Throwable $rollback_error) {
-                    $rollback_errors[] = $rollback_error->getMessage();
-                }
-            });
-        } catch (Throwable $rollback_context_error) {
-            $rollback_errors[] = $rollback_context_error->getMessage();
+            $rolled_back = tio2_root_only_preflight($snapshot, true);
+            $source_verified = 'legacy' === $rolled_back['state'];
+            if (! $source_verified) {
+                $verification_error = 'compensation did not restore legacy state';
+            }
+        } catch (Throwable $rollback_verification_error) {
+            $verification_error = $rollback_verification_error->getMessage();
         }
-
-        if ([] !== $rollback_errors) {
+        if ([] !== $rollback_errors || ! $source_verified) {
             tio2_root_only_fail(
-                $mutation_error->getMessage() . '; compensating rollback FAILED: ' . implode('; ', $rollback_errors)
+                $mutation_error->getMessage() . '; compensating rollback FAILED: ' .
+                ([] === $rollback_errors ? 'no operation error' : implode('; ', $rollback_errors)) .
+                '; source verification FAILED: ' . ('' === $verification_error ? 'unknown state' : $verification_error)
             );
-        }
-        $rolled_back = tio2_root_only_preflight($snapshot, true);
-        if ('legacy' !== $rolled_back['state']) {
-            tio2_root_only_fail($mutation_error->getMessage() . '; compensating rollback did not restore legacy state.');
         }
         WP_CLI::warning('TIO2_ROOT_ONLY_COMPENSATION compensating rollback complete');
         tio2_root_only_fail($mutation_error->getMessage() . '; compensating rollback complete.');
-    }
-
-    $target = tio2_root_only_preflight($snapshot, true);
-    if ('target' !== $target['state']) {
-        tio2_root_only_fail('Retirement postflight did not reach the complete target state.');
     }
     WP_CLI::log('TIO2_ROOT_ONLY_RESULT ' . (string) wp_json_encode([
         'mode' => 'retire',

@@ -3,7 +3,10 @@ param(
     [Parameter(Mandatory = $true)]
     [string] $SnapshotPath,
     [ValidateRange(0, 1009)]
-    [int] $FailureAfter = 0
+    [int] $FailureAfter = 0,
+    [ValidateRange(0, 1009)]
+    [int] $RollbackFailureAt = 0,
+    [switch] $PostflightFailure
 )
 
 $ErrorActionPreference = 'Stop'
@@ -15,28 +18,8 @@ $WordPressDirectory = Join-Path $RepositoryRoot 'wordpress'
 $EnvironmentFile = Join-Path $WordPressDirectory '.env'
 $ComposeFile = Join-Path $WordPressDirectory 'docker-compose.yml'
 $RestoreScriptPath = Join-Path $WordPressDirectory 'seed/restore-public-routes.php'
-
-function Resolve-SafeLocalPath {
-    param(
-        [Parameter(Mandatory = $true)] [string] $Path,
-        [Parameter(Mandatory = $true)] [string] $AllowedRoot,
-        [switch] $MustExist
-    )
-    if ([string]::IsNullOrWhiteSpace($Path)) { throw 'A local path is required.' }
-    $FullPath = [System.IO.Path]::GetFullPath($Path)
-    $FullAllowedRoot = [System.IO.Path]::GetFullPath($AllowedRoot).TrimEnd('\', '/')
-    $AllowedPrefix = $FullAllowedRoot + [System.IO.Path]::DirectorySeparatorChar
-    if (
-        -not $FullPath.Equals($FullAllowedRoot, [System.StringComparison]::OrdinalIgnoreCase) -and
-        -not $FullPath.StartsWith($AllowedPrefix, [System.StringComparison]::OrdinalIgnoreCase)
-    ) {
-        throw "Unsafe local path outside the allowed evidence directory: $FullPath"
-    }
-    if ($MustExist -and -not (Test-Path -LiteralPath $FullPath -PathType Leaf)) {
-        throw "Required local file does not exist: $FullPath"
-    }
-    return $FullPath
-}
+$EvidencePathLibrary = Join-Path $PSScriptRoot 'root-only-evidence-paths.ps1'
+. $EvidencePathLibrary
 
 function ConvertTo-ContainerPath {
     param([Parameter(Mandatory = $true)] [string] $LocalPath)
@@ -53,7 +36,11 @@ foreach ($RequiredFile in @($EnvironmentFile, $ComposeFile, $RestoreScriptPath))
         throw "Missing required local root-only restore file: $RequiredFile"
     }
 }
-$SnapshotPath = Resolve-SafeLocalPath -Path $SnapshotPath -AllowedRoot $LocalEvidenceRoot -MustExist
+Assert-Tio2NoReparsePointChain -Path $RepositoryRoot
+if (-not (Test-Path -LiteralPath $LocalEvidenceRoot)) {
+    throw "Local evidence root does not exist: $LocalEvidenceRoot"
+}
+$SnapshotPath = Resolve-Tio2SafeLocalPath -Path $SnapshotPath -AllowedRoot $LocalEvidenceRoot -MustExist
 if ([System.IO.Path]::GetExtension($SnapshotPath) -ne '.json') {
     throw 'Restore requires a local JSON snapshot.'
 }
@@ -65,6 +52,8 @@ $DockerArguments = @(
     $ContainerSnapshotPath
 )
 if ($FailureAfter -gt 0) { $DockerArguments += "failure-after=$FailureAfter" }
+if ($RollbackFailureAt -gt 0) { $DockerArguments += "rollback-failure-at=$RollbackFailureAt" }
+if ($PostflightFailure) { $DockerArguments += 'postflight-failure' }
 
 $PreviousErrorActionPreference = $ErrorActionPreference
 $ErrorActionPreference = 'Continue'

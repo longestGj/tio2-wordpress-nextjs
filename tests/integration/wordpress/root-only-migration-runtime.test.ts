@@ -342,4 +342,67 @@ describe.runIf(runLiveWordPress)('live reversible root-only retirement', () => {
       auditLegacyBaseline()
     })
   }, 1_200_000)
+
+  it('compensates forward and postflight failures, attempts every rollback record, and reports recoverable partial state', () => {
+    withRestoredLegacyBaseline(() => {
+      const newSnapshot = () =>
+        mutationSummary(requireSuccess(migrate(['-DryRun']), 'failure-path snapshot')).snapshotPath!
+
+      let snapshotPath = newSnapshot()
+      const legacy = liveState()
+      const retirePostflight = requireFailure(
+        migrate(['-SnapshotPath', snapshotPath, '-PostflightFailure']),
+        'retire postflight failure',
+      )
+      expect(retirePostflight).toContain('Injected retirement postflight failure')
+      expect(retirePostflight).toContain('compensating rollback complete')
+      expect(liveState()).toEqual(legacy)
+
+      const retireRollbackFailure = requireFailure(
+        migrate([
+          '-SnapshotPath', snapshotPath,
+          '-FailureAfter', '5',
+          '-RollbackFailureAt', '2',
+        ]),
+        'retire rollback operation failure',
+      )
+      expect(retireRollbackFailure).toContain('Injected retirement rollback operation failure')
+      expect(retireRollbackFailure).toContain('source verification FAILED')
+      const recoverableRetire = liveState()
+      expect(recoverableRetire.pages.filter(({status}) => status === 'draft')).toHaveLength(1)
+      expect(recoverableRetire.pages.filter(({status}) => status === 'publish')).toHaveLength(1007)
+
+      seedLegacyBaseline()
+      auditLegacyBaseline()
+      snapshotPath = newSnapshot()
+      requireSuccess(migrate(['-SnapshotPath', snapshotPath]), 'prepare restore failure target')
+      const target = liveState()
+
+      const restoreForward = requireFailure(
+        restore(snapshotPath, ['-FailureAfter', '5']),
+        'restore forward failure',
+      )
+      expect(restoreForward).toContain('Injected restore transition failure')
+      expect(restoreForward).toContain('compensating rollback complete')
+      expect(liveState()).toEqual(target)
+
+      const restorePostflight = requireFailure(
+        restore(snapshotPath, ['-PostflightFailure']),
+        'restore postflight failure',
+      )
+      expect(restorePostflight).toContain('Injected restore postflight failure')
+      expect(restorePostflight).toContain('compensating rollback complete')
+      expect(liveState()).toEqual(target)
+
+      const restoreRollbackFailure = requireFailure(
+        restore(snapshotPath, ['-FailureAfter', '5', '-RollbackFailureAt', '2']),
+        'restore rollback operation failure',
+      )
+      expect(restoreRollbackFailure).toContain('Injected restore rollback operation failure')
+      expect(restoreRollbackFailure).toContain('source verification FAILED')
+      const recoverableRestore = liveState()
+      expect(recoverableRestore.pages.filter(({status}) => status === 'publish')).toHaveLength(1)
+      expect(recoverableRestore.pages.filter(({status}) => status === 'draft')).toHaveLength(1007)
+    })
+  }, 1_200_000)
 })

@@ -1,4 +1,5 @@
 import {spawnSync} from 'node:child_process'
+import {createHash} from 'node:crypto'
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
@@ -514,7 +515,7 @@ function validAuditSnapshot(scalePages = 0): AuditSnapshot {
     })),
   ]
 
-  return {
+  const snapshot: AuditSnapshot = {
     routes: pages.map((route) => ({
       ...route,
       siteScopes: [...route.siteScopes],
@@ -524,7 +525,7 @@ function validAuditSnapshot(scalePages = 0): AuditSnapshot {
     publicUrls,
     sharedFixtures: Object.entries(sharedFixtureTypes).map(
       ([fixtureId, postType], index) => ({
-        id: 100 + index,
+        id: 10_000 + index,
         fixtureId,
         slug: fixtureId,
         status: 'publish',
@@ -538,10 +539,57 @@ function validAuditSnapshot(scalePages = 0): AuditSnapshot {
       publishedHomepageCount: {'tio2-a': 1, 'tio2-b': 1},
       retainedDraftPageCount: {'tio2-a': 0, 'tio2-b': 0},
       retainedDraftProductCount: 0,
-      identityChecksum: 'sha256:synthetic-audit-fixture',
+      identityChecksum: '',
       crossSiteLeaks: 0,
     },
   }
+  snapshot.summary.identityChecksum = auditIdentityChecksum(snapshot)
+  return snapshot
+}
+
+function auditIdentityChecksum(snapshot: AuditSnapshot): string {
+  const rows = [
+    ...snapshot.routes
+      .filter(({publicPath, supersededSeedSnapshot}) =>
+        publicPath !== '/' && supersededSeedSnapshot === '',
+      )
+      .map(({id, postType, slug, publicPath, siteScopes}) => ({
+        id,
+        postType,
+        slug,
+        publicPath,
+        siteScopes,
+      })),
+    ...snapshot.sharedFixtures.map(({id, postType, slug, publicPath, siteScopes}) => ({
+      id,
+      postType,
+      slug,
+      publicPath: publicPath ?? null,
+      siteScopes,
+    })),
+  ].sort((left, right) => left.id - right.id)
+  return `sha256:${createHash('sha256').update(JSON.stringify(rows)).digest('hex')}`
+}
+
+function validTargetAuditSnapshot(): AuditSnapshot {
+  const snapshot = validAuditSnapshot(500)
+  for (const route of snapshot.routes) {
+    if (route.publicPath !== '/') {
+      route.status = 'draft'
+      route.uriResolvable = null
+      route.uriResolutionSource = null
+    }
+  }
+  snapshot.publicUrls = snapshot.publicUrls.filter(({path}) => path === '/')
+  const product = snapshot.sharedFixtures.find(
+    ({fixtureId}) => fixtureId === 'test-product-reference',
+  )!
+  product.status = 'draft'
+  product.siteScopes = ['tio2-a']
+  snapshot.summary.retainedDraftPageCount = {'tio2-a': 504, 'tio2-b': 504}
+  snapshot.summary.retainedDraftProductCount = 1
+  snapshot.summary.identityChecksum = auditIdentityChecksum(snapshot)
+  return snapshot
 }
 
 function runSnapshotAudit(snapshot: AuditSnapshot, expectedPerSite = 5) {
@@ -585,6 +633,63 @@ describe('seed audit validation', () => {
     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
     expect(result.stdout).toContain('tio2-a: 7 public URLs')
     expect(result.stdout).toContain('tio2-b: 7 public URLs')
+  })
+
+  it('accepts the exact RootOnly target summary only with the matching retained corpus', () => {
+    const result = runSnapshotAudit(validTargetAuditSnapshot(), 1)
+
+    expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+    expect(result.stdout).toContain('tio2-a: 1 public URLs')
+    expect(result.stdout).toContain('tio2-b: 1 public URLs')
+  })
+
+  it.each([
+    {
+      field: 'publicInventoryCount',
+      mutate: (snapshot: AuditSnapshot) => { snapshot.summary.publicInventoryCount['tio2-a'] = 2 },
+    },
+    {
+      field: 'publishedHomepageCount',
+      mutate: (snapshot: AuditSnapshot) => { snapshot.summary.publishedHomepageCount['tio2-b'] = 0 },
+    },
+    {
+      field: 'retainedDraftPageCount',
+      mutate: (snapshot: AuditSnapshot) => { snapshot.summary.retainedDraftPageCount['tio2-a'] = 1 },
+    },
+    {
+      field: 'retainedDraftProductCount',
+      mutate: (snapshot: AuditSnapshot) => { snapshot.summary.retainedDraftProductCount = 1 },
+    },
+    {
+      field: 'identityChecksum',
+      mutate: (snapshot: AuditSnapshot) => {
+        snapshot.summary.identityChecksum = `sha256:${'0'.repeat(64)}`
+      },
+    },
+    {
+      field: 'crossSiteLeaks',
+      mutate: (snapshot: AuditSnapshot) => { snapshot.summary.crossSiteLeaks = 1 },
+    },
+  ])('rejects a forged $field audit summary field', ({field, mutate}) => {
+    const snapshot = validAuditSnapshot()
+    mutate(snapshot)
+
+    const result = runSnapshotAudit(snapshot)
+
+    expect(result.status).not.toBe(0)
+    expect(`${result.stdout}\n${result.stderr}`).toContain(`Invalid audit summary ${field}`)
+  })
+
+  it('rejects a noncanonical synthetic identity checksum', () => {
+    const snapshot = validAuditSnapshot()
+    snapshot.summary.identityChecksum = 'sha256:synthetic-audit-fixture'
+
+    const result = runSnapshotAudit(snapshot)
+
+    expect(result.status).not.toBe(0)
+    expect(`${result.stdout}\n${result.stderr}`).toContain(
+      'Invalid audit summary identityChecksum',
+    )
   })
 
   it('accepts an exact released duplicate homepage record', () => {

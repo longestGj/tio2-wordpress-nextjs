@@ -19,6 +19,7 @@ describe('root-only retirement tooling contract', () => {
       ...phpFiles,
       'scripts/migrate-root-only-wordpress.ps1',
       'scripts/restore-root-only-wordpress.ps1',
+      'scripts/root-only-evidence-paths.ps1',
       'docs/runbooks/root-only-local-rollback.md',
     ]) {
       expect(() => source(path), path).not.toThrow()
@@ -94,9 +95,11 @@ describe('root-only retirement tooling contract', () => {
 
   it('restores Page status only and Product status plus original scopes in checksum-matched CLI context', () => {
     const restore = source(phpFiles[2])
+    const restoreLibrary = `${restore}\n${source(phpFiles[0])}`
 
     expect(restore).toContain('WP_CLI')
     expect(restore).toContain('snapshotChecksum')
+    expect(restoreLibrary).toContain('tio2_root_only_restore_candidate_allowed')
     expect(restore).toContain('tio2_root_only_preflight')
     expect(restore).toContain("'page-route'")
     expect(restore).toContain("'product-fixture'")
@@ -105,16 +108,20 @@ describe('root-only retirement tooling contract', () => {
     expect(restore).not.toContain('post_title')
     expect(restore).not.toContain('attachment')
     expect(restore).not.toContain('update_post_meta')
+    expect(restoreLibrary).not.toMatch(/remove_filter\(\s*'wp_insert_post_data'/)
   })
 
   it('constrains PowerShell paths to this worktree and an ignored local evidence directory', () => {
     const wrappers = [
       source('scripts/migrate-root-only-wordpress.ps1'),
       source('scripts/restore-root-only-wordpress.ps1'),
+      source('scripts/root-only-evidence-paths.ps1'),
     ].join('\n')
     const gitignore = source('.gitignore')
 
-    expect(wrappers).toContain('Resolve-SafeLocalPath')
+    expect(wrappers).toContain('Resolve-Tio2SafeLocalPath')
+    expect(wrappers).toContain('ReparsePoint')
+    expect(wrappers).toContain('FileMode]::CreateNew')
     expect(wrappers).toContain('.local-evidence')
     expect(wrappers).toContain('[System.IO.Path]::GetFullPath')
     expect(wrappers).not.toMatch(/https?:\/\//i)
