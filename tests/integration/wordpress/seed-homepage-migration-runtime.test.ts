@@ -142,7 +142,7 @@ describe.runIf(runLiveWordPress)('homepage seed migration transaction', () => {
       setRootRollbackMetadata('tio2-a', invalidMetadata.previousStatus, invalidMetadata.previousScopes)
       const before = snapshotManagedState()
       try {
-        const failed = powershell(seedScript, ['-ScalePages', '500'])
+        const failed = powershell(seedScript, ['-ScalePages', '500', '-SeedMode', 'LegacyBaseline'])
         expect(failed.status).not.toBe(0)
         expect(`${failed.stdout}\n${failed.stderr}`).toContain('Root preflight rejected rollback metadata')
         expect(snapshotManagedState()).toEqual(before)
@@ -159,6 +159,8 @@ describe.runIf(runLiveWordPress)('homepage seed migration transaction', () => {
       const failedReadback = powershell(seedScript, [
         '-ScalePages',
         '500',
+        '-SeedMode',
+        'LegacyBaseline',
         '-FailurePoint',
         'root-metadata-readback-failure',
       ])
@@ -177,6 +179,8 @@ describe.runIf(runLiveWordPress)('homepage seed migration transaction', () => {
       const failed = powershell(seedScript, [
         '-ScalePages',
         '500',
+        '-SeedMode',
+        'LegacyBaseline',
         '-FailurePoint',
         failurePoint,
       ])
@@ -194,7 +198,7 @@ ${marked ? "add_post_meta($id,'_tio2_seed_homepage_site_id','tio2-a');" : ''}
 echo $id;
 `)
       const collisionState = snapshotManagedState()
-      const collisionSeed = powershell(seedScript, ['-ScalePages', '500'])
+      const collisionSeed = powershell(seedScript, ['-ScalePages', '500', '-SeedMode', 'LegacyBaseline'])
       expect(collisionSeed.status).not.toBe(0)
       expect(`${collisionSeed.stdout}\n${collisionSeed.stderr}`).toMatch(
         /Homepage preflight rejected/,
@@ -213,7 +217,7 @@ $wpdb->insert($wpdb->term_relationships,['object_id'=>$id,'term_taxonomy_id'=>(i
 echo $id;
 `)
     const rootCollisionState = snapshotManagedState()
-    const rootCollisionSeed = powershell(seedScript, ['-ScalePages', '500'])
+    const rootCollisionSeed = powershell(seedScript, ['-ScalePages', '500', '-SeedMode', 'LegacyBaseline'])
     expect(rootCollisionSeed.status).not.toBe(0)
     expect(`${rootCollisionSeed.stdout}\n${rootCollisionSeed.stderr}`).toContain(
       'Root preflight rejected',
@@ -249,7 +253,7 @@ $wpdb->insert($wpdb->term_relationships,['object_id'=>$id,'term_taxonomy_id'=>(i
 echo $id;
 `)
 
-    const seed = powershell(seedScript, ['-ScalePages', '500'])
+    const seed = powershell(seedScript, ['-ScalePages', '500', '-SeedMode', 'LegacyBaseline'])
     expect(seed.status, `${seed.stdout}\n${seed.stderr}`).toBe(0)
     expect(seed.stdout).toContain('"pages_superseded":1')
     const successfulState = snapshotManagedState()
@@ -299,6 +303,8 @@ echo $id;
       const failed = powershell(seedScript, [
         '-ScalePages',
         '500',
+        '-SeedMode',
+        'LegacyBaseline',
         '-FailurePoint',
         failurePoint,
       ])
@@ -340,7 +346,7 @@ echo (int)$wpdb->insert_id;
     for (const fixturePhp of invalidHomepageFixtures) {
       const homepageId = rawFixture(fixturePhp)
       const before = snapshotManagedState()
-      const failed = powershell(seedScript, ['-ScalePages', '500'])
+      const failed = powershell(seedScript, ['-ScalePages', '500', '-SeedMode', 'LegacyBaseline'])
       expect(failed.status).not.toBe(0)
       expect(`${failed.stdout}\n${failed.stderr}`).toContain('Homepage preflight rejected')
       expect(snapshotManagedState()).toEqual(before)
@@ -369,7 +375,7 @@ $id=(int)$wpdb->insert_id; add_post_meta($id,'public_path','/'); echo $id;
     for (const fixturePhp of invalidRootFixtures) {
       const rootId = rawFixture(fixturePhp)
       const before = snapshotManagedState()
-      const failed = powershell(seedScript, ['-ScalePages', '500'])
+      const failed = powershell(seedScript, ['-ScalePages', '500', '-SeedMode', 'LegacyBaseline'])
       expect(failed.status).not.toBe(0)
       expect(`${failed.stdout}\n${failed.stderr}`).toContain('Root preflight rejected')
       expect(snapshotManagedState()).toEqual(before)

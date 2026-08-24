@@ -12,6 +12,8 @@
     {
       "id": "test-grade-reference",
       "postType": "tio2_grade",
+      "postStatus": "publish",
+      "siteScopes": [],
       "title": "Synthetic Test Grade Reference",
       "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Optional standalone grade fixture for schema checks. It is not a real grade.</p>",
       "technicalSummary": "SYNTHETIC TEST CONTENT — no commercial grade properties are asserted.",
@@ -20,6 +22,8 @@
     {
       "id": "test-application-reference",
       "postType": "tio2_application",
+      "postStatus": "publish",
+      "siteScopes": [],
       "title": "Synthetic Test Application Reference",
       "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Placeholder application entity for local integration testing, not application guidance.</p>",
       "technicalSummary": "SYNTHETIC TEST CONTENT — no suitability, safety, or performance claim is made.",
@@ -28,6 +32,8 @@
     {
       "id": "test-document-reference",
       "postType": "tio2_document",
+      "postStatus": "publish",
+      "siteScopes": [],
       "title": "Synthetic Test Document Reference",
       "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Placeholder document record. It is not a TDS, SDS, certificate, or other controlled document.</p>",
       "technicalSummary": "SYNTHETIC TEST CONTENT — no document-backed facts are represented.",
@@ -36,6 +42,8 @@
     {
       "id": "test-faq-reference",
       "postType": "tio2_faq",
+      "postStatus": "publish",
+      "siteScopes": [],
       "title": "Synthetic Test FAQ Reference",
       "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> What is this record? A local standalone fixture used only to verify the optional FAQ content type.</p>",
       "technicalSummary": "SYNTHETIC TEST CONTENT — the answer is fixture metadata, not TiO2 advice.",

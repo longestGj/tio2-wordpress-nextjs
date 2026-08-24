@@ -24,6 +24,8 @@ const exportAuditPath = fileURLToPath(
 interface SharedEntity {
   id: string
   postType: string
+  postStatus?: string
+  siteScopes?: string[]
   title: string
   content: string
   technicalSummary: string
@@ -57,7 +59,7 @@ function runPowerShell(scriptPath: string, arguments_: string[]) {
   return spawnSync(
     'powershell.exe',
     ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', scriptPath, ...arguments_],
-    {encoding: 'utf8'},
+    {encoding: 'utf8', maxBuffer: 10 * 1024 * 1024},
   )
 }
 
@@ -148,6 +150,128 @@ describe('representative WordPress seed manifest', () => {
 })
 
 describe('seed execution plan', () => {
+  it('honors neutral per-entity status and scopes from an injected manifest', () => {
+    const temporaryDirectory = mkdtempSync(join(tmpdir(), 'tio2-seed-manifest-'))
+    const temporaryManifestPath = join(temporaryDirectory, 'representative-content.json')
+    const manifest = readManifest()
+    const grade = manifest.sharedEntities.find(({id}) => id === 'test-grade-reference')!
+    grade.postStatus = 'draft'
+    grade.siteScopes = ['tio2-b']
+    writeFileSync(temporaryManifestPath, JSON.stringify(manifest))
+
+    try {
+      const result = runPowerShell(seedScriptPath, [
+        '-PlanOnly',
+        '-ManifestPath',
+        temporaryManifestPath,
+      ])
+
+      expect(result.status, result.stderr).toBe(0)
+      const plan = JSON.parse(result.stdout) as {
+        entities: Array<{id: string; postStatus: string; siteScopes: string[]}>
+      }
+      expect(plan.entities.find(({id}) => id === grade.id)).toMatchObject({
+        id: 'test-grade-reference',
+        postStatus: 'draft',
+        siteScopes: ['tio2-b'],
+      })
+    } finally {
+      rmSync(temporaryDirectory, {recursive: true, force: true})
+    }
+  })
+
+  it('defaults to a root-only plan without deleting retained Page identities', () => {
+    const result = runPowerShell(seedScriptPath, ['-ScalePages', '500', '-PlanOnly'])
+
+    expect(result.status, result.stderr).toBe(0)
+    const plan = JSON.parse(result.stdout) as {
+      seedMode: string
+      entities: Array<{
+        id: string
+        postStatus: string
+        siteScopes: string[]
+        legacyBaseline: boolean
+      }>
+      pages: Array<{
+        siteId: string
+        publicPath: string
+        postStatus: string
+        siteScopes: string[]
+      }>
+      homepages: Array<{siteId: string; postStatus: string}>
+    }
+
+    expect(plan.seedMode).toBe('root-only')
+    expect(plan.pages).toHaveLength(1010)
+    expect(plan.pages.every(({postStatus}) => postStatus === 'draft')).toBe(true)
+    for (const siteId of ['tio2-a', 'tio2-b']) {
+      expect(
+        plan.pages.filter(
+          (page) => page.siteId === siteId && page.publicPath !== '/',
+        ),
+      ).toHaveLength(504)
+      expect(plan.homepages.find((homepage) => homepage.siteId === siteId)).toMatchObject({
+        postStatus: 'publish',
+      })
+    }
+    expect(plan.entities.find(({id}) => id === 'test-product-reference')).toMatchObject({
+      postStatus: 'draft',
+      siteScopes: [],
+      legacyBaseline: false,
+    })
+    expect(plan.entities.find(({id}) => id === 'test-grade-reference')).toMatchObject({
+      postStatus: 'publish',
+      siteScopes: [],
+      legacyBaseline: false,
+    })
+  })
+
+  it('builds the legacy 505-public-URL baseline only when explicitly requested', () => {
+    const result = runPowerShell(seedScriptPath, [
+      '-ScalePages',
+      '500',
+      '-SeedMode',
+      'LegacyBaseline',
+      '-PlanOnly',
+    ])
+
+    expect(result.status, result.stderr).toBe(0)
+    const plan = JSON.parse(result.stdout) as {
+      seedMode: string
+      entities: Array<{
+        postStatus: string
+        siteScopes: string[]
+        legacyBaseline: boolean
+      }>
+      pages: Array<{siteId: string; publicPath: string; postStatus: string}>
+    }
+
+    expect(plan.seedMode).toBe('legacy-baseline')
+    expect(
+      plan.pages.filter(({publicPath, postStatus}) =>
+        publicPath !== '/' && postStatus === 'publish',
+      ),
+    ).toHaveLength(1008)
+    for (const siteId of ['tio2-a', 'tio2-b']) {
+      expect(
+        plan.pages.filter(
+          (page) =>
+            page.siteId === siteId &&
+            page.publicPath !== '/' &&
+            page.postStatus === 'publish',
+        ),
+      ).toHaveLength(504)
+    }
+    expect(
+      plan.entities.every(
+        ({postStatus, siteScopes, legacyBaseline}) =>
+          postStatus === 'publish' &&
+          siteScopes.length === 0 &&
+          legacyBaseline,
+      ),
+    ).toBe(true)
+  })
+
   it('supports bounded migration failure injection for rollback verification', () => {
     for (const failurePoint of [
       'begin-failure',
@@ -155,6 +279,7 @@ describe('seed execution plan', () => {
       'root-metadata-readback-failure',
       'after-root-release',
       'commit-failure',
+      'legacy-page-context-failure',
     ]) {
       const result = runPowerShell(seedScriptPath, [
         '-ScalePages',
@@ -205,7 +330,7 @@ describe('seed execution plan', () => {
         .toHaveLength(3)
       expect(sitePages.find(({publicPath}) => publicPath === '/')).toMatchObject({
         internalSlug: `${siteId}--home`,
-        postStatus: 'publish',
+        postStatus: 'draft',
         siteScopes: [siteId],
         meta: {
           public_path: '/',

@@ -2,8 +2,11 @@
 param(
     [ValidateRange(0, 10000)]
     [int] $ScalePages = 0,
+    [ValidateSet('RootOnly', 'LegacyBaseline')]
+    [string] $SeedMode = 'RootOnly',
+    [string] $ManifestPath = '',
     [switch] $PlanOnly,
-    [ValidateSet('', 'begin-failure', 'before-homepage-write', 'root-metadata-readback-failure', 'after-root-release', 'commit-failure')]
+    [ValidateSet('', 'begin-failure', 'before-homepage-write', 'root-metadata-readback-failure', 'after-root-release', 'commit-failure', 'legacy-page-context-failure')]
     [string] $FailurePoint = ''
 )
 
@@ -12,7 +15,10 @@ Set-StrictMode -Version Latest
 
 $RepositoryRoot = Split-Path -Parent $PSScriptRoot
 $WordPressDirectory = Join-Path $RepositoryRoot 'wordpress'
-$ManifestPath = Join-Path $WordPressDirectory 'seed/representative-content.json'
+if ([string]::IsNullOrWhiteSpace($ManifestPath)) {
+    $ManifestPath = Join-Path $WordPressDirectory 'seed/representative-content.json'
+}
+$ManifestPath = [System.IO.Path]::GetFullPath($ManifestPath)
 $EnvironmentFile = Join-Path $WordPressDirectory '.env'
 $ComposeFile = Join-Path $WordPressDirectory 'docker-compose.yml'
 $ApplyScriptPath = Join-Path $WordPressDirectory 'seed/apply-seed.php'
@@ -67,7 +73,7 @@ function New-PageOperation {
         siteId = $SiteId
         publicPath = $PublicPath
         internalSlug = $InternalSlug
-        postStatus = 'publish'
+        postStatus = if ($SeedMode -eq 'LegacyBaseline') { 'publish' } else { 'draft' }
         title = $Title
         content = $Content
         siteScopes = @($SiteId)
@@ -92,11 +98,41 @@ if ($SiteIds.Count -ne 2 -or $SiteIds -notcontains 'tio2-a' -or $SiteIds -notcon
 
 $Entities = @(
     foreach ($Entity in $Manifest.sharedEntities) {
+        $DeclaredPostStatus = if ($null -ne $Entity.PSObject.Properties['postStatus']) {
+            [string] $Entity.postStatus
+        }
+        else {
+            'draft'
+        }
+        if ($DeclaredPostStatus -notin @('publish', 'draft', 'pending', 'private', 'future')) {
+            throw "Invalid entity postStatus for $($Entity.id): $DeclaredPostStatus"
+        }
+
+        $DeclaredSiteScopes = @(
+            if ($null -ne $Entity.PSObject.Properties['siteScopes']) {
+                $Entity.siteScopes | ForEach-Object { [string] $_ }
+            }
+        )
+        if (
+            @($DeclaredSiteScopes | Select-Object -Unique).Count -ne @($DeclaredSiteScopes).Count -or
+            @($DeclaredSiteScopes | Where-Object { $_ -notin $SiteIds }).Count -gt 0
+        ) {
+            throw "Invalid entity siteScopes for $($Entity.id)."
+        }
+
+        $LegacyBaseline = $SeedMode -eq 'LegacyBaseline'
+        [string[]] $EffectiveSiteScopes = @()
+        if (-not $LegacyBaseline) {
+            $EffectiveSiteScopes = @($DeclaredSiteScopes)
+        }
         [PSCustomObject]@{
             id = $Entity.id
             postType = $Entity.postType
             slug = $Entity.id
-            postStatus = 'publish'
+            postStatus = if ($LegacyBaseline) { 'publish' } else { $DeclaredPostStatus }
+            siteScopes = $EffectiveSiteScopes
+            publicPath = $null
+            legacyBaseline = $LegacyBaseline
             title = $Entity.title
             content = $Entity.content
             meta = [PSCustomObject]@{
@@ -119,7 +155,7 @@ foreach ($Site in $Manifest.sites) {
     $Homepages.Add([PSCustomObject]@{
         siteId = $Site.siteId
         internalSlug = "$($Site.siteId)--homepage"
-        postStatus = 'draft'
+        postStatus = 'publish'
         title = $Site.homepage.hero_heading
         fields = $Site.homepage
         marker = $Site.siteId
@@ -171,6 +207,7 @@ foreach ($Site in $Manifest.sites) {
 
 $Plan = [PSCustomObject]@{
     schemaVersion = 1
+    seedMode = if ($SeedMode -eq 'LegacyBaseline') { 'legacy-baseline' } else { 'root-only' }
     contentNotice = $Manifest.contentNotice
     scalePagesPerSite = $ScalePages
     failurePoint = $FailurePoint

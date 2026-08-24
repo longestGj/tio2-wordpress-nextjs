@@ -89,6 +89,13 @@ if (empty($args[0]) || ! is_readable($args[0])) {
 }
 
 $plan = json_decode((string) file_get_contents($args[0]), true, 512, JSON_THROW_ON_ERROR);
+$seed_mode = (string) ($plan['seedMode'] ?? '');
+if (! in_array($seed_mode, ['root-only', 'legacy-baseline'], true)) {
+    tio2_seed_abort('Seed plan mode is missing or invalid.');
+}
+if ('legacy-baseline' === $seed_mode && ! defined('TIO2_LOCAL_FIXTURE_SEED')) {
+    define('TIO2_LOCAL_FIXTURE_SEED', true);
+}
 $required_post_types = [
     'tio2_product',
     'tio2_grade',
@@ -123,6 +130,8 @@ $summary = [
     'homepages_updated' => 0,
     'root_pages_drafted' => 0,
     'pages_superseded' => 0,
+    'legacy_entity_contexts' => 0,
+    'legacy_page_guard_contexts' => 0,
 ];
 
 /**
@@ -276,6 +285,63 @@ function tio2_seed_upsert(
     }
 
     return (int) $post_id;
+}
+
+/**
+ * Resolve an optional entity-owned legacy fixture seam by post-type convention.
+ * Shared seed code does not know which entity types implement such a seam.
+ *
+ * @param array<string, mixed> $entity
+ */
+function tio2_seed_legacy_entity_context(array $entity): ?string
+{
+    if (empty($entity['legacyBaseline'])) {
+        return null;
+    }
+
+    $post_type = (string) ($entity['postType'] ?? '');
+    if (1 !== preg_match('/^tio2_([a-z0-9_]+)$/', $post_type, $match)) {
+        return null;
+    }
+
+    $candidate = 'tio2_with_legacy_' . $match[1] . '_fixture_seed_context';
+    return is_callable($candidate) ? $candidate : null;
+}
+
+/**
+ * The legacy 505 fixture exists only for local migration tests. Disable the
+ * root-only Page/Post publication guard for one Page upsert and always restore
+ * it before any subsequent operation can run.
+ *
+ * @return mixed
+ */
+function tio2_seed_with_legacy_page_guard_context(callable $callback, bool $inject_failure = false)
+{
+    if (
+        ! defined('WP_CLI') ||
+        ! WP_CLI ||
+        ! defined('TIO2_LOCAL_FIXTURE_SEED') ||
+        true !== TIO2_LOCAL_FIXTURE_SEED
+    ) {
+        throw new LogicException('Legacy Page fixture context is available only to the explicit local WP-CLI fixture seed.');
+    }
+
+    $priority = has_filter('wp_insert_post_data', 'tio2_guard_managed_publication');
+    if (false === $priority || ! remove_filter('wp_insert_post_data', 'tio2_guard_managed_publication', $priority)) {
+        throw new LogicException('Legacy Page fixture context could not isolate the publication guard.');
+    }
+
+    try {
+        if ($inject_failure) {
+            throw new RuntimeException('Injected legacy Page seed context failure.');
+        }
+        return $callback();
+    } finally {
+        add_filter('wp_insert_post_data', 'tio2_guard_managed_publication', $priority, 4);
+        if ($inject_failure) {
+            WP_CLI::log('TIO2_LEGACY_PAGE_GUARD_RESTORED');
+        }
+    }
 }
 
 wp_suspend_cache_invalidation(true);
@@ -617,17 +683,71 @@ try {
     }
 
     foreach ($plan['entities'] as $entity) {
-        $entity_id = tio2_seed_upsert(
-            $entity,
-            $entity['postType'],
-            $summary,
-            'entities',
-            $entity_canonical_ids[$entity['id']] ?? null
-        );
+        $existing_entity_id = $entity_canonical_ids[$entity['id']] ?? null;
+        $legacy_context = tio2_seed_legacy_entity_context($entity);
+        $entity_id = (int) ($existing_entity_id ?? 0);
 
-        // Optional schema fixtures are standalone records. Managed site pages do not
-        // reference them and they deliberately have no implicit site consumers.
-        $term_result = wp_set_object_terms($entity_id, [], 'site_scope', false);
+        if (null !== $legacy_context && $entity_id <= 0) {
+            $draft_entity = $entity;
+            $draft_entity['postStatus'] = 'draft';
+            $entity_id = tio2_seed_upsert(
+                $draft_entity,
+                $entity['postType'],
+                $summary,
+                'entities'
+            );
+        }
+
+        if (null !== $legacy_context) {
+            $term_result = wp_set_object_terms(
+                $entity_id,
+                array_values($entity['siteScopes']),
+                'site_scope',
+                false
+            );
+            if (is_wp_error($term_result)) {
+                tio2_seed_abort($term_result->get_error_message());
+            }
+
+            $target = [
+                'postStatus' => (string) $entity['postStatus'],
+                'siteScopes' => array_values($entity['siteScopes']),
+                'publicPath' => $entity['publicPath'] ?? null,
+            ];
+            $entity_id = $legacy_context(
+                $entity_id,
+                $target,
+                static function () use (
+                    $entity,
+                    &$summary,
+                    $entity_id
+                ): int {
+                    return tio2_seed_upsert(
+                        $entity,
+                        $entity['postType'],
+                        $summary,
+                        'entities',
+                        $entity_id
+                    );
+                }
+            );
+            $summary['legacy_entity_contexts']++;
+        } else {
+            $entity_id = tio2_seed_upsert(
+                $entity,
+                $entity['postType'],
+                $summary,
+                'entities',
+                $existing_entity_id
+            );
+        }
+
+        $term_result = wp_set_object_terms(
+            $entity_id,
+            array_values($entity['siteScopes']),
+            'site_scope',
+            false
+        );
         if (is_wp_error($term_result)) {
             tio2_seed_abort($term_result->get_error_message());
         }
@@ -648,7 +768,26 @@ try {
             continue;
         }
         $existing_page_id = $page_canonical_ids[$page['internalSlug']] ?? null;
-        $page_id = tio2_seed_upsert($page, 'page', $summary, 'pages', $existing_page_id);
+        if ('legacy-baseline' === $seed_mode) {
+            $inject_legacy_page_failure =
+                'legacy-page-context-failure' === ($plan['failurePoint'] ?? '') &&
+                0 === $summary['legacy_page_guard_contexts'];
+            $page_id = tio2_seed_with_legacy_page_guard_context(
+                static function () use ($page, &$summary, $existing_page_id): int {
+                    return tio2_seed_upsert(
+                        $page,
+                        'page',
+                        $summary,
+                        'pages',
+                        $existing_page_id
+                    );
+                },
+                $inject_legacy_page_failure
+            );
+            $summary['legacy_page_guard_contexts']++;
+        } else {
+            $page_id = tio2_seed_upsert($page, 'page', $summary, 'pages', $existing_page_id);
+        }
         $seeded_page_ids[$page['siteId'] . ':' . $page['publicPath']] = $page_id;
         $term_result = wp_set_object_terms($page_id, $page['siteScopes'], 'site_scope', false);
         if (is_wp_error($term_result)) {

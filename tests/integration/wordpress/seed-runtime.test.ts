@@ -95,7 +95,12 @@ function wp(arguments_: string[]) {
 }
 
 function seedFullScale() {
-  return powershell(seedScript, ['-ScalePages', '500'])
+  return powershell(seedScript, [
+    '-ScalePages',
+    '500',
+    '-SeedMode',
+    'LegacyBaseline',
+  ])
 }
 
 function auditFullScale() {
@@ -163,6 +168,34 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
   }, 360_000)
 
   it('cleans proven collisions, revives the canonical record, and remains idempotent', () => {
+    const failedLegacyContext = powershell(seedScript, [
+      '-ScalePages',
+      '500',
+      '-SeedMode',
+      'LegacyBaseline',
+      '-FailurePoint',
+      'legacy-page-context-failure',
+    ])
+    expect(failedLegacyContext.status).not.toBe(0)
+    expect(`${failedLegacyContext.stdout}\n${failedLegacyContext.stderr}`).toContain(
+      'Injected legacy Page seed context failure',
+    )
+    expect(`${failedLegacyContext.stdout}\n${failedLegacyContext.stderr}`).toContain(
+      'TIO2_LEGACY_PAGE_GUARD_RESTORED',
+    )
+    const blockedOrdinaryPublish = wp([
+      'post',
+      'create',
+      '--post_type=page',
+      '--post_status=publish',
+      '--post_title=Ordinary publication guard probe',
+      '--porcelain',
+    ])
+    expect(blockedOrdinaryPublish.status).not.toBe(0)
+    expect(`${blockedOrdinaryPublish.stdout}\n${blockedOrdinaryPublish.stderr}`).toContain(
+      'must have exactly one supported site scope',
+    )
+
     const unrelatedCreate = wp([
       'post',
       'create',
@@ -187,6 +220,28 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
 
     const initialSeed = seedFullScale()
     expect(initialSeed.status, `${initialSeed.stdout}\n${initialSeed.stderr}`).toBe(0)
+    expect(readSeedSummary(initialSeed.stdout)).toMatchObject({
+      legacy_entity_contexts: 1,
+      legacy_page_guard_contexts: 1008,
+    })
+    const closedLegacyContext = wp([
+      'eval',
+      "echo function_exists('tio2_legacy_product_fixture_seed_context_active') && !tio2_legacy_product_fixture_seed_context_active() ? 'closed' : 'open';",
+    ])
+    expect(
+      closedLegacyContext.status,
+      `${closedLegacyContext.stdout}\n${closedLegacyContext.stderr}`,
+    ).toBe(0)
+    expect(closedLegacyContext.stdout.trim()).toBe('closed')
+    const restoredPageGuard = wp([
+      'eval',
+      "echo false !== has_filter('wp_insert_post_data', 'tio2_guard_managed_publication') ? 'registered' : 'missing';",
+    ])
+    expect(
+      restoredPageGuard.status,
+      `${restoredPageGuard.stdout}\n${restoredPageGuard.stderr}`,
+    ).toBe(0)
+    expect(restoredPageGuard.stdout.trim()).toBe('registered')
     const initialSnapshot = exportSnapshot()
     const targetBefore = initialSnapshot.routes.find(
       ({publicPath, siteScopes}) =>
@@ -317,7 +372,7 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       'post',
       'create',
       '--post_type=page',
-      '--post_status=publish',
+      '--post_status=draft',
       '--post_title=SYNTHETIC TEST CONTENT runtime managed page duplicate',
       '--post_content=SYNTHETIC TEST CONTENT controlled collision fixture',
       '--post_name=runtime-managed-page-duplicate',
@@ -425,7 +480,7 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       'post',
       'create',
       '--post_type=page',
-      '--post_status=publish',
+      '--post_status=draft',
       '--post_title=Unrelated ambiguous collision probe',
       '--post_content=This record is deliberately not marked as managed seed content.',
       '--post_name=unrelated-ambiguous-collision',
