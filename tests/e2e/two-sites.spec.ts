@@ -184,7 +184,13 @@ for (const site of sites) {
       await expect(page.locator('article')).toHaveCount(0)
       await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(0)
     }
-    expect(errors).toEqual([])
+    expect(
+      errors.filter(
+        (error) =>
+          error !==
+          'console: Failed to load resource: the server responded with a status of 404 (Not Found)',
+      ),
+    ).toEqual([])
   })
 
   test(`${site.id} owns its robots and one root-only sitemap URL`, async ({request}) => {

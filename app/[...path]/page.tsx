@@ -19,6 +19,7 @@ interface ContentRouteProps {
 }
 
 export const dynamicParams = true
+export const dynamic = 'force-dynamic'
 export const revalidate = 3600
 
 export function normalizeRoutePath(parts: string[] | undefined): string {

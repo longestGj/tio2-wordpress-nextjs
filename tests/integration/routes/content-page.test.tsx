@@ -100,6 +100,7 @@ describe('root-only anonymous content routes', () => {
     const route = await import('@/app/[...path]/page')
 
     expect(route.generateStaticParams()).toEqual([])
+    expect(route.dynamic).toBe('force-dynamic')
     expect(route.dynamicParams).toBe(true)
     expect(route.revalidate).toBe(3600)
   })
