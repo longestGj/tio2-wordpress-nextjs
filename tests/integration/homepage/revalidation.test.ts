@@ -51,12 +51,19 @@ describe('homepage revalidation', () => {
 
     expect(response.status).toBe(200)
     expect(payload.revalidatedTags).toEqual([
+      'content-list:tio2-a',
       'content:tio2-a--homepage',
       'route:tio2-a:/',
       'site:tio2-a',
+      'sitemap:tio2-a',
     ])
     expect(payload.revalidatedPaths).toEqual(['/'])
+    expect(revalidatePath).toHaveBeenCalledExactlyOnceWith('/')
+    expect(revalidateTag.mock.calls).toEqual(
+      payload.revalidatedTags.map((tag: string) => [tag, 'max']),
+    )
     expect(JSON.stringify(payload)).not.toContain('tio2-b')
+    expect(JSON.stringify(revalidateTag.mock.calls)).not.toContain('tio2-b')
   })
 
   it('does not add a homepage tag for existing non-root Page/Post paths', async () => {
@@ -65,9 +72,16 @@ describe('homepage revalidation', () => {
 
     expect(response.status).toBe(200)
     expect(payload.revalidatedTags).toEqual([
+      'content-list:tio2-a',
       'route:tio2-a:/products',
       'site:tio2-a',
+      'sitemap:tio2-a',
     ])
     expect(payload.revalidatedTags).not.toContain('content:tio2-a--homepage')
+    expect(revalidatePath).toHaveBeenCalledExactlyOnceWith('/products')
+    expect(revalidateTag.mock.calls).toEqual(
+      payload.revalidatedTags.map((tag: string) => [tag, 'max']),
+    )
+    expect(JSON.stringify(revalidateTag.mock.calls)).not.toContain('tio2-b')
   })
 })
