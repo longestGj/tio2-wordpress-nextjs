@@ -1,6 +1,0 @@
-interface:
-  display_name: "TiO2 Homepage Template Agent"
-  short_description: "WordPress-to-Next.js homepage specialist"
-  default_prompt: "Use $tio2-home-template to design or work from an approved versioned homepage proposal for this project."
-policy:
-  allow_implicit_invocation: true

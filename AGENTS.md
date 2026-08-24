@@ -1,15 +1,9 @@
-# Project agent routing
+# Project workflow
 
-- Shared Site Template design, implementation, revision, validation, or audit must be delegated to the project custom agent `tio2_site_template`, which must use the project skill `$tio2-site-template`.
-- The parent agent owns shared-template clarification, approval capture, orchestration, independent review, and separately authorized external actions. It must not implement Site Template work in place of the specialist. Parent orchestration cannot substitute for Homepage or Product implementation; those template families remain delegated to their named specialists.
-- Site Template routing preserves the existing Homepage specialist contract: homepage work remains delegated to `tio2_home_template` and parent orchestration cannot substitute for Homepage implementation.
-- Site Template work owns only template profiles, public-route inventory, shared anonymous-route guard, Sitemap/robots policy, Shell selection, retirement/restore tooling, seed/audit/complete local gate, freeze manifest, and cross-template guards. It does not own Homepage-owned query/DTO/components/SEO, Product-owned CPT behavior, or global deployment/DNS/indexing/production operations.
-- All Site Template work follows `docs/agents/template-agent-shared-contract.md`. Without the complete approved proposal record, the specialist remains in read-only Design mode; Audit is always read-only and requires the proposal ID plus exact proposal artifact/path. `external actions: none` applies in every mode.
-- Homepage template design, implementation, revision, validation, or audit must be delegated to the project custom agent `tio2_home_template`, which must use the project skill `$tio2-home-template`.
-- The parent agent owns homepage clarification, approval capture, orchestration, independent review, and separately authorized external actions. It must not implement Homepage template work in place of the specialist.
-- Product detail template design, implementation, revision, or audit must be delegated to the project custom agent `tio2_product_template`, which must use the project skill `$tio2-product-template`.
-- The parent agent owns user clarification, approval capture, orchestration, independent review, and any separately authorized external action. It must not implement Product template work in place of the specialist.
-- Do not route homepage templates, bulk product content production, DNS, Vercel, indexing, or unrelated site work to the Product template agent.
-- Homepage work owns only the dedicated homepage schema, GraphQL/DTO boundary, root template, homepage SEO, fixtures, and tests. It does not own Product templates, the global shell, deployment, DNS, indexing, or production operations.
-- All Homepage template work follows `docs/agents/template-agent-shared-contract.md`. Without the complete approved proposal record, the specialist remains in read-only Design mode; Audit is always read-only and requires the proposal ID plus exact proposal artifact/path.
-- All Product template work follows `docs/agents/template-agent-shared-contract.md`. Without an approved proposal ID, the specialist remains in read-only Design mode.
+- Use installed Superpowers skills for design, planning, implementation, debugging, review, and verification. This repository defines no custom project agents or project-specific Skills.
+- Normal business-page and template development targets Site A only.
+- Site B remains in the shared repository and WordPress installation, but do not develop its business pages or templates unless the user separately changes that scope.
+- Keep the Homepage free of product-page and application-page links until the user separately approves those links.
+- During normal development, run only tests directly related to the change. Single-site or two-site builds and a small number of critical E2E tests are allowed when they are necessary for the change.
+- Do not run `verify:root-only` as a routine development check. It is reserved for release or the formal 505-to-1 migration and requires fresh, separate explicit user authorization.
+- Formal migration, deployment, DNS changes, indexing, remote writes, and production operations require separate explicit user authorization.
