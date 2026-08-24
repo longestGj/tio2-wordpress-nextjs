@@ -97,6 +97,8 @@ foreach ([
     'tio2_product_graphql_visibility',
     'tio2_with_legacy_product_fixture_seed_context',
     'tio2_legacy_product_fixture_seed_context_active',
+    'tio2_product_rewrite_migration_version',
+    'tio2_maybe_migrate_product_rewrite_rules',
 ] as $function_name) {
     tio2_product_publication_test_assert(function_exists($function_name), "Missing Product closure function: {$function_name}.");
 }
@@ -105,6 +107,53 @@ tio2_product_publication_test_assert(
     false !== has_filter('wp_insert_post_data', 'tio2_guard_product_publication'),
     'Product publication guard is not registered before persistence.'
 );
+tio2_product_publication_test_assert(
+    false !== has_action('init', 'tio2_maybe_migrate_product_rewrite_rules'),
+    'Product rewrite migration is not registered for already-active plugin updates.'
+);
+
+if (function_exists('tio2_maybe_migrate_product_rewrite_rules')) {
+    $rewrite_migration_option = 'tio2_product_rewrite_migration_version';
+    $original_rewrite_migration_version = get_option($rewrite_migration_option, null);
+    $rewrite_generation_count = 0;
+    $count_rewrite_generation = static function () use (&$rewrite_generation_count): void {
+        ++$rewrite_generation_count;
+    };
+    add_action('generate_rewrite_rules', $count_rewrite_generation);
+    try {
+        delete_option($rewrite_migration_option);
+        $first_migration = tio2_maybe_migrate_product_rewrite_rules();
+        $second_migration = tio2_maybe_migrate_product_rewrite_rules();
+        update_option($rewrite_migration_option, 'stale-product-rewrite-version', false);
+        $version_upgrade = tio2_maybe_migrate_product_rewrite_rules();
+
+        tio2_product_publication_test_assert(true === $first_migration, 'Missing Product rewrite version did not migrate.');
+        tio2_product_publication_test_assert(false === $second_migration, 'Current Product rewrite version flushed more than once.');
+        tio2_product_publication_test_assert(true === $version_upgrade, 'Stale Product rewrite version did not migrate.');
+        tio2_product_publication_test_assert(2 === $rewrite_generation_count, 'Product rewrite migration was not versioned and idempotent.');
+        tio2_product_publication_test_assert(
+            tio2_product_rewrite_migration_version() === get_option($rewrite_migration_option),
+            'Product rewrite migration did not persist its current version.'
+        );
+
+        $rewrite_rules = get_option('rewrite_rules', []);
+        $has_product_rewrite = false;
+        foreach (is_array($rewrite_rules) ? $rewrite_rules : [] as $match => $query) {
+            if (str_contains((string) $match, 'tio2-product') || str_contains((string) $query, 'tio2_product')) {
+                $has_product_rewrite = true;
+                break;
+            }
+        }
+        tio2_product_publication_test_assert(! $has_product_rewrite, 'Versioned migration retained a Product single or archive rewrite.');
+    } finally {
+        remove_action('generate_rewrite_rules', $count_rewrite_generation);
+        if (null === $original_rewrite_migration_version) {
+            delete_option($rewrite_migration_option);
+        } else {
+            update_option($rewrite_migration_option, $original_rewrite_migration_version, false);
+        }
+    }
+}
 tio2_product_publication_test_assert(
     false !== has_action('wp_after_insert_post', 'tio2_backstop_product_publication'),
     'Product publication backstop is not registered.'

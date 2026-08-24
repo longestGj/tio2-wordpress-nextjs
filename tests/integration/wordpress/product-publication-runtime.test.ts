@@ -106,12 +106,15 @@ describeRuntime('live WordPress Product public-surface closure', () => {
         '10',
         '--silent',
         '--show-error',
+        '--output',
+        'NUL',
+        '--write-out',
+        '%{http_code}',
         `http://127.0.0.1:8080${path}`,
       ])
       expect(response.error).toBeUndefined()
       expect(response.status, response.stderr).toBe(0)
-      expect(response.stdout).not.toContain(fixtureTitle)
-      expect(response.stdout).not.toContain('product-runtime-closure-fixture')
+      expect(Number.parseInt(response.stdout, 10), `${path} unexpectedly resolved`).toBe(404)
     }
 
     const graphqlResponse = curl([

@@ -11,6 +11,24 @@ function tio2_product_has_approved_public_route(): bool
     return false;
 }
 
+function tio2_product_rewrite_migration_version(): string
+{
+    return 'product-public-surface-v0.1';
+}
+
+function tio2_maybe_migrate_product_rewrite_rules(): bool
+{
+    $option_name = 'tio2_product_rewrite_migration_version';
+    $target_version = tio2_product_rewrite_migration_version();
+    if ($target_version === get_option($option_name)) {
+        return false;
+    }
+
+    flush_rewrite_rules(false);
+    update_option($option_name, $target_version, false);
+    return true;
+}
+
 /**
  * @param array<string, mixed> $target
  */
