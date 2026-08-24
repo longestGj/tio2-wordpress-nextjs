@@ -247,7 +247,7 @@ for (const site of sites) {
         'section[aria-labelledby="homepage-applications-heading"] article',
       )
       await expect(productCards).toHaveCount(2)
-      await expect(applicationCards).toHaveCount(3)
+      await expect(applicationCards).toHaveCount(5)
       await expect(productCards.locator('a')).toHaveCount(0)
       await expect(applicationCards.locator('a')).toHaveCount(0)
       await expect(
