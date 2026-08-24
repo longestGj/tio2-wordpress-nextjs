@@ -24,6 +24,8 @@ const sites = [
 ] as const
 
 const longTailPath = '/test-content/long-tail-500'
+const rootOnlySnapshotPath = process.env.TIO2_ROOT_ONLY_SNAPSHOT_PATH
+const requireRootOnlySnapshot = process.env.TIO2_REQUIRE_ROOT_ONLY_SNAPSHOT === '1'
 const wordpressEnvPath = resolve('wordpress/.env')
 const wordpressEnv = Object.fromEntries(
   readFileSync(wordpressEnvPath, 'utf8')
@@ -316,6 +318,64 @@ for (const site of sites) {
   })
 }
 
+test('every captured LegacyBaseline path is anonymously closed from the verified snapshot', async ({
+  request,
+}) => {
+  if (!rootOnlySnapshotPath) {
+    expect(requireRootOnlySnapshot, 'verify:root-only must provide its verified migration snapshot').toBe(false)
+    return
+  }
+
+  const snapshot = JSON.parse(readFileSync(rootOnlySnapshotPath, 'utf8')) as {
+    schemaVersion: string
+    inventoryVersion: string
+    sourceState: string
+    records: Array<{
+      kind: string
+      siteScope?: string
+      publicPath: string | null
+      previousStatus: string
+      targetStatus: string
+    }>
+  }
+  expect(snapshot).toMatchObject({
+    schemaVersion: 'root-only-retirement-v0.1',
+    inventoryVersion: 'root-only-v0.1',
+    sourceState: 'legacy',
+  })
+  const pages = snapshot.records.filter(({kind}) => kind === 'page-route')
+  expect(pages).toHaveLength(1008)
+  expect(new Set(pages.map(({siteScope, publicPath}) => `${siteScope}:${publicPath}`)).size)
+    .toBe(1008)
+
+  for (const site of sites) {
+    const paths = pages
+      .filter(({siteScope}) => siteScope === site.id)
+      .map(({publicPath, previousStatus, targetStatus}) => {
+        expect(previousStatus).toBe('publish')
+        expect(targetStatus).toBe('draft')
+        expect(publicPath).toMatch(/^\/[a-z0-9]/u)
+        return publicPath as string
+      })
+    expect(paths).toHaveLength(504)
+
+    for (let index = 0; index < paths.length; index += 24) {
+      const batch = paths.slice(index, index + 24)
+      const responses = await Promise.all(
+        batch.map(async (path) => {
+          const response = await request.get(`${site.baseUrl}${path}`)
+          return {path, status: response.status(), body: await response.text()}
+        }),
+      )
+      for (const response of responses) {
+        expect(response.status, `${site.id}:${response.path}`).toBe(404)
+        expect(response.body).not.toContain('<article')
+        expect(response.body).not.toContain('application/ld+json')
+      }
+    }
+  }
+})
+
 test('signed Site A preview renders a live unpublished draft and remains isolated', async ({
   page,
   request,
@@ -364,14 +424,12 @@ test('signed Site A preview renders a live unpublished draft and remains isolate
   }
 })
 
-test('WordPress page edit reaches only its owning Next endpoint and is restored', async ({
-  request,
-}) => {
+test('retained draft edit invalidates only its owning site and remains anonymous', async ({request}) => {
   const siteA = sites[0]
   const siteB = sites[1]
   const fixture = JSON.parse(
     wpEval(
-      `$ids=get_posts(['post_type'=>'page','post_status'=>'publish','posts_per_page'=>1,'fields'=>'ids','meta_key'=>'public_path','meta_value'=>'/products','tax_query'=>[['taxonomy'=>'site_scope','field'=>'slug','terms'=>['tio2-a']]]]); if(empty($ids)){WP_CLI::error('Missing Site A products page');} echo wp_json_encode(['id'=>(int)$ids[0],'title'=>get_the_title((int)$ids[0])]);`,
+      `$ids=get_posts(['post_type'=>'page','post_status'=>'draft','posts_per_page'=>1,'fields'=>'ids','meta_key'=>'public_path','meta_value'=>'/products','tax_query'=>[['taxonomy'=>'site_scope','field'=>'slug','terms'=>['tio2-a']]]]); if(empty($ids)){WP_CLI::error('Missing retained Site A products draft');} echo wp_json_encode(['id'=>(int)$ids[0],'title'=>get_the_title((int)$ids[0])]);`,
     ),
   ) as {id: number; title: string}
   const changedTitle = `Site A webhook delivery ${process.pid}`
@@ -390,15 +448,12 @@ test('WordPress page edit reaches only its owning Next endpoint and is restored'
   try {
     saveThroughAdminContract(changedTitle)
 
-    await expect
-      .poll(
-        async () => (await request.get(`${siteA.baseUrl}/products`)).text(),
-        {timeout: 15_000},
-      )
-      .toContain(changedTitle)
-    expect(await (await request.get(`${siteB.baseUrl}/products`)).text()).not.toContain(
-      changedTitle,
-    )
+    await expect.poll(
+      () => readFileSync(aLogPath, 'utf8').slice(aBefore),
+      {timeout: 15_000},
+    ).toContain('[tio2-revalidation]')
+    expect((await request.get(`${siteA.baseUrl}/products`)).status()).toBe(404)
+    expect((await request.get(`${siteB.baseUrl}/products`)).status()).toBe(404)
 
     const aDeliveryLog = readFileSync(aLogPath, 'utf8').slice(aBefore)
     const bDeliveryLog = readFileSync(bLogPath, 'utf8').slice(bBefore)
@@ -406,11 +461,5 @@ test('WordPress page edit reaches only its owning Next endpoint and is restored'
     expect(bDeliveryLog).not.toContain('[tio2-revalidation]')
   } finally {
     saveThroughAdminContract(fixture.title)
-    await expect
-      .poll(
-        async () => (await request.get(`${siteA.baseUrl}/products`)).text(),
-        {timeout: 15_000},
-      )
-      .toContain(fixture.title)
   }
 })

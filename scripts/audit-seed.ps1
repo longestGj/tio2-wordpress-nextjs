@@ -1,8 +1,10 @@
 [CmdletBinding()]
 param(
-    [ValidateRange(1, 100000)]
-    [int] $ExpectedPerSite = 505,
-    [string] $SnapshotPath
+    [ValidateRange(0, 100000)]
+    [int] $ExpectedPerSite = 0,
+    [string] $SnapshotPath,
+    [ValidateSet('Inventory', 'LegacyBaseline')]
+    [string] $DatasetMode = 'Inventory'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -14,6 +16,7 @@ $EnvironmentFile = Join-Path $WordPressDirectory '.env'
 $ComposeFile = Join-Path $WordPressDirectory 'docker-compose.yml'
 $ExportScriptPath = Join-Path $WordPressDirectory 'seed/export-audit.php'
 $ManifestPath = Join-Path $WordPressDirectory 'seed/representative-content.json'
+$InventoryPath = Join-Path $WordPressDirectory 'plugins/tio2-site-model/config/public-routes.json'
 $SiteIds = @('tio2-a', 'tio2-b')
 $PublicPathPattern = '^/(?:[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)?$'
 
@@ -28,6 +31,14 @@ function Build-InternalSlug {
 
 if (-not (Test-Path -LiteralPath $ManifestPath)) { throw "Missing representative seed manifest: $ManifestPath" }
 $Manifest = Get-Content -Raw -LiteralPath $ManifestPath | ConvertFrom-Json
+$Inventory = Get-Content -Raw -LiteralPath $InventoryPath | ConvertFrom-Json
+if ($ExpectedPerSite -eq 0 -and $DatasetMode -eq 'Inventory') {
+    $InventoryCounts = @($SiteIds | ForEach-Object { [int]$Inventory.sites.$_.expectedPublicUrls })
+    if ($InventoryCounts.Count -ne 2 -or $InventoryCounts[0] -lt 1 -or $InventoryCounts[0] -ne $InventoryCounts[1]) {
+        throw 'Inventory-derived audit requires matching non-zero public URL counts for both sites.'
+    }
+    $ExpectedPerSite = $InventoryCounts[0]
+}
 $RequiredSharedFixtures = [ordered]@{}
 foreach ($Entity in $Manifest.sharedEntities) { $RequiredSharedFixtures[$Entity.id] = $Entity.postType }
 
@@ -102,9 +113,15 @@ if (-not $SummaryHomepageValid) { $Errors.Add('Invalid audit summary publishedHo
 $LegacyDraftPages =
     (Test-ExactAuditInteger $AuditSummary.retainedDraftPageCount.'tio2-a' 0) -and
     (Test-ExactAuditInteger $AuditSummary.retainedDraftPageCount.'tio2-b' 0)
+$TargetDraftPageCountA = if ($AuditSummary.retainedDraftPageCount.'tio2-a' -is [int] -or $AuditSummary.retainedDraftPageCount.'tio2-a' -is [long]) {
+    [int]$AuditSummary.retainedDraftPageCount.'tio2-a'
+} else { -1 }
+$TargetDraftPageCountB = if ($AuditSummary.retainedDraftPageCount.'tio2-b' -is [int] -or $AuditSummary.retainedDraftPageCount.'tio2-b' -is [long]) {
+    [int]$AuditSummary.retainedDraftPageCount.'tio2-b'
+} else { -1 }
 $TargetDraftPages =
-    (Test-ExactAuditInteger $AuditSummary.retainedDraftPageCount.'tio2-a' 504) -and
-    (Test-ExactAuditInteger $AuditSummary.retainedDraftPageCount.'tio2-b' 504)
+    $TargetDraftPageCountA -gt 0 -and
+    $TargetDraftPageCountA -eq $TargetDraftPageCountB
 if (-not $LegacyDraftPages -and -not $TargetDraftPages) {
     $Errors.Add('Invalid audit summary retainedDraftPageCount.')
 }
@@ -125,6 +142,17 @@ if (-not $IsLegacySummary -and -not $IsTargetSummary) {
 }
 if (-not (Test-ExactAuditInteger $AuditSummary.crossSiteLeaks 0)) {
     $Errors.Add('Invalid audit summary crossSiteLeaks.')
+}
+if ($DatasetMode -eq 'LegacyBaseline') {
+    if (-not $IsLegacySummary) {
+        $Errors.Add('LegacyBaseline audit requires the complete retained published dataset.')
+    }
+    $LegacySiteACount = @($PublicUrls | Where-Object { $_.siteId -eq 'tio2-a' }).Count
+    $LegacySiteBCount = @($PublicUrls | Where-Object { $_.siteId -eq 'tio2-b' }).Count
+    if ($LegacySiteACount -lt 1 -or $LegacySiteACount -ne $LegacySiteBCount) {
+        $Errors.Add('LegacyBaseline public URL counts must be matching and non-zero.')
+    }
+    $ExpectedPerSite = $LegacySiteACount
 }
 
 $IdentityRows = [System.Collections.Generic.List[object]]::new()
@@ -174,7 +202,7 @@ if ($IsLegacySummary -and $ExpectedPerSite -lt 5) {
     $Errors.Add('LegacyBaseline audit requires at least five expected public URLs per site.')
 }
 
-$ScalePageCount = if ($IsTargetSummary) { 500 } else { $ExpectedPerSite - 5 }
+$ScalePageCount = if ($IsTargetSummary) { $TargetDraftPageCountA - 4 } else { $ExpectedPerSite - 5 }
 $ExpectedPaths = @{}
 $ExpectedPublicPaths = @{}
 foreach ($SiteId in $SiteIds) {
@@ -235,7 +263,7 @@ foreach ($Route in $Routes) {
 }
 
 foreach ($SiteId in $SiteIds) {
-    $ExpectedManagedCount = if ($IsTargetSummary) { 504 } else { $ExpectedPerSite - 1 }
+    $ExpectedManagedCount = if ($IsTargetSummary) { $TargetDraftPageCountA } else { $ExpectedPerSite - 1 }
     if ($DerivedRouteCounts[$SiteId] -ne $ExpectedManagedCount) {
         $Errors.Add(
             "Invalid derived RootOnly route count for $SiteId`: expected $ExpectedManagedCount, found $($DerivedRouteCounts[$SiteId])."

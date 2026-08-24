@@ -14,6 +14,7 @@
     "audit:homepage:bundle": "node scripts/audit-homepage-bundle.mjs",
     "audit:homepage:lighthouse:a11y": "node scripts/audit-homepage-lighthouse.mjs --mode=a11y",
     "audit:homepage:lighthouse:performance": "node scripts/audit-homepage-lighthouse.mjs --mode=performance",
+    "verify:root-only": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-local.ps1 -RootOnly",
     "verify:local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-local.ps1",
     "sites:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -KeepRunning",
     "sites:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -Stop",

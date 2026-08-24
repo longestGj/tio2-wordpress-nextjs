@@ -46,6 +46,7 @@ if ($Plan) {
             preflightAllRecords = $true
             finalIdentityCheck = 'immediate'
             terminationTarget = 'validated-process-handle'
+            postStopPortProbe = $true
         }
     } | ConvertTo-Json -Depth 5 -Compress
     exit 0
@@ -371,6 +372,11 @@ if ($Stop) {
     $State = Read-ControllerState
     if ($State) {
         Stop-RecordedSites -Records @($State.sites) -RemoveState
+        foreach ($Record in @($State.sites)) {
+            if (Test-PortOpen -Port ([int]$Record.port)) {
+                throw "Controller-owned local site port $($Record.port) is still listening after stop."
+            }
+        }
     }
     [ordered]@{mode = 'stopped'; ports = @(3001, 3002)} | ConvertTo-Json -Compress
     exit 0

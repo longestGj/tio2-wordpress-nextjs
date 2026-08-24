@@ -592,15 +592,16 @@ function validTargetAuditSnapshot(): AuditSnapshot {
   return snapshot
 }
 
-function runSnapshotAudit(snapshot: AuditSnapshot, expectedPerSite = 5) {
+function runSnapshotAudit(snapshot: AuditSnapshot, expectedPerSite: number | null = 5) {
   const temporaryDirectory = mkdtempSync(join(tmpdir(), 'tio2-seed-audit-'))
   const snapshotPath = join(temporaryDirectory, 'snapshot.json')
   writeFileSync(snapshotPath, JSON.stringify(snapshot))
 
   try {
     return runPowerShell(auditScriptPath, [
-      '-ExpectedPerSite',
-      String(expectedPerSite),
+      ...(expectedPerSite === null
+        ? []
+        : ['-ExpectedPerSite', String(expectedPerSite)]),
       '-SnapshotPath',
       snapshotPath,
     ])
@@ -636,7 +637,7 @@ describe('seed audit validation', () => {
   })
 
   it('accepts the exact RootOnly target summary only with the matching retained corpus', () => {
-    const result = runSnapshotAudit(validTargetAuditSnapshot(), 1)
+    const result = runSnapshotAudit(validTargetAuditSnapshot(), null)
 
     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
     expect(result.stdout).toContain('tio2-a: 1 public URLs')

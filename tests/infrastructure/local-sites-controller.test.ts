@@ -47,6 +47,7 @@ describe.runIf(process.platform === 'win32')('local sites controller', () => {
         preflightAllRecords: true,
         finalIdentityCheck: 'immediate',
         terminationTarget: 'validated-process-handle',
+        postStopPortProbe: true,
       },
     })
   })

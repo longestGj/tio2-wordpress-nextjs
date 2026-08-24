@@ -1,25 +1,59 @@
 [CmdletBinding()]
 param(
     [switch] $Plan,
-    [switch] $CheckWorktree
+    [switch] $CheckWorktree,
+    [switch] $RootOnly,
+    [string] $InventoryPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
+$RepositoryRoot = (Resolve-Path -LiteralPath (Split-Path -Parent $PSScriptRoot)).Path
+if (-not $InventoryPath) {
+    $InventoryPath = Join-Path $RepositoryRoot 'wordpress/plugins/tio2-site-model/config/public-routes.json'
+}
+$InventoryPath = (Resolve-Path -LiteralPath $InventoryPath).Path
+$PublicRouteInventory = Get-Content -Raw -LiteralPath $InventoryPath | ConvertFrom-Json
+$SiteIds = @('tio2-a', 'tio2-b')
+$InventoryCounts = [ordered]@{}
+$InventoryRoots = [ordered]@{}
+foreach ($SiteId in $SiteIds) {
+    $SiteInventory = $PublicRouteInventory.sites.$SiteId
+    $Routes = @($SiteInventory.routes)
+    $RootRoutes = @($Routes | Where-Object { $_.path -eq '/' })
+    if (
+        -not $SiteInventory -or
+        [int]$SiteInventory.expectedPublicUrls -lt 1 -or
+        $Routes.Count -ne [int]$SiteInventory.expectedPublicUrls -or
+        $RootRoutes.Count -ne 1
+    ) {
+        throw "Inventory site $SiteId must contain exactly one root route and a matching non-zero expectedPublicUrls count."
+    }
+    $InventoryCounts[$SiteId] = [int]$SiteInventory.expectedPublicUrls
+    $InventoryRoots[$SiteId] = '/'
+}
+if (-not [string]$PublicRouteInventory.version) {
+    throw 'Public route inventory must declare a version.'
+}
+
 $GateNames = @(
     'compose',
     'wordpress-homepage',
     'wordpress-smoke',
-    'seed-audit',
+    $(if ($RootOnly) { 'seed-audit-legacy' } else { 'seed-audit' }),
     'lint',
     'typecheck',
     'schema',
     'codegen',
     'homepage-vitest',
     'vitest',
-    'vitest-live-seed',
-    'vitest-live-homepage-migration',
+    $(if ($RootOnly) { 'vitest-live-product-fixture' }),
+    $(if ($RootOnly) { 'vitest-live-product-publication' }),
+    $(if ($RootOnly) { 'vitest-live-seed' }),
+    $(if ($RootOnly) { 'vitest-live-homepage-migration' }),
+    $(if ($RootOnly) { 'vitest-live-root-only-migration' }),
+    $(if ($RootOnly) { 'root-only-transition' }),
     'build-tio2-a',
     'build-tio2-b',
     'launch',
@@ -30,7 +64,7 @@ $GateNames = @(
     'homepage-lighthouse-performance',
     'http-audit',
     'tracked-worktree'
-)
+) | Where-Object { $_ }
 $ControllerHealthTimeoutSeconds = 120
 $ControllerMaximumSequentialHealthWaitSeconds = 240
 $ControllerParentTimeoutSeconds = 270
@@ -43,11 +77,12 @@ $WordPressSmokeTests = @(
     'preview',
     'admin-credentials',
     'root-only-retirement-safety'
+    'product-publication'
 )
 
 if ($Plan) {
     [ordered]@{
-        mode = 'plan'
+        mode = if ($RootOnly) { 'root-only-plan' } else { 'local-plan' }
         ports = @(3001, 3002)
         gates = $GateNames
         controller = [ordered]@{
@@ -66,46 +101,68 @@ if ($Plan) {
         wordpressSmoke = [ordered]@{
             tests = $WordPressSmokeTests
         }
-        liveSeed = [ordered]@{
+        inventory = [ordered]@{
+            version = [string]$PublicRouteInventory.version
+            expectedPublicUrls = $InventoryCounts
+            roots = $InventoryRoots
+        }
+        rootOnlyLifecycle = if ($RootOnly) { [ordered]@{
+            disposable = $true
+            formalTask12AMigration = $false
+            capturedPathsSource = 'verified-migration-snapshot'
             restoreInFinally = $true
-            auditAfterRestore = $true
-            preservePrimaryFailure = $true
+            restoreSeedMode = $AcceptedDatasetRestoreSeedMode
+            restoreAuditFromSnapshot = $true
+            productRestore = [ordered]@{
+                status = 'publish'
+                siteScopes = @()
+                publicPath = $null
+            }
+        }} else { $null }
+        runtimeSuites = if ($RootOnly) { [ordered]@{
+            rejectSkippedSuites = $true
             suites = @(
+                [ordered]@{
+                    gate = 'vitest-live-product-fixture'
+                    test = 'tests/integration/wordpress/product-fixture-runtime.test.ts'
+                    environment = 'WORDPRESS_PRODUCT_FIXTURE_RUNTIME'
+                },
+                [ordered]@{
+                    gate = 'vitest-live-product-publication'
+                    test = 'tests/integration/wordpress/product-publication-runtime.test.ts'
+                    environment = 'WORDPRESS_PRODUCT_RUNTIME'
+                },
                 [ordered]@{
                     gate = 'vitest-live-seed'
                     test = 'tests/integration/wordpress/seed-runtime.test.ts'
-                    log = 'vitest-live-seed'
-                    restoreLog = 'seed-restore-after-live-seed'
-                    auditLog = 'seed-audit-after-live-seed'
-                    restoreSeedMode = $AcceptedDatasetRestoreSeedMode
-                    expectedPerSite = 505
+                    environment = 'WORDPRESS_SEED_RUNTIME'
                 },
                 [ordered]@{
                     gate = 'vitest-live-homepage-migration'
                     test = 'tests/integration/wordpress/seed-homepage-migration-runtime.test.ts'
-                    log = 'vitest-live-homepage-migration'
-                    restoreLog = 'seed-restore-after-live-homepage-migration'
-                    auditLog = 'seed-audit-after-live-homepage-migration'
-                    restoreSeedMode = $AcceptedDatasetRestoreSeedMode
-                    expectedPerSite = 505
+                    environment = 'WORDPRESS_SEED_RUNTIME'
+                },
+                [ordered]@{
+                    gate = 'vitest-live-root-only-migration'
+                    test = 'tests/integration/wordpress/root-only-migration-runtime.test.ts'
+                    environment = 'WORDPRESS_ROOT_ONLY_RUNTIME'
                 }
             )
-        }
+        }} else { $null }
         summary = [ordered]@{
-            status = 'passed'
-            sites = 2
-            publishedUrlsPerSite = 505
-            homepageClientJsGzipMaxBytes = 25600
-            lighthousePerformanceMinimum = 0.9
-            lighthouseAccessibilityMinimum = 1
+            inventoryVersion = [string]$PublicRouteInventory.version
+            publishedUrlsPerSite = $InventoryCounts
+            retainedDraftPagesPerSite = [ordered]@{'tio2-a' = 504; 'tio2-b' = 504}
+            sitemapUrlsPerSite = $InventoryCounts
             crossSiteLeaks = 0
-            externalActions = 'none'
+            deletes = 0
         }
     } | ConvertTo-Json -Depth 6 -Compress
     exit 0
 }
-
-$RepositoryRoot = (Resolve-Path -LiteralPath (Split-Path -Parent $PSScriptRoot)).Path
+if ($RootOnly -and ($InventoryCounts['tio2-a'] -ne 1 -or $InventoryCounts['tio2-b'] -ne 1)) {
+    throw 'verify:root-only requires a root-only inventory with one public URL per site.'
+}
 
 function Get-CompleteWorktreeStatus {
     $Lines = @(& git -C $RepositoryRoot status --short --untracked-files=all)
@@ -141,7 +198,13 @@ $ControllerInvocationStarted = $false
 $LaunchState = $null
 $PendingError = $null
 $SuccessSummary = $null
-$ExpectedPerSite = 505
+$ExpectedPerSite = [int]$InventoryCounts['tio2-a']
+if ($ExpectedPerSite -ne [int]$InventoryCounts['tio2-b']) {
+    throw 'The complete local gate currently requires equal inventory counts for both sites.'
+}
+$RootOnlySnapshotPath = $null
+$RootOnlySnapshot = $null
+$RootOnlyTransitionStarted = $false
 $ControllerCancellationPath = Join-Path $LogDirectory 'controller-cancel.signal'
 
 if (-not (Test-Path -LiteralPath $EnvironmentFile)) {
@@ -350,7 +413,7 @@ function Invoke-LiveSeedSuite {
             try {
                 Invoke-NativeLogged `
                     -FilePath $PowerShell `
-                    -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'audit-seed.ps1'), '-ExpectedPerSite', "$ExpectedPerSite") `
+                    -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'audit-seed.ps1'), '-DatasetMode', 'LegacyBaseline') `
                     -LogName $AuditLogName
             }
             catch {
@@ -371,6 +434,37 @@ function Invoke-LiveSeedSuite {
         if ($null -ne $RestoreError) {
             throw $RestoreError
         }
+    }
+}
+
+function Assert-VitestRuntimeExecuted {
+    param([Parameter(Mandatory = $true)][string] $LogName)
+
+    $Text = Get-Content -Raw -LiteralPath (Join-Path $LogDirectory "$LogName.log")
+    $PlainText = [regex]::Replace($Text, "`e\[[0-9;]*[A-Za-z]", '')
+    if ($PlainText -match '(?im)^\s*Tests\s+.*\bskipped\b') {
+        throw "$LogName contained a skipped runtime assertion."
+    }
+    if ($PlainText -notmatch '(?im)^\s*Tests\s+\d+\s+passed') {
+        throw "$LogName did not prove that runtime assertions executed."
+    }
+}
+
+function Invoke-LiveRuntimeSuite {
+    param(
+        [Parameter(Mandatory = $true)][string] $Name,
+        [Parameter(Mandatory = $true)][string] $EnvironmentName,
+        [Parameter(Mandatory = $true)][string] $TestPath
+    )
+
+    Invoke-Gate -Name $Name -Action {
+        Invoke-WithEnvironment -Values @{$EnvironmentName = '1'} -Action {
+            Invoke-NativeLogged `
+                -FilePath $Npx `
+                -Arguments @('vitest', 'run', $TestPath) `
+                -LogName $Name
+        }
+        Assert-VitestRuntimeExecuted -LogName $Name
     }
 }
 
@@ -399,6 +493,116 @@ function Get-Sha256 {
     finally {
         $Hasher.Dispose()
         $Stream.Dispose()
+    }
+}
+
+function Read-RootOnlyResult {
+    param([Parameter(Mandatory = $true)][string] $LogName)
+
+    $Text = Get-Content -Raw -LiteralPath (Join-Path $LogDirectory "$LogName.log")
+    $Matches = [regex]::Matches($Text, 'TIO2_ROOT_ONLY_RESULT\s+(\{[^\r\n]+\})')
+    if ($Matches.Count -ne 1) {
+        throw "$LogName did not emit exactly one root-only machine result."
+    }
+    return $Matches[0].Groups[1].Value | ConvertFrom-Json
+}
+
+function Read-AuditSummary {
+    param([Parameter(Mandatory = $true)][string] $LogName)
+
+    $Text = Get-Content -Raw -LiteralPath (Join-Path $LogDirectory "$LogName.log")
+    $Matches = [regex]::Matches($Text, 'TIO2_AUDIT_SUMMARY\s+(\{[^\r\n]+\})')
+    if ($Matches.Count -ne 1) {
+        throw "$LogName did not emit exactly one seed audit machine summary."
+    }
+    return $Matches[0].Groups[1].Value | ConvertFrom-Json
+}
+
+function Assert-VerifiedRootOnlySnapshot {
+    param([Parameter(Mandatory = $true)][string] $Path)
+
+    $Snapshot = Get-Content -Raw -LiteralPath $Path | ConvertFrom-Json
+    if (
+        [string]$Snapshot.schemaVersion -ne 'root-only-retirement-v0.1' -or
+        [string]$Snapshot.inventoryVersion -ne [string]$PublicRouteInventory.version -or
+        [string]$Snapshot.sourceState -ne 'legacy' -or
+        [string]$Snapshot.snapshotChecksum -notmatch '^sha256:[0-9a-f]{64}$'
+    ) {
+        throw 'Root-only migration snapshot did not match the approved versioned LegacyBaseline.'
+    }
+    $Records = @($Snapshot.records)
+    $PageRecords = @($Records | Where-Object { $_.kind -eq 'page-route' })
+    $ProductRecords = @($Records | Where-Object { $_.kind -eq 'product-fixture' })
+    if ($PageRecords.Count -ne 1008 -or $ProductRecords.Count -ne 1) {
+        throw "Root-only snapshot must capture exactly 1,008 Page paths and one Product fixture."
+    }
+    $RouteKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    foreach ($SiteId in $SiteIds) {
+        $SitePages = @($PageRecords | Where-Object { $_.siteScope -eq $SiteId })
+        if ($SitePages.Count -ne 504) {
+            throw "Root-only snapshot must capture exactly 504 Page paths for $SiteId."
+        }
+        foreach ($Record in $SitePages) {
+            if (
+                [string]$Record.publicPath -eq '/' -or
+                [string]$Record.publicPath -notmatch '^/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*$' -or
+                [string]$Record.previousStatus -ne 'publish' -or
+                [string]$Record.targetStatus -ne 'draft' -or
+                -not $RouteKeys.Add("$SiteId`:$($Record.publicPath)")
+            ) {
+                throw "Root-only snapshot contains an invalid, root, or duplicate captured Page path for $SiteId."
+            }
+        }
+    }
+    $Product = $ProductRecords[0]
+    if (
+        [string]$Product.slug -ne 'test-product-reference' -or
+        [string]$Product.previousStatus -ne 'publish' -or
+        @($Product.previousSiteScopes).Count -ne 0 -or
+        $null -ne $Product.publicPath
+    ) {
+        throw 'Root-only snapshot does not capture the accepted Product publish/[]/null baseline.'
+    }
+    return $Snapshot
+}
+
+function Invoke-DisposableRootOnlyTransition {
+    Invoke-Gate -Name 'root-only-transition' -Action {
+        $EvidenceDirectory = Join-Path $RepositoryRoot '.local-evidence/task-11-root-only-verify'
+        Invoke-NativeLogged `
+            -FilePath $PowerShell `
+            -Arguments @(
+                '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+                (Join-Path $PSScriptRoot 'migrate-root-only-wordpress.ps1'),
+                '-EvidenceDirectory', $EvidenceDirectory,
+                '-DryRun'
+            ) `
+            -LogName 'root-only-dry-run'
+        $DryRun = Read-RootOnlyResult -LogName 'root-only-dry-run'
+        if ($DryRun.mode -ne 'dry-run' -or $DryRun.state -ne 'legacy' -or [int]$DryRun.mutated -ne 0) {
+            throw 'Disposable root-only preflight was not a zero-mutation LegacyBaseline dry-run.'
+        }
+        $script:RootOnlySnapshotPath = [string]$DryRun.snapshotPath
+        $script:RootOnlySnapshot = Assert-VerifiedRootOnlySnapshot -Path $script:RootOnlySnapshotPath
+
+        $script:RootOnlyTransitionStarted = $true
+        Invoke-NativeLogged `
+            -FilePath $PowerShell `
+            -Arguments @(
+                '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+                (Join-Path $PSScriptRoot 'migrate-root-only-wordpress.ps1'),
+                '-EvidenceDirectory', $EvidenceDirectory,
+                '-SnapshotPath', $script:RootOnlySnapshotPath
+            ) `
+            -LogName 'root-only-transition'
+        $Transition = Read-RootOnlyResult -LogName 'root-only-transition'
+        if ($Transition.mode -ne 'retire' -or $Transition.state -ne 'target' -or [int]$Transition.mutated -ne 1009) {
+            throw 'Disposable root-only transition did not retire the complete snapshot exactly once.'
+        }
+        Invoke-NativeLogged `
+            -FilePath $PowerShell `
+            -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'audit-seed.ps1')) `
+            -LogName 'seed-audit-root-only'
     }
 }
 
@@ -544,12 +748,16 @@ function Invoke-HttpAudit {
             -Canonical $Site.domain `
             -ExpectedText $HomeText `
             -ExpectedJsonLdTypes @('Organization', 'WebSite', 'WebPage', 'FAQPage')
-        Assert-PageAudit `
-            -Site $Site `
-            -Path '/test-content/long-tail-500' `
-            -Canonical "$($Site.domain)/test-content/long-tail-500" `
-            -ExpectedText "Deterministic local scale fixture 500 for $($Site.siteId)" `
-            -ExpectedJsonLdTypes @('Organization', 'WebSite', 'BreadcrumbList', 'WebPage')
+        foreach ($RetiredPath in @('/products', '/applications', '/test-content/long-tail-500')) {
+            $Retired = Invoke-Http -Url "$($Site.baseUrl)$RetiredPath"
+            Assert-Status -Response $Retired -Expected 404 -Label "$($Site.siteId) retired $RetiredPath"
+            if (
+                $Retired.body.IndexOf('<article', [System.StringComparison]::OrdinalIgnoreCase) -ge 0 -or
+                $Retired.body.IndexOf('application/ld+json', [System.StringComparison]::OrdinalIgnoreCase) -ge 0
+            ) {
+                throw "$($Site.siteId) retired path $RetiredPath leaked formal business output."
+            }
+        }
 
         $Robots = Invoke-Http -Url "$($Site.baseUrl)/robots.txt"
         Assert-Status -Response $Robots -Expected 200 -Label "$($Site.siteId) robots"
@@ -580,9 +788,6 @@ function Invoke-HttpAudit {
         }
         if ($Urls -notcontains "$($Site.domain)/") {
             throw "$($Site.siteId) sitemap is missing the dedicated homepage root."
-        }
-        if ($Urls -notcontains "$($Site.domain)/test-content/long-tail-500") {
-            throw "$($Site.siteId) sitemap is missing long-tail-500."
         }
 
         $Missing = Invoke-Http -Url "$($Site.baseUrl)/missing-local-http-audit"
@@ -726,10 +931,15 @@ try {
         }
     }
 
-    Invoke-Gate -Name 'seed-audit' -Action {
+    Invoke-Gate -Name $(if ($RootOnly) { 'seed-audit-legacy' } else { 'seed-audit' }) -Action {
+        $AuditArguments = @(
+            '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+            (Join-Path $PSScriptRoot 'audit-seed.ps1')
+        )
+        if ($RootOnly) { $AuditArguments += @('-DatasetMode', 'LegacyBaseline') }
         Invoke-NativeLogged `
             -FilePath $PowerShell `
-            -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'audit-seed.ps1'), '-ExpectedPerSite', "$ExpectedPerSite") `
+            -Arguments $AuditArguments `
             -LogName 'seed-audit'
     }
 
@@ -779,19 +989,40 @@ try {
         Invoke-NativeLogged -FilePath $Npm -Arguments @('test') -LogName 'vitest'
     }
 
-    Invoke-LiveSeedSuite `
-        -Name 'vitest-live-seed' `
-        -TestPath 'tests/integration/wordpress/seed-runtime.test.ts' `
-        -LogName 'vitest-live-seed' `
-        -RestoreLogName 'seed-restore-after-live-seed' `
-        -AuditLogName 'seed-audit-after-live-seed'
+    if ($RootOnly) {
+        Invoke-LiveRuntimeSuite `
+            -Name 'vitest-live-product-fixture' `
+            -EnvironmentName 'WORDPRESS_PRODUCT_FIXTURE_RUNTIME' `
+            -TestPath 'tests/integration/wordpress/product-fixture-runtime.test.ts'
 
-    Invoke-LiveSeedSuite `
-        -Name 'vitest-live-homepage-migration' `
-        -TestPath 'tests/integration/wordpress/seed-homepage-migration-runtime.test.ts' `
-        -LogName 'vitest-live-homepage-migration' `
-        -RestoreLogName 'seed-restore-after-live-homepage-migration' `
-        -AuditLogName 'seed-audit-after-live-homepage-migration'
+        Invoke-LiveRuntimeSuite `
+            -Name 'vitest-live-product-publication' `
+            -EnvironmentName 'WORDPRESS_PRODUCT_RUNTIME' `
+            -TestPath 'tests/integration/wordpress/product-publication-runtime.test.ts'
+
+        Invoke-LiveSeedSuite `
+            -Name 'vitest-live-seed' `
+            -TestPath 'tests/integration/wordpress/seed-runtime.test.ts' `
+            -LogName 'vitest-live-seed' `
+            -RestoreLogName 'seed-restore-after-live-seed' `
+            -AuditLogName 'seed-audit-after-live-seed'
+        Assert-VitestRuntimeExecuted -LogName 'vitest-live-seed'
+
+        Invoke-LiveSeedSuite `
+            -Name 'vitest-live-homepage-migration' `
+            -TestPath 'tests/integration/wordpress/seed-homepage-migration-runtime.test.ts' `
+            -LogName 'vitest-live-homepage-migration' `
+            -RestoreLogName 'seed-restore-after-live-homepage-migration' `
+            -AuditLogName 'seed-audit-after-live-homepage-migration'
+        Assert-VitestRuntimeExecuted -LogName 'vitest-live-homepage-migration'
+
+        Invoke-LiveRuntimeSuite `
+            -Name 'vitest-live-root-only-migration' `
+            -EnvironmentName 'WORDPRESS_ROOT_ONLY_RUNTIME' `
+            -TestPath 'tests/integration/wordpress/root-only-migration-runtime.test.ts'
+
+        Invoke-DisposableRootOnlyTransition
+    }
 
     foreach ($Site in @(
         [PSCustomObject]@{id = 'tio2-a'; dist = '.next-tio2-a'},
@@ -830,10 +1061,20 @@ try {
     }
 
     Invoke-Gate -Name 'playwright' -Action {
-        Invoke-NativeLogged `
-            -FilePath $Npm `
-            -Arguments @('run', 'test:e2e', '--', 'tests/e2e/two-sites.spec.ts') `
-            -LogName 'playwright'
+        $E2eEnvironment = @{}
+        if ($RootOnly) {
+            if (-not $RootOnlySnapshotPath) {
+                throw 'verify:root-only cannot start Playwright without its verified migration snapshot.'
+            }
+            $E2eEnvironment['TIO2_ROOT_ONLY_SNAPSHOT_PATH'] = $RootOnlySnapshotPath
+            $E2eEnvironment['TIO2_REQUIRE_ROOT_ONLY_SNAPSHOT'] = '1'
+        }
+        Invoke-WithEnvironment -Values $E2eEnvironment -Action {
+            Invoke-NativeLogged `
+                -FilePath $Npm `
+                -Arguments @('run', 'test:e2e', '--', 'tests/e2e/two-sites.spec.ts') `
+                -LogName 'playwright'
+        }
     }
 
     Invoke-Gate -Name 'homepage-bundle' -Action {
@@ -868,15 +1109,24 @@ try {
         Assert-CleanWorktree -Phase 'after local verification'
     }
 
+    $FinalAudit = Read-AuditSummary -LogName $(if ($RootOnly) { 'seed-audit-root-only' } else { 'seed-audit' })
+    $SitemapCounts = [ordered]@{}
+    foreach ($Site in @($HttpAuditSites)) {
+        $SitemapCounts[[string]$Site.siteId] = [int]$Site.publishedUrls
+    }
     $SuccessSummary = [ordered]@{
-        status = 'passed'
-        sites = 2
-        publishedUrlsPerSite = $ExpectedPerSite
-        homepageClientJsGzipMaxBytes = 25600
-        lighthousePerformanceMinimum = 0.9
-        lighthouseAccessibilityMinimum = 1
-        crossSiteLeaks = 0
-        externalActions = 'none'
+        inventoryVersion = [string]$PublicRouteInventory.version
+        publishedUrlsPerSite = [ordered]@{
+            'tio2-a' = [int]$FinalAudit.publishedHomepageCount.'tio2-a'
+            'tio2-b' = [int]$FinalAudit.publishedHomepageCount.'tio2-b'
+        }
+        retainedDraftPagesPerSite = [ordered]@{
+            'tio2-a' = [int]$FinalAudit.retainedDraftPageCount.'tio2-a'
+            'tio2-b' = [int]$FinalAudit.retainedDraftPageCount.'tio2-b'
+        }
+        sitemapUrlsPerSite = $SitemapCounts
+        crossSiteLeaks = [int]$FinalAudit.crossSiteLeaks
+        deletes = 0
     }
 }
 catch {
@@ -907,6 +1157,34 @@ finally {
     }
     if (Test-Path -LiteralPath $ControllerCancellationPath) {
         Remove-Item -LiteralPath $ControllerCancellationPath -Force
+    }
+    if ($RootOnly) {
+        try {
+            Invoke-NativeLogged `
+                -FilePath $PowerShell `
+                -Arguments @(
+                    '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+                    (Join-Path $PSScriptRoot 'seed-local-wordpress.ps1'),
+                    '-ScalePages', '500', '-SeedMode', $AcceptedDatasetRestoreSeedMode
+                ) `
+                -LogName 'root-only-final-legacy-restore'
+            Invoke-NativeLogged `
+                -FilePath $PowerShell `
+                -Arguments @(
+                    '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+                    (Join-Path $PSScriptRoot 'audit-seed.ps1'),
+                    '-DatasetMode', 'LegacyBaseline'
+                ) `
+                -LogName 'root-only-final-legacy-audit'
+        }
+        catch {
+            if ($null -eq $PendingError) {
+                $PendingError = $_
+            }
+            else {
+                Write-GateMessage "LegacyBaseline restoration also failed: $($_.Exception.Message)"
+            }
+        }
     }
 }
 
