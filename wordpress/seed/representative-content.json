@@ -4,6 +4,8 @@
     {
       "id": "test-product-reference",
       "postType": "tio2_product",
+      "postStatus": "draft",
+      "siteScopes": ["tio2-a"],
       "title": "Synthetic Test Product Reference",
       "content": "<p><strong>SYNTHETIC TEST CONTENT.</strong> Placeholder product entity for local integration behavior only. It is not a commercial offer or specification.</p>",
       "technicalSummary": "SYNTHETIC TEST CONTENT — intentionally contains no performance values or verified product claims.",
