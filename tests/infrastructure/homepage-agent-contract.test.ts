@@ -99,4 +99,12 @@ describe('project Homepage Agent/Skill contract', () => {
       expect(readFileSync(resolve(skillPath, '..', reference), 'utf8').length).toBeGreaterThan(0)
     }
   })
+
+  test('preserves Homepage specialist routing when Site Template work is introduced', () => {
+    const agents = readFileSync(resolve(repoRoot, 'AGENTS.md'), 'utf8')
+
+    expect(agents).toContain(
+      'Site Template routing preserves the existing Homepage specialist contract: homepage work remains delegated to `tio2_home_template` and parent orchestration cannot substitute for Homepage implementation.',
+    )
+  })
 })
