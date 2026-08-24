@@ -1,7 +1,7 @@
 # Site A 单站演进与 Site B 模板冻结设计
 
 **Proposal ID:** `site-template-decoupling-v0.1`  
-**Status:** approved in sections; pending review of this written artifact  
+**Status:** approved
 **Date:** 2026-08-24  
 **Target repository:** shared headless WordPress + Next.js repository  
 **Target sites:** `tio2-a` (active) and `tio2-b` (frozen business template)  
@@ -25,6 +25,7 @@ This artifact records the following user decisions verbatim:
 - RFQ controlled behavior-copy contract approved: `批准`
 - Migration, rollback, and acceptance section approved: `批准`
 - Project-level shared Agent ownership approved: `批准。`
+- Complete written proposal approved after review: `同意。`
 
 The accepted direction is therefore complete: the two sites continue to share a repository, WordPress, and non-business infrastructure; Site A is the only site that receives future business-page and template development; Site B retains a frozen business template and editable content values inside its frozen schema; both sites initially expose only the homepage.
 
