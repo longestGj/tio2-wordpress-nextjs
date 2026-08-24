@@ -165,44 +165,27 @@ for (const site of sites) {
     expect(errors).toEqual([])
   })
 
-  test(`${site.id} renders the same long-tail path with only its own content`, async ({
+  test(`${site.id} returns anonymous retired core and long-tail routes as real 404s`, async ({
     page,
   }) => {
     const errors = capturePageErrors(page)
-    const response = await page.goto(`${site.baseUrl}${longTailPath}`, {
-      waitUntil: 'networkidle',
-    })
-
-    expect(response?.status()).toBe(200)
-    await expect(page.locator(`main[data-site-id="${site.id}"]`)).toBeVisible()
-    await expect(page.getByRole('heading', {level: 1})).toHaveText(
-      `${site.id} Synthetic Test Long-tail Page 500`,
-    )
-    await expect(page.locator('article')).toContainText(
-      `Deterministic local scale fixture 500 for ${site.id}`,
-    )
-    await expect(page.locator('body')).not.toContainText(site.oppositeName)
-    await expect(page.locator('body')).not.toContainText(
-      `fixture 500 for ${site.id === 'tio2-a' ? 'tio2-b' : 'tio2-a'}`,
-    )
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-      'href',
-      `${site.domain}${longTailPath}`,
-    )
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-      'content',
-      'noindex, nofollow',
-    )
-    await assertCurrentSiteJsonLd(page, site.domain, site.oppositeDomain, [
-      'Organization',
-      'WebSite',
-      'BreadcrumbList',
-      'WebPage',
-    ])
+    for (const retiredPath of [
+      '/products',
+      '/applications/coatings',
+      longTailPath,
+    ]) {
+      const response = await page.goto(`${site.baseUrl}${retiredPath}`, {
+        waitUntil: 'networkidle',
+      })
+      expect(response?.status(), retiredPath).toBe(404)
+      await expect(page.locator('body')).not.toContainText(site.oppositeName)
+      await expect(page.locator('article')).toHaveCount(0)
+      await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(0)
+    }
     expect(errors).toEqual([])
   })
 
-  test(`${site.id} owns its robots and all 505 sitemap URLs`, async ({request}) => {
+  test(`${site.id} owns its robots and one root-only sitemap URL`, async ({request}) => {
     const robots = await request.get(`${site.baseUrl}/robots.txt`)
     expect(robots.status()).toBe(200)
     const robotsText = await robots.text()
@@ -218,11 +201,8 @@ for (const site of sites) {
     const urls = [...sitemapText.matchAll(/<loc>(.*?)<\/loc>/gu)].map(
       ([, url]) => url,
     )
-    expect(urls).toHaveLength(505)
-    expect(new Set(urls).size).toBe(505)
-    expect(urls).toContain(`${site.domain}/`)
-    expect(urls).toContain(`${site.domain}${longTailPath}`)
-    expect(urls.every((url) => url.startsWith(`${site.domain}/`))).toBe(true)
+    expect(urls).toEqual([`${site.domain}/`])
+    expect(new Set(urls).size).toBe(1)
     expect(sitemapText).not.toContain(site.oppositeDomain)
   })
 

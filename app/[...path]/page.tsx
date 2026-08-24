@@ -11,8 +11,8 @@ import {getPreviewContentByPath} from '@/lib/wordpress/preview'
 import {hasScopedPreviewSession} from '@/lib/wordpress/preview-session'
 import {getContentByPath} from '@/lib/wordpress/queries'
 import {InvalidContentPathError} from '@/lib/wordpress/types'
-
-const CORE_PATHS = ['products', 'applications', 'about', 'contact'] as const
+import type {SiteId} from '@/sites'
+import {isPublicRoute} from '@/sites/public-routes'
 
 interface ContentRouteProps {
   readonly params: Promise<{readonly path?: string[]}>
@@ -37,11 +37,13 @@ function validatedRequestPath(siteId: string, parts: string[] | undefined): stri
 }
 
 export function generateStaticParams() {
-  return CORE_PATHS.map((segment) => ({path: [segment]}))
+  return []
 }
 
-async function getRequestContent(siteId: string, path: string) {
+async function getRequestContent(siteId: SiteId, path: string) {
   const isPreview = await hasScopedPreviewSession(siteId, path)
+  if (!isPreview && !isPublicRoute(siteId, path)) notFound()
+
   const page = isPreview
     ? await getPreviewContentByPath(siteId, path)
     : await getContentByPath(siteId, path)

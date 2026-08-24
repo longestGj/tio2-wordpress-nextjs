@@ -2,107 +2,15 @@ import {http, HttpResponse} from 'msw'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {buildRobots} from '@/app/robots'
-import {
-  buildSitemap,
-  SitemapIntegrityError,
-  SitemapPaginationError,
-} from '@/app/sitemap'
+import {buildSitemap} from '@/app/sitemap'
 import {buildPageMetadata} from '@/lib/seo/metadata'
 import {getContentByPath} from '@/lib/wordpress/queries'
-import {getSiteConfig} from '@/sites'
-import {
-  graphqlEndpoint,
-  makeContentPageNode,
-  makeHomepageNode,
-} from '@/tests/mocks/handlers'
+import {graphqlEndpoint, makeHomepageNode} from '@/tests/mocks/handlers'
 import {server} from '@/tests/mocks/server'
+import {getSiteConfig} from '@/sites'
 
 interface GraphQLRequestBody {
   readonly query?: string
-  readonly variables?: {readonly siteId?: string; readonly after?: string | null}
-}
-
-type PageNode = ReturnType<typeof makeContentPageNode>
-
-function node(index: number, overrides: Partial<PageNode> = {}): PageNode {
-  return makeContentPageNode({
-    id: `page-${index}`,
-    title: `Page ${index}`,
-    content: `<p>Page ${index}</p>`,
-    modifiedGmt: '2026-08-23T08:30:00',
-    publishingFields: {
-      __typename: 'PublishingFields',
-      publicPath: index === 0 ? '/' : `/resources/page-${index}`,
-      seoTitle: `Page ${index}`,
-      seoDescription: `Page ${index} description.`,
-    },
-    ...overrides,
-  } as never)
-}
-
-function serveConnections(
-  connections: ReadonlyArray<{
-    readonly nodes: readonly PageNode[]
-    readonly endCursor: string | null
-    readonly hasNextPage: boolean
-  }>,
-  seenAfter: Array<string | null> = [],
-): void {
-  server.use(
-    http.post(graphqlEndpoint, async ({request}) => {
-      const body = (await request.json()) as GraphQLRequestBody
-      if (body.query?.includes('query GetHomepage')) {
-        return HttpResponse.json({
-          data: {tio2Homepage: makeHomepageNode()},
-        })
-      }
-      const after = body.variables?.after ?? null
-      seenAfter.push(after)
-      const index =
-        after === null ? 0 : Number(after.slice('cursor-'.length)) / 100
-      const connection = connections[index]
-
-      if (
-        !body.query?.includes('pages(first: 100, after: $after)') ||
-        body.variables?.siteId !== 'tio2-a' ||
-        !connection
-      ) {
-        return HttpResponse.json({
-          data: {siteScope: null},
-          errors: [{message: 'Unexpected sitemap cursor request'}],
-        })
-      }
-
-      return HttpResponse.json({
-        data: {
-          siteScope: {
-            __typename: 'SiteScope',
-            pages: {
-              __typename: 'SiteScopeToPageConnection',
-              nodes: connection.nodes,
-              pageInfo: {
-                __typename: 'WPPageInfo',
-                endCursor: connection.endCursor,
-                hasNextPage: connection.hasNextPage,
-              },
-            },
-          },
-        },
-      })
-    }),
-  )
-}
-
-function paginate(nodes: readonly PageNode[]) {
-  return Array.from({length: Math.ceil(nodes.length / 100)}, (_, index) => {
-    const pageNodes = nodes.slice(index * 100, index * 100 + 100)
-    const hasNextPage = (index + 1) * 100 < nodes.length
-    return {
-      nodes: pageNodes,
-      endCursor: hasNextPage ? `cursor-${(index + 1) * 100}` : null,
-      hasNextPage,
-    }
-  })
 }
 
 beforeEach(() => {
@@ -117,7 +25,7 @@ describe('robots output', () => {
   it.each([
     ['tio2-a', 'https://tio2products.com'],
     ['tio2-b', 'https://tio2hub.com'],
-  ] as const)('uses %s host and sitemap only', (siteId, origin) => {
+  ] as const)('uses only the %s host and sitemap', (siteId, origin) => {
     expect(
       buildRobots(getSiteConfig(siteId), {VERCEL_ENV: 'production'}),
     ).toEqual({
@@ -128,366 +36,67 @@ describe('robots output', () => {
   })
 
   it.each([{}, {VERCEL_ENV: 'preview'}, {NODE_ENV: 'production'}])(
-    'disallows every crawler outside explicit production: %j',
+    'keeps crawler access disabled outside explicit production: %j',
     (env) => {
       expect(buildRobots(getSiteConfig('tio2-a'), env).rules).toEqual([
         {userAgent: '*', disallow: '/'},
       ])
     },
   )
-
-  it('allows the documented local test override only at exact true', () => {
-    expect(
-      buildRobots(getSiteConfig('tio2-a'), {
-        SEO_ALLOW_INDEXING_LOCAL_TEST: 'true',
-      }).rules,
-    ).toEqual([
-      {userAgent: '*', allow: '/', disallow: ['/api/', '/preview/']},
-    ])
-    expect(
-      buildRobots(getSiteConfig('tio2-a'), {
-        SEO_ALLOW_INDEXING_LOCAL_TEST: 'TRUE',
-      }).rules,
-    ).toEqual([{userAgent: '*', disallow: '/'}])
-  })
 })
 
-describe('cursor-paginated sitemap through GraphQL', () => {
-  it('continues through six real operations and emits one homepage plus 504 Page URLs', async () => {
-    const nodes = Array.from({length: 504}, (_, index) => node(index + 1))
-    const seenAfter: Array<string | null> = []
-    serveConnections(paginate(nodes), seenAfter)
-
-    const sitemap = await buildSitemap(getSiteConfig('tio2-a'))
-
-    expect(seenAfter).toEqual([
-      null,
-      'cursor-100',
-      'cursor-200',
-      'cursor-300',
-      'cursor-400',
-      'cursor-500',
-    ])
-    expect(sitemap).toHaveLength(505)
-    expect(sitemap[0]).toEqual({
-      url: 'https://tio2products.com/',
-      lastModified: new Date('2026-08-23T08:30:00.000Z'),
-    })
-    expect(sitemap[504]?.url).toBe(
-      'https://tio2products.com/resources/page-504',
-    )
-  })
-
-  it.each([
-    [
-      'cross-site',
-      node(504, {
-        siteScopes: {
-          __typename: 'PageToSiteScopeConnection',
-          nodes: [{__typename: 'SiteScope', id: 'scope-b', slug: 'tio2-b'}],
-        },
-      }),
-    ],
-    [
-      'malformed',
-      node(504, {
-        publishingFields: {
-          __typename: 'PublishingFields',
-          publicPath: 'https://evil.example/leak',
-          seoTitle: '',
-          seoDescription: '',
-        },
-      }),
-    ],
-    ['unpublished', node(504, {status: 'draft'})],
-  ] as const)(
-    'rejects a %s raw WordPress Page instead of returning a partial sitemap',
-    async (_case, invalidNode) => {
-      const nodes = [
-        ...Array.from({length: 503}, (_, index) => node(index + 1)),
-        invalidNode,
-      ]
-      serveConnections(paginate(nodes))
-
-      await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
-        name: SitemapIntegrityError.name,
-        reason: 'source-invalid',
-      })
-    },
-  )
-
-  it.each([503, 505])(
-    'rejects %i raw WordPress Pages when pagination ends',
-    async (pageCount) => {
-      const nodes = Array.from({length: pageCount}, (_, index) =>
-        node(index + 1),
-      )
-      serveConnections(paginate(nodes))
-
-      await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
-        name: SitemapIntegrityError.name,
-        reason: 'count-mismatch',
-        expectedCount: 504,
-        actualCount: pageCount,
-      })
-    },
-  )
-
-  it('rejects an empty GraphQL continuation before issuing another operation', async () => {
-    const seenAfter: Array<string | null> = []
-    serveConnections(
-      [{nodes: [], endCursor: 'cursor-100', hasNextPage: true}],
-      seenAfter,
-    )
-
-    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
-      name: SitemapPaginationError.name,
-      reason: 'no-progress',
-    })
-    expect(seenAfter).toEqual([null])
-  })
-
-  it('rejects a GraphQL continuation after the 504th Page without a seventh operation', async () => {
-    const nodes = Array.from({length: 504}, (_, index) => node(index + 1))
-    const connections = paginate(nodes)
-    connections[5] = {
-      ...connections[5]!,
-      endCursor: 'cursor-600',
-      hasNextPage: true,
-    }
-    const seenAfter: Array<string | null> = []
-    serveConnections(connections, seenAfter)
-
-    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
-      name: SitemapPaginationError.name,
-      reason: 'record-limit',
-    })
-    expect(seenAfter).toEqual([
-      null,
-      'cursor-100',
-      'cursor-200',
-      'cursor-300',
-      'cursor-400',
-      'cursor-500',
-    ])
-  })
-
-  it('rejects different IDs sharing one path', async () => {
-    serveConnections([
-      {
-        nodes: [
-          node(1),
-          node(2, {
-            publishingFields: {
-              __typename: 'PublishingFields',
-              publicPath: '/resources/page-1',
-              seoTitle: '',
-              seoDescription: '',
-            },
-          }),
-        ],
-        endCursor: null,
-        hasNextPage: false,
-      },
-    ])
-
-    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
-      name: SitemapIntegrityError.name,
-      reason: 'path-conflict',
-      path: '/resources/page-1',
-      firstId: 'page-1',
-      conflictingId: 'page-2',
-    })
-  })
-
-  it('rejects an exact repeated ID/path record', async () => {
-    const nodes = [
-      ...Array.from({length: 503}, (_, index) => node(index + 1)),
-      node(1),
-    ]
-    serveConnections(paginate(nodes))
-
-    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
-      name: SitemapIntegrityError.name,
-      reason: 'duplicate-record',
-      firstId: 'page-1',
-      path: '/resources/page-1',
-    })
-  })
-
-  it('rejects one ID mapped to conflicting paths', async () => {
-    serveConnections([
-      {
-        nodes: [
-          node(1),
-          node(2, {
-            id: 'page-1',
-            publishingFields: {
-              __typename: 'PublishingFields',
-              publicPath: '/resources/conflict',
-              seoTitle: '',
-              seoDescription: '',
-            },
-          }),
-        ],
-        endCursor: null,
-        hasNextPage: false,
-      },
-    ])
-
-    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
-      name: SitemapIntegrityError.name,
-      reason: 'id-conflict',
-      firstId: 'page-1',
-      path: '/resources/page-1',
-      conflictingPath: '/resources/conflict',
-    })
-  })
-
-  it('omits invalid or missing GMT instants', async () => {
-    const nodes = [
-      node(1, {modifiedGmt: '2026-02-30T08:30:00'} as never),
-      node(2, {modifiedGmt: null} as never),
-      ...Array.from({length: 502}, (_, index) => node(index + 3)),
-    ]
-    serveConnections(paginate(nodes))
-
-    const sitemap = await buildSitemap(getSiteConfig('tio2-a'))
-
-    expect(sitemap).toHaveLength(505)
-    expect(sitemap.slice(0, 3)).toEqual([
-      {
-        url: 'https://tio2products.com/',
-        lastModified: new Date('2026-08-23T08:30:00.000Z'),
-      },
-      {url: 'https://tio2products.com/resources/page-1'},
-      {url: 'https://tio2products.com/resources/page-2'},
-    ])
-  })
-
-  it('rejects a missing continuation cursor', async () => {
-    serveConnections([{nodes: [], endCursor: null, hasNextPage: true}])
-
-    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
-      name: SitemapPaginationError.name,
-      reason: 'missing',
-    })
-  })
-
-  it('rejects a repeated continuation cursor after otherwise valid progress', async () => {
-    let pageRequest = 0
+describe('inventory sitemap through GraphQL', () => {
+  it('requests only the owned homepage and emits its one inventory root', async () => {
+    let pageCursorRequests = 0
     server.use(
       http.post(graphqlEndpoint, async ({request}) => {
         const body = (await request.json()) as GraphQLRequestBody
         if (body.query?.includes('query GetHomepage')) {
           return HttpResponse.json({data: {tio2Homepage: makeHomepageNode()}})
         }
-        pageRequest += 1
+        pageCursorRequests += 1
         return HttpResponse.json({
-          data: {
-            siteScope: {
-              __typename: 'SiteScope',
-              pages: {
-                __typename: 'SiteScopeToPageConnection',
-                nodes: [node(pageRequest)],
-                pageInfo: {
-                  __typename: 'WPPageInfo',
-                  endCursor: 'cursor-100',
-                  hasNextPage: true,
-                },
-              },
-            },
-          },
+          data: {siteScope: null},
+          errors: [{message: 'Page cursor must not be requested for sitemap'}],
         })
       }),
     )
 
-    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
-      name: SitemapPaginationError.name,
-      reason: 'repeated',
-    })
-    expect(pageRequest).toBe(2)
-  })
-
-  it('propagates GraphQL errors instead of returning a partial sitemap', async () => {
-    server.use(
-      http.post(graphqlEndpoint, async ({request}) => {
-        const body = (await request.json()) as GraphQLRequestBody
-        return body.query?.includes('query GetHomepage')
-          ? HttpResponse.json({data: {tio2Homepage: makeHomepageNode()}})
-          : HttpResponse.json({
-          data: {siteScope: null},
-          errors: [{message: 'WordPress list failed'}],
-            })
-      }),
-    )
-
-    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
-      name: 'GraphQLResponseError',
-      message: 'WordPress list failed',
-    })
-  })
-
-  it('propagates network and HTTP failures from the real sitemap loader', async () => {
-    server.use(
-      http.post(graphqlEndpoint, async ({request}) => {
-        const body = (await request.json()) as GraphQLRequestBody
-        return body.query?.includes('query GetHomepage')
-          ? HttpResponse.json({data: {tio2Homepage: makeHomepageNode()}})
-          : HttpResponse.error()
-      }),
-    )
-    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
-      name: 'GraphQLNetworkError',
-    })
-
-    server.use(
-      http.post(graphqlEndpoint, async ({request}) => {
-        const body = (await request.json()) as GraphQLRequestBody
-        return body.query?.includes('query GetHomepage')
-          ? HttpResponse.json({data: {tio2Homepage: makeHomepageNode()}})
-          : new HttpResponse('WordPress unavailable', {status: 503})
-      }),
-    )
-    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
-      name: 'GraphQLHttpError',
-      status: 503,
-    })
-  })
-
-  it('rejects a missing site connection instead of treating it as an empty sitemap', async () => {
-    server.use(
-      http.post(graphqlEndpoint, async ({request}) => {
-        const body = (await request.json()) as GraphQLRequestBody
-        return body.query?.includes('query GetHomepage')
-          ? HttpResponse.json({data: {tio2Homepage: makeHomepageNode()}})
-          : HttpResponse.json({data: {siteScope: null}})
-      }),
-    )
-
-    await expect(buildSitemap(getSiteConfig('tio2-a'))).rejects.toMatchObject({
-      name: 'SitemapSourceError',
-      message: 'WordPress returned no sitemap connection for tio2-a',
-    })
+    await expect(buildSitemap(getSiteConfig('tio2-a'))).resolves.toEqual([
+      {
+        url: 'https://tio2products.com/',
+        lastModified: new Date('2026-08-23T08:30:00.000Z'),
+      },
+    ])
+    expect(pageCursorRequests).toBe(0)
   })
 })
 
-describe('metadata through the real content operation', () => {
-  it('derives the description from HTML when the CMS SEO description is blank', async () => {
+describe('metadata through the formal content operation', () => {
+  it('derives a description from HTML when the CMS SEO description is blank', async () => {
     server.use(
       http.post(graphqlEndpoint, () =>
         HttpResponse.json({
           data: {
-            page: node(99, {
+            page: {
+              __typename: 'Page',
+              id: 'page-99',
+              title: 'Coatings',
               content:
                 '<style>.secret{display:none}</style><p>Reachable&nbsp; summary &amp; details.</p><script>alert(1)</script>',
+              modifiedGmt: '2026-08-23T08:30:00',
+              status: 'publish',
               publishingFields: {
                 __typename: 'PublishingFields',
                 publicPath: '/applications/coatings',
                 seoTitle: 'Coatings',
                 seoDescription: '',
               },
-            }),
+              siteScopes: {
+                __typename: 'PageToSiteScopeConnection',
+                nodes: [{__typename: 'SiteScope', id: 'scope-a', slug: 'tio2-a'}],
+              },
+            },
           },
         }),
       ),

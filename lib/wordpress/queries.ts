@@ -12,10 +12,6 @@ import type {
   GetContentPageQueryVariables,
 } from './generated'
 import type {ContentPageDto} from './types'
-import {
-  CrossSiteContentError,
-  InvalidContentPathError,
-} from './types'
 
 export const GET_CONTENT_BY_PATH = GetContentByPathDocument
 export const GET_CONTENT_PAGE = GetContentPageDocument
@@ -24,39 +20,6 @@ export interface ContentPageConnectionDto {
   readonly nodes: readonly ContentPageDto[]
   readonly endCursor: string | null
   readonly hasNextPage: boolean
-}
-
-export class SitemapSourceError extends Error {
-  readonly siteId: string
-
-  constructor(siteId: string) {
-    super(`WordPress returned no sitemap connection for ${siteId}`)
-    this.name = 'SitemapSourceError'
-    this.siteId = siteId
-  }
-}
-
-export type SitemapPageSourceErrorReason =
-  | 'cross-site'
-  | 'malformed-path'
-  | 'unpublished'
-
-export class SitemapPageSourceError extends Error {
-  readonly siteId: string
-  readonly contentId: string
-  readonly reason: SitemapPageSourceErrorReason
-
-  constructor(
-    siteId: string,
-    contentId: string,
-    reason: SitemapPageSourceErrorReason,
-  ) {
-    super(`WordPress returned a ${reason} sitemap Page ${contentId} for ${siteId}`)
-    this.name = 'SitemapPageSourceError'
-    this.siteId = siteId
-    this.contentId = contentId
-    this.reason = reason
-  }
 }
 
 export async function getContentByPath(
@@ -96,50 +59,6 @@ export async function getContentPage(
 
   return {
     nodes: connection.nodes.map((node) => toContentPageDto(node, siteId)),
-    endCursor: connection.pageInfo.endCursor ?? null,
-    hasNextPage: connection.pageInfo.hasNextPage,
-  }
-}
-
-export async function getSitemapContentPage(
-  siteId: string,
-  after?: string,
-): Promise<ContentPageConnectionDto> {
-  const data = await fetchGraphQL<
-    GetContentPageQuery,
-    GetContentPageQueryVariables
-  >(
-    GET_CONTENT_PAGE,
-    {siteId, after: after ?? null},
-    {tags: [siteTag(siteId)]},
-  )
-  const connection = data.siteScope?.pages
-
-  if (!connection) {
-    throw new SitemapSourceError(siteId)
-  }
-
-  const nodes = connection.nodes.map((node) => {
-    if (node.status !== 'publish') {
-      throw new SitemapPageSourceError(siteId, node.id, 'unpublished')
-    }
-
-    try {
-      return toContentPageDto(node, siteId)
-    } catch (error) {
-      if (error instanceof CrossSiteContentError) {
-        throw new SitemapPageSourceError(siteId, node.id, 'cross-site')
-      }
-      if (error instanceof InvalidContentPathError) {
-        throw new SitemapPageSourceError(siteId, node.id, 'malformed-path')
-      }
-
-      throw error
-    }
-  })
-
-  return {
-    nodes,
     endCursor: connection.pageInfo.endCursor ?? null,
     hasNextPage: connection.pageInfo.hasNextPage,
   }

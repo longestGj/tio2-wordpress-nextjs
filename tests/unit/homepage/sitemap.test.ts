@@ -1,228 +1,101 @@
-import {describe, expect, it} from 'vitest'
+import {describe, expect, it, vi} from 'vitest'
 
-import {
-  buildSitemap,
-  SitemapIntegrityError,
-  SitemapPaginationError,
-} from '@/app/sitemap'
+import {buildSitemap, SitemapIntegrityError} from '@/app/sitemap'
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
-import type {ContentPageConnectionDto} from '@/lib/wordpress/queries'
-import type {ContentPageDto} from '@/lib/wordpress/types'
 import {getSiteConfig} from '@/sites'
+import {getPublicRoutes} from '@/sites/public-routes'
+import {getSiteTemplateProfile} from '@/sites/template-profiles'
 import {makeHomepageNode} from '@/tests/mocks/handlers'
 
-function page(index: number, path = `/test-content/long-tail-${index}`): ContentPageDto {
+function sources(overrides: Partial<Parameters<typeof buildSitemap>[1]> = {}) {
   return {
-    id: `page-${index}`,
-    siteId: 'tio2-a',
-    path,
-    title: `Page ${index}`,
-    excerpt: '',
-    html: '',
-    modified: '2026-08-23T08:30:00.000Z',
-    status: 'publish',
-    seo: {title: '', description: ''},
+    getHomepage: async () => toHomepageDto(makeHomepageNode(), 'tio2-a'),
+    getPublicRoutes,
+    getSiteTemplateProfile,
+    ...overrides,
   }
 }
 
-function sources(pages: readonly ContentPageDto[]) {
-  const homepage = toHomepageDto(makeHomepageNode(), 'tio2-a')
-  return {
-    getHomepage: async () => homepage,
-    getSitemapContentPage: async (
-      _siteId: string,
-      after?: string,
-    ): Promise<ContentPageConnectionDto> => {
-      const offset = after ? Number(after.slice('cursor-'.length)) : 0
-      const nodes = pages.slice(offset, offset + 100)
-      const nextOffset = offset + nodes.length
-      const hasNextPage = nextOffset < pages.length
-      return {
-        nodes,
-        endCursor: hasNextPage ? `cursor-${nextOffset}` : null,
-        hasNextPage,
-      }
-    },
-  }
+function homepageFor(siteId: 'tio2-a' | 'tio2-b') {
+  const node = makeHomepageNode()
+  node.siteScopes.nodes[0] = {...node.siteScopes.nodes[0]!, slug: siteId}
+  return toHomepageDto(node, siteId)
 }
 
-describe('homepage sitemap ownership', () => {
-  it('combines one homepage root with 504 Page URLs and retains long-tail-500', async () => {
-    const pages = Array.from({length: 504}, (_, index) => page(index + 1))
-
-    const sitemap = await buildSitemap(
-      getSiteConfig('tio2-a'),
-      sources(pages),
-    )
-
-    expect(sitemap).toHaveLength(505)
-    expect(new Set(sitemap.map(({url}) => url)).size).toBe(505)
-    expect(sitemap[0]).toEqual({
-      url: 'https://tio2products.com/',
-      lastModified: new Date('2026-08-23T08:30:00.000Z'),
+describe('root-only sitemap ownership', () => {
+  it.each([
+    ['tio2-a', 'https://tio2products.com/'],
+    ['tio2-b', 'https://tio2hub.com/'],
+  ] as const)('maps only the %s inventory root to its production domain', async (siteId, url) => {
+    const homepage = homepageFor(siteId)
+    const sitemap = await buildSitemap(getSiteConfig(siteId), {
+      ...sources(),
+      getHomepage: async () => homepage,
     })
-    expect(sitemap.some(({url}) => url.endsWith('/test-content/long-tail-500'))).toBe(true)
+
+    expect(sitemap).toEqual([
+      {url, lastModified: new Date('2026-08-23T08:30:00.000Z')},
+    ])
+    expect(new Set(sitemap.map(({url: entryUrl}) => entryUrl)).size).toBe(1)
   })
 
-  it('rejects an empty continuation before requesting another cursor', async () => {
-    let calls = 0
-
+  it('fails closed when the inventory has no root route', async () => {
     await expect(
       buildSitemap(getSiteConfig('tio2-a'), {
-        ...sources([]),
-        getSitemapContentPage: async () => {
-          calls += 1
-          if (calls > 1) throw new Error('unexpected extra sitemap request')
-          return {
-            nodes: [],
-            endCursor: 'cursor-1',
-            hasNextPage: true,
-          }
-        },
+        ...sources(),
+        getPublicRoutes: () => [] as never,
       }),
     ).rejects.toMatchObject({
-      name: SitemapPaginationError.name,
-      reason: 'no-progress',
+      name: SitemapIntegrityError.name,
+      reason: 'inventory-invalid',
     })
-    expect(calls).toBe(1)
   })
 
-  it('rejects a continuation immediately after collecting 504 Pages', async () => {
-    const pages = Array.from({length: 504}, (_, index) => page(index + 1))
-    let calls = 0
-
+  it('fails closed when the inventory root selects another site template', async () => {
     await expect(
       buildSitemap(getSiteConfig('tio2-a'), {
-        ...sources(pages),
-        getSitemapContentPage: async (_siteId, after) => {
-          calls += 1
-          if (calls > 6) throw new Error('unexpected extra sitemap request')
-          const offset = after ? Number(after.slice('cursor-'.length)) : 0
-          const nodes = pages.slice(offset, offset + 100)
-          const nextOffset = offset + nodes.length
-          return {
-            nodes,
-            endCursor: `cursor-${nextOffset}`,
-            hasNextPage: true,
-          }
-        },
+        ...sources(),
+        getPublicRoutes: () => [{path: '/', template: 'site-b-homepage-v0.1-frozen'}] as never,
       }),
     ).rejects.toMatchObject({
-      name: SitemapPaginationError.name,
-      reason: 'record-limit',
+      name: SitemapIntegrityError.name,
+      reason: 'inventory-invalid',
     })
-    expect(calls).toBe(6)
   })
-
-  it('caps malicious one-record continuations at 504 sitemap requests', async () => {
-    let calls = 0
-
-    await expect(
-      buildSitemap(getSiteConfig('tio2-a'), {
-        ...sources([]),
-        getSitemapContentPage: async () => {
-          calls += 1
-          if (calls > 504) throw new Error('unexpected extra sitemap request')
-          return {
-            nodes: [page(calls)],
-            endCursor: `cursor-${calls}`,
-            hasNextPage: true,
-          }
-        },
-      }),
-    ).rejects.toMatchObject({
-      name: SitemapPaginationError.name,
-      reason: 'record-limit',
-    })
-    expect(calls).toBe(504)
-  })
-
-  it.each([503, 505])(
-    'rejects a completed pagination source containing %i Pages',
-    async (pageCount) => {
-      const pages = Array.from({length: pageCount}, (_, index) =>
-        page(index + 1),
-      )
-
-      await expect(
-        buildSitemap(getSiteConfig('tio2-a'), sources(pages)),
-      ).rejects.toMatchObject({
-        name: SitemapIntegrityError.name,
-        reason: 'count-mismatch',
-        expectedCount: 504,
-        actualCount: pageCount,
-      })
-    },
-  )
 
   it.each([
-    ['cross-site', {...page(504), siteId: 'tio2-b'}],
-    ['unpublished', {...page(504), status: 'draft'}],
-    ['malformed', {...page(504), path: 'https://evil.example/leak'}],
-  ] as const)('rejects a %s Page source node', async (_case, invalidPage) => {
-    const pages = [
-      ...Array.from({length: 503}, (_, index) => page(index + 1)),
-      invalidPage as ContentPageDto,
-    ]
-
-    await expect(
-      buildSitemap(getSiteConfig('tio2-a'), sources(pages)),
-    ).rejects.toMatchObject({
-      name: SitemapIntegrityError.name,
-      reason: 'source-invalid',
-      firstId: 'page-504',
-    })
-  })
-
-  it('rejects an exact repeated Page ID/path instead of deduping it', async () => {
-    const pages = [
-      ...Array.from({length: 503}, (_, index) => page(index + 1)),
-      page(1),
-    ]
-
-    await expect(
-      buildSitemap(getSiteConfig('tio2-a'), sources(pages)),
-    ).rejects.toMatchObject({
-      name: SitemapIntegrityError.name,
-      reason: 'duplicate-record',
-      firstId: 'page-1',
-      path: '/test-content/long-tail-1',
-    })
-  })
-
-  it('rejects an old Page that also claims the homepage root', async () => {
-    await expect(
-      buildSitemap(
-        getSiteConfig('tio2-a'),
-        sources([page(1, '/')]),
-      ),
-    ).rejects.toMatchObject({
-      name: SitemapIntegrityError.name,
-      reason: 'path-conflict',
-      path: '/',
-      firstId: 'aG9tZXBhZ2U6MTAx',
-      conflictingId: 'page-1',
-    })
-  })
-
-  it('rejects a homepage source owned by another site', async () => {
-    const siteBSourcedHomepage = {
-      ...toHomepageDto(makeHomepageNode(), 'tio2-a'),
-      identity: {
-        ...toHomepageDto(makeHomepageNode(), 'tio2-a').identity,
-        siteId: 'tio2-b' as const,
-      },
-    }
+    ['foreign owner', {siteId: 'tio2-b' as const}],
+    ['wrong path', {path: '/products' as never}],
+    ['draft status', {status: 'draft'}],
+    ['wrong schema', {schemaVersion: 'homepage-v9' as never}],
+  ])('fails closed for a %s homepage source', async (_label, identity) => {
+    const homepage = toHomepageDto(makeHomepageNode(), 'tio2-a')
 
     await expect(
       buildSitemap(getSiteConfig('tio2-a'), {
-        ...sources([]),
-        getHomepage: async () => siteBSourcedHomepage,
+        ...sources(),
+        getHomepage: async () => ({
+          ...homepage,
+          identity: {...homepage.identity, ...identity},
+        }),
       }),
     ).rejects.toMatchObject({
       name: SitemapIntegrityError.name,
       reason: 'source-invalid',
       path: '/',
     })
+  })
+
+  it('does not need a Page cursor source to build the sitemap', async () => {
+    const getHomepage = vi.fn(async () =>
+      toHomepageDto(makeHomepageNode(), 'tio2-a'),
+    )
+
+    await buildSitemap(getSiteConfig('tio2-a'), {
+      ...sources(),
+      getHomepage,
+    })
+
+    expect(getHomepage).toHaveBeenCalledOnce()
   })
 })
