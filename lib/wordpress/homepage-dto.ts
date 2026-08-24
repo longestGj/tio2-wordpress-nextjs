@@ -101,9 +101,15 @@ function rfqBehaviorText(
   fieldPath: HomepageRfqBehaviorField,
   max: number,
 ): string {
-  const result = boundedText(value, fieldPath, max)
+  if (typeof value !== 'string') {
+    throw new HomepageContractError(fieldPath)
+  }
   try {
-    return validateHomepageRfqCopy(siteId, fieldPath, result)
+    const result = validateHomepageRfqCopy(siteId, fieldPath, value)
+    if (result.length > max || /<[^>]*>/u.test(result)) {
+      throw new HomepageContractError(fieldPath)
+    }
+    return result
   } catch {
     throw new HomepageContractError(
       fieldPath,

@@ -3,7 +3,10 @@ import {fileURLToPath} from 'node:url'
 
 import {describe, expect, it} from 'vitest'
 
-import {HOMEPAGE_RFQ_COPY_CONTRACTS} from '@/lib/wordpress/homepage-rfq-copy'
+import {
+  HOMEPAGE_RFQ_COPY_CONTRACTS,
+  validateHomepageRfqCopy,
+} from '@/lib/wordpress/homepage-rfq-copy'
 
 const manifestPath = fileURLToPath(
   new URL('../../wordpress/seed/representative-content.json', import.meta.url),
@@ -13,6 +16,9 @@ const phpRfqContractPath = fileURLToPath(
     '../../wordpress/plugins/tio2-site-model/includes/homepage-rfq-copy.php',
     import.meta.url,
   ),
+)
+const rfqWhitespaceVectorsPath = fileURLToPath(
+  new URL('../fixtures/homepage-rfq-whitespace-vectors.json', import.meta.url),
 )
 
 type Homepage = Record<string, unknown> & {
@@ -133,6 +139,27 @@ describe('homepage seed contract', () => {
     )
     expect(serialized, 'missing machine-readable PHP RFQ contract').not.toBeNull()
     expect(JSON.parse(serialized![1])).toEqual(HOMEPAGE_RFQ_COPY_CONTRACTS)
+  })
+
+  it('applies the shared Unicode whitespace vectors exactly in TypeScript', () => {
+    const vectors = JSON.parse(readFileSync(rfqWhitespaceVectorsPath, 'utf8')) as Array<{
+      label: string
+      siteId: 'tio2-a' | 'tio2-b'
+      fieldPath:
+        | 'rfq.intro'
+        | 'rfq.privacyText'
+        | 'rfq.success.heading'
+        | 'rfq.success.message'
+      input: string
+      expected: string
+    }>
+
+    for (const vector of vectors) {
+      expect(
+        validateHomepageRfqCopy(vector.siteId, vector.fieldPath, vector.input),
+        vector.label,
+      ).toBe(vector.expected)
+    }
   })
 
 })

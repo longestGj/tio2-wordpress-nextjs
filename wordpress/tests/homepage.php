@@ -1299,6 +1299,37 @@ tio2_homepage_test_assert(
     'Unknown site resolved an RFQ behavior-copy contract'
 );
 
+$rfq_whitespace_vector_json = file_get_contents(
+    '/workspace/tests/fixtures/homepage-rfq-whitespace-vectors.json'
+);
+tio2_homepage_test_assert(
+    is_string($rfq_whitespace_vector_json),
+    'Could not load the shared RFQ Unicode whitespace vectors'
+);
+$rfq_whitespace_vectors = json_decode($rfq_whitespace_vector_json, true, 32, JSON_THROW_ON_ERROR);
+tio2_homepage_test_assert(
+    is_array($rfq_whitespace_vectors) && [] !== $rfq_whitespace_vectors,
+    'Shared RFQ Unicode whitespace vectors were empty'
+);
+foreach ($rfq_whitespace_vectors as $vector) {
+    $label = (string) ($vector['label'] ?? 'unknown vector');
+    $normalized = tio2_homepage_normalize_rfq_copy((string) ($vector['input'] ?? ''));
+    tio2_homepage_test_assert(
+        ($vector['expected'] ?? null) === $normalized,
+        "PHP normalization diverged for shared RFQ vector: {$label}"
+    );
+    $validated = tio2_validate_homepage_rfq_copy(
+        $vector['input'] ?? null,
+        (string) ($vector['siteId'] ?? ''),
+        (string) ($vector['fieldName'] ?? ''),
+        (int) ($vector['maxLength'] ?? 0)
+    );
+    tio2_homepage_test_assert(
+        ($vector['expected'] ?? null) === $validated,
+        "PHP validation diverged for shared RFQ vector: {$label}"
+    );
+}
+
 foreach ([
     'field_tio2_home_rfq_intro' => 'rfq.intro',
     'field_tio2_home_rfq_privacy_text' => 'rfq.privacyText',
@@ -1334,6 +1365,36 @@ foreach ([
         "Ambiguous ownership did not fail closed for {$field_key}"
     );
 }
+
+$duplicate_choice_home = tio2_homepage_test_insert([
+    'post_type' => 'tio2_homepage',
+    'post_status' => 'draft',
+    'post_title' => 'Duplicate ACF choice owner',
+]);
+remove_action('set_object_terms', 'tio2_enforce_homepage_after_site_scope_mutation', 20);
+try {
+    wp_set_object_terms($duplicate_choice_home, ['tio2-a'], 'site_scope', false);
+} finally {
+    add_action('set_object_terms', 'tio2_enforce_homepage_after_site_scope_mutation', 20, 6);
+}
+clean_post_cache($duplicate_choice_home);
+tio2_homepage_test_assert(
+    [$valid_a, $duplicate_choice_home] === tio2_find_homepage_ids('tio2-a'),
+    'Could not establish duplicate Homepage ownership for ACF preparation test'
+);
+$duplicate_owner_field = acf_get_field('field_tio2_home_rfq_intro');
+tio2_homepage_test_assert(
+    is_array($duplicate_owner_field),
+    'Missing controlled RFQ field for duplicate ownership test'
+);
+$duplicate_owner_field = tio2_prepare_homepage_rfq_copy_field(
+    $duplicate_owner_field + ['post_id' => $valid_a]
+);
+tio2_homepage_test_assert(
+    [] === ($duplicate_owner_field['choices'] ?? null) && ! empty($duplicate_owner_field['disabled']),
+    'Duplicate Homepage ownership did not fail closed during ACF preparation'
+);
+wp_set_object_terms($duplicate_choice_home, [], 'site_scope', false);
 
 $prepublish_a = tio2_validate_homepage_contract($valid_a);
 $prepublish_b = tio2_validate_homepage_contract($valid_b);

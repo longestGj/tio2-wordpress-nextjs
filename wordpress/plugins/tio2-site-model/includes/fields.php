@@ -772,7 +772,7 @@ function tio2_homepage_validate_string(
 /**
  * Enforce the closed homepage-v0.1 RFQ editorial contract. WordPress owns
  * these values, but behavior copy is limited to the approved whole-string
- * statements after case and whitespace normalization.
+ * statements after trim and consecutive-whitespace normalization.
  *
  * @param mixed $value
  * @return string|WP_Error

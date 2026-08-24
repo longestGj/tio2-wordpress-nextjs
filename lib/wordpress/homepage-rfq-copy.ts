@@ -15,6 +15,9 @@ type HomepageRfqCopyContract = {
   readonly fields: Readonly<Record<HomepageRfqBehaviorField, readonly string[]>>
 }
 
+const HOMEPAGE_RFQ_WHITESPACE =
+  /[\u0009-\u000d\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+/gu
+
 export const HOMEPAGE_RFQ_COPY_CONTRACTS = {
   'tio2-a': {
     id: 'site-a-rfq-copy-v0.1',
@@ -53,7 +56,9 @@ export class HomepageRfqCopyContractError extends Error {
 }
 
 function normalizeHomepageRfqCopy(value: string): string {
-  return value.trim().replace(/\s+/gu, ' ')
+  return value
+    .replace(HOMEPAGE_RFQ_WHITESPACE, ' ')
+    .replace(/^ +| +$/gu, '')
 }
 
 export function validateHomepageRfqCopy(

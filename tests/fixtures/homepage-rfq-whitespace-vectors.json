@@ -1,0 +1,38 @@
+[
+  {
+    "label": "NBSP at both edges",
+    "siteId": "tio2-a",
+    "fieldPath": "rfq.intro",
+    "fieldName": "rfq_intro",
+    "maxLength": 260,
+    "input": "\u00a0This v0.1 local demo does not send or store inquiry data.\u00a0",
+    "expected": "This v0.1 local demo does not send or store inquiry data."
+  },
+  {
+    "label": "mixed internal Unicode whitespace",
+    "siteId": "tio2-a",
+    "fieldPath": "rfq.intro",
+    "fieldName": "rfq_intro",
+    "maxLength": 260,
+    "input": "This v0.1 local\u00a0\u2003demo does not send or store inquiry data.",
+    "expected": "This v0.1 local demo does not send or store inquiry data."
+  },
+  {
+    "label": "BOM and ideographic-space edges",
+    "siteId": "tio2-b",
+    "fieldPath": "rfq.success.heading",
+    "fieldName": "rfq_success_heading",
+    "maxLength": 80,
+    "input": "\ufeff\u3000Site B local check complete\u3000\ufeff",
+    "expected": "Site B local check complete"
+  },
+  {
+    "label": "ASCII control whitespace around an approved string",
+    "siteId": "tio2-b",
+    "fieldPath": "rfq.privacyText",
+    "fieldName": "rfq_privacy_text",
+    "maxLength": 240,
+    "input": "\tThis Site B local demo does not\r\n\tsend or save entered information.\n",
+    "expected": "This Site B local demo does not send or save entered information."
+  }
+]

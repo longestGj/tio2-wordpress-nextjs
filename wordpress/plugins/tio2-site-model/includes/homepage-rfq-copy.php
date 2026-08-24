@@ -52,8 +52,12 @@ function tio2_homepage_rfq_field_path(string $field_name): ?string
 
 function tio2_homepage_normalize_rfq_copy(string $value): string
 {
-    $normalized = preg_replace('/\s+/u', ' ', trim($value));
-    return is_string($normalized) ? $normalized : trim($value);
+    $normalized = preg_replace(
+        '/[\x{0009}-\x{000D}\x{0020}\x{00A0}\x{1680}\x{2000}-\x{200A}\x{2028}\x{2029}\x{202F}\x{205F}\x{3000}\x{FEFF}]+/u',
+        ' ',
+        $value
+    );
+    return trim(is_string($normalized) ? $normalized : $value, ' ');
 }
 
 /**
@@ -86,7 +90,7 @@ function tio2_validate_homepage_rfq_copy($value, string $site_id, string $field_
     if (! is_scalar($value) && null !== $value) {
         return new WP_Error('tio2_homepage_invalid_field', "Homepage field {$field_name} must be plain text.");
     }
-    $text = trim((string) $value);
+    $text = tio2_homepage_normalize_rfq_copy((string) $value);
     if (
         '' === $text ||
         $text !== wp_strip_all_tags($text) ||
@@ -94,14 +98,13 @@ function tio2_validate_homepage_rfq_copy($value, string $site_id, string $field_
     ) {
         return new WP_Error('tio2_homepage_invalid_field', "Homepage field {$field_name} is invalid.");
     }
-    $normalized = tio2_homepage_normalize_rfq_copy($text);
-    if (! in_array($normalized, tio2_homepage_rfq_copy_choices($site_id, $field_name), true)) {
+    if (! in_array($text, tio2_homepage_rfq_copy_choices($site_id, $field_name), true)) {
         return new WP_Error(
             'tio2_homepage_invalid_field',
             "Homepage field {$field_name} must match its owning site's controlled RFQ copy."
         );
     }
-    return $normalized;
+    return $text;
 }
 
 /**
