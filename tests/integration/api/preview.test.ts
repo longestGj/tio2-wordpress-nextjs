@@ -45,7 +45,11 @@ function previewRequest(parameters: Record<string, string>): Request {
   return new Request(url)
 }
 
-function wordpressPreview(siteId: string, path: string) {
+function wordpressPreview(
+  siteId: string,
+  path: string,
+  overrides: Record<string, unknown> = {},
+) {
   return {
     id: 'draft-42',
     siteId,
@@ -55,6 +59,7 @@ function wordpressPreview(siteId: string, path: string) {
     modified: '2026-08-23T02:30:00.000Z',
     status: 'draft',
     seo: {title: '', description: ''},
+    ...overrides,
   }
 }
 
@@ -109,6 +114,16 @@ describe('GET /api/preview', () => {
     expect(enable).not.toHaveBeenCalled()
   })
 
+  it('rejects a signed link replayed for a different path', async () => {
+    const parameters = signedParameters('tio2-a', '/preview-smoke/draft')
+    parameters.path = '/preview-smoke/other'
+
+    const response = await GET(previewRequest(parameters))
+
+    expect(response.status).toBe(401)
+    expect(response.headers.get('set-cookie')).toBeNull()
+  })
+
   it.each(['tio2-b', 'unknown', ''])('rejects site mismatch %j', async (siteId) => {
     const response = await GET(
       previewRequest(signedParameters(siteId, '/products')),
@@ -152,6 +167,70 @@ describe('GET /api/preview', () => {
     expect(response.status).toBe(404)
     expect(enable).not.toHaveBeenCalled()
   })
+
+  it('does not create a Product preview session when WordPress rejects the unsupported runtime', async () => {
+    server.use(
+      http.get(wordpressPreviewUrl, () =>
+        HttpResponse.json({code: 'tio2_preview_not_found'}, {status: 404}),
+      ),
+    )
+
+    const response = await GET(
+      previewRequest(signedParameters('tio2-a', '/products/product-fixture')),
+    )
+
+    expect(response.status).toBe(404)
+    expect(response.headers.get('set-cookie')).toBeNull()
+  })
+
+  it.each([
+    [
+      'cross-site content',
+      wordpressPreview('tio2-b', '/preview-smoke/draft'),
+      404,
+    ],
+    [
+      'wrong-path content',
+      wordpressPreview('tio2-a', '/preview-smoke/other'),
+      404,
+    ],
+    [
+      'malformed content',
+      {id: 'draft-42', siteId: 'tio2-a', path: '/preview-smoke/draft'},
+      502,
+    ],
+  ])('fails closed for a WordPress Preview response containing %s', async (_label, payload, expectedStatus) => {
+    server.use(
+      http.get(wordpressPreviewUrl, () => HttpResponse.json(payload)),
+    )
+
+    const response = await GET(
+      previewRequest(signedParameters('tio2-a', '/preview-smoke/draft')),
+    )
+
+    expect(response.status).toBe(expectedStatus)
+    expect(response.headers.get('set-cookie')).toBeNull()
+  })
+
+  it.each(['publish', 'future', 'pending', 'private'])(
+    'does not create a Preview session for non-draft %s content',
+    async (status) => {
+      server.use(
+        http.get(wordpressPreviewUrl, () =>
+          HttpResponse.json(
+            wordpressPreview('tio2-a', '/preview-smoke/draft', {status}),
+          ),
+        ),
+      )
+
+      const response = await GET(
+        previewRequest(signedParameters('tio2-a', '/preview-smoke/draft')),
+      )
+
+      expect(response.status).toBe(404)
+      expect(response.headers.get('set-cookie')).toBeNull()
+    },
+  )
 
   it('verifies the unpublished target before enabling draft mode and redirecting', async () => {
     const response = await GET(

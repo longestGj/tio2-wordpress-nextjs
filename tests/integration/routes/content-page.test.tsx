@@ -224,4 +224,22 @@ describe('root-only anonymous content routes', () => {
       route.default({params: Promise.resolve({path: ['draft-page']})}),
     ).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
   })
+
+  it('rejects a valid Preview cookie replayed on a different exact path without loading WordPress', async () => {
+    draftMode.mockResolvedValue({isEnabled: true})
+    servePreviewCookie(scopedPreviewCookie('tio2-a', '/draft-page'))
+    let previewRequests = 0
+    server.use(
+      http.get(wordpressPreviewUrl, () => {
+        previewRequests += 1
+        return HttpResponse.json(previewPayload('/other-draft'))
+      }),
+    )
+    const route = await import('@/app/[...path]/page')
+
+    await expect(
+      route.default({params: Promise.resolve({path: ['other-draft']})}),
+    ).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
+    expect(previewRequests).toBe(0)
+  })
 })

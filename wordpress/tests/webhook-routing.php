@@ -178,6 +178,85 @@ foreach (['tio2-a', 'tio2-b'] as $site_id) {
     tio2_webhook_routing_assert_request($captured_requests, $site_id);
 }
 
+$bounded_page_id = tio2_webhook_routing_page('tio2-a');
+$captured_requests = [];
+$GLOBALS['tio2_webhook_queue'] = [];
+$normalized_affected = [
+    'contentId' => $bounded_page_id,
+    'siteIds' => ['tio2-a'],
+    'paths' => ['/products/', '/products', '/applications/'],
+    'entityIds' => [],
+    'sitePaths' => [
+        'tio2-a' => ['/products/', '/products', '/applications/'],
+    ],
+];
+$normalized_payload = tio2_build_webhook_payload(
+    $bounded_page_id,
+    '2026-08-24T00:00:00+00:00',
+    $normalized_affected
+);
+if (
+    ! is_array($normalized_payload) ||
+    ['/applications', '/products'] !== ($normalized_payload['paths'] ?? null)
+) {
+    tio2_webhook_routing_fail('Webhook payload did not normalize and deduplicate exact paths');
+}
+
+$bounded_paths = array_map(
+    static fn (int $index): string => "/batch/path-{$index}",
+    range(0, 255)
+);
+$bounded_affected = [
+    'contentId' => $bounded_page_id,
+    'siteIds' => ['tio2-a'],
+    'paths' => $bounded_paths,
+    'entityIds' => [],
+    'sitePaths' => ['tio2-a' => $bounded_paths],
+];
+$bounded_payload = tio2_build_webhook_payload(
+    $bounded_page_id,
+    '2026-08-24T00:00:00+00:00',
+    $bounded_affected
+);
+if (! is_array($bounded_payload) || 256 !== count($bounded_payload['paths'] ?? [])) {
+    tio2_webhook_routing_fail('Webhook payload rejected 256 normalized unique paths');
+}
+
+$overflow_paths = array_merge($bounded_paths, ['/batch/path-256']);
+$overflow_affected = [
+    'contentId' => $bounded_page_id,
+    'siteIds' => ['tio2-a'],
+    'paths' => $overflow_paths,
+    'entityIds' => [],
+    'sitePaths' => ['tio2-a' => $overflow_paths],
+];
+if (
+    null !== tio2_build_webhook_payload(
+        $bounded_page_id,
+        '2026-08-24T00:00:00+00:00',
+        $overflow_affected
+    ) ||
+    tio2_send_webhook($bounded_page_id, $overflow_affected) ||
+    [] !== $captured_requests
+) {
+    tio2_webhook_routing_fail('Webhook delivered more than 256 normalized unique paths');
+}
+
+$malformed_affected = $bounded_affected;
+foreach (['https://other-site.test/products', '/Products', '/bad path', '/double--hyphen'] as $malformed_path) {
+    $malformed_affected['paths'] = ['/products', $malformed_path];
+    $malformed_affected['sitePaths'] = ['tio2-a' => $malformed_affected['paths']];
+    if (null !== tio2_build_webhook_payload($bounded_page_id, null, $malformed_affected)) {
+        tio2_webhook_routing_fail("Webhook payload retained malformed path {$malformed_path}");
+    }
+}
+
+$mixed_site_affected = $bounded_affected;
+$mixed_site_affected['siteIds'] = ['tio2-a', 'tio2-b'];
+if (null !== tio2_build_webhook_payload($bounded_page_id, null, $mixed_site_affected)) {
+    tio2_webhook_routing_fail('Webhook payload accepted an ambiguous mixed-site batch');
+}
+
 $paired_page_id = tio2_webhook_routing_page('tio2-a');
 $captured_requests = [];
 $GLOBALS['tio2_webhook_queue'] = [];

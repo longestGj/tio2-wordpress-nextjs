@@ -4,10 +4,13 @@ import {z} from 'zod'
 
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {
+  contentListTag,
   homepageContentTag,
   isValidPublicPath,
+  normalizePublicPath,
   routeTag,
   siteTag,
+  sitemapTag,
 } from '@/lib/wordpress/cache-tags'
 
 export const runtime = 'nodejs'
@@ -21,6 +24,11 @@ const processedEventIds = new Map<string, number>()
 const uniqueArray = <T>(values: readonly T[]): boolean =>
   new Set(values).size === values.length
 
+const normalizedPathSchema = z
+  .string()
+  .refine(isValidPublicPath)
+  .transform(normalizePublicPath)
+
 const payloadSchema = z
   .object({
     eventId: z.uuid(),
@@ -30,9 +38,9 @@ const payloadSchema = z
       .refine(uniqueArray),
     contentId: z.number().int().positive().safe(),
     paths: z
-      .array(z.string().refine(isValidPublicPath))
-      .max(256)
-      .refine(uniqueArray),
+      .array(normalizedPathSchema)
+      .transform((paths) => [...new Set(paths)])
+      .refine((paths) => paths.length <= 256),
     entityIds: z
       .array(z.number().int().positive().safe())
       .max(256)
@@ -205,7 +213,9 @@ export async function POST(request: Request): Promise<Response> {
 
   const tags = new Set<string>()
   for (const siteId of payload.siteIds) {
+    tags.add(contentListTag(siteId))
     tags.add(siteTag(siteId))
+    tags.add(sitemapTag(siteId))
     for (const path of payload.paths) {
       tags.add(routeTag(siteId, path))
       if (path === '/') tags.add(homepageContentTag(siteId))

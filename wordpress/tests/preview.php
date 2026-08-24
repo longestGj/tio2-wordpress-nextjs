@@ -211,6 +211,48 @@ if (401 !== $bad_response->get_status()) {
     tio2_preview_smoke_fail('WordPress preview endpoint accepted an invalid signature');
 }
 
+$expired_request = new WP_REST_Request('GET', '/tio2/v1/preview');
+$expired_timestamp = (string) (time() - 301);
+$expired_request->set_query_params(['siteId' => 'tio2-a', 'path' => $path]);
+$expired_request->set_header('x-tio2-preview-timestamp', $expired_timestamp);
+$expired_request->set_header(
+    'x-tio2-preview-signature',
+    hash_hmac(
+        'sha256',
+        $expired_timestamp . "\n" . 'tio2-a' . "\n" . $path,
+        'site-a-preview-smoke-secret'
+    )
+);
+if (401 !== rest_do_request($expired_request)->get_status()) {
+    tio2_preview_smoke_fail('WordPress preview endpoint accepted an expired signature');
+}
+
+$wrong_path_request = new WP_REST_Request('GET', '/tio2/v1/preview');
+$wrong_path_request->set_query_params(['siteId' => 'tio2-a', 'path' => '/preview-smoke/other']);
+$wrong_path_request->set_header('x-tio2-preview-timestamp', $timestamp);
+$wrong_path_request->set_header('x-tio2-preview-signature', $signature);
+if (401 !== rest_do_request($wrong_path_request)->get_status()) {
+    tio2_preview_smoke_fail('WordPress preview signature was replayable for another exact path');
+}
+
+foreach (['preview-smoke/draft', '//attacker.test/draft', '/preview-smoke/%2e%2e/admin'] as $malformed_path) {
+    $malformed_timestamp = (string) time();
+    $malformed_request = new WP_REST_Request('GET', '/tio2/v1/preview');
+    $malformed_request->set_query_params(['siteId' => 'tio2-a', 'path' => $malformed_path]);
+    $malformed_request->set_header('x-tio2-preview-timestamp', $malformed_timestamp);
+    $malformed_request->set_header(
+        'x-tio2-preview-signature',
+        hash_hmac(
+            'sha256',
+            $malformed_timestamp . "\n" . 'tio2-a' . "\n" . $malformed_path,
+            'site-a-preview-smoke-secret'
+        )
+    );
+    if (401 !== rest_do_request($malformed_request)->get_status()) {
+        tio2_preview_smoke_fail("WordPress preview accepted malformed path {$malformed_path}");
+    }
+}
+
 $preview_link = apply_filters(
     'preview_post_link',
     'http://localhost:8080/?page_id=' . (int) $draft_id . '&preview=true',
@@ -237,6 +279,45 @@ $expected_link_signature = hash_hmac(
 );
 if (! hash_equals($expected_link_signature, $preview_query['signature'])) {
     tio2_preview_smoke_fail('WordPress Admin preview link signature was invalid');
+}
+
+$product_id = wp_insert_post([
+    'post_type' => 'tio2_product',
+    'post_status' => 'draft',
+    'post_title' => 'Unsupported Product preview fixture',
+], true);
+if (is_wp_error($product_id) || $product_id <= 0) {
+    tio2_preview_smoke_fail('Could not create unsupported Product preview fixture');
+}
+$product_id = (int) $product_id;
+$GLOBALS['tio2_preview_smoke_post_ids'][] = $product_id;
+$product_path = '/products/unsupported-preview-fixture';
+update_post_meta($product_id, 'public_path', $product_path);
+wp_set_object_terms($product_id, ['tio2-a'], 'site_scope', false);
+$product_timestamp = (string) time();
+$product_request = new WP_REST_Request('GET', '/tio2/v1/preview');
+$product_request->set_query_params(['siteId' => 'tio2-a', 'path' => $product_path]);
+$product_request->set_header('x-tio2-preview-timestamp', $product_timestamp);
+$product_request->set_header(
+    'x-tio2-preview-signature',
+    hash_hmac(
+        'sha256',
+        $product_timestamp . "\n" . 'tio2-a' . "\n" . $product_path,
+        'site-a-preview-smoke-secret'
+    )
+);
+if (404 !== rest_do_request($product_request)->get_status()) {
+    tio2_preview_smoke_fail('WordPress preview exposed Product without an approved runtime');
+}
+$native_product_preview_link = 'http://localhost:8080/?post_type=tio2_product&p=' . $product_id . '&preview=true';
+if (
+    $native_product_preview_link !== apply_filters(
+        'preview_post_link',
+        $native_product_preview_link,
+        get_post($product_id)
+    )
+) {
+    tio2_preview_smoke_fail('WordPress rewrote Product into the Next.js Preview runtime');
 }
 
 $homepage_ids = tio2_find_homepage_ids('tio2-a');

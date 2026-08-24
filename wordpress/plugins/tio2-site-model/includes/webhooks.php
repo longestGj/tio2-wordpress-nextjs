@@ -6,6 +6,8 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
+const TIO2_WEBHOOK_MAX_PATHS = 256;
+
 /**
  * @param array<string, string>|null $environment
  * @return array{url: string, secret: string}|null
@@ -55,30 +57,52 @@ function tio2_webhook_post_types(): array
 
 function tio2_is_valid_webhook_path(string $path): bool
 {
-    if (
-        '' === $path ||
-        strlen($path) > 200 ||
-        ! str_starts_with($path, '/') ||
-        str_starts_with($path, '//') ||
-        false !== strpbrk($path, "?#\\%") ||
-        1 === preg_match('/[\x00-\x1F\x7F]/', $path)
-    ) {
+    if ('' === $path || str_starts_with($path, '//')) {
         return false;
     }
 
-    $segments = explode('/', $path);
-    $last_index = count($segments) - 1;
-    foreach ($segments as $index => $segment) {
-        if (
-            '.' === $segment ||
-            '..' === $segment ||
-            ($index > 0 && '' === $segment && $index < $last_index)
-        ) {
-            return false;
-        }
+    $normalized = '/' !== $path && str_ends_with($path, '/')
+        ? substr($path, 0, -1)
+        : $path;
+    return tio2_is_valid_public_path($normalized);
+}
+
+function tio2_normalize_webhook_path(string $path): ?string
+{
+    if (! tio2_is_valid_webhook_path($path)) {
+        return null;
     }
 
-    return true;
+    $normalized = '/' !== $path && str_ends_with($path, '/')
+        ? substr($path, 0, -1)
+        : $path;
+    return tio2_is_valid_webhook_path($normalized) ? $normalized : null;
+}
+
+/**
+ * @param list<mixed> $paths
+ * @return list<string>|null
+ */
+function tio2_normalize_webhook_paths(array $paths): ?array
+{
+    $normalized = [];
+    foreach ($paths as $path) {
+        if (! is_string($path)) {
+            return null;
+        }
+        $canonical = tio2_normalize_webhook_path($path);
+        if (null === $canonical) {
+            return null;
+        }
+        $normalized[$canonical] = true;
+    }
+
+    $normalized_paths = array_keys($normalized);
+    if (count($normalized_paths) > TIO2_WEBHOOK_MAX_PATHS) {
+        return null;
+    }
+    sort($normalized_paths, SORT_STRING);
+    return array_values($normalized_paths);
 }
 
 /**
@@ -157,15 +181,12 @@ function tio2_get_webhook_affected_state(
         if (1 !== count($site_ids)) {
             return null;
         }
-        $paths = $paths ?? [(string) get_post_meta($post_id, 'public_path', true)];
-        $paths = array_values(array_unique(array_filter(
-            array_map('strval', $paths),
-            'tio2_is_valid_webhook_path'
-        )));
-        if (empty($paths)) {
+        $paths = tio2_normalize_webhook_paths(
+            $paths ?? [(string) get_post_meta($post_id, 'public_path', true)]
+        );
+        if (null === $paths || empty($paths)) {
             return null;
         }
-        sort($paths, SORT_STRING);
         $site_paths[$site_ids[0]] = $paths;
     } else {
         $paths = [];
@@ -223,16 +244,30 @@ function tio2_build_webhook_payload(
     ?array $affected = null
 ): ?array {
     $affected = $affected ?? tio2_get_webhook_affected_state($post_id);
-    if (null === $affected || empty($affected['siteIds'])) {
+    if (null === $affected) {
+        return null;
+    }
+
+    $site_ids = array_values(array_unique(array_map('strval', $affected['siteIds'] ?? [])));
+    $paths = tio2_normalize_webhook_paths($affected['paths'] ?? []);
+    $entity_ids = array_values(array_unique(array_map('intval', $affected['entityIds'] ?? [])));
+    sort($entity_ids, SORT_NUMERIC);
+    if (
+        1 !== count($site_ids) ||
+        ! in_array($site_ids[0], ['tio2-a', 'tio2-b'], true) ||
+        null === $paths ||
+        count($entity_ids) > TIO2_WEBHOOK_MAX_PATHS ||
+        array_filter($entity_ids, static fn (int $entity_id): bool => $entity_id <= 0)
+    ) {
         return null;
     }
 
     return [
         'eventId' => wp_generate_uuid4(),
-        'siteIds' => $affected['siteIds'],
+        'siteIds' => $site_ids,
         'contentId' => $post_id,
-        'paths' => $affected['paths'],
-        'entityIds' => $affected['entityIds'],
+        'paths' => $paths,
+        'entityIds' => $entity_ids,
         'modified' => $modified ?? gmdate('c'),
     ];
 }

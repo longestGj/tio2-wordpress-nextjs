@@ -267,7 +267,9 @@ describe('POST /api/revalidate', () => {
     {contentId: 0},
     {contentId: 1.5},
     {paths: ['products']},
-    {paths: ['/products', '/products']},
+    {paths: ['/Products']},
+    {paths: ['/bad path']},
+    {paths: ['/double--hyphen']},
     {paths: ['/products/../admin']},
     {paths: ['/products/%2e%2e/admin']},
     {entityIds: [0]},
@@ -307,14 +309,18 @@ describe('POST /api/revalidate', () => {
       ok: true,
       eventId: payload.eventId,
       revalidatedTags: [
+        'content-list:tio2-a',
         'route:tio2-a:/products',
         'site:tio2-a',
+        'sitemap:tio2-a',
       ],
       revalidatedPaths: ['/products'],
     })
     expect(revalidateTag.mock.calls).toEqual([
+      ['content-list:tio2-a', 'max'],
       ['route:tio2-a:/products', 'max'],
       ['site:tio2-a', 'max'],
+      ['sitemap:tio2-a', 'max'],
     ])
     expect(revalidatePath.mock.calls).toEqual([['/products']])
     expect(diagnostic).toHaveBeenCalledWith('[tio2-revalidation]', {
@@ -323,6 +329,54 @@ describe('POST /api/revalidate', () => {
       paths: ['/products'],
     })
     diagnostic.mockRestore()
+  })
+
+  it('normalizes and deduplicates paths before applying the 256-unique-path limit', async () => {
+    const paths = [
+      ...Array.from({length: 255}, (_, index) => `/batch/path-${index}`),
+      '/products',
+      '/products/',
+    ]
+
+    const response = await POST(signedRequest(validPayload({paths})))
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toHaveLength(256)
+    expect(body.revalidatedPaths).toContain('/products')
+    expect(body.revalidatedPaths).not.toContain('/products/')
+    expect(revalidatePath).toHaveBeenCalledTimes(256)
+    expect(revalidatePath).toHaveBeenCalledWith('/products')
+    expect(revalidateTag).toHaveBeenCalledWith('content-list:tio2-a', 'max')
+    expect(revalidateTag).toHaveBeenCalledWith('sitemap:tio2-a', 'max')
+    expect(JSON.stringify(body)).not.toContain('tio2-b')
+  })
+
+  it('accepts exactly 256 normalized unique paths', async () => {
+    const paths = Array.from(
+      {length: 256},
+      (_, index) => `/batch/exact-${index}`,
+    )
+
+    const response = await POST(signedRequest(validPayload({paths})))
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toHaveLength(256)
+    expect(revalidatePath).toHaveBeenCalledTimes(256)
+  })
+
+  it('rejects 257 normalized unique paths before any invalidation', async () => {
+    const paths = Array.from(
+      {length: 257},
+      (_, index) => `/batch/overflow-${index}`,
+    )
+
+    const response = await POST(signedRequest(validPayload({paths})))
+
+    expect(response.status).toBe(400)
+    expect(revalidateTag).not.toHaveBeenCalled()
+    expect(revalidatePath).not.toHaveBeenCalled()
   })
 
   it.each([

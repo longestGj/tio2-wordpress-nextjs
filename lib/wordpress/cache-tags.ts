@@ -1,6 +1,9 @@
 import type {SiteId} from '@/sites'
 
 const SITE_IDS = new Set<SiteId>(['tio2-a', 'tio2-b'])
+const MAX_CANONICAL_PUBLIC_PATH_LENGTH = 172
+const CANONICAL_PUBLIC_PATH_PATTERN =
+  /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*)?$/u
 
 function assertSiteId(siteId: string): asserts siteId is SiteId {
   if (!SITE_IDS.has(siteId as SiteId)) {
@@ -15,26 +18,15 @@ function assertPositiveId(id: number, label: 'content' | 'entity'): void {
 }
 
 export function isValidPublicPath(path: string): boolean {
-  if (
-    path.length === 0 ||
-    path.length > 200 ||
-    !path.startsWith('/') ||
-    path.startsWith('//') ||
-    path.includes('\\') ||
-    path.includes('?') ||
-    path.includes('#') ||
-    path.includes('%') ||
-    /[\u0000-\u001f\u007f]/u.test(path)
-  ) {
+  if (path.length === 0 || path.startsWith('//')) {
     return false
   }
 
-  const segments = path.split('/')
-  return !segments.some(
-    (segment, index) =>
-      (index > 0 && segment.length === 0 && index < segments.length - 1) ||
-      segment === '.' ||
-      segment === '..',
+  const normalized =
+    path !== '/' && path.endsWith('/') ? path.slice(0, -1) : path
+  return (
+    normalized.length <= MAX_CANONICAL_PUBLIC_PATH_LENGTH &&
+    CANONICAL_PUBLIC_PATH_PATTERN.test(normalized)
   )
 }
 
@@ -44,9 +36,24 @@ function assertPublicPath(path: string): void {
   }
 }
 
+export function normalizePublicPath(path: string): string {
+  assertPublicPath(path)
+  return path !== '/' && path.endsWith('/') ? path.slice(0, -1) : path
+}
+
 export function siteTag(siteId: string): string {
   assertSiteId(siteId)
   return `site:${siteId}`
+}
+
+export function contentListTag(siteId: string): string {
+  assertSiteId(siteId)
+  return `content-list:${siteId}`
+}
+
+export function sitemapTag(siteId: string): string {
+  assertSiteId(siteId)
+  return `sitemap:${siteId}`
 }
 
 export function contentTag(siteId: string, contentId: number): string {
@@ -62,8 +69,7 @@ export function homepageContentTag(siteId: string): string {
 
 export function routeTag(siteId: string, path: string): string {
   assertSiteId(siteId)
-  assertPublicPath(path)
-  return `route:${siteId}:${path}`
+  return `route:${siteId}:${normalizePublicPath(path)}`
 }
 
 export function entityTag(siteId: string, entityId: number): string {

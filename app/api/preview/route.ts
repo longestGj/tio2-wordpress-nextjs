@@ -7,6 +7,10 @@ import {
   createPreviewSessionToken,
   PREVIEW_SESSION_COOKIE,
 } from '@/lib/wordpress/preview-session'
+import {
+  CrossSiteContentError,
+  InvalidContentPathError,
+} from '@/lib/wordpress/types'
 
 export const runtime = 'nodejs'
 
@@ -71,8 +75,25 @@ export async function GET(request: Request): Promise<Response> {
     )
   }
 
-  const preview = await getPreviewContentByPath(siteId, path)
-  if (!preview) {
+  let preview
+  try {
+    preview = await getPreviewContentByPath(siteId, path)
+  } catch (error) {
+    if (
+      error instanceof CrossSiteContentError ||
+      error instanceof InvalidContentPathError
+    ) {
+      return Response.json(
+        {ok: false, error: 'Preview not found'},
+        {status: 404},
+      )
+    }
+    return Response.json(
+      {ok: false, error: 'Preview source is unavailable'},
+      {status: 502},
+    )
+  }
+  if (!preview || preview.status !== 'draft') {
     return Response.json({ok: false, error: 'Preview not found'}, {status: 404})
   }
 
