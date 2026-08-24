@@ -301,8 +301,10 @@ for (const site of sites) {
       ok: true,
       eventId: payload.eventId,
       revalidatedTags: [
+        `content-list:${site.id}`,
         `route:${site.id}:/products`,
         `site:${site.id}`,
+        `sitemap:${site.id}`,
       ],
       revalidatedPaths: ['/products'],
     })
