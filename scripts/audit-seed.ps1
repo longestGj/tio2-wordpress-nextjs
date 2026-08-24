@@ -62,7 +62,7 @@ else {
     $Snapshot = $Match.Groups[1].Value | ConvertFrom-Json
 }
 
-foreach ($RequiredProperty in @('routes', 'homepages', 'publicUrls', 'sharedFixtures')) {
+foreach ($RequiredProperty in @('routes', 'homepages', 'publicUrls', 'sharedFixtures', 'summary')) {
     if (-not ($Snapshot.PSObject.Properties.Name -contains $RequiredProperty)) {
         throw "Audit snapshot is missing production property $RequiredProperty."
     }
@@ -72,6 +72,19 @@ $Errors = [System.Collections.Generic.List[string]]::new()
 $Routes = @($Snapshot.routes)
 $Homepages = @($Snapshot.homepages)
 $PublicUrls = @($Snapshot.publicUrls)
+$AuditSummary = $Snapshot.summary
+foreach ($SummaryProperty in @(
+    'publicInventoryCount',
+    'publishedHomepageCount',
+    'retainedDraftPageCount',
+    'retainedDraftProductCount',
+    'identityChecksum',
+    'crossSiteLeaks'
+)) {
+    if (-not ($AuditSummary.PSObject.Properties.Name -contains $SummaryProperty)) {
+        throw "Audit summary is missing production property $SummaryProperty."
+    }
+}
 $ScalePageCount = $ExpectedPerSite - 5
 $ExpectedPaths = @{}
 foreach ($SiteId in $SiteIds) {
@@ -284,4 +297,5 @@ if ($Errors.Count -gt 0) {
     exit 1
 }
 foreach ($SiteId in $SiteIds) { Write-Output "$SiteId`: $ExpectedPerSite public URLs" }
+Write-Output "TIO2_AUDIT_SUMMARY $($AuditSummary | ConvertTo-Json -Depth 6 -Compress)"
 Write-Output 'Seed audit passed.'

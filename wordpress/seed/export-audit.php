@@ -149,6 +149,9 @@ foreach ($shared_entity_ids as $entity_id) {
         'status' => (string) get_post_status($entity_id),
         'postType' => (string) get_post_type($entity_id),
         'siteScopes' => array_values($scopes),
+        'publicPath' => '' === (string) get_post_meta((int) $entity_id, 'public_path', true)
+            ? null
+            : (string) get_post_meta((int) $entity_id, 'public_path', true),
     ];
 }
 
@@ -236,11 +239,106 @@ foreach ($homepages as $homepage) {
     }
 }
 
+$inventory = tio2_load_public_route_inventory();
+$public_inventory_count = [];
+$published_homepage_count = [];
+$retained_draft_page_count = [];
+foreach ($site_ids as $site_id) {
+    $public_inventory_count[$site_id] = (int) $inventory['sites'][$site_id]['expectedPublicUrls'];
+    $published_homepage_count[$site_id] = count(array_filter(
+        $homepages,
+        static fn(array $homepage): bool =>
+            $site_id === $homepage['siteId'] && 'publish' === $homepage['status']
+    ));
+    $retained_draft_page_count[$site_id] = count(array_filter(
+        $routes,
+        static fn(array $route): bool =>
+            'page' === $route['postType'] &&
+            'draft' === $route['status'] &&
+            '/' !== $route['publicPath'] &&
+            '' === $route['supersededSeedSnapshot'] &&
+            [$site_id] === $route['siteScopes']
+    ));
+}
+$retained_draft_product_count = count(array_filter(
+    $shared_fixtures,
+    static fn(array $fixture): bool =>
+        'tio2_product' === $fixture['postType'] &&
+        'draft' === $fixture['status'] &&
+        'test-product-reference' === $fixture['fixtureId'] &&
+        ['tio2-a'] === $fixture['siteScopes'] &&
+        null === $fixture['publicPath']
+));
+
+$cross_site_leaks = 0;
+$route_keys = [];
+foreach ($routes as $route) {
+    if ('/' === $route['publicPath'] || '' !== $route['supersededSeedSnapshot']) {
+        continue;
+    }
+    if (1 !== count($route['siteScopes']) || ! in_array($route['siteScopes'][0], $site_ids, true)) {
+        $cross_site_leaks++;
+        continue;
+    }
+    $route_key = $route['siteScopes'][0] . ':' . $route['publicPath'];
+    if (isset($route_keys[$route_key])) {
+        $cross_site_leaks++;
+    }
+    $route_keys[$route_key] = true;
+}
+foreach ($homepages as $homepage) {
+    if (
+        null === $homepage['siteId'] ||
+        [$homepage['siteId']] !== $homepage['siteScopes'] ||
+        $homepage['siteId'] !== $homepage['seedMarker']
+    ) {
+        $cross_site_leaks++;
+    }
+}
+
+$identity_rows = [];
+foreach ($routes as $route) {
+    if ('/' === $route['publicPath'] || '' !== $route['supersededSeedSnapshot']) {
+        continue;
+    }
+    $identity_rows[] = [
+        'id' => $route['id'],
+        'postType' => $route['postType'],
+        'slug' => $route['slug'],
+        'publicPath' => $route['publicPath'],
+        'siteScopes' => $route['siteScopes'],
+    ];
+}
+foreach ($shared_fixtures as $fixture) {
+    $identity_rows[] = [
+        'id' => $fixture['id'],
+        'postType' => $fixture['postType'],
+        'slug' => $fixture['slug'],
+        'publicPath' => $fixture['publicPath'],
+        'siteScopes' => $fixture['siteScopes'],
+    ];
+}
+usort($identity_rows, static fn(array $left, array $right): int => $left['id'] <=> $right['id']);
+$identity_checksum = 'sha256:' . hash(
+    'sha256',
+    (string) wp_json_encode($identity_rows, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+);
+
+$audit_summary = [
+    'publicInventoryCount' => $public_inventory_count,
+    'publishedHomepageCount' => $published_homepage_count,
+    'retainedDraftPageCount' => $retained_draft_page_count,
+    'retainedDraftProductCount' => $retained_draft_product_count,
+    'identityChecksum' => $identity_checksum,
+    'crossSiteLeaks' => $cross_site_leaks,
+];
+
 $snapshot = [
     'routes' => $routes,
     'homepages' => $homepages,
     'publicUrls' => $public_urls,
     'sharedFixtures' => $shared_fixtures,
+    'summary' => $audit_summary,
 ];
 
 WP_CLI::log('TIO2_AUDIT_JSON_BEGIN');

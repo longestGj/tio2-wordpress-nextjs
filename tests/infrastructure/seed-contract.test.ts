@@ -426,6 +426,7 @@ interface AuditSharedFixture {
   status: string
   postType: string
   siteScopes: string[]
+  publicPath?: string | null
 }
 
 interface AuditSnapshot {
@@ -433,6 +434,14 @@ interface AuditSnapshot {
   homepages: AuditHomepage[]
   publicUrls: AuditPublicUrl[]
   sharedFixtures: AuditSharedFixture[]
+  summary: {
+    publicInventoryCount: Record<string, number>
+    publishedHomepageCount: Record<string, number>
+    retainedDraftPageCount: Record<string, number>
+    retainedDraftProductCount: number
+    identityChecksum: string
+    crossSiteLeaks: number
+  }
 }
 
 const sharedFixtureTypes = {
@@ -521,8 +530,17 @@ function validAuditSnapshot(scalePages = 0): AuditSnapshot {
         status: 'publish',
         postType,
         siteScopes: [],
+        publicPath: null,
       }),
     ),
+    summary: {
+      publicInventoryCount: {'tio2-a': 1, 'tio2-b': 1},
+      publishedHomepageCount: {'tio2-a': 1, 'tio2-b': 1},
+      retainedDraftPageCount: {'tio2-a': 0, 'tio2-b': 0},
+      retainedDraftProductCount: 0,
+      identityChecksum: 'sha256:synthetic-audit-fixture',
+      crossSiteLeaks: 0,
+    },
   }
 }
 
