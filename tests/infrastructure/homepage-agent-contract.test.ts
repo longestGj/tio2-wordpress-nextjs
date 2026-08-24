@@ -6,6 +6,14 @@ import {parse as parseYaml} from 'yaml'
 const repoRoot = resolve(import.meta.dirname, '../..')
 const agentPath = resolve(repoRoot, '.codex/agents/tio2-home-template.toml')
 const skillPath = resolve(repoRoot, '.agents/skills/tio2-home-template/SKILL.md')
+const homepageContractPath = resolve(
+  repoRoot,
+  '.agents/skills/tio2-home-template/references/homepage-template-contract.md',
+)
+const qualityGatesPath = resolve(
+  repoRoot,
+  '.agents/skills/tio2-home-template/references/quality-gates.md',
+)
 
 function parseStringOnlyToml(source: string): Record<string, string> {
   const result: Record<string, string> = {}
@@ -106,5 +114,27 @@ describe('project Homepage Agent/Skill contract', () => {
     expect(agents).toContain(
       'Site Template routing preserves the existing Homepage specialist contract: homepage work remains delegated to `tio2_home_template` and parent orchestration cannot substitute for Homepage implementation.',
     )
+  })
+
+  test('binds Homepage work to the approved inventory and decoupled runtime contract', () => {
+    const homepageContract = readFileSync(homepageContractPath, 'utf8')
+    const qualityGates = readFileSync(qualityGatesPath, 'utf8')
+
+    expect(homepageContract).toContain(
+      'Site A uses its active Homepage runtime and Site B uses its distinct `homepage-v0.1` frozen runtime.',
+    )
+    expect(homepageContract).toContain(
+      "Site B's field schema, template structure, and visible behavior are frozen while its existing content values remain editable",
+    )
+    expect(homepageContract).toContain(
+      'Product/application cards remain non-interactive, the Hero secondary CTA is absent, and unavailable FAQ related links are absent.',
+    )
+    expect(qualityGates).toContain(
+      'Read each site\'s expected public URL count from the versioned public route inventory; the approved initial count is one (`/`) per site.',
+    )
+    expect(qualityGates).toContain(
+      'Verify Site A and Site B select distinct Homepage runtime entries',
+    )
+    expect(qualityGates).not.toContain('Preserve exactly 505 unique public URLs per site')
   })
 })
