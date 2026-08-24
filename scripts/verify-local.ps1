@@ -3,7 +3,8 @@ param(
     [switch] $Plan,
     [switch] $CheckWorktree,
     [switch] $RootOnly,
-    [string] $InventoryPath = ''
+    [string] $InventoryPath = '',
+    [string] $CleanBuildArtifactForSite = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -16,6 +17,10 @@ if (-not $InventoryPath) {
 $InventoryPath = (Resolve-Path -LiteralPath $InventoryPath).Path
 $PublicRouteInventory = Get-Content -Raw -LiteralPath $InventoryPath | ConvertFrom-Json
 $SiteIds = @('tio2-a', 'tio2-b')
+$SiteBuildArtifacts = [ordered]@{
+    'tio2-a' = '.next-tio2-a'
+    'tio2-b' = '.next-tio2-b'
+}
 $InventoryCounts = [ordered]@{}
 $InventoryRoots = [ordered]@{}
 foreach ($SiteId in $SiteIds) {
@@ -35,6 +40,57 @@ foreach ($SiteId in $SiteIds) {
 }
 if (-not [string]$PublicRouteInventory.version) {
     throw 'Public route inventory must declare a version.'
+}
+
+function Clear-ValidatedSiteBuildArtifact {
+    param([Parameter(Mandatory = $true)][string] $SiteId)
+
+    if (-not $SiteBuildArtifacts.Contains($SiteId)) {
+        throw "Build artifact cleanup rejects non-allowlisted site $SiteId."
+    }
+    $DistDir = [string]$SiteBuildArtifacts[$SiteId]
+    $ExpectedPath = [System.IO.Path]::GetFullPath((Join-Path $RepositoryRoot $DistDir))
+    $RepositoryPrefix = $RepositoryRoot.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+    if (
+        -not $ExpectedPath.StartsWith($RepositoryPrefix, [System.StringComparison]::OrdinalIgnoreCase) -or
+        -not [string]::Equals(
+            $ExpectedPath,
+            [System.IO.Path]::GetFullPath((Join-Path $RepositoryRoot $DistDir)),
+            [System.StringComparison]::OrdinalIgnoreCase
+        )
+    ) {
+        throw "Build artifact cleanup target escaped the current worktree for $SiteId."
+    }
+    if (-not (Test-Path -LiteralPath $ExpectedPath)) {
+        return $false
+    }
+
+    $Pending = [System.Collections.Generic.Stack[string]]::new()
+    $Pending.Push($ExpectedPath)
+    while ($Pending.Count -gt 0) {
+        $CurrentPath = $Pending.Pop()
+        $Current = Get-Item -Force -LiteralPath $CurrentPath
+        if (($Current.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+            throw "Build artifact cleanup refuses reparse point $CurrentPath."
+        }
+        if (-not $Current.PSIsContainer) { continue }
+        foreach ($Child in @(Get-ChildItem -Force -LiteralPath $CurrentPath)) {
+            if (($Child.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+                throw "Build artifact cleanup refuses reparse point $($Child.FullName)."
+            }
+            if ($Child.PSIsContainer) { $Pending.Push($Child.FullName) }
+        }
+    }
+
+    $FinalTarget = Get-Item -Force -LiteralPath $ExpectedPath
+    if (($FinalTarget.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+        throw "Build artifact cleanup refuses reparse point $ExpectedPath."
+    }
+    Remove-Item -Force -Recurse -LiteralPath $ExpectedPath
+    if (Test-Path -LiteralPath $ExpectedPath) {
+        throw "Build artifact cleanup did not remove $ExpectedPath."
+    }
+    return $true
 }
 
 $GateNames = @(
@@ -97,6 +153,12 @@ if ($Plan) {
             requireCleanAtStart = $true
             requireCleanAtEnd = $true
             includeUntracked = $true
+        }
+        buildArtifacts = [ordered]@{
+            cleanBeforeBuild = $true
+            targets = $SiteBuildArtifacts
+            exactWorkspaceChildrenOnly = $true
+            rejectReparsePoints = $true
         }
         wordpressSmoke = [ordered]@{
             tests = $WordPressSmokeTests
@@ -163,6 +225,16 @@ if ($Plan) {
             deletes = 0
         }
     } | ConvertTo-Json -Depth 6 -Compress
+    exit 0
+}
+if ($CleanBuildArtifactForSite) {
+    $Removed = Clear-ValidatedSiteBuildArtifact -SiteId $CleanBuildArtifactForSite
+    [ordered]@{
+        mode = 'build-artifact-cleanup'
+        siteId = $CleanBuildArtifactForSite
+        distDir = [string]$SiteBuildArtifacts[$CleanBuildArtifactForSite]
+        removed = [bool]$Removed
+    } | ConvertTo-Json -Compress
     exit 0
 }
 if ($RootOnly -and ($InventoryCounts['tio2-a'] -ne 1 -or $InventoryCounts['tio2-b'] -ne 1)) {
@@ -1034,6 +1106,7 @@ try {
         [PSCustomObject]@{id = 'tio2-b'; dist = '.next-tio2-b'}
     )) {
         Invoke-Gate -Name "build-$($Site.id)" -Action {
+            [void](Clear-ValidatedSiteBuildArtifact -SiteId $Site.id)
             $SecretSuffix = $Site.id.ToUpperInvariant().Replace('-', '_')
             Invoke-WithEnvironment -Values @{
                 SITE_ID = $Site.id

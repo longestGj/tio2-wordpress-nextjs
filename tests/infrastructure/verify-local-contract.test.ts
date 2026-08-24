@@ -1,5 +1,12 @@
 import {execFileSync, spawnSync} from 'node:child_process'
-import {mkdtempSync, rmSync, writeFileSync} from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join, resolve} from 'node:path'
 import {describe, expect, it} from 'vitest'
@@ -65,6 +72,15 @@ describe.runIf(process.platform === 'win32')('local verification gate', () => {
         requireCleanAtStart: true,
         requireCleanAtEnd: true,
         includeUntracked: true,
+      },
+      buildArtifacts: {
+        cleanBeforeBuild: true,
+        targets: {
+          'tio2-a': '.next-tio2-a',
+          'tio2-b': '.next-tio2-b',
+        },
+        exactWorkspaceChildrenOnly: true,
+        rejectReparsePoints: true,
       },
       wordpressSmoke: {
         tests: [
@@ -199,6 +215,73 @@ describe.runIf(process.platform === 'win32')('local verification gate', () => {
       expect(zeroRoot.stderr).toContain('exactly one root route')
     } finally {
       rmSync(temporaryDirectory, {recursive: true, force: true})
+    }
+  })
+
+  it('removes an exact stale per-site fetch cache before the next build', () => {
+    const buildPath = resolve('.next-tio2-a')
+    const staleMarker = resolve(buildPath, 'cache', 'fetch-cache', 'stale-rfq-shape.json')
+    rmSync(buildPath, {recursive: true, force: true})
+    mkdirSync(resolve(buildPath, 'cache', 'fetch-cache'), {recursive: true})
+    writeFileSync(staleMarker, JSON.stringify({rfqIntro: 'stale scalar'}))
+
+    try {
+      const output = execFileSync(
+        'powershell',
+        [
+          '-NoProfile',
+          '-ExecutionPolicy',
+          'Bypass',
+          '-File',
+          verifier,
+          '-CleanBuildArtifactForSite',
+          'tio2-a',
+        ],
+        {encoding: 'utf8'},
+      )
+
+      expect(JSON.parse(output)).toEqual({
+        mode: 'build-artifact-cleanup',
+        siteId: 'tio2-a',
+        distDir: '.next-tio2-a',
+        removed: true,
+      })
+      expect(existsSync(staleMarker)).toBe(false)
+      expect(existsSync(buildPath)).toBe(false)
+    } finally {
+      rmSync(buildPath, {recursive: true, force: true})
+    }
+  })
+
+  it('refuses to follow a per-site build artifact reparse point outside the worktree', () => {
+    const buildPath = resolve('.next-tio2-b')
+    const outside = mkdtempSync(join(tmpdir(), 'tio2-next-cache-outside-'))
+    const outsideMarker = join(outside, 'must-survive.txt')
+    rmSync(buildPath, {recursive: true, force: true})
+    writeFileSync(outsideMarker, 'outside worktree')
+    symlinkSync(outside, buildPath, 'junction')
+
+    try {
+      const result = spawnSync(
+        'powershell',
+        [
+          '-NoProfile',
+          '-ExecutionPolicy',
+          'Bypass',
+          '-File',
+          verifier,
+          '-CleanBuildArtifactForSite',
+          'tio2-b',
+        ],
+        {encoding: 'utf8'},
+      )
+
+      expect(result.status).not.toBe(0)
+      expect(result.stderr).toContain('reparse point')
+      expect(existsSync(outsideMarker)).toBe(true)
+    } finally {
+      rmSync(buildPath, {recursive: true, force: true})
+      rmSync(outside, {recursive: true, force: true})
     }
   })
 
