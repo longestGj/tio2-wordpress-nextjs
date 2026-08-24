@@ -189,6 +189,103 @@ foreach ($SiteId in $SiteIds) {
     } else { $Paths }
 }
 
+$DerivedRouteIds = [System.Collections.Generic.HashSet[long]]::new()
+foreach ($Route in $Routes) {
+    $RouteIdIsInteger = $Route.id -is [int] -or $Route.id -is [long]
+    if (-not $RouteIdIsInteger -or [long]$Route.id -le 0 -or -not $DerivedRouteIds.Add([long]$Route.id)) {
+        $Errors.Add("Duplicate retained route ID or invalid route ID $($Route.id).")
+    }
+}
+
+$DerivedRouteKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+$DerivedRouteCounts = @{'tio2-a' = 0; 'tio2-b' = 0}
+$DerivedDraftRouteCounts = @{'tio2-a' = 0; 'tio2-b' = 0}
+$DerivedCrossSiteLeaks = 0
+$ExpectedManagedStatus = if ($IsTargetSummary) { 'draft' } else { 'publish' }
+foreach ($Route in $Routes) {
+    if ($Route.publicPath -eq '/' -or [string]$Route.supersededSeedSnapshot -ne '') { continue }
+    $Scopes = @($Route.siteScopes)
+    if ($Scopes.Count -ne 1 -or $SiteIds -notcontains [string]$Scopes[0]) {
+        $DerivedCrossSiteLeaks++
+        $Errors.Add("Invalid derived RootOnly route owner for ID $($Route.id).")
+        continue
+    }
+    $SiteId = [string]$Scopes[0]
+    $Path = [string]$Route.publicPath
+    $ExpectedSlug = if ($Path -match $PublicPathPattern) {
+        Build-InternalSlug -SiteId $SiteId -PublicPath $Path
+    } else { '' }
+    $RouteKey = "$SiteId`:$Path"
+    if (-not $DerivedRouteKeys.Add($RouteKey)) {
+        $DerivedCrossSiteLeaks++
+        $Errors.Add("Duplicate retained route path $RouteKey.")
+    }
+    if (
+        $Route.postType -ne 'page' -or
+        $Path -eq '/' -or
+        -not $ExpectedPaths[$SiteId].Contains($Path) -or
+        $Route.slug -ne $ExpectedSlug -or
+        $Route.seedMarker -ne $ExpectedSlug -or
+        $Route.status -ne $ExpectedManagedStatus
+    ) {
+        $Errors.Add("Invalid derived RootOnly route identity for ID $($Route.id).")
+    }
+    $DerivedRouteCounts[$SiteId]++
+    if ($Route.status -eq 'draft') { $DerivedDraftRouteCounts[$SiteId]++ }
+}
+
+foreach ($SiteId in $SiteIds) {
+    $ExpectedManagedCount = if ($IsTargetSummary) { 504 } else { $ExpectedPerSite - 1 }
+    if ($DerivedRouteCounts[$SiteId] -ne $ExpectedManagedCount) {
+        $Errors.Add(
+            "Invalid derived RootOnly route count for $SiteId`: expected $ExpectedManagedCount, found $($DerivedRouteCounts[$SiteId])."
+        )
+    }
+    foreach ($ExpectedPath in $ExpectedPaths[$SiteId]) {
+        if ($ExpectedPath -eq '/') { continue }
+        if (-not $DerivedRouteKeys.Contains("$SiteId`:$ExpectedPath")) {
+            $Errors.Add("Invalid derived RootOnly route completeness for $SiteId`: missing $ExpectedPath.")
+        }
+    }
+    if ([int]$AuditSummary.retainedDraftPageCount.$SiteId -ne $DerivedDraftRouteCounts[$SiteId]) {
+        $Errors.Add("Invalid audit summary retainedDraftPageCount for derived $SiteId rows.")
+    }
+}
+
+$DerivedDraftProductCount = @($Snapshot.sharedFixtures | Where-Object {
+    $_.postType -eq 'tio2_product' -and
+    $_.fixtureId -eq 'test-product-reference' -and
+    $_.status -eq 'draft' -and
+    @($_.siteScopes).Count -eq 1 -and
+    @($_.siteScopes)[0] -eq 'tio2-a' -and
+    ($null -eq $_.publicPath -or [string]$_.publicPath -eq '')
+}).Count
+if ([int]$AuditSummary.retainedDraftProductCount -ne $DerivedDraftProductCount) {
+    $Errors.Add('Invalid audit summary retainedDraftProductCount for derived Product rows.')
+}
+foreach ($Homepage in $Homepages) {
+    $IsReleasedDuplicate =
+        $Homepage.status -eq 'draft' -and
+        @($Homepage.siteScopes).Count -eq 0 -and
+        $Homepage.slug -eq "homepage-duplicate-$($Homepage.id)" -and
+        $Homepage.error -eq 'tio2_homepage_duplicate' -and
+        [string]$Homepage.seedMarker -eq ''
+    if ($IsReleasedDuplicate) { continue }
+    if (
+        $null -eq $Homepage.siteId -or
+        @($Homepage.siteScopes).Count -ne 1 -or
+        @($Homepage.siteScopes)[0] -ne $Homepage.siteId -or
+        $Homepage.seedMarker -ne $Homepage.siteId
+    ) {
+        $DerivedCrossSiteLeaks++
+    }
+}
+if ([int]$AuditSummary.crossSiteLeaks -ne $DerivedCrossSiteLeaks) {
+    $Errors.Add(
+        "Invalid audit summary crossSiteLeaks: claimed $($AuditSummary.crossSiteLeaks), derived $DerivedCrossSiteLeaks."
+    )
+}
+
 $CanonicalHomepages = @{}
 foreach ($Homepage in $Homepages) {
     $IsReleasedDuplicate =

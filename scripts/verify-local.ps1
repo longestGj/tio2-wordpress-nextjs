@@ -36,6 +36,14 @@ $ControllerMaximumSequentialHealthWaitSeconds = 240
 $ControllerParentTimeoutSeconds = 270
 $ControllerCancellationGraceSeconds = 30
 $AcceptedDatasetRestoreSeedMode = 'LegacyBaseline'
+$WordPressSmokeTests = @(
+    'smoke',
+    'authoring',
+    'webhook-routing',
+    'preview',
+    'admin-credentials',
+    'root-only-retirement-safety'
+)
 
 if ($Plan) {
     [ordered]@{
@@ -54,6 +62,9 @@ if ($Plan) {
             requireCleanAtStart = $true
             requireCleanAtEnd = $true
             includeUntracked = $true
+        }
+        wordpressSmoke = [ordered]@{
+            tests = $WordPressSmokeTests
         }
         liveSeed = [ordered]@{
             restoreInFinally = $true
@@ -704,7 +715,7 @@ try {
     }
 
     Invoke-Gate -Name 'wordpress-smoke' -Action {
-        foreach ($SmokeName in @('smoke', 'authoring', 'webhook-routing', 'preview', 'admin-credentials')) {
+        foreach ($SmokeName in $WordPressSmokeTests) {
             Invoke-NativeLogged `
                 -FilePath $Docker `
                 -Arguments @($ComposeArguments + @(

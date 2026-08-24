@@ -287,6 +287,15 @@ foreach ($routes as $route) {
     $route_keys[$route_key] = true;
 }
 foreach ($homepages as $homepage) {
+    $released_duplicate =
+        'draft' === $homepage['status'] &&
+        [] === $homepage['siteScopes'] &&
+        'homepage-duplicate-' . $homepage['id'] === $homepage['slug'] &&
+        'tio2_homepage_duplicate' === $homepage['error'] &&
+        '' === $homepage['seedMarker'];
+    if ($released_duplicate) {
+        continue;
+    }
     if (
         null === $homepage['siteId'] ||
         [$homepage['siteId']] !== $homepage['siteScopes'] ||

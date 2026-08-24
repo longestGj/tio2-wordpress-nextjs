@@ -88,6 +88,15 @@ function auditLegacyBaseline(): void {
   expect(output).toContain('tio2-b: 505 public URLs')
 }
 
+function auditRootOnlyTarget(): void {
+  const output = requireSuccess(
+    powershell(auditScript, ['-ExpectedPerSite', '1']),
+    'independent RootOnly 1/1 audit',
+  )
+  expect(output).toContain('tio2-a: 1 public URLs')
+  expect(output).toContain('tio2-b: 1 public URLs')
+}
+
 interface LiveState {
   pages: Array<{
     id: number
@@ -260,6 +269,7 @@ describe.runIf(runLiveWordPress)('live reversible root-only retirement', () => {
         status: '',
         siteScopes: [],
       })
+      auditRootOnlyTarget()
 
       const second = mutationSummary(
         requireSuccess(

@@ -60,6 +60,16 @@ describe.runIf(process.platform === 'win32')('local verification gate', () => {
         requireCleanAtEnd: true,
         includeUntracked: true,
       },
+      wordpressSmoke: {
+        tests: [
+          'smoke',
+          'authoring',
+          'webhook-routing',
+          'preview',
+          'admin-credentials',
+          'root-only-retirement-safety',
+        ],
+      },
       liveSeed: {
         restoreInFinally: true,
         auditAfterRestore: true,

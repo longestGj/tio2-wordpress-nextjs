@@ -645,6 +645,72 @@ describe('seed audit validation', () => {
 
   it.each([
     {
+      name: 'an omitted retained route',
+      mutate(snapshot: AuditSnapshot) {
+        const index = snapshot.routes.findIndex(
+          ({publicPath, siteScopes}) => publicPath === '/products' && siteScopes[0] === 'tio2-a',
+        )
+        snapshot.routes.splice(index, 1)
+      },
+    },
+    {
+      name: 'a duplicate retained route ID',
+      mutate(snapshot: AuditSnapshot) {
+        const pages = snapshot.routes.filter(({publicPath}) => publicPath !== '/')
+        pages[1].id = pages[0].id
+      },
+    },
+    {
+      name: 'a duplicate retained route path that hides an omission',
+      mutate(snapshot: AuditSnapshot) {
+        const pages = snapshot.routes.filter(
+          ({publicPath, siteScopes}) => publicPath !== '/' && siteScopes[0] === 'tio2-a',
+        )
+        Object.assign(pages[1], {
+          publicPath: pages[0].publicPath,
+          slug: pages[0].slug,
+          seedMarker: pages[0].seedMarker,
+        })
+      },
+    },
+    {
+      name: 'a cross-site reassigned retained route with a forged zero leak claim',
+      mutate(snapshot: AuditSnapshot) {
+        const page = snapshot.routes.find(
+          ({publicPath, siteScopes}) => publicPath === '/products' && siteScopes[0] === 'tio2-a',
+        )!
+        page.siteScopes = ['tio2-b']
+        page.slug = 'tio2-b--products'
+        page.seedMarker = 'tio2-b--products'
+      },
+    },
+    {
+      name: 'an omission hidden by a duplicate and cross-site reassignment',
+      mutate(snapshot: AuditSnapshot) {
+        const page = snapshot.routes.find(
+          ({publicPath, siteScopes}) => publicPath === '/about' && siteScopes[0] === 'tio2-a',
+        )!
+        page.siteScopes = ['tio2-b']
+        page.publicPath = '/products'
+        page.slug = 'tio2-b--products'
+        page.seedMarker = 'tio2-b--products'
+      },
+    },
+  ])('rejects RootOnly target audit rows with $name after canonical rehash', ({mutate}) => {
+    const snapshot = validTargetAuditSnapshot()
+    mutate(snapshot)
+    snapshot.summary.identityChecksum = auditIdentityChecksum(snapshot)
+
+    const result = runSnapshotAudit(snapshot, 1)
+
+    expect(result.status).not.toBe(0)
+    expect(`${result.stdout}\n${result.stderr}`).toMatch(
+      /Invalid derived RootOnly route|duplicate retained route|cross-site leak/i,
+    )
+  })
+
+  it.each([
+    {
       field: 'publicInventoryCount',
       mutate: (snapshot: AuditSnapshot) => { snapshot.summary.publicInventoryCount['tio2-a'] = 2 },
     },
