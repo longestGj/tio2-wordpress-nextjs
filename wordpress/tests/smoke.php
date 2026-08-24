@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/publication.php';
+
 function tio2_smoke_fail($message)
 {
     if (function_exists('tio2_smoke_cleanup_webhook_fixtures')) {

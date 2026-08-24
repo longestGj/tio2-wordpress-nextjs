@@ -1,0 +1,23 @@
+{
+  "version": "root-only-v0.1",
+  "sites": {
+    "tio2-a": {
+      "expectedPublicUrls": 1,
+      "routes": [
+        {
+          "path": "/",
+          "template": "site-a-homepage-active"
+        }
+      ]
+    },
+    "tio2-b": {
+      "expectedPublicUrls": 1,
+      "routes": [
+        {
+          "path": "/",
+          "template": "site-b-homepage-v0.1-frozen"
+        }
+      ]
+    }
+  }
+}
