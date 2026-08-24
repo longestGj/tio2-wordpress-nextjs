@@ -59,6 +59,72 @@ function tio2_webhook_routing_assert_request(array $requests, string $site_id): 
     }
 }
 
+function tio2_webhook_routing_publish_legacy_page(int $post_id, string $site_id): void
+{
+    global $wpdb;
+
+    $post = get_post($post_id);
+    $path = (string) get_post_meta($post_id, 'public_path', true);
+    if (
+        ! $post instanceof WP_Post ||
+        'page' !== $post->post_type ||
+        'draft' !== $post->post_status ||
+        ! in_array($post_id, $GLOBALS['tio2_webhook_routing_post_ids'], true) ||
+        "/webhook-routing/{$site_id}" !== $path ||
+        tio2_publication_route_is_approved($site_id, $path)
+    ) {
+        tio2_webhook_routing_fail('Legacy webhook fixture escaped its bounded draft/site/path contract');
+    }
+
+    $updated = $wpdb->update(
+        $wpdb->posts,
+        ['post_status' => 'publish'],
+        ['ID' => $post_id],
+        ['%s'],
+        ['%d']
+    );
+    clean_post_cache($post_id);
+    $published = get_post($post_id);
+    if (1 !== $updated || ! $published instanceof WP_Post || 'publish' !== $published->post_status) {
+        tio2_webhook_routing_fail('Could not create bounded legacy published webhook fixture');
+    }
+    do_action('transition_post_status', 'publish', 'draft', $published);
+}
+
+function tio2_webhook_routing_update_legacy_title(int $post_id, string $post_title): void
+{
+    global $wpdb;
+
+    $post = get_post($post_id);
+    if (
+        ! $post instanceof WP_Post ||
+        'page' !== $post->post_type ||
+        'publish' !== $post->post_status ||
+        ! in_array($post_id, $GLOBALS['tio2_webhook_routing_post_ids'], true) ||
+        1 !== preg_match('~^/webhook-routing/tio2-(?:a|b)$~', (string) get_post_meta($post_id, 'public_path', true))
+    ) {
+        tio2_webhook_routing_fail('Legacy webhook title update escaped its bounded fixture contract');
+    }
+
+    $updated = $wpdb->update(
+        $wpdb->posts,
+        [
+            'post_title' => $post_title,
+            'post_modified' => current_time('mysql'),
+            'post_modified_gmt' => current_time('mysql', true),
+        ],
+        ['ID' => $post_id],
+        ['%s', '%s', '%s'],
+        ['%d']
+    );
+    clean_post_cache($post_id);
+    $updated_post = get_post($post_id);
+    if (1 !== $updated || ! $updated_post instanceof WP_Post || $post_title !== $updated_post->post_title) {
+        tio2_webhook_routing_fail('Could not update bounded legacy webhook fixture title');
+    }
+    do_action('transition_post_status', 'publish', 'publish', $updated_post);
+}
+
 function tio2_webhook_routing_page(string $site_id): int
 {
     $post_id = wp_insert_post([
@@ -72,7 +138,7 @@ function tio2_webhook_routing_page(string $site_id): int
     $GLOBALS['tio2_webhook_routing_post_ids'][] = (int) $post_id;
     update_post_meta((int) $post_id, 'public_path', "/webhook-routing/{$site_id}");
     wp_set_object_terms((int) $post_id, [$site_id], 'site_scope', false);
-    wp_update_post(['ID' => (int) $post_id, 'post_status' => 'publish']);
+    tio2_webhook_routing_publish_legacy_page((int) $post_id, $site_id);
     tio2_flush_webhook_queue();
     return (int) $post_id;
 }
@@ -104,7 +170,10 @@ foreach (['tio2-a', 'tio2-b'] as $site_id) {
 
     $captured_requests = [];
     $GLOBALS['tio2_webhook_queue'] = [];
-    wp_update_post(['ID' => $page_id, 'post_title' => "Updated {$site_id} webhook routing fixture"]);
+    tio2_webhook_routing_update_legacy_title(
+        $page_id,
+        "Updated {$site_id} webhook routing fixture"
+    );
     tio2_flush_webhook_queue();
     tio2_webhook_routing_assert_request($captured_requests, $site_id);
 }

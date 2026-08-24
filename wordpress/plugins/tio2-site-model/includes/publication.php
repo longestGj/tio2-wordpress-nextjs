@@ -187,15 +187,26 @@ function tio2_publication_resolve_submitted_site_scope($submitted): ?string
     $values = is_array($submitted) ? $submitted : explode(',', (string) $submitted);
     $slugs = [];
     foreach ($values as $value) {
-        if (! is_scalar($value) || '' === trim((string) $value)) {
+        if (! is_scalar($value)) {
+            return null;
+        }
+        $raw_value = trim((string) $value);
+        if ('' === $raw_value) {
             continue;
         }
-        $term = ctype_digit((string) $value)
-            ? get_term((int) $value, 'site_scope')
-            : get_term_by('slug', sanitize_title((string) $value), 'site_scope');
-        if ($term instanceof WP_Term) {
-            $slugs[] = $term->slug;
+        if (ctype_digit($raw_value)) {
+            $term = get_term((int) $raw_value, 'site_scope');
+        } else {
+            $normalized_slug = sanitize_title($raw_value);
+            if ($normalized_slug !== $raw_value) {
+                return null;
+            }
+            $term = get_term_by('slug', $normalized_slug, 'site_scope');
         }
+        if (! $term instanceof WP_Term || ! in_array($term->slug, ['tio2-a', 'tio2-b'], true)) {
+            return null;
+        }
+        $slugs[] = $term->slug;
     }
     $slugs = array_values(array_unique($slugs));
     return 1 === count($slugs) && in_array($slugs[0], ['tio2-a', 'tio2-b'], true)

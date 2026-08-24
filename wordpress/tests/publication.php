@@ -247,6 +247,19 @@ tio2_publication_test_expect_rejected_status(
     $stable_messages['invalid_scope']
 );
 
+$mixed_unknown_scope_id = tio2_publication_test_managed_post(
+    'page',
+    '/publication-guard-mixed-unknown',
+    ['tio2-a']
+);
+tio2_publication_test_expect_rejected_status(
+    $mixed_unknown_scope_id,
+    'publish',
+    'tio2_publication_invalid_site_scope',
+    $stable_messages['invalid_scope'],
+    ['tax_input' => ['site_scope' => ['tio2-a', 'tio2-missing-site']]]
+);
+
 $duplicate_owner_id = tio2_publication_test_managed_post('page', '/publication-guard-duplicate');
 $duplicate_id = tio2_publication_test_managed_post('post', '/publication-guard-duplicate');
 tio2_publication_test_expect_rejected_status(
@@ -254,6 +267,28 @@ tio2_publication_test_expect_rejected_status(
     'publish',
     'tio2_publication_duplicate_route',
     $stable_messages['duplicate']
+);
+
+$ambiguous_claim_candidate_id = tio2_publication_test_managed_post(
+    'page',
+    '/publication-guard-ambiguous-claimant',
+    ['tio2-a']
+);
+$ambiguous_claimant_id = tio2_publication_test_managed_post(
+    'post',
+    '/publication-guard-ambiguous-claimant',
+    ['tio2-a', 'tio2-b']
+);
+tio2_publication_test_expect_rejected_status(
+    $ambiguous_claim_candidate_id,
+    'publish',
+    'tio2_publication_duplicate_route',
+    $stable_messages['duplicate']
+);
+tio2_publication_test_assert(
+    [$ambiguous_claim_candidate_id, $ambiguous_claimant_id] ===
+        tio2_find_managed_route_post_ids('tio2-a', '/publication-guard-ambiguous-claimant'),
+    'Ambiguous persisted claimant was discarded from exact site/path ownership.'
 );
 
 $unnormalized_id = tio2_publication_test_managed_post('page', '/Publication-Guard-Unnormalized');
@@ -293,6 +328,19 @@ try {
     tio2_publication_test_assert(
         $stable_messages['not_approved'] === $acf_publish_validation,
         'ACF publish validation did not return the stable inventory rejection.'
+    );
+
+    $_POST['tax_input']['site_scope'] = ['tio2-a', 'tio2-missing-site'];
+    $acf_mixed_scope_validation = apply_filters(
+        'acf/validate_value/name=public_path',
+        true,
+        '/publication-guard-draft-edit',
+        [],
+        'acf[field_tio2_public_path]'
+    );
+    tio2_publication_test_assert(
+        $stable_messages['invalid_scope'] === $acf_mixed_scope_validation,
+        'ACF mixed supported/unknown scope submission was not rejected as ambiguous.'
     );
 
     $_POST['post_status'] = 'draft';

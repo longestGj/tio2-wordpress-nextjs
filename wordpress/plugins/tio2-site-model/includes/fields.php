@@ -445,24 +445,7 @@ function tio2_get_authoring_site_scope(int $post_id): ?string
 {
     $submitted = $_POST['tax_input']['site_scope'] ?? null;
     if (null !== $submitted) {
-        $submitted = wp_unslash($submitted);
-        $values = is_array($submitted) ? $submitted : explode(',', (string) $submitted);
-        $slugs = [];
-        foreach ($values as $value) {
-            if (! is_scalar($value) || '' === trim((string) $value)) {
-                continue;
-            }
-            $term = ctype_digit((string) $value)
-                ? get_term((int) $value, 'site_scope')
-                : get_term_by('slug', sanitize_title((string) $value), 'site_scope');
-            if ($term instanceof WP_Term) {
-                $slugs[] = $term->slug;
-            }
-        }
-        $slugs = array_values(array_unique($slugs));
-        return 1 === count($slugs) && in_array($slugs[0], ['tio2-a', 'tio2-b'], true)
-            ? $slugs[0]
-            : null;
+        return tio2_publication_resolve_submitted_site_scope(wp_unslash($submitted));
     }
 
     if ($post_id <= 0) {
@@ -566,11 +549,17 @@ function tio2_find_managed_route_post_ids(string $site_id, string $public_path):
     ]);
     $owners = [];
     foreach ($candidate_ids as $candidate_id) {
-        $identity = tio2_get_managed_post_route_identity((int) $candidate_id);
+        $site_scopes = wp_get_post_terms((int) $candidate_id, 'site_scope', ['fields' => 'slugs']);
+        if (is_wp_error($site_scopes)) {
+            $owners[] = (int) $candidate_id;
+            continue;
+        }
+        $site_scopes = array_values(array_unique(array_map('strval', $site_scopes)));
+        $supported_scopes = array_values(array_intersect($site_scopes, ['tio2-a', 'tio2-b']));
+        $has_exact_scope = 1 === count($site_scopes) && 1 === count($supported_scopes);
         if (
-            ! is_wp_error($identity) &&
-            $identity['siteId'] === $site_id &&
-            $identity['publicPath'] === $public_path
+            ($has_exact_scope && $supported_scopes[0] === $site_id) ||
+            (! $has_exact_scope && in_array($site_id, $supported_scopes, true))
         ) {
             $owners[] = (int) $candidate_id;
         }
