@@ -24,6 +24,8 @@ const sites = [
 ] as const
 
 const longTailPath = '/test-content/long-tail-500'
+const chromiumResource404Error =
+  'console: Failed to load resource: the server responded with a status of 404 (Not Found)'
 const rootOnlySnapshotPath = process.env.TIO2_ROOT_ONLY_SNAPSHOT_PATH
 const requireRootOnlySnapshot = process.env.TIO2_REQUIRE_ROOT_ONLY_SNAPSHOT === '1'
 const wordpressEnvPath = resolve('wordpress/.env')
@@ -71,13 +73,71 @@ function capturePageErrors(page: Page): string[] {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`))
   page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(`console: ${message.text()}`)
+    if (message.type() === 'error') {
+      const locationUrl = message.location().url
+      errors.push(
+        locationUrl
+          ? `console: ${message.text()} (${locationUrl})`
+          : `console: ${message.text()}`,
+      )
+    }
   })
   page.on('requestfailed', (request) => {
     errors.push(`requestfailed: ${request.url()} (${request.failure()?.errorText})`)
   })
   return errors
 }
+
+function withoutExpectedDocument404s(
+  errors: string[],
+  expectedDocumentUrls: readonly string[],
+): string[] {
+  const remainingExpectedCounts = new Map<string, number>()
+  for (const url of expectedDocumentUrls) {
+    const expectedError = `${chromiumResource404Error} (${url})`
+    remainingExpectedCounts.set(
+      expectedError,
+      (remainingExpectedCounts.get(expectedError) ?? 0) + 1,
+    )
+  }
+
+  return errors.filter((error) => {
+    const remaining = remainingExpectedCounts.get(error) ?? 0
+    if (remaining === 0) return true
+    if (remaining === 1) remainingExpectedCounts.delete(error)
+    else remainingExpectedCounts.set(error, remaining - 1)
+    return false
+  })
+}
+
+test('404 console filtering keeps identical errors from another resource URL', async ({
+  page,
+}) => {
+  const site = sites[0]
+  const documentUrl = `${site.baseUrl}/missing-console-filter-regression`
+  const resourceUrl = `${site.baseUrl}/unexpected-console-resource-${randomUUID()}.js`
+  const errors = capturePageErrors(page)
+
+  const response = await page.goto(documentUrl, {waitUntil: 'networkidle'})
+  expect(response?.status()).toBe(404)
+  await page.evaluate(
+    (url) =>
+      new Promise<void>((resolve) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.addEventListener('load', () => resolve(), {once: true})
+        script.addEventListener('error', () => resolve(), {once: true})
+        document.body.append(script)
+      }),
+    resourceUrl,
+  )
+  await expect.poll(() => errors.length).toBeGreaterThanOrEqual(2)
+
+  expect(withoutExpectedDocument404s(errors, [documentUrl])).toEqual([
+    `${chromiumResource404Error} (${resourceUrl})`,
+    `requestfailed: ${resourceUrl} (net::ERR_ABORTED)`,
+  ])
+})
 
 function wp(arguments_: string[]): string {
   const result = spawnSync(
@@ -185,10 +245,13 @@ for (const site of sites) {
       await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(0)
     }
     expect(
-      errors.filter(
-        (error) =>
-          error !==
-          'console: Failed to load resource: the server responded with a status of 404 (Not Found)',
+      withoutExpectedDocument404s(
+        errors,
+        [
+          '/products',
+          '/applications/coatings',
+          longTailPath,
+        ].map((path) => `${site.baseUrl}${path}`),
       ),
     ).toEqual([])
   })
@@ -216,17 +279,12 @@ for (const site of sites) {
 
   test(`${site.id} returns a real 404 without cross-site leakage`, async ({page}) => {
     const errors = capturePageErrors(page)
-    const response = await page.goto(`${site.baseUrl}/missing-local-acceptance-page`)
+    const missingUrl = `${site.baseUrl}/missing-local-acceptance-page`
+    const expectedDocument404Urls = [missingUrl]
+    const response = await page.goto(missingUrl)
 
     expect(response?.status()).toBe(404)
     await expect(page.locator('body')).not.toContainText(site.oppositeName)
-    expect(
-      errors.filter(
-        (error) =>
-          error !==
-          'console: Failed to load resource: the server responded with a status of 404 (Not Found)',
-      ),
-    ).toEqual([])
 
     for (const invalidPath of [
       '/Products',
@@ -234,9 +292,14 @@ for (const site of sites) {
       '/钛白粉',
       `/${'a'.repeat(173)}`,
     ]) {
-      const invalidResponse = await page.goto(`${site.baseUrl}${invalidPath}`)
+      const invalidUrl = new URL(invalidPath, site.baseUrl).href
+      expectedDocument404Urls.push(invalidUrl)
+      const invalidResponse = await page.goto(invalidUrl)
       expect(invalidResponse?.status(), invalidPath).toBe(404)
     }
+    expect(
+      withoutExpectedDocument404s(errors, expectedDocument404Urls),
+    ).toEqual([])
   })
 
   test(`${site.id} preview rejects bad boundaries`, async ({
