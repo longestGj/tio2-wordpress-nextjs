@@ -239,7 +239,7 @@ describe('seed execution plan', () => {
     }
     expect(plan.entities.find(({id}) => id === 'test-product-reference')).toMatchObject({
       postStatus: 'draft',
-      siteScopes: [],
+      siteScopes: ['tio2-a'],
       legacyBaseline: false,
     })
     expect(plan.entities.find(({id}) => id === 'test-grade-reference')).toMatchObject({
