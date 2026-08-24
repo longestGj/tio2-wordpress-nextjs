@@ -224,6 +224,13 @@
   align-items: center;
 }
 
+.cardLink {
+  display: inline-flex;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  align-items: center;
+}
+
 .stepGrid {
   padding: 0;
   list-style: none;

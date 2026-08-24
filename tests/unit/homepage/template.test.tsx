@@ -166,11 +166,19 @@ describe('HomepageTemplate', () => {
       productRoutes: base.productRoutes.map((route, index) =>
         index === 0 ? {...route, href: route.path} : route,
       ),
+      applications: base.applications.map((application, index) =>
+        index === 0 ? {...application, href: application.path} : application,
+      ),
     }
 
     const markup = renderToStaticMarkup(<HomepageTemplate homepage={homepage} />)
 
-    expect(markup).toContain('<a href="/products/rutile">Rutile grades</a>')
+    expect(markup).toMatch(
+      /<a class="[^"]*cardLink[^"]*" href="\/products\/rutile">Rutile grades<\/a>/u,
+    )
+    expect(markup).toMatch(
+      /<a class="[^"]*cardLink[^"]*" href="\/applications\/coatings">Coatings<\/a>/u,
+    )
     expect(markup).not.toContain('<a href="/products/anatase">')
   })
 

@@ -1492,6 +1492,34 @@ tio2_homepage_test_assert(
     'publish' === get_post_status($valid_a) && true === tio2_validate_homepage_contract($valid_a),
     'Drafted exact link target invalidated its published homepage dependency'
 );
+
+tio2_homepage_test_set_route_status_exact($dependent_target_id, 'private');
+clean_post_cache($valid_a);
+tio2_homepage_test_assert(
+    'draft' === get_post_status($valid_a),
+    'Draft-to-private link target transition left its invalid Homepage published'
+);
+tio2_homepage_test_set_route_status_exact($dependent_target_id, 'draft');
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+tio2_homepage_test_assert(
+    'publish' === get_post_status($valid_a) && true === tio2_validate_homepage_contract($valid_a),
+    'Restored draft link target did not permit Homepage publication'
+);
+
+wp_trash_post($dependent_target_id);
+clean_post_cache($valid_a);
+tio2_homepage_test_assert(
+    'draft' === get_post_status($valid_a),
+    'Draft-to-trash link target transition left its invalid Homepage published'
+);
+wp_untrash_post($dependent_target_id);
+do_action('acf/save_post', $dependent_target_id);
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+tio2_homepage_test_assert(
+    'publish' === get_post_status($valid_a) && true === tio2_validate_homepage_contract($valid_a),
+    'Restored draft link target did not restore valid Homepage publication'
+);
+
 tio2_homepage_test_set_route_status_exact($dependent_target_id, 'publish');
 wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
 

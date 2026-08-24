@@ -40,7 +40,9 @@ export function ApplicationDiscovery({
             ) : null}
             <h3>
               {application.href ? (
-                <a href={application.href}>{application.title}</a>
+                <a className={styles.cardLink} href={application.href}>
+                  {application.title}
+                </a>
               ) : application.title}
             </h3>
             <p>{application.summary}</p>

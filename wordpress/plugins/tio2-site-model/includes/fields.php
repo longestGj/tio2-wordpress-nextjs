@@ -1763,7 +1763,10 @@ function tio2_enforce_homepage_dependencies_after_transition(
     if (
         $new_status !== $old_status &&
         in_array($post->post_type, ['page', 'post'], true) &&
-        ('publish' === $new_status || 'publish' === $old_status)
+        (
+            in_array($new_status, ['publish', 'draft'], true) ||
+            in_array($old_status, ['publish', 'draft'], true)
+        )
     ) {
         tio2_revalidate_published_homepages();
     }

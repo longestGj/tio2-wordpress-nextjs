@@ -35,7 +35,11 @@ export function ProductDiscovery({intro, routes}: ProductDiscoveryProps) {
                 unoptimized
               />
             ) : null}
-            <h3>{route.href ? <a href={route.href}>{route.title}</a> : route.title}</h3>
+            <h3>
+              {route.href ? (
+                <a className={styles.cardLink} href={route.href}>{route.title}</a>
+              ) : route.title}
+            </h3>
             <p>{route.summary}</p>
           </article>
         ))}

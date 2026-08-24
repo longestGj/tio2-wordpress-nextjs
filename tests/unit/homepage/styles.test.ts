@@ -75,4 +75,12 @@ describe('homepage focus and motion styles', () => {
       ),
     ).toBeGreaterThanOrEqual(4.5)
   })
+
+  it('sizes the future card anchor itself to at least 44 by 44 CSS pixels', () => {
+    const cardLinkRule = ruleContaining('.cardLink')
+
+    expect(cardLinkRule).toContain('display: inline-flex')
+    expect(cardLinkRule).toContain('min-width: 2.75rem')
+    expect(cardLinkRule).toContain('min-height: 2.75rem')
+  })
 })
