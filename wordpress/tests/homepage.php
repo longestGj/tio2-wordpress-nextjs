@@ -1493,6 +1493,40 @@ tio2_homepage_test_assert(
     'Drafted exact link target invalidated its published homepage dependency'
 );
 
+tio2_homepage_test_set_route_status_exact($dependent_target_id, 'pending');
+clean_post_cache($valid_a);
+$pending_transition_homepage_status = (string) get_post_status($valid_a);
+tio2_homepage_test_set_route_status_exact($dependent_target_id, 'draft');
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+tio2_homepage_test_assert(
+    'publish' === get_post_status($valid_a) && true === tio2_validate_homepage_contract($valid_a),
+    'Restored draft link target after pending did not permit Homepage publication'
+);
+
+tio2_homepage_test_set_route_status_exact($dependent_target_id, 'future');
+clean_post_cache($valid_a);
+$future_transition_homepage_status = (string) get_post_status($valid_a);
+tio2_homepage_test_set_route_status_exact($dependent_target_id, 'draft');
+wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+tio2_homepage_test_assert(
+    'publish' === get_post_status($valid_a) && true === tio2_validate_homepage_contract($valid_a),
+    'Restored draft link target after future did not permit Homepage publication'
+);
+tio2_homepage_test_assert(
+    'draft' === $pending_transition_homepage_status && 'draft' === $future_transition_homepage_status,
+    'Draft-to-pending/future transitions left invalid Homepages published; pending=' .
+        $pending_transition_homepage_status .
+        '; future=' . $future_transition_homepage_status
+);
+tio2_homepage_test_assert(
+    'draft' === $pending_transition_homepage_status,
+    'Draft-to-pending link target transition left its invalid Homepage published'
+);
+tio2_homepage_test_assert(
+    'draft' === $future_transition_homepage_status,
+    'Draft-to-future link target transition left its invalid Homepage published'
+);
+
 tio2_homepage_test_set_route_status_exact($dependent_target_id, 'private');
 clean_post_cache($valid_a);
 tio2_homepage_test_assert(
