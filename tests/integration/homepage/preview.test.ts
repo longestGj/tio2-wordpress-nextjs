@@ -2,7 +2,10 @@ import {createHmac} from 'node:crypto'
 import {http, HttpResponse} from 'msw'
 import {afterEach, beforeEach, describe, expect, it} from 'vitest'
 
-import {HomepageVersionError} from '@/lib/wordpress/homepage-dto'
+import {
+  HomepageContractError,
+  HomepageVersionError,
+} from '@/lib/wordpress/homepage-dto'
 import {getPreviewHomepage} from '@/lib/wordpress/homepage-preview'
 import {getHomepage} from '@/lib/wordpress/homepage-queries'
 import {PreviewTransportError} from '@/lib/wordpress/preview'
@@ -108,6 +111,21 @@ describe('getPreviewHomepage', () => {
       identity: {status: 'draft'},
     })
     await expect(getHomepage('tio2-a')).resolves.toBeNull()
+  })
+
+  it('rejects a controlled-select array from the scalar Preview boundary', async () => {
+    const preview = previewHomepage()
+    Reflect.set(preview.homepageFields, 'rfqIntro', [
+      preview.homepageFields.rfqIntro,
+    ])
+    server.use(
+      http.get(previewEndpoint, () => HttpResponse.json(preview)),
+    )
+
+    await expect(getPreviewHomepage('tio2-a')).rejects.toMatchObject({
+      name: HomepageContractError.name,
+      fieldPath: 'rfq.intro',
+    })
   })
 
   it('injects the Preview owner policy without activating retained draft links', async () => {

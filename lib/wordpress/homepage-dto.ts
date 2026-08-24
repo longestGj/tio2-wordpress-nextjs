@@ -122,12 +122,15 @@ function rfqBehaviorText(
   siteId: SiteId,
   fieldPath: HomepageRfqBehaviorField,
   max: number,
+  readMode: NonNullable<HomepageAdapterOptions['readMode']>,
 ): string {
-  const scalarValue = Array.isArray(value)
-    ? value.length === 1
+  const scalarValue = readMode === 'formal'
+    ? Array.isArray(value) && value.length === 1
       ? value[0]
       : undefined
-    : value
+    : typeof value === 'string'
+      ? value
+      : undefined
   if (typeof scalarValue !== 'string') {
     throw new HomepageContractError(fieldPath)
   }
@@ -310,6 +313,7 @@ export function toHomepageDto(
 ): HomepageDto {
   const source = record(sourceValue, 'homepage')
   const expectedSiteId = siteId(expectedSiteIdValue)
+  const readMode = options.readMode ?? 'formal'
   const scopeValue = record(source.siteScopes, 'identity.siteScopes').nodes
   if (!Array.isArray(scopeValue)) {
     throw new HomepageContractError('identity.siteScopes')
@@ -528,7 +532,13 @@ export function toHomepageDto(
     },
     rfq: {
       heading: boundedText(fields.rfqHeading, 'rfq.heading', 90),
-      intro: rfqBehaviorText(fields.rfqIntro, expectedSiteId, 'rfq.intro', 260),
+      intro: rfqBehaviorText(
+        fields.rfqIntro,
+        expectedSiteId,
+        'rfq.intro',
+        260,
+        readMode,
+      ),
       labels: {
         name: boundedText(labels.rfqLabelName, 'rfq.labels.name', null),
         company: boundedText(labels.rfqLabelCompany, 'rfq.labels.company', null),
@@ -545,10 +555,28 @@ export function toHomepageDto(
         buyerOther: boundedText(labels.rfqBuyerOtherLabel, 'rfq.labels.buyerOther', null),
       },
       submitLabel: boundedText(fields.rfqSubmitLabel, 'rfq.submitLabel', 32),
-      privacyText: rfqBehaviorText(fields.rfqPrivacyText, expectedSiteId, 'rfq.privacyText', 240),
+      privacyText: rfqBehaviorText(
+        fields.rfqPrivacyText,
+        expectedSiteId,
+        'rfq.privacyText',
+        240,
+        readMode,
+      ),
       success: {
-        heading: rfqBehaviorText(fields.rfqSuccessHeading, expectedSiteId, 'rfq.success.heading', 80),
-        message: rfqBehaviorText(fields.rfqSuccessMessage, expectedSiteId, 'rfq.success.message', 240),
+        heading: rfqBehaviorText(
+          fields.rfqSuccessHeading,
+          expectedSiteId,
+          'rfq.success.heading',
+          80,
+          readMode,
+        ),
+        message: rfqBehaviorText(
+          fields.rfqSuccessMessage,
+          expectedSiteId,
+          'rfq.success.message',
+          240,
+          readMode,
+        ),
       },
     },
     faq: {

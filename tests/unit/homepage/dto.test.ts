@@ -476,9 +476,27 @@ describe('toHomepageDto', () => {
     )
   })
 
+  it('rejects an approved scalar when the source is formal GraphQL', () => {
+    const node = cloneHomepage()
+    Reflect.set(
+      node.homepageFields,
+      'rfqIntro',
+      HOMEPAGE_RFQ_COPY_CONTRACTS['tio2-a'].fields['rfq.intro'][0],
+    )
+
+    expect(() => toHomepageDto(node, 'tio2-a')).toThrowError(
+      expect.objectContaining({
+        name: HomepageContractError.name,
+        fieldPath: 'rfq.intro',
+      }),
+    )
+  })
+
   it.each([
     ['null', null],
     ['empty list', []],
+    ['null list element', [null]],
+    ['non-string list element', [42]],
     [
       'multiple values',
       [

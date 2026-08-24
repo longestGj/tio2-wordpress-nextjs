@@ -114,6 +114,25 @@ describe('getHomepage', () => {
     await expect(getHomepage('tio2-a')).resolves.toBeNull()
   })
 
+  it('rejects a scalar controlled-select value from formal GraphQL', async () => {
+    const homepage = makeHomepageNode()
+    Reflect.set(
+      homepage.homepageFields,
+      'rfqIntro',
+      homepage.homepageFields.rfqIntro[0],
+    )
+    server.use(
+      http.post(graphqlEndpoint, () =>
+        HttpResponse.json({data: {tio2Homepage: homepage}}),
+      ),
+    )
+
+    await expect(getHomepage('tio2-a')).rejects.toMatchObject({
+      name: HomepageContractError.name,
+      fieldPath: 'rfq.intro',
+    })
+  })
+
   it('preserves typed GraphQL, HTTP, and timeout failures', async () => {
     server.use(
       http.post(graphqlEndpoint, () =>
