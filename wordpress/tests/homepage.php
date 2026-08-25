@@ -741,6 +741,48 @@ foreach ($expected_fields as $index => $expected_field) {
     tio2_homepage_test_assert_field($expected_field, $actual_fields[$index]);
 }
 
+$shared_homepage_field_names = [
+    'homepage_schema_version',
+    'hero_eyebrow',
+    'hero_heading',
+    'hero_summary',
+    'hero_image',
+    'hero_image_alt',
+    'closing_heading',
+    'closing_body',
+    'closing_label',
+    'seo_title',
+    'seo_description',
+    'og_image',
+    'primary_topic',
+    'secondary_topics',
+];
+$v01_schema_condition = [[[
+    'field' => 'field_tio2_home_schema_version',
+    'operator' => '==',
+    'value' => 'homepage-v0.1',
+]]];
+$actual_fields_by_name = array_column($actual_fields, null, 'name');
+foreach ($actual_fields as $field) {
+    $field_name = (string) ($field['name'] ?? '');
+    if (in_array($field_name, $shared_homepage_field_names, true)) {
+        tio2_homepage_test_assert(
+            empty($field['conditional_logic']),
+            "Shared Homepage field {$field_name} must remain editable in both schema versions"
+        );
+        continue;
+    }
+    tio2_homepage_test_assert(
+        $v01_schema_condition === ($field['conditional_logic'] ?? null),
+        "Legacy Homepage field {$field_name} must be visible only for homepage-v0.1"
+    );
+}
+tio2_homepage_test_assert(
+    1 === ($actual_fields_by_name['product_routes']['required'] ?? null) &&
+        1 === ($actual_fields_by_name['applications']['required'] ?? null),
+    'Site B v0.1 link repeaters must remain required'
+);
+
 tio2_homepage_test_assert(class_exists('WPGraphQL'), 'WPGraphQL is not active');
 $schema = WPGraphQL::get_schema();
 $graphql_type = $schema->getType('Tio2Homepage');

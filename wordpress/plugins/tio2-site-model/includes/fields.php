@@ -230,7 +230,7 @@ function tio2_homepage_field_definitions(): array
     $schema_version['wrapper'] = ['class' => 'acf-hidden'];
     $schema_version['graphql_field_name'] = 'schemaVersion';
 
-    return [
+    $fields = [
         $schema_version,
         tio2_homepage_text_field('field_tio2_home_hero_eyebrow', 'hero_eyebrow', true, 80),
         tio2_homepage_text_field('field_tio2_home_hero_heading', 'hero_heading', true, 90),
@@ -363,6 +363,36 @@ function tio2_homepage_field_definitions(): array
             tio2_homepage_text_field('field_tio2_home_secondary_topic', 'secondary_topic', true, 80),
         ]),
     ];
+
+    $shared_field_names = [
+        'homepage_schema_version',
+        'hero_eyebrow',
+        'hero_heading',
+        'hero_summary',
+        'hero_image',
+        'hero_image_alt',
+        'closing_heading',
+        'closing_body',
+        'closing_label',
+        'seo_title',
+        'seo_description',
+        'og_image',
+        'primary_topic',
+        'secondary_topics',
+    ];
+    $v01_condition = [[[
+        'field' => 'field_tio2_home_schema_version',
+        'operator' => '==',
+        'value' => 'homepage-v0.1',
+    ]]];
+    foreach ($fields as &$field) {
+        if (! in_array($field['name'], $shared_field_names, true)) {
+            $field['conditional_logic'] = $v01_condition;
+        }
+    }
+    unset($field);
+
+    return $fields;
 }
 
 /**
