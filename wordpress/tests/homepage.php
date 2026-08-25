@@ -384,6 +384,61 @@ function tio2_homepage_test_update_field(string $field_key, $value, int $post_id
 }
 
 /**
+ * @return array<string, mixed>
+ */
+function tio2_homepage_test_v02_values(): array
+{
+    return [
+        'field_tio2_home_schema_version' => 'homepage-v0.2-editorial-geo',
+        'field_tio2_geo_header_rfq_label' => 'Prepare an inquiry',
+        'field_tio2_geo_direct_answer_question' => 'What should a buyer clarify before sourcing titanium dioxide?',
+        'field_tio2_geo_direct_answer_lead' => 'Start with application context, evidence boundaries, and supply-route ownership.',
+        'field_tio2_geo_direct_answer_body' => 'This synthetic demo organizes questions without asserting production performance.',
+        'field_tio2_geo_decision_questions' => [[
+            'decision_number' => '01',
+            'decision_question' => 'Which application context is being evaluated?',
+            'decision_answer' => 'Record the context before comparing documents or routes.',
+        ]],
+        'field_tio2_geo_application_briefs' => [[
+            'application_name' => 'Synthetic application context',
+            'application_summary' => 'A demo brief for contract testing.',
+            'application_considerations' => 'Confirm requirements against appropriate documentation.',
+        ]],
+        'field_tio2_geo_supply_routes' => [[
+            'route_name' => 'Synthetic comparison route',
+            'route_meaning' => 'A demo-only route description.',
+            'buyer_verification' => 'Ask who owns production and supporting documents.',
+            'documentation_context' => 'Review documents within their stated applicability.',
+            'claim_basis' => 'synthetic_demo',
+            'evidence_url' => '',
+        ]],
+        'field_tio2_geo_evidence_items' => [[
+            'document_type' => 'Synthetic document type',
+            'document_title' => 'Synthetic local evidence example',
+            'document_summary' => 'A demo record used only to exercise the editorial contract.',
+            'applicability' => 'Local experimental content only',
+            'revision_label' => 'demo',
+            'evidence_url' => '',
+            'verification_status' => 'demo',
+        ]],
+        'field_tio2_geo_evaluation_steps' => [[
+            'method_number' => '01',
+            'method_title' => 'Frame the question',
+            'method_description' => 'Record the application and evidence context before comparing routes.',
+        ]],
+        'field_tio2_geo_faqs' => [
+            ['faq_question' => 'Is this a production claim?', 'faq_answer' => 'No. It is synthetic demo content.'],
+            ['faq_question' => 'Does this send an inquiry?', 'faq_answer' => 'No. No submission behavior is introduced.'],
+            ['faq_question' => 'Should source context be checked?', 'faq_answer' => 'Yes. Review applicability and evidence boundaries.'],
+        ],
+        'field_tio2_geo_glossary_items' => [],
+        'field_tio2_geo_editorial_reviewed_at' => '2026-08-26T00:00:00.000Z',
+        'field_tio2_geo_editorial_reviewed_by' => 'Synthetic local editorial review',
+        'field_tio2_geo_editorial_review_scope' => 'Local experimental content only',
+    ];
+}
+
+/**
  * @param array<string, string> $routes
  */
 function tio2_homepage_test_set_valid_fields(int $post_id, array $routes): void
@@ -540,6 +595,27 @@ function tio2_homepage_test_set_valid_fields(int $post_id, array $routes): void
         $values['field_tio2_home_rfq_success_heading'] = 'Site B local check complete';
         $values['field_tio2_home_rfq_success_message'] =
             'No Site B information was transmitted or saved by this local demo.';
+    } elseif ('tio2-a' === tio2_get_homepage_site_id($post_id)) {
+        $shared_v02_keys = [
+            'field_tio2_home_schema_version',
+            'field_tio2_home_hero_eyebrow',
+            'field_tio2_home_hero_heading',
+            'field_tio2_home_hero_summary',
+            'field_tio2_home_hero_image',
+            'field_tio2_home_hero_image_alt',
+            'field_tio2_home_closing_heading',
+            'field_tio2_home_closing_body',
+            'field_tio2_home_closing_label',
+            'field_tio2_home_seo_title',
+            'field_tio2_home_seo_description',
+            'field_tio2_home_og_image',
+            'field_tio2_home_primary_topic',
+            'field_tio2_home_secondary_topics',
+        ];
+        $values = array_replace(
+            array_intersect_key($values, array_flip($shared_v02_keys)),
+            tio2_homepage_test_v02_values()
+        );
     }
 
     foreach ($values as $field_key => $value) {
@@ -1012,7 +1088,7 @@ $GLOBALS['tio2_homepage_test_post_ids'] = array_values(array_diff(
     [$revision_owner, $revision_id, $autosave_id]
 ));
 
-$validation_home = tio2_homepage_test_home('tio2-a', $routes_a);
+$validation_home = tio2_homepage_test_home('tio2-b', $routes_b);
 tio2_homepage_test_update_field('field_tio2_home_hero_heading', '   ', $validation_home);
 tio2_homepage_test_assert_invalid($validation_home, 'Whitespace-only required copy was accepted');
 tio2_homepage_test_update_field(
@@ -1029,22 +1105,22 @@ tio2_homepage_test_update_field(
 
 tio2_homepage_test_assert(
     true === tio2_validate_homepage_contract($validation_home),
-    'Approved Site A local-only RFQ behavior copy was rejected'
+    'Approved Site B local-only RFQ behavior copy was rejected'
 );
-$site_b_rfq_behavior_copy = [
+$site_a_rfq_behavior_copy = [
     'field_tio2_home_rfq_intro' => 'This v0.1 local demo does not send or store inquiry data.',
-    'field_tio2_home_rfq_privacy_text' => 'This Site B local demo does not send or save entered information.',
-    'field_tio2_home_rfq_success_heading' => 'Site B local check complete',
-    'field_tio2_home_rfq_success_message' => 'No Site B information was transmitted or saved by this local demo.',
+    'field_tio2_home_rfq_privacy_text' => 'This local demo does not send or save entered information.',
+    'field_tio2_home_rfq_success_heading' => 'Local check complete',
+    'field_tio2_home_rfq_success_message' => 'Nothing was transmitted or saved by this Site A local demo.',
 ];
-foreach ($site_b_rfq_behavior_copy as $field_key => $copy) {
+foreach ($site_a_rfq_behavior_copy as $field_key => $copy) {
     tio2_homepage_test_update_field($field_key, $copy, $validation_home);
 }
 tio2_homepage_test_assert(
     is_wp_error(tio2_validate_homepage_contract($validation_home)),
-    'Site B RFQ behavior copy was accepted by a Site A homepage'
+    'Site A RFQ behavior copy was accepted by a Site B homepage'
 );
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
 $normalized_rfq_behavior_copy = [
     'field_tio2_home_rfq_intro' => 'INQUIRY  data is NOT sent or stored by this LOCAL demo.',
@@ -1059,7 +1135,7 @@ tio2_homepage_test_assert(
     is_wp_error(tio2_validate_homepage_contract($validation_home)),
     'Case-variant RFQ behavior copy was accepted'
 );
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
 $whitespace_only_rfq_intro = '  This v0.1 local demo does not   send or store inquiry data.  ';
 tio2_homepage_test_update_field(
@@ -1071,7 +1147,7 @@ tio2_homepage_test_assert(
     true === tio2_validate_homepage_contract($validation_home),
     'Trim and consecutive-whitespace normalization was rejected'
 );
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
 $misleading_rfq_behavior_copy = [
     ['field_tio2_home_rfq_intro', 'Your inquiry was submitted and sent to our team.'],
@@ -1120,7 +1196,7 @@ foreach ($misleading_rfq_behavior_copy as [$field_key, $copy]) {
         $validation_home,
         "Misleading or incomplete RFQ behavior copy was accepted for {$field_key}"
     );
-    tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+    tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 }
 
 $metric_rows = [];
@@ -1142,21 +1218,21 @@ $duplicate_products = [
     [
         'field_tio2_home_product_title' => 'Product route one',
         'field_tio2_home_product_summary' => 'A structured route for the first product family.',
-        'field_tio2_home_product_path' => $routes_a['product_one'],
+        'field_tio2_home_product_path' => $routes_b['product_one'],
         'field_tio2_home_product_image' => 0,
         'field_tio2_home_product_image_alt' => '',
     ],
     [
         'field_tio2_home_product_title' => 'Product route duplicate',
         'field_tio2_home_product_summary' => 'A duplicate path must fail.',
-        'field_tio2_home_product_path' => $routes_a['product_one'],
+        'field_tio2_home_product_path' => $routes_b['product_one'],
         'field_tio2_home_product_image' => 0,
         'field_tio2_home_product_image_alt' => '',
     ],
 ];
 tio2_homepage_test_update_field('field_tio2_home_product_routes', $duplicate_products, $validation_home);
 tio2_homepage_test_assert_invalid($validation_home, 'Duplicate product paths were accepted');
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
 tio2_homepage_test_update_field(
     'field_tio2_home_hero_secondary_path',
@@ -1164,11 +1240,11 @@ tio2_homepage_test_update_field(
     $validation_home
 );
 tio2_homepage_test_assert_invalid($validation_home, 'Missing current-site target was accepted');
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
 tio2_homepage_test_update_field('field_tio2_home_hero_secondary_path', '/', $validation_home);
 tio2_homepage_test_assert_invalid($validation_home, 'Root dependency target was accepted');
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
 tio2_homepage_test_update_field(
     'field_tio2_home_hero_secondary_path',
@@ -1176,54 +1252,54 @@ tio2_homepage_test_update_field(
     $validation_home
 );
 tio2_homepage_test_assert_invalid($validation_home, 'Malformed dependency target was accepted');
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
 tio2_homepage_test_update_field(
     'field_tio2_home_hero_secondary_path',
-    $routes_b['secondary'],
+    $routes_a['secondary'],
     $validation_home
 );
 tio2_homepage_test_assert_invalid($validation_home, 'Cross-site target was accepted');
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
-$draft_link_target = tio2_homepage_test_route('tio2-a', '/homepage-contract-a-draft-target');
+$draft_link_target = tio2_homepage_test_route('tio2-b', '/homepage-contract-b-draft-target');
 tio2_homepage_test_set_route_status_exact($draft_link_target, 'draft');
 tio2_homepage_test_update_field(
     'field_tio2_home_hero_secondary_path',
-    '/homepage-contract-a-draft-target',
+    '/homepage-contract-b-draft-target',
     $validation_home
 );
 tio2_homepage_test_assert(
     true === tio2_validate_homepage_contract($validation_home),
     'Exact draft current-site dependency target was rejected'
 );
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
-$private_link_target = tio2_homepage_test_route('tio2-a', '/homepage-contract-a-private-target');
+$private_link_target = tio2_homepage_test_route('tio2-b', '/homepage-contract-b-private-target');
 tio2_homepage_test_set_route_status_exact($private_link_target, 'private');
 tio2_homepage_test_update_field(
     'field_tio2_home_hero_secondary_path',
-    '/homepage-contract-a-private-target',
+    '/homepage-contract-b-private-target',
     $validation_home
 );
 tio2_homepage_test_assert_invalid($validation_home, 'Private current-site target was accepted');
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
-$trash_link_target = tio2_homepage_test_route('tio2-a', '/homepage-contract-a-trash-target');
+$trash_link_target = tio2_homepage_test_route('tio2-b', '/homepage-contract-b-trash-target');
 wp_trash_post($trash_link_target);
 tio2_homepage_test_update_field(
     'field_tio2_home_hero_secondary_path',
-    '/homepage-contract-a-trash-target',
+    '/homepage-contract-b-trash-target',
     $validation_home
 );
 tio2_homepage_test_assert_invalid($validation_home, 'Trash current-site target was accepted');
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
-$ambiguous_link_path = '/homepage-contract-a-ambiguous-target';
-tio2_homepage_test_route('tio2-a', $ambiguous_link_path);
-tio2_homepage_test_route('tio2-a', $ambiguous_link_path);
+$ambiguous_link_path = '/homepage-contract-b-ambiguous-target';
+tio2_homepage_test_route('tio2-b', $ambiguous_link_path);
+tio2_homepage_test_route('tio2-b', $ambiguous_link_path);
 tio2_homepage_test_assert(
-    count(tio2_find_managed_route_post_ids('tio2-a', $ambiguous_link_path)) > 1,
+    count(tio2_find_managed_route_post_ids('tio2-b', $ambiguous_link_path)) > 1,
     'Ambiguous route fixture did not create multiple current-site owners'
 );
 tio2_homepage_test_update_field(
@@ -1232,11 +1308,11 @@ tio2_homepage_test_update_field(
     $validation_home
 );
 tio2_homepage_test_assert_invalid($validation_home, 'Ambiguous current-site target was accepted');
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
 tio2_homepage_test_update_field('field_tio2_home_hero_image_alt', 'Alt without an image', $validation_home);
 tio2_homepage_test_assert_invalid($validation_home, 'Image alt text without an image was accepted');
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
 $bad_image = tio2_homepage_test_insert([
     'post_type' => 'attachment',
@@ -1246,7 +1322,7 @@ $bad_image = tio2_homepage_test_insert([
 ]);
 tio2_homepage_test_update_field('field_tio2_home_hero_image', $bad_image, $validation_home);
 tio2_homepage_test_assert_invalid($validation_home, 'Unsupported image MIME type was accepted');
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
 $supported_image = tio2_homepage_test_insert([
     'post_type' => 'attachment',
@@ -1264,7 +1340,7 @@ tio2_homepage_test_assert(
     true === tio2_validate_homepage_contract($validation_home),
     'Supported image MIME type and informative alt text were rejected'
 );
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
 $source_metric = [[
     'field_tio2_home_metric_value' => '1',
@@ -1279,10 +1355,10 @@ tio2_homepage_test_assert_invalid($validation_home, 'Required evidence URL was n
 $source_metric[0]['field_tio2_home_metric_evidence_url'] = 'http://example.test/evidence';
 tio2_homepage_test_update_field('field_tio2_home_metrics', $source_metric, $validation_home);
 tio2_homepage_test_assert_invalid($validation_home, 'Non-HTTPS evidence URL was accepted');
-tio2_homepage_test_set_valid_fields($validation_home, $routes_a);
+tio2_homepage_test_set_valid_fields($validation_home, $routes_b);
 
-$valid_a = $validation_home;
-$valid_b = tio2_homepage_test_home('tio2-b', $routes_b);
+$valid_b = $validation_home;
+$valid_a = tio2_homepage_test_home('tio2-a', $routes_a);
 
 foreach ([
     'tio2-a' => 'site-a-rfq-copy-v0.1',
@@ -1471,8 +1547,9 @@ $wpdb->update(
 );
 clean_post_cache($valid_b);
 tio2_homepage_test_assert(
-    'homepage-v0.1' === get_field('homepage_schema_version', $valid_a, false),
-    'Fixed homepage schema version is not registered'
+    'homepage-v0.2-editorial-geo' === get_field('homepage_schema_version', $valid_a, false) &&
+        'homepage-v0.1' === get_field('homepage_schema_version', $valid_b, false),
+    'Versioned homepage schema values are not registered'
 );
 
 $acf_intermediate_status = null;
@@ -1575,7 +1652,7 @@ wp_set_object_terms($valid_a, ['tio2-a'], 'site_scope', false);
 tio2_homepage_test_set_valid_fields($valid_a, $routes_a);
 wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
 
-$dependent_target_id = tio2_find_managed_route_post_ids('tio2-a', $routes_a['secondary'])[0] ?? 0;
+$dependent_target_id = tio2_find_managed_route_post_ids('tio2-b', $routes_b['secondary'])[0] ?? 0;
 tio2_homepage_test_assert($dependent_target_id > 0, 'Missing homepage dependency fixture');
 
 $dependent_original_title = (string) get_post_field('post_title', $dependent_target_id);
@@ -1592,8 +1669,8 @@ $title_update_result = wp_update_post([
 tio2_homepage_test_assert(! is_wp_error($title_update_result), 'Linked target title-only update failed');
 do_action('acf/save_post', $dependent_target_id);
 clean_post_cache($dependent_target_id);
-clean_post_cache($valid_a);
-$title_update_validation = tio2_validate_homepage_contract($valid_a);
+clean_post_cache($valid_b);
+$title_update_validation = tio2_validate_homepage_contract($valid_b);
 tio2_homepage_test_assert(
     $dependent_stable_identity === [
         'status' => (string) get_post_status($dependent_target_id),
@@ -1601,10 +1678,10 @@ tio2_homepage_test_assert(
         'path' => (string) get_post_meta($dependent_target_id, 'public_path', true),
         'scopes' => wp_get_post_terms($dependent_target_id, 'site_scope', ['fields' => 'slugs']),
     ] &&
-        'publish' === get_post_status($valid_a) &&
+        'publish' === get_post_status($valid_b) &&
         true === $title_update_validation,
     'Linked target title-only update drafted a currently valid homepage; recorded=' .
-        get_post_meta($valid_a, '_tio2_homepage_error', true) .
+        get_post_meta($valid_b, '_tio2_homepage_error', true) .
         '; current=' . (is_wp_error($title_update_validation) ? $title_update_validation->get_error_code() : 'valid')
 );
 $title_restore_result = wp_update_post([
@@ -1614,7 +1691,7 @@ $title_restore_result = wp_update_post([
 tio2_homepage_test_assert(! is_wp_error($title_restore_result), 'Linked target title restore failed');
 do_action('acf/save_post', $dependent_target_id);
 clean_post_cache($dependent_target_id);
-clean_post_cache($valid_a);
+clean_post_cache($valid_b);
 tio2_homepage_test_assert(
     $dependent_stable_identity === [
         'status' => (string) get_post_status($dependent_target_id),
@@ -1622,35 +1699,35 @@ tio2_homepage_test_assert(
         'path' => (string) get_post_meta($dependent_target_id, 'public_path', true),
         'scopes' => wp_get_post_terms($dependent_target_id, 'site_scope', ['fields' => 'slugs']),
     ] &&
-        'publish' === get_post_status($valid_a) &&
-        true === tio2_validate_homepage_contract($valid_a),
+        'publish' === get_post_status($valid_b) &&
+        true === tio2_validate_homepage_contract($valid_b),
     'Linked target title restore changed route identity or drafted its valid homepage'
 );
 
 tio2_homepage_test_set_route_status_exact($dependent_target_id, 'draft');
-clean_post_cache($valid_a);
+clean_post_cache($valid_b);
 tio2_homepage_test_assert(
-    'publish' === get_post_status($valid_a) && true === tio2_validate_homepage_contract($valid_a),
+    'publish' === get_post_status($valid_b) && true === tio2_validate_homepage_contract($valid_b),
     'Drafted exact link target invalidated its published homepage dependency'
 );
 
 tio2_homepage_test_set_route_status_exact($dependent_target_id, 'pending');
-clean_post_cache($valid_a);
-$pending_transition_homepage_status = (string) get_post_status($valid_a);
+clean_post_cache($valid_b);
+$pending_transition_homepage_status = (string) get_post_status($valid_b);
 tio2_homepage_test_set_route_status_exact($dependent_target_id, 'draft');
-wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+wp_update_post(['ID' => $valid_b, 'post_status' => 'publish']);
 tio2_homepage_test_assert(
-    'publish' === get_post_status($valid_a) && true === tio2_validate_homepage_contract($valid_a),
+    'publish' === get_post_status($valid_b) && true === tio2_validate_homepage_contract($valid_b),
     'Restored draft link target after pending did not permit Homepage publication'
 );
 
 tio2_homepage_test_set_route_status_exact($dependent_target_id, 'future');
-clean_post_cache($valid_a);
-$future_transition_homepage_status = (string) get_post_status($valid_a);
+clean_post_cache($valid_b);
+$future_transition_homepage_status = (string) get_post_status($valid_b);
 tio2_homepage_test_set_route_status_exact($dependent_target_id, 'draft');
-wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+wp_update_post(['ID' => $valid_b, 'post_status' => 'publish']);
 tio2_homepage_test_assert(
-    'publish' === get_post_status($valid_a) && true === tio2_validate_homepage_contract($valid_a),
+    'publish' === get_post_status($valid_b) && true === tio2_validate_homepage_contract($valid_b),
     'Restored draft link target after future did not permit Homepage publication'
 );
 tio2_homepage_test_assert(
@@ -1669,77 +1746,77 @@ tio2_homepage_test_assert(
 );
 
 tio2_homepage_test_set_route_status_exact($dependent_target_id, 'private');
-clean_post_cache($valid_a);
+clean_post_cache($valid_b);
 tio2_homepage_test_assert(
-    'draft' === get_post_status($valid_a),
+    'draft' === get_post_status($valid_b),
     'Draft-to-private link target transition left its invalid Homepage published'
 );
 tio2_homepage_test_set_route_status_exact($dependent_target_id, 'draft');
-wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+wp_update_post(['ID' => $valid_b, 'post_status' => 'publish']);
 tio2_homepage_test_assert(
-    'publish' === get_post_status($valid_a) && true === tio2_validate_homepage_contract($valid_a),
+    'publish' === get_post_status($valid_b) && true === tio2_validate_homepage_contract($valid_b),
     'Restored draft link target did not permit Homepage publication'
 );
 
 wp_trash_post($dependent_target_id);
-clean_post_cache($valid_a);
+clean_post_cache($valid_b);
 tio2_homepage_test_assert(
-    'draft' === get_post_status($valid_a),
+    'draft' === get_post_status($valid_b),
     'Draft-to-trash link target transition left its invalid Homepage published'
 );
 wp_untrash_post($dependent_target_id);
 do_action('acf/save_post', $dependent_target_id);
-wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+wp_update_post(['ID' => $valid_b, 'post_status' => 'publish']);
 tio2_homepage_test_assert(
-    'publish' === get_post_status($valid_a) && true === tio2_validate_homepage_contract($valid_a),
+    'publish' === get_post_status($valid_b) && true === tio2_validate_homepage_contract($valid_b),
     'Restored draft link target did not restore valid Homepage publication'
 );
 
 tio2_homepage_test_set_route_status_exact($dependent_target_id, 'draft');
-wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+wp_update_post(['ID' => $valid_b, 'post_status' => 'publish']);
 
-update_post_meta($dependent_target_id, 'public_path', '/homepage-contract-a-moved-target');
-clean_post_cache($valid_a);
-tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'Moved link target left homepage published');
-update_post_meta($dependent_target_id, 'public_path', $routes_a['secondary']);
+update_post_meta($dependent_target_id, 'public_path', '/homepage-contract-b-moved-target');
+clean_post_cache($valid_b);
+tio2_homepage_test_assert('draft' === get_post_status($valid_b), 'Moved link target left homepage published');
+update_post_meta($dependent_target_id, 'public_path', $routes_b['secondary']);
 do_action('acf/save_post', $dependent_target_id);
-wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+wp_update_post(['ID' => $valid_b, 'post_status' => 'publish']);
 
 wp_trash_post($dependent_target_id);
-clean_post_cache($valid_a);
-tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'Trashed link target left homepage published');
+clean_post_cache($valid_b);
+tio2_homepage_test_assert('draft' === get_post_status($valid_b), 'Trashed link target left homepage published');
 wp_untrash_post($dependent_target_id);
 wp_update_post(['ID' => $dependent_target_id, 'post_status' => 'draft']);
 do_action('acf/save_post', $dependent_target_id);
-wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+wp_update_post(['ID' => $valid_b, 'post_status' => 'publish']);
 
-wp_set_object_terms($dependent_target_id, ['tio2-b'], 'site_scope', false);
-clean_post_cache($valid_a);
-tio2_homepage_test_assert('draft' === get_post_status($valid_a), 'Reassigned link target left homepage published');
 wp_set_object_terms($dependent_target_id, ['tio2-a'], 'site_scope', false);
+clean_post_cache($valid_b);
+tio2_homepage_test_assert('draft' === get_post_status($valid_b), 'Reassigned link target left homepage published');
+wp_set_object_terms($dependent_target_id, ['tio2-b'], 'site_scope', false);
 do_action('acf/save_post', $dependent_target_id);
-wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+wp_update_post(['ID' => $valid_b, 'post_status' => 'publish']);
 
-wp_remove_object_terms($dependent_target_id, 'tio2-a', 'site_scope');
-clean_post_cache($valid_a);
+wp_remove_object_terms($dependent_target_id, 'tio2-b', 'site_scope');
+clean_post_cache($valid_b);
 tio2_homepage_test_assert(
-    'draft' === get_post_status($valid_a),
+    'draft' === get_post_status($valid_b),
     'Direct site_scope term removal left a dependent homepage published'
 );
-wp_set_object_terms($dependent_target_id, ['tio2-a'], 'site_scope', false);
+wp_set_object_terms($dependent_target_id, ['tio2-b'], 'site_scope', false);
 do_action('acf/save_post', $dependent_target_id);
-wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+wp_update_post(['ID' => $valid_b, 'post_status' => 'publish']);
 
 $dependent_original_slug = (string) get_post_field('post_name', $dependent_target_id);
 wp_update_post(['ID' => $dependent_target_id, 'post_name' => 'directly-moved-link-target']);
-clean_post_cache($valid_a);
+clean_post_cache($valid_b);
 tio2_homepage_test_assert(
-    'draft' === get_post_status($valid_a),
+    'draft' === get_post_status($valid_b),
     'Direct Page/Post post_name change left a dependent homepage published'
 );
 wp_update_post(['ID' => $dependent_target_id, 'post_name' => $dependent_original_slug]);
 do_action('acf/save_post', $dependent_target_id);
-wp_update_post(['ID' => $valid_a, 'post_status' => 'publish']);
+wp_update_post(['ID' => $valid_b, 'post_status' => 'publish']);
 
 global $wpdb;
 $wpdb->update(
@@ -1750,7 +1827,7 @@ $wpdb->update(
     ['%d']
 );
 clean_post_cache($dependent_target_id);
-$wrong_target_slug_result = tio2_validate_homepage_contract($valid_a);
+$wrong_target_slug_result = tio2_validate_homepage_contract($valid_b);
 tio2_homepage_test_assert(
     is_wp_error($wrong_target_slug_result) &&
         'tio2_homepage_invalid_field' === $wrong_target_slug_result->get_error_code(),

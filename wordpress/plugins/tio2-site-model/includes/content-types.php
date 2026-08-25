@@ -7,6 +7,23 @@ if (! defined('ABSPATH')) {
 }
 
 /**
+ * @return list<string>
+ */
+function tio2_supported_site_ids(): array
+{
+    return ['tio2-a', 'tio2-b'];
+}
+
+function tio2_expected_homepage_schema_version(string $site_id): ?string
+{
+    return match ($site_id) {
+        'tio2-a' => 'homepage-v0.2-editorial-geo',
+        'tio2-b' => 'homepage-v0.1',
+        default => null,
+    };
+}
+
+/**
  * @return array<string, array{singular: string, plural: string, graphql_single: string, graphql_plural: string}>
  */
 function tio2_content_type_definitions(): array
@@ -141,7 +158,7 @@ function tio2_activate_site_model(): void
 {
     tio2_register_content_types();
 
-    foreach (['tio2-a', 'tio2-b'] as $term_slug) {
+    foreach (tio2_supported_site_ids() as $term_slug) {
         if (! term_exists($term_slug, 'site_scope')) {
             wp_insert_term($term_slug, 'site_scope', ['slug' => $term_slug]);
         }

@@ -107,6 +107,8 @@ function tio2_register_acf_fields(): void
         'show_in_graphql' => 1,
         'graphql_field_name' => 'homepageFields',
     ]);
+
+    tio2_register_homepage_v02_fields();
 }
 
 /**
@@ -699,7 +701,7 @@ function tio2_get_homepage_site_id(int $post_id): ?string
         return null;
     }
     $site_scopes = array_values(array_unique(array_map('strval', $site_scopes)));
-    return 1 === count($site_scopes) && in_array($site_scopes[0], ['tio2-a', 'tio2-b'], true)
+    return 1 === count($site_scopes) && in_array($site_scopes[0], tio2_supported_site_ids(), true)
         ? $site_scopes[0]
         : null;
 }
@@ -709,7 +711,7 @@ function tio2_get_homepage_site_id(int $post_id): ?string
  */
 function tio2_find_homepage_ids(string $site_id, bool $include_trash = true): array
 {
-    if (! in_array($site_id, ['tio2-a', 'tio2-b'], true)) {
+    if (! in_array($site_id, tio2_supported_site_ids(), true)) {
         return [];
     }
 
@@ -964,10 +966,24 @@ function tio2_validate_homepage_contract(int $post_id)
         'homepage_schema_version',
         true
     );
-    if (is_wp_error($schema_version) || 'homepage-v0.1' !== $schema_version) {
-        return new WP_Error('tio2_homepage_invalid_schema_version', 'Homepage schema version must be homepage-v0.1.');
+    $expected_version = tio2_expected_homepage_schema_version($site_id);
+    if (is_wp_error($schema_version) || $schema_version !== $expected_version) {
+        return new WP_Error(
+            'tio2_homepage_invalid_schema_version',
+            "Homepage schema version must be {$expected_version}."
+        );
     }
 
+    return 'homepage-v0.2-editorial-geo' === $schema_version
+        ? tio2_validate_homepage_v02_contract($post_id)
+        : tio2_validate_homepage_v01_fields($post_id, $site_id);
+}
+
+/**
+ * @return true|WP_Error
+ */
+function tio2_validate_homepage_v01_fields(int $post_id, string $site_id)
+{
     $top_level_strings = [
         'hero_eyebrow' => [true, 80],
         'hero_heading' => [true, 90],
