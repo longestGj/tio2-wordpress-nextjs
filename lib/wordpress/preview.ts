@@ -2,6 +2,7 @@ import {createHmac} from 'node:crypto'
 import {z} from 'zod'
 
 import {htmlToPlainText} from '@/lib/seo/text'
+import {SITE_IDS} from '@/sites'
 
 import {isValidPublicPath} from './cache-tags'
 import type {ContentPageDto} from './types'
@@ -10,7 +11,7 @@ import {CrossSiteContentError, InvalidContentPathError} from './types'
 const previewResponseSchema = z
   .object({
     id: z.string().min(1),
-    siteId: z.enum(['tio2-a', 'tio2-b']),
+    siteId: z.enum(SITE_IDS),
     path: z.string(),
     title: z.string(),
     html: z.string(),

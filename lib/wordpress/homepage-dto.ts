@@ -1,3 +1,4 @@
+import {SITE_IDS} from '@/sites'
 import type {SiteId} from '@/sites'
 
 import type {HomepageFieldsFragment} from './generated'
@@ -36,7 +37,7 @@ export type HomepagePreviewFieldsFragment = Omit<
     | null
 }
 
-const SITE_IDS = new Set<SiteId>(['tio2-a', 'tio2-b'])
+const siteIdSet = new Set<SiteId>(SITE_IDS)
 const SUPPORTED_IMAGE_MIME_TYPES = new Set<HomepageImageDto['mimeType']>([
   'image/jpeg',
   'image/png',
@@ -300,7 +301,7 @@ function linkCards(
 }
 
 function siteId(value: string): SiteId {
-  if (!SITE_IDS.has(value as SiteId)) {
+  if (!siteIdSet.has(value as SiteId)) {
     throw new HomepageContractError('identity.siteId')
   }
   return value as SiteId
