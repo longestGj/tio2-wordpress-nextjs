@@ -173,6 +173,147 @@ function tio2_register_homepage_v02_fields(): void
 
 /**
  * @param mixed $value
+ * @return list<array<string, mixed>>
+ */
+function tio2_homepage_v02_preview_rows($value): array
+{
+    if (! is_array($value)) {
+        return [];
+    }
+
+    return array_values(array_filter($value, 'is_array'));
+}
+
+/**
+ * @return array<string, mixed>
+ */
+function tio2_serialize_homepage_v02_preview(WP_Post $post, string $site_id): array
+{
+    $post_id = (int) $post->ID;
+    $schema_version = (string) get_field('homepage_schema_version', $post_id, false);
+    $secondary_topics = array_map(static fn (array $row): array => [
+        'secondaryTopic' => (string) ($row['secondary_topic'] ?? ''),
+    ], tio2_homepage_v02_preview_rows(get_field('secondary_topics', $post_id, false)));
+
+    return [
+        'id' => (string) $post_id,
+        'databaseId' => $post_id,
+        'siteId' => $site_id,
+        'path' => '/',
+        'schemaVersion' => $schema_version,
+        'modifiedGmt' => get_post_modified_time('Y-m-d\TH:i:s', true, $post),
+        'status' => $post->post_status,
+        'siteScopes' => ['nodes' => [['slug' => $site_id]]],
+        'homepageFields' => [
+            'homepageSchemaVersion' => $schema_version,
+            'heroEyebrow' => (string) get_field('hero_eyebrow', $post_id, false),
+            'heroHeading' => (string) get_field('hero_heading', $post_id, false),
+            'heroSummary' => (string) get_field('hero_summary', $post_id, false),
+            'heroImage' => tio2_preview_homepage_image(get_field('hero_image', $post_id, false)),
+            'heroImageAlt' => (string) get_field('hero_image_alt', $post_id, false),
+            'closingHeading' => (string) get_field('closing_heading', $post_id, false),
+            'closingBody' => (string) get_field('closing_body', $post_id, false),
+            'closingLabel' => (string) get_field('closing_label', $post_id, false),
+            'seoTitle' => (string) get_field('seo_title', $post_id, false),
+            'seoDescription' => (string) get_field('seo_description', $post_id, false),
+            'ogImage' => tio2_preview_homepage_image(get_field('og_image', $post_id, false)),
+            'primaryTopic' => (string) get_field('primary_topic', $post_id, false),
+            'secondaryTopics' => $secondary_topics,
+        ],
+        'editorialGeoFields' => [
+            'headerRfqLabel' => (string) get_field('header_rfq_label', $post_id, false),
+            'directAnswerQuestion' => (string) get_field('direct_answer_question', $post_id, false),
+            'directAnswerLead' => (string) get_field('direct_answer_lead', $post_id, false),
+            'directAnswerBody' => (string) get_field('direct_answer_body', $post_id, false),
+            'decisionQuestions' => array_map(static fn (array $row): array => [
+                'decisionNumber' => (string) ($row['decision_number'] ?? ''),
+                'decisionQuestion' => (string) ($row['decision_question'] ?? ''),
+                'decisionAnswer' => (string) ($row['decision_answer'] ?? ''),
+            ], tio2_homepage_v02_preview_rows(get_field('decision_questions', $post_id, false))),
+            'applicationBriefs' => array_map(static fn (array $row): array => [
+                'applicationName' => (string) ($row['application_name'] ?? ''),
+                'applicationSummary' => (string) ($row['application_summary'] ?? ''),
+                'applicationConsiderations' => (string) ($row['application_considerations'] ?? ''),
+            ], tio2_homepage_v02_preview_rows(get_field('application_briefs', $post_id, false))),
+            'supplyRoutes' => array_map(static fn (array $row): array => [
+                'routeName' => (string) ($row['route_name'] ?? ''),
+                'routeMeaning' => (string) ($row['route_meaning'] ?? ''),
+                'buyerVerification' => (string) ($row['buyer_verification'] ?? ''),
+                'documentationContext' => (string) ($row['documentation_context'] ?? ''),
+                'claimBasis' => (string) ($row['claim_basis'] ?? ''),
+                'evidenceUrl' => (string) ($row['evidence_url'] ?? ''),
+            ], tio2_homepage_v02_preview_rows(get_field('supply_routes', $post_id, false))),
+            'evidenceItems' => array_map(static fn (array $row): array => [
+                'documentType' => (string) ($row['document_type'] ?? ''),
+                'documentTitle' => (string) ($row['document_title'] ?? ''),
+                'documentSummary' => (string) ($row['document_summary'] ?? ''),
+                'applicability' => (string) ($row['applicability'] ?? ''),
+                'revisionLabel' => (string) ($row['revision_label'] ?? ''),
+                'evidenceUrl' => (string) ($row['evidence_url'] ?? ''),
+                'verificationStatus' => (string) ($row['verification_status'] ?? ''),
+            ], tio2_homepage_v02_preview_rows(get_field('evidence_items', $post_id, false))),
+            'evaluationSteps' => array_map(static fn (array $row): array => [
+                'methodNumber' => (string) ($row['method_number'] ?? ''),
+                'methodTitle' => (string) ($row['method_title'] ?? ''),
+                'methodDescription' => (string) ($row['method_description'] ?? ''),
+            ], tio2_homepage_v02_preview_rows(get_field('evaluation_steps', $post_id, false))),
+            'geoFaqs' => array_map(static fn (array $row): array => [
+                'faqQuestion' => (string) ($row['faq_question'] ?? ''),
+                'faqAnswer' => (string) ($row['faq_answer'] ?? ''),
+            ], tio2_homepage_v02_preview_rows(get_field('geo_faqs', $post_id, false))),
+            'glossaryItems' => array_map(static fn (array $row): array => [
+                'term' => (string) ($row['term'] ?? ''),
+                'definition' => (string) ($row['definition'] ?? ''),
+            ], tio2_homepage_v02_preview_rows(get_field('glossary_items', $post_id, false))),
+            'editorialReviewedAt' => (string) get_field('editorial_reviewed_at', $post_id, false),
+            'editorialReviewedBy' => (string) get_field('editorial_reviewed_by', $post_id, false),
+            'editorialReviewScope' => (string) get_field('editorial_review_scope', $post_id, false),
+        ],
+    ];
+}
+
+/**
+ * @return list<string>
+ */
+function tio2_homepage_v02_meta_keys(): array
+{
+    $keys = [
+        'header_rfq_label',
+        'direct_answer_question',
+        'direct_answer_lead',
+        'direct_answer_body',
+        'decision_questions',
+        'application_briefs',
+        'supply_routes',
+        'evidence_items',
+        'evaluation_steps',
+        'geo_faqs',
+        'glossary_items',
+        'editorial_reviewed_at',
+        'editorial_reviewed_by',
+        'editorial_review_scope',
+    ];
+    foreach ([
+        'decision_questions' => [12, ['decision_number', 'decision_question', 'decision_answer']],
+        'application_briefs' => [12, ['application_name', 'application_summary', 'application_considerations']],
+        'supply_routes' => [6, ['route_name', 'route_meaning', 'buyer_verification', 'documentation_context', 'claim_basis', 'evidence_url']],
+        'evidence_items' => [12, ['document_type', 'document_title', 'document_summary', 'applicability', 'revision_label', 'evidence_url', 'verification_status']],
+        'evaluation_steps' => [10, ['method_number', 'method_title', 'method_description']],
+        'geo_faqs' => [20, ['faq_question', 'faq_answer']],
+        'glossary_items' => [30, ['term', 'definition']],
+    ] as $repeater => [$max_rows, $sub_fields]) {
+        foreach (range(0, $max_rows - 1) as $row_index) {
+            foreach ($sub_fields as $sub_field) {
+                $keys[] = "{$repeater}_{$row_index}_{$sub_field}";
+            }
+        }
+    }
+
+    return $keys;
+}
+
+/**
+ * @param mixed $value
  * @return list<array<string, mixed>>|WP_Error
  */
 function tio2_homepage_v02_validate_rows($value, string $field_name, int $min, int $max)

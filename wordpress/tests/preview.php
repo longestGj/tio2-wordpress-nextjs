@@ -6,6 +6,7 @@ if (! defined('ABSPATH')) {
 
 $GLOBALS['tio2_preview_smoke_post_ids'] = [];
 $GLOBALS['tio2_preview_smoke_restore_statuses'] = [];
+$GLOBALS['tio2_preview_smoke_restore_homepage_owners'] = [];
 
 function tio2_preview_smoke_fail(string $message): void
 {
@@ -34,12 +35,116 @@ function tio2_preview_smoke_set_status_exact(int $post_id, string $status): void
 
 function tio2_preview_smoke_cleanup(): void
 {
-    foreach ($GLOBALS['tio2_preview_smoke_restore_statuses'] ?? [] as $post_id => $status) {
-        wp_update_post(['ID' => (int) $post_id, 'post_status' => (string) $status]);
-    }
     $GLOBALS['tio2_webhook_queue'] = [];
     foreach ($GLOBALS['tio2_preview_smoke_post_ids'] ?? [] as $post_id) {
         wp_delete_post((int) $post_id, true);
+    }
+    foreach ($GLOBALS['tio2_preview_smoke_restore_homepage_owners'] ?? [] as $post_id => $owner) {
+        wp_set_object_terms((int) $post_id, $owner['siteIds'], 'site_scope', false);
+        wp_update_post([
+            'ID' => (int) $post_id,
+            'post_name' => $owner['slug'],
+            'post_status' => $owner['status'],
+        ]);
+    }
+    foreach ($GLOBALS['tio2_preview_smoke_restore_statuses'] ?? [] as $post_id => $status) {
+        wp_update_post(['ID' => (int) $post_id, 'post_status' => (string) $status]);
+    }
+}
+
+/**
+ * @param mixed $value
+ */
+function tio2_preview_smoke_update_field(string $field_key, $value, int $post_id): void
+{
+    $field = acf_get_field($field_key);
+    if (! is_array($field)) {
+        tio2_preview_smoke_fail("Could not resolve ACF field {$field_key}");
+    }
+    if (in_array($field['type'] ?? '', ['group', 'repeater'], true) && is_array($value)) {
+        $normalize_row = static function (array $row) use ($field): array {
+            $normalized = [];
+            foreach ($field['sub_fields'] ?? [] as $sub_field) {
+                $sub_key = $sub_field['key'] ?? '';
+                $sub_name = $sub_field['name'] ?? '';
+                if (array_key_exists($sub_key, $row)) {
+                    $normalized[$sub_name] = $row[$sub_key];
+                } elseif (array_key_exists($sub_name, $row)) {
+                    $normalized[$sub_name] = $row[$sub_name];
+                }
+            }
+            return $normalized;
+        };
+        $value = 'group' === ($field['type'] ?? '')
+            ? $normalize_row($value)
+            : array_map($normalize_row, array_values($value));
+    }
+    update_field($field_key, $value, $post_id);
+    if (function_exists('acf_flush_value_cache')) {
+        acf_flush_value_cache($post_id, (string) ($field['name'] ?? ''));
+    }
+}
+
+function tio2_preview_smoke_set_v02_homepage_fields(int $post_id): void
+{
+    $fields = [
+        'field_tio2_home_schema_version' => 'homepage-v0.2-editorial-geo',
+        'field_tio2_home_hero_eyebrow' => 'Titanium dioxide sourcing context',
+        'field_tio2_home_hero_heading' => 'Evaluate a titanium dioxide supply route',
+        'field_tio2_home_hero_summary' => 'A synthetic local editorial fixture for Preview contract testing.',
+        'field_tio2_home_hero_image' => 0,
+        'field_tio2_home_hero_image_alt' => '',
+        'field_tio2_home_closing_heading' => 'Clarify the sourcing context',
+        'field_tio2_home_closing_body' => 'Prepare the application context and evidence questions for a separately authorized follow-up.',
+        'field_tio2_home_closing_label' => 'Prepare an inquiry',
+        'field_tio2_home_seo_title' => 'Titanium dioxide sourcing evaluation',
+        'field_tio2_home_seo_description' => 'Review a synthetic editorial framework for evaluating titanium dioxide supply routes.',
+        'field_tio2_home_og_image' => 0,
+        'field_tio2_home_primary_topic' => 'titanium dioxide sourcing evaluation',
+        'field_tio2_home_secondary_topics' => [['secondary_topic' => 'supply route comparison']],
+        'field_tio2_geo_header_rfq_label' => 'Prepare an inquiry',
+        'field_tio2_geo_direct_answer_question' => 'What should a buyer clarify before sourcing titanium dioxide?',
+        'field_tio2_geo_direct_answer_lead' => 'Start with application context, evidence boundaries, and supply-route ownership.',
+        'field_tio2_geo_direct_answer_body' => 'This synthetic demo organizes questions for local editorial review and does not assert production performance.',
+        'field_tio2_geo_decision_questions' => [
+            ['decision_number' => '01', 'decision_question' => 'Which application context is being evaluated?', 'decision_answer' => 'Record the intended context before comparing documents or routes.'],
+            ['decision_number' => '02', 'decision_question' => 'Which properties matter?', 'decision_answer' => 'List the requirements before comparing supply routes.'],
+            ['decision_number' => '03', 'decision_question' => 'Who owns the route?', 'decision_answer' => 'Confirm the producer and documentation owner.'],
+            ['decision_number' => '04', 'decision_question' => 'Which evidence applies?', 'decision_answer' => 'Check the stated scope of each document.'],
+            ['decision_number' => '05', 'decision_question' => 'What needs review?', 'decision_answer' => 'Record unresolved questions for editorial review.'],
+            ['decision_number' => '06', 'decision_question' => 'What is the next step?', 'decision_answer' => 'Use a separately authorized follow-up when appropriate.'],
+        ],
+        'field_tio2_geo_application_briefs' => [[
+            'application_name' => 'Coatings context',
+            'application_summary' => 'A synthetic application brief for Preview contract testing.',
+            'application_considerations' => 'Confirm requirements with appropriate technical documentation.',
+        ]],
+        'field_tio2_geo_supply_routes' => [[
+            'route_name' => 'Synthetic comparison route',
+            'route_meaning' => 'A demo-only route description.',
+            'buyer_verification' => 'Ask who owns production and supporting documents.',
+            'documentation_context' => 'Review documents within their stated applicability.',
+            'claim_basis' => 'synthetic_demo',
+            'evidence_url' => '',
+        ]],
+        'field_tio2_geo_evidence_items' => [],
+        'field_tio2_geo_evaluation_steps' => [[
+            'method_number' => '01',
+            'method_title' => 'Frame the question',
+            'method_description' => 'Record the application and evidence context before comparing routes.',
+        ]],
+        'field_tio2_geo_faqs' => [
+            ['faq_question' => 'Is this a production claim?', 'faq_answer' => 'No. It is synthetic demo content.'],
+            ['faq_question' => 'Does this send an inquiry?', 'faq_answer' => 'No. No submission behavior is introduced.'],
+            ['faq_question' => 'Should source context be checked?', 'faq_answer' => 'Yes. Review applicability and evidence boundaries.'],
+        ],
+        'field_tio2_geo_glossary_items' => [],
+        'field_tio2_geo_editorial_reviewed_at' => '2026-08-26T00:00:00.000Z',
+        'field_tio2_geo_editorial_reviewed_by' => 'Synthetic local editorial review',
+        'field_tio2_geo_editorial_review_scope' => 'Local experimental content only',
+    ];
+    foreach ($fields as $field_key => $value) {
+        tio2_preview_smoke_update_field($field_key, $value, $post_id);
     }
 }
 
@@ -320,14 +425,40 @@ if (
     tio2_preview_smoke_fail('WordPress rewrote Product into the Next.js Preview runtime');
 }
 
-$homepage_ids = tio2_find_homepage_ids('tio2-a');
-if (1 !== count($homepage_ids)) {
+$existing_site_a_homepage_ids = tio2_find_homepage_ids('tio2-a');
+if (1 !== count($existing_site_a_homepage_ids)) {
     tio2_preview_smoke_fail('Expected one Site A homepage preview source');
 }
-$homepage_id = (int) $homepage_ids[0];
-$homepage_status = (string) get_post_status($homepage_id);
-$GLOBALS['tio2_preview_smoke_restore_statuses'][$homepage_id] = $homepage_status;
-wp_update_post(['ID' => $homepage_id, 'post_status' => 'draft']);
+$existing_site_a_homepage_id = (int) $existing_site_a_homepage_ids[0];
+$existing_site_a_terms = wp_get_object_terms($existing_site_a_homepage_id, 'site_scope', ['fields' => 'slugs']);
+if (is_wp_error($existing_site_a_terms)) {
+    tio2_preview_smoke_fail('Could not snapshot the existing Site A homepage owner');
+}
+$GLOBALS['tio2_preview_smoke_restore_homepage_owners'][$existing_site_a_homepage_id] = [
+    'siteIds' => array_values($existing_site_a_terms),
+    'slug' => (string) get_post_field('post_name', $existing_site_a_homepage_id),
+    'status' => (string) get_post_status($existing_site_a_homepage_id),
+];
+wp_set_object_terms($existing_site_a_homepage_id, [], 'site_scope', false);
+wp_update_post([
+    'ID' => $existing_site_a_homepage_id,
+    'post_name' => 'preview-smoke-site-a-homepage-backup-' . $existing_site_a_homepage_id,
+]);
+
+$homepage_id = wp_insert_post([
+    'post_type' => 'tio2_homepage',
+    'post_status' => 'draft',
+    'post_title' => 'Site A v0.2 preview fixture',
+], true);
+if (is_wp_error($homepage_id) || $homepage_id <= 0) {
+    tio2_preview_smoke_fail('Could not create the Site A v0.2 Preview fixture');
+}
+$homepage_id = (int) $homepage_id;
+$GLOBALS['tio2_preview_smoke_post_ids'][] = $homepage_id;
+wp_set_object_terms($homepage_id, ['tio2-a'], 'site_scope', false);
+wp_update_post(['ID' => $homepage_id, 'post_name' => 'tio2-a--homepage']);
+tio2_preview_smoke_set_v02_homepage_fields($homepage_id);
+clean_post_cache($homepage_id);
 
 $homepage_path = '/';
 $homepage_timestamp = (string) time();
@@ -347,12 +478,59 @@ if (
     ! is_array($homepage_data) ||
     'tio2-a' !== ($homepage_data['siteId'] ?? null) ||
     '/' !== ($homepage_data['path'] ?? null) ||
-    'homepage-v0.1' !== ($homepage_data['schemaVersion'] ?? null) ||
+    'homepage-v0.2-editorial-geo' !== ($homepage_data['schemaVersion'] ?? null) ||
     'draft' !== ($homepage_data['status'] ?? null) ||
-    (string) get_post_meta($homepage_id, 'hero_heading', true) !==
-        ($homepage_data['homepageFields']['heroHeading'] ?? null)
+    'Evaluate a titanium dioxide supply route' !== ($homepage_data['homepageFields']['heroHeading'] ?? null) ||
+    'Clarify the sourcing context' !== ($homepage_data['homepageFields']['closingHeading'] ?? null) ||
+    'Titanium dioxide sourcing evaluation' !== ($homepage_data['homepageFields']['seoTitle'] ?? null) ||
+    'What should a buyer clarify before sourcing titanium dioxide?' !==
+        ($homepage_data['editorialGeoFields']['directAnswerQuestion'] ?? null) ||
+    'Start with application context, evidence boundaries, and supply-route ownership.' !==
+        ($homepage_data['editorialGeoFields']['directAnswerLead'] ?? null) ||
+    'This synthetic demo organizes questions for local editorial review and does not assert production performance.' !==
+        ($homepage_data['editorialGeoFields']['directAnswerBody'] ?? null) ||
+    '01' !== ($homepage_data['editorialGeoFields']['decisionQuestions'][0]['decisionNumber'] ?? null) ||
+    '06' !== ($homepage_data['editorialGeoFields']['decisionQuestions'][5]['decisionNumber'] ?? null) ||
+    6 !== count($homepage_data['editorialGeoFields']['decisionQuestions'] ?? []) ||
+    3 > count($homepage_data['editorialGeoFields']['geoFaqs'] ?? []) ||
+    'Is this a production claim?' !== ($homepage_data['editorialGeoFields']['geoFaqs'][0]['faqQuestion'] ?? null) ||
+    '2026-08-26T00:00:00.000Z' !== ($homepage_data['editorialGeoFields']['editorialReviewedAt'] ?? null)
 ) {
-    tio2_preview_smoke_fail('Signed homepage preview did not return the structured Site A draft');
+    tio2_preview_smoke_fail('Signed homepage preview did not return the v0.2 Site A draft contract');
+}
+
+$site_b_homepage_ids = tio2_find_homepage_ids('tio2-b');
+if (1 !== count($site_b_homepage_ids)) {
+    tio2_preview_smoke_fail('Expected one frozen Site B homepage preview source');
+}
+$site_b_homepage_id = (int) $site_b_homepage_ids[0];
+$site_b_homepage_status = (string) get_post_status($site_b_homepage_id);
+$GLOBALS['tio2_preview_smoke_restore_statuses'][$site_b_homepage_id] = $site_b_homepage_status;
+tio2_preview_smoke_set_status_exact($site_b_homepage_id, 'draft');
+$site_b_request = new WP_REST_Request('GET', '/tio2/v1/preview');
+$site_b_request->set_query_params(['siteId' => 'tio2-b', 'path' => '/']);
+$site_b_request->set_header('x-tio2-preview-timestamp', $homepage_timestamp);
+$site_b_request->set_header('x-tio2-preview-signature', $homepage_signature);
+if (401 !== rest_do_request($site_b_request)->get_status()) {
+    tio2_preview_smoke_fail('A Site A signature retrieved Site B Preview content');
+}
+$site_b_signature = hash_hmac(
+    'sha256',
+    $homepage_timestamp . "\n" . 'tio2-b' . "\n/",
+    'site-b-preview-smoke-secret'
+);
+$site_b_request->set_header('x-tio2-preview-signature', $site_b_signature);
+$site_b_response = rest_do_request($site_b_request);
+$site_b_data = $site_b_response->get_data();
+if (
+    200 !== $site_b_response->get_status() ||
+    ! is_array($site_b_data) ||
+    'tio2-b' !== ($site_b_data['siteId'] ?? null) ||
+    '/' !== ($site_b_data['path'] ?? null) ||
+    'homepage-v0.1' !== ($site_b_data['schemaVersion'] ?? null) ||
+    'draft' !== ($site_b_data['status'] ?? null)
+) {
+    tio2_preview_smoke_fail('Signed Site B Preview did not retain the frozen v0.1 contract');
 }
 
 $duplicate_preview_title = 'Direct duplicate homepage preview owner';
@@ -414,8 +592,6 @@ foreach (['publish', 'future', 'pending', 'private'] as $non_draft_status) {
 }
 tio2_preview_smoke_set_status_exact($homepage_id, 'draft');
 
-wp_update_post(['ID' => $homepage_id, 'post_status' => $homepage_status]);
-unset($GLOBALS['tio2_preview_smoke_restore_statuses'][$homepage_id]);
 $GLOBALS['tio2_webhook_queue'] = [];
 
 wp_trash_post((int) $draft_id);
@@ -427,4 +603,5 @@ if (404 !== $trashed_response->get_status()) {
 tio2_preview_smoke_cleanup();
 $GLOBALS['tio2_preview_smoke_post_ids'] = [];
 $GLOBALS['tio2_preview_smoke_restore_statuses'] = [];
+$GLOBALS['tio2_preview_smoke_restore_homepage_owners'] = [];
 fwrite(STDOUT, "TiO2 signed draft preview smoke test passed\n");

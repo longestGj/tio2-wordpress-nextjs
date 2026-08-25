@@ -360,6 +360,10 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
     }
 
     $homepage_key = ltrim($meta_key, '_');
+    if (in_array($homepage_key, tio2_homepage_v02_meta_keys(), true)) {
+        return true;
+    }
+
     foreach ([
         'homepage_',
         'hero_',

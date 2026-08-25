@@ -6,6 +6,7 @@ if (! defined('ABSPATH')) {
 
 $GLOBALS['tio2_webhook_routing_post_ids'] = [];
 $GLOBALS['tio2_webhook_routing_restore_meta'] = [];
+$GLOBALS['tio2_webhook_routing_restore_statuses'] = [];
 
 function tio2_webhook_routing_fail(string $message): void
 {
@@ -18,12 +19,52 @@ function tio2_webhook_routing_fail(string $message): void
 function tio2_webhook_routing_cleanup(): void
 {
     foreach ($GLOBALS['tio2_webhook_routing_restore_meta'] ?? [] as $post_id => $meta) {
-        update_post_meta((int) $post_id, (string) $meta['key'], (string) $meta['value']);
+        foreach ($meta as $key => $snapshot) {
+            if ($snapshot['exists']) {
+                update_post_meta((int) $post_id, (string) $key, $snapshot['value']);
+            } else {
+                delete_post_meta((int) $post_id, (string) $key);
+            }
+        }
     }
     $GLOBALS['tio2_webhook_queue'] = [];
     foreach ($GLOBALS['tio2_webhook_routing_post_ids'] ?? [] as $post_id) {
         wp_delete_post((int) $post_id, true);
     }
+    foreach ($GLOBALS['tio2_webhook_routing_restore_statuses'] ?? [] as $post_id => $status) {
+        tio2_webhook_routing_set_status_exact((int) $post_id, (string) $status);
+    }
+}
+
+function tio2_webhook_routing_set_status_exact(int $post_id, string $status): void
+{
+    global $wpdb;
+
+    $updated = $wpdb->update(
+        $wpdb->posts,
+        ['post_status' => $status],
+        ['ID' => $post_id],
+        ['%s'],
+        ['%d']
+    );
+    clean_post_cache($post_id);
+    if (false === $updated || $status !== get_post_status($post_id)) {
+        tio2_webhook_routing_fail("Could not set Homepage webhook fixture status {$status}");
+    }
+}
+
+/**
+ * @param mixed $value
+ */
+function tio2_webhook_routing_snapshot_meta(int $post_id, string $meta_key, $value): void
+{
+    if (isset($GLOBALS['tio2_webhook_routing_restore_meta'][$post_id][$meta_key])) {
+        return;
+    }
+    $GLOBALS['tio2_webhook_routing_restore_meta'][$post_id][$meta_key] = [
+        'exists' => metadata_exists('post', $post_id, $meta_key),
+        'value' => $value,
+    ];
 }
 
 /**
@@ -32,7 +73,9 @@ function tio2_webhook_routing_cleanup(): void
 function tio2_webhook_routing_assert_request(array $requests, string $site_id): void
 {
     if (1 !== count($requests)) {
-        tio2_webhook_routing_fail("Expected one {$site_id} webhook request, received " . count($requests));
+        tio2_webhook_routing_fail(
+            "Expected one {$site_id} webhook request during " . ($GLOBALS['tio2_webhook_routing_context'] ?? 'an unknown assertion') . ', received ' . count($requests)
+        );
     }
 
     $expected_url = 'tio2-a' === $site_id
@@ -163,6 +206,7 @@ add_filter('pre_http_request', static function ($preempt, $args, $url) use (&$ca
 }, 10, 3);
 
 foreach (['tio2-a', 'tio2-b'] as $site_id) {
+    $GLOBALS['tio2_webhook_routing_context'] = "initial {$site_id} Page publish";
     $captured_requests = [];
     $GLOBALS['tio2_webhook_queue'] = [];
     $page_id = tio2_webhook_routing_page($site_id);
@@ -170,6 +214,7 @@ foreach (['tio2-a', 'tio2-b'] as $site_id) {
 
     $captured_requests = [];
     $GLOBALS['tio2_webhook_queue'] = [];
+    $GLOBALS['tio2_webhook_routing_context'] = "updated {$site_id} Page title";
     tio2_webhook_routing_update_legacy_title(
         $page_id,
         "Updated {$site_id} webhook routing fixture"
@@ -333,6 +378,21 @@ if (1 !== count($homepage_ids)) {
     tio2_webhook_routing_fail('Expected one Site A homepage webhook source');
 }
 $homepage_id = (int) $homepage_ids[0];
+$homepage_status = (string) get_post_status($homepage_id);
+$GLOBALS['tio2_webhook_routing_restore_statuses'][$homepage_id] = $homepage_status;
+tio2_webhook_routing_set_status_exact($homepage_id, 'publish');
+foreach ([
+    'direct_answer_body',
+    '_direct_answer_body',
+    'decision_questions_0_decision_answer',
+    '_supply_routes_0_route_name',
+    'evidence_items_0_verification_status',
+    '_geo_faqs_0_faq_answer',
+] as $meta_key) {
+    if (! tio2_is_relevant_webhook_meta_key($meta_key, $homepage_id)) {
+        tio2_webhook_routing_fail("v0.2 nested Homepage meta {$meta_key} was not relevant to revalidation");
+    }
+}
 $homepage_old_state = tio2_get_webhook_affected_state($homepage_id, [
     'siteIds' => ['tio2-a'],
     'hasTerms' => true,
@@ -356,14 +416,12 @@ if (
     tio2_webhook_routing_fail('Homepage webhook did not retain old and new ownership snapshots');
 }
 $homepage_heading = (string) get_post_meta($homepage_id, 'hero_heading', true);
-$GLOBALS['tio2_webhook_routing_restore_meta'][$homepage_id] = [
-    'key' => 'hero_heading',
-    'value' => $homepage_heading,
-];
+tio2_webhook_routing_snapshot_meta($homepage_id, 'hero_heading', $homepage_heading);
 $captured_requests = [];
 $GLOBALS['tio2_webhook_queue'] = [];
 update_post_meta($homepage_id, 'hero_heading', $homepage_heading . ' webhook smoke');
 tio2_flush_webhook_queue();
+$GLOBALS['tio2_webhook_routing_context'] = 'legacy Site A Homepage heading';
 tio2_webhook_routing_assert_request($captured_requests, 'tio2-a');
 $homepage_payload = json_decode((string) ($captured_requests[0]['args']['body'] ?? ''), true);
 if (
@@ -375,10 +433,61 @@ if (
     tio2_webhook_routing_fail('Homepage webhook did not target only the owning Site A root');
 }
 update_post_meta($homepage_id, 'hero_heading', $homepage_heading);
-unset($GLOBALS['tio2_webhook_routing_restore_meta'][$homepage_id]);
 $GLOBALS['tio2_webhook_queue'] = [];
+tio2_webhook_routing_set_status_exact($homepage_id, 'publish');
+
+$v02_mutations = [
+    'direct_answer_body' => 'Synthetic editorial direct answer webhook mutation.',
+    'supply_routes' => [[
+        'route_name' => 'Webhook route',
+        'route_meaning' => 'Synthetic route update.',
+        'buyer_verification' => 'Confirm ownership.',
+        'documentation_context' => 'Review scope.',
+        'claim_basis' => 'synthetic_demo',
+        'evidence_url' => '',
+    ]],
+    'evidence_items' => [[
+        'document_type' => 'Webhook evidence',
+        'document_title' => 'Synthetic evidence update',
+        'document_summary' => 'A webhook routing fixture.',
+        'applicability' => 'Local test only',
+        'revision_label' => 'demo',
+        'evidence_url' => '',
+        'verification_status' => 'demo',
+    ]],
+    'geo_faqs' => [[
+        'faq_question' => 'Does this refresh only Site A?',
+        'faq_answer' => 'Yes. The fixture asserts Site A root delivery only.',
+    ]],
+    'editorial_reviewed_at' => '2026-08-26T00:00:00.000Z',
+];
+foreach ($v02_mutations as $meta_key => $value) {
+    tio2_webhook_routing_snapshot_meta(
+        $homepage_id,
+        $meta_key,
+        get_post_meta($homepage_id, $meta_key, true)
+    );
+    $captured_requests = [];
+    $GLOBALS['tio2_webhook_queue'] = [];
+    $GLOBALS['tio2_webhook_routing_context'] = "v0.2 {$meta_key} Homepage mutation";
+    tio2_webhook_routing_set_status_exact($homepage_id, 'publish');
+    update_post_meta($homepage_id, $meta_key, $value);
+    tio2_flush_webhook_queue();
+    tio2_webhook_routing_assert_request($captured_requests, 'tio2-a');
+    $payload = json_decode((string) ($captured_requests[0]['args']['body'] ?? ''), true);
+    if (
+        ! is_array($payload) ||
+        ['tio2-a'] !== ($payload['siteIds'] ?? null) ||
+        ['/'] !== ($payload['paths'] ?? null) ||
+        false !== array_search('https://site-b.next.test/api/revalidate', array_column($captured_requests, 'url'), true)
+    ) {
+        tio2_webhook_routing_fail("v0.2 Homepage meta {$meta_key} crossed Site A ownership");
+    }
+    update_post_meta($homepage_id, $meta_key, $GLOBALS['tio2_webhook_routing_restore_meta'][$homepage_id][$meta_key]['value']);
+}
 
 tio2_webhook_routing_cleanup();
 $GLOBALS['tio2_webhook_routing_post_ids'] = [];
 $GLOBALS['tio2_webhook_routing_restore_meta'] = [];
+$GLOBALS['tio2_webhook_routing_restore_statuses'] = [];
 fwrite(STDOUT, "TiO2 per-site webhook routing smoke test passed\n");

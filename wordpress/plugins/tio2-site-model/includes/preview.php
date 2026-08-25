@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) {
  */
 function tio2_get_preview_config(string $site_id, ?array $environment = null): ?array
 {
-    if (! in_array($site_id, ['tio2-a', 'tio2-b'], true)) {
+    if (! in_array($site_id, tio2_supported_site_ids(), true)) {
         return null;
     }
 
@@ -283,7 +283,12 @@ function tio2_preview_rest_response(WP_REST_Request $request)
             return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
         }
 
-        return new WP_REST_Response(tio2_serialize_homepage_preview($homepage, $site_id), 200);
+        $schema_version = (string) get_field('homepage_schema_version', $homepage->ID, false);
+        $payload = 'homepage-v0.2-editorial-geo' === $schema_version
+            ? tio2_serialize_homepage_v02_preview($homepage, $site_id)
+            : tio2_serialize_homepage_preview($homepage, $site_id);
+
+        return new WP_REST_Response($payload, 200);
     }
 
     $internal_slug = tio2_build_internal_slug($site_id, $path);
