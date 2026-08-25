@@ -1,12 +1,13 @@
+import {SITE_IDS} from '@/sites'
 import type {SiteId} from '@/sites'
 
-const SITE_IDS = new Set<SiteId>(['tio2-a', 'tio2-b'])
+const siteIdSet = new Set<SiteId>(SITE_IDS)
 const MAX_CANONICAL_PUBLIC_PATH_LENGTH = 172
 const CANONICAL_PUBLIC_PATH_PATTERN =
   /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*)?$/u
 
 function assertSiteId(siteId: string): asserts siteId is SiteId {
-  if (!SITE_IDS.has(siteId as SiteId)) {
+  if (!siteIdSet.has(siteId as SiteId)) {
     throw new Error(`Invalid site ID: ${siteId}`)
   }
 }

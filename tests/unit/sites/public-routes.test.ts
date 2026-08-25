@@ -9,7 +9,7 @@ import type {PublicRouteDefinition} from '@/sites/types'
 
 describe('public route inventory', () => {
   it.each([
-    ['tio2-a', 'site-a-homepage-active'],
+    ['tio2-a', 'site-a-homepage-editorial-v0.2'],
     ['tio2-b', 'site-b-homepage-v0.1-frozen'],
   ] as const)('maps %s root to %s', (siteId, template) => {
     expect(getPublicRoutes(siteId)).toEqual([{path: '/', template}])
@@ -17,12 +17,18 @@ describe('public route inventory', () => {
     expect(isPublicRoute(siteId, '/')).toBe(true)
   })
 
+  it('maps Site A only to the editorial GEO homepage route', () => {
+    expect(getPublicRoutes('tio2-a')).toEqual([
+      {path: '/', template: 'site-a-homepage-editorial-v0.2'},
+    ])
+  })
+
   it('keeps returned route definitions immutable', () => {
     const routes = getPublicRoutes('tio2-a')
 
-    expect(() => (routes as PublicRouteDefinition[]).push({path: '/', template: 'site-a-homepage-active'})).toThrow(TypeError)
+    expect(() => (routes as PublicRouteDefinition[]).push({path: '/', template: 'site-a-homepage-editorial-v0.2'})).toThrow(TypeError)
     expect(() => Object.assign(routes[0], {template: 'site-b-homepage-v0.1-frozen'})).toThrow(TypeError)
-    expect(getPublicRoutes('tio2-a')).toEqual([{path: '/', template: 'site-a-homepage-active'}])
+    expect(getPublicRoutes('tio2-a')).toEqual([{path: '/', template: 'site-a-homepage-editorial-v0.2'}])
   })
 
   it('accepts only the canonical root slash', () => {
@@ -44,8 +50,8 @@ describe('public route inventory', () => {
         'tio2-a': {
           expectedPublicUrls: 2,
           routes: [
-            {path: '/', template: 'site-a-homepage-active'},
-            {path: '/', template: 'site-a-homepage-active'},
+            {path: '/', template: 'site-a-homepage-editorial-v0.2'},
+            {path: '/', template: 'site-a-homepage-editorial-v0.2'},
           ],
         },
         'tio2-b': {expectedPublicUrls: 1, routes: [{path: '/', template: 'site-b-homepage-v0.1-frozen'}]},
@@ -57,7 +63,7 @@ describe('public route inventory', () => {
     expect(() => parsePublicRouteInventory({
       version: 'root-only-v0.1',
       sites: {
-        'tio2-a': {expectedPublicUrls: 2, routes: [{path: '/', template: 'site-a-homepage-active'}]},
+        'tio2-a': {expectedPublicUrls: 2, routes: [{path: '/', template: 'site-a-homepage-editorial-v0.2'}]},
         'tio2-b': {expectedPublicUrls: 1, routes: [{path: '/', template: 'site-b-homepage-v0.1-frozen'}]},
       },
     })).toThrow('Expected public URL count mismatch for tio2-a')
@@ -80,8 +86,8 @@ describe('public route inventory', () => {
         'tio2-a': {
           expectedPublicUrls: 2,
           routes: [
-            {path: '/', template: 'site-a-homepage-active'},
-            {path: '/products', template: 'site-a-homepage-active'},
+            {path: '/', template: 'site-a-homepage-editorial-v0.2'},
+            {path: '/products', template: 'site-a-homepage-editorial-v0.2'},
           ],
         },
         'tio2-b': {expectedPublicUrls: 1, routes: [{path: '/', template: 'site-b-homepage-v0.1-frozen'}]},

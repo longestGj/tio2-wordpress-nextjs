@@ -8,9 +8,9 @@ const siteTemplateProfiles: Readonly<Record<SiteId, SiteTemplateProfile>> = Obje
     siteId: 'tio2-a',
     shell: Object.freeze({key: 'site-a-shell-active', state: 'active', proposalId}),
     homepage: Object.freeze({
-      key: 'site-a-homepage-active',
+      key: 'site-a-homepage-editorial-v0.2',
       state: 'active',
-      schemaVersion: 'homepage-v0.1',
+      schemaVersion: 'homepage-v0.2-editorial-geo',
       proposalId,
     }),
   }),

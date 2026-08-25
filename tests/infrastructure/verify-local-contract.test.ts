@@ -183,7 +183,7 @@ describe.runIf(process.platform === 'win32')('local verification gate', () => {
           'tio2-a': {
             expectedPublicUrls: 2,
             routes: [
-              {path: '/', template: 'site-a-homepage-active'},
+              {path: '/', template: 'site-a-homepage-editorial-v0.2'},
               {path: '/approved', template: 'site-a-approved'},
             ],
           },

@@ -3,6 +3,7 @@ import {revalidatePath, revalidateTag} from 'next/cache'
 import {z} from 'zod'
 
 import {getCurrentSite} from '@/lib/sites/current-site'
+import {SITE_IDS} from '@/sites'
 import {
   contentListTag,
   homepageContentTag,
@@ -33,7 +34,7 @@ const payloadSchema = z
   .object({
     eventId: z.uuid(),
     siteIds: z
-      .array(z.enum(['tio2-a', 'tio2-b']))
+      .array(z.enum(SITE_IDS))
       .length(1)
       .refine(uniqueArray),
     contentId: z.number().int().positive().safe(),

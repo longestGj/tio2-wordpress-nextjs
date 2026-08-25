@@ -262,7 +262,7 @@ describe('POST /api/revalidate', () => {
   it.each([
     {eventId: 'not-a-uuid'},
     {siteIds: []},
-    {siteIds: ['unknown']},
+    {siteIds: ['site-c']},
     {siteIds: ['tio2-a', 'tio2-a']},
     {contentId: 0},
     {contentId: 1.5},
@@ -282,6 +282,14 @@ describe('POST /api/revalidate', () => {
     expect(response.status).toBe(400)
     expect(revalidateTag).not.toHaveBeenCalled()
     expect(revalidatePath).not.toHaveBeenCalled()
+  })
+
+  it.each(['tio2-a', 'tio2-b'] as const)('accepts central site ID %s for its owning site', async (siteId) => {
+    vi.stubEnv('SITE_ID', siteId)
+
+    const response = await POST(signedRequest(validPayload({siteIds: [siteId]})))
+
+    expect(response.status).toBe(200)
   })
 
   it('rejects unknown body properties', async () => {

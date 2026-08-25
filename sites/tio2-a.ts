@@ -8,6 +8,7 @@ export const tio2A: SiteConfig = Object.freeze({
   wordpressScope: 'tio2-a',
   locale: 'en-US',
   contactEmail: 'contact@tio2products.com',
+  rfqHref: 'mailto:contact@tio2products.com',
   defaultSeo: Object.freeze({
     title: 'TiO2 A | Titanium Dioxide',
     description: 'Titanium dioxide products and applications from TiO2 A.',

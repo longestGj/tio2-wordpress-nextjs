@@ -132,7 +132,7 @@ function tio2_assert_public_route_inventory(): void
 {
     $inventory = tio2_load_public_route_inventory();
     $expected_routes = [
-        'tio2-a' => ['expectedPublicUrls' => 1, 'path' => '/', 'template' => 'site-a-homepage-active'],
+        'tio2-a' => ['expectedPublicUrls' => 1, 'path' => '/', 'template' => 'site-a-homepage-editorial-v0.2'],
         'tio2-b' => ['expectedPublicUrls' => 1, 'path' => '/', 'template' => 'site-b-homepage-v0.1-frozen'],
     ];
 
@@ -150,11 +150,11 @@ function tio2_assert_public_route_inventory(): void
     }
 
     foreach ([
-        '{"version":"root-only-v0.1","sites":{"tio2-a":{"expectedPublicUrls":1,"routes":[{"path":"/","template":"site-a-homepage-active"}]}}}',
-        '{"version":"root-only-v0.1","sites":{"tio2-a":{"expectedPublicUrls":1,"routes":[{"path":"products","template":"site-a-homepage-active"}]},"tio2-b":{"expectedPublicUrls":1,"routes":[{"path":"/","template":"site-b-homepage-v0.1-frozen"}]}}}',
-        '{"version":"root-only-v0.1","sites":{"tio2-a":{"expectedPublicUrls":2,"routes":[{"path":"/","template":"site-a-homepage-active"},{"path":"/","template":"site-a-homepage-active"}]},"tio2-b":{"expectedPublicUrls":1,"routes":[{"path":"/","template":"site-b-homepage-v0.1-frozen"}]}}}',
+        '{"version":"root-only-v0.1","sites":{"tio2-a":{"expectedPublicUrls":1,"routes":[{"path":"/","template":"site-a-homepage-editorial-v0.2"}]}}}',
+        '{"version":"root-only-v0.1","sites":{"tio2-a":{"expectedPublicUrls":1,"routes":[{"path":"products","template":"site-a-homepage-editorial-v0.2"}]},"tio2-b":{"expectedPublicUrls":1,"routes":[{"path":"/","template":"site-b-homepage-v0.1-frozen"}]}}}',
+        '{"version":"root-only-v0.1","sites":{"tio2-a":{"expectedPublicUrls":2,"routes":[{"path":"/","template":"site-a-homepage-editorial-v0.2"},{"path":"/","template":"site-a-homepage-editorial-v0.2"}]},"tio2-b":{"expectedPublicUrls":1,"routes":[{"path":"/","template":"site-b-homepage-v0.1-frozen"}]}}}',
         '{"version":"root-only-v0.1","sites":{"tio2-a":{"expectedPublicUrls":1,"routes":[{"path":"/","template":"invalid-template"}]},"tio2-b":{"expectedPublicUrls":1,"routes":[{"path":"/","template":"site-b-homepage-v0.1-frozen"}]}}}',
-        '{"version":"root-only-v0.1","sites":{"tio2-a":{"expectedPublicUrls":2,"routes":[{"path":"/","template":"site-a-homepage-active"}]},"tio2-b":{"expectedPublicUrls":1,"routes":[{"path":"/","template":"site-b-homepage-v0.1-frozen"}]}}}',
+        '{"version":"root-only-v0.1","sites":{"tio2-a":{"expectedPublicUrls":2,"routes":[{"path":"/","template":"site-a-homepage-editorial-v0.2"}]},"tio2-b":{"expectedPublicUrls":1,"routes":[{"path":"/","template":"site-b-homepage-v0.1-frozen"}]}}}',
     ] as $invalid_json) {
         try {
             tio2_load_public_route_inventory_from_json($invalid_json);

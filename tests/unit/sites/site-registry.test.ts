@@ -1,8 +1,15 @@
 import {describe, expect, it} from 'vitest'
-import {getSiteConfig} from '@/sites'
+import {assertSiteRfqHref, getSiteConfig, SITE_IDS} from '@/sites'
 import {getCurrentSite} from '@/lib/sites/current-site'
 
 describe('site registry', () => {
+  it('exposes the central site IDs and Site A RFQ mail target', () => {
+    expect(SITE_IDS).toEqual(['tio2-a', 'tio2-b'])
+    expect(getSiteConfig('tio2-a').rfqHref).toBe(
+      'mailto:contact@tio2products.com',
+    )
+  })
+
   it.each(['tio2-a', 'tio2-b'])('loads %s', (id) => {
     expect(getSiteConfig(id).id).toBe(id)
   })
@@ -30,5 +37,15 @@ describe('site registry', () => {
 
     expect(() => Object.assign(site.defaultSeo, {title: 'Changed'})).toThrow(TypeError)
     expect(getSiteConfig('tio2-a').defaultSeo.title).toBe('TiO2 A | Titanium Dioxide')
+  })
+
+  it.each([
+    ['javascript:', 'javascript:alert(1)', 'Invalid RFQ URL for tio2-a'],
+    ['mismatched mailto address', 'mailto:other@tio2products.com', 'Invalid RFQ mail target for tio2-a'],
+    ['HTTP URL', 'http://tio2products.com/rfq', 'Invalid RFQ URL for tio2-a'],
+    ['URL credentials', 'https://user:pass@tio2products.com/rfq', 'Invalid RFQ URL for tio2-a'],
+    ['foreign HTTPS origin', 'https://example.com/rfq', 'Invalid RFQ URL for tio2-a'],
+  ])('rejects a %s RFQ target', (_label, rfqHref, error) => {
+    expect(() => assertSiteRfqHref({...getSiteConfig('tio2-a'), rfqHref})).toThrow(error)
   })
 })

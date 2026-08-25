@@ -1,8 +1,10 @@
 import {tio2A} from './tio2-a'
 import {tio2B} from './tio2-b'
+import {assertSiteRfqHref} from './types'
 import type {SiteConfig, SiteId} from './types'
 
 export type {
+  HomepageSchemaVersion,
   HomepageTemplateKey,
   PublicRouteDefinition,
   ShellTemplateKey,
@@ -11,6 +13,7 @@ export type {
   SiteTemplateProfile,
   TemplateState,
 } from './types'
+export {assertSiteRfqHref, SITE_IDS} from './types'
 export {
   getExpectedPublicUrlCount,
   getPublicRoutes,
@@ -23,6 +26,10 @@ const siteConfigs: Readonly<Record<SiteId, SiteConfig>> = Object.freeze({
   'tio2-a': Object.freeze(tio2A),
   'tio2-b': Object.freeze(tio2B),
 })
+
+for (const site of Object.values(siteConfigs)) {
+  assertSiteRfqHref(site)
+}
 
 export function getSiteConfig(id: string): SiteConfig {
   if (!Object.hasOwn(siteConfigs, id)) {

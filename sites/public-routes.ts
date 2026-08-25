@@ -1,13 +1,13 @@
 import publicRoutesJson from '../wordpress/plugins/tio2-site-model/config/public-routes.json'
+import {SITE_IDS} from './types'
 import type {HomepageTemplateKey, PublicRouteDefinition, SiteId} from './types'
 
-const siteIds = ['tio2-a', 'tio2-b'] as const satisfies readonly SiteId[]
 const homepageTemplateKeys = new Set<HomepageTemplateKey>([
-  'site-a-homepage-active',
+  'site-a-homepage-editorial-v0.2',
   'site-b-homepage-v0.1-frozen',
 ])
 const expectedHomepageTemplates: Readonly<Record<SiteId, HomepageTemplateKey>> = Object.freeze({
-  'tio2-a': 'site-a-homepage-active',
+  'tio2-a': 'site-a-homepage-editorial-v0.2',
   'tio2-b': 'site-b-homepage-v0.1-frozen',
 })
 
@@ -32,7 +32,7 @@ function assertExactKeys(value: Record<string, unknown>, expectedKeys: readonly 
 }
 
 function assertKnownSiteId(siteId: string): asserts siteId is SiteId {
-  if (!siteIds.includes(siteId as SiteId)) {
+  if (!SITE_IDS.includes(siteId as SiteId)) {
     throw new Error(`Unknown site ID: ${siteId}`)
   }
 }
@@ -65,10 +65,10 @@ export function parsePublicRouteInventory(value: unknown): PublicRouteInventory 
   if (value.version !== 'root-only-v0.1' || !isRecord(value.sites)) {
     throw new Error('Invalid public route inventory')
   }
-  assertExactKeys(value.sites, siteIds, 'sites')
+  assertExactKeys(value.sites, SITE_IDS, 'sites')
 
   const inventory = {} as Record<SiteId, PublicRouteInventorySite>
-  for (const siteId of siteIds) {
+  for (const siteId of SITE_IDS) {
     const siteValue = value.sites[siteId]
     if (!isRecord(siteValue)) {
       throw new Error(`Invalid public route inventory site: ${siteId}`)
