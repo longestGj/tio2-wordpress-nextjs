@@ -303,6 +303,123 @@ function tio2_preview_product_normalize_fields(array $definitions, array $values
     return $normalized;
 }
 
+function tio2_preview_product_plain_text(string $value): string
+{
+    $decoded = html_entity_decode(
+        wp_strip_all_tags($value, true),
+        ENT_QUOTES | ENT_HTML5,
+        'UTF-8'
+    );
+    $normalized = preg_replace('/\s+/u', ' ', $decoded);
+
+    return trim(is_string($normalized) ? $normalized : $decoded);
+}
+
+/**
+ * @param mixed $value
+ */
+function tio2_preview_product_family_name($value): string
+{
+    $term_id = $value instanceof WP_Term ? (int) $value->term_id : (int) $value;
+    if ($term_id <= 0) {
+        return '';
+    }
+
+    $term = get_term($term_id, 'product_family');
+    return $term instanceof WP_Term
+        ? tio2_preview_product_plain_text($term->name)
+        : '';
+}
+
+function tio2_preview_product_has_only_site_a_scope(int $post_id): bool
+{
+    $site_scopes = wp_get_object_terms($post_id, 'site_scope', ['fields' => 'slugs']);
+    if (is_wp_error($site_scopes)) {
+        return false;
+    }
+
+    return ['tio2-a'] === array_values(array_unique(array_map('strval', $site_scopes)));
+}
+
+function tio2_preview_product_relationship_path(WP_Post $post): ?string
+{
+    if ('tio2_product' === $post->post_type) {
+        $product_id = get_field('product_id', $post->ID, false);
+        if (
+            ! is_string($product_id) ||
+            1 !== preg_match(tio2_product_id_pattern(), $product_id) ||
+            tio2_product_slug_from_id($product_id) !== $post->post_name
+        ) {
+            return null;
+        }
+        $path = tio2_product_path_from_id($product_id);
+    } else {
+        if ('' === $post->post_name) {
+            return null;
+        }
+        $permalink = get_permalink($post);
+        $parts = is_string($permalink) ? wp_parse_url($permalink) : false;
+        if (
+            ! is_array($parts) ||
+            isset($parts['query']) ||
+            isset($parts['fragment']) ||
+            ! isset($parts['path']) ||
+            ! is_string($parts['path'])
+        ) {
+            return null;
+        }
+        $path = '/' === $parts['path'] ? '/' : untrailingslashit($parts['path']);
+        if (! str_ends_with($path, '/' . $post->post_name)) {
+            return null;
+        }
+    }
+
+    return '/' !== $path && tio2_is_valid_public_path($path) ? $path : null;
+}
+
+/**
+ * @param mixed $value
+ * @return list<array{title: string, fit?: string, href?: string}>
+ */
+function tio2_preview_product_relationships(
+    $value,
+    string $expected_post_type,
+    bool $include_fit = false
+): array {
+    $items = is_array($value) ? $value : [];
+    $relationships = [];
+    foreach ($items as $item) {
+        $post = $item instanceof WP_Post ? $item : get_post((int) $item);
+        if (
+            ! $post instanceof WP_Post ||
+            $expected_post_type !== $post->post_type ||
+            'publish' !== $post->post_status ||
+            ! tio2_preview_product_has_only_site_a_scope((int) $post->ID)
+        ) {
+            continue;
+        }
+
+        $href = tio2_preview_product_relationship_path($post);
+        if (! $include_fit && null === $href) {
+            continue;
+        }
+        $relationship = [
+            'title' => tio2_preview_product_plain_text((string) get_the_title($post)),
+        ];
+        if ($include_fit) {
+            $relationship['fit'] = tio2_preview_product_plain_text(
+                (string) apply_filters('the_excerpt', get_the_excerpt($post))
+            );
+        }
+        if (null !== $href) {
+            $relationship['href'] = $href;
+        }
+        $relationships[] = $relationship;
+    }
+
+    return $relationships;
+}
+
 function tio2_find_product_for_preview(string $site_id, string $path): ?WP_Post
 {
     if ('tio2-a' !== $site_id || 1 !== preg_match('#^/products/(tp-[a-z]{1,2}[0-9]{3})$#', $path, $matches)) {
@@ -363,6 +480,49 @@ function tio2_serialize_product_preview(WP_Post $product): array|WP_Error
         $shared_values[(string) $field['name']] = get_field((string) $field['name'], 'option', false);
     }
 
+    $product_fields = tio2_preview_product_normalize_fields(
+        tio2_product_field_definitions(),
+        $product_values
+    );
+    $product_fields['family'] = tio2_preview_product_family_name($product_values['family'] ?? null);
+    $product_fields['recommendedApplications'] = tio2_preview_product_relationships(
+        $product_values['recommended_applications'] ?? [],
+        'tio2_application',
+        true
+    );
+    $related_links = is_array($product_values['related_links'] ?? null)
+        ? $product_values['related_links']
+        : [];
+    $related_values = [];
+    foreach (tio2_product_field_definitions() as $field) {
+        if (! is_array($field) || 'related_links' !== ($field['name'] ?? null)) {
+            continue;
+        }
+        foreach ($field['sub_fields'] ?? [] as $sub_field) {
+            if (! is_array($sub_field) || empty($sub_field['name'])) {
+                continue;
+            }
+            $related_values[(string) $sub_field['name']] = tio2_preview_product_field_value(
+                $related_links,
+                $sub_field
+            );
+        }
+    }
+    $product_fields['relatedLinks'] = [
+        'applications' => tio2_preview_product_relationships(
+            $related_values['applications'] ?? [],
+            'tio2_application'
+        ),
+        'resources' => tio2_preview_product_relationships(
+            $related_values['resources'] ?? [],
+            'tio2_document'
+        ),
+        'products' => tio2_preview_product_relationships(
+            $related_values['products'] ?? [],
+            'tio2_product'
+        ),
+    ];
+
     $product_id = (string) $product_values['product_id'];
     return [
         'id' => (string) $product->ID,
@@ -373,10 +533,7 @@ function tio2_serialize_product_preview(WP_Post $product): array|WP_Error
         'title' => get_the_title($product),
         'modifiedGmt' => get_post_modified_time('Y-m-d\TH:i:s', true, $product),
         'status' => $product->post_status,
-        'productFields' => tio2_preview_product_normalize_fields(
-            tio2_product_field_definitions(),
-            $product_values
-        ),
+        'productFields' => $product_fields,
         'productSettingsFields' => tio2_normalize_product_shared_settings($shared_values),
     ];
 }

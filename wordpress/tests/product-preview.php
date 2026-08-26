@@ -210,6 +210,59 @@ function tio2_product_preview_test_set_status_exact(int $post_id, string $status
     clean_post_cache($post_id);
 }
 
+/**
+ * @param list<string> $site_scopes
+ */
+function tio2_product_preview_test_insert_relationship(
+    string $post_type,
+    string $status,
+    string $title,
+    string $slug,
+    array $site_scopes,
+    string $excerpt = '',
+    ?string $product_id = null
+): int {
+    $post_id = wp_insert_post([
+        'post_type' => $post_type,
+        'post_status' => 'tio2_product' === $post_type ? 'draft' : $status,
+        'post_title' => $title,
+        'post_name' => $slug,
+        'post_excerpt' => $excerpt,
+    ], true);
+    if (is_wp_error($post_id) || $post_id <= 0) {
+        tio2_product_preview_test_fail("Could not create {$post_type} relationship fixture.");
+    }
+    $post_id = (int) $post_id;
+    $GLOBALS['tio2_product_preview_test_post_ids'][] = $post_id;
+    wp_set_object_terms($post_id, $site_scopes, 'site_scope', false);
+    if (null !== $product_id) {
+        update_field('field_tio2_product_id', $product_id, $post_id);
+    }
+    if ('tio2_product' === $post_type && 'draft' !== $status) {
+        tio2_product_preview_test_set_status_exact($post_id, $status);
+    }
+    clean_post_cache($post_id);
+
+    return $post_id;
+}
+
+function tio2_product_preview_test_clear_slug(int $post_id): void
+{
+    global $wpdb;
+
+    $updated = $wpdb->update(
+        $wpdb->posts,
+        ['post_name' => ''],
+        ['ID' => $post_id],
+        ['%s'],
+        ['%d']
+    );
+    if (false === $updated) {
+        tio2_product_preview_test_fail('Could not remove a relationship canonical path.');
+    }
+    clean_post_cache($post_id);
+}
+
 function tio2_product_preview_test_has_raw_field_key($value): bool
 {
     if (! is_array($value)) {
@@ -247,7 +300,7 @@ if ([] !== $GLOBALS['tio2_product_preview_test_errors']) {
 
 $suffix = str_replace('.', '-', (string) microtime(true));
 $family = wp_insert_term(
-    'Product Preview Family ' . $suffix,
+    'Product Preview Family',
     'product_family',
     ['slug' => 'product-preview-family-' . $suffix]
 );
@@ -257,16 +310,105 @@ if (is_wp_error($family)) {
 $family_id = (int) $family['term_id'];
 $GLOBALS['tio2_product_preview_test_term_ids'][] = $family_id;
 
-$application_id = wp_insert_post([
-    'post_type' => 'tio2_application',
-    'post_status' => 'draft',
-    'post_title' => 'Product preview application',
-], true);
-if (is_wp_error($application_id) || $application_id <= 0) {
-    tio2_product_preview_test_fail('Could not create Product preview application fixture.');
-}
-$application_id = (int) $application_id;
-$GLOBALS['tio2_product_preview_test_post_ids'][] = $application_id;
+$application_id = tio2_product_preview_test_insert_relationship(
+    'tio2_application',
+    'publish',
+    'Eligible Product preview application',
+    'product-preview-application',
+    ['tio2-a'],
+    '<p>Best fit for exterior coatings &amp; durable buyer trials.</p>'
+);
+$unpublished_application_id = tio2_product_preview_test_insert_relationship(
+    'tio2_application',
+    'draft',
+    'Unpublished Product preview application',
+    'unpublished-product-preview-application',
+    ['tio2-a']
+);
+$cross_site_application_id = tio2_product_preview_test_insert_relationship(
+    'tio2_application',
+    'publish',
+    'Cross-site Product preview application',
+    'cross-site-product-preview-application',
+    ['tio2-b']
+);
+$missing_path_application_id = tio2_product_preview_test_insert_relationship(
+    'tio2_application',
+    'publish',
+    'Missing-path Product preview application',
+    'missing-path-product-preview-application',
+    ['tio2-a'],
+    '<p>Useful when route copy is still pending.</p>'
+);
+tio2_product_preview_test_clear_slug($missing_path_application_id);
+
+$document_id = tio2_product_preview_test_insert_relationship(
+    'tio2_document',
+    'publish',
+    'Eligible Product preview resource',
+    'product-preview-resource',
+    ['tio2-a']
+);
+$unpublished_document_id = tio2_product_preview_test_insert_relationship(
+    'tio2_document',
+    'draft',
+    'Unpublished Product preview resource',
+    'unpublished-product-preview-resource',
+    ['tio2-a']
+);
+$cross_site_document_id = tio2_product_preview_test_insert_relationship(
+    'tio2_document',
+    'publish',
+    'Cross-site Product preview resource',
+    'cross-site-product-preview-resource',
+    ['tio2-b']
+);
+$missing_path_document_id = tio2_product_preview_test_insert_relationship(
+    'tio2_document',
+    'publish',
+    'Missing-path Product preview resource',
+    'missing-path-product-preview-resource',
+    ['tio2-a']
+);
+tio2_product_preview_test_clear_slug($missing_path_document_id);
+
+$related_product_id = tio2_product_preview_test_insert_relationship(
+    'tio2_product',
+    'publish',
+    'Eligible Product preview related Product',
+    'tp-z914',
+    ['tio2-a'],
+    '',
+    'TP-Z914'
+);
+$unpublished_product_id = tio2_product_preview_test_insert_relationship(
+    'tio2_product',
+    'draft',
+    'Unpublished Product preview related Product',
+    'tp-z915',
+    ['tio2-a'],
+    '',
+    'TP-Z915'
+);
+$cross_site_product_id = tio2_product_preview_test_insert_relationship(
+    'tio2_product',
+    'publish',
+    'Cross-site Product preview related Product',
+    'tp-z916',
+    ['tio2-b'],
+    '',
+    'TP-Z916'
+);
+$missing_path_product_id = tio2_product_preview_test_insert_relationship(
+    'tio2_product',
+    'publish',
+    'Missing-path Product preview related Product',
+    'tp-z917',
+    ['tio2-a'],
+    '',
+    'TP-Z917'
+);
+tio2_product_preview_test_clear_slug($missing_path_product_id);
 
 tio2_product_preview_test_set_shared_settings();
 $GLOBALS['tio2_b_product_preview_private'] = get_option('tio2_b_product_preview_private', false);
@@ -279,6 +421,36 @@ $product_id = tio2_product_preview_test_insert_product(
     $application_id,
     true
 );
+update_field('field_tio2_product_recommended_applications', [
+    $application_id,
+    $unpublished_application_id,
+    $cross_site_application_id,
+    $document_id,
+    $missing_path_application_id,
+], $product_id);
+update_field('field_tio2_product_related_links', [
+    'applications' => [
+        $application_id,
+        $unpublished_application_id,
+        $cross_site_application_id,
+        $document_id,
+        $missing_path_application_id,
+    ],
+    'resources' => [
+        $document_id,
+        $unpublished_document_id,
+        $cross_site_document_id,
+        $application_id,
+        $missing_path_document_id,
+    ],
+    'products' => [
+        $related_product_id,
+        $unpublished_product_id,
+        $cross_site_product_id,
+        $document_id,
+        $missing_path_product_id,
+    ],
+], $product_id);
 update_post_meta($product_id, 'tds_url', 'https://private.example.test/tds/TP-Z911.pdf');
 update_post_meta($product_id, '_tds_url', 'field_private_tds_url');
 
@@ -363,9 +535,36 @@ if (is_array($serialized)) {
     tio2_product_preview_test_assert(
         [['item' => 'Item 1'], ['item' => 'Item 2'], ['item' => 'Item 3']]
             === $serialized['productFields']['fitWhen'] &&
-            1 === $serialized['productFields']['typicalProperties'][0]['displayOrder'] &&
-            [$application_id] === $serialized['productFields']['relatedLinks']['applications'],
+            1 === $serialized['productFields']['typicalProperties'][0]['displayOrder'],
         'Product repeaters/groups were not serialized into predictable scalar arrays.'
+    );
+    tio2_product_preview_test_assert(
+        'Product Preview Family' === $serialized['productFields']['family'] &&
+            [[
+                'title' => 'Eligible Product preview application',
+                'fit' => 'Best fit for exterior coatings & durable buyer trials.',
+                'href' => '/tio2-application/product-preview-application',
+            ], [
+                'title' => 'Missing-path Product preview application',
+                'fit' => 'Useful when route copy is still pending.',
+            ]] === $serialized['productFields']['recommendedApplications'] &&
+            [[
+                'title' => 'Eligible Product preview application',
+                'href' => '/tio2-application/product-preview-application',
+            ]] === $serialized['productFields']['relatedLinks']['applications'] &&
+            [[
+                'title' => 'Eligible Product preview resource',
+                'href' => '/tio2-document/product-preview-resource',
+            ]] === $serialized['productFields']['relatedLinks']['resources'] &&
+            [[
+                'title' => 'Eligible Product preview related Product',
+                'href' => '/products/tp-z914',
+            ]] === $serialized['productFields']['relatedLinks']['products'],
+        'Product family or eligible relationship display data was not expanded exactly: ' . wp_json_encode([
+            'family' => $serialized['productFields']['family'],
+            'recommendedApplications' => $serialized['productFields']['recommendedApplications'],
+            'relatedLinks' => $serialized['productFields']['relatedLinks'],
+        ])
     );
     $encoded = wp_json_encode($serialized);
     tio2_product_preview_test_assert(
