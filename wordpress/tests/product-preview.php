@@ -210,6 +210,23 @@ function tio2_product_preview_test_signature(string $secret, string $timestamp, 
     return hash_hmac('sha256', $timestamp . "\n" . $site_id . "\n" . $path, $secret);
 }
 
+function tio2_product_preview_test_set_status_exact(int $post_id, string $status): void
+{
+    global $wpdb;
+
+    $updated = $wpdb->update(
+        $wpdb->posts,
+        ['post_status' => $status],
+        ['ID' => $post_id],
+        ['%s'],
+        ['%d']
+    );
+    if (false === $updated) {
+        tio2_product_preview_test_fail("Could not set Product preview fixture status to {$status}.");
+    }
+    clean_post_cache($post_id);
+}
+
 function tio2_product_preview_test_has_raw_field_key($value): bool
 {
     if (! is_array($value)) {
@@ -399,6 +416,32 @@ tio2_product_preview_test_assert(
     'A valid signed Site A Product draft request did not return the protected payload.'
 );
 
+$native_preview_link = 'http://localhost:8080/?post_type=tio2_product&p=' . $product_id . '&preview=true';
+foreach (['publish', 'future', 'pending', 'private'] as $non_draft_status) {
+    tio2_product_preview_test_set_status_exact($product_id, $non_draft_status);
+    $non_draft_serialized = tio2_serialize_product_preview(get_post($product_id));
+    $non_draft_response = tio2_product_preview_test_request(
+        'tio2-a',
+        $canonical_path,
+        $timestamp,
+        $valid_signature
+    );
+    tio2_product_preview_test_assert(
+        null === tio2_find_product_for_preview('tio2-a', $canonical_path) &&
+            is_wp_error($non_draft_serialized) &&
+            'tio2_preview_not_found' === $non_draft_serialized->get_error_code() &&
+            404 === $non_draft_response->get_status() &&
+            'tio2_preview_not_found' === ($non_draft_response->get_data()['code'] ?? null) &&
+            $native_preview_link === apply_filters(
+                'preview_post_link',
+                $native_preview_link,
+                get_post($product_id)
+            ),
+        "A complete {$non_draft_status} Product remained previewable."
+    );
+}
+tio2_product_preview_test_set_status_exact($product_id, 'draft');
+
 $invalid_signature_response = tio2_product_preview_test_request(
     'tio2-a',
     $canonical_path,
@@ -499,7 +542,6 @@ tio2_product_preview_test_assert(
     'An incomplete Product preview returned a partial payload or a non-specific error.'
 );
 
-$native_preview_link = 'http://localhost:8080/?post_type=tio2_product&p=' . $product_id . '&preview=true';
 $signed_preview_link = apply_filters('preview_post_link', $native_preview_link, get_post($product_id));
 $signed_preview_parts = wp_parse_url($signed_preview_link);
 parse_str($signed_preview_parts['query'] ?? '', $signed_preview_query);

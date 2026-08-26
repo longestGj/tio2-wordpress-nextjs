@@ -311,7 +311,7 @@ function tio2_find_product_for_preview(string $site_id, string $path): ?WP_Post
 
     $products = get_posts([
         'post_type' => 'tio2_product',
-        'post_status' => ['publish', 'future', 'draft', 'pending', 'private'],
+        'post_status' => 'draft',
         'name' => $matches[1],
         'posts_per_page' => 2,
         'no_found_rows' => true,
@@ -331,6 +331,10 @@ function tio2_find_product_for_preview(string $site_id, string $path): ?WP_Post
  */
 function tio2_serialize_product_preview(WP_Post $product)
 {
+    if ('draft' !== $product->post_status) {
+        return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+    }
+
     $validation = tio2_validate_product_contract((int) $product->ID);
     if (is_wp_error($validation)) {
         return new WP_Error(
@@ -444,7 +448,7 @@ function tio2_preview_rest_response(WP_REST_Request $request)
 
     if (str_starts_with($path, '/products/')) {
         $product = tio2_find_product_for_preview($site_id, $path);
-        if (! $product instanceof WP_Post) {
+        if (! $product instanceof WP_Post || 'draft' !== $product->post_status) {
             return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
         }
 
@@ -524,6 +528,7 @@ function tio2_filter_preview_post_link(string $preview_link, WP_Post $post): str
         if (
             is_wp_error($validation) ||
             ! is_string($product_id) ||
+            'draft' !== $post->post_status ||
             'tio2-a' !== tio2_product_site_id((int) $post->ID) ||
             tio2_product_slug_from_id($product_id) !== $post->post_name
         ) {
