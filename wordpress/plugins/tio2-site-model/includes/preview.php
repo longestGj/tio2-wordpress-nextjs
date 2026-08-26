@@ -226,6 +226,157 @@ function tio2_serialize_homepage_preview(WP_Post $post, string $site_id): array
     ];
 }
 
+function tio2_preview_product_field_name(string $name): string
+{
+    return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $name))));
+}
+
+/**
+ * @param array<string, mixed> $container
+ * @param array<string, mixed> $field
+ */
+function tio2_preview_product_field_value(array $container, array $field)
+{
+    $name = (string) ($field['name'] ?? '');
+    $key = (string) ($field['key'] ?? '');
+
+    return $container[$name] ?? $container[$key] ?? null;
+}
+
+/**
+ * @param array<string, mixed> $field
+ * @return mixed
+ */
+function tio2_preview_product_normalize_value(array $field, $value)
+{
+    $type = (string) ($field['type'] ?? '');
+    if ('taxonomy' === $type) {
+        return (int) $value;
+    }
+    if ('relationship' === $type) {
+        $items = is_array($value) ? $value : [];
+        return array_values(array_filter(array_map('intval', $items), static fn (int $id): bool => $id > 0));
+    }
+    if ('number' === $type) {
+        $number = (float) $value;
+        return floor($number) === $number ? (int) $number : $number;
+    }
+    if ('repeater' === $type) {
+        $rows = is_array($value) ? array_values($value) : [];
+        return array_values(array_map(static function ($row) use ($field): array {
+            $row = is_array($row) ? $row : [];
+            return tio2_preview_product_normalize_fields($field['sub_fields'] ?? [], $row);
+        }, $rows));
+    }
+    if ('group' === $type) {
+        return tio2_preview_product_normalize_fields(
+            $field['sub_fields'] ?? [],
+            is_array($value) ? $value : []
+        );
+    }
+
+    return is_scalar($value) ? (string) $value : '';
+}
+
+/**
+ * @param list<array<string, mixed>> $definitions
+ * @param array<string, mixed> $values
+ * @return array<string, mixed>
+ */
+function tio2_preview_product_normalize_fields(array $definitions, array $values): array
+{
+    $normalized = [];
+    foreach ($definitions as $field) {
+        if (! is_array($field)) {
+            continue;
+        }
+        $name = (string) ($field['name'] ?? '');
+        if ('' === $name) {
+            continue;
+        }
+        $normalized[tio2_preview_product_field_name($name)] = tio2_preview_product_normalize_value(
+            $field,
+            tio2_preview_product_field_value($values, $field)
+        );
+    }
+
+    return $normalized;
+}
+
+function tio2_find_product_for_preview(string $site_id, string $path): ?WP_Post
+{
+    if ('tio2-a' !== $site_id || 1 !== preg_match('#^/products/(tp-[a-z]{1,2}[0-9]{3})$#', $path, $matches)) {
+        return null;
+    }
+
+    $products = get_posts([
+        'post_type' => 'tio2_product',
+        'post_status' => ['publish', 'future', 'draft', 'pending', 'private'],
+        'name' => $matches[1],
+        'posts_per_page' => 2,
+        'no_found_rows' => true,
+        'orderby' => 'ID',
+        'order' => 'ASC',
+    ]);
+    if (1 !== count($products) || ! $products[0] instanceof WP_Post) {
+        return null;
+    }
+
+    $product = $products[0];
+    return 'tio2-a' === tio2_product_site_id((int) $product->ID) ? $product : null;
+}
+
+/**
+ * @return array<string, mixed>|WP_Error
+ */
+function tio2_serialize_product_preview(WP_Post $product)
+{
+    $validation = tio2_validate_product_contract((int) $product->ID);
+    if (is_wp_error($validation)) {
+        return new WP_Error(
+            'tio2_preview_product_incomplete',
+            'Product preview contract is incomplete.',
+            [
+                'status' => 422,
+                'validationCode' => $validation->get_error_code(),
+            ]
+        );
+    }
+
+    $product_values = [];
+    foreach (tio2_product_field_definitions() as $field) {
+        if (! is_array($field) || empty($field['name'])) {
+            continue;
+        }
+        $product_values[(string) $field['name']] = get_field((string) $field['name'], $product->ID, false);
+    }
+
+    $shared_values = [];
+    foreach (tio2_product_shared_field_definitions() as $field) {
+        if (! is_array($field) || empty($field['name'])) {
+            continue;
+        }
+        $shared_values[(string) $field['name']] = get_field((string) $field['name'], 'option', false);
+    }
+
+    $product_id = (string) $product_values['product_id'];
+    return [
+        'id' => (string) $product->ID,
+        'databaseId' => (int) $product->ID,
+        'siteId' => 'tio2-a',
+        'path' => tio2_product_path_from_id($product_id),
+        'slug' => $product->post_name,
+        'title' => get_the_title($product),
+        'modifiedGmt' => get_post_modified_time('Y-m-d\TH:i:s', true, $product),
+        'status' => $product->post_status,
+        'productFields' => tio2_preview_product_normalize_fields(
+            tio2_product_field_definitions(),
+            $product_values
+        ),
+        'productSettingsFields' => tio2_normalize_product_shared_settings($shared_values),
+    ];
+}
+
 /**
  * @return true|WP_Error
  */
@@ -289,6 +440,16 @@ function tio2_preview_rest_response(WP_REST_Request $request)
             : tio2_serialize_homepage_preview($homepage, $site_id);
 
         return new WP_REST_Response($payload, 200);
+    }
+
+    if (str_starts_with($path, '/products/')) {
+        $product = tio2_find_product_for_preview($site_id, $path);
+        if (! $product instanceof WP_Post) {
+            return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+        }
+
+        $payload = tio2_serialize_product_preview($product);
+        return is_wp_error($payload) ? $payload : new WP_REST_Response($payload, 200);
     }
 
     $internal_slug = tio2_build_internal_slug($site_id, $path);
@@ -357,6 +518,18 @@ function tio2_filter_preview_post_link(string $preview_link, WP_Post $post): str
             return $preview_link;
         }
         $route = ['siteId' => $site_id, 'publicPath' => '/'];
+    } elseif ('tio2_product' === $post->post_type) {
+        $validation = tio2_validate_product_contract((int) $post->ID);
+        $product_id = get_field('product_id', $post->ID, false);
+        if (
+            is_wp_error($validation) ||
+            ! is_string($product_id) ||
+            'tio2-a' !== tio2_product_site_id((int) $post->ID) ||
+            tio2_product_slug_from_id($product_id) !== $post->post_name
+        ) {
+            return $preview_link;
+        }
+        $route = ['siteId' => 'tio2-a', 'publicPath' => tio2_product_path_from_id($product_id)];
     } else {
         $route = tio2_get_managed_post_route((int) $post->ID);
         if (is_wp_error($route)) {
