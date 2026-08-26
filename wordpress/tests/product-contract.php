@@ -169,6 +169,7 @@ foreach ([
     'tio2_product_slug_from_id',
     'tio2_product_path_from_id',
     'tio2_product_site_id',
+    'tio2_product_contains_private_document_location',
     'tio2_validate_product_contract',
 ] as $function_name) {
     tio2_product_contract_test_assert(function_exists($function_name), "Missing Product contract helper: {$function_name}().");
@@ -198,6 +199,14 @@ tio2_product_contract_test_assert(
     'tp-c120' === tio2_product_slug_from_id('TP-C120') &&
         '/products/tp-c120' === tio2_product_path_from_id('TP-C120'),
     'Product identity did not derive the canonical slug and internal path.'
+);
+tio2_product_contract_test_assert(
+    ! tio2_product_contains_private_document_location('/resources/tds-request-guide'),
+    'An ordinary internal TDS request guide was misclassified as a private document location.'
+);
+tio2_product_contract_test_assert(
+    tio2_product_contains_private_document_location('Internal &#47;tds&#47;tp-z901 source.'),
+    'An entity-encoded private TDS location bypassed the Product contract invariant.'
 );
 
 $fixture_suffix = (string) microtime(true);
@@ -242,6 +251,38 @@ tio2_product_contract_test_assert(
         'tp-z901' === get_post_field('post_name', $product_id),
     'A complete Site A Product did not retain its Site A identity and canonical slug.'
 );
+
+foreach ([
+    ['field_tio2_product_meta_description', 'Review private-source.pdf before publishing.'],
+    ['field_tio2_product_evidence_statement', '<p>Internal source: (/tds/tp-z901).</p>'],
+    ['field_tio2_product_tds_access', 'Open D:\\11SEO\\documents\\tds\\TP-Z901.pdf.'],
+] as [$field_key, $unsafe_value]) {
+    $previous_value = get_field($field_key, $product_id, false);
+    update_field($field_key, $unsafe_value, $product_id);
+    tio2_product_contract_test_assert(
+        'product_private_document_location' === tio2_product_contract_test_error_code(tio2_validate_product_contract($product_id)),
+        "Private document location in {$field_key} did not fail the Product publication contract."
+    );
+    update_field($field_key, $previous_value, $product_id);
+}
+$previous_title = get_the_title($product_id);
+wp_update_post(['ID' => $product_id, 'post_title' => 'Product contract file:///D:/documents/tds/TP-Z901.pdf']);
+tio2_product_contract_test_assert(
+    'product_private_document_location' === tio2_product_contract_test_error_code(tio2_validate_product_contract($product_id)),
+    'A private document location in the Product title did not fail the publication contract.'
+);
+wp_update_post(['ID' => $product_id, 'post_title' => $previous_title]);
+
+$request_cta = get_field('request_tds_cta', 'option', false);
+update_field('field_tio2_product_request_tds_cta', [
+    'label' => 'Request TDS',
+    'description' => 'Request https://private.example.test/TP-Z901.pdf.',
+], 'option');
+tio2_product_contract_test_assert(
+    'product_private_document_location' === tio2_product_contract_test_error_code(tio2_validate_product_contract($product_id)),
+    'A private document location in shared CTA copy did not fail the publication contract.'
+);
+update_field('field_tio2_product_request_tds_cta', $request_cta, 'option');
 
 update_field('field_tio2_product_id', 'TP-Z90', $product_id);
 tio2_product_contract_test_assert(

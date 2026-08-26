@@ -163,6 +163,23 @@ tio2_product_graphql_test_assert(
     'Site A Product settings did not use the approved shared-settings normalizer shape.'
 );
 
+update_field(
+    'field_tio2_product_technical_disclaimer',
+    '<p>Internal controlled source: /tds/TP-Z911.pdf.</p>',
+    'option'
+);
+$unsafe_settings_result = $query_settings('tio2-a');
+tio2_product_graphql_test_assert(
+    ! isset($unsafe_settings_result['errors']) &&
+        null === ($unsafe_settings_result['data']['tio2ProductSettings'] ?? null),
+    'Anonymous Product settings GraphQL exposed a private document location.'
+);
+update_field(
+    'field_tio2_product_technical_disclaimer',
+    '<p>Typical values are not specifications.</p>',
+    'option'
+);
+
 foreach (['tio2-b', 'unknown-site'] as $rejected_site_id) {
     $result = $query_settings($rejected_site_id);
     tio2_product_graphql_test_assert(

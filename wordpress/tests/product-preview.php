@@ -555,23 +555,13 @@ if (is_array($serialized)) {
             [[
                 'title' => 'Eligible Product preview application',
                 'fit' => 'Best fit for exterior coatings & durable buyer trials.',
-                'href' => '/tio2-application/product-preview-application',
             ], [
                 'title' => 'Missing-path Product preview application',
                 'fit' => 'Useful when route copy is still pending.',
             ]] === $serialized['productFields']['recommendedApplications'] &&
-            [[
-                'title' => 'Eligible Product preview application',
-                'href' => '/tio2-application/product-preview-application',
-            ]] === $serialized['productFields']['relatedLinks']['applications'] &&
-            [[
-                'title' => 'Eligible Product preview resource',
-                'href' => '/tio2-document/product-preview-resource',
-            ]] === $serialized['productFields']['relatedLinks']['resources'] &&
-            [[
-                'title' => 'Eligible Product preview related Product',
-                'href' => '/products/tp-z914',
-            ]] === $serialized['productFields']['relatedLinks']['products'],
+            [] === $serialized['productFields']['relatedLinks']['applications'] &&
+            [] === $serialized['productFields']['relatedLinks']['resources'] &&
+            [] === $serialized['productFields']['relatedLinks']['products'],
         'Product family or eligible relationship display data was not expanded exactly: ' . wp_json_encode([
             'family' => $serialized['productFields']['family'],
             'recommendedApplications' => $serialized['productFields']['recommendedApplications'],
@@ -588,6 +578,19 @@ if (is_array($serialized)) {
         'Product preview exposed raw ACF keys, a private TDS URL, or Site B settings.'
     );
 }
+
+$original_application_excerpt = (string) get_post_field('post_excerpt', $application_id);
+wp_update_post([
+    'ID' => $application_id,
+    'post_excerpt' => 'Internal source: /documents/tds/TP-Z911.pdf.',
+]);
+$unsafe_relationship_preview = tio2_serialize_product_preview(get_post($product_id));
+tio2_product_preview_test_assert(
+    is_wp_error($unsafe_relationship_preview) &&
+        'product_private_document_location' === $unsafe_relationship_preview->get_error_code(),
+    'Product preview serialized a private document location from relationship display copy.'
+);
+wp_update_post(['ID' => $application_id, 'post_excerpt' => $original_application_excerpt]);
 
 $incomplete = tio2_serialize_product_preview(get_post($incomplete_id));
 tio2_product_preview_test_assert(

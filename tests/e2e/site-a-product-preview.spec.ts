@@ -32,7 +32,6 @@ const expectedSectionOrder = [
   'enquiry-details',
   'packaging-documents',
   'frequently-asked-questions',
-  'related-applications-and-resources',
   'final-cta',
   'technical-disclaimer',
 ] as const
@@ -415,11 +414,13 @@ for (const viewport of viewports) {
     const contentHrefs = await product
       .locator('a:not([href^="mailto:"])')
       .evaluateAll((links) => links.map((link) => link.getAttribute('href')))
-    expect(contentHrefs.length).toBeGreaterThanOrEqual(3)
-    expect(contentHrefs.every((href) => href?.startsWith('/'))).toBe(true)
-    expect(contentHrefs).toContain('/applications/exterior-architectural-coatings')
-    expect(contentHrefs).toContain('/resources/compare-titanium-dioxide-grades')
-    expect(contentHrefs).toContain('/products/tp-z912')
+    expect(contentHrefs).toEqual([])
+    await expect(
+      product.getByRole('heading', {level: 3, name: 'Exterior architectural coatings'}),
+    ).toBeVisible()
+    await expect(
+      product.locator('section[data-product-section="related-applications-and-resources"]'),
+    ).toHaveCount(0)
 
     await expect(
       product.locator('section[data-product-section="packaging-documents"]'),

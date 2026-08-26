@@ -2,6 +2,7 @@ import {createHmac} from 'node:crypto'
 import {z} from 'zod'
 
 import {toProductPageDto} from '@/lib/products/dto'
+import {applyProductPublicRoutePolicy} from '@/lib/products/public-links'
 import type {ProductPageDto} from '@/lib/products/types'
 import {htmlToPlainText} from '@/lib/seo/text'
 import type {SiteConfig} from '@/sites'
@@ -180,7 +181,7 @@ export async function getProductPreview(
 
   const fields = preview.productFields
   const settings = preview.productSettingsFields
-  return toProductPageDto({
+  return applyProductPublicRoutePolicy(toProductPageDto({
     identity: {
       productId: fields.productId,
       slug: preview.slug,
@@ -253,5 +254,5 @@ export async function getProductPreview(
       })),
     },
     disclaimerHtml: settings.technicalDisclaimer,
-  })
+  }), site.id)
 }

@@ -192,11 +192,11 @@ describe('getSiteProduct', () => {
       seo: validProductPageInput.seo,
       ctas: validProductPageInput.ctas,
       enquiryFields: validProductPageInput.enquiryFields,
-      relatedLinks: validProductPageInput.relatedLinks,
+      relatedLinks: {applications: [], resources: [], products: []},
       disclaimerHtml: validProductPageInput.disclaimerHtml,
     })
     expect(result?.recommendedApplications).toEqual(
-      validProductPageInput.recommendedApplications,
+      validProductPageInput.recommendedApplications.map(({title, fit}) => ({title, fit})),
     )
     expect(result?.typicalProperties).toEqual(
       validProductPageInput.typicalProperties,
@@ -330,9 +330,9 @@ describe('getSiteProduct', () => {
     const result = await getSiteProduct(getSiteConfig('tio2-a'), 'tp-z911')
 
     expect(result?.recommendedApplications).toHaveLength(12)
-    expect(result?.relatedLinks.applications).toHaveLength(12)
-    expect(result?.relatedLinks.resources).toHaveLength(12)
-    expect(result?.relatedLinks.products).toHaveLength(12)
+    expect(result?.relatedLinks.applications).toHaveLength(0)
+    expect(result?.relatedLinks.resources).toHaveLength(0)
+    expect(result?.relatedLinks.products).toHaveLength(0)
   })
 
   it('rejects 13 recommended Application relationships', async () => {

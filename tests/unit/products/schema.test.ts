@@ -113,4 +113,53 @@ describe('Product render contract schema', () => {
 
     expect(productPageInputSchema.safeParse(input).success).toBe(false)
   })
+
+  it.each([
+    ['SEO copy', (input: ReturnType<typeof fixture>) => {
+      input.seo.description = 'Read https://private.example.test/files/TP-Z911.pdf before evaluation.'
+    }],
+    ['plain copy', (input: ReturnType<typeof fixture>) => {
+      input.snapshot.positioning = 'Internal source: D:\\11SEO\\documents\\tds\\TP-Z911.pdf.'
+    }],
+    ['punctuation-adjacent TDS path', (input: ReturnType<typeof fixture>) => {
+      input.performancePriorities[0].explanation = 'Use the current (/tds/tp-z911) source.'
+    }],
+    ['recommended Application copy', (input: ReturnType<typeof fixture>) => {
+      input.recommendedApplications[0].fit = 'See private-source.pdf for the evaluation boundary.'
+    }],
+    ['recommended Application href', (input: ReturnType<typeof fixture>) => {
+      input.recommendedApplications[0].href = '/documents/tds/tp-z911'
+    }],
+    ['rich-text anchor href', (input: ReturnType<typeof fixture>) => {
+      input.evidenceHtml = '<p>Read the <a href="/tds/tp-z911.pdf">private sheet</a>.</p>'
+    }],
+    ['rich-text anchor attribute', (input: ReturnType<typeof fixture>) => {
+      input.faqs[0].answerHtml = '<p><a href="/resources/testing" title="D:\\private\\TP-Z911.pdf">Testing</a></p>'
+    }],
+    ['entity-encoded rich text', (input: ReturnType<typeof fixture>) => {
+      input.evidenceHtml = '<p>Internal source: &#47;tds&#47;tp-z911.</p>'
+    }],
+    ['CTA copy', (input: ReturnType<typeof fixture>) => {
+      input.ctas.requestTds.description = 'Request file:///D:/documents/tds/TP-Z911.pdf.'
+    }],
+    ['related href', (input: ReturnType<typeof fixture>) => {
+      input.relatedLinks.resources[0].href = '/documents/tds/tp-z911.pdf'
+    }],
+    ['disclaimer rich text', (input: ReturnType<typeof fixture>) => {
+      input.disclaimerHtml = '<p>Controlled source: /tds/tp-z911.</p>'
+    }],
+  ] as const)('rejects a private document location in %s', (_label, mutate) => {
+    const input = fixture()
+    mutate(input)
+
+    expect(productPageInputSchema.safeParse(input).success).toBe(false)
+  })
+
+  it('continues to allow ordinary canonical internal links', () => {
+    const input = fixture()
+    input.evidenceHtml = '<p>Use the <a href="/resources/tds-request-guide">TDS request guide</a>.</p>'
+    input.relatedLinks.resources[0].href = '/resources/tds-request-guide'
+
+    expect(productPageInputSchema.safeParse(input).success).toBe(true)
+  })
 })

@@ -1,4 +1,5 @@
 import {toProductPageDto} from '@/lib/products/dto'
+import {applyProductPublicRoutePolicy} from '@/lib/products/public-links'
 import {normalizeProductInternalPath} from '@/lib/products/rich-text'
 import type {ProductLink, ProductPageDto} from '@/lib/products/types'
 import {htmlToPlainText} from '@/lib/seo/text'
@@ -239,5 +240,8 @@ export async function getSiteProduct(
     return toProductPageDto(null)
   }
 
-  return toProductPageDto(toProductInput(product, data.tio2ProductSettings))
+  return applyProductPublicRoutePolicy(
+    toProductPageDto(toProductInput(product, data.tio2ProductSettings)),
+    site.id,
+  )
 }

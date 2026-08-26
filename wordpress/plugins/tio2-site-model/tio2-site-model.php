@@ -58,6 +58,9 @@ add_filter('delete_post_metadata', 'tio2_capture_post_meta_before_mutation', 10,
 add_action('added_post_meta', 'tio2_handle_post_meta_change', 10, 4);
 add_action('updated_post_meta', 'tio2_handle_post_meta_change', 10, 4);
 add_action('deleted_post_meta', 'tio2_handle_deleted_post_meta', 10, 4);
+add_action('added_option', 'tio2_handle_product_option_change', 10, 2);
+add_action('updated_option', 'tio2_handle_product_option_change', 10, 3);
+add_action('deleted_option', 'tio2_handle_product_option_change', 10, 1);
 add_action('added_post_meta', 'tio2_enforce_homepage_after_meta_mutation', 20, 4);
 add_action('updated_post_meta', 'tio2_enforce_homepage_after_meta_mutation', 20, 4);
 add_action('deleted_post_meta', 'tio2_enforce_homepage_after_meta_mutation', 20, 4);

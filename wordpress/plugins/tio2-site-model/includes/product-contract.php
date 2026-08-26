@@ -47,6 +47,27 @@ function tio2_product_contract_has_value($value): bool
     return null !== $value && false !== $value;
 }
 
+function tio2_product_contains_private_document_location($value): bool
+{
+    if (is_string($value)) {
+        $decoded_value = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return 1 === preg_match(
+            '~(?:\bfile://|(?:^|[^a-z0-9])[a-z]:[\\\\/]|/documents/tds(?:/|(?=$|[\s"\'<>),.;:!?#]))|/tds(?:/|(?=$|[\s"\'<>),.;:!?#]))|\.pdf\b)~iu',
+            $decoded_value
+        );
+    }
+    if (! is_array($value)) {
+        return false;
+    }
+
+    foreach ($value as $item) {
+        if (tio2_product_contains_private_document_location($item)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
  * @param array<string, mixed> $container
  * @param array<string, mixed> $field
@@ -67,6 +88,14 @@ function tio2_validate_product_field_definition(array $field, $value)
 {
     $field_name = (string) ($field['name'] ?? 'unknown');
     $field_type = (string) ($field['type'] ?? '');
+
+    if (tio2_product_contains_private_document_location($value)) {
+        return new WP_Error(
+            'product_private_document_location',
+            "Product field {$field_name} contains a private document location.",
+            ['field' => $field_name]
+        );
+    }
 
     if ('repeater' === $field_type) {
         $items = is_array($value) ? array_values($value) : [];
@@ -180,6 +209,13 @@ function tio2_validate_product_contract(int $post_id)
     }
     if (tio2_product_slug_from_id($product_id) !== $post->post_name) {
         return new WP_Error('product_slug_invalid', 'Product slug must be the lowercase Product ID.');
+    }
+    if (tio2_product_contains_private_document_location($post->post_title)) {
+        return new WP_Error(
+            'product_private_document_location',
+            'Product title contains a private document location.',
+            ['field' => 'title']
+        );
     }
 
     $duplicate_ids = get_posts([

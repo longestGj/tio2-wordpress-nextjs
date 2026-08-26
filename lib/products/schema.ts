@@ -1,6 +1,7 @@
 import {z} from 'zod'
 
 import {
+  containsPrivateProductDocumentLocation,
   normalizeProductInternalPath,
   productRichTextWordCount,
 } from './rich-text'
@@ -11,7 +12,6 @@ const optionalText = (maximum = 2_000) => z.string().trim().max(maximum)
 const requiredHtml = z.string().trim().min(1).max(20_000)
 const productId = z.string().regex(/^TP-[A-Z]{1,2}[0-9]{3}$/u)
 const productSlug = z.string().regex(/^tp-[a-z]{1,2}[0-9]{3}$/u)
-const directDocumentLocation = /(?:https?:\/\/|www\.|(?:^|\s)\/[a-z0-9]|\.pdf(?:\b|$))/iu
 
 const modifiedGmt = z.string().trim().refine((value) => {
   const match = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.\d{3})?(Z)?$/u.exec(value)
@@ -92,10 +92,7 @@ export const productPageInputSchema = z.object({
     guidance: requiredText(),
   }).strict()).min(1).max(20),
   packaging: requiredText(),
-  tdsAccess: requiredText().refine(
-    (value) => !directDocumentLocation.test(value),
-    'TDS access must be request-only and must not contain a document URL',
-  ),
+  tdsAccess: requiredText(),
   ctas: z.object({
     requestTds: productCtaSchema,
     discussApplication: productCtaSchema,
@@ -111,6 +108,30 @@ export const productPageInputSchema = z.object({
   }).strict(),
   disclaimerHtml: requiredHtml,
 }).strict().superRefine((product, context) => {
+  const visitPublicStrings = (value: unknown, path: PropertyKey[]): void => {
+    if (typeof value === 'string') {
+      if (containsPrivateProductDocumentLocation(value)) {
+        context.addIssue({
+          code: 'custom',
+          message: 'Public Product content must not contain a private document location',
+          path,
+        })
+      }
+      return
+    }
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => visitPublicStrings(item, [...path, index]))
+      return
+    }
+    if (value && typeof value === 'object') {
+      Object.entries(value).forEach(([key, item]) => {
+        visitPublicStrings(item, [...path, key])
+      })
+    }
+  }
+
+  visitPublicStrings(product, [])
+
   const expectedSlug = product.identity.productId.toLowerCase()
   if (product.identity.slug !== expectedSlug) {
     context.addIssue({

@@ -14,20 +14,11 @@ function htmlToSafeText(value: string, maximumLength?: number): string {
   return text.replace(/\s+([,.;:!?])/gu, '$1')
 }
 
-function titleCaseSegment(segment: string): string {
-  return segment
-    .split('-')
-    .filter(Boolean)
-    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
-    .join(' ')
-}
-
 function buildBreadcrumbs(
   product: ProductPageDto,
   site: SiteConfig,
   canonical: string,
 ): JsonLdNode {
-  const segments = product.identity.path.split('/').filter(Boolean)
   const itemListElement = [
     {
       '@type': 'ListItem',
@@ -35,18 +26,12 @@ function buildBreadcrumbs(
       name: 'Home',
       item: new URL('/', site.url).href,
     },
-    ...segments.map((segment, index) => {
-      const isCurrentPage = index === segments.length - 1
-      return {
-        '@type': 'ListItem',
-        position: index + 2,
-        name: isCurrentPage
-          ? htmlToSafeText(product.identity.title, 180)
-          : titleCaseSegment(segment),
-        item: new URL(`/${segments.slice(0, index + 1).join('/')}`, site.url)
-          .href,
-      }
-    }),
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: htmlToSafeText(product.identity.title, 180),
+      item: canonical,
+    },
   ]
 
   return {

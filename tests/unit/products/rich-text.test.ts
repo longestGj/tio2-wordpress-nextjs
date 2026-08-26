@@ -33,4 +33,26 @@ describe('Product rich-text allowlist', () => {
       '<ul><li><a>Protocol relative</a></li><li><a>Executable</a></li><li><a>Query</a></li><li><a>Traversal</a></li></ul>',
     )
   })
+
+  it.each([
+    '/tds/tp-z911',
+    '/documents/tds/tp-z911.pdf',
+    '/resources/private-sheet.pdf',
+  ])('removes the private document target %s', (href) => {
+    expect(
+      sanitizeProductRichText(`<p><a href="${href}" title="Controlled document">Request it</a></p>`),
+    ).toBe('<p><a>Request it</a></p>')
+  })
+
+  it('removes a safe href when another anchor attribute discloses a private location', () => {
+    expect(
+      sanitizeProductRichText('<p><a href="/resources/testing-guide" title="D:\\documents\\tds\\TP-Z911.pdf">Testing</a></p>'),
+    ).toBe('<p><a>Testing</a></p>')
+  })
+
+  it('retains an ordinary internal guide whose slug describes TDS requests', () => {
+    expect(
+      sanitizeProductRichText('<p><a href="/resources/tds-request-guide">Request guide</a></p>'),
+    ).toBe('<p><a href="/resources/tds-request-guide">Request guide</a></p>')
+  })
 })

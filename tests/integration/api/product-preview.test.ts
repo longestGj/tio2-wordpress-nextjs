@@ -346,6 +346,8 @@ describe('protected Product preview page', () => {
     expect(markup).toContain('data-product-id="TP-C120"')
     expect(markup).toContain('TIOVAR TP-C120 protected preview')
     expect(markup).toContain('Exterior architectural coatings')
+    expect(markup).not.toContain('href="/applications/exterior-architectural-coatings"')
+    expect(markup).not.toContain('data-product-section="related-applications-and-resources"')
   })
 
   it('returns not-found without fetching when the cookie is scoped to another canonical Product', async () => {

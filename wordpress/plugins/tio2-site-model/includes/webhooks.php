@@ -118,6 +118,55 @@ function tio2_is_relevant_product_shared_webhook_meta_key(string $meta_key): boo
     );
 }
 
+/**
+ * @return array{contentId: int, siteIds: list<string>, paths: list<string>, entityIds: list<int>, sitePaths: array<string, list<string>>}|null
+ */
+function tio2_get_product_settings_webhook_affected_state(): ?array
+{
+    $product_ids = get_posts([
+        'post_type' => 'tio2_product',
+        'post_status' => 'publish',
+        'fields' => 'ids',
+        'posts_per_page' => -1,
+        'no_found_rows' => true,
+        'orderby' => 'ID',
+        'order' => 'ASC',
+    ]);
+
+    $affected = null;
+    foreach ($product_ids as $product_id) {
+        $product_state = tio2_get_webhook_affected_state((int) $product_id);
+        if (null === $product_state) {
+            continue;
+        }
+        $affected = null === $affected
+            ? $product_state
+            : tio2_merge_webhook_affected_state($affected, $product_state);
+    }
+
+    return $affected;
+}
+
+/**
+ * @param mixed $old_value
+ * @param mixed $value
+ */
+function tio2_handle_product_option_change(
+    string $option_name,
+    $old_value = null,
+    $value = null
+): void {
+    if (! tio2_is_relevant_product_shared_webhook_meta_key($option_name)) {
+        return;
+    }
+
+    $affected = tio2_get_product_settings_webhook_affected_state();
+    if (null === $affected) {
+        return;
+    }
+    tio2_queue_webhook($affected['contentId'], $affected);
+}
+
 function tio2_is_valid_webhook_path(string $path): bool
 {
     if ('' === $path || str_starts_with($path, '//')) {

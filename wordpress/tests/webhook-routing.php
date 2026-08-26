@@ -7,6 +7,7 @@ if (! defined('ABSPATH')) {
 $GLOBALS['tio2_webhook_routing_post_ids'] = [];
 $GLOBALS['tio2_webhook_routing_restore_meta'] = [];
 $GLOBALS['tio2_webhook_routing_restore_statuses'] = [];
+$GLOBALS['tio2_webhook_routing_restore_options'] = [];
 
 function tio2_webhook_routing_fail(string $message): void
 {
@@ -34,6 +35,25 @@ function tio2_webhook_routing_cleanup(): void
     foreach ($GLOBALS['tio2_webhook_routing_restore_statuses'] ?? [] as $post_id => $status) {
         tio2_webhook_routing_set_status_exact((int) $post_id, (string) $status);
     }
+    foreach ($GLOBALS['tio2_webhook_routing_restore_options'] ?? [] as $option_name => $snapshot) {
+        if ($snapshot['exists']) {
+            update_option((string) $option_name, $snapshot['value']);
+        } else {
+            delete_option((string) $option_name);
+        }
+    }
+    $GLOBALS['tio2_webhook_queue'] = [];
+}
+
+function tio2_webhook_routing_snapshot_option(string $option_name): void
+{
+    if (isset($GLOBALS['tio2_webhook_routing_restore_options'][$option_name])) {
+        return;
+    }
+    $GLOBALS['tio2_webhook_routing_restore_options'][$option_name] = [
+        'exists' => false !== get_option($option_name, false),
+        'value' => get_option($option_name, false),
+    ];
 }
 
 function tio2_webhook_routing_set_status_exact(int $post_id, string $status): void
@@ -323,6 +343,66 @@ tio2_flush_webhook_queue();
 if ([] !== $captured_requests) {
     tio2_webhook_routing_fail('Draft Product meta edit emitted a public revalidation request');
 }
+
+tio2_webhook_routing_set_status_exact($site_a_product_id, 'publish');
+foreach ([
+    'options_inquiry_fields_0_guidance',
+    'options_request_tds_cta_description',
+    'options_discuss_application_cta_description',
+    'options_technical_disclaimer',
+] as $option_name) {
+    tio2_webhook_routing_snapshot_option($option_name);
+    if (false === get_option($option_name, false)) {
+        add_option($option_name, 'Shared Product setting baseline.');
+        $GLOBALS['tio2_webhook_queue'] = [];
+    }
+    $captured_requests = [];
+    $GLOBALS['tio2_webhook_queue'] = [];
+    $GLOBALS['tio2_webhook_routing_context'] = "shared Product setting {$option_name}";
+    update_option($option_name, 'Shared Product setting mutation ' . microtime(true));
+    tio2_flush_webhook_queue();
+    tio2_webhook_routing_assert_request($captured_requests, 'tio2-a');
+    $payload = json_decode((string) ($captured_requests[0]['args']['body'] ?? ''), true);
+    if (
+        ! is_array($payload) ||
+        ! in_array('/products/tp-w123', $payload['paths'] ?? [], true) ||
+        ! in_array($site_a_product_id, $payload['entityIds'] ?? [], true) ||
+        false !== array_search('https://site-b.next.test/api/revalidate', array_column($captured_requests, 'url'), true)
+    ) {
+        tio2_webhook_routing_fail("Shared Product setting {$option_name} did not invalidate Site A Product caches only");
+    }
+}
+
+$captured_requests = [];
+$GLOBALS['tio2_webhook_queue'] = [];
+$GLOBALS['tio2_webhook_routing_context'] = 'batched shared Product settings save';
+foreach ([
+    'options_inquiry_fields_0_guidance',
+    'options_request_tds_cta_description',
+    'options_discuss_application_cta_description',
+    'options_technical_disclaimer',
+] as $index => $option_name) {
+    update_option($option_name, "Batched shared Product setting {$index} " . microtime(true));
+}
+tio2_flush_webhook_queue();
+tio2_webhook_routing_assert_request($captured_requests, 'tio2-a');
+
+$added_deleted_option = 'options_technical_disclaimer';
+tio2_webhook_routing_snapshot_option($added_deleted_option);
+delete_option($added_deleted_option);
+$GLOBALS['tio2_webhook_queue'] = [];
+$captured_requests = [];
+add_option($added_deleted_option, 'Added shared Product disclaimer.');
+tio2_flush_webhook_queue();
+$GLOBALS['tio2_webhook_routing_context'] = 'added shared Product setting';
+tio2_webhook_routing_assert_request($captured_requests, 'tio2-a');
+
+$GLOBALS['tio2_webhook_queue'] = [];
+$captured_requests = [];
+delete_option($added_deleted_option);
+tio2_flush_webhook_queue();
+$GLOBALS['tio2_webhook_routing_context'] = 'deleted shared Product setting';
+tio2_webhook_routing_assert_request($captured_requests, 'tio2-a');
 
 foreach (['page', 'post', 'tio2_homepage'] as $post_type) {
     if (! in_array($post_type, tio2_webhook_post_types(), true)) {

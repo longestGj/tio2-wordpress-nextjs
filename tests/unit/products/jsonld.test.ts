@@ -102,7 +102,7 @@ describe('product JSON-LD', () => {
     }
   })
 
-  it('uses the product path for breadcrumbs and exactly the visible FAQ questions and answers', async () => {
+  it('uses only visible public breadcrumb nodes and exactly the visible FAQ questions and answers', async () => {
     const {buildProductJsonLd} = await import('@/lib/seo/product-jsonld')
     const product = productFixture()
     const values = buildProductJsonLd(product, getSiteConfig('tio2-a'))
@@ -123,12 +123,6 @@ describe('product JSON-LD', () => {
       {
         '@type': 'ListItem',
         position: 2,
-        name: 'Products',
-        item: 'https://tio2products.com/products',
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
         name: 'TIOVAR TP-Z911 Rutile Titanium Dioxide',
         item: 'https://tio2products.com/products/tp-z911',
       },

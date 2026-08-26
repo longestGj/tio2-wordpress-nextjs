@@ -5,6 +5,33 @@ import {htmlToPlainText} from '@/lib/seo/text'
 const INTERNAL_PATH_PATTERN =
   /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*)(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*\/?$/u
 
+const PRIVATE_DOCUMENT_LOCATION_PATTERN =
+  /(?:\bfile:\/\/|(?:^|[^a-z0-9])[a-z]:[\\/]|\/documents\/tds(?:\/|(?=$|[\s"'<>),.;:!?#]))|\/tds(?:\/|(?=$|[\s"'<>),.;:!?#]))|\.pdf\b)/iu
+const DOCUMENT_LOCATION_ENTITY_PATTERN =
+  /&(?:#(\d+)|#x([\da-f]+)|(sol|bsol|period|colon));/giu
+
+function decodeDocumentLocationEntities(value: string): string {
+  return value.replace(
+    DOCUMENT_LOCATION_ENTITY_PATTERN,
+    (entity, decimal: string | undefined, hexadecimal: string | undefined, named: string | undefined) => {
+      if (named) {
+        return {sol: '/', bsol: '\\', period: '.', colon: ':'}[named.toLowerCase()] ?? entity
+      }
+      const codePoint = Number.parseInt(
+        decimal ?? hexadecimal ?? '',
+        decimal ? 10 : 16,
+      )
+      return Number.isSafeInteger(codePoint) && codePoint > 0 && codePoint <= 0x10ffff
+        ? String.fromCodePoint(codePoint)
+        : entity
+    },
+  )
+}
+
+export function containsPrivateProductDocumentLocation(value: string): boolean {
+  return PRIVATE_DOCUMENT_LOCATION_PATTERN.test(decodeDocumentLocationEntities(value))
+}
+
 export function normalizeProductInternalPath(value: string): string | null {
   const path = value.trim()
   if (!INTERNAL_PATH_PATTERN.test(path)) return null
@@ -20,7 +47,11 @@ export function sanitizeProductRichText(source: string): string {
     nonTextTags: ['script', 'style', 'textarea', 'option', 'iframe'],
     transformTags: {
       a: (_tagName, attributes) => {
+        const exposesPrivateLocation = Object.values(attributes).some(
+          containsPrivateProductDocumentLocation,
+        )
         const href = attributes.href
+          && !exposesPrivateLocation
           ? normalizeProductInternalPath(attributes.href)
           : null
         const attribs: Record<string, string> = {}

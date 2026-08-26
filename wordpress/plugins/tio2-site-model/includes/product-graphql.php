@@ -32,7 +32,10 @@ function tio2_resolve_product_settings($source, array $args): ?array
         $values[$field_name] = get_field($field_name, 'option');
     }
 
-    return tio2_normalize_product_shared_settings($values);
+    $settings = tio2_normalize_product_shared_settings($values);
+    return tio2_product_contains_private_document_location($settings)
+        ? null
+        : $settings;
 }
 
 function tio2_register_product_graphql_types(): void

@@ -400,6 +400,12 @@ function tio2_preview_product_relationships(
         }
 
         $href = tio2_preview_product_relationship_path($post);
+        if (
+            null !== $href &&
+            ! tio2_publication_route_is_approved('tio2-a', $href)
+        ) {
+            $href = null;
+        }
         if (! $include_fit && null === $href) {
             continue;
         }
@@ -536,7 +542,7 @@ function tio2_serialize_product_preview(WP_Post $product): array|WP_Error
     }
 
     $product_id = (string) $product_values['product_id'];
-    return [
+    $payload = [
         'id' => (string) $product->ID,
         'databaseId' => (int) $product->ID,
         'siteId' => 'tio2-a',
@@ -548,6 +554,14 @@ function tio2_serialize_product_preview(WP_Post $product): array|WP_Error
         'productFields' => $product_fields,
         'productSettingsFields' => $shared_fields,
     ];
+    if (tio2_product_contains_private_document_location($payload)) {
+        return new WP_Error(
+            'product_private_document_location',
+            'Product preview contains a private document location.'
+        );
+    }
+
+    return $payload;
 }
 
 /**
