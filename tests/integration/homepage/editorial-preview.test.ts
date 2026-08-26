@@ -1,6 +1,6 @@
 import {createHmac} from 'node:crypto'
 import {http, HttpResponse} from 'msw'
-import {afterEach, beforeEach, describe, expect, it} from 'vitest'
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {
   HomepageContractError,
@@ -37,6 +37,21 @@ function previewHomepage() {
   }
 }
 
+function setHeroImage(
+  homepage: ReturnType<typeof previewHomepage>,
+  src: string,
+): void {
+  Reflect.set(homepage.homepageFields!, 'heroImage', {
+    node: {
+      mediaItemUrl: src,
+      altText: 'WordPress attachment',
+      mimeType: 'image/webp',
+      mediaDetails: {width: 1200, height: 800},
+    },
+  })
+  Reflect.set(homepage.homepageFields!, 'heroImageAlt', 'WordPress attachment')
+}
+
 beforeEach(() => {
   process.env.WORDPRESS_PREVIEW_URL = previewEndpoint
   process.env.WORDPRESS_PREVIEW_SECRET = previewSecret
@@ -45,6 +60,7 @@ beforeEach(() => {
 afterEach(() => {
   delete process.env.WORDPRESS_PREVIEW_URL
   delete process.env.WORDPRESS_PREVIEW_SECRET
+  vi.unstubAllEnvs()
 })
 
 describe('getPreviewSiteAEditorialHomepage', () => {
@@ -80,6 +96,21 @@ describe('getPreviewSiteAEditorialHomepage', () => {
       closingCta: {href: 'mailto:contact@tio2products.com'},
     })
     expect(observedCache).toBe('no-store')
+  })
+
+  it('maps Preview media from the configured production WordPress origin', async () => {
+    vi.stubEnv('WORDPRESS_MEDIA_ORIGIN', 'https://cms.example.test')
+    const payload = previewHomepage()
+    const src =
+      'https://cms.example.test/wp-content/uploads/2026/08/preview-hero.webp'
+    setHeroImage(payload, src)
+    server.use(
+      http.get(previewEndpoint, () => HttpResponse.json(payload)),
+    )
+
+    await expect(getPreviewSiteAEditorialHomepage()).resolves.toMatchObject({
+      hero: {image: {src}},
+    })
   })
 
   it.each([

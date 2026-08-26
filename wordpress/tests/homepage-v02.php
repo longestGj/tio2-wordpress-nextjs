@@ -336,6 +336,94 @@ tio2_homepage_v02_test_assert(
     'Plain comparison symbols or C1 text were rejected by the WordPress contract.'
 );
 
+$parity_failures = [];
+$forbidden_evidence_cases = [
+    ['field_tio2_geo_supply_routes', 'https://example.test/products', 'literal product root in supply routes'],
+    ['field_tio2_geo_supply_routes', 'https://example.test/%70roducts/rutile', 'encoded product segment in supply routes'],
+    ['field_tio2_geo_supply_routes', 'https://example.test/review/../applications', 'dot-normalized application root in supply routes'],
+    ['field_tio2_geo_evidence_items', 'https://example.test/applications/review', 'literal application descendant in evidence items'],
+    ['field_tio2_geo_evidence_items', 'https://example.test/%61pplications', 'encoded application segment in evidence items'],
+    ['field_tio2_geo_evidence_items', 'https://example.test/review/../products/rutile', 'dot-normalized product descendant in evidence items'],
+];
+foreach ($forbidden_evidence_cases as [$field_key, $evidence_url, $label]) {
+    tio2_homepage_v02_test_set_valid_fields($post_id);
+    $rows = tio2_homepage_v02_test_valid_values()[$field_key];
+    $rows[0]['evidence_url'] = $evidence_url;
+    if ('field_tio2_geo_supply_routes' === $field_key) {
+        $rows[0]['claim_basis'] = 'source_document';
+    } else {
+        $rows[0]['verification_status'] = 'needs_review';
+    }
+    tio2_homepage_v02_test_update_field($field_key, $rows, $post_id);
+    $result = tio2_validate_homepage_contract($post_id);
+    if (! is_wp_error($result) || 'tio2_homepage_invalid_evidence' !== $result->get_error_code()) {
+        $parity_failures[] = "Accepted {$label}";
+    }
+}
+
+$allowed_evidence_cases = [
+    ['field_tio2_geo_supply_routes', 'https://example.test/documents/products-route.pdf', 'product word in a supply-route document name'],
+    ['field_tio2_geo_evidence_items', 'https://example.test/evidence/applications-review.pdf', 'application word in an evidence-item document name'],
+    ['field_tio2_geo_supply_routes', 'https://example.test/evidence?next=/products#applications', 'forbidden words outside a supply-route pathname'],
+    ['field_tio2_geo_evidence_items', 'https://example.test/evidence?next=/applications#products', 'forbidden words outside an evidence-item pathname'],
+];
+foreach ($allowed_evidence_cases as [$field_key, $evidence_url, $label]) {
+    tio2_homepage_v02_test_set_valid_fields($post_id);
+    $rows = tio2_homepage_v02_test_valid_values()[$field_key];
+    $rows[0]['evidence_url'] = $evidence_url;
+    if ('field_tio2_geo_supply_routes' === $field_key) {
+        $rows[0]['claim_basis'] = 'source_document';
+    } else {
+        $rows[0]['verification_status'] = 'needs_review';
+    }
+    tio2_homepage_v02_test_update_field($field_key, $rows, $post_id);
+    $result = tio2_validate_homepage_contract($post_id);
+    if (true !== $result) {
+        $parity_failures[] = "Rejected {$label}";
+    }
+}
+
+$distinct_decisions = [
+    ['decision_number' => 'A 01', 'decision_question' => 'Which route is first?', 'decision_answer' => 'Review the first route.'],
+    ['decision_number' => 'A 02', 'decision_question' => 'Which route is second?', 'decision_answer' => 'Review the second route.'],
+];
+tio2_homepage_v02_test_set_valid_fields($post_id);
+tio2_homepage_v02_test_update_field('field_tio2_geo_decision_questions', $distinct_decisions, $post_id);
+if (true !== tio2_validate_homepage_contract($post_id)) {
+    $parity_failures[] = 'Rejected distinct decision rows';
+}
+
+$duplicate_decision_cases = [
+    [[
+        ['decision_number' => '01', 'decision_question' => 'First question?', 'decision_answer' => 'First answer.'],
+        ['decision_number' => '01', 'decision_question' => 'Second question?', 'decision_answer' => 'Second answer.'],
+    ], 'duplicate decision numbers'],
+    [[
+        ['decision_number' => '01', 'decision_question' => 'Same question?', 'decision_answer' => 'First answer.'],
+        ['decision_number' => '02', 'decision_question' => 'Same question?', 'decision_answer' => 'Second answer.'],
+    ], 'duplicate decision questions'],
+    [[
+        ['decision_number' => 'Step 01', 'decision_question' => 'First question?', 'decision_answer' => 'First answer.'],
+        ['decision_number' => " step\u{0085}01 ", 'decision_question' => 'Second question?', 'decision_answer' => 'Second answer.'],
+    ], 'case/whitespace-normalized decision numbers'],
+    [[
+        ['decision_number' => '01', 'decision_question' => 'Which route?', 'decision_answer' => 'First answer.'],
+        ['decision_number' => '02', 'decision_question' => " WHICH\tROUTE? ", 'decision_answer' => 'Second answer.'],
+    ], 'case/whitespace-normalized decision questions'],
+];
+foreach ($duplicate_decision_cases as [$decision_rows, $label]) {
+    tio2_homepage_v02_test_set_valid_fields($post_id);
+    tio2_homepage_v02_test_update_field('field_tio2_geo_decision_questions', $decision_rows, $post_id);
+    $result = tio2_validate_homepage_contract($post_id);
+    if (! is_wp_error($result) || 'tio2_homepage_invalid_field' !== $result->get_error_code()) {
+        $parity_failures[] = "Accepted {$label}";
+    }
+}
+tio2_homepage_v02_test_assert(
+    [] === $parity_failures,
+    'WordPress/DTO v0.2 publication parity failed: ' . implode('; ', $parity_failures)
+);
+
 $mutations = [
     ['field_tio2_home_schema_version', 'homepage-v0.1', 'tio2_homepage_invalid_schema_version', 'Wrong Site A schema version was accepted.'],
     ['field_tio2_geo_direct_answer_body', '', 'tio2_homepage_invalid_field', 'Empty direct answer was accepted.'],

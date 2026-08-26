@@ -1,4 +1,4 @@
-import {describe, expect, it} from 'vitest'
+import {afterEach, describe, expect, it, vi} from 'vitest'
 
 import {
   HomepageContractError,
@@ -25,6 +25,29 @@ function setField(target: object, key: string, value: unknown): void {
 function adapt(node = makeSiteAEditorialHomepageNode()) {
   return toSiteAEditorialHomepageDto(node, {rfqHref})
 }
+
+function mediaEdge(src: string, altText = 'Synthetic image') {
+  return {
+    node: {
+      mediaItemUrl: src,
+      altText,
+      mimeType: 'image/webp',
+      mediaDetails: {width: 1200, height: 800},
+    },
+  }
+}
+
+function setHeroImage(
+  node: ReturnType<typeof makeSiteAEditorialHomepageNode>,
+  src: string,
+): void {
+  setField(fields(node), 'heroImage', mediaEdge(src))
+  setField(fields(node), 'heroImageAlt', 'Synthetic image')
+}
+
+afterEach(() => {
+  vi.unstubAllEnvs()
+})
 
 describe('toSiteAEditorialHomepageDto', () => {
   it('maps the complete Site A editorial source without product or application links', () => {
@@ -81,7 +104,7 @@ describe('toSiteAEditorialHomepageDto', () => {
     const node = makeSiteAEditorialHomepageNode()
     setField(fields(node), 'heroImage', {
       node: {
-        mediaItemUrl: 'https://tio2products.com/synthetic.png',
+        mediaItemUrl: 'http://localhost:8080/wp-content/uploads/synthetic.png',
         altText: 'Synthetic image',
         mimeType: 'image/png',
         mediaDetails: {width, height},
@@ -225,6 +248,36 @@ describe('toSiteAEditorialHomepageDto', () => {
   })
 
   it.each([
+    [
+      'decision number',
+      'decisionNumber',
+      'Step 01',
+      ' step\u008501 ',
+      'decisionQuestions[1].number',
+    ],
+    [
+      'decision question',
+      'decisionQuestion',
+      'Which route?',
+      ' WHICH\tROUTE? ',
+      'decisionQuestions[1].question',
+    ],
+  ])(
+    'rejects a case/whitespace-normalized duplicate %s',
+    (_label, key, firstValue, duplicateValue, fieldPath) => {
+      const node = makeSiteAEditorialHomepageNode()
+      const rows = editorial(node).decisionQuestions!
+      setField(rows[0] as object, key, firstValue)
+      setField(rows[1] as object, key, duplicateValue)
+
+      expect(() => adapt(node)).toThrow(expect.objectContaining({
+        name: HomepageContractError.name,
+        fieldPath,
+      }))
+    },
+  )
+
+  it.each([
     ['FAQ question', 'geoFaqs', 'faqQuestion', 'faq.items[1].question'],
     ['glossary term', 'glossaryItems', 'term', 'glossary[1].term'],
     ['secondary topic', 'secondaryTopics', 'secondaryTopic', 'seo.secondaryTopics[1]'],
@@ -273,6 +326,12 @@ describe('toSiteAEditorialHomepageDto', () => {
 
   it.each([
     [
+      'literal product root from a supply route',
+      'supplyRoutes',
+      'https://example.test/products',
+      'supplyRoutes[0].evidenceUrl',
+    ],
+    [
       'normalized product root from a supply route',
       'supplyRoutes',
       'https://example.test/review/../products',
@@ -294,6 +353,12 @@ describe('toSiteAEditorialHomepageDto', () => {
       'encoded application descendant from an evidence item',
       'evidenceItems',
       'https://example.test/applications%2Fcoatings',
+      'evidenceItems[0].evidenceUrl',
+    ],
+    [
+      'literal application descendant from an evidence item',
+      'evidenceItems',
+      'https://example.test/applications/coatings',
       'evidenceItems[0].evidenceUrl',
     ],
   ])('rejects a %s', (_label, collection, evidenceUrl, fieldPath) => {
@@ -327,6 +392,79 @@ describe('toSiteAEditorialHomepageDto', () => {
     expect(dto.evidenceItems[0]?.evidenceUrl).toBe(
       'https://example.test/evidence/applications-review.pdf',
     )
+  })
+
+  it('ignores product/application text outside the evidence pathname', () => {
+    const node = makeSiteAEditorialHomepageNode()
+    const evidenceUrl =
+      'https://example.test/evidence?next=/products#applications'
+    setField(
+      editorial(node).supplyRoutes![0] as object,
+      'evidenceUrl',
+      evidenceUrl,
+    )
+    setField(
+      editorial(node).evidenceItems![0] as object,
+      'evidenceUrl',
+      evidenceUrl,
+    )
+
+    expect(adapt(node).supplyRoutes[0]?.evidenceUrl).toBe(evidenceUrl)
+    expect(adapt(node).evidenceItems[0]?.evidenceUrl).toBe(evidenceUrl)
+  })
+
+  it.each([
+    [
+      'the safe local default',
+      undefined,
+      'http://localhost:8080/wp-content/uploads/2026/08/hero.webp',
+    ],
+    [
+      'an explicit production WordPress origin',
+      'https://cms.example.test:8443',
+      'https://cms.example.test:8443/wp-content/uploads/2026/08/hero.webp',
+    ],
+  ])('accepts Site A media from %s', (_label, mediaOrigin, src) => {
+    vi.stubEnv('WORDPRESS_MEDIA_ORIGIN', mediaOrigin)
+    const node = makeSiteAEditorialHomepageNode()
+    setHeroImage(node, src)
+    setField(fields(node), 'ogImage', mediaEdge(src, 'Synthetic Open Graph image'))
+
+    expect(adapt(node).hero.image?.src).toBe(src)
+    expect(adapt(node).seo.ogImage?.src).toBe(src)
+  })
+
+  it.each([
+    ['protocol', 'http://cms.example.test:8443/wp-content/uploads/hero.webp'],
+    ['host', 'https://media.example.test:8443/wp-content/uploads/hero.webp'],
+    ['port', 'https://cms.example.test/wp-content/uploads/hero.webp'],
+    ['uploads path', 'https://cms.example.test:8443/assets/hero.webp'],
+    ['credentials', 'https://user:pass@cms.example.test:8443/wp-content/uploads/hero.webp'],
+    ['an empty userinfo marker', 'https://@cms.example.test:8443/wp-content/uploads/hero.webp'],
+  ])('rejects a Site A media URL with mismatched %s', (_label, src) => {
+    vi.stubEnv('WORDPRESS_MEDIA_ORIGIN', 'https://cms.example.test:8443')
+    const node = makeSiteAEditorialHomepageNode()
+    setHeroImage(node, src)
+
+    expect(() => adapt(node)).toThrow(expect.objectContaining({
+      name: HomepageContractError.name,
+      fieldPath: 'hero.image.src',
+    }))
+  })
+
+  it('applies the Site A media policy to Open Graph images', () => {
+    vi.stubEnv('WORDPRESS_MEDIA_ORIGIN', 'https://cms.example.test')
+    const node = makeSiteAEditorialHomepageNode()
+    setField(
+      fields(node),
+      'ogImage',
+      mediaEdge('https://other.example.test/wp-content/uploads/og.webp'),
+    )
+
+    expect(() => adapt(node)).toThrow(expect.objectContaining({
+      name: HomepageContractError.name,
+      fieldPath: 'seo.ogImage.src',
+    }))
   })
 
   it.each([

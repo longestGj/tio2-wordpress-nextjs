@@ -1,5 +1,13 @@
 import {delay, http, HttpResponse} from 'msw'
-import {beforeEach, describe, expect, expectTypeOf, it} from 'vitest'
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  expectTypeOf,
+  it,
+  vi,
+} from 'vitest'
 
 import {
   GraphQLHttpError,
@@ -23,6 +31,26 @@ interface GraphQLRequestBody {
   readonly query?: string
   readonly variables?: Record<string, unknown>
 }
+
+function setHeroImage(
+  node: ReturnType<typeof makeSiteAEditorialHomepageNode>,
+  src: string,
+): void {
+  Reflect.set(node.homepageFields!, 'heroImage', {
+    node: {
+      mediaItemUrl: src,
+      altText: 'WordPress attachment',
+      mimeType: 'image/webp',
+      mediaDetails: {width: 1200, height: 800},
+    },
+  })
+  Reflect.set(node.homepageFields!, 'heroImageAlt', 'WordPress attachment')
+}
+
+afterEach(() => {
+  delete process.env.WORDPRESS_GRAPHQL_URL
+  vi.unstubAllEnvs()
+})
 
 describe('getSiteAEditorialHomepage', () => {
   beforeEach(() => {
@@ -66,6 +94,32 @@ describe('getSiteAEditorialHomepage', () => {
         href: 'mailto:contact@tio2products.com',
       },
       closingCta: {href: 'mailto:contact@tio2products.com'},
+    })
+  })
+
+  it.each([
+    [
+      'the local WordPress origin',
+      undefined,
+      'http://localhost:8080/wp-content/uploads/2026/08/hero.webp',
+    ],
+    [
+      'a configured production WordPress origin',
+      'https://cms.example.test',
+      'https://cms.example.test/wp-content/uploads/2026/08/hero.webp',
+    ],
+  ])('maps published media from %s', async (_label, mediaOrigin, src) => {
+    vi.stubEnv('WORDPRESS_MEDIA_ORIGIN', mediaOrigin)
+    const node = makeSiteAEditorialHomepageNode()
+    setHeroImage(node, src)
+    server.use(
+      http.post(graphqlEndpoint, () =>
+        HttpResponse.json({data: {tio2Homepage: node}}),
+      ),
+    )
+
+    await expect(getSiteAEditorialHomepage('tio2-a')).resolves.toMatchObject({
+      hero: {image: {src}},
     })
   })
 

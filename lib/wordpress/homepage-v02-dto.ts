@@ -6,6 +6,7 @@ import {
   HomepageVersionError,
 } from './homepage-dto'
 import type {HomepageImageDto} from './homepage-types'
+import {isSiteAEditorialMediaUrl} from './site-a-editorial-media-policy'
 import type {
   EditorialClaimBasis,
   EditorialVerificationStatus,
@@ -250,9 +251,13 @@ function image(
   if (!SUPPORTED_IMAGE_MIME_TYPES.has(mimeType as HomepageImageDto['mimeType'])) {
     throw new HomepageContractError(`${fieldPath}.mimeType`)
   }
+  const src = text(node.mediaItemUrl, `${fieldPath}.src`, null)
+  if (!isSiteAEditorialMediaUrl(src)) {
+    throw new HomepageContractError(`${fieldPath}.src`)
+  }
 
   return {
-    src: text(node.mediaItemUrl, `${fieldPath}.src`, null),
+    src,
     alt,
     width: positiveDimension(details.width, `${fieldPath}.width`),
     height: positiveDimension(details.height, `${fieldPath}.height`),

@@ -23,31 +23,66 @@ afterEach(() => {
 })
 
 describe('Next.js configuration', () => {
-  it('permits approved Site A HTTPS media through the real Next image matcher', async () => {
+  it('permits only local WordPress uploads through the real Next image matcher by default', async () => {
+    vi.stubEnv('WORDPRESS_MEDIA_ORIGIN', undefined)
     const config = await loadConfig()
 
     expect(
       permitsRemoteImage(
         config.images,
-        'https://tio2products.com/wp-content/uploads/editorial-hero.webp',
+        'http://localhost:8080/wp-content/uploads/editorial-hero.webp',
       ),
     ).toBe(true)
     expect(
       permitsRemoteImage(
         config.images,
-        'https://tio2products.com/synthetic.png',
+        'http://localhost:8080/synthetic.png',
       ),
-    ).toBe(true)
+    ).toBe(false)
   })
 
   it.each([
-    ['HTTP', 'http://tio2products.com/wp-content/uploads/hero.webp'],
-    ['a sibling subdomain', 'https://media.tio2products.com/hero.webp'],
-    ['an unrelated host', 'https://example.test/hero.webp'],
+    ['HTTPS instead of HTTP', 'https://localhost:8080/wp-content/uploads/hero.webp'],
+    ['a different hostname', 'http://127.0.0.1:8080/wp-content/uploads/hero.webp'],
+    ['a different port', 'http://localhost:8081/wp-content/uploads/hero.webp'],
+    ['a non-upload path', 'http://localhost:8080/wp-content/plugins/hero.webp'],
   ])('does not broaden Site A media access to %s', async (_label, src) => {
+    vi.stubEnv('WORDPRESS_MEDIA_ORIGIN', undefined)
     const config = await loadConfig()
 
     expect(permitsRemoteImage(config.images, src)).toBe(false)
+  })
+
+  it('uses the explicitly configured production WordPress origin without a hostname wildcard', async () => {
+    vi.stubEnv('WORDPRESS_MEDIA_ORIGIN', 'https://cms.example.test:8443')
+    const config = await loadConfig()
+
+    expect(
+      permitsRemoteImage(
+        config.images,
+        'https://cms.example.test:8443/wp-content/uploads/2026/08/hero.webp',
+      ),
+    ).toBe(true)
+    expect(
+      permitsRemoteImage(
+        config.images,
+        'https://media.cms.example.test:8443/wp-content/uploads/hero.webp',
+      ),
+    ).toBe(false)
+    expect(
+      permitsRemoteImage(
+        config.images,
+        'https://cms.example.test:8443/assets/hero.webp',
+      ),
+    ).toBe(false)
+  })
+
+  it('rejects a configured WordPress media origin containing an empty userinfo marker', async () => {
+    vi.stubEnv('WORDPRESS_MEDIA_ORIGIN', 'https://@cms.example.test')
+
+    await expect(loadConfig()).rejects.toThrow(
+      'WORDPRESS_MEDIA_ORIGIN must be an HTTP(S) origin without credentials, path, query, or fragment',
+    )
   })
 
   it('uses NEXT_DIST_DIR for a local build directory', async () => {

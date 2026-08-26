@@ -463,6 +463,11 @@
   border-color: var(--site-a-soft);
 }
 
+.closingCta > a:focus-visible {
+  outline: 3px solid var(--site-a-soft);
+  outline-offset: 4px;
+}
+
 @media (max-width: 780px) {
   .siteHeader,
   .hero,

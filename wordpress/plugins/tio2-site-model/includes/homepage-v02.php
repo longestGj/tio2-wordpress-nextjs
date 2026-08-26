@@ -336,6 +336,76 @@ function tio2_homepage_v02_validate_rows($value, string $field_name, int $min, i
     return $rows;
 }
 
+function tio2_homepage_v02_normalize_plain_text(string $value): string
+{
+    $without_controls = preg_replace(
+        '/[\x{0000}-\x{0008}\x{000B}\x{000C}\x{000E}-\x{001F}\x{007F}-\x{009F}]/u',
+        ' ',
+        $value
+    );
+    $normalized = preg_replace(
+        '/[\x{0009}-\x{000D}\x{0020}\x{00A0}\x{1680}\x{2000}-\x{200A}\x{2028}\x{2029}\x{202F}\x{205F}\x{3000}\x{FEFF}]+/u',
+        ' ',
+        is_string($without_controls) ? $without_controls : $value
+    );
+    return trim(is_string($normalized) ? $normalized : $value, ' ');
+}
+
+/**
+ * Match the URL-path normalization performed before the TypeScript DTO's
+ * single decodeURIComponent pass. Query and fragment text are intentionally
+ * absent because wp_parse_url returns the pathname separately.
+ */
+function tio2_homepage_v02_normalized_evidence_path(string $url): ?string
+{
+    $parts = wp_parse_url($url);
+    if (! is_array($parts)) {
+        return null;
+    }
+    $pathname = (string) ($parts['path'] ?? '/');
+    if (1 === preg_match('/%(?![0-9A-Fa-f]{2})/', $pathname)) {
+        return null;
+    }
+
+    $segments = [];
+    foreach (explode('/', $pathname) as $segment) {
+        $decoded_segment = rawurldecode($segment);
+        if ('.' === $decoded_segment) {
+            continue;
+        }
+        if ('..' === $decoded_segment) {
+            if (count($segments) > 1) {
+                array_pop($segments);
+            }
+            continue;
+        }
+        $segments[] = $segment;
+    }
+
+    return rawurldecode(implode('/', $segments));
+}
+
+/**
+ * @return true|WP_Error
+ */
+function tio2_homepage_v02_validate_evidence_path(string $url, string $field_name)
+{
+    $pathname = tio2_homepage_v02_normalized_evidence_path($url);
+    if (null === $pathname) {
+        return new WP_Error(
+            'tio2_homepage_invalid_evidence',
+            "Homepage field {$field_name} has an invalid evidence path."
+        );
+    }
+    if (1 === preg_match('#^/(?:products|applications)(?:/|$)#', $pathname)) {
+        return new WP_Error(
+            'tio2_homepage_invalid_evidence',
+            "Homepage field {$field_name} cannot target a forbidden Homepage route."
+        );
+    }
+    return true;
+}
+
 /**
  * @param mixed $value
  * @return string|WP_Error
@@ -362,6 +432,10 @@ function tio2_homepage_v02_validate_https_url($value, string $field_name, bool $
         isset($parts['pass'])
     ) {
         return new WP_Error('tio2_homepage_invalid_evidence', "Homepage field {$field_name} requires an HTTPS URL.");
+    }
+    $evidence_path = tio2_homepage_v02_validate_evidence_path($url, $field_name);
+    if (is_wp_error($evidence_path)) {
+        return $evidence_path;
     }
     return $url;
 }
@@ -494,6 +568,8 @@ function tio2_validate_homepage_v02_contract(int $post_id)
     if (is_wp_error($decision_questions)) {
         return $decision_questions;
     }
+    $decision_numbers = [];
+    $decision_question_values = [];
     foreach ($decision_questions as $row) {
         $valid = tio2_homepage_v02_validate_row_strings($row, [
             'decision_number' => [true, null],
@@ -503,6 +579,16 @@ function tio2_validate_homepage_v02_contract(int $post_id)
         if (is_wp_error($valid)) {
             return $valid;
         }
+        $decision_numbers[] = tio2_homepage_v02_normalize_plain_text((string) $row['decision_number']);
+        $decision_question_values[] = tio2_homepage_v02_normalize_plain_text(
+            (string) $row['decision_question']
+        );
+    }
+    if (tio2_homepage_has_duplicates($decision_numbers)) {
+        return new WP_Error('tio2_homepage_invalid_field', 'Homepage decision numbers must be unique.');
+    }
+    if (tio2_homepage_has_duplicates($decision_question_values)) {
+        return new WP_Error('tio2_homepage_invalid_field', 'Homepage decision questions must be unique.');
     }
 
     $application_briefs = tio2_homepage_v02_validate_rows(

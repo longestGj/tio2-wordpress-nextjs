@@ -6,6 +6,11 @@ This repository is a local-only integration environment for one WordPress CMS an
 - Site B: `http://localhost:3002` (`SITE_ID=tio2-b`, `.next-tio2-b`)
 - WordPress: `http://127.0.0.1:8080` (loopback only)
 
+Site A editorial images use the non-secret `WORDPRESS_MEDIA_ORIGIN` contract. It defaults to
+`http://localhost:8080`; production must set the exact public WordPress origin (scheme, host,
+and optional port, with no path or credentials). Both the DTO and Next Image then accept only
+that origin's `/wp-content/uploads/` descendants. Legacy Site B images remain unoptimized.
+
 The verified code is backed up in a private GitHub repository. Vercel, DNS changes, production deployment, and Search Console work remain paused. The approved origins are `tio2products.com` for Site A and `tio2hub.com` for Site B; local tests use them only for canonical, sitemap, robots, and JSON-LD assertions and never contact the public domains.
 
 ## Requirements
