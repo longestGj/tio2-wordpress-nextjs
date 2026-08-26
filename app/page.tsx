@@ -1,8 +1,7 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
 
-import {HomepageTemplate} from '@/components/homepage/homepage-template'
-import {SiteShell} from '@/components/site-shell'
+import {HomepageRenderer} from '@/components/homepage/homepage-renderer'
 import {
   buildHomepageJsonLd,
   serializeHomepageJsonLd,
@@ -42,12 +41,12 @@ export default async function HomePage() {
   const jsonLd = serializeHomepageJsonLd(buildHomepageJsonLd(site, homepage))
 
   return (
-    <SiteShell site={site}>
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{__html: jsonLd}}
       />
-      <HomepageTemplate homepage={homepage} />
-    </SiteShell>
+      <HomepageRenderer site={site} homepage={homepage} />
+    </>
   )
 }

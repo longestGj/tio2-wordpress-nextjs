@@ -15,6 +15,7 @@ import {CrossSiteContentError} from '@/lib/wordpress/types'
 import {
   graphqlEndpoint,
   makeHomepageNode,
+  makeSiteAEditorialHomepageNode,
 } from '@/tests/mocks/handlers'
 import {server} from '@/tests/mocks/server'
 
@@ -28,40 +29,40 @@ describe('getHomepage', () => {
     process.env.WORDPRESS_GRAPHQL_URL = graphqlEndpoint
   })
 
-  it('queries the deterministic homepage slug and maps the bounded payload', async () => {
+  it('dispatches Site A to the deterministic editorial v0.2 document', async () => {
     server.use(
       http.post(graphqlEndpoint, async ({request}) => {
         const body = (await request.json()) as GraphQLRequestBody
         expect(body.variables).toEqual({slug: 'tio2-a--homepage'})
-        expect(body.query).toContain('tio2Homepage(id: $slug, idType: SLUG)')
-        return HttpResponse.json({data: {tio2Homepage: makeHomepageNode()}})
+        expect(body.query).toContain('query GetSiteAEditorialHomepage')
+        expect(body.query).toContain('editorialGeoFields')
+        return HttpResponse.json({
+          data: {tio2Homepage: makeSiteAEditorialHomepageNode()},
+        })
       }),
     )
 
     await expect(getHomepage('tio2-a')).resolves.toMatchObject({
-      identity: {siteId: 'tio2-a', path: '/', schemaVersion: 'homepage-v0.1'},
-      hero: {heading: 'Reliable TiO2 supply', secondaryCta: null},
-      productRoutes: [
-        {path: '/products/rutile', href: null},
-        {path: '/products/anatase', href: null},
-      ],
-      rfq: {
-        intro: 'This v0.1 local demo does not send or store inquiry data.',
-        privacyText: 'This local demo does not send or save entered information.',
-        success: {
-          heading: 'Local check complete',
-          message: 'Nothing was transmitted or saved by this Site A local demo.',
-        },
+      identity: {
+        siteId: 'tio2-a',
+        path: '/',
+        schemaVersion: 'homepage-v0.2-editorial-geo',
       },
+      headerRfq: {label: 'Start an RFQ'},
+      decisionQuestions: expect.any(Array),
+      editorial: {reviewedBy: 'Synthetic local editorial review'},
     })
   })
 
-  it('injects the requested Site B inventory policy instead of the Site A policy', async () => {
+  it('keeps Site B on the frozen legacy v0.1 query and inventory policy', async () => {
     const homepage = makeHomepageNode('tio2-b')
     server.use(
-      http.post(graphqlEndpoint, () =>
-        HttpResponse.json({data: {tio2Homepage: homepage}}),
-      ),
+      http.post(graphqlEndpoint, async ({request}) => {
+        const body = (await request.json()) as GraphQLRequestBody
+        expect(body.query).toContain('query GetHomepage')
+        expect(body.query).not.toContain('editorialGeoFields')
+        return HttpResponse.json({data: {tio2Homepage: homepage}})
+      }),
     )
 
     await expect(getHomepage('tio2-b')).resolves.toMatchObject({
@@ -114,8 +115,8 @@ describe('getHomepage', () => {
     await expect(getHomepage('tio2-a')).resolves.toBeNull()
   })
 
-  it('rejects a scalar controlled-select value from formal GraphQL', async () => {
-    const homepage = makeHomepageNode()
+  it('preserves legacy controlled-select validation for Site B', async () => {
+    const homepage = makeHomepageNode('tio2-b')
     Reflect.set(
       homepage.homepageFields,
       'rfqIntro',
@@ -127,7 +128,7 @@ describe('getHomepage', () => {
       ),
     )
 
-    await expect(getHomepage('tio2-a')).rejects.toMatchObject({
+    await expect(getHomepage('tio2-b')).rejects.toMatchObject({
       name: HomepageContractError.name,
       fieldPath: 'rfq.intro',
     })
@@ -166,9 +167,9 @@ describe('getHomepage', () => {
     ).rejects.toBeInstanceOf(GraphQLTimeoutError)
   })
 
-  it('rejects site, version, and publication violations after fetching', async () => {
-    const foreign = makeHomepageNode()
-    foreign.siteScopes.nodes[0].slug = 'tio2-b'
+  it('rejects Site A scope, version, and publication violations without fallback', async () => {
+    const foreign = makeSiteAEditorialHomepageNode()
+    Reflect.set(foreign.siteScopes!.nodes![0]!, 'slug', 'tio2-b')
     server.use(
       http.post(graphqlEndpoint, () =>
         HttpResponse.json({data: {tio2Homepage: foreign}}),
@@ -178,19 +179,21 @@ describe('getHomepage', () => {
       CrossSiteContentError,
     )
 
-    const wrongVersion = makeHomepageNode()
-    wrongVersion.homepageFields.homepageSchemaVersion = 'homepage-v0.2'
+    const wrongVersion = makeHomepageNode('tio2-a')
+    let wrongVersionRequests = 0
     server.use(
-      http.post(graphqlEndpoint, () =>
-        HttpResponse.json({data: {tio2Homepage: wrongVersion}}),
-      ),
+      http.post(graphqlEndpoint, () => {
+        wrongVersionRequests += 1
+        return HttpResponse.json({data: {tio2Homepage: wrongVersion}})
+      }),
     )
     await expect(getHomepage('tio2-a')).rejects.toBeInstanceOf(
       HomepageVersionError,
     )
+    expect(wrongVersionRequests).toBe(1)
 
-    const draft = makeHomepageNode()
-    draft.status = 'draft'
+    const draft = makeSiteAEditorialHomepageNode()
+    Reflect.set(draft, 'status', 'draft')
     server.use(
       http.post(graphqlEndpoint, () =>
         HttpResponse.json({data: {tio2Homepage: draft}}),

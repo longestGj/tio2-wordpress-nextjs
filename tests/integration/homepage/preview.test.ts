@@ -13,13 +13,14 @@ import {CrossSiteContentError} from '@/lib/wordpress/types'
 import {
   graphqlEndpoint,
   makeHomepageNode,
+  makeSiteAEditorialHomepageNode,
 } from '@/tests/mocks/handlers'
 import {server} from '@/tests/mocks/server'
 
 const previewEndpoint = 'http://wordpress.test/wp-json/tio2/v1/preview'
 const previewSecret = 'homepage-preview-test-secret'
 
-function previewHomepage(siteId: 'tio2-a' | 'tio2-b' = 'tio2-a') {
+function previewHomepage(siteId: 'tio2-a' | 'tio2-b' = 'tio2-b') {
   const homepage = makeHomepageNode(siteId)
   homepage.status = 'draft'
   const fields = homepage.homepageFields
@@ -38,6 +39,28 @@ function previewHomepage(siteId: 'tio2-a' | 'tio2-b' = 'tio2-a') {
   }
 }
 
+function previewEditorialHomepage() {
+  const homepage = makeSiteAEditorialHomepageNode()
+  const editorial = homepage.editorialGeoFields!
+  Reflect.set(homepage, 'status', 'draft')
+  for (const route of editorial.supplyRoutes!) {
+    Reflect.set(route as object, 'claimBasis', route!.claimBasis![0])
+  }
+  for (const evidence of editorial.evidenceItems!) {
+    Reflect.set(
+      evidence as object,
+      'verificationStatus',
+      evidence!.verificationStatus![0],
+    )
+  }
+  return {
+    ...homepage,
+    siteId: 'tio2-a',
+    path: '/',
+    schemaVersion: 'homepage-v0.2-editorial-geo',
+  }
+}
+
 beforeEach(() => {
   process.env.WORDPRESS_PREVIEW_URL = previewEndpoint
   process.env.WORDPRESS_PREVIEW_SECRET = previewSecret
@@ -51,7 +74,7 @@ afterEach(() => {
 })
 
 describe('getPreviewHomepage', () => {
-  it('returns the exact site-owned draft through the signed no-store transport', async () => {
+  it('dispatches Site A Preview to the exact editorial v0.2 draft transport', async () => {
     let observedCache: RequestCache | undefined
     server.use(
       http.get(previewEndpoint, ({request}) => {
@@ -65,7 +88,7 @@ describe('getPreviewHomepage', () => {
         expect(url.searchParams.get('path')).toBe('/')
         expect(request.headers.get('x-tio2-preview-signature')).toBe(expected)
         observedCache = request.cache
-        return HttpResponse.json(previewHomepage())
+        return HttpResponse.json(previewEditorialHomepage())
       }),
     )
 
@@ -73,35 +96,21 @@ describe('getPreviewHomepage', () => {
       identity: {
         siteId: 'tio2-a',
         path: '/',
-        schemaVersion: 'homepage-v0.1',
+        schemaVersion: 'homepage-v0.2-editorial-geo',
         status: 'draft',
       },
-      hero: {heading: 'Reliable TiO2 supply', secondaryCta: null},
-      rfq: {
-        intro: 'This v0.1 local demo does not send or store inquiry data.',
-        privacyText: 'This local demo does not send or save entered information.',
-        success: {
-          heading: 'Local check complete',
-          message: 'Nothing was transmitted or saved by this Site A local demo.',
-        },
-      },
-      productRoutes: [
-        {path: '/products/rutile', href: null},
-        {path: '/products/anatase', href: null},
-      ],
-      faq: {
-        items: expect.arrayContaining([
-          expect.objectContaining({relatedLink: null}),
-        ]),
-      },
-      closingCta: {href: '#rfq'},
+      headerRfq: {label: 'Start an RFQ'},
+      editorial: {reviewScope: 'Local experimental content only'},
+      closingCta: {href: 'mailto:contact@tio2products.com'},
     })
     expect(observedCache).toBe('no-store')
   })
 
   it('keeps formal GraphQL reads isolated from the draft preview', async () => {
     server.use(
-      http.get(previewEndpoint, () => HttpResponse.json(previewHomepage())),
+      http.get(previewEndpoint, () =>
+        HttpResponse.json(previewEditorialHomepage()),
+      ),
       http.post(graphqlEndpoint, () =>
         HttpResponse.json({data: {tio2Homepage: null}}),
       ),
@@ -113,8 +122,8 @@ describe('getPreviewHomepage', () => {
     await expect(getHomepage('tio2-a')).resolves.toBeNull()
   })
 
-  it('rejects a controlled-select array from the scalar Preview boundary', async () => {
-    const preview = previewHomepage()
+  it('preserves the legacy Site B scalar Preview boundary', async () => {
+    const preview = previewHomepage('tio2-b')
     Reflect.set(preview.homepageFields, 'rfqIntro', [
       preview.homepageFields.rfqIntro,
     ])
@@ -122,7 +131,7 @@ describe('getPreviewHomepage', () => {
       http.get(previewEndpoint, () => HttpResponse.json(preview)),
     )
 
-    await expect(getPreviewHomepage('tio2-a')).rejects.toMatchObject({
+    await expect(getPreviewHomepage('tio2-b')).rejects.toMatchObject({
       name: HomepageContractError.name,
       fieldPath: 'rfq.intro',
     })
@@ -170,14 +179,17 @@ describe('getPreviewHomepage', () => {
       CrossSiteContentError,
     )
 
-    const wrongVersion = previewHomepage()
-    wrongVersion.schemaVersion = 'homepage-v0.2'
-    wrongVersion.homepageFields.homepageSchemaVersion = 'homepage-v0.2'
+    const wrongVersion = previewHomepage('tio2-a')
+    let wrongVersionRequests = 0
     server.use(
-      http.get(previewEndpoint, () => HttpResponse.json(wrongVersion)),
+      http.get(previewEndpoint, () => {
+        wrongVersionRequests += 1
+        return HttpResponse.json(wrongVersion)
+      }),
     )
     await expect(getPreviewHomepage('tio2-a')).rejects.toBeInstanceOf(
       HomepageVersionError,
     )
+    expect(wrongVersionRequests).toBe(1)
   })
 })

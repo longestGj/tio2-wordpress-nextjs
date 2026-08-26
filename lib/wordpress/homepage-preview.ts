@@ -1,5 +1,6 @@
 import {createHmac} from 'node:crypto'
 import type {SiteId} from '@/sites'
+import {getSiteTemplateProfile} from '@/sites'
 
 import {
   HomepageContractError,
@@ -7,8 +8,9 @@ import {
   HomepageVersionError,
   toHomepageDto,
 } from './homepage-dto'
-import type {HomepageDto} from './homepage-types'
+import type {AnyHomepageDto, HomepageDto} from './homepage-types'
 import {getHomepageLinkPolicy} from './homepage-link-policy'
+import {getPreviewSiteAEditorialHomepage} from './homepage-v02-preview'
 import {PreviewTransportError} from './preview'
 import {CrossSiteContentError, InvalidContentPathError} from './types'
 
@@ -38,8 +40,9 @@ function previewConfig(): {url: URL; secret: string} {
   return {url, secret}
 }
 
-export async function getPreviewHomepage(
+async function getPreviewLegacyHomepage(
   siteId: SiteId,
+  expectedVersion: 'homepage-v0.1',
 ): Promise<HomepageDto | null> {
   const path = '/'
   const {url, secret} = previewConfig()
@@ -86,7 +89,7 @@ export async function getPreviewHomepage(
       typeof payload.path === 'string' ? payload.path : '',
     )
   }
-  if (payload.schemaVersion !== 'homepage-v0.1') {
+  if (payload.schemaVersion !== expectedVersion) {
     throw new HomepageVersionError(
       typeof payload.schemaVersion === 'string' ? payload.schemaVersion : '',
     )
@@ -106,4 +109,19 @@ export async function getPreviewHomepage(
     }
     throw new PreviewTransportError('WordPress preview response is invalid')
   }
+}
+
+export async function getPreviewHomepage(
+  siteId: SiteId,
+): Promise<AnyHomepageDto | null> {
+  const profile = getSiteTemplateProfile(siteId)
+
+  if (profile.homepage.schemaVersion === 'homepage-v0.2-editorial-geo') {
+    if (siteId !== 'tio2-a') {
+      throw new Error(`Unsupported editorial Homepage owner: ${siteId}`)
+    }
+    return getPreviewSiteAEditorialHomepage()
+  }
+
+  return getPreviewLegacyHomepage(siteId, profile.homepage.schemaVersion)
 }

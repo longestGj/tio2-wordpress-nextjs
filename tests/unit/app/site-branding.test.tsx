@@ -5,6 +5,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {
   graphqlEndpoint,
   makeHomepageNode,
+  makeSiteAEditorialHomepageNode,
 } from '@/tests/mocks/handlers'
 import {server} from '@/tests/mocks/server'
 
@@ -44,8 +45,10 @@ describe('site branding', () => {
   it.each(sites)('renders $id metadata and branding', async (site) => {
     vi.stubEnv('SITE_ID', site.id)
     vi.stubEnv('WORDPRESS_GRAPHQL_URL', graphqlEndpoint)
-    const homepage = makeHomepageNode(site.id)
-    homepage.homepageFields.heroHeading = `${site.name} Home`
+    const homepage = site.id === 'tio2-a'
+      ? makeSiteAEditorialHomepageNode()
+      : makeHomepageNode(site.id)
+    Reflect.set(homepage.homepageFields!, 'heroHeading', `${site.name} Home`)
     server.use(
       http.post(graphqlEndpoint, () =>
         HttpResponse.json({
@@ -60,15 +63,32 @@ describe('site branding', () => {
 
     expect(metadata.title).toBe(site.title)
     expect(metadata.description).toBe(site.description)
-    expect(renderToStaticMarkup(<RootLayout><main>Child</main></RootLayout>)).toContain(
-      `<html lang="${site.locale}"><head></head><body><header>${site.name}</header>`,
+    const layoutMarkup = renderToStaticMarkup(
+      <RootLayout><main>Child</main></RootLayout>,
     )
+    if (site.id === 'tio2-a') {
+      expect(layoutMarkup).toContain(
+        `<html lang="${site.locale}"><head></head><body><main>Child</main>`,
+      )
+      expect(layoutMarkup).not.toContain('<header>')
+    } else {
+      expect(layoutMarkup).toContain(
+        `<html lang="${site.locale}"><head></head><body><header>${site.name}</header>`,
+      )
+    }
 
     const homeMarkup = renderToStaticMarkup(await HomePage())
     expect(homeMarkup).toContain(`data-site-id="${site.id}"`)
-    expect(homeMarkup).toContain(`<p>${site.name}</p>`)
+    if (site.id === 'tio2-a') {
+      expect(homeMarkup).toContain(`<strong>${site.name}</strong>`)
+      expect(homeMarkup.match(/<header(?:\s|>)/gu)).toHaveLength(1)
+      expect(homeMarkup).not.toContain(`<p>${site.name}</p>`)
+    } else {
+      expect(homeMarkup).toContain(`<p>${site.name}</p>`)
+      expect(homeMarkup).not.toContain('<header>')
+    }
     expect(homeMarkup).toContain(
-      `<h1 id="homepage-hero-heading">${site.name} Home</h1>`,
+      `<h1 id="${site.id === 'tio2-a' ? 'site-a-hero-heading' : 'homepage-hero-heading'}">${site.name} Home</h1>`,
     )
   })
 })

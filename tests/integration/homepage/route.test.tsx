@@ -3,9 +3,13 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
 import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
-import type {HomepageDto} from '@/lib/wordpress/homepage-types'
+import type {AnyHomepageDto} from '@/lib/wordpress/homepage-types'
+import {toSiteAEditorialHomepageDto} from '@/lib/wordpress/homepage-v02-dto'
 import {getSiteConfig} from '@/sites'
-import {makeHomepageNode} from '@/tests/mocks/handlers'
+import {
+  makeHomepageNode,
+  makeSiteAEditorialHomepageNode,
+} from '@/tests/mocks/handlers'
 
 const routeMocks = vi.hoisted(() => ({
   getCurrentSite: vi.fn(),
@@ -35,14 +39,23 @@ vi.mock('@/lib/wordpress/queries', () => ({
   getContentByPath: routeMocks.getContentByPath,
 }))
 
-function homepageFixture(siteId: 'tio2-a' | 'tio2-b'): HomepageDto {
+function homepageFixture(siteId: 'tio2-a' | 'tio2-b'): AnyHomepageDto {
+  if (siteId === 'tio2-a') {
+    const node = makeSiteAEditorialHomepageNode()
+    Reflect.set(
+      node.homepageFields!,
+      'heroHeading',
+      'Site A titanium dioxide supply',
+    )
+    return toSiteAEditorialHomepageDto(node, {
+      rfqHref: getSiteConfig(siteId).rfqHref,
+    })
+  }
+
   const node = makeHomepageNode(siteId)
-  node.id = siteId === 'tio2-a' ? 'aG9tZXBhZ2U6MTAx' : 'aG9tZXBhZ2U6MjAy'
-  node.databaseId = siteId === 'tio2-a' ? 101 : 202
-  node.homepageFields.heroHeading =
-    siteId === 'tio2-a'
-      ? 'Site A titanium dioxide supply'
-      : 'Site B independent buyer discovery'
+  node.id = 'aG9tZXBhZ2U6MjAy'
+  node.databaseId = 202
+  node.homepageFields.heroHeading = 'Site B independent buyer discovery'
 
   return toHomepageDto(node, siteId, {
     linkPolicy: getHomepageLinkPolicy(siteId),
@@ -65,7 +78,7 @@ afterEach(() => {
 })
 
 describe('homepage root route', () => {
-  it('uses the formal published homepage lookup and renders one SiteShell main', async () => {
+  it('uses the formal published lookup and renders one Site A editorial main', async () => {
     const {default: HomePage} = await import('@/app/page')
 
     const markup = renderToStaticMarkup(await HomePage())
@@ -76,15 +89,21 @@ describe('homepage root route', () => {
     expect(markup.match(/<main(?:\s|>)/gu)).toHaveLength(1)
     expect(markup).toContain('data-site-id="tio2-a"')
     expect(markup).toContain('Site A titanium dioxide supply')
+    expect(markup.match(/<header(?:\s|>)/gu)).toHaveLength(1)
+    expect(markup).not.toContain('<form')
+    expect(markup).not.toMatch(/href="\/products|href="\/applications/u)
   })
 
   it('uses only the exact scoped homepage preview for the root path', async () => {
     const preview = homepageFixture('tio2-a')
+    if (preview.identity.schemaVersion !== 'homepage-v0.2-editorial-geo') {
+      throw new Error('Expected Site A editorial fixture')
+    }
     routeMocks.hasScopedPreviewSession.mockResolvedValue(true)
     routeMocks.getPreviewHomepage.mockResolvedValue({
       ...preview,
       identity: {...preview.identity, status: 'draft'},
-      hero: {...preview.hero, heading: 'Scoped homepage draft'},
+      hero: {...preview.hero, heading: 'Scoped editorial homepage draft'},
     })
     const {default: HomePage} = await import('@/app/page')
 
@@ -96,7 +115,7 @@ describe('homepage root route', () => {
     )
     expect(routeMocks.getPreviewHomepage).toHaveBeenCalledWith('tio2-a')
     expect(routeMocks.getHomepage).not.toHaveBeenCalled()
-    expect(markup).toContain('Scoped homepage draft')
+    expect(markup).toContain('Scoped editorial homepage draft')
   })
 
   it('returns not-found for a missing homepage without falling back to the old root Page', async () => {
@@ -118,6 +137,7 @@ describe('homepage root route', () => {
 
     expect(routeMocks.getHomepage).toHaveBeenCalledWith('tio2-b')
     expect(markup).toContain('data-site-id="tio2-b"')
+    expect(markup).toContain('<p>TiO2 B</p>')
     expect(markup).toContain('Site B independent buyer discovery')
     expect(markup).not.toContain('Site A titanium dioxide supply')
   })

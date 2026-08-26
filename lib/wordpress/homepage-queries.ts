@@ -1,5 +1,6 @@
 import type {FetchGraphQLOptions} from './client'
 import type {SiteId} from '@/sites'
+import {getSiteTemplateProfile} from '@/sites'
 import {fetchGraphQL} from './client'
 import {homepageContentTag, routeTag, siteTag} from './cache-tags'
 import {
@@ -11,11 +12,12 @@ import type {
 } from './generated'
 import {toHomepageDto} from './homepage-dto'
 import {getHomepageLinkPolicy} from './homepage-link-policy'
-import type {HomepageDto} from './homepage-types'
+import type {AnyHomepageDto, HomepageDto} from './homepage-types'
+import {getSiteAEditorialHomepage} from './homepage-v02-queries'
 
 export const GET_HOMEPAGE = GetHomepageDocument
 
-export async function getHomepage(
+async function getLegacyHomepage(
   siteId: SiteId,
   options: Pick<FetchGraphQLOptions, 'timeoutMs'> = {},
 ): Promise<HomepageDto | null> {
@@ -40,4 +42,20 @@ export async function getHomepage(
         linkPolicy: getHomepageLinkPolicy(siteId),
       })
     : null
+}
+
+export async function getHomepage(
+  siteId: SiteId,
+  options: Pick<FetchGraphQLOptions, 'timeoutMs'> = {},
+): Promise<AnyHomepageDto | null> {
+  const profile = getSiteTemplateProfile(siteId)
+
+  if (profile.homepage.schemaVersion === 'homepage-v0.2-editorial-geo') {
+    if (siteId !== 'tio2-a') {
+      throw new Error(`Unsupported editorial Homepage owner: ${siteId}`)
+    }
+    return getSiteAEditorialHomepage(siteId, options)
+  }
+
+  return getLegacyHomepage(siteId, options)
 }

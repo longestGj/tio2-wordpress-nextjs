@@ -1,4 +1,5 @@
 import type {Metadata} from 'next'
+import {SiteHeader} from '@/components/site-header'
 import {getCurrentSite} from '@/lib/sites/current-site'
 
 const site = getCurrentSite()
@@ -13,7 +14,7 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
   return (
     <html lang={site.locale}>
       <body>
-        <header>{site.name}</header>
+        <SiteHeader site={site} />
         {children}
       </body>
     </html>
