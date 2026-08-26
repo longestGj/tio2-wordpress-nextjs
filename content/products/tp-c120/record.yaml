@@ -1,0 +1,103 @@
+schema_version: 1
+
+product:
+  id: tp-c120
+  brand: TIOVAR
+  model: TP-C120
+  source_model: CR-510+
+  family: rutile-titanium-dioxide
+
+source_documents:
+  - id: citic-cr-510-plus-tds
+    filename: TDS-CR-510+.pdf
+    sha256: bc07aa380576ab98280c8c4a35836946c9a13735b3fba9496a203bcce8272700
+    issuer: CITIC Titanium Industry Co., Ltd.
+
+specifications:
+  - key: titanium-dioxide-content
+    label: TiO2 content
+    value: 95
+    unit: percent
+    source_document_id: citic-cr-510-plus-tds
+  - key: rutile-content
+    label: Rutile content
+    value: 99.9
+    unit: percent
+    source_document_id: citic-cr-510-plus-tds
+  - key: dry-l-star
+    label: Dry L*
+    value: 99.4
+    unit: cie-l-star
+    source_document_id: citic-cr-510-plus-tds
+  - key: dry-b-star
+    label: Dry b*
+    value: 1.00
+    unit: cie-b-star
+    source_document_id: citic-cr-510-plus-tds
+  - key: specific-gravity
+    label: Specific gravity
+    value: 4.1
+    unit: grams-per-cubic-centimeter
+    source_document_id: citic-cr-510-plus-tds
+  - key: ph
+    label: pH
+    value: 7.5
+    unit: ph
+    source_document_id: citic-cr-510-plus-tds
+  - key: carbon-black-undertone
+    label: Carbon black undertone (CBU)
+    value: 14.0
+    unit: cbu
+    source_document_id: citic-cr-510-plus-tds
+  - key: oil-absorption
+    label: Oil absorption
+    value: 17
+    unit: grams-per-100-grams
+    source_document_id: citic-cr-510-plus-tds
+  - key: mean-particle-size
+    label: Mean particle size
+    value: 0.27
+    unit: micrometre
+    source_document_id: citic-cr-510-plus-tds
+
+claims:
+  - key: crystal-form
+    text: Rutile titanium dioxide pigment.
+    kind: source_fact
+    verification: source_confirmed
+    source_document_id: citic-cr-510-plus-tds
+  - key: production-process
+    text: Produced by the chloride process.
+    kind: source_fact
+    verification: source_confirmed
+    source_document_id: citic-cr-510-plus-tds
+  - key: surface-treatment
+    text: Surface treated with zirconium-aluminum and special organic treatment.
+    kind: source_fact
+    verification: source_confirmed
+    source_document_id: citic-cr-510-plus-tds
+  - key: suggested-application
+    text: Suggested for water-based interior and exterior wall emulsion paint.
+    kind: source_fact
+    verification: source_confirmed
+    source_document_id: citic-cr-510-plus-tds
+  - key: bluish-tone
+    text: Bluish tone.
+    kind: source_fact
+    verification: source_confirmed
+    source_document_id: citic-cr-510-plus-tds
+  - key: high-gloss
+    text: High gloss.
+    kind: source_fact
+    verification: source_confirmed
+    source_document_id: citic-cr-510-plus-tds
+  - key: high-durability
+    text: High durability.
+    kind: source_fact
+    verification: source_confirmed
+    source_document_id: citic-cr-510-plus-tds
+  - key: high-hiding-power
+    text: High hiding power.
+    kind: source_fact
+    verification: source_confirmed
+    source_document_id: citic-cr-510-plus-tds
