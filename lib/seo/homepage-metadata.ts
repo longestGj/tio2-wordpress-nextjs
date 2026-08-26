@@ -1,6 +1,6 @@
 import type {Metadata} from 'next'
 
-import type {HomepageDto} from '@/lib/wordpress/homepage-types'
+import type {AnyHomepageDto} from '@/lib/wordpress/homepage-types'
 import type {SiteConfig} from '@/sites'
 import {isPublicIndexingEnabled} from './metadata'
 import {htmlToPlainText, normalizePlainText} from './text'
@@ -26,7 +26,7 @@ function isCurrentSiteHttpsImage(site: SiteConfig, src: string): boolean {
 
 export function buildHomepageMetadata(
   site: SiteConfig,
-  homepage: HomepageDto,
+  homepage: AnyHomepageDto,
   options: HomepageMetadataOptions = {},
 ): Metadata {
   const canonical = new URL('/', site.url).href

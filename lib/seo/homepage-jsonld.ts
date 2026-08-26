@@ -1,4 +1,7 @@
-import type {HomepageDto, HomepageFaqDto} from '@/lib/wordpress/homepage-types'
+import type {
+  AnyHomepageDto,
+  HomepageFaqDto,
+} from '@/lib/wordpress/homepage-types'
 import {isStrictUtcInstant} from '@/lib/wordpress/time'
 import type {SiteConfig} from '@/sites'
 import {serializeJsonLd} from './jsonld'
@@ -30,7 +33,7 @@ function isValidVisibleFaq(faq: HomepageFaqDto): boolean {
 
 export function buildHomepageJsonLd(
   site: SiteConfig,
-  homepage: HomepageDto,
+  homepage: AnyHomepageDto,
 ): JsonLdObject[] {
   const canonical = new URL('/', site.url).href
   const organizationId = new URL('/#organization', site.url).href
