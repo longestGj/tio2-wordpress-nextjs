@@ -528,7 +528,9 @@ function tio2_product_shared_field_definitions(): array
 function tio2_normalize_product_shared_settings(array $values): array
 {
     $inquiry_fields = [];
-    foreach ($values['inquiry_fields'] ?? [] as $field) {
+    $raw_inquiry_fields = $values['inquiry_fields'] ?? [];
+    $raw_inquiry_fields = is_array($raw_inquiry_fields) ? $raw_inquiry_fields : [];
+    foreach ($raw_inquiry_fields as $field) {
         if (! is_array($field)) {
             continue;
         }

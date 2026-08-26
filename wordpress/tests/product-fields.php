@@ -241,4 +241,30 @@ tio2_product_fields_test_assert(
     'Shared Product settings did not normalize to the stable public shape.'
 );
 
+$normalizer_warnings = [];
+set_error_handler(static function (int $severity, string $message) use (&$normalizer_warnings): bool {
+    $normalizer_warnings[] = $message;
+    return true;
+});
+$malformed_settings = tio2_normalize_product_shared_settings([
+    'inquiry_fields' => false,
+    'request_tds_cta' => 'not-a-group',
+    'discuss_application_cta' => ['label' => ['not-a-string'], 'description' => false],
+    'technical_disclaimer' => ['not-a-string'],
+]);
+restore_error_handler();
+tio2_product_fields_test_assert(
+    [] === $normalizer_warnings,
+    'Shared Product settings normalizer emitted a warning for an unset or malformed ACF value.'
+);
+tio2_product_fields_test_assert(
+    [
+        'inquiryFields' => [],
+        'requestTdsCta' => ['label' => '', 'description' => ''],
+        'discussApplicationCta' => ['label' => '', 'description' => ''],
+        'technicalDisclaimer' => '',
+    ] === $malformed_settings,
+    'Shared Product settings normalizer did not fail closed for malformed ACF values.'
+);
+
 fwrite(STDOUT, "TiO2 Product field contract passed\n");
