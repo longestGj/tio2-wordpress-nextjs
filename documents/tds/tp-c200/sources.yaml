@@ -1,0 +1,264 @@
+schema_version: TIOVAR-TDS-SOURCES-V0.1
+product:
+  id: tp-c200
+  brand: TIOVAR
+  display_grade: TP-C200
+  supplier_grade: CR-503-2
+  product_family: Rutile Titanium Dioxide
+  application_family: High-PVC Architectural Coatings
+  language: en
+  revision: '0.1'
+  issue_date: '2026-08-26'
+  status: draft
+source_files:
+- id: S001
+  role: internal_grade_mapping
+  path: D:/11SEO/01ComInfo/TiO2Product_Product_Selection_Matrix_v3.xlsx
+  sha256: 9bb6f220dbe30c855d57bc12013efc7165919eef3243eef9dba074df2349cebb
+  locator: Product Matrix row 19
+  use: Maps TP-C200 to CR-503-2 only; not used as technical evidence.
+- id: S002
+  role: primary_technical_source
+  path: D:/11SEO/01ComInfo/TDS/TDS-CR-503 -2.pdf
+  sha256: 8a9425d8103cbf109b19ff7bdfa04edb7b465fda126290445c48d02d037df9fb
+  locator: Page 1
+  use: Supplier description, two architectural-coating applications, four features,
+    and eight reported data rows for CR-503-2 only.
+- id: S003
+  role: primary_logo
+  path: D:/11SEO/01ComInfo/ChatGPT Image 2026年8月26日 12_07_24.png
+  sha256: 4492d6eadc6a7aac43d48e1dc8080cbe1d9c1e94024f46d241ccd72b04ee87fd
+  locator: Full image
+  use: TIOVAR logo without a trademark symbol.
+- id: S004
+  role: brand_visual_guide
+  path: D:/11SEO/01ComInfo/ChatGPT Image 2026年8月26日 13_03_28.png
+  sha256: 174917cd7510f233f914c218dcb19064094cb4b9113ba9fa7750790c2049f014
+  locator: Full image
+  use: Colors and visual identity only; wording is not technical evidence.
+- id: S005
+  role: packaging_concept
+  path: D:/11SEO/01ComInfo/ChatGPT Image 2026年8月26日 13_03_38 (2).png
+  sha256: 6aeb384ade152551acc806f69cc616014f90958c7ef3115058197f4c57f82dc9
+  locator: Full image
+  use: Concept-only evidence gap; does not confirm pack size, label wording, or legal
+    attribution.
+- id: S006
+  role: layout_reference
+  path: D:/01AICode/7.27 马来全套TDS +应用指南/7.27/TDS_CR-901_.pdf
+  sha256: 5d742146c2dfab167854a2c43c4e16d29f3334c4f56cfbd5560e8c132c1eea29
+  locator: Page 1
+  use: One-page hierarchy and component arrangement only; no technical facts, claims,
+    company details, or contacts are used.
+template:
+  path: .agent/tiovar-tds-agent/templates/tiovar-tds-template.docx
+  sha256: c7e2757754290cfb6b765504501d8817576d77805e675abace272d1294692011
+  embedded_logo_source_id: S003
+  embedded_logo_path: word/media/image1.png
+content:
+  description: TIOVAR TP-C200 is a rutile titanium dioxide pigment made by the chloride
+    process and given special surface treatment. The supplier describes it for high-PVC
+    architectural coatings and dry hiding performance. It is intended for formulation
+    evaluation in architectural matte or flat coatings, including systems above the
+    critical pigment volume concentration (CPVC).
+  applications:
+  - Formulation evaluation in interior and exterior architectural coatings
+  - Formulation evaluation in high-hiding matte or flat coatings with pigment volume
+    concentration above the critical pigment volume concentration (CPVC)
+  key_features:
+  - Ultra-high dry hiding power
+  - Excellent weather resistance
+  - Excellent water dispersibility
+  - High oil absorption
+  technical_data:
+  - property: TiO2 content, %
+    value: '78'
+    source_id: S002
+    source_locator: Page 1 / Specifications / TiO2 content
+  - property: Rutile content, %
+    value: '99.9'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Rutile content
+  - property: L*
+    value: '98.3'
+    source_id: S002
+    source_locator: Page 1 / Specifications / L*
+  - property: b*
+    value: '1.80'
+    source_id: S002
+    source_locator: Page 1 / Specifications / b*
+  - property: Mean particle size, micrometres
+    value: '0.50'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Mean particle size
+  - property: Oil absorption, g/100 g
+    value: '36'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Oil absorption
+  - property: pH
+    value: '9.5'
+    source_id: S002
+    source_locator: Page 1 / Specifications / pH
+  - property: Carbon black undertone (CBU)
+    value: '9.0'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Carbon black undertone (CBU)
+  viscosity_note: The supplier qualitatively describes high-quality dry hiding power
+    for this high-PVC architectural coating grade. Formulation-specific verification
+    is required.
+  packaging_note: Packaging is not stated in the supplier TDS. The supplied packaging
+    artwork is a concept mockup only and is not approved evidence of pack size, label
+    text, or legal attribution.
+  safety_note: An aligned SDS was not provided for this draft. Confirm the supplied-product
+    identifier, issuing entity, emergency contact, and revision before external use.
+  evidence_note: Supplier-reported values reproduce the primary supplier TDS. The
+    source does not state test methods, tolerances, or whether values are typical
+    or specification limits. Product suitability must be evaluated in the intended
+    formulation. Legal attribution, company contacts, SDS/COA issuer and packaging
+    details remain unconfirmed and are withheld from public use.
+  release_status: 'Pending user confirmation before public use: brand owner; manufacturer
+    / manufactured-for / distributor; SDS and COA issuer; packaging label entity;
+    company contact details; trademark status.'
+  contact_headline: Company and contact details pending user approval
+  contact_details: 'Legal name / address / email / website: pending user approval'
+claims:
+- id: C001
+  field: description
+  text: TIOVAR TP-C200 is a rutile titanium dioxide pigment made by the chloride process
+    and given special surface treatment. The supplier describes it for high-PVC architectural
+    coatings and dry hiding performance. It is intended for formulation evaluation
+    in architectural matte or flat coatings, including systems above the critical
+    pigment volume concentration (CPVC).
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Description
+  source_excerpt: CR-503-2 is a special surface treated chloride-process, rutile titanium
+    dioxide pigment. It is specially designed for the high-PVC architectural coating
+    field, providing high quality Dry hiding power.
+- id: C002
+  field: application
+  text: Formulation evaluation in interior and exterior architectural coatings
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Application Suggestions
+  source_excerpt: Interior and exterior architectural coatings
+- id: C003
+  field: application
+  text: Formulation evaluation in high-hiding matte or flat coatings with pigment
+    volume concentration above the critical pigment volume concentration (CPVC)
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Application Suggestions
+  source_excerpt: High hiding power matte or flat coatings with a pigment volume concentration
+    higher than the critical pigment volume concentration (CPVC)
+- id: C004
+  field: key_feature
+  text: Ultra-high dry hiding power
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Ultra-high dry hidinging power
+- id: C005
+  field: key_feature
+  text: Excellent weather resistance
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Excellent weather resistance
+- id: C006
+  field: key_feature
+  text: Excellent water dispersibility
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Excellent water dispersibility
+- id: C007
+  field: key_feature
+  text: High oil absorption
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: High oil absorption
+- id: C008
+  field: viscosity_note
+  text: The supplier qualitatively describes high-quality dry hiding power for this
+    high-PVC architectural coating grade. Formulation-specific verification is required.
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Description
+  source_excerpt: the high-PVC architectural coating field, providing high quality
+    Dry hiding power.
+- id: C009
+  field: packaging_note
+  text: Packaging is not stated in the supplier TDS. The supplied packaging artwork
+    is a concept mockup only and is not approved evidence of pack size, label text,
+    or legal attribution.
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C010
+  field: safety_note
+  text: An aligned SDS was not provided for this draft. Confirm the supplied-product
+    identifier, issuing entity, emergency contact, and revision before external use.
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C011
+  field: evidence_note
+  text: Supplier-reported values reproduce the primary supplier TDS. The source does
+    not state test methods, tolerances, or whether values are typical or specification
+    limits. Product suitability must be evaluated in the intended formulation. Legal
+    attribution, company contacts, SDS/COA issuer and packaging details remain unconfirmed
+    and are withheld from public use.
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Specifications
+  source_excerpt: Specifications
+- id: C012
+  field: release_status
+  text: 'Pending user confirmation before public use: brand owner; manufacturer /
+    manufactured-for / distributor; SDS and COA issuer; packaging label entity; company
+    contact details; trademark status.'
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C013
+  field: contact_headline
+  text: Company and contact details pending user approval
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C014
+  field: contact_details
+  text: 'Legal name / address / email / website: pending user approval'
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+conflicts: []
+unresolved_fields:
+- brand_owner
+- manufacturer
+- manufactured_for
+- distributor
+- sds_issuer
+- coa_issuer
+- packaging_label_entity
+- company_contact_details
+- trademark_status
+artifacts:
+  docx: tiovar-tp-c200-en.docx
+  pdf: tiovar-tp-c200-en.pdf
+  docx_sha256: 33303c615f2f2220a08a782f32b82dc38774c7da9ac0ee443c51ace7dc9f338d
+  pdf_sha256: 4c4e51158089f6de6d57ff8e21b224d6de3fe28b8261b16ce08974290577c566
+qa:
+  visual_review:
+    status: passed
+    page_count: 1
+    docx_sha256: 33303c615f2f2220a08a782f32b82dc38774c7da9ac0ee443c51ace7dc9f338d
+    pdf_sha256: 4c4e51158089f6de6d57ff8e21b224d6de3fe28b8261b16ce08974290577c566
+    reviewed_at: '2026-08-26'
