@@ -8,6 +8,7 @@
   --product-green-deep: #0d2d26;
   --product-copper: #b85c38;
   --product-copper-dark: #874029;
+  --product-final-cta-surface: #a0472b;
   --product-focus: #c45b29;
   --product-focus-on-dark: #ffffff;
   min-width: 0;
@@ -691,7 +692,7 @@
   align-items: center;
   gap: clamp(2rem, 6vw, 6rem);
   max-width: none;
-  background: var(--product-copper);
+  background: var(--product-final-cta-surface);
   color: #fff;
 }
 

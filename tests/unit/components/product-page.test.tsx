@@ -46,6 +46,53 @@ function cssColor(stylesheet: string, property: string): string {
   return value
 }
 
+function cssRule(stylesheet: string, selector: string): string {
+  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')
+  const rule = stylesheet.match(
+    new RegExp(`${escapedSelector}\\s*\\{([^}]*)\\}`, 'iu'),
+  )?.[1]
+  if (!rule) throw new Error(`Missing CSS rule: ${selector}`)
+  return rule
+}
+
+function cssDeclaration(rule: string, property: string): string {
+  const value = rule.match(new RegExp(`${property}:\\s*([^;]+);`, 'iu'))?.[1]
+  if (!value) throw new Error(`Missing CSS declaration: ${property}`)
+  return value.trim()
+}
+
+function resolveCssColor(stylesheet: string, value: string): string {
+  const customProperty = value.match(/^var\((--[a-z0-9-]+)\)$/iu)?.[1]
+  if (customProperty) return cssColor(stylesheet, customProperty)
+  if (/^#[0-9a-f]{6}$/iu.test(value)) return value
+  throw new Error(`Unsupported CSS color: ${value}`)
+}
+
+function compositeRgbSurface(value: string, backdrop: string): string {
+  const match = value.match(
+    /^rgb\(\s*(\d+)\s+(\d+)\s+(\d+)\s*\/\s*(\d+)%\s*\)$/iu,
+  )
+  const backdropChannels = backdrop
+    .slice(1)
+    .match(/.{2}/gu)
+    ?.map((channel) => Number.parseInt(channel, 16))
+  if (!match || !backdropChannels || backdropChannels.length !== 3) {
+    throw new Error(`Unsupported composited CSS surface: ${value}`)
+  }
+
+  const opacity = Number.parseInt(match[4]!, 10) / 100
+  const foregroundChannels = match
+    .slice(1, 4)
+    .map((channel) => Number.parseInt(channel!, 10))
+  const channels = foregroundChannels.map((channel, index) =>
+    Math.round(channel * opacity + backdropChannels[index]! * (1 - opacity)),
+  )
+
+  return `#${channels
+    .map((channel) => channel.toString(16).padStart(2, '0'))
+    .join('')}`
+}
+
 function relativeLuminance(hex: string): number {
   const parts = hex.slice(1).match(/.{2}/gu)
   if (!parts || parts.length !== 3) throw new Error(`Invalid color: ${hex}`)
@@ -318,13 +365,52 @@ describe('ProductPage', () => {
     expect(
       contrastRatio(
         cssColor(stylesheet, '--product-focus-on-dark'),
-        cssColor(stylesheet, '--product-copper'),
+        resolveCssColor(
+          stylesheet,
+          cssDeclaration(cssRule(stylesheet, '.finalCta'), 'background'),
+        ),
       ),
     ).toBeGreaterThanOrEqual(3)
     expect(stylesheet).toContain('.propertiesSection a:focus-visible')
     expect(stylesheet).toContain('.finalCta a:focus-visible')
     expect(stylesheet).toContain(
       'outline-color: var(--product-focus-on-dark);',
+    )
+  })
+
+  it('keeps normal Final CTA copy at 4.5:1 on solid and translucent surfaces', () => {
+    const stylesheet = readFileSync(
+      resolve(
+        process.cwd(),
+        'components/products/product-page.module.css',
+      ),
+      'utf8',
+    )
+    const finalSurface = resolveCssColor(
+      stylesheet,
+      cssDeclaration(cssRule(stylesheet, '.finalCta'), 'background'),
+    )
+    const bodyColor = resolveCssColor(
+      stylesheet,
+      cssDeclaration(
+        cssRule(stylesheet, '.finalCtaCopy > p:last-child'),
+        'color',
+      ),
+    )
+    const cardSurface = compositeRgbSurface(
+      cssDeclaration(cssRule(stylesheet, '.finalCta .ctaAction'), 'background'),
+      finalSurface,
+    )
+    const descriptionColor = resolveCssColor(
+      stylesheet,
+      cssDeclaration(cssRule(stylesheet, '.finalCta .ctaAction p'), 'color'),
+    )
+
+    expect
+      .soft(contrastRatio(bodyColor, finalSurface))
+      .toBeGreaterThanOrEqual(4.5)
+    expect(contrastRatio(descriptionColor, cardSurface)).toBeGreaterThanOrEqual(
+      4.5,
     )
   })
 
