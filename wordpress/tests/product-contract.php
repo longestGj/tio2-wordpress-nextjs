@@ -4,6 +4,8 @@ if (! defined('ABSPATH')) {
     exit(1);
 }
 
+require_once __DIR__ . '/product-option-cleanup.php';
+
 $GLOBALS['tio2_product_contract_test_post_ids'] = [];
 $GLOBALS['tio2_product_contract_test_term_ids'] = [];
 $GLOBALS['tio2_product_contract_test_option_values'] = [];
@@ -45,7 +47,7 @@ function tio2_product_contract_test_cleanup(): void
         if (false === $value) {
             foreach (tio2_product_shared_field_definitions() as $field) {
                 if (is_array($field) && $field_name === ($field['name'] ?? null)) {
-                    tio2_product_contract_test_delete_shared_option($field);
+                    tio2_product_test_delete_created_option_field($field);
                 }
             }
             continue;
@@ -158,26 +160,6 @@ function tio2_product_contract_test_set_shared_settings(): void
 function tio2_product_contract_test_error_code($validation): ?string
 {
     return is_wp_error($validation) ? $validation->get_error_code() : null;
-}
-
-function tio2_product_contract_test_delete_shared_option(array $field, string $parent_name = ''): void
-{
-    $field_name = (string) ($field['name'] ?? '');
-    $option_name = $parent_name;
-    if ('' !== $field_name) {
-        $option_name = '' === $parent_name ? $field_name : $parent_name . '_' . $field_name;
-        delete_option('options_' . $option_name);
-        delete_option('_options_' . $option_name);
-        if (function_exists('acf_flush_value_cache')) {
-            acf_flush_value_cache('options', $option_name);
-        }
-    }
-
-    foreach ($field['sub_fields'] ?? [] as $sub_field) {
-        if (is_array($sub_field)) {
-            tio2_product_contract_test_delete_shared_option($sub_field, $option_name ?? $parent_name);
-        }
-    }
 }
 
 register_shutdown_function('tio2_product_contract_test_cleanup');
@@ -330,7 +312,7 @@ tio2_product_contract_test_fill_valid_product($product_id, 'TP-Z901', (int) $fam
 
 foreach (tio2_product_shared_field_definitions() as $field) {
     if ('technical_disclaimer' === ($field['name'] ?? null)) {
-        tio2_product_contract_test_delete_shared_option($field);
+        tio2_product_test_delete_created_option_field($field);
     }
 }
 $missing_shared_validation = tio2_validate_product_contract($product_id);
@@ -359,5 +341,20 @@ if ([] !== $GLOBALS['tio2_product_contract_test_errors']) {
     tio2_product_contract_test_fail(implode("\n", $GLOBALS['tio2_product_contract_test_errors']));
 }
 
+$inquiry_fields_were_absent = false === (
+    $GLOBALS['tio2_product_contract_test_option_values']['inquiry_fields']['value'] ?? null
+);
 tio2_product_contract_test_cleanup();
+if ($inquiry_fields_were_absent) {
+    foreach ([
+        'options_inquiry_fields_0_key', '_options_inquiry_fields_0_key',
+        'options_inquiry_fields_0_label', '_options_inquiry_fields_0_label',
+        'options_inquiry_fields_0_guidance', '_options_inquiry_fields_0_guidance',
+    ] as $option_name) {
+        if (false === get_option($option_name, false)) {
+            continue;
+        }
+        tio2_product_contract_test_fail('Product contract cleanup left test-created inquiry field option rows behind.');
+    }
+}
 fwrite(STDOUT, "TiO2 Product contract test passed\n");

@@ -4,6 +4,8 @@ if (! defined('ABSPATH')) {
     exit(1);
 }
 
+require_once __DIR__ . '/product-option-cleanup.php';
+
 $GLOBALS['tio2_product_graphql_test_errors'] = [];
 $GLOBALS['tio2_product_graphql_test_post_ids'] = [];
 $GLOBALS['tio2_product_graphql_test_option_values'] = [];
@@ -12,25 +14,6 @@ function tio2_product_graphql_test_assert(bool $condition, string $message): voi
 {
     if (! $condition) {
         $GLOBALS['tio2_product_graphql_test_errors'][] = $message;
-    }
-}
-
-function tio2_product_graphql_test_delete_option_field(array $field, string $parent_name = ''): void
-{
-    $field_name = (string) ($field['name'] ?? '');
-    $option_name = '' === $parent_name ? $field_name : $parent_name . '_' . $field_name;
-    if ('' !== $option_name) {
-        delete_option('options_' . $option_name);
-        delete_option('_options_' . $option_name);
-        if (function_exists('acf_flush_value_cache')) {
-            acf_flush_value_cache('options', $option_name);
-        }
-    }
-
-    foreach ($field['sub_fields'] ?? [] as $sub_field) {
-        if (is_array($sub_field)) {
-            tio2_product_graphql_test_delete_option_field($sub_field, $option_name);
-        }
     }
 }
 
@@ -53,7 +36,7 @@ function tio2_product_graphql_test_cleanup(): void
         }
         $previous_value = $GLOBALS['tio2_product_graphql_test_option_values'][$field_name];
         if (false === $previous_value) {
-            tio2_product_graphql_test_delete_option_field($field);
+            tio2_product_test_delete_created_option_field($field);
             continue;
         }
         update_field((string) $field['key'], $previous_value, 'option');
@@ -216,5 +199,20 @@ if ([] !== $GLOBALS['tio2_product_graphql_test_errors']) {
     tio2_product_graphql_test_fail(implode("\n", $GLOBALS['tio2_product_graphql_test_errors']));
 }
 
+$inquiry_fields_were_absent = false === (
+    $GLOBALS['tio2_product_graphql_test_option_values']['inquiry_fields'] ?? null
+);
 tio2_product_graphql_test_cleanup();
+if ($inquiry_fields_were_absent) {
+    foreach ([
+        'options_inquiry_fields_0_key', '_options_inquiry_fields_0_key',
+        'options_inquiry_fields_0_label', '_options_inquiry_fields_0_label',
+        'options_inquiry_fields_0_guidance', '_options_inquiry_fields_0_guidance',
+    ] as $option_name) {
+        if (false === get_option($option_name, false)) {
+            continue;
+        }
+        tio2_product_graphql_test_fail('Product GraphQL cleanup left test-created inquiry field option rows behind.');
+    }
+}
 fwrite(STDOUT, "TiO2 Product GraphQL settings contract test passed\n");

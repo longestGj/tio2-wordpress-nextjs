@@ -4,6 +4,8 @@ if (! defined('ABSPATH')) {
     exit(1);
 }
 
+require_once __DIR__ . '/product-option-cleanup.php';
+
 $GLOBALS['tio2_product_preview_test_post_ids'] = [];
 $GLOBALS['tio2_product_preview_test_term_ids'] = [];
 $GLOBALS['tio2_product_preview_test_option_values'] = [];
@@ -20,25 +22,6 @@ function tio2_product_preview_test_assert(bool $condition, string $message): voi
 {
     if (! $condition) {
         $GLOBALS['tio2_product_preview_test_errors'][] = $message;
-    }
-}
-
-function tio2_product_preview_test_delete_option_field(array $field, string $parent_name = ''): void
-{
-    $field_name = (string) ($field['name'] ?? '');
-    $option_name = '' === $parent_name ? $field_name : $parent_name . '_' . $field_name;
-    if ('' !== $option_name) {
-        delete_option('options_' . $option_name);
-        delete_option('_options_' . $option_name);
-        if (function_exists('acf_flush_value_cache')) {
-            acf_flush_value_cache('options', $option_name);
-        }
-    }
-
-    foreach ($field['sub_fields'] ?? [] as $sub_field) {
-        if (is_array($sub_field)) {
-            tio2_product_preview_test_delete_option_field($sub_field, $option_name);
-        }
     }
 }
 
@@ -62,7 +45,7 @@ function tio2_product_preview_test_cleanup(): void
         if (false === $field_state['value']) {
             foreach (tio2_product_shared_field_definitions() as $field) {
                 if (is_array($field) && $field_name === ($field['name'] ?? null)) {
-                    tio2_product_preview_test_delete_option_field($field);
+                    tio2_product_test_delete_created_option_field($field);
                 }
             }
             continue;
@@ -249,6 +232,15 @@ foreach (['tio2_find_product_for_preview', 'tio2_serialize_product_preview'] as 
         "Missing protected Product preview helper: {$function_name}()."
     );
 }
+$product_preview_return_type = (new ReflectionFunction('tio2_serialize_product_preview'))->getReturnType();
+$product_preview_return_type_names = $product_preview_return_type instanceof ReflectionUnionType
+    ? array_map(static fn (ReflectionType $type): string => $type->getName(), $product_preview_return_type->getTypes())
+    : [];
+sort($product_preview_return_type_names, SORT_STRING);
+tio2_product_preview_test_assert(
+    ['WP_Error', 'array'] === $product_preview_return_type_names,
+    'The Product preview serializer does not declare its array|WP_Error return contract.'
+);
 if ([] !== $GLOBALS['tio2_product_preview_test_errors']) {
     tio2_product_preview_test_fail(implode("\n", $GLOBALS['tio2_product_preview_test_errors']));
 }
@@ -564,5 +556,20 @@ if ([] !== $GLOBALS['tio2_product_preview_test_errors']) {
     tio2_product_preview_test_fail(implode("\n", $GLOBALS['tio2_product_preview_test_errors']));
 }
 
+$inquiry_fields_were_absent = false === (
+    $GLOBALS['tio2_product_preview_test_option_values']['inquiry_fields']['value'] ?? null
+);
 tio2_product_preview_test_cleanup();
+if ($inquiry_fields_were_absent) {
+    foreach ([
+        'options_inquiry_fields_0_key', '_options_inquiry_fields_0_key',
+        'options_inquiry_fields_0_label', '_options_inquiry_fields_0_label',
+        'options_inquiry_fields_0_guidance', '_options_inquiry_fields_0_guidance',
+    ] as $option_name) {
+        if (false === get_option($option_name, false)) {
+            continue;
+        }
+        tio2_product_preview_test_fail('Product preview cleanup left test-created inquiry field option rows behind.');
+    }
+}
 fwrite(STDOUT, "TiO2 protected Product preview test passed\n");

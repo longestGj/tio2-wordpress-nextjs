@@ -329,7 +329,7 @@ function tio2_find_product_for_preview(string $site_id, string $path): ?WP_Post
 /**
  * @return array<string, mixed>|WP_Error
  */
-function tio2_serialize_product_preview(WP_Post $product)
+function tio2_serialize_product_preview(WP_Post $product): array|WP_Error
 {
     if ('draft' !== $product->post_status) {
         return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
