@@ -5,17 +5,12 @@ import {expect, test, type Browser, type Page} from '@playwright/test'
 
 const sites = [
   {
-    id: 'tio2-a',
-    baseUrl: 'http://localhost:3001',
-    heading: 'Titanium Dioxide Supply for Formulators and Distributors',
-    oppositeHeading: 'Independent TiO2 Discovery for Site B Buyers',
-    success: 'Nothing was transmitted or saved by this Site A local demo.',
-  },
-  {
     id: 'tio2-b',
     baseUrl: 'http://localhost:3002',
     heading: 'Independent TiO2 Discovery for Site B Buyers',
     oppositeHeading: 'Titanium Dioxide Supply for Formulators and Distributors',
+    editorialOppositeHeading:
+      'A Buyer-Led Guide to Clarifying Titanium Dioxide Requirements',
     success: 'No Site B information was transmitted or saved by this local demo.',
   },
 ] as const
@@ -230,6 +225,9 @@ for (const site of sites) {
       await expect(page.getByRole('heading', {level: 1})).toHaveCount(1)
       await expect(page.getByRole('heading', {level: 1})).toHaveText(site.heading)
       await expect(page.locator('body')).not.toContainText(site.oppositeHeading)
+      await expect(page.locator('body')).not.toContainText(
+        site.editorialOppositeHeading,
+      )
       await expect(page.locator('main section')).toHaveCount(sectionOrder.length)
       expect(
         await page.locator('main section').evaluateAll((sections) =>

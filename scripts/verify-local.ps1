@@ -1134,7 +1134,13 @@ try {
     Invoke-Gate -Name 'homepage-e2e' -Action {
         Invoke-NativeLogged `
             -FilePath $Npm `
-            -Arguments @('run', 'test:e2e', '--', 'tests/e2e/homepage.spec.ts') `
+            -Arguments @(
+                'run',
+                'test:e2e',
+                '--',
+                'tests/e2e/site-a-editorial-homepage.spec.ts',
+                'tests/e2e/homepage.spec.ts'
+            ) `
             -LogName 'homepage-e2e'
     }
 

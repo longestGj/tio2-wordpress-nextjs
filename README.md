@@ -23,11 +23,12 @@ From the repository root:
 powershell -ExecutionPolicy Bypass -File scripts/new-local-wordpress-env.ps1
 docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml up -d
 powershell -ExecutionPolicy Bypass -File scripts/bootstrap-wordpress.ps1
-powershell -ExecutionPolicy Bypass -File scripts/seed-local-wordpress.ps1 -ScalePages 500
+powershell -ExecutionPolicy Bypass -File scripts/seed-local-wordpress.ps1 -ScalePages 500 -PlanOnly
 npm install
 npx playwright install chromium
-npm run verify:local
 ```
+
+The `-PlanOnly` command validates the formal seed shape but deliberately does not populate WordPress. Run `npm run verify:local` only after a separately authorized process has established the eligible local Homepage owners described below.
 
 The environment generator writes the ignored `wordpress/.env` with a non-default editor name plus independent, cryptographically random admin, revalidation, and preview secrets. It refuses to overwrite an existing file unless `-Force` is explicitly supplied and never prints generated secrets. Bootstrap applies that generated password to the real local WordPress administrator and removes the legacy `admin` login. On a fresh install, the password reaches the one-shot WP-CLI process only through standard input, never through container/process arguments or logs. Verification checks both the file contract and the live WordPress login state without logging credentials.
 
@@ -41,7 +42,53 @@ powershell -ExecutionPolicy Bypass -File scripts/bootstrap-wordpress.ps1
 
 Managed Page/Post routes are unique across both post types for an exact `(site_scope, public_path)` pair. Draft, pending, private, future, published, trashed, and auto-draft owners reserve the route until their path changes or they are permanently deleted. Invalid ownership, duplicate ownership, or a WordPress-suffixed internal slug forces public-ish saves back to draft and leaves a persistent Admin error.
 
-The seed creates five representative pages plus 500 deterministic scale pages per site: exactly 505 published paths in each site scope. All `long-tail-*` pages are visibly labeled synthetic test content and must not be treated as verified commercial or technical claims. The optional TiO₂ custom-post-type fixtures exercise the schema; managed pages do not depend on shared entity content or a cross-site invalidation graph.
+The formal seed plan contains five representative pages plus 500 deterministic scale pages per site. All `long-tail-*` pages are visibly labeled synthetic test content and must not be treated as verified commercial or technical claims. The optional TiO₂ custom-post-type fixtures exercise the schema; managed pages do not depend on shared entity content or a cross-site invalidation graph.
+
+## Site A editorial Homepage experiment
+
+Site A selects the WordPress-owned `homepage-v0.2-editorial-geo` contract. Site B remains frozen on `homepage-v0.1`, including its existing local-only RFQ form and visible content. The Site A fixture renders one RFQ mail link in the Header and one in the Closing section; both target `mailto:contact@tio2products.com`. Site A has no form, and Homepage links to product or application pages remain disabled.
+
+The Site A repeater-backed WordPress modules are six decision questions, five application briefs, three supply routes, three evidence items, five evaluation steps, eight FAQs, and four glossary terms. Hero, Direct Answer, Closing, SEO, and Editorial Review fields are single modules. All committed fixture content is synthetic and local-only.
+
+The formal seed can be inspected without changing WordPress:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/seed-local-wordpress.ps1 -ScalePages 500 -PlanOnly
+```
+
+Do not remove `-PlanOnly` for this experiment. Applying that RootOnly plan is the formal 505-to-1 migration. For an already eligible local database with exactly one published Homepage root owner per site, the separate guarded Site A fixture updater is the bounded content-only workflow:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/apply-local-site-a-editorial-fixture.ps1 -PlanOnly
+powershell -ExecutionPolicy Bypass -File scripts/apply-local-site-a-editorial-fixture.ps1 -Apply
+```
+
+Run `-Apply` only when a local fixture update has been separately intended and `-PlanOnly` succeeds. The updater cannot create or publish the Homepage, change its identity, scope, path, or root ownership, or alter Site B. If the published-owner precondition is absent, stop; do not substitute the formal seed, migration, or `verify:root-only`.
+
+The focused local contract checks are:
+
+```powershell
+docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml run --rm --no-TTY --user 33:33 wpcli wp eval-file /workspace/wordpress/tests/homepage-v02.php
+docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml run --rm --no-TTY --user 33:33 wpcli wp eval-file /workspace/wordpress/tests/homepage.php
+docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml run --rm --no-TTY --user 33:33 wpcli wp eval-file /workspace/wordpress/tests/preview.php
+docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml run --rm --no-TTY --user 33:33 wpcli wp eval-file /workspace/wordpress/tests/webhook-routing.php
+npm run lint
+npm run typecheck
+npm test -- tests/unit/sites tests/unit/homepage tests/integration/homepage tests/integration/api/revalidate.test.ts tests/infrastructure/homepage-seed-contract.test.ts tests/infrastructure/homepage-graphql-schema-contract.test.ts
+```
+
+Before browser acceptance, inspect the local WordPress inventory read-only and require one published Homepage owner for each site, with Site A on v0.2 and Site B on v0.1. Once both current-site builds exist, use the repository controller and always stop its recorded processes:
+
+```powershell
+npm run sites:start
+try {
+  npx playwright test tests/e2e/site-a-editorial-homepage.spec.ts tests/e2e/homepage.spec.ts --project=chromium
+} finally {
+  npm run sites:stop
+}
+```
+
+The focused browser files cover Site A and Site B independently at 360, 768, and 1440 pixels. Vercel, deployment, DNS, indexing, production operations, remote writes, and the formal migration remain paused.
 
 ## One-command local verification
 
@@ -49,7 +96,7 @@ The seed creates five representative pages plus 500 deterministic scale pages pe
 npm run verify:local
 ```
 
-The gate is fail-fast and requires a completely clean Git worktree at both the start and end, including no untracked files. Commit or remove intentional local source changes before running it; ignored `.tmp` logs and build artifacts do not affect this check. It checks Compose configuration and service health, runs the dedicated WordPress homepage smoke before the remaining schema/authoring/webhook/preview contracts, audits exactly 505 public URLs per site, runs lint, typecheck, deterministic schema refresh and GraphQL code generation, homepage-focused plus complete 4-worker Vitest suites, the opt-in live seed suites, both current-site builds, 20 Chromium acceptance tests, deterministic homepage bundle budgets, two-site mobile Lighthouse audits, and independent HTTP audits. The browser suites cover 360/768/1440 screenshots, section order, site isolation, overflow, keyboard-visible focus, RFQ anchor and local-only form behavior, native FAQ interaction, axe serious/critical findings, unexpected network requests, unpublished Preview, 404s, and owning-site webhook delivery. The webhook queue preserves each site's exact old/new route pairing during an ownership move instead of forming a cross-product. The live seed stage restores and audits the exact 505-per-site baseline in `finally`, including when a live test fails. The last stdout line is the approved machine-readable homepage success summary. Detailed command logs are written under ignored `.tmp/local-verify`.
+The gate is fail-fast and requires a completely clean Git worktree at both the start and end, including no untracked files. Commit or remove intentional local source changes before running it; ignored `.tmp` logs and build artifacts do not affect this check. It checks Compose configuration and service health, runs the dedicated WordPress homepage smoke before the remaining schema/authoring/webhook/preview contracts, audits the configured public inventory, runs lint, typecheck, deterministic schema refresh and GraphQL code generation, homepage-focused plus complete 4-worker Vitest suites, the opt-in live seed suites, both current-site builds, Chromium acceptance tests, deterministic homepage bundle budgets, two-site mobile Lighthouse audits, and independent HTTP audits. The browser suites cover 360/768/1440 screenshots, section order, site isolation, overflow, keyboard-visible focus, Site A's two RFQ mail links and form-free behavior, Site B's frozen local-only form behavior, native FAQ interaction, axe serious/critical findings, unexpected network requests, unpublished Preview, 404s, and owning-site webhook delivery. The webhook queue preserves each site's exact old/new route pairing during an ownership move instead of forming a cross-product. The live seed stage restores and audits its exact baseline in `finally`, including when a live test fails. The last stdout line is the approved machine-readable homepage success summary. Detailed command logs are written under ignored `.tmp/local-verify`.
 
 Homepage visual evidence is written to ignored `.tmp/homepage-evidence/{siteId}/{width}.png`. Lighthouse JSON reports are written to ignored `.tmp/homepage-evidence/lighthouse`. The deterministic bundle audit compares root-route client JavaScript with the shared/catch-all baseline and enforces 25,600 gzip bytes for each site. Lighthouse uses local mobile emulation only, rejects non-loopback requests or navigation, requires Performance of at least 0.90, and requires Accessibility of exactly 1.00.
 
@@ -94,7 +141,7 @@ Do not add `-v`: the named local database and WordPress volumes are retained by 
 - **Missing `wordpress/.env`:** run `scripts/new-local-wordpress-env.ps1`; keep the generated file local and never commit it.
 - **The environment/admin credential gate rejects retained local state:** use the three-command migration sequence above. Do not hand-edit a predictable password into `.env`.
 - **A Compose service is unavailable:** run `docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml ps`; start it with the setup `up -d` command and rerun bootstrap if needed.
-- **Seed audit does not report exactly 505:** rerun `scripts/seed-local-wordpress.ps1 -ScalePages 500`, then `scripts/audit-seed.ps1 -ExpectedPerSite 505`.
+- **The seed or root inventory is ineligible:** run `scripts/seed-local-wordpress.ps1 -ScalePages 500 -PlanOnly` to validate the formal plan without writes. Do not apply it or run `verify:root-only` without separate formal-migration authorization.
 - **Chromium is missing:** run `npx playwright install chromium`.
 - **A homepage bundle or Lighthouse gate fails:** inspect `.tmp/local-verify/homepage-bundle.log`, `.tmp/local-verify/homepage-lighthouse-a11y.log`, and `.tmp/local-verify/homepage-lighthouse-performance.log`; JSON reports remain under `.tmp/homepage-evidence/lighthouse`.
 - **A build directory is missing or stale:** run `npm run verify:local`; it rebuilds `.next-tio2-a` and `.next-tio2-b` from live local WordPress.
