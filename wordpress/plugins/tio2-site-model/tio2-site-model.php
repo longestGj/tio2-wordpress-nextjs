@@ -18,6 +18,7 @@ require_once __DIR__ . '/includes/publication.php';
 require_once __DIR__ . '/includes/homepage-rfq-copy.php';
 require_once __DIR__ . '/includes/fields.php';
 require_once __DIR__ . '/includes/product-fields.php';
+require_once __DIR__ . '/includes/product-graphql.php';
 require_once __DIR__ . '/includes/product-contract.php';
 require_once __DIR__ . '/includes/product-publication.php';
 require_once __DIR__ . '/includes/homepage-v02.php';
