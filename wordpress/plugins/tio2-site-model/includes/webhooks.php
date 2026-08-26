@@ -359,8 +359,11 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
         return false;
     }
 
-    $homepage_key = ltrim($meta_key, '_');
-    if (in_array($homepage_key, tio2_homepage_v02_meta_keys(), true)) {
+    $homepage_key = str_starts_with($meta_key, '_') ? substr($meta_key, 1) : $meta_key;
+    if (
+        'homepage-v0.2-editorial-geo' === get_field('homepage_schema_version', $post->ID, false) &&
+        in_array($homepage_key, tio2_homepage_v02_meta_keys(), true)
+    ) {
         return true;
     }
 

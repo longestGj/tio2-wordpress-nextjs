@@ -7,6 +7,7 @@ if (! defined('ABSPATH')) {
 $GLOBALS['tio2_preview_smoke_post_ids'] = [];
 $GLOBALS['tio2_preview_smoke_restore_statuses'] = [];
 $GLOBALS['tio2_preview_smoke_restore_homepage_owners'] = [];
+$GLOBALS['tio2_preview_smoke_restore_post_times'] = [];
 
 function tio2_preview_smoke_fail(string $message): void
 {
@@ -33,6 +34,40 @@ function tio2_preview_smoke_set_status_exact(int $post_id, string $status): void
     }
 }
 
+function tio2_preview_smoke_restore_post_state(
+    int $post_id,
+    string $status,
+    string $post_modified,
+    string $post_modified_gmt,
+    ?string $slug = null
+): void {
+    global $wpdb;
+
+    $data = [
+        'post_status' => $status,
+        'post_modified' => $post_modified,
+        'post_modified_gmt' => $post_modified_gmt,
+    ];
+    $formats = ['%s', '%s', '%s'];
+    if (null !== $slug) {
+        $data['post_name'] = $slug;
+        $formats[] = '%s';
+    }
+    $updated = $wpdb->update($wpdb->posts, $data, ['ID' => $post_id], $formats, ['%d']);
+    clean_post_cache($post_id);
+    $post = get_post($post_id);
+    if (
+        false === $updated ||
+        ! $post instanceof WP_Post ||
+        $status !== $post->post_status ||
+        $post_modified !== $post->post_modified ||
+        $post_modified_gmt !== $post->post_modified_gmt ||
+        (null !== $slug && $slug !== $post->post_name)
+    ) {
+        tio2_preview_smoke_fail("Could not restore preview fixture state for post {$post_id}");
+    }
+}
+
 function tio2_preview_smoke_cleanup(): void
 {
     $GLOBALS['tio2_webhook_queue'] = [];
@@ -41,14 +76,25 @@ function tio2_preview_smoke_cleanup(): void
     }
     foreach ($GLOBALS['tio2_preview_smoke_restore_homepage_owners'] ?? [] as $post_id => $owner) {
         wp_set_object_terms((int) $post_id, $owner['siteIds'], 'site_scope', false);
-        wp_update_post([
-            'ID' => (int) $post_id,
-            'post_name' => $owner['slug'],
-            'post_status' => $owner['status'],
-        ]);
+        tio2_preview_smoke_restore_post_state(
+            (int) $post_id,
+            $owner['status'],
+            $owner['postModified'],
+            $owner['postModifiedGmt'],
+            $owner['slug']
+        );
     }
     foreach ($GLOBALS['tio2_preview_smoke_restore_statuses'] ?? [] as $post_id => $status) {
-        wp_update_post(['ID' => (int) $post_id, 'post_status' => (string) $status]);
+        $time = $GLOBALS['tio2_preview_smoke_restore_post_times'][$post_id] ?? null;
+        if (! is_array($time)) {
+            tio2_preview_smoke_fail("Missing preview timestamp snapshot for post {$post_id}");
+        }
+        tio2_preview_smoke_restore_post_state(
+            (int) $post_id,
+            (string) $status,
+            (string) $time['postModified'],
+            (string) $time['postModifiedGmt']
+        );
     }
 }
 
@@ -438,6 +484,8 @@ $GLOBALS['tio2_preview_smoke_restore_homepage_owners'][$existing_site_a_homepage
     'siteIds' => array_values($existing_site_a_terms),
     'slug' => (string) get_post_field('post_name', $existing_site_a_homepage_id),
     'status' => (string) get_post_status($existing_site_a_homepage_id),
+    'postModified' => (string) get_post_field('post_modified', $existing_site_a_homepage_id),
+    'postModifiedGmt' => (string) get_post_field('post_modified_gmt', $existing_site_a_homepage_id),
 ];
 wp_set_object_terms($existing_site_a_homepage_id, [], 'site_scope', false);
 wp_update_post([
@@ -506,6 +554,10 @@ if (1 !== count($site_b_homepage_ids)) {
 $site_b_homepage_id = (int) $site_b_homepage_ids[0];
 $site_b_homepage_status = (string) get_post_status($site_b_homepage_id);
 $GLOBALS['tio2_preview_smoke_restore_statuses'][$site_b_homepage_id] = $site_b_homepage_status;
+$GLOBALS['tio2_preview_smoke_restore_post_times'][$site_b_homepage_id] = [
+    'postModified' => (string) get_post_field('post_modified', $site_b_homepage_id),
+    'postModifiedGmt' => (string) get_post_field('post_modified_gmt', $site_b_homepage_id),
+];
 tio2_preview_smoke_set_status_exact($site_b_homepage_id, 'draft');
 $site_b_request = new WP_REST_Request('GET', '/tio2/v1/preview');
 $site_b_request->set_query_params(['siteId' => 'tio2-b', 'path' => '/']);
@@ -601,7 +653,24 @@ if (404 !== $trashed_response->get_status()) {
 }
 
 tio2_preview_smoke_cleanup();
+foreach ($GLOBALS['tio2_preview_smoke_restore_homepage_owners'] as $post_id => $owner) {
+    if (
+        $owner['postModified'] !== get_post_field('post_modified', (int) $post_id) ||
+        $owner['postModifiedGmt'] !== get_post_field('post_modified_gmt', (int) $post_id)
+    ) {
+        tio2_preview_smoke_fail('Preview cleanup changed an existing Site A Homepage modified timestamp');
+    }
+}
+foreach ($GLOBALS['tio2_preview_smoke_restore_post_times'] as $post_id => $time) {
+    if (
+        $time['postModified'] !== get_post_field('post_modified', (int) $post_id) ||
+        $time['postModifiedGmt'] !== get_post_field('post_modified_gmt', (int) $post_id)
+    ) {
+        tio2_preview_smoke_fail('Preview cleanup changed the frozen Site B Homepage modified timestamp');
+    }
+}
 $GLOBALS['tio2_preview_smoke_post_ids'] = [];
 $GLOBALS['tio2_preview_smoke_restore_statuses'] = [];
 $GLOBALS['tio2_preview_smoke_restore_homepage_owners'] = [];
+$GLOBALS['tio2_preview_smoke_restore_post_times'] = [];
 fwrite(STDOUT, "TiO2 signed draft preview smoke test passed\n");

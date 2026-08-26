@@ -380,6 +380,12 @@ if (1 !== count($homepage_ids)) {
 $homepage_id = (int) $homepage_ids[0];
 $homepage_status = (string) get_post_status($homepage_id);
 $GLOBALS['tio2_webhook_routing_restore_statuses'][$homepage_id] = $homepage_status;
+tio2_webhook_routing_snapshot_meta(
+    $homepage_id,
+    'homepage_schema_version',
+    get_post_meta($homepage_id, 'homepage_schema_version', true)
+);
+update_post_meta($homepage_id, 'homepage_schema_version', 'homepage-v0.2-editorial-geo');
 tio2_webhook_routing_set_status_exact($homepage_id, 'publish');
 foreach ([
     'direct_answer_body',
@@ -393,6 +399,40 @@ foreach ([
         tio2_webhook_routing_fail("v0.2 nested Homepage meta {$meta_key} was not relevant to revalidation");
     }
 }
+$site_b_homepage_ids = tio2_find_homepage_ids('tio2-b');
+if (1 !== count($site_b_homepage_ids)) {
+    tio2_webhook_routing_fail('Expected one frozen Site B homepage webhook source');
+}
+$site_b_homepage_id = (int) $site_b_homepage_ids[0];
+$site_b_homepage_status = (string) get_post_status($site_b_homepage_id);
+$GLOBALS['tio2_webhook_routing_restore_statuses'][$site_b_homepage_id] = $site_b_homepage_status;
+tio2_webhook_routing_set_status_exact($site_b_homepage_id, 'publish');
+foreach (['direct_answer_body', '_direct_answer_body', '__direct_answer_body'] as $meta_key) {
+    if (tio2_is_relevant_webhook_meta_key($meta_key, $site_b_homepage_id)) {
+        tio2_webhook_routing_fail("Frozen Site B v0.1 meta {$meta_key} was relevant to revalidation");
+    }
+}
+if (tio2_is_relevant_webhook_meta_key('__direct_answer_body', $homepage_id)) {
+    tio2_webhook_routing_fail('A double-underscore Site A meta key was accepted as an ACF reference');
+}
+tio2_webhook_routing_snapshot_meta(
+    $site_b_homepage_id,
+    'direct_answer_body',
+    get_post_meta($site_b_homepage_id, 'direct_answer_body', true)
+);
+$captured_requests = [];
+$GLOBALS['tio2_webhook_queue'] = [];
+update_post_meta($site_b_homepage_id, 'direct_answer_body', 'Frozen Site B webhook regression fixture.');
+tio2_flush_webhook_queue();
+if ([] !== $captured_requests) {
+    tio2_webhook_routing_fail('Frozen Site B v0.1 editorial meta queued a revalidation request');
+}
+update_post_meta(
+    $site_b_homepage_id,
+    'direct_answer_body',
+    $GLOBALS['tio2_webhook_routing_restore_meta'][$site_b_homepage_id]['direct_answer_body']['value']
+);
+$GLOBALS['tio2_webhook_queue'] = [];
 $homepage_old_state = tio2_get_webhook_affected_state($homepage_id, [
     'siteIds' => ['tio2-a'],
     'hasTerms' => true,
