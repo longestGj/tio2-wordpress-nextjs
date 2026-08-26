@@ -1,5 +1,6 @@
 import {createHash} from 'node:crypto'
 
+import sanitizeHtml from 'sanitize-html'
 import {z} from 'zod'
 
 export const SITE_A_PRODUCT_IDS = [
@@ -79,6 +80,14 @@ const requiredText = (maximum = 2_000) =>
 const optionalText = (maximum = 2_000) =>
   z.string().trim().max(maximum)
 const requiredRichText = z.string().trim().min(1).max(20_000)
+  .superRefine((value, context) => {
+    addStringSafetyIssues(value, context)
+  })
+  .transform(sanitizeManifestRichText)
+  .refine(
+    (value) => richTextVisibleText(value).length > 0,
+    'Rich text must contain visible public content after sanitization',
+  )
 const stableTargetKey = z.string().trim().min(1).max(180)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u)
 const canonicalProductId = z.enum(SITE_A_PRODUCT_IDS)
@@ -117,42 +126,47 @@ const FORBIDDEN_KEYS = new Set([
   'tdsurl',
 ])
 
-const FORBIDDEN_VALUE_PATTERNS: ReadonlyArray<{
-  pattern: RegExp
-  message: string
-}> = [
-  {
-    pattern: /(?:\bfile:\/\/|(?:^|[^a-z0-9])[a-z]:[\\/]|\\\\[a-z0-9._$-]+\\[a-z0-9._$-]+)/iu,
-    message: 'Local file locations are forbidden',
-  },
-  {
-    pattern: /(?:\/documents\/tds(?:\/|(?=$|[\s"'<>),.;:!?#]))|\/tds(?:\/|(?=$|[\s"'<>),.;:!?#]))|\.pdf\b)/iu,
-    message: 'Private TDS and PDF locations are forbidden',
-  },
-  {
-    pattern: /\bguarante(?:e|ed|es|eing)\b|\bwarrant(?:y|ed|ies)\b/iu,
-    message: 'Guarantee and warranty claims are forbidden',
-  },
-  {
-    pattern: /\bequivalent\s+to\b|\bdrop[- ]in\s+replacement\b|\bdirect\s+replacement\b/iu,
-    message: 'Equivalence and direct-replacement claims are forbidden',
-  },
-  {
-    pattern: /\b(?:price|pricing)\b|\b(?:usd|eur|gbp|cny|rmb)\s*\d|[$€£¥]\s*\d/iu,
-    message: 'Price claims are forbidden',
-  },
-  {
-    pattern: /\b(?:in|out\s+of)\s+stock\b|\bstock\s+(?:level|status|availability)\b|\binventory\b/iu,
-    message: 'Stock and inventory claims are forbidden',
-  },
-  {
-    pattern: /\b(?:immediate|current|guaranteed)\s+availability\b|\bavailability\s+(?:is|for|of)\b/iu,
-    message: 'Commercial availability claims are forbidden',
-  },
-]
-
 const DOCUMENT_LOCATION_ENTITY_PATTERN =
-  /&(?:#(\d+)|#x([\da-f]+)|(sol|bsol|period|colon));/giu
+  /&(?:#(\d+)|#x([\da-f]+)|(sol|bsol|period|colon|nbsp));/giu
+
+const NON_TEXT_TAGS = ['script', 'style', 'textarea', 'option', 'iframe']
+const INTERNAL_PATH_PATTERN =
+  /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*)(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*\/?$/u
+
+function sanitizeManifestRichText(source: string): string {
+  return sanitizeHtml(source, {
+    allowedTags: ['p', 'ul', 'ol', 'li', 'strong', 'em', 'b', 'i', 'a', 'br'],
+    allowedAttributes: {a: ['href', 'title']},
+    allowedSchemes: [],
+    allowProtocolRelative: false,
+    nonTextTags: NON_TEXT_TAGS,
+    transformTags: {
+      a: (_tagName, attributes) => {
+        const candidate = attributes.href?.trim()
+        const href = candidate && INTERNAL_PATH_PATTERN.test(candidate)
+          ? candidate.replace(/\/$/u, '') || '/'
+          : undefined
+        return {
+          tagName: 'a',
+          attribs: {
+            ...(href ? {href} : {}),
+            ...(href && attributes.title?.trim()
+              ? {title: attributes.title.trim()}
+              : {}),
+          },
+        }
+      },
+    },
+  }).trim()
+}
+
+function richTextVisibleText(source: string): string {
+  return sanitizeHtml(source, {
+    allowedTags: [],
+    allowedAttributes: {},
+    nonTextTags: NON_TEXT_TAGS,
+  }).replaceAll('\u00a0', ' ').replaceAll(/\s+/gu, ' ').trim()
+}
 
 function decodeSafetyEntities(value: string): string {
   return value.replace(
@@ -167,6 +181,7 @@ function decodeSafetyEntities(value: string): string {
         return {
           bsol: '\\',
           colon: ':',
+          nbsp: ' ',
           period: '.',
           sol: '/',
         }[named.toLowerCase()] ?? entity
@@ -187,18 +202,209 @@ function normalizeKey(key: string): string {
   return key.toLowerCase().replaceAll(/[^a-z0-9]/gu, '')
 }
 
+function normalizeClaimText(value: string): string {
+  return value.toLowerCase()
+    .replaceAll(/[’']/gu, "'")
+    .replaceAll(/\bdoesn't\b/gu, 'does not')
+    .replaceAll(/\bisn't\b/gu, 'is not')
+    .replaceAll(/\baren't\b/gu, 'are not')
+    .replaceAll(/\bcan't\b/gu, 'cannot')
+    .replaceAll(/\bwon't\b/gu, 'will not')
+    .replaceAll(/[\p{P}\p{S}]+/gu, (punctuation) => {
+      if (punctuation.includes('?')) return ' ? '
+      return /[.;!]/u.test(punctuation) ? ' | ' : ' '
+    })
+    .replaceAll(/\s+/gu, ' ')
+    .trim()
+}
+
+function isQuestion(value: string): boolean {
+  return /\b(?:who|what|when|where|why|how|does|do|is|are|can|could|should|would|will)\b[^?]*\?/u
+    .test(value.trim())
+}
+
+function hasNegationBefore(value: string, index: number): boolean {
+  const prefix = value.slice(Math.max(0, index - 100), index)
+  return /\b(?:no|not|never|without|cannot|does not|do not|is not|are not|was not|were not|will not|must not|should not)\b(?:\s+\w+){0,7}\s*$/u
+    .test(prefix)
+}
+
+function hasNonAssertiveMarkerBefore(value: string, index: number): boolean {
+  const prefix = value.slice(Math.max(0, index - 100), index)
+  return /\b(?:whether|if)\b(?:\s+\w+){0,8}\s*$/u.test(prefix)
+}
+
+function hasPositiveMatch(value: string, pattern: RegExp): boolean {
+  if (isQuestion(value)) return false
+  const matches = value.matchAll(new RegExp(
+    pattern.source,
+    [...new Set(`${pattern.flags.replaceAll('g', '')}g`)].join(''),
+  ))
+  return [...matches].some((match) =>
+    !hasNegationBefore(value, match.index ?? 0) &&
+    !hasNonAssertiveMarkerBefore(value, match.index ?? 0))
+}
+
+function containsPositiveTdsAccessClaim(value: string): boolean {
+  if (isQuestion(value) ||
+      !/\b(?:tds|technical data sheet)\b/u.test(value)) return false
+
+  const riskyTerms = value.matchAll(
+    /\b(?:download(?:able|ed|ing|s)?|direct(?:ly)?|public|online)\b/gu,
+  )
+  return [...riskyTerms].some((match) => {
+    const term = match[0]
+    const index = match.index ?? 0
+    if (hasNegationBefore(value, index)) return false
+
+    if (term.startsWith('download')) return true
+    const nearby = value.slice(Math.max(0, index - 80), index + 80)
+    if (term.startsWith('direct')) {
+      return /\bdirect(?:ly)?\s+(?:tds|download|access)\b|\b(?:tds|technical data sheet)\b(?:\s+\w+){0,5}\s+direct(?:ly)?\s+(?:access|download)\b/u
+        .test(nearby)
+    }
+    return /\b(?:tds|technical data sheet)\b(?:\s+\w+){0,7}\s+(?:is\s+|available\s+)?(?:public|online)\b|\b(?:public|online)\s+(?:tds|technical data sheet|access)\b/u
+      .test(nearby)
+  })
+}
+
+function isCanonicalRecordPath(value: string, path: PropertyKey[]): boolean {
+  return path.at(-1) === 'path' &&
+    /^\/products\/tp-[a-z]{1,2}\d{3}$/u.test(value.trim())
+}
+
+function addStringSafetyIssues(
+  value: string,
+  context: z.RefinementCtx,
+  path: PropertyKey[] = [],
+): void {
+  const decoded = decodeSafetyEntities(value)
+  const visible = richTextVisibleText(decoded)
+  const claims = normalizeClaimText(visible)
+
+  const containsPublicUrl = (candidate: string) =>
+    /\bhttps?\s*:\s*[\\/]{2}|(?:^|[^a-z0-9])www(?:\s*\.\s*|\.)[a-z0-9]/iu
+      .test(candidate)
+  if (containsPublicUrl(decoded) || containsPublicUrl(visible)) {
+    context.addIssue({
+      code: 'custom',
+      message: 'Hand-entered public URLs are forbidden',
+      path,
+    })
+  }
+
+  const containsPrivateLocation = (candidate: string) =>
+    /\bfile\s*:\s*[\\/]{2}|\b(?:smb|nfs|afp)\s*:\s*[\\/]{2}|(?:^|[^a-z0-9])[a-z]:[\\/]|\\\\[a-z0-9._$-]+[\\/][a-z0-9._$-]+|(?:^|[\s("'=])\/\/[a-z0-9._$-]+\/[a-z0-9._$-]+|(?:^|[\s("'=])~[\\/]|(?:^|[\s("'=])\/(?:home|users|private|var|tmp|mnt|srv|opt|etc|root)(?:\/|\b)|(?:^|[\s("'=])\/(?:[a-z0-9._-]+\/)+[a-z0-9._-]+\.(?:docx?|xlsx?|xls|csv|json|ya?ml|txt)\b/iu
+      .test(candidate)
+  if (!isCanonicalRecordPath(decoded, path) &&
+      (containsPrivateLocation(decoded) || containsPrivateLocation(visible))) {
+    context.addIssue({
+      code: 'custom',
+      message: 'Private document or file locations are forbidden',
+      path,
+    })
+  }
+
+  const containsPrivateDocument = (candidate: string) =>
+    /(?:\/documents\/tds(?:\/|(?=$|[\s"'<>),.;:!?#]))|\/tds(?:\/|(?=$|[\s"'<>),.;:!?#]))|\.pdf\b)/iu
+      .test(candidate)
+  if (containsPrivateDocument(decoded) || containsPrivateDocument(visible)) {
+    context.addIssue({
+      code: 'custom',
+      message: 'Private TDS and PDF locations are forbidden',
+      path,
+    })
+  }
+
+  if (hasPositiveMatch(claims,
+    /\b(?:manufactured|made|produced|operated)\s+by\b|\b(?:manufactures|produces|operates|owns)\s+(?:this|the)\s+(?:grade|product|product line|brand)\b|\b(?:manufacturer|legal entity|operator identity|brand owner)\s+(?:is|was|equals|named)\b|\bis\s+the\s+(?:manufacturer|legal entity|operator|brand owner)\b/u,
+  ) || (!isQuestion(visible) &&
+    /\b(?:manufacturer|legal entity|operator identity|brand owner)\s*:/iu
+      .test(visible))) {
+    context.addIssue({
+      code: 'custom',
+      message: 'Manufacturer, legal, operator, and brand-owner assertions are forbidden',
+      path,
+    })
+  }
+
+  if (hasPositiveMatch(claims,
+    /\b(?:reviewed|approved)\s+by\b|\b(?:reviewer|review date|evidence status|approval status)\s+(?:is|was)\b|\b(?:internal\s+)?source (?:note|notes|file|model|page|path|url)\s+(?:\d+|is|was|says|states|supports|records|shows|from)\b|\bapproval history\s+(?:is|was|records|shows|includes)\b|\bprivate evidence\s+(?:is|was|from|shows|supports|includes|records)\b/u,
+  ) || (!isQuestion(visible) &&
+    /\b(?:source (?:note|notes|file|model|page|path|url)|reviewer|review date|evidence status|approval (?:status|history)|private evidence|private review)\s*:/iu
+      .test(visible))) {
+    context.addIssue({
+      code: 'custom',
+      message: 'Internal source, review, approval, and private-evidence disclosures are forbidden',
+      path,
+    })
+  }
+
+  if (hasPositiveMatch(claims,
+    /\b(?:this|the|grade|product|it|tiovar)\s+(?:will\s+)?guarantees?\b|\b(?:is|are|will be)\s+guaranteed\b|\bguaranteed\s+(?:performance|result|outcome|availability)\b|\b(?:provides?|offers?|includes?|carries)\s+(?:a\s+)?(?:guarantee|warranty)\b|\b(?:guarantee|warranty)\s+of\s+(?:performance|results?|outcomes?)\b/u,
+  )) {
+    context.addIssue({
+      code: 'custom',
+      message: 'Positive guarantee and warranty claims are forbidden',
+      path,
+    })
+  }
+
+  if (hasPositiveMatch(claims,
+    /\bequivalent\s+to\b|\b(?:direct|drop in)\s+replacement\b/u,
+  )) {
+    context.addIssue({
+      code: 'custom',
+      message: 'Positive equivalence and direct-replacement claims are forbidden',
+      path,
+    })
+  }
+
+  if (!isQuestion(visible) && (
+    /[$€£¥]\s*\d|\b(?:usd|eur|gbp|cny|rmb)\s*\d/iu.test(decoded) ||
+    hasPositiveMatch(claims,
+      /\bprice\s+(?:is|was|equals)\b|\bcosts?\s+(?:\d|usd|eur|gbp|cny|rmb)\b/u,
+    )
+  )) {
+    context.addIssue({code: 'custom', message: 'Positive price claims are forbidden', path})
+  }
+
+  if (hasPositiveMatch(claims,
+    /\b(?:is|are|remains?)\s+(?:in|out of)\s+stock\b|\bstock status\s+(?:is\s+)?(?:in|out of)\s+stock\b|\b(?:stock|inventory)\s+(?:is|was|remains?)\s+(?:available|unavailable|low|high)\b/u,
+  )) {
+    context.addIssue({
+      code: 'custom',
+      message: 'Current stock and inventory claims are forbidden',
+      path,
+    })
+  }
+
+  if (hasPositiveMatch(claims,
+    /\b(?:is|are|remains?|becomes?)\s+(?:currently\s+)?available\s+(?:now|today|immediately)\b|\b(?:immediate|current)\s+availability\b|\bavailability\s+(?:is\s+)?(?:immediate|current|now|today)\b/u,
+  )) {
+    context.addIssue({
+      code: 'custom',
+      message: 'Availability-now claims are forbidden',
+      path,
+    })
+  }
+
+  if (containsPositiveTdsAccessClaim(claims)) {
+    context.addIssue({
+      code: 'custom',
+      message: 'Direct or downloadable TDS access claims are forbidden',
+      path,
+    })
+  }
+}
+
 function addRecursiveSafetyIssues(
   value: unknown,
   context: z.RefinementCtx,
   path: PropertyKey[] = [],
 ): void {
   if (typeof value === 'string') {
-    const decoded = decodeSafetyEntities(value)
-    for (const {pattern, message} of FORBIDDEN_VALUE_PATTERNS) {
-      if (pattern.test(decoded)) {
-        context.addIssue({code: 'custom', message, path})
-      }
-    }
+    addStringSafetyIssues(value, context, path)
     return
   }
 
@@ -223,15 +429,9 @@ function addRecursiveSafetyIssues(
 }
 
 function visibleWordCount(source: string): number {
-  const withoutNonVisibleContent = source
-    .replaceAll(/<(script|style|textarea|option|iframe)\b[^>]*>[\s\S]*?<\/\1\s*>/giu, ' ')
-    .replaceAll(/<[^>]*>/gu, ' ')
-    .replaceAll(/&(?:nbsp|ensp|emsp);/giu, ' ')
-    .replaceAll(/&#(?:x[a-f\d]+|\d+);/giu, 'x')
-    .replaceAll(/&[a-z]+;/giu, 'x')
-    .trim()
-  return withoutNonVisibleContent
-    ? withoutNonVisibleContent.split(/\s+/u).length
+  const visible = richTextVisibleText(source)
+  return visible
+    ? visible.split(/\s+/u).length
     : 0
 }
 
@@ -278,7 +478,9 @@ const productContentRecordSchema: z.ZodType<ProductContentRecord> = z.object({
   tdsAccess: requiredText().refine((value) =>
     /\b(?:tds|technical\s+data\s+sheet)\b/iu.test(value) &&
       /\brequest(?:ed|ing|s)?\b/iu.test(value) &&
-      !/\b(?:download(?:ed|ing|s)?|public|online)\b/iu.test(value),
+      !containsPositiveTdsAccessClaim(normalizeClaimText(
+        richTextVisibleText(decodeSafetyEntities(value)),
+      )),
   'TDS access must use request-only wording'),
   fitWhen: z.array(requiredText()).min(3).max(5),
   discussFirstWhen: z.array(requiredText()).min(1).max(5),
@@ -394,7 +596,6 @@ export const productContentManifestSchema: z.ZodType<ProductContentManifest> =
         message: 'A complete Product manifest must contain exactly 25 records',
         path: ['products'],
       })
-      return
     }
 
     const actual = new Set(manifest.products.map(({productId}) => productId))

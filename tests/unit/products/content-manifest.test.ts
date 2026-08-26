@@ -1,7 +1,7 @@
-import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises'
+import {mkdtemp, readFile, readdir, rm, writeFile} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
-import {spawnSync} from 'node:child_process'
+import {spawn, spawnSync} from 'node:child_process'
 
 import {afterEach, describe, expect, it} from 'vitest'
 
@@ -135,6 +135,44 @@ function clone<T>(value: T): T {
   return structuredClone(value)
 }
 
+function reverseObjectKeyOrder<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map(reverseObjectKeyOrder) as T
+  }
+  if (!value || typeof value !== 'object') return value
+  return Object.fromEntries(
+    Object.entries(value).reverse().map(([key, item]) => [
+      key,
+      reverseObjectKeyOrder(item),
+    ]),
+  ) as T
+}
+
+function applicationTargets(count: number) {
+  return Array.from({length: count}, (_, index) => ({
+    targetType: 'application' as const,
+    targetKey: `application-${index + 1}`,
+  }))
+}
+
+function resourceTargets(count: number) {
+  return Array.from({length: count}, (_, index) => ({
+    targetType: 'resource' as const,
+    targetKey: `resource-${index + 1}`,
+  }))
+}
+
+async function strictIssues(input: unknown): Promise<readonly {
+  path: PropertyKey[]
+  message: string
+}[]> {
+  const {productContentManifestSchema} = await manifestApi()
+  const result = productContentManifestSchema.safeParse(input)
+  expect(result.success).toBe(false)
+  if (result.success) return []
+  return result.error.issues
+}
+
 async function expectStrictRejection(input: unknown): Promise<void> {
   const {productContentManifestSchema} = await manifestApi()
   expect(productContentManifestSchema.safeParse(input).success).toBe(false)
@@ -153,12 +191,43 @@ async function temporaryManifest(input: unknown): Promise<{
   return {directory, path, bytes}
 }
 
-function runCli(args: string[]) {
+function runCli(args: string[], nodeArgs: string[] = []) {
   return spawnSync(
     process.execPath,
-    ['scripts/products/validate-product-manifest.mjs', ...args],
+    [...nodeArgs, 'scripts/products/validate-product-manifest.mjs', ...args],
     {cwd: process.cwd(), encoding: 'utf8'},
   )
+}
+
+function runCliAsync(args: string[]): Promise<{
+  status: number | null
+  stdout: string
+  stderr: string
+}> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(
+      process.execPath,
+      ['scripts/products/validate-product-manifest.mjs', ...args],
+      {cwd: process.cwd(), stdio: ['ignore', 'pipe', 'pipe']},
+    )
+    let stdout = ''
+    let stderr = ''
+    child.stdout.setEncoding('utf8')
+    child.stderr.setEncoding('utf8')
+    child.stdout.on('data', (chunk: string) => {
+      stdout += chunk
+    })
+    child.stderr.on('data', (chunk: string) => {
+      stderr += chunk
+    })
+    child.once('error', reject)
+    child.once('close', (status) => resolve({status, stdout, stderr}))
+  })
+}
+
+async function loaderResidues(): Promise<string[]> {
+  return (await readdir('lib/products'))
+    .filter((name) => /^\.content-manifest\..+\.mjs$/u.test(name))
 }
 
 describe('Site A Product content manifest', () => {
@@ -223,6 +292,23 @@ describe('Site A Product content manifest', () => {
     await expectStrictRejection(input)
   })
 
+  it('reports the exact-25 rule and every missing canonical ID together', async () => {
+    const input = completeManifest()
+    const missingIds = [
+      input.products[3].productId,
+      input.products[17].productId,
+    ]
+    input.products = input.products.filter(({productId}) =>
+      !missingIds.includes(productId))
+
+    const messages = (await strictIssues(input)).map(({message}) => message)
+    expect(messages).toContain(
+      'A complete Product manifest must contain exactly 25 records',
+    )
+    expect(messages).toContain(`Missing canonical Product ID: ${missingIds[0]}`)
+    expect(messages).toContain(`Missing canonical Product ID: ${missingIds[1]}`)
+  })
+
   it.each([
     ['uppercase slug', (record: ReturnType<typeof productRecord>) => {
       record.slug = record.productId
@@ -239,7 +325,16 @@ describe('Site A Product content manifest', () => {
     await expectStrictRejection(input)
   })
 
-  it.each([39, 71])('rejects a %i-visible-word Quick Answer', async (count) => {
+  it.each([40, 70])('accepts a %i-visible-word Quick Answer boundary', async (count) => {
+    const {validateProductContentManifest} = await manifestApi()
+    const input = completeManifest()
+    input.products[0].quickAnswer = visibleWords(count)
+
+    expect(validateProductContentManifest(input).products[0].quickAnswer)
+      .toBe(visibleWords(count))
+  })
+
+  it.each([39, 71])('rejects a %i-visible-word Quick Answer boundary', async (count) => {
     const input = completeManifest()
     input.products[0].quickAnswer = visibleWords(count)
     await expectStrictRejection(input)
@@ -253,7 +348,6 @@ describe('Site A Product content manifest', () => {
     ['performancePriorities', 2, (record: ReturnType<typeof productRecord>) => record.performancePriorities],
     ['performancePriorities', 7, (record: ReturnType<typeof productRecord>) => record.performancePriorities],
     ['recommendedApplications', 0, (record: ReturnType<typeof productRecord>) => record.recommendedApplications],
-    ['recommendedApplications', 13, (record: ReturnType<typeof productRecord>) => record.recommendedApplications],
     ['validationChecklist', 21, (record: ReturnType<typeof productRecord>) => record.validationChecklist],
   ] as const)('rejects %s with %i entries', async (_label, count, select) => {
     const input = completeManifest()
@@ -261,6 +355,18 @@ describe('Site A Product content manifest', () => {
     const seed = list[0] ?? 'item'
     list.splice(0, list.length, ...Array.from({length: count}, () => clone(seed)) as never[])
     await expectStrictRejection(input)
+  })
+
+  it('accepts 12 unique recommended applications and rejects 13', async () => {
+    const {validateProductContentManifest} = await manifestApi()
+    const accepted = completeManifest()
+    accepted.products[0].recommendedApplications = applicationTargets(12)
+    expect(validateProductContentManifest(accepted).products[0].recommendedApplications)
+      .toHaveLength(12)
+
+    const rejected = completeManifest()
+    rejected.products[0].recommendedApplications = applicationTargets(13)
+    await expectStrictRejection(rejected)
   })
 
   it.each([5, 11])('rejects %i FAQ items', async (count) => {
@@ -280,6 +386,126 @@ describe('Site A Product content manifest', () => {
 
     await expectStrictRejection(empty)
     await expectStrictRejection(duplicateOrder)
+  })
+
+  it('accepts 50 complete typical properties and rejects 51', async () => {
+    const {validateProductContentManifest} = await manifestApi()
+    const properties = Array.from({length: 51}, (_, index) => ({
+      property: `Property ${index + 1}`,
+      value: `${index + 1}`,
+      unit: '%',
+      displayOrder: index + 1,
+    }))
+    const accepted = completeManifest()
+    accepted.products[0].typicalProperties = properties.slice(0, 50)
+    expect(validateProductContentManifest(accepted).products[0].typicalProperties)
+      .toHaveLength(50)
+
+    const rejected = completeManifest()
+    rejected.products[0].typicalProperties = properties
+    await expectStrictRejection(rejected)
+  })
+
+  it.each([
+    ['property', (property: Record<string, unknown>) => delete property.property],
+    ['value', (property: Record<string, unknown>) => delete property.value],
+    ['unit', (property: Record<string, unknown>) => delete property.unit],
+    ['positive display order', (property: Record<string, unknown>) => {
+      property.displayOrder = 0
+    }],
+  ] as const)('requires typical-property %s', async (_label, mutate) => {
+    const input = completeManifest()
+    mutate(input.products[0].typicalProperties[0])
+    await expectStrictRejection(input)
+  })
+
+  it.each([
+    ['recommended applications', (record: ReturnType<typeof productRecord>) => {
+      record.recommendedApplications = applicationTargets(2)
+      record.recommendedApplications[1] = clone(record.recommendedApplications[0])
+    }],
+    ['related applications', (record: ReturnType<typeof productRecord>) => {
+      record.relatedLinks.applications = applicationTargets(2)
+      record.relatedLinks.applications[1] = clone(record.relatedLinks.applications[0])
+    }],
+    ['related resources', (record: ReturnType<typeof productRecord>) => {
+      record.relatedLinks.resources = resourceTargets(2)
+      record.relatedLinks.resources[1] = clone(record.relatedLinks.resources[0])
+    }],
+    ['related products', (record: ReturnType<typeof productRecord>) => {
+      record.relatedLinks.products = [
+        productTarget(EXPECTED_PRODUCT_IDS[1]),
+        productTarget(EXPECTED_PRODUCT_IDS[1]),
+      ]
+    }],
+  ] as const)('rejects duplicate keys within %s below its maximum', async (_label, mutate) => {
+    const input = completeManifest()
+    mutate(input.products[0])
+    await expectStrictRejection(input)
+  })
+
+  it.each([
+    ['related applications', (record: ReturnType<typeof productRecord>, count: number) => {
+      record.relatedLinks.applications = applicationTargets(count)
+    }],
+    ['related resources', (record: ReturnType<typeof productRecord>, count: number) => {
+      record.relatedLinks.resources = resourceTargets(count)
+    }],
+    ['related products', (record: ReturnType<typeof productRecord>, count: number) => {
+      record.relatedLinks.products = EXPECTED_PRODUCT_IDS
+        .filter((productId) => productId !== record.productId)
+        .slice(0, count)
+        .map(productTarget)
+    }],
+  ] as const)('enforces the 12-item maximum for %s with unique keys', async (_label, assign) => {
+    const {validateProductContentManifest} = await manifestApi()
+    const accepted = completeManifest()
+    assign(accepted.products[0], 12)
+    expect(validateProductContentManifest(accepted).products).toHaveLength(25)
+
+    const rejected = completeManifest()
+    assign(rejected.products[0], 13)
+    await expectStrictRejection(rejected)
+  })
+
+  it.each([
+    ['quick Answer', (record: ReturnType<typeof productRecord>, value: string) => {
+      record.quickAnswer = value
+    }],
+    ['evidence statement', (record: ReturnType<typeof productRecord>, value: string) => {
+      record.evidenceStatement = value
+    }],
+    ['FAQ answer', (record: ReturnType<typeof productRecord>, value: string) => {
+      record.faqItems[0].answer = value
+    }],
+  ] as const)('rejects required %s that sanitizes to no visible content', async (_label, assign) => {
+    for (const value of [
+      '<p><br></p>',
+      '<script>hidden words only</script>',
+      '<style>.hidden { display: none }</style>',
+      '<img src="tracking.gif">',
+    ]) {
+      const input = completeManifest()
+      assign(input.products[0], value)
+      await expectStrictRejection(input)
+    }
+  })
+
+  it('sanitizes required rich text while retaining supported visible HTML', async () => {
+    const {validateProductContentManifest} = await manifestApi()
+    const input = completeManifest()
+    input.products[0].evidenceStatement = [
+      '<p onclick="unsafe()">Visible <strong>evidence</strong>.',
+      '<script>hidden</script><img src="tracking.gif"></p>',
+    ].join('')
+    input.products[0].faqItems[0].answer =
+      '<p>Use <em>representative</em> customer testing.</p>'
+
+    const validated = validateProductContentManifest(input)
+    expect(validated.products[0].evidenceStatement)
+      .toBe('<p>Visible <strong>evidence</strong>.</p>')
+    expect(validated.products[0].faqItems[0].answer)
+      .toBe('<p>Use <em>representative</em> customer testing.</p>')
   })
 
   it.each([
@@ -304,11 +530,37 @@ describe('Site A Product content manifest', () => {
     await expectStrictRejection(input)
   })
 
-  it('allows a safe resource target that discusses requesting a TDS', async () => {
+  it('allows stable relationship keys and safe public boundary wording', async () => {
     const {validateProductContentManifest} = await manifestApi()
     const input = completeManifest()
     input.products[0].relatedLinks.resources[0].targetKey = 'how-to-request-a-tds'
-    input.products[0].evidenceStatement = '<p>Read the resource explaining how to request a TDS for evaluation.</p>'
+    input.products[0].relatedLinks.applications[0].targetKey = 'brand-owner-guidance'
+    input.products[0].evidenceStatement = [
+      '<p>This grade does not guarantee performance and is not equivalent ',
+      'to another grade. A guarantee claim requires evidence. Evaluate ',
+      'whether this grade is equivalent to another grade; do not assume ',
+      'direct replacement.</p>',
+    ].join('')
+    input.products[0].tdsAccess =
+      'The TDS is not available for public download; request the current sheet.'
+    input.products[0].faqItems[0].answer = [
+      '<p>Who manufactures this grade? Does it guarantee performance? ',
+      'Is it equivalent to another grade? Can the TDS be downloaded?</p>',
+    ].join('')
+    input.products[0].faqItems[1].answer =
+      '<p>How can pricing, stock, and availability be confirmed?</p>'
+    input.products[0].faqItems[2].answer = [
+      '<p>Do not publish source notes, reviewer names, approval records, ',
+      'or private evidence in public copy.</p>',
+    ].join('')
+    input.products[0].faqItems[3].answer = [
+      '<p>This page does not identify a manufacturer, legal entity, ',
+      'operator, or brand owner.</p>',
+    ].join('')
+    input.products[0].faqItems[4].answer = [
+      '<p>No source note, reviewer, approval status, or private evidence ',
+      'is published here. Current price, stock, and availability are not stated.</p>',
+    ].join('')
 
     expect(validateProductContentManifest(input).products).toHaveLength(25)
   })
@@ -317,25 +569,65 @@ describe('Site A Product content manifest', () => {
     'A current TDS can be downloaded.',
     'The technical data sheet is public.',
     'The TDS is available online.',
+    'Use direct TDS access after requesting the sheet.',
   ])('rejects non-request-only TDS wording: %s', async (tdsAccess) => {
     const input = completeManifest()
     input.products[0].tdsAccess = tdsAccess
-    await expectStrictRejection(input)
+    const issues = await strictIssues(input)
+    expect(issues.length).toBeGreaterThan(0)
+    expect(issues.every(({path}) => path.join('.') === 'products.0.tdsAccess'))
+      .toBe(true)
   })
 
   it.each([
-    ['HTTP PDF', 'Read https://files.example.test/TP-P100.pdf?download=1'],
+    ['HTTP URL', 'Read https://example.test/products/tp-p100'],
+    ['entity-encoded HTTP URL', 'Read HTTP&#58;&#47;&#47;example.test/details'],
+    ['HTML-split HTTP URL', 'Read ht<strong>tps</strong>://example.test/details'],
+    ['URL in an HTML attribute', '<a href="https://example.test/details">Read more</a>'],
+    ['www URL', 'Read www.example.test/details'],
     ['PDF filename', 'See TP-P100.pdf for details'],
     ['documents TDS path', 'Read /documents/tds/tp-p100'],
     ['private TDS path', 'Read /tds/tp-p100'],
     ['file URL', 'Read file:///D:/sources/TP-P100'],
     ['Windows path', 'Read D:\\11SEO\\sources\\TP-P100'],
     ['UNC path', 'Read \\\\server\\share\\TP-P100'],
+    ['network path', 'Read //server/share/TP-P100.txt'],
+    ['network URL', 'Read smb://server/share/TP-P100.txt'],
+    ['POSIX home path', 'Read /home/editor/sources/TP-P100.txt'],
+    ['entity-encoded POSIX path', 'Read &#47;home&#47;editor&#47;TP-P100.txt'],
+    ['macOS home path', 'Read /Users/editor/sources/TP-P100.txt'],
+    ['tilde home path', 'Read ~/sources/TP-P100.txt'],
+    ['generic POSIX file path', 'Read /workspace/team/sources/TP-P100.txt'],
     ['guarantee', 'This grade guarantees the final result.'],
-    ['equivalence', 'This grade is equivalent to the incumbent grade.'],
+    ['HTML-split guarantee', 'This grade guaran<strong>tees</strong> the final result.'],
+    ['equivalence', 'This grade is equivalent&nbsp;to the incumbent grade.'],
+    ['equivalence fragment', 'Equivalent to the incumbent grade.'],
+    ['punctuated equivalence', 'This grade is equivalent---to the incumbent grade.'],
+    ['direct replacement', 'This grade is a direct replacement for another grade.'],
+    ['manufacturer identity', 'This grade is manufactured by Example Industrial Co.'],
+    ['active manufacturer identity', 'Example Industrial Co. manufactures this grade.'],
+    ['HTML-split manufacturer identity', 'This grade is manu<strong>factured</strong> by Example Co.'],
+    ['legal identity', 'The legal entity is Example Global Ltd.'],
+    ['operator identity', 'This product line is operated by Example Chemicals.'],
+    ['active operator identity', 'Example Chemicals operates this product line.'],
+    ['brand-owner identity', 'The brand owner is Example Holdings.'],
+    ['source note disclosure', 'Source note: derived from internal page 4.'],
+    ['source-page disclosure', 'Internal source page 4 supports this statement.'],
+    ['review disclosure', 'Reviewed by Alice on 2026-08-01.'],
+    ['reviewer disclosure', 'Reviewer is Alice.'],
+    ['approval disclosure', 'Approval status: approved by legal.'],
+    ['approval-history disclosure', 'Approval history records legal signoff.'],
+    ['private-evidence disclosure', 'Private evidence: internal trial report 7.'],
+    ['private-evidence assertion', 'Private evidence from trial report 7 supports this claim.'],
     ['price', 'The price is USD 2 per kilogram.'],
+    ['currency price', 'This grade costs $2 per kilogram.'],
     ['stock', 'This product is in stock for immediate shipment.'],
-    ['availability', 'This product has immediate availability.'],
+    ['stock status', 'Stock status: in stock.'],
+    ['inventory', 'Inventory is available today.'],
+    ['availability', 'This product is available now.'],
+    ['availability status', 'Availability: immediate.'],
+    ['TDS download outside tdsAccess', 'Download the TDS directly after review.'],
+    ['downloadable TDS outside tdsAccess', 'A downloadable technical data sheet is provided.'],
   ])('recursively rejects a forbidden value: %s', async (_label, value) => {
     const input = completeManifest()
     input.products[0].faqItems[0].answer = `<p>${value}</p>`
@@ -387,7 +679,7 @@ describe('Site A Product content manifest', () => {
     expect(() => validateProductContentBatch(unsafe)).toThrow()
   })
 
-  it('produces a deterministic SHA-256 summary without reordering its input', async () => {
+  it('produces a deterministic SHA-256 summary across product ordering without mutation', async () => {
     const {summarizeProductContentManifest, validateProductContentManifest} = await manifestApi()
     const forward = validateProductContentManifest(completeManifest())
     const reverseInput = completeManifest()
@@ -406,6 +698,21 @@ describe('Site A Product content manifest', () => {
     const changed = clone(forward)
     changed.products[0].title = `${changed.products[0].title} changed`
     expect(summarizeProductContentManifest(changed).sha256).not.toBe(first.sha256)
+  })
+
+  it('produces the same SHA-256 after recursively changing only object-key order', async () => {
+    const {
+      summarizeProductContentManifest,
+      validateProductContentManifest,
+    } = await manifestApi()
+    const normal = completeManifest()
+    const reordered = reverseObjectKeyOrder(normal)
+
+    expect(summarizeProductContentManifest(
+      validateProductContentManifest(reordered),
+    ).sha256).toBe(summarizeProductContentManifest(
+      validateProductContentManifest(normal),
+    ).sha256)
   })
 })
 
@@ -431,8 +738,47 @@ describe('Product manifest validator CLI', () => {
 
     expect(result.status).not.toBe(0)
     expect(result.stdout).toBe('')
-    expect(result.stderr).toContain('products')
+    expect(result.stderr).toContain(
+      'A complete Product manifest must contain exactly 25 records',
+    )
+    expect(result.stderr).toContain('Missing canonical Product ID: TP-P300')
     expect(await readFile(fixture.path)).toEqual(fixture.bytes)
+  })
+
+  it('runs with native TypeScript stripping disabled', async () => {
+    const fixture = await temporaryManifest(completeManifest())
+    const result = runCli([fixture.path], ['--no-strip-types'])
+
+    expect(result.status).toBe(0)
+    expect(JSON.parse(result.stdout).count).toBe(25)
+    expect(result.stderr).toBe('')
+    expect(await readFile(fixture.path)).toEqual(fixture.bytes)
+    expect(await loaderResidues()).toEqual([])
+  })
+
+  it('uses concurrent-safe loader files and cleans them after success and failure', async () => {
+    const sourcePath = 'lib/products/content-manifest.ts'
+    const sourceBytes = await readFile(sourcePath)
+    const valid = await temporaryManifest(completeManifest())
+    const invalidInput = completeManifest()
+    invalidInput.products = invalidInput.products.slice(0, 1)
+    const invalid = await temporaryManifest(invalidInput)
+    expect(await loaderResidues()).toEqual([])
+
+    const results = await Promise.all([
+      runCliAsync([valid.path]),
+      runCliAsync([valid.path]),
+      runCliAsync(['--allow-incomplete', valid.path]),
+      runCliAsync([invalid.path]),
+    ])
+
+    expect(results.slice(0, 3).map(({status}) => status)).toEqual([0, 0, 0])
+    expect(results[3].status).not.toBe(0)
+    expect(results[3].stderr).toContain('Missing canonical Product ID')
+    expect(await readFile(valid.path)).toEqual(valid.bytes)
+    expect(await readFile(invalid.path)).toEqual(invalid.bytes)
+    expect(await readFile(sourcePath)).toEqual(sourceBytes)
+    expect(await loaderResidues()).toEqual([])
   })
 
   it('accepts a safe canonical subset only with --allow-incomplete', async () => {

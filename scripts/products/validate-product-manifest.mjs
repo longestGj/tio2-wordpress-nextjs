@@ -1,13 +1,50 @@
-import {readFile} from 'node:fs/promises'
+import {randomUUID} from 'node:crypto'
+import {readFile, rm, writeFile} from 'node:fs/promises'
 
-import {
-  summarizeProductContentBatch,
-  summarizeProductContentManifest,
-  validateProductContentBatch,
-  validateProductContentManifest,
-} from '../../lib/products/content-manifest.ts'
+import ts from 'typescript'
 
 const USAGE = 'Usage: node scripts/products/validate-product-manifest.mjs [--allow-incomplete] <manifest.json>'
+const MANIFEST_SOURCE_URL = new URL(
+  '../../lib/products/content-manifest.ts',
+  import.meta.url,
+)
+
+async function loadManifestApi() {
+  const source = await readFile(MANIFEST_SOURCE_URL, 'utf8')
+  const result = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.ES2022,
+      target: ts.ScriptTarget.ES2022,
+      verbatimModuleSyntax: true,
+    },
+    fileName: 'content-manifest.ts',
+    reportDiagnostics: true,
+  })
+  const errors = result.diagnostics?.filter(
+    ({category}) => category === ts.DiagnosticCategory.Error,
+  ) ?? []
+  if (errors.length > 0) {
+    throw new Error(ts.formatDiagnostics(errors, {
+      getCanonicalFileName: (fileName) => fileName,
+      getCurrentDirectory: () => process.cwd(),
+      getNewLine: () => '\n',
+    }))
+  }
+
+  const temporaryModuleUrl = new URL(
+    `.content-manifest.${process.pid}.${randomUUID()}.mjs`,
+    MANIFEST_SOURCE_URL,
+  )
+  await writeFile(temporaryModuleUrl, result.outputText, {
+    encoding: 'utf8',
+    flag: 'wx',
+  })
+  try {
+    return await import(temporaryModuleUrl.href)
+  } finally {
+    await rm(temporaryModuleUrl, {force: true})
+  }
+}
 
 function parseArguments(args) {
   const allowIncomplete = args.includes('--allow-incomplete')
@@ -53,6 +90,12 @@ async function main() {
       throw new Error(`Invalid JSON: ${formatError(error)}`)
     }
 
+    const {
+      summarizeProductContentBatch,
+      summarizeProductContentManifest,
+      validateProductContentBatch,
+      validateProductContentManifest,
+    } = await loadManifestApi()
     const validated = allowIncomplete
       ? validateProductContentBatch(input)
       : validateProductContentManifest(input)
