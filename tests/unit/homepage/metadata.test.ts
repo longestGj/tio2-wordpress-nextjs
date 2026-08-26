@@ -3,8 +3,12 @@ import {describe, expect, it} from 'vitest'
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
 import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
 import type {HomepageDto} from '@/lib/wordpress/homepage-types'
+import {toSiteAEditorialHomepageDto} from '@/lib/wordpress/homepage-v02-dto'
 import {getSiteConfig} from '@/sites'
-import {makeHomepageNode} from '@/tests/mocks/handlers'
+import {
+  makeHomepageNode,
+  makeSiteAEditorialHomepageNode,
+} from '@/tests/mocks/handlers'
 
 function homepageFixture(siteId: 'tio2-a' | 'tio2-b'): HomepageDto {
   const node = makeHomepageNode(siteId)
@@ -13,7 +17,28 @@ function homepageFixture(siteId: 'tio2-a' | 'tio2-b'): HomepageDto {
   })
 }
 
+function editorialHomepageFixture() {
+  const site = getSiteConfig('tio2-a')
+  return toSiteAEditorialHomepageDto(makeSiteAEditorialHomepageNode(), {
+    rfqHref: site.rfqHref,
+  })
+}
+
 describe('buildHomepageMetadata', () => {
+  it('keeps Site A v0.2 canonical and locally noindex without metadata keywords', async () => {
+    const {buildHomepageMetadata} = await import(
+      '@/lib/seo/homepage-metadata'
+    )
+    const metadata = buildHomepageMetadata(
+      getSiteConfig('tio2-a'),
+      editorialHomepageFixture(),
+    )
+
+    expect(metadata.alternates?.canonical).toBe('https://tio2products.com/')
+    expect(metadata.robots).toEqual({index: false, follow: false})
+    expect(JSON.stringify(metadata)).not.toContain('keywords')
+  })
+
   it.each([
     ['tio2-a', 'https://tio2products.com/'],
     ['tio2-b', 'https://tio2hub.com/'],

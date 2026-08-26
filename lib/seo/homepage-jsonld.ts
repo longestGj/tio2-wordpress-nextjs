@@ -74,7 +74,10 @@ export function buildHomepageJsonLd(
     pageObject,
   ]
 
-  if (isValidVisibleFaq(homepage.faq)) {
+  if (
+    homepage.identity.schemaVersion === 'homepage-v0.1' &&
+    isValidVisibleFaq(homepage.faq)
+  ) {
     values.push({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',

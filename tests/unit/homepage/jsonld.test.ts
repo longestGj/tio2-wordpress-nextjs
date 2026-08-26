@@ -3,12 +3,29 @@ import {describe, expect, it} from 'vitest'
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
 import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
 import type {HomepageDto} from '@/lib/wordpress/homepage-types'
+import {toSiteAEditorialHomepageDto} from '@/lib/wordpress/homepage-v02-dto'
 import {getSiteConfig} from '@/sites'
-import {makeHomepageNode} from '@/tests/mocks/handlers'
+import {
+  makeHomepageNode,
+  makeSiteAEditorialHomepageNode,
+} from '@/tests/mocks/handlers'
 
 function homepageFixture(): HomepageDto {
-  return toHomepageDto(makeHomepageNode(), 'tio2-a', {
-    linkPolicy: getHomepageLinkPolicy('tio2-a'),
+  return toHomepageDto(makeHomepageNode('tio2-b'), 'tio2-b', {
+    linkPolicy: getHomepageLinkPolicy('tio2-b'),
+  })
+}
+
+function editorialHomepageFixture() {
+  const site = getSiteConfig('tio2-a')
+  const node = makeSiteAEditorialHomepageNode()
+  Reflect.set(
+    node.editorialGeoFields!,
+    'geoFaqs',
+    node.editorialGeoFields!.geoFaqs!.slice(0, 3),
+  )
+  return toSiteAEditorialHomepageDto(node, {
+    rfqHref: site.rfqHref,
   })
 }
 
@@ -24,10 +41,25 @@ function collectJsonLdTypes(value: unknown): string[] {
 }
 
 describe('homepage JSON-LD', () => {
-  it('emits only Organization, WebSite, WebPage, and visible-content-equal FAQPage', async () => {
+  it('emits only base schema for the Site A v0.2 visible content', async () => {
+    const {buildHomepageJsonLd} = await import('@/lib/seo/homepage-jsonld')
+    const graph = buildHomepageJsonLd(
+      getSiteConfig('tio2-a'),
+      editorialHomepageFixture(),
+    )
+
+    expect(graph.map((node) => node['@type'])).toEqual([
+      'Organization',
+      'WebSite',
+      'WebPage',
+    ])
+    expect(JSON.stringify(graph)).not.toMatch(/FAQPage|GEO|llms\.txt/i)
+  })
+
+  it('emits only Organization, WebSite, WebPage, and visible-content-equal FAQPage for Site B v0.1', async () => {
     const {buildHomepageJsonLd} = await import('@/lib/seo/homepage-jsonld')
     const homepage = homepageFixture()
-    const values = buildHomepageJsonLd(getSiteConfig('tio2-a'), homepage)
+    const values = buildHomepageJsonLd(getSiteConfig('tio2-b'), homepage)
     const types = values.map((value) => value['@type'])
 
     expect(types).toEqual(['Organization', 'WebSite', 'WebPage', 'FAQPage'])
@@ -81,7 +113,7 @@ describe('homepage JSON-LD', () => {
     const homepage: HomepageDto = {...base, faq: mutate(base)}
 
     expect(
-      buildHomepageJsonLd(getSiteConfig('tio2-a'), homepage).map(
+      buildHomepageJsonLd(getSiteConfig('tio2-b'), homepage).map(
         (value) => value['@type'],
       ),
     ).toEqual(['Organization', 'WebSite', 'WebPage'])

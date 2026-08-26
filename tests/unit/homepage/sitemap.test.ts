@@ -3,23 +3,32 @@ import {describe, expect, it, vi} from 'vitest'
 import {buildSitemap, SitemapIntegrityError} from '@/app/sitemap'
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
 import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
+import type {AnyHomepageDto} from '@/lib/wordpress/homepage-types'
+import {toSiteAEditorialHomepageDto} from '@/lib/wordpress/homepage-v02-dto'
 import {getSiteConfig} from '@/sites'
 import {getPublicRoutes} from '@/sites/public-routes'
 import {getSiteTemplateProfile} from '@/sites/template-profiles'
-import {makeHomepageNode} from '@/tests/mocks/handlers'
+import {
+  makeHomepageNode,
+  makeSiteAEditorialHomepageNode,
+} from '@/tests/mocks/handlers'
 
 function sources(overrides: Partial<Parameters<typeof buildSitemap>[1]> = {}) {
   return {
-    getHomepage: async () => toHomepageDto(makeHomepageNode(), 'tio2-a', {
-      linkPolicy: getHomepageLinkPolicy('tio2-a'),
-    }),
+    getHomepage: async () => homepageFor('tio2-a'),
     getPublicRoutes,
     getSiteTemplateProfile,
     ...overrides,
   }
 }
 
-function homepageFor(siteId: 'tio2-a' | 'tio2-b') {
+function homepageFor(siteId: 'tio2-a' | 'tio2-b'): AnyHomepageDto {
+  if (siteId === 'tio2-a') {
+    return toSiteAEditorialHomepageDto(makeSiteAEditorialHomepageNode(), {
+      rfqHref: getSiteConfig(siteId).rfqHref,
+    })
+  }
+
   const node = makeHomepageNode(siteId)
   return toHomepageDto(node, siteId, {
     linkPolicy: getHomepageLinkPolicy(siteId),
@@ -28,9 +37,9 @@ function homepageFor(siteId: 'tio2-a' | 'tio2-b') {
 
 describe('root-only sitemap ownership', () => {
   it.each([
-    ['tio2-a', 'https://tio2products.com/'],
-    ['tio2-b', 'https://tio2hub.com/'],
-  ] as const)('maps only the %s inventory root to its production domain', async (siteId, url) => {
+    ['tio2-a', 'https://tio2products.com/', '2026-08-26T08:30:00.000Z'],
+    ['tio2-b', 'https://tio2hub.com/', '2026-08-23T08:30:00.000Z'],
+  ] as const)('maps only the %s inventory root to its production domain', async (siteId, url, modified) => {
     const homepage = homepageFor(siteId)
     const sitemap = await buildSitemap(getSiteConfig(siteId), {
       ...sources(),
@@ -38,7 +47,7 @@ describe('root-only sitemap ownership', () => {
     })
 
     expect(sitemap).toEqual([
-      {url, lastModified: new Date('2026-08-23T08:30:00.000Z')},
+      {url, lastModified: new Date(modified)},
     ])
     expect(new Set(sitemap.map(({url: entryUrl}) => entryUrl)).size).toBe(1)
   })
@@ -73,17 +82,16 @@ describe('root-only sitemap ownership', () => {
     ['draft status', {status: 'draft'}],
     ['wrong schema', {schemaVersion: 'homepage-v9' as never}],
   ])('fails closed for a %s homepage source', async (_label, identity) => {
-    const homepage = toHomepageDto(makeHomepageNode(), 'tio2-a', {
-      linkPolicy: getHomepageLinkPolicy('tio2-a'),
-    })
+    const homepage = homepageFor('tio2-a')
 
     await expect(
       buildSitemap(getSiteConfig('tio2-a'), {
         ...sources(),
-        getHomepage: async () => ({
-          ...homepage,
-          identity: {...homepage.identity, ...identity},
-        }),
+        getHomepage: async () =>
+          ({
+            ...homepage,
+            identity: {...homepage.identity, ...identity},
+          }) as never,
       }),
     ).rejects.toMatchObject({
       name: SitemapIntegrityError.name,
@@ -93,11 +101,7 @@ describe('root-only sitemap ownership', () => {
   })
 
   it('does not need a Page cursor source to build the sitemap', async () => {
-    const getHomepage = vi.fn(async () =>
-      toHomepageDto(makeHomepageNode(), 'tio2-a', {
-        linkPolicy: getHomepageLinkPolicy('tio2-a'),
-      }),
-    )
+    const getHomepage = vi.fn(async () => homepageFor('tio2-a'))
 
     await buildSitemap(getSiteConfig('tio2-a'), {
       ...sources(),

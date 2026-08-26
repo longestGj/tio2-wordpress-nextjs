@@ -3,9 +3,13 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
 import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
-import type {HomepageDto} from '@/lib/wordpress/homepage-types'
+import type {AnyHomepageDto} from '@/lib/wordpress/homepage-types'
+import {toSiteAEditorialHomepageDto} from '@/lib/wordpress/homepage-v02-dto'
 import {getSiteConfig} from '@/sites'
-import {makeHomepageNode} from '@/tests/mocks/handlers'
+import {
+  makeHomepageNode,
+  makeSiteAEditorialHomepageNode,
+} from '@/tests/mocks/handlers'
 
 const seoMocks = vi.hoisted(() => ({
   getCurrentSite: vi.fn(),
@@ -31,7 +35,19 @@ vi.mock('@/lib/wordpress/preview-session', () => ({
   hasScopedPreviewSession: seoMocks.hasScopedPreviewSession,
 }))
 
-function homepageFixture(siteId: 'tio2-a' | 'tio2-b'): HomepageDto {
+function homepageFixture(siteId: 'tio2-a' | 'tio2-b'): AnyHomepageDto {
+  if (siteId === 'tio2-a') {
+    const node = makeSiteAEditorialHomepageNode()
+    Reflect.set(
+      node.homepageFields!,
+      'heroHeading',
+      `${siteId} visible homepage heading`,
+    )
+    return toSiteAEditorialHomepageDto(node, {
+      rfqHref: getSiteConfig(siteId).rfqHref,
+    })
+  }
+
   const node = makeHomepageNode(siteId)
   node.homepageFields.heroHeading = `${siteId} visible homepage heading`
   node.homepageFields.seoTitle = `${siteId} homepage SEO title`
@@ -56,9 +72,17 @@ afterEach(() => {
 
 describe('homepage SEO route integration', () => {
   it.each([
-    ['tio2-a', 'https://tio2products.com/'],
-    ['tio2-b', 'https://tio2hub.com/'],
-  ] as const)('keeps %s canonical and structured data site-local', async (siteId, canonical) => {
+    [
+      'tio2-a',
+      'https://tio2products.com/',
+      ['Organization', 'WebSite', 'WebPage'],
+    ],
+    [
+      'tio2-b',
+      'https://tio2hub.com/',
+      ['Organization', 'WebSite', 'WebPage', 'FAQPage'],
+    ],
+  ] as const)('keeps %s canonical and structured data site-local', async (siteId, canonical, expectedTypes) => {
     seoMocks.getCurrentSite.mockReturnValue(getSiteConfig(siteId))
     seoMocks.getHomepage.mockResolvedValue(homepageFixture(siteId))
     const route = await import('@/app/page')
@@ -78,13 +102,11 @@ describe('homepage SEO route integration', () => {
     const jsonLd = JSON.parse(scripts[0]?.[1] ?? 'null') as Array<
       Record<string, unknown>
     >
-    expect(jsonLd.map((value) => value['@type'])).toEqual([
-      'Organization',
-      'WebSite',
-      'WebPage',
-      'FAQPage',
-    ])
+    expect(jsonLd.map((value) => value['@type'])).toEqual(expectedTypes)
     const serialized = JSON.stringify({metadata, jsonLd})
+    if (siteId === 'tio2-a') {
+      expect(serialized).not.toMatch(/FAQPage|GEO|llms\.txt/i)
+    }
     expect(serialized).not.toContain('localhost')
     expect(serialized).not.toContain(
       siteId === 'tio2-a' ? 'tio2hub.com' : 'tio2products.com',
