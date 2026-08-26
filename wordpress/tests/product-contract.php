@@ -235,6 +235,15 @@ if (is_wp_error($application_id) || $application_id <= 0) {
 $GLOBALS['tio2_product_contract_test_post_ids'][] = (int) $application_id;
 
 tio2_product_contract_test_set_shared_settings();
+try {
+    do_action('acf/save_post', 'option');
+    tio2_product_contract_test_assert(true, 'Product Settings ACF save accepted its non-post target.');
+} catch (Throwable $error) {
+    tio2_product_contract_test_assert(
+        false,
+        'Product Settings ACF save rejected its non-post target: ' . $error->getMessage()
+    );
+}
 $product_id = tio2_product_contract_test_insert('valid');
 tio2_product_contract_test_fill_valid_product($product_id, 'TP-Z901', (int) $family['term_id'], (int) $application_id);
 wp_set_object_terms($product_id, ['tio2-a'], 'site_scope', false);

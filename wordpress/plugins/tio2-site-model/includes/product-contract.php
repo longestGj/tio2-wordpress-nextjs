@@ -209,9 +209,19 @@ function tio2_product_contract_notice_key(int $post_id): string
     return 'tio2_product_contract_error_' . $post_id;
 }
 
-function tio2_save_product_contract_feedback(int $post_id): void
+/**
+ * ACF also sends non-post identifiers such as `option` for settings pages.
+ *
+ * @param mixed $post_id
+ */
+function tio2_save_product_contract_feedback($post_id): void
 {
     static $normalizing = false;
+
+    if (! is_numeric($post_id) || (int) $post_id <= 0) {
+        return;
+    }
+    $post_id = (int) $post_id;
 
     if ($normalizing || wp_is_post_revision($post_id) || wp_is_post_autosave($post_id) || 'tio2_product' !== get_post_type($post_id)) {
         return;
