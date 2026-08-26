@@ -153,6 +153,348 @@ interface AcfFieldGroupFields {
   fieldGroupName: String @deprecated(reason: "Use __typename instead")
 }
 
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+interface EditorialGeoFieldsDecisionQuestions_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+  decisionAnswer: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+  decisionNumber: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+  decisionQuestion: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
+
+"The &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsDecisionQuestions implements EditorialGeoFieldsDecisionQuestions_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+  decisionAnswer: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+  decisionNumber: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+  decisionQuestion: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+interface EditorialGeoFieldsApplicationBriefs_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+  applicationConsiderations: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+  applicationName: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+  applicationSummary: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
+
+"The &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsApplicationBriefs implements EditorialGeoFieldsApplicationBriefs_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+  applicationConsiderations: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+  applicationName: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+  applicationSummary: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+interface EditorialGeoFieldsSupplyRoutes_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  buyerVerification: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  claimBasis: [String]
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  documentationContext: String
+
+  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  evidenceUrl: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  routeMeaning: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  routeName: String
+}
+
+"The &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsSupplyRoutes implements EditorialGeoFieldsSupplyRoutes_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  buyerVerification: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  claimBasis: [String]
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  documentationContext: String
+
+  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  evidenceUrl: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  routeMeaning: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  routeName: String
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+interface EditorialGeoFieldsEvidenceItems_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  applicability: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  documentSummary: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  documentTitle: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  documentType: String
+
+  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  evidenceUrl: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  revisionLabel: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  verificationStatus: [String]
+}
+
+"The &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsEvidenceItems implements EditorialGeoFieldsEvidenceItems_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  applicability: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  documentSummary: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  documentTitle: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  documentType: String
+
+  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  evidenceUrl: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  revisionLabel: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  verificationStatus: [String]
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+interface EditorialGeoFieldsEvaluationSteps_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+  methodDescription: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+  methodNumber: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+  methodTitle: String
+}
+
+"The &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsEvaluationSteps implements EditorialGeoFieldsEvaluationSteps_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+  methodDescription: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+  methodNumber: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+  methodTitle: String
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
+interface EditorialGeoFieldsGeoFaqs_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
+  faqAnswer: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
+  faqQuestion: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
+
+"The &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsGeoFaqs implements EditorialGeoFieldsGeoFaqs_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
+  faqAnswer: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
+  faqQuestion: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
+interface EditorialGeoFieldsGlossaryItems_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
+  definition: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
+  term: String
+}
+
+"The &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsGlossaryItems implements EditorialGeoFieldsGlossaryItems_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
+  definition: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
+  term: String
+}
+
+"Provides access to fields of the &quot;EditorialGeoFields&quot; ACF Field Group via the &quot;editorialGeoFields&quot; field"
+interface WithAcfEditorialGeoFields {
+  "Fields of the EditorialGeoFields ACF Field Group"
+  editorialGeoFields: EditorialGeoFields
+}
+
+"The &quot;EditorialGeoFields&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFields implements EditorialGeoFields_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  applicationBriefs: [EditorialGeoFieldsApplicationBriefs]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  decisionQuestions: [EditorialGeoFieldsDecisionQuestions]
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  directAnswerBody: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  directAnswerLead: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  directAnswerQuestion: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  editorialReviewScope: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  editorialReviewedAt: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  editorialReviewedBy: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  evaluationSteps: [EditorialGeoFieldsEvaluationSteps]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  evidenceItems: [EditorialGeoFieldsEvidenceItems]
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  geoFaqs: [EditorialGeoFieldsGeoFaqs]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  glossaryItems: [EditorialGeoFieldsGlossaryItems]
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  headerRfqLabel: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  supplyRoutes: [EditorialGeoFieldsSupplyRoutes]
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFields&quot; Field Group"
+interface EditorialGeoFields_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  applicationBriefs: [EditorialGeoFieldsApplicationBriefs]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  decisionQuestions: [EditorialGeoFieldsDecisionQuestions]
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  directAnswerBody: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  directAnswerLead: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  directAnswerQuestion: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  editorialReviewScope: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  editorialReviewedAt: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  editorialReviewedBy: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  evaluationSteps: [EditorialGeoFieldsEvaluationSteps]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  evidenceItems: [EditorialGeoFieldsEvidenceItems]
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  geoFaqs: [EditorialGeoFieldsGeoFaqs]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  glossaryItems: [EditorialGeoFieldsGlossaryItems]
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  headerRfqLabel: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  supplyRoutes: [EditorialGeoFieldsSupplyRoutes]
+}
+
 "Interface representing fields of the ACF &quot;HomepageFieldsRfqLabels&quot; Field Group"
 interface HomepageFieldsRfqLabels_Fields implements AcfFieldGroup & AcfFieldGroupFields {
   "The name of the field group"
@@ -12001,7 +12343,7 @@ interface Tio2HomepageConnectionEdge implements Edge {
 }
 
 "The Tio2Homepage type"
-type Tio2Homepage implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & NodeWithTitle & NodeWithRevisions & WithAcfHomepageFields {
+type Tio2Homepage implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & NodeWithTitle & NodeWithRevisions & WithAcfEditorialGeoFields & WithAcfHomepageFields {
   "The id field matches the WP_Post-&gt;ID field."
   tio2HomepageId: Int! @deprecated(reason: "Deprecated in favor of the databaseId field")
 
@@ -12040,6 +12382,9 @@ type Tio2Homepage implements Node & ContentNode & UniformResourceIdentifiable & 
 
   "If a user has edited the node within the past 15 seconds, this will return the user that last edited. Null if the edit lock doesn&#039;t exist or is greater than 15 seconds"
   editingLockedBy: ContentNodeToEditLockConnectionEdge
+
+  "Fields of the EditorialGeoFields ACF Field Group"
+  editorialGeoFields: EditorialGeoFields
 
   "The RSS enclosure for the object"
   enclosure: String

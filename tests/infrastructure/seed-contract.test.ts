@@ -364,18 +364,35 @@ describe('seed execution plan', () => {
           _tio2_seed_internal_slug: `${siteId}--home`,
         },
       })
-      expect(
-        sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-003'),
-      ).toMatchObject({
-        internalSlug: `${siteId}--test-content--long-tail-003`,
-        title: 'Masterbatch',
-        content: expect.stringContaining('masterbatch'),
-        siteScopes: [siteId],
-      })
-      expect(sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-001'))
-        .toMatchObject({title: siteId === 'tio2-a' ? 'Formulator route' : 'Site B buyer route'})
-      expect(sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-002'))
-        .toMatchObject({title: 'Plastics'})
+      if (siteId === 'tio2-a') {
+        for (const ordinal of ['001', '002', '003']) {
+          expect(
+            sitePages.find(
+              ({publicPath}) => publicPath === `/test-content/long-tail-${ordinal}`,
+            ),
+          ).toMatchObject({
+            internalSlug: `${siteId}--test-content--long-tail-${ordinal}`,
+            title: `${siteId} Synthetic Test Long-tail Page ${ordinal}`,
+            content: expect.stringContaining(
+              `Deterministic local scale fixture ${ordinal} for ${siteId}`,
+            ),
+            siteScopes: [siteId],
+          })
+        }
+      } else {
+        expect(
+          sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-003'),
+        ).toMatchObject({
+          internalSlug: `${siteId}--test-content--long-tail-003`,
+          title: 'Masterbatch',
+          content: expect.stringContaining('masterbatch'),
+          siteScopes: [siteId],
+        })
+        expect(sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-001'))
+          .toMatchObject({title: 'Site B buyer route'})
+        expect(sitePages.find(({publicPath}) => publicPath === '/test-content/long-tail-002'))
+          .toMatchObject({title: 'Plastics'})
+      }
     }
   })
 })

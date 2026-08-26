@@ -936,8 +936,12 @@ try {
         throw new RuntimeException('Injected seed failure before homepage write.');
     }
 
+        $homepage_field_definitions = array_merge(
+            tio2_homepage_field_definitions(),
+            tio2_homepage_v02_field_definitions()
+        );
         $homepage_field_keys = [];
-        foreach (tio2_homepage_field_definitions() as $field_definition) {
+        foreach ($homepage_field_definitions as $field_definition) {
             $homepage_field_keys[$field_definition['name']] = $field_definition['key'];
         }
         foreach ($plan['homepages'] ?? [] as $homepage) {

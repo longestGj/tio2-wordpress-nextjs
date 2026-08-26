@@ -93,67 +93,75 @@
         }
       ],
       "homepage": {
-        "homepage_schema_version": "homepage-v0.1",
-        "hero_eyebrow": "Synthetic local sourcing guide",
-        "hero_heading": "Titanium Dioxide Supply for Formulators and Distributors",
-        "hero_summary": "Supply coordination can include products from owned production and from OEM or partner production according to the selected product.",
-        "hero_primary_label": "Start an RFQ",
-        "hero_secondary_label": "Browse product options",
-        "hero_secondary_path": "/products",
+        "homepage_schema_version": "homepage-v0.2-editorial-geo",
+        "hero_eyebrow": "Synthetic buyer question framework",
+        "hero_heading": "A Buyer-Led Guide to Clarifying Titanium Dioxide Requirements",
+        "hero_summary": "This synthetic local editorial fixture organizes questions for a demo review; it does not claim product fit, supply capability, or commercial availability.",
         "hero_image": 0,
         "hero_image_alt": "",
-        "metrics": [],
-        "products_heading": "Synthetic product discovery",
-        "products_intro": "Review local test routes without commercial product claims.",
-        "product_routes": [
-          {"product_title":"Product options","product_summary":"Review the local synthetic product route.","product_path":"/products","product_image":0,"product_image_alt":""},
-          {"product_title":"Formulator route","product_summary":"Review a controlled long-tail sourcing route.","product_path":"/test-content/long-tail-001","product_image":0,"product_image_alt":""}
+        "header_rfq_label": "Start an RFQ",
+        "direct_answer_question": "What should a buyer clarify before sourcing titanium dioxide?",
+        "direct_answer_lead": "Begin with the intended use context, buyer-defined acceptance criteria, requested documents, route assumptions, destination, and the review steps that remain open.",
+        "direct_answer_body": "This synthetic demo is an editorial checklist rather than technical or commercial guidance. A buyer should confirm each requirement with its own specialists, tests, source documents, and authorized supplier contacts.",
+        "decision_questions": [
+          {"decision_number":"01","decision_question":"Which use context should the request describe?","decision_answer":"Describe the process, substrate or material, and decision stage in buyer-owned terms. This demo does not determine suitability for any use."},
+          {"decision_number":"02","decision_question":"Which attributes need buyer-defined acceptance criteria?","decision_answer":"List only criteria supplied by the buyer or its reviewers, together with the method and approval owner. The fixture supplies no target values."},
+          {"decision_number":"03","decision_question":"Which documents should be requested for review?","decision_answer":"Name the document categories and revision expectations the buyer wants to inspect. Availability and applicability require separate confirmation."},
+          {"decision_number":"04","decision_question":"Which supply-route assumptions require clarification?","decision_answer":"Ask who performs each stated role and which records could support the description. Route labels in this fixture are synthetic examples only."},
+          {"decision_number":"05","decision_question":"Which logistics details belong in the RFQ brief?","decision_answer":"Record buyer-provided destination, timing, packaging, and quantity context without treating the demo as an offer or commitment."},
+          {"decision_number":"06","decision_question":"Which evidence and approval steps remain open?","decision_answer":"Assign buyer-side review owners and mark every unresolved item for confirmation before any sourcing decision."}
         ],
-        "applications_heading": "Synthetic application discovery",
-        "applications_intro": "Explore five local application contexts without quantitative claims.",
-        "applications": [
-          {"application_name":"Coatings","application_summary":"Local coatings discovery context.","application_path":"/applications","application_image":0,"application_image_alt":""},
-          {"application_name":"Plastics","application_summary":"Local plastics discovery context.","application_path":"/test-content/long-tail-002","application_image":0,"application_image_alt":""},
-          {"application_name":"Masterbatch","application_summary":"Local masterbatch discovery context.","application_path":"/test-content/long-tail-003","application_image":0,"application_image_alt":""},
-          {"application_name":"Inks","application_summary":"Local inks discovery context.","application_path":"/test-content/long-tail-004","application_image":0,"application_image_alt":""},
-          {"application_name":"Paper","application_summary":"Local paper discovery context.","application_path":"/test-content/long-tail-005","application_image":0,"application_image_alt":""}
+        "application_briefs": [
+          {"application_name":"Coatings discussion context","application_summary":"A synthetic prompt for describing the buyer's coating process and decision stage.","application_considerations":"The buyer should define its own substrate, formulation, test methods, acceptance criteria, and review owners."},
+          {"application_name":"Plastics discussion context","application_summary":"A synthetic prompt for recording the buyer's polymer and processing context.","application_considerations":"Material compatibility, processing conditions, and acceptance criteria remain buyer-verification items."},
+          {"application_name":"Masterbatch discussion context","application_summary":"A synthetic prompt for identifying the buyer's concentration and downstream-use questions.","application_considerations":"The buyer should confirm formulation inputs, evaluation methods, and downstream requirements independently."},
+          {"application_name":"Inks discussion context","application_summary":"A synthetic prompt for documenting the buyer's ink system and review questions.","application_considerations":"The buyer owns the selection of test methods, substrates, process conditions, and approval criteria."},
+          {"application_name":"Paper discussion context","application_summary":"A synthetic prompt for describing the buyer's paper-making or converting context.","application_considerations":"Process fit, evaluation methods, document needs, and acceptance criteria require buyer verification."}
         ],
-        "inquiry_heading": "A controlled local inquiry process",
-        "inquiry_steps": [
-          {"inquiry_step_title":"Share requirements","inquiry_step_description":"Describe the intended application and requested documents."},
-          {"inquiry_step_title":"Review product fit","inquiry_step_description":"Review owned production and partner production boundaries."},
-          {"inquiry_step_title":"Confirm next steps","inquiry_step_description":"Choose a separately authorized follow-up channel."}
+        "supply_routes": [
+          {"route_name":"Synthetic owned-production route","route_meaning":"A demo label for a seller-described owned-production scenario; it confirms no real facility, source, or supply relationship.","buyer_verification":"Ask the seller to identify the responsible legal entity and source, then verify the answer through buyer-approved channels.","documentation_context":"Request only the source and document details the buyer needs for its review.","claim_basis":"synthetic_demo","evidence_url":""},
+          {"route_name":"Synthetic OEM or partner-production route","route_meaning":"A demo label for a seller-described third-party production scenario; it confirms no real partner or commercial arrangement.","buyer_verification":"Ask which party performs each role and how the buyer can independently review that description.","documentation_context":"Record which party issues each requested document and which revisions the buyer expects to inspect.","claim_basis":"synthetic_demo","evidence_url":""},
+          {"route_name":"Synthetic distribution route","route_meaning":"A demo label for a distribution scenario; it confirms no inventory, authorization, or trading relationship.","buyer_verification":"Ask for the chain of responsibility, source identity, and authorization evidence required by the buyer.","documentation_context":"Clarify document origin, revision handling, and buyer-side review ownership.","claim_basis":"synthetic_demo","evidence_url":""}
         ],
-        "trust_heading": "Production boundaries stay explicit",
-        "trust_intro": "Synthetic copy distinguishes owned production from OEM and partner production.",
-        "trust_reasons": [
-          {"trust_reason_title":"Owned production","trust_reason_description":"Some selected products may come from user-confirmed owned production.","trust_reason_claim_basis":"user_confirmed","trust_reason_evidence_url":""},
-          {"trust_reason_title":"OEM or partner production","trust_reason_description":"Other selected products may use OEM or partner production.","trust_reason_claim_basis":"user_confirmed","trust_reason_evidence_url":""},
-          {"trust_reason_title":"Document coordination","trust_reason_description":"Documents are coordinated against the selected route.","trust_reason_claim_basis":"user_confirmed","trust_reason_evidence_url":""}
+        "evidence_items": [
+          {"document_type":"Technical data request","document_title":"Synthetic technical-data checklist item","document_summary":"A demo reminder to request buyer-relevant technical information; no actual document or value is supplied.","applicability":"The buyer decides whether the category and revision are relevant to its review.","revision_label":"Demo only","evidence_url":"","verification_status":"demo"},
+          {"document_type":"Safety information request","document_title":"Synthetic safety-information checklist item","document_summary":"A demo reminder to request current safety information through an authorized channel; no actual document is represented.","applicability":"Buyer specialists determine the required jurisdiction, language, revision, and review process.","revision_label":"Demo only","evidence_url":"","verification_status":"demo"},
+          {"document_type":"Supply-route declaration request","document_title":"Synthetic route-declaration checklist item","document_summary":"A demo reminder to ask who performs stated production, distribution, and documentation roles.","applicability":"The buyer defines what evidence is needed before accepting any route description.","revision_label":"Demo only","evidence_url":"","verification_status":"demo"}
         ],
-        "rfq_heading": "Prepare a local RFQ demo",
-        "rfq_intro": "This v0.1 local demo does not send or store inquiry data.",
-        "rfq_labels": {"rfq_label_name":"Name","rfq_label_company":"Company","rfq_label_country_region":"Country or region","rfq_label_work_email":"Work email","rfq_label_buyer_type":"Buyer type","rfq_label_interest":"Product or application interest","rfq_label_expected_quantity":"Expected quantity","rfq_label_destination":"Destination","rfq_label_message":"Message","rfq_label_privacy":"I understand this local demo sends nothing","rfq_buyer_industrial_label":"Industrial","rfq_buyer_distributor_label":"Distributor","rfq_buyer_other_label":"Other"},
-        "rfq_submit_label": "Validate locally",
-        "rfq_privacy_text": "This local demo does not send or save entered information.",
-        "rfq_success_heading": "Local check complete",
-        "rfq_success_message": "Nothing was transmitted or saved by this Site A local demo.",
-        "faq_heading": "Site A sourcing questions",
-        "faqs": [
-          {"faq_question":"Which product type is shown?","faq_answer":"Only synthetic product-route labels are shown.","faq_related_label":"","faq_related_path":""},
-          {"faq_question":"How is application matching handled?","faq_answer":"Application matching remains a local discovery aid.","faq_related_label":"","faq_related_path":""},
-          {"faq_question":"What RFQ details are useful?","faq_answer":"Application, quantity, destination, and document needs help frame a request.","faq_related_label":"","faq_related_path":""},
-          {"faq_question":"Can samples be requested here?","faq_answer":"No. This local demo sends no sample request.","faq_related_label":"","faq_related_path":""},
-          {"faq_question":"Are documents supplied here?","faq_answer":"No. Document coordination requires a separately authorized channel.","faq_related_label":"","faq_related_path":""}
+        "evaluation_steps": [
+          {"method_number":"01","method_title":"Define the buyer context","method_description":"Record the intended use context, decision stage, and buyer-side owners without inferring product fit."},
+          {"method_number":"02","method_title":"Write acceptance questions","method_description":"Translate buyer requirements into questions, methods, and approval checkpoints without inventing target values."},
+          {"method_number":"03","method_title":"Request the review set","method_description":"List the documents, revisions, and route explanations the buyer wants to inspect."},
+          {"method_number":"04","method_title":"Plan independent evaluation","method_description":"Let buyer specialists choose samples, tests, controls, and interpretation rules outside this demo."},
+          {"method_number":"05","method_title":"Log open decisions","method_description":"Keep unresolved evidence, ownership, and approval items visible until the buyer closes them."}
         ],
-        "closing_heading": "Prepare the synthetic requirement",
-        "closing_body": "Use the local form to validate inputs before any authorized follow-up.",
+        "geo_faqs": [
+          {"faq_question":"Does this page recommend a product?","faq_answer":"No. It is a synthetic local checklist for organizing buyer questions and does not recommend any product."},
+          {"faq_question":"Does an application brief establish suitability?","faq_answer":"No. Each brief is a demo prompt; the buyer must define and independently evaluate suitability."},
+          {"faq_question":"Are the supply routes real?","faq_answer":"No. The route labels are synthetic scenarios and confirm no facility, source, partner, inventory, or commercial relationship."},
+          {"faq_question":"Are actual documents available from this fixture?","faq_answer":"No. Evidence items are demo checklist entries, not controlled documents or proof."},
+          {"faq_question":"Who defines acceptance criteria?","faq_answer":"The buyer and its authorized reviewers define the criteria, methods, and approval process."},
+          {"faq_question":"Can the fixture confirm availability or delivery?","faq_answer":"No. Availability, timing, packaging, destination, and quantity require separate buyer verification through an authorized channel."},
+          {"faq_question":"What should happen before a sourcing decision?","faq_answer":"The buyer should close its open document, route, evaluation, and approval questions using its own review process."},
+          {"faq_question":"What does the editorial review metadata mean?","faq_answer":"It identifies the date and scope of this synthetic local content review; it does not validate external facts."}
+        ],
+        "glossary_items": [
+          {"term":"Buyer-defined criterion","definition":"A requirement, method, or acceptance rule supplied and owned by the buyer or its authorized reviewer."},
+          {"term":"Demo evidence item","definition":"A synthetic checklist entry that represents no actual document, proof, or external fact."},
+          {"term":"Supply-route label","definition":"A descriptive scenario that remains unconfirmed until the buyer reviews the responsible entities and supporting records."},
+          {"term":"Editorial review scope","definition":"The stated boundary of the local content review, not an approval of technical or commercial claims."}
+        ],
+        "editorial_reviewed_at": "2026-08-26T00:00:00.000Z",
+        "editorial_reviewed_by": "Synthetic local editorial review",
+        "editorial_review_scope": "Local experimental content only",
+        "closing_heading": "Turn the open questions into an RFQ brief",
+        "closing_body": "Record the use context, requested documents, destination, and buyer checks before choosing any separately authorized follow-up.",
         "closing_label": "Start an RFQ",
-        "seo_title": "Synthetic TiO2 Supply Routes for Site A",
-        "seo_description": "Explore local synthetic titanium dioxide sourcing routes for Site A without commercial claims.",
+        "seo_title": "Synthetic TiO2 Buyer Questions | Site A",
+        "seo_description": "A local synthetic editorial fixture that organizes titanium dioxide sourcing questions without product, supply, or commercial claims.",
         "og_image": 0,
-        "primary_topic": "synthetic titanium dioxide sourcing",
-        "secondary_topics": [{"secondary_topic":"owned production routes"},{"secondary_topic":"partner production routes"}]
+        "primary_topic": "titanium dioxide sourcing questions",
+        "secondary_topics": [{"secondary_topic":"buyer-defined requirements"},{"secondary_topic":"document review questions"},{"secondary_topic":"supply-route verification"}]
       }
     },
     {

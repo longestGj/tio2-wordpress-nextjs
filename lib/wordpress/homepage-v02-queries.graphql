@@ -1,0 +1,92 @@
+fragment SiteAEditorialHomepageFields on Tio2Homepage {
+  id
+  databaseId
+  modifiedGmt
+  status
+  siteScopes {
+    nodes {
+      slug
+    }
+  }
+  homepageFields {
+    homepageSchemaVersion: schemaVersion
+    heroEyebrow
+    heroHeading
+    heroSummary
+    heroImage {
+      node {
+        ...HomepageMediaItemFields
+      }
+    }
+    heroImageAlt
+    closingHeading
+    closingBody
+    closingLabel
+    seoTitle
+    seoDescription
+    ogImage {
+      node {
+        ...HomepageMediaItemFields
+      }
+    }
+    primaryTopic
+    secondaryTopics {
+      secondaryTopic
+    }
+  }
+  editorialGeoFields {
+    headerRfqLabel
+    directAnswerQuestion
+    directAnswerLead
+    directAnswerBody
+    decisionQuestions {
+      decisionNumber
+      decisionQuestion
+      decisionAnswer
+    }
+    applicationBriefs {
+      applicationName
+      applicationSummary
+      applicationConsiderations
+    }
+    supplyRoutes {
+      routeName
+      routeMeaning
+      buyerVerification
+      documentationContext
+      claimBasis
+      evidenceUrl
+    }
+    evidenceItems {
+      documentType
+      documentTitle
+      documentSummary
+      applicability
+      revisionLabel
+      evidenceUrl
+      verificationStatus
+    }
+    evaluationSteps {
+      methodNumber
+      methodTitle
+      methodDescription
+    }
+    geoFaqs {
+      faqQuestion
+      faqAnswer
+    }
+    glossaryItems {
+      term
+      definition
+    }
+    editorialReviewedAt
+    editorialReviewedBy
+    editorialReviewScope
+  }
+}
+
+query GetSiteAEditorialHomepage($slug: ID!) {
+  tio2Homepage(id: $slug, idType: SLUG) {
+    ...SiteAEditorialHomepageFields
+  }
+}

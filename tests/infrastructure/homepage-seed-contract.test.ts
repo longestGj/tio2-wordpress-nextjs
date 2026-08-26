@@ -25,20 +25,28 @@ type Homepage = Record<string, unknown> & {
   homepage_schema_version: string
   hero_heading: string
   hero_summary: string
-  hero_primary_label: string
-  hero_secondary_label: string
-  hero_secondary_path: string
-  product_routes: Array<{product_path: string}>
-  applications: Array<{application_path: string}>
-  inquiry_steps: Array<{inquiry_step_title: string}>
-  faqs: Array<{faq_question: string; faq_answer: string}>
+  hero_primary_label?: string
+  hero_secondary_label?: string
+  hero_secondary_path?: string
+  product_routes?: Array<{product_path: string}>
+  applications?: Array<{application_path: string}>
+  inquiry_steps?: Array<{inquiry_step_title: string}>
+  faqs?: Array<{faq_question: string; faq_answer: string}>
   seo_title: string
   seo_description: string
-  rfq_intro: string
-  rfq_privacy_text: string
-  rfq_success_heading: string
-  rfq_success_message: string
+  rfq_intro?: string
+  rfq_privacy_text?: string
+  rfq_success_heading?: string
+  rfq_success_message?: string
   secondary_topics: Array<{secondary_topic: string}>
+  header_rfq_label?: string
+  decision_questions?: Array<Record<string, string>>
+  application_briefs?: Array<Record<string, string>>
+  supply_routes?: Array<{claim_basis: string} & Record<string, string>>
+  evidence_items?: Array<{verification_status: string} & Record<string, string>>
+  evaluation_steps?: Array<Record<string, string>>
+  geo_faqs?: Array<Record<string, string>>
+  glossary_items?: Array<Record<string, string>>
 }
 
 type Manifest = {
@@ -46,18 +54,15 @@ type Manifest = {
 }
 
 describe('homepage seed contract', () => {
-  it('contains two independent complete homepage-v0.1 fixtures', () => {
+  it('moves only Site A to the complete editorial GEO fixture', () => {
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Manifest
     const [siteA, siteB] = manifest.sites
     expect(siteA.homepage, 'missing tio2-a homepage fixture').toBeDefined()
     expect(siteB.homepage, 'missing tio2-b homepage fixture').toBeDefined()
     const homeA = siteA.homepage!
     const homeB = siteB.homepage!
-    expect(homeA.homepage_schema_version).toBe('homepage-v0.1')
+    expect(homeA.homepage_schema_version).toBe('homepage-v0.2-editorial-geo')
     expect(homeB.homepage_schema_version).toBe('homepage-v0.1')
-    expect(homeA.hero_heading).toBe(
-      'Titanium Dioxide Supply for Formulators and Distributors',
-    )
     expect(homeB.hero_heading).toBe('Independent TiO2 Discovery for Site B Buyers')
     for (const key of [
       'hero_heading',
@@ -68,8 +73,20 @@ describe('homepage seed contract', () => {
     ] as const) {
       expect(homeA[key]).not.toBe(homeB[key])
     }
-    expect(homeA.hero_primary_label).toBe('Start an RFQ')
-    expect(homeA.hero_secondary_label).toBe('Browse product options')
+    expect(homeA.header_rfq_label).toBe('Start an RFQ')
+    expect(homeA.decision_questions).toHaveLength(6)
+    expect(homeA.application_briefs).toHaveLength(5)
+    expect(homeA.supply_routes).toHaveLength(3)
+    expect(homeA.evidence_items).toHaveLength(3)
+    expect(homeA.evaluation_steps).toHaveLength(5)
+    expect(homeA.geo_faqs!.length).toBeGreaterThanOrEqual(8)
+    expect(homeA.glossary_items!.length).toBeGreaterThanOrEqual(4)
+    expect(JSON.stringify(homeA)).not.toMatch(/href|product_path|application_path/)
+    expect(JSON.stringify(homeA)).not.toMatch(/verified/)
+    expect(homeA.supply_routes!.every(({claim_basis}) =>
+      claim_basis === 'synthetic_demo')).toBe(true)
+    expect(homeA.evidence_items!.every(({verification_status}) =>
+      verification_status === 'demo')).toBe(true)
     expect(homeB.hero_primary_label).toBe('Open the local RFQ demo')
     expect(homeB.hero_secondary_label).toBe('Review Site B routes')
   })
@@ -84,52 +101,55 @@ describe('homepage seed contract', () => {
       '/test-content/long-tail-004',
       '/test-content/long-tail-005',
     ]
-    for (const site of manifest.sites) {
-      const home = site.homepage!
-      expect(home.product_routes.map(({product_path}) => product_path)).toEqual(
-        expectedProducts,
-      )
-      expect(home.applications.map(({application_path}) => application_path)).toEqual(
-        expectedApplications,
-      )
-      expect(home.inquiry_steps.map(({inquiry_step_title}) => inquiry_step_title)).toEqual(
-        ['Share requirements', 'Review product fit', 'Confirm next steps'],
-      )
-      expect(home.faqs).toHaveLength(5)
-      expect(new Set(home.secondary_topics.map(({secondary_topic}) => secondary_topic)).size)
-        .toBe(home.secondary_topics.length)
-      const routeInventory = new Set(site.pages.map(({publicPath}) => publicPath))
-      for (const path of [
-        home.hero_secondary_path,
-        ...expectedProducts,
-        ...expectedApplications,
-      ]) {
-        if (!path.startsWith('/test-content/')) expect(routeInventory.has(path)).toBe(true)
-      }
+    const siteB = manifest.sites.find(({siteId}) => siteId === 'tio2-b')!
+    const home = siteB.homepage!
+    expect(home.product_routes!.map(({product_path}) => product_path)).toEqual(
+      expectedProducts,
+    )
+    expect(home.applications!.map(({application_path}) => application_path)).toEqual(
+      expectedApplications,
+    )
+    expect(home.inquiry_steps!.map(({inquiry_step_title}) => inquiry_step_title)).toEqual(
+      ['Share requirements', 'Review product fit', 'Confirm next steps'],
+    )
+    expect(home.faqs).toHaveLength(5)
+    expect(new Set(home.secondary_topics.map(({secondary_topic}) => secondary_topic)).size)
+      .toBe(home.secondary_topics.length)
+    const routeInventory = new Set(siteB.pages.map(({publicPath}) => publicPath))
+    for (const path of [
+      home.hero_secondary_path!,
+      ...expectedProducts,
+      ...expectedApplications,
+    ]) {
+      if (!path.startsWith('/test-content/')) expect(routeInventory.has(path)).toBe(true)
     }
   })
 
   it('keeps claims synthetic, source-safe, and separates owned from partner production', () => {
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Manifest
-    for (const site of manifest.sites) {
+    const siteA = manifest.sites.find(({siteId}) => siteId === 'tio2-a')!
+    const siteB = manifest.sites.find(({siteId}) => siteId === 'tio2-b')!
+    expect(JSON.stringify(siteA.homepage)).toMatch(/synthetic.*demo|demo.*synthetic/i)
+    for (const site of [siteA, siteB]) {
       const serialized = JSON.stringify(site.homepage)
-      expect(serialized).toMatch(/owned production/i)
-      expect(serialized).toMatch(/OEM|partner production/i)
       expect(serialized).not.toMatch(/certif|capacity|ranking|performance/i)
       expect(serialized).not.toMatch(/https?:\/\/(?!example\.test)/i)
     }
+    expect(JSON.stringify(siteB.homepage)).toMatch(/owned production/i)
+    expect(JSON.stringify(siteB.homepage)).toMatch(/OEM|partner production/i)
   })
 
   it('keeps current Site A/B RFQ values byte-for-byte valid under their owning contracts', () => {
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Manifest
-    for (const site of manifest.sites) {
-      const home = site.homepage!
-      const contract = HOMEPAGE_RFQ_COPY_CONTRACTS[site.siteId as 'tio2-a' | 'tio2-b']
-      expect(contract.fields['rfq.intro']).toContain(home.rfq_intro)
-      expect(contract.fields['rfq.privacyText']).toContain(home.rfq_privacy_text)
-      expect(contract.fields['rfq.success.heading']).toContain(home.rfq_success_heading)
-      expect(contract.fields['rfq.success.message']).toContain(home.rfq_success_message)
-    }
+    const siteA = manifest.sites.find(({siteId}) => siteId === 'tio2-a')!
+    const siteB = manifest.sites.find(({siteId}) => siteId === 'tio2-b')!
+    expect(siteA.homepage!.header_rfq_label).toBe('Start an RFQ')
+    const homeB = siteB.homepage!
+    const contract = HOMEPAGE_RFQ_COPY_CONTRACTS['tio2-b']
+    expect(contract.fields['rfq.intro']).toContain(homeB.rfq_intro)
+    expect(contract.fields['rfq.privacyText']).toContain(homeB.rfq_privacy_text)
+    expect(contract.fields['rfq.success.heading']).toContain(homeB.rfq_success_heading)
+    expect(contract.fields['rfq.success.message']).toContain(homeB.rfq_success_message)
   })
 
   it('mechanically matches the PHP and TypeScript site-scoped RFQ contracts', () => {

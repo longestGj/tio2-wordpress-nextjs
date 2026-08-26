@@ -189,11 +189,15 @@ foreach ($Site in $Manifest.sites) {
 
         $RouteTitle = "$($Site.siteId) Synthetic Test Long-tail Page $Ordinal"
         $RouteSummary = "Deterministic local scale fixture $Ordinal for $($Site.siteId); it contains no verified commercial or technical TiO2 claim."
-        if ($Index -eq 1) {
+        if ($Index -eq 1 -and $null -ne $Site.homepage.PSObject.Properties['product_routes']) {
             $RouteTitle = $Site.homepage.product_routes[1].product_title
             $RouteSummary = $Site.homepage.product_routes[1].product_summary
         }
-        elseif ($Index -ge 2 -and $Index -le 5) {
+        elseif (
+            $Index -ge 2 -and
+            $Index -le 5 -and
+            $null -ne $Site.homepage.PSObject.Properties['applications']
+        ) {
             $Application = $Site.homepage.applications[$Index - 1]
             $RouteTitle = $Application.application_name
             $RouteSummary = $Application.application_summary
