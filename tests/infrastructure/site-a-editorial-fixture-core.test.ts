@@ -4,8 +4,9 @@ import {fileURLToPath} from 'node:url'
 import {describe, expect, it} from 'vitest'
 
 const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url))
+const runWordPressRuntime = process.env.WORDPRESS_EDITORIAL_FIXTURE_RUNTIME === '1'
 
-describe('Site A editorial fixture core', () => {
+describe.runIf(runWordPressRuntime)('Site A editorial fixture core', () => {
   it('passes the isolated eligible apply, rollback, locking, and fixture-contract harness', () => {
     const result = spawnSync('docker', [
       'compose',

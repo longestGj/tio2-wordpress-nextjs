@@ -89,6 +89,33 @@ fixture_core_expect_exception(
     'missing or out-of-scope row fields'
 );
 
+foreach (['faqs_notes', '_metrics_cache', 'rfq_labels_backup'] as $collision_key) {
+    fixture_core_assert(
+        ! tio2_local_editorial_is_v01_meta_key($collision_key),
+        "Legacy-prefix collision {$collision_key} was classified as managed ACF content."
+    );
+    fixture_core_assert(
+        ! tio2_local_editorial_is_managed_content_meta_key($collision_key),
+        "Unmanaged invariant excluded legacy-prefix collision {$collision_key}."
+    );
+}
+fixture_core_assert(
+    ! tio2_local_editorial_is_managed_content_meta_key('geo_faqs_notes'),
+    'Unmanaged invariant excluded a current-field prefix collision.'
+);
+foreach ([
+    'faqs_9_faq_answer',
+    '_rfq_labels_rfq_label_name',
+    '_metrics',
+    'geo_faqs_7_faq_answer',
+    '_hero_heading',
+] as $managed_key) {
+    fixture_core_assert(
+        tio2_local_editorial_is_managed_content_meta_key($managed_key),
+        "Known ACF meta {$managed_key} was not classified as managed content."
+    );
+}
+
 final class FixtureCoreFakeWpdb
 {
     public string $postmeta = 'wp_postmeta';
@@ -103,6 +130,10 @@ final class FixtureCoreFakeWpdb
         '_applications_99_application_path' => 'field_tio2_home_application_path',
         'faqs_0_faq_related_path' => '/products/legacy',
         '_faqs_0_faq_related_path' => 'field_tio2_home_faq_related_path',
+        'faqs_notes' => 'preserve collision notes',
+        '_metrics_cache' => 'preserve collision cache',
+        'rfq_labels_backup' => 'preserve collision backup',
+        'product_routes_0_product_path_extra' => 'preserve collision suffix',
         'hero_heading' => 'Shared hero',
         '_hero_heading' => 'field_tio2_home_hero_heading',
         'application_briefs_0_application_name' => 'v0.2 value',
@@ -152,9 +183,13 @@ fixture_core_assert(
     isset(
         $wpdb->rows['application_briefs_0_application_name'],
         $wpdb->rows['_application_briefs_0_application_name'],
-        $wpdb->rows['_unmanaged_probe']
+        $wpdb->rows['_unmanaged_probe'],
+        $wpdb->rows['faqs_notes'],
+        $wpdb->rows['_metrics_cache'],
+        $wpdb->rows['rfq_labels_backup'],
+        $wpdb->rows['product_routes_0_product_path_extra']
     ),
-    'v0.2 or unmanaged meta was deleted.'
+    'v0.2, unmanaged, or legacy-prefix collision meta was deleted.'
 );
 
 final class FixtureCoreHarness
@@ -173,7 +208,12 @@ final class FixtureCoreHarness
     /** @var list<string> */
     public array $queue = ['before'];
     /** @var array<string, string> */
-    public array $unmanaged = ['_unmanaged_probe' => 'preserve'];
+    public array $unmanaged = [
+        '_unmanaged_probe' => 'preserve',
+        'faqs_notes' => 'preserve collision notes',
+        '_metrics_cache' => 'preserve collision cache',
+        'rfq_labels_backup' => 'preserve collision backup',
+    ];
     public string $status = 'publish';
     public bool $suppressed = false;
     public bool $namedLock = false;

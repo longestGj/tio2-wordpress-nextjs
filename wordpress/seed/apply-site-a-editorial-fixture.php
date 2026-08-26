@@ -117,22 +117,11 @@ function tio2_local_editorial_root_identity_hash(): string
     return 'sha256:' . hash('sha256', (string) wp_json_encode($rows));
 }
 
-function tio2_local_editorial_is_content_meta_key(string $meta_key): bool
-{
-    $normalized = str_starts_with($meta_key, '_') ? substr($meta_key, 1) : $meta_key;
-    foreach (tio2_local_editorial_required_field_names() as $root) {
-        if ($normalized === $root || str_starts_with($normalized, $root . '_')) {
-            return true;
-        }
-    }
-    return tio2_local_editorial_is_v01_meta_key($meta_key) || '_tio2_homepage_error' === $meta_key;
-}
-
 function tio2_local_editorial_unmanaged_meta_hash(int $post_id): string
 {
     $meta = get_post_meta($post_id);
     foreach (array_keys($meta) as $meta_key) {
-        if (tio2_local_editorial_is_content_meta_key((string) $meta_key)) {
+        if (tio2_local_editorial_is_managed_content_meta_key((string) $meta_key)) {
             unset($meta[$meta_key]);
         }
     }

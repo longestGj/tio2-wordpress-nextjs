@@ -254,11 +254,115 @@ function tio2_local_editorial_v01_meta_roots(): array
     ];
 }
 
+/**
+ * @return array<string, list<string>>
+ */
+function tio2_local_editorial_v01_repeater_subfields(): array
+{
+    return [
+        'metrics' => [
+            'metric_value',
+            'metric_unit',
+            'metric_label',
+            'metric_context',
+            'metric_claim_basis',
+            'metric_evidence_url',
+        ],
+        'product_routes' => [
+            'product_title',
+            'product_summary',
+            'product_path',
+            'product_image',
+            'product_image_alt',
+        ],
+        'applications' => [
+            'application_name',
+            'application_summary',
+            'application_path',
+            'application_image',
+            'application_image_alt',
+        ],
+        'inquiry_steps' => ['inquiry_step_title', 'inquiry_step_description'],
+        'trust_reasons' => [
+            'trust_reason_title',
+            'trust_reason_description',
+            'trust_reason_claim_basis',
+            'trust_reason_evidence_url',
+        ],
+        'faqs' => ['faq_question', 'faq_answer', 'faq_related_label', 'faq_related_path'],
+    ];
+}
+
+/**
+ * @return array<string, list<string>>
+ */
+function tio2_local_editorial_v01_group_subfields(): array
+{
+    return [
+        'rfq_labels' => [
+            'rfq_label_name',
+            'rfq_label_company',
+            'rfq_label_country_region',
+            'rfq_label_work_email',
+            'rfq_label_buyer_type',
+            'rfq_label_interest',
+            'rfq_label_expected_quantity',
+            'rfq_label_destination',
+            'rfq_label_message',
+            'rfq_label_privacy',
+            'rfq_buyer_industrial_label',
+            'rfq_buyer_distributor_label',
+            'rfq_buyer_other_label',
+        ],
+    ];
+}
+
 function tio2_local_editorial_is_v01_meta_key(string $meta_key): bool
 {
     $normalized = str_starts_with($meta_key, '_') ? substr($meta_key, 1) : $meta_key;
-    foreach (tio2_local_editorial_v01_meta_roots() as $root) {
-        if ($normalized === $root || str_starts_with($normalized, $root . '_')) {
+    if (in_array($normalized, tio2_local_editorial_v01_meta_roots(), true)) {
+        return true;
+    }
+    foreach (tio2_local_editorial_v01_group_subfields() as $root => $subfields) {
+        foreach ($subfields as $subfield) {
+            if ($normalized === $root . '_' . $subfield) {
+                return true;
+            }
+        }
+    }
+    foreach (tio2_local_editorial_v01_repeater_subfields() as $root => $subfields) {
+        $subfield_pattern = implode('|', array_map(
+            static fn (string $subfield): string => preg_quote($subfield, '~'),
+            $subfields
+        ));
+        if (1 === preg_match(
+            '~^' . preg_quote($root, '~') . '_[0-9]+_(?:' . $subfield_pattern . ')$~D',
+            $normalized
+        )) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function tio2_local_editorial_is_managed_content_meta_key(string $meta_key): bool
+{
+    if ('_tio2_homepage_error' === $meta_key || tio2_local_editorial_is_v01_meta_key($meta_key)) {
+        return true;
+    }
+    $normalized = str_starts_with($meta_key, '_') ? substr($meta_key, 1) : $meta_key;
+    if (in_array($normalized, tio2_local_editorial_required_field_names(), true)) {
+        return true;
+    }
+    foreach (tio2_local_editorial_required_row_shapes() as $root => $subfields) {
+        $subfield_pattern = implode('|', array_map(
+            static fn (string $subfield): string => preg_quote($subfield, '~'),
+            $subfields
+        ));
+        if (1 === preg_match(
+            '~^' . preg_quote($root, '~') . '_[0-9]+_(?:' . $subfield_pattern . ')$~D',
+            $normalized
+        )) {
             return true;
         }
     }
