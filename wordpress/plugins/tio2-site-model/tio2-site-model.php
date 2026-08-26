@@ -15,10 +15,11 @@ if (! defined('ABSPATH')) {
 
 require_once __DIR__ . '/includes/content-types.php';
 require_once __DIR__ . '/includes/publication.php';
-require_once __DIR__ . '/includes/product-publication.php';
 require_once __DIR__ . '/includes/homepage-rfq-copy.php';
 require_once __DIR__ . '/includes/fields.php';
 require_once __DIR__ . '/includes/product-fields.php';
+require_once __DIR__ . '/includes/product-contract.php';
+require_once __DIR__ . '/includes/product-publication.php';
 require_once __DIR__ . '/includes/homepage-v02.php';
 require_once __DIR__ . '/includes/webhooks.php';
 require_once __DIR__ . '/includes/preview.php';
@@ -36,6 +37,7 @@ add_action('wp_after_insert_post', 'tio2_backstop_product_publication', 20, 3);
 add_action('acf/init', 'tio2_register_acf_fields');
 add_action('acf/init', 'tio2_register_product_settings_page');
 add_action('acf/init', 'tio2_register_product_acf_fields');
+add_action('acf/save_post', 'tio2_save_product_contract_feedback', 30);
 add_filter('acf/prepare_field/key=field_tio2_home_rfq_intro', 'tio2_prepare_homepage_rfq_copy_field');
 add_filter('acf/prepare_field/key=field_tio2_home_rfq_privacy_text', 'tio2_prepare_homepage_rfq_copy_field');
 add_filter('acf/prepare_field/key=field_tio2_home_rfq_success_heading', 'tio2_prepare_homepage_rfq_copy_field');
@@ -47,6 +49,7 @@ add_action('acf/save_post', 'tio2_enforce_homepage_from_acf', 30);
 add_action('save_post_tio2_homepage', 'tio2_enforce_homepage_contract', 100);
 add_action('rest_after_insert_tio2_homepage', 'tio2_enforce_homepage_after_rest', 10, 3);
 add_action('admin_notices', 'tio2_managed_route_admin_notice');
+add_action('admin_notices', 'tio2_product_contract_admin_notice');
 add_filter('sanitize_title', 'tio2_preserve_internal_slug', 10, 3);
 add_action('transition_post_status', 'tio2_handle_post_transition', 10, 3);
 add_filter('update_post_metadata', 'tio2_capture_post_meta_before_mutation', 10, 5);

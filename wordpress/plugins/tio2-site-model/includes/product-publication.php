@@ -138,6 +138,11 @@ function tio2_guard_product_publication(
         return $data;
     }
 
+    $validation = $post_id > 0 ? tio2_validate_product_contract($post_id) : null;
+    if (tio2_product_has_approved_public_route() && true === $validation) {
+        return $data;
+    }
+
     $data['post_status'] = 'draft';
     return $data;
 }
@@ -157,6 +162,11 @@ function tio2_backstop_product_publication(int $post_id, WP_Post $post, bool $up
             tio2_root_only_restore_candidate_allowed($post_id, 'tio2_product', $post->post_status)
         )
     ) {
+        return;
+    }
+
+    $validation = tio2_validate_product_contract($post_id);
+    if (tio2_product_has_approved_public_route() && true === $validation) {
         return;
     }
 
