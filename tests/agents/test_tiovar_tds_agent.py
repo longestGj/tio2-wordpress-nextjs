@@ -62,6 +62,7 @@ def _write_supplier_pdf(path: Path) -> None:
         b"BT /F1 12 Tf 72 720 Td "
         b"(SUP-100 Technical Data Sheet) Tj 0 -20 Td "
         b"(TiO2 content, %: 95) Tj 0 -20 Td "
+        b"(Volatile \\(duringpacking\\), %: 0.1) Tj 0 -20 Td "
         b"(High hiding power) Tj 0 -20 Td "
         b"(Formulation evaluation in water-based coating) Tj ET"
     )
@@ -1071,6 +1072,31 @@ class TiovarTdsAgentTests(unittest.TestCase):
 
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("TECHNICAL_PROPERTY_VALUE_PAIR_NOT_FOUND:0", result.stdout + result.stderr)
+
+    def test_technical_source_allows_normalized_spacing_missing_in_pdf_extraction(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "supplier.pdf"
+            _write_supplier_pdf(source)
+            data = _manifest(source)
+            data["content"]["technical_data"][0] = {
+                "property": "Volatile (during packing), %",
+                "value": "0.1",
+                "source_id": "S001",
+                "source_locator": "page 1 / specifications / Volatile (during packing)",
+            }
+            manifest = root / "sources.yaml"
+            manifest.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+
+            result = subprocess.run(
+                [str(PYTHON), str(AGENT_ROOT / "scripts" / "verify_tds.py"), "--manifest", str(manifest), "--manifest-only"],
+                cwd=REPO_ROOT,
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("TDS_VERIFIED", result.stdout)
 
     def test_all_customer_visible_fields_require_claim_mapping(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

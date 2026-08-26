@@ -134,6 +134,12 @@ def _contains_sequence(tokens: list[str], sequence: list[str]) -> bool:
     return bool(sequence) and any(tokens[index : index + len(sequence)] == sequence for index in range(len(tokens) - len(sequence) + 1))
 
 
+def _contains_property_tokens(container_tokens: list[str], property_tokens: list[str]) -> bool:
+    if _contains_sequence(container_tokens, property_tokens):
+        return True
+    return bool(property_tokens) and "".join(property_tokens) in "".join(container_tokens)
+
+
 def _technical_pair_present(source_text: str, property_name: str, value: str) -> bool:
     source_tokens = _match_tokens(source_text)
     property_tokens = _match_tokens(property_name.split(",", 1)[0])
@@ -146,6 +152,14 @@ def _technical_pair_present(source_text: str, property_name: str, value: str) ->
         window_start = index + len(property_tokens)
         window = source_tokens[window_start : window_start + 7]
         if _contains_sequence(window, value_tokens):
+            return True
+    source_compact = "".join(source_tokens)
+    property_compact = "".join(property_tokens)
+    value_compact = "".join(value_tokens)
+    property_index = source_compact.find(property_compact)
+    if property_index >= 0:
+        tail = source_compact[property_index + len(property_compact) : property_index + len(property_compact) + 32]
+        if value_compact in tail:
             return True
     return False
 
@@ -346,7 +360,7 @@ def validate_manifest(data: dict[str, Any], manifest_path: Path | None = None) -
             value = str(row.get("value") or "")
             locator = str(row.get("source_locator") or "")
             property_tokens = _match_tokens(property_name.split(",", 1)[0])
-            if not _contains_sequence(_match_tokens(locator), property_tokens):
+            if not _contains_property_tokens(_match_tokens(locator), property_tokens):
                 errors.append(f"TECHNICAL_LOCATOR_PROPERTY_MISMATCH:{index}")
             if not _technical_pair_present(source_texts.get(str(row.get("source_id")), ""), property_name, value):
                 errors.append(f"TECHNICAL_PROPERTY_VALUE_PAIR_NOT_FOUND:{index}")
