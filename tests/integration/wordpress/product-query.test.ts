@@ -36,7 +36,7 @@ function makeProductResponse(
       title: product.identity.title,
       modifiedGmt: product.identity.modified,
       status: 'publish',
-      siteScopes: {nodes: [{slug: 'tio2-a'}]},
+      siteScopes: {nodes: [{slug: 'tio2-a' as string | null}]},
       productFields: {
         productId: product.identity.productId,
         family: {nodes: [{__typename: 'ProductFamily', name: product.identity.family}]},
@@ -60,7 +60,7 @@ function makeProductResponse(
             excerpt: `<p>${application.fit}</p>`,
             uri: application.href ?? `/applications/recommended-${index + 1}/`,
             status: 'publish',
-            siteScopes: {nodes: [{slug: 'tio2-a'}]},
+            siteScopes: {nodes: [{slug: 'tio2-a' as string | null}]},
           })),
         },
         evidenceStatement: product.evidenceHtml,
@@ -79,7 +79,7 @@ function makeProductResponse(
               title: link.title,
               uri: `${link.href}/`,
               status: 'publish',
-              siteScopes: {nodes: [{slug: 'tio2-a'}]},
+              siteScopes: {nodes: [{slug: 'tio2-a' as string | null}]},
             })),
           },
           resources: {
@@ -88,7 +88,7 @@ function makeProductResponse(
               title: link.title,
               uri: `${link.href}/`,
               status: 'publish',
-              siteScopes: {nodes: [{slug: 'tio2-a'}]},
+              siteScopes: {nodes: [{slug: 'tio2-a' as string | null}]},
             })),
           },
           products: {
@@ -97,7 +97,7 @@ function makeProductResponse(
               title: link.title,
               uri: `${link.href}/`,
               status: 'publish',
-              siteScopes: {nodes: [{slug: 'tio2-a'}]},
+              siteScopes: {nodes: [{slug: 'tio2-a' as string | null}]},
             })),
           },
         },
@@ -112,6 +112,34 @@ function makeProductResponse(
       ...settingsOverrides,
     },
   }
+}
+
+function setRelationshipCounts(
+  response: ReturnType<typeof makeProductResponse>,
+  count: number,
+): void {
+  const fields = response.tio2Product.productFields
+  const recommended = fields.recommendedApplications.nodes[0]
+  const relatedApplication = fields.relatedLinks.applications.nodes[0]
+  const relatedResource = fields.relatedLinks.resources.nodes[0]
+  const relatedProduct = fields.relatedLinks.products.nodes[0]
+
+  fields.recommendedApplications.nodes = Array.from(
+    {length: count},
+    () => ({...recommended}),
+  )
+  fields.relatedLinks.applications.nodes = Array.from(
+    {length: count},
+    () => ({...relatedApplication}),
+  )
+  fields.relatedLinks.resources.nodes = Array.from(
+    {length: count},
+    () => ({...relatedResource}),
+  )
+  fields.relatedLinks.products.nodes = Array.from(
+    {length: count},
+    () => ({...relatedProduct}),
+  )
 }
 
 describe('Product cache tags', () => {
@@ -140,6 +168,10 @@ describe('getSiteProduct', () => {
         expect(body.query).toContain('tio2Product(id: $slug, idType: SLUG)')
         expect(body.query).toContain('tio2ProductSettings(siteId: $siteId)')
         expect(body.query).not.toContain('tio2Products(')
+        expect(body.query).toContain('recommendedApplications(first: 13)')
+        expect(body.query).toContain('applications(first: 13)')
+        expect(body.query).toContain('resources(first: 13)')
+        expect(body.query).toContain('products(first: 13)')
         expect(body.variables).toEqual({slug: 'tp-z911', siteId: 'tio2-a'})
 
         return HttpResponse.json({data: makeProductResponse()})
@@ -235,6 +267,47 @@ describe('getSiteProduct', () => {
     ).resolves.toBeNull()
   })
 
+  it.each([
+    ['nullable', [{slug: null}]],
+    ['unknown', [{slug: 'unknown-site'}]],
+    ['extra', [{slug: 'tio2-a'}, {slug: null}]],
+  ] as const)(
+    'withholds a Product whose raw site-scope nodes are %s',
+    async (_case, nodes) => {
+      server.use(
+        http.post(graphqlEndpoint, () =>
+          HttpResponse.json({
+            data: makeProductResponse({siteScopes: {nodes}}),
+          }),
+        ),
+      )
+
+      await expect(
+        getSiteProduct(getSiteConfig('tio2-a'), 'tp-z911'),
+      ).resolves.toBeNull()
+    },
+  )
+
+  it.each([
+    ['nullable', [{slug: null}]],
+    ['unknown', [{slug: 'unknown-site'}]],
+    ['extra', [{slug: 'tio2-a'}, {slug: null}]],
+  ] as const)(
+    'suppresses a relationship whose raw site-scope nodes are %s',
+    async (_case, nodes) => {
+      const response = makeProductResponse()
+      response.tio2Product.productFields.relatedLinks.applications
+        .nodes[0].siteScopes = {nodes: [...nodes]}
+      server.use(
+        http.post(graphqlEndpoint, () => HttpResponse.json({data: response})),
+      )
+
+      const result = await getSiteProduct(getSiteConfig('tio2-a'), 'tp-z911')
+
+      expect(result?.relatedLinks.applications).toEqual([])
+    },
+  )
+
   it('rejects a malformed Product contract instead of returning partial output', async () => {
     const response = makeProductResponse()
     response.tio2Product.productFields.metaTitle = ''
@@ -246,6 +319,71 @@ describe('getSiteProduct', () => {
       getSiteProduct(getSiteConfig('tio2-a'), 'tp-z911'),
     ).rejects.toBeInstanceOf(ProductContractError)
   })
+
+  it('accepts exactly 12 recommended and related relationship nodes', async () => {
+    const response = makeProductResponse()
+    setRelationshipCounts(response, 12)
+    server.use(
+      http.post(graphqlEndpoint, () => HttpResponse.json({data: response})),
+    )
+
+    const result = await getSiteProduct(getSiteConfig('tio2-a'), 'tp-z911')
+
+    expect(result?.recommendedApplications).toHaveLength(12)
+    expect(result?.relatedLinks.applications).toHaveLength(12)
+    expect(result?.relatedLinks.resources).toHaveLength(12)
+    expect(result?.relatedLinks.products).toHaveLength(12)
+  })
+
+  it('rejects 13 recommended Application relationships', async () => {
+    const response = makeProductResponse()
+    const recommended = response.tio2Product.productFields
+      .recommendedApplications.nodes[0]
+    response.tio2Product.productFields.recommendedApplications.nodes =
+      Array.from({length: 13}, () => ({...recommended}))
+    server.use(
+      http.post(graphqlEndpoint, () => HttpResponse.json({data: response})),
+    )
+
+    await expect(
+      getSiteProduct(getSiteConfig('tio2-a'), 'tp-z911'),
+    ).rejects.toBeInstanceOf(ProductContractError)
+  })
+
+  it.each(['applications', 'resources', 'products'] as const)(
+    'rejects 13 related %s relationships',
+    async (group) => {
+      const response = makeProductResponse()
+      const relatedLinks = response.tio2Product.productFields.relatedLinks
+
+      if (group === 'applications') {
+        const node = relatedLinks.applications.nodes[0]
+        relatedLinks.applications.nodes = Array.from(
+          {length: 13},
+          () => ({...node}),
+        )
+      } else if (group === 'resources') {
+        const node = relatedLinks.resources.nodes[0]
+        relatedLinks.resources.nodes = Array.from(
+          {length: 13},
+          () => ({...node}),
+        )
+      } else {
+        const node = relatedLinks.products.nodes[0]
+        relatedLinks.products.nodes = Array.from(
+          {length: 13},
+          () => ({...node}),
+        )
+      }
+      server.use(
+        http.post(graphqlEndpoint, () => HttpResponse.json({data: response})),
+      )
+
+      await expect(
+        getSiteProduct(getSiteConfig('tio2-a'), 'tp-z911'),
+      ).rejects.toBeInstanceOf(ProductContractError)
+    },
+  )
 
   it('preserves the typed timeout failure from WordPress', async () => {
     const nativeTimeout = AbortSignal.timeout.bind(AbortSignal)

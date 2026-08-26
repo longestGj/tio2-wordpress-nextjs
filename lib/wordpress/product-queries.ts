@@ -59,9 +59,8 @@ function hasOnlySiteScope(
   node: Pick<SiteProductFieldsFragment, 'siteScopes'>,
   siteId: string,
 ): boolean {
-  const siteIds =
-    node.siteScopes?.nodes.flatMap(({slug}) => (slug ? [slug] : [])) ?? []
-  return siteIds.length === 1 && siteIds[0] === siteId
+  const scopeNodes = node.siteScopes?.nodes
+  return scopeNodes?.length === 1 && scopeNodes[0]?.slug === siteId
 }
 
 function isPublishedRelationship(

@@ -75,7 +75,7 @@ fragment SiteProductFields on Tio2Product {
       title
       explanation
     }
-    recommendedApplications {
+    recommendedApplications(first: 13) {
       nodes {
         ... on Tio2Application {
           ...ProductApplicationLinkFields
@@ -101,21 +101,21 @@ fragment SiteProductFields on Tio2Product {
       answer
     }
     relatedLinks {
-      applications {
+      applications(first: 13) {
         nodes {
           ... on Tio2Application {
             ...ProductApplicationLinkFields
           }
         }
       }
-      resources {
+      resources(first: 13) {
         nodes {
           ... on Tio2Document {
             ...ProductDocumentLinkFields
           }
         }
       }
-      products {
+      products(first: 13) {
         nodes {
           ... on Tio2Product {
             ...ProductLinkFields
