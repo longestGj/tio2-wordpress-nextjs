@@ -313,6 +313,9 @@ function tio2_site_a_product_draft_execute(
         $actions = [];
         foreach ($records as $record) {
             $existing = $operations['find']($record['productId']);
+            if (is_array($existing) && ['tio2-a'] !== ($existing['scopes'] ?? null)) {
+                throw new RuntimeException('Product ID collision is not scoped exactly to Site A.');
+            }
             $action = ! is_array($existing)
                 ? 'create'
                 : (tio2_site_a_product_draft_records_equal($existing, $record) ? 'no-change' : 'update');
@@ -378,7 +381,7 @@ function tio2_site_a_product_draft_site_b_hash(): string
 {
     global $wpdb;
     $rows = $wpdb->get_results(
-        "SELECT p.ID, p.post_type, p.post_status, p.post_name, p.post_title
+        "SELECT p.*
          FROM {$wpdb->posts} p
          INNER JOIN {$wpdb->term_relationships} tr ON tr.object_id = p.ID
          INNER JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
@@ -394,13 +397,20 @@ function tio2_site_a_product_draft_site_b_hash(): string
         $post_id = (int) $row['ID'];
         $meta = get_post_meta($post_id);
         ksort($meta, SORT_STRING);
-        $terms = wp_get_object_terms($post_id, 'site_scope', ['fields' => 'slugs']);
-        if (is_wp_error($terms)) {
-            throw new RuntimeException($terms->get_error_message());
+        $taxonomies = $wpdb->get_results($wpdb->prepare(
+            "SELECT tt.taxonomy AS taxonomy, t.term_id AS term_id, t.slug AS slug
+             FROM {$wpdb->term_relationships} tr
+             INNER JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
+             INNER JOIN {$wpdb->terms} t ON t.term_id = tt.term_id
+             WHERE tr.object_id = %d
+             ORDER BY tt.taxonomy ASC, t.term_id ASC",
+            $post_id
+        ), ARRAY_A);
+        if ('' !== $wpdb->last_error) {
+            throw new RuntimeException('Could not snapshot frozen Site B taxonomy assignments.');
         }
-        sort($terms, SORT_STRING);
         $row['meta'] = $meta;
-        $row['siteScopes'] = $terms;
+        $row['taxonomies'] = $taxonomies;
     }
     unset($row);
     return 'sha256:' . hash('sha256', (string) wp_json_encode($rows));

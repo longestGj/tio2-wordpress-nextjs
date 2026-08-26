@@ -36,12 +36,6 @@ if (($ManifestAttributes -band [System.IO.FileAttributes]::Directory) -ne 0) {
     throw 'ManifestPath must not be a directory.'
 }
 
-& node (Join-Path $RepositoryRoot 'scripts/products/validate-product-manifest.mjs') $ManifestPath
-if ($LASTEXITCODE -ne 0) {
-    throw 'The external Product manifest did not satisfy the approved content contract.'
-}
-$ManifestSha256 = (Get-FileHash -LiteralPath $ManifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
-
 $EnvironmentValues = @{}
 foreach ($Line in Get-Content -LiteralPath $EnvironmentFile) {
     if ($Line -match '^([^#=]+)=(.*)$') {
@@ -130,11 +124,18 @@ function Invoke-LocalProductDraftImport {
 $RuntimeManifestName = '.runtime-site-a-product-drafts-{0}.json' -f ([Guid]::NewGuid().ToString('N'))
 $RuntimeManifestPath = Join-Path $SeedDirectory $RuntimeManifestName
 try {
+    $SourceHashBefore = (Get-FileHash -LiteralPath $ManifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
     [System.IO.File]::Copy($ManifestPath, $RuntimeManifestPath, $false)
+    $SourceHashAfter = (Get-FileHash -LiteralPath $ManifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
     $RuntimeHash = (Get-FileHash -LiteralPath $RuntimeManifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
-    if ($RuntimeHash -cne $ManifestSha256) {
-        throw 'The staged Product manifest hash did not match the exact external source hash.'
+    if ($SourceHashBefore -cne $SourceHashAfter -or $RuntimeHash -cne $SourceHashBefore) {
+        throw 'The external Product manifest changed while its staged snapshot was being created.'
     }
+    & node (Join-Path $RepositoryRoot 'scripts/products/validate-product-manifest.mjs') $RuntimeManifestPath
+    if ($LASTEXITCODE -ne 0) {
+        throw 'The staged Product manifest did not satisfy the approved content contract.'
+    }
+    $ManifestSha256 = $RuntimeHash
 
     $PlanCapability = New-LocalProductDraftCapability -CapabilityMode 'plan' -RuntimeManifestPath $RuntimeManifestPath -ManifestHash $ManifestSha256
     if ($Mode -eq 'Plan') {
