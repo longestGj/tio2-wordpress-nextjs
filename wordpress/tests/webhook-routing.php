@@ -186,6 +186,51 @@ function tio2_webhook_routing_page(string $site_id): int
     return (int) $post_id;
 }
 
+/**
+ * @param list<array<string, mixed>> $definitions
+ * @return list<string>
+ */
+function tio2_webhook_routing_product_meta_keys(array $definitions): array
+{
+    $meta_keys = [];
+    foreach ($definitions as $definition) {
+        $field_name = (string) ($definition['name'] ?? '');
+        if ('' === $field_name) {
+            continue;
+        }
+        $meta_keys[] = $field_name;
+        foreach ($definition['sub_fields'] ?? [] as $sub_field) {
+            if (! is_array($sub_field) || '' === ($sub_field['name'] ?? '')) {
+                continue;
+            }
+            $prefix = 'repeater' === ($definition['type'] ?? '')
+                ? $field_name . '_0_'
+                : $field_name . '_';
+            $meta_keys[] = $prefix . $sub_field['name'];
+        }
+    }
+
+    return array_values(array_unique($meta_keys));
+}
+
+function tio2_webhook_routing_product(string $site_id, string $product_id): int
+{
+    $post_id = wp_insert_post([
+        'post_type' => 'tio2_product',
+        'post_status' => 'draft',
+        'post_title' => "TiO2 {$site_id} Product webhook routing fixture",
+        'post_name' => tio2_product_slug_from_id($product_id),
+    ], true);
+    if (is_wp_error($post_id) || $post_id <= 0) {
+        tio2_webhook_routing_fail("Could not create {$site_id} Product webhook fixture");
+    }
+
+    $GLOBALS['tio2_webhook_routing_post_ids'][] = (int) $post_id;
+    update_post_meta((int) $post_id, 'product_id', $product_id);
+    wp_set_object_terms((int) $post_id, [$site_id], 'site_scope', false);
+    return (int) $post_id;
+}
+
 register_shutdown_function('tio2_webhook_routing_cleanup');
 
 putenv('NEXTJS_REVALIDATION_URL_TIO2_A=https://site-a.next.test/api/revalidate');
@@ -221,6 +266,71 @@ foreach (['tio2-a', 'tio2-b'] as $site_id) {
     );
     tio2_flush_webhook_queue();
     tio2_webhook_routing_assert_request($captured_requests, $site_id);
+}
+
+foreach (tio2_webhook_routing_product_meta_keys(tio2_product_field_definitions()) as $meta_key) {
+    foreach ([$meta_key, '_' . $meta_key] as $acf_meta_key) {
+        if (! tio2_is_relevant_webhook_meta_key($acf_meta_key)) {
+            tio2_webhook_routing_fail("Product field {$acf_meta_key} was not relevant to revalidation");
+        }
+    }
+}
+foreach (tio2_webhook_routing_product_meta_keys(tio2_product_shared_field_definitions()) as $meta_key) {
+    foreach ([$meta_key, '_' . $meta_key, 'options_' . $meta_key, '_options_' . $meta_key] as $acf_meta_key) {
+        if (! tio2_is_relevant_webhook_meta_key($acf_meta_key)) {
+            tio2_webhook_routing_fail("Shared Product setting {$acf_meta_key} was not relevant to revalidation");
+        }
+    }
+}
+
+$product_meta_isolation_page_id = tio2_webhook_routing_page('tio2-a');
+if (tio2_is_relevant_webhook_meta_key('product_id', $product_meta_isolation_page_id)) {
+    tio2_webhook_routing_fail('Product-only meta became relevant to an existing Page webhook');
+}
+
+$site_a_product_id = tio2_webhook_routing_product('tio2-a', 'TP-W123');
+$site_a_product_state = tio2_get_webhook_affected_state($site_a_product_id);
+if (
+    ! is_array($site_a_product_state) ||
+    [$site_a_product_id] !== ($site_a_product_state['entityIds'] ?? null) ||
+    ['/products/tp-w123'] !== ($site_a_product_state['paths'] ?? null) ||
+    ['/products/tp-w123'] !== ($site_a_product_state['sitePaths']['tio2-a'] ?? null)
+) {
+    tio2_webhook_routing_fail('Site A Product webhook state did not contain its canonical route and entity ID');
+}
+$site_a_product_payload = tio2_build_webhook_payload(
+    $site_a_product_id,
+    '2026-08-26T00:00:00+00:00',
+    $site_a_product_state
+);
+if (
+    ! is_array($site_a_product_payload) ||
+    ['/products/tp-w123'] !== ($site_a_product_payload['paths'] ?? null) ||
+    [$site_a_product_id] !== ($site_a_product_payload['entityIds'] ?? null)
+) {
+    tio2_webhook_routing_fail('Site A Product webhook payload did not retain its canonical route and entity ID');
+}
+
+$site_b_product_id = tio2_webhook_routing_product('tio2-b', 'TP-W124');
+if (null !== tio2_get_webhook_affected_state($site_b_product_id)) {
+    tio2_webhook_routing_fail('Site B Product generated a Site A revalidation webhook state');
+}
+
+$captured_requests = [];
+$GLOBALS['tio2_webhook_queue'] = [];
+update_post_meta($site_a_product_id, 'quick_answer', 'Draft Product webhook suppression fixture.');
+tio2_flush_webhook_queue();
+if ([] !== $captured_requests) {
+    tio2_webhook_routing_fail('Draft Product meta edit emitted a public revalidation request');
+}
+
+foreach (['page', 'post', 'tio2_homepage'] as $post_type) {
+    if (! in_array($post_type, tio2_webhook_post_types(), true)) {
+        tio2_webhook_routing_fail("Existing {$post_type} webhook routing support regressed");
+    }
+}
+if (1 !== count(array_keys(tio2_webhook_post_types(), 'tio2_product', true))) {
+    tio2_webhook_routing_fail('Product webhook routing registered the Product post type more than once');
 }
 
 $bounded_page_id = tio2_webhook_routing_page('tio2-a');

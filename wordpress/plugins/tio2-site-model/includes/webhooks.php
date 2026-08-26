@@ -55,6 +55,69 @@ function tio2_webhook_post_types(): array
     return array_merge(['page', 'post', 'tio2_homepage'], array_keys(tio2_content_type_definitions()));
 }
 
+/**
+ * @param list<array<string, mixed>> $definitions
+ */
+function tio2_is_relevant_product_webhook_meta_key_from_definitions(string $meta_key, array $definitions): bool
+{
+    $meta_key = str_starts_with($meta_key, '_') ? substr($meta_key, 1) : $meta_key;
+    if ('' === $meta_key || str_starts_with($meta_key, '_')) {
+        return false;
+    }
+
+    foreach ($definitions as $definition) {
+        $field_name = (string) ($definition['name'] ?? '');
+        if ('' === $field_name) {
+            continue;
+        }
+        if ($field_name === $meta_key) {
+            return true;
+        }
+
+        foreach ($definition['sub_fields'] ?? [] as $sub_field) {
+            if (! is_array($sub_field)) {
+                continue;
+            }
+            $sub_field_name = (string) ($sub_field['name'] ?? '');
+            if ('' === $sub_field_name) {
+                continue;
+            }
+            if ('repeater' === ($definition['type'] ?? '')) {
+                if (1 === preg_match(
+                    '/^' . preg_quote($field_name, '/') . '_[0-9]+_' . preg_quote($sub_field_name, '/') . '$/',
+                    $meta_key
+                )) {
+                    return true;
+                }
+                continue;
+            }
+            if ($field_name . '_' . $sub_field_name === $meta_key) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+function tio2_is_relevant_product_webhook_meta_key(string $meta_key): bool
+{
+    return tio2_is_relevant_product_webhook_meta_key_from_definitions(
+        $meta_key,
+        tio2_product_field_definitions()
+    );
+}
+
+function tio2_is_relevant_product_shared_webhook_meta_key(string $meta_key): bool
+{
+    $meta_key = str_starts_with($meta_key, '_') ? substr($meta_key, 1) : $meta_key;
+    $meta_key = str_starts_with($meta_key, 'options_') ? substr($meta_key, 8) : $meta_key;
+    return tio2_is_relevant_product_webhook_meta_key_from_definitions(
+        $meta_key,
+        tio2_product_shared_field_definitions()
+    );
+}
+
 function tio2_is_valid_webhook_path(string $path): bool
 {
     if ('' === $path || str_starts_with($path, '//')) {
@@ -177,6 +240,20 @@ function tio2_get_webhook_affected_state(
         }
         $paths = ['/'];
         $site_paths[$site_ids[0]] = $paths;
+    } elseif ('tio2_product' === $post->post_type) {
+        if (['tio2-a'] !== $site_ids || ! function_exists('get_field')) {
+            return null;
+        }
+        $product_id = get_field('product_id', $post_id, false);
+        if (! is_string($product_id) || 1 !== preg_match(tio2_product_id_pattern(), $product_id)) {
+            return null;
+        }
+        $paths = tio2_normalize_webhook_paths([tio2_product_path_from_id($product_id)]);
+        if (null === $paths) {
+            return null;
+        }
+        $entity_ids = [$post_id];
+        $site_paths['tio2-a'] = $paths;
     } elseif (in_array($post->post_type, ['page', 'post'], true)) {
         if (1 !== count($site_ids)) {
             return null;
@@ -354,7 +431,21 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
         return true;
     }
 
+    if (null === $post_id && (
+        tio2_is_relevant_product_webhook_meta_key($meta_key) ||
+        tio2_is_relevant_product_shared_webhook_meta_key($meta_key)
+    )) {
+        return true;
+    }
+
     $post = null === $post_id ? null : get_post($post_id);
+    if (
+        $post instanceof WP_Post &&
+        'tio2_product' === $post->post_type &&
+        tio2_is_relevant_product_webhook_meta_key($meta_key)
+    ) {
+        return true;
+    }
     if (! $post instanceof WP_Post || 'tio2_homepage' !== $post->post_type) {
         return false;
     }
