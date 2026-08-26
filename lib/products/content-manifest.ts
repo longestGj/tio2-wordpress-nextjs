@@ -332,6 +332,9 @@ const DENIED_TDS_PREDICATE_PATTERN =
 function containsPositiveTdsAccessClaim(value: string): boolean {
   return claimClauses(value).some(({text, isQuestion}) => {
     if (isQuestion || !/\b(?:tds|technical data sheet)\b/u.test(text)) return false
+    if (/\b(?:(?:can|could|would|may|might|will)\s+be|(?:is|are|was|were))\s+accessed\s+here\b/u.test(text)) {
+      return true
+    }
     const riskyTerms = text.matchAll(
       /\b(?:download(?:able|ed|ing|s)?|direct(?:ly)?|public|online)\b/gu,
     )

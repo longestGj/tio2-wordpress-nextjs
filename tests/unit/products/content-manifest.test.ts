@@ -836,6 +836,9 @@ describe('Site A Product content manifest', () => {
     'The TDS would not be downloaded.',
     "The TDS wouldn't be downloaded.",
     'The TDS cannot be accessed directly.',
+    'The TDS cannot be accessed here.',
+    'The TDS could not be accessed here.',
+    'The TDS would not be accessed here.',
     'The TDS could not be downloaded directly.',
     'The TDS would not be downloaded online.',
     'The TDS should not be downloaded here.',
@@ -863,6 +866,9 @@ describe('Site A Product content manifest', () => {
     'The TDS could be downloaded.',
     'The TDS would be downloaded.',
     'The TDS can be accessed directly.',
+    'The TDS can be accessed here.',
+    'The TDS could be accessed here.',
+    'The TDS would be accessed here.',
     'The TDS can be downloaded online.',
     'This grade is considered equivalent to the incumbent.',
     'This grade can be considered equivalent to the incumbent.',
@@ -877,6 +883,9 @@ describe('Site A Product content manifest', () => {
     "This grade couldn't be treated as equivalent to the incumbent. It could be treated as equivalent to the incumbent.",
     "The TDS wouldn't be downloaded. The TDS would be downloaded.",
     'The TDS cannot be accessed directly. The TDS can be accessed directly.',
+    'The TDS cannot be accessed here. The TDS can be accessed here.',
+    'The TDS could not be accessed here. The TDS could be accessed here.',
+    'The TDS would not be accessed here. The TDS would be accessed here.',
   ])('does not let an auxiliary denial suppress a later assertion: %s', async (value) => {
     const input = completeManifest()
     input.products[0].faqItems[0].answer = `<p>${value}</p>`
