@@ -40,13 +40,5 @@ export default async function HomePage() {
 
   const jsonLd = serializeHomepageJsonLd(buildHomepageJsonLd(site, homepage))
 
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{__html: jsonLd}}
-      />
-      <HomepageRenderer site={site} homepage={homepage} />
-    </>
-  )
+  return <HomepageRenderer site={site} homepage={homepage} jsonLd={jsonLd} />
 }

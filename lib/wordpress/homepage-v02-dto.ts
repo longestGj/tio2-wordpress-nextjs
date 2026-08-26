@@ -37,6 +37,7 @@ const SUPPORTED_IMAGE_MIME_TYPES = new Set<HomepageImageDto['mimeType']>([
 ])
 const WORDPRESS_TAG_REWRITE_PATTERN = /<(?:!--[\s\S]*?(?:-->|$)|\?[\s\S]*?(?:\?>|$)|\/?[a-z][^>]*(?:>|$)|![a-z][^>]*(?:>|$))/iu
 const STRICT_REVIEW_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u
+const FORBIDDEN_HOMEPAGE_EVIDENCE_PATH = /^\/(?:products|applications)(?:\/|$)/u
 
 export interface SiteAEditorialAdapterOptions {
   readonly readMode?: 'published' | 'preview'
@@ -129,6 +130,10 @@ function hasHttpsAuthorityUserInfo(value: string): boolean {
   return authority.includes('@')
 }
 
+function hasForbiddenHomepageEvidencePath(pathname: string): boolean {
+  return FORBIDDEN_HOMEPAGE_EVIDENCE_PATH.test(decodeURIComponent(pathname))
+}
+
 function enumValue<T extends string>(
   value: unknown,
   fieldPath: string,
@@ -173,7 +178,8 @@ function httpsUrl(
       parsed.protocol !== 'https:' ||
       !parsed.hostname ||
       parsed.username ||
-      parsed.password
+      parsed.password ||
+      hasForbiddenHomepageEvidencePath(parsed.pathname)
     ) {
       throw new Error('Invalid evidence URL')
     }

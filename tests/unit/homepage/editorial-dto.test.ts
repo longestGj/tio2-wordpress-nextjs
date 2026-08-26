@@ -272,6 +272,64 @@ describe('toSiteAEditorialHomepageDto', () => {
   })
 
   it.each([
+    [
+      'normalized product root from a supply route',
+      'supplyRoutes',
+      'https://example.test/review/../products',
+      'supplyRoutes[0].evidenceUrl',
+    ],
+    [
+      'encoded product descendant from a supply route',
+      'supplyRoutes',
+      'https://example.test/%70roducts/rutile',
+      'supplyRoutes[0].evidenceUrl',
+    ],
+    [
+      'normalized application root from an evidence item',
+      'evidenceItems',
+      'https://example.test/review/../applications',
+      'evidenceItems[0].evidenceUrl',
+    ],
+    [
+      'encoded application descendant from an evidence item',
+      'evidenceItems',
+      'https://example.test/applications%2Fcoatings',
+      'evidenceItems[0].evidenceUrl',
+    ],
+  ])('rejects a %s', (_label, collection, evidenceUrl, fieldPath) => {
+    const node = makeSiteAEditorialHomepageNode()
+    const rows = Reflect.get(editorial(node), collection) as readonly object[]
+    setField(rows[0]!, 'evidenceUrl', evidenceUrl)
+
+    expect(() => adapt(node)).toThrow(expect.objectContaining({
+      name: HomepageContractError.name,
+      fieldPath,
+    }))
+  })
+
+  it('retains HTTPS evidence documents outside forbidden Homepage routes', () => {
+    const node = makeSiteAEditorialHomepageNode()
+    setField(
+      editorial(node).supplyRoutes![0] as object,
+      'evidenceUrl',
+      'https://example.test/documents/products-route.pdf',
+    )
+    setField(
+      editorial(node).evidenceItems![0] as object,
+      'evidenceUrl',
+      'https://example.test/evidence/applications-review.pdf',
+    )
+
+    const dto = adapt(node)
+    expect(dto.supplyRoutes[0]?.evidenceUrl).toBe(
+      'https://example.test/documents/products-route.pdf',
+    )
+    expect(dto.evidenceItems[0]?.evidenceUrl).toBe(
+      'https://example.test/evidence/applications-review.pdf',
+    )
+  })
+
+  it.each([
     ['optional evidence rows', (node: ReturnType<typeof makeSiteAEditorialHomepageNode>) => Reflect.deleteProperty(editorial(node), 'evidenceItems'), 'evidenceItems'],
     ['optional glossary rows', (node: ReturnType<typeof makeSiteAEditorialHomepageNode>) => Reflect.deleteProperty(editorial(node), 'glossaryItems'), 'glossary'],
     ['optional secondary-topic rows', (node: ReturnType<typeof makeSiteAEditorialHomepageNode>) => Reflect.deleteProperty(fields(node), 'secondaryTopics'), 'seo.secondaryTopics'],

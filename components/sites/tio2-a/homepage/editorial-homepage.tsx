@@ -35,9 +35,8 @@ interface EditorialHomepageProps {
 
 export function EditorialHomepage({homepage}: EditorialHomepageProps) {
   return (
-    <main
+    <div
       className={`${styles.homepage} ${bodyFont.variable} ${headingFont.variable}`}
-      data-site-id={homepage.identity.siteId}
     >
       <Hero hero={homepage.hero} />
       <DirectAnswer directAnswer={homepage.directAnswer} />
@@ -54,6 +53,6 @@ export function EditorialHomepage({homepage}: EditorialHomepageProps) {
       ) : null}
       <EditorialReviewNote editorial={homepage.editorial} />
       <ClosingCta closingCta={homepage.closingCta} />
-    </main>
+    </div>
   )
 }

@@ -8,6 +8,16 @@ if (distDir.includes('..') || /^[A-Za-z]:/.test(distDir) || /^[\\/]/.test(distDi
 
 const nextConfig: NextConfig = {
   distDir,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'tio2products.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
 }
 
 export default nextConfig

@@ -1,4 +1,21 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
+import {hasRemoteMatch} from 'next/dist/shared/lib/match-remote-pattern'
+
+function permitsRemoteImage(
+  images: Awaited<ReturnType<typeof loadConfig>>['images'],
+  src: string,
+): boolean {
+  return hasRemoteMatch(
+    [...(images?.domains ?? [])],
+    [...(images?.remotePatterns ?? [])],
+    new URL(src),
+  )
+}
+
+async function loadConfig() {
+  const {default: config} = await import('../../next.config')
+  return config
+}
 
 afterEach(() => {
   vi.resetModules()
@@ -6,6 +23,33 @@ afterEach(() => {
 })
 
 describe('Next.js configuration', () => {
+  it('permits approved Site A HTTPS media through the real Next image matcher', async () => {
+    const config = await loadConfig()
+
+    expect(
+      permitsRemoteImage(
+        config.images,
+        'https://tio2products.com/wp-content/uploads/editorial-hero.webp',
+      ),
+    ).toBe(true)
+    expect(
+      permitsRemoteImage(
+        config.images,
+        'https://tio2products.com/synthetic.png',
+      ),
+    ).toBe(true)
+  })
+
+  it.each([
+    ['HTTP', 'http://tio2products.com/wp-content/uploads/hero.webp'],
+    ['a sibling subdomain', 'https://media.tio2products.com/hero.webp'],
+    ['an unrelated host', 'https://example.test/hero.webp'],
+  ])('does not broaden Site A media access to %s', async (_label, src) => {
+    const config = await loadConfig()
+
+    expect(permitsRemoteImage(config.images, src)).toBe(false)
+  })
+
   it('uses NEXT_DIST_DIR for a local build directory', async () => {
     vi.stubEnv('NEXT_DIST_DIR', '.next-tio2-a')
 

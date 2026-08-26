@@ -13,6 +13,7 @@ import {getSiteTemplateProfile} from '@/sites'
 interface HomepageRendererProps {
   readonly site: SiteConfig
   readonly homepage: AnyHomepageDto
+  readonly jsonLd?: string
 }
 
 function isSiteAEditorialHomepage(
@@ -25,15 +26,25 @@ function isLegacyHomepage(homepage: AnyHomepageDto): homepage is HomepageDto {
   return homepage.identity.schemaVersion === 'homepage-v0.1'
 }
 
-export function HomepageRenderer({site, homepage}: HomepageRendererProps) {
+export function HomepageRenderer({site, homepage, jsonLd}: HomepageRendererProps) {
   const profile = getSiteTemplateProfile(site.id)
+  const structuredData = jsonLd ? (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{__html: jsonLd}}
+    />
+  ) : null
 
   if (
     profile.homepage.key === 'site-a-homepage-editorial-v0.2' &&
     isSiteAEditorialHomepage(homepage)
   ) {
     return (
-      <SiteAHomepageShell site={site} headerRfq={homepage.headerRfq}>
+      <SiteAHomepageShell
+        site={site}
+        headerRfq={homepage.headerRfq}
+        structuredData={structuredData}
+      >
         <EditorialHomepage homepage={homepage} />
       </SiteAHomepageShell>
     )
@@ -45,6 +56,7 @@ export function HomepageRenderer({site, homepage}: HomepageRendererProps) {
   ) {
     return (
       <SiteShell site={site}>
+        {structuredData}
         <HomepageTemplate homepage={homepage} />
       </SiteShell>
     )

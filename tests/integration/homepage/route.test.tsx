@@ -92,6 +92,16 @@ describe('homepage root route', () => {
     expect(markup.match(/<header(?:\s|>)/gu)).toHaveLength(1)
     expect(markup).not.toContain('<form')
     expect(markup).not.toMatch(/href="\/products|href="\/applications/u)
+
+    const headerEnd = markup.indexOf('</header>')
+    const mainStart = markup.indexOf('<main')
+    const jsonLd = markup.indexOf('<script type="application/ld+json">')
+    const hero = markup.indexOf('Site A titanium dioxide supply')
+    const mainEnd = markup.indexOf('</main>')
+    expect(headerEnd).toBeLessThan(mainStart)
+    expect(mainStart).toBeLessThan(jsonLd)
+    expect(jsonLd).toBeLessThan(hero)
+    expect(hero).toBeLessThan(mainEnd)
   })
 
   it('uses only the exact scoped homepage preview for the root path', async () => {
@@ -140,5 +150,15 @@ describe('homepage root route', () => {
     expect(markup).toContain('<p>TiO2 B</p>')
     expect(markup).toContain('Site B independent buyer discovery')
     expect(markup).not.toContain('Site A titanium dioxide supply')
+
+    const mainStart = markup.indexOf('<main data-site-id="tio2-b">')
+    const branding = markup.indexOf('<p>TiO2 B</p>')
+    const jsonLd = markup.indexOf('<script type="application/ld+json">')
+    const hero = markup.indexOf('Site B independent buyer discovery')
+    const mainEnd = markup.indexOf('</main>')
+    expect(mainStart).toBeLessThan(branding)
+    expect(branding).toBeLessThan(jsonLd)
+    expect(jsonLd).toBeLessThan(hero)
+    expect(hero).toBeLessThan(mainEnd)
   })
 })
