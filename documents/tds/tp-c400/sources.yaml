@@ -1,0 +1,285 @@
+schema_version: TIOVAR-TDS-SOURCES-V0.1
+product:
+  id: tp-c400
+  brand: TIOVAR
+  display_grade: TP-C400
+  supplier_grade: CR-508
+  product_family: Rutile Titanium Dioxide
+  application_family: Ultra-High Weatherability Coatings
+  language: en
+  revision: '0.1'
+  issue_date: '2026-08-26'
+  status: draft
+source_files:
+- id: S001
+  role: internal_grade_mapping
+  path: D:/11SEO/01ComInfo/TiO2Product_Product_Selection_Matrix_v3.xlsx
+  sha256: 9bb6f220dbe30c855d57bc12013efc7165919eef3243eef9dba074df2349cebb
+  locator: Product Matrix row 23
+  use: Maps TP-C400 to CR-508 only; not used as technical evidence.
+- id: S002
+  role: primary_technical_source
+  path: D:/11SEO/01ComInfo/TDS/TDS-CR-508.pdf
+  sha256: 9066f83a6e3e8747a521295e969a7fdc633ba9e1e813e4f4af3dbf3b83a26412
+  locator: Page 1
+  use: Supplier description, three coating applications, five features, and ten reported
+    data rows for CR-508 only.
+- id: S003
+  role: primary_logo
+  path: D:/11SEO/01ComInfo/ChatGPT Image 2026年8月26日 12_07_24.png
+  sha256: 4492d6eadc6a7aac43d48e1dc8080cbe1d9c1e94024f46d241ccd72b04ee87fd
+  locator: Full image
+  use: TIOVAR logo without a trademark symbol.
+- id: S004
+  role: brand_visual_guide
+  path: D:/11SEO/01ComInfo/ChatGPT Image 2026年8月26日 13_03_28.png
+  sha256: 174917cd7510f233f914c218dcb19064094cb4b9113ba9fa7750790c2049f014
+  locator: Full image
+  use: Colors and visual identity only; wording is not technical evidence.
+- id: S005
+  role: packaging_concept
+  path: D:/11SEO/01ComInfo/ChatGPT Image 2026年8月26日 13_03_38 (2).png
+  sha256: 6aeb384ade152551acc806f69cc616014f90958c7ef3115058197f4c57f82dc9
+  locator: Full image
+  use: Concept-only evidence gap; does not confirm pack size, label wording, or legal
+    attribution.
+- id: S006
+  role: layout_reference
+  path: D:/01AICode/7.27 马来全套TDS +应用指南/7.27/TDS_CR-901_.pdf
+  sha256: 5d742146c2dfab167854a2c43c4e16d29f3334c4f56cfbd5560e8c132c1eea29
+  locator: Page 1
+  use: One-page hierarchy and component arrangement only; no technical facts, claims,
+    company details, or contacts are used.
+template:
+  path: .agent/tiovar-tds-agent/templates/tiovar-tds-template.docx
+  sha256: c7e2757754290cfb6b765504501d8817576d77805e675abace272d1294692011
+  embedded_logo_source_id: S003
+  embedded_logo_path: word/media/image1.png
+content:
+  description: TIOVAR TP-C400 is a chloride-process rutile titanium dioxide pigment.
+    The supplier describes special inorganic and organic surface treatment and ultra-high
+    weather resistance for this grade. It is intended for formulation evaluation where
+    durability, weather resistance, gloss, hiding power, dispersibility, chalk resistance
+    and color retention are required.
+  applications:
+  - Formulation evaluation in automotive OEM and refinishing coatings
+  - Formulation evaluation in marine paint and aerospace coatings
+  - Formulation evaluation in exterior and industrial coatings
+  key_features:
+  - High durability
+  - High gloss
+  - High hiding power
+  - Excellent chalk resistance and color retention performance
+  - Good dispersibility
+  technical_data:
+  - property: TiO2 content, %
+    value: '91'
+    source_id: S002
+    source_locator: Page 1 / Specifications / TiO2 content
+  - property: Rutile content, %
+    value: '99.9'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Rutile content
+  - property: L*
+    value: '98.3'
+    source_id: S002
+    source_locator: Page 1 / Specifications / L*
+  - property: b*
+    value: '1.80'
+    source_id: S002
+    source_locator: Page 1 / Specifications / b*
+  - property: Acid solubility
+    value: '0.40'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Acid solubility
+  - property: Specific gravity
+    value: '4.0'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Specific gravity
+  - property: Mean particle size, micrometres
+    value: '0.30'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Mean particle size
+  - property: pH
+    value: '8.0'
+    source_id: S002
+    source_locator: Page 1 / Specifications / pH
+  - property: Carbon black undertone (CBU)
+    value: '13.0'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Carbon black undertone (CBU)
+  - property: Oil absorption, g/100 g
+    value: '20'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Oil absorption
+  viscosity_note: The supplier qualitatively reports good dispersibility. Verification
+    in the formulation is required.
+  packaging_note: Packaging is not stated in the supplier TDS. The supplied packaging
+    artwork is a concept mockup only and is not approved evidence of pack size, label
+    text, or legal attribution.
+  safety_note: An aligned SDS was not provided for this draft. Confirm the supplied-product
+    identifier, issuing entity, emergency contact, and revision before external use.
+  evidence_note: Supplier-reported values reproduce the primary supplier TDS. The
+    source does not state test methods, tolerances, or whether values are typical
+    or specification limits. Product suitability must be evaluated in the intended
+    formulation. Legal attribution, company contacts, SDS/COA issuer and packaging
+    details remain unconfirmed and are withheld from public use.
+  release_status: 'Pending user confirmation before public use: brand owner; manufacturer
+    / manufactured-for / distributor; SDS and COA issuer; packaging label entity;
+    company contact details; trademark status.'
+  contact_headline: Company and contact details pending user approval
+  contact_details: 'Legal name / address / email / website: pending user approval'
+claims:
+- id: C001
+  field: description
+  text: TIOVAR TP-C400 is a chloride-process rutile titanium dioxide pigment. The
+    supplier describes special inorganic and organic surface treatment and ultra-high
+    weather resistance for this grade. It is intended for formulation evaluation where
+    durability, weather resistance, gloss, hiding power, dispersibility, chalk resistance
+    and color retention are required.
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Description and Product Features
+  source_excerpt: CR-508 is a special surface treated by special inorganic and organic,
+    chloride process, ultra-high weather resistance titanium dioxide pigment.It also
+    has very good dispersibility, high gloss, and hiding power.It is mainly used for
+    anti-aging, gloss and color retention application fields with high requirements
+    for durability.
+- id: C002
+  field: application
+  text: Formulation evaluation in automotive OEM and refinishing coatings
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Application Suggestions
+  source_excerpt: Auto OEM and refinishing coatings
+- id: C003
+  field: application
+  text: Formulation evaluation in marine paint and aerospace coatings
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Application Suggestions
+  source_excerpt: Marine paint, aerospace coatings
+- id: C004
+  field: application
+  text: Formulation evaluation in exterior and industrial coatings
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Application Suggestions
+  source_excerpt: Exterior coatings and industrial coating
+- id: C005
+  field: key_feature
+  text: High durability
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: High durability
+- id: C006
+  field: key_feature
+  text: High gloss
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: High gloss
+- id: C007
+  field: key_feature
+  text: High hiding power
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: High hiding power
+- id: C008
+  field: key_feature
+  text: Excellent chalk resistance and color retention performance
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Excellent chalk resistance and color retention performance
+- id: C009
+  field: key_feature
+  text: Good dispersibility
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Good dispersibility
+- id: C010
+  field: viscosity_note
+  text: The supplier qualitatively reports good dispersibility. Verification in the
+    formulation is required.
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Good dispersibility
+- id: C011
+  field: packaging_note
+  text: Packaging is not stated in the supplier TDS. The supplied packaging artwork
+    is a concept mockup only and is not approved evidence of pack size, label text,
+    or legal attribution.
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C012
+  field: safety_note
+  text: An aligned SDS was not provided for this draft. Confirm the supplied-product
+    identifier, issuing entity, emergency contact, and revision before external use.
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C013
+  field: evidence_note
+  text: Supplier-reported values reproduce the primary supplier TDS. The source does
+    not state test methods, tolerances, or whether values are typical or specification
+    limits. Product suitability must be evaluated in the intended formulation. Legal
+    attribution, company contacts, SDS/COA issuer and packaging details remain unconfirmed
+    and are withheld from public use.
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Specifications
+  source_excerpt: Specifications
+- id: C014
+  field: release_status
+  text: 'Pending user confirmation before public use: brand owner; manufacturer /
+    manufactured-for / distributor; SDS and COA issuer; packaging label entity; company
+    contact details; trademark status.'
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C015
+  field: contact_headline
+  text: Company and contact details pending user approval
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C016
+  field: contact_details
+  text: 'Legal name / address / email / website: pending user approval'
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+conflicts: []
+unresolved_fields:
+- brand_owner
+- manufacturer
+- manufactured_for
+- distributor
+- sds_issuer
+- coa_issuer
+- packaging_label_entity
+- company_contact_details
+- trademark_status
+artifacts:
+  docx: tiovar-tp-c400-en.docx
+  pdf: tiovar-tp-c400-en.pdf
+  docx_sha256: 61351127201a8e59d65a732dee84f4974bd8867014a18594850d8f7d15d237b2
+  pdf_sha256: 6fcfb98f60b72825d388cff7339af13ea595b3a34691ce3db6b2bc6850cdf434
+qa:
+  visual_review:
+    status: passed
+    page_count: 1
+    docx_sha256: 61351127201a8e59d65a732dee84f4974bd8867014a18594850d8f7d15d237b2
+    pdf_sha256: 6fcfb98f60b72825d388cff7339af13ea595b3a34691ce3db6b2bc6850cdf434
+    reviewed_at: '2026-08-26'
