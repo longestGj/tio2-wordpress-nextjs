@@ -345,6 +345,17 @@ if ([] !== $captured_requests) {
 }
 
 tio2_webhook_routing_set_status_exact($site_a_product_id, 'publish');
+foreach (['technical_disclaimer', '_technical_disclaimer'] as $unrelated_option_name) {
+    tio2_webhook_routing_snapshot_option($unrelated_option_name);
+    $captured_requests = [];
+    $GLOBALS['tio2_webhook_queue'] = [];
+    $GLOBALS['tio2_webhook_routing_context'] = "unrelated option collision {$unrelated_option_name}";
+    update_option($unrelated_option_name, 'Unrelated option mutation ' . microtime(true));
+    tio2_flush_webhook_queue();
+    if ([] !== $captured_requests) {
+        tio2_webhook_routing_fail("Unrelated option {$unrelated_option_name} emitted a Product revalidation request");
+    }
+}
 foreach ([
     'options_inquiry_fields_0_guidance',
     'options_request_tds_cta_description',

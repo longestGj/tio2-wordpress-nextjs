@@ -156,6 +156,12 @@ function tio2_handle_product_option_change(
     $old_value = null,
     $value = null
 ): void {
+    if (
+        ! str_starts_with($option_name, 'options_') &&
+        ! str_starts_with($option_name, '_options_')
+    ) {
+        return;
+    }
     if (! tio2_is_relevant_product_shared_webhook_meta_key($option_name)) {
         return;
     }
