@@ -4,8 +4,11 @@ import {assertSiteRfqHref} from './types'
 import type {SiteConfig, SiteId} from './types'
 
 export type {
+  HomepageRouteDefinition,
   HomepageSchemaVersion,
   HomepageTemplateKey,
+  ProductRouteDefinition,
+  ProductTemplateKey,
   PublicRouteDefinition,
   ShellTemplateKey,
   SiteConfig,
@@ -13,8 +16,13 @@ export type {
   SiteTemplateProfile,
   TemplateState,
 } from './types'
-export {assertSiteRfqHref, SITE_IDS} from './types'
 export {
+  assertSiteRfqHref,
+  PRODUCT_TEMPLATE_KEY,
+  SITE_IDS,
+} from './types'
+export {
+  getApprovedProductSlugs,
   getExpectedPublicUrlCount,
   getPublicRoutes,
   isPublicRoute,

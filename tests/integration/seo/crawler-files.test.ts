@@ -5,7 +5,10 @@ import {buildRobots} from '@/app/robots'
 import {buildSitemap} from '@/app/sitemap'
 import {buildPageMetadata} from '@/lib/seo/metadata'
 import {getContentByPath} from '@/lib/wordpress/queries'
-import {graphqlEndpoint, makeHomepageNode} from '@/tests/mocks/handlers'
+import {
+  graphqlEndpoint,
+  makeSiteAEditorialHomepageNode,
+} from '@/tests/mocks/handlers'
 import {server} from '@/tests/mocks/server'
 import {getSiteConfig} from '@/sites'
 
@@ -47,17 +50,19 @@ describe('robots output', () => {
 
 describe('inventory sitemap through GraphQL', () => {
   it('requests only the owned homepage and emits its one inventory root', async () => {
-    let pageCursorRequests = 0
+    const graphqlQueries: string[] = []
     server.use(
       http.post(graphqlEndpoint, async ({request}) => {
         const body = (await request.json()) as GraphQLRequestBody
-        if (body.query?.includes('query GetHomepage')) {
-          return HttpResponse.json({data: {tio2Homepage: makeHomepageNode()}})
+        const query = body.query ?? ''
+        graphqlQueries.push(query)
+        if (query.includes('tio2Homepage(')) {
+          return HttpResponse.json({
+            data: {tio2Homepage: makeSiteAEditorialHomepageNode()},
+          })
         }
-        pageCursorRequests += 1
         return HttpResponse.json({
-          data: {siteScope: null},
-          errors: [{message: 'Page cursor must not be requested for sitemap'}],
+          errors: [{message: 'Unexpected GraphQL operation for sitemap'}],
         })
       }),
     )
@@ -65,10 +70,13 @@ describe('inventory sitemap through GraphQL', () => {
     await expect(buildSitemap(getSiteConfig('tio2-a'))).resolves.toEqual([
       {
         url: 'https://tio2products.com/',
-        lastModified: new Date('2026-08-23T08:30:00.000Z'),
+        lastModified: new Date('2026-08-26T08:30:00.000Z'),
       },
     ])
-    expect(pageCursorRequests).toBe(0)
+    expect(graphqlQueries).toHaveLength(1)
+    expect(graphqlQueries[0]).toContain('tio2Homepage(')
+    expect(graphqlQueries[0]).not.toMatch(/\bpages\s*\(|\$after\b/u)
+    expect(graphqlQueries[0]).not.toContain('query GetSiteProduct')
   })
 })
 
