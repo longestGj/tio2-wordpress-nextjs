@@ -361,6 +361,29 @@ foreach ($forbidden_evidence_cases as [$field_key, $evidence_url, $label]) {
     }
 }
 
+$raw_backslash = chr(92);
+$backslash_evidence_cases = [
+    ['field_tio2_geo_supply_routes', "https://example.test/products{$raw_backslash}rutile", 'forbidden-route supply URL containing a raw backslash'],
+    ['field_tio2_geo_supply_routes', "https://example.test/evidence{$raw_backslash}supply-route.pdf", 'allowed-looking supply URL containing a raw backslash'],
+    ['field_tio2_geo_evidence_items', "https://example.test/applications{$raw_backslash}coatings", 'forbidden-route evidence-item URL containing a raw backslash'],
+    ['field_tio2_geo_evidence_items', "https://example.test/evidence{$raw_backslash}source-document.pdf", 'allowed-looking evidence-item URL containing a raw backslash'],
+];
+foreach ($backslash_evidence_cases as [$field_key, $evidence_url, $label]) {
+    tio2_homepage_v02_test_set_valid_fields($post_id);
+    $rows = tio2_homepage_v02_test_valid_values()[$field_key];
+    $rows[0]['evidence_url'] = wp_slash($evidence_url);
+    if ('field_tio2_geo_supply_routes' === $field_key) {
+        $rows[0]['claim_basis'] = 'source_document';
+    } else {
+        $rows[0]['verification_status'] = 'needs_review';
+    }
+    tio2_homepage_v02_test_update_field($field_key, $rows, $post_id);
+    $result = tio2_validate_homepage_contract($post_id);
+    if (! is_wp_error($result) || 'tio2_homepage_invalid_evidence' !== $result->get_error_code()) {
+        $parity_failures[] = "Accepted {$label}";
+    }
+}
+
 $allowed_evidence_cases = [
     ['field_tio2_geo_supply_routes', 'https://example.test/documents/products-route.pdf', 'product word in a supply-route document name'],
     ['field_tio2_geo_evidence_items', 'https://example.test/evidence/applications-review.pdf', 'application word in an evidence-item document name'],

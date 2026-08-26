@@ -422,6 +422,9 @@ function tio2_homepage_v02_validate_https_url($value, string $field_name, bool $
         }
         return $url;
     }
+    if (false !== strpos($url, '\\')) {
+        return new WP_Error('tio2_homepage_invalid_evidence', "Homepage field {$field_name} requires an HTTPS URL.");
+    }
     $parts = wp_parse_url($url);
     if (
         false === filter_var($url, FILTER_VALIDATE_URL) ||

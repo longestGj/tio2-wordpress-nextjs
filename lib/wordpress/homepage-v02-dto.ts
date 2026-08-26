@@ -171,6 +171,9 @@ function httpsUrl(
   if (!normalized) return null
 
   try {
+    if (normalized.includes('\\')) {
+      throw new Error('Invalid evidence URL')
+    }
     const parsed = new URL(normalized)
     if (
       !normalized.startsWith('https://') ||

@@ -372,6 +372,42 @@ describe('toSiteAEditorialHomepageDto', () => {
     }))
   })
 
+  it.each([
+    [
+      'forbidden-route supply URL',
+      'supplyRoutes',
+      'https://example.test/products\\rutile',
+      'supplyRoutes[0].evidenceUrl',
+    ],
+    [
+      'allowed-looking supply URL',
+      'supplyRoutes',
+      'https://example.test/evidence\\supply-route.pdf',
+      'supplyRoutes[0].evidenceUrl',
+    ],
+    [
+      'forbidden-route evidence-item URL',
+      'evidenceItems',
+      'https://example.test/applications\\coatings',
+      'evidenceItems[0].evidenceUrl',
+    ],
+    [
+      'allowed-looking evidence-item URL',
+      'evidenceItems',
+      'https://example.test/evidence\\source-document.pdf',
+      'evidenceItems[0].evidenceUrl',
+    ],
+  ])('rejects a raw backslash in the %s', (_label, collection, evidenceUrl, fieldPath) => {
+    const node = makeSiteAEditorialHomepageNode()
+    const rows = Reflect.get(editorial(node), collection) as readonly object[]
+    setField(rows[0]!, 'evidenceUrl', evidenceUrl)
+
+    expect(() => adapt(node)).toThrow(expect.objectContaining({
+      name: HomepageContractError.name,
+      fieldPath,
+    }))
+  })
+
   it('retains HTTPS evidence documents outside forbidden Homepage routes', () => {
     const node = makeSiteAEditorialHomepageNode()
     setField(
