@@ -4,6 +4,8 @@ if (! defined('ABSPATH')) {
     exit(1);
 }
 
+require_once __DIR__ . '/site-a-editorial-fixture-core.php';
+
 $GLOBALS['tio2_seed_transaction_started'] = false;
 $GLOBALS['tio2_seed_touched_post_ids'] = [];
 $GLOBALS['tio2_seed_webhook_queue_before_transaction'] = [];
@@ -971,11 +973,70 @@ try {
             if (is_wp_error($term_result)) {
                 throw new RuntimeException($term_result->get_error_message());
             }
-            foreach ($homepage['fields'] as $field_name => $field_value) {
-                if (! isset($homepage_field_keys[$field_name])) {
-                    throw new RuntimeException("Unknown homepage field {$field_name}.");
+            if ('tio2-a' === $site_id) {
+                if ('homepage-v0.2-editorial-geo' !== ($homepage['fields']['homepage_schema_version'] ?? null)) {
+                    throw new RuntimeException('Formal provisioning requires the explicit Site A v0.2 schema.');
                 }
-                update_field($homepage_field_keys[$field_name], $field_value, $homepage_id);
+                $site_a_fields = tio2_local_editorial_validate_fields($homepage['fields']);
+                $batch_operations = [
+                    'begin_suppression' => static fn (): array =>
+                        tio2_local_editorial_begin_enforcement_suppression($homepage_id),
+                    'restore_suppression' => static function (array $token): void {
+                        tio2_local_editorial_restore_enforcement_suppression($token);
+                    },
+                    'write_field' => static function (string $field_name, $field_value) use (
+                        $homepage_field_keys,
+                        $homepage_id
+                    ): void {
+                        if (! isset($homepage_field_keys[$field_name])) {
+                            throw new RuntimeException("Unknown homepage field {$field_name}.");
+                        }
+                        update_field($homepage_field_keys[$field_name], $field_value, $homepage_id);
+                    },
+                    'delete_legacy' => static function () use ($homepage_id): void {
+                        tio2_local_editorial_delete_v01_meta($homepage_id);
+                        clean_post_cache($homepage_id);
+                        wp_cache_delete($homepage_id, 'post_meta');
+                        if (function_exists('acf_flush_value_cache')) {
+                            acf_flush_value_cache($homepage_id);
+                        }
+                    },
+                    'assert_no_legacy' => static function () use ($homepage_id): void {
+                        if ([] !== tio2_local_editorial_find_v01_meta_keys($homepage_id)) {
+                            throw new RuntimeException('Formal seed retained legacy Homepage v0.1 ACF meta.');
+                        }
+                    },
+                    'enforce' => static function (): void {
+                        throw new LogicException('Formal seed enforcement occurs after root release.');
+                    },
+                    'readback' => static function (array $expected) use ($homepage_id): void {
+                        clean_post_cache($homepage_id);
+                        wp_cache_delete($homepage_id, 'post_meta');
+                        if (function_exists('acf_flush_value_cache')) {
+                            acf_flush_value_cache($homepage_id);
+                        }
+                        foreach ($expected as $field_name => $expected_value) {
+                            $actual_value = get_field($field_name, $homepage_id, false);
+                            if (
+                                wp_json_encode(tio2_local_editorial_normalize_field($field_name, $actual_value)) !==
+                                wp_json_encode(tio2_local_editorial_normalize_field($field_name, $expected_value))
+                            ) {
+                                throw new RuntimeException("Formal seed read-back rejected {$field_name}.");
+                            }
+                        }
+                        if ([] !== tio2_local_editorial_find_v01_meta_keys($homepage_id)) {
+                            throw new RuntimeException('Formal seed read-back found legacy Homepage v0.1 ACF meta.');
+                        }
+                    },
+                ];
+                tio2_local_editorial_apply_batch($site_a_fields, '', $batch_operations, false);
+            } else {
+                foreach ($homepage['fields'] as $field_name => $field_value) {
+                    if (! isset($homepage_field_keys[$field_name])) {
+                        throw new RuntimeException("Unknown homepage field {$field_name}.");
+                    }
+                    update_field($homepage_field_keys[$field_name], $field_value, $homepage_id);
+                }
             }
 
             $root_snapshot = $root_snapshots_by_site[$site_id] ?? null;
