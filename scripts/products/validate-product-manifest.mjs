@@ -35,11 +35,11 @@ async function loadManifestApi() {
     `.content-manifest.${process.pid}.${randomUUID()}.mjs`,
     MANIFEST_SOURCE_URL,
   )
-  await writeFile(temporaryModuleUrl, result.outputText, {
-    encoding: 'utf8',
-    flag: 'wx',
-  })
   try {
+    await writeFile(temporaryModuleUrl, result.outputText, {
+      encoding: 'utf8',
+      flag: 'wx',
+    })
     return await import(temporaryModuleUrl.href)
   } finally {
     await rm(temporaryModuleUrl, {force: true})

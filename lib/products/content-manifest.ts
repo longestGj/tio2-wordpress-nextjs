@@ -168,6 +168,15 @@ function richTextVisibleText(source: string): string {
   }).replaceAll('\u00a0', ' ').replaceAll(/\s+/gu, ' ').trim()
 }
 
+function richTextBoundaryText(source: string): string {
+  const sanitized = sanitizeManifestRichText(source)
+  return sanitizeHtml(sanitized.replaceAll(/<[^>]*>/gu, ' '), {
+    allowedTags: [],
+    allowedAttributes: {},
+    nonTextTags: NON_TEXT_TAGS,
+  }).replaceAll('\u00a0', ' ').replaceAll(/\s+/gu, ' ').trim()
+}
+
 function decodeSafetyEntities(value: string): string {
   return value.replace(
     DOCUMENT_LOCATION_ENTITY_PATTERN,
@@ -212,59 +221,85 @@ function normalizeClaimText(value: string): string {
     .replaceAll(/\bwon't\b/gu, 'will not')
     .replaceAll(/[\p{P}\p{S}]+/gu, (punctuation) => {
       if (punctuation.includes('?')) return ' ? '
+      if (punctuation.includes(':')) return ' : '
       return /[.;!]/u.test(punctuation) ? ' | ' : ' '
     })
     .replaceAll(/\s+/gu, ' ')
     .trim()
 }
 
-function isQuestion(value: string): boolean {
-  return /\b(?:who|what|when|where|why|how|does|do|is|are|can|could|should|would|will)\b[^?]*\?/u
-    .test(value.trim())
+function htmlAttributeValues(value: string): string[] {
+  const values: string[] = []
+  for (const tag of value.matchAll(/<[^>]*>/gu)) {
+    for (const attribute of tag[0].matchAll(
+      /\s+[^\s"'=<>`]+\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/gu,
+    )) {
+      values.push(attribute[1] ?? attribute[2] ?? attribute[3] ?? '')
+    }
+  }
+  return values
 }
 
-function hasNegationBefore(value: string, index: number): boolean {
-  const prefix = value.slice(Math.max(0, index - 100), index)
-  return /\b(?:no|not|never|without|cannot|does not|do not|is not|are not|was not|were not|will not|must not|should not)\b(?:\s+\w+){0,7}\s*$/u
-    .test(prefix)
+interface ClaimClause {
+  isQuestion: boolean
+  text: string
 }
 
-function hasNonAssertiveMarkerBefore(value: string, index: number): boolean {
-  const prefix = value.slice(Math.max(0, index - 100), index)
-  return /\b(?:whether|if)\b(?:\s+\w+){0,8}\s*$/u.test(prefix)
+function claimClauses(value: string): ClaimClause[] {
+  const normalized = normalizeClaimText(value)
+    .replaceAll(/\b(?:but|however|yet)\b/gu, ' | ')
+  const parts = normalized.split(/\s*([?|])\s*/u)
+  const clauses: ClaimClause[] = []
+  for (let index = 0; index < parts.length; index += 2) {
+    const text = parts[index]?.trim()
+    if (!text) continue
+    clauses.push({text, isQuestion: parts[index + 1] === '?'})
+  }
+  return clauses
 }
 
-function hasPositiveMatch(value: string, pattern: RegExp): boolean {
-  if (isQuestion(value)) return false
-  const matches = value.matchAll(new RegExp(
-    pattern.source,
-    [...new Set(`${pattern.flags.replaceAll('g', '')}g`)].join(''),
-  ))
-  return [...matches].some((match) =>
-    !hasNegationBefore(value, match.index ?? 0) &&
-    !hasNonAssertiveMarkerBefore(value, match.index ?? 0))
+function hasAttachedNegation(prefix: string): boolean {
+  return /\b(?:cannot|never|no)\s*$/u.test(prefix) ||
+    /\b(?:do|does|did|is|are|was|were|will|would|can|could|should|must|may|might|has|have|had)\s+not\s*$/u
+      .test(prefix)
+}
+
+function hasPositiveMatch(
+  value: string,
+  pattern: RegExp,
+  isNegated: (clause: string, match: RegExpMatchArray) => boolean =
+    (clause, match) => hasAttachedNegation(clause.slice(0, match.index ?? 0)),
+): boolean {
+  return claimClauses(value).some(({text, isQuestion}) => {
+    if (isQuestion) return false
+    const matches = text.matchAll(new RegExp(
+      pattern.source,
+      [...new Set(`${pattern.flags.replaceAll('g', '')}g`)].join(''),
+    ))
+    return [...matches].some((match) => !isNegated(text, match))
+  })
 }
 
 function containsPositiveTdsAccessClaim(value: string): boolean {
-  if (isQuestion(value) ||
-      !/\b(?:tds|technical data sheet)\b/u.test(value)) return false
+  return claimClauses(value).some(({text, isQuestion}) => {
+    if (isQuestion || !/\b(?:tds|technical data sheet)\b/u.test(text)) return false
+    const riskyTerms = text.matchAll(
+      /\b(?:download(?:able|ed|ing|s)?|direct(?:ly)?|public|online)\b/gu,
+    )
+    return [...riskyTerms].some((match) => {
+      const prefix = text.slice(0, match.index ?? 0)
+      if (/\b(?:not\s+available\s+for|cannot\s+be|must\s+not\s+be|should\s+not\s+be|is\s+not|are\s+not|not)\s+(?:public\s+)?$/u
+        .test(prefix)) return false
 
-  const riskyTerms = value.matchAll(
-    /\b(?:download(?:able|ed|ing|s)?|direct(?:ly)?|public|online)\b/gu,
-  )
-  return [...riskyTerms].some((match) => {
-    const term = match[0]
-    const index = match.index ?? 0
-    if (hasNegationBefore(value, index)) return false
-
-    if (term.startsWith('download')) return true
-    const nearby = value.slice(Math.max(0, index - 80), index + 80)
-    if (term.startsWith('direct')) {
-      return /\bdirect(?:ly)?\s+(?:tds|download|access)\b|\b(?:tds|technical data sheet)\b(?:\s+\w+){0,5}\s+direct(?:ly)?\s+(?:access|download)\b/u
-        .test(nearby)
-    }
-    return /\b(?:tds|technical data sheet)\b(?:\s+\w+){0,7}\s+(?:is\s+|available\s+)?(?:public|online)\b|\b(?:public|online)\s+(?:tds|technical data sheet|access)\b/u
-      .test(nearby)
+      const term = match[0]
+      if (term.startsWith('download')) return true
+      if (term.startsWith('direct')) {
+        return /\bdirect(?:ly)?\s+(?:tds|download|access)\b|\b(?:tds|technical data sheet)\b(?:\s+\w+){0,6}\s+direct(?:ly)?\b/u
+          .test(text)
+      }
+      return /\b(?:tds|technical data sheet)\b(?:\s+\w+){0,7}\s+(?:is\s+|available\s+)?(?:public|online)\b|\b(?:public|online)\s+(?:tds|technical data sheet|access|download)\b/u
+        .test(text)
+    })
   })
 }
 
@@ -280,7 +315,10 @@ function addStringSafetyIssues(
 ): void {
   const decoded = decodeSafetyEntities(value)
   const visible = richTextVisibleText(decoded)
-  const claims = normalizeClaimText(visible)
+  const claimCandidates = [visible, ...htmlAttributeValues(decoded)]
+    .map(normalizeClaimText)
+    .filter((candidate, index, candidates) =>
+      candidate.length > 0 && candidates.indexOf(candidate) === index)
 
   const containsPublicUrl = (candidate: string) =>
     /\bhttps?\s*:\s*[\\/]{2}|(?:^|[^a-z0-9])www(?:\s*\.\s*|\.)[a-z0-9]/iu
@@ -294,7 +332,7 @@ function addStringSafetyIssues(
   }
 
   const containsPrivateLocation = (candidate: string) =>
-    /\bfile\s*:\s*[\\/]{2}|\b(?:smb|nfs|afp)\s*:\s*[\\/]{2}|(?:^|[^a-z0-9])[a-z]:[\\/]|\\\\[a-z0-9._$-]+[\\/][a-z0-9._$-]+|(?:^|[\s("'=])\/\/[a-z0-9._$-]+\/[a-z0-9._$-]+|(?:^|[\s("'=])~[\\/]|(?:^|[\s("'=])\/(?:home|users|private|var|tmp|mnt|srv|opt|etc|root)(?:\/|\b)|(?:^|[\s("'=])\/(?:[a-z0-9._-]+\/)+[a-z0-9._-]+\.(?:docx?|xlsx?|xls|csv|json|ya?ml|txt)\b/iu
+    /\bfile\s*:\s*[\\/]{2}|\b(?:smb|nfs|afp)\s*:\s*[\\/]{2}|(?:^|[^a-z0-9])[a-z]:[\\/]|\\\\[a-z0-9._$-]+[\\/][a-z0-9._$-]+|(?:^|[\s("'=])\/\/[a-z0-9._$-]+\/[a-z0-9._$-]+|(?:^|[\s("'=])~[\\/]|(?:^|[\s("'=])\/(?:home|users|workspace|private|var|tmp|mnt|srv|opt|etc|root)(?:\/|\b)|(?:^|[\s("'=])\/(?:[a-z0-9._-]+\/)+[a-z0-9._-]+\.(?:docx?|xlsx?|xls|csv|json|ya?ml|txt)\b/iu
       .test(candidate)
   if (!isCanonicalRecordPath(decoded, path) &&
       (containsPrivateLocation(decoded) || containsPrivateLocation(visible))) {
@@ -316,11 +354,11 @@ function addStringSafetyIssues(
     })
   }
 
-  if (hasPositiveMatch(claims,
-    /\b(?:manufactured|made|produced|operated)\s+by\b|\b(?:manufactures|produces|operates|owns)\s+(?:this|the)\s+(?:grade|product|product line|brand)\b|\b(?:manufacturer|legal entity|operator identity|brand owner)\s+(?:is|was|equals|named)\b|\bis\s+the\s+(?:manufacturer|legal entity|operator|brand owner)\b/u,
-  ) || (!isQuestion(visible) &&
-    /\b(?:manufacturer|legal entity|operator identity|brand owner)\s*:/iu
-      .test(visible))) {
+  if (claimCandidates.some((claims) => hasPositiveMatch(claims,
+    /\b(?:this|the|tiovar)\s+(?:grade|product|product line|brand)\s+(?:is\s+)?(?:manufactured|produced|operated)\s+by\b|\b(?:manufactures|produces|operates|owns)\s+(?:this|the)\s+(?:grade|product|product line|brand)\b|\b(?:manufacturer|legal entity|operator(?: identity)?|brand owner)\s+(?:is|was|equals|named)\b|\b(?:is|was)\s+(?:our|the|this\s+brand'?s)?\s*(?:manufacturer|legal entity|operator|brand owner)\b/u,
+  )) || claimCandidates.some((claims) => hasPositiveMatch(claims,
+    /\b(?:manufacturer|legal entity|operator(?: identity)?|brand owner)\s+:\s+[a-z0-9]/u,
+  ))) {
     context.addIssue({
       code: 'custom',
       message: 'Manufacturer, legal, operator, and brand-owner assertions are forbidden',
@@ -328,11 +366,19 @@ function addStringSafetyIssues(
     })
   }
 
-  if (hasPositiveMatch(claims,
-    /\b(?:reviewed|approved)\s+by\b|\b(?:reviewer|review date|evidence status|approval status)\s+(?:is|was)\b|\b(?:internal\s+)?source (?:note|notes|file|model|page|path|url)\s+(?:\d+|is|was|says|states|supports|records|shows|from)\b|\bapproval history\s+(?:is|was|records|shows|includes)\b|\bprivate evidence\s+(?:is|was|from|shows|supports|includes|records)\b/u,
-  ) || (!isQuestion(visible) &&
-    /\b(?:source (?:note|notes|file|model|page|path|url)|reviewer|review date|evidence status|approval (?:status|history)|private evidence|private review)\s*:/iu
-      .test(visible))) {
+  if (claimCandidates.some((claims) => hasPositiveMatch(claims,
+    /\b(?:this\s+)?(?:content|page|copy|claim|statement|record)\s+(?:(?:is|was|has been)\s+)?(?:reviewed|approved)\s+by\b|\b[a-z][a-z -]*\s+(?:reviewed|approved)\s+(?:this\s+)?(?:content|page|copy|claim|statement|record)\b|\breviewed by\s+(?!the\s+customer|customer'?s?\s+(?:technical\s+)?team\b)[a-z]\w*|\bapproved by\s+(?!the\s+customer\b|customer\b)[a-z]\w*|\b(?:reviewer|review date|evidence status|approval status)\s+(?:is|was)\b|\b(?:internal\s+)?source (?:note|notes|file|model|page|path|url)\s+(?:\d+|is|was|says|states|supports|records|shows|from)\b|\bapproval history\s+(?:is|was|records|shows|includes)\b|\bprivate evidence\s+(?:is|was|from|shows|supports|includes|records)\b/u,
+    (clause, match) => {
+      const prefix = clause.slice(0, match.index ?? 0)
+      const matchedClaim = clause.slice(match.index ?? 0)
+      return hasAttachedNegation(prefix) ||
+        /^no\b/u.test(clause) && /\bor\s*$/u.test(prefix) &&
+          /^private evidence\s+(?:is|was)\s+(?:published|stated|disclosed)\b/u
+            .test(matchedClaim)
+    },
+  )) || claimCandidates.some((claims) => hasPositiveMatch(claims,
+    /\b(?:source (?:note|notes|file|model|page|path|url)|reviewer|review date|evidence status|approval (?:status|history)|private evidence|private review)\s+:\s+[a-z0-9]/u,
+  ))) {
     context.addIssue({
       code: 'custom',
       message: 'Internal source, review, approval, and private-evidence disclosures are forbidden',
@@ -340,9 +386,9 @@ function addStringSafetyIssues(
     })
   }
 
-  if (hasPositiveMatch(claims,
+  if (claimCandidates.some((claims) => hasPositiveMatch(claims,
     /\b(?:this|the|grade|product|it|tiovar)\s+(?:will\s+)?guarantees?\b|\b(?:is|are|will be)\s+guaranteed\b|\bguaranteed\s+(?:performance|result|outcome|availability)\b|\b(?:provides?|offers?|includes?|carries)\s+(?:a\s+)?(?:guarantee|warranty)\b|\b(?:guarantee|warranty)\s+of\s+(?:performance|results?|outcomes?)\b/u,
-  )) {
+  ))) {
     context.addIssue({
       code: 'custom',
       message: 'Positive guarantee and warranty claims are forbidden',
@@ -350,9 +396,15 @@ function addStringSafetyIssues(
     })
   }
 
-  if (hasPositiveMatch(claims,
+  if (claimCandidates.some((claims) => hasPositiveMatch(claims,
     /\bequivalent\s+to\b|\b(?:direct|drop in)\s+replacement\b/u,
-  )) {
+    (clause, match) => {
+      const prefix = clause.slice(0, match.index ?? 0)
+      return /\b(?:is|are|was|were|be|been|considered)\s+not\s*$/u.test(prefix) ||
+        /\b(?:do|does|must|should)\s+not\s+(?:assume|treat|consider|use)\s*$/u
+          .test(prefix)
+    },
+  ))) {
     context.addIssue({
       code: 'custom',
       message: 'Positive equivalence and direct-replacement claims are forbidden',
@@ -360,18 +412,15 @@ function addStringSafetyIssues(
     })
   }
 
-  if (!isQuestion(visible) && (
-    /[$€£¥]\s*\d|\b(?:usd|eur|gbp|cny|rmb)\s*\d/iu.test(decoded) ||
-    hasPositiveMatch(claims,
-      /\bprice\s+(?:is|was|equals)\b|\bcosts?\s+(?:\d|usd|eur|gbp|cny|rmb)\b/u,
-    )
-  )) {
+  if (claimCandidates.some((claims) => hasPositiveMatch(claims,
+    /[$€£¥]\s*\d|\b(?:usd|eur|gbp|cny|rmb)\s*\d|\b(?:current\s+)?(?:price|pricing)\s+(?:is|are|was|were|equals?|starts?|begins?|remains?|available|confirmed|set|listed|quoted)\b|\bcosts?\s+(?:\d|usd|eur|gbp|cny|rmb|[$€£¥])\b/u,
+  ))) {
     context.addIssue({code: 'custom', message: 'Positive price claims are forbidden', path})
   }
 
-  if (hasPositiveMatch(claims,
-    /\b(?:is|are|remains?)\s+(?:in|out of)\s+stock\b|\bstock status\s+(?:is\s+)?(?:in|out of)\s+stock\b|\b(?:stock|inventory)\s+(?:is|was|remains?)\s+(?:available|unavailable|low|high)\b/u,
-  )) {
+  if (claimCandidates.some((claims) => hasPositiveMatch(claims,
+    /\b(?:is|are|remains?)\s+(?:in|out of)\s+stock\b|\b(?:is|are|remains?)\s+on hand\b|\bstock status\s+(?:(?:is\s+)|:\s*)?(?:in|out of)\s+stock\b|\b(?:stock|inventory)\s+(?:is|was|remains?)\s+(?:available|unavailable|low|high|on hand)\b/u,
+  ))) {
     context.addIssue({
       code: 'custom',
       message: 'Current stock and inventory claims are forbidden',
@@ -379,9 +428,9 @@ function addStringSafetyIssues(
     })
   }
 
-  if (hasPositiveMatch(claims,
-    /\b(?:is|are|remains?|becomes?)\s+(?:currently\s+)?available\s+(?:now|today|immediately)\b|\b(?:immediate|current)\s+availability\b|\bavailability\s+(?:is\s+)?(?:immediate|current|now|today)\b/u,
-  )) {
+  if (claimCandidates.some((claims) => hasPositiveMatch(claims,
+    /\b(?:is|are|remains?|becomes?)\s+(?:currently\s+)?available\s+(?:now|today|immediately)\b|\b(?:is|are|remains?)\s+commercially available\b|\bimmediate\s+availability\b|\bcommercial availability\s+(?:is\s+)?(?:confirmed|available|current|immediate)\b|\bavailability\s+(?:(?:is\s+)|:\s*)(?:confirmed|immediate|current|now|today)\b/u,
+  ))) {
     context.addIssue({
       code: 'custom',
       message: 'Availability-now claims are forbidden',
@@ -389,7 +438,7 @@ function addStringSafetyIssues(
     })
   }
 
-  if (containsPositiveTdsAccessClaim(claims)) {
+  if (claimCandidates.some(containsPositiveTdsAccessClaim)) {
     context.addIssue({
       code: 'custom',
       message: 'Direct or downloadable TDS access claims are forbidden',
@@ -404,6 +453,11 @@ function addRecursiveSafetyIssues(
   path: PropertyKey[] = [],
 ): void {
   if (typeof value === 'string') {
+    const isRichTextPath = path.length === 1 &&
+        (path[0] === 'quickAnswer' || path[0] === 'evidenceStatement') ||
+      path.length === 3 && path[0] === 'faqItems' &&
+        typeof path[1] === 'number' && path[2] === 'answer'
+    if (isRichTextPath) return
     addStringSafetyIssues(value, context, path)
     return
   }
@@ -429,7 +483,7 @@ function addRecursiveSafetyIssues(
 }
 
 function visibleWordCount(source: string): number {
-  const visible = richTextVisibleText(source)
+  const visible = richTextBoundaryText(source)
   return visible
     ? visible.split(/\s+/u).length
     : 0

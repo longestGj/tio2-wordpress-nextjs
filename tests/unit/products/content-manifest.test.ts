@@ -340,6 +340,21 @@ describe('Site A Product content manifest', () => {
     await expectStrictRejection(input)
   })
 
+  it.each([40, 70])(
+    'counts %i list-item words at downstream HTML tag boundaries',
+    async (count) => {
+      const {validateProductContentManifest} = await manifestApi()
+      const input = completeManifest()
+      input.products[0].quickAnswer = `<ul>${Array.from(
+        {length: count},
+        (_, index) => `<li>word${index + 1}</li>`,
+      ).join('')}</ul>`
+
+      expect(validateProductContentManifest(input).products[0].quickAnswer)
+        .toBe(input.products[0].quickAnswer)
+    },
+  )
+
   it.each([
     ['fitWhen', 2, (record: ReturnType<typeof productRecord>) => record.fitWhen],
     ['fitWhen', 6, (record: ReturnType<typeof productRecord>) => record.fitWhen],
@@ -537,9 +552,8 @@ describe('Site A Product content manifest', () => {
     input.products[0].relatedLinks.applications[0].targetKey = 'brand-owner-guidance'
     input.products[0].evidenceStatement = [
       '<p>This grade does not guarantee performance and is not equivalent ',
-      'to another grade. A guarantee claim requires evidence. Evaluate ',
-      'whether this grade is equivalent to another grade; do not assume ',
-      'direct replacement.</p>',
+      'to another grade. A guarantee claim requires evidence. Ask whether ',
+      'the grades can be compared; do not assume direct replacement.</p>',
     ].join('')
     input.products[0].tdsAccess =
       'The TDS is not available for public download; request the current sheet.'
@@ -561,6 +575,127 @@ describe('Site A Product content manifest', () => {
       '<p>No source note, reviewer, approval status, or private evidence ',
       'is published here. Current price, stock, and availability are not stated.</p>',
     ].join('')
+
+    expect(validateProductContentManifest(input).products).toHaveLength(25)
+  })
+
+  it.each([
+    'Is this grade equivalent to the incumbent? It is equivalent to the incumbent.',
+    'Does this grade guarantee the outcome? It guarantees the final result.',
+    'Can the TDS be downloaded? The TDS can be accessed directly.',
+    'This grade does not guarantee color. It is equivalent to the incumbent.',
+    'If this grade is equivalent to the incumbent, use it as a direct replacement.',
+    'Whether this grade is equivalent to the incumbent depends on testing.',
+  ])('rejects a positive claim outside an unrelated question or negation: %s', async (value) => {
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = `<p>${value}</p>`
+    await expectStrictRejection(input)
+  })
+
+  it('allows genuine FAQ questions and explicit claim-local negations', async () => {
+    const {validateProductContentManifest} = await manifestApi()
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = [
+      '<p>Does this grade guarantee the final result? Is it equivalent to ',
+      'the incumbent grade? Can the TDS be downloaded?</p>',
+    ].join('')
+    input.products[0].faqItems[1].answer = [
+      '<p>This grade does not guarantee the final result and is not guaranteed ',
+      'to produce a specific outcome. It is not equivalent to the incumbent.</p>',
+    ].join('')
+    input.products[0].tdsAccess = [
+      'The TDS is not available for public download; request the current ',
+      'technical data sheet.',
+    ].join('')
+
+    expect(validateProductContentManifest(input).products).toHaveLength(25)
+  })
+
+  it.each([
+    ['manufacturer identity', 'Example Co. is our manufacturer.'],
+    ['operator label', 'Operator: Example Co.'],
+    ['legal identity', 'Example Co. is the legal entity.'],
+    ['brand-owner identity', 'Example Co. is the brand owner.'],
+    ['active content review', 'Alice reviewed this content.'],
+    ['positive pricing', 'Current pricing is available.'],
+    ['on-hand stock', 'This grade is on hand for immediate shipment.'],
+    ['commercial availability', 'Commercial availability is confirmed.'],
+    ['direct TDS access', 'The TDS can be accessed directly.'],
+    ['workspace path', 'Read /workspace/team/TP-P100/source.json.'],
+    ['mounted path', 'Read /mnt/share/TP-P100/source.json.'],
+  ])('rejects the demonstrated plain-string bypass: %s', async (_label, value) => {
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = value
+    await expectStrictRejection(input)
+  })
+
+  it.each([
+    ['manufacturer identity', 'Example Co. is our manufacturer.'],
+    ['active content review', 'Alice reviewed this content.'],
+    ['positive pricing', 'Current pricing is available.'],
+    ['on-hand stock', 'This grade is on hand for immediate shipment.'],
+    ['direct TDS access', 'The TDS can be accessed directly.'],
+    ['private path', 'Read /workspace/team/TP-P100/source.json.'],
+  ])('rejects the demonstrated raw plain-field bypass: %s', async (_label, packaging) => {
+    const input = completeManifest()
+    input.products[0].packaging = packaging
+    await expectStrictRejection(input)
+  })
+
+  it.each([
+    ['Windows path', 'D:\\private\\TP-P100.txt'],
+    ['UNC path', '\\\\server\\share\\TP-P100.txt'],
+    ['POSIX home path', '/home/editor/TP-P100.txt'],
+    ['macOS home path', '/Users/editor/TP-P100.txt'],
+    ['workspace path', '/workspace/team/TP-P100.txt'],
+    ['mounted path', '/mnt/share/TP-P100.txt'],
+  ])('rejects a private location hidden in a plain-field HTML attribute: %s', async (_label, location) => {
+    const input = completeManifest()
+    input.products[0].packaging = `<span data-location="${location}">Confirm packaging.</span>`
+    await expectStrictRejection(input)
+  })
+
+  it.each([
+    ['removed rich-text attribute', '<p data-note="Example Co. is our manufacturer">Public guidance.</p>'],
+    ['preserved rich-text attribute', '<a href="/resources/guide" title="Alice reviewed this content">Public guidance</a>'],
+    ['removed rich-text element', '<img alt="Current pricing is available"><p>Public guidance.</p>'],
+  ])('rejects forbidden material hidden in %s', async (_label, answer) => {
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = answer
+    await expectStrictRejection(input)
+  })
+
+  it('reports one diagnostic for forbidden rich-text attribute material', async () => {
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer =
+      '<a href="/resources/guide" title="Alice reviewed this content">Public guidance</a>'
+
+    const issues = await strictIssues(input)
+    expect(issues.filter(({message, path}) =>
+      message === 'Internal source, review, approval, and private-evidence disclosures are forbidden' &&
+      path.join('.') === 'products.0.faqItems.0.answer',
+    )).toHaveLength(1)
+  })
+
+  it('allows customer-facing trial, review, approval, and availability guidance', async () => {
+    const {validateProductContentManifest} = await manifestApi()
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer =
+      '<p>Representative trials were made by the application laboratory.</p>'
+    input.products[0].faqItems[1].answer =
+      "<p>The results were reviewed by the customer's technical team.</p>"
+    input.products[0].faqItems[2].answer =
+      '<p>The formulation was approved by the customer.</p>'
+    input.products[0].faqItems[3].answer =
+      '<p>Ask us to confirm current availability for your market.</p>'
+    input.products[0].packaging =
+      'Representative trials were made by the application laboratory.'
+    input.products[0].fitWhen[0] =
+      "The results were reviewed by the customer's technical team."
+    input.products[0].fitWhen[1] =
+      'The formulation was approved by the customer.'
+    input.products[0].fitWhen[2] =
+      'Ask us to confirm current availability for your market.'
 
     expect(validateProductContentManifest(input).products).toHaveLength(25)
   })
@@ -779,6 +914,37 @@ describe('Product manifest validator CLI', () => {
     expect(await readFile(invalid.path)).toEqual(invalid.bytes)
     expect(await readFile(sourcePath)).toEqual(sourceBytes)
     expect(await loaderResidues()).toEqual([])
+  })
+
+  it('cleans a partially created loader when its write rejects', async () => {
+    const fixture = await temporaryManifest(completeManifest())
+    const preloadPath = join(fixture.directory, 'fail-loader-write.cjs')
+    await writeFile(preloadPath, [
+      "const fs = require('node:fs/promises')",
+      "const {syncBuiltinESMExports} = require('node:module')",
+      'const originalWriteFile = fs.writeFile',
+      'fs.writeFile = async (...args) => {',
+      '  await originalWriteFile(...args)',
+      "  throw new Error('injected loader write failure')",
+      '}',
+      'syncBuiltinESMExports()',
+      '',
+    ].join('\n'))
+
+    let result: ReturnType<typeof runCli>
+    let residues: string[] = []
+    try {
+      result = runCli([fixture.path], ['--require', preloadPath])
+      residues = await loaderResidues()
+    } finally {
+      await Promise.all((await loaderResidues()).map((name) =>
+        rm(join('lib/products', name), {force: true})))
+    }
+
+    expect(result!.status).not.toBe(0)
+    expect(result!.stderr).toContain('injected loader write failure')
+    expect(residues).toEqual([])
+    expect(await readFile(fixture.path)).toEqual(fixture.bytes)
   })
 
   it('accepts a safe canonical subset only with --allow-incomplete', async () => {
