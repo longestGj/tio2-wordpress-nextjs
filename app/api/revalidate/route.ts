@@ -6,13 +6,17 @@ import {getCurrentSite} from '@/lib/sites/current-site'
 import {SITE_IDS} from '@/sites'
 import {
   contentListTag,
+  entityTag,
   homepageContentTag,
   isValidPublicPath,
   normalizePublicPath,
+  productListTag,
+  productTag,
   routeTag,
   siteTag,
   sitemapTag,
 } from '@/lib/wordpress/cache-tags'
+import {getApprovedProductSlugs} from '@/sites/public-routes'
 
 export const runtime = 'nodejs'
 
@@ -212,6 +216,24 @@ export async function POST(request: Request): Promise<Response> {
     })
   }
 
+  const productSlugByPath = new Map<string, string>(
+    currentSite.id === 'tio2-a'
+      ? getApprovedProductSlugs(currentSite.id).map((slug) => [
+          `/products/${slug}`,
+          slug,
+        ])
+      : [],
+  )
+  const unapprovedProductPath = payload.paths.find(
+    (path) => path.startsWith('/products/') && !productSlugByPath.has(path),
+  )
+  if (unapprovedProductPath) {
+    return json(400, {
+      ok: false,
+      error: 'Payload targets an unapproved Product path',
+    })
+  }
+
   const tags = new Set<string>()
   for (const siteId of payload.siteIds) {
     tags.add(contentListTag(siteId))
@@ -220,6 +242,15 @@ export async function POST(request: Request): Promise<Response> {
     for (const path of payload.paths) {
       tags.add(routeTag(siteId, path))
       if (path === '/') tags.add(homepageContentTag(siteId))
+
+      const productSlug = productSlugByPath.get(path)
+      if (productSlug) {
+        tags.add(productTag(siteId, productSlug))
+        tags.add(productListTag(siteId))
+        for (const entityId of payload.entityIds) {
+          tags.add(entityTag(siteId, entityId))
+        }
+      }
     }
   }
 
