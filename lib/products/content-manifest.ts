@@ -230,10 +230,32 @@ function normalizeClaimText(value: string): string {
     .trim()
 }
 
+function htmlTags(value: string): string[] {
+  const tags: string[] = []
+  let start = value.indexOf('<')
+  while (start >= 0) {
+    let quote: '"' | "'" | undefined
+    let end = start + 1
+    for (; end < value.length; end += 1) {
+      const character = value[end]
+      if (quote) {
+        if (character === quote) quote = undefined
+      } else if (character === '"' || character === "'") {
+        quote = character
+      } else if (character === '>') {
+        tags.push(value.slice(start, end + 1))
+        break
+      }
+    }
+    start = value.indexOf('<', end < value.length ? end + 1 : start + 1)
+  }
+  return tags
+}
+
 function htmlAttributeClaimCandidates(value: string): string[] {
   const candidates: string[] = []
-  for (const tag of value.matchAll(/<[^>]*>/gu)) {
-    for (const attribute of tag[0].matchAll(
+  for (const tag of htmlTags(value)) {
+    for (const attribute of tag.matchAll(
       /\s+([^\s"'=<>`]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/gu,
     )) {
       const name = attribute[1] ?? ''
@@ -288,6 +310,25 @@ function hasPositiveMatch(
   })
 }
 
+function matchIsInsideSpan(
+  clause: string,
+  match: RegExpMatchArray,
+  spanPattern: RegExp,
+): boolean {
+  const matchIndex = match.index ?? 0
+  const spans = clause.matchAll(new RegExp(
+    spanPattern.source,
+    [...new Set(`${spanPattern.flags.replaceAll('g', '')}g`)].join(''),
+  ))
+  return [...spans].some((span) => {
+    const start = span.index ?? 0
+    return matchIndex >= start && matchIndex < start + span[0].length
+  })
+}
+
+const DENIED_TDS_PREDICATE_PATTERN =
+  /\b(?:not\s+available\s+for\s+(?:public\s+)?download(?:able|ed|ing|s)?|(?:cannot|(?:can|could|would|must|should|may|might|will)\s+not)\s+be\s+(?:accessed|download(?:able|ed|ing)?)(?:\s+(?:directly|online|here))*|(?:is|are|was|were)\s+not\s+(?:available\s+for\s+(?:public\s+)?download(?:able|ed|ing|s)?|(?:publicly\s+)?available(?:\s+(?:online|here))?|download(?:able|ed|ing)?(?:\s+(?:directly|online|here))*|direct(?:ly)?|public|online))\b/u
+
 function containsPositiveTdsAccessClaim(value: string): boolean {
   return claimClauses(value).some(({text, isQuestion}) => {
     if (isQuestion || !/\b(?:tds|technical data sheet)\b/u.test(text)) return false
@@ -295,9 +336,9 @@ function containsPositiveTdsAccessClaim(value: string): boolean {
       /\b(?:download(?:able|ed|ing|s)?|direct(?:ly)?|public|online)\b/gu,
     )
     return [...riskyTerms].some((match) => {
-      const prefix = text.slice(0, match.index ?? 0)
-      if (/\b(?:not\s+available\s+for|cannot\s+be|(?:can|could|would|must|should)\s+not\s+be|is\s+not|are\s+not|not)\s+(?:public\s+)?$/u
-        .test(prefix)) return false
+      if (matchIsInsideSpan(text, match, DENIED_TDS_PREDICATE_PATTERN)) {
+        return false
+      }
 
       const term = match[0]
       if (term.startsWith('download')) return true
@@ -410,14 +451,9 @@ function addStringSafetyIssues(
 
   if (claimCandidates.some((claims) => hasPositiveMatch(claims,
     /\bequivalent\s+to\b|\b(?:direct|drop in)\s+replacement\b/u,
-    (clause, match) => {
-      const prefix = clause.slice(0, match.index ?? 0)
-      return /\b(?:is|are|was|were|be|been|considered)\s+not\s*$/u.test(prefix) ||
-        /\b(?:do|does|must|should)\s+not\s+(?:assume|treat|consider|use)\s*$/u
-          .test(prefix) ||
-        /\b(?:cannot|(?:can|could|would|must|should)\s+not)\s+be\s+(?:treated|considered)\s+as\s*$/u
-          .test(prefix)
-    },
+    (clause, match) => matchIsInsideSpan(clause, match,
+      /\b(?:(?:is|are|was|were|be|been|considered)\s+not\s+(?:considered\s+)?equivalent\s+to|(?:cannot|(?:can|could|would|must|should)\s+not)\s+be\s+(?:treated|considered)(?:\s+as)?\s+equivalent\s+to|(?:do|does|did|must|should)\s+not\s+(?:assume|treat|consider|use)(?:\s+(?:this|the|it|grade|product))?(?:\s+as)?\s+(?:equivalent\s+to|(?:a\s+)?(?:direct|drop in)\s+replacement))\b/u,
+    ),
   ))) {
     context.addIssue({
       code: 'custom',

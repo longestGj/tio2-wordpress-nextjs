@@ -750,6 +750,30 @@ describe('Site A Product content manifest', () => {
     )).toHaveLength(1)
   })
 
+  it.each([
+    '<p dataManufacturer="Example > Co.">Public guidance.</p>',
+    "<p dataManufacturer='Example > Co.'>Public guidance.</p>",
+    '<p dataReviewer="Alice > QA">Public guidance.</p>',
+    "<p dataReviewer='Alice > QA'>Public guidance.</p>",
+    '<p dataSourceFile="internal > record">Public guidance.</p>',
+    "<p dataSourceFile='internal > record'>Public guidance.</p>",
+    '<p dataAvailability="immediate > now">Public guidance.</p>',
+    "<p dataAvailability='immediate > now'>Public guidance.</p>",
+    '<p dataManufacturer="Example&gt;Co.">Public guidance.</p>',
+    "<p dataReviewer='Alice&#62;QA'>Public guidance.</p>",
+    '<p dataSourceFile="internal&#x3e;record">Public guidance.</p>',
+    "<p dataAvailability='immediate&gt;now'>Public guidance.</p>",
+  ])('scans a complete quoted disclosure attribute containing greater-than text: %s', async (answer) => {
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = answer
+
+    const issues = await strictIssues(input)
+    expect(issues).toHaveLength(1)
+    expect(issues.filter(({path}) =>
+      path.join('.') === 'products.0.faqItems.0.answer',
+    )).toHaveLength(1)
+  })
+
   it('preserves ordinary allowed href/title attributes and stable relationship keys', async () => {
     const {validateProductContentManifest} = await manifestApi()
     const input = completeManifest()
@@ -766,6 +790,21 @@ describe('Site A Product content manifest', () => {
     )
     expect(validated.products[0].relatedLinks.resources[0].targetKey)
       .toBe('application-guide')
+  })
+
+  it.each([
+    '<p>Read <a href="/resources/application-guide" title="A > B &amp; C\'s guide">the guide</a>.</p>',
+    '<p>Read <a href=\'/resources/application-guide\' title=\'A > B &amp; C "guide"\'>the guide</a>.</p>',
+  ])('preserves safe href/title values containing quoted punctuation: %s', async (answer) => {
+    const {validateProductContentManifest} = await manifestApi()
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = answer
+
+    const validated = validateProductContentManifest(input)
+    expect(validated.products[0].faqItems[0].answer).toContain(
+      'href="/resources/application-guide"',
+    )
+    expect(validated.products[0].faqItems[0].answer).toContain('title="A &gt; B &amp;')
   })
 
   it.each([
@@ -796,6 +835,11 @@ describe('Site A Product content manifest', () => {
     "The TDS couldn't be downloaded.",
     'The TDS would not be downloaded.',
     "The TDS wouldn't be downloaded.",
+    'The TDS cannot be accessed directly.',
+    'The TDS could not be downloaded directly.',
+    'The TDS would not be downloaded online.',
+    'The TDS should not be downloaded here.',
+    'This grade cannot be considered equivalent to the incumbent.',
   ])('allows an explicit denial bound to its matched disclosure: %s', async (value) => {
     const {validateProductContentManifest} = await manifestApi()
     const input = completeManifest()
@@ -818,6 +862,10 @@ describe('Site A Product content manifest', () => {
     'The TDS can be downloaded.',
     'The TDS could be downloaded.',
     'The TDS would be downloaded.',
+    'The TDS can be accessed directly.',
+    'The TDS can be downloaded online.',
+    'This grade is considered equivalent to the incumbent.',
+    'This grade can be considered equivalent to the incumbent.',
   ])('rejects the positive counterpart of an explicit denial: %s', async (value) => {
     const input = completeManifest()
     input.products[0].faqItems[0].answer = `<p>${value}</p>`
@@ -828,6 +876,7 @@ describe('Site A Product content manifest', () => {
     'This grade cannot be treated as equivalent to the incumbent. It can be treated as equivalent to the incumbent.',
     "This grade couldn't be treated as equivalent to the incumbent. It could be treated as equivalent to the incumbent.",
     "The TDS wouldn't be downloaded. The TDS would be downloaded.",
+    'The TDS cannot be accessed directly. The TDS can be accessed directly.',
   ])('does not let an auxiliary denial suppress a later assertion: %s', async (value) => {
     const input = completeManifest()
     input.products[0].faqItems[0].answer = `<p>${value}</p>`
