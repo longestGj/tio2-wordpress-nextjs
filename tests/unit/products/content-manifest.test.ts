@@ -612,6 +612,125 @@ describe('Site A Product content manifest', () => {
   })
 
   it.each([
+    'It is not. It guarantees performance.',
+    'It is not. Current pricing is available.',
+    'It is not. Stock is available.',
+    'It is not. Commercial availability is confirmed.',
+    'It is not. Reviewed by Alice.',
+    'Is pricing disclosed? Current pricing is available.',
+    'If pricing is requested, current pricing is available.',
+    'Is stock disclosed? Stock is available.',
+    'If availability is requested, commercial availability is confirmed.',
+    'Was this page reviewed? Reviewed by Alice.',
+  ])('preserves an asserted clause after an unrelated boundary: %s', async (value) => {
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = `<p>${value}</p>`
+    await expectStrictRejection(input)
+  })
+
+  it.each([
+    'Alice reviewed<br>this content.',
+    'Current pricing<br>is available.',
+    'The TDS can be<br>downloaded.',
+    'ALICE REVIEWED<BR>THIS CONTENT.',
+    'Current pricing</p><p>is available.',
+    'The TDS can be&nbsp;<br>downloaded.',
+  ])('uses supported HTML tags as safety-scanning word boundaries: %s', async (answer) => {
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = answer
+    await expectStrictRejection(input)
+  })
+
+  it.each([
+    'Manufactured by Example Co.',
+    'Manufacturer — Example Co.',
+    'mAnUfAcTuReR &mdash; Example Co.',
+    'Reviewer — Alice',
+    'rEvIeWeR &mdash; Alice',
+    'Source file — internal record',
+    'Availability — immediate',
+  ])('rejects a bounded disclosure in plain and rich fields: %s', async (value) => {
+    const plain = completeManifest()
+    plain.products[0].packaging = value
+    await expectStrictRejection(plain)
+
+    const rich = completeManifest()
+    rich.products[0].faqItems[0].answer = `<p>${value}</p>`
+    await expectStrictRejection(rich)
+  })
+
+  it.each([
+    '<p data-manufacturer="Example Co.">Public guidance.</p>',
+    '<p DATA-MANUFACTURER="Example &amp; Co.">Public guidance.</p>',
+    '<p data-reviewer="Alice">Public guidance.</p>',
+    '<p DATA-REVIEWER="ALICE">Public guidance.</p>',
+  ])('scans decoded HTML attribute names together with their values: %s', async (answer) => {
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = answer
+
+    const issues = await strictIssues(input)
+    expect(issues.filter(({path}) =>
+      path.join('.') === 'products.0.faqItems.0.answer',
+    )).toHaveLength(1)
+  })
+
+  it('preserves ordinary allowed href/title attributes and stable relationship keys', async () => {
+    const {validateProductContentManifest} = await manifestApi()
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = [
+      '<p>Read the <a href="/resources/application-guide" ',
+      'title="Application guide">application guide</a>.</p>',
+    ].join('')
+    input.products[0].relatedLinks.resources[0].targetKey =
+      'application-guide'
+
+    const validated = validateProductContentManifest(input)
+    expect(validated.products[0].faqItems[0].answer).toContain(
+      'href="/resources/application-guide" title="Application guide"',
+    )
+    expect(validated.products[0].relatedLinks.resources[0].targetKey)
+      .toBe('application-guide')
+  })
+
+  it.each([
+    'Manufacturer is not identified on this page.',
+    "Manufacturer isn't identified on this page.",
+    'This page does not identify a manufacturer.',
+    "This page doesn't identify a manufacturer.",
+    'Reviewer is not named.',
+    "Reviewer isn't named.",
+    'Private evidence is not published.',
+    "Private evidence isn't published.",
+    'Current pricing is not stated.',
+    "Current pricing isn't stated.",
+    'This grade should not be treated as equivalent to the incumbent.',
+    "This grade shouldn't be treated as equivalent to the incumbent.",
+    'The TDS should not be downloaded.',
+    "The TDS shouldn't be downloaded.",
+    "The TDS can't be downloaded.",
+  ])('allows an explicit denial bound to its matched disclosure: %s', async (value) => {
+    const {validateProductContentManifest} = await manifestApi()
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = `<p>${value}</p>`
+
+    expect(validateProductContentManifest(input).products).toHaveLength(25)
+  })
+
+  it.each([
+    'Manufacturer is identified as Example Co.',
+    'This page identifies Example Company as the manufacturer.',
+    'Reviewer is named as Alice.',
+    'Private evidence is published.',
+    'Current pricing is stated.',
+    'This grade should be treated as equivalent to the incumbent.',
+    'The TDS should be downloaded.',
+  ])('rejects the positive counterpart of an explicit denial: %s', async (value) => {
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = `<p>${value}</p>`
+    await expectStrictRejection(input)
+  })
+
+  it.each([
     ['manufacturer identity', 'Example Co. is our manufacturer.'],
     ['operator label', 'Operator: Example Co.'],
     ['legal identity', 'Example Co. is the legal entity.'],

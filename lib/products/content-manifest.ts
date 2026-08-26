@@ -218,7 +218,12 @@ function normalizeClaimText(value: string): string {
     .replaceAll(/\bisn't\b/gu, 'is not')
     .replaceAll(/\baren't\b/gu, 'are not')
     .replaceAll(/\bcan't\b/gu, 'cannot')
+    .replaceAll(/\bshouldn't\b/gu, 'should not')
+    .replaceAll(/\bcouldn't\b/gu, 'could not')
+    .replaceAll(/\bwouldn't\b/gu, 'would not')
+    .replaceAll(/\bmustn't\b/gu, 'must not')
     .replaceAll(/\bwon't\b/gu, 'will not')
+    .replaceAll(/\s[-–—]\s/gu, ' : ')
     .replaceAll(/[\p{P}\p{S}]+/gu, (punctuation) => {
       if (punctuation.includes('?')) return ' ? '
       if (punctuation.includes(':')) return ' : '
@@ -228,16 +233,19 @@ function normalizeClaimText(value: string): string {
     .trim()
 }
 
-function htmlAttributeValues(value: string): string[] {
-  const values: string[] = []
+function htmlAttributeClaimCandidates(value: string): string[] {
+  const candidates: string[] = []
   for (const tag of value.matchAll(/<[^>]*>/gu)) {
     for (const attribute of tag[0].matchAll(
-      /\s+[^\s"'=<>`]+\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/gu,
+      /\s+([^\s"'=<>`]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/gu,
     )) {
-      values.push(attribute[1] ?? attribute[2] ?? attribute[3] ?? '')
+      const name = attribute[1] ?? ''
+      const rawValue = attribute[2] ?? attribute[3] ?? attribute[4] ?? ''
+      const decodedValue = richTextVisibleText(decodeSafetyEntities(rawValue))
+      candidates.push(decodedValue, `${name}: ${decodedValue}`)
     }
   }
-  return values
+  return candidates
 }
 
 interface ClaimClause {
@@ -315,8 +323,12 @@ function addStringSafetyIssues(
 ): void {
   const decoded = decodeSafetyEntities(value)
   const visible = richTextVisibleText(decoded)
-  const claimCandidates = [visible, ...htmlAttributeValues(decoded)]
-    .map(normalizeClaimText)
+  const boundaryText = richTextBoundaryText(decoded)
+  const claimCandidates = [
+    visible,
+    boundaryText,
+    ...htmlAttributeClaimCandidates(decoded),
+  ]
     .filter((candidate, index, candidates) =>
       candidate.length > 0 && candidates.indexOf(candidate) === index)
 
@@ -355,7 +367,7 @@ function addStringSafetyIssues(
   }
 
   if (claimCandidates.some((claims) => hasPositiveMatch(claims,
-    /\b(?:this|the|tiovar)\s+(?:grade|product|product line|brand)\s+(?:is\s+)?(?:manufactured|produced|operated)\s+by\b|\b(?:manufactures|produces|operates|owns)\s+(?:this|the)\s+(?:grade|product|product line|brand)\b|\b(?:manufacturer|legal entity|operator(?: identity)?|brand owner)\s+(?:is|was|equals|named)\b|\b(?:is|was)\s+(?:our|the|this\s+brand'?s)?\s*(?:manufacturer|legal entity|operator|brand owner)\b/u,
+    /\b(?:this|the|tiovar)\s+(?:grade|product|product line|brand)\s+(?:is\s+)?(?:manufactured|produced|operated)\s+by\b|\b(?:manufactured|produced|operated)\s+by\s+[a-z0-9]|\b(?:manufactures|produces|operates|owns)\s+(?:this|the)\s+(?:grade|product|product line|brand)\b|\b(?:manufacturer|legal entity|operator(?: identity)?|brand owner)\s+(?:is|was)\s+(?!not\b)(?:(?:identified|named|stated|disclosed)(?:\s+as)?\s+)?[a-z0-9]|\b(?:manufacturer|legal entity|operator(?: identity)?|brand owner)\s+(?:equals|named)\b|\b(?:this\s+)?(?:page|content|record)\s+identif(?:y|ies)\b[^|]{1,120}\bas\s+(?:the\s+)?(?:manufacturer|legal entity|operator|brand owner)\b|\b(?:is|was)\s+(?:our|the|this\s+brand'?s)?\s*(?:manufacturer|legal entity|operator|brand owner)\b/u,
   )) || claimCandidates.some((claims) => hasPositiveMatch(claims,
     /\b(?:manufacturer|legal entity|operator(?: identity)?|brand owner)\s+:\s+[a-z0-9]/u,
   ))) {
@@ -367,7 +379,7 @@ function addStringSafetyIssues(
   }
 
   if (claimCandidates.some((claims) => hasPositiveMatch(claims,
-    /\b(?:this\s+)?(?:content|page|copy|claim|statement|record)\s+(?:(?:is|was|has been)\s+)?(?:reviewed|approved)\s+by\b|\b[a-z][a-z -]*\s+(?:reviewed|approved)\s+(?:this\s+)?(?:content|page|copy|claim|statement|record)\b|\breviewed by\s+(?!the\s+customer|customer'?s?\s+(?:technical\s+)?team\b)[a-z]\w*|\bapproved by\s+(?!the\s+customer\b|customer\b)[a-z]\w*|\b(?:reviewer|review date|evidence status|approval status)\s+(?:is|was)\b|\b(?:internal\s+)?source (?:note|notes|file|model|page|path|url)\s+(?:\d+|is|was|says|states|supports|records|shows|from)\b|\bapproval history\s+(?:is|was|records|shows|includes)\b|\bprivate evidence\s+(?:is|was|from|shows|supports|includes|records)\b/u,
+    /\b(?:this\s+)?(?:content|page|copy|claim|statement|record)\s+(?:(?:is|was|has been)\s+)?(?:reviewed|approved)\s+by\b|\b[a-z][a-z -]*\s+(?:reviewed|approved)\s+(?:this\s+)?(?:content|page|copy|claim|statement|record)\b|\breviewed by\s+(?!the\s+customer|customer'?s?\s+(?:technical\s+)?team\b)[a-z]\w*|\bapproved by\s+(?!the\s+customer\b|customer\b)[a-z]\w*|\b(?:reviewer|review date|evidence status|approval status)\s+(?:is|was)\s+(?!not\b)(?:(?:named|stated|disclosed|published)(?:\s+as)?\s+)?[a-z0-9]|\b(?:internal\s+)?source (?:note|notes|file|model|page|path|url)\s+(?:\d+|is|was|says|states|supports|records|shows|from)\b|\bapproval history\s+(?:is|was|records|shows|includes)\b|\bprivate evidence\s+(?:is|was)\s+(?!not\b)(?:published|stated|disclosed|named|available)\b|\bprivate evidence\s+(?:from|shows|supports|includes|records)\b/u,
     (clause, match) => {
       const prefix = clause.slice(0, match.index ?? 0)
       const matchedClaim = clause.slice(match.index ?? 0)
@@ -402,6 +414,8 @@ function addStringSafetyIssues(
       const prefix = clause.slice(0, match.index ?? 0)
       return /\b(?:is|are|was|were|be|been|considered)\s+not\s*$/u.test(prefix) ||
         /\b(?:do|does|must|should)\s+not\s+(?:assume|treat|consider|use)\s*$/u
+          .test(prefix) ||
+        /\b(?:must|should)\s+not\s+be\s+(?:treated|considered)\s+as\s*$/u
           .test(prefix)
     },
   ))) {
@@ -413,7 +427,7 @@ function addStringSafetyIssues(
   }
 
   if (claimCandidates.some((claims) => hasPositiveMatch(claims,
-    /[$€£¥]\s*\d|\b(?:usd|eur|gbp|cny|rmb)\s*\d|\b(?:current\s+)?(?:price|pricing)\s+(?:is|are|was|were|equals?|starts?|begins?|remains?|available|confirmed|set|listed|quoted)\b|\bcosts?\s+(?:\d|usd|eur|gbp|cny|rmb|[$€£¥])\b/u,
+    /[$€£¥]\s*\d|\b(?:usd|eur|gbp|cny|rmb)\s*\d|\b(?:current\s+)?(?:price|pricing)\s+(?:(?:is|are|was|were)\s+(?!not\b)(?:stated|available|confirmed|set|listed|quoted|[\d$€£¥])|equals?|starts?|begins?|remains?|available|confirmed|set|listed|quoted)\b|\bcosts?\s+(?:\d|usd|eur|gbp|cny|rmb|[$€£¥])\b/u,
   ))) {
     context.addIssue({code: 'custom', message: 'Positive price claims are forbidden', path})
   }
@@ -532,9 +546,9 @@ const productContentRecordSchema: z.ZodType<ProductContentRecord> = z.object({
   tdsAccess: requiredText().refine((value) =>
     /\b(?:tds|technical\s+data\s+sheet)\b/iu.test(value) &&
       /\brequest(?:ed|ing|s)?\b/iu.test(value) &&
-      !containsPositiveTdsAccessClaim(normalizeClaimText(
-        richTextVisibleText(decodeSafetyEntities(value)),
-      )),
+      !containsPositiveTdsAccessClaim(
+        richTextBoundaryText(decodeSafetyEntities(value)),
+      ),
   'TDS access must use request-only wording'),
   fitWhen: z.array(requiredText()).min(3).max(5),
   discussFirstWhen: z.array(requiredText()).min(1).max(5),
