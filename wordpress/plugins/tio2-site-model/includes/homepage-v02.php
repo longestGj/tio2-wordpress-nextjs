@@ -367,6 +367,39 @@ function tio2_homepage_v02_validate_https_url($value, string $field_name, bool $
 }
 
 /**
+ * @param mixed $value
+ * @return true|WP_Error
+ */
+function tio2_homepage_v02_validate_image_dimensions($value, string $field_name)
+{
+    $attachment_id = is_array($value)
+        ? (int) ($value['ID'] ?? $value['id'] ?? 0)
+        : (int) $value;
+    if ($attachment_id <= 0) {
+        return true;
+    }
+
+    $metadata = wp_get_attachment_metadata($attachment_id);
+    if (! is_array($metadata)) {
+        return new WP_Error(
+            'tio2_homepage_invalid_field',
+            "Homepage field {$field_name} requires positive image dimensions."
+        );
+    }
+    foreach (['width', 'height'] as $dimension_name) {
+        $dimension = filter_var($metadata[$dimension_name] ?? null, FILTER_VALIDATE_INT);
+        if (false === $dimension || $dimension <= 0) {
+            return new WP_Error(
+                'tio2_homepage_invalid_field',
+                "Homepage field {$field_name} requires positive image dimensions."
+            );
+        }
+    }
+
+    return true;
+}
+
+/**
  * @param array<string, mixed> $row
  * @param array<string, array{0: bool, 1: int|null}> $fields
  * @return true|WP_Error
@@ -422,6 +455,13 @@ function tio2_validate_homepage_v02_contract(int $post_id)
     if (is_wp_error($hero_image)) {
         return $hero_image;
     }
+    $hero_image_dimensions = tio2_homepage_v02_validate_image_dimensions(
+        $hero_image_value,
+        'hero_image'
+    );
+    if (is_wp_error($hero_image_dimensions)) {
+        return $hero_image_dimensions;
+    }
     if (false !== $hero_image_value && null !== $hero_image_value && '' !== $hero_image_value && 0 !== (int) $hero_image_value) {
         $hero_alt = tio2_homepage_validate_string(
             get_field('hero_image_alt', $post_id, false),
@@ -436,6 +476,13 @@ function tio2_validate_homepage_v02_contract(int $post_id)
     $og_image = tio2_homepage_validate_image(get_field('og_image', $post_id, false), 'og_image', '');
     if (is_wp_error($og_image)) {
         return $og_image;
+    }
+    $og_image_dimensions = tio2_homepage_v02_validate_image_dimensions(
+        get_field('og_image', $post_id, false),
+        'og_image'
+    );
+    if (is_wp_error($og_image_dimensions)) {
+        return $og_image_dimensions;
     }
 
     $decision_questions = tio2_homepage_v02_validate_rows(

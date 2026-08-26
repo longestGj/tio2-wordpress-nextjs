@@ -61,6 +61,67 @@ describe('toSiteAEditorialHomepageDto', () => {
     expect(adapt(node).directAnswer.lead).toBe('Keep Case, punctuation!')
   })
 
+  it('accepts WordPress plain text containing comparison symbols and C1', () => {
+    const node = makeSiteAEditorialHomepageNode()
+    setField(
+      editorial(node),
+      'directAnswerLead',
+      '  Compare 1 < 2 and 3 > 2.\u0085Keep punctuation.  ',
+    )
+
+    expect(adapt(node).directAnswer.lead).toBe(
+      'Compare 1 < 2 and 3 > 2. Keep punctuation.',
+    )
+  })
+
+  it.each([
+    ['width', 0, 480],
+    ['height', 640, 0],
+  ])('rejects a non-positive Hero image %s', (dimension, width, height) => {
+    const node = makeSiteAEditorialHomepageNode()
+    setField(fields(node), 'heroImage', {
+      node: {
+        mediaItemUrl: 'https://tio2products.com/synthetic.png',
+        altText: 'Synthetic image',
+        mimeType: 'image/png',
+        mediaDetails: {width, height},
+      },
+    })
+    setField(fields(node), 'heroImageAlt', 'Synthetic image')
+
+    expect(() => adapt(node)).toThrow(expect.objectContaining({
+      name: HomepageContractError.name,
+      fieldPath: `hero.image.${dimension}`,
+    }))
+  })
+
+  it('maps GraphQL-null optional rows, URLs, labels, and image alt values', () => {
+    const emptyRows = makeSiteAEditorialHomepageNode()
+    setField(editorial(emptyRows), 'evidenceItems', null)
+    setField(editorial(emptyRows), 'glossaryItems', null)
+    setField(fields(emptyRows), 'secondaryTopics', null)
+    setField(fields(emptyRows), 'heroImageAlt', null)
+
+    expect(adapt(emptyRows)).toMatchObject({
+      hero: {image: null},
+      evidenceItems: [],
+      glossary: [],
+      seo: {secondaryTopics: []},
+    })
+
+    const nullableStrings = makeSiteAEditorialHomepageNode()
+    setField(editorial(nullableStrings).supplyRoutes![0] as object, 'evidenceUrl', null)
+    setField(editorial(nullableStrings).evidenceItems![0] as object, 'evidenceUrl', null)
+    setField(editorial(nullableStrings).evidenceItems![0] as object, 'revisionLabel', null)
+
+    const dto = adapt(nullableStrings)
+    expect(dto.supplyRoutes[0]?.evidenceUrl).toBeNull()
+    expect(dto.evidenceItems[0]).toMatchObject({
+      evidenceUrl: null,
+      revisionLabel: '',
+    })
+  })
+
   it('rejects foreign, missing, and multiple site scopes', () => {
     for (const nodes of [
       [{slug: 'tio2-b'}],
@@ -73,11 +134,19 @@ describe('toSiteAEditorialHomepageDto', () => {
     }
   })
 
-  it('rejects wrong schema versions without legacy fallback', () => {
+  it.each([
+    ['missing', (node: ReturnType<typeof makeSiteAEditorialHomepageNode>) => Reflect.deleteProperty(fields(node), 'homepageSchemaVersion'), ''],
+    ['null', (node: ReturnType<typeof makeSiteAEditorialHomepageNode>) => setField(fields(node), 'homepageSchemaVersion', null), ''],
+    ['empty', (node: ReturnType<typeof makeSiteAEditorialHomepageNode>) => setField(fields(node), 'homepageSchemaVersion', ''), ''],
+    ['legacy', (node: ReturnType<typeof makeSiteAEditorialHomepageNode>) => setField(fields(node), 'homepageSchemaVersion', 'homepage-v0.1'), 'homepage-v0.1'],
+  ])('classifies a %s inner schema version as a version error without fallback', (_label, mutate, actualVersion) => {
     const node = makeSiteAEditorialHomepageNode()
-    setField(fields(node), 'homepageSchemaVersion', 'homepage-v0.1')
+    mutate(node)
 
-    expect(() => adapt(node)).toThrow(HomepageVersionError)
+    expect(() => adapt(node)).toThrow(expect.objectContaining({
+      name: HomepageVersionError.name,
+      actualVersion,
+    }))
   })
 
   it('requires publish for published reads and draft for Preview reads', () => {
@@ -187,6 +256,8 @@ describe('toSiteAEditorialHomepageDto', () => {
 
   it('rejects non-HTTPS and credentialed evidence URLs', () => {
     for (const evidenceUrl of [
+      'https://@example.test/evidence',
+      'https://:@example.test/evidence',
       'http://example.test/evidence',
       'HTTPS://example.test/evidence',
       'https://user:pass@example.test/evidence',

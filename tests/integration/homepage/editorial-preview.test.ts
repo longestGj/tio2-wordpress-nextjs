@@ -110,6 +110,27 @@ describe('getPreviewSiteAEditorialHomepage', () => {
     })
   })
 
+  it.each([
+    ['evidence rows', (payload: ReturnType<typeof previewHomepage>) => Reflect.set(payload.editorialGeoFields!, 'evidenceItems', null), 'evidenceItems'],
+    ['glossary rows', (payload: ReturnType<typeof previewHomepage>) => Reflect.set(payload.editorialGeoFields!, 'glossaryItems', null), 'glossary'],
+    ['secondary-topic rows', (payload: ReturnType<typeof previewHomepage>) => Reflect.set(payload.homepageFields!, 'secondaryTopics', null), 'seo.secondaryTopics'],
+    ['supply evidence URL', (payload: ReturnType<typeof previewHomepage>) => Reflect.set(payload.editorialGeoFields!.supplyRoutes![0] as object, 'evidenceUrl', null), 'supplyRoutes[0].evidenceUrl'],
+    ['evidence-item URL', (payload: ReturnType<typeof previewHomepage>) => Reflect.set(payload.editorialGeoFields!.evidenceItems![0] as object, 'evidenceUrl', null), 'evidenceItems[0].evidenceUrl'],
+    ['evidence revision label', (payload: ReturnType<typeof previewHomepage>) => Reflect.set(payload.editorialGeoFields!.evidenceItems![0] as object, 'revisionLabel', null), 'evidenceItems[0].revisionLabel'],
+    ['Hero image alt', (payload: ReturnType<typeof previewHomepage>) => Reflect.set(payload.homepageFields!, 'heroImageAlt', null), 'hero.image.alt'],
+  ])('rejects a null %s emitted outside the Preview serializer shape', async (_label, mutate, fieldPath) => {
+    const payload = previewHomepage()
+    mutate(payload)
+    server.use(
+      http.get(previewEndpoint, () => HttpResponse.json(payload)),
+    )
+
+    await expect(getPreviewSiteAEditorialHomepage()).rejects.toMatchObject({
+      name: HomepageContractError.name,
+      fieldPath,
+    })
+  })
+
   it('rejects a GraphQL select array at the scalar Preview boundary', async () => {
     const payload = previewHomepage()
     const route = payload.editorialGeoFields!.supplyRoutes![0]!

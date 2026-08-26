@@ -35,7 +35,7 @@ const SUPPORTED_IMAGE_MIME_TYPES = new Set<HomepageImageDto['mimeType']>([
   'image/webp',
   'image/avif',
 ])
-const DANGEROUS_TEXT_PATTERN = /[<>]|[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u
+const WORDPRESS_TAG_REWRITE_PATTERN = /<(?:!--[\s\S]*?(?:-->|$)|\?[\s\S]*?(?:\?>|$)|\/?[a-z][^>]*(?:>|$)|![a-z][^>]*(?:>|$))/iu
 const STRICT_REVIEW_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u
 
 export interface SiteAEditorialAdapterOptions {
@@ -66,8 +66,13 @@ function nullableRows(
   value: unknown,
   fieldPath: string,
   max: number,
+  readMode: ReadMode,
 ): readonly unknown[] {
-  return value === null ? [] : rows(value, fieldPath, 0, max)
+  if (value === null) {
+    if (readMode === 'preview') throw new HomepageContractError(fieldPath)
+    return []
+  }
+  return rows(value, fieldPath, 0, max)
 }
 
 function text(
@@ -83,11 +88,27 @@ function text(
   if (
     (required && !trimmed) ||
     (max !== null && Array.from(trimmed).length > max) ||
-    DANGEROUS_TEXT_PATTERN.test(trimmed)
+    WORDPRESS_TAG_REWRITE_PATTERN.test(trimmed)
   ) {
     throw new HomepageContractError(fieldPath)
   }
   return normalizePlainText(trimmed, Number.MAX_SAFE_INTEGER)
+}
+
+function nullableText(
+  value: unknown,
+  fieldPath: string,
+  max: number | null,
+  required: boolean,
+  readMode: ReadMode,
+): string {
+  if (value === null) {
+    if (required || readMode === 'preview') {
+      throw new HomepageContractError(fieldPath)
+    }
+    return ''
+  }
+  return text(value, fieldPath, max, required)
 }
 
 function unique(values: readonly string[], fieldPaths: readonly string[]): void {
@@ -99,6 +120,13 @@ function unique(values: readonly string[], fieldPaths: readonly string[]): void 
     }
     seen.add(key)
   })
+}
+
+function hasHttpsAuthorityUserInfo(value: string): boolean {
+  const authority = value
+    .slice('https://'.length)
+    .split(/[/?#]/u, 1)[0] ?? ''
+  return authority.includes('@')
 }
 
 function enumValue<T extends string>(
@@ -125,9 +153,12 @@ function httpsUrl(
   value: unknown,
   fieldPath: string,
   required: boolean,
+  readMode: ReadMode,
 ): string | null {
   if (value === null) {
-    if (required) throw new HomepageContractError(fieldPath)
+    if (required || readMode === 'preview') {
+      throw new HomepageContractError(fieldPath)
+    }
     return null
   }
   const normalized = text(value, fieldPath, null, required)
@@ -138,6 +169,7 @@ function httpsUrl(
     if (
       !normalized.startsWith('https://') ||
       /\s/u.test(normalized) ||
+      hasHttpsAuthorityUserInfo(normalized) ||
       parsed.protocol !== 'https:' ||
       !parsed.hostname ||
       parsed.username ||
@@ -164,6 +196,7 @@ function rfqHref(value: unknown): string {
     const validHttps =
       parsed.protocol === 'https:' &&
       Boolean(parsed.hostname) &&
+      !hasHttpsAuthorityUserInfo(normalized) &&
       !parsed.username &&
       !parsed.password
     if (!validMailto && !validHttps) {
@@ -187,20 +220,18 @@ function image(
   altValue: unknown,
   fieldPath: string,
   requireAlt: boolean,
+  readMode: ReadMode,
 ): HomepageImageDto | null {
   if (value === undefined) {
     throw new HomepageContractError(fieldPath)
   }
-  const alt = altValue === null
-    ? requireAlt && value !== null
-      ? text('', `${fieldPath}.alt`, 160)
-      : ''
-    : text(
-        altValue,
-        `${fieldPath}.alt`,
-        160,
-        requireAlt && value !== null,
-      )
+  const alt = nullableText(
+    altValue,
+    `${fieldPath}.alt`,
+    160,
+    requireAlt && value !== null,
+    readMode,
+  )
   if (value === null) {
     if (alt) throw new HomepageContractError(`${fieldPath}.alt`)
     return null
@@ -257,11 +288,9 @@ export function toSiteAEditorialHomepageDto(
   }
 
   const homepage = record(source.homepageFields, 'homepageFields')
-  const schemaVersion = text(
-    homepage.homepageSchemaVersion,
-    'identity.schemaVersion',
-    null,
-  )
+  const schemaVersion = typeof homepage.homepageSchemaVersion === 'string'
+    ? homepage.homepageSchemaVersion.trim()
+    : String(homepage.homepageSchemaVersion ?? '')
   if (schemaVersion !== SCHEMA_VERSION) {
     throw new HomepageVersionError(schemaVersion)
   }
@@ -354,6 +383,7 @@ export function toSiteAEditorialHomepageDto(
         row.evidenceUrl,
         `${fieldPath}.evidenceUrl`,
         claimBasis === 'source_document',
+        readMode,
       ),
     }
   })
@@ -362,6 +392,7 @@ export function toSiteAEditorialHomepageDto(
     editorial.evidenceItems,
     'evidenceItems',
     12,
+    readMode,
   ).map((rawRow, index) => {
     const fieldPath = `evidenceItems[${index}]`
     const row = record(rawRow, fieldPath)
@@ -376,18 +407,18 @@ export function toSiteAEditorialHomepageDto(
       title: text(row.documentTitle, `${fieldPath}.title`, null),
       summary: text(row.documentSummary, `${fieldPath}.summary`, null),
       applicability: text(row.applicability, `${fieldPath}.applicability`, null),
-      revisionLabel: row.revisionLabel === null
-        ? ''
-        : text(
-            row.revisionLabel,
-            `${fieldPath}.revisionLabel`,
-            null,
-            false,
-          ),
+      revisionLabel: nullableText(
+        row.revisionLabel,
+        `${fieldPath}.revisionLabel`,
+        null,
+        false,
+        readMode,
+      ),
       evidenceUrl: httpsUrl(
         row.evidenceUrl,
         `${fieldPath}.evidenceUrl`,
         verificationStatus === 'verified',
+        readMode,
       ),
       verificationStatus,
     }
@@ -428,6 +459,7 @@ export function toSiteAEditorialHomepageDto(
     editorial.glossaryItems,
     'glossary',
     30,
+    readMode,
   ).map((rawRow, index) => {
     const fieldPath = `glossary[${index}]`
     const row = record(rawRow, fieldPath)
@@ -445,6 +477,7 @@ export function toSiteAEditorialHomepageDto(
     homepage.secondaryTopics,
     'seo.secondaryTopics',
     10,
+    readMode,
   ).map((rawRow, index) =>
     text(
       record(rawRow, `seo.secondaryTopics[${index}]`).secondaryTopic,
@@ -479,7 +512,13 @@ export function toSiteAEditorialHomepageDto(
       eyebrow: text(homepage.heroEyebrow, 'hero.eyebrow', 80),
       heading: text(homepage.heroHeading, 'hero.heading', 90),
       summary: text(homepage.heroSummary, 'hero.summary', 320),
-      image: image(homepage.heroImage, homepage.heroImageAlt, 'hero.image', true),
+      image: image(
+        homepage.heroImage,
+        homepage.heroImageAlt,
+        'hero.image',
+        true,
+        readMode,
+      ),
     },
     headerRfq: {
       label: text(editorial.headerRfqLabel, 'headerRfq.label', 32),
@@ -514,7 +553,13 @@ export function toSiteAEditorialHomepageDto(
     seo: {
       title: text(homepage.seoTitle, 'seo.title', 60),
       description: text(homepage.seoDescription, 'seo.description', 160),
-      ogImage: image(ogImageValue, ogImageAlt, 'seo.ogImage', false),
+      ogImage: image(
+        ogImageValue,
+        ogImageAlt,
+        'seo.ogImage',
+        false,
+        readMode,
+      ),
       primaryTopic: text(homepage.primaryTopic, 'seo.primaryTopic', 80),
       secondaryTopics,
     },

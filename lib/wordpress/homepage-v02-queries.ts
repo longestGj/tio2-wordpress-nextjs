@@ -43,9 +43,23 @@ export async function getSiteAEditorialHomepage(
     },
   )
 
-  return data.tio2Homepage
-    ? toSiteAEditorialHomepageDto(data.tio2Homepage, {
-        rfqHref: getSiteConfig(SITE_ID).rfqHref,
-      })
-    : null
+  const responseData: unknown = data
+  if (
+    !responseData ||
+    typeof responseData !== 'object' ||
+    Array.isArray(responseData) ||
+    !Object.hasOwn(responseData, 'tio2Homepage')
+  ) {
+    throw new HomepageContractError('homepage')
+  }
+  const homepage = (responseData as Record<string, unknown>).tio2Homepage
+  if (homepage === null) return null
+  if (!homepage || typeof homepage !== 'object' || Array.isArray(homepage)) {
+    throw new HomepageContractError('homepage')
+  }
+
+  return toSiteAEditorialHomepageDto(
+    homepage as NonNullable<GetSiteAEditorialHomepageQuery['tio2Homepage']>,
+    {rfqHref: getSiteConfig(SITE_ID).rfqHref},
+  )
 }

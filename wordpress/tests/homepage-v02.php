@@ -324,6 +324,18 @@ tio2_homepage_v02_test_assert(
     'The complete Site A v0.2 fixture failed: ' . (is_wp_error($valid) ? $valid->get_error_message() : 'unknown')
 );
 
+tio2_homepage_v02_test_set_valid_fields($post_id);
+tio2_homepage_v02_test_update_field(
+    'field_tio2_geo_direct_answer_lead',
+    "Compare 1 < 2 and 3 > 2.\u{0085}Keep punctuation.",
+    $post_id
+);
+$plain_comparison = tio2_validate_homepage_contract($post_id);
+tio2_homepage_v02_test_assert(
+    true === $plain_comparison,
+    'Plain comparison symbols or C1 text were rejected by the WordPress contract.'
+);
+
 $mutations = [
     ['field_tio2_home_schema_version', 'homepage-v0.1', 'tio2_homepage_invalid_schema_version', 'Wrong Site A schema version was accepted.'],
     ['field_tio2_geo_direct_answer_body', '', 'tio2_homepage_invalid_field', 'Empty direct answer was accepted.'],
@@ -386,6 +398,36 @@ tio2_homepage_v02_test_assert_error(
     $post_id,
     'tio2_homepage_invalid_field',
     'A visible Hero image without explicit alt text was accepted.'
+);
+
+tio2_homepage_v02_test_set_valid_fields($post_id);
+tio2_homepage_v02_test_update_field('field_tio2_home_hero_image', $attachment_id, $post_id);
+tio2_homepage_v02_test_update_field('field_tio2_home_hero_image_alt', 'Synthetic image', $post_id);
+delete_post_meta($attachment_id, '_wp_attachment_metadata');
+tio2_homepage_v02_test_assert_error(
+    $post_id,
+    'tio2_homepage_invalid_field',
+    'A Hero image without positive attachment dimensions was accepted.'
+);
+
+wp_update_attachment_metadata($attachment_id, ['width' => 640, 'height' => 0]);
+tio2_homepage_v02_test_set_valid_fields($post_id);
+tio2_homepage_v02_test_update_field('field_tio2_home_og_image', $attachment_id, $post_id);
+tio2_homepage_v02_test_assert_error(
+    $post_id,
+    'tio2_homepage_invalid_field',
+    'An Open Graph image with a non-positive attachment dimension was accepted.'
+);
+
+wp_update_attachment_metadata($attachment_id, ['width' => 640, 'height' => 480]);
+tio2_homepage_v02_test_set_valid_fields($post_id);
+tio2_homepage_v02_test_update_field('field_tio2_home_hero_image', $attachment_id, $post_id);
+tio2_homepage_v02_test_update_field('field_tio2_home_hero_image_alt', 'Synthetic image', $post_id);
+tio2_homepage_v02_test_update_field('field_tio2_home_og_image', $attachment_id, $post_id);
+$positive_dimensions = tio2_validate_homepage_contract($post_id);
+tio2_homepage_v02_test_assert(
+    true === $positive_dimensions,
+    'Positive Hero/Open Graph attachment dimensions were rejected.'
 );
 
 tio2_homepage_v02_test_set_valid_fields($post_id);

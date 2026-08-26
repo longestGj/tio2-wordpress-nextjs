@@ -110,6 +110,22 @@ describe('getSiteAEditorialHomepage', () => {
     expect(requestCount).toBe(1)
   })
 
+  it.each([
+    ['missing root field', {}],
+    ['numeric root field', {tio2Homepage: 0}],
+    ['empty-string root field', {tio2Homepage: ''}],
+    ['array root field', {tio2Homepage: []}],
+  ])('rejects a %s instead of treating it as absent content', async (_label, data) => {
+    server.use(
+      http.post(graphqlEndpoint, () => HttpResponse.json({data})),
+    )
+
+    await expect(getSiteAEditorialHomepage('tio2-a')).rejects.toMatchObject({
+      name: HomepageContractError.name,
+      fieldPath: 'homepage',
+    })
+  })
+
   it('rejects a legacy homepage response without cross-version fallback', async () => {
     server.use(
       http.post(graphqlEndpoint, () =>
