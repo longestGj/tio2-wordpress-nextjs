@@ -1,0 +1,252 @@
+schema_version: TIOVAR-TDS-SOURCES-V0.1
+product:
+  id: tp-pa120
+  brand: TIOVAR
+  display_grade: TP-PA120
+  supplier_grade: CR-330
+  product_family: Rutile Titanium Dioxide
+  application_family: Paper
+  language: en
+  revision: '0.1'
+  issue_date: '2026-08-26'
+  status: draft
+source_files:
+- id: S001
+  role: internal_grade_mapping
+  path: D:/11SEO/01ComInfo/TiO2Product_Product_Selection_Matrix_v3.xlsx
+  sha256: 9bb6f220dbe30c855d57bc12013efc7165919eef3243eef9dba074df2349cebb
+  locator: Product Matrix row 15
+  use: Maps TP-PA120 to CR-330 only; not used as technical evidence.
+- id: S002
+  role: primary_technical_source
+  path: D:/11SEO/01ComInfo/TDS/TDS-CR-330.pdf
+  sha256: 728deb54a395d24c43d53c57eaa5dbd4a68d514c4746d74fc9f0d18b3cf51e0b
+  locator: Page 1
+  use: Supplier description, decorative-paper application, five features, and six
+    reported data rows.
+- id: S003
+  role: primary_logo
+  path: D:/11SEO/01ComInfo/ChatGPT Image 2026年8月26日 12_07_24.png
+  sha256: 4492d6eadc6a7aac43d48e1dc8080cbe1d9c1e94024f46d241ccd72b04ee87fd
+  locator: Full image
+  use: TIOVAR logo without a trademark symbol.
+- id: S004
+  role: brand_visual_guide
+  path: D:/11SEO/01ComInfo/ChatGPT Image 2026年8月26日 13_03_28.png
+  sha256: 174917cd7510f233f914c218dcb19064094cb4b9113ba9fa7750790c2049f014
+  locator: Full image
+  use: Colors and visual identity only; wording is not technical evidence.
+- id: S005
+  role: packaging_concept
+  path: D:/11SEO/01ComInfo/ChatGPT Image 2026年8月26日 13_03_38 (2).png
+  sha256: 6aeb384ade152551acc806f69cc616014f90958c7ef3115058197f4c57f82dc9
+  locator: Full image
+  use: Concept-only evidence gap; does not confirm pack size, label wording, or legal
+    attribution.
+- id: S006
+  role: layout_reference
+  path: D:/01AICode/7.27 马来全套TDS +应用指南/7.27/TDS_CR-901_.pdf
+  sha256: 5d742146c2dfab167854a2c43c4e16d29f3334c4f56cfbd5560e8c132c1eea29
+  locator: Page 1
+  use: One-page hierarchy and component arrangement only; no technical facts, claims,
+    company details, or contacts are used.
+template:
+  path: .agent/tiovar-tds-agent/templates/tiovar-tds-template.docx
+  sha256: c7e2757754290cfb6b765504501d8817576d77805e675abace272d1294692011
+  embedded_logo_source_id: S003
+  embedded_logo_path: word/media/image1.png
+content:
+  description: TIOVAR TP-PA120 is a chloride-process rutile titanium dioxide pigment
+    described by the supplier as having special surface treatment. It is intended
+    for formulation evaluation in laminated decorative base paper.
+  applications:
+  - Formulation evaluation in decorative paper, especially high-whiteness laminated
+    decorative paper
+  key_features:
+  - Unique bluish tone
+  - Stable and bright whiteness
+  - Excellent covering power
+  - Outstanding retention performance
+  - Excellent UV resistance performance
+  technical_data:
+  - property: TiO2 content, %
+    value: '89'
+    source_id: S002
+    source_locator: Page 1 / Specifications / TiO2 content
+  - property: Rutile content, %
+    value: '99.9'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Rutile content
+  - property: L*
+    value: '99.3'
+    source_id: S002
+    source_locator: Page 1 / Specifications / L*
+  - property: b*
+    value: '0.70'
+    source_id: S002
+    source_locator: Page 1 / Specifications / b*
+  - property: Specific gravity, g/cm3
+    value: '4.0'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Specific gravity
+  - property: pH
+    value: '6.0'
+    source_id: S002
+    source_locator: Page 1 / Specifications / pH
+  viscosity_note: The supplier qualitatively describes outstanding retention performance
+    for this paper grade. Verification in the intended formulation is required.
+  packaging_note: Packaging is not stated in the supplier TDS. The supplied packaging
+    artwork is a concept mockup only and is not approved evidence of pack size, label
+    text, or legal attribution.
+  safety_note: An aligned SDS was not provided for this draft. Confirm the supplied-product
+    identifier, issuing entity, emergency contact, and revision before external use.
+  evidence_note: Supplier-reported values reproduce the primary supplier TDS. The
+    source does not state test methods, tolerances, or whether values are typical
+    or specification limits. Product suitability must be evaluated in the intended
+    formulation. Legal attribution, company contacts, SDS/COA issuer and packaging
+    details remain unconfirmed and are withheld from public use.
+  release_status: 'Pending user confirmation before public use: brand owner; manufacturer
+    / manufactured-for / distributor; SDS and COA issuer; packaging label entity;
+    company contact details; trademark status.'
+  contact_headline: Company and contact details pending user approval
+  contact_details: 'Legal name / address / email / website: pending user approval'
+claims:
+- id: C001
+  field: description
+  text: TIOVAR TP-PA120 is a chloride-process rutile titanium dioxide pigment described
+    by the supplier as having special surface treatment. It is intended for formulation
+    evaluation in laminated decorative base paper.
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Description
+  source_excerpt: CR-330 is a special surface treated TiO2 pigment manufactured by
+    chloride process. It has a unique bluish tone and a brighter and more stable whiteness.It
+    demonstrates outstanding hiding power, excellent retention performance and excellent
+    UV color change resistance in the application system, and is suitable for laminated
+    decorative base paper.
+- id: C002
+  field: application
+  text: Formulation evaluation in decorative paper, especially high-whiteness laminated
+    decorative paper
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Application Suggestions
+  source_excerpt: Decorative paper, especially suitable for high-whiteness laminated
+    decorative paper
+- id: C003
+  field: key_feature
+  text: Unique bluish tone
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Unique bluish tone
+- id: C004
+  field: key_feature
+  text: Stable and bright whiteness
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Stable and bright whiteness
+- id: C005
+  field: key_feature
+  text: Excellent covering power
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Excellent covering power
+- id: C006
+  field: key_feature
+  text: Outstanding retention performance
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Outstanding retention performance
+- id: C007
+  field: key_feature
+  text: Excellent UV resistance performance
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Excellent UV resistance performance
+- id: C008
+  field: viscosity_note
+  text: The supplier qualitatively describes outstanding retention performance for
+    this paper grade. Verification in the intended formulation is required.
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Outstanding retention performance
+- id: C009
+  field: packaging_note
+  text: Packaging is not stated in the supplier TDS. The supplied packaging artwork
+    is a concept mockup only and is not approved evidence of pack size, label text,
+    or legal attribution.
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C010
+  field: safety_note
+  text: An aligned SDS was not provided for this draft. Confirm the supplied-product
+    identifier, issuing entity, emergency contact, and revision before external use.
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C011
+  field: evidence_note
+  text: Supplier-reported values reproduce the primary supplier TDS. The source does
+    not state test methods, tolerances, or whether values are typical or specification
+    limits. Product suitability must be evaluated in the intended formulation. Legal
+    attribution, company contacts, SDS/COA issuer and packaging details remain unconfirmed
+    and are withheld from public use.
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Specifications
+  source_excerpt: Specifications
+- id: C012
+  field: release_status
+  text: 'Pending user confirmation before public use: brand owner; manufacturer /
+    manufactured-for / distributor; SDS and COA issuer; packaging label entity; company
+    contact details; trademark status.'
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C013
+  field: contact_headline
+  text: Company and contact details pending user approval
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C014
+  field: contact_details
+  text: 'Legal name / address / email / website: pending user approval'
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+conflicts: []
+unresolved_fields:
+- brand_owner
+- manufacturer
+- manufactured_for
+- distributor
+- sds_issuer
+- coa_issuer
+- packaging_label_entity
+- company_contact_details
+- trademark_status
+artifacts:
+  docx: tiovar-tp-pa120-en.docx
+  pdf: tiovar-tp-pa120-en.pdf
+  docx_sha256: c1672e65697e1b0dd81b97552e41e2fad3ca5a356bdf88cb191a6f8b5aadd209
+  pdf_sha256: b5dd0fe93321148701bb24ce234fa86f9562e00f7e2c992a3a7219b676cd12f6
+qa:
+  visual_review:
+    status: passed
+    page_count: 1
+    docx_sha256: c1672e65697e1b0dd81b97552e41e2fad3ca5a356bdf88cb191a6f8b5aadd209
+    pdf_sha256: b5dd0fe93321148701bb24ce234fa86f9562e00f7e2c992a3a7219b676cd12f6
+    reviewed_at: '2026-08-26'
