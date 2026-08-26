@@ -96,7 +96,7 @@ function Invoke-LocalProductDraftImport {
             '-e', "TIO2_LOCAL_PRODUCT_DRAFT_CAPABILITY=$($Capability.token)",
             'wpcli', 'wp', "--user=$AdminUser", 'eval-file',
             '/workspace/wordpress/seed/apply-site-a-product-drafts.php',
-            '/workspace/wordpress/seed/' + $CapabilityName
+            ('/workspace/wordpress/seed/' + $CapabilityName)
         )
         $PreviousErrorActionPreference = $ErrorActionPreference
         $ErrorActionPreference = 'Continue'

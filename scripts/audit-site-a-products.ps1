@@ -54,7 +54,7 @@ try {
     $Capability = [ordered]@{ version = 1; token = $Token; manifestPath = '/workspace/wordpress/seed/' + [System.IO.Path]::GetFileName($RuntimeManifestPath); manifestSha256 = $RuntimeHash }
     [System.IO.File]::WriteAllText($CapabilityPath, ($Capability | ConvertTo-Json -Compress), [System.Text.UTF8Encoding]::new($false))
 
-    $DockerArguments = @('compose', '--env-file', $EnvironmentFile, '-f', $ComposeFile, 'run', '--rm', '--no-TTY', '--user', '33:33', '-e', "TIO2_LOCAL_PRODUCT_AUDIT_CAPABILITY=$Token", 'wpcli', 'wp', "--user=$AdminUser", 'eval-file', '/workspace/wordpress/seed/export-site-a-product-audit.php', '/workspace/wordpress/seed/' + [System.IO.Path]::GetFileName($CapabilityPath))
+    $DockerArguments = @('compose', '--env-file', $EnvironmentFile, '-f', $ComposeFile, 'run', '--rm', '--no-TTY', '--user', '33:33', '-e', "TIO2_LOCAL_PRODUCT_AUDIT_CAPABILITY=$Token", 'wpcli', 'wp', "--user=$AdminUser", 'eval-file', '/workspace/wordpress/seed/export-site-a-product-audit.php', ('/workspace/wordpress/seed/' + [System.IO.Path]::GetFileName($CapabilityPath)))
     $PreviousErrorActionPreference = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     try { $CommandOutput = & docker @DockerArguments 2>&1; $CommandExitCode = $LASTEXITCODE } finally { $ErrorActionPreference = $PreviousErrorActionPreference }

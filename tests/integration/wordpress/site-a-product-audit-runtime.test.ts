@@ -1,5 +1,7 @@
 import {spawnSync} from 'node:child_process'
-import {existsSync} from 'node:fs'
+import {existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
+import {tmpdir} from 'node:os'
+import {join} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
 import {describe, expect, it} from 'vitest'
@@ -9,6 +11,13 @@ const exporterPath = fileURLToPath(
 )
 const containerExporterPath = '/workspace/wordpress/seed/export-site-a-product-audit.php'
 const containerImporterPath = '/workspace/wordpress/seed/apply-site-a-product-drafts.php'
+const draftWrapperPath = fileURLToPath(
+  new URL('../../../scripts/apply-local-site-a-product-drafts.ps1', import.meta.url),
+)
+const auditWrapperPath = fileURLToPath(
+  new URL('../../../scripts/audit-site-a-products.ps1', import.meta.url),
+)
+const manifestPath = 'D:/11SEO/01ComInfo/outputs/site-a-products-v0.1.json'
 function runControlledAudit() {
   const result = spawnSync('docker', [
     'compose',
@@ -89,7 +98,60 @@ function runWpCliEvalFile(path: string) {
   ], {encoding: 'utf8', timeout: 30_000})
 }
 
+function captureWrapperDockerArgs(wrapperPath: string, wrapperArgs: string[]) {
+  const directory = mkdtempSync(join(tmpdir(), 'tio2-product-wrapper-'))
+  const capturePath = join(directory, 'docker-args.jsonl')
+  const captureScriptPath = join(directory, 'capture.mjs')
+  writeFileSync(captureScriptPath, [
+    "import {appendFileSync} from 'node:fs'",
+    "appendFileSync(process.env.TIO2_DOCKER_ARG_CAPTURE, JSON.stringify(process.argv.slice(2)) + '\\n')",
+  ].join('\n'))
+  try {
+    const quotePowerShell = (value: string) => `'${value.replaceAll("'", "''")}'`
+    const command = [
+      'function global:docker { & $env:TIO2_FAKE_DOCKER_NODE $env:TIO2_FAKE_DOCKER_SCRIPT $env:TIO2_DOCKER_ARG_CAPTURE @args }',
+      `& ${quotePowerShell(wrapperPath)} ${wrapperArgs.map((argument) => argument.startsWith('-') ? argument : quotePowerShell(argument)).join(' ')}`,
+    ].join('; ')
+    const result = spawnSync('pwsh', [
+      '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command,
+    ], {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        TIO2_DOCKER_ARG_CAPTURE: capturePath,
+        TIO2_FAKE_DOCKER_NODE: process.execPath,
+        TIO2_FAKE_DOCKER_SCRIPT: captureScriptPath,
+      },
+      timeout: 30_000,
+    })
+    return {
+      result,
+      dockerArgs: existsSync(capturePath)
+        ? readFileSync(capturePath, 'utf8').trim().split('\n').map((line) => JSON.parse(line) as string[])
+        : [],
+    }
+  } finally {
+    rmSync(directory, {recursive: true, force: true})
+  }
+}
+
 describe('local Site A Product draft audit boundary', () => {
+  it.each([
+    [draftWrapperPath, ['-Mode', 'Plan', '-ManifestPath', manifestPath], containerImporterPath, '.runtime-site-a-product-drafts-capability-'],
+    [auditWrapperPath, ['-ManifestPath', manifestPath], containerExporterPath, '.runtime-site-a-product-audit-capability-'],
+  ])('passes one complete capability argument to WP-CLI eval-file for %s', (wrapperPath, wrapperArgs, targetPath, capabilityPrefix) => {
+    const {result, dockerArgs} = captureWrapperDockerArgs(wrapperPath, wrapperArgs)
+    expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+    expect(dockerArgs).toHaveLength(1)
+    const args = dockerArgs[0]
+    const evalFileIndex = args.lastIndexOf('eval-file')
+    expect(args.slice(evalFileIndex + 1, evalFileIndex + 2)).toEqual([targetPath])
+    expect(args.slice(evalFileIndex + 2)).toEqual([
+      expect.stringMatching(new RegExp(`^/workspace/wordpress/seed/${capabilityPrefix}`)),
+    ])
+  })
+
   it.each([containerImporterPath, containerExporterPath])(
     'reaches the capability boundary through WP-CLI eval-file for %s',
     (path) => {
