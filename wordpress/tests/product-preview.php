@@ -512,7 +512,8 @@ if (is_array($serialized)) {
             'tp-z911' === $serialized['slug'] &&
             'Protected Product preview TP-Z911' === $serialized['title'] &&
             'draft' === $serialized['status'] &&
-            '' !== $serialized['modifiedGmt'],
+            is_string($serialized['modifiedGmt']) &&
+            1 === preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/D', $serialized['modifiedGmt']),
         'Product preview native identity or canonical path is incorrect.'
     );
     tio2_product_preview_test_assert(
@@ -531,6 +532,17 @@ if (is_array($serialized)) {
             'inquiryFields', 'requestTdsCta', 'discussApplicationCta', 'technicalDisclaimer',
         ] === array_keys($serialized['productSettingsFields']),
         'Product settings did not use the approved shared-settings normalizer shape.'
+    );
+    tio2_product_preview_test_assert(
+        [
+            'label' => 'Label',
+            'description' => 'Description',
+        ] === $serialized['productSettingsFields']['requestTdsCta'] &&
+            [
+                'label' => 'Label',
+                'description' => 'Description',
+            ] === $serialized['productSettingsFields']['discussApplicationCta'],
+        'Product preview CTA groups did not retain their approved shared-setting values.'
     );
     tio2_product_preview_test_assert(
         [['item' => 'Item 1'], ['item' => 'Item 2'], ['item' => 'Item 3']]

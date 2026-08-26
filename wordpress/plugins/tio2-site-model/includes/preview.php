@@ -479,6 +479,10 @@ function tio2_serialize_product_preview(WP_Post $product): array|WP_Error
         }
         $shared_values[(string) $field['name']] = get_field((string) $field['name'], 'option', false);
     }
+    $shared_fields = tio2_preview_product_normalize_fields(
+        tio2_product_shared_field_definitions(),
+        $shared_values
+    );
 
     $product_fields = tio2_preview_product_normalize_fields(
         tio2_product_field_definitions(),
@@ -523,6 +527,14 @@ function tio2_serialize_product_preview(WP_Post $product): array|WP_Error
         ),
     ];
 
+    $modified_gmt = get_post_modified_time('Y-m-d\TH:i:s', true, $product);
+    if (! is_string($modified_gmt) || '' === $modified_gmt) {
+        $modified_gmt = get_gmt_from_date(
+            (string) $product->post_modified,
+            'Y-m-d\TH:i:s'
+        );
+    }
+
     $product_id = (string) $product_values['product_id'];
     return [
         'id' => (string) $product->ID,
@@ -531,10 +543,10 @@ function tio2_serialize_product_preview(WP_Post $product): array|WP_Error
         'path' => tio2_product_path_from_id($product_id),
         'slug' => $product->post_name,
         'title' => get_the_title($product),
-        'modifiedGmt' => get_post_modified_time('Y-m-d\TH:i:s', true, $product),
+        'modifiedGmt' => $modified_gmt,
         'status' => $product->post_status,
         'productFields' => $product_fields,
-        'productSettingsFields' => tio2_normalize_product_shared_settings($shared_values),
+        'productSettingsFields' => $shared_fields,
     ];
 }
 
