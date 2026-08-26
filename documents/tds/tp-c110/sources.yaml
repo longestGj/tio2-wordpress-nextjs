@@ -1,0 +1,267 @@
+schema_version: TIOVAR-TDS-SOURCES-V0.1
+product:
+  id: tp-c110
+  brand: TIOVAR
+  display_grade: TP-C110
+  supplier_grade: CR-501+
+  product_family: Rutile Titanium Dioxide
+  application_family: Multi-Purpose Coatings
+  language: en
+  revision: '0.1'
+  issue_date: '2026-08-26'
+  status: draft
+source_files:
+- id: S001
+  role: internal_grade_mapping
+  path: D:/11SEO/01ComInfo/TiO2Product_Product_Selection_Matrix_v3.xlsx
+  sha256: 9bb6f220dbe30c855d57bc12013efc7165919eef3243eef9dba074df2349cebb
+  locator: Product Matrix row 18
+  use: Maps TP-C110 to CR-501+ only; not used as technical evidence.
+- id: S002
+  role: primary_technical_source
+  path: D:/11SEO/01ComInfo/TDS/TDS-CR-501+.pdf
+  sha256: 18e698444253e7a9aad9d09399ef428282400f77c3fc5808961a4aeb8b43f95f
+  locator: Page 1
+  use: Supplier description, two coating and paper applications, four features, and
+    nine reported data rows for CR-501+ only.
+- id: S003
+  role: primary_logo
+  path: D:/11SEO/01ComInfo/ChatGPT Image 2026年8月26日 12_07_24.png
+  sha256: 4492d6eadc6a7aac43d48e1dc8080cbe1d9c1e94024f46d241ccd72b04ee87fd
+  locator: Full image
+  use: TIOVAR logo without a trademark symbol.
+- id: S004
+  role: brand_visual_guide
+  path: D:/11SEO/01ComInfo/ChatGPT Image 2026年8月26日 13_03_28.png
+  sha256: 174917cd7510f233f914c218dcb19064094cb4b9113ba9fa7750790c2049f014
+  locator: Full image
+  use: Colors and visual identity only; wording is not technical evidence.
+- id: S005
+  role: packaging_concept
+  path: D:/11SEO/01ComInfo/ChatGPT Image 2026年8月26日 13_03_38 (2).png
+  sha256: 6aeb384ade152551acc806f69cc616014f90958c7ef3115058197f4c57f82dc9
+  locator: Full image
+  use: Concept-only evidence gap; does not confirm pack size, label wording, or legal
+    attribution.
+- id: S006
+  role: layout_reference
+  path: D:/01AICode/7.27 马来全套TDS +应用指南/7.27/TDS_CR-901_.pdf
+  sha256: 5d742146c2dfab167854a2c43c4e16d29f3334c4f56cfbd5560e8c132c1eea29
+  locator: Page 1
+  use: One-page hierarchy and component arrangement only; no technical facts, claims,
+    company details, or contacts are used.
+template:
+  path: .agent/tiovar-tds-agent/templates/tiovar-tds-template.docx
+  sha256: c7e2757754290cfb6b765504501d8817576d77805e675abace272d1294692011
+  embedded_logo_source_id: S003
+  embedded_logo_path: word/media/image1.png
+content:
+  description: TIOVAR TP-C110 is a chloride-process rutile titanium dioxide pigment
+    described by the supplier as a multi-purpose grade. It is intended for formulation
+    evaluation in solvent and water-based systems, including architectural, industrial
+    and decorative coatings, with cited paper applications.
+  applications:
+  - Formulation evaluation in interior and exterior flat and semi-gloss architectural
+    paints, industrial coatings and decorative coatings, especially water-borne systems
+  - Formulation evaluation in Bible paper, decorating paper and paperboard production
+  key_features:
+  - Neutral tint
+  - High hiding power
+  - High whiteness
+  - Good durability
+  technical_data:
+  - property: TiO2 content, %
+    value: '93'
+    source_id: S002
+    source_locator: Page 1 / Specifications / TiO2 content
+  - property: Rutile content, %
+    value: '99.9'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Rutile content
+  - property: L*
+    value: '98.4'
+    source_id: S002
+    source_locator: Page 1 / Specifications / L*
+  - property: b*
+    value: '1.80'
+    source_id: S002
+    source_locator: Page 1 / Specifications / b*
+  - property: Specific gravity, g/cm3
+    value: '4.0'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Specific gravity
+  - property: Oil absorption, g/100 g
+    value: '20'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Oil absorption
+  - property: Mean particle size, micrometres
+    value: '0.30'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Mean particle size
+  - property: Acid solubility
+    value: '1.6'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Acid Solubility
+  - property: Carbon black undertone (CBU)
+    value: '13.0'
+    source_id: S002
+    source_locator: Page 1 / Specifications / Carbon black undertone (CBU)
+  viscosity_note: The supplier qualitatively describes performance in solvent and
+    water-based systems for this multi-purpose grade. Verification in the intended
+    formulation is required.
+  packaging_note: Packaging is not stated in the supplier TDS. The supplied packaging
+    artwork is a concept mockup only and is not approved evidence of pack size, label
+    text, or legal attribution.
+  safety_note: An aligned SDS was not provided for this draft. Confirm the supplied-product
+    identifier, issuing entity, emergency contact, and revision before external use.
+  evidence_note: Supplier-reported values reproduce the primary supplier TDS. The
+    source does not state test methods, tolerances, or whether values are typical
+    or specification limits. Product suitability must be evaluated in the intended
+    formulation. Legal attribution, company contacts, SDS/COA issuer and packaging
+    details remain unconfirmed and are withheld from public use.
+  release_status: 'Pending user confirmation before public use: brand owner; manufacturer
+    / manufactured-for / distributor; SDS and COA issuer; packaging label entity;
+    company contact details; trademark status.'
+  contact_headline: Company and contact details pending user approval
+  contact_details: 'Legal name / address / email / website: pending user approval'
+claims:
+- id: C001
+  field: description
+  text: TIOVAR TP-C110 is a chloride-process rutile titanium dioxide pigment described
+    by the supplier as a multi-purpose grade. It is intended for formulation evaluation
+    in solvent and water-based systems, including architectural, industrial and decorative
+    coatings, with cited paper applications.
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Description
+  source_excerpt: CR-501+ is a chloride-process, rutile titanium dioxide pigment.It
+    has fully balanced the performance of all applications, it performs the best in
+    various solvent systems and water-based systems, and it is a multi-purpose titanium
+    dioxide.
+- id: C002
+  field: application
+  text: Formulation evaluation in interior and exterior flat and semi-gloss architectural
+    paints, industrial coatings and decorative coatings, especially water-borne systems
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Application Suggestions
+  source_excerpt: Interior & exterior flat and semi-gloss architectural paints, industrial
+    coatings, decorative coatings, especially suitable in water-born systems.
+- id: C003
+  field: application
+  text: Formulation evaluation in Bible paper, decorating paper and paperboard production
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Application Suggestions
+  source_excerpt: Papermaking of Bible paper, decorating paper and paperboards
+- id: C004
+  field: key_feature
+  text: Neutral tint
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Neutral tint
+- id: C005
+  field: key_feature
+  text: High hiding power
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: High hiding power
+- id: C006
+  field: key_feature
+  text: High whiteness
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: High whiteness
+- id: C007
+  field: key_feature
+  text: Good durability
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Product Features
+  source_excerpt: Good durability
+- id: C008
+  field: viscosity_note
+  text: The supplier qualitatively describes performance in solvent and water-based
+    systems for this multi-purpose grade. Verification in the intended formulation
+    is required.
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Description
+  source_excerpt: various solvent systems and water-based systems
+- id: C009
+  field: packaging_note
+  text: Packaging is not stated in the supplier TDS. The supplied packaging artwork
+    is a concept mockup only and is not approved evidence of pack size, label text,
+    or legal attribution.
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C010
+  field: safety_note
+  text: An aligned SDS was not provided for this draft. Confirm the supplied-product
+    identifier, issuing entity, emergency contact, and revision before external use.
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C011
+  field: evidence_note
+  text: Supplier-reported values reproduce the primary supplier TDS. The source does
+    not state test methods, tolerances, or whether values are typical or specification
+    limits. Product suitability must be evaluated in the intended formulation. Legal
+    attribution, company contacts, SDS/COA issuer and packaging details remain unconfirmed
+    and are withheld from public use.
+  support_type: source_supported
+  source_id: S002
+  source_locator: Page 1 / Specifications
+  source_excerpt: Specifications
+- id: C012
+  field: release_status
+  text: 'Pending user confirmation before public use: brand owner; manufacturer /
+    manufactured-for / distributor; SDS and COA issuer; packaging label entity; company
+    contact details; trademark status.'
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C013
+  field: contact_headline
+  text: Company and contact details pending user approval
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+- id: C014
+  field: contact_details
+  text: 'Legal name / address / email / website: pending user approval'
+  support_type: administrative_hold
+  source_id: null
+  source_locator: null
+  source_excerpt: null
+conflicts: []
+unresolved_fields:
+- brand_owner
+- manufacturer
+- manufactured_for
+- distributor
+- sds_issuer
+- coa_issuer
+- packaging_label_entity
+- company_contact_details
+- trademark_status
+artifacts:
+  docx: tiovar-tp-c110-en.docx
+  pdf: tiovar-tp-c110-en.pdf
+  docx_sha256: 1cfa89bedefac23fb043e3d440bfbbff7b8a88bd458197cee60b99bdc0b43de5
+  pdf_sha256: 419acde143977f7ec677f01f3960e6154a83f92fba9a9e7e1740ea8455df3dd2
+qa:
+  visual_review:
+    status: passed
+    page_count: 1
+    docx_sha256: 1cfa89bedefac23fb043e3d440bfbbff7b8a88bd458197cee60b99bdc0b43de5
+    pdf_sha256: 419acde143977f7ec677f01f3960e6154a83f92fba9a9e7e1740ea8455df3dd2
+    reviewed_at: '2026-08-26'
