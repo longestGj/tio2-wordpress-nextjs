@@ -185,6 +185,31 @@ describe('product JSON-LD', () => {
     ])
   })
 
+  it('retains the full visible text of a valid FAQ answer longer than 600 characters', async () => {
+    const {buildProductJsonLd} = await import('@/lib/seo/product-jsonld')
+    const visibleAnswer = Array.from(
+      {length: 90},
+      (_, index) => `Evaluation instruction ${index + 1}.`,
+    ).join(' ')
+    const product = toProductPageDto({
+      ...validProductPageInput,
+      faqs: validProductPageInput.faqs.map((faq, index) =>
+        index === 0
+          ? {...faq, answerHtml: `<p>${visibleAnswer}</p>`}
+          : faq,
+      ),
+    })
+    const values = buildProductJsonLd(product, getSiteConfig('tio2-a'))
+    const faqPage = nodeOfType(values, 'FAQPage') as JsonLdRecord & {
+      readonly mainEntity: ReadonlyArray<{
+        readonly acceptedAnswer: {readonly text: string}
+      }>
+    }
+
+    expect(visibleAnswer.length).toBeGreaterThan(600)
+    expect(faqPage.mainEntity[0]?.acceptedAnswer.text).toBe(visibleAnswer)
+  })
+
   it('strips FAQ markup before outputting visible answer text and serializes it safely', async () => {
     const {buildProductJsonLd, serializeProductJsonLd} = await import(
       '@/lib/seo/product-jsonld'

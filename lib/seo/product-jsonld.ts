@@ -6,8 +6,12 @@ import {htmlToPlainText} from './text'
 
 export type JsonLdNode = JsonLdObject
 
-function htmlToSafeText(value: string, maximumLength: number): string {
-  return htmlToPlainText(value, maximumLength).replace(/\s+([,.;:!?])/gu, '$1')
+function htmlToSafeText(value: string, maximumLength?: number): string {
+  const text = htmlToPlainText(
+    value,
+    maximumLength ?? Math.max(Array.from(value).length, 1),
+  )
+  return text.replace(/\s+([,.;:!?])/gu, '$1')
 }
 
 function titleCaseSegment(segment: string): string {
@@ -92,7 +96,7 @@ export function buildProductJsonLd(
         name: htmlToSafeText(faq.question, 180),
         acceptedAnswer: {
           '@type': 'Answer',
-          text: htmlToSafeText(faq.answerHtml, 600),
+          text: htmlToSafeText(faq.answerHtml),
         },
       })),
     },
