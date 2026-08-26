@@ -8,6 +8,7 @@ const exporterPath = fileURLToPath(
   new URL('../../../wordpress/seed/export-site-a-product-audit.php', import.meta.url),
 )
 const containerExporterPath = '/workspace/wordpress/seed/export-site-a-product-audit.php'
+const containerImporterPath = '/workspace/wordpress/seed/apply-site-a-product-drafts.php'
 function runControlledAudit() {
   const result = spawnSync('docker', [
     'compose',
@@ -44,6 +45,7 @@ function expect_failure(array $errors, string $needle): void {
         throw new RuntimeException('Expected audit failure containing ' . $needle . ': ' . json_encode($errors, JSON_THROW_ON_ERROR));
     }
 }
+
 $clean = tio2_site_a_product_audit_compare($manifest, $expected_records, [], false, 'site-b', 'site-b');
 if ([] !== $clean) { throw new RuntimeException('Clean normalized audit failed: ' . json_encode($clean, JSON_THROW_ON_ERROR)); }
 
@@ -77,7 +79,29 @@ echo json_encode(['checked' => 10], JSON_THROW_ON_ERROR);
   return result
 }
 
+function runWpCliEvalFile(path: string) {
+  return spawnSync('docker', [
+    'compose',
+    '--env-file', 'wordpress/.env',
+    '-f', 'wordpress/docker-compose.yml',
+    'run', '--rm', '--no-TTY', '--user', '33:33',
+    'wpcli', 'wp', 'eval-file', path,
+  ], {encoding: 'utf8', timeout: 30_000})
+}
+
 describe('local Site A Product draft audit boundary', () => {
+  it.each([containerImporterPath, containerExporterPath])(
+    'reaches the capability boundary through WP-CLI eval-file for %s',
+    (path) => {
+      const result = runWpCliEvalFile(path)
+      const output = `${result.stdout}\n${result.stderr}`
+
+      expect(result.status, output).not.toBe(0)
+      expect(output).not.toContain('strict_types declaration must be the very first statement')
+      expect(output).toContain('capability file is required')
+    },
+  )
+
   it('rejects every draft, scope, manifest, privacy, route, GraphQL, and Site B safety violation', () => {
     expect(existsSync(exporterPath), 'draft audit exporter is missing').toBe(true)
 
