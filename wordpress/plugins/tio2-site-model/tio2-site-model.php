@@ -18,11 +18,13 @@ require_once __DIR__ . '/includes/publication.php';
 require_once __DIR__ . '/includes/product-publication.php';
 require_once __DIR__ . '/includes/homepage-rfq-copy.php';
 require_once __DIR__ . '/includes/fields.php';
+require_once __DIR__ . '/includes/product-fields.php';
 require_once __DIR__ . '/includes/homepage-v02.php';
 require_once __DIR__ . '/includes/webhooks.php';
 require_once __DIR__ . '/includes/preview.php';
 
 add_action('init', 'tio2_register_content_types');
+add_action('init', 'tio2_register_product_family_taxonomy', 11);
 add_action('init', 'tio2_maybe_migrate_product_rewrite_rules', 99);
 add_filter('wp_insert_post_data', 'tio2_guard_managed_publication', 10, 4);
 add_filter('wp_insert_post_data', 'tio2_guard_product_publication', 20, 4);
@@ -32,6 +34,8 @@ add_filter('graphql_pre_model_data_is_private', 'tio2_homepage_graphql_visibilit
 add_filter('graphql_pre_model_data_is_private', 'tio2_product_graphql_visibility', 20, 3);
 add_action('wp_after_insert_post', 'tio2_backstop_product_publication', 20, 3);
 add_action('acf/init', 'tio2_register_acf_fields');
+add_action('acf/init', 'tio2_register_product_settings_page');
+add_action('acf/init', 'tio2_register_product_acf_fields');
 add_filter('acf/prepare_field/key=field_tio2_home_rfq_intro', 'tio2_prepare_homepage_rfq_copy_field');
 add_filter('acf/prepare_field/key=field_tio2_home_rfq_privacy_text', 'tio2_prepare_homepage_rfq_copy_field');
 add_filter('acf/prepare_field/key=field_tio2_home_rfq_success_heading', 'tio2_prepare_homepage_rfq_copy_field');
