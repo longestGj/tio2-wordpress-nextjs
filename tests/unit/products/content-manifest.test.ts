@@ -642,6 +642,20 @@ describe('Site A Product content manifest', () => {
   })
 
   it.each([
+    'Alice reviewed<span>this</span> content.',
+    'Current pricing<mark>is</mark> available.',
+    'The TDS can be<x-boundary>downloaded</x-boundary>.',
+  ])('uses every raw HTML tag as a safety-scanning boundary: %s', async (answer) => {
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = answer
+
+    const issues = await strictIssues(input)
+    expect(issues.filter(({path}) =>
+      path.join('.') === 'products.0.faqItems.0.answer',
+    )).toHaveLength(1)
+  })
+
+  it.each([
     'Manufactured by Example Co.',
     'Manufacturer — Example Co.',
     'mAnUfAcTuReR &mdash; Example Co.',
@@ -660,11 +674,73 @@ describe('Site A Product content manifest', () => {
   })
 
   it.each([
+    'Manufacturer—Example Co.',
+    'Manufacturer —Example Co.',
+    'Manufacturer— Example Co.',
+    'Manufacturer — Example Co.',
+    'Manufacturer–Example Co.',
+    'Manufacturer –Example Co.',
+    'Manufacturer– Example Co.',
+    'Manufacturer – Example Co.',
+    'Reviewer—Alice',
+    'Reviewer —Alice',
+    'Reviewer— Alice',
+    'Reviewer — Alice',
+    'Reviewer–Alice',
+    'Reviewer –Alice',
+    'Reviewer– Alice',
+    'Reviewer – Alice',
+    'Source file—internal record',
+    'Source file —internal record',
+    'Source file— internal record',
+    'Source file — internal record',
+    'Source file–internal record',
+    'Source file –internal record',
+    'Source file– internal record',
+    'Source file – internal record',
+    'Availability—immediate',
+    'Availability —immediate',
+    'Availability— immediate',
+    'Availability — immediate',
+    'Availability–immediate',
+    'Availability –immediate',
+    'Availability– immediate',
+    'Availability – immediate',
+  ])('normalizes an en/em-dash disclosure separator with any spacing: %s', async (value) => {
+    const plain = completeManifest()
+    plain.products[0].packaging = value
+    await expectStrictRejection(plain)
+
+    const rich = completeManifest()
+    rich.products[0].faqItems[0].answer = `<p>${value}</p>`
+    await expectStrictRejection(rich)
+  })
+
+  it.each([
     '<p data-manufacturer="Example Co.">Public guidance.</p>',
     '<p DATA-MANUFACTURER="Example &amp; Co.">Public guidance.</p>',
     '<p data-reviewer="Alice">Public guidance.</p>',
     '<p DATA-REVIEWER="ALICE">Public guidance.</p>',
   ])('scans decoded HTML attribute names together with their values: %s', async (answer) => {
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = answer
+
+    const issues = await strictIssues(input)
+    expect(issues.filter(({path}) =>
+      path.join('.') === 'products.0.faqItems.0.answer',
+    )).toHaveLength(1)
+  })
+
+  it.each([
+    '<p dataManufacturer="Example Co.">Public guidance.</p>',
+    '<p dataReviewer="Alice">Public guidance.</p>',
+    '<p dataSourceFile="internal record">Public guidance.</p>',
+    '<p dataAvailability="immediate">Public guidance.</p>',
+    '<p data-source-file="internal record">Public guidance.</p>',
+    '<p data_source_file="internal record">Public guidance.</p>',
+    '<p data-availability="immediate">Public guidance.</p>',
+    '<p data_availability="immediate">Public guidance.</p>',
+  ])('tokenizes disclosure-bearing HTML attribute names once: %s', async (answer) => {
     const input = completeManifest()
     input.products[0].faqItems[0].answer = answer
 
@@ -705,9 +781,21 @@ describe('Site A Product content manifest', () => {
     "Current pricing isn't stated.",
     'This grade should not be treated as equivalent to the incumbent.',
     "This grade shouldn't be treated as equivalent to the incumbent.",
+    'This grade cannot be treated as equivalent to the incumbent.',
+    "This grade can't be treated as equivalent to the incumbent.",
+    'This grade could not be treated as equivalent to the incumbent.',
+    "This grade couldn't be treated as equivalent to the incumbent.",
+    'This grade would not be treated as equivalent to the incumbent.',
+    "This grade wouldn't be treated as equivalent to the incumbent.",
     'The TDS should not be downloaded.',
     "The TDS shouldn't be downloaded.",
+    "The TDS mustn't be downloaded.",
+    'The TDS cannot be downloaded.',
     "The TDS can't be downloaded.",
+    'The TDS could not be downloaded.',
+    "The TDS couldn't be downloaded.",
+    'The TDS would not be downloaded.',
+    "The TDS wouldn't be downloaded.",
   ])('allows an explicit denial bound to its matched disclosure: %s', async (value) => {
     const {validateProductContentManifest} = await manifestApi()
     const input = completeManifest()
@@ -723,8 +811,24 @@ describe('Site A Product content manifest', () => {
     'Private evidence is published.',
     'Current pricing is stated.',
     'This grade should be treated as equivalent to the incumbent.',
+    'This grade can be treated as equivalent to the incumbent.',
+    'This grade could be treated as equivalent to the incumbent.',
+    'This grade would be treated as equivalent to the incumbent.',
     'The TDS should be downloaded.',
+    'The TDS can be downloaded.',
+    'The TDS could be downloaded.',
+    'The TDS would be downloaded.',
   ])('rejects the positive counterpart of an explicit denial: %s', async (value) => {
+    const input = completeManifest()
+    input.products[0].faqItems[0].answer = `<p>${value}</p>`
+    await expectStrictRejection(input)
+  })
+
+  it.each([
+    'This grade cannot be treated as equivalent to the incumbent. It can be treated as equivalent to the incumbent.',
+    "This grade couldn't be treated as equivalent to the incumbent. It could be treated as equivalent to the incumbent.",
+    "The TDS wouldn't be downloaded. The TDS would be downloaded.",
+  ])('does not let an auxiliary denial suppress a later assertion: %s', async (value) => {
     const input = completeManifest()
     input.products[0].faqItems[0].answer = `<p>${value}</p>`
     await expectStrictRejection(input)

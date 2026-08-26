@@ -169,12 +169,9 @@ function richTextVisibleText(source: string): string {
 }
 
 function richTextBoundaryText(source: string): string {
-  const sanitized = sanitizeManifestRichText(source)
-  return sanitizeHtml(sanitized.replaceAll(/<[^>]*>/gu, ' '), {
-    allowedTags: [],
-    allowedAttributes: {},
-    nonTextTags: NON_TEXT_TAGS,
-  }).replaceAll('\u00a0', ' ').replaceAll(/\s+/gu, ' ').trim()
+  return richTextVisibleText(
+    source.replaceAll(/<[^>]*>/gu, (tag) => ` ${tag} `),
+  )
 }
 
 function decodeSafetyEntities(value: string): string {
@@ -223,7 +220,7 @@ function normalizeClaimText(value: string): string {
     .replaceAll(/\bwouldn't\b/gu, 'would not')
     .replaceAll(/\bmustn't\b/gu, 'must not')
     .replaceAll(/\bwon't\b/gu, 'will not')
-    .replaceAll(/\s[-–—]\s/gu, ' : ')
+    .replaceAll(/(?:\s-\s|[–—])/gu, ' : ')
     .replaceAll(/[\p{P}\p{S}]+/gu, (punctuation) => {
       if (punctuation.includes('?')) return ' ? '
       if (punctuation.includes(':')) return ' : '
@@ -242,7 +239,10 @@ function htmlAttributeClaimCandidates(value: string): string[] {
       const name = attribute[1] ?? ''
       const rawValue = attribute[2] ?? attribute[3] ?? attribute[4] ?? ''
       const decodedValue = richTextVisibleText(decodeSafetyEntities(rawValue))
-      candidates.push(decodedValue, `${name}: ${decodedValue}`)
+      const tokenizedName = name
+        .replaceAll(/([A-Z]+)([A-Z][a-z])/gu, '$1 $2')
+        .replaceAll(/([a-z0-9])([A-Z])/gu, '$1 $2')
+      candidates.push(decodedValue, `${tokenizedName}: ${decodedValue}`)
     }
   }
   return candidates
@@ -296,7 +296,7 @@ function containsPositiveTdsAccessClaim(value: string): boolean {
     )
     return [...riskyTerms].some((match) => {
       const prefix = text.slice(0, match.index ?? 0)
-      if (/\b(?:not\s+available\s+for|cannot\s+be|must\s+not\s+be|should\s+not\s+be|is\s+not|are\s+not|not)\s+(?:public\s+)?$/u
+      if (/\b(?:not\s+available\s+for|cannot\s+be|(?:can|could|would|must|should)\s+not\s+be|is\s+not|are\s+not|not)\s+(?:public\s+)?$/u
         .test(prefix)) return false
 
       const term = match[0]
@@ -415,7 +415,7 @@ function addStringSafetyIssues(
       return /\b(?:is|are|was|were|be|been|considered)\s+not\s*$/u.test(prefix) ||
         /\b(?:do|does|must|should)\s+not\s+(?:assume|treat|consider|use)\s*$/u
           .test(prefix) ||
-        /\b(?:must|should)\s+not\s+be\s+(?:treated|considered)\s+as\s*$/u
+        /\b(?:cannot|(?:can|could|would|must|should)\s+not)\s+be\s+(?:treated|considered)\s+as\s*$/u
           .test(prefix)
     },
   ))) {
