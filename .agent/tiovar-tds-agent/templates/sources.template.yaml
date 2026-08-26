@@ -1,0 +1,121 @@
+schema_version: TIOVAR-TDS-SOURCES-V0.1
+product:
+  id: REQUIRED
+  brand: TIOVAR
+  display_grade: REQUIRED
+  supplier_grade: REQUIRED
+  product_family: Rutile Titanium Dioxide
+  application_family: REQUIRED
+  language: en
+  revision: "0.1"
+  issue_date: REQUIRED
+  status: draft
+source_files:
+  - id: S000
+    role: internal_grade_mapping
+    path: REQUIRED
+    sha256: REQUIRED
+    locator: REQUIRED
+  - id: S001
+    role: primary_technical_source
+    path: REQUIRED
+    sha256: REQUIRED
+    locator: REQUIRED
+  - id: S002
+    role: primary_logo
+    path: REQUIRED
+    sha256: REQUIRED
+    locator: Full image
+template:
+  path: .agent/tiovar-tds-agent/templates/tiovar-tds-template.docx
+  sha256: c7e2757754290cfb6b765504501d8817576d77805e675abace272d1294692011
+  embedded_logo_source_id: S002
+  embedded_logo_path: word/media/image1.png
+content:
+  description: REQUIRED
+  applications: []
+  key_features: []
+  technical_data:
+    - property: REQUIRED
+      value: REQUIRED
+      source_id: S001
+      source_locator: REQUIRED
+  viscosity_note: Unknown
+  packaging_note: Unknown
+  safety_note: Unknown
+  evidence_note: Supplier-reported values reproduce the primary supplier TDS.
+  release_status: Pending user confirmation before public use.
+  contact_headline: Company and contact details pending user approval
+  contact_details: "Legal name / address / email / website: pending user approval"
+claims:
+  - id: C001
+    field: description
+    text: REQUIRED
+    support_type: source_supported
+    source_id: S001
+    source_locator: REQUIRED
+    source_excerpt: REQUIRED
+  # Add one source_supported record for every application and key_feature.
+  - id: C002
+    field: viscosity_note
+    text: REQUIRED
+    support_type: source_supported
+    source_id: S001
+    source_locator: REQUIRED
+    source_excerpt: REQUIRED
+  # Administrative holds contain no technical assertion and cite no source.
+  - id: C003
+    field: packaging_note
+    text: REQUIRED
+    support_type: administrative_hold
+    source_id: null
+    source_locator: null
+    source_excerpt: null
+  - id: C004
+    field: safety_note
+    text: REQUIRED
+    support_type: administrative_hold
+    source_id: null
+    source_locator: null
+    source_excerpt: null
+  - id: C005
+    field: evidence_note
+    text: REQUIRED
+    support_type: source_supported
+    source_id: S001
+    source_locator: REQUIRED
+    source_excerpt: REQUIRED
+  - id: C006
+    field: release_status
+    text: REQUIRED
+    support_type: administrative_hold
+    source_id: null
+    source_locator: null
+    source_excerpt: null
+  - id: C007
+    field: contact_headline
+    text: REQUIRED
+    support_type: administrative_hold
+    source_id: null
+    source_locator: null
+    source_excerpt: null
+  - id: C008
+    field: contact_details
+    text: REQUIRED
+    support_type: administrative_hold
+    source_id: null
+    source_locator: null
+    source_excerpt: null
+conflicts: []
+unresolved_fields: []
+artifacts:
+  docx: REQUIRED
+  pdf: REQUIRED
+  docx_sha256: null
+  pdf_sha256: null
+qa:
+  visual_review:
+    status: pending
+    page_count: null
+    docx_sha256: null
+    pdf_sha256: null

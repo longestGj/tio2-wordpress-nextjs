@@ -14,4 +14,6 @@ docker-data/
 wordpress/seed/.runtime-site-a-editorial-capability-*.json
 *.log
 *.tsbuildinfo
+__pycache__/
+*.py[cod]
 
