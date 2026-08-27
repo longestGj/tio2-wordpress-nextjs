@@ -52,7 +52,7 @@ Use one `tio2_application` post type with an explicit level:
 - `category`: one of the six approved category hubs.
 - `detail`: one of the 21 approved application pages.
 
-Every Category belongs to the Hub. Every Detail belongs to exactly one Category. Stable Application IDs and canonical routes come from the approved architecture workbook and cannot be generated from display titles.
+Every Category belongs to the Hub. Twenty Detail records belong to exactly one Category. The workbook-defined cross-application record `universal-multi-application` is the sole Hub-direct Detail because it spans Coatings, Printing Inks, and Plastics; those three Category associations are stored as explicit related-Application relationships rather than inventing a false primary Category. Stable Application IDs and canonical routes come from the approved architecture workbook and cannot be generated from display titles.
 
 This model allows future categories and details to be added without registering new WordPress post types or adding new Next.js route families.
 
@@ -255,7 +255,7 @@ Validation rejects:
 
 - missing, duplicate, extra, or malformed stable IDs
 - duplicate or noncanonical routes
-- invalid Hub/Category/Detail hierarchy
+- invalid Hub/Category/Detail hierarchy, including any second Hub-direct Detail or missing cross-category relationships on `universal-multi-application`
 - missing parents or invalid level combinations
 - relationships outside the approved inventories
 - incomplete required sections for a page type
