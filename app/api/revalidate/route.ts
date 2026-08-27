@@ -2,9 +2,13 @@ import {createHmac, timingSafeEqual} from 'node:crypto'
 import {revalidatePath, revalidateTag} from 'next/cache'
 import {z} from 'zod'
 
+import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest'
+import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {SITE_IDS} from '@/sites'
 import {
+  applicationListTag,
+  applicationTag,
   contentListTag,
   entityTag,
   homepageContentTag,
@@ -12,11 +16,13 @@ import {
   normalizePublicPath,
   productListTag,
   productTag,
+  resourceListTag,
+  resourceTag,
   routeTag,
   siteTag,
   sitemapTag,
 } from '@/lib/wordpress/cache-tags'
-import {getApprovedProductSlugs} from '@/sites/public-routes'
+import {getApprovedProductSlugs, isPublicRoute} from '@/sites/public-routes'
 
 export const runtime = 'nodejs'
 
@@ -234,6 +240,28 @@ export async function POST(request: Request): Promise<Response> {
     })
   }
 
+  const applicationIdByPath = new Map<string, string>(
+    currentSite.id === 'tio2-a'
+      ? SITE_A_APPLICATION_IDENTITIES.map(([id, , path]) => [path, id])
+      : [],
+  )
+  const resourceIdByPath = new Map<string, string>(
+    currentSite.id === 'tio2-a'
+      ? SITE_A_RESOURCE_IDENTITIES.map(([id, , path]) => [path, id])
+      : [],
+  )
+  const unapprovedEditorialPath = payload.paths.find(
+    (path) =>
+      (applicationIdByPath.has(path) || resourceIdByPath.has(path)) &&
+      !isPublicRoute(currentSite.id, path),
+  )
+  if (unapprovedEditorialPath) {
+    return json(400, {
+      ok: false,
+      error: 'Payload targets an unapproved Application or Resource path',
+    })
+  }
+
   const tags = new Set<string>()
   for (const siteId of payload.siteIds) {
     tags.add(contentListTag(siteId))
@@ -250,6 +278,18 @@ export async function POST(request: Request): Promise<Response> {
         for (const entityId of payload.entityIds) {
           tags.add(entityTag(siteId, entityId))
         }
+      }
+
+      const applicationId = applicationIdByPath.get(path)
+      if (applicationId) {
+        tags.add(applicationTag(siteId, applicationId))
+        tags.add(applicationListTag(siteId))
+      }
+
+      const resourceId = resourceIdByPath.get(path)
+      if (resourceId) {
+        tags.add(resourceTag(siteId, resourceId))
+        tags.add(resourceListTag(siteId))
       }
     }
   }

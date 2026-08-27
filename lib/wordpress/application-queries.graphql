@@ -1,0 +1,77 @@
+fragment ApplicationSiteScopeFields on SiteScope {
+  slug
+}
+
+fragment ApplicationEditorialLinkFields on Tio2EditorialLink {
+  targetType
+  targetKey
+  title
+  path
+  href
+}
+
+fragment SiteApplicationFields on Tio2Application {
+  id
+  databaseId
+  slug
+  title
+  modifiedGmt
+  status
+  siteScopes {
+    nodes {
+      ...ApplicationSiteScopeFields
+    }
+  }
+  siteAApplicationFields {
+    applicationId
+    applicationLevel
+    family
+    parentApplication {
+      ...ApplicationEditorialLinkFields
+    }
+    metaTitle
+    metaDescription
+    eyebrow
+    headline
+    directAnswer
+    applicationContext
+    buyerProblem
+    selectionFactors
+    powderDataLimits
+    validationPlan
+    customerInputs
+    bodySections {
+      id
+      heading
+      html
+    }
+    faqItems {
+      question
+      answerHtml
+    }
+    childApplications {
+      ...ApplicationEditorialLinkFields
+    }
+    relatedApplications {
+      ...ApplicationEditorialLinkFields
+    }
+    relatedResources {
+      ...ApplicationEditorialLinkFields
+    }
+    relatedProducts {
+      ...ApplicationEditorialLinkFields
+    }
+    ctas {
+      kind
+      label
+      href
+    }
+    technicalDisclaimer
+  }
+}
+
+query GetSiteApplication($slug: ID!) {
+  tio2Application(id: $slug, idType: SLUG) {
+    ...SiteApplicationFields
+  }
+}

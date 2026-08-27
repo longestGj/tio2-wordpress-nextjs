@@ -301,7 +301,7 @@ describe('protected Product preview entry', () => {
   })
 
   it('preserves the generic Page/Post preview redirect and cookie scope', async () => {
-    const path = '/applications/coatings'
+    const path = '/applications/non-inventory-generic-draft'
 
     const response = await GET(
       previewRequest(signedParameters('tio2-a', path)),

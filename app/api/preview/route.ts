@@ -1,6 +1,13 @@
 import {createHmac, timingSafeEqual} from 'node:crypto'
 
+import {applicationIdentityForPath} from '@/lib/wordpress/application-queries'
+import {
+  ApplicationPreviewNotFoundError,
+  getApplicationPreview,
+} from '@/lib/wordpress/application-preview'
+import {ApplicationContractError} from '@/lib/applications/dto'
 import {ProductContractError} from '@/lib/products/dto'
+import {ResourceContractError} from '@/lib/resources/dto'
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {isValidPublicPath} from '@/lib/wordpress/cache-tags'
 import {getPreviewContentByPath} from '@/lib/wordpress/preview'
@@ -8,6 +15,11 @@ import {
   getProductPreview,
   ProductPreviewNotFoundError,
 } from '@/lib/wordpress/product-preview'
+import {resourceIdentityForPath} from '@/lib/wordpress/resource-queries'
+import {
+  getResourcePreview,
+  ResourcePreviewNotFoundError,
+} from '@/lib/wordpress/resource-preview'
 import {
   createPreviewSessionToken,
   PREVIEW_SESSION_COOKIE,
@@ -111,6 +123,88 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json(
       {ok: false, error: 'Invalid preview signature'},
       {status: 401},
+    )
+  }
+
+  const exactSiteA =
+    currentSite.id === 'tio2-a' && currentSite.wordpressScope === 'tio2-a'
+  const applicationIdentity = exactSiteA ? applicationIdentityForPath(path) : null
+  if (applicationIdentity?.[2] === path) {
+    try {
+      await getApplicationPreview(currentSite, path)
+    } catch (error) {
+      if (
+        error instanceof ApplicationPreviewNotFoundError ||
+        error instanceof CrossSiteContentError ||
+        error instanceof InvalidContentPathError
+      ) {
+        return Response.json(
+          {ok: false, error: 'Preview not found'},
+          {status: 404},
+        )
+      }
+      if (error instanceof ApplicationContractError) {
+        return Response.json(
+          {ok: false, error: 'Preview source is unavailable'},
+          {status: 502},
+        )
+      }
+      return Response.json(
+        {ok: false, error: 'Preview source is unavailable'},
+        {status: 502},
+      )
+    }
+    const browserPath =
+      applicationIdentity[3] === 'hub'
+        ? '/preview/applications'
+        : `/preview/applications/${applicationIdentity[1]}`
+    return previewRedirect(
+      siteId,
+      path,
+      browserPath,
+      expires,
+      now,
+      configuredSecret,
+    )
+  }
+
+  const resourceIdentity = exactSiteA ? resourceIdentityForPath(path) : null
+  if (resourceIdentity?.[2] === path) {
+    try {
+      await getResourcePreview(currentSite, path)
+    } catch (error) {
+      if (
+        error instanceof ResourcePreviewNotFoundError ||
+        error instanceof CrossSiteContentError ||
+        error instanceof InvalidContentPathError
+      ) {
+        return Response.json(
+          {ok: false, error: 'Preview not found'},
+          {status: 404},
+        )
+      }
+      if (error instanceof ResourceContractError) {
+        return Response.json(
+          {ok: false, error: 'Preview source is unavailable'},
+          {status: 502},
+        )
+      }
+      return Response.json(
+        {ok: false, error: 'Preview source is unavailable'},
+        {status: 502},
+      )
+    }
+    const browserPath =
+      resourceIdentity[3] === 'hub'
+        ? '/preview/resources'
+        : `/preview/resources/${resourceIdentity[1]}`
+    return previewRedirect(
+      siteId,
+      path,
+      browserPath,
+      expires,
+      now,
+      configuredSecret,
     )
   }
 

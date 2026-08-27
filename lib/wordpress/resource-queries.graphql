@@ -1,0 +1,78 @@
+fragment ResourceSiteScopeFields on SiteScope {
+  slug
+}
+
+fragment ResourceEditorialLinkFields on Tio2EditorialLink {
+  targetType
+  targetKey
+  title
+  path
+  href
+}
+
+fragment SiteTechnicalResourceFields on Tio2Document {
+  id
+  databaseId
+  slug
+  title
+  modifiedGmt
+  status
+  siteScopes {
+    nodes {
+      ...ResourceSiteScopeFields
+    }
+  }
+  siteATechnicalResourceFields {
+    resourceId
+    resourceKind
+    cluster
+    metaTitle
+    metaDescription
+    eyebrow
+    headline
+    directAnswer
+    keyTakeaways
+    sections {
+      id
+      heading
+      html
+    }
+    comparisonTable {
+      columns
+      rows {
+        cells
+      }
+    }
+    practicalImplications
+    commonMistakes
+    evaluationMethod
+    faqItems {
+      question
+      answerHtml
+    }
+    childResources {
+      ...ResourceEditorialLinkFields
+    }
+    relatedApplications {
+      ...ResourceEditorialLinkFields
+    }
+    relatedResources {
+      ...ResourceEditorialLinkFields
+    }
+    relatedProducts {
+      ...ResourceEditorialLinkFields
+    }
+    ctas {
+      kind
+      label
+      href
+    }
+    technicalDisclaimer
+  }
+}
+
+query GetSiteTechnicalResource($slug: ID!) {
+  tio2Document(id: $slug, idType: SLUG) {
+    ...SiteTechnicalResourceFields
+  }
+}
