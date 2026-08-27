@@ -81,6 +81,22 @@ describe('exact Site A editorial manifest validators', () => {
     expect(() => applicationPageInputSchema.parse({...applicationHubInput, disclaimerHtml: '<p>A guaranteed result.</p>'})).toThrow(/forbidden/u)
   })
 
+  it('preserves a ten-item approved customer-input list', () => {
+    const customerInputs = [
+      'Resin type, grade and recycled-content level, if applicable',
+      'Application and finished-part format',
+      'Current pigment or matched control',
+      'Pigment loading, masterbatch concentration and let-down ratio',
+      'Extrusion, compounding or molding temperature profile and residence time',
+      'Key additives, including stabilizers, fillers and flame-retardant packages',
+      'Color, opacity, whiteness, reflectance or undertone target',
+      'Film thickness, surface-quality requirement or part geometry where relevant',
+      'Required weathering, UV, yellowing, mechanical or process-performance checks',
+      'Destination-market requirements that affect the evaluation plan',
+    ]
+    expect(applicationPageInputSchema.parse({...applicationHubInput, decisionGuide: {...applicationHubInput.decisionGuide, customerInputs}}).decisionGuide.customerInputs).toEqual(customerInputs)
+  })
+
   it('accepts the complete approved Application and Resource inventories', () => {
     expect(validateSiteAApplicationManifest(applicationsManifest()).records).toHaveLength(28)
     expect(validateSiteAResourceManifest(resourcesManifest()).records).toHaveLength(11)

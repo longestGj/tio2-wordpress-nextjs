@@ -15,7 +15,7 @@ function applicationsManifest() {
   return {version: '0.1', siteId: 'tio2-a', records: [{
     identity: {id: 'applications-hub', title: 'Synthetic Applications Hub', slug: 'applications', path: '/applications', level: 'hub', family: 'All', parentId: null, modified: '2026-08-27T08:00:00'},
     seo: {title: 'Synthetic applications', description: 'Synthetic, brand-neutral evaluation guidance for fictional material applications.'}, hero: {eyebrow: 'Synthetic guidance', headline: 'Compare fictional conditions systematically.', directAnswer: '<p>Use representative fictional trials.</p>'},
-    decisionGuide: {context: 'Synthetic context.', buyerProblem: 'Synthetic problem.', selectionFactors: ['A', 'B', 'C'], powderDataLimits: 'Synthetic data limits.', validationPlan: ['Run a trial.'], customerInputs: ['Share context.']}, bodySections: [{id: 'one', heading: 'One', html: '<p>One.</p>'}, {id: 'two', heading: 'Two', html: '<p>Two.</p>'}], faqs: Array.from({length: 4}, (_, index) => ({question: `Question ${index}?`, answerHtml: '<p>Synthetic answer.</p>'})), children: [], relationships: [], ctas: [{kind: 'discuss-application', label: 'Discuss synthetic context', href: '/contact'}], disclaimerHtml: '<p>Technical data is available by request.</p>',
+    decisionGuide: {context: 'Synthetic context.', buyerProblem: 'Synthetic problem.', selectionFactors: ['A', 'B', 'C'], powderDataLimits: 'Synthetic data limits.', validationPlan: ['Run a trial.'], customerInputs: ['Share context.']}, bodySections: [{id: 'one', heading: 'One', html: '<p>One.</p>'}, {id: 'two', heading: 'Two', html: '<p>Two.</p>'}], faqs: Array.from({length: 4}, (_, index) => ({question: `Question ${index}?`, answerHtml: '<p>Synthetic answer.</p>'})), children: [] as Array<{id: string; type: string}>, relationships: [] as Array<{id: string; type: string}>, ctas: [{kind: 'discuss-application', label: 'Discuss synthetic context', href: '/contact'}], disclaimerHtml: '<p>Technical data is available by request.</p>',
   }]}
 }
 
@@ -34,16 +34,22 @@ describe('Site A cross-content graph validator', () => {
     applications.records[0].relationships = [
       {type: 'application', id: 'coatings'},
       {type: 'resource', id: 'article-01'},
+      {type: 'application', id: 'missing-application'},
+      {type: 'resource', id: 'missing-resource'},
       {type: 'product', id: 'TP-X999'},
     ]
 
     expect(validateSiteAEditorialGraph({applications, resources, products})).toEqual(expect.arrayContaining([
       {sourceId: 'applications-hub', fieldPath: 'relationships.0', targetType: 'application', targetId: 'coatings'},
       {sourceId: 'applications-hub', fieldPath: 'relationships.1', targetType: 'resource', targetId: 'article-01'},
-      {sourceId: 'applications-hub', fieldPath: 'relationships.2', targetType: 'product', targetId: 'TP-X999'},
+      {sourceId: 'applications-hub', fieldPath: 'relationships.2', targetType: 'application', targetId: 'missing-application'},
+      {sourceId: 'applications-hub', fieldPath: 'relationships.3', targetType: 'resource', targetId: 'missing-resource'},
+      {sourceId: 'applications-hub', fieldPath: 'relationships.4', targetType: 'product', targetId: 'TP-X999'},
     ]))
     expect(validateSiteAEditorialGraph({applications, resources, products}, {allowIncomplete: true})).toEqual([
-      {sourceId: 'applications-hub', fieldPath: 'relationships.2', targetType: 'product', targetId: 'TP-X999'},
+      {sourceId: 'applications-hub', fieldPath: 'relationships.2', targetType: 'application', targetId: 'missing-application'},
+      {sourceId: 'applications-hub', fieldPath: 'relationships.3', targetType: 'resource', targetId: 'missing-resource'},
+      {sourceId: 'applications-hub', fieldPath: 'relationships.4', targetType: 'product', targetId: 'TP-X999'},
     ])
   })
 

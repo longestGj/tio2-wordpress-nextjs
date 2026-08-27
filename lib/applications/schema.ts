@@ -8,7 +8,7 @@ export const applicationPageInputSchema = z.object({
   identity: z.object({id: editorialId, title: requiredEditorialText(180), slug: editorialId, path: editorialInternalPath, level: z.enum(['hub', 'category', 'detail']), family: requiredEditorialText(120), parentId: editorialId.nullable(), modified: editorialTimestamp}).strict(),
   seo: z.object({title: requiredEditorialText(60), description: requiredEditorialText(160)}).strict(),
   hero: z.object({eyebrow: requiredEditorialText(80), headline: requiredEditorialText(180), directAnswer: requiredEditorialHtml}).strict(),
-  decisionGuide: z.object({context: item, buyerProblem: item, selectionFactors: z.array(item).min(3).max(6), powderDataLimits: item, validationPlan: z.array(item).min(1).max(6), customerInputs: z.array(item).min(1).max(6)}).strict(),
+  decisionGuide: z.object({context: item, buyerProblem: item, selectionFactors: z.array(item).min(3).max(6), powderDataLimits: item, validationPlan: z.array(item).min(1).max(6), customerInputs: z.array(item).min(1).max(10)}).strict(),
   bodySections: z.array(z.object({id: editorialId, heading: requiredEditorialText(180), html: requiredEditorialHtml}).strict()).min(2).max(12),
   faqs: z.array(z.object({question: requiredEditorialText(180), answerHtml: requiredEditorialHtml}).strict()).min(4).max(6),
   children: z.array(editorialTargetSchema).max(24), relationships: z.array(editorialTargetSchema).max(24),
