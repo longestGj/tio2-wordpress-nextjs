@@ -1,14 +1,58 @@
-import {mkdtempSync, mkdirSync, rmSync, writeFileSync} from 'node:fs'
+import {
+  existsSync,
+  mkdtempSync,
+  mkdirSync,
+  rmdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import {spawnSync} from 'node:child_process'
 import {dirname, join, relative, resolve} from 'node:path'
 
 import {describe, expect, it} from 'vitest'
 
+function removeCreatedWorktreeRootIfEmpty(worktreeRoot: string): void {
+  try {
+    rmdirSync(worktreeRoot)
+  } catch (error) {
+    const code =
+      error && typeof error === 'object' && 'code' in error
+        ? String(error.code)
+        : ''
+    if (code !== 'ENOENT' && code !== 'ENOTEMPTY') throw error
+  }
+}
+
+function createWorktreeProbe(prefix: string): {
+  probeRoot: string
+  cleanup: () => void
+} {
+  const worktreeRoot = resolve(process.cwd(), '.worktrees')
+  const createdWorktreeRoot = !existsSync(worktreeRoot)
+  if (createdWorktreeRoot) mkdirSync(worktreeRoot, {recursive: true})
+
+  try {
+    const probeRoot = mkdtempSync(join(worktreeRoot, prefix))
+    return {
+      probeRoot,
+      cleanup: () => {
+        rmSync(probeRoot, {recursive: true, force: true})
+        if (!createdWorktreeRoot) return
+        removeCreatedWorktreeRootIfEmpty(worktreeRoot)
+      },
+    }
+  } catch (error) {
+    if (createdWorktreeRoot) removeCreatedWorktreeRootIfEmpty(worktreeRoot)
+    throw error
+  }
+}
+
 describe('Vitest repository discovery', () => {
   it('does not discover tests from ignored Git worktrees', () => {
     const repositoryRoot = process.cwd()
-    const worktreeRoot = resolve(repositoryRoot, '.worktrees')
-    const probeRoot = mkdtempSync(join(worktreeRoot, 'vitest-exclusion-probe-'))
+    const {probeRoot, cleanup} = createWorktreeProbe(
+      'vitest-exclusion-probe-',
+    )
     const probePath = join(probeRoot, 'tests', 'probe.test.ts')
 
     try {
@@ -37,14 +81,15 @@ describe('Vitest repository discovery', () => {
       expect(result.status, result.stderr).toBe(0)
       expect(normalizedOutput).not.toContain(normalizedProbePath)
     } finally {
-      rmSync(probeRoot, {recursive: true, force: true})
+      cleanup()
     }
   })
 
   it('does not lint files from ignored Git worktrees', () => {
     const repositoryRoot = process.cwd()
-    const worktreeRoot = resolve(repositoryRoot, '.worktrees')
-    const probeRoot = mkdtempSync(join(worktreeRoot, 'eslint-exclusion-probe-'))
+    const {probeRoot, cleanup} = createWorktreeProbe(
+      'eslint-exclusion-probe-',
+    )
     const probePath = join(probeRoot, 'invalid.js')
 
     try {
@@ -62,7 +107,7 @@ describe('Vitest repository discovery', () => {
 
       expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
     } finally {
-      rmSync(probeRoot, {recursive: true, force: true})
+      cleanup()
     }
   }, 60_000)
 })
