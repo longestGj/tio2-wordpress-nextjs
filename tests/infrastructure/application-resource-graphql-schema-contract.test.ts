@@ -18,12 +18,18 @@ function fieldTypes(schema: ReturnType<typeof loadSchema>, typeName: string) {
 describe('Site A Application/Technical Resource GraphQL schema', () => {
   it('adds one nullable protected editorial field to each existing CPT type', () => {
     const schema = loadSchema()
-    expect(fieldTypes(schema, 'Tio2Application').siteAApplicationFields).toBe(
+    const applicationFields = fieldTypes(schema, 'Tio2Application')
+    const resourceFields = fieldTypes(schema, 'Tio2Document')
+    expect(applicationFields.siteAApplicationFields).toBe(
       'Tio2SiteAApplicationFields',
     )
-    expect(fieldTypes(schema, 'Tio2Document').siteATechnicalResourceFields).toBe(
+    expect(resourceFields.siteATechnicalResourceFields).toBe(
       'Tio2SiteATechnicalResourceFields',
     )
+    expect(applicationFields.applicationFields).toBeUndefined()
+    expect(resourceFields.technicalResourceFields).toBeUndefined()
+    expect(schema.getType('ApplicationFields')).toBeUndefined()
+    expect(schema.getType('TechnicalResourceFields')).toBeUndefined()
   })
 
   it('uses typed stable relationship links and typed nested editorial objects', () => {

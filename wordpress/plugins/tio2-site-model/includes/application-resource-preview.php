@@ -91,8 +91,47 @@ function tio2_editorial_contains_unsafe_value($value): bool
 {
     if (is_string($value)) {
         $decoded = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        return tio2_product_contains_private_document_location($decoded) ||
-            1 === preg_match('~(?:<\s*(?:script|iframe|form|img)\b|\bon[a-z]+\s*=|javascript\s*:|(?:^|[\s"\'(<])/(?:home|users|var|tmp)/|\b(?:manufacturer|legal\s+entity|reviewer|source\s+path|approval\s+status)\b)~iu', $decoded);
+        if (
+            tio2_product_contains_private_document_location($decoded) ||
+            1 === preg_match(
+                '~(?:\bon[a-z]+\s*=|javascript\s*:|(?:^|[\s"\'(<])/(?:documents/tds|tds|var|home|usr|etc|opt|tmp|private|root)(?:/|(?=$|[\s"\'<>),.;:!?#]))|\b(?:manufacturer|legal\s+entity|reviewer|source\s+(?:file|path)|approval|price|stock|availability|guarantee(?:d|s)?|competitor|equivalent(?:\s+to)?|replacement\s+for)\b)~iu',
+                $decoded
+            )
+        ) {
+            return true;
+        }
+
+        if (0 < preg_match_all('~<\s*(/?)\s*([a-z][a-z0-9]*)([^>]*)>~iu', $decoded, $tags, PREG_SET_ORDER)) {
+            $allowed_tags = ['p', 'ul', 'ol', 'li', 'strong', 'em', 'b', 'i', 'a', 'br'];
+            foreach ($tags as $tag) {
+                $name = strtolower((string) $tag[2]);
+                if (! in_array($name, $allowed_tags, true)) {
+                    return true;
+                }
+                $attributes = trim((string) $tag[3], " \t\n\r\0\x0B/");
+                if ('' === $attributes) {
+                    continue;
+                }
+                if ('a' !== $name || '/' === $tag[1]) {
+                    return true;
+                }
+                $unsupported_attributes = preg_replace(
+                    '~(?:^|\s+)(?:href|title)\s*=\s*(?:"[^"]*"|\'[^\']*\')~iu',
+                    '',
+                    $attributes
+                );
+                if (! is_string($unsupported_attributes) || '' !== trim($unsupported_attributes)) {
+                    return true;
+                }
+                if (1 === preg_match('~\bhref\s*=\s*(["\'])(.*?)\1~iu', $attributes, $href_match)) {
+                    $href = (string) $href_match[2];
+                    if (! tio2_is_valid_public_path($href) || '/' !== $href && str_ends_with($href, '/')) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
     if (! is_array($value)) {
         return false;
@@ -103,6 +142,17 @@ function tio2_editorial_contains_unsafe_value($value): bool
         }
     }
     return false;
+}
+
+function tio2_editorial_public_href(WP_Post $post, string $path, bool $route_is_approved): ?string
+{
+    if (! $route_is_approved || 'publish' !== $post->post_status) {
+        return null;
+    }
+    if (function_exists('is_post_publicly_viewable') && ! is_post_publicly_viewable($post)) {
+        return null;
+    }
+    return $path;
 }
 
 /**
@@ -167,7 +217,11 @@ function tio2_editorial_link_for_post(WP_Post $post, string $expected_post_type)
         'targetKey' => $id,
         'title' => $title,
         'path' => $path,
-        'href' => tio2_publication_route_is_approved('tio2-a', $path) ? $path : null,
+        'href' => tio2_editorial_public_href(
+            $post,
+            $path,
+            tio2_publication_route_is_approved('tio2-a', $path)
+        ),
     ];
 }
 
@@ -179,17 +233,25 @@ function tio2_editorial_links($value, string $expected_post_type): array|WP_Erro
 {
     $items = is_array($value) ? array_values($value) : (in_array($value, [null, false, ''], true) ? [] : [$value]);
     $links = [];
-    $seen = [];
+    $seen_posts = [];
+    $seen_identities = [];
+    $seen_paths = [];
     foreach ($items as $item) {
         $post = $item instanceof WP_Post ? $item : (is_numeric($item) ? get_post((int) $item) : null);
-        if (! $post instanceof WP_Post || isset($seen[$post->ID])) {
+        if (! $post instanceof WP_Post || isset($seen_posts[$post->ID])) {
             return new WP_Error('tio2_editorial_relation_invalid', 'Editorial relationship is unresolved or duplicated.');
         }
-        $seen[$post->ID] = true;
+        $seen_posts[$post->ID] = true;
         $link = tio2_editorial_link_for_post($post, $expected_post_type);
         if (is_wp_error($link)) {
             return $link;
         }
+        $identity_key = $link['targetType'] . ':' . $link['targetKey'];
+        if (isset($seen_identities[$identity_key]) || isset($seen_paths[$link['path']])) {
+            return new WP_Error('tio2_editorial_relation_invalid', 'Editorial relationship has a duplicate canonical identity or path.');
+        }
+        $seen_identities[$identity_key] = true;
+        $seen_paths[$link['path']] = true;
         $links[] = $link;
     }
     return $links;
@@ -250,6 +312,9 @@ function tio2_serialize_application_fields(WP_Post $post): array|WP_Error
     }
     if ([] !== tio2_validate_application_record((int) $post->ID)) {
         return new WP_Error('tio2_editorial_incomplete', 'Application contract is incomplete.');
+    }
+    if ('' === tio2_editorial_plain_text((string) get_the_title($post))) {
+        return new WP_Error('tio2_editorial_incomplete', 'Application title is required.');
     }
     $id = (string) get_field('application_id', $post->ID, false);
     $identity = tio2_site_a_application_identities()[$id] ?? null;
@@ -321,6 +386,9 @@ function tio2_serialize_resource_fields(WP_Post $post): array|WP_Error
     }
     if ([] !== tio2_validate_resource_record((int) $post->ID)) {
         return new WP_Error('tio2_editorial_incomplete', 'Technical Resource contract is incomplete.');
+    }
+    if ('' === tio2_editorial_plain_text((string) get_the_title($post))) {
+        return new WP_Error('tio2_editorial_incomplete', 'Technical Resource title is required.');
     }
     $id = (string) get_field('resource_id', $post->ID, false);
     $identity = tio2_site_a_resource_identities()[$id] ?? null;

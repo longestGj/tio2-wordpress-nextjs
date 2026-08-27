@@ -639,7 +639,16 @@ function tio2_preview_rest_response(WP_REST_Request $request)
         return is_wp_error($payload) ? $payload : new WP_REST_Response($payload, 200);
     }
 
-    if ('/applications' === $path || str_starts_with($path, '/applications/')) {
+    $application_path_is_inventory = false;
+    if ('tio2-a' === $site_id) {
+        foreach (tio2_site_a_application_identities() as $identity) {
+            if ($identity['path'] === $path) {
+                $application_path_is_inventory = true;
+                break;
+            }
+        }
+    }
+    if ($application_path_is_inventory) {
         $application = tio2_find_application_for_preview($site_id, $path);
         if (! $application instanceof WP_Post) {
             return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
@@ -648,7 +657,16 @@ function tio2_preview_rest_response(WP_REST_Request $request)
         return is_wp_error($payload) ? $payload : new WP_REST_Response($payload, 200);
     }
 
-    if ('/resources' === $path || str_starts_with($path, '/resources/')) {
+    $resource_path_is_inventory = false;
+    if ('tio2-a' === $site_id) {
+        foreach (tio2_site_a_resource_identities() as $identity) {
+            if ($identity['path'] === $path) {
+                $resource_path_is_inventory = true;
+                break;
+            }
+        }
+    }
+    if ($resource_path_is_inventory) {
         $resource = tio2_find_resource_for_preview($site_id, $path);
         if (! $resource instanceof WP_Post) {
             return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);

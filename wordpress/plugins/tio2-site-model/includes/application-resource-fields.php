@@ -803,8 +803,7 @@ function tio2_register_application_resource_acf_fields(): void
                 'value' => 'site_scope:tio2-a',
             ],
         ]],
-        'show_in_graphql' => 1,
-        'graphql_field_name' => 'applicationFields',
+        'show_in_graphql' => 0,
     ]);
 
     acf_add_local_field_group([
@@ -823,7 +822,6 @@ function tio2_register_application_resource_acf_fields(): void
                 'value' => 'site_scope:tio2-a',
             ],
         ]],
-        'show_in_graphql' => 1,
-        'graphql_field_name' => 'technicalResourceFields',
+        'show_in_graphql' => 0,
     ]);
 }
