@@ -12,7 +12,7 @@ export const technicalResourcePageInputSchema = z.object({
   hero: z.object({eyebrow: requiredEditorialText(80), headline: requiredEditorialText(180), directAnswer: requiredEditorialHtml}).strict(),
   keyTakeaways: z.array(item).min(3).max(6), sections: z.array(z.object({id: editorialId, heading: requiredEditorialText(180), html: requiredEditorialHtml}).strict()).min(2).max(12),
   comparisonTable: z.object({columns: z.array(requiredEditorialText(120)).min(2).max(8), rows: z.array(z.array(requiredEditorialText(500)).min(2).max(8)).min(1).max(20)}).strict().nullable(),
-  practicalImplications: z.array(item).min(1).max(6), commonMistakes: z.array(item).min(1).max(6), evaluationMethod: z.array(item).min(1).max(6),
+  practicalImplications: z.array(item).min(1).max(6), commonMistakes: z.array(item).min(1).max(6), evaluationMethod: z.array(item).min(1).max(12),
   faqs: z.array(z.object({question: requiredEditorialText(180), answerHtml: requiredEditorialHtml}).strict()).min(4).max(6),
   children: z.array(editorialTargetSchema).max(24), relationships: z.array(editorialTargetSchema).max(24), ctas: z.array(resourceCtaSchema).min(1).max(2), disclaimerHtml: requiredEditorialHtml,
 }).strict().superRefine((page, context) => {

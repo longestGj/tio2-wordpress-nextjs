@@ -81,4 +81,20 @@ describe('shared editorial page contracts', () => {
     const unknown = addUnknownFixtureField(mutableFixture(resourceHubInput), 'approval', 'private')
     expect(() => toTechnicalResourcePageDto(unknown, resolveTarget)).toThrow(ResourceContractError)
   })
+
+  it('accepts up to twelve ordered Resource evaluation items', () => {
+    const sevenItems = mutableFixture(resourceArticleInput)
+    sevenItems.evaluationMethod = Array.from(
+      {length: 7},
+      (_value, index) => `Evaluation step ${index + 1}`,
+    )
+    expect(toTechnicalResourcePageDto(sevenItems, resolveTarget).evaluationMethod).toHaveLength(7)
+
+    const thirteenItems = mutableFixture(resourceArticleInput)
+    thirteenItems.evaluationMethod = Array.from(
+      {length: 13},
+      (_value, index) => `Evaluation step ${index + 1}`,
+    )
+    expect(() => toTechnicalResourcePageDto(thirteenItems, resolveTarget)).toThrow(ResourceContractError)
+  })
 })
