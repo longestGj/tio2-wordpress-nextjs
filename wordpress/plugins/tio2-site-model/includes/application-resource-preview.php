@@ -149,6 +149,20 @@ function tio2_editorial_public_href(WP_Post $post, string $path, bool $route_is_
     if (! $route_is_approved || 'publish' !== $post->post_status) {
         return null;
     }
+    if ('tio2_product' === $post->post_type) {
+        $validation = tio2_validate_product_contract((int) $post->ID);
+        $product_id = get_field('product_id', $post->ID, false);
+        if (
+            is_wp_error($validation) ||
+            'tio2-a' !== tio2_product_site_id((int) $post->ID) ||
+            ! is_string($product_id) ||
+            1 !== preg_match(tio2_product_id_pattern(), $product_id) ||
+            tio2_product_path_from_id($product_id) !== $path
+        ) {
+            return null;
+        }
+        return $path;
+    }
     if (function_exists('is_post_publicly_viewable') && ! is_post_publicly_viewable($post)) {
         return null;
     }

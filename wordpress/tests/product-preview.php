@@ -462,6 +462,33 @@ $incomplete_id = tio2_product_preview_test_insert_product(
     false
 );
 
+$published_product = clone get_post($product_id);
+$published_product->post_status = 'publish';
+$draft_product = clone $published_product;
+$draft_product->post_status = 'draft';
+$private_product = clone $published_product;
+$private_product->post_status = 'private';
+$published_incomplete_product = clone get_post($incomplete_id);
+$published_incomplete_product->post_status = 'publish';
+tio2_product_preview_test_assert(
+    ! is_post_publicly_viewable($published_product) &&
+        '/products/tp-z911' === tio2_editorial_public_href($published_product, '/products/tp-z911', true),
+    'A complete published headless Product with an approved canonical route was not linkable.'
+);
+tio2_product_preview_test_assert(
+    null === tio2_editorial_public_href($published_product, '/products/tp-z911', false) &&
+        null === tio2_editorial_public_href($draft_product, '/products/tp-z911', true) &&
+        null === tio2_editorial_public_href($private_product, '/products/tp-z911', true) &&
+        null === tio2_editorial_public_href($published_incomplete_product, '/products/tp-z912', true),
+    'An unapproved, draft, private, or incomplete Product produced a public href.'
+);
+wp_set_object_terms($product_id, ['tio2-b'], 'site_scope', false);
+tio2_product_preview_test_assert(
+    null === tio2_editorial_public_href($published_product, '/products/tp-z911', true),
+    'A cross-site Product produced a public href.'
+);
+wp_set_object_terms($product_id, ['tio2-a'], 'site_scope', false);
+
 $page_path = '/products/tp-z913';
 $page_slug = tio2_build_internal_slug('tio2-a', $page_path);
 if (is_wp_error($page_slug)) {
