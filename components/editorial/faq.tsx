@@ -10,7 +10,7 @@ interface EditorialFaqProps {
 
 export function EditorialFaq({faqs, headingId}: EditorialFaqProps) {
   return (
-    <section data-application-section="faq" aria-labelledby={headingId}>
+    <section data-editorial-section="faq" aria-labelledby={headingId}>
       <p>Common evaluation questions</p>
       <h2 id={headingId}>Frequently Asked Questions</h2>
       <ol>

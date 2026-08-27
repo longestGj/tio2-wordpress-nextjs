@@ -16,7 +16,7 @@ export function RelatedContent({
   if (links.length === 0) return null
 
   return (
-    <section data-application-section={sectionName} aria-labelledby={headingId}>
+    <section data-editorial-section={sectionName} aria-labelledby={headingId}>
       <h2 id={headingId}>{heading}</h2>
       <ul>
         {links.map((link) => (

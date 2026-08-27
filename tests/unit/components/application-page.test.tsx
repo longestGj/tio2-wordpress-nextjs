@@ -85,7 +85,9 @@ describe('ApplicationPageRenderer', () => {
       )
       const page = container.querySelector<HTMLElement>('[data-application-mode]')
       const sections = Array.from(
-        container.querySelectorAll<HTMLElement>('section[data-application-section]'),
+        container.querySelectorAll<HTMLElement>(
+          'section[data-application-section], section[data-editorial-section]',
+        ),
       )
       const optionalSections = [
         ...(level === 'detail' ? [] : ['child-navigation']),
@@ -96,10 +98,13 @@ describe('ApplicationPageRenderer', () => {
       ]
 
       expect(page?.dataset.applicationMode).toBe(level)
-      expect(sections.map((section) => section.dataset.applicationSection)).toEqual([
-        ...EXPECTED_BASE_ORDER,
-        ...optionalSections,
-      ])
+      expect(
+        sections.map(
+          (section) =>
+            section.dataset.applicationSection ??
+            section.dataset.editorialSection,
+        ),
+      ).toEqual([...EXPECTED_BASE_ORDER, ...optionalSections])
       expect(container.querySelectorAll('h1')).toHaveLength(1)
       expect(
         screen.getByRole('heading', {
@@ -126,7 +131,7 @@ describe('ApplicationPageRenderer', () => {
     )
     const hero = container.querySelector('[data-application-section="hero"]')
     const directAnswer = container.querySelector<HTMLElement>(
-      '[data-application-section="direct-answer"]',
+      '[data-editorial-section="direct-answer"]',
     )
     const faqItems = Array.from(
       container.querySelectorAll<HTMLElement>('[data-editorial-faq-item]'),
@@ -153,10 +158,10 @@ describe('ApplicationPageRenderer', () => {
       <ApplicationPageRenderer application={application} />,
     )
     const childNavigation = container.querySelector<HTMLElement>(
-      '[data-application-section="child-navigation"]',
+      '[data-editorial-section="child-navigation"]',
     )
     const related = container.querySelector<HTMLElement>(
-      '[data-application-section="related-content"]',
+      '[data-editorial-section="related-content"]',
     )
 
     expect(childNavigation?.textContent).toContain(application.children[0]?.title)
@@ -175,11 +180,11 @@ describe('ApplicationPageRenderer', () => {
       <ApplicationPageRenderer application={application} />,
     )
     const ctaGroup = container.querySelector<HTMLElement>(
-      '[data-application-section="cta-group"]',
+      '[data-editorial-section="cta-group"]',
     )
     const links = within(ctaGroup as HTMLElement).getAllByRole('link')
     const disclaimer = container.querySelector<HTMLElement>(
-      '[data-application-section="technical-disclaimer"]',
+      '[data-editorial-section="technical-disclaimer"]',
     )
 
     expect(links.map((link) => link.textContent)).toEqual(

@@ -6,7 +6,7 @@ interface DirectAnswerProps {
 export function DirectAnswer({html, headingId}: DirectAnswerProps) {
   return (
     <section
-      data-application-section="direct-answer"
+      data-editorial-section="direct-answer"
       aria-labelledby={headingId}
     >
       <p>Decision guidance</p>
