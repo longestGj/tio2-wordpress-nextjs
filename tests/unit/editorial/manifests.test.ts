@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest'
 
 import {validateSiteAApplicationManifest} from '@/lib/applications/content-manifest'
+import {applicationPageInputSchema} from '@/lib/applications/schema'
 import {validateSiteAResourceManifest} from '@/lib/resources/content-manifest'
 import {applicationHubInput} from '@/tests/fixtures/editorial/application-pages'
 import {resourceHubInput} from '@/tests/fixtures/editorial/resource-pages'
@@ -74,6 +75,12 @@ function resourcesManifest() {
 }
 
 describe('exact Site A editorial manifest validators', () => {
+  it('accepts the exact mandatory disclaimer while rejecting a guaranteed result claim', () => {
+    const exactDisclaimer = '<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>'
+    expect(applicationPageInputSchema.parse({...applicationHubInput, disclaimerHtml: exactDisclaimer}).disclaimerHtml).toBe(exactDisclaimer)
+    expect(() => applicationPageInputSchema.parse({...applicationHubInput, disclaimerHtml: '<p>A guaranteed result.</p>'})).toThrow(/forbidden/u)
+  })
+
   it('accepts the complete approved Application and Resource inventories', () => {
     expect(validateSiteAApplicationManifest(applicationsManifest()).records).toHaveLength(28)
     expect(validateSiteAResourceManifest(resourcesManifest()).records).toHaveLength(11)

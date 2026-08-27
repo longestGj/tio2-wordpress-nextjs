@@ -26,6 +26,27 @@ function resourcesManifest() {
 }
 
 describe('Site A cross-content graph validator', () => {
+  it('accepts canonical future Application and Resource targets only in incomplete mode', async () => {
+    const applications = applicationsManifest()
+    const resources = resourcesManifest()
+    const products = await productsManifest()
+    products.products = []
+    applications.records[0].relationships = [
+      {type: 'application', id: 'coatings'},
+      {type: 'resource', id: 'article-01'},
+      {type: 'product', id: 'TP-X999'},
+    ]
+
+    expect(validateSiteAEditorialGraph({applications, resources, products})).toEqual(expect.arrayContaining([
+      {sourceId: 'applications-hub', fieldPath: 'relationships.0', targetType: 'application', targetId: 'coatings'},
+      {sourceId: 'applications-hub', fieldPath: 'relationships.1', targetType: 'resource', targetId: 'article-01'},
+      {sourceId: 'applications-hub', fieldPath: 'relationships.2', targetType: 'product', targetId: 'TP-X999'},
+    ]))
+    expect(validateSiteAEditorialGraph({applications, resources, products}, {allowIncomplete: true})).toEqual([
+      {sourceId: 'applications-hub', fieldPath: 'relationships.2', targetType: 'product', targetId: 'TP-X999'},
+    ])
+  })
+
   it('reports an exact result for every supported cross-content edge group', async () => {
     const applications = mutableFixture(applicationsManifest()) as unknown as {
       records: Array<{

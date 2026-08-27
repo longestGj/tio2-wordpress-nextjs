@@ -13,6 +13,10 @@ export interface SiteAEditorialGraphInput {
   products: unknown
 }
 
+export interface ContentGraphValidationOptions {
+  allowIncomplete?: boolean
+}
+
 type RecordValue = Record<string, unknown>
 
 function object(value: unknown): RecordValue | null {
@@ -78,13 +82,13 @@ function inspectProducts(records: readonly RecordValue[], known: Readonly<Record
   })
 }
 
-export function validateSiteAEditorialGraph({applications, resources, products}: SiteAEditorialGraphInput): ContentGraphIssue[] {
+export function validateSiteAEditorialGraph({applications, resources, products}: SiteAEditorialGraphInput, options: ContentGraphValidationOptions = {}): ContentGraphIssue[] {
   const applicationRecords = records(applications, 'records')
   const resourceRecords = records(resources, 'records')
   const productRecords = records(products, 'products')
   const known = {
-    application: stringSet(applicationRecords, 'identity'),
-    resource: stringSet(resourceRecords, 'identity'),
+    application: options.allowIncomplete ? new Set(SITE_A_APPLICATION_IDENTITIES.map(([id]) => id)) : stringSet(applicationRecords, 'identity'),
+    resource: options.allowIncomplete ? new Set(SITE_A_RESOURCE_IDENTITIES.map(([id]) => id)) : stringSet(resourceRecords, 'identity'),
     product: stringSet(productRecords, 'productId'),
   }
   const issues: ContentGraphIssue[] = []
@@ -93,3 +97,5 @@ export function validateSiteAEditorialGraph({applications, resources, products}:
   inspectProducts(productRecords, known, issues)
   return issues.sort((left, right) => `${left.sourceId}\u0000${left.fieldPath}\u0000${left.targetType}\u0000${left.targetId}`.localeCompare(`${right.sourceId}\u0000${right.fieldPath}\u0000${right.targetType}\u0000${right.targetId}`))
 }
+import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest'
+import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'

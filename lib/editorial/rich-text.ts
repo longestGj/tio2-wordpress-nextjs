@@ -5,6 +5,7 @@ import {htmlToPlainText} from '@/lib/seo/text'
 const INTERNAL_PATH_PATTERN = /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*)(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*\/?$/u
 const PRIVATE_LOCATION_PATTERN = /(?:\bfile:\/\/|(?:^|[^a-z0-9])[a-z]:[\\/]|\/(?:documents\/tds|tds|var|home|usr|etc|opt|tmp|private|root)(?:\/|(?=$|[\s"'<>),.;:!?#]))|\.pdf\b)/iu
 const FORBIDDEN_CLAIM_PATTERN = /\b(?:manufacturer|legal\s+entity|reviewer|source\s+(?:file|path)|approval|price|stock|availability|guarantee(?:d|s)?|competitor|equivalent(?:\s+to)?|replacement\s+for)\b/iu
+const MANDATORY_DISCLAIMER_GUARANTEE_PHRASE = 'not intended as guaranteed specifications'
 
 export function normalizeEditorialInternalPath(value: string): string | null {
   const path = value.trim()
@@ -17,7 +18,7 @@ export function containsPrivateEditorialLocation(value: string): boolean {
 }
 
 export function containsForbiddenEditorialClaim(value: string): boolean {
-  return FORBIDDEN_CLAIM_PATTERN.test(value)
+  return FORBIDDEN_CLAIM_PATTERN.test(value.replaceAll(MANDATORY_DISCLAIMER_GUARANTEE_PHRASE, ''))
 }
 
 export function sanitizeEditorialRichText(source: string): string {
