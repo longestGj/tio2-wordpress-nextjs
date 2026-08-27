@@ -1,7 +1,10 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
 
-import {TechnicalResourcePageRenderer} from '@/components/resources/technical-resource-page'
+import {
+  isValidatedTechnicalResourcePageDto,
+  TechnicalResourcePageRenderer,
+} from '@/components/resources/technical-resource-page'
 import {SiteShell} from '@/components/site-shell'
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {ResourceContractError} from '@/lib/resources/dto'
@@ -54,6 +57,7 @@ export default async function ResourcePreviewPage({
     throw error
   }
   if (
+    !isValidatedTechnicalResourcePageDto(resource) ||
     resource.identity.id !== identity[0] ||
     resource.identity.slug !== identity[1] ||
     resource.identity.path !== identity[2] ||

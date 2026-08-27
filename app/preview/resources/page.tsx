@@ -1,7 +1,10 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
 
-import {TechnicalResourcePageRenderer} from '@/components/resources/technical-resource-page'
+import {
+  isValidatedTechnicalResourcePageDto,
+  TechnicalResourcePageRenderer,
+} from '@/components/resources/technical-resource-page'
 import {SiteShell} from '@/components/site-shell'
 import {ResourceContractError} from '@/lib/resources/dto'
 import {getCurrentSite} from '@/lib/sites/current-site'
@@ -41,6 +44,7 @@ export default async function ResourceHubPreviewPage() {
     throw error
   }
   if (
+    !isValidatedTechnicalResourcePageDto(resource) ||
     resource.identity.id !== 'resources-hub' ||
     resource.identity.slug !== 'resources' ||
     resource.identity.kind !== 'hub' ||

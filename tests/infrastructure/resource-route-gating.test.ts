@@ -8,6 +8,7 @@ import {
   type SiteAResourceContentManifest,
 } from '@/lib/resources/content-manifest'
 import {toTechnicalResourcePageDto} from '@/lib/resources/dto'
+import type {TechnicalResourcePageInput} from '@/lib/resources/schema'
 import type {TechnicalResourcePageDto} from '@/lib/resources/types'
 import {resourceIdentityForPath} from '@/lib/wordpress/resource-queries'
 import {getSiteConfig} from '@/sites'
@@ -29,12 +30,15 @@ const resolveTarget: EditorialLinkResolver = (target) => {
 
 function canonicalFixture(
   identity: (typeof SITE_A_RESOURCE_IDENTITIES)[number],
+  mutateInput?: (input: TechnicalResourcePageInput) => void,
 ): TechnicalResourcePageDto {
   const source = resourceManifest.records.find(
     (record) => record.identity.id === identity[0],
   )
   if (!source) throw new Error(`Missing Resource fixture: ${identity[0]}`)
-  return toTechnicalResourcePageDto(structuredClone(source), resolveTarget)
+  const input = structuredClone(source) as TechnicalResourcePageInput
+  mutateInput?.(input)
+  return toTechnicalResourcePageDto(input, resolveTarget)
 }
 
 interface PublicScenario {
@@ -216,6 +220,56 @@ describe('public Technical Resource route gates', () => {
     ])
   })
 
+  it('rejects schema-valid but runtime-invalid Article and Hub DTOs before metadata or page output', async () => {
+    const articleIdentity = SITE_A_RESOURCE_IDENTITIES[1]
+    const unsafeArticle = canonicalFixture(articleIdentity, (input) => {
+      input.seo.title = '<strong>Schema-valid but unsafe title</strong>'
+    })
+    const articleRuntime = await loadPublicRoutes({
+      approvedPaths: [articleIdentity[2]],
+      resource: unsafeArticle,
+    })
+    const articleProps = {
+      params: Promise.resolve({slug: articleIdentity[1]}),
+    }
+
+    await expect(articleRuntime.slug.default(articleProps)).rejects.toMatchObject({
+      digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
+    })
+    await expect(
+      articleRuntime.slug.generateMetadata(articleProps),
+    ).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
+    expect(articleRuntime.calls).toEqual([
+      `gate:${articleIdentity[2]}`,
+      `query:${articleIdentity[2]}`,
+      `gate:${articleIdentity[2]}`,
+      `query:${articleIdentity[2]}`,
+    ])
+
+    vi.resetModules()
+    const hubIdentity = SITE_A_RESOURCE_IDENTITIES[0]
+    const noncanonicalHub = canonicalFixture(hubIdentity, (input) => {
+      input.children = input.children.slice(0, 1)
+    })
+    const hubRuntime = await loadPublicRoutes({
+      approvedPaths: [hubIdentity[2]],
+      resource: noncanonicalHub,
+    })
+
+    await expect(hubRuntime.hub.default()).rejects.toMatchObject({
+      digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
+    })
+    await expect(hubRuntime.hub.generateMetadata()).rejects.toMatchObject({
+      digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
+    })
+    expect(hubRuntime.calls).toEqual([
+      'gate:/resources',
+      'query:/resources',
+      'gate:/resources',
+      'query:/resources',
+    ])
+  })
+
   it('never recognizes TDS, PDF, local, or arbitrary Document locations as Resource identities', () => {
     for (const path of [
       '/resources/technical-data-sheet.pdf',
@@ -315,6 +369,33 @@ describe('protected Technical Resource previews', () => {
     await expect(noncanonicalRuntime.slug.default(props)).rejects.toMatchObject({
       digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
     })
+  })
+
+  it('rejects schema-valid but runtime-invalid Hub and Article previews without a shell', async () => {
+    const hubIdentity = SITE_A_RESOURCE_IDENTITIES[0]
+    const noncanonicalHub = canonicalFixture(hubIdentity, (input) => {
+      input.children = input.children.slice(0, 1)
+    })
+    const hubRuntime = await loadPreviewRoutes({resource: noncanonicalHub})
+
+    await expect(hubRuntime.hub.default()).rejects.toMatchObject({
+      digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
+    })
+    expect(hubRuntime.getResourcePreview).toHaveBeenCalledTimes(1)
+
+    vi.resetModules()
+    const articleIdentity = SITE_A_RESOURCE_IDENTITIES[1]
+    const unsafeArticle = canonicalFixture(articleIdentity, (input) => {
+      input.hero.headline = '<em>Schema-valid but unsafe headline</em>'
+    })
+    const articleRuntime = await loadPreviewRoutes({resource: unsafeArticle})
+
+    await expect(
+      articleRuntime.slug.default({
+        params: Promise.resolve({slug: articleIdentity[1]}),
+      }),
+    ).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
+    expect(articleRuntime.getResourcePreview).toHaveBeenCalledTimes(1)
   })
 
   it.each([

@@ -1,7 +1,10 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
 
-import {ApplicationPageRenderer} from '@/components/applications/application-page'
+import {
+  ApplicationPageRenderer,
+  isValidatedApplicationPageDto,
+} from '@/components/applications/application-page'
 import {SiteShell} from '@/components/site-shell'
 import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest'
 import {
@@ -37,6 +40,7 @@ async function getApprovedApplication({params}: ApplicationRouteProps) {
   const application = await getSiteApplication(site, identity[2])
   if (
     !application ||
+    !isValidatedApplicationPageDto(application) ||
     application.identity.slug !== slug ||
     application.identity.path !== identity[2] ||
     application.identity.level === 'hub'

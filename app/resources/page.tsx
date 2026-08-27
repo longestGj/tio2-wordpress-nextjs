@@ -1,7 +1,10 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
 
-import {TechnicalResourcePageRenderer} from '@/components/resources/technical-resource-page'
+import {
+  isValidatedTechnicalResourcePageDto,
+  TechnicalResourcePageRenderer,
+} from '@/components/resources/technical-resource-page'
 import {SiteShell} from '@/components/site-shell'
 import {
   buildResourceJsonLd,
@@ -27,6 +30,7 @@ async function getApprovedResource() {
   const resource = await getSiteResource(site, CANONICAL_PATH)
   if (
     !resource ||
+    !isValidatedTechnicalResourcePageDto(resource) ||
     resource.identity.id !== 'resources-hub' ||
     resource.identity.slug !== 'resources' ||
     resource.identity.kind !== 'hub' ||

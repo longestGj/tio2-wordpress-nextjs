@@ -26,6 +26,7 @@ const resolveTarget: EditorialLinkResolver = (target) => {
 
 function canonicalFixture(
   identity: (typeof SITE_A_APPLICATION_IDENTITIES)[number],
+  mutateInput?: (input: ApplicationPageInput) => void,
 ): ApplicationPageDto {
   const [id, slug, path, level, family, parentId] = identity
   const base = level === 'hub' ? applicationHubInput : applicationDetailInput
@@ -33,6 +34,7 @@ function canonicalFixture(
   input.relationships = input.relationships.map((target) =>
     target.type === 'product' ? {...target, id: 'TP-P100'} : target,
   )
+  mutateInput?.(input)
   return toApplicationPageDto(
     {
       ...input,
@@ -228,6 +230,31 @@ describe('public Application route gates', () => {
       `query:${identity[2]}`,
     ])
   })
+
+  it('rejects a schema-valid but runtime-invalid Application before metadata or page output', async () => {
+    const identity = SITE_A_APPLICATION_IDENTITIES[7]
+    const application = canonicalFixture(identity, (input) => {
+      input.seo.title = '<strong>Schema-valid but unsafe title</strong>'
+    })
+    const {calls, slug} = await loadPublicRoutes({
+      approvedPaths: [identity[2]],
+      application,
+    })
+    const props = {params: Promise.resolve({slug: identity[1]})}
+
+    await expect(slug.default(props)).rejects.toMatchObject({
+      digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
+    })
+    await expect(slug.generateMetadata(props)).rejects.toMatchObject({
+      digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
+    })
+    expect(calls).toEqual([
+      `gate:${identity[2]}`,
+      `query:${identity[2]}`,
+      `gate:${identity[2]}`,
+      `query:${identity[2]}`,
+    ])
+  })
 })
 
 describe('protected Application previews', () => {
@@ -289,6 +316,18 @@ describe('protected Application previews', () => {
     ).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
     expect(unknown.hasScopedPreviewSession).not.toHaveBeenCalled()
     expect(unknown.getApplicationPreview).not.toHaveBeenCalled()
+  })
+
+  it('rejects a schema-valid but runtime-invalid Application preview without a shell', async () => {
+    const application = canonicalFixture(SITE_A_APPLICATION_IDENTITIES[0], (input) => {
+      input.hero.headline = '<em>Schema-valid but unsafe headline</em>'
+    })
+    const runtime = await loadPreviewRoutes({application})
+
+    await expect(runtime.hub.default()).rejects.toMatchObject({
+      digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
+    })
+    expect(runtime.getApplicationPreview).toHaveBeenCalledTimes(1)
   })
 
   it.each([

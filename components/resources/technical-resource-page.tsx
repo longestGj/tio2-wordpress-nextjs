@@ -187,7 +187,7 @@ function matchesAuthoritativeContract(resource: TechnicalResourcePageDto): boole
   }).success
 }
 
-function isCompleteResource(
+export function isValidatedTechnicalResourcePageDto(
   resource: unknown,
 ): resource is TechnicalResourcePageDto {
   if (!isRecord(resource)) return false
@@ -234,7 +234,7 @@ function isCompleteResource(
 export function TechnicalResourcePageRenderer({
   resource,
 }: TechnicalResourcePageRendererProps) {
-  if (!isCompleteResource(resource)) return null
+  if (!isValidatedTechnicalResourcePageDto(resource)) return null
   const Renderer = RESOURCE_RENDERERS[resource.identity.kind]
   return Renderer ? <Renderer resource={resource} /> : null
 }

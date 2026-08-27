@@ -126,3 +126,46 @@ Initial review found the single Important resolved-link extra-key gap and one Mi
 ## Concerns
 
 No Task 7 implementation blocker remains. The only external concern is the unchanged local Homepage sitemap-source integrity failure described under Verification; it occurs after successful compilation and TypeScript validation and is not bypassed by this task.
+
+## Fix Round 1: strict resolved-DTO route boundary
+
+The Task 7 review identified a cross-layer boundary split: the Resource renderer enforced the complete resolved runtime contract, while public loaders, `generateMetadata`, JSON-LD paths, and previews used only coarse identity checks. A DTO accepted by `toTechnicalResourcePageDto()` could therefore pass the authoritative schema but fail renderer-only rules, allowing metadata/JSON-LD or an otherwise empty `SiteShell` before the renderer failed closed.
+
+### TDD evidence
+
+Four route-level regressions were written before production changes. They construct DTOs through the real DTO conversion functions, then introduce inputs that remain authoritative-schema-valid but violate resolved runtime rules:
+
+- Resource Article markup in a plain SEO or hero field;
+- Resource Hub children reduced to a schema-valid, noncanonical subset;
+- Application detail markup in a plain SEO field;
+- Application Hub markup in a plain hero field.
+
+Initial RED:
+
+```text
+npm test -- tests/infrastructure/resource-route-gating.test.ts tests/infrastructure/application-route-gating.test.ts
+
+Test Files  2 failed (2)
+Tests       4 failed | 22 passed (26)
+```
+
+Each new case returned page/shell or metadata output instead of `notFound()`, directly reproducing the review finding. Resource coverage exercises public page, public `generateMetadata`, Hub preview, and Article preview. The Application audit covers public page/metadata and preview output.
+
+The existing exact predicates are now exported as `isValidatedTechnicalResourcePageDto()` and `isValidatedApplicationPageDto()`. The renderer and every corresponding public loader, metadata/JSON-LD path, Hub preview, and detail preview call the same predicate. Invalid resolved DTOs reach `notFound()` before any metadata, schema script, or `SiteShell` can be returned. No sanitizing, filtering, coercion, or schema-only projection was added.
+
+The public route flow remains `getCurrentSite()` -> exact `isPublicRoute()` gate -> WordPress query -> strict resolved-DTO validation. Preview query error mapping is unchanged; the predicate runs only after the existing query try/catch, and invalid returned DTOs fail closed.
+
+### Task 6 Application reuse audit
+
+The directly reused Task 6 Application pattern had the same reachable defect: `ApplicationPageRenderer` owned the strict resolved predicate, while metadata and preview layers performed only identity/level checks. Task 7's shared-pattern review therefore includes the narrow parallel correction above and Application regressions, without changing valid Application behavior or broadening into unrelated refactoring.
+
+### Fix verification
+
+- Focused route GREEN: 2 files, 26/26 tests passed.
+- Combined Task 7 Resource and Task 6 Application renderer/SEO/routes: 6 files, 90/90 tests passed.
+- Task 5 Application/Resource query, preview, and revalidation plus Product renderer/query/preview/SEO/routes and shared SEO/public-route/crawler regressions: 14 files, 142/142 tests passed.
+- Final default `npm test`: 83 files passed, 13 environment-gated files skipped; 1,222 tests passed, 36 skipped.
+- `npm run typecheck`: passed.
+- Scoped ESLint over all Fix Round 1 TypeScript/TSX changes: passed with no output.
+- `git diff --check`: passed with only informational line-ending warnings.
+- `verify:root-only` was not run. No inventory, sitemap, navigation, Homepage, `public/`, import content, WordPress, publication, deployment, or remote state changed.

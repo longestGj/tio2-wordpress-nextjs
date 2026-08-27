@@ -1,7 +1,10 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
 
-import {ApplicationPageRenderer} from '@/components/applications/application-page'
+import {
+  ApplicationPageRenderer,
+  isValidatedApplicationPageDto,
+} from '@/components/applications/application-page'
 import {SiteShell} from '@/components/site-shell'
 import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest'
 import {ApplicationContractError} from '@/lib/applications/dto'
@@ -54,6 +57,7 @@ export default async function ApplicationPreviewPage({
     throw error
   }
   if (
+    !isValidatedApplicationPageDto(application) ||
     application.identity.level === 'hub' ||
     application.identity.slug !== slug ||
     application.identity.path !== identity[2]

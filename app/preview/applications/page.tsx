@@ -1,7 +1,10 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
 
-import {ApplicationPageRenderer} from '@/components/applications/application-page'
+import {
+  ApplicationPageRenderer,
+  isValidatedApplicationPageDto,
+} from '@/components/applications/application-page'
 import {SiteShell} from '@/components/site-shell'
 import {ApplicationContractError} from '@/lib/applications/dto'
 import {getCurrentSite} from '@/lib/sites/current-site'
@@ -40,7 +43,12 @@ export default async function ApplicationHubPreviewPage() {
     if (isExpectedNotFound(error)) notFound()
     throw error
   }
-  if (application.identity.level !== 'hub') notFound()
+  if (
+    !isValidatedApplicationPageDto(application) ||
+    application.identity.level !== 'hub'
+  ) {
+    notFound()
+  }
   return (
     <SiteShell site={site}>
       <ApplicationPageRenderer application={application} />

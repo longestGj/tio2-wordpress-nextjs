@@ -1,7 +1,10 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
 
-import {ApplicationPageRenderer} from '@/components/applications/application-page'
+import {
+  ApplicationPageRenderer,
+  isValidatedApplicationPageDto,
+} from '@/components/applications/application-page'
 import {SiteShell} from '@/components/site-shell'
 import {
   buildApplicationJsonLd,
@@ -27,6 +30,7 @@ async function getApprovedApplication() {
   const application = await getSiteApplication(site, CANONICAL_PATH)
   if (
     !application ||
+    !isValidatedApplicationPageDto(application) ||
     application.identity.level !== 'hub' ||
     application.identity.path !== CANONICAL_PATH
   ) {

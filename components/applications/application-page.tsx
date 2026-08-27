@@ -129,7 +129,9 @@ function matchesAuthoritativeContract(application: ApplicationPageDto): boolean 
   }).success
 }
 
-function isCompleteApplication(application: unknown): application is ApplicationPageDto {
+export function isValidatedApplicationPageDto(
+  application: unknown,
+): application is ApplicationPageDto {
   if (!application || typeof application !== 'object') return false
   const value = application as Partial<ApplicationPageDto>
   const identity = value.identity
@@ -175,7 +177,7 @@ function isCompleteApplication(application: unknown): application is Application
 export function ApplicationPageRenderer({
   application,
 }: ApplicationPageRendererProps) {
-  if (!isCompleteApplication(application)) return null
+  if (!isValidatedApplicationPageDto(application)) return null
 
   switch (application.identity.level) {
     case 'hub':
