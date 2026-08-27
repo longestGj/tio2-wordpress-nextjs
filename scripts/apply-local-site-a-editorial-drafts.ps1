@@ -23,22 +23,15 @@ $SeedDirectory = Join-Path $WordPressDirectory 'seed'
 $EnvironmentFile = Join-Path $WordPressDirectory '.env'
 $ComposeFile = Join-Path $WordPressDirectory 'docker-compose.yml'
 $ImporterPath = Join-Path $SeedDirectory 'apply-site-a-editorial-drafts.php'
+. (Join-Path $PSScriptRoot 'editorial/local-editorial-runtime.ps1')
 foreach ($RequiredFile in @($EnvironmentFile, $ComposeFile, $ImporterPath)) {
     if (-not (Test-Path -LiteralPath $RequiredFile -PathType Leaf)) { throw "Missing required local editorial import file: $RequiredFile" }
 }
 & (Join-Path $PSScriptRoot 'assert-local-wordpress-env.ps1') -EnvironmentPath $EnvironmentFile | Out-Null
 
-foreach ($InputValue in @($ApplicationsManifestPath, $ResourcesManifestPath, $ProductsManifestPath)) {
-    if ([string]::IsNullOrWhiteSpace($InputValue) -or $InputValue.IndexOfAny([char[]]'*?') -ge 0 -or $InputValue -match '^[A-Za-z][A-Za-z0-9+.-]*://') {
-        throw 'Each manifest path must be one local literal file without wildcard or URI syntax.'
-    }
-}
-$ApplicationsManifestPath = [System.IO.Path]::GetFullPath($ApplicationsManifestPath)
-$ResourcesManifestPath = [System.IO.Path]::GetFullPath($ResourcesManifestPath)
-$ProductsManifestPath = [System.IO.Path]::GetFullPath($ProductsManifestPath)
-if (-not (Test-Path -LiteralPath $ApplicationsManifestPath -PathType Leaf)) { throw 'ApplicationsManifestPath must resolve to one local leaf file.' }
-if (-not (Test-Path -LiteralPath $ResourcesManifestPath -PathType Leaf)) { throw 'ResourcesManifestPath must resolve to one local leaf file.' }
-if (-not (Test-Path -LiteralPath $ProductsManifestPath -PathType Leaf)) { throw 'ProductsManifestPath must resolve to one local leaf file.' }
+$ApplicationsManifestPath = Resolve-LocalEditorialManifestPath -Path $ApplicationsManifestPath -Name 'ApplicationsManifestPath'
+$ResourcesManifestPath = Resolve-LocalEditorialManifestPath -Path $ResourcesManifestPath -Name 'ResourcesManifestPath'
+$ProductsManifestPath = Resolve-LocalEditorialManifestPath -Path $ProductsManifestPath -Name 'ProductsManifestPath'
 
 $EnvironmentValues = @{}
 foreach ($Line in Get-Content -LiteralPath $EnvironmentFile) {
@@ -77,6 +70,7 @@ function New-LocalEditorialDraftCapability {
 function Invoke-LocalEditorialDraftImport {
     param([Parameter(Mandatory = $true)][hashtable] $Capability)
     $CapabilityPath = Join-Path $SeedDirectory ('.runtime-site-a-editorial-draft-capability-{0}.json' -f ([Guid]::NewGuid().ToString('N')))
+    $TemporaryPaths.Add($CapabilityPath)
     try {
         [System.IO.File]::WriteAllText($CapabilityPath, ($Capability | ConvertTo-Json -Compress), [System.Text.UTF8Encoding]::new($false))
         $DockerArguments = @(
@@ -98,17 +92,26 @@ function Invoke-LocalEditorialDraftImport {
         return ($ResultLines[0].Substring($ResultLines[0].IndexOf($Marker) + $Marker.Length) | ConvertFrom-Json)
     }
     finally {
-        if (Test-Path -LiteralPath $CapabilityPath) { [System.IO.File]::Delete($CapabilityPath) }
+        try {
+            if (Test-Path -LiteralPath $CapabilityPath) { [System.IO.File]::Delete($CapabilityPath) }
+            if (-not (Test-Path -LiteralPath $CapabilityPath)) { $null = $TemporaryPaths.Remove($CapabilityPath) }
+        }
+        catch {
+            Write-Verbose "Capability cleanup will be retried by outer runtime ownership: $CapabilityPath"
+        }
     }
 }
 
 $RuntimeApplicationsPath = Join-Path $SeedDirectory ('.runtime-site-a-editorial-applications-{0}.json' -f ([Guid]::NewGuid().ToString('N')))
 $RuntimeResourcesPath = Join-Path $SeedDirectory ('.runtime-site-a-editorial-resources-{0}.json' -f ([Guid]::NewGuid().ToString('N')))
 $RuntimeProductsPath = Join-Path $SeedDirectory ('.runtime-site-a-editorial-products-{0}.json' -f ([Guid]::NewGuid().ToString('N')))
-$TemporaryPaths = @($RuntimeApplicationsPath, $RuntimeResourcesPath, $RuntimeProductsPath)
+$TemporaryPaths = [System.Collections.Generic.List[string]]::new()
+foreach ($RuntimePath in @($RuntimeApplicationsPath, $RuntimeResourcesPath, $RuntimeProductsPath)) { $TemporaryPaths.Add($RuntimePath) }
 $ApplicationsSourceHashBefore = $null
 $ResourcesSourceHashBefore = $null
 $ProductsSourceHashBefore = $null
+$OperationError = $null
+$FinalizationError = $null
 try {
     $ApplicationsSourceHashBefore = (Get-FileHash -LiteralPath $ApplicationsManifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
     $ResourcesSourceHashBefore = (Get-FileHash -LiteralPath $ResourcesManifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -142,11 +145,19 @@ try {
         $null = Invoke-LocalEditorialDraftImport -Capability $ApplyCapability
     }
 }
-finally {
-    foreach ($TemporaryPath in $TemporaryPaths) {
-        if (Test-Path -LiteralPath $TemporaryPath) { [System.IO.File]::Delete($TemporaryPath) }
-    }
-    if ($null -ne $ApplicationsSourceHashBefore -and (Get-FileHash -LiteralPath $ApplicationsManifestPath -Algorithm SHA256).Hash.ToLowerInvariant() -cne $ApplicationsSourceHashBefore) { throw 'The Application source manifest changed during the operation.' }
-    if ($null -ne $ResourcesSourceHashBefore -and (Get-FileHash -LiteralPath $ResourcesManifestPath -Algorithm SHA256).Hash.ToLowerInvariant() -cne $ResourcesSourceHashBefore) { throw 'The Resource source manifest changed during the operation.' }
-    if ($null -ne $ProductsSourceHashBefore -and (Get-FileHash -LiteralPath $ProductsManifestPath -Algorithm SHA256).Hash.ToLowerInvariant() -cne $ProductsSourceHashBefore) { throw 'The Product source manifest changed during the operation.' }
+catch {
+    $OperationError = $_.Exception
 }
+finally {
+    try {
+        Complete-LocalEditorialRuntime -TemporaryPaths $TemporaryPaths.ToArray() -SourceChecks @(
+            [pscustomobject]@{ Label = 'Application'; Path = $ApplicationsManifestPath; ExpectedHash = $ApplicationsSourceHashBefore },
+            [pscustomobject]@{ Label = 'Resource'; Path = $ResourcesManifestPath; ExpectedHash = $ResourcesSourceHashBefore },
+            [pscustomobject]@{ Label = 'Product'; Path = $ProductsManifestPath; ExpectedHash = $ProductsSourceHashBefore }
+        )
+    }
+    catch { $FinalizationError = $_.Exception }
+}
+if ($null -ne $OperationError -and $null -ne $FinalizationError) { throw [System.AggregateException]::new('The local editorial operation and finalization both failed.', @($OperationError, $FinalizationError)) }
+if ($null -ne $OperationError) { throw $OperationError }
+if ($null -ne $FinalizationError) { throw $FinalizationError }

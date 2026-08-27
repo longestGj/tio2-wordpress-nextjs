@@ -24,9 +24,29 @@ $hashes = ['applications' => hash('sha256', json_encode($applications, JSON_THRO
 $records = tio2_site_a_editorial_expected_records('DeferredProductRelations', $applications, $resources, $products);
 $record_map = [];
 foreach ($records as $record) $record_map[$record['entityType'] . ':' . $record['id']] = $record;
-$selection_calls = [];
-$selected = tio2_site_a_editorial_audit_read_wp_records(static function(string $type, string $id) use (&$selection_calls, $record_map): ?array { $selection_calls[] = $type . ':' . $id; return $record_map[$type . ':' . $id] ?? null; });
-if (39 !== count($selected) || 39 !== count($selection_calls) || in_array('application:site-b-unrelated', $selection_calls, true)) throw new RuntimeException('Audit did not select exactly the 39 managed identities.');
+$candidates = [];
+$records_by_post_id = [];
+$post_id = 1000;
+foreach ($records as $record) {
+    ++$post_id;
+    $candidates[] = ['postId' => $post_id, 'postType' => $record['postType'], 'scopes' => ['tio2-a'], 'applicationId' => 'application' === $record['entityType'] ? $record['id'] : '', 'resourceId' => 'resource' === $record['entityType'] ? $record['id'] : ''];
+    $records_by_post_id[$post_id] = $record;
+}
+$unrelated_site_b = ['postId' => 2000, 'postType' => 'tio2_application', 'scopes' => ['tio2-b'], 'applicationId' => 'site-b-unrelated', 'resourceId' => ''];
+$read_calls = [];
+$reader = static function(int $candidate_post_id, string $type) use (&$read_calls, $records_by_post_id): array { $read_calls[] = $candidate_post_id; if (2000 === $candidate_post_id) throw new RuntimeException('Audit read unrelated Site B content.'); return $records_by_post_id[$candidate_post_id]; };
+$selected = tio2_site_a_editorial_audit_read_wp_records(static fn(): array => array_merge($candidates, [$unrelated_site_b]), $reader);
+if (39 !== count($selected) || 39 !== count($read_calls) || in_array(2000, $read_calls, true)) throw new RuntimeException('Audit did not enumerate exactly the managed Site A population without reading unrelated Site B content.');
+
+function expect_population_failure(array $population, callable $reader, string $needle): void { try { tio2_site_a_editorial_audit_read_wp_records(static fn(): array => $population, $reader); } catch (RuntimeException $error) { if (str_contains($error->getMessage(), $needle)) return; throw $error; } throw new RuntimeException('Expected population failure containing ' . $needle); }
+$extra_site_a = $candidates; $extra_site_a[] = ['postId' => 2001, 'postType' => 'tio2_application', 'scopes' => ['tio2-a'], 'applicationId' => 'unknown-site-a', 'resourceId' => ''];
+expect_population_failure($extra_site_a, $reader, 'unexpected exact Site A');
+$malformed_site_a = $candidates; $malformed_site_a[] = ['postId' => 2002, 'postType' => 'tio2_document', 'scopes' => ['tio2-a'], 'applicationId' => '', 'resourceId' => ''];
+expect_population_failure($malformed_site_a, $reader, 'malformed exact Site A');
+$duplicate_site_a = $candidates; $duplicate_site_a[] = array_merge($candidates[0], ['postId' => 2003]);
+expect_population_failure($duplicate_site_a, $reader, 'duplicate');
+$cross_site_expected = array_merge($candidates, [['postId' => 2004, 'postType' => 'tio2_application', 'scopes' => ['tio2-b'], 'applicationId' => 'applications-hub', 'resourceId' => '']]);
+expect_population_failure($cross_site_expected, $reader, 'cross-site duplicate');
 $report = tio2_site_a_editorial_audit_build('DeferredProductRelations', $applications, $resources, $products, $hashes, $records, 'sha256:site-b', 'sha256:site-b');
 if (39 !== $report['recordCount'] || 28 !== $report['applicationCount'] || 11 !== $report['resourceCount'] || 39 !== count($report['deferredProductEdges']) || 39 !== count($report['records'])) throw new RuntimeException('Clean audit summary cardinality failed.');
 foreach (['applicationSha256','resourceSha256','readbackSha256','deferredProductEdgesSha256','siteBInvariantSha256'] as $key) if (1 !== preg_match('/^sha256:[a-f0-9]{64}$/D', $report[$key])) throw new RuntimeException('Audit hash missing: ' . $key);

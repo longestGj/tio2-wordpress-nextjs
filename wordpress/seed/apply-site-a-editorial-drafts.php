@@ -92,6 +92,21 @@ function tio2_site_a_editorial_sha256($value): string
     return hash('sha256', (string) wp_json_encode(tio2_site_a_editorial_canonicalize($value)));
 }
 
+function tio2_site_a_editorial_assert_local_wp_environment(): void
+{
+    $home = function_exists('get_option') ? (string) get_option('home') : '';
+    $site_url = function_exists('get_option') ? (string) get_option('siteurl') : '';
+    if (
+        PHP_SAPI !== 'cli' ||
+        ! defined('DB_NAME') || 'tio2_local' !== DB_NAME ||
+        ! defined('DB_HOST') || 'db:3306' !== DB_HOST ||
+        'http://localhost:8080' !== $home ||
+        'http://localhost:8080' !== $site_url
+    ) {
+        throw new RuntimeException('This command requires the exact local WordPress environment.');
+    }
+}
+
 /** @param mixed $value */
 function tio2_site_a_editorial_required_string($value, string $name): string
 {
@@ -398,7 +413,7 @@ function tio2_site_a_editorial_build_plan(string $relationship_mode, array $appl
                 throw new RuntimeException("Editorial ID {$record['id']} collision has a noncanonical path.");
             }
         }
-        $path_owner = $operations['find_path']($record['path']);
+        $path_owner = $operations['find_path']($record['path'], $record['entityType'], $record['id']);
         if (is_array($path_owner) && ($record['entityType'] !== ($path_owner['entityType'] ?? null) || $record['id'] !== ($path_owner['id'] ?? null))) {
             throw new RuntimeException("Canonical path {$record['path']} is owned by another record.");
         }
@@ -544,20 +559,61 @@ function tio2_site_a_editorial_find_wp_record(string $entity_type, string $id): 
     return tio2_site_a_editorial_read_wp_record((int) $ids[0], $entity_type);
 }
 
-/** @return array<string, mixed>|null */
-function tio2_site_a_editorial_find_wp_path(string $path): ?array
+/** @param array<string, mixed> $owner */
+function tio2_site_a_editorial_is_route_shell(string $path, array $owner): bool
 {
-    $ids = get_posts(['post_type' => ['tio2_application', 'tio2_document'], 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => 2, 'no_found_rows' => true, 'meta_key' => 'public_path', 'meta_value' => $path]);
-    if ([] === $ids) {
-        return null;
+    if ('/applications' !== $path || 'page' !== ($owner['postType'] ?? null) || 'publish' !== ($owner['status'] ?? null) || '' !== ($owner['applicationId'] ?? null) || '' !== ($owner['resourceId'] ?? null)) {
+        return false;
     }
-    if (1 !== count($ids)) {
-        throw new RuntimeException("Canonical path {$path} is ambiguous.");
+    $allowed = [
+        ['slug' => 'tio2-a--applications', 'title' => 'Site A Synthetic Test Applications', 'scopes' => ['tio2-a']],
+        ['slug' => 'tio2-b--applications', 'title' => 'Site B Synthetic Test Applications', 'scopes' => ['tio2-b']],
+    ];
+    foreach ($allowed as $shell) {
+        if ($shell['slug'] === ($owner['slug'] ?? null) && $shell['title'] === ($owner['title'] ?? null) && $shell['scopes'] === ($owner['scopes'] ?? null)) {
+            return true;
+        }
     }
-    $post_id = (int) $ids[0];
-    $entity_type = 'tio2_application' === get_post_type($post_id) ? 'application' : 'resource';
-    $id_field = 'application' === $entity_type ? 'application_id' : 'resource_id';
-    return ['entityType' => $entity_type, 'id' => (string) get_field($id_field, $post_id, false)];
+    return false;
+}
+
+/** @return array<string, mixed>|null */
+function tio2_site_a_editorial_find_wp_path(string $path, string $expected_entity_type, string $expected_id): ?array
+{
+    $ids = get_posts(['post_type' => 'any', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true, 'meta_key' => 'public_path', 'meta_value' => $path]);
+    $managed_owner = null;
+    foreach ($ids as $raw_post_id) {
+        $post_id = (int) $raw_post_id;
+        $scopes = wp_get_object_terms($post_id, 'site_scope', ['fields' => 'slugs']);
+        if (is_wp_error($scopes)) {
+            throw new RuntimeException($scopes->get_error_message());
+        }
+        sort($scopes, SORT_STRING);
+        $owner = [
+            'postType' => (string) get_post_type($post_id),
+            'status' => (string) get_post_status($post_id),
+            'slug' => (string) get_post_field('post_name', $post_id),
+            'title' => (string) get_post_field('post_title', $post_id),
+            'applicationId' => (string) get_post_meta($post_id, 'application_id', true),
+            'resourceId' => (string) get_post_meta($post_id, 'resource_id', true),
+            'scopes' => array_values($scopes),
+        ];
+        $owner_entity_type = ['tio2_application' => 'application', 'tio2_document' => 'resource'][$owner['postType']] ?? null;
+        $owner_id = 'application' === $owner_entity_type ? $owner['applicationId'] : ('resource' === $owner_entity_type ? $owner['resourceId'] : null);
+        $opposite_id = 'application' === $owner_entity_type ? $owner['resourceId'] : $owner['applicationId'];
+        if ($expected_entity_type === $owner_entity_type && $expected_id === $owner_id && '' === $opposite_id && ['tio2-a'] === $owner['scopes']) {
+            if (null !== $managed_owner) {
+                throw new RuntimeException("Canonical path {$path} has duplicate managed owners.");
+            }
+            $managed_owner = ['entityType' => $owner_entity_type, 'id' => $owner_id];
+            continue;
+        }
+        if (tio2_site_a_editorial_is_route_shell($path, $owner)) {
+            continue;
+        }
+        throw new RuntimeException("Canonical path {$path} is owned by another record.");
+    }
+    return $managed_owner;
 }
 
 /** @return array<string, mixed>|null */
@@ -737,8 +793,41 @@ function tio2_site_a_editorial_write_wp_record(string $action, array $record): v
     }
 }
 
-if (defined('WP_CLI') && WP_CLI && ! defined('TIO2_SITE_A_EDITORIAL_AUDIT_CONTEXT')) {
+/** @return array<string, callable> */
+function tio2_site_a_editorial_wp_operations(): array
+{
+    global $wpdb;
+    return [
+        'find' => static fn (string $type, string $id): ?array => tio2_site_a_editorial_find_wp_record($type, $id),
+        'find_path' => static fn (string $path, string $type, string $id): ?array => tio2_site_a_editorial_find_wp_path($path, $type, $id),
+        'resolve_product' => static fn (string $id): ?array => tio2_site_a_editorial_resolve_wp_product($id),
+        'snapshot_site_b' => static fn (): string => tio2_site_a_editorial_site_b_hash(),
+        'assert_site_b' => static function (string $hash): void { if (! hash_equals($hash, tio2_site_a_editorial_site_b_hash())) throw new RuntimeException('Readback detected a frozen Site B change.'); },
+        'snapshot_queue' => static fn (): array => isset($GLOBALS['tio2_webhook_queue']) && is_array($GLOBALS['tio2_webhook_queue']) ? $GLOBALS['tio2_webhook_queue'] : [],
+        'restore_queue' => static function (array $queue): void { $GLOBALS['tio2_webhook_queue'] = $queue; },
+        'begin' => static function () use ($wpdb): void { if (false === $wpdb->query('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE') || false === $wpdb->query('START TRANSACTION')) throw new RuntimeException('Could not start the local editorial draft transaction.'); },
+        'commit' => static function () use ($wpdb): void { if (false === $wpdb->query('COMMIT')) throw new RuntimeException('Could not COMMIT the local editorial draft transaction.'); },
+        'rollback' => static function () use ($wpdb): void {
+            if (false === $wpdb->query('ROLLBACK')) throw new RuntimeException('Could not ROLLBACK the local editorial draft transaction.');
+            wp_cache_flush();
+        },
+        'create_identity' => static function (array $record): void {
+            $created = wp_insert_post(['post_type' => $record['postType'], 'post_status' => 'draft', 'post_name' => $record['slug'], 'post_title' => $record['title']], true);
+            if (is_wp_error($created)) throw new RuntimeException($created->get_error_message());
+            $id_field = 'application' === $record['entityType'] ? 'application_id' : 'resource_id';
+            update_post_meta((int) $created, $id_field, $record['id']);
+            update_post_meta((int) $created, 'public_path', $record['path']);
+            $scope = wp_set_object_terms((int) $created, ['tio2-a'], 'site_scope', false);
+            if (is_wp_error($scope)) throw new RuntimeException($scope->get_error_message());
+        },
+        'write' => static fn (string $action, array $record) => tio2_site_a_editorial_write_wp_record($action, $record),
+        'readback' => static fn (string $type, string $id): ?array => tio2_site_a_editorial_find_wp_record($type, $id),
+    ];
+}
+
+if (defined('WP_CLI') && WP_CLI && ! defined('TIO2_SITE_A_EDITORIAL_AUDIT_CONTEXT') && ! defined('TIO2_SITE_A_EDITORIAL_LIBRARY_CONTEXT')) {
     try {
+        tio2_site_a_editorial_assert_local_wp_environment();
         $capability = tio2_site_a_editorial_read_capability($args);
         if (! current_user_can('manage_options') || ! function_exists('update_field') || ! function_exists('tio2_application_field_definitions') || ! function_exists('tio2_resource_field_definitions')) {
             throw new RuntimeException('Local editorial draft import requires an authenticated administrator, ACF, and the Site Model.');
@@ -752,29 +841,7 @@ if (defined('WP_CLI') && WP_CLI && ! defined('TIO2_SITE_A_EDITORIAL_AUDIT_CONTEX
             throw new RuntimeException('Could not acquire the local editorial draft import lock.');
         }
         try {
-            $operations = [
-                'find' => static fn (string $type, string $id): ?array => tio2_site_a_editorial_find_wp_record($type, $id),
-                'find_path' => static fn (string $path): ?array => tio2_site_a_editorial_find_wp_path($path),
-                'resolve_product' => static fn (string $id): ?array => tio2_site_a_editorial_resolve_wp_product($id),
-                'snapshot_site_b' => static fn (): string => tio2_site_a_editorial_site_b_hash(),
-                'assert_site_b' => static function (string $hash): void { if (! hash_equals($hash, tio2_site_a_editorial_site_b_hash())) throw new RuntimeException('Readback detected a frozen Site B change.'); },
-                'snapshot_queue' => static fn (): array => isset($GLOBALS['tio2_webhook_queue']) && is_array($GLOBALS['tio2_webhook_queue']) ? $GLOBALS['tio2_webhook_queue'] : [],
-                'restore_queue' => static function (array $queue): void { $GLOBALS['tio2_webhook_queue'] = $queue; },
-                'begin' => static function () use ($wpdb): void { if (false === $wpdb->query('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE') || false === $wpdb->query('START TRANSACTION')) throw new RuntimeException('Could not start the local editorial draft transaction.'); },
-                'commit' => static function () use ($wpdb): void { if (false === $wpdb->query('COMMIT')) throw new RuntimeException('Could not COMMIT the local editorial draft transaction.'); },
-                'rollback' => static function () use ($wpdb): void { if (false === $wpdb->query('ROLLBACK')) throw new RuntimeException('Could not ROLLBACK the local editorial draft transaction.'); },
-                'create_identity' => static function (array $record): void {
-                    $created = wp_insert_post(['post_type' => $record['postType'], 'post_status' => 'draft', 'post_name' => $record['slug'], 'post_title' => $record['title']], true);
-                    if (is_wp_error($created)) throw new RuntimeException($created->get_error_message());
-                    $id_field = 'application' === $record['entityType'] ? 'application_id' : 'resource_id';
-                    update_post_meta((int) $created, $id_field, $record['id']);
-                    update_post_meta((int) $created, 'public_path', $record['path']);
-                    $scope = wp_set_object_terms((int) $created, ['tio2-a'], 'site_scope', false);
-                    if (is_wp_error($scope)) throw new RuntimeException($scope->get_error_message());
-                },
-                'write' => static fn (string $action, array $record) => tio2_site_a_editorial_write_wp_record($action, $record),
-                'readback' => static fn (string $type, string $id): ?array => tio2_site_a_editorial_find_wp_record($type, $id),
-            ];
+            $operations = tio2_site_a_editorial_wp_operations();
             $result = tio2_site_a_editorial_draft_execute($capability['mode'], $capability['relationshipMode'], $applications, $resources, $products, ['applications' => $capability['applicationsSha256'], 'resources' => $capability['resourcesSha256'], 'products' => $capability['productsSha256']], $capability['planSha256'], $operations);
         } finally {
             $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lock_name));

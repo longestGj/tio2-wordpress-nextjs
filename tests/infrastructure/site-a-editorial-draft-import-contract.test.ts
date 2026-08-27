@@ -1,7 +1,7 @@
 import {spawnSync} from 'node:child_process'
 import {existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
-import {join} from 'node:path'
+import {join, resolve} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
 import {describe, expect, it} from 'vitest'
@@ -19,6 +19,9 @@ const exporterPath = fileURLToPath(
   new URL('../../wordpress/seed/export-site-a-editorial-audit.php', import.meta.url),
 )
 const productManifestPath = 'D:/11SEO/01ComInfo/outputs/site-a-products-v0.1.json'
+const runtimeLibraryPath = fileURLToPath(
+  new URL('../../scripts/editorial/local-editorial-runtime.ps1', import.meta.url),
+)
 
 function captureApplyCapabilities() {
   const directory = mkdtempSync(join(tmpdir(), 'tio2-editorial-wrapper-'))
@@ -55,17 +58,47 @@ function captureApplyCapabilities() {
   }
 }
 
+function runWrapperWithManifestPath(wrapperPath: string, unsafePath: string) {
+  const directory = mkdtempSync(join(tmpdir(), 'tio2-editorial-path-boundary-'))
+  const fakeDockerPath = join(directory, 'fake-docker.mjs')
+  writeFileSync(fakeDockerPath, [
+    "import {readFileSync} from 'node:fs'",
+    "import {basename, join} from 'node:path'",
+    "const capability = JSON.parse(readFileSync(join(process.cwd(), 'wordpress', 'seed', basename(process.argv.at(-1))), 'utf8'))",
+    "if (capability.mode) console.log('TIO2_SITE_A_EDITORIAL_DRAFT_RESULT ' + JSON.stringify({mode: capability.mode, planSha256: 'a'.repeat(64), actions: [], deferredProductEdges: []}))",
+    "else console.log('TIO2_SITE_A_EDITORIAL_AUDIT_RESULT ' + JSON.stringify({recordCount: 39}))",
+  ].join('\n'))
+  try {
+    const quote = (value: string) => `'${value.replaceAll("'", "''")}'`
+    const mode = wrapperPath === applyWrapperPath
+      ? '-Mode Plan -RelationshipMode DeferredProductRelations'
+      : '-RelationshipMode DeferredProductRelations'
+    const command = [
+      'function global:docker { & $env:TIO2_FAKE_DOCKER_NODE $env:TIO2_FAKE_DOCKER_SCRIPT @args }',
+      `& ${quote(wrapperPath)} ${mode} -ApplicationsManifestPath ${quote(unsafePath)} -ResourcesManifestPath ${quote('tests/fixtures/editorial/site-a-resources.synthetic.json')} -ProductsManifestPath ${quote(productManifestPath)}`,
+    ].join('; ')
+    return spawnSync('pwsh', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command], {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+      env: {...process.env, TIO2_FAKE_DOCKER_NODE: process.execPath, TIO2_FAKE_DOCKER_SCRIPT: fakeDockerPath},
+      timeout: 30_000,
+    })
+  } finally {
+    rmSync(directory, {recursive: true, force: true})
+  }
+}
+
 describe('local Site A editorial draft wrapper contract', () => {
   it('stages and validates three literal snapshots with complete hash and cleanup gates', () => {
     expect(existsSync(applyWrapperPath), 'editorial draft wrapper is missing').toBe(true)
 
     const source = readFileSync(applyWrapperPath, 'utf8')
+    const runtimeSource = readFileSync(runtimeLibraryPath, 'utf8')
     expect(source).toContain("[ValidateSet('Plan', 'Apply')]")
     expect(source).toContain("[ValidateSet('Strict', 'DeferredProductRelations')]")
     for (const name of ['ApplicationsManifestPath', 'ResourcesManifestPath', 'ProductsManifestPath']) {
       expect(source).toContain(`[string] $${name}`)
-      expect(source).toContain(`GetFullPath($${name})`)
-      expect(source).toContain(`Test-Path -LiteralPath $${name} -PathType Leaf`)
+      expect(source).toContain(`Resolve-LocalEditorialManifestPath -Path $${name}`)
     }
     expect(source).toContain('assert-local-wordpress-env.ps1')
     expect(source).toContain('.runtime-site-a-editorial-applications-')
@@ -75,7 +108,8 @@ describe('local Site A editorial draft wrapper contract', () => {
     expect(source).toContain('validate-site-a-resources.mjs')
     expect(source).toContain('validate-site-a-content-graph.mjs')
     expect(source).toContain('validate-product-manifest.mjs')
-    expect(source.match(/Get-FileHash -LiteralPath/gu)?.length).toBeGreaterThanOrEqual(9)
+    expect(source.match(/Get-FileHash -LiteralPath/gu)?.length).toBeGreaterThanOrEqual(6)
+    expect(runtimeSource).toContain('Get-FileHash -LiteralPath')
     expect(source).toContain('[System.Security.Cryptography.RandomNumberGenerator]::Create()')
     expect(source).toContain('TIO2_LOCAL_EDITORIAL_DRAFT_CAPABILITY')
     expect(source).toContain('TIO2_SITE_A_EDITORIAL_DRAFT_RESULT')
@@ -84,7 +118,7 @@ describe('local Site A editorial draft wrapper contract', () => {
     expect(source).toContain("-CapabilityMode 'apply'")
     expect(source.indexOf("-CapabilityMode 'plan'")).toBeLessThan(source.indexOf("-CapabilityMode 'apply'"))
     expect(source).toContain('finally')
-    expect(source).toContain('[System.IO.File]::Delete($TemporaryPath)')
+    expect(source).toContain('Complete-LocalEditorialRuntime')
     expect(source).not.toMatch(/https?:\/\//iu)
   })
 
@@ -94,8 +128,7 @@ describe('local Site A editorial draft wrapper contract', () => {
     const source = readFileSync(auditWrapperPath, 'utf8')
     expect(source).toContain("[ValidateSet('Strict', 'DeferredProductRelations')]")
     for (const name of ['ApplicationsManifestPath', 'ResourcesManifestPath', 'ProductsManifestPath']) {
-      expect(source).toContain(`GetFullPath($${name})`)
-      expect(source).toContain(`Test-Path -LiteralPath $${name} -PathType Leaf`)
+      expect(source).toContain(`Resolve-LocalEditorialManifestPath -Path $${name}`)
     }
     expect(source).toContain('assert-local-wordpress-env.ps1')
     expect(source).toContain('.runtime-site-a-editorial-audit-applications-')
@@ -104,7 +137,7 @@ describe('local Site A editorial draft wrapper contract', () => {
     expect(source).toContain('.runtime-site-a-editorial-audit-capability-')
     expect(source).toContain('TIO2_LOCAL_EDITORIAL_AUDIT_CAPABILITY')
     expect(source).toContain('[System.Security.Cryptography.RandomNumberGenerator]::Create()')
-    expect(source).toContain('[System.IO.File]::Delete($TemporaryPath)')
+    expect(source).toContain('Complete-LocalEditorialRuntime')
     expect(source).not.toMatch(/https?:\/\//iu)
   })
 
@@ -117,6 +150,60 @@ describe('local Site A editorial draft wrapper contract', () => {
     expect(capabilities[0].token).toMatch(/^[a-f0-9]{64}$/u)
     expect(capabilities[1].token).toMatch(/^[a-f0-9]{64}$/u)
     expect(capabilities[0].token).not.toBe(capabilities[1].token)
+  })
+
+  it.skipIf(!existsSync(productManifestPath))('rejects UNC, device, and provider manifest paths before either wrapper stages or reads them', () => {
+    const localFixture = resolve('tests/fixtures/editorial/site-a-applications.synthetic.json')
+    const unsafePaths = [
+      '\\\\localhost\\definitely-missing-share\\manifest.json',
+      `\\\\?\\${localFixture}`,
+      `Microsoft.PowerShell.Core\\FileSystem::${localFixture}`,
+    ]
+
+    for (const wrapperPath of [applyWrapperPath, auditWrapperPath]) {
+      for (const unsafePath of unsafePaths) {
+        const result = runWrapperWithManifestPath(wrapperPath, unsafePath)
+        expect(result.status, `${result.stdout}\n${result.stderr}`).not.toBe(0)
+        expect(`${result.stdout}\n${result.stderr}`).toContain('local fixed-disk path')
+      }
+    }
+  })
+
+  it('attempts every cleanup and final source hash when the first runtime deletion fails', () => {
+    expect(existsSync(runtimeLibraryPath), 'shared editorial runtime boundary is missing').toBe(true)
+    const directory = mkdtempSync(join(tmpdir(), 'tio2-editorial-cleanup-'))
+    const paths = [join(directory, 'first.tmp'), join(directory, 'second.tmp'), join(directory, 'third.tmp')]
+    const sources = [join(directory, 'application.json'), join(directory, 'resource.json'), join(directory, 'product.json')]
+    for (const path of [...paths, ...sources]) writeFileSync(path, path)
+    const expectedHashes = sources.map((source) =>
+      spawnSync('pwsh', ['-NoProfile', '-Command', `(Get-FileHash -LiteralPath '${source.replaceAll("'", "''")}' -Algorithm SHA256).Hash.ToLowerInvariant()`], {encoding: 'utf8'}).stdout.trim(),
+    )
+    try {
+      const quote = (value: string) => `'${value.replaceAll("'", "''")}'`
+      const command = String.raw`
+. ${quote(runtimeLibraryPath)}
+$deleteAttempts = [System.Collections.Generic.List[string]]::new()
+$hashAttempts = [System.Collections.Generic.List[string]]::new()
+$delete = { param($Path) $deleteAttempts.Add($Path); if ($Path -eq ${quote(paths[0])}) { throw 'injected locked first path' }; [System.IO.File]::Delete($Path) }
+$hash = { param($Path) $hashAttempts.Add($Path); (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() }
+$checks = @(
+  [pscustomobject]@{ Label='Application'; Path=${quote(sources[0])}; ExpectedHash=${quote(expectedHashes[0])} },
+  [pscustomobject]@{ Label='Resource'; Path=${quote(sources[1])}; ExpectedHash=${quote(expectedHashes[1])} },
+  [pscustomobject]@{ Label='Product'; Path=${quote(sources[2])}; ExpectedHash=${quote(expectedHashes[2])} }
+)
+try { Complete-LocalEditorialRuntime -TemporaryPaths @(${paths.map(quote).join(',')}) -SourceChecks $checks -DeleteFile $delete -HashFile $hash; throw 'cleanup failure was swallowed' } catch { if ($_.Exception.Message -notmatch 'injected locked first path') { throw } }
+if ($deleteAttempts.Count -ne 3 -or $hashAttempts.Count -ne 3 -or -not (Test-Path -LiteralPath ${quote(paths[0])}) -or (Test-Path -LiteralPath ${quote(paths[1])}) -or (Test-Path -LiteralPath ${quote(paths[2])})) { throw 'best-effort cleanup did not attempt every boundary' }
+Complete-LocalEditorialRuntime -TemporaryPaths @(${paths.map(quote).join(',')}) -SourceChecks $checks
+if (Test-Path -LiteralPath ${quote(paths[0])}) { throw 'outer ownership could not retry the capability/runtime cleanup' }
+`
+      const result = spawnSync('pwsh', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command], {
+        cwd: process.cwd(),
+        encoding: 'utf8',
+      })
+      expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+    } finally {
+      rmSync(directory, {recursive: true, force: true})
+    }
   })
 })
 

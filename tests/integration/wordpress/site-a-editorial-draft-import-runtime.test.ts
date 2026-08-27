@@ -7,6 +7,29 @@ import {describe, expect, it} from 'vitest'
 const importerPath = fileURLToPath(
   new URL('../../../wordpress/seed/apply-site-a-editorial-drafts.php', import.meta.url),
 )
+const exporterPath = fileURLToPath(
+  new URL('../../../wordpress/seed/export-site-a-editorial-audit.php', import.meta.url),
+)
+
+function runDirectPhpBoundary(entrypointPath: string) {
+  return spawnSync('docker', [
+    'compose', '--env-file', 'wordpress/.env', '-f', 'wordpress/docker-compose.yml',
+    'run', '--rm', '--no-TTY', '--no-deps', '--entrypoint', 'php', 'wpcli',
+    '-r', String.raw`
+define('ABSPATH', __DIR__);
+define('WP_CLI', true);
+define('DB_NAME', 'remote_database');
+define('DB_HOST', 'remote.example:3306');
+function get_option($name) { return 'https://remote.example'; }
+function wp_json_encode($value) { return json_encode($value, JSON_THROW_ON_ERROR); }
+class WP_CLI { public static function error($message): void { echo $message; exit(42); } public static function log($message): void {} }
+require $argv[1];
+`,
+    entrypointPath === importerPath
+      ? '/workspace/wordpress/seed/apply-site-a-editorial-drafts.php'
+      : '/workspace/wordpress/seed/export-site-a-editorial-audit.php',
+  ], {encoding: 'utf8', timeout: 30_000})
+}
 
 function runControlledImporter() {
   return spawnSync('docker', [
@@ -15,16 +38,33 @@ function runControlledImporter() {
     '-r', String.raw`
 define('ABSPATH', __DIR__);
 function wp_json_encode($value) { return json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES); }
-function get_posts($arguments) { if (!empty($GLOBALS['assert_editorial_cross_type_lookup'])) { $expected = 'public_path' === ($arguments['meta_key'] ?? null) ? ['tio2_application', 'tio2_document'] : 'any'; if ($expected !== ($arguments['post_type'] ?? null)) throw new RuntimeException('Editorial identity/path lookup used the wrong collision scope.'); } return []; }
-function get_post_meta($post_id) { return $GLOBALS['controlled_raw_meta'] ?? []; }
+function get_posts($arguments) { if (!empty($GLOBALS['assert_editorial_cross_type_lookup']) && 'any' !== ($arguments['post_type'] ?? null)) throw new RuntimeException('Editorial identity/path lookup used the wrong collision scope.'); return 'public_path' === ($arguments['meta_key'] ?? null) ? ($GLOBALS['controlled_path_ids'] ?? []) : []; }
+function get_post_meta($post_id, $key = '', $single = false) { if ('' === $key) return $GLOBALS['controlled_raw_meta'] ?? []; return $GLOBALS['controlled_path_records'][$post_id][$key] ?? ''; }
+function get_post_type($post_id) { return $GLOBALS['controlled_path_records'][$post_id]['postType'] ?? null; }
+function get_post_status($post_id) { return $GLOBALS['controlled_path_records'][$post_id]['status'] ?? null; }
+function get_post_field($field, $post_id) { return $GLOBALS['controlled_path_records'][$post_id][$field] ?? ''; }
+function get_field($field, $post_id, $format = false) { return $GLOBALS['controlled_path_records'][$post_id][$field] ?? ''; }
+function wp_get_object_terms($post_id, $taxonomy, $arguments) { return $GLOBALS['controlled_path_records'][$post_id]['scopes'] ?? []; }
+function is_wp_error($value) { return false; }
 require $argv[1];
 
 $acf_comparison = ['field_tio2_resource_comparison_table_columns' => [['label' => 'Synthetic option'], ['label' => 'Observation']], 'field_tio2_resource_comparison_table_rows' => [['cells' => [['value' => 'Option A'], ['value' => 'Record a result']]]]];
 if (['columns' => ['Synthetic option', 'Observation'], 'rows' => [['Option A', 'Record a result']]] !== tio2_site_a_editorial_normalize_comparison_table($acf_comparison)) throw new RuntimeException('Unformatted ACF Group keys were not normalized.');
 $GLOBALS['assert_editorial_cross_type_lookup'] = true;
 tio2_site_a_editorial_find_wp_record('application', 'coatings');
-tio2_site_a_editorial_find_wp_path('/applications');
+$GLOBALS['controlled_path_ids'] = [901];
+$GLOBALS['controlled_path_records'] = [901 => ['postType' => 'page', 'status' => 'draft', 'post_name' => 'intruder', 'post_title' => 'Intruder', 'public_path' => '/applications/coatings', 'application_id' => '', 'resource_id' => '', 'scopes' => ['tio2-a']]];
+try { tio2_site_a_editorial_find_wp_path('/applications/coatings', 'application', 'coatings'); throw new RuntimeException('Wrong-type canonical path owner was accepted.'); } catch (RuntimeException $expected) { if (!str_contains($expected->getMessage(), 'owned by another record')) throw $expected; }
+$GLOBALS['controlled_path_ids'] = [11, 516, 902];
+$GLOBALS['controlled_path_records'] = [
+    11 => ['postType' => 'page', 'status' => 'publish', 'post_name' => 'tio2-a--applications', 'post_title' => 'Site A Synthetic Test Applications', 'public_path' => '/applications', 'application_id' => '', 'resource_id' => '', 'scopes' => ['tio2-a']],
+    516 => ['postType' => 'page', 'status' => 'publish', 'post_name' => 'tio2-b--applications', 'post_title' => 'Site B Synthetic Test Applications', 'public_path' => '/applications', 'application_id' => '', 'resource_id' => '', 'scopes' => ['tio2-b']],
+    902 => ['postType' => 'tio2_application', 'status' => 'draft', 'post_name' => 'applications', 'post_title' => 'Applications', 'public_path' => '/applications', 'application_id' => 'applications-hub', 'resource_id' => '', 'scopes' => ['tio2-a']],
+];
+$managed_path_owner = tio2_site_a_editorial_find_wp_path('/applications', 'application', 'applications-hub');
+if (['entityType' => 'application', 'id' => 'applications-hub'] !== $managed_path_owner) throw new RuntimeException('Exact generic route shells did not preserve the managed path owner.');
 $GLOBALS['assert_editorial_cross_type_lookup'] = false;
+$GLOBALS['controlled_path_ids'] = [];
 $GLOBALS['controlled_raw_meta'] = ['application_id' => ['coatings'], '_application_id' => ['field_tio2_application_id'], 'public_path' => ['/applications/coatings'], '_edit_lock' => ['controlled'], 'private_evidence_path' => ['D:/private/source']];
 try { tio2_site_a_editorial_assert_wp_meta_allowlist(700, 'application'); throw new RuntimeException('Private raw metadata was accepted.'); } catch (RuntimeException $expected) { if (!str_contains($expected->getMessage(), 'unexpected metadata key')) throw $expected; }
 unset($GLOBALS['controlled_raw_meta']['private_evidence_path']);
@@ -43,7 +83,7 @@ $store = ['records' => [], 'siteB' => ['frozen' => true], 'queue' => [['before' 
 $transaction_snapshot = null;
 $operations = [
     'find' => static fn(string $type, string $id): ?array => $GLOBALS['controlled_store']['records'][$type . ':' . $id] ?? null,
-    'find_path' => static fn(string $path): ?array => null,
+    'find_path' => static fn(string $path, string $type, string $id): ?array => null,
     'resolve_product' => static fn(string $id): ?array => ['entityType' => 'product', 'id' => $id, 'postType' => 'tio2_product', 'scopes' => ['tio2-a']],
     'snapshot_site_b' => static fn(): string => hash('sha256', json_encode($GLOBALS['controlled_store']['siteB'], JSON_THROW_ON_ERROR)),
     'assert_site_b' => static function(string $hash): void { if (!hash_equals($hash, hash('sha256', json_encode($GLOBALS['controlled_store']['siteB'], JSON_THROW_ON_ERROR)))) throw new RuntimeException('Site B changed.'); },
@@ -134,5 +174,15 @@ describe('controlled WordPress Site A editorial draft importer boundary', () => 
       secondPlanNoChange: 39,
       rollbackCount: 1,
     })
+  })
+
+  it.each([
+    ['importer', importerPath],
+    ['audit', exporterPath],
+  ])('rejects direct %s invocation outside the exact local WordPress environment before capability reads', (_name, entrypointPath) => {
+    const result = runDirectPhpBoundary(entrypointPath)
+    expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(42)
+    expect(result.stdout).toContain('exact local WordPress environment')
+    expect(result.stdout).not.toContain('capability file is required')
   })
 })

@@ -126,24 +126,93 @@ function tio2_site_a_editorial_audit_read_capability(array $args): array
     return $capability;
 }
 
-/** @return list<array<string, mixed>> */
-function tio2_site_a_editorial_audit_read_wp_records(?callable $find = null): array
+/** @return list<array{postId: int, postType: string, scopes: list<string>, applicationId: string, resourceId: string}> */
+function tio2_site_a_editorial_audit_wp_candidates(): array
 {
-    $find ??= static fn (string $type, string $id): ?array => tio2_site_a_editorial_find_wp_record($type, $id);
-    $records = [];
-    foreach (['application' => TIO2_SITE_A_EDITORIAL_APPLICATION_INVENTORY, 'resource' => TIO2_SITE_A_EDITORIAL_RESOURCE_INVENTORY] as $entity_type => $inventory) {
-        foreach (array_keys($inventory) as $id) {
-            $record = $find($entity_type, $id);
-            if (is_array($record)) {
-                $records[] = $record;
-            }
+    $post_ids = [];
+    $queries = [
+        ['post_type' => ['tio2_application', 'tio2_document'], 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true],
+        ['post_type' => 'any', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true, 'meta_key' => 'application_id', 'meta_compare' => 'EXISTS'],
+        ['post_type' => 'any', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true, 'meta_key' => 'resource_id', 'meta_compare' => 'EXISTS'],
+    ];
+    foreach ($queries as $query) {
+        foreach (get_posts($query) as $post_id) {
+            $post_ids[(int) $post_id] = true;
         }
+    }
+    ksort($post_ids, SORT_NUMERIC);
+    $candidates = [];
+    foreach (array_keys($post_ids) as $post_id) {
+        $scopes = wp_get_object_terms($post_id, 'site_scope', ['fields' => 'slugs']);
+        if (is_wp_error($scopes)) {
+            throw new RuntimeException($scopes->get_error_message());
+        }
+        sort($scopes, SORT_STRING);
+        $candidates[] = [
+            'postId' => $post_id,
+            'postType' => (string) get_post_type($post_id),
+            'scopes' => array_values($scopes),
+            'applicationId' => (string) get_post_meta($post_id, 'application_id', true),
+            'resourceId' => (string) get_post_meta($post_id, 'resource_id', true),
+        ];
+    }
+    return $candidates;
+}
+
+/** @return list<array<string, mixed>> */
+function tio2_site_a_editorial_audit_read_wp_records(?callable $enumerate = null, ?callable $read = null): array
+{
+    $enumerate ??= static fn (): array => tio2_site_a_editorial_audit_wp_candidates();
+    $read ??= static fn (int $post_id, string $type): array => tio2_site_a_editorial_read_wp_record($post_id, $type);
+    $candidates = $enumerate();
+    if (! is_array($candidates) || ! array_is_list($candidates)) {
+        throw new RuntimeException('Editorial audit identity enumeration was malformed.');
+    }
+    $records = [];
+    $seen = [];
+    foreach ($candidates as $candidate) {
+        if (! is_array($candidate) || ! is_int($candidate['postId'] ?? null) || ! is_string($candidate['postType'] ?? null) || ! is_array($candidate['scopes'] ?? null) || ! is_string($candidate['applicationId'] ?? null) || ! is_string($candidate['resourceId'] ?? null)) {
+            throw new RuntimeException('Editorial audit found a malformed identity candidate.');
+        }
+        $post_type = $candidate['postType'];
+        $scopes = array_values($candidate['scopes']);
+        sort($scopes, SORT_STRING);
+        $application_id = $candidate['applicationId'];
+        $resource_id = $candidate['resourceId'];
+        $expected_application = isset(TIO2_SITE_A_EDITORIAL_APPLICATION_INVENTORY[$application_id]);
+        $expected_resource = isset(TIO2_SITE_A_EDITORIAL_RESOURCE_INVENTORY[$resource_id]);
+        if (($expected_application || $expected_resource) && ['tio2-a'] !== $scopes) {
+            throw new RuntimeException('Editorial audit found a cross-site duplicate of an expected stable ID.');
+        }
+        if (['tio2-a'] !== $scopes) {
+            continue;
+        }
+        $entity_type = ['tio2_application' => 'application', 'tio2_document' => 'resource'][$post_type] ?? null;
+        if (null === $entity_type || ('application' === $entity_type ? ('' === $application_id || '' !== $resource_id) : ('' === $resource_id || '' !== $application_id))) {
+            throw new RuntimeException('Editorial audit found a malformed exact Site A stable identity.');
+        }
+        $id = 'application' === $entity_type ? $application_id : $resource_id;
+        $inventory = 'application' === $entity_type ? TIO2_SITE_A_EDITORIAL_APPLICATION_INVENTORY : TIO2_SITE_A_EDITORIAL_RESOURCE_INVENTORY;
+        if (! isset($inventory[$id])) {
+            throw new RuntimeException("Editorial audit found unexpected exact Site A {$entity_type} ID {$id}.");
+        }
+        $key = $entity_type . ':' . $id;
+        if (isset($seen[$key])) {
+            throw new RuntimeException("Editorial audit found duplicate record {$key}.");
+        }
+        $seen[$key] = true;
+        $record = $read($candidate['postId'], $entity_type);
+        if (! is_array($record)) {
+            throw new RuntimeException("Editorial audit could not read managed record {$key}.");
+        }
+        $records[] = $record;
     }
     return $records;
 }
 
-if (defined('WP_CLI') && WP_CLI) {
+if (defined('WP_CLI') && WP_CLI && ! defined('TIO2_SITE_A_EDITORIAL_LIBRARY_CONTEXT')) {
     try {
+        tio2_site_a_editorial_assert_local_wp_environment();
         $capability = tio2_site_a_editorial_audit_read_capability($args);
         if (! current_user_can('manage_options') || ! function_exists('get_field')) {
             throw new RuntimeException('Local editorial audit requires an authenticated administrator, ACF, and the Site Model.');
