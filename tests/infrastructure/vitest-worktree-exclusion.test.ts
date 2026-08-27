@@ -1,5 +1,4 @@
 import {
-  existsSync,
   mkdtempSync,
   mkdirSync,
   rmdirSync,
@@ -28,8 +27,8 @@ function createWorktreeProbe(prefix: string): {
   cleanup: () => void
 } {
   const worktreeRoot = resolve(process.cwd(), '.worktrees')
-  const createdWorktreeRoot = !existsSync(worktreeRoot)
-  if (createdWorktreeRoot) mkdirSync(worktreeRoot, {recursive: true})
+  const createdWorktreeRoot =
+    mkdirSync(worktreeRoot, {recursive: true}) !== undefined
 
   try {
     const probeRoot = mkdtempSync(join(worktreeRoot, prefix))
