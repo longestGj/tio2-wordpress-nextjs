@@ -112,6 +112,15 @@ describe('exact Site A editorial manifest validators', () => {
     expect(() => validateSiteAApplicationManifest(missingRelated)).toThrow(/must relate to coatings, plastics, and printing-inks/u)
   })
 
+  it.each([undefined, {allowIncomplete: true}])('rejects an Application Hub duplicate child that replaces a required canonical child in %j mode', (options) => {
+    const manifest = applicationsManifest()
+    const hub = manifest.records.find(({identity}) => identity.id === 'applications-hub')!
+    const plasticsIndex = hub.children.findIndex(({id}) => id === 'plastics')
+    hub.children[plasticsIndex] = {type: 'application', id: 'coatings'}
+
+    expect(() => validateSiteAApplicationManifest(manifest, options)).toThrow(/canonical Hub-to-Category-to-Detail hierarchy/u)
+  })
+
   it('rejects missing, extra, duplicate, invalid kind, and invalid route Resource records', () => {
     const missing = resourcesManifest()
     missing.records.pop()
@@ -140,5 +149,14 @@ describe('exact Site A editorial manifest validators', () => {
     batch.records = batch.records.slice(0, 2)
     expect(() => validateSiteAResourceManifest(batch)).toThrow(/exactly 11/u)
     expect(validateSiteAResourceManifest(batch, {allowIncomplete: true}).records).toHaveLength(2)
+  })
+
+  it.each([undefined, {allowIncomplete: true}])('rejects a Resource Hub duplicate child that replaces a required canonical child in %j mode', (options) => {
+    const manifest = resourcesManifest()
+    const hub = manifest.records.find(({identity}) => identity.id === 'resources-hub')!
+    const articleIndex = hub.children.findIndex(({id}) => id === 'article-10')
+    hub.children[articleIndex] = {type: 'resource', id: 'article-01'}
+
+    expect(() => validateSiteAResourceManifest(manifest, options)).toThrow(/canonical Hub-to-Article hierarchy/u)
   })
 })

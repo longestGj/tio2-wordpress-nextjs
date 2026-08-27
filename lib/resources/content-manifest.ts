@@ -31,7 +31,9 @@ const identities: Map<string, {slug: string; path: string; kind: string; cluster
 const expectedArticleIds = SITE_A_RESOURCE_IDENTITIES.slice(1).map(([id]): string => id)
 
 function sameMembers(actual: readonly string[], expected: readonly string[]): boolean {
-  return actual.length === expected.length && actual.every((value) => expected.includes(value))
+  const actualSet = new Set(actual)
+  const expectedSet = new Set(expected)
+  return actualSet.size === actual.length && expectedSet.size === expected.length && actualSet.size === expectedSet.size && [...actualSet].every((value) => expectedSet.has(value))
 }
 
 const batchSchema: z.ZodType<SiteAResourceContentManifest> = z.object({
