@@ -1,4 +1,5 @@
 import {readFile} from 'node:fs/promises'
+import {execFile} from 'node:child_process'
 
 import {describe, expect, it} from 'vitest'
 
@@ -6,6 +7,10 @@ import {validateSiteAEditorialGraph} from '@/lib/editorial/content-graph'
 import {mutableFixture} from '@/tests/fixtures/editorial/mutable-fixture'
 
 const clone = <T>(value: T): T => structuredClone(value)
+
+function runGraphCli(args: string[]): Promise<{code: number, stdout: string, stderr: string}> {
+  return new Promise((resolve) => execFile(process.execPath, ['scripts/editorial/validate-site-a-content-graph.mjs', ...args], {cwd: process.cwd()}, (error, stdout, stderr) => resolve({code: error && 'code' in error && typeof error.code === 'number' ? error.code : 0, stdout, stderr})))
+}
 
 async function productsManifest() {
   return JSON.parse(await readFile('D:/11SEO/01ComInfo/outputs/site-a-products-v0.1.json', 'utf8'))
@@ -26,6 +31,14 @@ function resourcesManifest() {
 }
 
 describe('Site A cross-content graph validator', () => {
+  it('accepts one incomplete flag and rejects duplicate, unknown, and strict partial CLI invocations', async () => {
+    const args = ['--applications', 'D:/11SEO/01ComInfo/outputs/site-a-applications-v0.1.json', '--resources', 'D:/11SEO/01ComInfo/outputs/site-a-resources-v0.1.json', '--products', 'D:/11SEO/01ComInfo/outputs/site-a-products-v0.1.json']
+    await expect(runGraphCli([...args, '--allow-incomplete'])).resolves.toMatchObject({code: 0, stdout: '{"unresolvedEdges":[]}\n'})
+    await expect(runGraphCli([...args, '--allow-incomplete', '--allow-incomplete'])).resolves.toMatchObject({code: 1, stderr: expect.stringContaining('Usage:')})
+    await expect(runGraphCli([...args, '--unknown'])).resolves.toMatchObject({code: 1, stderr: expect.stringContaining('Usage:')})
+    await expect(runGraphCli(args)).resolves.toMatchObject({code: 1})
+  })
+
   it('accepts canonical future Application and Resource targets only in incomplete mode', async () => {
     const applications = applicationsManifest()
     const resources = resourcesManifest()
