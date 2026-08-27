@@ -291,6 +291,12 @@ export async function POST(request: Request): Promise<Response> {
         tags.add(resourceTag(siteId, resourceId))
         tags.add(resourceListTag(siteId))
       }
+
+      if (applicationId || resourceId) {
+        for (const entityId of payload.entityIds) {
+          tags.add(entityTag(siteId, entityId))
+        }
+      }
     }
   }
 

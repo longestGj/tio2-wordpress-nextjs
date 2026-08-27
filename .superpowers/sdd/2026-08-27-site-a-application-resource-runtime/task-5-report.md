@@ -137,3 +137,43 @@ Modified:
 ## Concerns
 
 No implementation blocker or correctness concern. Current Application/Resource routes remain unapproved and inaccessible to public clients; the future-approved branches are covered only through local policy mocks and do not change the root-only inventory.
+
+## Fix Round 1: editorial entity revalidation tags
+
+Read `.superpowers/sdd/2026-08-27-site-a-application-resource-runtime/task-5-review.md` and verified its single Important finding against the runtime: the Product branch added every validated webhook `entityId`, while the future-approved exact Application and Resource branches omitted those entity dependencies. The deferred Minor preview-test observation was intentionally not addressed in this round.
+
+### RED
+
+After extending both future-approved A/R tests with out-of-order IDs (`[202, 201]`) and sorted entity-tag expectations, ran:
+
+```text
+npm test -- tests/integration/api/application-resource-revalidation.test.ts
+```
+
+Result before the runtime fix:
+
+```text
+Test Files  1 failed (1)
+Tests       2 failed | 7 passed (9)
+```
+
+Both failures showed exactly the missing `entity:tio2-a:201` and `entity:tio2-a:202` tags.
+
+### GREEN and regression evidence
+
+- Focused revalidation test: 1 file, 9/9 passed.
+- Full focused Task 5 command: 3 files, 27/27 passed.
+- Directly affected A/R, Product, generic, and Homepage revalidation command: 4 files, 59/59 passed.
+- `npm run typecheck` — passed (`tsc --noEmit`, exit 0).
+- `git diff --check` — passed; only informational LF-to-CRLF warnings were emitted.
+
+### Fix and self-review
+
+- `app/api/revalidate/route.ts` now adds `entityTag(siteId, entityId)` for every validated payload entity when the path resolves to an approved exact Application or Resource identity.
+- The existing `Set` de-duplicates tags and the unchanged final sort makes tag output and invalidation-call order deterministic; the tests deliberately supply entity IDs out of order and assert sorted results.
+- The whole-payload unapproved A/R gate remains before tag construction and all `revalidateTag`/`revalidatePath` calls.
+- `tests/integration/api/application-resource-revalidation.test.ts` covers both future-approved Application and Resource entity dependencies and their order.
+- No public inventory, `public/`, renderer, content, deployment, remote WordPress, Site B, Homepage, Product, or generic Page/Post behavior was broadened or modified.
+- `verify:root-only` was not run.
+
+Fix-round files are limited to the revalidation route, its A/R integration test, and this Task 5 report. The targeted fix commit hash is reported to the controller after commit creation because a commit cannot contain its own SHA.

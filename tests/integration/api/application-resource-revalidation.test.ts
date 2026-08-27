@@ -98,6 +98,7 @@ describe('Application and Technical Resource revalidation', () => {
     publicRoutePolicy.approved.add(`tio2-a:${path}`)
     const payload = payloadFor({
       eventId: '934a040e-ffcf-436f-8b28-361667068199',
+      entityIds: [202, 201],
       paths: [path],
     })
 
@@ -111,6 +112,8 @@ describe('Application and Technical Resource revalidation', () => {
         'application-list:tio2-a',
         'application:tio2-a:coatings',
         'content-list:tio2-a',
+        'entity:tio2-a:201',
+        'entity:tio2-a:202',
         'route:tio2-a:/applications/coatings',
         'site:tio2-a',
         'sitemap:tio2-a',
@@ -121,6 +124,8 @@ describe('Application and Technical Resource revalidation', () => {
       ['application-list:tio2-a', 'max'],
       ['application:tio2-a:coatings', 'max'],
       ['content-list:tio2-a', 'max'],
+      ['entity:tio2-a:201', 'max'],
+      ['entity:tio2-a:202', 'max'],
       ['route:tio2-a:/applications/coatings', 'max'],
       ['site:tio2-a', 'max'],
       ['sitemap:tio2-a', 'max'],
@@ -132,12 +137,17 @@ describe('Application and Technical Resource revalidation', () => {
     const path = '/resources/rutile-vs-anatase-titanium-dioxide'
     publicRoutePolicy.approved.add(`tio2-a:${path}`)
 
-    const response = await POST(signedRequest(payloadFor({paths: [path]})))
+    const response = await POST(signedRequest(payloadFor({
+      entityIds: [202, 201],
+      paths: [path],
+    })))
     const body = await response.json() as {revalidatedTags: string[]}
 
     expect(response.status).toBe(200)
     expect(body.revalidatedTags).toEqual([
       'content-list:tio2-a',
+      'entity:tio2-a:201',
+      'entity:tio2-a:202',
       'resource-list:tio2-a',
       'resource:tio2-a:article-01',
       'route:tio2-a:/resources/rutile-vs-anatase-titanium-dioxide',
