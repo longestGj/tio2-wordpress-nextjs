@@ -37,6 +37,17 @@ function requireWpSuccess(result: ReturnType<typeof wp>): string {
 
 interface RuntimeSnapshot {
   validation: {application: string[]; resource: string[]}
+  hierarchy: {
+    category: string[]
+    detail: string[]
+    universal: string[]
+    invalidHubDirect: string[]
+    wrongPostType: string[]
+    siteBTarget: string[]
+    mixedTarget: string[]
+    malformedParent: string[]
+    tooManyParents: string[]
+  }
   statuses: {
     application: string
     resource: string
@@ -44,6 +55,8 @@ interface RuntimeSnapshot {
     siteBResource: string
     incomplete: string
     mixed: string
+    reassignedBefore: string
+    reassignedAfter: string
   }
   notices: {incomplete: {message?: string} | null; siteB: unknown; mixed: {message?: string} | null}
   fieldGroups: {application: string[]; resource: string[]; siteBApplication: string[]; siteBResource: string[]}
@@ -103,8 +116,39 @@ $mixed=$create('tio2_application','runtime-mixed-application','Runtime Mixed App
 wp_set_object_terms($mixed,['tio2-a','tio2-b'],'site_scope',false);
 $write($application,$application_values);$write($resource,$resource_values);$write($site_b_application,$application_values);$write($site_b_resource,$resource_values);
 $write($mixed,$application_values);
+$category=$create('tio2_application','coatings','Runtime Valid Category','tio2-a');
+$write($category,array_replace($application_values,['application_id'=>'coatings','application_level'=>'category','parent_application'=>[$application]]));
+$detail=$create('tio2_application','water-based-paint','Runtime Valid Detail','tio2-a');
+$write($detail,array_replace($application_values,['application_id'=>'water-based-paint','application_level'=>'detail','parent_application'=>[$category]]));
+$universal=$create('tio2_application','multi-purpose-titanium-dioxide','Runtime Universal Detail','tio2-a');
+$write($universal,array_replace($application_values,['application_id'=>'universal-multi-application','application_level'=>'detail','parent_application'=>[$application]]));
+$invalid_hub_direct=$create('tio2_application','invalid-hub-direct','Runtime Invalid Hub Direct Detail','tio2-a');
+$write($invalid_hub_direct,array_replace($application_values,['application_id'=>'invalid-hub-direct','application_level'=>'detail','parent_application'=>[$application]]));
+$wrong_post_type=$create('tio2_application','wrong-post-type-relationship','Runtime Wrong Post Type Relationship','tio2-a');
+$write($wrong_post_type,array_replace($application_values,['application_id'=>'wrong-post-type-relationship','application_level'=>'detail','parent_application'=>[$category],'related_resources'=>[$application]]));
+$site_b_target=$create('tio2_application','site-b-relationship-target','Runtime Site B Relationship Target','tio2-a');
+$write($site_b_target,array_replace($application_values,['application_id'=>'site-b-relationship-target','application_level'=>'detail','parent_application'=>[$category],'related_resources'=>[$site_b_resource]]));
+$mixed_resource_target=$create('tio2_document','mixed-resource-target','Runtime Mixed Resource Target','tio2-a');
+wp_set_object_terms($mixed_resource_target,['tio2-a','tio2-b'],'site_scope',false);
+$mixed_target=$create('tio2_application','mixed-relationship-target','Runtime Mixed Relationship Target','tio2-a');
+$write($mixed_target,array_replace($application_values,['application_id'=>'mixed-relationship-target','application_level'=>'detail','parent_application'=>[$category],'related_resources'=>[$mixed_resource_target]]));
+$malformed_parent=$create('tio2_application','malformed-parent','Runtime Malformed Parent','tio2-a');
+$write($malformed_parent,array_replace($application_values,['application_id'=>'malformed-parent','application_level'=>'detail','parent_application'=>['not-a-post-id',$category]]));
+$too_many_parents=$create('tio2_application','too-many-parents','Runtime Too Many Parents','tio2-a');
+$write($too_many_parents,array_replace($application_values,['application_id'=>'too-many-parents','application_level'=>'detail','parent_application'=>[$category,$application]]));
 $application_validation=tio2_validate_application_record($application);
 $resource_validation=tio2_validate_resource_record($resource);
+$hierarchy_validation=[
+  'category'=>tio2_validate_application_record($category),
+  'detail'=>tio2_validate_application_record($detail),
+  'universal'=>tio2_validate_application_record($universal),
+  'invalidHubDirect'=>tio2_validate_application_record($invalid_hub_direct),
+  'wrongPostType'=>tio2_validate_application_record($wrong_post_type),
+  'siteBTarget'=>tio2_validate_application_record($site_b_target),
+  'mixedTarget'=>tio2_validate_application_record($mixed_target),
+  'malformedParent'=>tio2_validate_application_record($malformed_parent),
+  'tooManyParents'=>tio2_validate_application_record($too_many_parents),
+];
 do_action('acf/save_post',$incomplete);do_action('acf/save_post',$site_b_incomplete);do_action('acf/save_post',$mixed);
 $incomplete_notice=get_transient(tio2_application_resource_contract_notice_key($incomplete));
 $site_b_notice=get_transient(tio2_application_resource_contract_notice_key($site_b_incomplete));
@@ -114,6 +158,11 @@ wp_update_post(['ID'=>$resource,'post_status'=>'future','post_date'=>gmdate('Y-m
 wp_update_post(['ID'=>$site_b_application,'post_status'=>'publish']);
 wp_update_post(['ID'=>$site_b_resource,'post_status'=>'publish']);
 wp_update_post(['ID'=>$mixed,'post_status'=>'publish']);
+$reassigned=$create('tio2_application','runtime-reassigned-application','Runtime Reassigned Application','tio2-b');
+wp_update_post(['ID'=>$reassigned,'post_status'=>'publish']);
+$reassigned_before=get_post_status($reassigned);
+wp_set_object_terms($reassigned,['tio2-a'],'site_scope',false);
+$reassigned_after=get_post_status($reassigned);
 $group_keys=static function(int $id):array{return array_values(array_map(static fn(array $group):string=>(string)$group['key'],acf_get_field_groups(['post_id'=>$id])));};
 wp_set_current_user(0);
 $visibility=[
@@ -128,7 +177,8 @@ $visibility['authenticatedApplication']=(static function(int $id):bool{$users=ge
 $application_nodes=$query['data']['tio2Applications']['nodes']??[];$resource_nodes=$query['data']['tio2Documents']['nodes']??[];
 echo 'TIO2_APPLICATION_RESOURCE_RUNTIME '.wp_json_encode([
   'validation'=>['application'=>$application_validation,'resource'=>$resource_validation],
-  'statuses'=>['application'=>get_post_status($application),'resource'=>get_post_status($resource),'siteBApplication'=>get_post_status($site_b_application),'siteBResource'=>get_post_status($site_b_resource),'incomplete'=>get_post_status($incomplete),'mixed'=>get_post_status($mixed)],
+  'hierarchy'=>$hierarchy_validation,
+  'statuses'=>['application'=>get_post_status($application),'resource'=>get_post_status($resource),'siteBApplication'=>get_post_status($site_b_application),'siteBResource'=>get_post_status($site_b_resource),'incomplete'=>get_post_status($incomplete),'mixed'=>get_post_status($mixed),'reassignedBefore'=>$reassigned_before,'reassignedAfter'=>$reassigned_after],
   'notices'=>['incomplete'=>$incomplete_notice?:null,'siteB'=>$site_b_notice?:null,'mixed'=>$mixed_notice?:null],
   'fieldGroups'=>['application'=>$group_keys($application),'resource'=>$group_keys($resource),'siteBApplication'=>$group_keys($site_b_application),'siteBResource'=>$group_keys($site_b_resource)],
   'visibility'=>$visibility,
@@ -162,6 +212,34 @@ describe.runIf(runLiveWordPress)('live WordPress Site A Application/Resource edi
     expect(snapshot.fieldGroups.siteBResource).not.toContain('group_tio2_resource_fields')
   })
 
+  it('validates the complete Application hierarchy and sole Hub-direct Detail exception', () => {
+    expect(snapshot.hierarchy.category).toEqual([])
+    expect(snapshot.hierarchy.detail).toEqual([])
+    expect(snapshot.hierarchy.universal).toEqual([])
+    expect(snapshot.hierarchy.invalidHubDirect).toEqual([
+      'parent_application for a Detail must reference a Category.',
+    ])
+  })
+
+  it('reports exact relationship field paths for wrong type, scope, malformed IDs, and count', () => {
+    expect(snapshot.hierarchy.wrongPostType).toEqual([
+      'related_resources.0 must reference the expected post type.',
+    ])
+    expect(snapshot.hierarchy.siteBTarget).toEqual([
+      'related_resources.0 must reference an exact Site A record.',
+    ])
+    expect(snapshot.hierarchy.mixedTarget).toEqual([
+      'related_resources.0 must reference an exact Site A record.',
+    ])
+    expect(snapshot.hierarchy.malformedParent).toEqual([
+      'parent_application must contain only stable WordPress post IDs.',
+    ])
+    expect(snapshot.hierarchy.tooManyParents).toEqual([
+      'parent_application exceeds its maximum of 1 relationships.',
+      'parent_application must contain exactly one parent for a Detail.',
+    ])
+  })
+
   it('keeps incomplete Site A records in draft with actionable field-path feedback', () => {
     expect(snapshot.statuses.incomplete).toBe('draft')
     expect(snapshot.notices.incomplete?.message).toMatch(/application_id/u)
@@ -175,6 +253,11 @@ describe.runIf(runLiveWordPress)('live WordPress Site A Application/Resource edi
       siteBApplication: 'publish',
       siteBResource: 'publish',
     })
+  })
+
+  it('immediately demotes a published shared-CPT Site B record reassigned to Site A', () => {
+    expect(snapshot.statuses.reassignedBefore).toBe('publish')
+    expect(snapshot.statuses.reassignedAfter).toBe('draft')
   })
 
   it('keeps mixed ownership invalid and unpublished without widening the exact-Site-A privacy override', () => {

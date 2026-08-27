@@ -27,7 +27,7 @@ const applicationFields: ExpectedField[] = [
   {key: 'id', name: 'application_id', type: 'text', required: 1, maxlength: 80},
   {key: 'level', name: 'application_level', type: 'select', required: 1},
   {key: 'family', name: 'family', type: 'text', required: 1, maxlength: 120},
-  {key: 'parent_application', name: 'parent_application', type: 'relationship', required: 0, max: 1, postType: 'tio2_application'},
+  {key: 'parent_application', name: 'parent_application', type: 'relationship', required: 1, max: 1, postType: 'tio2_application'},
   {key: 'meta_title', name: 'meta_title', type: 'text', required: 1, maxlength: 60},
   {key: 'meta_description', name: 'meta_description', type: 'textarea', required: 1, maxlength: 160},
   {key: 'eyebrow', name: 'eyebrow', type: 'text', required: 1, maxlength: 80},
@@ -163,6 +163,19 @@ describe('Site A Application and Technical Resource WordPress contract', () => {
       expect(block).toContain("'toolbar' => 'basic'")
       expect(block).toContain("'media_upload' => 0")
     }
+  })
+
+  it('requires and shows parent_application only for Category and Detail levels', () => {
+    const source = readFileSync(fieldsPath, 'utf8')
+    const parent = fieldBlock(source, 'application', 'parent_application')
+
+    expect(parent).toContain("'required' => 1")
+    expect(parent).toContain("'conditional_logic' =>")
+    expect(parent).toContain("'field' => 'field_tio2_application_level'")
+    expect(parent).toContain("'operator' => '=='")
+    expect(parent).toContain("'value' => 'category'")
+    expect(parent).toContain("'value' => 'detail'")
+    expect(parent).not.toContain("'value' => 'hub'")
   })
 
   it('scopes both user-facing field groups to the matching type and exact Site A taxonomy rule', () => {

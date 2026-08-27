@@ -49,7 +49,19 @@ function tio2_application_field_definitions(): array
             'label' => 'Parent Application',
             'name' => 'parent_application',
             'type' => 'relationship',
-            'required' => 0,
+            'required' => 1,
+            'conditional_logic' => [
+                [[
+                    'field' => 'field_tio2_application_level',
+                    'operator' => '==',
+                    'value' => 'category',
+                ]],
+                [[
+                    'field' => 'field_tio2_application_level',
+                    'operator' => '==',
+                    'value' => 'detail',
+                ]],
+            ],
             'post_type' => ['tio2_application'],
             'filters' => ['search'],
             'return_format' => 'id',

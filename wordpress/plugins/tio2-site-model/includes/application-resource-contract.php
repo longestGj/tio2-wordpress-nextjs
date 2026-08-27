@@ -184,6 +184,57 @@ function tio2_validate_editorial_field(array $field, $value, string $path): arra
 }
 
 /**
+ * Match ACF conditional-logic groups (OR between groups, AND within a group)
+ * against raw sibling field values for contract validation.
+ *
+ * @param array<string, mixed>       $field
+ * @param list<array<string, mixed>> $definitions
+ */
+function tio2_editorial_field_is_active(array $field, array $definitions, int $post_id): bool
+{
+    $logic = $field['conditional_logic'] ?? null;
+    if (! is_array($logic) || [] === $logic) {
+        return true;
+    }
+
+    $names_by_key = [];
+    foreach ($definitions as $definition) {
+        $key = (string) ($definition['key'] ?? '');
+        $name = (string) ($definition['name'] ?? '');
+        if ('' !== $key && '' !== $name) {
+            $names_by_key[$key] = $name;
+        }
+    }
+
+    foreach ($logic as $group) {
+        if (! is_array($group) || [] === $group) {
+            continue;
+        }
+        $group_matches = true;
+        foreach ($group as $rule) {
+            if (! is_array($rule)) {
+                $group_matches = false;
+                break;
+            }
+            $controller_name = $names_by_key[(string) ($rule['field'] ?? '')] ?? '';
+            $operator = (string) ($rule['operator'] ?? '');
+            $expected = (string) ($rule['value'] ?? '');
+            $actual = '' === $controller_name ? null : get_field($controller_name, $post_id, false);
+            $matches = is_scalar($actual) && (string) $actual === $expected;
+            if (('==' === $operator && ! $matches) || ('!=' === $operator && $matches) || ! in_array($operator, ['==', '!='], true)) {
+                $group_matches = false;
+                break;
+            }
+        }
+        if ($group_matches) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
  * @param list<array<string, mixed>> $definitions
  * @return list<string>
  */
@@ -192,7 +243,7 @@ function tio2_validate_editorial_fields(array $definitions, int $post_id): array
     $errors = [];
     foreach ($definitions as $field) {
         $name = (string) ($field['name'] ?? '');
-        if ('' === $name) {
+        if ('' === $name || ! tio2_editorial_field_is_active($field, $definitions, $post_id)) {
             continue;
         }
         $errors = array_merge(
