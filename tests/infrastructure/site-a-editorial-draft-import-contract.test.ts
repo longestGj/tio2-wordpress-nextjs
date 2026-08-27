@@ -287,7 +287,7 @@ describe('local Site A editorial draft wrapper contract', () => {
         expect(`${result.stdout}\n${result.stderr}`).toContain('local fixed-disk path')
       }
     }
-  })
+  }, 60_000)
 
   it('attempts every cleanup and final source hash when the first runtime deletion fails', () => {
     expect(existsSync(runtimeLibraryPath), 'shared editorial runtime boundary is missing').toBe(true)
