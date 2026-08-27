@@ -1,5 +1,7 @@
-import {readFile} from 'node:fs/promises'
+import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises'
 import {execFile} from 'node:child_process'
+import {tmpdir} from 'node:os'
+import {join} from 'node:path'
 
 import {describe, expect, it} from 'vitest'
 
@@ -36,7 +38,18 @@ describe('Site A cross-content graph validator', () => {
     await expect(runGraphCli([...args, '--allow-incomplete'])).resolves.toMatchObject({code: 0, stdout: '{"unresolvedEdges":[]}\n'})
     await expect(runGraphCli([...args, '--allow-incomplete', '--allow-incomplete'])).resolves.toMatchObject({code: 1, stderr: expect.stringContaining('Usage:')})
     await expect(runGraphCli([...args, '--unknown'])).resolves.toMatchObject({code: 1, stderr: expect.stringContaining('Usage:')})
-    await expect(runGraphCli(args)).resolves.toMatchObject({code: 1})
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'site-a-content-graph-'))
+    try {
+      const partialResourcesPath = join(fixtureDirectory, 'partial-resources.json')
+      const resources = JSON.parse(await readFile(args[3], 'utf8'))
+      resources.records = resources.records.slice(0, 6)
+      await writeFile(partialResourcesPath, JSON.stringify(resources), 'utf8')
+      const strictPartialArgs = [...args]
+      strictPartialArgs[3] = partialResourcesPath
+      await expect(runGraphCli(strictPartialArgs)).resolves.toMatchObject({code: 1, stderr: expect.stringContaining('exactly 11')})
+    } finally {
+      await rm(fixtureDirectory, {recursive: true, force: true})
+    }
   })
 
   it('accepts canonical future Application and Resource targets only in incomplete mode', async () => {
