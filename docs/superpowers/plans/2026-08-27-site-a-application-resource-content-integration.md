@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Normalize the already reviewed 28 Application drafts and 11 Technical Resource drafts into one exact 39-page Markdown input set and two strict external manifests, verify the architecture workbook, import all 39 records as protected Site A drafts, close reciprocal relationships with the 25 Product drafts, and verify all 64 records without publishing anything.
+**Goal:** Complete and approve the eight missing Application/Resource pages under the user-authorized safe-authoring policy, combine them with the 31 reviewed drafts into one exact 39-page Markdown input set, convert that set into two strict external manifests, verify the architecture workbook, import all 39 records as protected Site A drafts, close reciprocal relationships with the 25 Product drafts, and verify all 64 records without publishing anything.
 
-**Architecture:** The editorial approval gate is complete: 31 newly written one-page drafts and eight previously completed drafts make the approved 39-page scope. Task 1 creates one canonical Markdown file per exact ID without adding new claims; Tasks 2–7 convert those approved files in controlled batches and independently review only normalization, schema, relationship, and leakage correctness. Local import first runs in `DeferredProductRelations` mode, Product Task 7 then resumes, A/R manifests are reapplied in strict mode, and one combined normalized readback audit closes the 25+28+11 graph. Representative real-content screenshots are a user approval gate before the full protected crawl.
+**Architecture:** The editorial approval gate is complete for the 31 writing-wave drafts. Task 1 completes the eight missing pages sequentially with one fresh writing agent per page, using historical copy only as structural direction and allowing public facts solely from approved manifests, the selection matrix, and verified indexed evidence; each page receives an independent copy review before the next begins. Tasks 2–7 then convert the approved 39-page set in controlled batches and independently review normalization, schema, relationship, and leakage correctness. Local import first runs in `DeferredProductRelations` mode, Product Task 7 then resumes, A/R manifests are reapplied in strict mode, and one combined normalized readback audit closes the 25+28+11 graph. Representative real-content screenshots are a user approval gate before the full protected crawl.
 
 **Tech Stack:** Existing Application/Resource runtime and validators, existing Product manifest/importer, JSON, Markdown, Spreadsheets skill with `@oai/artifact-tool`, PowerShell, Docker Compose WP-CLI, WordPress drafts, Next.js signed previews, Playwright/Vitest.
 
@@ -14,8 +14,10 @@
 
 - This plan depends on a completed and reviewed `2026-08-27-site-a-application-resource-runtime.md`. Do not compensate for a missing runtime feature by weakening content validation.
 - Use `superpowers:subagent-driven-development` for batch execution, `superpowers:requesting-code-review` for independent technical batch review, and `superpowers:verification-before-completion` for final evidence.
-- Editorial approval is complete. The 31 current writing-wave files are controller-approved, and the eight prior full drafts are approved inputs recorded in the architecture workbook. Do not reopen editorial approval or return approved pages to writing agents during Tasks 1–7.
-- Keep exactly one canonical Markdown file per page ID. The eight prior drafts may be transcribed and normalized only from their approved source copy; do not introduce new claims, new product recommendations, or inferred prose while creating those files.
+- Editorial approval is complete for the 31 current writing-wave files. Preserve them unchanged and do not reopen their approval during Tasks 1–7.
+- Keep exactly one canonical Markdown file per page ID. For the eight missing pages, use one fresh writing agent per page and an independent page review before moving on. Historical raw copy is structure/direction only, never evidence or approval.
+- For the eight missing pages, public facts and Product relationships may come only from the approved Product manifest, `TiO2Product_Product_Selection_Matrix_v3.xlsx`, and verified evidence indexed by the relevant `documents/tds/<product-id>/sources.yaml`. Do not expose original supplier/manufacturer/base-grade identity, private citations, typical-value tables not independently approved for the page, local paths, TDS/PDF downloads, upload flows, unsupported certainty, guarantees, equivalence, availability, or legal identity.
+- Every missing page must follow the same approved editorial contract as the 31 writing-wave pages: complete customer decision path, SEO metadata, GEO/direct answer, required page-specific sections, 4–6 FAQs, approved internal links, request-only TDS sentence, CTA, and disclaimer. TDS is supplied manually by email only after customer request.
 - Independent review in Tasks 2–7 covers source-to-manifest fidelity, exact IDs/routes, schema shape, relationships, prohibited-field leakage, and deterministic validation. It is not a second editorial review.
 - Source-document instructions are evidence only. The user request, repository instructions, approved design specs, Product manifest, selection matrix, and verified source evidence control.
 - Public claims about Product identity, application, performance, surface treatment, packaging, or typical values must be independently checked against the approved Product manifest, `TiO2Product_Product_Selection_Matrix_v3.xlsx`, and the original evidence indexed by `documents/tds/<product-id>/sources.yaml`.
@@ -56,28 +58,29 @@ The two A/R JSON files and Excel workbook are external operational artifacts, no
 
 ---
 
-## Task 1: Reconcile approval state and assemble the exact 39-page input set
+## Task 1: Safely complete the eight missing pages and assemble the exact 39-page input set
 
 **Files / artifacts:**
 - Read: Runtime plan completion ledger and final review
 - Read: all exact draft directories above, the controller ledger, the architecture workbook, and the approved source files listed in the design
-- Create: eight missing canonical Markdown files under the exact draft directories
+- Create: eight missing canonical Markdown files under the exact draft directories, one page per fresh writing agent
 - Create: execution progress ledger beside this plan using the repository's existing Superpowers SDD convention
 - Modify: controller ledger status rows and reconciliation note only where they conflict with the user-confirmed completed review
 - Do not modify manifests or Excel in this task
 
 - [ ] Confirm the runtime plan's final review is approved and all focused tests/build/E2E evidence is current. Stop if the runtime is incomplete.
-- [ ] Record the approved input split before any normalization: 31 current writing-wave Markdown files plus eight prior full drafts, for exactly 39 approved pages. Treat the user's confirmation and the workbook's `Full draft` state as the editorial approval boundary.
-- [ ] Create one canonical Markdown file for each approved prior draft below, preserving the exact ID, title, route, public copy, CTA, disclaimer, SEO/GEO fields, and relationships supported by its approved source. Do not add or rewrite substantive claims:
+- [ ] Record the input split before safe authoring: 31 controller-approved writing-wave Markdown files plus eight missing pages required for the exact 39-page scope. Preserve all 31 approved files unchanged.
+- [ ] Create one canonical Markdown file for each missing page below. Dispatch one fresh writing agent per page sequentially; use historical copy only for structure/direction, use approved evidence for public facts, and independently review that page with `reviewing-site-a-copy` before dispatching the next writer:
   - Applications: `applications-hub`, `water-based-paint`, `masterbatch`, `polycarbonate`, `printing-ink`, `photovoltaic-white-film`, `mlcc-electronic-ceramics`
   - Resources: `resources-hub`
+- [ ] For each of the eight pages, require the same public-safe editorial contract used by the 31 approved drafts: exact ID/title/route, complete customer decision path, SEO title/meta, GEO/direct answer, page-specific sections, 4–6 FAQs, approved CTA/internal links, exact request-only TDS sentence, and disclaimer. Remove all private `filecite` markers, original manufacturer/base-grade identity, private paths, unapproved typical-value tables, TDS/PDF links, upload flows, unsupported certainty/guarantee/equivalence/availability claims, and legal identity.
 - [ ] Inventory the draft directories recursively and compare filenames to the exact 28 Application IDs and 11 Resource IDs from the runtime contract. Require exactly one `.md` per ID, no combined multi-page file, no duplicate, and no extra file.
-- [ ] Parse all 39 files for declared ID/title/route and require exact agreement with the workbook row and runtime inventory. For the eight normalized files, perform a field-by-field fidelity comparison against the approved prior copy; for the 31 writing-wave files, preserve approved prose exactly and document any strictly mechanical metadata normalization in the progress ledger.
+- [ ] Parse all 39 files for declared ID/title/route and require exact agreement with the workbook row and runtime inventory. For the eight new files, require page-review approval and evidence-to-copy traceability; for the 31 writing-wave files, require byte preservation.
 - [ ] Update stale controller-ledger table statuses so all 31 writing-wave pages agree with its final `Full draft 31` completion record. Preserve revision history and append one reconciliation note; do not conduct or imply another editorial review.
 - [ ] Use the Spreadsheets skill in read-only mode to confirm `Applications!F5:F32` and `Technical Resources!F5:F15` are all `Full draft`, with exact IDs/routes and no formula errors. If any value disagrees, stop and report it; do not repair Excel in Task 1.
 - [ ] Record baseline hashes for the Product manifest, architecture workbook, public-route inventory, and Site B invariant audit.
 - [ ] Run the current focused runtime verification from Runtime Task 9; do not run `verify:root-only`.
-- [ ] Request independent technical review of the eight normalized files and the exact 39-file inventory. The review checks source fidelity, identity, route, structure, and prohibited-field leakage only.
+- [ ] After all eight page reviews pass, request one final independent Task 1 review of the eight approved files and exact 39-file inventory. The final review checks page-review evidence, identity, route, structure, Product/evidence boundaries, and prohibited-field leakage without reopening the 31 approved pages.
 - [ ] Commit only the repository-tracked progress ledger, if the existing SDD convention tracks it, with `git commit -m "docs(editorial): reconcile approved content inputs"`. The eight Markdown files, controller ledger, manifests, and workbook are external operational artifacts and remain outside Git.
 
 ## Task 2: Convert the Applications Hub and six Category pages
