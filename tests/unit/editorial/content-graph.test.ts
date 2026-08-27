@@ -26,6 +26,86 @@ function resourcesManifest() {
 }
 
 describe('Site A cross-content graph validator', () => {
+  it('reports an exact result for every supported cross-content edge group', async () => {
+    const applications = mutableFixture(applicationsManifest()) as unknown as {
+      records: Array<{
+        children: Array<{id: string; type: string}>
+        relationships: Array<{id: string; type: string}>
+      }>
+    }
+    const resources = mutableFixture(resourcesManifest()) as unknown as {
+      records: Array<{
+        children: Array<{id: string; type: string}>
+        relationships: Array<{id: string; type: string}>
+      }>
+    }
+    const products = await productsManifest()
+    products.products = [products.products[0]]
+    applications.records[0].children = [{type: 'application', id: 'missing-application-child'}]
+    applications.records[0].relationships = [{type: 'resource', id: 'missing-application-resource'}]
+    resources.records[0].children = [{type: 'resource', id: 'missing-resource-child'}]
+    resources.records[0].relationships = [{type: 'application', id: 'missing-resource-application'}]
+    products.products[0].recommendedApplications = [
+      {targetType: 'application', targetKey: 'missing-recommended-application'},
+    ]
+    products.products[0].relatedLinks = {
+      applications: [{targetType: 'application', targetKey: 'missing-related-application'}],
+      resources: [{targetType: 'resource', targetKey: 'missing-related-resource'}],
+      products: [{targetType: 'product', targetKey: 'missing-related-product'}],
+    }
+
+    expect(validateSiteAEditorialGraph({applications, resources, products})).toEqual([
+      {
+        sourceId: 'applications-hub',
+        fieldPath: 'children.0',
+        targetType: 'application',
+        targetId: 'missing-application-child',
+      },
+      {
+        sourceId: 'applications-hub',
+        fieldPath: 'relationships.0',
+        targetType: 'resource',
+        targetId: 'missing-application-resource',
+      },
+      {
+        sourceId: 'resources-hub',
+        fieldPath: 'children.0',
+        targetType: 'resource',
+        targetId: 'missing-resource-child',
+      },
+      {
+        sourceId: 'resources-hub',
+        fieldPath: 'relationships.0',
+        targetType: 'application',
+        targetId: 'missing-resource-application',
+      },
+      {
+        sourceId: 'TP-P100',
+        fieldPath: 'recommendedApplications.0',
+        targetType: 'application',
+        targetId: 'missing-recommended-application',
+      },
+      {
+        sourceId: 'TP-P100',
+        fieldPath: 'relatedLinks.applications.0',
+        targetType: 'application',
+        targetId: 'missing-related-application',
+      },
+      {
+        sourceId: 'TP-P100',
+        fieldPath: 'relatedLinks.products.0',
+        targetType: 'product',
+        targetId: 'missing-related-product',
+      },
+      {
+        sourceId: 'TP-P100',
+        fieldPath: 'relatedLinks.resources.0',
+        targetType: 'resource',
+        targetId: 'missing-related-resource',
+      },
+    ])
+  })
+
   it('reports every unresolved Application, Resource, and Product edge with its source and field path', async () => {
     const applications = mutableFixture(applicationsManifest()) as unknown as {
       records: Array<{relationships: Array<{id: string; type: string}>}>

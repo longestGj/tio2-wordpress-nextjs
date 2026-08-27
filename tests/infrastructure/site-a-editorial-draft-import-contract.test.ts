@@ -88,6 +88,76 @@ function runWrapperWithManifestPath(wrapperPath: string, unsafePath: string) {
   }
 }
 
+type WrapperScenario = 'valid' | 'no-marker' | 'duplicate-marker' | 'malformed-marker' | 'null-marker' | 'wrong-shape' | 'docker-failure' | 'docker-throw'
+
+function runWrapperWithControlledDocker(wrapperPath: string, scenario: WrapperScenario) {
+  const directory = mkdtempSync(join(tmpdir(), 'tio2-editorial-docker-boundary-'))
+  const capturePath = join(directory, 'docker.jsonl')
+  const outcomePath = join(directory, 'outcome.json')
+  const fakeDockerPath = join(directory, 'fake-docker.mjs')
+  writeFileSync(fakeDockerPath, [
+    "import {appendFileSync, readFileSync} from 'node:fs'",
+    "import {basename, join} from 'node:path'",
+    "const args = process.argv.slice(2)",
+    "const capability = JSON.parse(readFileSync(join(process.cwd(), 'wordpress', 'seed', basename(args.at(-1))), 'utf8'))",
+    "const tokenName = capability.mode ? 'TIO2_LOCAL_EDITORIAL_DRAFT_CAPABILITY' : 'TIO2_LOCAL_EDITORIAL_AUDIT_CAPABILITY'",
+    "appendFileSync(process.env.TIO2_WRAPPER_CAPTURE, JSON.stringify({args, environmentToken: process.env[tokenName], capability}) + '\\n')",
+    "if (process.env.TIO2_WRAPPER_SCENARIO === 'docker-failure') process.exit(17)",
+    "if (capability.mode) {",
+    "  console.log('TIO2_SITE_A_EDITORIAL_DRAFT_RESULT ' + JSON.stringify({mode: capability.mode, planSha256: 'a'.repeat(64), actions: [], deferredProductEdges: []}))",
+    "  process.exit(0)",
+    "}",
+    "const audit = {version: 1, relationshipMode: capability.relationshipMode, manifestSha256: {applications: capability.applicationsSha256, resources: capability.resourcesSha256, products: capability.productsSha256}, recordCount: 39, applicationCount: 28, resourceCount: 11, deferredProductEdges: Array.from({length: capability.relationshipMode === 'Strict' ? 0 : 39}, (_, index) => ({sourceId: 'synthetic-' + index})), records: Array.from({length: 39}, (_, index) => ({id: 'synthetic-' + index})), applicationSha256: 'sha256:' + 'b'.repeat(64), resourceSha256: 'sha256:' + 'c'.repeat(64), readbackSha256: 'sha256:' + 'd'.repeat(64), deferredProductEdgesSha256: 'sha256:' + 'e'.repeat(64), siteBInvariantSha256: 'sha256:' + 'f'.repeat(64)}",
+    "const marker = 'TIO2_SITE_A_EDITORIAL_AUDIT_RESULT '",
+    "switch (process.env.TIO2_WRAPPER_SCENARIO) {",
+    "  case 'no-marker': console.log('audit completed without a result'); break",
+    "  case 'duplicate-marker': console.log(marker + JSON.stringify(audit)); console.log(marker + JSON.stringify(audit)); break",
+    "  case 'malformed-marker': console.log(marker + '{'); break",
+    "  case 'null-marker': console.log(marker + 'null'); break",
+    "  case 'wrong-shape': console.log(marker + JSON.stringify({recordCount: 39})); break",
+    "  default: console.log(marker + JSON.stringify(audit))",
+    "}",
+  ].join('\n'))
+  try {
+    const quote = (value: string) => `'${value.replaceAll("'", "''")}'`
+    const tokenName = wrapperPath === applyWrapperPath
+      ? 'TIO2_LOCAL_EDITORIAL_DRAFT_CAPABILITY'
+      : 'TIO2_LOCAL_EDITORIAL_AUDIT_CAPABILITY'
+    const wrapperArguments = wrapperPath === applyWrapperPath
+      ? `-Mode Plan -RelationshipMode DeferredProductRelations`
+      : `-RelationshipMode DeferredProductRelations`
+    const command = [
+      "function global:docker { if ($env:TIO2_WRAPPER_SCENARIO -eq 'docker-throw') { throw 'injected Docker exception' }; & $env:TIO2_FAKE_DOCKER_NODE $env:TIO2_FAKE_DOCKER_SCRIPT @args }",
+      `$env:${tokenName} = 'sentinel-before-wrapper'`,
+      '$CaughtMessage = $null',
+      `try { & ${quote(wrapperPath)} ${wrapperArguments} -ApplicationsManifestPath ${quote('tests/fixtures/editorial/site-a-applications.synthetic.json')} -ResourcesManifestPath ${quote('tests/fixtures/editorial/site-a-resources.synthetic.json')} -ProductsManifestPath ${quote(productManifestPath)} } catch { $CaughtMessage = $_.Exception.Message }`,
+      `$Outcome = [ordered]@{ caught = $CaughtMessage; restored = $env:${tokenName} }`,
+      `[System.IO.File]::WriteAllText(${quote(outcomePath)}, ($Outcome | ConvertTo-Json -Compress), [System.Text.UTF8Encoding]::new($false))`,
+    ].join('; ')
+    const result = spawnSync('pwsh', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command], {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        TIO2_FAKE_DOCKER_NODE: process.execPath,
+        TIO2_FAKE_DOCKER_SCRIPT: fakeDockerPath,
+        TIO2_WRAPPER_CAPTURE: capturePath,
+        TIO2_WRAPPER_SCENARIO: scenario,
+      },
+      timeout: 30_000,
+    })
+    const captures = existsSync(capturePath)
+      ? readFileSync(capturePath, 'utf8').trim().split('\n').map((line) => JSON.parse(line) as {args: string[]; environmentToken?: string; capability: {token?: string}})
+      : []
+    const outcome = existsSync(outcomePath)
+      ? JSON.parse(readFileSync(outcomePath, 'utf8')) as {caught: string | null; restored: string | null}
+      : null
+    return {result, captures, outcome, tokenName}
+  } finally {
+    rmSync(directory, {recursive: true, force: true})
+  }
+}
+
 describe('local Site A editorial draft wrapper contract', () => {
   it('stages and validates three literal snapshots with complete hash and cleanup gates', () => {
     expect(existsSync(applyWrapperPath), 'editorial draft wrapper is missing').toBe(true)
@@ -151,6 +221,56 @@ describe('local Site A editorial draft wrapper contract', () => {
     expect(capabilities[1].token).toMatch(/^[a-f0-9]{64}$/u)
     expect(capabilities[0].token).not.toBe(capabilities[1].token)
   })
+
+  it.skipIf(!existsSync(productManifestPath))('passes one-use capability values through inherited Docker environment without exposing them in argv', () => {
+    for (const wrapperPath of [applyWrapperPath, auditWrapperPath]) {
+      const {result, captures, outcome, tokenName} = runWrapperWithControlledDocker(wrapperPath, 'valid')
+      expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+      expect(outcome).toEqual({caught: null, restored: 'sentinel-before-wrapper'})
+      expect(captures).toHaveLength(1)
+      expect(captures[0].environmentToken).toMatch(/^[a-f0-9]{64}$/u)
+      expect(captures[0].environmentToken).toBe(captures[0].capability.token)
+      expect(captures[0].args).toContain(tokenName)
+      expect(captures[0].args).not.toContain(`${tokenName}=${captures[0].environmentToken}`)
+      expect(captures[0].args.some((argument) => argument.startsWith(`${tokenName}=`))).toBe(false)
+    }
+  }, 60_000)
+
+  it.skipIf(!existsSync(productManifestPath))('restores inherited capability environment when Docker exits unsuccessfully or throws', () => {
+    for (const wrapperPath of [applyWrapperPath, auditWrapperPath]) {
+      for (const [scenario, expectedMessage] of [
+        ['docker-failure', 'exit code 17'],
+        ['docker-throw', 'injected Docker exception'],
+      ] as const) {
+        const {result, captures, outcome, tokenName} = runWrapperWithControlledDocker(wrapperPath, scenario)
+        expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+        expect(outcome?.caught).toContain(expectedMessage)
+        expect(outcome?.restored).toBe('sentinel-before-wrapper')
+        if (scenario === 'docker-failure') {
+          expect(captures).toHaveLength(1)
+          expect(captures[0].environmentToken).toBe(captures[0].capability.token)
+          expect(captures[0].args.some((argument) => argument.startsWith(`${tokenName}=`))).toBe(false)
+        } else {
+          expect(captures).toHaveLength(0)
+        }
+      }
+    }
+  }, 60_000)
+
+  it.skipIf(!existsSync(productManifestPath))('requires exactly one parseable audit marker with the complete expected result shape', () => {
+    for (const [scenario, expectedMessage] of [
+      ['no-marker', 'exactly one deterministic result'],
+      ['duplicate-marker', 'exactly one deterministic result'],
+      ['malformed-marker', 'valid JSON'],
+      ['null-marker', 'expected result shape'],
+      ['wrong-shape', 'expected result shape'],
+    ] as const) {
+      const {result, outcome} = runWrapperWithControlledDocker(auditWrapperPath, scenario)
+      expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+      expect(outcome?.caught).toContain(expectedMessage)
+      expect(outcome?.restored).toBe('sentinel-before-wrapper')
+    }
+  }, 60_000)
 
   it.skipIf(!existsSync(productManifestPath))('rejects UNC, device, and provider manifest paths before either wrapper stages or reads them', () => {
     const localFixture = resolve('tests/fixtures/editorial/site-a-applications.synthetic.json')

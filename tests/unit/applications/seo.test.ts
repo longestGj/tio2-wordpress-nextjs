@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest'
 
 import {toApplicationPageDto} from '@/lib/applications/dto'
+import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import type {ApplicationPageDto} from '@/lib/applications/types'
 import type {EditorialLinkResolver} from '@/lib/editorial/types'
 import {getSiteConfig} from '@/sites'
@@ -13,15 +14,15 @@ import {
 type JsonLdRecord = Readonly<Record<string, unknown>>
 
 const resolveTarget: EditorialLinkResolver = (target) => ({
-  ...target,
+  ...(resolveCanonicalEditorialTarget(target.type, target.id)?.target ?? target),
   title: `Visible ${target.type} ${target.id}`,
   path:
-    target.type === 'product'
-      ? `/products/${target.id.toLowerCase()}`
-      : target.type === 'resource'
-        ? `/resources/${target.id}`
-        : `/applications/${target.id}`,
-  href: target.type === 'resource' ? `/resources/${target.id}` : null,
+    resolveCanonicalEditorialTarget(target.type, target.id)?.path ??
+    `/unknown/${target.id}`,
+  href:
+    target.type === 'resource'
+      ? resolveCanonicalEditorialTarget(target.type, target.id)?.path ?? null
+      : null,
 })
 
 function fixture(level: ApplicationPageDto['identity']['level']) {
@@ -93,6 +94,18 @@ describe('Application metadata', () => {
       modifiedTime: application.identity.modified,
     })
     expect(JSON.stringify(metadata)).not.toContain('<')
+  })
+
+  it('rejects noncanonical Application graph data before generating metadata', async () => {
+    const {buildApplicationMetadata} = await import(
+      '@/lib/seo/application-metadata'
+    )
+    const application = fixture('hub')
+    application.children = application.children.slice(1)
+
+    expect(() =>
+      buildApplicationMetadata(application, getSiteConfig('tio2-a')),
+    ).toThrow('canonical Application graph')
   })
 })
 
@@ -166,13 +179,14 @@ describe('Application JSON-LD', () => {
     const values = buildApplicationJsonLd(
       application,
       getSiteConfig('tio2-a'),
-      (_siteId, path) => path === '/resources/article-01',
+      (_siteId, path) =>
+        path === '/resources/rutile-vs-anatase-titanium-dioxide',
     )
 
     expect(JSON.stringify(values)).toContain(
-      'https://tio2products.com/resources/article-01',
+      'https://tio2products.com/resources/rutile-vs-anatase-titanium-dioxide',
     )
-    expect(JSON.stringify(values)).not.toContain('/products/tp-x999')
+    expect(JSON.stringify(values)).not.toContain('/products/tp-p100')
 
     const serialized = serializeApplicationJsonLd([
       {'@context': 'https://schema.org', '@type': 'WebPage', name: '</script>\u2028x\u2029'},
@@ -181,6 +195,18 @@ describe('Application JSON-LD', () => {
     expect(serialized).toContain('\\u2028')
     expect(serialized).toContain('\\u2029')
     expect(serialized).not.toContain('<')
+  })
+
+  it('rejects noncanonical Application graph data before generating JSON-LD', async () => {
+    const {buildApplicationJsonLd} = await import(
+      '@/lib/seo/application-jsonld'
+    )
+    const application = fixture('category')
+    application.children = []
+
+    expect(() =>
+      buildApplicationJsonLd(application, getSiteConfig('tio2-a')),
+    ).toThrow('canonical Application graph')
   })
 })
 

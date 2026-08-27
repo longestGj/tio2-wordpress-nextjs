@@ -54,6 +54,47 @@ function tio2_site_a_application_identities(): array
 }
 
 /**
+ * @param list<string> $actual
+ * @param list<string> $expected
+ */
+function tio2_editorial_same_members(array $actual, array $expected): bool
+{
+    return count($actual) === count(array_unique($actual)) &&
+        count($expected) === count(array_unique($expected)) &&
+        [] === array_diff($actual, $expected) &&
+        [] === array_diff($expected, $actual);
+}
+
+/**
+ * @param array<string, list<array{targetType: string, targetKey: string, title: string, path: string, href: string|null}>> $relationships
+ */
+function tio2_application_relationship_graph_is_canonical(string $application_id, array $relationships): bool
+{
+    $expected_children = [];
+    foreach (tio2_site_a_application_identities() as $id => $identity) {
+        if ($identity['parentId'] === $application_id) {
+            $expected_children[] = $id;
+        }
+    }
+    $actual_children = array_values(array_map(
+        static fn (array $link): string => 'application' === $link['targetType'] ? $link['targetKey'] : '',
+        $relationships['childApplications'] ?? []
+    ));
+    if (! tio2_editorial_same_members($actual_children, $expected_children)) {
+        return false;
+    }
+
+    if ('universal-multi-application' !== $application_id) {
+        return true;
+    }
+    $related_application_ids = array_values(array_map(
+        static fn (array $link): string => 'application' === $link['targetType'] ? $link['targetKey'] : '',
+        $relationships['relatedApplications'] ?? []
+    ));
+    return [] === array_diff(['coatings', 'plastics', 'printing-inks'], $related_application_ids);
+}
+
+/**
  * @return array<string, array{slug: string, path: string, kind: string, cluster: string}>
  */
 function tio2_site_a_resource_identities(): array
@@ -359,6 +400,9 @@ function tio2_serialize_application_fields(WP_Post $post): array|WP_Error
             return $links;
         }
         $relationship_fields[$output_name] = $links;
+    }
+    if (! tio2_application_relationship_graph_is_canonical($id, $relationship_fields)) {
+        return new WP_Error('tio2_editorial_graph_invalid', 'Application relationships do not match the canonical Application graph.');
     }
     $ctas = tio2_editorial_ctas(get_field('ctas', $post->ID, false));
     if (is_wp_error($ctas)) {

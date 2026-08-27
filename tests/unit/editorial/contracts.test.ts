@@ -15,13 +15,13 @@ const clone = <T>(value: T): T => structuredClone(value)
 describe('shared editorial page contracts', () => {
   it('normalizes complete application levels and stable relationship keys deterministically', () => {
     const input = mutableFixture(applicationDetailInput)
-    input.identity.path = '/applications/water-based-paint/'
+    input.identity.path = '/applications/titanium-dioxide-for-water-based-paint/'
     input.relationships = [...input.relationships].reverse()
     const first = toApplicationPageDto(input, resolveTarget)
     const second = toApplicationPageDto(input, resolveTarget)
     expect(first).toEqual(second)
-    expect(first.identity).toMatchObject({id: 'water-based-paint', level: 'detail', parentId: 'coatings', path: '/applications/water-based-paint', modified: '2026-08-27T08:00:00.000Z'})
-    expect(first.relationships.map((link) => `${link.type}:${link.id}`)).toEqual(['product:TP-X999', 'resource:article-01'])
+    expect(first.identity).toMatchObject({id: 'water-based-paint', level: 'detail', parentId: 'coatings', path: '/applications/titanium-dioxide-for-water-based-paint', modified: '2026-08-27T08:00:00.000Z'})
+    expect(first.relationships.map((link) => `${link.type}:${link.id}`)).toEqual(['product:TP-P100', 'resource:article-01'])
     expect(first.relationships.every((link) => link.path === link.href && !link.path.endsWith('/'))).toBe(true)
   })
 

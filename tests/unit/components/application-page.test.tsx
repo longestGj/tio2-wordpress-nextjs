@@ -7,11 +7,13 @@ import {ApplicationPageRenderer} from '@/components/applications/application-pag
 import {toApplicationPageDto} from '@/lib/applications/dto'
 import type {ApplicationPageInput} from '@/lib/applications/schema'
 import type {ApplicationPageDto} from '@/lib/applications/types'
+import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import type {EditorialLinkResolver} from '@/lib/editorial/types'
 import {
   applicationCategoryInput,
   applicationDetailInput,
   applicationHubInput,
+  universalApplicationDetailInput,
 } from '@/tests/fixtures/editorial/application-pages'
 
 const EXPECTED_BASE_ORDER = [
@@ -27,16 +29,11 @@ const EXPECTED_BASE_ORDER = [
 ] as const
 
 const resolveTarget: EditorialLinkResolver = (target) => ({
-  ...target,
+  ...(resolveCanonicalEditorialTarget(target.type, target.id)?.target ?? target),
   title: `Resolved ${target.type} ${target.id}`,
   path:
-    target.type === 'product'
-      ? `/products/${target.id.toLowerCase()}`
-      : target.type === 'resource'
-        ? target.id === 'article-01'
-          ? '/resources/rutile-vs-anatase-titanium-dioxide'
-          : `/resources/${target.id}`
-        : `/applications/${target.id}`,
+    resolveCanonicalEditorialTarget(target.type, target.id)?.path ??
+    `/unknown/${target.id}`,
   href:
     target.id === 'article-01'
       ? '/resources/rutile-vs-anatase-titanium-dioxide'
@@ -63,6 +60,13 @@ function applicationFixture(
   level: ApplicationPageDto['identity']['level'],
 ): ApplicationPageDto {
   return toApplicationPageDto(applicationInput(level), resolveTarget)
+}
+
+function universalApplicationFixture(): ApplicationPageDto {
+  return toApplicationPageDto(
+    structuredClone(universalApplicationDetailInput),
+    resolveTarget,
+  )
 }
 
 function mutateFixture(
@@ -253,6 +257,49 @@ describe('ApplicationPageRenderer', () => {
 
   it.each([
     [
+      'a noncanonical own identity',
+      (application: ApplicationPageDto) => {
+        application.identity.family = 'Wrong family'
+      },
+    ],
+    [
+      'a missing canonical Hub child',
+      (application: ApplicationPageDto) => {
+        application.children = application.children.slice(1)
+      },
+    ],
+    [
+      'a canonical child assigned to the wrong parent',
+      (application: ApplicationPageDto) => {
+        application.children[0] = application.children[1]!
+      },
+    ],
+  ] as const)(
+    'rejects %s at the canonical Application graph boundary',
+    (_name, mutate) => {
+      const {container} = render(
+        <ApplicationPageRenderer application={mutateFixture(mutate)} />,
+      )
+
+      expect(container.childElementCount).toBe(0)
+    },
+  )
+
+  it('rejects universal-multi-application when any required cross-category edge is missing', () => {
+    const application = universalApplicationFixture()
+    application.relationships = application.relationships.filter(
+      ({type, id}) => !(type === 'application' && id === 'printing-inks'),
+    )
+
+    const {container} = render(
+      <ApplicationPageRenderer application={application} />,
+    )
+
+    expect(container.childElementCount).toBe(0)
+  })
+
+  it.each([
+    [
       'script markup in the direct answer',
       (application: ApplicationPageDto) => {
         application.hero.directAnswer =
@@ -341,6 +388,27 @@ describe('ApplicationPageRenderer', () => {
 
     expect(container.childElementCount).toBe(0)
   })
+
+  it.each([
+    ['a forbidden TDS field on a child', false, {tdsUrl: '/private/tds.pdf'}],
+    ['an arbitrary extra field on a child', false, {trackingId: 'synthetic-tracker'}],
+    ['a forbidden source field on a relationship', true, {sourcePath: 'C:\\private\\source.txt'}],
+    ['an arbitrary extra field on a relationship', true, {debugNote: 'private'}],
+  ] as const)(
+    'rejects %s at the strict resolved-link boundary',
+    (_name, relationship, extra) => {
+      const application = applicationFixture('hub')
+      Object.assign(
+        relationship ? application.relationships[0]! : application.children[0]!,
+        extra,
+      )
+
+      const {container} = render(
+        <ApplicationPageRenderer application={application} />,
+      )
+      expect(container.childElementCount).toBe(0)
+    },
+  )
 
   it.each(['javascript:alert(1)', '/contact/'])(
     'rejects unsafe or noncanonical CTA href %s',

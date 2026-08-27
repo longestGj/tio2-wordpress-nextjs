@@ -19,6 +19,61 @@ $ExporterPath = Join-Path $SeedDirectory 'export-site-a-editorial-audit.php'
 . (Join-Path $PSScriptRoot 'editorial/local-editorial-runtime.ps1')
 foreach ($RequiredFile in @($EnvironmentFile, $ComposeFile, $ExporterPath)) { if (-not (Test-Path -LiteralPath $RequiredFile -PathType Leaf)) { throw "Missing required local editorial audit file: $RequiredFile" } }
 & (Join-Path $PSScriptRoot 'assert-local-wordpress-env.ps1') -EnvironmentPath $EnvironmentFile | Out-Null
+
+function Assert-LocalEditorialAuditResult {
+    param(
+        [Parameter(Mandatory = $true)][AllowNull()][object] $Result,
+        [Parameter(Mandatory = $true)][string] $ExpectedRelationshipMode,
+        [Parameter(Mandatory = $true)][string] $ExpectedApplicationsSha256,
+        [Parameter(Mandatory = $true)][string] $ExpectedResourcesSha256,
+        [Parameter(Mandatory = $true)][string] $ExpectedProductsSha256
+    )
+
+    $ExpectedKeys = @(
+        'applicationCount', 'applicationSha256', 'deferredProductEdges',
+        'deferredProductEdgesSha256', 'manifestSha256', 'readbackSha256',
+        'recordCount', 'records', 'relationshipMode', 'resourceCount',
+        'resourceSha256', 'siteBInvariantSha256', 'version'
+    ) | Sort-Object
+    if ($null -eq $Result) { throw 'Local Site A editorial audit did not return the expected result shape.' }
+    $ActualKeys = @($Result.PSObject.Properties.Name) | Sort-Object
+    if (Compare-Object -ReferenceObject $ExpectedKeys -DifferenceObject $ActualKeys) { throw 'Local Site A editorial audit did not return the expected result shape.' }
+    $ExpectedManifestKeys = @('applications', 'products', 'resources') | Sort-Object
+    $ActualManifestKeys = if ($null -eq $Result.manifestSha256) { @() } else { @($Result.manifestSha256.PSObject.Properties.Name) | Sort-Object }
+    if (Compare-Object -ReferenceObject $ExpectedManifestKeys -DifferenceObject $ActualManifestKeys) { throw 'Local Site A editorial audit did not return the expected result shape.' }
+    $HasIntegerCounts =
+        ($Result.recordCount -is [int] -or $Result.recordCount -is [long]) -and
+        ($Result.applicationCount -is [int] -or $Result.applicationCount -is [long]) -and
+        ($Result.resourceCount -is [int] -or $Result.resourceCount -is [long])
+    $ExpectedDeferredCount = if ('Strict' -eq $ExpectedRelationshipMode) { 0 } else { 39 }
+    $HashProperties = @('applicationSha256', 'resourceSha256', 'readbackSha256', 'deferredProductEdgesSha256', 'siteBInvariantSha256')
+    $HasValidHashes = $true
+    foreach ($Property in $HashProperties) {
+        if ([string] $Result.$Property -notmatch '^sha256:[a-f0-9]{64}$') { $HasValidHashes = $false }
+    }
+    $HasExpectedManifestHashes =
+        [string] $Result.manifestSha256.applications -ceq $ExpectedApplicationsSha256 -and
+        [string] $Result.manifestSha256.resources -ceq $ExpectedResourcesSha256 -and
+        [string] $Result.manifestSha256.products -ceq $ExpectedProductsSha256
+
+    if (
+        1 -ne $Result.version -or
+        $ExpectedRelationshipMode -cne [string] $Result.relationshipMode -or
+        -not $HasIntegerCounts -or
+        39 -ne $Result.recordCount -or
+        28 -ne $Result.applicationCount -or
+        11 -ne $Result.resourceCount -or
+        $Result.records -isnot [System.Array] -or
+        39 -ne @($Result.records).Count -or
+        $Result.deferredProductEdges -isnot [System.Array] -or
+        $ExpectedDeferredCount -ne @($Result.deferredProductEdges).Count -or
+        -not $HasValidHashes -or
+        -not $HasExpectedManifestHashes
+    ) {
+        throw 'Local Site A editorial audit did not return the expected result shape.'
+    }
+}
+
 $ApplicationsManifestPath = Resolve-LocalEditorialManifestPath -Path $ApplicationsManifestPath -Name 'ApplicationsManifestPath'
 $ResourcesManifestPath = Resolve-LocalEditorialManifestPath -Path $ResourcesManifestPath -Name 'ResourcesManifestPath'
 $ProductsManifestPath = Resolve-LocalEditorialManifestPath -Path $ProductsManifestPath -Name 'ProductsManifestPath'
@@ -56,11 +111,29 @@ try {
     $Token = -join ($TokenBytes | ForEach-Object { $_.ToString('x2') })
     $Capability = [ordered]@{ version = 1; token = $Token; relationshipMode = $RelationshipMode; applicationsPath = '/workspace/wordpress/seed/' + [System.IO.Path]::GetFileName($RuntimeApplicationsPath); applicationsSha256 = $ApplicationsSha256; resourcesPath = '/workspace/wordpress/seed/' + [System.IO.Path]::GetFileName($RuntimeResourcesPath); resourcesSha256 = $ResourcesSha256; productsPath = '/workspace/wordpress/seed/' + [System.IO.Path]::GetFileName($RuntimeProductsPath); productsSha256 = $ProductsSha256 }
     [System.IO.File]::WriteAllText($CapabilityPath, ($Capability | ConvertTo-Json -Compress), [System.Text.UTF8Encoding]::new($false))
-    $DockerArguments = @('compose', '--env-file', $EnvironmentFile, '-f', $ComposeFile, 'run', '--rm', '--no-TTY', '--user', '33:33', '-e', "TIO2_LOCAL_EDITORIAL_AUDIT_CAPABILITY=$Token", 'wpcli', 'wp', "--user=$AdminUser", 'eval-file', '/workspace/wordpress/seed/export-site-a-editorial-audit.php', ('/workspace/wordpress/seed/' + [System.IO.Path]::GetFileName($CapabilityPath)))
-    $PreviousErrorActionPreference = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
-    try { $CommandOutput = & docker @DockerArguments 2>&1; $CommandExitCode = $LASTEXITCODE } finally { $ErrorActionPreference = $PreviousErrorActionPreference }
+    $DockerArguments = @('compose', '--env-file', $EnvironmentFile, '-f', $ComposeFile, 'run', '--rm', '--no-TTY', '--user', '33:33', '-e', 'TIO2_LOCAL_EDITORIAL_AUDIT_CAPABILITY', 'wpcli', 'wp', "--user=$AdminUser", 'eval-file', '/workspace/wordpress/seed/export-site-a-editorial-audit.php', ('/workspace/wordpress/seed/' + [System.IO.Path]::GetFileName($CapabilityPath)))
+    $CapabilityEnvironmentName = 'TIO2_LOCAL_EDITORIAL_AUDIT_CAPABILITY'
+    $PreviousCapabilityEnvironment = [System.Environment]::GetEnvironmentVariable($CapabilityEnvironmentName, [System.EnvironmentVariableTarget]::Process)
+    try {
+        [System.Environment]::SetEnvironmentVariable($CapabilityEnvironmentName, $Token, [System.EnvironmentVariableTarget]::Process)
+        $PreviousErrorActionPreference = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+        try { $CommandOutput = & docker @DockerArguments 2>&1; $CommandExitCode = $LASTEXITCODE } finally { $ErrorActionPreference = $PreviousErrorActionPreference }
+    }
+    finally {
+        [System.Environment]::SetEnvironmentVariable($CapabilityEnvironmentName, $PreviousCapabilityEnvironment, [System.EnvironmentVariableTarget]::Process)
+    }
     foreach ($OutputLine in $CommandOutput) { Write-Host $OutputLine }
     if ($CommandExitCode -ne 0) { throw "Local Site A editorial audit failed with exit code $CommandExitCode." }
+    $Marker = 'TIO2_SITE_A_EDITORIAL_AUDIT_RESULT '
+    $ResultLines = @($CommandOutput | ForEach-Object { [string] $_ } | Where-Object { $_.StartsWith($Marker, [System.StringComparison]::Ordinal) })
+    if (1 -ne $ResultLines.Count) { throw 'Local Site A editorial audit did not return exactly one deterministic result.' }
+    try {
+        $AuditResult = $ResultLines[0].Substring($Marker.Length) | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        throw 'Local Site A editorial audit did not return valid JSON after its deterministic result marker.'
+    }
+    Assert-LocalEditorialAuditResult -Result $AuditResult -ExpectedRelationshipMode $RelationshipMode -ExpectedApplicationsSha256 $ApplicationsSha256 -ExpectedResourcesSha256 $ResourcesSha256 -ExpectedProductsSha256 $ProductsSha256
 }
 catch { $OperationError = $_.Exception }
 finally {

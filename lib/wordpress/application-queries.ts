@@ -6,6 +6,7 @@ import {
   toApplicationPageDto,
 } from '@/lib/applications/dto'
 import type {ApplicationPageDto} from '@/lib/applications/types'
+import {hasCanonicalApplicationGraph} from '@/lib/applications/runtime'
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import {normalizeEditorialInternalPath} from '@/lib/editorial/rich-text'
 import type {
@@ -191,6 +192,14 @@ export function toApplicationDtoFromSerialized(
 ): ApplicationPageDto {
   const [id, slug, path, level, family, parentId] = identity
   const fields = record.fields
+  if (
+    record.slug !== slug ||
+    fields.applicationId !== id ||
+    fields.applicationLevel !== level ||
+    fields.family !== family
+  ) {
+    throw new ApplicationContractError(['identity'])
+  }
   if (parentId === null) {
     if (fields.parentApplication !== null) {
       throw new ApplicationContractError(['identity.parentId'])
@@ -208,7 +217,7 @@ export function toApplicationDtoFromSerialized(
     fields,
     siteId,
   )
-  return toApplicationPageDto(
+  const application = toApplicationPageDto(
     {
       identity: {
         id,
@@ -243,6 +252,10 @@ export function toApplicationDtoFromSerialized(
     },
     resolveTarget,
   )
+  if (!hasCanonicalApplicationGraph(application)) {
+    throw new ApplicationContractError(['canonicalGraph'])
+  }
+  return application
 }
 
 export async function getSiteApplication(

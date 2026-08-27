@@ -1,5 +1,6 @@
 import type {ApplicationPageDto} from '@/lib/applications/types'
 import {applicationPageInputSchema} from '@/lib/applications/schema'
+import {hasCanonicalApplicationGraph} from '@/lib/applications/runtime'
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import {
   containsForbiddenEditorialClaim,
@@ -88,6 +89,7 @@ function completeLinks(value: unknown): boolean {
     value.every((link) => {
       if (
         !isRecord(link) ||
+        Object.keys(link).sort().join(',') !== 'href,id,path,title,type' ||
         typeof link.type !== 'string' ||
         typeof link.id !== 'string'
       ) {
@@ -170,6 +172,7 @@ export function isValidatedApplicationPageDto(
   )
   return (
     structurallyComplete &&
+    hasCanonicalApplicationGraph(value as ApplicationPageDto) &&
     matchesAuthoritativeContract(value as ApplicationPageDto)
   )
 }

@@ -3,9 +3,11 @@ import {http, HttpResponse} from 'msw'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {GET} from '@/app/api/preview/route'
+import {ApplicationContractError} from '@/lib/applications/dto'
 import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest'
 import type {EditorialTarget} from '@/lib/editorial/types'
 import {SITE_A_PRODUCT_IDS} from '@/lib/products/content-manifest'
+import {ResourceContractError} from '@/lib/resources/dto'
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {
   ApplicationPreviewNotFoundError,
@@ -16,10 +18,12 @@ import {
   isValidPreviewSessionToken,
   PREVIEW_SESSION_COOKIE,
 } from '@/lib/wordpress/preview-session'
+import {PreviewTransportError} from '@/lib/wordpress/preview'
 import {
   getResourcePreview,
+  ResourcePreviewNotFoundError,
 } from '@/lib/wordpress/resource-preview'
-import {CrossSiteContentError} from '@/lib/wordpress/types'
+import {CrossSiteContentError, InvalidContentPathError} from '@/lib/wordpress/types'
 import {getSiteConfig} from '@/sites'
 import applicationManifest from '@/tests/fixtures/editorial/site-a-applications.synthetic.json'
 import resourceManifest from '@/tests/fixtures/editorial/site-a-resources.synthetic.json'
@@ -264,6 +268,148 @@ describe('dedicated no-store Application and Resource preview clients', () => {
     await expect(
       getResourcePreview(getSiteConfig('tio2-a'), resourceArticle.identity.path),
     ).rejects.toBeInstanceOf(CrossSiteContentError)
+  })
+
+  const previewKinds = [
+    {
+      label: 'Application',
+      path: applicationCategory.identity.path,
+      validPayload: () => applicationPreview(applicationCategory),
+      getPreview: () => getApplicationPreview(
+        getSiteConfig('tio2-a'),
+        applicationCategory.identity.path,
+      ),
+      notFoundError: ApplicationPreviewNotFoundError,
+      contractError: ApplicationContractError,
+      identityFields: 'applicationFields',
+      stableIdField: 'applicationId',
+    },
+    {
+      label: 'Technical Resource',
+      path: resourceArticle.identity.path,
+      validPayload: () => resourcePreview(resourceArticle),
+      getPreview: () => getResourcePreview(
+        getSiteConfig('tio2-a'),
+        resourceArticle.identity.path,
+      ),
+      notFoundError: ResourcePreviewNotFoundError,
+      contractError: ResourceContractError,
+      identityFields: 'resourceFields',
+      stableIdField: 'resourceId',
+    },
+  ] as const
+
+  it.each(previewKinds)('$label maps a non-OK transport response to 502 at the entry API', async ({
+    path,
+    getPreview,
+  }) => {
+    server.use(http.get(wordpressPreviewUrl, () =>
+      HttpResponse.json({error: 'synthetic upstream failure'}, {status: 503}),
+    ))
+
+    await expect(getPreview()).rejects.toMatchObject({
+      name: PreviewTransportError.name,
+      status: 503,
+    })
+    const response = await GET(previewRequest(signedParameters('tio2-a', path)))
+    expect(response.status).toBe(502)
+    expect(response.headers.get('set-cookie')).toBeNull()
+  })
+
+  it.each(previewKinds)('$label maps invalid JSON to 502 at the entry API', async ({
+    path,
+    getPreview,
+  }) => {
+    server.use(http.get(wordpressPreviewUrl, () =>
+      new HttpResponse('{', {headers: {'content-type': 'application/json'}}),
+    ))
+
+    await expect(getPreview()).rejects.toBeInstanceOf(PreviewTransportError)
+    const response = await GET(previewRequest(signedParameters('tio2-a', path)))
+    expect(response.status).toBe(502)
+    expect(response.headers.get('set-cookie')).toBeNull()
+  })
+
+  it.each(previewKinds)('$label maps a non-strict payload to 502 at the entry API', async ({
+    path,
+    validPayload,
+    getPreview,
+  }) => {
+    server.use(http.get(wordpressPreviewUrl, () =>
+      HttpResponse.json({...validPayload(), unexpectedPrivateField: 'must-not-pass'}),
+    ))
+
+    await expect(getPreview()).rejects.toBeInstanceOf(PreviewTransportError)
+    const response = await GET(previewRequest(signedParameters('tio2-a', path)))
+    expect(response.status).toBe(502)
+    expect(response.headers.get('set-cookie')).toBeNull()
+  })
+
+  it.each(previewKinds)('$label maps a response path mismatch to 404 at the entry API', async ({
+    path,
+    validPayload,
+    getPreview,
+  }) => {
+    server.use(http.get(wordpressPreviewUrl, () =>
+      HttpResponse.json({...validPayload(), path: `${path}-wrong`}),
+    ))
+
+    await expect(getPreview()).rejects.toBeInstanceOf(InvalidContentPathError)
+    const response = await GET(previewRequest(signedParameters('tio2-a', path)))
+    expect(response.status).toBe(404)
+    expect(response.headers.get('set-cookie')).toBeNull()
+  })
+
+  it.each(previewKinds)('$label maps a response slug mismatch to 404 at the entry API', async ({
+    path,
+    validPayload,
+    getPreview,
+  }) => {
+    server.use(http.get(wordpressPreviewUrl, () =>
+      HttpResponse.json({...validPayload(), slug: 'wrong-slug'}),
+    ))
+
+    await expect(getPreview()).rejects.toBeInstanceOf(InvalidContentPathError)
+    const response = await GET(previewRequest(signedParameters('tio2-a', path)))
+    expect(response.status).toBe(404)
+    expect(response.headers.get('set-cookie')).toBeNull()
+  })
+
+  it.each(previewKinds)('$label maps a non-draft response to 404 at the entry API', async ({
+    path,
+    validPayload,
+    getPreview,
+    notFoundError,
+  }) => {
+    server.use(http.get(wordpressPreviewUrl, () =>
+      HttpResponse.json({...validPayload(), status: 'publish'}),
+    ))
+
+    await expect(getPreview()).rejects.toBeInstanceOf(notFoundError)
+    const response = await GET(previewRequest(signedParameters('tio2-a', path)))
+    expect(response.status).toBe(404)
+    expect(response.headers.get('set-cookie')).toBeNull()
+  })
+
+  it.each(previewKinds)('$label maps a stable identity mismatch to 502 at the entry API', async ({
+    path,
+    validPayload,
+    getPreview,
+    contractError,
+    identityFields,
+    stableIdField,
+  }) => {
+    const payload = validPayload() as unknown as Record<string, unknown>
+    payload[identityFields] = {
+      ...(payload[identityFields] as Record<string, unknown>),
+      [stableIdField]: 'wrong-stable-id',
+    }
+    server.use(http.get(wordpressPreviewUrl, () => HttpResponse.json(payload)))
+
+    await expect(getPreview()).rejects.toBeInstanceOf(contractError)
+    const response = await GET(previewRequest(signedParameters('tio2-a', path)))
+    expect(response.status).toBe(502)
+    expect(response.headers.get('set-cookie')).toBeNull()
   })
 })
 

@@ -23,7 +23,10 @@ import {
   resourceListTag,
   resourceTag,
 } from '@/lib/wordpress/cache-tags'
-import {getSiteApplication} from '@/lib/wordpress/application-queries'
+import {
+  getSiteApplication,
+  toApplicationDtoFromSerialized,
+} from '@/lib/wordpress/application-queries'
 import {getSiteResource} from '@/lib/wordpress/resource-queries'
 import {getSiteConfig} from '@/sites'
 import applicationManifest from '@/tests/fixtures/editorial/site-a-applications.synthetic.json'
@@ -70,8 +73,10 @@ function serializedLink(target: {type: string; id: string}) {
   }
 }
 
-function applicationResponse(overrides: Record<string, unknown> = {}) {
-  const record = applicationRecord
+function applicationResponse(
+  overrides: Record<string, unknown> = {},
+  record = applicationRecord,
+) {
   const relationships = record.relationships.map(serializedLink)
   return {
     tio2Application: {
@@ -301,6 +306,93 @@ describe('public Application and Technical Resource queries', () => {
       getSiteApplication(getSiteConfig('tio2-a'), applicationRecord.identity.path),
     ).rejects.toBeInstanceOf(ApplicationContractError)
   })
+
+  it.each([
+    ['a missing canonical child', (children: ReturnType<typeof serializedLink>[]) => children.slice(1)],
+    ['a duplicated canonical child', (children: ReturnType<typeof serializedLink>[]) => [children[0]!, ...children.slice(0, -1)]],
+  ] as const)(
+    'rejects %s at the resolved Application query boundary',
+    async (_name, mutateChildren) => {
+      publicRoutePolicy.approved.add(`tio2-a:${applicationRecord.identity.path}`)
+      const fields = applicationResponse().tio2Application.siteAApplicationFields
+      server.use(http.post(graphqlEndpoint, () => HttpResponse.json({data: applicationResponse({
+        siteAApplicationFields: {
+          ...fields,
+          childApplications: mutateChildren([...fields.childApplications]),
+        },
+      })})))
+
+      await expect(
+        getSiteApplication(getSiteConfig('tio2-a'), applicationRecord.identity.path),
+      ).rejects.toBeInstanceOf(ApplicationContractError)
+    },
+  )
+
+  it('rejects a noncanonical serialized Application slug at the normalizer boundary', () => {
+    const serialized = applicationResponse().tio2Application
+
+    expect(() =>
+      toApplicationDtoFromSerialized(
+        {
+          ...serialized,
+          slug: 'plastics',
+          fields: serialized.siteAApplicationFields,
+        },
+        SITE_A_APPLICATION_IDENTITIES[1],
+        'tio2-a',
+      ),
+    ).toThrow(ApplicationContractError)
+  })
+
+  it('rejects universal-multi-application without all three required cross-category edges', () => {
+    const record = structuredClone(
+      applicationManifest.records.find(
+        ({identity}) => identity.id === 'universal-multi-application',
+      ),
+    )
+    if (!record) throw new Error('Missing universal Application fixture')
+    const identity = SITE_A_APPLICATION_IDENTITIES.find(
+      ([id]) => id === 'universal-multi-application',
+    )
+    if (!identity) throw new Error('Missing universal Application identity')
+    const serialized = applicationResponse({}, record).tio2Application
+    const fields = {
+      ...serialized.siteAApplicationFields,
+      relatedApplications:
+        serialized.siteAApplicationFields.relatedApplications.slice(0, 2),
+    }
+
+    expect(() =>
+      toApplicationDtoFromSerialized(
+        {...serialized, fields},
+        identity,
+        'tio2-a',
+      ),
+    ).toThrow(ApplicationContractError)
+  })
+
+  it.each([
+    ['stable ID', {applicationId: 'plastics'}],
+    ['level', {applicationLevel: 'detail'}],
+    ['family', {family: 'Wrong family'}],
+  ] as const)(
+    'rejects a noncanonical serialized Application %s at the normalizer boundary',
+    (_name, fieldOverride) => {
+      const serialized = applicationResponse().tio2Application
+      const fields = {
+        ...serialized.siteAApplicationFields,
+        ...fieldOverride,
+      }
+
+      expect(() =>
+        toApplicationDtoFromSerialized(
+          {...serialized, fields},
+          SITE_A_APPLICATION_IDENTITIES[1],
+          'tio2-a',
+        ),
+      ).toThrow(ApplicationContractError)
+    },
+  )
 
   it('rejects duplicated, unresolved, noncanonical, or unsafe serialized relationships', async () => {
     publicRoutePolicy.approved.add(`tio2-a:${resourceRecord.identity.path}`)

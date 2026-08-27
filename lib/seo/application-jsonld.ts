@@ -2,6 +2,7 @@ import {
   SITE_A_APPLICATION_IDENTITIES,
 } from '@/lib/applications/content-manifest'
 import type {ApplicationPageDto} from '@/lib/applications/types'
+import {assertCanonicalApplicationGraph} from '@/lib/applications/runtime'
 import {isStrictUtcInstant} from '@/lib/wordpress/time'
 import type {SiteConfig, SiteId} from '@/sites'
 import {isPublicRoute} from '@/sites/public-routes'
@@ -71,6 +72,7 @@ export function buildApplicationJsonLd(
   site: SiteConfig,
   visible: ApplicationVisibility = isPublicRoute,
 ): ApplicationJsonLdNode[] {
+  assertCanonicalApplicationGraph(application)
   const canonical = new URL(application.identity.path, site.url).href
   const primary: Record<string, unknown> = {
     '@context': 'https://schema.org',

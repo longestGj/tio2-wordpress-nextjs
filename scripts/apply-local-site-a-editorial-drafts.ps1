@@ -76,14 +76,22 @@ function Invoke-LocalEditorialDraftImport {
         $DockerArguments = @(
             'compose', '--env-file', $EnvironmentFile, '-f', $ComposeFile,
             'run', '--rm', '--no-TTY', '--user', '33:33',
-            '-e', "TIO2_LOCAL_EDITORIAL_DRAFT_CAPABILITY=$($Capability.token)",
+            '-e', 'TIO2_LOCAL_EDITORIAL_DRAFT_CAPABILITY',
             'wpcli', 'wp', "--user=$AdminUser", 'eval-file',
             '/workspace/wordpress/seed/apply-site-a-editorial-drafts.php',
             ('/workspace/wordpress/seed/' + [System.IO.Path]::GetFileName($CapabilityPath))
         )
-        $PreviousErrorActionPreference = $ErrorActionPreference
-        $ErrorActionPreference = 'Continue'
-        try { $CommandOutput = & docker @DockerArguments 2>&1; $CommandExitCode = $LASTEXITCODE } finally { $ErrorActionPreference = $PreviousErrorActionPreference }
+        $CapabilityEnvironmentName = 'TIO2_LOCAL_EDITORIAL_DRAFT_CAPABILITY'
+        $PreviousCapabilityEnvironment = [System.Environment]::GetEnvironmentVariable($CapabilityEnvironmentName, [System.EnvironmentVariableTarget]::Process)
+        try {
+            [System.Environment]::SetEnvironmentVariable($CapabilityEnvironmentName, [string] $Capability.token, [System.EnvironmentVariableTarget]::Process)
+            $PreviousErrorActionPreference = $ErrorActionPreference
+            $ErrorActionPreference = 'Continue'
+            try { $CommandOutput = & docker @DockerArguments 2>&1; $CommandExitCode = $LASTEXITCODE } finally { $ErrorActionPreference = $PreviousErrorActionPreference }
+        }
+        finally {
+            [System.Environment]::SetEnvironmentVariable($CapabilityEnvironmentName, $PreviousCapabilityEnvironment, [System.EnvironmentVariableTarget]::Process)
+        }
         foreach ($OutputLine in $CommandOutput) { Write-Host $OutputLine }
         if ($CommandExitCode -ne 0) { throw "Local Site A editorial draft $($Capability.mode) failed with exit code $CommandExitCode." }
         $Marker = 'TIO2_SITE_A_EDITORIAL_DRAFT_RESULT '

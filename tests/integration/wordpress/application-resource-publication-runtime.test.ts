@@ -198,10 +198,10 @@ describe.runIf(runLiveWordPress)('live WordPress Site A Application/Resource edi
   }, 180_000)
 
   afterAll(() => {
-    wp([
+    requireWpSuccess(wp([
       'eval',
       `$ids=get_posts(['post_type'=>['tio2_application','tio2_document'],'post_status'=>'any','posts_per_page'=>-1,'fields'=>'ids','meta_key'=>'_tio2_runtime_fixture','meta_value'=>'${fixtureMarker}']);foreach($ids as $id){wp_delete_post((int)$id,true);}`,
-    ])
+    ]))
   })
 
   it('saves complete exact-Site-A drafts with the matching ACF groups and empty validation errors', () => {

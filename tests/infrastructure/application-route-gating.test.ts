@@ -35,6 +35,18 @@ function canonicalFixture(
     target.type === 'product' ? {...target, id: 'TP-P100'} : target,
   )
   mutateInput?.(input)
+  const children = SITE_A_APPLICATION_IDENTITIES.filter(
+    (candidate) => candidate[5] === id,
+  ).map(([childId]) => ({type: 'application' as const, id: childId}))
+  const relationships =
+    id === 'universal-multi-application'
+      ? [
+          ...input.relationships,
+          {type: 'application' as const, id: 'coatings'},
+          {type: 'application' as const, id: 'plastics'},
+          {type: 'application' as const, id: 'printing-inks'},
+        ]
+      : input.relationships
   return toApplicationPageDto(
     {
       ...input,
@@ -47,7 +59,8 @@ function canonicalFixture(
         family,
         parentId,
       },
-      children: [],
+      children,
+      relationships,
     },
     resolveTarget,
   )
