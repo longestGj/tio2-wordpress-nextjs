@@ -97,6 +97,21 @@ describe('exact Site A editorial manifest validators', () => {
     expect(applicationPageInputSchema.parse({...applicationHubInput, decisionGuide: {...applicationHubInput.decisionGuide, customerInputs}}).decisionGuide.customerInputs).toEqual(customerInputs)
   })
 
+  it('allows only the approved TP-C410 FAQ replacement question while rejecting affirmative replacement claims', () => {
+    const approvedQuestion = 'Can TP-C410 be treated as a replacement for TP-C300?'
+    const approved = mutableFixture(applicationHubInput)
+    approved.faqs[0].question = approvedQuestion
+    expect(applicationPageInputSchema.parse(approved).faqs[0].question).toBe(approvedQuestion)
+
+    const affirmative = mutableFixture(applicationHubInput)
+    affirmative.faqs[0].question = 'TP-C410 is a replacement for TP-C300.'
+    expect(() => applicationPageInputSchema.parse(affirmative)).toThrow(/forbidden/u)
+
+    const otherQuestion = mutableFixture(applicationHubInput)
+    otherQuestion.faqs[0].question = 'Can TP-C400 be treated as a replacement for TP-C300?'
+    expect(() => applicationPageInputSchema.parse(otherQuestion)).toThrow(/forbidden/u)
+  })
+
   it('accepts the complete approved Application and Resource inventories', () => {
     expect(validateSiteAApplicationManifest(applicationsManifest()).records).toHaveLength(28)
     expect(validateSiteAResourceManifest(resourcesManifest()).records).toHaveLength(11)

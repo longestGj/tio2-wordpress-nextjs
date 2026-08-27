@@ -6,6 +6,7 @@ const INTERNAL_PATH_PATTERN = /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*)(?:\/[a-z0-9]+(?:-
 const PRIVATE_LOCATION_PATTERN = /(?:\bfile:\/\/|(?:^|[^a-z0-9])[a-z]:[\\/]|\/(?:documents\/tds|tds|var|home|usr|etc|opt|tmp|private|root)(?:\/|(?=$|[\s"'<>),.;:!?#]))|\.pdf\b)/iu
 const FORBIDDEN_CLAIM_PATTERN = /\b(?:manufacturer|legal\s+entity|reviewer|source\s+(?:file|path)|approval|price|stock|availability|guarantee(?:d|s)?|competitor|equivalent(?:\s+to)?|replacement\s+for)\b/iu
 const MANDATORY_DISCLAIMER_GUARANTEE_PHRASE = 'not intended as guaranteed specifications'
+const APPROVED_TP_C410_REPLACEMENT_FAQ = 'Can TP-C410 be treated as a replacement for TP-C300?'
 
 export function normalizeEditorialInternalPath(value: string): string | null {
   const path = value.trim()
@@ -18,6 +19,7 @@ export function containsPrivateEditorialLocation(value: string): boolean {
 }
 
 export function containsForbiddenEditorialClaim(value: string): boolean {
+  if (value.trim() === APPROVED_TP_C410_REPLACEMENT_FAQ) return false
   return FORBIDDEN_CLAIM_PATTERN.test(value.replaceAll(MANDATORY_DISCLAIMER_GUARANTEE_PHRASE, ''))
 }
 
