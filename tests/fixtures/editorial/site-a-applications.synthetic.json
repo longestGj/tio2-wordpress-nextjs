@@ -1,0 +1,2597 @@
+{
+  "version": "0.1",
+  "siteId": "tio2-a",
+  "records": [
+    {
+      "identity": {
+        "id": "applications-hub",
+        "title": "Synthetic applications-hub application",
+        "slug": "applications",
+        "path": "/applications",
+        "level": "hub",
+        "family": "All",
+        "parentId": null,
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic applications-hub",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "application",
+          "id": "plastics"
+        },
+        {
+          "type": "application",
+          "id": "printing-inks"
+        },
+        {
+          "type": "application",
+          "id": "decorative-paper"
+        },
+        {
+          "type": "application",
+          "id": "solar-film"
+        },
+        {
+          "type": "application",
+          "id": "high-purity"
+        },
+        {
+          "type": "application",
+          "id": "universal-multi-application"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "coatings",
+        "title": "Synthetic coatings application",
+        "slug": "coatings",
+        "path": "/applications/coatings",
+        "level": "category",
+        "family": "Coatings",
+        "parentId": "applications-hub",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic coatings",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [
+        {
+          "type": "application",
+          "id": "water-based-paint"
+        },
+        {
+          "type": "application",
+          "id": "electrophoretic-coating"
+        },
+        {
+          "type": "application",
+          "id": "high-pvc-flat-paint"
+        },
+        {
+          "type": "application",
+          "id": "automotive-coatings"
+        },
+        {
+          "type": "application",
+          "id": "waterborne-automotive-coatings"
+        },
+        {
+          "type": "application",
+          "id": "marine-aerospace-protective"
+        },
+        {
+          "type": "application",
+          "id": "powder-coil-coatings"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "plastics",
+        "title": "Synthetic plastics application",
+        "slug": "plastics",
+        "path": "/applications/plastics",
+        "level": "category",
+        "family": "Plastics",
+        "parentId": "applications-hub",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic plastics",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [
+        {
+          "type": "application",
+          "id": "masterbatch"
+        },
+        {
+          "type": "application",
+          "id": "polycarbonate"
+        },
+        {
+          "type": "application",
+          "id": "outdoor-pvc"
+        },
+        {
+          "type": "application",
+          "id": "film-masterbatch"
+        },
+        {
+          "type": "application",
+          "id": "soft-pvc-solar-backsheet"
+        },
+        {
+          "type": "application",
+          "id": "lcp-high-temperature-plastics"
+        },
+        {
+          "type": "application",
+          "id": "uv-resistant-engineering-plastics"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "printing-inks",
+        "title": "Synthetic printing-inks application",
+        "slug": "printing-inks",
+        "path": "/applications/printing-inks",
+        "level": "category",
+        "family": "Printing Inks",
+        "parentId": "applications-hub",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic printing-inks",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [
+        {
+          "type": "application",
+          "id": "printing-ink"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "decorative-paper",
+        "title": "Synthetic decorative-paper application",
+        "slug": "decorative-paper",
+        "path": "/applications/decorative-paper",
+        "level": "category",
+        "family": "Decorative Paper",
+        "parentId": "applications-hub",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic decorative-paper",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [
+        {
+          "type": "application",
+          "id": "decorative-paper-detail"
+        },
+        {
+          "type": "application",
+          "id": "laminated-decorative-paper"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "solar-film",
+        "title": "Synthetic solar-film application",
+        "slug": "solar-film",
+        "path": "/applications/solar-film",
+        "level": "category",
+        "family": "Solar Film",
+        "parentId": "applications-hub",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic solar-film",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [
+        {
+          "type": "application",
+          "id": "photovoltaic-white-film"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "high-purity",
+        "title": "Synthetic high-purity application",
+        "slug": "high-purity",
+        "path": "/applications/high-purity",
+        "level": "category",
+        "family": "Functional",
+        "parentId": "applications-hub",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic high-purity",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [
+        {
+          "type": "application",
+          "id": "mlcc-electronic-ceramics"
+        },
+        {
+          "type": "application",
+          "id": "functional-materials"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "water-based-paint",
+        "title": "Synthetic water-based-paint application",
+        "slug": "titanium-dioxide-for-water-based-paint",
+        "path": "/applications/titanium-dioxide-for-water-based-paint",
+        "level": "detail",
+        "family": "Coatings",
+        "parentId": "coatings",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic water-based-paint",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "masterbatch",
+        "title": "Synthetic masterbatch application",
+        "slug": "titanium-dioxide-for-masterbatch",
+        "path": "/applications/titanium-dioxide-for-masterbatch",
+        "level": "detail",
+        "family": "Plastics",
+        "parentId": "plastics",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic masterbatch",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "polycarbonate",
+        "title": "Synthetic polycarbonate application",
+        "slug": "titanium-dioxide-for-polycarbonate",
+        "path": "/applications/titanium-dioxide-for-polycarbonate",
+        "level": "detail",
+        "family": "Engineering Plastics",
+        "parentId": "plastics",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic polycarbonate",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "printing-ink",
+        "title": "Synthetic printing-ink application",
+        "slug": "titanium-dioxide-for-printing-ink",
+        "path": "/applications/titanium-dioxide-for-printing-ink",
+        "level": "detail",
+        "family": "Printing Inks",
+        "parentId": "printing-inks",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic printing-ink",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "photovoltaic-white-film",
+        "title": "Synthetic photovoltaic-white-film application",
+        "slug": "titanium-dioxide-for-photovoltaic-white-film",
+        "path": "/applications/titanium-dioxide-for-photovoltaic-white-film",
+        "level": "detail",
+        "family": "Solar Film",
+        "parentId": "solar-film",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic photovoltaic-white-film",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "mlcc-electronic-ceramics",
+        "title": "Synthetic mlcc-electronic-ceramics application",
+        "slug": "high-purity-titanium-dioxide-for-mlcc",
+        "path": "/applications/high-purity-titanium-dioxide-for-mlcc",
+        "level": "detail",
+        "family": "Functional",
+        "parentId": "high-purity",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic mlcc-electronic-ceramics",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "outdoor-pvc",
+        "title": "Synthetic outdoor-pvc application",
+        "slug": "titanium-dioxide-for-outdoor-pvc",
+        "path": "/applications/titanium-dioxide-for-outdoor-pvc",
+        "level": "detail",
+        "family": "Plastics",
+        "parentId": "plastics",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic outdoor-pvc",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "film-masterbatch",
+        "title": "Synthetic film-masterbatch application",
+        "slug": "titanium-dioxide-for-film-masterbatch",
+        "path": "/applications/titanium-dioxide-for-film-masterbatch",
+        "level": "detail",
+        "family": "Plastics",
+        "parentId": "plastics",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic film-masterbatch",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "soft-pvc-solar-backsheet",
+        "title": "Synthetic soft-pvc-solar-backsheet application",
+        "slug": "titanium-dioxide-for-soft-pvc-solar-backsheet",
+        "path": "/applications/titanium-dioxide-for-soft-pvc-solar-backsheet",
+        "level": "detail",
+        "family": "Plastics / Solar",
+        "parentId": "plastics",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic soft-pvc-solar-backsheet",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "lcp-high-temperature-plastics",
+        "title": "Synthetic lcp-high-temperature-plastics application",
+        "slug": "titanium-dioxide-for-lcp",
+        "path": "/applications/titanium-dioxide-for-lcp",
+        "level": "detail",
+        "family": "Engineering Plastics",
+        "parentId": "plastics",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic lcp-high-temperature-plastics",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "uv-resistant-engineering-plastics",
+        "title": "Synthetic uv-resistant-engineering-plastics application",
+        "slug": "uv-resistant-titanium-dioxide-engineering-plastics",
+        "path": "/applications/uv-resistant-titanium-dioxide-engineering-plastics",
+        "level": "detail",
+        "family": "Engineering Plastics",
+        "parentId": "plastics",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic uv-resistant-engineering-plastics",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "decorative-paper-detail",
+        "title": "Synthetic decorative-paper-detail application",
+        "slug": "titanium-dioxide-for-decorative-paper",
+        "path": "/applications/titanium-dioxide-for-decorative-paper",
+        "level": "detail",
+        "family": "Decorative Paper",
+        "parentId": "decorative-paper",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic decorative-paper-detail",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "laminated-decorative-paper",
+        "title": "Synthetic laminated-decorative-paper application",
+        "slug": "titanium-dioxide-for-laminated-decorative-paper",
+        "path": "/applications/titanium-dioxide-for-laminated-decorative-paper",
+        "level": "detail",
+        "family": "Decorative Paper",
+        "parentId": "decorative-paper",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic laminated-decorative-paper",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "electrophoretic-coating",
+        "title": "Synthetic electrophoretic-coating application",
+        "slug": "titanium-dioxide-for-electrophoretic-coating",
+        "path": "/applications/titanium-dioxide-for-electrophoretic-coating",
+        "level": "detail",
+        "family": "Coatings",
+        "parentId": "coatings",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic electrophoretic-coating",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "high-pvc-flat-paint",
+        "title": "Synthetic high-pvc-flat-paint application",
+        "slug": "titanium-dioxide-for-high-pvc-paint",
+        "path": "/applications/titanium-dioxide-for-high-pvc-paint",
+        "level": "detail",
+        "family": "Coatings",
+        "parentId": "coatings",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic high-pvc-flat-paint",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "automotive-coatings",
+        "title": "Synthetic automotive-coatings application",
+        "slug": "titanium-dioxide-for-automotive-coatings",
+        "path": "/applications/titanium-dioxide-for-automotive-coatings",
+        "level": "detail",
+        "family": "Coatings",
+        "parentId": "coatings",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic automotive-coatings",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "waterborne-automotive-coatings",
+        "title": "Synthetic waterborne-automotive-coatings application",
+        "slug": "titanium-dioxide-for-waterborne-automotive-coatings",
+        "path": "/applications/titanium-dioxide-for-waterborne-automotive-coatings",
+        "level": "detail",
+        "family": "Coatings",
+        "parentId": "coatings",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic waterborne-automotive-coatings",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "marine-aerospace-protective",
+        "title": "Synthetic marine-aerospace-protective application",
+        "slug": "titanium-dioxide-for-protective-coatings",
+        "path": "/applications/titanium-dioxide-for-protective-coatings",
+        "level": "detail",
+        "family": "Coatings",
+        "parentId": "coatings",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic marine-aerospace-protective",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "powder-coil-coatings",
+        "title": "Synthetic powder-coil-coatings application",
+        "slug": "titanium-dioxide-for-powder-coil-coatings",
+        "path": "/applications/titanium-dioxide-for-powder-coil-coatings",
+        "level": "detail",
+        "family": "Coatings",
+        "parentId": "coatings",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic powder-coil-coatings",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "universal-multi-application",
+        "title": "Synthetic universal-multi-application application",
+        "slug": "multi-purpose-titanium-dioxide",
+        "path": "/applications/multi-purpose-titanium-dioxide",
+        "level": "detail",
+        "family": "Cross-application",
+        "parentId": "applications-hub",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic universal-multi-application",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        },
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "application",
+          "id": "plastics"
+        },
+        {
+          "type": "application",
+          "id": "printing-inks"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "functional-materials",
+        "title": "Synthetic functional-materials application",
+        "slug": "high-purity-titanium-dioxide-functional-materials",
+        "path": "/applications/high-purity-titanium-dioxide-functional-materials",
+        "level": "detail",
+        "family": "Functional",
+        "parentId": "high-purity",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic functional-materials",
+        "description": "Synthetic, brand-neutral fictional material evaluation guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic application guidance",
+        "headline": "Compare fictional application conditions systematically.",
+        "directAnswer": "<p>Use representative fictional trials to compare material options before deciding.</p>"
+      },
+      "decisionGuide": {
+        "context": "This synthetic page supports fictional evaluation contexts.",
+        "buyerProblem": "A buyer needs a repeatable fictional trial plan.",
+        "selectionFactors": [
+          "End-use conditions",
+          "Processing route",
+          "Validation evidence"
+        ],
+        "powderDataLimits": "Synthetic powder data does not replace formulation testing.",
+        "validationPlan": [
+          "Define a control",
+          "Run a representative trial"
+        ],
+        "customerInputs": [
+          "Formulation context",
+          "Target performance"
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "overview",
+          "heading": "Synthetic overview",
+          "html": "<p>Use this fictional overview to frame an evaluation.</p>"
+        },
+        {
+          "id": "next-steps",
+          "heading": "Synthetic next steps",
+          "html": "<p>Record observations from the representative trial.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic application question 1?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 2?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 3?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        },
+        {
+          "question": "Synthetic application question 4?",
+          "answerHtml": "<p>Use a fictional, representative test plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    }
+  ]
+}

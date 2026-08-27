@@ -226,6 +226,344 @@ function tio2_serialize_homepage_preview(WP_Post $post, string $site_id): array
     ];
 }
 
+function tio2_preview_product_field_name(string $name): string
+{
+    return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $name))));
+}
+
+/**
+ * @param array<string, mixed> $container
+ * @param array<string, mixed> $field
+ */
+function tio2_preview_product_field_value(array $container, array $field)
+{
+    $name = (string) ($field['name'] ?? '');
+    $key = (string) ($field['key'] ?? '');
+
+    return $container[$name] ?? $container[$key] ?? null;
+}
+
+/**
+ * @param array<string, mixed> $field
+ * @return mixed
+ */
+function tio2_preview_product_normalize_value(array $field, $value)
+{
+    $type = (string) ($field['type'] ?? '');
+    if ('taxonomy' === $type) {
+        return (int) $value;
+    }
+    if ('relationship' === $type) {
+        $items = is_array($value) ? $value : [];
+        return array_values(array_filter(array_map('intval', $items), static fn (int $id): bool => $id > 0));
+    }
+    if ('number' === $type) {
+        $number = (float) $value;
+        return floor($number) === $number ? (int) $number : $number;
+    }
+    if ('repeater' === $type) {
+        $rows = is_array($value) ? array_values($value) : [];
+        return array_values(array_map(static function ($row) use ($field): array {
+            $row = is_array($row) ? $row : [];
+            return tio2_preview_product_normalize_fields($field['sub_fields'] ?? [], $row);
+        }, $rows));
+    }
+    if ('group' === $type) {
+        return tio2_preview_product_normalize_fields(
+            $field['sub_fields'] ?? [],
+            is_array($value) ? $value : []
+        );
+    }
+
+    return is_scalar($value) ? (string) $value : '';
+}
+
+/**
+ * @param list<array<string, mixed>> $definitions
+ * @param array<string, mixed> $values
+ * @return array<string, mixed>
+ */
+function tio2_preview_product_normalize_fields(array $definitions, array $values): array
+{
+    $normalized = [];
+    foreach ($definitions as $field) {
+        if (! is_array($field)) {
+            continue;
+        }
+        $name = (string) ($field['name'] ?? '');
+        if ('' === $name) {
+            continue;
+        }
+        $normalized[tio2_preview_product_field_name($name)] = tio2_preview_product_normalize_value(
+            $field,
+            tio2_preview_product_field_value($values, $field)
+        );
+    }
+
+    return $normalized;
+}
+
+function tio2_preview_product_plain_text(string $value): string
+{
+    $decoded = html_entity_decode(
+        wp_strip_all_tags($value, true),
+        ENT_QUOTES | ENT_HTML5,
+        'UTF-8'
+    );
+    $normalized = preg_replace('/\s+/u', ' ', $decoded);
+
+    return trim(is_string($normalized) ? $normalized : $decoded);
+}
+
+/**
+ * @param mixed $value
+ */
+function tio2_preview_product_family_name($value): string
+{
+    $term_id = $value instanceof WP_Term ? (int) $value->term_id : (int) $value;
+    if ($term_id <= 0) {
+        return '';
+    }
+
+    $term = get_term($term_id, 'product_family');
+    return $term instanceof WP_Term
+        ? tio2_preview_product_plain_text($term->name)
+        : '';
+}
+
+function tio2_preview_product_has_only_site_a_scope(int $post_id): bool
+{
+    $site_scopes = wp_get_object_terms($post_id, 'site_scope', ['fields' => 'slugs']);
+    if (is_wp_error($site_scopes)) {
+        return false;
+    }
+
+    return ['tio2-a'] === array_values(array_unique(array_map('strval', $site_scopes)));
+}
+
+function tio2_preview_product_relationship_path(WP_Post $post): ?string
+{
+    if ('tio2_product' === $post->post_type) {
+        $product_id = get_field('product_id', $post->ID, false);
+        if (
+            ! is_string($product_id) ||
+            1 !== preg_match(tio2_product_id_pattern(), $product_id) ||
+            tio2_product_slug_from_id($product_id) !== $post->post_name
+        ) {
+            return null;
+        }
+        $path = tio2_product_path_from_id($product_id);
+    } else {
+        if ('' === $post->post_name) {
+            return null;
+        }
+        $permalink = get_permalink($post);
+        $parts = is_string($permalink) ? wp_parse_url($permalink) : false;
+        if (
+            ! is_array($parts) ||
+            isset($parts['query']) ||
+            isset($parts['fragment']) ||
+            ! isset($parts['path']) ||
+            ! is_string($parts['path'])
+        ) {
+            return null;
+        }
+        $path = '/' === $parts['path'] ? '/' : untrailingslashit($parts['path']);
+        if (! str_ends_with($path, '/' . $post->post_name)) {
+            return null;
+        }
+    }
+
+    return '/' !== $path && tio2_is_valid_public_path($path) ? $path : null;
+}
+
+/**
+ * @param mixed $value
+ * @return list<array{title: string, fit?: string, href?: string}>
+ */
+function tio2_preview_product_relationships(
+    $value,
+    string $expected_post_type,
+    bool $include_fit = false
+): array {
+    $items = is_array($value) ? $value : [];
+    $relationships = [];
+    foreach ($items as $item) {
+        $post = $item instanceof WP_Post ? $item : get_post((int) $item);
+        if (
+            ! $post instanceof WP_Post ||
+            $expected_post_type !== $post->post_type ||
+            'publish' !== $post->post_status ||
+            ! tio2_preview_product_has_only_site_a_scope((int) $post->ID)
+        ) {
+            continue;
+        }
+
+        $href = tio2_preview_product_relationship_path($post);
+        if (
+            null !== $href &&
+            ! tio2_publication_route_is_approved('tio2-a', $href)
+        ) {
+            $href = null;
+        }
+        if (! $include_fit && null === $href) {
+            continue;
+        }
+        $relationship = [
+            'title' => tio2_preview_product_plain_text((string) get_the_title($post)),
+        ];
+        if ($include_fit) {
+            $relationship['fit'] = tio2_preview_product_plain_text(
+                (string) apply_filters('the_excerpt', get_the_excerpt($post))
+            );
+        }
+        if (null !== $href) {
+            $relationship['href'] = $href;
+        }
+        $relationships[] = $relationship;
+    }
+
+    return $relationships;
+}
+
+function tio2_find_product_for_preview(string $site_id, string $path): ?WP_Post
+{
+    if ('tio2-a' !== $site_id || 1 !== preg_match('#^/products/(tp-[a-z]{1,2}[0-9]{3})$#', $path, $matches)) {
+        return null;
+    }
+
+    $products = get_posts([
+        'post_type' => 'tio2_product',
+        'post_status' => 'draft',
+        'name' => $matches[1],
+        'posts_per_page' => 2,
+        'no_found_rows' => true,
+        'orderby' => 'ID',
+        'order' => 'ASC',
+    ]);
+    if (1 !== count($products) || ! $products[0] instanceof WP_Post) {
+        return null;
+    }
+
+    $product = $products[0];
+    return 'tio2-a' === tio2_product_site_id((int) $product->ID) ? $product : null;
+}
+
+/**
+ * @return array<string, mixed>|WP_Error
+ */
+function tio2_serialize_product_preview(WP_Post $product): array|WP_Error
+{
+    if ('draft' !== $product->post_status) {
+        return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+    }
+
+    $validation = tio2_validate_product_contract((int) $product->ID);
+    if (is_wp_error($validation)) {
+        return new WP_Error(
+            'tio2_preview_product_incomplete',
+            'Product preview contract is incomplete.',
+            [
+                'status' => 422,
+                'validationCode' => $validation->get_error_code(),
+            ]
+        );
+    }
+
+    $product_values = [];
+    foreach (tio2_product_field_definitions() as $field) {
+        if (! is_array($field) || empty($field['name'])) {
+            continue;
+        }
+        $product_values[(string) $field['name']] = get_field((string) $field['name'], $product->ID, false);
+    }
+
+    $shared_values = [];
+    foreach (tio2_product_shared_field_definitions() as $field) {
+        if (! is_array($field) || empty($field['name'])) {
+            continue;
+        }
+        $shared_values[(string) $field['name']] = get_field((string) $field['name'], 'option', false);
+    }
+    $shared_fields = tio2_preview_product_normalize_fields(
+        tio2_product_shared_field_definitions(),
+        $shared_values
+    );
+
+    $product_fields = tio2_preview_product_normalize_fields(
+        tio2_product_field_definitions(),
+        $product_values
+    );
+    $product_fields['family'] = tio2_preview_product_family_name($product_values['family'] ?? null);
+    $product_fields['recommendedApplications'] = tio2_preview_product_relationships(
+        $product_values['recommended_applications'] ?? [],
+        'tio2_application',
+        true
+    );
+    $related_links = is_array($product_values['related_links'] ?? null)
+        ? $product_values['related_links']
+        : [];
+    $related_values = [];
+    foreach (tio2_product_field_definitions() as $field) {
+        if (! is_array($field) || 'related_links' !== ($field['name'] ?? null)) {
+            continue;
+        }
+        foreach ($field['sub_fields'] ?? [] as $sub_field) {
+            if (! is_array($sub_field) || empty($sub_field['name'])) {
+                continue;
+            }
+            $related_values[(string) $sub_field['name']] = tio2_preview_product_field_value(
+                $related_links,
+                $sub_field
+            );
+        }
+    }
+    $product_fields['relatedLinks'] = [
+        'applications' => tio2_preview_product_relationships(
+            $related_values['applications'] ?? [],
+            'tio2_application'
+        ),
+        'resources' => tio2_preview_product_relationships(
+            $related_values['resources'] ?? [],
+            'tio2_document'
+        ),
+        'products' => tio2_preview_product_relationships(
+            $related_values['products'] ?? [],
+            'tio2_product'
+        ),
+    ];
+
+    $modified_gmt = get_post_modified_time('Y-m-d\TH:i:s', true, $product);
+    if (! is_string($modified_gmt) || '' === $modified_gmt) {
+        $modified_gmt = get_gmt_from_date(
+            (string) $product->post_modified,
+            'Y-m-d\TH:i:s'
+        );
+    }
+
+    $product_id = (string) $product_values['product_id'];
+    $payload = [
+        'id' => (string) $product->ID,
+        'databaseId' => (int) $product->ID,
+        'siteId' => 'tio2-a',
+        'path' => tio2_product_path_from_id($product_id),
+        'slug' => $product->post_name,
+        'title' => get_the_title($product),
+        'modifiedGmt' => $modified_gmt,
+        'status' => $product->post_status,
+        'productFields' => $product_fields,
+        'productSettingsFields' => $shared_fields,
+    ];
+    if (tio2_product_contains_private_document_location($payload)) {
+        return new WP_Error(
+            'product_private_document_location',
+            'Product preview contains a private document location.'
+        );
+    }
+
+    return $payload;
+}
+
 /**
  * @return true|WP_Error
  */
@@ -291,6 +629,52 @@ function tio2_preview_rest_response(WP_REST_Request $request)
         return new WP_REST_Response($payload, 200);
     }
 
+    if (str_starts_with($path, '/products/')) {
+        $product = tio2_find_product_for_preview($site_id, $path);
+        if (! $product instanceof WP_Post || 'draft' !== $product->post_status) {
+            return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+        }
+
+        $payload = tio2_serialize_product_preview($product);
+        return is_wp_error($payload) ? $payload : new WP_REST_Response($payload, 200);
+    }
+
+    $application_path_is_inventory = false;
+    if ('tio2-a' === $site_id) {
+        foreach (tio2_site_a_application_identities() as $identity) {
+            if ($identity['path'] === $path) {
+                $application_path_is_inventory = true;
+                break;
+            }
+        }
+    }
+    if ($application_path_is_inventory) {
+        $application = tio2_find_application_for_preview($site_id, $path);
+        if (! $application instanceof WP_Post) {
+            return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+        }
+        $payload = tio2_serialize_application_preview($application);
+        return is_wp_error($payload) ? $payload : new WP_REST_Response($payload, 200);
+    }
+
+    $resource_path_is_inventory = false;
+    if ('tio2-a' === $site_id) {
+        foreach (tio2_site_a_resource_identities() as $identity) {
+            if ($identity['path'] === $path) {
+                $resource_path_is_inventory = true;
+                break;
+            }
+        }
+    }
+    if ($resource_path_is_inventory) {
+        $resource = tio2_find_resource_for_preview($site_id, $path);
+        if (! $resource instanceof WP_Post) {
+            return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+        }
+        $payload = tio2_serialize_resource_preview($resource);
+        return is_wp_error($payload) ? $payload : new WP_REST_Response($payload, 200);
+    }
+
     $internal_slug = tio2_build_internal_slug($site_id, $path);
     if (is_wp_error($internal_slug)) {
         return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
@@ -333,6 +717,38 @@ function tio2_preview_rest_response(WP_REST_Request $request)
     ], 200);
 }
 
+/**
+ * Prevent exact Site A Application/Resource preview responses, including
+ * errors for an exact inventory path, from entering a browser or intermediary
+ * cache without changing Product, generic, or Site B preview behavior.
+ *
+ * @param WP_HTTP_Response $response
+ * @return WP_HTTP_Response
+ */
+function tio2_preview_rest_no_store($response, WP_REST_Server $server, WP_REST_Request $request)
+{
+    $path = $request->get_param('path');
+    $is_editorial_path = false;
+    if (
+        '/tio2/v1/preview' === $request->get_route() &&
+        'tio2-a' === $request->get_param('siteId') &&
+        is_string($path)
+    ) {
+        foreach (array_merge(tio2_site_a_application_identities(), tio2_site_a_resource_identities()) as $identity) {
+            if ($identity['path'] === $path) {
+                $is_editorial_path = true;
+                break;
+            }
+        }
+    }
+
+    if ($is_editorial_path) {
+        $response->header('Cache-Control', 'private, no-store, max-age=0');
+    }
+
+    return $response;
+}
+
 function tio2_register_preview_rest_route(): void
 {
     register_rest_route('tio2/v1', '/preview', [
@@ -357,6 +773,31 @@ function tio2_filter_preview_post_link(string $preview_link, WP_Post $post): str
             return $preview_link;
         }
         $route = ['siteId' => $site_id, 'publicPath' => '/'];
+    } elseif ('tio2_product' === $post->post_type) {
+        $validation = tio2_validate_product_contract((int) $post->ID);
+        $product_id = get_field('product_id', $post->ID, false);
+        if (
+            is_wp_error($validation) ||
+            ! is_string($product_id) ||
+            'draft' !== $post->post_status ||
+            'tio2-a' !== tio2_product_site_id((int) $post->ID) ||
+            tio2_product_slug_from_id($product_id) !== $post->post_name
+        ) {
+            return $preview_link;
+        }
+        $route = ['siteId' => 'tio2-a', 'publicPath' => tio2_product_path_from_id($product_id)];
+    } elseif ('tio2_application' === $post->post_type) {
+        $payload = tio2_serialize_application_preview($post);
+        if (is_wp_error($payload)) {
+            return $preview_link;
+        }
+        $route = ['siteId' => 'tio2-a', 'publicPath' => $payload['path']];
+    } elseif ('tio2_document' === $post->post_type && tio2_application_resource_is_exact_site_a((int) $post->ID)) {
+        $payload = tio2_serialize_resource_preview($post);
+        if (is_wp_error($payload)) {
+            return $preview_link;
+        }
+        $route = ['siteId' => 'tio2-a', 'publicPath' => $payload['path']];
     } else {
         $route = tio2_get_managed_post_route((int) $post->ID);
         if (is_wp_error($route)) {

@@ -19,6 +19,10 @@ export type HomepageTemplateKey =
   | 'site-a-homepage-editorial-v0.2'
   | 'site-b-homepage-v0.1-frozen'
 
+export const PRODUCT_TEMPLATE_KEY = 'site-a-product-v0.1' as const
+
+export type ProductTemplateKey = typeof PRODUCT_TEMPLATE_KEY
+
 export interface SiteTemplateProfile {
   readonly siteId: SiteId
   readonly shell: {
@@ -34,10 +38,19 @@ export interface SiteTemplateProfile {
   }
 }
 
-export interface PublicRouteDefinition {
+export interface HomepageRouteDefinition {
   readonly path: '/'
   readonly template: HomepageTemplateKey
 }
+
+export interface ProductRouteDefinition {
+  readonly path: `/products/${string}`
+  readonly template: ProductTemplateKey
+}
+
+export type PublicRouteDefinition =
+  | HomepageRouteDefinition
+  | ProductRouteDefinition
 
 export interface SiteConfig {
   readonly id: SiteId

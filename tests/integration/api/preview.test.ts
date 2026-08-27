@@ -233,12 +233,13 @@ describe('GET /api/preview', () => {
   )
 
   it('verifies the unpublished target before enabling draft mode and redirecting', async () => {
+    const path = '/applications/non-inventory-generic-draft'
     const response = await GET(
-      previewRequest(signedParameters('tio2-a', '/applications/coatings')),
+      previewRequest(signedParameters('tio2-a', path)),
     )
 
     expect(response.status).toBe(307)
-    expect(response.headers.get('location')).toBe('/applications/coatings')
+    expect(response.headers.get('location')).toBe(path)
     expect(response.headers.get('set-cookie')).toContain(
       'tio2_preview_scope=',
     )

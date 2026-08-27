@@ -1,0 +1,149 @@
+fragment ProductSiteScopeFields on SiteScope {
+  slug
+}
+
+fragment ProductApplicationLinkFields on Tio2Application {
+  title
+  excerpt(format: RENDERED)
+  uri
+  status
+  siteScopes {
+    nodes {
+      ...ProductSiteScopeFields
+    }
+  }
+}
+
+fragment ProductDocumentLinkFields on Tio2Document {
+  title
+  uri
+  status
+  siteScopes {
+    nodes {
+      ...ProductSiteScopeFields
+    }
+  }
+}
+
+fragment ProductLinkFields on Tio2Product {
+  title
+  uri
+  status
+  siteScopes {
+    nodes {
+      ...ProductSiteScopeFields
+    }
+  }
+}
+
+fragment SiteProductFields on Tio2Product {
+  id
+  databaseId
+  slug
+  title
+  modifiedGmt
+  status
+  siteScopes {
+    nodes {
+      ...ProductSiteScopeFields
+    }
+  }
+  productFields {
+    productId
+    family {
+      nodes {
+        name
+      }
+    }
+    metaTitle
+    metaDescription
+    eyebrow
+    customerProblemHeadline
+    quickAnswer
+    productType
+    process
+    primaryApplication
+    positioning
+    surfaceTreatment
+    fitWhen {
+      item
+    }
+    discussFirstWhen {
+      item
+    }
+    performancePriorities {
+      title
+      explanation
+    }
+    recommendedApplications(first: 13) {
+      nodes {
+        ... on Tio2Application {
+          ...ProductApplicationLinkFields
+        }
+      }
+    }
+    evidenceStatement
+    typicalProperties {
+      property
+      value
+      unit
+      method
+      note
+      displayOrder
+    }
+    validationChecklist {
+      item
+    }
+    packaging
+    tdsAccess
+    faqItems {
+      question
+      answer
+    }
+    relatedLinks {
+      applications(first: 13) {
+        nodes {
+          ... on Tio2Application {
+            ...ProductApplicationLinkFields
+          }
+        }
+      }
+      resources(first: 13) {
+        nodes {
+          ... on Tio2Document {
+            ...ProductDocumentLinkFields
+          }
+        }
+      }
+      products(first: 13) {
+        nodes {
+          ... on Tio2Product {
+            ...ProductLinkFields
+          }
+        }
+      }
+    }
+  }
+}
+
+query GetSiteProduct($slug: ID!, $siteId: String!) {
+  tio2Product(id: $slug, idType: SLUG) {
+    ...SiteProductFields
+  }
+  tio2ProductSettings(siteId: $siteId) {
+    inquiryFields {
+      key
+      label
+      guidance
+    }
+    requestTdsCta {
+      label
+      description
+    }
+    discussApplicationCta {
+      label
+      description
+    }
+    technicalDisclaimer
+  }
+}

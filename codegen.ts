@@ -5,6 +5,9 @@ const config: CodegenConfig = {
   documents: [
     'lib/wordpress/queries.graphql',
     'lib/wordpress/homepage*-queries.graphql',
+    'lib/wordpress/product-queries.graphql',
+    'lib/wordpress/application-queries.graphql',
+    'lib/wordpress/resource-queries.graphql',
   ],
   generates: {
     'lib/wordpress/generated.ts': {

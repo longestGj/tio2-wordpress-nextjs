@@ -1,0 +1,103 @@
+.page {
+  --application-ink: #17231f;
+  --application-muted: #53625c;
+  --application-paper: #fbfaf6;
+  --application-soft: #f0f3ed;
+  --application-rule: #c8d0c8;
+  --application-green: #173f35;
+  --application-copper: #874029;
+  min-width: 0;
+  background: var(--application-paper);
+  color: var(--application-ink);
+  font-family: Inter, Aptos, "Segoe UI", sans-serif;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.page *,
+.page *::before,
+.page *::after {
+  box-sizing: border-box;
+}
+
+.page section {
+  width: min(100%, 92rem);
+  margin-inline: auto;
+  padding: clamp(3.5rem, 7vw, 7rem) clamp(1.25rem, 5vw, 5rem);
+}
+
+.page section:nth-of-type(even) {
+  background: var(--application-soft);
+}
+
+.page :where(h1, h2, h3, p, ol, ul) {
+  margin-top: 0;
+}
+
+.page :where(h1, h2, h3) {
+  color: var(--application-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.page h1 {
+  max-width: 18ch;
+  font-size: clamp(2.65rem, 6vw, 5.5rem);
+  letter-spacing: -0.045em;
+}
+
+.page h2 {
+  font-size: clamp(1.8rem, 3.5vw, 3.25rem);
+}
+
+.page :where(ol, ul) {
+  display: grid;
+  gap: 0.75rem;
+  padding-left: 1.4rem;
+}
+
+.page a {
+  color: var(--application-green);
+  font-weight: 700;
+  text-underline-offset: 0.22em;
+}
+
+.page a:focus-visible {
+  outline: 3px solid var(--application-copper);
+  outline-offset: 4px;
+}
+
+.hero {
+  min-height: min(48rem, 78vh);
+  padding-block: clamp(4rem, 9vw, 8rem) !important;
+  background: var(--application-paper) !important;
+}
+
+.eyebrow {
+  color: var(--application-copper);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 34rem) {
+  .page section {
+    padding-inline: 1rem;
+  }
+
+  .hero {
+    min-height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

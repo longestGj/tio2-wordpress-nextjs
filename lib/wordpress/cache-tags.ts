@@ -1,10 +1,19 @@
 import {SITE_IDS} from '@/sites'
 import type {SiteId} from '@/sites'
+import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest'
+import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 
 const siteIdSet = new Set<SiteId>(SITE_IDS)
 const MAX_CANONICAL_PUBLIC_PATH_LENGTH = 172
 const CANONICAL_PUBLIC_PATH_PATTERN =
   /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*)?$/u
+const PRODUCT_SLUG_PATTERN = /^tp-[a-z]{1,2}[0-9]{3}$/u
+const applicationIds = new Set<string>(
+  SITE_A_APPLICATION_IDENTITIES.map(([id]) => id),
+)
+const resourceIds = new Set<string>(
+  SITE_A_RESOURCE_IDENTITIES.map(([id]) => id),
+)
 
 function assertSiteId(siteId: string): asserts siteId is SiteId {
   if (!siteIdSet.has(siteId as SiteId)) {
@@ -55,6 +64,45 @@ export function contentListTag(siteId: string): string {
 export function sitemapTag(siteId: string): string {
   assertSiteId(siteId)
   return `sitemap:${siteId}`
+}
+
+export function productListTag(siteId: string): string {
+  assertSiteId(siteId)
+  return `product-list:${siteId}`
+}
+
+export function productTag(siteId: string, slug: string): string {
+  assertSiteId(siteId)
+  if (!PRODUCT_SLUG_PATTERN.test(slug)) {
+    throw new Error(`Invalid product slug: ${slug}`)
+  }
+  return `product:${siteId}:${slug}`
+}
+
+export function applicationListTag(siteId: string): string {
+  assertSiteId(siteId)
+  return `application-list:${siteId}`
+}
+
+export function applicationTag(siteId: string, id: string): string {
+  assertSiteId(siteId)
+  if (!applicationIds.has(id)) {
+    throw new Error(`Invalid Application ID: ${id}`)
+  }
+  return `application:${siteId}:${id}`
+}
+
+export function resourceListTag(siteId: string): string {
+  assertSiteId(siteId)
+  return `resource-list:${siteId}`
+}
+
+export function resourceTag(siteId: string, id: string): string {
+  assertSiteId(siteId)
+  if (!resourceIds.has(id)) {
+    throw new Error(`Invalid Resource ID: ${id}`)
+  }
+  return `resource:${siteId}:${id}`
 }
 
 export function contentTag(siteId: string, contentId: number): string {

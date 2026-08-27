@@ -1,6 +1,13 @@
 import publicRoutesJson from '../wordpress/plugins/tio2-site-model/config/public-routes.json'
-import {SITE_IDS} from './types'
-import type {HomepageTemplateKey, PublicRouteDefinition, SiteId} from './types'
+import {PRODUCT_TEMPLATE_KEY, SITE_IDS} from './types'
+import type {
+  HomepageRouteDefinition,
+  HomepageTemplateKey,
+  PublicRouteDefinition,
+  SiteId,
+} from './types'
+
+const PRODUCT_SLUG_PATH = /^\/products\/(tp-[a-z]{1,2}[0-9]{3})$/u
 
 const homepageTemplateKeys = new Set<HomepageTemplateKey>([
   'site-a-homepage-editorial-v0.2',
@@ -37,7 +44,7 @@ function assertKnownSiteId(siteId: string): asserts siteId is SiteId {
   }
 }
 
-function parseRoute(siteId: SiteId, value: unknown): PublicRouteDefinition {
+function parseRoute(siteId: SiteId, value: unknown): HomepageRouteDefinition {
   if (!isRecord(value)) {
     throw new Error(`Invalid public route definition for ${siteId}`)
   }
@@ -112,6 +119,22 @@ const publicRouteInventory = parsePublicRouteInventory(publicRoutesJson)
 export function getPublicRoutes(siteId: SiteId): readonly PublicRouteDefinition[] {
   assertKnownSiteId(siteId)
   return publicRouteInventory[siteId].routes
+}
+
+export function getApprovedProductSlugs(
+  siteId: SiteId,
+  routes: readonly PublicRouteDefinition[] = getPublicRoutes(siteId),
+): readonly string[] {
+  assertKnownSiteId(siteId)
+  if (siteId !== 'tio2-a') return Object.freeze([])
+
+  const slugs = routes.flatMap((route) => {
+    if (route.template !== PRODUCT_TEMPLATE_KEY) return []
+    const slug = PRODUCT_SLUG_PATH.exec(route.path)?.[1]
+    return slug ? [slug] : []
+  })
+
+  return Object.freeze([...new Set(slugs)])
 }
 
 export function isPublicRoute(siteId: SiteId, path: string): boolean {

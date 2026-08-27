@@ -1,0 +1,131 @@
+.page {
+  --resource-ink: #17231f;
+  --resource-muted: #53625c;
+  --resource-paper: #fbfaf6;
+  --resource-soft: #f0f3ed;
+  --resource-rule: #c8d0c8;
+  --resource-green: #173f35;
+  --resource-copper: #874029;
+  min-width: 0;
+  background: var(--resource-paper);
+  color: var(--resource-ink);
+  font-family: Inter, Aptos, "Segoe UI", sans-serif;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.page *,
+.page *::before,
+.page *::after {
+  box-sizing: border-box;
+}
+
+.page section {
+  width: min(100%, 92rem);
+  margin-inline: auto;
+  padding: clamp(3.5rem, 7vw, 7rem) clamp(1.25rem, 5vw, 5rem);
+}
+
+.page section:nth-of-type(even) {
+  background: var(--resource-soft);
+}
+
+.page :where(h1, h2, h3, p, ol, ul) {
+  margin-top: 0;
+}
+
+.page :where(h1, h2, h3) {
+  color: var(--resource-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.page h1 {
+  max-width: 18ch;
+  font-size: clamp(2.65rem, 6vw, 5.5rem);
+  letter-spacing: -0.045em;
+}
+
+.page h2 {
+  font-size: clamp(1.8rem, 3.5vw, 3.25rem);
+}
+
+.page :where(ol, ul) {
+  display: grid;
+  gap: 0.75rem;
+  padding-left: 1.4rem;
+}
+
+.page table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow-wrap: anywhere;
+}
+
+.tableRegion {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.comparisonTable {
+  min-width: 32rem;
+}
+
+.page caption {
+  margin-bottom: 1rem;
+  color: var(--resource-muted);
+  text-align: left;
+}
+
+.page :where(th, td) {
+  padding: 0.8rem;
+  border: 1px solid var(--resource-rule);
+  text-align: left;
+  vertical-align: top;
+}
+
+.page a {
+  color: var(--resource-green);
+  font-weight: 700;
+  text-underline-offset: 0.22em;
+}
+
+.page a:focus-visible {
+  outline: 3px solid var(--resource-copper);
+  outline-offset: 4px;
+}
+
+.hero {
+  min-height: min(48rem, 78vh);
+  padding-block: clamp(4rem, 9vw, 8rem) !important;
+  background: var(--resource-paper) !important;
+}
+
+.eyebrow {
+  color: var(--resource-copper);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 34rem) {
+  .page section {
+    padding-inline: 1rem;
+  }
+
+  .hero {
+    min-height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

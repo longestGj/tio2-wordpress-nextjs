@@ -1,0 +1,1092 @@
+{
+  "version": "0.1",
+  "siteId": "tio2-a",
+  "records": [
+    {
+      "identity": {
+        "id": "resources-hub",
+        "title": "Synthetic resources-hub resource",
+        "slug": "resources",
+        "path": "/resources",
+        "kind": "hub",
+        "cluster": "Hub",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic resources-hub",
+        "description": "Synthetic, brand-neutral fictional technical guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic technical guidance",
+        "headline": "Turn fictional observations into a repeatable comparison.",
+        "directAnswer": "<p>Use consistent methods and representative conditions for fictional comparisons.</p>"
+      },
+      "keyTakeaways": [
+        "Use representative conditions.",
+        "Record the comparison method.",
+        "Confirm outcomes in the intended system."
+      ],
+      "sections": [
+        {
+          "id": "method",
+          "heading": "Synthetic method",
+          "html": "<p>Start with a fictional control and a documented method.</p>"
+        },
+        {
+          "id": "review",
+          "heading": "Synthetic review",
+          "html": "<p>Review results against the intended fictional use.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Synthetic option",
+          "Observation"
+        ],
+        "rows": [
+          [
+            "Option A",
+            "Record a result"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Choose a comparable process."
+      ],
+      "commonMistakes": [
+        "Do not rely on an unrepresentative trial."
+      ],
+      "evaluationMethod": [
+        "Define the test conditions."
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic resource question 1?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 2?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 3?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 4?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        }
+      ],
+      "children": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "resource",
+          "id": "article-02"
+        },
+        {
+          "type": "resource",
+          "id": "article-03"
+        },
+        {
+          "type": "resource",
+          "id": "article-04"
+        },
+        {
+          "type": "resource",
+          "id": "article-05"
+        },
+        {
+          "type": "resource",
+          "id": "article-06"
+        },
+        {
+          "type": "resource",
+          "id": "article-07"
+        },
+        {
+          "type": "resource",
+          "id": "article-08"
+        },
+        {
+          "type": "resource",
+          "id": "article-09"
+        },
+        {
+          "type": "resource",
+          "id": "article-10"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-01",
+        "title": "Synthetic article-01 resource",
+        "slug": "rutile-vs-anatase-titanium-dioxide",
+        "path": "/resources/rutile-vs-anatase-titanium-dioxide",
+        "kind": "article",
+        "cluster": "TiO₂ Fundamentals",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic article-01",
+        "description": "Synthetic, brand-neutral fictional technical guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic technical guidance",
+        "headline": "Turn fictional observations into a repeatable comparison.",
+        "directAnswer": "<p>Use consistent methods and representative conditions for fictional comparisons.</p>"
+      },
+      "keyTakeaways": [
+        "Use representative conditions.",
+        "Record the comparison method.",
+        "Confirm outcomes in the intended system."
+      ],
+      "sections": [
+        {
+          "id": "method",
+          "heading": "Synthetic method",
+          "html": "<p>Start with a fictional control and a documented method.</p>"
+        },
+        {
+          "id": "review",
+          "heading": "Synthetic review",
+          "html": "<p>Review results against the intended fictional use.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Synthetic option",
+          "Observation"
+        ],
+        "rows": [
+          [
+            "Option A",
+            "Record a result"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Choose a comparable process."
+      ],
+      "commonMistakes": [
+        "Do not rely on an unrepresentative trial."
+      ],
+      "evaluationMethod": [
+        "Define the test conditions."
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic resource question 1?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 2?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 3?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 4?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-02",
+        "title": "Synthetic article-02 resource",
+        "slug": "chloride-vs-sulfate-titanium-dioxide",
+        "path": "/resources/chloride-vs-sulfate-titanium-dioxide",
+        "kind": "article",
+        "cluster": "TiO₂ Fundamentals",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic article-02",
+        "description": "Synthetic, brand-neutral fictional technical guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic technical guidance",
+        "headline": "Turn fictional observations into a repeatable comparison.",
+        "directAnswer": "<p>Use consistent methods and representative conditions for fictional comparisons.</p>"
+      },
+      "keyTakeaways": [
+        "Use representative conditions.",
+        "Record the comparison method.",
+        "Confirm outcomes in the intended system."
+      ],
+      "sections": [
+        {
+          "id": "method",
+          "heading": "Synthetic method",
+          "html": "<p>Start with a fictional control and a documented method.</p>"
+        },
+        {
+          "id": "review",
+          "heading": "Synthetic review",
+          "html": "<p>Review results against the intended fictional use.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Synthetic option",
+          "Observation"
+        ],
+        "rows": [
+          [
+            "Option A",
+            "Record a result"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Choose a comparable process."
+      ],
+      "commonMistakes": [
+        "Do not rely on an unrepresentative trial."
+      ],
+      "evaluationMethod": [
+        "Define the test conditions."
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic resource question 1?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 2?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 3?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 4?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-03",
+        "title": "Synthetic article-03 resource",
+        "slug": "tio2-content-vs-performance",
+        "path": "/resources/tio2-content-vs-performance",
+        "kind": "article",
+        "cluster": "TiO₂ Fundamentals",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic article-03",
+        "description": "Synthetic, brand-neutral fictional technical guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic technical guidance",
+        "headline": "Turn fictional observations into a repeatable comparison.",
+        "directAnswer": "<p>Use consistent methods and representative conditions for fictional comparisons.</p>"
+      },
+      "keyTakeaways": [
+        "Use representative conditions.",
+        "Record the comparison method.",
+        "Confirm outcomes in the intended system."
+      ],
+      "sections": [
+        {
+          "id": "method",
+          "heading": "Synthetic method",
+          "html": "<p>Start with a fictional control and a documented method.</p>"
+        },
+        {
+          "id": "review",
+          "heading": "Synthetic review",
+          "html": "<p>Review results against the intended fictional use.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Synthetic option",
+          "Observation"
+        ],
+        "rows": [
+          [
+            "Option A",
+            "Record a result"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Choose a comparable process."
+      ],
+      "commonMistakes": [
+        "Do not rely on an unrepresentative trial."
+      ],
+      "evaluationMethod": [
+        "Define the test conditions."
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic resource question 1?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 2?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 3?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 4?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-04",
+        "title": "Synthetic article-04 resource",
+        "slug": "titanium-dioxide-oil-absorption",
+        "path": "/resources/titanium-dioxide-oil-absorption",
+        "kind": "article",
+        "cluster": "Performance",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic article-04",
+        "description": "Synthetic, brand-neutral fictional technical guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic technical guidance",
+        "headline": "Turn fictional observations into a repeatable comparison.",
+        "directAnswer": "<p>Use consistent methods and representative conditions for fictional comparisons.</p>"
+      },
+      "keyTakeaways": [
+        "Use representative conditions.",
+        "Record the comparison method.",
+        "Confirm outcomes in the intended system."
+      ],
+      "sections": [
+        {
+          "id": "method",
+          "heading": "Synthetic method",
+          "html": "<p>Start with a fictional control and a documented method.</p>"
+        },
+        {
+          "id": "review",
+          "heading": "Synthetic review",
+          "html": "<p>Review results against the intended fictional use.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Synthetic option",
+          "Observation"
+        ],
+        "rows": [
+          [
+            "Option A",
+            "Record a result"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Choose a comparable process."
+      ],
+      "commonMistakes": [
+        "Do not rely on an unrepresentative trial."
+      ],
+      "evaluationMethod": [
+        "Define the test conditions."
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic resource question 1?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 2?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 3?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 4?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-05",
+        "title": "Synthetic article-05 resource",
+        "slug": "cbu-titanium-dioxide-meaning",
+        "path": "/resources/cbu-titanium-dioxide-meaning",
+        "kind": "article",
+        "cluster": "Performance",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic article-05",
+        "description": "Synthetic, brand-neutral fictional technical guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic technical guidance",
+        "headline": "Turn fictional observations into a repeatable comparison.",
+        "directAnswer": "<p>Use consistent methods and representative conditions for fictional comparisons.</p>"
+      },
+      "keyTakeaways": [
+        "Use representative conditions.",
+        "Record the comparison method.",
+        "Confirm outcomes in the intended system."
+      ],
+      "sections": [
+        {
+          "id": "method",
+          "heading": "Synthetic method",
+          "html": "<p>Start with a fictional control and a documented method.</p>"
+        },
+        {
+          "id": "review",
+          "heading": "Synthetic review",
+          "html": "<p>Review results against the intended fictional use.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Synthetic option",
+          "Observation"
+        ],
+        "rows": [
+          [
+            "Option A",
+            "Record a result"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Choose a comparable process."
+      ],
+      "commonMistakes": [
+        "Do not rely on an unrepresentative trial."
+      ],
+      "evaluationMethod": [
+        "Define the test conditions."
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic resource question 1?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 2?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 3?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 4?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-06",
+        "title": "Synthetic article-06 resource",
+        "slug": "titanium-dioxide-surface-treatment",
+        "path": "/resources/titanium-dioxide-surface-treatment",
+        "kind": "article",
+        "cluster": "Performance",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic article-06",
+        "description": "Synthetic, brand-neutral fictional technical guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic technical guidance",
+        "headline": "Turn fictional observations into a repeatable comparison.",
+        "directAnswer": "<p>Use consistent methods and representative conditions for fictional comparisons.</p>"
+      },
+      "keyTakeaways": [
+        "Use representative conditions.",
+        "Record the comparison method.",
+        "Confirm outcomes in the intended system."
+      ],
+      "sections": [
+        {
+          "id": "method",
+          "heading": "Synthetic method",
+          "html": "<p>Start with a fictional control and a documented method.</p>"
+        },
+        {
+          "id": "review",
+          "heading": "Synthetic review",
+          "html": "<p>Review results against the intended fictional use.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Synthetic option",
+          "Observation"
+        ],
+        "rows": [
+          [
+            "Option A",
+            "Record a result"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Choose a comparable process."
+      ],
+      "commonMistakes": [
+        "Do not rely on an unrepresentative trial."
+      ],
+      "evaluationMethod": [
+        "Define the test conditions."
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic resource question 1?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 2?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 3?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 4?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-07",
+        "title": "Synthetic article-07 resource",
+        "slug": "evaluate-titanium-dioxide-alternative",
+        "path": "/resources/evaluate-titanium-dioxide-alternative",
+        "kind": "article",
+        "cluster": "Grade Replacement",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic article-07",
+        "description": "Synthetic, brand-neutral fictional technical guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic technical guidance",
+        "headline": "Turn fictional observations into a repeatable comparison.",
+        "directAnswer": "<p>Use consistent methods and representative conditions for fictional comparisons.</p>"
+      },
+      "keyTakeaways": [
+        "Use representative conditions.",
+        "Record the comparison method.",
+        "Confirm outcomes in the intended system."
+      ],
+      "sections": [
+        {
+          "id": "method",
+          "heading": "Synthetic method",
+          "html": "<p>Start with a fictional control and a documented method.</p>"
+        },
+        {
+          "id": "review",
+          "heading": "Synthetic review",
+          "html": "<p>Review results against the intended fictional use.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Synthetic option",
+          "Observation"
+        ],
+        "rows": [
+          [
+            "Option A",
+            "Record a result"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Choose a comparable process."
+      ],
+      "commonMistakes": [
+        "Do not rely on an unrepresentative trial."
+      ],
+      "evaluationMethod": [
+        "Define the test conditions."
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic resource question 1?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 2?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 3?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 4?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-08",
+        "title": "Synthetic article-08 resource",
+        "slug": "reduce-tio2-cost-high-pvc-paint",
+        "path": "/resources/reduce-tio2-cost-high-pvc-paint",
+        "kind": "article",
+        "cluster": "Application Testing",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic article-08",
+        "description": "Synthetic, brand-neutral fictional technical guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic technical guidance",
+        "headline": "Turn fictional observations into a repeatable comparison.",
+        "directAnswer": "<p>Use consistent methods and representative conditions for fictional comparisons.</p>"
+      },
+      "keyTakeaways": [
+        "Use representative conditions.",
+        "Record the comparison method.",
+        "Confirm outcomes in the intended system."
+      ],
+      "sections": [
+        {
+          "id": "method",
+          "heading": "Synthetic method",
+          "html": "<p>Start with a fictional control and a documented method.</p>"
+        },
+        {
+          "id": "review",
+          "heading": "Synthetic review",
+          "html": "<p>Review results against the intended fictional use.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Synthetic option",
+          "Observation"
+        ],
+        "rows": [
+          [
+            "Option A",
+            "Record a result"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Choose a comparable process."
+      ],
+      "commonMistakes": [
+        "Do not rely on an unrepresentative trial."
+      ],
+      "evaluationMethod": [
+        "Define the test conditions."
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic resource question 1?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 2?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 3?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 4?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-09",
+        "title": "Synthetic article-09 resource",
+        "slug": "titanium-dioxide-polycarbonate-yellowing",
+        "path": "/resources/titanium-dioxide-polycarbonate-yellowing",
+        "kind": "article",
+        "cluster": "Application Testing",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic article-09",
+        "description": "Synthetic, brand-neutral fictional technical guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic technical guidance",
+        "headline": "Turn fictional observations into a repeatable comparison.",
+        "directAnswer": "<p>Use consistent methods and representative conditions for fictional comparisons.</p>"
+      },
+      "keyTakeaways": [
+        "Use representative conditions.",
+        "Record the comparison method.",
+        "Confirm outcomes in the intended system."
+      ],
+      "sections": [
+        {
+          "id": "method",
+          "heading": "Synthetic method",
+          "html": "<p>Start with a fictional control and a documented method.</p>"
+        },
+        {
+          "id": "review",
+          "heading": "Synthetic review",
+          "html": "<p>Review results against the intended fictional use.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Synthetic option",
+          "Observation"
+        ],
+        "rows": [
+          [
+            "Option A",
+            "Record a result"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Choose a comparable process."
+      ],
+      "commonMistakes": [
+        "Do not rely on an unrepresentative trial."
+      ],
+      "evaluationMethod": [
+        "Define the test conditions."
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic resource question 1?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 2?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 3?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 4?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-10",
+        "title": "Synthetic article-10 resource",
+        "slug": "titanium-dioxide-outdoor-durability",
+        "path": "/resources/titanium-dioxide-outdoor-durability",
+        "kind": "article",
+        "cluster": "Application Testing",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Synthetic article-10",
+        "description": "Synthetic, brand-neutral fictional technical guidance for controlled practice."
+      },
+      "hero": {
+        "eyebrow": "Synthetic technical guidance",
+        "headline": "Turn fictional observations into a repeatable comparison.",
+        "directAnswer": "<p>Use consistent methods and representative conditions for fictional comparisons.</p>"
+      },
+      "keyTakeaways": [
+        "Use representative conditions.",
+        "Record the comparison method.",
+        "Confirm outcomes in the intended system."
+      ],
+      "sections": [
+        {
+          "id": "method",
+          "heading": "Synthetic method",
+          "html": "<p>Start with a fictional control and a documented method.</p>"
+        },
+        {
+          "id": "review",
+          "heading": "Synthetic review",
+          "html": "<p>Review results against the intended fictional use.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Synthetic option",
+          "Observation"
+        ],
+        "rows": [
+          [
+            "Option A",
+            "Record a result"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Choose a comparable process."
+      ],
+      "commonMistakes": [
+        "Do not rely on an unrepresentative trial."
+      ],
+      "evaluationMethod": [
+        "Define the test conditions."
+      ],
+      "faqs": [
+        {
+          "question": "Synthetic resource question 1?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 2?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 3?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        },
+        {
+          "question": "Synthetic resource question 4?",
+          "answerHtml": "<p>Document the fictional evaluation boundary.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "product",
+          "id": "TP-P100"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "discuss-application",
+          "label": "Discuss a synthetic application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>The technical data sheet is available by request.</p>"
+    }
+  ]
+}

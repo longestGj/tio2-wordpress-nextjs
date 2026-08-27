@@ -1,0 +1,381 @@
+// @vitest-environment jsdom
+
+import {cleanup, render, screen, within} from '@testing-library/react'
+import {afterEach, describe, expect, it} from 'vitest'
+
+import {TechnicalResourcePageRenderer} from '@/components/resources/technical-resource-page'
+import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
+import type {EditorialLinkResolver} from '@/lib/editorial/types'
+import type {SiteAResourceContentManifest} from '@/lib/resources/content-manifest'
+import {toTechnicalResourcePageDto} from '@/lib/resources/dto'
+import type {TechnicalResourcePageInput} from '@/lib/resources/schema'
+import type {TechnicalResourcePageDto} from '@/lib/resources/types'
+import resourceManifestJson from '@/tests/fixtures/editorial/site-a-resources.synthetic.json'
+
+const resourceManifest =
+  resourceManifestJson as unknown as SiteAResourceContentManifest
+
+const resolveTarget: EditorialLinkResolver = (target) => {
+  const canonical = resolveCanonicalEditorialTarget(target.type, target.id)
+  return canonical
+    ? {
+        ...canonical.target,
+        title: `Visible ${target.type} ${target.id}`,
+        path: canonical.path,
+        href:
+          target.type === 'resource' && target.id === 'article-01'
+            ? canonical.path
+            : null,
+      }
+    : null
+}
+
+function resourceInput(id: 'resources-hub' | 'article-01') {
+  const source = resourceManifest.records.find((record) => record.identity.id === id)
+  if (!source) throw new Error(`Missing Resource fixture: ${id}`)
+  const input = structuredClone(source) as TechnicalResourcePageInput
+  input.relationships = [
+    {type: 'application', id: 'coatings'},
+    {type: 'resource', id: 'article-02'},
+    {type: 'product', id: 'TP-P100'},
+  ]
+  return input
+}
+
+function resourceFixture(id: 'resources-hub' | 'article-01') {
+  return toTechnicalResourcePageDto(resourceInput(id), resolveTarget)
+}
+
+function mutateFixture(
+  mutation: (resource: TechnicalResourcePageDto) => void,
+  id: 'resources-hub' | 'article-01' = 'resources-hub',
+) {
+  const resource = structuredClone(resourceFixture(id))
+  mutation(resource)
+  return resource
+}
+
+function orderedSectionNames(container: HTMLElement) {
+  return Array.from(container.querySelectorAll<HTMLElement>('section')).map(
+    (section) =>
+      section.dataset.resourceSection ?? section.dataset.editorialSection,
+  )
+}
+
+afterEach(cleanup)
+
+describe('TechnicalResourcePageRenderer', () => {
+  it.each([
+    ['resources-hub', 'hub'],
+    ['article-01', 'article'],
+  ] as const)(
+    'selects the controlled %s renderer and preserves the visible Resource flow',
+    (id, mode) => {
+      const resource = resourceFixture(id)
+      const {container} = render(
+        <TechnicalResourcePageRenderer resource={resource} />,
+      )
+      const page = container.querySelector<HTMLElement>('[data-resource-mode]')
+      const expected = [
+        'hero',
+        'direct-answer',
+        'key-takeaways',
+        'body-section-method',
+        'body-section-review',
+        'comparison-table',
+        'practical-implications',
+        'common-mistakes',
+        'evaluation-method',
+        ...(mode === 'hub' ? ['child-navigation'] : []),
+        'related-content',
+        'faq',
+        'cta-group',
+        'technical-disclaimer',
+      ]
+
+      expect(page?.dataset.resourceMode).toBe(mode)
+      expect(orderedSectionNames(page as HTMLElement)).toEqual(expected)
+      expect(container.querySelectorAll('h1')).toHaveLength(1)
+      expect(
+        screen.getByRole('heading', {level: 1, name: resource.hero.headline}),
+      ).not.toBeNull()
+
+      const sections = Array.from(
+        (page as HTMLElement).querySelectorAll<HTMLElement>('section'),
+      )
+      for (const section of sections) {
+        const labelledBy = section.getAttribute('aria-labelledby')
+        const heading = labelledBy ? document.getElementById(labelledBy) : null
+        expect(labelledBy).toBeTruthy()
+        expect(heading?.matches('h1, h2')).toBe(true)
+        expect(heading ? section.contains(heading) : false).toBe(true)
+      }
+    },
+  )
+
+  it('renders the visible direct answer, takeaways, semantic table, FAQ, CTA, and disclaimer without hidden copies', () => {
+    const resource = resourceFixture('resources-hub')
+    const {container} = render(
+      <TechnicalResourcePageRenderer resource={resource} />,
+    )
+    const hero = container.querySelector('[data-resource-section="hero"]')
+    const directAnswer = container.querySelector<HTMLElement>(
+      '[data-editorial-section="direct-answer"]',
+    )
+    const takeaways = container.querySelector<HTMLElement>(
+      '[data-resource-section="key-takeaways"]',
+    )
+    const tableSection = container.querySelector<HTMLElement>(
+      '[data-resource-section="comparison-table"]',
+    )
+    const table = within(tableSection as HTMLElement).getByRole('table', {
+      name: 'Comparison Table',
+    })
+
+    expect(hero?.nextElementSibling).toBe(directAnswer)
+    expect(directAnswer?.innerHTML).toContain(resource.hero.directAnswer)
+    expect(
+      within(takeaways as HTMLElement).getAllByRole('listitem').map((item) => item.textContent),
+    ).toEqual(resource.keyTakeaways)
+    expect(within(table).getAllByRole('columnheader')).toHaveLength(
+      resource.comparisonTable?.columns.length ?? 0,
+    )
+    expect(
+      within(table)
+        .getAllByRole('columnheader')
+        .every((header) => header.getAttribute('scope') === 'col'),
+    ).toBe(true)
+    expect(within(table).getAllByRole('cell').map((cell) => cell.textContent)).toEqual(
+      resource.comparisonTable?.rows.flat(),
+    )
+    expect(container.querySelectorAll('[data-editorial-faq-item]')).toHaveLength(
+      resource.faqs.length,
+    )
+    expect(
+      container.querySelector('[data-editorial-section="cta-group"]')?.textContent,
+    ).toContain(resource.ctas[0]?.label)
+    expect(
+      container.querySelector('[data-editorial-section="technical-disclaimer"]')
+        ?.innerHTML,
+    ).toContain(resource.disclaimerHtml)
+  })
+
+  it('derives Hub children and relationships only from resolved links and keeps null hrefs non-clickable', () => {
+    const resource = resourceFixture('resources-hub')
+    const {container} = render(
+      <TechnicalResourcePageRenderer resource={resource} />,
+    )
+    const children = container.querySelector<HTMLElement>(
+      '[data-editorial-section="child-navigation"]',
+    )
+    const related = container.querySelector<HTMLElement>(
+      '[data-editorial-section="related-content"]',
+    )
+
+    expect(children?.querySelectorAll('li')).toHaveLength(resource.children.length)
+    expect(children?.querySelectorAll('a')).toHaveLength(1)
+    expect(children?.querySelector('a')?.getAttribute('href')).toBe(
+      '/resources/rutile-vs-anatase-titanium-dioxide',
+    )
+    expect(related?.querySelectorAll('li')).toHaveLength(
+      resource.relationships.length,
+    )
+    expect(related?.querySelectorAll('a')).toHaveLength(0)
+  })
+
+  it('omits only a null comparison table and never renders Article child navigation', () => {
+    const resource = mutateFixture(
+      (value) => {
+        value.comparisonTable = null
+      },
+      'article-01',
+    )
+    const {container} = render(
+      <TechnicalResourcePageRenderer resource={resource} />,
+    )
+
+    expect(
+      container.querySelector('[data-resource-section="comparison-table"]'),
+    ).toBeNull()
+    expect(
+      container.querySelector('[data-editorial-section="child-navigation"]'),
+    ).toBeNull()
+    expect(
+      orderedSectionNames(
+        container.querySelector('[data-resource-mode]') as HTMLElement,
+      ),
+    ).toEqual([
+      'hero',
+      'direct-answer',
+      'key-takeaways',
+      'body-section-method',
+      'body-section-review',
+      'practical-implications',
+      'common-mistakes',
+      'evaluation-method',
+      'related-content',
+      'faq',
+      'cta-group',
+      'technical-disclaimer',
+    ])
+  })
+
+  it.each(['guide', 'comparison', 'testing-method', 'case-study'] as const)(
+    'fails closed when the future %s kind has no registered renderer',
+    (kind) => {
+      const resource = mutateFixture((value) => {
+        value.identity.kind = kind
+      }, 'article-01')
+      const {container} = render(
+        <TechnicalResourcePageRenderer resource={resource} />,
+      )
+
+      expect(container.childElementCount).toBe(0)
+    },
+  )
+
+  it('fails closed for partial, unknown, and nonrectangular resolved DTOs', () => {
+    const complete = resourceFixture('resources-hub')
+    const invalid = [
+      {...complete, keyTakeaways: complete.keyTakeaways.slice(0, 2)},
+      {
+        ...complete,
+        identity: {
+          ...complete.identity,
+          id: 'unknown-document',
+          slug: 'unknown-document',
+          path: '/resources/unknown-document',
+        },
+      },
+      {
+        ...complete,
+        comparisonTable: {columns: ['One', 'Two'], rows: [['Only one']]},
+      },
+    ]
+
+    for (const resource of invalid) {
+      const {container, unmount} = render(
+        <TechnicalResourcePageRenderer resource={resource as never} />,
+      )
+      expect(container.childElementCount).toBe(0)
+      unmount()
+    }
+  })
+
+  it.each([
+    [
+      'script markup in the direct answer',
+      (resource: TechnicalResourcePageDto) => {
+        resource.hero.directAnswer = '<p>Visible.</p><script>alert(1)</script>'
+      },
+    ],
+    [
+      'an event handler in a section',
+      (resource: TechnicalResourcePageDto) => {
+        resource.sections[0]!.html = '<p onclick="track()">Visible.</p>'
+      },
+    ],
+    [
+      'unsupported FAQ markup',
+      (resource: TechnicalResourcePageDto) => {
+        resource.faqs[0]!.answerHtml = '<section>Visible.</section>'
+      },
+    ],
+    [
+      'a PDF CTA path',
+      (resource: TechnicalResourcePageDto) => {
+        resource.ctas[0]!.href = '/resources/technical-data-sheet.pdf'
+      },
+    ],
+  ] as const)('rejects %s without sanitizing or filtering at render time', (_name, mutate) => {
+    const {container} = render(
+      <TechnicalResourcePageRenderer resource={mutateFixture(mutate)} />,
+    )
+    expect(container.childElementCount).toBe(0)
+  })
+
+  it.each([
+    [
+      'a known Resource ID bound to another Resource path',
+      (resource: TechnicalResourcePageDto) => {
+        resource.children[0]!.path =
+          '/resources/chloride-vs-sulfate-titanium-dioxide'
+        resource.children[0]!.href =
+          '/resources/chloride-vs-sulfate-titanium-dioxide'
+      },
+    ],
+    [
+      'an unknown Application ID on a valid-looking path',
+      (resource: TechnicalResourcePageDto) => {
+        const link = resource.relationships.find(({type}) => type === 'application')!
+        link.id = 'unknown-application'
+        link.path = '/applications/unknown-application'
+        link.href = '/applications/unknown-application'
+      },
+    ],
+    [
+      'a known Product ID bound to another Product path',
+      (resource: TechnicalResourcePageDto) => {
+        const link = resource.relationships.find(({type}) => type === 'product')!
+        link.path = '/products/tp-p300'
+        link.href = '/products/tp-p300'
+      },
+    ],
+  ] as const)('rejects %s at the exact canonical target boundary', (_name, mutate) => {
+    const {container} = render(
+      <TechnicalResourcePageRenderer resource={mutateFixture(mutate)} />,
+    )
+    expect(container.childElementCount).toBe(0)
+  })
+
+  it.each([
+    [
+      'a forbidden TDS field on a child',
+      (resource: TechnicalResourcePageDto) => {
+        Object.assign(resource.children[0]!, {
+          tdsUrl: '/resources/technical-data-sheet.pdf',
+        })
+      },
+    ],
+    [
+      'an arbitrary extra field on a child',
+      (resource: TechnicalResourcePageDto) => {
+        Object.assign(resource.children[0]!, {trackingId: 'synthetic-tracker'})
+      },
+    ],
+    [
+      'a forbidden source field on a relationship',
+      (resource: TechnicalResourcePageDto) => {
+        Object.assign(resource.relationships[0]!, {
+          sourcePath: 'C:\\private\\resource.txt',
+        })
+      },
+    ],
+    [
+      'an arbitrary extra field on a relationship',
+      (resource: TechnicalResourcePageDto) => {
+        Object.assign(resource.relationships[0]!, {debugNote: 'private'})
+      },
+    ],
+  ] as const)('rejects %s at the strict resolved-link boundary', (_name, mutate) => {
+    const {container} = render(
+      <TechnicalResourcePageRenderer resource={mutateFixture(mutate)} />,
+    )
+    expect(container.childElementCount).toBe(0)
+  })
+
+  it('accepts authoritative plain text with harmless internal whitespace', () => {
+    const input = resourceInput('article-01')
+    input.practicalImplications[0] =
+      'Compare two  fictional systems\nunder representative conditions.'
+    const resource = toTechnicalResourcePageDto(input, resolveTarget)
+    const {container} = render(
+      <TechnicalResourcePageRenderer resource={resource} />,
+    )
+
+    expect(container.querySelector('[data-resource-mode="article"]')).not.toBeNull()
+    expect(container.textContent).toContain(
+      'Compare two  fictional systems\nunder representative conditions.',
+    )
+  })
+})
