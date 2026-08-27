@@ -717,6 +717,38 @@ function tio2_preview_rest_response(WP_REST_Request $request)
     ], 200);
 }
 
+/**
+ * Prevent exact Site A Application/Resource preview responses, including
+ * errors for an exact inventory path, from entering a browser or intermediary
+ * cache without changing Product, generic, or Site B preview behavior.
+ *
+ * @param WP_HTTP_Response $response
+ * @return WP_HTTP_Response
+ */
+function tio2_preview_rest_no_store($response, WP_REST_Server $server, WP_REST_Request $request)
+{
+    $path = $request->get_param('path');
+    $is_editorial_path = false;
+    if (
+        '/tio2/v1/preview' === $request->get_route() &&
+        'tio2-a' === $request->get_param('siteId') &&
+        is_string($path)
+    ) {
+        foreach (array_merge(tio2_site_a_application_identities(), tio2_site_a_resource_identities()) as $identity) {
+            if ($identity['path'] === $path) {
+                $is_editorial_path = true;
+                break;
+            }
+        }
+    }
+
+    if ($is_editorial_path) {
+        $response->header('Cache-Control', 'private, no-store, max-age=0');
+    }
+
+    return $response;
+}
+
 function tio2_register_preview_rest_route(): void
 {
     register_rest_route('tio2/v1', '/preview', [

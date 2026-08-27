@@ -49,6 +49,7 @@ function previewRedirect(
   expires: number,
   now: number,
   secret: string,
+  noStore = false,
 ): Response {
   const token = createPreviewSessionToken(
     siteId,
@@ -65,13 +66,14 @@ function previewRedirect(
     'SameSite=Lax',
   ]
   if (process.env.NODE_ENV === 'production') attributes.push('Secure')
-  return new Response(null, {
-    status: 307,
-    headers: {
-      location: browserPath,
-      'set-cookie': attributes.join('; '),
-    },
+  const headers = new Headers({
+    location: browserPath,
+    'set-cookie': attributes.join('; '),
   })
+  if (noStore) {
+    headers.set('cache-control', 'private, no-store, max-age=0')
+  }
+  return new Response(null, {status: 307, headers})
 }
 
 export async function GET(request: Request): Promise<Response> {
@@ -165,6 +167,7 @@ export async function GET(request: Request): Promise<Response> {
       expires,
       now,
       configuredSecret,
+      true,
     )
   }
 
@@ -205,6 +208,7 @@ export async function GET(request: Request): Promise<Response> {
       expires,
       now,
       configuredSecret,
+      true,
     )
   }
 

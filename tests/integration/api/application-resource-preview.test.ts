@@ -277,6 +277,7 @@ describe('Application and Resource preview entry redirects', () => {
     const response = await GET(previewRequest(signedParameters('tio2-a', canonicalPath)))
 
     expect(response.status).toBe(307)
+    expect(response.headers.get('cache-control')).toContain('no-store')
     expect(response.headers.get('location')).toBe(browserPath)
     expect(response.headers.get('set-cookie')).toContain(`Path=${browserPath}`)
     const token = sessionToken(response)

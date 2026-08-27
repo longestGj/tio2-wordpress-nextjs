@@ -85,6 +85,7 @@ add_action('post_updated', 'tio2_enforce_homepage_dependencies_after_slug_change
 add_action('deleted_post', 'tio2_enforce_homepage_dependencies_after_delete', 20, 2);
 add_action('shutdown', 'tio2_flush_webhook_queue');
 add_action('rest_api_init', 'tio2_register_preview_rest_route');
+add_filter('rest_post_dispatch', 'tio2_preview_rest_no_store', 10, 3);
 add_filter('preview_post_link', 'tio2_filter_preview_post_link', 10, 2);
 
 register_activation_hook(__FILE__, 'tio2_activate_site_model');

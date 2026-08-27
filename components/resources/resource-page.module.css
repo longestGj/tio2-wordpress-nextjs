@@ -64,6 +64,15 @@
   overflow-wrap: anywhere;
 }
 
+.tableRegion {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.comparisonTable {
+  min-width: 32rem;
+}
+
 .page caption {
   margin-bottom: 1rem;
   color: var(--resource-muted);
@@ -105,11 +114,6 @@
 @media (max-width: 34rem) {
   .page section {
     padding-inline: 1rem;
-  }
-
-  .page table {
-    display: block;
-    overflow-x: auto;
   }
 
   .hero {

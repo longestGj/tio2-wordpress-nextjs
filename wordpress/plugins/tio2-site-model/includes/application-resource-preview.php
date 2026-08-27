@@ -433,10 +433,23 @@ function tio2_serialize_resource_fields(WP_Post $post): array|WP_Error
     $comparison = get_field('comparison_table', $post->ID, false);
     $comparison_table = null;
     if (is_array($comparison) && [] !== $comparison) {
-        $columns = tio2_editorial_item_rows($comparison['columns'] ?? [], 'label');
+        $column_rows = $comparison['columns']
+            ?? $comparison['field_tio2_resource_comparison_table_columns']
+            ?? [];
+        $comparison_rows = $comparison['rows']
+            ?? $comparison['field_tio2_resource_comparison_table_rows']
+            ?? [];
+        $columns = tio2_editorial_item_rows($column_rows, 'label');
         $rows = array_map(static fn ($row): array => [
-                'cells' => is_array($row) ? tio2_editorial_item_rows($row['cells'] ?? [], 'value') : [],
-            ], is_array($comparison['rows'] ?? null) ? array_values($comparison['rows']) : []);
+                'cells' => is_array($row)
+                    ? tio2_editorial_item_rows(
+                        $row['cells']
+                            ?? $row['field_tio2_resource_comparison_table_rows_cells']
+                            ?? [],
+                        'value'
+                    )
+                    : [],
+            ], is_array($comparison_rows) ? array_values($comparison_rows) : []);
         if ([] !== $columns || [] !== $rows) {
             $comparison_table = ['columns' => $columns, 'rows' => $rows];
         }
