@@ -1,5 +1,6 @@
 import type {ApplicationPageDto} from '@/lib/applications/types'
 import {applicationPageInputSchema} from '@/lib/applications/schema'
+import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import {
   containsForbiddenEditorialClaim,
   containsPrivateEditorialLocation,
@@ -7,7 +8,6 @@ import {
   normalizeEditorialInternalPath,
   sanitizeEditorialRichText,
 } from '@/lib/editorial/rich-text'
-import {htmlToPlainText} from '@/lib/seo/text'
 
 import {ApplicationCategory} from './application-category'
 import {ApplicationDetail} from './application-detail'
@@ -27,12 +27,8 @@ function populatedArray(value: unknown): value is readonly unknown[] {
 
 function safePlainText(value: unknown): value is string {
   if (!populated(value) || value !== value.trim()) return false
-  const plainText = htmlToPlainText(
-    value,
-    Math.max(Array.from(value).length, 1),
-  )
   return (
-    plainText === value &&
+    !/(?:<!--|<![a-z]|<\?|<\/?[a-z][^>]*(?:>|$))/iu.test(value) &&
     !containsPrivateEditorialLocation(value) &&
     !containsForbiddenEditorialClaim(value)
   )
@@ -89,16 +85,24 @@ function completeFaqs(value: unknown): boolean {
 function completeLinks(value: unknown): boolean {
   return (
     Array.isArray(value) &&
-    value.every(
-      (link) =>
-        isRecord(link) &&
-        ['product', 'application', 'resource'].includes(String(link.type)) &&
-        populated(link.id) &&
-        safePlainText(link.title) &&
-        safeCanonicalPath(link.path) &&
-        (link.href === null ||
-          (safeCanonicalPath(link.href) && link.href === link.path)),
-    )
+    value.every((link) => {
+      if (
+        !isRecord(link) ||
+        typeof link.type !== 'string' ||
+        typeof link.id !== 'string'
+      ) {
+        return false
+      }
+      const canonical = resolveCanonicalEditorialTarget(link.type, link.id)
+      return Boolean(
+        canonical &&
+          safePlainText(link.title) &&
+          safeCanonicalPath(link.path) &&
+          link.path === canonical.path &&
+          (link.href === null ||
+            (safeCanonicalPath(link.href) && link.href === canonical.path)),
+      )
+    })
   )
 }
 

@@ -198,3 +198,48 @@ All four hostile rich-text cases and all six resolved-link cases rendered one pa
 - Identity, child, relationship, and CTA paths must already be exact normalized safe internal paths. A non-null child/relationship href must independently be safe and exactly equal its validated `link.path`; `null` remains valid non-clickable context.
 - Expanded child/relationship objects are validated before their stable targets are projected for the authoritative schema, closing the reviewed boundary gap without weakening upstream DTO construction.
 - The fix is limited to `components/applications/application-page.tsx`, its renderer unit test, and this report. Public routes/inventory, previews, SEO helpers, sitemap, navigation, Homepage, Product DTOs/components, WordPress, `public/`, Site B, publication, deployment, and remote state remain unchanged.
+
+## Fix Round 2: inventory-bound links and schema-valid whitespace
+
+Read the Fix Round 1 rereview in `task-6-review.md` and reproduced both remaining Important findings. The previous Minor concern about Application-specific markers on shared editorial primitives remains deliberately deferred for final triage.
+
+### RED
+
+Added renderer-boundary cases for all three target types:
+
+- a known Application, Resource, or Product ID forged to another known target's normalized canonical path and matching href;
+- an unknown Application, Resource, or Product ID paired with a syntactically valid internal path and matching href; and
+- a complete DTO built through `toApplicationPageDto()` whose customer-context text contains harmless internal double spaces and a line break.
+
+Command:
+
+```text
+npm test -- tests/unit/components/application-page.test.tsx
+```
+
+Result before the fix:
+
+```text
+Test Files  1 failed (1)
+Tests       7 failed | 19 passed (26)
+```
+
+All six forged inventory/path cases rendered page output, while the authoritative whitespace-valid DTO rendered nothing. This established meaningful RED at both reviewed boundaries.
+
+### GREEN and verification
+
+- Focused renderer, Application SEO, route-gating, and Application/Resource query command: 4 files, 53/53 tests passed.
+- Affected shared editorial, Task 5 Application query/preview, Product renderer/query/preview/SEO/route, shared SEO, and crawler regression command: 17 files, 195/195 tests passed.
+- `npm run typecheck`: passed (`tsc --noEmit`, exit 0).
+- Scoped ESLint over the changed renderer, shared resolver, query clients, and tests: passed with no output.
+- `git diff --check`: passed; only informational LF-to-CRLF warnings were emitted.
+- `verify:root-only` was not run.
+
+### Fix and self-review
+
+- Added `lib/editorial/content-targets.ts` as the single inventory-backed resolver for canonical Application and Resource paths and the approved Product ID/path contract. The existing Application and Resource WordPress query clients now reuse it instead of retaining parallel target maps.
+- Every rendered child or relationship must resolve from its exact `{type, id}`. Its retained path must equal that target's exact canonical path; a non-null href must independently be safe and equal the same canonical path. Unknown inventory IDs fail closed.
+- Removed the SEO whitespace-normalization equality rule from renderer plain-text validation. Safe fields retain the authoritative schema's internal-whitespace semantics while still rejecting markup, empty or edge-whitespace-invalid values, private locations, and forbidden claims.
+- Rich HTML remains an exact allowlist boundary: content is rejected if sanitization changes it or leaves no visible content. CTA href validation and all authoritative completeness, cardinality, hierarchy, safety, and stable-target checks remain intact.
+- The route-gating test fixture now obtains its resolved links from the same shared canonical resolver and uses an approved Product ID; no production behavior was weakened to preserve a synthetic invalid fixture.
+- No public route inventory, publication surface, sitemap, navigation, Homepage, Product DTO/component, `public/`, WordPress state, Site B template, deployment, or remote state was changed.

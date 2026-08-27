@@ -5,6 +5,7 @@ import {afterEach, describe, expect, it} from 'vitest'
 
 import {ApplicationPageRenderer} from '@/components/applications/application-page'
 import {toApplicationPageDto} from '@/lib/applications/dto'
+import type {ApplicationPageInput} from '@/lib/applications/schema'
 import type {ApplicationPageDto} from '@/lib/applications/types'
 import type {EditorialLinkResolver} from '@/lib/editorial/types'
 import {
@@ -32,21 +33,36 @@ const resolveTarget: EditorialLinkResolver = (target) => ({
     target.type === 'product'
       ? `/products/${target.id.toLowerCase()}`
       : target.type === 'resource'
-        ? `/resources/${target.id}`
+        ? target.id === 'article-01'
+          ? '/resources/rutile-vs-anatase-titanium-dioxide'
+          : `/resources/${target.id}`
         : `/applications/${target.id}`,
-  href: target.id === 'article-01' ? '/resources/article-01' : null,
+  href:
+    target.id === 'article-01'
+      ? '/resources/rutile-vs-anatase-titanium-dioxide'
+      : null,
 })
 
-function applicationFixture(
+function applicationInput(
   level: ApplicationPageDto['identity']['level'],
-): ApplicationPageDto {
-  const input =
+): ApplicationPageInput {
+  const source =
     level === 'hub'
       ? applicationHubInput
       : level === 'category'
         ? applicationCategoryInput
         : applicationDetailInput
-  return toApplicationPageDto(input, resolveTarget)
+  const input = structuredClone(source) as unknown as ApplicationPageInput
+  input.relationships = input.relationships.map((target) =>
+    target.type === 'product' ? {...target, id: 'TP-P100'} : target,
+  )
+  return input
+}
+
+function applicationFixture(
+  level: ApplicationPageDto['identity']['level'],
+): ApplicationPageDto {
+  return toApplicationPageDto(applicationInput(level), resolveTarget)
 }
 
 function mutateFixture(
@@ -149,7 +165,7 @@ describe('ApplicationPageRenderer', () => {
     expect(related?.textContent).toContain(application.relationships[1]?.title)
     expect(related?.querySelectorAll('a')).toHaveLength(1)
     expect(related?.querySelector('a')?.getAttribute('href')).toBe(
-      '/resources/article-01',
+      '/resources/rutile-vs-anatase-titanium-dioxide',
     )
   })
 
@@ -334,4 +350,92 @@ describe('ApplicationPageRenderer', () => {
       expect(container.childElementCount).toBe(0)
     },
   )
+
+  it.each([
+    [
+      'a known Application ID with another known Application path',
+      (application: ApplicationPageDto) => {
+        application.children[0]!.path = '/applications/plastics'
+        application.children[0]!.href = '/applications/plastics'
+      },
+    ],
+    [
+      'a known Resource ID with another known Resource path',
+      (application: ApplicationPageDto) => {
+        const relationship = application.relationships.find(
+          ({type}) => type === 'resource',
+        )
+        if (!relationship) throw new Error('Missing Resource fixture')
+        relationship.path = '/resources/chloride-vs-sulfate-titanium-dioxide'
+        relationship.href = '/resources/chloride-vs-sulfate-titanium-dioxide'
+      },
+    ],
+    [
+      'a known Product ID with another known Product path',
+      (application: ApplicationPageDto) => {
+        const relationship = application.relationships.find(
+          ({type}) => type === 'product',
+        )
+        if (!relationship) throw new Error('Missing Product fixture')
+        relationship.path = '/products/tp-p300'
+        relationship.href = '/products/tp-p300'
+      },
+    ],
+    [
+      'an unknown Application ID with a valid-looking path',
+      (application: ApplicationPageDto) => {
+        application.children[0]!.id = 'unknown-category'
+        application.children[0]!.path = '/applications/unknown-category'
+        application.children[0]!.href = '/applications/unknown-category'
+      },
+    ],
+    [
+      'an unknown Resource ID with a valid-looking path',
+      (application: ApplicationPageDto) => {
+        const relationship = application.relationships.find(
+          ({type}) => type === 'resource',
+        )
+        if (!relationship) throw new Error('Missing Resource fixture')
+        relationship.id = 'article-99'
+        relationship.path = '/resources/article-99'
+        relationship.href = '/resources/article-99'
+      },
+    ],
+    [
+      'an unknown Product ID with a valid-looking path',
+      (application: ApplicationPageDto) => {
+        const relationship = application.relationships.find(
+          ({type}) => type === 'product',
+        )
+        if (!relationship) throw new Error('Missing Product fixture')
+        relationship.id = 'TP-X999'
+        relationship.path = '/products/tp-x999'
+        relationship.href = '/products/tp-x999'
+      },
+    ],
+  ] as const)(
+    'rejects %s at the canonical target boundary',
+    (_name, mutate) => {
+      const {container} = render(
+        <ApplicationPageRenderer application={mutateFixture(mutate)} />,
+      )
+
+      expect(container.childElementCount).toBe(0)
+    },
+  )
+
+  it('renders a complete authoritative DTO with harmless internal whitespace', () => {
+    const input = applicationInput('hub')
+    input.decisionGuide.context =
+      'This synthetic hub groups  fictional\n evaluation contexts.'
+    const application = toApplicationPageDto(input, resolveTarget)
+    const {container} = render(
+      <ApplicationPageRenderer application={application} />,
+    )
+
+    expect(container.querySelector('[data-application-mode="hub"]')).not.toBeNull()
+    expect(container.textContent).toContain(
+      'This synthetic hub groups  fictional\n evaluation contexts.',
+    )
+  })
 })

@@ -6,14 +6,13 @@ import {
   toApplicationPageDto,
 } from '@/lib/applications/dto'
 import type {ApplicationPageDto} from '@/lib/applications/types'
+import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import {normalizeEditorialInternalPath} from '@/lib/editorial/rich-text'
 import type {
   EditorialLink,
   EditorialLinkResolver,
   EditorialTarget,
 } from '@/lib/editorial/types'
-import {SITE_A_PRODUCT_IDS} from '@/lib/products/content-manifest'
-import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {htmlToPlainText} from '@/lib/seo/text'
 import type {SiteConfig} from '@/sites'
 import {isPublicRoute} from '@/sites/public-routes'
@@ -96,14 +95,6 @@ export interface SerializedApplicationRecord {
 const applicationByPath = new Map<string, SiteAApplicationIdentity>(
   SITE_A_APPLICATION_IDENTITIES.map((identity) => [identity[2], identity]),
 )
-const applicationById = new Map<string, SiteAApplicationIdentity>(
-  SITE_A_APPLICATION_IDENTITIES.map((identity) => [identity[0], identity]),
-)
-const resourceById = new Map<string, (typeof SITE_A_RESOURCE_IDENTITIES)[number]>(
-  SITE_A_RESOURCE_IDENTITIES.map((identity) => [identity[0], identity]),
-)
-const productIds = new Set<string>(SITE_A_PRODUCT_IDS)
-
 export function applicationIdentityForPath(
   path: string,
 ): SiteAApplicationIdentity | null {
@@ -123,40 +114,17 @@ function hasOnlySiteScope(
   return scopes?.length === 1 && scopes[0]?.slug === siteId
 }
 
-function canonicalTarget(targetType: string, targetKey: string): EditorialTarget | null {
-  if (targetType === 'application') {
-    return applicationById.has(targetKey)
-      ? {type: 'application', id: targetKey}
-      : null
-  }
-  if (targetType === 'resource') {
-    return resourceById.has(targetKey)
-      ? {type: 'resource', id: targetKey}
-      : null
-  }
-  if (targetType === 'product') {
-    return productIds.has(targetKey) ? {type: 'product', id: targetKey} : null
-  }
-  return null
-}
-
-function canonicalTargetPath(target: EditorialTarget): string {
-  if (target.type === 'application') {
-    return applicationById.get(target.id)?.[2] ?? ''
-  }
-  if (target.type === 'resource') {
-    return resourceById.get(target.id)?.[2] ?? ''
-  }
-  return `/products/${target.id.toLowerCase()}`
-}
-
 function validatedLink(
   raw: SerializedEditorialLink,
   expectedType: EditorialTarget['type'],
   siteId: string,
 ): {target: EditorialTarget; link: EditorialLink} {
-  const target = canonicalTarget(raw.targetType, raw.targetKey)
-  const canonicalPath = target ? canonicalTargetPath(target) : ''
+  const canonical = resolveCanonicalEditorialTarget(
+    raw.targetType,
+    raw.targetKey,
+  )
+  const target = canonical?.target
+  const canonicalPath = canonical?.path ?? ''
   const title = raw.title.trim()
   if (
     !target ||

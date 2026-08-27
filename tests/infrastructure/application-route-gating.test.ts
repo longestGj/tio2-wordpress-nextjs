@@ -5,33 +5,39 @@ import {toApplicationPageDto} from '@/lib/applications/dto'
 import {
   SITE_A_APPLICATION_IDENTITIES,
 } from '@/lib/applications/content-manifest'
+import type {ApplicationPageInput} from '@/lib/applications/schema'
 import type {ApplicationPageDto} from '@/lib/applications/types'
+import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import type {EditorialLinkResolver} from '@/lib/editorial/types'
 import {getSiteConfig} from '@/sites'
 import {applicationDetailInput, applicationHubInput} from '@/tests/fixtures/editorial/application-pages'
 
-const resolveTarget: EditorialLinkResolver = (target) => ({
-  ...target,
-  title: `Resolved ${target.type} ${target.id}`,
-  path:
-    target.type === 'product'
-      ? `/products/${target.id.toLowerCase()}`
-      : target.type === 'resource'
-        ? `/resources/${target.id}`
-        : `/applications/${target.id}`,
-  href: null,
-})
+const resolveTarget: EditorialLinkResolver = (target) => {
+  const canonical = resolveCanonicalEditorialTarget(target.type, target.id)
+  return canonical
+    ? {
+        ...canonical.target,
+        title: `Resolved ${target.type} ${target.id}`,
+        path: canonical.path,
+        href: null,
+      }
+    : null
+}
 
 function canonicalFixture(
   identity: (typeof SITE_A_APPLICATION_IDENTITIES)[number],
 ): ApplicationPageDto {
   const [id, slug, path, level, family, parentId] = identity
   const base = level === 'hub' ? applicationHubInput : applicationDetailInput
+  const input = structuredClone(base) as unknown as ApplicationPageInput
+  input.relationships = input.relationships.map((target) =>
+    target.type === 'product' ? {...target, id: 'TP-P100'} : target,
+  )
   return toApplicationPageDto(
     {
-      ...base,
+      ...input,
       identity: {
-        ...base.identity,
+        ...input.identity,
         id,
         slug,
         path,
