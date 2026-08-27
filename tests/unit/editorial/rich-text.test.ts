@@ -16,7 +16,7 @@ describe('editorial rich-text and safety boundaries', () => {
     expect(sanitized).toBe('<p>Safe <strong>copy</strong> </p><p>Visible form text.</p><a>Tracked</a><a href="/resources/article-01" title="Guide">Guide</a>')
   })
 
-  it.each(['<p>Download /documents/tds/controlled.pdf</p>', '<p>Open file:///D:/controlled/tds.pdf</p>', '<p>Open /tds/controlled.pdf</p>', '<p>Open C:\\controlled\\tds.pdf</p>'])('rejects private document content %s', (html) => {
+  it.each(['<p>Download /documents/tds/controlled.pdf</p>', '<p>Open file:///D:/controlled/tds.pdf</p>', '<p>Open /tds/controlled.pdf</p>', '<p>Open C:\\controlled\\tds.pdf</p>', '<p>Open /var/private/evidence.txt</p>', '<p>Open /home/user/source.yaml</p>'])('rejects private document content %s', (html) => {
     const input = clone(applicationHubInput) as any
     input.bodySections[0].html = html
     expect(() => toApplicationPageDto(input, resolveTarget)).toThrow('Invalid Application render contract')

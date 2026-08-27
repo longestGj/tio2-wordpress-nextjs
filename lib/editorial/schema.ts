@@ -1,6 +1,6 @@
 import {z} from 'zod'
 
-import {containsPrivateEditorialLocation, normalizeEditorialInternalPath} from './rich-text'
+import {containsForbiddenEditorialClaim, containsPrivateEditorialLocation, normalizeEditorialInternalPath} from './rich-text'
 
 export const requiredEditorialText = (maximum = 2_000) => z.string().trim().min(1).max(maximum)
 export const requiredEditorialHtml = z.string().trim().min(1).max(20_000)
@@ -24,12 +24,10 @@ export const editorialLinkCtaSchema = z.object({
 }).strict()
 
 const FORBIDDEN_KEY_PATTERN = /(?:tds(?:url|file|path)?|manufacturer|legal(?:entity)?|reviewer|source(?:file|path)?|approval|price|stock|availability)/iu
-const FORBIDDEN_CLAIM_PATTERN = /\b(?:manufacturer|legal\s+entity|reviewer|source\s+(?:file|path)|approval|price|stock|availability|guarantee(?:d|s)?|competitor|equivalent(?:\s+to)?|replacement\s+for)\b/iu
-
 export function addEditorialSafetyIssues(value: unknown, context: z.RefinementCtx, path: PropertyKey[] = []): void {
   if (typeof value === 'string') {
     if (containsPrivateEditorialLocation(value)) context.addIssue({code: 'custom', message: 'Editorial content must not contain a private document location', path})
-    if (FORBIDDEN_CLAIM_PATTERN.test(value)) context.addIssue({code: 'custom', message: 'Editorial content contains a forbidden private or commercial claim', path})
+    if (containsForbiddenEditorialClaim(value)) context.addIssue({code: 'custom', message: 'Editorial content contains a forbidden private or commercial claim', path})
     return
   }
   if (Array.isArray(value)) {

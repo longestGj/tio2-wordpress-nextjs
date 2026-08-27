@@ -3,7 +3,8 @@ import sanitizeHtml from 'sanitize-html'
 import {htmlToPlainText} from '@/lib/seo/text'
 
 const INTERNAL_PATH_PATTERN = /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*)(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*\/?$/u
-const PRIVATE_LOCATION_PATTERN = /(?:\bfile:\/\/|(?:^|[^a-z0-9])[a-z]:[\\/]|\/(?:documents\/tds|tds)(?:\/|(?=$|[\s"'<>),.;:!?#]))|\.pdf\b)/iu
+const PRIVATE_LOCATION_PATTERN = /(?:\bfile:\/\/|(?:^|[^a-z0-9])[a-z]:[\\/]|\/(?:documents\/tds|tds|var|home|usr|etc|opt|tmp|private|root)(?:\/|(?=$|[\s"'<>),.;:!?#]))|\.pdf\b)/iu
+const FORBIDDEN_CLAIM_PATTERN = /\b(?:manufacturer|legal\s+entity|reviewer|source\s+(?:file|path)|approval|price|stock|availability|guarantee(?:d|s)?|competitor|equivalent(?:\s+to)?|replacement\s+for)\b/iu
 
 export function normalizeEditorialInternalPath(value: string): string | null {
   const path = value.trim()
@@ -13,6 +14,10 @@ export function normalizeEditorialInternalPath(value: string): string | null {
 
 export function containsPrivateEditorialLocation(value: string): boolean {
   return PRIVATE_LOCATION_PATTERN.test(value)
+}
+
+export function containsForbiddenEditorialClaim(value: string): boolean {
+  return FORBIDDEN_CLAIM_PATTERN.test(value)
 }
 
 export function sanitizeEditorialRichText(source: string): string {

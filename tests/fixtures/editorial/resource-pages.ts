@@ -7,7 +7,7 @@ export const resourceHubInput = {
   comparisonTable: {columns: ['Synthetic option', 'Observation'], rows: [['Option A', 'Record a result']]},
   practicalImplications: ['Choose a comparable process.'], commonMistakes: ['Do not rely on an unrepresentative trial.'], evaluationMethod: ['Define the test conditions.'],
   faqs: Array.from({length: 4}, (_, index) => ({question: `Synthetic resource question ${index + 1}?`, answerHtml: '<p>Document the fictional evaluation boundary.</p>'})),
-  children: [{type: 'resource', id: 'article-01'}], relationships: [{type: 'application', id: 'coatings'}, {type: 'product', id: 'TP-S100'}],
+  children: [{type: 'resource', id: 'article-01'}], relationships: [{type: 'application', id: 'coatings'}, {type: 'product', id: 'TP-X999'}],
   ctas: [{kind: 'discuss-application', label: 'Discuss a synthetic application', href: '/contact/'}, {kind: 'request-tds', label: 'Request technical data', href: '/contact'}],
   disclaimerHtml: '<p>The current technical data sheet is available by request.</p>',
 } as const

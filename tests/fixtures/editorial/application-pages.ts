@@ -6,7 +6,7 @@ export const applicationHubInput = {
   bodySections: [{id: 'overview', heading: 'Synthetic overview', html: '<p>Use this fictional overview to frame an evaluation.</p>'}, {id: 'next-steps', heading: 'Synthetic next steps', html: '<p>Record observations from the representative trial.</p>'}],
   faqs: Array.from({length: 4}, (_, index) => ({question: `Synthetic application question ${index + 1}?`, answerHtml: '<p>Use a fictional, representative test plan.</p>'})),
   children: [{type: 'application', id: 'coatings'}],
-  relationships: [{type: 'resource', id: 'article-01'}, {type: 'product', id: 'TP-S100'}],
+  relationships: [{type: 'resource', id: 'article-01'}, {type: 'product', id: 'TP-X999'}],
   ctas: [{kind: 'discuss-application', label: 'Discuss a synthetic application', href: '/contact/'}, {kind: 'request-sample', label: 'Request a synthetic sample', href: '/contact'}],
   disclaimerHtml: '<p>The current technical data sheet is available by request.</p>',
 } as const

@@ -1,5 +1,5 @@
 import type {EditorialLink, EditorialLinkResolver, EditorialTarget} from './types'
-import {normalizeEditorialInternalPath} from './rich-text'
+import {containsForbiddenEditorialClaim, containsPrivateEditorialLocation, normalizeEditorialInternalPath} from './rich-text'
 
 export class EditorialRelationshipError extends Error {
   constructor(readonly path: string) {
@@ -16,12 +16,13 @@ export function resolveEditorialTargets(
   const links = targets.map((target, index) => {
     const link = resolveTarget(target)
     const normalizedPath = link && normalizeEditorialInternalPath(link.path)
-    if (!link || link.type !== target.type || link.id !== target.id || !normalizedPath) {
+    const normalizedHref = link?.href === null ? null : link && normalizeEditorialInternalPath(link.href)
+    const title = link?.title.trim()
+    const values = link ? [link.path, link.href ?? '', title ?? ''] : []
+    if (!link || link.type !== target.type || link.id !== target.id || !normalizedPath || (link.href !== null && !normalizedHref) || !title || values.some((value) => containsPrivateEditorialLocation(value) || containsForbiddenEditorialClaim(value))) {
       throw new EditorialRelationshipError(`${path}.${index}`)
     }
-    const normalizedHref = link.href === null ? null : normalizeEditorialInternalPath(link.href)
-    if (link.href !== null && !normalizedHref) throw new EditorialRelationshipError(`${path}.${index}`)
-    return {...link, path: normalizedPath, href: normalizedHref}
+    return {...link, title, path: normalizedPath, href: normalizedHref}
   })
   return links.sort((left, right) => {
     const leftKey = `${left.id}\u0000${left.type}`

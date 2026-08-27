@@ -20,7 +20,7 @@ describe('shared editorial page contracts', () => {
     const second = toApplicationPageDto(input, resolveTarget)
     expect(first).toEqual(second)
     expect(first.identity).toMatchObject({id: 'water-based-paint', level: 'detail', parentId: 'coatings', path: '/applications/water-based-paint', modified: '2026-08-27T08:00:00.000Z'})
-    expect(first.relationships.map((link) => `${link.type}:${link.id}`)).toEqual(['product:TP-S100', 'resource:article-01'])
+    expect(first.relationships.map((link) => `${link.type}:${link.id}`)).toEqual(['product:TP-X999', 'resource:article-01'])
     expect(first.relationships.every((link) => link.path === link.href && !link.path.endsWith('/'))).toBe(true)
   })
 
@@ -52,13 +52,22 @@ describe('shared editorial page contracts', () => {
     expect(() => toApplicationPageDto(privateField, resolveTarget)).toThrow(ApplicationContractError)
   })
 
+  it.each([
+    ['private path', {title: 'Synthetic target', path: '/tds/current-sheet', href: '/tds/current-sheet'}],
+    ['private href', {title: 'Synthetic target', path: '/resources/article-01', href: '/tds/current-sheet'}],
+    ['prohibited title claim', {title: 'Competitor equivalent', path: '/resources/article-01', href: '/resources/article-01'}],
+  ])('rejects a resolver-generated relationship with %s', (_label, fields) => {
+    const unsafeResolver = ({type, id}: {type: 'product'|'application'|'resource'; id: string}) => ({type, id, ...fields})
+    expect(() => toApplicationPageDto(clone(applicationHubInput), unsafeResolver)).toThrow(ApplicationContractError)
+  })
+
   it('normalizes complete resource pages and rejects incomplete required sections', () => {
     const input = clone(resourceArticleInput) as any
     input.identity.path = '/resources/article-01/'
     input.relationships = [...input.relationships].reverse()
     const dto = toTechnicalResourcePageDto(input, resolveTarget)
     expect(dto.identity).toMatchObject({id: 'article-01', kind: 'article', path: '/resources/article-01', modified: '2026-08-27T08:00:00.000Z'})
-    expect(dto.relationships.map((link) => `${link.type}:${link.id}`)).toEqual(['product:TP-S100', 'application:coatings'])
+    expect(dto.relationships.map((link) => `${link.type}:${link.id}`)).toEqual(['product:TP-X999', 'application:coatings'])
     const mismatchedSlug = clone(resourceArticleInput) as any
     mismatchedSlug.identity.path = '/resources/not-article-01'
     expect(() => toTechnicalResourcePageDto(mismatchedSlug, resolveTarget)).toThrow(ResourceContractError)
