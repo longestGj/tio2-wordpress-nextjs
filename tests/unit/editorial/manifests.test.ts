@@ -158,6 +158,12 @@ describe('exact Site A editorial manifest validators', () => {
     expect(validateSiteAResourceManifest(batch, {allowIncomplete: true}).records).toHaveLength(2)
   })
 
+  it('accepts an empty Resource root only in incomplete mode', () => {
+    const emptyRoot = {version: '0.1', siteId: 'tio2-a', records: []}
+    expect(() => validateSiteAResourceManifest(emptyRoot)).toThrow(/exactly 11/u)
+    expect(validateSiteAResourceManifest(emptyRoot, {allowIncomplete: true}).records).toHaveLength(0)
+  })
+
   it.each([undefined, {allowIncomplete: true}])('rejects a Resource Hub duplicate child that replaces a required canonical child in %j mode', (options) => {
     const manifest = resourcesManifest()
     const hub = manifest.records.find(({identity}) => identity.id === 'resources-hub')!

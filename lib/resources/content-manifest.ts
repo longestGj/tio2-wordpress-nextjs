@@ -39,7 +39,7 @@ function sameMembers(actual: readonly string[], expected: readonly string[]): bo
 const batchSchema: z.ZodType<SiteAResourceContentManifest> = z.object({
   version: z.literal('0.1'),
   siteId: z.literal('tio2-a'),
-  records: z.array(technicalResourcePageInputSchema).min(1).max(SITE_A_RESOURCE_IDENTITIES.length),
+  records: z.array(technicalResourcePageInputSchema).max(SITE_A_RESOURCE_IDENTITIES.length),
 }).strict().superRefine((manifest, context) => {
   const seen = new Set<string>()
   manifest.records.forEach((record, index) => {
