@@ -172,3 +172,43 @@ Runtime capability/stage files remaining: 0
 ```
 
 No Apply or Strict command was run in this fix round. The only database writes were disposable local transaction fixtures, each rolled back; the existing 39 authorized Deferred drafts, Product records, Site B, queue, and normalized hashes remained unchanged. No public, remote, deployment, migration, controller-ledger, or `verify:root-only` operation was performed.
+
+## Fix Round 2 evidence
+
+Fix Round 1 rereview found that WordPress expands `post_type => any` only to types not excluded from search. In this installation that omitted at least `tio2_product` and `tio2_homepage`, leaving search-hidden stable-ID and canonical-path owners outside the collision gate.
+
+The new TDD cycle failed in three independent places before production changed:
+
+```text
+Focused files             3 failed, 1 passed
+Controlled importer       literal all-owner query scope rejected `any`
+Controlled audit          cross-type candidate scope rejected `any`
+Live reversible adapter   real tio2_product canonical-path owner was invisible
+```
+
+The importer now exposes one shared deterministic helper that starts from the complete registered post-type set, excludes only named non-content storage (`acf-field`, `acf-field-group`, `acf-post-type`, `acf-taxonomy`, `custom_css`, `customize_changeset`, `oembed_cache`, `revision`, and `user_request`), removes duplicates, and sorts the result. A future registered custom type is included unless it is explicitly classified as one of those internals. Stable-ID collision lookup, canonical `public_path` lookup, and both cross-type audit identity queries use the same explicit list; no collision query retains `post_type => any`.
+
+The live list used after the fix was:
+
+```text
+attachment, nav_menu_item, page, post,
+tio2_application, tio2_document, tio2_faq, tio2_grade, tio2_homepage, tio2_product,
+wp_block, wp_font_face, wp_font_family, wp_global_styles, wp_navigation,
+wp_template, wp_template_part
+```
+
+Controlled tests also register a synthetic `hidden_search_content` type and require it in the sorted query list, while explicitly proving the internal types are absent. The live reversible test creates an actual draft `tio2_product` inside the production SQL transaction, assigns the managed `/applications/coatings` path and expected `application_id=coatings`, and proves both path lookup and audit enumeration reject it. The transaction rolls back and flushes caches; the disposable Product identity/path/meta and taxonomy effects do not survive.
+
+Read-only evidence after rollback:
+
+```text
+Deferred Plan SHA-256       48deb4de7c1143c73b69db421e079b45bad45b767133bfe01ff62b40cdb9636f
+Plan actions                0 create, 0 update, 39 no-change
+Deferred Product edges      39
+Audit records               28 Applications + 11 Resources = 39
+Readback SHA-256            sha256:dceb63a584b223e7857a47bf791bc3db5f4a0059652932bf3d571ca653639315
+Deferred-edge SHA-256       sha256:e04c77af8f66774c09b443f691faf25840afe42b5ca8920006d3a505245a7c03
+Site B invariant SHA-256    sha256:3eae18f5bcc98ae4d2f1ff593c4e7867d9517e6d1654317c610ddef6f4371a58
+```
+
+The two original Minor findings remain deferred. No Apply, Strict Apply, publication, remote operation, deployment, Product commit, Site B write, public-route change, controller-ledger edit, or `verify:root-only` command was performed.

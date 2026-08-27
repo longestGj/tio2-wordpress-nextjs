@@ -96,7 +96,34 @@ try {
     $operations['restore_queue']($baseline_queue);
 }
 if (null !== tio2_site_a_editorial_find_wp_record('application', $extra['id']) || !hash_equals($baseline_readback, tio2_site_a_editorial_sha256(tio2_site_a_editorial_audit_read_wp_records())) || !hash_equals($baseline_site_b, tio2_site_a_editorial_site_b_hash())) throw new RuntimeException('The live extra-record audit fixture did not roll back cleanly.');
-echo wp_json_encode(['records' => count($baseline_records), 'siteB' => $baseline_site_b, 'readback' => 'sha256:' . $baseline_readback, 'midWriteRollback' => true, 'extraAuditRejected' => true]);
+
+$hidden_product_id = 'TASK8-SEARCH-HIDDEN-COLLISION';
+$transaction_started = false;
+try {
+    $operations['begin']();
+    $transaction_started = true;
+    $hidden_product_post_id = wp_insert_post(['post_type' => 'tio2_product', 'post_status' => 'draft', 'post_name' => 'task8-search-hidden-collision', 'post_title' => 'Task 8 search-hidden collision'], true);
+    if (is_wp_error($hidden_product_post_id)) throw new RuntimeException($hidden_product_post_id->get_error_message());
+    update_post_meta((int) $hidden_product_post_id, 'product_id', $hidden_product_id);
+    update_post_meta((int) $hidden_product_post_id, 'public_path', '/applications/coatings');
+    update_post_meta((int) $hidden_product_post_id, 'application_id', 'coatings');
+    $hidden_product_scope = wp_set_object_terms((int) $hidden_product_post_id, ['tio2-a'], 'site_scope', false);
+    if (is_wp_error($hidden_product_scope)) throw new RuntimeException($hidden_product_scope->get_error_message());
+    $path_rejection = null;
+    try { tio2_site_a_editorial_find_wp_path('/applications/coatings', 'application', 'coatings'); } catch (RuntimeException $error) { $path_rejection = $error->getMessage(); }
+    if (!is_string($path_rejection) || !str_contains($path_rejection, 'owned by another record')) throw new RuntimeException('The search-hidden Product canonical path owner was invisible.');
+    $audit_rejection = null;
+    try { tio2_site_a_editorial_audit_read_wp_records(); } catch (RuntimeException $error) { $audit_rejection = $error->getMessage(); }
+    if (!is_string($audit_rejection) || !str_contains($audit_rejection, 'malformed exact Site A')) throw new RuntimeException('The search-hidden Product editorial stable ID was invisible.');
+    $operations['rollback']();
+    $transaction_started = false;
+    $operations['restore_queue']($baseline_queue);
+} finally {
+    if ($transaction_started) $operations['rollback']();
+}
+$hidden_product_ids = get_posts(['post_type' => 'tio2_product', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true, 'meta_key' => 'product_id', 'meta_value' => $hidden_product_id]);
+if ([] !== $hidden_product_ids || !hash_equals($baseline_readback, tio2_site_a_editorial_sha256(tio2_site_a_editorial_audit_read_wp_records())) || !hash_equals($baseline_site_b, tio2_site_a_editorial_site_b_hash())) throw new RuntimeException('The search-hidden Product collision fixture did not roll back cleanly.');
+echo wp_json_encode(['records' => count($baseline_records), 'siteB' => $baseline_site_b, 'readback' => 'sha256:' . $baseline_readback, 'midWriteRollback' => true, 'extraAuditRejected' => true, 'hiddenProductCollisionRejected' => true]);
 `,
   ], {
     cwd: process.cwd(),
@@ -121,6 +148,7 @@ describe('local WordPress Site A editorial production adapters', () => {
         readback: expect.stringMatching(/^sha256:[a-f0-9]{64}$/u),
         midWriteRollback: true,
         extraAuditRejected: true,
+        hiddenProductCollisionRejected: true,
       })
     } finally {
       rmSync(runtimeProductPath, {force: true})

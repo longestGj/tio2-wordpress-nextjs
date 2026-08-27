@@ -132,8 +132,8 @@ function tio2_site_a_editorial_audit_wp_candidates(): array
     $post_ids = [];
     $queries = [
         ['post_type' => ['tio2_application', 'tio2_document'], 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true],
-        ['post_type' => 'any', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true, 'meta_key' => 'application_id', 'meta_compare' => 'EXISTS'],
-        ['post_type' => 'any', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true, 'meta_key' => 'resource_id', 'meta_compare' => 'EXISTS'],
+        ['post_type' => tio2_site_a_editorial_collision_post_types(), 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true, 'meta_key' => 'application_id', 'meta_compare' => 'EXISTS'],
+        ['post_type' => tio2_site_a_editorial_collision_post_types(), 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true, 'meta_key' => 'resource_id', 'meta_compare' => 'EXISTS'],
     ];
     foreach ($queries as $query) {
         foreach (get_posts($query) as $post_id) {

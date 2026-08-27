@@ -15,7 +15,13 @@ function runControlledAudit() {
     '-r', String.raw`
 define('ABSPATH', __DIR__);
 function wp_json_encode($value) { return json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES); }
+function get_post_types($arguments = [], $output = 'names') { return ['post'=>'post','page'=>'page','attachment'=>'attachment','revision'=>'revision','nav_menu_item'=>'nav_menu_item','custom_css'=>'custom_css','customize_changeset'=>'customize_changeset','oembed_cache'=>'oembed_cache','user_request'=>'user_request','wp_block'=>'wp_block','wp_template'=>'wp_template','wp_template_part'=>'wp_template_part','wp_global_styles'=>'wp_global_styles','wp_navigation'=>'wp_navigation','wp_font_family'=>'wp_font_family','wp_font_face'=>'wp_font_face','acf-field'=>'acf-field','acf-field-group'=>'acf-field-group','acf-post-type'=>'acf-post-type','acf-taxonomy'=>'acf-taxonomy','tio2_product'=>'tio2_product','tio2_grade'=>'tio2_grade','tio2_application'=>'tio2_application','tio2_document'=>'tio2_document','tio2_faq'=>'tio2_faq','tio2_homepage'=>'tio2_homepage','hidden_search_content'=>'hidden_search_content']; }
+function get_posts($arguments) { $GLOBALS['audit_candidate_queries'][] = $arguments; return []; }
 require $argv[1];
+$GLOBALS['audit_candidate_queries'] = [];
+tio2_site_a_editorial_audit_wp_candidates();
+$expected_collision_types = ['attachment','hidden_search_content','nav_menu_item','page','post','tio2_application','tio2_document','tio2_faq','tio2_grade','tio2_homepage','tio2_product','wp_block','wp_font_face','wp_font_family','wp_global_styles','wp_navigation','wp_template','wp_template_part'];
+if (3 !== count($GLOBALS['audit_candidate_queries']) || $expected_collision_types !== $GLOBALS['audit_candidate_queries'][1]['post_type'] || $expected_collision_types !== $GLOBALS['audit_candidate_queries'][2]['post_type']) throw new RuntimeException('Audit identity enumeration omitted a search-hidden registered content owner.');
 $applications = json_decode(file_get_contents($argv[2]), true, 512, JSON_THROW_ON_ERROR);
 $resources = json_decode(file_get_contents($argv[3]), true, 512, JSON_THROW_ON_ERROR);
 $product_ids = ['TP-P100','TP-P300','TP-S100','TP-C200','TP-C410','TP-C120','TP-I100','TP-H100','TP-P200','TP-P110','TP-P320','TP-P120','TP-P310','TP-P330','TP-PA100','TP-PA110','TP-PA120','TP-C050','TP-C100','TP-C110','TP-I200','TP-C300','TP-C310','TP-C400','TP-U100'];

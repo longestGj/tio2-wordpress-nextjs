@@ -107,6 +107,40 @@ function tio2_site_a_editorial_assert_local_wp_environment(): void
     }
 }
 
+/**
+ * Return every registered type that can independently own WordPress content.
+ *
+ * The exclusions are limited to ACF schema rows, customization state, cache
+ * rows, parent revisions, and privacy workflow requests. All other types are
+ * included conservatively, including private/search-hidden and future custom
+ * types, so WP_Query receives a deterministic explicit list instead of `any`.
+ *
+ * @return list<string>
+ */
+function tio2_site_a_editorial_collision_post_types(): array
+{
+    $excluded = array_fill_keys([
+        'acf-field', 'acf-field-group', 'acf-post-type', 'acf-taxonomy',
+        'custom_css', 'customize_changeset', 'oembed_cache', 'revision', 'user_request',
+    ], true);
+    $registered = get_post_types([], 'names');
+    if (! is_array($registered)) {
+        throw new RuntimeException('Could not enumerate registered editorial collision post types.');
+    }
+    $types = [];
+    foreach (array_values($registered) as $post_type) {
+        if (is_string($post_type) && '' !== $post_type && ! isset($excluded[$post_type])) {
+            $types[] = $post_type;
+        }
+    }
+    $types = array_values(array_unique($types));
+    sort($types, SORT_STRING);
+    if ([] === $types) {
+        throw new RuntimeException('No registered editorial collision post types were available.');
+    }
+    return $types;
+}
+
 /** @param mixed $value */
 function tio2_site_a_editorial_required_string($value, string $name): string
 {
@@ -549,7 +583,7 @@ function tio2_site_a_editorial_site_b_hash(): string
 function tio2_site_a_editorial_find_wp_record(string $entity_type, string $id): ?array
 {
     $id_field = 'application' === $entity_type ? 'application_id' : 'resource_id';
-    $ids = get_posts(['post_type' => 'any', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => 2, 'no_found_rows' => true, 'meta_key' => $id_field, 'meta_value' => $id]);
+    $ids = get_posts(['post_type' => tio2_site_a_editorial_collision_post_types(), 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => 2, 'no_found_rows' => true, 'meta_key' => $id_field, 'meta_value' => $id]);
     if ([] === $ids) {
         return null;
     }
@@ -580,7 +614,7 @@ function tio2_site_a_editorial_is_route_shell(string $path, array $owner): bool
 /** @return array<string, mixed>|null */
 function tio2_site_a_editorial_find_wp_path(string $path, string $expected_entity_type, string $expected_id): ?array
 {
-    $ids = get_posts(['post_type' => 'any', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true, 'meta_key' => 'public_path', 'meta_value' => $path]);
+    $ids = get_posts(['post_type' => tio2_site_a_editorial_collision_post_types(), 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true, 'meta_key' => 'public_path', 'meta_value' => $path]);
     $managed_owner = null;
     foreach ($ids as $raw_post_id) {
         $post_id = (int) $raw_post_id;
