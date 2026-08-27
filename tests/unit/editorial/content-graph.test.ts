@@ -3,6 +3,7 @@ import {readFile} from 'node:fs/promises'
 import {describe, expect, it} from 'vitest'
 
 import {validateSiteAEditorialGraph} from '@/lib/editorial/content-graph'
+import {mutableFixture} from '@/tests/fixtures/editorial/mutable-fixture'
 
 const clone = <T>(value: T): T => structuredClone(value)
 
@@ -26,8 +27,12 @@ function resourcesManifest() {
 
 describe('Site A cross-content graph validator', () => {
   it('reports every unresolved Application, Resource, and Product edge with its source and field path', async () => {
-    const applications = applicationsManifest() as any
-    const resources = resourcesManifest() as any
+    const applications = mutableFixture(applicationsManifest()) as unknown as {
+      records: Array<{relationships: Array<{id: string; type: string}>}>
+    }
+    const resources = mutableFixture(resourcesManifest()) as unknown as {
+      records: Array<{relationships: Array<{id: string; type: string}>}>
+    }
     const products = await productsManifest()
     applications.records[0].relationships = [{type: 'resource', id: 'missing-resource'}]
     resources.records[0].relationships = [{type: 'application', id: 'missing-application'}]

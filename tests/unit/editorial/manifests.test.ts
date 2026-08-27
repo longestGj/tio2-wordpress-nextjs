@@ -4,6 +4,7 @@ import {validateSiteAApplicationManifest} from '@/lib/applications/content-manif
 import {validateSiteAResourceManifest} from '@/lib/resources/content-manifest'
 import {applicationHubInput} from '@/tests/fixtures/editorial/application-pages'
 import {resourceHubInput} from '@/tests/fixtures/editorial/resource-pages'
+import {mutableFixture} from '@/tests/fixtures/editorial/mutable-fixture'
 
 const clone = <T>(value: T): T => structuredClone(value)
 
@@ -83,9 +84,12 @@ describe('exact Site A editorial manifest validators', () => {
     missing.records.pop()
     expect(() => validateSiteAApplicationManifest(missing)).toThrow(/exactly 28|Missing canonical Application ID/u)
 
-    const extra = applicationsManifest() as any
+    const extra = mutableFixture(applicationsManifest())
     extra.records.push(clone(extra.records[0]))
-    extra.records.at(-1).identity.id = 'unknown-application'
+    const appended = extra.records.at(-1)
+    expect(appended).toBeDefined()
+    if (!appended) throw new Error('Expected the appended Application fixture')
+    appended.identity.id = 'unknown-application'
     expect(() => validateSiteAApplicationManifest(extra)).toThrow(/Unknown Application ID/u)
 
     const duplicate = applicationsManifest()
@@ -94,11 +98,11 @@ describe('exact Site A editorial manifest validators', () => {
   })
 
   it('accepts valid cumulative canonical batches without weakening page, route, or hierarchy checks', () => {
-    const batch = applicationsManifest()
+    const batch = mutableFixture(applicationsManifest())
     batch.records = batch.records.filter(({identity}) => ['applications-hub', 'coatings', 'water-based-paint'].includes(identity.id))
     expect(validateSiteAApplicationManifest(batch, {allowIncomplete: true}).records.map(({identity}) => identity.id)).toEqual(['applications-hub', 'coatings', 'water-based-paint'])
 
-    ;(batch.records[2].identity as any).path = '/applications/not-water-based-paint'
+    batch.records[2].identity.path = '/applications/not-water-based-paint'
     expect(() => validateSiteAApplicationManifest(batch, {allowIncomplete: true})).toThrow(/canonical path/u)
   })
 
@@ -126,21 +130,24 @@ describe('exact Site A editorial manifest validators', () => {
     missing.records.pop()
     expect(() => validateSiteAResourceManifest(missing)).toThrow(/exactly 11|Missing canonical Resource ID/u)
 
-    const extra = resourcesManifest() as any
+    const extra = mutableFixture(resourcesManifest())
     extra.records.push(clone(extra.records[0]))
-    extra.records.at(-1).identity.id = 'article-99'
+    const appended = extra.records.at(-1)
+    expect(appended).toBeDefined()
+    if (!appended) throw new Error('Expected the appended Resource fixture')
+    appended.identity.id = 'article-99'
     expect(() => validateSiteAResourceManifest(extra)).toThrow(/Unknown Resource ID/u)
 
     const duplicate = resourcesManifest()
     duplicate.records.push(clone(duplicate.records[0]))
     expect(() => validateSiteAResourceManifest(duplicate)).toThrow(/Duplicate Resource ID/u)
 
-    const kind = resourcesManifest()
-    ;(kind.records[1].identity as any).kind = 'guide'
+    const kind = mutableFixture(resourcesManifest())
+    kind.records[1].identity.kind = 'guide'
     expect(() => validateSiteAResourceManifest(kind)).toThrow(/canonical kind/u)
 
-    const path = resourcesManifest()
-    ;(path.records[1].identity as any).path = '/resources/not-article-01'
+    const path = mutableFixture(resourcesManifest())
+    path.records[1].identity.path = '/resources/not-article-01'
     expect(() => validateSiteAResourceManifest(path)).toThrow(/canonical path/u)
   })
 

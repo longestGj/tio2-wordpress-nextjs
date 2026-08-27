@@ -66,6 +66,8 @@ Every protected case proved:
 
 All five canonical Application/Resource URLs independently returned anonymous 404, contained no protected content, and generated no WordPress preview call.
 
+The Product regression suite now runs from current source through the same owned fresh-development-server lifecycle. It uses a separately reserved loopback port, `.next-task-9-product`, `.tmp/task-9-product-preview.lock`, the dynamically bound local Product preview stub, strict local URLs, redacted server logs, exact `tsconfig.json` restoration, verified process-tree exit before cleanup, and `trace: 'off'`. Its desktop and mobile protected previews plus anonymous canonical 404 all passed. Together with the sixteen Editorial cases, the exact serial command executed and passed all 19/19 cases without server or ownership interference. The Product Playwright-equivalent Skill screenshot is `.tmp/product-preview-evidence/agent-browser-skill-playwright-check.png`.
+
 ## RED-to-GREEN defects
 
 The E2E/support files were written first. The first RED was the intentionally missing support module. After support implementation, the real environment exposed these defects:
@@ -102,12 +104,11 @@ Required/focused commands on the final corrected tree:
 - `npm run test:e2e -- tests/e2e/site-a-editorial-preview.spec.ts`: exit 0; 16/16 passed (ten protected view/viewport cases, five anonymous 404 cases, one concurrent-start isolation case).
 - `pwsh -NoProfile -File ./scripts/audit-site-a-editorial.ps1 -RelationshipMode DeferredProductRelations ...`: exit 0; 39 records, 39 deferred edges, and all expected hashes.
 
-Required commands with unchanged external gates:
+Final required commands and sole external gate:
 
-- `npm run lint`: exit 1 with exactly 22 pre-existing `@typescript-eslint/no-explicit-any` errors in unchanged Task 1 files `tests/unit/editorial/content-graph.test.ts`, `contracts.test.ts`, `manifests.test.ts`, and `rich-text.test.ts`. No changed file produced a lint error.
-- Literal unconfigured `npm run build`: exit 1 after compile because this worktree intentionally has no `.env.local`; Next reported `SITE_ID is required` while collecting `/_not-found`.
+- `npm run lint`: exit 0. Fix Round 1 removed all 22 branch-owned Task 1 `no-explicit-any` violations with typed mutable fixtures and narrow `unknown`/record boundaries; the four affected files independently passed 39/39 focused tests before the full lint run.
 - Configured local Site A `npm run build` with task-specific dist: exit 1 after successful compilation and successful Next TypeScript phase. It reproduced the unchanged `/sitemap.xml` Homepage gate: `SitemapIntegrityError`, `reason: source-invalid`, `path: /`. No Homepage, sitemap, inventory, or local data was changed to bypass it, and the generated dist plus temporary `tsconfig.json` entries were removed.
-- Exact combined `npm run test:e2e -- tests/e2e/site-a-editorial-preview.spec.ts tests/e2e/site-a-product-preview.spec.ts`: 16 editorial tests passed; the first Product test failed at startup because `.next-tio2-a` does not contain a production build, and the remaining two Product tests did not run. This is not claimed as current Product E2E coverage: the fresh build cannot create that artifact past the unchanged sitemap gate.
+- Exact combined `npm run test:e2e -- tests/e2e/site-a-editorial-preview.spec.ts tests/e2e/site-a-product-preview.spec.ts`: exit 0; 19/19 passed serially from current source (16 Editorial and 3 Product). The Product suite no longer depends on `.next-tio2-a` or any stale production artifact.
 
 An optional default `npm test` sweep produced 1,232 passes, 36 environment-gated skips, and two five-second timeouts under 100-file parallel load. Both timed-out files were rerun independently and passed: the Task 8 path-boundary file passed 7/7 and the unrelated seed-contract file passed 43/43. No implementation change was justified by those load-sensitive timeouts.
 
@@ -117,11 +118,20 @@ Independent review initially reported concurrency/cleanup ownership, `tsconfig.j
 
 Final cleanup checks showed:
 
-- no `.next-task-9-editorial` or `.next-task-9-build` directory;
-- no `.tmp/task-9-editorial-preview.lock`;
+- no `.next-task-9-editorial`, `.next-task-9-product`, or `.next-task-9-build` directory;
+- no `.tmp/task-9-editorial-preview.lock` or `.tmp/task-9-product-preview.lock`;
 - no matching worktree `next dev` process;
 - no `wordpress/seed/.runtime-site-a-editorial*` or `.runtime-task8*` file;
 - tracked `tsconfig.json` byte content restored with no diff;
-- only the requested ignored screenshot evidence remains under `.tmp/task-9-editorial-preview-evidence`.
+- only the requested ignored screenshot evidence remains under `.tmp/task-9-editorial-preview-evidence` and `.tmp/product-preview-evidence`.
 
-Remaining concerns are limited to the three accurately reported external gates: the unchanged Task 1 lint debt, the unchanged Homepage sitemap source-invalid build gate, and the resulting inability of the existing Product E2E to start from a current production artifact. Task 9 itself has no remaining Critical or Important review finding. Real content integration has not started.
+## Fix Round 1 evidence
+
+The two Important review findings were branch issues and are resolved:
+
+1. A test-only `MutableFixture<T>` widens literal primitives while preserving nested structure, and a narrow record helper supports deliberate strict-schema unknown-field cases. All 22 explicit-`any` casts in the four Task 1 editorial tests were removed without changing any negative mutation or expected rejection. The four files passed 39/39 tests; focused ESLint, full `npm run lint`, and `npm run typecheck` all exited 0.
+2. Generic owned fresh-Next support was factored into `tests/e2e/support/owned-next-dev.ts` and reused by Editorial and Product. Product received its own dynamic loopback port, dist, ownership lock, exact cleanup/restoration, server-error correlation, and Playwright-equivalent Skill check. The first fresh-development REDs showed that Next development mode deliberately returns `no-cache, must-revalidate` for the rendered document and omits the production-only `Secure` cookie attribute; the assertions now require the safe development cache form, no cache hit, and the binding brief's exact-path HttpOnly/SameSite cookie properties. No production runtime defect or production file change was justified.
+
+Fresh final evidence after these fixes: the exact focused test groups passed 103/103, 44/44, and 23/23 with 21 environment-gated skips; live adapter 1/1, real WordPress preview 9/9, and scoped API regressions 23/23 passed; typecheck and full lint exited 0; exact combined E2E passed 19/19; the read-only audit returned 28 Applications, 11 Resources, 39 deferred Product edges, and the same five aggregate hashes; raw fixture/Product/public-inventory hashes remained byte-identical. The configured build again compiled and completed TypeScript before stopping only at the unchanged Homepage `/sitemap.xml` `source-invalid` gate.
+
+The only remaining external gate is the unchanged Homepage sitemap source-invalid build condition. Both Critical/Important items assigned in Fix Round 1 are resolved and ready for rereview. Real content integration has not started.

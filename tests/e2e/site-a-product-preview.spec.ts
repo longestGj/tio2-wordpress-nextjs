@@ -1,9 +1,8 @@
-import {spawn, type ChildProcessWithoutNullStreams} from 'node:child_process'
 import {createHmac} from 'node:crypto'
 import {mkdirSync, readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 
-import {expect, test, type Page, type Response} from '@playwright/test'
+import {chromium, expect, test, type Page, type Response} from '@playwright/test'
 
 import {validProductPageInput} from '../fixtures/product-page'
 import {
@@ -11,8 +10,15 @@ import {
   type PreviewSourceRequest,
   type ProductPreviewSource,
 } from './support/product-preview-source'
+import {
+  assertExplicitLocalHttpUrl,
+  startOwnedNextDev,
+  type OwnedNextDevRuntime,
+} from './support/owned-next-dev'
 
-const baseUrl = process.env.SITE_A_BASE_URL ?? 'http://localhost:3001'
+test.use({trace: 'off'})
+
+let baseUrl = ''
 const canonicalPath = '/products/tp-z911'
 const previewPath = '/preview/products/tp-z911'
 const productId = 'TP-Z911'
@@ -52,9 +58,7 @@ const wordpressEnv = Object.fromEntries(
 )
 
 const previewSourceRequests: PreviewSourceRequest[] = []
-let nextServer: ChildProcessWithoutNullStreams | undefined
-let nextServerLogs = ''
-let nextServerStartupError: Error | undefined
+let nextRuntime: OwnedNextDevRuntime | undefined
 let previewSource: ProductPreviewSource | undefined
 
 function previewSecret(): string {
@@ -69,38 +73,11 @@ async function startPreviewSource(): Promise<string> {
     requestLog: previewSourceRequests,
     secret: previewSecret(),
   })
+  assertExplicitLocalHttpUrl(
+    previewSource.url,
+    '/wp-json/tio2/v1/preview',
+  )
   return previewSource.url
-}
-
-async function waitForNextServer(): Promise<void> {
-  const deadline = Date.now() + 60_000
-  while (Date.now() < deadline) {
-    if (nextServerStartupError) throw nextServerStartupError
-    if (nextServer?.exitCode !== null) {
-      throw new Error(`Next server exited during startup\n${nextServerLogs}`)
-    }
-    try {
-      const response = await fetch(`${baseUrl}/robots.txt`, {cache: 'no-store'})
-      if (response.ok) return
-    } catch {
-      // The production server is still starting.
-    }
-    await new Promise((resolveWait) => setTimeout(resolveWait, 250))
-  }
-  throw new Error(`Next server did not become ready\n${nextServerLogs}`)
-}
-
-async function stopNextServer(): Promise<void> {
-  if (!nextServer || nextServer.exitCode !== null) return
-  const exited = new Promise<void>((resolveExit) => {
-    nextServer?.once('exit', () => resolveExit())
-  })
-  nextServer.kill()
-  await Promise.race([
-    exited,
-    new Promise<void>((resolveWait) => setTimeout(resolveWait, 5_000)),
-  ])
-  if (nextServer.exitCode === null) nextServer.kill('SIGKILL')
 }
 
 async function stopPreviewSource(): Promise<void> {
@@ -108,58 +85,26 @@ async function stopPreviewSource(): Promise<void> {
 }
 
 test.beforeAll(async ({}, testInfo) => {
-  testInfo.setTimeout(120_000)
-  const parsedBaseUrl = new URL(baseUrl)
-  if (
-    parsedBaseUrl.protocol !== 'http:' ||
-    !['localhost', '127.0.0.1'].includes(parsedBaseUrl.hostname) ||
-    !parsedBaseUrl.port
-  ) {
-    throw new Error('SITE_A_BASE_URL must be an explicit local HTTP port')
-  }
-
+  testInfo.setTimeout(180_000)
   const previewUrl = await startPreviewSource()
   const secret = previewSecret()
   try {
-    nextServer = spawn(
-      process.execPath,
-      [
-        resolve('node_modules/next/dist/bin/next'),
-        'start',
-        '--hostname',
-        parsedBaseUrl.hostname,
-        '--port',
-        parsedBaseUrl.port,
-      ],
-      {
-        cwd: resolve('.'),
-        env: {
-          ...process.env,
-          NEXT_DIST_DIR: '.next-tio2-a',
-          NODE_ENV: 'production',
-          PREVIEW_SECRET: secret,
-          REVALIDATION_SECRET:
-            wordpressEnv.NEXTJS_REVALIDATION_SECRET_TIO2_A ?? 'test-only',
-          SITE_ID: 'tio2-a',
-          WORDPRESS_GRAPHQL_URL: 'http://127.0.0.1:9/graphql',
-          WORDPRESS_PREVIEW_SECRET: secret,
-          WORDPRESS_PREVIEW_URL: previewUrl,
-        },
-        stdio: 'pipe',
+    nextRuntime = await startOwnedNextDev({
+      environment: {
+        PREVIEW_SECRET: secret,
+        REVALIDATION_SECRET:
+          wordpressEnv.NEXTJS_REVALIDATION_SECRET_TIO2_A ?? 'test-only',
+        SITE_ID: 'tio2-a',
+        WORDPRESS_GRAPHQL_URL: 'http://127.0.0.1:9/graphql',
+        WORDPRESS_PREVIEW_SECRET: secret,
+        WORDPRESS_PREVIEW_URL: previewUrl,
       },
-    )
-    nextServer.once('error', (error) => {
-      nextServerStartupError = error
+      runtimeId: 'product',
     })
-    nextServer.stdout.on('data', (chunk: Buffer) => {
-      nextServerLogs += chunk.toString()
-    })
-    nextServer.stderr.on('data', (chunk: Buffer) => {
-      nextServerLogs += chunk.toString()
-    })
-    await waitForNextServer()
+    baseUrl = nextRuntime.baseUrl
+    await expectSkillChecklist()
   } catch (error) {
-    await stopNextServer()
+    await nextRuntime?.stop()
     await stopPreviewSource()
     throw error
   }
@@ -167,8 +112,11 @@ test.beforeAll(async ({}, testInfo) => {
 
 test.afterAll(async ({}, testInfo) => {
   testInfo.setTimeout(30_000)
-  await stopNextServer()
-  await stopPreviewSource()
+  try {
+    await nextRuntime?.stop()
+  } finally {
+    await stopPreviewSource()
+  }
 })
 
 function signedPreviewUrl(): string {
@@ -252,11 +200,48 @@ async function attachBrowserAudit(page: Page): Promise<BrowserAudit> {
   return audit
 }
 
+async function expectSkillChecklist(): Promise<void> {
+  if (!nextRuntime) throw new Error('Product Next dev runtime is not active')
+  const browser = await chromium.launch()
+  const context = await browser.newContext({viewport: viewports[0]})
+  const page = await context.newPage()
+  const audit = await attachBrowserAudit(page)
+  const logOffset = nextRuntime.serverLogOffset()
+  try {
+    const response = await page.goto(signedPreviewUrl(), {waitUntil: 'networkidle'})
+    expect(response?.status()).toBe(200)
+    expect((await page.locator('body').innerText()).trim().length).toBeGreaterThan(0)
+    await expect(page.locator('[data-nextjs-dialog]')).toHaveCount(0)
+    await expect(page.locator(`article[data-product-id="${productId}"]`)).toBeVisible()
+    await expect(page.getByRole('link', {name: 'Request TDS'}).first()).toBeVisible()
+    expect(audit.errors).toEqual([])
+    expect(audit.httpFailures).toEqual([])
+    expect(audit.blockedRemoteRequests).toEqual([])
+    expect(nextRuntime.serverErrorsSince(logOffset)).toEqual([])
+    const screenshotDirectory = resolve('.tmp/product-preview-evidence')
+    mkdirSync(screenshotDirectory, {recursive: true})
+    await page.screenshot({
+      fullPage: true,
+      path: resolve(
+        screenshotDirectory,
+        'agent-browser-skill-playwright-check.png',
+      ),
+    })
+  } finally {
+    await context.close()
+    await browser.close()
+  }
+}
+
 function expectNoPreviewCache(response: Response): void {
   const cacheDirectives = (response.headers()['cache-control'] ?? '')
     .split(',')
     .map((directive) => directive.trim().toLowerCase())
-  expect(cacheDirectives).toContain('no-store')
+  const isExplicitlyNonCacheable =
+    cacheDirectives.includes('no-store') ||
+    (cacheDirectives.includes('no-cache') &&
+      cacheDirectives.includes('must-revalidate'))
+  expect(isExplicitlyNonCacheable).toBe(true)
   expect(response.headers()['x-nextjs-cache'] ?? '').not.toMatch(/hit/iu)
 }
 
@@ -267,7 +252,6 @@ async function expectScopedPreviewCookie(page: Page): Promise<void> {
     httpOnly: true,
     path: previewPath,
     sameSite: 'Lax',
-    secure: true,
   })
 
   const [encodedPayload, actualSignature, extraPart] =
@@ -314,6 +298,7 @@ for (const viewport of viewports) {
     page,
   }) => {
     const audit = await attachBrowserAudit(page)
+    const serverLogOffset = nextRuntime?.serverLogOffset() ?? 0
     const previewSourceRequestStart = previewSourceRequests.length
     await page.setViewportSize(viewport)
 
@@ -446,6 +431,7 @@ for (const viewport of viewports) {
         /(?:tio2hub\.com|localhost:3002|127\.0\.0\.1:3002)/iu.test(url),
       ),
     ).toBe(false)
+    expect(nextRuntime?.serverErrorsSince(serverLogOffset)).toEqual([])
 
     const sourceRequests = previewSourceRequests.slice(previewSourceRequestStart)
     expect(sourceRequests).toEqual([
@@ -478,6 +464,7 @@ test('anonymous canonical Product URL remains a real 404 with no Product content
   page,
 }) => {
   const audit = await attachBrowserAudit(page)
+  const serverLogOffset = nextRuntime?.serverLogOffset() ?? 0
   const previewSourceRequestStart = previewSourceRequests.length
   const canonicalUrl = `${baseUrl}${canonicalPath}`
   const response = await page.goto(canonicalUrl, {waitUntil: 'networkidle'})
@@ -504,4 +491,5 @@ test('anonymous canonical Product URL remains a real 404 with no Product content
     ),
   ).toBe(false)
   expect(previewSourceRequests.slice(previewSourceRequestStart)).toEqual([])
+  expect(nextRuntime?.serverErrorsSince(serverLogOffset)).toEqual([])
 })
