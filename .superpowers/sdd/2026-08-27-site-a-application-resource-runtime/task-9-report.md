@@ -66,7 +66,7 @@ Every protected case proved:
 
 All five canonical Application/Resource URLs independently returned anonymous 404, contained no protected content, and generated no WordPress preview call.
 
-The Product regression suite now runs from current source through the same owned fresh-development-server lifecycle. It uses a separately reserved loopback port, `.next-task-9-product`, `.tmp/task-9-product-preview.lock`, the dynamically bound local Product preview stub, strict local URLs, redacted server logs, exact `tsconfig.json` restoration, verified process-tree exit before cleanup, and `trace: 'off'`. Its desktop and mobile protected previews plus anonymous canonical 404 all passed. Together with the sixteen Editorial cases, the exact serial command executed and passed all 19/19 cases without server or ownership interference. The Product Playwright-equivalent Skill screenshot is `.tmp/product-preview-evidence/agent-browser-skill-playwright-check.png`.
+The Product regression suite now runs from current source through the same owned fresh-development-server lifecycle. It uses a separately reserved loopback port, `.next-task-9-product`, `.tmp/task-9-product-preview.lock`, plus the shared `.tmp/task-9-next-dev-lifecycle.lock`, the dynamically bound local Product preview stub, strict local URLs, redacted server logs, exact `tsconfig.json` restoration, verified process-tree exit before cleanup, and `trace: 'off'`. Its desktop and mobile protected previews plus anonymous canonical 404 all passed. Together with the sixteen Editorial cases, the exact serial command executed and passed all 19/19 cases without server or ownership interference. The Product Playwright-equivalent Skill screenshot is `.tmp/product-preview-evidence/agent-browser-skill-playwright-check.png`.
 
 ## RED-to-GREEN defects
 
@@ -119,7 +119,7 @@ Independent review initially reported concurrency/cleanup ownership, `tsconfig.j
 Final cleanup checks showed:
 
 - no `.next-task-9-editorial`, `.next-task-9-product`, or `.next-task-9-build` directory;
-- no `.tmp/task-9-editorial-preview.lock` or `.tmp/task-9-product-preview.lock`;
+- no `.tmp/task-9-next-dev-lifecycle.lock`, `.tmp/task-9-editorial-preview.lock`, or `.tmp/task-9-product-preview.lock`;
 - no matching worktree `next dev` process;
 - no `wordpress/seed/.runtime-site-a-editorial*` or `.runtime-task8*` file;
 - tracked `tsconfig.json` byte content restored with no diff;
@@ -134,4 +134,14 @@ The two Important review findings were branch issues and are resolved:
 
 Fresh final evidence after these fixes: the exact focused test groups passed 103/103, 44/44, and 23/23 with 21 environment-gated skips; live adapter 1/1, real WordPress preview 9/9, and scoped API regressions 23/23 passed; typecheck and full lint exited 0; exact combined E2E passed 19/19; the read-only audit returned 28 Applications, 11 Resources, 39 deferred Product edges, and the same five aggregate hashes; raw fixture/Product/public-inventory hashes remained byte-identical. The configured build again compiled and completed TypeScript before stopping only at the unchanged Homepage `/sitemap.xml` `source-invalid` gate.
 
-The only remaining external gate is the unchanged Homepage sitemap source-invalid build condition. Both Critical/Important items assigned in Fix Round 1 are resolved and ready for rereview. Real content integration has not started.
+The only remaining external gate is the unchanged Homepage sitemap source-invalid build condition. The two original Fix Round 1 items are resolved; the shared-lock issue identified by the Fix Round 1 rereview is addressed below. Real content integration has not started.
+
+## Fix Round 2 evidence
+
+Fix Round 1 retained separate Editorial and Product ownership locks while both lifecycle instances snapshot, permit Next to mutate, and restore the same tracked `tsconfig.json`. The cross-ID regression was written first and produced the required RED: with an Editorial owner active, a Product contender started successfully instead of being rejected. A second RED proved that a manually staged unverified global-lock file was ignored. Both RED runs performed their own cleanup and returned the tracked file to its original bytes.
+
+The generic helper now acquires `.tmp/task-9-next-dev-lifecycle.lock` with exclusive `wx` creation before either the runtime-specific lock or any `tsconfig.json` snapshot. That shared ownership remains held through server startup, runtime use, verified process-tree exit, exact tracked-file restoration, and owned-dist deletion. It is released last, after the runtime-specific lock. A process-stop, restoration, or dist-cleanup failure retains the locks and fails closed. Existing lock files are never reclaimed and their recorded PID is never used to kill a process, so an unverified or stale lock remains untouched for explicit investigation.
+
+`tests/e2e/owned-next-dev-lifecycle.spec.ts` exercises the real helper and fresh Next processes. GREEN proves a Product contender is rejected with `A Task 9 owned Next dev lifecycle is already active` before Product creates its dist or instance lock; the Editorial owner's generated `tsconfig.json` bytes remain unchanged and its `/robots.txt` stays usable; owner teardown restores the exact original bytes and removes all owned artifacts; and Product can acquire ownership afterward. The separate stale-lock case proves the unverified file, tracked bytes, Product dist, and Product instance lock remain untouched. The new suite passed 2/2.
+
+Fresh Fix Round 2 verification: the exact combined Editorial/Product command passed 19/19 serial current-source cases; the cross-ID/stale-lock suite passed 2/2; full lint exited 0 without warnings; typecheck exited 0; and the final read-only audit again returned 39 records (28 Applications plus 11 Resources), 39 deferred Product edges, and byte-identical Application, Resource, readback, deferred-edge, Site B, and raw manifest hashes. No production runtime, content, Homepage, sitemap, public inventory, WordPress data, Apply path, or release surface changed.

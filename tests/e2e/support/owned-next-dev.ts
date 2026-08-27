@@ -28,6 +28,9 @@ export interface OwnedNextDevRuntime {
 
 const repositoryRoot = resolve('.')
 const tsconfigPath = resolve('tsconfig.json')
+const globalLifecycleLockPath = resolve(
+  '.tmp/task-9-next-dev-lifecycle.lock',
+)
 
 export function assertExplicitLocalHttpUrl(
   value: string,
@@ -73,17 +76,17 @@ function sanitizeServerLogChunk(value: string): string {
   return value.replace(/([?&]signature=)[^&\s]+/giu, '$1[REDACTED]')
 }
 
-function acquireRuntimeLock(
-  runtimeId: Task9RuntimeId,
-  runtimeLockPath: string,
+function acquireOwnedLock(
+  lockPath: string,
+  collisionMessage: string,
 ): () => void {
   mkdirSync(resolve('.tmp'), {recursive: true})
   let descriptor: number
   try {
-    descriptor = openSync(runtimeLockPath, 'wx')
+    descriptor = openSync(lockPath, 'wx')
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
-      throw new Error(`A Task 9 ${runtimeId} preview runtime is already active`)
+      throw new Error(collisionMessage)
     }
     throw error
   }
@@ -93,7 +96,7 @@ function acquireRuntimeLock(
     try {
       closeSync(descriptor)
     } finally {
-      rmSync(runtimeLockPath, {force: true})
+      rmSync(lockPath, {force: true})
     }
     throw error
   }
@@ -105,7 +108,7 @@ function acquireRuntimeLock(
     try {
       closeSync(descriptor)
     } finally {
-      rmSync(runtimeLockPath, {force: true})
+      rmSync(lockPath, {force: true})
     }
   }
 }
@@ -219,12 +222,27 @@ export async function startOwnedNextDev({
   const port = await reserveFreeLocalPort()
   const baseUrl = `http://127.0.0.1:${port}`
   assertExplicitLocalHttpUrl(baseUrl)
-  const releaseRuntimeLock = acquireRuntimeLock(runtimeId, runtimeLockPath)
+  const releaseGlobalLifecycleLock = acquireOwnedLock(
+    globalLifecycleLockPath,
+    'A Task 9 owned Next dev lifecycle is already active',
+  )
+  const releaseRuntimeLock = (() => {
+    try {
+      return acquireOwnedLock(
+        runtimeLockPath,
+        `A Task 9 ${runtimeId} preview runtime is already active`,
+      )
+    } catch (error) {
+      releaseGlobalLifecycleLock()
+      throw error
+    }
+  })()
   let originalTsconfig: string
   try {
     originalTsconfig = readFileSync(tsconfigPath, 'utf8')
   } catch (error) {
     releaseRuntimeLock()
+    releaseGlobalLifecycleLock()
     throw error
   }
 
@@ -270,14 +288,11 @@ export async function startOwnedNextDev({
     } catch (error) {
       failures.push(error)
     }
-    try {
-      releaseRuntimeLock()
-    } catch (error) {
-      failures.push(error)
-    }
     if (failures.length > 0) {
       throw new AggregateError(failures, 'Task 9 runtime cleanup failed')
     }
+    releaseRuntimeLock()
+    releaseGlobalLifecycleLock()
   }
 
   try {

@@ -363,7 +363,7 @@ test.afterAll(async ({}, testInfo) => {
 
 test('concurrent Task 9 runtime startup fails closed without disturbing the active server', async () => {
   await expect(startEditorialPreviewRuntime()).rejects.toThrow(
-    'A Task 9 editorial preview runtime is already active',
+    'A Task 9 owned Next dev lifecycle is already active',
   )
   const response = await fetch(`${runtime.baseUrl}/robots.txt`, {
     cache: 'no-store',
