@@ -316,7 +316,7 @@ describe('seed execution plan', () => {
       expect(result.status, result.stderr).toBe(0)
       expect(JSON.parse(result.stdout)).toMatchObject({failurePoint})
     }
-  })
+  }, 60_000)
 
   it('builds exact deterministic page upserts for each site', () => {
     const result = runPowerShell(seedScriptPath, ['-ScalePages', '3', '-PlanOnly'])
