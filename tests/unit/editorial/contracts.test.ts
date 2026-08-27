@@ -97,4 +97,22 @@ describe('shared editorial page contracts', () => {
     )
     expect(() => toTechnicalResourcePageDto(thirteenItems, resolveTarget)).toThrow(ResourceContractError)
   })
+
+  it('permits only the approved Article 07 technical approval workflow phrases', () => {
+    // Catches a production mutation that removes the bounded approval-workflow exemption.
+    const input = mutableFixture(resourceArticleInput)
+    input.hero.directAnswer = '<p>Obtain finished-product approval after the production-representative trial.</p>'
+    input.keyTakeaways[0] = 'Finished-product approval remains necessary before commercial adoption.'
+    input.sections[0].html = '<p>Use an approval method and approval plan before the final approval stage.</p>'
+    input.comparisonTable!.rows[0] = ['Finished-product and customer approval', 'Apply approval criteria.']
+    input.evaluationMethod[0] = 'Complete customer approval using the end-use requirements that govern the product.'
+
+    expect(toTechnicalResourcePageDto(input, resolveTarget).evaluationMethod[0]).toContain('customer approval')
+  })
+
+  it.each(['approval', 'internal approval', 'approval status', 'approval history'])('rejects unbounded approval claim %s in a Resource DTO', (phrase) => {
+    const input = mutableFixture(resourceArticleInput)
+    input.hero.directAnswer = `<p>Synthetic content includes ${phrase}.</p>`
+    expect(() => toTechnicalResourcePageDto(input, resolveTarget)).toThrow(ResourceContractError)
+  })
 })
