@@ -639,6 +639,24 @@ function tio2_preview_rest_response(WP_REST_Request $request)
         return is_wp_error($payload) ? $payload : new WP_REST_Response($payload, 200);
     }
 
+    if ('/applications' === $path || str_starts_with($path, '/applications/')) {
+        $application = tio2_find_application_for_preview($site_id, $path);
+        if (! $application instanceof WP_Post) {
+            return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+        }
+        $payload = tio2_serialize_application_preview($application);
+        return is_wp_error($payload) ? $payload : new WP_REST_Response($payload, 200);
+    }
+
+    if ('/resources' === $path || str_starts_with($path, '/resources/')) {
+        $resource = tio2_find_resource_for_preview($site_id, $path);
+        if (! $resource instanceof WP_Post) {
+            return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+        }
+        $payload = tio2_serialize_resource_preview($resource);
+        return is_wp_error($payload) ? $payload : new WP_REST_Response($payload, 200);
+    }
+
     $internal_slug = tio2_build_internal_slug($site_id, $path);
     if (is_wp_error($internal_slug)) {
         return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
@@ -718,6 +736,18 @@ function tio2_filter_preview_post_link(string $preview_link, WP_Post $post): str
             return $preview_link;
         }
         $route = ['siteId' => 'tio2-a', 'publicPath' => tio2_product_path_from_id($product_id)];
+    } elseif ('tio2_application' === $post->post_type) {
+        $payload = tio2_serialize_application_preview($post);
+        if (is_wp_error($payload)) {
+            return $preview_link;
+        }
+        $route = ['siteId' => 'tio2-a', 'publicPath' => $payload['path']];
+    } elseif ('tio2_document' === $post->post_type && tio2_application_resource_is_exact_site_a((int) $post->ID)) {
+        $payload = tio2_serialize_resource_preview($post);
+        if (is_wp_error($payload)) {
+            return $preview_link;
+        }
+        $route = ['siteId' => 'tio2-a', 'publicPath' => $payload['path']];
     } else {
         $route = tio2_get_managed_post_route((int) $post->ID);
         if (is_wp_error($route)) {

@@ -238,7 +238,7 @@ function tio2_product_preview_test_insert_relationship(
     if (null !== $product_id) {
         update_field('field_tio2_product_id', $product_id, $post_id);
     }
-    if ('tio2_product' === $post_type && 'draft' !== $status) {
+    if ('draft' !== $status && $status !== get_post_status($post_id)) {
         tio2_product_preview_test_set_status_exact($post_id, $status);
     }
     clean_post_cache($post_id);
@@ -584,6 +584,7 @@ wp_update_post([
     'ID' => $application_id,
     'post_excerpt' => 'Internal source: /documents/tds/TP-Z911.pdf.',
 ]);
+tio2_product_preview_test_set_status_exact($application_id, 'publish');
 $unsafe_relationship_preview = tio2_serialize_product_preview(get_post($product_id));
 tio2_product_preview_test_assert(
     is_wp_error($unsafe_relationship_preview) &&

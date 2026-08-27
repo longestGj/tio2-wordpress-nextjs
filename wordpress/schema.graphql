@@ -153,523 +153,319 @@ interface AcfFieldGroupFields {
   fieldGroupName: String @deprecated(reason: "Use __typename instead")
 }
 
-"Interface representing fields of the ACF &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
-interface EditorialGeoFieldsDecisionQuestions_Fields implements AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
-  decisionAnswer: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
-  decisionNumber: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
-  decisionQuestion: String
-
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-}
-
-"The &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
-type EditorialGeoFieldsDecisionQuestions implements EditorialGeoFieldsDecisionQuestions_Fields & AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
-  decisionAnswer: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
-  decisionNumber: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
-  decisionQuestion: String
-
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-}
-
-"Interface representing fields of the ACF &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
-interface EditorialGeoFieldsApplicationBriefs_Fields implements AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
-  applicationConsiderations: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
-  applicationName: String
-
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
-  applicationSummary: String
-
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-}
-
-"The &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
-type EditorialGeoFieldsApplicationBriefs implements EditorialGeoFieldsApplicationBriefs_Fields & AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
-  applicationConsiderations: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
-  applicationName: String
-
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
-  applicationSummary: String
-
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-}
-
-"Interface representing fields of the ACF &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
-interface EditorialGeoFieldsSupplyRoutes_Fields implements AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
-  buyerVerification: String
-
-  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
-  claimBasis: [String]
-
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
-  documentationContext: String
-
-  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
-  evidenceUrl: String
-
+"Interface representing fields of the ACF &quot;ApplicationFieldsSelectionFactors&quot; Field Group"
+interface ApplicationFieldsSelectionFactors_Fields implements AcfFieldGroup & AcfFieldGroupFields {
   "The name of the field group"
   fieldGroupName: String @deprecated(reason: "Use __typename instead")
 
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
-  routeMeaning: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
-  routeName: String
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsSelectionFactors&quot; Field Group"
+  item: String
 }
 
-"The &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
-type EditorialGeoFieldsSupplyRoutes implements EditorialGeoFieldsSupplyRoutes_Fields & AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
-  buyerVerification: String
+"The &quot;ApplicationFieldsSelectionFactors&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type ApplicationFieldsSelectionFactors implements ApplicationFieldsSelectionFactors_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
 
-  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
-  claimBasis: [String]
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsSelectionFactors&quot; Field Group"
+  item: String
+}
 
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
-  documentationContext: String
+"Interface representing fields of the ACF &quot;ApplicationFieldsValidationPlan&quot; Field Group"
+interface ApplicationFieldsValidationPlan_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
 
-  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
-  evidenceUrl: String
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsValidationPlan&quot; Field Group"
+  item: String
+}
+
+"The &quot;ApplicationFieldsValidationPlan&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type ApplicationFieldsValidationPlan implements ApplicationFieldsValidationPlan_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsValidationPlan&quot; Field Group"
+  item: String
+}
+
+"Interface representing fields of the ACF &quot;ApplicationFieldsCustomerInputs&quot; Field Group"
+interface ApplicationFieldsCustomerInputs_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsCustomerInputs&quot; Field Group"
+  item: String
+}
+
+"The &quot;ApplicationFieldsCustomerInputs&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type ApplicationFieldsCustomerInputs implements ApplicationFieldsCustomerInputs_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsCustomerInputs&quot; Field Group"
+  item: String
+}
+
+"Interface representing fields of the ACF &quot;ApplicationFieldsBodySections&quot; Field Group"
+interface ApplicationFieldsBodySections_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsBodySections&quot; Field Group"
+  heading: String
+
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsBodySections&quot; Field Group"
+  html: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsBodySections&quot; Field Group"
+  sectionId: String
+}
+
+"The &quot;ApplicationFieldsBodySections&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type ApplicationFieldsBodySections implements ApplicationFieldsBodySections_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsBodySections&quot; Field Group"
+  heading: String
+
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsBodySections&quot; Field Group"
+  html: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsBodySections&quot; Field Group"
+  sectionId: String
+}
+
+"Interface representing fields of the ACF &quot;ApplicationFieldsFaqItems&quot; Field Group"
+interface ApplicationFieldsFaqItems_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsFaqItems&quot; Field Group"
+  answer: String
 
   "The name of the field group"
   fieldGroupName: String @deprecated(reason: "Use __typename instead")
 
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
-  routeMeaning: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
-  routeName: String
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsFaqItems&quot; Field Group"
+  question: String
 }
 
-"Interface representing fields of the ACF &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-interface EditorialGeoFieldsEvidenceItems_Fields implements AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  applicability: String
-
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  documentSummary: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  documentTitle: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  documentType: String
-
-  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  evidenceUrl: String
+"The &quot;ApplicationFieldsFaqItems&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type ApplicationFieldsFaqItems implements ApplicationFieldsFaqItems_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsFaqItems&quot; Field Group"
+  answer: String
 
   "The name of the field group"
   fieldGroupName: String @deprecated(reason: "Use __typename instead")
 
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  revisionLabel: String
-
-  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  verificationStatus: [String]
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsFaqItems&quot; Field Group"
+  question: String
 }
 
-"The &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
-type EditorialGeoFieldsEvidenceItems implements EditorialGeoFieldsEvidenceItems_Fields & AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  applicability: String
+"Interface representing fields of the ACF &quot;ApplicationFieldsCtas&quot; Field Group"
+interface ApplicationFieldsCtas_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
 
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  documentSummary: String
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsCtas&quot; Field Group"
+  href: String
 
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  documentTitle: String
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsCtas&quot; Field Group"
+  kind: [String]
 
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  documentType: String
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsCtas&quot; Field Group"
+  label: String
+}
 
-  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  evidenceUrl: String
+"The &quot;ApplicationFieldsCtas&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type ApplicationFieldsCtas implements ApplicationFieldsCtas_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsCtas&quot; Field Group"
+  href: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsCtas&quot; Field Group"
+  kind: [String]
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFieldsCtas&quot; Field Group"
+  label: String
+}
+
+"Provides access to fields of the &quot;ApplicationFields&quot; ACF Field Group via the &quot;applicationFields&quot; field"
+interface WithAcfApplicationFields {
+  "Fields of the ApplicationFields ACF Field Group"
+  applicationFields: ApplicationFields
+}
+
+"The &quot;ApplicationFields&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type ApplicationFields implements ApplicationFields_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  applicationContext: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  applicationId: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  applicationLevel: [String]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  bodySections: [ApplicationFieldsBodySections]
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  buyerProblem: String
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  childApplications(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  ctas: [ApplicationFieldsCtas]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  customerInputs: [ApplicationFieldsCustomerInputs]
+
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  directAnswer: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  eyebrow: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  family: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  faqItems: [ApplicationFieldsFaqItems]
 
   "The name of the field group"
   fieldGroupName: String @deprecated(reason: "Use __typename instead")
 
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  revisionLabel: String
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  headline: String
 
-  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
-  verificationStatus: [String]
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  metaDescription: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  metaTitle: String
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  parentApplication(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  powderDataLimits: String
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  relatedApplications(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  relatedProducts(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  relatedResources(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  selectionFactors: [ApplicationFieldsSelectionFactors]
+
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  technicalDisclaimer: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  validationPlan: [ApplicationFieldsValidationPlan]
 }
 
-"Interface representing fields of the ACF &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
-interface EditorialGeoFieldsEvaluationSteps_Fields implements AcfFieldGroup & AcfFieldGroupFields {
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+"Connection between the ApplicationFields_Fields type and the ContentNode type"
+type AcfContentNodeConnection implements ContentNodeConnection & Connection {
+  "Edges for the AcfContentNodeConnection connection"
+  edges: [AcfContentNodeConnectionEdge!]!
 
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
-  methodDescription: String
+  "The nodes of the connection, without the edges"
+  nodes: [ContentNode!]!
 
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
-  methodNumber: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
-  methodTitle: String
+  "Information about pagination in a connection."
+  pageInfo: AcfContentNodeConnectionPageInfo!
 }
 
-"The &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
-type EditorialGeoFieldsEvaluationSteps implements EditorialGeoFieldsEvaluationSteps_Fields & AcfFieldGroup & AcfFieldGroupFields {
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+"A paginated collection of ContentNode Nodes, Supports cursor-based pagination and filtering to efficiently retrieve sets of ContentNode Nodes"
+interface ContentNodeConnection implements Connection {
+  "A list of edges (relational context) between ContentType and connected ContentNode Nodes"
+  edges: [ContentNodeConnectionEdge!]!
 
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
-  methodDescription: String
+  "A list of connected ContentNode Nodes"
+  nodes: [ContentNode!]!
 
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
-  methodNumber: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
-  methodTitle: String
+  "Information about pagination in a connection."
+  pageInfo: ContentNodeConnectionPageInfo!
 }
 
-"Interface representing fields of the ACF &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
-interface EditorialGeoFieldsGeoFaqs_Fields implements AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
-  faqAnswer: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
-  faqQuestion: String
-
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-}
-
-"The &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
-type EditorialGeoFieldsGeoFaqs implements EditorialGeoFieldsGeoFaqs_Fields & AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
-  faqAnswer: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
-  faqQuestion: String
-
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-}
-
-"Interface representing fields of the ACF &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
-interface EditorialGeoFieldsGlossaryItems_Fields implements AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
-  definition: String
-
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
-  term: String
-}
-
-"The &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
-type EditorialGeoFieldsGlossaryItems implements EditorialGeoFieldsGlossaryItems_Fields & AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
-  definition: String
-
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
-  term: String
-}
-
-"Provides access to fields of the &quot;EditorialGeoFields&quot; ACF Field Group via the &quot;editorialGeoFields&quot; field"
-interface WithAcfEditorialGeoFields {
-  "Fields of the EditorialGeoFields ACF Field Group"
-  editorialGeoFields: EditorialGeoFields
-}
-
-"The &quot;EditorialGeoFields&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
-type EditorialGeoFields implements EditorialGeoFields_Fields & AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  applicationBriefs: [EditorialGeoFieldsApplicationBriefs]
-
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  decisionQuestions: [EditorialGeoFieldsDecisionQuestions]
-
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  directAnswerBody: String
-
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  directAnswerLead: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  directAnswerQuestion: String
-
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  editorialReviewScope: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  editorialReviewedAt: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  editorialReviewedBy: String
-
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  evaluationSteps: [EditorialGeoFieldsEvaluationSteps]
-
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  evidenceItems: [EditorialGeoFieldsEvidenceItems]
-
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  geoFaqs: [EditorialGeoFieldsGeoFaqs]
-
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  glossaryItems: [EditorialGeoFieldsGlossaryItems]
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  headerRfqLabel: String
-
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  supplyRoutes: [EditorialGeoFieldsSupplyRoutes]
-}
-
-"Interface representing fields of the ACF &quot;EditorialGeoFields&quot; Field Group"
-interface EditorialGeoFields_Fields implements AcfFieldGroup & AcfFieldGroupFields {
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  applicationBriefs: [EditorialGeoFieldsApplicationBriefs]
-
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  decisionQuestions: [EditorialGeoFieldsDecisionQuestions]
-
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  directAnswerBody: String
-
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  directAnswerLead: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  directAnswerQuestion: String
-
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  editorialReviewScope: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  editorialReviewedAt: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  editorialReviewedBy: String
-
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  evaluationSteps: [EditorialGeoFieldsEvaluationSteps]
-
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  evidenceItems: [EditorialGeoFieldsEvidenceItems]
-
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  geoFaqs: [EditorialGeoFieldsGeoFaqs]
-
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  glossaryItems: [EditorialGeoFieldsGlossaryItems]
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  headerRfqLabel: String
-
-  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
-  supplyRoutes: [EditorialGeoFieldsSupplyRoutes]
-}
-
-"Interface representing fields of the ACF &quot;HomepageFieldsRfqLabels&quot; Field Group"
-interface HomepageFieldsRfqLabels_Fields implements AcfFieldGroup & AcfFieldGroupFields {
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqBuyerDistributorLabel: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqBuyerIndustrialLabel: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqBuyerOtherLabel: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelBuyerType: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelCompany: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelCountryRegion: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelDestination: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelExpectedQuantity: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelInterest: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelMessage: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelName: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelPrivacy: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelWorkEmail: String
-}
-
-"The &quot;HomepageFieldsRfqLabels&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
-type HomepageFieldsRfqLabels implements HomepageFieldsRfqLabels_Fields & AcfFieldGroup & AcfFieldGroupFields {
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqBuyerDistributorLabel: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqBuyerIndustrialLabel: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqBuyerOtherLabel: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelBuyerType: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelCompany: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelCountryRegion: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelDestination: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelExpectedQuantity: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelInterest: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelMessage: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelName: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelPrivacy: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
-  rfqLabelWorkEmail: String
-}
-
-"Interface representing fields of the ACF &quot;HomepageFieldsMetrics&quot; Field Group"
-interface HomepageFieldsMetrics_Fields implements AcfFieldGroup & AcfFieldGroupFields {
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-
-  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
-  metricClaimBasis: [String]
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
-  metricContext: String
-
-  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
-  metricEvidenceUrl: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
-  metricLabel: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
-  metricUnit: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
-  metricValue: String
-}
-
-"The &quot;HomepageFieldsMetrics&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
-type HomepageFieldsMetrics implements HomepageFieldsMetrics_Fields & AcfFieldGroup & AcfFieldGroupFields {
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-
-  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
-  metricClaimBasis: [String]
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
-  metricContext: String
-
-  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
-  metricEvidenceUrl: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
-  metricLabel: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
-  metricUnit: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
-  metricValue: String
-}
-
-"Interface representing fields of the ACF &quot;HomepageFieldsProductRoutes&quot; Field Group"
-interface HomepageFieldsProductRoutes_Fields implements AcfFieldGroup & AcfFieldGroupFields {
-  "The name of the field group"
-  fieldGroupName: String @deprecated(reason: "Use __typename instead")
-
-  "Field of the &quot;image&quot; Field Type added to the schema as part of the &quot;HomepageFieldsProductRoutes&quot; Field Group"
-  productImage: AcfMediaItemConnectionEdge
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsProductRoutes&quot; Field Group"
-  productImageAlt: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsProductRoutes&quot; Field Group"
-  productPath: String
-
-  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;HomepageFieldsProductRoutes&quot; Field Group"
-  productSummary: String
-
-  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsProductRoutes&quot; Field Group"
-  productTitle: String
-}
-
-"Connection between the HomepageFields_Fields type and the MediaItem type"
-type AcfMediaItemConnectionEdge implements OneToOneConnection & Edge & MediaItemConnectionEdge {
-  "Opaque reference to the nodes position in the connection. Value can be used with pagination args."
-  cursor: String
-
-  "The node of the connection, without the edges"
-  node: MediaItem!
-}
-
-"A direct one-to-one relationship between objects. Unlike plural connections, this represents a single related object rather than a collection."
-interface OneToOneConnection implements Edge {
-  "Opaque reference to the nodes position in the connection. Value can be used with pagination args."
-  cursor: String
-
-  "The connected node"
-  node: Node!
+"A paginated relationship between objects. Supports cursor-based pagination with edges containing relationship metadata and nodes containing the related objects."
+interface Connection {
+  "A list of edges (relational context) between connected nodes"
+  edges: [Edge!]!
+
+  "A list of connected nodes"
+  nodes: [Node!]!
+
+  "Information about pagination in a connection."
+  pageInfo: PageInfo!
 }
 
 "Represents a connection between two objects. Contains both the related object (node) and metadata about the relationship (cursor)."
@@ -681,292 +477,28 @@ interface Edge {
   node: Node!
 }
 
-"Represents a connection to a mediaItem. Contains both the mediaItem Node and metadata about the relationship."
-interface MediaItemConnectionEdge implements Edge {
+"Metadata for cursor-based pagination. Provides cursors for continuing pagination and boolean flags indicating if more items exist in either direction."
+interface PageInfo {
+  "When paginating forwards, the cursor to continue."
+  endCursor: String
+
+  "When paginating forwards, are there more items?"
+  hasNextPage: Boolean!
+
+  "When paginating backwards, are there more items?"
+  hasPreviousPage: Boolean!
+
+  "When paginating backwards, the cursor to continue."
+  startCursor: String
+}
+
+"Represents a connection to a ContentNode. Contains both the ContentNode Node and metadata about the relationship."
+interface ContentNodeConnectionEdge implements Edge {
   "Opaque reference to the nodes position in the connection. Value can be used with pagination args."
   cursor: String
 
-  "The connected mediaItem Node"
-  node: MediaItem!
-}
-
-"Represents uploaded media, including images, videos, documents, and audio files."
-type MediaItem implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & NodeWithTitle & NodeWithAuthor & NodeWithComments & HierarchicalContentNode & HierarchicalNode {
-  "Alternative text to display when resource is not displayed"
-  altText: String
-
-  "Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root)."
-  ancestors(
-    "The number of items to return after the referenced \"after\" cursor"
-    first: Int
-
-    "The number of items to return before the referenced \"before\" cursor"
-    last: Int
-
-    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
-    after: String
-
-    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
-    before: String
-
-    "Arguments for filtering the connection"
-    where: HierarchicalContentNodeToContentNodeAncestorsConnectionWhereArgs
-  ): HierarchicalContentNodeToContentNodeAncestorsConnection
-
-  "Connection between the NodeWithAuthor type and the User type"
-  author: NodeWithAuthorToUserConnectionEdge
-
-  "The database identifier of the author of the node"
-  authorDatabaseId: Int
-
-  "The globally unique identifier of the author of the node"
-  authorId: ID
-
-  "The caption for the resource"
-  caption(
-    "Format of the field output"
-    format: PostObjectFieldFormatEnum
-  ): String
-
-  "Connection between the HierarchicalContentNode type and the ContentNode type"
-  children(
-    "The number of items to return after the referenced \"after\" cursor"
-    first: Int
-
-    "The number of items to return before the referenced \"before\" cursor"
-    last: Int
-
-    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
-    after: String
-
-    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
-    before: String
-
-    "Arguments for filtering the connection"
-    where: HierarchicalContentNodeToContentNodeChildrenConnectionWhereArgs
-  ): HierarchicalContentNodeToContentNodeChildrenConnection
-
-  "The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatibility."
-  commentCount: Int
-
-  "Whether the comments are open or closed for this particular post."
-  commentStatus: String
-
-  "Connection between the MediaItem type and the Comment type"
-  comments(
-    "The number of items to return after the referenced \"after\" cursor"
-    first: Int
-
-    "The number of items to return before the referenced \"before\" cursor"
-    last: Int
-
-    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
-    after: String
-
-    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
-    before: String
-
-    "Arguments for filtering the connection"
-    where: MediaItemToCommentConnectionWhereArgs
-  ): MediaItemToCommentConnection
-
-  "Connection between the ContentNode type and the ContentType type"
-  contentType: ContentNodeToContentTypeConnectionEdge
-
-  "The name of the Content Type the node belongs to"
-  contentTypeName: String!
-
-  "The unique identifier stored in the database"
-  databaseId: Int!
-
-  "Post publishing date."
-  date: String
-
-  "The publishing date set in GMT."
-  dateGmt: String
-
-  "Description of the image (stored as post_content)"
-  description(
-    "Format of the field output"
-    format: PostObjectFieldFormatEnum
-  ): String
-
-  "The desired slug of the post"
-  desiredSlug: String
-
-  "If a user has edited the node within the past 15 seconds, this will return the user that last edited. Null if the edit lock doesn&#039;t exist or is greater than 15 seconds"
-  editingLockedBy: ContentNodeToEditLockConnectionEdge
-
-  "The RSS enclosure for the object"
-  enclosure: String
-
-  "Connection between the ContentNode type and the EnqueuedScript type"
-  enqueuedScripts(
-    "The number of items to return after the referenced \"after\" cursor"
-    first: Int
-
-    "The number of items to return before the referenced \"before\" cursor"
-    last: Int
-
-    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
-    after: String
-
-    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
-    before: String
-
-    "Arguments for filtering the connection"
-    where: ContentNodeToEnqueuedScriptConnectionWhereArgs
-  ): ContentNodeToEnqueuedScriptConnection
-
-  "Connection between the ContentNode type and the EnqueuedStylesheet type"
-  enqueuedStylesheets(
-    "The number of items to return after the referenced \"after\" cursor"
-    first: Int
-
-    "The number of items to return before the referenced \"before\" cursor"
-    last: Int
-
-    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
-    after: String
-
-    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
-    before: String
-
-    "Arguments for filtering the connection"
-    where: ContentNodeToEnqueuedStylesheetConnectionWhereArgs
-  ): ContentNodeToEnqueuedStylesheetConnection
-
-  "The filename of the mediaItem for the specified size (default size is full)"
-  file(
-    "Size of the MediaItem to return"
-    size: MediaItemSizeEnum
-  ): String
-
-  "The path to the original file relative to the uploads directory"
-  filePath(
-    "Size of the MediaItem to return"
-    size: MediaItemSizeEnum
-  ): String
-
-  "The filesize in bytes of the resource"
-  fileSize(
-    "Size of the MediaItem to return"
-    size: MediaItemSizeEnum
-  ): Int
-
-  "The global unique identifier for this post. This currently matches the value stored in WP_Post-&gt;guid and the guid column in the &quot;post_objects&quot; database table."
-  guid: String
-
-  "Whether the attachment object is password protected."
-  hasPassword: Boolean
-
-  "The globally unique identifier of the attachment object."
-  id: ID!
-
-  "Whether the node is a Comment"
-  isComment: Boolean!
-
-  "Whether the node is a Content Node"
-  isContentNode: Boolean!
-
-  "Whether the node represents the front page."
-  isFrontPage: Boolean!
-
-  "Whether  the node represents the blog page."
-  isPostsPage: Boolean!
-
-  "Whether the object is a node in the preview state"
-  isPreview: Boolean
-
-  "Whether the object is restricted from the current viewer"
-  isRestricted: Boolean
-
-  "Whether the node is a Term"
-  isTermNode: Boolean!
-
-  "The user that most recently edited the node"
-  lastEditedBy: ContentNodeToEditLastConnectionEdge
-
-  "The permalink of the post"
-  link: String
-
-  "Details about the mediaItem"
-  mediaDetails: MediaDetails
-
-  "The id field matches the WP_Post-&gt;ID field."
-  mediaItemId: Int! @deprecated(reason: "Deprecated in favor of the databaseId field")
-
-  "Url of the mediaItem"
-  mediaItemUrl: String
-
-  "Type of resource"
-  mediaType: String
-
-  "The mime type of the mediaItem"
-  mimeType: String
-
-  "The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time."
-  modified: String
-
-  "The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT."
-  modifiedGmt: String
-
-  "The parent of the node. The parent object can be of various types"
-  parent: HierarchicalContentNodeToParentContentNodeConnectionEdge
-
-  "Database id of the parent node"
-  parentDatabaseId: Int
-
-  "The globally unique identifier of the parent node."
-  parentId: ID
-
-  "The password for the attachment object."
-  password: String
-
-  "The database id of the preview node"
-  previewRevisionDatabaseId: Int
-
-  "Whether the object is a node in the preview state"
-  previewRevisionId: ID
-
-  "The Yoast SEO data of the ContentNode"
-  seo: PostTypeSEO
-
-  "The sizes attribute value for an image."
-  sizes(
-    "Size of the MediaItem to calculate sizes with"
-    size: MediaItemSizeEnum
-  ): String
-
-  "The uri slug for the post. This is equivalent to the WP_Post-&gt;post_name field and the post_name column in the database for the &quot;post_objects&quot; table."
-  slug: String
-
-  "Url of the mediaItem"
-  sourceUrl(
-    "Size of the MediaItem to return"
-    size: MediaItemSizeEnum
-  ): String
-
-  "The srcset attribute specifies the URL of the image to use in different situations. It is a comma separated string of urls and their widths."
-  srcSet(
-    "Size of the MediaItem to calculate srcSet with"
-    size: MediaItemSizeEnum
-  ): String
-
-  "The current status of the object"
-  status: String
-
-  "The template assigned to a node of content"
-  template: ContentTemplate
-
-  "The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made."
-  title(
-    "Format of the field output"
-    format: PostObjectFieldFormatEnum
-  ): String
-
-  "The unique resource identifier path"
-  uri: String
+  "The connected ContentNode Node"
+  node: ContentNode!
 }
 
 "Base interface for content objects like posts, pages, and media items. Provides common fields available across these content types."
@@ -1123,6 +655,15 @@ type ContentNodeToContentTypeConnectionEdge implements OneToOneConnection & Edge
 
   "The node of the connection, without the edges"
   node: ContentType!
+}
+
+"A direct one-to-one relationship between objects. Unlike plural connections, this represents a single related object rather than a collection."
+interface OneToOneConnection implements Edge {
+  "Opaque reference to the nodes position in the connection. Value can be used with pagination args."
+  cursor: String
+
+  "The connected node"
+  node: Node!
 }
 
 "Represents a connection to a ContentType. Contains both the ContentType Node and metadata about the relationship."
@@ -1285,33 +826,6 @@ interface TaxonomyConnection implements Connection {
 
   "Information about pagination in a connection."
   pageInfo: TaxonomyConnectionPageInfo!
-}
-
-"A paginated relationship between objects. Supports cursor-based pagination with edges containing relationship metadata and nodes containing the related objects."
-interface Connection {
-  "A list of edges (relational context) between connected nodes"
-  edges: [Edge!]!
-
-  "A list of connected nodes"
-  nodes: [Node!]!
-
-  "Information about pagination in a connection."
-  pageInfo: PageInfo!
-}
-
-"Metadata for cursor-based pagination. Provides cursors for continuing pagination and boolean flags indicating if more items exist in either direction."
-interface PageInfo {
-  "When paginating forwards, the cursor to continue."
-  endCursor: String
-
-  "When paginating forwards, are there more items?"
-  hasNextPage: Boolean!
-
-  "When paginating backwards, are there more items?"
-  hasPreviousPage: Boolean!
-
-  "When paginating backwards, the cursor to continue."
-  startCursor: String
 }
 
 "Represents a connection to a Taxonomy. Contains both the Taxonomy Node and metadata about the relationship."
@@ -2616,29 +2130,17 @@ type ContentTypeToContentNodeConnection implements ContentNodeConnection & Conne
   pageInfo: ContentTypeToContentNodeConnectionPageInfo!
 }
 
-"A paginated collection of ContentNode Nodes, Supports cursor-based pagination and filtering to efficiently retrieve sets of ContentNode Nodes"
-interface ContentNodeConnection implements Connection {
-  "A list of edges (relational context) between ContentType and connected ContentNode Nodes"
-  edges: [ContentNodeConnectionEdge!]!
-
-  "A list of connected ContentNode Nodes"
-  nodes: [ContentNode!]!
-
-  "Information about pagination in a connection."
-  pageInfo: ContentNodeConnectionPageInfo!
-}
-
-"Represents a connection to a ContentNode. Contains both the ContentNode Node and metadata about the relationship."
-interface ContentNodeConnectionEdge implements Edge {
-  "Opaque reference to the nodes position in the connection. Value can be used with pagination args."
+"An edge in a connection"
+type ContentTypeToContentNodeConnectionEdge implements ContentNodeConnectionEdge & Edge {
+  "A cursor for use in pagination"
   cursor: String
 
-  "The connected ContentNode Node"
+  "The item at the end of the edge"
   node: ContentNode!
 }
 
-"Pagination metadata specific to &quot;ContentNodeConnectionEdge&quot; collections. Provides cursors and flags for navigating through sets of &quot;ContentNodeConnectionEdge&quot; Nodes."
-interface ContentNodeConnectionPageInfo implements WPPageInfo & PageInfo {
+"Pagination metadata specific to &quot;ContentTypeToContentNodeConnection&quot; collections. Provides cursors and flags for navigating through sets of ContentTypeToContentNodeConnection Nodes."
+type ContentTypeToContentNodeConnectionPageInfo implements ContentNodeConnectionPageInfo & WPPageInfo & PageInfo {
   "When paginating forwards, the cursor to continue."
   endCursor: String
 
@@ -2655,17 +2157,8 @@ interface ContentNodeConnectionPageInfo implements WPPageInfo & PageInfo {
   startCursor: String
 }
 
-"An edge in a connection"
-type ContentTypeToContentNodeConnectionEdge implements ContentNodeConnectionEdge & Edge {
-  "A cursor for use in pagination"
-  cursor: String
-
-  "The item at the end of the edge"
-  node: ContentNode!
-}
-
-"Pagination metadata specific to &quot;ContentTypeToContentNodeConnection&quot; collections. Provides cursors and flags for navigating through sets of ContentTypeToContentNodeConnection Nodes."
-type ContentTypeToContentNodeConnectionPageInfo implements ContentNodeConnectionPageInfo & WPPageInfo & PageInfo {
+"Pagination metadata specific to &quot;ContentNodeConnectionEdge&quot; collections. Provides cursors and flags for navigating through sets of &quot;ContentNodeConnectionEdge&quot; Nodes."
+interface ContentNodeConnectionPageInfo implements WPPageInfo & PageInfo {
   "When paginating forwards, the cursor to continue."
   endCursor: String
 
@@ -3837,158 +3330,20 @@ interface MediaItemConnection implements Connection {
   pageInfo: MediaItemConnectionPageInfo!
 }
 
-"Pagination metadata specific to &quot;MediaItemConnectionEdge&quot; collections. Provides cursors and flags for navigating through sets of &quot;MediaItemConnectionEdge&quot; Nodes."
-interface MediaItemConnectionPageInfo implements WPPageInfo & PageInfo {
-  "When paginating forwards, the cursor to continue."
-  endCursor: String
-
-  "When paginating forwards, are there more items?"
-  hasNextPage: Boolean!
-
-  "When paginating backwards, are there more items?"
-  hasPreviousPage: Boolean!
-
-  "Raw schema for page"
-  seo: SEOPostTypePageInfo
-
-  "When paginating backwards, the cursor to continue."
-  startCursor: String
-}
-
-"An edge in a connection"
-type UserToMediaItemConnectionEdge implements MediaItemConnectionEdge & Edge {
-  "A cursor for use in pagination"
-  cursor: String
-
-  "The item at the end of the edge"
-  node: MediaItem!
-}
-
-"Pagination metadata specific to &quot;UserToMediaItemConnection&quot; collections. Provides cursors and flags for navigating through sets of UserToMediaItemConnection Nodes."
-type UserToMediaItemConnectionPageInfo implements MediaItemConnectionPageInfo & WPPageInfo & PageInfo {
-  "When paginating forwards, the cursor to continue."
-  endCursor: String
-
-  "When paginating forwards, are there more items?"
-  hasNextPage: Boolean!
-
-  "When paginating backwards, are there more items?"
-  hasPreviousPage: Boolean!
-
-  "Raw schema for page"
-  seo: SEOPostTypePageInfo
-
-  "When paginating backwards, the cursor to continue."
-  startCursor: String
-}
-
-"Arguments for filtering the UserToPageConnection connection"
-input UserToPageConnectionWhereArgs {
-  "The user that's connected as the author of the object. Use the userId for the author object."
-  author: Int
-
-  "Find objects connected to author(s) in the array of author's userIds"
-  authorIn: [ID]
-
-  "Find objects connected to the author by the author's nicename"
-  authorName: String
-
-  "Find objects NOT connected to author(s) in the array of author's userIds"
-  authorNotIn: [ID]
-
-  "Filter the connection based on dates"
-  dateQuery: DateQueryInput
-
-  "True for objects with passwords; False for objects without passwords; null for all objects with or without passwords"
-  hasPassword: Boolean
-
-  "Specific database ID of the object"
-  id: Int
-
-  "Array of IDs for the objects to retrieve"
-  in: [ID]
-
-  "True to limit the results to sticky posts; false to exclude sticky posts. Note: this filters the result set, it does not float sticky posts to the top of the results."
-  isSticky: Boolean
-
-  "Get objects with a specific mimeType property"
-  mimeType: MimeTypeEnum
-
-  "Slug / post_name of the object"
-  name: String
-
-  "Specify objects to retrieve. Use slugs"
-  nameIn: [String]
-
-  "Specify IDs NOT to retrieve. If this is used in the same query as \"in\", it will be ignored"
-  notIn: [ID]
-
-  "What parameter to use to order the objects by."
-  orderby: [PostObjectsConnectionOrderbyInput]
-
-  "Use ID to return only children. Use 0 to return only top-level items"
-  parent: ID
-
-  "Specify objects whose parent is in an array"
-  parentIn: [ID]
-
-  "Specify posts whose parent is not in an array"
-  parentNotIn: [ID]
-
-  "Show posts with a specific password."
-  password: String
-
-  "Show Posts based on a keyword search"
-  search: String
-
-  "Retrieve posts where post status is in an array."
-  stati: [PostStatusEnum]
-
-  "Show posts with a specific status."
-  status: PostStatusEnum
-
-  "Filter the connection to content assigned a specific template."
-  template: ContentTemplateEnum
-
-  "Title of the object"
-  title: String
-}
-
-"Connection between the User type and the page type"
-type UserToPageConnection implements PageConnection & Connection {
-  "Edges for the UserToPageConnection connection"
-  edges: [UserToPageConnectionEdge!]!
-
-  "The nodes of the connection, without the edges"
-  nodes: [Page!]!
-
-  "Information about pagination in a connection."
-  pageInfo: UserToPageConnectionPageInfo!
-}
-
-"A paginated collection of page Nodes, Supports cursor-based pagination and filtering to efficiently retrieve sets of page Nodes"
-interface PageConnection implements Connection {
-  "A list of edges (relational context) between RootQuery and connected page Nodes"
-  edges: [PageConnectionEdge!]!
-
-  "A list of connected page Nodes"
-  nodes: [Page!]!
-
-  "Information about pagination in a connection."
-  pageInfo: PageConnectionPageInfo!
-}
-
-"Represents a connection to a page. Contains both the page Node and metadata about the relationship."
-interface PageConnectionEdge implements Edge {
+"Represents a connection to a mediaItem. Contains both the mediaItem Node and metadata about the relationship."
+interface MediaItemConnectionEdge implements Edge {
   "Opaque reference to the nodes position in the connection. Value can be used with pagination args."
   cursor: String
 
-  "The connected page Node"
-  node: Page!
+  "The connected mediaItem Node"
+  node: MediaItem!
 }
 
-"A standalone content entry generally used for static, non-chronological content such as &quot;About Us&quot; or &quot;Contact&quot; pages."
-type Page implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & Previewable & NodeWithTitle & NodeWithContentEditor & NodeWithAuthor & NodeWithFeaturedImage & NodeWithComments & NodeWithRevisions & NodeWithPageAttributes & HierarchicalContentNode & HierarchicalNode & MenuItemLinkable & WithAcfPublishingFields {
+"Represents uploaded media, including images, videos, documents, and audio files."
+type MediaItem implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & NodeWithTitle & NodeWithAuthor & NodeWithComments & HierarchicalContentNode & HierarchicalNode {
+  "Alternative text to display when resource is not displayed"
+  altText: String
+
   "Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root)."
   ancestors(
     "The number of items to return after the referenced \"after\" cursor"
@@ -4016,6 +3371,12 @@ type Page implements Node & ContentNode & UniformResourceIdentifiable & Database
   "The globally unique identifier of the author of the node"
   authorId: ID
 
+  "The caption for the resource"
+  caption(
+    "Format of the field output"
+    format: PostObjectFieldFormatEnum
+  ): String
+
   "Connection between the HierarchicalContentNode type and the ContentNode type"
   children(
     "The number of items to return after the referenced \"after\" cursor"
@@ -4040,7 +3401,7 @@ type Page implements Node & ContentNode & UniformResourceIdentifiable & Database
   "Whether the comments are open or closed for this particular post."
   commentStatus: String
 
-  "Connection between the Page type and the Comment type"
+  "Connection between the MediaItem type and the Comment type"
   comments(
     "The number of items to return after the referenced \"after\" cursor"
     first: Int
@@ -4055,14 +3416,8 @@ type Page implements Node & ContentNode & UniformResourceIdentifiable & Database
     before: String
 
     "Arguments for filtering the connection"
-    where: PageToCommentConnectionWhereArgs
-  ): PageToCommentConnection
-
-  "The content of the post."
-  content(
-    "Format of the field output"
-    format: PostObjectFieldFormatEnum
-  ): String
+    where: MediaItemToCommentConnectionWhereArgs
+  ): MediaItemToCommentConnection
 
   "Connection between the ContentNode type and the ContentType type"
   contentType: ContentNodeToContentTypeConnectionEdge
@@ -4078,6 +3433,12 @@ type Page implements Node & ContentNode & UniformResourceIdentifiable & Database
 
   "The publishing date set in GMT."
   dateGmt: String
+
+  "Description of the image (stored as post_content)"
+  description(
+    "Format of the field output"
+    format: PostObjectFieldFormatEnum
+  ): String
 
   "The desired slug of the post"
   desiredSlug: String
@@ -4124,22 +3485,31 @@ type Page implements Node & ContentNode & UniformResourceIdentifiable & Database
     where: ContentNodeToEnqueuedStylesheetConnectionWhereArgs
   ): ContentNodeToEnqueuedStylesheetConnection
 
-  "Connection between the NodeWithFeaturedImage type and the MediaItem type"
-  featuredImage: NodeWithFeaturedImageToMediaItemConnectionEdge
+  "The filename of the mediaItem for the specified size (default size is full)"
+  file(
+    "Size of the MediaItem to return"
+    size: MediaItemSizeEnum
+  ): String
 
-  "The database identifier for the featured image node assigned to the content node"
-  featuredImageDatabaseId: Int
+  "The path to the original file relative to the uploads directory"
+  filePath(
+    "Size of the MediaItem to return"
+    size: MediaItemSizeEnum
+  ): String
 
-  "Globally unique ID of the featured image assigned to the node"
-  featuredImageId: ID
+  "The filesize in bytes of the resource"
+  fileSize(
+    "Size of the MediaItem to return"
+    size: MediaItemSizeEnum
+  ): Int
 
   "The global unique identifier for this post. This currently matches the value stored in WP_Post-&gt;guid and the guid column in the &quot;post_objects&quot; database table."
   guid: String
 
-  "Whether the page object is password protected."
+  "Whether the attachment object is password protected."
   hasPassword: Boolean
 
-  "The globally unique identifier of the page object."
+  "The globally unique identifier of the attachment object."
   id: ID!
 
   "Whether the node is a Comment"
@@ -4148,23 +3518,17 @@ type Page implements Node & ContentNode & UniformResourceIdentifiable & Database
   "Whether the node is a Content Node"
   isContentNode: Boolean!
 
-  "Whether this page is set to the static front page."
+  "Whether the node represents the front page."
   isFrontPage: Boolean!
 
-  "Whether this page is set to the blog posts page."
+  "Whether  the node represents the blog page."
   isPostsPage: Boolean!
 
   "Whether the object is a node in the preview state"
   isPreview: Boolean
 
-  "Whether this page is set to the privacy page."
-  isPrivacyPage: Boolean!
-
   "Whether the object is restricted from the current viewer"
   isRestricted: Boolean
-
-  "True if the node is a revision of another node"
-  isRevision: Boolean
 
   "Whether the node is a Term"
   isTermNode: Boolean!
@@ -4175,17 +3539,26 @@ type Page implements Node & ContentNode & UniformResourceIdentifiable & Database
   "The permalink of the post"
   link: String
 
-  "A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types."
-  menuOrder: Int
+  "Details about the mediaItem"
+  mediaDetails: MediaDetails
+
+  "The id field matches the WP_Post-&gt;ID field."
+  mediaItemId: Int! @deprecated(reason: "Deprecated in favor of the databaseId field")
+
+  "Url of the mediaItem"
+  mediaItemUrl: String
+
+  "Type of resource"
+  mediaType: String
+
+  "The mime type of the mediaItem"
+  mimeType: String
 
   "The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time."
   modified: String
 
   "The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT."
   modifiedGmt: String
-
-  "The id field matches the WP_Post-&gt;ID field."
-  pageId: Int! @deprecated(reason: "Deprecated in favor of the databaseId field")
 
   "The parent of the node. The parent object can be of various types"
   parent: HierarchicalContentNodeToParentContentNodeConnectionEdge
@@ -4196,11 +3569,8 @@ type Page implements Node & ContentNode & UniformResourceIdentifiable & Database
   "The globally unique identifier of the parent node."
   parentId: ID
 
-  "The password for the page object."
+  "The password for the attachment object."
   password: String
-
-  "Connection between the page type and the page type"
-  preview: PageToPreviewConnectionEdge
 
   "The database id of the preview node"
   previewRevisionDatabaseId: Int
@@ -4208,77 +3578,35 @@ type Page implements Node & ContentNode & UniformResourceIdentifiable & Database
   "Whether the object is a node in the preview state"
   previewRevisionId: ID
 
-  "Fields of the PublishingFields ACF Field Group"
-  publishingFields: PublishingFields
-
-  "If the current node is a revision, this field exposes the node this is a revision of. Returns null if the node is not a revision of another node."
-  revisionOf: NodeWithRevisionsToContentNodeConnectionEdge
-
-  "Connection between the Page type and the page type"
-  revisions(
-    "The number of items to return after the referenced \"after\" cursor"
-    first: Int
-
-    "The number of items to return before the referenced \"before\" cursor"
-    last: Int
-
-    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
-    after: String
-
-    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
-    before: String
-
-    "Arguments for filtering the connection"
-    where: PageToRevisionConnectionWhereArgs
-  ): PageToRevisionConnection
-
   "The Yoast SEO data of the ContentNode"
   seo: PostTypeSEO
 
-  "Connection between the Page type and the SiteScope type"
-  siteScopes(
-    "The number of items to return after the referenced \"after\" cursor"
-    first: Int
-
-    "The number of items to return before the referenced \"before\" cursor"
-    last: Int
-
-    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
-    after: String
-
-    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
-    before: String
-
-    "Arguments for filtering the connection"
-    where: PageToSiteScopeConnectionWhereArgs
-  ): PageToSiteScopeConnection
+  "The sizes attribute value for an image."
+  sizes(
+    "Size of the MediaItem to calculate sizes with"
+    size: MediaItemSizeEnum
+  ): String
 
   "The uri slug for the post. This is equivalent to the WP_Post-&gt;post_name field and the post_name column in the database for the &quot;post_objects&quot; table."
   slug: String
+
+  "Url of the mediaItem"
+  sourceUrl(
+    "Size of the MediaItem to return"
+    size: MediaItemSizeEnum
+  ): String
+
+  "The srcset attribute specifies the URL of the image to use in different situations. It is a comma separated string of urls and their widths."
+  srcSet(
+    "Size of the MediaItem to calculate srcSet with"
+    size: MediaItemSizeEnum
+  ): String
 
   "The current status of the object"
   status: String
 
   "The template assigned to a node of content"
   template: ContentTemplate
-
-  "Connection between the Page type and the TermNode type"
-  terms(
-    "The number of items to return after the referenced \"after\" cursor"
-    first: Int
-
-    "The number of items to return before the referenced \"before\" cursor"
-    last: Int
-
-    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
-    after: String
-
-    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
-    before: String
-
-    "Arguments for filtering the connection"
-    where: PageToTermNodeConnectionWhereArgs
-  ): PageToTermNodeConnection
 
   "The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made."
   title(
@@ -4297,18 +3625,6 @@ interface NodeWithTemplate implements Node {
 
   "The template assigned to the node"
   template: ContentTemplate
-}
-
-"Content that supports a draft preview mode. Allows viewing unpublished changes before they are made publicly available. Previewing unpublished changes requires appropriate permissions."
-interface Previewable {
-  "Whether the object is a node in the preview state"
-  isPreview: Boolean
-
-  "The database id of the preview node"
-  previewRevisionDatabaseId: Int
-
-  "Whether the object is a node in the preview state"
-  previewRevisionId: ID
 }
 
 "Content with a dedicated title field. The title typically serves as the main heading and identifier for the content."
@@ -4516,18 +3832,6 @@ type SEOPostTypeSchema {
   raw: String
 }
 
-"Content that has a main body field which can contain formatted text and media. Provides access to both raw (with appropriate permissions) and rendered versions of the content."
-interface NodeWithContentEditor implements Node {
-  "The content of the post."
-  content(
-    "Format of the field output"
-    format: PostObjectFieldFormatEnum
-  ): String
-
-  "The globally unique ID for the object"
-  id: ID!
-}
-
 "Content that can be attributed to a specific user. Provides fields for accessing the author&#039;s information and establishing content ownership."
 interface NodeWithAuthor implements Node {
   "Connection between the NodeWithAuthor type and the User type"
@@ -4552,30 +3856,6 @@ type NodeWithAuthorToUserConnectionEdge implements OneToOneConnection & Edge & U
   node: User!
 }
 
-"Content that can have a primary image attached. This image is typically used for thumbnails, social sharing, and prominent display in the presentation layer."
-interface NodeWithFeaturedImage implements Node {
-  "Connection between the NodeWithFeaturedImage type and the MediaItem type"
-  featuredImage: NodeWithFeaturedImageToMediaItemConnectionEdge
-
-  "The database identifier for the featured image node assigned to the content node"
-  featuredImageDatabaseId: Int
-
-  "Globally unique ID of the featured image assigned to the node"
-  featuredImageId: ID
-
-  "The globally unique ID for the object"
-  id: ID!
-}
-
-"Connection between the NodeWithFeaturedImage type and the MediaItem type"
-type NodeWithFeaturedImageToMediaItemConnectionEdge implements OneToOneConnection & Edge & MediaItemConnectionEdge {
-  "Opaque reference to the nodes position in the connection. Value can be used with pagination args."
-  cursor: String
-
-  "The node of the connection, without the edges"
-  node: MediaItem!
-}
-
 "Content that can receive and display user-submitted comments. Provides fields for accessing comment counts and managing comment status."
 interface NodeWithComments implements Node {
   "The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatibility."
@@ -4586,36 +3866,6 @@ interface NodeWithComments implements Node {
 
   "The globally unique ID for the object"
   id: ID!
-}
-
-"Content that maintains a history of changes. Provides access to previous versions of the content and the ability to restore earlier revisions."
-interface NodeWithRevisions implements Node {
-  "The globally unique ID for the object"
-  id: ID!
-
-  "True if the node is a revision of another node"
-  isRevision: Boolean
-
-  "If the current node is a revision, this field exposes the node this is a revision of. Returns null if the node is not a revision of another node."
-  revisionOf: NodeWithRevisionsToContentNodeConnectionEdge
-}
-
-"Connection between the NodeWithRevisions type and the ContentNode type"
-type NodeWithRevisionsToContentNodeConnectionEdge implements OneToOneConnection & Edge & ContentNodeConnectionEdge {
-  "Opaque reference to the nodes position in the connection. Value can be used with pagination args."
-  cursor: String
-
-  "The node of the connection, without the edges"
-  node: ContentNode!
-}
-
-"Content that supports ordering metadata. Includes a menu order field which can be used for custom sorting in navigation menus and other ordered collections."
-interface NodeWithPageAttributes implements Node {
-  "The globally unique ID for the object"
-  id: ID!
-
-  "A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types."
-  menuOrder: Int
 }
 
 "Content that can be organized in a parent-child structure. Provides fields for navigating up and down the hierarchy and maintaining structured relationships."
@@ -5111,6 +4361,783 @@ type HierarchicalContentNodeToParentContentNodeConnectionEdge implements OneToOn
 
   "The node of the connection, without the edges"
   node: ContentNode!
+}
+
+"Arguments for filtering the MediaItemToCommentConnection connection"
+input MediaItemToCommentConnectionWhereArgs {
+  "Comment author email address."
+  authorEmail: String
+
+  "Array of author IDs to include comments for."
+  authorIn: [ID]
+
+  "Array of author IDs to exclude comments for."
+  authorNotIn: [ID]
+
+  "Comment author URL."
+  authorUrl: String
+
+  "Array of comment IDs to include."
+  commentIn: [ID]
+
+  "Array of IDs of users whose unapproved comments will be returned by the query regardless of status."
+  commentNotIn: [ID]
+
+  "Include comments of a given type."
+  commentType: String
+
+  "Include comments from a given array of comment types."
+  commentTypeIn: [String]
+
+  "Exclude comments from a given array of comment types."
+  commentTypeNotIn: String
+
+  "Content object author ID to limit results by."
+  contentAuthor: [ID]
+
+  "Array of author IDs to retrieve comments for."
+  contentAuthorIn: [ID]
+
+  "Array of author IDs *not* to retrieve comments for."
+  contentAuthorNotIn: [ID]
+
+  "Limit results to those affiliated with a given content object ID."
+  contentId: ID
+
+  "Array of content object IDs to include affiliated comments for."
+  contentIdIn: [ID]
+
+  "Array of content object IDs to exclude affiliated comments for."
+  contentIdNotIn: [ID]
+
+  "Content object name (i.e. slug ) to retrieve affiliated comments for."
+  contentName: String
+
+  "Content Object parent ID to retrieve affiliated comments for."
+  contentParent: Int
+
+  "Array of content object statuses to retrieve affiliated comments for. Pass 'any' to match any value."
+  contentStatus: [PostStatusEnum]
+
+  "Content object type or array of types to retrieve affiliated comments for. Pass 'any' to match any value."
+  contentType: [ContentTypeEnum]
+
+  "Array of IDs or email addresses of users whose unapproved comments will be returned by the query regardless of $status. Default empty"
+  includeUnapproved: [ID]
+
+  "Karma score to retrieve matching comments for."
+  karma: Int
+
+  "The cardinality of the order of the connection"
+  order: OrderEnum
+
+  "Field to order the comments by."
+  orderby: CommentsConnectionOrderbyEnum
+
+  "Parent ID of comment to retrieve children of."
+  parent: Int
+
+  "Array of parent IDs of comments to retrieve children for."
+  parentIn: [ID]
+
+  "Array of parent IDs of comments *not* to retrieve children for."
+  parentNotIn: [ID]
+
+  "Search term(s) to retrieve matching comments for."
+  search: String
+
+  "Comment status to limit results by."
+  status: String @deprecated(reason: "Deprecated in favor of statusIn which accepts a list of one or more CommentStatusEnum values instead of a string")
+
+  "One or more Comment Statuses to limit results by"
+  statusIn: [CommentStatusEnum]
+
+  "Include comments for a specific user ID."
+  userId: ID
+}
+
+"Connection between the MediaItem type and the Comment type"
+type MediaItemToCommentConnection implements CommentConnection & Connection {
+  "Edges for the MediaItemToCommentConnection connection"
+  edges: [MediaItemToCommentConnectionEdge!]!
+
+  "The nodes of the connection, without the edges"
+  nodes: [Comment!]!
+
+  "Information about pagination in a connection."
+  pageInfo: MediaItemToCommentConnectionPageInfo!
+}
+
+"An edge in a connection"
+type MediaItemToCommentConnectionEdge implements CommentConnectionEdge & Edge {
+  "A cursor for use in pagination"
+  cursor: String
+
+  "The item at the end of the edge"
+  node: Comment!
+}
+
+"Pagination metadata specific to &quot;MediaItemToCommentConnection&quot; collections. Provides cursors and flags for navigating through sets of MediaItemToCommentConnection Nodes."
+type MediaItemToCommentConnectionPageInfo implements CommentConnectionPageInfo & WPPageInfo & PageInfo {
+  "When paginating forwards, the cursor to continue."
+  endCursor: String
+
+  "When paginating forwards, are there more items?"
+  hasNextPage: Boolean!
+
+  "When paginating backwards, are there more items?"
+  hasPreviousPage: Boolean!
+
+  "Raw schema for page"
+  seo: SEOPostTypePageInfo
+
+  "When paginating backwards, the cursor to continue."
+  startCursor: String
+}
+
+"Predefined image size variations. Represents the standard image dimensions available for media assets."
+enum MediaItemSizeEnum {
+  "Large image preview suitable for detail views. (1024x1024)"
+  LARGE
+
+  "Medium image preview typically suitable for listings and detail views. (300x300)"
+  MEDIUM
+
+  "Medium-to-large image preview suitable for listings and detail views. (768x0)"
+  MEDIUM_LARGE
+
+  "Small image preview suitable for thumbnails and listings. (150x150)"
+  THUMBNAIL
+
+  "Custom Image Size. (1536x1536)"
+  _1536X1536
+
+  "Custom Image Size. (2048x2048)"
+  _2048X2048
+}
+
+"File details for a Media Item"
+type MediaDetails {
+  "The filename of the mediaItem"
+  file: String
+
+  "The path to the mediaItem relative to the uploads directory"
+  filePath: String
+
+  "The height of the mediaItem"
+  height: Int
+
+  "Meta information associated with the mediaItem"
+  meta: MediaItemMeta
+
+  "The available sizes of the mediaItem"
+  sizes(
+    "The sizes to exclude. Will take precedence over `include`."
+    exclude: [MediaItemSizeEnum]
+
+    "The sizes to include. Can be overridden by `exclude`."
+    include: [MediaItemSizeEnum]
+  ): [MediaSize]
+
+  "The width of the mediaItem"
+  width: Int
+}
+
+"Meta connected to a MediaItem"
+type MediaItemMeta {
+  "Aperture measurement of the media item."
+  aperture: Float
+
+  "Information about the camera used to create the media item."
+  camera: String
+
+  "The text string description associated with the media item."
+  caption: String
+
+  "Copyright information associated with the media item."
+  copyright: String
+
+  "The date/time when the media was created."
+  createdTimestamp: Int
+
+  "The original creator of the media item."
+  credit: String
+
+  "The focal length value of the media item."
+  focalLength: Float
+
+  "The ISO (International Organization for Standardization) value of the media item."
+  iso: Int
+
+  "List of keywords used to describe or identfy the media item."
+  keywords: [String]
+
+  "The vertical or horizontal aspect of the media item."
+  orientation: String
+
+  "The shutter speed information of the media item."
+  shutterSpeed: Float
+
+  "A useful title for the media item."
+  title: String
+}
+
+"Details of an available size for a media item"
+type MediaSize {
+  "The filename of the referenced size"
+  file: String
+
+  "The path of the file for the referenced size (default size is full)"
+  filePath: String
+
+  "The filesize of the resource"
+  fileSize: Int
+
+  "The height of the referenced size"
+  height: String
+
+  "The mime type of the referenced size"
+  mimeType: String
+
+  "The referenced size name"
+  name: String
+
+  "The url of the referenced size"
+  sourceUrl: String
+
+  "The width of the referenced size"
+  width: String
+}
+
+"Pagination metadata specific to &quot;MediaItemConnectionEdge&quot; collections. Provides cursors and flags for navigating through sets of &quot;MediaItemConnectionEdge&quot; Nodes."
+interface MediaItemConnectionPageInfo implements WPPageInfo & PageInfo {
+  "When paginating forwards, the cursor to continue."
+  endCursor: String
+
+  "When paginating forwards, are there more items?"
+  hasNextPage: Boolean!
+
+  "When paginating backwards, are there more items?"
+  hasPreviousPage: Boolean!
+
+  "Raw schema for page"
+  seo: SEOPostTypePageInfo
+
+  "When paginating backwards, the cursor to continue."
+  startCursor: String
+}
+
+"An edge in a connection"
+type UserToMediaItemConnectionEdge implements MediaItemConnectionEdge & Edge {
+  "A cursor for use in pagination"
+  cursor: String
+
+  "The item at the end of the edge"
+  node: MediaItem!
+}
+
+"Pagination metadata specific to &quot;UserToMediaItemConnection&quot; collections. Provides cursors and flags for navigating through sets of UserToMediaItemConnection Nodes."
+type UserToMediaItemConnectionPageInfo implements MediaItemConnectionPageInfo & WPPageInfo & PageInfo {
+  "When paginating forwards, the cursor to continue."
+  endCursor: String
+
+  "When paginating forwards, are there more items?"
+  hasNextPage: Boolean!
+
+  "When paginating backwards, are there more items?"
+  hasPreviousPage: Boolean!
+
+  "Raw schema for page"
+  seo: SEOPostTypePageInfo
+
+  "When paginating backwards, the cursor to continue."
+  startCursor: String
+}
+
+"Arguments for filtering the UserToPageConnection connection"
+input UserToPageConnectionWhereArgs {
+  "The user that's connected as the author of the object. Use the userId for the author object."
+  author: Int
+
+  "Find objects connected to author(s) in the array of author's userIds"
+  authorIn: [ID]
+
+  "Find objects connected to the author by the author's nicename"
+  authorName: String
+
+  "Find objects NOT connected to author(s) in the array of author's userIds"
+  authorNotIn: [ID]
+
+  "Filter the connection based on dates"
+  dateQuery: DateQueryInput
+
+  "True for objects with passwords; False for objects without passwords; null for all objects with or without passwords"
+  hasPassword: Boolean
+
+  "Specific database ID of the object"
+  id: Int
+
+  "Array of IDs for the objects to retrieve"
+  in: [ID]
+
+  "True to limit the results to sticky posts; false to exclude sticky posts. Note: this filters the result set, it does not float sticky posts to the top of the results."
+  isSticky: Boolean
+
+  "Get objects with a specific mimeType property"
+  mimeType: MimeTypeEnum
+
+  "Slug / post_name of the object"
+  name: String
+
+  "Specify objects to retrieve. Use slugs"
+  nameIn: [String]
+
+  "Specify IDs NOT to retrieve. If this is used in the same query as \"in\", it will be ignored"
+  notIn: [ID]
+
+  "What parameter to use to order the objects by."
+  orderby: [PostObjectsConnectionOrderbyInput]
+
+  "Use ID to return only children. Use 0 to return only top-level items"
+  parent: ID
+
+  "Specify objects whose parent is in an array"
+  parentIn: [ID]
+
+  "Specify posts whose parent is not in an array"
+  parentNotIn: [ID]
+
+  "Show posts with a specific password."
+  password: String
+
+  "Show Posts based on a keyword search"
+  search: String
+
+  "Retrieve posts where post status is in an array."
+  stati: [PostStatusEnum]
+
+  "Show posts with a specific status."
+  status: PostStatusEnum
+
+  "Filter the connection to content assigned a specific template."
+  template: ContentTemplateEnum
+
+  "Title of the object"
+  title: String
+}
+
+"Connection between the User type and the page type"
+type UserToPageConnection implements PageConnection & Connection {
+  "Edges for the UserToPageConnection connection"
+  edges: [UserToPageConnectionEdge!]!
+
+  "The nodes of the connection, without the edges"
+  nodes: [Page!]!
+
+  "Information about pagination in a connection."
+  pageInfo: UserToPageConnectionPageInfo!
+}
+
+"A paginated collection of page Nodes, Supports cursor-based pagination and filtering to efficiently retrieve sets of page Nodes"
+interface PageConnection implements Connection {
+  "A list of edges (relational context) between RootQuery and connected page Nodes"
+  edges: [PageConnectionEdge!]!
+
+  "A list of connected page Nodes"
+  nodes: [Page!]!
+
+  "Information about pagination in a connection."
+  pageInfo: PageConnectionPageInfo!
+}
+
+"Represents a connection to a page. Contains both the page Node and metadata about the relationship."
+interface PageConnectionEdge implements Edge {
+  "Opaque reference to the nodes position in the connection. Value can be used with pagination args."
+  cursor: String
+
+  "The connected page Node"
+  node: Page!
+}
+
+"A standalone content entry generally used for static, non-chronological content such as &quot;About Us&quot; or &quot;Contact&quot; pages."
+type Page implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & Previewable & NodeWithTitle & NodeWithContentEditor & NodeWithAuthor & NodeWithFeaturedImage & NodeWithComments & NodeWithRevisions & NodeWithPageAttributes & HierarchicalContentNode & HierarchicalNode & MenuItemLinkable & WithAcfPublishingFields {
+  "Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root)."
+  ancestors(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+
+    "Arguments for filtering the connection"
+    where: HierarchicalContentNodeToContentNodeAncestorsConnectionWhereArgs
+  ): HierarchicalContentNodeToContentNodeAncestorsConnection
+
+  "Connection between the NodeWithAuthor type and the User type"
+  author: NodeWithAuthorToUserConnectionEdge
+
+  "The database identifier of the author of the node"
+  authorDatabaseId: Int
+
+  "The globally unique identifier of the author of the node"
+  authorId: ID
+
+  "Connection between the HierarchicalContentNode type and the ContentNode type"
+  children(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+
+    "Arguments for filtering the connection"
+    where: HierarchicalContentNodeToContentNodeChildrenConnectionWhereArgs
+  ): HierarchicalContentNodeToContentNodeChildrenConnection
+
+  "The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatibility."
+  commentCount: Int
+
+  "Whether the comments are open or closed for this particular post."
+  commentStatus: String
+
+  "Connection between the Page type and the Comment type"
+  comments(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+
+    "Arguments for filtering the connection"
+    where: PageToCommentConnectionWhereArgs
+  ): PageToCommentConnection
+
+  "The content of the post."
+  content(
+    "Format of the field output"
+    format: PostObjectFieldFormatEnum
+  ): String
+
+  "Connection between the ContentNode type and the ContentType type"
+  contentType: ContentNodeToContentTypeConnectionEdge
+
+  "The name of the Content Type the node belongs to"
+  contentTypeName: String!
+
+  "The unique identifier stored in the database"
+  databaseId: Int!
+
+  "Post publishing date."
+  date: String
+
+  "The publishing date set in GMT."
+  dateGmt: String
+
+  "The desired slug of the post"
+  desiredSlug: String
+
+  "If a user has edited the node within the past 15 seconds, this will return the user that last edited. Null if the edit lock doesn&#039;t exist or is greater than 15 seconds"
+  editingLockedBy: ContentNodeToEditLockConnectionEdge
+
+  "The RSS enclosure for the object"
+  enclosure: String
+
+  "Connection between the ContentNode type and the EnqueuedScript type"
+  enqueuedScripts(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+
+    "Arguments for filtering the connection"
+    where: ContentNodeToEnqueuedScriptConnectionWhereArgs
+  ): ContentNodeToEnqueuedScriptConnection
+
+  "Connection between the ContentNode type and the EnqueuedStylesheet type"
+  enqueuedStylesheets(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+
+    "Arguments for filtering the connection"
+    where: ContentNodeToEnqueuedStylesheetConnectionWhereArgs
+  ): ContentNodeToEnqueuedStylesheetConnection
+
+  "Connection between the NodeWithFeaturedImage type and the MediaItem type"
+  featuredImage: NodeWithFeaturedImageToMediaItemConnectionEdge
+
+  "The database identifier for the featured image node assigned to the content node"
+  featuredImageDatabaseId: Int
+
+  "Globally unique ID of the featured image assigned to the node"
+  featuredImageId: ID
+
+  "The global unique identifier for this post. This currently matches the value stored in WP_Post-&gt;guid and the guid column in the &quot;post_objects&quot; database table."
+  guid: String
+
+  "Whether the page object is password protected."
+  hasPassword: Boolean
+
+  "The globally unique identifier of the page object."
+  id: ID!
+
+  "Whether the node is a Comment"
+  isComment: Boolean!
+
+  "Whether the node is a Content Node"
+  isContentNode: Boolean!
+
+  "Whether this page is set to the static front page."
+  isFrontPage: Boolean!
+
+  "Whether this page is set to the blog posts page."
+  isPostsPage: Boolean!
+
+  "Whether the object is a node in the preview state"
+  isPreview: Boolean
+
+  "Whether this page is set to the privacy page."
+  isPrivacyPage: Boolean!
+
+  "Whether the object is restricted from the current viewer"
+  isRestricted: Boolean
+
+  "True if the node is a revision of another node"
+  isRevision: Boolean
+
+  "Whether the node is a Term"
+  isTermNode: Boolean!
+
+  "The user that most recently edited the node"
+  lastEditedBy: ContentNodeToEditLastConnectionEdge
+
+  "The permalink of the post"
+  link: String
+
+  "A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types."
+  menuOrder: Int
+
+  "The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time."
+  modified: String
+
+  "The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT."
+  modifiedGmt: String
+
+  "The id field matches the WP_Post-&gt;ID field."
+  pageId: Int! @deprecated(reason: "Deprecated in favor of the databaseId field")
+
+  "The parent of the node. The parent object can be of various types"
+  parent: HierarchicalContentNodeToParentContentNodeConnectionEdge
+
+  "Database id of the parent node"
+  parentDatabaseId: Int
+
+  "The globally unique identifier of the parent node."
+  parentId: ID
+
+  "The password for the page object."
+  password: String
+
+  "Connection between the page type and the page type"
+  preview: PageToPreviewConnectionEdge
+
+  "The database id of the preview node"
+  previewRevisionDatabaseId: Int
+
+  "Whether the object is a node in the preview state"
+  previewRevisionId: ID
+
+  "Fields of the PublishingFields ACF Field Group"
+  publishingFields: PublishingFields
+
+  "If the current node is a revision, this field exposes the node this is a revision of. Returns null if the node is not a revision of another node."
+  revisionOf: NodeWithRevisionsToContentNodeConnectionEdge
+
+  "Connection between the Page type and the page type"
+  revisions(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+
+    "Arguments for filtering the connection"
+    where: PageToRevisionConnectionWhereArgs
+  ): PageToRevisionConnection
+
+  "The Yoast SEO data of the ContentNode"
+  seo: PostTypeSEO
+
+  "Connection between the Page type and the SiteScope type"
+  siteScopes(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+
+    "Arguments for filtering the connection"
+    where: PageToSiteScopeConnectionWhereArgs
+  ): PageToSiteScopeConnection
+
+  "The uri slug for the post. This is equivalent to the WP_Post-&gt;post_name field and the post_name column in the database for the &quot;post_objects&quot; table."
+  slug: String
+
+  "The current status of the object"
+  status: String
+
+  "The template assigned to a node of content"
+  template: ContentTemplate
+
+  "Connection between the Page type and the TermNode type"
+  terms(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+
+    "Arguments for filtering the connection"
+    where: PageToTermNodeConnectionWhereArgs
+  ): PageToTermNodeConnection
+
+  "The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made."
+  title(
+    "Format of the field output"
+    format: PostObjectFieldFormatEnum
+  ): String
+
+  "The unique resource identifier path"
+  uri: String
+}
+
+"Content that supports a draft preview mode. Allows viewing unpublished changes before they are made publicly available. Previewing unpublished changes requires appropriate permissions."
+interface Previewable {
+  "Whether the object is a node in the preview state"
+  isPreview: Boolean
+
+  "The database id of the preview node"
+  previewRevisionDatabaseId: Int
+
+  "Whether the object is a node in the preview state"
+  previewRevisionId: ID
+}
+
+"Content that has a main body field which can contain formatted text and media. Provides access to both raw (with appropriate permissions) and rendered versions of the content."
+interface NodeWithContentEditor implements Node {
+  "The content of the post."
+  content(
+    "Format of the field output"
+    format: PostObjectFieldFormatEnum
+  ): String
+
+  "The globally unique ID for the object"
+  id: ID!
+}
+
+"Content that can have a primary image attached. This image is typically used for thumbnails, social sharing, and prominent display in the presentation layer."
+interface NodeWithFeaturedImage implements Node {
+  "Connection between the NodeWithFeaturedImage type and the MediaItem type"
+  featuredImage: NodeWithFeaturedImageToMediaItemConnectionEdge
+
+  "The database identifier for the featured image node assigned to the content node"
+  featuredImageDatabaseId: Int
+
+  "Globally unique ID of the featured image assigned to the node"
+  featuredImageId: ID
+
+  "The globally unique ID for the object"
+  id: ID!
+}
+
+"Connection between the NodeWithFeaturedImage type and the MediaItem type"
+type NodeWithFeaturedImageToMediaItemConnectionEdge implements OneToOneConnection & Edge & MediaItemConnectionEdge {
+  "Opaque reference to the nodes position in the connection. Value can be used with pagination args."
+  cursor: String
+
+  "The node of the connection, without the edges"
+  node: MediaItem!
+}
+
+"Content that maintains a history of changes. Provides access to previous versions of the content and the ability to restore earlier revisions."
+interface NodeWithRevisions implements Node {
+  "The globally unique ID for the object"
+  id: ID!
+
+  "True if the node is a revision of another node"
+  isRevision: Boolean
+
+  "If the current node is a revision, this field exposes the node this is a revision of. Returns null if the node is not a revision of another node."
+  revisionOf: NodeWithRevisionsToContentNodeConnectionEdge
+}
+
+"Connection between the NodeWithRevisions type and the ContentNode type"
+type NodeWithRevisionsToContentNodeConnectionEdge implements OneToOneConnection & Edge & ContentNodeConnectionEdge {
+  "Opaque reference to the nodes position in the connection. Value can be used with pagination args."
+  cursor: String
+
+  "The node of the connection, without the edges"
+  node: ContentNode!
+}
+
+"Content that supports ordering metadata. Includes a menu order field which can be used for custom sorting in navigation menus and other ordered collections."
+interface NodeWithPageAttributes implements Node {
+  "The globally unique ID for the object"
+  id: ID!
+
+  "A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types."
+  menuOrder: Int
 }
 
 "Content that can be referenced by navigation menu items. Provides the essential fields needed to create links within navigation structures."
@@ -9322,7 +9349,7 @@ interface Tio2ApplicationConnectionEdge implements Edge {
 }
 
 "The Tio2Application type"
-type Tio2Application implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & Previewable & NodeWithTitle & NodeWithContentEditor & NodeWithFeaturedImage & NodeWithExcerpt & NodeWithRevisions & MenuItemLinkable & WithAcfTechnicalFields {
+type Tio2Application implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & Previewable & NodeWithTitle & NodeWithContentEditor & NodeWithFeaturedImage & NodeWithExcerpt & NodeWithRevisions & MenuItemLinkable & WithAcfApplicationFields & WithAcfTechnicalFields {
   "The id field matches the WP_Post-&gt;ID field."
   tio2ApplicationId: Int! @deprecated(reason: "Deprecated in favor of the databaseId field")
 
@@ -9340,6 +9367,9 @@ type Tio2Application implements Node & ContentNode & UniformResourceIdentifiable
     "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
     before: String
   ): Tio2ApplicationToTio2ApplicationConnection @deprecated(reason: "This content type is not hierarchical and typically will not have ancestors")
+
+  "Fields of the ApplicationFields ACF Field Group"
+  applicationFields: ApplicationFields
 
   "The content of the post."
   content(
@@ -9505,6 +9535,9 @@ type Tio2Application implements Node & ContentNode & UniformResourceIdentifiable
 
   "The Yoast SEO data of the ContentNode"
   seo: PostTypeSEO
+
+  ""
+  siteAApplicationFields: Tio2SiteAApplicationFields
 
   "Connection between the Tio2Application type and the SiteScope type"
   siteScopes(
@@ -9748,6 +9781,124 @@ type Tio2ApplicationToRevisionConnectionPageInfo implements Tio2ApplicationConne
 
   "When paginating backwards, the cursor to continue."
   startCursor: String
+}
+
+type Tio2SiteAApplicationFields {
+  ""
+  applicationContext: String!
+
+  ""
+  applicationId: String!
+
+  ""
+  applicationLevel: String!
+
+  ""
+  bodySections: [Tio2EditorialSection!]!
+
+  ""
+  buyerProblem: String!
+
+  ""
+  childApplications: [Tio2EditorialLink!]!
+
+  ""
+  ctas: [Tio2EditorialCta!]!
+
+  ""
+  customerInputs: [String!]!
+
+  ""
+  directAnswer: String!
+
+  ""
+  eyebrow: String!
+
+  ""
+  family: String!
+
+  ""
+  faqItems: [Tio2EditorialFaq!]!
+
+  ""
+  headline: String!
+
+  ""
+  metaDescription: String!
+
+  ""
+  metaTitle: String!
+
+  ""
+  parentApplication: Tio2EditorialLink
+
+  ""
+  powderDataLimits: String!
+
+  ""
+  relatedApplications: [Tio2EditorialLink!]!
+
+  ""
+  relatedProducts: [Tio2EditorialLink!]!
+
+  ""
+  relatedResources: [Tio2EditorialLink!]!
+
+  ""
+  selectionFactors: [String!]!
+
+  ""
+  technicalDisclaimer: String!
+
+  ""
+  validationPlan: [String!]!
+}
+
+type Tio2EditorialSection {
+  ""
+  heading: String!
+
+  ""
+  html: String!
+
+  ""
+  id: String!
+}
+
+type Tio2EditorialLink {
+  ""
+  href: String
+
+  ""
+  path: String!
+
+  ""
+  targetKey: String!
+
+  ""
+  targetType: String!
+
+  ""
+  title: String!
+}
+
+type Tio2EditorialCta {
+  ""
+  href: String!
+
+  ""
+  kind: String!
+
+  ""
+  label: String!
+}
+
+type Tio2EditorialFaq {
+  ""
+  answerHtml: String!
+
+  ""
+  question: String!
 }
 
 "Arguments for filtering the Tio2ApplicationToSiteScopeConnection connection"
@@ -10087,7 +10238,7 @@ interface Tio2DocumentConnectionEdge implements Edge {
 }
 
 "The Tio2Document type"
-type Tio2Document implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & Previewable & NodeWithTitle & NodeWithContentEditor & NodeWithFeaturedImage & NodeWithExcerpt & NodeWithRevisions & MenuItemLinkable & WithAcfTechnicalFields {
+type Tio2Document implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & Previewable & NodeWithTitle & NodeWithContentEditor & NodeWithFeaturedImage & NodeWithExcerpt & NodeWithRevisions & MenuItemLinkable & WithAcfTechnicalResourceFields & WithAcfTechnicalFields {
   "The id field matches the WP_Post-&gt;ID field."
   tio2DocumentId: Int! @deprecated(reason: "Deprecated in favor of the databaseId field")
 
@@ -10271,6 +10422,9 @@ type Tio2Document implements Node & ContentNode & UniformResourceIdentifiable & 
   "The Yoast SEO data of the ContentNode"
   seo: PostTypeSEO
 
+  ""
+  siteATechnicalResourceFields: Tio2SiteATechnicalResourceFields
+
   "Connection between the Tio2Document type and the SiteScope type"
   siteScopes(
     "The number of items to return after the referenced \"after\" cursor"
@@ -10297,6 +10451,9 @@ type Tio2Document implements Node & ContentNode & UniformResourceIdentifiable & 
 
   "Fields of the TechnicalFields ACF Field Group"
   technicalFields: TechnicalFields
+
+  "Fields of the TechnicalResourceFields ACF Field Group"
+  technicalResourceFields: TechnicalResourceFields
 
   "The template assigned to the node"
   template: ContentTemplate
@@ -10327,6 +10484,123 @@ type Tio2Document implements Node & ContentNode & UniformResourceIdentifiable & 
 
   "The unique resource identifier path"
   uri: String
+}
+
+"The &quot;TechnicalResourceFields&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type TechnicalResourceFields implements TechnicalResourceFields_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  childResources(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  cluster: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  commonMistakes: [TechnicalResourceFieldsCommonMistakes]
+
+  "Field of the &quot;group&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  comparisonTable: TechnicalResourceFieldsComparisonTable
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  ctas: [TechnicalResourceFieldsCtas]
+
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  directAnswer: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  evaluationMethod: [TechnicalResourceFieldsEvaluationMethod]
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  eyebrow: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  faqItems: [TechnicalResourceFieldsFaqItems]
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  headline: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  keyTakeaways: [TechnicalResourceFieldsKeyTakeaways]
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  metaDescription: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  metaTitle: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  practicalImplications: [TechnicalResourceFieldsPracticalImplications]
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  relatedApplications(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  relatedProducts(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  relatedResources(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  resourceId: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  resourceKind: [String]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  sections: [TechnicalResourceFieldsSections]
+
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  technicalDisclaimer: String
 }
 
 "Connection between the Tio2Document type and the Tio2Document type"
@@ -10501,6 +10775,84 @@ type Tio2DocumentToRevisionConnectionPageInfo implements Tio2DocumentConnectionP
 
   "When paginating backwards, the cursor to continue."
   startCursor: String
+}
+
+type Tio2SiteATechnicalResourceFields {
+  ""
+  childResources: [Tio2EditorialLink!]!
+
+  ""
+  cluster: String!
+
+  ""
+  commonMistakes: [String!]!
+
+  ""
+  comparisonTable: Tio2EditorialComparisonTable
+
+  ""
+  ctas: [Tio2EditorialCta!]!
+
+  ""
+  directAnswer: String!
+
+  ""
+  evaluationMethod: [String!]!
+
+  ""
+  eyebrow: String!
+
+  ""
+  faqItems: [Tio2EditorialFaq!]!
+
+  ""
+  headline: String!
+
+  ""
+  keyTakeaways: [String!]!
+
+  ""
+  metaDescription: String!
+
+  ""
+  metaTitle: String!
+
+  ""
+  practicalImplications: [String!]!
+
+  ""
+  relatedApplications: [Tio2EditorialLink!]!
+
+  ""
+  relatedProducts: [Tio2EditorialLink!]!
+
+  ""
+  relatedResources: [Tio2EditorialLink!]!
+
+  ""
+  resourceId: String!
+
+  ""
+  resourceKind: String!
+
+  ""
+  sections: [Tio2EditorialSection!]!
+
+  ""
+  technicalDisclaimer: String!
+}
+
+type Tio2EditorialComparisonTable {
+  ""
+  columns: [String!]!
+
+  ""
+  rows: [Tio2EditorialComparisonRow!]!
+}
+
+type Tio2EditorialComparisonRow {
+  ""
+  cells: [String!]!
 }
 
 "Arguments for filtering the Tio2DocumentToSiteScopeConnection connection"
@@ -12570,6 +12922,54 @@ type Tio2Homepage implements Node & ContentNode & UniformResourceIdentifiable & 
   uri: String
 }
 
+"The &quot;EditorialGeoFields&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFields implements EditorialGeoFields_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  applicationBriefs: [EditorialGeoFieldsApplicationBriefs]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  decisionQuestions: [EditorialGeoFieldsDecisionQuestions]
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  directAnswerBody: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  directAnswerLead: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  directAnswerQuestion: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  editorialReviewScope: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  editorialReviewedAt: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  editorialReviewedBy: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  evaluationSteps: [EditorialGeoFieldsEvaluationSteps]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  evidenceItems: [EditorialGeoFieldsEvidenceItems]
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  geoFaqs: [EditorialGeoFieldsGeoFaqs]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  glossaryItems: [EditorialGeoFieldsGlossaryItems]
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  headerRfqLabel: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  supplyRoutes: [EditorialGeoFieldsSupplyRoutes]
+}
+
 "The &quot;HomepageFields&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
 type HomepageFields implements HomepageFields_Fields & AcfFieldGroup & AcfFieldGroupFields {
   "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
@@ -12688,6 +13088,15 @@ type HomepageFields implements HomepageFields_Fields & AcfFieldGroup & AcfFieldG
 
   "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;HomepageFields&quot; Field Group"
   trustReasons: [HomepageFieldsTrustReasons]
+}
+
+"Connection between the HomepageFields_Fields type and the MediaItem type"
+type AcfMediaItemConnectionEdge implements OneToOneConnection & Edge & MediaItemConnectionEdge {
+  "Opaque reference to the nodes position in the connection. Value can be used with pagination args."
+  cursor: String
+
+  "The node of the connection, without the edges"
+  node: MediaItem!
 }
 
 "Connection between the Tio2Homepage type and the Tio2Homepage type"
@@ -13586,45 +13995,6 @@ type AcfTermNodeConnectionEdge implements TermNodeConnectionEdge & Edge {
 
 "Pagination metadata specific to &quot;AcfTermNodeConnection&quot; collections. Provides cursors and flags for navigating through sets of AcfTermNodeConnection Nodes."
 type AcfTermNodeConnectionPageInfo implements TermNodeConnectionPageInfo & WPPageInfo & PageInfo {
-  "When paginating forwards, the cursor to continue."
-  endCursor: String
-
-  "When paginating forwards, are there more items?"
-  hasNextPage: Boolean!
-
-  "When paginating backwards, are there more items?"
-  hasPreviousPage: Boolean!
-
-  "Raw schema for page"
-  seo: SEOPostTypePageInfo
-
-  "When paginating backwards, the cursor to continue."
-  startCursor: String
-}
-
-"Connection between the ProductFieldsRelatedLinks_Fields type and the ContentNode type"
-type AcfContentNodeConnection implements ContentNodeConnection & Connection {
-  "Edges for the AcfContentNodeConnection connection"
-  edges: [AcfContentNodeConnectionEdge!]!
-
-  "The nodes of the connection, without the edges"
-  nodes: [ContentNode!]!
-
-  "Information about pagination in a connection."
-  pageInfo: AcfContentNodeConnectionPageInfo!
-}
-
-"An edge in a connection"
-type AcfContentNodeConnectionEdge implements ContentNodeConnectionEdge & Edge {
-  "A cursor for use in pagination"
-  cursor: String
-
-  "The item at the end of the edge"
-  node: ContentNode!
-}
-
-"Pagination metadata specific to &quot;AcfContentNodeConnection&quot; collections. Provides cursors and flags for navigating through sets of AcfContentNodeConnection Nodes."
-type AcfContentNodeConnectionPageInfo implements ContentNodeConnectionPageInfo & WPPageInfo & PageInfo {
   "When paginating forwards, the cursor to continue."
   endCursor: String
 
@@ -15382,122 +15752,17 @@ type SEOUserSocial {
   youTube: String
 }
 
-"Arguments for filtering the MediaItemToCommentConnection connection"
-input MediaItemToCommentConnectionWhereArgs {
-  "Comment author email address."
-  authorEmail: String
-
-  "Array of author IDs to include comments for."
-  authorIn: [ID]
-
-  "Array of author IDs to exclude comments for."
-  authorNotIn: [ID]
-
-  "Comment author URL."
-  authorUrl: String
-
-  "Array of comment IDs to include."
-  commentIn: [ID]
-
-  "Array of IDs of users whose unapproved comments will be returned by the query regardless of status."
-  commentNotIn: [ID]
-
-  "Include comments of a given type."
-  commentType: String
-
-  "Include comments from a given array of comment types."
-  commentTypeIn: [String]
-
-  "Exclude comments from a given array of comment types."
-  commentTypeNotIn: String
-
-  "Content object author ID to limit results by."
-  contentAuthor: [ID]
-
-  "Array of author IDs to retrieve comments for."
-  contentAuthorIn: [ID]
-
-  "Array of author IDs *not* to retrieve comments for."
-  contentAuthorNotIn: [ID]
-
-  "Limit results to those affiliated with a given content object ID."
-  contentId: ID
-
-  "Array of content object IDs to include affiliated comments for."
-  contentIdIn: [ID]
-
-  "Array of content object IDs to exclude affiliated comments for."
-  contentIdNotIn: [ID]
-
-  "Content object name (i.e. slug ) to retrieve affiliated comments for."
-  contentName: String
-
-  "Content Object parent ID to retrieve affiliated comments for."
-  contentParent: Int
-
-  "Array of content object statuses to retrieve affiliated comments for. Pass 'any' to match any value."
-  contentStatus: [PostStatusEnum]
-
-  "Content object type or array of types to retrieve affiliated comments for. Pass 'any' to match any value."
-  contentType: [ContentTypeEnum]
-
-  "Array of IDs or email addresses of users whose unapproved comments will be returned by the query regardless of $status. Default empty"
-  includeUnapproved: [ID]
-
-  "Karma score to retrieve matching comments for."
-  karma: Int
-
-  "The cardinality of the order of the connection"
-  order: OrderEnum
-
-  "Field to order the comments by."
-  orderby: CommentsConnectionOrderbyEnum
-
-  "Parent ID of comment to retrieve children of."
-  parent: Int
-
-  "Array of parent IDs of comments to retrieve children for."
-  parentIn: [ID]
-
-  "Array of parent IDs of comments *not* to retrieve children for."
-  parentNotIn: [ID]
-
-  "Search term(s) to retrieve matching comments for."
-  search: String
-
-  "Comment status to limit results by."
-  status: String @deprecated(reason: "Deprecated in favor of statusIn which accepts a list of one or more CommentStatusEnum values instead of a string")
-
-  "One or more Comment Statuses to limit results by"
-  statusIn: [CommentStatusEnum]
-
-  "Include comments for a specific user ID."
-  userId: ID
-}
-
-"Connection between the MediaItem type and the Comment type"
-type MediaItemToCommentConnection implements CommentConnection & Connection {
-  "Edges for the MediaItemToCommentConnection connection"
-  edges: [MediaItemToCommentConnectionEdge!]!
-
-  "The nodes of the connection, without the edges"
-  nodes: [Comment!]!
-
-  "Information about pagination in a connection."
-  pageInfo: MediaItemToCommentConnectionPageInfo!
-}
-
 "An edge in a connection"
-type MediaItemToCommentConnectionEdge implements CommentConnectionEdge & Edge {
+type AcfContentNodeConnectionEdge implements ContentNodeConnectionEdge & Edge {
   "A cursor for use in pagination"
   cursor: String
 
   "The item at the end of the edge"
-  node: Comment!
+  node: ContentNode!
 }
 
-"Pagination metadata specific to &quot;MediaItemToCommentConnection&quot; collections. Provides cursors and flags for navigating through sets of MediaItemToCommentConnection Nodes."
-type MediaItemToCommentConnectionPageInfo implements CommentConnectionPageInfo & WPPageInfo & PageInfo {
+"Pagination metadata specific to &quot;AcfContentNodeConnection&quot; collections. Provides cursors and flags for navigating through sets of AcfContentNodeConnection Nodes."
+type AcfContentNodeConnectionPageInfo implements ContentNodeConnectionPageInfo & WPPageInfo & PageInfo {
   "When paginating forwards, the cursor to continue."
   endCursor: String
 
@@ -15514,118 +15779,949 @@ type MediaItemToCommentConnectionPageInfo implements CommentConnectionPageInfo &
   startCursor: String
 }
 
-"Predefined image size variations. Represents the standard image dimensions available for media assets."
-enum MediaItemSizeEnum {
-  "Large image preview suitable for detail views. (1024x1024)"
-  LARGE
+"Interface representing fields of the ACF &quot;ApplicationFields&quot; Field Group"
+interface ApplicationFields_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  applicationContext: String
 
-  "Medium image preview typically suitable for listings and detail views. (300x300)"
-  MEDIUM
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  applicationId: String
 
-  "Medium-to-large image preview suitable for listings and detail views. (768x0)"
-  MEDIUM_LARGE
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  applicationLevel: [String]
 
-  "Small image preview suitable for thumbnails and listings. (150x150)"
-  THUMBNAIL
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  bodySections: [ApplicationFieldsBodySections]
 
-  "Custom Image Size. (1536x1536)"
-  _1536X1536
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  buyerProblem: String
 
-  "Custom Image Size. (2048x2048)"
-  _2048X2048
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  childApplications(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  ctas: [ApplicationFieldsCtas]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  customerInputs: [ApplicationFieldsCustomerInputs]
+
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  directAnswer: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  eyebrow: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  family: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  faqItems: [ApplicationFieldsFaqItems]
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  headline: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  metaDescription: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  metaTitle: String
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  parentApplication(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  powderDataLimits: String
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  relatedApplications(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  relatedProducts(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  relatedResources(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  selectionFactors: [ApplicationFieldsSelectionFactors]
+
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  technicalDisclaimer: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;ApplicationFields&quot; Field Group"
+  validationPlan: [ApplicationFieldsValidationPlan]
 }
 
-"File details for a Media Item"
-type MediaDetails {
-  "The filename of the mediaItem"
-  file: String
+"Interface representing fields of the ACF &quot;TechnicalResourceFieldsComparisonTableColumns&quot; Field Group"
+interface TechnicalResourceFieldsComparisonTableColumns_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
 
-  "The path to the mediaItem relative to the uploads directory"
-  filePath: String
-
-  "The height of the mediaItem"
-  height: Int
-
-  "Meta information associated with the mediaItem"
-  meta: MediaItemMeta
-
-  "The available sizes of the mediaItem"
-  sizes(
-    "The sizes to exclude. Will take precedence over `include`."
-    exclude: [MediaItemSizeEnum]
-
-    "The sizes to include. Can be overridden by `exclude`."
-    include: [MediaItemSizeEnum]
-  ): [MediaSize]
-
-  "The width of the mediaItem"
-  width: Int
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsComparisonTableColumns&quot; Field Group"
+  label: String
 }
 
-"Meta connected to a MediaItem"
-type MediaItemMeta {
-  "Aperture measurement of the media item."
-  aperture: Float
+"The &quot;TechnicalResourceFieldsComparisonTableColumns&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type TechnicalResourceFieldsComparisonTableColumns implements TechnicalResourceFieldsComparisonTableColumns_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
 
-  "Information about the camera used to create the media item."
-  camera: String
-
-  "The text string description associated with the media item."
-  caption: String
-
-  "Copyright information associated with the media item."
-  copyright: String
-
-  "The date/time when the media was created."
-  createdTimestamp: Int
-
-  "The original creator of the media item."
-  credit: String
-
-  "The focal length value of the media item."
-  focalLength: Float
-
-  "The ISO (International Organization for Standardization) value of the media item."
-  iso: Int
-
-  "List of keywords used to describe or identfy the media item."
-  keywords: [String]
-
-  "The vertical or horizontal aspect of the media item."
-  orientation: String
-
-  "The shutter speed information of the media item."
-  shutterSpeed: Float
-
-  "A useful title for the media item."
-  title: String
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsComparisonTableColumns&quot; Field Group"
+  label: String
 }
 
-"Details of an available size for a media item"
-type MediaSize {
-  "The filename of the referenced size"
-  file: String
+"Interface representing fields of the ACF &quot;Cells&quot; Field Group"
+interface Cells_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
 
-  "The path of the file for the referenced size (default size is full)"
-  filePath: String
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;Cells&quot; Field Group"
+  value: String
+}
 
-  "The filesize of the resource"
-  fileSize: Int
+"The &quot;Cells&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type Cells implements Cells_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
 
-  "The height of the referenced size"
-  height: String
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;Cells&quot; Field Group"
+  value: String
+}
 
-  "The mime type of the referenced size"
-  mimeType: String
+"Interface representing fields of the ACF &quot;TechnicalResourceFieldsComparisonTableRows&quot; Field Group"
+interface TechnicalResourceFieldsComparisonTableRows_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsComparisonTableRows&quot; Field Group"
+  cells: [Cells]
 
-  "The referenced size name"
-  name: String
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
 
-  "The url of the referenced size"
-  sourceUrl: String
+"The &quot;TechnicalResourceFieldsComparisonTableRows&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type TechnicalResourceFieldsComparisonTableRows implements TechnicalResourceFieldsComparisonTableRows_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsComparisonTableRows&quot; Field Group"
+  cells: [Cells]
 
-  "The width of the referenced size"
-  width: String
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
+
+"Interface representing fields of the ACF &quot;TechnicalResourceFieldsComparisonTable&quot; Field Group"
+interface TechnicalResourceFieldsComparisonTable_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsComparisonTable&quot; Field Group"
+  columns: [TechnicalResourceFieldsComparisonTableColumns]
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsComparisonTable&quot; Field Group"
+  rows: [TechnicalResourceFieldsComparisonTableRows]
+}
+
+"The &quot;TechnicalResourceFieldsComparisonTable&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type TechnicalResourceFieldsComparisonTable implements TechnicalResourceFieldsComparisonTable_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsComparisonTable&quot; Field Group"
+  columns: [TechnicalResourceFieldsComparisonTableColumns]
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsComparisonTable&quot; Field Group"
+  rows: [TechnicalResourceFieldsComparisonTableRows]
+}
+
+"Interface representing fields of the ACF &quot;TechnicalResourceFieldsKeyTakeaways&quot; Field Group"
+interface TechnicalResourceFieldsKeyTakeaways_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsKeyTakeaways&quot; Field Group"
+  item: String
+}
+
+"The &quot;TechnicalResourceFieldsKeyTakeaways&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type TechnicalResourceFieldsKeyTakeaways implements TechnicalResourceFieldsKeyTakeaways_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsKeyTakeaways&quot; Field Group"
+  item: String
+}
+
+"Interface representing fields of the ACF &quot;TechnicalResourceFieldsSections&quot; Field Group"
+interface TechnicalResourceFieldsSections_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsSections&quot; Field Group"
+  heading: String
+
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsSections&quot; Field Group"
+  html: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsSections&quot; Field Group"
+  sectionId: String
+}
+
+"The &quot;TechnicalResourceFieldsSections&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type TechnicalResourceFieldsSections implements TechnicalResourceFieldsSections_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsSections&quot; Field Group"
+  heading: String
+
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsSections&quot; Field Group"
+  html: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsSections&quot; Field Group"
+  sectionId: String
+}
+
+"Interface representing fields of the ACF &quot;TechnicalResourceFieldsPracticalImplications&quot; Field Group"
+interface TechnicalResourceFieldsPracticalImplications_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsPracticalImplications&quot; Field Group"
+  item: String
+}
+
+"The &quot;TechnicalResourceFieldsPracticalImplications&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type TechnicalResourceFieldsPracticalImplications implements TechnicalResourceFieldsPracticalImplications_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsPracticalImplications&quot; Field Group"
+  item: String
+}
+
+"Interface representing fields of the ACF &quot;TechnicalResourceFieldsCommonMistakes&quot; Field Group"
+interface TechnicalResourceFieldsCommonMistakes_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsCommonMistakes&quot; Field Group"
+  item: String
+}
+
+"The &quot;TechnicalResourceFieldsCommonMistakes&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type TechnicalResourceFieldsCommonMistakes implements TechnicalResourceFieldsCommonMistakes_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsCommonMistakes&quot; Field Group"
+  item: String
+}
+
+"Interface representing fields of the ACF &quot;TechnicalResourceFieldsEvaluationMethod&quot; Field Group"
+interface TechnicalResourceFieldsEvaluationMethod_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsEvaluationMethod&quot; Field Group"
+  item: String
+}
+
+"The &quot;TechnicalResourceFieldsEvaluationMethod&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type TechnicalResourceFieldsEvaluationMethod implements TechnicalResourceFieldsEvaluationMethod_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsEvaluationMethod&quot; Field Group"
+  item: String
+}
+
+"Interface representing fields of the ACF &quot;TechnicalResourceFieldsFaqItems&quot; Field Group"
+interface TechnicalResourceFieldsFaqItems_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsFaqItems&quot; Field Group"
+  answer: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsFaqItems&quot; Field Group"
+  question: String
+}
+
+"The &quot;TechnicalResourceFieldsFaqItems&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type TechnicalResourceFieldsFaqItems implements TechnicalResourceFieldsFaqItems_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsFaqItems&quot; Field Group"
+  answer: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsFaqItems&quot; Field Group"
+  question: String
+}
+
+"Interface representing fields of the ACF &quot;TechnicalResourceFieldsCtas&quot; Field Group"
+interface TechnicalResourceFieldsCtas_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsCtas&quot; Field Group"
+  href: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsCtas&quot; Field Group"
+  kind: [String]
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsCtas&quot; Field Group"
+  label: String
+}
+
+"The &quot;TechnicalResourceFieldsCtas&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type TechnicalResourceFieldsCtas implements TechnicalResourceFieldsCtas_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsCtas&quot; Field Group"
+  href: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsCtas&quot; Field Group"
+  kind: [String]
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFieldsCtas&quot; Field Group"
+  label: String
+}
+
+"Provides access to fields of the &quot;TechnicalResourceFields&quot; ACF Field Group via the &quot;technicalResourceFields&quot; field"
+interface WithAcfTechnicalResourceFields {
+  "Fields of the TechnicalResourceFields ACF Field Group"
+  technicalResourceFields: TechnicalResourceFields
+}
+
+"Interface representing fields of the ACF &quot;TechnicalResourceFields&quot; Field Group"
+interface TechnicalResourceFields_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  childResources(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  cluster: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  commonMistakes: [TechnicalResourceFieldsCommonMistakes]
+
+  "Field of the &quot;group&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  comparisonTable: TechnicalResourceFieldsComparisonTable
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  ctas: [TechnicalResourceFieldsCtas]
+
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  directAnswer: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  evaluationMethod: [TechnicalResourceFieldsEvaluationMethod]
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  eyebrow: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  faqItems: [TechnicalResourceFieldsFaqItems]
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  headline: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  keyTakeaways: [TechnicalResourceFieldsKeyTakeaways]
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  metaDescription: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  metaTitle: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  practicalImplications: [TechnicalResourceFieldsPracticalImplications]
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  relatedApplications(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  relatedProducts(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;relationship&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  relatedResources(
+    "The number of items to return after the referenced \"after\" cursor"
+    first: Int
+
+    "The number of items to return before the referenced \"before\" cursor"
+    last: Int
+
+    "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+    after: String
+
+    "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+    before: String
+  ): AcfContentNodeConnection
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  resourceId: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  resourceKind: [String]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  sections: [TechnicalResourceFieldsSections]
+
+  "Field of the &quot;wysiwyg&quot; Field Type added to the schema as part of the &quot;TechnicalResourceFields&quot; Field Group"
+  technicalDisclaimer: String
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+interface EditorialGeoFieldsDecisionQuestions_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+  decisionAnswer: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+  decisionNumber: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+  decisionQuestion: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
+
+"The &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsDecisionQuestions implements EditorialGeoFieldsDecisionQuestions_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+  decisionAnswer: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+  decisionNumber: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsDecisionQuestions&quot; Field Group"
+  decisionQuestion: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+interface EditorialGeoFieldsApplicationBriefs_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+  applicationConsiderations: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+  applicationName: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+  applicationSummary: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
+
+"The &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsApplicationBriefs implements EditorialGeoFieldsApplicationBriefs_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+  applicationConsiderations: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+  applicationName: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsApplicationBriefs&quot; Field Group"
+  applicationSummary: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+interface EditorialGeoFieldsSupplyRoutes_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  buyerVerification: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  claimBasis: [String]
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  documentationContext: String
+
+  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  evidenceUrl: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  routeMeaning: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  routeName: String
+}
+
+"The &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsSupplyRoutes implements EditorialGeoFieldsSupplyRoutes_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  buyerVerification: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  claimBasis: [String]
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  documentationContext: String
+
+  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  evidenceUrl: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  routeMeaning: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsSupplyRoutes&quot; Field Group"
+  routeName: String
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+interface EditorialGeoFieldsEvidenceItems_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  applicability: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  documentSummary: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  documentTitle: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  documentType: String
+
+  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  evidenceUrl: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  revisionLabel: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  verificationStatus: [String]
+}
+
+"The &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsEvidenceItems implements EditorialGeoFieldsEvidenceItems_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  applicability: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  documentSummary: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  documentTitle: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  documentType: String
+
+  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  evidenceUrl: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  revisionLabel: String
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvidenceItems&quot; Field Group"
+  verificationStatus: [String]
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+interface EditorialGeoFieldsEvaluationSteps_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+  methodDescription: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+  methodNumber: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+  methodTitle: String
+}
+
+"The &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsEvaluationSteps implements EditorialGeoFieldsEvaluationSteps_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+  methodDescription: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+  methodNumber: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsEvaluationSteps&quot; Field Group"
+  methodTitle: String
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
+interface EditorialGeoFieldsGeoFaqs_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
+  faqAnswer: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
+  faqQuestion: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
+
+"The &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsGeoFaqs implements EditorialGeoFieldsGeoFaqs_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
+  faqAnswer: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGeoFaqs&quot; Field Group"
+  faqQuestion: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
+interface EditorialGeoFieldsGlossaryItems_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
+  definition: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
+  term: String
+}
+
+"The &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type EditorialGeoFieldsGlossaryItems implements EditorialGeoFieldsGlossaryItems_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
+  definition: String
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFieldsGlossaryItems&quot; Field Group"
+  term: String
+}
+
+"Provides access to fields of the &quot;EditorialGeoFields&quot; ACF Field Group via the &quot;editorialGeoFields&quot; field"
+interface WithAcfEditorialGeoFields {
+  "Fields of the EditorialGeoFields ACF Field Group"
+  editorialGeoFields: EditorialGeoFields
+}
+
+"Interface representing fields of the ACF &quot;EditorialGeoFields&quot; Field Group"
+interface EditorialGeoFields_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  applicationBriefs: [EditorialGeoFieldsApplicationBriefs]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  decisionQuestions: [EditorialGeoFieldsDecisionQuestions]
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  directAnswerBody: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  directAnswerLead: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  directAnswerQuestion: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  editorialReviewScope: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  editorialReviewedAt: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  editorialReviewedBy: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  evaluationSteps: [EditorialGeoFieldsEvaluationSteps]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  evidenceItems: [EditorialGeoFieldsEvidenceItems]
+
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  geoFaqs: [EditorialGeoFieldsGeoFaqs]
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  glossaryItems: [EditorialGeoFieldsGlossaryItems]
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  headerRfqLabel: String
+
+  "Field of the &quot;repeater&quot; Field Type added to the schema as part of the &quot;EditorialGeoFields&quot; Field Group"
+  supplyRoutes: [EditorialGeoFieldsSupplyRoutes]
+}
+
+"Interface representing fields of the ACF &quot;HomepageFieldsRfqLabels&quot; Field Group"
+interface HomepageFieldsRfqLabels_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqBuyerDistributorLabel: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqBuyerIndustrialLabel: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqBuyerOtherLabel: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelBuyerType: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelCompany: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelCountryRegion: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelDestination: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelExpectedQuantity: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelInterest: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelMessage: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelName: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelPrivacy: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelWorkEmail: String
+}
+
+"The &quot;HomepageFieldsRfqLabels&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type HomepageFieldsRfqLabels implements HomepageFieldsRfqLabels_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqBuyerDistributorLabel: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqBuyerIndustrialLabel: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqBuyerOtherLabel: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelBuyerType: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelCompany: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelCountryRegion: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelDestination: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelExpectedQuantity: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelInterest: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelMessage: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelName: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelPrivacy: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsRfqLabels&quot; Field Group"
+  rfqLabelWorkEmail: String
+}
+
+"Interface representing fields of the ACF &quot;HomepageFieldsMetrics&quot; Field Group"
+interface HomepageFieldsMetrics_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
+  metricClaimBasis: [String]
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
+  metricContext: String
+
+  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
+  metricEvidenceUrl: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
+  metricLabel: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
+  metricUnit: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
+  metricValue: String
+}
+
+"The &quot;HomepageFieldsMetrics&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
+type HomepageFieldsMetrics implements HomepageFieldsMetrics_Fields & AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;select&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
+  metricClaimBasis: [String]
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
+  metricContext: String
+
+  "Field of the &quot;url&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
+  metricEvidenceUrl: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
+  metricLabel: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
+  metricUnit: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsMetrics&quot; Field Group"
+  metricValue: String
+}
+
+"Interface representing fields of the ACF &quot;HomepageFieldsProductRoutes&quot; Field Group"
+interface HomepageFieldsProductRoutes_Fields implements AcfFieldGroup & AcfFieldGroupFields {
+  "The name of the field group"
+  fieldGroupName: String @deprecated(reason: "Use __typename instead")
+
+  "Field of the &quot;image&quot; Field Type added to the schema as part of the &quot;HomepageFieldsProductRoutes&quot; Field Group"
+  productImage: AcfMediaItemConnectionEdge
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsProductRoutes&quot; Field Group"
+  productImageAlt: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsProductRoutes&quot; Field Group"
+  productPath: String
+
+  "Field of the &quot;textarea&quot; Field Type added to the schema as part of the &quot;HomepageFieldsProductRoutes&quot; Field Group"
+  productSummary: String
+
+  "Field of the &quot;text&quot; Field Type added to the schema as part of the &quot;HomepageFieldsProductRoutes&quot; Field Group"
+  productTitle: String
 }
 
 "The &quot;HomepageFieldsProductRoutes&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;."
