@@ -1,5 +1,13 @@
 import type {ApplicationPageDto} from '@/lib/applications/types'
 import {applicationPageInputSchema} from '@/lib/applications/schema'
+import {
+  containsForbiddenEditorialClaim,
+  containsPrivateEditorialLocation,
+  hasEditorialRichTextContent,
+  normalizeEditorialInternalPath,
+  sanitizeEditorialRichText,
+} from '@/lib/editorial/rich-text'
+import {htmlToPlainText} from '@/lib/seo/text'
 
 import {ApplicationCategory} from './application-category'
 import {ApplicationDetail} from './application-detail'
@@ -17,12 +25,40 @@ function populatedArray(value: unknown): value is readonly unknown[] {
   return Array.isArray(value) && value.length > 0
 }
 
+function safePlainText(value: unknown): value is string {
+  if (!populated(value) || value !== value.trim()) return false
+  const plainText = htmlToPlainText(
+    value,
+    Math.max(Array.from(value).length, 1),
+  )
+  return (
+    plainText === value &&
+    !containsPrivateEditorialLocation(value) &&
+    !containsForbiddenEditorialClaim(value)
+  )
+}
+
+function safeRichText(value: unknown): value is string {
+  if (!populated(value)) return false
+  const sanitized = sanitizeEditorialRichText(value)
+  return sanitized === value && hasEditorialRichTextContent(sanitized)
+}
+
+function safeCanonicalPath(value: unknown): value is string {
+  if (typeof value !== 'string') return false
+  return (
+    normalizeEditorialInternalPath(value) === value &&
+    !containsPrivateEditorialLocation(value) &&
+    !containsForbiddenEditorialClaim(value)
+  )
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-function populatedStrings(value: unknown): value is readonly string[] {
-  return populatedArray(value) && value.every(populated)
+function safePlainStrings(value: unknown): value is readonly string[] {
+  return populatedArray(value) && value.every(safePlainText)
 }
 
 function completeSections(value: unknown): boolean {
@@ -32,8 +68,8 @@ function completeSections(value: unknown): boolean {
       (section) =>
         isRecord(section) &&
         populated(section.id) &&
-        populated(section.heading) &&
-        populated(section.html),
+        safePlainText(section.heading) &&
+        safeRichText(section.html),
     )
   )
 }
@@ -44,8 +80,8 @@ function completeFaqs(value: unknown): boolean {
     value.every(
       (faq) =>
         isRecord(faq) &&
-        populated(faq.question) &&
-        populated(faq.answerHtml),
+        safePlainText(faq.question) &&
+        safeRichText(faq.answerHtml),
     )
   )
 }
@@ -58,9 +94,10 @@ function completeLinks(value: unknown): boolean {
         isRecord(link) &&
         ['product', 'application', 'resource'].includes(String(link.type)) &&
         populated(link.id) &&
-        populated(link.title) &&
-        populated(link.path) &&
-        (link.href === null || populated(link.href)),
+        safePlainText(link.title) &&
+        safeCanonicalPath(link.path) &&
+        (link.href === null ||
+          (safeCanonicalPath(link.href) && link.href === link.path)),
     )
   )
 }
@@ -74,8 +111,8 @@ function completeCtas(value: unknown): boolean {
         ['request-tds', 'discuss-application', 'request-sample'].includes(
           String(cta.kind),
         ) &&
-        populated(cta.label) &&
-        populated(cta.href),
+        safePlainText(cta.label) &&
+        safeCanonicalPath(cta.href),
     )
   )
 }
@@ -99,31 +136,31 @@ function isCompleteApplication(application: unknown): application is Application
     identity &&
       ['hub', 'category', 'detail'].includes(identity.level) &&
       populated(identity.id) &&
-      populated(identity.title) &&
+      safePlainText(identity.title) &&
       populated(identity.slug) &&
-      populated(identity.path) &&
-      populated(identity.family) &&
+      safeCanonicalPath(identity.path) &&
+      safePlainText(identity.family) &&
       populated(identity.modified) &&
       seo &&
-      populated(seo.title) &&
-      populated(seo.description) &&
+      safePlainText(seo.title) &&
+      safePlainText(seo.description) &&
       hero &&
-      populated(hero.eyebrow) &&
-      populated(hero.headline) &&
-      populated(hero.directAnswer) &&
+      safePlainText(hero.eyebrow) &&
+      safePlainText(hero.headline) &&
+      safeRichText(hero.directAnswer) &&
       guide &&
-      populated(guide.context) &&
-      populated(guide.buyerProblem) &&
-      populatedStrings(guide.selectionFactors) &&
-      populated(guide.powderDataLimits) &&
-      populatedStrings(guide.validationPlan) &&
-      populatedStrings(guide.customerInputs) &&
+      safePlainText(guide.context) &&
+      safePlainText(guide.buyerProblem) &&
+      safePlainStrings(guide.selectionFactors) &&
+      safePlainText(guide.powderDataLimits) &&
+      safePlainStrings(guide.validationPlan) &&
+      safePlainStrings(guide.customerInputs) &&
       completeSections(value.bodySections) &&
       completeFaqs(value.faqs) &&
       completeLinks(value.children) &&
       completeLinks(value.relationships) &&
       completeCtas(value.ctas) &&
-      populated(value.disclaimerHtml),
+      safeRichText(value.disclaimerHtml),
   )
   return (
     structurallyComplete &&

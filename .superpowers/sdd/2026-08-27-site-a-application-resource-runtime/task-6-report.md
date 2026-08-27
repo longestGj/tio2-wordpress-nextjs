@@ -148,3 +148,53 @@ The initial independent review found one Important issue: the defensive renderer
 ## Concerns
 
 No Task 6 implementation blocker remains. The only external concern is the unchanged local Homepage sitemap-source integrity failure described under Verification; it prevents a fully green local production build after the Task 6 code has already compiled and passed Next's TypeScript stage.
+
+## Fix Round 1: strict resolved renderer boundary
+
+Read `.superpowers/sdd/2026-08-27-site-a-application-resource-runtime/task-6-review.md` and verified its Important finding against the committed renderer. The authoritative Application input schema preserved completeness, cardinality, hierarchy, and stable-target validation, but the renderer projected expanded links back to `{type, id}` and checked rich HTML only for non-emptiness. Hostile values introduced after DTO resolution could therefore reach `dangerouslySetInnerHTML` or rendered anchors. The review's separate Minor Application-specific marker concern was deliberately deferred for final triage and was not changed in this round.
+
+### RED
+
+Added resolved-DTO mutation cases for:
+
+- script markup in `hero.directAnswer`;
+- event-handler markup in a body section;
+- unsupported FAQ markup;
+- disclaimer markup that sanitizes to empty;
+- noncanonical child paths and unsafe relationship paths;
+- unsafe or path-mismatched non-null relationship hrefs;
+- markup/private locations in resolved relationship titles;
+- unsafe and noncanonical CTA hrefs.
+
+Command:
+
+```text
+npm test -- tests/unit/components/application-page.test.tsx
+```
+
+Result before the renderer fix:
+
+```text
+Test Files  1 failed (1)
+Tests       11 failed | 8 passed (19)
+```
+
+All four hostile rich-text cases and all six resolved-link cases rendered one page instead of zero. The noncanonical trailing-slash CTA also rendered. The `javascript:` CTA already failed through the authoritative input schema, demonstrating that the new case was exercising an existing upstream guard rather than a test setup error.
+
+### GREEN and verification
+
+- Focused Task 6 command: 3 files, 38/38 tests passed.
+- Affected shared editorial, Task 5 Application query/preview, Product renderer/query/preview/SEO/route, shared SEO, and crawler regression command: 17 files, 188/188 tests passed.
+- `npm run typecheck`: passed (`tsc --noEmit`, exit 0).
+- Scoped ESLint over the changed renderer and component test: passed with no output.
+- `git diff --check`: passed; only informational LF-to-CRLF warnings were emitted.
+- `verify:root-only` was not run.
+
+### Fix and self-review
+
+- The renderer still applies `applicationPageInputSchema` to preserve the authoritative completeness, cardinality, hierarchy, safety, and target-key contract.
+- Every rich field actually sent to `dangerouslySetInnerHTML` must already equal the deterministic allowlist-sanitized value and must retain visible text. The renderer rejects changed/empty values; it does not sanitize or filter them at render time.
+- Plain rendered titles/labels must already be trimmed, non-empty safe plain text without private locations or forbidden claims.
+- Identity, child, relationship, and CTA paths must already be exact normalized safe internal paths. A non-null child/relationship href must independently be safe and exactly equal its validated `link.path`; `null` remains valid non-clickable context.
+- Expanded child/relationship objects are validated before their stable targets are projected for the authoritative schema, closing the reviewed boundary gap without weakening upstream DTO construction.
+- The fix is limited to `components/applications/application-page.tsx`, its renderer unit test, and this report. Public routes/inventory, previews, SEO helpers, sitemap, navigation, Homepage, Product DTOs/components, WordPress, `public/`, Site B, publication, deployment, and remote state remain unchanged.

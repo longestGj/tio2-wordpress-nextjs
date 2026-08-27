@@ -49,6 +49,14 @@ function applicationFixture(
   return toApplicationPageDto(input, resolveTarget)
 }
 
+function mutateFixture(
+  mutation: (application: ApplicationPageDto) => void,
+): ApplicationPageDto {
+  const application = structuredClone(applicationFixture('hub'))
+  mutation(application)
+  return application
+}
+
 afterEach(cleanup)
 
 describe('ApplicationPageRenderer', () => {
@@ -221,4 +229,109 @@ describe('ApplicationPageRenderer', () => {
       expect(container.childElementCount).toBe(0)
     }
   })
+
+  it.each([
+    [
+      'script markup in the direct answer',
+      (application: ApplicationPageDto) => {
+        application.hero.directAnswer =
+          '<p>Visible answer.</p><script>alert(1)</script>'
+      },
+    ],
+    [
+      'an event handler in a body section',
+      (application: ApplicationPageDto) => {
+        application.bodySections[0]!.html = '<p onclick="track()">Visible body.</p>'
+      },
+    ],
+    [
+      'unsupported markup in an FAQ answer',
+      (application: ApplicationPageDto) => {
+        application.faqs[0]!.answerHtml = '<section>Visible answer.</section>'
+      },
+    ],
+    [
+      'rich content that becomes empty in the disclaimer',
+      (application: ApplicationPageDto) => {
+        application.disclaimerHtml = '<img src="x" onerror="alert(1)">'
+      },
+    ],
+  ] as const)('rejects %s instead of rendering hostile rich text', (_name, mutate) => {
+    const {container} = render(
+      <ApplicationPageRenderer application={mutateFixture(mutate)} />,
+    )
+
+    expect(container.childElementCount).toBe(0)
+  })
+
+  it.each([
+    [
+      'a noncanonical child path',
+      (application: ApplicationPageDto) => {
+        application.children[0]!.path = '/applications/coatings/'
+      },
+    ],
+    [
+      'an unsafe relationship path',
+      (application: ApplicationPageDto) => {
+        const relationship = application.relationships.find(
+          ({type}) => type === 'resource',
+        )
+        if (!relationship) throw new Error('Missing Resource fixture')
+        relationship.path = 'javascript:alert(1)'
+      },
+    ],
+    [
+      'an unsafe relationship href',
+      (application: ApplicationPageDto) => {
+        const relationship = application.relationships.find(
+          ({type}) => type === 'resource',
+        )
+        if (!relationship) throw new Error('Missing Resource fixture')
+        relationship.href = 'javascript:alert(1)'
+      },
+    ],
+    [
+      'a relationship href that differs from its canonical path',
+      (application: ApplicationPageDto) => {
+        const relationship = application.relationships.find(
+          ({type}) => type === 'resource',
+        )
+        if (!relationship) throw new Error('Missing Resource fixture')
+        relationship.href = '/resources/article-02'
+      },
+    ],
+    [
+      'markup in a resolved child title',
+      (application: ApplicationPageDto) => {
+        application.children[0]!.title = '<strong>Resolved child</strong>'
+      },
+    ],
+    [
+      'a private location in a relationship title',
+      (application: ApplicationPageDto) => {
+        application.relationships[0]!.title = 'Open /tmp/private-source.txt'
+      },
+    ],
+  ] as const)('rejects %s at the resolved-link boundary', (_name, mutate) => {
+    const {container} = render(
+      <ApplicationPageRenderer application={mutateFixture(mutate)} />,
+    )
+
+    expect(container.childElementCount).toBe(0)
+  })
+
+  it.each(['javascript:alert(1)', '/contact/'])(
+    'rejects unsafe or noncanonical CTA href %s',
+    (href) => {
+      const application = mutateFixture((value) => {
+        value.ctas[0]!.href = href
+      })
+      const {container} = render(
+        <ApplicationPageRenderer application={application} />,
+      )
+
+      expect(container.childElementCount).toBe(0)
+    },
+  )
 })
