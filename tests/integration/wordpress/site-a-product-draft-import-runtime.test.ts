@@ -41,6 +41,9 @@ function get_post_field($field, $id) { return 'post_name' === $field ? 'tp-p100'
 function get_post_status($id) { return 888 === $id ? ($GLOBALS['wp_relationship_status'] ?? 'draft') : 'draft'; }
 function get_post_type($id) { return 888 === $id ? ($GLOBALS['wp_relationship_post_type'] ?? 'tio2_application') : 'tio2_product'; }
 require $argv[1];
+if ('$.meta.title' !== tio2_site_a_product_draft_first_mismatch(['meta' => ['title' => 'expected']], ['meta' => ['title' => 'actual']])) { throw new RuntimeException('Readback mismatch diagnostics did not identify the first field.'); }
+if ('$.meta.subtitle' !== tio2_site_a_product_draft_first_mismatch(['meta' => ['title' => 'same', 'subtitle' => 'missing']], ['meta' => ['title' => 'same']])) { throw new RuntimeException('Readback mismatch diagnostics did not identify a missing key.'); }
+if (!tio2_site_a_product_draft_records_equal(['meta' => ['alpha' => 1, 'beta' => 2]], ['meta' => ['beta' => 2, 'alpha' => 1]])) { throw new RuntimeException('Importer treated associative field order as content drift.'); }
 
 $ids = ['TP-P100','TP-P300','TP-S100','TP-C200','TP-C410','TP-C120','TP-I100','TP-H100','TP-P200','TP-P110','TP-P320','TP-P120','TP-P310','TP-P330','TP-PA100','TP-PA110','TP-PA120','TP-C050','TP-C100','TP-C110','TP-I200','TP-C300','TP-C310','TP-C400','TP-U100'];
 $products = [];

@@ -269,7 +269,59 @@ function tio2_site_a_product_draft_validate_manifest(array $manifest): array
 /** @param array<string, mixed> $left @param array<string, mixed> $right */
 function tio2_site_a_product_draft_records_equal(array $left, array $right): bool
 {
-    return wp_json_encode($left) === wp_json_encode($right);
+    return wp_json_encode(tio2_site_a_product_draft_normalize($left)) === wp_json_encode(tio2_site_a_product_draft_normalize($right));
+}
+
+/** @param mixed $value @return mixed */
+function tio2_site_a_product_draft_normalize($value)
+{
+    if (! is_array($value)) {
+        return $value;
+    }
+    foreach ($value as $key => $item) {
+        $value[$key] = tio2_site_a_product_draft_normalize($item);
+    }
+    if (! array_is_list($value)) {
+        ksort($value, SORT_STRING);
+    }
+    return $value;
+}
+
+/** @param mixed $expected @param mixed $actual */
+function tio2_site_a_product_draft_first_mismatch($expected, $actual, string $path = '$'): ?string
+{
+    if (gettype($expected) !== gettype($actual)) {
+        return $path;
+    }
+    if (is_array($expected)) {
+        $expected_keys = array_keys($expected);
+        $actual_keys = array_keys($actual);
+        if ($expected_keys !== $actual_keys) {
+            foreach ($expected_keys as $key) {
+                if (! array_key_exists($key, $actual)) {
+                    return $path . '.' . (string) $key;
+                }
+            }
+            foreach ($actual_keys as $key) {
+                if (! array_key_exists($key, $expected)) {
+                    return $path . '.' . (string) $key;
+                }
+            }
+            foreach ($expected_keys as $index => $key) {
+                if ($key !== $actual_keys[$index]) {
+                    return $path . '.' . (string) $key;
+                }
+            }
+        }
+        foreach ($expected as $key => $value) {
+            $mismatch = tio2_site_a_product_draft_first_mismatch($value, $actual[$key], $path . '.' . (string) $key);
+            if (null !== $mismatch) {
+                return $mismatch;
+            }
+        }
+        return null;
+    }
+    return $expected === $actual ? null : $path;
 }
 
 /**
@@ -658,7 +710,13 @@ function tio2_site_a_product_draft_write_wp_record(string $action, array $record
     }
     $readback = tio2_site_a_product_draft_find_wp_record($record['productId']);
     if (! is_array($readback) || ! tio2_site_a_product_draft_records_equal($readback, $record)) {
-        throw new RuntimeException("Product {$record['productId']} read-back rejected the imported draft.");
+        $mismatch = is_array($readback)
+            ? (tio2_site_a_product_draft_first_mismatch(
+                tio2_site_a_product_draft_normalize($record),
+                tio2_site_a_product_draft_normalize($readback)
+            ) ?? '$')
+            : '$';
+        throw new RuntimeException("Product {$record['productId']} read-back rejected the imported draft at {$mismatch}.");
     }
 }
 
