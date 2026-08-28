@@ -191,7 +191,7 @@ function tio2_application_field_definitions(): array
             'type' => 'repeater',
             'required' => 1,
             'min' => 1,
-            'max' => 6,
+            'max' => 10,
             'layout' => 'row',
             'show_in_graphql' => 1,
             'sub_fields' => [[

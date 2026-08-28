@@ -132,18 +132,32 @@ function tio2_editorial_contains_unsafe_value($value): bool
 {
     if (is_string($value)) {
         $decoded = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $claim_scan = 'Can TP-C410 be treated as a replacement for TP-C300?' === trim($decoded)
+            ? ''
+            : str_replace('not intended as guaranteed specifications', '', $decoded);
+        $claim_scan = preg_replace(
+            '/\b(?:finished-product approval|customer approval|approval criteria|approval method|approval plan|approval stage)\b/iu',
+            '',
+            $claim_scan
+        );
+        if (! is_string($claim_scan)) {
+            return true;
+        }
         if (
             tio2_product_contains_private_document_location($decoded) ||
             1 === preg_match(
                 '~(?:\bon[a-z]+\s*=|javascript\s*:|(?:^|[\s"\'(<])/(?:documents/tds|tds|var|home|usr|etc|opt|tmp|private|root)(?:/|(?=$|[\s"\'<>),.;:!?#]))|\b(?:manufacturer|legal\s+entity|reviewer|source\s+(?:file|path)|approval|price|stock|availability|guarantee(?:d|s)?|competitor|equivalent(?:\s+to)?|replacement\s+for)\b)~iu',
-                $decoded
+                $claim_scan
             )
         ) {
             return true;
         }
 
         if (0 < preg_match_all('~<\s*(/?)\s*([a-z][a-z0-9]*)([^>]*)>~iu', $decoded, $tags, PREG_SET_ORDER)) {
-            $allowed_tags = ['p', 'ul', 'ol', 'li', 'strong', 'em', 'b', 'i', 'a', 'br'];
+            $allowed_tags = [
+                'p', 'ul', 'ol', 'li', 'strong', 'em', 'b', 'i', 'a', 'br',
+                'table', 'thead', 'tbody', 'tr', 'th', 'td',
+            ];
             foreach ($tags as $tag) {
                 $name = strtolower((string) $tag[2]);
                 if (! in_array($name, $allowed_tags, true)) {

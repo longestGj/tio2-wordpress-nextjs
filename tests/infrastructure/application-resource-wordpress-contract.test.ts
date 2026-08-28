@@ -38,7 +38,7 @@ const applicationFields: ExpectedField[] = [
   {key: 'selection_factors', name: 'selection_factors', type: 'repeater', required: 1, min: 3, max: 6},
   {key: 'powder_data_limits', name: 'powder_data_limits', type: 'textarea', required: 1},
   {key: 'validation_plan', name: 'validation_plan', type: 'repeater', required: 1, min: 1, max: 6},
-  {key: 'customer_inputs', name: 'customer_inputs', type: 'repeater', required: 1, min: 1, max: 6},
+  {key: 'customer_inputs', name: 'customer_inputs', type: 'repeater', required: 1, min: 1, max: 10},
   {key: 'body_sections', name: 'body_sections', type: 'repeater', required: 1, min: 2, max: 12},
   {key: 'faq_items', name: 'faq_items', type: 'repeater', required: 1, min: 4, max: 6},
   {key: 'child_applications', name: 'child_applications', type: 'relationship', required: 0, max: 24, postType: 'tio2_application'},

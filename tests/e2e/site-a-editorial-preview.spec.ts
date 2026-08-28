@@ -17,6 +17,10 @@ import {
 
 interface EditorialView {
   readonly canonicalPath: string
+  readonly comparisonHeaders?: readonly string[]
+  readonly ctaCount: number
+  readonly expectedDirectAnswer: string
+  readonly faqCount: number
   readonly expectedH1: string
   readonly id: string
   readonly kind: 'application' | 'resource'
@@ -30,8 +34,8 @@ const applicationCommonSections = [
   'direct-answer',
   'customer-context',
   'selection-factors',
-  'body-section-overview',
-  'body-section-next-steps',
+] as const
+const applicationDecisionSections = [
   'powder-data-limitation',
   'validation-plan',
   'customer-inputs',
@@ -40,9 +44,8 @@ const resourceCommonSections = [
   'hero',
   'direct-answer',
   'key-takeaways',
-  'body-section-method',
-  'body-section-review',
-  'comparison-table',
+] as const
+const resourceDecisionSections = [
   'practical-implications',
   'common-mistakes',
   'evaluation-method',
@@ -51,13 +54,20 @@ const resourceCommonSections = [
 const views: readonly EditorialView[] = [
   {
     canonicalPath: '/applications',
-    expectedH1: 'Compare fictional application conditions systematically.',
+    ctaCount: 3,
+    expectedDirectAnswer:
+      'Select titanium dioxide by first defining the application family',
+    faqCount: 5,
+    expectedH1: 'Select TiO₂ by Application',
     id: 'applications-hub',
     kind: 'application',
     mode: 'hub',
     previewPath: '/preview/applications',
     sectionOrder: [
       ...applicationCommonSections,
+      'body-section-follow-an-application-first-decision-path',
+      'body-section-technical-documentation',
+      ...applicationDecisionSections,
       'child-navigation',
       'related-content',
       'faq',
@@ -67,13 +77,21 @@ const views: readonly EditorialView[] = [
   },
   {
     canonicalPath: '/applications/coatings',
-    expectedH1: 'Compare fictional application conditions systematically.',
+    ctaCount: 3,
+    expectedDirectAnswer:
+      'Titanium dioxide for coatings should be selected against the binder',
+    faqCount: 5,
+    expectedH1: 'Titanium Dioxide for Coatings',
     id: 'coatings',
     kind: 'application',
     mode: 'category',
     previewPath: '/preview/applications/coatings',
     sectionOrder: [
       ...applicationCommonSections,
+      'body-section-start-with-the-coating-system-not-a-general-grade-label',
+      'body-section-evidence-backed-tiovar-starting-points-for-evaluation',
+      'body-section-technical-documentation',
+      ...applicationDecisionSections,
       'child-navigation',
       'related-content',
       'faq',
@@ -83,7 +101,11 @@ const views: readonly EditorialView[] = [
   },
   {
     canonicalPath: '/applications/titanium-dioxide-for-water-based-paint',
-    expectedH1: 'Compare fictional application conditions systematically.',
+    ctaCount: 3,
+    expectedDirectAnswer:
+      'Titanium dioxide for water-based paint should be evaluated in the complete system',
+    faqCount: 5,
+    expectedH1: 'Titanium Dioxide for Water-Based Paint',
     id: 'water-based-paint',
     kind: 'application',
     mode: 'detail',
@@ -91,6 +113,9 @@ const views: readonly EditorialView[] = [
       '/preview/applications/titanium-dioxide-for-water-based-paint',
     sectionOrder: [
       ...applicationCommonSections,
+      'body-section-evidence-supported-tiovar-starting-points-for-evaluation',
+      'body-section-evaluation-boundary',
+      ...applicationDecisionSections,
       'related-content',
       'faq',
       'cta-group',
@@ -99,13 +124,24 @@ const views: readonly EditorialView[] = [
   },
   {
     canonicalPath: '/resources',
-    expectedH1: 'Turn fictional observations into a repeatable comparison.',
+    ctaCount: 2,
+    expectedDirectAnswer: 'This library groups ten titanium dioxide guides',
+    faqCount: 5,
+    expectedH1: 'Titanium Dioxide Technical Resources',
     id: 'resources-hub',
     kind: 'resource',
     mode: 'hub',
     previewPath: '/preview/resources',
     sectionOrder: [
       ...resourceCommonSections,
+      'body-section-what-customers-can-learn',
+      'body-section-tio2-fundamentals',
+      'body-section-performance',
+      'body-section-grade-replacement',
+      'body-section-application-testing',
+      'body-section-why-guides-do-not-replace-testing',
+      'body-section-product-and-application-context',
+      ...resourceDecisionSections,
       'child-navigation',
       'related-content',
       'faq',
@@ -114,15 +150,32 @@ const views: readonly EditorialView[] = [
     ],
   },
   {
-    canonicalPath: '/resources/rutile-vs-anatase-titanium-dioxide',
-    expectedH1: 'Turn fictional observations into a repeatable comparison.',
-    id: 'article-01',
+    canonicalPath: '/resources/titanium-dioxide-surface-treatment',
+    comparisonHeaders: [
+      'Treatment family',
+      'Particle-surface interaction it may change',
+      'Formulation questions to investigate',
+      'Why results cannot be assumed',
+    ],
+    ctaCount: 2,
+    expectedDirectAnswer:
+      'Surface treatment changes how titanium dioxide particles interact',
+    faqCount: 5,
+    expectedH1: 'How Surface Treatment Changes Titanium Dioxide Performance',
+    id: 'article-06',
     kind: 'resource',
     mode: 'article',
     previewPath:
-      '/preview/resources/rutile-vs-anatase-titanium-dioxide',
+      '/preview/resources/titanium-dioxide-surface-treatment',
     sectionOrder: [
       ...resourceCommonSections,
+      'body-section-section-1',
+      'body-section-section-2',
+      'body-section-section-3',
+      'body-section-section-4',
+      'body-section-section-5',
+      'comparison-table',
+      ...resourceDecisionSections,
       'related-content',
       'faq',
       'cta-group',
@@ -137,6 +190,8 @@ const viewports = [
 ] as const
 const previewCookieName = 'tio2_preview_scope'
 const screenshotDirectory = resolve('.tmp/task-9-editorial-preview-evidence')
+const captureEvidence =
+  process.env.TASK9_CAPTURE_EDITORIAL_PREVIEW_EVIDENCE === '1'
 const chromiumResource404Error =
   'console: Failed to load resource: the server responded with a status of 404 (Not Found)'
 
@@ -335,15 +390,19 @@ async function expectSkillChecklist(): Promise<void> {
     expect((await page.locator('body').innerText()).trim().length).toBeGreaterThan(0)
     await expect(page.locator('[data-nextjs-dialog]')).toHaveCount(0)
     await expect(contentRoot(page, view)).toBeVisible()
-    await expect(page.getByRole('link', {name: /Discuss a synthetic application/iu})).toBeVisible()
+    await expect(
+      page.getByRole('link', {name: 'Discuss Your Application'}),
+    ).toBeVisible()
     expect(audit.errors).toEqual([])
     expect(audit.blockedRemoteRequests).toEqual([])
     expect(runtime.serverErrorsSince(logOffset)).toEqual([])
-    mkdirSync(screenshotDirectory, {recursive: true})
-    await page.screenshot({
-      fullPage: true,
-      path: resolve(screenshotDirectory, 'agent-browser-skill-playwright-check.png'),
-    })
+    if (captureEvidence) {
+      mkdirSync(screenshotDirectory, {recursive: true})
+      await page.screenshot({
+        fullPage: true,
+        path: resolve(screenshotDirectory, 'agent-browser-skill-playwright-check.png'),
+      })
+    }
   } finally {
     await context.close()
     await browser.close()
@@ -425,14 +484,16 @@ for (const view of views) {
       expect(await actualSectionOrder(page, view)).toEqual(view.sectionOrder)
       await expect(
         root.locator('[data-editorial-section="direct-answer"]'),
-      ).toContainText(/representative|consistent/iu)
-      await expect(root.locator('[data-editorial-faq-item]')).toHaveCount(4)
+      ).toContainText(view.expectedDirectAnswer)
+      await expect(root.locator('[data-editorial-faq-item]')).toHaveCount(
+        view.faqCount,
+      )
       await expect(
         root.locator('[data-editorial-section="cta-group"] a'),
-      ).toHaveCount(1)
+      ).toHaveCount(view.ctaCount)
       await expect(
         root.locator('[data-editorial-section="technical-disclaimer"]'),
-      ).toContainText('The technical data sheet is available by request.')
+      ).toContainText('not intended as guaranteed specifications')
 
       const relationshipSections = root.locator(
         '[data-editorial-section="child-navigation"], [data-editorial-section="related-content"]',
@@ -447,17 +508,16 @@ for (const view of views) {
       )
 
       const table = root.getByRole('table', {name: 'Comparison Table'})
-      if (view.kind === 'resource') {
+      if (view.comparisonHeaders) {
         const region = root.locator(
           '[role="region"][aria-labelledby="resource-comparison-table-heading"]',
         )
         await expect(table).toBeVisible()
         await expect(region).toBeVisible()
         await expect(region).toHaveAttribute('tabindex', '0')
-        await expect(table.getByRole('columnheader')).toHaveText([
-          'Synthetic option',
-          'Observation',
-        ])
+        await expect(table.getByRole('columnheader')).toHaveText(
+          view.comparisonHeaders,
+        )
         const metrics = await region.evaluate((element) => {
           const regionElement = element as HTMLElement
           const styles = getComputedStyle(regionElement)
@@ -528,11 +588,13 @@ for (const view of views) {
       ).toBe(false)
       expect(runtime.serverErrorsSince(logOffset)).toEqual([])
 
-      mkdirSync(screenshotDirectory, {recursive: true})
-      await page.screenshot({
-        fullPage: true,
-        path: resolve(screenshotDirectory, `${view.id}-${viewport.name}.png`),
-      })
+      if (captureEvidence) {
+        mkdirSync(screenshotDirectory, {recursive: true})
+        await page.screenshot({
+          fullPage: true,
+          path: resolve(screenshotDirectory, `${view.id}-${viewport.name}.png`),
+        })
+      }
     })
   }
 }
