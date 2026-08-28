@@ -21,11 +21,8 @@ interface ApplicationPreviewPageProps {
 }
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = {
-  robots: {index: false, follow: false},
-}
 
-export default async function ApplicationPreviewPage({
+async function loadApplicationPreviewPage({
   params,
 }: ApplicationPreviewPageProps) {
   const site = getCurrentSite()
@@ -64,6 +61,24 @@ export default async function ApplicationPreviewPage({
   ) {
     notFound()
   }
+  return {application, site}
+}
+
+export async function generateMetadata(
+  props: ApplicationPreviewPageProps,
+): Promise<Metadata> {
+  const {application} = await loadApplicationPreviewPage(props)
+  return {
+    title: application.seo.title,
+    description: application.seo.description,
+    robots: {index: false, follow: false},
+  }
+}
+
+export default async function ApplicationPreviewPage(
+  props: ApplicationPreviewPageProps,
+) {
+  const {application, site} = await loadApplicationPreviewPage(props)
   return (
     <SiteShell site={site}>
       <ApplicationPageRenderer application={application} />

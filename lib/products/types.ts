@@ -5,7 +5,7 @@ export interface ProductCta {
 
 export interface ProductLink {
   title: string
-  href: string
+  href?: string
 }
 
 export interface ProductPageDto {

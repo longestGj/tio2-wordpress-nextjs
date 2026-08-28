@@ -6,6 +6,13 @@ export function applyProductPublicRoutePolicy(
   product: ProductPageDto,
   siteId: SiteId,
 ): ProductPageDto {
+  const guardedRelatedLinks = (links: ProductPageDto['relatedLinks']['applications']) =>
+    links.map(({href, ...link}) => (
+      href && isPublicRoute(siteId, href)
+        ? {...link, href}
+        : link
+    ))
+
   return {
     ...product,
     recommendedApplications: product.recommendedApplications.map(
@@ -16,12 +23,9 @@ export function applyProductPublicRoutePolicy(
       ),
     ),
     relatedLinks: {
-      applications: product.relatedLinks.applications.filter(({href}) =>
-        isPublicRoute(siteId, href)),
-      resources: product.relatedLinks.resources.filter(({href}) =>
-        isPublicRoute(siteId, href)),
-      products: product.relatedLinks.products.filter(({href}) =>
-        isPublicRoute(siteId, href)),
+      applications: guardedRelatedLinks(product.relatedLinks.applications),
+      resources: guardedRelatedLinks(product.relatedLinks.resources),
+      products: guardedRelatedLinks(product.relatedLinks.products),
     },
   }
 }

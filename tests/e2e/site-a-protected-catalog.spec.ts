@@ -88,6 +88,8 @@ interface CatalogRecord {
   readonly canonicalPath: string
   readonly ctaCount: number
   readonly expectedH1: string
+  readonly expectedMetaDescription: string
+  readonly expectedMetaTitle: string
   readonly expectedSectionOrder: readonly string[]
   readonly faqCount: number
   readonly headings: readonly string[]
@@ -220,6 +222,7 @@ const productSectionOrder = [
   'enquiry-details',
   'packaging-documents',
   'frequently-asked-questions',
+  'related-applications-and-resources',
   'final-cta',
   'technical-disclaimer',
 ] as const
@@ -229,6 +232,8 @@ const catalog: readonly CatalogRecord[] = [
     canonicalPath: record.identity.path,
     ctaCount: record.ctas.length,
     expectedH1: record.hero.headline,
+    expectedMetaDescription: record.seo.description,
+    expectedMetaTitle: record.seo.title,
     expectedSectionOrder: applicationSectionOrder(record),
     faqCount: record.faqs.length,
     headings: [
@@ -252,6 +257,8 @@ const catalog: readonly CatalogRecord[] = [
     canonicalPath: record.identity.path,
     ctaCount: record.ctas.length,
     expectedH1: record.hero.headline,
+    expectedMetaDescription: record.seo.description,
+    expectedMetaTitle: record.seo.title,
     expectedSectionOrder: resourceSectionOrder(record),
     faqCount: record.faqs.length,
     headings: [
@@ -284,6 +291,8 @@ const catalog: readonly CatalogRecord[] = [
     canonicalPath: record.path,
     ctaCount: 6,
     expectedH1: record.title,
+    expectedMetaDescription: record.metaDescription,
+    expectedMetaTitle: record.metaTitle,
     expectedSectionOrder: productSectionOrder,
     faqCount: record.faqItems.length,
     headings: [record.title, ...record.faqItems.map(({question}) => question)],
@@ -515,20 +524,20 @@ async function expectRelationships(
         recommended.locator(`a[href="${resolved.canonicalPath}"]`),
       ).toHaveCount(0)
     }
-    await expect(
-      root.locator(
-        '[data-product-section="related-applications-and-resources"]',
-      ),
-    ).toHaveCount(0)
-    for (const target of [
+    const related = root.locator(
+      '[data-product-section="related-applications-and-resources"]',
+    )
+    const relatedTargets = [
       ...product.relatedLinks.applications,
       ...product.relatedLinks.resources,
       ...product.relatedLinks.products,
-    ]) {
+    ]
+    await expect(related).toBeVisible()
+    await expect(related.locator('li')).toHaveCount(relatedTargets.length)
+    await expect(related.locator('a')).toHaveCount(0)
+    for (const target of relatedTargets) {
       const resolved = expectedTarget(target)
-      await expect(
-        root.locator(`a[href="${resolved.canonicalPath}"]`),
-      ).toHaveCount(0)
+      await expect(related).toContainText(resolved.relationshipTitle)
     }
     return
   }
@@ -546,6 +555,47 @@ async function expectRelationships(
   for (const target of record.relationships) {
     const resolved = expectedTarget(target)
     await expect(relationshipSections).toContainText(resolved.relationshipTitle)
+  }
+}
+
+async function expectMobileHeadingsAreNotClipped(
+  page: Page,
+  record: CatalogRecord,
+): Promise<void> {
+  const headings = contentRoot(page, record).locator('h1, h2, h3')
+  expect(await headings.count()).toBeGreaterThan(0)
+  for (let index = 0; index < (await headings.count()); index += 1) {
+    const heading = headings.nth(index)
+    await expect(heading).toBeVisible()
+    const metrics = await heading.evaluate((element) => {
+      const headingElement = element as HTMLElement
+      const bounds = headingElement.getBoundingClientRect()
+      const parentBounds = headingElement.parentElement?.getBoundingClientRect()
+      const styles = getComputedStyle(headingElement)
+      return {
+        bottom: bounds.bottom,
+        clientHeight: headingElement.clientHeight,
+        left: bounds.left,
+        lineClamp: styles.webkitLineClamp,
+        overflowY: styles.overflowY,
+        parentBottom: parentBounds?.bottom ?? bounds.bottom,
+        parentTop: parentBounds?.top ?? bounds.top,
+        right: bounds.right,
+        scrollHeight: headingElement.scrollHeight,
+        tagName: headingElement.tagName,
+        top: bounds.top,
+        viewportWidth: window.innerWidth,
+      }
+    })
+    expect(metrics.lineClamp).toMatch(/^(?:none|0|)$/u)
+    expect(metrics.scrollHeight).toBeLessThanOrEqual(metrics.clientHeight + 1)
+    expect(metrics.left).toBeGreaterThanOrEqual(-1)
+    expect(metrics.right).toBeLessThanOrEqual(metrics.viewportWidth + 1)
+    if (metrics.tagName === 'H1') {
+      expect(metrics.overflowY).not.toMatch(/^(?:clip|hidden)$/u)
+      expect(metrics.top).toBeGreaterThanOrEqual(metrics.parentTop - 1)
+      expect(metrics.bottom).toBeLessThanOrEqual(metrics.parentBottom + 1)
+    }
   }
 }
 
@@ -607,6 +657,11 @@ async function expectCompletePage(
   await expect(root).toBeVisible()
   await expect(page.getByRole('heading', {level: 1})).toHaveCount(1)
   await expect(page.getByRole('heading', {level: 1})).toHaveText(record.expectedH1)
+  await expect(page).toHaveTitle(record.expectedMetaTitle)
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    'content',
+    record.expectedMetaDescription,
+  )
   expect(await actualSectionOrder(page, record)).toEqual(
     record.expectedSectionOrder,
   )
@@ -645,6 +700,7 @@ async function expectCompletePage(
 
   await expectTable(page, record, mobile)
   await expectRelationships(page, record)
+  if (mobile) await expectMobileHeadingsAreNotClipped(page, record)
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
     'content',
     /noindex,\s*nofollow/iu,

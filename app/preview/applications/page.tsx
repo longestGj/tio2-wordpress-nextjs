@@ -18,9 +18,6 @@ import {CrossSiteContentError, InvalidContentPathError} from '@/lib/wordpress/ty
 const CANONICAL_PATH = '/applications'
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = {
-  robots: {index: false, follow: false},
-}
 
 function isExpectedNotFound(error: unknown): boolean {
   return (
@@ -31,7 +28,7 @@ function isExpectedNotFound(error: unknown): boolean {
   )
 }
 
-export default async function ApplicationHubPreviewPage() {
+async function loadApplicationHubPreviewPage() {
   const site = getCurrentSite()
   if (site.id !== 'tio2-a' || site.wordpressScope !== 'tio2-a') notFound()
   if (!(await hasScopedPreviewSession(site.id, CANONICAL_PATH))) notFound()
@@ -49,6 +46,20 @@ export default async function ApplicationHubPreviewPage() {
   ) {
     notFound()
   }
+  return {application, site}
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const {application} = await loadApplicationHubPreviewPage()
+  return {
+    title: application.seo.title,
+    description: application.seo.description,
+    robots: {index: false, follow: false},
+  }
+}
+
+export default async function ApplicationHubPreviewPage() {
+  const {application, site} = await loadApplicationHubPreviewPage()
   return (
     <SiteShell site={site}>
       <ApplicationPageRenderer application={application} />

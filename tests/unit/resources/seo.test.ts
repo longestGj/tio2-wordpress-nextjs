@@ -169,13 +169,13 @@ describe('Technical Resource JSON-LD', () => {
 })
 
 describe('Technical Resource preview metadata', () => {
-  it('is noindex,nofollow with no canonical metadata', async () => {
+  it('uses protected dynamic metadata without a static canonical export', async () => {
     const hub = await import('@/app/preview/resources/page')
     const article = await import('@/app/preview/resources/[slug]/page')
 
-    expect(hub.metadata).toEqual({robots: {index: false, follow: false}})
-    expect(article.metadata).toEqual({robots: {index: false, follow: false}})
-    expect(hub.metadata.alternates).toBeUndefined()
-    expect(article.metadata.alternates).toBeUndefined()
+    expect(typeof hub.generateMetadata).toBe('function')
+    expect(typeof article.generateMetadata).toBe('function')
+    expect('metadata' in hub).toBe(false)
+    expect('metadata' in article).toBe(false)
   })
 })

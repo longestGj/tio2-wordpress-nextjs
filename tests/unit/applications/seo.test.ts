@@ -211,13 +211,13 @@ describe('Application JSON-LD', () => {
 })
 
 describe('Application preview metadata', () => {
-  it('is noindex,nofollow and exposes no canonical metadata', async () => {
+  it('uses protected dynamic metadata without a static canonical export', async () => {
     const hub = await import('@/app/preview/applications/page')
     const detail = await import('@/app/preview/applications/[slug]/page')
 
-    expect(hub.metadata).toEqual({robots: {index: false, follow: false}})
-    expect(detail.metadata).toEqual({robots: {index: false, follow: false}})
-    expect(hub.metadata.alternates).toBeUndefined()
-    expect(detail.metadata.alternates).toBeUndefined()
+    expect(typeof hub.generateMetadata).toBe('function')
+    expect(typeof detail.generateMetadata).toBe('function')
+    expect('metadata' in hub).toBe(false)
+    expect('metadata' in detail).toBe(false)
   })
 })

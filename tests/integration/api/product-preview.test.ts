@@ -326,10 +326,20 @@ describe('protected Product preview page', () => {
     })
   }
 
-  it('always exports noindex and nofollow metadata', async () => {
-    const {metadata} = await import('@/app/preview/products/[slug]/page')
+  it('generates exact Product metadata while remaining noindex and noncanonical', async () => {
+    authorize()
+    const {generateMetadata} = await import('@/app/preview/products/[slug]/page')
+    const metadata = await generateMetadata({
+      params: Promise.resolve({slug: 'tp-c120'}),
+    })
 
-    expect(metadata).toEqual({robots: {index: false, follow: false}})
+    expect(metadata).toEqual({
+      title: productInput().seo.title,
+      description: productInput().seo.description,
+      robots: {index: false, follow: false},
+    })
+    expect(metadata.alternates).toBeUndefined()
+    expect(metadata.openGraph).toBeUndefined()
   })
 
   it('renders the completed Product page only for an exact canonical session', async () => {
@@ -347,7 +357,13 @@ describe('protected Product preview page', () => {
     expect(markup).toContain('TIOVAR TP-C120 protected preview')
     expect(markup).toContain('Exterior architectural coatings')
     expect(markup).not.toContain('href="/applications/exterior-architectural-coatings"')
-    expect(markup).not.toContain('data-product-section="related-applications-and-resources"')
+    expect(markup).toContain('data-product-section="related-applications-and-resources"')
+    expect(markup).toContain('<span>Coatings applications</span>')
+    expect(markup).toContain('<span>How to compare titanium dioxide grades</span>')
+    expect(markup).toContain('<span>TIOVAR TP-Z912</span>')
+    expect(markup).not.toContain('href="/applications/coatings"')
+    expect(markup).not.toContain('href="/resources/compare-titanium-dioxide-grades"')
+    expect(markup).not.toContain('href="/products/tp-z912"')
   })
 
   it('returns not-found without fetching when the cookie is scoped to another canonical Product', async () => {

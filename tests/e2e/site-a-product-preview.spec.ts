@@ -38,6 +38,7 @@ const expectedSectionOrder = [
   'enquiry-details',
   'packaging-documents',
   'frequently-asked-questions',
+  'related-applications-and-resources',
   'final-cta',
   'technical-disclaimer',
 ] as const
@@ -405,6 +406,12 @@ for (const viewport of viewports) {
     ).toBeVisible()
     await expect(
       product.locator('section[data-product-section="related-applications-and-resources"]'),
+    ).toBeVisible()
+    await expect(
+      product.locator('section[data-product-section="related-applications-and-resources"] li'),
+    ).toHaveCount(3)
+    await expect(
+      product.locator('section[data-product-section="related-applications-and-resources"] a'),
     ).toHaveCount(0)
 
     await expect(

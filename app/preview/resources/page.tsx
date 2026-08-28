@@ -18,9 +18,6 @@ import {CrossSiteContentError, InvalidContentPathError} from '@/lib/wordpress/ty
 const CANONICAL_PATH = '/resources'
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = {
-  robots: {index: false, follow: false},
-}
 
 function isExpectedNotFound(error: unknown): boolean {
   return (
@@ -31,7 +28,7 @@ function isExpectedNotFound(error: unknown): boolean {
   )
 }
 
-export default async function ResourceHubPreviewPage() {
+async function loadResourceHubPreviewPage() {
   const site = getCurrentSite()
   if (site.id !== 'tio2-a' || site.wordpressScope !== 'tio2-a') notFound()
   if (!(await hasScopedPreviewSession(site.id, CANONICAL_PATH))) notFound()
@@ -52,6 +49,20 @@ export default async function ResourceHubPreviewPage() {
   ) {
     notFound()
   }
+  return {resource, site}
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const {resource} = await loadResourceHubPreviewPage()
+  return {
+    title: resource.seo.title,
+    description: resource.seo.description,
+    robots: {index: false, follow: false},
+  }
+}
+
+export default async function ResourceHubPreviewPage() {
+  const {resource, site} = await loadResourceHubPreviewPage()
   return (
     <SiteShell site={site}>
       <TechnicalResourcePageRenderer resource={resource} />

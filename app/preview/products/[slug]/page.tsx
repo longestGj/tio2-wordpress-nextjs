@@ -19,11 +19,8 @@ interface ProductPreviewPageProps {
 }
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = {
-  robots: {index: false, follow: false},
-}
 
-export default async function ProductPreviewPage({
+async function loadProductPreviewPage({
   params,
 }: ProductPreviewPageProps) {
   const site = getCurrentSite()
@@ -55,6 +52,22 @@ export default async function ProductPreviewPage({
     throw error
   }
 
+  return {product, site}
+}
+
+export async function generateMetadata(
+  props: ProductPreviewPageProps,
+): Promise<Metadata> {
+  const {product} = await loadProductPreviewPage(props)
+  return {
+    title: product.seo.title,
+    description: product.seo.description,
+    robots: {index: false, follow: false},
+  }
+}
+
+export default async function ProductPreviewPage(props: ProductPreviewPageProps) {
+  const {product, site} = await loadProductPreviewPage(props)
   return (
     <SiteShell site={site}>
       <ProductPage product={product} />

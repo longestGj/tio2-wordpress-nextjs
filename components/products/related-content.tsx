@@ -15,8 +15,12 @@ function RelatedGroup({heading, links}: RelatedGroupProps) {
       <h3>{heading}</h3>
       <ul className={styles.linkList}>
         {links.map((link, index) => (
-          <li key={`${index}-${link.href}`}>
-            <a href={link.href}>{link.title}</a>
+          <li key={`${index}-${link.title}`}>
+            {link.href ? (
+              <a href={link.href}>{link.title}</a>
+            ) : (
+              <span>{link.title}</span>
+            )}
           </li>
         ))}
       </ul>

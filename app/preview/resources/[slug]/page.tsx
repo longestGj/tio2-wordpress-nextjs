@@ -21,11 +21,8 @@ interface ResourcePreviewPageProps {
 }
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = {
-  robots: {index: false, follow: false},
-}
 
-export default async function ResourcePreviewPage({
+async function loadResourcePreviewPage({
   params,
 }: ResourcePreviewPageProps) {
   const site = getCurrentSite()
@@ -66,6 +63,22 @@ export default async function ResourcePreviewPage({
   ) {
     notFound()
   }
+  return {resource, site}
+}
+
+export async function generateMetadata(
+  props: ResourcePreviewPageProps,
+): Promise<Metadata> {
+  const {resource} = await loadResourcePreviewPage(props)
+  return {
+    title: resource.seo.title,
+    description: resource.seo.description,
+    robots: {index: false, follow: false},
+  }
+}
+
+export default async function ResourcePreviewPage(props: ResourcePreviewPageProps) {
+  const {resource, site} = await loadResourcePreviewPage(props)
   return (
     <SiteShell site={site}>
       <TechnicalResourcePageRenderer resource={resource} />
