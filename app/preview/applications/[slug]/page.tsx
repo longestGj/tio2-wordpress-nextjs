@@ -1,5 +1,6 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
+import {cache} from 'react'
 
 import {
   ApplicationPageRenderer,
@@ -22,11 +23,8 @@ interface ApplicationPreviewPageProps {
 
 export const dynamic = 'force-dynamic'
 
-async function loadApplicationPreviewPage({
-  params,
-}: ApplicationPreviewPageProps) {
+const loadApplicationPreviewPage = cache(async (slug: string) => {
   const site = getCurrentSite()
-  const {slug} = await params
   const identity = SITE_A_APPLICATION_IDENTITIES.find(
     (candidate) => candidate[1] === slug && candidate[3] !== 'hub',
   )
@@ -62,12 +60,13 @@ async function loadApplicationPreviewPage({
     notFound()
   }
   return {application, site}
-}
+})
 
 export async function generateMetadata(
   props: ApplicationPreviewPageProps,
 ): Promise<Metadata> {
-  const {application} = await loadApplicationPreviewPage(props)
+  const {slug} = await props.params
+  const {application} = await loadApplicationPreviewPage(slug)
   return {
     title: application.seo.title,
     description: application.seo.description,
@@ -78,7 +77,8 @@ export async function generateMetadata(
 export default async function ApplicationPreviewPage(
   props: ApplicationPreviewPageProps,
 ) {
-  const {application, site} = await loadApplicationPreviewPage(props)
+  const {slug} = await props.params
+  const {application, site} = await loadApplicationPreviewPage(slug)
   return (
     <SiteShell site={site}>
       <ApplicationPageRenderer application={application} />

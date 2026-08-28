@@ -1,5 +1,6 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
+import {cache} from 'react'
 
 import {
   ApplicationPageRenderer,
@@ -28,7 +29,7 @@ function isExpectedNotFound(error: unknown): boolean {
   )
 }
 
-async function loadApplicationHubPreviewPage() {
+const loadApplicationHubPreviewPage = cache(async () => {
   const site = getCurrentSite()
   if (site.id !== 'tio2-a' || site.wordpressScope !== 'tio2-a') notFound()
   if (!(await hasScopedPreviewSession(site.id, CANONICAL_PATH))) notFound()
@@ -47,7 +48,7 @@ async function loadApplicationHubPreviewPage() {
     notFound()
   }
   return {application, site}
-}
+})
 
 export async function generateMetadata(): Promise<Metadata> {
   const {application} = await loadApplicationHubPreviewPage()

@@ -1,5 +1,6 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
+import {cache} from 'react'
 
 import {ProductPage} from '@/components/products/product-page'
 import {SiteShell} from '@/components/site-shell'
@@ -20,11 +21,8 @@ interface ProductPreviewPageProps {
 
 export const dynamic = 'force-dynamic'
 
-async function loadProductPreviewPage({
-  params,
-}: ProductPreviewPageProps) {
+const loadProductPreviewPage = cache(async (slug: string) => {
   const site = getCurrentSite()
-  const {slug} = await params
   if (
     site.id !== 'tio2-a' ||
     site.wordpressScope !== 'tio2-a' ||
@@ -53,12 +51,13 @@ async function loadProductPreviewPage({
   }
 
   return {product, site}
-}
+})
 
 export async function generateMetadata(
   props: ProductPreviewPageProps,
 ): Promise<Metadata> {
-  const {product} = await loadProductPreviewPage(props)
+  const {slug} = await props.params
+  const {product} = await loadProductPreviewPage(slug)
   return {
     title: product.seo.title,
     description: product.seo.description,
@@ -67,7 +66,8 @@ export async function generateMetadata(
 }
 
 export default async function ProductPreviewPage(props: ProductPreviewPageProps) {
-  const {product, site} = await loadProductPreviewPage(props)
+  const {slug} = await props.params
+  const {product, site} = await loadProductPreviewPage(slug)
   return (
     <SiteShell site={site}>
       <ProductPage product={product} />

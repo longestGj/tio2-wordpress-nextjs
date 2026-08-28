@@ -1,5 +1,6 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
+import {cache} from 'react'
 
 import {
   isValidatedTechnicalResourcePageDto,
@@ -28,7 +29,7 @@ function isExpectedNotFound(error: unknown): boolean {
   )
 }
 
-async function loadResourceHubPreviewPage() {
+const loadResourceHubPreviewPage = cache(async () => {
   const site = getCurrentSite()
   if (site.id !== 'tio2-a' || site.wordpressScope !== 'tio2-a') notFound()
   if (!(await hasScopedPreviewSession(site.id, CANONICAL_PATH))) notFound()
@@ -50,7 +51,7 @@ async function loadResourceHubPreviewPage() {
     notFound()
   }
   return {resource, site}
-}
+})
 
 export async function generateMetadata(): Promise<Metadata> {
   const {resource} = await loadResourceHubPreviewPage()

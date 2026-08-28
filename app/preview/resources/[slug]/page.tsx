@@ -1,5 +1,6 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
+import {cache} from 'react'
 
 import {
   isValidatedTechnicalResourcePageDto,
@@ -22,11 +23,8 @@ interface ResourcePreviewPageProps {
 
 export const dynamic = 'force-dynamic'
 
-async function loadResourcePreviewPage({
-  params,
-}: ResourcePreviewPageProps) {
+const loadResourcePreviewPage = cache(async (slug: string) => {
   const site = getCurrentSite()
-  const {slug} = await params
   const identity = SITE_A_RESOURCE_IDENTITIES.find(
     (candidate) => candidate[1] === slug && candidate[3] === 'article',
   )
@@ -64,12 +62,13 @@ async function loadResourcePreviewPage({
     notFound()
   }
   return {resource, site}
-}
+})
 
 export async function generateMetadata(
   props: ResourcePreviewPageProps,
 ): Promise<Metadata> {
-  const {resource} = await loadResourcePreviewPage(props)
+  const {slug} = await props.params
+  const {resource} = await loadResourcePreviewPage(slug)
   return {
     title: resource.seo.title,
     description: resource.seo.description,
@@ -78,7 +77,8 @@ export async function generateMetadata(
 }
 
 export default async function ResourcePreviewPage(props: ResourcePreviewPageProps) {
-  const {resource, site} = await loadResourcePreviewPage(props)
+  const {slug} = await props.params
+  const {resource, site} = await loadResourcePreviewPage(slug)
   return (
     <SiteShell site={site}>
       <TechnicalResourcePageRenderer resource={resource} />
