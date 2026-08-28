@@ -475,7 +475,11 @@ function tio2_serialize_product_preview(WP_Post $product): array|WP_Error
         if (! is_array($field) || empty($field['name'])) {
             continue;
         }
-        $product_values[(string) $field['name']] = get_field((string) $field['name'], $product->ID, false);
+        $field_name = (string) $field['name'];
+        $product_values[$field_name] = tio2_product_contract_field_value(
+            $field_name,
+            $product->ID
+        );
     }
 
     $shared_values = [];

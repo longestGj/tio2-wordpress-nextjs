@@ -47,6 +47,24 @@ function tio2_product_contract_has_value($value): bool
     return null !== $value && false !== $value;
 }
 
+function tio2_product_contract_field_value(string $field_name, $post_id)
+{
+    $value = get_field($field_name, $post_id, false);
+    if (
+        'family' !== $field_name ||
+        ! is_int($post_id) ||
+        $post_id <= 0 ||
+        tio2_product_contract_has_value($value)
+    ) {
+        return $value;
+    }
+
+    $family_ids = wp_get_object_terms($post_id, 'product_family', ['fields' => 'ids']);
+    return ! is_wp_error($family_ids) && 1 === count($family_ids)
+        ? (int) $family_ids[0]
+        : $value;
+}
+
 function tio2_product_contains_private_document_location($value): bool
 {
     if (is_string($value)) {
@@ -177,7 +195,7 @@ function tio2_validate_product_field_definitions(array $definitions, $post_id): 
         if ('' === $field_name) {
             continue;
         }
-        $value = get_field($field_name, $post_id, false);
+        $value = tio2_product_contract_field_value($field_name, $post_id);
         $validation = tio2_validate_product_field_definition($field, $value);
         if (is_wp_error($validation)) {
             return $validation;
