@@ -46,6 +46,19 @@ function ConvertTo-LocalEditorialDeferredProductEdgeTuples {
     return $Tuples.ToArray()
 }
 
+function Compare-LocalEditorialDeferredProductEdgeTuple {
+    param(
+        [Parameter(Mandatory = $true)][object] $Left,
+        [Parameter(Mandatory = $true)][object] $Right
+    )
+
+    foreach ($Property in @('sourceType', 'sourceId', 'field', 'targetProductId')) {
+        $Comparison = [System.String]::CompareOrdinal([string] $Left.$Property, [string] $Right.$Property)
+        if (0 -ne $Comparison) { return $Comparison }
+    }
+    return 0
+}
+
 function Get-LocalEditorialExpectedDeferredProductEdges {
     param(
         [Parameter(Mandatory = $true)][ValidateSet('Strict', 'DeferredProductRelations')][string] $RelationshipMode,
@@ -73,7 +86,13 @@ function Get-LocalEditorialExpectedDeferredProductEdges {
             }
         }
     }
-    return @($Edges.ToArray() | Sort-Object sourceType, sourceId, field, targetProductId)
+    $SortedEdges = [System.Collections.Generic.List[object]]::new()
+    foreach ($Edge in $Edges) { $SortedEdges.Add($Edge) }
+    $SortedEdges.Sort([System.Comparison[object]]{
+        param($Left, $Right)
+        return Compare-LocalEditorialDeferredProductEdgeTuple -Left $Left -Right $Right
+    })
+    return $SortedEdges.ToArray()
 }
 
 function Get-LocalEditorialDeferredProductEdgesSha256 {

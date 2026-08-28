@@ -88,7 +88,7 @@ function runWrapperWithManifestPath(wrapperPath: string, unsafePath: string) {
   }
 }
 
-type WrapperScenario = 'valid' | 'no-marker' | 'duplicate-marker' | 'malformed-marker' | 'null-marker' | 'wrong-shape' | 'docker-failure' | 'docker-throw' | 'edge-missing' | 'edge-extra' | 'edge-substituted' | 'edge-reordered'
+type WrapperScenario = 'valid' | 'no-marker' | 'duplicate-marker' | 'malformed-marker' | 'null-marker' | 'wrong-shape' | 'docker-failure' | 'docker-throw' | 'edge-missing' | 'edge-extra' | 'edge-substituted' | 'edge-reordered' | 'edge-hash-mismatch'
 
 function runWrapperWithControlledDocker(wrapperPath: string, scenario: WrapperScenario, applicationsManifestPath = 'tests/fixtures/editorial/site-a-applications.synthetic.json', relationshipMode = 'DeferredProductRelations') {
   const directory = mkdtempSync(join(tmpdir(), 'tio2-editorial-docker-boundary-'))
@@ -110,16 +110,19 @@ function runWrapperWithControlledDocker(wrapperPath: string, scenario: WrapperSc
     "}",
     "const canonicalHash = (edges) => createHash('sha256').update(JSON.stringify(edges.map((edge) => ({field: edge.field, sourceId: edge.sourceId, sourceType: edge.sourceType, targetProductId: edge.targetProductId})))).digest('hex')",
     "const staged = (path) => JSON.parse(readFileSync(join(process.cwd(), 'wordpress', 'seed', basename(path)), 'utf8'))",
+    "const compareOrdinal = (left, right) => Buffer.compare(Buffer.from(String(left), 'utf8'), Buffer.from(String(right), 'utf8'))",
+    "const compareTuple = (left, right) => ['sourceType', 'sourceId', 'field', 'targetProductId'].map((key) => compareOrdinal(left[key], right[key])).find((value) => value !== 0) ?? 0",
     "const expectedEdges = [",
     "  ...staged(capability.applicationsPath).records.flatMap((record) => (record.relationships ?? []).filter((target) => target.type === 'product').map((target) => ({sourceType: 'application', sourceId: record.identity.id, field: 'relationships', targetProductId: target.id}))),",
     "  ...staged(capability.resourcesPath).records.flatMap((record) => (record.relationships ?? []).filter((target) => target.type === 'product').map((target) => ({sourceType: 'resource', sourceId: record.identity.id, field: 'relationships', targetProductId: target.id}))),",
-    "].sort((left, right) => ['sourceType', 'sourceId', 'field', 'targetProductId'].map((key) => String(left[key]).localeCompare(String(right[key]))).find((value) => value !== 0) ?? 0)",
+    "].sort(compareTuple)",
     "let deferredProductEdges = capability.relationshipMode === 'Strict' ? [] : expectedEdges",
     "if (process.env.TIO2_WRAPPER_SCENARIO === 'edge-missing') deferredProductEdges = expectedEdges.slice(1)",
     "if (process.env.TIO2_WRAPPER_SCENARIO === 'edge-extra') deferredProductEdges = [...expectedEdges, expectedEdges[0]]",
     "if (process.env.TIO2_WRAPPER_SCENARIO === 'edge-substituted') deferredProductEdges = expectedEdges.map((edge, index) => index === 0 ? {...edge, targetProductId: 'TP-U100'} : edge)",
     "if (process.env.TIO2_WRAPPER_SCENARIO === 'edge-reordered') deferredProductEdges = [...expectedEdges].reverse()",
     "const audit = {version: 1, relationshipMode: capability.relationshipMode, manifestSha256: {applications: capability.applicationsSha256, resources: capability.resourcesSha256, products: capability.productsSha256}, recordCount: 39, applicationCount: 28, resourceCount: 11, deferredProductEdges, records: Array.from({length: 39}, (_, index) => ({id: 'synthetic-' + index})), applicationSha256: 'sha256:' + 'b'.repeat(64), resourceSha256: 'sha256:' + 'c'.repeat(64), readbackSha256: 'sha256:' + 'd'.repeat(64), deferredProductEdgesSha256: 'sha256:' + canonicalHash(deferredProductEdges), siteBInvariantSha256: 'sha256:' + 'f'.repeat(64)}",
+    "if (process.env.TIO2_WRAPPER_SCENARIO === 'edge-hash-mismatch') audit.deferredProductEdgesSha256 = 'sha256:' + '0'.repeat(64)",
     "const marker = 'TIO2_SITE_A_EDITORIAL_AUDIT_RESULT '",
     "switch (process.env.TIO2_WRAPPER_SCENARIO) {",
     "  case 'no-marker': console.log('audit completed without a result'); break",
@@ -305,10 +308,40 @@ describe('local Site A editorial draft wrapper contract', () => {
         expect(result.outcome?.caught).toContain('deferred Product edges')
         expect(result.outcome?.restored).toBe('sentinel-before-wrapper')
       }
+
+      const hashMismatch = runWrapperWithControlledDocker(auditWrapperPath, 'edge-hash-mismatch', applicationsPath)
+      expect(hashMismatch.result.status, `${hashMismatch.result.stdout}\n${hashMismatch.result.stderr}`).toBe(0)
+      expect(hashMismatch.outcome?.caught).toContain('deferred Product edge hashes')
+      expect(hashMismatch.outcome?.restored).toBe('sentinel-before-wrapper')
     } finally {
       rmSync(directory, {recursive: true, force: true})
     }
   }, 60_000)
+
+  it('uses binary ordinal tuple ordering even when the current culture orders the same strings differently', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'tio2-editorial-ordinal-edge-sort-'))
+    const scriptPath = join(directory, 'ordinal-edge-sort.ps1')
+    const source = readFileSync(auditWrapperPath, 'utf8')
+    const functions = source.slice(source.indexOf('function ConvertTo-LocalEditorialDeferredProductEdgeTuples'), source.indexOf('$ApplicationsManifestPath ='))
+    writeFileSync(scriptPath, [
+      functions,
+      "$de = [System.Globalization.CultureInfo]::GetCultureInfo('de-DE')",
+      '[System.Threading.Thread]::CurrentThread.CurrentCulture = $de',
+      "$umlautA = ([string] [char] 0x00e4) + 'a'",
+      "if ([string]::Compare($umlautA, 'za', $de, [System.Globalization.CompareOptions]::None) -ge 0) { throw 'The test culture did not differ from binary ordinal order.' }",
+      "$edges = @([pscustomobject] [ordered]@{ sourceType = 'application'; sourceId = $umlautA; field = 'relationships'; targetProductId = 'TP-P100' }, [pscustomobject] [ordered]@{ sourceType = 'application'; sourceId = 'za'; field = 'relationships'; targetProductId = 'TP-P100' })",
+      '$sorted = [System.Collections.Generic.List[object]]::new(); foreach ($edge in $edges) { $sorted.Add($edge) }',
+      '$sorted.Sort([System.Comparison[object]]{ param($left, $right) Compare-LocalEditorialDeferredProductEdgeTuple -Left $left -Right $right })',
+      '@($sorted | ForEach-Object { [int] [char] $_.sourceId[0] }) | ConvertTo-Json -Compress',
+    ].join('\n'))
+    try {
+      const result = spawnSync('pwsh', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', scriptPath], {encoding: 'utf8'})
+      expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+      expect(JSON.parse(result.stdout.trim())).toEqual([122, 228])
+    } finally {
+      rmSync(directory, {recursive: true, force: true})
+    }
+  })
 
   it.skipIf(!existsSync(productManifestPath))('rejects UNC, device, and provider manifest paths before either wrapper stages or reads them', () => {
     const localFixture = resolve('tests/fixtures/editorial/site-a-applications.synthetic.json')

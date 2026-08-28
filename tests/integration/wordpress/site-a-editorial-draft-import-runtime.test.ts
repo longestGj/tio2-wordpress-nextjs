@@ -121,16 +121,16 @@ $operations = [
 $GLOBALS['controlled_store'] = &$store;
 $GLOBALS['transaction_snapshot'] = &$transaction_snapshot;
 
-$canonical_hashes = [
-    'applications' => hash('sha256', json_encode($canonical_applications, JSON_THROW_ON_ERROR)),
-    'resources' => $hashes['resources'],
-    'products' => $hashes['products'],
-];
-$canonical_plan = tio2_site_a_editorial_draft_execute('plan', 'DeferredProductRelations', $canonical_applications, $resources, $products, $canonical_hashes, null, $operations);
-$permuted_plan = tio2_site_a_editorial_draft_execute('plan', 'DeferredProductRelations', $applications, $resources, $products, $canonical_hashes, null, $operations);
+$fixed_hashes = ['applications' => str_repeat('a', 64), 'resources' => str_repeat('b', 64), 'products' => str_repeat('c', 64)];
+$canonical_plan = tio2_site_a_editorial_draft_execute('plan', 'DeferredProductRelations', $canonical_applications, $resources, $products, $fixed_hashes, null, $operations);
+$permuted_plan = tio2_site_a_editorial_draft_execute('plan', 'DeferredProductRelations', $applications, $resources, $products, $fixed_hashes, null, $operations);
 $inventory_order = array_keys(TIO2_SITE_A_EDITORIAL_APPLICATION_INVENTORY);
 $permuted_application_actions = array_values(array_filter($permuted_plan['actions'], static fn(array $action): bool => 'application' === $action['entityType']));
-if ($canonical_plan['planSha256'] !== $permuted_plan['planSha256'] || $canonical_plan['actions'] !== $permuted_plan['actions'] || $inventory_order !== array_column($permuted_application_actions, 'id')) throw new RuntimeException('Permuted exact Application manifest was not canonicalized to the inventory plan.');
+if ($canonical_plan['planSha256'] !== $permuted_plan['planSha256'] || $canonical_plan['actions'] !== $permuted_plan['actions'] || $inventory_order !== array_column($permuted_application_actions, 'id')) throw new RuntimeException('Permuted exact Application manifest was not canonicalized to the inventory plan under an explicitly fixed hash context.');
+$canonical_raw_hashes = ['applications' => hash('sha256', json_encode($canonical_applications, JSON_THROW_ON_ERROR)), 'resources' => $hashes['resources'], 'products' => $hashes['products']];
+$canonical_raw_plan = tio2_site_a_editorial_draft_execute('plan', 'DeferredProductRelations', $canonical_applications, $resources, $products, $canonical_raw_hashes, null, $operations);
+$permuted_raw_plan = tio2_site_a_editorial_draft_execute('plan', 'DeferredProductRelations', $applications, $resources, $products, $hashes, null, $operations);
+if ($canonical_raw_hashes['applications'] === $hashes['applications'] || $canonical_raw_plan['manifestSha256']['applications'] !== $canonical_raw_hashes['applications'] || $permuted_raw_plan['manifestSha256']['applications'] !== $hashes['applications'] || $canonical_raw_plan['actions'] !== $permuted_raw_plan['actions'] || $canonical_raw_plan['planSha256'] === $permuted_raw_plan['planSha256']) throw new RuntimeException('Production-like raw manifest hash binding did not preserve byte snapshots while canonicalizing actions.');
 
 $before_plan = $store;
 $plan = tio2_site_a_editorial_draft_execute('plan', 'DeferredProductRelations', $applications, $resources, $products, $hashes, null, $operations);
