@@ -20,13 +20,88 @@ $ExporterPath = Join-Path $SeedDirectory 'export-site-a-editorial-audit.php'
 foreach ($RequiredFile in @($EnvironmentFile, $ComposeFile, $ExporterPath)) { if (-not (Test-Path -LiteralPath $RequiredFile -PathType Leaf)) { throw "Missing required local editorial audit file: $RequiredFile" } }
 & (Join-Path $PSScriptRoot 'assert-local-wordpress-env.ps1') -EnvironmentPath $EnvironmentFile | Out-Null
 
+function ConvertTo-LocalEditorialDeferredProductEdgeTuples {
+    param([AllowNull()][AllowEmptyCollection()][object[]] $Edges)
+
+    if ($null -eq $Edges) { $Edges = @() }
+    $Tuples = [System.Collections.Generic.List[object]]::new()
+    foreach ($Edge in $Edges) {
+        $ExpectedKeys = @('field', 'sourceId', 'sourceType', 'targetProductId')
+        $ActualKeys = if ($null -eq $Edge) { @() } else { @($Edge.PSObject.Properties.Name) | Sort-Object }
+        if (Compare-Object -ReferenceObject $ExpectedKeys -DifferenceObject $ActualKeys) {
+            throw 'Local Site A editorial audit deferred Product edges contain an invalid tuple shape.'
+        }
+        foreach ($Property in $ExpectedKeys) {
+            if ([string]::IsNullOrWhiteSpace([string] $Edge.$Property)) {
+                throw 'Local Site A editorial audit deferred Product edges contain an invalid tuple value.'
+            }
+        }
+        $Tuples.Add([pscustomobject] [ordered]@{
+            sourceType = [string] $Edge.sourceType
+            sourceId = [string] $Edge.sourceId
+            field = [string] $Edge.field
+            targetProductId = [string] $Edge.targetProductId
+        })
+    }
+    return $Tuples.ToArray()
+}
+
+function Get-LocalEditorialExpectedDeferredProductEdges {
+    param(
+        [Parameter(Mandatory = $true)][ValidateSet('Strict', 'DeferredProductRelations')][string] $RelationshipMode,
+        [Parameter(Mandatory = $true)][string] $ApplicationsPath,
+        [Parameter(Mandatory = $true)][string] $ResourcesPath
+    )
+
+    if ('Strict' -eq $RelationshipMode) { return @() }
+    $Edges = [System.Collections.Generic.List[object]]::new()
+    foreach ($Source in @(
+        [pscustomobject]@{ Type = 'application'; Path = $ApplicationsPath },
+        [pscustomobject]@{ Type = 'resource'; Path = $ResourcesPath }
+    )) {
+        $Manifest = Get-Content -LiteralPath $Source.Path -Raw | ConvertFrom-Json -ErrorAction Stop
+        foreach ($Record in @($Manifest.records)) {
+            foreach ($Target in @($Record.relationships)) {
+                if ('product' -eq [string] $Target.type) {
+                    $Edges.Add([pscustomobject] [ordered]@{
+                        sourceType = [string] $Source.Type
+                        sourceId = [string] $Record.identity.id
+                        field = 'relationships'
+                        targetProductId = [string] $Target.id
+                    })
+                }
+            }
+        }
+    }
+    return @($Edges.ToArray() | Sort-Object sourceType, sourceId, field, targetProductId)
+}
+
+function Get-LocalEditorialDeferredProductEdgesSha256 {
+    param([AllowNull()][AllowEmptyCollection()][object[]] $Edges)
+
+    if ($null -eq $Edges) { $Edges = @() }
+    $CanonicalEdges = @(ConvertTo-LocalEditorialDeferredProductEdgeTuples -Edges $Edges)
+    $HashEdges = @($CanonicalEdges | ForEach-Object {
+        [pscustomobject] [ordered]@{
+            field = $_.field
+            sourceId = $_.sourceId
+            sourceType = $_.sourceType
+            targetProductId = $_.targetProductId
+        }
+    })
+    $CanonicalJson = ConvertTo-Json -InputObject ([object[]] $HashEdges) -Compress -Depth 4
+    $Bytes = [System.Text.UTF8Encoding]::new($false).GetBytes($CanonicalJson)
+    return 'sha256:' + [System.Convert]::ToHexString([System.Security.Cryptography.SHA256]::HashData($Bytes)).ToLowerInvariant()
+}
+
 function Assert-LocalEditorialAuditResult {
     param(
         [Parameter(Mandatory = $true)][AllowNull()][object] $Result,
         [Parameter(Mandatory = $true)][string] $ExpectedRelationshipMode,
         [Parameter(Mandatory = $true)][string] $ExpectedApplicationsSha256,
         [Parameter(Mandatory = $true)][string] $ExpectedResourcesSha256,
-        [Parameter(Mandatory = $true)][string] $ExpectedProductsSha256
+        [Parameter(Mandatory = $true)][string] $ExpectedProductsSha256,
+        [AllowNull()][AllowEmptyCollection()][object[]] $ExpectedDeferredProductEdges
     )
 
     $ExpectedKeys = @(
@@ -45,7 +120,6 @@ function Assert-LocalEditorialAuditResult {
         ($Result.recordCount -is [int] -or $Result.recordCount -is [long]) -and
         ($Result.applicationCount -is [int] -or $Result.applicationCount -is [long]) -and
         ($Result.resourceCount -is [int] -or $Result.resourceCount -is [long])
-    $ExpectedDeferredCount = if ('Strict' -eq $ExpectedRelationshipMode) { 0 } else { 39 }
     $HashProperties = @('applicationSha256', 'resourceSha256', 'readbackSha256', 'deferredProductEdgesSha256', 'siteBInvariantSha256')
     $HasValidHashes = $true
     foreach ($Property in $HashProperties) {
@@ -55,6 +129,18 @@ function Assert-LocalEditorialAuditResult {
         [string] $Result.manifestSha256.applications -ceq $ExpectedApplicationsSha256 -and
         [string] $Result.manifestSha256.resources -ceq $ExpectedResourcesSha256 -and
         [string] $Result.manifestSha256.products -ceq $ExpectedProductsSha256
+    $ExpectedDeferredEdges = @(ConvertTo-LocalEditorialDeferredProductEdgeTuples -Edges $ExpectedDeferredProductEdges)
+    $ActualDeferredEdges = @(if ($Result.deferredProductEdges -is [System.Array]) { @(ConvertTo-LocalEditorialDeferredProductEdgeTuples -Edges @($Result.deferredProductEdges)) } else { @() })
+    $ExpectedDeferredEdgesJson = ConvertTo-Json -InputObject ([object[]] $ExpectedDeferredEdges) -Compress -Depth 4
+    $ActualDeferredEdgesJson = ConvertTo-Json -InputObject ([object[]] $ActualDeferredEdges) -Compress -Depth 4
+    $ExpectedDeferredEdgesSha256 = Get-LocalEditorialDeferredProductEdgesSha256 -Edges $ExpectedDeferredEdges
+    $ActualDeferredEdgesSha256 = if ($Result.deferredProductEdges -is [System.Array]) { Get-LocalEditorialDeferredProductEdgesSha256 -Edges $ActualDeferredEdges } else { $null }
+    if ($Result.deferredProductEdges -is [System.Array] -and $ExpectedDeferredEdgesJson -cne $ActualDeferredEdgesJson) {
+        throw "Local Site A editorial audit deferred Product edges do not exactly match the staged manifests (expected $ExpectedDeferredEdgesJson; result $ActualDeferredEdgesJson)."
+    }
+    if ($Result.deferredProductEdges -is [System.Array] -and ([string] $Result.deferredProductEdgesSha256 -cne $ExpectedDeferredEdgesSha256 -or $ActualDeferredEdgesSha256 -cne $ExpectedDeferredEdgesSha256)) {
+        throw "Local Site A editorial audit deferred Product edge hashes do not exactly match the staged manifests (expected $ExpectedDeferredEdgesSha256; result $($Result.deferredProductEdgesSha256); readback $ActualDeferredEdgesSha256)."
+    }
 
     if (
         1 -ne $Result.version -or
@@ -66,7 +152,9 @@ function Assert-LocalEditorialAuditResult {
         $Result.records -isnot [System.Array] -or
         39 -ne @($Result.records).Count -or
         $Result.deferredProductEdges -isnot [System.Array] -or
-        $ExpectedDeferredCount -ne @($Result.deferredProductEdges).Count -or
+        $ExpectedDeferredEdgesJson -cne $ActualDeferredEdgesJson -or
+        [string] $Result.deferredProductEdgesSha256 -cne $ExpectedDeferredEdgesSha256 -or
+        $ActualDeferredEdgesSha256 -cne $ExpectedDeferredEdgesSha256 -or
         -not $HasValidHashes -or
         -not $HasExpectedManifestHashes
     ) {
@@ -105,6 +193,7 @@ try {
     & node (Join-Path $RepositoryRoot 'scripts/editorial/validate-site-a-resources.mjs') $RuntimeResourcesPath; if ($LASTEXITCODE -ne 0) { throw 'The staged Resource audit manifest failed validation.' }
     & node (Join-Path $RepositoryRoot 'scripts/products/validate-product-manifest.mjs') $RuntimeProductsPath; if ($LASTEXITCODE -ne 0) { throw 'The staged Product audit manifest failed validation.' }
     & node (Join-Path $RepositoryRoot 'scripts/editorial/validate-site-a-content-graph.mjs') --applications $RuntimeApplicationsPath --resources $RuntimeResourcesPath --products $RuntimeProductsPath; if ($LASTEXITCODE -ne 0) { throw 'The staged editorial audit graph failed validation.' }
+    $ExpectedDeferredProductEdges = @(Get-LocalEditorialExpectedDeferredProductEdges -RelationshipMode $RelationshipMode -ApplicationsPath $RuntimeApplicationsPath -ResourcesPath $RuntimeResourcesPath)
     $TokenBytes = New-Object byte[] 32
     $Generator = [System.Security.Cryptography.RandomNumberGenerator]::Create()
     try { $Generator.GetBytes($TokenBytes) } finally { $Generator.Dispose() }
@@ -133,7 +222,7 @@ try {
     catch {
         throw 'Local Site A editorial audit did not return valid JSON after its deterministic result marker.'
     }
-    Assert-LocalEditorialAuditResult -Result $AuditResult -ExpectedRelationshipMode $RelationshipMode -ExpectedApplicationsSha256 $ApplicationsSha256 -ExpectedResourcesSha256 $ResourcesSha256 -ExpectedProductsSha256 $ProductsSha256
+    Assert-LocalEditorialAuditResult -Result $AuditResult -ExpectedRelationshipMode $RelationshipMode -ExpectedApplicationsSha256 $ApplicationsSha256 -ExpectedResourcesSha256 $ResourcesSha256 -ExpectedProductsSha256 $ProductsSha256 -ExpectedDeferredProductEdges $ExpectedDeferredProductEdges
 }
 catch { $OperationError = $_.Exception }
 finally {

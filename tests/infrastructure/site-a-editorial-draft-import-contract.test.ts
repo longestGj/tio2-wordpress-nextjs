@@ -88,15 +88,16 @@ function runWrapperWithManifestPath(wrapperPath: string, unsafePath: string) {
   }
 }
 
-type WrapperScenario = 'valid' | 'no-marker' | 'duplicate-marker' | 'malformed-marker' | 'null-marker' | 'wrong-shape' | 'docker-failure' | 'docker-throw'
+type WrapperScenario = 'valid' | 'no-marker' | 'duplicate-marker' | 'malformed-marker' | 'null-marker' | 'wrong-shape' | 'docker-failure' | 'docker-throw' | 'edge-missing' | 'edge-extra' | 'edge-substituted' | 'edge-reordered'
 
-function runWrapperWithControlledDocker(wrapperPath: string, scenario: WrapperScenario) {
+function runWrapperWithControlledDocker(wrapperPath: string, scenario: WrapperScenario, applicationsManifestPath = 'tests/fixtures/editorial/site-a-applications.synthetic.json', relationshipMode = 'DeferredProductRelations') {
   const directory = mkdtempSync(join(tmpdir(), 'tio2-editorial-docker-boundary-'))
   const capturePath = join(directory, 'docker.jsonl')
   const outcomePath = join(directory, 'outcome.json')
   const fakeDockerPath = join(directory, 'fake-docker.mjs')
   writeFileSync(fakeDockerPath, [
     "import {appendFileSync, readFileSync} from 'node:fs'",
+    "import {createHash} from 'node:crypto'",
     "import {basename, join} from 'node:path'",
     "const args = process.argv.slice(2)",
     "const capability = JSON.parse(readFileSync(join(process.cwd(), 'wordpress', 'seed', basename(args.at(-1))), 'utf8'))",
@@ -107,7 +108,18 @@ function runWrapperWithControlledDocker(wrapperPath: string, scenario: WrapperSc
     "  console.log('TIO2_SITE_A_EDITORIAL_DRAFT_RESULT ' + JSON.stringify({mode: capability.mode, planSha256: 'a'.repeat(64), actions: [], deferredProductEdges: []}))",
     "  process.exit(0)",
     "}",
-    "const audit = {version: 1, relationshipMode: capability.relationshipMode, manifestSha256: {applications: capability.applicationsSha256, resources: capability.resourcesSha256, products: capability.productsSha256}, recordCount: 39, applicationCount: 28, resourceCount: 11, deferredProductEdges: Array.from({length: capability.relationshipMode === 'Strict' ? 0 : 39}, (_, index) => ({sourceId: 'synthetic-' + index})), records: Array.from({length: 39}, (_, index) => ({id: 'synthetic-' + index})), applicationSha256: 'sha256:' + 'b'.repeat(64), resourceSha256: 'sha256:' + 'c'.repeat(64), readbackSha256: 'sha256:' + 'd'.repeat(64), deferredProductEdgesSha256: 'sha256:' + 'e'.repeat(64), siteBInvariantSha256: 'sha256:' + 'f'.repeat(64)}",
+    "const canonicalHash = (edges) => createHash('sha256').update(JSON.stringify(edges.map((edge) => ({field: edge.field, sourceId: edge.sourceId, sourceType: edge.sourceType, targetProductId: edge.targetProductId})))).digest('hex')",
+    "const staged = (path) => JSON.parse(readFileSync(join(process.cwd(), 'wordpress', 'seed', basename(path)), 'utf8'))",
+    "const expectedEdges = [",
+    "  ...staged(capability.applicationsPath).records.flatMap((record) => (record.relationships ?? []).filter((target) => target.type === 'product').map((target) => ({sourceType: 'application', sourceId: record.identity.id, field: 'relationships', targetProductId: target.id}))),",
+    "  ...staged(capability.resourcesPath).records.flatMap((record) => (record.relationships ?? []).filter((target) => target.type === 'product').map((target) => ({sourceType: 'resource', sourceId: record.identity.id, field: 'relationships', targetProductId: target.id}))),",
+    "].sort((left, right) => ['sourceType', 'sourceId', 'field', 'targetProductId'].map((key) => String(left[key]).localeCompare(String(right[key]))).find((value) => value !== 0) ?? 0)",
+    "let deferredProductEdges = capability.relationshipMode === 'Strict' ? [] : expectedEdges",
+    "if (process.env.TIO2_WRAPPER_SCENARIO === 'edge-missing') deferredProductEdges = expectedEdges.slice(1)",
+    "if (process.env.TIO2_WRAPPER_SCENARIO === 'edge-extra') deferredProductEdges = [...expectedEdges, expectedEdges[0]]",
+    "if (process.env.TIO2_WRAPPER_SCENARIO === 'edge-substituted') deferredProductEdges = expectedEdges.map((edge, index) => index === 0 ? {...edge, targetProductId: 'TP-U100'} : edge)",
+    "if (process.env.TIO2_WRAPPER_SCENARIO === 'edge-reordered') deferredProductEdges = [...expectedEdges].reverse()",
+    "const audit = {version: 1, relationshipMode: capability.relationshipMode, manifestSha256: {applications: capability.applicationsSha256, resources: capability.resourcesSha256, products: capability.productsSha256}, recordCount: 39, applicationCount: 28, resourceCount: 11, deferredProductEdges, records: Array.from({length: 39}, (_, index) => ({id: 'synthetic-' + index})), applicationSha256: 'sha256:' + 'b'.repeat(64), resourceSha256: 'sha256:' + 'c'.repeat(64), readbackSha256: 'sha256:' + 'd'.repeat(64), deferredProductEdgesSha256: 'sha256:' + canonicalHash(deferredProductEdges), siteBInvariantSha256: 'sha256:' + 'f'.repeat(64)}",
     "const marker = 'TIO2_SITE_A_EDITORIAL_AUDIT_RESULT '",
     "switch (process.env.TIO2_WRAPPER_SCENARIO) {",
     "  case 'no-marker': console.log('audit completed without a result'); break",
@@ -124,13 +136,13 @@ function runWrapperWithControlledDocker(wrapperPath: string, scenario: WrapperSc
       ? 'TIO2_LOCAL_EDITORIAL_DRAFT_CAPABILITY'
       : 'TIO2_LOCAL_EDITORIAL_AUDIT_CAPABILITY'
     const wrapperArguments = wrapperPath === applyWrapperPath
-      ? `-Mode Plan -RelationshipMode DeferredProductRelations`
-      : `-RelationshipMode DeferredProductRelations`
+      ? `-Mode Plan -RelationshipMode ${relationshipMode}`
+      : `-RelationshipMode ${relationshipMode}`
     const command = [
       "function global:docker { if ($env:TIO2_WRAPPER_SCENARIO -eq 'docker-throw') { throw 'injected Docker exception' }; & $env:TIO2_FAKE_DOCKER_NODE $env:TIO2_FAKE_DOCKER_SCRIPT @args }",
       `$env:${tokenName} = 'sentinel-before-wrapper'`,
       '$CaughtMessage = $null',
-      `try { & ${quote(wrapperPath)} ${wrapperArguments} -ApplicationsManifestPath ${quote('tests/fixtures/editorial/site-a-applications.synthetic.json')} -ResourcesManifestPath ${quote('tests/fixtures/editorial/site-a-resources.synthetic.json')} -ProductsManifestPath ${quote(productManifestPath)} } catch { $CaughtMessage = $_.Exception.Message }`,
+      `try { & ${quote(wrapperPath)} ${wrapperArguments} -ApplicationsManifestPath ${quote(applicationsManifestPath)} -ResourcesManifestPath ${quote('tests/fixtures/editorial/site-a-resources.synthetic.json')} -ProductsManifestPath ${quote(productManifestPath)} } catch { $CaughtMessage = $_.Exception.Message }`,
       `$Outcome = [ordered]@{ caught = $CaughtMessage; restored = $env:${tokenName} }`,
       `[System.IO.File]::WriteAllText(${quote(outcomePath)}, ($Outcome | ConvertTo-Json -Compress), [System.Text.UTF8Encoding]::new($false))`,
     ].join('; ')
@@ -269,6 +281,32 @@ describe('local Site A editorial draft wrapper contract', () => {
       expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
       expect(outcome?.caught).toContain(expectedMessage)
       expect(outcome?.restored).toBe('sentinel-before-wrapper')
+    }
+  }, 60_000)
+
+  it.skipIf(!existsSync(productManifestPath))('derives the complete ordered deferred Product edge contract from staged manifests', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'tio2-editorial-variable-edge-manifest-'))
+    const applicationsPath = join(directory, 'site-a-applications.variable.json')
+    const applications = JSON.parse(readFileSync('tests/fixtures/editorial/site-a-applications.synthetic.json', 'utf8')) as {records: Array<{relationships: Array<{type: string; id: string}>}>}
+    applications.records[0].relationships.push({type: 'product', id: 'TP-C050'})
+    writeFileSync(applicationsPath, JSON.stringify(applications))
+    try {
+      const valid = runWrapperWithControlledDocker(auditWrapperPath, 'valid', applicationsPath)
+      expect(valid.result.status, `${valid.result.stdout}\n${valid.result.stderr}`).toBe(0)
+      expect(valid.outcome).toEqual({caught: null, restored: 'sentinel-before-wrapper'})
+
+      const strict = runWrapperWithControlledDocker(auditWrapperPath, 'valid', applicationsPath, 'Strict')
+      expect(strict.result.status, `${strict.result.stdout}\n${strict.result.stderr}`).toBe(0)
+      expect(strict.outcome).toEqual({caught: null, restored: 'sentinel-before-wrapper'})
+
+      for (const scenario of ['edge-missing', 'edge-extra', 'edge-substituted', 'edge-reordered'] as const) {
+        const result = runWrapperWithControlledDocker(auditWrapperPath, scenario, applicationsPath)
+        expect(result.result.status, `${result.result.stdout}\n${result.result.stderr}`).toBe(0)
+        expect(result.outcome?.caught).toContain('deferred Product edges')
+        expect(result.outcome?.restored).toBe('sentinel-before-wrapper')
+      }
+    } finally {
+      rmSync(directory, {recursive: true, force: true})
     }
   }, 60_000)
 
