@@ -44,6 +44,7 @@ require $argv[1];
 if ('$.meta.title' !== tio2_site_a_product_draft_first_mismatch(['meta' => ['title' => 'expected']], ['meta' => ['title' => 'actual']])) { throw new RuntimeException('Readback mismatch diagnostics did not identify the first field.'); }
 if ('$.meta.subtitle' !== tio2_site_a_product_draft_first_mismatch(['meta' => ['title' => 'same', 'subtitle' => 'missing']], ['meta' => ['title' => 'same']])) { throw new RuntimeException('Readback mismatch diagnostics did not identify a missing key.'); }
 if (!tio2_site_a_product_draft_records_equal(['meta' => ['alpha' => 1, 'beta' => 2]], ['meta' => ['beta' => 2, 'alpha' => 1]])) { throw new RuntimeException('Importer treated associative field order as content drift.'); }
+if ([101] !== tio2_site_a_product_draft_related_group_value(['field_tio2_product_related_applications' => [101]], 'applications')) { throw new RuntimeException('Importer did not decode an ACF field-keyed relationship group.'); }
 
 $ids = ['TP-P100','TP-P300','TP-S100','TP-C200','TP-C410','TP-C120','TP-I100','TP-H100','TP-P200','TP-P110','TP-P320','TP-P120','TP-P310','TP-P330','TP-PA100','TP-PA110','TP-PA120','TP-C050','TP-C100','TP-C110','TP-I200','TP-C300','TP-C310','TP-C400','TP-U100'];
 $products = [];

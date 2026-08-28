@@ -612,6 +612,16 @@ function tio2_site_a_product_draft_text_list_from_wp_value($value): array
     );
 }
 
+/** @param mixed $value @return mixed */
+function tio2_site_a_product_draft_related_group_value($value, string $group)
+{
+    if (! is_array($value) || ! in_array($group, ['applications', 'resources', 'products'], true)) {
+        return [];
+    }
+    $field_key = 'field_tio2_product_related_' . $group;
+    return $value[$group] ?? $value[$field_key] ?? [];
+}
+
 /** @param array<string, mixed> $record @return array<string, mixed>|null */
 function tio2_site_a_product_draft_find_wp_record(string $product_id): ?array
 {
@@ -640,9 +650,9 @@ function tio2_site_a_product_draft_find_wp_record(string $product_id): ?array
             $value = tio2_site_a_product_draft_targets_from_wp_value($value, 'application');
         } elseif ('related_links' === $field) {
             $value = is_array($value) ? [
-                'applications' => tio2_site_a_product_draft_targets_from_wp_value($value['applications'] ?? [], 'application'),
-                'resources' => tio2_site_a_product_draft_targets_from_wp_value($value['resources'] ?? [], 'resource'),
-                'products' => tio2_site_a_product_draft_targets_from_wp_value($value['products'] ?? [], 'product'),
+                'applications' => tio2_site_a_product_draft_targets_from_wp_value(tio2_site_a_product_draft_related_group_value($value, 'applications'), 'application'),
+                'resources' => tio2_site_a_product_draft_targets_from_wp_value(tio2_site_a_product_draft_related_group_value($value, 'resources'), 'resource'),
+                'products' => tio2_site_a_product_draft_targets_from_wp_value(tio2_site_a_product_draft_related_group_value($value, 'products'), 'product'),
             ] : [];
         } elseif (in_array($field, ['fit_when', 'discuss_first_when', 'validation_checklist'], true)) {
             $value = tio2_site_a_product_draft_text_list_from_wp_value($value);
