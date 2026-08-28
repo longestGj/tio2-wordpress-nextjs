@@ -28,6 +28,13 @@ export interface EditorialPreviewRuntime {
   wordpressPreviewRequestCount(): number
 }
 
+function isExactSiteACanonicalPreviewPath(path: string): boolean {
+  return (
+    /^\/(?:applications|resources)(?:\/[a-z0-9-]+)?$/u.test(path) ||
+    /^\/products\/tp-[a-z]{1,2}[0-9]{3}$/u.test(path)
+  )
+}
+
 function parseLocalWordpressEnvironment(): Readonly<Record<string, string>> {
   const values: Record<string, string> = {}
   for (const [index, rawLine] of readFileSync(
@@ -144,8 +151,8 @@ export async function startEditorialPreviewRuntime(): Promise<EditorialPreviewRu
       return nextRuntime.serverLogOffset()
     },
     signedPreviewUrl(canonicalPath: string): string {
-      if (!/^\/(?:applications|resources)(?:\/[a-z0-9-]+)?$/u.test(canonicalPath)) {
-        throw new Error('Editorial preview signing requires an exact local canonical path')
+      if (!isExactSiteACanonicalPreviewPath(canonicalPath)) {
+        throw new Error('Site A preview signing requires an exact local canonical path')
       }
       const expires = Math.floor(Date.now() / 1000) + 300
       const signature = createHmac('sha256', previewSecret)
@@ -167,8 +174,8 @@ export async function startEditorialPreviewRuntime(): Promise<EditorialPreviewRu
       return nextRuntime.url(path)
     },
     async wordpressPreviewCacheControl(canonicalPath: string): Promise<string> {
-      if (!/^\/(?:applications|resources)(?:\/[a-z0-9-]+)?$/u.test(canonicalPath)) {
-        throw new Error('WordPress preview probing requires an exact canonical path')
+      if (!isExactSiteACanonicalPreviewPath(canonicalPath)) {
+        throw new Error('WordPress preview probing requires an exact Site A canonical path')
       }
       const timestamp = String(Math.floor(Date.now() / 1000))
       const signature = createHmac('sha256', previewSecret)
