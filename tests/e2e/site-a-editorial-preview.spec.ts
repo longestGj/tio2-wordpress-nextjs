@@ -396,13 +396,6 @@ async function expectSkillChecklist(): Promise<void> {
     expect(audit.errors).toEqual([])
     expect(audit.blockedRemoteRequests).toEqual([])
     expect(runtime.serverErrorsSince(logOffset)).toEqual([])
-    if (captureEvidence) {
-      mkdirSync(screenshotDirectory, {recursive: true})
-      await page.screenshot({
-        fullPage: true,
-        path: resolve(screenshotDirectory, 'agent-browser-skill-playwright-check.png'),
-      })
-    }
   } finally {
     await context.close()
     await browser.close()
@@ -590,10 +583,37 @@ for (const view of views) {
 
       if (captureEvidence) {
         mkdirSync(screenshotDirectory, {recursive: true})
-        await page.screenshot({
-          fullPage: true,
-          path: resolve(screenshotDirectory, `${view.id}-${viewport.name}.png`),
-        })
+        if (view.comparisonHeaders) {
+          await root
+            .locator(
+              '[role="region"][aria-labelledby="resource-comparison-table-heading"]',
+            )
+            .evaluate((element) => {
+              ;(element as HTMLElement).scrollLeft = 0
+            })
+        }
+        const portalStyles = await page.evaluate(() =>
+          [...document.querySelectorAll('nextjs-portal')].map((portal) => {
+            const element = portal as HTMLElement
+            const previousStyle = element.getAttribute('style')
+            element.style.setProperty('display', 'none', 'important')
+            return previousStyle
+          }),
+        )
+        try {
+          await page.screenshot({
+            fullPage: true,
+            path: resolve(screenshotDirectory, `${view.id}-${viewport.name}.png`),
+          })
+        } finally {
+          await page.evaluate((previousStyles) => {
+            document.querySelectorAll('nextjs-portal').forEach((portal, index) => {
+              const previousStyle = previousStyles[index]
+              if (previousStyle === null) portal.removeAttribute('style')
+              else portal.setAttribute('style', previousStyle)
+            })
+          }, portalStyles)
+        }
       }
     })
   }
