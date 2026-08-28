@@ -296,7 +296,7 @@ function tio2_site_a_product_draft_execute(
     if ('apply' === $mode && (! is_string($plan_sha256) || ! hash_equals($manifest_sha256, $plan_sha256))) {
         throw new InvalidArgumentException('Apply requires the exact current Plan hash.');
     }
-    foreach (['begin', 'commit', 'rollback', 'find', 'write', 'snapshot_site_b', 'assert_site_b'] as $required) {
+    foreach (['begin', 'commit', 'rollback', 'find', 'assert_relationship_targets', 'write', 'snapshot_site_b', 'assert_site_b'] as $required) {
         if (! isset($operations[$required]) || ! is_callable($operations[$required])) {
             throw new InvalidArgumentException("Product draft importer operation {$required} is required.");
         }
@@ -310,6 +310,7 @@ function tio2_site_a_product_draft_execute(
         $site_b_hash = $operations['snapshot_site_b']();
         $actions = [];
         foreach ($records as $record) {
+            $operations['assert_relationship_targets']($record);
             $existing = $operations['find']($record['productId']);
             if (is_array($existing) && ['tio2-a'] !== ($existing['scopes'] ?? null)) {
                 throw new RuntimeException('Product ID collision is not scoped exactly to Site A.');
@@ -415,6 +416,51 @@ function tio2_site_a_product_draft_site_b_hash(): string
 }
 
 /** @param array<string, mixed> $record */
+function tio2_site_a_product_draft_assert_relationship_targets(array $record): void
+{
+    $targets = [];
+    foreach ($record['meta']['recommended_applications'] as $target) {
+        $targets['application:' . $target['targetKey']] = $target;
+    }
+    foreach (['applications' => 'application', 'resources' => 'resource'] as $group => $type) {
+        foreach ($record['meta']['related_links'][$group] as $target) {
+            $targets[$type . ':' . $target['targetKey']] = $target;
+        }
+    }
+    ksort($targets, SORT_STRING);
+    foreach ($targets as $target) {
+        $type = (string) $target['targetType'];
+        $key = (string) $target['targetKey'];
+        $post_type = ['application' => 'tio2_application', 'resource' => 'tio2_document'][$type] ?? null;
+        $id_field = ['application' => 'application_id', 'resource' => 'resource_id'][$type] ?? null;
+        if (null === $post_type || null === $id_field) {
+            throw new RuntimeException("Unsupported Product relationship target {$type}:{$key} reached Plan resolution.");
+        }
+        $ids = get_posts([
+            'post_type' => $post_type,
+            'post_status' => 'any',
+            'fields' => 'ids',
+            'posts_per_page' => 2,
+            'no_found_rows' => true,
+            'meta_key' => $id_field,
+            'meta_value' => $key,
+        ]);
+        if (1 !== count($ids)) {
+            throw new RuntimeException("Product relationship target {$type}:{$key} must resolve to exactly one local record during Plan.");
+        }
+        $post_id = (int) $ids[0];
+        $scopes = wp_get_object_terms($post_id, 'site_scope', ['fields' => 'slugs']);
+        if (is_wp_error($scopes)) {
+            throw new RuntimeException("Could not read Site scope for Product relationship target {$type}:{$key} during Plan.");
+        }
+        sort($scopes, SORT_STRING);
+        if ('draft' !== get_post_status($post_id) || ['tio2-a'] !== array_values($scopes)) {
+            throw new RuntimeException("Product relationship target {$type}:{$key} must be one exact Site A draft during Plan.");
+        }
+    }
+}
+
+/** @param array<string, mixed> $record */
 function tio2_site_a_product_draft_prepare_wp_record(array $record): array
 {
     $resolve_target = static function (array $target): int {
@@ -432,16 +478,19 @@ function tio2_site_a_product_draft_prepare_wp_record(array $record): array
             return (int) $term->term_id;
         }
         $post_type = ['application' => 'tio2_application', 'resource' => 'tio2_document', 'product' => 'tio2_product'][$type] ?? null;
-        if (null === $post_type) {
+        $id_field = ['application' => 'application_id', 'resource' => 'resource_id', 'product' => 'product_id'][$type] ?? null;
+        if (null === $post_type || null === $id_field) {
             throw new RuntimeException('Unknown Product relationship target type.');
         }
-        $query = ['post_type' => $post_type, 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => 2, 'no_found_rows' => true];
-        if ('product' === $type) {
-            $query['meta_key'] = 'product_id';
-            $query['meta_value'] = strtoupper($key);
-        } else {
-            $query['name'] = $key;
-        }
+        $query = [
+            'post_type' => $post_type,
+            'post_status' => 'any',
+            'fields' => 'ids',
+            'posts_per_page' => 2,
+            'no_found_rows' => true,
+            'meta_key' => $id_field,
+            'meta_value' => 'product' === $type ? strtoupper($key) : $key,
+        ];
         $ids = get_posts($query);
         if (1 !== count($ids)) {
             throw new RuntimeException("Relationship target {$type}:{$key} must resolve to exactly one local record.");
@@ -479,7 +528,8 @@ function tio2_site_a_product_draft_target_from_wp_id(int $id, string $type): arr
     if (null === $expected_type || $expected_type !== get_post_type($id)) {
         throw new RuntimeException('Product relationship target has the wrong local content type.');
     }
-    $key = (string) get_post_field('post_name', $id);
+    $id_field = 'application' === $type ? 'application_id' : 'resource_id';
+    $key = (string) get_field($id_field, $id, false);
     if (1 !== preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $key)) {
         throw new RuntimeException('Product relationship target has a non-canonical local slug.');
     }
@@ -646,6 +696,9 @@ if (defined('WP_CLI') && WP_CLI) {
                     }
                 },
                 'find' => static fn (string $product_id): ?array => tio2_site_a_product_draft_find_wp_record($product_id),
+                'assert_relationship_targets' => static function (array $record): void {
+                    tio2_site_a_product_draft_assert_relationship_targets($record);
+                },
                 'create_identity' => static function (array $record): void {
                     $created = wp_insert_post([
                         'post_type' => 'tio2_product', 'post_status' => 'draft',

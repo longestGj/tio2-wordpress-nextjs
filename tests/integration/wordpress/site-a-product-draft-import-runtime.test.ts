@@ -20,13 +20,26 @@ function runControlledImporter() {
     '-r', String.raw`
 define('ABSPATH', __DIR__);
 function wp_json_encode($value) { return json_encode($value, JSON_THROW_ON_ERROR); }
-function get_posts($arguments) { return !empty($GLOBALS['wp_adapter_collision']) ? [777] : []; }
-function wp_get_object_terms($id, $taxonomy, $arguments) { return 'site_scope' === $taxonomy ? ['tio2-b'] : []; }
+function get_posts($arguments) {
+    if (!empty($GLOBALS['wp_relationship_query_mode']) && in_array($arguments['meta_key'] ?? null, ['application_id', 'resource_id'], true)) {
+        return 'missing' === $GLOBALS['wp_relationship_query_mode'] ? [] : [888];
+    }
+    return !empty($GLOBALS['wp_adapter_collision']) ? [777] : [];
+}
+function wp_get_object_terms($id, $taxonomy, $arguments) {
+    if (888 === $id && 'site_scope' === $taxonomy) { return $GLOBALS['wp_relationship_scopes'] ?? ['tio2-a']; }
+    return 'site_scope' === $taxonomy ? ['tio2-b'] : [];
+}
 function is_wp_error($value) { return false; }
 function get_post_meta($id, $key) { return 'public_path' === $key ? '/products/tp-p100' : ''; }
-function get_field($field, $id, $format) { return 'product_id' === $field ? 'TP-P100' : null; }
+function get_field($field, $id, $format) {
+    if (888 === $id && 'application_id' === $field) { return 'controlled-application'; }
+    if (888 === $id && 'resource_id' === $field) { return 'controlled-resource'; }
+    return 'product_id' === $field ? 'TP-P100' : null;
+}
 function get_post_field($field, $id) { return 'post_name' === $field ? 'tp-p100' : 'Controlled Site B collision'; }
-function get_post_status($id) { return 'draft'; }
+function get_post_status($id) { return 888 === $id ? ($GLOBALS['wp_relationship_status'] ?? 'draft') : 'draft'; }
+function get_post_type($id) { return 888 === $id ? ($GLOBALS['wp_relationship_post_type'] ?? 'tio2_application') : 'tio2_product'; }
 require $argv[1];
 
 $ids = ['TP-P100','TP-P300','TP-S100','TP-C200','TP-C410','TP-C120','TP-I100','TP-H100','TP-P200','TP-P110','TP-P320','TP-P120','TP-P310','TP-P330','TP-PA100','TP-PA110','TP-PA120','TP-C050','TP-C100','TP-C110','TP-I200','TP-C300','TP-C310','TP-C400','TP-U100'];
@@ -72,15 +85,31 @@ foreach ($ids as $index => $product_id) {
 }
 $manifest = ['version' => '0.1', 'siteId' => 'tio2-a', 'products' => $products];
 $hash = hash('sha256', json_encode($manifest, JSON_THROW_ON_ERROR));
+$normalized_products = tio2_site_a_product_draft_validate_manifest($manifest);
+$GLOBALS['wp_relationship_query_mode'] = 'resolved';
+$GLOBALS['wp_relationship_scopes'] = ['tio2-a'];
+$GLOBALS['wp_relationship_status'] = 'draft';
+tio2_site_a_product_draft_assert_relationship_targets($normalized_products[0]);
+if (['targetType' => 'application', 'targetKey' => 'controlled-application'] !== tio2_site_a_product_draft_target_from_wp_id(888, 'application')) { throw new RuntimeException('Application readback did not use its stable ID.'); }
+$GLOBALS['wp_relationship_query_mode'] = 'missing';
+try { tio2_site_a_product_draft_assert_relationship_targets($normalized_products[0]); throw new RuntimeException('Plan resolver accepted a missing stable target.'); } catch (RuntimeException $expected) { if (!str_contains($expected->getMessage(), 'must resolve to exactly one local record during Plan')) { throw $expected; } }
+unset($GLOBALS['wp_relationship_query_mode'], $GLOBALS['wp_relationship_scopes'], $GLOBALS['wp_relationship_status'], $GLOBALS['wp_relationship_post_type']);
 $store = ['products' => [], 'siteB' => ['unchanged' => true], 'deleted' => false, 'writes' => 0, 'identityCreates' => 0, 'begins' => 0, 'rollbacks' => 0, 'commits' => 0];
 $snapshot = null;
 $prepare_calls = 0;
+$relationship_assertions = 0;
 $allowed_meta = ['product_id','public_path','meta_title','meta_description','eyebrow','customer_problem_headline','quick_answer','product_type','process','primary_application','positioning','surface_treatment','packaging','tds_access','fit_when','discuss_first_when','performance_priorities','recommended_applications','evidence_statement','typical_properties','validation_checklist','faq_items','related_links'];
 $operations = [
     'begin' => static function () use (&$store, &$snapshot): void { $snapshot = $store; ++$store['begins']; },
     'commit' => static function () use (&$store): void { ++$store['commits']; },
     'rollback' => static function () use (&$store, &$snapshot): void { $store = $snapshot; ++$store['rollbacks']; },
     'find' => static function (string $product_id) use (&$store): ?array { return $store['products'][$product_id] ?? null; },
+    'assert_relationship_targets' => static function (array $record) use (&$relationship_assertions): void {
+        ++$relationship_assertions;
+        if ('application' !== $record['meta']['recommended_applications'][0]['targetType']) {
+            throw new RuntimeException('Controlled relationship target was not normalized.');
+        }
+    },
     'prepare' => static function (array $record) use (&$prepare_calls): array { ++$prepare_calls; return $record; },
     'resolve' => static function (string $type, string $key): int { return crc32($type . ':' . $key); },
     'create_identity' => static function (array $record) use (&$store): void { $store['products'][$record['productId']] = ['productId' => $record['productId'], 'scopes' => ['tio2-a']]; ++$store['identityCreates']; },
@@ -97,7 +126,10 @@ $operations = [
 
 $before_plan = ['products' => $store['products'], 'siteB' => $store['siteB'], 'writes' => $store['writes']];
 $plan = tio2_site_a_product_draft_execute('plan', $manifest, $hash, null, $operations);
-if ($before_plan !== ['products' => $store['products'], 'siteB' => $store['siteB'], 'writes' => $store['writes']] || 0 !== $prepare_calls || 25 !== count($plan['actions']) || 25 !== count(array_filter($plan['actions'], static fn(array $action): bool => 'create' === $action['action']))) { throw new RuntimeException('Plan changed state or did not list 25 creates.'); }
+if ($before_plan !== ['products' => $store['products'], 'siteB' => $store['siteB'], 'writes' => $store['writes']] || 0 !== $prepare_calls || 25 !== $relationship_assertions || 25 !== count($plan['actions']) || 25 !== count(array_filter($plan['actions'], static fn(array $action): bool => 'create' === $action['action']))) { throw new RuntimeException('Plan changed state, skipped relationship resolution, or did not list 25 creates.'); }
+$missing_target_operations = $operations;
+$missing_target_operations['assert_relationship_targets'] = static function (): void { throw new RuntimeException('Controlled missing Application target.'); };
+try { tio2_site_a_product_draft_execute('plan', $manifest, $hash, null, $missing_target_operations); throw new RuntimeException('Plan accepted a missing Application target.'); } catch (RuntimeException $expected) { if ('Controlled missing Application target.' !== $expected->getMessage()) { throw $expected; } }
 try { tio2_site_a_product_draft_execute('apply', $manifest, $hash, str_repeat('0', 64), $operations); throw new RuntimeException('Apply accepted a mismatched Plan hash.'); } catch (InvalidArgumentException $expected) {}
 $first = tio2_site_a_product_draft_execute('apply', $manifest, $hash, $hash, $operations);
 if (25 !== count($store['products']) || 25 !== $store['identityCreates'] || 25 !== count(array_filter($first['actions'], static fn(array $action): bool => 'create' === $action['action'])) || $store['deleted']) { throw new RuntimeException('Apply did not deterministically create draft Products.'); }
@@ -114,6 +146,7 @@ $failure_operations = [
     'commit' => static function (): void { throw new RuntimeException('A failed import must not commit.'); },
     'rollback' => static function () use (&$failure_store, &$failure_snapshot): void { $failure_store = $failure_snapshot; ++$failure_store['rollbacks']; },
     'find' => static function (): ?array { return null; },
+    'assert_relationship_targets' => static function (): void {},
     'create_identity' => static function (array $record) use (&$failure_store, &$failure_identity_creates): void { $failure_store['products'][$record['productId']] = ['productId' => $record['productId']]; ++$failure_identity_creates; },
     'write' => static function (string $action, array $record) use (&$failure_store): void { if ('TP-P300' === $record['productId']) { $failure_store['siteB']['unchanged'] = false; throw new RuntimeException('Injected controlled write failure.'); } $failure_store['products'][$record['productId']] = $record; },
     'snapshot_site_b' => static function () use (&$failure_store): string { return hash('sha256', json_encode($failure_store['siteB'], JSON_THROW_ON_ERROR)); },
@@ -127,6 +160,7 @@ $GLOBALS['wp_adapter_collision'] = true;
 $collision_operations = [
     'begin' => static function (): void {}, 'commit' => static function (): void {}, 'rollback' => static function (): void {},
     'find' => static fn (string $product_id): ?array => tio2_site_a_product_draft_find_wp_record($product_id),
+    'assert_relationship_targets' => static function (): void {},
     'write' => static function () use (&$collision_writes): void { ++$collision_writes; },
     'snapshot_site_b' => static function (): string { return 'site-b'; }, 'assert_site_b' => static function (): void {},
 ];

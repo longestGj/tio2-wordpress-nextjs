@@ -264,7 +264,8 @@ function tio2_site_a_product_audit_target_from_wp_id(int $id, string $type): arr
     if ('product' === $type) {
         return ['targetType' => 'product', 'targetKey' => (string) get_field('product_id', $id, false)];
     }
-    return ['targetType' => $type, 'targetKey' => (string) get_post_field('post_name', $id)];
+    $id_field = 'application' === $type ? 'application_id' : 'resource_id';
+    return ['targetType' => $type, 'targetKey' => (string) get_field($id_field, $id, false)];
 }
 
 /** @param mixed $value @return list<array{targetType: string, targetKey: string}> */

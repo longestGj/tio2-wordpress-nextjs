@@ -28,7 +28,13 @@ function runControlledAudit() {
     'wpcli',
     '-r', String.raw`
 define('ABSPATH', __DIR__);
+function get_field($field, $id, $format) {
+    return ['application_id' => 'controlled-application', 'resource_id' => 'controlled-resource', 'product_id' => 'TP-P100'][$field] ?? null;
+}
+function get_post_field($field, $id) { return 'legacy-post-slug'; }
 require $argv[1];
+if (['targetType' => 'application', 'targetKey' => 'controlled-application'] !== tio2_site_a_product_audit_target_from_wp_id(101, 'application')) { throw new RuntimeException('Application audit readback did not use its stable ID.'); }
+if (['targetType' => 'resource', 'targetKey' => 'controlled-resource'] !== tio2_site_a_product_audit_target_from_wp_id(102, 'resource')) { throw new RuntimeException('Resource audit readback did not use its stable ID.'); }
 $ids = ['TP-P100','TP-P300','TP-S100','TP-C200','TP-C410','TP-C120','TP-I100','TP-H100','TP-P200','TP-P110','TP-P320','TP-P120','TP-P310','TP-P330','TP-PA100','TP-PA110','TP-PA120','TP-C050','TP-C100','TP-C110','TP-I200','TP-C300','TP-C310','TP-C400','TP-U100'];
 $products = array_map(static function (string $id): array {
     $slug = strtolower($id);
