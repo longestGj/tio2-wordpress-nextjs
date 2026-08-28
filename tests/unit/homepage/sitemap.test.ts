@@ -5,7 +5,7 @@ import {toProductPageDto} from '@/lib/products/dto'
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
 import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
 import type {AnyHomepageDto} from '@/lib/wordpress/homepage-types'
-import {toSiteAEditorialHomepageDto} from '@/lib/wordpress/homepage-v02-dto'
+import {toSiteABrandHomepageDto} from '@/lib/wordpress/homepage-v03-dto'
 import {getSiteConfig} from '@/sites'
 import {getPublicRoutes} from '@/sites/public-routes'
 import {getSiteTemplateProfile} from '@/sites/template-profiles'
@@ -14,8 +14,8 @@ import type {PublicRouteDefinition} from '@/sites/types'
 import {validProductPageInput} from '@/tests/fixtures/product-page'
 import {
   makeHomepageNode,
-  makeSiteAEditorialHomepageNode,
 } from '@/tests/mocks/handlers'
+import {makeSiteABrandHomepageNode} from '@/tests/mocks/site-a-brand-homepage'
 
 type SitemapSourceOverrides = Partial<
   NonNullable<Parameters<typeof buildSitemap>[1]>
@@ -33,9 +33,7 @@ function sources(overrides: SitemapSourceOverrides = {}) {
 
 function homepageFor(siteId: 'tio2-a' | 'tio2-b'): AnyHomepageDto {
   if (siteId === 'tio2-a') {
-    return toSiteAEditorialHomepageDto(makeSiteAEditorialHomepageNode(), {
-      rfqHref: getSiteConfig(siteId).rfqHref,
-    })
+    return toSiteABrandHomepageDto(makeSiteABrandHomepageNode())
   }
 
   const node = makeHomepageNode(siteId)
@@ -46,7 +44,7 @@ function homepageFor(siteId: 'tio2-a' | 'tio2-b'): AnyHomepageDto {
 
 describe('typed sitemap ownership', () => {
   it.each([
-    ['tio2-a', 'https://tio2products.com/', '2026-08-26T08:30:00.000Z'],
+    ['tio2-a', 'https://tio2products.com/', '2026-08-28T10:00:00.000Z'],
     ['tio2-b', 'https://tio2hub.com/', '2026-08-23T08:30:00.000Z'],
   ] as const)('maps only the %s inventory root to its production domain', async (siteId, url, modified) => {
     const homepage = homepageFor(siteId)
@@ -123,7 +121,7 @@ describe('typed sitemap ownership', () => {
   it('maps an injected approved Product route from the validated Product source', async () => {
     const product = toProductPageDto(validProductPageInput)
     const routes: readonly PublicRouteDefinition[] = [
-      {path: '/', template: 'site-a-homepage-editorial-v0.2'},
+      {path: '/', template: 'site-a-homepage-brand-v0.3'},
       {
         path: '/products/tp-z911',
         template: PRODUCT_TEMPLATE_KEY,
@@ -139,7 +137,7 @@ describe('typed sitemap ownership', () => {
     ).resolves.toEqual([
       {
         url: 'https://tio2products.com/',
-        lastModified: new Date('2026-08-26T08:30:00.000Z'),
+        lastModified: new Date('2026-08-28T10:00:00.000Z'),
       },
       {
         url: 'https://tio2products.com/products/tp-z911',
@@ -153,7 +151,7 @@ describe('typed sitemap ownership', () => {
       buildSitemap(getSiteConfig('tio2-a'), {
         ...sources(),
         getPublicRoutes: () => [
-          {path: '/', template: 'site-a-homepage-editorial-v0.2'},
+          {path: '/', template: 'site-a-homepage-brand-v0.3'},
           {
             path: '/products/tp-z911',
             template: PRODUCT_TEMPLATE_KEY,

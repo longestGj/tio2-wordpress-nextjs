@@ -36,7 +36,7 @@ describe('site registry', () => {
     const site = getSiteConfig('tio2-a')
 
     expect(() => Object.assign(site.defaultSeo, {title: 'Changed'})).toThrow(TypeError)
-    expect(getSiteConfig('tio2-a').defaultSeo.title).toBe('TiO2 A | Titanium Dioxide')
+    expect(getSiteConfig('tio2-a').defaultSeo.title).toBe('Titanium Dioxide Supplier & TiO2 Grades | TIOVAR')
   })
 
   it.each([

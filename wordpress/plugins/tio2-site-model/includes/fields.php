@@ -109,6 +109,7 @@ function tio2_register_acf_fields(): void
     ]);
 
     tio2_register_homepage_v02_fields();
+    tio2_register_homepage_v03_fields();
 }
 
 /**
@@ -1004,9 +1005,11 @@ function tio2_validate_homepage_contract(int $post_id)
         );
     }
 
-    return 'homepage-v0.2-editorial-geo' === $schema_version
-        ? tio2_validate_homepage_v02_contract($post_id)
-        : tio2_validate_homepage_v01_fields($post_id, $site_id);
+    return match ($schema_version) {
+        'homepage-v0.3-brand' => tio2_validate_homepage_v03_contract($post_id),
+        'homepage-v0.2-editorial-geo' => tio2_validate_homepage_v02_contract($post_id),
+        default => tio2_validate_homepage_v01_fields($post_id, $site_id),
+    };
 }
 
 /**

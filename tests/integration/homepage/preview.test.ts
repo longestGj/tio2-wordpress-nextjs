@@ -13,8 +13,8 @@ import {CrossSiteContentError} from '@/lib/wordpress/types'
 import {
   graphqlEndpoint,
   makeHomepageNode,
-  makeSiteAEditorialHomepageNode,
 } from '@/tests/mocks/handlers'
+import {makeSiteABrandHomepageNode} from '@/tests/mocks/site-a-brand-homepage'
 import {server} from '@/tests/mocks/server'
 
 const previewEndpoint = 'http://wordpress.test/wp-json/tio2/v1/preview'
@@ -39,25 +39,14 @@ function previewHomepage(siteId: 'tio2-a' | 'tio2-b' = 'tio2-b') {
   }
 }
 
-function previewEditorialHomepage() {
-  const homepage = makeSiteAEditorialHomepageNode()
-  const editorial = homepage.editorialGeoFields!
+function previewBrandHomepage() {
+  const homepage = makeSiteABrandHomepageNode()
   Reflect.set(homepage, 'status', 'draft')
-  for (const route of editorial.supplyRoutes!) {
-    Reflect.set(route as object, 'claimBasis', route!.claimBasis![0])
-  }
-  for (const evidence of editorial.evidenceItems!) {
-    Reflect.set(
-      evidence as object,
-      'verificationStatus',
-      evidence!.verificationStatus![0],
-    )
-  }
   return {
     ...homepage,
     siteId: 'tio2-a',
     path: '/',
-    schemaVersion: 'homepage-v0.2-editorial-geo',
+    schemaVersion: 'homepage-v0.3-brand',
   }
 }
 
@@ -74,7 +63,7 @@ afterEach(() => {
 })
 
 describe('getPreviewHomepage', () => {
-  it('dispatches Site A Preview to the exact editorial v0.2 draft transport', async () => {
+  it('dispatches Site A Preview to the exact brand v0.3 draft transport', async () => {
     let observedCache: RequestCache | undefined
     server.use(
       http.get(previewEndpoint, ({request}) => {
@@ -88,7 +77,7 @@ describe('getPreviewHomepage', () => {
         expect(url.searchParams.get('path')).toBe('/')
         expect(request.headers.get('x-tio2-preview-signature')).toBe(expected)
         observedCache = request.cache
-        return HttpResponse.json(previewEditorialHomepage())
+        return HttpResponse.json(previewBrandHomepage())
       }),
     )
 
@@ -96,12 +85,11 @@ describe('getPreviewHomepage', () => {
       identity: {
         siteId: 'tio2-a',
         path: '/',
-        schemaVersion: 'homepage-v0.2-editorial-geo',
+        schemaVersion: 'homepage-v0.3-brand',
         status: 'draft',
       },
-      headerRfq: {label: 'Start an RFQ'},
-      editorial: {reviewScope: 'Local experimental content only'},
-      closingCta: {href: 'mailto:contact@tio2products.com'},
+      hero: {heading: 'Application-Specific Titanium Dioxide'},
+      documents: {items: expect.any(Array)},
     })
     expect(observedCache).toBe('no-store')
   })
@@ -109,7 +97,7 @@ describe('getPreviewHomepage', () => {
   it('keeps formal GraphQL reads isolated from the draft preview', async () => {
     server.use(
       http.get(previewEndpoint, () =>
-        HttpResponse.json(previewEditorialHomepage()),
+        HttpResponse.json(previewBrandHomepage()),
       ),
       http.post(graphqlEndpoint, () =>
         HttpResponse.json({data: {tio2Homepage: null}}),

@@ -10,6 +10,7 @@ export type SiteId = (typeof SITE_IDS)[number]
 export type HomepageSchemaVersion =
   | 'homepage-v0.1'
   | 'homepage-v0.2-editorial-geo'
+  | 'homepage-v0.3-brand'
 
 export type TemplateState = 'active' | 'frozen'
 
@@ -17,6 +18,7 @@ export type ShellTemplateKey = 'site-a-shell-active' | 'site-b-shell-v0.1-frozen
 
 export type HomepageTemplateKey =
   | 'site-a-homepage-editorial-v0.2'
+  | 'site-a-homepage-brand-v0.3'
   | 'site-b-homepage-v0.1-frozen'
 
 export const PRODUCT_TEMPLATE_KEY = 'site-a-product-v0.1' as const

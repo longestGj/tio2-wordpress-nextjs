@@ -1,6 +1,6 @@
 import {createHmac} from 'node:crypto'
 
-import {getSiteConfig, getSiteTemplateProfile} from '@/sites'
+import {getSiteConfig} from '@/sites'
 import type {SiteId} from '@/sites'
 
 import type {SiteAEditorialHomepageFieldsFragment} from './generated'
@@ -89,7 +89,7 @@ export async function getPreviewSiteAEditorialHomepage(): Promise<
     )
   }
 
-  const expectedVersion = getSiteTemplateProfile(siteId).homepage.schemaVersion
+  const expectedVersion = 'homepage-v0.2-editorial-geo'
   if (payload.schemaVersion !== expectedVersion) {
     throw new HomepageVersionError(String(payload.schemaVersion ?? ''))
   }

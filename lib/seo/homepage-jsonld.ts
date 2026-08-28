@@ -1,14 +1,11 @@
-import type {
-  AnyHomepageDto,
-  HomepageFaqDto,
-} from '@/lib/wordpress/homepage-types'
+import type {AnyHomepageDto} from '@/lib/wordpress/homepage-types'
 import {isStrictUtcInstant} from '@/lib/wordpress/time'
 import type {SiteConfig} from '@/sites'
 import {serializeJsonLd} from './jsonld'
 import type {JsonLdObject} from './jsonld'
 import {htmlToPlainText, normalizePlainText} from './text'
 
-function isValidVisibleFaq(faq: HomepageFaqDto): boolean {
+function isValidVisibleFaq(faq: {readonly items: readonly {readonly question: string; readonly answer: string}[]}): boolean {
   if (faq.items.length < 3 || faq.items.length > 6) return false
 
   const questions = new Set<string>()
@@ -75,7 +72,8 @@ export function buildHomepageJsonLd(
   ]
 
   if (
-    homepage.identity.schemaVersion === 'homepage-v0.1' &&
+    (homepage.identity.schemaVersion === 'homepage-v0.1' ||
+      homepage.identity.schemaVersion === 'homepage-v0.3-brand') &&
     isValidVisibleFaq(homepage.faq)
   ) {
     values.push({

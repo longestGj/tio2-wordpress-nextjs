@@ -1,0 +1,74 @@
+fragment SiteABrandHomepageFields on Tio2Homepage {
+  id
+  modifiedGmt
+  status
+  siteScopes { nodes { slug } }
+  homepageFields {
+    homepageSchemaVersion: schemaVersion
+    heroEyebrow
+    heroHeading
+    heroSummary
+    heroImage { node { ...HomepageMediaItemFields } }
+    heroImageAlt
+    seoTitle
+    seoDescription
+    primaryTopic
+    secondaryTopics { secondaryTopic }
+  }
+  brandHomepageFields {
+    heroPrimaryLabel: brandHeroPrimaryLabel
+    heroSecondaryLabel: brandHeroSecondaryLabel
+    aboutEyebrow: brandAboutEyebrow
+    aboutHeading: brandAboutHeading
+    whoTitle: brandWhoTitle
+    whoBody: brandWhoBody
+    whatTitle: brandWhatTitle
+    whatBody: brandWhatBody
+    capabilities: brandCapabilities { capability }
+    brandMetrics { metricValue metricLabel }
+    routesEyebrow: brandRoutesEyebrow
+    routesHeading: brandRoutesHeading
+    buyerRoutes: brandBuyerRoutes { routeTitle routeDescription routeCtaLabel }
+    applicationsEyebrow: brandApplicationsEyebrow
+    applicationsHeading: brandApplicationsHeading
+    applicationsIntro: brandApplicationsIntro
+    brandApplications { itemTitle itemDescription }
+    familiesEyebrow: brandFamiliesEyebrow
+    familiesHeading: brandFamiliesHeading
+    familiesIntro: brandFamiliesIntro
+    productFamilies: brandProductFamilies { itemTitle itemDescription }
+    selectionEyebrow: brandSelectionEyebrow
+    selectionHeading: brandSelectionHeading
+    selectionIntro: brandSelectionIntro
+    selectionFactors: brandSelectionFactors { itemTitle itemDescription }
+    resourcesEyebrow: brandResourcesEyebrow
+    resourcesHeading: brandResourcesHeading
+    technicalResources: brandTechnicalResources { resourceTag resourceTitle resourceDescription }
+    processEyebrow: brandProcessEyebrow
+    processHeading: brandProcessHeading
+    evaluationSteps: brandEvaluationSteps { itemTitle itemDescription }
+    documentsEyebrow: brandDocumentsEyebrow
+    documentsHeading: brandDocumentsHeading
+    documentsIntro: brandDocumentsIntro
+    controlledDocuments: brandControlledDocuments { documentTitle documentContext documentAccess }
+    inquiryEyebrow: brandInquiryEyebrow
+    inquiryHeading: brandInquiryHeading
+    inquiryIntro: brandInquiryIntro
+    inquiryFields: brandInquiryFields { fieldLabel }
+    inquiryMessageLabel: brandInquiryMessageLabel
+    inquirySubmitLabel: brandInquirySubmitLabel
+    inquiryHelperText: brandInquiryHelperText
+    inquirySuccessHeading: brandInquirySuccessHeading
+    inquirySuccessMessage: brandInquirySuccessMessage
+    faqEyebrow: brandFaqEyebrow
+    faqHeading: brandFaqHeading
+    brandFaqs { faqQuestion faqAnswer }
+    footerDescription: brandFooterDescription
+  }
+}
+
+query GetSiteABrandHomepage($slug: ID!) {
+  tio2Homepage(id: $slug, idType: SLUG) {
+    ...SiteABrandHomepageFields
+  }
+}

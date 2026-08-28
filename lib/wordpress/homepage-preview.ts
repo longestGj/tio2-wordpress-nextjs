@@ -11,6 +11,7 @@ import {
 import type {AnyHomepageDto, HomepageDto} from './homepage-types'
 import {getHomepageLinkPolicy} from './homepage-link-policy'
 import {getPreviewSiteAEditorialHomepage} from './homepage-v02-preview'
+import {getPreviewSiteABrandHomepage} from './homepage-v03-preview'
 import {PreviewTransportError} from './preview'
 import {CrossSiteContentError, InvalidContentPathError} from './types'
 
@@ -115,6 +116,11 @@ export async function getPreviewHomepage(
   siteId: SiteId,
 ): Promise<AnyHomepageDto | null> {
   const profile = getSiteTemplateProfile(siteId)
+
+  if (profile.homepage.schemaVersion === 'homepage-v0.3-brand') {
+    if (siteId !== 'tio2-a') throw new Error(`Unsupported brand Homepage owner: ${siteId}`)
+    return getPreviewSiteABrandHomepage()
+  }
 
   if (profile.homepage.schemaVersion === 'homepage-v0.2-editorial-geo') {
     if (siteId !== 'tio2-a') {

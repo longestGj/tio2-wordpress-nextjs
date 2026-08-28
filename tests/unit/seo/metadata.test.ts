@@ -71,8 +71,8 @@ describe('page metadata', () => {
         page({title: '', excerpt: '', seo: {title: '', description: ''}}),
       ),
     ).toMatchObject({
-      title: 'TiO2 A | Titanium Dioxide',
-      description: 'Titanium dioxide products and applications from TiO2 A.',
+      title: 'Titanium Dioxide Supplier & TiO2 Grades | TIOVAR',
+      description: 'TIOVAR supplies application-specific titanium dioxide grades for industrial applications.',
     })
   })
 

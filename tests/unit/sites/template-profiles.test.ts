@@ -3,7 +3,7 @@ import {getSiteTemplateProfile} from '@/sites/template-profiles'
 
 describe('site template profiles', () => {
   it.each([
-    ['tio2-a', 'site-a-shell-active', 'active', 'site-a-homepage-editorial-v0.2', 'active', 'homepage-v0.2-editorial-geo'],
+    ['tio2-a', 'site-a-shell-active', 'active', 'site-a-homepage-brand-v0.3', 'active', 'homepage-v0.3-brand'],
     ['tio2-b', 'site-b-shell-v0.1-frozen', 'frozen', 'site-b-homepage-v0.1-frozen', 'frozen', 'homepage-v0.1'],
   ] as const)('registers the approved %s runtime binding', (siteId, shellKey, shellState, homepageKey, homepageState, schemaVersion) => {
     expect(getSiteTemplateProfile(siteId)).toMatchObject({
@@ -18,11 +18,11 @@ describe('site template profiles', () => {
     })
   })
 
-  it('activates the Site A editorial GEO homepage profile', () => {
+  it('activates the Site A brand homepage profile', () => {
     expect(getSiteTemplateProfile('tio2-a').homepage).toMatchObject({
-      key: 'site-a-homepage-editorial-v0.2',
+      key: 'site-a-homepage-brand-v0.3',
       state: 'active',
-      schemaVersion: 'homepage-v0.2-editorial-geo',
+      schemaVersion: 'homepage-v0.3-brand',
     })
   })
 

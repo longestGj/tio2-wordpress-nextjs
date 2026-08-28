@@ -25,7 +25,7 @@ describe('product metadata', () => {
     expect(metadata.openGraph).toMatchObject({
       type: 'article',
       url: 'https://tio2products.com/products/tp-z911',
-      siteName: 'TiO2 A',
+      siteName: 'TIOVAR',
       title: 'TP-Z911 Rutile Titanium Dioxide | TIOVAR',
       description:
         'Evaluate TIOVAR TP-Z911 rutile titanium dioxide for opacity, weather resistance, dispersion, and gloss in durable coating formulations.',

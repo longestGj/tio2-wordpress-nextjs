@@ -15,8 +15,8 @@ import {CrossSiteContentError} from '@/lib/wordpress/types'
 import {
   graphqlEndpoint,
   makeHomepageNode,
-  makeSiteAEditorialHomepageNode,
 } from '@/tests/mocks/handlers'
+import {makeSiteABrandHomepageNode} from '@/tests/mocks/site-a-brand-homepage'
 import {server} from '@/tests/mocks/server'
 
 interface GraphQLRequestBody {
@@ -29,15 +29,15 @@ describe('getHomepage', () => {
     process.env.WORDPRESS_GRAPHQL_URL = graphqlEndpoint
   })
 
-  it('dispatches Site A to the deterministic editorial v0.2 document', async () => {
+  it('dispatches Site A to the deterministic brand v0.3 document', async () => {
     server.use(
       http.post(graphqlEndpoint, async ({request}) => {
         const body = (await request.json()) as GraphQLRequestBody
         expect(body.variables).toEqual({slug: 'tio2-a--homepage'})
-        expect(body.query).toContain('query GetSiteAEditorialHomepage')
-        expect(body.query).toContain('editorialGeoFields')
+        expect(body.query).toContain('query GetSiteABrandHomepage')
+        expect(body.query).toContain('brandHomepageFields')
         return HttpResponse.json({
-          data: {tio2Homepage: makeSiteAEditorialHomepageNode()},
+          data: {tio2Homepage: makeSiteABrandHomepageNode()},
         })
       }),
     )
@@ -46,11 +46,11 @@ describe('getHomepage', () => {
       identity: {
         siteId: 'tio2-a',
         path: '/',
-        schemaVersion: 'homepage-v0.2-editorial-geo',
+        schemaVersion: 'homepage-v0.3-brand',
       },
-      headerRfq: {label: 'Start an RFQ'},
-      decisionQuestions: expect.any(Array),
-      editorial: {reviewedBy: 'Synthetic local editorial review'},
+      hero: {heading: 'Application-Specific Titanium Dioxide'},
+      applications: {items: expect.any(Array)},
+      documents: {items: expect.any(Array)},
     })
   })
 
@@ -168,8 +168,8 @@ describe('getHomepage', () => {
   })
 
   it('rejects Site A scope, version, and publication violations without fallback', async () => {
-    const foreign = makeSiteAEditorialHomepageNode()
-    Reflect.set(foreign.siteScopes!.nodes![0]!, 'slug', 'tio2-b')
+    const foreign = makeSiteABrandHomepageNode()
+    Reflect.set((foreign.siteScopes as {nodes: object[]}).nodes[0]!, 'slug', 'tio2-b')
     server.use(
       http.post(graphqlEndpoint, () =>
         HttpResponse.json({data: {tio2Homepage: foreign}}),
@@ -192,7 +192,7 @@ describe('getHomepage', () => {
     )
     expect(wrongVersionRequests).toBe(1)
 
-    const draft = makeSiteAEditorialHomepageNode()
+    const draft = makeSiteABrandHomepageNode()
     Reflect.set(draft, 'status', 'draft')
     server.use(
       http.post(graphqlEndpoint, () =>

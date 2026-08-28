@@ -626,9 +626,11 @@ function tio2_preview_rest_response(WP_REST_Request $request)
         }
 
         $schema_version = (string) get_field('homepage_schema_version', $homepage->ID, false);
-        $payload = 'homepage-v0.2-editorial-geo' === $schema_version
-            ? tio2_serialize_homepage_v02_preview($homepage, $site_id)
-            : tio2_serialize_homepage_preview($homepage, $site_id);
+        $payload = match ($schema_version) {
+            'homepage-v0.3-brand' => tio2_serialize_homepage_v03_preview($homepage, $site_id),
+            'homepage-v0.2-editorial-geo' => tio2_serialize_homepage_v02_preview($homepage, $site_id),
+            default => tio2_serialize_homepage_preview($homepage, $site_id),
+        };
 
         return new WP_REST_Response($payload, 200);
     }

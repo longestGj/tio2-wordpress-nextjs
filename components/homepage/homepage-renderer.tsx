@@ -2,11 +2,14 @@ import {HomepageTemplate} from '@/components/homepage/homepage-template'
 import {SiteShell} from '@/components/site-shell'
 import {EditorialHomepage} from '@/components/sites/tio2-a/homepage/editorial-homepage'
 import {SiteAHomepageShell} from '@/components/sites/tio2-a/site-a-homepage-shell'
+import {BrandHomepage} from '@/components/sites/tio2-a/homepage/brand-homepage'
+import {SiteABrandShell} from '@/components/sites/tio2-a/site-a-brand-shell'
 import type {
   AnyHomepageDto,
   HomepageDto,
 } from '@/lib/wordpress/homepage-types'
 import type {SiteAEditorialHomepageDto} from '@/lib/wordpress/homepage-v02-types'
+import type {SiteABrandHomepageDto} from '@/lib/wordpress/homepage-v03-types'
 import type {SiteConfig} from '@/sites'
 import {getSiteTemplateProfile} from '@/sites'
 
@@ -20,6 +23,10 @@ function isSiteAEditorialHomepage(
   homepage: AnyHomepageDto,
 ): homepage is SiteAEditorialHomepageDto {
   return homepage.identity.schemaVersion === 'homepage-v0.2-editorial-geo'
+}
+
+function isSiteABrandHomepage(homepage: AnyHomepageDto): homepage is SiteABrandHomepageDto {
+  return homepage.identity.schemaVersion === 'homepage-v0.3-brand'
 }
 
 function isLegacyHomepage(homepage: AnyHomepageDto): homepage is HomepageDto {
@@ -36,7 +43,18 @@ export function HomepageRenderer({site, homepage, jsonLd}: HomepageRendererProps
   ) : null
 
   if (
-    profile.homepage.key === 'site-a-homepage-editorial-v0.2' &&
+    profile.homepage.key === 'site-a-homepage-brand-v0.3' &&
+    isSiteABrandHomepage(homepage)
+  ) {
+    return (
+      <SiteABrandShell site={site} structuredData={structuredData}>
+        <BrandHomepage homepage={homepage} />
+      </SiteABrandShell>
+    )
+  }
+
+  if (
+    site.id === 'tio2-a' &&
     isSiteAEditorialHomepage(homepage)
   ) {
     return (

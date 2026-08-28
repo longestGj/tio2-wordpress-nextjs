@@ -11,10 +11,11 @@ const PRODUCT_SLUG_PATH = /^\/products\/(tp-[a-z]{1,2}[0-9]{3})$/u
 
 const homepageTemplateKeys = new Set<HomepageTemplateKey>([
   'site-a-homepage-editorial-v0.2',
+  'site-a-homepage-brand-v0.3',
   'site-b-homepage-v0.1-frozen',
 ])
 const expectedHomepageTemplates: Readonly<Record<SiteId, HomepageTemplateKey>> = Object.freeze({
-  'tio2-a': 'site-a-homepage-editorial-v0.2',
+  'tio2-a': 'site-a-homepage-brand-v0.3',
   'tio2-b': 'site-b-homepage-v0.1-frozen',
 })
 

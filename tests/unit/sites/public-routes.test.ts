@@ -9,7 +9,7 @@ import type {PublicRouteDefinition} from '@/sites/types'
 
 describe('public route inventory', () => {
   it.each([
-    ['tio2-a', 'site-a-homepage-editorial-v0.2'],
+    ['tio2-a', 'site-a-homepage-brand-v0.3'],
     ['tio2-b', 'site-b-homepage-v0.1-frozen'],
   ] as const)('maps %s root to %s', (siteId, template) => {
     expect(getPublicRoutes(siteId)).toEqual([{path: '/', template}])
@@ -17,9 +17,9 @@ describe('public route inventory', () => {
     expect(isPublicRoute(siteId, '/')).toBe(true)
   })
 
-  it('maps Site A only to the editorial GEO homepage route', () => {
+  it('maps Site A only to the approved brand homepage route', () => {
     expect(getPublicRoutes('tio2-a')).toEqual([
-      {path: '/', template: 'site-a-homepage-editorial-v0.2'},
+      {path: '/', template: 'site-a-homepage-brand-v0.3'},
     ])
   })
 
@@ -28,7 +28,7 @@ describe('public route inventory', () => {
 
     expect(() => (routes as PublicRouteDefinition[]).push({path: '/', template: 'site-a-homepage-editorial-v0.2'})).toThrow(TypeError)
     expect(() => Object.assign(routes[0], {template: 'site-b-homepage-v0.1-frozen'})).toThrow(TypeError)
-    expect(getPublicRoutes('tio2-a')).toEqual([{path: '/', template: 'site-a-homepage-editorial-v0.2'}])
+    expect(getPublicRoutes('tio2-a')).toEqual([{path: '/', template: 'site-a-homepage-brand-v0.3'}])
   })
 
   it('accepts only the canonical root slash', () => {

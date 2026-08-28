@@ -17,7 +17,7 @@ function tio2_supported_site_ids(): array
 function tio2_expected_homepage_schema_version(string $site_id): ?string
 {
     return match ($site_id) {
-        'tio2-a' => 'homepage-v0.2-editorial-geo',
+        'tio2-a' => 'homepage-v0.3-brand',
         'tio2-b' => 'homepage-v0.1',
         default => null,
     };

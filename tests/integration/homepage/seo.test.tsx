@@ -21,6 +21,8 @@ const seoMocks = vi.hoisted(() => ({
 vi.mock('next/font/google', () => ({
   Inter: () => ({variable: 'inter-font'}),
   Source_Serif_4: () => ({variable: 'source-serif-font'}),
+  Source_Sans_3: () => ({variable: 'source-sans-font'}),
+  Space_Grotesk: () => ({variable: 'space-grotesk-font'}),
 }))
 vi.mock('@/lib/sites/current-site', () => ({
   getCurrentSite: seoMocks.getCurrentSite,
