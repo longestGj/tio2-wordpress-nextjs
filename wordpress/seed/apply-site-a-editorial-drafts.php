@@ -204,17 +204,17 @@ function tio2_site_a_editorial_manifest_records($manifest, string $kind): array
     if (count($inventory) !== count($manifest['records'])) {
         throw new InvalidArgumentException("The Site A {$kind} manifest cardinality is invalid.");
     }
-    $seen = [];
+    $records_by_id = [];
     foreach ($manifest['records'] as $record) {
         if (! is_array($record) || ! is_array($record['identity'] ?? null)) {
             throw new InvalidArgumentException("The Site A {$kind} manifest contains a malformed record.");
         }
         $identity = $record['identity'];
         $id = $identity['id'] ?? null;
-        if (! is_string($id) || ! isset($inventory[$id]) || isset($seen[$id])) {
+        if (! is_string($id) || ! isset($inventory[$id]) || isset($records_by_id[$id])) {
             throw new InvalidArgumentException("The Site A {$kind} manifest identity set is invalid.");
         }
-        $seen[$id] = true;
+        $records_by_id[$id] = $record;
         $expected = $inventory[$id];
         if (($identity['path'] ?? null) !== $expected[0] || ('Application' === $kind ? ($identity['level'] ?? null) : ($identity['kind'] ?? null)) !== $expected[1] || ('Application' === $kind && ($identity['parentId'] ?? null) !== $expected[2])) {
             throw new InvalidArgumentException("The Site A {$kind} identity {$id} has a noncanonical path or hierarchy.");
@@ -223,10 +223,10 @@ function tio2_site_a_editorial_manifest_records($manifest, string $kind): array
             throw new InvalidArgumentException("The Site A {$kind} identity {$id} has a noncanonical slug.");
         }
     }
-    if (array_keys($inventory) !== array_keys($seen)) {
-        throw new InvalidArgumentException("The Site A {$kind} manifest order or identity set is invalid.");
+    if ([] !== array_diff_key($inventory, $records_by_id) || [] !== array_diff_key($records_by_id, $inventory)) {
+        throw new InvalidArgumentException("The Site A {$kind} manifest identity set is invalid.");
     }
-    return $manifest['records'];
+    return array_map(static fn (string $id): array => $records_by_id[$id], array_keys($inventory));
 }
 
 /** @param mixed $manifest @return array<string, true> */
@@ -362,7 +362,6 @@ function tio2_site_a_editorial_expected_records(string $relationship_mode, array
     foreach ($resource_records as $record) {
         $records[] = tio2_site_a_editorial_resource_record($record, $relationship_mode, $product_keys, $deferred);
     }
-    usort($records, static fn (array $left, array $right): int => [$left['entityType'], $left['id']] <=> [$right['entityType'], $right['id']]);
     usort($deferred, static fn (array $left, array $right): int => [$left['sourceType'], $left['sourceId'], $left['field'], $left['targetProductId']] <=> [$right['sourceType'], $right['sourceId'], $right['field'], $right['targetProductId']]);
     $deferred_edges = $deferred;
     return $records;

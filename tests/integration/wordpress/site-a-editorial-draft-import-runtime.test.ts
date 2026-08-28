@@ -73,6 +73,27 @@ tio2_site_a_editorial_assert_wp_meta_allowlist(700, 'application');
 
 $applications = json_decode(file_get_contents($argv[2]), true, 512, JSON_THROW_ON_ERROR);
 $resources = json_decode(file_get_contents($argv[3]), true, 512, JSON_THROW_ON_ERROR);
+$canonical_applications = $applications;
+$locked_application_order = ['applications-hub','coatings','plastics','printing-inks','decorative-paper','solar-film','high-purity','masterbatch','polycarbonate','outdoor-pvc','film-masterbatch','soft-pvc-solar-backsheet','lcp-high-temperature-plastics','uv-resistant-engineering-plastics','water-based-paint','electrophoretic-coating','high-pvc-flat-paint','automotive-coatings','waterborne-automotive-coatings','marine-aerospace-protective','powder-coil-coatings','printing-ink','photovoltaic-white-film','mlcc-electronic-ceramics','decorative-paper-detail','laminated-decorative-paper','universal-multi-application','functional-materials'];
+$applications_by_id = [];
+foreach ($canonical_applications['records'] as $record) {
+    $applications_by_id[$record['identity']['id']] = $record;
+}
+if (count($locked_application_order) !== count($applications_by_id) || array_diff($locked_application_order, array_keys($applications_by_id))) throw new RuntimeException('Controlled permutation did not contain the exact Application inventory.');
+$applications = $canonical_applications;
+$applications['records'] = array_map(static fn(string $id): array => $applications_by_id[$id], $locked_application_order);
+
+$invalid_applications = [
+    'missing' => (static function(array $manifest): array { array_pop($manifest['records']); return $manifest; })($canonical_applications),
+    'extra' => (static function(array $manifest): array { $manifest['records'][] = $manifest['records'][0]; return $manifest; })($canonical_applications),
+    'duplicate' => (static function(array $manifest): array { $manifest['records'][1]['identity']['id'] = $manifest['records'][0]['identity']['id']; return $manifest; })($canonical_applications),
+    'identity' => (static function(array $manifest): array { $manifest['records'][0]['identity']['id'] = 'unexpected-application'; return $manifest; })($canonical_applications),
+    'path' => (static function(array $manifest): array { $manifest['records'][0]['identity']['path'] = '/applications/not-canonical'; return $manifest; })($canonical_applications),
+    'hierarchy' => (static function(array $manifest): array { $manifest['records'][1]['identity']['parentId'] = null; return $manifest; })($canonical_applications),
+];
+foreach ($invalid_applications as $case => $invalid_manifest) {
+    try { tio2_site_a_editorial_manifest_records($invalid_manifest, 'Application'); throw new RuntimeException("Invalid Application {$case} manifest was accepted."); } catch (InvalidArgumentException $expected) {}
+}
 $product_ids = ['TP-P100','TP-P300','TP-S100','TP-C200','TP-C410','TP-C120','TP-I100','TP-H100','TP-P200','TP-P110','TP-P320','TP-P120','TP-P310','TP-P330','TP-PA100','TP-PA110','TP-PA120','TP-C050','TP-C100','TP-C110','TP-I200','TP-C300','TP-C310','TP-C400','TP-U100'];
 $products = ['version' => '0.1', 'siteId' => 'tio2-a', 'products' => array_map(static fn(string $id): array => ['productId' => $id], $product_ids)];
 $hashes = [
@@ -99,6 +120,17 @@ $operations = [
 ];
 $GLOBALS['controlled_store'] = &$store;
 $GLOBALS['transaction_snapshot'] = &$transaction_snapshot;
+
+$canonical_hashes = [
+    'applications' => hash('sha256', json_encode($canonical_applications, JSON_THROW_ON_ERROR)),
+    'resources' => $hashes['resources'],
+    'products' => $hashes['products'],
+];
+$canonical_plan = tio2_site_a_editorial_draft_execute('plan', 'DeferredProductRelations', $canonical_applications, $resources, $products, $canonical_hashes, null, $operations);
+$permuted_plan = tio2_site_a_editorial_draft_execute('plan', 'DeferredProductRelations', $applications, $resources, $products, $canonical_hashes, null, $operations);
+$inventory_order = array_keys(TIO2_SITE_A_EDITORIAL_APPLICATION_INVENTORY);
+$permuted_application_actions = array_values(array_filter($permuted_plan['actions'], static fn(array $action): bool => 'application' === $action['entityType']));
+if ($canonical_plan['planSha256'] !== $permuted_plan['planSha256'] || $canonical_plan['actions'] !== $permuted_plan['actions'] || $inventory_order !== array_column($permuted_application_actions, 'id')) throw new RuntimeException('Permuted exact Application manifest was not canonicalized to the inventory plan.');
 
 $before_plan = $store;
 $plan = tio2_site_a_editorial_draft_execute('plan', 'DeferredProductRelations', $applications, $resources, $products, $hashes, null, $operations);
