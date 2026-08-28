@@ -28,14 +28,62 @@ function runControlledAudit() {
     'wpcli',
     '-r', String.raw`
 define('ABSPATH', __DIR__);
+$controlled_posts = [
+    101 => ['type' => 'tio2_application', 'status' => 'draft', 'scopes' => ['tio2-a'], 'fields' => ['application_id' => 'controlled-application']],
+    102 => ['type' => 'tio2_document', 'status' => 'draft', 'scopes' => ['tio2-a'], 'fields' => ['resource_id' => 'controlled-resource']],
+];
 function get_field($field, $id, $format) {
-    return ['application_id' => 'controlled-application', 'resource_id' => 'controlled-resource', 'product_id' => 'TP-P100'][$field] ?? null;
+    global $controlled_posts;
+    return $controlled_posts[$id]['fields'][$field] ?? null;
 }
 function get_post_field($field, $id) { return 'legacy-post-slug'; }
+function get_post_type($id) { global $controlled_posts; return $controlled_posts[$id]['type'] ?? false; }
+function get_post_status($id) { global $controlled_posts; return $controlled_posts[$id]['status'] ?? false; }
+function wp_get_object_terms($id, $taxonomy, $args) { global $controlled_posts; return $controlled_posts[$id]['scopes'] ?? []; }
+function is_wp_error($value) { return false; }
+function get_posts($args) {
+    global $controlled_posts;
+    $ids = [];
+    foreach ($controlled_posts as $id => $post) {
+        if (($post['type'] ?? null) !== ($args['post_type'] ?? null) || ($post['status'] ?? null) !== ($args['post_status'] ?? null)) { continue; }
+        if (($post['fields'][$args['meta_key']] ?? null) !== ($args['meta_value'] ?? null)) { continue; }
+        $ids[] = $id;
+    }
+    return $ids;
+}
 require $argv[1];
 if (['targetType' => 'application', 'targetKey' => 'controlled-application'] !== tio2_site_a_product_audit_target_from_wp_id(101, 'application')) { throw new RuntimeException('Application audit readback did not use its stable ID.'); }
 if (['targetType' => 'resource', 'targetKey' => 'controlled-resource'] !== tio2_site_a_product_audit_target_from_wp_id(102, 'resource')) { throw new RuntimeException('Resource audit readback did not use its stable ID.'); }
 if ([102] !== tio2_site_a_product_audit_related_group_value(['field_tio2_product_related_resources' => [102]], 'resources')) { throw new RuntimeException('Audit did not decode an ACF field-keyed relationship group.'); }
+function expect_target_failure(callable $callback, string $needle): void {
+    try {
+        $callback();
+    } catch (RuntimeException $error) {
+        if (str_contains($error->getMessage(), $needle)) { return; }
+        throw new RuntimeException('Expected relationship target failure containing ' . $needle . ', received: ' . $error->getMessage());
+    }
+    throw new RuntimeException('Expected relationship target failure containing ' . $needle . '.');
+}
+$valid_posts = $controlled_posts;
+expect_target_failure(static fn () => tio2_site_a_product_audit_target_from_wp_id(0, 'application'), 'positive');
+$controlled_posts[101]['type'] = 'tio2_document';
+expect_target_failure(static fn () => tio2_site_a_product_audit_target_from_wp_id(101, 'application'), 'post type');
+$controlled_posts = $valid_posts;
+$controlled_posts[101]['status'] = 'publish';
+expect_target_failure(static fn () => tio2_site_a_product_audit_target_from_wp_id(101, 'application'), 'draft');
+$controlled_posts = $valid_posts;
+$controlled_posts[101]['scopes'] = ['tio2-b'];
+expect_target_failure(static fn () => tio2_site_a_product_audit_target_from_wp_id(101, 'application'), 'Site A scope');
+$controlled_posts = $valid_posts;
+$controlled_posts[101]['fields']['application_id'] = ' controlled-application ';
+expect_target_failure(static fn () => tio2_site_a_product_audit_target_from_wp_id(101, 'application'), 'canonical stable key');
+$controlled_posts = $valid_posts;
+$controlled_posts[101]['fields']['application_id'] = '';
+expect_target_failure(static fn () => tio2_site_a_product_audit_target_from_wp_id(101, 'application'), 'canonical stable key');
+$controlled_posts = $valid_posts;
+$controlled_posts[103] = $controlled_posts[101];
+expect_target_failure(static fn () => tio2_site_a_product_audit_target_from_wp_id(101, 'application'), 'unique');
+$controlled_posts = $valid_posts;
 $ids = ['TP-P100','TP-P300','TP-S100','TP-C200','TP-C410','TP-C120','TP-I100','TP-H100','TP-P200','TP-P110','TP-P320','TP-P120','TP-P310','TP-P330','TP-PA100','TP-PA110','TP-PA120','TP-C050','TP-C100','TP-C110','TP-I200','TP-C300','TP-C310','TP-C400','TP-U100'];
 $products = array_map(static function (string $id): array {
     $slug = strtolower($id);
@@ -90,7 +138,7 @@ expect_failure(tio2_site_a_product_audit_compare($manifest, array_merge([$tds], 
 expect_failure(tio2_site_a_product_audit_compare($manifest, $expected_records, [$expected['path']], false, 'site-b', 'site-b'), 'approved public route');
 expect_failure(tio2_site_a_product_audit_compare($manifest, $expected_records, [], true, 'site-b', 'site-b'), 'anonymous GraphQL');
 expect_failure(tio2_site_a_product_audit_compare($manifest, $expected_records, [], false, 'before', 'after'), 'Site B');
-echo json_encode(['checked' => 10], JSON_THROW_ON_ERROR);
+echo json_encode(['checked' => 17], JSON_THROW_ON_ERROR);
 `, containerExporterPath], {encoding: 'utf8', timeout: 30_000})
   return result
 }
@@ -176,6 +224,6 @@ describe('local Site A Product draft audit boundary', () => {
 
     const result = runControlledAudit()
     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
-    expect(JSON.parse(result.stdout)).toEqual({checked: 10})
+    expect(JSON.parse(result.stdout)).toEqual({checked: 17})
   })
 })

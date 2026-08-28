@@ -261,11 +261,60 @@ function tio2_site_a_product_audit_site_b_hash(): string
 /** @return array{targetType: string, targetKey: string} */
 function tio2_site_a_product_audit_target_from_wp_id(int $id, string $type): array
 {
-    if ('product' === $type) {
-        return ['targetType' => 'product', 'targetKey' => (string) get_field('product_id', $id, false)];
+    $definitions = [
+        'application' => ['postType' => 'tio2_application', 'idField' => 'application_id'],
+        'resource' => ['postType' => 'tio2_document', 'idField' => 'resource_id'],
+        'product' => ['postType' => 'tio2_product', 'idField' => 'product_id'],
+    ];
+    if ($id <= 0) {
+        throw new RuntimeException('Product audit relationship targets require a positive post ID.');
     }
-    $id_field = 'application' === $type ? 'application_id' : 'resource_id';
-    return ['targetType' => $type, 'targetKey' => (string) get_field($id_field, $id, false)];
+    if (! isset($definitions[$type])) {
+        throw new RuntimeException('Product audit relationship targets require a supported target type.');
+    }
+    $definition = $definitions[$type];
+    if ($definition['postType'] !== get_post_type($id)) {
+        throw new RuntimeException("Product audit {$type} relationship target has the wrong post type.");
+    }
+    if ('draft' !== get_post_status($id)) {
+        throw new RuntimeException("Product audit {$type} relationship target must be a draft.");
+    }
+    $scopes = wp_get_object_terms($id, 'site_scope', ['fields' => 'slugs']);
+    if (is_wp_error($scopes)) {
+        throw new RuntimeException("Could not read Product audit {$type} relationship target scope.");
+    }
+    sort($scopes, SORT_STRING);
+    if (['tio2-a'] !== array_values($scopes)) {
+        throw new RuntimeException("Product audit {$type} relationship target must have exact Site A scope.");
+    }
+    $stable_key = get_field($definition['idField'], $id, false);
+    if (! is_string($stable_key) || '' === $stable_key || trim($stable_key) !== $stable_key) {
+        throw new RuntimeException("Product audit {$type} relationship target must have a canonical stable key.");
+    }
+    $candidate_ids = get_posts([
+        'post_type' => $definition['postType'],
+        'post_status' => 'draft',
+        'fields' => 'ids',
+        'posts_per_page' => -1,
+        'no_found_rows' => true,
+        'meta_key' => $definition['idField'],
+        'meta_value' => $stable_key,
+    ]);
+    $matching_ids = [];
+    foreach ($candidate_ids as $candidate_id) {
+        $candidate_scopes = wp_get_object_terms((int) $candidate_id, 'site_scope', ['fields' => 'slugs']);
+        if (is_wp_error($candidate_scopes)) {
+            throw new RuntimeException("Could not verify Product audit {$type} relationship target uniqueness.");
+        }
+        sort($candidate_scopes, SORT_STRING);
+        if (['tio2-a'] === array_values($candidate_scopes)) {
+            $matching_ids[] = (int) $candidate_id;
+        }
+    }
+    if ([$id] !== array_values($matching_ids)) {
+        throw new RuntimeException("Product audit {$type} relationship target stable key must resolve to one unique draft in exact Site A scope.");
+    }
+    return ['targetType' => $type, 'targetKey' => $stable_key];
 }
 
 /** @param mixed $value @return list<array{targetType: string, targetKey: string}> */
