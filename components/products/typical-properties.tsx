@@ -7,12 +7,14 @@ interface TypicalPropertiesProps {
   readonly ctas: ProductPageDto['ctas']
   readonly productId: string
   readonly properties: ProductPageDto['typicalProperties']
+  readonly showCta?: boolean
 }
 
 export function TypicalProperties({
   ctas,
   productId,
   properties,
+  showCta = true,
 }: TypicalPropertiesProps) {
   return (
     <section
@@ -62,11 +64,13 @@ export function TypicalProperties({
           </tbody>
         </table>
       </div>
-      <ProductCta
-        ctas={ctas}
-        placement="after-properties"
-        productId={productId}
-      />
+      {showCta ? (
+        <ProductCta
+          ctas={ctas}
+          placement="after-properties"
+          productId={productId}
+        />
+      ) : null}
     </section>
   )
 }

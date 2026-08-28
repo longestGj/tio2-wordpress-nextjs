@@ -7,9 +7,15 @@ interface ProductHeroProps {
   readonly ctas: ProductPageDto['ctas']
   readonly hero: ProductPageDto['hero']
   readonly identity: ProductPageDto['identity']
+  readonly showCta?: boolean
 }
 
-export function ProductHero({ctas, hero, identity}: ProductHeroProps) {
+export function ProductHero({
+  ctas,
+  hero,
+  identity,
+  showCta = true,
+}: ProductHeroProps) {
   return (
     <section
       className={styles.hero}
@@ -37,7 +43,9 @@ export function ProductHero({ctas, hero, identity}: ProductHeroProps) {
         />
       </div>
 
-      <ProductCta ctas={ctas} placement="hero" productId={identity.productId} />
+      {showCta ? (
+        <ProductCta ctas={ctas} placement="hero" productId={identity.productId} />
+      ) : null}
     </section>
   )
 }

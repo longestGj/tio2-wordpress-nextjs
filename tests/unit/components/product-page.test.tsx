@@ -34,6 +34,20 @@ const EXPECTED_SECTION_ORDER = [
   'technical-disclaimer',
 ] as const
 
+const RELEASE_LOOK_SECTION_ORDER = [
+  'hero',
+  'snapshot',
+  'selection-check',
+  'performance-priorities',
+  'recommended-applications',
+  'product-evidence',
+  'typical-properties',
+  'validation-guide',
+  'packaging-documents',
+  'frequently-asked-questions',
+  'related-applications-and-resources',
+] as const
+
 function completeProduct(): ProductPageDto {
   return toProductPageDto(validProductPageInput)
 }
@@ -249,6 +263,29 @@ describe('ProductPage', () => {
         'section[data-product-section="final-cta"][data-product-cta-placement="final"]',
       ),
     ).not.toBeNull()
+  })
+
+  it('hides unapproved shared conversion content in local release-look mode', () => {
+    const product = completeProduct()
+    const {container} = render(
+      <ProductPage displayMode="release-look" product={product} />,
+    )
+    const sections = Array.from(
+      container.querySelectorAll<HTMLElement>('section[data-product-section]'),
+    )
+
+    expect(sections.map((section) => section.dataset.productSection)).toEqual(
+      RELEASE_LOOK_SECTION_ORDER,
+    )
+    expect(container.querySelectorAll('[data-product-cta-placement]')).toHaveLength(0)
+    expect(
+      container.querySelector('[data-product-section="enquiry-details"]'),
+    ).toBeNull()
+    expect(
+      container.querySelector('[data-product-section="technical-disclaimer"]'),
+    ).toBeNull()
+    expect(screen.queryByText(product.ctas.requestTds.description)).toBeNull()
+    expect(screen.queryByText(product.ctas.discussApplication.description)).toBeNull()
   })
 
   it('keeps forbidden journey labels and direct TDS downloads out of the template', () => {

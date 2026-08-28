@@ -18,16 +18,23 @@ import {TypicalProperties} from './typical-properties'
 import {ValidationGuide} from './validation-guide'
 
 interface ProductPageProps {
+  readonly displayMode?: 'release-look' | 'standard'
   readonly product: ProductPageDto
 }
 
-export function ProductPage({product}: ProductPageProps) {
+export function ProductPage({
+  displayMode = 'standard',
+  product,
+}: ProductPageProps) {
+  const showSharedConversionContent = displayMode === 'standard'
+
   return (
     <article className={styles.page} data-product-id={product.identity.productId}>
       <ProductHero
         ctas={product.ctas}
         hero={product.hero}
         identity={product.identity}
+        showCta={showSharedConversionContent}
       />
       <ProductSnapshot snapshot={product.snapshot} />
       <ProductExtensionSlot insertionPoint="after-snapshot" product={product} />
@@ -43,25 +50,32 @@ export function ProductPage({product}: ProductPageProps) {
         ctas={product.ctas}
         productId={product.identity.productId}
         properties={product.typicalProperties}
+        showCta={showSharedConversionContent}
       />
       <ValidationGuide checklist={product.validationChecklist} />
       <ProductExtensionSlot
         insertionPoint="after-validation-guide"
         product={product}
       />
-      <EnquiryDetails fields={product.enquiryFields} />
+      {showSharedConversionContent ? (
+        <EnquiryDetails fields={product.enquiryFields} />
+      ) : null}
       <PackagingDocuments
         packaging={product.packaging}
         tdsAccess={product.tdsAccess}
       />
       <ProductFaq faqs={product.faqs} />
       <RelatedContent relatedLinks={product.relatedLinks} />
-      <ProductCta
-        ctas={product.ctas}
-        placement="final"
-        productId={product.identity.productId}
-      />
-      <TechnicalDisclaimer disclaimerHtml={product.disclaimerHtml} />
+      {showSharedConversionContent ? (
+        <>
+          <ProductCta
+            ctas={product.ctas}
+            placement="final"
+            productId={product.identity.productId}
+          />
+          <TechnicalDisclaimer disclaimerHtml={product.disclaimerHtml} />
+        </>
+      ) : null}
     </article>
   )
 }
