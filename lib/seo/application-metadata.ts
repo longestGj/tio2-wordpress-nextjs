@@ -12,8 +12,8 @@ export function buildApplicationMetadata(
 ): Metadata {
   assertCanonicalApplicationGraph(application)
   const canonical = new URL(application.identity.path, site.url).href
-  const title = htmlToPlainText(application.seo.title, 60)
-  const description = htmlToPlainText(application.seo.description, 160)
+  const title = htmlToPlainText(application.seo.title, 100)
+  const description = htmlToPlainText(application.seo.description, 220)
   const common = {
     url: canonical,
     siteName: htmlToPlainText(site.name, 60),

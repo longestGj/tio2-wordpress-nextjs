@@ -48,6 +48,28 @@ function nodeOfType(values: readonly JsonLdRecord[], type: string): JsonLdRecord
 }
 
 describe('Application metadata', () => {
+  it('preserves approved extended Application metadata', async () => {
+    const {buildApplicationMetadata} = await import(
+      '@/lib/seo/application-metadata'
+    )
+    const application = fixture('category')
+    application.seo = {
+      title:
+        'Titanium Dioxide for Plastics | Masterbatch, PVC & Engineering Plastics | TIOVAR',
+      description:
+        'Explore TIOVAR titanium dioxide for masterbatch, film, PVC, polycarbonate and engineering plastics. Compare application-specific starting points by resin, process and finished-part requirements.',
+    }
+
+    const metadata = buildApplicationMetadata(
+      application,
+      getSiteConfig('tio2-a'),
+    )
+
+    expect(metadata.title).toBe(application.seo.title)
+    expect(metadata.description).toBe(application.seo.description)
+    expect(metadata.openGraph).toMatchObject(application.seo)
+  })
+
   it.each(['hub', 'category'] as const)(
     'uses collection-oriented website Open Graph metadata for %s pages',
     async (level) => {

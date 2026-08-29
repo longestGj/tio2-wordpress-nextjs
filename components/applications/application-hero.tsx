@@ -10,6 +10,10 @@ const HERO_IMAGE_BY_LEVEL = {
   detail: '/site-a/applications/water-based-paint-detail-hero.png',
 } as const
 
+const HERO_IMAGE_BY_ID: Readonly<Partial<Record<string, string>>> = {
+  masterbatch: '/site-a/applications/masterbatch-detail-hero-v2.png',
+}
+
 function Headline({value}: {readonly value: string}) {
   const parts = value.split('Water-Based')
   if (parts.length === 1) return value
@@ -52,7 +56,10 @@ export function ApplicationHero({
     >
       <Image
         className={styles.heroImage}
-        src={HERO_IMAGE_BY_LEVEL[application.identity.level]}
+        src={
+          HERO_IMAGE_BY_ID[application.identity.id] ??
+          HERO_IMAGE_BY_LEVEL[application.identity.level]
+        }
         alt=""
         fill
         priority

@@ -63,7 +63,13 @@ export function buildApplicationBreadcrumbItems(
   const candidates = [
     {title: 'Home', path: '/'},
     ...hierarchy.map(([title, path]) => ({title, path})),
-    {title: application.identity.title, path: application.identity.path},
+    {
+      title:
+        application.identity.id === 'plastics'
+          ? breadcrumbTitleById.plastics
+          : application.identity.title,
+      path: application.identity.path,
+    },
   ]
 
   return candidates.map((item, index) => {

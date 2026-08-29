@@ -6,6 +6,7 @@ import {afterEach, describe, expect, it} from 'vitest'
 import {ApplicationPageRenderer} from '@/components/applications/application-page'
 import {ApplicationBodySections} from '@/components/applications/application-body-sections'
 import {toApplicationPageDto} from '@/lib/applications/dto'
+import {validateSiteAApplicationManifest} from '@/lib/applications/content-manifest'
 import type {ApplicationPageInput} from '@/lib/applications/schema'
 import type {ApplicationPageDto} from '@/lib/applications/types'
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
@@ -16,6 +17,8 @@ import {
   applicationHubInput,
   universalApplicationDetailInput,
 } from '@/tests/fixtures/editorial/application-pages'
+import plasticsReview from '@/docs/seo/site-a-applications/page-reviews/plastics.review-v1.json'
+import masterbatchReview from '@/docs/seo/site-a-applications/page-reviews/masterbatch.review-v2.json'
 
 const EXPECTED_ORDER = {
   hub: [
@@ -156,6 +159,68 @@ function universalApplicationFixture(): ApplicationPageDto {
     structuredClone(universalApplicationDetailInput),
     resolveTarget,
   )
+}
+
+const plasticsChildTitles: Readonly<Record<string, string>> = {
+  'film-masterbatch': 'Titanium Dioxide for PET, PE & PP Film Masterbatch',
+  'lcp-high-temperature-plastics':
+    'Titanium Dioxide for LCP & High-Temperature Engineering Plastics',
+  masterbatch: 'Titanium Dioxide for Masterbatch',
+  'outdoor-pvc': 'Titanium Dioxide for Outdoor PVC & Weatherable Plastics',
+  polycarbonate: 'Titanium Dioxide for Polycarbonate & Engineering Plastics',
+  'soft-pvc-solar-backsheet':
+    'Titanium Dioxide for Soft PVC & Solar Backsheet Film',
+  'uv-resistant-engineering-plastics':
+    'UV-Resistant Titanium Dioxide for Engineering Plastics',
+}
+
+function plasticsApplicationFixture(): ApplicationPageDto {
+  const [input] = validateSiteAApplicationManifest(
+    {version: '0.1', siteId: 'tio2-a', records: [plasticsReview]},
+    {allowIncomplete: true},
+  ).records
+  if (!input) throw new Error('Missing Plastics review fixture')
+  return toApplicationPageDto(input, (target) => {
+    const canonical = resolveCanonicalEditorialTarget(target.type, target.id)
+    if (!canonical) return null
+    return {
+      ...canonical.target,
+      title:
+        plasticsChildTitles[target.id] ??
+        (target.type === 'product' ? target.id : `Resolved ${target.type} ${target.id}`),
+      path: canonical.path,
+      href: null,
+    }
+  })
+}
+
+const masterbatchTitles: Readonly<Record<string, string>> = {
+  'article-05': 'Why TiO2 Content Alone Does Not Determine Performance',
+  'film-masterbatch': 'Titanium Dioxide for PET, PE & PP Film Masterbatch',
+  'outdoor-pvc': 'Titanium Dioxide for Outdoor PVC & Weatherable Plastics',
+  'article-03': 'What Is CBU in Titanium Dioxide?',
+  'article-07': 'How to Evaluate a Titanium Dioxide Alternative Grade',
+  plastics: 'Titanium Dioxide for Plastics',
+}
+
+function masterbatchApplicationFixture(): ApplicationPageDto {
+  const [input] = validateSiteAApplicationManifest(
+    {version: '0.1', siteId: 'tio2-a', records: [masterbatchReview]},
+    {allowIncomplete: true},
+  ).records
+  if (!input) throw new Error('Missing Masterbatch review fixture')
+  return toApplicationPageDto(input, (target) => {
+    const canonical = resolveCanonicalEditorialTarget(target.type, target.id)
+    if (!canonical) return null
+    return {
+      ...canonical.target,
+      title:
+        masterbatchTitles[target.id] ??
+        (target.type === 'product' ? target.id : `Resolved ${target.type} ${target.id}`),
+      path: canonical.path,
+      href: null,
+    }
+  })
 }
 
 function mutateFixture(
@@ -307,6 +372,79 @@ describe('ApplicationPageRenderer', () => {
     expect(screen.queryByText('Buyer problem')).toBeNull()
     expect(screen.getByRole('heading', {name: 'What Controls the First Screen'})).not.toBeNull()
     expect(container.querySelectorAll('details[data-application-candidate]')).toHaveLength(2)
+  })
+
+  it('renders the approved Plastics category language without Coatings residue', () => {
+    const application = plasticsApplicationFixture()
+    const {container} = render(
+      <ApplicationPageRenderer application={application} />,
+    )
+    const breadcrumb = screen.getByRole('navigation', {name: 'Breadcrumb'})
+    const routes = container.querySelector<HTMLElement>(
+      '[data-application-section="child-navigation"]',
+    )
+
+    expect(within(breadcrumb).getByText('Plastics')).not.toBeNull()
+    expect(within(breadcrumb).queryByText(application.identity.title)).toBeNull()
+    expect(routes?.textContent).toContain('Plastics routes')
+    expect(routes?.textContent).toContain('Choose the Plastics route')
+    expect(routes?.textContent).toContain('Titanium Dioxide for Film Masterbatch')
+    expect(routes?.textContent).toContain('Titanium Dioxide for General Masterbatch')
+    expect(routes?.textContent).toContain('Titanium Dioxide for Polycarbonate')
+    expect(routes?.textContent).not.toContain('Coating')
+    expect(
+      screen.getByRole('heading', {name: 'Key Selection Factors for Plastics'}),
+    ).not.toBeNull()
+    expect(
+      screen.getByRole('heading', {
+        name: 'Match the Plastics Route to a Starting Candidate',
+      }),
+    ).not.toBeNull()
+    expect(container.querySelectorAll('details[data-application-candidate]')).toHaveLength(9)
+    expect(container.textContent).toContain('PRODUCT')
+    expect(container.textContent).toContain('TECHNICAL RESOURCE')
+    expect(container.textContent).toContain('Prepare a Focused Application Discussion')
+  })
+
+  it('renders the approved Masterbatch refinement as one integrated selection flow', () => {
+    const application = masterbatchApplicationFixture()
+    const {container} = render(
+      <ApplicationPageRenderer application={application} />,
+    )
+    const selection = container.querySelector<HTMLElement>(
+      '[data-application-section="selection-factors"]',
+    )
+    const related = container.querySelector<HTMLElement>(
+      '[data-editorial-section="related-content"]',
+    )
+    const heroImage = container.querySelector<HTMLImageElement>(
+      '[data-application-section="hero"] img',
+    )
+
+    expect(
+      screen.getByRole('heading', {name: 'Understand the Complete Masterbatch System'}),
+    ).not.toBeNull()
+    expect(selection?.querySelectorAll('ol > li')).toHaveLength(4)
+    expect(selection?.textContent).toContain(
+      'Technical note — CBU and color interpretation',
+    )
+    expect(selection?.textContent).toContain(
+      'Do Not Transfer Results Across Masterbatch Routes',
+    )
+    expect(selection?.textContent).toContain('Request a TDS')
+    expect(container.querySelector('[data-application-body-sections]')).toBeNull()
+    expect(related?.textContent).toContain('TECHNICAL RESOURCE')
+    expect(related?.textContent).toContain('APPLICATION')
+    expect(related?.textContent).toContain('CATEGORY')
+    expect(container.querySelector('#documents')?.textContent).toContain(
+      'Request the relevant TDS and supporting technical information for the grade you are evaluating.',
+    )
+    expect(container.querySelector('#inquiry')?.textContent).toContain(
+      'Share the application, formulation and process context needed to identify a realistic evaluation starting point and plan the next trial.',
+    )
+    expect(heroImage?.getAttribute('src')).toContain(
+      'masterbatch-detail-hero-v2.png',
+    )
   })
 
   it('derives child cards and relationships only from DTO links without creating dead anchors', () => {

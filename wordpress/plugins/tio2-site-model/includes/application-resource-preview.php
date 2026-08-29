@@ -134,7 +134,14 @@ function tio2_editorial_contains_unsafe_value($value): bool
         $decoded = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $claim_scan = 'Can TP-C410 be treated as a replacement for TP-C300?' === trim($decoded)
             ? ''
-            : str_replace('not intended as guaranteed specifications', '', $decoded);
+            : str_replace(
+                [
+                    'not intended as guaranteed specifications',
+                    'not guaranteed specifications',
+                ],
+                '',
+                $decoded
+            );
         $claim_scan = preg_replace(
             '/\b(?:finished-product approval|customer approval|approval criteria|approval method|approval plan|approval stage)\b/iu',
             '',
