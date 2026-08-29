@@ -66,7 +66,7 @@ describe('Application starting Product contract', () => {
       ['TP-C120', 'primary'],
       ['TP-C100', 'alternative'],
     ])
-    expect(dto.startingProducts[0]?.product.path).toBe('/products/tp-c120')
+    expect(dto.startingProducts[0]?.product.path).toBe('/products/coatings/tp-c120')
   })
 
   it('defaults the Hub to no starting Products', () => {

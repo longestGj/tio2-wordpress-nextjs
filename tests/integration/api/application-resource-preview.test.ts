@@ -7,6 +7,7 @@ import {ApplicationContractError} from '@/lib/applications/dto'
 import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest'
 import type {EditorialTarget} from '@/lib/editorial/types'
 import {SITE_A_PRODUCT_IDS} from '@/lib/products/content-manifest'
+import {SITE_A_PRODUCT_IDENTITIES} from '@/lib/products/page-graph'
 import {ResourceContractError} from '@/lib/resources/dto'
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {
@@ -32,6 +33,9 @@ import {server} from '@/tests/mocks/server'
 const entrySecret = 'application-resource-entry-secret'
 const wordpressSecret = 'application-resource-wordpress-secret'
 const wordpressPreviewUrl = 'http://wordpress.test/wp-json/tio2/v1/preview'
+const productPaths = new Map<string, string>(
+  SITE_A_PRODUCT_IDENTITIES.map(({id, path}) => [id, path]),
+)
 
 const applicationHub = structuredClone(applicationManifest.records[0])
 const applicationCategory = structuredClone(applicationManifest.records[1])
@@ -52,7 +56,7 @@ function canonicalTarget(target: EditorialTarget) {
   if (!SITE_A_PRODUCT_IDS.includes(target.id as (typeof SITE_A_PRODUCT_IDS)[number])) {
     throw new Error(`Unknown test Product: ${target.id}`)
   }
-  return {type: target.type, id: target.id, path: `/products/${target.id.toLowerCase()}`}
+  return {type: target.type, id: target.id, path: productPaths.get(target.id) ?? ''}
 }
 
 function serializedLink(target: {type: string; id: string}) {
@@ -484,9 +488,9 @@ describe('Application and Resource preview entry redirects', () => {
 
   it('preserves Product preview session token behavior', () => {
     const expires = Math.floor(Date.now() / 1000) + 300
-    const token = createPreviewSessionToken('tio2-a', '/products/tp-c120', expires, entrySecret)
+    const token = createPreviewSessionToken('tio2-a', '/products/coatings/tp-c120', expires, entrySecret)
 
-    expect(isValidPreviewSessionToken(token, entrySecret, 'tio2-a', '/products/tp-c120')).toBe(true)
-    expect(isValidPreviewSessionToken(token, entrySecret, 'tio2-a', '/preview/products/tp-c120')).toBe(false)
+    expect(isValidPreviewSessionToken(token, entrySecret, 'tio2-a', '/products/coatings/tp-c120')).toBe(true)
+    expect(isValidPreviewSessionToken(token, entrySecret, 'tio2-a', '/preview/products/coatings/tp-c120')).toBe(false)
   })
 })

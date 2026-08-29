@@ -1,15 +1,16 @@
 import type {MetadataRoute} from 'next'
 
-import {ProductContractError} from '@/lib/products/dto'
+import {ProductPageContractError} from '@/lib/products/page-dto'
+import {resolveProductPageIdentity, type ProductPageIdentity} from '@/lib/products/page-graph'
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {HomepageContractError} from '@/lib/wordpress/homepage-dto'
 import {getHomepage} from '@/lib/wordpress/homepage-queries'
-import {getSiteProduct} from '@/lib/wordpress/product-queries'
+import {getSiteProductPage} from '@/lib/wordpress/product-page-queries'
 import {isStrictUtcInstant} from '@/lib/wordpress/time'
 import {CrossSiteContentError} from '@/lib/wordpress/types'
 import type {SiteConfig} from '@/sites'
 import {
-  getApprovedProductSlugs,
+  getApprovedProductPagePaths,
   getPublicRoutes,
 } from '@/sites/public-routes'
 import {getSiteTemplateProfile} from '@/sites/template-profiles'
@@ -51,14 +52,14 @@ export class SitemapIntegrityError extends Error {
 
 export interface SitemapSources {
   readonly getHomepage: typeof getHomepage
-  readonly getSiteProduct: typeof getSiteProduct
+  readonly getSiteProductPage: typeof getSiteProductPage
   readonly getPublicRoutes: typeof getPublicRoutes
   readonly getSiteTemplateProfile: typeof getSiteTemplateProfile
 }
 
 const defaultSitemapSources: SitemapSources = {
   getHomepage,
-  getSiteProduct,
+  getSiteProductPage,
   getPublicRoutes,
   getSiteTemplateProfile,
 }
@@ -71,7 +72,7 @@ type ValidatedSitemapRoute =
   | {
       readonly kind: 'product'
       readonly route: ProductRouteDefinition
-      readonly slug: string
+      readonly identity: ProductPageIdentity
     }
 
 function inventoryError(path: string): never {
@@ -87,12 +88,7 @@ function validateRoutes(
   routes: readonly PublicRouteDefinition[],
   profile: SiteTemplateProfile,
 ): readonly ValidatedSitemapRoute[] {
-  const approvedProductPaths = new Map(
-    getApprovedProductSlugs(site.id, routes).map((slug) => [
-      `/products/${slug}`,
-      slug,
-    ]),
-  )
+  const approvedProductPaths = new Set(getApprovedProductPagePaths(site.id, routes))
   const paths = new Set<string>()
   let homepageCount = 0
 
@@ -114,13 +110,13 @@ function validateRoutes(
       inventoryError(route.path)
     }
 
-    const slug = approvedProductPaths.get(route.path)
-    if (!slug) inventoryError(route.path)
+    const identity = resolveProductPageIdentity(route.path)
+    if (!approvedProductPaths.has(route.path) || !identity) inventoryError(route.path)
 
     return {
       kind: 'product',
       route: route as ProductRouteDefinition,
-      slug,
+      identity,
     }
   })
 
@@ -185,20 +181,20 @@ async function homepageEntry(
 async function productEntry(
   site: SiteConfig,
   route: ProductRouteDefinition,
-  slug: string,
+  identity: ProductPageIdentity,
   sources: SitemapSources,
 ): Promise<MetadataRoute.Sitemap[number]> {
   let product
   try {
-    product = await sources.getSiteProduct(site, slug)
+    product = await sources.getSiteProductPage(site, identity.path)
   } catch (error) {
     if (
-      error instanceof ProductContractError ||
+      error instanceof ProductPageContractError ||
       error instanceof CrossSiteContentError
     ) {
       throw new SitemapIntegrityError({
         reason: 'source-invalid',
-        firstId: slug,
+        firstId: identity.id,
         path: route.path,
       })
     }
@@ -207,17 +203,17 @@ async function productEntry(
 
   if (
     !product ||
-    product.identity.slug !== slug ||
-    product.identity.path !== route.path
+    product.identity.path !== route.path ||
+    product.level !== identity.level
   ) {
     throw new SitemapIntegrityError({
       reason: 'source-invalid',
-      firstId: product?.identity.productId ?? slug,
+      firstId: product?.identity.id ?? identity.id,
       path: route.path,
     })
   }
 
-  return sitemapEntry(site, route.path, product.identity.modified)
+  return {url: new URL(route.path, site.url).href}
 }
 
 export async function buildSitemap(
@@ -232,7 +228,7 @@ export async function buildSitemap(
     validatedRoutes.map((item) =>
       item.kind === 'homepage'
         ? homepageEntry(site, item.route, profile, sources)
-        : productEntry(site, item.route, item.slug, sources),
+        : productEntry(site, item.route, item.identity, sources),
     ),
   )
 }

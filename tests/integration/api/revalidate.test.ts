@@ -28,7 +28,7 @@ function validPayload(
     eventId: randomUUID(),
     siteIds: ['tio2-a'],
     contentId: 42,
-    paths: ['/products'],
+    paths: ['/company'],
     entityIds: [],
     modified: new Date().toISOString(),
     ...overrides,
@@ -305,7 +305,7 @@ describe('POST /api/revalidate', () => {
       eventId: '550e8400-e29b-41d4-a716-446655440000',
       siteIds: ['tio2-a'],
       contentId: 42,
-      paths: ['/products'],
+      paths: ['/company'],
       entityIds: [9],
     })
 
@@ -318,23 +318,23 @@ describe('POST /api/revalidate', () => {
       eventId: payload.eventId,
       revalidatedTags: [
         'content-list:tio2-a',
-        'route:tio2-a:/products',
+        'route:tio2-a:/company',
         'site:tio2-a',
         'sitemap:tio2-a',
       ],
-      revalidatedPaths: ['/products'],
+      revalidatedPaths: ['/company'],
     })
     expect(revalidateTag.mock.calls).toEqual([
       ['content-list:tio2-a', 'max'],
-      ['route:tio2-a:/products', 'max'],
+      ['route:tio2-a:/company', 'max'],
       ['site:tio2-a', 'max'],
       ['sitemap:tio2-a', 'max'],
     ])
-    expect(revalidatePath.mock.calls).toEqual([['/products']])
+    expect(revalidatePath.mock.calls).toEqual([['/company']])
     expect(diagnostic).toHaveBeenCalledWith('[tio2-revalidation]', {
       siteId: 'tio2-a',
       contentId: 42,
-      paths: ['/products'],
+      paths: ['/company'],
     })
     diagnostic.mockRestore()
   })
@@ -342,8 +342,8 @@ describe('POST /api/revalidate', () => {
   it('normalizes and deduplicates paths before applying the 256-unique-path limit', async () => {
     const paths = [
       ...Array.from({length: 255}, (_, index) => `/batch/path-${index}`),
-      '/products',
-      '/products/',
+      '/catalog',
+      '/catalog/',
     ]
 
     const response = await POST(signedRequest(validPayload({paths})))
@@ -351,10 +351,10 @@ describe('POST /api/revalidate', () => {
 
     expect(response.status).toBe(200)
     expect(body.revalidatedPaths).toHaveLength(256)
-    expect(body.revalidatedPaths).toContain('/products')
-    expect(body.revalidatedPaths).not.toContain('/products/')
+    expect(body.revalidatedPaths).toContain('/catalog')
+    expect(body.revalidatedPaths).not.toContain('/catalog/')
     expect(revalidatePath).toHaveBeenCalledTimes(256)
-    expect(revalidatePath).toHaveBeenCalledWith('/products')
+    expect(revalidatePath).toHaveBeenCalledWith('/catalog')
     expect(revalidateTag).toHaveBeenCalledWith('content-list:tio2-a', 'max')
     expect(revalidateTag).toHaveBeenCalledWith('sitemap:tio2-a', 'max')
     expect(JSON.stringify(body)).not.toContain('tio2-b')

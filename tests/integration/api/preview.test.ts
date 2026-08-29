@@ -180,7 +180,7 @@ describe('GET /api/preview', () => {
       previewRequest(signedParameters('tio2-a', '/products/product-fixture')),
     )
 
-    expect(response.status).toBe(404)
+    expect(response.status).toBe(400)
     expect(response.headers.get('set-cookie')).toBeNull()
   })
 

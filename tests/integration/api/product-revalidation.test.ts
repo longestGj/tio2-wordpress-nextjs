@@ -7,13 +7,13 @@ const {revalidatePath, revalidateTag} = vi.hoisted(() => ({
 }))
 
 const productRoutePolicy = vi.hoisted(() => ({
-  approvedSlugs: [] as string[],
+  approvedPaths: [] as string[],
 }))
 
 vi.mock('next/cache', () => ({revalidatePath, revalidateTag}))
 vi.mock('@/sites/public-routes', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/sites/public-routes')>()),
-  getApprovedProductSlugs: () => productRoutePolicy.approvedSlugs,
+  getApprovedProductPagePaths: () => productRoutePolicy.approvedPaths,
 }))
 
 import {POST} from '@/app/api/revalidate/route'
@@ -36,7 +36,7 @@ function payloadFor(
     eventId: randomUUID(),
     siteIds: ['tio2-a'],
     contentId: 120,
-    paths: ['/products/tp-c120'],
+    paths: ['/products/coatings/tp-c120'],
     entityIds: [120],
     modified: new Date().toISOString(),
     ...overrides,
@@ -60,7 +60,7 @@ function signedRequest(payload: RevalidationPayload): Request {
 beforeEach(() => {
   vi.stubEnv('REVALIDATION_SECRET', secret)
   vi.stubEnv('SITE_ID', 'tio2-a')
-  productRoutePolicy.approvedSlugs = ['tp-c120']
+  productRoutePolicy.approvedPaths = ['/products/coatings/tp-c120']
 })
 
 afterEach(() => {
@@ -83,24 +83,24 @@ describe('Product revalidation', () => {
       revalidatedTags: [
         'content-list:tio2-a',
         'entity:tio2-a:120',
+        'product-detail:tio2-a:coatings:tp-c120',
         'product-list:tio2-a',
-        'product:tio2-a:tp-c120',
-        'route:tio2-a:/products/tp-c120',
+        'route:tio2-a:/products/coatings/tp-c120',
         'site:tio2-a',
         'sitemap:tio2-a',
       ],
-      revalidatedPaths: ['/products/tp-c120'],
+      revalidatedPaths: ['/products/coatings/tp-c120'],
     })
     expect(revalidateTag.mock.calls).toEqual([
       ['content-list:tio2-a', 'max'],
       ['entity:tio2-a:120', 'max'],
+      ['product-detail:tio2-a:coatings:tp-c120', 'max'],
       ['product-list:tio2-a', 'max'],
-      ['product:tio2-a:tp-c120', 'max'],
-      ['route:tio2-a:/products/tp-c120', 'max'],
+      ['route:tio2-a:/products/coatings/tp-c120', 'max'],
       ['site:tio2-a', 'max'],
       ['sitemap:tio2-a', 'max'],
     ])
-    expect(revalidatePath.mock.calls).toEqual([['/products/tp-c120']])
+    expect(revalidatePath.mock.calls).toEqual([['/products/coatings/tp-c120']])
   })
 
   it('does not repeat Product invalidation for a replayed event', async () => {
@@ -117,7 +117,7 @@ describe('Product revalidation', () => {
       revalidatedPaths: [],
     })
     expect(revalidateTag).toHaveBeenCalledTimes(7)
-    expect(revalidatePath).toHaveBeenCalledExactlyOnceWith('/products/tp-c120')
+    expect(revalidatePath).toHaveBeenCalledExactlyOnceWith('/products/coatings/tp-c120')
   })
 
   it('rejects a signed Product event for another site before invalidating cache', async () => {
@@ -131,7 +131,7 @@ describe('Product revalidation', () => {
   })
 
   it('rejects an unapproved Product path before invalidating cache', async () => {
-    productRoutePolicy.approvedSlugs = []
+    productRoutePolicy.approvedPaths = []
 
     const response = await POST(signedRequest(payloadFor()))
 

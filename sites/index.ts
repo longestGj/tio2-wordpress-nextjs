@@ -22,6 +22,7 @@ export {
   SITE_IDS,
 } from './types'
 export {
+  getApprovedProductPagePaths,
   getApprovedProductSlugs,
   getExpectedPublicUrlCount,
   getPublicRoutes,

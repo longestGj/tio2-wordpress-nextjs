@@ -6,15 +6,16 @@ import {
   getApplicationPreview,
 } from '@/lib/wordpress/application-preview'
 import {ApplicationContractError} from '@/lib/applications/dto'
-import {ProductContractError} from '@/lib/products/dto'
+import {ProductPageContractError} from '@/lib/products/page-dto'
+import {resolveProductPageIdentity} from '@/lib/products/page-graph'
 import {ResourceContractError} from '@/lib/resources/dto'
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {isValidPublicPath} from '@/lib/wordpress/cache-tags'
 import {getPreviewContentByPath} from '@/lib/wordpress/preview'
 import {
-  getProductPreview,
-  ProductPreviewNotFoundError,
-} from '@/lib/wordpress/product-preview'
+  getProductPagePreview,
+  ProductPagePreviewNotFoundError,
+} from '@/lib/wordpress/product-page-preview'
 import {resourceIdentityForPath} from '@/lib/wordpress/resource-queries'
 import {
   getResourcePreview,
@@ -31,7 +32,11 @@ import {
 
 export const runtime = 'nodejs'
 
-const PRODUCT_PATH_PATTERN = /^\/products\/(tp-[a-z]{1,2}[0-9]{3})$/u
+const PRODUCT_PREVIEW_PATHS = new Set([
+  '/products',
+  '/products/coatings',
+  '/products/coatings/tp-c120',
+])
 
 function signatureMatches(
   signature: string,
@@ -212,13 +217,13 @@ export async function GET(request: Request): Promise<Response> {
     )
   }
 
-  const productMatch = PRODUCT_PATH_PATTERN.exec(path)
-  if (productMatch?.[1]) {
+  const productIdentity = exactSiteA ? resolveProductPageIdentity(path) : null
+  if (PRODUCT_PREVIEW_PATHS.has(path) && productIdentity?.path === path) {
     try {
-      await getProductPreview(currentSite, path)
+      await getProductPagePreview(currentSite, path)
     } catch (error) {
       if (
-        error instanceof ProductPreviewNotFoundError ||
+        error instanceof ProductPagePreviewNotFoundError ||
         error instanceof CrossSiteContentError ||
         error instanceof InvalidContentPathError
       ) {
@@ -227,7 +232,7 @@ export async function GET(request: Request): Promise<Response> {
           {status: 404},
         )
       }
-      if (error instanceof ProductContractError) {
+      if (error instanceof ProductPageContractError) {
         return Response.json(
           {ok: false, error: 'Preview source is unavailable'},
           {status: 502},
@@ -242,10 +247,18 @@ export async function GET(request: Request): Promise<Response> {
     return previewRedirect(
       siteId,
       path,
-      `/preview/products/${productMatch[1]}`,
+      `/preview${path}`,
       expires,
       now,
       configuredSecret,
+      true,
+    )
+  }
+
+  if (path === '/products' || path.startsWith('/products/')) {
+    return Response.json(
+      {ok: false, error: 'Invalid preview target'},
+      {status: 400},
     )
   }
 

@@ -4,6 +4,7 @@ import {z} from 'zod'
 
 import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest'
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
+import {resolveProductPageIdentity} from '@/lib/products/page-graph'
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {SITE_IDS} from '@/sites'
 import {
@@ -15,14 +16,16 @@ import {
   isValidPublicPath,
   normalizePublicPath,
   productListTag,
-  productTag,
+  productDetailTag,
+  productFamilyTag,
+  productsHubTag,
   resourceListTag,
   resourceTag,
   routeTag,
   siteTag,
   sitemapTag,
 } from '@/lib/wordpress/cache-tags'
-import {getApprovedProductSlugs, isPublicRoute} from '@/sites/public-routes'
+import {getApprovedProductPagePaths, isPublicRoute} from '@/sites/public-routes'
 
 export const runtime = 'nodejs'
 
@@ -222,16 +225,18 @@ export async function POST(request: Request): Promise<Response> {
     })
   }
 
-  const productSlugByPath = new Map<string, string>(
+  const productIdentityByPath = new Map(
     currentSite.id === 'tio2-a'
-      ? getApprovedProductSlugs(currentSite.id).map((slug) => [
-          `/products/${slug}`,
-          slug,
-        ])
+      ? getApprovedProductPagePaths(currentSite.id).flatMap((path) => {
+          const identity = resolveProductPageIdentity(path)
+          return identity ? [[path, identity] as const] : []
+        })
       : [],
   )
   const unapprovedProductPath = payload.paths.find(
-    (path) => path.startsWith('/products/') && !productSlugByPath.has(path),
+    (path) =>
+      (path === '/products' || path.startsWith('/products/')) &&
+      !productIdentityByPath.has(path),
   )
   if (unapprovedProductPath) {
     return json(400, {
@@ -271,10 +276,16 @@ export async function POST(request: Request): Promise<Response> {
       tags.add(routeTag(siteId, path))
       if (path === '/') tags.add(homepageContentTag(siteId))
 
-      const productSlug = productSlugByPath.get(path)
-      if (productSlug) {
-        tags.add(productTag(siteId, productSlug))
+      const productIdentity = productIdentityByPath.get(path)
+      if (productIdentity) {
         tags.add(productListTag(siteId))
+        if (productIdentity.level === 'hub') {
+          tags.add(productsHubTag(siteId))
+        } else if (productIdentity.level === 'family' && productIdentity.familySlug) {
+          tags.add(productFamilyTag(siteId, productIdentity.familySlug))
+        } else if (productIdentity.level === 'detail' && productIdentity.familySlug && productIdentity.productSlug) {
+          tags.add(productDetailTag(siteId, productIdentity.familySlug, productIdentity.productSlug))
+        }
         for (const entityId of payload.entityIds) {
           tags.add(entityTag(siteId, entityId))
         }

@@ -46,7 +46,7 @@ export interface HomepageRouteDefinition {
 }
 
 export interface ProductRouteDefinition {
-  readonly path: `/products/${string}`
+  readonly path: '/products' | `/products/${string}`
   readonly template: ProductTemplateKey
 }
 

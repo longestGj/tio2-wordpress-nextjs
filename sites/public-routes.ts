@@ -1,4 +1,5 @@
 import publicRoutesJson from '../wordpress/plugins/tio2-site-model/config/public-routes.json'
+import {resolveProductPageIdentity} from '../lib/products/page-graph'
 import {PRODUCT_TEMPLATE_KEY, SITE_IDS} from './types'
 import type {
   HomepageRouteDefinition,
@@ -136,6 +137,21 @@ export function getApprovedProductSlugs(
   })
 
   return Object.freeze([...new Set(slugs)])
+}
+
+export function getApprovedProductPagePaths(
+  siteId: SiteId,
+  routes: readonly PublicRouteDefinition[] = getPublicRoutes(siteId),
+): readonly string[] {
+  assertKnownSiteId(siteId)
+  if (siteId !== 'tio2-a') return Object.freeze([])
+
+  const paths = routes.flatMap((route) => {
+    if (route.template !== PRODUCT_TEMPLATE_KEY) return []
+    const identity = resolveProductPageIdentity(route.path)
+    return identity?.path === route.path ? [route.path] : []
+  })
+  return Object.freeze([...new Set(paths)])
 }
 
 export function isPublicRoute(siteId: SiteId, path: string): boolean {

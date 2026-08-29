@@ -74,7 +74,7 @@ const resolveTarget: EditorialLinkResolver = (target) => ({
     target.id === 'article-01'
       ? '/resources/rutile-vs-anatase-titanium-dioxide'
       : target.id === 'TP-C120'
-        ? '/products/tp-c120'
+        ? '/products/coatings/tp-c120'
         : null,
 })
 
@@ -234,6 +234,13 @@ function mutateFixture(
 afterEach(cleanup)
 
 describe('ApplicationPageRenderer', () => {
+  it('resolves Product editorial targets to their family-aware canonical path', () => {
+    expect(resolveCanonicalEditorialTarget('product', 'TP-C120')).toEqual({
+      target: {type: 'product', id: 'TP-C120'},
+      path: '/products/coatings/tp-c120',
+    })
+  })
+
   it('omits only legacy Product prose replaced by the structured Product bridge', () => {
     render(
       <ApplicationBodySections
@@ -331,7 +338,7 @@ describe('ApplicationPageRenderer', () => {
     expect(within(primary).getByText('Primary starting point')).not.toBeNull()
     expect(
       within(primary).getByRole('link', {name: 'View TP-C120'}).getAttribute('href'),
-    ).toBe('/products/tp-c120')
+    ).toBe('/products/coatings/tp-c120')
     expect(
       within(primary).getByRole('link', {name: 'Request a TDS'}).getAttribute('href'),
     ).toBe('/contact')
@@ -745,8 +752,8 @@ describe('ApplicationPageRenderer', () => {
           ({type}) => type === 'product',
         )
         if (!relationship) throw new Error('Missing Product fixture')
-        relationship.path = '/products/tp-p300'
-        relationship.href = '/products/tp-p300'
+        relationship.path = '/products/engineering-plastics/tp-p300'
+        relationship.href = '/products/engineering-plastics/tp-p300'
       },
     ],
     [
@@ -777,8 +784,8 @@ describe('ApplicationPageRenderer', () => {
         )
         if (!relationship) throw new Error('Missing Product fixture')
         relationship.id = 'TP-X999'
-        relationship.path = '/products/tp-x999'
-        relationship.href = '/products/tp-x999'
+        relationship.path = '/products/universal/tp-x999'
+        relationship.href = '/products/universal/tp-x999'
       },
     ],
   ] as const)(

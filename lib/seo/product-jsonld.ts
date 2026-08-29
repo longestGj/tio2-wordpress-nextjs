@@ -1,10 +1,17 @@
 import type {ProductPageDto} from '@/lib/products/types'
+import type {ProductDetailPageDto} from '@/lib/products/page-types'
 import type {SiteConfig} from '@/sites'
 import {isStrictUtcInstant} from '@/lib/wordpress/time'
 import {serializeJsonLd, type JsonLdObject} from './jsonld'
 import {htmlToPlainText} from './text'
 
 export type JsonLdNode = JsonLdObject
+
+function isFamilyAwareProduct(
+  product: ProductPageDto | ProductDetailPageDto,
+): product is ProductDetailPageDto {
+  return 'familySlug' in product.identity
+}
 
 function htmlToSafeText(value: string, maximumLength?: number): string {
   const text = htmlToPlainText(
@@ -15,10 +22,11 @@ function htmlToSafeText(value: string, maximumLength?: number): string {
 }
 
 function buildBreadcrumbs(
-  product: ProductPageDto,
+  product: ProductPageDto | ProductDetailPageDto,
   site: SiteConfig,
   canonical: string,
 ): JsonLdNode {
+  const isFamilyAware = isFamilyAwareProduct(product)
   const itemListElement = [
     {
       '@type': 'ListItem',
@@ -26,12 +34,27 @@ function buildBreadcrumbs(
       name: 'Home',
       item: new URL('/', site.url).href,
     },
-    {
+    ...(isFamilyAware ? [{
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Products',
+      item: new URL('/products', site.url).href,
+    }, {
+      '@type': 'ListItem',
+      position: 3,
+      name: product.presentation.breadcrumb.familyLabel,
+      item: new URL(`/products/${product.identity.familySlug}`, site.url).href,
+    }, {
+      '@type': 'ListItem',
+      position: 4,
+      name: htmlToSafeText(product.identity.title, 180),
+      item: canonical,
+    }] : [{
       '@type': 'ListItem',
       position: 2,
       name: htmlToSafeText(product.identity.title, 180),
       item: canonical,
-    },
+    }]),
   ]
 
   return {
@@ -43,7 +66,7 @@ function buildBreadcrumbs(
 }
 
 export function buildProductJsonLd(
-  product: ProductPageDto,
+  product: ProductPageDto | ProductDetailPageDto,
   site: SiteConfig,
 ): JsonLdNode[] {
   const canonical = new URL(product.identity.path, site.url).href
@@ -59,7 +82,7 @@ export function buildProductJsonLd(
     brand: {'@id': brandId},
   }
 
-  if (isStrictUtcInstant(product.identity.modified)) {
+  if (!('familySlug' in product.identity) && isStrictUtcInstant(product.identity.modified)) {
     productNode.dateModified = product.identity.modified
   }
 

@@ -1,7 +1,6 @@
 import {describe, expect, it, vi} from 'vitest'
 
 import {buildSitemap, SitemapIntegrityError} from '@/app/sitemap'
-import {toProductPageDto} from '@/lib/products/dto'
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
 import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
 import type {AnyHomepageDto} from '@/lib/wordpress/homepage-types'
@@ -11,7 +10,6 @@ import {getPublicRoutes} from '@/sites/public-routes'
 import {getSiteTemplateProfile} from '@/sites/template-profiles'
 import {PRODUCT_TEMPLATE_KEY} from '@/sites/types'
 import type {PublicRouteDefinition} from '@/sites/types'
-import {validProductPageInput} from '@/tests/fixtures/product-page'
 import {
   makeHomepageNode,
 } from '@/tests/mocks/handlers'
@@ -24,7 +22,7 @@ type SitemapSourceOverrides = Partial<
 function sources(overrides: SitemapSourceOverrides = {}) {
   return {
     getHomepage: async () => homepageFor('tio2-a'),
-    getSiteProduct: async () => null,
+    getSiteProductPage: async () => null,
     getPublicRoutes,
     getSiteTemplateProfile,
     ...overrides,
@@ -119,11 +117,14 @@ describe('typed sitemap ownership', () => {
   })
 
   it('maps an injected approved Product route from the validated Product source', async () => {
-    const product = toProductPageDto(validProductPageInput)
+    const product = {
+      level: 'detail',
+      identity: {id: 'TP-C120', path: '/products/coatings/tp-c120'},
+    } as never
     const routes: readonly PublicRouteDefinition[] = [
       {path: '/', template: 'site-a-homepage-brand-v0.3'},
       {
-        path: '/products/tp-z911',
+        path: '/products/coatings/tp-c120',
         template: PRODUCT_TEMPLATE_KEY,
       },
     ]
@@ -132,7 +133,7 @@ describe('typed sitemap ownership', () => {
       buildSitemap(getSiteConfig('tio2-a'), {
         ...sources(),
         getPublicRoutes: () => routes,
-        getSiteProduct: async () => product,
+        getSiteProductPage: async () => product,
       }),
     ).resolves.toEqual([
       {
@@ -140,8 +141,7 @@ describe('typed sitemap ownership', () => {
         lastModified: new Date('2026-08-28T10:00:00.000Z'),
       },
       {
-        url: 'https://tio2products.com/products/tp-z911',
-        lastModified: new Date('2026-08-26T08:30:00.000Z'),
+        url: 'https://tio2products.com/products/coatings/tp-c120',
       },
     ])
   })
@@ -153,22 +153,22 @@ describe('typed sitemap ownership', () => {
         getPublicRoutes: () => [
           {path: '/', template: 'site-a-homepage-brand-v0.3'},
           {
-            path: '/products/tp-z911',
+            path: '/products/coatings/tp-c120',
             template: PRODUCT_TEMPLATE_KEY,
           },
         ],
-        getSiteProduct: async () => null,
+        getSiteProductPage: async () => null,
       }),
     ).rejects.toMatchObject({
       name: SitemapIntegrityError.name,
       reason: 'source-invalid',
-      path: '/products/tp-z911',
+      path: '/products/coatings/tp-c120',
     })
   })
 
   it('rejects a Site B Product inventory before reading Product sources', async () => {
     const getHomepage = vi.fn(async () => homepageFor('tio2-b'))
-    const getProduct = vi.fn(async () => toProductPageDto(validProductPageInput))
+    const getProduct = vi.fn(async () => null)
 
     await expect(
       buildSitemap(getSiteConfig('tio2-b'), {
@@ -177,16 +177,16 @@ describe('typed sitemap ownership', () => {
         getPublicRoutes: () => [
           {path: '/', template: 'site-b-homepage-v0.1-frozen'},
           {
-            path: '/products/tp-z911',
+            path: '/products/coatings/tp-c120',
             template: PRODUCT_TEMPLATE_KEY,
           },
         ],
-        getSiteProduct: getProduct,
+        getSiteProductPage: getProduct,
       }),
     ).rejects.toMatchObject({
       name: SitemapIntegrityError.name,
       reason: 'inventory-invalid',
-      path: '/products/tp-z911',
+      path: '/products/coatings/tp-c120',
     })
     expect(getHomepage).not.toHaveBeenCalled()
     expect(getProduct).not.toHaveBeenCalled()
