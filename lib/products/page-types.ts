@@ -142,6 +142,52 @@ export interface ProductFamilyPresentation {
   footerDescription: string
 }
 
+export interface ProductDetailPresentation {
+  breadcrumb: {homeLabel: string; productsLabel: string; familyLabel: string}
+  hero: {imageAlt: string}
+  snapshot: {eyebrow: string; heading: string}
+  technicalData: {
+    eyebrow: string
+    heading: string
+    intro: string
+    caption: string
+    regionLabel: string
+    headers: {property: string; value: string; unit: string}
+    noteLabel: string
+  }
+  fitCheck: {
+    eyebrow: string
+    heading: string
+    fitHeading: string
+    discussHeading: string
+  }
+  formulationPriorities: {eyebrow: string; heading: string}
+  validation: {eyebrow: string; heading: string}
+  applicationContext: {cardDescription: string; actionLabel: string}
+  enquiryPreparation: {
+    eyebrow: string
+    heading: string
+    intro: string
+    itemsHeading: string
+    documentsHeading: string
+  }
+  faq: {eyebrow: string; heading: string}
+  related: {
+    eyebrow: string
+    heading: string
+    productLabel: string
+    resourceLabel: string
+    familyLabel: string
+    productActionLabel: string
+    productDescriptions: [string, string, string]
+    resourceDescriptions: [string, string]
+    familyDescription: string
+  }
+  finalCta: {eyebrow: string; heading: string; description: string}
+  disclaimerLabel: string
+  footerDescription: string
+}
+
 export interface FamilyFilter {
   slug: string
   label: string
@@ -240,6 +286,7 @@ export interface ProductDetailPageDto {
     image: string
     ctas: PageCta[]
   }
+  presentation: ProductDetailPresentation
   decisionRail: DecisionRailItem[]
   snapshot: Array<{label: string; value: string}>
   technicalProperties: TechnicalProperty[]

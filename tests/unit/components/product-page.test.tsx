@@ -353,6 +353,7 @@ describe('ProductPage', () => {
     const componentSource = readdirSync(componentDirectory)
       .filter((fileName) => fileName.endsWith('.tsx'))
       .map((fileName) => readFileSync(resolve(componentDirectory, fileName), 'utf8'))
+      .filter((source) => source.includes("'./product-page.module.css'"))
       .join('\n')
     const stylesheet = readFileSync(
       resolve(componentDirectory, 'product-page.module.css'),

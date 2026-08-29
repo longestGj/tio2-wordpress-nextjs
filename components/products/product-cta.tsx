@@ -1,7 +1,9 @@
 import type {ProductPageDto} from '@/lib/products/types'
+import type {PageCta, ProductDetailPageDto} from '@/lib/products/page-types'
 import {getSiteConfig} from '@/sites'
 
 import styles from './product-page.module.css'
+import detail from './product-detail.module.css'
 
 const SITE_A_ENQUIRY_HREF = getSiteConfig('tio2-a').rfqHref
 
@@ -65,5 +67,47 @@ export function ProductCta({ctas, placement, productId}: ProductCtaProps) {
     >
       <CtaActions ctas={ctas} />
     </div>
+  )
+}
+
+export function ProductCtaV05({
+  ctas,
+  placement,
+  copy,
+}: {
+  readonly ctas: readonly PageCta[]
+  readonly placement: 'hero' | 'technical-data' | 'enquiry' | 'final'
+  readonly copy?: ProductDetailPageDto['presentation']['finalCta']
+}): React.ReactNode {
+  const actions = (
+    <div className={detail.ctaList} data-product-cta-placement={placement}>
+      {ctas.map((cta) => (
+        <a
+          className={cta.kind === 'request-tds' ? detail.primaryAction : detail.secondaryAction}
+          href={cta.href}
+          key={`${placement}-${cta.kind}`}
+        >
+          {cta.label}
+        </a>
+      ))}
+    </div>
+  )
+
+  if (placement !== 'final' || !copy) return actions
+  return (
+    <section
+      aria-labelledby="detail-final-cta-heading"
+      className={detail.finalCta}
+      data-product-section="final-cta"
+    >
+      <div className={`${detail.wrap} ${detail.finalCtaInner}`}>
+        <div>
+          <p className={detail.eyebrow}>{copy.eyebrow}</p>
+          <h2 id="detail-final-cta-heading">{copy.heading}</h2>
+          <p>{copy.description}</p>
+        </div>
+        {actions}
+      </div>
+    </section>
   )
 }

@@ -1,6 +1,7 @@
 import type {ProductExperiencePageDto} from '@/lib/products/page-types'
 
 import {ProductFamily} from './product-family'
+import {ProductDetail} from './product-detail'
 import {ProductsHub} from './products-hub'
 
 export function ProductPageRenderer({
@@ -14,6 +15,6 @@ export function ProductPageRenderer({
     case 'family':
       return <ProductFamily page={page} />
     case 'detail':
-      return null
+      return <ProductDetail page={page} />
   }
 }

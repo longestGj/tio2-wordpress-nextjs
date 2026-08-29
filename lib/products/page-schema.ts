@@ -793,6 +793,148 @@ export const TP_C120_TECHNICAL_PROPERTIES = [
   ['Mean particle size', '0.27', 'micrometres'],
 ] as const
 
+export const APPROVED_PRODUCT_DETAIL_PRESENTATION = {
+  breadcrumb: {
+    homeLabel: 'Home',
+    productsLabel: 'Products',
+    familyLabel: 'Coatings',
+  },
+  hero: {imageAlt: 'TP-C120 rutile titanium dioxide for water-based paint'},
+  snapshot: {eyebrow: 'Product Snapshot', heading: 'What TP‑C120 is'},
+  technicalData: {
+    eyebrow: 'Technical Data',
+    heading: 'TP‑C120 Technical Properties',
+    intro: 'Review the TP‑C120 technical data when planning formulation trials.',
+    caption: 'TP‑C120 technical properties',
+    regionLabel: 'TP‑C120 technical properties table',
+    headers: {property: 'Property', value: 'Value', unit: 'Unit'},
+    noteLabel: 'Technical note:',
+  },
+  fitCheck: {
+    eyebrow: 'Fit Check',
+    heading: 'Where TP‑C120 fits',
+    fitHeading: 'Consider TP‑C120 when',
+    discussHeading: 'Conditions to discuss',
+  },
+  formulationPriorities: {
+    eyebrow: 'Formulation Priorities',
+    heading: 'What to check in your formulation',
+  },
+  validation: {eyebrow: 'Validation Method', heading: 'How to validate TP‑C120'},
+  applicationContext: {
+    cardDescription:
+      'Review formulation-specific selection factors and relevant product starting points for water-based paint.',
+    actionLabel: 'Explore Application Context',
+  },
+  enquiryPreparation: {
+    eyebrow: 'Enquiry Preparation',
+    heading: 'Prepare your TP‑C120 enquiry',
+    intro:
+      'Share the formulation and trial conditions that matter most so the TP‑C120 discussion starts with the right technical context.',
+    itemsHeading: 'What to share',
+    documentsHeading: 'Packaging and documents',
+  },
+  faq: {eyebrow: 'Common Questions', heading: 'Frequently Asked Questions'},
+  related: {
+    eyebrow: 'Related Products & Resources',
+    heading: 'Continue your product comparison',
+    productLabel: 'Product',
+    resourceLabel: 'Resource',
+    familyLabel: 'Family',
+    productActionLabel: 'View Product',
+    productDescriptions: [
+      'General-purpose grade for solvent- and water-based architectural, industrial and decorative coatings.',
+      'Multi-purpose grade for solvent- and water-based architectural, industrial and decorative coatings.',
+      'High-PVC matte and flat architectural coatings with a dry-hiding focus.',
+    ],
+    resourceDescriptions: [
+      'See how oil absorption relates to formulation and pigment response.',
+      'Connect surface treatment with formulation response.',
+    ],
+    familyDescription: 'Return to the nine-grade family comparison.',
+  },
+  finalCta: {
+    eyebrow: 'Next Step',
+    heading: 'Prepare the next TP‑C120 trial step',
+    description:
+      'Request the technical document or share your binder, PVC and viscosity target to prepare the next formulation trial.',
+  },
+  disclaimerLabel: 'Technical Disclaimer',
+  footerDescription:
+    'Application-specific titanium dioxide products and technical support for industrial formulations.',
+} as const
+
+const labelHeading = z
+  .object({eyebrow: text(120), heading: text(180)})
+  .strict()
+const productDetailPresentation = z
+  .object({
+    breadcrumb: z
+      .object({
+        homeLabel: text(80),
+        productsLabel: text(80),
+        familyLabel: text(80),
+      })
+      .strict(),
+    hero: z.object({imageAlt: text(300)}).strict(),
+    snapshot: labelHeading,
+    technicalData: z
+      .object({
+        eyebrow: text(120),
+        heading: text(180),
+        intro: text(),
+        caption: text(180),
+        regionLabel: text(180),
+        headers: z
+          .object({property: text(80), value: text(80), unit: text(80)})
+          .strict(),
+        noteLabel: text(80),
+      })
+      .strict(),
+    fitCheck: z
+      .object({
+        eyebrow: text(120),
+        heading: text(180),
+        fitHeading: text(180),
+        discussHeading: text(180),
+      })
+      .strict(),
+    formulationPriorities: labelHeading,
+    validation: labelHeading,
+    applicationContext: z
+      .object({cardDescription: text(), actionLabel: text(120)})
+      .strict(),
+    enquiryPreparation: z
+      .object({
+        eyebrow: text(120),
+        heading: text(180),
+        intro: text(),
+        itemsHeading: text(120),
+        documentsHeading: text(120),
+      })
+      .strict(),
+    faq: labelHeading,
+    related: z
+      .object({
+        eyebrow: text(120),
+        heading: text(180),
+        productLabel: text(80),
+        resourceLabel: text(80),
+        familyLabel: text(80),
+        productActionLabel: text(120),
+        productDescriptions: z.tuple([text(), text(), text()]),
+        resourceDescriptions: z.tuple([text(), text()]),
+        familyDescription: text(),
+      })
+      .strict(),
+    finalCta: z
+      .object({eyebrow: text(120), heading: text(180), description: text()})
+      .strict(),
+    disclaimerLabel: text(180),
+    footerDescription: text(),
+  })
+  .strict()
+
 export const productDetailPageInputSchema = z
   .object({
     level: z.literal('detail'),
@@ -803,6 +945,7 @@ export const productDetailPageInputSchema = z
     hero: collectionHero
       .extend({ctas: detailHeroCtas})
       .strict(),
+    presentation: productDetailPresentation,
     decisionRail: z.array(decisionRailItem).min(1).max(8),
     snapshot: z
       .array(z.object({label: text(120), value: text()}).strict())

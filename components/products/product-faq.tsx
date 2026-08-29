@@ -1,9 +1,42 @@
 import type {ProductPageDto} from '@/lib/products/types'
+import type {ProductDetailPageDto} from '@/lib/products/page-types'
 
+import detail from './product-detail.module.css'
 import styles from './product-page.module.css'
 
 interface ProductFaqProps {
   readonly faqs: ProductPageDto['faqs']
+}
+
+export function ProductFaqV05({
+  copy,
+  faqs,
+}: {
+  readonly copy: ProductDetailPageDto['presentation']['faq']
+  readonly faqs: ProductDetailPageDto['faqs']
+}): React.ReactNode {
+  return (
+    <section
+      aria-labelledby="detail-faq-heading"
+      className={`${detail.section} ${detail.soft}`}
+      data-product-section="faq"
+    >
+      <div className={detail.wrap}>
+        <div className={detail.sectionHead}>
+          <p className={detail.eyebrow}>{copy.eyebrow}</p>
+          <h2 id="detail-faq-heading">{copy.heading}</h2>
+        </div>
+        <div className={detail.faqList}>
+          {faqs.map((faq) => (
+            <details data-product-faq-item key={faq.question}>
+              <summary>{faq.question}<span aria-hidden="true">+</span></summary>
+              <div dangerouslySetInnerHTML={{__html: faq.answerHtml}} />
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
 }
 
 export function ProductFaq({faqs}: ProductFaqProps) {

@@ -1,5 +1,7 @@
 import type {ProductPageDto} from '@/lib/products/types'
+import type {ProductDetailPageDto} from '@/lib/products/page-types'
 
+import detail from './product-detail.module.css'
 import styles from './product-page.module.css'
 
 interface ProductSnapshotProps {
@@ -30,6 +32,35 @@ export function ProductSnapshot({snapshot}: ProductSnapshotProps) {
           <div className={styles.definitionItem} key={label}>
             <dt>{label}</dt>
             <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  )
+}
+
+export function ProductSnapshotV05({
+  copy,
+  items,
+}: {
+  readonly copy: ProductDetailPageDto['presentation']['snapshot']
+  readonly items: ProductDetailPageDto['snapshot']
+}): React.ReactNode {
+  return (
+    <section
+      aria-labelledby="detail-snapshot-heading"
+      className={`${detail.section} ${detail.wrap}`}
+      data-product-section="product-snapshot"
+    >
+      <div className={detail.sectionHead}>
+        <p className={detail.eyebrow}>{copy.eyebrow}</p>
+        <h2 id="detail-snapshot-heading">{copy.heading}</h2>
+      </div>
+      <dl className={detail.snapshotGrid}>
+        {items.map((item) => (
+          <div className={detail.snapshotItem} key={item.label}>
+            <dt>{item.label}</dt>
+            <dd>{item.value}</dd>
           </div>
         ))}
       </dl>

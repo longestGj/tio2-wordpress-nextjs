@@ -210,6 +210,30 @@ const APPROVED_COATINGS_CANDIDATES = [
 ] as const
 
 describe('three-level Product page schemas', () => {
+  it('requires the complete TP-C120 v0.5 Detail presentation contract', () => {
+    const presentation = (
+      tpC120ProductPageInput as typeof tpC120ProductPageInput & {
+        presentation?: Record<string, unknown>
+      }
+    ).presentation
+
+    expect(presentation).toMatchObject({
+      hero: {imageAlt: 'TP-C120 rutile titanium dioxide for water-based paint'},
+      technicalData: {
+        heading: 'TP‑C120 Technical Properties',
+        headers: {property: 'Property', value: 'Value', unit: 'Unit'},
+      },
+      enquiryPreparation: {documentsHeading: 'Packaging and documents'},
+      disclaimerLabel: 'Technical Disclaimer',
+    })
+
+    const missing = clone(tpC120ProductPageInput) as unknown as {
+      presentation?: Record<string, unknown>
+    }
+    Reflect.deleteProperty(missing, 'presentation')
+    expect(productDetailPageInputSchema.safeParse(missing).success).toBe(false)
+  })
+
   it('accepts exactly the approved Hub, Coatings, and TP-C120 records', () => {
     expect(
       siteAProductRepresentativeFixtureSchema.safeParse(

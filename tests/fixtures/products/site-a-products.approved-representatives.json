@@ -355,6 +355,60 @@
           {"kind": "discuss-application", "label": "Discuss Your Application"}
         ]
       },
+      "presentation": {
+        "breadcrumb": {"homeLabel": "Home", "productsLabel": "Products", "familyLabel": "Coatings"},
+        "hero": {"imageAlt": "TP-C120 rutile titanium dioxide for water-based paint"},
+        "snapshot": {"eyebrow": "Product Snapshot", "heading": "What TP‑C120 is"},
+        "technicalData": {
+          "eyebrow": "Technical Data",
+          "heading": "TP‑C120 Technical Properties",
+          "intro": "Review the TP‑C120 technical data when planning formulation trials.",
+          "caption": "TP‑C120 technical properties",
+          "regionLabel": "TP‑C120 technical properties table",
+          "headers": {"property": "Property", "value": "Value", "unit": "Unit"},
+          "noteLabel": "Technical note:"
+        },
+        "fitCheck": {"eyebrow": "Fit Check", "heading": "Where TP‑C120 fits", "fitHeading": "Consider TP‑C120 when", "discussHeading": "Conditions to discuss"},
+        "formulationPriorities": {"eyebrow": "Formulation Priorities", "heading": "What to check in your formulation"},
+        "validation": {"eyebrow": "Validation Method", "heading": "How to validate TP‑C120"},
+        "applicationContext": {
+          "cardDescription": "Review formulation-specific selection factors and relevant product starting points for water-based paint.",
+          "actionLabel": "Explore Application Context"
+        },
+        "enquiryPreparation": {
+          "eyebrow": "Enquiry Preparation",
+          "heading": "Prepare your TP‑C120 enquiry",
+          "intro": "Share the formulation and trial conditions that matter most so the TP‑C120 discussion starts with the right technical context.",
+          "itemsHeading": "What to share",
+          "documentsHeading": "Packaging and documents"
+        },
+        "faq": {"eyebrow": "Common Questions", "heading": "Frequently Asked Questions"},
+        "related": {
+          "eyebrow": "Related Products & Resources",
+          "heading": "Continue your product comparison",
+          "productLabel": "Product",
+          "resourceLabel": "Resource",
+          "familyLabel": "Family",
+          "productActionLabel": "View Product",
+          "productDescriptions": [
+            "General-purpose grade for solvent- and water-based architectural, industrial and decorative coatings.",
+            "Multi-purpose grade for solvent- and water-based architectural, industrial and decorative coatings.",
+            "High-PVC matte and flat architectural coatings with a dry-hiding focus."
+          ],
+          "resourceDescriptions": [
+            "See how oil absorption relates to formulation and pigment response.",
+            "Connect surface treatment with formulation response."
+          ],
+          "familyDescription": "Return to the nine-grade family comparison."
+        },
+        "finalCta": {
+          "eyebrow": "Next Step",
+          "heading": "Prepare the next TP‑C120 trial step",
+          "description": "Request the technical document or share your binder, PVC and viscosity target to prepare the next formulation trial."
+        },
+        "disclaimerLabel": "Technical Disclaimer",
+        "footerDescription": "Application-specific titanium dioxide products and technical support for industrial formulations."
+      },
       "decisionRail": [
         {"index": "01", "label": "Identity"},
         {"index": "02", "label": "Technical Data"},
@@ -379,7 +433,7 @@
         {"property": "Oil absorption", "value": "17", "unit": "g/100 g", "displayOrder": 8},
         {"property": "Mean particle size", "value": "0.27", "unit": "micrometres", "displayOrder": 9}
       ],
-      "technicalNote": "Values are based on the current TP‑C120 TDS. Refer to the latest technical document for product specifications and test information.",
+      "technicalNote": "These values support initial product comparison. Request the latest technical document for product specifications and test information.",
       "fitCheck": {
         "fitWhen": [
           "You are evaluating water-based interior wall emulsion paint.",
@@ -455,7 +509,7 @@
         {"kind": "request-tds", "label": "Request a TDS"},
         {"kind": "discuss-application", "label": "Discuss Your Application"}
       ],
-      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product-selection purposes. Reported values are not guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and use requirements.</p>"
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product-selection purposes. Technical data values are not guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and use requirements.</p>"
     }
   ]
 }

@@ -15,6 +15,7 @@ import {
   toProductsHubPageDto,
 } from '@/lib/products/page-dto'
 import {
+  APPROVED_PRODUCT_DETAIL_PRESENTATION,
   APPROVED_PRODUCT_FAMILY_PRESENTATION,
   APPROVED_PRODUCTS_HUB_PRESENTATION,
 } from '@/lib/products/page-schema'
@@ -622,6 +623,39 @@ export function toProductDetailDtoFromSerialized(
           {kind: 'discuss-application', label: 'Discuss Your Application'},
         ],
       },
+      presentation: {
+        breadcrumb: {...APPROVED_PRODUCT_DETAIL_PRESENTATION.breadcrumb},
+        hero: {...APPROVED_PRODUCT_DETAIL_PRESENTATION.hero},
+        snapshot: {...APPROVED_PRODUCT_DETAIL_PRESENTATION.snapshot},
+        technicalData: {
+          ...APPROVED_PRODUCT_DETAIL_PRESENTATION.technicalData,
+          headers: {...APPROVED_PRODUCT_DETAIL_PRESENTATION.technicalData.headers},
+        },
+        fitCheck: {...APPROVED_PRODUCT_DETAIL_PRESENTATION.fitCheck},
+        formulationPriorities: {
+          ...APPROVED_PRODUCT_DETAIL_PRESENTATION.formulationPriorities,
+        },
+        validation: {...APPROVED_PRODUCT_DETAIL_PRESENTATION.validation},
+        applicationContext: {
+          ...APPROVED_PRODUCT_DETAIL_PRESENTATION.applicationContext,
+        },
+        enquiryPreparation: {
+          ...APPROVED_PRODUCT_DETAIL_PRESENTATION.enquiryPreparation,
+        },
+        faq: {...APPROVED_PRODUCT_DETAIL_PRESENTATION.faq},
+        related: {
+          ...APPROVED_PRODUCT_DETAIL_PRESENTATION.related,
+          productDescriptions: [
+            ...APPROVED_PRODUCT_DETAIL_PRESENTATION.related.productDescriptions,
+          ],
+          resourceDescriptions: [
+            ...APPROVED_PRODUCT_DETAIL_PRESENTATION.related.resourceDescriptions,
+          ],
+        },
+        finalCta: {...APPROVED_PRODUCT_DETAIL_PRESENTATION.finalCta},
+        disclaimerLabel: APPROVED_PRODUCT_DETAIL_PRESENTATION.disclaimerLabel,
+        footerDescription: APPROVED_PRODUCT_DETAIL_PRESENTATION.footerDescription,
+      },
       decisionRail: [
         {index: '01', label: 'Identity'},
         {index: '02', label: 'Technical Data'},
@@ -647,7 +681,7 @@ export function toProductDetailDtoFromSerialized(
       validationSteps: parseJsonRows(raw.validationSteps, 'validationSteps'),
       applicationContext: {
         eyebrow: 'Application Context',
-        heading: `Connect ${raw.productId} to the complete application system`,
+        heading: `Connect ${raw.productId} to the complete paint system`,
         description: raw.application.description ?? '',
         application,
       },

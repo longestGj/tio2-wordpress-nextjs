@@ -417,6 +417,21 @@ describe('getSiteProductPage', () => {
         href: '/products/coatings',
       })
       expect(result.hero.ctas.every(({href}) => href === getSiteConfig('tio2-a').rfqHref)).toBe(true)
+      expect(result.presentation.technicalData.headers).toEqual({
+        property: 'Property',
+        value: 'Value',
+        unit: 'Unit',
+      })
+      expect(result.presentation.enquiryPreparation).toMatchObject({
+        heading: 'Prepare your TP‑C120 enquiry',
+        documentsHeading: 'Packaging and documents',
+      })
+      expect(result.presentation.hero.imageAlt).toBe(
+        'TP-C120 rutile titanium dioxide for water-based paint',
+      )
+      expect(result.applicationContext.heading).toBe(
+        'Connect TP-C120 to the complete paint system',
+      )
     }
   })
 

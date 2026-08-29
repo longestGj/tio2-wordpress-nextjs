@@ -320,5 +320,14 @@ describe('Product page DTO normalization', () => {
       ['Oil absorption', '17', 'g/100 g'],
       ['Mean particle size', '0.27', 'micrometres'],
     ])
+    expect(detail.presentation.technicalData).toMatchObject({
+      heading: 'TP‑C120 Technical Properties',
+      caption: 'TP‑C120 technical properties',
+      headers: {property: 'Property', value: 'Value', unit: 'Unit'},
+      noteLabel: 'Technical note:',
+    })
+    expect(detail.presentation.hero.imageAlt).toBe(
+      'TP-C120 rutile titanium dioxide for water-based paint',
+    )
   })
 })
