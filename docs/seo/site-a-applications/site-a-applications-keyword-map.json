@@ -1,0 +1,2046 @@
+{
+  "schemaVersion": "2.0.0",
+  "researchVersion": "2026-08-29.v2-review",
+  "siteId": "tio2-a",
+  "scope": "site-a-applications",
+  "language": "en",
+  "pageCount": 28,
+  "sourceLedger": "./keyword-evidence.json",
+  "decisionLog": "./keyword-decision-log.md",
+  "riskRegister": "./cannibalization-register.md",
+  "records": [
+    {
+      "pageId": "applications-hub",
+      "path": "/applications",
+      "level": "hub",
+      "parentId": null,
+      "decisionId": "DEC-APP-001",
+      "secondaryKeywords": [
+        "TiO2 applications",
+        "industrial applications of titanium dioxide",
+        "titanium dioxide uses"
+      ],
+      "longTailKeywords": [
+        "titanium dioxide applications by industry",
+        "how to select titanium dioxide by application",
+        "titanium dioxide applications in coatings plastics paper and inks"
+      ],
+      "questionKeywords": [
+        "what are the industrial applications of titanium dioxide",
+        "how do I choose titanium dioxide for an application",
+        "which titanium dioxide grade is suitable for my application"
+      ],
+      "commercialIntentKeywords": [
+        "titanium dioxide supplier by application",
+        "titanium dioxide grade selection",
+        "titanium dioxide product guide",
+        "request titanium dioxide TDS",
+        "titanium dioxide sample request"
+      ],
+      "searchIntent": [
+        "informational-discovery",
+        "commercial-investigation"
+      ],
+      "customerStages": [
+        "discover",
+        "explore"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "application-family introduction and category-card labels",
+        "longTail": "application-first decision guide and validation-path summary",
+        "questions": "Hub FAQ",
+        "commercial": "documentation and enquiry CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": null,
+        "toParent": null,
+        "toChildren": [
+          "titanium dioxide for coatings",
+          "titanium dioxide for plastics",
+          "titanium dioxide for printing inks",
+          "titanium dioxide for paper applications",
+          "TiO2 pigment for solar module films",
+          "high-purity titanium dioxide applications",
+          "multi-purpose titanium dioxide"
+        ]
+      },
+      "confidence": "high",
+      "targetQuery": "titanium dioxide applications",
+      "recommendedSeoTitle": "Titanium Dioxide Applications | TIOVAR",
+      "recommendedH1": "Titanium Dioxide Applications",
+      "naturalCopyVariants": [
+        "titanium dioxide applications",
+        "TiO2 applications",
+        "industrial applications of titanium dioxide",
+        "titanium dioxide uses"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-001",
+        "SERPQ-HUB-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SEM-UK-20260829-PILOT",
+        "SERP-20260829-HUB",
+        "PROJECT-APPROVED-REP-20260829"
+      ]
+    },
+    {
+      "pageId": "coatings",
+      "path": "/applications/coatings",
+      "level": "category",
+      "parentId": "applications-hub",
+      "decisionId": "DEC-APP-002",
+      "secondaryKeywords": [
+        "TiO2 for coatings",
+        "titanium dioxide for paint",
+        "titanium dioxide in paint",
+        "titanium dioxide pigment for coatings"
+      ],
+      "longTailKeywords": [
+        "titanium dioxide for industrial coatings",
+        "rutile titanium dioxide for coatings",
+        "how to select titanium dioxide for paint and coatings"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is used in coatings",
+        "how do I choose titanium dioxide for paint",
+        "what affects titanium dioxide performance in coatings"
+      ],
+      "commercialIntentKeywords": [
+        "coating grade titanium dioxide supplier",
+        "titanium dioxide application-specific pigment supplier for coatings",
+        "coating grade TiO2 TDS",
+        "titanium dioxide sample for paint formulation"
+      ],
+      "searchIntent": [
+        "informational-discovery",
+        "commercial-investigation"
+      ],
+      "customerStages": [
+        "explore",
+        "shortlist"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "category overview and coating-subapplication navigation",
+        "longTail": "selection factors, formulation and film-validation sections",
+        "questions": "Category FAQ",
+        "commercial": "evidence-backed product starting points and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "titanium dioxide for coatings",
+        "toParent": "explore all titanium dioxide applications",
+        "toChildren": [
+          "TiO2 for water-based paint",
+          "low-ion TiO2 for electrophoretic coatings",
+          "TiO2 for high-PVC flat paint",
+          "TiO2 pigment for automotive coatings",
+          "TiO2 for waterborne automotive coatings",
+          "TiO2 for protective coatings",
+          "TiO2 for powder and coil coatings"
+        ]
+      },
+      "confidence": "high",
+      "targetQuery": "titanium dioxide for coatings",
+      "recommendedSeoTitle": "Titanium Dioxide for Coatings | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Coatings",
+      "naturalCopyVariants": [
+        "titanium dioxide for coatings",
+        "TiO2 for coatings",
+        "titanium dioxide for paint",
+        "titanium dioxide in paint"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-002",
+        "SERPQ-COATINGS-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-COATINGS",
+        "PROJECT-APPROVED-REP-20260829"
+      ]
+    },
+    {
+      "pageId": "plastics",
+      "path": "/applications/plastics",
+      "level": "category",
+      "parentId": "applications-hub",
+      "decisionId": "DEC-APP-003",
+      "secondaryKeywords": [
+        "TiO2 for plastics",
+        "titanium dioxide plastic pigment",
+        "titanium dioxide in plastic",
+        "pigment for plastics"
+      ],
+      "longTailKeywords": [
+        "rutile titanium dioxide for plastics",
+        "titanium dioxide for plastic compounding",
+        "how to select TiO2 for plastics"
+      ],
+      "questionKeywords": [
+        "what is titanium dioxide used for in plastics",
+        "how do I choose TiO2 for plastic",
+        "which titanium dioxide grade is suitable for plastics"
+      ],
+      "commercialIntentKeywords": [
+        "plastic grade titanium dioxide supplier",
+        "TiO2 application-specific pigment supplier for plastics",
+        "plastic grade TiO2 TDS",
+        "titanium dioxide sample for plastic compounding"
+      ],
+      "searchIntent": [
+        "informational-discovery",
+        "commercial-investigation"
+      ],
+      "customerStages": [
+        "explore",
+        "shortlist"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "category overview and resin/application navigation",
+        "longTail": "selection factors, compounding and finished-part validation",
+        "questions": "Category FAQ",
+        "commercial": "product starting points and technical-enquiry CTA",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "titanium dioxide for plastics",
+        "toParent": "explore all titanium dioxide applications",
+        "toChildren": [
+          "titanium dioxide masterbatch",
+          "TiO2 for polycarbonate",
+          "TiO2 for outdoor PVC",
+          "TiO2 for film masterbatch",
+          "TiO2 for soft PVC and solar backsheet",
+          "TiO2 for LCP",
+          "UV-resistant TiO2 for engineering plastics"
+        ]
+      },
+      "confidence": "high",
+      "targetQuery": "titanium dioxide for plastics",
+      "recommendedSeoTitle": "Titanium Dioxide for Plastics | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Plastics",
+      "naturalCopyVariants": [
+        "titanium dioxide for plastics",
+        "TiO2 for plastics",
+        "titanium dioxide plastic pigment",
+        "titanium dioxide in plastic"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-003",
+        "SERPQ-PLASTICS-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-PLASTICS",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "printing-inks",
+      "path": "/applications/printing-inks",
+      "level": "category",
+      "parentId": "applications-hub",
+      "decisionId": "DEC-APP-004",
+      "secondaryKeywords": [
+        "TiO2 for printing inks",
+        "titanium dioxide ink pigment",
+        "white pigment for printing inks"
+      ],
+      "longTailKeywords": [
+        "titanium dioxide for solvent based printing inks",
+        "titanium dioxide for water based printing inks",
+        "how to select TiO2 pigment for printing inks"
+      ],
+      "questionKeywords": [
+        "what does titanium dioxide do in printing ink",
+        "how do I choose titanium dioxide for printing inks",
+        "which TiO2 grade is used for printing ink"
+      ],
+      "commercialIntentKeywords": [
+        "printing ink grade titanium dioxide supplier",
+        "TiO2 application-specific pigment supplier for inks",
+        "printing ink TiO2 TDS",
+        "request printing ink pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "explore",
+        "shortlist"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "ink-family overview and process navigation",
+        "longTail": "vehicle, dispersion, filtration and finished-print sections",
+        "questions": "Category FAQ",
+        "commercial": "grade starting points, TDS and sample CTA",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "titanium dioxide for printing inks",
+        "toParent": "explore all titanium dioxide applications",
+        "toChildren": [
+          "printing ink grade titanium dioxide"
+        ]
+      },
+      "confidence": "medium",
+      "targetQuery": "titanium dioxide for printing inks",
+      "recommendedSeoTitle": "Titanium Dioxide for Printing Inks | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Printing Inks",
+      "naturalCopyVariants": [
+        "titanium dioxide for printing inks",
+        "TiO2 for printing inks",
+        "titanium dioxide ink pigment",
+        "white pigment for printing inks"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-004",
+        "SERPQ-INK-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-INK",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "decorative-paper",
+      "path": "/applications/decorative-paper",
+      "level": "category",
+      "parentId": "applications-hub",
+      "decisionId": "DEC-APP-005",
+      "secondaryKeywords": [
+        "paper grade titanium dioxide",
+        "TiO2 for paper",
+        "titanium dioxide paper pigment",
+        "titanium dioxide in paper"
+      ],
+      "longTailKeywords": [
+        "titanium dioxide for decorative paper applications",
+        "titanium dioxide pigment for paper manufacturing",
+        "how to select TiO2 for paper"
+      ],
+      "questionKeywords": [
+        "why is titanium dioxide used in paper",
+        "which titanium dioxide is used in decorative paper",
+        "how does TiO2 affect paper opacity and whiteness"
+      ],
+      "commercialIntentKeywords": [
+        "paper grade titanium dioxide supplier",
+        "TiO2 application-specific pigment supplier for paper",
+        "paper grade TiO2 TDS",
+        "decorative paper pigment sample"
+      ],
+      "searchIntent": [
+        "informational-discovery",
+        "commercial-investigation"
+      ],
+      "customerStages": [
+        "explore",
+        "shortlist"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "category overview and paper-process terminology",
+        "longTail": "retention, opacity, whiteness and laminate-routing sections",
+        "questions": "Category FAQ",
+        "commercial": "paper-grade starting points and enquiry CTA",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "titanium dioxide for paper applications",
+        "toParent": "explore all titanium dioxide applications",
+        "toChildren": [
+          "TiO2 for decorative paper",
+          "TiO2 for laminated decorative paper"
+        ]
+      },
+      "confidence": "medium",
+      "targetQuery": "titanium dioxide for paper",
+      "recommendedSeoTitle": "Titanium Dioxide for Paper Applications | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Decorative Paper Applications",
+      "naturalCopyVariants": [
+        "titanium dioxide for paper",
+        "paper grade titanium dioxide",
+        "TiO2 for paper",
+        "titanium dioxide paper pigment"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-005",
+        "SERPQ-PAPER-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-PAPER",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "solar-film",
+      "path": "/applications/solar-film",
+      "level": "category",
+      "parentId": "applications-hub",
+      "decisionId": "DEC-APP-006",
+      "secondaryKeywords": [
+        "TiO2 pigment for solar module films",
+        "titanium dioxide for solar backsheet film",
+        "titanium dioxide for photovoltaic white film"
+      ],
+      "longTailKeywords": [
+        "titanium dioxide white pigment for solar module films",
+        "TiO2 pigment for photovoltaic backsheet and white film",
+        "rutile titanium dioxide for solar module polymer films"
+      ],
+      "questionKeywords": [
+        "why is titanium dioxide used in photovoltaic white film",
+        "how do I select TiO2 for solar backsheet film",
+        "what should be tested in a photovoltaic film TiO2 trial"
+      ],
+      "commercialIntentKeywords": [
+        "photovoltaic film TiO2 supplier",
+        "solar backsheet application-specific pigment supplier",
+        "photovoltaic white film TiO2 TDS",
+        "solar film pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "explore",
+        "shortlist"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "category overview and two film-system routes",
+        "longTail": "resin, layer construction, loading, thickness and exposure sections",
+        "questions": "Category FAQ",
+        "commercial": "product starting points and documentation CTA",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 pigment for solar module films",
+        "toParent": "explore all titanium dioxide applications",
+        "toChildren": [
+          "TiO2 for photovoltaic white film",
+          "TiO2 for solar backsheet and soft PVC film"
+        ]
+      },
+      "confidence": "medium",
+      "targetQuery": "titanium dioxide pigment for solar module films",
+      "recommendedSeoTitle": "Titanium Dioxide Pigment for Solar Module Films | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Solar Module Films",
+      "naturalCopyVariants": [
+        "titanium dioxide for solar module films",
+        "TiO2 pigment for PV module films",
+        "white pigment for photovoltaic films",
+        "TiO2 for solar backsheet and white film applications"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-REVIEW-001",
+        "SERPAUDIT-SOLAR-CATEGORY-20260829"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-SOLAR-AMBIGUITY",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "high-purity",
+      "path": "/applications/high-purity",
+      "level": "category",
+      "parentId": "applications-hub",
+      "decisionId": "DEC-APP-007",
+      "secondaryKeywords": [
+        "high purity TiO2",
+        "electronic grade titanium dioxide",
+        "high purity titanium oxide"
+      ],
+      "longTailKeywords": [
+        "high purity titanium dioxide applications",
+        "high purity TiO2 for electronic materials",
+        "high purity titanium dioxide raw material"
+      ],
+      "questionKeywords": [
+        "what is high purity titanium dioxide used for",
+        "how is high purity TiO2 selected for electronic materials",
+        "does TiO2 purity determine final performance"
+      ],
+      "commercialIntentKeywords": [
+        "high purity titanium dioxide supplier",
+        "electronic grade TiO2 supplier",
+        "high purity TiO2 TDS",
+        "high purity titanium dioxide sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "explore",
+        "shortlist"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "category overview and application routing",
+        "longTail": "impurity, particle, process and qualification sections",
+        "questions": "Category FAQ",
+        "commercial": "product and documentation CTA",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "high-purity titanium dioxide applications",
+        "toParent": "explore all titanium dioxide applications",
+        "toChildren": [
+          "high-purity TiO2 for MLCC",
+          "high-purity TiO2 for functional materials"
+        ]
+      },
+      "confidence": "high",
+      "targetQuery": "high purity titanium dioxide",
+      "recommendedSeoTitle": "High-Purity Titanium Dioxide Applications | TIOVAR",
+      "recommendedH1": "High-Purity Titanium Dioxide Applications",
+      "naturalCopyVariants": [
+        "high purity titanium dioxide",
+        "high purity TiO2",
+        "electronic grade titanium dioxide",
+        "high purity titanium oxide"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-VAR-015",
+        "SERPQ-HIGH-PURITY-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-HIGH-PURITY",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "masterbatch",
+      "path": "/applications/titanium-dioxide-for-masterbatch",
+      "level": "detail",
+      "parentId": "plastics",
+      "decisionId": "DEC-APP-008",
+      "secondaryKeywords": [
+        "TiO2 masterbatch",
+        "titanium dioxide for masterbatch",
+        "white masterbatch titanium dioxide"
+      ],
+      "longTailKeywords": [
+        "rutile titanium dioxide for PE PP masterbatch",
+        "high dispersion TiO2 for color masterbatch",
+        "titanium dioxide pigment for plastic masterbatch"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is used in white masterbatch",
+        "how do I choose TiO2 for masterbatch",
+        "what affects TiO2 dispersion in masterbatch"
+      ],
+      "commercialIntentKeywords": [
+        "titanium dioxide masterbatch grade supplier",
+        "TiO2 application-specific pigment supplier for masterbatch",
+        "masterbatch TiO2 TDS",
+        "request TiO2 masterbatch sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "application scope and product-starting-point section",
+        "longTail": "carrier resin, dispersion, processing and finished-part validation",
+        "questions": "Detail FAQ",
+        "commercial": "grade comparison, TDS, sample and enquiry CTA",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "titanium dioxide masterbatch",
+        "toParent": "titanium dioxide for plastics",
+        "toChildren": []
+      },
+      "confidence": "high",
+      "targetQuery": "titanium dioxide masterbatch",
+      "recommendedSeoTitle": "Titanium Dioxide for Masterbatch | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Masterbatch",
+      "naturalCopyVariants": [
+        "titanium dioxide masterbatch",
+        "TiO2 masterbatch",
+        "titanium dioxide for masterbatch",
+        "white masterbatch titanium dioxide"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-VAR-009",
+        "SERPQ-MASTERBATCH-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-MASTERBATCH",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "polycarbonate",
+      "path": "/applications/titanium-dioxide-for-polycarbonate",
+      "level": "detail",
+      "parentId": "plastics",
+      "decisionId": "DEC-APP-009",
+      "secondaryKeywords": [
+        "TiO2 for polycarbonate",
+        "polycarbonate grade titanium dioxide",
+        "titanium dioxide polycarbonate pigment"
+      ],
+      "longTailKeywords": [
+        "heat stable titanium dioxide for polycarbonate",
+        "titanium dioxide for PC resin and PC blends",
+        "high reflectance TiO2 for polycarbonate"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is suitable for polycarbonate",
+        "how does TiO2 affect polycarbonate processing",
+        "how should TiO2 be tested in PC resin"
+      ],
+      "commercialIntentKeywords": [
+        "polycarbonate grade TiO2 supplier",
+        "titanium dioxide supplier for PC resin",
+        "polycarbonate TiO2 TDS",
+        "request polycarbonate pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "resin scope and grade-starting-point section",
+        "longTail": "thermal processing, color, reflectance and final-part validation",
+        "questions": "Detail FAQ",
+        "commercial": "product comparison and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 for polycarbonate",
+        "toParent": "titanium dioxide for plastics",
+        "toChildren": []
+      },
+      "confidence": "high",
+      "targetQuery": "titanium dioxide for polycarbonate",
+      "recommendedSeoTitle": "Titanium Dioxide for Polycarbonate | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Polycarbonate and Engineering Plastics",
+      "naturalCopyVariants": [
+        "titanium dioxide for polycarbonate",
+        "TiO2 for polycarbonate",
+        "polycarbonate grade titanium dioxide",
+        "titanium dioxide polycarbonate pigment"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-009",
+        "SERPQ-POLYCARBONATE-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-POLYCARBONATE",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "outdoor-pvc",
+      "path": "/applications/titanium-dioxide-for-outdoor-pvc",
+      "level": "detail",
+      "parentId": "plastics",
+      "decisionId": "DEC-APP-010",
+      "secondaryKeywords": [
+        "TiO2 for outdoor PVC",
+        "weather resistant TiO2 for PVC",
+        "rutile titanium dioxide for exterior PVC"
+      ],
+      "longTailKeywords": [
+        "titanium dioxide pigment for weatherable PVC",
+        "durable TiO2 for PVC profiles",
+        "titanium dioxide for exterior rigid PVC"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is best suited for outdoor PVC evaluation",
+        "how does TiO2 affect PVC weathering",
+        "what should be tested in an outdoor PVC TiO2 trial"
+      ],
+      "commercialIntentKeywords": [
+        "outdoor PVC TiO2 supplier",
+        "weather resistant titanium dioxide supplier",
+        "PVC pigment TDS",
+        "request outdoor PVC pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "PVC application and product-starting-point section",
+        "longTail": "weathering, dispersion, processing and final-profile validation",
+        "questions": "Detail FAQ",
+        "commercial": "product comparison and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 for outdoor PVC",
+        "toParent": "titanium dioxide for plastics",
+        "toChildren": []
+      },
+      "confidence": "high",
+      "targetQuery": "titanium dioxide for outdoor PVC",
+      "recommendedSeoTitle": "Titanium Dioxide for Outdoor PVC | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Outdoor PVC and Weatherable Plastics",
+      "naturalCopyVariants": [
+        "titanium dioxide for outdoor PVC",
+        "TiO2 for outdoor PVC",
+        "weather resistant TiO2 for PVC",
+        "rutile titanium dioxide for exterior PVC"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-010",
+        "SERPQ-OUTDOOR-PVC-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-OUTDOOR-PVC",
+        "SERP-20260829-UV-PLASTICS",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "film-masterbatch",
+      "path": "/applications/titanium-dioxide-for-film-masterbatch",
+      "level": "detail",
+      "parentId": "plastics",
+      "decisionId": "DEC-APP-011",
+      "secondaryKeywords": [
+        "TiO2 film masterbatch",
+        "film grade titanium dioxide",
+        "white film masterbatch pigment"
+      ],
+      "longTailKeywords": [
+        "titanium dioxide for PET PE PP film masterbatch",
+        "high dispersion TiO2 for thin film",
+        "rutile titanium dioxide for plastic film"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is used for film masterbatch",
+        "how should TiO2 dispersion be tested in plastic film",
+        "what causes lacing in TiO2 film masterbatch"
+      ],
+      "commercialIntentKeywords": [
+        "film masterbatch TiO2 supplier",
+        "film grade titanium dioxide supplier",
+        "film masterbatch TiO2 TDS",
+        "request film grade TiO2 sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "film-resin scope and product section",
+        "longTail": "dispersion, extrusion, film appearance and process-validation sections",
+        "questions": "Detail FAQ",
+        "commercial": "grade starting point and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 for film masterbatch",
+        "toParent": "titanium dioxide for plastics",
+        "toChildren": []
+      },
+      "confidence": "medium",
+      "targetQuery": "titanium dioxide for film masterbatch",
+      "recommendedSeoTitle": "Titanium Dioxide for Film Masterbatch | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for PET, PE and PP Film Masterbatch",
+      "naturalCopyVariants": [
+        "titanium dioxide for film masterbatch",
+        "TiO2 film masterbatch",
+        "film grade titanium dioxide",
+        "white film masterbatch pigment"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-011",
+        "SERPQ-MASTERBATCH-003"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-MASTERBATCH",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "soft-pvc-solar-backsheet",
+      "path": "/applications/titanium-dioxide-for-soft-pvc-solar-backsheet",
+      "level": "detail",
+      "parentId": "plastics",
+      "decisionId": "DEC-APP-012",
+      "secondaryKeywords": [
+        "TiO2 for soft PVC",
+        "titanium dioxide for solar backsheet",
+        "solar backsheet white pigment"
+      ],
+      "longTailKeywords": [
+        "titanium dioxide for soft PVC solar backsheet film",
+        "TiO2 pigment for flexible PVC film",
+        "weather resistant white pigment for solar backsheet"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is used in soft PVC film",
+        "how should TiO2 be tested in solar backsheet film",
+        "does soft PVC use the same TiO2 as EVA or POE white film"
+      ],
+      "commercialIntentKeywords": [
+        "soft PVC TiO2 supplier",
+        "solar backsheet application-specific pigment supplier",
+        "soft PVC pigment TDS",
+        "request solar backsheet TiO2 sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "two-system scope and product section",
+        "longTail": "resin, layer construction, thickness and exposure-validation sections",
+        "questions": "Detail FAQ",
+        "commercial": "product starting points and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 for soft PVC and solar backsheet film",
+        "toParent": "titanium dioxide for plastics",
+        "toChildren": []
+      },
+      "confidence": "low",
+      "targetQuery": "titanium dioxide for soft PVC",
+      "recommendedSeoTitle": "Titanium Dioxide for Soft PVC and Solar Backsheet Film | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Soft PVC and Solar Backsheet Film",
+      "naturalCopyVariants": [
+        "titanium dioxide for soft PVC",
+        "TiO2 for flexible PVC film",
+        "TiO2 pigment for solar backsheet film",
+        "white pigment for soft PVC and backsheets"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-REVIEW-004",
+        "SERPAUDIT-SOFTPVC-BACKSHEET-20260829"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-SOLAR-AMBIGUITY",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "lcp-high-temperature-plastics",
+      "path": "/applications/titanium-dioxide-for-lcp",
+      "level": "detail",
+      "parentId": "plastics",
+      "decisionId": "DEC-APP-013",
+      "secondaryKeywords": [
+        "TiO2 for LCP",
+        "titanium dioxide for liquid crystal polymer",
+        "TiO2 for high temperature plastics"
+      ],
+      "longTailKeywords": [
+        "heat stable titanium dioxide for LCP",
+        "titanium dioxide pigment for high temperature engineering plastics",
+        "TiO2 for Type I LCP"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is suitable for LCP",
+        "how should TiO2 be tested in high temperature plastics",
+        "can powder data qualify a TiO2 pigment for LCP"
+      ],
+      "commercialIntentKeywords": [
+        "LCP grade titanium dioxide supplier",
+        "heat stable TiO2 supplier",
+        "LCP pigment TDS",
+        "request LCP TiO2 sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "polymer scope and product-starting-point section",
+        "longTail": "thermal history, processing and finished-part validation",
+        "questions": "Detail FAQ",
+        "commercial": "grade comparison and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 for LCP",
+        "toParent": "titanium dioxide for plastics",
+        "toChildren": []
+      },
+      "confidence": "medium",
+      "targetQuery": "titanium dioxide for LCP",
+      "recommendedSeoTitle": "Titanium Dioxide for LCP | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for LCP and High-Temperature Engineering Plastics",
+      "naturalCopyVariants": [
+        "titanium dioxide for LCP",
+        "TiO2 for LCP",
+        "titanium dioxide for liquid crystal polymer",
+        "TiO2 for high temperature plastics"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-013",
+        "SERPQ-PLASTICS-003"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-PLASTICS",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "uv-resistant-engineering-plastics",
+      "path": "/applications/uv-resistant-titanium-dioxide-engineering-plastics",
+      "level": "detail",
+      "parentId": "plastics",
+      "decisionId": "DEC-APP-014",
+      "secondaryKeywords": [
+        "UV stable TiO2 for plastics",
+        "weather resistant titanium dioxide pigment",
+        "TiO2 for outdoor engineering plastics"
+      ],
+      "longTailKeywords": [
+        "rutile titanium dioxide for UV resistant plastics",
+        "titanium dioxide for weatherable engineering plastics",
+        "UV resistant TiO2 for PA PBT and PC"
+      ],
+      "questionKeywords": [
+        "how does titanium dioxide improve UV resistance in plastics",
+        "which TiO2 is suitable for outdoor engineering plastics",
+        "how should UV performance be tested in a finished plastic part"
+      ],
+      "commercialIntentKeywords": [
+        "UV resistant TiO2 supplier",
+        "weatherable plastic application-specific pigment supplier",
+        "UV stable TiO2 TDS",
+        "request engineering plastics pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "polymer and exposure-scope section",
+        "longTail": "surface treatment, UV cycle, color change and final-part validation",
+        "questions": "Detail FAQ",
+        "commercial": "product starting points and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "UV-resistant TiO2 for engineering plastics",
+        "toParent": "titanium dioxide for plastics",
+        "toChildren": []
+      },
+      "confidence": "medium",
+      "targetQuery": "UV resistant titanium dioxide for engineering plastics",
+      "recommendedSeoTitle": "UV-Resistant Titanium Dioxide for Engineering Plastics | TIOVAR",
+      "recommendedH1": "UV-Resistant Titanium Dioxide for Engineering Plastics",
+      "naturalCopyVariants": [
+        "UV resistant titanium dioxide for engineering plastics",
+        "UV stable TiO2 for plastics",
+        "weather resistant titanium dioxide pigment",
+        "TiO2 for outdoor engineering plastics"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-REVIEW-005",
+        "SERPAUDIT-UV-ENGINEERING-PLASTICS-20260829"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-UV-PLASTICS",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "water-based-paint",
+      "path": "/applications/titanium-dioxide-for-water-based-paint",
+      "level": "detail",
+      "parentId": "coatings",
+      "decisionId": "DEC-APP-015",
+      "secondaryKeywords": [
+        "TiO2 for water based paint",
+        "titanium dioxide for emulsion paint",
+        "TiO2 for waterborne coatings"
+      ],
+      "longTailKeywords": [
+        "rutile titanium dioxide for water based wall paint",
+        "titanium dioxide for interior exterior emulsion paint",
+        "TiO2 pigment for waterborne architectural coatings"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is used in water based paint",
+        "how do I choose TiO2 for emulsion paint",
+        "what should be tested in a waterborne paint TiO2 trial"
+      ],
+      "commercialIntentKeywords": [
+        "water based paint TiO2 supplier",
+        "emulsion paint titanium dioxide supplier",
+        "waterborne coating TiO2 TDS",
+        "request paint pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "system scope and product-starting-point section",
+        "longTail": "dispersion, viscosity, storage and finished-film validation",
+        "questions": "Detail FAQ",
+        "commercial": "grade comparison, TDS and sample CTA",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 for water-based paint",
+        "toParent": "titanium dioxide for coatings",
+        "toChildren": []
+      },
+      "confidence": "high",
+      "targetQuery": "titanium dioxide for water based paint",
+      "recommendedSeoTitle": "Titanium Dioxide for Water-Based Paint | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Water-Based Paint",
+      "naturalCopyVariants": [
+        "titanium dioxide for water based paint",
+        "TiO2 for water based paint",
+        "titanium dioxide for emulsion paint",
+        "TiO2 for waterborne coatings"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-015",
+        "SERPQ-WATERBASED-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-WATERBASED",
+        "PROJECT-APPROVED-REP-20260829"
+      ]
+    },
+    {
+      "pageId": "electrophoretic-coating",
+      "path": "/applications/titanium-dioxide-for-electrophoretic-coating",
+      "level": "detail",
+      "parentId": "coatings",
+      "decisionId": "DEC-APP-016",
+      "secondaryKeywords": [
+        "TiO2 for e-coat",
+        "titanium dioxide for electrophoretic paint",
+        "low conductivity titanium dioxide pigment"
+      ],
+      "longTailKeywords": [
+        "low ion TiO2 pigment for electrophoretic coating bath",
+        "titanium dioxide for automotive e-coat paint",
+        "white pigment for electrophoretic coatings"
+      ],
+      "questionKeywords": [
+        "why is low ion titanium dioxide used in electrophoretic coatings",
+        "which TiO2 is suitable for e-coat",
+        "how should TiO2 be evaluated in an electrophoretic coating bath"
+      ],
+      "commercialIntentKeywords": [
+        "low ion titanium dioxide supplier",
+        "e-coat application-specific pigment supplier",
+        "electrophoretic coating TiO2 TDS",
+        "request low ion TiO2 sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "bath and product-starting-point section",
+        "longTail": "ionic contribution, formulation, process and finished-part validation",
+        "questions": "Detail FAQ",
+        "commercial": "product, documentation and sample CTA",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "low-ion TiO2 for electrophoretic coatings",
+        "toParent": "titanium dioxide for coatings",
+        "toChildren": []
+      },
+      "confidence": "medium",
+      "targetQuery": "low ion titanium dioxide for electrophoretic coatings",
+      "recommendedSeoTitle": "Low-Ion Titanium Dioxide for Electrophoretic Coatings | TIOVAR",
+      "recommendedH1": "Low-Ion Titanium Dioxide for Electrophoretic Coatings",
+      "naturalCopyVariants": [
+        "low ion titanium dioxide for electrophoretic coatings",
+        "TiO2 for e-coat",
+        "titanium dioxide for electrophoretic paint",
+        "low conductivity titanium dioxide pigment"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-REVIEW-006",
+        "SERPAUDIT-ECOAT-20260829"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-ECOAT-AMBIGUITY",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "high-pvc-flat-paint",
+      "path": "/applications/titanium-dioxide-for-high-pvc-paint",
+      "level": "detail",
+      "parentId": "coatings",
+      "decisionId": "DEC-APP-017",
+      "secondaryKeywords": [
+        "TiO2 for high PVC coatings",
+        "titanium dioxide for flat paint",
+        "high PVC paint pigment"
+      ],
+      "longTailKeywords": [
+        "titanium dioxide for high PVC flat paint",
+        "TiO2 pigment for matte architectural coatings",
+        "titanium dioxide for dry hiding in high PVC paint"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is used in high PVC paint",
+        "how does oil absorption affect TiO2 in flat paint",
+        "how should dry hiding be tested in high PVC paint"
+      ],
+      "commercialIntentKeywords": [
+        "high PVC paint TiO2 supplier",
+        "flat paint titanium dioxide supplier",
+        "high PVC coating TiO2 TDS",
+        "request flat paint pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "formulation scope and product section",
+        "longTail": "PVC/CPVC, dry hiding, rheology and film-validation sections",
+        "questions": "Detail FAQ",
+        "commercial": "grade comparison and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 for high-PVC flat paint",
+        "toParent": "titanium dioxide for coatings",
+        "toChildren": []
+      },
+      "confidence": "medium",
+      "targetQuery": "titanium dioxide for high PVC paint",
+      "recommendedSeoTitle": "Titanium Dioxide for High-PVC Flat Paint | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for High-PVC Flat Paint",
+      "naturalCopyVariants": [
+        "titanium dioxide for high PVC paint",
+        "TiO2 for high PVC coatings",
+        "titanium dioxide for flat paint",
+        "high PVC paint pigment"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-017",
+        "SERPQ-HIGH-PVC-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-HIGH-PVC",
+        "PROJECT-APP-JSON-20260827",
+        "PROJECT-RESOURCES-20260827"
+      ]
+    },
+    {
+      "pageId": "automotive-coatings",
+      "path": "/applications/titanium-dioxide-for-automotive-coatings",
+      "level": "detail",
+      "parentId": "coatings",
+      "decisionId": "DEC-APP-018",
+      "secondaryKeywords": [
+        "automotive grade titanium dioxide",
+        "TiO2 for automotive paint",
+        "white pigment for automotive coatings"
+      ],
+      "longTailKeywords": [
+        "rutile titanium dioxide pigment for automotive OEM coatings",
+        "TiO2 for automotive refinishing paint",
+        "durable titanium dioxide for automotive coatings"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide pigment is used in automotive coatings",
+        "how should TiO2 be evaluated for automotive paint",
+        "does titanium dioxide provide corrosion protection in automotive coatings"
+      ],
+      "commercialIntentKeywords": [
+        "automotive grade TiO2 supplier",
+        "automotive coating application-specific pigment supplier",
+        "automotive TiO2 TDS",
+        "request automotive paint pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "OEM/refinish scope and product section",
+        "longTail": "binder, application, cure, appearance and durability validation",
+        "questions": "Detail FAQ",
+        "commercial": "grade starting points and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 pigment for automotive coatings",
+        "toParent": "titanium dioxide for coatings",
+        "toChildren": []
+      },
+      "confidence": "medium",
+      "targetQuery": "titanium dioxide pigment for automotive coatings",
+      "recommendedSeoTitle": "Titanium Dioxide Pigment for Automotive Coatings | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Automotive Coatings",
+      "naturalCopyVariants": [
+        "titanium dioxide pigment for automotive coatings",
+        "automotive grade titanium dioxide",
+        "TiO2 for automotive paint",
+        "white pigment for automotive coatings"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-REVIEW-007",
+        "SERPQ-AUTO-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-AUTO",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "waterborne-automotive-coatings",
+      "path": "/applications/titanium-dioxide-for-waterborne-automotive-coatings",
+      "level": "detail",
+      "parentId": "coatings",
+      "decisionId": "DEC-APP-019",
+      "secondaryKeywords": [
+        "TiO2 for water based automotive paint",
+        "waterborne automotive coating pigment",
+        "water dispersible titanium dioxide for automotive paint"
+      ],
+      "longTailKeywords": [
+        "titanium dioxide for waterborne automotive basecoat",
+        "rutile TiO2 for water based automotive coatings",
+        "TiO2 pigment with water dispersibility for automotive paint"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is suitable for waterborne automotive coatings",
+        "how should TiO2 water dispersibility be tested in automotive paint",
+        "how is storage stability evaluated in waterborne automotive coatings"
+      ],
+      "commercialIntentKeywords": [
+        "waterborne automotive TiO2 supplier",
+        "water based automotive application-specific pigment supplier",
+        "waterborne automotive TiO2 TDS",
+        "request automotive coating sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "waterborne scope and product section",
+        "longTail": "dispersion, storage, application and finished-film validation",
+        "questions": "Detail FAQ",
+        "commercial": "grade starting points and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 for waterborne automotive coatings",
+        "toParent": "titanium dioxide for coatings",
+        "toChildren": []
+      },
+      "confidence": "medium",
+      "targetQuery": "titanium dioxide for waterborne automotive coatings",
+      "recommendedSeoTitle": "Titanium Dioxide for Waterborne Automotive Coatings | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Waterborne Automotive Coatings",
+      "naturalCopyVariants": [
+        "titanium dioxide for waterborne automotive coatings",
+        "TiO2 for water based automotive paint",
+        "waterborne automotive coating pigment",
+        "water dispersible titanium dioxide for automotive paint"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-019",
+        "SERPQ-AUTO-003"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-AUTO",
+        "SERP-20260829-WATERBASED",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "marine-aerospace-protective",
+      "path": "/applications/titanium-dioxide-for-protective-coatings",
+      "level": "detail",
+      "parentId": "coatings",
+      "decisionId": "DEC-APP-020",
+      "secondaryKeywords": [
+        "TiO2 for marine coatings",
+        "titanium dioxide for aerospace coatings",
+        "durable pigment for protective coatings"
+      ],
+      "longTailKeywords": [
+        "rutile titanium dioxide for marine protective coatings",
+        "weather resistant TiO2 for aerospace coatings",
+        "titanium dioxide pigment for industrial protective coatings"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is used in protective coatings",
+        "does TiO2 provide corrosion resistance in marine coatings",
+        "how should TiO2 durability be tested in protective coatings"
+      ],
+      "commercialIntentKeywords": [
+        "protective coating TiO2 supplier",
+        "marine coating application-specific pigment supplier",
+        "durable coating TiO2 TDS",
+        "request protective coating pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "exposure-scope and product section",
+        "longTail": "binder, coating stack, cure, exposure and final-system validation",
+        "questions": "Detail FAQ",
+        "commercial": "grade comparison and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 for protective coatings",
+        "toParent": "titanium dioxide for coatings",
+        "toChildren": []
+      },
+      "confidence": "medium",
+      "targetQuery": "titanium dioxide for protective coatings",
+      "recommendedSeoTitle": "Titanium Dioxide for Protective Coatings | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Marine, Aerospace and Protective Coatings",
+      "naturalCopyVariants": [
+        "titanium dioxide for protective coatings",
+        "TiO2 for marine coatings",
+        "titanium dioxide for aerospace coatings",
+        "durable pigment for protective coatings"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-020",
+        "SERPQ-PROTECTIVE-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-PROTECTIVE",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "powder-coil-coatings",
+      "path": "/applications/titanium-dioxide-for-powder-coil-coatings",
+      "level": "detail",
+      "parentId": "coatings",
+      "decisionId": "DEC-APP-021",
+      "secondaryKeywords": [
+        "TiO2 for powder coatings",
+        "titanium dioxide for coil coatings",
+        "powder coating titanium dioxide pigment",
+        "coil coating white pigment"
+      ],
+      "longTailKeywords": [
+        "rutile titanium dioxide for durable powder coatings",
+        "titanium dioxide pigment for coil coating",
+        "TiO2 for powder coating cure and film appearance"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is suitable for powder coatings",
+        "can the same TiO2 be used for powder and coil coatings",
+        "how should TiO2 be tested in powder coating"
+      ],
+      "commercialIntentKeywords": [
+        "powder coating TiO2 supplier",
+        "coil coating application-specific pigment supplier",
+        "powder coating TiO2 TDS",
+        "request powder coating pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "separate powder and coil subsections",
+        "longTail": "application, cure, film appearance and durability validation",
+        "questions": "Detail FAQ",
+        "commercial": "grade starting points and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 for powder and coil coatings",
+        "toParent": "titanium dioxide for coatings",
+        "toChildren": []
+      },
+      "confidence": "low",
+      "targetQuery": "titanium dioxide for powder coatings",
+      "recommendedSeoTitle": "Titanium Dioxide for Powder and Coil Coatings | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Powder and Coil Coatings",
+      "naturalCopyVariants": [
+        "titanium dioxide for powder coatings",
+        "TiO2 for powder coatings",
+        "titanium dioxide for coil coatings",
+        "powder coating titanium dioxide pigment"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-REVIEW-010",
+        "SEMOBS-US-REVIEW-011",
+        "SERPAUDIT-POWDER-COIL-20260829"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-POWDER-COIL",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "printing-ink",
+      "path": "/applications/titanium-dioxide-for-printing-ink",
+      "level": "detail",
+      "parentId": "printing-inks",
+      "decisionId": "DEC-APP-022",
+      "secondaryKeywords": [
+        "titanium dioxide pigment for printing ink",
+        "TiO2 for printing ink",
+        "white pigment for printing ink"
+      ],
+      "longTailKeywords": [
+        "titanium dioxide for solvent based printing ink",
+        "TiO2 pigment for water based printing ink",
+        "titanium dioxide for offset gravure and letterpress ink"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide grade is used in printing ink",
+        "how should TiO2 filtration be tested in ink",
+        "how does oil absorption affect titanium dioxide in printing ink"
+      ],
+      "commercialIntentKeywords": [
+        "printing ink grade TiO2 supplier",
+        "printing ink application-specific pigment supplier",
+        "printing ink TiO2 TDS",
+        "request printing ink pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "ink-system and product-starting-point section",
+        "longTail": "vehicle, dispersion, filtration, printing and finished-print validation",
+        "questions": "Detail FAQ",
+        "commercial": "grade comparison and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "printing ink grade titanium dioxide",
+        "toParent": "titanium dioxide for printing inks",
+        "toChildren": []
+      },
+      "confidence": "medium",
+      "targetQuery": "printing ink grade titanium dioxide",
+      "recommendedSeoTitle": "Printing Ink Grade Titanium Dioxide | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Printing Ink",
+      "naturalCopyVariants": [
+        "printing ink grade titanium dioxide",
+        "titanium dioxide pigment for printing ink",
+        "TiO2 for printing ink",
+        "white pigment for printing ink"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SERPQ-PRINTING-INK-GRADE-20260829"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-INK",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "photovoltaic-white-film",
+      "path": "/applications/titanium-dioxide-for-photovoltaic-white-film",
+      "level": "detail",
+      "parentId": "solar-film",
+      "decisionId": "DEC-APP-023",
+      "secondaryKeywords": [
+        "TiO2 for PV white film",
+        "photovoltaic film white pigment",
+        "titanium dioxide for EVA POE white film"
+      ],
+      "longTailKeywords": [
+        "rutile titanium dioxide for photovoltaic EVA white film",
+        "TiO2 pigment for POE solar module white film",
+        "high reflectance titanium dioxide for photovoltaic film"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is used in photovoltaic white film",
+        "how should TiO2 loading and film thickness be compared",
+        "can accelerated exposure qualify photovoltaic white film"
+      ],
+      "commercialIntentKeywords": [
+        "photovoltaic white film TiO2 supplier",
+        "PV film application-specific pigment supplier",
+        "solar film TiO2 TDS",
+        "request photovoltaic pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "EVA/POE scope and product section",
+        "longTail": "loading, thickness, reflectance, exposure and finished-film validation",
+        "questions": "Detail FAQ",
+        "commercial": "product starting points and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 for photovoltaic white film",
+        "toParent": "solar module film applications",
+        "toChildren": []
+      },
+      "confidence": "medium",
+      "targetQuery": "titanium dioxide for photovoltaic white film",
+      "recommendedSeoTitle": "Titanium Dioxide for Photovoltaic White Film | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Photovoltaic White Film",
+      "naturalCopyVariants": [
+        "titanium dioxide for photovoltaic white film",
+        "TiO2 for PV white film",
+        "white pigment for EVA and POE photovoltaic film",
+        "TiO2 pigment for solar module white film"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-REVIEW-002",
+        "SERPQ-SOLAR-002"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-SOLAR-AMBIGUITY",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "mlcc-electronic-ceramics",
+      "path": "/applications/high-purity-titanium-dioxide-for-mlcc",
+      "level": "detail",
+      "parentId": "high-purity",
+      "decisionId": "DEC-APP-024",
+      "secondaryKeywords": [
+        "high purity TiO2 for MLCC",
+        "electronic grade titanium dioxide",
+        "titanium dioxide for electronic ceramics"
+      ],
+      "longTailKeywords": [
+        "high purity TiO2 raw material for barium titanate",
+        "electronic grade titanium dioxide for ceramic capacitors",
+        "high purity titanium dioxide for dielectric ceramics"
+      ],
+      "questionKeywords": [
+        "what is the role of high purity TiO2 in MLCC",
+        "does TiO2 purity determine MLCC performance",
+        "how should high purity TiO2 be qualified for electronic ceramics"
+      ],
+      "commercialIntentKeywords": [
+        "MLCC grade titanium dioxide supplier",
+        "electronic grade TiO2 supplier",
+        "high purity TiO2 TDS",
+        "request MLCC TiO2 sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "electronic-ceramic scope and product section",
+        "longTail": "impurity, slurry, calcination/sintering and component-validation sections",
+        "questions": "Detail FAQ",
+        "commercial": "product, analytical documentation and sample CTA",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "high-purity TiO2 for MLCC",
+        "toParent": "high purity titanium dioxide",
+        "toChildren": []
+      },
+      "confidence": "high",
+      "targetQuery": "high purity titanium dioxide for MLCC",
+      "recommendedSeoTitle": "High-Purity Titanium Dioxide for MLCC | TIOVAR",
+      "recommendedH1": "High-Purity Titanium Dioxide for MLCC and Electronic Ceramics",
+      "naturalCopyVariants": [
+        "high purity titanium dioxide for MLCC",
+        "high purity TiO2 for MLCC",
+        "electronic grade titanium dioxide",
+        "titanium dioxide for electronic ceramics"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-024",
+        "SERPQ-HIGH-PURITY-002"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-HIGH-PURITY",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "decorative-paper-detail",
+      "path": "/applications/titanium-dioxide-for-decorative-paper",
+      "level": "detail",
+      "parentId": "decorative-paper",
+      "decisionId": "DEC-APP-025",
+      "secondaryKeywords": [
+        "decorative paper grade titanium dioxide",
+        "TiO2 pigment for decor paper",
+        "titanium dioxide for impregnated paper"
+      ],
+      "longTailKeywords": [
+        "titanium dioxide for high whiteness decorative paper",
+        "TiO2 pigment for decorative base paper",
+        "titanium dioxide for paper opacity and retention"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is used in decorative paper",
+        "how does TiO2 affect decorative paper opacity",
+        "why should TiO2 retention and opacity be measured together"
+      ],
+      "commercialIntentKeywords": [
+        "decorative paper TiO2 supplier",
+        "decor paper application-specific pigment supplier",
+        "decorative paper TiO2 TDS",
+        "request decorative paper pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "paper scope and product section",
+        "longTail": "furnish, retention, opacity, whiteness and base-paper validation",
+        "questions": "Detail FAQ",
+        "commercial": "grade comparison and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 for decorative paper",
+        "toParent": "titanium dioxide for paper",
+        "toChildren": []
+      },
+      "confidence": "medium",
+      "targetQuery": "titanium dioxide for decorative paper",
+      "recommendedSeoTitle": "Titanium Dioxide for Decorative Paper | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Decorative Paper",
+      "naturalCopyVariants": [
+        "titanium dioxide for decorative paper",
+        "decorative paper grade titanium dioxide",
+        "TiO2 pigment for decor paper",
+        "titanium dioxide for impregnated paper"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-025",
+        "SERPQ-PAPER-002"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-PAPER",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "laminated-decorative-paper",
+      "path": "/applications/titanium-dioxide-for-laminated-decorative-paper",
+      "level": "detail",
+      "parentId": "decorative-paper",
+      "decisionId": "DEC-APP-026",
+      "secondaryKeywords": [
+        "TiO2 for paper laminates",
+        "laminate paper titanium dioxide",
+        "white pigment for decorative laminates"
+      ],
+      "longTailKeywords": [
+        "titanium dioxide for high whiteness laminated decorative paper",
+        "TiO2 pigment for decor paper laminates",
+        "titanium dioxide for resin impregnated laminate paper"
+      ],
+      "questionKeywords": [
+        "which titanium dioxide is used in laminated decorative paper",
+        "is a base paper TiO2 result enough for laminate selection",
+        "how should TiO2 be tested after impregnation and lamination"
+      ],
+      "commercialIntentKeywords": [
+        "laminated decorative paper TiO2 supplier",
+        "paper laminate application-specific pigment supplier",
+        "laminate paper TiO2 TDS",
+        "request laminate pigment sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "laminate scope and product section",
+        "longTail": "impregnation, pressing, color change and final-laminate validation",
+        "questions": "Detail FAQ",
+        "commercial": "grade comparison and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "TiO2 for laminated decorative paper",
+        "toParent": "titanium dioxide for paper",
+        "toChildren": []
+      },
+      "confidence": "medium",
+      "targetQuery": "titanium dioxide for laminated decorative paper",
+      "recommendedSeoTitle": "Titanium Dioxide for Laminated Decorative Paper | TIOVAR",
+      "recommendedH1": "Titanium Dioxide for Laminated Decorative Paper",
+      "naturalCopyVariants": [
+        "titanium dioxide for laminated decorative paper",
+        "TiO2 for paper laminates",
+        "laminate paper titanium dioxide",
+        "white pigment for decorative laminates"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-EXACT-026",
+        "SERPQ-PAPER-003"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-PAPER",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "universal-multi-application",
+      "path": "/applications/multi-purpose-titanium-dioxide",
+      "level": "detail",
+      "parentId": "applications-hub",
+      "decisionId": "DEC-APP-027",
+      "secondaryKeywords": [
+        "multipurpose TiO2 pigment",
+        "universal titanium dioxide",
+        "general purpose titanium dioxide"
+      ],
+      "longTailKeywords": [
+        "multi-purpose rutile titanium dioxide pigment",
+        "multi-purpose TiO2 for coatings inks and plastics",
+        "general purpose titanium dioxide grade"
+      ],
+      "questionKeywords": [
+        "what is multi-purpose titanium dioxide",
+        "can one TiO2 grade be used in coatings inks and plastics",
+        "when should an application-specific titanium dioxide grade be selected"
+      ],
+      "commercialIntentKeywords": [
+        "multi-purpose titanium dioxide supplier",
+        "universal TiO2 supplier",
+        "multi-purpose TiO2 TDS",
+        "request multipurpose titanium dioxide sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "three-system scope and product section",
+        "longTail": "separate coatings, inks and plastics validation blocks",
+        "questions": "Detail FAQ",
+        "commercial": "TP-U100 documentation and CTA block",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "multi-purpose titanium dioxide",
+        "toParent": "explore all titanium dioxide applications",
+        "toChildren": []
+      },
+      "confidence": "medium",
+      "targetQuery": "multi-purpose titanium dioxide",
+      "recommendedSeoTitle": "Multi-Purpose Titanium Dioxide | TIOVAR",
+      "recommendedH1": "Multi-Purpose Titanium Dioxide for Coatings, Inks and Plastics",
+      "naturalCopyVariants": [
+        "multi-purpose titanium dioxide",
+        "multipurpose TiO2 pigment",
+        "universal titanium dioxide",
+        "general purpose titanium dioxide"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-REVIEW-008",
+        "SERPQ-MULTIPURPOSE-001"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-MULTIPURPOSE",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    },
+    {
+      "pageId": "functional-materials",
+      "path": "/applications/high-purity-titanium-dioxide-functional-materials",
+      "level": "detail",
+      "parentId": "high-purity",
+      "decisionId": "DEC-APP-028",
+      "secondaryKeywords": [
+        "high purity TiO2 for optical glass",
+        "high purity TiO2 for battery materials",
+        "functional grade titanium dioxide"
+      ],
+      "longTailKeywords": [
+        "high purity titanium dioxide for optical glass applications",
+        "high purity TiO2 raw material for battery materials",
+        "titanium dioxide for advanced functional materials"
+      ],
+      "questionKeywords": [
+        "how is high purity TiO2 used in functional materials",
+        "how should TiO2 be qualified for optical glass",
+        "does high purity TiO2 establish suitability for battery materials"
+      ],
+      "commercialIntentKeywords": [
+        "functional grade titanium dioxide supplier",
+        "high purity TiO2 supplier",
+        "functional material TiO2 TDS",
+        "request high purity TiO2 sample"
+      ],
+      "searchIntent": [
+        "commercial-investigation",
+        "technical-validation"
+      ],
+      "customerStages": [
+        "shortlist",
+        "validate",
+        "engage"
+      ],
+      "recommendedContentPositions": {
+        "secondary": "application-routing and product section",
+        "longTail": "separate optical, battery and other functional-material qualification blocks",
+        "questions": "Detail FAQ",
+        "commercial": "analytical documentation, sample and technical-enquiry CTA",
+        "targetQuery": "Use as a topic and intent control; exact-match repetition is not required."
+      },
+      "internalLinkAnchors": {
+        "fromParent": "high-purity TiO2 for functional materials",
+        "toParent": "high purity titanium dioxide",
+        "toChildren": []
+      },
+      "confidence": "low",
+      "targetQuery": "high purity titanium dioxide for functional materials",
+      "recommendedSeoTitle": "High-Purity Titanium Dioxide for Functional Materials | TIOVAR",
+      "recommendedH1": "High-Purity Titanium Dioxide for Optical, Battery and Functional Materials",
+      "naturalCopyVariants": [
+        "high purity titanium dioxide for functional materials",
+        "high purity TiO2 for optical glass",
+        "high purity TiO2 for battery materials",
+        "functional grade titanium dioxide"
+      ],
+      "mustUseExactMatch": false,
+      "primaryEvidenceRefs": [
+        "SEMOBS-US-REVIEW-009",
+        "SERPAUDIT-FUNCTIONAL-MATERIALS-20260829"
+      ],
+      "supportingEvidenceRefs": [
+        "SEM-US-20260829-EXACT",
+        "SEM-US-20260829-VARIANTS",
+        "SERP-20260829-FUNCTIONAL",
+        "SERP-20260829-HIGH-PURITY",
+        "PROJECT-APP-JSON-20260827"
+      ]
+    }
+  ],
+  "marketScope": "US baseline + international English terminology review",
+  "targetQueryPolicy": "one unique targetQuery owner per page; targetQuery controls topic and intent, not mechanical repetition",
+  "onPageCompliance": {
+    "mustNotClaim": [
+      "TIOVAR is a manufacturer",
+      "TIOVAR manufactures titanium dioxide"
+    ],
+    "allowedCommercialLanguage": [
+      "supplier",
+      "application-specific supplier",
+      "technical and supply support",
+      "product documentation",
+      "sample request",
+      "technical discussion"
+    ],
+    "exactMatchPolicy": "No page is required to repeat its targetQuery verbatim in the SEO title, H1, opening, and body. Natural language and intent clarity take priority."
+  },
+  "researchOnlyQueries": [
+    {
+      "query": "titanium dioxide manufacturer",
+      "status": "research-only / prohibited for on-page claims"
+    },
+    {
+      "query": "titanium dioxide pigment manufacturer",
+      "status": "research-only / prohibited for on-page claims"
+    },
+    {
+      "query": "titanium dioxide manufacturer for coatings",
+      "status": "research-only / prohibited for on-page claims"
+    },
+    {
+      "query": "titanium dioxide manufacturer for plastics",
+      "status": "research-only / prohibited for on-page claims"
+    }
+  ]
+}

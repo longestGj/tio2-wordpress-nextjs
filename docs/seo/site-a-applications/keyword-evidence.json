@@ -1,0 +1,1932 @@
+{
+  "schemaVersion": "2.0.0",
+  "researchDate": "2026-08-29",
+  "timezone": "Asia/Shanghai",
+  "scope": "TIOVAR Site A Applications",
+  "dataConventions": {
+    "measuredZero": "Semrush displayed a numeric zero.",
+    "unavailable": "Semrush did not provide a usable volume value; this is not zero.",
+    "observed": "Point-in-time value or SERP composition observed on the research date.",
+    "inferred": "A decision inferred from multiple sources and explicitly identified as such."
+  },
+  "semrushEvidence": [
+    {
+      "evidenceId": "SEM-UK-20260829-PILOT",
+      "tool": "Semrush Keyword Overview",
+      "accessMode": "Codex in-app browser authenticated session",
+      "database": "uk",
+      "checkedAt": "2026-08-29",
+      "querySet": "pilot",
+      "observations": [
+        {
+          "keyword": "titanium dioxide applications",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 20,
+          "globalVolume": 210,
+          "cpcUsd": 0,
+          "competition": 0.33,
+          "kd": null,
+          "note": "Pilot confirmed limited but visible international demand; UK KD was not available.",
+          "observationId": "SEMOBS-UK-PILOT-001"
+        }
+      ]
+    },
+    {
+      "evidenceId": "SEM-US-20260829-EXACT",
+      "tool": "Semrush Keyword Overview Bulk Analysis",
+      "accessMode": "Codex in-app browser authenticated session",
+      "database": "us",
+      "checkedAt": "2026-08-29",
+      "querySet": "28 page-shaped exact seed phrases; refreshed before recording",
+      "sourceUrl": "https://www.semrush.com/analytics/keywordoverview/bulk/",
+      "observations": [
+        {
+          "keyword": "titanium dioxide applications",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 20,
+          "kd": 28,
+          "competition": 0.33,
+          "serpFeatures": 4,
+          "results": 138,
+          "observationId": "SEMOBS-US-EXACT-001"
+        },
+        {
+          "keyword": "titanium dioxide for coatings",
+          "intent": [
+            "informational",
+            "commercial"
+          ],
+          "volumeStatus": "measured",
+          "volume": 20,
+          "kd": 11,
+          "competition": 0.21,
+          "serpFeatures": 5,
+          "results": 193,
+          "observationId": "SEMOBS-US-EXACT-002"
+        },
+        {
+          "keyword": "titanium dioxide for plastics",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 10,
+          "kd": 19,
+          "competition": 0,
+          "serpFeatures": 4,
+          "results": 195,
+          "observationId": "SEMOBS-US-EXACT-003"
+        },
+        {
+          "keyword": "titanium dioxide for printing inks",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "measured",
+          "volume": 0,
+          "kd": 0,
+          "results": 200,
+          "observationId": "SEMOBS-US-EXACT-004"
+        },
+        {
+          "keyword": "titanium dioxide for paper",
+          "intent": [
+            "informational",
+            "commercial"
+          ],
+          "volumeStatus": "measured",
+          "volume": 10,
+          "kd": 0,
+          "competition": 0,
+          "serpFeatures": 4,
+          "results": 191,
+          "observationId": "SEMOBS-US-EXACT-005"
+        },
+        {
+          "keyword": "titanium dioxide for solar film",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 24,
+          "observationId": "SEMOBS-US-EXACT-006"
+        },
+        {
+          "keyword": "high purity titanium dioxide applications",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 16,
+          "observationId": "SEMOBS-US-EXACT-007"
+        },
+        {
+          "keyword": "titanium dioxide for masterbatch",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 30,
+          "kd": 0,
+          "competition": 0.33,
+          "serpFeatures": 2,
+          "results": 130,
+          "observationId": "SEMOBS-US-EXACT-008"
+        },
+        {
+          "keyword": "titanium dioxide for polycarbonate",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 11,
+          "observationId": "SEMOBS-US-EXACT-009"
+        },
+        {
+          "keyword": "titanium dioxide for outdoor PVC",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 3,
+          "observationId": "SEMOBS-US-EXACT-010"
+        },
+        {
+          "keyword": "titanium dioxide for film masterbatch",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 0,
+          "observationId": "SEMOBS-US-EXACT-011"
+        },
+        {
+          "keyword": "titanium dioxide for soft PVC",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 3,
+          "observationId": "SEMOBS-US-EXACT-012"
+        },
+        {
+          "keyword": "titanium dioxide for LCP",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 11,
+          "observationId": "SEMOBS-US-EXACT-013"
+        },
+        {
+          "keyword": "UV resistant titanium dioxide engineering plastics",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 9,
+          "observationId": "SEMOBS-US-EXACT-014"
+        },
+        {
+          "keyword": "titanium dioxide for water based paint",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 27,
+          "observationId": "SEMOBS-US-EXACT-015"
+        },
+        {
+          "keyword": "titanium dioxide for electrophoretic coatings",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 11,
+          "observationId": "SEMOBS-US-EXACT-016"
+        },
+        {
+          "keyword": "titanium dioxide for high PVC paint",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 11,
+          "observationId": "SEMOBS-US-EXACT-017"
+        },
+        {
+          "keyword": "titanium dioxide for automotive coatings",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 11,
+          "observationId": "SEMOBS-US-EXACT-018"
+        },
+        {
+          "keyword": "titanium dioxide for waterborne automotive coatings",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 11,
+          "observationId": "SEMOBS-US-EXACT-019"
+        },
+        {
+          "keyword": "titanium dioxide for protective coatings",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 17,
+          "observationId": "SEMOBS-US-EXACT-020"
+        },
+        {
+          "keyword": "titanium dioxide for powder coatings",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 10,
+          "kd": 0,
+          "competition": 0,
+          "serpFeatures": 4,
+          "results": 196,
+          "observationId": "SEMOBS-US-EXACT-021"
+        },
+        {
+          "keyword": "titanium dioxide for printing ink",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 3,
+          "observationId": "SEMOBS-US-EXACT-022"
+        },
+        {
+          "keyword": "titanium dioxide for photovoltaic white film",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 17,
+          "observationId": "SEMOBS-US-EXACT-023"
+        },
+        {
+          "keyword": "high purity titanium dioxide for MLCC",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 7,
+          "observationId": "SEMOBS-US-EXACT-024"
+        },
+        {
+          "keyword": "titanium dioxide for decorative paper",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 0,
+          "observationId": "SEMOBS-US-EXACT-025"
+        },
+        {
+          "keyword": "titanium dioxide for laminated decorative paper",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 3,
+          "observationId": "SEMOBS-US-EXACT-026"
+        },
+        {
+          "keyword": "multi purpose titanium dioxide",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 20,
+          "observationId": "SEMOBS-US-EXACT-027"
+        },
+        {
+          "keyword": "high purity titanium dioxide functional materials",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 9,
+          "observationId": "SEMOBS-US-EXACT-028"
+        }
+      ]
+    },
+    {
+      "evidenceId": "SEM-US-20260829-VARIANTS",
+      "tool": "Semrush Keyword Overview Bulk Analysis",
+      "accessMode": "Codex in-app browser authenticated session",
+      "database": "us",
+      "checkedAt": "2026-08-29",
+      "querySet": "71 candidates reviewed; 30 decision-related observations archived in structured form",
+      "sourceUrl": "https://www.semrush.com/analytics/keywordoverview/bulk/",
+      "screenshotPath": "./evidence/semrush/semrush-us-bulk-2026-08-29.png",
+      "observations": [
+        {
+          "keyword": "titanium dioxide uses",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 720,
+          "kd": 70,
+          "competition": 0.33,
+          "serpFeatures": 6,
+          "results": 138,
+          "decisionUse": "rejected as Hub primary because the SERP is materially broader than industrial application selection",
+          "observationId": "SEMOBS-US-VAR-001"
+        },
+        {
+          "keyword": "uses of titanium dioxide",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 70,
+          "kd": 48,
+          "serpFeatures": 4,
+          "results": 135,
+          "observationId": "SEMOBS-US-VAR-002"
+        },
+        {
+          "keyword": "TiO2 applications",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 20,
+          "kd": 34,
+          "competition": 0.04,
+          "serpFeatures": 3,
+          "results": 163,
+          "observationId": "SEMOBS-US-VAR-003"
+        },
+        {
+          "keyword": "titanium dioxide in paint",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 170,
+          "kd": 34,
+          "cpcUsd": 1,
+          "competition": 0.04,
+          "serpFeatures": 5,
+          "results": 133,
+          "observationId": "SEMOBS-US-VAR-004"
+        },
+        {
+          "keyword": "titanium dioxide for paint",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "measured",
+          "volume": 40,
+          "kd": 25,
+          "cpcUsd": 1,
+          "competition": 0.04,
+          "serpFeatures": 5,
+          "results": 198,
+          "observationId": "SEMOBS-US-VAR-005"
+        },
+        {
+          "keyword": "titanium dioxide paint pigment",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "measured",
+          "volume": 20,
+          "kd": 13,
+          "competition": 0.2,
+          "serpFeatures": 4,
+          "results": 195,
+          "observationId": "SEMOBS-US-VAR-006"
+        },
+        {
+          "keyword": "titanium dioxide plastic",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 20,
+          "kd": 13,
+          "competition": 0.33,
+          "serpFeatures": 3,
+          "results": 188,
+          "observationId": "SEMOBS-US-VAR-007"
+        },
+        {
+          "keyword": "TiO2 masterbatch",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 70,
+          "kd": 0,
+          "competition": 0.33,
+          "serpFeatures": 0,
+          "results": 114,
+          "observationId": "SEMOBS-US-VAR-008"
+        },
+        {
+          "keyword": "titanium dioxide masterbatch",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 40,
+          "kd": 0,
+          "competition": 0.33,
+          "serpFeatures": 2,
+          "results": 125,
+          "observationId": "SEMOBS-US-VAR-009"
+        },
+        {
+          "keyword": "titanium dioxide PVC",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 30,
+          "kd": 0,
+          "serpFeatures": 2,
+          "results": 186,
+          "observationId": "SEMOBS-US-VAR-010"
+        },
+        {
+          "keyword": "titanium dioxide polycarbonate",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 0,
+          "kd": 4,
+          "serpFeatures": 2,
+          "results": 189,
+          "observationId": "SEMOBS-US-VAR-011"
+        },
+        {
+          "keyword": "titanium dioxide ink",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "measured",
+          "volume": 20,
+          "kd": 9,
+          "competition": 0.33,
+          "serpFeatures": 5,
+          "results": 198,
+          "observationId": "SEMOBS-US-VAR-012"
+        },
+        {
+          "keyword": "titanium dioxide in paper",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 20,
+          "kd": 7,
+          "competition": 0.33,
+          "serpFeatures": 3,
+          "results": 132,
+          "observationId": "SEMOBS-US-VAR-013"
+        },
+        {
+          "keyword": "paper grade titanium dioxide",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 4,
+          "observationId": "SEMOBS-US-VAR-014"
+        },
+        {
+          "keyword": "high purity titanium dioxide",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "measured",
+          "volume": 20,
+          "kd": 1,
+          "serpFeatures": 3,
+          "results": 247,
+          "observationId": "SEMOBS-US-VAR-015"
+        },
+        {
+          "keyword": "high purity TiO2",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 12,
+          "observationId": "SEMOBS-US-VAR-016"
+        },
+        {
+          "keyword": "electronic grade titanium dioxide",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 21,
+          "observationId": "SEMOBS-US-VAR-017"
+        },
+        {
+          "keyword": "low ion titanium dioxide",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 23,
+          "observationId": "SEMOBS-US-VAR-018"
+        },
+        {
+          "keyword": "automotive grade titanium dioxide",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 8,
+          "observationId": "SEMOBS-US-VAR-019"
+        },
+        {
+          "keyword": "titanium dioxide for automotive paint",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "measured",
+          "volume": 0,
+          "kd": 4,
+          "serpFeatures": 4,
+          "results": 243,
+          "observationId": "SEMOBS-US-VAR-020"
+        },
+        {
+          "keyword": "coil coatings",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 5,
+          "observationId": "SEMOBS-US-VAR-021"
+        },
+        {
+          "keyword": "powder coatings",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 9,
+          "observationId": "SEMOBS-US-VAR-022"
+        },
+        {
+          "keyword": "marine coatings",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 5,
+          "observationId": "SEMOBS-US-VAR-023"
+        },
+        {
+          "keyword": "aerospace coatings",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 9,
+          "observationId": "SEMOBS-US-VAR-024"
+        },
+        {
+          "keyword": "protective coatings",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 19,
+          "observationId": "SEMOBS-US-VAR-025"
+        },
+        {
+          "keyword": "general purpose titanium dioxide",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 41,
+          "decisionUse": "rejected as primary because the phrase is broader and noisier than multi-purpose titanium dioxide",
+          "observationId": "SEMOBS-US-VAR-026"
+        },
+        {
+          "keyword": "universal titanium dioxide",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 24,
+          "observationId": "SEMOBS-US-VAR-027"
+        },
+        {
+          "keyword": "high purity functional materials",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 31,
+          "observationId": "SEMOBS-US-VAR-028"
+        },
+        {
+          "keyword": "optical glass",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 20,
+          "observationId": "SEMOBS-US-VAR-029"
+        },
+        {
+          "keyword": "battery materials",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 18,
+          "observationId": "SEMOBS-US-VAR-030"
+        }
+      ],
+      "candidateCount": 71,
+      "archivedDecisionRelevantObservationCount": 30
+    },
+    {
+      "evidenceId": "SEM-US-20260829-EXACT-REVIEW",
+      "tool": "Semrush Keyword Overview Bulk Analysis",
+      "accessMode": "Codex in-app browser authenticated session",
+      "database": "us",
+      "checkedAt": "2026-08-29",
+      "querySet": "11 exact queries used for review remediation and high-risk boundary checks",
+      "sourceUrl": "https://www.semrush.com/analytics/keywordoverview/bulk/",
+      "screenshot": "./evidence/semrush/semrush-us-exact-review-2026-08-29.png",
+      "observations": [
+        {
+          "observationId": "SEMOBS-US-REVIEW-001",
+          "keyword": "titanium dioxide pigment for solar module films",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 26,
+          "serpFeatures": 3
+        },
+        {
+          "observationId": "SEMOBS-US-REVIEW-002",
+          "keyword": "titanium dioxide for photovoltaic white film",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 17,
+          "serpFeatures": 3
+        },
+        {
+          "observationId": "SEMOBS-US-REVIEW-003",
+          "keyword": "titanium dioxide for solar backsheet",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 19,
+          "serpFeatures": 3
+        },
+        {
+          "observationId": "SEMOBS-US-REVIEW-004",
+          "keyword": "titanium dioxide for soft PVC",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 3,
+          "serpFeatures": 4
+        },
+        {
+          "observationId": "SEMOBS-US-REVIEW-005",
+          "keyword": "UV resistant titanium dioxide for engineering plastics",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 9,
+          "serpFeatures": 1
+        },
+        {
+          "observationId": "SEMOBS-US-REVIEW-006",
+          "keyword": "low ion titanium dioxide for electrophoretic coatings",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 17,
+          "serpFeatures": 2
+        },
+        {
+          "observationId": "SEMOBS-US-REVIEW-007",
+          "keyword": "titanium dioxide pigment for automotive coatings",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 9,
+          "serpFeatures": 3
+        },
+        {
+          "observationId": "SEMOBS-US-REVIEW-008",
+          "keyword": "multi-purpose titanium dioxide",
+          "intent": [
+            "commercial"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 18,
+          "serpFeatures": 3
+        },
+        {
+          "observationId": "SEMOBS-US-REVIEW-009",
+          "keyword": "high purity titanium dioxide for functional materials",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 9,
+          "serpFeatures": 3
+        },
+        {
+          "observationId": "SEMOBS-US-REVIEW-010",
+          "keyword": "titanium dioxide for powder coatings",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "measured",
+          "volume": 10,
+          "kd": 0,
+          "serpFeatures": 4
+        },
+        {
+          "observationId": "SEMOBS-US-REVIEW-011",
+          "keyword": "titanium dioxide for coil coatings",
+          "intent": [
+            "informational"
+          ],
+          "volumeStatus": "unavailable",
+          "volume": null,
+          "kd": 11,
+          "serpFeatures": 4
+        }
+      ]
+    }
+  ],
+  "serpEvidence": [
+    {
+      "evidenceId": "SERP-20260829-HUB",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-HUB-001",
+          "query": "titanium dioxide applications"
+        },
+        {
+          "queryObservationId": "SERPQ-HUB-002",
+          "query": "titanium dioxide uses"
+        },
+        {
+          "queryObservationId": "SERPQ-HUB-003",
+          "query": "industrial applications of titanium dioxide"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Applications is aligned with industrial application discovery. Uses is much broader and introduces consumer, health, cosmetics, nanotechnology, and general-reference intent.",
+      "representativeSources": [
+        {
+          "title": "Tronox Titanium Dioxide",
+          "url": "https://www.tronox.com/products/titanium-dioxide/",
+          "type": "manufacturer product and application portfolio"
+        }
+      ],
+      "usedForPages": [
+        "applications-hub"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-COATINGS",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-COATINGS-001",
+          "query": "titanium dioxide for coatings"
+        },
+        {
+          "queryObservationId": "SERPQ-COATINGS-002",
+          "query": "titanium dioxide in paint"
+        },
+        {
+          "queryObservationId": "SERPQ-COATINGS-003",
+          "query": "titanium dioxide pigment supplier coatings"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "The exact coatings query is dominated by manufacturer application pages and technical selection guides; the in-paint query is more informational.",
+      "representativeSources": [
+        {
+          "title": "Ti-Pure Titanium Dioxide for Coatings",
+          "url": "https://www.tipure.com/en/products/coatings",
+          "type": "manufacturer application page"
+        },
+        {
+          "title": "Predicting Paint Properties from TiO2 Pigment Properties",
+          "url": "https://www.paint.org/ct-archives/predicting-paint-properties-from-tio2-pigment-paint-properties/",
+          "type": "industry technical article"
+        }
+      ],
+      "usedForPages": [
+        "coatings"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-PLASTICS",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-PLASTICS-001",
+          "query": "titanium dioxide for plastics"
+        },
+        {
+          "queryObservationId": "SERPQ-PLASTICS-002",
+          "query": "titanium dioxide pigment for engineering plastics"
+        },
+        {
+          "queryObservationId": "SERPQ-PLASTICS-003",
+          "query": "titanium dioxide LCP high temperature plastics"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "The broad plastics query is strongly commercial-investigative and supported by manufacturer application pages. High-temperature subqueries are much narrower and require resin qualification.",
+      "representativeSources": [
+        {
+          "title": "Ti-Pure Solutions for Plastics",
+          "url": "https://www.tipure.com/en/products/plastics",
+          "type": "manufacturer application page"
+        },
+        {
+          "title": "Kronos Plastics",
+          "url": "https://www.kronosww.com/page_part/plastics/",
+          "type": "manufacturer application page"
+        }
+      ],
+      "usedForPages": [
+        "plastics",
+        "lcp-high-temperature-plastics"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-MASTERBATCH",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-MASTERBATCH-001",
+          "query": "titanium dioxide masterbatch"
+        },
+        {
+          "queryObservationId": "SERPQ-MASTERBATCH-002",
+          "query": "TiO2 masterbatch"
+        },
+        {
+          "queryObservationId": "SERPQ-MASTERBATCH-003",
+          "query": "titanium dioxide film masterbatch pigment"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Masterbatch has clear supplier and product intent. Film-masterbatch results emphasize thin-film dispersion, opacity, workability, and weatherability, supporting a separate qualified detail cluster.",
+      "representativeSources": [
+        {
+          "title": "DIC Titanium Dioxide Masterbatches",
+          "url": "https://www.dic-global.com/ap/products/function_master/titanium/",
+          "type": "manufacturer product/application page"
+        },
+        {
+          "title": "Ti-Pure R-350 for Masterbatch Producers",
+          "url": "https://www.tipure.com/en/-/media/files/tipure/legacy/ti-pure-r-350-formulation-freedom-masterbatch-producers.pdf",
+          "type": "manufacturer technical PDF"
+        }
+      ],
+      "usedForPages": [
+        "masterbatch",
+        "film-masterbatch"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-POLYCARBONATE",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-POLYCARBONATE-001",
+          "query": "titanium dioxide for polycarbonate"
+        },
+        {
+          "queryObservationId": "SERPQ-POLYCARBONATE-002",
+          "query": "polycarbonate grade titanium dioxide"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Polycarbonate has distinct product-grade results and thermal/color requirements, supporting a separate detail page.",
+      "representativeSources": [
+        {
+          "title": "NAGASE TIPAQUE PC-3",
+          "url": "https://www.nagase.com/us/en/products/tipaque-pc-3",
+          "type": "manufacturer/distributor product page"
+        },
+        {
+          "title": "Ti-Pure Plastics Application Guide",
+          "url": "https://www.tipure.com/en/applications/plastics",
+          "type": "manufacturer application guide"
+        }
+      ],
+      "usedForPages": [
+        "polycarbonate"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-OUTDOOR-PVC",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-OUTDOOR-PVC-001",
+          "query": "titanium dioxide for outdoor PVC"
+        },
+        {
+          "queryObservationId": "SERPQ-OUTDOOR-PVC-002",
+          "query": "titanium dioxide exterior PVC weathering"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Outdoor PVC has a distinct weathering and durability intent rather than only generic plastics pigmentation.",
+      "representativeSources": [
+        {
+          "title": "Ti-Pure Titanium Dioxide for Rigid PVC Applications",
+          "url": "https://www.tipure.com/en/-/media/files/tipure/legacy/tio2-rigid-pvc-applications.pdf",
+          "type": "manufacturer technical PDF"
+        },
+        {
+          "title": "Ti-Pure R-960 Exterior Plastics",
+          "url": "https://www.tipure.com/en/products/plastics/r-960",
+          "type": "manufacturer product/application page"
+        }
+      ],
+      "usedForPages": [
+        "outdoor-pvc"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-UV-PLASTICS",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-UV-PLASTICS-001",
+          "query": "UV resistant titanium dioxide engineering plastics"
+        },
+        {
+          "queryObservationId": "SERPQ-UV-PLASTICS-002",
+          "query": "titanium dioxide pigment UV resistance plastics"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Current sources recognize pigment-grade TiO2 as relevant to UV interaction and weatherability in plastics, but the query must specify plastics to avoid coatings and nano-UV-blocker intent.",
+      "representativeSources": [
+        {
+          "title": "Ti-Pure Solutions for Plastics",
+          "url": "https://www.tipure.com/en/products/plastics",
+          "type": "manufacturer application page"
+        },
+        {
+          "title": "Role of Titanium Dioxide Pigments in Polymer Degradation and Stabilisation",
+          "url": "https://www.sciencedirect.com/science/article/pii/014139109090023Z",
+          "type": "primary technical literature"
+        }
+      ],
+      "usedForPages": [
+        "uv-resistant-engineering-plastics",
+        "outdoor-pvc"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-INK",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-INK-001",
+          "query": "titanium dioxide for printing inks"
+        },
+        {
+          "queryObservationId": "SERPQ-INK-002",
+          "query": "printing ink grade titanium dioxide"
+        },
+        {
+          "queryObservationId": "SERPQ-INK-003",
+          "query": "titanium dioxide pigment for ink"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "The cluster is narrow and mixed between ingredient/technical pages and suppliers. Category and Detail require separate plural-family versus grade/evaluation language.",
+      "representativeSources": [
+        {
+          "title": "Siegwerk Ink Safety Portal: Titanium Dioxide",
+          "url": "https://ink-safety-portal.siegwerk.com/ink-ingredients/titanium-dioxide",
+          "type": "ink manufacturer ingredient information"
+        }
+      ],
+      "usedForPages": [
+        "printing-inks",
+        "printing-ink"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-PAPER",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-PAPER-001",
+          "query": "titanium dioxide for paper"
+        },
+        {
+          "queryObservationId": "SERPQ-PAPER-002",
+          "query": "titanium dioxide for decorative paper"
+        },
+        {
+          "queryObservationId": "SERPQ-PAPER-003",
+          "query": "titanium dioxide for laminated decorative paper"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Paper is a valid broad category, while decorative paper and laminates overlap materially. The two Detail pages must be divided by base-paper/impregnation versus laminate-process validation.",
+      "representativeSources": [
+        {
+          "title": "Kronos Papers",
+          "url": "https://www.kronosww.com/page_part/papers/",
+          "type": "manufacturer application page"
+        },
+        {
+          "title": "Ti-Pure Laminates",
+          "url": "https://www.tipure.com/en/applications/laminates",
+          "type": "manufacturer application page"
+        }
+      ],
+      "usedForPages": [
+        "decorative-paper",
+        "decorative-paper-detail",
+        "laminated-decorative-paper"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-SOLAR-AMBIGUITY",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-SOLAR-001",
+          "query": "titanium dioxide solar film"
+        },
+        {
+          "queryObservationId": "SERPQ-SOLAR-002",
+          "query": "titanium dioxide photovoltaic white film"
+        },
+        {
+          "queryObservationId": "SERPQ-SOLAR-003",
+          "query": "titanium dioxide solar backsheet"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Generic TiO2 solar-film queries frequently produce photoanodes, deposited TiO2 films, photocatalysis, and solar-cell research. The Site A pages must include white-film, backsheet, pigment, or EVA/POE qualifiers.",
+      "representativeSources": [
+        {
+          "title": "Optimization of Titanium Dioxide Film for Dye-Sensitized Solar Cells",
+          "url": "https://www.sciencedirect.com/science/article/pii/S0040609009004039",
+          "type": "primary research showing competing thin-film intent"
+        },
+        {
+          "title": "Electrophoretic Deposition of TiO2 Coatings for Flexible Solar Cells",
+          "url": "https://www.sciencedirect.com/science/article/pii/S0257897215004570",
+          "type": "primary research showing competing photovoltaic intent"
+        }
+      ],
+      "usedForPages": [
+        "solar-film",
+        "soft-pvc-solar-backsheet",
+        "photovoltaic-white-film"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-HIGH-PURITY",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-HIGH-PURITY-001",
+          "query": "high purity titanium dioxide"
+        },
+        {
+          "queryObservationId": "SERPQ-HIGH-PURITY-002",
+          "query": "high purity TiO2 MLCC electronic ceramics"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "High-purity TiO2 and MLCC/electronic-ceramic raw-material intent are clearly supported by current manufacturer pages.",
+      "representativeSources": [
+        {
+          "title": "ISK High Purity Titanium Dioxide",
+          "url": "https://www.ishihara.com/functional-chemicals/",
+          "type": "manufacturer product/application page"
+        },
+        {
+          "title": "Toho Titanium High Purity Titanium Dioxide",
+          "url": "https://www.toho-titanium.co.jp/en/products/tio2/",
+          "type": "manufacturer product page"
+        }
+      ],
+      "usedForPages": [
+        "high-purity",
+        "mlcc-electronic-ceramics",
+        "functional-materials"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-ECOAT-AMBIGUITY",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-ECOAT-001",
+          "query": "titanium dioxide electrophoretic coating"
+        },
+        {
+          "queryObservationId": "SERPQ-ECOAT-002",
+          "query": "low ion titanium dioxide e-coat"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Electrophoretic TiO2 coating commonly means deposition of TiO2 films or nanoparticles. Low-ion, pigment, bath, or e-coat qualifiers are required for the intended paint formulation page.",
+      "representativeSources": [
+        {
+          "title": "Electrophoretic Deposition of Nanoscale TiO2",
+          "url": "https://www.sciencedirect.com/science/article/pii/S0955221915300054",
+          "type": "primary review showing competing deposition intent"
+        },
+        {
+          "title": "Electrophoretic Deposition of TiO2 Nanoparticles",
+          "url": "https://www.sciencedirect.com/science/article/abs/pii/S0167577X25017380",
+          "type": "primary research showing competing deposition intent"
+        }
+      ],
+      "usedForPages": [
+        "electrophoretic-coating"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-WATERBASED",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-WATERBASED-001",
+          "query": "titanium dioxide for water based paint"
+        },
+        {
+          "queryObservationId": "SERPQ-WATERBASED-002",
+          "query": "titanium dioxide for waterborne coatings"
+        },
+        {
+          "queryObservationId": "SERPQ-WATERBASED-003",
+          "query": "titanium dioxide for emulsion paint"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Water-based paint has recognizable product and formulation intent. Waterborne coatings is broader and is retained as a supporting term.",
+      "representativeSources": [
+        {
+          "title": "Titanium Dioxide Pigment for Water-Based Systems",
+          "url": "https://www.apctj.com/titanium-dioxide-pigment-for-water-based-systems/",
+          "type": "industry product/application page"
+        },
+        {
+          "title": "Ti-Pure Titanium Dioxide for Coatings",
+          "url": "https://www.tipure.com/en/products/coatings",
+          "type": "manufacturer application page"
+        }
+      ],
+      "usedForPages": [
+        "water-based-paint",
+        "waterborne-automotive-coatings"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-HIGH-PVC",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-HIGH-PVC-001",
+          "query": "titanium dioxide high PVC flat paint"
+        },
+        {
+          "queryObservationId": "SERPQ-HIGH-PVC-002",
+          "query": "TiO2 dry hiding high PVC paint"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "High-PVC flat paint has distinct formulation and dry-hiding intent. The Application page should own grade/application selection, while the Resource owns cost-reduction and how-to intent.",
+      "representativeSources": [
+        {
+          "title": "FP Pigments Above-CPVC Matt Paint",
+          "url": "https://www.fp-pigments.com/en/above-cpvc-matt-paint/",
+          "type": "manufacturer application page"
+        }
+      ],
+      "usedForPages": [
+        "high-pvc-flat-paint"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-AUTO",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-AUTO-001",
+          "query": "titanium dioxide for automotive coatings"
+        },
+        {
+          "queryObservationId": "SERPQ-AUTO-002",
+          "query": "automotive grade titanium dioxide"
+        },
+        {
+          "queryObservationId": "SERPQ-AUTO-003",
+          "query": "titanium dioxide for waterborne automotive coatings"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Automotive queries can mix conventional white pigment, transparent/microfine TiO2, and effect-pigment results. The main page therefore uses pigment as a qualifier; the waterborne page owns the system subtype.",
+      "representativeSources": [
+        {
+          "title": "Ti-Pure Titanium Dioxide for Coatings",
+          "url": "https://www.tipure.com/en/products/coatings",
+          "type": "manufacturer application page"
+        },
+        {
+          "title": "NAGASE TIPAQUE CR-50",
+          "url": "https://www.nagase.com/us/en/products/tipaque-cr-50",
+          "type": "manufacturer/distributor product page"
+        }
+      ],
+      "usedForPages": [
+        "automotive-coatings",
+        "waterborne-automotive-coatings"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-POWDER-COIL",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-POWDER-COIL-001",
+          "query": "titanium dioxide for powder coatings"
+        },
+        {
+          "queryObservationId": "SERPQ-POWDER-COIL-002",
+          "query": "titanium dioxide for coil coatings"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Powder and coil are independently recognizable process/application intents. Powder has the stronger measured exact signal, so it owns the target query while coil remains a secondary cluster and split candidate.",
+      "representativeSources": [
+        {
+          "title": "Ti-Pure Titanium Dioxide for Coatings",
+          "url": "https://www.tipure.com/en/products/coatings",
+          "type": "manufacturer application page"
+        },
+        {
+          "title": "SpecialChem Titanium Dioxide Selection Guide",
+          "url": "https://www.specialchem.com/coatings/guide/titanium-dioxide",
+          "type": "industry technical selection guide"
+        }
+      ],
+      "usedForPages": [
+        "powder-coil-coatings"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-PROTECTIVE",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-PROTECTIVE-001",
+          "query": "titanium dioxide for protective coatings"
+        },
+        {
+          "queryObservationId": "SERPQ-PROTECTIVE-002",
+          "query": "titanium dioxide marine coatings"
+        },
+        {
+          "queryObservationId": "SERPQ-PROTECTIVE-003",
+          "query": "titanium dioxide aerospace coatings"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Protective coatings is the best umbrella intent for the combined page. Marine and aerospace are narrower subapplications and remain supporting clusters.",
+      "representativeSources": [
+        {
+          "title": "Ti-Pure Titanium Dioxide for Coatings",
+          "url": "https://www.tipure.com/en/products/coatings",
+          "type": "manufacturer application page"
+        },
+        {
+          "title": "SpecialChem Titanium Dioxide for Coatings",
+          "url": "https://www.specialchem.com/coatings/pf-titanium-dioxide",
+          "type": "industry product finder"
+        }
+      ],
+      "usedForPages": [
+        "marine-aerospace-protective"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-MULTIPURPOSE",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-MULTIPURPOSE-001",
+          "query": "multi-purpose titanium dioxide"
+        },
+        {
+          "queryObservationId": "SERPQ-MULTIPURPOSE-002",
+          "query": "general purpose titanium dioxide"
+        },
+        {
+          "queryObservationId": "SERPQ-MULTIPURPOSE-003",
+          "query": "universal titanium dioxide"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Multi-purpose is established product terminology, most often for broad coatings coverage and sometimes multiple industries. The page must preserve separate qualification boundaries for coatings, inks, and plastics.",
+      "representativeSources": [
+        {
+          "title": "INEOS Titanium Dioxide Product Matrix",
+          "url": "https://www.ineos.com/businesses/ineos-enterprises/businesses/ineos-pigments/products/titanium-dioxide/",
+          "type": "manufacturer product portfolio"
+        }
+      ],
+      "usedForPages": [
+        "universal-multi-application"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-FUNCTIONAL",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-FUNCTIONAL-001",
+          "query": "high purity titanium dioxide functional materials"
+        },
+        {
+          "queryObservationId": "SERPQ-FUNCTIONAL-002",
+          "query": "high purity titanium dioxide optical glass battery materials"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "Functional materials is a defensible umbrella only at category-like level. Optical glass and battery materials have different SERPs and qualification paths, making the combined Detail page a future split candidate.",
+      "representativeSources": [
+        {
+          "title": "ISK High Purity Titanium Dioxide",
+          "url": "https://www.ishihara.com/functional-chemicals/",
+          "type": "manufacturer product/application page"
+        },
+        {
+          "title": "Examining the Role of TiO2 in Oxide Glasses",
+          "url": "https://www.sciencedirect.com/science/article/pii/S0022309326002619",
+          "type": "primary review"
+        }
+      ],
+      "usedForPages": [
+        "functional-materials"
+      ]
+    },
+    {
+      "evidenceId": "SERP-20260829-PRINTING-INK-GRADE",
+      "queries": [
+        {
+          "queryObservationId": "SERPQ-PRINTING-INK-GRADE-20260829",
+          "query": "printing ink grade titanium dioxide"
+        }
+      ],
+      "checkedAt": "2026-08-29",
+      "finding": "The phrase is used as a commercial grade/application qualifier; results are supplier and technical-product oriented rather than general ink education.",
+      "representativeSources": [
+        {
+          "title": "Titanium dioxide for printing inks",
+          "url": "https://www.chemours.com/en/brands-and-products/ti-pure/applications/printing-inks",
+          "type": "producer application page"
+        },
+        {
+          "title": "Titanium Dioxide in Printing Inks",
+          "url": "https://www.siegwerk.com/en/news-media/press-releases/details/titanium-dioxide-in-printing-inks.html",
+          "type": "ink-industry technical discussion"
+        }
+      ],
+      "usedForPages": [
+        "printing-ink"
+      ]
+    }
+  ],
+  "projectReferences": [
+    {
+      "evidenceId": "PROJECT-APP-JSON-20260827",
+      "path": "D:\\11SEO\\01ComInfo\\outputs\\site-a-applications-v0.1.json",
+      "role": "Reference for frozen page IDs, paths, page hierarchy, approved factual boundaries, product relationships, resource relationships, and existing FAQ topics. Not a search-demand source."
+    },
+    {
+      "evidenceId": "PROJECT-APPROVED-REP-20260829",
+      "path": "D:\\16Wordpress_nextjs\\tests\\fixtures\\editorial\\site-a-applications.approved-representatives.json",
+      "role": "Newer content authority for applications-hub, coatings, and water-based-paint. Not a search-demand source."
+    },
+    {
+      "evidenceId": "PROJECT-PRODUCTS-20260826",
+      "path": "D:\\11SEO\\01ComInfo\\outputs",
+      "role": "Related Site A product records used only to verify product/application boundaries and avoid unsupported claims."
+    },
+    {
+      "evidenceId": "PROJECT-RESOURCES-20260827",
+      "path": "D:\\11SEO\\01ComInfo\\outputs",
+      "role": "Related Technical Resources used to separate application-selection intent from how-to, testing, mechanism, and cost-reduction intent."
+    }
+  ],
+  "marketScope": "US baseline + international English terminology review",
+  "evidenceModel": {
+    "semrushScope": "US database is the quantitative baseline; the UK check is a terminology pilot only.",
+    "variantArchive": "71 candidate variants were reviewed; 30 decision-related observations are archived in structured form.",
+    "citationRule": "Every page targetQuery cites one or more unique observationId, queryObservationId, or serpAuditId values.",
+    "pointInTime": "Metrics and result compositions are observations made on 2026-08-29 and may change."
+  },
+  "serpQueryAudits": [
+    {
+      "serpAuditId": "SERPAUDIT-SOLAR-CATEGORY-20260829",
+      "query": "titanium dioxide pigment for solar module films",
+      "checkedAt": "2026-08-29",
+      "sampleSize": 10,
+      "results": [
+        {
+          "samplePosition": 1,
+          "url": "https://publica.fraunhofer.de/entities/publication/eaef0710-3b34-44d3-a67f-33070b2fa1b0",
+          "resultType": "research on PV backsheet chalking",
+          "intentClass": "aligned-technical"
+        },
+        {
+          "samplePosition": 2,
+          "url": "https://nvlpubs.nist.gov/nistpubs/ir/2016/NIST.IR.8135.pdf",
+          "resultType": "government technical report on backsheets",
+          "intentClass": "aligned-technical"
+        },
+        {
+          "samplePosition": 3,
+          "url": "https://pubs.acs.org/doi/10.1021/acs.iecr.4c03587",
+          "resultType": "PV backsheet recovery research",
+          "intentClass": "aligned-technical"
+        },
+        {
+          "samplePosition": 4,
+          "url": "https://pom-materials.com/products/titanium-dioxide-filled-backsheet/",
+          "resultType": "backsheet product page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 5,
+          "url": "https://www.titanos.com/product/detail/HR-915.html",
+          "resultType": "TiO2 product for solar backsheet films",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 6,
+          "url": "https://patents.google.com/patent/JP2012201767A/en",
+          "resultType": "solar-cell backsheet patent",
+          "intentClass": "partial"
+        },
+        {
+          "samplePosition": 7,
+          "url": "https://patents.google.com/patent/EP2388287A1/en",
+          "resultType": "PV backsheet patent",
+          "intentClass": "partial"
+        },
+        {
+          "samplePosition": 8,
+          "url": "https://patents.google.com/patent/CN102574350A/en",
+          "resultType": "solar backsheet film patent",
+          "intentClass": "partial"
+        },
+        {
+          "samplePosition": 9,
+          "url": "https://onlinelibrary.wiley.com/doi/10.1002/pip.2460",
+          "resultType": "polyamide backsheet degradation research",
+          "intentClass": "aligned-technical"
+        },
+        {
+          "samplePosition": 10,
+          "url": "https://www.sciencedirect.com/science/article/pii/S0040609009004039",
+          "resultType": "deposited TiO2 solar-cell film research",
+          "intentClass": "competing-research"
+        }
+      ],
+      "intentDistribution": {
+        "aligned-commercial": 2,
+        "aligned-technical": 4,
+        "partial": 3,
+        "competing-research": 1,
+        "noise": 0
+      },
+      "conclusion": "Adding pigment + solar module films materially reduces thin-film/ETL ambiguity. The result set still skews technical and toward backsheets, so the category remains medium confidence and must describe polymer/module-film applications rather than deposited TiO2 films."
+    },
+    {
+      "serpAuditId": "SERPAUDIT-SOFTPVC-BACKSHEET-20260829",
+      "queries": [
+        "titanium dioxide for soft PVC",
+        "titanium dioxide for solar backsheet"
+      ],
+      "checkedAt": "2026-08-29",
+      "sampleSize": 10,
+      "results": [
+        {
+          "samplePosition": 1,
+          "url": "https://www.bisleyinternational.com/product/r-6658-titanium-dioxide/",
+          "resultType": "soft-PVC TiO2 product page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 2,
+          "url": "https://www.perfectoindustries.com/titanium-dioxide.html",
+          "resultType": "soft-PVC and masterbatch product page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 3,
+          "url": "https://www.made-in-china.com/showroom/product-detail/titanium-dioxide-for-soft-pvc.html",
+          "resultType": "B2B marketplace listing",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 4,
+          "url": "https://www.titanos.com/product/detail/HR-915.html",
+          "resultType": "solar-backsheet TiO2 product page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 5,
+          "url": "https://pom-materials.com/products/titanium-dioxide-filled-backsheet/",
+          "resultType": "backsheet material product page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 6,
+          "url": "https://nvlpubs.nist.gov/nistpubs/ir/2016/NIST.IR.8135.pdf",
+          "resultType": "backsheet technical report",
+          "intentClass": "aligned-technical"
+        },
+        {
+          "samplePosition": 7,
+          "url": "https://publica.fraunhofer.de/entities/publication/eaef0710-3b34-44d3-a67f-33070b2fa1b0",
+          "resultType": "backsheet degradation research",
+          "intentClass": "aligned-technical"
+        },
+        {
+          "samplePosition": 8,
+          "url": "https://patents.google.com/patent/JP2012201767A/en",
+          "resultType": "backsheet patent",
+          "intentClass": "partial"
+        },
+        {
+          "samplePosition": 9,
+          "url": "https://pubs.acs.org/doi/10.1021/acs.iecr.4c03587",
+          "resultType": "PV backsheet recycling research",
+          "intentClass": "aligned-technical"
+        },
+        {
+          "samplePosition": 10,
+          "url": "https://www.sciencedirect.com/science/article/pii/S0040609009004039",
+          "resultType": "deposited TiO2 film research",
+          "intentClass": "competing-research"
+        }
+      ],
+      "intentDistribution": {
+        "aligned-commercial": 5,
+        "aligned-technical": 3,
+        "partial": 1,
+        "competing-research": 1,
+        "noise": 0
+      },
+      "conclusion": "Soft PVC has the clearer commercial ownership. Solar backsheet remains a secondary topic within the frozen combined page; split if backsheet-specific impressions or content depth becomes material."
+    },
+    {
+      "serpAuditId": "SERPAUDIT-POWDER-COIL-20260829",
+      "queries": [
+        "titanium dioxide for powder coatings",
+        "titanium dioxide for coil coatings"
+      ],
+      "checkedAt": "2026-08-29",
+      "sampleSize": 10,
+      "results": [
+        {
+          "samplePosition": 1,
+          "url": "https://www.chemours.com/en/-/media/files/tipure/legacy/ti-pure-titanium-dioxide-for-coatings.pdf",
+          "resultType": "producer coatings guide with powder section",
+          "intentClass": "aligned-technical"
+        },
+        {
+          "samplePosition": 2,
+          "url": "https://www.talentschem.com/titanium-dioxide-for-powder-coating.html",
+          "resultType": "powder-coating product page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 3,
+          "url": "https://www.hosokawa-alpine.com/powder-particle-processing/industries/chemical/titanium-dioxide/",
+          "resultType": "TiO2 powder process page",
+          "intentClass": "partial"
+        },
+        {
+          "samplePosition": 4,
+          "url": "https://www.tio2agents.com/titanium-dioxide-for-powder-coatings/",
+          "resultType": "powder-coating supplier page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 5,
+          "url": "https://www.rawchemicalguide.com/titanium-dioxide-in-powder-coatings/",
+          "resultType": "application guide",
+          "intentClass": "aligned-technical"
+        },
+        {
+          "samplePosition": 6,
+          "url": "https://www.longtai-tio2.com/application/coil-coating.html",
+          "resultType": "coil-coating application page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 7,
+          "url": "https://www.byk.com/en/applications/coatings/industrial-coatings/coil-coatings",
+          "resultType": "coil-coating technical page",
+          "intentClass": "partial"
+        },
+        {
+          "samplePosition": 8,
+          "url": "https://afcona.com/application/coil-coatings/",
+          "resultType": "coil-coating additive application page",
+          "intentClass": "partial"
+        },
+        {
+          "samplePosition": 9,
+          "url": "https://patents.google.com/patent/US20130281574A1/en",
+          "resultType": "coil-coating patent",
+          "intentClass": "partial"
+        },
+        {
+          "samplePosition": 10,
+          "url": "https://www.hxtio2.com/titanium-dioxide-for-powder-coating.html",
+          "resultType": "powder-coating product page",
+          "intentClass": "aligned-commercial"
+        }
+      ],
+      "intentDistribution": {
+        "aligned-commercial": 4,
+        "aligned-technical": 2,
+        "partial": 4,
+        "competing-research": 0,
+        "noise": 0
+      },
+      "conclusion": "Powder coatings has the stronger TiO2-specific demand and owns the target query. Coil coatings is secondary and should split only if coil-specific demand or content depth justifies its own page."
+    },
+    {
+      "serpAuditId": "SERPAUDIT-FUNCTIONAL-MATERIALS-20260829",
+      "query": "high purity titanium dioxide for functional materials",
+      "checkedAt": "2026-08-29",
+      "sampleSize": 8,
+      "results": [
+        {
+          "samplePosition": 1,
+          "url": "https://www.iskweb.co.jp/eng/products/pdf/functional_materials.pdf",
+          "resultType": "producer functional-materials brochure",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 2,
+          "url": "https://www.us-nano.com/inc/sdetail/408",
+          "resultType": "high-purity TiO2 product page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 3,
+          "url": "https://www.sigmaaldrich.com/US/en/product/aldrich/718467",
+          "resultType": "high-purity TiO2 material listing",
+          "intentClass": "partial"
+        },
+        {
+          "samplePosition": 4,
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/Titanium-dioxide",
+          "resultType": "chemical reference",
+          "intentClass": "partial"
+        },
+        {
+          "samplePosition": 5,
+          "url": "https://www.sciencedirect.com/topics/materials-science/titanium-dioxide",
+          "resultType": "broad materials reference",
+          "intentClass": "partial"
+        },
+        {
+          "samplePosition": 6,
+          "url": "https://www.mdpi.com/2079-4991/12/19/3328",
+          "resultType": "functional TiO2 research review",
+          "intentClass": "competing-research"
+        },
+        {
+          "samplePosition": 7,
+          "url": "https://www.americanelements.com/titanium-oxide-13463-67-7",
+          "resultType": "advanced-material supplier page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 8,
+          "url": "https://en.wikipedia.org/wiki/Titanium_dioxide",
+          "resultType": "general reference",
+          "intentClass": "noise"
+        }
+      ],
+      "intentDistribution": {
+        "aligned-commercial": 3,
+        "aligned-technical": 0,
+        "partial": 3,
+        "competing-research": 1,
+        "noise": 1
+      },
+      "conclusion": "The umbrella term is broad and mixed. Keep low confidence because the frozen page combines optical glass and battery-material contexts; use the phrase as a topic, not an exact-copy requirement."
+    },
+    {
+      "serpAuditId": "SERPAUDIT-ECOAT-20260829",
+      "query": "low ion titanium dioxide for electrophoretic coatings",
+      "checkedAt": "2026-08-29",
+      "sampleSize": 8,
+      "results": [
+        {
+          "samplePosition": 1,
+          "url": "https://www.made-in-china.com/showroom/product-detail/CR-500-Titanium-Dioxide-for-Electrophoretic-Paint.html",
+          "resultType": "low-ion e-coat marketplace listing",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 2,
+          "url": "https://www.botianchemical.com/uploads/file/cr-510-titanium-dioxide.pdf",
+          "resultType": "low-ion TiO2 product sheet",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 3,
+          "url": "https://www.botianchemical.com/titanium-dioxide.html",
+          "resultType": "supplier product family page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 4,
+          "url": "https://www.sciencedirect.com/science/article/pii/S0257897215004570",
+          "resultType": "electrophoretic deposition research",
+          "intentClass": "competing-research"
+        },
+        {
+          "samplePosition": 5,
+          "url": "https://pubs.acs.org/doi/10.1021/la2017414",
+          "resultType": "TiO2 electrophoretic-deposition research",
+          "intentClass": "competing-research"
+        },
+        {
+          "samplePosition": 6,
+          "url": "https://link.springer.com/article/10.1007/s11665-017-2885-0",
+          "resultType": "electrophoretic coating research",
+          "intentClass": "competing-research"
+        },
+        {
+          "samplePosition": 7,
+          "url": "https://patents.google.com/patent/US20110147211A1/en",
+          "resultType": "electrodeposition coating patent",
+          "intentClass": "partial"
+        },
+        {
+          "samplePosition": 8,
+          "url": "https://www.researchgate.net/publication/282941058_Electrophoretic_deposition_of_TiO2",
+          "resultType": "research repository result",
+          "intentClass": "competing-research"
+        }
+      ],
+      "intentDistribution": {
+        "aligned-commercial": 3,
+        "aligned-technical": 0,
+        "partial": 1,
+        "competing-research": 4,
+        "noise": 0
+      },
+      "conclusion": "Low-ion qualification creates a defensible commercial sub-intent, but research on electrophoretic deposition remains strong. Keep medium confidence and clarify paint/coating-pigment context naturally."
+    },
+    {
+      "serpAuditId": "SERPAUDIT-UV-ENGINEERING-PLASTICS-20260829",
+      "query": "UV resistant titanium dioxide for engineering plastics",
+      "checkedAt": "2026-08-29",
+      "sampleSize": 8,
+      "results": [
+        {
+          "samplePosition": 1,
+          "url": "https://www.chemours.com/en/brands-and-products/ti-pure/products/r-960",
+          "resultType": "durable TiO2 product page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 2,
+          "url": "https://www.chemours.com/en/brands-and-products/ti-pure/applications/plastics",
+          "resultType": "producer plastics application page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 3,
+          "url": "https://www.specialchem.com/polymer-additives/product/chemours-ti-pure-r-960",
+          "resultType": "engineering-plastics product listing",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 4,
+          "url": "https://www.sciencedirect.com/science/article/pii/S0141391014002195",
+          "resultType": "polymer UV degradation research",
+          "intentClass": "aligned-technical"
+        },
+        {
+          "samplePosition": 5,
+          "url": "https://pubs.acs.org/doi/10.1021/acsami.6b05069",
+          "resultType": "transparent TiO2 plastic coating research",
+          "intentClass": "competing-research"
+        },
+        {
+          "samplePosition": 6,
+          "url": "https://www.essentialchemicalindustry.org/materials-and-applications/uv-stabilizers.html",
+          "resultType": "general UV-stabilizer guide",
+          "intentClass": "partial"
+        },
+        {
+          "samplePosition": 7,
+          "url": "https://www.tio2agents.com/titanium-dioxide-for-plastics/",
+          "resultType": "supplier plastics application page",
+          "intentClass": "aligned-commercial"
+        },
+        {
+          "samplePosition": 8,
+          "url": "https://www.mdpi.com/2073-4360/12/11/2609",
+          "resultType": "polymer/TiO2 research review",
+          "intentClass": "aligned-technical"
+        }
+      ],
+      "intentDistribution": {
+        "aligned-commercial": 4,
+        "aligned-technical": 2,
+        "partial": 1,
+        "competing-research": 1,
+        "noise": 0
+      },
+      "conclusion": "The intent is relevant but niche and mixed with transparent coatings/UV-stabilizer education. Keep medium confidence and use natural variants instead of exact-match repetition."
+    }
+  ]
+}
