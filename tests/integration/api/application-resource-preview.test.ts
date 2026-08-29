@@ -16,7 +16,7 @@ import {
 import {
   createPreviewSessionToken,
   isValidPreviewSessionToken,
-  PREVIEW_SESSION_COOKIE,
+  previewSessionCookieName,
 } from '@/lib/wordpress/preview-session'
 import {PreviewTransportError} from '@/lib/wordpress/preview'
 import {
@@ -99,6 +99,8 @@ function applicationPreview(record = applicationCategory, overrides: Record<stri
       validationPlan: record.decisionGuide.validationPlan,
       customerInputs: record.decisionGuide.customerInputs,
       bodySections: record.bodySections,
+      startingProducts:
+        'startingProducts' in record ? record.startingProducts : [],
       faqItems: record.faqs,
       childApplications: record.children.map(serializedLink),
       relatedApplications: relationships.filter(({targetType}) => targetType === 'application'),
@@ -188,9 +190,9 @@ function previewRequest(parameters: Record<string, string>): Request {
   return new Request(url)
 }
 
-function sessionToken(response: Response): string {
+function sessionToken(response: Response, path: string): string {
   const header = response.headers.get('set-cookie') ?? ''
-  const match = new RegExp(`(?:^|; )${PREVIEW_SESSION_COOKIE}=([^;]+)`, 'u').exec(header)
+  const match = new RegExp(`(?:^|; )${previewSessionCookieName(path)}=([^;]+)`, 'u').exec(header)
   if (!match?.[1]) throw new Error('Missing preview session cookie')
   return match[1]
 }
@@ -426,7 +428,7 @@ describe('Application and Resource preview entry redirects', () => {
     expect(response.headers.get('cache-control')).toContain('no-store')
     expect(response.headers.get('location')).toBe(browserPath)
     expect(response.headers.get('set-cookie')).toContain(`Path=${browserPath}`)
-    const token = sessionToken(response)
+    const token = sessionToken(response, canonicalPath)
     expect(isValidPreviewSessionToken(token, entrySecret, 'tio2-a', canonicalPath)).toBe(true)
     expect(isValidPreviewSessionToken(token, entrySecret, 'tio2-a', browserPath)).toBe(false)
   })

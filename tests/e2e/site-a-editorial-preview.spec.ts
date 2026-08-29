@@ -14,6 +14,7 @@ import {
   startEditorialPreviewRuntime,
   type EditorialPreviewRuntime,
 } from './support/editorial-preview-source'
+import {previewSessionCookieName} from '@/lib/wordpress/preview-session'
 
 interface EditorialView {
   readonly canonicalPath: string
@@ -188,7 +189,6 @@ const viewports = [
   {name: 'desktop', width: 1440, height: 1000},
   {name: 'mobile', width: 360, height: 800},
 ] as const
-const previewCookieName = 'tio2_preview_scope'
 const screenshotDirectory = resolve('.tmp/task-9-editorial-preview-evidence')
 const captureEvidence =
   process.env.TASK9_CAPTURE_EDITORIAL_PREVIEW_EVIDENCE === '1'
@@ -301,7 +301,9 @@ async function expectScopedPreviewCookie(
   view: EditorialView,
 ): Promise<void> {
   const cookies = await page.context().cookies(runtime.url(view.previewPath))
-  const previewCookies = cookies.filter(({name}) => name === previewCookieName)
+  const previewCookies = cookies.filter(
+    ({name}) => name === previewSessionCookieName(view.canonicalPath),
+  )
   expect(previewCookies).toHaveLength(1)
   const [previewCookie] = previewCookies
   expect(previewCookie).toMatchObject({

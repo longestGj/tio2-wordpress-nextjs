@@ -5,6 +5,7 @@ import {resolve} from 'node:path'
 import {chromium, expect, test, type Page, type Response} from '@playwright/test'
 
 import {validProductPageInput} from '../fixtures/product-page'
+import {previewSessionCookieName} from '@/lib/wordpress/preview-session'
 import {
   startProductPreviewSource,
   type PreviewSourceRequest,
@@ -23,7 +24,6 @@ const canonicalPath = '/products/tp-z911'
 const previewPath = '/preview/products/tp-z911'
 const productId = 'TP-Z911'
 const productTitle = validProductPageInput.identity.title
-const previewCookieName = 'tio2_preview_scope'
 const chromiumResource404Error =
   'console: Failed to load resource: the server responded with a status of 404 (Not Found)'
 const expectedSectionOrder = [
@@ -248,7 +248,9 @@ function expectNoPreviewCache(response: Response): void {
 
 async function expectScopedPreviewCookie(page: Page): Promise<void> {
   const cookies = await page.context().cookies(`${baseUrl}${previewPath}`)
-  const previewCookie = cookies.find(({name}) => name === previewCookieName)
+  const previewCookie = cookies.find(
+    ({name}) => name === previewSessionCookieName(canonicalPath),
+  )
   expect(previewCookie).toMatchObject({
     httpOnly: true,
     path: previewPath,

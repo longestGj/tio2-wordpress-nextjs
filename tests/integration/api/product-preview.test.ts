@@ -16,7 +16,7 @@ import {GET} from '@/app/api/preview/route'
 import {
   createPreviewSessionToken,
   isValidPreviewSessionToken,
-  PREVIEW_SESSION_COOKIE,
+  previewSessionCookieName,
 } from '@/lib/wordpress/preview-session'
 import {validProductPageInput} from '@/tests/fixtures/product-page'
 import {server} from '@/tests/mocks/server'
@@ -135,7 +135,7 @@ function genericPreviewResponse(siteId: string, path: string) {
 
 function sessionToken(response: Response): string {
   const header = response.headers.get('set-cookie') ?? ''
-  const match = new RegExp(`(?:^|; )${PREVIEW_SESSION_COOKIE}=([^;]+)`, 'u').exec(header)
+  const match = new RegExp(`(?:^|; )${previewSessionCookieName(canonicalPath)}=([^;]+)`, 'u').exec(header)
   if (!match?.[1]) throw new Error('Missing preview session cookie')
   return match[1]
 }

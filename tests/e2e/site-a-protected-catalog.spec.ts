@@ -14,6 +14,7 @@ import {
   startEditorialPreviewRuntime,
   type EditorialPreviewRuntime,
 } from './support/editorial-preview-source'
+import {previewSessionCookieName} from '@/lib/wordpress/preview-session'
 
 type CatalogKind = 'application' | 'resource' | 'product'
 type EditorialMode = 'hub' | 'category' | 'detail' | 'article'
@@ -143,7 +144,6 @@ const evidenceDirectory = resolve('.tmp/task-12-protected-catalog-evidence')
 const longHeadingCharacterThreshold = 60
 const captureEvidence =
   process.env.TASK12_CAPTURE_PROTECTED_CATALOG_EVIDENCE === '1'
-const previewCookieName = 'tio2_preview_scope'
 const desktopViewport = {height: 1000, width: 1440}
 const mobileViewport = {height: 800, width: 360}
 const chromiumResource404Error =
@@ -434,7 +434,9 @@ async function expectScopedPreviewCookie(
   record: CatalogRecord,
 ): Promise<void> {
   const cookies = await page.context().cookies(runtime.url(record.previewPath))
-  const previewCookies = cookies.filter(({name}) => name === previewCookieName)
+  const previewCookies = cookies.filter(
+    ({name}) => name === previewSessionCookieName(record.canonicalPath),
+  )
   expect(previewCookies).toHaveLength(1)
   const [previewCookie] = previewCookies
   expect(previewCookie).toMatchObject({

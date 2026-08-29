@@ -22,7 +22,7 @@ import {
 } from '@/lib/wordpress/resource-preview'
 import {
   createPreviewSessionToken,
-  PREVIEW_SESSION_COOKIE,
+  previewSessionCookieName,
 } from '@/lib/wordpress/preview-session'
 import {
   CrossSiteContentError,
@@ -58,7 +58,7 @@ function previewRedirect(
     secret,
   )
   const attributes = [
-    `${PREVIEW_SESSION_COOKIE}=${token}`,
+    `${previewSessionCookieName(canonicalPath)}=${token}`,
     `Path=${browserPath}`,
     `Expires=${new Date(expires * 1000).toUTCString()}`,
     `Max-Age=${expires - now}`,

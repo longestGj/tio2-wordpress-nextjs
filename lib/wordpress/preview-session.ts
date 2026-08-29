@@ -1,9 +1,13 @@
-import {createHmac, timingSafeEqual} from 'node:crypto'
+import {createHash, createHmac, timingSafeEqual} from 'node:crypto'
 import {cookies} from 'next/headers'
 
 import {isValidPublicPath} from './cache-tags'
 
 export const PREVIEW_SESSION_COOKIE = 'tio2_preview_scope'
+
+export function previewSessionCookieName(path: string): string {
+  return `${PREVIEW_SESSION_COOKIE}_${createHash('sha256').update(path).digest('hex').slice(0, 16)}`
+}
 
 interface PreviewSessionPayload {
   readonly v: 1
@@ -87,7 +91,7 @@ export async function hasScopedPreviewSession(
   const secret = process.env.PREVIEW_SECRET
   if (!secret) return false
   const cookieStore = await cookies()
-  const token = cookieStore.get(PREVIEW_SESSION_COOKIE)?.value
+  const token = cookieStore.get(previewSessionCookieName(path))?.value
   return token
     ? isValidPreviewSessionToken(token, secret, siteId, path)
     : false
