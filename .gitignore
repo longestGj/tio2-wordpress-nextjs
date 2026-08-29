@@ -11,6 +11,7 @@ next-env.d.ts
 docker-data/
 .tmp/
 .local-evidence/
+.superpowers/
 wordpress/seed/.runtime-site-a-editorial-capability-*.json
 *.log
 *.tsbuildinfo
