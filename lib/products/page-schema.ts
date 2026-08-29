@@ -22,6 +22,10 @@ import {
 const FORBIDDEN_PRODUCT_COPY_PATTERN =
   /\b(?:supplier|manufacturer|producer|factory|legal\s+(?:entity|identity)|price|pricing|stock|moq|minimum\s+order(?:\s+quantity)?)\b/iu
 const PUBLIC_URL_PATTERN = /\b(?:https?:\/\/|www\.)/iu
+const TDS_PATTERN = /\b(?:tds|technical\s+data\s+sheet)\b/iu
+const DOWNLOAD_PATTERN = /\bdownload(?:able|ed|ing|s)?\b/iu
+const INTERNAL_COPY_PATH_PATTERN = /(?:^|[\s"'(=])\/[a-z0-9][a-z0-9/_-]*/iu
+const DOWNLOAD_PATH_PATTERN = /\/downloads?(?:\/|\b)/iu
 const IMAGE_PATTERN = /^\/site-a\/products\/[a-z0-9]+(?:-[a-z0-9]+)*\.(?:jpg|png)$/u
 
 function addProductCopySafetyIssue(
@@ -32,7 +36,10 @@ function addProductCopySafetyIssue(
     containsPrivateEditorialLocation(value) ||
     containsForbiddenEditorialClaim(value) ||
     FORBIDDEN_PRODUCT_COPY_PATTERN.test(value) ||
-    PUBLIC_URL_PATTERN.test(value)
+    PUBLIC_URL_PATTERN.test(value) ||
+    DOWNLOAD_PATH_PATTERN.test(value) ||
+    (TDS_PATTERN.test(value) &&
+      (DOWNLOAD_PATTERN.test(value) || INTERNAL_COPY_PATH_PATTERN.test(value)))
   ) {
     context.addIssue({
       code: 'custom',
@@ -103,33 +110,49 @@ const decisionStep = z
 const faq = z
   .object({question: text(180), answerHtml: html})
   .strict()
-const ctaInput = z
+const discussApplicationCta = z
   .object({
-    kind: z.enum(['discuss-application', 'request-tds', 'request-sample']),
-    label: text(80),
+    kind: z.literal('discuss-application'),
+    label: z.literal('Discuss Your Application'),
   })
   .strict()
+const requestTdsCta = z
+  .object({kind: z.literal('request-tds'), label: z.literal('Request a TDS')})
+  .strict()
+const requestSampleCta = z
+  .object({kind: z.literal('request-sample'), label: z.literal('Request a Sample')})
+  .strict()
+const collectionEnquiryCtas = z.tuple([
+  discussApplicationCta,
+  requestTdsCta,
+])
+const detailHeroCtas = z.tuple([requestTdsCta, discussApplicationCta])
+const detailEnquiryCtas = z.tuple([
+  requestTdsCta,
+  discussApplicationCta,
+  requestSampleCta,
+])
+const detailFinalCtas = z.tuple([requestTdsCta, discussApplicationCta])
 const enquiry = z
   .object({
     eyebrow: text(120),
     heading: text(180),
     description: text(),
-    ctas: z.array(ctaInput).min(1).max(3),
+    ctas: collectionEnquiryCtas,
   })
   .strict()
-  .superRefine((value, context) => {
-    const kinds = new Set<string>()
-    value.ctas.forEach(({kind}, index) => {
-      if (kinds.has(kind)) {
-        context.addIssue({
-          code: 'custom',
-          message: 'CTA kinds must be unique within a CTA group',
-          path: ['ctas', index, 'kind'],
-        })
-      }
-      kinds.add(kind)
-    })
-  })
+const applicationTarget = editorialTargetSchema.refine(
+  (target) => target.type === 'application',
+  'Expected an Application editorial target',
+)
+const resourceTarget = editorialTargetSchema.refine(
+  (target) => target.type === 'resource',
+  'Expected a Resource editorial target',
+)
+const productTarget = editorialTargetSchema.refine(
+  (target) => target.type === 'product',
+  'Expected a Product editorial target',
+)
 
 const familyCardInput = z
   .object({
@@ -209,10 +232,10 @@ export const productsHubPageInputSchema = z
       .object({
         heading: text(180),
         description: text(),
-        link: editorialTargetSchema,
+        link: applicationTarget,
       })
       .strict(),
-    resources: z.array(editorialTargetSchema).min(1).max(8),
+    resources: z.array(resourceTarget).min(1).max(8),
     enquiry,
     faqs: z.array(faq).min(4).max(6),
     disclaimerHtml: html,
@@ -292,8 +315,8 @@ export const productFamilyPageInputSchema = z
       })
       .strict(),
     validationSteps: z.array(decisionStep).min(1).max(8),
-    applications: z.array(editorialTargetSchema).min(1).max(8),
-    resources: z.array(editorialTargetSchema).min(1).max(8),
+    applications: z.array(applicationTarget).min(1).max(8),
+    resources: z.array(resourceTarget).min(1).max(8),
     enquiry,
     faqs: z.array(faq).min(4).max(6),
     disclaimerHtml: html,
@@ -400,7 +423,7 @@ export const productDetailPageInputSchema = z
       .strict(),
     seo,
     hero: collectionHero
-      .extend({ctas: z.array(ctaInput).min(1).max(3)})
+      .extend({ctas: detailHeroCtas})
       .strict(),
     decisionRail: z.array(decisionRailItem).min(1).max(8),
     snapshot: z
@@ -425,7 +448,7 @@ export const productDetailPageInputSchema = z
         eyebrow: text(120),
         heading: text(180),
         description: text(),
-        application: editorialTargetSchema,
+        application: applicationTarget,
       })
       .strict(),
     enquiryPreparation: z
@@ -433,18 +456,18 @@ export const productDetailPageInputSchema = z
         items: z.array(text()).min(1).max(12),
         packaging: text(),
         tdsAccess: text(),
-        ctas: z.array(ctaInput).min(1).max(3),
+        ctas: detailEnquiryCtas,
       })
       .strict(),
     faqs: z.array(faq).min(4).max(6),
     relatedLinks: z
       .object({
-        products: z.array(editorialTargetSchema).min(1).max(8),
-        resources: z.array(editorialTargetSchema).min(1).max(8),
-        family: editorialTargetSchema,
+        products: z.array(productTarget).min(1).max(8),
+        resources: z.array(resourceTarget).min(1).max(8),
+        family: productTarget,
       })
       .strict(),
-    finalCtas: z.array(ctaInput).min(1).max(3),
+    finalCtas: detailFinalCtas,
     disclaimerHtml: html,
   })
   .strict()
