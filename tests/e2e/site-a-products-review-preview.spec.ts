@@ -97,7 +97,7 @@ const technicalRows = [
 
 const evidenceDirectory = resolve('.tmp/site-a-products-review-evidence')
 const captureEvidence = process.env.CAPTURE_PRODUCT_REVIEW_EVIDENCE === '1'
-const forbiddenLeakagePattern = /(?:\.pdf|\/documents\/tds|[A-Z]:[\\/][A-Z0-9_.-]|supplier(?:'s)?\s+(?:grade|model)|original\s+grade|\bmanufacturer\b|\bproducer\b|\bfactory\b|\blegal\s+(?:identity|entity|name)\b|\bprice\b|\bstock\b|\bMOQ\b|TDS\s+download|TiO2\s+B|tio2hub\.com)/iu
+const forbiddenLeakagePattern = /(?:\.pdf|\/documents\/tds|[A-Z]:[\\/][A-Z0-9_.-]|\b(?:original|source)\s+(?:supplier\s+)?(?:grade|model)\b|\b(?:supplier|producer|factory|manufacturer|price|pricing|stock|moq)\b|\blegal\s+(?:identity|entity)\b|\bminimum\s+order\s+quantity\b|TDS\s+download|TiO2\s+B|tio2hub\.com)/iu
 
 function normalizeLeakageSurface(value: string): string {
   const namedEntities: Readonly<Record<string, string>> = {
@@ -164,6 +164,35 @@ function expectDrivePathLeakageContract(): void {
   expect(() => expectNoLeakage([{
     label: 'Controlled Next RSC protocol-token probe',
     value: String.raw`b:\\"$Sreact.fragment`,
+  }])).not.toThrow()
+}
+
+function expectForbiddenCopyLeakageContract(): void {
+  for (const forbiddenCopy of [
+    'Original model R-996',
+    'original supplier grade R-996',
+    'source grade X',
+    'source supplier model X',
+    'Supplier Example Corp',
+    'Producer Example Corp',
+    'Factory Example Corp',
+    'Manufacturer Example Corp',
+    'Legal identity Example Corp',
+    'Legal entity Example Corp',
+    'Price on request',
+    'Pricing on request',
+    'Stock is available',
+    'MOQ is one tonne',
+    'Minimum order quantity is one tonne',
+  ]) {
+    expect(() => expectNoLeakage([{
+      label: 'Controlled forbidden-copy probe',
+      value: forbiddenCopy,
+    }])).toThrow()
+  }
+  expect(() => expectNoLeakage([{
+    label: 'Controlled safe source-context probe',
+    value: 'Source context for formulation selection.',
   }])).not.toThrow()
 }
 
@@ -435,6 +464,29 @@ async function expectCommonContracts(
   await expect(page.locator('a[href*="/documents/tds" i]')).toHaveCount(0)
   await expect(page.locator('a[href*="tio2hub.com" i]')).toHaveCount(0)
 
+  const anchorHrefs = await page.locator('a[href]').evaluateAll((anchors) =>
+    anchors.map((anchor) => anchor.getAttribute('href') ?? ''),
+  )
+  for (const href of anchorHrefs) {
+    if (href.startsWith('mailto:')) {
+      expect(href).toBe('mailto:contact@tio2products.com')
+      continue
+    }
+    const target = new URL(href, page.url())
+    expect(target.origin).toBe(new URL(runtime.baseUrl).origin)
+    const targetResponse = await page.request.get(target.href, {
+      failOnStatusCode: false,
+    })
+    expect(
+      targetResponse.status(),
+      `Internal anchor ${href} on ${view.canonicalPath} resolved to 404`,
+    ).not.toBe(404)
+    expect(
+      href.startsWith('#') || target.pathname === '/',
+      `Internal anchor ${href} is outside the root-only public inventory`,
+    ).toBe(true)
+  }
+
   const publicResponse = await page.request.get(runtime.url(view.canonicalPath), {
     failOnStatusCode: false,
   })
@@ -580,6 +632,7 @@ test.describe('six protected Product review views', () => {
 
   test.beforeAll(async () => {
     expectDrivePathLeakageContract()
+    expectForbiddenCopyLeakageContract()
     await expectSignedSourceContract()
     if (captureEvidence) mkdirSync(evidenceDirectory, {recursive: true})
     runtime = await startProductReviewRuntime()

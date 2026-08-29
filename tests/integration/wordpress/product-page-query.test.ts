@@ -396,25 +396,23 @@ describe('getSiteProductPage', () => {
     expect(result?.identity.path).toBe(path)
     expect(isValidatedProductExperiencePage(result)).toBe(true)
     if (result?.level === 'hub') {
-      expect(result.families.filter(({href}) => href !== null).map(({slug}) => slug)).toEqual([
-        'coatings',
-      ])
+      expect(result.families.filter(({href}) => href !== null).map(({slug}) => slug)).toEqual([])
       expect(
         result.knownGrades
           .filter(({href}) => href !== null)
           .map(({productId}) => productId),
-      ).toEqual(['TP-C120'])
+      ).toEqual([])
     }
     if (result?.level === 'family') {
       expect(
         result.products.filter(({href}) => href !== null).map(({productId}) => productId),
-      ).toEqual(['TP-C120'])
+      ).toEqual([])
     }
     if (result?.level === 'detail') {
       expect(result.relatedLinks.family).toMatchObject({
         id: 'coatings',
         path: '/products/coatings',
-        href: '/products/coatings',
+        href: null,
       })
       expect(result.hero.ctas.every(({href}) => href === getSiteConfig('tio2-a').rfqHref)).toBe(true)
       expect(result.presentation.technicalData.headers).toEqual({
@@ -433,6 +431,56 @@ describe('getSiteProductPage', () => {
         'Connect TP-C120 to the complete paint system',
       )
     }
+  })
+
+  it('uses only the root-only public inventory for every DTO-emitted internal href', async () => {
+    server.use(http.post(graphqlEndpoint, async ({request}) => {
+      const body = (await request.json()) as GraphQLRequestBody
+      const path = body.query?.includes('GetSiteProductsHub')
+        ? '/products'
+        : body.variables?.slug === 'coatings'
+          ? '/products/coatings'
+          : '/products/coatings/tp-c120'
+      return HttpResponse.json({data: dataFor(path)})
+    }))
+
+    const hub = await getSiteProductPage(getSiteConfig('tio2-a'), '/products')
+    const family = await getSiteProductPage(
+      getSiteConfig('tio2-a'),
+      '/products/coatings',
+    )
+    const detail = await getSiteProductPage(
+      getSiteConfig('tio2-a'),
+      '/products/coatings/tp-c120',
+    )
+    if (hub?.level !== 'hub' || family?.level !== 'family' || detail?.level !== 'detail') {
+      throw new Error('Expected all three representative DTO levels')
+    }
+
+    expect(hub.families.every(({href}) => href === null)).toBe(true)
+    expect(hub.knownGrades.every(({href}) => href === null)).toBe(true)
+    expect(hub.applicationBoundary.link.href).toBeNull()
+    expect(hub.resources.every(({href}) => href === null)).toBe(true)
+    expect(hub.presentation.breadcrumb).toMatchObject({homeHref: '/'})
+
+    expect(family.products.every(({href}) => href === null)).toBe(true)
+    expect(family.comparison.products.every(({href}) => href === null)).toBe(true)
+    expect(family.applications.every(({href}) => href === null)).toBe(true)
+    expect(family.resources.every(({href}) => href === null)).toBe(true)
+    expect(family.presentation.breadcrumb).toMatchObject({
+      homeHref: '/',
+      productsHref: null,
+    })
+
+    expect(detail.applicationContext.application.href).toBeNull()
+    expect(detail.relatedLinks.products.every(({href}) => href === null)).toBe(true)
+    expect(detail.relatedLinks.resources.every(({href}) => href === null)).toBe(true)
+    expect(detail.relatedLinks.family.href).toBeNull()
+    expect(detail.presentation.breadcrumb).toMatchObject({
+      homeHref: '/',
+      productsHref: null,
+      familyHref: null,
+    })
   })
 
   it.each([

@@ -55,6 +55,7 @@ function resolver(
   }
   return {
     editorial,
+    publicHref: (path) => path === '/' || authorized.includes(path) ? path : null,
     ctaHref: () => 'mailto:contact@tio2products.com',
   }
 }

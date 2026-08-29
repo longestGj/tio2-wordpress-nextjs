@@ -32,6 +32,7 @@ import type {
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {htmlToPlainText} from '@/lib/seo/text'
 import type {SiteConfig} from '@/sites'
+import {isPublicRoute} from '@/sites/public-routes'
 
 import {
   productDetailTag,
@@ -245,17 +246,14 @@ function targetForPath(
   return identity ? {type: 'product', id: identity.id} : null
 }
 
-function baseEditorialLinks(): Map<string, EditorialLink> {
+function baseEditorialLinks(site: SiteConfig): Map<string, EditorialLink> {
   const links = new Map<string, EditorialLink>()
   const add = (target: EditorialTarget, title: string, path: string) => {
     links.set(`${target.type}:${target.id}`, {
       ...target,
       title,
       path,
-      href:
-        target.type !== 'product' || REPRESENTATIVE_PATHS.has(path)
-          ? path
-          : null,
+      href: isPublicRoute(site.id, path) ? path : null,
     })
   }
   for (const [id, , path] of SITE_A_APPLICATION_IDENTITIES) {
@@ -289,7 +287,7 @@ function productPageResolver(site: SiteConfig): {
     path: string,
   ) => void
 } {
-  const links = baseEditorialLinks()
+  const links = baseEditorialLinks(site)
   const register = (target: EditorialTarget, title: string, path: string) => {
     const canonical =
       target.type === 'product'
@@ -304,10 +302,7 @@ function productPageResolver(site: SiteConfig): {
       ...target,
       title: plainTitle,
       path: canonical,
-      href:
-        target.type !== 'product' || REPRESENTATIVE_PATHS.has(canonical)
-          ? canonical
-          : null,
+      href: isPublicRoute(site.id, canonical) ? canonical : null,
     })
   }
   const editorial: EditorialLinkResolver = (target) =>
@@ -316,6 +311,7 @@ function productPageResolver(site: SiteConfig): {
     register,
     resolver: {
       editorial,
+      publicHref: (path) => isPublicRoute(site.id, path) ? path : null,
       ctaHref: () => site.rfqHref,
     },
   }

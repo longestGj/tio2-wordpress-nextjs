@@ -41,6 +41,7 @@ const editorial: EditorialLinkResolver = (target) => {
 
 const resolver: ProductPageResolver = {
   editorial,
+  publicHref: (path) => path === '/' ? path : null,
   ctaHref: (kind) => `mailto:contact@tio2products.com?subject=${kind}`,
 }
 

@@ -171,6 +171,7 @@ function familyFixture(authorized: readonly string[] = []): ProductFamilyPageDto
   }
   const resolver: ProductPageResolver = {
     editorial,
+    publicHref: (path) => path === '/' || authorized.includes(path) ? path : null,
     ctaHref: (kind) => `mailto:contact@tio2products.com?subject=${kind}`,
   }
   const input = {
@@ -237,16 +238,29 @@ describe('ProductFamily', () => {
     )
     expect(within(breadcrumb).getAllByRole('link').map((link) => link.textContent)).toEqual([
       'Home',
-      'Products',
     ])
     expect(screen.getByRole('contentinfo').textContent).toContain('TIOVAR')
+  })
+
+  it('keeps a closed Products breadcrumb as text instead of a dead canonical anchor', () => {
+    render(<ProductFamily page={familyFixture()} />)
+    const breadcrumb = screen.getByRole('navigation', {name: 'Breadcrumb'})
+
+    expect(within(breadcrumb).getAllByRole('link').map((link) => link.textContent)).toEqual([
+      'Home',
+    ])
+    expect(within(breadcrumb).getByText('Products').closest('a')).toBeNull()
   })
 
   it('renders approved visible template copy from the Family DTO only', () => {
     const page = familyFixture()
     page.presentation = {
       ...structuredClone(FAMILY_PRESENTATION),
-      breadcrumb: {homeLabel: 'Fixture home', productsLabel: 'Fixture products'},
+      breadcrumb: {
+        ...page.presentation.breadcrumb,
+        homeLabel: 'Fixture home',
+        productsLabel: 'Fixture products',
+      },
       hero: {
         imageAlt: 'Fixture family image',
         familyAction: {label: 'Fixture family action', href: '#family-candidates'},

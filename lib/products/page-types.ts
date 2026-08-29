@@ -33,6 +33,7 @@ export interface PageCta {
 
 export interface ProductPageResolver {
   editorial: EditorialLinkResolver
+  publicHref: (path: string) => string | null
   ctaHref: (kind: PageCta['kind']) => string
 }
 
@@ -53,7 +54,7 @@ export interface KnownGradeItem {
 }
 
 export interface ProductsHubPresentation {
-  breadcrumb: {homeLabel: string; currentLabel: string}
+  breadcrumb: {homeLabel: string; currentLabel: string; homeHref: string | null}
   hero: {
     imageAlt: string
     familyAction: {label: string; href: '#product-families'}
@@ -88,7 +89,12 @@ export interface ProductsHubPresentation {
 }
 
 export interface ProductFamilyPresentation {
-  breadcrumb: {homeLabel: string; productsLabel: string}
+  breadcrumb: {
+    homeLabel: string
+    productsLabel: string
+    homeHref: string | null
+    productsHref: string | null
+  }
   hero: {
     imageAlt: string
     familyAction: {label: string; href: '#family-candidates'}
@@ -143,7 +149,14 @@ export interface ProductFamilyPresentation {
 }
 
 export interface ProductDetailPresentation {
-  breadcrumb: {homeLabel: string; productsLabel: string; familyLabel: string}
+  breadcrumb: {
+    homeLabel: string
+    productsLabel: string
+    familyLabel: string
+    homeHref: string | null
+    productsHref: string | null
+    familyHref: string | null
+  }
   hero: {imageAlt: string}
   snapshot: {eyebrow: string; heading: string}
   technicalData: {

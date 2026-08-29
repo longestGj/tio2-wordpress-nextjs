@@ -48,7 +48,7 @@ function tio2_product_collection_graphql_fail(string $message): void
 
 register_shutdown_function('tio2_product_collection_graphql_cleanup');
 
-foreach (['tio2_resolve_products_hub', 'tio2_resolve_product_family'] as $function_name) {
+foreach (['tio2_resolve_products_hub', 'tio2_resolve_product_family', 'tio2_product_collection_payload_is_safe'] as $function_name) {
     if (! function_exists($function_name)) {
         tio2_product_collection_graphql_fail("Missing Product collection GraphQL resolver: {$function_name}().");
     }
@@ -56,6 +56,27 @@ foreach (['tio2_resolve_products_hub', 'tio2_resolve_product_family'] as $functi
 if (! class_exists('WPGraphQL') || ! function_exists('graphql') || ! function_exists('get_field')) {
     tio2_product_collection_graphql_fail('WPGraphQL and ACF must be active for the Product collection GraphQL test.');
 }
+
+foreach (['hub', 'family', 'detail'] as $level) {
+    foreach (['Original model R-996', 'source supplier model X'] as $forbidden_copy) {
+        tio2_product_collection_graphql_assert(
+            ! tio2_product_collection_payload_is_safe([$level => ['visibleCopy' => $forbidden_copy]]),
+            "The {$level} PHP payload scanner accepted forbidden copy: {$forbidden_copy}."
+        );
+    }
+}
+tio2_product_collection_graphql_assert(
+    tio2_product_collection_payload_is_safe(['visibleCopy' => 'Source context for formulation selection.']),
+    'The PHP payload scanner rejected safe source-context copy.'
+);
+tio2_product_collection_graphql_assert(
+    ! tio2_product_collection_payload_is_safe(
+        ['visibleCopy' => 'Safe customer copy.'],
+        'tio2_missing_private_scanner',
+        'tio2_missing_editorial_scanner'
+    ),
+    'The PHP payload scanner did not fail closed when a required helper was missing.'
+);
 
 function tio2_product_collection_graphql_remember(array $definitions, string $object_id): void
 {

@@ -104,6 +104,7 @@ function hubFixture(authorized: readonly string[] = []): ProductsHubPageDto {
   }
   const resolver: ProductPageResolver = {
     editorial,
+    publicHref: (path) => path === '/' || authorized.includes(path) ? path : null,
     ctaHref: (kind) => `mailto:contact@tio2products.com?subject=${kind}`,
   }
   return toProductsHubPageDto(structuredClone(productsHubPageInput), resolver)
@@ -256,7 +257,11 @@ describe('ProductsHub', () => {
       presentation: Record<string, unknown>
     }
     page.presentation = {
-      breadcrumb: {homeLabel: 'Fixture home', currentLabel: 'Fixture products'},
+      breadcrumb: {
+        homeLabel: 'Fixture home',
+        currentLabel: 'Fixture products',
+        homeHref: '/',
+      },
       hero: {
         imageAlt: 'Fixture image alternative',
         familyAction: {label: 'Fixture family action', href: '#product-families'},

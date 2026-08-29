@@ -39,11 +39,17 @@ export function ProductDetail({
         >
           <ProductBreadcrumbs
             items={[
-              {label: presentation.breadcrumb.homeLabel, href: '/'},
-              {label: presentation.breadcrumb.productsLabel},
+              {
+                label: presentation.breadcrumb.homeLabel,
+                href: presentation.breadcrumb.homeHref ?? undefined,
+              },
+              {
+                label: presentation.breadcrumb.productsLabel,
+                href: presentation.breadcrumb.productsHref ?? undefined,
+              },
               {
                 label: presentation.breadcrumb.familyLabel,
-                href: page.relatedLinks.family.href ?? undefined,
+                href: presentation.breadcrumb.familyHref ?? undefined,
               },
               {label: page.identity.productId},
             ]}

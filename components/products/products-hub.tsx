@@ -26,7 +26,10 @@ export function ProductsHub({
         <div className={layout.productPage} data-product-level="hub">
         <ProductBreadcrumbs
           items={[
-            {label: presentation.breadcrumb.homeLabel, href: '/'},
+            {
+              label: presentation.breadcrumb.homeLabel,
+              href: presentation.breadcrumb.homeHref ?? undefined,
+            },
             {label: presentation.breadcrumb.currentLabel},
           ]}
         />

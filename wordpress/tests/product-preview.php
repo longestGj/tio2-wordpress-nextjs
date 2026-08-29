@@ -887,7 +887,7 @@ foreach (tio2_product_collection_membership() as $family_slug => $product_ids) {
                 tio2_product_collection_display_field_definitions(),
                 (string) $collection_post_id
             );
-        } elseif ('TP-C120' === $collection_product_id) {
+        } elseif (in_array($collection_product_id, ['TP-C100', 'TP-C120'], true)) {
             $collection_post_id = tio2_product_preview_test_insert_product(
                 $collection_product_id,
                 'draft',
@@ -915,7 +915,7 @@ foreach (tio2_product_collection_membership() as $family_slug => $product_ids) {
             wp_set_object_terms($collection_post_id, ['tio2-a'], 'site_scope', false);
             update_field('field_tio2_product_id', $collection_product_id, $collection_post_id);
         }
-        if ('TP-C120' === $collection_product_id && 1 === count($matching_collection_posts)) {
+        if (in_array($collection_product_id, ['TP-C100', 'TP-C120'], true) && 1 === count($matching_collection_posts)) {
             tio2_product_preview_test_remember_collection_fields(
                 tio2_product_field_definitions(),
                 (string) $collection_post_id
@@ -1037,6 +1037,32 @@ tio2_product_preview_test_assert(
         'Request the TDS from our technical team.' === ($detail_payload['productFields']['tdsAccess'] ?? null),
     'Detail preview did not contain only the canonical request-only Product payload.'
 );
+$safe_evidence_statement = get_field('evidence_statement', $collection_products['TP-C120'], false);
+update_field(
+    'field_tio2_product_evidence_statement',
+    '<p>Original model R-996</p>',
+    $collection_products['TP-C120']
+);
+$forbidden_detail_response = tio2_product_preview_test_request(
+    'tio2-a',
+    '/products/coatings/tp-c120',
+    $timestamp,
+    tio2_product_preview_test_signature(
+        'product-preview-site-a-secret',
+        $timestamp,
+        'tio2-a',
+        '/products/coatings/tp-c120'
+    )
+);
+tio2_product_preview_test_assert(
+    200 !== $forbidden_detail_response->get_status(),
+    'The Detail preview runtime accepted aligned forbidden copy.'
+);
+update_field(
+    'field_tio2_product_evidence_statement',
+    $safe_evidence_statement,
+    $collection_products['TP-C120']
+);
 foreach ([$hub_payload, $family_payload, $detail_payload] as $level_payload) {
     $encoded_level_payload = strtolower((string) wp_json_encode($level_payload));
     tio2_product_preview_test_assert(
@@ -1068,6 +1094,39 @@ foreach (['/products/tp-c120', '/products/universal/tp-c120'] as $rejected_path)
         "A flat or wrong-Family Product path {$rejected_path} was previewable."
     );
 }
+$non_representative_paths = [
+    'family' => '/products/plastics-masterbatch',
+    'detail' => '/products/coatings/tp-c100',
+];
+foreach ($non_representative_paths as $level => $non_representative_path) {
+    $serialized_non_representative = tio2_serialize_product_collection_preview(
+        'tio2-a',
+        $non_representative_path
+    );
+    $non_representative_response = tio2_product_preview_test_request(
+        'tio2-a',
+        $non_representative_path,
+        $timestamp,
+        tio2_product_preview_test_signature(
+            'product-preview-site-a-secret',
+            $timestamp,
+            'tio2-a',
+            $non_representative_path
+        )
+    );
+    tio2_product_preview_test_assert(
+        is_wp_error($serialized_non_representative) &&
+            'tio2_preview_not_found' === $serialized_non_representative->get_error_code() &&
+            404 === (int) ($serialized_non_representative->get_error_data()['status'] ?? 0) &&
+            404 === $non_representative_response->get_status() &&
+            'tio2_preview_not_found' === ($non_representative_response->get_data()['code'] ?? null),
+        "A signed non-representative {$level} path {$non_representative_path} remained previewable."
+    );
+}
+tio2_product_preview_test_assert(
+    null === tio2_find_product_for_preview('tio2-a', $non_representative_paths['detail']),
+    'The Product preview finder accepted the non-representative TP-C100 Detail path.'
+);
 $collection_wrong_site = tio2_product_preview_test_request(
     'tio2-b',
     $collection_paths['detail'],
@@ -1143,6 +1202,17 @@ tio2_product_preview_test_assert(
         $collection_paths['detail'] === ($canonical_signed_query['path'] ?? null) &&
         hash_equals($canonical_expected_signature, (string) ($canonical_signed_query['signature'] ?? '')),
     'The canonical Detail Admin preview link was not Site- and path-bound.'
+);
+
+$non_representative_native_link = 'http://localhost:8080/?post_type=tio2_product&p=' .
+    $collection_products['TP-C100'] . '&preview=true';
+tio2_product_preview_test_assert(
+    $non_representative_native_link === apply_filters(
+        'preview_post_link',
+        $non_representative_native_link,
+        get_post($collection_products['TP-C100'])
+    ),
+    'A non-representative TP-C100 Product received a signed Next.js preview link.'
 );
 
 if ([] !== $GLOBALS['tio2_product_preview_test_errors']) {

@@ -32,6 +32,7 @@ const resolver: ProductPageResolver = {
     const path = pathFor(target)
     return path ? {...target, title: target.id, path, href: null} : null
   },
+  publicHref: (path) => path === '/' ? path : null,
   ctaHref: (kind) => `mailto:contact@tio2products.com?subject=${kind}`,
 }
 const pages = {

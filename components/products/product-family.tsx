@@ -27,8 +27,14 @@ export function ProductFamily({
         <div className={layout.productPage} data-product-level="family">
           <ProductBreadcrumbs
             items={[
-              {label: presentation.breadcrumb.homeLabel, href: '/'},
-              {label: presentation.breadcrumb.productsLabel, href: '/products'},
+              {
+                label: presentation.breadcrumb.homeLabel,
+                href: presentation.breadcrumb.homeHref ?? undefined,
+              },
+              {
+                label: presentation.breadcrumb.productsLabel,
+                href: presentation.breadcrumb.productsHref ?? undefined,
+              },
               {label: page.identity.title},
             ]}
           />

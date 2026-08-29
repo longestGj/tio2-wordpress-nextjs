@@ -104,6 +104,24 @@ function checkedProductHref(
   return checkedEditorialLink({type: 'product', id}, resolve, path).href
 }
 
+function checkedPublicHref(
+  expectedPath: string,
+  resolve: ProductPageResolver,
+  path: string,
+): string | null {
+  const href = resolve.publicHref(expectedPath)
+  if (href === null) return null
+  const normalized = href === '/' ? '/' : normalizeEditorialInternalPath(href)
+  if (
+    normalized !== expectedPath ||
+    containsPrivateEditorialLocation(href) ||
+    containsForbiddenEditorialClaim(href)
+  ) {
+    throw new ProductPageContractError([path])
+  }
+  return normalized
+}
+
 function checkedDetailEditorialLink(
   target: EditorialTarget,
   resolve: ProductPageResolver,
@@ -185,7 +203,10 @@ function normalizeHub(
       directAnswer: sanitizeEditorialRichText(page.hero.directAnswer),
     },
     presentation: {
-      breadcrumb: {...page.presentation.breadcrumb},
+      breadcrumb: {
+        ...page.presentation.breadcrumb,
+        homeHref: checkedPublicHref('/', resolve, 'presentation.breadcrumb.homeHref'),
+      },
       hero: {
         imageAlt: page.presentation.hero.imageAlt,
         familyAction: {
@@ -264,7 +285,15 @@ function normalizeFamily(
       directAnswer: sanitizeEditorialRichText(page.hero.directAnswer),
     },
     presentation: {
-      breadcrumb: {...page.presentation.breadcrumb},
+      breadcrumb: {
+        ...page.presentation.breadcrumb,
+        homeHref: checkedPublicHref('/', resolve, 'presentation.breadcrumb.homeHref'),
+        productsHref: checkedProductHref(
+          'products-hub',
+          resolve,
+          'presentation.breadcrumb.productsHref',
+        ),
+      },
       hero: {
         imageAlt: page.presentation.hero.imageAlt,
         familyAction: {
@@ -341,7 +370,20 @@ function normalizeDetail(
       ctas: normalizeCtas(page.hero.ctas, resolve, 'hero.ctas'),
     },
     presentation: {
-      breadcrumb: {...page.presentation.breadcrumb},
+      breadcrumb: {
+        ...page.presentation.breadcrumb,
+        homeHref: checkedPublicHref('/', resolve, 'presentation.breadcrumb.homeHref'),
+        productsHref: checkedProductHref(
+          'products-hub',
+          resolve,
+          'presentation.breadcrumb.productsHref',
+        ),
+        familyHref: checkedProductHref(
+          page.identity.familySlug,
+          resolve,
+          'presentation.breadcrumb.familyHref',
+        ),
+      },
       hero: {...page.presentation.hero},
       snapshot: {...page.presentation.snapshot},
       technicalData: {

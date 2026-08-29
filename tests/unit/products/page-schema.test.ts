@@ -7,6 +7,8 @@ import {
   productsHubPageInputSchema,
   siteAProductRepresentativeFixtureSchema,
   type ProductDetailPageInput,
+  type ProductFamilyPageInput,
+  type ProductsHubPageInput,
 } from '@/lib/products/page-schema'
 import {
   coatingsFamilyPageInput,
@@ -483,6 +485,50 @@ describe('three-level Product page schemas', () => {
       /(?:\.pdf|\/documents\/tds|[a-z]:\\|file:\/\/|https?:\/\/|\b(?:supplier|manufacturer|producer|factory|legal entity|price|stock|moq)\b)/iu,
     )
     expect(fixtureText).not.toMatch(/"href"/u)
+  })
+
+  it.each([
+    ['Hub', 'Original model R-996', (input: ProductsHubPageInput, value: string) => {
+      input.hero.headline = value
+    }],
+    ['Hub', 'source supplier model X', (input: ProductsHubPageInput, value: string) => {
+      input.hero.headline = value
+    }],
+    ['Family', 'Original model R-996', (input: ProductFamilyPageInput, value: string) => {
+      input.hero.headline = value
+    }],
+    ['Family', 'source supplier model X', (input: ProductFamilyPageInput, value: string) => {
+      input.hero.headline = value
+    }],
+    ['Detail', 'Original model R-996', (input: ProductDetailPageInput, value: string) => {
+      input.hero.headline = value
+    }],
+    ['Detail', 'source supplier model X', (input: ProductDetailPageInput, value: string) => {
+      input.hero.headline = value
+    }],
+  ] as const)('rejects aligned forbidden copy at the %s level: %s', (level, value, mutate) => {
+    const input = clone(
+      level === 'Hub'
+        ? productsHubPageInput
+        : level === 'Family'
+          ? coatingsFamilyPageInput
+          : tpC120ProductPageInput,
+    )
+    mutate(input as never, value)
+    expect(productExperiencePageInputSchema.safeParse(input).success).toBe(false)
+  })
+
+  it('allows source context when it is not followed by grade or model', () => {
+    const hub = clone(productsHubPageInput)
+    const family = clone(coatingsFamilyPageInput)
+    const detail = clone(tpC120ProductPageInput)
+    hub.hero.headline = 'Source context for formulation selection'
+    family.hero.headline = 'Source context for coatings selection'
+    detail.hero.headline = 'Source context for TP-C120 evaluation'
+
+    expect(productsHubPageInputSchema.safeParse(hub).success).toBe(true)
+    expect(productFamilyPageInputSchema.safeParse(family).success).toBe(true)
+    expect(productDetailPageInputSchema.safeParse(detail).success).toBe(true)
   })
 
   it('rejects an unknown page level and a partial required section', () => {

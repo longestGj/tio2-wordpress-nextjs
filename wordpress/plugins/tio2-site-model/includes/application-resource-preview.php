@@ -153,7 +153,7 @@ function tio2_editorial_contains_unsafe_value($value): bool
         if (
             tio2_product_contains_private_document_location($decoded) ||
             1 === preg_match(
-                '~(?:\bon[a-z]+\s*=|javascript\s*:|(?:^|[\s"\'(<])/(?:documents/tds|tds|var|home|usr|etc|opt|tmp|private|root)(?:/|(?=$|[\s"\'<>),.;:!?#]))|\b(?:manufacturer|legal\s+entity|reviewer|source\s+(?:file|path)|approval|price|stock|availability|guarantee(?:d|s)?|competitor|equivalent(?:\s+to)?|replacement\s+for)\b)~iu',
+                '~(?:\bon[a-z]+\s*=|javascript\s*:|(?:^|[\s"\'(<])/(?:documents/tds|tds|var|home|usr|etc|opt|tmp|private|root)(?:/|(?=$|[\s"\'<>),.;:!?#]))|\b(?:(?:original|source)\s+(?:supplier\s+)?(?:grade|model)|supplier|producer|factory|manufacturer|legal\s+(?:identity|entity)|price|pricing|stock|moq|minimum\s+order\s+quantity|reviewer|source\s+(?:file|path)|approval|availability|guarantee(?:d|s)?|competitor|equivalent(?:\s+to)?|replacement\s+for)\b)~iu',
                 $claim_scan
             )
         ) {

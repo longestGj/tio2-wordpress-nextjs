@@ -426,10 +426,26 @@ function tio2_preview_product_relationships(
     return $relationships;
 }
 
+/** @return list<string> */
+function tio2_product_representative_preview_paths(): array
+{
+    return [
+        '/products',
+        '/products/coatings',
+        '/products/coatings/tp-c120',
+    ];
+}
+
+function tio2_is_product_representative_preview_path(string $site_id, string $path): bool
+{
+    return 'tio2-a' === $site_id &&
+        in_array($path, tio2_product_representative_preview_paths(), true);
+}
+
 function tio2_find_product_for_preview(string $site_id, string $path): ?WP_Post
 {
     if (
-        'tio2-a' !== $site_id ||
+        ! tio2_is_product_representative_preview_path($site_id, $path) ||
         1 !== preg_match('#^/products/([a-z0-9-]+)/(tp-[a-z]{1,2}[0-9]{3})$#', $path, $matches) ||
         ! array_key_exists($matches[1], tio2_product_collection_membership())
     ) {
@@ -567,10 +583,25 @@ function tio2_serialize_product_preview(WP_Post $product): array|WP_Error
         'productFields' => $product_fields,
         'productSettingsFields' => $shared_fields,
     ];
+    if (! function_exists('tio2_product_contains_private_document_location')) {
+        return new WP_Error(
+            'product_forbidden_copy',
+            'Product preview safety helper is unavailable.',
+            ['status' => 500]
+        );
+    }
     if (tio2_product_contains_private_document_location($payload)) {
         return new WP_Error(
             'product_private_document_location',
             'Product preview contains a private document location.'
+        );
+    }
+    if (! function_exists('tio2_product_collection_payload_is_safe') ||
+        ! tio2_product_collection_payload_is_safe($payload)) {
+        return new WP_Error(
+            'product_forbidden_copy',
+            'Product preview contains a forbidden value.',
+            ['status' => 400]
         );
     }
 
@@ -580,7 +611,7 @@ function tio2_serialize_product_preview(WP_Post $product): array|WP_Error
 /** @return array{level: string, path: string, payload: array<string, mixed>}|WP_Error */
 function tio2_serialize_product_collection_preview(string $site_id, string $path): array|WP_Error
 {
-    if ('tio2-a' !== $site_id) {
+    if (! tio2_is_product_representative_preview_path($site_id, $path)) {
         return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
     }
 
@@ -858,7 +889,8 @@ function tio2_filter_preview_post_link(string $preview_link, WP_Post $post): str
             is_wp_error($validation) ||
             is_wp_error($canonical_path) ||
             'draft' !== $post->post_status ||
-            'tio2-a' !== tio2_product_site_id((int) $post->ID)
+            'tio2-a' !== tio2_product_site_id((int) $post->ID) ||
+            ! tio2_is_product_representative_preview_path('tio2-a', (string) $canonical_path)
         ) {
             return $preview_link;
         }

@@ -49,7 +49,7 @@ const EXPECTED_PROPERTIES = [
   ['Mean particle size', '0.27', 'micrometres'],
 ] as const
 
-const DETAIL_PRESENTATION: ProductDetailPageDto['presentation'] = {
+const DETAIL_PRESENTATION: NonNullable<typeof tpC120ProductPageInput.presentation> = {
   breadcrumb: {
     homeLabel: 'Home',
     productsLabel: 'Products',
@@ -151,6 +151,7 @@ function detailFixture(authorized: readonly string[] = []): ProductDetailPageDto
   }
   const resolver: ProductPageResolver = {
     editorial,
+    publicHref: (path) => path === '/' || authorized.includes(path) ? path : null,
     ctaHref: (kind) => `mailto:contact@tio2products.com?subject=${kind}`,
   }
   const input = structuredClone(tpC120ProductPageInput) as typeof tpC120ProductPageInput & {
@@ -304,6 +305,7 @@ describe('ProductDetail TP-C120 v0.5', () => {
     page.presentation = {
       ...structuredClone(DETAIL_PRESENTATION),
       breadcrumb: {
+        ...page.presentation.breadcrumb,
         homeLabel: 'Fixture home',
         productsLabel: 'Fixture products',
         familyLabel: 'Fixture family',

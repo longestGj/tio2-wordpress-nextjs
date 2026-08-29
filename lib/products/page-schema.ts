@@ -21,7 +21,7 @@ import {
 } from './page-graph'
 
 const FORBIDDEN_PRODUCT_COPY_PATTERN =
-  /\b(?:supplier|manufacturer|producer|factory|legal\s+(?:entity|identity)|price|pricing|stock|moq|minimum\s+order(?:\s+quantity)?)\b/iu
+  /\b(?:(?:original|source)\s+(?:supplier\s+)?(?:grade|model)|supplier|producer|factory|manufacturer|legal\s+(?:identity|entity)|price|pricing|stock|moq|minimum\s+order\s+quantity)\b/iu
 const PUBLIC_URL_PATTERN = /\b(?:https?:\/\/|www\.)/iu
 const TDS_PATTERN = /\b(?:tds|technical\s+data\s+sheet)\b/iu
 const DOWNLOAD_PATTERN = /\bdownload(?:able|ed|ing|s)?\b/iu

@@ -90,13 +90,19 @@ function tio2_product_collection_links($value, string $post_type): array|WP_Erro
 }
 
 /** @param mixed $payload */
-function tio2_product_collection_payload_is_safe($payload): bool
+function tio2_product_collection_payload_is_safe(
+    $payload,
+    string $private_scanner = 'tio2_product_contains_private_document_location',
+    string $editorial_scanner = 'tio2_editorial_contains_unsafe_value'
+): bool
 {
-    if (tio2_product_contains_private_document_location($payload)) {
+    if (! is_callable($private_scanner) || ! is_callable($editorial_scanner)) {
         return false;
     }
-    return ! function_exists('tio2_editorial_contains_unsafe_value') ||
-        ! tio2_editorial_contains_unsafe_value($payload);
+    if ($private_scanner($payload)) {
+        return false;
+    }
+    return ! $editorial_scanner($payload);
 }
 
 /** @return array<string, mixed>|WP_Error */
