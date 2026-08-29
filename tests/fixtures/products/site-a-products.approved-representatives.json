@@ -1,0 +1,319 @@
+{
+  "version": "0.5",
+  "siteId": "tio2-a",
+  "records": [
+    {
+      "level": "hub",
+      "identity": {
+        "id": "products-hub",
+        "title": "Titanium Dioxide Products",
+        "slug": "products",
+        "path": "/products",
+        "modified": "2026-08-29T00:00:00"
+      },
+      "seo": {
+        "title": "Titanium Dioxide Products | TIOVAR",
+        "description": "Explore 25 TIOVAR titanium dioxide grades across eight product families for coatings, plastics, masterbatch, engineering plastics, printing inks, decorative paper and other industrial applications. Compare product positioning, application focus and technical characteristics to identify suitable grades for further evaluation."
+      },
+      "hero": {
+        "eyebrow": "TIOVAR Product Portfolio",
+        "headline": "Titanium Dioxide Products",
+        "directAnswer": "<p>Explore 25 TIOVAR titanium dioxide grades across eight product families for coatings, plastics, masterbatch, engineering plastics, printing inks, decorative paper and other industrial applications. Compare product positioning, application focus and technical characteristics to identify suitable grades for further evaluation.</p>",
+        "image": "/site-a/products/products-hub-hero.jpg"
+      },
+      "decisionRail": [
+        {"index": "01", "label": "Product Families"},
+        {"index": "02", "label": "Grade Comparison"},
+        {"index": "03", "label": "Technical Data"},
+        {"index": "04", "label": "Enquiry"}
+      ],
+      "families": [
+        {"slug": "coatings", "title": "Coatings", "summary": "Grades for architectural, industrial, automotive, marine, electrophoretic and other coating applications.", "count": 9},
+        {"slug": "plastics-masterbatch", "title": "Plastics & Masterbatch", "summary": "Grades for polyolefin masterbatch, PVC, exterior plastics and polymer-film applications.", "count": 4},
+        {"slug": "engineering-plastics", "title": "Engineering Plastics", "summary": "Grades for polycarbonate, LCP, PC, PA, PBT, ABS and other engineering-plastics applications.", "count": 4},
+        {"slug": "decorative-paper", "title": "Decorative Paper", "summary": "Grades for decorative, laminated and other paper applications where whiteness, opacity, retention and dispersion matter.", "count": 3},
+        {"slug": "printing-inks", "title": "Printing Inks", "summary": "Grades for water- and solvent-based printing inks, including high-hiding and weather-resistant requirements.", "count": 2},
+        {"slug": "solar-film", "title": "Solar Film", "summary": "A grade for EVA and POE photovoltaic white films and plastics requiring high UV resistance.", "count": 1},
+        {"slug": "high-purity-functional", "title": "High-Purity & Functional", "summary": "A high-purity grade for electronic ceramics, optical glass, batteries and other functional applications.", "count": 1},
+        {"slug": "universal", "title": "Universal", "summary": "A multipurpose grade for coatings, printing inks, engineering plastics and masterbatch.", "count": 1}
+      ],
+      "knownGrades": [
+        {"productId": "TP-C050", "productSlug": "tp-c050", "familySlug": "coatings", "familyTitle": "Coatings"},
+        {"productId": "TP-C100", "productSlug": "tp-c100", "familySlug": "coatings", "familyTitle": "Coatings"},
+        {"productId": "TP-C110", "productSlug": "tp-c110", "familySlug": "coatings", "familyTitle": "Coatings"},
+        {"productId": "TP-C120", "productSlug": "tp-c120", "familySlug": "coatings", "familyTitle": "Coatings"},
+        {"productId": "TP-C200", "productSlug": "tp-c200", "familySlug": "coatings", "familyTitle": "Coatings"},
+        {"productId": "TP-C300", "productSlug": "tp-c300", "familySlug": "coatings", "familyTitle": "Coatings"},
+        {"productId": "TP-C310", "productSlug": "tp-c310", "familySlug": "coatings", "familyTitle": "Coatings"},
+        {"productId": "TP-C400", "productSlug": "tp-c400", "familySlug": "coatings", "familyTitle": "Coatings"},
+        {"productId": "TP-C410", "productSlug": "tp-c410", "familySlug": "coatings", "familyTitle": "Coatings"},
+        {"productId": "TP-P100", "productSlug": "tp-p100", "familySlug": "plastics-masterbatch", "familyTitle": "Plastics & Masterbatch"},
+        {"productId": "TP-P110", "productSlug": "tp-p110", "familySlug": "plastics-masterbatch", "familyTitle": "Plastics & Masterbatch"},
+        {"productId": "TP-P120", "productSlug": "tp-p120", "familySlug": "plastics-masterbatch", "familyTitle": "Plastics & Masterbatch"},
+        {"productId": "TP-P200", "productSlug": "tp-p200", "familySlug": "plastics-masterbatch", "familyTitle": "Plastics & Masterbatch"},
+        {"productId": "TP-P300", "productSlug": "tp-p300", "familySlug": "engineering-plastics", "familyTitle": "Engineering Plastics"},
+        {"productId": "TP-P310", "productSlug": "tp-p310", "familySlug": "engineering-plastics", "familyTitle": "Engineering Plastics"},
+        {"productId": "TP-P320", "productSlug": "tp-p320", "familySlug": "engineering-plastics", "familyTitle": "Engineering Plastics"},
+        {"productId": "TP-P330", "productSlug": "tp-p330", "familySlug": "engineering-plastics", "familyTitle": "Engineering Plastics"},
+        {"productId": "TP-PA100", "productSlug": "tp-pa100", "familySlug": "decorative-paper", "familyTitle": "Decorative Paper"},
+        {"productId": "TP-PA110", "productSlug": "tp-pa110", "familySlug": "decorative-paper", "familyTitle": "Decorative Paper"},
+        {"productId": "TP-PA120", "productSlug": "tp-pa120", "familySlug": "decorative-paper", "familyTitle": "Decorative Paper"},
+        {"productId": "TP-I100", "productSlug": "tp-i100", "familySlug": "printing-inks", "familyTitle": "Printing Inks"},
+        {"productId": "TP-I200", "productSlug": "tp-i200", "familySlug": "printing-inks", "familyTitle": "Printing Inks"},
+        {"productId": "TP-S100", "productSlug": "tp-s100", "familySlug": "solar-film", "familyTitle": "Solar Film"},
+        {"productId": "TP-H100", "productSlug": "tp-h100", "familySlug": "high-purity-functional", "familyTitle": "High-Purity & Functional"},
+        {"productId": "TP-U100", "productSlug": "tp-u100", "familySlug": "universal", "familyTitle": "Universal"}
+      ],
+      "decisionPath": [
+        {"index": "01", "title": "Choose a family", "description": "Start with the end-use application, material system and processing requirements."},
+        {"index": "02", "title": "Narrow the candidates", "description": "Compare application focus, surface treatment and the technical priorities that matter to your process."},
+        {"index": "03", "title": "Confirm the grade", "description": "Review the technical data, define trial conditions and confirm performance in the intended formulation."}
+      ],
+      "applicationBoundary": {
+        "heading": "Starting from an application problem?",
+        "description": "Explore application-specific selection factors, formulation priorities and relevant TIOVAR product starting points.",
+        "link": {"type": "application", "id": "applications-hub"}
+      },
+      "resources": [
+        {"type": "resource", "id": "article-03"},
+        {"type": "resource", "id": "article-06"},
+        {"type": "resource", "id": "article-07"}
+      ],
+      "enquiry": {
+        "eyebrow": "Technical Enquiry",
+        "heading": "Discuss your application",
+        "description": "Share your application, current grade, performance priorities and processing conditions so we can identify relevant TIOVAR grades for technical discussion.",
+        "ctas": [
+          {"kind": "discuss-application", "label": "Discuss Your Application"},
+          {"kind": "request-tds", "label": "Request a TDS"}
+        ]
+      },
+      "faqs": [
+        {"question": "How should I choose a TIOVAR product family?", "answerHtml": "<p>Start with your end-use application, material system and processing requirements, then open the relevant family page to compare grades.</p>"},
+        {"question": "How can I find a known TIOVAR grade?", "answerHtml": "<p>Enter the full grade name or model number in the Known Grade search to open its product page.</p>"},
+        {"question": "Where can I find technical data?", "answerHtml": "<p>Each Product Detail page provides the available typical properties, product positioning and formulation priorities for that grade.</p>"},
+        {"question": "How can I request a TDS or sample?", "answerHtml": "<p>Use the technical enquiry and include the grade, application, process, target market and relevant performance requirements.</p>"}
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product-selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis.</p>"
+    },
+    {
+      "level": "family",
+      "identity": {
+        "id": "coatings",
+        "title": "Coatings",
+        "slug": "coatings",
+        "path": "/products/coatings",
+        "modified": "2026-08-29T00:00:00",
+        "familySlug": "coatings"
+      },
+      "seo": {
+        "title": "Titanium Dioxide for Coatings | TIOVAR",
+        "description": "Explore TIOVAR rutile titanium dioxide grades for architectural, industrial, automotive, marine, protective and water-based coatings. Compare application focus, surface treatment and key performance priorities to identify suitable grades for formulation trials."
+      },
+      "hero": {
+        "eyebrow": "Product Family · 9 Grades",
+        "headline": "Titanium Dioxide Products for Coatings",
+        "directAnswer": "<p>Explore TIOVAR rutile titanium dioxide grades for architectural, industrial, automotive, marine, protective and water-based coatings. Compare application focus, surface treatment and key performance priorities to identify suitable grades for formulation trials.</p>",
+        "image": "/site-a/products/coatings-family-hero.png"
+      },
+      "decisionRail": [
+        {"index": "01", "label": "Application"},
+        {"index": "02", "label": "Candidate Grades"},
+        {"index": "03", "label": "Grade Comparison"},
+        {"index": "04", "label": "Validation"}
+      ],
+      "filters": [
+        {"slug": "all", "label": "All directions"},
+        {"slug": "water", "label": "Water-based"},
+        {"slug": "architectural", "label": "Architectural"},
+        {"slug": "automotive", "label": "Automotive & exterior"},
+        {"slug": "specialty", "label": "Specialty"}
+      ],
+      "products": [
+        {"productId": "TP-C050", "productSlug": "tp-c050", "displayOrder": 1, "cardSummary": "Electrophoretic primers, industrial electrophoretic coatings and general interior coatings", "applicationFocus": "Electrophoretic primers and coating systems; interior, industrial and powder coatings", "performanceFocus": "Low ion content, electrical resistivity, whiteness, gloss, hiding power", "surfaceTreatmentPositioning": "Specially treated · Electrophoretic & General Coatings", "filterTags": ["specialty"]},
+        {"productId": "TP-C100", "productSlug": "tp-c100", "displayOrder": 2, "cardSummary": "General-purpose architectural, industrial and decorative coatings", "applicationFocus": "Interior and exterior flat and semi-gloss architectural; industrial and decorative coatings", "performanceFocus": "Neutral tint, hiding power, whiteness, durability", "surfaceTreatmentPositioning": "General-purpose · Solvent and water-based systems", "filterTags": ["water", "architectural"]},
+        {"productId": "TP-C110", "productSlug": "tp-c110", "displayOrder": 3, "cardSummary": "Multi-purpose architectural, industrial and decorative coatings", "applicationFocus": "Interior and exterior flat and semi-gloss architectural; industrial and decorative coatings", "performanceFocus": "Neutral tint, hiding power, whiteness, durability", "surfaceTreatmentPositioning": "Multi-purpose · Solvent and water-based systems", "filterTags": ["water", "architectural"]},
+        {"productId": "TP-C120", "productSlug": "tp-c120", "displayOrder": 4, "cardSummary": "Water-based interior and exterior wall emulsion paints", "applicationFocus": "Water-based interior and exterior wall emulsion paints", "performanceFocus": "Relatively low viscosity, bluish tone, high gloss, high hiding power, high durability", "surfaceTreatmentPositioning": "Zirconium-aluminum and special organic surface treatment · TIOVAR Premium positioning", "filterTags": ["water", "architectural"]},
+        {"productId": "TP-C200", "productSlug": "tp-c200", "displayOrder": 5, "cardSummary": "High-PVC interior and exterior matte or flat architectural coatings", "applicationFocus": "Interior and exterior high-PVC matte or flat architectural coatings, including systems above CPVC", "performanceFocus": "Ultra-high dry hiding power, weather resistance, water dispersibility, oil absorption", "surfaceTreatmentPositioning": "Special surface treatment · High-PVC Architectural Coatings", "filterTags": ["water", "architectural"]},
+        {"productId": "TP-C300", "productSlug": "tp-c300", "displayOrder": 6, "cardSummary": "Automotive OEM/refinishing, marine, aerospace and exterior coatings", "applicationFocus": "Automotive OEM/refinishing, marine, aerospace, exterior, architectural, coil and powder coatings", "performanceFocus": "High durability, high gloss, high hiding power, weather resistance, dispersibility", "surfaceTreatmentPositioning": "Silicon-aluminum and special organic surface treatment · High-Durability Coatings", "filterTags": ["automotive"]},
+        {"productId": "TP-C310", "productSlug": "tp-c310", "displayOrder": 7, "cardSummary": "Water-based automotive, water-soluble resin industrial and exterior coatings", "applicationFocus": "Water-based automotive, water-soluble resin industrial and exterior coatings", "performanceFocus": "Water dispersibility, storage stability, weather resistance, chalk resistance", "surfaceTreatmentPositioning": "Special surface treatment · Waterborne Coatings", "filterTags": ["water", "automotive"]},
+        {"productId": "TP-C400", "productSlug": "tp-c400", "displayOrder": 8, "cardSummary": "Automotive OEM/refinishing, marine, aerospace, exterior and industrial coatings", "applicationFocus": "Automotive OEM/refinishing, marine, aerospace, exterior and industrial coatings", "performanceFocus": "Ultra-high weather resistance, chalk resistance, color retention, gloss, hiding power", "surfaceTreatmentPositioning": "Special inorganic and organic surface treatment · Ultra-High Weatherability Coatings", "filterTags": ["automotive"]},
+        {"productId": "TP-C410", "productSlug": "tp-c410", "displayOrder": 9, "cardSummary": "Automotive, wind-power, marine, heavy anti-corrosion, coil and powder coatings", "applicationFocus": "Automotive, wind-power, marine, aerospace, heavy anti-corrosion, coil and powder coatings", "performanceFocus": "Extremely high weather resistance, chalk resistance, color retention, gloss, hiding power", "surfaceTreatmentPositioning": "Special inorganic and organic surface treatment · Extremely High Weather Resistance Coatings", "filterTags": ["automotive"]}
+      ],
+      "comparison": {
+        "caption": "TIOVAR coatings grades — application and technical comparison",
+        "products": [
+          {"productId": "TP-C050", "productSlug": "tp-c050", "displayOrder": 1, "cardSummary": "Electrophoretic primers, industrial electrophoretic coatings and general interior coatings", "applicationFocus": "Electrophoretic primers and coating systems; interior, industrial and powder coatings", "performanceFocus": "Low ion content, electrical resistivity, whiteness, gloss, hiding power", "surfaceTreatmentPositioning": "Specially treated · Electrophoretic & General Coatings", "filterTags": ["specialty"]},
+          {"productId": "TP-C100", "productSlug": "tp-c100", "displayOrder": 2, "cardSummary": "General-purpose architectural, industrial and decorative coatings", "applicationFocus": "Interior and exterior flat and semi-gloss architectural; industrial and decorative coatings", "performanceFocus": "Neutral tint, hiding power, whiteness, durability", "surfaceTreatmentPositioning": "General-purpose · Solvent and water-based systems", "filterTags": ["water", "architectural"]},
+          {"productId": "TP-C110", "productSlug": "tp-c110", "displayOrder": 3, "cardSummary": "Multi-purpose architectural, industrial and decorative coatings", "applicationFocus": "Interior and exterior flat and semi-gloss architectural; industrial and decorative coatings", "performanceFocus": "Neutral tint, hiding power, whiteness, durability", "surfaceTreatmentPositioning": "Multi-purpose · Solvent and water-based systems", "filterTags": ["water", "architectural"]},
+          {"productId": "TP-C120", "productSlug": "tp-c120", "displayOrder": 4, "cardSummary": "Water-based interior and exterior wall emulsion paints", "applicationFocus": "Water-based interior and exterior wall emulsion paints", "performanceFocus": "Relatively low viscosity, bluish tone, high gloss, high hiding power, high durability", "surfaceTreatmentPositioning": "Zirconium-aluminum and special organic surface treatment · TIOVAR Premium positioning", "filterTags": ["water", "architectural"]},
+          {"productId": "TP-C200", "productSlug": "tp-c200", "displayOrder": 5, "cardSummary": "High-PVC interior and exterior matte or flat architectural coatings", "applicationFocus": "Interior and exterior high-PVC matte or flat architectural coatings, including systems above CPVC", "performanceFocus": "Ultra-high dry hiding power, weather resistance, water dispersibility, oil absorption", "surfaceTreatmentPositioning": "Special surface treatment · High-PVC Architectural Coatings", "filterTags": ["water", "architectural"]},
+          {"productId": "TP-C300", "productSlug": "tp-c300", "displayOrder": 6, "cardSummary": "Automotive OEM/refinishing, marine, aerospace and exterior coatings", "applicationFocus": "Automotive OEM/refinishing, marine, aerospace, exterior, architectural, coil and powder coatings", "performanceFocus": "High durability, high gloss, high hiding power, weather resistance, dispersibility", "surfaceTreatmentPositioning": "Silicon-aluminum and special organic surface treatment · High-Durability Coatings", "filterTags": ["automotive"]},
+          {"productId": "TP-C310", "productSlug": "tp-c310", "displayOrder": 7, "cardSummary": "Water-based automotive, water-soluble resin industrial and exterior coatings", "applicationFocus": "Water-based automotive, water-soluble resin industrial and exterior coatings", "performanceFocus": "Water dispersibility, storage stability, weather resistance, chalk resistance", "surfaceTreatmentPositioning": "Special surface treatment · Waterborne Coatings", "filterTags": ["water", "automotive"]},
+          {"productId": "TP-C400", "productSlug": "tp-c400", "displayOrder": 8, "cardSummary": "Automotive OEM/refinishing, marine, aerospace, exterior and industrial coatings", "applicationFocus": "Automotive OEM/refinishing, marine, aerospace, exterior and industrial coatings", "performanceFocus": "Ultra-high weather resistance, chalk resistance, color retention, gloss, hiding power", "surfaceTreatmentPositioning": "Special inorganic and organic surface treatment · Ultra-High Weatherability Coatings", "filterTags": ["automotive"]},
+          {"productId": "TP-C410", "productSlug": "tp-c410", "displayOrder": 9, "cardSummary": "Automotive, wind-power, marine, heavy anti-corrosion, coil and powder coatings", "applicationFocus": "Automotive, wind-power, marine, aerospace, heavy anti-corrosion, coil and powder coatings", "performanceFocus": "Extremely high weather resistance, chalk resistance, color retention, gloss, hiding power", "surfaceTreatmentPositioning": "Special inorganic and organic surface treatment · Extremely High Weather Resistance Coatings", "filterTags": ["automotive"]}
+        ]
+      },
+      "selectionMethod": {
+        "eyebrow": "Selection Method",
+        "heading": "Select within the complete coating system",
+        "description": "Binder chemistry, PVC, solids, dispersant, pigment loading, film build, cure and exposure conditions all influence the final pigment choice."
+      },
+      "validationSteps": [
+        {"index": "01", "title": "Define the system", "description": "Binder, PVC, solids, dispersant package and substrate."},
+        {"index": "02", "title": "Compare formulation response", "description": "Dispersion, viscosity, storage stability and application behavior."},
+        {"index": "03", "title": "Measure the film", "description": "Opacity, color, gloss, appearance and application-specific controls."},
+        {"index": "04", "title": "Validate durability", "description": "Scrub, weathering, chalking, color retention or the required end-use test."}
+      ],
+      "applications": [{"type": "application", "id": "coatings"}],
+      "resources": [
+        {"type": "resource", "id": "article-08"},
+        {"type": "resource", "id": "article-10"},
+        {"type": "resource", "id": "article-07"}
+      ],
+      "enquiry": {
+        "eyebrow": "Technical Enquiry",
+        "heading": "Discuss your coating system",
+        "description": "Share the binder, PVC, solids, dispersant, current pigment, application method, cure, exposure requirement and destination market to prepare a relevant trial discussion.",
+        "ctas": [
+          {"kind": "discuss-application", "label": "Discuss Your Application"},
+          {"kind": "request-tds", "label": "Request a TDS"}
+        ]
+      },
+      "faqs": [
+        {"question": "Which coating applications are covered?", "answerHtml": "<p>The TIOVAR coatings family includes grades for architectural, industrial, automotive, marine, protective, electrophoretic and water-based coatings.</p>"},
+        {"question": "How should I compare coatings grades?", "answerHtml": "<p>Compare the application focus and key formulation priorities first, then review the Typical Properties on the relevant Product Detail pages.</p>"},
+        {"question": "Does the grade number indicate performance?", "answerHtml": "<p>No. Grade numbers identify products and do not represent a performance ranking.</p>"},
+        {"question": "What information should I provide for grade selection?", "answerHtml": "<p>Share the binder, PVC, solids, dispersant, current pigment, application method, target properties, exposure requirements and destination market.</p>"}
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product-selection purposes. Final suitability depends on formulation, processing, application and finished-product validation.</p>"
+    },
+    {
+      "level": "detail",
+      "identity": {
+        "id": "TP-C120",
+        "title": "TIOVAR TP-C120 Rutile Titanium Dioxide",
+        "slug": "tp-c120",
+        "path": "/products/coatings/tp-c120",
+        "modified": "2026-08-29T00:00:00",
+        "productId": "TP-C120",
+        "familySlug": "coatings"
+      },
+      "seo": {
+        "title": "TP-C120 Rutile Titanium Dioxide for Water-Based Paint | TIOVAR",
+        "description": "TP-C120 is a chloride-process rutile titanium dioxide pigment with zirconium-aluminum and special organic surface treatment for water-based interior and exterior wall emulsion paints. Its product profile includes relatively low viscosity, bluish tone, high gloss, high hiding power and high durability."
+      },
+      "hero": {
+        "eyebrow": "TIOVAR Premium Positioning · TP-C120",
+        "headline": "TIOVAR TP‑C120 Rutile Titanium Dioxide",
+        "directAnswer": "<p>TP‑C120 is a chloride-process rutile titanium dioxide pigment with zirconium-aluminum and special organic surface treatment for water-based interior and exterior wall emulsion paints. Its product profile includes relatively low viscosity, bluish tone, high gloss, high hiding power and high durability.</p>",
+        "image": "/site-a/products/tp-c120-hero.png",
+        "ctas": [
+          {"kind": "request-tds", "label": "Request a TDS"},
+          {"kind": "discuss-application", "label": "Discuss Your Application"}
+        ]
+      },
+      "decisionRail": [
+        {"index": "01", "label": "Identity"},
+        {"index": "02", "label": "Technical Data"},
+        {"index": "03", "label": "Formulation Trial"},
+        {"index": "04", "label": "Enquiry"}
+      ],
+      "snapshot": [
+        {"label": "Product type", "value": "Rutile titanium dioxide pigment"},
+        {"label": "Process", "value": "Chloride process"},
+        {"label": "Primary application", "value": "Water-based interior and exterior wall emulsion paints"},
+        {"label": "Positioning", "value": "TIOVAR Premium"},
+        {"label": "Surface treatment", "value": "Zirconium-aluminum and special organic surface treatment"}
+      ],
+      "technicalProperties": [
+        {"property": "TiO₂ content", "value": "95", "unit": "%", "displayOrder": 1},
+        {"property": "Rutile content", "value": "99.9", "unit": "%", "displayOrder": 2},
+        {"property": "Dry L*", "value": "99.4", "unit": "", "displayOrder": 3},
+        {"property": "Dry b*", "value": "1.00", "unit": "", "displayOrder": 4},
+        {"property": "Specific gravity", "value": "4.1", "unit": "g/cm3", "displayOrder": 5},
+        {"property": "pH", "value": "7.5", "unit": "", "displayOrder": 6},
+        {"property": "Carbon black undertone (CBU)", "value": "14.0", "unit": "", "displayOrder": 7},
+        {"property": "Oil absorption", "value": "17", "unit": "g/100 g", "displayOrder": 8},
+        {"property": "Mean particle size", "value": "0.27", "unit": "micrometres", "displayOrder": 9}
+      ],
+      "technicalNote": "Values are based on the current TP‑C120 TDS. Refer to the latest technical document for product specifications and test information.",
+      "fitCheck": {
+        "fitWhen": [
+          "You are evaluating water-based interior wall emulsion paint.",
+          "You are evaluating water-based exterior wall emulsion paint.",
+          "Relatively low viscosity is important to the formulation target.",
+          "Bluish tone, gloss, hiding and durability are central to the formulation target."
+        ],
+        "discussFirstWhen": [
+          "The binder, PVC, dispersant package or solids target has not been fixed.",
+          "The viscosity target must be met without sacrificing hiding, gloss or storage stability.",
+          "The formulation operates near CPVC or requires a dry-hiding strategy."
+        ]
+      },
+      "formulationPriorities": [
+        {"title": "Viscosity", "explanation": "Compare slurry and finished-paint viscosity in the intended formulation."},
+        {"title": "Hiding power", "explanation": "Measure wet and dry opacity at the target pigment loading and film thickness."},
+        {"title": "Bluish tone & whiteness", "explanation": "Compare dry L*, dry b*, CBU and visual color against the formulation target."},
+        {"title": "Gloss", "explanation": "Measure gloss after the selected dispersion, application and cure procedure."},
+        {"title": "Durability", "explanation": "Check scrub, washability and exterior exposure where required."}
+      ],
+      "validationSteps": [
+        {"index": "01", "title": "Define the formulation", "description": "Binder chemistry, PVC, solids, dispersant package, pigment loading and application method."},
+        {"index": "02", "title": "Optimize dispersion", "description": "Compare viscosity across the agreed shear range and optimize dispersant demand first."},
+        {"index": "03", "title": "Measure color and hiding", "description": "Wet and dry opacity, dry L*, dry b*, CBU and visual whiteness."},
+        {"index": "04", "title": "Check stability", "description": "Grind quality, fineness, storage stability and application behavior."},
+        {"index": "05", "title": "Validate the film", "description": "Gloss, scrub, washability and film appearance after the selected cure."},
+        {"index": "06", "title": "Test exterior use", "description": "Run exterior exposure or accelerated weathering where required."}
+      ],
+      "applicationContext": {
+        "eyebrow": "Application Context",
+        "heading": "Connect TP‑C120 to the complete paint system",
+        "description": "This Product page covers TP‑C120 positioning, technical data and trial priorities. The Water-Based Paint Application page covers the wider binder, PVC, dispersant, film-build and exposure decisions.",
+        "application": {"type": "application", "id": "water-based-paint"}
+      },
+      "enquiryPreparation": {
+        "items": [
+          "Binder chemistry and emulsion type",
+          "PVC range and solids target",
+          "Dispersant package and pigment loading",
+          "Viscosity target and shear range",
+          "Interior or exterior use",
+          "Destination market and expected quantity"
+        ],
+        "packaging": "Contact TIOVAR for current packaging information.",
+        "tdsAccess": "The TP‑C120 TDS is available on request.",
+        "ctas": [
+          {"kind": "request-tds", "label": "Request a TDS"},
+          {"kind": "discuss-application", "label": "Discuss Your Application"},
+          {"kind": "request-sample", "label": "Request a Sample"}
+        ]
+      },
+      "faqs": [
+        {"question": "What is TIOVAR TP‑C120?", "answerHtml": "<p>TP‑C120 is a TIOVAR premium-positioned, chloride-process rutile titanium dioxide pigment intended for water-based interior and exterior wall emulsion paints.</p>"},
+        {"question": "What coating applications is TP‑C120 intended for?", "answerHtml": "<p>TP‑C120 is intended for water-based interior and exterior wall emulsion paints.</p>"},
+        {"question": "What surface treatment does TP‑C120 use?", "answerHtml": "<p>TP‑C120 uses zirconium-aluminum and special organic surface treatment.</p>"},
+        {"question": "Is TP‑C120 suitable for interior and exterior wall paint?", "answerHtml": "<p>TP‑C120 is intended for water-based interior and exterior wall emulsion paints. Final performance should be confirmed in the intended formulation.</p>"},
+        {"question": "Which properties should be checked during formulation trials?", "answerHtml": "<p>Check viscosity, dispersant demand, grind quality, hiding, dry color, gloss, storage stability, scrub, washability and exterior durability where required.</p>"},
+        {"question": "How can I request a TDS or sample?", "answerHtml": "<p>Include TP‑C120, the binder, PVC range, viscosity target, application and destination market with the enquiry.</p>"}
+      ],
+      "relatedLinks": {
+        "products": [
+          {"type": "product", "id": "TP-C100"},
+          {"type": "product", "id": "TP-C110"},
+          {"type": "product", "id": "TP-C200"}
+        ],
+        "resources": [
+          {"type": "resource", "id": "article-04"},
+          {"type": "resource", "id": "article-06"}
+        ],
+        "family": {"type": "product", "id": "coatings"}
+      },
+      "finalCtas": [
+        {"kind": "request-tds", "label": "Request a TDS"},
+        {"kind": "discuss-application", "label": "Discuss Your Application"}
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product-selection purposes. Reported values are not guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and use requirements.</p>"
+    }
+  ]
+}
