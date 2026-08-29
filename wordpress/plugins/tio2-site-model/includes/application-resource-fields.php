@@ -74,7 +74,7 @@ function tio2_application_field_definitions(): array
             'name' => 'meta_title',
             'type' => 'text',
             'required' => 1,
-            'maxlength' => 60,
+            'maxlength' => 100,
             'show_in_graphql' => 1,
         ],
         [
@@ -83,7 +83,7 @@ function tio2_application_field_definitions(): array
             'name' => 'meta_description',
             'type' => 'textarea',
             'required' => 1,
-            'maxlength' => 160,
+            'maxlength' => 220,
             'rows' => 3,
             'show_in_graphql' => 1,
         ],

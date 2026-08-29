@@ -1,0 +1,164 @@
+{
+  "identity": {
+    "id": "masterbatch",
+    "title": "Titanium Dioxide for Masterbatch",
+    "slug": "titanium-dioxide-for-masterbatch",
+    "path": "/applications/titanium-dioxide-for-masterbatch",
+    "level": "detail",
+    "family": "Plastics",
+    "parentId": "plastics",
+    "modified": "2026-08-27T08:00:00"
+  },
+  "seo": {
+    "title": "Titanium Dioxide for Masterbatch | TIOVAR",
+    "description": "Evaluate titanium dioxide for masterbatch and white masterbatch by resin, let-down, dispersion, processing and finished-product requirements."
+  },
+  "hero": {
+    "eyebrow": "Application Detail",
+    "headline": "Titanium Dioxide for Masterbatch",
+    "directAnswer": "<p>Evaluate titanium dioxide for masterbatch in the intended carrier resin, let-down system and finished article. For general PE or PP color masterbatch, TIOVAR TP-P100 is the primary evaluation starting point.</p><p>Film-masterbatch requirements follow the separate TP-P110 route, while weather-resistant masterbatch and exterior-plastics requirements follow the separate TP-P200 route. Confirm the final choice through matched formulation, processing and finished-product testing.</p>"
+  },
+  "decisionGuide": {
+    "context": "Masterbatch is not one uniform application. General PE or PP color concentrate, film masterbatch and weather-resistant concentrate can place different demands on color development, dispersion, thermal history, process stability and finished-product appearance.",
+    "buyerProblem": "Define the carrier and final polymer, masterbatch concentration, let-down ratio, pigment loading, color target, processing window and finished article before comparing candidates. These inputs establish whether the project belongs to the general, film or weather-resistant masterbatch route.",
+    "selectionFactors": [
+      "Resin, Let-Down and Color Target — Record the carrier resin, final polymer, masterbatch concentration, intended let-down ratio, pigment loading and required color or opacity target. Compare the control and trial at matched conditions so the titanium dioxide masterbatch result can be interpreted in the finished article.",
+      "Dispersion and Surface Appearance — Evaluate dispersion under representative compounding and conversion conditions. Depending on the process, relevant checks may include color uniformity, visible specks, screen residue, filter pressure and finished-surface appearance.",
+      "Processing Window — Define temperature, shear, residence time, filtration, throughput and extrusion configuration before the trial. Record the process indicators that matter to the line and keep the operating window aligned across candidates.",
+      "Finished-Product Requirement — Use the final article to determine the decisive checks. General white masterbatch, film masterbatch and weather-exposed plastic articles require separate evaluation plans; do not transfer a result from one route to another without matched testing.",
+      "CBU and Color Interpretation — Carbon black undertone can support color comparison when the method and reference are agreed. CBU is not a universal quality score and does not independently demonstrate dispersion, opacity, weathering or finished-product color."
+    ],
+    "powderDataLimits": "Powder information can help organize an initial TiO2 masterbatch screen, but it cannot predict the result in a concentrate or finished article. Resin, additives, pigment loading, dispersion method, processing history, let-down ratio, article geometry and end-use conditions all affect performance. Use a matched control formulation and defined process window from the first compound trial through finished-product assessment.",
+    "validationPlan": [
+      "Powder Screening — Confirm sample identity and condition, then use agreed color-related information as an initial planning input. Where CBU is used, keep the method and reference consistent. Do not select a grade from powder checks alone.",
+      "Masterbatch Trial — Use the intended carrier resin, additive package, pigment loading and concentrate ratio. Compare color development, opacity, tinting response and dispersion against a matched control.",
+      "Process Trial — Run representative compounding and conversion conditions. Record relevant indicators such as torque, melt pressure, throughput, filter pressure, screen residue, visible specks and process consistency.",
+      "Finished-Product Trial — Evaluate the final article against the requirements that apply to its use. This may include color, opacity and surface appearance, film-specific checks, or weather-exposure and surface-condition checks."
+    ],
+    "customerInputs": [
+      "Masterbatch type and finished article",
+      "Carrier resin and final polymer",
+      "Masterbatch concentration, let-down ratio and pigment loading",
+      "Current pigment or matched control and color target",
+      "Additive package and relevant formulation constraints",
+      "Compounding, filtration and conversion process conditions",
+      "General, film or weather-resistant masterbatch route",
+      "Finished-product test methods and acceptance criteria"
+    ]
+  },
+  "bodySections": [
+    {
+      "id": "evidence-supported-tiovar-starting-points-for-evaluation",
+      "heading": "TIOVAR Starting Points for Masterbatch Evaluation",
+      "html": "<p>TP-P100 is the primary starting point for general PE or PP color-masterbatch evaluation. TP-P110 and TP-P200 belong to separately defined film-masterbatch and weather-resistant routes.</p>"
+    },
+    {
+      "id": "evaluation-boundary",
+      "heading": "Keep Film and Weather-Resistant Routes Separate",
+      "html": "<p>A result in general PE or PP masterbatch does not establish suitability for film or exterior-plastics use. Film construction, extrusion conditions, exposure requirements and finished-product criteria must be evaluated through their respective application routes.</p><p>Technical Data Sheets are available on request.</p>"
+    }
+  ],
+  "startingProducts": [
+    {
+      "productId": "TP-P100",
+      "role": "primary",
+      "label": "Primary starting point",
+      "summaryHtml": "<p>TP-P100 is the primary TIOVAR starting point for general PE or PP color masterbatch. Its documented direction includes hiding and tinting strength, bluish undertone, polymer dispersion and processing performance. Confirm each relevant result in the intended formulation and finished article.</p>"
+    },
+    {
+      "productId": "TP-P110",
+      "role": "alternative",
+      "label": "Film-masterbatch route",
+      "summaryHtml": "<p>Use the separate TP-P110 route when PET, PE or PP film-masterbatch requirements are central to the project. Define the film resin, concentration, let-down ratio, construction and extrusion conditions before testing.</p>"
+    },
+    {
+      "productId": "TP-P200",
+      "role": "alternative",
+      "label": "Weather-resistant route",
+      "summaryHtml": "<p>Use the separate TP-P200 route when the finished article has a defined weather-resistant masterbatch or exterior-plastics requirement. Confirm the result under the intended formulation and exposure conditions.</p>"
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Which titanium dioxide should I evaluate for general white masterbatch?",
+      "answerHtml": "<p>For general PE or PP color and white masterbatch, start with TP-P100. Confirm color, opacity, dispersion, processing behavior and finished-product appearance in the intended resin and let-down system.</p>"
+    },
+    {
+      "question": "How do I choose TiO2 for masterbatch?",
+      "answerHtml": "<p>Define the carrier and final polymer, concentration, let-down ratio, pigment loading, color target, processing window and finished article first. Then select the general, film or weather-resistant route and compare the relevant candidate with a matched control.</p>"
+    },
+    {
+      "question": "What affects titanium dioxide dispersion in masterbatch?",
+      "answerHtml": "<p>Dispersion can be influenced by the resin, additive package, pigment loading, compounding energy, temperature, shear, residence time, filtration and conversion conditions. Evaluate it in the intended system using the checks relevant to the process and finished article.</p>"
+    },
+    {
+      "question": "Should TP-P100 be treated as a film-masterbatch grade?",
+      "answerHtml": "<p>No. Film-masterbatch requirements belong to the separately scoped TP-P110 route and should be evaluated with the actual film resin, concentration, let-down ratio, construction and extrusion conditions.</p>"
+    },
+    {
+      "question": "When should TP-P200 be included in a masterbatch comparison?",
+      "answerHtml": "<p>Include TP-P200 when the project has a defined weather-resistant masterbatch or exterior-plastics requirement. Use an exposure and finished-article plan that matches the intended end use.</p>"
+    },
+    {
+      "question": "What does CBU show in a masterbatch evaluation?",
+      "answerHtml": "<p>CBU can support an undertone comparison when the same method and reference are used. It does not independently establish dispersion, opacity, weathering or the final color of the converted article.</p>"
+    }
+  ],
+  "children": [],
+  "relationships": [
+    {
+      "type": "resource",
+      "id": "article-05"
+    },
+    {
+      "type": "product",
+      "id": "TP-P100"
+    },
+    {
+      "type": "application",
+      "id": "film-masterbatch"
+    },
+    {
+      "type": "product",
+      "id": "TP-P110"
+    },
+    {
+      "type": "product",
+      "id": "TP-P200"
+    },
+    {
+      "type": "application",
+      "id": "outdoor-pvc"
+    },
+    {
+      "type": "resource",
+      "id": "article-03"
+    },
+    {
+      "type": "resource",
+      "id": "article-07"
+    },
+    {
+      "type": "application",
+      "id": "plastics"
+    }
+  ],
+  "ctas": [
+    {
+      "kind": "request-tds",
+      "label": "Request a TDS",
+      "href": "/request-tds"
+    },
+    {
+      "kind": "discuss-application",
+      "label": "Discuss Your Application",
+      "href": "/contact"
+    },
+    {
+      "kind": "request-sample",
+      "label": "Request a Sample",
+      "href": "/contact"
+    }
+  ],
+  "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>"
+}

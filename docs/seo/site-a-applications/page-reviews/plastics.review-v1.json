@@ -1,0 +1,251 @@
+{
+  "identity": {
+    "id": "plastics",
+    "title": "Titanium Dioxide for Plastics",
+    "slug": "plastics",
+    "path": "/applications/plastics",
+    "level": "category",
+    "family": "Plastics",
+    "parentId": "applications-hub",
+    "modified": "2026-08-27T08:00:00"
+  },
+  "seo": {
+    "title": "Titanium Dioxide for Plastics | Masterbatch, PVC & Engineering Plastics | TIOVAR",
+    "description": "Explore TIOVAR titanium dioxide for masterbatch, film, PVC, polycarbonate and engineering plastics. Compare application-specific starting points by resin, process and finished-part requirements."
+  },
+  "hero": {
+    "eyebrow": "Application Category",
+    "headline": "Titanium Dioxide for Plastics",
+    "directAnswer": "<p>Explore TIOVAR titanium dioxide for plastics across masterbatch, film, PVC, polycarbonate and engineering-plastics applications.</p><p>Start with the resin, processing conditions and finished-part requirements, then compare suitable starting candidates through matched compound, process and end-use testing.</p>"
+  },
+  "decisionGuide": {
+    "context": "Define the resin, processing window, optical target and end-use conditions before comparing titanium dioxide candidates. Final selection should be validated in the intended compound and finished part.",
+    "buyerProblem": "Use the application route to identify an initial TIOVAR candidate for evaluation. These mappings are starting points for matched testing, not proof of suitability in every resin or process.",
+    "selectionFactors": [
+      "Resin and Application Format — Start with the exact polymer and product format: PE or PP masterbatch, PET film masterbatch, rigid or soft PVC, PC, PC/ABS, PA, PBT, LCP, TPE or a multilayer film construction. A candidate intended for general masterbatch should not automatically be assumed suitable for film, exterior PVC or high-temperature engineering plastics.",
+      "Processing Temperature and Heat History — Define extrusion or molding temperature, residence time, shear, filtration conditions and the relevant additive package. These conditions can affect pigment dispersion, color development and polymer stability, particularly in PET, film, PC, LCP and other engineering-resin systems.",
+      "Optical Target and Dispersion — Define whether the priority is hiding power, tinting strength, bluish undertone, whiteness, reflectance or finished-film opacity. Dispersion should be assessed in the intended resin and at the relevant pigment loading. Where carbon black undertone is used for comparison, interpret it together with the customer’s finished-color target and test method.",
+      "Outdoor Exposure and Color Retention — For exterior PVC, weatherable masterbatch and UV-exposed engineering plastics, define the exposure environment, test cycle, acceptable color change and required service conditions before narrowing candidates. Weathering performance remains a system result influenced by the resin, stabilizers, pigment loading, processing conditions and part design.",
+      "Finished-Part Requirements — The pigment decision must support the complete part specification. Depending on the application, this may include film defects, surface appearance, flow, reflectance, opacity, yellowing, color retention, weathering response or other application-specific requirements."
+    ],
+    "powderDataLimits": "Powder properties can help narrow the initial screening set, but they do not reproduce the interactions among pigment, resin, additives, processing conditions and final-part geometry. Compare candidates against a matched control in the intended resin, at the intended loading and under production-relevant processing conditions. Final suitability should be determined from compound, process and finished-product evidence.",
+    "validationPlan": [
+      "Powder Screening — Compare incoming material characteristics, color direction, hiding or tinting response and other agreed screening checks. Use powder data to narrow candidates—not as proof of finished-system performance.",
+      "Compound Trial — Compare dispersion, color, opacity, flow and compatibility in the intended resin, additive package and pigment loading.",
+      "Process Trial — Run the relevant extrusion, compounding or molding conditions and evaluate melt behavior, filtration or screen residue, processing stability and surface quality where applicable.",
+      "Finished-Product Trial — Confirm film appearance, reflectance, yellowing, mechanical retention, weathering or other application-specific criteria in the finished product."
+    ],
+    "customerInputs": [
+      "Resin type, grade and recycled-content level, if applicable",
+      "Application and finished-part format",
+      "Current pigment or matched control",
+      "Pigment loading, masterbatch concentration and let-down ratio",
+      "Extrusion, compounding or molding temperature profile and residence time",
+      "Key additives, stabilizers, fillers and flame-retardant packages where relevant",
+      "Color, opacity, whiteness, reflectance or undertone target",
+      "Film thickness, surface-quality requirement or part geometry",
+      "Required weathering, UV, yellowing, mechanical or process-performance checks",
+      "Destination-market requirements affecting the evaluation plan"
+    ]
+  },
+  "bodySections": [
+    {
+      "id": "evidence-supported-tiovar-starting-points-for-evaluation",
+      "heading": "Match the Plastics Route to a Starting Candidate",
+      "html": "<p>Use the application route to identify an initial TIOVAR candidate for evaluation. These mappings are starting points for matched testing, not proof of suitability in every resin or process.</p>"
+    },
+    {
+      "id": "technical-documentation",
+      "heading": "Technical documentation",
+      "html": "<p>Technical Data Sheets are available on request for the relevant TIOVAR grades.</p><p>Share the resin, process conditions, target performance and current control where available so the document request and technical discussion can follow the appropriate plastics evaluation path.</p>"
+    }
+  ],
+  "startingProducts": [
+    {
+      "productId": "TP-P100",
+      "role": "candidate",
+      "label": "General PE or PP Masterbatch",
+      "summaryHtml": "<p>Evaluate dispersion, undertone, hiding, tinting response and process stability in the intended masterbatch formulation.</p>"
+    },
+    {
+      "productId": "TP-P110",
+      "role": "candidate",
+      "label": "PET, PE or PP Film Masterbatch",
+      "summaryHtml": "<p>Evaluate film appearance, dispersion, extrusion behavior and thermal response under the intended film-processing conditions.</p>"
+    },
+    {
+      "productId": "TP-P200",
+      "role": "candidate",
+      "label": "Outdoor PVC / Weatherable Plastics",
+      "summaryHtml": "<p>Evaluate weathering response, color retention, processing behavior and relevant finished-product requirements.</p>"
+    },
+    {
+      "productId": "TP-P120",
+      "role": "candidate",
+      "label": "Soft PVC / Solar Backsheet Film",
+      "summaryHtml": "<p>Evaluate dispersion, thermal processing and finished-film performance in the specific PVC or backsheet construction.</p>"
+    },
+    {
+      "productId": "TP-P300",
+      "role": "candidate",
+      "label": "Polycarbonate and Related Engineering Resins",
+      "summaryHtml": "<p>Evaluate thermal processing, dispersion, color and finished-part appearance in the intended resin system.</p>"
+    },
+    {
+      "productId": "TP-P310",
+      "role": "candidate",
+      "label": "High-Temperature Engineering Plastics",
+      "summaryHtml": "<p>Evaluate performance under the intended high-temperature processing window, including dispersion, flow and retained material properties where relevant.</p>"
+    },
+    {
+      "productId": "TP-P320",
+      "role": "candidate",
+      "label": "High-Reflectance Polycarbonate",
+      "summaryHtml": "<p>Evaluate whiteness, reflectance, optical response, dispersion and thermal processing in the intended PC formulation.</p>"
+    },
+    {
+      "productId": "TP-P330",
+      "role": "candidate",
+      "label": "UV- and Yellowing-Sensitive Plastics",
+      "summaryHtml": "<p>Evaluate UV exposure, yellowing response, thermal history, dispersion and retained properties in the intended ABS, PC/ABS, TPE, PVC or related system.</p>"
+    },
+    {
+      "productId": "TP-U100",
+      "role": "candidate",
+      "label": "Conditional Cross-Application Screening",
+      "summaryHtml": "<p>TP-U100 can be screened separately where a cross-application candidate is relevant. It should not be treated as a default plastics grade; each resin, process and finished-product requirement needs its own qualification.</p>"
+    }
+  ],
+  "faqs": [
+    {
+      "question": "How do I choose titanium dioxide for plastics?",
+      "answerHtml": "<p>Start with the resin, product format, processing window and finished-part requirements. Then identify an application-specific starting candidate and validate it against a matched control in the intended formulation and process.</p>"
+    },
+    {
+      "question": "What is the difference between a general masterbatch grade and a film-masterbatch grade?",
+      "answerHtml": "<p>General masterbatch evaluation focuses on dispersion, pigment loading, undertone, hiding and processing behavior in the intended compound. Film masterbatch also requires evaluation of extrusion stability, film appearance, thermal response and final-film defects at the intended thickness.</p>"
+    },
+    {
+      "question": "Can I select titanium dioxide for polycarbonate from powder data alone?",
+      "answerHtml": "<p>No. Polycarbonate evaluation should include the actual resin, processing temperature, residence time and additive package. Finished-part checks may include dispersion, color, yellowing, melt behavior and surface appearance.</p>"
+    },
+    {
+      "question": "How should I evaluate titanium dioxide for outdoor PVC?",
+      "answerHtml": "<p>Define the PVC formulation, exposure conditions, acceptable color change and aging method first. Then compare dispersion and processing together with weathering, color retention and other finished-product requirements.</p>"
+    },
+    {
+      "question": "Can one titanium dioxide grade be used across several plastics applications?",
+      "answerHtml": "<p>A cross-application candidate can be screened where its stated application range is relevant, but suitability must be validated separately for each resin, formulation, process and finished-product requirement.</p>"
+    }
+  ],
+  "children": [
+    {
+      "type": "application",
+      "id": "masterbatch"
+    },
+    {
+      "type": "application",
+      "id": "polycarbonate"
+    },
+    {
+      "type": "application",
+      "id": "outdoor-pvc"
+    },
+    {
+      "type": "application",
+      "id": "film-masterbatch"
+    },
+    {
+      "type": "application",
+      "id": "soft-pvc-solar-backsheet"
+    },
+    {
+      "type": "application",
+      "id": "lcp-high-temperature-plastics"
+    },
+    {
+      "type": "application",
+      "id": "uv-resistant-engineering-plastics"
+    }
+  ],
+  "relationships": [
+    {
+      "type": "product",
+      "id": "TP-P100"
+    },
+    {
+      "type": "product",
+      "id": "TP-P110"
+    },
+    {
+      "type": "product",
+      "id": "TP-P200"
+    },
+    {
+      "type": "product",
+      "id": "TP-P120"
+    },
+    {
+      "type": "product",
+      "id": "TP-P300"
+    },
+    {
+      "type": "product",
+      "id": "TP-P310"
+    },
+    {
+      "type": "product",
+      "id": "TP-P320"
+    },
+    {
+      "type": "product",
+      "id": "TP-P330"
+    },
+    {
+      "type": "product",
+      "id": "TP-U100"
+    },
+    {
+      "type": "resource",
+      "id": "article-03"
+    },
+    {
+      "type": "resource",
+      "id": "article-06"
+    },
+    {
+      "type": "resource",
+      "id": "article-05"
+    },
+    {
+      "type": "resource",
+      "id": "article-09"
+    },
+    {
+      "type": "resource",
+      "id": "article-10"
+    },
+    {
+      "type": "resource",
+      "id": "article-07"
+    }
+  ],
+  "ctas": [
+    {
+      "kind": "discuss-application",
+      "label": "Discuss Your Application",
+      "href": "/contact"
+    },
+    {
+      "kind": "request-tds",
+      "label": "Request a TDS",
+      "href": "/request-tds"
+    },
+    {
+      "kind": "request-sample",
+      "label": "Request a Sample",
+      "href": "/contact"
+    }
+  ],
+  "disclaimerHtml": "<p>Product information is provided for technical evaluation and product-selection purposes. Typical values are not guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their intended application before commercial adoption.</p>"
+}

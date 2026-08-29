@@ -14,9 +14,15 @@ export function ApplicationBodySections({
   readonly sections: ApplicationPageDto['bodySections']
   readonly omitIds?: ReadonlySet<string>
 }) {
+  const visibleSections = sections.filter(({id}) => !omitIds.has(id))
+  if (visibleSections.length === 0) return null
+
   return (
-    <div className={`${styles.wrap} ${styles.bodySections}`}>
-      {sections.filter(({id}) => !omitIds.has(id)).map((section) => (
+    <div
+      className={`${styles.wrap} ${styles.bodySections}`}
+      data-application-body-sections
+    >
+      {visibleSections.map((section) => (
         <article key={section.id}>
           <h3>{section.heading}</h3>
           <div dangerouslySetInnerHTML={{__html: section.html}} />

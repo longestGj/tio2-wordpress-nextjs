@@ -10,13 +10,21 @@ export function ApplicationEnquiry({
 }) {
   const documentCta = application.ctas.find(({kind}) => kind === 'request-tds')
   const discussCta = application.ctas.find(({kind}) => kind === 'discuss-application')
+  const plastics = application.identity.id === 'plastics'
+  const masterbatch = application.identity.id === 'masterbatch'
   return (
     <>
       <section id="documents" className={`${styles.section} ${styles.wrap} ${styles.documentRequest}`} aria-labelledby="application-documents-heading">
         <div>
           <p className={styles.eyebrow}>Documents by request</p>
           <h2 id="application-documents-heading">Request the documents needed for your evaluation</h2>
-          <p>Technical documents are matched to the relevant evaluation context and supplied by request.</p>
+          <p>
+            {masterbatch
+              ? 'Request the relevant TDS and supporting technical information for the grade you are evaluating.'
+              : plastics
+              ? 'Request the relevant TDS or supporting technical information for the grades you are evaluating. Providing the application and resin context helps us respond with the appropriate documentation.'
+              : 'Technical documents are matched to the relevant evaluation context and supplied by request.'}
+          </p>
         </div>
         <div className={styles.documentActions}>
           {documentCta ? <a href={documentCta.href}>{documentCta.label}</a> : null}
@@ -32,10 +40,16 @@ export function ApplicationEnquiry({
           <div>
             <p className={styles.eyebrow}>Technical enquiry</p>
             <h2 id="application-customer-inputs-heading">
-              Prepare a useful application discussion
+              {plastics
+                ? 'Prepare a Focused Application Discussion'
+                : 'Prepare a useful application discussion'}
             </h2>
             <p>
-              Share enough context to compare a realistic starting point without treating powder data as finished-product proof.
+              {masterbatch
+                ? 'Share the application, formulation and process context needed to identify a realistic evaluation starting point and plan the next trial.'
+                : plastics
+                ? 'Share the application and processing context needed to identify a realistic evaluation starting point and plan the next trial.'
+                : 'Share enough context to compare a realistic starting point without treating powder data as finished-product proof.'}
             </p>
           </div>
           <div className={styles.inputPanel}>

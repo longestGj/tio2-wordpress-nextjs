@@ -23,6 +23,20 @@ const resolveTarget: EditorialLinkResolver = (target) => {
 }
 
 describe('Application starting Product contract', () => {
+  it('accepts the approved extended Plastics metadata without truncation', () => {
+    const input = structuredClone(applicationCategoryInput)
+    input.seo = {
+      title:
+        'Titanium Dioxide for Plastics | Masterbatch, PVC & Engineering Plastics | TIOVAR',
+      description:
+        'Explore TIOVAR titanium dioxide for masterbatch, film, PVC, polycarbonate and engineering plastics. Compare application-specific starting points by resin, process and finished-part requirements.',
+    }
+
+    const result = applicationPageInputSchema.safeParse(input)
+
+    expect(result.success).toBe(true)
+  })
+
   it('preserves Product starting-point order and resolves canonical Product links', () => {
     const input = structuredClone(applicationDetailInput)
     input.relationships.push(

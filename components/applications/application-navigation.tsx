@@ -1,3 +1,4 @@
+import type {ApplicationPageDto} from '@/lib/applications/types'
 import type {EditorialLink} from '@/lib/editorial/types'
 
 import styles from './application-page.module.css'
@@ -73,14 +74,37 @@ export function ApplicationHubNavigation({links}: {readonly links: readonly Edit
   )
 }
 
-export function ApplicationCategoryNavigation({links}: {readonly links: readonly EditorialLink[]}) {
+const plasticsRouteTitleById: Readonly<Record<string, string>> = {
+  'film-masterbatch': 'Titanium Dioxide for Film Masterbatch',
+  'lcp-high-temperature-plastics':
+    'Titanium Dioxide for High-Temperature Engineering Plastics',
+  masterbatch: 'Titanium Dioxide for General Masterbatch',
+  polycarbonate: 'Titanium Dioxide for Polycarbonate',
+}
+
+export function ApplicationCategoryNavigation({
+  application,
+}: {
+  readonly application: ApplicationPageDto
+}) {
+  const plastics = application.identity.id === 'plastics'
+  const links = plastics
+    ? application.children.map((link) => ({
+        ...link,
+        title: plasticsRouteTitleById[link.id] ?? link.title,
+      }))
+    : application.children
   return (
     <NavigationSection
       links={links}
       sectionName="child-navigation"
-      eyebrow="Coating routes"
-      heading="Choose the coating route"
-      intro="Start with the closest coating system, then define the formulation and finished-film evidence required before comparing candidates."
+      eyebrow={plastics ? 'Plastics routes' : 'Coating routes'}
+      heading={plastics ? 'Choose the Plastics route' : 'Choose the coating route'}
+      intro={
+        plastics
+          ? 'Start with the closest resin and product format. Each plastics route has different requirements for dispersion, thermal processing, optical performance, weathering and finished-part quality.'
+          : 'Start with the closest coating system, then define the formulation and finished-film evidence required before comparing candidates.'
+      }
     />
   )
 }

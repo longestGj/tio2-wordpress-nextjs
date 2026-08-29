@@ -102,6 +102,7 @@ export function ApplicationStartingProducts({
   if (application.startingProducts.length === 0) return null
   const headingId = 'application-starting-products-heading'
   const category = application.identity.level === 'category'
+  const plastics = application.identity.id === 'plastics'
   return (
     <section
       id="starting-products"
@@ -110,12 +111,21 @@ export function ApplicationStartingProducts({
       aria-labelledby={headingId}
     >
       <div className={styles.sectionHead}>
-        <p className={styles.eyebrow}>{category ? 'Selection matrix' : 'Product bridge'}</p>
+        <p className={styles.eyebrow}>
+          {category
+            ? plastics
+              ? 'Evaluation starting points'
+              : 'Selection matrix'
+            : 'Product bridge'}
+        </p>
         <h2 id={headingId}>
           {category
-            ? 'Connect each coating decision to a testable candidate'
+            ? plastics
+              ? 'Match the Plastics Route to a Starting Candidate'
+              : 'Connect each coating decision to a testable candidate'
             : 'Begin with the primary candidate'}
         </h2>
+        {plastics ? <p>{application.decisionGuide.buyerProblem}</p> : null}
       </div>
       {category ? (
         <CategoryCandidates application={application} />

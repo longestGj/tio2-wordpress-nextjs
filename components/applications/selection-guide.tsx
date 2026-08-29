@@ -4,7 +4,13 @@ import styles from './application-page.module.css'
 
 type DecisionGuide = ApplicationPageDto['decisionGuide']
 
-export function CustomerContext({guide}: {readonly guide: DecisionGuide}) {
+export function CustomerContext({
+  guide,
+  heading = 'Understand the complete application system',
+}: {
+  readonly guide: DecisionGuide
+  readonly heading?: string
+}) {
   return (
     <section
       className={`${styles.section} ${styles.wrap} ${styles.contextSection}`}
@@ -13,9 +19,7 @@ export function CustomerContext({guide}: {readonly guide: DecisionGuide}) {
     >
       <div>
         <p className={styles.eyebrow}>Application context</p>
-        <h2 id="application-customer-context-heading">
-          Understand the complete application system
-        </h2>
+        <h2 id="application-customer-context-heading">{heading}</h2>
         <p>{guide.context}</p>
       </div>
       <aside>
@@ -30,11 +34,23 @@ export function SelectionFactors({
   guide,
   mode,
   includeEvidenceNote = false,
+  heading,
+  factorLimit,
+  technicalNote,
+  boundaryNote,
+  boundaryCta,
 }: {
   readonly guide: DecisionGuide
   readonly mode: ApplicationPageDto['identity']['level']
   readonly includeEvidenceNote?: boolean
+  readonly heading?: string
+  readonly factorLimit?: number
+  readonly technicalNote?: Readonly<{heading: string; body: string}>
+  readonly boundaryNote?: ApplicationPageDto['bodySections'][number]
+  readonly boundaryCta?: ApplicationPageDto['ctas'][number]
 }) {
+  const visibleFactors = guide.selectionFactors.slice(0, factorLimit)
+
   return (
     <section
       id="selection"
@@ -42,23 +58,47 @@ export function SelectionFactors({
       data-application-section="selection-factors"
       aria-labelledby="application-selection-factors-heading"
     >
-      <div className={`${styles.wrap} ${styles.selectionGrid}`}>
-        <div className={styles.sectionHead}>
-          <p className={styles.eyebrow}>Selection factors</p>
-          <h2 id="application-selection-factors-heading">
-            {mode === 'detail' ? 'What to Evaluate' : 'What Controls the First Screen'}
-          </h2>
-          {mode !== 'detail' ? <p>{guide.context}</p> : null}
-          {includeEvidenceNote ? <p>{guide.powderDataLimits}</p> : null}
+      <div className={styles.wrap}>
+        <div className={styles.selectionGrid}>
+          <div className={styles.sectionHead}>
+            <p className={styles.eyebrow}>Selection factors</p>
+            <h2 id="application-selection-factors-heading">
+              {heading ??
+                (mode === 'detail'
+                  ? 'What to Evaluate'
+                  : 'What Controls the First Screen')}
+            </h2>
+            {mode !== 'detail' ? <p>{guide.context}</p> : null}
+            {includeEvidenceNote ? <p>{guide.powderDataLimits}</p> : null}
+          </div>
+          <ol className={styles.factorList}>
+            {visibleFactors.map((factor, index) => (
+              <li key={`${index}-${factor}`}>
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <p>{factor}</p>
+              </li>
+            ))}
+          </ol>
         </div>
-        <ol className={styles.factorList}>
-          {guide.selectionFactors.map((factor, index) => (
-            <li key={`${index}-${factor}`}>
-              <span>{String(index + 1).padStart(2, '0')}</span>
-              <p>{factor}</p>
-            </li>
-          ))}
-        </ol>
+        {technicalNote || boundaryNote ? (
+          <div className={styles.selectionNotes}>
+            {technicalNote ? (
+              <aside className={styles.technicalNote}>
+                <h3>{technicalNote.heading}</h3>
+                <p>{technicalNote.body}</p>
+              </aside>
+            ) : null}
+            {boundaryNote ? (
+              <aside className={styles.boundaryNote}>
+                <h3>{boundaryNote.heading}</h3>
+                <div dangerouslySetInnerHTML={{__html: boundaryNote.html}} />
+                {boundaryCta ? (
+                  <a href={boundaryCta.href}>{boundaryCta.label}</a>
+                ) : null}
+              </aside>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </section>
   )
