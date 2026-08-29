@@ -11,6 +11,10 @@ export default defineConfig([
     '.worktrees/**',
     'coverage/**',
     'node_modules/**',
+    'site-prototypes/**/.next/**',
+    'site-prototypes/**/.vinext/**',
+    'site-prototypes/**/.wrangler/**',
+    'site-prototypes/**/dist/**',
     'next-env.d.ts',
   ]),
 ])
