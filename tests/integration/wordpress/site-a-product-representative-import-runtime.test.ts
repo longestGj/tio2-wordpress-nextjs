@@ -55,14 +55,38 @@ import {basename, join} from 'node:path'
 
 const root = process.env.TIO2_TEST_REPOSITORY_ROOT
 const log = process.env.TIO2_TEST_DOCKER_LOG
+const args = process.argv.slice(2)
+const append = (entry) => appendFileSync(log, JSON.stringify({args, ...entry}) + '\n')
+if (args[0] === 'context' && args[1] === 'show') {
+  append({kind: 'context-show'})
+  process.stdout.write((process.env.TIO2_TEST_DOCKER_CONTEXT_NAME || 'local-test') + '\n')
+  process.exit(0)
+}
+if (args[0] === 'context' && args[1] === 'inspect') {
+  append({kind: 'context-inspect'})
+  process.stdout.write(JSON.stringify(process.env.TIO2_TEST_DOCKER_ENDPOINT || 'npipe:////./pipe/dockerDesktopLinuxEngine') + '\n')
+  process.exit(0)
+}
+const composeIndex = args.indexOf('compose')
+if (composeIndex >= 0 && args.includes('config')) {
+  append({kind: 'compose-config'})
+  const hostIp = process.env.TIO2_TEST_DOCKER_BINDING || '127.0.0.1'
+  const services = {wordpress: {ports: [{host_ip: hostIp, target: 80, published: '8080', protocol: 'tcp'}]}}
+  if (process.env.TIO2_TEST_DOCKER_EMPTY_SERVICES === '1') Object.assign(services, {db: {}, wpcli: {}})
+  process.stdout.write(JSON.stringify({services}) + '\n')
+  process.exit(0)
+}
 const capabilityArgument = process.argv.at(-1)
 const capabilityPath = join(root, 'wordpress', 'seed', basename(capabilityArgument))
 const capability = JSON.parse(readFileSync(capabilityPath, 'utf8'))
 const fixturePath = join(root, 'wordpress', 'seed', basename(capability.fixturePath))
 const actualHash = createHash('sha256').update(readFileSync(fixturePath)).digest('hex')
-appendFileSync(log, JSON.stringify({args: process.argv.slice(2), capability, capabilityPath, fixturePath, actualHash}) + '\n')
+const planSha256 = capability.mode === 'plan'
+  ? createHash('sha256').update('controlled-plan:' + actualHash).digest('hex')
+  : capability.planSha256
+append({kind: 'import', capability, capabilityPath, fixturePath, actualHash})
 if (process.env.TIO2_TEST_DOCKER_FAIL === '1') process.exit(17)
-process.stdout.write('TIO2_SITE_A_PRODUCT_REPRESENTATIVE_RESULT ' + JSON.stringify({mode: capability.mode, fixtureSha256: actualHash, actions: []}) + '\n')
+process.stdout.write('TIO2_SITE_A_PRODUCT_REPRESENTATIVE_RESULT ' + JSON.stringify({mode: capability.mode, fixtureSha256: actualHash, planSha256, actions: []}) + '\n')
 `,
   )
   writeFileSync(join(directory, 'docker.cmd'), '@node "%~dp0\\fake-docker.mjs" %*\r\n')
@@ -75,7 +99,18 @@ function runWrapper(
   fakeDirectory: string,
   logPath: string,
   fail = false,
+  environment: Record<string, string | undefined> = {},
 ) {
+  const baseEnvironment = {...process.env}
+  for (const name of [
+    'DOCKER_HOST',
+    'DOCKER_CONTEXT',
+    'DOCKER_TLS_VERIFY',
+    'DOCKER_CERT_PATH',
+    'DOCKER_CONFIG',
+  ]) {
+    delete baseEnvironment[name]
+  }
   return spawnSync(
     'powershell',
     [
@@ -94,11 +129,12 @@ function runWrapper(
       encoding: 'utf8',
       timeout: 30_000,
       env: {
-        ...process.env,
+        ...baseEnvironment,
         PATH: `${fakeDirectory}${delimiter}${process.env.PATH ?? ''}`,
         TIO2_TEST_REPOSITORY_ROOT: repositoryRoot,
         TIO2_TEST_DOCKER_LOG: logPath,
         ...(fail ? {TIO2_TEST_DOCKER_FAIL: '1'} : {}),
+        ...environment,
       },
     },
   )
@@ -122,12 +158,14 @@ describe('local representative-content PowerShell boundary', () => {
         .trim()
         .split(/\r?\n/u)
         .map((line) => JSON.parse(line) as {
+          kind: string
           args: string[]
           capability: Record<string, unknown>
           capabilityPath: string
           fixturePath: string
           actualHash: string
         })
+        .filter(({kind}) => kind === 'import')
       expect(calls).toHaveLength(3)
       expect(calls.map(({capability}) => capability.mode)).toEqual([
         'plan',
@@ -141,18 +179,63 @@ describe('local representative-content PowerShell boundary', () => {
         expect(call.capability.fixturePath).toMatch(
           /^\/workspace\/wordpress\/seed\/\.runtime-site-a-product-representatives-[0-9a-f]{32}\.json$/u,
         )
+        expect(call.args.slice(0, 2)).toEqual(['--context', 'local-test'])
         expect(call.args).toContain('wordpress/docker-compose.yml')
         expect(call.args).toContain('wpcli')
         expect(call.args.join(' ')).not.toMatch(/https?:\/\//iu)
       }
-      expect(calls[2]?.capability.planSha256).toBe(expectedHash)
+      expect(calls[2]?.capability.planSha256).toMatch(/^[a-f0-9]{64}$/u)
+      expect(calls[2]?.capability.planSha256).not.toBe(expectedHash)
       expect(calls[0]?.fixturePath).not.toBe(calls[1]?.fixturePath)
       expect(calls[0]?.capabilityPath).not.toBe(calls[1]?.capabilityPath)
       expect(runtimeFiles()).toEqual(before)
     } finally {
       rmSync(temporary, {recursive: true, force: true})
     }
+  }, 15_000)
+
+  it('rejects Docker environment overrides, remote current contexts, and non-loopback rendered bindings before import', () => {
+    const temporary = mkdtempSync(join(tmpdir(), 'tio2-representative-docker-'))
+    const logPath = makeFakeDocker(temporary)
+    try {
+      for (const environment of [
+        {DOCKER_HOST: 'tcp://remote.example.test:2376'},
+        {DOCKER_CONTEXT: 'remote-context'},
+        {
+          TIO2_TEST_DOCKER_CONTEXT_NAME: 'remote-current',
+          TIO2_TEST_DOCKER_ENDPOINT: 'ssh://operator@remote.example.test',
+        },
+        {TIO2_TEST_DOCKER_BINDING: '0.0.0.0'},
+      ]) {
+        rmSync(logPath, {force: true})
+        const result = runWrapper('Plan', fixturePath, temporary, logPath, false, environment)
+        expect(result.status, `${result.stdout}\n${result.stderr}`).not.toBe(0)
+        if (existsSync(logPath)) {
+          const calls = readFileSync(logPath, 'utf8')
+            .trim()
+            .split(/\r?\n/u)
+            .filter(Boolean)
+            .map((line) => JSON.parse(line) as {kind: string})
+          expect(calls.some(({kind}) => kind === 'import')).toBe(false)
+        }
+      }
+    } finally {
+      rmSync(temporary, {recursive: true, force: true})
+    }
   })
+
+  it('accepts rendered Compose services that do not publish ports', () => {
+    const temporary = mkdtempSync(join(tmpdir(), 'tio2-representative-compose-'))
+    const logPath = makeFakeDocker(temporary)
+    try {
+      const result = runWrapper('Plan', fixturePath, temporary, logPath, false, {
+        TIO2_TEST_DOCKER_EMPTY_SERVICES: '1',
+      })
+      expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+    } finally {
+      rmSync(temporary, {recursive: true, force: true})
+    }
+  }, 10_000)
 
   it('rejects URI, wildcard, and non-approved local paths before Docker and cleans staging after a command failure', () => {
     expect(existsSync(wrapperPath), 'PowerShell wrapper is missing').toBe(true)
@@ -207,24 +290,29 @@ $hash = hash_file('sha256', $argv[2]);
 $normalized = tio2_site_a_product_representative_validate_fixture($fixture);
 if (['hub', 'coatings', 'TP-C120'] !== array_column($normalized, 'target')) { throw new RuntimeException('Normalized targets escaped the approved set.'); }
 if (['41', '42'] !== tio2_site_a_product_representative_relationship_values([41, '42'])) { throw new RuntimeException('ACF relationship IDs were not normalized to raw string values.'); }
+$storageShapes = ['metaTitle' => [], 'faqItems' => ['question', 'answer']];
+if (tio2_site_a_product_representative_is_target_storage_key('options_metaTitle_site_b', $storageShapes, true) || ! tio2_site_a_product_representative_is_target_storage_key('options_faqItems_0_answer', $storageShapes, true)) { throw new RuntimeException('ACF target storage matching was not exact.'); }
 if (TIO2_SITE_A_PRODUCT_REPRESENTATIVE_HUB_FIELDS !== array_keys($normalized[0]['fields'])) { throw new RuntimeException('Hub field allowlist drifted.'); }
 if (TIO2_SITE_A_PRODUCT_REPRESENTATIVE_FAMILY_FIELDS !== array_keys($normalized[1]['fields'])) { throw new RuntimeException('Family field allowlist drifted.'); }
 if (TIO2_SITE_A_PRODUCT_REPRESENTATIVE_PRODUCT_FIELDS !== array_keys($normalized[2]['fields'])) { throw new RuntimeException('Product field allowlist drifted.'); }
 if ('draft' !== $normalized[2]['invariants']['status'] || '/products/coatings/tp-c120' !== $normalized[2]['invariants']['canonicalPath']) { throw new RuntimeException('TP-C120 invariants drifted.'); }
 
-$state = ['records' => [], 'otherProducts' => ['TP-C050' => 'frozen', 'TP-U100' => 'frozen'], 'siteB' => ['frozen' => true], 'anonymousProducts' => [], 'writes' => 0, 'begins' => 0, 'commits' => 0, 'rollbacks' => 0];
+$state = ['records' => [], 'otherProducts' => ['TP-C050' => 'frozen', 'TP-U100' => 'frozen'], 'siteB' => ['frozen' => true], 'sharedStorage' => ['options' => ['site-b-product-copy' => 'frozen'], 'termmeta' => ['site-b-coatings-copy' => 'frozen']], 'sharedCoatings' => false, 'anonymousProducts' => [], 'writes' => 0, 'begins' => 0, 'commits' => 0, 'rollbacks' => 0];
 $snapshot = null;
 $digest = static fn ($value): string => hash('sha256', json_encode($value, JSON_THROW_ON_ERROR));
 $operations = [
   'begin' => static function () use (&$state, &$snapshot): void { $snapshot = $state; ++$state['begins']; },
   'commit' => static function () use (&$state): void { ++$state['commits']; },
   'rollback' => static function () use (&$state, &$snapshot): void { $state = $snapshot; ++$state['rollbacks']; },
+  'assert_site_a_targets' => static function () use (&$state): void { if ($state['sharedCoatings']) throw new RuntimeException('Coatings is shared outside Site A.'); },
   'find' => static function (string $target) use (&$state): ?array { return $state['records'][$target] ?? null; },
   'write' => static function (array $record) use (&$state): void { $state['records'][$record['target']] = $record; ++$state['writes']; },
   'snapshot_other_products' => static function () use (&$state, $digest): string { return $digest($state['otherProducts']); },
   'assert_other_products' => static function (string $hash) use (&$state, $digest): void { if ($hash !== $digest($state['otherProducts'])) throw new RuntimeException('Other Product records changed.'); },
   'snapshot_site_b' => static function () use (&$state, $digest): string { return $digest($state['siteB']); },
   'assert_site_b' => static function (string $hash) use (&$state, $digest): void { if ($hash !== $digest($state['siteB'])) throw new RuntimeException('Site B changed.'); },
+  'snapshot_shared_storage' => static function () use (&$state, $digest): string { return $digest($state['sharedStorage']); },
+  'assert_shared_storage' => static function (string $hash) use (&$state, $digest): void { if ($hash !== $digest($state['sharedStorage'])) throw new RuntimeException('Shared Site B option or term meta changed.'); },
   'assert_anonymous_hidden' => static function () use (&$state): void { if ([] !== $state['anonymousProducts']) throw new RuntimeException('Anonymous Product leaked.'); },
 ];
 
@@ -232,27 +320,52 @@ $beforePlan = $state;
 $plan = tio2_site_a_product_representative_execute('plan', $fixture, $hash, null, $operations);
 if ($beforePlan['records'] !== $state['records'] || 0 !== $state['writes'] || ['hub', 'coatings', 'TP-C120'] !== array_column($plan['actions'], 'target')) { throw new RuntimeException('Plan wrote state or listed the wrong targets.'); }
 if (3 !== count(array_filter($plan['actions'], static fn (array $action): bool => 'update' === $action['action']))) { throw new RuntimeException('Initial Plan did not list three updates.'); }
+if (! is_string($plan['planSha256'] ?? null) || 1 !== preg_match('/^[a-f0-9]{64}$/D', $plan['planSha256']) || $hash === $plan['planSha256']) { throw new RuntimeException('Plan did not return a state-bound digest distinct from the fixture hash.'); }
+$planDigest = $plan['planSha256'];
+$state['records']['hub'] = ['concurrent' => 'change-after-plan'];
+$staleState = $state;
+try { tio2_site_a_product_representative_execute('apply', $fixture, $hash, $planDigest, $operations); throw new RuntimeException('Apply accepted a stale target-state digest.'); } catch (InvalidArgumentException $expected) {}
+if ($staleState['records'] !== $state['records'] || $staleState['writes'] !== $state['writes'] || $staleState['commits'] !== $state['commits'] || $staleState['rollbacks'] + 1 !== $state['rollbacks']) { throw new RuntimeException('Stale Plan rejection wrote target state or did not roll back.'); }
+$state = $beforePlan;
 try { tio2_site_a_product_representative_execute('apply', $fixture, $hash, str_repeat('0', 64), $operations); throw new RuntimeException('Apply accepted the wrong Plan hash.'); } catch (InvalidArgumentException $expected) {}
-$apply = tio2_site_a_product_representative_execute('apply', $fixture, $hash, $hash, $operations);
+$apply = tio2_site_a_product_representative_execute('apply', $fixture, $hash, $planDigest, $operations);
 if (3 !== $state['writes'] || 3 !== count($state['records']) || 3 !== count(array_filter($apply['actions'], static fn (array $action): bool => 'update' === $action['action']))) { throw new RuntimeException('Apply did not write exactly three targets.'); }
 $secondPlan = tio2_site_a_product_representative_execute('plan', $fixture, $hash, null, $operations);
 if (3 !== count(array_filter($secondPlan['actions'], static fn (array $action): bool => 'no-change' === $action['action']))) { throw new RuntimeException('Second Plan was not all no-change.'); }
 
-$failedState = ['records' => [], 'otherProducts' => ['frozen' => true], 'siteB' => ['frozen' => true], 'rollbacks' => 0];
+$sharedState = ['records' => [], 'sharedCoatings' => true, 'writes' => 0, 'rollbacks' => 0];
+$sharedSnapshot = null;
+$sharedOperations = $operations;
+$sharedOperations['begin'] = static function () use (&$sharedState, &$sharedSnapshot): void { $sharedSnapshot = $sharedState; };
+$sharedOperations['rollback'] = static function () use (&$sharedState, &$sharedSnapshot): void { $sharedState = $sharedSnapshot; ++$sharedState['rollbacks']; };
+$sharedOperations['commit'] = static function (): void { throw new RuntimeException('Shared target committed.'); };
+$sharedOperations['assert_site_a_targets'] = static function () use (&$sharedState): void { if ($sharedState['sharedCoatings']) throw new RuntimeException('Coatings is shared outside Site A.'); };
+$sharedOperations['find'] = static fn (): ?array => null;
+$sharedOperations['write'] = static function () use (&$sharedState): void { ++$sharedState['writes']; };
+$sharedOperations['snapshot_other_products'] = static fn (): string => 'other';
+$sharedOperations['snapshot_site_b'] = static fn (): string => 'site-b';
+$sharedOperations['snapshot_shared_storage'] = static fn (): string => 'shared';
+try { tio2_site_a_product_representative_execute('apply', $fixture, $hash, $planDigest, $sharedOperations); throw new RuntimeException('Apply accepted a shared Coatings target.'); } catch (RuntimeException $expected) { if ('Coatings is shared outside Site A.' !== $expected->getMessage()) throw $expected; }
+if (0 !== $sharedState['writes'] || 1 !== $sharedState['rollbacks']) { throw new RuntimeException('Shared target rejection wrote state or did not roll back.'); }
+
+$failedState = ['records' => [], 'otherProducts' => ['frozen' => true], 'siteB' => ['frozen' => true], 'sharedStorage' => ['options' => ['site-b-product-copy' => 'frozen'], 'termmeta' => ['site-b-coatings-copy' => 'frozen']], 'writes' => 0, 'rollbacks' => 0];
 $failedSnapshot = null;
 $failedOperations = $operations;
 $failedOperations['begin'] = static function () use (&$failedState, &$failedSnapshot): void { $failedSnapshot = $failedState; };
 $failedOperations['commit'] = static function (): void { throw new RuntimeException('Failed Apply committed.'); };
 $failedOperations['rollback'] = static function () use (&$failedState, &$failedSnapshot): void { $failedState = $failedSnapshot; ++$failedState['rollbacks']; };
-$failedOperations['find'] = static function (): ?array { return null; };
-$failedOperations['write'] = static function (array $record) use (&$failedState): void { if ('coatings' === $record['target']) throw new RuntimeException('Injected write failure.'); $failedState['records'][$record['target']] = $record; };
+$failedOperations['assert_site_a_targets'] = static function (): void {};
+$failedOperations['find'] = static function (string $target) use (&$failedState): ?array { return $failedState['records'][$target] ?? null; };
+$failedOperations['write'] = static function (array $record) use (&$failedState): void { $failedState['records'][$record['target']] = $record; ++$failedState['writes']; if ('coatings' === $record['target']) { $failedState['sharedStorage']['options']['site-b-product-copy'] = 'changed'; $failedState['sharedStorage']['termmeta']['site-b-coatings-copy'] = 'changed'; } };
 $failedOperations['snapshot_other_products'] = static fn (): string => 'other';
 $failedOperations['assert_other_products'] = static function (): void {};
 $failedOperations['snapshot_site_b'] = static fn (): string => 'site-b';
 $failedOperations['assert_site_b'] = static function (): void {};
+$failedOperations['snapshot_shared_storage'] = static function () use (&$failedState, $digest): string { return $digest($failedState['sharedStorage']); };
+$failedOperations['assert_shared_storage'] = static function (string $before) use (&$failedState, $digest): void { if ($before !== $digest($failedState['sharedStorage'])) throw new RuntimeException('Shared Site B option or term meta changed.'); };
 $failedOperations['assert_anonymous_hidden'] = static function (): void {};
-try { tio2_site_a_product_representative_execute('apply', $fixture, $hash, $hash, $failedOperations); throw new RuntimeException('Injected failure did not escape.'); } catch (RuntimeException $expected) { if ('Injected write failure.' !== $expected->getMessage()) throw $expected; }
-if ([] !== $failedState['records'] || ['frozen' => true] !== $failedState['otherProducts'] || ['frozen' => true] !== $failedState['siteB'] || 1 !== $failedState['rollbacks']) { throw new RuntimeException('Failed Apply did not roll back.'); }
+try { tio2_site_a_product_representative_execute('apply', $fixture, $hash, $planDigest, $failedOperations); throw new RuntimeException('Apply accepted a shared-storage mutation.'); } catch (RuntimeException $expected) { if ('Shared Site B option or term meta changed.' !== $expected->getMessage()) throw $expected; }
+if ([] !== $failedState['records'] || ['frozen' => true] !== $failedState['otherProducts'] || ['frozen' => true] !== $failedState['siteB'] || ['site-b-product-copy' => 'frozen'] !== $failedState['sharedStorage']['options'] || ['site-b-coatings-copy' => 'frozen'] !== $failedState['sharedStorage']['termmeta'] || 1 !== $failedState['rollbacks']) { throw new RuntimeException('Shared-storage failure did not roll back.'); }
 
 echo json_encode(['targets' => array_column($normalized, 'target'), 'writes' => $state['writes'], 'commits' => $state['commits'], 'rollbacks' => $failedState['rollbacks'], 'otherProducts' => $state['otherProducts'], 'siteB' => $state['siteB']], JSON_THROW_ON_ERROR);
 `,

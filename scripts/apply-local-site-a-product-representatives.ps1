@@ -25,10 +25,6 @@ foreach ($RequiredFile in @($EnvironmentFile, $ComposeFile, $ImporterPath, $Appr
 }
 & (Join-Path $PSScriptRoot 'assert-local-wordpress-env.ps1') -EnvironmentPath $EnvironmentFile | Out-Null
 
-$ComposeText = Get-Content -Raw -LiteralPath $ComposeFile
-if ($ComposeText -notmatch '(?m)^\s*-\s*127\.0\.0\.1:8080:80\s*$') {
-    throw 'The representative-content importer requires WordPress bound only to 127.0.0.1:8080.'
-}
 if (
     [string]::IsNullOrWhiteSpace($FixturePath) -or
     $FixturePath.IndexOfAny([char[]]'*?') -ge 0 -or
@@ -44,6 +40,82 @@ if (
     throw 'FixturePath must resolve to the approved committed Site A representative fixture.'
 }
 
+foreach ($DockerOverride in @('DOCKER_HOST', 'DOCKER_CONTEXT', 'DOCKER_TLS_VERIFY', 'DOCKER_CERT_PATH', 'DOCKER_CONFIG')) {
+    $OverrideValue = [Environment]::GetEnvironmentVariable($DockerOverride, 'Process')
+    if (-not [string]::IsNullOrWhiteSpace($OverrideValue)) {
+        throw "The local representative importer rejects Docker environment overrides ($DockerOverride)."
+    }
+}
+
+$PreviousPreference = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
+try {
+    $DockerContextOutput = & docker context show 2>$null
+    $DockerContextExitCode = $LASTEXITCODE
+}
+finally { $ErrorActionPreference = $PreviousPreference }
+$DockerContext = ([string]($DockerContextOutput | Select-Object -Last 1)).Trim()
+if ($DockerContextExitCode -ne 0 -or $DockerContext -notmatch '^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$') {
+    throw 'The local representative importer could not resolve one safe Docker context.'
+}
+
+$PreviousPreference = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
+try {
+    $DockerEndpointOutput = & docker context inspect $DockerContext --format '{{json .Endpoints.docker.Host}}' 2>$null
+    $DockerEndpointExitCode = $LASTEXITCODE
+}
+finally { $ErrorActionPreference = $PreviousPreference }
+try { $DockerEndpoint = [string](($DockerEndpointOutput | Select-Object -Last 1) | ConvertFrom-Json) }
+catch { throw 'The verified Docker context did not return one local engine endpoint.' }
+if (
+    $DockerEndpointExitCode -ne 0 -or
+    ($DockerEndpoint -notmatch '^npipe:////\./pipe/[A-Za-z0-9._-]+$' -and $DockerEndpoint -notmatch '^unix:///[^\s]+$')
+) {
+    throw 'The representative-content importer permits only a local Docker named pipe or Unix socket.'
+}
+
+$PreviousPreference = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
+try {
+    $RenderedComposeOutput = & docker --context $DockerContext compose --env-file 'wordpress/.env' -f 'wordpress/docker-compose.yml' config --format json 2>$null
+    $RenderedComposeExitCode = $LASTEXITCODE
+}
+finally { $ErrorActionPreference = $PreviousPreference }
+if ($RenderedComposeExitCode -ne 0) {
+    throw 'The local representative importer could not render the verified Docker Compose configuration.'
+}
+try { $RenderedCompose = ($RenderedComposeOutput -join "`n") | ConvertFrom-Json }
+catch { throw 'The verified Docker Compose configuration was not valid JSON.' }
+$PublishedBindings = @()
+foreach ($Service in @($RenderedCompose.services.PSObject.Properties)) {
+    $PortsProperty = $Service.Value.PSObject.Properties['ports']
+    if ($null -eq $PortsProperty) {
+        continue
+    }
+    foreach ($Port in @($PortsProperty.Value)) {
+        if ($null -ne $Port -and $null -ne $Port.published) {
+            $PublishedBindings += $Port
+        }
+    }
+}
+if (0 -eq $PublishedBindings.Count) {
+    throw 'The verified Docker Compose configuration did not publish local WordPress.'
+}
+foreach ($Port in $PublishedBindings) {
+    if ([string]$Port.host_ip -notin @('127.0.0.1', '::1')) {
+        throw 'Every published Docker Compose binding must use an explicit loopback address.'
+    }
+}
+$WordPressBindings = @($RenderedCompose.services.wordpress.ports | Where-Object { $null -ne $_ -and $null -ne $_.published })
+if (
+    1 -ne $WordPressBindings.Count -or
+    [string]$WordPressBindings[0].host_ip -cne '127.0.0.1' -or
+    [string]$WordPressBindings[0].published -cne '8080' -or
+    [int]$WordPressBindings[0].target -ne 80
+) {
+    throw 'The representative-content importer requires WordPress rendered only on 127.0.0.1:8080.'
+}
 & npm test -- tests/unit/products/page-schema.test.ts tests/unit/products/page-dto.test.ts
 if ($LASTEXITCODE -ne 0) {
     throw 'The approved representative fixture did not satisfy the Task 4 contracts.'
@@ -119,6 +191,7 @@ function Invoke-RepresentativeImport {
     try {
         [System.IO.File]::WriteAllText($CapabilityPath, ($Capability | ConvertTo-Json -Compress), [System.Text.UTF8Encoding]::new($false))
         $Arguments = @(
+            '--context', $DockerContext,
             'compose', '--env-file', 'wordpress/.env', '-f', 'wordpress/docker-compose.yml',
             'run', '--rm', '--no-TTY', '--user', '33:33',
             '-e', "TIO2_LOCAL_PRODUCT_REPRESENTATIVE_CAPABILITY=$($Capability.token)",
@@ -160,15 +233,24 @@ try {
     if ($SourceHashBefore -cne $SourceHashAfter -or $RuntimeHash -cne $SourceHashBefore) {
         throw 'The approved fixture changed while its staged snapshot was being created.'
     }
-    $PlanCapability = New-RepresentativeCapability -CapabilityMode 'plan' -RuntimeFixturePath $RuntimeFixturePath -FixtureSha256 $RuntimeHash -PlanSha256 $RuntimeHash
+    $PlanCapability = New-RepresentativeCapability -CapabilityMode 'plan' -RuntimeFixturePath $RuntimeFixturePath -FixtureSha256 $RuntimeHash -PlanSha256 ('0' * 64)
     $PlanResult = Invoke-RepresentativeImport -Capability $PlanCapability
-    if ([string]$PlanResult.fixtureSha256 -cne $RuntimeHash -or [string]$PlanResult.mode -cne 'plan') {
+    if (
+        [string]$PlanResult.fixtureSha256 -cne $RuntimeHash -or
+        [string]$PlanResult.mode -cne 'plan' -or
+        [string]$PlanResult.planSha256 -notmatch '^[a-f0-9]{64}$' -or
+        [string]$PlanResult.planSha256 -ceq $RuntimeHash
+    ) {
         throw 'The representative Plan result did not match the staged fixture hash.'
     }
     if ($Mode -eq 'Apply') {
-        $ApplyCapability = New-RepresentativeCapability -CapabilityMode 'apply' -RuntimeFixturePath $RuntimeFixturePath -FixtureSha256 $RuntimeHash -PlanSha256 ([string]$PlanResult.fixtureSha256)
+        $ApplyCapability = New-RepresentativeCapability -CapabilityMode 'apply' -RuntimeFixturePath $RuntimeFixturePath -FixtureSha256 $RuntimeHash -PlanSha256 ([string]$PlanResult.planSha256)
         $ApplyResult = Invoke-RepresentativeImport -Capability $ApplyCapability
-        if ([string]$ApplyResult.fixtureSha256 -cne $RuntimeHash -or [string]$ApplyResult.mode -cne 'apply') {
+        if (
+            [string]$ApplyResult.fixtureSha256 -cne $RuntimeHash -or
+            [string]$ApplyResult.planSha256 -cne [string]$PlanResult.planSha256 -or
+            [string]$ApplyResult.mode -cne 'apply'
+        ) {
             throw 'The representative Apply result did not match its exact Plan hash.'
         }
     }

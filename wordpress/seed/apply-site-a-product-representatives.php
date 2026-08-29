@@ -256,19 +256,36 @@ function tio2_site_a_product_representative_equal(array $left, array $right): bo
 }
 
 /**
+ * @param list<array{target: string, action: string, record: array<string, mixed>}> $actions
+ * @param array<string, array<string, mixed>|null> $before
+ */
+function tio2_site_a_product_representative_plan_digest(string $fixture_sha256, array $actions, array $before): string
+{
+    $normalized_actions = array_map(static fn (array $action): array => [
+        'target' => $action['target'],
+        'action' => $action['action'],
+    ], $actions);
+    return hash('sha256', (string) wp_json_encode(tio2_site_a_product_representative_normalize([
+        'fixtureSha256' => $fixture_sha256,
+        'actions' => $normalized_actions,
+        'before' => $before,
+    ])));
+}
+
+/**
  * @param array<string, mixed> $fixture
  * @param array<string, callable> $operations
- * @return array{mode: string, fixtureSha256: string, actions: list<array{target: string, action: string, record: array<string, mixed>}>}
+ * @return array{mode: string, fixtureSha256: string, planSha256: string, actions: list<array{target: string, action: string, record: array<string, mixed>}>}
  */
 function tio2_site_a_product_representative_execute(string $mode, array $fixture, string $fixture_sha256, ?string $plan_sha256, array $operations): array
 {
     if (! in_array($mode, ['plan', 'apply'], true) || 1 !== preg_match('/^[a-f0-9]{64}$/D', $fixture_sha256)) {
         throw new InvalidArgumentException('Representative importer mode or fixture hash is invalid.');
     }
-    if ('apply' === $mode && (! is_string($plan_sha256) || ! hash_equals($fixture_sha256, $plan_sha256))) {
-        throw new InvalidArgumentException('Apply requires the exact current representative Plan hash.');
+    if ('apply' === $mode && (! is_string($plan_sha256) || 1 !== preg_match('/^[a-f0-9]{64}$/D', $plan_sha256))) {
+        throw new InvalidArgumentException('Apply requires a valid representative Plan digest.');
     }
-    foreach (['begin', 'commit', 'rollback', 'find', 'write', 'snapshot_other_products', 'assert_other_products', 'snapshot_site_b', 'assert_site_b', 'assert_anonymous_hidden'] as $name) {
+    foreach (['begin', 'commit', 'rollback', 'assert_site_a_targets', 'find', 'write', 'snapshot_other_products', 'assert_other_products', 'snapshot_site_b', 'assert_site_b', 'snapshot_shared_storage', 'assert_shared_storage', 'assert_anonymous_hidden'] as $name) {
         if (! isset($operations[$name]) || ! is_callable($operations[$name])) {
             throw new InvalidArgumentException("Representative importer operation {$name} is required.");
         }
@@ -278,18 +295,26 @@ function tio2_site_a_product_representative_execute(string $mode, array $fixture
     try {
         $operations['begin']();
         $started = true;
+        $operations['assert_site_a_targets']();
         $other_hash = $operations['snapshot_other_products']();
         $site_b_hash = $operations['snapshot_site_b']();
+        $shared_storage_hash = $operations['snapshot_shared_storage']();
         $actions = [];
+        $before = [];
         foreach ($records as $record) {
             $existing = $operations['find']($record['target']);
+            $before[$record['target']] = is_array($existing) ? $existing : null;
             $action = is_array($existing) && tio2_site_a_product_representative_equal($existing, $record) ? 'no-change' : 'update';
             $actions[] = ['target' => $record['target'], 'action' => $action, 'record' => $record];
         }
+        $current_plan_digest = tio2_site_a_product_representative_plan_digest($fixture_sha256, $actions, $before);
         if ('plan' === $mode) {
             $operations['rollback']();
             $started = false;
-            return ['mode' => 'plan', 'fixtureSha256' => $fixture_sha256, 'actions' => $actions];
+            return ['mode' => 'plan', 'fixtureSha256' => $fixture_sha256, 'planSha256' => $current_plan_digest, 'actions' => $actions];
+        }
+        if (! hash_equals($current_plan_digest, (string) $plan_sha256)) {
+            throw new InvalidArgumentException('Apply rejected a stale or unrelated representative Plan digest.');
         }
         foreach ($actions as $action) {
             if ('no-change' !== $action['action']) {
@@ -304,10 +329,11 @@ function tio2_site_a_product_representative_execute(string $mode, array $fixture
         }
         $operations['assert_other_products']($other_hash);
         $operations['assert_site_b']($site_b_hash);
+        $operations['assert_shared_storage']($shared_storage_hash);
         $operations['assert_anonymous_hidden']();
         $operations['commit']();
         $started = false;
-        return ['mode' => 'apply', 'fixtureSha256' => $fixture_sha256, 'actions' => $actions];
+        return ['mode' => 'apply', 'fixtureSha256' => $fixture_sha256, 'planSha256' => $current_plan_digest, 'actions' => $actions];
     } catch (Throwable $error) {
         if ($started) {
             $operations['rollback']();
@@ -337,8 +363,7 @@ function tio2_site_a_product_representative_read_capability(array $args): array
         1 !== preg_match('/^\.runtime-site-a-product-representatives-[a-f0-9]{32}\.json$/D', basename($fixture_path)) ||
         ! is_string($capability['fixtureSha256'] ?? null) || ! hash_equals(TIO2_SITE_A_PRODUCT_REPRESENTATIVE_SHA256, $capability['fixtureSha256']) ||
         ! hash_equals($capability['fixtureSha256'], hash_file('sha256', $fixture_path)) ||
-        ! is_string($capability['planSha256'] ?? null) ||
-        ('apply' === $capability['mode'] && ! hash_equals($capability['fixtureSha256'], $capability['planSha256']))) {
+        ! is_string($capability['planSha256'] ?? null) || 1 !== preg_match('/^[a-f0-9]{64}$/D', $capability['planSha256'])) {
         throw new RuntimeException('The local representative capability contract was rejected.');
     }
     $capability['fixturePath'] = $fixture_path;
@@ -536,6 +561,119 @@ function tio2_site_a_product_representative_other_products_hash(): string
     return tio2_site_a_product_representative_posts_hash(array_map('intval', $ids));
 }
 
+/** @param list<array<string, mixed>> $definitions @return array<string, list<string>> */
+function tio2_site_a_product_representative_storage_shapes(array $definitions): array
+{
+    $shapes = [];
+    foreach ($definitions as $field) {
+        $name = (string) ($field['name'] ?? '');
+        if ('' === $name) {
+            continue;
+        }
+        $sub_fields = [];
+        if ('repeater' === ($field['type'] ?? null)) {
+            foreach ($field['sub_fields'] ?? [] as $sub_field) {
+                if (is_array($sub_field) && is_string($sub_field['name'] ?? null) && '' !== $sub_field['name']) {
+                    $sub_fields[] = $sub_field['name'];
+                }
+            }
+        }
+        $shapes[$name] = $sub_fields;
+    }
+    return $shapes;
+}
+
+/** @param array<string, list<string>> $shapes */
+function tio2_site_a_product_representative_is_target_storage_key(string $key, array $shapes, bool $option): bool
+{
+    foreach ($shapes as $name => $sub_fields) {
+        $candidates = $option ? ['options_' . $name, '_options_' . $name] : [$name, '_' . $name];
+        foreach ($candidates as $candidate) {
+            if ($key === $candidate) {
+                return true;
+            }
+            foreach ($sub_fields as $sub_field) {
+                if (1 === preg_match('/^' . preg_quote($candidate, '/') . '_[0-9]+_' . preg_quote($sub_field, '/') . '$/D', $key)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+function tio2_site_a_product_representative_assert_wp_targets(): void
+{
+    global $wpdb;
+    if (! function_exists('tio2_resolve_products_hub') || ! function_exists('tio2_resolve_product_family') || ! function_exists('tio2_product_shared_field_definitions')) {
+        throw new RuntimeException('Representative target ownership contracts are unavailable.');
+    }
+    if (null !== tio2_resolve_products_hub(null, ['siteId' => 'tio2-b']) || null !== tio2_resolve_product_family(null, ['siteId' => 'tio2-b', 'slug' => 'coatings'])) {
+        throw new RuntimeException('Representative option or term target is exposed outside Site A.');
+    }
+    $hub_storage = [];
+    foreach (tio2_product_hub_field_definitions() as $field) {
+        $hub_storage[] = (string) ($field['name'] ?? '');
+        $hub_storage[] = (string) ($field['key'] ?? '');
+    }
+    $shared_storage = [];
+    foreach (tio2_product_shared_field_definitions() as $field) {
+        $shared_storage[] = (string) ($field['name'] ?? '');
+        $shared_storage[] = (string) ($field['key'] ?? '');
+    }
+    if ([] !== array_values(array_intersect($hub_storage, $shared_storage))) {
+        throw new RuntimeException('Representative Hub option fields overlap shared Product options.');
+    }
+    $term = get_term_by('slug', 'coatings', 'product_family');
+    if (! $term instanceof WP_Term) {
+        throw new RuntimeException('The Site A Coatings term is missing.');
+    }
+    $object_ids = $wpdb->get_col($wpdb->prepare(
+        "SELECT tr.object_id FROM {$wpdb->term_relationships} tr INNER JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id=tr.term_taxonomy_id WHERE tt.taxonomy='product_family' AND tt.term_id=%d ORDER BY tr.object_id",
+        $term->term_id
+    ));
+    if ('' !== $wpdb->last_error) {
+        throw new RuntimeException('Could not prove Coatings term ownership.');
+    }
+    foreach (array_map('intval', $object_ids) as $object_id) {
+        $scopes = wp_get_object_terms($object_id, 'site_scope', ['fields' => 'slugs']);
+        if (is_wp_error($scopes) || ['tio2-a'] !== array_values($scopes)) {
+            throw new RuntimeException('Coatings is shared outside Site A.');
+        }
+    }
+}
+
+function tio2_site_a_product_representative_shared_storage_hash(): string
+{
+    global $wpdb;
+    $hub_shapes = tio2_site_a_product_representative_storage_shapes(tio2_product_hub_field_definitions());
+    $family_shapes = tio2_site_a_product_representative_storage_shapes(tio2_product_family_field_definitions());
+    $coatings = get_term_by('slug', 'coatings', 'product_family');
+    if (! $coatings instanceof WP_Term) {
+        throw new RuntimeException('The Site A Coatings term is missing.');
+    }
+    $option_rows = $wpdb->get_results("SELECT option_name, option_value, autoload FROM {$wpdb->options} ORDER BY option_name", ARRAY_A);
+    if (! is_array($option_rows) || '' !== $wpdb->last_error) {
+        throw new RuntimeException('Could not snapshot protected WordPress options.');
+    }
+    $protected_options = array_values(array_filter($option_rows, static fn (array $row): bool =>
+        ! tio2_site_a_product_representative_is_target_storage_key((string) ($row['option_name'] ?? ''), $hub_shapes, true)
+    ));
+    $term_rows = $wpdb->get_results("SELECT meta_id, term_id, meta_key, meta_value FROM {$wpdb->termmeta} ORDER BY meta_id", ARRAY_A);
+    if (! is_array($term_rows) || '' !== $wpdb->last_error) {
+        throw new RuntimeException('Could not snapshot protected term metadata.');
+    }
+    $coatings_id = (int) $coatings->term_id;
+    $protected_termmeta = array_values(array_filter($term_rows, static fn (array $row): bool =>
+        $coatings_id !== (int) ($row['term_id'] ?? 0) ||
+        ! tio2_site_a_product_representative_is_target_storage_key((string) ($row['meta_key'] ?? ''), $family_shapes, false)
+    ));
+    return tio2_site_a_product_representative_database_hash([
+        'options' => $protected_options,
+        'termmeta' => $protected_termmeta,
+    ]);
+}
+
 /** @return string */
 function tio2_site_a_product_representative_site_b_hash(): string
 {
@@ -563,12 +701,15 @@ if (defined('WP_CLI') && WP_CLI) {
                 'begin' => static function () use ($wpdb): void { if (false === $wpdb->query('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE') || false === $wpdb->query('START TRANSACTION')) throw new RuntimeException('Could not start representative transaction.'); },
                 'commit' => static function () use ($wpdb): void { if (false === $wpdb->query('COMMIT')) throw new RuntimeException('Could not COMMIT representative transaction.'); },
                 'rollback' => static function () use ($wpdb): void { if (false === $wpdb->query('ROLLBACK')) throw new RuntimeException('Could not ROLLBACK representative transaction.'); },
+                'assert_site_a_targets' => static function (): void { tio2_site_a_product_representative_assert_wp_targets(); },
                 'find' => static fn (string $target): array => tio2_site_a_product_representative_find_wp($expected[$target]),
                 'write' => static fn (array $record) => tio2_site_a_product_representative_write_wp($record),
                 'snapshot_other_products' => static fn (): string => tio2_site_a_product_representative_other_products_hash(),
                 'assert_other_products' => static function (string $hash): void { if (! hash_equals($hash, tio2_site_a_product_representative_other_products_hash())) throw new RuntimeException('A non-target Product changed.'); },
                 'snapshot_site_b' => static fn (): string => tio2_site_a_product_representative_site_b_hash(),
                 'assert_site_b' => static function (string $hash): void { if (! hash_equals($hash, tio2_site_a_product_representative_site_b_hash())) throw new RuntimeException('Site B changed.'); },
+                'snapshot_shared_storage' => static fn (): string => tio2_site_a_product_representative_shared_storage_hash(),
+                'assert_shared_storage' => static function (string $hash): void { if (! hash_equals($hash, tio2_site_a_product_representative_shared_storage_hash())) throw new RuntimeException('Shared Site B option or term meta changed.'); },
                 'assert_anonymous_hidden' => static function (): void {
                     $post = get_post(tio2_site_a_product_representative_post_id('TP-C120'));
                     $user_id = get_current_user_id();
@@ -583,6 +724,7 @@ if (defined('WP_CLI') && WP_CLI) {
         }
         WP_CLI::log('TIO2_SITE_A_PRODUCT_REPRESENTATIVE_RESULT ' . wp_json_encode([
             'mode' => $result['mode'], 'fixtureSha256' => $result['fixtureSha256'],
+            'planSha256' => $result['planSha256'],
             'actions' => array_map(static fn (array $action): array => ['target' => $action['target'], 'action' => $action['action']], $result['actions']),
         ]));
     } catch (Throwable $error) {
