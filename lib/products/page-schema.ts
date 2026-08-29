@@ -264,6 +264,32 @@ const hubPresentation = z
     footerDescription: text(),
   })
   .strict()
+export const APPROVED_COATINGS_FILTERS = [
+  {slug: 'all', label: 'All directions'},
+  {slug: 'water', label: 'Water-based'},
+  {slug: 'architectural', label: 'Architectural'},
+  {slug: 'automotive', label: 'Automotive & exterior'},
+  {slug: 'specialty', label: 'Specialty'},
+] as const
+
+export const APPROVED_COATINGS_CANDIDATES = [
+  {productId: 'TP-C050', highlights: 'Low ion content · Electrical resistivity · Whiteness · Gloss', badge: null},
+  {productId: 'TP-C100', highlights: 'Neutral tint · Hiding power · Whiteness · Durability', badge: null},
+  {productId: 'TP-C110', highlights: 'Neutral tint · Hiding power · Whiteness · Durability', badge: null},
+  {productId: 'TP-C120', highlights: 'Relatively low viscosity · Bluish tone · Hiding power · Gloss · Durability', badge: 'Premium'},
+  {productId: 'TP-C200', highlights: 'Dry hiding power · Weather resistance · Water dispersibility · Oil absorption', badge: null},
+  {productId: 'TP-C300', highlights: 'Durability · Weather resistance · Gloss · Hiding power', badge: null},
+  {productId: 'TP-C310', highlights: 'Water dispersibility · Storage stability · Weather resistance · Chalk resistance', badge: null},
+  {productId: 'TP-C400', highlights: 'Ultra-high weather resistance · Chalk resistance · Color retention · Dispersibility', badge: null},
+  {productId: 'TP-C410', highlights: 'Extremely high weather resistance · Chalk resistance · Color retention · Dispersibility', badge: null},
+] as const
+
+const APPROVED_COATINGS_RESOURCE_IDS = [
+  'article-08',
+  'article-10',
+  'article-07',
+] as const
+
 export const APPROVED_PRODUCT_FAMILY_PRESENTATION = {
   breadcrumb: {homeLabel: 'Home', productsLabel: 'Products'},
   hero: {
@@ -286,6 +312,7 @@ export const APPROVED_PRODUCT_FAMILY_PRESENTATION = {
     resetLabel: 'Reset filters',
     noResults: 'No matching coatings grades',
     candidateActionLabel: 'View Product',
+    candidates: APPROVED_COATINGS_CANDIDATES,
   },
   comparison: {
     eyebrow: 'Grade Comparison',
@@ -369,6 +396,17 @@ const familyPresentation = z
         resetLabel: text(120),
         noResults: text(180),
         candidateActionLabel: text(120),
+        candidates: z
+          .array(
+            z
+              .object({
+                productId: text(80),
+                highlights: text(),
+                badge: text(80).nullable(),
+              })
+              .strict(),
+          )
+          .length(9),
       })
       .strict(),
     comparison: z
@@ -640,6 +678,46 @@ export const productFamilyPageInputSchema = z
       page.hero.image !== '/site-a/products/coatings-family-hero.png'
     ) {
       addMismatch(context, 'Coatings image must be approved', ['hero', 'image'])
+    }
+
+    if (
+      page.identity.familySlug === 'coatings' &&
+      JSON.stringify(page.filters) !== JSON.stringify(APPROVED_COATINGS_FILTERS)
+    ) {
+      addMismatch(
+        context,
+        'Coatings filters must preserve the approved sentinel, labels, and order',
+        ['filters'],
+      )
+    }
+    if (
+      page.identity.familySlug === 'coatings' &&
+      JSON.stringify(page.presentation.familyNavigation.candidates) !==
+        JSON.stringify(APPROVED_COATINGS_CANDIDATES)
+    ) {
+      addMismatch(
+        context,
+        'Coatings candidate highlights must preserve the approved distinctions',
+        ['presentation', 'familyNavigation', 'candidates'],
+      )
+    }
+    if (
+      page.identity.familySlug === 'coatings' &&
+      JSON.stringify(page.resources.map(({id}) => id)) !==
+        JSON.stringify(APPROVED_COATINGS_RESOURCE_IDS)
+    ) {
+      addMismatch(
+        context,
+        'Coatings resources must preserve the approved IDs and order',
+        ['resources'],
+      )
+    }
+    if (page.presentation.resources.cards.length !== page.resources.length) {
+      addMismatch(
+        context,
+        'Product Family resource presentation must match every resource',
+        ['presentation', 'resources', 'cards'],
+      )
     }
 
     const filterSlugs = new Set<string>()

@@ -119,6 +119,17 @@ foreach (array_keys(tio2_product_collection_membership()) as $family_slug) {
     foreach (tio2_product_family_field_definitions() as $field) {
         update_field((string) $field['key'], tio2_product_collection_graphql_value($field), $object_id);
     }
+    if ('coatings' === $family_slug) {
+        update_field(
+            'field_tio2_product_family_filters',
+            array_map(
+                static fn (string $label, string $slug): array => ['slug' => $slug, 'label' => $label],
+                tio2_product_collection_coatings_filters(),
+                array_keys(tio2_product_collection_coatings_filters())
+            ),
+            $object_id
+        );
+    }
 }
 
 $coatings_ids = [];
@@ -157,7 +168,7 @@ foreach (tio2_product_collection_membership() as $family_slug => $product_ids) {
         update_field('field_tio2_product_collection_application_focus', "{$product_id} application focus", $post_id);
         update_field('field_tio2_product_collection_performance_focus', "{$product_id} performance focus", $post_id);
         update_field('field_tio2_product_collection_surface_treatment_positioning', "{$product_id} treatment", $post_id);
-        update_field('field_tio2_product_collection_filter_tags', ['application'], $post_id);
+        update_field('field_tio2_product_collection_filter_tags', ['coatings' === $family_slug ? 'water' : 'application'], $post_id);
         tio2_product_collection_graphql_set_status($post_id, 'publish');
         if ('coatings' === $family_slug) {
             $coatings_ids[$product_id] = $post_id;
@@ -232,14 +243,20 @@ if (is_array($family)) {
     tio2_product_collection_graphql_assert(
         'tio2-a' === $family['siteId'] && 'family' === $family['level'] &&
         '/products/coatings' === $family['path'] && 'coatings' === $family['slug'] &&
-        [['slug' => 'application', 'label' => 'Application']] === $family['filters'],
+        [
+            ['slug' => 'all', 'label' => 'All directions'],
+            ['slug' => 'water', 'label' => 'Water-based'],
+            ['slug' => 'architectural', 'label' => 'Architectural'],
+            ['slug' => 'automotive', 'label' => 'Automotive & exterior'],
+            ['slug' => 'specialty', 'label' => 'Specialty'],
+        ] === $family['filters'],
         'Coatings identity or controlled Family filters are wrong.'
     );
     tio2_product_collection_graphql_assert(
         9 === count($family['products']) && range(1, 9) === array_column($family['products'], 'displayOrder') &&
         tio2_product_collection_membership()['coatings'] === array_column($family['products'], 'productId') &&
         '/products/coatings/tp-c050' === $family['products'][0]['path'] &&
-        ['application'] === $family['products'][0]['filterTags'],
+        ['water'] === $family['products'][0]['filterTags'],
         'Coatings products are not the exact nine ordered, tagged canonical cards.'
     );
     $encoded = strtolower((string) wp_json_encode($family));
@@ -247,6 +264,39 @@ if (is_array($family)) {
         tio2_product_collection_graphql_assert(false === strpos($encoded, $forbidden), "Family GraphQL exposed forbidden value {$forbidden}.");
     }
 }
+
+$coatings_filter_object_id = 'product_family_' . $families['coatings'];
+$coatings_filters = array_map(
+    static fn (string $label, string $slug): array => ['slug' => $slug, 'label' => $label],
+    tio2_product_collection_coatings_filters(),
+    array_keys(tio2_product_collection_coatings_filters())
+);
+update_field('field_tio2_product_family_filters', array_reverse($coatings_filters), $coatings_filter_object_id);
+$wrong_order_family = $query_family('tio2-a', 'coatings');
+tio2_product_collection_graphql_assert(
+    ! isset($wrong_order_family['errors']) && null === ($wrong_order_family['data']['tio2ProductFamily'] ?? null),
+    'GraphQL accepted reordered Coatings Family filters.'
+);
+update_field('field_tio2_product_family_filters', array_slice($coatings_filters, 1), $coatings_filter_object_id);
+$missing_all_family = $query_family('tio2-a', 'coatings');
+tio2_product_collection_graphql_assert(
+    ! isset($missing_all_family['errors']) && null === ($missing_all_family['data']['tio2ProductFamily'] ?? null),
+    'GraphQL accepted Coatings Family filters without the all sentinel.'
+);
+update_field('field_tio2_product_family_filters', $coatings_filters, $coatings_filter_object_id);
+update_field('field_tio2_product_collection_filter_tags', ['all'], $coatings_ids['TP-C120']);
+$product_all_family = $query_family('tio2-a', 'coatings');
+tio2_product_collection_graphql_assert(
+    ! isset($product_all_family['errors']) && null === ($product_all_family['data']['tio2ProductFamily'] ?? null),
+    'GraphQL accepted the Family-only all sentinel as a Product tag.'
+);
+update_field('field_tio2_product_collection_filter_tags', ['unknown'], $coatings_ids['TP-C120']);
+$unknown_tag_family = $query_family('tio2-a', 'coatings');
+tio2_product_collection_graphql_assert(
+    ! isset($unknown_tag_family['errors']) && null === ($unknown_tag_family['data']['tio2ProductFamily'] ?? null),
+    'GraphQL accepted an unknown Product filter tag.'
+);
+update_field('field_tio2_product_collection_filter_tags', ['water'], $coatings_ids['TP-C120']);
 
 foreach ([['tio2-b', 'coatings'], ['tio2-a', 'unknown-family']] as [$site_id, $slug]) {
     $result = $query_family($site_id, $slug);

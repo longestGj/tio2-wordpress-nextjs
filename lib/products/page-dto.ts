@@ -264,7 +264,12 @@ function normalizeFamily(
           'presentation.hero.enquiryAction',
         )[0]!,
       },
-      familyNavigation: {...page.presentation.familyNavigation},
+      familyNavigation: {
+        ...page.presentation.familyNavigation,
+        candidates: page.presentation.familyNavigation.candidates.map(
+          (candidate) => ({...candidate}),
+        ),
+      },
       comparison: {
         ...page.presentation.comparison,
         headers: {...page.presentation.comparison.headers},

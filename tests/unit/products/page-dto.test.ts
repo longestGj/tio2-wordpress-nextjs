@@ -232,6 +232,17 @@ describe('Product page DTO normalization', () => {
     })
   })
 
+  it('fails closed when Family resources drift beyond the three presentation cards', () => {
+    const input = clone(coatingsFamilyPageInput) as unknown as {
+      resources: Array<{type: 'resource'; id: string}>
+    }
+    input.resources.push({type: 'resource', id: 'article-06'})
+
+    expect(() => toProductFamilyPageDto(input, resolver())).toThrow(
+      ProductPageContractError,
+    )
+  })
+
   it('derives every CTA href from ctaHref and rejects WordPress href input', () => {
     const calls: PageCta['kind'][] = []
     const resolve = resolver()

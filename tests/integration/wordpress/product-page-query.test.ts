@@ -345,6 +345,21 @@ describe('getSiteProductPage', () => {
       searchPlaceholder: 'Filter by model',
       noResults: 'No matching coatings grades',
     })
+    expect(result.presentation.familyNavigation.candidates[3]).toEqual({
+      productId: 'TP-C120',
+      highlights:
+        'Relatively low viscosity · Bluish tone · Hiding power · Gloss · Durability',
+      badge: 'Premium',
+    })
+    expect(result.presentation.familyNavigation.candidates[7]).toEqual({
+      productId: 'TP-C400',
+      highlights:
+        'Ultra-high weather resistance · Chalk resistance · Color retention · Dispersibility',
+      badge: null,
+    })
+    expect(result.comparison.products[7]!.performanceFocus).toBe(
+      'Ultra-high weather resistance, chalk resistance, color retention, gloss, hiding power',
+    )
     expect(result.presentation.resources.cards).toHaveLength(3)
     expect(result.presentation.enquiryContextFields).toHaveLength(5)
     expect(result.presentation.hero.familyAction.href).toBe('#family-candidates')
@@ -466,6 +481,21 @@ describe('getSiteProductPage', () => {
     malformed.tio2ProductFamily.metaTitle = ''
     server.use(http.post(graphqlEndpoint, () => HttpResponse.json({data: malformed})))
     const freshGetSiteProductPage = await loadFreshProductPageReader()
+    await expect(
+      freshGetSiteProductPage(getSiteConfig('tio2-a'), '/products/coatings'),
+    ).rejects.toMatchObject({name: ProductPageContractError.name})
+  })
+
+  it('fails closed when queried Family resources drift beyond the frozen card contract', async () => {
+    const malformed = familyResponse()
+    malformed.tio2ProductFamily.resources.push(
+      collectionLink({type: 'resource', id: 'article-06'}, 599),
+    )
+    server.use(
+      http.post(graphqlEndpoint, () => HttpResponse.json({data: malformed})),
+    )
+    const freshGetSiteProductPage = await loadFreshProductPageReader()
+
     await expect(
       freshGetSiteProductPage(getSiteConfig('tio2-a'), '/products/coatings'),
     ).rejects.toMatchObject({name: ProductPageContractError.name})

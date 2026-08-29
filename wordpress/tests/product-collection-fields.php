@@ -13,9 +13,11 @@ function tio2_product_collection_fields_test_assert(bool $condition, string $mes
 }
 
 foreach ([
+    'tio2_product_collection_coatings_filters',
     'tio2_product_hub_field_definitions',
     'tio2_product_family_field_definitions',
     'tio2_product_collection_display_field_definitions',
+    'tio2_product_collection_product_filter_tag_choices',
     'tio2_register_product_collection_fields',
 ] as $function_name) {
     tio2_product_collection_fields_test_assert(function_exists($function_name), "Missing Product collection field function: {$function_name}().");
@@ -52,6 +54,21 @@ $family_filters = $family_fields[7] ?? [];
 tio2_product_collection_fields_test_assert(
     'repeater' === ($family_filters['type'] ?? null) && isset($family_filters['sub_fields'][0]['choices']),
     'Family filters must use controlled slug/label pairs.'
+);
+tio2_product_collection_fields_test_assert(
+    [
+        'all' => 'All directions',
+        'water' => 'Water-based',
+        'architectural' => 'Architectural',
+        'automotive' => 'Automotive & exterior',
+        'specialty' => 'Specialty',
+    ] === tio2_product_collection_coatings_filters(),
+    'Approved Coatings Family filter vocabulary or order drifted.'
+);
+$product_filter_tags = $display_fields[5]['choices'] ?? [];
+tio2_product_collection_fields_test_assert(
+    ! array_key_exists('all', $product_filter_tags) && $product_filter_tags === tio2_product_collection_product_filter_tag_choices(),
+    'The Family-only all sentinel must never be available as a Product filter tag.'
 );
 $family_faq = $family_fields[15] ?? [];
 tio2_product_collection_fields_test_assert(

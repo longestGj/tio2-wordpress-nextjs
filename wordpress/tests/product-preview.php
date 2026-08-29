@@ -854,6 +854,17 @@ foreach (array_keys(tio2_product_collection_membership()) as $family_slug) {
             $family_object_id
         );
     }
+    if ('coatings' === $family_slug) {
+        update_field(
+            'field_tio2_product_family_filters',
+            array_map(
+                static fn (string $label, string $slug): array => ['slug' => $slug, 'label' => $label],
+                tio2_product_collection_coatings_filters(),
+                array_keys(tio2_product_collection_coatings_filters())
+            ),
+            $family_object_id
+        );
+    }
 }
 
 $collection_products = [];
@@ -941,7 +952,11 @@ foreach (tio2_product_collection_membership() as $family_slug => $product_ids) {
         update_field('field_tio2_product_collection_application_focus', "{$collection_product_id} application focus", $collection_post_id);
         update_field('field_tio2_product_collection_performance_focus', "{$collection_product_id} performance focus", $collection_post_id);
         update_field('field_tio2_product_collection_surface_treatment_positioning', "{$collection_product_id} treatment", $collection_post_id);
-        update_field('field_tio2_product_collection_filter_tags', ['application'], $collection_post_id);
+        update_field(
+            'field_tio2_product_collection_filter_tags',
+            ['coatings' === $family_slug ? 'water' : 'application'],
+            $collection_post_id
+        );
         $collection_products[$collection_product_id] = $collection_post_id;
     }
 }
@@ -1003,7 +1018,13 @@ tio2_product_preview_test_assert(
     ] === array_keys($family_payload) &&
         9 === count($family_payload['products']) &&
         range(1, 9) === array_column($family_payload['products'], 'displayOrder') &&
-        [['slug' => 'application', 'label' => 'Application']] === $family_payload['filters'],
+        [
+            ['slug' => 'all', 'label' => 'All directions'],
+            ['slug' => 'water', 'label' => 'Water-based'],
+            ['slug' => 'architectural', 'label' => 'Architectural'],
+            ['slug' => 'automotive', 'label' => 'Automotive & exterior'],
+            ['slug' => 'specialty', 'label' => 'Specialty'],
+        ] === $family_payload['filters'],
     'Family preview did not contain only the approved ordered, controlled Coatings payload.'
 );
 $detail_payload = $collection_responses['detail']->get_data()['payload'] ?? [];

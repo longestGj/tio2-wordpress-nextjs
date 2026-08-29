@@ -95,18 +95,27 @@ function tio2_product_collection_validate_definitions(array $definitions, $objec
 /** @return list<string>|WP_Error */
 function tio2_product_collection_family_filter_slugs(int $term_id): array|WP_Error
 {
+    $term = get_term($term_id, 'product_family');
     $filters = get_field('filters', 'product_family_' . $term_id, false);
-    if (! is_array($filters) || ! array_is_list($filters)) {
+    if (! $term instanceof WP_Term || ! is_array($filters) || ! array_is_list($filters)) {
         return new WP_Error('product_family_filter_invalid', 'Product Family filters must use controlled slug and label pairs.');
     }
     $slugs = [];
-    foreach ($filters as $filter) {
+    $pairs = [];
+    foreach ($filters as $index => $filter) {
         $slug = is_array($filter) ? ($filter['slug'] ?? null) : null;
         $label = is_array($filter) ? ($filter['label'] ?? null) : null;
         if (! is_string($slug) || ! is_string($label) || (tio2_product_collection_filter_choices()[$slug] ?? null) !== $label || isset($slugs[$slug])) {
             return new WP_Error('product_family_filter_invalid', 'Product Family filters must use controlled slug and label pairs.');
         }
+        if ('all' === $slug && 0 !== $index) {
+            return new WP_Error('product_family_filter_invalid', 'The all sentinel must be the first Product Family filter.');
+        }
         $slugs[$slug] = true;
+        $pairs[$slug] = $label;
+    }
+    if ('coatings' === $term->slug && $pairs !== tio2_product_collection_coatings_filters()) {
+        return new WP_Error('product_family_filter_invalid', 'Coatings filters must match the approved controlled order and labels.');
     }
     return array_keys($slugs);
 }
@@ -225,7 +234,7 @@ function tio2_product_canonical_path(int $post_id): string|WP_Error
         return new WP_Error('product_collection_filter_invalid', 'Product collection filters require a valid Product Family configuration.');
     }
     foreach ($tags as $tag) {
-        if (! is_string($tag) || ! array_key_exists($tag, tio2_product_collection_filter_choices())) {
+        if (! is_string($tag) || ! array_key_exists($tag, tio2_product_collection_product_filter_tag_choices())) {
             return new WP_Error('product_collection_filter_invalid', 'Product collection filters must use controlled tags.');
         }
         if (! in_array($tag, $configured_tags, true)) {

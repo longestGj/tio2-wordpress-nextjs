@@ -105,6 +105,11 @@ export interface ProductFamilyPresentation {
     resetLabel: string
     noResults: string
     candidateActionLabel: string
+    candidates: Array<{
+      productId: string
+      highlights: string
+      badge: string | null
+    }>
   }
   comparison: {
     eyebrow: string

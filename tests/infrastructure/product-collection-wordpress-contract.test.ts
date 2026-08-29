@@ -72,4 +72,20 @@ describe('Site A Product collection WordPress contract', () => {
     expect(contract).toContain('Product collection filters must be configured for the Product Family.')
     expect(contract).toMatch(/'taxonomy'\s*=>\s*'product_family'[\s\S]{0,500}'taxonomy'\s*=>\s*'site_scope'/u)
   })
+
+  it('separates the approved Coatings Family filter sentinel from Product tags', () => {
+    const fields = readFileSync(fieldsPath, 'utf8')
+    const contract = readFileSync(contractPath, 'utf8')
+
+    expect(fields).toContain('function tio2_product_collection_coatings_filters(): array')
+    expect(fields).toContain("'all' => 'All directions'")
+    expect(fields).toContain("'water' => 'Water-based'")
+    expect(fields).toContain("'architectural' => 'Architectural'")
+    expect(fields).toContain("'automotive' => 'Automotive & exterior'")
+    expect(fields).toContain("'specialty' => 'Specialty'")
+    expect(fields).toContain('function tio2_product_collection_product_filter_tag_choices(): array')
+    expect(fields).toMatch(/collectionFilterTags'[\s\S]{0,240}tio2_product_collection_product_filter_tag_choices\(\)/u)
+    expect(contract).toContain('tio2_product_collection_coatings_filters()')
+    expect(contract).toContain('tio2_product_collection_product_filter_tag_choices()')
+  })
 })

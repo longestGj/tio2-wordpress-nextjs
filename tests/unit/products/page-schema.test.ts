@@ -189,6 +189,26 @@ const APPROVED_COATINGS_ROWS = [
   },
 ] as const
 
+const APPROVED_COATINGS_FILTERS = [
+  {slug: 'all', label: 'All directions'},
+  {slug: 'water', label: 'Water-based'},
+  {slug: 'architectural', label: 'Architectural'},
+  {slug: 'automotive', label: 'Automotive & exterior'},
+  {slug: 'specialty', label: 'Specialty'},
+] as const
+
+const APPROVED_COATINGS_CANDIDATES = [
+  {productId: 'TP-C050', highlights: 'Low ion content · Electrical resistivity · Whiteness · Gloss', badge: null},
+  {productId: 'TP-C100', highlights: 'Neutral tint · Hiding power · Whiteness · Durability', badge: null},
+  {productId: 'TP-C110', highlights: 'Neutral tint · Hiding power · Whiteness · Durability', badge: null},
+  {productId: 'TP-C120', highlights: 'Relatively low viscosity · Bluish tone · Hiding power · Gloss · Durability', badge: 'Premium'},
+  {productId: 'TP-C200', highlights: 'Dry hiding power · Weather resistance · Water dispersibility · Oil absorption', badge: null},
+  {productId: 'TP-C300', highlights: 'Durability · Weather resistance · Gloss · Hiding power', badge: null},
+  {productId: 'TP-C310', highlights: 'Water dispersibility · Storage stability · Weather resistance · Chalk resistance', badge: null},
+  {productId: 'TP-C400', highlights: 'Ultra-high weather resistance · Chalk resistance · Color retention · Dispersibility', badge: null},
+  {productId: 'TP-C410', highlights: 'Extremely high weather resistance · Chalk resistance · Color retention · Dispersibility', badge: null},
+] as const
+
 describe('three-level Product page schemas', () => {
   it('accepts exactly the approved Hub, Coatings, and TP-C120 records', () => {
     expect(
@@ -294,6 +314,59 @@ describe('three-level Product page schemas', () => {
     const missing = structuredClone(approved)
     delete missing.presentation
     expect(productFamilyPageInputSchema.safeParse(missing).success).toBe(false)
+  })
+
+  it('locks candidate highlights independently from comparison performance copy', () => {
+    const navigation = coatingsFamilyPageInput.presentation.familyNavigation as unknown as {
+      candidates?: unknown
+    }
+
+    expect(navigation.candidates).toEqual(APPROVED_COATINGS_CANDIDATES)
+    expect(coatingsFamilyPageInput.products[7]!.performanceFocus).toBe(
+      'Ultra-high weather resistance, chalk resistance, color retention, gloss, hiding power',
+    )
+    expect(APPROVED_COATINGS_CANDIDATES[7].highlights).toContain('Dispersibility')
+    expect(APPROVED_COATINGS_CANDIDATES[7].highlights).not.toContain('Gloss')
+  })
+
+  it('requires the exact approved Coatings filter sentinel, labels, and order', () => {
+    expect(coatingsFamilyPageInput.filters).toEqual(APPROVED_COATINGS_FILTERS)
+
+    const reordered = clone(coatingsFamilyPageInput)
+    ;[reordered.filters[0], reordered.filters[1]] = [
+      reordered.filters[1]!,
+      reordered.filters[0]!,
+    ]
+    expect(productFamilyPageInputSchema.safeParse(reordered).success).toBe(false)
+
+    const missingAll = clone(coatingsFamilyPageInput)
+    missingAll.filters.shift()
+    expect(productFamilyPageInputSchema.safeParse(missingAll).success).toBe(false)
+
+    const wrongLabel = clone(coatingsFamilyPageInput)
+    wrongLabel.filters[0]!.label = 'Everything'
+    expect(productFamilyPageInputSchema.safeParse(wrongLabel).success).toBe(false)
+
+    const duplicate = clone(coatingsFamilyPageInput)
+    duplicate.filters[4] = structuredClone(duplicate.filters[3]!)
+    expect(productFamilyPageInputSchema.safeParse(duplicate).success).toBe(false)
+  })
+
+  it('requires exact resource/card parity and the approved Coatings resource IDs', () => {
+    const extra = clone(coatingsFamilyPageInput) as unknown as LooseFamilyPage
+    extra.resources.push({type: 'resource', id: 'article-06'})
+    expect(productFamilyPageInputSchema.safeParse(extra).success).toBe(false)
+
+    const reordered = clone(coatingsFamilyPageInput)
+    ;[reordered.resources[0], reordered.resources[1]] = [
+      reordered.resources[1]!,
+      reordered.resources[0]!,
+    ]
+    expect(productFamilyPageInputSchema.safeParse(reordered).success).toBe(false)
+
+    const wrongId = clone(coatingsFamilyPageInput)
+    wrongId.resources[2]!.id = 'article-06'
+    expect(productFamilyPageInputSchema.safeParse(wrongId).success).toBe(false)
   })
 
   it('contains no private document, download, or commercial leakage', () => {

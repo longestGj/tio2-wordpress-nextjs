@@ -190,7 +190,18 @@
           "pluralResultLabel": "matching grades",
           "resetLabel": "Reset filters",
           "noResults": "No matching coatings grades",
-          "candidateActionLabel": "View Product"
+          "candidateActionLabel": "View Product",
+          "candidates": [
+            {"productId": "TP-C050", "highlights": "Low ion content · Electrical resistivity · Whiteness · Gloss", "badge": null},
+            {"productId": "TP-C100", "highlights": "Neutral tint · Hiding power · Whiteness · Durability", "badge": null},
+            {"productId": "TP-C110", "highlights": "Neutral tint · Hiding power · Whiteness · Durability", "badge": null},
+            {"productId": "TP-C120", "highlights": "Relatively low viscosity · Bluish tone · Hiding power · Gloss · Durability", "badge": "Premium"},
+            {"productId": "TP-C200", "highlights": "Dry hiding power · Weather resistance · Water dispersibility · Oil absorption", "badge": null},
+            {"productId": "TP-C300", "highlights": "Durability · Weather resistance · Gloss · Hiding power", "badge": null},
+            {"productId": "TP-C310", "highlights": "Water dispersibility · Storage stability · Weather resistance · Chalk resistance", "badge": null},
+            {"productId": "TP-C400", "highlights": "Ultra-high weather resistance · Chalk resistance · Color retention · Dispersibility", "badge": null},
+            {"productId": "TP-C410", "highlights": "Extremely high weather resistance · Chalk resistance · Color retention · Dispersibility", "badge": null}
+          ]
         },
         "comparison": {
           "eyebrow": "Grade Comparison",

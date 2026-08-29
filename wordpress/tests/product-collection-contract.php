@@ -134,15 +134,22 @@ function tio2_product_collection_contract_test_insert_product(string $product_id
     update_field('field_tio2_product_collection_application_focus', 'Application focus', $post_id);
     update_field('field_tio2_product_collection_performance_focus', 'Performance focus', $post_id);
     update_field('field_tio2_product_collection_surface_treatment_positioning', 'Surface treatment positioning', $post_id);
-    update_field('field_tio2_product_collection_filter_tags', ['application'], $post_id);
+    update_field('field_tio2_product_collection_filter_tags', ['water'], $post_id);
     return $post_id;
 }
 
 function tio2_product_collection_contract_test_fill_family(int $term_id): void
 {
+    $term = get_term($term_id, 'product_family');
     foreach (tio2_product_family_field_definitions() as $field) {
         $name = (string) $field['name'];
-        $value = tio2_product_collection_contract_test_value_for_field($field);
+        $value = 'filters' === $name && $term instanceof WP_Term && 'coatings' === $term->slug
+            ? array_map(
+                static fn (string $label, string $slug): array => ['slug' => $slug, 'label' => $label],
+                tio2_product_collection_coatings_filters(),
+                array_keys(tio2_product_collection_coatings_filters())
+            )
+            : tio2_product_collection_contract_test_value_for_field($field);
         update_field((string) $field['key'], $value, 'product_family_' . $term_id);
     }
 }
@@ -186,15 +193,28 @@ update_field('field_tio2_products_hub_families', $hub_fields['families'], 'optio
 
 update_field('field_tio2_product_collection_filter_tags', ['uncontrolled-filter'], $tp_c120_post_id);
 tio2_product_collection_contract_test_assert('product_collection_filter_invalid' === tio2_product_collection_contract_test_error_code(tio2_product_canonical_path($tp_c120_post_id)), 'Uncontrolled Product filter tag did not fail closed.');
-update_field('field_tio2_product_collection_filter_tags', ['application'], $tp_c120_post_id);
+update_field('field_tio2_product_collection_filter_tags', ['water'], $tp_c120_post_id);
 
 update_field('field_tio2_product_collection_filter_tags', ['performance'], $tp_c120_post_id);
 tio2_product_collection_contract_test_assert('product_collection_filter_unavailable' === tio2_product_collection_contract_test_error_code(tio2_product_canonical_path($tp_c120_post_id)), 'A globally valid but Family-unconfigured Product filter tag did not fail closed.');
+update_field('field_tio2_product_collection_filter_tags', ['all'], $tp_c120_post_id);
+tio2_product_collection_contract_test_assert('product_collection_filter_invalid' === tio2_product_collection_contract_test_error_code(tio2_product_canonical_path($tp_c120_post_id)), 'The Family-only all sentinel was accepted as a Product filter tag.');
 update_field('field_tio2_product_collection_filter_tags', 'uncontrolled-filter', $tp_c120_post_id);
 tio2_product_collection_contract_test_assert('product_collection_filter_invalid' === tio2_product_collection_contract_test_error_code(tio2_product_canonical_path($tp_c120_post_id)), 'A scalar Product filter tag did not fail closed.');
-update_field('field_tio2_product_collection_filter_tags', ['application' => 'application'], $tp_c120_post_id);
+update_field('field_tio2_product_collection_filter_tags', ['water' => 'water'], $tp_c120_post_id);
 tio2_product_collection_contract_test_assert('product_collection_filter_invalid' === tio2_product_collection_contract_test_error_code(tio2_product_canonical_path($tp_c120_post_id)), 'A malformed Product filter tag list did not fail closed.');
-update_field('field_tio2_product_collection_filter_tags', ['application'], $tp_c120_post_id);
+update_field('field_tio2_product_collection_filter_tags', ['water'], $tp_c120_post_id);
+
+$coatings_filters = array_map(
+    static fn (string $label, string $slug): array => ['slug' => $slug, 'label' => $label],
+    tio2_product_collection_coatings_filters(),
+    array_keys(tio2_product_collection_coatings_filters())
+);
+update_field('field_tio2_product_family_filters', array_reverse($coatings_filters), 'product_family_' . $families['coatings']);
+tio2_product_collection_contract_test_assert('product_family_filter_invalid' === tio2_product_collection_contract_test_error_code(tio2_validate_product_family_contract($families['coatings'])), 'Reordered Coatings filters did not fail closed.');
+update_field('field_tio2_product_family_filters', array_slice($coatings_filters, 1), 'product_family_' . $families['coatings']);
+tio2_product_collection_contract_test_assert('product_family_filter_invalid' === tio2_product_collection_contract_test_error_code(tio2_validate_product_family_contract($families['coatings'])), 'Coatings filters without the all sentinel did not fail closed.');
+update_field('field_tio2_product_family_filters', $coatings_filters, 'product_family_' . $families['coatings']);
 
 $site_b_product_id = tio2_product_collection_contract_test_insert_product('TP-C050', $families['coatings'], 20, 'tio2-b');
 $unscoped_product_id = tio2_product_collection_contract_test_insert_product('TP-C200', $families['coatings'], 1, null);

@@ -516,6 +516,10 @@ export function toProductFamilyDtoFromSerialized(
         },
         familyNavigation: {
           ...APPROVED_PRODUCT_FAMILY_PRESENTATION.familyNavigation,
+          candidates:
+            APPROVED_PRODUCT_FAMILY_PRESENTATION.familyNavigation.candidates.map(
+              (candidate) => ({...candidate}),
+            ),
         },
         comparison: {
           ...APPROVED_PRODUCT_FAMILY_PRESENTATION.comparison,

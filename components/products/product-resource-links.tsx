@@ -14,9 +14,9 @@ export function ProductResourceLinks({
 }): React.ReactNode {
   return (
     <div className={layout.resourceGrid}>
-      {resources.map((resource, index) => (
+      {resources.slice(0, cards.length).map((resource, index) => (
         <article className={layout.resourceCard} key={`${resource.type}-${resource.id}`}>
-          <p className={layout.eyebrow}>{cards[index]!.category}</p>
+          <p className={layout.eyebrow}>{cards[index]?.category}</p>
           <h3>
             {resource.href ? (
               <a href={resource.href}>{resource.title}</a>
@@ -24,7 +24,7 @@ export function ProductResourceLinks({
               resource.title
             )}
           </h3>
-          <p>{cards[index]!.description}</p>
+          <p>{cards[index]?.description}</p>
         </article>
       ))}
     </div>

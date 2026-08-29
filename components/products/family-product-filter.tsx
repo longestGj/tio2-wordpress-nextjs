@@ -10,6 +10,8 @@ import type {
 
 import styles from './product-family.module.css'
 
+const ALL_FILTER_SLUG = 'all'
+
 interface FamilyProductFilterProps {
   readonly filters: readonly FamilyFilter[]
   readonly products: readonly FamilyProductItem[]
@@ -21,13 +23,16 @@ export function FamilyProductFilter({
   filters,
   products,
 }: FamilyProductFilterProps): React.ReactNode {
-  const defaultFilter = filters[0]?.slug ?? ''
-  const [activeFilter, setActiveFilter] = useState(defaultFilter)
+  const [activeFilter, setActiveFilter] = useState(ALL_FILTER_SLUG)
   const [query, setQuery] = useState('')
   const normalizedQuery = query.trim().toLowerCase()
+  const candidateCopy = new Map(
+    copy.candidates.map((candidate) => [candidate.productId, candidate]),
+  )
   const visibleProducts = products.filter((product) => {
     const matchesFilter =
-      activeFilter === defaultFilter || product.filterTags.includes(activeFilter)
+      activeFilter === ALL_FILTER_SLUG ||
+      product.filterTags.includes(activeFilter)
     const matchesQuery =
       normalizedQuery === '' ||
       product.productId.toLowerCase().includes(normalizedQuery) ||
@@ -72,7 +77,7 @@ export function FamilyProductFilter({
         <button
           className={styles.resetButton}
           onClick={() => {
-            setActiveFilter(defaultFilter)
+            setActiveFilter(ALL_FILTER_SLUG)
             setQuery('')
           }}
           type="button"
@@ -89,27 +94,35 @@ export function FamilyProductFilter({
         className={styles.candidateList}
         id="family-candidate-list"
       >
-        {products.map((product) => (
-          <article
-            className={styles.candidate}
-            data-family-candidate={product.productId}
-            hidden={!visibleProductIds.has(product.productId)}
-            key={product.productId}
-          >
-            <h3>{product.productId}</h3>
-            <p>{product.cardSummary}</p>
-            <p className={styles.candidateFocus}>{product.performanceFocus}</p>
-            {product.href ? (
-              <a className={styles.candidateAction} href={product.href}>
-                {copy.candidateActionLabel}
-              </a>
-            ) : (
-              <span className={styles.candidateAction}>
-                {copy.candidateActionLabel}
-              </span>
-            )}
-          </article>
-        ))}
+        {products.map((product) => {
+          const candidate = candidateCopy.get(product.productId)
+          return (
+            <article
+              className={styles.candidate}
+              data-family-candidate={product.productId}
+              hidden={!visibleProductIds.has(product.productId)}
+              key={product.productId}
+            >
+              <h3>
+                {product.productId}{' '}
+                {candidate?.badge ? (
+                  <span className={styles.candidateBadge}>{candidate.badge}</span>
+                ) : null}
+              </h3>
+              <p>{product.cardSummary}</p>
+              <p className={styles.candidateFocus}>{candidate?.highlights}</p>
+              {product.href ? (
+                <a className={styles.candidateAction} href={product.href}>
+                  {copy.candidateActionLabel}
+                </a>
+              ) : (
+                <span className={styles.candidateAction}>
+                  {copy.candidateActionLabel}
+                </span>
+              )}
+            </article>
+          )
+        })}
       </div>
     </div>
   )

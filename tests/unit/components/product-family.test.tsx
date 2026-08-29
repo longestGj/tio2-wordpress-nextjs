@@ -9,6 +9,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 
 import {ProductFamily} from '@/components/products/product-family'
 import {ProductPageRenderer} from '@/components/products/product-page-renderer'
+import {ProductResourceLinks} from '@/components/products/product-resource-links'
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import type {EditorialLinkResolver, EditorialTarget} from '@/lib/editorial/types'
 import {toProductFamilyPageDto} from '@/lib/products/page-dto'
@@ -72,6 +73,17 @@ const FAMILY_PRESENTATION = {
     resetLabel: 'Reset filters',
     noResults: 'No matching coatings grades',
     candidateActionLabel: 'View Product',
+    candidates: [
+      {productId: 'TP-C050', highlights: 'Low ion content · Electrical resistivity · Whiteness · Gloss', badge: null},
+      {productId: 'TP-C100', highlights: 'Neutral tint · Hiding power · Whiteness · Durability', badge: null},
+      {productId: 'TP-C110', highlights: 'Neutral tint · Hiding power · Whiteness · Durability', badge: null},
+      {productId: 'TP-C120', highlights: 'Relatively low viscosity · Bluish tone · Hiding power · Gloss · Durability', badge: 'Premium'},
+      {productId: 'TP-C200', highlights: 'Dry hiding power · Weather resistance · Water dispersibility · Oil absorption', badge: null},
+      {productId: 'TP-C300', highlights: 'Durability · Weather resistance · Gloss · Hiding power', badge: null},
+      {productId: 'TP-C310', highlights: 'Water dispersibility · Storage stability · Weather resistance · Chalk resistance', badge: null},
+      {productId: 'TP-C400', highlights: 'Ultra-high weather resistance · Chalk resistance · Color retention · Dispersibility', badge: null},
+      {productId: 'TP-C410', highlights: 'Extremely high weather resistance · Chalk resistance · Color retention · Dispersibility', badge: null},
+    ],
   },
   comparison: {
     eyebrow: 'Grade Comparison',
@@ -246,6 +258,9 @@ describe('ProductFamily', () => {
       },
       familyNavigation: {
         ...FAMILY_PRESENTATION.familyNavigation,
+        candidates: FAMILY_PRESENTATION.familyNavigation.candidates.map(
+          (candidate) => ({...candidate}),
+        ),
         eyebrow: 'Fixture navigation eyebrow',
         heading: 'Fixture navigation heading',
         intro: 'Fixture navigation intro.',
@@ -379,6 +394,58 @@ describe('ProductFamily', () => {
     expect(candidatesAndRows).not.toMatch(
       /\bbest\b|\bequivalent\b|\brecommend(?:ed|ation)?\b|\brank(?:ed|ing)?\b/iu,
     )
+  })
+
+  it('renders the nine approved candidate highlights independently from comparison copy', () => {
+    const {container} = render(<ProductFamily page={familyFixture()} />)
+    const expectedCandidates = new Map([
+      ['TP-C050', 'Low ion content · Electrical resistivity · Whiteness · Gloss'],
+      ['TP-C100', 'Neutral tint · Hiding power · Whiteness · Durability'],
+      ['TP-C110', 'Neutral tint · Hiding power · Whiteness · Durability'],
+      ['TP-C120', 'Relatively low viscosity · Bluish tone · Hiding power · Gloss · Durability'],
+      ['TP-C200', 'Dry hiding power · Weather resistance · Water dispersibility · Oil absorption'],
+      ['TP-C300', 'Durability · Weather resistance · Gloss · Hiding power'],
+      ['TP-C310', 'Water dispersibility · Storage stability · Weather resistance · Chalk resistance'],
+      ['TP-C400', 'Ultra-high weather resistance · Chalk resistance · Color retention · Dispersibility'],
+      ['TP-C410', 'Extremely high weather resistance · Chalk resistance · Color retention · Dispersibility'],
+    ])
+
+    for (const [productId, highlights] of expectedCandidates) {
+      const candidate = container.querySelector<HTMLElement>(
+        `[data-family-candidate="${productId}"]`,
+      )
+      expect(candidate?.textContent).toContain(highlights)
+    }
+    const premiumCandidate = container.querySelector<HTMLElement>(
+      '[data-family-candidate="TP-C120"]',
+    )
+    expect(within(premiumCandidate!).getByText('Premium')).not.toBeNull()
+
+    const comparisonC400 = container.querySelector<HTMLElement>(
+      '[data-family-comparison-row="TP-C400"]',
+    )
+    expect(comparisonC400?.textContent).toContain(
+      'Ultra-high weather resistance, chalk resistance, color retention, gloss, hiding power',
+    )
+    expect(comparisonC400?.textContent).not.toContain('Dispersibility')
+  })
+
+  it('safely zips resource cards when an unchecked caller supplies an extra resource', () => {
+    const resources = familyFixture().resources.concat({
+      type: 'resource' as const,
+      id: 'article-06',
+      title: 'Extra resource',
+      path: '/resources/surface-treatment-titanium-dioxide-performance',
+      href: null,
+    })
+
+    const {container} = render(
+      <ProductResourceLinks
+        cards={FAMILY_PRESENTATION.resources.cards}
+        resources={resources}
+      />,
+    )
+    expect(container.querySelectorAll('article')).toHaveLength(3)
   })
 
   it('uses the correctly sized responsive priority Next Image for the Family hero', () => {
@@ -516,6 +583,24 @@ describe('approved v0.5 Family CSS and server boundary', () => {
     expect(filterSource).not.toMatch(/\basync\s+function\s+FamilyProductFilter\b/u)
     expect(filterSource).not.toContain('useEffect')
     expect(filterSource).not.toContain('useMemo')
+    expect(filterSource).toContain("const ALL_FILTER_SLUG = 'all'")
+    expect(filterSource).not.toMatch(/filters\[0\].*slug/u)
+  })
+
+  it('locks the approved v0.5 filter, comparison, selection, and validation declarations', () => {
+    const familyCss = readFileSync(
+      resolve(process.cwd(), 'components/products/product-family.module.css'),
+      'utf8',
+    )
+
+    expect(familyCss).toMatch(/\.filterBar\s*\{[\s\S]*?position:\s*sticky[\s\S]*?top:\s*0[\s\S]*?border-block:\s*1px solid var\(--product-rule\)[\s\S]*?padding:\s*1rem 0/u)
+    expect(familyCss).toMatch(/\.comparisonRegion\s*\{[\s\S]*?border:\s*1px solid var\(--product-silver\)/u)
+    expect(familyCss).toMatch(/\.comparisonTable\s*\{[\s\S]*?background:\s*var\(--product-paper\)/u)
+    expect(familyCss).toMatch(/\.comparisonTable thead th\s*\{[\s\S]*?color:\s*var\(--product-steel\)[\s\S]*?text-transform:\s*uppercase/u)
+    expect(familyCss).not.toMatch(/\.comparisonTable thead th\s*\{[\s\S]*?background:\s*var\(--product-navy\)/u)
+    expect(familyCss).toMatch(/\.selectionGrid\s*\{[\s\S]*?grid-template-columns:\s*0\.9fr 1\.1fr/u)
+    expect(familyCss).toMatch(/\.validationList\s*\{[\s\S]*?gap:\s*1px[\s\S]*?background:\s*var\(--product-silver\)[\s\S]*?padding:\s*1px/u)
+    expect(familyCss).not.toMatch(/\.validationList li\s*\{[\s\S]*?border-top:\s*4px/u)
   })
 
   it('keeps approved visible Family copy out of component source', () => {

@@ -9,13 +9,37 @@ if (! defined('ABSPATH')) {
 /**
  * @return array<string, string>
  */
-function tio2_product_collection_filter_choices(): array
+function tio2_product_collection_coatings_filters(): array
 {
     return [
+        'all' => 'All directions',
+        'water' => 'Water-based',
+        'architectural' => 'Architectural',
+        'automotive' => 'Automotive & exterior',
+        'specialty' => 'Specialty',
+    ];
+}
+
+/**
+ * @return array<string, string>
+ */
+function tio2_product_collection_filter_choices(): array
+{
+    return array_merge(tio2_product_collection_coatings_filters(), [
         'application' => 'Application',
         'performance' => 'Performance',
         'surface-treatment' => 'Surface Treatment',
-    ];
+    ]);
+}
+
+/**
+ * @return array<string, string>
+ */
+function tio2_product_collection_product_filter_tag_choices(): array
+{
+    $choices = tio2_product_collection_filter_choices();
+    unset($choices['all']);
+    return $choices;
 }
 
 /**
@@ -86,7 +110,7 @@ function tio2_product_collection_display_field_definitions(): array
         ['key' => 'field_tio2_product_collection_application_focus', 'label' => 'Collection Application Focus', 'name' => 'collectionApplicationFocus', 'type' => 'textarea', 'required' => 1, 'show_in_graphql' => 1],
         ['key' => 'field_tio2_product_collection_performance_focus', 'label' => 'Collection Performance Focus', 'name' => 'collectionPerformanceFocus', 'type' => 'textarea', 'required' => 1, 'show_in_graphql' => 1],
         ['key' => 'field_tio2_product_collection_surface_treatment_positioning', 'label' => 'Collection Surface Treatment Positioning', 'name' => 'collectionSurfaceTreatmentPositioning', 'type' => 'textarea', 'required' => 1, 'show_in_graphql' => 1],
-        ['key' => 'field_tio2_product_collection_filter_tags', 'label' => 'Collection Filter Tags', 'name' => 'collectionFilterTags', 'type' => 'checkbox', 'required' => 1, 'choices' => tio2_product_collection_filter_choices(), 'return_format' => 'value', 'show_in_graphql' => 1],
+        ['key' => 'field_tio2_product_collection_filter_tags', 'label' => 'Collection Filter Tags', 'name' => 'collectionFilterTags', 'type' => 'checkbox', 'required' => 1, 'choices' => tio2_product_collection_product_filter_tag_choices(), 'return_format' => 'value', 'show_in_graphql' => 1],
     ];
 }
 
