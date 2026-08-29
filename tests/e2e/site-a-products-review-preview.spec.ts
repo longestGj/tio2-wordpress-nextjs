@@ -121,6 +121,7 @@ function normalizeLeakageSurface(value: string): string {
       .replace(/\\+x([0-9a-f]{2})/giu, (_match, hex: string) =>
         String.fromCharCode(Number.parseInt(hex, 16)))
       .replace(/\\+\//gu, '/')
+      .replace(/\\{2,}/gu, '\\')
       .replace(/(?:%[0-9a-f]{2})+/giu, (encoded) => {
         try {
           return decodeURIComponent(encoded)
@@ -146,6 +147,24 @@ function expectNoLeakage(
       `${surface.label}: ${JSON.stringify(match?.[0])} near ${JSON.stringify(normalized.slice(Math.max(0, matchIndex - 80), matchIndex + 160))}`,
     ).toBeNull()
   }
+}
+
+function expectDrivePathLeakageContract(): void {
+  for (const forbiddenPath of [
+    'C:/Users/private/source',
+    String.raw`D:\11SEO\secret`,
+    String.raw`D:\\11SEO\\secret`,
+    String.raw`{"payload":"D:\\\\11SEO\\\\secret"}`,
+  ]) {
+    expect(() => expectNoLeakage([{
+      label: 'Controlled Windows drive-path probe',
+      value: forbiddenPath,
+    }])).toThrow()
+  }
+  expect(() => expectNoLeakage([{
+    label: 'Controlled Next RSC protocol-token probe',
+    value: String.raw`b:\\"$Sreact.fragment`,
+  }])).not.toThrow()
 }
 
 interface BrowserAudit {
@@ -560,6 +579,7 @@ test.describe('six protected Product review views', () => {
   let runtime: ProductReviewRuntime
 
   test.beforeAll(async () => {
+    expectDrivePathLeakageContract()
     await expectSignedSourceContract()
     if (captureEvidence) mkdirSync(evidenceDirectory, {recursive: true})
     runtime = await startProductReviewRuntime()
