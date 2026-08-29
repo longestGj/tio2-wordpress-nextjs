@@ -18,8 +18,10 @@ require_once __DIR__ . '/includes/publication.php';
 require_once __DIR__ . '/includes/homepage-rfq-copy.php';
 require_once __DIR__ . '/includes/fields.php';
 require_once __DIR__ . '/includes/product-fields.php';
+require_once __DIR__ . '/includes/product-collection-fields.php';
 require_once __DIR__ . '/includes/product-graphql.php';
 require_once __DIR__ . '/includes/product-contract.php';
+require_once __DIR__ . '/includes/product-collection-contract.php';
 require_once __DIR__ . '/includes/product-publication.php';
 require_once __DIR__ . '/includes/application-resource-fields.php';
 require_once __DIR__ . '/includes/application-resource-contract.php';
@@ -47,6 +49,7 @@ add_action('wp_after_insert_post', 'tio2_backstop_application_resource_publicati
 add_action('acf/init', 'tio2_register_acf_fields');
 add_action('acf/init', 'tio2_register_product_settings_page');
 add_action('acf/init', 'tio2_register_product_acf_fields');
+add_action('acf/init', 'tio2_register_product_collection_fields');
 add_action('acf/init', 'tio2_register_application_resource_acf_fields');
 add_action('acf/save_post', 'tio2_save_product_contract_feedback', 30);
 add_action('acf/save_post', 'tio2_save_application_resource_contract_feedback', 40);
