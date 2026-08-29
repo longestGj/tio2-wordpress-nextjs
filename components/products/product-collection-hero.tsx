@@ -1,5 +1,7 @@
 import Image from 'next/image'
 
+import type {ProductsHubPresentation} from '@/lib/products/page-types'
+
 import layout from './product-layout.module.css'
 
 interface ProductCollectionHeroProps {
@@ -7,6 +9,7 @@ interface ProductCollectionHeroProps {
   readonly headline: string
   readonly directAnswer: string
   readonly image: string
+  readonly presentation: ProductsHubPresentation['hero']
 }
 
 export function ProductCollectionHero({
@@ -14,6 +17,7 @@ export function ProductCollectionHero({
   headline,
   directAnswer,
   image,
+  presentation,
 }: ProductCollectionHeroProps): React.ReactNode {
   const isHubImage = image.endsWith('/products-hub-hero.jpg')
 
@@ -24,7 +28,7 @@ export function ProductCollectionHero({
       data-product-section="hero"
     >
       <Image
-        alt={headline}
+        alt={presentation.imageAlt}
         className={layout.heroImage}
         fetchPriority="high"
         height={isHubImage ? 788 : 1024}
@@ -41,6 +45,20 @@ export function ProductCollectionHero({
             className={layout.heroAnswer}
             dangerouslySetInnerHTML={{__html: directAnswer}}
           />
+          <div className={layout.heroActions}>
+            <a
+              className={layout.heroPrimaryAction}
+              href={presentation.familyAction.href}
+            >
+              {presentation.familyAction.label}
+            </a>
+            <a
+              className={layout.heroSecondaryAction}
+              href={presentation.enquiryAction.href}
+            >
+              {presentation.enquiryAction.label}
+            </a>
+          </div>
         </div>
       </div>
     </section>

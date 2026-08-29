@@ -1,3 +1,16 @@
+.productExperience {
+  --product-focus: #4f82c4;
+  overflow: clip;
+}
+
+.productExperience a:focus-visible,
+.productExperience button:focus-visible,
+.productExperience input:focus-visible,
+.productExperience summary:focus-visible {
+  outline: 3px solid var(--product-focus);
+  outline-offset: 3px;
+}
+
 .productPage {
   --product-navy: #0a1f44;
   --product-navy-2: #112d59;
@@ -8,7 +21,6 @@
   --product-rule: #e6e8ec;
   --product-ice: #f5f7f9;
   --product-paper: #fff;
-  --product-focus: #4f82c4;
   overflow: clip;
   background: var(--product-paper);
   color: var(--product-ink);
@@ -60,13 +72,6 @@
 
 .productPage p {
   color: var(--product-muted);
-}
-
-.productPage a:focus-visible,
-.productPage input:focus-visible,
-.productPage summary:focus-visible {
-  outline: 3px solid var(--product-focus);
-  outline-offset: 3px;
 }
 
 .wrap {
@@ -188,6 +193,41 @@
   line-height: 1.68;
 }
 
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.6rem;
+}
+
+.heroPrimaryAction {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--product-navy);
+  border-radius: 10px;
+  background: var(--product-navy);
+  color: var(--product-paper);
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.heroSecondaryAction {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--product-navy);
+  border-radius: 10px;
+  background: var(--product-paper);
+  color: var(--product-navy);
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
 .decisionRail {
   border-bottom: 1px solid var(--product-rule);
   background: var(--product-paper);
@@ -243,6 +283,10 @@
   text-decoration: none;
 }
 
+.resourceCard > p:last-child {
+  margin-top: 0.6rem;
+}
+
 .enquiry {
   background: linear-gradient(115deg, var(--product-navy), var(--product-navy-2));
   padding-block: 4.5rem;
@@ -250,9 +294,9 @@
 
 .enquiryInner {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: .8fr 1.2fr;
   gap: clamp(2rem, 7vw, 5rem);
-  align-items: center;
+  align-items: start;
 }
 
 .enquiryCopy {
@@ -273,6 +317,29 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
+}
+
+.enquiryContextList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin: 0 !important;
+  padding: 0;
+  list-style: none;
+}
+
+.enquiryContextList li {
+  min-height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--product-rule);
+  padding: 0.8rem;
+}
+
+.enquiryContextList li:last-child {
+  grid-column: 1 / -1;
+  min-height: 88px;
 }
 
 .enquiryPrimary {
@@ -349,6 +416,10 @@
     font-size: 0.98rem;
   }
 
+  .heroActions {
+    display: grid;
+  }
+
   .decisionRail ol {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -356,6 +427,15 @@
   .resourceGrid,
   .enquiryInner {
     grid-template-columns: 1fr;
+  }
+
+  .enquiryContextList {
+    grid-template-columns: 1fr;
+  }
+
+  .enquiryContextList li:last-child {
+    grid-column: auto;
+    min-height: 48px;
   }
 
   .resourceCard {

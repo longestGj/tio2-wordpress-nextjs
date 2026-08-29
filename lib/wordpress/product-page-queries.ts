@@ -14,6 +14,7 @@ import {
   toProductFamilyPageDto,
   toProductsHubPageDto,
 } from '@/lib/products/page-dto'
+import {APPROVED_PRODUCTS_HUB_PRESENTATION} from '@/lib/products/page-schema'
 import {
   SITE_A_PRODUCT_FAMILIES,
   SITE_A_PRODUCT_IDENTITIES,
@@ -91,6 +92,8 @@ export interface SerializedProductsHub {
     readonly directAnswer: string
     readonly productCount: number
   }>
+  readonly knownGradeHeading: string
+  readonly knownGradeHelp: string
   readonly decisionPath: string
   readonly applicationBoundary: string
   readonly resources: readonly SerializedCollectionLink[]
@@ -366,6 +369,40 @@ export function toProductsHubDtoFromSerialized(
         headline: raw.headline,
         directAnswer: raw.directAnswer,
         image: '/site-a/products/products-hub-hero.jpg',
+      },
+      presentation: {
+        breadcrumb: {...APPROVED_PRODUCTS_HUB_PRESENTATION.breadcrumb},
+        hero: {
+          ...APPROVED_PRODUCTS_HUB_PRESENTATION.hero,
+          enquiryAction: {
+            ...APPROVED_PRODUCTS_HUB_PRESENTATION.hero.enquiryAction,
+          },
+        },
+        families: {...APPROVED_PRODUCTS_HUB_PRESENTATION.families},
+        knownGrade: {
+          ...APPROVED_PRODUCTS_HUB_PRESENTATION.knownGrade,
+          heading: raw.knownGradeHeading,
+          help: raw.knownGradeHelp,
+        },
+        decisionPath: {...APPROVED_PRODUCTS_HUB_PRESENTATION.decisionPath},
+        applicationBoundary: {
+          ...APPROVED_PRODUCTS_HUB_PRESENTATION.applicationBoundary,
+        },
+        resources: {
+          eyebrow: APPROVED_PRODUCTS_HUB_PRESENTATION.resources.eyebrow,
+          heading: APPROVED_PRODUCTS_HUB_PRESENTATION.resources.heading,
+          cards: APPROVED_PRODUCTS_HUB_PRESENTATION.resources.cards.map(
+            (card) => ({...card}),
+          ),
+        },
+        enquiryContextFields: [
+          ...APPROVED_PRODUCTS_HUB_PRESENTATION.enquiryContextFields,
+        ],
+        faq: {...APPROVED_PRODUCTS_HUB_PRESENTATION.faq},
+        disclaimerLabel:
+          APPROVED_PRODUCTS_HUB_PRESENTATION.disclaimerLabel,
+        footerDescription:
+          APPROVED_PRODUCTS_HUB_PRESENTATION.footerDescription,
       },
       decisionRail: parseJsonRows(raw.decisionRail, 'decisionRail'),
       families: raw.families.map((family) => ({

@@ -2,13 +2,18 @@
 
 import {useState} from 'react'
 
-import type {KnownGradeItem} from '@/lib/products/page-types'
+import type {
+  KnownGradeItem,
+  ProductsHubPresentation,
+} from '@/lib/products/page-types'
 
 import styles from './products-hub.module.css'
 
 export function KnownGradeFilter({
+  copy,
   grades,
 }: {
+  readonly copy: ProductsHubPresentation['knownGrade']
   readonly grades: readonly KnownGradeItem[]
 }): React.ReactNode {
   const [query, setQuery] = useState('')
@@ -22,16 +27,14 @@ export function KnownGradeFilter({
   return (
     <div className={styles.gradeLookup}>
       <div className={styles.gradeSearchCopy}>
-        <p className={styles.eyebrow}>Known Grade</p>
-        <h2 id="known-grade-heading">Already know the grade?</h2>
-        <p className={styles.sectionIntro}>
-          Search a TIOVAR grade to open the corresponding product page.
-        </p>
+        <p className={styles.eyebrow}>{copy.eyebrow}</p>
+        <h2 id="known-grade-heading">{copy.heading}</h2>
+        <p className={styles.sectionIntro}>{copy.help}</p>
         <input
-          aria-label="Find a TIOVAR grade"
+          aria-label={copy.searchLabel}
           className={styles.searchInput}
           onChange={(event) => setQuery(event.currentTarget.value)}
-          placeholder="Try TP-C120 or C120"
+          placeholder={copy.searchPlaceholder}
           type="search"
           value={query}
         />
@@ -73,7 +76,7 @@ export function KnownGradeFilter({
             })}
           </div>
         ) : (
-          <p className={styles.emptyState}>No matching grade</p>
+          <p className={styles.emptyState}>{copy.noResults}</p>
         )}
       </div>
     </div>

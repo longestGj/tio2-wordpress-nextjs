@@ -18,14 +18,22 @@ export function ProductsHub({
   readonly page: ProductsHubPageDto
 }): React.ReactNode {
   const site = getSiteConfig('tio2-a')
+  const {presentation} = page
 
   return (
-    <SiteABrandShell inquiryHref="/#inquiry" site={site} structuredData={null}>
-      <div className={layout.productPage} data-product-level="hub">
+    <div className={layout.productExperience} data-product-experience>
+      <SiteABrandShell inquiryHref="/#inquiry" site={site} structuredData={null}>
+        <div className={layout.productPage} data-product-level="hub">
         <ProductBreadcrumbs
-          items={[{label: 'Home', href: '/'}, {label: 'Products'}]}
+          items={[
+            {label: presentation.breadcrumb.homeLabel, href: '/'},
+            {label: presentation.breadcrumb.currentLabel},
+          ]}
         />
-        <ProductCollectionHero {...page.hero} />
+        <ProductCollectionHero
+          {...page.hero}
+          presentation={presentation.hero}
+        />
         <ProductDecisionRail items={page.decisionRail} />
 
         <section
@@ -35,8 +43,9 @@ export function ProductsHub({
           id="product-families"
         >
           <div className={layout.sectionHead}>
-            <p className={layout.eyebrow}>Product Families</p>
-            <h2 id="product-families-heading">Start with the product family</h2>
+            <p className={layout.eyebrow}>{presentation.families.eyebrow}</p>
+            <h2 id="product-families-heading">{presentation.families.heading}</h2>
+            <p className={layout.sectionIntro}>{presentation.families.intro}</p>
           </div>
           <div className={styles.familyGrid}>
             {page.families.map((family, index) => (
@@ -58,7 +67,9 @@ export function ProductsHub({
                 <p>{family.summary}</p>
                 <span className={styles.familyCount}>
                   <span data-product-family-count>{family.count}</span>{' '}
-                  {family.count === 1 ? 'grade' : 'grades'}
+                  {family.count === 1
+                    ? presentation.families.singularCountLabel
+                    : presentation.families.pluralCountLabel}
                 </span>
               </article>
             ))}
@@ -71,7 +82,10 @@ export function ProductsHub({
           data-product-section="known-grade"
         >
           <div className={layout.wrap}>
-            <KnownGradeFilter grades={page.knownGrades} />
+            <KnownGradeFilter
+              copy={presentation.knownGrade}
+              grades={page.knownGrades}
+            />
           </div>
         </section>
 
@@ -81,8 +95,8 @@ export function ProductsHub({
           data-product-section="decision-path"
         >
           <div className={layout.sectionHead}>
-            <p className={layout.eyebrow}>Decision Path</p>
-            <h2 id="decision-path-heading">Move from product family to trial grade</h2>
+            <p className={layout.eyebrow}>{presentation.decisionPath.eyebrow}</p>
+            <h2 id="decision-path-heading">{presentation.decisionPath.heading}</h2>
           </div>
           <ol className={styles.decisionSteps}>
             {page.decisionPath.map((step) => (
@@ -102,8 +116,15 @@ export function ProductsHub({
         >
           <div className={`${layout.wrap} ${styles.applicationBoundary}`}>
             <div>
-              <p className={layout.eyebrow}>Application Starting Point</p>
-              <h2 id="application-boundary-heading">Choose the right starting point</h2>
+              <p className={layout.eyebrow}>
+                {presentation.applicationBoundary.eyebrow}
+              </p>
+              <h2 id="application-boundary-heading">
+                {presentation.applicationBoundary.heading}
+              </h2>
+              <p className={layout.sectionIntro}>
+                {presentation.applicationBoundary.intro}
+              </p>
             </div>
             <article className={styles.applicationNote}>
               <h3>{page.applicationBoundary.heading}</h3>
@@ -130,13 +151,19 @@ export function ProductsHub({
           data-product-section="technical-resources"
         >
           <div className={layout.sectionHead}>
-            <p className={layout.eyebrow}>Technical Resources</p>
-            <h2 id="technical-resources-heading">Build a stronger comparison plan</h2>
+            <p className={layout.eyebrow}>{presentation.resources.eyebrow}</p>
+            <h2 id="technical-resources-heading">{presentation.resources.heading}</h2>
           </div>
-          <ProductResourceLinks resources={page.resources} />
+          <ProductResourceLinks
+            cards={presentation.resources.cards}
+            resources={page.resources}
+          />
         </section>
 
-        <ProductEnquiryPanel enquiry={page.enquiry} />
+        <ProductEnquiryPanel
+          contextFields={presentation.enquiryContextFields}
+          enquiry={page.enquiry}
+        />
 
         <section
           aria-labelledby="product-faq-heading"
@@ -144,8 +171,8 @@ export function ProductsHub({
           data-product-section="faq"
         >
           <div className={layout.sectionHead}>
-            <p className={layout.eyebrow}>Common Questions</p>
-            <h2 id="product-faq-heading">Frequently Asked Questions</h2>
+            <p className={layout.eyebrow}>{presentation.faq.eyebrow}</p>
+            <h2 id="product-faq-heading">{presentation.faq.heading}</h2>
           </div>
           <div className={styles.faqList}>
             {page.faqs.map((faq) => (
@@ -165,14 +192,15 @@ export function ProductsHub({
           className={`${layout.wrap} ${styles.disclaimer}`}
           data-product-section="technical-disclaimer"
         >
-          <h2 id="technical-disclaimer-heading">Technical Disclaimer</h2>
+          <h2 id="technical-disclaimer-heading">{presentation.disclaimerLabel}</h2>
           <div dangerouslySetInnerHTML={{__html: page.disclaimerHtml}} />
         </section>
-      </div>
-      <SiteABrandFooter
-        anchorPrefix="/"
-        description="Application-specific titanium dioxide products and technical support for industrial formulations."
-      />
-    </SiteABrandShell>
+        </div>
+        <SiteABrandFooter
+          anchorPrefix="/"
+          description={presentation.footerDescription}
+        />
+      </SiteABrandShell>
+    </div>
   )
 }

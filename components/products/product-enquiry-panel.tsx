@@ -9,9 +9,11 @@ interface ProductEnquiryPanelProps {
     readonly description: string
     readonly ctas: readonly PageCta[]
   }
+  readonly contextFields: readonly string[]
 }
 
 export function ProductEnquiryPanel({
+  contextFields,
   enquiry,
 }: ProductEnquiryPanelProps): React.ReactNode {
   return (
@@ -22,22 +24,29 @@ export function ProductEnquiryPanel({
       id="technical-enquiry"
     >
       <div className={`${layout.wrap} ${layout.enquiryInner}`}>
-        <div className={layout.enquiryCopy}>
-          <p className={layout.eyebrow}>{enquiry.eyebrow}</p>
-          <h2 id="product-enquiry-heading">{enquiry.heading}</h2>
-          <p>{enquiry.description}</p>
+        <div>
+          <div className={layout.enquiryCopy}>
+            <p className={layout.eyebrow}>{enquiry.eyebrow}</p>
+            <h2 id="product-enquiry-heading">{enquiry.heading}</h2>
+            <p>{enquiry.description}</p>
+          </div>
+          <div className={layout.enquiryActions}>
+            {enquiry.ctas.map((cta, index) => (
+              <a
+                className={index === 0 ? layout.enquiryPrimary : layout.enquirySecondary}
+                href={cta.href}
+                key={`${cta.kind}-${cta.label}`}
+              >
+                {cta.label}
+              </a>
+            ))}
+          </div>
         </div>
-        <div className={layout.enquiryActions}>
-          {enquiry.ctas.map((cta, index) => (
-            <a
-              className={index === 0 ? layout.enquiryPrimary : layout.enquirySecondary}
-              href={cta.href}
-              key={`${cta.kind}-${cta.label}`}
-            >
-              {cta.label}
-            </a>
+        <ul className={layout.enquiryContextList}>
+          {contextFields.map((field) => (
+            <li data-enquiry-context-field key={field}>{field}</li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   )

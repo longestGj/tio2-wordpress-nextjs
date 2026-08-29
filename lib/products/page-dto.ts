@@ -171,6 +171,34 @@ function normalizeHub(
       ...page.hero,
       directAnswer: sanitizeEditorialRichText(page.hero.directAnswer),
     },
+    presentation: {
+      breadcrumb: {...page.presentation.breadcrumb},
+      hero: {
+        imageAlt: page.presentation.hero.imageAlt,
+        familyAction: {
+          label: page.presentation.hero.familyActionLabel,
+          href: '#product-families',
+        },
+        enquiryAction: normalizeCtas(
+          [page.presentation.hero.enquiryAction],
+          resolve,
+          'presentation.hero.enquiryAction',
+        )[0]!,
+      },
+      families: {...page.presentation.families},
+      knownGrade: {...page.presentation.knownGrade},
+      decisionPath: {...page.presentation.decisionPath},
+      applicationBoundary: {...page.presentation.applicationBoundary},
+      resources: {
+        eyebrow: page.presentation.resources.eyebrow,
+        heading: page.presentation.resources.heading,
+        cards: page.presentation.resources.cards.map((card) => ({...card})),
+      },
+      enquiryContextFields: [...page.presentation.enquiryContextFields],
+      faq: {...page.presentation.faq},
+      disclaimerLabel: page.presentation.disclaimerLabel,
+      footerDescription: page.presentation.footerDescription,
+    },
     decisionRail: page.decisionRail.map((item) => ({...item})),
     families: page.families.map((family, index) => ({
       ...family,

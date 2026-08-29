@@ -66,8 +66,8 @@ function hubResponse() {
         heroImageId: 102,
         productCount: family.count,
       })),
-      knownGradeHeading: 'Known grades',
-      knownGradeHelp: 'Search the complete grade inventory.',
+      knownGradeHeading: page.presentation.knownGrade.heading,
+      knownGradeHelp: page.presentation.knownGrade.help,
       decisionPath: JSON.stringify(page.decisionPath),
       applicationBoundary: JSON.stringify(page.applicationBoundary),
       resources: page.resources.map((target, index) =>
@@ -270,6 +270,58 @@ describe('three-level Product page cache tags', () => {
 })
 
 describe('getSiteProductPage', () => {
+  it('maps queried Known Grade copy and frozen v0.5 fallback into the Hub DTO', async () => {
+    const response = hubResponse()
+    response.tio2ProductsHub.knownGradeHeading = 'Queried known-grade heading'
+    response.tio2ProductsHub.knownGradeHelp = 'Queried known-grade help.'
+    server.use(
+      http.post(graphqlEndpoint, () => HttpResponse.json({data: response})),
+    )
+
+    const result = await getSiteProductPage(
+      getSiteConfig('tio2-a'),
+      '/products',
+    )
+
+    expect(result?.level).toBe('hub')
+    if (result?.level !== 'hub') throw new Error('Expected Hub DTO')
+    expect(result.presentation.knownGrade).toMatchObject({
+      heading: 'Queried known-grade heading',
+      help: 'Queried known-grade help.',
+      searchLabel: 'Find a TIOVAR grade',
+      searchPlaceholder: 'Try TP-C120 or C120',
+      noResults: 'No matching grade',
+    })
+    expect(result.presentation.resources.cards).toEqual([
+      {
+        category: 'Selection',
+        description:
+          'See how pigment properties work together in an industrial formulation.',
+      },
+      {
+        category: 'Treatment',
+        description:
+          'Connect surface treatment with dispersion, processing and finished-product performance.',
+      },
+      {
+        category: 'Validation',
+        description:
+          'Plan a matched comparison using the formulation and test conditions that matter.',
+      },
+    ])
+    expect(result.decisionPath).toEqual(productsHubPageInput.decisionPath)
+    expect(result.applicationBoundary).toMatchObject({
+      heading: productsHubPageInput.applicationBoundary.heading,
+      description: productsHubPageInput.applicationBoundary.description,
+      link: {id: productsHubPageInput.applicationBoundary.link.id},
+    })
+    expect(result.presentation.hero.familyAction.href).toBe('#product-families')
+    expect(result.presentation.hero.enquiryAction.href).toBe(
+      getSiteConfig('tio2-a').rfqHref,
+    )
+    expect(JSON.stringify(result.presentation)).not.toContain('arbitrary')
+  })
+
   it.each([
     ['/products', 'hub'],
     ['/products/coatings', 'family'],

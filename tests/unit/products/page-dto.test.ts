@@ -105,6 +105,103 @@ describe('Product page DTO normalization', () => {
     ).toBeNull()
   })
 
+  it('normalizes Hub presentation copy and derives both Hero hrefs from code', () => {
+    const input = clone(productsHubPageInput) as unknown as Record<
+      string,
+      unknown
+    >
+    input.presentation = {
+      breadcrumb: {homeLabel: 'Home', currentLabel: 'Products'},
+      hero: {
+        imageAlt: 'Titanium dioxide products for industrial applications',
+        familyActionLabel: 'Browse Product Families',
+        enquiryAction: {
+          kind: 'discuss-application',
+          label: 'Discuss Your Application',
+        },
+      },
+      families: {
+        eyebrow: 'Product Families',
+        heading: 'Start with the product family',
+        intro: 'Approved family introduction.',
+        singularCountLabel: 'grade',
+        pluralCountLabel: 'grades',
+      },
+      knownGrade: {
+        eyebrow: 'Known Grade',
+        heading: 'Already know the grade?',
+        help: 'Approved grade-search help.',
+        searchLabel: 'Find a TIOVAR grade',
+        searchPlaceholder: 'Try TP-C120 or C120',
+        noResults: 'No matching grade',
+      },
+      decisionPath: {
+        eyebrow: 'Decision Path',
+        heading: 'Move from product family to trial grade',
+      },
+      applicationBoundary: {
+        eyebrow: 'Two Ways to Begin',
+        heading: 'Choose the right starting point',
+        intro: 'Approved starting-point introduction.',
+      },
+      resources: {
+        eyebrow: 'Technical Resources',
+        heading: 'Build a stronger comparison plan',
+        cards: [
+          {category: 'Selection', description: 'Selection description.'},
+          {category: 'Treatment', description: 'Treatment description.'},
+          {category: 'Validation', description: 'Validation description.'},
+        ],
+      },
+      enquiryContextFields: [
+        'Application or resin system',
+        'Target market',
+        'Current grade or benchmark',
+        'Required quantity',
+        'Performance priorities and processing conditions',
+      ],
+      faq: {
+        eyebrow: 'Common Questions',
+        heading: 'Frequently Asked Questions',
+      },
+      disclaimerLabel: 'Technical Disclaimer',
+      footerDescription: 'Approved footer description.',
+    }
+    const resolve = resolver()
+    resolve.ctaHref = (kind) =>
+      `mailto:contact@tio2products.com?subject=${kind}`
+
+    const hub = toProductsHubPageDto(input, resolve)
+
+    expect(hub.presentation.knownGrade.help).toBe(
+      'Approved grade-search help.',
+    )
+    expect(hub.presentation.resources.cards.map(({category}) => category)).toEqual(
+      ['Selection', 'Treatment', 'Validation'],
+    )
+    expect(hub.presentation.hero.familyAction).toEqual({
+      label: 'Browse Product Families',
+      href: '#product-families',
+    })
+    expect(hub.presentation.hero.enquiryAction).toEqual({
+      kind: 'discuss-application',
+      label: 'Discuss Your Application',
+      href: 'mailto:contact@tio2products.com?subject=discuss-application',
+    })
+  })
+
+  it('fails closed when Hub presentation copy is missing', () => {
+    const input = clone(productsHubPageInput) as unknown as Record<
+      string,
+      unknown
+    >
+    delete input.presentation
+
+    expect(() => toProductsHubPageDto(input, resolver())).toThrow(
+      ProductPageContractError,
+    )
+  })
+
   it('derives every CTA href from ctaHref and rejects WordPress href input', () => {
     const calls: PageCta['kind'][] = []
     const resolve = resolver()
@@ -129,6 +226,20 @@ describe('Product page DTO normalization', () => {
     expect(() => toProductDetailPageDto(arbitrary, resolver())).toThrow(
       ProductPageContractError,
     )
+
+    const arbitraryHubAction = clone(productsHubPageInput) as unknown as {
+      presentation: {
+        hero: {
+          enquiryAction: Record<string, unknown>
+          familyActionHref?: string
+        }
+      }
+    }
+    arbitraryHubAction.presentation.hero.enquiryAction.href = '/arbitrary'
+    arbitraryHubAction.presentation.hero.familyActionHref = '/arbitrary'
+    expect(() =>
+      toProductsHubPageDto(arbitraryHubAction, resolver()),
+    ).toThrow(ProductPageContractError)
   })
 
   it('rejects resolver ID/path mismatches instead of forwarding them', () => {

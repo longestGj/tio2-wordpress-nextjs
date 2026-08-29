@@ -133,6 +133,137 @@ const detailEnquiryCtas = z.tuple([
   requestSampleCta,
 ])
 const detailFinalCtas = z.tuple([requestTdsCta, discussApplicationCta])
+export const APPROVED_PRODUCTS_HUB_PRESENTATION = {
+  breadcrumb: {homeLabel: 'Home', currentLabel: 'Products'},
+  hero: {
+    imageAlt: 'Titanium dioxide products for industrial applications',
+    familyActionLabel: 'Browse Product Families',
+    enquiryAction: {
+      kind: 'discuss-application',
+      label: 'Discuss Your Application',
+    },
+  },
+  families: {
+    eyebrow: 'Product Families',
+    heading: 'Start with the product family',
+    intro:
+      'Each family brings together titanium dioxide grades for a defined application and processing environment. Compare product positioning and technical focus before reviewing individual grades.',
+    singularCountLabel: 'grade',
+    pluralCountLabel: 'grades',
+  },
+  knownGrade: {
+    eyebrow: 'Known Grade',
+    heading: 'Already know the grade?',
+    help: 'Search a TIOVAR grade to open the corresponding product page.',
+    searchLabel: 'Find a TIOVAR grade',
+    searchPlaceholder: 'Try TP-C120 or C120',
+    noResults: 'No matching grade',
+  },
+  decisionPath: {
+    eyebrow: 'Decision Path',
+    heading: 'Move from product family to trial grade',
+  },
+  applicationBoundary: {
+    eyebrow: 'Two Ways to Begin',
+    heading: 'Choose the right starting point',
+    intro:
+      'Use Products to compare the TIOVAR portfolio or review a known grade. Use Applications when your starting point is a formulation, resin, process or finished-product requirement.',
+  },
+  resources: {
+    eyebrow: 'Technical Resources',
+    heading: 'Build a stronger comparison plan',
+    cards: [
+      {
+        category: 'Selection',
+        description:
+          'See how pigment properties work together in an industrial formulation.',
+      },
+      {
+        category: 'Treatment',
+        description:
+          'Connect surface treatment with dispersion, processing and finished-product performance.',
+      },
+      {
+        category: 'Validation',
+        description:
+          'Plan a matched comparison using the formulation and test conditions that matter.',
+      },
+    ],
+  },
+  enquiryContextFields: [
+    'Application or resin system',
+    'Target market',
+    'Current grade or benchmark',
+    'Required quantity',
+    'Performance priorities and processing conditions',
+  ],
+  faq: {eyebrow: 'Common Questions', heading: 'Frequently Asked Questions'},
+  disclaimerLabel: 'Technical Disclaimer',
+  footerDescription:
+    'Application-specific titanium dioxide products and technical support for industrial formulations.',
+} as const
+const hubPresentation = z
+  .object({
+    breadcrumb: z
+      .object({homeLabel: text(80), currentLabel: text(80)})
+      .strict(),
+    hero: z
+      .object({
+        imageAlt: text(300),
+        familyActionLabel: text(120),
+        enquiryAction: discussApplicationCta,
+      })
+      .strict(),
+    families: z
+      .object({
+        eyebrow: text(120),
+        heading: text(180),
+        intro: text(),
+        singularCountLabel: text(40),
+        pluralCountLabel: text(40),
+      })
+      .strict(),
+    knownGrade: z
+      .object({
+        eyebrow: text(120),
+        heading: text(180),
+        help: text(),
+        searchLabel: text(180),
+        searchPlaceholder: text(180),
+        noResults: text(180),
+      })
+      .strict(),
+    decisionPath: z
+      .object({eyebrow: text(120), heading: text(180)})
+      .strict(),
+    applicationBoundary: z
+      .object({eyebrow: text(120), heading: text(180), intro: text()})
+      .strict(),
+    resources: z
+      .object({
+        eyebrow: text(120),
+        heading: text(180),
+        cards: z.tuple([
+          z.object({category: text(120), description: text()}).strict(),
+          z.object({category: text(120), description: text()}).strict(),
+          z.object({category: text(120), description: text()}).strict(),
+        ]),
+      })
+      .strict(),
+    enquiryContextFields: z.tuple([
+      text(180),
+      text(180),
+      text(180),
+      text(180),
+      text(180),
+    ]),
+    faq: z
+      .object({eyebrow: text(120), heading: text(180)})
+      .strict(),
+    disclaimerLabel: text(180),
+    footerDescription: text(),
+  })
+  .strict()
 const enquiry = z
   .object({
     eyebrow: text(120),
@@ -224,6 +355,7 @@ export const productsHubPageInputSchema = z
     identity,
     seo,
     hero: collectionHero,
+    presentation: hubPresentation,
     decisionRail: z.array(decisionRailItem).min(1).max(8),
     families: z.array(familyCardInput).length(8),
     knownGrades: z.array(knownGradeInput).length(25),
@@ -288,6 +420,13 @@ export const productsHubPageInputSchema = z
         )
       }
     })
+    if (page.presentation.resources.cards.length !== page.resources.length) {
+      addMismatch(
+        context,
+        'Products Hub resource presentation must match every resource',
+        ['presentation', 'resources', 'cards'],
+      )
+    }
   })
 
 export const productFamilyPageInputSchema = z

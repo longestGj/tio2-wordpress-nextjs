@@ -52,6 +52,41 @@ export interface KnownGradeItem {
   href: string | null
 }
 
+export interface ProductsHubPresentation {
+  breadcrumb: {homeLabel: string; currentLabel: string}
+  hero: {
+    imageAlt: string
+    familyAction: {label: string; href: '#product-families'}
+    enquiryAction: PageCta
+  }
+  families: {
+    eyebrow: string
+    heading: string
+    intro: string
+    singularCountLabel: string
+    pluralCountLabel: string
+  }
+  knownGrade: {
+    eyebrow: string
+    heading: string
+    help: string
+    searchLabel: string
+    searchPlaceholder: string
+    noResults: string
+  }
+  decisionPath: {eyebrow: string; heading: string}
+  applicationBoundary: {eyebrow: string; heading: string; intro: string}
+  resources: {
+    eyebrow: string
+    heading: string
+    cards: Array<{category: string; description: string}>
+  }
+  enquiryContextFields: string[]
+  faq: {eyebrow: string; heading: string}
+  disclaimerLabel: string
+  footerDescription: string
+}
+
 export interface FamilyFilter {
   slug: string
   label: string
@@ -86,6 +121,7 @@ export interface ProductsHubPageDto {
     directAnswer: string
     image: string
   }
+  presentation: ProductsHubPresentation
   decisionRail: DecisionRailItem[]
   families: ProductFamilyCard[]
   knownGrades: KnownGradeItem[]

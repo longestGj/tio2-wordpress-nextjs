@@ -1,17 +1,20 @@
 import type {EditorialLink} from '@/lib/editorial/types'
+import type {ProductsHubPresentation} from '@/lib/products/page-types'
 
 import layout from './product-layout.module.css'
 
 export function ProductResourceLinks({
+  cards,
   resources,
 }: {
+  readonly cards: ProductsHubPresentation['resources']['cards']
   readonly resources: readonly EditorialLink[]
 }): React.ReactNode {
   return (
     <div className={layout.resourceGrid}>
-      {resources.map((resource) => (
+      {resources.map((resource, index) => (
         <article className={layout.resourceCard} key={`${resource.type}-${resource.id}`}>
-          <p className={layout.eyebrow}>Technical Resource</p>
+          <p className={layout.eyebrow}>{cards[index]!.category}</p>
           <h3>
             {resource.href ? (
               <a href={resource.href}>{resource.title}</a>
@@ -19,6 +22,7 @@ export function ProductResourceLinks({
               resource.title
             )}
           </h3>
+          <p>{cards[index]!.description}</p>
         </article>
       ))}
     </div>

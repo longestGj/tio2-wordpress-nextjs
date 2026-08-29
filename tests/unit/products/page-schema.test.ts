@@ -15,6 +15,75 @@ import {
 } from '@/tests/fixtures/products/product-pages'
 
 const clone = <T>(value: T): T => structuredClone(value)
+const APPROVED_HUB_PRESENTATION = {
+  breadcrumb: {homeLabel: 'Home', currentLabel: 'Products'},
+  hero: {
+    imageAlt: 'Titanium dioxide products for industrial applications',
+    familyActionLabel: 'Browse Product Families',
+    enquiryAction: {
+      kind: 'discuss-application',
+      label: 'Discuss Your Application',
+    },
+  },
+  families: {
+    eyebrow: 'Product Families',
+    heading: 'Start with the product family',
+    intro:
+      'Each family brings together titanium dioxide grades for a defined application and processing environment. Compare product positioning and technical focus before reviewing individual grades.',
+    singularCountLabel: 'grade',
+    pluralCountLabel: 'grades',
+  },
+  knownGrade: {
+    eyebrow: 'Known Grade',
+    heading: 'Already know the grade?',
+    help: 'Search a TIOVAR grade to open the corresponding product page.',
+    searchLabel: 'Find a TIOVAR grade',
+    searchPlaceholder: 'Try TP-C120 or C120',
+    noResults: 'No matching grade',
+  },
+  decisionPath: {
+    eyebrow: 'Decision Path',
+    heading: 'Move from product family to trial grade',
+  },
+  applicationBoundary: {
+    eyebrow: 'Two Ways to Begin',
+    heading: 'Choose the right starting point',
+    intro:
+      'Use Products to compare the TIOVAR portfolio or review a known grade. Use Applications when your starting point is a formulation, resin, process or finished-product requirement.',
+  },
+  resources: {
+    eyebrow: 'Technical Resources',
+    heading: 'Build a stronger comparison plan',
+    cards: [
+      {
+        category: 'Selection',
+        description:
+          'See how pigment properties work together in an industrial formulation.',
+      },
+      {
+        category: 'Treatment',
+        description:
+          'Connect surface treatment with dispersion, processing and finished-product performance.',
+      },
+      {
+        category: 'Validation',
+        description:
+          'Plan a matched comparison using the formulation and test conditions that matter.',
+      },
+    ],
+  },
+  enquiryContextFields: [
+    'Application or resin system',
+    'Target market',
+    'Current grade or benchmark',
+    'Required quantity',
+    'Performance priorities and processing conditions',
+  ],
+  faq: {eyebrow: 'Common Questions', heading: 'Frequently Asked Questions'},
+  disclaimerLabel: 'Technical Disclaimer',
+  footerDescription:
+    'Application-specific titanium dioxide products and technical support for industrial formulations.',
+} as const
 type LooseCta = {
   kind: 'discuss-application' | 'request-tds' | 'request-sample'
   label: string
@@ -133,6 +202,7 @@ describe('three-level Product page schemas', () => {
   })
 
   it('locks the representative fixture to the approved counts and distinctions', () => {
+    expect(siteAProductRepresentativeFixture.records).toHaveLength(3)
     expect(productsHubPageInput.families).toHaveLength(8)
     expect(productsHubPageInput.families.map(({count}) => count)).toEqual([
       9, 4, 4, 3, 2, 1, 1, 1,
@@ -174,6 +244,31 @@ describe('three-level Product page schemas', () => {
       'g/100 g',
       'micrometres',
     ])
+  })
+
+  it('requires the complete Hub presentation contract and rejects malformed copy', () => {
+    const expanded = clone(productsHubPageInput) as unknown as Record<
+      string,
+      unknown
+    >
+    expanded.presentation = structuredClone(APPROVED_HUB_PRESENTATION)
+    expect(productsHubPageInputSchema.safeParse(expanded).success).toBe(true)
+
+    const missing = structuredClone(expanded)
+    delete missing.presentation
+    expect(productsHubPageInputSchema.safeParse(missing).success).toBe(false)
+
+    const malformed = structuredClone(expanded) as {
+      presentation: {
+        knownGrade: {searchPlaceholder: string}
+        resources: {cards: unknown[]}
+        enquiryContextFields: string[]
+      }
+    }
+    malformed.presentation.knownGrade.searchPlaceholder = ''
+    malformed.presentation.resources.cards.pop()
+    malformed.presentation.enquiryContextFields.pop()
+    expect(productsHubPageInputSchema.safeParse(malformed).success).toBe(false)
   })
 
   it('contains no private document, download, or commercial leakage', () => {
