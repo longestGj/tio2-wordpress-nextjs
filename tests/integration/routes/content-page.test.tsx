@@ -6,6 +6,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {graphqlEndpoint} from '@/tests/mocks/handlers'
 import {server} from '@/tests/mocks/server'
 import {tamperTokenSegmentByte} from '@/tests/utils/tamper-token'
+import {previewSessionCookieName} from '@/lib/wordpress/preview-session'
 
 const {cookies, draftMode} = vi.hoisted(() => ({
   cookies: vi.fn(),
@@ -56,10 +57,10 @@ function scopedPreviewCookie(
   return `${payload}.${signature}`
 }
 
-function servePreviewCookie(value?: string) {
+function servePreviewCookie(value?: string, path = '/draft-page') {
   cookies.mockResolvedValue({
     get: (name: string) =>
-      name === 'tio2_preview_scope' && value ? {value} : undefined,
+      name === previewSessionCookieName(path) && value ? {value} : undefined,
   })
 }
 

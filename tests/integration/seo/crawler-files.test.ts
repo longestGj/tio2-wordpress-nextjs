@@ -7,8 +7,8 @@ import {buildPageMetadata} from '@/lib/seo/metadata'
 import {getContentByPath} from '@/lib/wordpress/queries'
 import {
   graphqlEndpoint,
-  makeSiteAEditorialHomepageNode,
 } from '@/tests/mocks/handlers'
+import {makeSiteABrandHomepageNode} from '@/tests/mocks/site-a-brand-homepage'
 import {server} from '@/tests/mocks/server'
 import {getSiteConfig} from '@/sites'
 
@@ -58,7 +58,7 @@ describe('inventory sitemap through GraphQL', () => {
         graphqlQueries.push(query)
         if (query.includes('tio2Homepage(')) {
           return HttpResponse.json({
-            data: {tio2Homepage: makeSiteAEditorialHomepageNode()},
+            data: {tio2Homepage: makeSiteABrandHomepageNode()},
           })
         }
         return HttpResponse.json({
@@ -70,7 +70,7 @@ describe('inventory sitemap through GraphQL', () => {
     await expect(buildSitemap(getSiteConfig('tio2-a'))).resolves.toEqual([
       {
         url: 'https://tio2products.com/',
-        lastModified: new Date('2026-08-26T08:30:00.000Z'),
+        lastModified: new Date('2026-08-28T10:00:00.000Z'),
       },
     ])
     expect(graphqlQueries).toHaveLength(1)

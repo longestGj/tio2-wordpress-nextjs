@@ -3,6 +3,7 @@ import {http, HttpResponse} from 'msw'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {server} from '@/tests/mocks/server'
+import {previewSessionCookieName} from '@/lib/wordpress/preview-session'
 
 const {enable, draftMode, redirect} = vi.hoisted(() => ({
   enable: vi.fn(),
@@ -241,7 +242,7 @@ describe('GET /api/preview', () => {
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toBe(path)
     expect(response.headers.get('set-cookie')).toContain(
-      'tio2_preview_scope=',
+      `${previewSessionCookieName(path)}=`,
     )
     expect(response.headers.get('set-cookie')).toContain('HttpOnly')
     expect(response.headers.get('set-cookie')).toContain('SameSite=Lax')
