@@ -1,5 +1,6 @@
 import {createHmac} from 'node:crypto'
 import {mkdirSync} from 'node:fs'
+import {createServer} from 'node:http'
 import {resolve} from 'node:path'
 
 import {expect, test, type Page} from '@playwright/test'
@@ -11,12 +12,15 @@ import {
   type ProductReviewRuntime,
 } from './support/product-review-preview-source'
 
+type HubReviewRuntime = Pick<ProductReviewRuntime, 'baseUrl' | 'url'>
+
 const views = [
   {
     id: 'products-hub',
     canonicalPath: '/products',
     expectedH1: 'Titanium Dioxide Products',
     imageName: 'products-hub-hero.jpg',
+    imagePath: '/site-a/products/products-hub-hero.jpg',
     imageAlt: 'Titanium dioxide products for industrial applications',
     breadcrumb: ['Home', 'Products'],
     faqCount: 4,
@@ -32,6 +36,7 @@ const views = [
     canonicalPath: '/products/coatings',
     expectedH1: 'Titanium Dioxide Products for Coatings',
     imageName: 'coatings-family-hero.png',
+    imagePath: '/site-a/products/coatings-family-hero.png',
     imageAlt: 'Titanium dioxide for coatings',
     breadcrumb: ['Home', 'Products', 'Coatings'],
     faqCount: 4,
@@ -47,6 +52,7 @@ const views = [
     canonicalPath: '/products/coatings/tp-c120',
     expectedH1: 'TIOVAR TP‑C120 Rutile Titanium Dioxide',
     imageName: 'tp-c120-hero.png',
+    imagePath: '/site-a/products/tp-c120-hero.png',
     imageAlt: 'TP-C120 rutile titanium dioxide for water-based paint',
     breadcrumb: ['Home', 'Products', 'Coatings', 'TP-C120'],
     faqCount: 6,
@@ -91,6 +97,56 @@ const technicalRows = [
 
 const evidenceDirectory = resolve('.tmp/site-a-products-review-evidence')
 const captureEvidence = process.env.CAPTURE_PRODUCT_REVIEW_EVIDENCE === '1'
+const forbiddenLeakagePattern = /(?:\.pdf|\/documents\/tds|[A-Z]:[\\/][A-Z0-9_.-]|supplier(?:'s)?\s+(?:grade|model)|original\s+grade|\bmanufacturer\b|\bproducer\b|\bfactory\b|\blegal\s+(?:identity|entity|name)\b|\bprice\b|\bstock\b|\bMOQ\b|TDS\s+download|TiO2\s+B|tio2hub\.com)/iu
+
+function normalizeLeakageSurface(value: string): string {
+  const namedEntities: Readonly<Record<string, string>> = {
+    amp: '&', apos: "'", bsol: '\\', colon: ':', gt: '>', lt: '<',
+    newline: '\n', nbsp: ' ', period: '.', quot: '"', sol: '/', tab: '\t',
+  }
+  let normalized = value.normalize('NFKC')
+  for (let pass = 0; pass < 5; pass += 1) {
+    const before = normalized
+    normalized = normalized
+      .replace(/&#x([0-9a-f]+);?/giu, (_match, hex: string) =>
+        String.fromCodePoint(Number.parseInt(hex, 16)))
+      .replace(/&#([0-9]+);?/gu, (_match, decimal: string) =>
+        String.fromCodePoint(Number.parseInt(decimal, 10)))
+      .replace(/&(amp|apos|bsol|colon|gt|lt|newline|nbsp|period|quot|sol|tab);/giu,
+        (_match, name: string) => namedEntities[name.toLowerCase()] ?? _match)
+      .replace(/\\+u\{([0-9a-f]+)\}/giu, (_match, hex: string) =>
+        String.fromCodePoint(Number.parseInt(hex, 16)))
+      .replace(/\\+u([0-9a-f]{4})/giu, (_match, hex: string) =>
+        String.fromCharCode(Number.parseInt(hex, 16)))
+      .replace(/\\+x([0-9a-f]{2})/giu, (_match, hex: string) =>
+        String.fromCharCode(Number.parseInt(hex, 16)))
+      .replace(/\\+\//gu, '/')
+      .replace(/(?:%[0-9a-f]{2})+/giu, (encoded) => {
+        try {
+          return decodeURIComponent(encoded)
+        } catch {
+          return encoded
+        }
+      })
+      .replace(/[\u200B-\u200D\u2060\uFEFF]/gu, '')
+    if (normalized === before) break
+  }
+  return normalized
+}
+
+function expectNoLeakage(
+  surfaces: ReadonlyArray<{readonly label: string; readonly value: string}>,
+): void {
+  for (const surface of surfaces) {
+    const normalized = normalizeLeakageSurface(surface.value)
+    const match = forbiddenLeakagePattern.exec(normalized)
+    const matchIndex = match?.index ?? 0
+    expect(
+      match,
+      `${surface.label}: ${JSON.stringify(match?.[0])} near ${JSON.stringify(normalized.slice(Math.max(0, matchIndex - 80), matchIndex + 160))}`,
+    ).toBeNull()
+  }
+}
 
 interface BrowserAudit {
   readonly blockedRemoteRequests: string[]
@@ -187,6 +243,22 @@ function expectNoPreviewCache(headers: Record<string, string>): void {
   expect(headers['x-nextjs-cache'] ?? '').not.toMatch(/hit/iu)
 }
 
+function originalAssetPath(renderedSource: string, baseUrl: string): string {
+  const renderedUrl = new URL(renderedSource, baseUrl)
+  if (!['http:', 'https:'].includes(renderedUrl.protocol)) {
+    throw new Error(`Hero image is not an HTTP asset: ${renderedUrl.protocol}`)
+  }
+  const originalSource = renderedUrl.pathname === '/_next/image'
+    ? renderedUrl.searchParams.get('url')
+    : renderedUrl.href
+  if (!originalSource) throw new Error('Next Image URL has no original asset URL')
+  const originalUrl = new URL(originalSource, baseUrl)
+  if (!['http:', 'https:'].includes(originalUrl.protocol)) {
+    throw new Error(`Original hero image is not an HTTP asset: ${originalUrl.protocol}`)
+  }
+  return decodeURIComponent(originalUrl.pathname)
+}
+
 async function sourceResponse(
   sourceUrl: string,
   {
@@ -211,6 +283,41 @@ async function sourceResponse(
   })
 }
 
+async function startBrokenSitemapProbe(): Promise<{
+  readonly close: () => Promise<void>
+  readonly runtime: HubReviewRuntime
+}> {
+  const server = createServer((request, response) => {
+    if (request.url === '/') {
+      response.writeHead(200, {'content-type': 'text/html'}).end('<main>Home</main>')
+      return
+    }
+    response.writeHead(503, {'content-type': 'text/plain'}).end('unavailable')
+  })
+  await new Promise<void>((resolveListen, rejectListen) => {
+    server.once('error', rejectListen)
+    server.listen(0, '127.0.0.1', resolveListen)
+  })
+  const address = server.address()
+  if (!address || typeof address === 'string') {
+    throw new Error('Sitemap status probe did not bind')
+  }
+  const baseUrl = `http://127.0.0.1:${address.port}`
+  return {
+    async close(): Promise<void> {
+      await new Promise<void>((resolveClose, rejectClose) => {
+        server.close((error) => error ? rejectClose(error) : resolveClose())
+      })
+    },
+    runtime: {
+      baseUrl,
+      url(path: string): string {
+        return new URL(path, baseUrl).href
+      },
+    },
+  }
+}
+
 async function expectSignedSourceContract(): Promise<void> {
   const source = await startProductReviewPreviewSource()
   try {
@@ -222,7 +329,12 @@ async function expectSignedSourceContract(): Promise<void> {
       const response = await sourceResponse(source.url, {path})
       expect(response.status).toBe(200)
       expect(response.headers.get('cache-control')).toBe('no-store')
-      await expect(response.json()).resolves.toMatchObject({level, path})
+      const responseBody = await response.text()
+      expectNoLeakage([{
+        label: `Authenticated preview-source body for ${path}`,
+        value: responseBody,
+      }])
+      expect(JSON.parse(responseBody)).toMatchObject({level, path})
     }
 
     const staleTimestamp = Math.floor(Date.now() / 1000) - 120
@@ -250,6 +362,7 @@ async function expectCommonContracts(
   page: Page,
   runtime: ProductReviewRuntime,
   view: (typeof views)[number],
+  previewResponseBody: string,
 ): Promise<void> {
   await expect(page.getByRole('heading', {level: 1})).toHaveCount(1)
   await expect(
@@ -263,7 +376,10 @@ async function expectCommonContracts(
 
   const heroImage = page.locator('[data-product-section="hero"] img')
   await expect(heroImage).toHaveAttribute('alt', view.imageAlt)
-  expect(await heroImage.getAttribute('src')).toContain(view.imageName)
+  const renderedHeroSource = await heroImage.getAttribute('src')
+  if (!renderedHeroSource) throw new Error('Hero image has no rendered source')
+  expect(originalAssetPath(renderedHeroSource, runtime.baseUrl))
+    .toBe(view.imagePath)
 
   const breadcrumb = page.getByRole('navigation', {name: 'Breadcrumb'})
   await expect(breadcrumb.getByRole('list')).toHaveCount(1)
@@ -290,10 +406,11 @@ async function expectCommonContracts(
   await firstFaq.locator('summary').click()
   await expect(firstFaq).not.toHaveAttribute('open', '')
 
-  const visibleText = await page.locator('body').innerText()
-  expect(visibleText).not.toMatch(
-    /(?:\.pdf|\/documents\/tds|[A-Z]:[\\/]|supplier(?:'s)?\s+(?:grade|model)|original\s+grade|\bmanufacturer\b|\bproducer\b|\bfactory\b|\blegal\s+(?:identity|entity|name)\b|\bprice\b|\bstock\b|\bMOQ\b|TDS\s+download|TiO2\s+B|tio2hub\.com)/iu,
-  )
+  expectNoLeakage([
+    {label: 'Visible page text', value: await page.locator('body').innerText()},
+    {label: 'Serialized page HTML', value: await page.content()},
+    {label: 'Authenticated preview response body', value: previewResponseBody},
+  ])
   await expect(page.locator('a[download]')).toHaveCount(0)
   await expect(page.locator('a[href$=".pdf" i]')).toHaveCount(0)
   await expect(page.locator('a[href*="/documents/tds" i]')).toHaveCount(0)
@@ -308,7 +425,7 @@ async function expectCommonContracts(
 
 async function expectHubContracts(
   page: Page,
-  runtime: ProductReviewRuntime,
+  runtime: HubReviewRuntime,
 ): Promise<void> {
   await expect(page.locator('[data-product-family]')).toHaveCount(8)
   await expect(page.locator('[data-known-grade-item]')).toHaveCount(25)
@@ -327,12 +444,11 @@ async function expectHubContracts(
   const sitemap = await page.request.get(
     new URL('/sitemap.xml', runtime.baseUrl).href,
     {
-    failOnStatusCode: false,
+      failOnStatusCode: false,
     },
   )
-  if (sitemap.status() === 200) {
-    expect(await sitemap.text()).not.toMatch(/<loc>[^<]*\/products(?:\/|<)/iu)
-  }
+  expect(sitemap.status()).toBe(200)
+  expect(await sitemap.text()).not.toMatch(/<loc>[^<]*\/products(?:\/|<)/iu)
 }
 
 async function expectCoatingsContracts(
@@ -466,10 +582,47 @@ test.describe('six protected Product review views', () => {
         expect(response?.ok()).toBe(true)
         expect(page.url()).toBe(`${runtime.baseUrl}/preview${view.canonicalPath}`)
         expectNoPreviewCache(response?.headers() ?? {})
-        await expectCommonContracts(page, runtime, view)
+        const previewResponseBody = await response?.text() ?? ''
+        if (view.id === 'products-hub' && viewport.name === 'desktop') {
+          await page.evaluate(() => {
+            const hiddenLeak = document.createElement('div')
+            hiddenLeak.hidden = true
+            hiddenLeak.dataset.privatePath = '%2Fdocuments%2Ftds%2Fprivate%2Epdf'
+            const serializedLeak = document.createElement('script')
+            serializedLeak.type = 'application/json'
+            serializedLeak.textContent = '{"identity":"legal\\u0020identity"}'
+            document.body.append(hiddenLeak, serializedLeak)
+          })
+          await expect(
+            expectCommonContracts(page, runtime, view, previewResponseBody),
+          ).rejects.toThrow()
+          await page.reload({waitUntil: 'networkidle'})
+          await page.locator('[data-product-section="hero"] img').evaluate(
+            (image, imageName) => image.setAttribute(
+              'src',
+              `data:image/svg+xml,<svg>${imageName}-legacy</svg>`,
+            ),
+            view.imageName,
+          )
+          await expect(
+            expectCommonContracts(page, runtime, view, previewResponseBody),
+          ).rejects.toThrow()
+          await page.reload({waitUntil: 'networkidle'})
+        }
+        await expectCommonContracts(page, runtime, view, previewResponseBody)
 
         if (view.id === 'products-hub') {
           await expectHubContracts(page, runtime)
+          if (viewport.name === 'desktop') {
+            const brokenSitemap = await startBrokenSitemapProbe()
+            try {
+              await expect(
+                expectHubContracts(page, brokenSitemap.runtime),
+              ).rejects.toThrow()
+            } finally {
+              await brokenSitemap.close()
+            }
+          }
         } else if (view.id === 'coatings') {
           await expectCoatingsContracts(page, viewport.name)
         } else {
