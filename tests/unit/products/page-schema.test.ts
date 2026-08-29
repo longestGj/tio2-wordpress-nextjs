@@ -6,6 +6,7 @@ import {
   productFamilyPageInputSchema,
   productsHubPageInputSchema,
   siteAProductRepresentativeFixtureSchema,
+  type ProductDetailPageInput,
 } from '@/lib/products/page-schema'
 import {
   coatingsFamilyPageInput,
@@ -15,6 +16,89 @@ import {
 } from '@/tests/fixtures/products/product-pages'
 
 const clone = <T>(value: T): T => structuredClone(value)
+
+const EXPECTED_TP_C120_PRIORITIES = [
+  {title: 'Viscosity', explanation: 'Compare slurry and finished-paint viscosity in the intended formulation.'},
+  {title: 'Hiding power', explanation: 'Measure wet and dry opacity at the target pigment loading and film thickness.'},
+  {title: 'Bluish tone & whiteness', explanation: 'Compare dry L*, dry b*, CBU and visual color against the formulation target.'},
+  {title: 'Gloss', explanation: 'Measure gloss after the selected dispersion, application and cure procedure.'},
+  {title: 'Durability', explanation: 'Check scrub, washability and exterior exposure where required.'},
+] as const
+
+const EXPECTED_TP_C120_VALIDATION = [
+  {index: '01', title: 'Define the formulation', description: 'Binder chemistry, PVC, solids, dispersant package, pigment loading and application method.'},
+  {index: '02', title: 'Optimize dispersion', description: 'Compare viscosity across the agreed shear range and optimize dispersant demand first.'},
+  {index: '03', title: 'Measure color and hiding', description: 'Wet and dry opacity, dry L*, dry b*, CBU and visual whiteness.'},
+  {index: '04', title: 'Check stability', description: 'Grind quality, fineness, storage stability and application behavior.'},
+  {index: '05', title: 'Validate the film', description: 'Gloss, scrub, washability and film appearance after the selected cure.'},
+  {index: '06', title: 'Test exterior use', description: 'Run exterior exposure or accelerated weathering where required.'},
+] as const
+
+const EXPECTED_TP_C120_ENQUIRY_ITEMS = [
+  'Binder chemistry and emulsion type',
+  'PVC range and solids target',
+  'Dispersant package and pigment loading',
+  'Viscosity target and shear range',
+  'Interior or exterior use',
+  'Destination market and expected quantity',
+] as const
+
+const EXPECTED_TP_C120_FAQS = [
+  {question: 'What is TIOVAR TP‑C120?', answerHtml: '<p>TP‑C120 is a TIOVAR premium-positioned, chloride-process rutile titanium dioxide pigment intended for water-based interior and exterior wall emulsion paints.</p>'},
+  {question: 'What coating applications is TP‑C120 intended for?', answerHtml: '<p>TP‑C120 is intended for water-based interior and exterior wall emulsion paints.</p>'},
+  {question: 'What surface treatment does TP‑C120 use?', answerHtml: '<p>TP‑C120 uses zirconium-aluminum and special organic surface treatment.</p>'},
+  {question: 'Is TP‑C120 suitable for interior and exterior wall paint?', answerHtml: '<p>TP‑C120 is intended for water-based interior and exterior wall emulsion paints. Final performance should be confirmed in the intended formulation.</p>'},
+  {question: 'Which properties should be checked during formulation trials?', answerHtml: '<p>Check viscosity, dispersant demand, grind quality, hiding, dry color, gloss, storage stability, scrub, washability and exterior durability where required.</p>'},
+  {question: 'How can I request a TDS or sample?', answerHtml: '<p>Include TP‑C120, the binder, PVC range, viscosity target, application and destination market with the enquiry.</p>'},
+] as const
+
+const EXPECTED_TP_C120_RELATED = {
+  products: ['TP-C100', 'TP-C110', 'TP-C200'],
+  resources: ['article-04', 'article-06'],
+  family: 'coatings',
+} as const
+
+function expectDetailMutationRejected(
+  mutate: (input: ProductDetailPageInput) => void,
+): void {
+  const input = clone(tpC120ProductPageInput)
+  mutate(input)
+  expect(productDetailPageInputSchema.safeParse(input).success).toBe(false)
+}
+
+function swapFirstTwo<T>(items: T[]): void {
+  ;[items[0], items[1]] = [items[1]!, items[0]!]
+}
+
+const TP_C120_COMPLETENESS_MUTATIONS: ReadonlyArray<
+  readonly [string, (input: ProductDetailPageInput) => void]
+> = [
+  ['delete priority', (input) => { input.formulationPriorities.pop() }],
+  ['add priority', (input) => { input.formulationPriorities.push({title: 'Other priority', explanation: 'Other explanation.'}) }],
+  ['reorder priorities', (input) => { swapFirstTwo(input.formulationPriorities) }],
+  ['replace priority', (input) => { input.formulationPriorities[0] = {title: 'Other priority', explanation: 'Other explanation.'} }],
+  ['delete validation step', (input) => { input.validationSteps.pop() }],
+  ['add validation step', (input) => { input.validationSteps.push({index: '07', title: 'Other step', description: 'Other description.'}) }],
+  ['reorder validation steps', (input) => { swapFirstTwo(input.validationSteps) }],
+  ['replace validation step', (input) => { input.validationSteps[0] = {index: '07', title: 'Other step', description: 'Other description.'} }],
+  ['delete enquiry item', (input) => { input.enquiryPreparation.items.pop() }],
+  ['add enquiry item', (input) => { input.enquiryPreparation.items.push('Other input') }],
+  ['reorder enquiry items', (input) => { swapFirstTwo(input.enquiryPreparation.items) }],
+  ['replace enquiry item', (input) => { input.enquiryPreparation.items[0] = 'Other input' }],
+  ['delete FAQ', (input) => { input.faqs.pop() }],
+  ['add FAQ', (input) => { input.faqs.push({question: 'Other question?', answerHtml: '<p>Other answer.</p>'}) }],
+  ['reorder FAQs', (input) => { swapFirstTwo(input.faqs) }],
+  ['replace FAQ', (input) => { input.faqs[0] = {question: 'Other question?', answerHtml: '<p>Other answer.</p>'} }],
+  ['delete related Product', (input) => { input.relatedLinks.products.pop() }],
+  ['add related Product', (input) => { input.relatedLinks.products.push({type: 'product', id: 'TP-C300'}) }],
+  ['reorder related Products', (input) => { swapFirstTwo(input.relatedLinks.products) }],
+  ['replace related Product', (input) => { input.relatedLinks.products[0] = {type: 'product', id: 'TP-C300'} }],
+  ['delete related Resource', (input) => { input.relatedLinks.resources.pop() }],
+  ['add related Resource', (input) => { input.relatedLinks.resources.push({type: 'resource', id: 'article-03'}) }],
+  ['reorder related Resources', (input) => { swapFirstTwo(input.relatedLinks.resources) }],
+  ['replace related Resource', (input) => { input.relatedLinks.resources[0] = {type: 'resource', id: 'article-03'} }],
+  ['replace Family return', (input) => { input.relatedLinks.family = {type: 'product', id: 'plastics-masterbatch'} }],
+]
 const APPROVED_HUB_PRESENTATION = {
   breadcrumb: {homeLabel: 'Home', currentLabel: 'Products'},
   hero: {
@@ -454,6 +538,94 @@ describe('three-level Product page schemas', () => {
     const modified = clone(tpC120ProductPageInput)
     modified.technicalProperties[4]!.unit = 'kg/m3'
     expect(productDetailPageInputSchema.safeParse(modified).success).toBe(false)
+  })
+
+  it('locks every approved TP-C120 completeness sequence independently from the fixture', () => {
+    expect(tpC120ProductPageInput.formulationPriorities).toEqual(
+      EXPECTED_TP_C120_PRIORITIES,
+    )
+    expect(tpC120ProductPageInput.validationSteps).toEqual(
+      EXPECTED_TP_C120_VALIDATION,
+    )
+    expect(tpC120ProductPageInput.enquiryPreparation.items).toEqual(
+      EXPECTED_TP_C120_ENQUIRY_ITEMS,
+    )
+    expect(tpC120ProductPageInput.faqs).toEqual(EXPECTED_TP_C120_FAQS)
+    expect(tpC120ProductPageInput.relatedLinks.products.map(({id}) => id)).toEqual(
+      EXPECTED_TP_C120_RELATED.products,
+    )
+    expect(tpC120ProductPageInput.relatedLinks.resources.map(({id}) => id)).toEqual(
+      EXPECTED_TP_C120_RELATED.resources,
+    )
+    expect(tpC120ProductPageInput.relatedLinks.family.id).toBe(
+      EXPECTED_TP_C120_RELATED.family,
+    )
+  })
+
+  it.each(TP_C120_COMPLETENESS_MUTATIONS)(
+    'fails closed on TP-C120 completeness drift: %s',
+    (_name, mutate) => {
+      expectDetailMutationRejected(mutate)
+    },
+  )
+
+  it.each([
+    'presentation',
+    'formulationPriorities',
+    'validationSteps',
+    'enquiryPreparation',
+    'faqs',
+    'relatedLinks',
+  ] as const)('requires the TP-C120 %s module', (moduleName) => {
+    expectDetailMutationRejected((input) => {
+      Reflect.deleteProperty(input, moduleName)
+    })
+  })
+
+  it.each([
+    ['cited in Hero HTML', (input: ProductDetailPageInput) => {
+      input.hero.directAnswer = '<p>This grade is CiTeD in a source.</p>'
+    }],
+    ['listed for in Snapshot', (input: ProductDetailPageInput) => {
+      input.snapshot[0]!.value = 'LISTED FOR a coating use'
+    }],
+    ['formulation evaluation in Technical Note', (input: ProductDetailPageInput) => {
+      input.technicalNote = 'Use this for formulation evaluation.'
+    }],
+    ['Reported Technical Data in Fit Check', (input: ProductDetailPageInput) => {
+      input.fitCheck.fitWhen[0] = 'Reported Technical Data supports the choice.'
+    }],
+    ['Reported value in priorities', (input: ProductDetailPageInput) => {
+      input.formulationPriorities[0]!.explanation = 'A REPORTED VALUE is available.'
+    }],
+    ['source TDS across Validation HTML-like text', (input: ProductDetailPageInput) => {
+      input.validationSteps[0]!.description = 'Review the source <strong>TDS</strong> first.'
+    }],
+    ['reproduce in Application Context', (input: ProductDetailPageInput) => {
+      input.applicationContext.description = 'RePrOdUcE the source trial.'
+    }],
+    ['The current TDS lists in Enquiry Preparation', (input: ProductDetailPageInput) => {
+      input.enquiryPreparation.packaging = 'The current TDS lists packaging.'
+    }],
+    ['The current TDS states in FAQ HTML', (input: ProductDetailPageInput) => {
+      input.faqs[0]!.answerHtml = '<p>THE CURRENT TDS STATES this answer.</p>'
+    }],
+    ['TDS does not state in Disclaimer HTML', (input: ProductDetailPageInput) => {
+      input.disclaimerHtml = '<p>The TDS does not state a limit.</p>'
+    }],
+  ])('rejects forbidden audit/source language: %s', (_name, mutate) => {
+    expectDetailMutationRejected(mutate)
+  })
+
+  it('continues to allow approved customer-facing technical data, evaluation, and request-only TDS wording', () => {
+    expect(productDetailPageInputSchema.safeParse(tpC120ProductPageInput).success).toBe(true)
+    expect(tpC120ProductPageInput.presentation.technicalData.heading).toContain(
+      'Technical Properties',
+    )
+    expect(tpC120ProductPageInput.disclaimerHtml).toContain('technical evaluation')
+    expect(tpC120ProductPageInput.enquiryPreparation.tdsAccess).toContain(
+      'TDS is available on request',
+    )
   })
 
   it.each([

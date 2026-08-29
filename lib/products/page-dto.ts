@@ -11,6 +11,7 @@ import type {EditorialLink, EditorialTarget} from '@/lib/editorial/types'
 
 import {SITE_A_PRODUCT_IDENTITIES} from './page-graph'
 import {
+  containsForbiddenProductDetailAuditLanguage,
   productDetailPageInputSchema,
   productFamilyPageInputSchema,
   productsHubPageInputSchema,
@@ -101,6 +102,18 @@ function checkedProductHref(
   path: string,
 ): string | null {
   return checkedEditorialLink({type: 'product', id}, resolve, path).href
+}
+
+function checkedDetailEditorialLink(
+  target: EditorialTarget,
+  resolve: ProductPageResolver,
+  path: string,
+): EditorialLink {
+  const link = checkedEditorialLink(target, resolve, path)
+  if (containsForbiddenProductDetailAuditLanguage(link.title)) {
+    throw new ProductPageContractError([`${path}.title`])
+  }
+  return link
 }
 
 function normalizeCtas(
@@ -368,7 +381,7 @@ function normalizeDetail(
       eyebrow: page.applicationContext.eyebrow,
       heading: page.applicationContext.heading,
       description: page.applicationContext.description,
-      application: checkedEditorialLink(
+      application: checkedDetailEditorialLink(
         page.applicationContext.application,
         resolve,
         'applicationContext.application',
@@ -387,20 +400,20 @@ function normalizeDetail(
     faqs: normalizeFaqs(page.faqs),
     relatedLinks: {
       products: page.relatedLinks.products.map((target, index) =>
-        checkedEditorialLink(
+        checkedDetailEditorialLink(
           target,
           resolve,
           `relatedLinks.products.${index}`,
         ),
       ),
       resources: page.relatedLinks.resources.map((target, index) =>
-        checkedEditorialLink(
+        checkedDetailEditorialLink(
           target,
           resolve,
           `relatedLinks.resources.${index}`,
         ),
       ),
-      family: checkedEditorialLink(
+      family: checkedDetailEditorialLink(
         page.relatedLinks.family,
         resolve,
         'relatedLinks.family',

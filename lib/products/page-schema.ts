@@ -12,6 +12,7 @@ import {
   normalizeEditorialInternalPath,
   sanitizeEditorialRichText,
 } from '@/lib/editorial/rich-text'
+import {htmlToPlainText} from '@/lib/seo/text'
 
 import {
   SITE_A_PRODUCT_FAMILIES,
@@ -27,6 +28,42 @@ const DOWNLOAD_PATTERN = /\bdownload(?:able|ed|ing|s)?\b/iu
 const INTERNAL_COPY_PATH_PATTERN = /(?:^|[\s"'(=])\/[a-z0-9][a-z0-9/_-]*/iu
 const DOWNLOAD_PATH_PATTERN = /\/downloads?(?:\/|\b)/iu
 const IMAGE_PATTERN = /^\/site-a\/products\/[a-z0-9]+(?:-[a-z0-9]+)*\.(?:jpg|png)$/u
+const FORBIDDEN_DETAIL_AUDIT_LANGUAGE_PATTERN =
+  /\bcited\b|\blisted\s+for\b|\bformulation\s+evaluation\b|\breported\s+technical\s+data\b|\breported\s+values?\b|\bsource\s+tds\b|\breproduce\b|\bthe\s+current\s+tds\s+lists\b|\bthe\s+current\s+tds\s+states\b|\btds\s+does\s+not\s+state\b/iu
+
+export function containsForbiddenProductDetailAuditLanguage(
+  value: string,
+): boolean {
+  return (
+    FORBIDDEN_DETAIL_AUDIT_LANGUAGE_PATTERN.test(value) ||
+    FORBIDDEN_DETAIL_AUDIT_LANGUAGE_PATTERN.test(
+      htmlToPlainText(value, Number.MAX_SAFE_INTEGER),
+    )
+  )
+}
+
+function forbiddenDetailVisibleTextPath(
+  value: unknown,
+  path: Array<string | number> = [],
+): Array<string | number> | null {
+  if (typeof value === 'string') {
+    return containsForbiddenProductDetailAuditLanguage(value) ? path : null
+  }
+  if (Array.isArray(value)) {
+    for (const [index, item] of value.entries()) {
+      const match = forbiddenDetailVisibleTextPath(item, [...path, index])
+      if (match) return match
+    }
+    return null
+  }
+  if (value && typeof value === 'object') {
+    for (const [key, item] of Object.entries(value)) {
+      const match = forbiddenDetailVisibleTextPath(item, [...path, key])
+      if (match) return match
+    }
+  }
+  return null
+}
 
 function addProductCopySafetyIssue(
   value: string,
@@ -793,6 +830,49 @@ export const TP_C120_TECHNICAL_PROPERTIES = [
   ['Mean particle size', '0.27', 'micrometres'],
 ] as const
 
+export const TP_C120_FORMULATION_PRIORITIES = [
+  {title: 'Viscosity', explanation: 'Compare slurry and finished-paint viscosity in the intended formulation.'},
+  {title: 'Hiding power', explanation: 'Measure wet and dry opacity at the target pigment loading and film thickness.'},
+  {title: 'Bluish tone & whiteness', explanation: 'Compare dry L*, dry b*, CBU and visual color against the formulation target.'},
+  {title: 'Gloss', explanation: 'Measure gloss after the selected dispersion, application and cure procedure.'},
+  {title: 'Durability', explanation: 'Check scrub, washability and exterior exposure where required.'},
+] as const
+
+export const TP_C120_VALIDATION_STEPS = [
+  {index: '01', title: 'Define the formulation', description: 'Binder chemistry, PVC, solids, dispersant package, pigment loading and application method.'},
+  {index: '02', title: 'Optimize dispersion', description: 'Compare viscosity across the agreed shear range and optimize dispersant demand first.'},
+  {index: '03', title: 'Measure color and hiding', description: 'Wet and dry opacity, dry L*, dry b*, CBU and visual whiteness.'},
+  {index: '04', title: 'Check stability', description: 'Grind quality, fineness, storage stability and application behavior.'},
+  {index: '05', title: 'Validate the film', description: 'Gloss, scrub, washability and film appearance after the selected cure.'},
+  {index: '06', title: 'Test exterior use', description: 'Run exterior exposure or accelerated weathering where required.'},
+] as const
+
+export const TP_C120_ENQUIRY_ITEMS = [
+  'Binder chemistry and emulsion type',
+  'PVC range and solids target',
+  'Dispersant package and pigment loading',
+  'Viscosity target and shear range',
+  'Interior or exterior use',
+  'Destination market and expected quantity',
+] as const
+
+export const TP_C120_FAQS = [
+  {question: 'What is TIOVAR TP‑C120?', answerHtml: '<p>TP‑C120 is a TIOVAR premium-positioned, chloride-process rutile titanium dioxide pigment intended for water-based interior and exterior wall emulsion paints.</p>'},
+  {question: 'What coating applications is TP‑C120 intended for?', answerHtml: '<p>TP‑C120 is intended for water-based interior and exterior wall emulsion paints.</p>'},
+  {question: 'What surface treatment does TP‑C120 use?', answerHtml: '<p>TP‑C120 uses zirconium-aluminum and special organic surface treatment.</p>'},
+  {question: 'Is TP‑C120 suitable for interior and exterior wall paint?', answerHtml: '<p>TP‑C120 is intended for water-based interior and exterior wall emulsion paints. Final performance should be confirmed in the intended formulation.</p>'},
+  {question: 'Which properties should be checked during formulation trials?', answerHtml: '<p>Check viscosity, dispersant demand, grind quality, hiding, dry color, gloss, storage stability, scrub, washability and exterior durability where required.</p>'},
+  {question: 'How can I request a TDS or sample?', answerHtml: '<p>Include TP‑C120, the binder, PVC range, viscosity target, application and destination market with the enquiry.</p>'},
+] as const
+
+export const TP_C120_RELATED_PRODUCT_IDS = [
+  'TP-C100',
+  'TP-C110',
+  'TP-C200',
+] as const
+export const TP_C120_RELATED_RESOURCE_IDS = ['article-04', 'article-06'] as const
+export const TP_C120_FAMILY_RETURN_ID = 'coatings'
+
 export const APPROVED_PRODUCT_DETAIL_PRESENTATION = {
   breadcrumb: {
     homeLabel: 'Home',
@@ -993,6 +1073,15 @@ export const productDetailPageInputSchema = z
   })
   .strict()
   .superRefine((page, context) => {
+    const forbiddenVisibleTextPath = forbiddenDetailVisibleTextPath(page)
+    if (forbiddenVisibleTextPath) {
+      addMismatch(
+        context,
+        'Product Detail visible content contains audit or source language',
+        forbiddenVisibleTextPath,
+      )
+    }
+
     const canonical = resolveProductPageIdentity(page.identity.path)
     if (
       !canonical ||
@@ -1049,6 +1138,71 @@ export const productDetailPageInputSchema = z
           )
         }
       })
+
+      if (
+        JSON.stringify(page.formulationPriorities) !==
+        JSON.stringify(TP_C120_FORMULATION_PRIORITIES)
+      ) {
+        addMismatch(
+          context,
+          'TP-C120 formulation priorities must preserve approved content and order',
+          ['formulationPriorities'],
+        )
+      }
+      if (
+        JSON.stringify(page.validationSteps) !==
+        JSON.stringify(TP_C120_VALIDATION_STEPS)
+      ) {
+        addMismatch(
+          context,
+          'TP-C120 validation steps must preserve approved content and order',
+          ['validationSteps'],
+        )
+      }
+      if (
+        JSON.stringify(page.enquiryPreparation.items) !==
+        JSON.stringify(TP_C120_ENQUIRY_ITEMS)
+      ) {
+        addMismatch(
+          context,
+          'TP-C120 enquiry items must preserve approved content and order',
+          ['enquiryPreparation', 'items'],
+        )
+      }
+      if (JSON.stringify(page.faqs) !== JSON.stringify(TP_C120_FAQS)) {
+        addMismatch(
+          context,
+          'TP-C120 FAQs must preserve approved content and order',
+          ['faqs'],
+        )
+      }
+      if (
+        JSON.stringify(page.relatedLinks.products.map(({id}) => id)) !==
+        JSON.stringify(TP_C120_RELATED_PRODUCT_IDS)
+      ) {
+        addMismatch(
+          context,
+          'TP-C120 related Products must preserve approved identity and order',
+          ['relatedLinks', 'products'],
+        )
+      }
+      if (
+        JSON.stringify(page.relatedLinks.resources.map(({id}) => id)) !==
+        JSON.stringify(TP_C120_RELATED_RESOURCE_IDS)
+      ) {
+        addMismatch(
+          context,
+          'TP-C120 related Resources must preserve approved identity and order',
+          ['relatedLinks', 'resources'],
+        )
+      }
+      if (page.relatedLinks.family.id !== TP_C120_FAMILY_RETURN_ID) {
+        addMismatch(
+          context,
+          'TP-C120 Family return must preserve the approved Coatings identity',
+          ['relatedLinks', 'family'],
+        )
+      }
     }
   })
 

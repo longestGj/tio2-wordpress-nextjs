@@ -298,6 +298,27 @@ describe('Product page DTO normalization', () => {
     ).toThrow(ProductPageContractError)
   })
 
+  it.each([
+    'CiTeD comparison',
+    'Listed for coatings',
+    'Formulation evaluation guide',
+    'Reported Technical Data',
+    'Reported value comparison',
+    'Source TDS',
+    'Reproduce the trial',
+    'The current TDS lists values',
+    'The current TDS states values',
+    'TDS does not state a value',
+  ])('rejects forbidden resolver-returned related title: %s', (title) => {
+    const unsafeTitle = resolver([], (target, link) =>
+      target.id === 'article-04' ? {...link, title} : link,
+    )
+
+    expect(() =>
+      toProductDetailPageDto(clone(tpC120ProductPageInput), unsafeTitle),
+    ).toThrow(ProductPageContractError)
+  })
+
   it('preserves the exact TP-C120 property values, units, and order', () => {
     const detail = toProductDetailPageDto(
       clone(tpC120ProductPageInput),
