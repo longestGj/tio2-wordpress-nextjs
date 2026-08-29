@@ -1,0 +1,257 @@
+.eyebrow {
+  margin-bottom: 0.8rem;
+  color: var(--product-steel);
+  font-family: var(--font-tiovar-heading), Arial, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.sectionIntro {
+  max-width: 690px;
+  margin-top: 1rem;
+  color: var(--product-muted);
+  font-size: 1.04rem;
+  line-height: 1.7;
+}
+
+.familyGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 2.5rem;
+}
+
+.familyCard {
+  min-height: 215px;
+  border-bottom: 1px solid var(--product-silver);
+  padding: 1.6rem 1.25rem;
+}
+
+.familyCard:not(:nth-child(4n + 1)) {
+  border-left: 1px solid var(--product-silver);
+}
+
+.familyCard h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.familyCard p {
+  margin-top: 0.65rem;
+}
+
+.familyIndex {
+  display: block;
+  margin-bottom: 1.75rem;
+  color: var(--product-steel);
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+}
+
+.familyCount {
+  display: inline-flex;
+  margin-top: 1.25rem;
+  border: 1px solid var(--product-rule);
+  border-radius: 999px;
+  padding: 0.3rem 0.6rem;
+  color: var(--product-steel);
+  font-size: 0.75rem;
+}
+
+.gradeLookup {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: clamp(2.5rem, 7vw, 5rem);
+  align-items: start;
+}
+
+.gradeSearchCopy {
+  max-width: 540px;
+}
+
+.searchInput {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 1.5rem;
+  border: 1px solid var(--product-silver);
+  border-radius: 10px;
+  background: var(--product-paper);
+  color: var(--product-ink);
+  padding: 0.8rem 1rem;
+}
+
+.gradeResults {
+  min-width: 0;
+}
+
+.gradeList {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--product-silver);
+  padding: 1px;
+}
+
+.gradeItem {
+  display: flex;
+  min-height: 76px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: var(--product-paper);
+  color: var(--product-navy);
+  padding: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.gradeItem small {
+  display: block;
+  color: var(--product-steel);
+  font-weight: 400;
+}
+
+.emptyState {
+  min-height: 76px;
+  border: 1px solid var(--product-silver);
+  background: var(--product-paper);
+  padding: 1.5rem;
+  color: var(--product-muted);
+}
+
+.decisionSteps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 2.8rem !important;
+  padding: 0;
+  list-style: none;
+}
+
+.decisionStep {
+  position: relative;
+  border-top: 2px solid var(--product-silver);
+  padding: 1.5rem 1.5rem 1rem 0;
+}
+
+.decisionStep + .decisionStep {
+  padding-left: 1.5rem;
+}
+
+.decisionStep > span {
+  display: block;
+  margin-bottom: 2rem;
+  color: var(--product-steel);
+}
+
+.decisionStep p {
+  margin-top: 0.6rem;
+}
+
+.applicationBoundary {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: clamp(3rem, 7vw, 5rem);
+  align-items: start;
+}
+
+.applicationNote {
+  border-top: 4px solid var(--product-navy);
+  background: var(--product-paper);
+  padding: 1.7rem;
+}
+
+.applicationNote p {
+  margin-top: 0.7rem;
+}
+
+.faqList {
+  margin-top: 2rem;
+  border-top: 1px solid var(--product-silver);
+}
+
+.faqList details {
+  border-bottom: 1px solid var(--product-silver);
+}
+
+.faqList summary {
+  display: flex;
+  min-height: 62px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--product-navy);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.faqList details > div {
+  max-width: 780px;
+  padding: 0 2rem 1.2rem 0;
+}
+
+.disclaimer {
+  border-top: 1px solid var(--product-rule);
+  padding-block: 2.5rem;
+  color: var(--product-steel);
+  font-size: 0.78rem;
+}
+
+.disclaimer h2 {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.disclaimer p {
+  margin-top: 0.55rem;
+}
+
+@media (max-width: 900px) {
+  .familyGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .familyCard:nth-child(odd) {
+    border-left: 0;
+  }
+
+  .gradeLookup,
+  .applicationBoundary {
+    grid-template-columns: 1fr;
+  }
+
+  .gradeList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .familyGrid,
+  .gradeList,
+  .decisionSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .familyCard,
+  .familyCard:not(:nth-child(4n + 1)) {
+    min-height: 0;
+    border-left: 0;
+    padding: 1.4rem 0;
+  }
+
+  .gradeLookup {
+    gap: 2rem;
+  }
+
+  .gradeItem {
+    min-height: 64px;
+  }
+
+  .decisionStep,
+  .decisionStep + .decisionStep {
+    border-top: 0;
+    border-left: 2px solid var(--product-silver);
+    padding: 0 0 1.8rem 1.2rem;
+  }
+}
