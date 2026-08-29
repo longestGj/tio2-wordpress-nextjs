@@ -9,6 +9,8 @@ require_once __DIR__ . '/product-option-cleanup.php';
 $GLOBALS['tio2_product_preview_test_post_ids'] = [];
 $GLOBALS['tio2_product_preview_test_term_ids'] = [];
 $GLOBALS['tio2_product_preview_test_option_values'] = [];
+$GLOBALS['tio2_product_preview_test_collection_restore'] = [];
+$GLOBALS['tio2_product_preview_test_collection_status_restore'] = [];
 $GLOBALS['tio2_product_preview_test_errors'] = [];
 
 function tio2_product_preview_test_fail(string $message): void
@@ -53,6 +55,17 @@ function tio2_product_preview_test_cleanup(): void
         update_field((string) $field_state['key'], $field_state['value'], 'option');
     }
     $GLOBALS['tio2_product_preview_test_option_values'] = [];
+
+    foreach ($GLOBALS['tio2_product_preview_test_collection_restore'] ?? [] as $object_id => $fields) {
+        foreach ($fields as $field_key => $value) {
+            update_field((string) $field_key, $value, $object_id);
+        }
+    }
+    $GLOBALS['tio2_product_preview_test_collection_restore'] = [];
+    foreach ($GLOBALS['tio2_product_preview_test_collection_status_restore'] ?? [] as $post_id => $status) {
+        tio2_product_preview_test_set_status_exact((int) $post_id, (string) $status);
+    }
+    $GLOBALS['tio2_product_preview_test_collection_status_restore'] = [];
 
     if (array_key_exists('tio2_b_product_preview_private', $GLOBALS)) {
         if (false === $GLOBALS['tio2_b_product_preview_private']) {
@@ -279,7 +292,41 @@ function tio2_product_preview_test_has_raw_field_key($value): bool
     return false;
 }
 
-foreach (['tio2_find_product_for_preview', 'tio2_serialize_product_preview'] as $function_name) {
+function tio2_product_preview_test_remember_collection_fields(array $definitions, string $object_id): void
+{
+    foreach ($definitions as $field) {
+        $GLOBALS['tio2_product_preview_test_collection_restore'][$object_id][(string) $field['key']] =
+            get_field((string) $field['name'], $object_id, false);
+    }
+}
+
+function tio2_product_preview_test_collection_value(array $field): mixed
+{
+    $type = (string) ($field['type'] ?? '');
+    if ('image' === $type) {
+        return 1;
+    }
+    if ('relationship' === $type) {
+        return [];
+    }
+    if ('repeater' === $type) {
+        $rows = [];
+        for ($index = 0; $index < max(1, (int) ($field['min'] ?? 0)); ++$index) {
+            $row = [];
+            foreach ($field['sub_fields'] ?? [] as $sub_field) {
+                $name = (string) ($sub_field['name'] ?? '');
+                $row[$name] = 'slug' === $name
+                    ? 'application'
+                    : ('label' === $name ? 'Application' : ('answer' === $name ? '<p>Answer</p>' : "Copy {$index}"));
+            }
+            $rows[] = $row;
+        }
+        return $rows;
+    }
+    return 'wysiwyg' === $type ? '<p>Copy</p>' : 'Copy';
+}
+
+foreach (['tio2_find_product_for_preview', 'tio2_serialize_product_preview', 'tio2_serialize_product_collection_preview'] as $function_name) {
     tio2_product_preview_test_assert(
         function_exists($function_name),
         "Missing protected Product preview helper: {$function_name}()."
@@ -510,14 +557,11 @@ wp_set_object_terms($page_id, ['tio2-a'], 'site_scope', false);
 clean_post_cache($page_id);
 
 tio2_product_preview_test_assert(
-    $product_id === (tio2_find_product_for_preview('tio2-a', '/products/tp-z911')->ID ?? 0),
-    'The resolver did not find the exact Site A Product draft.'
-);
-tio2_product_preview_test_assert(
-    null === tio2_find_product_for_preview('tio2-b', '/products/tp-z911') &&
+    null === tio2_find_product_for_preview('tio2-a', '/products/tp-z911') &&
+        null === tio2_find_product_for_preview('tio2-b', '/products/tp-z911') &&
         null === tio2_find_product_for_preview('tio2-a', '/products/tp-z999') &&
         null === tio2_find_product_for_preview('tio2-a', $page_path),
-    'The resolver accepted a wrong site, wrong path, or non-Product owner.'
+    'The resolver accepted a legacy flat path, wrong site, wrong path, or non-Product owner.'
 );
 
 $serialized = tio2_serialize_product_preview(get_post($product_id));
@@ -633,21 +677,19 @@ putenv('NEXTJS_PREVIEW_SECRET_TIO2_B=product-preview-site-b-secret');
 do_action('rest_api_init');
 
 $timestamp = (string) time();
-$canonical_path = '/products/tp-z911';
+$legacy_flat_path = '/products/tp-z911';
 $valid_signature = tio2_product_preview_test_signature(
     'product-preview-site-a-secret',
     $timestamp,
     'tio2-a',
-    $canonical_path
+    $legacy_flat_path
 );
-$valid_response = tio2_product_preview_test_request('tio2-a', $canonical_path, $timestamp, $valid_signature);
+$valid_response = tio2_product_preview_test_request('tio2-a', $legacy_flat_path, $timestamp, $valid_signature);
 $valid_data = $valid_response->get_data();
 tio2_product_preview_test_assert(
-    200 === $valid_response->get_status() &&
-        is_array($valid_data) &&
-        $canonical_path === ($valid_data['path'] ?? null) &&
-        'TP-Z911' === ($valid_data['productFields']['productId'] ?? null),
-    'A valid signed Site A Product draft request did not return the protected payload.'
+    404 === $valid_response->get_status() &&
+        'tio2_preview_not_found' === ($valid_data['code'] ?? null),
+    'A legacy flat Product path remained previewable.'
 );
 
 $native_preview_link = 'http://localhost:8080/?post_type=tio2_product&p=' . $product_id . '&preview=true';
@@ -656,12 +698,12 @@ foreach (['publish', 'future', 'pending', 'private'] as $non_draft_status) {
     $non_draft_serialized = tio2_serialize_product_preview(get_post($product_id));
     $non_draft_response = tio2_product_preview_test_request(
         'tio2-a',
-        $canonical_path,
+        $legacy_flat_path,
         $timestamp,
         $valid_signature
     );
     tio2_product_preview_test_assert(
-        null === tio2_find_product_for_preview('tio2-a', $canonical_path) &&
+        null === tio2_find_product_for_preview('tio2-a', $legacy_flat_path) &&
             is_wp_error($non_draft_serialized) &&
             'tio2_preview_not_found' === $non_draft_serialized->get_error_code() &&
             404 === $non_draft_response->get_status() &&
@@ -678,7 +720,7 @@ tio2_product_preview_test_set_status_exact($product_id, 'draft');
 
 $invalid_signature_response = tio2_product_preview_test_request(
     'tio2-a',
-    $canonical_path,
+    $legacy_flat_path,
     $timestamp,
     str_repeat('0', 64)
 );
@@ -691,13 +733,13 @@ tio2_product_preview_test_assert(
 $expired_timestamp = (string) (time() - 301);
 $expired_response = tio2_product_preview_test_request(
     'tio2-a',
-    $canonical_path,
+    $legacy_flat_path,
     $expired_timestamp,
     tio2_product_preview_test_signature(
         'product-preview-site-a-secret',
         $expired_timestamp,
         'tio2-a',
-        $canonical_path
+        $legacy_flat_path
     )
 );
 tio2_product_preview_test_assert(
@@ -708,13 +750,13 @@ tio2_product_preview_test_assert(
 
 $wrong_site_response = tio2_product_preview_test_request(
     'tio2-b',
-    $canonical_path,
+    $legacy_flat_path,
     $timestamp,
     tio2_product_preview_test_signature(
         'product-preview-site-b-secret',
         $timestamp,
         'tio2-b',
-        $canonical_path
+        $legacy_flat_path
     )
 );
 tio2_product_preview_test_assert(
@@ -771,27 +813,315 @@ $incomplete_response = tio2_product_preview_test_request(
     )
 );
 tio2_product_preview_test_assert(
-    422 === $incomplete_response->get_status() &&
-        'tio2_preview_product_incomplete' === ($incomplete_response->get_data()['code'] ?? null),
-    'An incomplete Product preview returned a partial payload or a non-specific error.'
+    404 === $incomplete_response->get_status() &&
+        'tio2_preview_not_found' === ($incomplete_response->get_data()['code'] ?? null),
+    'An incomplete legacy flat Product path remained previewable.'
 );
 
 $signed_preview_link = apply_filters('preview_post_link', $native_preview_link, get_post($product_id));
-$signed_preview_parts = wp_parse_url($signed_preview_link);
-parse_str($signed_preview_parts['query'] ?? '', $signed_preview_query);
-$expected_admin_signature = tio2_product_preview_test_signature(
-    'product-preview-site-a-secret',
-    (string) ($signed_preview_query['expires'] ?? ''),
-    'tio2-a',
-    $canonical_path
+tio2_product_preview_test_assert(
+    $native_preview_link === $signed_preview_link,
+    'A non-inventory Product received a signed collection preview link.'
+);
+
+$collection_families = [];
+foreach (array_keys(tio2_product_collection_membership()) as $family_slug) {
+    $existing_family = get_term_by('slug', $family_slug, 'product_family');
+    if ($existing_family instanceof WP_Term) {
+        $collection_family_id = (int) $existing_family->term_id;
+    } else {
+        $inserted_family = wp_insert_term(
+            ucwords(str_replace('-', ' ', $family_slug)),
+            'product_family',
+            ['slug' => $family_slug]
+        );
+        if (is_wp_error($inserted_family)) {
+            tio2_product_preview_test_fail("Could not create {$family_slug} collection Family fixture.");
+        }
+        $collection_family_id = (int) $inserted_family['term_id'];
+        $GLOBALS['tio2_product_preview_test_term_ids'][] = $collection_family_id;
+    }
+    $collection_families[$family_slug] = $collection_family_id;
+    $family_object_id = 'product_family_' . $collection_family_id;
+    tio2_product_preview_test_remember_collection_fields(
+        tio2_product_family_field_definitions(),
+        $family_object_id
+    );
+    foreach (tio2_product_family_field_definitions() as $field) {
+        update_field(
+            (string) $field['key'],
+            tio2_product_preview_test_collection_value($field),
+            $family_object_id
+        );
+    }
+}
+
+$collection_products = [];
+foreach (tio2_product_collection_membership() as $family_slug => $product_ids) {
+    foreach ($product_ids as $index => $collection_product_id) {
+        $matching_collection_posts = array_values(array_filter(get_posts([
+            'post_type' => 'tio2_product', 'post_status' => 'any', 'posts_per_page' => -1,
+            'tax_query' => ['relation' => 'AND',
+                ['taxonomy' => 'product_family', 'field' => 'term_id', 'terms' => [$collection_families[$family_slug]]],
+                ['taxonomy' => 'site_scope', 'field' => 'slug', 'terms' => ['tio2-a']],
+            ],
+        ]), static fn ($post): bool => $post instanceof WP_Post &&
+            $collection_product_id === get_field('product_id', $post->ID, false)));
+        if (1 < count($matching_collection_posts)) {
+            tio2_product_preview_test_fail("Existing {$collection_product_id} collection Product fixtures are ambiguous.");
+        }
+        if (1 === count($matching_collection_posts)) {
+            $collection_post_id = (int) $matching_collection_posts[0]->ID;
+            tio2_product_preview_test_remember_collection_fields(
+                tio2_product_collection_display_field_definitions(),
+                (string) $collection_post_id
+            );
+        } elseif ('TP-C120' === $collection_product_id) {
+            $collection_post_id = tio2_product_preview_test_insert_product(
+                $collection_product_id,
+                'draft',
+                $collection_families[$family_slug],
+                $application_id,
+                true
+            );
+            update_field(
+                'field_tio2_product_tds_access',
+                'Request the TDS from our technical team.',
+                $collection_post_id
+            );
+        } else {
+            $collection_post_id = wp_insert_post([
+                'post_type' => 'tio2_product',
+                'post_status' => 'draft',
+                'post_title' => $collection_product_id . ' Product',
+                'post_name' => strtolower($collection_product_id),
+            ], true);
+            if (is_wp_error($collection_post_id) || $collection_post_id <= 0) {
+                tio2_product_preview_test_fail("Could not create {$collection_product_id} collection Product fixture.");
+            }
+            $collection_post_id = (int) $collection_post_id;
+            $GLOBALS['tio2_product_preview_test_post_ids'][] = $collection_post_id;
+            wp_set_object_terms($collection_post_id, ['tio2-a'], 'site_scope', false);
+            update_field('field_tio2_product_id', $collection_product_id, $collection_post_id);
+        }
+        if ('TP-C120' === $collection_product_id && 1 === count($matching_collection_posts)) {
+            tio2_product_preview_test_remember_collection_fields(
+                tio2_product_field_definitions(),
+                (string) $collection_post_id
+            );
+            foreach (tio2_product_field_definitions() as $field) {
+                $value = 'product_id' === ($field['name'] ?? null)
+                    ? $collection_product_id
+                    : tio2_product_preview_test_field_value(
+                        $field,
+                        $collection_families[$family_slug],
+                        $application_id
+                    );
+                update_field((string) $field['key'], $value, $collection_post_id);
+            }
+            if ('draft' !== $matching_collection_posts[0]->post_status) {
+                $GLOBALS['tio2_product_preview_test_collection_status_restore'][$collection_post_id] =
+                    (string) $matching_collection_posts[0]->post_status;
+                tio2_product_preview_test_set_status_exact($collection_post_id, 'draft');
+            }
+            update_field(
+                'field_tio2_product_tds_access',
+                'Request the TDS from our technical team.',
+                $collection_post_id
+            );
+        }
+        wp_set_object_terms(
+            $collection_post_id,
+            [$collection_families[$family_slug]],
+            'product_family',
+            false
+        );
+        update_field('field_tio2_product_collection_family_display_order', $index + 1, $collection_post_id);
+        update_field('field_tio2_product_collection_family_card_summary', "{$collection_product_id} card summary", $collection_post_id);
+        update_field('field_tio2_product_collection_application_focus', "{$collection_product_id} application focus", $collection_post_id);
+        update_field('field_tio2_product_collection_performance_focus', "{$collection_product_id} performance focus", $collection_post_id);
+        update_field('field_tio2_product_collection_surface_treatment_positioning', "{$collection_product_id} treatment", $collection_post_id);
+        update_field('field_tio2_product_collection_filter_tags', ['application'], $collection_post_id);
+        $collection_products[$collection_product_id] = $collection_post_id;
+    }
+}
+
+tio2_product_preview_test_remember_collection_fields(tio2_product_hub_field_definitions(), 'option');
+foreach (tio2_product_hub_field_definitions() as $field) {
+    $hub_value = 'families' === ($field['name'] ?? null)
+        ? array_map(static fn (int $term_id): array => ['family' => $term_id], array_values($collection_families))
+        : tio2_product_preview_test_collection_value($field);
+    update_field((string) $field['key'], $hub_value, 'option');
+}
+
+$collection_paths = [
+    'hub' => '/products',
+    'family' => '/products/coatings',
+    'detail' => '/products/coatings/tp-c120',
+];
+$collection_responses = [];
+foreach ($collection_paths as $level => $collection_path) {
+    $collection_responses[$level] = tio2_product_preview_test_request(
+        'tio2-a',
+        $collection_path,
+        $timestamp,
+        tio2_product_preview_test_signature(
+            'product-preview-site-a-secret',
+            $timestamp,
+            'tio2-a',
+            $collection_path
+        )
+    );
+    $collection_data = $collection_responses[$level]->get_data();
+    tio2_product_preview_test_assert(
+        200 === $collection_responses[$level]->get_status() &&
+            ['level', 'path', 'payload'] === array_keys($collection_data) &&
+            $level === $collection_data['level'] &&
+            $collection_path === $collection_data['path'] &&
+            is_array($collection_data['payload']),
+        "The signed {$level} Product collection preview envelope is invalid."
+    );
+}
+
+$hub_payload = $collection_responses['hub']->get_data()['payload'] ?? [];
+tio2_product_preview_test_assert(
+    [
+        'metaTitle', 'metaDescription', 'eyebrow', 'headline', 'directAnswer', 'heroImageId',
+        'decisionRail', 'familyCount', 'productCount', 'families', 'knownGradeHeading',
+        'knownGradeHelp', 'decisionPath', 'applicationBoundary', 'resources', 'enquiry',
+        'faqItems', 'technicalDisclaimer',
+    ] === array_keys($hub_payload) && 8 === $hub_payload['familyCount'] && 25 === $hub_payload['productCount'],
+    'Hub preview did not contain only the approved 8/25 Hub payload.'
+);
+$family_payload = $collection_responses['family']->get_data()['payload'] ?? [];
+tio2_product_preview_test_assert(
+    [
+        'slug', 'name', 'metaTitle', 'metaDescription', 'eyebrow', 'headline', 'directAnswer',
+        'heroImageId', 'decisionRail', 'filters', 'comparisonIntroduction', 'comparisonCaption',
+        'selectionMethod', 'validationSteps', 'products', 'applications', 'resources', 'enquiry',
+        'faqItems', 'technicalDisclaimer',
+    ] === array_keys($family_payload) &&
+        9 === count($family_payload['products']) &&
+        range(1, 9) === array_column($family_payload['products'], 'displayOrder') &&
+        [['slug' => 'application', 'label' => 'Application']] === $family_payload['filters'],
+    'Family preview did not contain only the approved ordered, controlled Coatings payload.'
+);
+$detail_payload = $collection_responses['detail']->get_data()['payload'] ?? [];
+tio2_product_preview_test_assert(
+    [
+        'id', 'databaseId', 'slug', 'title', 'modifiedGmt', 'status',
+        'productFields', 'productSettingsFields',
+    ] === array_keys($detail_payload) &&
+        'TP-C120' === ($detail_payload['productFields']['productId'] ?? null) &&
+        'Request the TDS from our technical team.' === ($detail_payload['productFields']['tdsAccess'] ?? null),
+    'Detail preview did not contain only the canonical request-only Product payload.'
+);
+foreach ([$hub_payload, $family_payload, $detail_payload] as $level_payload) {
+    $encoded_level_payload = strtolower((string) wp_json_encode($level_payload));
+    tio2_product_preview_test_assert(
+        ! array_key_exists('path', $level_payload) &&
+            false === strpos($encoded_level_payload, '.pdf') &&
+            false === strpos($encoded_level_payload, 'tds_url') &&
+            false === strpos($encoded_level_payload, 'attachment') &&
+            false === strpos($encoded_level_payload, 'supplier') &&
+            false === strpos($encoded_level_payload, 'manufacturer') &&
+            false === strpos($encoded_level_payload, 'legal') &&
+            false === strpos($encoded_level_payload, 'price') &&
+            false === strpos($encoded_level_payload, 'stock') &&
+            false === strpos($encoded_level_payload, 'moq') &&
+            false === strpos($encoded_level_payload, 'private'),
+        'A Product collection preview payload exposed a second path or forbidden private/commercial data.'
+    );
+}
+
+foreach (['/products/tp-c120', '/products/universal/tp-c120'] as $rejected_path) {
+    $rejected_response = tio2_product_preview_test_request(
+        'tio2-a',
+        $rejected_path,
+        $timestamp,
+        tio2_product_preview_test_signature('product-preview-site-a-secret', $timestamp, 'tio2-a', $rejected_path)
+    );
+    tio2_product_preview_test_assert(
+        404 === $rejected_response->get_status() &&
+            'tio2_preview_not_found' === ($rejected_response->get_data()['code'] ?? null),
+        "A flat or wrong-Family Product path {$rejected_path} was previewable."
+    );
+}
+$collection_wrong_site = tio2_product_preview_test_request(
+    'tio2-b',
+    $collection_paths['detail'],
+    $timestamp,
+    tio2_product_preview_test_signature('product-preview-site-b-secret', $timestamp, 'tio2-b', $collection_paths['detail'])
 );
 tio2_product_preview_test_assert(
-    '127.0.0.1' === ($signed_preview_parts['host'] ?? null) &&
-        '/api/preview' === ($signed_preview_parts['path'] ?? null) &&
-        'tio2-a' === ($signed_preview_query['siteId'] ?? null) &&
-        $canonical_path === ($signed_preview_query['path'] ?? null) &&
-        hash_equals($expected_admin_signature, (string) ($signed_preview_query['signature'] ?? '')),
-    'The Product Admin preview link was not signed against its canonical public path.'
+    404 === $collection_wrong_site->get_status(),
+    'A Site B signature retrieved the Site A canonical Detail preview.'
+);
+$collection_invalid_signature = tio2_product_preview_test_request(
+    'tio2-a', $collection_paths['detail'], $timestamp, str_repeat('0', 64)
+);
+tio2_product_preview_test_assert(
+    401 === $collection_invalid_signature->get_status(),
+    'The canonical Detail preview accepted an invalid signature.'
+);
+
+update_field('field_tio2_products_hub_meta_title', '', 'option');
+$incomplete_hub = tio2_product_preview_test_request(
+    'tio2-a', $collection_paths['hub'], $timestamp,
+    tio2_product_preview_test_signature('product-preview-site-a-secret', $timestamp, 'tio2-a', $collection_paths['hub'])
+);
+tio2_product_preview_test_assert(
+    422 === $incomplete_hub->get_status() &&
+        'tio2_preview_products_hub_incomplete' === ($incomplete_hub->get_data()['code'] ?? null),
+    'An incomplete Hub returned a partial preview payload.'
+);
+update_field('field_tio2_products_hub_meta_title', 'Copy', 'option');
+
+update_field('field_tio2_product_family_comparison_caption', '', 'product_family_' . $collection_families['coatings']);
+$incomplete_family = tio2_product_preview_test_request(
+    'tio2-a', $collection_paths['family'], $timestamp,
+    tio2_product_preview_test_signature('product-preview-site-a-secret', $timestamp, 'tio2-a', $collection_paths['family'])
+);
+tio2_product_preview_test_assert(
+    422 === $incomplete_family->get_status() &&
+        'tio2_preview_product_family_incomplete' === ($incomplete_family->get_data()['code'] ?? null),
+    'An incomplete Family returned a partial preview payload.'
+);
+update_field('field_tio2_product_family_comparison_caption', 'Copy', 'product_family_' . $collection_families['coatings']);
+
+update_field('field_tio2_product_collection_family_card_summary', '', $collection_products['TP-C120']);
+$incomplete_detail = tio2_product_preview_test_request(
+    'tio2-a', $collection_paths['detail'], $timestamp,
+    tio2_product_preview_test_signature('product-preview-site-a-secret', $timestamp, 'tio2-a', $collection_paths['detail'])
+);
+tio2_product_preview_test_assert(
+    422 === $incomplete_detail->get_status() &&
+        'tio2_preview_product_incomplete' === ($incomplete_detail->get_data()['code'] ?? null),
+    'An incomplete Detail returned a partial preview payload: ' . wp_json_encode($incomplete_detail->get_data())
+);
+update_field('field_tio2_product_collection_family_card_summary', 'TP-C120 card summary', $collection_products['TP-C120']);
+
+$canonical_native_link = 'http://localhost:8080/?post_type=tio2_product&p=' . $collection_products['TP-C120'] . '&preview=true';
+$canonical_signed_link = apply_filters(
+    'preview_post_link',
+    $canonical_native_link,
+    get_post($collection_products['TP-C120'])
+);
+$canonical_signed_parts = wp_parse_url($canonical_signed_link);
+parse_str($canonical_signed_parts['query'] ?? '', $canonical_signed_query);
+$canonical_expected_signature = tio2_product_preview_test_signature(
+    'product-preview-site-a-secret',
+    (string) ($canonical_signed_query['expires'] ?? ''),
+    'tio2-a',
+    $collection_paths['detail']
+);
+tio2_product_preview_test_assert(
+    '127.0.0.1' === ($canonical_signed_parts['host'] ?? null) &&
+        '/api/preview' === ($canonical_signed_parts['path'] ?? null) &&
+        'tio2-a' === ($canonical_signed_query['siteId'] ?? null) &&
+        $collection_paths['detail'] === ($canonical_signed_query['path'] ?? null) &&
+        hash_equals($canonical_expected_signature, (string) ($canonical_signed_query['signature'] ?? '')),
+    'The canonical Detail Admin preview link was not Site- and path-bound.'
 );
 
 if ([] !== $GLOBALS['tio2_product_preview_test_errors']) {

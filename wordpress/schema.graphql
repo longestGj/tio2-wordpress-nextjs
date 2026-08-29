@@ -10343,9 +10343,6 @@ type Tio2SiteAApplicationFields {
   bodySections: [Tio2EditorialSection!]!
 
   ""
-  startingProducts: [Tio2ApplicationStartingProduct!]!
-
-  ""
   buyerProblem: String!
 
   ""
@@ -10397,6 +10394,9 @@ type Tio2SiteAApplicationFields {
   selectionFactors: [String!]!
 
   ""
+  startingProducts: [Tio2ApplicationStartingProduct!]!
+
+  ""
   technicalDisclaimer: String!
 
   ""
@@ -10442,7 +10442,18 @@ type Tio2EditorialCta {
   label: String!
 }
 
+type Tio2EditorialFaq {
+  ""
+  answerHtml: String!
+
+  ""
+  question: String!
+}
+
 type Tio2ApplicationStartingProduct {
+  ""
+  label: String!
+
   ""
   productId: String!
 
@@ -10450,18 +10461,7 @@ type Tio2ApplicationStartingProduct {
   role: String!
 
   ""
-  label: String!
-
-  ""
   summaryHtml: String!
-}
-
-type Tio2EditorialFaq {
-  ""
-  answerHtml: String!
-
-  ""
-  question: String!
 }
 
 "Arguments for filtering the Tio2ApplicationToSiteScopeConnection connection"
@@ -18081,6 +18081,9 @@ type RootQuery {
     slug: String
   ): Tio2Product @deprecated(reason: "Deprecated in favor of using the single entry point for this type with ID and IDType fields. For example, instead of postBy( id: &quot;&quot; ), use post(id: &quot;&quot; idType: &quot;&quot;)")
 
+  ""
+  tio2ProductFamily(siteId: String!, slug: String!): Tio2ProductFamilyPage
+
   "Shared Product settings for the requested configured site."
   tio2ProductSettings(siteId: String!): Tio2ProductSettings
 
@@ -18101,6 +18104,9 @@ type RootQuery {
     "Arguments for filtering the connection"
     where: RootQueryToTio2ProductConnectionWhereArgs
   ): RootQueryToTio2ProductConnection
+
+  ""
+  tio2ProductsHub(siteId: String!): Tio2ProductsHubPage
 
   "Returns a user"
   user(
@@ -21850,6 +21856,139 @@ enum Tio2ProductIdType {
   URI
 }
 
+type Tio2ProductFamilyPage {
+  ""
+  applications: [Tio2ProductCollectionLink!]!
+
+  ""
+  comparisonCaption: String!
+
+  ""
+  comparisonIntroduction: String!
+
+  ""
+  decisionRail: [String!]!
+
+  ""
+  directAnswer: String!
+
+  ""
+  enquiry: String!
+
+  ""
+  eyebrow: String!
+
+  ""
+  faqItems: [Tio2ProductCollectionFaq!]!
+
+  ""
+  filters: [Tio2ProductCollectionFilter!]!
+
+  ""
+  headline: String!
+
+  ""
+  heroImageId: Int!
+
+  ""
+  level: String!
+
+  ""
+  metaDescription: String!
+
+  ""
+  metaTitle: String!
+
+  ""
+  name: String!
+
+  ""
+  path: String!
+
+  ""
+  products: [Tio2ProductCollectionCard!]!
+
+  ""
+  resources: [Tio2ProductCollectionLink!]!
+
+  ""
+  selectionMethod: String!
+
+  ""
+  siteId: String!
+
+  ""
+  slug: String!
+
+  ""
+  technicalDisclaimer: String!
+
+  ""
+  validationSteps: [String!]!
+}
+
+type Tio2ProductCollectionLink {
+  ""
+  databaseId: Int!
+
+  ""
+  path: String!
+
+  ""
+  title: String!
+}
+
+type Tio2ProductCollectionFaq {
+  ""
+  answer: String!
+
+  ""
+  question: String!
+}
+
+type Tio2ProductCollectionFilter {
+  ""
+  label: String!
+
+  ""
+  slug: String!
+}
+
+type Tio2ProductCollectionCard {
+  ""
+  applicationFocus: String!
+
+  ""
+  databaseId: Int!
+
+  ""
+  displayOrder: Int!
+
+  ""
+  familyCardSummary: String!
+
+  ""
+  filterTags: [String!]!
+
+  ""
+  path: String!
+
+  ""
+  performanceFocus: String!
+
+  ""
+  productId: String!
+
+  ""
+  slug: String!
+
+  ""
+  surfaceTreatmentPositioning: String!
+
+  ""
+  title: String!
+}
+
 "Shared Product settings for the configured Site A storefront."
 type Tio2ProductSettings {
   ""
@@ -21983,6 +22122,94 @@ type RootQueryToTio2ProductConnectionPageInfo implements Tio2ProductConnectionPa
 
   "When paginating backwards, the cursor to continue."
   startCursor: String
+}
+
+type Tio2ProductsHubPage {
+  ""
+  applicationBoundary: String!
+
+  ""
+  decisionPath: String!
+
+  ""
+  decisionRail: [String!]!
+
+  ""
+  directAnswer: String!
+
+  ""
+  enquiry: String!
+
+  ""
+  eyebrow: String!
+
+  ""
+  families: [Tio2ProductFamilySummary!]!
+
+  ""
+  familyCount: Int!
+
+  ""
+  faqItems: [Tio2ProductCollectionFaq!]!
+
+  ""
+  headline: String!
+
+  ""
+  heroImageId: Int!
+
+  ""
+  knownGradeHeading: String!
+
+  ""
+  knownGradeHelp: String!
+
+  ""
+  level: String!
+
+  ""
+  metaDescription: String!
+
+  ""
+  metaTitle: String!
+
+  ""
+  path: String!
+
+  ""
+  productCount: Int!
+
+  ""
+  resources: [Tio2ProductCollectionLink!]!
+
+  ""
+  siteId: String!
+
+  ""
+  technicalDisclaimer: String!
+}
+
+type Tio2ProductFamilySummary {
+  ""
+  directAnswer: String!
+
+  ""
+  headline: String!
+
+  ""
+  heroImageId: Int!
+
+  ""
+  name: String!
+
+  ""
+  path: String!
+
+  ""
+  productCount: Int!
+
+  ""
+  slug: String!
 }
 
 "Identifier types for retrieving a specific user. Determines whether to look up users by ID, email, username, or other unique properties."

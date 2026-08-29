@@ -28,6 +28,7 @@ require_once __DIR__ . '/includes/application-resource-contract.php';
 require_once __DIR__ . '/includes/application-resource-publication.php';
 require_once __DIR__ . '/includes/application-resource-preview.php';
 require_once __DIR__ . '/includes/application-resource-graphql.php';
+require_once __DIR__ . '/includes/product-collection-graphql.php';
 require_once __DIR__ . '/includes/homepage-v02.php';
 require_once __DIR__ . '/includes/homepage-v03.php';
 require_once __DIR__ . '/includes/webhooks.php';

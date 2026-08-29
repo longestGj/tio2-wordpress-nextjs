@@ -428,14 +428,18 @@ function tio2_preview_product_relationships(
 
 function tio2_find_product_for_preview(string $site_id, string $path): ?WP_Post
 {
-    if ('tio2-a' !== $site_id || 1 !== preg_match('#^/products/(tp-[a-z]{1,2}[0-9]{3})$#', $path, $matches)) {
+    if (
+        'tio2-a' !== $site_id ||
+        1 !== preg_match('#^/products/([a-z0-9-]+)/(tp-[a-z]{1,2}[0-9]{3})$#', $path, $matches) ||
+        ! array_key_exists($matches[1], tio2_product_collection_membership())
+    ) {
         return null;
     }
 
     $products = get_posts([
         'post_type' => 'tio2_product',
         'post_status' => 'draft',
-        'name' => $matches[1],
+        'name' => $matches[2],
         'posts_per_page' => 2,
         'no_found_rows' => true,
         'orderby' => 'ID',
@@ -446,7 +450,12 @@ function tio2_find_product_for_preview(string $site_id, string $path): ?WP_Post
     }
 
     $product = $products[0];
-    return 'tio2-a' === tio2_product_site_id((int) $product->ID) ? $product : null;
+    $family_slug = tio2_product_family_slug_for_post((int) $product->ID);
+    return 'tio2-a' === tio2_product_site_id((int) $product->ID) &&
+        ! is_wp_error($family_slug) &&
+        $matches[1] === $family_slug
+            ? $product
+            : null;
 }
 
 /**
@@ -568,6 +577,74 @@ function tio2_serialize_product_preview(WP_Post $product): array|WP_Error
     return $payload;
 }
 
+/** @return array{level: string, path: string, payload: array<string, mixed>}|WP_Error */
+function tio2_serialize_product_collection_preview(string $site_id, string $path): array|WP_Error
+{
+    if ('tio2-a' !== $site_id) {
+        return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+    }
+
+    if ('/products' === $path) {
+        $hub = tio2_product_collection_hub_payload(true);
+        if (is_wp_error($hub)) {
+            return new WP_Error(
+                'tio2_preview_products_hub_incomplete',
+                'Products Hub preview contract is incomplete.',
+                ['status' => 422, 'validationCode' => $hub->get_error_code()]
+            );
+        }
+        unset($hub['siteId'], $hub['level'], $hub['path']);
+        return ['level' => 'hub', 'path' => $path, 'payload' => $hub];
+    }
+
+    if (1 === preg_match('#^/products/([a-z0-9-]+)$#', $path, $matches)) {
+        if (! array_key_exists($matches[1], tio2_product_collection_membership())) {
+            return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+        }
+        $term = get_term_by('slug', $matches[1], 'product_family');
+        if (! $term instanceof WP_Term) {
+            return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+        }
+        $family = tio2_product_collection_family_payload($term, true);
+        if (is_wp_error($family)) {
+            return new WP_Error(
+                'tio2_preview_product_family_incomplete',
+                'Product Family preview contract is incomplete.',
+                ['status' => 422, 'validationCode' => $family->get_error_code()]
+            );
+        }
+        unset($family['siteId'], $family['level'], $family['path']);
+        return ['level' => 'family', 'path' => $path, 'payload' => $family];
+    }
+
+    if (1 !== preg_match('#^/products/[a-z0-9-]+/tp-[a-z]{1,2}[0-9]{3}$#', $path)) {
+        return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+    }
+    $product = tio2_find_product_for_preview($site_id, $path);
+    if (! $product instanceof WP_Post) {
+        return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
+    }
+    $canonical_path = tio2_product_canonical_path((int) $product->ID);
+    if (is_wp_error($canonical_path) || $canonical_path !== $path) {
+        return new WP_Error(
+            'tio2_preview_product_incomplete',
+            'Product preview contract is incomplete.',
+            [
+                'status' => 422,
+                'validationCode' => is_wp_error($canonical_path)
+                    ? $canonical_path->get_error_code()
+                    : 'product_collection_path_invalid',
+            ]
+        );
+    }
+    $detail = tio2_serialize_product_preview($product);
+    if (is_wp_error($detail)) {
+        return $detail;
+    }
+    unset($detail['siteId'], $detail['path']);
+    return ['level' => 'detail', 'path' => $path, 'payload' => $detail];
+}
+
 /**
  * @return true|WP_Error
  */
@@ -635,13 +712,8 @@ function tio2_preview_rest_response(WP_REST_Request $request)
         return new WP_REST_Response($payload, 200);
     }
 
-    if (str_starts_with($path, '/products/')) {
-        $product = tio2_find_product_for_preview($site_id, $path);
-        if (! $product instanceof WP_Post || 'draft' !== $product->post_status) {
-            return new WP_Error('tio2_preview_not_found', 'Preview content was not found.', ['status' => 404]);
-        }
-
-        $payload = tio2_serialize_product_preview($product);
+    if ('/products' === $path || str_starts_with($path, '/products/')) {
+        $payload = tio2_serialize_product_collection_preview($site_id, $path);
         return is_wp_error($payload) ? $payload : new WP_REST_Response($payload, 200);
     }
 
@@ -781,17 +853,16 @@ function tio2_filter_preview_post_link(string $preview_link, WP_Post $post): str
         $route = ['siteId' => $site_id, 'publicPath' => '/'];
     } elseif ('tio2_product' === $post->post_type) {
         $validation = tio2_validate_product_contract((int) $post->ID);
-        $product_id = get_field('product_id', $post->ID, false);
+        $canonical_path = tio2_product_canonical_path((int) $post->ID);
         if (
             is_wp_error($validation) ||
-            ! is_string($product_id) ||
+            is_wp_error($canonical_path) ||
             'draft' !== $post->post_status ||
-            'tio2-a' !== tio2_product_site_id((int) $post->ID) ||
-            tio2_product_slug_from_id($product_id) !== $post->post_name
+            'tio2-a' !== tio2_product_site_id((int) $post->ID)
         ) {
             return $preview_link;
         }
-        $route = ['siteId' => 'tio2-a', 'publicPath' => tio2_product_path_from_id($product_id)];
+        $route = ['siteId' => 'tio2-a', 'publicPath' => $canonical_path];
     } elseif ('tio2_application' === $post->post_type) {
         $payload = tio2_serialize_application_preview($post);
         if (is_wp_error($payload)) {
