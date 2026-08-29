@@ -2,6 +2,10 @@ import {SITE_IDS} from '@/sites'
 import type {SiteId} from '@/sites'
 import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest'
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
+import {
+  SITE_A_PRODUCT_FAMILIES,
+  resolveProductPageIdentity,
+} from '@/lib/products/page-graph'
 
 const siteIdSet = new Set<SiteId>(SITE_IDS)
 const MAX_CANONICAL_PUBLIC_PATH_LENGTH = 172
@@ -13,6 +17,9 @@ const applicationIds = new Set<string>(
 )
 const resourceIds = new Set<string>(
   SITE_A_RESOURCE_IDENTITIES.map(([id]) => id),
+)
+const productFamilySlugs = new Set<string>(
+  SITE_A_PRODUCT_FAMILIES.map(({slug}) => slug),
 )
 
 function assertSiteId(siteId: string): asserts siteId is SiteId {
@@ -77,6 +84,41 @@ export function productTag(siteId: string, slug: string): string {
     throw new Error(`Invalid product slug: ${slug}`)
   }
   return `product:${siteId}:${slug}`
+}
+
+export function productsHubTag(siteId: string): string {
+  assertSiteId(siteId)
+  return `products-hub:${siteId}`
+}
+
+export function productFamilyTag(siteId: string, familySlug: string): string {
+  assertSiteId(siteId)
+  if (!productFamilySlugs.has(familySlug)) {
+    throw new Error(`Invalid Product Family slug: ${familySlug}`)
+  }
+  return `product-family:${siteId}:${familySlug}`
+}
+
+export function productDetailTag(
+  siteId: string,
+  familySlug: string,
+  productSlug: string,
+): string {
+  assertSiteId(siteId)
+  const identity = resolveProductPageIdentity(
+    `/products/${familySlug}/${productSlug}`,
+  )
+  if (
+    !identity ||
+    identity.level !== 'detail' ||
+    identity.familySlug !== familySlug ||
+    identity.productSlug !== productSlug
+  ) {
+    throw new Error(
+      `Invalid Product Detail identity: ${familySlug}/${productSlug}`,
+    )
+  }
+  return `product-detail:${siteId}:${familySlug}:${productSlug}`
 }
 
 export function applicationListTag(siteId: string): string {
