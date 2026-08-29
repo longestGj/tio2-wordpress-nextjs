@@ -87,6 +87,56 @@ export interface ProductsHubPresentation {
   footerDescription: string
 }
 
+export interface ProductFamilyPresentation {
+  breadcrumb: {homeLabel: string; productsLabel: string}
+  hero: {
+    imageAlt: string
+    familyAction: {label: string; href: '#family-candidates'}
+    enquiryAction: PageCta
+  }
+  familyNavigation: {
+    eyebrow: string
+    heading: string
+    intro: string
+    searchLabel: string
+    searchPlaceholder: string
+    singularResultLabel: string
+    pluralResultLabel: string
+    resetLabel: string
+    noResults: string
+    candidateActionLabel: string
+  }
+  comparison: {
+    eyebrow: string
+    heading: string
+    intro: string
+    regionLabel: string
+    headers: {
+      grade: string
+      applicationFocus: string
+      performanceFocus: string
+      surfaceTreatmentPositioning: string
+    }
+    noteLabel: string
+    note: string
+  }
+  selectionApplication: {
+    heading: string
+    description: string
+    actionLabel: string
+  }
+  validation: {eyebrow: string; heading: string}
+  resources: {
+    eyebrow: string
+    heading: string
+    cards: Array<{category: string; description: string}>
+  }
+  enquiryContextFields: string[]
+  faq: {eyebrow: string; heading: string}
+  disclaimerLabel: string
+  footerDescription: string
+}
+
 export interface FamilyFilter {
   slug: string
   label: string
@@ -152,6 +202,7 @@ export interface ProductFamilyPageDto {
     directAnswer: string
     image: string
   }
+  presentation: ProductFamilyPresentation
   decisionRail: DecisionRailItem[]
   filters: FamilyFilter[]
   products: FamilyProductItem[]

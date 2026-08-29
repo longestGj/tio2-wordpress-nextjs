@@ -250,6 +250,37 @@ function normalizeFamily(
       ...page.hero,
       directAnswer: sanitizeEditorialRichText(page.hero.directAnswer),
     },
+    presentation: {
+      breadcrumb: {...page.presentation.breadcrumb},
+      hero: {
+        imageAlt: page.presentation.hero.imageAlt,
+        familyAction: {
+          label: page.presentation.hero.familyActionLabel,
+          href: '#family-candidates',
+        },
+        enquiryAction: normalizeCtas(
+          [page.presentation.hero.enquiryAction],
+          resolve,
+          'presentation.hero.enquiryAction',
+        )[0]!,
+      },
+      familyNavigation: {...page.presentation.familyNavigation},
+      comparison: {
+        ...page.presentation.comparison,
+        headers: {...page.presentation.comparison.headers},
+      },
+      selectionApplication: {...page.presentation.selectionApplication},
+      validation: {...page.presentation.validation},
+      resources: {
+        eyebrow: page.presentation.resources.eyebrow,
+        heading: page.presentation.resources.heading,
+        cards: page.presentation.resources.cards.map((card) => ({...card})),
+      },
+      enquiryContextFields: [...page.presentation.enquiryContextFields],
+      faq: {...page.presentation.faq},
+      disclaimerLabel: page.presentation.disclaimerLabel,
+      footerDescription: page.presentation.footerDescription,
+    },
     decisionRail: page.decisionRail.map((item) => ({...item})),
     filters: page.filters.map((filter) => ({...filter})),
     products: normalizeFamilyProducts(page.products, resolve, 'products'),

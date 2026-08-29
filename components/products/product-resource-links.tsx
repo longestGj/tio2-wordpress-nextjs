@@ -1,5 +1,4 @@
 import type {EditorialLink} from '@/lib/editorial/types'
-import type {ProductsHubPresentation} from '@/lib/products/page-types'
 
 import layout from './product-layout.module.css'
 
@@ -7,7 +6,10 @@ export function ProductResourceLinks({
   cards,
   resources,
 }: {
-  readonly cards: ProductsHubPresentation['resources']['cards']
+  readonly cards: ReadonlyArray<{
+    readonly category: string
+    readonly description: string
+  }>
   readonly resources: readonly EditorialLink[]
 }): React.ReactNode {
   return (

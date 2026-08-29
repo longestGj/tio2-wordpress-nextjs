@@ -202,6 +202,36 @@ describe('Product page DTO normalization', () => {
     )
   })
 
+  it('normalizes Family presentation and derives both Hero hrefs from code', () => {
+    const resolve = resolver()
+    resolve.ctaHref = (kind) =>
+      `mailto:contact@tio2products.com?subject=${kind}`
+
+    const family = toProductFamilyPageDto(
+      clone(coatingsFamilyPageInput),
+      resolve,
+    )
+
+    expect(family.presentation.familyNavigation.searchPlaceholder).toBe(
+      'Filter by model',
+    )
+    expect(family.presentation.comparison.headers).toEqual({
+      grade: 'Grade',
+      applicationFocus: 'Application Focus',
+      performanceFocus: 'Key Performance Focus',
+      surfaceTreatmentPositioning: 'Surface Treatment / Positioning',
+    })
+    expect(family.presentation.hero.familyAction).toEqual({
+      label: 'Explore Coatings Grades',
+      href: '#family-candidates',
+    })
+    expect(family.presentation.hero.enquiryAction).toEqual({
+      kind: 'discuss-application',
+      label: 'Discuss Your Application',
+      href: 'mailto:contact@tio2products.com?subject=discuss-application',
+    })
+  })
+
   it('derives every CTA href from ctaHref and rejects WordPress href input', () => {
     const calls: PageCta['kind'][] = []
     const resolve = resolver()

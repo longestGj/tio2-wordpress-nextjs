@@ -14,7 +14,10 @@ import {
   toProductFamilyPageDto,
   toProductsHubPageDto,
 } from '@/lib/products/page-dto'
-import {APPROVED_PRODUCTS_HUB_PRESENTATION} from '@/lib/products/page-schema'
+import {
+  APPROVED_PRODUCT_FAMILY_PRESENTATION,
+  APPROVED_PRODUCTS_HUB_PRESENTATION,
+} from '@/lib/products/page-schema'
 import {
   SITE_A_PRODUCT_FAMILIES,
   SITE_A_PRODUCT_IDENTITIES,
@@ -116,6 +119,7 @@ export interface SerializedProductFamily {
   readonly heroImageId: number
   readonly decisionRail: readonly string[]
   readonly filters: ReadonlyArray<{readonly slug: string; readonly label: string}>
+  readonly comparisonIntroduction: string
   readonly comparisonCaption: string
   readonly selectionMethod: string
   readonly validationSteps: readonly string[]
@@ -501,6 +505,44 @@ export function toProductFamilyDtoFromSerialized(
         headline: raw.headline,
         directAnswer: raw.directAnswer,
         image: '/site-a/products/coatings-family-hero.png',
+      },
+      presentation: {
+        breadcrumb: {...APPROVED_PRODUCT_FAMILY_PRESENTATION.breadcrumb},
+        hero: {
+          ...APPROVED_PRODUCT_FAMILY_PRESENTATION.hero,
+          enquiryAction: {
+            ...APPROVED_PRODUCT_FAMILY_PRESENTATION.hero.enquiryAction,
+          },
+        },
+        familyNavigation: {
+          ...APPROVED_PRODUCT_FAMILY_PRESENTATION.familyNavigation,
+        },
+        comparison: {
+          ...APPROVED_PRODUCT_FAMILY_PRESENTATION.comparison,
+          intro: raw.comparisonIntroduction,
+          headers: {
+            ...APPROVED_PRODUCT_FAMILY_PRESENTATION.comparison.headers,
+          },
+        },
+        selectionApplication: {
+          ...APPROVED_PRODUCT_FAMILY_PRESENTATION.selectionApplication,
+        },
+        validation: {...APPROVED_PRODUCT_FAMILY_PRESENTATION.validation},
+        resources: {
+          eyebrow: APPROVED_PRODUCT_FAMILY_PRESENTATION.resources.eyebrow,
+          heading: APPROVED_PRODUCT_FAMILY_PRESENTATION.resources.heading,
+          cards: APPROVED_PRODUCT_FAMILY_PRESENTATION.resources.cards.map(
+            (card) => ({...card}),
+          ),
+        },
+        enquiryContextFields: [
+          ...APPROVED_PRODUCT_FAMILY_PRESENTATION.enquiryContextFields,
+        ],
+        faq: {...APPROVED_PRODUCT_FAMILY_PRESENTATION.faq},
+        disclaimerLabel:
+          APPROVED_PRODUCT_FAMILY_PRESENTATION.disclaimerLabel,
+        footerDescription:
+          APPROVED_PRODUCT_FAMILY_PRESENTATION.footerDescription,
       },
       decisionRail: parseJsonRows(raw.decisionRail, 'decisionRail'),
       filters: raw.filters.map((filter) => ({...filter})),

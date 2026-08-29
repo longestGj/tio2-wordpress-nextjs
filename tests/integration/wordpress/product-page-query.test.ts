@@ -322,6 +322,37 @@ describe('getSiteProductPage', () => {
     expect(JSON.stringify(result.presentation)).not.toContain('arbitrary')
   })
 
+  it('maps queried comparison introduction and frozen v0.5 fallback into the Family DTO', async () => {
+    const response = familyResponse()
+    response.tio2ProductFamily.comparisonIntroduction =
+      'Queried comparison introduction.'
+    server.use(
+      http.post(graphqlEndpoint, () => HttpResponse.json({data: response})),
+    )
+
+    const result = await getSiteProductPage(
+      getSiteConfig('tio2-a'),
+      '/products/coatings',
+    )
+
+    expect(result?.level).toBe('family')
+    if (result?.level !== 'family') throw new Error('Expected Family DTO')
+    expect(result.presentation.comparison.intro).toBe(
+      'Queried comparison introduction.',
+    )
+    expect(result.presentation.familyNavigation).toMatchObject({
+      heading: 'Explore coatings grades',
+      searchPlaceholder: 'Filter by model',
+      noResults: 'No matching coatings grades',
+    })
+    expect(result.presentation.resources.cards).toHaveLength(3)
+    expect(result.presentation.enquiryContextFields).toHaveLength(5)
+    expect(result.presentation.hero.familyAction.href).toBe('#family-candidates')
+    expect(result.presentation.hero.enquiryAction.href).toBe(
+      getSiteConfig('tio2-a').rfqHref,
+    )
+  })
+
   it.each([
     ['/products', 'hub'],
     ['/products/coatings', 'family'],

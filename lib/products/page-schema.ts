@@ -264,6 +264,166 @@ const hubPresentation = z
     footerDescription: text(),
   })
   .strict()
+export const APPROVED_PRODUCT_FAMILY_PRESENTATION = {
+  breadcrumb: {homeLabel: 'Home', productsLabel: 'Products'},
+  hero: {
+    imageAlt: 'Titanium dioxide for coatings',
+    familyActionLabel: 'Explore Coatings Grades',
+    enquiryAction: {
+      kind: 'discuss-application',
+      label: 'Discuss Your Application',
+    },
+  },
+  familyNavigation: {
+    eyebrow: 'Family Navigation',
+    heading: 'Explore coatings grades',
+    intro:
+      'Filter the coatings portfolio by application, compare the candidate grades and open the relevant Product Detail pages before formulation trials.',
+    searchLabel: 'Filter coatings grades by model',
+    searchPlaceholder: 'Filter by model',
+    singularResultLabel: 'matching grade',
+    pluralResultLabel: 'matching grades',
+    resetLabel: 'Reset filters',
+    noResults: 'No matching coatings grades',
+    candidateActionLabel: 'View Product',
+  },
+  comparison: {
+    eyebrow: 'Grade Comparison',
+    heading: 'Compare coatings grades',
+    intro:
+      'Compare the application focus, key formulation priorities and available surface-treatment or product-positioning information for all nine coatings grades. Full Typical Properties tables are provided on the Product Detail pages.',
+    regionLabel: 'Coatings grade comparison table',
+    headers: {
+      grade: 'Grade',
+      applicationFocus: 'Application Focus',
+      performanceFocus: 'Key Performance Focus',
+      surfaceTreatmentPositioning: 'Surface Treatment / Positioning',
+    },
+    noteLabel: 'Comparison note:',
+    note:
+      'Grade numbers do not represent a performance ranking. Final selection should be confirmed under matched formulation and test conditions.',
+  },
+  selectionApplication: {
+    heading: 'Need coating-application guidance?',
+    description:
+      'The Coatings Application page covers formulation problems, subapplication routes and selection factors in greater depth, while this page focuses on the TIOVAR coatings portfolio.',
+    actionLabel: 'Explore Coatings Applications',
+  },
+  validation: {
+    eyebrow: 'Validation Method',
+    heading: 'Move from grade selection to finished-film evidence',
+  },
+  resources: {
+    eyebrow: 'Technical Resources',
+    heading: 'Build the next stage of your coatings comparison',
+    cards: [
+      {
+        category: 'High-PVC',
+        description: 'Understand why formulation balance matters above CPVC.',
+      },
+      {
+        category: 'Durability',
+        description:
+          'Connect pigment selection with the complete exposure protocol.',
+      },
+      {
+        category: 'Comparison',
+        description:
+          'Compare candidate grades under matched formulation and test conditions.',
+      },
+    ],
+  },
+  enquiryContextFields: [
+    'Binder chemistry',
+    'PVC and solids',
+    'Current pigment',
+    'Application and cure',
+    'Target properties, exposure and destination market',
+  ],
+  faq: {eyebrow: 'Common Questions', heading: 'Frequently Asked Questions'},
+  disclaimerLabel: 'Technical Disclaimer',
+  footerDescription:
+    'Application-specific titanium dioxide products and technical support for industrial formulations.',
+} as const
+const familyPresentation = z
+  .object({
+    breadcrumb: z
+      .object({homeLabel: text(80), productsLabel: text(80)})
+      .strict(),
+    hero: z
+      .object({
+        imageAlt: text(300),
+        familyActionLabel: text(120),
+        enquiryAction: discussApplicationCta,
+      })
+      .strict(),
+    familyNavigation: z
+      .object({
+        eyebrow: text(120),
+        heading: text(180),
+        intro: text(),
+        searchLabel: text(180),
+        searchPlaceholder: text(180),
+        singularResultLabel: text(80),
+        pluralResultLabel: text(80),
+        resetLabel: text(120),
+        noResults: text(180),
+        candidateActionLabel: text(120),
+      })
+      .strict(),
+    comparison: z
+      .object({
+        eyebrow: text(120),
+        heading: text(180),
+        intro: text(),
+        regionLabel: text(180),
+        headers: z
+          .object({
+            grade: text(120),
+            applicationFocus: text(120),
+            performanceFocus: text(120),
+            surfaceTreatmentPositioning: text(180),
+          })
+          .strict(),
+        noteLabel: text(120),
+        note: text(),
+      })
+      .strict(),
+    selectionApplication: z
+      .object({
+        heading: text(180),
+        description: text(),
+        actionLabel: text(120),
+      })
+      .strict(),
+    validation: z
+      .object({eyebrow: text(120), heading: text(180)})
+      .strict(),
+    resources: z
+      .object({
+        eyebrow: text(120),
+        heading: text(180),
+        cards: z.tuple([
+          z.object({category: text(120), description: text()}).strict(),
+          z.object({category: text(120), description: text()}).strict(),
+          z.object({category: text(120), description: text()}).strict(),
+        ]),
+      })
+      .strict(),
+    enquiryContextFields: z.tuple([
+      text(180),
+      text(180),
+      text(180),
+      text(180),
+      text(180),
+    ]),
+    faq: z
+      .object({eyebrow: text(120), heading: text(180)})
+      .strict(),
+    disclaimerLabel: text(180),
+    footerDescription: text(),
+  })
+  .strict()
 const enquiry = z
   .object({
     eyebrow: text(120),
@@ -437,6 +597,7 @@ export const productFamilyPageInputSchema = z
       .strict(),
     seo,
     hero: collectionHero,
+    presentation: familyPresentation,
     decisionRail: z.array(decisionRailItem).min(1).max(8),
     filters: z.array(filterInput).min(1).max(12),
     products: z.array(familyProductInput).min(1).max(25),

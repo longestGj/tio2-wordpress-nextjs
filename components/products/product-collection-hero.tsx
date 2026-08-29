@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-import type {ProductsHubPresentation} from '@/lib/products/page-types'
+import type {PageCta} from '@/lib/products/page-types'
 
 import layout from './product-layout.module.css'
 
@@ -9,7 +9,11 @@ interface ProductCollectionHeroProps {
   readonly headline: string
   readonly directAnswer: string
   readonly image: string
-  readonly presentation: ProductsHubPresentation['hero']
+  readonly presentation: {
+    readonly imageAlt: string
+    readonly familyAction: {readonly label: string; readonly href: string}
+    readonly enquiryAction: PageCta
+  }
 }
 
 export function ProductCollectionHero({

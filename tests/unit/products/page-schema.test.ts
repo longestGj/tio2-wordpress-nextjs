@@ -271,6 +271,31 @@ describe('three-level Product page schemas', () => {
     expect(productsHubPageInputSchema.safeParse(malformed).success).toBe(false)
   })
 
+  it('requires the complete Family presentation contract', () => {
+    const approved = clone(coatingsFamilyPageInput) as unknown as {
+      presentation?: {
+        familyNavigation: {searchLabel: string}
+        comparison: {headers: {performanceFocus: string}}
+        resources: {cards: unknown[]}
+        enquiryContextFields: string[]
+      }
+    }
+
+    expect(approved.presentation?.familyNavigation.searchLabel).toBe(
+      'Filter coatings grades by model',
+    )
+    expect(approved.presentation?.comparison.headers.performanceFocus).toBe(
+      'Key Performance Focus',
+    )
+    expect(approved.presentation?.resources.cards).toHaveLength(3)
+    expect(approved.presentation?.enquiryContextFields).toHaveLength(5)
+    expect(productFamilyPageInputSchema.safeParse(approved).success).toBe(true)
+
+    const missing = structuredClone(approved)
+    delete missing.presentation
+    expect(productFamilyPageInputSchema.safeParse(missing).success).toBe(false)
+  })
+
   it('contains no private document, download, or commercial leakage', () => {
     const fixtureText = JSON.stringify(siteAProductRepresentativeFixture)
     expect(fixtureText).not.toMatch(
