@@ -6,7 +6,7 @@ import {
   ApplicationPageRenderer,
   isValidatedApplicationPageDto,
 } from '@/components/applications/application-page'
-import {SiteShell} from '@/components/site-shell'
+import {SiteABrandShell} from '@/components/sites/tio2-a/site-a-brand-shell'
 import {ApplicationContractError} from '@/lib/applications/dto'
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {
@@ -62,8 +62,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ApplicationHubPreviewPage() {
   const {application, site} = await loadApplicationHubPreviewPage()
   return (
-    <SiteShell site={site}>
+    <SiteABrandShell site={site} inquiryHref="#inquiry" structuredData={null}>
       <ApplicationPageRenderer application={application} />
-    </SiteShell>
+    </SiteABrandShell>
   )
 }

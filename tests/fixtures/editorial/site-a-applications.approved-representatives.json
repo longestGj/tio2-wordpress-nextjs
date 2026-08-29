@@ -1,0 +1,562 @@
+{
+  "version": "0.1",
+  "siteId": "tio2-a",
+  "records": [
+    {
+      "identity": {
+        "id": "applications-hub",
+        "title": "Titanium Dioxide Applications",
+        "slug": "applications",
+        "path": "/applications",
+        "level": "hub",
+        "family": "All",
+        "parentId": null,
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Titanium Dioxide Applications | TIOVAR",
+        "description": "Select titanium dioxide by application, then define formulation, process and end-use checks before moving to the relevant category or enquiry path."
+      },
+      "hero": {
+        "eyebrow": "Application Hub",
+        "headline": "Titanium Dioxide Applications",
+        "directAnswer": "<p>Explore TIOVAR titanium dioxide by application. Start with the material system and end-use requirement, then compare suitable grades through formulation, process and finished-product testing.</p>"
+      },
+      "decisionGuide": {
+        "context": "Visitors need to identify the right application family and understand the first screening and validation questions.",
+        "buyerProblem": "Help visitors identify the relevant application family, understand what controls initial titanium dioxide screening, and continue to the appropriate Category, Product, Resource or enquiry path without automatic recommendation.",
+        "selectionFactors": [
+          "Application and material system The same titanium dioxide can behave differently in a coating binder, an ink vehicle, a polymer resin, a paper furnish or a functional-material preparation. Define the system before comparing candidates so that the trial represents the intended use.",
+          "Required end-use result Specify the result that matters to the project. Depending on the family, this may include opacity, shade, gloss, film appearance, print quality, reflectance, retention, process stability, weathering response, or an electrical, optical or other functional outcome. The acceptance method should be defined with the end use in mind.",
+          "Formulation and process conditions Pigment loading, additives, dispersion route, mixing energy, thermal history, film build, application method, drying, curing, extrusion, papermaking or thermal treatment can change the result. Hold relevant conditions constant against a matched control before attributing a difference to the pigment.",
+          "Information quality Product information can establish a starting screen, while a useful application discussion needs the actual formulation and process context. Clear input information makes the evaluation path more relevant without treating an initial screen as a final selection."
+        ],
+        "powderDataLimits": "Powder properties are useful for defining what to examine first, but they do not reproduce the interactions in the complete system. Resin or vehicle chemistry, additives, dispersion quality, processing conditions, substrate or geometry, and end-use testing can each change the practical result. Use powder information to establish a controlled comparison. Use formulation, process and finished-product results to decide whether a candidate meets the project requirement. For additional context, see Why TiO₂ Content Alone Does Not Determine Performance and How Surface Treatment Changes Titanium Dioxide Performance.",
+        "validationPlan": [
+          "Powder: Confirm the material identity and the agreed incoming comparison approach. Define the relevant screening observations or reference values. Establishes a controlled starting point without treating powder data as proof of end-use performance.",
+          "Formulation: Compare the candidate and control in the intended binder, vehicle, resin, furnish or preparation route at matched conditions. Reveals dispersion, compatibility, color, opacity, flow or slurry interactions that are not visible in the powder alone.",
+          "Process: Run the relevant milling, application, printing, compounding, extrusion, papermaking, thermal-treatment or other production-representative step. Shows whether the candidate behaves consistently within the intended process window.",
+          "Finished product: Assess the completed coating, print, film, paper, molded part, laminate or functional material against the agreed end-use criteria. Connects the trial to the actual result the customer needs to evaluate."
+        ],
+        "customerInputs": [
+          "Application family, product format and intended end use.",
+          "Formulation, resin, vehicle, furnish or material-system description.",
+          "Current pigment or matched control and the objective of the evaluation.",
+          "Pigment loading and the relevant additive, filler, stabilizer or retention package.",
+          "Manufacturing route and the conditions most likely to affect the result.",
+          "Required appearance, opacity, color, process or functional-performance criteria.",
+          "Planned test method, acceptance criteria and trial stage."
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "follow-an-application-first-decision-path",
+          "heading": "Follow an application-first decision path",
+          "html": "<p>Start with the system you are making, rather than with a general pigment label. A useful first discussion defines the application family, the material system, the manufacturing route and the finished-product requirement. From there, the category page can help frame what to compare and which technical information to provide.</p><ol><li>Identify the application family and finished-product function.</li><li>Define the formulation, resin, vehicle, furnish or process chemistry that will contain the pigment.</li><li>Set the performance priorities and the conditions under which they must be assessed.</li><li>Compare initial candidates in a matched evaluation plan.</li><li>Continue to the relevant technical resource or enquiry path with the information needed for a focused discussion.</li></ol>"
+        },
+        {
+          "id": "technical-documentation",
+          "heading": "Technical documentation",
+          "html": "<p>Technical Data Sheets are available upon request.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "How should I begin selecting titanium dioxide for an application?",
+          "answerHtml": "<p>Begin with the application family, material system, manufacturing route and end-use target. Then use the relevant category page to define an initial comparison and the information needed for the next discussion.</p>"
+        },
+        {
+          "question": "Can powder data select a titanium dioxide product by itself?",
+          "answerHtml": "<p>No. Powder information can guide an initial screen, but the decision requires matched formulation, process and finished-product checks in the intended system.</p>"
+        },
+        {
+          "question": "Why are coatings, plastics and printing inks separate application paths?",
+          "answerHtml": "<p>They use different binders, vehicles or resins, process conditions and acceptance criteria. A result in one family does not establish performance in another, even when some selection factors appear similar.</p>"
+        },
+        {
+          "question": "What information should I share before requesting technical support?",
+          "answerHtml": "<p>Share the application, material system, current control, pigment loading, process conditions, target result and planned validation method. This information helps focus the application discussion and trial plan.</p>"
+        },
+        {
+          "question": "Does the multi-purpose detail page provide one solution for every application?",
+          "answerHtml": "<p>No. It is a detail path for cross-application screening where relevant. Each coating, ink or plastics system still needs separate formulation, process and finished-product evaluation.</p>"
+        }
+      ],
+      "children": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "application",
+          "id": "plastics"
+        },
+        {
+          "type": "application",
+          "id": "printing-inks"
+        },
+        {
+          "type": "application",
+          "id": "decorative-paper"
+        },
+        {
+          "type": "application",
+          "id": "solar-film"
+        },
+        {
+          "type": "application",
+          "id": "high-purity"
+        },
+        {
+          "type": "application",
+          "id": "universal-multi-application"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-03"
+        },
+        {
+          "type": "resource",
+          "id": "article-06"
+        },
+        {
+          "type": "resource",
+          "id": "article-07"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Your Application",
+          "href": "/contact"
+        },
+        {
+          "kind": "request-sample",
+          "label": "Request a Sample",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>",
+      "startingProducts": []
+    },
+    {
+      "identity": {
+        "id": "coatings",
+        "title": "Titanium Dioxide for Coatings",
+        "slug": "coatings",
+        "path": "/applications/coatings",
+        "level": "category",
+        "family": "Coatings",
+        "parentId": "applications-hub",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Titanium Dioxide for Coatings | TIOVAR",
+        "description": "Choose titanium dioxide for architectural, waterborne, automotive, industrial and protective coatings with a clear screening and validation path."
+      },
+      "hero": {
+        "eyebrow": "Application Category",
+        "headline": "Titanium Dioxide for Coatings",
+        "directAnswer": "<p>Explore TIOVAR titanium dioxide for architectural, waterborne, automotive, industrial and protective coatings. Start with the coating system and performance target, then compare candidates under matched finished-film conditions.</p>"
+      },
+      "decisionGuide": {
+        "context": "Help visitors identify their coating subapplication, define selection variables, choose evidence-backed TIOVAR starting points for evaluation, and move to the relevant detail, product, resource or enquiry page.",
+        "buyerProblem": "A coating pigment affects more than whiteness or opacity. Its practical fit depends on how it wets and disperses in the binder, how it influences viscosity and storage, how it behaves during application and cure, and how the finished film performs in service.",
+        "selectionFactors": [
+          "Binder and dispersion compatibility A pigment must be evaluated in the actual binder and dispersant package. Wetting, grind time, fineness, residue, viscosity, settling and redispersion can change with resin chemistry, neutralization, additive selection and process energy.",
+          "Opacity, tint and film appearance Hiding power is meaningful only at matched pigment loading, film thickness, application conditions and substrate. Compare opacity, contrast ratio, color coordinates and gloss in the finished film rather than relying on a powder property alone.",
+          "PVC, CPVC and dry hiding Pigment volume concentration (PVC) is the volume share of pigment and extender in the dry coating. The critical pigment volume concentration (CPVC) is the point at which there is insufficient binder to fully fill the pigment and extender spaces. High-PVC systems require a formulation-specific balance of dry hiding, oil absorption, rheology, porosity, cohesion and scrub or washability performance.",
+          "Waterborne storage and application For waterborne coatings, screen dispersion, viscosity development, storage stability, settling, redispersion and application appearance in the complete formulation. A result from a solvent-borne or different waterborne binder does not establish fit in the intended system.",
+          "Exterior durability and protective performance Weathering outcomes depend on the full system: substrate preparation, pretreatment, binder, pigments, film build, cure and exposure environment. For protective coatings, corrosion performance must be verified in the complete coating stack rather than attributed to the titanium dioxide pigment alone."
+        ],
+        "powderDataLimits": "Powder properties can help set an initial screen, but they do not predict the complete coating outcome. The pigment interacts with the resin, solvent or water phase, dispersant, extender package, application method, cure conditions and substrate. Those interactions can change viscosity, dispersion quality, hiding, gloss, adhesion, storage stability, chalking and color retention. Use published product information to select trial candidates. Use matched coating tests to decide whether a candidate fits the intended formulation.",
+        "validationPlan": [
+          "Powder checks Confirm product identity and inspect the powder under your incoming-material procedure. Use available product information to define a consistent comparison plan; do not treat powder values as finished-film acceptance criteria.",
+          "Formulation checks Prepare control and trial formulations at matched conditions. Record pigment loading, binder, dispersant, extender package, PVC, grind procedure and target viscosity. Compare wetting, grind time, fineness, residue, viscosity, settling and storage behavior as relevant.",
+          "Process checks Apply the actual manufacturing and application conditions. For liquid coatings, evaluate the relevant spray, brush, roller, dip or electrophoretic process. For powder and coil coatings, use the intended application, film-build and cure window. Record process stability and visible application defects.",
+          "Finished-product checks Measure the properties that matter to the coating end use: opacity, contrast ratio, color, gloss, appearance, adhesion and system-specific mechanical performance. Add scrub or washability checks for architectural paint where relevant; evaluate gloss retention, color change and chalking through the agreed exterior exposure program; assess corrosion performance in the complete protective stack where required."
+        ],
+        "customerInputs": [
+          "Coating type, end use and exposure environment.",
+          "Binder chemistry and whether the system is waterborne, solvent-borne, water-soluble or another format.",
+          "Current titanium dioxide grade and the performance issue to improve.",
+          "Pigment loading, PVC/CPVC target and extender package where applicable.",
+          "Dispersing process, application method, dry-film thickness and cure conditions.",
+          "Required tests, relevant standards and acceptance criteria.",
+          "Destination market and required quantity."
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "start-with-the-coating-system-not-a-general-grade-label",
+          "heading": "Start with the coating system, not a general grade label",
+          "html": "<p>For a useful first screen, define:</p><ul><li>The coating type and end use: interior architectural paint, exterior wall coating, automotive coating, industrial finish, electrophoretic coating, powder coating, coil coating, marine coating or protective system.</li><li>The binder and medium: waterborne, solvent-borne, water-soluble resin or other system-specific chemistry.</li><li>The performance priorities: hiding power, tint, gloss, dry-film hiding, viscosity, storage stability, chalk resistance, color retention, weather resistance or appearance.</li><li>The process conditions: dispersing equipment, grind procedure, application method, film build and cure schedule.</li><li>The exposure requirement: interior service, exterior weathering, automotive qualification, marine exposure or a defined protective-coating test program.</li></ul>"
+        },
+        {
+          "id": "evidence-backed-tiovar-starting-points-for-evaluation",
+          "heading": "Evidence-backed TIOVAR starting points for evaluation",
+          "html": "<p>The following grades are organized by documented application direction. They are starting points for technical evaluation, not a ranking and not proof of suitability in a particular coating.</p><ul><li><strong>Electrophoretic coatings:</strong> TP-C050 is a starting point for electrophoretic and general interior coating evaluation where low-ion direction, whiteness, gloss and hiding are relevant.</li><li><strong>Architectural, industrial and decorative coatings:</strong> TP-C100 and TP-C110 may be screened for interior or exterior flat and semi-gloss architectural coatings, and for industrial or decorative coatings, particularly waterborne systems. Evaluate each independently; this page does not state a performance difference between them.</li><li><strong>Water-based interior and exterior wall emulsion paint:</strong> TP-C120 is a starting point where water-based wall-emulsion performance, relatively low viscosity direction, gloss, hiding and durability are relevant.</li><li><strong>High-PVC matte and flat architectural coatings:</strong> TP-C200 is a starting point for dry-hiding evaluation in high-PVC systems. Its oil-absorption direction makes formulation balance especially important.</li><li><strong>Durable automotive, marine, exterior, coil and powder coatings:</strong> TP-C300 is a starting point for systems that require matched evaluation of durability, weather resistance, gloss, hiding, dispersibility and color retention.</li><li><strong>Durable waterborne automotive and industrial coatings:</strong> TP-C310 is a starting point where water dispersibility and storage stability must be evaluated alongside durable coating performance.</li><li><strong>Exterior, marine, automotive and industrial coatings:</strong> TP-C400 and TP-C410 are separate starting points for demanding exposure conditions. Compare them in the actual binder, film build, cure and exposure protocol; their names do not establish a hierarchy.</li><li><strong>Multi-application screening:</strong> TP-U100 can be considered where the documented coating directions are relevant, but each coating system requires its own qualification.</li></ul>"
+        },
+        {
+          "id": "technical-documentation",
+          "heading": "Technical documentation",
+          "html": "<p>Technical Data Sheets are available upon request.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Which titanium dioxide grade should I use for coatings?",
+          "answerHtml": "<p>Start with the coating subtype, binder, exposure requirement and target performance—not a general grade label. This page identifies documented TIOVAR starting points by application direction, but final selection requires matched formulation, process and finished-film testing.</p>"
+        },
+        {
+          "question": "Can one titanium dioxide grade be used in every coating?",
+          "answerHtml": "<p>No. A grade may have documented directions across more than one coating type, but binder chemistry, dispersant package, PVC, application method, cure and exposure conditions can change the result. Qualify each intended coating system separately.</p>"
+        },
+        {
+          "question": "What is the difference between TP-C100 and TP-C110?",
+          "answerHtml": "<p>Both are documented starting points for architectural, industrial and decorative coating evaluation, particularly waterborne systems. Their fit should be evaluated independently in the intended coating; no performance difference between these grades is stated here.</p>"
+        },
+        {
+          "question": "Is TP-C410 higher-performing than TP-C400?",
+          "answerHtml": "<p>This hub does not present either grade as higher-performing. Both have documented directions for demanding exterior coating evaluation. Compare them only through matched testing in the actual binder, film build, cure and exposure protocol.</p>"
+        },
+        {
+          "question": "Why is high-PVC paint evaluated differently?",
+          "answerHtml": "<p>High-PVC coatings require attention to dry hiding, oil absorption, dispersant demand, rheology, film porosity and film integrity. A pigment that changes hiding or absorption behavior may require formulation adjustment rather than a simple one-for-one substitution.</p>"
+        }
+      ],
+      "children": [
+        {
+          "type": "application",
+          "id": "water-based-paint"
+        },
+        {
+          "type": "application",
+          "id": "electrophoretic-coating"
+        },
+        {
+          "type": "application",
+          "id": "high-pvc-flat-paint"
+        },
+        {
+          "type": "application",
+          "id": "automotive-coatings"
+        },
+        {
+          "type": "application",
+          "id": "waterborne-automotive-coatings"
+        },
+        {
+          "type": "application",
+          "id": "marine-aerospace-protective"
+        },
+        {
+          "type": "application",
+          "id": "powder-coil-coatings"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "product",
+          "id": "TP-C050"
+        },
+        {
+          "type": "product",
+          "id": "TP-C100"
+        },
+        {
+          "type": "product",
+          "id": "TP-C110"
+        },
+        {
+          "type": "product",
+          "id": "TP-C120"
+        },
+        {
+          "type": "product",
+          "id": "TP-C200"
+        },
+        {
+          "type": "product",
+          "id": "TP-C300"
+        },
+        {
+          "type": "product",
+          "id": "TP-C310"
+        },
+        {
+          "type": "product",
+          "id": "TP-C400"
+        },
+        {
+          "type": "product",
+          "id": "TP-C410"
+        },
+        {
+          "type": "product",
+          "id": "TP-U100"
+        },
+        {
+          "type": "resource",
+          "id": "article-03"
+        },
+        {
+          "type": "resource",
+          "id": "article-04"
+        },
+        {
+          "type": "resource",
+          "id": "article-06"
+        },
+        {
+          "type": "resource",
+          "id": "article-08"
+        },
+        {
+          "type": "resource",
+          "id": "article-10"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Your Application",
+          "href": "/contact"
+        },
+        {
+          "kind": "request-sample",
+          "label": "Request a Sample",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>",
+      "startingProducts": [
+        {
+          "productId": "TP-C050",
+          "role": "candidate",
+          "label": "Electrophoretic coatings",
+          "summaryHtml": "<p>Starting point where low-ion direction, whiteness, gloss and hiding are relevant.</p>"
+        },
+        {
+          "productId": "TP-C100",
+          "role": "candidate",
+          "label": "Architectural, industrial and decorative",
+          "summaryHtml": "<p>A separate candidate for relevant coating directions, particularly waterborne systems.</p>"
+        },
+        {
+          "productId": "TP-C110",
+          "role": "candidate",
+          "label": "Architectural, industrial and decorative",
+          "summaryHtml": "<p>A separate candidate for relevant coating directions, particularly waterborne systems.</p>"
+        },
+        {
+          "productId": "TP-C120",
+          "role": "candidate",
+          "label": "Water-based wall emulsion paint",
+          "summaryHtml": "<p>Starting point for water-based interior and exterior wall-emulsion evaluation.</p>"
+        },
+        {
+          "productId": "TP-C200",
+          "role": "candidate",
+          "label": "High-PVC matte and flat paint",
+          "summaryHtml": "<p>Starting point for dry-hiding evaluation where formulation balance is especially important.</p>"
+        },
+        {
+          "productId": "TP-C300",
+          "role": "candidate",
+          "label": "Durable automotive, marine, coil and powder",
+          "summaryHtml": "<p>Starting point for matched durability, weathering, gloss, hiding and colour-retention evaluation.</p>"
+        },
+        {
+          "productId": "TP-C310",
+          "role": "candidate",
+          "label": "Waterborne automotive and industrial",
+          "summaryHtml": "<p>Starting point where water dispersibility and storage stability matter.</p>"
+        },
+        {
+          "productId": "TP-C400",
+          "role": "candidate",
+          "label": "Demanding exterior conditions",
+          "summaryHtml": "<p>A separate candidate for demanding exterior coating evaluation; the grade name does not establish a hierarchy.</p>"
+        },
+        {
+          "productId": "TP-C410",
+          "role": "candidate",
+          "label": "Demanding exterior conditions",
+          "summaryHtml": "<p>A separate candidate for demanding exterior coating evaluation; the grade name does not establish a hierarchy.</p>"
+        },
+        {
+          "productId": "TP-U100",
+          "role": "candidate",
+          "label": "Multi-application screening",
+          "summaryHtml": "<p>A conditional screening route; each coating system requires its own qualification.</p>"
+        }
+      ]
+    },
+    {
+      "identity": {
+        "id": "water-based-paint",
+        "title": "Titanium Dioxide for Water-Based Paint",
+        "slug": "titanium-dioxide-for-water-based-paint",
+        "path": "/applications/titanium-dioxide-for-water-based-paint",
+        "level": "detail",
+        "family": "Coatings",
+        "parentId": "coatings",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Titanium Dioxide for Water-Based Paint | TIOVAR",
+        "description": "Evaluate titanium dioxide for water-based paint by matching candidates to the binder, formulation, process and finished-film tests required."
+      },
+      "hero": {
+        "eyebrow": "Application Detail",
+        "headline": "Titanium Dioxide for Water-Based Paint",
+        "directAnswer": "<p>Evaluate titanium dioxide in the complete water-based paint system. Define the binder, PVC, dispersant package, application method and exposure requirement first. TP-C120 is the primary TIOVAR starting point; TP-C100 and TP-C110 remain separate secondary candidates.</p>"
+      },
+      "decisionGuide": {
+        "context": "Water-based paint performance is shaped by interactions among the pigment, water phase, binder, dispersant, extender package, and manufacturing conditions. A useful trial begins with the intended paint type—such as interior or exterior wall emulsion paint—and the performance decisions that the finished coating must support.",
+        "buyerProblem": "Share the binder chemistry, pigment volume concentration (PVC), solids target, pigment loading, dispersant package, application method, dry-film target, and the exposure or service conditions. These inputs help make a trial comparison meaningful rather than treating one powder result as a decision for every formulation.",
+        "selectionFactors": [
+          "Binder and dispersion compatibility: Evaluate wetting, grind quality, fineness, residue, and rheology in the intended binder and additive package. Changes in resin chemistry, neutralization, water quality, shear, or extender selection can change the result.",
+          "Viscosity and application balance: For TP-C120, relatively low viscosity is a trial-planning direction for water-based emulsion paint, not a numeric result or a promise for a particular formulation. Compare slurry and finished-paint viscosity under matched conditions, then confirm the selected processing and application window in the complete formulation.",
+          "Opacity, color, gloss, and appearance: Compare the properties that matter to the intended paint at matched loading, film build, substrate, and application conditions. Powder information cannot establish finished-film opacity, color response, gloss, or appearance because these outcomes depend on the full formulation and process.",
+          "Interior or exterior service requirement: The exposure requirement belongs in the screening plan from the beginning. Interior paint may require a different finished-film test set from exterior wall paint, where the agreed exposure program and whole coating system should guide the evaluation."
+        ],
+        "powderDataLimits": "Powder information is useful for defining a controlled screen, but it does not predict the whole paint result. The pigment interacts with the binder, dispersant, water phase, extenders, process energy, application method, film build, substrate, and service conditions. A change in any of these can affect dispersion, viscosity, application appearance, opacity, gloss, or finished-film behavior. Use product information to choose trial candidates. Use matched paint tests to determine whether a candidate fits the intended system.",
+        "validationPlan": [
+          "Powder checks: Confirm product identity and set a consistent incoming-material comparison procedure. Use product information to plan the screen, but do not use a powder result as a finished-paint acceptance criterion.",
+          "Formulation checks: Prepare control and trial formulations with the same binder, PVC, solids target, pigment loading, dispersant package, and extender package. Record wetting, grind quality, fineness, residue, viscosity development, settling, and storage behavior as relevant to the paint.",
+          "Process checks: Run the intended manufacturing and application conditions, including dispersing equipment, shear, sequence of addition, application method, and dry-film target. Record process stability and visible defects under the planned operating window.",
+          "Finished-film checks: Compare the results that define the paint’s intended use, such as opacity, color, gloss, appearance, adhesion, and relevant mechanical or service tests. Include interior scrub or washability checks, or an agreed exterior exposure program, where the end use requires them."
+        ],
+        "customerInputs": [
+          "Paint type, end use, and interior or exterior service requirement.",
+          "Binder chemistry, PVC, solids target, pigment loading, and extender package.",
+          "Current pigment and the performance question the trial should answer.",
+          "Dispersant package, grind procedure, equipment, and target viscosity range.",
+          "Application method, substrate, dry-film target, and cure or drying conditions.",
+          "Required test methods, acceptance criteria, and any relevant exposure program."
+        ]
+      },
+      "bodySections": [
+        {
+          "id": "evidence-supported-tiovar-starting-points-for-evaluation",
+          "heading": "Evidence-supported TIOVAR starting points for evaluation",
+          "html": "<ul><li>TP-C120: The primary starting point for water-based interior and exterior wall emulsion-paint evaluation. Premium is TIOVAR positioning for this water-based emulsion-paint focus. Its documented direction includes relatively low viscosity, bluish tone, gloss, durability, and hiding power; verify each relevant outcome in the intended formulation.</li><li>TP-C100: A separate secondary starting point for interior and exterior flat or semi-gloss architectural paints, industrial coatings, and decorative coatings, especially water-borne systems. Evaluate it independently where that documented direction fits the project.</li><li>TP-C110: A separate secondary starting point for interior and exterior flat or semi-gloss architectural paints, industrial coatings, and decorative coatings, especially water-borne systems. Evaluate it independently where that documented direction fits the project.</li></ul>"
+        },
+        {
+          "id": "evaluation-boundary",
+          "heading": "Evaluation boundary",
+          "html": "<p>These are starting points for evaluation, not an authorization, a hierarchy, or a statement of suitability.</p><p>Technical Data Sheets are available upon request.</p>"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Which titanium dioxide should I evaluate for water-based wall paint?",
+          "answerHtml": "<p>Start with TP-C120 for water-based interior or exterior wall emulsion paint. TP-C100 and TP-C110 can be considered separately when their documented architectural, industrial, or decorative waterborne directions match the project. Confirm the choice in a matched formulation and finished-film trial.</p>"
+        },
+        {
+          "question": "Is TP-C120’s relatively low viscosity a fixed result?",
+          "answerHtml": "<p>No. It is a qualitative trial-planning direction for water-based emulsion paint. Actual viscosity depends on the binder, solids, PVC, dispersant package, water phase, shear, and the complete formulation, so it must be verified in the intended system.</p>"
+        },
+        {
+          "question": "Why should I test the complete paint instead of comparing powder data?",
+          "answerHtml": "<p>Powder information does not capture interactions with the binder, dispersant, extenders, process, application method, film build, or substrate. Those interactions are needed to assess the finished paint.</p>"
+        },
+        {
+          "question": "How should TP-C100 and TP-C110 be compared?",
+          "answerHtml": "<p>Treat them as separate candidates. Use matched binder, pigment loading, PVC, dispersant package, process, application, and finished-film conditions; do not infer identical performance or a hierarchy from their application directions.</p>"
+        },
+        {
+          "question": "Which tests should be included in a water-based paint trial?",
+          "answerHtml": "<p>Use the tests that answer the project’s requirement. A typical plan separates powder checks from formulation and process checks, then compares finished-film opacity, color, gloss, appearance, adhesion, and the interior or exterior tests relevant to the intended use.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "product",
+          "id": "TP-C120"
+        },
+        {
+          "type": "product",
+          "id": "TP-C100"
+        },
+        {
+          "type": "product",
+          "id": "TP-C110"
+        },
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "resource",
+          "id": "article-03"
+        },
+        {
+          "type": "resource",
+          "id": "article-04"
+        },
+        {
+          "type": "resource",
+          "id": "article-06"
+        },
+        {
+          "type": "resource",
+          "id": "article-07"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Formulation",
+          "href": "/contact"
+        },
+        {
+          "kind": "request-sample",
+          "label": "Request a Sample",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>",
+      "startingProducts": [
+        {
+          "productId": "TP-C120",
+          "role": "primary",
+          "label": "Primary starting point",
+          "summaryHtml": "<p>TP-C120 is the primary TIOVAR starting point for interior and exterior water-based wall-emulsion paint, with a documented direction toward relatively low viscosity, bluish tone, gloss, durability and hiding. Final suitability must be confirmed in the intended formulation.</p>"
+        },
+        {
+          "productId": "TP-C100",
+          "role": "alternative",
+          "label": "Secondary candidate",
+          "summaryHtml": "<p>A separate starting point for relevant architectural, industrial and decorative waterborne coating directions. Evaluate it independently.</p>"
+        },
+        {
+          "productId": "TP-C110",
+          "role": "alternative",
+          "label": "Secondary candidate",
+          "summaryHtml": "<p>A separate starting point for relevant architectural, industrial and decorative waterborne coating directions. Evaluate it independently.</p>"
+        }
+      ]
+    }
+  ]
+}

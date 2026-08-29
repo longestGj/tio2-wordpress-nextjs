@@ -45,6 +45,12 @@ fragment SiteApplicationFields on Tio2Application {
       heading
       html
     }
+    startingProducts {
+      productId
+      role
+      label
+      summaryHtml
+    }
     faqItems {
       question
       answerHtml

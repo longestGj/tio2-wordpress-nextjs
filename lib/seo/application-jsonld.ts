@@ -12,6 +12,12 @@ import {htmlToPlainText} from './text'
 
 export type ApplicationJsonLdNode = JsonLdObject
 export type ApplicationVisibility = (siteId: SiteId, path: string) => boolean
+export interface ApplicationBreadcrumbItem {
+  readonly title: string
+  readonly path: string
+  readonly href: string | null
+  readonly current: boolean
+}
 
 const identityById = new Map<
   string,
@@ -20,11 +26,54 @@ const identityById = new Map<
   SITE_A_APPLICATION_IDENTITIES.map((identity) => [identity[0], identity]),
 )
 
+const breadcrumbTitleById: Readonly<Record<string, string>> = {
+  'applications-hub': 'Applications',
+  coatings: 'Coatings',
+  plastics: 'Plastics',
+  'printing-inks': 'Printing Inks',
+  'decorative-paper': 'Decorative Paper',
+  'solar-film': 'Solar Film',
+  'high-purity': 'Functional Materials',
+}
+
 function safeText(value: string, maximumLength?: number): string {
   return htmlToPlainText(
     value,
     maximumLength ?? Math.max(Array.from(value).length, 1),
   ).replace(/\s+([,.;:!?])/gu, '$1')
+}
+
+export function buildApplicationBreadcrumbItems(
+  application: ApplicationPageDto,
+  site: SiteConfig,
+  visible: ApplicationVisibility = isPublicRoute,
+): ApplicationBreadcrumbItem[] {
+  const hierarchy: Array<readonly [string, string]> = []
+  let parentId = application.identity.parentId
+  while (parentId) {
+    const parent = identityById.get(parentId)
+    if (!parent) break
+    hierarchy.unshift([
+      breadcrumbTitleById[parent[0]] ?? parent[1],
+      parent[2],
+    ])
+    parentId = parent[5]
+  }
+
+  const candidates = [
+    {title: 'Home', path: '/'},
+    ...hierarchy.map(([title, path]) => ({title, path})),
+    {title: application.identity.title, path: application.identity.path},
+  ]
+
+  return candidates.map((item, index) => {
+    const current = index === candidates.length - 1
+    return {
+      ...item,
+      current,
+      href: !current && visible(site.id, item.path) ? item.path : null,
+    }
+  })
 }
 
 function visibleBreadcrumbs(
@@ -33,37 +82,20 @@ function visibleBreadcrumbs(
   canonical: string,
   visible: ApplicationVisibility,
 ): ApplicationJsonLdNode {
-  const hierarchy: Array<readonly [string, string, string]> = []
-  let parentId = application.identity.parentId
-  while (parentId) {
-    const parent = identityById.get(parentId)
-    if (!parent) break
-    hierarchy.unshift([parent[0], parent[1], parent[2]])
-    parentId = parent[5]
-  }
-  const candidates = [
-    ...hierarchy.map((identity) => ({name: identity[1], path: identity[2]})),
-    {name: application.identity.title, path: application.identity.path},
-  ].filter((item) => visible(site.id, item.path))
+  const candidates = buildApplicationBreadcrumbItems(application, site, visible)
 
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     '@id': `${canonical}#breadcrumb`,
-    itemListElement: [
-      {
+    itemListElement: candidates.map((item, index) => ({
         '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: new URL('/', site.url).href,
-      },
-      ...candidates.map((item, index) => ({
-        '@type': 'ListItem',
-        position: index + 2,
-        name: safeText(item.name, 180),
-        item: new URL(item.path, site.url).href,
+        position: index + 1,
+        name: safeText(item.title, 180),
+        ...(visible(site.id, item.path)
+          ? {item: new URL(item.path, site.url).href}
+          : {}),
       })),
-    ],
   }
 }
 

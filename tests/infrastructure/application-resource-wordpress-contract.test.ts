@@ -40,6 +40,7 @@ const applicationFields: ExpectedField[] = [
   {key: 'validation_plan', name: 'validation_plan', type: 'repeater', required: 1, min: 1, max: 6},
   {key: 'customer_inputs', name: 'customer_inputs', type: 'repeater', required: 1, min: 1, max: 10},
   {key: 'body_sections', name: 'body_sections', type: 'repeater', required: 1, min: 2, max: 12},
+  {key: 'starting_products', name: 'starting_products', type: 'repeater', required: 0, min: 0, max: 24},
   {key: 'faq_items', name: 'faq_items', type: 'repeater', required: 1, min: 4, max: 6},
   {key: 'child_applications', name: 'child_applications', type: 'relationship', required: 0, max: 24, postType: 'tio2_application'},
   {key: 'related_applications', name: 'related_applications', type: 'relationship', required: 0, max: 24, postType: 'tio2_application'},
@@ -123,7 +124,18 @@ describe('Site A Application and Technical Resource WordPress contract', () => {
     for (const key of ['body_sections_section_id', 'body_sections_heading', 'faq_items_question', 'ctas_label', 'ctas_href']) {
       expect(fieldBlock(source, 'application', key)).toContain("'type' => 'text'")
     }
-    for (const key of ['body_sections_html', 'faq_items_answer', 'technical_disclaimer']) {
+    for (const key of ['starting_product_id', 'starting_product_label']) {
+      expect(fieldBlock(source, 'application', key)).toContain("'type' => 'text'")
+    }
+    expect(fieldBlock(source, 'application', 'starting_product_role')).toContain(
+      "'type' => 'select'",
+    )
+    for (const role of ['primary', 'alternative', 'candidate']) {
+      expect(fieldBlock(source, 'application', 'starting_product_role')).toContain(
+        "'" + role + "' =>",
+      )
+    }
+    for (const key of ['body_sections_html', 'starting_product_summary', 'faq_items_answer', 'technical_disclaimer']) {
       const block = fieldBlock(source, 'application', key)
       expect(block).toContain("'type' => 'wysiwyg'")
       expect(block).toContain("'tabs' => 'visual'")
@@ -222,6 +234,10 @@ describe('Site A Application and Technical Resource WordPress contract', () => {
     expect(contract).toContain("'/resources/'")
     expect(contract).toContain("'post_type'")
     expect(contract).toContain("'site_scope'")
+    expect(contract).toContain("get_field('related_products', $post_id, false)")
+    expect(contract).toContain(
+      'starting_products entries must also be present in related_products.',
+    )
 
     expect(publication).toContain(
       'function tio2_application_resource_publication_allowed(WP_Post $post): bool',

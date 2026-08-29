@@ -10343,6 +10343,9 @@ type Tio2SiteAApplicationFields {
   bodySections: [Tio2EditorialSection!]!
 
   ""
+  startingProducts: [Tio2ApplicationStartingProduct!]!
+
+  ""
   buyerProblem: String!
 
   ""
@@ -10437,6 +10440,20 @@ type Tio2EditorialCta {
 
   ""
   label: String!
+}
+
+type Tio2ApplicationStartingProduct {
+  ""
+  productId: String!
+
+  ""
+  role: String!
+
+  ""
+  label: String!
+
+  ""
+  summaryHtml: String!
 }
 
 type Tio2EditorialFaq {

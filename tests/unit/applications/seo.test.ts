@@ -1,4 +1,4 @@
-import {describe, expect, it} from 'vitest'
+import {describe, expect, it, vi} from 'vitest'
 
 import {toApplicationPageDto} from '@/lib/applications/dto'
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
@@ -10,6 +10,11 @@ import {
   applicationDetailInput,
   applicationHubInput,
 } from '@/tests/fixtures/editorial/application-pages'
+
+vi.mock('next/font/google', () => ({
+  Source_Sans_3: () => ({variable: 'source-sans-font'}),
+  Space_Grotesk: () => ({variable: 'space-grotesk-font'}),
+}))
 
 type JsonLdRecord = Readonly<Record<string, unknown>>
 
@@ -110,6 +115,38 @@ describe('Application metadata', () => {
 })
 
 describe('Application JSON-LD', () => {
+  it('keeps the canonical visible breadcrumb order identical to BreadcrumbList', async () => {
+    const {buildApplicationBreadcrumbItems, buildApplicationJsonLd} = await import(
+      '@/lib/seo/application-jsonld'
+    )
+    const application = fixture('detail')
+    const site = getSiteConfig('tio2-a')
+    const visiblePaths = new Set([
+      '/',
+      '/applications',
+      '/applications/coatings',
+      application.identity.path,
+    ])
+    const visible = (_siteId: 'tio2-a' | 'tio2-b', path: string) =>
+      visiblePaths.has(path)
+    const items = buildApplicationBreadcrumbItems(application, site, visible)
+    const breadcrumbs = nodeOfType(
+      buildApplicationJsonLd(application, site, visible),
+      'BreadcrumbList',
+    ) as JsonLdRecord & {readonly itemListElement: Array<{name: string; position: number}>}
+
+    expect(items.map(({title}) => title)).toEqual([
+      'Home',
+      'Applications',
+      'Coatings',
+      application.identity.title,
+    ])
+    expect(breadcrumbs.itemListElement.map(({name}) => name)).toEqual(
+      items.map(({title}) => title),
+    )
+    expect(breadcrumbs.itemListElement.map(({position}) => position)).toEqual([1, 2, 3, 4])
+  })
+
   it.each([
     ['hub', 'CollectionPage'],
     ['category', 'CollectionPage'],
@@ -133,7 +170,7 @@ describe('Application JSON-LD', () => {
     })
   })
 
-  it('keeps FAQ parity and omits private breadcrumbs and relationship URLs', async () => {
+  it('keeps FAQ parity, preserves text-only private breadcrumbs, and omits private relationship URLs', async () => {
     const {buildApplicationJsonLd} = await import(
       '@/lib/seo/application-jsonld'
     )
@@ -156,6 +193,16 @@ describe('Application JSON-LD', () => {
         name: 'Home',
         item: 'https://tio2products.com/',
       },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Applications',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: application.identity.title,
+      },
     ])
     expect(faq.mainEntity).toEqual(
       application.faqs.map((item) => ({
@@ -169,6 +216,37 @@ describe('Application JSON-LD', () => {
     )
     expect(JSON.stringify(values)).not.toContain('/preview/')
     expect(JSON.stringify(values)).not.toContain('/resources/article-01')
+  })
+
+  it('keeps hidden Detail parents in BreadcrumbList without publishing their URLs', async () => {
+    const {buildApplicationJsonLd} = await import(
+      '@/lib/seo/application-jsonld'
+    )
+    const application = fixture('detail')
+    const visiblePaths = new Set(['/', application.identity.path])
+    const breadcrumbs = nodeOfType(
+      buildApplicationJsonLd(
+        application,
+        getSiteConfig('tio2-a'),
+        (_siteId, path) => visiblePaths.has(path),
+      ),
+      'BreadcrumbList',
+    ) as JsonLdRecord & {
+      readonly itemListElement: Array<Readonly<Record<string, unknown>>>
+    }
+
+    expect(breadcrumbs.itemListElement.map(({name}) => name)).toEqual([
+      'Home',
+      'Applications',
+      'Coatings',
+      application.identity.title,
+    ])
+    expect(breadcrumbs.itemListElement.map((item) => item.item ?? null)).toEqual([
+      'https://tio2products.com/',
+      null,
+      null,
+      `https://tio2products.com${application.identity.path}`,
+    ])
   })
 
   it('emits only explicitly public relationship URLs and serializes safely', async () => {
@@ -213,7 +291,7 @@ describe('Application JSON-LD', () => {
 describe('Application preview metadata', () => {
   it('uses protected dynamic metadata without a static canonical export', async () => {
     const hub = await import('@/app/preview/applications/page')
-    const detail = await import('@/app/preview/applications/[slug]/page')
+    const detail = await import('@/app/preview/applications/[...segments]/page')
 
     expect(typeof hub.generateMetadata).toBe('function')
     expect(typeof detail.generateMetadata).toBe('function')

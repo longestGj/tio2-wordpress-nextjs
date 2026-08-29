@@ -66,6 +66,12 @@ function tio2_register_application_resource_graphql_types(): void
         'label' => ['type' => ['non_null' => 'String']],
         'href' => ['type' => ['non_null' => 'String']],
     ]]);
+    register_graphql_object_type('Tio2ApplicationStartingProduct', ['fields' => [
+        'productId' => ['type' => ['non_null' => 'String']],
+        'role' => ['type' => ['non_null' => 'String']],
+        'label' => ['type' => ['non_null' => 'String']],
+        'summaryHtml' => ['type' => ['non_null' => 'String']],
+    ]]);
     register_graphql_object_type('Tio2EditorialComparisonRow', ['fields' => [
         'cells' => ['type' => ['non_null' => ['list_of' => ['non_null' => 'String']]]],
     ]]);
@@ -80,6 +86,7 @@ function tio2_register_application_resource_graphql_types(): void
     $sections = ['type' => ['non_null' => ['list_of' => ['non_null' => 'Tio2EditorialSection']]]];
     $faqs = ['type' => ['non_null' => ['list_of' => ['non_null' => 'Tio2EditorialFaq']]]];
     $ctas = ['type' => ['non_null' => ['list_of' => ['non_null' => 'Tio2EditorialCta']]]];
+    $starting_products = ['type' => ['non_null' => ['list_of' => ['non_null' => 'Tio2ApplicationStartingProduct']]]];
 
     register_graphql_object_type('Tio2SiteAApplicationFields', ['fields' => [
         'applicationId' => $string, 'applicationLevel' => $string, 'family' => $string,
@@ -88,6 +95,7 @@ function tio2_register_application_resource_graphql_types(): void
         'headline' => $string, 'directAnswer' => $string, 'applicationContext' => $string,
         'buyerProblem' => $string, 'selectionFactors' => $strings, 'powderDataLimits' => $string,
         'validationPlan' => $strings, 'customerInputs' => $strings, 'bodySections' => $sections,
+        'startingProducts' => $starting_products,
         'faqItems' => $faqs, 'childApplications' => $links, 'relatedApplications' => $links,
         'relatedResources' => $links, 'relatedProducts' => $links, 'ctas' => $ctas,
         'technicalDisclaimer' => $string,

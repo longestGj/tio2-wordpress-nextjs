@@ -58,7 +58,7 @@ const TIO2_SITE_A_EDITORIAL_RESOURCE_INVENTORY = [
 const TIO2_SITE_A_EDITORIAL_APPLICATION_FIELDS = [
     'application_id', 'application_level', 'family', 'parent_application', 'meta_title',
     'meta_description', 'eyebrow', 'headline', 'direct_answer', 'application_context', 'buyer_problem',
-    'selection_factors', 'powder_data_limits', 'validation_plan', 'customer_inputs', 'body_sections',
+    'selection_factors', 'powder_data_limits', 'validation_plan', 'customer_inputs', 'body_sections', 'starting_products',
     'faq_items', 'child_applications', 'related_applications', 'related_resources', 'related_products',
     'ctas', 'technical_disclaimer',
 ];
@@ -267,6 +267,41 @@ function tio2_site_a_editorial_application_record(array $record, string $relatio
             $deferred[] = ['sourceType' => 'application', 'sourceId' => $id, 'field' => 'relationships', 'targetProductId' => $product_id];
         }
     }
+    $starting_products = $record['startingProducts'] ?? [];
+    if (! is_array($starting_products) || ! array_is_list($starting_products)) {
+        throw new InvalidArgumentException("Application {$id} startingProducts must be a list.");
+    }
+    $starting_product_ids = [];
+    $primary_count = 0;
+    foreach ($starting_products as $index => $starting_product) {
+        if (! is_array($starting_product)) {
+            throw new InvalidArgumentException("Application {$id} startingProducts row {$index} must be an object.");
+        }
+        $product_id = tio2_site_a_editorial_required_string($starting_product['productId'] ?? null, "Application {$id} startingProducts productId");
+        $role = tio2_site_a_editorial_required_string($starting_product['role'] ?? null, "Application {$id} startingProducts role");
+        if (! isset($product_keys[$product_id]) || ! in_array($product_id, $relationships['product'], true)) {
+            throw new InvalidArgumentException("Application {$id} starting Product {$product_id} must be a related Product in the strict manifest.");
+        }
+        if (isset($starting_product_ids[$product_id])) {
+            throw new InvalidArgumentException("Application {$id} starting Product IDs must be unique.");
+        }
+        $starting_product_ids[$product_id] = true;
+        if (! in_array($role, ['primary', 'alternative', 'candidate'], true)) {
+            throw new InvalidArgumentException("Application {$id} starting Product role is unsupported.");
+        }
+        if ('hub' === $identity['level']) {
+            throw new InvalidArgumentException("Application {$id} Hub cannot define starting Products.");
+        }
+        if ('category' === $identity['level'] && 'candidate' !== $role) {
+            throw new InvalidArgumentException("Application {$id} Category starting Products must use candidate.");
+        }
+        if ('primary' === $role) {
+            ++$primary_count;
+        }
+    }
+    if ($primary_count > 1) {
+        throw new InvalidArgumentException("Application {$id} can define at most one Primary starting Product.");
+    }
     $seo = $record['seo'] ?? [];
     $hero = $record['hero'] ?? [];
     $guide = $record['decisionGuide'] ?? [];
@@ -287,6 +322,12 @@ function tio2_site_a_editorial_application_record(array $record, string $relatio
         'validation_plan' => tio2_site_a_editorial_string_list($guide['validationPlan'] ?? null, "Application {$id} validation plan"),
         'customer_inputs' => tio2_site_a_editorial_string_list($guide['customerInputs'] ?? null, "Application {$id} customer inputs"),
         'body_sections' => array_map(static fn (array $section): array => ['section_id' => $section['id'], 'heading' => $section['heading'], 'html' => $section['html']], $record['bodySections'] ?? []),
+        'starting_products' => array_map(static fn (array $item): array => [
+            'product_id' => $item['productId'],
+            'role' => $item['role'],
+            'label' => $item['label'],
+            'summary_html' => $item['summaryHtml'],
+        ], $starting_products),
         'faq_items' => array_map(static fn (array $faq): array => ['question' => $faq['question'], 'answer' => $faq['answerHtml']], $record['faqs'] ?? []),
         'child_applications' => $children['application'],
         'related_applications' => $relationships['application'],

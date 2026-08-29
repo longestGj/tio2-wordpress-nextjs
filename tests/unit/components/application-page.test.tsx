@@ -4,6 +4,7 @@ import {cleanup, render, screen, within} from '@testing-library/react'
 import {afterEach, describe, expect, it} from 'vitest'
 
 import {ApplicationPageRenderer} from '@/components/applications/application-page'
+import {ApplicationBodySections} from '@/components/applications/application-body-sections'
 import {toApplicationPageDto} from '@/lib/applications/dto'
 import type {ApplicationPageInput} from '@/lib/applications/schema'
 import type {ApplicationPageDto} from '@/lib/applications/types'
@@ -16,17 +17,49 @@ import {
   universalApplicationDetailInput,
 } from '@/tests/fixtures/editorial/application-pages'
 
-const EXPECTED_BASE_ORDER = [
-  'hero',
-  'direct-answer',
-  'customer-context',
-  'selection-factors',
-  'body-section-overview',
-  'body-section-next-steps',
-  'powder-data-limitation',
-  'validation-plan',
-  'customer-inputs',
-] as const
+const EXPECTED_ORDER = {
+  hub: [
+    'breadcrumb',
+    'hero',
+    'child-navigation',
+    'cross-application',
+    'selection-factors',
+    'powder-data-limitation',
+    'validation-plan',
+    'related-content',
+    'customer-inputs',
+    'cta-group',
+    'faq',
+    'technical-disclaimer',
+  ],
+  category: [
+    'breadcrumb',
+    'hero',
+    'child-navigation',
+    'starting-products',
+    'selection-factors',
+    'powder-data-limitation',
+    'validation-plan',
+    'related-content',
+    'customer-inputs',
+    'cta-group',
+    'faq',
+    'technical-disclaimer',
+  ],
+  detail: [
+    'breadcrumb',
+    'hero',
+    'starting-products',
+    'customer-context',
+    'selection-factors',
+    'validation-plan',
+    'related-content',
+    'customer-inputs',
+    'cta-group',
+    'faq',
+    'technical-disclaimer',
+  ],
+} as const
 
 const resolveTarget: EditorialLinkResolver = (target) => ({
   ...(resolveCanonicalEditorialTarget(target.type, target.id)?.target ?? target),
@@ -37,7 +70,9 @@ const resolveTarget: EditorialLinkResolver = (target) => ({
   href:
     target.id === 'article-01'
       ? '/resources/rutile-vs-anatase-titanium-dioxide'
-      : null,
+      : target.id === 'TP-C120'
+        ? '/products/tp-c120'
+        : null,
 })
 
 function applicationInput(
@@ -50,9 +85,63 @@ function applicationInput(
         ? applicationCategoryInput
         : applicationDetailInput
   const input = structuredClone(source) as unknown as ApplicationPageInput
-  input.relationships = input.relationships.map((target) =>
-    target.type === 'product' ? {...target, id: 'TP-P100'} : target,
-  )
+  const nonProducts = input.relationships.filter(({type}) => type !== 'product')
+  if (level === 'hub') {
+    input.relationships = [...nonProducts, {type: 'product', id: 'TP-P100'}]
+    input.startingProducts = []
+  } else if (level === 'category') {
+    input.relationships = [
+      ...nonProducts,
+      {type: 'product', id: 'TP-C120'},
+      {type: 'product', id: 'TP-C100'},
+    ]
+    input.startingProducts = [
+      {
+        productId: 'TP-C120',
+        role: 'candidate',
+        label: 'Water-based paint',
+        summaryHtml: '<p>Use as a controlled fictional evaluation candidate.</p>',
+      },
+      {
+        productId: 'TP-C100',
+        role: 'candidate',
+        label: 'General coatings',
+        summaryHtml: '<p>Compare independently in the target formulation.</p>',
+      },
+    ]
+  } else {
+    input.relationships = [
+      ...nonProducts,
+      {type: 'product', id: 'TP-C120'},
+      {type: 'product', id: 'TP-C100'},
+      {type: 'product', id: 'TP-C110'},
+    ]
+    input.startingProducts = [
+      {
+        productId: 'TP-C120',
+        role: 'primary',
+        label: 'Primary starting point',
+        summaryHtml: '<p>Use as the first fictional water-based paint trial.</p>',
+      },
+      {
+        productId: 'TP-C100',
+        role: 'alternative',
+        label: 'Alternative starting point',
+        summaryHtml: '<p>Compare independently where its direction fits.</p>',
+      },
+      {
+        productId: 'TP-C110',
+        role: 'alternative',
+        label: 'Alternative starting point',
+        summaryHtml: '<p>Screen as a separate formulation candidate.</p>',
+      },
+    ]
+    input.ctas = [
+      {kind: 'discuss-application', label: 'Discuss Formulation', href: '/contact'},
+      {kind: 'request-tds', label: 'Request a TDS', href: '/contact'},
+      {kind: 'request-sample', label: 'Request a Sample', href: '/contact'},
+    ]
+  }
   return input
 }
 
@@ -80,6 +169,21 @@ function mutateFixture(
 afterEach(cleanup)
 
 describe('ApplicationPageRenderer', () => {
+  it('omits only legacy Product prose replaced by the structured Product bridge', () => {
+    render(
+      <ApplicationBodySections
+        sections={[
+          {id: 'legacy-products', heading: 'Legacy products', html: '<p>Duplicate.</p>'},
+          {id: 'evaluation-boundary', heading: 'Evaluation boundary', html: '<p>Keep this.</p>'},
+        ]}
+        omitIds={new Set(['legacy-products'])}
+      />,
+    )
+
+    expect(screen.queryByText('Legacy products')).toBeNull()
+    expect(screen.getByText('Evaluation boundary')).not.toBeNull()
+  })
+
   it.each(['hub', 'category', 'detail'] as const)(
     'selects the controlled %s mode and preserves the complete decision flow',
     (level) => {
@@ -90,16 +194,9 @@ describe('ApplicationPageRenderer', () => {
       const page = container.querySelector<HTMLElement>('[data-application-mode]')
       const sections = Array.from(
         container.querySelectorAll<HTMLElement>(
-          'section[data-application-section], section[data-editorial-section]',
+          '[data-application-section], [data-editorial-section]',
         ),
       )
-      const optionalSections = [
-        ...(level === 'detail' ? [] : ['child-navigation']),
-        'related-content',
-        'faq',
-        'cta-group',
-        'technical-disclaimer',
-      ]
 
       expect(page?.dataset.applicationMode).toBe(level)
       expect(
@@ -108,7 +205,7 @@ describe('ApplicationPageRenderer', () => {
             section.dataset.applicationSection ??
             section.dataset.editorialSection,
         ),
-      ).toEqual([...EXPECTED_BASE_ORDER, ...optionalSections])
+      ).toEqual(EXPECTED_ORDER[level])
       expect(container.querySelectorAll('h1')).toHaveLength(1)
       expect(
         screen.getByRole('heading', {
@@ -118,7 +215,7 @@ describe('ApplicationPageRenderer', () => {
       ).not.toBeNull()
       expect(screen.queryByRole('heading', {level: 1, name: application.identity.title})).toBeNull()
 
-      for (const section of sections) {
+      for (const section of sections.filter((element) => element.matches('section'))) {
         const labelledBy = section.getAttribute('aria-labelledby')
         const heading = labelledBy ? document.getElementById(labelledBy) : null
         expect(labelledBy).toBeTruthy()
@@ -128,32 +225,88 @@ describe('ApplicationPageRenderer', () => {
     },
   )
 
-  it('shows the exact direct answer immediately after the hero and keeps FAQ parity', () => {
+  it('shows the exact direct answer inside the hero and keeps FAQ parity', () => {
     const application = applicationFixture('hub')
     const {container} = render(
       <ApplicationPageRenderer application={application} />,
     )
     const hero = container.querySelector('[data-application-section="hero"]')
-    const directAnswer = container.querySelector<HTMLElement>(
-      '[data-editorial-section="direct-answer"]',
-    )
     const faqItems = Array.from(
       container.querySelectorAll<HTMLElement>('[data-editorial-faq-item]'),
     )
 
-    expect(hero?.nextElementSibling).toBe(directAnswer)
-    expect(
-      within(directAnswer as HTMLElement).getByRole('heading', {
-        level: 2,
-        name: 'Direct Answer',
-      }),
-    ).not.toBeNull()
-    expect(directAnswer?.innerHTML).toContain(application.hero.directAnswer)
-    expect(directAnswer?.hidden).toBe(false)
+    expect(hero?.innerHTML).toContain(application.hero.directAnswer)
     expect(faqItems).toHaveLength(application.faqs.length)
     expect(faqItems.map((item) => item.textContent)).toEqual(
       application.faqs.map((faq) => `${faq.question}Use a fictional, representative test plan.`),
     )
+  })
+
+  it('renders one semantic breadcrumb trail with only the public Homepage linked', () => {
+    const application = applicationFixture('detail')
+    render(<ApplicationPageRenderer application={application} />)
+
+    const breadcrumb = screen.getByRole('navigation', {name: 'Breadcrumb'})
+    expect(within(breadcrumb).getByRole('list')).not.toBeNull()
+    expect(
+      within(breadcrumb).getByText(application.identity.title).getAttribute(
+        'aria-current',
+      ),
+    ).toBe('page')
+    expect(within(breadcrumb).getAllByRole('link')).toHaveLength(1)
+    expect(
+      within(breadcrumb).getByRole('link', {name: 'Home'}).getAttribute('href'),
+    ).toBe('/')
+  })
+
+  it('renders the primary Product bridge and preserves its CTA hierarchy', () => {
+    render(<ApplicationPageRenderer application={applicationFixture('detail')} />)
+    const primary = screen.getByTestId('application-starting-product-TP-C120')
+
+    expect(within(primary).getByText('Primary starting point')).not.toBeNull()
+    expect(
+      within(primary).getByRole('link', {name: 'View TP-C120'}).getAttribute('href'),
+    ).toBe('/products/tp-c120')
+    expect(
+      within(primary).getByRole('link', {name: 'Request a TDS'}).getAttribute('href'),
+    ).toBe('/contact')
+    expect(
+      within(primary).getByRole('link', {name: 'Request a Sample'}).getAttribute('href'),
+    ).toBe('/contact')
+    expect(
+      within(primary).getByRole('link', {name: 'Discuss Formulation'}).getAttribute('href'),
+    ).toBe('/contact')
+  })
+
+  it.each(['hub', 'category', 'detail'] as const)(
+    'gives every %s hero fragment link a rendered target',
+    (level) => {
+      const {container} = render(
+        <ApplicationPageRenderer application={applicationFixture(level)} />,
+      )
+      const heroNavigation = screen.getByRole('navigation', {
+        name: 'On this page',
+      })
+      const fragments = within(heroNavigation).getAllByRole('link')
+        .map((link) => link.getAttribute('href'))
+
+      expect(fragments).not.toContain(null)
+      for (const fragment of fragments) {
+        expect(fragment).toMatch(/^#[a-z0-9-]+$/u)
+        expect(container.querySelector(fragment as string)).not.toBeNull()
+      }
+    },
+  )
+
+  it('uses customer-facing labels and renders category candidates as native disclosure rows', () => {
+    const {container} = render(
+      <ApplicationPageRenderer application={applicationFixture('category')} />,
+    )
+
+    expect(screen.queryByText('Customer Context')).toBeNull()
+    expect(screen.queryByText('Buyer problem')).toBeNull()
+    expect(screen.getByRole('heading', {name: 'What Controls the First Screen'})).not.toBeNull()
+    expect(container.querySelectorAll('details[data-application-candidate]')).toHaveLength(2)
   })
 
   it('derives child cards and relationships only from DTO links without creating dead anchors', () => {
@@ -162,7 +315,7 @@ describe('ApplicationPageRenderer', () => {
       <ApplicationPageRenderer application={application} />,
     )
     const childNavigation = container.querySelector<HTMLElement>(
-      '[data-editorial-section="child-navigation"]',
+      '[data-application-section="child-navigation"]',
     )
     const related = container.querySelector<HTMLElement>(
       '[data-editorial-section="related-content"]',
@@ -198,6 +351,10 @@ describe('ApplicationPageRenderer', () => {
       application.ctas.map((cta) => cta.href),
     )
     expect(disclaimer?.innerHTML).toContain(application.disclaimerHtml)
+    expect(container.querySelector('#documents')).not.toBeNull()
+    expect(container.querySelector('#documents')?.textContent).toContain(
+      'Request the documents needed for your evaluation',
+    )
   })
 
   it('fails closed instead of rendering an unknown mode or a partial DTO', () => {

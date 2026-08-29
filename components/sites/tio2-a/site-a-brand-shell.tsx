@@ -31,10 +31,16 @@ export function SiteABrandShell({site, structuredData, children, inquiryHref = '
     <div className={`${bodyFont.variable} ${headingFont.variable}`}>
       <header className={styles.siteHeader}>
         <Image src="/site-a/tiovar-logo.png" alt="TIOVAR" width={492} height={111} className={styles.headerLogo} priority />
-        <nav aria-label="TIOVAR homepage sections">
+        <nav aria-label="TIOVAR sections">
           <span>Products</span><span>Applications</span><span>Technical Resources</span><span>About TIOVAR</span><span>Contact</span>
         </nav>
         <a href={inquiryHref}>Discuss Your Requirement</a>
+        <details className={styles.mobileMenu}>
+          <summary aria-label="Mobile navigation"><span aria-hidden>☰</span></summary>
+          <nav aria-label="TIOVAR mobile sections">
+            <span>Products</span><span>Applications</span><span>Technical Resources</span><span>About TIOVAR</span><span>Contact</span>
+          </nav>
+        </details>
       </header>
       <main data-site-id={site.id}>
         {structuredData}

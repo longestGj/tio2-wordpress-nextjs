@@ -107,6 +107,7 @@ function applicationResponse(
         validationPlan: record.decisionGuide.validationPlan,
         customerInputs: record.decisionGuide.customerInputs,
         bodySections: record.bodySections,
+        startingProducts: [],
         faqItems: record.faqs,
         childApplications: record.children.map(serializedLink),
         relatedApplications: relationships.filter(({targetType}) => targetType === 'application'),
@@ -342,6 +343,44 @@ describe('public Application and Technical Resource queries', () => {
         'tio2-a',
       ),
     ).toThrow(ApplicationContractError)
+  })
+
+  it('preserves ordered starting Products at the serialized adapter boundary', () => {
+    const serialized = applicationResponse().tio2Application
+    const fields = {
+      ...serialized.siteAApplicationFields,
+      relatedProducts: [
+        serializedLink({type: 'product', id: 'TP-C120'}),
+        serializedLink({type: 'product', id: 'TP-C100'}),
+      ],
+      startingProducts: [
+        {
+          productId: 'TP-C120',
+          role: 'candidate',
+          label: 'Water-based wall paint',
+          summaryHtml: '<p>Evaluate under matched formulation conditions.</p>',
+        },
+        {
+          productId: 'TP-C100',
+          role: 'candidate',
+          label: 'Architectural coatings',
+          summaryHtml: '<p>Evaluate independently.</p>',
+        },
+      ],
+    }
+
+    const result = toApplicationDtoFromSerialized(
+      {...serialized, fields},
+      SITE_A_APPLICATION_IDENTITIES[1],
+      'tio2-a',
+    )
+
+    expect(
+      result.startingProducts.map(({product, role}) => [product.id, role]),
+    ).toEqual([
+      ['TP-C120', 'candidate'],
+      ['TP-C100', 'candidate'],
+    ])
   })
 
   it('rejects universal-multi-application without all three required cross-category edges', () => {

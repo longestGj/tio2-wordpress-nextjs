@@ -10,7 +10,7 @@ import {
 import {createServer} from 'node:net'
 import {resolve} from 'node:path'
 
-type Task9RuntimeId = 'editorial' | 'product'
+type Task9RuntimeId = 'application-review' | 'editorial' | 'product'
 
 interface OwnedNextDevOptions {
   readonly environment: Readonly<Record<string, string | undefined>>

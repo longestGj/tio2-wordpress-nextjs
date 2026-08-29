@@ -12,6 +12,11 @@ import type {EditorialLinkResolver} from '@/lib/editorial/types'
 import {getSiteConfig} from '@/sites'
 import {applicationDetailInput, applicationHubInput} from '@/tests/fixtures/editorial/application-pages'
 
+vi.mock('next/font/google', () => ({
+  Source_Sans_3: () => ({variable: 'source-sans-font'}),
+  Space_Grotesk: () => ({variable: 'space-grotesk-font'}),
+}))
+
 const resolveTarget: EditorialLinkResolver = (target) => {
   const canonical = resolveCanonicalEditorialTarget(target.type, target.id)
   return canonical
@@ -103,7 +108,7 @@ async function loadPublicRoutes({
   })
 
   const hub = await import('@/app/applications/page')
-  const slug = await import('@/app/applications/[slug]/page')
+  const slug = await import('@/app/applications/[...segments]/page')
   return {calls, getSiteApplication, hub, isPublicRoute, slug}
 }
 
@@ -148,7 +153,7 @@ async function loadPreviewRoutes({
   })
 
   const hub = await import('@/app/preview/applications/page')
-  const slug = await import('@/app/preview/applications/[slug]/page')
+  const slug = await import('@/app/preview/applications/[...segments]/page')
   if (errorKind) {
     const preview = await import('@/lib/wordpress/application-preview')
     const dto = await import('@/lib/applications/dto')
@@ -201,7 +206,9 @@ describe('public Application route gates', () => {
       await loadPublicRoutes()
 
     for (const identity of SITE_A_APPLICATION_IDENTITIES) {
-      const props = {params: Promise.resolve({slug: identity[1]})}
+      const props = {
+        params: Promise.resolve({segments: identity[2].split('/').slice(2)}),
+      }
       if (identity[3] === 'hub') {
         await expect(hub.default()).rejects.toMatchObject({
           digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
@@ -233,10 +240,15 @@ describe('public Application route gates', () => {
       approvedPaths: [identity[2]],
       application,
     })
-    const props = {params: Promise.resolve({slug: identity[1]})}
+    const props = {
+      params: Promise.resolve({segments: identity[2].split('/').slice(2)}),
+    }
 
     const markup = renderToStaticMarkup(await slug.default(props))
     expect(markup).toContain('<main data-site-id="tio2-a">')
+    expect(markup).toContain('<header')
+    expect(markup).toContain('alt="TIOVAR"')
+    expect(markup).toContain('aria-label="Mobile navigation"')
     expect(markup).toContain('data-application-mode="category"')
     expect(calls.slice(0, 2)).toEqual([
       `gate:${identity[2]}`,
@@ -253,7 +265,9 @@ describe('public Application route gates', () => {
       approvedPaths: [identity[2]],
       application,
     })
-    const props = {params: Promise.resolve({slug: identity[1]})}
+    const props = {
+      params: Promise.resolve({segments: identity[2].split('/').slice(2)}),
+    }
 
     await expect(slug.default(props)).rejects.toMatchObject({
       digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
@@ -277,6 +291,8 @@ describe('protected Application previews', () => {
     const hubMarkup = renderToStaticMarkup(await hubRuntime.hub.default())
 
     expect(hubMarkup).toContain('data-application-mode="hub"')
+    expect(hubMarkup).toContain('<header')
+    expect(hubMarkup).toContain('aria-label="Mobile navigation"')
     expect(hubRuntime.hasScopedPreviewSession).toHaveBeenCalledWith(
       'tio2-a',
       '/applications',
@@ -292,7 +308,7 @@ describe('protected Application previews', () => {
     const detailRuntime = await loadPreviewRoutes({application: detailApplication})
     const detailMarkup = renderToStaticMarkup(
       await detailRuntime.slug.default({
-        params: Promise.resolve({slug: detailIdentity[1]}),
+        params: Promise.resolve({segments: detailIdentity[2].split('/').slice(2)}),
       }),
     )
 
@@ -325,7 +341,7 @@ describe('protected Application previews', () => {
     vi.resetModules()
     const unknown = await loadPreviewRoutes()
     await expect(
-      unknown.slug.default({params: Promise.resolve({slug: 'unknown'})}),
+      unknown.slug.default({params: Promise.resolve({segments: ['unknown']})}),
     ).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
     expect(unknown.hasScopedPreviewSession).not.toHaveBeenCalled()
     expect(unknown.getApplicationPreview).not.toHaveBeenCalled()

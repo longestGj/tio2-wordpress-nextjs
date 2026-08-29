@@ -5,7 +5,7 @@ import {
   ApplicationPageRenderer,
   isValidatedApplicationPageDto,
 } from '@/components/applications/application-page'
-import {SiteShell} from '@/components/site-shell'
+import {SiteABrandShell} from '@/components/sites/tio2-a/site-a-brand-shell'
 import {
   buildApplicationJsonLd,
   serializeApplicationJsonLd,
@@ -50,12 +50,13 @@ export default async function ApplicationsPage() {
     buildApplicationJsonLd(application, site),
   )
   return (
-    <SiteShell site={site}>
+    <SiteABrandShell site={site} inquiryHref="#inquiry" structuredData={
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{__html: jsonLd}}
       />
+    }>
       <ApplicationPageRenderer application={application} />
-    </SiteShell>
+    </SiteABrandShell>
   )
 }

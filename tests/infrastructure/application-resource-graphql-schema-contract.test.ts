@@ -55,6 +55,12 @@ describe('Site A Application/Technical Resource GraphQL schema', () => {
       label: 'String!',
       href: 'String!',
     })
+    expect(fieldTypes(schema, 'Tio2ApplicationStartingProduct')).toEqual({
+      productId: 'String!',
+      role: 'String!',
+      label: 'String!',
+      summaryHtml: 'String!',
+    })
     expect(fieldTypes(schema, 'Tio2EditorialComparisonRow')).toEqual({cells: '[String!]!'})
     expect(fieldTypes(schema, 'Tio2EditorialComparisonTable')).toEqual({
       columns: '[String!]!',
@@ -81,6 +87,7 @@ describe('Site A Application/Technical Resource GraphQL schema', () => {
       validationPlan: '[String!]!',
       customerInputs: '[String!]!',
       bodySections: '[Tio2EditorialSection!]!',
+      startingProducts: '[Tio2ApplicationStartingProduct!]!',
       faqItems: '[Tio2EditorialFaq!]!',
       childApplications: '[Tio2EditorialLink!]!',
       relatedApplications: '[Tio2EditorialLink!]!',

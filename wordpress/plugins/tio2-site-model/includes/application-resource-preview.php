@@ -373,6 +373,23 @@ function tio2_editorial_ctas($value): array|WP_Error
     return $ctas;
 }
 
+/** @param mixed $value @return list<array{productId: string, role: string, label: string, summaryHtml: string}> */
+function tio2_editorial_starting_products($value): array
+{
+    if (! is_array($value)) {
+        return [];
+    }
+    return array_values(array_map(
+        static fn (array $row): array => [
+            'productId' => (string) ($row['product_id'] ?? ''),
+            'role' => (string) ($row['role'] ?? ''),
+            'label' => (string) ($row['label'] ?? ''),
+            'summaryHtml' => (string) ($row['summary_html'] ?? ''),
+        ],
+        array_filter($value, 'is_array')
+    ));
+}
+
 /** @return array<string, mixed>|WP_Error */
 function tio2_serialize_application_fields(WP_Post $post): array|WP_Error
 {
@@ -440,6 +457,7 @@ function tio2_serialize_application_fields(WP_Post $post): array|WP_Error
         'validationPlan' => tio2_editorial_item_rows(get_field('validation_plan', $post->ID, false)),
         'customerInputs' => tio2_editorial_item_rows(get_field('customer_inputs', $post->ID, false)),
         'bodySections' => tio2_editorial_sections(get_field('body_sections', $post->ID, false)),
+        'startingProducts' => tio2_editorial_starting_products(get_field('starting_products', $post->ID, false)),
         'faqItems' => tio2_editorial_faqs(get_field('faq_items', $post->ID, false)),
     ] + $relationship_fields + [
         'ctas' => $ctas,

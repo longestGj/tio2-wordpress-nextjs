@@ -32,6 +32,11 @@
 .siteHeader nav span { white-space: nowrap; }
 .siteHeader > a { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; border-radius: 10px; padding: .7rem 1rem; background: #0a1f44; color: #fff; font-weight: 600; text-decoration: none; }
 .siteHeader a:focus-visible { outline: 3px solid #4f82c4; outline-offset: 3px; }
+.mobileMenu { position: relative; display: none; }
+.mobileMenu summary { display: flex; width: 44px; min-height: 44px; align-items: center; justify-content: center; border: 1px solid #c7ccd3; border-radius: 10px; color: #0a1f44; cursor: pointer; font-size: 1.15rem; list-style: none; }
+.mobileMenu summary::-webkit-details-marker { display: none; }
+.mobileMenu nav { position: absolute; z-index: 20; top: calc(100% + .55rem); right: 0; display: grid; width: min(82vw, 280px); border: 1px solid #e6e8ec; background: #fff; box-shadow: 0 12px 28px rgba(10,31,68,.12); padding: .75rem 1rem; }
+.mobileMenu nav span { min-height: 44px; display: flex; align-items: center; border-bottom: 1px solid #e6e8ec; color: #10203a; font-size: 1rem; }
 
 .homepage *, .homepage *::before, .homepage *::after { box-sizing: border-box; min-width: 0; }
 .homepage h1, .homepage h2, .homepage h3, .homepage p, .homepage ol { margin: 0; }
@@ -161,7 +166,10 @@
 .footerBase { display: flex; justify-content: space-between; margin-top: 2.8rem; border-top: 1px solid rgba(255,255,255,.15); padding-top: 1.35rem; color: var(--light); opacity: .65; }
 
 @media (max-width: 900px) {
+  .siteHeader { grid-template-columns: auto 1fr auto auto; }
   .siteHeader nav { display: none; }
+  .siteHeader .mobileMenu { display: block; }
+  .siteHeader .mobileMenu nav { display: grid; }
   .resourceGrid { grid-template-columns: repeat(2, 1fr); }
   .familyGrid { grid-template-columns: repeat(2, 1fr); }
   .familyGrid article:nth-child(odd) { border-left: 0; padding-left: 0; }
@@ -205,7 +213,7 @@
 }
 
 @media (max-width: 440px) {
-  .siteHeader { grid-template-columns: 1fr auto; min-height: 64px; }
+  .siteHeader { grid-template-columns: 1fr auto auto; min-height: 64px; gap: .55rem; }
   .headerLogo { width: 126px; }
   .siteHeader > a { padding: .55rem .7rem; font-size: .78rem; }
   .capabilityList, .familyGrid, .footerGrid { grid-template-columns: 1fr; }

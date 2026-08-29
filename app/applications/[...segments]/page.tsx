@@ -5,8 +5,9 @@ import {
   ApplicationPageRenderer,
   isValidatedApplicationPageDto,
 } from '@/components/applications/application-page'
-import {SiteShell} from '@/components/site-shell'
+import {SiteABrandShell} from '@/components/sites/tio2-a/site-a-brand-shell'
 import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest'
+import {applicationPathFromSegments} from '@/lib/applications/route-path'
 import {
   buildApplicationJsonLd,
   serializeApplicationJsonLd,
@@ -18,7 +19,7 @@ import type {SiteConfig} from '@/sites'
 import {isPublicRoute} from '@/sites/public-routes'
 
 interface ApplicationRouteProps {
-  readonly params: Promise<{readonly slug: string}>
+  readonly params: Promise<{readonly segments: string[]}>
 }
 
 export const revalidate = 3600
@@ -30,9 +31,10 @@ function isSiteA(site: SiteConfig): boolean {
 
 async function getApprovedApplication({params}: ApplicationRouteProps) {
   const site = getCurrentSite()
-  const {slug} = await params
+  const {segments} = await params
+  const path = applicationPathFromSegments(segments)
   const identity = SITE_A_APPLICATION_IDENTITIES.find(
-    (candidate) => candidate[1] === slug && candidate[3] !== 'hub',
+    (candidate) => candidate[2] === path && candidate[3] !== 'hub',
   )
   if (!isSiteA(site) || !identity || !isPublicRoute(site.id, identity[2])) {
     notFound()
@@ -41,7 +43,7 @@ async function getApprovedApplication({params}: ApplicationRouteProps) {
   if (
     !application ||
     !isValidatedApplicationPageDto(application) ||
-    application.identity.slug !== slug ||
+    application.identity.slug !== identity[1] ||
     application.identity.path !== identity[2] ||
     application.identity.level === 'hub'
   ) {
@@ -50,12 +52,12 @@ async function getApprovedApplication({params}: ApplicationRouteProps) {
   return {application, site}
 }
 
-export async function generateStaticParams(): Promise<Array<{slug: string}>> {
+export async function generateStaticParams(): Promise<Array<{segments: string[]}>> {
   const site = getCurrentSite()
   if (!isSiteA(site)) return []
   return SITE_A_APPLICATION_IDENTITIES.filter(
     (identity) => identity[3] !== 'hub' && isPublicRoute(site.id, identity[2]),
-  ).map((identity) => ({slug: identity[1]}))
+  ).map((identity) => ({segments: identity[2].split('/').slice(2)}))
 }
 
 export async function generateMetadata(
@@ -71,12 +73,13 @@ export default async function ApplicationPage(props: ApplicationRouteProps) {
     buildApplicationJsonLd(application, site),
   )
   return (
-    <SiteShell site={site}>
+    <SiteABrandShell site={site} inquiryHref="#inquiry" structuredData={
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{__html: jsonLd}}
       />
+    }>
       <ApplicationPageRenderer application={application} />
-    </SiteShell>
+    </SiteABrandShell>
   )
 }

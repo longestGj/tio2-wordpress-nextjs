@@ -23,6 +23,12 @@ const linkSchema = z.object({
 const sectionSchema = z.object({id: text, heading: text, html: text}).strict()
 const faqSchema = z.object({question: text, answerHtml: text}).strict()
 const ctaSchema = z.object({kind: text, label: text, href: text}).strict()
+const startingProductSchema = z.object({
+  productId: text,
+  role: text,
+  label: text,
+  summaryHtml: text,
+}).strict()
 
 const applicationPreviewSchema = z.object({
   id: z.string().min(1),
@@ -50,6 +56,7 @@ const applicationPreviewSchema = z.object({
     validationPlan: z.array(text),
     customerInputs: z.array(text),
     bodySections: z.array(sectionSchema),
+    startingProducts: z.array(startingProductSchema),
     faqItems: z.array(faqSchema),
     childApplications: z.array(linkSchema),
     relatedApplications: z.array(linkSchema),

@@ -66,6 +66,12 @@ export interface SerializedApplicationFields {
     readonly heading: string
     readonly html: string
   }>
+  readonly startingProducts: ReadonlyArray<{
+    readonly productId: string
+    readonly role: string
+    readonly label: string
+    readonly summaryHtml: string
+  }>
   readonly faqItems: ReadonlyArray<{
     readonly question: string
     readonly answerHtml: string
@@ -244,6 +250,7 @@ export function toApplicationDtoFromSerialized(
         customerInputs: [...fields.customerInputs],
       },
       bodySections: fields.bodySections.map((section) => ({...section})),
+      startingProducts: fields.startingProducts.map((item) => ({...item})),
       faqs: fields.faqItems.map((faq) => ({...faq})),
       children,
       relationships,

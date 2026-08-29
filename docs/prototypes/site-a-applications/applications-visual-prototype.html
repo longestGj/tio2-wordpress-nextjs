@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TIOVAR Applications Visual Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0a1f44;
+      --navy-2: #112d59;
+      --white: #ffffff;
+      --ice: #f5f7f9;
+      --ink: #10203a;
+      --muted: #5d687a;
+      --steel: #657185;
+      --rule: #c7ccd3;
+      --rule-light: #e6e8ec;
+      --focus: #4f82c4;
+      --container: 1180px;
+      --gutter: clamp(1.35rem, 5vw, 3.7rem);
+      --section: clamp(4.25rem, 8vw, 5.5rem);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      background: var(--white);
+      color: var(--ink);
+      font-family: "Source Sans 3", Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+    button, input, textarea { font: inherit; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+    h1, h2, h3, p, ul, ol { margin: 0; }
+    h1, h2, h3 {
+      font-family: "Space Grotesk", Arial, sans-serif;
+      font-weight: 500;
+      text-wrap: balance;
+    }
+    h1 {
+      max-width: 13ch;
+      font-size: clamp(2.8rem, 5.4vw, 4.9rem);
+      line-height: .99;
+      letter-spacing: -.045em;
+    }
+    h2 {
+      max-width: 22ch;
+      font-size: clamp(2rem, 3.4vw, 3rem);
+      line-height: 1.08;
+      letter-spacing: -.032em;
+    }
+    h3 {
+      font-size: clamp(1.2rem, 1.7vw, 1.45rem);
+      line-height: 1.18;
+      letter-spacing: -.018em;
+    }
+    .no-break { white-space: nowrap; }
+    .shell {
+      width: min(100%, var(--container));
+      margin-inline: auto;
+      padding-inline: var(--gutter);
+    }
+    .eyebrow {
+      color: var(--steel);
+      font-family: "Space Grotesk", Arial, sans-serif;
+      font-size: .78rem;
+      font-weight: 500;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .section-copy {
+      max-width: 50rem;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+    .section-heading {
+      display: grid;
+      max-width: 56rem;
+      gap: 1.1rem;
+      margin-bottom: clamp(2.5rem, 5vw, 3.8rem);
+    }
+    .section {
+      padding-block: var(--section);
+    }
+    .section.ice { background: var(--ice); }
+    .button {
+      display: inline-flex;
+      min-height: 46px;
+      align-items: center;
+      justify-content: center;
+      gap: .55rem;
+      padding: .72rem 1.15rem;
+      border: 1px solid var(--navy);
+      border-radius: 10px;
+      background: var(--navy);
+      color: var(--white);
+      cursor: default;
+      font-weight: 600;
+      line-height: 1.1;
+      text-decoration: none;
+    }
+    .button.secondary {
+      background: var(--white);
+      color: var(--navy);
+    }
+    .button.ghost {
+      border-color: rgba(255,255,255,.55);
+      background: rgba(255,255,255,.08);
+      color: var(--white);
+    }
+    .button.small { min-height: 44px; padding-inline: 1rem; font-size: .92rem; }
+    .button.tertiary {
+      min-height: 44px;
+      justify-content: flex-start;
+      padding: .45rem 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--navy);
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+
+    .review-controls {
+      position: fixed;
+      z-index: 30;
+      top: 92px;
+      left: 16px;
+      display: flex;
+      gap: .4rem;
+      padding: .45rem;
+      border: 1px solid var(--rule-light);
+      border-radius: 12px;
+      background: rgba(255,255,255,.96);
+      box-shadow: 0 8px 30px rgba(10,31,68,.12);
+    }
+    .review-controls button {
+      min-height: 38px;
+      padding: .45rem .7rem;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: .82rem;
+      font-weight: 600;
+    }
+    .review-controls button[aria-pressed="true"] { background: var(--navy); color: var(--white); }
+    body.capture .review-controls { display: none; }
+
+    .site-header {
+      position: relative;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: auto minmax(0,1fr) auto;
+      min-height: 78px;
+      align-items: center;
+      gap: clamp(1rem,3vw,2.5rem);
+      padding: .75rem clamp(1.25rem,4vw,4rem);
+      border-bottom: 1px solid var(--rule-light);
+      background: var(--white);
+    }
+    .logo { display: block; width: 164px; height: auto; }
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: clamp(.75rem, 2vw, 1.6rem);
+      color: var(--ink);
+      font-size: .91rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .nav span.active { color: var(--navy); font-weight: 600; }
+    .menu-button {
+      display: none;
+      width: 44px;
+      min-height: 44px;
+      place-content: center;
+      gap: 5px;
+      border: 1px solid var(--rule-light);
+      border-radius: 10px;
+      background: var(--white);
+    }
+    .menu-button i { display: block; width: 20px; height: 2px; background: var(--navy); }
+    .cta-short { display: none; }
+
+    .hero {
+      position: relative;
+      display: flex;
+      min-height: 660px;
+      align-items: center;
+      overflow: hidden;
+      border-bottom: 6px solid var(--navy);
+      background: linear-gradient(115deg, #fff 0%, #fff 48%, #f5f7f9 100%);
+    }
+    .hero::after {
+      position: absolute;
+      z-index: 2;
+      right: 0;
+      bottom: -6px;
+      width: 31%;
+      height: 6px;
+      background: var(--rule);
+      content: "";
+    }
+    .hero-media {
+      position: absolute;
+      z-index: 0;
+      inset: 0 0 0 33%;
+    }
+    .hero-media::after {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, #fff 0%, rgba(255,255,255,.94) 15%, rgba(255,255,255,.5) 39%, rgba(255,255,255,.04) 72%);
+      content: "";
+    }
+    .hero-media img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      width: min(100%, var(--container));
+      gap: 1.25rem;
+      margin-inline: auto;
+      padding: clamp(4rem, 7vw, 5.5rem) var(--gutter);
+    }
+    .breadcrumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem;
+      color: var(--steel);
+      font-size: .82rem;
+    }
+    .breadcrumbs span:not(:last-child)::after { margin-left: .45rem; content: "/"; color: var(--rule); }
+    .hero-summary { max-width: 43rem; color: var(--muted); font-size: clamp(1.05rem, 1.8vw, 1.22rem); line-height: 1.55; }
+    .decision-strip {
+      position: relative;
+      z-index: 5;
+      border-bottom: 1px solid var(--rule-light);
+      background: var(--white);
+    }
+    .decision-strip ol {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      margin: 0;
+      padding-block: 1.7rem;
+      list-style: none;
+    }
+    .decision-strip li {
+      display: grid;
+      grid-template-columns: 2rem 1fr;
+      gap: .75rem;
+      padding-right: 1.2rem;
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.35;
+    }
+    .decision-strip li + li { padding-left: 1.2rem; border-left: 1px solid var(--rule-light); }
+    .decision-strip a {
+      display: grid;
+      grid-template-columns: 2rem 1fr;
+      gap: .75rem;
+      color: inherit;
+      text-decoration: none;
+    }
+    .decision-strip a:hover { color: var(--navy); }
+    .number { color: var(--steel); font-family: "Space Grotesk", Arial, sans-serif; font-size: .82rem; }
+
+    .application-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      border-top: 1px solid var(--rule);
+      border-left: 1px solid var(--rule);
+    }
+    .application-card {
+      display: grid;
+      min-height: 240px;
+      align-content: space-between;
+      gap: 2.2rem;
+      padding: clamp(1.5rem, 3vw, 2.1rem);
+      border-right: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      border-top: 4px solid var(--navy);
+      background: var(--white);
+    }
+    .application-card p { margin-top: .8rem; color: var(--muted); }
+    .card-foot { display: flex; align-items: center; justify-content: space-between; color: var(--steel); font-size: .82rem; }
+    .arrow { color: var(--navy); font-size: 1.3rem; }
+    .cross-route {
+      display: grid;
+      grid-template-columns: minmax(13rem,.65fr) minmax(0,1.35fr);
+      gap: clamp(2rem,6vw,5rem);
+      margin-top: 1.35rem;
+      padding: clamp(2rem,4vw,3rem);
+      border-top: 4px solid var(--navy);
+      background: var(--ice);
+    }
+    .cross-route p { color: var(--muted); }
+    .text-link { display: inline-flex; align-items: center; gap: .55rem; margin-top: 1.1rem; color: var(--navy); font-weight: 600; }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(15rem,.72fr) minmax(0,1.28fr);
+      gap: clamp(3rem,8vw,7rem);
+      align-items: start;
+    }
+    .split-intro { display: grid; gap: 1.1rem; }
+    .factor-list, .product-list, .input-list { margin: 0; padding: 0; list-style: none; }
+    .factor-list li {
+      display: grid;
+      grid-template-columns: 2.5rem minmax(0,1fr);
+      gap: 1rem;
+      padding: 1.25rem 0;
+      border-top: 1px solid var(--rule);
+    }
+    .factor-list li:last-child { border-bottom: 1px solid var(--rule); }
+    .factor-list p { margin-top: .35rem; color: var(--muted); }
+    .evidence-note {
+      display: grid;
+      gap: .7rem;
+      margin-top: 2rem;
+      padding: 1.35rem 1.5rem;
+      border-left: 4px solid var(--navy);
+      background: var(--ice);
+    }
+    .evidence-note h3 { font-size: 1.05rem; }
+    .evidence-note p { color: var(--muted); font-size: .96rem; }
+
+    .validation {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      border-top: 1px solid var(--rule);
+      border-left: 1px solid var(--rule);
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .validation li {
+      min-height: 245px;
+      padding: 1.8rem;
+      border-top: 4px solid var(--navy);
+      border-right: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      background: var(--white);
+    }
+    .validation .number { display: block; margin-bottom: 2.1rem; }
+    .validation p { margin-top: .7rem; color: var(--muted); }
+
+    .route-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      border-top: 1px solid var(--rule);
+      border-left: 1px solid var(--rule);
+    }
+    .route-card {
+      display: grid;
+      grid-template-columns: 3rem 1fr auto;
+      gap: 1.15rem;
+      align-items: start;
+      padding: 1.65rem;
+      border-right: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      background: var(--white);
+      transition: background-color .16s ease;
+    }
+    .route-card:hover, .route-card:focus-visible { background: var(--ice); outline: 0; }
+    .route-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+    .route-card p { margin-top: .4rem; color: var(--muted); }
+
+    .matrix { border-top: 1px solid var(--rule); }
+    .matrix-head {
+      display: grid;
+      grid-template-columns: minmax(10rem,.8fr) minmax(7rem,.45fr) minmax(0,1.15fr);
+      gap: 1.25rem;
+      padding: .8rem 0;
+      border-bottom: 1px solid var(--rule);
+      color: var(--steel);
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .matrix-row {
+      display: grid;
+      grid-template-columns: minmax(10rem,.8fr) minmax(7rem,.45fr) minmax(0,1.15fr);
+      gap: 1.25rem;
+      align-items: start;
+      padding: 1.25rem 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .matrix-row summary {
+      display: contents;
+      cursor: default;
+      list-style: none;
+    }
+    .matrix-row summary::-webkit-details-marker { display: none; }
+    .matrix-application { color: var(--ink); font-family: "Space Grotesk", Arial, sans-serif; font-weight: 500; }
+    .matrix-grade { color: var(--navy); font-family: "Space Grotesk", Arial, sans-serif; font-size: 1.05rem; font-weight: 600; }
+    .matrix-copy { color: var(--muted); }
+    .matrix-toggle { display: none; }
+
+    .product-feature {
+      display: grid;
+      grid-template-columns: minmax(0,1.15fr) minmax(15rem,.85fr);
+      gap: clamp(2rem,5vw,4.5rem);
+      padding: clamp(2rem,5vw,3.6rem);
+      border-top: 4px solid var(--navy);
+      background: var(--white);
+    }
+    .product-kicker { color: var(--steel); font-size: .78rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+    .product-grade { margin-top: .6rem; color: var(--navy); font-size: clamp(2.7rem,5vw,4.8rem); line-height: 1; }
+    .product-feature p { margin-top: 1rem; color: var(--muted); }
+    .product-actions { display: grid; align-content: start; gap: .75rem; }
+    .alternatives { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1px; margin-top: 1px; background: var(--rule); }
+    .alternative { padding: 1.6rem; border-top: 4px solid var(--navy); background: var(--white); }
+    .alternative p { margin-top: .55rem; color: var(--muted); }
+
+    .resources {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 1rem;
+    }
+    .resource-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 205px;
+      padding: 1.5rem;
+      border: 1px solid var(--rule-light);
+      border-top: 4px solid var(--navy);
+      background: var(--white);
+    }
+    .resource-type { color: var(--steel); font-size: .78rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+    .resource-card h3 { margin-top: 1.2rem; }
+    .resource-card p { margin-top: .6rem; color: var(--muted); font-size: .95rem; }
+    .resource-card .text-link { margin-top: auto; padding-top: 1.2rem; }
+
+    .document-panel {
+      display: grid;
+      grid-template-columns: minmax(0,1.2fr) minmax(15rem,.8fr);
+      gap: clamp(2rem,6vw,5rem);
+      align-items: center;
+      padding: clamp(2rem,5vw,3.6rem);
+      border: 1px solid var(--rule);
+      border-top: 4px solid var(--navy);
+      background: var(--white);
+    }
+    .document-panel p { max-width: 43rem; margin-top: .9rem; color: var(--muted); }
+    .document-actions { display: grid; gap: .75rem; }
+
+    .enquiry { background: var(--navy); color: var(--white); }
+    .enquiry .eyebrow { color: #b9c6d8; }
+    .enquiry h2 { color: var(--white); }
+    .enquiry-layout {
+      display: grid;
+      grid-template-columns: minmax(15rem,.72fr) minmax(0,1.28fr);
+      gap: clamp(3rem,8vw,7rem);
+    }
+    .enquiry-copy { display: grid; align-content: start; gap: 1.1rem; }
+    .enquiry-copy p { color: #d4dce8; }
+    .enquiry-form {
+      display: grid;
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap: 1rem;
+    }
+    .field { display: grid; gap: .45rem; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { color: #d4dce8; font-size: .86rem; }
+    .field input, .field textarea {
+      width: 100%;
+      min-height: 48px;
+      padding: .7rem .85rem;
+      border: 1px solid rgba(255,255,255,.4);
+      border-radius: 6px;
+      background: var(--white);
+      color: var(--ink);
+    }
+    .field textarea { min-height: 118px; resize: none; }
+
+    .faq-list { border-top: 1px solid var(--rule); }
+    .faq-list details { border-bottom: 1px solid var(--rule); }
+    .faq-list summary {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1.5rem;
+      align-items: center;
+      padding: 1.35rem 0;
+      cursor: pointer;
+      color: var(--ink);
+      font-family: "Space Grotesk", Arial, sans-serif;
+      font-size: 1.08rem;
+      font-weight: 500;
+      list-style: none;
+    }
+    .faq-list summary::-webkit-details-marker { display: none; }
+    .faq-list summary::after { content: "+"; color: var(--steel); font-size: 1.5rem; font-weight: 400; }
+    .faq-list details[open] summary::after { content: "–"; }
+    .faq-list details p { max-width: 48rem; padding: 0 0 1.35rem; color: var(--muted); }
+
+    .disclaimer { padding-block: 2rem; border-top: 1px solid var(--rule-light); background: var(--ice); }
+    .disclaimer .shell { display: grid; grid-template-columns: 10rem 1fr; gap: 2rem; }
+    .disclaimer strong { color: var(--navy); font-family: "Space Grotesk", Arial, sans-serif; font-weight: 500; }
+    .disclaimer p { color: var(--muted); font-size: .88rem; line-height: 1.5; }
+
+    .site-footer { padding-block: 3.6rem 2.6rem; background: #07172f; color: var(--white); }
+    .footer-top { display: grid; grid-template-columns: 1.6fr repeat(3,1fr); gap: 2.6rem; }
+    .footer-logo { width: 150px; filter: brightness(0) invert(1); }
+    .footer-intro p { max-width: 20rem; margin-top: 1.25rem; color: #cbd4e0; }
+    .footer-col h3 { color: var(--white); font-size: 1rem; }
+    .footer-col ul { display: grid; gap: .7rem; margin-top: .7rem; padding: 0; color: #d8dee7; list-style: none; font-size: .94rem; opacity: .76; }
+    .footer-bottom { display: flex; justify-content: space-between; gap: 2rem; margin-top: 2.8rem; padding-top: 1.35rem; border-top: 1px solid rgba(255,255,255,.15); color: #d8dee7; font-size: .82rem; opacity: .65; }
+
+    @media (max-width: 900px) {
+      .nav { display: none; }
+      .site-header { grid-template-columns: auto minmax(0,1fr) auto; }
+      .site-header > .button { justify-self: end; }
+      .menu-button { display: grid; }
+      .application-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .resources { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .validation { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .footer-top { grid-template-columns: 1.2fr repeat(2,.8fr); }
+      .footer-col:last-child { grid-column: 2 / 4; }
+    }
+
+    @media (max-width: 700px) {
+      body { font-size: 16px; }
+      .resource-card p, .section-copy, .factor-list p, .matrix-copy { font-size: 1rem; }
+      .review-controls { top: 72px; left: 8px; right: 8px; overflow-x: auto; }
+      .review-controls button { white-space: nowrap; }
+      .hero {
+        min-height: 780px;
+        align-items: flex-start;
+        background: var(--white);
+      }
+      .hero-media { inset: auto 0 0; height: 370px; }
+      .hero-media::after { background: linear-gradient(180deg,#fff 0%,rgba(255,255,255,.82) 19%,rgba(255,255,255,.12) 55%); }
+      .hero-content { padding-top: 3.35rem; padding-bottom: 410px; }
+      .hero-summary { font-size: 1rem; }
+      .decision-strip ol { grid-template-columns: 1fr; padding-block: .8rem; }
+      .decision-strip li { padding: .8rem 0; }
+      .decision-strip li + li { padding-left: 0; border-top: 1px solid var(--rule-light); border-left: 0; }
+      .application-grid, .route-grid, .validation, .resources, .alternatives { grid-template-columns: 1fr; }
+      .route-card:last-child:nth-child(odd) { grid-column: auto; }
+      .cross-route, .split, .product-feature, .document-panel, .enquiry-layout { grid-template-columns: 1fr; }
+      .matrix-head { display: none; }
+      .matrix-row { display: block; padding: 0; }
+      .matrix-row summary {
+        display: grid;
+        grid-template-columns: minmax(0,1fr) auto 1.5rem;
+        gap: .75rem;
+        align-items: center;
+        min-height: 58px;
+        cursor: pointer;
+      }
+      .matrix-row:not([open]) > .matrix-copy { display: none; }
+      .matrix-row .matrix-copy {
+        display: block;
+        padding: 0 2.25rem 1.2rem 0;
+        font-size: 1rem;
+      }
+      .matrix-grade { font-size: .94rem; }
+      .matrix-toggle { display: block; color: var(--steel); font-size: 1.25rem; }
+      .matrix-row[open] .matrix-toggle { transform: rotate(45deg); }
+      .validation li { min-height: 0; }
+      .validation .number { margin-bottom: 1rem; }
+      .enquiry-form { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .disclaimer .shell { grid-template-columns: 1fr; gap: .6rem; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .footer-intro { grid-column: 1 / -1; }
+      .footer-col:last-child { grid-column: auto; }
+      .footer-bottom { flex-direction: column; }
+    }
+
+    @media (max-width: 440px) {
+      :root { --gutter: 1.25rem; --section: 4rem; }
+      h1 { font-size: clamp(2.65rem,13vw,3.45rem); }
+      .site-header { grid-template-columns: auto minmax(0,1fr) auto; min-height: 64px; gap: .45rem; padding-inline: 1rem; }
+      .logo { width: 126px; }
+      .site-header > .button { min-height: 42px; padding: .55rem .65rem; font-size: .78rem; }
+      .cta-full { display: none; }
+      .cta-short { display: inline; }
+      .hero { min-height: 790px; }
+      .hero-media { height: 345px; }
+      .hero-content { padding-bottom: 380px; }
+      .actions .button { width: 100%; }
+      .application-card { min-height: 220px; }
+      .route-card { grid-template-columns: 2.2rem 1fr auto; padding: 1.25rem; }
+      .factor-list li { grid-template-columns: 2.1rem 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+      .footer-intro { grid-column: auto; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="review-controls" aria-label="Prototype page selector">
+    <button type="button" data-page="hub">Applications Hub</button>
+    <button type="button" data-page="category">Coatings Category</button>
+    <button type="button" data-page="detail">Water-Based Paint Detail</button>
+  </div>
+  <div id="app"></div>
+  <script>
+    (function () {
+      var disclaimer = "Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.";
+
+      var shared = {
+        validationHub: [
+          ["Powder", "Confirm material identity and the agreed incoming comparison approach."],
+          ["Formulation", "Compare candidate and control in the intended binder, vehicle, resin, furnish or preparation route."],
+          ["Process", "Run the relevant production-representative manufacturing step."],
+          ["Finished product", "Assess the completed coating, print, film, paper, molded part, laminate or functional material."]
+        ],
+        inputsHub: ["Application family, product format and intended end use.", "Formulation, resin, vehicle, furnish or material-system description.", "Current pigment or matched control and the evaluation objective.", "Pigment loading and relevant additive, filler, stabilizer or retention package.", "Manufacturing route and critical conditions.", "Required appearance, process or functional-performance criteria.", "Planned test method, acceptance criteria and trial stage."],
+        inputsCategory: ["Coating type, end use and exposure environment.", "Binder chemistry and waterborne or solvent-borne status.", "Current titanium dioxide and the performance issue.", "Pigment loading, PVC/CPVC and extender package.", "Dispersing process, application method, dry-film thickness and cure.", "Required tests, standards and acceptance criteria.", "Destination market and required quantity."],
+        inputsDetail: ["Paint type, end use and interior or exterior service requirement.", "Binder chemistry, PVC, solids target, pigment loading and extender package.", "Current pigment and the performance question.", "Dispersant package, grind procedure, equipment and target viscosity.", "Application method, substrate, dry-film target and cure or drying conditions.", "Required test methods, acceptance criteria and exposure programme."]
+      };
+
+      var pages = {
+        hub: {
+          name: "Applications Hub",
+          trail: ["Home", "Applications"],
+          eyebrow: "Applications",
+          title: "Titanium Dioxide Applications",
+          summary: "Explore TIOVAR titanium dioxide by application. Start with the material system and end-use requirement, then compare suitable grades through formulation, process and finished-product testing.",
+          image: "assets/applications-hub-hero.jpg",
+          map: [["01","Applications","application-families"],["02","Selection","selection"],["03","Validation","validation"],["04","Enquiry","inquiry"]],
+          categories: [
+            ["Titanium Dioxide for Coatings","Architectural, waterborne, automotive, industrial, electrophoretic, powder, coil, marine and protective systems."],
+            ["Titanium Dioxide for Plastics","Masterbatch, film, PVC, polycarbonate and high-temperature or UV-resistant engineering plastics."],
+            ["Titanium Dioxide for Printing Inks","Water-based, solvent-based and selected conventional systems with distinct dispersion and filtration requirements."],
+            ["Titanium Dioxide for Decorative Paper","General, high-whiteness and laminated paper routes covering slurry, retention, opacity and conversion."],
+            ["Titanium Dioxide for Solar Film","Separate EVA or POE photovoltaic white-film evaluation from soft-PVC and solar-backsheet constructions."],
+            ["High-Purity Titanium Dioxide","Electronic ceramics, optical glass, battery and selected functional-material qualification."]
+          ],
+          factors: [
+            ["Application and material system","The same titanium dioxide can behave differently in a coating binder, an ink vehicle, a polymer resin, a paper furnish or a functional-material preparation."],
+            ["Required end-use result","Specify the result that matters: opacity, shade, gloss, film appearance, print quality, reflectance, retention, process stability, weathering response or another functional outcome."],
+            ["Formulation and process conditions","Pigment loading, additives, dispersion route, thermal history, film build and manufacturing conditions can change the result."],
+            ["Information quality","Product information establishes a starting screen; a useful application discussion needs the actual formulation and process context."]
+          ],
+          limitation: "Powder properties are useful for defining what to examine first, but they do not reproduce the interactions in the complete system. Resin or vehicle chemistry, additives, dispersion quality, processing conditions, substrate or geometry, and end-use testing can each change the practical result.",
+          validation: shared.validationHub,
+          resources: [
+            ["Guide","TiO₂ Content vs Performance","Understand why composition alone cannot predict the finished result."],
+            ["Guide","How Surface Treatment Changes Performance","Connect pigment design with wetting, dispersion, rheology and processing."],
+            ["Guide","How to Evaluate an Alternative Grade","Build a staged, matched comparison from control to finished-product approval."],
+            ["Application","Multi-Purpose Evaluation","A separate screening route for coatings, inks and plastics."]
+          ],
+          inputs: shared.inputsHub,
+          faqs: [
+            ["How should I begin selecting titanium dioxide for an application?","Begin with the application family, material system, manufacturing route and end-use target. Then use the relevant category page to define an initial comparison."],
+            ["Why are coatings, plastics and printing inks separate application paths?","They use different binders, vehicles or resins, process conditions and acceptance criteria."],
+            ["What information should I share before requesting technical support?","Share the application, material system, current control, pigment loading, process conditions, target result and planned validation method."]
+          ]
+        },
+        category: {
+          name: "Coatings Category",
+          trail: ["Home","Applications","Coatings"],
+          eyebrow: "Application Category",
+          title: "Titanium Dioxide for Coatings",
+          summary: "Explore TIOVAR titanium dioxide for architectural, waterborne, automotive, industrial and protective coatings. Start with the coating system and performance target, then compare candidates under matched finished-film conditions.",
+          image: "assets/coatings-category-hero.png",
+          map: [["01","Routes","application-routes"],["02","Starting Grades","starting-grades"],["03","Validation","validation"],["04","Enquiry","inquiry"]],
+          routes: [
+            ["Water-Based Paint","Wall-emulsion and related waterborne architectural systems."],
+            ["Electrophoretic Coating","Bath electrical behaviour, deposition, cure and finished coated-part evaluation."],
+            ["High-PVC Flat Paint","Dry hiding, PVC/CPVC balance, dispersant demand and film integrity."],
+            ["Automotive Coatings","OEM and refinishing layers with distinct formulation and exposure requirements."],
+            ["Waterborne Automotive","Aqueous binder, storage stability, spray application and cure."],
+            ["Marine & Protective","Layer role, full coating stack and service-environment testing."],
+            ["Powder & Coil Coatings","Two separate manufacturing routes requiring independent qualification."]
+          ],
+          factors: [
+            ["Binder and dispersion compatibility","Evaluate wetting, grind time, fineness, residue, viscosity, settling and redispersion in the actual binder and dispersant package."],
+            ["Opacity, tint and film appearance","Compare hiding, contrast ratio, colour coordinates and gloss at matched loading, film thickness and application conditions."],
+            ["PVC, CPVC and dry hiding","High-PVC systems require a formulation-specific balance of dry hiding, oil absorption, rheology, porosity and film performance."],
+            ["Waterborne storage and application","Screen viscosity development, storage stability, settling, redispersion and application appearance in the complete formulation."],
+            ["Exterior durability and protection","Weathering and corrosion outcomes belong to the full coating system, including substrate, pretreatment, binder, film build and cure."]
+          ],
+          products: [
+            ["Electrophoretic coatings","TP-C050 — starting point where low-ion direction, whiteness, gloss and hiding are relevant."],
+            ["Architectural, industrial and decorative","TP-C100 and TP-C110 — separate candidates; this page does not state a performance difference between them."],
+            ["Water-based wall emulsion paint","TP-C120 — starting point for water-based interior and exterior wall-emulsion evaluation."],
+            ["High-PVC matte and flat paint","TP-C200 — starting point for dry-hiding evaluation where formulation balance is especially important."],
+            ["Durable automotive, marine, coil and powder","TP-C300 — starting point for matched durability, weathering, gloss, hiding and colour-retention evaluation."],
+            ["Waterborne automotive and industrial","TP-C310 — starting point where water dispersibility and storage stability matter."],
+            ["Demanding exterior conditions","TP-C400 and TP-C410 — separate candidates; their names do not establish a hierarchy."],
+            ["Multi-application screening","TP-U100 — conditional screening route; each coating system requires its own qualification."]
+          ],
+          limitation: "Powder properties can help set an initial screen, but they do not predict the complete coating outcome. The pigment interacts with the resin, solvent or water phase, dispersant, extender package, application method, cure conditions and substrate.",
+          validation: [
+            ["Powder checks","Confirm product identity and define a consistent comparison plan."],
+            ["Formulation checks","Record pigment loading, binder, dispersant, extender package, PVC, grind procedure and target viscosity."],
+            ["Process checks","Use the intended manufacturing, application, film-build and cure conditions."],
+            ["Finished-product checks","Measure opacity, colour, gloss, appearance, adhesion and system-specific service performance."]
+          ],
+          resources: [
+            ["Guide","TiO₂ Content vs Performance","Composition and finished-film performance."],
+            ["Guide","Oil Absorption","Method-bound powder–vehicle interaction."],
+            ["Guide","Surface Treatment","Wetting, dispersion, rheology and durability direction."],
+            ["Guide","Outdoor Durability","Finished-system exposure and retained appearance."]
+          ],
+          inputs: shared.inputsCategory,
+          faqs: [
+            ["Which titanium dioxide grade should I use for coatings?","Start with the coating subtype, binder, exposure requirement and target performance—not a general grade label."],
+            ["Can one titanium dioxide grade be used in every coating?","No. Binder chemistry, dispersant package, PVC, application method, cure and exposure conditions can change the result."],
+            ["What is the difference between TP-C100 and TP-C110?","Both are starting points for relevant coating evaluation. Their fit should be evaluated independently; no performance difference is stated here."],
+            ["Is TP-C410 higher-performing than TP-C400?","This page does not present either grade as higher-performing. Compare them through matched testing."],
+            ["Why is high-PVC paint evaluated differently?","It requires attention to dry hiding, oil absorption, dispersant demand, rheology, porosity and film integrity."]
+          ]
+        },
+        detail: {
+          name: "Water-Based Paint Detail",
+          trail: ["Home","Applications","Coatings","Water-Based Paint"],
+          eyebrow: "Application Detail",
+          title: "Titanium Dioxide for Water-Based Paint",
+          displayTitle: "Titanium Dioxide for <span class=\"no-break\">Water-Based</span> Paint",
+          summary: "Evaluate titanium dioxide in the complete water-based paint system. Define the binder, PVC, dispersant package, application method and exposure requirement first. TP-C120 is the primary TIOVAR starting point; TP-C100 and TP-C110 remain separate secondary candidates.",
+          image: "assets/water-based-paint-detail-hero.png",
+          map: [["01","Starting Grade","starting-grade"],["02","Formulation","application-context"],["03","Validation","validation"],["04","Enquiry","inquiry"]],
+          context: "Water-based paint performance is shaped by interactions among the pigment, water phase, binder, dispersant, extender package, and manufacturing conditions. A useful trial begins with the intended paint type—such as interior or exterior wall emulsion paint—and the performance decisions that the finished coating must support.",
+          buyer: "Share the binder chemistry, pigment volume concentration (PVC), solids target, pigment loading, dispersant package, application method, dry-film target, and the exposure or service conditions. These inputs help make a trial comparison meaningful rather than treating one powder result as a decision for every formulation.",
+          factors: [
+            ["Binder and dispersion compatibility","Evaluate wetting, grind quality, fineness, residue and rheology in the intended binder and additive package."],
+            ["Viscosity and application balance","Relatively low viscosity is a trial-planning direction, not a numeric result or a promise for a particular formulation."],
+            ["Opacity, colour, gloss and appearance","Compare at matched loading, film build, substrate and application conditions."],
+            ["Interior or exterior service requirement","The exposure requirement belongs in the screening plan from the beginning."]
+          ],
+          limitation: "Powder information is useful for defining a controlled screen, but it does not predict the whole paint result. The pigment interacts with the binder, dispersant, water phase, extenders, process energy, application method, film build, substrate and service conditions.",
+          validation: [
+            ["Powder checks","Confirm product identity and set a consistent incoming-material comparison procedure."],
+            ["Formulation checks","Use the same binder, PVC, solids target, pigment loading, dispersant and extender package."],
+            ["Process checks","Run the intended manufacturing and application conditions, including shear, addition order and dry-film target."],
+            ["Finished-film checks","Compare opacity, colour, gloss, appearance, adhesion and the relevant interior or exterior service tests."]
+          ],
+          resources: [
+            ["Product","TP-C120","Primary starting point for the evaluation."],
+            ["Products","TP-C100 / TP-C110","Secondary candidates to evaluate independently."],
+            ["Application","Coatings","Return to the complete coatings decision path."],
+            ["Guide","Alternative Grade Evaluation","Build the matched comparison plan."]
+          ],
+          inputs: shared.inputsDetail,
+          faqs: [
+            ["Which titanium dioxide should I evaluate for water-based wall paint?","Start with TP-C120. TP-C100 and TP-C110 can be considered separately when their documented directions match the project."],
+            ["Is TP-C120’s relatively low viscosity a fixed result?","No. Actual viscosity depends on the binder, solids, PVC, dispersant package, water phase, shear and complete formulation."],
+            ["Why should I test the complete paint instead of comparing powder data?","Powder information does not capture interactions with the binder, dispersant, extenders, process, application method, film build or substrate."],
+            ["How should TP-C100 and TP-C110 be compared?","Treat them as separate candidates under matched formulation, process and finished-film conditions."],
+            ["Which tests should be included in a water-based paint trial?","Separate powder checks from formulation and process checks, then compare finished-film opacity, colour, gloss, appearance, adhesion and relevant service tests."]
+          ]
+        }
+      };
+
+      function header() {
+        return '<header class="site-header"><img class="logo" src="assets/tiovar-logo.png" alt="TIOVAR"><nav class="nav" aria-label="TIOVAR homepage sections"><span>Products</span><span class="active">Applications</span><span>Technical Resources</span><span>About TIOVAR</span><span>Contact</span></nav><button class="button small" type="button"><span class="cta-full">Discuss Your Requirement</span><span class="cta-short">Enquire</span></button><button class="menu-button" type="button" aria-label="Open navigation menu"><i></i><i></i><i></i></button></header>';
+      }
+
+      function hero(page) {
+        return '<section class="hero"><div class="hero-media"><img src="' + page.image + '" alt=""></div><div class="hero-content"><div class="breadcrumbs">' + page.trail.map(function(x){return '<span>'+x+'</span>';}).join('') + '</div><p class="eyebrow">' + page.eyebrow + '</p><h1>' + (page.displayTitle || page.title) + '</h1><p class="hero-summary">' + page.summary + '</p><div class="actions"><button class="button" type="button">Discuss Your Requirement</button><button class="button secondary" type="button">Request Technical Documents</button></div></div></section><nav class="decision-strip" aria-label="On this page"><ol class="shell">' + page.map.map(function(x){return '<li><a href="#'+x[2]+'"><span class="number">'+x[0]+'</span><span>'+x[1]+'</span></a></li>';}).join('') + '</ol></nav>';
+      }
+
+      function sectionHeading(eyebrow, title, copy) {
+        return '<div class="section-heading"><p class="eyebrow">' + eyebrow + '</p><h2>' + title + '</h2>' + (copy ? '<p class="section-copy">' + copy + '</p>' : '') + '</div>';
+      }
+
+      function factors(items, limitation, title, intro) {
+        return '<section id="selection" class="section ice"><div class="shell split"><div class="split-intro"><p class="eyebrow">Selection Factors</p><h2>' + title + '</h2><p class="section-copy">' + intro + '</p></div><div><ol class="factor-list">' + items.map(function(x,i){return '<li><span class="number">0'+(i+1)+'</span><div><h3>'+x[0]+'</h3><p>'+x[1]+'</p></div></li>';}).join('') + '</ol><aside class="evidence-note"><h3>Evidence boundary</h3><p>' + limitation + '</p></aside></div></div></section>';
+      }
+
+      function validation(items) {
+        return '<section id="validation" class="section"><div class="shell">' + sectionHeading('Validation Path','Move from pigment identity to finished-product evidence','Keep candidate and control under matched conditions at every stage so the final decision reflects the intended application.') + '<ol class="validation">' + items.map(function(x,i){return '<li><span class="number">0'+(i+1)+'</span><h3>'+x[0]+'</h3><p>'+x[1]+'</p></li>';}).join('') + '</ol></div></section>';
+      }
+
+      function resources(items) {
+        return '<section class="section ice"><div class="shell">' + sectionHeading('Related Technical Resources','Continue the technical evaluation','Use these related product, application and technical-resource paths to prepare a more complete comparison.') + '<div class="resources">' + items.map(function(x){return '<article class="resource-card"><p class="resource-type">'+x[0]+'</p><h3>'+x[1]+'</h3><p>'+x[2]+'</p><span class="text-link">Review path <span>→</span></span></article>';}).join('') + '</div></div></section>';
+      }
+
+      function documents() {
+        return '<section class="section"><div class="shell"><div class="document-panel"><div><p class="eyebrow">Controlled Documents</p><h2>Request the documents needed for your evaluation</h2><p>Technical Data Sheets and supporting documents are available through a controlled request. Identify the application, candidate grade and evaluation stage so the relevant information can be prepared.</p></div><div class="document-actions"><button class="button" type="button">Request Technical Documents</button><button class="button secondary" type="button">Discuss Your Requirement</button></div></div></div></section>';
+      }
+
+      function enquiry(inputs, pageName) {
+        return '<section id="inquiry" class="section enquiry"><div class="shell enquiry-layout"><div class="enquiry-copy"><p class="eyebrow">Technical Enquiry</p><h2>Prepare a useful application discussion</h2><p>Share enough system and test context for TIOVAR to understand the decision you are making.</p><ol class="input-list">' + inputs.slice(0,5).map(function(x,i){return '<li style="display:grid;grid-template-columns:2rem 1fr;gap:.8rem;padding:.75rem 0;border-top:1px solid rgba(255,255,255,.2)"><span class="number" style="color:#b9c6d8">0'+(i+1)+'</span><span style="color:#d4dce8">'+x+'</span></li>';}).join('') + '</ol></div><form class="enquiry-form"><div class="field"><label>Name</label><input value="" placeholder="Your name"></div><div class="field"><label>Company</label><input value="" placeholder="Company name"></div><div class="field"><label>Email</label><input value="" placeholder="name@company.com"></div><div class="field"><label>Application</label><input value="' + pageName + '"></div><div class="field full"><label>Requirement</label><textarea placeholder="Tell us about the formulation, process and evaluation target."></textarea></div><div class="field full"><button class="button secondary" type="button">Discuss Your Requirement</button></div></form></div></section>';
+      }
+
+      function faq(items) {
+        return '<section class="section"><div class="shell">' + sectionHeading('FAQ','Questions before you begin testing','Short answers that keep the evaluation focused on the actual material system and finished-product decision.') + '<div class="faq-list">' + items.map(function(x,i){return '<details '+(i===0?'open':'')+'><summary>'+x[0]+'</summary><p>'+x[1]+'</p></details>';}).join('') + '</div></div></section>';
+      }
+
+      function footer() {
+        return '<div class="disclaimer"><div class="shell"><strong>Technical notice</strong><p>'+disclaimer+'</p></div></div><footer class="site-footer"><div class="shell"><div class="footer-top"><div class="footer-intro"><img class="footer-logo" src="assets/tiovar-logo.png" alt="TIOVAR"><p>Titanium dioxide application guidance built around the complete material system, process and end-use decision.</p></div><div class="footer-col"><h3>Explore</h3><ul><li>Products</li><li>Applications</li><li>Technical Resources</li></ul></div><div class="footer-col"><h3>Work with us</h3><ul><li>Discuss an application</li><li>Request documents</li><li>Request a sample</li></ul></div><div class="footer-col"><h3>TIOVAR</h3><ul><li>About TIOVAR</li><li>Contact</li><li>Privacy</li></ul></div></div><div class="footer-bottom"><span>© TIOVAR</span><span>Titanium dioxide for industrial applications</span></div></div></footer>';
+      }
+
+      function hubBody(page) {
+        return '<section id="application-families" class="section"><div class="shell">' + sectionHeading('Application Families','Start with the material system','Choose the route that matches the actual formulation, process and finished-product requirements.') + '<div class="application-grid">' + page.categories.map(function(x,i){return '<article class="application-card"><div><span class="number">0'+(i+1)+'</span><h3 style="margin-top:1.2rem">'+x[0]+'</h3><p>'+x[1]+'</p></div><div class="card-foot"><span>Explore application</span><span class="arrow">→</span></div></article>';}).join('') + '</div><div class="cross-route"><div><p class="eyebrow">Cross-application</p><h3 style="margin-top:.8rem">Multi-Purpose Titanium Dioxide</h3></div><div><p>Multi-Purpose Titanium Dioxide for Coatings, Inks & Plastics is a separate screening route. “Multi-purpose” does not establish suitability across systems; every programme needs its own formulation, process and final-product validation.</p><span class="text-link">Review the separate evaluation route →</span></div></div></div></section>';
+      }
+
+      function categoryBody(page) {
+        return '<section id="application-routes" class="section"><div class="shell">' + sectionHeading('Coatings Applications','Choose the coating route','Each route brings different binder, process, film and exposure requirements into the qualification plan.') + '<div class="route-grid">' + page.routes.map(function(x,i){return '<article class="route-card" tabindex="0" role="link"><span class="number">0'+(i+1)+'</span><div><h3>'+x[0]+'</h3><p>'+x[1]+'</p></div><span class="arrow">→</span></article>';}).join('') + '</div></div></section>' + '<section id="starting-grades" class="section ice"><div class="shell split"><div class="split-intro"><p class="eyebrow">Selection Matrix</p><h2>Connect each coating decision to a testable candidate</h2><p class="section-copy">These are evidence-backed starting points, not automatic selections or performance guarantees.</p></div><div class="matrix"><div class="matrix-head"><span>Application</span><span>Starting grade</span><span>Evaluation direction</span></div>' + page.products.map(function(x,i){var parts=x[1].split(' — ');return '<details class="matrix-row" '+((window.innerWidth>700||i===0)?'open':'')+'><summary><span class="matrix-application">'+x[0]+'</span><span class="matrix-grade">'+parts[0]+'</span><span class="matrix-toggle">+</span></summary><p class="matrix-copy">'+(parts[1]||'')+'</p></details>';}).join('') + '</div></div></section>';
+      }
+
+      function detailBody(page) {
+        return '<section id="starting-grade" class="section ice"><div class="shell">' + sectionHeading('Product Starting Point','Begin with the primary candidate','TP-C120 is presented first for this application. Alternatives remain separate evaluation paths.') + '<div class="product-feature"><div><p class="product-kicker">Primary starting point</p><h3 class="product-grade">TP-C120</h3><p>TP-C120 is the primary TIOVAR starting point for interior and exterior water-based wall-emulsion paint, with a documented product direction toward low-viscosity processing, bluish undertone, gloss, durability and hiding performance. Final suitability should be confirmed in the intended formulation.</p></div><div class="product-actions"><button class="button" type="button">View TP-C120</button><button class="button secondary" type="button">Request Technical Documents</button><button class="button tertiary" type="button">Request a Sample →</button><button class="button tertiary" type="button">Discuss Your Requirement →</button></div></div><div class="alternatives"><article class="alternative"><p class="product-kicker">Secondary candidate</p><h3 style="margin-top:.55rem">TP-C100</h3><p>A separate starting point for relevant architectural, industrial and decorative waterborne coating directions. Evaluate it independently.</p></article><article class="alternative"><p class="product-kicker">Secondary candidate</p><h3 style="margin-top:.55rem">TP-C110</h3><p>A separate starting point for relevant architectural, industrial and decorative waterborne coating directions. Evaluate it independently.</p></article></div></div></section><section id="application-context" class="section"><div class="shell split"><div class="split-intro"><p class="eyebrow">Application Context</p><h2>Understand the complete water-based paint system</h2><p class="section-copy">'+page.context+'</p></div><div class="split-intro"><p class="eyebrow">What to define before testing</p><h3>Make the trial comparable and decision-ready</h3><p class="section-copy">'+page.buyer+'</p><span class="text-link">Prepare the technical enquiry →</span></div></div></section>';
+      }
+
+      function render(key) {
+        var page = pages[key] || pages.hub;
+        var middle = key === 'hub' ? hubBody(page) : (key === 'category' ? categoryBody(page) : detailBody(page));
+        var factorTitle = key === 'hub' ? 'Define the decision before comparing grades' : (key === 'category' ? 'Evaluate the complete coating system' : 'Evaluate the complete paint, not the powder alone');
+        var factorIntro = key === 'hub' ? 'A useful selection route begins with the end-use decision and works backward into material, formulation and process variables.' : (key === 'category' ? 'Use the intended binder, formulation, process and exposure requirements as the common basis for comparison.' : 'Set the formulation and finished-film criteria before drawing conclusions from a candidate trial.');
+        document.getElementById('app').innerHTML = header() + hero(page) + middle + factors(page.factors, page.limitation, factorTitle, factorIntro) + validation(page.validation) + resources(page.resources) + documents() + enquiry(page.inputs, page.name) + faq(page.faqs) + footer();
+        document.querySelectorAll('[data-page]').forEach(function(button){button.setAttribute('aria-pressed', button.getAttribute('data-page') === key ? 'true' : 'false');});
+        document.title = page.name + ' — TIOVAR Applications Visual Prototype';
+      }
+
+      document.querySelectorAll('[data-page]').forEach(function(button){
+        button.addEventListener('click', function(){
+          var key = button.getAttribute('data-page');
+          var url = new URL(window.location.href);
+          url.searchParams.set('page', key);
+          history.replaceState({}, '', url);
+          render(key);
+          window.scrollTo(0,0);
+        });
+      });
+
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('capture') === '1') document.body.classList.add('capture');
+      render(params.get('page') || 'hub');
+    }());
+  </script>
+</body>
+</html>

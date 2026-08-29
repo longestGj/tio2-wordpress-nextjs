@@ -257,6 +257,18 @@ function tio2_validate_editorial_fields(array $definitions, int $post_id): array
 /**
  * @return list<string>
  */
+function tio2_site_a_application_product_ids(): array
+{
+    return [
+        'TP-P100', 'TP-P300', 'TP-S100', 'TP-C200', 'TP-C410', 'TP-C120', 'TP-I100', 'TP-H100',
+        'TP-P200', 'TP-P110', 'TP-P320', 'TP-P120', 'TP-P310', 'TP-P330', 'TP-PA100', 'TP-PA110',
+        'TP-PA120', 'TP-C050', 'TP-C100', 'TP-C110', 'TP-I200', 'TP-C300', 'TP-C310', 'TP-C400', 'TP-U100',
+    ];
+}
+
+/**
+ * @return list<string>
+ */
 function tio2_validate_application_record(int $post_id): array
 {
     $post = get_post($post_id);
@@ -276,6 +288,51 @@ function tio2_validate_application_record(int $post_id): array
     $application_id = (string) get_field('application_id', $post_id, false);
     $level = (string) get_field('application_level', $post_id, false);
     $parent_ids = tio2_editorial_relationship_ids(get_field('parent_application', $post_id, false));
+    $related_product_post_ids = tio2_editorial_relationship_ids(get_field('related_products', $post_id, false));
+    $related_product_ids = [];
+    foreach ($related_product_post_ids as $related_product_post_id) {
+        $related_product_id = (string) get_field('product_id', $related_product_post_id, false);
+        if (in_array($related_product_id, tio2_site_a_application_product_ids(), true)) {
+            $related_product_ids[$related_product_id] = true;
+        }
+    }
+    $starting_products = get_field('starting_products', $post_id, false);
+    $starting_products = is_array($starting_products) ? array_values($starting_products) : [];
+    $starting_product_ids = [];
+    $primary_count = 0;
+    foreach ($starting_products as $index => $starting_product) {
+        if (! is_array($starting_product)) {
+            $errors[] = "starting_products row {$index} must be an object.";
+            continue;
+        }
+        $product_id = (string) ($starting_product['product_id'] ?? '');
+        $role = (string) ($starting_product['role'] ?? '');
+        if (! in_array($product_id, tio2_site_a_application_product_ids(), true)) {
+            $errors[] = "starting_products row {$index} has an unknown Product ID.";
+        }
+        if (! isset($related_product_ids[$product_id])) {
+            $errors[] = 'starting_products entries must also be present in related_products.';
+        }
+        if (isset($starting_product_ids[$product_id])) {
+            $errors[] = 'starting_products Product IDs must be unique.';
+        }
+        $starting_product_ids[$product_id] = true;
+        if (! in_array($role, ['primary', 'alternative', 'candidate'], true)) {
+            $errors[] = "starting_products row {$index} has an unsupported role.";
+        }
+        if ('primary' === $role) {
+            ++$primary_count;
+        }
+        if ('hub' === $level) {
+            $errors[] = 'starting_products must be empty for the Hub.';
+        }
+        if ('category' === $level && 'candidate' !== $role) {
+            $errors[] = 'starting_products on a Category must use the candidate role.';
+        }
+    }
+    if ($primary_count > 1) {
+        $errors[] = 'starting_products may contain at most one Primary entry.';
+    }
 
     if ('hub' === $level) {
         if ('applications-hub' !== $application_id) {

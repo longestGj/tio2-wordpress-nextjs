@@ -13,6 +13,8 @@ import {
 import {ApplicationCategory} from './application-category'
 import {ApplicationDetail} from './application-detail'
 import {ApplicationHub} from './application-hub'
+import {SiteABrandFooter} from '@/components/sites/tio2-a/site-a-brand-footer'
+import styles from './application-page.module.css'
 
 interface ApplicationPageRendererProps {
   readonly application: ApplicationPageDto
@@ -123,9 +125,41 @@ function completeCtas(value: unknown): boolean {
   )
 }
 
+function completeStartingProducts(value: unknown): boolean {
+  if (!Array.isArray(value)) return false
+  const productIds = new Set<string>()
+  return value.every((item) => {
+    if (
+      !isRecord(item) ||
+      Object.keys(item).sort().join(',') !==
+        'label,product,role,summaryHtml' ||
+      !['primary', 'alternative', 'candidate'].includes(String(item.role)) ||
+      !safePlainText(item.label) ||
+      !safeRichText(item.summaryHtml) ||
+      !completeLinks([item.product]) ||
+      !isRecord(item.product) ||
+      item.product.type !== 'product' ||
+      typeof item.product.id !== 'string' ||
+      productIds.has(item.product.id)
+    ) {
+      return false
+    }
+    productIds.add(item.product.id)
+    return true
+  })
+}
+
 function matchesAuthoritativeContract(application: ApplicationPageDto): boolean {
   return applicationPageInputSchema.safeParse({
     ...application,
+    startingProducts: application.startingProducts.map(
+      ({product, role, label, summaryHtml}) => ({
+        productId: product.id,
+        role,
+        label,
+        summaryHtml,
+      }),
+    ),
     children: application.children.map(({type, id}) => ({type, id})),
     relationships: application.relationships.map(({type, id}) => ({type, id})),
   }).success
@@ -164,6 +198,7 @@ export function isValidatedApplicationPageDto(
       safePlainStrings(guide.validationPlan) &&
       safePlainStrings(guide.customerInputs) &&
       completeSections(value.bodySections) &&
+      completeStartingProducts(value.startingProducts) &&
       completeFaqs(value.faqs) &&
       completeLinks(value.children) &&
       completeLinks(value.relationships) &&
@@ -182,12 +217,23 @@ export function ApplicationPageRenderer({
 }: ApplicationPageRendererProps) {
   if (!isValidatedApplicationPageDto(application)) return null
 
+  let content: React.ReactNode
   switch (application.identity.level) {
     case 'hub':
-      return <ApplicationHub application={application} />
+      content = <ApplicationHub application={application} />
+      break
     case 'category':
-      return <ApplicationCategory application={application} />
+      content = <ApplicationCategory application={application} />
+      break
     case 'detail':
-      return <ApplicationDetail application={application} />
+      content = <ApplicationDetail application={application} />
+      break
   }
+
+  return (
+    <div className={styles.applicationExperience}>
+      {content}
+      <SiteABrandFooter description="Titanium dioxide evaluation guidance for industrial applications." />
+    </div>
+  )
 }
