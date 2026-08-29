@@ -110,7 +110,7 @@ function tio2_product_collection_contract_test_value_for_field(array $field): mi
     return 'wysiwyg' === $type ? '<p>Copy</p>' : ('filters' === $name ? [] : 'Copy');
 }
 
-function tio2_product_collection_contract_test_insert_product(string $product_id, int $family_id, int $order): int
+function tio2_product_collection_contract_test_insert_product(string $product_id, int $family_id, int $order, ?string $site_scope = 'tio2-a'): int
 {
     $post_id = wp_insert_post([
         'post_type' => 'tio2_product',
@@ -124,7 +124,9 @@ function tio2_product_collection_contract_test_insert_product(string $product_id
     }
     $post_id = (int) $post_id;
     $GLOBALS['tio2_product_collection_contract_test_post_ids'][] = $post_id;
-    wp_set_object_terms($post_id, ['tio2-a'], 'site_scope', false);
+    if (null !== $site_scope) {
+        wp_set_object_terms($post_id, [$site_scope], 'site_scope', false);
+    }
     wp_set_object_terms($post_id, [$family_id], 'product_family', false);
     update_field('field_tio2_product_id', $product_id, $post_id);
     update_field('field_tio2_product_collection_family_display_order', $order, $post_id);
@@ -185,6 +187,19 @@ update_field('field_tio2_products_hub_families', $hub_fields['families'], 'optio
 update_field('field_tio2_product_collection_filter_tags', ['uncontrolled-filter'], $tp_c120_post_id);
 tio2_product_collection_contract_test_assert('product_collection_filter_invalid' === tio2_product_collection_contract_test_error_code(tio2_product_canonical_path($tp_c120_post_id)), 'Uncontrolled Product filter tag did not fail closed.');
 update_field('field_tio2_product_collection_filter_tags', ['application'], $tp_c120_post_id);
+
+update_field('field_tio2_product_collection_filter_tags', ['performance'], $tp_c120_post_id);
+tio2_product_collection_contract_test_assert('product_collection_filter_unavailable' === tio2_product_collection_contract_test_error_code(tio2_product_canonical_path($tp_c120_post_id)), 'A globally valid but Family-unconfigured Product filter tag did not fail closed.');
+update_field('field_tio2_product_collection_filter_tags', 'uncontrolled-filter', $tp_c120_post_id);
+tio2_product_collection_contract_test_assert('product_collection_filter_invalid' === tio2_product_collection_contract_test_error_code(tio2_product_canonical_path($tp_c120_post_id)), 'A scalar Product filter tag did not fail closed.');
+update_field('field_tio2_product_collection_filter_tags', ['application' => 'application'], $tp_c120_post_id);
+tio2_product_collection_contract_test_assert('product_collection_filter_invalid' === tio2_product_collection_contract_test_error_code(tio2_product_canonical_path($tp_c120_post_id)), 'A malformed Product filter tag list did not fail closed.');
+update_field('field_tio2_product_collection_filter_tags', ['application'], $tp_c120_post_id);
+
+$site_b_product_id = tio2_product_collection_contract_test_insert_product('TP-C050', $families['coatings'], 20, 'tio2-b');
+$unscoped_product_id = tio2_product_collection_contract_test_insert_product('TP-C200', $families['coatings'], 1, null);
+tio2_product_collection_contract_test_assert(true === tio2_validate_product_family_contract($families['coatings']), 'A Site B or unscoped Product polluted the Site A Family member contract.');
+assert_same('/products/coatings/tp-c120', tio2_product_canonical_path($tp_c120_post_id), 'A Site B or unscoped Product polluted Site A Family display order.');
 
 $unknown_post_id = tio2_product_collection_contract_test_insert_product('TP-Z999', $families['coatings'], 10);
 tio2_product_collection_contract_test_assert('product_collection_product_unknown' === tio2_product_collection_contract_test_error_code(tio2_product_canonical_path($unknown_post_id)), 'Unknown Product did not fail closed.');

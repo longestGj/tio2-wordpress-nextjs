@@ -92,6 +92,25 @@ function tio2_product_collection_validate_definitions(array $definitions, $objec
     return true;
 }
 
+/** @return list<string>|WP_Error */
+function tio2_product_collection_family_filter_slugs(int $term_id): array|WP_Error
+{
+    $filters = get_field('filters', 'product_family_' . $term_id, false);
+    if (! is_array($filters) || ! array_is_list($filters)) {
+        return new WP_Error('product_family_filter_invalid', 'Product Family filters must use controlled slug and label pairs.');
+    }
+    $slugs = [];
+    foreach ($filters as $filter) {
+        $slug = is_array($filter) ? ($filter['slug'] ?? null) : null;
+        $label = is_array($filter) ? ($filter['label'] ?? null) : null;
+        if (! is_string($slug) || ! is_string($label) || (tio2_product_collection_filter_choices()[$slug] ?? null) !== $label || isset($slugs[$slug])) {
+            return new WP_Error('product_family_filter_invalid', 'Product Family filters must use controlled slug and label pairs.');
+        }
+        $slugs[$slug] = true;
+    }
+    return array_keys($slugs);
+}
+
 /** @return true|WP_Error */
 function tio2_validate_products_hub_contract(string $site_id): true|WP_Error
 {
@@ -136,16 +155,12 @@ function tio2_validate_product_family_contract(int $term_id): true|WP_Error
     if (is_wp_error($validation)) {
         return $validation;
     }
-    $filters = get_field('filters', $term_object_id, false);
-    foreach (is_array($filters) ? $filters : [] as $filter) {
-        $slug = is_array($filter) ? (string) ($filter['slug'] ?? '') : '';
-        $label = is_array($filter) ? (string) ($filter['label'] ?? '') : '';
-        if ((tio2_product_collection_filter_choices()[$slug] ?? null) !== $label) {
-            return new WP_Error('product_family_filter_invalid', 'Product Family filters must use controlled slug and label pairs.');
-        }
+    $filter_slugs = tio2_product_collection_family_filter_slugs($term_id);
+    if (is_wp_error($filter_slugs)) {
+        return $filter_slugs;
     }
     $expected_ids = tio2_product_collection_membership()[$term->slug];
-    $post_ids = get_posts(['post_type' => 'tio2_product', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'tax_query' => [['taxonomy' => 'product_family', 'field' => 'term_id', 'terms' => [$term_id]]]]);
+    $post_ids = get_posts(['post_type' => 'tio2_product', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'tax_query' => ['relation' => 'AND', ['taxonomy' => 'product_family', 'field' => 'term_id', 'terms' => [$term_id]], ['taxonomy' => 'site_scope', 'field' => 'slug', 'terms' => ['tio2-a']]]]);
     $actual_ids = [];
     foreach ($post_ids as $post_id) {
         $product_id = get_field('product_id', (int) $post_id, false);
@@ -199,13 +214,26 @@ function tio2_product_canonical_path(int $post_id): string|WP_Error
         return $validation;
     }
     $tags = get_field('collectionFilterTags', $post_id, false);
-    foreach (is_array($tags) ? $tags : [] as $tag) {
-        if (! array_key_exists((string) $tag, tio2_product_collection_filter_choices())) {
+    if (! is_array($tags) || ! array_is_list($tags)) {
+        return new WP_Error('product_collection_filter_invalid', 'Product collection filters must use a list of controlled tags.');
+    }
+    $family_term = get_term_by('slug', $family_slug, 'product_family');
+    $configured_tags = $family_term instanceof WP_Term
+        ? tio2_product_collection_family_filter_slugs((int) $family_term->term_id)
+        : new WP_Error('product_collection_filter_invalid', 'Product collection filters require a canonical Product Family.');
+    if (is_wp_error($configured_tags)) {
+        return new WP_Error('product_collection_filter_invalid', 'Product collection filters require a valid Product Family configuration.');
+    }
+    foreach ($tags as $tag) {
+        if (! is_string($tag) || ! array_key_exists($tag, tio2_product_collection_filter_choices())) {
             return new WP_Error('product_collection_filter_invalid', 'Product collection filters must use controlled tags.');
+        }
+        if (! in_array($tag, $configured_tags, true)) {
+            return new WP_Error('product_collection_filter_unavailable', 'Product collection filters must be configured for the Product Family.');
         }
     }
     $order = (int) get_field('familyDisplayOrder', $post_id, false);
-    $family_post_ids = get_posts(['post_type' => 'tio2_product', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'tax_query' => [['taxonomy' => 'product_family', 'field' => 'slug', 'terms' => [$family_slug]]]]);
+    $family_post_ids = get_posts(['post_type' => 'tio2_product', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => -1, 'tax_query' => ['relation' => 'AND', ['taxonomy' => 'product_family', 'field' => 'slug', 'terms' => [$family_slug]], ['taxonomy' => 'site_scope', 'field' => 'slug', 'terms' => ['tio2-a']]]]);
     foreach ($family_post_ids as $family_post_id) {
         if ((int) $family_post_id !== $post_id && $order === (int) get_field('familyDisplayOrder', (int) $family_post_id, false)) {
             return new WP_Error('product_collection_display_order_duplicate', 'Family Display Order must be unique within a Product Family.');
