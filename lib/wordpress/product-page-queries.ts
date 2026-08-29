@@ -35,7 +35,7 @@ import {
   routeTag,
   siteTag,
 } from './cache-tags'
-import {fetchGraphQL} from './client'
+import {fetchGraphQL, GraphQLTimeoutError} from './client'
 import {
   GetSiteProductDetailPageDocument,
   type GetSiteProductDetailPageQuery,
@@ -53,11 +53,16 @@ export const GET_SITE_PRODUCT_FAMILY = GetSiteProductFamilyDocument
 export const GET_SITE_PRODUCT_DETAIL_PAGE = GetSiteProductDetailPageDocument
 
 const REPRESENTATIVE_MODIFIED = '2026-08-29T00:00:00'
-const REPRESENTATIVE_PATHS = new Set([
+const REPRESENTATIVE_PATH_LIST = [
   '/products',
   '/products/coatings',
   '/products/coatings/tp-c120',
-])
+] as const
+const REPRESENTATIVE_PATHS = new Set<string>(REPRESENTATIVE_PATH_LIST)
+const MAX_LAST_VALID_PAGES = REPRESENTATIVE_PATH_LIST.length
+
+// Prototype-only process-local refresh resilience. This bounded store does not
+// promise continuity across workers or process restarts.
 const lastValidPages = new Map<string, ProductExperiencePageDto>()
 
 export interface SerializedCollectionLink {
@@ -708,9 +713,17 @@ function detailFromGraphQL(
 }
 
 function cacheKey(site: SiteConfig, path: string): string {
-  const endpoint =
-    process.env.WORDPRESS_GRAPHQL_URL ?? 'http://localhost:8080/graphql'
-  return `${endpoint}\n${site.id}\n${path}`
+  return `${site.id}\n${path}`
+}
+
+function rememberLastValid(
+  key: string,
+  page: ProductExperiencePageDto,
+): void {
+  if (!lastValidPages.has(key) && lastValidPages.size >= MAX_LAST_VALID_PAGES) {
+    return
+  }
+  lastValidPages.set(key, page)
 }
 
 export async function getSiteProductPage(
@@ -787,10 +800,13 @@ export async function getSiteProductPage(
     } else {
       return null
     }
-    if (page) lastValidPages.set(key, page)
+    if (page) rememberLastValid(key, page)
     return page
   } catch (error) {
-    if (error instanceof ProductPageContractError) {
+    if (
+      error instanceof ProductPageContractError ||
+      error instanceof GraphQLTimeoutError
+    ) {
       const previous = lastValidPages.get(key)
       if (previous) return previous
     }

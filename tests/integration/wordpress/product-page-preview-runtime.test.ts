@@ -1,7 +1,7 @@
 import {createHmac} from 'node:crypto'
 
-import {http, HttpResponse} from 'msw'
-import {beforeEach, describe, expect, it, vi} from 'vitest'
+import {delay, http, HttpResponse} from 'msw'
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import {
@@ -177,6 +177,10 @@ beforeEach(() => {
   process.env.WORDPRESS_PREVIEW_SECRET = 'product-page-preview-secret'
 })
 
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
 describe('getProductPagePreview', () => {
   it.each([
     ['/products', 'hub'],
@@ -262,6 +266,42 @@ describe('getProductPagePreview', () => {
     await expect(
       getProductPagePreview(getSiteConfig('tio2-a'), '/products'),
     ).rejects.toMatchObject({name: PreviewTransportError.name, status: 401})
+  })
+
+  it('aborts a timed-out preview as a typed transport error without stale fallback', async () => {
+    let available = true
+    server.use(http.get(previewEndpoint, async () => {
+      if (available) return HttpResponse.json(envelope('/products'))
+      await delay('infinite')
+      return HttpResponse.json(envelope('/products'))
+    }))
+    await expect(
+      getProductPagePreview(getSiteConfig('tio2-a'), '/products'),
+    ).resolves.toMatchObject({level: 'hub'})
+    available = false
+
+    const nativeTimeout = AbortSignal.timeout.bind(AbortSignal)
+    const timeoutSpy = vi
+      .spyOn(AbortSignal, 'timeout')
+      .mockImplementation(() => nativeTimeout(20))
+    await expect(
+      getProductPagePreview(getSiteConfig('tio2-a'), '/products'),
+    ).rejects.toMatchObject({
+      name: PreviewTransportError.name,
+      message: 'WordPress Product page preview timed out after 8000ms',
+    })
+    expect(timeoutSpy).toHaveBeenCalledWith(8_000)
+  })
+
+  it('wraps a preview network rejection as a typed transport error', async () => {
+    server.use(http.get(previewEndpoint, () => HttpResponse.error()))
+
+    await expect(
+      getProductPagePreview(getSiteConfig('tio2-a'), '/products'),
+    ).rejects.toMatchObject({
+      name: PreviewTransportError.name,
+      message: 'WordPress Product page preview network request failed',
+    })
   })
 
   it('rejects Site B and noncanonical paths before issuing a request', async () => {

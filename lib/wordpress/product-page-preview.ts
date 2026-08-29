@@ -17,6 +17,7 @@ import {
 import {PreviewTransportError} from './preview'
 import {CrossSiteContentError, InvalidContentPathError} from './types'
 
+const PRODUCT_PAGE_PREVIEW_TIMEOUT_MS = 8_000
 const text = z.string()
 const collectionLink = z.object({
   databaseId: z.number().int().positive(),
@@ -285,15 +286,29 @@ export async function getProductPagePreview(
   const signature = createHmac('sha256', secret)
     .update(`${timestamp}\n${site.wordpressScope}\n${canonicalPath}`)
     .digest('hex')
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      'x-tio2-preview-timestamp': timestamp,
-      'x-tio2-preview-signature': signature,
-    },
-    cache: 'no-store',
-  })
+  const signal = AbortSignal.timeout(PRODUCT_PAGE_PREVIEW_TIMEOUT_MS)
+  let response: Response
+  try {
+    response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'x-tio2-preview-timestamp': timestamp,
+        'x-tio2-preview-signature': signature,
+      },
+      cache: 'no-store',
+      signal,
+    })
+  } catch {
+    if (signal.aborted) {
+      throw new PreviewTransportError(
+        `WordPress Product page preview timed out after ${PRODUCT_PAGE_PREVIEW_TIMEOUT_MS}ms`,
+      )
+    }
+    throw new PreviewTransportError(
+      'WordPress Product page preview network request failed',
+    )
+  }
   if (response.status === 404) throw new ProductPagePreviewNotFoundError()
   if (!response.ok) {
     throw new PreviewTransportError(
@@ -305,6 +320,11 @@ export async function getProductPagePreview(
   try {
     payload = await response.json()
   } catch {
+    if (signal.aborted) {
+      throw new PreviewTransportError(
+        `WordPress Product page preview timed out after ${PRODUCT_PAGE_PREVIEW_TIMEOUT_MS}ms`,
+      )
+    }
     throw new PreviewTransportError(
       'WordPress Product page preview response is invalid',
     )

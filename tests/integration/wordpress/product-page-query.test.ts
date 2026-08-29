@@ -1,5 +1,5 @@
 import {delay, http, HttpResponse} from 'msw'
-import {beforeEach, describe, expect, it, vi} from 'vitest'
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import {ProductPageContractError} from '@/lib/products/page-dto'
@@ -8,7 +8,7 @@ import {
   SITE_A_PRODUCT_FAMILIES,
   SITE_A_PRODUCT_IDENTITIES,
 } from '@/lib/products/page-graph'
-import {GraphQLTimeoutError} from '@/lib/wordpress/client'
+import {GraphQLNetworkError, GraphQLTimeoutError} from '@/lib/wordpress/client'
 import {
   productDetailTag,
   productFamilyTag,
@@ -238,8 +238,17 @@ function dataFor(path: string) {
   return {tio2ProductsHub: null}
 }
 
+async function loadFreshProductPageReader() {
+  vi.resetModules()
+  return (await import('@/lib/wordpress/product-page-queries')).getSiteProductPage
+}
+
 beforeEach(() => {
   process.env.WORDPRESS_GRAPHQL_URL = graphqlEndpoint
+})
+
+afterEach(() => {
+  vi.restoreAllMocks()
 })
 
 describe('three-level Product page cache tags', () => {
@@ -355,7 +364,7 @@ describe('getSiteProductPage', () => {
     expect(requests).toBe(1)
   })
 
-  it('fails closed on wrong Site, path, Family, and malformed contracts', async () => {
+  it('fails closed on wrong Site, path, Family, and a first malformed contract', async () => {
     const wrongPath = hubResponse()
     wrongPath.tio2ProductsHub.path = '/products/coatings'
     server.use(http.post(graphqlEndpoint, () => HttpResponse.json({data: wrongPath})))
@@ -372,12 +381,11 @@ describe('getSiteProductPage', () => {
 
     const malformed = familyResponse()
     malformed.tio2ProductFamily.metaTitle = ''
-    process.env.WORDPRESS_GRAPHQL_URL = `${graphqlEndpoint}?malformed-contract=1`
     server.use(http.post(graphqlEndpoint, () => HttpResponse.json({data: malformed})))
+    const freshGetSiteProductPage = await loadFreshProductPageReader()
     await expect(
-      getSiteProductPage(getSiteConfig('tio2-a'), '/products/coatings'),
-    ).rejects.toBeInstanceOf(ProductPageContractError)
-    process.env.WORDPRESS_GRAPHQL_URL = graphqlEndpoint
+      freshGetSiteProductPage(getSiteConfig('tio2-a'), '/products/coatings'),
+    ).rejects.toMatchObject({name: ProductPageContractError.name})
   })
 
   it('preserves the previous valid page when a refresh payload fails validation', async () => {
@@ -395,7 +403,8 @@ describe('getSiteProductPage', () => {
     ).resolves.toBe(first)
   })
 
-  it('preserves the typed GraphQL timeout error', async () => {
+  it('throws the typed GraphQL timeout error when no same-key last-valid exists', async () => {
+    const freshGetSiteProductPage = await loadFreshProductPageReader()
     const nativeTimeout = AbortSignal.timeout.bind(AbortSignal)
     vi.spyOn(AbortSignal, 'timeout').mockImplementation(() => nativeTimeout(20))
     server.use(http.post(graphqlEndpoint, async () => {
@@ -403,8 +412,113 @@ describe('getSiteProductPage', () => {
       return HttpResponse.json({data: hubResponse()})
     }))
     await expect(
-      getSiteProductPage(getSiteConfig('tio2-a'), '/products'),
+      freshGetSiteProductPage(getSiteConfig('tio2-a'), '/products'),
     ).rejects.toMatchObject({name: GraphQLTimeoutError.name, timeoutMs: 8_000})
+  })
+
+  it('returns the same-key last-valid DTO when a public refresh times out', async () => {
+    const freshGetSiteProductPage = await loadFreshProductPageReader()
+    server.use(http.post(graphqlEndpoint, () =>
+      HttpResponse.json({data: familyResponse()}),
+    ))
+    const first = await freshGetSiteProductPage(
+      getSiteConfig('tio2-a'),
+      '/products/coatings',
+    )
+
+    const nativeTimeout = AbortSignal.timeout.bind(AbortSignal)
+    vi.spyOn(AbortSignal, 'timeout').mockImplementation(() => nativeTimeout(20))
+    server.use(http.post(graphqlEndpoint, async () => {
+      await delay('infinite')
+      return HttpResponse.json({data: familyResponse()})
+    }))
+
+    await expect(
+      freshGetSiteProductPage(getSiteConfig('tio2-a'), '/products/coatings'),
+    ).resolves.toBe(first)
+  })
+
+  it('does not reuse last-valid content across canonical paths or Sites', async () => {
+    const freshGetSiteProductPage = await loadFreshProductPageReader()
+    server.use(http.post(graphqlEndpoint, () =>
+      HttpResponse.json({data: familyResponse()}),
+    ))
+    await freshGetSiteProductPage(getSiteConfig('tio2-a'), '/products/coatings')
+
+    const nativeTimeout = AbortSignal.timeout.bind(AbortSignal)
+    vi.spyOn(AbortSignal, 'timeout').mockImplementation(() => nativeTimeout(20))
+    let requests = 0
+    server.use(http.post(graphqlEndpoint, async () => {
+      requests += 1
+      await delay('infinite')
+      return HttpResponse.json({data: hubResponse()})
+    }))
+
+    await expect(
+      freshGetSiteProductPage(getSiteConfig('tio2-a'), '/products'),
+    ).rejects.toMatchObject({name: GraphQLTimeoutError.name})
+    await expect(
+      freshGetSiteProductPage(getSiteConfig('tio2-b'), '/products/coatings'),
+    ).resolves.toBeNull()
+    expect(requests).toBe(1)
+  })
+
+  it('does not swallow a non-timeout transport error after a valid refresh', async () => {
+    const freshGetSiteProductPage = await loadFreshProductPageReader()
+    server.use(http.post(graphqlEndpoint, () =>
+      HttpResponse.json({data: hubResponse()}),
+    ))
+    await freshGetSiteProductPage(getSiteConfig('tio2-a'), '/products')
+    server.use(http.post(graphqlEndpoint, () => HttpResponse.error()))
+
+    await expect(
+      freshGetSiteProductPage(getSiteConfig('tio2-a'), '/products'),
+    ).rejects.toMatchObject({name: GraphQLNetworkError.name})
+  })
+
+  it('does not swallow an unexpected programming error after a valid refresh', async () => {
+    const freshGetSiteProductPage = await loadFreshProductPageReader()
+    server.use(http.post(graphqlEndpoint, () =>
+      HttpResponse.json({data: hubResponse()}),
+    ))
+    await freshGetSiteProductPage(getSiteConfig('tio2-a'), '/products')
+    const programmingError = new TypeError('unexpected platform failure')
+    vi.spyOn(AbortSignal, 'timeout').mockImplementation(() => {
+      throw programmingError
+    })
+
+    await expect(
+      freshGetSiteProductPage(getSiteConfig('tio2-a'), '/products'),
+    ).rejects.toBe(programmingError)
+  })
+
+  it('bounds the prototype store to the three exact representative paths', async () => {
+    const freshGetSiteProductPage = await loadFreshProductPageReader()
+    let requests = 0
+    server.use(http.post(graphqlEndpoint, async ({request}) => {
+      requests += 1
+      const body = (await request.json()) as GraphQLRequestBody
+      const path = body.query?.includes('GetSiteProductsHub')
+        ? '/products'
+        : body.variables?.slug === 'coatings'
+          ? '/products/coatings'
+          : '/products/coatings/tp-c120'
+      return HttpResponse.json({data: dataFor(path)})
+    }))
+
+    for (const path of [
+      '/products',
+      '/products/coatings',
+      '/products/coatings/tp-c120',
+    ]) {
+      await expect(
+        freshGetSiteProductPage(getSiteConfig('tio2-a'), path),
+      ).resolves.not.toBeNull()
+    }
+    await expect(
+      freshGetSiteProductPage(getSiteConfig('tio2-a'), '/products/not-approved'),
+    ).resolves.toBeNull()
+    expect(requests).toBe(3)
   })
 
   it('never issues an accidental Site B Product page query', async () => {
