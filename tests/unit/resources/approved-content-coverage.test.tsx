@@ -12,6 +12,19 @@ import {resolveResourcePresentation} from '@/lib/resources/presentation'
 import approvedResourceManifestJson from '@/tests/fixtures/editorial/site-a-resources.approved.json'
 
 const manifest = approvedResourceManifestJson as unknown as SiteAResourceContentManifest
+const approvedResourceIds = [
+  'resources-hub',
+  'article-01',
+  'article-02',
+  'article-03',
+  'article-04',
+  'article-05',
+  'article-06',
+  'article-07',
+  'article-08',
+  'article-09',
+  'article-10',
+] as const
 
 const resolveTarget: EditorialLinkResolver = (target) => {
   const canonical = resolveCanonicalEditorialTarget(target.type, target.id)
@@ -34,7 +47,16 @@ function resourceFixture(id: string) {
 afterEach(cleanup)
 
 describe('approved Site A Resource content coverage', () => {
-  it.each(manifest.records.map(({identity}) => identity.id))(
+  it('contains the independent canonical eleven-record matrix before rendering', () => {
+    expect(approvedResourceIds).toHaveLength(11)
+    expect(manifest.records).toHaveLength(11)
+    expect(manifest.records.map(({identity}) => identity.id)).toEqual(approvedResourceIds)
+    expect(new Set(manifest.records.map(({identity}) => identity.id))).toEqual(
+      new Set(approvedResourceIds),
+    )
+  })
+
+  it.each(approvedResourceIds)(
     'renders approved %s as a complete, non-clickable review composition',
     (id) => {
       const resource = resourceFixture(id)
