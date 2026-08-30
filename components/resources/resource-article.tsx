@@ -49,7 +49,7 @@ export function ResourceSections({
 }: ResourceSectionsProps) {
   return (
     <article
-      className={styles.page}
+      className={`${styles.resourceExperience} ${styles.page}`}
       data-resource-id={resource.identity.id}
       data-resource-mode={mode}
     >

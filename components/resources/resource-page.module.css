@@ -22,6 +22,10 @@
   font-weight: 500;
 }
 
+.page {
+  composes: resourceExperience;
+}
+
 .textWidth { width: min(calc(100% - 2 * var(--resource-gutter)), 1000px); }
 .mediumWidth { width: min(calc(100% - 2 * var(--resource-gutter)), 1060px); }
 .wideWidth { width: min(calc(100% - 2 * var(--resource-gutter)), 1120px); }

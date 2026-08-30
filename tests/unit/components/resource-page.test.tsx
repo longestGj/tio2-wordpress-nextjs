@@ -164,6 +164,8 @@ describe('TechnicalResourcePageRenderer', () => {
       ]
 
       expect(page?.dataset.resourceMode).toBe(mode)
+      expect(page?.className).toContain('page')
+      expect(page?.className).toContain('resourceExperience')
       expect(orderedSectionNames(page as HTMLElement)).toEqual(expected)
       expect(container.querySelectorAll('h1')).toHaveLength(1)
       expect(
