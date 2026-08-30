@@ -163,6 +163,8 @@ for (const view of catalog) {
 
       const guide = root.locator('[data-resource-section="overview"]')
       await expect(guide).toHaveCount(1)
+      const guideNavigation = guide.locator('nav[aria-label="In this guide"]')
+      await expect(guideNavigation).toHaveCount(1)
       const guideLinks = guide.locator('a[href^="#resource-"]')
       await expect(guideLinks).toHaveCount(view.guide.length)
       const guideItems = await guideLinks.evaluateAll((links) => links.map((link) => ({
@@ -176,8 +178,8 @@ for (const view of catalog) {
         await expect(target).toHaveCount(1)
         await expect(target).toBeVisible()
       }
-      if (viewportId === 'desktop') await expect(guide.locator('nav[aria-label="In this guide"]')).toBeVisible()
-      else await expect(guide.locator('nav[aria-label="In this guide"]')).toBeHidden()
+      if (viewportId === 'desktop') await expect(guideNavigation).toBeVisible()
+      else await expect(guideNavigation).toBeHidden()
 
       const bodySections = root.locator('[data-resource-section="body-sections"] > section[data-resource-body-id]')
       await expect(bodySections).toHaveCount(view.bodySectionCount)
@@ -193,8 +195,42 @@ for (const view of catalog) {
         return box.left >= 0 && box.right <= window.innerWidth
       }))).toBe(true)
 
-      await expect(root.locator('[data-resource-action="request-tds"]')).toHaveCount(view.hasProductRelationship ? 1 : 0)
-      await expect(root.locator('[data-resource-action="discuss-application"]')).toHaveCount(1)
+      const expectedProductNames = view.related.find(
+        ([label]) => label === 'Products',
+      )?.[1] ?? []
+      const expectedCtaLabels = [
+        'Discuss Your Application',
+        ...(view.hasProductRelationship ? ['Request a TDS'] : []),
+      ]
+      const resourceActions = root.locator(
+        '[data-resource-section="cta-group"] [data-resource-action]',
+      )
+      await expect(resourceActions).toHaveCount(expectedCtaLabels.length)
+      await expect(resourceActions.locator('[data-resource-action-label]')).toHaveText(
+        expectedCtaLabels,
+      )
+      expect(
+        await resourceActions.evaluateAll((actions) =>
+          actions.map((action) => ({
+            href: action.getAttribute('href'),
+            tag: action.tagName,
+          })),
+        ),
+      ).toEqual(expectedCtaLabels.map(() => ({href: null, tag: 'SPAN'})))
+      await expect(
+        root.locator('a[href="/contact"], a[href="/request-tds"]'),
+      ).toHaveCount(0)
+      if (view.hasProductRelationship) {
+        await expect(
+          root.locator(
+            '[data-resource-action="request-tds"] [data-resource-product-context]',
+          ),
+        ).toHaveText(
+          `${expectedProductNames.length === 1 ? 'Related Product' : 'Related Products'}: ${expectedProductNames.join(', ')}`,
+        )
+      } else {
+        await expect(root.locator('[data-resource-product-context]')).toHaveCount(0)
+      }
       await expect(root.locator('[data-editorial-section="faq"]')).toHaveCount(1)
       await expect(root.locator('[data-editorial-section="technical-disclaimer"]')).toHaveCount(1)
       expect(errors).toEqual([])

@@ -120,23 +120,55 @@ describe('Site A Resource presentation registry', () => {
 })
 
 describe('Technical Resource presentation policy', () => {
-  it('keeps only discussion CTA on resources without product relationships', () => {
+  it('keeps only a non-interactive discussion CTA on resources without product relationships', () => {
     const hub = resourceFixture('resources-hub')
     const article07 = resourceFixture('article-07')
 
-    expect(selectResourceCtas(hub)).toEqual({
-      discuss: expect.objectContaining({kind: 'discuss-application'}),
+    expect(selectResourceCtas(hub, () => false)).toEqual({
+      discuss: expect.objectContaining({
+        kind: 'discuss-application',
+        label: 'Discuss Your Application',
+        href: null,
+      }),
       requestTds: null,
     })
-    expect(selectResourceCtas(article07).requestTds).toBeNull()
+    expect(selectResourceCtas(article07, () => true).requestTds).toBeNull()
   })
 
-  it('allows a TDS enquiry only when a validated product relationship exists', () => {
+  it('retains a non-interactive TDS label and exact Product context for a closed target', () => {
     const article04 = resourceFixture('article-04')
+    const selected = selectResourceCtas(article04, () => false)
 
-    expect(selectResourceCtas(article04).requestTds).toEqual(
-      expect.objectContaining({kind: 'request-tds'}),
-    )
+    expect(selected.requestTds).toEqual({
+      kind: 'request-tds',
+      label: 'Request a TDS',
+      href: null,
+      productNames: ['Visible product TP-C200', 'Visible product TP-I100'],
+    })
+  })
+
+  it('emits CTA hrefs only when the exact Site A targets are authorized', () => {
+    const article04 = resourceFixture('article-04')
+    const authorizedPaths = new Set(['/contact', '/request-tds'])
+
+    expect(
+      selectResourceCtas(
+        article04,
+        (siteId, path) => siteId === 'tio2-a' && authorizedPaths.has(path),
+      ),
+    ).toEqual({
+      discuss: {
+        kind: 'discuss-application',
+        label: 'Discuss Your Application',
+        href: '/contact',
+      },
+      requestTds: {
+        kind: 'request-tds',
+        label: 'Request a TDS',
+        href: '/request-tds',
+        productNames: ['Visible product TP-C200', 'Visible product TP-I100'],
+      },
+    })
   })
 
   it('groups validated relationships by target type without fabricating href values', () => {

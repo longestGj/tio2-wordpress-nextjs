@@ -112,7 +112,11 @@ afterEach(cleanup)
 
 describe('TechnicalResourcePageRenderer', () => {
   it('composes the Hub around customer questions and approved learning paths', () => {
-    const resource = resourceFixture('resources-hub')
+    const resource = approvedResourceFixture('resources-hub')
+    const boundarySource = resource.sections.find(
+      ({id}) => id === 'why-guides-do-not-replace-testing',
+    )
+    if (!boundarySource) throw new Error('Missing approved Hub boundary source')
     const {container} = render(
       <TechnicalResourcePageRenderer resource={resource} />,
     )
@@ -142,6 +146,33 @@ describe('TechnicalResourcePageRenderer', () => {
     expect(
       container.querySelector('[data-resource-action="request-tds"]'),
     ).toBeNull()
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Choose Your Technical Question',
+      }),
+    ).not.toBeNull()
+
+    const howToUse = container.querySelector<HTMLElement>(
+      '[data-resource-section="how-to-use"]',
+    )
+    const cards = howToUse?.querySelector('ol')
+    const boundary = howToUse?.querySelector<HTMLElement>(
+      '[data-resource-boundary-id="why-guides-do-not-replace-testing"]',
+    )
+    expect(cards?.querySelectorAll(':scope > li')).toHaveLength(3)
+    expect(boundary?.previousElementSibling).toBe(cards)
+    expect(boundary?.querySelector('h3')?.textContent).toBe(
+      boundarySource.heading,
+    )
+    expect(
+      boundary?.querySelector('[data-resource-boundary-html]')?.innerHTML,
+    ).toBe(boundarySource.html)
+    expect(
+      container.querySelector(
+        '[data-resource-section="related-content"] h2',
+      )?.textContent,
+    ).toBe('Related Products and Applications')
   })
 
   it('keeps preview breadcrumbs non-clickable even when the same Resource becomes publicly visible', () => {
@@ -185,7 +216,10 @@ describe('TechnicalResourcePageRenderer', () => {
         <ResourceRelatedContent
           groups={groupResourceRelationships(resource.relationships)}
         />
-        <ResourceEnquiry ctas={selectResourceCtas(resource)} mode={presentation.mode} />
+        <ResourceEnquiry
+          ctas={selectResourceCtas(resource, () => false)}
+          mode={presentation.mode}
+        />
         <ResourceFaq faqs={resource.faqs} />
         <ResourceDisclaimer html={resource.disclaimerHtml} />
       </article>,
@@ -284,9 +318,80 @@ describe('TechnicalResourcePageRenderer', () => {
     expect(container.querySelectorAll('[data-resource-example]')).toHaveLength(2)
     expect(container.querySelector('[data-resource-action="request-tds"]')).not.toBeNull()
     expect(
+      container.querySelector(
+        '[data-resource-section="related-content"] h2',
+      )?.textContent,
+    ).toBe('Related Products, Applications and Resources')
+    expect(
       container.querySelector('[data-resource-body-id="section-5"]')
         ?.nextElementSibling,
     ).toBe(container.querySelector('[data-resource-comparison]'))
+  })
+
+  it('keeps closed preview CTA labels non-interactive and names related Products for TDS context', () => {
+    const resource = approvedResourceFixture('article-04')
+    const {container} = render(
+      <TechnicalResourcePageRenderer
+        preview
+        resource={resource}
+        visibility={() => false}
+      />,
+    )
+    const actions = Array.from(
+      container.querySelectorAll<HTMLElement>('[data-resource-action]'),
+    )
+
+    expect(
+      actions.map(
+        (action) =>
+          action.querySelector('[data-resource-action-label]')?.textContent,
+      ),
+    ).toEqual(['Discuss Your Application', 'Request a TDS'])
+    expect(actions.map(({tagName}) => tagName)).toEqual(['SPAN', 'SPAN'])
+    expect(actions.every((action) => !action.hasAttribute('href'))).toBe(true)
+    expect(
+      container.querySelector(
+        '[data-resource-action="request-tds"] [data-resource-product-context]',
+      )?.textContent,
+    ).toBe(
+      'Related Products: Visible product TP-C200, Visible product TP-I100',
+    )
+    expect(container.querySelector('a[href="/contact"]')).toBeNull()
+    expect(container.querySelector('a[href="/request-tds"]')).toBeNull()
+  })
+
+  it('renders exact CTA anchors when their Site A targets are explicitly authorized', () => {
+    const resource = approvedResourceFixture('article-04')
+    const {container} = render(
+      <TechnicalResourcePageRenderer
+        resource={resource}
+        visibility={(siteId, path) =>
+          siteId === 'tio2-a' &&
+          (path === '/contact' || path === '/request-tds')
+        }
+      />,
+    )
+    const actions = Array.from(
+      container.querySelectorAll<HTMLAnchorElement>('[data-resource-action]'),
+    )
+
+    expect(actions.map(({tagName}) => tagName)).toEqual(['A', 'A'])
+    expect(actions.map((action) => action.getAttribute('href'))).toEqual([
+      '/contact',
+      '/request-tds',
+    ])
+    expect(
+      actions.map(
+        (action) =>
+          action.querySelector('[data-resource-action-label]')?.textContent,
+      ),
+    ).toEqual(['Discuss Your Application', 'Request a TDS'])
+    expect(
+      actions[1]?.querySelector('[data-resource-product-context]')
+        ?.textContent,
+    ).toBe(
+      'Related Products: Visible product TP-C200, Visible product TP-I100',
+    )
   })
 
   it.each(evaluationGuideIds)(
@@ -442,7 +547,7 @@ describe('TechnicalResourcePageRenderer', () => {
   })
 
   it('derives Hub learning-path cards and relationships only from resolved links', () => {
-    const resource = resourceFixture('resources-hub')
+    const resource = approvedResourceFixture('resources-hub')
     const {container} = render(
       <TechnicalResourcePageRenderer resource={resource} />,
     )

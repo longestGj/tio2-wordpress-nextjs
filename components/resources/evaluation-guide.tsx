@@ -84,7 +84,10 @@ export function EvaluationGuide({
       <ResourceMistakes items={resource.commonMistakes} />
       <ResourceEvaluationMethod items={resource.evaluationMethod} />
       <ResourceRelatedContent groups={groupResourceRelationships(resource.relationships)} />
-      <ResourceEnquiry ctas={selectResourceCtas(resource)} mode="evaluation-guide" />
+      <ResourceEnquiry
+        ctas={selectResourceCtas(resource, visibility)}
+        mode="evaluation-guide"
+      />
       <ResourceFaq faqs={resource.faqs} />
       <ResourceDisclaimer html={resource.disclaimerHtml} />
     </article>

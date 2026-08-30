@@ -14,18 +14,21 @@ const views = [
     canonicalPath: '/resources',
     expectedH1: 'Titanium Dioxide Technical Resources',
     expectedMode: 'hub',
+    expectedCtaLabels: ['Discuss Your Application'],
   },
   {
     id: 'alternative-grade-evaluation-guide',
     canonicalPath: '/resources/evaluate-titanium-dioxide-alternative',
     expectedH1: 'How to Evaluate a Titanium Dioxide Alternative Grade',
     expectedMode: 'evaluation-guide',
+    expectedCtaLabels: ['Discuss Your Application'],
   },
   {
     id: 'oil-absorption-technical-explainer',
     canonicalPath: '/resources/titanium-dioxide-oil-absorption',
     expectedH1: 'What Does Oil Absorption Mean in Titanium Dioxide?',
     expectedMode: 'technical-explainer',
+    expectedCtaLabels: ['Discuss Your Application', 'Request a TDS'],
   },
 ] as const
 
@@ -312,6 +315,26 @@ for (const view of views) {
         elements.map((element) => element.getAttribute('data-resource-section') ?? element.getAttribute('data-editorial-section')),
       )
       expect(directSections).toEqual(directSectionOrder[view.id])
+      const resourceActions = root.locator(
+        '[data-resource-section="cta-group"] [data-resource-action]',
+      )
+      await expect(resourceActions).toHaveCount(view.expectedCtaLabels.length)
+      await expect(resourceActions.locator('[data-resource-action-label]')).toHaveText(
+        view.expectedCtaLabels,
+      )
+      expect(
+        await resourceActions.evaluateAll((actions) =>
+          actions.map((action) => ({
+            href: action.getAttribute('href'),
+            tag: action.tagName,
+          })),
+        ),
+      ).toEqual(
+        view.expectedCtaLabels.map(() => ({href: null, tag: 'SPAN'})),
+      )
+      await expect(
+        root.locator('a[href="/contact"], a[href="/request-tds"]'),
+      ).toHaveCount(0)
       await expectTargetHeight(page.locator('header > a[href="#inquiry"]'))
       if (viewport.id === 'mobile') {
         await expectTargetHeight(page.locator('header summary[aria-label="Mobile navigation"]'))
@@ -324,6 +347,29 @@ for (const view of views) {
       for (let index = 0; index < await faqSummaries.count(); index += 1) await expectTargetHeight(faqSummaries.nth(index))
 
       if (view.id === 'resources-hub') {
+        await expect(
+          root.locator('[data-resource-section="topic-picker"] h2'),
+        ).toHaveText('Choose Your Technical Question')
+        const howToUse = root.locator('[data-resource-section="how-to-use"]')
+        const boundary = howToUse.locator(
+          '[data-resource-boundary-id="why-guides-do-not-replace-testing"]',
+        )
+        await expect(howToUse.locator('ol > li')).toHaveCount(3)
+        await expect(boundary).toHaveCount(1)
+        await expect(boundary.locator('h3')).toHaveText(
+          'Why a Guide Does Not Replace Application Testing',
+        )
+        await expect(boundary.locator('[data-resource-boundary-html]')).toHaveText(
+          'Observed results remain specific to the complete system. Resin or binder, additives, loading, dispersion, processing conditions, specimen construction and the agreed test method can change the outcome.',
+        )
+        expect(
+          await boundary.evaluate(
+            (element) => element.previousElementSibling?.tagName,
+          ),
+        ).toBe('OL')
+        await expect(
+          root.locator('[data-resource-section="related-content"] h2'),
+        ).toHaveText('Related Products and Applications')
         const paths = root.locator('[data-resource-learning-path]')
         await expect(paths).toHaveCount(4)
         for (const [index, [id, heading, cardIds]] of hubPaths.entries()) {
@@ -363,8 +409,15 @@ for (const view of views) {
         await expect(root.locator('[data-resource-action="request-tds"]')).toHaveCount(0)
         await expectTargetHeight(root.locator('[data-resource-action="discuss-application"]'))
       } else {
+        await expect(
+          root.locator('[data-resource-section="related-content"] h2'),
+        ).toHaveText('Related Products, Applications and Resources')
         const guide = root.locator('[data-resource-section="overview"]')
         await expect(guide).toBeVisible()
+        const guideNavigation = guide.locator(
+          'nav[aria-label="In this guide"]',
+        )
+        await expect(guideNavigation).toHaveCount(1)
         const fragments = await guide.locator('a[href^="#"]').evaluateAll((links) => links.map((link) => link.getAttribute('href')))
         expect(fragments).toEqual(guideFragments[view.id])
         for (const fragment of fragments) {
@@ -380,7 +433,7 @@ for (const view of views) {
           }
           expect(await guide.evaluate((element) => element.getBoundingClientRect().height)).toBeLessThan(560)
         } else {
-          await expect(guide.locator('nav[aria-label="On this page"]')).toBeHidden()
+          await expect(guideNavigation).toBeHidden()
         }
       }
 
@@ -469,15 +522,21 @@ for (const view of views) {
         await expect(root.locator('[data-resource-section="overview"] a')).toHaveText(article04GuideLabels)
         const ctas = root.locator('[data-resource-section="cta-group"] [data-resource-action]')
         await expect(ctas).toHaveCount(2)
-        await expect(ctas).toHaveText(['Discuss Your Application', 'Request a TDS'])
+        await expect(ctas.locator('[data-resource-action-label]')).toHaveText([
+          'Discuss Your Application',
+          'Request a TDS',
+        ])
         expect(await ctas.evaluateAll((actions) => actions.map((action) => ({
           action: action.getAttribute('data-resource-action'),
           href: action.getAttribute('href'),
           tag: action.tagName,
         })))).toEqual([
-          {action: 'discuss-application', href: '/contact', tag: 'A'},
-          {action: 'request-tds', href: '/request-tds', tag: 'A'},
+          {action: 'discuss-application', href: null, tag: 'SPAN'},
+          {action: 'request-tds', href: null, tag: 'SPAN'},
         ])
+        await expect(
+          ctas.nth(1).locator('[data-resource-product-context]'),
+        ).toHaveText('Related Products: TP-C200, TP-I100')
         await expectTargetHeight(ctas.nth(0))
         await expectTargetHeight(ctas.nth(1))
         await expectRelatedLabels(root, 'Products', ['TP-C200', 'TP-I100'])

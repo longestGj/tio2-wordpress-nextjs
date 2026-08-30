@@ -75,7 +75,10 @@ export function TechnicalExplainer({
       <ResourceMistakes items={resource.commonMistakes} />
       <ResourceEvaluationMethod items={resource.evaluationMethod} />
       <ResourceRelatedContent groups={groupResourceRelationships(resource.relationships)} />
-      <ResourceEnquiry ctas={selectResourceCtas(resource)} mode="technical-explainer" />
+      <ResourceEnquiry
+        ctas={selectResourceCtas(resource, visibility)}
+        mode="technical-explainer"
+      />
       <ResourceFaq faqs={resource.faqs} />
       <ResourceDisclaimer html={resource.disclaimerHtml} />
     </article>

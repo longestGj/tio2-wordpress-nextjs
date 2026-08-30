@@ -115,6 +115,25 @@ describe('approved Site A Resource content coverage', () => {
       expect(page?.querySelector('[data-resource-action="request-tds"]') !== null).toBe(
         hasProductRelationship,
       )
+      expect(
+        Array.from(
+          page?.querySelectorAll<HTMLElement>('[data-resource-action-label]') ?? [],
+        ).map(({textContent}) => textContent),
+      ).toEqual([
+        'Discuss Your Application',
+        ...(hasProductRelationship ? ['Request a TDS'] : []),
+      ])
+      expect(page?.querySelectorAll('[data-resource-section="cta-group"] a')).toHaveLength(0)
+      if (hasProductRelationship) {
+        const productNames = resource.relationships
+          .filter(({type}) => type === 'product')
+          .map(({title}) => title)
+        expect(
+          page?.querySelector('[data-resource-product-context]')?.textContent,
+        ).toBe(
+          `${productNames.length === 1 ? 'Related Product' : 'Related Products'}: ${productNames.join(', ')}`,
+        )
+      }
       expect(page?.querySelector('[data-resource-section="related-content"] a')).toBeNull()
     },
   )

@@ -106,9 +106,12 @@
 .enquiryPanel h3 { color: var(--resource-white); font-size: 1.15rem; }
 .enquiryPanel ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem 1.5rem; margin-top: 1rem; padding-left: 1.25rem; color: #e6e8ec; line-height: 1.45; }
 .ctaActions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
-.primaryCta, .secondaryCta { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; padding: 0.65rem 1rem; border: 1px solid var(--resource-white); font-size: 0.9rem; font-weight: 700; text-decoration: none; }
+.primaryCta, .secondaryCta { display: inline-flex; min-height: 44px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 0.2rem; padding: 0.65rem 1rem; border: 1px solid var(--resource-white); font-size: 0.9rem; font-weight: 700; text-decoration: none; }
+.primaryCta strong, .secondaryCta strong { font: inherit; }
+.primaryCta small, .secondaryCta small { font-size: 0.72rem; font-weight: 500; line-height: 1.35; }
 .primaryCta { background: var(--resource-white); color: var(--resource-navy) !important; }
 .secondaryCta { color: var(--resource-white) !important; }
+.unavailableCta { cursor: default; opacity: 0.82; }
 
 .faqList { margin-top: 1.5rem; border-top: 1px solid var(--resource-silver); }
 .faqList details { border-bottom: 1px solid var(--resource-silver); }
@@ -178,6 +181,9 @@
 .howToUse li { min-height: 10rem; background: var(--resource-white); padding: 1.2rem; }
 .howToUse h3 { margin-top: 0.85rem; color: var(--resource-navy); font-size: 1.1rem; }
 .howToUse li p { margin-top: 0.55rem !important; color: var(--resource-muted); font-size: 0.88rem; line-height: 1.5; }
+.hubBoundary { display: grid; grid-template-columns: minmax(12rem, 0.7fr) minmax(0, 1.3fr); gap: clamp(1.25rem, 4vw, 3rem); margin-top: 1.5rem; border: 1px solid var(--resource-silver); border-left: 4px solid var(--resource-navy); background: var(--resource-white); padding: 1.25rem; }
+.hubBoundary h3 { color: var(--resource-navy); font-size: 1.15rem; line-height: 1.3; }
+.hubBoundary .richText { margin: 0; color: var(--resource-muted); font-size: 0.88rem; line-height: 1.55; }
 
 .hubMistakes { background: var(--resource-navy); color: var(--resource-white); padding-block: clamp(3rem, 6vw, 5rem); }
 .hubMistakes > div { margin-inline: auto; }
@@ -196,6 +202,7 @@
   .exampleList { grid-template-columns: 1fr; }
   .topicList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .learningPath { grid-template-columns: 1fr; gap: 1.5rem; }
+  .hubBoundary { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 700px) {

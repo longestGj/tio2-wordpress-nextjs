@@ -13,7 +13,7 @@ import type {TechnicalResourcePageInput} from '@/lib/resources/schema'
 import type {TechnicalResourcePageDto} from '@/lib/resources/types'
 import {resourceIdentityForPath} from '@/lib/wordpress/resource-queries'
 import {getSiteConfig} from '@/sites'
-import resourceManifestJson from '@/tests/fixtures/editorial/site-a-resources.synthetic.json'
+import resourceManifestJson from '@/tests/fixtures/editorial/site-a-resources.approved.json'
 
 vi.mock('next/font/google', () => ({
   Source_Sans_3: () => ({variable: 'source-sans-font'}),

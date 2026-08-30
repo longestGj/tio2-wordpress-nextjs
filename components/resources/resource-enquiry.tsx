@@ -4,6 +4,7 @@ import type {selectResourceCtas} from '@/lib/resources/presentation-policy'
 import styles from './resource-page.module.css'
 
 type ResourceCtaSelection = ReturnType<typeof selectResourceCtas>
+type ResourceCta = NonNullable<ResourceCtaSelection['discuss']>
 
 const usefulInputsByMode: Readonly<Record<ResourcePresentationMode, readonly string[]>> = {
   hub: [
@@ -24,6 +25,43 @@ const usefulInputsByMode: Readonly<Record<ResourcePresentationMode, readonly str
     'Process conditions and current result',
     'Test methods and acceptance limits',
   ],
+}
+
+function ResourceAction({
+  cta,
+  primary,
+  productNames = [],
+}: {
+  readonly cta: ResourceCta
+  readonly primary: boolean
+  readonly productNames?: readonly string[]
+}): React.ReactNode {
+  const className = `${primary ? styles.primaryCta : styles.secondaryCta} ${
+    cta.href ? '' : styles.unavailableCta
+  }`
+  const content = (
+    <>
+      <strong data-resource-action-label>{cta.label}</strong>
+      {productNames.length > 0 ? (
+        <small data-resource-product-context>
+          {productNames.length === 1 ? 'Related Product' : 'Related Products'}:{' '}
+          {productNames.join(', ')}
+        </small>
+      ) : null}
+    </>
+  )
+  const attributes = {
+    className,
+    'data-resource-action': cta.kind,
+  } as const
+
+  return cta.href ? (
+    <a {...attributes} href={cta.href}>
+      {content}
+    </a>
+  ) : (
+    <span {...attributes}>{content}</span>
+  )
 }
 
 export function ResourceEnquiry({
@@ -57,21 +95,13 @@ export function ResourceEnquiry({
           ))}
         </ul>
         <div className={styles.ctaActions}>
-          <a
-            className={styles.primaryCta}
-            data-resource-action="discuss-application"
-            href={ctas.discuss.href}
-          >
-            {ctas.discuss.label}
-          </a>
+          <ResourceAction cta={ctas.discuss} primary />
           {ctas.requestTds ? (
-            <a
-              className={styles.secondaryCta}
-              data-resource-action="request-tds"
-              href={ctas.requestTds.href}
-            >
-              {ctas.requestTds.label}
-            </a>
+            <ResourceAction
+              cta={ctas.requestTds}
+              primary={false}
+              productNames={ctas.requestTds.productNames}
+            />
           ) : null}
         </div>
       </div>

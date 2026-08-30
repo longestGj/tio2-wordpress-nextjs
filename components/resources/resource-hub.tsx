@@ -35,7 +35,7 @@ function ResourceTopicPicker({
       data-resource-section="topic-picker"
     >
       <p className={styles.eyebrow}>Find the right guide</p>
-      <h2 id="resource-topic-picker-heading">Choose a Titanium Dioxide Topic</h2>
+      <h2 id="resource-topic-picker-heading">Choose Your Technical Question</h2>
       <p className={styles.topicPickerIntro}>
         Start with the question you are trying to answer before comparing data,
         planning a trial or framing an application test.
@@ -53,7 +53,11 @@ function ResourceTopicPicker({
   )
 }
 
-function ResourceHowToUse(): React.ReactNode {
+function ResourceHowToUse({
+  boundary,
+}: {
+  readonly boundary: TechnicalResourcePageDto['sections'][number]
+}): React.ReactNode {
   return (
     <section
       aria-labelledby="resource-how-to-use-heading"
@@ -72,6 +76,17 @@ function ResourceHowToUse(): React.ReactNode {
             </li>
           ))}
         </ol>
+        <div
+          className={styles.hubBoundary}
+          data-resource-boundary-id={boundary.id}
+        >
+          <h3>{boundary.heading}</h3>
+          <div
+            className={styles.richText}
+            data-resource-boundary-html
+            dangerouslySetInnerHTML={{__html: boundary.html}}
+          />
+        </div>
       </div>
     </section>
   )
@@ -112,7 +127,10 @@ export function ResourceHub({
   readonly visibility: ResourceVisibility
 }): React.ReactNode {
   const presentation = resolveResourcePresentation(resource.identity.id)
-  if (!presentation || presentation.mode !== 'hub') return null
+  const boundary = resource.sections.find(
+    ({id}) => id === 'why-guides-do-not-replace-testing',
+  )
+  if (!presentation || presentation.mode !== 'hub' || !boundary) return null
 
   return (
     <article
@@ -131,12 +149,16 @@ export function ResourceHub({
       <ResourceHero resource={resource} presentation={presentation} />
       <ResourceTopicPicker labels={presentation.decisionSteps} resource={resource} />
       <ResourceLearningPaths links={resource.children} />
-      <ResourceHowToUse />
+      <ResourceHowToUse boundary={boundary} />
       <ResourceHubMistakes items={resource.commonMistakes} />
       <ResourceRelatedContent
         groups={groupResourceRelationships(resource.relationships)}
+        heading="Related Products and Applications"
       />
-      <ResourceEnquiry ctas={selectResourceCtas(resource)} mode="hub" />
+      <ResourceEnquiry
+        ctas={selectResourceCtas(resource, visibility)}
+        mode="hub"
+      />
       <ResourceFaq faqs={resource.faqs} />
       <ResourceDisclaimer html={resource.disclaimerHtml} />
     </article>

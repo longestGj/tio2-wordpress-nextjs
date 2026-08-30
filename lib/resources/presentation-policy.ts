@@ -1,14 +1,35 @@
 import type {EditorialLink} from '@/lib/editorial/types'
+import type {ResourceVisibility} from '@/lib/seo/resource-jsonld'
 
 import type {ResourcePresentation} from './presentation'
 import type {TechnicalResourcePageDto} from './types'
 
-export function selectResourceCtas(resource: TechnicalResourcePageDto) {
-  const discuss =
+export function selectResourceCtas(
+  resource: TechnicalResourcePageDto,
+  visible: ResourceVisibility,
+) {
+  const discussSource =
     resource.ctas.find(({kind}) => kind === 'discuss-application') ?? null
-  const hasProduct = resource.relationships.some(({type}) => type === 'product')
-  const requestTds = hasProduct
+  const discuss = discussSource
+    ? {
+        ...discussSource,
+        href: visible('tio2-a', discussSource.href) ? discussSource.href : null,
+      }
+    : null
+  const products = resource.relationships.filter(
+    ({type}) => type === 'product',
+  )
+  const requestTdsSource = products.length > 0
     ? resource.ctas.find(({kind}) => kind === 'request-tds') ?? null
+    : null
+  const requestTds = requestTdsSource
+    ? {
+        ...requestTdsSource,
+        href: visible('tio2-a', requestTdsSource.href)
+          ? requestTdsSource.href
+          : null,
+        productNames: products.map(({title}) => title),
+      }
     : null
 
   return {discuss, requestTds} as const

@@ -25,8 +25,12 @@ function RelatedItem({
 
 export function ResourceRelatedContent({
   groups,
+  heading = 'Related Products, Applications and Resources',
 }: {
   readonly groups: RelationshipGroups
+  readonly heading?:
+    | 'Related Products and Applications'
+    | 'Related Products, Applications and Resources'
 }): React.ReactNode {
   const grouped = [
     {label: 'Products', links: groups.products},
@@ -41,9 +45,7 @@ export function ResourceRelatedContent({
       data-resource-section="related-content"
     >
       <p className={styles.eyebrow}>Continue the technical evaluation</p>
-      <h2 id="resource-related-content-heading">
-        Related Products, Applications and Resources
-      </h2>
+      <h2 id="resource-related-content-heading">{heading}</h2>
       <div className={styles.relatedGroups}>
         {grouped.map(({label, links}) =>
           links.length > 0 ? (
