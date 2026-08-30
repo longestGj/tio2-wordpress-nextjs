@@ -1,11 +1,17 @@
 # Site A Technical Resources Page System Production Design
 
-**Date:** 2026-08-30  
-**Status:** Ready for user review  
-**Site:** Site A — TIOVAR main brand site  
-**Language / market:** English / Global B2B  
-**Visual authority:** approved representative prototype in `docs/prototypes/site-a-resources/`  
-**Content authority:** `D:\11SEO\01ComInfo\outputs\site-a-resources-v0.1.json`  
+**Date:** 2026-08-30
+
+**Status:** Ready for user review
+
+**Site:** Site A — TIOVAR main brand site
+
+**Language / market:** English / Global B2B
+
+**Visual authority:** approved representative prototype in `docs/prototypes/site-a-resources/`
+
+**Content authority:** `D:\11SEO\01ComInfo\outputs\site-a-resources-v0.1.json`
+
 **Validated content SHA-256:** `79b1db75441861ff2ae8db5bb284cc20887bd9134802b7d6b296b9d377d100ec`
 
 ## 1. Decision summary
@@ -90,21 +96,24 @@ Unknown IDs must not fall through to an arbitrary article template. They fail va
 
 ### 5.1 Resources Hub
 
-**Owns:** discovery by customer question, educational orientation, and the four learning paths.  
+**Owns:** discovery by customer question, educational orientation, and the four learning paths.
+
 **Does not own:** product ranking, one-click grade recommendation, application-specific formulation selection, or a chronological article feed.
 
 The Hub answers: “Which type of technical question am I trying to solve, and which guide should I read next?”
 
 ### 5.2 Technical Explainer
 
-**Owns:** definitions, interpretation, limitations, system implications, comparisons, misconceptions, and practical validation.  
+**Owns:** definitions, interpretation, limitations, system implications, comparisons, misconceptions, and practical validation.
+
 **Does not own:** detailed end-use selection already covered by Applications, or SKU fit/evidence already covered by Products.
 
 The Explainer answers: “What does this concept or metric mean, what can it tell me, and what can it not prove?”
 
 ### 5.3 Evaluation Guide
 
-**Owns:** problem definition, required inputs, controls, staged testing, measurements, decision criteria, failure modes, adjustment boundaries, and approval steps.  
+**Owns:** problem definition, required inputs, controls, staged testing, measurements, decision criteria, failure modes, adjustment boundaries, and approval steps.
+
 **Does not own:** unsupported equivalence, universal rankings, or a claim that a powder specification proves finished-product performance.
 
 The Evaluation Guide answers: “How do I establish a fair and executable test plan for this decision?”
