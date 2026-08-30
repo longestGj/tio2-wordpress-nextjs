@@ -11,7 +11,10 @@ import {
   groupResourceRelationships,
   selectResourceCtas,
 } from '@/lib/resources/presentation-policy'
-import {buildResourceBreadcrumbItems} from '@/lib/seo/resource-jsonld'
+import {
+  buildResourceBreadcrumbItems,
+  type ResourceVisibility,
+} from '@/lib/seo/resource-jsonld'
 import {getSiteConfig} from '@/sites'
 import type {TechnicalResourcePageDto} from '@/lib/resources/types'
 
@@ -101,8 +104,10 @@ function ResourceHubMistakes({items}: {readonly items: readonly string[]}): Reac
 
 export function ResourceHub({
   resource,
+  visibility,
 }: {
   readonly resource: TechnicalResourcePageDto
+  readonly visibility: ResourceVisibility
 }): React.ReactNode {
   const presentation = resolveResourcePresentation(resource.identity.id)
   if (!presentation || presentation.mode !== 'hub') return null
@@ -117,7 +122,7 @@ export function ResourceHub({
         items={buildResourceBreadcrumbItems(
           resource,
           getSiteConfig('tio2-a'),
-          () => false,
+          visibility,
         )}
       />
       <ResourceHero resource={resource} presentation={presentation} />

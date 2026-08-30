@@ -11,6 +11,7 @@ import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {resolveResourcePresentation} from '@/lib/resources/presentation'
 import {technicalResourcePageInputSchema} from '@/lib/resources/schema'
 import type {TechnicalResourcePageDto} from '@/lib/resources/types'
+import type {ResourceVisibility} from '@/lib/seo/resource-jsonld'
 
 import {EvaluationGuide} from './evaluation-guide'
 import {ResourceHub} from './resource-hub'
@@ -19,6 +20,7 @@ import {TechnicalExplainer} from './technical-explainer'
 
 interface TechnicalResourcePageRendererProps {
   readonly resource: TechnicalResourcePageDto
+  readonly visibility?: ResourceVisibility
 }
 
 const resourceIdentityById = new Map<
@@ -224,6 +226,7 @@ export function isValidatedTechnicalResourcePageDto(
 
 export function TechnicalResourcePageRenderer({
   resource,
+  visibility = () => false,
 }: TechnicalResourcePageRendererProps) {
   if (!isValidatedTechnicalResourcePageDto(resource)) return null
   const presentation = resolveResourcePresentation(resource.identity.id)
@@ -231,14 +234,24 @@ export function TechnicalResourcePageRenderer({
   const rendered = (() => {
     switch (presentation.mode) {
       case 'hub':
-        return resource.identity.kind === 'hub' ? <ResourceHub resource={resource} /> : null
+        return resource.identity.kind === 'hub' ? (
+          <ResourceHub resource={resource} visibility={visibility} />
+        ) : null
       case 'technical-explainer':
         return resource.identity.kind === 'article' ? (
-          <TechnicalExplainer presentation={presentation} resource={resource} />
+          <TechnicalExplainer
+            presentation={presentation}
+            resource={resource}
+            visibility={visibility}
+          />
         ) : null
       case 'evaluation-guide':
         return resource.identity.kind === 'article' ? (
-          <EvaluationGuide presentation={presentation} resource={resource} />
+          <EvaluationGuide
+            presentation={presentation}
+            resource={resource}
+            visibility={visibility}
+          />
         ) : null
       default: {
         const unsupportedMode: never = presentation.mode

@@ -21,7 +21,10 @@ import {
   selectResourceCtas,
   visibleBodySections,
 } from '@/lib/resources/presentation-policy'
-import {buildResourceBreadcrumbItems} from '@/lib/seo/resource-jsonld'
+import {
+  buildResourceBreadcrumbItems,
+  type ResourceVisibility,
+} from '@/lib/seo/resource-jsonld'
 import {getSiteConfig} from '@/sites'
 import type {TechnicalResourcePageDto} from '@/lib/resources/types'
 
@@ -33,9 +36,11 @@ import {ResourceStageFramework} from './resource-stage-framework'
 export function EvaluationGuide({
   resource,
   presentation,
+  visibility,
 }: {
   readonly resource: TechnicalResourcePageDto
   readonly presentation: ResourcePresentation
+  readonly visibility: ResourceVisibility
 }): React.ReactNode {
   const isArticle07 = resource.identity.id === 'article-07'
   const comparison = hasVisibleComparison(resource, presentation) ? (
@@ -58,7 +63,7 @@ export function EvaluationGuide({
         items={buildResourceBreadcrumbItems(
           resource,
           getSiteConfig('tio2-a'),
-          () => false,
+          visibility,
         )}
       />
       <ResourceHero presentation={presentation} resource={resource} />

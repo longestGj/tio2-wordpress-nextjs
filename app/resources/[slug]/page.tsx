@@ -82,7 +82,10 @@ export default async function ResourcePage(props: ResourceRouteProps) {
         />
       }
     >
-      <TechnicalResourcePageRenderer resource={resource} />
+      <TechnicalResourcePageRenderer
+        resource={resource}
+        visibility={isPublicRoute}
+      />
     </SiteABrandShell>
   )
 }

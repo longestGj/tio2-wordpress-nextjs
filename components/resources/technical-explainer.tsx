@@ -18,7 +18,10 @@ import {
   selectResourceCtas,
   visibleBodySections,
 } from '@/lib/resources/presentation-policy'
-import {buildResourceBreadcrumbItems} from '@/lib/seo/resource-jsonld'
+import {
+  buildResourceBreadcrumbItems,
+  type ResourceVisibility,
+} from '@/lib/seo/resource-jsonld'
 import {getSiteConfig} from '@/sites'
 import type {TechnicalResourcePageDto} from '@/lib/resources/types'
 
@@ -28,9 +31,11 @@ import styles from './resource-page.module.css'
 export function TechnicalExplainer({
   resource,
   presentation,
+  visibility,
 }: {
   readonly resource: TechnicalResourcePageDto
   readonly presentation: ResourcePresentation
+  readonly visibility: ResourceVisibility
 }): React.ReactNode {
   const comparison = hasVisibleComparison(resource, presentation) ? (
     <ComparisonTable
@@ -50,7 +55,7 @@ export function TechnicalExplainer({
         items={buildResourceBreadcrumbItems(
           resource,
           getSiteConfig('tio2-a'),
-          () => false,
+          visibility,
         )}
       />
       <ResourceHero presentation={presentation} resource={resource} />

@@ -60,7 +60,10 @@ export default async function ResourcesPage() {
         />
       }
     >
-      <TechnicalResourcePageRenderer resource={resource} />
+      <TechnicalResourcePageRenderer
+        resource={resource}
+        visibility={isPublicRoute}
+      />
     </SiteABrandShell>
   )
 }

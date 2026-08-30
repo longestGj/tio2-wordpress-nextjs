@@ -66,7 +66,7 @@ export default async function ResourceHubPreviewPage() {
   const {resource, site} = await loadResourceHubPreviewPage()
   return (
     <SiteABrandShell site={site} inquiryHref="#inquiry" structuredData={null}>
-      <TechnicalResourcePageRenderer resource={resource} />
+      <TechnicalResourcePageRenderer resource={resource} visibility={() => false} />
     </SiteABrandShell>
   )
 }

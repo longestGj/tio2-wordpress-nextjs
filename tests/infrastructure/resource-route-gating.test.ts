@@ -244,6 +244,55 @@ describe('public Technical Resource route gates', () => {
     expect(markup).toContain('data-resource-mode="technical-explainer"')
   })
 
+  it('uses the public route visibility source for rendered and structured Article breadcrumbs', async () => {
+    const identity = SITE_A_RESOURCE_IDENTITIES[1]
+    const resource = canonicalFixture(identity)
+    const {slug} = await loadPublicRoutes({
+      approvedPaths: ['/resources', identity[2]],
+      resource,
+    })
+
+    const markup = renderToStaticMarkup(
+      await slug.default({params: Promise.resolve({slug: identity[1]})}),
+    )
+    const serializedJsonLd = markup.match(
+      /<script type="application\/ld\+json">(.*?)<\/script>/u,
+    )?.[1]
+    if (!serializedJsonLd) throw new Error('Expected public Resource JSON-LD')
+    const jsonLd = JSON.parse(serializedJsonLd) as Array<{
+      '@type': string
+      itemListElement?: Array<{name: string; item?: string}>
+    }>
+    const breadcrumbs = jsonLd.find(
+      (node) => node['@type'] === 'BreadcrumbList',
+    )
+
+    expect(markup).toContain('<a href="/resources">Technical Resources</a>')
+    expect(markup).toContain(
+      `<a aria-current="page" href="${identity[2]}">${resource.identity.title}</a>`,
+    )
+    expect(breadcrumbs?.itemListElement).toEqual([
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://tio2products.com/',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Technical Resources',
+        item: 'https://tio2products.com/resources',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: resource.identity.title,
+        item: `https://tio2products.com${identity[2]}`,
+      },
+    ])
+  })
+
   it('rejects schema-valid but runtime-invalid Article and Hub DTOs before metadata or page output', async () => {
     const articleIdentity = SITE_A_RESOURCE_IDENTITIES[1]
     const unsafeArticle = canonicalFixture(articleIdentity, (input) => {
@@ -322,6 +371,7 @@ describe('protected Technical Resource previews', () => {
     expect(hubMarkup).toContain('data-resource-mode="hub"')
     expect(hubMarkup).toContain('aria-label="TIOVAR sections"')
     expect(hubMarkup).not.toContain('application/ld+json')
+    expect(hubMarkup).not.toContain('<a href="/resources">')
     const hubMetadata = await hubRuntime.hub.generateMetadata()
     expect(hubMetadata).toEqual({
       title: hubResource.seo.title,
@@ -350,6 +400,7 @@ describe('protected Technical Resource previews', () => {
     expect(articleMarkup).toContain('data-resource-mode="technical-explainer"')
     expect(articleMarkup).toContain('aria-label="TIOVAR sections"')
     expect(articleMarkup).not.toContain('application/ld+json')
+    expect(articleMarkup).not.toContain(`<a href="${articleIdentity[2]}">`)
     const articleMetadata = await articleRuntime.slug.generateMetadata({
       params: Promise.resolve({slug: articleIdentity[1]}),
     })
