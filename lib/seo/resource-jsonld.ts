@@ -9,11 +9,48 @@ import {htmlToPlainText} from './text'
 export type ResourceJsonLdNode = JsonLdObject
 export type ResourceVisibility = (siteId: SiteId, path: string) => boolean
 
+export interface ResourceBreadcrumbItem {
+  readonly title: string
+  readonly path: string
+  readonly href: string | null
+  readonly current: boolean
+}
+
 function safeText(value: string, maximumLength?: number): string {
   return htmlToPlainText(
     value,
     maximumLength ?? Math.max(Array.from(value).length, 1),
   ).replace(/\s+([,.;:!?])/gu, '$1')
+}
+
+export function buildResourceBreadcrumbItems(
+  resource: TechnicalResourcePageDto,
+  site: SiteConfig,
+  visible: ResourceVisibility = isPublicRoute,
+): ResourceBreadcrumbItem[] {
+  const current = {
+    title: resource.identity.title,
+    path: resource.identity.path,
+    href: visible(site.id, resource.identity.path)
+      ? resource.identity.path
+      : null,
+    current: true,
+  } as const
+
+  return [
+    {title: 'Home', path: '/', href: '/', current: false},
+    ...(resource.identity.kind === 'article'
+      ? [
+          {
+            title: 'Technical Resources',
+            path: '/resources',
+            href: visible(site.id, '/resources') ? '/resources' : null,
+            current: false,
+          },
+        ]
+      : []),
+    current,
+  ]
 }
 
 function visibleBreadcrumbs(
@@ -22,12 +59,9 @@ function visibleBreadcrumbs(
   canonical: string,
   visible: ResourceVisibility,
 ): ResourceJsonLdNode {
-  const candidates = [
-    ...(resource.identity.kind === 'article'
-      ? [{name: 'Technical Resources', path: '/resources'}]
-      : []),
-    {name: resource.identity.title, path: resource.identity.path},
-  ].filter((item) => visible(site.id, item.path))
+  const items = buildResourceBreadcrumbItems(resource, site, visible).filter(
+    (item) => item.href !== null,
+  )
 
   return {
     '@context': 'https://schema.org',
@@ -40,10 +74,10 @@ function visibleBreadcrumbs(
         name: 'Home',
         item: new URL('/', site.url).href,
       },
-      ...candidates.map((item, index) => ({
+      ...items.slice(1).map((item, index) => ({
         '@type': 'ListItem',
         position: index + 2,
-        name: safeText(item.name, 180),
+        name: safeText(item.title, 180),
         item: new URL(item.path, site.url).href,
       })),
     ],

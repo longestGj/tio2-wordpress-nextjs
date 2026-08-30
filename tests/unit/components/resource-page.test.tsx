@@ -4,10 +4,20 @@ import {cleanup, render, screen, within} from '@testing-library/react'
 import {afterEach, describe, expect, it} from 'vitest'
 
 import {TechnicalResourcePageRenderer} from '@/components/resources/technical-resource-page'
+import {ResourceBody, ResourceDisclaimer, ResourceFaq} from '@/components/resources/resource-body'
+import {ResourceBreadcrumbs} from '@/components/resources/resource-breadcrumbs'
+import {ResourceEnquiry} from '@/components/resources/resource-enquiry'
+import {ResourceHero} from '@/components/resources/resource-hero'
+import {ResourceOverview} from '@/components/resources/resource-overview'
+import {ResourceRelatedContent} from '@/components/resources/resource-related-content'
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import type {EditorialLinkResolver} from '@/lib/editorial/types'
 import type {SiteAResourceContentManifest} from '@/lib/resources/content-manifest'
 import {toTechnicalResourcePageDto} from '@/lib/resources/dto'
+import {groupResourceRelationships, selectResourceCtas} from '@/lib/resources/presentation-policy'
+import {resolveResourcePresentation} from '@/lib/resources/presentation'
+import {buildResourceBreadcrumbItems} from '@/lib/seo/resource-jsonld'
+import {getSiteConfig} from '@/sites'
 import type {TechnicalResourcePageInput} from '@/lib/resources/schema'
 import type {TechnicalResourcePageDto} from '@/lib/resources/types'
 import resourceManifestJson from '@/tests/fixtures/editorial/site-a-resources.synthetic.json'
@@ -56,15 +66,75 @@ function mutateFixture(
 }
 
 function orderedSectionNames(container: HTMLElement) {
-  return Array.from(container.querySelectorAll<HTMLElement>('section')).map(
-    (section) =>
-      section.dataset.resourceSection ?? section.dataset.editorialSection,
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(
+      '[data-resource-section], [data-editorial-section]',
+    ),
+  ).map(
+    (element) =>
+      element.dataset.resourceSection ?? element.dataset.editorialSection,
   )
 }
 
 afterEach(cleanup)
 
 describe('TechnicalResourcePageRenderer', () => {
+  it('renders the shared compact article frame with semantic boundaries', () => {
+    const resource = resourceFixture('article-01')
+    const presentation = resolveResourcePresentation(resource.identity.id)
+    if (!presentation) throw new Error('Expected article presentation')
+    const {container} = render(
+      <article>
+        <ResourceBreadcrumbs
+          items={buildResourceBreadcrumbItems(
+            resource,
+            getSiteConfig('tio2-a'),
+            (_siteId, path) => path === resource.identity.path,
+          )}
+        />
+        <ResourceHero resource={resource} presentation={presentation} />
+        <ResourceOverview
+          guideItems={presentation.guideItems}
+          keyTakeaways={resource.keyTakeaways}
+        />
+        <ResourceBody
+          commonMistakes={resource.commonMistakes}
+          evaluationMethod={resource.evaluationMethod}
+          practicalImplications={resource.practicalImplications}
+          sections={resource.sections.slice(0, 2)}
+        />
+        <ResourceRelatedContent
+          groups={groupResourceRelationships(resource.relationships)}
+        />
+        <ResourceEnquiry ctas={selectResourceCtas(resource)} mode={presentation.mode} />
+        <ResourceFaq faqs={resource.faqs} />
+        <ResourceDisclaimer html={resource.disclaimerHtml} />
+      </article>,
+    )
+
+    expect(
+      screen.getByRole('navigation', {name: 'In this guide'}),
+    ).not.toBeNull()
+    expect(
+      within(screen.getByRole('navigation', {name: 'In this guide'})).getAllByRole(
+        'link',
+      ),
+    ).toHaveLength(6)
+    expect(screen.getByText('Key conclusions', {selector: 'p'})).not.toBeNull()
+    expect(
+      container.querySelector('[data-resource-section="decision-rail"]'),
+    ).not.toBeNull()
+    expect(
+      container.querySelector('[data-resource-section="evaluation-method"]'),
+    ).not.toBeNull()
+    expect(
+      container.querySelector('[data-resource-section="related-content"] a'),
+    ).toBeNull()
+    expect(
+      container.querySelector('[data-resource-section="related-content"] span'),
+    ).not.toBeNull()
+  })
+
   it.each([
     ['resources-hub', 'hub'],
     ['article-01', 'article'],

@@ -79,6 +79,34 @@ describe('Technical Resource metadata', () => {
 })
 
 describe('Technical Resource JSON-LD', () => {
+  it('shares visible breadcrumb items with the Resource UI', async () => {
+    const {buildResourceBreadcrumbItems} = await import(
+      '@/lib/seo/resource-jsonld'
+    )
+    const resource = fixture('article-01')
+    const items = buildResourceBreadcrumbItems(
+      resource,
+      getSiteConfig('tio2-a'),
+      (_siteId, path) => path === resource.identity.path,
+    )
+
+    expect(items).toEqual([
+      {title: 'Home', path: '/', href: '/', current: false},
+      {
+        title: 'Technical Resources',
+        path: '/resources',
+        href: null,
+        current: false,
+      },
+      {
+        title: resource.identity.title,
+        path: resource.identity.path,
+        href: resource.identity.path,
+        current: true,
+      },
+    ])
+  })
+
   it.each([
     ['resources-hub', 'CollectionPage'],
     ['article-01', 'TechArticle'],
