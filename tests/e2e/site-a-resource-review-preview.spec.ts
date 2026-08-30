@@ -65,6 +65,50 @@ const article04GuideLabels = [
   '01 Direct answer', '02 Meaning and limits', '03 System impact',
   '04 Comparison', '05 Common misconceptions', '06 Practical validation',
 ] as const
+const guideFragments = {
+  'alternative-grade-evaluation-guide': [
+    '#resource-body-section-1', '#resource-stage-framework',
+    '#resource-body-section-3', '#resource-scorecard',
+    '#resource-body-section-5', '#resource-body-section-6',
+  ],
+  'oil-absorption-technical-explainer': [
+    '#resource-direct-answer', '#resource-body-section-1',
+    '#resource-practical-implications', '#resource-comparison',
+    '#resource-common-mistakes', '#resource-evaluation-method',
+  ],
+} as const
+const breadcrumbLabels = {
+  'resources-hub': ['Home', 'Titanium Dioxide Technical Resources'],
+  'alternative-grade-evaluation-guide': [
+    'Home', 'Technical Resources',
+    'How to Evaluate a Titanium Dioxide Alternative Grade',
+  ],
+  'oil-absorption-technical-explainer': [
+    'Home', 'Technical Resources',
+    'What Does Oil Absorption Mean in Titanium Dioxide?',
+  ],
+} as const
+const article04Examples = [
+  [
+    'TP-I100', '14 g/100 g',
+    'Solvent-based and water-based printing inks',
+    'Use the value as one input when developing vehicle balance, dispersion and print-flow trials. Confirm fineness, viscosity, settling, redispersion and print performance in the actual ink.',
+  ],
+  [
+    'TP-C200', '36 g/100 g',
+    'High-PVC matte and flat architectural coatings',
+    'Use the value as one input when planning dispersant, binder and rheology screening in the complete coating. Confirm hiding, film integrity and storage behavior at the intended PVC-to-CPVC relationship.',
+  ],
+] as const
+const shellNavigationLabels = [
+  'Products', 'Applications', 'Technical Resources', 'About TIOVAR', 'Contact',
+] as const
+const footerActionContract = [
+  ['Discuss an application', '/#inquiry'],
+  ['Request documents', '/#documents'],
+  ['Request a sample', '/#inquiry'],
+  ['Contact', '/#inquiry'],
+] as const
 
 const article07GuideLabels = [
   '01 Current control',
@@ -132,7 +176,6 @@ async function expectMinimumTargetHeights(page: Page): Promise<void> {
   const selector = [
     'header a',
     '[data-resource-section="overview"] a',
-    '[data-resource-card] > *',
     '[data-resource-action]',
     '[data-editorial-faq-item] summary',
     'footer a',
@@ -167,6 +210,52 @@ async function expectRelatedLabels(
   await expect(group.locator('a')).toHaveCount(0)
   await expect(group.locator('ul > li > span')).toHaveCount(titles.length)
   await expect(group.locator('strong')).toHaveText(titles)
+  expect(await group.locator('ul > li > span').evaluateAll((items) =>
+    items.every((item) =>
+      item.tagName === 'SPAN' &&
+      !item.hasAttribute('href') &&
+      !item.hasAttribute('tabindex') &&
+      !item.querySelector('a[href], button, summary, input, select, textarea'),
+    ),
+  )).toBe(true)
+}
+
+async function expectShellAndPreviewBreadcrumb(
+  page: Page,
+  view: (typeof views)[number],
+): Promise<void> {
+  await expect(page.locator('header img[alt="TIOVAR"]')).toHaveCount(1)
+  await expect(page.locator('header nav[aria-label="TIOVAR sections"] > span')).toHaveText(shellNavigationLabels)
+  await expect(page.locator('header > a')).toHaveText('Discuss Your Requirement')
+  await expect(page.locator('header > a')).toHaveAttribute('href', '#inquiry')
+  await expect(page.locator('header nav[aria-label="TIOVAR mobile sections"] > span')).toHaveText(shellNavigationLabels)
+
+  const breadcrumb = page.locator('[data-resource-section="breadcrumb"]')
+  await expect(breadcrumb.locator('li > a')).toHaveCount(0)
+  await expect(breadcrumb.locator('li > span')).toHaveText(breadcrumbLabels[view.id])
+  await expect(breadcrumb.locator('li > span[aria-current="page"]')).toHaveText([view.expectedH1])
+  await expect(breadcrumb.locator('li > span:not([aria-current])')).toHaveText(
+    breadcrumbLabels[view.id].slice(0, -1),
+  )
+  expect(await breadcrumb.locator('li > span').evaluateAll((items) =>
+    items.every((item) => !item.hasAttribute('href')),
+  )).toBe(true)
+
+  const footer = page.locator('footer')
+  await expect(footer.getByRole('heading', {level: 3})).toHaveText(['Explore', 'Work with us', 'TIOVAR'])
+  await expect(footer.getByRole('heading', {level: 3}).nth(0).locator('..').locator('span')).toHaveText(
+    ['Products', 'Applications', 'Technical Resources'],
+  )
+  await expect(footer.getByRole('heading', {level: 3}).nth(2).locator('..').locator('span')).toHaveText(
+    ['About TIOVAR', 'Privacy'],
+  )
+  await expect(footer.locator(':scope > div').last().locator(':scope > span')).toHaveText([
+    '© TIOVAR', 'Titanium dioxide for industrial applications',
+  ])
+  await expect(footer.locator('a')).toHaveText(footerActionContract.map(([label]) => label))
+  expect(await footer.locator('a').evaluateAll((links) =>
+    links.map((link) => link.getAttribute('href')),
+  )).toEqual(footerActionContract.map(([, href]) => href))
 }
 
 test.beforeAll(async () => {
@@ -203,11 +292,9 @@ for (const view of views) {
       await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/iu)
       await expect(page.locator('link[rel="canonical"]')).toHaveCount(0)
       await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(0)
-      await expect(page.locator('[data-resource-section="breadcrumb"] a')).toHaveCount(0)
-      await expect(page.locator('header nav[aria-label="TIOVAR sections"]')).toHaveCount(1)
-      await expect(page.locator('header > a[href="#inquiry"]')).toHaveCount(1)
       await expect(page.locator('footer')).toHaveCount(1)
       await expect(page.locator('footer img[alt="TIOVAR"]')).toHaveCount(1)
+      await expectShellAndPreviewBreadcrumb(page, view)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 
       const bodyText = await page.locator('body').innerText()
@@ -253,7 +340,17 @@ for (const view of views) {
         await expect(cards).toHaveCount(10)
         await expect(cards.locator('a')).toHaveCount(0)
         await expect(cards.locator(':scope > div')).toHaveCount(10)
-        for (let index = 0; index < await cards.count(); index += 1) await expectTargetHeight(cards.nth(index).locator(':scope > div'))
+        expect(await cards.locator(':scope > div').evaluateAll((surfaces) =>
+          surfaces.every((surface) =>
+            surface.matches('div') &&
+            !surface.hasAttribute('href') &&
+            !surface.hasAttribute('tabindex') &&
+            !surface.matches('a[href], button, summary, input, select, textarea'),
+          ),
+        )).toBe(true)
+        for (let index = 0; index < await cards.count(); index += 1) {
+          await expectTargetHeight(cards.nth(index).locator(':scope > div'))
+        }
         await expect(cards.locator('h4')).toHaveText(hubArticles.map(([, title]) => title))
         await expectRelatedLabels(root, 'Applications', ['Titanium Dioxide Applications'])
         await expect(root.locator('[data-resource-action="request-tds"]')).toHaveCount(0)
@@ -262,11 +359,11 @@ for (const view of views) {
         const guide = root.locator('[data-resource-section="overview"]')
         await expect(guide).toBeVisible()
         const fragments = await guide.locator('a[href^="#"]').evaluateAll((links) => links.map((link) => link.getAttribute('href')))
-        expect(fragments).toHaveLength(6)
+        expect(fragments).toEqual(guideFragments[view.id])
         for (const fragment of fragments) {
           const target = page.locator(fragment as string)
           await expect(target).toHaveCount(1)
-          if (viewport.id === 'desktop') await expect(target).toBeVisible()
+          await expect(target).toBeVisible()
         }
         if (viewport.id === 'desktop') {
           const guideLinks = guide.locator('a')
@@ -332,22 +429,50 @@ for (const view of views) {
         ])
       }
       if (view.id === 'oil-absorption-technical-explainer') {
-        await expect(root.locator('[data-resource-example]')).toHaveCount(2)
-        await expect(root.locator('[data-resource-action="request-tds"]')).toHaveCount(1)
-        await expectTargetHeight(root.locator('[data-resource-action="request-tds"]'))
-        await expectTargetHeight(root.locator('[data-resource-action="discuss-application"]'))
-        expect(bodyText).toMatch(/not a quality ranking|not.*ranking/iu)
-        expect(bodyText).toMatch(/unknown method|same method, endpoint, sample handling/iu)
-        expect(bodyText).toMatch(/PVC-to-CPVC boundary|boundary/iu)
-        expect(bodyText).toMatch(/do not establish interchangeability|not.*interchangeab/iu)
+        const examples = root.locator('[data-resource-example]')
+        await expect(examples).toHaveCount(article04Examples.length)
+        await expect(root.locator('[data-resource-comparison] > h2')).toHaveText('Comparison Table')
+        for (const [index, expectedValues] of article04Examples.entries()) {
+          const example = examples.nth(index)
+          await expect(example.locator('dt')).toHaveText([
+            'Example', 'Reported oil absorption', 'Application direction', 'Correct interpretation',
+          ])
+          await expect(example.locator('dd')).toHaveText(expectedValues)
+        }
+        const article04Sections = root.locator('[data-resource-section="body-sections"]')
+        await expect(article04Sections.locator('[data-resource-body-id="section-1"]')).toContainText(
+          'Test oil, mixing technique, endpoint definition, sample handling and reference practice can affect the result.',
+        )
+        await expect(article04Sections.locator('[data-resource-body-id="section-1"]')).toContainText(
+          'the same method, the same endpoint and, preferably, an agreed reference sample tested at the same time.',
+        )
+        await expect(article04Sections.locator('[data-resource-body-id="section-2"]')).toContainText(
+          'It is not, however, a universal quality ranking.',
+        )
+        await expect(article04Sections.locator('[data-resource-body-id="section-5"]')).toContainText(
+          'Their reported values do not establish interchangeability, a universal preference for lower or higher oil absorption, or a prediction of finished-formula performance.',
+        )
+        await expect(article04Sections.locator('[data-resource-body-id="section-4"]')).toContainText(
+          'PVC and critical pigment volume concentration (CPVC) describe relationships within a complete coating formulation, not within a titanium dioxide powder measurement.',
+        )
         const article04BodyOrder = await root.locator('[data-resource-section="body-sections"] > section, [data-resource-section="body-sections"] > section[data-resource-comparison]').evaluateAll((elements) =>
           elements.map((element) => element.getAttribute('data-resource-body-id') ?? (element.hasAttribute('data-resource-comparison') ? 'comparison' : null)),
         )
         expect(article04BodyOrder).toEqual(['section-1', 'section-2', 'section-3', 'section-4', 'section-5', 'comparison', 'section-6'])
         await expect(root.locator('[data-resource-section="overview"] a')).toHaveText(article04GuideLabels)
-        await expect(root.locator('[data-resource-example]')).toContainText([
-          'TP-I100', 'TP-C200',
+        const ctas = root.locator('[data-resource-section="cta-group"] [data-resource-action]')
+        await expect(ctas).toHaveCount(2)
+        await expect(ctas).toHaveText(['Discuss Your Application', 'Request a TDS'])
+        expect(await ctas.evaluateAll((actions) => actions.map((action) => ({
+          action: action.getAttribute('data-resource-action'),
+          href: action.getAttribute('href'),
+          tag: action.tagName,
+        })))).toEqual([
+          {action: 'discuss-application', href: '/contact', tag: 'A'},
+          {action: 'request-tds', href: '/request-tds', tag: 'A'},
         ])
+        await expectTargetHeight(ctas.nth(0))
+        await expectTargetHeight(ctas.nth(1))
         await expectRelatedLabels(root, 'Products', ['TP-C200', 'TP-I100'])
         await expectRelatedLabels(root, 'Applications', ['High-PVC Flat Paint', 'Titanium Dioxide for Printing Inks'])
         await expectRelatedLabels(root, 'Technical Resources', ['Why TiO₂ Content Alone Does Not Determine Performance'])
