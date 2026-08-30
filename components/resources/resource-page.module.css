@@ -36,6 +36,7 @@
 .resourceExperience :where(ul, ol) { padding: 0; }
 .resourceExperience a { color: inherit; text-underline-offset: 0.22em; }
 .resourceExperience :where(a, summary, .tableRegion):focus-visible { outline: 3px solid var(--resource-focus); outline-offset: 4px; }
+.resourceExperience :global(footer a) { display: flex; min-height: 44px; align-items: center; }
 
 .breadcrumbs { border-bottom: 1px solid var(--resource-rule); }
 .breadcrumbs ol { display: flex; min-height: 44px; align-items: center; gap: 0.65rem; margin-inline: auto; list-style: none; color: var(--resource-muted); font-size: 0.85rem; }

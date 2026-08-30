@@ -89,8 +89,11 @@ describe('approved Site A Resource content coverage', () => {
       }
 
       if (id === 'article-04') {
+        if (!resource.comparisonTable) {
+          throw new Error('Approved article-04 fixture requires comparison examples')
+        }
         expect(page?.querySelectorAll('[data-resource-example]')).toHaveLength(
-          resource.comparisonTable?.rows.length,
+          resource.comparisonTable.rows.length,
         )
       } else if (id === 'article-07') {
         expect(page?.querySelector('[data-resource-stage]')).not.toBeNull()
