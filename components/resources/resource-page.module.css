@@ -121,11 +121,54 @@
 .comparisonTable { width: 100%; min-width: 32rem; border-collapse: collapse; }
 .resourceExperience :where(th, td) { border: 1px solid var(--resource-rule); padding: 0.8rem; text-align: left; vertical-align: top; }
 
+.topicPicker { margin-inline: auto; padding-block: clamp(3.5rem, 7vw, 6.5rem) clamp(2rem, 5vw, 4rem); }
+.topicPicker h2, .learningPaths > h2, .howToUse h2, .hubMistakes h2 { max-width: 22ch; margin-top: 0.55rem; color: var(--resource-navy); font-size: clamp(2rem, 3.5vw, 3.25rem); line-height: 1.08; }
+.topicPickerIntro { max-width: 44rem; margin-top: 1rem !important; color: var(--resource-muted); line-height: 1.6; }
+.topicList { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin-top: 2rem; list-style: none; background: var(--resource-silver); padding: 1px; }
+.topicList li { min-height: 13rem; background: var(--resource-white); padding: 1.25rem; }
+.topicList li > span, .cardIndex, .howToUse li > span, .hubMistakes li > span { color: var(--resource-steel); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; }
+.topicList h3 { margin-top: 1rem; color: var(--resource-navy); font-size: 1.25rem; }
+.topicList p { margin-top: 0.75rem !important; color: var(--resource-muted); font-size: 0.9rem; line-height: 1.5; }
+
+.learningPaths { margin-inline: auto; border-top: 1px solid var(--resource-silver); padding-block: clamp(3rem, 6vw, 5.5rem); }
+.learningPathList { margin-top: 2rem; }
+.learningPath { display: grid; grid-template-columns: minmax(13rem, 0.75fr) minmax(0, 1.25fr); gap: clamp(2rem, 7vw, 6rem); border-top: 1px solid var(--resource-rule); padding-block: clamp(2.25rem, 5vw, 4rem); }
+.learningPathIntro h3 { margin-top: 0.55rem; color: var(--resource-navy); font-size: clamp(1.75rem, 3vw, 2.5rem); line-height: 1.1; }
+.learningPathIntro > p:last-child { margin-top: 1rem !important; color: var(--resource-muted); font-size: 0.92rem; line-height: 1.6; }
+.learningCards { display: grid; list-style: none; }
+.learningCards li { border-top: 1px solid var(--resource-rule); }
+.learningCards li > :where(a, div) { position: relative; display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); gap: 0.4rem 0.8rem; padding: 1rem 1.75rem 1rem 0; text-decoration: none; }
+.learningCards li > :where(a, div)::after { position: absolute; top: 1rem; right: 0; color: var(--resource-steel); content: '→'; }
+.learningCards li > a:hover h4, .learningCards li > a:hover .cardAction { color: var(--resource-navy); text-decoration: underline; }
+.cardIndex { grid-row: span 4; }
+.cardMode { color: var(--resource-steel); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.learningCards h4 { color: var(--resource-navy); font-family: var(--font-tiovar-heading), Arial, sans-serif; font-size: 1.1rem; font-weight: 500; }
+.learningCards p { color: var(--resource-muted); font-size: 0.88rem; line-height: 1.5; }
+.cardAction { color: var(--resource-navy); font-size: 0.82rem; font-weight: 700; }
+
+.howToUse { background: var(--resource-ice); padding-block: clamp(3rem, 6vw, 5rem); }
+.howToUse > div { margin-inline: auto; }
+.howToUse ol, .hubMistakes ol { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin-top: 1.75rem; list-style: none; background: var(--resource-silver); padding: 1px; }
+.howToUse li { min-height: 10rem; background: var(--resource-white); padding: 1.2rem; }
+.howToUse h3 { margin-top: 0.85rem; color: var(--resource-navy); font-size: 1.1rem; }
+.howToUse li p { margin-top: 0.55rem !important; color: var(--resource-muted); font-size: 0.88rem; line-height: 1.5; }
+
+.hubMistakes { background: var(--resource-navy); color: var(--resource-white); padding-block: clamp(3rem, 6vw, 5rem); }
+.hubMistakes > div { margin-inline: auto; }
+.hubMistakes .eyebrow { color: var(--resource-silver); }
+.hubMistakes h2 { color: var(--resource-white); }
+.hubMistakes ol { background: rgb(255 255 255 / 22%); }
+.hubMistakes li { min-height: 9rem; background: var(--resource-navy-2); padding: 1.2rem; }
+.hubMistakes li > span { color: var(--resource-silver); }
+.hubMistakes li p { margin-top: 0.85rem !important; color: #e6e8ec; line-height: 1.5; }
+
 @media (max-width: 900px) {
   .hero, .enquiry { grid-template-columns: 1fr; }
   .guideNavigation, .overviewGuidance { display: none; }
   .overviewGrid, .keyConclusions ul { grid-template-columns: 1fr; }
   .listSection { grid-template-columns: 1fr; }
+  .topicList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .learningPath { grid-template-columns: 1fr; gap: 1.5rem; }
 }
 
 @media (max-width: 700px) {
@@ -142,6 +185,10 @@
   .relatedGroup li > :where(a, span) { min-height: 0; }
   .enquiry { width: min(calc(100% - 2rem), 1180px); }
   .disclaimer { grid-template-columns: 1fr; }
+  .topicPicker, .learningPaths { width: min(calc(100% - 2rem), 1180px); background: var(--resource-white); border: 1px solid var(--resource-rule); border-top: 4px solid var(--resource-silver); padding: 1.4rem 1.1rem; }
+  .topicList, .howToUse ol, .hubMistakes ol { grid-template-columns: 1fr; }
+  .topicList li, .howToUse li, .hubMistakes li { min-height: 0; }
+  .learningPath { padding-block: 1.5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

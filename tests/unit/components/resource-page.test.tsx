@@ -44,11 +44,13 @@ function resourceInput(id: 'resources-hub' | 'article-01') {
   const source = resourceManifest.records.find((record) => record.identity.id === id)
   if (!source) throw new Error(`Missing Resource fixture: ${id}`)
   const input = structuredClone(source) as TechnicalResourcePageInput
-  input.relationships = [
-    {type: 'application', id: 'coatings'},
-    {type: 'resource', id: 'article-02'},
-    {type: 'product', id: 'TP-P100'},
-  ]
+  if (id === 'article-01') {
+    input.relationships = [
+      {type: 'application', id: 'coatings'},
+      {type: 'resource', id: 'article-02'},
+      {type: 'product', id: 'TP-P100'},
+    ]
+  }
   return input
 }
 
@@ -79,6 +81,39 @@ function orderedSectionNames(container: HTMLElement) {
 afterEach(cleanup)
 
 describe('TechnicalResourcePageRenderer', () => {
+  it('composes the Hub around customer questions and approved learning paths', () => {
+    const resource = resourceFixture('resources-hub')
+    const {container} = render(
+      <TechnicalResourcePageRenderer resource={resource} />,
+    )
+    const page = container.querySelector<HTMLElement>(
+      '[data-resource-mode="hub"]',
+    )
+
+    expect(orderedSectionNames(page as HTMLElement)).toEqual([
+      'breadcrumb',
+      'hero',
+      'decision-rail',
+      'topic-picker',
+      'learning-paths',
+      'how-to-use',
+      'common-mistakes',
+      'related-content',
+      'cta-group',
+      'faq',
+      'technical-disclaimer',
+    ])
+    expect(container.querySelectorAll('[data-resource-learning-path]')).toHaveLength(4)
+    expect(
+      Array.from(container.querySelectorAll('[data-resource-learning-path]')).map(
+        (path) => path.querySelectorAll('[data-resource-card]').length,
+      ),
+    ).toEqual([3, 3, 1, 3])
+    expect(
+      container.querySelector('[data-resource-action="request-tds"]'),
+    ).toBeNull()
+  })
+
   it('renders the shared compact article frame with semantic boundaries', () => {
     const resource = resourceFixture('article-01')
     const presentation = resolveResourcePresentation(resource.identity.id)
@@ -135,58 +170,51 @@ describe('TechnicalResourcePageRenderer', () => {
     ).not.toBeNull()
   })
 
-  it.each([
-    ['resources-hub', 'hub'],
-    ['article-01', 'article'],
-  ] as const)(
-    'selects the controlled %s renderer and preserves the visible Resource flow',
-    (id, mode) => {
-      const resource = resourceFixture(id)
-      const {container} = render(
-        <TechnicalResourcePageRenderer resource={resource} />,
-      )
-      const page = container.querySelector<HTMLElement>('[data-resource-mode]')
-      const expected = [
-        'hero',
-        'direct-answer',
-        'key-takeaways',
-        'body-section-method',
-        'body-section-review',
-        'comparison-table',
-        'practical-implications',
-        'common-mistakes',
-        'evaluation-method',
-        ...(mode === 'hub' ? ['child-navigation'] : []),
-        'related-content',
-        'faq',
-        'cta-group',
-        'technical-disclaimer',
-      ]
+  it('preserves the legacy Article renderer until its dedicated composer is introduced', () => {
+    const resource = resourceFixture('article-01')
+    const {container} = render(
+      <TechnicalResourcePageRenderer resource={resource} />,
+    )
+    const page = container.querySelector<HTMLElement>('[data-resource-mode]')
+    const expected = [
+      'hero',
+      'direct-answer',
+      'key-takeaways',
+      'body-section-method',
+      'body-section-review',
+      'comparison-table',
+      'practical-implications',
+      'common-mistakes',
+      'evaluation-method',
+      'related-content',
+      'faq',
+      'cta-group',
+      'technical-disclaimer',
+    ]
 
-      expect(page?.dataset.resourceMode).toBe(mode)
-      expect(page?.className).toContain('page')
-      expect(page?.className).toContain('resourceExperience')
-      expect(orderedSectionNames(page as HTMLElement)).toEqual(expected)
-      expect(container.querySelectorAll('h1')).toHaveLength(1)
-      expect(
-        screen.getByRole('heading', {level: 1, name: resource.hero.headline}),
-      ).not.toBeNull()
+    expect(page?.dataset.resourceMode).toBe('article')
+    expect(page?.className).toContain('page')
+    expect(page?.className).toContain('resourceExperience')
+    expect(orderedSectionNames(page as HTMLElement)).toEqual(expected)
+    expect(container.querySelectorAll('h1')).toHaveLength(1)
+    expect(
+      screen.getByRole('heading', {level: 1, name: resource.hero.headline}),
+    ).not.toBeNull()
 
-      const sections = Array.from(
-        (page as HTMLElement).querySelectorAll<HTMLElement>('section'),
-      )
-      for (const section of sections) {
-        const labelledBy = section.getAttribute('aria-labelledby')
-        const heading = labelledBy ? document.getElementById(labelledBy) : null
-        expect(labelledBy).toBeTruthy()
-        expect(heading?.matches('h1, h2')).toBe(true)
-        expect(heading ? section.contains(heading) : false).toBe(true)
-      }
-    },
-  )
+    const sections = Array.from(
+      (page as HTMLElement).querySelectorAll<HTMLElement>('section'),
+    )
+    for (const section of sections) {
+      const labelledBy = section.getAttribute('aria-labelledby')
+      const heading = labelledBy ? document.getElementById(labelledBy) : null
+      expect(labelledBy).toBeTruthy()
+      expect(heading?.matches('h1, h2')).toBe(true)
+      expect(heading ? section.contains(heading) : false).toBe(true)
+    }
+  })
 
   it('renders the visible direct answer, takeaways, semantic table, FAQ, CTA, and disclaimer without hidden copies', () => {
-    const resource = resourceFixture('resources-hub')
+    const resource = resourceFixture('article-01')
     const {container} = render(
       <TechnicalResourcePageRenderer resource={resource} />,
     )
@@ -232,27 +260,29 @@ describe('TechnicalResourcePageRenderer', () => {
     ).toContain(resource.disclaimerHtml)
   })
 
-  it('derives Hub children and relationships only from resolved links and keeps null hrefs non-clickable', () => {
+  it('derives Hub learning-path cards and relationships only from resolved links', () => {
     const resource = resourceFixture('resources-hub')
     const {container} = render(
       <TechnicalResourcePageRenderer resource={resource} />,
     )
     const children = container.querySelector<HTMLElement>(
-      '[data-editorial-section="child-navigation"]',
+      '[data-resource-section="learning-paths"]',
     )
     const related = container.querySelector<HTMLElement>(
-      '[data-editorial-section="related-content"]',
+      '[data-resource-section="related-content"]',
     )
 
-    expect(children?.querySelectorAll('li')).toHaveLength(resource.children.length)
+    expect(children?.querySelectorAll('[data-resource-card]')).toHaveLength(
+      resource.children.length,
+    )
     expect(children?.querySelectorAll('a')).toHaveLength(1)
     expect(children?.querySelector('a')?.getAttribute('href')).toBe(
       '/resources/rutile-vs-anatase-titanium-dioxide',
     )
-    expect(related?.querySelectorAll('li')).toHaveLength(
+    expect(related?.querySelectorAll('li') ?? []).toHaveLength(
       resource.relationships.length,
     )
-    expect(related?.querySelectorAll('a')).toHaveLength(0)
+    expect(related?.querySelectorAll('a') ?? []).toHaveLength(0)
   })
 
   it('omits only a null comparison table and never renders Article child navigation', () => {

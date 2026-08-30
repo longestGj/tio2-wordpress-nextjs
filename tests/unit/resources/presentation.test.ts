@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest'
 
 import {
+  RESOURCE_HUB_CARD_SUMMARY_BY_ID,
   RESOURCE_LEARNING_PATHS,
   RESOURCE_PRESENTATION_BY_ID,
   resolveResourcePresentation,
@@ -40,6 +41,16 @@ function resourceFixture(id: string) {
 }
 
 describe('Site A Resource presentation registry', () => {
+  it('keeps every Hub card summary aligned with its approved SEO description', () => {
+    const approvedDescriptions = Object.fromEntries(
+      resourceManifest.records
+        .filter(({identity}) => identity.id !== 'resources-hub')
+        .map(({identity, seo}) => [identity.id, seo.description]),
+    )
+
+    expect(RESOURCE_HUB_CARD_SUMMARY_BY_ID).toEqual(approvedDescriptions)
+  })
+
   it('covers every canonical identity with the approved mode', () => {
     expect(Object.keys(RESOURCE_PRESENTATION_BY_ID).sort()).toEqual(
       SITE_A_RESOURCE_IDENTITIES.map(([id]) => id).sort(),

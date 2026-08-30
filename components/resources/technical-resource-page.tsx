@@ -1,5 +1,6 @@
 import type {ComponentType} from 'react'
 
+import {SiteABrandFooter} from '@/components/sites/tio2-a/site-a-brand-footer'
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import {
   containsForbiddenEditorialClaim,
@@ -14,6 +15,7 @@ import type {TechnicalResourcePageDto} from '@/lib/resources/types'
 
 import {ResourceArticle} from './resource-article'
 import {ResourceHub} from './resource-hub'
+import styles from './resource-page.module.css'
 
 interface TechnicalResourcePageRendererProps {
   readonly resource: TechnicalResourcePageDto
@@ -236,5 +238,13 @@ export function TechnicalResourcePageRenderer({
 }: TechnicalResourcePageRendererProps) {
   if (!isValidatedTechnicalResourcePageDto(resource)) return null
   const Renderer = RESOURCE_RENDERERS[resource.identity.kind]
-  return Renderer ? <Renderer resource={resource} /> : null
+  return Renderer ? (
+    <div className={styles.resourceExperience}>
+      <Renderer resource={resource} />
+      <SiteABrandFooter
+        anchorPrefix="/"
+        description="Titanium dioxide technical guidance for controlled evaluation."
+      />
+    </div>
+  ) : null
 }

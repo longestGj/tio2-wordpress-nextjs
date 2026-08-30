@@ -73,6 +73,36 @@ export const RESOURCE_LEARNING_PATHS = Object.freeze([
   },
 ] satisfies readonly ResourceLearningPath[])
 
+export const RESOURCE_HUB_CARD_SUMMARY_BY_ID = Object.freeze({
+  'article-01': 'Compare rutile and anatase titanium dioxide by optical needs, weathering, formulation and testing to choose a sound starting point for your application.',
+  'article-02': 'Compare chloride and sulfate titanium dioxide routes, then select and qualify a pigment by crystal form, treatment, dispersion and application needs.',
+  'article-03': 'Learn why TiO₂ content alone cannot predict finished performance. Compare surface treatment, dispersion, formulation, processing and validation by application.',
+  'article-04': 'Understand titanium dioxide oil absorption, why method matching matters, and how to evaluate formulation effects in inks and high-PVC coatings.',
+  'article-05': 'Learn what carbon black undertone (CBU) means for titanium dioxide, why its method matters, and how to compare pigments in controlled plastics trials.',
+  'article-06': 'Learn how inorganic and organic titanium dioxide surface treatments influence dispersion, rheology, durability direction and coating validation.',
+  'article-07': 'Use a staged framework to evaluate a titanium dioxide alternative grade through controlled lab comparison, formulation adjustment and production validation.',
+  'article-08': 'Learn how to evaluate TiO₂ cost in high-PVC flat paint through PVC/CPVC, pigment spacing, extenders and verified hiding and film performance.',
+  'article-09': 'Learn why titanium dioxide may affect polycarbonate yellowing or degradation, and how to validate moisture, heat history, flow, color and part quality.',
+  'article-10': 'Choose titanium dioxide for outdoor durability by defining exposure, formulation and finish, then validating color, gloss and chalking in use.',
+} satisfies Readonly<Partial<Record<SiteAResourceId, string>>>)
+
+export const RESOURCE_HUB_HOW_TO_USE = Object.freeze([
+  {
+    title: 'Understand the property',
+    description:
+      'Use what the value or characteristic actually represents.',
+  },
+  {
+    title: 'Compare the right variables',
+    description:
+      'Avoid treating a single specification as a complete decision.',
+  },
+  {
+    title: 'Validate in your formulation',
+    description: 'Use application testing before final grade approval.',
+  },
+] as const)
+
 const hubDecisionSteps = [
   'Fundamentals',
   'Interpretation',

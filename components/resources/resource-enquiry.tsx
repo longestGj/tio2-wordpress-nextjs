@@ -57,11 +57,19 @@ export function ResourceEnquiry({
           ))}
         </ul>
         <div className={styles.ctaActions}>
-          <a className={styles.primaryCta} href={ctas.discuss.href}>
+          <a
+            className={styles.primaryCta}
+            data-resource-action="discuss-application"
+            href={ctas.discuss.href}
+          >
             {ctas.discuss.label}
           </a>
           {ctas.requestTds ? (
-            <a className={styles.secondaryCta} href={ctas.requestTds.href}>
+            <a
+              className={styles.secondaryCta}
+              data-resource-action="request-tds"
+              href={ctas.requestTds.href}
+            >
               {ctas.requestTds.label}
             </a>
           ) : null}
