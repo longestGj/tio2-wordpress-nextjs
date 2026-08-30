@@ -338,6 +338,13 @@ for (const view of views) {
         }
         const cards = root.locator('[data-resource-card]')
         await expect(cards).toHaveCount(10)
+        expect(await cards.evaluateAll((items) =>
+          items.every((item) =>
+            item.tagName !== 'A' &&
+            item.closest('a') === null &&
+            item.querySelector('a') === null,
+          ),
+        )).toBe(true)
         await expect(cards.locator('a')).toHaveCount(0)
         await expect(cards.locator(':scope > div')).toHaveCount(10)
         expect(await cards.locator(':scope > div').evaluateAll((surfaces) =>
