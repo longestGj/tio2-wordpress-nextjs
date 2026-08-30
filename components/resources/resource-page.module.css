@@ -60,7 +60,7 @@
 .decisionRail li + li { border-left: 1px solid var(--resource-rule); }
 .decisionRail li span { color: var(--resource-steel); font-size: 0.72rem; letter-spacing: 0.08em; }
 
-.overview { margin-inline: auto; padding-block: clamp(2.5rem, 5vw, 4rem); }
+.overview { margin-inline: auto; padding-block: clamp(2rem, 3vw, 2.5rem); }
 .overviewGrid { display: grid; grid-template-columns: 230px minmax(0, 1fr); align-items: start; gap: clamp(2rem, 6vw, 5rem); }
 .guideNavigation { border-top: 4px solid var(--resource-navy); background: var(--resource-ice); padding: 1.1rem; }
 .guideNavigation > strong { color: var(--resource-navy); font-family: var(--font-tiovar-heading), Arial, sans-serif; font-size: 1.0625rem; font-weight: 500; }

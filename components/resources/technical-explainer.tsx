@@ -52,6 +52,7 @@ export function TechnicalExplainer({
       data-resource-mode="technical-explainer"
     >
       <ResourceBreadcrumbs
+        disableLinks={!visibility('tio2-a', resource.identity.path)}
         items={buildResourceBreadcrumbItems(
           resource,
           getSiteConfig('tio2-a'),

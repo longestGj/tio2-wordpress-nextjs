@@ -119,6 +119,7 @@ export function ResourceHub({
       data-resource-mode="hub"
     >
       <ResourceBreadcrumbs
+        disableLinks={!visibility('tio2-a', resource.identity.path)}
         items={buildResourceBreadcrumbItems(
           resource,
           getSiteConfig('tio2-a'),

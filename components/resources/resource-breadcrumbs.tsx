@@ -4,8 +4,10 @@ import styles from './resource-page.module.css'
 
 export function ResourceBreadcrumbs({
   items,
+  disableLinks = false,
 }: {
   readonly items: readonly ResourceBreadcrumbItem[]
+  readonly disableLinks?: boolean
 }): React.ReactNode {
   return (
     <nav
@@ -16,7 +18,7 @@ export function ResourceBreadcrumbs({
       <ol className={styles.mediumWidth}>
         {items.map((item) => (
           <li key={item.path}>
-            {item.href ? (
+            {item.href && !disableLinks ? (
               <a aria-current={item.current ? 'page' : undefined} href={item.href}>
                 {item.title}
               </a>
