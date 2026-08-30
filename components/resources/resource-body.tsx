@@ -1,3 +1,5 @@
+import {Fragment} from 'react'
+
 import type {TechnicalResourcePageDto} from '@/lib/resources/types'
 
 import styles from './resource-page.module.css'
@@ -35,18 +37,22 @@ function ResourceBodySection({
 }
 
 export function ResourceBodySections({
+  afterBodySectionId,
   afterSections,
   sections,
 }: {
+  readonly afterBodySectionId: string | null
   readonly afterSections?: React.ReactNode
   readonly sections: readonly ResourceSection[]
 }): React.ReactNode {
   return (
     <div data-resource-section="body-sections">
       {sections.map((section, index) => (
-        <ResourceBodySection grouped index={index} key={section.id} section={section} />
+        <Fragment key={section.id}>
+          <ResourceBodySection grouped index={index} section={section} />
+          {section.id === afterBodySectionId ? afterSections : null}
+        </Fragment>
       ))}
-      {afterSections}
     </div>
   )
 }

@@ -19,6 +19,7 @@ export interface ResourcePresentation {
   readonly guideItems: readonly ResourceGuideItem[]
   readonly suppressedSectionIds: readonly string[]
   readonly comparisonVariant: 'none' | 'table' | 'examples' | 'stages'
+  readonly comparisonAfterBodySectionId: string | null
 }
 
 export interface ResourceLearningPath {
@@ -167,6 +168,7 @@ export const RESOURCE_PRESENTATION_BY_ID = Object.freeze({
     guideItems: [],
     suppressedSectionIds: [],
     comparisonVariant: 'none',
+    comparisonAfterBodySectionId: null,
   },
   'article-01': {
     mode: 'technical-explainer',
@@ -175,6 +177,7 @@ export const RESOURCE_PRESENTATION_BY_ID = Object.freeze({
     guideItems: explainerGuideItems,
     suppressedSectionIds: [],
     comparisonVariant: 'table',
+    comparisonAfterBodySectionId: 'section-2',
   },
   'article-02': {
     mode: 'technical-explainer',
@@ -183,6 +186,7 @@ export const RESOURCE_PRESENTATION_BY_ID = Object.freeze({
     guideItems: explainerGuideItems,
     suppressedSectionIds: [],
     comparisonVariant: 'table',
+    comparisonAfterBodySectionId: 'section-3',
   },
   'article-03': {
     mode: 'technical-explainer',
@@ -191,6 +195,7 @@ export const RESOURCE_PRESENTATION_BY_ID = Object.freeze({
     guideItems: explainerGuideItems,
     suppressedSectionIds: [],
     comparisonVariant: 'table',
+    comparisonAfterBodySectionId: 'section-4',
   },
   'article-04': {
     mode: 'technical-explainer',
@@ -199,6 +204,7 @@ export const RESOURCE_PRESENTATION_BY_ID = Object.freeze({
     guideItems: explainerGuideItems,
     suppressedSectionIds: ['section-7'],
     comparisonVariant: 'examples',
+    comparisonAfterBodySectionId: 'section-5',
   },
   'article-05': {
     mode: 'technical-explainer',
@@ -207,6 +213,7 @@ export const RESOURCE_PRESENTATION_BY_ID = Object.freeze({
     guideItems: explainerGuideItems,
     suppressedSectionIds: [],
     comparisonVariant: 'table',
+    comparisonAfterBodySectionId: 'section-5',
   },
   'article-06': {
     mode: 'technical-explainer',
@@ -215,6 +222,7 @@ export const RESOURCE_PRESENTATION_BY_ID = Object.freeze({
     guideItems: explainerGuideItems,
     suppressedSectionIds: [],
     comparisonVariant: 'table',
+    comparisonAfterBodySectionId: 'section-5',
   },
   'article-07': {
     mode: 'evaluation-guide',
@@ -223,6 +231,7 @@ export const RESOURCE_PRESENTATION_BY_ID = Object.freeze({
     guideItems: article07GuideItems,
     suppressedSectionIds: [],
     comparisonVariant: 'stages',
+    comparisonAfterBodySectionId: null,
   },
   'article-08': {
     mode: 'evaluation-guide',
@@ -231,6 +240,7 @@ export const RESOURCE_PRESENTATION_BY_ID = Object.freeze({
     guideItems: evaluationGuideItems,
     suppressedSectionIds: [],
     comparisonVariant: 'table',
+    comparisonAfterBodySectionId: null,
   },
   'article-09': {
     mode: 'evaluation-guide',
@@ -239,6 +249,7 @@ export const RESOURCE_PRESENTATION_BY_ID = Object.freeze({
     guideItems: evaluationGuideItems,
     suppressedSectionIds: [],
     comparisonVariant: 'table',
+    comparisonAfterBodySectionId: null,
   },
   'article-10': {
     mode: 'evaluation-guide',
@@ -247,6 +258,7 @@ export const RESOURCE_PRESENTATION_BY_ID = Object.freeze({
     guideItems: evaluationGuideItems,
     suppressedSectionIds: [],
     comparisonVariant: 'table',
+    comparisonAfterBodySectionId: null,
   },
 } satisfies Readonly<Record<SiteAResourceId, ResourcePresentation>>)
 

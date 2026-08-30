@@ -262,6 +262,10 @@ describe('TechnicalResourcePageRenderer', () => {
     expect(container.querySelector('[data-resource-body-id="section-7"]')).toBeNull()
     expect(container.querySelectorAll('[data-resource-example]')).toHaveLength(2)
     expect(container.querySelector('[data-resource-action="request-tds"]')).not.toBeNull()
+    expect(
+      container.querySelector('[data-resource-body-id="section-5"]')
+        ?.nextElementSibling,
+    ).toBe(container.querySelector('[data-resource-comparison]'))
   })
 
   it('keeps the evaluation-guide presentation on the legacy article renderer', () => {
@@ -312,7 +316,7 @@ describe('TechnicalResourcePageRenderer', () => {
   })
 
   it('renders the visible direct answer, takeaways, semantic table, FAQ, CTA, and disclaimer without hidden copies', () => {
-    const resource = resourceFixture('article-01')
+    const resource = approvedResourceFixture('article-01')
     const {container} = render(
       <TechnicalResourcePageRenderer resource={resource} />,
     )
@@ -356,7 +360,9 @@ describe('TechnicalResourcePageRenderer', () => {
     )
     expect(
       container.querySelector('[data-resource-section="cta-group"]')?.textContent,
-    ).toContain(resource.ctas[0]?.label)
+    ).toContain(
+      resource.ctas.find(({kind}) => kind === 'discuss-application')?.label,
+    )
     expect(
       container.querySelector('[data-editorial-section="technical-disclaimer"]')
         ?.innerHTML,

@@ -67,6 +67,23 @@ describe('Site A Resource presentation registry', () => {
     expect(resolveResourcePresentation('article-99')).toBeNull()
   })
 
+  it('defines the comparison insertion point for every technical explainer', () => {
+    expect(
+      Object.fromEntries(
+        ['article-01', 'article-02', 'article-03', 'article-04', 'article-05', 'article-06'].map(
+          (id) => [id, resolveResourcePresentation(id)?.comparisonAfterBodySectionId],
+        ),
+      ),
+    ).toEqual({
+      'article-01': 'section-2',
+      'article-02': 'section-3',
+      'article-03': 'section-4',
+      'article-04': 'section-5',
+      'article-05': 'section-5',
+      'article-06': 'section-5',
+    })
+  })
+
   it('uses the approved learning-path order and counts', () => {
     expect(
       RESOURCE_LEARNING_PATHS.map(({label, articleIds}) => [

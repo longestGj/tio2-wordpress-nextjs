@@ -59,6 +59,7 @@ export function TechnicalExplainer({
         keyTakeaways={resource.keyTakeaways}
       />
       <ResourceBodySections
+        afterBodySectionId={presentation.comparisonAfterBodySectionId}
         afterSections={comparison}
         sections={visibleBodySections(resource, presentation)}
       />
