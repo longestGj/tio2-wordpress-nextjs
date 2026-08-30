@@ -4,14 +4,48 @@ import styles from './resource-page.module.css'
 
 export function ComparisonTable({
   table,
+  variant = 'table',
+  grouped = false,
 }: {
   readonly table: TechnicalResourcePageDto['comparisonTable']
+  readonly variant?: 'table' | 'examples'
+  readonly grouped?: boolean
 }) {
   if (!table) return null
+  if (variant === 'examples') {
+    return (
+      <section
+        aria-labelledby="resource-comparison-table-heading"
+        className={styles.comparisonExamples}
+        data-resource-comparison
+        data-resource-section={grouped ? undefined : 'comparison-table'}
+        id="resource-comparison"
+      >
+        <h2 id="resource-comparison-table-heading">Comparison Table</h2>
+        <div className={styles.exampleList}>
+          {table.rows.map((row, rowIndex) => (
+            <article className={styles.exampleCard} data-resource-example key={`${rowIndex}-${row.join('\u0000')}`}>
+              <dl>
+                {table.columns.map((column, columnIndex) => (
+                  <div key={`${column}-${row[columnIndex]}`}>
+                    <dt>{column}</dt>
+                    <dd>{row[columnIndex]}</dd>
+                  </div>
+                ))}
+              </dl>
+            </article>
+          ))}
+        </div>
+      </section>
+    )
+  }
   return (
     <section
-      data-resource-section="comparison-table"
+      data-resource-comparison
+      data-resource-section={grouped ? undefined : 'comparison-table'}
       aria-labelledby="resource-comparison-table-heading"
+      className={styles.comparisonTableSection}
+      id="resource-comparison"
     >
       <h2 id="resource-comparison-table-heading">Comparison Table</h2>
       <p id="resource-comparison-table-hint">

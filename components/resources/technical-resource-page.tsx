@@ -1,5 +1,3 @@
-import type {ComponentType} from 'react'
-
 import {SiteABrandFooter} from '@/components/sites/tio2-a/site-a-brand-footer'
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import {
@@ -10,27 +8,18 @@ import {
   sanitizeEditorialRichText,
 } from '@/lib/editorial/rich-text'
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
+import {resolveResourcePresentation} from '@/lib/resources/presentation'
 import {technicalResourcePageInputSchema} from '@/lib/resources/schema'
 import type {TechnicalResourcePageDto} from '@/lib/resources/types'
 
 import {ResourceArticle} from './resource-article'
 import {ResourceHub} from './resource-hub'
 import styles from './resource-page.module.css'
+import {TechnicalExplainer} from './technical-explainer'
 
 interface TechnicalResourcePageRendererProps {
   readonly resource: TechnicalResourcePageDto
 }
-
-type ResourceRenderer = ComponentType<{
-  readonly resource: TechnicalResourcePageDto
-}>
-
-const RESOURCE_RENDERERS: Readonly<
-  Partial<Record<TechnicalResourcePageDto['identity']['kind'], ResourceRenderer>>
-> = Object.freeze({
-  hub: ResourceHub,
-  article: ResourceArticle,
-})
 
 const resourceIdentityById = new Map<
   string,
@@ -237,10 +226,19 @@ export function TechnicalResourcePageRenderer({
   resource,
 }: TechnicalResourcePageRendererProps) {
   if (!isValidatedTechnicalResourcePageDto(resource)) return null
-  const Renderer = RESOURCE_RENDERERS[resource.identity.kind]
-  return Renderer ? (
+  const presentation = resolveResourcePresentation(resource.identity.id)
+  if (!presentation) return null
+  const rendered =
+    presentation.mode === 'hub' && resource.identity.kind === 'hub' ? (
+      <ResourceHub resource={resource} />
+    ) : presentation.mode === 'technical-explainer' && resource.identity.kind === 'article' ? (
+      <TechnicalExplainer presentation={presentation} resource={resource} />
+    ) : presentation.mode === 'evaluation-guide' && resource.identity.kind === 'article' ? (
+      <ResourceArticle resource={resource} />
+    ) : null
+  return rendered ? (
     <div className={styles.resourceExperience}>
-      <Renderer resource={resource} />
+      {rendered}
       <SiteABrandFooter
         anchorPrefix="/"
         description="Titanium dioxide technical guidance for controlled evaluation."

@@ -118,8 +118,20 @@
 .disclaimer .richText { margin: 0; color: inherit; font-size: inherit; }
 
 .tableRegion { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+.comparisonTableSection { width: min(calc(100% - 2 * var(--resource-gutter)), 1060px); margin-inline: auto; border-top: 1px solid var(--resource-silver); padding-block: clamp(2.75rem, 5vw, 4.5rem); scroll-margin-top: 2rem; }
+.comparisonTableSection h2 { max-width: 24ch; font-size: clamp(1.8rem, 3vw, 2.75rem); line-height: 1.15; }
+.comparisonTableSection > p { margin-top: 0.75rem !important; color: var(--resource-muted); line-height: 1.5; }
+.comparisonTableSection .tableRegion { margin-top: 1.25rem; }
 .comparisonTable { width: 100%; min-width: 32rem; border-collapse: collapse; }
 .resourceExperience :where(th, td) { border: 1px solid var(--resource-rule); padding: 0.8rem; text-align: left; vertical-align: top; }
+.comparisonExamples { width: min(calc(100% - 2 * var(--resource-gutter)), 1060px); margin-inline: auto; border-top: 1px solid var(--resource-silver); padding-block: clamp(2.75rem, 5vw, 4.5rem); scroll-margin-top: 2rem; }
+.comparisonExamples h2 { max-width: 24ch; font-size: clamp(1.8rem, 3vw, 2.75rem); line-height: 1.15; }
+.exampleList { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin-top: 1.5rem; background: var(--resource-silver); padding: 1px; }
+.exampleCard { background: var(--resource-ice); padding: 1.25rem; }
+.exampleCard dl { display: grid; gap: 1rem; }
+.exampleCard div { border-top: 1px solid var(--resource-rule); padding-top: 0.8rem; }
+.exampleCard dt { color: var(--resource-steel); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.exampleCard dd { margin-top: 0.4rem; color: var(--resource-muted); line-height: 1.5; }
 
 .topicPicker { margin-inline: auto; padding-block: clamp(3.5rem, 7vw, 6.5rem) clamp(2rem, 5vw, 4rem); }
 .topicPicker h2, .learningPaths > h2, .howToUse h2, .hubMistakes h2 { max-width: 22ch; margin-top: 0.55rem; color: var(--resource-navy); font-size: clamp(2rem, 3.5vw, 3.25rem); line-height: 1.08; }
@@ -167,6 +179,7 @@
   .guideNavigation, .overviewGuidance { display: none; }
   .overviewGrid, .keyConclusions ul { grid-template-columns: 1fr; }
   .listSection { grid-template-columns: 1fr; }
+  .exampleList { grid-template-columns: 1fr; }
   .topicList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .learningPath { grid-template-columns: 1fr; gap: 1.5rem; }
 }

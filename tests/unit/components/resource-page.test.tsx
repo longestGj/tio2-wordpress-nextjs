@@ -21,9 +21,21 @@ import {getSiteConfig} from '@/sites'
 import type {TechnicalResourcePageInput} from '@/lib/resources/schema'
 import type {TechnicalResourcePageDto} from '@/lib/resources/types'
 import resourceManifestJson from '@/tests/fixtures/editorial/site-a-resources.synthetic.json'
+import approvedResourceManifestJson from '@/tests/fixtures/editorial/site-a-resources.approved.json'
 
 const resourceManifest =
   resourceManifestJson as unknown as SiteAResourceContentManifest
+const approvedResourceManifest =
+  approvedResourceManifestJson as unknown as SiteAResourceContentManifest
+
+const technicalExplainerIds = [
+  'article-01',
+  'article-02',
+  'article-03',
+  'article-04',
+  'article-05',
+  'article-06',
+] as const
 
 const resolveTarget: EditorialLinkResolver = (target) => {
   const canonical = resolveCanonicalEditorialTarget(target.type, target.id)
@@ -56,6 +68,17 @@ function resourceInput(id: 'resources-hub' | 'article-01') {
 
 function resourceFixture(id: 'resources-hub' | 'article-01') {
   return toTechnicalResourcePageDto(resourceInput(id), resolveTarget)
+}
+
+function approvedResourceFixture(id: (typeof approvedResourceManifest.records)[number]['identity']['id']) {
+  const source = approvedResourceManifest.records.find(
+    (record) => record.identity.id === id,
+  )
+  if (!source) throw new Error(`Missing approved Resource fixture: ${id}`)
+  return toTechnicalResourcePageDto(
+    structuredClone(source) as TechnicalResourcePageInput,
+    resolveTarget,
+  )
 }
 
 function mutateFixture(
@@ -170,8 +193,79 @@ describe('TechnicalResourcePageRenderer', () => {
     ).not.toBeNull()
   })
 
-  it('preserves the legacy Article renderer until its dedicated composer is introduced', () => {
-    const resource = resourceFixture('article-01')
+  it.each(technicalExplainerIds)(
+    'composes approved %s as a technical explainer with complete guide modules',
+    (id) => {
+      const resource = approvedResourceFixture(id)
+      const {container} = render(
+        <TechnicalResourcePageRenderer resource={resource} />,
+      )
+      const page = container.querySelector<HTMLElement>(
+        '[data-resource-mode="technical-explainer"]',
+      )
+      const guide = within(page as HTMLElement).getByRole('navigation', {
+        name: 'In this guide',
+      })
+
+      expect(container.querySelectorAll('h1')).toHaveLength(1)
+      expect(page?.dataset.resourceMode).toBe('technical-explainer')
+      expect(within(guide).getAllByRole('link')).toHaveLength(6)
+      for (const link of within(guide).getAllByRole('link')) {
+        const target = link.getAttribute('href')
+        expect(target).toMatch(/^#resource-/)
+        expect(page?.querySelector(target as string)).not.toBeNull()
+      }
+      expect(
+        container.querySelector('[data-resource-section="common-mistakes"]'),
+      ).not.toBeNull()
+      expect(
+        container.querySelector('[data-resource-section="evaluation-method"]'),
+      ).not.toBeNull()
+      expect(
+        container.querySelector('[data-resource-section="cta-group"]'),
+      ).not.toBeNull()
+      expect(
+        container.querySelector('[data-editorial-section="faq"]'),
+      ).not.toBeNull()
+      expect(
+        container.querySelector('[data-editorial-section="technical-disclaimer"]'),
+      ).not.toBeNull()
+      expect(
+        container.querySelector('[data-resource-comparison]'),
+      ).not.toBeNull()
+    },
+  )
+
+  it('composes article-04 in the approved concept-to-validation order', () => {
+    const resource = approvedResourceFixture('article-04')
+    const {container} = render(
+      <TechnicalResourcePageRenderer resource={resource} />,
+    )
+    const page = container.querySelector<HTMLElement>(
+      '[data-resource-mode="technical-explainer"]',
+    )
+
+    expect(orderedSectionNames(page as HTMLElement)).toEqual([
+      'breadcrumb',
+      'hero',
+      'decision-rail',
+      'overview',
+      'body-sections',
+      'practical-implications',
+      'common-mistakes',
+      'evaluation-method',
+      'related-content',
+      'cta-group',
+      'faq',
+      'technical-disclaimer',
+    ])
+    expect(container.querySelector('[data-resource-body-id="section-7"]')).toBeNull()
+    expect(container.querySelectorAll('[data-resource-example]')).toHaveLength(2)
+    expect(container.querySelector('[data-resource-action="request-tds"]')).not.toBeNull()
+  })
+
+  it('keeps the evaluation-guide presentation on the legacy article renderer', () => {
+    const resource = approvedResourceFixture('article-07')
     const {container} = render(
       <TechnicalResourcePageRenderer resource={resource} />,
     )
@@ -180,8 +274,12 @@ describe('TechnicalResourcePageRenderer', () => {
       'hero',
       'direct-answer',
       'key-takeaways',
-      'body-section-method',
-      'body-section-review',
+      'body-section-section-1',
+      'body-section-section-2',
+      'body-section-section-3',
+      'body-section-section-4',
+      'body-section-section-5',
+      'body-section-section-6',
       'comparison-table',
       'practical-implications',
       'common-mistakes',
@@ -220,22 +318,27 @@ describe('TechnicalResourcePageRenderer', () => {
     )
     const hero = container.querySelector('[data-resource-section="hero"]')
     const directAnswer = container.querySelector<HTMLElement>(
-      '[data-editorial-section="direct-answer"]',
+      '#resource-direct-answer',
     )
     const takeaways = container.querySelector<HTMLElement>(
-      '[data-resource-section="key-takeaways"]',
+      '[data-resource-section="overview"]',
     )
     const tableSection = container.querySelector<HTMLElement>(
-      '[data-resource-section="comparison-table"]',
+      '[data-resource-comparison]',
     )
     const table = within(tableSection as HTMLElement).getByRole('table', {
       name: 'Comparison Table',
     })
+    const takeawayList = takeaways?.querySelector(
+      '#resource-key-conclusions-heading + ul',
+    )
 
-    expect(hero?.nextElementSibling).toBe(directAnswer)
+    expect(hero?.contains(directAnswer as Node)).toBe(true)
     expect(directAnswer?.innerHTML).toContain(resource.hero.directAnswer)
     expect(
-      within(takeaways as HTMLElement).getAllByRole('listitem').map((item) => item.textContent),
+      within(takeawayList as HTMLElement).getAllByRole('listitem').map(
+        (item) => item.textContent,
+      ),
     ).toEqual(resource.keyTakeaways)
     expect(within(table).getAllByRole('columnheader')).toHaveLength(
       resource.comparisonTable?.columns.length ?? 0,
@@ -252,7 +355,7 @@ describe('TechnicalResourcePageRenderer', () => {
       resource.faqs.length,
     )
     expect(
-      container.querySelector('[data-editorial-section="cta-group"]')?.textContent,
+      container.querySelector('[data-resource-section="cta-group"]')?.textContent,
     ).toContain(resource.ctas[0]?.label)
     expect(
       container.querySelector('[data-editorial-section="technical-disclaimer"]')
@@ -297,7 +400,7 @@ describe('TechnicalResourcePageRenderer', () => {
     )
 
     expect(
-      container.querySelector('[data-resource-section="comparison-table"]'),
+      container.querySelector('[data-resource-comparison]'),
     ).toBeNull()
     expect(
       container.querySelector('[data-editorial-section="child-navigation"]'),
@@ -307,17 +410,17 @@ describe('TechnicalResourcePageRenderer', () => {
         container.querySelector('[data-resource-mode]') as HTMLElement,
       ),
     ).toEqual([
+      'breadcrumb',
       'hero',
-      'direct-answer',
-      'key-takeaways',
-      'body-section-method',
-      'body-section-review',
+      'decision-rail',
+      'overview',
+      'body-sections',
       'practical-implications',
       'common-mistakes',
       'evaluation-method',
       'related-content',
-      'faq',
       'cta-group',
+      'faq',
       'technical-disclaimer',
     ])
   })
@@ -475,7 +578,9 @@ describe('TechnicalResourcePageRenderer', () => {
       <TechnicalResourcePageRenderer resource={resource} />,
     )
 
-    expect(container.querySelector('[data-resource-mode="article"]')).not.toBeNull()
+    expect(
+      container.querySelector('[data-resource-mode="technical-explainer"]'),
+    ).not.toBeNull()
     expect(container.textContent).toContain(
       'Compare two  fictional systems\nunder representative conditions.',
     )

@@ -5,6 +5,52 @@ import styles from './resource-page.module.css'
 type ResourceSection = TechnicalResourcePageDto['sections'][number]
 type ResourceFaqItem = TechnicalResourcePageDto['faqs'][number]
 
+function ResourceBodySection({
+  grouped,
+  index,
+  section,
+}: {
+  readonly grouped: boolean
+  readonly index: number
+  readonly section: ResourceSection
+}): React.ReactNode {
+  const sectionId = `resource-body-${section.id}`
+  const headingId = `${sectionId}-heading`
+  return (
+    <section
+      aria-labelledby={headingId}
+      className={`${styles.bodySection} ${styles.textWidth}`}
+      data-resource-body-id={grouped ? section.id : undefined}
+      data-resource-section={grouped ? undefined : `body-section-${section.id}`}
+      id={sectionId}
+    >
+      <p className={styles.sectionIndex}>{String(index + 1).padStart(2, '0')}</p>
+      <h2 id={headingId}>{section.heading}</h2>
+      <div
+        className={styles.richText}
+        dangerouslySetInnerHTML={{__html: section.html}}
+      />
+    </section>
+  )
+}
+
+export function ResourceBodySections({
+  afterSections,
+  sections,
+}: {
+  readonly afterSections?: React.ReactNode
+  readonly sections: readonly ResourceSection[]
+}): React.ReactNode {
+  return (
+    <div data-resource-section="body-sections">
+      {sections.map((section, index) => (
+        <ResourceBodySection grouped index={index} key={section.id} section={section} />
+      ))}
+      {afterSections}
+    </div>
+  )
+}
+
 function ResourceListSection({
   heading,
   items,
@@ -26,6 +72,7 @@ function ResourceListSection({
       aria-labelledby={headingId}
       className={`${styles.listSection} ${styles.mediumWidth}`}
       data-resource-section={sectionName}
+      id={`resource-${sectionName}`}
     >
       <h2 id={headingId}>{heading}</h2>
       <List>
@@ -53,26 +100,9 @@ export function ResourceBody({
 }): React.ReactNode {
   return (
     <>
-      {sections.map((section, index) => {
-        const sectionId = `resource-body-${section.id}`
-        const headingId = `${sectionId}-heading`
-        return (
-          <section
-            aria-labelledby={headingId}
-            className={`${styles.bodySection} ${styles.textWidth}`}
-            data-resource-section={`body-section-${section.id}`}
-            id={sectionId}
-            key={section.id}
-          >
-            <p className={styles.sectionIndex}>{String(index + 1).padStart(2, '0')}</p>
-            <h2 id={headingId}>{section.heading}</h2>
-            <div
-              className={styles.richText}
-              dangerouslySetInnerHTML={{__html: section.html}}
-            />
-          </section>
-        )
-      })}
+      {sections.map((section, index) => (
+        <ResourceBodySection grouped={false} index={index} key={section.id} section={section} />
+      ))}
       {practicalImplications ? (
         <ResourceListSection
           heading="Practical Implications"
@@ -96,6 +126,39 @@ export function ResourceBody({
         />
       ) : null}
     </>
+  )
+}
+
+export function ResourcePracticalImplications({
+  items,
+}: {
+  readonly items: readonly string[]
+}): React.ReactNode {
+  return (
+    <ResourceListSection
+      heading="Practical Implications"
+      items={items}
+      sectionName="practical-implications"
+    />
+  )
+}
+
+export function ResourceMistakes({items}: {readonly items: readonly string[]}): React.ReactNode {
+  return <ResourceListSection heading="Common Mistakes" items={items} sectionName="common-mistakes" />
+}
+
+export function ResourceEvaluationMethod({
+  items,
+}: {
+  readonly items: readonly string[]
+}): React.ReactNode {
+  return (
+    <ResourceListSection
+      heading="Evaluation Method"
+      items={items}
+      ordered
+      sectionName="evaluation-method"
+    />
   )
 }
 
