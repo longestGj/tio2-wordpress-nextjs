@@ -1,0 +1,229 @@
+import type {SiteAResourceId} from './content-manifest'
+
+export type ResourcePresentationMode =
+  | 'hub'
+  | 'technical-explainer'
+  | 'evaluation-guide'
+
+export interface ResourceGuideItem {
+  readonly label: string
+  readonly targetId: string
+}
+
+export interface ResourcePresentation {
+  readonly mode: ResourcePresentationMode
+  readonly decisionSteps: readonly [string, string, string, string]
+  readonly heroSummary: readonly (
+    readonly [label: string, value: string]
+  )[]
+  readonly guideItems: readonly ResourceGuideItem[]
+  readonly suppressedSectionIds: readonly string[]
+  readonly comparisonVariant: 'none' | 'table' | 'examples' | 'stages'
+}
+
+export interface ResourceLearningPath {
+  readonly id: 'fundamentals' | 'performance' | 'replacement' | 'testing'
+  readonly label: string
+  readonly intro: string
+  readonly articleIds: readonly SiteAResourceId[]
+}
+
+const explainerGuideItems = [
+  {label: 'Direct answer', targetId: 'resource-direct-answer'},
+  {label: 'Meaning and limits', targetId: 'resource-body-section-1'},
+  {label: 'System impact', targetId: 'resource-practical-implications'},
+  {label: 'Comparison', targetId: 'resource-comparison'},
+  {label: 'Common misconceptions', targetId: 'resource-common-mistakes'},
+  {label: 'Practical validation', targetId: 'resource-evaluation-method'},
+] as const
+
+const evaluationGuideItems = [
+  {label: 'Problem definition', targetId: 'resource-direct-answer'},
+  {label: 'Required inputs', targetId: 'resource-body-section-1'},
+  {label: 'Controlled comparison', targetId: 'resource-comparison'},
+  {label: 'Measurements and criteria', targetId: 'resource-practical-implications'},
+  {label: 'Failure interpretation', targetId: 'resource-common-mistakes'},
+  {label: 'Approval boundary', targetId: 'resource-evaluation-method'},
+] as const
+
+export const RESOURCE_LEARNING_PATHS = Object.freeze([
+  {
+    id: 'fundamentals',
+    label: 'TiO₂ Fundamentals',
+    intro: 'Use these guides to understand what crystal form, production route and TiO₂ content can tell you—and what they cannot predict about finished-system performance.',
+    articleIds: ['article-01', 'article-02', 'article-03'],
+  },
+  {
+    id: 'performance',
+    label: 'Performance Interpretation',
+    intro: 'Use these guides to interpret oil absorption, CBU and surface treatment without treating any single powder property as a prediction of finished-system performance.',
+    articleIds: ['article-04', 'article-05', 'article-06'],
+  },
+  {
+    id: 'replacement',
+    label: 'Grade Replacement',
+    intro: 'Use this guide to structure a controlled grade-replacement decision from the current control through laboratory screening, justified adjustment and production validation.',
+    articleIds: ['article-07'],
+  },
+  {
+    id: 'testing',
+    label: 'Application Testing',
+    intro: 'Use these guides to plan controlled tests for high-PVC cost, polycarbonate stability and outdoor durability questions.',
+    articleIds: ['article-08', 'article-09', 'article-10'],
+  },
+] satisfies readonly ResourceLearningPath[])
+
+const hubDecisionSteps = [
+  'Fundamentals',
+  'Interpretation',
+  'Replacement',
+  'Application testing',
+] as const
+
+const explainerDecisionSteps = [
+  'Answer',
+  'Interpret',
+  'Compare',
+  'Validate',
+] as const
+
+const evaluationDecisionSteps = [
+  'Define',
+  'Control',
+  'Evaluate',
+  'Approve',
+] as const
+
+const heroSummaryByMode = {
+  hub: [
+    ['Browse by', 'Technical question'],
+    ['Library', '10 practical guides'],
+    ['Use for', 'Comparison planning'],
+    ['Boundary', 'Validate in application'],
+  ],
+  'technical-explainer': [
+    ['Topic', 'Technical interpretation'],
+    ['Use for', 'Controlled screening'],
+    ['Limit', 'Not finished-system proof'],
+    ['Next step', 'Application validation'],
+  ],
+  'evaluation-guide': [
+    ['Decision', 'Controlled evaluation'],
+    ['Starting point', 'Current control'],
+    ['Method', 'Matched comparison'],
+    ['Final step', 'Finished-product approval'],
+  ],
+} as const satisfies Readonly<
+  Record<
+    ResourcePresentationMode,
+    readonly (readonly [label: string, value: string])[]
+  >
+>
+
+const article07GuideItems = [
+  {label: 'Current control', targetId: 'resource-body-section-1'},
+  {label: 'Six-stage decision path', targetId: 'resource-stage-framework'},
+  {label: 'Same-formulation lab screen', targetId: 'resource-body-section-3'},
+  {label: 'Cross-application scorecard', targetId: 'resource-scorecard'},
+  {label: 'Application interpretation', targetId: 'resource-body-section-5'},
+  {label: 'When TDS comparison is not enough', targetId: 'resource-body-section-6'},
+] as const
+
+export const RESOURCE_PRESENTATION_BY_ID = Object.freeze({
+  'resources-hub': {
+    mode: 'hub',
+    decisionSteps: hubDecisionSteps,
+    heroSummary: heroSummaryByMode.hub,
+    guideItems: [],
+    suppressedSectionIds: [],
+    comparisonVariant: 'none',
+  },
+  'article-01': {
+    mode: 'technical-explainer',
+    decisionSteps: explainerDecisionSteps,
+    heroSummary: heroSummaryByMode['technical-explainer'],
+    guideItems: explainerGuideItems,
+    suppressedSectionIds: [],
+    comparisonVariant: 'table',
+  },
+  'article-02': {
+    mode: 'technical-explainer',
+    decisionSteps: explainerDecisionSteps,
+    heroSummary: heroSummaryByMode['technical-explainer'],
+    guideItems: explainerGuideItems,
+    suppressedSectionIds: [],
+    comparisonVariant: 'table',
+  },
+  'article-03': {
+    mode: 'technical-explainer',
+    decisionSteps: explainerDecisionSteps,
+    heroSummary: heroSummaryByMode['technical-explainer'],
+    guideItems: explainerGuideItems,
+    suppressedSectionIds: [],
+    comparisonVariant: 'table',
+  },
+  'article-04': {
+    mode: 'technical-explainer',
+    decisionSteps: explainerDecisionSteps,
+    heroSummary: heroSummaryByMode['technical-explainer'],
+    guideItems: explainerGuideItems,
+    suppressedSectionIds: ['section-7'],
+    comparisonVariant: 'examples',
+  },
+  'article-05': {
+    mode: 'technical-explainer',
+    decisionSteps: explainerDecisionSteps,
+    heroSummary: heroSummaryByMode['technical-explainer'],
+    guideItems: explainerGuideItems,
+    suppressedSectionIds: [],
+    comparisonVariant: 'table',
+  },
+  'article-06': {
+    mode: 'technical-explainer',
+    decisionSteps: explainerDecisionSteps,
+    heroSummary: heroSummaryByMode['technical-explainer'],
+    guideItems: explainerGuideItems,
+    suppressedSectionIds: [],
+    comparisonVariant: 'table',
+  },
+  'article-07': {
+    mode: 'evaluation-guide',
+    decisionSteps: evaluationDecisionSteps,
+    heroSummary: heroSummaryByMode['evaluation-guide'],
+    guideItems: article07GuideItems,
+    suppressedSectionIds: [],
+    comparisonVariant: 'stages',
+  },
+  'article-08': {
+    mode: 'evaluation-guide',
+    decisionSteps: evaluationDecisionSteps,
+    heroSummary: heroSummaryByMode['evaluation-guide'],
+    guideItems: evaluationGuideItems,
+    suppressedSectionIds: [],
+    comparisonVariant: 'table',
+  },
+  'article-09': {
+    mode: 'evaluation-guide',
+    decisionSteps: evaluationDecisionSteps,
+    heroSummary: heroSummaryByMode['evaluation-guide'],
+    guideItems: evaluationGuideItems,
+    suppressedSectionIds: [],
+    comparisonVariant: 'table',
+  },
+  'article-10': {
+    mode: 'evaluation-guide',
+    decisionSteps: evaluationDecisionSteps,
+    heroSummary: heroSummaryByMode['evaluation-guide'],
+    guideItems: evaluationGuideItems,
+    suppressedSectionIds: [],
+    comparisonVariant: 'table',
+  },
+} satisfies Readonly<Record<SiteAResourceId, ResourcePresentation>>)
+
+export function resolveResourcePresentation(
+  id: string,
+): ResourcePresentation | null {
+  return Object.prototype.hasOwnProperty.call(RESOURCE_PRESENTATION_BY_ID, id)
+    ? RESOURCE_PRESENTATION_BY_ID[id as SiteAResourceId]
+    : null
+}

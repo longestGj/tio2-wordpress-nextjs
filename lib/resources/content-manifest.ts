@@ -17,6 +17,10 @@ export const SITE_A_RESOURCE_IDENTITIES = [
   ['article-10', 'titanium-dioxide-outdoor-durability', '/resources/titanium-dioxide-outdoor-durability', 'article', 'Application Testing'],
 ] as const
 
+export type SiteAResourceIdentity =
+  (typeof SITE_A_RESOURCE_IDENTITIES)[number]
+export type SiteAResourceId = SiteAResourceIdentity[0]
+
 export interface SiteAResourceContentManifest {
   version: '0.1'
   siteId: 'tio2-a'

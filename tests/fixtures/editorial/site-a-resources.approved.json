@@ -1,0 +1,1917 @@
+{
+  "version": "0.1",
+  "siteId": "tio2-a",
+  "records": [
+    {
+      "identity": {
+        "id": "resources-hub",
+        "title": "Titanium Dioxide Technical Resources",
+        "slug": "resources",
+        "path": "/resources",
+        "kind": "hub",
+        "cluster": "Hub",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Titanium Dioxide Technical Resources | TIOVAR",
+        "description": "Explore titanium dioxide resources for material selection, performance questions, grade evaluation and application testing, then plan a controlled trial."
+      },
+      "hero": {
+        "eyebrow": "Technical Resource Hub",
+        "headline": "Titanium Dioxide Technical Resources",
+        "directAnswer": "<p>This library groups ten titanium dioxide guides by the question being investigated: material fundamentals, performance interpretation, alternative-grade evaluation and application testing. Use a guide to frame a controlled comparison, then validate the candidate in the actual formulation, process and finished product.</p>"
+      },
+      "keyTakeaways": [
+        "Start with the question most likely to change the next decision.",
+        "Distinguish a material descriptor from a finished-system result.",
+        "Define a fair comparison basis and variables to hold constant.",
+        "Use the guides for planning, not as a substitute for validation."
+      ],
+      "sections": [
+        {
+          "id": "what-customers-can-learn",
+          "heading": "What Customers Can Learn Here",
+          "html": "<p>The guides help teams distinguish a material descriptor from a finished-system result, define a fair comparison basis, and identify what should be held constant during a trial.</p>"
+        },
+        {
+          "id": "tio2-fundamentals",
+          "heading": "TiO₂ Fundamentals",
+          "html": "<p>Use the fundamentals guides to frame crystal-form, manufacturing-route and TiO₂-content questions. Those guides distinguish a starting direction, a process label and a composition value from finished-system conclusions.</p>"
+        },
+        {
+          "id": "performance",
+          "heading": "Performance",
+          "html": "<p>Use performance guides to interpret method-bound oil-absorption and CBU results, and to frame surface-treatment questions without extending a powder or treatment input into a finished-system prediction.</p>"
+        },
+        {
+          "id": "grade-replacement",
+          "heading": "Grade Replacement",
+          "html": "<p>Use the alternative-grade guide for a staged path from a current control through a same-formulation screen, justified adjustment and production-representative validation.</p>"
+        },
+        {
+          "id": "application-testing",
+          "heading": "Application Testing",
+          "html": "<p>Use application-testing guides for high-PVC cost-to-performance, polycarbonate yellowing or degradation, and outdoor-durability questions through controlled comparisons.</p>"
+        },
+        {
+          "id": "why-guides-do-not-replace-testing",
+          "heading": "Why a Guide Does Not Replace Application Testing",
+          "html": "<p>Observed results remain specific to the complete system. Resin or binder, additives, loading, dispersion, processing conditions, specimen construction and the agreed test method can change the outcome.</p>"
+        },
+        {
+          "id": "product-and-application-context",
+          "heading": "Product and Application Context",
+          "html": "<p>After defining the trial question, use product and application context to frame material-system, manufacturing-route and finished-product checks. That context does not replace an application-specific evaluation.</p><p>Technical Data Sheets are available upon request.</p>"
+        }
+      ],
+      "comparisonTable": null,
+      "practicalImplications": [
+        "Choose the guide that matches the current material-identity, performance-indicator, alternative-grade or application question.",
+        "Set a matched control and acceptance criteria before changing more than one planned variable.",
+        "Continue through application context only after defining the trial question."
+      ],
+      "commonMistakes": [
+        "Treating a guide as an automatic grade recommendation.",
+        "Using a powder value as proof of complete-system performance.",
+        "Changing multiple trial variables without a matched control."
+      ],
+      "evaluationMethod": [
+        "Define the current decision and the relevant guide.",
+        "Use it to state comparison basis, controlled variables and measurements.",
+        "Prepare a matched control and acceptance criteria.",
+        "Validate in the intended formulation, process and finished product.",
+        "Discuss the application when the process window or end-use criteria need clarification."
+      ],
+      "faqs": [
+        {
+          "question": "Which guide should I read first?",
+          "answerHtml": "<p>Begin with the question that blocks the next decision: material descriptors, a performance measurement, an alternative-grade comparison or a defined system question.</p>"
+        },
+        {
+          "question": "Can these guides recommend one titanium dioxide grade?",
+          "answerHtml": "<p>No. They define what to compare and how to plan evaluation; grade selection requires evidence from the actual formulation, process and finished product.</p>"
+        },
+        {
+          "question": "Can a powder value predict finished performance?",
+          "answerHtml": "<p>No. It can be a useful screening input when method and comparison basis are clear, but it does not establish a complete-system result.</p>"
+        },
+        {
+          "question": "What should be prepared for an application trial discussion?",
+          "answerHtml": "<p>Prepare the application, formulation or resin system, control, process conditions, target result, test method and acceptance criteria.</p>"
+        },
+        {
+          "question": "When should the alternative-grade evaluation guide be used?",
+          "answerHtml": "<p>Use it when assessing a candidate against an existing material while separating the initial same-formulation result from later controlled adjustment and production validation.</p>"
+        }
+      ],
+      "children": [
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "resource",
+          "id": "article-02"
+        },
+        {
+          "type": "resource",
+          "id": "article-03"
+        },
+        {
+          "type": "resource",
+          "id": "article-04"
+        },
+        {
+          "type": "resource",
+          "id": "article-05"
+        },
+        {
+          "type": "resource",
+          "id": "article-06"
+        },
+        {
+          "type": "resource",
+          "id": "article-07"
+        },
+        {
+          "type": "resource",
+          "id": "article-08"
+        },
+        {
+          "type": "resource",
+          "id": "article-09"
+        },
+        {
+          "type": "resource",
+          "id": "article-10"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "applications-hub"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Your Application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-01",
+        "title": "Rutile vs Anatase Titanium Dioxide: How to Choose",
+        "slug": "rutile-vs-anatase-titanium-dioxide",
+        "path": "/resources/rutile-vs-anatase-titanium-dioxide",
+        "kind": "article",
+        "cluster": "TiO₂ Fundamentals",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Rutile vs Anatase TiO₂: How to Choose",
+        "description": "Compare rutile and anatase titanium dioxide by optical needs, weathering, formulation and testing to choose a sound starting point for your application."
+      },
+      "hero": {
+        "eyebrow": "Technical Article",
+        "headline": "Rutile vs Anatase Titanium Dioxide: How to Choose",
+        "directAnswer": "<p>Rutile and anatase are crystal forms of titanium dioxide, not automatic quality rankings. Rutile is commonly the stronger starting direction when high refractive index and hiding are priorities in pigment applications. Anatase can bring different optical, surface and photochemical behavior. Choose by the complete formulation, process, exposure and finished-part targets, then confirm the decision through matched testing.</p>"
+      },
+      "keyTakeaways": [
+        "Rutile and anatase have the same TiO₂ chemistry but different crystal structures.",
+        "Rutile commonly provides the stronger refractive-index and hiding direction for pigment applications.",
+        "Anatase may behave differently in optical, surface and photochemical evaluations; that difference can matter in a functional-material study.",
+        "Crystal form alone does not establish weatherability, dispersion, colour, gloss, processability or end-use suitability.",
+        "Surface treatment, particle design, dispersion, binder or polymer, loading, processing and exposure conditions all influence the result.",
+        "Use phase as a starting filter, then qualify the full formulation or finished part."
+      ],
+      "sections": [
+        {
+          "id": "section-1",
+          "heading": "What Is the Difference Between Rutile and Anatase TiO₂?",
+          "html": "<p>Rutile and anatase are two crystalline forms of titanium dioxide. The difference is not a change in chemical identity; it is a change in how titanium and oxygen atoms are arranged in the crystal lattice.</p><p>For pigment selection, this structural difference is useful because it affects how TiO₂ interacts with light and how it can behave at the particle surface. Rutile is commonly associated with a stronger refractive-index direction, which is relevant when opacity and hiding are important. Anatase has different optical and surface behavior and is often considered when a project is investigating photochemical response or another function beyond conventional white-pigment performance.</p><p>Neither description removes the need to evaluate the finished system. A pigment’s response depends on the combination of crystal form, particle design, surface treatment and the conditions in which it is dispersed, processed and used.</p>"
+        },
+        {
+          "id": "section-2",
+          "heading": "A Practical Rutile vs Anatase Selection Framework",
+          "html": "<p>Use a matched, application-specific evaluation.</p>"
+        },
+        {
+          "id": "section-3",
+          "heading": "Why Crystal Form Does Not Decide Performance by Itself",
+          "html": "<p>A material selection can go wrong when phase is treated as the whole answer. In real production systems, TiO₂ performance is shaped by several interacting factors:</p><ul><li>Surface treatment can alter wetting, dispersion, moisture response and interactions with the binder or polymer.</li></ul><ul><li>Particle design affects light scattering, tint response, gloss and process behavior.</li></ul><ul><li>Dispersion quality can change opacity, viscosity, surface appearance and consistency.</li></ul><ul><li>Binder, resin or vehicle chemistry can change pigment demand and finished-product behavior.</li></ul><ul><li>Processing conditions such as grinding energy, extrusion temperature, shear, film build and cure can alter the outcome.</li></ul><ul><li>Exposure conditions determine whether a laboratory result translates to the intended climate, light source, service environment or part geometry.</li></ul><p>For this reason, “rutile” and “anatase” should be treated as selection inputs, not final performance conclusions.</p>"
+        },
+        {
+          "id": "section-4",
+          "heading": "Implications by Application",
+          "html": "<p><strong>Coatings</strong></p><p>For coatings, a rutile direction is often screened when hiding, opacity, gloss retention or exterior appearance are important. Weatherability is governed by the complete coating: surface treatment, pigment volume concentration, binder, dispersant, substrate, film thickness, cure and exposure all matter. Anatase should not be dismissed through a simple outdoor rule; assess opacity, gloss, colour change, chalking, adhesion and visible film condition against the coating objective.</p><p><strong>Plastics</strong></p><p>In plastics, phase is one part of a decision involving resin chemistry, dispersion, compounding, processing temperature, part thickness and required appearance. A rutile starting direction can be relevant for white colour, opacity or weathering goals, while an anatase comparison needs a defined role and finished-part testing for dispersion, colour, opacity, melt behavior, plate-out, mechanical response and appropriate exposure.</p><p><strong>Inks and Functional Materials</strong></p><p>For inks, evaluate the actual vehicle and print process because fineness, rheology, print-film appearance, opacity and storage behavior can matter more than phase alone. For functional materials, state the desired response and use a controlled test method: photochemical outcomes depend on surface condition, illumination and material architecture.</p>"
+        },
+        {
+          "id": "section-5",
+          "heading": "Planning an Application Discussion",
+          "html": "<p>Define the application and validation criteria before turning a phase decision into a screening plan. Provide the current TiO₂ form or grade, formulation or polymer/binder, key process conditions, pigment loading, target performance, problem to solve, end use and expected exposure.</p><p>Technical Data Sheets are available upon request.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Selection question",
+          "Rutile starting direction",
+          "Anatase starting direction",
+          "What still needs validation"
+        ],
+        "rows": [
+          [
+            "Is opacity or hiding a primary target?",
+            "Commonly the stronger direction because of its refractive-index advantage in pigment applications.",
+            "May require separate comparison where coverage, shade and formulation economics are critical.",
+            "Dispersion, particle size distribution, loading, film thickness or part thickness, and the surrounding medium."
+          ],
+          [
+            "Is the end use exposed to weathering?",
+            "Often considered where durable appearance is a priority.",
+            "Do not exclude it only because the application is outdoors.",
+            "Surface treatment, binder or polymer, UV exposure, moisture, temperature, film build and required retention measures."
+          ],
+          [
+            "Is photochemical activity relevant?",
+            "Evaluate when the intended material function calls for it.",
+            "May show different photochemical behavior in controlled studies.",
+            "Illumination, surface condition, phase composition, geometry, test medium and the actual functional target."
+          ],
+          [
+            "Is the system a coating, ink or plastic?",
+            "A useful direction to screen where whiteness, hiding or durability are relevant.",
+            "A possible comparison direction when the formulation has a specific optical or functional requirement.",
+            "Wetting, grind or compounding behavior, rheology, filtration, thermal history, appearance and end-use performance."
+          ],
+          [
+            "Is there an existing TiO₂ grade in use?",
+            "Compare against the current material under matched conditions.",
+            "Compare only when its expected role is defined.",
+            "The complete formulation and acceptance criteria; phase alone does not establish interchangeability."
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Use rutile as a starting direction when refractive-index and hiding priorities are relevant, then test the intended formulation.",
+        "Define why anatase is being considered and evaluate its optical, surface or photochemical role under matched conditions.",
+        "Set phase, surface treatment, particle design, formulation, process and exposure variables before comparing finished parts."
+      ],
+      "commonMistakes": [
+        "Rutile is often a strong starting direction for pigment applications seeking high hiding, but it is not automatically suitable for every binder, resin, process or performance target.",
+        "Appearance is influenced by particle design, surface treatment, dispersion, loading, thickness, gloss and measurement conditions. Brightness or whiteness should be measured in the actual formulation or finished part.",
+        "Outdoor suitability cannot be decided from phase alone. Exposure performance depends on the complete system, including treatment, formulation, processing and the exposure method.",
+        "Crystal form narrows the discussion. It does not replace a review of the product family, application conditions, test requirements and technical data."
+      ],
+      "evaluationMethod": [
+        "Define the current TiO₂ form or grade and the reason for the comparison.",
+        "Record the binder, vehicle or polymer, pigment loading, additives, process settings and target performance.",
+        "Prepare matched coating panels, ink films or molded/extruded parts.",
+        "Measure initial appearance and processing results, such as opacity, colour, gloss, fineness, viscosity, dispersion quality or melt behavior.",
+        "Run the exposure, durability or functional test that matches the end use.",
+        "Review the full result set against agreed acceptance criteria before moving to production."
+      ],
+      "faqs": [
+        {
+          "question": "Is rutile TiO₂ more suitable for hiding power?",
+          "answerHtml": "<p>Rutile is commonly the stronger starting direction when hiding is a priority because of its refractive-index direction. Confirm opacity and coverage at matched loading, thickness and dispersion in the intended formulation.</p>"
+        },
+        {
+          "question": "Is anatase titanium dioxide unsuitable for exterior applications?",
+          "answerHtml": "<p>No. Crystal form alone cannot decide exterior suitability. Evaluate the complete system under the exposure conditions and retention criteria relevant to the end use.</p>"
+        },
+        {
+          "question": "Does surface treatment matter as much as crystal form?",
+          "answerHtml": "<p>It can be highly influential. Surface treatment can affect dispersion, binder or polymer interaction, moisture response and exposure behavior, so it should be included in the comparison plan.</p>"
+        },
+        {
+          "question": "Should coatings and plastics use the same TiO₂ evaluation method?",
+          "answerHtml": "<p>No. Coatings may emphasize grind quality, film appearance, cure and exposure, while plastics may emphasize compounding, thermal processing, dispersion and finished-part behavior. Each application needs its own matched method.</p>"
+        },
+        {
+          "question": "Can TIOVAR help define a screening plan?",
+          "answerHtml": "<p>Yes. Provide the current TiO₂ form or grade, formulation or polymer/binder, process, loading, target performance, problem and end use or exposure so a matched screening plan can be defined.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "application",
+          "id": "plastics"
+        },
+        {
+          "type": "resource",
+          "id": "article-02"
+        },
+        {
+          "type": "resource",
+          "id": "article-03"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Your Application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-02",
+        "title": "Chloride vs Sulfate Process Titanium Dioxide",
+        "slug": "chloride-vs-sulfate-titanium-dioxide",
+        "path": "/resources/chloride-vs-sulfate-titanium-dioxide",
+        "kind": "article",
+        "cluster": "TiO₂ Fundamentals",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Chloride vs Sulfate Process Titanium Dioxide",
+        "description": "Compare chloride and sulfate titanium dioxide routes, then select and qualify a pigment by crystal form, treatment, dispersion and application needs."
+      },
+      "hero": {
+        "eyebrow": "Technical Article",
+        "headline": "Chloride vs Sulfate Process Titanium Dioxide",
+        "directAnswer": "<p>Chloride and sulfate are alternative front-end routes for making titanium dioxide pigment. Chloride production purifies titanium tetrachloride before oxidation; sulfate production digests feedstock with sulfuric acid before hydrolysis and calcination. Neither route selects a pigment for you. Compare the candidate grade’s crystal form, particle control, surface treatment, dispersion and results in your formulation.</p>"
+      },
+      "keyTakeaways": [
+        "The chloride and sulfate routes describe different ways of separating titanium from feedstock and forming TiO₂ pigment.",
+        "Chloride processing forms and purifies titanium tetrachloride before oxidation to TiO₂.",
+        "Sulfate processing uses acid digestion, hydrolysis and calcination to form TiO₂.",
+        "Manufacturing route is not a standalone performance ranking.",
+        "A route label does not establish whiteness, opacity, durability, dispersibility, processing behavior or application fit.",
+        "Use the process field as an initial procurement filter, then qualify the individual pigment in the intended formulation and production conditions."
+      ],
+      "sections": [
+        {
+          "id": "section-1",
+          "heading": "How the Two TiO₂ Manufacturing Routes Differ",
+          "html": "<p><strong>Chloride process: titanium tetrachloride purification and oxidation</strong></p><p>In the chloride route, titanium-bearing feedstock is reacted with chlorine in the presence of a carbon reducing agent to create titanium tetrachloride (TiCl₄). The TiCl₄ intermediate is purified before being oxidized to form TiO₂ particles. The resulting pigment is then finished through steps that can include milling, classification, inorganic treatment, organic treatment and quality control.</p><p>For a buyer, the useful question is not simply “Is it chloride process?” Ask instead:</p><ul><li>Does the candidate grade’s process field identify it as chloride process?</li></ul><ul><li>What crystal form, particle profile and surface-treatment package does the grade use?</li></ul><ul><li>How does it disperse and process in the intended binder or polymer?</li></ul><ul><li>Which finished-product tests will determine fit?</li></ul><p><strong>Sulfate process: acid digestion, hydrolysis and calcination</strong></p><p>In the sulfate route, titanium-bearing feedstock is digested with sulfuric acid to make a soluble titanium sulfate intermediate. The process then hydrolyzes the titanium compound to form a hydrated titanium dioxide precursor. After washing and impurity control, calcination converts that precursor into TiO₂. The pigment is subsequently finished and treated for its intended use.</p><p>This sequence is different from chloride processing, but the route name alone does not describe the complete pigment design. Particle development, crystal form, finishing, surface treatment and quality control all affect the pigment delivered to a formulation.</p>"
+        },
+        {
+          "id": "section-2",
+          "heading": "Why the Process Question Matters to Selection",
+          "html": "<p>The route can matter when a procurement specification, internal material standard or customer requirement calls for a defined manufacturing process. It can also be a useful starting point when comparing documentation, feedstock strategy or supply options.</p><p>It should not be used as a shortcut for application suitability. A coatings, plastics, inks or functional-material formulation responds to the pigment actually supplied—not just the front-end route used to create its TiO₂ crystals.</p><p>Final behavior can depend on:</p><ul><li>Rutile or anatase crystal form</li></ul><ul><li>Primary particle development and particle-size distribution</li></ul><ul><li>Agglomeration state and dispersion behavior</li></ul><ul><li>Inorganic and organic surface treatment</li></ul><ul><li>Moisture, handling and quality-control characteristics</li></ul><ul><li>Binder or polymer compatibility</li></ul><ul><li>Pigment loading, additives and processing conditions</li></ul><ul><li>End-use exposure and the evaluation method</li></ul>"
+        },
+        {
+          "id": "section-3",
+          "heading": "Chloride vs Sulfate: A Procurement Comparison Framework",
+          "html": "<p>Use a matched, application-specific evaluation.</p>"
+        },
+        {
+          "id": "section-4",
+          "heading": "Comparison Context",
+          "html": "<p>Crystal form, manufacturing route and TiO₂ content answer different screening questions. Route identifies how a pigment was made; crystal form, particle control, surface treatment, dispersion and results in the intended formulation determine whether a candidate proceeds in qualification.</p>"
+        },
+        {
+          "id": "section-5",
+          "heading": "Planning an Application Discussion",
+          "html": "<p>For a chloride-process starting point or a structured application comparison, provide the current grade and known manufacturing process, binder or polymer, dispersion, compounding, coating, printing or conversion process, pigment loading, target performance, current problem, end use and expected exposure conditions. Start with the candidate process field, then qualify the pigment in the intended system.</p><p>Technical Data Sheets are available upon request.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Procurement or qualification question",
+          "Chloride route",
+          "Sulfate route",
+          "What to verify before selection"
+        ],
+        "rows": [
+          [
+            "How is titanium separated from feedstock?",
+            "Titanium is converted to TiCl₄, purified and oxidized.",
+            "Titanium is brought into a sulfate intermediate through acid digestion, then hydrolyzed.",
+            "Ask for the candidate grade’s process identification and technical documentation."
+          ],
+          [
+            "How are initial TiO₂ particles formed?",
+            "Oxidation of purified TiCl₄ forms TiO₂.",
+            "Hydrolysis forms a hydrated precursor that is calcined to TiO₂.",
+            "Confirm crystal form, particle-control approach and finished pigment properties."
+          ],
+          [
+            "Does the route determine finished quality?",
+            "No. Finishing, treatment, quality control and application testing remain decisive.",
+            "No. Finishing, treatment, quality control and application testing remain decisive.",
+            "Compare tested results in the same formulation and process window."
+          ],
+          [
+            "Does the route determine application suitability?",
+            "No. A chloride-process grade still needs application-specific qualification.",
+            "No. A sulfate-process grade still needs application-specific qualification.",
+            "Define the binder or polymer, loading, processing conditions and end-use requirement."
+          ],
+          [
+            "Is route a useful purchasing filter?",
+            "Yes, when a specification or screening program calls for chloride-process material.",
+            "Yes, when a specification or screening program calls for sulfate-process material.",
+            "Treat route as one documented criterion, not the final selection decision."
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Coatings: evaluate the individual pigment in the actual resin system and pigment-volume concentration with a defined test panel and cure schedule. A chloride-process designation can be a sourcing criterion, but does not replace surface-treatment, dispersion and finished-film evaluation.",
+        "Plastics and masterbatch: assess melt dispersion, filter pressure where relevant, color, opacity, thermal history, process stability and finished-part appearance in the actual resin and compounding or conversion process. The same route can produce different results when particle control, treatment and resin compatibility differ.",
+        "Printing inks: use the selected vehicle, dispersion equipment, milling route, shade or gloss objective, print process and substrate. Compare candidates through a controlled drawdown and production-representative dispersion process; route alone does not predict dispersibility, print appearance or processing behavior.",
+        "Functional materials Functional-material uses can introduce requirements beyond color and opacity, such as particle control, purity-related criteria, processing sensitivity or downstream performance. Define the application requirement before requesting a route-specific candidate. A process label cannot establish fit for a specialized system."
+      ],
+      "commonMistakes": [
+        "No. Manufacturing process is not a universal quality hierarchy. The individual grade’s crystal form, particle-size control, treatment, quality control and application results determine whether it is suitable for a specific formulation.",
+        "No. Sulfate route is a manufacturing route, not an automatic pass-or-fail result for a finished pigment. Qualification should be based on the candidate material and the intended application.",
+        "Not by itself. Dispersion, binder or polymer compatibility, additive package, loading, processing conditions and end use can materially change results.",
+        "No. Grades made through the same route can have different crystal forms, particle profiles, surface treatments and quality-control targets. Compare them through a documented evaluation plan."
+      ],
+      "evaluationMethod": [
+        "Define the current material, required process designation, binder or polymer, pigment loading, process conditions, target performance, current problem and end-use exposure.",
+        "Review the candidate’s process field and technical documentation. If chloride process is a requirement, confirm it for the actual candidate grade.",
+        "Prepare laboratory samples using the same formulation, dispersion method and processing window used for the control.",
+        "Measure the properties that affect the application: color, tint, opacity or hiding, dispersion, rheology or melt behavior, processing response and the relevant finished-product tests.",
+        "Adjust only according to a controlled protocol, recording any formulation or processing changes.",
+        "Run a production-representative trial when laboratory results support it.",
+        "Document acceptance criteria before commercial adoption."
+      ],
+      "faqs": [
+        {
+          "question": "Is chloride-process titanium dioxide always rutile?",
+          "answerHtml": "<p>Do not use a route label alone to establish the crystal form of a candidate pigment. Confirm the grade’s technical documentation and evaluate the actual material for the intended application.</p>"
+        },
+        {
+          "question": "Does sulfate-process titanium dioxide work in coatings or plastics?",
+          "answerHtml": "<p>Application fit depends on the individual pigment and formulation. Evaluate crystal form, particle control, treatment, dispersion, processing and finished-product results rather than approving or rejecting a route by itself.</p>"
+        },
+        {
+          "question": "Why does TiCl₄ purification matter in the chloride route?",
+          "answerHtml": "<p>TiCl₄ is the intermediate formed before oxidation to TiO₂. Its purification is a defining step in the chloride route, but it does not by itself predict the finished pigment’s behavior in a coating, plastic or ink.</p>"
+        },
+        {
+          "question": "Should a purchasing specification require chloride process?",
+          "answerHtml": "<p>It may be appropriate when your internal standard, customer requirement or qualification program calls for it. Pair that requirement with defined grade documentation and application-specific test criteria.</p>"
+        },
+        {
+          "question": "How do I find a chloride-process TIOVAR grade?",
+          "answerHtml": "<p>Review the process field for the candidate product record or ask TIOVAR to identify a chloride-process starting point for your application. Provide the formulation and processing context before selecting a grade.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "application",
+          "id": "plastics"
+        },
+        {
+          "type": "application",
+          "id": "printing-inks"
+        },
+        {
+          "type": "resource",
+          "id": "article-01"
+        },
+        {
+          "type": "resource",
+          "id": "article-03"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Your Application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-03",
+        "title": "Why TiO₂ Content Alone Does Not Determine Performance",
+        "slug": "tio2-content-vs-performance",
+        "path": "/resources/tio2-content-vs-performance",
+        "kind": "article",
+        "cluster": "TiO₂ Fundamentals",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "TiO₂ Content vs Finished Performance",
+        "description": "Learn why TiO₂ content alone cannot predict finished performance. Compare surface treatment, dispersion, formulation, processing and validation by application."
+      },
+      "hero": {
+        "eyebrow": "Technical Article",
+        "headline": "Why TiO₂ Content Alone Does Not Determine Performance",
+        "directAnswer": "<p>TiO₂ content helps identify composition and normalize dosage, but it cannot predict finished performance by itself. Hiding, processing, durability and appearance emerge from pigment design, surface chemistry, dispersion, formulation, film geometry and the test method. Begin with the application, declare the comparison basis, then confirm the result in the complete system.</p>"
+      },
+      "keyTakeaways": [
+        "Use TiO₂ content as a composition-screening and dosage-normalization value, not a universal quality score.",
+        "Compare grades on a declared basis: equal pigment mass, equal TiO₂ mass, or cost-to-performance at an agreed target.",
+        "Evaluate optical, processing and durability outcomes in the actual formulation.",
+        "Particle design, surface chemistry, dispersion, binder or polymer, extenders, loading, film geometry and exposure conditions can all change the result.",
+        "A grade designed for one application direction is not automatically suitable for another."
+      ],
+      "sections": [
+        {
+          "id": "section-1",
+          "heading": "What a TiO₂ Content Number Can—and Cannot—Tell You",
+          "html": "<p>TiO₂ content can be useful when checking material identity, setting a starting composition screen, and planning a comparison at equal TiO₂ mass. It can also support procurement discussions when the comparison basis and finished-performance target are clear.</p><p>It cannot independently establish hiding power, gloss, rheology, weathering response, color retention, chalk resistance, processing behavior, or suitability in a specific coating, plastic, ink, or functional-material system.</p><p>For white pigmented coatings, hiding depends on how effectively the pigment scatters light in the finished film. Refractive-index contrast between pigment and surrounding medium, plus particle size and size distribution, influence that optical response. Dispersion quality, film thickness, substrate, binder, extenders and measurement method can then change the observed result.</p>"
+        },
+        {
+          "id": "section-2",
+          "heading": "The Variables That Shape Finished Performance",
+          "html": "<p>Use a matched, application-specific evaluation.</p>"
+        },
+        {
+          "id": "section-3",
+          "heading": "Choose the Comparison Basis Before Interpreting Results",
+          "html": "<p>Three comparison methods can all be valid, but they answer different questions.</p><p><strong>Equal pigment mass</strong></p><p>Hold the total pigment mass constant and compare processing, appearance and finished performance. This approach can reveal how a grade behaves in an existing formula, but it does not equalize TiO₂ mass.</p><p><strong>Equal TiO₂ mass</strong></p><p>Adjust the trial so each candidate contributes the same TiO₂ mass. This can be useful for composition-normalized screening. It still does not predict matching rheology, dispersion, film structure, opacity or durability.</p><p><strong>Cost-to-performance</strong></p><p>Define the required finished-property target first, then compare the total formulation result at that target. Record the test method, film conditions, process conditions and commercial basis. Do not treat a composition number alone as a cost-to-performance conclusion.</p>"
+        },
+        {
+          "id": "section-4",
+          "heading": "A Controlled Illustration: Different Product Designs, Different Targets",
+          "html": "<p>TP-C200 and TP-C400 illustrate why TiO₂ content must be interpreted in context. TP-C200 reports 78% TiO₂ and is directed to high-PVC matte or flat architectural coatings; evaluate dry-film hiding, water dispersibility, rheology and oil-absorption effects, weather and scrub checks, and film integrity at the intended PVC-to-CPVC relationship.</p><p>TP-C400 reports 91% TiO₂ and is directed to durable automotive, marine and exterior-coating evaluation; evaluate weathering, gloss and color retention, chalk resistance, hiding and dispersibility in the relevant coating system.</p><p>Both are chloride-process rutile grades with different product designs and application targets. The 78% and 91% values are not a performance hierarchy, and neither grade is interchangeable with or automatically suitable for the other grade’s application direction.</p>"
+        },
+        {
+          "id": "section-5",
+          "heading": "Why This Matters for Selection, Performance and Procurement",
+          "html": "<p>A selection decision made from TiO₂ content alone can put the trial on the wrong footing. It may overlook dispersant demand, viscosity change, film integrity, gloss response, weathering requirements or the effect of extenders and binder level.</p><p>For procurement, record the intended comparison basis and the finished-property target alongside content data. For technical selection, identify the application first, set the variables that must remain controlled, and decide which measurements determine acceptance.</p>"
+        },
+        {
+          "id": "section-6",
+          "heading": "Planning an Application Discussion",
+          "html": "<p>Discuss the application before selecting a grade when the binder or polymer, process, loading, target performance, end-use exposure or comparison basis is not yet defined. This is especially important when a trial combines pigment changes with formulation changes, or when weathering, gloss, scrub, film integrity, rheology or optical targets are critical. Include the current grade, binder or polymer, process, loading, target performance, current problem and end-use or exposure conditions so the evaluation plan can be framed around the right comparison basis.</p><p>Technical Data Sheets are available upon request.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Variable",
+          "What to normalize or hold constant",
+          "What to measure",
+          "Selection implication"
+        ],
+        "rows": [
+          [
+            "TiO₂ content",
+            "State the reported content and comparison basis",
+            "Composition screen; TiO₂ delivered per trial",
+            "Useful context, but not a stand-alone fit decision"
+          ],
+          [
+            "Particle and surface design",
+            "Use comparable handling and processing conditions",
+            "Opacity, appearance, gloss, color response",
+            "Optical and surface behavior must be tested in the system"
+          ],
+          [
+            "Dispersion and rheology",
+            "Hold equipment, grind procedure and dispersant approach constant",
+            "Grind time, fineness, viscosity, settling, application behavior",
+            "A pigment can change processing demands and film uniformity"
+          ],
+          [
+            "Binder, polymer and extenders",
+            "Fix or document each formulation change",
+            "Film integrity, hiding, scrub, mechanical response, appearance",
+            "The pigment works within a full formulation, not in isolation"
+          ],
+          [
+            "Loading and film geometry",
+            "Match loading definition, application method and dry-film thickness",
+            "Contrast ratio, dry opacity, gloss, color and coverage response",
+            "A valid comparison needs a defined film condition"
+          ],
+          [
+            "Exposure and test method",
+            "Agree substrate, cure, exposure and pass/fail criteria",
+            "Weathering response, chalking, retained gloss, color change",
+            "End-use conditions determine which result is relevant"
+          ],
+          [
+            "Procurement basis",
+            "Declare equal pigment mass, equal TiO₂ mass, or cost-to-performance",
+            "Finished result against the agreed target",
+            "Cost discussions need the same performance endpoint and trial basis"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Coatings: match binder, pigment volume concentration, extender package, dry-film thickness, substrate and cure. Measure dry opacity or contrast ratio, gloss where relevant, rheology, storage behavior, adhesion, film integrity and exposure response required by the end use before interpreting a composition value.",
+        "Plastics Hold polymer type, additive package, let-down ratio, processing temperature and geometry constant. Compare dispersion, color or undertone response, opacity, extrusion or molding behavior and end-part appearance under the relevant process window.",
+        "Inks Control resin system, dispersant, milling procedure, print process, substrate and ink-film thickness. Compare fineness, viscosity, color, opacity, gloss and print appearance under matched conditions.",
+        "Functional Materials Define the material function before screening: optical response, processing behavior, durability, electrical or other application-specific properties. Keep the matrix, loading, geometry and test method explicit, then judge the completed article rather than the pigment number alone."
+      ],
+      "commonMistakes": [
+        "Treating higher TiO₂ content as stronger finished performance.",
+        "Assuming a lower-content grade designed for high-PVC paint must hide better.",
+        "Treating more surface treatment as automatic durability.",
+        "Treating equal pigment mass and equal TiO₂ mass as the same comparison basis.",
+        "Treating a favorable laboratory screen as sufficient for commercial selection without representative processing and end-use evaluation."
+      ],
+      "evaluationMethod": [
+        "Define the application, end-use exposure, target properties and acceptance criteria.",
+        "Choose and document one comparison basis: equal pigment mass, equal TiO₂ mass, or cost-to-performance.",
+        "Fix the baseline formulation, including binder or polymer, extenders, additive package, loading, substrate and film or part geometry.",
+        "Run each grade through a matched dispersion or compounding procedure. Record energy input, time, fineness and processing observations.",
+        "Measure the properties that matter to the application, such as opacity, appearance, gloss, rheology, color, film integrity, weathering response or production stability.",
+        "Repeat promising results at representative processing conditions before deciding on application fit.",
+        "Record every formulation adjustment separately so a comparison that changes pigment and formulation identifies which change produced the result."
+      ],
+      "faqs": [
+        {
+          "question": "Is TiO₂ content still useful when selecting a pigment?",
+          "answerHtml": "<p>Yes. It is useful for composition screening, material identification and declared dosage normalization. It should be considered with application-specific performance data and matched test results.</p>"
+        },
+        {
+          "question": "Should I compare grades at equal pigment mass or equal TiO₂ mass?",
+          "answerHtml": "<p>Use the basis that answers the decision question, and state it clearly. Equal pigment mass evaluates the formula at fixed pigment addition; equal TiO₂ mass normalizes composition. Neither replaces finished-system testing.</p>"
+        },
+        {
+          "question": "Can a TiO₂ content value predict hiding power?",
+          "answerHtml": "<p>No. Hiding depends on light scattering in the finished film and is influenced by particle characteristics, refractive-index contrast, dispersion, film thickness, formulation and the test method.</p>"
+        },
+        {
+          "question": "Why can a formula change rheology after a pigment change?",
+          "answerHtml": "<p>Surface characteristics, particle interactions, dispersant response, binder demand, loading and extender balance can affect viscosity and processing. Measure rheology in the actual formula.</p>"
+        },
+        {
+          "question": "How should durable exterior coatings be evaluated?",
+          "answerHtml": "<p>Use the intended binder, substrate, film build, cure and exposure protocol. Track the agreed retained-appearance and durability measures, such as gloss retention, color change, chalking and film condition.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "product",
+          "id": "TP-C200"
+        },
+        {
+          "type": "product",
+          "id": "TP-C400"
+        },
+        {
+          "type": "application",
+          "id": "high-pvc-flat-paint"
+        },
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "resource",
+          "id": "article-04"
+        },
+        {
+          "type": "resource",
+          "id": "article-06"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Your Application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-04",
+        "title": "What Does Oil Absorption Mean in Titanium Dioxide?",
+        "slug": "titanium-dioxide-oil-absorption",
+        "path": "/resources/titanium-dioxide-oil-absorption",
+        "kind": "article",
+        "cluster": "Performance",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Titanium Dioxide Oil Absorption Explained",
+        "description": "Understand titanium dioxide oil absorption, why method matching matters, and how to evaluate formulation effects in inks and high-PVC coatings."
+      },
+      "hero": {
+        "eyebrow": "Technical Article",
+        "headline": "What Does Oil Absorption Mean in Titanium Dioxide?",
+        "directAnswer": "<p>Oil absorption is the amount of a specified oil needed to reach a defined paste endpoint with a pigment under a stated test method, commonly reported as g oil per 100 g pigment. It is a method-bound indicator of powder–vehicle interaction, not a stand-alone prediction of finished-formula viscosity, binder demand, dispersant demand, or end-use performance.</p>"
+      },
+      "keyTakeaways": [
+        "Oil absorption is the amount of specified oil required to reach a defined paste endpoint under a stated method.",
+        "Compare values only with the same method, endpoint, sample handling and preferably a simultaneous agreed reference sample.",
+        "Oil absorption is a screening input for powder–vehicle interaction, not a prediction of finished viscosity, binder demand, dispersant demand or end-use performance.",
+        "TP-I100 and TP-C200 are distinct application-designed examples; their values do not establish a lower-or-higher ranking or interchangeability.",
+        "Use oil absorption to plan a dispersant ladder and high-PVC formulation screen, then validate the finished system and PVC-to-CPVC boundary."
+      ],
+      "sections": [
+        {
+          "id": "section-1",
+          "heading": "Oil absorption is a test result, not a universal formulation answer",
+          "html": "<p>For titanium dioxide, oil absorption describes how much test oil is incorporated into a known mass of pigment until the procedure’s defined endpoint is reached. The reported result is commonly expressed as grams of oil per 100 grams of pigment.</p><p>The method matters. Test oil, mixing technique, endpoint definition, sample handling and reference practice can affect the result. A useful comparison therefore uses the same method, the same endpoint and, preferably, an agreed reference sample tested at the same time.</p><p>Oil absorption can help a formulator plan a screening program, particularly when vehicle balance and rheology are important. It does not, by itself, establish finished-ink viscosity, finished-paint viscosity, binder demand, dispersant demand, hiding, storage stability or print and film performance.</p>"
+        },
+        {
+          "id": "section-2",
+          "heading": "Why lower oil absorption is not always better",
+          "html": "<p>A lower value may be relevant when a formulation needs to manage vehicle demand or flow. It is not, however, a universal quality ranking.</p><p>Titanium dioxide grades are designed for different applications, surface treatments and formulation targets. A value should be interpreted with the grade’s intended application and the complete formulation in mind. Two values measured by different methods or endpoints should not be used to rank pigments.</p><p>Even when the method is aligned, the finished result depends on variables such as:</p><ul><li>Vehicle or binder chemistry</li></ul><ul><li>Pigment and extender loading</li></ul><ul><li>Dispersant selection and dosage</li></ul><ul><li>Grinding energy and achieved fineness</li></ul><ul><li>Water, solvent or resin balance</li></ul><ul><li>Target pigment volume concentration (PVC)</li></ul><ul><li>Application method, drying or curing conditions</li></ul><p>Treat oil absorption as a starting input for formulation work, then validate the complete system.</p>"
+        },
+        {
+          "id": "section-3",
+          "heading": "Oil absorption, viscosity and vehicle demand",
+          "html": "<p>Oil absorption may indicate how a pigment could interact with the vehicle during dispersion, but it is not a finished-formula viscosity measurement. A change in powder value may or may not translate into a meaningful viscosity or flow change after the formulation is adjusted.</p><p>For example, a formulation team may hypothesize that a pigment with a higher reported oil absorption will require changes to vehicle, binder or dispersant balance. That hypothesis should be tested under controlled conditions. Grinding, particle deagglomeration, dispersant response, extender package and temperature can all alter the practical result.</p><p>The same caution applies to dispersant demand. A powder result does not predict the optimum dispersant level. Use a dosage ladder to identify the practical balance among fineness, viscosity, flow, storage stability and finished performance.</p>"
+        },
+        {
+          "id": "section-4",
+          "heading": "Oil absorption in high-PVC coatings",
+          "html": "<p>PVC and critical pigment volume concentration (CPVC) describe relationships within a complete coating formulation, not within a titanium dioxide powder measurement. At high PVC, the balance among pigment, extender, binder and void structure can be especially important to film integrity and appearance.</p><p>A pigment’s oil absorption may be relevant when planning that balance, but it does not prove a CPVC position or predict dry hiding. In a high-PVC paint, evaluate the complete formulation for dry and wet hiding, rheology, porosity, cohesion, adhesion, scrub resistance and appearance.</p>"
+        },
+        {
+          "id": "section-5",
+          "heading": "Application-designed examples",
+          "html": "<p>The following examples show why reported oil absorption values should be read as application-specific screening information, not as a performance hierarchy.</p><p>TP-I100 and TP-C200 are distinct application-designed examples. Their reported values do not establish interchangeability, a universal preference for lower or higher oil absorption, or a prediction of finished-formula performance.</p>"
+        },
+        {
+          "id": "section-6",
+          "heading": "Questions to ask before comparing two values",
+          "html": "<p>Before using oil absorption to guide a selection decision, ask:</p><ul><li>Were both values measured by the same method and endpoint?</li></ul><ul><li>Was an agreed reference sample tested at the same time?</li></ul><ul><li>Are the pigments being evaluated in the same vehicle or binder system?</li></ul><ul><li>Has dispersant dosage been optimized separately for each candidate?</li></ul><ul><li>Are pigment loading, fineness and temperature controlled?</li></ul><ul><li>Has the finished ink or coating been tested against its actual acceptance criteria?</li></ul>"
+        },
+        {
+          "id": "section-7",
+          "heading": "Planning an Application Discussion",
+          "html": "<p>Technical Data Sheets are available upon request.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Example",
+          "Reported oil absorption",
+          "Application direction",
+          "Correct interpretation"
+        ],
+        "rows": [
+          [
+            "TP-I100",
+            "14 g/100 g",
+            "Solvent-based and water-based printing inks",
+            "Use the value as one input when developing vehicle balance, dispersion and print-flow trials. Confirm fineness, viscosity, settling, redispersion and print performance in the actual ink."
+          ],
+          [
+            "TP-C200",
+            "36 g/100 g",
+            "High-PVC matte and flat architectural coatings",
+            "Use the value as one input when planning dispersant, binder and rheology screening in the complete coating. Confirm hiding, film integrity and storage behavior at the intended PVC-to-CPVC relationship."
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "For ink trials, use the aligned powder comparison to plan vehicle balance, dispersion, fineness, viscosity, settling, redispersion and print-performance checks.",
+        "For high-PVC coatings, use oil absorption to plan binder, dispersant and rheology screening, then verify dry and wet hiding, film integrity, storage behavior and PVC-to-CPVC effects.",
+        "Do not transfer a TP-I100 or TP-C200 oil-absorption value into a preference, interchangeability claim or finished-formula prediction."
+      ],
+      "commonMistakes": [
+        "Treating oil absorption as a finished-paint or finished-ink viscosity measurement.",
+        "Comparing values measured with unmatched methods, endpoints or reference practices.",
+        "Treating higher oil absorption as proof of dry hiding.",
+        "Treating lower oil absorption as proof of lower dispersant demand."
+      ],
+      "evaluationMethod": [
+        "Align the powder comparison: use the same test method, endpoint and sample handling, with an agreed reference sample tested at the same time.",
+        "Fix the starting formulation: control vehicle or binder chemistry, pigment loading, extender package and temperature.",
+        "Run an incremental dispersant ladder using the intended dispersion process; assess grind efficiency, fineness, viscosity and flow.",
+        "Assess dispersion quality under comparable mixing energy and grind endpoint; check fineness, coarse particles or residue, and visual uniformity.",
+        "Check storage stability under defined conditions and intervals; assess settling, redispersion, viscosity change and flow.",
+        "Test the finished system under matched film or print conditions for hiding, appearance, adhesion, rub, scrub, drying, gloss and other application-relevant performance."
+      ],
+      "faqs": [
+        {
+          "question": "Does oil absorption measure finished-paint or finished-ink viscosity?",
+          "answerHtml": "<p>No. It is a powder measurement made under a defined test method. Finished viscosity and flow depend on the complete formulation, dispersant response, dispersion process, temperature and other variables.</p>"
+        },
+        {
+          "question": "Can two oil absorption values be compared directly?",
+          "answerHtml": "<p>Only when the method and endpoint are aligned. A simultaneous test against an agreed reference sample provides a stronger comparison than values produced at different times or under different procedures.</p>"
+        },
+        {
+          "question": "Does higher oil absorption establish dry hiding in a coating?",
+          "answerHtml": "<p>No. Dry hiding must be measured in the finished coating at controlled film thickness and formulation conditions. Oil absorption is one formulation input and does not establish dry hiding on its own.</p>"
+        },
+        {
+          "question": "Does lower oil absorption mean lower dispersant demand?",
+          "answerHtml": "<p>Not necessarily. Dispersant demand depends on the pigment, vehicle or binder, additive package, dispersion process and target performance. Use a controlled dosage ladder to determine the practical optimum.</p>"
+        },
+        {
+          "question": "How should oil absorption be used when formulating high-PVC paint?",
+          "answerHtml": "<p>Use it to plan screening of binder balance, dispersant level, rheology and film integrity. Then verify dry and wet hiding, storage stability, porosity, cohesion, adhesion and scrub or washability as required.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "product",
+          "id": "TP-I100"
+        },
+        {
+          "type": "product",
+          "id": "TP-C200"
+        },
+        {
+          "type": "application",
+          "id": "printing-inks"
+        },
+        {
+          "type": "application",
+          "id": "high-pvc-flat-paint"
+        },
+        {
+          "type": "resource",
+          "id": "article-03"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Your Application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-05",
+        "title": "What Is CBU in Titanium Dioxide?",
+        "slug": "cbu-titanium-dioxide-meaning",
+        "path": "/resources/cbu-titanium-dioxide-meaning",
+        "kind": "article",
+        "cluster": "Performance",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "What Is CBU in Titanium Dioxide?",
+        "description": "Learn what carbon black undertone (CBU) means for titanium dioxide, why its method matters, and how to compare pigments in controlled plastics trials."
+      },
+      "hero": {
+        "eyebrow": "Technical Article",
+        "headline": "What Is CBU in Titanium Dioxide?",
+        "directAnswer": "<p>Carbon black undertone (CBU) is an index obtained by comparing a titanium dioxide–carbon black gray mixture with a reference under a defined test method. It helps describe tint direction and can support particle-size or agglomeration interpretation. Use it to screen candidates only when the method, reference, mixing, sample preparation and measurement conditions are matched.</p>"
+      },
+      "keyTakeaways": [
+        "CBU describes the gray-tint undertone of a titanium dioxide–carbon black mixture against a defined reference.",
+        "Compare CBU only when the method, carbon black, reference, mixing, preparation and measurement conditions are matched.",
+        "A higher CBU result is not a universal pigment-quality or blueness ranking.",
+        "Use CBU alongside visual gray tint and L*/b* data, then assess resin-specific dispersion and processing separately.",
+        "TP-P100 CBU, L* and b* values are reference data for a matched trial, not a finished-compound prediction."
+      ],
+      "sections": [
+        {
+          "id": "section-1",
+          "heading": "What Does CBU Mean?",
+          "html": "<p>CBU stands for carbon black undertone. In titanium dioxide evaluation, it describes the relative blueness of a controlled gray tint made with titanium dioxide and carbon black.</p><p>Published method descriptions prepare the tint by mulling titanium dioxide and a standard carbon black in a defined liquid, spreading the mixture, and comparing the gray tone against a reference. Depending on the method, a bluer gray mixture may be associated with a higher CBU result.</p><p>CBU is useful because it can add an undertone data point to an initial pigment comparison. It is not a universal standardized number that can be transferred freely among laboratories, methods or data sets.</p>"
+        },
+        {
+          "id": "section-2",
+          "heading": "Why the Test Method Matters",
+          "html": "<p>A CBU result is meaningful only inside its own comparison system. The numerical scale can change with the selected carbon black, liquid, reference, pigment amount, mixing procedure, panel or compound preparation, and visual or instrumental assessment method.</p><p>For that reason, compare CBU values only when these conditions are held constant:</p><ul><li>The same defined method and control or reference</li></ul><ul><li>The same carbon-black material and ratio</li></ul><ul><li>The same mixing and dispersion procedure</li></ul><ul><li>The same gray-film or compound preparation</li></ul><ul><li>The same measurement conditions and acceptance approach</li></ul><p>A higher CBU value does not automatically mean that one pigment is universally better or bluer than another. It indicates a result within a particular method and reference framework.</p>"
+        },
+        {
+          "id": "section-3",
+          "heading": "How to Interpret CBU in a Pigment Comparison",
+          "html": "<p>CBU should be interpreted alongside visual appearance and instrumental color data. L* and b* can help describe brightness and yellow-blue direction in the material and measurement condition being evaluated. A gray-tint CBU result does not replace compound or finished-part color checks.</p>"
+        },
+        {
+          "id": "section-4",
+          "heading": "CBU in Plastics and Masterbatch Qualification",
+          "html": "<p>In plastics and color masterbatch work, CBU can identify pigments worth taking into a matched compound trial where undertone direction is important. It remains one part of the qualification package: it does not prove dispersion, weathering performance, opacity, pigment quality or finished-part color. Those outcomes depend on resin, additive package, pigment loading, processing window and end-use requirements.</p><p>Keep CBU in its proper role as a controlled comparison input, not a stand-alone selection decision.</p>"
+        },
+        {
+          "id": "section-5",
+          "heading": "TP-P100 as an Application Starting Example",
+          "html": "<p>TP-P100 is a chloride-process rutile titanium dioxide with special inorganic and organic surface treatment. Its stated reference property data include a carbon black undertone of 17.5 index, L* of 98.3 and b* of 1.70.</p><p>It is an application starting candidate for polyolefin color masterbatch and can also be evaluated in PE, PP, ABS, PS, copolymers and rubber. These reference data should be used to plan a matched trial, rather than as a quality score or a prediction of finished-compound performance.</p><p>For an initial qualification, compare TP-P100 with the current control at matched loading and processing conditions. Review CBU with L*/b*, gray tone, dispersion, filter pressure or screen results, processing response and the finished article’s appearance.</p><p>Technical Data Sheets are available upon request.</p>"
+        },
+        {
+          "id": "section-6",
+          "heading": "Questions to Ask Before Using CBU Results",
+          "html": "<p>Before using a CBU value in a pigment decision, confirm:</p><ul><li>Which CBU method and reference were used?</li></ul><ul><li>Was the same carbon black and preparation route used for each sample?</li></ul><ul><li>Does the value describe a powder test, gray panel or polymer compound?</li></ul><ul><li>Are the resin, loading and let-down ratio matched in the masterbatch comparison?</li></ul><ul><li>Which dispersion and processing checks will be used alongside CBU?</li></ul><ul><li>Which finished-part color and appearance criteria must be met?</li></ul><p>A clear answer to these questions prevents a laboratory CBU result from being overextended into a product-selection conclusion.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Comparison question",
+          "What CBU can help indicate",
+          "What CBU cannot establish",
+          "Controls to keep matched"
+        ],
+        "rows": [
+          [
+            "Gray-tint direction",
+            "Relative blueness or undertone direction in the tested gray mixture",
+            "Finished-part shade by itself",
+            "Carbon black, ratio, reference, lighting and assessment method"
+          ],
+          [
+            "Particle and agglomeration interpretation",
+            "A screening clue related to primary-particle characteristics and agglomeration in the defined method",
+            "Full particle-size distribution or dispersion quality",
+            "Sample preparation, mixing energy and test medium"
+          ],
+          [
+            "Masterbatch screening",
+            "A comparative undertone input for selecting trial candidates",
+            "Opacity, tinting strength, processing stability or finished-part color",
+            "Resin, let-down ratio, pigment loading and compounding conditions"
+          ],
+          [
+            "Cross-grade comparison",
+            "A useful result when both samples use one controlled method",
+            "A universal rank across different methods or data sheets",
+            "Reference, scale, preparation method and measurement conditions"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Set one matched CBU method and reference before selecting candidates for plastics or masterbatch trials.",
+        "Assess dispersion independently with a resin- and process-relevant residue, filtration, speck or surface-quality check.",
+        "Track processing stability and validate color, appearance, opacity and other end-use requirements in the finished part."
+      ],
+      "commonMistakes": [
+        "Treating CBU as a direct measure of titanium dioxide dispersion in a resin.",
+        "Treating a higher CBU value as universally bluer or better.",
+        "Using CBU alone to predict finished-part color.",
+        "Comparing CBU values from unmatched methods or references as though they use a universal scale."
+      ],
+      "evaluationMethod": [
+        "Set the matched comparison: use the same CBU method, reference and control pigment, then define resin, let-down ratio and pigment loading.",
+        "Match mixing and processing: keep compounding equipment, temperature profile, shear, throughput and residence time aligned with the intended production window.",
+        "Check gray-tone and color response: compare CBU, visual gray tint, L*, b* and finished-compound color under agreed conditions.",
+        "Assess dispersion separately using screen residue, filter pressure, visible specks or another coarse-particle check relevant to the resin and process.",
+        "Monitor processing stability through melt pressure, torque, throughput and appearance consistency where relevant.",
+        "Evaluate the finished part for surface appearance, color consistency, opacity, mechanical response and end-use-specific requirements."
+      ],
+      "faqs": [
+        {
+          "question": "Is CBU the same as titanium dioxide dispersion?",
+          "answerHtml": "<p>No. CBU can support undertone and particle/agglomeration interpretation in a defined test, but it does not demonstrate dispersion in a resin. Check dispersion separately using appropriate residue, filtration, speck or surface-quality methods.</p>"
+        },
+        {
+          "question": "Does a higher CBU always mean a bluer titanium dioxide pigment?",
+          "answerHtml": "<p>No. A higher value may indicate a bluer gray undertone within one controlled method, but the result depends on the method, reference, preparation and measurement conditions. Do not compare values from unmatched methods as though they use one universal scale.</p>"
+        },
+        {
+          "question": "Can CBU predict finished-part color?",
+          "answerHtml": "<p>No. Finished-part color depends on the resin, pigment concentration, additive package, mixing, processing and geometry, as well as the color-assessment method. Verify the finished compound or part directly.</p>"
+        },
+        {
+          "question": "Why should CBU be compared with L* and b*?",
+          "answerHtml": "<p>CBU describes a controlled gray-tint comparison, while L* and b* provide additional color information under their own defined measurement conditions. Looking at all three can give a more complete screening picture, but they still do not replace end-use validation.</p>"
+        },
+        {
+          "question": "Is CBU useful for polyethylene and polypropylene masterbatch?",
+          "answerHtml": "<p>Yes, it can be a useful comparative input when the same test method and reference are used. For a production-relevant decision, also compare color, dispersion, processing behavior and finished-part performance in the actual PE or PP system.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "product",
+          "id": "TP-P100"
+        },
+        {
+          "type": "application",
+          "id": "plastics"
+        },
+        {
+          "type": "resource",
+          "id": "article-03"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Your Application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-06",
+        "title": "How Surface Treatment Changes Titanium Dioxide Performance",
+        "slug": "titanium-dioxide-surface-treatment",
+        "path": "/resources/titanium-dioxide-surface-treatment",
+        "kind": "article",
+        "cluster": "Performance",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Titanium Dioxide Surface Treatment: Performance Effects",
+        "description": "Learn how inorganic and organic titanium dioxide surface treatments influence dispersion, rheology, durability direction and coating validation."
+      },
+      "hero": {
+        "eyebrow": "Technical Article",
+        "headline": "How Surface Treatment Changes Titanium Dioxide Performance",
+        "directAnswer": "<p>Surface treatment changes how titanium dioxide particles interact with liquids, binders, dispersants and each other. Inorganic and organic layers can influence wetting, dispersion, rheology, processing, photoactivity and durability direction. Results are not assigned by one treatment ingredient: layer architecture, amount, pigment core, formulation, processing and end use must be evaluated together.</p>"
+      },
+      "keyTakeaways": [
+        "Surface treatment changes particle interactions with liquids, binders, dispersants and the surrounding environment.",
+        "Inorganic and organic layers can influence wetting, dispersion, rheology, processing and photoactivity direction.",
+        "A named treatment component does not independently establish gloss, durability, dispersion, hiding or application suitability.",
+        "Compare treatment families through matched formulation, process and finished-system evaluation."
+      ],
+      "sections": [
+        {
+          "id": "section-1",
+          "heading": "Surface treatment is part of pigment design",
+          "html": "<p>Titanium dioxide does not enter a formulation as an isolated crystal surface. Its particle surface can be modified with inorganic treatment, organic treatment, or a combination of both. These layers influence the interface between pigment, process medium, dispersant, binder and the surrounding environment.</p><p>The treatment is therefore relevant to more than one formulation question. It may affect how readily particles wet into a liquid, how they respond to a dispersant, the viscosity profile during grinding, storage and application, and how the pigment contributes to film appearance or exposure performance. It can also influence moisture-related handling and the direction of photoactivity suppression.</p><p>That does not make treatment chemistry a shortcut to product selection. The composition, amount and distribution of the treatment; layer architecture; pigment-core properties; particle morphology; treatment process; binder package; dispersant; loading; milling conditions; application method and end-use environment all contribute to the measured result. As explained in Why TiO₂ Content Alone Does Not Determine Performance, one reported pigment attribute cannot establish finished-system performance.</p>"
+        },
+        {
+          "id": "section-2",
+          "heading": "Inorganic and organic layers work through particle-surface interactions",
+          "html": "<p>Inorganic treatment may include alumina, silica, zirconia or other zirconium-containing materials. Organic treatment may be applied to further change the pigment surface's interaction with a particular medium or formulation package.</p><p>A useful way to interpret treatment is to ask what interface is being changed:</p><ul><li>The pigment-liquid interface can affect wetting and dispersion during incorporation.</li><li>The pigment-dispersant interface can affect dispersant demand, stability and rheology.</li><li>The pigment-binder interface can affect film formation, appearance and retained properties.</li><li>The pigment-environment interface can influence moisture response and the direction of photoactivity or weathering behaviour.</li></ul><p>These are formulation hypotheses to test, not automatic outcomes. A named treatment component alone does not establish gloss, durability, dispersion, hiding power or suitability for a particular application.</p>"
+        },
+        {
+          "id": "section-3",
+          "heading": "Comparing treatment families without one-to-one rules",
+          "html": "<p>Published studies of specific treated architectures illustrate why this caution matters. For example, one silica-coated titanium dioxide study found that layer morphology and subsequent organic modification changed dispersion-related and optical results within a defined printing-paste system. That does not make the result a universal rule for all silica-treated pigments or all applications.</p>"
+        },
+        {
+          "id": "section-4",
+          "heading": "What surface treatment can mean during formulation",
+          "html": "<p><strong>Wetting and dispersion</strong></p><p>A treatment can change the way a pigment first contacts the liquid phase and dispersant. If wetting is slow or incomplete, a formulation may show higher grind effort, agglomerates, unstable viscosity or variable appearance. If wetting improves under a particular formulation condition, the same effect may not carry over to a different binder, solvent balance, neutralization state or dispersant chemistry.</p><p><strong>Rheology and processing</strong></p><p>Pigment surface interactions can influence low-shear viscosity, high-shear viscosity, flow, thickening response and processing latitude. A treatment may also affect how the formulation responds to mixing order, grind energy and pigment loading. Compare candidates at the same binder, dispersant package, pigment volume and controlled process conditions before interpreting viscosity differences.</p><p><strong>Binders, dispersants and moisture</strong></p><p>A pigment is evaluated within a complete system, not independently of it. Changing the dispersant, resin, co-solvent, pH, neutralization package or water quality can alter the observed behaviour of the same treated pigment. Moisture-related handling and storage effects likewise need to be checked in the actual process and package conditions.</p><p><strong>Photoactivity and durability direction</strong></p><p>Surface layers may be designed to alter pigment exposure at the interface and may contribute to a direction of reduced photoactivity. In a coating, durability remains a system result. Binder chemistry, film build, cure, substrate preparation, pigmentation, additives and the exposure protocol affect weathering, chalking, gloss retention and colour retention alongside the pigment.</p>"
+        },
+        {
+          "id": "section-5",
+          "heading": "Application-designed examples for evaluation",
+          "html": "<p>TP-C300 is a chloride-process rutile titanium dioxide with silicon-aluminum and special organic surface treatment. It is directed toward automotive OEM and refinish, marine, aerospace, exterior architectural, coil and powder coatings, with evaluation priorities that include durability, weather resistance, gloss, hiding power, dispersibility and colour retention. This is an application-designed example, not a general performance rule for any silicon-aluminum and organic treatment package. See the wider coatings application context when defining the binder, application and exposure conditions for comparison.</p><p>TP-C120 is a chloride-process rutile titanium dioxide with zirconium-aluminum and special organic surface treatment for water-based interior and exterior wall emulsion paint. Its evaluation direction includes relatively low viscosity, bluish tone, gloss, durability and hiding power. This is likewise a distinct application-designed example; it does not establish equivalence with another pigment or predict results outside the complete water-based paint formulation.</p><p>Technical Data Sheets are available upon request.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Treatment family",
+          "Particle-surface interaction it may change",
+          "Formulation questions to investigate",
+          "Why results cannot be assumed"
+        ],
+        "rows": [
+          [
+            "Alumina-containing treatment",
+            "Surface hydroxyl chemistry, particle interaction and response to formulation ingredients",
+            "Wetting, dispersant demand, viscosity, storage and film appearance",
+            "Treatment level, deposition, organic over-treatment, pigment core and binder system can change the outcome"
+          ],
+          [
+            "Silica-containing treatment",
+            "Surface chemistry, barrier behaviour and interaction with aqueous or non-aqueous media",
+            "Dispersion, photoactivity direction, rheology, optical balance and exposure response",
+            "A silica-containing architecture may behave differently as layer amount, coverage, morphology and formulation change"
+          ],
+          [
+            "Zirconia- or zirconium-containing treatment",
+            "Surface composition and interaction with dispersants, binders and moisture",
+            "Viscosity, stability, film appearance, weathering and application response",
+            "Zirconium-containing treatment is not a stand-alone predictor of gloss or any other finished-coating property"
+          ],
+          [
+            "Organic treatment",
+            "Affinity with the process medium, dispersant and binder system",
+            "Wetting rate, grind efficiency, flow, storage, redispersion and end-use compatibility",
+            "Organic chemistry, coverage, process history and the complete formulation determine whether an effect is observed"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Compare surface-treatment designs in the intended formulation instead of treating a named treatment or a greater treatment amount as a universal benefit.",
+        "Match pigment loading, binder, dispersant, process conditions and target measurements before interpreting wetting, rheology or retained-property results.",
+        "Use finished-system testing to decide whether a treatment direction supports the application objective."
+      ],
+      "commonMistakes": [
+        "Treating more treatment or one treatment ingredient as universally better.",
+        "Using a treatment name as proof of dispersion, gloss, durability or finished-system performance.",
+        "Comparing pigments without matching the binder, dispersant, loading, process and end-use conditions."
+      ],
+      "evaluationMethod": [
+        "Select the actual binder, dispersant, solvent or water balance, additives and target pigment loading for the application.",
+        "Keep grind equipment, order of addition, energy input, temperature and let-down conditions controlled across samples.",
+        "Measure viscosity and rheology at relevant shear conditions, including any change after let-down.",
+        "Check fineness and, where relevant, particle-size distribution or coarse-particle content to identify incomplete dispersion or agglomeration.",
+        "Assess storage stability and redispersion after a defined storage period and temperature condition.",
+        "Apply films at controlled thickness, then compare opacity, gloss, colour and visual uniformity.",
+        "Add scrub testing for architectural paint where relevant; add durability or weathering evaluation for exterior, automotive, marine, coil, powder or other exposure-sensitive uses.",
+        "Confirm the candidate in the real application process, including application, cure, substrate and end-use checks."
+      ],
+      "faqs": [
+        {
+          "question": "Does silica treatment automatically improve durability?",
+          "answerHtml": "<p>No. A silica-containing layer may influence particle-surface behaviour and photoactivity direction, but durability depends on the treatment architecture, pigment core, binder, film build, cure and exposure conditions. Validate the complete coating.</p>"
+        },
+        {
+          "question": "Does alumina treatment automatically improve dispersion?",
+          "answerHtml": "<p>No. Alumina-containing treatment can change surface interactions, but dispersion depends on the liquid phase, dispersant, binder, process conditions and treatment design. Test wetting, fineness, rheology and storage in the target formulation.</p>"
+        },
+        {
+          "question": "Does zirconium-containing treatment establish gloss?",
+          "answerHtml": "<p>No. Zirconium- or zirconia-containing treatment can be part of a pigment design, but gloss is also influenced by dispersion quality, film flow, substrate, application, cure and the entire formulation.</p>"
+        },
+        {
+          "question": "Why can an organic treatment change process behaviour?",
+          "answerHtml": "<p>Organic treatment can change how a pigment surface interacts with the process medium, dispersant and binder. The observed effect may include a change in wetting, rheology or stability, but it must be measured in the actual formulation rather than assumed from the treatment name.</p>"
+        },
+        {
+          "question": "How should I compare two surface-treated pigments?",
+          "answerHtml": "<p>Use the same binder, dispersant, pigment loading, grind conditions, application method and test protocol. Compare dispersion, viscosity, fineness, storage, film appearance and the end-use properties that matter for the application.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-03"
+        },
+        {
+          "type": "product",
+          "id": "TP-C300"
+        },
+        {
+          "type": "product",
+          "id": "TP-C120"
+        },
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "application",
+          "id": "water-based-paint"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Your Application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-07",
+        "title": "How to Evaluate a Titanium Dioxide Alternative Grade",
+        "slug": "evaluate-titanium-dioxide-alternative",
+        "path": "/resources/evaluate-titanium-dioxide-alternative",
+        "kind": "article",
+        "cluster": "Grade Replacement",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "How to Evaluate a Titanium Dioxide Alternative Grade",
+        "description": "Use a staged framework to evaluate a titanium dioxide alternative grade through controlled lab comparison, formulation adjustment and production validation."
+      },
+      "hero": {
+        "eyebrow": "Technical Article",
+        "headline": "How to Evaluate a Titanium Dioxide Alternative Grade",
+        "directAnswer": "<p>Evaluate a titanium dioxide alternative grade through a controlled, staged comparison—not by matching a few powder properties. First define the current control and acceptance limits, then screen documents and powder data, run a one-variable same-formulation lab test, adjust the candidate where justified, complete a production-representative trial, and obtain finished-product approval.</p>"
+      },
+      "keyTakeaways": [
+        "An alternative grade is a candidate for evaluation, not an assumed one-for-one substitute.",
+        "Powder and document data can help form a test hypothesis, but they cannot establish finished-system performance.",
+        "A same-formulation comparison shows the initial effect of changing the pigment; it does not show the candidate’s performance after candidate-specific optimization.",
+        "Production-representative processing and finished-product approval remain necessary before commercial adoption."
+      ],
+      "sections": [
+        {
+          "id": "section-1",
+          "heading": "Start with the current control, not the candidate",
+          "html": "<p>A meaningful evaluation starts by defining what the current grade does in the actual system. Record the formulation, process settings, test methods, current results and acceptance limits before introducing a candidate. This turns “looks similar” into a controlled technical question.</p><p>Define the decision criteria in advance. Depending on the application, these may include appearance, opacity or tinting response, dispersion, viscosity or melt flow, processing stability, storage, finished-product performance and exposure-related durability. Rank the criteria by importance and identify any non-negotiable limits.</p><p>The candidate should then be evaluated against the current control under the same documented conditions. A change in result can be interpreted only when the formulation and process variables are controlled.</p><p>For background on why one reported property cannot determine a finished result, see Why TiO₂ Content Alone Does Not Determine Performance. Related screening factors include titanium dioxide oil absorption, CBU and titanium dioxide surface treatment.</p>"
+        },
+        {
+          "id": "section-2",
+          "heading": "A staged decision framework",
+          "html": "<p>The stages should be documented as an evidence path. A favourable early screen is useful, but it should not be treated as the final selection decision.</p>"
+        },
+        {
+          "id": "section-3",
+          "heading": "Build the same-formulation laboratory comparison",
+          "html": "<p>The first laboratory screen should change one main variable: the pigment grade. Keep the formula, raw-material sources, addition order, dispersion or compounding method, energy input, temperature and test procedure aligned with the current control.</p><p>Record practical observations as well as measured values. For liquid systems, note wetting, grind behavior, fineness, viscosity, flow, storage response and application appearance. For plastics and masterbatch, record feed behavior, dispersion, melt-flow response, extrusion conditions and finished-part appearance. For inks, maintain the same vehicle, milling conditions, printing method and drying conditions.</p><p>If the candidate misses an acceptance criterion, identify the mechanism to investigate before changing the formula. For example, a rheology shift may justify a controlled review of dispersant or binder balance; an appearance difference may require review of dispersion quality, film build, print conditions or loading. Do not change several variables at once, because the result will no longer show what caused the improvement or loss.</p>"
+        },
+        {
+          "id": "section-4",
+          "heading": "Cross-application scorecard",
+          "html": "<p>Use a scorecard that keeps common evaluation categories visible while allowing application-specific tests. The table is a planning tool, not a universal test method.</p><table><thead><tr><th>Evaluation area</th><th>Coatings</th><th>Plastics and masterbatch</th><th>Inks</th><th>Other systems</th></tr></thead><tbody><tr><td>Appearance and optics</td><td>Hiding, colour, gloss, film uniformity and visual defects</td><td>Whiteness, undertone, opacity, streaking and surface appearance</td><td>Hiding, colour, print appearance and uniformity</td><td>Define the relevant optical or visual requirement for the finished system</td></tr><tr><td>Dispersion</td><td>Fineness, agglomerates, grind response and film consistency</td><td>Dispersion quality, specks, filter-pressure behavior where relevant and distribution in the polymer</td><td>Milling response, fineness, coarse particles and print consistency</td><td>Use a system-appropriate dispersion or particle-distribution check</td></tr><tr><td>Rheology or melt flow</td><td>Low- and high-shear viscosity, flow, sag or application response</td><td>Melt flow, pressure, torque, throughput and process stability</td><td>Viscosity, flow, transfer and printability</td><td>Select the processing variable that governs the system</td></tr><tr><td>Processing</td><td>Mixing, grinding, let-down, application and cure conditions</td><td>Feeding, compounding, extrusion, molding or film conversion</td><td>Milling, filtration, printing and drying</td><td>Use representative equipment and conditions</td></tr><tr><td>Storage</td><td>Viscosity drift, settling, redispersion and package stability</td><td>Handling, moisture control and retained processing behavior where relevant</td><td>Settling, redispersion, filtration and viscosity stability</td><td>Define the actual storage and handling exposure</td></tr><tr><td>Finished performance</td><td>Adhesion, film integrity, scrub, gloss retention or other specified film properties</td><td>Mechanical properties, finished-part appearance and use-related performance</td><td>Rub, adhesion, print durability or other print requirements</td><td>Establish product-specific functional tests before screening</td></tr><tr><td>Application-specific durability</td><td>Exposure, chalking, colour or gloss retention where applicable</td><td>Weathering, heat-aging or retained appearance where applicable</td><td>Resistance or exposure testing relevant to the printed article</td><td>Use the end-use exposure and approval method appropriate to the system</td></tr></tbody></table>"
+        },
+        {
+          "id": "section-5",
+          "heading": "Application implications",
+          "html": "<p><strong>Coatings</strong></p><p>A coating comparison should distinguish between pigment effects and changes caused by dispersion, binder balance, pigment-volume position, application method, film build and cure. Compare the current control and candidate under matched conditions before considering any formulation adjustment. When exterior or other exposure-sensitive performance matters, include the relevant finished-film durability checks in the approval plan.</p><p><strong>Plastics and masterbatch</strong></p><p>In plastics and masterbatch, a candidate can affect dispersion, melt behavior, process stability and the appearance of the finished article. A powder comparison alone cannot show how the pigment will behave during compounding, extrusion, molding or conversion. Test under representative temperature and throughput conditions, then review the actual finished part or film.</p><p><strong>Inks</strong></p><p>Inks require control of the vehicle, milling process, filtration, printing method and drying conditions. A candidate that appears acceptable after milling may still need assessment for storage, transfer, print appearance and the relevant finished-print requirement. Match the intended print process before interpreting the result.</p><p><strong>Other systems</strong></p><p>Paper, film, functional materials and other systems need their own decision criteria. Start with the performance requirement, then define the process variables and finished-product tests that can demonstrate it. Do not assume that a scorecard developed for another application family answers the selection question.</p>"
+        },
+        {
+          "id": "section-6",
+          "heading": "When to discuss the application",
+          "html": "<p>Discuss the application before selecting a test candidate when the end-use exposure, process window, formulation limits or failure mode is unclear. The technical discussion is more useful when it includes:</p><ul><li>Current grade details and the reason for the evaluation.</li><li>Formulation type, resin, binder or vehicle.</li><li>Pigment loading and relevant additive package.</li><li>Manufacturing process, equipment and operating conditions.</li><li>The observed failure mode or performance objective.</li><li>Acceptance limits, test method and target end-use exposure.</li></ul><p>Technical Data Sheets are available upon request.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Stage",
+          "What to do",
+          "What it can show",
+          "What it cannot show"
+        ],
+        "rows": [
+          [
+            "1. Define the control and acceptance criteria",
+            "Document the current grade, formulation, loading, process, test methods, target values and failure limits.",
+            "What success means for the actual application.",
+            "Whether a candidate will meet those limits."
+          ],
+          [
+            "2. Document and powder-data triage",
+            "Review available technical information and compare relevant reference data with the current control.",
+            "Which candidates may justify a laboratory screen and which questions to test.",
+            "Finished-product performance or processing compatibility."
+          ],
+          [
+            "3. Same-formulation, one-variable screen",
+            "Substitute only the candidate pigment while holding the formulation, equipment and process conditions constant.",
+            "The initial effect of the pigment change in the current system.",
+            "The candidate’s performance after formulation adjustment or at production scale."
+          ],
+          [
+            "4. Candidate-specific adjustment",
+            "Adjust only variables supported by the observed result, such as dispersant demand, binder balance, let-down, processing conditions or loading.",
+            "Whether the candidate can be evaluated fairly within a controlled formulation-development window.",
+            "Performance outside the tested formulation or application."
+          ],
+          [
+            "5. Production-representative trial",
+            "Use representative equipment, throughput, process conditions and quality checks.",
+            "Whether the laboratory finding remains credible in the intended manufacturing process.",
+            "Customer acceptance in every end-use condition."
+          ],
+          [
+            "6. Finished-product and customer approval",
+            "Evaluate the finished article, film, print or other final product against agreed requirements.",
+            "Whether the tested system meets its defined approval criteria.",
+            "Future performance under untested materials, conditions or end uses."
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Define the current control, acceptance limits and non-negotiable conditions before screening a candidate grade.",
+        "Keep the first laboratory formula and process matched so the initial pigment effect can be interpreted.",
+        "Treat candidate adjustment and production-representative validation as later stages, with finished-product acceptance required before adoption."
+      ],
+      "commonMistakes": [
+        "Treating similar reported properties as proof of comparable formulation behavior.",
+        "Changing pigment, dispersant, loading and process settings in the same screen.",
+        "Comparing samples made with different equipment, energy input, temperatures or application conditions.",
+        "Stopping after an initial laboratory result without representative process validation.",
+        "Using only a visual comparison when rheology, melt flow, storage or finished performance is critical.",
+        "Defining acceptance criteria after the candidate result is known. Ignoring the customer’s end-use conditions during the final approval stage."
+      ],
+      "evaluationMethod": [
+        "Prepare the current formulation as the control and confirm that it gives an expected baseline result.",
+        "Introduce the candidate at the same pigment loading and keep other formulation and process variables unchanged.",
+        "Test the priority criteria defined at the start of the program, including relevant appearance, dispersion, process and finished-performance measures.",
+        "Review the gap against the acceptance limits. If adjustment is technically justified, define a limited candidate-specific adjustment plan and document each change.",
+        "Re-test the adjusted candidate against the same control and acceptance criteria.",
+        "Move only credible candidates to a production-representative trial with documented operating conditions and quality checks.",
+        "Complete finished-product and customer approval using the end-use requirements that govern the product."
+      ],
+      "faqs": [
+        {
+          "question": "Can powder data confirm that a titanium dioxide candidate will work in my formulation?",
+          "answerHtml": "<p>No. Powder and document data can support initial screening, but the formulation, processing conditions and end-use requirements determine the final result. Use the data to define a controlled comparison, then validate the complete system.</p>"
+        },
+        {
+          "question": "Why should the first lab comparison keep the formula unchanged?",
+          "answerHtml": "<p>A same-formulation comparison isolates the initial effect of changing the pigment. If several variables change at once, it becomes difficult to determine whether the candidate, formulation adjustment or process change caused the result.</p>"
+        },
+        {
+          "question": "When should a candidate-specific formulation adjustment be considered?",
+          "answerHtml": "<p>Consider an adjustment only after the same-formulation screen identifies a clear, relevant gap and there is a defined technical reason to investigate it. Document the adjustment and compare it again with the current control under the same acceptance criteria.</p>"
+        },
+        {
+          "question": "Is a laboratory result enough before use in production?",
+          "answerHtml": "<p>Usually, no. Laboratory work can support a decision to proceed, but representative production processing may reveal effects on throughput, stability, appearance or quality that were not visible at laboratory scale.</p>"
+        },
+        {
+          "question": "What information should be prepared for a technical discussion?",
+          "answerHtml": "<p>Prepare the current grade details, formulation or resin/binder/vehicle, loading, process, failure mode, acceptance limits and end-use exposure. This information helps define a focused evaluation plan.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-03"
+        },
+        {
+          "type": "resource",
+          "id": "article-04"
+        },
+        {
+          "type": "resource",
+          "id": "article-05"
+        },
+        {
+          "type": "resource",
+          "id": "article-06"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Your Application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-08",
+        "title": "How to Reduce TiO₂ Cost in High-PVC Flat Paint",
+        "slug": "reduce-tio2-cost-high-pvc-paint",
+        "path": "/resources/reduce-tio2-cost-high-pvc-paint",
+        "kind": "article",
+        "cluster": "Application Testing",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Reduce TiO₂ Cost in High-PVC Flat Paint",
+        "description": "Learn how to evaluate TiO₂ cost in high-PVC flat paint through PVC/CPVC, pigment spacing, extenders and verified hiding and film performance."
+      },
+      "hero": {
+        "eyebrow": "Technical Article",
+        "headline": "How to Reduce TiO₂ Cost in High-PVC Flat Paint",
+        "directAnswer": "<p>Reducing TiO₂ cost in a high-PVC flat paint means lowering the cost to meet an agreed hiding and film-performance target, not simply using less pigment. Start with a matched control, then examine pigment spacing, PVC/CPVC position, extenders, binder and dispersant response. TP-C200 is a high-PVC evaluation candidate, but it requires formulation rebalancing and full-film validation before any cost conclusion.</p>"
+      },
+      "keyTakeaways": [
+        "Pigment cost per kilogram is only one cost input. Compare total formula cost per liter, applied cost per area, and cost to achieve the agreed hiding and film-performance target.",
+        "A TiO₂ reduction is not automatically a cost reduction after changes in binder, dispersant, extender, density, solids, spreading rate, or coat count are considered.",
+        "PVC and CPVC are formulation-specific. Moving toward or above CPVC can change porosity, cohesion, adhesion, scrub or washability, appearance, and durability.",
+        "Pigment spacing, dispersion, extender selection, binder balance, and dry-film thickness all influence observed hiding.",
+        "TP-C200 is a special-surface-treated chloride-process rutile pigment for high-PVC matte and flat architectural-coating evaluation. Its reported TiO₂-content and high-oil-absorption profile are formulation considerations, not a quality ranking or proof of savings.",
+        "Use a one-variable screen to understand direction, then optimize each candidate formulation separately before comparing cost and performance."
+      ],
+      "sections": [
+        {
+          "id": "section-1",
+          "heading": "Define “cost reduction” before changing the formula",
+          "html": "<p>A low pigment purchase cost does not establish a lower-cost paint. In high-PVC flat paint, a useful evaluation separates four different questions:</p><p>Set the acceptance target first. It may include dry hiding, contrast ratio, target dry-film thickness, sheen, application behavior, scrub or washability, adhesion, cohesion, porosity, and weathering where the end use requires it.</p><p>For broader context on why composition alone does not predict the result, see TiO₂ content versus performance.</p>"
+        },
+        {
+          "id": "section-2",
+          "heading": "Why pigment spacing matters in high-PVC flat paint",
+          "html": "<p>White-pigment hiding is created by light scattering in the finished film. The practical outcome is influenced by pigment particle characteristics, dispersion, refractive-index contrast, film thickness, substrate, binder, extenders, and the selected test method.</p><p>Pigment spacing is therefore a formulation outcome rather than a fixed powder property. If pigment particles are poorly dispersed, excessively crowded, or separated by an unsuitable binder and extender structure, the film may not deliver the hiding expected from a simple loading calculation. Changing TiO₂ level can also alter rheology, density, solids, application thickness, and the amount of paint needed per area.</p><p>At high PVC, extenders can help set the required film structure and economics, but they are not a universal one-to-one match for TiO₂. Their particle size, shape, oil demand, refractive-index contrast, packing behavior, and interaction with the binder package can change both wet processing and dry-film performance.</p>"
+        },
+        {
+          "id": "section-3",
+          "heading": "PVC, CPVC, and dry void structure",
+          "html": "<p>PVC is the volume fraction of pigment and extenders in the nonvolatile portion of a coating. CPVC is the formulation-specific point at which there is insufficient binder to fill the interparticle space completely.</p><p>The position relative to CPVC should be treated as a working formulation hypothesis, not as a universal number. As a coating moves toward or above its effective CPVC, dry void structure and porosity can increase. That may change dry hiding or appearance in some systems, but it can also reduce cohesion, adhesion, scrub or washability, and durability. Dry void formation is not free hiding and is not universally desirable.</p><p>A high-PVC flat-paint program should therefore document the pigment and extender package, binder type and level, dispersant, thickener system, PVC, estimated CPVC position, target dry-film thickness, and application method before interpreting a cost comparison.</p><p>For system-specific context, see titanium dioxide for high-PVC paint and the wider coatings application area.</p>"
+        },
+        {
+          "id": "section-4",
+          "heading": "A transparent cost-normalization framework",
+          "html": "<p>Use the customer’s current purchase costs, production yields, and verified application results. Do not insert assumed prices or apply another formula’s coverage claim.</p><table><thead><tr><th>Calculation</th><th>Formula</th><th>Use in the evaluation</th></tr></thead><tbody><tr><td>Formula cost per liter</td><td>Sum of each ingredient’s mass per liter × its current cost per kg, plus applicable manufacturing cost</td><td>Compares actual paint cost at the candidate’s measured density and solids</td></tr><tr><td>Applied paint cost per m²</td><td>Paint cost per liter ÷ verified spreading rate in m²/L</td><td>Converts manufactured-paint cost into area-based cost</td></tr><tr><td>Applied cost for the agreed coat system</td><td>Applied paint cost per m² × agreed number of coats, with project-defined application costs where relevant</td><td>Compares the cost of reaching the required coverage and finish</td></tr><tr><td>Cost to reach the target</td><td>Applied cost per m² only after agreed hiding and film-performance acceptance</td><td>Prevents a lower-cost, lower-performing formula from being treated as an optimization</td></tr></tbody></table><p>Spreading rate must be verified under the agreed substrate, application method, dry-film thickness, and coat system. A candidate that appears less expensive per liter may require more paint per m² or an additional coat to reach the same visual result.</p>"
+        },
+        {
+          "id": "section-5",
+          "heading": "TP-C200: use a formulation-led evaluation",
+          "html": "<p>TP-C200 is a chloride-process rutile pigment with special surface treatment, intended for evaluation in high-PVC architectural matte and flat coatings, including systems above CPVC. Its product direction includes dry-film hiding, water dispersibility, weather resistance, and high oil absorption as a formulation factor.</p><p>The grade’s reported TiO₂-content and high-oil-absorption profile should not be used as a quality ranking, a stand-alone hiding prediction, or proof of savings. Rebalance the dispersant, binder, extenders, PVC, and rheology package, then validate the complete dry film.</p><p>For related formulation context, see titanium dioxide oil absorption.</p>"
+        },
+        {
+          "id": "section-6",
+          "heading": "Practical implications for the lab and production line",
+          "html": "<p>A credible high-PVC cost study should measure:</p><ul><li>Wet hiding, dry hiding, contrast ratio, or another agreed hiding-power measurement at matched film thickness</li><li>Spreading rate under the defined substrate, application method, and coat system</li><li>Paint density and solids for formula-cost and yield normalization</li><li>Viscosity, rheology, grind quality, and fineness after dispersant optimization</li><li>Storage behavior, including viscosity change, settling, and redispersion where relevant</li><li>Brush, roller, or spray application behavior for the intended paint</li><li>Scrub or washability, adhesion, cohesion, porosity, and dry-film appearance</li><li>Weathering or accelerated exposure only where the coating has a relevant exterior-performance requirement</li></ul><p>An agreed instrumental hiding-power method can improve consistency when maximum precision is required. The method, substrate, dry-film thickness, drying conditions, and pass/fail criteria should be defined before comparing the data.</p>"
+        },
+        {
+          "id": "section-7",
+          "heading": "When to discuss the flat-paint system",
+          "html": "<p>Discuss the system before making a commercial decision when the project has a demanding hiding target, an uncertain PVC/CPVC position, a substantial extender change, stringent scrub or washability requirements, an exterior-exposure requirement, or a change in application method.</p><p>Useful starting information includes the current control formula, target PVC and estimated CPVC position, binder and extender package, current TiO₂ loading, dispersant and thickener system, density, solids, target dry-film thickness, hiding method, acceptance criteria, and the intended application process.</p><p>Technical Data Sheets are available upon request.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Comparison basis",
+          "What it answers",
+          "What it does not answer by itself"
+        ],
+        "rows": [
+          [
+            "Pigment purchase cost per kg",
+            "Procurement cost of a raw material",
+            "Formula cost, hiding, application yield, or film performance"
+          ],
+          [
+            "Total formula cost per liter",
+            "Cost of the manufactured paint at its actual density and solids",
+            "Whether the paint reaches the required hiding or spreading rate"
+          ],
+          [
+            "Applied cost per m²",
+            "Cost of paint needed for the verified coat system",
+            "Whether appearance and film properties are acceptable"
+          ],
+          [
+            "Cost to reach the agreed target",
+            "Economic result after hiding and film acceptance are met",
+            "A universal saving applicable to another formula"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Compare total formula and applied cost only after matched hiding, dry-film thickness and agreed film-performance targets are met.",
+        "Record density, solids, spreading rate, coat count, PVC/CPVC position, binder and extender changes with every candidate result.",
+        "Use a same-formulation screen to establish direction, then optimize each candidate formulation separately before comparing outcomes."
+      ],
+      "commonMistakes": [
+        "Treating an extender as a one-to-one substitute for TiO₂: Extenders may contribute to packing, rheology, and flat-paint structure, but their effect depends on the whole formula. Confirm the dry-film result instead of assigning a fixed TiO₂-reduction ratio.",
+        "Treating lower TiO₂ loading as automatic savings: Reducing TiO₂ can change hiding, density, required coat count, binder demand, or spreading rate. Compare the cost of achieving the target, not only the cost of the batch.",
+        "Moving above CPVC without checking film integrity: A more porous structure can change appearance and dry hiding, but it can also affect cohesion, adhesion, scrub or washability, and durability. Validate the intended end-use requirements.",
+        "Comparing candidates at unmatched dry-film thickness: A thicker film can appear to hide better. Control film thickness, substrate, application procedure, and drying schedule before interpreting contrast ratio or hiding-power data.",
+        "Using a same-formulation screen as the final answer: The control formula may not be the optimum formula for every pigment candidate. Use the one-variable screen to establish direction, then run candidate-specific optimization."
+      ],
+      "evaluationMethod": [
+        "Stage 1: same-formulation, one-variable screen: Use the current control formula as the control. Change only the TiO₂ candidate while holding the remaining formula, process, substrate, and target dry-film thickness constant. This stage is used to understand direction. Record wet and dry hiding, contrast ratio or hiding power, density, solids, viscosity, grind or fineness, and application behavior. A one-variable screen can reveal whether a candidate changes the system enough to justify further work, but it is not the basis for a final cost conclusion.",
+        "Stage 2: candidate-specific formulation optimization: For each candidate that merits further work, optimize the dispersant, binder, extender package, PVC, and rheology independently. Keep dry-film thickness matched when comparing hiding and appearance. The goal is to identify whether each formulation can meet the same agreed target, not to force every candidate into the control formula. Record all changes so that formula cost and applied cost can be normalized transparently."
+      ],
+      "faqs": [
+        {
+          "question": "Does using less TiO₂ always lower high-PVC paint cost?",
+          "answerHtml": "<p>No. A lower TiO₂ loading can change formula cost, hiding, spreading rate, density, coat count, and film performance. Compare applied cost per area only after the candidate reaches the agreed target.</p>"
+        },
+        {
+          "question": "Can TP-C200 be evaluated by changing only the pigment?",
+          "answerHtml": "<p>Yes, as a same-formulation, one-variable screen to understand direction. It cannot establish the final economic or performance result, because candidate-specific optimization of dispersant, binder, extenders, PVC, and rheology may be required before a matched comparison.</p>"
+        },
+        {
+          "question": "Can a formula above CPVC provide acceptable flat-paint performance?",
+          "answerHtml": "<p>It may be evaluated, but the result is formulation-specific. Check dry hiding alongside porosity, cohesion, adhesion, scrub or washability, appearance, and any relevant durability requirement.</p>"
+        },
+        {
+          "question": "Which hiding result should be used for the cost comparison?",
+          "answerHtml": "<p>Use the result agreed for the project, such as contrast ratio, hiding power, or another defined method. Control dry-film thickness, substrate, application conditions, drying, and the coat system.</p>"
+        },
+        {
+          "question": "Why should paint density and solids be recorded?",
+          "answerHtml": "<p>They affect the amount of raw material and paint represented by one liter, as well as practical spreading rate. Recording both helps normalize formula cost and applied cost fairly.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "resource",
+          "id": "article-03"
+        },
+        {
+          "type": "resource",
+          "id": "article-04"
+        },
+        {
+          "type": "product",
+          "id": "TP-C200"
+        },
+        {
+          "type": "application",
+          "id": "high-pvc-flat-paint"
+        },
+        {
+          "type": "application",
+          "id": "coatings"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Your Application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-09",
+        "title": "Why Titanium Dioxide Can Cause Yellowing or Degradation in Polycarbonate",
+        "slug": "titanium-dioxide-polycarbonate-yellowing",
+        "path": "/resources/titanium-dioxide-polycarbonate-yellowing",
+        "kind": "article",
+        "cluster": "Application Testing",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "TiO2 Yellowing and Degradation in Polycarbonate",
+        "description": "Learn why titanium dioxide may affect polycarbonate yellowing or degradation, and how to validate moisture, heat history, flow, color and part quality."
+      },
+      "hero": {
+        "eyebrow": "Technical Article",
+        "headline": "Why Titanium Dioxide Can Cause Yellowing or Degradation in Polycarbonate",
+        "directAnswer": "<p>Titanium dioxide does not always cause polycarbonate yellowing or degradation. The outcome depends on the combined resin–pigment–additive–moisture–process system. Pigment surface chemistry, moisture, drying, melt temperature, residence time, repeat heat history and stabilizer compatibility can all influence color drift or polymer change. Confirm the cause with a controlled comparison rather than attributing every result to the pigment alone.</p>"
+      },
+      "keyTakeaways": [
+        "Yellowing in polycarbonate is not proof that titanium dioxide alone caused degradation.",
+        "Melt-processing effects and UV photodegradation are separate questions and should be evaluated separately.",
+        "Moisture control, actual melt temperature, residence time, repeated processing and additive compatibility can be as important as pigment selection.",
+        "Yellowing index, L*/b* change and MVR/MFI or other melt-flow change are useful indicators, but they do not establish a complete mechanism by themselves.",
+        "TP-P300 is a starting point for resin-specific polycarbonate and engineering-plastics evaluation, not a promise that yellowing or degradation will be prevented."
+      ],
+      "sections": [
+        {
+          "id": "section-1",
+          "heading": "Why Polycarbonate Can Yellow During Pigmentation",
+          "html": "<p>Polycarbonate can be sensitive to excessive heat history, moisture and formulation interactions during compounding or molding. A color shift may appear as increased yellowness, a b&#42; change, reduced brightness, dark specks, streaks or uneven surface appearance. The same process conditions may also affect molecular weight and melt behavior.</p><p>Titanium dioxide can be part of this system because pigment surfaces differ in surface-treatment architecture, surface chemistry, moisture behavior and compatibility with the polymer formulation. Some technical literature on specially treated pigments for engineering plastics discusses the relevance of pigment-surface hydroxyl groups and moisture-related interactions in polycarbonate processing. That evidence supports a careful evaluation of the whole system; it does not show that one mechanism applies to every pigment or formulation.</p>"
+        },
+        {
+          "id": "section-2",
+          "heading": "Separate Melt-Processing Effects From UV Photodegradation",
+          "html": "<p>Melt-processing yellowing occurs during drying, compounding, extrusion, molding or repeat processing. It can be influenced by melt temperature, time at temperature, shear, moisture, oxygen exposure, resin quality, additives and pigment-related interactions.</p><p>UV photodegradation is an end-use exposure question. A published study of UV-irradiated polycarbonate/titanium dioxide composites is relevant for distinguishing photo-induced behavior from melt-processing behavior, but it should not be used as universal evidence for commercial pigment performance during processing.</p><p>If the finished part will face outdoor or UV exposure, conduct UV aging as a separate study after the melt-processing evaluation. Do not use a UV result to explain a yellowing issue that occurred before end-use exposure.</p>"
+        },
+        {
+          "id": "section-3",
+          "heading": "What Yellowing and Melt-Flow Results Can—and Cannot—Show",
+          "html": "<p>L&#42;, b&#42; and yellowing index can show whether the material or finished part has changed color under defined test conditions. MVR, MFI or another agreed melt-flow measurement can indicate a change in polymer behavior after processing. These results are useful screening tools, especially when compared with a matched resin control.</p><p>They are not complete proof of a single degradation mechanism. A technically sound investigation may also require molecular-weight analysis where available, impact or tensile retention, dispersion review, filter-pressure behavior, visible-speck inspection and finished-part assessment.</p>"
+        },
+        {
+          "id": "section-4",
+          "heading": "Practical Impact for Compounding and Molding",
+          "html": "<p>A formulation can appear acceptable in a short laboratory run yet show color drift or property loss under a different production heat history. Long residence time, high barrel temperatures, rework, repeated passes, an unplanned resin change or a drying-control issue can alter the result.</p><p>For this reason, use the intended production window when possible. Document the resin grade, pigment loading, additives, moisture result, temperature profile, throughput, residence-time estimate and any repeat-pass exposure. This makes it easier to distinguish a process-related event from a material-comparison result.</p>"
+        },
+        {
+          "id": "section-5",
+          "heading": "TP-P300 as an Evaluation Starting Point",
+          "html": "<p>TP-P300 is a chloride-process rutile titanium dioxide with special surface treatment. It is documented for polycarbonate, polycarbonate masterbatch and selected engineering plastics, with a product direction covering temperature resistance, anti-degradation performance and dispersion.</p><p>Use TP-P300 as a starting point for a controlled, resin-specific evaluation. Its documented direction does not establish performance in every polycarbonate grade, additive package, process window or finished part. Where the project has tight limits for yellowing, impact retention, molecular weight or surface quality, discuss the application before commercial evaluation.</p>"
+        },
+        {
+          "id": "section-6",
+          "heading": "When to Discuss the Application",
+          "html": "<p>An engineering-plastics evaluation is warranted when the polycarbonate has a narrow processing window, strict color target, sensitive molecular-weight requirement, demanding impact-retention target or visible-surface requirement.</p><p>Share the resin grade, current pigment loading, additive package, drying procedure, melt-temperature profile, residence-time conditions, repeat-processing history, current observations and the required finished-part limits. This supports a comparison plan that reflects the actual application.</p><p>Technical Data Sheets are available upon request.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Variable",
+          "Why it matters",
+          "Practical comparison approach"
+        ],
+        "rows": [
+          [
+            "Resin grade and lot",
+            "Heat stability and molecular-weight response can differ by resin grade.",
+            "Use the same resin grade and a matched control."
+          ],
+          [
+            "Resin and pigment drying",
+            "Moisture can contribute to hydrolytic degradation risk.",
+            "Define drying conditions and measure moisture before processing."
+          ],
+          [
+            "Pigment surface chemistry",
+            "Surface hydroxyls, moisture interactions and treatment architecture may affect resin compatibility.",
+            "Compare pigments only at matched loading and process conditions."
+          ],
+          [
+            "Additive package",
+            "Stabilizers, colorants, fillers and processing aids can alter color and stability response.",
+            "Hold additives constant, then run a separate compatibility study if needed."
+          ],
+          [
+            "Melt temperature and residence time",
+            "Excessive heat history can drive color drift and melt-flow change independently of pigment grade.",
+            "Use a temperature and residence-time ladder."
+          ],
+          [
+            "Repeat-pass history",
+            "Multiple heat exposures may reveal changes not visible after one pass.",
+            "Include repeat processing when it represents plant practice."
+          ],
+          [
+            "Dispersion quality",
+            "Agglomerates or poor distribution can affect appearance and part quality.",
+            "Check dispersion, filter pressure, specks and finished surfaces."
+          ],
+          [
+            "End-use UV exposure",
+            "Photo-induced effects are different from melt-processing effects.",
+            "Run UV aging only when the application requires it."
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Separate melt-processing color drift from UV photodegradation; do not infer one mechanism from the other.",
+        "Match resin grade, drying, pigment loading, additives, temperature, residence time and repeat-pass history in the comparison.",
+        "Use color, melt-flow, polymer-condition and finished-part checks together rather than treating a single indicator as conclusive."
+      ],
+      "commonMistakes": [
+        "Treating every color change as a pigment-only issue: A color change may arise from moisture, excessive heat history, resin quality, additive interaction, contamination, dispersion or pigment-related behavior. Keep the comparison controlled before assigning a cause.",
+        "Comparing samples with different drying histories: If resin or pigment drying differs between samples, the comparison cannot isolate the pigment variable. Record the drying conditions and moisture measurement for every test leg.",
+        "Changing several variables at once: A pigment comparison is difficult to interpret if loading, stabilizers, temperature and residence time all change together. Start with matched resin, additives and loading, then vary one planned factor at a time.",
+        "Using one indicator as conclusive proof: Yellowing index or melt-flow change can identify a concern, but neither alone proves the mechanism or predicts all finished-part properties. Add mechanical, molecular-weight, dispersion and surface-quality checks where relevant.",
+        "Mixing UV-aging conclusions with processing conclusions: UV aging can be important for the end use, but it is not a substitute for a controlled melt-processing evaluation."
+      ],
+      "evaluationMethod": [
+        "1. Establish a matched baseline: Use the intended polycarbonate grade, additive package, pigment loading and processing route. Prepare a control without changing unrelated formulation variables.",
+        "2. Control moisture: Define and document resin and pigment drying. Measure moisture before processing with the method used by the laboratory or plant. Keep handling conditions consistent between control and comparison samples.",
+        "3. Run a temperature and residence-time ladder: Process matched samples across a planned melt-temperature and residence-time range. Record the temperature profile, throughput, screw speed or shear conditions, and actual production-relevant residence-time conditions where available.",
+        "4. Include repeat-pass testing where relevant: If regrind, multiple extrusion passes or repeated heat exposure is part of normal practice, include it in the comparison. Do not assume a one-pass result represents the production process.",
+        "5. Measure color under defined conditions: Measure L*, b* and yellowing index under a defined method and sample geometry. Inspect molded or extruded parts for streaks, specks, color uniformity and surface appearance.",
+        "6. Check melt behavior and polymer condition: Measure MVR, MFI or another agreed melt-flow indicator. Use molecular-weight analysis when available and when the project requires a stronger assessment of polymer change.",
+        "7. Confirm finished-part performance: Evaluate impact and tensile retention where relevant, along with dispersion, filter pressure, agglomerates, visible specks and finished-part surface quality. Include other application-specific requirements before deciding whether the formulation is suitable.",
+        "8. Run UV aging separately when required: If the application includes UV exposure, perform a separate UV-aging study after the melt-processing work. Define the exposure method, sample geometry and acceptance criteria in advance."
+      ],
+      "faqs": [
+        {
+          "question": "Does titanium dioxide always cause polycarbonate to yellow?",
+          "answerHtml": "<p>No. Yellowing is a system outcome that can involve resin condition, moisture, pigment surface chemistry, additives, temperature, residence time and repeat heat history. A controlled comparison is needed to identify the relevant variables.</p>"
+        },
+        {
+          "question": "Why is moisture important in a polycarbonate pigment trial?",
+          "answerHtml": "<p>Moisture can contribute to hydrolytic degradation risk during processing. Consistent drying and moisture measurement help determine whether an observed color or melt-flow change is connected to the pigment comparison or to material preparation.</p>"
+        },
+        {
+          "question": "Can yellowing index prove polymer degradation?",
+          "answerHtml": "<p>No. Yellowing index is a useful color indicator, but it does not prove a complete mechanism. Compare it with melt-flow results and, where needed, molecular-weight, mechanical-retention, dispersion and finished-part evidence.</p>"
+        },
+        {
+          "question": "Should UV aging be included in every evaluation?",
+          "answerHtml": "<p>No. UV aging should be included when the end-use exposure requires it. It is a separate study from melt-processing yellowing and should not replace processing validation.</p>"
+        },
+        {
+          "question": "Does TP-P300 prevent polycarbonate yellowing?",
+          "answerHtml": "<p>No. TP-P300 is a documented starting point for polycarbonate and selected engineering-plastics evaluation. The result must be confirmed in the exact resin, formulation, process conditions and end-use requirements.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "product",
+          "id": "TP-P300"
+        },
+        {
+          "type": "application",
+          "id": "polycarbonate"
+        },
+        {
+          "type": "resource",
+          "id": "article-06"
+        },
+        {
+          "type": "resource",
+          "id": "article-07"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Your Application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>"
+    },
+    {
+      "identity": {
+        "id": "article-10",
+        "title": "How to Choose Titanium Dioxide for Outdoor Durability",
+        "slug": "titanium-dioxide-outdoor-durability",
+        "path": "/resources/titanium-dioxide-outdoor-durability",
+        "kind": "article",
+        "cluster": "Application Testing",
+        "modified": "2026-08-27T08:00:00"
+      },
+      "seo": {
+        "title": "Titanium Dioxide for Outdoor Durability",
+        "description": "Choose titanium dioxide for outdoor durability by defining exposure, formulation and finish, then validating color, gloss and chalking in use."
+      },
+      "hero": {
+        "eyebrow": "Technical Article",
+        "headline": "How to Choose Titanium Dioxide for Outdoor Durability",
+        "directAnswer": "<p>Choose titanium dioxide for outdoor use as part of a finished coating or plastic system, not as a powder-only decision. Define the real exposure, formulation, processing and appearance targets first. Then compare candidate pigments in matched samples for color change, gloss retention, chalking, defects and application-relevant property retention under a protocol that reflects the intended end use.</p>"
+      },
+      "keyTakeaways": [
+        "Outdoor durability is a finished-system property; titanium dioxide alone does not determine service life, resin protection or corrosion resistance.",
+        "Define UV, moisture, temperature, pollutants, geography, orientation, color, gloss and part or film thickness before selecting a starting point.",
+        "Coatings and plastics use different formulation variables and often need different specimen preparation and performance checks.",
+        "Rutile and anatase are material forms, not a universal quality hierarchy for every outdoor application.",
+        "Surface treatment can influence pigment-surface interactions and photoactivity direction, but it does not map one-to-one to outdoor life, gloss retention, chalk resistance, resin protection or color retention.",
+        "Accelerated weathering is comparative and protocol-specific. Do not convert exposure hours into service years."
+      ],
+      "sections": [
+        {
+          "id": "section-1",
+          "heading": "Start by Defining the Exposure",
+          "html": "<p>“Outdoor” can describe very different conditions. A vertical architectural panel, a coastal coating, a white uPVC profile, an exterior PVC film and a dark molded part may face different balances of radiation, water, heat and contamination.</p><p>Define the exposure before comparing pigments:</p><p>This definition prevents a laboratory result from being treated as proof of all outdoor conditions.</p>"
+        },
+        {
+          "id": "section-2",
+          "heading": "Why the Finished System Matters",
+          "html": "<p>Titanium dioxide can affect opacity, color, dispersion and pigment-surface interactions, but its result in outdoor use depends on the surrounding system. Resin or binder chemistry, UV stabilizers, antioxidants, additives, pigment loading, dispersion, agglomeration, film or part thickness, substrate preparation, processing, application, cure and the actual exposure all matter.</p><p>A surface treatment may influence interactions at the pigment surface and the direction of photoactivity. It should not be treated as a reliable formula for weather resistance or as evidence that a pigment independently protects a resin, prevents yellowing or determines coating life.</p>"
+        },
+        {
+          "id": "section-3",
+          "heading": "Coatings and Plastics Need Different Comparisons",
+          "html": "<p><strong>Outdoor coatings</strong></p><p>For a coating, evaluate the complete applied film or coating stack. Binder chemistry, dispersant choice, substrate and pretreatment, application method, dry-film thickness and cure influence gloss, color, chalking, adhesion and visible defects.</p><p>Titanium dioxide does not independently provide heavy-duty corrosion or anti-corrosion performance. Where corrosion resistance is required, assess the complete coating stack, including substrate preparation, primer and other layer functions.</p><p>TP-C300, TP-C400 and TP-C410 are distinct coating evaluation starting points. Their grade names and qualitative descriptions do not establish a hierarchy or make them interchangeable.</p><ul><li>TP-C300 is a starting point for automotive OEM and refinish, marine, aerospace, exterior architectural, coil and powder coating evaluations. Its documented surface treatment is silicon-aluminum and special organic surface treatment.</li><li>TP-C400 is a starting point for automotive OEM and refinish, marine, aerospace, exterior and industrial coating evaluations. Its documented surface treatment is special inorganic and organic surface treatment. Its documented qualitative direction includes durability, weather resistance, gloss, hiding, chalk resistance, color retention and dispersibility.</li><li>TP-C410 is a starting point for automotive OEM and refinish, wind-power, marine, aerospace, exterior, industrial heavy-protective, coil and powder coating evaluations. Its documented surface treatment is special inorganic and organic surface treatment. Its documented qualitative direction includes durability, gloss, hiding, chalk resistance, color retention and dispersibility.</li></ul><p>Compare each in the intended binder, at matched loading, film build, application and cure conditions.</p><p><strong>Outdoor plastics and masterbatch</strong></p><p>For outdoor plastics, the resin, stabilizer package, processing history, dispersion and finished-part geometry are central. Exposure effects may appear as color change, surface chalking, gloss change, cracking, embrittlement or other application-specific changes.</p><p>TP-P200 is a starting example for exterior plastics, durable uPVC, exterior PVC film and weather-resistant masterbatch. Validate color change, weathering, mechanical retention, dispersion and processing in the actual polymer and additive system.</p>"
+        },
+        {
+          "id": "section-4",
+          "heading": "When to Discuss the Application",
+          "html": "<p>Discuss the application before screening when the exposure environment, resin or binder, substrate, film or part thickness, cure, color target, gloss target or acceptance criteria have not been defined. This is especially important for coastal, industrial, marine, wind-power, high-gloss, dark-color or high-visibility applications.</p><p>For a productive discussion, share the current formulation, candidate loading, resin or binder, additive package, processing or application conditions, substrate and preparation, specimen geometry, exposure environment, current observations and required acceptance criteria.</p><p>Technical Data Sheets are available upon request.</p>"
+        }
+      ],
+      "comparisonTable": {
+        "columns": [
+          "Variable",
+          "Questions to settle before testing"
+        ],
+        "rows": [
+          [
+            "UV spectrum and intensity",
+            "Which light source or natural location is relevant, and what spectral conditions matter to the end use?"
+          ],
+          [
+            "Moisture",
+            "Will the article see rain, condensation, humidity, washdown or wet–dry cycling?"
+          ],
+          [
+            "Temperature",
+            "What peak temperatures and temperature cycles are expected?"
+          ],
+          [
+            "Pollutants and salt",
+            "Are industrial pollutants, salt spray, coastal air or other contaminants relevant?"
+          ],
+          [
+            "Geography and orientation",
+            "Where will the article be used, and will it be vertical, horizontal, sheltered or fully exposed?"
+          ],
+          [
+            "Service environment",
+            "Is the article an exterior building component, automotive coating, marine coating, industrial coating, film, profile or molded part?"
+          ],
+          [
+            "Film or part thickness",
+            "What dry-film thickness, wall thickness or layer construction will be used?"
+          ],
+          [
+            "Color and gloss",
+            "What initial appearance, color tolerance and retained-gloss target apply?"
+          ],
+          [
+            "End-use requirements",
+            "Which visible defects, adhesion, mechanical retention or other application-specific outcomes must be controlled?"
+          ]
+        ]
+      },
+      "practicalImplications": [
+        "Define the intended UV, moisture, temperature, pollutant, geography, orientation, color, gloss and thickness conditions before comparison.",
+        "Compare coating and plastic candidates in their distinct formulation, processing and specimen-preparation systems.",
+        "Use protocol-specific accelerated and, where required, natural exposure results as validation inputs rather than service-life predictions."
+      ],
+      "commonMistakes": [
+        "Treating outdoor durability as a powder property: Powder information can guide a trial, but it cannot establish the performance of a cured coating or finished plastic article. Use it to plan a comparison, then evaluate the finished system.",
+        "Assuming a universal rutile-versus-anatase rule: Material form alone does not settle outdoor suitability. Selection depends on the application, formulation, processing and exposure definition.",
+        "Changing several formulation variables at once: If pigment loading, resin, stabilizers, dispersant, processing conditions and film thickness all change together, the result cannot isolate the pigment comparison. Establish a matched control and vary planned factors deliberately.",
+        "Using accelerated-weathering hours as service years: Exposure devices and programs are useful for comparative testing under defined conditions. Their results are not a universal conversion to outdoor service life.",
+        "Attributing corrosion protection to titanium dioxide: Protective performance belongs to the complete coating design and layer stack. Evaluate the relevant primer, binder, additives, film build, cure and prepared substrate together."
+      ],
+      "evaluationMethod": [
+        "1. Establish a matched control: Document the current pigment, pigment loading, resin or binder, additive package, dispersant, substrate, film or part thickness, processing route, application method and cure conditions. Prepare the control and candidate samples with only the planned variables changed.",
+        "2. Record initial properties: Before exposure, measure the properties that matter to the application. These can include initial L*, b* and Delta E where applicable, gloss, opacity or hiding, dispersion, grind quality, visible specks, film appearance and specimen thickness.",
+        "3. Use an end-use-relevant exposure plan: Select UV, moisture and temperature conditions that match the intended environment as closely as practical. Include pollutants or salt when relevant. ASTM G154 can help frame operation of fluorescent-UV exposure equipment, but application-specific exposure conditions and evaluation criteria still need to be defined. For coatings, ISO 16474-1 offers general guidance for laboratory light exposure and data interpretation, while ISO 16474-3 addresses fluorescent-UV, heat and water exposure.",
+        "4. Predetermine checkpoints and acceptance criteria: Set inspection intervals, measurement methods and decision limits before starting the study. Use the same sample geometry, measurement locations and test conditions for the control and candidates.",
+        "5. Measure relevant changes: Track color change, such as L*, b* and Delta E where applicable; gloss retention; coating chalking; and visible defects such as cracking or blistering. ASTM D4214 provides methods for evaluating the degree of chalking on exterior paint films. Add adhesion, dimensional stability, tensile retention, impact retention or other mechanical checks when the application requires them.",
+        "6. Add natural exposure when required: Natural exposure can be important when geography, orientation, local climate or a customer qualification program is central to the decision. It should complement—not be inferred from—an unrelated accelerated result."
+      ],
+      "faqs": [
+        {
+          "question": "Does titanium dioxide alone determine outdoor durability?",
+          "answerHtml": "<p>No. Outdoor durability is a finished-system result. Pigment choice interacts with resin or binder, additives, dispersion, processing, film or part thickness, substrate preparation, application, cure and the actual exposure environment.</p>"
+        },
+        {
+          "question": "Does titanium dioxide protect a coating resin from UV damage?",
+          "answerHtml": "<p>Titanium dioxide should not be described as independently protecting a resin. Its influence must be evaluated in the complete formulation, alongside the binder, stabilizers, other additives, film build, cure and exposure conditions.</p>"
+        },
+        {
+          "question": "Is TP-C400 better than TP-C410 for exterior coatings?",
+          "answerHtml": "<p>The grade names and qualitative product directions do not establish a ranking. TP-C400 and TP-C410 are distinct starting points that should be compared under matched binder, film-build, application, cure and exposure conditions.</p>"
+        },
+        {
+          "question": "Is TP-P200 suitable for every outdoor PVC application?",
+          "answerHtml": "<p>No. TP-P200 is a starting example for exterior plastics, durable uPVC, exterior PVC film and weather-resistant masterbatch. Confirm color change, weathering, mechanical retention, dispersion and processing in the actual polymer and additive system.</p>"
+        },
+        {
+          "question": "Can accelerated weathering predict exact service life?",
+          "answerHtml": "<p>No. Accelerated weathering is comparative and protocol-specific. It can support a defined qualification decision, but test hours should not be converted into universal outdoor service years.</p>"
+        }
+      ],
+      "children": [],
+      "relationships": [
+        {
+          "type": "product",
+          "id": "TP-C300"
+        },
+        {
+          "type": "product",
+          "id": "TP-C400"
+        },
+        {
+          "type": "product",
+          "id": "TP-C410"
+        },
+        {
+          "type": "product",
+          "id": "TP-P200"
+        },
+        {
+          "type": "application",
+          "id": "outdoor-pvc"
+        },
+        {
+          "type": "application",
+          "id": "coatings"
+        },
+        {
+          "type": "application",
+          "id": "marine-aerospace-protective"
+        },
+        {
+          "type": "resource",
+          "id": "article-06"
+        },
+        {
+          "type": "resource",
+          "id": "article-07"
+        }
+      ],
+      "ctas": [
+        {
+          "kind": "request-tds",
+          "label": "Request a TDS",
+          "href": "/request-tds"
+        },
+        {
+          "kind": "discuss-application",
+          "label": "Discuss Your Application",
+          "href": "/contact"
+        }
+      ],
+      "disclaimerHtml": "<p>Product information is provided for technical evaluation and product selection purposes. Typical values are not intended as guaranteed specifications unless explicitly stated in an agreed commercial specification or certificate of analysis. Performance may vary with formulation, processing conditions and end-use requirements. Customers should evaluate the product in their own application before commercial adoption.</p>"
+    }
+  ]
+}
