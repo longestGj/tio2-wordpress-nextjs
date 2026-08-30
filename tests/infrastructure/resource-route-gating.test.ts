@@ -1,4 +1,5 @@
 import {renderToStaticMarkup} from 'react-dom/server'
+import {JSDOM} from 'jsdom'
 import {afterEach, describe, expect, it, vi} from 'vitest'
 
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
@@ -44,6 +45,27 @@ function canonicalFixture(
   const input = structuredClone(source) as TechnicalResourcePageInput
   mutateInput?.(input)
   return toTechnicalResourcePageDto(input, resolveTarget)
+}
+
+function previewBreadcrumb(markup: string): HTMLElement {
+  const breadcrumb = new JSDOM(markup).window.document.querySelector<HTMLElement>(
+    'nav[aria-label="Breadcrumb"]',
+  )
+  if (!breadcrumb) throw new Error('Expected a preview breadcrumb')
+  return breadcrumb
+}
+
+function expectNonClickablePreviewResourceBreadcrumb(
+  markup: string,
+  resource: TechnicalResourcePageDto,
+) {
+  const breadcrumb = previewBreadcrumb(markup)
+  const current = breadcrumb.querySelector<HTMLElement>('[aria-current="page"]')
+
+  expect(current?.tagName).toBe('SPAN')
+  expect(current?.textContent).toBe(resource.identity.title)
+  expect(breadcrumb.querySelector('a[aria-current="page"]')).toBeNull()
+  expect(breadcrumb.querySelector('a[href^="/resources"]')).toBeNull()
 }
 
 interface PublicScenario {
@@ -371,7 +393,7 @@ describe('protected Technical Resource previews', () => {
     expect(hubMarkup).toContain('data-resource-mode="hub"')
     expect(hubMarkup).toContain('aria-label="TIOVAR sections"')
     expect(hubMarkup).not.toContain('application/ld+json')
-    expect(hubMarkup).not.toContain('<a href="/resources">')
+    expectNonClickablePreviewResourceBreadcrumb(hubMarkup, hubResource)
     const hubMetadata = await hubRuntime.hub.generateMetadata()
     expect(hubMetadata).toEqual({
       title: hubResource.seo.title,
@@ -400,7 +422,7 @@ describe('protected Technical Resource previews', () => {
     expect(articleMarkup).toContain('data-resource-mode="technical-explainer"')
     expect(articleMarkup).toContain('aria-label="TIOVAR sections"')
     expect(articleMarkup).not.toContain('application/ld+json')
-    expect(articleMarkup).not.toContain(`<a href="${articleIdentity[2]}">`)
+    expectNonClickablePreviewResourceBreadcrumb(articleMarkup, articleResource)
     const articleMetadata = await articleRuntime.slug.generateMetadata({
       params: Promise.resolve({slug: articleIdentity[1]}),
     })
