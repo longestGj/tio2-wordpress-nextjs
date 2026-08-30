@@ -41,7 +41,8 @@ const viewports = [
   ['desktop', 1440, 1000],
   ['mobile', 390, 844],
 ] as const
-const prohibitedRenderedContent = /(?:file:\/\/|[A-Z]:(?:\\|\/)|\/(?:var|home|usr|etc|opt|tmp|private|root)\/|sources\.yaml|reviewer|manufacturer|legal entity|\.pdf|\b(?:unknown|unverified|prototype)\b|content verification required)/iu
+const sourceManifestFilenames = ['source.yaml', 'source.yml', 'sources.yaml'] as const
+const prohibitedRenderedContent = /(?:file:\/\/|[A-Z]:(?:\\|\/)|\/(?:var|home|usr|etc|opt|tmp|private|root)\/|sources?\.ya?ml|reviewer|manufacturer|legal entity|\.pdf|\b(?:unknown|unverified|prototype)\b|content verification required)/iu
 let runtime: ResourceReviewRuntime
 
 function previewBrowserPath(canonicalPath: string): string {
@@ -112,6 +113,15 @@ async function expectNoPrivateRenderedContent(page: Page) {
   expect(bodyText).not.toMatch(prohibitedRenderedContent)
   expect(htmlAndAttributes.html).not.toMatch(prohibitedRenderedContent)
   expect(htmlAndAttributes.urls.join('\n')).not.toMatch(prohibitedRenderedContent)
+}
+
+for (const filename of sourceManifestFilenames) {
+  test(`rejects ${filename} in serialized preview DOM`, async ({page}) => {
+    const response = await page.goto(runtime.signedPreviewUrl(catalog[0].canonicalPath), {waitUntil: 'networkidle'})
+    expect(response?.ok()).toBe(true)
+    await page.locator('body').evaluate((body, value) => body.setAttribute('data-test-source-manifest', value), filename)
+    await expect(expectNoPrivateRenderedContent(page)).rejects.toThrow()
+  })
 }
 
 test.beforeAll(async () => {
