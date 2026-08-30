@@ -40,8 +40,12 @@ const titleByTarget = new Map<string, string>([
     record.identity.title,
   ] as const),
   // These values are the frozen, approved Application review title mapping.
+  ['application:plastics', 'Titanium Dioxide for Plastics'],
   ['application:printing-inks', 'Titanium Dioxide for Printing Inks'],
   ['application:high-pvc-flat-paint', 'High-PVC Flat Paint'],
+  ['application:polycarbonate', 'Titanium Dioxide for Polycarbonate'],
+  ['application:outdoor-pvc', 'Titanium Dioxide for Outdoor PVC & Weatherable Plastics'],
+  ['application:marine-aerospace-protective', 'Marine & Protective Coatings'],
   ...SITE_A_PRODUCT_IDENTITIES
     .filter(({level}) => level === 'detail')
     .map(({id}) => [`product:${id}`, id] as const),
