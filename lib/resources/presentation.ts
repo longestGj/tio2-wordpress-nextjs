@@ -10,6 +10,74 @@ export interface ResourceGuideItem {
   readonly targetId: string
 }
 
+export interface ResourceScorecardData {
+  readonly heading: string
+  readonly columns: readonly string[]
+  readonly rows: readonly (readonly string[])[]
+}
+
+export const ARTICLE_07_SCORECARD = Object.freeze({
+  heading: 'Cross-application scorecard',
+  columns: [
+    'Evaluation area',
+    'Coatings',
+    'Plastics and masterbatch',
+    'Inks',
+    'Other systems',
+  ],
+  rows: [
+    [
+      'Appearance and optics',
+      'Hiding, colour, gloss, film uniformity and visual defects',
+      'Whiteness, undertone, opacity, streaking and surface appearance',
+      'Hiding, colour, print appearance and uniformity',
+      'Define the relevant optical or visual requirement for the finished system',
+    ],
+    [
+      'Dispersion',
+      'Fineness, agglomerates, grind response and film consistency',
+      'Dispersion quality, specks, filter-pressure behavior where relevant and distribution in the polymer',
+      'Milling response, fineness, coarse particles and print consistency',
+      'Use a system-appropriate dispersion or particle-distribution check',
+    ],
+    [
+      'Rheology or melt flow',
+      'Low- and high-shear viscosity, flow, sag or application response',
+      'Melt flow, pressure, torque, throughput and process stability',
+      'Viscosity, flow, transfer and printability',
+      'Select the processing variable that governs the system',
+    ],
+    [
+      'Processing',
+      'Mixing, grinding, let-down, application and cure conditions',
+      'Feeding, compounding, extrusion, molding or film conversion',
+      'Milling, filtration, printing and drying',
+      'Use representative equipment and conditions',
+    ],
+    [
+      'Storage',
+      'Viscosity drift, settling, redispersion and package stability',
+      'Handling, moisture control and retained processing behavior where relevant',
+      'Settling, redispersion, filtration and viscosity stability',
+      'Define the actual storage and handling exposure',
+    ],
+    [
+      'Finished performance',
+      'Adhesion, film integrity, scrub, gloss retention or other specified film properties',
+      'Mechanical properties, finished-part appearance and use-related performance',
+      'Rub, adhesion, print durability or other print requirements',
+      'Establish product-specific functional tests before screening',
+    ],
+    [
+      'Application-specific durability',
+      'Exposure, chalking, colour or gloss retention where applicable',
+      'Weathering, heat-aging or retained appearance where applicable',
+      'Resistance or exposure testing relevant to the printed article',
+      'Use the end-use exposure and approval method appropriate to the system',
+    ],
+  ],
+} satisfies ResourceScorecardData)
+
 export interface ResourcePresentation {
   readonly mode: ResourcePresentationMode
   readonly decisionSteps: readonly [string, string, string, string]
@@ -229,7 +297,7 @@ export const RESOURCE_PRESENTATION_BY_ID = Object.freeze({
     decisionSteps: evaluationDecisionSteps,
     heroSummary: heroSummaryByMode['evaluation-guide'],
     guideItems: article07GuideItems,
-    suppressedSectionIds: [],
+    suppressedSectionIds: ['section-4'],
     comparisonVariant: 'stages',
     comparisonAfterBodySectionId: null,
   },

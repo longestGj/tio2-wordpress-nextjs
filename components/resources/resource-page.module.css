@@ -124,6 +124,19 @@
 .comparisonTableSection .tableRegion { margin-top: 1.25rem; }
 .comparisonTable { width: 100%; min-width: 32rem; border-collapse: collapse; }
 .resourceExperience :where(th, td) { border: 1px solid var(--resource-rule); padding: 0.8rem; text-align: left; vertical-align: top; }
+.stageFramework, .scorecard { margin-inline: auto; border-top: 1px solid var(--resource-silver); padding-block: clamp(2.75rem, 5vw, 4.5rem); scroll-margin-top: 2rem; }
+.stageFramework h2, .scorecard h2 { max-width: 24ch; margin-top: 0.55rem; font-size: clamp(1.8rem, 3vw, 2.75rem); line-height: 1.15; }
+.stageDesktop { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin-top: 1.5rem; background: var(--resource-silver); padding: 1px; }
+.stageDesktop article { background: var(--resource-ice); padding: 1.2rem; }
+.stageDesktop h3 { color: var(--resource-navy); font-size: 1.2rem; line-height: 1.25; }
+.stageDesktop dl, .scorecardMobile dl, .stageMobile dl { display: grid; gap: 0.75rem; margin-top: 1rem; }
+.stageDesktop div, .scorecardMobile div, .stageMobile div { border-top: 1px solid var(--resource-rule); padding-top: 0.75rem; }
+.stageDesktop dt, .scorecardMobile dt, .stageMobile dt { color: var(--resource-steel); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.stageDesktop dd, .scorecardMobile dd, .stageMobile dd { margin-top: 0.35rem; color: var(--resource-muted); line-height: 1.5; }
+.stageMobile, .scorecardMobile { display: none; margin-top: 1.25rem; }
+.stageMobile details, .scorecardMobile details { border-top: 1px solid var(--resource-rule); padding: 0.85rem 0; }
+.stageMobile summary, .scorecardMobile summary { color: var(--resource-navy); cursor: pointer; font-family: var(--font-tiovar-heading), Arial, sans-serif; font-size: 1.1rem; }
+.scorecardDesktop { margin-top: 1.5rem; }
 .comparisonExamples { width: min(calc(100% - 2 * var(--resource-gutter)), 1060px); margin-inline: auto; border-top: 1px solid var(--resource-silver); padding-block: clamp(2.75rem, 5vw, 4.5rem); scroll-margin-top: 2rem; }
 .comparisonExamples h2 { max-width: 24ch; font-size: clamp(1.8rem, 3vw, 2.75rem); line-height: 1.15; }
 .exampleList { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin-top: 1.5rem; background: var(--resource-silver); padding: 1px; }
@@ -202,6 +215,9 @@
   .topicList, .howToUse ol, .hubMistakes ol { grid-template-columns: 1fr; }
   .topicList li, .howToUse li, .hubMistakes li { min-height: 0; }
   .learningPath { padding-block: 1.5rem; }
+  .stageFramework, .scorecard { width: min(calc(100% - 2rem), 1180px); background: var(--resource-white); border: 1px solid var(--resource-rule); border-top: 4px solid var(--resource-silver); padding: 1.4rem 1.1rem; }
+  .stageDesktop, .scorecardDesktop { display: none; }
+  .stageMobile, .scorecardMobile { display: grid; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest'
 
 import {
+  ARTICLE_07_SCORECARD,
   RESOURCE_HUB_CARD_SUMMARY_BY_ID,
   RESOURCE_LEARNING_PATHS,
   RESOURCE_PRESENTATION_BY_ID,
@@ -41,6 +42,22 @@ function resourceFixture(id: string) {
 }
 
 describe('Site A Resource presentation registry', () => {
+  it('keeps every article-07 scorecard cell in the approved source section', () => {
+    const source = resourceManifest.records
+      .find(({identity}) => identity.id === 'article-07')
+      ?.sections.find(({id}) => id === 'section-4')?.html
+    if (!source) throw new Error('Missing approved article-07 scorecard source')
+    const normalize = (value: string) => value.replace(/\s+/gu, ' ').trim()
+    const cells = [
+      ...ARTICLE_07_SCORECARD.columns,
+      ...ARTICLE_07_SCORECARD.rows.flat(),
+    ]
+
+    for (const cell of cells) {
+      expect(normalize(source)).toContain(normalize(cell))
+    }
+  })
+
   it('keeps every Hub card summary aligned with its approved SEO description', () => {
     const approvedDescriptions = Object.fromEntries(
       resourceManifest.records

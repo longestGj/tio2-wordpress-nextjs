@@ -12,7 +12,7 @@ import {resolveResourcePresentation} from '@/lib/resources/presentation'
 import {technicalResourcePageInputSchema} from '@/lib/resources/schema'
 import type {TechnicalResourcePageDto} from '@/lib/resources/types'
 
-import {ResourceArticle} from './resource-article'
+import {EvaluationGuide} from './evaluation-guide'
 import {ResourceHub} from './resource-hub'
 import styles from './resource-page.module.css'
 import {TechnicalExplainer} from './technical-explainer'
@@ -228,14 +228,24 @@ export function TechnicalResourcePageRenderer({
   if (!isValidatedTechnicalResourcePageDto(resource)) return null
   const presentation = resolveResourcePresentation(resource.identity.id)
   if (!presentation) return null
-  const rendered =
-    presentation.mode === 'hub' && resource.identity.kind === 'hub' ? (
-      <ResourceHub resource={resource} />
-    ) : presentation.mode === 'technical-explainer' && resource.identity.kind === 'article' ? (
-      <TechnicalExplainer presentation={presentation} resource={resource} />
-    ) : presentation.mode === 'evaluation-guide' && resource.identity.kind === 'article' ? (
-      <ResourceArticle resource={resource} />
-    ) : null
+  const rendered = (() => {
+    switch (presentation.mode) {
+      case 'hub':
+        return resource.identity.kind === 'hub' ? <ResourceHub resource={resource} /> : null
+      case 'technical-explainer':
+        return resource.identity.kind === 'article' ? (
+          <TechnicalExplainer presentation={presentation} resource={resource} />
+        ) : null
+      case 'evaluation-guide':
+        return resource.identity.kind === 'article' ? (
+          <EvaluationGuide presentation={presentation} resource={resource} />
+        ) : null
+      default: {
+        const unsupportedMode: never = presentation.mode
+        return unsupportedMode
+      }
+    }
+  })()
   return rendered ? (
     <div className={styles.resourceExperience}>
       {rendered}

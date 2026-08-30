@@ -37,6 +37,13 @@ const technicalExplainerIds = [
   'article-06',
 ] as const
 
+const evaluationGuideIds = [
+  'article-07',
+  'article-08',
+  'article-09',
+  'article-10',
+] as const
+
 const resolveTarget: EditorialLinkResolver = (target) => {
   const canonical = resolveCanonicalEditorialTarget(target.type, target.id)
   return canonical
@@ -268,51 +275,102 @@ describe('TechnicalResourcePageRenderer', () => {
     ).toBe(container.querySelector('[data-resource-comparison]'))
   })
 
-  it('keeps the evaluation-guide presentation on the legacy article renderer', () => {
+  it.each(evaluationGuideIds)(
+    'composes approved %s as an evaluation guide with complete guide modules',
+    (id) => {
+      const resource = approvedResourceFixture(id)
+      const {container} = render(
+        <TechnicalResourcePageRenderer resource={resource} />,
+      )
+      const page = container.querySelector<HTMLElement>(
+        '[data-resource-mode="evaluation-guide"]',
+      )
+      const guide = within(page as HTMLElement).getByRole('navigation', {
+        name: 'In this guide',
+      })
+
+      expect(container.querySelectorAll('h1')).toHaveLength(1)
+      expect(page?.dataset.resourceMode).toBe('evaluation-guide')
+      expect(within(guide).getAllByRole('link')).toHaveLength(6)
+      expect(page?.querySelector('#resource-direct-answer')).not.toBeNull()
+      expect(page?.querySelector('[data-resource-section="body-sections"]')).not.toBeNull()
+      expect(page?.querySelector('[data-resource-comparison]')).not.toBeNull()
+      expect(
+        page?.querySelector('[data-resource-section="practical-implications"]'),
+      ).not.toBeNull()
+      expect(page?.querySelector('[data-resource-section="common-mistakes"]')).not.toBeNull()
+      expect(
+        page?.querySelector('[data-resource-section="evaluation-method"]'),
+      ).not.toBeNull()
+      expect(page?.querySelector('[data-resource-section="related-content"]')).not.toBeNull()
+      expect(page?.querySelector('[data-resource-section="cta-group"]')).not.toBeNull()
+      expect(page?.querySelector('[data-editorial-section="faq"]')).not.toBeNull()
+      expect(
+        page?.querySelector('[data-editorial-section="technical-disclaimer"]'),
+      ).not.toBeNull()
+    },
+  )
+
+  it('composes article-07 in the approved staged evaluation order', () => {
     const resource = approvedResourceFixture('article-07')
     const {container} = render(
       <TechnicalResourcePageRenderer resource={resource} />,
     )
-    const page = container.querySelector<HTMLElement>('[data-resource-mode]')
-    const expected = [
+    const page = container.querySelector<HTMLElement>(
+      '[data-resource-mode="evaluation-guide"]',
+    )
+
+    expect(orderedSectionNames(page as HTMLElement)).toEqual([
+      'breadcrumb',
       'hero',
-      'direct-answer',
-      'key-takeaways',
-      'body-section-section-1',
-      'body-section-section-2',
-      'body-section-section-3',
-      'body-section-section-4',
-      'body-section-section-5',
-      'body-section-section-6',
-      'comparison-table',
+      'decision-rail',
+      'overview',
+      'body-sections',
+      'stage-framework',
+      'scorecard',
       'practical-implications',
       'common-mistakes',
       'evaluation-method',
       'related-content',
-      'faq',
       'cta-group',
+      'faq',
       'technical-disclaimer',
-    ]
+    ])
 
-    expect(page?.dataset.resourceMode).toBe('article')
-    expect(page?.className).toContain('page')
-    expect(page?.className).toContain('resourceExperience')
-    expect(orderedSectionNames(page as HTMLElement)).toEqual(expected)
     expect(container.querySelectorAll('h1')).toHaveLength(1)
     expect(
       screen.getByRole('heading', {level: 1, name: resource.hero.headline}),
     ).not.toBeNull()
-
-    const sections = Array.from(
-      (page as HTMLElement).querySelectorAll<HTMLElement>('section'),
-    )
-    for (const section of sections) {
-      const labelledBy = section.getAttribute('aria-labelledby')
-      const heading = labelledBy ? document.getElementById(labelledBy) : null
-      expect(labelledBy).toBeTruthy()
-      expect(heading?.matches('h1, h2')).toBe(true)
-      expect(heading ? section.contains(heading) : false).toBe(true)
-    }
+    expect(container.querySelectorAll('[data-resource-stage]')).toHaveLength(6)
+    expect(container.querySelectorAll('[data-resource-stage-mobile]')).toHaveLength(6)
+    expect(container.querySelector('[data-resource-scorecard-desktop]')).not.toBeNull()
+    expect(container.querySelector('[data-resource-scorecard-mobile]')).not.toBeNull()
+    expect(container.querySelector('[data-resource-action="request-tds"]')).toBeNull()
+    expect(
+      within(screen.getByRole('navigation', {name: 'In this guide'}))
+        .getAllByRole('link')
+        .map((link) => link.textContent?.replace(/\s+/gu, ' ').trim()),
+    ).toEqual([
+      '01 Current control',
+      '02 Six-stage decision path',
+      '03 Same-formulation lab screen',
+      '04 Cross-application scorecard',
+      '05 Application interpretation',
+      '06 When TDS comparison is not enough',
+    ])
+    expect(
+      within(
+        container.querySelector('[data-resource-scorecard-desktop]') as HTMLElement,
+      ).getAllByRole('rowheader').map((header) => header.textContent),
+    ).toEqual([
+      'Appearance and optics',
+      'Dispersion',
+      'Rheology or melt flow',
+      'Processing',
+      'Storage',
+      'Finished performance',
+      'Application-specific durability',
+    ])
   })
 
   it('renders the visible direct answer, takeaways, semantic table, FAQ, CTA, and disclaimer without hidden copies', () => {

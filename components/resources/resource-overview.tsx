@@ -25,6 +25,7 @@ export function ResourceOverview({
               <li key={item.targetId}>
                 <a href={`#${item.targetId}`}>
                   <span>{String(index + 1).padStart(2, '0')}</span>
+                  {' '}
                   {item.label}
                 </a>
               </li>

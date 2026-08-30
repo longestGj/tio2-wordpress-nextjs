@@ -39,10 +39,12 @@ function ResourceBodySection({
 export function ResourceBodySections({
   afterBodySectionId,
   afterSections,
+  afterSectionsById,
   sections,
 }: {
   readonly afterBodySectionId: string | null
   readonly afterSections?: React.ReactNode
+  readonly afterSectionsById?: Readonly<Record<string, React.ReactNode>>
   readonly sections: readonly ResourceSection[]
 }): React.ReactNode {
   return (
@@ -51,6 +53,7 @@ export function ResourceBodySections({
         <Fragment key={section.id}>
           <ResourceBodySection grouped index={index} section={section} />
           {section.id === afterBodySectionId ? afterSections : null}
+          {afterSectionsById?.[section.id] ?? null}
         </Fragment>
       ))}
     </div>
