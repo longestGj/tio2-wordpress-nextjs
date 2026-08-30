@@ -34,10 +34,12 @@ import {ResourceScorecard} from './resource-scorecard'
 import {ResourceStageFramework} from './resource-stage-framework'
 
 export function EvaluationGuide({
+  preview,
   resource,
   presentation,
   visibility,
 }: {
+  readonly preview: boolean
   readonly resource: TechnicalResourcePageDto
   readonly presentation: ResourcePresentation
   readonly visibility: ResourceVisibility
@@ -60,7 +62,7 @@ export function EvaluationGuide({
       data-resource-mode="evaluation-guide"
     >
       <ResourceBreadcrumbs
-        disableLinks={!visibility('tio2-a', resource.identity.path)}
+        disableLinks={preview}
         items={buildResourceBreadcrumbItems(
           resource,
           getSiteConfig('tio2-a'),

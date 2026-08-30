@@ -29,10 +29,12 @@ import {ComparisonTable} from './comparison-table'
 import styles from './resource-page.module.css'
 
 export function TechnicalExplainer({
+  preview,
   resource,
   presentation,
   visibility,
 }: {
+  readonly preview: boolean
   readonly resource: TechnicalResourcePageDto
   readonly presentation: ResourcePresentation
   readonly visibility: ResourceVisibility
@@ -52,7 +54,7 @@ export function TechnicalExplainer({
       data-resource-mode="technical-explainer"
     >
       <ResourceBreadcrumbs
-        disableLinks={!visibility('tio2-a', resource.identity.path)}
+        disableLinks={preview}
         items={buildResourceBreadcrumbItems(
           resource,
           getSiteConfig('tio2-a'),

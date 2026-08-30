@@ -144,6 +144,20 @@ describe('TechnicalResourcePageRenderer', () => {
     ).toBeNull()
   })
 
+  it('keeps preview breadcrumbs non-clickable even when the same Resource becomes publicly visible', () => {
+    const resource = approvedResourceFixture('article-04')
+    const {container} = render(
+      <TechnicalResourcePageRenderer
+        preview
+        resource={resource}
+        visibility={() => true}
+      />,
+    )
+
+    expect(container.querySelector('[data-resource-section="breadcrumb"] a')).toBeNull()
+    expect(container.querySelectorAll('[data-resource-section="breadcrumb"] span')).toHaveLength(3)
+  })
+
   it('renders the shared compact article frame with semantic boundaries', () => {
     const resource = resourceFixture('article-01')
     const presentation = resolveResourcePresentation(resource.identity.id)

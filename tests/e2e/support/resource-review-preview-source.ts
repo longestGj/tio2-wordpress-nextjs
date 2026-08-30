@@ -4,6 +4,8 @@ import {createServer} from 'node:http'
 import {resolve} from 'node:path'
 
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
+import {validateSiteAApplicationManifest} from '@/lib/applications/content-manifest'
+import {SITE_A_PRODUCT_IDENTITIES} from '@/lib/products/page-graph'
 import {validateSiteAResourceManifest} from '@/lib/resources/content-manifest'
 import {startOwnedNextDev} from './owned-next-dev'
 
@@ -16,15 +18,34 @@ const manifest = validateSiteAResourceManifest(
     ),
   ) as unknown,
 )
+const applicationRepresentatives = validateSiteAApplicationManifest(
+  JSON.parse(
+    readFileSync(
+      resolve('tests/fixtures/editorial/site-a-applications.approved-representatives.json'),
+      'utf8',
+    ),
+  ) as unknown,
+  {allowIncomplete: true},
+)
 const recordByPath = new Map(
   manifest.records.map((record) => [record.identity.path, record]),
 )
-const titleByTarget = new Map(
-  manifest.records.map((record) => [
+const titleByTarget = new Map<string, string>([
+  ...manifest.records.map((record) => [
     `resource:${record.identity.id}`,
     record.identity.title,
-  ]),
-)
+  ] as const),
+  ...applicationRepresentatives.records.map((record) => [
+    `application:${record.identity.id}`,
+    record.identity.title,
+  ] as const),
+  // These values are the frozen, approved Application review title mapping.
+  ['application:printing-inks', 'Titanium Dioxide for Printing Inks'],
+  ['application:high-pvc-flat-paint', 'High-PVC Flat Paint'],
+  ...SITE_A_PRODUCT_IDENTITIES
+    .filter(({level}) => level === 'detail')
+    .map(({id}) => [`product:${id}`, id] as const),
+])
 
 function serializedLink(target: {
   readonly type: 'application' | 'product' | 'resource'
@@ -34,10 +55,14 @@ function serializedLink(target: {
   if (!canonical) {
     throw new Error(`Unknown Resource review target: ${target.type}:${target.id}`)
   }
+  const title = titleByTarget.get(`${target.type}:${target.id}`)
+  if (!title) {
+    throw new Error(`Missing approved Resource review title: ${target.type}:${target.id}`)
+  }
   return {
     targetType: target.type,
     targetKey: target.id,
-    title: titleByTarget.get(`${target.type}:${target.id}`) ?? target.id,
+    title,
     path: canonical.path,
     href: null,
   }
@@ -160,7 +185,7 @@ export async function startResourceReviewRuntime(): Promise<ResourceReviewRuntim
         WORDPRESS_PREVIEW_SECRET: previewSecret,
         WORDPRESS_PREVIEW_URL: sourceUrl,
       },
-      runtimeId: 'application-review',
+      runtimeId: 'resource-review',
     })
   } catch (error) {
     await new Promise<void>((resolveClose, rejectClose) => source.close((closeError) => closeError ? rejectClose(closeError) : resolveClose()))

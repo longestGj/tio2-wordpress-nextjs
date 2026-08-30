@@ -20,6 +20,8 @@ import {TechnicalExplainer} from './technical-explainer'
 
 interface TechnicalResourcePageRendererProps {
   readonly resource: TechnicalResourcePageDto
+  /** A signed preview is intentionally not public UI, regardless of visibility. */
+  readonly preview?: boolean
   readonly visibility?: ResourceVisibility
 }
 
@@ -226,6 +228,7 @@ export function isValidatedTechnicalResourcePageDto(
 
 export function TechnicalResourcePageRenderer({
   resource,
+  preview = false,
   visibility = () => false,
 }: TechnicalResourcePageRendererProps) {
   if (!isValidatedTechnicalResourcePageDto(resource)) return null
@@ -235,12 +238,13 @@ export function TechnicalResourcePageRenderer({
     switch (presentation.mode) {
       case 'hub':
         return resource.identity.kind === 'hub' ? (
-          <ResourceHub resource={resource} visibility={visibility} />
+          <ResourceHub preview={preview} resource={resource} visibility={visibility} />
         ) : null
       case 'technical-explainer':
         return resource.identity.kind === 'article' ? (
           <TechnicalExplainer
             presentation={presentation}
+            preview={preview}
             resource={resource}
             visibility={visibility}
           />
@@ -249,6 +253,7 @@ export function TechnicalResourcePageRenderer({
         return resource.identity.kind === 'article' ? (
           <EvaluationGuide
             presentation={presentation}
+            preview={preview}
             resource={resource}
             visibility={visibility}
           />

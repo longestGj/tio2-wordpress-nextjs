@@ -103,9 +103,11 @@ function ResourceHubMistakes({items}: {readonly items: readonly string[]}): Reac
 }
 
 export function ResourceHub({
+  preview,
   resource,
   visibility,
 }: {
+  readonly preview: boolean
   readonly resource: TechnicalResourcePageDto
   readonly visibility: ResourceVisibility
 }): React.ReactNode {
@@ -119,7 +121,7 @@ export function ResourceHub({
       data-resource-mode="hub"
     >
       <ResourceBreadcrumbs
-        disableLinks={!visibility('tio2-a', resource.identity.path)}
+        disableLinks={preview}
         items={buildResourceBreadcrumbItems(
           resource,
           getSiteConfig('tio2-a'),
