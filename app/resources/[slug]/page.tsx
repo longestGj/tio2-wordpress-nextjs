@@ -5,7 +5,7 @@ import {
   isValidatedTechnicalResourcePageDto,
   TechnicalResourcePageRenderer,
 } from '@/components/resources/technical-resource-page'
-import {SiteShell} from '@/components/site-shell'
+import {SiteABrandShell} from '@/components/sites/tio2-a/site-a-brand-shell'
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {
   buildResourceJsonLd,
@@ -72,12 +72,17 @@ export default async function ResourcePage(props: ResourceRouteProps) {
   const {resource, site} = await getApprovedResource(props)
   const jsonLd = serializeResourceJsonLd(buildResourceJsonLd(resource, site))
   return (
-    <SiteShell site={site}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{__html: jsonLd}}
-      />
+    <SiteABrandShell
+      site={site}
+      inquiryHref="#inquiry"
+      structuredData={
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{__html: jsonLd}}
+        />
+      }
+    >
       <TechnicalResourcePageRenderer resource={resource} />
-    </SiteShell>
+    </SiteABrandShell>
   )
 }

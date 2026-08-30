@@ -14,6 +14,11 @@ import {resourceIdentityForPath} from '@/lib/wordpress/resource-queries'
 import {getSiteConfig} from '@/sites'
 import resourceManifestJson from '@/tests/fixtures/editorial/site-a-resources.synthetic.json'
 
+vi.mock('next/font/google', () => ({
+  Source_Sans_3: () => ({variable: 'source-sans-font'}),
+  Space_Grotesk: () => ({variable: 'space-grotesk-font'}),
+}))
+
 const resourceManifest =
   resourceManifestJson as unknown as SiteAResourceContentManifest
 const resolveTarget: EditorialLinkResolver = (target) => {
@@ -201,23 +206,42 @@ describe('public Technical Resource route gates', () => {
     expect(calls.every((call) => call.startsWith('gate:'))).toBe(true)
   })
 
-  it('queries only after separate approval and renders the exact Article identity', async () => {
+  it('queries each identity only after its separate public approval and renders through the TIOVAR shell', async () => {
+    for (const identity of SITE_A_RESOURCE_IDENTITIES) {
+      vi.resetModules()
+      const resource = canonicalFixture(identity)
+      const {calls, hub, slug} = await loadPublicRoutes({
+        approvedPaths: [identity[2]],
+        resource,
+      })
+      const markup = renderToStaticMarkup(
+        identity[3] === 'hub'
+          ? await hub.default()
+          : await slug.default({params: Promise.resolve({slug: identity[1]})}),
+      )
+
+      expect(markup).toContain('<main data-site-id="tio2-a">')
+      expect(markup).toContain('aria-label="TIOVAR sections"')
+      expect(markup).toContain('type="application/ld+json"')
+      expect(calls.slice(0, 2)).toEqual([
+        `gate:${identity[2]}`,
+        `query:${identity[2]}`,
+      ])
+    }
+  })
+
+  it('renders the exact composed Article mode after approval', async () => {
     const identity = SITE_A_RESOURCE_IDENTITIES[1]
     const resource = canonicalFixture(identity)
-    const {calls, slug} = await loadPublicRoutes({
+    const {slug} = await loadPublicRoutes({
       approvedPaths: [identity[2]],
       resource,
     })
-    const props = {params: Promise.resolve({slug: identity[1]})}
 
-    const markup = renderToStaticMarkup(await slug.default(props))
-    expect(markup).toContain('<main data-site-id="tio2-a">')
-    expect(markup).toContain('data-resource-mode="article"')
-    expect(markup).toContain('type="application/ld+json"')
-    expect(calls.slice(0, 2)).toEqual([
-      `gate:${identity[2]}`,
-      `query:${identity[2]}`,
-    ])
+    const markup = renderToStaticMarkup(
+      await slug.default({params: Promise.resolve({slug: identity[1]})}),
+    )
+    expect(markup).toContain('data-resource-mode="technical-explainer"')
   })
 
   it('rejects schema-valid but runtime-invalid Article and Hub DTOs before metadata or page output', async () => {
@@ -296,7 +320,14 @@ describe('protected Technical Resource previews', () => {
     const hubMarkup = renderToStaticMarkup(await hubRuntime.hub.default())
 
     expect(hubMarkup).toContain('data-resource-mode="hub"')
+    expect(hubMarkup).toContain('aria-label="TIOVAR sections"')
     expect(hubMarkup).not.toContain('application/ld+json')
+    const hubMetadata = await hubRuntime.hub.generateMetadata()
+    expect(hubMetadata).toEqual({
+      title: hubResource.seo.title,
+      description: hubResource.seo.description,
+      robots: {index: false, follow: false},
+    })
     expect(hubRuntime.hasScopedPreviewSession).toHaveBeenCalledWith(
       'tio2-a',
       '/resources',
@@ -316,8 +347,17 @@ describe('protected Technical Resource previews', () => {
       }),
     )
 
-    expect(articleMarkup).toContain('data-resource-mode="article"')
+    expect(articleMarkup).toContain('data-resource-mode="technical-explainer"')
+    expect(articleMarkup).toContain('aria-label="TIOVAR sections"')
     expect(articleMarkup).not.toContain('application/ld+json')
+    const articleMetadata = await articleRuntime.slug.generateMetadata({
+      params: Promise.resolve({slug: articleIdentity[1]}),
+    })
+    expect(articleMetadata).toEqual({
+      title: articleResource.seo.title,
+      description: articleResource.seo.description,
+      robots: {index: false, follow: false},
+    })
     expect(articleRuntime.hasScopedPreviewSession).toHaveBeenCalledWith(
       'tio2-a',
       articleIdentity[2],

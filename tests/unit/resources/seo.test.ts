@@ -1,4 +1,4 @@
-import {describe, expect, it} from 'vitest'
+import {describe, expect, it, vi} from 'vitest'
 
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import type {EditorialLinkResolver} from '@/lib/editorial/types'
@@ -6,6 +6,11 @@ import type {SiteAResourceContentManifest} from '@/lib/resources/content-manifes
 import {toTechnicalResourcePageDto} from '@/lib/resources/dto'
 import {getSiteConfig} from '@/sites'
 import resourceManifestJson from '@/tests/fixtures/editorial/site-a-resources.synthetic.json'
+
+vi.mock('next/font/google', () => ({
+  Source_Sans_3: () => ({variable: 'source-sans-font'}),
+  Space_Grotesk: () => ({variable: 'space-grotesk-font'}),
+}))
 
 type JsonLdRecord = Readonly<Record<string, unknown>>
 

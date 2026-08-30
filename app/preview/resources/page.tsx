@@ -6,7 +6,7 @@ import {
   isValidatedTechnicalResourcePageDto,
   TechnicalResourcePageRenderer,
 } from '@/components/resources/technical-resource-page'
-import {SiteShell} from '@/components/site-shell'
+import {SiteABrandShell} from '@/components/sites/tio2-a/site-a-brand-shell'
 import {ResourceContractError} from '@/lib/resources/dto'
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {hasScopedPreviewSession} from '@/lib/wordpress/preview-session'
@@ -65,8 +65,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ResourceHubPreviewPage() {
   const {resource, site} = await loadResourceHubPreviewPage()
   return (
-    <SiteShell site={site}>
+    <SiteABrandShell site={site} inquiryHref="#inquiry" structuredData={null}>
       <TechnicalResourcePageRenderer resource={resource} />
-    </SiteShell>
+    </SiteABrandShell>
   )
 }

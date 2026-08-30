@@ -6,7 +6,7 @@ import {
   isValidatedTechnicalResourcePageDto,
   TechnicalResourcePageRenderer,
 } from '@/components/resources/technical-resource-page'
-import {SiteShell} from '@/components/site-shell'
+import {SiteABrandShell} from '@/components/sites/tio2-a/site-a-brand-shell'
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {ResourceContractError} from '@/lib/resources/dto'
 import {getCurrentSite} from '@/lib/sites/current-site'
@@ -80,8 +80,8 @@ export default async function ResourcePreviewPage(props: ResourcePreviewPageProp
   const {slug} = await props.params
   const {resource, site} = await loadResourcePreviewPage(slug)
   return (
-    <SiteShell site={site}>
+    <SiteABrandShell site={site} inquiryHref="#inquiry" structuredData={null}>
       <TechnicalResourcePageRenderer resource={resource} />
-    </SiteShell>
+    </SiteABrandShell>
   )
 }
