@@ -5,11 +5,13 @@ import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
 import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
 import type {AnyHomepageDto} from '@/lib/wordpress/homepage-types'
 import {toSiteAEditorialHomepageDto} from '@/lib/wordpress/homepage-v02-dto'
+import {toMalaysiaHomepageDto} from '@/lib/wordpress/homepage-v04-dto'
 import {getSiteConfig} from '@/sites'
 import {
   makeHomepageNode,
   makeSiteAEditorialHomepageNode,
 } from '@/tests/mocks/handlers'
+import approvedMalaysiaContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json'
 
 const seoMocks = vi.hoisted(() => ({
   getCurrentSite: vi.fn(),
@@ -73,6 +75,42 @@ afterEach(() => {
 })
 
 describe('homepage SEO route integration', () => {
+  it('emits one scope-local canonical equivalent to the approved Malaysia root URL', async () => {
+    const homepage = toMalaysiaHomepageDto({
+      id: 'homepage-my-1',
+      modifiedGmt: '2026-08-31T01:02:03',
+      status: 'publish',
+      siteScopes: {nodes: [{slug: 'tio2-my'}]},
+      homepageFields: {homepageSchemaVersion: 'homepage-v0.4-malaysia'},
+      malaysiaHomepageContractJson: JSON.stringify(approvedMalaysiaContract),
+    })
+    seoMocks.getCurrentSite.mockReturnValue(getSiteConfig('tio2-my'))
+    seoMocks.getHomepage.mockResolvedValue(homepage)
+    const route = await import('@/app/page')
+
+    const metadata = await route.generateMetadata()
+    const canonical = metadata.alternates?.canonical
+
+    expect(typeof canonical).toBe('string')
+    expect([canonical].filter(Boolean)).toHaveLength(1)
+    const canonicalUrl = new URL(String(canonical))
+    expect(canonicalUrl.href).toBe('https://tio2malaysia.com/')
+    expect(new URL('https://tio2malaysia.com').href).toBe(
+      new URL('https://tio2malaysia.com/').href,
+    )
+    expect(canonicalUrl.protocol).toBe('https:')
+    expect(canonicalUrl.hostname).toBe('tio2malaysia.com')
+    expect(canonicalUrl.pathname).toBe('/')
+    expect(canonicalUrl.search).toBe('')
+    expect(canonicalUrl.hash).toBe('')
+    expect(canonicalUrl.username).toBe('')
+    expect(canonicalUrl.password).toBe('')
+    expect(canonicalUrl.port).toBe('')
+    expect(JSON.stringify(metadata)).not.toMatch(
+      /tio2products\.com|tio2hub\.com|tiovar/iu,
+    )
+  })
+
   it.each([
     [
       'tio2-a',
