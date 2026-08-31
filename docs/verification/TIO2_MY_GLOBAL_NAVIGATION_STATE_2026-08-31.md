@@ -8,6 +8,15 @@
 - No navigation order, Header height, Logo, Request a Quote, Footer, page body, route, SEO, Schema, form or site scope was changed.
 - This is local development evidence only. No deployment, publication, DNS, indexing or Gate 10 operation occurred.
 
+## Shared ownership and architecture contract
+
+- `site_scope=tio2-my` has one Global Chrome implementation: `components/sites/tio2-my/malaysia-global-chrome.tsx` and `components/sites/tio2-my/malaysia-global-chrome.module.css` own the Global Header, Desktop navigation, Mobile Menu, Logo bindings, permanent Request a Quote surfaces and Footer.
+- `wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json` is the one navigation/Logo/RFQ/Footer configuration. Home and Markets DTOs both import this exact site-local file; no page-local configuration or cross-scope fallback exists.
+- HOME-001 and MARKET-000 each render `MalaysiaGlobalHeader` and `MalaysiaGlobalFooter` directly once. Their only page-specific Chrome inputs are `currentPageId` and `sourcePageId`; the removed `MalaysiaHeader` compatibility wrapper is no longer a second implementation surface.
+- Page typography and interaction CSS is rooted at the page `<main>` (`homepageMain` or `marketMain`). Page styles are contract-tested to reject shared Header, Logo, navigation, marker, RFQ, Mobile Menu or Footer selectors and may not use broad `.site *`, heading, paragraph, link or `:is()` rules that cross the main boundary.
+- Any subsequently authorized Malaysia page, including PRODUCT-000, must consume these same component, style and configuration sources. It must not introduce a page-specific Header, Mobile Menu, Footer or duplicated Chrome configuration.
+- A shared Chrome change requires Home/Markets and each enabled future consumer to pass Desktop, Tablet and 390px regression appropriate to the affected surface: production Logo decode/bounds/pixels, 84/64px Header, visible `CURRENT` count zero, Desktop 3px underline, Mobile 4px marker, RFQ persistence and scope, Footer geometry/content, no horizontal overflow, hidden-navigation accessibility, keyboard focus and Escape return.
+
 ## DOM and visual contract
 
 - Desktop current link: exact page label only; `aria-current="page"`; computed `font-weight: 800`; teal `::after` underline at 3px using `rgb(0, 106, 99)`.
@@ -26,11 +35,10 @@
 
 | Check | Command | Result |
 |---|---|---|
-| Focused unit/component/infrastructure | `npx vitest run tests/unit/homepage/malaysia-template.test.tsx tests/unit/markets/malaysia-market-template.test.tsx tests/infrastructure/tio2-my-global-chrome-contract.test.ts` | PASS: 3 files / 11 tests |
-| Changed-file lint | `npx eslint tests/e2e/support/tio2-my-logo.ts tests/e2e/market-hub.spec.ts tests/e2e/tio2-my-global-navigation.spec.ts tests/infrastructure/tio2-my-global-chrome-contract.test.ts` | PASS: 0 errors |
+| Focused unit/component/infrastructure | `npx vitest run tests/infrastructure/tio2-my-global-chrome-contract.test.ts tests/unit/homepage/malaysia-template.test.tsx tests/unit/markets/malaysia-market-template.test.tsx` | PASS: 3 files / 14 tests, including single-component/config consumption and page-CSS boundary enforcement |
+| Changed-file lint | `npx eslint components/sites/tio2-my/homepage/malaysia-homepage.tsx components/sites/tio2-my/homepage/malaysia-homepage.module.css components/sites/tio2-my/markets/malaysia-market-hub.module.css tests/e2e/tio2-my-global-navigation.spec.ts tests/infrastructure/tio2-my-global-chrome-contract.test.ts` | PASS: 0 errors; CSS files produce the expected no-matching-configuration warnings |
 | TypeScript | `npm run typecheck` | PASS |
-| Shared Home/Markets runtime | `npx playwright test tests/e2e/tio2-my-global-navigation.spec.ts --reporter=line` | PASS: 4/4 at 390 and 1440 |
-| MARKET-000 full runtime regression | `npx playwright test tests/e2e/market-hub.spec.ts --reporter=line` | PASS: 3/3 at 390, 768 and 1440, including Axe, overflow, Footer, metadata and Schema |
+| Shared Home/Markets + MARKET-000 runtime | `npx playwright test tests/e2e/tio2-my-global-navigation.spec.ts tests/e2e/market-hub.spec.ts --reporter=line` | PASS: 9/9; Home and Markets at 390/768/1440 plus the full Markets contract at all three widths, including Logo pixel proof, Axe, overflow, Footer, metadata and Schema |
 
 ## Visual evidence
 

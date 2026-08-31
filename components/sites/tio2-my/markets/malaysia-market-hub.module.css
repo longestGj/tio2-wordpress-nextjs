@@ -17,7 +17,7 @@
   line-height: 1.55;
 }
 
-.site *, .site *::before, .site *::after { box-sizing: border-box; }
+.marketMain *, .marketMain *::before, .marketMain *::after { box-sizing: border-box; }
 .marketMain :is(h1, h2, h3, h4, p, ol) { margin-top: 0; }
 .marketMain h1 { max-width: 660px; margin-bottom: 30px; font-size: clamp(48px, 5vw, 72px); line-height: .95; letter-spacing: -.045em; }
 .marketMain h2 { max-width: 900px; margin-bottom: 18px; font-size: clamp(32px, 3.2vw, 48px); line-height: 1.02; letter-spacing: -.035em; }

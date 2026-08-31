@@ -2,8 +2,10 @@ import Image from 'next/image'
 
 import type {MalaysiaHomepageDto} from '@/lib/wordpress/homepage-v04-types'
 
-import {MalaysiaHeader} from '../malaysia-header'
-import {MalaysiaGlobalFooter} from '../malaysia-global-chrome'
+import {
+  MalaysiaGlobalFooter,
+  MalaysiaGlobalHeader,
+} from '../malaysia-global-chrome'
 import styles from './malaysia-homepage.module.css'
 import {ResponsiveProductGroups} from './responsive-product-groups'
 
@@ -33,8 +35,12 @@ export function MalaysiaHomepage({homepage, structuredData}: {
   return (
     <div className={styles.site} data-site-id="tio2-my" data-site-scope="tio2-my">
       {structuredData}
-      <MalaysiaHeader chrome={homepage.globalChrome} />
-      <main>
+      <MalaysiaGlobalHeader
+        chrome={homepage.globalChrome}
+        currentPageId="HOME-001"
+        sourcePageId="HOME-001"
+      />
+      <main className={styles.homepageMain}>
         <section className={`${styles.section} ${styles.hero}`} data-module="hero" aria-labelledby="my-hero-heading">
           <div className={styles.heroCopy}>
             <Eyebrow>{homepage.hero.eyebrow}</Eyebrow>

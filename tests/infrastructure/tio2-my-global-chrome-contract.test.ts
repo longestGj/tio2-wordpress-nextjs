@@ -1,5 +1,5 @@
 import {createHash} from 'node:crypto'
-import {readFileSync} from 'node:fs'
+import {existsSync, readFileSync} from 'node:fs'
 import {describe, expect, it} from 'vitest'
 
 import chrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
@@ -12,8 +12,13 @@ const assets = [
 ] as const
 const componentPath = 'components/sites/tio2-my/malaysia-global-chrome.tsx'
 const cssPath = 'components/sites/tio2-my/malaysia-global-chrome.module.css'
+const homeComponentPath = 'components/sites/tio2-my/homepage/malaysia-homepage.tsx'
+const homeCssPath = 'components/sites/tio2-my/homepage/malaysia-homepage.module.css'
+const marketComponentPath = 'components/sites/tio2-my/markets/malaysia-market-hub.tsx'
+const marketCssPath = 'components/sites/tio2-my/markets/malaysia-market-hub.module.css'
+const legacyHomeHeaderPath = 'components/sites/tio2-my/malaysia-header.tsx'
 
-describe('TiO2 Malaysia shared production Logo contract', () => {
+describe('TiO2 Malaysia shared Global Chrome contract', () => {
   it('resolves all four Manifest keys to exact, site-local SVG bytes', () => {
     expect(chrome.logoManifestId).toBe('TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01')
     for (const [slot, key, file, bytes, sha256] of assets) {
@@ -49,5 +54,44 @@ describe('TiO2 Malaysia shared production Logo contract', () => {
     expect(css).toMatch(/\.mobileNav a\[aria-current='page'\]\s*\{[^}]*font-weight:\s*800/iu)
     expect(css).toMatch(/\.mobileNav a\[aria-current='page'\]::before\s*\{[^}]*left:\s*8px[^}]*width:\s*4px[^}]*background:\s*#14b8a6/iu)
     expect(css).toMatch(/\.header nav\.mobileNav > a\s*\{[^}]*align-items:\s*flex-start[^}]*text-align:\s*left/iu)
+  })
+
+  it('is the only Header, Mobile Menu and Footer implementation consumed by Malaysia pages', () => {
+    const home = readFileSync(homeComponentPath, 'utf8')
+    const market = readFileSync(marketComponentPath, 'utf8')
+
+    expect(existsSync(legacyHomeHeaderPath)).toBe(false)
+    for (const page of [home, market]) {
+      expect(page).toMatch(/from '\.\.\/malaysia-global-chrome'/u)
+      expect(page.match(/<MalaysiaGlobalHeader/gu)).toHaveLength(1)
+      expect(page.match(/<MalaysiaGlobalFooter/gu)).toHaveLength(1)
+    }
+    expect(home).toMatch(/currentPageId="HOME-001"/u)
+    expect(home).toMatch(/sourcePageId="HOME-001"/u)
+    expect(market).toMatch(/currentPageId="MARKET-000"/u)
+    expect(market).toMatch(/sourcePageId="MARKET-000"/u)
+  })
+
+  it('prevents page CSS from styling any shared Chrome surface', () => {
+    const forbiddenChromeSelector = /\.(?:header|headerInner|logoLink|logo|desktopNav|headerRfq|rfqCompact|menuButton|mobileNav|footer|footerGrid|footerLogo|copyright)(?:\s|,|\{|:|\.)/u
+    const homeCss = readFileSync(homeCssPath, 'utf8')
+    const marketCss = readFileSync(marketCssPath, 'utf8')
+
+    expect(homeCss).not.toMatch(forbiddenChromeSelector)
+    expect(marketCss).not.toMatch(forbiddenChromeSelector)
+    expect(homeCss).not.toMatch(/\.site\s+(?:\*|a|h1|h2|h3|p|:is)/u)
+    expect(homeCss).toMatch(/\.homepageMain\s+a/u)
+    expect(marketCss).not.toMatch(/\.site\s+(?:\*|a|h1|h2|h3|p|:is)/u)
+  })
+
+  it('resolves Home and Markets through the single site-local Chrome configuration', () => {
+    const homeDto = readFileSync('lib/wordpress/homepage-v04-dto.ts', 'utf8')
+    const marketDto = readFileSync('lib/wordpress/market-hub-v01-dto.ts', 'utf8')
+    const configImport = "import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'"
+
+    expect(homeDto).toContain(configImport)
+    expect(marketDto).toContain(configImport)
+    expect(homeDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
+    expect(marketDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
   })
 })

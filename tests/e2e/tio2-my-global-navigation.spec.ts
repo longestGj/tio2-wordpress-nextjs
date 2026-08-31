@@ -8,9 +8,10 @@ const pages = [
   {path: '/markets/', current: 'Markets'},
 ] as const
 
-for (const width of [390, 1440] as const) {
+for (const width of [390, 768, 1440] as const) {
   for (const pageContract of pages) {
     test(`${pageContract.current} shared navigation state at ${width}px`, async ({page}) => {
+      const mobileChrome = width <= 900
       await page.setViewportSize({width, height: width === 390 ? 844 : 1000})
       const response = await page.goto(`${baseUrl}${pageContract.path}`)
       expect(response?.ok()).toBe(true)
@@ -31,9 +32,11 @@ for (const width of [390, 1440] as const) {
       const headerLogo = header.locator('img[alt="TiO2 Malaysia"]')
       await assertRenderedMalaysiaHeaderLogo(headerLogo, width === 390
         ? {width: 110, height: 110 / 3}
-        : {width: 180, height: 60})
+        : width === 768
+          ? {width: 120, height: 40}
+          : {width: 180, height: 60})
       expect(await headerInner.evaluate((node) => node.getBoundingClientRect().height)).toBe(
-        width === 390 ? 64 : 84,
+        mobileChrome ? 64 : 84,
       )
       expect(await desktopCurrent.evaluate((link) => {
         const marker = getComputedStyle(link, '::after')
@@ -52,7 +55,7 @@ for (const width of [390, 1440] as const) {
         await page.evaluate(() => document.documentElement.clientWidth),
       )
 
-      if (width === 390) {
+      if (mobileChrome) {
         await expect(page.getByRole('navigation', {name: 'Primary navigation'})).toHaveCount(0)
         await expect(page.getByRole('navigation', {name: 'Mobile navigation'})).toHaveCount(0)
         const menuButton = page.getByRole('button', {name: 'Open primary navigation'})
