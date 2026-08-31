@@ -1,5 +1,7 @@
 import {expect, test} from '@playwright/test'
 
+import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
+
 const baseUrl = 'http://127.0.0.1:3004'
 const pages = [
   {path: '/', current: 'Home'},
@@ -27,11 +29,9 @@ for (const width of [390, 1440] as const) {
       await expect(desktopCurrent).toHaveText(pageContract.current)
       await expect(header.locator('a[href="/request-a-quote/"]').first()).toBeVisible()
       const headerLogo = header.locator('img[alt="TiO2 Malaysia"]')
-      await expect(headerLogo).toBeVisible()
-      await expect.poll(() => headerLogo.evaluate((image) => {
-        const logo = image as HTMLImageElement
-        return logo.complete && logo.naturalWidth > 0 && logo.naturalHeight > 0
-      })).toBe(true)
+      await assertRenderedMalaysiaHeaderLogo(headerLogo, width === 390
+        ? {width: 110, height: 110 / 3}
+        : {width: 180, height: 60})
       expect(await headerInner.evaluate((node) => node.getBoundingClientRect().height)).toBe(
         width === 390 ? 64 : 84,
       )

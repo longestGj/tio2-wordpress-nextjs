@@ -1,6 +1,8 @@
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test} from '@playwright/test'
 
+import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
+
 const baseUrl = 'http://127.0.0.1:3004'
 const widths = [390, 768, 1440] as const
 const moduleOrder = [
@@ -31,10 +33,11 @@ for (const width of widths) {
     const headerLogo = header.locator('img[alt="TiO2 Malaysia"]')
     await expect(desktopCurrent).toHaveText('Markets')
     await expect(header).not.toContainText('CURRENT')
-    await expect.poll(() => headerLogo.evaluate((image) => {
-      const logo = image as HTMLImageElement
-      return logo.complete && logo.naturalWidth > 0 && logo.naturalHeight > 0
-    })).toBe(true)
+    await assertRenderedMalaysiaHeaderLogo(headerLogo, width === 390
+      ? {width: 110, height: 110 / 3}
+      : width === 768
+        ? {width: 120, height: 40}
+        : {width: 180, height: 60})
     expect(await desktopCurrent.evaluate((link) => {
       const style = getComputedStyle(link)
       const marker = getComputedStyle(link, '::after')
