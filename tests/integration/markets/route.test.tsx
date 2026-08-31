@@ -2,6 +2,7 @@ import {renderToStaticMarkup} from 'react-dom/server'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {toMalaysiaMarketHubDto} from '@/lib/wordpress/market-hub-v01-dto'
+import {GraphQLResponseError} from '@/lib/wordpress/client'
 import {getSiteConfig} from '@/sites'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-market-hub.json'
 
@@ -68,5 +69,16 @@ describe('MARKET-000 route integration', () => {
       digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
     })
     expect(routeMocks.getMalaysiaMarketHub).not.toHaveBeenCalled()
+  })
+
+  it('propagates a missing Malaysia CMS record as a server error, never a 404 fallback', async () => {
+    const sourceError = new GraphQLResponseError([
+      {message: 'Malaysia Markets Hub record is unavailable.'},
+    ])
+    routeMocks.getMalaysiaMarketHub.mockRejectedValue(sourceError)
+    const route = await import('@/app/markets/page')
+
+    await expect(route.default()).rejects.toBe(sourceError)
+    expect(routeMocks.getMalaysiaMarketHub).toHaveBeenCalledOnce()
   })
 })

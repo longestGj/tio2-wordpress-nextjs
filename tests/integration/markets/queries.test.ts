@@ -1,6 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 
 import {getMalaysiaMarketHub} from '@/lib/wordpress/market-hub-v01-queries'
+import {GraphQLResponseError} from '@/lib/wordpress/client'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-market-hub.json'
 
 afterEach(() => {
@@ -30,6 +31,19 @@ describe('MARKET-000 GraphQL query isolation', () => {
     expect(next?.tags).toEqual([
       'site:tio2-my', 'route:tio2-my:/markets', 'content:tio2-my--markets',
     ])
+    expect(JSON.stringify(fetchMock.mock.calls)).not.toMatch(/tio2-a|tio2-b/iu)
+  })
+
+  it('surfaces a missing or invalid Malaysia record as an error without fallback', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({
+      data: null,
+      errors: [{message: 'Malaysia Markets Hub record is unavailable.'}],
+    }), {status: 200, headers: {'content-type': 'application/json'}}))
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubEnv('WORDPRESS_GRAPHQL_URL', 'https://cms.example.test/graphql')
+
+    await expect(getMalaysiaMarketHub()).rejects.toBeInstanceOf(GraphQLResponseError)
+    expect(fetchMock).toHaveBeenCalledOnce()
     expect(JSON.stringify(fetchMock.mock.calls)).not.toMatch(/tio2-a|tio2-b/iu)
   })
 })

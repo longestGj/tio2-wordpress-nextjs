@@ -29,7 +29,7 @@ export function MalaysiaMarketHub({
         currentPageId="MARKET-000"
         sourcePageId="MARKET-000"
       />
-      <main>
+      <main className={styles.marketMain}>
         <nav className={styles.breadcrumb} aria-label="Breadcrumb" data-module="breadcrumb">
           <ol>
             {marketHub.breadcrumb.map((item, index) => (

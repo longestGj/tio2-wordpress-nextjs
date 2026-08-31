@@ -16,7 +16,6 @@ async function getRequestMarketHub() {
   const site = getCurrentSite()
   if (site.id !== 'tio2-my') notFound()
   const marketHub = await getMalaysiaMarketHub()
-  if (!marketHub) notFound()
   return {site, marketHub}
 }
 

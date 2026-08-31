@@ -92,7 +92,7 @@ function tio2_validate_market_hub_v01_contract(int $post_id)
     return true;
 }
 
-function tio2_resolve_malaysia_market_hub_record_json(): ?string
+function tio2_resolve_malaysia_market_hub_record_json(): string
 {
     $ids = get_posts([
         'post_type' => 'tio2_market_hub',
@@ -103,16 +103,24 @@ function tio2_resolve_malaysia_market_hub_record_json(): ?string
         'suppress_filters' => false,
     ]);
     if (1 !== count($ids)) {
-        return null;
+        throw new \GraphQL\Error\UserError(
+            0 === count($ids)
+                ? 'The Malaysia Markets Hub record is missing.'
+                : 'Multiple Malaysia Markets Hub records were found.'
+        );
     }
     $post_id = (int) $ids[0];
     $validation = tio2_validate_market_hub_v01_contract($post_id);
     if (is_wp_error($validation)) {
-        return null;
+        throw new \GraphQL\Error\UserError(
+            'The Malaysia Markets Hub record failed scope or contract validation.'
+        );
     }
     $contract_json = get_post_meta($post_id, TIO2_MY_MARKET_HUB_CONTRACT_META, true);
     if (! is_string($contract_json) || '' === $contract_json) {
-        return null;
+        throw new \GraphQL\Error\UserError(
+            'The Malaysia Markets Hub record has no approved contract payload.'
+        );
     }
     return wp_json_encode([
         'id' => 'market-hub-' . $post_id,

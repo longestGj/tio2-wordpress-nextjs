@@ -5,6 +5,10 @@ import contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-market-
 
 const phpPath = 'wordpress/plugins/tio2-site-model/includes/market-hub-v01.php'
 const seedPath = 'wordpress/seed/apply-tio2-my-market-hub.php'
+const cssPath = 'components/sites/tio2-my/markets/malaysia-market-hub.module.css'
+const queryPath = 'lib/wordpress/market-hub-v01-queries.ts'
+const pagePath = 'app/markets/page.tsx'
+const schemaPath = 'wordpress/schema.graphql'
 
 describe('MARKET-000 immutable WordPress contract', () => {
   it('locks the approved Malaysia identity and ten ordered English destinations', () => {
@@ -57,5 +61,27 @@ describe('MARKET-000 immutable WordPress contract', () => {
     expect(seed).toContain("'/markets'")
     expect(seed).not.toContain("'tio2-a'")
     expect(seed).not.toContain("'tio2-b'")
+  })
+
+  it('keeps Market typography inside main and makes missing CMS data an explicit error', () => {
+    const css = readFileSync(cssPath, 'utf8')
+    const php = readFileSync(phpPath, 'utf8')
+    const query = readFileSync(queryPath, 'utf8')
+    const page = readFileSync(pagePath, 'utf8')
+    const schema = readFileSync(schemaPath, 'utf8')
+
+    expect(css).toContain('.marketMain h2')
+    expect(css).not.toMatch(/\.site\s+h[1-4]\b/u)
+    expect(css).not.toMatch(/\.site\s+p\b/u)
+    expect(php).toContain('function tio2_resolve_malaysia_market_hub_record_json(): string')
+    expect(php).toContain('throw new \\GraphQL\\Error\\UserError')
+    expect(php).toContain('The Malaysia Markets Hub record is missing.')
+    expect(php).toContain('Multiple Malaysia Markets Hub records were found.')
+    expect(php).toContain('failed scope or contract validation')
+    expect(php).not.toContain('function tio2_resolve_malaysia_market_hub_record_json(): ?string')
+    expect(schema).toContain('malaysiaMarketHubRecordJson: String!')
+    expect(query).toContain('Promise<MalaysiaMarketHubDto>')
+    expect(query).not.toContain('Promise<MalaysiaMarketHubDto | null>')
+    expect(page).not.toContain('if (!marketHub) notFound()')
   })
 })

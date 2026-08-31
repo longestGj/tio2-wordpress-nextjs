@@ -48,6 +48,38 @@ for (const width of widths) {
     ])
     expect(graph[2]?.numberOfItems).toBe(10)
 
+    const footerHeadings = page.locator('footer h2')
+    await expect(footerHeadings).toHaveText(['Explore', 'Information', 'Conversion'])
+    const footerHeadingLayout = await footerHeadings.evaluateAll((headings) =>
+      headings.map((heading) => {
+        const rect = heading.getBoundingClientRect()
+        return {
+          fontSize: Number.parseFloat(getComputedStyle(heading).fontSize),
+          left: rect.left,
+          right: rect.right,
+          top: rect.top,
+          bottom: rect.bottom,
+        }
+      }),
+    )
+    expect(footerHeadingLayout.map(({fontSize}) => fontSize)).toEqual([
+      width === 390 ? 14 : 12,
+      width === 390 ? 14 : 12,
+      width === 390 ? 14 : 12,
+    ])
+    for (let first = 0; first < footerHeadingLayout.length; first += 1) {
+      for (let second = first + 1; second < footerHeadingLayout.length; second += 1) {
+        const a = footerHeadingLayout[first]!
+        const b = footerHeadingLayout[second]!
+        const intersects = a.left < b.right && a.right > b.left &&
+          a.top < b.bottom && a.bottom > b.top
+        expect(intersects, `footer headings ${first} and ${second} overlap`).toBe(false)
+      }
+    }
+    await expect(page.locator('footer img[alt="TiO2 Malaysia"]')).toBeVisible()
+    await expect(page.locator('footer a[href="/request-a-quote/"]')).toBeVisible()
+    await expect(page.locator('footer').getByText('© 2026 TiO2 Malaysia.')).toBeVisible()
+
     const layout = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,
       scrollWidth: document.documentElement.scrollWidth,

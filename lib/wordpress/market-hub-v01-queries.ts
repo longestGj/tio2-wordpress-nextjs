@@ -17,7 +17,7 @@ export const GET_MALAYSIA_MARKET_HUB = GetMalaysiaMarketHubDocument
 
 export async function getMalaysiaMarketHub(
   options: Pick<FetchGraphQLOptions, 'timeoutMs'> = {},
-): Promise<MalaysiaMarketHubDto | null> {
+): Promise<MalaysiaMarketHubDto> {
   const data = await fetchGraphQL<
     GetMalaysiaMarketHubQuery,
     GetMalaysiaMarketHubQueryVariables
