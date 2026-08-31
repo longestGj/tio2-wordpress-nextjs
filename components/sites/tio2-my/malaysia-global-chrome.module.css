@@ -17,7 +17,6 @@
 .desktopNav a { position: relative; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #00244a; font-size: 13px; }
 .desktopNav a[aria-current='page'] { font-weight: 800; }
 .desktopNav a[aria-current='page']::after { content: ''; position: absolute; right: 8%; bottom: 0; left: 8%; height: 3px; background: #006a63; }
-.currentLabel { color: #006a63; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .header .headerRfq, .footer .footerRfq { min-height: 46px; padding: 0 22px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #006a63; border-radius: 4px; color: #fff; background: #006a63; font-size: 13px; }
 .rfqCompact, .menuButton, .mobileNav { display: none; }
 

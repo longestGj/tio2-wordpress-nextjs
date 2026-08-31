@@ -10,6 +10,8 @@ const assets = [
   ['symbol', 'brand_symbol_primary', 'tio2-malaysia-symbol-v0.1.svg', 2510, '9fd1fafafad4bc6fef0c05f499c27baf1051eef084d1b834b1061caf3b8b85a0'],
   ['favicon', 'brand_favicon_safe', 'tio2-malaysia-favicon-safe-v0.1.svg', 1107, 'f1d1b97ff66211410a50279eed16414b5a6e888c27c11419e41265168d08692c'],
 ] as const
+const componentPath = 'components/sites/tio2-my/malaysia-global-chrome.tsx'
+const cssPath = 'components/sites/tio2-my/malaysia-global-chrome.module.css'
 
 describe('TiO2 Malaysia shared production Logo contract', () => {
   it('resolves all four Manifest keys to exact, site-local SVG bytes', () => {
@@ -34,5 +36,17 @@ describe('TiO2 Malaysia shared production Logo contract', () => {
       targetPageId: 'CONV-RFQ', href: '/request-a-quote/',
     })
     expect(JSON.stringify(chrome)).not.toMatch(/\.png|tio2products|tio2hub|tiovar/iu)
+  })
+
+  it('expresses current navigation state without a visible CURRENT label', () => {
+    const component = readFileSync(componentPath, 'utf8')
+    const css = readFileSync(cssPath, 'utf8')
+
+    expect(component).not.toMatch(/currentLabel|>Current</u)
+    expect(component.match(/aria-current=\{current \? 'page' : undefined\}/gu)).toHaveLength(2)
+    expect(css).toMatch(/\.desktopNav a\[aria-current='page'\]\s*\{[^}]*font-weight:\s*800/iu)
+    expect(css).toMatch(/\.desktopNav a\[aria-current='page'\]::after\s*\{[^}]*background:\s*#006a63/iu)
+    expect(css).toMatch(/\.mobileNav a\[aria-current='page'\]\s*\{[^}]*font-weight:\s*800/iu)
+    expect(css).toMatch(/\.mobileNav a\[aria-current='page'\]::before\s*\{[^}]*left:\s*8px[^}]*background:\s*#14b8a6/iu)
   })
 })

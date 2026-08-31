@@ -19,6 +19,17 @@ function homepage() {
 }
 
 describe('MalaysiaHomepage', () => {
+  it('keeps Home current without rendering a visible CURRENT label', () => {
+    const {container} = render(<MalaysiaHomepage homepage={homepage()} />)
+    const header = container.querySelector('header')!
+    const desktopCurrent = header.querySelector('nav[aria-label="Primary navigation"] a[aria-current="page"]')
+    const mobileCurrent = header.querySelector('nav[aria-label="Mobile navigation"] a[aria-current="page"]')
+
+    expect(desktopCurrent?.textContent).toBe('Home')
+    expect(mobileCurrent?.textContent).toBe('Home')
+    expect(header.textContent).not.toMatch(/CURRENT/iu)
+  })
+
   it('renders the approved module order, single H1, and full product inventory', () => {
     const {container} = render(<MalaysiaHomepage homepage={homepage()} />)
     expect(container.querySelectorAll('h1')).toHaveLength(1)

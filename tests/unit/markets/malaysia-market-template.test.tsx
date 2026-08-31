@@ -47,8 +47,9 @@ describe('MalaysiaMarketHub', () => {
   it('keeps Markets current and all Global Chrome RFQ surfaces scope-bound', () => {
     const {container} = render(<MalaysiaMarketHub marketHub={marketHub()} />)
     const current = container.querySelectorAll('a[aria-current="page"]')
-    expect(current.length).toBeGreaterThanOrEqual(1)
-    for (const link of current) expect(link.textContent).toMatch(/Markets$/u)
+    expect(current).toHaveLength(2)
+    for (const link of current) expect(link.textContent).toBe('Markets')
+    expect(container.querySelector('header')?.textContent).not.toMatch(/CURRENT/iu)
     const rfqLinks = container.querySelectorAll('a[href="/request-a-quote/"]')
     expect(rfqLinks.length).toBeGreaterThanOrEqual(3)
     for (const link of rfqLinks) {

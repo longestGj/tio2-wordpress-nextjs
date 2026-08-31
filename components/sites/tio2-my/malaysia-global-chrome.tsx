@@ -78,7 +78,6 @@ export function MalaysiaGlobalHeader({
             const current = item.targetPageId === currentPageId
             return (
               <a key={item.targetPageId} href={item.href} aria-current={current ? 'page' : undefined}>
-                {current ? <span className={styles.currentLabel}>Current</span> : null}
                 <span>{item.label}</span>
               </a>
             )
@@ -112,7 +111,6 @@ export function MalaysiaGlobalHeader({
           const current = item.targetPageId === currentPageId
           return (
             <a key={item.targetPageId} href={item.href} aria-current={current ? 'page' : undefined}>
-              {current ? <span className={styles.currentLabel}>Current</span> : null}
               <span>{item.label}</span>
             </a>
           )

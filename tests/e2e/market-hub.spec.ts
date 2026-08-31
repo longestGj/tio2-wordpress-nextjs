@@ -26,6 +26,23 @@ for (const width of widths) {
     const response = await page.goto(`${baseUrl}/markets/`)
     expect(response?.ok()).toBe(true)
     await expect(page.locator('h1')).toHaveCount(1)
+    const header = page.locator('header')
+    const desktopCurrent = header.locator('nav[aria-label="Primary navigation"] a[aria-current="page"]')
+    await expect(desktopCurrent).toHaveText('Markets')
+    await expect(header).not.toContainText('CURRENT')
+    expect(await desktopCurrent.evaluate((link) => {
+      const style = getComputedStyle(link)
+      const marker = getComputedStyle(link, '::after')
+      return {
+        fontWeight: style.fontWeight,
+        markerBackground: marker.backgroundColor,
+        markerHeight: marker.height,
+      }
+    })).toEqual({
+      fontWeight: '800',
+      markerBackground: 'rgb(0, 106, 99)',
+      markerHeight: '3px',
+    })
     await expect(page.locator('[data-module]')).toHaveCount(moduleOrder.length)
     expect(await page.locator('[data-module]').evaluateAll((nodes) =>
       nodes.map((node) => node.getAttribute('data-module')),
@@ -123,7 +140,26 @@ for (const width of widths) {
     if (width <= 768) {
       const menu = page.getByRole('button', {name: 'Open primary navigation'})
       await menu.click()
-      await expect(page.locator('#malaysia-mobile-menu a').first()).toBeFocused()
+      const mobileMenu = page.locator('#malaysia-mobile-menu')
+      const mobileCurrent = mobileMenu.locator('a[aria-current="page"]')
+      await expect(mobileCurrent).toHaveText('Markets')
+      await expect(mobileMenu).not.toContainText('CURRENT')
+      expect(await mobileCurrent.evaluate((link) => {
+        const style = getComputedStyle(link)
+        const marker = getComputedStyle(link, '::before')
+        return {
+          fontWeight: style.fontWeight,
+          markerBackground: marker.backgroundColor,
+          markerLeft: marker.left,
+          markerWidth: marker.width,
+        }
+      })).toEqual({
+        fontWeight: '800',
+        markerBackground: 'rgb(20, 184, 166)',
+        markerLeft: '8px',
+        markerWidth: '3px',
+      })
+      await expect(mobileMenu.locator('a').first()).toBeFocused()
       await page.keyboard.press('Escape')
       await expect(menu).toBeFocused()
     }
