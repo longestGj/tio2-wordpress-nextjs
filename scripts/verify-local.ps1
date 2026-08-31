@@ -103,13 +103,19 @@ $GateNames = @(
     'schema',
     'codegen',
     'homepage-vitest',
-    'vitest',
-    $(if ($RootOnly) { 'vitest-live-product-fixture' }),
-    $(if ($RootOnly) { 'vitest-live-product-publication' }),
-    $(if ($RootOnly) { 'vitest-live-seed' }),
-    $(if ($RootOnly) { 'vitest-live-homepage-migration' }),
-    $(if ($RootOnly) { 'vitest-live-root-only-migration' }),
-    $(if ($RootOnly) { 'root-only-transition' }),
+    'vitest'
+)
+if ($RootOnly) {
+    $GateNames += @(
+        'vitest-live-product-fixture',
+        'vitest-live-product-publication',
+        'vitest-live-seed',
+        'vitest-live-homepage-migration',
+        'vitest-live-root-only-migration',
+        'root-only-transition'
+    )
+}
+$GateNames += @(
     'build-tio2-a',
     'build-tio2-b',
     'launch',
@@ -120,7 +126,7 @@ $GateNames = @(
     'homepage-lighthouse-performance',
     'http-audit',
     'tracked-worktree'
-) | Where-Object { $_ }
+)
 $ControllerHealthTimeoutSeconds = 120
 $ControllerMaximumSequentialHealthWaitSeconds = 240
 $ControllerParentTimeoutSeconds = 270

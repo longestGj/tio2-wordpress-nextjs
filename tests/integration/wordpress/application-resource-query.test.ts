@@ -13,9 +13,8 @@ import {
   SITE_A_APPLICATION_IDENTITIES,
 } from '@/lib/applications/content-manifest'
 import {ApplicationContractError} from '@/lib/applications/dto'
+import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import type {EditorialTarget} from '@/lib/editorial/types'
-import {SITE_A_PRODUCT_IDS} from '@/lib/products/content-manifest'
-import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {ResourceContractError} from '@/lib/resources/dto'
 import {
   applicationListTag,
@@ -43,20 +42,9 @@ const applicationRecord = structuredClone(applicationManifest.records[1])
 const resourceRecord = structuredClone(resourceManifest.records[1])
 
 function canonicalTarget(target: EditorialTarget) {
-  if (target.type === 'application') {
-    const identity = SITE_A_APPLICATION_IDENTITIES.find(([id]) => id === target.id)
-    if (!identity) throw new Error(`Unknown test Application: ${target.id}`)
-    return {type: target.type, id: target.id, path: identity[2]}
-  }
-  if (target.type === 'resource') {
-    const identity = SITE_A_RESOURCE_IDENTITIES.find(([id]) => id === target.id)
-    if (!identity) throw new Error(`Unknown test Resource: ${target.id}`)
-    return {type: target.type, id: target.id, path: identity[2]}
-  }
-  if (!SITE_A_PRODUCT_IDS.includes(target.id as (typeof SITE_A_PRODUCT_IDS)[number])) {
-    throw new Error(`Unknown test Product: ${target.id}`)
-  }
-  return {type: target.type, id: target.id, path: `/products/${target.id.toLowerCase()}`}
+  const canonical = resolveCanonicalEditorialTarget(target.type, target.id)
+  if (!canonical) throw new Error(`Unknown test target: ${target.type}:${target.id}`)
+  return {...canonical.target, path: canonical.path}
 }
 
 function serializedLink(target: {type: string; id: string}) {
@@ -236,7 +224,7 @@ describe('public Application and Technical Resource queries', () => {
       })
       expect(result?.children).toHaveLength(applicationRecord.children.length)
       expect(result?.relationships).toEqual([
-        {type: 'product', id: 'TP-P100', title: 'Synthetic TP-P100', path: '/products/tp-p100', href: null},
+        {...canonicalTarget({type: 'product', id: 'TP-P100'}), title: 'Synthetic TP-P100', href: null},
         {type: 'resource', id: 'article-01', title: 'Synthetic article-01', path: '/resources/rutile-vs-anatase-titanium-dioxide', href: null},
       ])
     } finally {

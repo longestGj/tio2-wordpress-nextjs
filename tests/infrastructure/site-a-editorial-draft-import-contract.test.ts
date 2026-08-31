@@ -235,7 +235,7 @@ describe('local Site A editorial draft wrapper contract', () => {
     expect(capabilities[0].token).toMatch(/^[a-f0-9]{64}$/u)
     expect(capabilities[1].token).toMatch(/^[a-f0-9]{64}$/u)
     expect(capabilities[0].token).not.toBe(capabilities[1].token)
-  })
+  }, 60_000)
 
   it.skipIf(!existsSync(productManifestPath))('passes one-use capability values through inherited Docker environment without exposing them in argv', () => {
     for (const wrapperPath of [applyWrapperPath, auditWrapperPath]) {

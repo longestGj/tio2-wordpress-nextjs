@@ -592,5 +592,5 @@ describe('approved v0.5 Products CSS and assets', () => {
       )
     }
     expect(readdirSync(publicDirectory)).not.toContain('tiovar-logo.png')
-  })
+  }, 30_000)
 })

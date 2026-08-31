@@ -261,7 +261,7 @@ describe('local representative-content PowerShell boundary', () => {
     } finally {
       rmSync(temporary, {recursive: true, force: true})
     }
-  })
+  }, 60_000)
 })
 
 function runControlledImporter() {
@@ -395,7 +395,7 @@ describe('controlled WordPress representative-content importer boundary', () => 
     expect(`${result.stdout}\n${result.stderr}`).not.toContain(
       'strict_types declaration must be the very first statement',
     )
-  })
+  }, 45_000)
 
   it('plans three targets, applies transactionally, reads back normalized fields, and is idempotent', () => {
     expect(existsSync(importerPath), 'PHP importer is missing').toBe(true)

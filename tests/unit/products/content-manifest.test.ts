@@ -226,8 +226,13 @@ function runCliAsync(args: string[]): Promise<{
 }
 
 async function loaderResidues(): Promise<string[]> {
-  return (await readdir('lib/products'))
-    .filter((name) => /^\.content-manifest\..+\.mjs$/u.test(name))
+  try {
+    return (await readdir(join('.tmp', 'product-manifest-loaders')))
+      .filter((name) => /^content-manifest\..+$/u.test(name))
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return []
+    throw error
+  }
 }
 
 describe('Site A Product content manifest', () => {
@@ -1219,7 +1224,10 @@ describe('Product manifest validator CLI', () => {
       residues = await loaderResidues()
     } finally {
       await Promise.all((await loaderResidues()).map((name) =>
-        rm(join('lib/products', name), {force: true})))
+        rm(join('.tmp', 'product-manifest-loaders', name), {
+          recursive: true,
+          force: true,
+        })))
     }
 
     expect(result!.status).not.toBe(0)

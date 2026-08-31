@@ -502,7 +502,9 @@ function validAuditSnapshot(scalePages = 0): AuditSnapshot {
     slug: `${siteId}--homepage`,
     status: 'publish',
     publicPath: '/' as const,
-    schemaVersion: 'homepage-v0.1' as const,
+    schemaVersion: siteId === 'tio2-a'
+      ? 'homepage-v0.3-brand' as const
+      : 'homepage-v0.1' as const,
     seedMarker: siteId,
     siteScopes: [siteId],
     error: '',
@@ -661,6 +663,15 @@ describe('seed audit validation', () => {
     expect(result.stdout).toContain('tio2-b: 1 public URLs')
   })
 
+  it('reports the separately authorized migration prerequisite for a live legacy baseline', () => {
+    const result = runSnapshotAudit(validAuditSnapshot(), null)
+
+    expect(result.status).not.toBe(0)
+    expect(`${result.stdout}\n${result.stderr}`).toContain(
+      'The separately authorized root-only WordPress migration must complete before verify:local.',
+    )
+  })
+
   it.each([
     {
       name: 'an omitted retained route',
@@ -789,6 +800,37 @@ describe('seed audit validation', () => {
       siteScopes: [],
       error: 'tio2_homepage_duplicate',
       uriResolvable: false,
+      uriResolutionSource: 'wpgraphql',
+    })
+
+    const result = runSnapshotAudit(snapshot)
+
+    expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+  })
+
+  it('ignores a separately scoped foreign-site homepage in the shared WordPress database', () => {
+    const snapshot = validAuditSnapshot()
+    snapshot.homepages.push({
+      id: 3000,
+      siteId: 'tio2-my',
+      slug: 'tio2-my--homepage',
+      status: 'publish',
+      publicPath: '/',
+      schemaVersion: 'homepage-v0.4-malaysia',
+      seedMarker: '',
+      siteScopes: ['tio2-my'],
+      error: '',
+      uriResolvable: true,
+      uriResolutionSource: 'wpgraphql',
+    })
+    snapshot.publicUrls.push({
+      ownerId: 3000,
+      ownerType: 'homepage',
+      siteId: 'tio2-my',
+      path: '/',
+      slug: 'tio2-my--homepage',
+      siteScopes: ['tio2-my'],
+      uriResolvable: true,
       uriResolutionSource: 'wpgraphql',
     })
 

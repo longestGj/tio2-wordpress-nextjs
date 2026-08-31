@@ -38,7 +38,7 @@ function tio2_load_public_route_inventory_from_json(string $json): array
     tio2_assert_publication_exact_keys($inventory['sites'], ['tio2-a', 'tio2-b'], 'sites');
 
     $expected_templates = [
-        'tio2-a' => 'site-a-homepage-editorial-v0.2',
+        'tio2-a' => 'site-a-homepage-brand-v0.3',
         'tio2-b' => 'site-b-homepage-v0.1-frozen',
     ];
     foreach ($expected_templates as $site_id => $expected_template) {

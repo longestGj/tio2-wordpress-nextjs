@@ -286,7 +286,36 @@ foreach ($routes as $route) {
     }
     $route_keys[$route_key] = true;
 }
+$expected_homepage_schemas = array_values(array_filter(array_map(
+    static fn(string $site_id): ?string => tio2_expected_homepage_schema_version($site_id),
+    $site_ids
+)));
+$is_audited_homepage = static function (array $homepage) use (
+    $site_ids,
+    $expected_homepage_schemas
+): bool {
+    $matches_site = in_array($homepage['siteId'], $site_ids, true);
+    $matches_scope = [] !== array_intersect($homepage['siteScopes'], $site_ids);
+    $matches_marker = in_array($homepage['seedMarker'], $site_ids, true);
+    $matches_slug = false;
+    foreach ($site_ids as $site_id) {
+        if (str_starts_with($homepage['slug'], $site_id . '--')) {
+            $matches_slug = true;
+            break;
+        }
+    }
+    $matches_schema = in_array($homepage['schemaVersion'], $expected_homepage_schemas, true);
+    $has_foreign_identity =
+        (null !== $homepage['siteId'] && ! $matches_site) ||
+        ([] !== $homepage['siteScopes'] && ! $matches_scope) ||
+        ('' !== $homepage['schemaVersion'] && ! $matches_schema);
+    return $matches_site || $matches_scope || $matches_marker || $matches_slug ||
+        $matches_schema || ! $has_foreign_identity;
+};
 foreach ($homepages as $homepage) {
+    if (! $is_audited_homepage($homepage)) {
+        continue;
+    }
     $released_duplicate =
         'draft' === $homepage['status'] &&
         [] === $homepage['siteScopes'] &&

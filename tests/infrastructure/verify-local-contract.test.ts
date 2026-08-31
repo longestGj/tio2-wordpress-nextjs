@@ -14,6 +14,44 @@ import {describe, expect, it} from 'vitest'
 const verifier = resolve('scripts/verify-local.ps1')
 
 describe.runIf(process.platform === 'win32')('local verification gate', () => {
+  it('describes the complete normal local gate without dropping post-Vitest stages', () => {
+    const output = execFileSync(
+      'powershell',
+      [
+        '-NoProfile',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-File',
+        verifier,
+        '-Plan',
+      ],
+      {encoding: 'utf8'},
+    )
+
+    expect(JSON.parse(output).gates).toEqual([
+      'compose',
+      'wordpress-homepage',
+      'wordpress-smoke',
+      'seed-audit',
+      'lint',
+      'typecheck',
+      'schema',
+      'codegen',
+      'homepage-vitest',
+      'vitest',
+      'build-tio2-a',
+      'build-tio2-b',
+      'launch',
+      'homepage-e2e',
+      'playwright',
+      'homepage-bundle',
+      'homepage-lighthouse-a11y',
+      'homepage-lighthouse-performance',
+      'http-audit',
+      'tracked-worktree',
+    ])
+  })
+
   it('describes an inventory-driven disposable RootOnly gate without changing local state', () => {
     const output = execFileSync(
       'powershell',

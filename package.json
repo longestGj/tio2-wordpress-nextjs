@@ -7,7 +7,7 @@
     "schema:refresh": "docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml run --rm wpcli wp graphql generate-static-schema --output=/workspace/wordpress/schema.graphql",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test --config=playwright.config.ts",

@@ -4,6 +4,8 @@ if (! defined('ABSPATH')) {
     exit(1);
 }
 
+require_once __DIR__ . '/../seed/site-a-brand-homepage-data.php';
+
 $GLOBALS['tio2_homepage_test_post_ids'] = [];
 $GLOBALS['tio2_homepage_test_term_ids'] = [];
 $GLOBALS['tio2_homepage_test_root_meta'] = [];
@@ -596,26 +598,22 @@ function tio2_homepage_test_set_valid_fields(int $post_id, array $routes): void
         $values['field_tio2_home_rfq_success_message'] =
             'No Site B information was transmitted or saved by this local demo.';
     } elseif ('tio2-a' === tio2_get_homepage_site_id($post_id)) {
-        $shared_v02_keys = [
-            'field_tio2_home_schema_version',
-            'field_tio2_home_hero_eyebrow',
-            'field_tio2_home_hero_heading',
-            'field_tio2_home_hero_summary',
-            'field_tio2_home_hero_image',
-            'field_tio2_home_hero_image_alt',
-            'field_tio2_home_closing_heading',
-            'field_tio2_home_closing_body',
-            'field_tio2_home_closing_label',
-            'field_tio2_home_seo_title',
-            'field_tio2_home_seo_description',
-            'field_tio2_home_og_image',
-            'field_tio2_home_primary_topic',
-            'field_tio2_home_secondary_topics',
-        ];
-        $values = array_replace(
-            array_intersect_key($values, array_flip($shared_v02_keys)),
-            tio2_homepage_test_v02_values()
+        $definitions = array_merge(
+            tio2_homepage_field_definitions(),
+            tio2_homepage_v03_field_definitions()
         );
+        $field_keys = [];
+        foreach ($definitions as $definition) {
+            $field_keys[(string) $definition['name']] = (string) $definition['key'];
+        }
+        $values = [];
+        foreach (tio2_site_a_brand_homepage_fields() as $field_name => $value) {
+            tio2_homepage_test_assert(
+                isset($field_keys[$field_name]),
+                "Site A brand fixture references unknown field {$field_name}"
+            );
+            $values[$field_keys[$field_name]] = $value;
+        }
     }
 
     foreach ($values as $field_key => $value) {
@@ -1076,13 +1074,18 @@ tio2_homepage_test_assert(
 wp_update_post(['ID' => $stale_owner, 'post_title' => 'Saved original stale owner']);
 clean_post_cache($stale_owner);
 clean_post_cache($stale_duplicate);
+$stale_owner_validation = tio2_validate_homepage_contract($stale_owner);
 tio2_homepage_test_assert(
     get_post($stale_owner) instanceof WP_Post && get_post($stale_duplicate) instanceof WP_Post,
     'Saving the original owner permanently deleted a stale duplicate'
 );
 tio2_homepage_test_assert(
-    'publish' === get_post_status($stale_owner) && true === tio2_validate_homepage_contract($stale_owner),
-    'Saving the original owner invalidated its homepage contract'
+    'publish' === get_post_status($stale_owner) && true === $stale_owner_validation,
+    'Saving the original owner invalidated its homepage contract' . (
+        is_wp_error($stale_owner_validation)
+            ? ': ' . $stale_owner_validation->get_error_code()
+            : ': status=' . (string) get_post_status($stale_owner)
+    )
 );
 tio2_homepage_test_assert(
         'draft' === get_post_status($stale_duplicate) &&
@@ -1589,7 +1592,7 @@ $wpdb->update(
 );
 clean_post_cache($valid_b);
 tio2_homepage_test_assert(
-    'homepage-v0.2-editorial-geo' === get_field('homepage_schema_version', $valid_a, false) &&
+    'homepage-v0.3-brand' === get_field('homepage_schema_version', $valid_a, false) &&
         'homepage-v0.1' === get_field('homepage_schema_version', $valid_b, false),
     'Versioned homepage schema values are not registered'
 );

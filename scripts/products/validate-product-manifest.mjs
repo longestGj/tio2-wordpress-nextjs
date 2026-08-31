@@ -1,5 +1,7 @@
 import {randomUUID} from 'node:crypto'
-import {readFile, rm, writeFile} from 'node:fs/promises'
+import {mkdir, mkdtemp, readFile, rm, writeFile} from 'node:fs/promises'
+import {join} from 'node:path'
+import {fileURLToPath, pathToFileURL} from 'node:url'
 
 import ts from 'typescript'
 
@@ -7,6 +9,9 @@ const USAGE = 'Usage: node scripts/products/validate-product-manifest.mjs [--all
 const MANIFEST_SOURCE_URL = new URL(
   '../../lib/products/content-manifest.ts',
   import.meta.url,
+)
+const RUNTIME_ROOT_PATH = fileURLToPath(
+  new URL('../../.tmp/product-manifest-loaders/', import.meta.url),
 )
 
 async function loadManifestApi() {
@@ -31,9 +36,12 @@ async function loadManifestApi() {
     }))
   }
 
-  const temporaryModuleUrl = new URL(
-    `.content-manifest.${process.pid}.${randomUUID()}.mjs`,
-    MANIFEST_SOURCE_URL,
+  await mkdir(RUNTIME_ROOT_PATH, {recursive: true})
+  const temporaryRuntimePath = await mkdtemp(
+    join(RUNTIME_ROOT_PATH, `content-manifest.${process.pid}.${randomUUID()}-`),
+  )
+  const temporaryModuleUrl = pathToFileURL(
+    join(temporaryRuntimePath, 'content-manifest.mjs'),
   )
   try {
     await writeFile(temporaryModuleUrl, result.outputText, {
@@ -42,7 +50,7 @@ async function loadManifestApi() {
     })
     return await import(temporaryModuleUrl.href)
   } finally {
-    await rm(temporaryModuleUrl, {force: true})
+    await rm(temporaryRuntimePath, {recursive: true, force: true})
   }
 }
 

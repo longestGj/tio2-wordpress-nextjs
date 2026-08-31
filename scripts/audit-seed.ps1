@@ -84,6 +84,29 @@ $Routes = @($Snapshot.routes)
 $Homepages = @($Snapshot.homepages)
 $PublicUrls = @($Snapshot.publicUrls)
 $AuditSummary = $Snapshot.summary
+$ExpectedHomepageSchemas = @{
+    'tio2-a' = 'homepage-v0.3-brand'
+    'tio2-b' = 'homepage-v0.1'
+}
+$AuditedHomepages = @($Homepages | Where-Object {
+    $Homepage = $_
+    $HomepageScopes = @($Homepage.siteScopes | ForEach-Object { [string]$_ })
+    $MatchesSite = $SiteIds -contains [string]$Homepage.siteId
+    $MatchesScope = @($HomepageScopes | Where-Object { $SiteIds -contains $_ }).Count -gt 0
+    $MatchesMarker = $SiteIds -contains [string]$Homepage.seedMarker
+    $MatchesSlug = @($SiteIds | Where-Object {
+        ([string]$Homepage.slug).StartsWith("$_--", [System.StringComparison]::Ordinal)
+    }).Count -gt 0
+    $MatchesSchema = @($ExpectedHomepageSchemas.Values) -contains [string]$Homepage.schemaVersion
+    $HasForeignIdentity = (
+        -not [string]::IsNullOrWhiteSpace([string]$Homepage.siteId) -and -not $MatchesSite
+    ) -or (
+        $HomepageScopes.Count -gt 0 -and -not $MatchesScope
+    ) -or (
+        -not [string]::IsNullOrWhiteSpace([string]$Homepage.schemaVersion) -and -not $MatchesSchema
+    )
+    $MatchesSite -or $MatchesScope -or $MatchesMarker -or $MatchesSlug -or $MatchesSchema -or -not $HasForeignIdentity
+})
 foreach ($SummaryProperty in @(
     'publicInventoryCount',
     'publishedHomepageCount',
@@ -153,6 +176,12 @@ if ($DatasetMode -eq 'LegacyBaseline') {
         $Errors.Add('LegacyBaseline public URL counts must be matching and non-zero.')
     }
     $ExpectedPerSite = $LegacySiteACount
+}
+elseif ($IsLegacySummary -and $ExpectedPerSite -eq 1 -and $Errors.Count -eq 0) {
+    [Console]::Error.WriteLine(
+        'Inventory audit found the 505-URL LegacyBaseline. The separately authorized root-only WordPress migration must complete before verify:local.'
+    )
+    exit 1
 }
 
 $IdentityRows = [System.Collections.Generic.List[object]]::new()
@@ -291,7 +320,7 @@ $DerivedDraftProductCount = @($Snapshot.sharedFixtures | Where-Object {
 if ([int]$AuditSummary.retainedDraftProductCount -ne $DerivedDraftProductCount) {
     $Errors.Add('Invalid audit summary retainedDraftProductCount for derived Product rows.')
 }
-foreach ($Homepage in $Homepages) {
+foreach ($Homepage in $AuditedHomepages) {
     $IsReleasedDuplicate =
         $Homepage.status -eq 'draft' -and
         @($Homepage.siteScopes).Count -eq 0 -and
@@ -315,7 +344,7 @@ if ([int]$AuditSummary.crossSiteLeaks -ne $DerivedCrossSiteLeaks) {
 }
 
 $CanonicalHomepages = @{}
-foreach ($Homepage in $Homepages) {
+foreach ($Homepage in $AuditedHomepages) {
     $IsReleasedDuplicate =
         $Homepage.status -eq 'draft' -and
         @($Homepage.siteScopes).Count -eq 0 -and
@@ -333,7 +362,7 @@ foreach ($Homepage in $Homepages) {
         $Homepage.siteId -ne $HomepageSiteId -or
         $Homepage.slug -ne "$HomepageSiteId--homepage" -or
         $Homepage.seedMarker -ne $HomepageSiteId -or
-        $Homepage.schemaVersion -ne 'homepage-v0.1' -or
+        $Homepage.schemaVersion -ne $ExpectedHomepageSchemas[$HomepageSiteId] -or
         @('publish', 'future', 'draft', 'pending', 'private', 'trash') -notcontains $Homepage.status
     ) {
         $Errors.Add("Invalid homepage inventory record $($Homepage.id).")
@@ -352,7 +381,7 @@ foreach ($SiteId in $SiteIds) {
         $Homes.Count -ne 1 -or
         $Homes[0].slug -ne "$SiteId--homepage" -or
         $Homes[0].publicPath -ne '/' -or
-        $Homes[0].schemaVersion -ne 'homepage-v0.1' -or
+        $Homes[0].schemaVersion -ne $ExpectedHomepageSchemas[$SiteId] -or
         $Homes[0].seedMarker -ne $SiteId -or
         -not [bool]$Homes[0].uriResolvable -or
         $Homes[0].uriResolutionSource -ne 'wpgraphql'

@@ -67,18 +67,18 @@ describe('homepage revalidation', () => {
   })
 
   it('does not add a homepage tag for existing non-root Page/Post paths', async () => {
-    const response = await POST(requestFor('/products'))
+    const response = await POST(requestFor('/legacy-page'))
     const payload = await response.json()
 
     expect(response.status).toBe(200)
     expect(payload.revalidatedTags).toEqual([
       'content-list:tio2-a',
-      'route:tio2-a:/products',
+      'route:tio2-a:/legacy-page',
       'site:tio2-a',
       'sitemap:tio2-a',
     ])
     expect(payload.revalidatedTags).not.toContain('content:tio2-a--homepage')
-    expect(revalidatePath).toHaveBeenCalledExactlyOnceWith('/products')
+    expect(revalidatePath).toHaveBeenCalledExactlyOnceWith('/legacy-page')
     expect(revalidateTag.mock.calls).toEqual(
       payload.revalidatedTags.map((tag: string) => [tag, 'max']),
     )
