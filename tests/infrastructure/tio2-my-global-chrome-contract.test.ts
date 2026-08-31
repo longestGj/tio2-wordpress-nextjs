@@ -48,5 +48,6 @@ describe('TiO2 Malaysia shared production Logo contract', () => {
     expect(css).toMatch(/\.desktopNav a\[aria-current='page'\]::after\s*\{[^}]*background:\s*#006a63/iu)
     expect(css).toMatch(/\.mobileNav a\[aria-current='page'\]\s*\{[^}]*font-weight:\s*800/iu)
     expect(css).toMatch(/\.mobileNav a\[aria-current='page'\]::before\s*\{[^}]*left:\s*8px[^}]*width:\s*4px[^}]*background:\s*#14b8a6/iu)
+    expect(css).toMatch(/\.header nav\.mobileNav > a\s*\{[^}]*align-items:\s*flex-start[^}]*text-align:\s*left/iu)
   })
 })

@@ -14,7 +14,9 @@
 - Mobile current link: exact page label only; `aria-current="page"`; computed `font-weight: 800`; teal left `::before` marker at 8px/4px using `rgb(20, 184, 166)` per Global Chrome V0.4.
 - Header contains no visible uppercase `CURRENT` text on Home or Markets.
 - Desktop and Mobile navigation DOMs each contain exactly one current link. Navigation hidden for the active viewport does not enter the accessibility tree; the closed Mobile Menu enters it only after opening.
-- Header remains 84px at 1440 and 64px at 390; Logo and Header RFQ remain visible.
+- Every Home/Markets 390/1440 Header Logo assertion waits for `img.complete === true`, `naturalWidth > 0` and `naturalHeight > 0`; all four resolve the site-local production SVG at `/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg` with natural dimensions 300×100.
+- Header remains 84px at 1440 and 64px at 390; Logo and Header RFQ remain visible. MARKET-000 Footer Logo also remains covered by the full runtime regression.
+- Mobile Menu links are explicitly locked in the shared Chrome to `align-items: flex-start` and `text-align: left`. Home and Markets both report those exact computed values; page-level link rules can no longer shift the menu alignment.
 - Mobile Menu still focuses its first link on open, closes on Escape and returns focus to Menu.
 - Home and Markets have no document-level horizontal overflow at 390 or 1440.
 
@@ -33,9 +35,11 @@
 | Page/state | Capture | SHA-256 |
 |---|---|---|
 | Home desktop 1440 | `tio2-my-global-navigation-home-desktop-1440.png` | `7562C99E4177934AFB2887A416A727A951E7839CAFE5E3FF48D65943C4F19781` |
-| Home Mobile Menu 390 | `tio2-my-global-navigation-home-mobile-menu-390.png` | `307E3F8538140505177133EC67173B4352D1E30C4F61240367492D5C6D9AD577` |
+| Home Mobile Menu 390 | `tio2-my-global-navigation-home-mobile-menu-390.png` | `DD0976413B161AE9A4111D1B03A59C499F26FFDB0F954CA1B81524BE2A3F6E9B` |
 | Markets desktop 1440 | `tio2-my-global-navigation-markets-desktop-1440.png` | `33EDBE235EDEA289AAE5A4F2F131E42F528FE1D07C35B7A96D1FCBF187AC6552` |
-| Markets Mobile Menu 390 | `tio2-my-global-navigation-markets-mobile-menu-390.png` | `B3F1112569402C97EF86ACA3438CFBC6E49A099737FF80F83A5D267083224847` |
+| Markets Mobile Menu 390 | `tio2-my-global-navigation-markets-mobile-menu-390.png` | `E22926BA90DB089B570AC0492F237853B1C11825C28C463EDC3DF5467E0038DA` |
+
+All four captures were taken only after the Header Logo completed loading and decoded successfully. The unchanged desktop hashes are expected because the alignment correction is scoped to the Mobile Menu; visual inspection confirms the Logo is rendered in both Markets captures.
 
 ## Unresolved / not authorized
 

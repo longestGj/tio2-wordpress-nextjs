@@ -26,7 +26,12 @@ for (const width of [390, 1440] as const) {
       await expect(mobileCurrentInDom).toHaveCount(1)
       await expect(desktopCurrent).toHaveText(pageContract.current)
       await expect(header.locator('a[href="/request-a-quote/"]').first()).toBeVisible()
-      await expect(header.locator('img[alt="TiO2 Malaysia"]')).toBeVisible()
+      const headerLogo = header.locator('img[alt="TiO2 Malaysia"]')
+      await expect(headerLogo).toBeVisible()
+      await expect.poll(() => headerLogo.evaluate((image) => {
+        const logo = image as HTMLImageElement
+        return logo.complete && logo.naturalWidth > 0 && logo.naturalHeight > 0
+      })).toBe(true)
       expect(await headerInner.evaluate((node) => node.getBoundingClientRect().height)).toBe(
         width === 390 ? 64 : 84,
       )
@@ -59,17 +64,22 @@ for (const width of [390, 1440] as const) {
         await expect(mobileCurrent).toHaveText(pageContract.current)
         expect(await mobileCurrent.evaluate((link) => {
           const marker = getComputedStyle(link, '::before')
+          const style = getComputedStyle(link)
           return {
-            fontWeight: getComputedStyle(link).fontWeight,
+            alignItems: style.alignItems,
+            fontWeight: style.fontWeight,
             markerBackground: marker.backgroundColor,
             markerLeft: marker.left,
             markerWidth: marker.width,
+            textAlign: style.textAlign,
           }
         })).toEqual({
+          alignItems: 'flex-start',
           fontWeight: '800',
           markerBackground: 'rgb(20, 184, 166)',
           markerLeft: '8px',
           markerWidth: '4px',
+          textAlign: 'left',
         })
         await expect(mobileMenu.locator('a').first()).toBeFocused()
         await page.keyboard.press('Escape')

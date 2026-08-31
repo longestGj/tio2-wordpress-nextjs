@@ -28,8 +28,13 @@ for (const width of widths) {
     await expect(page.locator('h1')).toHaveCount(1)
     const header = page.locator('header')
     const desktopCurrent = header.locator('nav[aria-label="Primary navigation"] a[aria-current="page"]')
+    const headerLogo = header.locator('img[alt="TiO2 Malaysia"]')
     await expect(desktopCurrent).toHaveText('Markets')
     await expect(header).not.toContainText('CURRENT')
+    await expect.poll(() => headerLogo.evaluate((image) => {
+      const logo = image as HTMLImageElement
+      return logo.complete && logo.naturalWidth > 0 && logo.naturalHeight > 0
+    })).toBe(true)
     expect(await desktopCurrent.evaluate((link) => {
       const style = getComputedStyle(link)
       const marker = getComputedStyle(link, '::after')
@@ -148,16 +153,20 @@ for (const width of widths) {
         const style = getComputedStyle(link)
         const marker = getComputedStyle(link, '::before')
         return {
+          alignItems: style.alignItems,
           fontWeight: style.fontWeight,
           markerBackground: marker.backgroundColor,
           markerLeft: marker.left,
           markerWidth: marker.width,
+          textAlign: style.textAlign,
         }
       })).toEqual({
+        alignItems: 'flex-start',
         fontWeight: '800',
         markerBackground: 'rgb(20, 184, 166)',
         markerLeft: '8px',
         markerWidth: '4px',
+        textAlign: 'left',
       })
       await expect(mobileMenu.locator('a').first()).toBeFocused()
       await page.keyboard.press('Escape')
