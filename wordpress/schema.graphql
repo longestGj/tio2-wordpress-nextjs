@@ -17250,6 +17250,9 @@ type RootQuery {
   "Approved, scope-bound MARKET-000 record for TiO2 Malaysia."
   malaysiaMarketHubRecordJson: String!
 
+  "Approved, scope-bound PRODUCT-000 record and route readiness for TiO2 Malaysia."
+  malaysiaProductHubRecordJson: String!
+
   "Connection between the RootQuery type and the category type"
   categories(
     "The number of items to return after the referenced \"after\" cursor"

@@ -163,6 +163,11 @@ export function marketHubContentTag(siteId: string): string {
   return `content:${siteId}--markets`
 }
 
+export function productHubContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  return `content:${siteId}--products`
+}
+
 export function routeTag(siteId: string, path: string): string {
   assertSiteId(siteId)
   return `route:${siteId}:${normalizePublicPath(path)}`

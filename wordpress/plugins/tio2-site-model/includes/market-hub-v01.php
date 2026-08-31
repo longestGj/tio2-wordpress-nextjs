@@ -61,7 +61,7 @@ function tio2_validate_market_hub_v01_contract(int $post_id)
     }
     if (
         '/markets' !== get_post_meta($post_id, 'public_path', true) ||
-        'tio2-my--markets' !== get_post_field('post_name', $post_id)
+        'tio2-my-markets' !== get_post_field('post_name', $post_id)
     ) {
         return new WP_Error('tio2_my_market_hub_invalid_route', 'The Markets Hub route identity is invalid.');
     }
@@ -97,7 +97,7 @@ function tio2_resolve_malaysia_market_hub_record_json(): string
     $ids = get_posts([
         'post_type' => 'tio2_market_hub',
         'post_status' => 'publish',
-        'name' => 'tio2-my--markets',
+        'name' => 'tio2-my-markets',
         'fields' => 'ids',
         'numberposts' => 2,
         'suppress_filters' => false,
@@ -124,7 +124,7 @@ function tio2_resolve_malaysia_market_hub_record_json(): string
     }
     return wp_json_encode([
         'id' => 'market-hub-' . $post_id,
-        'modifiedGmt' => get_post_field('post_modified_gmt', $post_id),
+        'modifiedGmt' => str_replace(' ', 'T', (string) get_post_field('post_modified_gmt', $post_id)),
         'status' => get_post_status($post_id),
         'siteScopes' => ['nodes' => [['slug' => 'tio2-my']]],
         'publishingFields' => ['publicPath' => '/markets'],

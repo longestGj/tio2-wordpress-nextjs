@@ -3,7 +3,7 @@
 ## Scope
 
 - Shared component: `MalaysiaGlobalHeader` in the existing TiO2 Malaysia Global Chrome.
-- Implemented consumers verified: HOME-001 `/` and MARKET-000 `/markets/`.
+- Implemented consumers verified: HOME-001 `/`, MARKET-000 `/markets/` and PRODUCT-000 `/products/`.
 - Approved change: remove the visible `CURRENT` word while retaining current-page state.
 - No navigation order, Header height, Logo, Request a Quote, Footer, page body, route, SEO, Schema, form or site scope was changed.
 - This is local development evidence only. No deployment, publication, DNS, indexing or Gate 10 operation occurred.
@@ -11,10 +11,10 @@
 ## Shared ownership and architecture contract
 
 - `site_scope=tio2-my` has one Global Chrome implementation: `components/sites/tio2-my/malaysia-global-chrome.tsx` and `components/sites/tio2-my/malaysia-global-chrome.module.css` own the Global Header, Desktop navigation, Mobile Menu, Logo bindings, permanent Request a Quote surfaces and Footer.
-- `wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json` is the one navigation/Logo/RFQ/Footer configuration. Home and Markets DTOs both import this exact site-local file; no page-local configuration or cross-scope fallback exists.
-- HOME-001 and MARKET-000 each render `MalaysiaGlobalHeader` and `MalaysiaGlobalFooter` directly once. Their only page-specific Chrome inputs are `currentPageId` and `sourcePageId`; the removed `MalaysiaHeader` compatibility wrapper is no longer a second implementation surface.
-- Page typography and interaction CSS is rooted at the page `<main>` (`homepageMain` or `marketMain`). Page styles are contract-tested to reject shared Header, Logo, navigation, marker, RFQ, Mobile Menu or Footer selectors and may not use broad `.site *`, heading, paragraph, link or `:is()` rules that cross the main boundary.
-- Any subsequently authorized Malaysia page, including PRODUCT-000, must consume these same component, style and configuration sources. It must not introduce a page-specific Header, Mobile Menu, Footer or duplicated Chrome configuration.
+- `wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json` is the one navigation/Logo/RFQ/Footer configuration. Home, Markets and Products DTOs all import this exact site-local file; no page-local configuration or cross-scope fallback exists. Global Chrome V0.5 also owns the approved Footer headings `Explore`, `Information` and `Procurement`.
+- HOME-001, MARKET-000 and PRODUCT-000 each render `MalaysiaGlobalHeader` and `MalaysiaGlobalFooter` directly once. Their only page-specific Chrome inputs are `currentPageId` and `sourcePageId`; the removed `MalaysiaHeader` compatibility wrapper is no longer a second implementation surface.
+- Page typography and interaction CSS is rooted at the page `<main>` (`homepageMain`, `marketMain` or `productMain`). Page styles are contract-tested to reject shared Header, Logo, navigation, marker, RFQ, Mobile Menu or Footer selectors and may not use broad `.site *`, heading, paragraph, link or `:is()` rules that cross the main boundary.
+- Any subsequently authorized Malaysia page must consume these same component, style and configuration sources. It must not introduce a page-specific Header, Mobile Menu, Footer or duplicated Chrome configuration.
 - A shared Chrome change requires Home/Markets and each enabled future consumer to pass Desktop, Tablet and 390px regression appropriate to the affected surface: production Logo decode/bounds/pixels, 84/64px Header, visible `CURRENT` count zero, Desktop 3px underline, Mobile 4px marker, RFQ persistence and scope, Footer geometry/content, no horizontal overflow, hidden-navigation accessibility, keyboard focus and Escape return.
 
 ## DOM and visual contract
@@ -67,8 +67,8 @@ The crop files are named `tio2-my-header-p0-02-r3-<state>.png` and `tio2-my-logo
 - Preserved contracts: PASS locally for 4px Mobile marker, 3px Desktop underline, visible `CURRENT` count 0, one current link per Desktop/Mobile DOM surface, viewport-hidden navigation excluded from the accessibility tree, Header RFQ/Logo sizing, Footer and page-body regression.
 - Status boundary: local development evidence only; this document does not assert project-control final PASS.
 
-## Unresolved / not authorized
+## PRODUCT-000 activation addendum
 
-- PRODUCT-000 is not implemented for `site_scope=tio2-my` on this branch. The existing `/products/` route remains restricted to `tio2-a` and was not changed.
-- This shared Header is ready to express `PRODUCT-000` current state when that page separately passes Gate 7 and receives Gate 8 development authorization; this work is not evidence that the Product page body exists.
-- Existing MARKET-000 child-route and RFQ-route release blockers remain open and unchanged.
+- The earlier statement that PRODUCT-000 was not implemented is superseded by its later Gate 7 closure and Gate 8 authorization. `/products/` now consumes the same shared component, stylesheet and Global Chrome V0.5 configuration with `currentPageId=PRODUCT-000` and `sourcePageId=PRODUCT-000`.
+- The combined local runtime command `npx playwright test tests/e2e/market-hub.spec.ts tests/e2e/product-hub.spec.ts tests/e2e/tio2-my-global-navigation.spec.ts --config=playwright.config.ts` passed 14/14: Home/Markets shared navigation at 390/768/1440, Markets at 390/768/1440 and Products at 390/768/1024/1440 plus Selector/FAQ interaction.
+- Existing Grade, Process, Application, Document and RFQ external-route blockers remain open. This addendum is local Gate 8 evidence, not Gate 9 PASS, Gate 10 authorization or publication.

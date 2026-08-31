@@ -1,5 +1,5 @@
 {
-  "contractId": "GLOBAL-CHROME-002",
+  "contractId": "GLOBAL-CHROME-005",
   "siteScope": "tio2-my",
   "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01",
   "logo": {
@@ -47,6 +47,11 @@
     "href": "/request-a-quote/"
   },
   "footer": {
+    "headings": {
+      "explore": "Explore",
+      "information": "Information",
+      "procurement": "Procurement"
+    },
     "description": "A focused titanium dioxide purchasing platform for international industrial buyers.",
     "explore": ["HOME-001", "MARKET-000", "PRODUCT-000", "APP-000"],
     "information": ["DOC-000", "RES-000", "ABOUT-001"],

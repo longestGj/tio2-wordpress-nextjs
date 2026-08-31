@@ -16,6 +16,8 @@ const homeComponentPath = 'components/sites/tio2-my/homepage/malaysia-homepage.t
 const homeCssPath = 'components/sites/tio2-my/homepage/malaysia-homepage.module.css'
 const marketComponentPath = 'components/sites/tio2-my/markets/malaysia-market-hub.tsx'
 const marketCssPath = 'components/sites/tio2-my/markets/malaysia-market-hub.module.css'
+const productComponentPath = 'components/sites/tio2-my/products/malaysia-product-hub.tsx'
+const productCssPath = 'components/sites/tio2-my/products/malaysia-product-hub.module.css'
 const legacyHomeHeaderPath = 'components/sites/tio2-my/malaysia-header.tsx'
 
 describe('TiO2 Malaysia shared Global Chrome contract', () => {
@@ -33,12 +35,16 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
   })
 
   it('keeps navigation and all RFQ targets within the Malaysia route contract', () => {
+    expect(chrome.contractId).toBe('GLOBAL-CHROME-005')
     expect(chrome.navigation.map((item) => item.targetPageId)).toEqual([
       'HOME-001', 'MARKET-000', 'PRODUCT-000', 'APP-000',
       'DOC-000', 'RES-000', 'ABOUT-001',
     ])
     expect(chrome.rfq).toMatchObject({
       targetPageId: 'CONV-RFQ', href: '/request-a-quote/',
+    })
+    expect(chrome.footer.headings).toEqual({
+      explore: 'Explore', information: 'Information', procurement: 'Procurement',
     })
     expect(JSON.stringify(chrome)).not.toMatch(/\.png|tio2products|tio2hub|tiovar/iu)
   })
@@ -59,9 +65,10 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
   it('is the only Header, Mobile Menu and Footer implementation consumed by Malaysia pages', () => {
     const home = readFileSync(homeComponentPath, 'utf8')
     const market = readFileSync(marketComponentPath, 'utf8')
+    const product = readFileSync(productComponentPath, 'utf8')
 
     expect(existsSync(legacyHomeHeaderPath)).toBe(false)
-    for (const page of [home, market]) {
+    for (const page of [home, market, product]) {
       expect(page).toMatch(/from '\.\.\/malaysia-global-chrome'/u)
       expect(page.match(/<MalaysiaGlobalHeader/gu)).toHaveLength(1)
       expect(page.match(/<MalaysiaGlobalFooter/gu)).toHaveLength(1)
@@ -70,28 +77,37 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
     expect(home).toMatch(/sourcePageId="HOME-001"/u)
     expect(market).toMatch(/currentPageId="MARKET-000"/u)
     expect(market).toMatch(/sourcePageId="MARKET-000"/u)
+    expect(product).toMatch(/currentPageId="PRODUCT-000"/u)
+    expect(product).toMatch(/sourcePageId="PRODUCT-000"/u)
   })
 
   it('prevents page CSS from styling any shared Chrome surface', () => {
     const forbiddenChromeSelector = /\.(?:header|headerInner|logoLink|logo|desktopNav|headerRfq|rfqCompact|menuButton|mobileNav|footer|footerGrid|footerLogo|copyright)(?:\s|,|\{|:|\.)/u
     const homeCss = readFileSync(homeCssPath, 'utf8')
     const marketCss = readFileSync(marketCssPath, 'utf8')
+    const productCss = readFileSync(productCssPath, 'utf8')
 
     expect(homeCss).not.toMatch(forbiddenChromeSelector)
     expect(marketCss).not.toMatch(forbiddenChromeSelector)
+    expect(productCss).not.toMatch(forbiddenChromeSelector)
     expect(homeCss).not.toMatch(/\.site\s+(?:\*|a|h1|h2|h3|p|:is)/u)
     expect(homeCss).toMatch(/\.homepageMain\s+a/u)
     expect(marketCss).not.toMatch(/\.site\s+(?:\*|a|h1|h2|h3|p|:is)/u)
+    expect(productCss).not.toMatch(/\.site\s+(?:\*|a|h1|h2|h3|p|:is)/u)
+    expect(productCss).toMatch(/\.productMain\s+a/u)
   })
 
-  it('resolves Home and Markets through the single site-local Chrome configuration', () => {
+  it('resolves Home, Markets and Products through the single site-local Chrome configuration', () => {
     const homeDto = readFileSync('lib/wordpress/homepage-v04-dto.ts', 'utf8')
     const marketDto = readFileSync('lib/wordpress/market-hub-v01-dto.ts', 'utf8')
+    const productDto = readFileSync('lib/wordpress/product-hub-v01-dto.ts', 'utf8')
     const configImport = "import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'"
 
     expect(homeDto).toContain(configImport)
     expect(marketDto).toContain(configImport)
+    expect(productDto).toContain(configImport)
     expect(homeDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
     expect(marketDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
+    expect(productDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
   })
 })

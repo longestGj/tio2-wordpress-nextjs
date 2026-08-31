@@ -140,21 +140,21 @@ export function MalaysiaGlobalFooter({
           <p>{chrome.footer.description}</p>
         </div>
         <nav aria-label="Footer explore navigation">
-          <h2>Explore</h2>
+          <h2>{chrome.footer.headings.explore}</h2>
           {chrome.footer.explore.map((id) => {
             const item = navById.get(id)
             return item ? <a key={id} href={item.href}>{item.label}</a> : null
           })}
         </nav>
         <nav aria-label="Footer information navigation">
-          <h2>Information</h2>
+          <h2>{chrome.footer.headings.information}</h2>
           {chrome.footer.information.map((id) => {
             const item = navById.get(id)
             return item ? <a key={id} href={item.href}>{item.label}</a> : null
           })}
         </nav>
         <div className={styles.conversionColumn}>
-          <h2>Conversion</h2>
+          <h2>{chrome.footer.headings.procurement}</h2>
           <a className={styles.footerRfq} href={chrome.rfq.href} {...rfqAttributes(sourcePageId)}>
             {chrome.rfq.label}
           </a>

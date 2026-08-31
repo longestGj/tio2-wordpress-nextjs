@@ -100,7 +100,7 @@ for (const width of widths) {
     expect(graph[2]?.numberOfItems).toBe(10)
 
     const footerHeadings = page.locator('footer h2')
-    await expect(footerHeadings).toHaveText(['Explore', 'Information', 'Conversion'])
+    await expect(footerHeadings).toHaveText(['Explore', 'Information', 'Procurement'])
     const footerHeadingLayout = await footerHeadings.evaluateAll((headings) =>
       headings.map((heading) => {
         const rect = heading.getBoundingClientRect()
