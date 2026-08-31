@@ -14,7 +14,7 @@ const TIO2_WEBHOOK_MAX_PATHS = 256;
  */
 function tio2_get_webhook_config(string $site_id, ?array $environment = null): ?array
 {
-    if (! in_array($site_id, ['tio2-a', 'tio2-b'], true)) {
+    if (! in_array($site_id, tio2_supported_site_ids(), true)) {
         return null;
     }
 
@@ -277,7 +277,7 @@ function tio2_normalize_webhook_paths(array $paths): ?array
 function tio2_site_scope_state_from_slugs(array $term_slugs): array
 {
     $term_slugs = array_values(array_unique(array_map('strval', $term_slugs)));
-    $site_ids = array_values(array_intersect(['tio2-a', 'tio2-b'], $term_slugs));
+    $site_ids = array_values(array_intersect(tio2_supported_site_ids(), $term_slugs));
     sort($site_ids, SORT_STRING);
 
     return ['siteIds' => $site_ids, 'hasTerms' => ! empty($term_slugs)];
@@ -491,7 +491,7 @@ function tio2_build_webhook_payload(
     sort($entity_ids, SORT_NUMERIC);
     if (
         1 !== count($site_ids) ||
-        ! in_array($site_ids[0], ['tio2-a', 'tio2-b'], true) ||
+        ! in_array($site_ids[0], tio2_supported_site_ids(), true) ||
         null === $paths ||
         count($entity_ids) > TIO2_WEBHOOK_MAX_PATHS ||
         array_filter($entity_ids, static fn (int $entity_id): bool => $entity_id <= 0)

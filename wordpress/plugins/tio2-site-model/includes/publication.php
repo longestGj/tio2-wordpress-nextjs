@@ -35,11 +35,12 @@ function tio2_load_public_route_inventory_from_json(string $json): array
     ) {
         throw new InvalidArgumentException('Public route inventory root is invalid.');
     }
-    tio2_assert_publication_exact_keys($inventory['sites'], ['tio2-a', 'tio2-b'], 'sites');
+    tio2_assert_publication_exact_keys($inventory['sites'], tio2_supported_site_ids(), 'sites');
 
     $expected_templates = [
-        'tio2-a' => 'site-a-homepage-editorial-v0.2',
+        'tio2-a' => 'site-a-homepage-brand-v0.3',
         'tio2-b' => 'site-b-homepage-v0.1-frozen',
+        'tio2-my' => 'tio2-my-homepage-v0.4',
     ];
     foreach ($expected_templates as $site_id => $expected_template) {
         $site = $inventory['sites'][$site_id];
@@ -97,7 +98,7 @@ function tio2_load_public_route_inventory(): array
 
 function tio2_publication_route_is_approved(string $site_id, string $public_path): bool
 {
-    if (! in_array($site_id, ['tio2-a', 'tio2-b'], true)) {
+    if (! in_array($site_id, tio2_supported_site_ids(), true)) {
         return false;
     }
 
@@ -128,7 +129,7 @@ function tio2_validate_managed_publication_candidate(
     if (! in_array($post_type, ['page', 'post'], true) || ! in_array($post_status, ['publish', 'future'], true)) {
         return true;
     }
-    if (null === $site_id || ! in_array($site_id, ['tio2-a', 'tio2-b'], true)) {
+    if (null === $site_id || ! in_array($site_id, tio2_supported_site_ids(), true)) {
         return new WP_Error(
             'tio2_publication_invalid_site_scope',
             'This Page or Post cannot be published because it must have exactly one supported site scope.'
@@ -203,13 +204,13 @@ function tio2_publication_resolve_submitted_site_scope($submitted): ?string
             }
             $term = get_term_by('slug', $normalized_slug, 'site_scope');
         }
-        if (! $term instanceof WP_Term || ! in_array($term->slug, ['tio2-a', 'tio2-b'], true)) {
+        if (! $term instanceof WP_Term || ! in_array($term->slug, tio2_supported_site_ids(), true)) {
             return null;
         }
         $slugs[] = $term->slug;
     }
     $slugs = array_values(array_unique($slugs));
-    return 1 === count($slugs) && in_array($slugs[0], ['tio2-a', 'tio2-b'], true)
+    return 1 === count($slugs) && in_array($slugs[0], tio2_supported_site_ids(), true)
         ? $slugs[0]
         : null;
 }
@@ -239,7 +240,7 @@ function tio2_publication_resolve_candidate_route(int $post_id, array $postarr):
         $slugs = wp_get_post_terms($post_id, 'site_scope', ['fields' => 'slugs']);
         if (! is_wp_error($slugs)) {
             $slugs = array_values(array_unique(array_map('strval', $slugs)));
-            $site_id = 1 === count($slugs) && in_array($slugs[0], ['tio2-a', 'tio2-b'], true)
+            $site_id = 1 === count($slugs) && in_array($slugs[0], tio2_supported_site_ids(), true)
                 ? $slugs[0]
                 : null;
         }

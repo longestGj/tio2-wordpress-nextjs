@@ -3,17 +3,18 @@ import {getSiteTemplateProfile} from '@/sites/template-profiles'
 
 describe('site template profiles', () => {
   it.each([
-    ['tio2-a', 'site-a-shell-active', 'active', 'site-a-homepage-brand-v0.3', 'active', 'homepage-v0.3-brand'],
-    ['tio2-b', 'site-b-shell-v0.1-frozen', 'frozen', 'site-b-homepage-v0.1-frozen', 'frozen', 'homepage-v0.1'],
-  ] as const)('registers the approved %s runtime binding', (siteId, shellKey, shellState, homepageKey, homepageState, schemaVersion) => {
+    ['tio2-a', 'site-a-shell-active', 'active', 'site-a-homepage-brand-v0.3', 'active', 'homepage-v0.3-brand', 'site-template-decoupling-v0.1'],
+    ['tio2-b', 'site-b-shell-v0.1-frozen', 'frozen', 'site-b-homepage-v0.1-frozen', 'frozen', 'homepage-v0.1', 'site-template-decoupling-v0.1'],
+    ['tio2-my', 'tio2-my-shell-v0.4', 'active', 'tio2-my-homepage-v0.4', 'active', 'homepage-v0.4-malaysia', 'HOME-001-G7-HANDOFF-01'],
+  ] as const)('registers the approved %s runtime binding', (siteId, shellKey, shellState, homepageKey, homepageState, schemaVersion, proposalId) => {
     expect(getSiteTemplateProfile(siteId)).toMatchObject({
       siteId,
-      shell: {key: shellKey, state: shellState, proposalId: 'site-template-decoupling-v0.1'},
+      shell: {key: shellKey, state: shellState, proposalId},
       homepage: {
         key: homepageKey,
         state: homepageState,
         schemaVersion,
-        proposalId: 'site-template-decoupling-v0.1',
+        proposalId,
       },
     })
   })

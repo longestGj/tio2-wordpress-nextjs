@@ -23,6 +23,10 @@ describe('WordPress cache tags', () => {
       'route:tio2-b:/applications/coatings',
     )
     expect(entityTag('tio2-b', 7)).toBe('entity:tio2-b:7')
+    expect(siteTag('tio2-my')).toBe('site:tio2-my')
+    expect(contentListTag('tio2-my')).toBe('content-list:tio2-my')
+    expect(sitemapTag('tio2-my')).toBe('sitemap:tio2-my')
+    expect(routeTag('tio2-my', '/')).toBe('route:tio2-my:/')
   })
 
   it.each([
