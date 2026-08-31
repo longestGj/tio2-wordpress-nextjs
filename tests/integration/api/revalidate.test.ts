@@ -292,6 +292,28 @@ describe('POST /api/revalidate', () => {
     expect(response.status).toBe(200)
   })
 
+  it('revalidates the Malaysia Markets Hub with scope-local tags only', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const payload = validPayload({
+      siteIds: ['tio2-my'],
+      paths: ['/markets/'],
+    })
+
+    const response = await POST(signedRequest(payload))
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/markets'])
+    expect(body.revalidatedTags).toEqual([
+      'content-list:tio2-my',
+      'content:tio2-my--markets',
+      'route:tio2-my:/markets',
+      'site:tio2-my',
+      'sitemap:tio2-my',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/tio2-a|tio2-b/iu)
+  })
+
   it('rejects unknown body properties', async () => {
     const response = await POST(
       signedRequest({...validPayload(), unexpected: true}),

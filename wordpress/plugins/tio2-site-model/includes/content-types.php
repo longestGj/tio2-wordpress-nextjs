@@ -110,7 +110,11 @@ function tio2_register_content_types(): void
         'rewrite' => false,
     ]);
 
-    $object_types = array_merge(['post', 'page'], array_keys($content_types), ['tio2_homepage']);
+    $object_types = array_merge(
+        ['post', 'page'],
+        array_keys($content_types),
+        ['tio2_homepage', 'tio2_market_hub']
+    );
 
     register_taxonomy('site_scope', $object_types, [
         'labels' => [

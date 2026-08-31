@@ -14,6 +14,7 @@ import {
   entityTag,
   homepageContentTag,
   isValidPublicPath,
+  marketHubContentTag,
   normalizePublicPath,
   productListTag,
   productDetailTag,
@@ -275,6 +276,9 @@ export async function POST(request: Request): Promise<Response> {
     for (const path of payload.paths) {
       tags.add(routeTag(siteId, path))
       if (path === '/') tags.add(homepageContentTag(siteId))
+      if (siteId === 'tio2-my' && path === '/markets') {
+        tags.add(marketHubContentTag(siteId))
+      }
 
       const productIdentity = productIdentityByPath.get(path)
       if (productIdentity) {

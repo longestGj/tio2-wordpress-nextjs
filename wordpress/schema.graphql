@@ -17247,6 +17247,9 @@ type RootQuery {
   "Entry point to get all settings for the site"
   allSettings: Settings
 
+  "Approved, scope-bound MARKET-000 record for TiO2 Malaysia."
+  malaysiaMarketHubRecordJson: String!
+
   "Connection between the RootQuery type and the category type"
   categories(
     "The number of items to return after the referenced \"after\" cursor"
