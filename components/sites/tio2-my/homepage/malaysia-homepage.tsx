@@ -3,6 +3,7 @@ import Image from 'next/image'
 import type {MalaysiaHomepageDto} from '@/lib/wordpress/homepage-v04-types'
 
 import {MalaysiaHeader} from '../malaysia-header'
+import {MalaysiaGlobalFooter} from '../malaysia-global-chrome'
 import styles from './malaysia-homepage.module.css'
 import {ResponsiveProductGroups} from './responsive-product-groups'
 
@@ -29,9 +30,6 @@ export function MalaysiaHomepage({homepage, structuredData}: {
   readonly homepage: MalaysiaHomepageDto
   readonly structuredData?: React.ReactNode
 }) {
-  const navById = new Map(homepage.globalChrome.navigation.map((item) => [item.targetPageId, item]))
-  const rfq = homepage.globalChrome.rfq
-
   return (
     <div className={styles.site} data-site-id="tio2-my" data-site-scope="tio2-my">
       {structuredData}
@@ -150,15 +148,7 @@ export function MalaysiaHomepage({homepage, structuredData}: {
         </section>
       </main>
 
-      <footer className={styles.footer}>
-        <div className={styles.footerGrid}>
-          <div><Image src={homepage.globalChrome.logo.src} alt={homepage.globalChrome.logo.alt} width={homepage.globalChrome.logo.width} height={homepage.globalChrome.logo.height} className={styles.footerLogo} /><p>{homepage.footer.description}</p></div>
-          <div><h2>Explore</h2>{homepage.footer.explore.map((id) => {const item = navById.get(id); return item ? <a key={id} href={item.href}>{item.label}</a> : null})}</div>
-          <div><h2>Information</h2>{homepage.footer.information.map((id) => {const item = navById.get(id); return item ? <a key={id} href={item.href}>{item.label}</a> : null})}</div>
-          <div><h2>Procurement</h2><a className={styles.primaryButton} href={rfq.href} {...rfqAttributes}>{rfq.label}</a></div>
-        </div>
-        <p className={styles.copyright}>{homepage.footer.copyright}</p>
-      </footer>
+      <MalaysiaGlobalFooter chrome={homepage.globalChrome} sourcePageId="HOME-001" />
     </div>
   )
 }

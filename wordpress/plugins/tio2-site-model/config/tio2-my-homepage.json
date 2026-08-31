@@ -74,65 +74,9 @@
       }
     ]
   },
-  "globalChrome": {
-    "logo": {
-      "src": "/tio2-my/tio2-malaysia-logo-reference.png",
-      "alt": "TiO₂ Malaysia",
-      "width": 2172,
-      "height": 724,
-      "assetState": "REFERENCE_NOT_PRODUCTION"
-    },
-    "navigation": [
-      {
-        "targetPageId": "HOME-001",
-        "label": "Home",
-        "href": "/",
-        "mappingState": "APPROVED"
-      },
-      {
-        "targetPageId": "MARKET-000",
-        "label": "Markets",
-        "href": "/markets/",
-        "mappingState": "APPROVED"
-      },
-      {
-        "targetPageId": "PRODUCT-000",
-        "label": "Products",
-        "href": "/products/",
-        "mappingState": "APPROVED"
-      },
-      {
-        "targetPageId": "APP-000",
-        "label": "Applications",
-        "href": "/applications/",
-        "mappingState": "PLANNED_ARCHITECTURE"
-      },
-      {
-        "targetPageId": "DOC-000",
-        "label": "Documents",
-        "href": "/documents/",
-        "mappingState": "PLANNED_ARCHITECTURE"
-      },
-      {
-        "targetPageId": "RES-000",
-        "label": "Resources",
-        "href": "/resources/",
-        "mappingState": "PLANNED_ARCHITECTURE"
-      },
-      {
-        "targetPageId": "ABOUT-001",
-        "label": "About",
-        "href": "/about/",
-        "mappingState": "APPROVED"
-      }
-    ],
-    "rfq": {
-      "targetPageId": "CONV-RFQ",
-      "label": "Request a Quote",
-      "compactLabel": "RFQ",
-      "href": "/request-a-quote/",
-      "mappingState": "PLANNED_CONVERSION"
-    }
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-002",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"
   },
   "hero": {
     "eyebrow": "FOR INTERNATIONAL INDUSTRIAL BUYERS",

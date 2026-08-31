@@ -1,4 +1,5 @@
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json'
+import type {Tio2MyGlobalChrome} from './tio2-my-global-chrome-types'
 
 type DeepReadonly<T> = T extends readonly (infer Item)[]
   ? readonly DeepReadonly<Item>[]
@@ -10,8 +11,9 @@ type ApprovedMalaysiaHomepageContract = DeepReadonly<typeof approvedContract>
 
 export type MalaysiaHomepageDto = Omit<
   ApprovedMalaysiaHomepageContract,
-  'identity' | 'seo'
+  'globalChrome' | 'identity' | 'seo'
 > & {
+  readonly globalChrome: Tio2MyGlobalChrome
   readonly identity: Omit<
     ApprovedMalaysiaHomepageContract['identity'],
     'siteScope' | 'path' | 'schemaVersion'

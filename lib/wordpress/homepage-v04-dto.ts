@@ -1,4 +1,5 @@
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json'
+import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
 import {HomepageContractError, HomepageVersionError} from './homepage-dto'
 import type {MalaysiaHomepageDto} from './homepage-v04-types'
@@ -73,12 +74,17 @@ export function toMalaysiaHomepageDto(
   } catch {
     throw new HomepageContractError('malaysiaHomepageContractJson')
   }
-  if (JSON.stringify(contract) !== approvedSerializedContract) {
+  if (
+    JSON.stringify(contract) !== approvedSerializedContract ||
+    contract.globalChromeRef.contractId !== globalChrome.contractId ||
+    contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId
+  ) {
     throw new HomepageContractError('malaysiaHomepageContractJson')
   }
 
   return {
     ...contract,
+    globalChrome,
     identity: {
       ...contract.identity,
       id: exactText(source.id, 'identity.id'),

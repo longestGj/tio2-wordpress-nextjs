@@ -1,0 +1,55 @@
+{
+  "contractId": "GLOBAL-CHROME-002",
+  "siteScope": "tio2-my",
+  "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01",
+  "logo": {
+    "primary": {
+      "assetKey": "brand_logo_primary_horizontal",
+      "src": "/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg",
+      "alt": "TiO2 Malaysia",
+      "width": 900,
+      "height": 300
+    },
+    "reverse": {
+      "assetKey": "brand_logo_reverse_monochrome",
+      "src": "/tio2-my/brand/tio2-malaysia-reverse-monochrome-v0.1.svg",
+      "alt": "TiO2 Malaysia",
+      "width": 900,
+      "height": 300
+    },
+    "symbol": {
+      "assetKey": "brand_symbol_primary",
+      "src": "/tio2-my/brand/tio2-malaysia-symbol-v0.1.svg",
+      "alt": "",
+      "width": 300,
+      "height": 300
+    },
+    "favicon": {
+      "assetKey": "brand_favicon_safe",
+      "src": "/tio2-my/brand/tio2-malaysia-favicon-safe-v0.1.svg",
+      "width": 64,
+      "height": 64
+    }
+  },
+  "navigation": [
+    {"targetPageId": "HOME-001", "label": "Home", "href": "/"},
+    {"targetPageId": "MARKET-000", "label": "Markets", "href": "/markets/"},
+    {"targetPageId": "PRODUCT-000", "label": "Products", "href": "/products/"},
+    {"targetPageId": "APP-000", "label": "Applications", "href": "/applications/"},
+    {"targetPageId": "DOC-000", "label": "Documents", "href": "/documents/"},
+    {"targetPageId": "RES-000", "label": "Resources", "href": "/resources/"},
+    {"targetPageId": "ABOUT-001", "label": "About", "href": "/about/"}
+  ],
+  "rfq": {
+    "targetPageId": "CONV-RFQ",
+    "label": "Request a Quote",
+    "compactLabel": "RFQ",
+    "href": "/request-a-quote/"
+  },
+  "footer": {
+    "description": "A focused titanium dioxide purchasing platform for international industrial buyers.",
+    "explore": ["HOME-001", "MARKET-000", "PRODUCT-000", "APP-000"],
+    "information": ["DOC-000", "RES-000", "ABOUT-001"],
+    "copyright": "© 2026 TiO2 Malaysia."
+  }
+}

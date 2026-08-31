@@ -1,0 +1,72 @@
+.header {
+  position: relative;
+  z-index: 20;
+  border-bottom: 1px solid #d5e0e7;
+  color: #00244a;
+  background: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.header *, .footer * { box-sizing: border-box; }
+.header a, .footer a { font-weight: 700; text-decoration: none; }
+.header :is(a, button):focus-visible, .footer a:focus-visible { outline: 3px solid #ffbf47; outline-offset: 3px; }
+.headerInner { width: min(1280px, calc(100% - 48px)); min-height: 84px; margin: auto; display: flex; align-items: center; gap: 28px; }
+.logoLink { min-width: 180px; min-height: 60px; margin-right: auto; display: inline-flex; align-items: center; line-height: 0; }
+.logo { width: 180px; height: 60px; object-fit: contain; }
+.desktopNav { display: flex; align-self: stretch; align-items: stretch; gap: 22px; }
+.desktopNav a { position: relative; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #00244a; font-size: 13px; }
+.desktopNav a[aria-current='page'] { font-weight: 800; }
+.desktopNav a[aria-current='page']::after { content: ''; position: absolute; right: 8%; bottom: 0; left: 8%; height: 3px; background: #006a63; }
+.currentLabel { color: #006a63; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.header .headerRfq, .footer .footerRfq { min-height: 46px; padding: 0 22px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #006a63; border-radius: 4px; color: #fff; background: #006a63; font-size: 13px; }
+.rfqCompact, .menuButton, .mobileNav { display: none; }
+
+.footer { padding: 64px max(48px, calc((100% - 1280px) / 2)) 28px; color: #fff; background: #031b3a; font-family: Arial, Helvetica, sans-serif; }
+.footerGrid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 70px; }
+.footerGrid > :is(div, nav) { min-width: 0; display: flex; align-items: flex-start; flex-direction: column; gap: 12px; }
+.footerLogo { width: 180px; height: 60px; object-fit: contain; }
+.footer .brandColumn p, .footer .copyright { max-width: 290px; margin: 0; color: #d4e0eb; font-size: 13px; line-height: 1.55; }
+.footer h2 { margin: 0 0 8px; color: #fff; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.footer .footerGrid a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; color: #fff; font-size: 13px; }
+.copyright { max-width: none !important; margin-top: 55px !important; padding-top: 24px; border-top: 1px solid #21456c; font-size: 12px !important; }
+
+@media (max-width: 1199px) {
+  .desktopNav { gap: 13px; }
+  .desktopNav a { font-size: 11px; }
+  .headerInner { gap: 14px; }
+}
+
+@media (max-width: 900px) {
+  .headerInner { width: calc(100% - 24px); min-height: 64px; gap: 8px; }
+  .logoLink { min-width: 120px; min-height: 44px; }
+  .logo { width: 120px; height: 40px; }
+  .desktopNav, .rfqFull { display: none; }
+  .rfqCompact, .menuButton { display: inline; }
+  .headerRfq { min-height: 44px; margin-left: auto; padding: 0 13px; }
+  .menuButton { min-height: 44px; padding: 0 13px; border: 1px solid #00244a; border-radius: 4px; color: #00244a; background: #fff; font-weight: 700; }
+  .mobileNav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); color: #fff; background: #031b3a; }
+  .mobileNav[hidden] { display: none; }
+  .header .mobileNav a { position: relative; min-height: 48px; padding: 10px 18px; display: flex; justify-content: center; flex-direction: column; border-right: 1px solid #234665; border-bottom: 1px solid #234665; color: #fff; }
+  .mobileNav a[aria-current='page'] { padding-left: 24px; font-weight: 800; }
+  .mobileNav a[aria-current='page']::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: 8px; width: 3px; background: #14b8a6; }
+  .mobileNav a:last-child { background: #006a63; }
+  .footerGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 38px 28px; }
+  .brandColumn, .conversionColumn { grid-column: 1 / -1; }
+}
+
+@media (max-width: 430px) {
+  .headerInner { width: calc(100% - 20px); }
+  .logoLink { min-width: 110px; }
+  .logo { width: 110px; height: auto; }
+  .headerRfq, .menuButton { padding: 0 11px; font-size: 12px; }
+  .mobileNav { grid-template-columns: 1fr; }
+  .footer { padding: 45px 20px 20px; }
+  .footerGrid { gap: 32px 20px; }
+  .footerLogo { width: 150px; height: 50px; }
+  .footer h2 { font-size: 14px; }
+  .copyright { margin-top: 35px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header *, .footer * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}
