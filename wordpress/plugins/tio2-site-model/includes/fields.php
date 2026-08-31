@@ -1006,6 +1006,7 @@ function tio2_validate_homepage_contract(int $post_id)
     }
 
     return match ($schema_version) {
+        'homepage-v0.4-malaysia' => tio2_validate_homepage_v04_contract($post_id),
         'homepage-v0.3-brand' => tio2_validate_homepage_v03_contract($post_id),
         'homepage-v0.2-editorial-geo' => tio2_validate_homepage_v02_contract($post_id),
         default => tio2_validate_homepage_v01_fields($post_id, $site_id),

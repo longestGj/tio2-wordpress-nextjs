@@ -31,6 +31,7 @@ require_once __DIR__ . '/includes/application-resource-graphql.php';
 require_once __DIR__ . '/includes/product-collection-graphql.php';
 require_once __DIR__ . '/includes/homepage-v02.php';
 require_once __DIR__ . '/includes/homepage-v03.php';
+require_once __DIR__ . '/includes/homepage-v04.php';
 require_once __DIR__ . '/includes/webhooks.php';
 require_once __DIR__ . '/includes/preview.php';
 
