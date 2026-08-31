@@ -284,7 +284,7 @@ describe('POST /api/revalidate', () => {
     expect(revalidatePath).not.toHaveBeenCalled()
   })
 
-  it.each(['tio2-a', 'tio2-b'] as const)('accepts central site ID %s for its owning site', async (siteId) => {
+  it.each(['tio2-a', 'tio2-b', 'tio2-my'] as const)('accepts central site ID %s for its owning site', async (siteId) => {
     vi.stubEnv('SITE_ID', siteId)
 
     const response = await POST(signedRequest(validPayload({siteIds: [siteId]})))

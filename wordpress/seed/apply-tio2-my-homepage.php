@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 if (
     ! function_exists('tio2_find_homepage_ids') ||
     ! function_exists('tio2_validate_homepage_contract') ||

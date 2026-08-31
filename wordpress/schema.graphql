@@ -13142,6 +13142,9 @@ interface Tio2HomepageConnectionEdge implements Edge {
 
 "The Tio2Homepage type"
 type Tio2Homepage implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & NodeWithTitle & NodeWithRevisions & WithAcfBrandHomepageFields & WithAcfEditorialGeoFields & WithAcfHomepageFields {
+  "Approved, scope-bound HOME-001 contract for TiO2 Malaysia."
+  malaysiaHomepageContractJson: String!
+
   "The id field matches the WP_Post-&gt;ID field."
   tio2HomepageId: Int! @deprecated(reason: "Deprecated in favor of the databaseId field")
 

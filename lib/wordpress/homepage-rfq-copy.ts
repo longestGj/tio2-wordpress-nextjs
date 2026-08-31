@@ -43,7 +43,7 @@ export const HOMEPAGE_RFQ_COPY_CONTRACTS = {
       ],
     },
   },
-} as const satisfies Readonly<Record<SiteId, HomepageRfqCopyContract>>
+} as const satisfies Readonly<Partial<Record<SiteId, HomepageRfqCopyContract>>>
 
 export class HomepageRfqCopyContractError extends Error {
   readonly fieldPath: HomepageRfqBehaviorField
@@ -67,6 +67,9 @@ export function validateHomepageRfqCopy(
   value: string,
 ): string {
   const normalized = normalizeHomepageRfqCopy(value)
+  if (siteId === 'tio2-my') {
+    throw new HomepageRfqCopyContractError(field)
+  }
   const choices: readonly string[] = HOMEPAGE_RFQ_COPY_CONTRACTS[siteId].fields[field]
   if (!choices.includes(normalized)) {
     throw new HomepageRfqCopyContractError(field)

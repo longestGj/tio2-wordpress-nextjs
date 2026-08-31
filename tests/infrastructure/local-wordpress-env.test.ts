@@ -46,8 +46,10 @@ describe.runIf(process.platform === 'win32')('local WordPress env generator', ()
       'WORDPRESS_ADMIN_PASSWORD',
       'NEXTJS_REVALIDATION_SECRET_TIO2_A',
       'NEXTJS_REVALIDATION_SECRET_TIO2_B',
+      'NEXTJS_REVALIDATION_SECRET_TIO2_MY',
       'NEXTJS_PREVIEW_SECRET_TIO2_A',
       'NEXTJS_PREVIEW_SECRET_TIO2_B',
+      'NEXTJS_PREVIEW_SECRET_TIO2_MY',
     ]
     const secrets = secretNames.map((name) => values[name])
 

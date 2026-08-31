@@ -270,4 +270,3 @@
 - [ ] **Step 6: Report blockers without release claims**
 
   Carry HOME-RB-01 through HOME-RB-09 and HOME-RB-11 as applicable, plus the 768/1024 visual-evidence discrepancy and production PNG/SVG/clearance status. State that local implementation/testing is not publication or deployment.
-

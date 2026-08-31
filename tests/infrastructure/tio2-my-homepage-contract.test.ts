@@ -10,7 +10,28 @@ const seedPath = 'wordpress/seed/apply-tio2-my-homepage.php'
 const contractText = existsSync(contractPath)
   ? readFileSync(contractPath, 'utf8')
   : '{}'
-const contract = JSON.parse(contractText) as Record<string, any>
+interface MalaysiaContractFixture {
+  readonly products?: {readonly groups?: ReadonlyArray<{readonly gradeIds: string[]}>}
+  readonly applications?: {
+    readonly items: ReadonlyArray<{
+      readonly targetPageId: string
+      readonly href: string | null
+      readonly mappingState: string
+    }>
+  }
+  readonly resources?: {
+    readonly topics: ReadonlyArray<{
+      readonly targetPageId: string
+      readonly href: string | null
+      readonly mappingState: string
+    }>
+  }
+  readonly schemaGraph?: {
+    readonly '@graph'?: ReadonlyArray<{'@type': string}>
+  }
+}
+
+const contract = JSON.parse(contractText) as MalaysiaContractFixture
 const php = existsSync(phpPath) ? readFileSync(phpPath, 'utf8') : ''
 const plugin = readFileSync(
   'wordpress/plugins/tio2-site-model/tio2-site-model.php',

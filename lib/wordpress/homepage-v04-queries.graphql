@@ -1,0 +1,14 @@
+fragment MalaysiaHomepageFields on Tio2Homepage {
+  id
+  modifiedGmt
+  status
+  siteScopes { nodes { slug } }
+  homepageFields { homepageSchemaVersion: schemaVersion }
+  malaysiaHomepageContractJson
+}
+
+query GetMalaysiaHomepage($slug: ID!) {
+  tio2Homepage(id: $slug, idType: SLUG) {
+    ...MalaysiaHomepageFields
+  }
+}

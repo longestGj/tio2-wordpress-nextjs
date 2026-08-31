@@ -9,6 +9,8 @@ import {
   makeHomepageNode,
   makeSiteAEditorialHomepageNode,
 } from '@/tests/mocks/handlers'
+import approvedMalaysiaContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json'
+import {toMalaysiaHomepageDto} from '@/lib/wordpress/homepage-v04-dto'
 
 function homepageFixture(siteId: 'tio2-a' | 'tio2-b'): HomepageDto {
   const node = makeHomepageNode(siteId)
@@ -25,6 +27,25 @@ function editorialHomepageFixture() {
 }
 
 describe('buildHomepageMetadata', () => {
+  it('maps the approved Malaysia metadata exactly in production', async () => {
+    const {buildHomepageMetadata} = await import('@/lib/seo/homepage-metadata')
+    const homepage = toMalaysiaHomepageDto({
+      id: 'homepage-my-1', modifiedGmt: '2026-08-31T01:02:03', status: 'publish',
+      siteScopes: {nodes: [{slug: 'tio2-my'}]},
+      homepageFields: {homepageSchemaVersion: 'homepage-v0.4-malaysia'},
+      malaysiaHomepageContractJson: JSON.stringify(approvedMalaysiaContract),
+    })
+    const metadata = buildHomepageMetadata(getSiteConfig('tio2-my'), homepage, {
+      env: {VERCEL_ENV: 'production'},
+    })
+    expect(metadata).toMatchObject({
+      title: approvedMalaysiaContract.seo.title,
+      description: approvedMalaysiaContract.seo.description,
+      alternates: {canonical: approvedMalaysiaContract.seo.canonical},
+      robots: {index: true, follow: true},
+    })
+    expect(metadata.openGraph).not.toHaveProperty('images')
+  })
   it('keeps Site A v0.2 canonical and locally noindex without metadata keywords', async () => {
     const {buildHomepageMetadata} = await import(
       '@/lib/seo/homepage-metadata'

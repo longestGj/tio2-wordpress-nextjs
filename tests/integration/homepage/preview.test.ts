@@ -16,6 +16,7 @@ import {
 } from '@/tests/mocks/handlers'
 import {makeSiteABrandHomepageNode} from '@/tests/mocks/site-a-brand-homepage'
 import {server} from '@/tests/mocks/server'
+import approvedMalaysiaContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json'
 
 const previewEndpoint = 'http://wordpress.test/wp-json/tio2/v1/preview'
 const previewSecret = 'homepage-preview-test-secret'
@@ -50,6 +51,16 @@ function previewBrandHomepage() {
   }
 }
 
+function previewMalaysiaHomepage() {
+  return {
+    id: 'homepage-my-preview', modifiedGmt: '2026-08-31T01:02:03', status: 'draft',
+    siteScopes: {nodes: [{slug: 'tio2-my'}]},
+    homepageFields: {homepageSchemaVersion: 'homepage-v0.4-malaysia'},
+    malaysiaHomepageContractJson: JSON.stringify(approvedMalaysiaContract),
+    siteId: 'tio2-my', path: '/', schemaVersion: 'homepage-v0.4-malaysia',
+  }
+}
+
 beforeEach(() => {
   process.env.WORDPRESS_PREVIEW_URL = previewEndpoint
   process.env.WORDPRESS_PREVIEW_SECRET = previewSecret
@@ -63,6 +74,21 @@ afterEach(() => {
 })
 
 describe('getPreviewHomepage', () => {
+  it('dispatches Malaysia Preview through only the signed tio2-my draft boundary', async () => {
+    server.use(http.get(previewEndpoint, ({request}) => {
+      const timestamp = request.headers.get('x-tio2-preview-timestamp') ?? ''
+      const expected = createHmac('sha256', previewSecret)
+        .update(`${timestamp}\ntio2-my\n/`).digest('hex')
+      const url = new URL(request.url)
+      expect(url.searchParams.get('siteId')).toBe('tio2-my')
+      expect(request.headers.get('x-tio2-preview-signature')).toBe(expected)
+      return HttpResponse.json(previewMalaysiaHomepage())
+    }))
+    await expect(getPreviewHomepage('tio2-my')).resolves.toMatchObject({
+      identity: {siteId: 'tio2-my', status: 'draft'},
+      packageId: 'HOME-001-G7-HANDOFF-01',
+    })
+  })
   it('dispatches Site A Preview to the exact brand v0.3 draft transport', async () => {
     let observedCache: RequestCache | undefined
     server.use(

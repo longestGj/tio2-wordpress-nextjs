@@ -38,6 +38,9 @@ export function makeContentPageNode(
 }
 
 export function makeHomepageNode(siteId: SiteId = 'tio2-a') {
+  if (siteId === 'tio2-my') {
+    throw new Error('Use the immutable Malaysia Homepage contract fixture.')
+  }
   const rfqCopy = HOMEPAGE_RFQ_COPY_CONTRACTS[siteId].fields
   return {
     __typename: 'Tio2Homepage' as const,
