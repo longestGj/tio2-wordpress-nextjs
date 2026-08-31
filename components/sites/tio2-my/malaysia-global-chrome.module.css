@@ -47,7 +47,7 @@
   .mobileNav[hidden] { display: none; }
   .header .mobileNav a { position: relative; min-height: 48px; padding: 10px 18px; display: flex; justify-content: center; flex-direction: column; border-right: 1px solid #234665; border-bottom: 1px solid #234665; color: #fff; }
   .mobileNav a[aria-current='page'] { padding-left: 24px; font-weight: 800; }
-  .mobileNav a[aria-current='page']::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: 8px; width: 3px; background: #14b8a6; }
+  .mobileNav a[aria-current='page']::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: 8px; width: 4px; background: #14b8a6; }
   .mobileNav a:last-child { background: #006a63; }
   .footerGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 38px 28px; }
   .brandColumn, .conversionColumn { grid-column: 1 / -1; }

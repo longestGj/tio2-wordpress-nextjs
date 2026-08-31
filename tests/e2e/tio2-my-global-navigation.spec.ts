@@ -18,7 +18,12 @@ for (const width of [390, 1440] as const) {
       const desktopCurrent = header.locator(
         'nav[aria-label="Primary navigation"] a[aria-current="page"]',
       )
+      const mobileCurrentInDom = header.locator(
+        'nav[aria-label="Mobile navigation"] a[aria-current="page"]',
+      )
       await expect(header).not.toContainText('CURRENT')
+      await expect(desktopCurrent).toHaveCount(1)
+      await expect(mobileCurrentInDom).toHaveCount(1)
       await expect(desktopCurrent).toHaveText(pageContract.current)
       await expect(header.locator('a[href="/request-a-quote/"]').first()).toBeVisible()
       await expect(header.locator('img[alt="TiO2 Malaysia"]')).toBeVisible()
@@ -43,10 +48,13 @@ for (const width of [390, 1440] as const) {
       )
 
       if (width === 390) {
+        await expect(page.getByRole('navigation', {name: 'Primary navigation'})).toHaveCount(0)
+        await expect(page.getByRole('navigation', {name: 'Mobile navigation'})).toHaveCount(0)
         const menuButton = page.getByRole('button', {name: 'Open primary navigation'})
         await menuButton.click()
         const mobileMenu = page.locator('#malaysia-mobile-menu')
         const mobileCurrent = mobileMenu.locator('a[aria-current="page"]')
+        await expect(page.getByRole('navigation', {name: 'Mobile navigation'})).toHaveCount(1)
         await expect(mobileMenu).not.toContainText('CURRENT')
         await expect(mobileCurrent).toHaveText(pageContract.current)
         expect(await mobileCurrent.evaluate((link) => {
@@ -61,13 +69,15 @@ for (const width of [390, 1440] as const) {
           fontWeight: '800',
           markerBackground: 'rgb(20, 184, 166)',
           markerLeft: '8px',
-          markerWidth: '3px',
+          markerWidth: '4px',
         })
         await expect(mobileMenu.locator('a').first()).toBeFocused()
         await page.keyboard.press('Escape')
         await expect(menuButton).toBeFocused()
       } else {
         await expect(desktopCurrent).toBeVisible()
+        await expect(page.getByRole('navigation', {name: 'Primary navigation'})).toHaveCount(1)
+        await expect(page.getByRole('navigation', {name: 'Mobile navigation'})).toHaveCount(0)
       }
     })
   }

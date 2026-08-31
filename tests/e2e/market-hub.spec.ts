@@ -157,7 +157,7 @@ for (const width of widths) {
         fontWeight: '800',
         markerBackground: 'rgb(20, 184, 166)',
         markerLeft: '8px',
-        markerWidth: '3px',
+        markerWidth: '4px',
       })
       await expect(mobileMenu.locator('a').first()).toBeFocused()
       await page.keyboard.press('Escape')

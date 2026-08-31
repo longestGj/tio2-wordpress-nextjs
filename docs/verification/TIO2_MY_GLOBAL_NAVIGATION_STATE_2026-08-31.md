@@ -11,8 +11,9 @@
 ## DOM and visual contract
 
 - Desktop current link: exact page label only; `aria-current="page"`; computed `font-weight: 800`; teal `::after` underline at 3px using `rgb(0, 106, 99)`.
-- Mobile current link: exact page label only; `aria-current="page"`; computed `font-weight: 800`; teal left `::before` marker at 8px/3px using `rgb(20, 184, 166)`.
+- Mobile current link: exact page label only; `aria-current="page"`; computed `font-weight: 800`; teal left `::before` marker at 8px/4px using `rgb(20, 184, 166)` per Global Chrome V0.4.
 - Header contains no visible uppercase `CURRENT` text on Home or Markets.
+- Desktop and Mobile navigation DOMs each contain exactly one current link. Navigation hidden for the active viewport does not enter the accessibility tree; the closed Mobile Menu enters it only after opening.
 - Header remains 84px at 1440 and 64px at 390; Logo and Header RFQ remain visible.
 - Mobile Menu still focuses its first link on open, closes on Escape and returns focus to Menu.
 - Home and Markets have no document-level horizontal overflow at 390 or 1440.
@@ -32,9 +33,9 @@
 | Page/state | Capture | SHA-256 |
 |---|---|---|
 | Home desktop 1440 | `tio2-my-global-navigation-home-desktop-1440.png` | `7562C99E4177934AFB2887A416A727A951E7839CAFE5E3FF48D65943C4F19781` |
-| Home Mobile Menu 390 | `tio2-my-global-navigation-home-mobile-menu-390.png` | `C064344035C0AA22424351FFB6C25596937557FBADBDF2789819A68EAC7E6B45` |
+| Home Mobile Menu 390 | `tio2-my-global-navigation-home-mobile-menu-390.png` | `307E3F8538140505177133EC67173B4352D1E30C4F61240367492D5C6D9AD577` |
 | Markets desktop 1440 | `tio2-my-global-navigation-markets-desktop-1440.png` | `33EDBE235EDEA289AAE5A4F2F131E42F528FE1D07C35B7A96D1FCBF187AC6552` |
-| Markets Mobile Menu 390 | `tio2-my-global-navigation-markets-mobile-menu-390.png` | `AE19068D1FF27674FAEA3FBC2E29ACF661909CE21DF1F0FD3D7E99F0261D6FB8` |
+| Markets Mobile Menu 390 | `tio2-my-global-navigation-markets-mobile-menu-390.png` | `B3F1112569402C97EF86ACA3438CFBC6E49A099737FF80F83A5D267083224847` |
 
 ## Unresolved / not authorized
 
