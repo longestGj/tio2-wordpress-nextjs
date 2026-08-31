@@ -1,0 +1,200 @@
+{
+  "reviewId": "PRODUCT-DETAIL-G7-PCR-02",
+  "identity": {
+    "pageId": "GRADE-M350",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "gradeCode": "M-350",
+    "slug": "m-350",
+    "path": "/products/m-350/",
+    "templateVersion": "product-detail-v1",
+    "schemaVersion": "product-detail-v0.1-malaysia",
+    "recordState": "approved_for_preview",
+    "contentRevision": "M350_GATE5_V0.5"
+  },
+  "releaseControls": {
+    "indexingAuthorized": false,
+    "sitemapAuthorized": false
+  },
+  "seo": {
+    "primaryKeyword": "M-350 titanium dioxide",
+    "title": "M-350 Rutile Titanium Dioxide Pigment | TiO2 Malaysia",
+    "description": "Evaluate M-350 rutile titanium dioxide pigment for coatings, printing inks and plastics. Review TDS-based technical data and request a sample or quote.",
+    "h1": "M-350 Rutile Titanium Dioxide Pigment",
+    "canonical": "https://tio2malaysia.com/products/m-350/",
+    "language": "en"
+  },
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-005",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"
+  },
+  "breadcrumb": [
+    {"targetPageId": "HOME-001", "label": "Home", "href": "/"},
+    {"targetPageId": "PRODUCT-000", "label": "Products", "href": "/products/"},
+    {"targetPageId": "GRADE-M350", "label": "M-350", "href": "/products/m-350/"}
+  ],
+  "moduleStatus": {
+    "hero": "verified",
+    "positioning": "verified",
+    "applications": "verified",
+    "evaluation": "verified",
+    "technical": "verified",
+    "documents": "verified",
+    "originSupport": "not_public",
+    "markets": "verified",
+    "relatedGrades": "verified",
+    "sample": "verified"
+  },
+  "hero": {
+    "eyebrow": "GENERAL RUTILE GRADE · CHLORIDE PROCESS",
+    "summaryLead": "M-350 is a general-grade rutile titanium dioxide pigment produced by the chloride process.",
+    "summaryBody": "It is evaluated for decorative, industrial and automotive coatings, printing inks and plastics, with excellent hue and high gloss, good dispersibility, strong hiding power, and good weather and temperature resistance.",
+    "proofs": ["TDS-based product facts", "Exact-grade evaluation page", "Qualification required"],
+    "visual": {
+      "label": "M-350 product file and current TDS visual",
+      "technicalFile": "Rutile titanium dioxide pigment · Chloride process",
+      "currentData": "TDS · V3 2023 · General grade",
+      "note": "Product identity · documentation · evaluation"
+    },
+    "facts": [
+      {"label": "Product", "value": "M-350"},
+      {"label": "Type", "value": "Rutile titanium dioxide pigment"},
+      {"label": "Process", "value": "Chloride process"},
+      {"label": "Grade positioning", "value": "General grade"},
+      {"label": "Applications", "value": "Coatings, printing inks and plastics"}
+    ],
+    "actions": [
+      {"targetPageId": "CONV-RFQ", "label": "Request an M-350 Quote", "href": "/request-a-quote/", "prefill": {"site_scope": "tio2-my", "grade": "M-350", "source_page": "GRADE-M350"}},
+      {"targetPageId": "CONV-SAMPLE", "label": "Request an M-350 Sample", "href": "/request-sample/", "prefill": {"site_scope": "tio2-my", "grade": "M-350", "source_page": "GRADE-M350"}}
+    ]
+  },
+  "positioning": {
+    "eyebrow": "PRODUCT POSITIONING",
+    "heading": "Where M-350 Fits",
+    "lead": "M-350 is a general-grade rutile titanium dioxide pigment produced by the chloride process.",
+    "body": "The current TDS lists high-end decorative paint, industrial paint, automotive paint, ink and plastic as application directions. Buyers should review the complete technical data and validate final suitability in their own qualification system.",
+    "decisionPoints": [
+      "General-grade rutile pigment",
+      "Produced by the chloride process",
+      "Evaluated across coatings, inks and plastics",
+      "Specifications, documents, sample and RFQ review"
+    ]
+  },
+  "applications": {
+    "eyebrow": "TDS-LISTED APPLICATIONS",
+    "heading": "Main Application Directions",
+    "intro": "M-350 is evaluated for the five application directions listed in its current TDS. Each buyer should confirm performance in the intended formulation and process.",
+    "items": [
+      {"category": "Coatings", "title": "Decorative Coatings", "body": "Listed for high-end decorative paint evaluation. Review hue, gloss, hiding power and dispersion in the buyer’s formulation."},
+      {"category": "Coatings", "title": "Industrial Coatings", "body": "Listed for industrial paint evaluation. Confirm the required finish, hiding power, dispersion and qualification conditions."},
+      {"category": "Coatings", "title": "Automotive Coatings", "body": "Listed for automotive paint evaluation. Validate color appearance, gloss, hiding power and dispersion in the intended system."},
+      {"category": "Inks", "title": "Printing Inks", "body": "Listed in the TDS for ink applications. Review M-350 against the buyer’s formulation, process and final performance requirements."},
+      {"category": "Plastics", "title": "Plastics", "body": "Listed in the TDS for plastic applications. Validate M-350 in the buyer’s own formulation and processing conditions."}
+    ]
+  },
+  "evaluation": {
+    "eyebrow": "EVALUATION GUIDANCE",
+    "heading": "Evaluation Priorities",
+    "intro": "Use the product data as an initial review framework. These are qualification factors, not a ranking or suitability guarantee.",
+    "groups": [
+      {"heading": "Performance review", "items": ["Excellent hue and high gloss", "Strong hiding power", "Good dispersibility", "Good weather and temperature resistance"]},
+      {"heading": "Qualification review", "items": ["Application formulation", "Processing conditions", "Destination requirements", "Required documents and sample validation"]}
+    ],
+    "disclaimer": "M-350 should be validated in the buyer’s own formulation, processing conditions and qualification system before final purchase approval."
+  },
+  "technical": {
+    "eyebrow": "CURRENT PRODUCT DATA",
+    "heading": "Typical Technical Data",
+    "intro": "The table reproduces the Standard and Typical Value columns in the current M-350 TDS.",
+    "sourceLabel": "M-350 TDS · V3 2023",
+    "columns": ["Property", "Standard", "Typical Value"],
+    "rows": [
+      {"property": "TiO₂ content, %", "standard": "≥ 92.5", "typical": "93.5"},
+      {"property": "Content of rutile, %", "standard": "≥ 99.0", "typical": "100"},
+      {"property": "Brightness, %", "standard": "≥ 95.1", "typical": "95.4"},
+      {"property": "L (dry powder)", "standard": "—", "typical": "98.3"},
+      {"property": "b (dry powder)", "standard": "—", "typical": "1.85"},
+      {"property": "Reducing power (Reynolds number)", "standard": "1920", "typical": "1950"},
+      {"property": "Dispersibility (Hegman)", "standard": "≥ 6.50", "typical": "6.75"},
+      {"property": "Oil absorption, g/100g", "standard": "≤ 20", "typical": "18"},
+      {"property": "Slurry pH", "standard": "6.5–8.5", "typical": "7.2"},
+      {"property": "Electric resistivity, Ω·m", "standard": "80", "typical": "165"},
+      {"property": "Volatile at 105°C, %", "standard": "≤ 0.5", "typical": "0.4"},
+      {"property": "Sieve residue (45 µm), %", "standard": "≤ 0.02", "typical": "0.01"},
+      {"property": "Average particle size (nm) SEM", "standard": "—", "typical": "230"},
+      {"property": "Inorganic treatment", "standard": "ZrO₂, Al₂O₃", "typical": "—"},
+      {"property": "Organic treatment", "standard": "Yes", "typical": "—"}
+    ],
+    "note": "Technical values shown on this page are provided for initial evaluation. The data included in the typical properties is not a specification. Refer to the current M-350 TDS for complete product information."
+  },
+  "documents": {
+    "targetPageId": "CONV-DOC",
+    "eyebrow": "DOCUMENT REQUEST",
+    "heading": "Request M-350 Documents",
+    "intro": "Select the M-350 documents needed for technical evaluation, sourcing review or purchasing requirements.",
+    "actionLabel": "Request M-350 Documents",
+    "href": "/request-documents/",
+    "prefill": {"site_scope": "tio2-my", "grade": "M-350", "source_page": "GRADE-M350", "requested_type": "TDS"},
+    "availability": "Availability is confirmed after request review.",
+    "options": [
+      {"title": "Technical Data Sheet (TDS)", "body": "Current M-350 product classification, applications, key features and technical data."},
+      {"title": "Additional document requirements", "body": "Describe the document type, destination and purchasing context in the request. No availability is implied."}
+    ]
+  },
+  "markets": {
+    "eyebrow": "MARKET NAVIGATION",
+    "heading": "Procurement Support for Your Destination",
+    "intro": "Review destination-specific procurement context, document requirements and market information relevant to M-350 evaluation.",
+    "items": [
+      {"targetPageId": "MARKET-EU-001", "label": "European Union", "href": "/markets/european-union/"},
+      {"targetPageId": "MARKET-UK-001", "label": "United Kingdom", "href": "/markets/united-kingdom/"},
+      {"targetPageId": "MARKET-IN-001", "label": "India", "href": "/markets/india/"},
+      {"targetPageId": "MARKET-BR-001", "label": "Brazil", "href": "/markets/brazil/"}
+    ],
+    "note": "Market navigation does not claim local stock, registration, regulatory acceptance, tariff treatment or delivery time."
+  },
+  "relatedGrades": {
+    "eyebrow": "RELATED PRODUCT DIRECTIONS",
+    "heading": "Explore More Coatings Grades",
+    "intro": "These grades share a current public Coatings relationship and should be evaluated on their own evidence.",
+    "items": [
+      {"targetPageId": "GRADE-M510", "gradeCode": "M-510", "href": "/products/m-510/", "body": "Another coatings-linked grade for separate technical evaluation. No equivalence or ranking is implied."},
+      {"targetPageId": "GRADE-M896", "gradeCode": "M-896", "href": "/products/m-896/", "body": "Another coatings-linked grade for separate technical evaluation. Review its own public product evidence."},
+      {"targetPageId": "GRADE-M895", "gradeCode": "M-895", "href": "/products/m-895/", "body": "Another coatings-linked grade for separate technical evaluation. Selection requires independent qualification."}
+    ],
+    "note": "Related grades are not ranked recommendations, equivalents or guaranteed replacements.",
+    "allTargetPageId": "APP-COAT",
+    "allLabel": "View All Coatings Grades",
+    "allHref": "/applications/titanium-dioxide-for-coatings/"
+  },
+  "sample": {
+    "targetPageId": "CONV-SAMPLE",
+    "eyebrow": "QUALIFICATION SUPPORT",
+    "heading": "Request an M-350 Sample",
+    "body": "Share your application, destination and evaluation purpose when requesting an M-350 sample. Sample submission does not imply approval, free supply or dispatch timing.",
+    "actionLabel": "Request an M-350 Sample",
+    "href": "/request-sample/",
+    "prefill": {"site_scope": "tio2-my", "grade": "M-350", "source_page": "GRADE-M350"}
+  },
+  "routeRegistry": [
+    {"targetPageId": "HOME-001", "href": "/", "behavior": "required"},
+    {"targetPageId": "PRODUCT-000", "href": "/products/", "behavior": "required"},
+    {"targetPageId": "CONV-RFQ", "href": "/request-a-quote/", "behavior": "contextual-body"},
+    {"targetPageId": "CONV-SAMPLE", "href": "/request-sample/", "behavior": "conditional"},
+    {"targetPageId": "CONV-DOC", "href": "/request-documents/", "behavior": "conditional"},
+    {"targetPageId": "PRODUCT-PROC-CL", "href": "/products/chloride-process-titanium-dioxide/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-EU-001", "href": "/markets/european-union/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-UK-001", "href": "/markets/united-kingdom/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-IN-001", "href": "/markets/india/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-BR-001", "href": "/markets/brazil/", "behavior": "conditional"},
+    {"targetPageId": "GRADE-M510", "href": "/products/m-510/", "behavior": "conditional"},
+    {"targetPageId": "GRADE-M896", "href": "/products/m-896/", "behavior": "conditional"},
+    {"targetPageId": "GRADE-M895", "href": "/products/m-895/", "behavior": "conditional"},
+    {"targetPageId": "APP-COAT", "href": "/applications/titanium-dioxide-for-coatings/", "behavior": "conditional"}
+  ],
+  "evidenceLedger": [
+    {"moduleKey": "hero-positioning-applications-evaluation", "sourceRefs": ["M350_TDS_V3_2023", "PRODUCT-DETAIL-G5-BASELINE-01"], "ownerRole": "technical", "reviewStatus": "verified", "reviewedAt": "2026-09-01T00:00:00Z"},
+    {"moduleKey": "technical", "sourceRefs": ["M350_TDS_V3_2023"], "ownerRole": "technical", "reviewStatus": "verified", "reviewedAt": "2026-09-01T00:00:00Z"},
+    {"moduleKey": "seo", "sourceRefs": ["PRODUCT-DETAIL-G5-BASELINE-01"], "ownerRole": "seo-content", "reviewStatus": "verified", "reviewedAt": "2026-09-01T00:00:00Z"}
+  ]
+}

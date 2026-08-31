@@ -1,0 +1,3 @@
+query GetMalaysiaProductDetail($slug: String!) {
+  malaysiaProductDetailRecordJson(slug: $slug)
+}

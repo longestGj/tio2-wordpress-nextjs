@@ -7,6 +7,7 @@ const config: CodegenConfig = {
     'lib/wordpress/homepage*-queries.graphql',
     'lib/wordpress/market-hub*-queries.graphql',
     'lib/wordpress/product-hub*-queries.graphql',
+    'lib/wordpress/product-detail*-queries.graphql',
     'lib/wordpress/product-queries.graphql',
     'lib/wordpress/product-page-queries.graphql',
     'lib/wordpress/application-queries.graphql',

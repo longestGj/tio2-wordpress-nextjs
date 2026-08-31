@@ -9,6 +9,7 @@ export async function assertRenderedMalaysiaHeaderLogo(
   logo: Locator,
   expectedSize: LogoSize,
 ) {
+  await logo.scrollIntoViewIfNeeded()
   await expect(logo).toBeVisible()
   await expect.poll(() => logo.evaluate((image) => {
     const element = image as HTMLImageElement

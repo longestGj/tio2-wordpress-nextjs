@@ -168,6 +168,14 @@ export function productHubContentTag(siteId: string): string {
   return `content:${siteId}--products`
 }
 
+export function productDetailContentTag(siteId: string, slug: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my' || slug !== 'm-350') {
+    throw new Error(`Invalid Malaysia Product Detail identity: ${siteId}/${slug}`)
+  }
+  return `content:${siteId}--product-detail--${slug}`
+}
+
 export function routeTag(siteId: string, path: string): string {
   assertSiteId(siteId)
   return `route:${siteId}:${normalizePublicPath(path)}`
