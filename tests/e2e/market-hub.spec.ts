@@ -30,6 +30,32 @@ for (const width of widths) {
     expect(await page.locator('[data-module]').evaluateAll((nodes) =>
       nodes.map((node) => node.getAttribute('data-module')),
     )).toEqual(moduleOrder)
+    const breadcrumb = page.locator('[data-module="breadcrumb"]')
+    await expect(breadcrumb.locator('li')).toHaveText(['Home', 'Markets'])
+    await expect(breadcrumb.getByRole('link', {name: 'Home'})).toHaveAttribute('href', '/')
+    await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText('Markets')
+    const breadcrumbLayout = await breadcrumb.evaluate((nav) => {
+      const list = nav.querySelector('ol')
+      const items = [...nav.querySelectorAll('li')]
+      const labels = [
+        nav.querySelector('a'),
+        nav.querySelector('[aria-current="page"]'),
+      ]
+      return {
+        flexWrap: list ? getComputedStyle(list).flexWrap : null,
+        itemCenters: items.map((item) => {
+          const rect = item.getBoundingClientRect()
+          return rect.top + rect.height / 2
+        }),
+        labelCenters: labels.map((label) => {
+          const rect = label?.getBoundingClientRect()
+          return rect ? rect.top + rect.height / 2 : null
+        }),
+      }
+    })
+    expect(breadcrumbLayout.flexWrap).toBe('nowrap')
+    expect(Math.abs(breadcrumbLayout.itemCenters[0]! - breadcrumbLayout.itemCenters[1]!)).toBeLessThan(1)
+    expect(Math.abs(breadcrumbLayout.labelCenters[0]! - breadcrumbLayout.labelCenters[1]!)).toBeLessThan(1)
     await expect(page.locator('a[data-market-action]')).toHaveCount(10)
     await expect(page.locator('[data-module="buyer-questions"] article p')).toHaveCount(6)
     await expect(page.locator('main a[href="/request-a-quote/"]')).toHaveCount(0)

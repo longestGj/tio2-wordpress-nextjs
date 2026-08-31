@@ -69,6 +69,15 @@ The requested outer viewports were 1440×1000, 768×1024 and 390×844. Full-page
 | Tablet 768 | `market-000-g9-roqa-01-tablet-768.png` (753×6994) | LOCAL CHECK PASS: Footer H2 all 12px; Explore and Information occupy separate first-row columns, Conversion a later row; no bbox overlap; Logo/RFQ/copyright visible; no overflow | `901205a348a854de5ca5dc22709ae041494d9108a5d81373cf24ef0b7b8f6dd0` |
 | Mobile 390 | `market-000-g9-roqa-01-mobile-390.png` (375×8100) | LOCAL CHECK PASS: Footer H2 all 14px; two-column Explore/Information plus later Conversion; no bbox overlap; Logo/RFQ/copyright visible; no overflow | `14977e0a5a8a7acc140ad11fc1c5db65ee6be492c7fb57ea5f98e420fcfbc0ef` |
 
+## Breadcrumb visual follow-up
+
+- The Market breadcrumb remains the semantic server-rendered `Home > Markets` navigation with `/` as the only link and `Markets` marked `aria-current="page"`.
+- Its list and items now share one vertical center line at 1440, 768 and 390px; wrapping is disabled, the approved `>` separator is used, and the Home link no longer inherits the 800-weight Market body-link treatment.
+- The Home link retains a 44px minimum target while both labels use the muted auxiliary-navigation treatment.
+- Targeted Playwright re-verification: 3/3 PASS at 390, 768 and 1440px, including the original metadata, Schema, Footer, overflow, target-size and Axe checks plus the new breadcrumb geometry assertions.
+- New focused captures: `market-000-breadcrumb-review-desktop-1440.png` SHA-256 `8F6AAF10A8910E578D5988B10E49E5F7014716C2888F300C91AE6E1ABA872620`; `market-000-breadcrumb-review-mobile-390.png` SHA-256 `61E894F0A2C716E85A0E7A330137E0D3CE4140641F88A64FCAAFEB794A0A2F46`.
+- This local visual follow-up does not assert Gate 9 approval or change the release blockers below.
+
 ## Carry-forwards / release blockers
 
 - `MARKET-G6-B01`: OPEN for release. The hub template, ten anchors, canonical and ItemList are implemented, but all ten authorized target Market child routes intentionally remain 404 because child-page development was out of scope. No substitute URL or fallback was created.
