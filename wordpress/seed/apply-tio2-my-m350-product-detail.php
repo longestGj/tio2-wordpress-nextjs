@@ -53,6 +53,9 @@ if (is_wp_error($scope)) {
 }
 wp_update_post(['ID' => $post_id, 'post_name' => $internal_slug]);
 update_post_meta($post_id, 'public_path', $public_path);
+update_post_meta($post_id, TIO2_MY_ROUTE_PAGE_ID_META, 'GRADE-M350');
+update_post_meta($post_id, TIO2_MY_ROUTE_CANONICAL_META, 'https://tio2malaysia.com/products/m-350/');
+update_post_meta($post_id, TIO2_MY_ROUTE_RELEASE_STATE_META, 'PREVIEW_ONLY');
 update_post_meta($post_id, TIO2_MY_PRODUCT_DETAIL_CONTRACT_META, $contract_json);
 clean_post_cache($post_id);
 

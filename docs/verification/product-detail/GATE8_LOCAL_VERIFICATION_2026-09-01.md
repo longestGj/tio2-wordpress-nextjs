@@ -3,7 +3,7 @@
 ## Scope and authority
 
 - Review authority: `PRODUCT-DETAIL-G7-PCR-02 = PROJECT_CONTROL_REVIEW_PASS / CLOSED`.
-- Implemented public candidate: `GRADE-M350` at `/products/m-350/` for `site_scope=tio2-my`.
+- Implemented local Gate 8 candidate: `GRADE-M350` at `/products/m-350/` for `site_scope=tio2-my`. Its CMS governance state is `PREVIEW_ONLY`; this is not public-live approval.
 - The other 13 approved Grade identities remain identity-only. No route, shell, placeholder, copied M-350 content, TDS, process page, RFQ page, deployment, indexing, DNS, or production write was created.
 - This document is local Gate 8 evidence. It is not a Gate 9 decision, release approval, or publication record.
 
@@ -13,7 +13,7 @@
 - One Product Detail component/template consumes the approved public projection. The 14-identity registry is separate from the single M-350 candidate payload so identity registration cannot accidentally create public pages.
 - WordPress stores one exact, hash-compared M-350 contract on one `tio2_grade` record with the exact `site_scope=tio2-my`, internal slug, and public path. Missing, duplicate, invalid, cross-scope, or non-M-350 reads return a GraphQL error; there is no cross-scope query or fallback.
 - The GraphQL response contains only the public projection. Route readiness, module status, and evidence ledger remain server-side governance data and are not exposed.
-- Conditional body actions/modules are projected only when their exact scoped target is ready. The current minimum projection is Hero, Positioning, Applications, Evaluation, and Technical Data. Unready Hero actions, Documents, Markets, Related Grades, and Sample are omitted rather than redirected.
+- Conditional body actions/modules are projected only when one unique record atomically matches `site_scope=tio2-my`, expected Page ID, public path, canonical, WordPress `publish`, and page-level `LIVE_APPROVED`. `publish` alone is only storage state. Conversion targets additionally require receiver `READY`, the same target Page ID, and a non-empty form key. The current minimum projection is Hero, Positioning, Applications, Evaluation, and Technical Data. Unready Hero actions, Documents, Markets, Related Grades, and Sample are omitted rather than redirected.
 - The page directly consumes the single shared `MalaysiaGlobalHeader` / Mobile Menu / `MalaysiaGlobalFooter` and shared chrome configuration with only `currentPageId="PRODUCT-000"` and `sourcePageId="GRADE-M350"`. Product Detail CSS is scoped under `<main>` and does not override shared Logo, navigation, current marker, RFQ, menu, or Footer styles.
 - Shared chrome retains visible `CURRENT=0`, Desktop 3px underline, Mobile 4px left marker, `aria-current="page"`, and the permanent `/request-a-quote/` Global RFQ.
 
@@ -26,6 +26,7 @@ siteScope         : tio2-my
 publicPath        : /products/m-350
 pageId            : GRADE-M350
 state             : approved_for_preview
+routeReleaseState : PREVIEW_ONLY
 modules           : hero,positioning,applications,evaluation,technical
 heroActions       : 0
 hasRouteRegistry  : False
@@ -34,14 +35,17 @@ hasEvidenceLedger : False
 
 An explicit `m-510` query returned null data plus `The requested Malaysia Product Detail is not authorized.`
 
+The M-350 WordPress record has `post_status=publish` so the local production-mode build can read the approved preview candidate, but its independent route release state is `PREVIEW_ONLY`. It therefore does not make M-350 a `LIVE_APPROVED` target in Product Hub and cannot unlock any Product Detail contextual action.
+
 ## Test and build results
 
 | Check | Result |
 | --- | --- |
 | `npm run codegen` | PASS |
-| 13 focused Vitest files | PASS — 40 tests |
+| 12 focused Product Detail/Product Hub Vitest files | PASS — 35 tests |
+| Live WordPress adversarial readiness test | PASS — 1 test / 12 positive and negative states |
 | Product Detail Playwright | PASS — 8 tests |
-| Product Hub + Home/Markets shared-navigation Playwright | PASS — 14 tests |
+| Product Hub Playwright fail-closed regression | PASS — 5 tests |
 | `npm run typecheck` | PASS |
 | `npm run lint` | PASS — 0 errors; 2 unrelated pre-existing warnings in `docs/prototypes/site-a-resources/build-visual-prototype.mjs` |
 | PHP 8.3 syntax checks: Product Detail, Product Hub, plugin bootstrap, seed | PASS |
@@ -49,6 +53,12 @@ An explicit `m-510` query returned null data plus `The requested Malaysia Produc
 | `git diff --check` | PASS |
 
 The build generated `/products/m-350` as the only Malaysia Product Detail static parameter. Runtime tests confirmed all 13 other Grade paths return 404 without M-350 copy.
+
+## `TIO2MY-PD-G8-PCR-01` readiness correction
+
+The shared resolver no longer equates a WordPress published record with a live route. It returns false for each of these adversarial cases: correct path/wrong Page ID, `PREVIEW_ONLY`, `NOT_READY`, canonical mismatch, WordPress draft despite a forged live state, duplicate path ownership, cross-scope ownership, receiver `NOT_READY`, and receiver `READY` with a missing or blank form key. It returns true only for an exact non-conversion `LIVE_APPROVED` record, or an exact Conversion `LIVE_APPROVED` record whose receiver is `READY`, bound to the same Page ID, and has a form key.
+
+Required Home/Product parent checks are isolated as Gate 8 preview-composition checks against their exact validated contracts. They cannot unlock contextual modules/actions and are not reported as `LIVE_APPROVED`.
 
 ## Responsive, visual, and accessibility evidence
 

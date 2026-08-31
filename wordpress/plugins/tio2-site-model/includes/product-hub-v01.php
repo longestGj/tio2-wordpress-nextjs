@@ -7,6 +7,12 @@ if (! defined('ABSPATH')) {
 }
 
 const TIO2_MY_PRODUCT_HUB_CONTRACT_META = '_tio2_my_product_hub_contract_json';
+const TIO2_MY_ROUTE_PAGE_ID_META = '_tio2_my_route_page_id';
+const TIO2_MY_ROUTE_CANONICAL_META = '_tio2_my_route_canonical';
+const TIO2_MY_ROUTE_RELEASE_STATE_META = '_tio2_my_route_release_state';
+const TIO2_MY_RECEIVER_STATE_META = '_tio2_my_receiver_state';
+const TIO2_MY_RECEIVER_TARGET_PAGE_ID_META = '_tio2_my_receiver_target_page_id';
+const TIO2_MY_RECEIVER_FORM_KEY_META = '_tio2_my_receiver_form_key';
 
 function tio2_register_product_hub_v01_content_type(): void
 {
@@ -92,39 +98,38 @@ function tio2_validate_product_hub_v01_contract(int $post_id)
     return true;
 }
 
+function tio2_my_product_target_canonical(string $public_path): string
+{
+    $path = '/' === $public_path ? '/' : trailingslashit($public_path);
+    return 'https://tio2malaysia.com' . $path;
+}
+
 /**
- * Resolve a target only from a single published Malaysia-owned CMS record.
- * Missing records are an expected false readiness state; ambiguity is an error.
+ * Resolve a contextual target only from one exact LIVE_APPROVED Malaysia record.
+ * WordPress publish is a storage state and is never sufficient by itself.
  */
 function tio2_my_product_target_ready(string $target_page_id, string $href): bool
 {
-    if ('HOME-001' === $target_page_id && '/' === $href) {
-        $homepage_ids = function_exists('tio2_find_homepage_ids')
-            ? array_values(array_filter(
-                tio2_find_homepage_ids('tio2-my', false),
-                static fn (int $post_id): bool => 'publish' === get_post_status($post_id)
-            ))
-            : [];
-        if (count($homepage_ids) > 1) {
-            throw new \GraphQL\Error\UserError(
-                'The Malaysia route readiness target HOME-001 is ambiguous.'
-            );
-        }
-        return 1 === count($homepage_ids) &&
-            ! is_wp_error(tio2_validate_homepage_contract((int) $homepage_ids[0]));
-    }
-
-    $path = wp_parse_url($href, PHP_URL_PATH);
-    if (! is_string($path) || '' === $path || '/' !== $path[0]) {
+    $parsed = wp_parse_url($href);
+    if (
+        ! is_array($parsed) ||
+        isset($parsed['scheme']) ||
+        isset($parsed['host']) ||
+        ! is_string($parsed['path'] ?? null) ||
+        '' === $parsed['path'] ||
+        '/' !== $parsed['path'][0] ||
+        str_starts_with($parsed['path'], '//')
+    ) {
         throw new \GraphQL\Error\UserError('A Malaysia Product Hub target path is invalid.');
     }
+    $path = $parsed['path'];
     $public_path = '/' === $path ? '/' : untrailingslashit($path);
     $ids = get_posts([
         'post_type' => [
             'page', 'post', 'tio2_homepage', 'tio2_market_hub', 'tio2_product_hub',
             'tio2_grade', 'tio2_product', 'tio2_application', 'tio2_document',
         ],
-        'post_status' => 'publish',
+        'post_status' => ['draft', 'pending', 'private', 'publish', 'future'],
         'fields' => 'ids',
         'numberposts' => 2,
         'suppress_filters' => false,
@@ -133,24 +138,31 @@ function tio2_my_product_target_ready(string $target_page_id, string $href): boo
             'value' => $public_path,
             'compare' => '=',
         ]],
-        'tax_query' => [[
-            'taxonomy' => 'site_scope',
-            'field' => 'slug',
-            'terms' => ['tio2-my'],
-        ]],
     ]);
-    if (count($ids) > 1) {
-        throw new \GraphQL\Error\UserError(
-            sprintf('The Malaysia route readiness target %s is ambiguous.', $target_page_id)
-        );
-    }
-    if ([] === $ids) {
+    if (1 !== count($ids)) {
         return false;
     }
-    $scopes = wp_get_post_terms((int) $ids[0], 'site_scope', ['fields' => 'slugs']);
-    return ! is_wp_error($scopes) &&
+    $post_id = (int) $ids[0];
+    $scopes = wp_get_post_terms($post_id, 'site_scope', ['fields' => 'slugs']);
+    $base_ready = ! is_wp_error($scopes) &&
         ['tio2-my'] === array_values(array_unique(array_map('strval', $scopes))) &&
-        $public_path === get_post_meta((int) $ids[0], 'public_path', true);
+        'publish' === get_post_status($post_id) &&
+        $target_page_id === get_post_meta($post_id, TIO2_MY_ROUTE_PAGE_ID_META, true) &&
+        $public_path === get_post_meta($post_id, 'public_path', true) &&
+        tio2_my_product_target_canonical($public_path) ===
+            get_post_meta($post_id, TIO2_MY_ROUTE_CANONICAL_META, true) &&
+        'LIVE_APPROVED' === get_post_meta($post_id, TIO2_MY_ROUTE_RELEASE_STATE_META, true);
+    if (! $base_ready) {
+        return false;
+    }
+    if (! str_starts_with($target_page_id, 'CONV-')) {
+        return true;
+    }
+    $form_key = get_post_meta($post_id, TIO2_MY_RECEIVER_FORM_KEY_META, true);
+    return 'READY' === get_post_meta($post_id, TIO2_MY_RECEIVER_STATE_META, true) &&
+        $target_page_id === get_post_meta($post_id, TIO2_MY_RECEIVER_TARGET_PAGE_ID_META, true) &&
+        is_string($form_key) &&
+        '' !== trim($form_key);
 }
 
 /** @return array<string, bool> */

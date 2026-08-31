@@ -42,6 +42,32 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
     expect(schema).toContain('malaysiaProductDetailRecordJson(slug: String!): String!')
   })
 
+  it('requires exact LIVE_APPROVED route identity and receiver readiness', () => {
+    const resolver = readFileSync(
+      'wordpress/plugins/tio2-site-model/includes/product-hub-v01.php',
+      'utf8',
+    )
+    const seed = readFileSync(
+      'wordpress/seed/apply-tio2-my-m350-product-detail.php',
+      'utf8',
+    )
+
+    for (const contractToken of [
+      'TIO2_MY_ROUTE_PAGE_ID_META',
+      'TIO2_MY_ROUTE_CANONICAL_META',
+      'TIO2_MY_ROUTE_RELEASE_STATE_META',
+      "'LIVE_APPROVED'",
+      'TIO2_MY_RECEIVER_STATE_META',
+      'TIO2_MY_RECEIVER_TARGET_PAGE_ID_META',
+      'TIO2_MY_RECEIVER_FORM_KEY_META',
+    ]) expect(resolver).toContain(contractToken)
+    expect(resolver).toContain("['tio2-my'] ===")
+    expect(resolver).toContain("'publish' === get_post_status")
+    expect(seed).toContain("TIO2_MY_ROUTE_PAGE_ID_META, 'GRADE-M350'")
+    expect(seed).toContain("TIO2_MY_ROUTE_RELEASE_STATE_META, 'PREVIEW_ONLY'")
+    expect(seed).not.toContain("TIO2_MY_ROUTE_RELEASE_STATE_META, 'LIVE_APPROVED'")
+  })
+
   it('does not create route files, shells or seeded records for the other 13 grades', () => {
     const files = [
       'app/products/m-510/page.tsx',

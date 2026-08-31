@@ -22,7 +22,7 @@ const baseUrl = 'http://127.0.0.1:3004'
 const widths = [390, 768, 1024, 1440] as const
 const moduleOrder = [
   'breadcrumb', 'hero', 'grade-selector', 'process', 'grade-directory',
-  'evaluation', 'support', 'buyer-questions', 'final-rfq',
+  'evaluation', 'buyer-questions', 'final-rfq',
 ] as const
 
 for (const width of widths) {
@@ -79,12 +79,10 @@ for (const width of widths) {
     await expect(page.locator('[data-module="breadcrumb"] li')).toHaveText(['Home', 'Products'])
     await expect(page.locator('[data-module="grade-directory"] article')).toHaveCount(4)
     await expect(page.locator('[data-module="grade-directory"] article > div > div')).toHaveCount(14)
-    await expect(page.locator('[data-module="grade-directory"] [data-grade-action]')).toHaveCount(1)
-    await expect(page.locator('[data-module="grade-directory"] [data-grade-action="GRADE-M350"]')).toHaveAttribute('href', '/products/m-350/')
+    await expect(page.locator('[data-module="grade-directory"] [data-grade-action]')).toHaveCount(0)
     await expect(page.locator('[data-module="process"] [data-process-route]')).toHaveCount(0)
     await expect(page.locator('[data-module="process"]')).toContainText('CR-901')
-    await expect(page.locator('[data-module="support"] [data-support-action]')).toHaveCount(1)
-    await expect(page.locator('[data-module="support"] [data-support-action]')).toHaveAttribute('href', '/markets/')
+    await expect(page.locator('[data-module="support"]')).toHaveCount(0)
 
     const directoryText = await page.locator('[data-module="grade-directory"]').innerText()
     for (const grade of approvedContract.directory.groups.flatMap((group) => group.grades)) {

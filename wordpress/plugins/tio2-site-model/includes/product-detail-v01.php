@@ -42,7 +42,11 @@ function tio2_validate_product_detail_v01_contract(int $post_id)
     }
     if (
         '/products/m-350' !== get_post_meta($post_id, 'public_path', true) ||
-        'tio2-my-m-350' !== get_post_field('post_name', $post_id)
+        'tio2-my-m-350' !== get_post_field('post_name', $post_id) ||
+        'GRADE-M350' !== get_post_meta($post_id, TIO2_MY_ROUTE_PAGE_ID_META, true) ||
+        'https://tio2malaysia.com/products/m-350/' !==
+            get_post_meta($post_id, TIO2_MY_ROUTE_CANONICAL_META, true) ||
+        'PREVIEW_ONLY' !== get_post_meta($post_id, TIO2_MY_ROUTE_RELEASE_STATE_META, true)
     ) {
         return new WP_Error('tio2_my_product_detail_invalid_route', 'The M-350 route identity is invalid.');
     }
@@ -95,12 +99,65 @@ function tio2_my_product_detail_route_readiness(array $contract): array
         ) {
             throw new \GraphQL\Error\UserError('The M-350 route registry is ambiguous.');
         }
-        $readiness[$route['targetPageId']] = tio2_my_product_target_ready(
-            $route['targetPageId'],
-            $route['href']
-        );
+        $is_required_parent = 'required' === ($route['behavior'] ?? null) &&
+            in_array($route['targetPageId'], ['HOME-001', 'PRODUCT-000'], true);
+        $readiness[$route['targetPageId']] = $is_required_parent
+            ? tio2_my_product_detail_required_parent_available($route['targetPageId'], $route['href'])
+            : tio2_my_product_target_ready($route['targetPageId'], $route['href']);
     }
     return $readiness;
+}
+
+/**
+ * Gate 8 preview composition needs its already-implemented parent pages.
+ * This does not return LIVE_APPROVED and must never unlock a contextual action.
+ */
+function tio2_my_product_detail_required_parent_available(string $target_page_id, string $href): bool
+{
+    if ('HOME-001' === $target_page_id && '/' === $href) {
+        $ids = function_exists('tio2_find_homepage_ids')
+            ? array_values(array_filter(
+                tio2_find_homepage_ids('tio2-my', false),
+                static fn (int $post_id): bool => 'publish' === get_post_status($post_id)
+            ))
+            : [];
+        if (1 !== count($ids) || is_wp_error(tio2_validate_homepage_contract((int) $ids[0]))) {
+            return false;
+        }
+        $stored = get_post_meta((int) $ids[0], '_tio2_my_homepage_contract_json', true);
+        $parent = is_string($stored) ? json_decode($stored, true) : null;
+        return is_array($parent) &&
+            'HOME-001' === ($parent['identity']['pageId'] ?? null) &&
+            '/' === ($parent['identity']['path'] ?? null);
+    }
+    if ('PRODUCT-000' !== $target_page_id || '/products/' !== $href) {
+        return false;
+    }
+    $ids = get_posts([
+        'post_type' => 'tio2_product_hub',
+        'post_status' => 'publish',
+        'fields' => 'ids',
+        'numberposts' => 2,
+        'suppress_filters' => false,
+        'meta_query' => [[
+            'key' => 'public_path',
+            'value' => '/products',
+            'compare' => '=',
+        ]],
+        'tax_query' => [[
+            'taxonomy' => 'site_scope',
+            'field' => 'slug',
+            'terms' => ['tio2-my'],
+        ]],
+    ]);
+    if (1 !== count($ids) || is_wp_error(tio2_validate_product_hub_v01_contract((int) $ids[0]))) {
+        return false;
+    }
+    $stored = get_post_meta((int) $ids[0], TIO2_MY_PRODUCT_HUB_CONTRACT_META, true);
+    $parent = is_string($stored) ? json_decode($stored, true) : null;
+    return is_array($parent) &&
+        'PRODUCT-000' === ($parent['identity']['pageId'] ?? null) &&
+        '/products/' === ($parent['identity']['path'] ?? null);
 }
 
 /** @return array<string, mixed> */
