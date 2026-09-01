@@ -39,4 +39,11 @@ describe('CONV-RFQ route', () => {
     await expect(route.default({searchParams: Promise.resolve({})})).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
     expect(routeMocks.getMalaysiaRfqPage).not.toHaveBeenCalled()
   })
+
+  it('keeps route metadata noindex while the scoped contract authorization is false', async () => {
+    vi.stubEnv('VERCEL_ENV', 'production')
+    vi.stubEnv('TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED', 'true')
+    const route = await import('@/app/request-a-quote/page')
+    await expect(route.generateMetadata()).resolves.toMatchObject({robots: {index: false, follow: false}})
+  })
 })

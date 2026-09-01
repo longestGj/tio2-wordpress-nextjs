@@ -23,8 +23,11 @@ async function loadRfqPage() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const {site} = await loadRfqPage()
-  return buildMalaysiaRfqMetadata(site, {indexable: false})
+  const {site, page} = await loadRfqPage()
+  return buildMalaysiaRfqMetadata(site, {
+    indexingAuthorized: page.releaseControls.indexingAuthorized,
+    env: process.env,
+  })
 }
 
 export default async function RequestAQuoteRoute({searchParams}: RfqRouteProps) {

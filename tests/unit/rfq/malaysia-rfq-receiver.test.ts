@@ -1,6 +1,10 @@
 import {describe, expect, it, vi} from 'vitest'
 
-import {submitMalaysiaRfq, type MalaysiaRfqSubmission} from '@/lib/rfq/malaysia-rfq-receiver'
+import {
+  MALAYSIA_RFQ_SUBMISSION_TIMEOUT_MS,
+  submitMalaysiaRfq,
+  type MalaysiaRfqSubmission,
+} from '@/lib/rfq/malaysia-rfq-receiver'
 
 const submission: MalaysiaRfqSubmission = {
   grade_id: 'M-350', application_id: 'Coatings', quantity_mt: '20',
@@ -34,5 +38,42 @@ describe('CONV-RFQ Web3Forms receiver', () => {
     await expect(submitMalaysiaRfq(submission, {
       accessKey: 'test-key', fetcher: vi.fn(async () => { throw new Error('offline') }),
     })).resolves.toEqual({kind: 'submission_unconfirmed'})
+  })
+
+  it('aborts and fails closed when the receiver never resolves', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetcher = vi.fn(() => new Promise<Response>(() => undefined))
+      expect(MALAYSIA_RFQ_SUBMISSION_TIMEOUT_MS).toBe(10_000)
+      const pending = submitMalaysiaRfq(submission, {accessKey: 'test-key', fetcher})
+      await vi.advanceTimersByTimeAsync(0)
+      await vi.advanceTimersByTimeAsync(MALAYSIA_RFQ_SUBMISSION_TIMEOUT_MS)
+      await expect(pending).resolves.toEqual({kind: 'submission_unconfirmed'})
+      const calls = fetcher.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
+      expect(calls[0]?.[1].signal?.aborted).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('maps an AbortError to unconfirmed without a receipt', async () => {
+    const fetcher = vi.fn(async () => {
+      throw new DOMException('The operation was aborted', 'AbortError')
+    })
+    await expect(submitMalaysiaRfq(submission, {accessKey: 'test-key', fetcher})).resolves.toEqual({kind: 'submission_unconfirmed'})
+  })
+
+  it('also bounds a response body that never resolves', async () => {
+    vi.useFakeTimers()
+    try {
+      const response = new Response('{}', {status: 200, headers: {'content-type': 'application/json'}})
+      vi.spyOn(response, 'json').mockImplementation(() => new Promise<never>(() => undefined))
+      const fetcher = vi.fn(async () => response)
+      const pending = submitMalaysiaRfq(submission, {accessKey: 'test-key', fetcher, timeoutMs: 50})
+      await vi.advanceTimersByTimeAsync(50)
+      await expect(pending).resolves.toEqual({kind: 'submission_unconfirmed'})
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

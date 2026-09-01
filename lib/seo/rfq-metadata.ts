@@ -5,12 +5,23 @@ import contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-rfq-pag
 
 export function buildMalaysiaRfqMetadata(
   site: SiteConfig,
-  options: {readonly indexable?: boolean} = {},
+  options: {
+    readonly indexingAuthorized: boolean
+    readonly env?: Readonly<Record<string, string | undefined>>
+  },
 ): Metadata {
-  if (site.id !== 'tio2-my' || site.wordpressScope !== 'tio2-my') {
+  if (
+    site.id !== 'tio2-my' || site.wordpressScope !== 'tio2-my' ||
+    site.url !== 'https://tio2malaysia.com'
+  ) {
     throw new Error('CONV-RFQ metadata is available only for tio2-my')
   }
-  const indexable = options.indexable === true && contract.releaseControls.indexingAuthorized
+  const env = options.env ?? process.env
+  const indexable = (
+    env.VERCEL_ENV === 'production' &&
+    options.indexingAuthorized === true &&
+    env.TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED === 'true'
+  )
   return {
     title: contract.seo.title,
     description: contract.seo.description,

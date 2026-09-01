@@ -82,6 +82,30 @@ describe('CONV-RFQ template and form', () => {
     expect(receiverMocks.submit).toHaveBeenCalledOnce()
   })
 
+  it('restores fields and actions after a timeout maps to unconfirmed', async () => {
+    let settle!: (result: {kind: 'submission_unconfirmed'}) => void
+    receiverMocks.submit.mockImplementation(() => new Promise((resolve) => { settle = resolve }))
+    const user = userEvent.setup()
+    renderPage()
+    await user.selectOptions(screen.getByLabelText(/Product \/ Grade/u), 'M-350')
+    await user.selectOptions(screen.getByLabelText(/^Application/u), 'Coatings')
+    await user.type(screen.getByLabelText(/Required Quantity/u), '20')
+    await user.type(screen.getByLabelText(/Destination Country/u), 'Malaysia')
+    await user.type(screen.getByLabelText(/Company Name/u), 'Example Industries')
+    await user.type(screen.getByLabelText(/Your Name/u), 'A Buyer')
+    await user.type(screen.getByLabelText(/Business Email/u), 'buyer@example.com')
+    await user.click(screen.getByRole('button', {name: 'REQUEST QUOTE'}))
+    expect((screen.getByRole('button', {name: 'SUBMITTING…'}) as HTMLButtonElement).disabled).toBe(true)
+    expect((screen.getByRole('form').querySelector('fieldset') as HTMLFieldSetElement).disabled).toBe(true)
+
+    settle({kind: 'submission_unconfirmed'})
+    expect((await screen.findByRole('button', {name: 'TRY AGAIN'}) as HTMLButtonElement).disabled).toBe(false)
+    expect((screen.getByRole('button', {name: 'REQUEST QUOTE'}) as HTMLButtonElement).disabled).toBe(false)
+    expect((screen.getByRole('form').querySelector('fieldset') as HTMLFieldSetElement).disabled).toBe(false)
+    expect((screen.getByLabelText(/Company Name/u) as HTMLInputElement).value).toBe('Example Industries')
+    expect(screen.queryByText('Thank you. We’ve received your quotation request.')).toBeNull()
+  })
+
   it('renders the approved unavailable state without a fake receiver or Contact fallback', () => {
     const {container} = render(
       <MalaysiaRfqPage

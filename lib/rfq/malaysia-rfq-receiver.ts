@@ -13,9 +13,11 @@ interface SubmitOptions {
   readonly accessKey: string | null
   readonly fetcher?: typeof fetch
   readonly endpoint?: string
+  readonly timeoutMs?: number
 }
 
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
+export const MALAYSIA_RFQ_SUBMISSION_TIMEOUT_MS = 10_000
 
 export async function submitMalaysiaRfq(
   submission: MalaysiaRfqSubmission,
@@ -24,6 +26,10 @@ export async function submitMalaysiaRfq(
   if (!options.accessKey?.trim()) return {kind: 'service_unavailable'}
   const fetcher = options.fetcher ?? fetch
   const endpoint = options.endpoint ?? WEB3FORMS_ENDPOINT
+  const timeoutMs = options.timeoutMs && Number.isFinite(options.timeoutMs) && options.timeoutMs > 0
+    ? options.timeoutMs
+    : MALAYSIA_RFQ_SUBMISSION_TIMEOUT_MS
+  const controller = new AbortController()
   const requestToken = globalThis.crypto?.randomUUID?.() ?? `rfq-${Date.now()}`
   const payload = {
     access_key: options.accessKey,
@@ -50,18 +56,31 @@ export async function submitMalaysiaRfq(
     ...(submission.source_page_id ? {source_page_id: submission.source_page_id} : {}),
   }
 
+  let timeout: ReturnType<typeof setTimeout> | undefined
   try {
-    const response = await fetcher(endpoint, {
-      method: 'POST',
-      headers: {'content-type': 'application/json', accept: 'application/json'},
-      body: JSON.stringify(payload),
+    const timeoutPromise = new Promise<never>((_resolve, reject) => {
+      timeout = setTimeout(() => {
+        controller.abort()
+        reject(new DOMException('The RFQ receiver timed out', 'AbortError'))
+      }, timeoutMs)
     })
-    if (response.status !== 200 || !response.headers.get('content-type')?.includes('application/json')) {
-      return {kind: 'submission_unconfirmed'}
-    }
-    const body = await response.json() as {readonly success?: unknown}
-    return body.success === true ? {kind: 'receipt_confirmed'} : {kind: 'submission_unconfirmed'}
+    const requestPromise = Promise.resolve().then(async (): Promise<MalaysiaRfqReceiverResult> => {
+      const response = await fetcher(endpoint, {
+        method: 'POST',
+        headers: {'content-type': 'application/json', accept: 'application/json'},
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      })
+      if (response.status !== 200 || !response.headers.get('content-type')?.includes('application/json')) {
+        return {kind: 'submission_unconfirmed'}
+      }
+      const body = await response.json() as {readonly success?: unknown}
+      return body.success === true ? {kind: 'receipt_confirmed'} : {kind: 'submission_unconfirmed'}
+    })
+    return await Promise.race([requestPromise, timeoutPromise])
   } catch {
     return {kind: 'submission_unconfirmed'}
+  } finally {
+    if (timeout) clearTimeout(timeout)
   }
 }
