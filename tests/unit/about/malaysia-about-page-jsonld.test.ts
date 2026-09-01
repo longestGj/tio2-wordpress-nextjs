@@ -47,4 +47,22 @@ describe('ABOUT-001 JSON-LD', () => {
     expect(JSON.stringify(restricted)).not.toContain('Taiping')
     expect(JSON.stringify(restricted)).not.toContain('35,000 metric tons')
   })
+
+  it('removes arbitrary not-public Organization, area and location outputs from the same graph', () => {
+    const graph = buildMalaysiaAboutPageJsonLd(
+      getSiteConfig('tio2-my'),
+      toMalaysiaAboutPageDto(malaysiaAboutPageSource({
+        evidenceState: 'restricted',
+        authorizations: {
+          'organization.name': 'not_public',
+          'location.full': 'restricted',
+          'areas.served': 'not_public',
+          'documents.support': 'restricted',
+        },
+      })),
+    )['@graph'] as Array<Record<string, unknown>>
+    expect(graph.map((node) => node['@type'])).toEqual(['AboutPage', 'Brand', 'BreadcrumbList'])
+    expect(JSON.stringify(graph)).not.toMatch(/IKHLAS|Taiping|European Union|documentation/iu)
+    expect(graph[0]).not.toHaveProperty('mainEntity')
+  })
 })

@@ -14,27 +14,17 @@ $original_status = (string) get_post_status($post_id);
 $original_contract = (string) get_post_meta($post_id, TIO2_MY_ABOUT_PAGE_CONTRACT_META, true);
 $original_evidence = (string) get_post_meta($post_id, TIO2_MY_ABOUT_PAGE_EVIDENCE_META, true);
 
-function about_test_evidence_state(string $json, string $state): string
+function about_test_evidence_state(string $json, string $state, array $authorizations = []): string
 {
     $evidence = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
-    $restricted = 'sufficient' === $state ? [] : ['scale.annual', 'scale.markets', 'scale.customers'];
-    if ('restricted' === $state) $restricted[] = 'location.full';
-    $bindings = [
-        'hero.paragraph.1' => ['organization.name', 'location.full'],
-        'hero.paragraph.2' => ['product.main', 'export.port', 'documents.support'],
-        'hero.paragraph.3' => ['product.main', 'export.port', 'documents.support'],
-        'hero.paragraph.4' => ['export.port', 'documents.support'],
-        'hero.paragraph.5' => ['supplier.intent'],
-        'hero.paragraph.6' => ['compliance.support'],
-        'metadata.description' => ['organization.name', 'location.full', 'documents.support', 'export.port'],
-        'schema.organization.description.base' => ['organization.name', 'location.full', 'product.main', 'documents.support', 'export.port'],
-        'schema.organization.description.scale' => ['scale.annual', 'scale.markets', 'scale.customers'],
-    ];
+    if ([] === $authorizations && 'partial' === $state) {
+        $authorizations = ['scale.annual' => 'restricted'];
+    } elseif ([] === $authorizations && 'restricted' === $state) {
+        $authorizations = ['location.full' => 'restricted'];
+    }
     foreach ($evidence['facts'] as &$fact) {
         $key = $fact['key'];
-        if (in_array($key, $restricted, true) || [] !== array_intersect($bindings[$key] ?? [], $restricted)) {
-            $fact['authorization'] = 'restricted';
-        }
+        $fact['authorization'] = $authorizations[$key] ?? 'user_approved_public';
     }
     unset($fact);
     $evidence['evidenceState'] = $state;
@@ -74,21 +64,22 @@ try {
     update_post_meta($post_id, TIO2_MY_ABOUT_PAGE_CONTRACT_META, $original_contract);
 
     $invalid_evidence = json_decode($original_evidence, true, flags: JSON_THROW_ON_ERROR);
-    $invalid_evidence['facts'][1]['authorization'] = 'restricted';
+    $invalid_evidence['facts'][1]['value'] = 'Tampered location';
     update_post_meta($post_id, TIO2_MY_ABOUT_PAGE_EVIDENCE_META, wp_json_encode($invalid_evidence));
     if (! is_wp_error(tio2_validate_about_page_v01_contract($post_id))) {
-        throw new RuntimeException('Non-atomic ABOUT-001 evidence unexpectedly validated.');
+        throw new RuntimeException('Tampered ABOUT-001 evidence unexpectedly validated.');
     }
 
-    $unsupported_evidence = json_decode($original_evidence, true, flags: JSON_THROW_ON_ERROR);
-    $unsupported_evidence['evidenceState'] = 'restricted';
-    foreach ($unsupported_evidence['facts'] as &$fact) {
-        if ('areas.served' === $fact['key']) $fact['authorization'] = 'restricted';
-    }
-    unset($fact);
-    update_post_meta($post_id, TIO2_MY_ABOUT_PAGE_EVIDENCE_META, wp_json_encode($unsupported_evidence));
-    if (! is_wp_error(tio2_validate_about_page_v01_contract($post_id))) {
-        throw new RuntimeException('An unsupported ABOUT-001 restricted pattern unexpectedly validated.');
+    foreach ([
+        ['partial', ['export.port' => 'restricted']],
+        ['partial', ['areas.served' => 'restricted']],
+        ['partial', ['documents.support' => 'not_public']],
+        ['restricted', ['organization.name' => 'not_public', 'export.port' => 'restricted', 'compliance.support' => 'not_public']],
+    ] as [$state, $authorizations]) {
+        $arbitrary = about_test_evidence_state($original_evidence, $state, $authorizations);
+        if (true !== tio2_validate_about_page_v01_evidence($arbitrary)) {
+            throw new RuntimeException("The arbitrary ABOUT-001 {$state} evidence combination did not validate.");
+        }
     }
 } finally {
     update_post_meta($post_id, TIO2_MY_ABOUT_PAGE_CONTRACT_META, $original_contract);

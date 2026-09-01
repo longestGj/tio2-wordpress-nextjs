@@ -259,6 +259,7 @@
 .industrialStructure b { right: 79px; bottom: 96px; width: 177px; height: 18px; border-width: 3px 0 0; transform: rotate(-12deg); }
 
 .hero { min-height: 560px; padding-top: 28px; padding-bottom: 30px; }
+.heroNeutral { min-height: 420px; grid-template-columns: minmax(0, 820px); justify-content: start; background: #fff; }
 .heroVisual { min-height: 430px; }
 .identity, .why, .services, .applications, .process, .companyFacts { padding-top: 28px; padding-bottom: 28px; }
 .markets { padding-top: 28px; padding-bottom: 28px; }
@@ -275,6 +276,7 @@
 
 @media (max-width: 1199px) {
   .hero { min-height: 520px; padding-top: 24px; padding-bottom: 26px; }
+  .heroNeutral { min-height: 380px; grid-template-columns: minmax(0, 760px); }
   .heroVisual { min-height: 370px; }
   .portScene { bottom: 45px; left: 8px; transform: scale(.78); transform-origin: bottom left; }
   .identity, .why, .services, .applications, .process, .companyFacts, .markets { padding-top: 24px; padding-bottom: 24px; }
@@ -294,6 +296,7 @@
   .main p, .main dd { font-size: 12.5px; line-height: 1.4; }
   .sectionHeading { margin-bottom: 15px; }
   .hero { padding-top: 20px; padding-bottom: 24px; gap: 20px; }
+  .heroNeutral { min-height: 300px; grid-template-columns: 1fr; }
   .heroCopy p { margin-bottom: 7px; }
   .heroVisual { min-height: 250px; }
   .routeMap { top: 10px; }

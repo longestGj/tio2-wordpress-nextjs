@@ -17,7 +17,7 @@ export function buildMalaysiaAboutPageMetadata(
   const description = page.seo.description
   return {
     title: page.seo.title,
-    ...(description ? {description} : {}),
+    description: description ?? null,
     alternates: {canonical},
     robots: {index: indexable, follow: indexable},
     openGraph: {

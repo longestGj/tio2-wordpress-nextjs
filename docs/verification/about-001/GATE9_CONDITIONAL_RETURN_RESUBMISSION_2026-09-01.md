@@ -1,4 +1,6 @@
-# ABOUT-001 Gate 9 Conditional-Return Resubmission
+# ABOUT-001 Gate 9 Conditional-Return Resubmission (Superseded)
+
+Superseded for evidence-state review by `GATE9_PCR02_FIELD_ATOMICITY_RESUBMISSION_2026-09-01.md` under Review ID `ABOUT-001-G9-PCR-02`.
 
 Review ID: `ABOUT-001-G9-PCR-01`
 

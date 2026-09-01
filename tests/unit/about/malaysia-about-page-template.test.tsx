@@ -46,4 +46,19 @@ describe('MalaysiaAboutPage', () => {
     expect(markup).toContain('data-module="final-cta"')
     expect(markup).toContain('href="/request-a-quote/"')
   })
+
+  it('renders a neutral restricted page without orphan location or market visuals', () => {
+    const dto = toMalaysiaAboutPageDto(malaysiaAboutPageSource({
+      evidenceState: 'restricted',
+      authorizations: {'location.full': 'restricted', 'export.port': 'not_public', 'areas.served': 'restricted'},
+    }))
+    const markup = renderToStaticMarkup(<MalaysiaAboutPage aboutPage={dto} />)
+    expect(markup).toContain('<h1>About TiO2 Malaysia</h1>')
+    expect(markup).not.toContain('ABOUT IKHLAS TITANIUM')
+    expect(markup).not.toContain('Port Klang')
+    expect(markup).not.toContain('data-module="markets"')
+    expect(markup).not.toMatch(/portScene|routeMap|marketMap|heroBag/u)
+    expect(markup).toContain('data-module="final-cta"')
+    expect(markup).toContain('href="/request-a-quote/"')
+  })
 })

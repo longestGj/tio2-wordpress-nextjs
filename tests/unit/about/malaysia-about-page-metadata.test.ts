@@ -19,9 +19,21 @@ describe('ABOUT-001 metadata', () => {
   it('omits restricted description fields instead of emitting null or fallback copy', () => {
     const dto = toMalaysiaAboutPageDto(malaysiaAboutPageSource({evidenceState: 'restricted'}))
     const metadata = buildMalaysiaAboutPageMetadata(getSiteConfig('tio2-my'), dto, {})
-    expect(metadata).not.toHaveProperty('description')
+    expect(metadata.description).toBeNull()
     expect(metadata.openGraph).not.toHaveProperty('description')
     expect(metadata.alternates).toEqual({canonical: 'https://tio2malaysia.com/about/'})
     expect(metadata.robots).toEqual({index: false, follow: false})
+  })
+
+  it('uses only the neutral approved identity for arbitrary restricted combinations', () => {
+    const dto = toMalaysiaAboutPageDto(malaysiaAboutPageSource({
+      evidenceState: 'restricted',
+      authorizations: {'location.full': 'restricted', 'export.port': 'not_public'},
+    }))
+    const metadata = buildMalaysiaAboutPageMetadata(getSiteConfig('tio2-my'), dto, {})
+    expect(metadata.title).toBe('About TiO2 Malaysia')
+    expect(metadata.openGraph).toMatchObject({title: 'About TiO2 Malaysia'})
+    expect(metadata.description).toBeNull()
+    expect(JSON.stringify(metadata)).not.toMatch(/manufacturer|Port Klang|Taiping/iu)
   })
 })

@@ -37,33 +37,59 @@ export interface MalaysiaAboutPageSource {
   readonly malaysiaAboutPageEvidenceJson: unknown
 }
 
-const outputBindings: Readonly<Record<string, readonly string[]>> = Object.freeze({
-  'hero.paragraph.1': ['organization.name', 'location.full'],
-  'hero.paragraph.2': ['product.main', 'export.port', 'documents.support'],
-  'hero.paragraph.3': ['product.main', 'export.port', 'documents.support'],
-  'hero.paragraph.4': ['export.port', 'documents.support'],
-  'hero.paragraph.5': ['supplier.intent'],
-  'hero.paragraph.6': ['compliance.support'],
-  'metadata.description': ['organization.name', 'location.full', 'documents.support', 'export.port'],
-  'schema.organization.description.base': [
-    'organization.name', 'location.full', 'product.main', 'documents.support', 'export.port',
-  ],
-  'schema.organization.description.scale': ['scale.annual', 'scale.markets', 'scale.customers'],
-})
-
 const primaryFactKeys = Object.freeze([
   'organization.name', 'location.full', 'product.main', 'scale.annual', 'scale.markets',
   'scale.customers', 'export.port', 'documents.support', 'compliance.support',
   'supplier.intent', 'areas.served',
 ] as const)
-const scaleKeys = new Set<string>(['scale.annual', 'scale.markets', 'scale.customers'])
-const restrictedStateKeys = new Set<string>([...scaleKeys, 'location.full'])
-const alwaysPublicKeys = new Set<string>(['organization.name', 'product.main', 'supplier.intent'])
-const authorizationRank: Readonly<Record<Authorization, number>> = {
-  user_approved_public: 0,
-  restricted: 1,
-  not_public: 2,
-}
+
+const heroBindings = Object.freeze([
+  ['organization.name', 'location.full'],
+  ['organization.name', 'location.full', 'product.main', 'export.port', 'documents.support'],
+  ['organization.name', 'product.main', 'export.port', 'documents.support'],
+  ['organization.name', 'export.port', 'documents.support'],
+  ['organization.name', 'supplier.intent'],
+  ['organization.name', 'documents.support', 'compliance.support'],
+] as const)
+
+const whoFactBindings: Readonly<Record<string, {readonly valueKey: string; readonly dependencies: readonly string[]}>> = Object.freeze({
+  'Operating Company': {valueKey: 'organization.name', dependencies: ['organization.name']},
+  Location: {valueKey: 'location.full', dependencies: ['organization.name', 'location.full']},
+  'Main Product': {valueKey: 'product.main', dependencies: ['product.main']},
+  'Annual Supply': {valueKey: 'scale.annual', dependencies: ['organization.name', 'scale.annual']},
+  'Markets Served': {valueKey: 'scale.markets', dependencies: ['organization.name', 'scale.markets']},
+  'Customer Base': {valueKey: 'scale.customers', dependencies: ['organization.name', 'scale.customers']},
+  'Export Coordination': {valueKey: 'export.port', dependencies: ['organization.name', 'export.port']},
+})
+
+const whyBindings = Object.freeze([
+  ['location.full'],
+  ['location.full'],
+  ['export.port', 'documents.support', 'compliance.support'],
+  ['areas.served'],
+] as const)
+
+const whatBindings = Object.freeze([
+  ['organization.name', 'product.main'],
+  ['organization.name', 'product.main'],
+  ['organization.name', 'documents.support'],
+  ['organization.name', 'export.port'],
+] as const)
+
+const howBindings = Object.freeze([
+  ['organization.name', 'product.main'],
+  ['organization.name', 'product.main'],
+  ['organization.name', 'documents.support'],
+  ['organization.name', 'export.port'],
+] as const)
+
+const companyFactBindings: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  Company: ['organization.name'],
+  Base: ['organization.name', 'location.full'],
+  Focus: ['product.main'],
+  Markets: ['organization.name', 'areas.served'],
+  Audience: [],
+})
 
 function record(value: unknown, field: string): UnknownRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new AboutPageContractError(field)
@@ -83,6 +109,13 @@ function parseJson(value: unknown, field: string): unknown {
 function authorization(value: unknown, field: string): Authorization {
   if (value !== 'user_approved_public' && value !== 'restricted' && value !== 'not_public') {
     throw new AboutPageContractError(field)
+  }
+  return value
+}
+
+function evidenceState(value: unknown): AboutEvidenceState {
+  if (value !== 'sufficient' && value !== 'partial' && value !== 'restricted') {
+    throw new AboutPageContractError('evidence.evidenceState')
   }
   return value
 }
@@ -113,29 +146,22 @@ function validateEvidence(value: unknown): {
       value: item.value,
     })
   }
-  if (facts.size !== approvedByKey.size) throw new AboutPageContractError('evidence.facts')
-  for (const key of alwaysPublicKeys) {
-    if (facts.get(key)?.authorization !== 'user_approved_public') throw new AboutPageContractError(`evidence.safe.${key}`)
-  }
-  for (const [outputKey, dependencies] of Object.entries(outputBindings)) {
-    const expectedRank = Math.max(...dependencies.map((key) => authorizationRank[facts.get(key)?.authorization ?? 'not_public']))
-    const actual = facts.get(outputKey)?.authorization
-    if (!actual || authorizationRank[actual] !== expectedRank) throw new AboutPageContractError(`evidence.atomic.${outputKey}`)
+  if (facts.size !== approvedByKey.size || primaryFactKeys.some((key) => !facts.has(key))) {
+    throw new AboutPageContractError('evidence.facts')
   }
 
-  const restrictedPrimary = primaryFactKeys.filter((key) => facts.get(key)?.authorization !== 'user_approved_public')
-  const matchesExactSet = (expected: ReadonlySet<string>) => (
-    restrictedPrimary.length === expected.size && restrictedPrimary.every((key) => expected.has(key))
-  )
-  const derivedState: AboutEvidenceState = restrictedPrimary.length === 0
-    ? 'sufficient'
-    : matchesExactSet(scaleKeys)
-      ? 'partial'
-      : matchesExactSet(restrictedStateKeys)
-        ? 'restricted'
-        : (() => { throw new AboutPageContractError('evidence.restrictedPattern') })()
-  if (evidence.evidenceState !== derivedState) throw new AboutPageContractError('evidence.evidenceState')
-  return {state: derivedState, contentVersion, facts}
+  const state = evidenceState(evidence.evidenceState)
+  const withheldCount = primaryFactKeys.filter((key) => facts.get(key)?.authorization !== 'user_approved_public').length
+  if ((state === 'sufficient') !== (withheldCount === 0)) throw new AboutPageContractError('evidence.evidenceState')
+  return {state, contentVersion, facts}
+}
+
+function isPublic(facts: ReadonlyMap<string, EvidenceFact>, key: string): boolean {
+  return facts.get(key)?.authorization === 'user_approved_public'
+}
+
+function allPublic(facts: ReadonlyMap<string, EvidenceFact>, keys: readonly string[]): boolean {
+  return keys.every((key) => isPublic(facts, key))
 }
 
 function publicText(facts: ReadonlyMap<string, EvidenceFact>, key: string): string | null {
@@ -173,25 +199,52 @@ export function toMalaysiaAboutPageDto(sourceValue: MalaysiaAboutPageSource): Ma
   ) throw new AboutPageContractError('malaysiaAboutPageContractJson')
 
   const evidence = validateEvidence(parseJson(source.malaysiaAboutPageEvidenceJson, 'malaysiaAboutPageEvidenceJson'))
-  const heroParagraphs = Array.from({length: 6}, (_, index) => {
-    const id = `hero.paragraph.${index + 1}` as PublicHeroParagraph['id']
-    const value = publicText(evidence.facts, id)
-    return value ? {id, text: value} : null
-  }).filter((item): item is PublicHeroParagraph => item !== null)
-  const whoFactKeys: Readonly<Record<string, string>> = {
-    'Operating Company': 'organization.name', Location: 'location.full', 'Main Product': 'product.main',
-    'Annual Supply': 'scale.annual', 'Markets Served': 'scale.markets', 'Customer Base': 'scale.customers',
-    'Export Coordination': 'export.port',
-  }
+  const restricted = evidence.state === 'restricted'
+  const detailedIdentityPublic = !restricted && allPublic(evidence.facts, [
+    'organization.name', 'location.full', 'product.main',
+  ])
+
+  const heroParagraphs = restricted ? [] : contract.hero.paragraphs.flatMap((paragraph, index): readonly PublicHeroParagraph[] => (
+    allPublic(evidence.facts, heroBindings[index] ?? [])
+      ? [{id: `hero.paragraph.${index + 1}` as PublicHeroParagraph['id'], text: paragraph}]
+      : []
+  ))
   const whoFacts = contract.whoWeAre.facts.flatMap((fact): readonly PublicAboutFact[] => {
-    const value = publicText(evidence.facts, whoFactKeys[fact.label] ?? '')
+    if (restricted && !['Operating Company', 'Main Product'].includes(fact.label)) return []
+    const binding = whoFactBindings[fact.label]
+    if (!binding || !allPublic(evidence.facts, binding.dependencies)) return []
+    const value = publicText(evidence.facts, binding.valueKey)
     return value ? [{label: fact.label, value, ...('href' in fact ? {href: fact.href} : {})}] : []
   })
-  const descriptionParts = [
-    publicText(evidence.facts, 'schema.organization.description.base'),
-    publicText(evidence.facts, 'schema.organization.description.scale'),
+  const whyItems = restricted ? [] : contract.whyMalaysia.items.filter((_, index) => allPublic(evidence.facts, whyBindings[index] ?? []))
+  const whatItems = restricted ? [] : contract.whatWeDo.items.filter((_, index) => allPublic(evidence.facts, whatBindings[index] ?? []))
+  const howItems = restricted ? [] : contract.howWeWork.items.filter((_, index) => allPublic(evidence.facts, howBindings[index] ?? []))
+  const companyFacts = contract.companyFacts.items.flatMap((fact): readonly PublicAboutFact[] => {
+    if (restricted && !['Company', 'Focus'].includes(fact.label)) return []
+    return allPublic(evidence.facts, companyFactBindings[fact.label] ?? []) ? [fact] : []
+  })
+
+  const descriptionParts = restricted ? [] : [
+    allPublic(evidence.facts, ['organization.name', 'location.full', 'product.main', 'documents.support', 'export.port'])
+      ? contract.schema.organizationDescription.split(' The page states')[0]
+      : null,
+    allPublic(evidence.facts, ['organization.name', 'scale.annual', 'scale.markets', 'scale.customers'])
+      ? `The page states${contract.schema.organizationDescription.split(' The page states')[1] ?? ''}`
+      : null,
   ].filter((value): value is string => value !== null)
-  const locationPublic = publicText(evidence.facts, 'location.full') !== null
+
+  const heroVisualVisible = !restricted && allPublic(evidence.facts, [
+    'organization.name', 'product.main', 'location.full', 'export.port', 'areas.served',
+  ])
+  const marketsVisible = !restricted && allPublic(evidence.facts, ['organization.name', 'areas.served', 'documents.support', 'export.port'])
+  const applicationsVisible = !restricted && allPublic(evidence.facts, ['organization.name', 'product.main'])
+  const documentationVisible = !restricted && allPublic(evidence.facts, ['organization.name', 'documents.support'])
+  const metadataDescriptionVisible = detailedIdentityPublic && allPublic(evidence.facts, [
+    'organization.name', 'location.full', 'product.main', 'documents.support', 'export.port',
+  ])
+  const organizationName = publicText(evidence.facts, 'organization.name')
+  const addressVisible = !restricted && organizationName !== null && isPublic(evidence.facts, 'location.full')
+  const areasVisible = !restricted && organizationName !== null && isPublic(evidence.facts, 'areas.served')
 
   return {
     ...contract,
@@ -200,15 +253,34 @@ export function toMalaysiaAboutPageDto(sourceValue: MalaysiaAboutPageSource): Ma
       id: text(source.id, 'identity.id'), siteId: 'tio2-my', path: '/about',
       schemaVersion: 'about-page-v0.1-malaysia', status: 'publish', modified,
     },
-    hero: {...contract.hero, paragraphs: Object.freeze(heroParagraphs)},
+    hero: {
+      ...contract.hero,
+      eyebrow: detailedIdentityPublic ? contract.hero.eyebrow : 'ABOUT TIO2 MALAYSIA',
+      h1: detailedIdentityPublic ? contract.hero.h1 : 'About TiO2 Malaysia',
+      paragraphs: Object.freeze(heroParagraphs),
+      visualVisible: heroVisualVisible,
+    },
     whoWeAre: {...contract.whoWeAre, facts: Object.freeze(whoFacts)},
-    seo: {...contract.seo, description: publicText(evidence.facts, 'metadata.description')},
+    whyMalaysia: whyItems.length ? {...contract.whyMalaysia, items: Object.freeze(whyItems)} : null,
+    whatWeDo: whatItems.length ? {...contract.whatWeDo, items: Object.freeze(whatItems)} : null,
+    markets: marketsVisible ? contract.markets : null,
+    applications: applicationsVisible ? contract.applications : null,
+    howWeWork: howItems.length ? {...contract.howWeWork, items: Object.freeze(howItems)} : null,
+    documentation: documentationVisible ? contract.documentation : null,
+    companyFacts: {...contract.companyFacts, items: Object.freeze(companyFacts)},
+    finalCta: {...contract.finalCta, visualVisible: !restricted},
+    seo: {
+      ...contract.seo,
+      title: detailedIdentityPublic ? contract.seo.title : 'About TiO2 Malaysia',
+      openGraphTitle: detailedIdentityPublic ? contract.seo.openGraphTitle : 'About TiO2 Malaysia',
+      description: metadataDescriptionVisible ? contract.seo.description : null,
+    },
     schema: {
       ...contract.schema,
-      organizationName: publicText(evidence.facts, 'organization.name') as string,
+      organizationName,
       organizationDescription: descriptionParts.length ? descriptionParts.join(' ') : null,
-      address: locationPublic ? contract.schema.address : null,
-      areas: publicStringArray(evidence.facts, 'areas.served'),
+      address: addressVisible ? contract.schema.address : null,
+      areas: areasVisible ? publicStringArray(evidence.facts, 'areas.served') : Object.freeze([]),
     },
     evidence: {state: evidence.state, contentVersion: evidence.contentVersion},
     globalChrome,

@@ -2,30 +2,20 @@ import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my
 import approvedEvidence from '@/wordpress/plugins/tio2-site-model/config/tio2-my-about-evidence.json'
 
 type EvidenceState = 'sufficient' | 'partial' | 'restricted'
+export type EvidenceAuthorization = 'user_approved_public' | 'restricted' | 'not_public'
 
-const outputBindings: Readonly<Record<string, readonly string[]>> = {
-  'hero.paragraph.1': ['organization.name', 'location.full'],
-  'hero.paragraph.2': ['product.main', 'export.port', 'documents.support'],
-  'hero.paragraph.3': ['product.main', 'export.port', 'documents.support'],
-  'hero.paragraph.4': ['export.port', 'documents.support'],
-  'hero.paragraph.5': ['supplier.intent'],
-  'hero.paragraph.6': ['compliance.support'],
-  'metadata.description': ['organization.name', 'location.full', 'documents.support', 'export.port'],
-  'schema.organization.description.base': ['organization.name', 'location.full', 'product.main', 'documents.support', 'export.port'],
-  'schema.organization.description.scale': ['scale.annual', 'scale.markets', 'scale.customers'],
-}
-
-export function aboutEvidence(state: EvidenceState = 'sufficient') {
+export function aboutEvidence(
+  state: EvidenceState = 'sufficient',
+  authorizations?: Readonly<Record<string, EvidenceAuthorization>>,
+) {
   const evidence = structuredClone(approvedEvidence)
-  const restricted = new Set<string>(state === 'sufficient' ? [] : [
+  const defaults = state === 'sufficient' ? {} : Object.fromEntries([
     'scale.annual', 'scale.markets', 'scale.customers',
     ...(state === 'restricted' ? ['location.full'] : []),
-  ])
+  ].map((key) => [key, 'restricted']))
+  const statuses = authorizations ?? defaults
   for (const fact of evidence.facts) {
-    const dependencies = outputBindings[fact.key]
-    if (restricted.has(fact.key) || dependencies?.some((key) => restricted.has(key))) {
-      fact.authorization = 'restricted'
-    }
+    fact.authorization = statuses[fact.key] ?? 'user_approved_public'
   }
   evidence.evidenceState = state
   return evidence
@@ -36,10 +26,11 @@ export function malaysiaAboutPageSource(options: {
   tamper?: boolean
   tamperEvidence?: boolean
   evidenceState?: EvidenceState
+  authorizations?: Readonly<Record<string, EvidenceAuthorization>>
 } = {}) {
   const contract = structuredClone(approvedContract)
   if (options.tamper) contract.hero.h1 = 'Tampered About page'
-  const evidence = aboutEvidence(options.evidenceState)
+  const evidence = aboutEvidence(options.evidenceState, options.authorizations)
   if (options.tamperEvidence) evidence.facts[0]!.value = 'Tampered organization'
   return {
     id: 'about-page-901',

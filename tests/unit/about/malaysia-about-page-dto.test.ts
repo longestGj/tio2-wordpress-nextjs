@@ -45,29 +45,60 @@ describe('ABOUT-001 DTO', () => {
     expect(restricted.schema.address).toBeNull()
   })
 
-  it('rejects non-atomic output authorization', () => {
-    const source = malaysiaAboutPageSource({evidenceState: 'restricted'})
-    const evidence = JSON.parse(source.malaysiaAboutPageEvidenceJson) as {
-      facts: Array<{key: string; authorization: string}>
-    }
-    const output = evidence.facts.find(({key}) => key === 'metadata.description')
-    if (!output) throw new Error('metadata.description fixture missing')
-    output.authorization = 'user_approved_public'
-    expect(() => toMalaysiaAboutPageDto({
-      ...source,
-      malaysiaAboutPageEvidenceJson: JSON.stringify(evidence),
-    })).toThrow(AboutPageContractError)
+  it('projects an independently restricted export fact without failing the page', () => {
+    const dto = toMalaysiaAboutPageDto(malaysiaAboutPageSource({
+      evidenceState: 'partial',
+      authorizations: {'export.port': 'restricted'},
+    }))
+    expect(dto.hero.paragraphs.map(({id}) => id)).not.toEqual(expect.arrayContaining([
+      'hero.paragraph.2', 'hero.paragraph.3', 'hero.paragraph.4',
+    ]))
+    expect(dto.whoWeAre.facts.map(({label}) => label)).not.toContain('Export Coordination')
+    expect(dto.hero.visualVisible).toBe(false)
+    expect(dto.seo.description).toBeNull()
+    expect(dto.schema.organizationDescription).not.toContain('Port Klang')
+    expect(dto.schema.organizationDescription).toContain('35,000 metric tons')
+  })
 
-    const unsupported = malaysiaAboutPageSource()
-    const unsupportedEvidence = JSON.parse(unsupported.malaysiaAboutPageEvidenceJson) as {
-      evidenceState: string
-      facts: Array<{key: string; authorization: string}>
-    }
-    unsupportedEvidence.evidenceState = 'restricted'
-    unsupportedEvidence.facts.find(({key}) => key === 'areas.served')!.authorization = 'restricted'
-    expect(() => toMalaysiaAboutPageDto({
-      ...unsupported,
-      malaysiaAboutPageEvidenceJson: JSON.stringify(unsupportedEvidence),
-    })).toThrow(AboutPageContractError)
+  it('projects independently restricted areas and location facts', () => {
+    const areas = toMalaysiaAboutPageDto(malaysiaAboutPageSource({
+      evidenceState: 'partial', authorizations: {'areas.served': 'restricted'},
+    }))
+    expect(areas.markets).toBeNull()
+    expect(areas.companyFacts.items.map(({label}) => label)).not.toContain('Markets')
+    expect(areas.schema.areas).toEqual([])
+    expect(areas.hero.visualVisible).toBe(false)
+
+    const location = toMalaysiaAboutPageDto(malaysiaAboutPageSource({
+      evidenceState: 'partial', authorizations: {'location.full': 'restricted'},
+    }))
+    expect(location.hero.h1).toBe('About TiO2 Malaysia')
+    expect(location.whoWeAre.facts.map(({label}) => label)).not.toContain('Location')
+    expect(location.companyFacts.items.map(({label}) => label)).not.toContain('Base')
+    expect(location.schema.address).toBeNull()
+  })
+
+  it('treats not_public like restricted and accepts multiple arbitrary facts', () => {
+    const notPublic = toMalaysiaAboutPageDto(malaysiaAboutPageSource({
+      evidenceState: 'partial', authorizations: {'documents.support': 'not_public'},
+    }))
+    expect(notPublic.documentation).toBeNull()
+    expect(notPublic.hero.paragraphs.map(({id}) => id)).not.toEqual(expect.arrayContaining([
+      'hero.paragraph.2', 'hero.paragraph.3', 'hero.paragraph.4', 'hero.paragraph.6',
+    ]))
+
+    const combined = toMalaysiaAboutPageDto(malaysiaAboutPageSource({
+      evidenceState: 'restricted',
+      authorizations: {
+        'organization.name': 'restricted',
+        'export.port': 'not_public',
+        'compliance.support': 'restricted',
+        'areas.served': 'not_public',
+      },
+    }))
+    expect(combined.hero).toMatchObject({h1: 'About TiO2 Malaysia', eyebrow: 'ABOUT TIO2 MALAYSIA', visualVisible: false})
+    expect(combined.whoWeAre.facts.map(({label}) => label)).not.toContain('Operating Company')
+    expect(combined.markets).toBeNull()
+    expect(combined.schema.organizationName).toBeNull()
   })
 })

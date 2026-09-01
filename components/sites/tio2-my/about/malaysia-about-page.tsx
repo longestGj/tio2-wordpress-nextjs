@@ -94,7 +94,7 @@ export function MalaysiaAboutPage({aboutPage: page, structuredData}: Props) {
           <ol>{page.breadcrumb.map((item, index) => <li key={item.targetPageId}>{index === 0 ? <a href={item.href}>{item.label}</a> : <span aria-current="page">{item.label}</span>}</li>)}</ol>
         </nav>
 
-        <section className={styles.hero} data-module="hero">
+        <section className={`${styles.hero} ${page.hero.visualVisible ? '' : styles.heroNeutral}`} data-module="hero">
           <div className={styles.heroText}>
             <p className={styles.eyebrow}>{page.hero.eyebrow}</p>
             <h1>{page.hero.h1}</h1>
@@ -104,7 +104,7 @@ export function MalaysiaAboutPage({aboutPage: page, structuredData}: Props) {
               <a className={styles.secondary} href={page.hero.secondaryAction.href}>{page.hero.secondaryAction.label}</a>
             </div>
           </div>
-          <HeroVisual />
+          {page.hero.visualVisible ? <HeroVisual /> : null}
         </section>
 
         <section className={styles.identity} data-module="who-we-are">
@@ -112,44 +112,44 @@ export function MalaysiaAboutPage({aboutPage: page, structuredData}: Props) {
           <dl className={styles.factGrid}>{page.whoWeAre.facts.map((fact) => <div key={fact.label}><dt>{fact.label}</dt><dd>{'href' in fact ? <a href={fact.href}>{fact.value}</a> : fact.value}</dd></div>)}</dl>
         </section>
 
-        <section className={styles.why} data-module="why-malaysia">
+        {page.whyMalaysia ? <section className={styles.why} data-module="why-malaysia">
           <div className={styles.sectionHeading}><p className={styles.eyebrow}>{page.whyMalaysia.eyebrow}</p><h2>{page.whyMalaysia.h2}</h2></div>
           <div className={styles.quadGrid}>{page.whyMalaysia.items.map((item, index) => <article key={item.title}><span>{String(index + 1).padStart(2, '0')}</span><h3>{item.title}</h3><p>{item.body}</p></article>)}</div>
-        </section>
+        </section> : null}
 
-        <section className={styles.services} data-module="what-we-do">
+        {page.whatWeDo ? <section className={styles.services} data-module="what-we-do">
           <div className={styles.sectionHeading}><p className={styles.eyebrow}>{page.whatWeDo.eyebrow}</p><h2>{page.whatWeDo.h2}</h2></div>
           <div className={styles.serviceGrid}>{page.whatWeDo.items.map((item, index) => <article key={item.title}><b>{String(index + 1).padStart(2, '0')}</b><div><h3>{item.title}</h3><p>{item.body}</p></div></article>)}</div>
-        </section>
+        </section> : null}
 
-        <section className={styles.markets} data-module="markets">
+        {page.markets ? <section className={styles.markets} data-module="markets">
           <div className={styles.marketIntro}><p className={styles.eyebrow}>{page.markets.eyebrow}</p><h2>{page.markets.h2}</h2><MarketMap /></div>
           <div className={styles.marketCards}>{page.markets.items.map((item, index) => <a key={item.targetPageId} data-flag={['eu','uk','in','br'][index]} href={item.href}><span>{['EU','UK','IN','BR'][index]}</span><h3>{item.title}</h3><p>{item.body}</p><Arrow /></a>)}<a className={styles.allLink} href={page.markets.action.href}>{page.markets.action.label}<Arrow /></a></div>
-        </section>
+        </section> : null}
 
-        <section className={styles.applications} data-module="applications">
+        {page.applications ? <section className={styles.applications} data-module="applications">
           <div className={styles.sectionHeading}><p className={styles.eyebrow}>{page.applications.eyebrow}</p><h2>{page.applications.h2}</h2></div>
           <div className={styles.applicationGrid}>{page.applications.items.map((item) => <a key={item.title} href={item.href}><ApplicationArt kind={item.mediaKey.split('.').at(-1) ?? ''} alt={item.alt} /><div><h3>{item.title}</h3><p>{item.body}</p><Arrow /></div></a>)}</div>
           <a className={styles.sectionAction} href={page.applications.action.href}>{page.applications.action.label}<Arrow /></a>
-        </section>
+        </section> : null}
 
-        <section className={styles.process} data-module="how-we-work">
+        {page.howWeWork ? <section className={styles.process} data-module="how-we-work">
           <div className={styles.sectionHeading}><p className={styles.eyebrow}>{page.howWeWork.eyebrow}</p><h2>{page.howWeWork.h2}</h2></div>
           <ol>{page.howWeWork.items.map((item, index) => <li key={item.title}><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{item.title}</h3><p>{item.body}</p></div></li>)}</ol>
-        </section>
+        </section> : null}
 
-        <section className={styles.documents} data-module="documentation">
+        {page.documentation ? <section className={styles.documents} data-module="documentation">
           <div><p className={styles.eyebrow}>{page.documentation.eyebrow}</p><h2>{page.documentation.h2}</h2>{page.documentation.intro.map((text) => <p key={text}>{text}</p>)}</div>
           <div className={styles.documentList}>{page.documentation.items.map((item) => <a key={item.title} href={item.href}><strong>{item.title}</strong><span>{item.label}</span><small>{item.status}</small><Arrow /></a>)}</div>
-        </section>
+        </section> : null}
 
-        <section className={styles.companyFacts} data-module="company-facts">
+        {page.companyFacts.items.length ? <section className={styles.companyFacts} data-module="company-facts">
           <div className={styles.sectionHeading}><p className={styles.eyebrow}>{page.companyFacts.eyebrow}</p><h2>{page.companyFacts.h2}</h2></div>
           <dl>{page.companyFacts.items.map((item) => <div key={item.label}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}</dl>
-        </section>
+        </section> : null}
 
         <section className={styles.finalCta} data-module="final-cta">
-          <div className={styles.industrialStructure} aria-hidden="true"><span /><span /><i /><b /></div>
+          {page.finalCta.visualVisible ? <div className={styles.industrialStructure} aria-hidden="true"><span /><span /><i /><b /></div> : null}
           <div><p className={styles.eyebrow}>NEXT STEP</p><h2>{page.finalCta.h2}</h2><p>{page.finalCta.body}</p></div>
           <div className={styles.actions}>
             <a className={styles.lightPrimary} href={page.finalCta.primaryAction.href} data-site-scope="tio2-my" data-source-page="ABOUT-001">{page.finalCta.primaryAction.label}<Arrow /></a>

@@ -19,6 +19,6 @@ describe('ABOUT-001 approved contract', () => {
       contentVersion: 'ABOUT-001-G7-PCR-02:FACTS-V0.1',
       evidenceState: 'sufficient',
     })
-    expect(approvedEvidence.facts).toHaveLength(20)
+    expect(approvedEvidence.facts).toHaveLength(11)
   })
 })

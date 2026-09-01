@@ -25,7 +25,8 @@ export interface PublicAboutFact {
 
 export type MalaysiaAboutPageDto = Omit<
   ApprovedAboutPageContract,
-  'identity' | 'hero' | 'whoWeAre' | 'seo' | 'schema'
+  'identity' | 'hero' | 'whoWeAre' | 'whyMalaysia' | 'whatWeDo' | 'markets' |
+  'applications' | 'howWeWork' | 'documentation' | 'companyFacts' | 'finalCta' | 'seo' | 'schema'
 > & {
   readonly identity: Omit<ApprovedAboutPageContract['identity'], 'siteScope' | 'path' | 'schemaVersion'> & {
     readonly id: string
@@ -36,18 +37,40 @@ export type MalaysiaAboutPageDto = Omit<
     readonly modified: string
   }
   readonly hero: Omit<ApprovedAboutPageContract['hero'], 'paragraphs'> & {
+    readonly eyebrow: string
+    readonly h1: string
     readonly paragraphs: readonly PublicHeroParagraph[]
+    readonly visualVisible: boolean
   }
   readonly whoWeAre: Omit<ApprovedAboutPageContract['whoWeAre'], 'facts'> & {
     readonly facts: readonly PublicAboutFact[]
   }
+  readonly whyMalaysia: ApprovedAboutPageContract['whyMalaysia'] | null
+  readonly whatWeDo: (Omit<ApprovedAboutPageContract['whatWeDo'], 'items'> & {
+    readonly items: ApprovedAboutPageContract['whatWeDo']['items']
+  }) | null
+  readonly markets: ApprovedAboutPageContract['markets'] | null
+  readonly applications: ApprovedAboutPageContract['applications'] | null
+  readonly howWeWork: (Omit<ApprovedAboutPageContract['howWeWork'], 'items'> & {
+    readonly items: ApprovedAboutPageContract['howWeWork']['items']
+  }) | null
+  readonly documentation: ApprovedAboutPageContract['documentation'] | null
+  readonly companyFacts: Omit<ApprovedAboutPageContract['companyFacts'], 'items'> & {
+    readonly items: readonly PublicAboutFact[]
+  }
+  readonly finalCta: ApprovedAboutPageContract['finalCta'] & {
+    readonly visualVisible: boolean
+  }
   readonly seo: Omit<ApprovedAboutPageContract['seo'], 'description'> & {
+    readonly title: string
+    readonly openGraphTitle: string
     readonly description: string | null
   }
   readonly schema: Omit<
     ApprovedAboutPageContract['schema'],
-    'organizationDescription' | 'address' | 'areas'
+    'organizationName' | 'organizationDescription' | 'address' | 'areas'
   > & {
+    readonly organizationName: string | null
     readonly organizationDescription: string | null
     readonly address: ApprovedAboutPageContract['schema']['address'] | null
     readonly areas: readonly string[]

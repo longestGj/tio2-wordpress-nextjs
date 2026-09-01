@@ -13,15 +13,6 @@
     {"key": "documents.support", "authorization": "user_approved_public", "value": "TDS, SDS, COA, COO and other documents according to customer and destination-market requirements"},
     {"key": "compliance.support", "authorization": "user_approved_public", "value": "REACH-related documentation, origin documents or specific import compliance review"},
     {"key": "supplier.intent", "authorization": "user_approved_public", "value": "titanium dioxide supplier in Malaysia"},
-    {"key": "areas.served", "authorization": "user_approved_public", "value": ["European Union", "United Kingdom", "India", "Brazil"]},
-    {"key": "hero.paragraph.1", "authorization": "user_approved_public", "value": "IKHLAS TITANIUM (MALAYSIA) SDN. BHD. is a Malaysia-based rutile TiO2 manufacturer located in Taiping, Perak."},
-    {"key": "hero.paragraph.2", "authorization": "user_approved_public", "value": "We are a Malaysia-based rutile titanium dioxide manufacturer and supplier. We supply rutile TiO2 grades for paints and coatings, plastics, masterbatch, printing inks and paper, with export coordination through Port Klang and application-based documentation for international buyers."},
-    {"key": "hero.paragraph.3", "authorization": "user_approved_public", "value": "We focus on rutile TiO2 grades for paints, coatings, plastics, masterbatch, printing inks and paper applications, with quality control, application-based documentation and export coordination for international buyers."},
-    {"key": "hero.paragraph.4", "authorization": "user_approved_public", "value": "Our finished products are exported through Port Klang, supported by TDS, SDS, COA, COO and other documents according to customer and destination-market requirements."},
-    {"key": "hero.paragraph.5", "authorization": "user_approved_public", "value": "For direct sourcing details, see our titanium dioxide supplier in Malaysia page."},
-    {"key": "hero.paragraph.6", "authorization": "user_approved_public", "value": "For markets requiring REACH-related documentation, origin documents or specific import compliance review, we provide documentation-ready support according to grade and destination-market requirements."},
-    {"key": "metadata.description", "authorization": "user_approved_public", "value": "Learn about IKHLAS TITANIUM (MALAYSIA) SDN. BHD., a Malaysia-based rutile TiO2 manufacturer with product documentation and export coordination through Port Klang."},
-    {"key": "schema.organization.description.base", "authorization": "user_approved_public", "value": "IKHLAS TITANIUM (MALAYSIA) SDN. BHD. is a Malaysia-based rutile TiO2 manufacturer located in Taiping, Perak. It supplies rutile TiO2 grades for paints and coatings, plastics, masterbatch, printing inks and paper, with product documentation and export coordination through Port Klang."},
-    {"key": "schema.organization.description.scale", "authorization": "user_approved_public", "value": "The page states annual supply of more than 35,000 metric tons, customers in over 30 countries and long-term cooperation with more than 200 factory customers."}
+    {"key": "areas.served", "authorization": "user_approved_public", "value": ["European Union", "United Kingdom", "India", "Brazil"]}
   ]
 }

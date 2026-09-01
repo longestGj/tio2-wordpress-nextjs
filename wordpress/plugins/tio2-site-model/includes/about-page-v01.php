@@ -87,48 +87,9 @@ function tio2_validate_about_page_v01_evidence(string $stored)
     if (count($facts) !== count($approved_by_key)) {
         return new WP_Error('tio2_my_about_page_evidence_inventory', 'The Malaysia About evidence inventory is incomplete.');
     }
-    foreach (['organization.name', 'product.main', 'supplier.intent'] as $key) {
-        if ('user_approved_public' !== $facts[$key]['authorization']) {
-            return new WP_Error('tio2_my_about_page_evidence_safe_fact', 'A required safe About fact is not public.');
-        }
-    }
-    $bindings = [
-        'hero.paragraph.1' => ['organization.name', 'location.full'],
-        'hero.paragraph.2' => ['product.main', 'export.port', 'documents.support'],
-        'hero.paragraph.3' => ['product.main', 'export.port', 'documents.support'],
-        'hero.paragraph.4' => ['export.port', 'documents.support'],
-        'hero.paragraph.5' => ['supplier.intent'],
-        'hero.paragraph.6' => ['compliance.support'],
-        'metadata.description' => ['organization.name', 'location.full', 'documents.support', 'export.port'],
-        'schema.organization.description.base' => ['organization.name', 'location.full', 'product.main', 'documents.support', 'export.port'],
-        'schema.organization.description.scale' => ['scale.annual', 'scale.markets', 'scale.customers'],
-    ];
-    foreach ($bindings as $output => $dependencies) {
-        $expected_rank = 0;
-        foreach ($dependencies as $dependency) {
-            $expected_rank = max($expected_rank, $ranks[$facts[$dependency]['authorization']]);
-        }
-        if ($ranks[$facts[$output]['authorization']] !== $expected_rank) {
-            return new WP_Error('tio2_my_about_page_evidence_atomicity', 'A Malaysia About evidence output is not authorized atomically.');
-        }
-    }
     $primary = ['organization.name', 'location.full', 'product.main', 'scale.annual', 'scale.markets', 'scale.customers', 'export.port', 'documents.support', 'compliance.support', 'supplier.intent', 'areas.served'];
-    $scale = ['scale.annual', 'scale.markets', 'scale.customers'];
-    $restricted = array_values(array_filter($primary, static fn(string $key): bool => 'user_approved_public' !== $facts[$key]['authorization']));
-    $restricted_pattern = array_merge($scale, ['location.full']);
-    sort($restricted);
-    sort($scale);
-    sort($restricted_pattern);
-    if ([] === $restricted) {
-        $derived_state = 'sufficient';
-    } elseif ($restricted === $scale) {
-        $derived_state = 'partial';
-    } elseif ($restricted === $restricted_pattern) {
-        $derived_state = 'restricted';
-    } else {
-        return new WP_Error('tio2_my_about_page_evidence_pattern', 'The Malaysia About restricted evidence pattern is unsupported.');
-    }
-    if ($derived_state !== $evidence['evidenceState']) {
+    $withheld = array_values(array_filter($primary, static fn(string $key): bool => 'user_approved_public' !== $facts[$key]['authorization']));
+    if (('sufficient' === $evidence['evidenceState']) !== ([] === $withheld)) {
         return new WP_Error('tio2_my_about_page_evidence_state', 'The Malaysia About evidence state is inconsistent.');
     }
     return true;

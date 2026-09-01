@@ -14,6 +14,15 @@ export function buildMalaysiaAboutPageJsonLd(site: SiteConfig, page: MalaysiaAbo
   const brandId = new URL('/#brand', site.url).href
   const placeId = `${canonical}#taiping-manufacturing-site`
   const areaIds = page.schema.areas.map((_, index) => `${canonical}#${areaSlugs[index]}`)
+  const organizationVisible = page.schema.organizationName !== null
+  const organizationNode = organizationVisible ? [{
+    '@type': 'Organization', '@id': organizationId, name: page.schema.organizationName,
+    ...(page.schema.organizationDescription ? {description: page.schema.organizationDescription} : {}),
+    url: site.url,
+    brand: {'@id': brandId},
+    ...(page.schema.address ? {location: {'@id': placeId}} : {}),
+    ...(areaIds.length ? {areaServed: areaIds.map((id) => ({'@id': id}))} : {}),
+  }] : []
   const placeNode = page.schema.address ? [{
     '@type': 'Place', '@id': placeId, name: page.schema.placeName,
     address: {'@type': 'PostalAddress', ...page.schema.address},
@@ -27,18 +36,14 @@ export function buildMalaysiaAboutPageJsonLd(site: SiteConfig, page: MalaysiaAbo
         ...(page.seo.description ? {description: page.seo.description} : {}),
         inLanguage: page.seo.language,
         isPartOf: {'@id': new URL('/#website', site.url).href},
-        mainEntity: {'@id': organizationId},
-        about: [{'@id': organizationId}, {'@id': brandId}],
+        ...(organizationVisible ? {mainEntity: {'@id': organizationId}} : {}),
+        about: [
+          ...(organizationVisible ? [{'@id': organizationId}] : []),
+          {'@id': brandId},
+        ],
         breadcrumb: {'@id': `${canonical}#breadcrumb`},
       },
-      {
-        '@type': 'Organization', '@id': organizationId, name: page.schema.organizationName,
-        ...(page.schema.organizationDescription ? {description: page.schema.organizationDescription} : {}),
-        url: site.url,
-        brand: {'@id': brandId},
-        ...(page.schema.address ? {location: {'@id': placeId}} : {}),
-        areaServed: areaIds.map((id) => ({'@id': id})),
-      },
+      ...organizationNode,
       {'@type': 'Brand', '@id': brandId, name: page.schema.brandName},
       ...placeNode,
       ...page.schema.areas.map((name, index) => ({
