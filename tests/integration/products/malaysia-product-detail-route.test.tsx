@@ -4,7 +4,10 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {GraphQLResponseError} from '@/lib/wordpress/client'
 import {toMalaysiaProductDetailDto} from '@/lib/wordpress/product-detail-v01-dto'
 import {getSiteConfig} from '@/sites'
-import {malaysiaProductDetailSource} from '@/tests/fixtures/tio2-my-product-detail'
+import {
+  malaysiaM510ProductDetailSource,
+  malaysiaProductDetailSource,
+} from '@/tests/fixtures/tio2-my-product-detail'
 
 const routeMocks = vi.hoisted(() => ({
   getCurrentSite: vi.fn(),
@@ -60,16 +63,34 @@ describe('M-350 route integration', () => {
     expect(metadata.robots).toMatchObject({index: false, follow: false})
   })
 
-  it('generates only M-350 and rejects all other Malaysia grade slugs before CMS access', async () => {
+  it('generates only M-350 and M-510 and rejects the other 12 Malaysia grade slugs before CMS access', async () => {
     const route = await import('@/app/products/[familySlug]/page')
-    await expect(route.generateStaticParams()).resolves.toEqual([{familySlug: 'm-350'}])
-    for (const slug of ['m-510', 'm-896', 'm-996', 'm-2196', 'cr-901']) {
+    await expect(route.generateStaticParams()).resolves.toEqual([
+      {familySlug: 'm-350'},
+      {familySlug: 'm-510'},
+    ])
+    for (const slug of ['m-896', 'm-996', 'm-2196', 'm-895', 'm-200', 'm-108', 'm-210', 'm-340', 'm-886', 'm-52', 'm-2377', 'cr-901']) {
       await expect(route.default(props(slug))).rejects.toMatchObject({
         digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
       })
     }
     expect(routeMocks.getMalaysiaProductDetail).not.toHaveBeenCalled()
     expect(routeMocks.getSiteProductPage).not.toHaveBeenCalled()
+  })
+
+  it('loads and renders the distinct M-510 candidate through the same route and template', async () => {
+    routeMocks.getMalaysiaProductDetail.mockResolvedValue(
+      toMalaysiaProductDetailDto(malaysiaM510ProductDetailSource(), 'm-510'),
+    )
+    const route = await import('@/app/products/[familySlug]/page')
+    const markup = renderToStaticMarkup(await route.default(props('m-510')))
+    expect(routeMocks.getMalaysiaProductDetail).toHaveBeenCalledWith('m-510')
+    expect(markup).toContain('M-510 Titanium Dioxide for Coating Evaluation')
+    expect(markup).not.toContain('M-350 is a general-grade')
+    expect(markup).not.toContain('data-module="related-grades"')
+    expect((await route.generateMetadata(props('m-510'))).alternates?.canonical).toBe(
+      'https://tio2malaysia.com/products/m-510/',
+    )
   })
 
   it('rejects foreign scopes before either CMS query', async () => {

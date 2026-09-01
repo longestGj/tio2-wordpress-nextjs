@@ -1,0 +1,186 @@
+{
+  "reviewId": "GRADE-M510-FAST-G7-PCR-01",
+  "identity": {
+    "pageId": "GRADE-M510",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "gradeCode": "M-510",
+    "slug": "m-510",
+    "path": "/products/m-510/",
+    "templateVersion": "product-detail-v1",
+    "schemaVersion": "product-detail-v0.1-malaysia",
+    "recordState": "approved_for_preview",
+    "contentRevision": "M510_GATE2_FULL_COPY_V0.1_FAST_TRACK"
+  },
+  "releaseControls": {
+    "indexingAuthorized": false,
+    "sitemapAuthorized": false
+  },
+  "seo": {
+    "primaryKeyword": "M-510 titanium dioxide",
+    "title": "M-510 Titanium Dioxide for Coatings | TiO2 Malaysia",
+    "description": "Evaluate M-510 titanium dioxide for architectural and automotive coatings, then review secondary application paths or request documents, a sample or RFQ.",
+    "h1": "M-510 Titanium Dioxide for Coating Evaluation",
+    "canonical": "https://tio2malaysia.com/products/m-510/",
+    "language": "en"
+  },
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-005",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"
+  },
+  "breadcrumb": [
+    {"targetPageId": "HOME-001", "label": "Home", "href": "/"},
+    {"targetPageId": "PRODUCT-000", "label": "Products", "href": "/products/"},
+    {"targetPageId": "GRADE-M510", "label": "M-510", "href": "/products/m-510/"}
+  ],
+  "moduleStatus": {
+    "hero": "verified",
+    "positioning": "verified",
+    "applications": "verified",
+    "evaluation": "verified",
+    "technical": "verified",
+    "documents": "verified",
+    "originSupport": "not_public",
+    "markets": "verified",
+    "relatedGrades": "not_public",
+    "sample": "verified"
+  },
+  "hero": {
+    "eyebrow": "COATINGS · CHLORIDE PROCESS",
+    "summaryLead": "A chloride-process, multi-application rutile titanium dioxide pigment with a bluish tone, high brightness and high durability.",
+    "summaryBody": "Architectural and automotive coating evaluation is the primary path. Plastics, masterbatch and printing-ink directions provide additional routes for product evaluation. Review the M-510 technical data below and confirm final suitability through testing in your own formulation and application conditions.",
+    "proofs": ["TDS-based technical data", "Coatings-first evaluation", "Qualification required"],
+    "visual": {
+      "label": "M-510 product file and current TDS visual",
+      "technicalFile": "Rutile titanium dioxide pigment · Chloride process",
+      "currentData": "TDS · V3 2023 · Multi-application grade",
+      "note": "Product identity · documentation · evaluation"
+    },
+    "facts": [
+      {"label": "Product", "value": "M-510"},
+      {"label": "Type", "value": "Rutile titanium dioxide pigment"},
+      {"label": "Process", "value": "Chloride process"},
+      {"label": "Grade positioning", "value": "Multi-application grade"},
+      {"label": "Applications", "value": "Coatings, plastics, masterbatch and printing inks"}
+    ],
+    "actions": [
+      {"targetPageId": "CONV-RFQ", "label": "Request an M-510 Quote", "href": "/request-a-quote/", "prefill": {"site_scope": "tio2-my", "grade": "M-510", "source_page": "GRADE-M510"}},
+      {"targetPageId": "CONV-SAMPLE", "label": "Request an M-510 Sample", "href": "/request-sample/", "prefill": {"site_scope": "tio2-my", "grade": "M-510", "source_page": "GRADE-M510"}}
+    ]
+  },
+  "positioning": {
+    "eyebrow": "PRODUCT POSITIONING",
+    "heading": "Where M-510 Fits in Product Evaluation",
+    "lead": "M-510 is a specially surface-treated rutile titanium dioxide pigment produced by the chloride process.",
+    "body": "Its multi-application profile supports a coatings-first evaluation path, with additional directions in engineering plastics, masterbatch, profiles and printing inks. Use M-510's listed features and typical technical data to determine whether it should enter formulation testing for your application. Final grade selection should account for the complete formulation, dispersion and processing conditions, target performance and destination-document requirements.",
+    "decisionPoints": [
+      "Chloride-process rutile pigment",
+      "Zirconia, alumina and organic surface treatment",
+      "Bluish tone and high brightness",
+      "High durability and multifunctional profile",
+      "Coatings-first evaluation with secondary plastics, masterbatch and printing-ink directions"
+    ],
+    "contextualLink": {"targetPageId": "PRODUCT-PROC-CL", "label": "Learn about chloride-process titanium dioxide", "href": "/products/chloride-process-titanium-dioxide/"}
+  },
+  "applications": {
+    "eyebrow": "APPLICATION DIRECTIONS",
+    "heading": "Application Directions to Evaluate",
+    "intro": "Review each direction in the buyer's own formulation, processing and application conditions.",
+    "items": [
+      {"category": "Coatings", "title": "Architectural Coatings", "body": "Evaluate M-510 in interior and exterior architectural coating formulations where its bluish tone, brightness and rutile pigment profile are relevant to the formulation target.", "targetPageId": "APP-COAT", "href": "/applications/titanium-dioxide-for-coatings/"},
+      {"category": "Coatings", "title": "Automotive Coatings", "body": "Include M-510 in evaluation for automotive OEM and refinishing paint systems. Confirm appearance, compatibility, processing and final performance in the complete coating formulation.", "targetPageId": "APP-COAT", "href": "/applications/titanium-dioxide-for-coatings/"},
+      {"category": "Coatings", "title": "Other Coating Systems", "body": "M-510 may also be evaluated in coil coatings, anticorrosion paints, decorating coatings and powder coatings. Each system requires its own formulation and application testing.", "targetPageId": "APP-COAT", "href": "/applications/titanium-dioxide-for-coatings/"},
+      {"category": "Plastics and Masterbatch", "title": "Engineering Plastics and Masterbatch", "body": "For secondary application evaluation, review M-510 in engineering plastics, masterbatch and profile systems under the buyer's actual processing conditions.", "relatedTargets": [{"targetPageId": "APP-PLAS", "href": "/applications/titanium-dioxide-for-plastics/"}, {"targetPageId": "APP-MB", "href": "/applications/titanium-dioxide-for-masterbatch/"}]},
+      {"category": "Inks", "title": "Printing Inks", "body": "M-510 may be evaluated in letterpress, offset and intaglio printing inks, with final suitability determined in the buyer's ink formulation and printing process.", "targetPageId": "APP-INK", "href": "/applications/titanium-dioxide-for-printing-inks/"}
+    ]
+  },
+  "evaluation": {
+    "eyebrow": "FORMULATION EVALUATION",
+    "heading": "What to Evaluate in Your Formulation",
+    "intro": "Use the current product data to frame buyer testing in the intended formulation and application conditions.",
+    "groups": [
+      {"heading": "Optical and Appearance Evaluation", "items": ["M-510 is identified by a bluish tone and high brightness.", "During formulation testing, review color direction, brightness, dispersion and the finished appearance required for your coating, plastic or ink system."]},
+      {"heading": "Durability and Versatility Evaluation", "items": ["M-510 is identified as a high-durability, multifunctional grade.", "Evaluate durability, compatibility, processing behavior and final performance under the formulation, substrate, application method and service conditions relevant to your project."]}
+    ],
+    "disclaimer": "These evaluation directions describe what to check during buyer testing. They do not guarantee a fixed result in every formulation or application."
+  },
+  "technical": {
+    "eyebrow": "CURRENT PRODUCT DATA",
+    "heading": "Typical Technical Data",
+    "intro": "Review the typical properties in the current M-510 TDS as an input to formulation evaluation.",
+    "sourceLabel": "M-510 TDS · V3 2023",
+    "columns": ["Property", "Typical value"],
+    "rows": [
+      {"property": "TiO₂ content, %", "typical": "94.5"},
+      {"property": "Surface treatment", "typical": "Zirconia, alumina, organic"},
+      {"property": "Identification", "typical": "ISO 591: R2; ASTM D 476-84: II(IV)"},
+      {"property": "Rutile content, %", "typical": "99.9"},
+      {"property": "L*", "typical": "98.3"},
+      {"property": "b*", "typical": "1.65"},
+      {"property": "Specific gravity, g/cm³", "typical": "4.1"},
+      {"property": "Tinting strength, %", "typical": "118"},
+      {"property": "pH", "typical": "7.5"},
+      {"property": "Oil absorption, g/100g", "typical": "17.5"},
+      {"property": "Mean particle size, μm", "typical": "0.27"},
+      {"property": "Carbon black undertone (CBU)", "typical": "14.0"}
+    ],
+    "note": "These values are typical properties and do not constitute a product specification. Confirm suitability in your own formulation and application conditions.",
+    "action": {"targetPageId": "CONV-DOC", "label": "Request the M-510 TDS", "href": "/request-documents/", "prefill": {"site_scope": "tio2-my", "grade": "M-510", "source_page": "GRADE-M510", "requested_type": "TDS"}}
+  },
+  "documents": {
+    "targetPageId": "CONV-DOC",
+    "eyebrow": "DOCUMENT REQUEST",
+    "heading": "Request M-510 Documents",
+    "intro": "Request the M-510 Technical Data Sheet and tell us which other technical or export documents are needed for your destination and evaluation process. Our team will confirm the applicable document scope for your request.",
+    "actionLabel": "Request M-510 Documents",
+    "href": "/request-documents/",
+    "prefill": {"site_scope": "tio2-my", "grade": "M-510", "source_page": "GRADE-M510", "requested_type": "TDS"},
+    "availability": "Document scope is confirmed after request review.",
+    "options": [
+      {"title": "Technical Data Sheet (TDS)", "body": "Request the current M-510 Technical Data Sheet for product evaluation."},
+      {"title": "Additional document requirements", "body": "Describe the technical or export document type, destination and evaluation context. No availability is implied."}
+    ]
+  },
+  "markets": {
+    "eyebrow": "MARKET NAVIGATION",
+    "heading": "Plan Evaluation for Your Destination Market",
+    "intro": "Continue to the relevant destination page for market-specific procurement, document and inquiry guidance.",
+    "items": [
+      {"targetPageId": "MARKET-EU-001", "label": "European Union", "href": "/markets/european-union/"},
+      {"targetPageId": "MARKET-UK-001", "label": "United Kingdom", "href": "/markets/united-kingdom/"},
+      {"targetPageId": "MARKET-IN-001", "label": "India", "href": "/markets/india/"},
+      {"targetPageId": "MARKET-BR-EN", "label": "Brazil", "href": "/markets/brazil/"}
+    ],
+    "note": "These destination paths do not claim M-510 registration, compliance, stock or local availability."
+  },
+  "sample": {
+    "targetPageId": "CONV-SAMPLE",
+    "eyebrow": "QUALIFICATION SUPPORT",
+    "heading": "Request M-510 for Your Own Evaluation",
+    "body": "Share your application, destination, evaluation objective and relevant technical requirements so the M-510 sample request can be reviewed in the correct context. Submitting a request does not mean that a sample, quantity, freight arrangement or dispatch timing has been approved.",
+    "actionLabel": "Request an M-510 Sample",
+    "href": "/request-sample/",
+    "prefill": {"site_scope": "tio2-my", "grade": "M-510", "source_page": "GRADE-M510"}
+  },
+  "routeRegistry": [
+    {"targetPageId": "HOME-001", "href": "/", "behavior": "required"},
+    {"targetPageId": "PRODUCT-000", "href": "/products/", "behavior": "required"},
+    {"targetPageId": "CONV-RFQ", "href": "/request-a-quote/", "behavior": "conditional"},
+    {"targetPageId": "CONV-SAMPLE", "href": "/request-sample/", "behavior": "conditional"},
+    {"targetPageId": "CONV-DOC", "href": "/request-documents/", "behavior": "conditional"},
+    {"targetPageId": "PRODUCT-PROC-CL", "href": "/products/chloride-process-titanium-dioxide/", "behavior": "conditional"},
+    {"targetPageId": "APP-COAT", "href": "/applications/titanium-dioxide-for-coatings/", "behavior": "conditional"},
+    {"targetPageId": "APP-PLAS", "href": "/applications/titanium-dioxide-for-plastics/", "behavior": "conditional"},
+    {"targetPageId": "APP-MB", "href": "/applications/titanium-dioxide-for-masterbatch/", "behavior": "conditional"},
+    {"targetPageId": "APP-INK", "href": "/applications/titanium-dioxide-for-printing-inks/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-EU-001", "href": "/markets/european-union/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-UK-001", "href": "/markets/united-kingdom/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-IN-001", "href": "/markets/india/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-BR-EN", "href": "/markets/brazil/", "behavior": "conditional"}
+  ],
+  "evidenceLedger": [
+    {"moduleKey": "hero-positioning-applications-evaluation", "sourceRefs": ["M510_TDS_V3_2023", "GRADE-M510-G2-FULL-COPY-01"], "ownerRole": "technical-content", "reviewStatus": "verified", "reviewedAt": "2026-09-02T00:00:00Z"},
+    {"moduleKey": "technical", "sourceRefs": ["M510_TDS_V3_2023", "GRADE-M510-G1-TDS-AMD-01"], "ownerRole": "technical", "reviewStatus": "verified", "reviewedAt": "2026-09-02T00:00:00Z"},
+    {"moduleKey": "seo", "sourceRefs": ["11_PAGE_KEYWORD_MASTER", "GRADE-M510-G2-FULL-COPY-01"], "ownerRole": "seo-content", "reviewStatus": "verified", "reviewedAt": "2026-09-02T00:00:00Z"}
+  ]
+}

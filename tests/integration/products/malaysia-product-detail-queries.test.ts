@@ -2,7 +2,10 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 
 import {GraphQLResponseError} from '@/lib/wordpress/client'
 import {getMalaysiaProductDetail} from '@/lib/wordpress/product-detail-v01-queries'
-import {malaysiaProductDetailSource} from '@/tests/fixtures/tio2-my-product-detail'
+import {
+  malaysiaM510ProductDetailSource,
+  malaysiaProductDetailSource,
+} from '@/tests/fixtures/tio2-my-product-detail'
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -42,6 +45,29 @@ describe('M-350 GraphQL query isolation', () => {
     vi.stubGlobal('fetch', fetchMock)
     vi.stubEnv('WORDPRESS_GRAPHQL_URL', 'https://cms.example.test/graphql')
     await expect(getMalaysiaProductDetail('m-350')).rejects.toBeInstanceOf(GraphQLResponseError)
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+
+  it('uses an isolated M-510 query and cache key without trying M-350', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body)) as {variables: Record<string, unknown>}
+      expect(body.variables).toEqual({slug: 'm-510'})
+      return new Response(JSON.stringify({data: {
+        malaysiaProductDetailRecordJson: JSON.stringify(malaysiaM510ProductDetailSource()),
+      }}), {status: 200, headers: {'content-type': 'application/json'}})
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubEnv('WORDPRESS_GRAPHQL_URL', 'https://cms.example.test/graphql')
+
+    await expect(getMalaysiaProductDetail('m-510')).resolves.toMatchObject({
+      identity: {siteId: 'tio2-my', path: '/products/m-510', gradeCode: 'M-510'},
+    })
+    const next = (fetchMock.mock.calls[0]?.[1] as RequestInit & {next?: {tags?: string[]}}).next
+    expect(next?.tags).toEqual([
+      'site:tio2-my',
+      'route:tio2-my:/products/m-510',
+      'content:tio2-my--product-detail--m-510',
+    ])
     expect(fetchMock).toHaveBeenCalledOnce()
   })
 })

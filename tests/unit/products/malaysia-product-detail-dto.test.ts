@@ -6,6 +6,7 @@ import {
 } from '@/lib/wordpress/product-detail-v01-dto'
 import {CrossSiteContentError} from '@/lib/wordpress/types'
 import {
+  malaysiaM510ProductDetailSource,
   malaysiaProductDetailSource,
   productDetailReadiness,
 } from '@/tests/fixtures/tio2-my-product-detail'
@@ -54,5 +55,16 @@ describe('M-350 scoped public projection DTO', () => {
     const technical = modules.technical as {rows: Array<{typical: string}>}
     technical.rows[0]!.typical = '99.9'
     expect(() => toMalaysiaProductDetailDto(mutated as never)).toThrow(ProductDetailContractError)
+  })
+
+  it('rejects requested-slug and payload-identity disagreement without grade fallback', () => {
+    expect(() => toMalaysiaProductDetailDto(
+      malaysiaM510ProductDetailSource(),
+      'm-350',
+    )).toThrow(ProductDetailContractError)
+
+    const wrongPath = structuredClone(malaysiaM510ProductDetailSource()) as unknown as Record<string, unknown>
+    wrongPath.publishingFields = {publicPath: '/products/m-350'}
+    expect(() => toMalaysiaProductDetailDto(wrongPath as never, 'm-510')).toThrow(ProductDetailContractError)
   })
 })

@@ -10,7 +10,12 @@ export function buildMalaysiaProductDetailJsonLd(
   if (site.id !== 'tio2-my' || product.identity.siteId !== 'tio2-my') {
     throw new Error('Malaysia Product Detail Schema is available only for tio2-my')
   }
-  const canonical = new URL('/products/m-350/', site.url).href
+  const canonical = new URL(`${product.identity.path}/`, site.url).href
+  if (canonical !== product.seo.canonical) {
+    throw new Error('Malaysia Product Detail canonical does not match its scoped identity')
+  }
+  const category = product.modules.hero.facts.find(({label}) => label === 'Type')?.value
+  if (!category) throw new Error('Malaysia Product Detail Product type is unavailable')
   const productNode = {
     '@type': 'Product',
     '@id': `${canonical}#product`,
@@ -18,12 +23,14 @@ export function buildMalaysiaProductDetailJsonLd(
     sku: product.identity.gradeCode,
     description: `${product.modules.hero.summaryLead} ${product.modules.hero.summaryBody}`,
     url: canonical,
-    category: 'Rutile titanium dioxide pigment',
+    category,
     additionalProperty: product.modules.technical.rows.map((row) => ({
       '@type': 'PropertyValue',
       name: row.property,
       value: row.typical,
-      description: `Standard: ${row.standard}; Typical Value: ${row.typical}`,
+      ...('standard' in row
+        ? {description: `Standard: ${row.standard}; Typical Value: ${row.typical}`}
+        : {}),
     })),
   }
   const breadcrumbNode = {

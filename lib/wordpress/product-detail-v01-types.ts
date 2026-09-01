@@ -1,57 +1,84 @@
-import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m350.json'
-
 import type {Tio2MyGlobalChrome} from './tio2-my-global-chrome-types'
 
-type DeepReadonly<T> = T extends readonly (infer Item)[]
-  ? readonly DeepReadonly<Item>[]
-  : T extends object
-    ? {readonly [Key in keyof T]: DeepReadonly<T[Key]>}
-    : T
+export type MalaysiaProductDetailSlug = 'm-350' | 'm-510'
 
-type ApprovedContract = DeepReadonly<typeof approvedContract>
-type Hero = Omit<ApprovedContract['hero'], 'actions'> & {
-  readonly actions: readonly ApprovedContract['hero']['actions'][number][]
+export interface ProductDetailAction {
+  readonly targetPageId: string
+  readonly label: string
+  readonly href: string
+  readonly prefill: Readonly<Record<string, string>>
 }
-type Markets = Omit<ApprovedContract['markets'], 'items'> & {
-  readonly items: readonly ApprovedContract['markets']['items'][number][]
+
+export interface ProductDetailHero {
+  readonly eyebrow: string
+  readonly summaryLead: string
+  readonly summaryBody: string
+  readonly proofs: readonly string[]
+  readonly visual: {readonly label: string; readonly technicalFile: string; readonly currentData: string; readonly note: string}
+  readonly facts: readonly {readonly label: string; readonly value: string}[]
+  readonly actions: readonly ProductDetailAction[]
 }
-type RelatedGrades = Omit<
-  ApprovedContract['relatedGrades'],
-  'items' | 'allTargetPageId' | 'allLabel' | 'allHref'
-> & {
-  readonly items: readonly ApprovedContract['relatedGrades']['items'][number][]
-  readonly allTargetPageId?: string
-  readonly allLabel?: string
-  readonly allHref?: string
+
+export interface ProductDetailPositioning {
+  readonly eyebrow: string
+  readonly heading: string
+  readonly lead: string
+  readonly body: string
+  readonly decisionPoints: readonly string[]
+  readonly contextualLink?: {readonly targetPageId: string; readonly label: string; readonly href: string}
+}
+
+export interface ProductDetailApplicationItem {
+  readonly category: string
+  readonly title: string
+  readonly body: string
+  readonly targetPageId?: string
+  readonly href?: string
+  readonly relatedTargets?: readonly {readonly targetPageId: string; readonly href: string}[]
+}
+
+export interface ProductDetailTechnicalRow {
+  readonly property: string
+  readonly standard?: string
+  readonly typical: string
 }
 
 export interface MalaysiaProductDetailModules {
-  readonly hero: Hero
-  readonly positioning: ApprovedContract['positioning']
-  readonly applications: ApprovedContract['applications']
-  readonly evaluation: ApprovedContract['evaluation']
-  readonly technical: ApprovedContract['technical']
-  readonly documents?: ApprovedContract['documents']
-  readonly markets?: Markets
-  readonly relatedGrades?: RelatedGrades
-  readonly sample?: ApprovedContract['sample']
+  readonly hero: ProductDetailHero
+  readonly positioning: ProductDetailPositioning
+  readonly applications: {readonly eyebrow: string; readonly heading: string; readonly intro: string; readonly items: readonly ProductDetailApplicationItem[]}
+  readonly evaluation: {readonly eyebrow: string; readonly heading: string; readonly intro: string; readonly groups: readonly {readonly heading: string; readonly items: readonly string[]}[]; readonly disclaimer: string}
+  readonly technical: {readonly eyebrow: string; readonly heading: string; readonly intro: string; readonly sourceLabel: string; readonly columns: readonly string[]; readonly rows: readonly ProductDetailTechnicalRow[]; readonly note: string; readonly action?: ProductDetailAction}
+  readonly documents?: {readonly targetPageId: string; readonly eyebrow: string; readonly heading: string; readonly intro: string; readonly actionLabel: string; readonly href: string; readonly prefill: Readonly<Record<string, string>>; readonly availability: string; readonly options: readonly {readonly title: string; readonly body: string}[]}
+  readonly markets?: {readonly eyebrow: string; readonly heading: string; readonly intro: string; readonly items: readonly {readonly targetPageId: string; readonly label: string; readonly href: string}[]; readonly note: string}
+  readonly relatedGrades?: {readonly eyebrow: string; readonly heading: string; readonly intro: string; readonly items: readonly {readonly targetPageId: string; readonly gradeCode: string; readonly href: string; readonly body: string}[]; readonly note: string; readonly allTargetPageId?: string; readonly allLabel?: string; readonly allHref?: string}
+  readonly sample?: {readonly targetPageId: string; readonly eyebrow: string; readonly heading: string; readonly body: string; readonly actionLabel: string; readonly href: string; readonly prefill: Readonly<Record<string, string>>}
 }
 
 export interface MalaysiaProductDetailDto {
-  readonly reviewId: ApprovedContract['reviewId']
-  readonly identity: Omit<ApprovedContract['identity'], 'path'> & {
+  readonly reviewId: string
+  readonly identity: {
     readonly id: string
     readonly siteId: 'tio2-my'
-    readonly path: '/products/m-350'
+    readonly pageId: string
+    readonly siteScope: 'tio2-my'
+    readonly locale: 'en'
+    readonly gradeCode: string
+    readonly slug: MalaysiaProductDetailSlug
+    readonly path: `/products/${MalaysiaProductDetailSlug}`
+    readonly templateVersion: 'product-detail-v1'
+    readonly schemaVersion: 'product-detail-v0.1-malaysia'
+    readonly recordState: 'approved_for_preview'
+    readonly contentRevision: string
     readonly status: 'publish'
     readonly modified: string
   }
-  readonly releaseControls: ApprovedContract['releaseControls']
-  readonly seo: ApprovedContract['seo']
-  readonly globalChromeRef: ApprovedContract['globalChromeRef']
+  readonly releaseControls: {readonly indexingAuthorized: false; readonly sitemapAuthorized: false}
+  readonly seo: {readonly primaryKeyword: string; readonly title: string; readonly description: string; readonly h1: string; readonly canonical: string; readonly language: 'en'}
+  readonly globalChromeRef: {readonly contractId: string; readonly logoManifestId: string}
   readonly globalChrome: Tio2MyGlobalChrome
-  readonly breadcrumb: ApprovedContract['breadcrumb']
+  readonly breadcrumb: readonly {readonly targetPageId: string; readonly label: string; readonly href: string}[]
   readonly modules: MalaysiaProductDetailModules
 }
 
-export type M350TechnicalRow = MalaysiaProductDetailDto['modules']['technical']['rows'][number]
+export type M350TechnicalRow = ProductDetailTechnicalRow

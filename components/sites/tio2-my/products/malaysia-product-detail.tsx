@@ -18,6 +18,11 @@ function Kicker({children}: {readonly children: React.ReactNode}) {
   return <p className={styles.kicker}>{children}</p>
 }
 
+const applicationTargetLabels: Readonly<Record<string, string>> = {
+  'APP-PLAS': 'Plastics application guidance',
+  'APP-MB': 'Masterbatch application guidance',
+}
+
 export function MalaysiaProductDetail({
   product,
   structuredData,
@@ -26,6 +31,13 @@ export function MalaysiaProductDetail({
   readonly structuredData?: React.ReactNode
 }) {
   const {modules} = product
+  const {gradeCode, pageId} = product.identity
+  const titleSuffix = product.seo.h1.startsWith(`${gradeCode} `)
+    ? product.seo.h1.slice(gradeCode.length + 1)
+    : product.seo.h1
+  const titleId = `${product.identity.slug}-title`
+  const hasStandardColumn = modules.technical.columns.length === 3 &&
+    modules.technical.rows.every((row) => typeof row.standard === 'string')
   const sectionLinks = [
     {id: 'positioning', label: 'Positioning'},
     {id: 'applications', label: 'Applications'},
@@ -43,7 +55,7 @@ export function MalaysiaProductDetail({
       <MalaysiaGlobalHeader
         chrome={product.globalChrome}
         currentPageId="PRODUCT-000"
-        sourcePageId="GRADE-M350"
+        sourcePageId={pageId}
       />
       <main className={styles.productMain}>
         <nav className={styles.breadcrumb} aria-label="Breadcrumb" data-module="breadcrumb">
@@ -58,11 +70,11 @@ export function MalaysiaProductDetail({
           </ol>
         </nav>
 
-        <section className={styles.hero} data-module="hero" aria-labelledby="m350-title">
+        <section className={styles.hero} data-module="hero" aria-labelledby={titleId}>
           <div className={styles.heroInner}>
             <div className={styles.heroCopy}>
               <Kicker>{modules.hero.eyebrow}</Kicker>
-              <h1 id="m350-title"><span>M-350</span>{' '}Rutile Titanium Dioxide Pigment</h1>
+              <h1 id={titleId}><span>{gradeCode}</span>{' '}{titleSuffix}</h1>
               <p><strong>{modules.hero.summaryLead}</strong> {modules.hero.summaryBody}</p>
               {modules.hero.actions.length ? (
                 <div className={styles.heroActions}>
@@ -73,8 +85,8 @@ export function MalaysiaProductDetail({
                       href={actionHref(action.href, action.prefill)}
                       data-contextual-action={action.targetPageId}
                       data-site-scope="tio2-my"
-                      data-grade="M-350"
-                      data-source-page="GRADE-M350"
+                      data-grade={gradeCode}
+                      data-source-page={pageId}
                     >{action.label}</a>
                   ))}
                 </div>
@@ -85,17 +97,17 @@ export function MalaysiaProductDetail({
             </div>
             <div className={styles.productVisual} role="img" aria-label={modules.hero.visual.label}>
               <div className={`${styles.fileCard} ${styles.backCard}`}>
-                <small>Technical product file</small><span>M-350</span><p>{modules.hero.visual.technicalFile}</p>
+                <small>Technical product file</small><span>{gradeCode}</span><p>{modules.hero.visual.technicalFile}</p>
               </div>
               <div className={`${styles.fileCard} ${styles.frontCard}`}>
-                <small>Current product data</small><span>M-350</span><p>{modules.hero.visual.currentData}</p>
+                <small>Current product data</small><span>{gradeCode}</span><p>{modules.hero.visual.currentData}</p>
               </div>
               <p>{modules.hero.visual.note}</p>
             </div>
           </div>
         </section>
 
-        <section className={styles.facts} aria-label="M-350 product facts" data-module="facts">
+        <section className={styles.facts} aria-label={`${gradeCode} product facts`} data-module="facts">
           <dl>
             {modules.hero.facts.map((fact) => (
               <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>
@@ -113,6 +125,11 @@ export function MalaysiaProductDetail({
               <Kicker>{modules.positioning.eyebrow}</Kicker>
               <h2 id="positioning-heading">{modules.positioning.heading}</h2>
               <p className={styles.directAnswer}><strong>{modules.positioning.lead}</strong> {modules.positioning.body}</p>
+              {modules.positioning.contextualLink ? (
+                <a className={styles.textAction} href={modules.positioning.contextualLink.href}>
+                  {modules.positioning.contextualLink.label} <span aria-hidden="true">→</span>
+                </a>
+              ) : null}
             </div>
             <ol className={styles.decisionList}>
               {modules.positioning.decisionPoints.map((item, index) => (
@@ -130,7 +147,16 @@ export function MalaysiaProductDetail({
             {modules.applications.items.map((item, index) => (
               <article key={item.title}>
                 <small>{String(index + 1).padStart(2, '0')} · {item.category}</small>
-                <h3>{item.title}</h3><p>{item.body}</p>
+                <h3>{item.href ? <a href={item.href}>{item.title}</a> : item.title}</h3><p>{item.body}</p>
+                {item.relatedTargets?.length ? (
+                  <ul className={styles.applicationLinks} aria-label={`${item.title} application pages`}>
+                    {item.relatedTargets.map((target) => (
+                      <li key={target.targetPageId}>
+                        <a href={target.href}>{applicationTargetLabels[target.targetPageId] ?? item.title}</a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </article>
             ))}
           </div>
@@ -155,20 +181,25 @@ export function MalaysiaProductDetail({
           </div>
           <div className={styles.tableWrap}>
             <table>
-              <caption className={styles.srOnly}>M-350 typical technical data with property, standard and typical value</caption>
+              <caption className={styles.srOnly}>{gradeCode} typical technical data with {modules.technical.columns.join(', ')}</caption>
               <thead><tr>{modules.technical.columns.map((column) => <th key={column} scope="col">{column}</th>)}</tr></thead>
               <tbody>
                 {modules.technical.rows.map((row) => (
                   <tr key={row.property}>
                     <th scope="row">{row.property}</th>
-                    <td data-label="Standard">{row.standard}</td>
-                    <td data-label="Typical Value">{row.typical}</td>
+                    {hasStandardColumn ? <td data-label={modules.technical.columns[1]}>{row.standard}</td> : null}
+                    <td data-label={modules.technical.columns.at(-1)}>{row.typical}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
           <p className={styles.technicalNote}>{modules.technical.note}</p>
+          {modules.technical.action ? (
+            <a className={styles.textAction} href={actionHref(modules.technical.action.href, modules.technical.action.prefill)} data-contextual-action={modules.technical.action.targetPageId}>
+              {modules.technical.action.label} <span aria-hidden="true">→</span>
+            </a>
+          ) : null}
         </section>
 
         {modules.documents ? (
@@ -202,7 +233,7 @@ export function MalaysiaProductDetail({
           </section>
         ) : null}
       </main>
-      <MalaysiaGlobalFooter chrome={product.globalChrome} sourcePageId="GRADE-M350" />
+      <MalaysiaGlobalFooter chrome={product.globalChrome} sourcePageId={pageId} />
     </div>
   )
 }

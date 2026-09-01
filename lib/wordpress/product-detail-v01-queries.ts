@@ -11,12 +11,15 @@ import {
   toMalaysiaProductDetailDto,
   type MalaysiaProductDetailSource,
 } from './product-detail-v01-dto'
-import type {MalaysiaProductDetailDto} from './product-detail-v01-types'
+import type {
+  MalaysiaProductDetailDto,
+  MalaysiaProductDetailSlug,
+} from './product-detail-v01-types'
 
 export const GET_MALAYSIA_PRODUCT_DETAIL = GetMalaysiaProductDetailDocument
 
 export async function getMalaysiaProductDetail(
-  slug: 'm-350',
+  slug: MalaysiaProductDetailSlug,
   options: Pick<FetchGraphQLOptions, 'timeoutMs'> = {},
 ): Promise<MalaysiaProductDetailDto> {
   const data = await fetchGraphQL<
@@ -26,7 +29,7 @@ export async function getMalaysiaProductDetail(
     ...options,
     tags: [
       siteTag('tio2-my'),
-      routeTag('tio2-my', '/products/m-350'),
+      routeTag('tio2-my', `/products/${slug}`),
       productDetailContentTag('tio2-my', slug),
     ],
   })
@@ -36,5 +39,5 @@ export async function getMalaysiaProductDetail(
   } catch {
     throw new ProductDetailContractError('productDetailRecordJson')
   }
-  return toMalaysiaProductDetailDto(source as MalaysiaProductDetailSource)
+  return toMalaysiaProductDetailDto(source as MalaysiaProductDetailSource, slug)
 }

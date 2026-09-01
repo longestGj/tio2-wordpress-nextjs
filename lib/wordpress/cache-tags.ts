@@ -194,7 +194,7 @@ export function aboutPageVersionTag(siteId: string, contentVersion: string): str
 
 export function productDetailContentTag(siteId: string, slug: string): string {
   assertSiteId(siteId)
-  if (siteId !== 'tio2-my' || slug !== 'm-350') {
+  if (siteId !== 'tio2-my' || (slug !== 'm-350' && slug !== 'm-510')) {
     throw new Error(`Invalid Malaysia Product Detail identity: ${siteId}/${slug}`)
   }
   return `content:${siteId}--product-detail--${slug}`

@@ -12,7 +12,10 @@ export function buildMalaysiaProductDetailMetadata(
   if (site.id !== 'tio2-my' || product.identity.siteId !== 'tio2-my') {
     throw new Error('Malaysia Product Detail metadata is available only for tio2-my')
   }
-  const canonical = new URL('/products/m-350/', site.url).href
+  const canonical = new URL(`${product.identity.path}/`, site.url).href
+  if (canonical !== product.seo.canonical) {
+    throw new Error('Malaysia Product Detail canonical does not match its scoped identity')
+  }
   const indexable = product.releaseControls.indexingAuthorized && isPublicIndexingEnabled(env)
   return {
     title: product.seo.title,

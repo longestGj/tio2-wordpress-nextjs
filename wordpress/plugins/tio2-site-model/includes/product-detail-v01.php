@@ -8,20 +8,47 @@ if (! defined('ABSPATH')) {
 
 const TIO2_MY_PRODUCT_DETAIL_CONTRACT_META = '_tio2_my_product_detail_contract_json';
 
-function tio2_my_product_detail_contract_path(): string
+/** @return array<string, array<string, string>> */
+function tio2_my_product_detail_approved_grades(): array
 {
-    return dirname(__DIR__) . '/config/tio2-my-product-detail-m350.json';
+    return [
+        'm-350' => [
+            'page_id' => 'GRADE-M350',
+            'grade_code' => 'M-350',
+            'internal_slug' => 'tio2-my-m-350',
+            'public_path' => '/products/m-350',
+            'canonical' => 'https://tio2malaysia.com/products/m-350/',
+            'contract_file' => 'tio2-my-product-detail-m350.json',
+        ],
+        'm-510' => [
+            'page_id' => 'GRADE-M510',
+            'grade_code' => 'M-510',
+            'internal_slug' => 'tio2-my-m-510',
+            'public_path' => '/products/m-510',
+            'canonical' => 'https://tio2malaysia.com/products/m-510/',
+            'contract_file' => 'tio2-my-product-detail-m510.json',
+        ],
+    ];
+}
+
+function tio2_my_product_detail_contract_path(string $slug = 'm-350'): string
+{
+    $identity = tio2_my_product_detail_approved_grades()[$slug] ?? null;
+    if (! is_array($identity)) {
+        return '';
+    }
+    return dirname(__DIR__) . '/config/' . $identity['contract_file'];
 }
 
 /** @return string|WP_Error */
-function tio2_my_product_detail_approved_contract_json()
+function tio2_my_product_detail_approved_contract_json(string $slug = 'm-350')
 {
-    $path = tio2_my_product_detail_contract_path();
+    $path = tio2_my_product_detail_contract_path($slug);
     $json = is_readable($path) ? file_get_contents($path) : false;
     if (! is_string($json) || '' === $json) {
         return new WP_Error(
             'tio2_my_product_detail_contract_missing',
-            'The approved Malaysia M-350 Product Detail contract is unavailable.'
+            'The approved Malaysia Product Detail contract is unavailable.'
         );
     }
     return $json;
@@ -40,18 +67,26 @@ function tio2_validate_product_detail_v01_contract(int $post_id)
             'The Product Detail contract is valid only for site_scope=tio2-my.'
         );
     }
+    $page_id = get_post_meta($post_id, TIO2_MY_ROUTE_PAGE_ID_META, true);
+    $matches = array_filter(
+        tio2_my_product_detail_approved_grades(),
+        static fn (array $candidate): bool => $candidate['page_id'] === $page_id
+    );
+    if (1 !== count($matches)) {
+        return new WP_Error('tio2_my_product_detail_invalid_identity', 'The Product Detail identity is not authorized.');
+    }
+    $slug = (string) array_key_first($matches);
+    $identity = $matches[$slug];
     if (
-        '/products/m-350' !== get_post_meta($post_id, 'public_path', true) ||
-        'tio2-my-m-350' !== get_post_field('post_name', $post_id) ||
-        'GRADE-M350' !== get_post_meta($post_id, TIO2_MY_ROUTE_PAGE_ID_META, true) ||
-        'https://tio2malaysia.com/products/m-350/' !==
-            get_post_meta($post_id, TIO2_MY_ROUTE_CANONICAL_META, true) ||
+        $identity['public_path'] !== get_post_meta($post_id, 'public_path', true) ||
+        $identity['internal_slug'] !== get_post_field('post_name', $post_id) ||
+        $identity['canonical'] !== get_post_meta($post_id, TIO2_MY_ROUTE_CANONICAL_META, true) ||
         'PREVIEW_ONLY' !== get_post_meta($post_id, TIO2_MY_ROUTE_RELEASE_STATE_META, true)
     ) {
-        return new WP_Error('tio2_my_product_detail_invalid_route', 'The M-350 route identity is invalid.');
+        return new WP_Error('tio2_my_product_detail_invalid_route', 'The Product Detail route identity is invalid.');
     }
 
-    $approved = tio2_my_product_detail_approved_contract_json();
+    $approved = tio2_my_product_detail_approved_contract_json($slug);
     if (is_wp_error($approved)) {
         return $approved;
     }
@@ -59,22 +94,22 @@ function tio2_validate_product_detail_v01_contract(int $post_id)
     if (! is_string($stored) || ! hash_equals($approved, $stored)) {
         return new WP_Error(
             'tio2_my_product_detail_contract_mismatch',
-            'The stored Malaysia M-350 payload does not match the approved contract.'
+            'The stored Malaysia Product Detail payload does not match the approved contract.'
         );
     }
 
     $contract = json_decode($stored, true);
     if (
         ! is_array($contract) ||
-        'PRODUCT-DETAIL-G7-PCR-02' !== ($contract['reviewId'] ?? null) ||
-        'GRADE-M350' !== ($contract['identity']['pageId'] ?? null) ||
+        $identity['page_id'] !== ($contract['identity']['pageId'] ?? null) ||
         'tio2-my' !== ($contract['identity']['siteScope'] ?? null) ||
-        'm-350' !== ($contract['identity']['slug'] ?? null) ||
-        '/products/m-350/' !== ($contract['identity']['path'] ?? null) ||
+        $slug !== ($contract['identity']['slug'] ?? null) ||
+        $identity['grade_code'] !== ($contract['identity']['gradeCode'] ?? null) ||
+        $identity['public_path'] . '/' !== ($contract['identity']['path'] ?? null) ||
         'product-detail-v0.1-malaysia' !== ($contract['identity']['schemaVersion'] ?? null) ||
         'approved_for_preview' !== ($contract['identity']['recordState'] ?? null)
     ) {
-        return new WP_Error('tio2_my_product_detail_contract_invalid', 'The M-350 payload identity is invalid.');
+        return new WP_Error('tio2_my_product_detail_contract_invalid', 'The Product Detail payload identity is invalid.');
     }
     return true;
 }
@@ -87,7 +122,7 @@ function tio2_my_product_detail_route_readiness(array $contract): array
     }
     $routes = $contract['routeRegistry'] ?? null;
     if (! is_array($routes)) {
-        throw new \GraphQL\Error\UserError('The M-350 route registry is invalid.');
+        throw new \GraphQL\Error\UserError('The Product Detail route registry is invalid.');
     }
     $readiness = [];
     foreach ($routes as $route) {
@@ -97,7 +132,7 @@ function tio2_my_product_detail_route_readiness(array $contract): array
             ! is_string($route['href'] ?? null) ||
             array_key_exists($route['targetPageId'], $readiness)
         ) {
-            throw new \GraphQL\Error\UserError('The M-350 route registry is ambiguous.');
+            throw new \GraphQL\Error\UserError('The Product Detail route registry is ambiguous.');
         }
         $is_required_parent = 'required' === ($route['behavior'] ?? null) &&
             in_array($route['targetPageId'], ['HOME-001', 'PRODUCT-000'], true);
@@ -163,15 +198,16 @@ function tio2_my_product_detail_required_parent_available(string $target_page_id
 /** @return array<string, mixed> */
 function tio2_my_product_detail_public_projection(array $contract, array $readiness): array
 {
+    $grade_code = (string) ($contract['identity']['gradeCode'] ?? 'Product Detail');
     if (! ($readiness['HOME-001'] ?? false) || ! ($readiness['PRODUCT-000'] ?? false)) {
-        throw new \GraphQL\Error\UserError('The M-350 required parent routes are unavailable.');
+        throw new \GraphQL\Error\UserError($grade_code . ' required parent routes are unavailable.');
     }
 
     $verified = static fn (string $key): bool =>
         'verified' === ($contract['moduleStatus'][$key] ?? null);
     if (! $verified('hero') || ! $verified('positioning') || ! $verified('applications') ||
         ! $verified('evaluation') || ! $verified('technical')) {
-        throw new \GraphQL\Error\UserError('The M-350 minimum public projection is incomplete.');
+        throw new \GraphQL\Error\UserError($grade_code . ' minimum public projection is incomplete.');
     }
 
     $hero = $contract['hero'];
@@ -180,19 +216,49 @@ function tio2_my_product_detail_public_projection(array $contract, array $readin
         static fn (array $action): bool => true === ($readiness[$action['targetPageId']] ?? false)
     ));
 
+    $positioning = $contract['positioning'];
+    if (isset($positioning['contextualLink']) && ! ($readiness[$positioning['contextualLink']['targetPageId']] ?? false)) {
+        unset($positioning['contextualLink']);
+    }
+
+    $applications = $contract['applications'];
+    $applications['items'] = array_map(
+        static function (array $item) use ($readiness): array {
+            if (isset($item['targetPageId']) && ! ($readiness[$item['targetPageId']] ?? false)) {
+                unset($item['targetPageId'], $item['href']);
+            }
+            if (isset($item['relatedTargets']) && is_array($item['relatedTargets'])) {
+                $item['relatedTargets'] = array_values(array_filter(
+                    $item['relatedTargets'],
+                    static fn (array $target): bool => true === ($readiness[$target['targetPageId']] ?? false)
+                ));
+                if ([] === $item['relatedTargets']) {
+                    unset($item['relatedTargets']);
+                }
+            }
+            return $item;
+        },
+        $applications['items']
+    );
+
+    $technical = $contract['technical'];
+    if (isset($technical['action']) && ! ($readiness[$technical['action']['targetPageId']] ?? false)) {
+        unset($technical['action']);
+    }
+
     $modules = [
         'hero' => $hero,
-        'positioning' => $contract['positioning'],
-        'applications' => $contract['applications'],
+        'positioning' => $positioning,
+        'applications' => $applications,
         'evaluation' => $contract['evaluation'],
-        'technical' => $contract['technical'],
+        'technical' => $technical,
     ];
 
-    if ($verified('documents') && ($readiness[$contract['documents']['targetPageId']] ?? false)) {
+    if ($verified('documents') && isset($contract['documents']) && ($readiness[$contract['documents']['targetPageId']] ?? false)) {
         $modules['documents'] = $contract['documents'];
     }
 
-    if ($verified('markets')) {
+    if ($verified('markets') && isset($contract['markets'])) {
         $markets = $contract['markets'];
         $markets['items'] = array_values(array_filter(
             $markets['items'],
@@ -203,7 +269,7 @@ function tio2_my_product_detail_public_projection(array $contract, array $readin
         }
     }
 
-    if ($verified('relatedGrades')) {
+    if ($verified('relatedGrades') && isset($contract['relatedGrades'])) {
         $related = $contract['relatedGrades'];
         $related['items'] = array_values(array_filter(
             $related['items'],
@@ -217,7 +283,7 @@ function tio2_my_product_detail_public_projection(array $contract, array $readin
         }
     }
 
-    if ($verified('sample') && ($readiness[$contract['sample']['targetPageId']] ?? false)) {
+    if ($verified('sample') && isset($contract['sample']) && ($readiness[$contract['sample']['targetPageId']] ?? false)) {
         $modules['sample'] = $contract['sample'];
     }
 
@@ -235,19 +301,20 @@ function tio2_my_product_detail_public_projection(array $contract, array $readin
 function tio2_resolve_malaysia_product_detail_record_json($root, array $args): string
 {
     $slug = $args['slug'] ?? null;
-    if ('m-350' !== $slug) {
+    $identity = is_string($slug) ? (tio2_my_product_detail_approved_grades()[$slug] ?? null) : null;
+    if (! is_array($identity)) {
         throw new \GraphQL\Error\UserError('The requested Malaysia Product Detail is not authorized.');
     }
     $ids = get_posts([
         'post_type' => 'tio2_grade',
         'post_status' => 'publish',
-        'name' => 'tio2-my-m-350',
+        'name' => $identity['internal_slug'],
         'fields' => 'ids',
         'numberposts' => 2,
         'suppress_filters' => false,
         'meta_query' => [[
             'key' => 'public_path',
-            'value' => '/products/m-350',
+            'value' => $identity['public_path'],
             'compare' => '=',
         ]],
         'tax_query' => [[
@@ -259,21 +326,21 @@ function tio2_resolve_malaysia_product_detail_record_json($root, array $args): s
     if (1 !== count($ids)) {
         throw new \GraphQL\Error\UserError(
             0 === count($ids)
-                ? 'The Malaysia M-350 Product Detail record is missing.'
-                : 'Multiple Malaysia M-350 Product Detail records were found.'
+                ? 'The requested Malaysia Product Detail record is missing.'
+                : 'Multiple Malaysia Product Detail records were found.'
         );
     }
     $post_id = (int) $ids[0];
     $validation = tio2_validate_product_detail_v01_contract($post_id);
     if (is_wp_error($validation)) {
         throw new \GraphQL\Error\UserError(
-            'The Malaysia M-350 Product Detail record failed scope or contract validation.'
+            'The Malaysia Product Detail record failed scope or contract validation.'
         );
     }
     $contract_json = get_post_meta($post_id, TIO2_MY_PRODUCT_DETAIL_CONTRACT_META, true);
     $contract = is_string($contract_json) ? json_decode($contract_json, true) : null;
     if (! is_array($contract)) {
-        throw new \GraphQL\Error\UserError('The Malaysia M-350 record has no approved contract payload.');
+        throw new \GraphQL\Error\UserError('The Malaysia Product Detail record has no approved contract payload.');
     }
     $projection = tio2_my_product_detail_public_projection(
         $contract,
@@ -284,7 +351,7 @@ function tio2_resolve_malaysia_product_detail_record_json($root, array $args): s
         'modifiedGmt' => str_replace(' ', 'T', (string) get_post_field('post_modified_gmt', $post_id)),
         'status' => get_post_status($post_id),
         'siteScopes' => ['nodes' => [['slug' => 'tio2-my']]],
-        'publishingFields' => ['publicPath' => '/products/m-350'],
+        'publishingFields' => ['publicPath' => $identity['public_path']],
         'publicProjection' => $projection,
     ]);
 }
@@ -297,7 +364,7 @@ function tio2_register_product_detail_v01_graphql_field(): void
             'slug' => ['type' => ['non_null' => 'String']],
         ],
         'resolve' => 'tio2_resolve_malaysia_product_detail_record_json',
-        'description' => 'Approved scope-bound M-350 public projection for TiO2 Malaysia.',
+        'description' => 'Approved scope-bound Grade public projection for TiO2 Malaysia.',
     ]);
 }
 
