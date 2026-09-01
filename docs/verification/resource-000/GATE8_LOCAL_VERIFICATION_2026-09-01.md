@@ -7,6 +7,16 @@
 - Result: local Gate 8 implementation and verification complete for the current H0 state.
 - This record is not deployment, publication, indexing, Gate 9 PASS or Gate 10 authorization.
 
+## `RES-000-G8-PCR-01` conditional-return correction
+
+- Local correction status: complete and submitted for the same Review ID; project-control re-review remains required.
+- P0-01: the invented `PUBLIC_ELIGIBLE` production token was removed. PHP calls the controlled Malaysia Resource Page Registry using the exact Page ID, current registry mapping status and canonical path, and independently requires `publicEligibilityStatus=ELIGIBLE`. Required guide fields now include `resourceType`, `lastReviewedAt`, `ctaLabel`, `sourceOwner` and `recordReviewDate`.
+- P0-01 Trade extension: all ten Gate 7 fields are mandatory. `officialSourceUrl` must be a valid HTTPS URL; `sourceDate`, `reviewDate` and `nextReviewDue` must be real ISO dates; missing, invalid, stale or revoked input removes the whole Trade item.
+- P0-02: only entries with a unique valid `featuredRank` enter Featured. Remaining eligible entries enter Latest in `displayOrder` then stable Page ID order. PHP and TypeScript match the original H0–H5 vectors byte-for-field at the public projection boundary.
+- P0-03: a referenced child’s post status, scope, Page ID, public path, canonical, release or governed Resource/freshness metadata change adds exact `/resources` dependency invalidation. The Next receiver invalidates only the affected Resource child route tag, `route:tio2-my:/resources` and `content:tio2-my--resources`; it does not issue cross-scope or broad site/list/sitemap tags for this dependency event.
+- P1-01: public cards serialize the approved `PROCUREMENT_GUIDE`, `TECHNICAL_GUIDE` or `TRADE_UPDATE` label, approved `ctaLabel` and `lastReviewedAt`. Trade renders the approved public status and a normal crawlable official-source HTTPS link. `contextLabel` is used only when supplied and is never inferred.
+- Current local production-shaped CMS output remains H0, so the approved H0 body, shared Chrome and screenshot pixels are unchanged.
+
 ## Current public state
 
 - `H0_NO_QUALIFIED_RESOURCE`.
@@ -23,9 +33,9 @@
 - WordPress stores one non-public `tio2_resource_hub` singleton with exact `site_scope=tio2-my`, `/resources`, internal slug and byte-equal approved contract validation.
 - `malaysiaResourceHubRecordJson: String!` fails closed for missing, multiple, wrong-scope or contract-drifted records.
 - Internal relation metadata is projected inside WordPress. Only visible public card fields reach Next.js; governance fields and rejected candidates do not.
-- Eligibility requires the approved general predicates plus the shared strict route rule: exact Page ID, exact Malaysia scope/path/canonical, unique published record and `LIVE_APPROVED`. Trade items additionally require verified official source, approved applicable scope and `CURRENT_APPROVED` freshness with source/review dates.
-- The public H-state is derived; no editable H-state field exists. H2/H3/H4 ordering and H5 atomic removal are covered by test vectors only. Production relation storage is the empty array.
-- Cache keys use `site:tio2-my`, `route:tio2-my:/resources` and `content:tio2-my--resources`. The signed webhook maps Resource Hub changes only to the Malaysia route/tag set.
+- Eligibility requires the controlled Page Registry Page ID/status/path judgment, exact `publicEligibilityStatus=ELIGIBLE`, every approved general predicate and the shared strict route rule: exact Page ID, exact Malaysia scope/path/canonical, unique published record and `LIVE_APPROVED`. Trade then requires every Gate 7 §4 field and `CURRENT_APPROVED` freshness.
+- The public H-state is derived; no editable H-state field exists. The original H0–H5 vectors cover PHP/TypeScript allocation and H5 atomic removal. Production relation storage remains the empty array.
+- The Resource query retains its scoped cache namespace. Direct Hub changes and referenced-child H5 transitions invalidate the exact Malaysia `/resources` route/content tags; Resource dependency events do not clear another scope or the entire site.
 - Global Header, Mobile Menu and Footer use the one shared `MalaysiaGlobalHeader` / `MalaysiaGlobalFooter` implementation and the one shared Global Chrome configuration. RES passes only `currentPageId="RES-000"` and `sourcePageId="RES-000"`.
 
 ## SEO / GEO / Schema
@@ -68,6 +78,18 @@ Accessibility checks passed for one H1, ordered headings, semantic breadcrumb, b
 - `npm run build` with `SITE_ID=tio2-my`: PASS; `/resources` prerendered with one-hour revalidation.
 - `git diff --check`: PASS.
 - Local WordPress seed: PASS, post ID 17291, exact Malaysia scope/path and H0 projection.
+
+### Conditional-return verification additions
+
+- TDD red evidence: the first Gate 7 fixture run failed 20 of 31 assertions against the old eligibility, allocation and serialization behavior.
+- Corrected Resource unit/integration/API/infrastructure suite with both gated runtimes enabled: 15 files, 128 tests PASS.
+- PHP/TypeScript H0–H5 parity runtime: 1/1 PASS in isolated PHP 8.3; exact public card fields, allocation, order and state match.
+- Live WordPress H5 runtime: 1/1 PASS. A cached fixture H4 (`Featured=RES-ORIGIN`, `Latest=RES-PROC + RES-TRADE-EU`) became H3 after Trade release revocation; its card, link, order, source/date/status fields and projection relation disappeared together. The queued payload contained only `siteIds=[tio2-my]`, the changed child path and `/resources`.
+- Revalidation receiver H5 assertion: exact child route tag + `route:tio2-my:/resources` + `content:tio2-my--resources`; no `site`, `content-list`, `sitemap` or cross-scope tag.
+- Current live local GraphQL projection: `H0_NO_QUALIFIED_RESOURCE`, Featured 0, Latest 0, scope `tio2-my`, path `/resources`.
+- Corrected changed-file ESLint, TypeScript typecheck and PHP 8.3 syntax checks: PASS.
+- Corrected `SITE_ID=tio2-my` production build: PASS; `/resources` remains prerendered with one-hour revalidation.
+- Current H0 Playwright regression: 5/5 PASS at 390, 430, 768, 1440 and 200% scale. The four screenshot SHA-256 values above remained identical.
 
 One build intentionally failed closed when an old local generated fetch cache still contained the earlier GraphQL shape. The exact worktree-local generated cache was moved to ignored `.tmp` storage, a clean build then passed, and the runtime now has a dedicated Resource Hub revalidation tag. No runtime fallback was added and no external or production cache was changed.
 

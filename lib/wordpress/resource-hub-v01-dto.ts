@@ -3,6 +3,7 @@ import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-glo
 
 import {normalizeWordPressGmt} from './time'
 import {CrossSiteContentError} from './types'
+import {malaysiaResourceMappingAllowsPublic} from './resource-page-registry'
 import type {
   MalaysiaResourceCard,
   MalaysiaResourceHubDto,
@@ -38,81 +39,142 @@ function text(value: unknown, field: string): string {
   return value
 }
 
-function optionalInteger(value: unknown, field: string): number | null {
-  if (value === null) return null
-  if (!Number.isInteger(value) || (value as number) < 1 || (value as number) > 3) throw new ResourceHubContractError(field)
-  return value as number
+function optionalText(value: unknown): string | null {
+  return typeof value === 'string' && value.length > 0 && value.trim() === value ? value : null
 }
 
-function cardFromRelation(relation: UnknownRecord, index: number): MalaysiaResourceCard | null {
-  const field = `resourceRelations[${index}]`
-  let kind: 'general' | 'trade'
-  if (relation.kind === 'general' || relation.kind === 'trade') kind = relation.kind
-  else return null
+function isoDate(value: unknown): string | null {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/u.test(value)) return null
+  const [year, month, day] = value.split('-').map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+    ? value
+    : null
+}
+
+function httpsUrl(value: unknown): string | null {
+  if (typeof value !== 'string' || !value || value.trim() !== value) return null
+  try {
+    const url = new URL(value)
+    return url.protocol === 'https:' && !url.username && !url.password && url.hash === '' ? value : null
+  } catch {
+    return null
+  }
+}
+
+export interface ResourceProjectionPolicies {
+  readonly mappingAllowsPublic: (pageId: string, mappingStatus: string, canonicalPath: string) => boolean
+  readonly targetIsReady: (relation: Readonly<UnknownRecord>) => boolean
+}
+
+const productionProjectionPolicies: ResourceProjectionPolicies = {
+  mappingAllowsPublic: malaysiaResourceMappingAllowsPublic,
+  targetIsReady: (relation) => relation.releaseState === 'LIVE_APPROVED',
+}
+
+function cardFromRelation(
+  relation: UnknownRecord,
+  policies: ResourceProjectionPolicies,
+): MalaysiaResourceCard | null {
+  const pageId = optionalText(relation.pageId)
+  const mappingStatus = optionalText(relation.mappingStatus)
+  const canonicalPath = optionalText(relation.canonicalPath)
+  const resourceType = relation.resourceType
+  if (
+    !pageId || !mappingStatus || !canonicalPath ||
+    (resourceType !== 'PROCUREMENT_GUIDE' && resourceType !== 'TECHNICAL_GUIDE' && resourceType !== 'TRADE_UPDATE')
+  ) return null
   const eligible =
     relation.siteScope === 'tio2-my' && relation.locale === 'en' &&
-    relation.mappingStatus === 'PUBLIC_ELIGIBLE' &&
+    policies.mappingAllowsPublic(pageId, mappingStatus, canonicalPath) &&
     relation.childContentStatus === 'APPROVED' && relation.claimStatus === 'APPROVED' &&
+    relation.publicEligibilityStatus === 'ELIGIBLE' &&
     relation.routeStatus === 'VERIFIED_PUBLIC' && relation.canonicalStatus === 'VERIFIED' &&
-    relation.releaseState === 'LIVE_APPROVED'
+    policies.targetIsReady(relation)
   if (!eligible) return null
 
-  const canonicalPath = text(relation.canonicalPath, `${field}.canonicalPath`)
-  const canonicalUrl = text(relation.canonicalUrl, `${field}.canonicalUrl`)
+  const canonicalUrl = optionalText(relation.canonicalUrl)
+  if (!/^\/resources\/[a-z0-9]+(?:-[a-z0-9]+)*\/$/u.test(canonicalPath)) return null
   const expected = new URL(canonicalPath, 'https://tio2malaysia.com').href
-  if (!canonicalPath.startsWith('/resources/') || canonicalUrl !== expected) return null
+  const lastReviewedAt = isoDate(relation.lastReviewedAt)
+  const recordReviewDate = isoDate(relation.recordReviewDate)
+  const title = optionalText(relation.title)
+  const summary = optionalText(relation.summary)
+  const ctaLabel = optionalText(relation.ctaLabel)
+  const sourceOwner = optionalText(relation.sourceOwner)
+  if (
+    !canonicalPath.startsWith('/resources/') || canonicalUrl !== expected || !lastReviewedAt ||
+    !recordReviewDate || !title || !summary || !ctaLabel || !sourceOwner
+  ) return null
 
   const base: MalaysiaResourceCard = {
-    pageId: text(relation.pageId, `${field}.pageId`),
-    title: text(relation.title, `${field}.title`),
-    summary: text(relation.summary, `${field}.summary`),
+    pageId,
+    title,
+    summary,
     href: canonicalPath,
-    kind,
+    resourceType,
+    ctaLabel,
+    lastReviewedAt,
   }
-  if (kind === 'trade') {
-    if (
-      relation.freshnessStatus !== 'CURRENT_APPROVED' ||
-      relation.officialSourceStatus !== 'VERIFIED' ||
-      relation.applicableScopeStatus !== 'APPROVED'
-    ) return null
+  const contextLabel = optionalText(relation.contextLabel)
+  const publishedAt = relation.publishedAt === undefined || relation.publishedAt === null
+    ? null
+    : isoDate(relation.publishedAt)
+  if ((relation.publishedAt !== undefined && relation.publishedAt !== null && !publishedAt)) return null
+  if (contextLabel) Object.assign(base, {contextLabel})
+  if (publishedAt) Object.assign(base, {publishedAt})
+
+  if (resourceType === 'TRADE_UPDATE') {
+    const officialSourceName = optionalText(relation.officialSourceName)
+    const officialSourceUrl = httpsUrl(relation.officialSourceUrl)
+    const applicableScope = optionalText(relation.applicableScope)
+    const sourceDate = isoDate(relation.sourceDate)
+    const reviewDate = isoDate(relation.reviewDate)
+    const publicStatusLabel = optionalText(relation.publicStatusLabel)
+    const freshnessOwner = optionalText(relation.freshnessOwner)
+    const nextReviewDue = isoDate(relation.nextReviewDue)
+    const eventReviewTrigger = optionalText(relation.eventReviewTrigger)
+    if (relation.freshnessStatus !== 'CURRENT_APPROVED') return null
     return {
       ...base,
-      trade: {
-        officialSource: text(relation.officialSource, `${field}.officialSource`),
-        applicableScope: text(relation.applicableScope, `${field}.applicableScope`),
-        sourceDate: text(relation.sourceDate, `${field}.sourceDate`),
-        reviewDate: text(relation.reviewDate, `${field}.reviewDate`),
-      },
+      trade: officialSourceName && officialSourceUrl && applicableScope && sourceDate && reviewDate &&
+        publicStatusLabel && freshnessOwner && nextReviewDue && eventReviewTrigger
+        ? {officialSourceName, officialSourceUrl, applicableScope, sourceDate, reviewDate, publicStatusLabel}
+        : undefined,
     }
   }
   return base
 }
 
-export function projectEligibleMalaysiaResources(value: unknown): Pick<
-  MalaysiaResourceHubDto,
-  'publicState' | 'featuredResources' | 'latestResources'
-> {
+export function projectEligibleMalaysiaResources(
+  value: unknown,
+  policies: ResourceProjectionPolicies = productionProjectionPolicies,
+): Pick<MalaysiaResourceHubDto, 'publicState' | 'featuredResources' | 'latestResources'> {
   if (!Array.isArray(value)) throw new ResourceHubContractError('resourceRelations')
   const eligible = value.flatMap((raw, index) => {
     const relation = record(raw, `resourceRelations[${index}]`)
-    const card = cardFromRelation(relation, index)
-    if (!card) return []
+    const card = cardFromRelation(relation, policies)
+    if (!card || (card.resourceType === 'TRADE_UPDATE' && !card.trade)) return []
     const displayOrder = relation.displayOrder
-    if (!Number.isInteger(displayOrder) || (displayOrder as number) < 0) throw new ResourceHubContractError(`resourceRelations[${index}].displayOrder`)
-    return [{card, featuredRank: optionalInteger(relation.featuredRank, `resourceRelations[${index}].featuredRank`), displayOrder: displayOrder as number}]
+    if (!Number.isInteger(displayOrder) || (displayOrder as number) < 0) return []
+    const rank = relation.featuredRank
+    if (rank !== null && rank !== undefined && (!Number.isInteger(rank) || (rank as number) < 1 || (rank as number) > 3)) return []
+    return [{card, featuredRank: rank == null ? null : rank as number, displayOrder: displayOrder as number}]
   })
   const unique = new Map<string, (typeof eligible)[number]>()
   for (const item of eligible) {
     if (unique.has(item.card.pageId)) throw new ResourceHubContractError('resourceRelations.pageId')
     unique.set(item.card.pageId, item)
   }
-  const ordered = [...unique.values()].sort((a, b) =>
-    (a.featuredRank ?? Number.MAX_SAFE_INTEGER) - (b.featuredRank ?? Number.MAX_SAFE_INTEGER) ||
-    a.displayOrder - b.displayOrder || a.card.pageId.localeCompare(b.card.pageId),
-  )
-  const featured = ordered.slice(0, 3)
-  const latest = ordered.slice(3)
-  const hasTrade = ordered.some(({card}) => card.kind === 'trade')
+  const ranks = [...unique.values()].flatMap(({featuredRank}) => featuredRank === null ? [] : [featuredRank])
+  if (new Set(ranks).size !== ranks.length) throw new ResourceHubContractError('resourceRelations.featuredRank')
+  const compare = (a: (typeof eligible)[number], b: (typeof eligible)[number]) =>
+    a.displayOrder - b.displayOrder || a.card.pageId.localeCompare(b.card.pageId)
+  const featured = [...unique.values()].filter(({featuredRank}) => featuredRank !== null)
+    .sort((a, b) => (a.featuredRank as number) - (b.featuredRank as number) || compare(a, b))
+  const latest = [...unique.values()].filter(({featuredRank}) => featuredRank === null).sort(compare)
+  const ordered = [...featured, ...latest]
+  const hasTrade = ordered.some(({card}) => card.resourceType === 'TRADE_UPDATE')
   const publicState: MalaysiaResourcePublicState = !ordered.length
     ? 'H0_NO_QUALIFIED_RESOURCE'
     : hasTrade
@@ -137,29 +199,49 @@ function exactKeys(value: UnknownRecord, expected: readonly string[], field: str
 
 function validatedPublicCard(value: unknown, field: string): MalaysiaResourceCard {
   const item = record(value, field)
-  const kind = item.kind
-  if (kind !== 'general' && kind !== 'trade') throw new ResourceHubContractError(`${field}.kind`)
-  exactKeys(item, kind === 'trade'
-    ? ['pageId', 'title', 'summary', 'href', 'kind', 'trade']
-    : ['pageId', 'title', 'summary', 'href', 'kind'], field)
+  const resourceType = item.resourceType
+  if (resourceType !== 'PROCUREMENT_GUIDE' && resourceType !== 'TECHNICAL_GUIDE' && resourceType !== 'TRADE_UPDATE') {
+    throw new ResourceHubContractError(`${field}.resourceType`)
+  }
+  const expectedKeys = ['pageId', 'title', 'summary', 'href', 'resourceType', 'ctaLabel', 'lastReviewedAt']
+  if (item.contextLabel !== undefined) expectedKeys.push('contextLabel')
+  if (item.publishedAt !== undefined) expectedKeys.push('publishedAt')
+  if (resourceType === 'TRADE_UPDATE') expectedKeys.push('trade')
+  exactKeys(item, expectedKeys, field)
   const href = text(item.href, `${field}.href`)
-  if (!href.startsWith('/resources/') || new URL(href, 'https://tio2malaysia.com').origin !== 'https://tio2malaysia.com') {
+  if (!/^\/resources\/[a-z0-9]+(?:-[a-z0-9]+)*\/$/u.test(href)) {
     throw new ResourceHubContractError(`${field}.href`)
   }
+  const lastReviewedAt = isoDate(item.lastReviewedAt)
+  if (!lastReviewedAt) throw new ResourceHubContractError(`${field}.lastReviewedAt`)
   const base: MalaysiaResourceCard = {
     pageId: text(item.pageId, `${field}.pageId`), title: text(item.title, `${field}.title`),
-    summary: text(item.summary, `${field}.summary`), href, kind,
+    summary: text(item.summary, `${field}.summary`), href, resourceType,
+    ctaLabel: text(item.ctaLabel, `${field}.ctaLabel`),
+    lastReviewedAt,
   }
-  if (kind === 'general') return base
+  if (item.contextLabel !== undefined) Object.assign(base, {contextLabel: text(item.contextLabel, `${field}.contextLabel`)})
+  if (item.publishedAt !== undefined) {
+    const publishedAt = isoDate(item.publishedAt)
+    if (!publishedAt) throw new ResourceHubContractError(`${field}.publishedAt`)
+    Object.assign(base, {publishedAt})
+  }
+  if (resourceType !== 'TRADE_UPDATE') return base
   const trade = record(item.trade, `${field}.trade`)
-  exactKeys(trade, ['officialSource', 'applicableScope', 'sourceDate', 'reviewDate'], `${field}.trade`)
+  exactKeys(trade, ['officialSourceName', 'officialSourceUrl', 'applicableScope', 'sourceDate', 'reviewDate', 'publicStatusLabel'], `${field}.trade`)
+  const officialSourceUrl = httpsUrl(trade.officialSourceUrl)
+  const sourceDate = isoDate(trade.sourceDate)
+  const reviewDate = isoDate(trade.reviewDate)
+  if (!officialSourceUrl || !sourceDate || !reviewDate) throw new ResourceHubContractError(`${field}.trade`)
   return {
     ...base,
     trade: {
-      officialSource: text(trade.officialSource, `${field}.trade.officialSource`),
+      officialSourceName: text(trade.officialSourceName, `${field}.trade.officialSourceName`),
+      officialSourceUrl,
       applicableScope: text(trade.applicableScope, `${field}.trade.applicableScope`),
-      sourceDate: text(trade.sourceDate, `${field}.trade.sourceDate`),
-      reviewDate: text(trade.reviewDate, `${field}.trade.reviewDate`),
+      sourceDate,
+      reviewDate,
+      publicStatusLabel: text(trade.publicStatusLabel, `${field}.trade.publicStatusLabel`),
     },
   }
 }
@@ -180,7 +262,7 @@ function validatedPublicProjection(value: unknown): Pick<
   if (new Set(visible.map(({pageId}) => pageId)).size !== visible.length) throw new ResourceHubContractError('resourceProjection.pageId')
   const expectedState: MalaysiaResourcePublicState = !visible.length
     ? 'H0_NO_QUALIFIED_RESOURCE'
-    : visible.some(({kind}) => kind === 'trade')
+    : visible.some(({resourceType}) => resourceType === 'TRADE_UPDATE')
       ? 'H4_TRADE_ITEM'
       : visible.length === 1
         ? 'H2_ONE_PUBLIC_RESOURCE'

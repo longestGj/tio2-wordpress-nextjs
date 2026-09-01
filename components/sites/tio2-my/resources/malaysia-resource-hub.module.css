@@ -89,6 +89,7 @@
 .resourceGrid dl { margin: 20px 0 0; padding-top: 12px; border-top: 1px solid var(--border); font-size: 13px; }
 .resourceGrid dl div { display: grid; grid-template-columns: 100px 1fr; gap: 12px; padding-top: 8px; }
 .resourceGrid dt { font-weight: 800; }.resourceGrid dd { margin: 0; }
+.resourceGrid dd a { min-height: 44px; display: inline-flex; align-items: center; color: var(--teal); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 
 .evidence { max-width: none; background: var(--soft); }
 .evidence > * { max-width: 1152px; margin-left: auto; margin-right: auto; }

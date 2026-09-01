@@ -323,13 +323,44 @@ describe('POST /api/revalidate', () => {
     expect(response.status).toBe(200)
     expect(body.revalidatedPaths).toEqual(['/resources'])
     expect(body.revalidatedTags).toEqual([
-      'content-list:tio2-my',
       'content:tio2-my--resources',
       'route:tio2-my:/resources',
-      'site:tio2-my',
-      'sitemap:tio2-my',
     ])
     expect(JSON.stringify(body)).not.toMatch(/tio2-a|tio2-b/iu)
+  })
+
+  it('invalidates an H5 child dependency and Resources projection without broad site tags', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'],
+      paths: ['/resources/eu-titanium-dioxide-anti-dumping-duty/', '/resources/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual([
+      '/resources', '/resources/eu-titanium-dioxide-anti-dumping-duty',
+    ])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--resources',
+      'route:tio2-my:/resources',
+      'route:tio2-my:/resources/eu-titanium-dioxide-anti-dumping-duty',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
+  })
+
+  it('keeps a referenced child canonical moved outside /resources on exact tags', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/legacy-resource/', '/resources/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--resources',
+      'route:tio2-my:/legacy-resource',
+      'route:tio2-my:/resources',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
   })
 
   it('rejects unknown body properties', async () => {

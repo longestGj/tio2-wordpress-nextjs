@@ -15,12 +15,18 @@ export interface MalaysiaResourceCard {
   readonly title: string
   readonly summary: string
   readonly href: string
-  readonly kind: 'general' | 'trade'
+  readonly resourceType: 'PROCUREMENT_GUIDE' | 'TECHNICAL_GUIDE' | 'TRADE_UPDATE'
+  readonly ctaLabel: string
+  readonly lastReviewedAt: string
+  readonly contextLabel?: string
+  readonly publishedAt?: string
   readonly trade?: Readonly<{
-    officialSource: string
+    officialSourceName: string
+    officialSourceUrl: string
     applicableScope: string
     sourceDate: string
     reviewDate: string
+    publicStatusLabel: string
   }>
 }
 

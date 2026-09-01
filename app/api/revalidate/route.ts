@@ -270,10 +270,15 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const tags = new Set<string>()
+  const preciseMalaysiaResourceEvent =
+    currentSite.id === 'tio2-my' &&
+    payload.paths.includes('/resources')
   for (const siteId of payload.siteIds) {
-    tags.add(contentListTag(siteId))
-    tags.add(siteTag(siteId))
-    tags.add(sitemapTag(siteId))
+    if (!preciseMalaysiaResourceEvent) {
+      tags.add(contentListTag(siteId))
+      tags.add(siteTag(siteId))
+      tags.add(sitemapTag(siteId))
+    }
     for (const path of payload.paths) {
       tags.add(routeTag(siteId, path))
       if (path === '/') tags.add(homepageContentTag(siteId))

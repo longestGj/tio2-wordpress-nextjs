@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "tio2-my-resource-page-registry-v0.1",
+  "authority": "PAGE_REGISTRY_V0.1",
+  "entries": [
+    {
+      "pageId": "RES-ORIGIN",
+      "canonicalPath": "/resources/non-china-titanium-dioxide/",
+      "mappingStatus": "APPROVED_PRD_V0.3",
+      "publicMappingAllowed": true
+    },
+    {
+      "pageId": "RES-PROC",
+      "canonicalPath": "/resources/chloride-vs-sulfate-titanium-dioxide/",
+      "mappingStatus": "NEW_PAGE_CANDIDATE",
+      "publicMappingAllowed": false
+    },
+    {
+      "pageId": "RES-CHEMOURS",
+      "canonicalPath": "/resources/chemours-titanium-dioxide-alternatives/",
+      "mappingStatus": "NEW_PAGE_CANDIDATE",
+      "publicMappingAllowed": false
+    },
+    {
+      "pageId": "RES-R706",
+      "canonicalPath": "/resources/ti-pure-r-706-alternative/",
+      "mappingStatus": "NEW_PAGE_CANDIDATE",
+      "publicMappingAllowed": false
+    },
+    {
+      "pageId": "RES-TRADE-EU",
+      "canonicalPath": "/resources/eu-titanium-dioxide-anti-dumping-duty/",
+      "mappingStatus": "PLANNED_CONTENT",
+      "publicMappingAllowed": false
+    },
+    {
+      "pageId": "RES-TRADE-UK",
+      "canonicalPath": "/resources/uk-titanium-dioxide-anti-dumping-investigation/",
+      "mappingStatus": "PLANNED_CONTENT",
+      "publicMappingAllowed": false
+    },
+    {
+      "pageId": "RES-TRADE-IN",
+      "canonicalPath": "/resources/india-titanium-dioxide-anti-dumping-duty/",
+      "mappingStatus": "PLANNED_CONTENT",
+      "publicMappingAllowed": false
+    },
+    {
+      "pageId": "RES-TRADE-BR",
+      "canonicalPath": "/resources/brazil-titanium-dioxide-anti-dumping-duty/",
+      "mappingStatus": "PLANNED_CONTENT",
+      "publicMappingAllowed": false
+    }
+  ]
+}

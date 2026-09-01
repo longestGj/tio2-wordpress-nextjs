@@ -5,21 +5,28 @@ import styles from './malaysia-resource-hub.module.css'
 import {ResourceFaq} from './resource-faq'
 
 function ResourceCards({items}: {readonly items: readonly MalaysiaResourceCard[]}) {
+  const labels = {
+    PROCUREMENT_GUIDE: 'PROCUREMENT GUIDE',
+    TECHNICAL_GUIDE: 'TECHNICAL GUIDE',
+    TRADE_UPDATE: 'TRADE & MARKET UPDATE',
+  } as const
   return (
     <div className={styles.resourceGrid}>
       {items.map((item) => (
         <article key={item.pageId}>
-          <p className={styles.cardKind}>{item.kind === 'trade' ? 'TRADE & MARKET UPDATE' : 'PROCUREMENT RESOURCE'}</p>
+          <p className={styles.cardKind}>{item.contextLabel ?? labels[item.resourceType]}</p>
           <h3>{item.title}</h3><p>{item.summary}</p>
+          <p>Last reviewed: <time dateTime={item.lastReviewedAt}>{item.lastReviewedAt}</time></p>
           {item.trade ? (
             <dl>
-              <div><dt>Source</dt><dd>{item.trade.officialSource}</dd></div>
+              <div><dt>Source</dt><dd><a href={item.trade.officialSourceUrl}>{item.trade.officialSourceName}</a></dd></div>
               <div><dt>Scope</dt><dd>{item.trade.applicableScope}</dd></div>
               <div><dt>Source date</dt><dd>{item.trade.sourceDate}</dd></div>
               <div><dt>Review date</dt><dd>{item.trade.reviewDate}</dd></div>
+              <div><dt>Status</dt><dd>{item.trade.publicStatusLabel}</dd></div>
             </dl>
           ) : null}
-          <a href={item.href}>Read resource <span aria-hidden="true">→</span></a>
+          <a href={item.href}>{item.ctaLabel} <span aria-hidden="true">→</span></a>
         </article>
       ))}
     </div>
