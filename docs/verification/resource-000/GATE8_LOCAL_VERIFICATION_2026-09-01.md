@@ -5,11 +5,12 @@
 - Development target: `RES-000` at `/resources/`, `site_scope=tio2-my`.
 - Authority: `RES-000-G7-PCR-01 = PROJECT_CONTROL_REVIEW_PASS / CLOSED` and package `RES-000-G7-HANDOFF-01`.
 - Result: local Gate 8 implementation and verification complete for the current H0 state.
+- Gate 8 project-control disposition: `RES-000-G8-PCR-01 = PROJECT_CONTROL_REVIEW_PASS / CLOSED` after read-only review of commit `969d250`.
 - This record is not deployment, publication, indexing, Gate 9 PASS or Gate 10 authorization.
 
-## `RES-000-G8-PCR-01` conditional-return correction
+## `RES-000-G8-PCR-01` correction and closure
 
-- Local correction status: complete and submitted for the same Review ID; project-control re-review remains required.
+- Closure status: project-control read-only re-review passed and closed the Review ID. Independent evidence confirmed TypeScript/PHP count=1 normalization, DTO rejection of invalid H2 allocation, DOM/Hero CTA/ItemList parity, 7 files / 86 tests PASS, typecheck PASS, changed-file ESLint PASS, `git diff --check` PASS, clean worktree and unchanged 1440/390 H0 shared-Chrome evidence.
 - P0-01: the invented `PUBLIC_ELIGIBLE` production token was removed. PHP calls the controlled Malaysia Resource Page Registry using the exact Page ID, current registry mapping status and canonical path, and independently requires `publicEligibilityStatus=ELIGIBLE`. Required guide fields now include `resourceType`, `lastReviewedAt`, `ctaLabel`, `sourceOwner` and `recordReviewDate`.
 - P0-01 Trade extension: all ten Gate 7 fields are mandatory. `officialSourceUrl` must be a valid HTTPS URL; `sourceDate`, `reviewDate` and `nextReviewDue` must be real ISO dates; missing, invalid, stale or revoked input removes the whole Trade item.
 - P0-02: only entries with a unique valid `featuredRank` enter Featured. Remaining eligible entries enter Latest in `displayOrder` then stable Page ID order. PHP and TypeScript match the original H0–H5 vectors byte-for-field at the public projection boundary.
