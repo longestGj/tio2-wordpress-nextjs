@@ -52,7 +52,7 @@ function tio2_get_webhook_config(string $site_id, ?array $environment = null): ?
  */
 function tio2_webhook_post_types(): array
 {
-    return array_merge(['page', 'post', 'tio2_homepage', 'tio2_resource_hub'], array_keys(tio2_content_type_definitions()));
+    return array_merge(['page', 'post', 'tio2_homepage', 'tio2_resource_hub', 'tio2_about_page'], array_keys(tio2_content_type_definitions()));
 }
 
 /**
@@ -419,6 +419,11 @@ function tio2_get_webhook_affected_state(
         $paths = ['/resources'];
         $entity_ids = [$post_id];
         $site_paths['tio2-my'] = $paths;
+    } elseif ('tio2_about_page' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $paths = ['/about'];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
     } elseif (in_array($post->post_type, ['page', 'post'], true)) {
         if (1 !== count($site_ids)) {
             return null;
@@ -631,6 +636,13 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
         $post instanceof WP_Post &&
         'tio2_resource_hub' === $post->post_type &&
         in_array($meta_key, [TIO2_MY_RESOURCE_HUB_CONTRACT_META, TIO2_MY_RESOURCE_HUB_RELATIONS_META], true)
+    ) {
+        return true;
+    }
+    if (
+        $post instanceof WP_Post &&
+        'tio2_about_page' === $post->post_type &&
+        TIO2_MY_ABOUT_PAGE_CONTRACT_META === $meta_key
     ) {
         return true;
     }

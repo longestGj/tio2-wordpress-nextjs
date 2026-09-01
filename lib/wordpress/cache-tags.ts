@@ -173,6 +173,11 @@ export function resourceHubContentTag(siteId: string): string {
   return `content:${siteId}--resources`
 }
 
+export function aboutPageContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  return `content:${siteId}--about`
+}
+
 export function productDetailContentTag(siteId: string, slug: string): string {
   assertSiteId(siteId)
   if (siteId !== 'tio2-my' || slug !== 'm-350') {

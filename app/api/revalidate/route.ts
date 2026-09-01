@@ -8,6 +8,7 @@ import {resolveProductPageIdentity} from '@/lib/products/page-graph'
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {SITE_IDS} from '@/sites'
 import {
+  aboutPageContentTag,
   applicationListTag,
   applicationTag,
   contentListTag,
@@ -287,6 +288,9 @@ export async function POST(request: Request): Promise<Response> {
       }
       if (siteId === 'tio2-my' && path === '/resources') {
         tags.add(resourceHubContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && path === '/about') {
+        tags.add(aboutPageContentTag(siteId))
       }
 
       const productIdentity = productIdentityByPath.get(path)

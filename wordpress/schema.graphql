@@ -13142,9 +13142,6 @@ interface Tio2HomepageConnectionEdge implements Edge {
 
 "The Tio2Homepage type"
 type Tio2Homepage implements Node & ContentNode & UniformResourceIdentifiable & DatabaseIdentifier & NodeWithTemplate & NodeWithTitle & NodeWithRevisions & WithAcfBrandHomepageFields & WithAcfEditorialGeoFields & WithAcfHomepageFields {
-  "Approved, scope-bound HOME-001 contract for TiO2 Malaysia."
-  malaysiaHomepageContractJson: String!
-
   "The id field matches the WP_Post-&gt;ID field."
   tio2HomepageId: Int! @deprecated(reason: "Deprecated in favor of the databaseId field")
 
@@ -13270,6 +13267,9 @@ type Tio2Homepage implements Node & ContentNode & UniformResourceIdentifiable & 
 
   "The permalink of the post"
   link: String
+
+  "Approved, scope-bound HOME-001 contract for TiO2 Malaysia."
+  malaysiaHomepageContractJson: String!
 
   "The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time."
   modified: String
@@ -17247,18 +17247,6 @@ type RootQuery {
   "Entry point to get all settings for the site"
   allSettings: Settings
 
-  "Approved, scope-bound MARKET-000 record for TiO2 Malaysia."
-  malaysiaMarketHubRecordJson: String!
-
-  "Approved, scope-bound PRODUCT-000 record and route readiness for TiO2 Malaysia."
-  malaysiaProductHubRecordJson: String!
-
-  "Approved, scope-bound RES-000 record and public projection for TiO2 Malaysia."
-  malaysiaResourceHubRecordJson: String!
-
-  "Approved scope-bound M-350 public projection for TiO2 Malaysia."
-  malaysiaProductDetailRecordJson(slug: String!): String!
-
   "Connection between the RootQuery type and the category type"
   categories(
     "The number of items to return after the referenced \"after\" cursor"
@@ -17375,6 +17363,21 @@ type RootQuery {
 
   "Fields of the &#039;GeneralSettings&#039; settings group"
   generalSettings: GeneralSettings
+
+  "Approved, scope-bound ABOUT-001 record for TiO2 Malaysia."
+  malaysiaAboutPageRecordJson: String!
+
+  "Approved, scope-bound MARKET-000 record for TiO2 Malaysia."
+  malaysiaMarketHubRecordJson: String!
+
+  "Approved scope-bound M-350 public projection for TiO2 Malaysia."
+  malaysiaProductDetailRecordJson(slug: String!): String!
+
+  "Approved, scope-bound PRODUCT-000 record and route readiness for TiO2 Malaysia."
+  malaysiaProductHubRecordJson: String!
+
+  "Approved, scope-bound RES-000 record and public H0 projection for TiO2 Malaysia."
+  malaysiaResourceHubRecordJson: String!
 
   "An object of the mediaItem Type. "
   mediaItem(
