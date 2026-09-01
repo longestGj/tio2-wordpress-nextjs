@@ -21,6 +21,7 @@ import {
   productFamilyTag,
   productsHubTag,
   resourceListTag,
+  resourceHubContentTag,
   resourceTag,
   routeTag,
   siteTag,
@@ -278,6 +279,9 @@ export async function POST(request: Request): Promise<Response> {
       if (path === '/') tags.add(homepageContentTag(siteId))
       if (siteId === 'tio2-my' && path === '/markets') {
         tags.add(marketHubContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && path === '/resources') {
+        tags.add(resourceHubContentTag(siteId))
       }
 
       const productIdentity = productIdentityByPath.get(path)

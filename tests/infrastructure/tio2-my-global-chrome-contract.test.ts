@@ -20,6 +20,8 @@ const productComponentPath = 'components/sites/tio2-my/products/malaysia-product
 const productCssPath = 'components/sites/tio2-my/products/malaysia-product-hub.module.css'
 const productDetailComponentPath = 'components/sites/tio2-my/products/malaysia-product-detail.tsx'
 const productDetailCssPath = 'components/sites/tio2-my/products/malaysia-product-detail.module.css'
+const resourceComponentPath = 'components/sites/tio2-my/resources/malaysia-resource-hub.tsx'
+const resourceCssPath = 'components/sites/tio2-my/resources/malaysia-resource-hub.module.css'
 const legacyHomeHeaderPath = 'components/sites/tio2-my/malaysia-header.tsx'
 
 describe('TiO2 Malaysia shared Global Chrome contract', () => {
@@ -69,9 +71,10 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
     const market = readFileSync(marketComponentPath, 'utf8')
     const product = readFileSync(productComponentPath, 'utf8')
     const productDetail = readFileSync(productDetailComponentPath, 'utf8')
+    const resource = readFileSync(resourceComponentPath, 'utf8')
 
     expect(existsSync(legacyHomeHeaderPath)).toBe(false)
-    for (const page of [home, market, product, productDetail]) {
+    for (const page of [home, market, product, productDetail, resource]) {
       expect(page).toMatch(/from '\.\.\/malaysia-global-chrome'/u)
       expect(page.match(/<MalaysiaGlobalHeader/gu)).toHaveLength(1)
       expect(page.match(/<MalaysiaGlobalFooter/gu)).toHaveLength(1)
@@ -84,6 +87,8 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
     expect(product).toMatch(/sourcePageId="PRODUCT-000"/u)
     expect(productDetail).toMatch(/currentPageId="PRODUCT-000"/u)
     expect(productDetail).toMatch(/sourcePageId="GRADE-M350"/u)
+    expect(resource).toMatch(/currentPageId="RES-000"/u)
+    expect(resource).toMatch(/sourcePageId="RES-000"/u)
   })
 
   it('prevents page CSS from styling any shared Chrome surface', () => {
@@ -92,11 +97,13 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
     const marketCss = readFileSync(marketCssPath, 'utf8')
     const productCss = readFileSync(productCssPath, 'utf8')
     const productDetailCss = readFileSync(productDetailCssPath, 'utf8')
+    const resourceCss = readFileSync(resourceCssPath, 'utf8')
 
     expect(homeCss).not.toMatch(forbiddenChromeSelector)
     expect(marketCss).not.toMatch(forbiddenChromeSelector)
     expect(productCss).not.toMatch(forbiddenChromeSelector)
     expect(productDetailCss).not.toMatch(forbiddenChromeSelector)
+    expect(resourceCss).not.toMatch(forbiddenChromeSelector)
     expect(homeCss).not.toMatch(/\.site\s+(?:\*|a|h1|h2|h3|p|:is)/u)
     expect(homeCss).toMatch(/\.homepageMain\s+a/u)
     expect(marketCss).not.toMatch(/\.site\s+(?:\*|a|h1|h2|h3|p|:is)/u)
@@ -104,6 +111,8 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
     expect(productCss).toMatch(/\.productMain\s+a/u)
     expect(productDetailCss).not.toMatch(/\.productDetailSite\s+(?:\*|a|h1|h2|h3|p|:is)/u)
     expect(productDetailCss).toMatch(/\.productMain\s+:where\(a, button\)/u)
+    expect(resourceCss).not.toMatch(/\.site\s+(?:\*|a|h1|h2|h3|p|:is)/u)
+    expect(resourceCss).toMatch(/\.resourceMain\s+h2/u)
   })
 
   it('resolves Home, Markets and Products through the single site-local Chrome configuration', () => {
@@ -111,15 +120,18 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
     const marketDto = readFileSync('lib/wordpress/market-hub-v01-dto.ts', 'utf8')
     const productDto = readFileSync('lib/wordpress/product-hub-v01-dto.ts', 'utf8')
     const productDetailDto = readFileSync('lib/wordpress/product-detail-v01-dto.ts', 'utf8')
+    const resourceDto = readFileSync('lib/wordpress/resource-hub-v01-dto.ts', 'utf8')
     const configImport = "import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'"
 
     expect(homeDto).toContain(configImport)
     expect(marketDto).toContain(configImport)
     expect(productDto).toContain(configImport)
     expect(productDetailDto).toContain(configImport)
+    expect(resourceDto).toContain(configImport)
     expect(homeDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
     expect(marketDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
     expect(productDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
     expect(productDetailDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
+    expect(resourceDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
   })
 })
