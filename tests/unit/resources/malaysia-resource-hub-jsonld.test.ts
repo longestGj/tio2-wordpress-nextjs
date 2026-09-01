@@ -6,6 +6,7 @@ import {getSiteConfig} from '@/sites'
 import {
   resourceFixturePolicies,
   resourceH3Relations,
+  resourceH2UnrankedRelations,
   resourceH4Relations,
   resourceH5Relations,
 } from '@/tests/fixtures/tio2-my-resource-hub-states'
@@ -35,6 +36,24 @@ describe('RES-000 JSON-LD', () => {
     expect(list.itemListElement.map(({name, url}) => ({name, url}))).toEqual(
       visible.map((item) => ({name: item.title, url: new URL(item.href, 'https://tio2malaysia.com').href})),
     )
+  })
+
+  it('emits one ItemList entry for an unranked H2 resource normalized to Featured', () => {
+    const resourceHub = hub(resourceH2UnrankedRelations)
+    expect(resourceHub.featuredResources.map(({pageId}) => pageId)).toEqual(['RES-PROC'])
+    expect(resourceHub.latestResources).toEqual([])
+    const schema = buildMalaysiaResourceHubJsonLd(getSiteConfig('tio2-my'), resourceHub) as {'@graph': Array<Record<string, unknown>>}
+    const itemList = schema['@graph'].find((node) => node['@type'] === 'ItemList') as {
+      numberOfItems: number
+      itemListElement: Array<{position: number; url: string}>
+    }
+    expect(itemList.numberOfItems).toBe(1)
+    expect(itemList.itemListElement).toEqual([{
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Chloride vs Sulfate Titanium Dioxide',
+      url: 'https://tio2malaysia.com/resources/chloride-vs-sulfate-titanium-dioxide/',
+    }])
   })
 
   it('removes an H5 Trade ItemList relation in the same recomputation', () => {

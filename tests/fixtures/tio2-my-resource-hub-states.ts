@@ -96,6 +96,7 @@ export const resourceH1Relations = [eligibleGuide('RES-ORIGIN', {
   releaseState: 'NOT_READY',
 })]
 export const resourceH2Relations = [eligibleGuide('RES-ORIGIN')]
+export const resourceH2UnrankedRelations = [eligibleGuide('RES-PROC')]
 export const resourceH3Relations = [eligibleGuide('RES-ORIGIN'), eligibleGuide('RES-PROC')]
 export const resourceH4Relations = [...resourceH3Relations, eligibleTrade()]
 export const resourceH5Relations = [

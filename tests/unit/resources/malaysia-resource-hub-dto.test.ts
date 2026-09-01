@@ -11,6 +11,7 @@ import {
   resourceH0Relations,
   resourceH1Relations,
   resourceH2Relations,
+  resourceH2UnrankedRelations,
   resourceH3Relations,
   resourceH4Relations,
   resourceH5Relations,
@@ -53,6 +54,7 @@ describe('RES-000 DTO and deterministic projection', () => {
       [resourceH0Relations, 'H0_NO_QUALIFIED_RESOURCE', [], []],
       [resourceH1Relations, 'H0_NO_QUALIFIED_RESOURCE', [], []],
       [resourceH2Relations, 'H2_ONE_PUBLIC_RESOURCE', ['RES-ORIGIN'], []],
+      [resourceH2UnrankedRelations, 'H2_ONE_PUBLIC_RESOURCE', ['RES-PROC'], []],
       [resourceH3Relations, 'H3_MULTIPLE_PUBLIC_RESOURCES', ['RES-ORIGIN'], ['RES-PROC']],
       [resourceH4Relations, 'H4_TRADE_ITEM', ['RES-ORIGIN'], ['RES-PROC', 'RES-TRADE-EU']],
       [resourceH5Relations, 'H3_MULTIPLE_PUBLIC_RESOURCES', ['RES-ORIGIN'], ['RES-PROC']],
@@ -63,6 +65,18 @@ describe('RES-000 DTO and deterministic projection', () => {
       expect(projected.featuredResources.map(({pageId}) => pageId)).toEqual(featured)
       expect(projected.latestResources.map(({pageId}) => pageId)).toEqual(latest)
     }
+  })
+
+  it('rejects a public H2 projection that places its only item in Latest', () => {
+    const correct = projectEligibleMalaysiaResources(resourceH2UnrankedRelations, resourceFixturePolicies)
+    expect(() => toMalaysiaResourceHubDto({
+      ...source(),
+      resourceProjection: {
+        publicState: 'H2_ONE_PUBLIC_RESOURCE',
+        featuredResources: [],
+        latestResources: correct.featuredResources,
+      },
+    })).toThrow(/H2Allocation/u)
   })
 
   it.each([

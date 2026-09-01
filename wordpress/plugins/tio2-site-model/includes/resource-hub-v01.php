@@ -302,12 +302,17 @@ function tio2_my_resource_public_projection(
         return ($left['order'] <=> $right['order']) ?:
             strcmp((string) $left['card']['pageId'], (string) $right['card']['pageId']);
     };
-    $featured_items = array_values(array_filter($eligible, static fn (array $item): bool => null !== $item['rank']));
-    usort($featured_items, static function (array $left, array $right) use ($compare): int {
-        return ($left['rank'] <=> $right['rank']) ?: $compare($left, $right);
-    });
-    $latest_items = array_values(array_filter($eligible, static fn (array $item): bool => null === $item['rank']));
-    usort($latest_items, $compare);
+    if (1 === count($eligible)) {
+        $featured_items = $eligible;
+        $latest_items = [];
+    } else {
+        $featured_items = array_values(array_filter($eligible, static fn (array $item): bool => null !== $item['rank']));
+        usort($featured_items, static function (array $left, array $right) use ($compare): int {
+            return ($left['rank'] <=> $right['rank']) ?: $compare($left, $right);
+        });
+        $latest_items = array_values(array_filter($eligible, static fn (array $item): bool => null === $item['rank']));
+        usort($latest_items, $compare);
+    }
     $featured = array_values(array_map(static fn (array $item): array => $item['card'], $featured_items));
     $latest = array_values(array_map(static fn (array $item): array => $item['card'], $latest_items));
     $cards = array_merge($featured, $latest);

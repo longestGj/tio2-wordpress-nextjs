@@ -13,6 +13,7 @@
 - P0-01: the invented `PUBLIC_ELIGIBLE` production token was removed. PHP calls the controlled Malaysia Resource Page Registry using the exact Page ID, current registry mapping status and canonical path, and independently requires `publicEligibilityStatus=ELIGIBLE`. Required guide fields now include `resourceType`, `lastReviewedAt`, `ctaLabel`, `sourceOwner` and `recordReviewDate`.
 - P0-01 Trade extension: all ten Gate 7 fields are mandatory. `officialSourceUrl` must be a valid HTTPS URL; `sourceDate`, `reviewDate` and `nextReviewDue` must be real ISO dates; missing, invalid, stale or revoked input removes the whole Trade item.
 - P0-02: only entries with a unique valid `featuredRank` enter Featured. Remaining eligible entries enter Latest in `displayOrder` then stable Page ID order. PHP and TypeScript match the original H0–H5 vectors byte-for-field at the public projection boundary.
+- P0 H2 follow-up: because `featuredRank` is optional, a single distinct eligible item is deterministically normalized into Featured even when its rank is absent; Latest remains empty. Count ≥2 keeps the ranked-Featured/unranked-Latest rule. The public DTO rejects any one-item H2 projection placed in Latest.
 - P0-03: a referenced child’s post status, scope, Page ID, public path, canonical, release or governed Resource/freshness metadata change adds exact `/resources` dependency invalidation. The Next receiver invalidates only the affected Resource child route tag, `route:tio2-my:/resources` and `content:tio2-my--resources`; it does not issue cross-scope or broad site/list/sitemap tags for this dependency event.
 - P1-01: public cards serialize the approved `PROCUREMENT_GUIDE`, `TECHNICAL_GUIDE` or `TRADE_UPDATE` label, approved `ctaLabel` and `lastReviewedAt`. Trade renders the approved public status and a normal crawlable official-source HTTPS link. `contextLabel` is used only when supplied and is never inferred.
 - Current local production-shaped CMS output remains H0, so the approved H0 body, shared Chrome and screenshot pixels are unchanged.
@@ -82,7 +83,9 @@ Accessibility checks passed for one H1, ordered headings, semantic breadcrumb, b
 ### Conditional-return verification additions
 
 - TDD red evidence: the first Gate 7 fixture run failed 20 of 31 assertions against the old eligibility, allocation and serialization behavior.
-- Corrected Resource unit/integration/API/infrastructure suite with both gated runtimes enabled: 15 files, 128 tests PASS.
+- Corrected Resource unit/integration/API/infrastructure suite with both gated runtimes enabled: 15 files, 131 tests PASS.
+- H2 follow-up TDD evidence: the new DTO, DOM and ItemList assertions initially failed 3/35 against the old single-unranked allocation, then passed after the count=1 normalization.
+- Single-unranked H2 parity: PHP and TypeScript both return `Featured=[RES-PROC]`, `Latest=[]`; DOM renders one Featured card, no Latest root, the Hero CTA targets `#featured-resources`, and ItemList contains the same one canonical URL.
 - PHP/TypeScript H0–H5 parity runtime: 1/1 PASS in isolated PHP 8.3; exact public card fields, allocation, order and state match.
 - Live WordPress H5 runtime: 1/1 PASS. A cached fixture H4 (`Featured=RES-ORIGIN`, `Latest=RES-PROC + RES-TRADE-EU`) became H3 after Trade release revocation; its card, link, order, source/date/status fields and projection relation disappeared together. The queued payload contained only `siteIds=[tio2-my]`, the changed child path and `/resources`.
 - Revalidation receiver H5 assertion: exact child route tag + `route:tio2-my:/resources` + `content:tio2-my--resources`; no `site`, `content-list`, `sitemap` or cross-scope tag.

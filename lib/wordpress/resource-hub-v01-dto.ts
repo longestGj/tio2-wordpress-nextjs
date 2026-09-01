@@ -170,9 +170,14 @@ export function projectEligibleMalaysiaResources(
   if (new Set(ranks).size !== ranks.length) throw new ResourceHubContractError('resourceRelations.featuredRank')
   const compare = (a: (typeof eligible)[number], b: (typeof eligible)[number]) =>
     a.displayOrder - b.displayOrder || a.card.pageId.localeCompare(b.card.pageId)
-  const featured = [...unique.values()].filter(({featuredRank}) => featuredRank !== null)
-    .sort((a, b) => (a.featuredRank as number) - (b.featuredRank as number) || compare(a, b))
-  const latest = [...unique.values()].filter(({featuredRank}) => featuredRank === null).sort(compare)
+  const distinct = [...unique.values()]
+  const featured = distinct.length === 1
+    ? distinct
+    : distinct.filter(({featuredRank}) => featuredRank !== null)
+      .sort((a, b) => (a.featuredRank as number) - (b.featuredRank as number) || compare(a, b))
+  const latest = distinct.length === 1
+    ? []
+    : distinct.filter(({featuredRank}) => featuredRank === null).sort(compare)
   const ordered = [...featured, ...latest]
   const hasTrade = ordered.some(({card}) => card.resourceType === 'TRADE_UPDATE')
   const publicState: MalaysiaResourcePublicState = !ordered.length
@@ -260,6 +265,9 @@ function validatedPublicProjection(value: unknown): Pick<
   const latestResources = projection.latestResources.map((item, index) => validatedPublicCard(item, `resourceProjection.latestResources[${index}]`))
   const visible = [...featuredResources, ...latestResources]
   if (new Set(visible.map(({pageId}) => pageId)).size !== visible.length) throw new ResourceHubContractError('resourceProjection.pageId')
+  if (visible.length === 1 && (featuredResources.length !== 1 || latestResources.length !== 0)) {
+    throw new ResourceHubContractError('resourceProjection.H2Allocation')
+  }
   const expectedState: MalaysiaResourcePublicState = !visible.length
     ? 'H0_NO_QUALIFIED_RESOURCE'
     : visible.some(({resourceType}) => resourceType === 'TRADE_UPDATE')

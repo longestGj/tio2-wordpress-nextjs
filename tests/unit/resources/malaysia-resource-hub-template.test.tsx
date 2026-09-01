@@ -8,6 +8,7 @@ import {projectEligibleMalaysiaResources, toMalaysiaResourceHubDto} from '@/lib/
 import {
   resourceFixturePolicies,
   resourceH3Relations,
+  resourceH2UnrankedRelations,
   resourceH4Relations,
   resourceH5Relations,
 } from '@/tests/fixtures/tio2-my-resource-hub-states'
@@ -57,6 +58,16 @@ describe('MalaysiaResourceHub H0', () => {
     expect(Array.from(featured.querySelectorAll('article h3'), (node) => node.textContent)).toEqual(['Non-China Titanium Dioxide Supply Guide'])
     expect(Array.from(latest.querySelectorAll('article h3'), (node) => node.textContent)).toEqual(['Chloride vs Sulfate Titanium Dioxide'])
     expect(container.querySelector('a[href="#featured-resources"]')).not.toBeNull()
+  })
+
+  it('normalizes one eligible unranked resource into H2 Featured with the Featured hero CTA', () => {
+    const {container} = render(<MalaysiaResourceHub resourceHub={hub(resourceH2UnrankedRelations)} />)
+    const featured = container.querySelector('[data-module="featured-resources"]')
+    expect(featured).not.toBeNull()
+    expect(featured?.querySelectorAll('article')).toHaveLength(1)
+    expect(featured?.textContent).toContain('Chloride vs Sulfate Titanium Dioxide')
+    expect(container.querySelector('[data-module="latest-research"]')).toBeNull()
+    expect(container.querySelector('a[href="#featured-resources"]')?.textContent).toContain('Explore Procurement Resources')
   })
 
   it('serializes approved type labels, CTAs and all buyer-visible Trade atoms', () => {
