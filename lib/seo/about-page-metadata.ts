@@ -14,9 +14,10 @@ export function buildMalaysiaAboutPageMetadata(
   }
   const canonical = new URL('/about/', site.url).href
   const indexable = page.releaseControls.indexingAuthorized && isPublicIndexingEnabled(env)
+  const description = page.seo.description
   return {
     title: page.seo.title,
-    description: page.seo.description,
+    ...(description ? {description} : {}),
     alternates: {canonical},
     robots: {index: indexable, follow: indexable},
     openGraph: {
@@ -24,7 +25,7 @@ export function buildMalaysiaAboutPageMetadata(
       url: canonical,
       siteName: site.name,
       title: page.seo.openGraphTitle,
-      description: page.seo.description,
+      ...(description ? {description} : {}),
       images: [],
     },
   }

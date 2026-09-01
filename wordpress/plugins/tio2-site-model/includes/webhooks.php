@@ -642,7 +642,7 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
     if (
         $post instanceof WP_Post &&
         'tio2_about_page' === $post->post_type &&
-        TIO2_MY_ABOUT_PAGE_CONTRACT_META === $meta_key
+        in_array($meta_key, [TIO2_MY_ABOUT_PAGE_CONTRACT_META, TIO2_MY_ABOUT_PAGE_EVIDENCE_META], true)
     ) {
         return true;
     }

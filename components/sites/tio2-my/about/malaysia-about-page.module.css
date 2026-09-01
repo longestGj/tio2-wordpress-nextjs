@@ -237,3 +237,83 @@
   .companyFacts dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }.companyFacts dl > div { min-height: 110px; }
   .finalCta { min-height: 330px; grid-template-columns: 1fr; gap: 18px; }.finalCta .actions { flex-direction: column; }
 }
+
+/* Gate 9: approved media composition and tighter V0.3 page density. */
+.routeMap { z-index: 2; }
+.heroCopy a { min-height: 0; display: inline; }
+.routeMap .mapLand { fill: rgb(161 183 200 / 20%); stroke: rgb(75 111 141 / 35%); stroke-dasharray: none; stroke-width: 1; }
+.routeMap text { fill: #173d68; font-size: 9px; font-weight: 800; letter-spacing: .04em; paint-order: stroke; stroke: rgb(255 255 255 / 88%); stroke-width: 3px; }
+.portScene { position: absolute; bottom: 55px; left: 20px; z-index: 1; width: 285px; height: 170px; opacity: .76; }
+.portScene span { position: absolute; bottom: 0; width: 108px; height: 31px; border: 2px solid #7894a7; background: repeating-linear-gradient(90deg, #6f8ca0 0 5px, #adc0cb 6px 9px); box-shadow: 0 -35px 0 #8ca4b4, 0 -70px 0 #587b93; }
+.portScene span:nth-child(1) { left: 5px; }
+.portScene span:nth-child(2) { right: 20px; height: 28px; background: repeating-linear-gradient(90deg, #0c6770 0 5px, #75aab0 6px 9px); box-shadow: 0 -32px 0 #7694a4; }
+.portScene span:nth-child(3) { right: -42px; bottom: -8px; width: 98px; height: 16px; border: 0; border-radius: 50%; background: #8099a8; box-shadow: none; }
+.portScene i { position: absolute; top: 4px; left: 108px; width: 88px; height: 113px; border-top: 7px solid #496d86; border-left: 7px solid #496d86; transform: skewX(-12deg); }
+.portScene i::after { content: ''; position: absolute; top: -7px; right: -18px; width: 50px; height: 5px; background: #496d86; transform: rotate(20deg); transform-origin: left; }
+.portScene b { position: absolute; top: 0; left: 171px; width: 4px; height: 112px; background: #5d7d93; transform: rotate(23deg); transform-origin: bottom; }
+.industrialStructure { position: absolute !important; right: 4%; bottom: -18px; z-index: 0 !important; width: 330px; height: 210px; opacity: .16; }
+.industrialStructure span, .industrialStructure i, .industrialStructure b { position: absolute; bottom: 0; display: block; border: 3px solid #fff; }
+.industrialStructure span:first-child { right: 8px; width: 92px; height: 176px; border-radius: 46px 46px 0 0; }
+.industrialStructure span:nth-child(2) { right: 110px; width: 108px; height: 128px; }
+.industrialStructure i { right: 229px; width: 76px; height: 94px; }
+.industrialStructure b { right: 79px; bottom: 96px; width: 177px; height: 18px; border-width: 3px 0 0; transform: rotate(-12deg); }
+
+.hero { min-height: 560px; padding-top: 28px; padding-bottom: 30px; }
+.heroVisual { min-height: 430px; }
+.identity, .why, .services, .applications, .process, .companyFacts { padding-top: 28px; padding-bottom: 28px; }
+.markets { padding-top: 28px; padding-bottom: 28px; }
+.documents { padding-top: 24px; padding-bottom: 24px; }
+.quadGrid article, .serviceGrid article { min-height: 158px; padding-top: 17px; padding-bottom: 17px; }
+.quadGrid article > span, .serviceGrid b { width: 42px; height: 42px; margin-bottom: 12px; }
+.marketCards > a { min-height: 178px; }
+.applicationGrid > a, .applicationArt { min-height: 0; height: 168px; }
+.applicationGrid > a > div:last-child { min-height: 100px; padding: 14px; }
+.process li { min-height: 126px; }
+.documentList a { min-height: 140px; }
+.companyFacts dl > div { min-height: 72px; }
+.finalCta { min-height: 172px; padding-top: 24px; padding-bottom: 24px; }
+
+@media (max-width: 1199px) {
+  .hero { min-height: 520px; padding-top: 24px; padding-bottom: 26px; }
+  .heroVisual { min-height: 370px; }
+  .portScene { bottom: 45px; left: 8px; transform: scale(.78); transform-origin: bottom left; }
+  .identity, .why, .services, .applications, .process, .companyFacts, .markets { padding-top: 24px; padding-bottom: 24px; }
+  .documents { padding-top: 22px; padding-bottom: 22px; }
+  .quadGrid article, .serviceGrid article { min-height: 148px; padding: 14px 12px; }
+  .marketCards > a { min-height: 152px; }
+  .applicationGrid > a, .applicationArt { height: 154px; }
+  .process li { min-height: 120px; }
+  .documentList a { min-height: 126px; }
+  .finalCta { min-height: 170px; }
+}
+
+@media (max-width: 767px) {
+  .main h1 { margin-bottom: 13px; font-size: 32px; }
+  .main h2 { margin-bottom: 12px; font-size: 24px; }
+  .main h3 { font-size: 14px; }
+  .main p, .main dd { font-size: 12.5px; line-height: 1.4; }
+  .sectionHeading { margin-bottom: 15px; }
+  .hero { padding-top: 20px; padding-bottom: 24px; gap: 20px; }
+  .heroCopy p { margin-bottom: 7px; }
+  .heroVisual { min-height: 250px; }
+  .routeMap { top: 10px; }
+  .routeMap text { font-size: 8px; }
+  .heroBag { right: 22px; bottom: 28px; width: 96px; height: 128px; padding: 31px 11px; }
+  .heroBag strong { font-size: 28px; }
+  .heroPowder { right: 76px; bottom: 8px; width: 150px; height: 72px; }
+  .portScene { bottom: 24px; left: 3px; transform: scale(.55); }
+  .identity, .why, .services, .applications, .process, .documents, .companyFacts, .markets, .finalCta { padding-top: 22px; padding-bottom: 22px; }
+  .factGrid > div { min-height: 58px; padding: 7px 10px; grid-template-columns: 105px 1fr; }
+  .quadGrid article, .serviceGrid article { min-height: 158px; padding: 12px 9px; }
+  .quadGrid article > span, .serviceGrid b { width: 38px; height: 38px; margin-bottom: 9px; }
+  .markets { gap: 8px; }
+  .marketMap { max-height: 118px; }
+  .marketCards > a { min-height: 154px; }
+  .applicationGrid > a, .applicationArt { height: 184px; }
+  .applicationGrid > a > div:last-child { min-height: 112px; padding: 10px; }
+  .process li { min-height: 154px; padding: 52px 10px 10px; }
+  .documentList a { min-height: 78px; }
+  .companyFacts dl > div { min-height: 82px; }
+  .finalCta { min-height: 250px; }
+  .industrialStructure { right: -90px; transform: scale(.72); transform-origin: bottom right; }
+}

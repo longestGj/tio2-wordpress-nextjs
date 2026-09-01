@@ -12,17 +12,41 @@ interface Props {
 
 function Arrow() { return <span aria-hidden="true">→</span> }
 
+const heroLinkMarks = [
+  ['Malaysia-based rutile titanium dioxide manufacturer and supplier', '/products/'],
+  ['paints and coatings', '/applications/'],
+  ['printing inks', '/applications/'],
+  ['masterbatch', '/applications/'],
+  ['plastics', '/applications/'],
+  ['paper', '/applications/'],
+  ['titanium dioxide supplier in Malaysia', '/'],
+] as const
+
+function linkedHeroText(text: string): ReactNode[] {
+  const nodes: ReactNode[] = []
+  let remaining = text
+  let offset = 0
+  while (remaining) {
+    const match = heroLinkMarks
+      .map(([label, href]) => ({label, href, index: remaining.indexOf(label)}))
+      .filter(({index}) => index >= 0)
+      .sort((a, b) => a.index - b.index || b.label.length - a.label.length)[0]
+    if (!match) { nodes.push(remaining); break }
+    if (match.index > 0) nodes.push(remaining.slice(0, match.index))
+    nodes.push(<Link key={`${offset}-${match.label}`} href={match.href}>{match.label}</Link>)
+    const consumed = match.index + match.label.length
+    offset += consumed
+    remaining = remaining.slice(consumed)
+  }
+  return nodes
+}
+
 function HeroCopy({page}: {readonly page: MalaysiaAboutPageDto}) {
   return (
     <div className={styles.heroCopy}>
-      <p>{page.hero.paragraphs[0]}</p>
-      <p>
-        We are a <Link href="/products/">Malaysia-based rutile titanium dioxide manufacturer and supplier</Link>. We supply rutile TiO2 grades for <Link href="/applications/">paints and coatings</Link>, <Link href="/applications/">plastics</Link>, <Link href="/applications/">masterbatch</Link>, <Link href="/applications/">printing inks</Link> and <Link href="/applications/">paper</Link>, with export coordination through Port Klang and application-based documentation for international buyers.
-      </p>
-      <p>{page.hero.paragraphs[2]}</p>
-      <p>{page.hero.paragraphs[3]}</p>
-      <p>For direct sourcing details, see our <Link href="/">titanium dioxide supplier in Malaysia</Link> page.</p>
-      <p>{page.hero.paragraphs[5]}</p>
+      {page.hero.paragraphs.map((paragraph) => (
+        <p key={paragraph.id} data-fact-key={paragraph.id}>{linkedHeroText(paragraph.text)}</p>
+      ))}
     </div>
   )
 }
@@ -32,9 +56,14 @@ function HeroVisual() {
     <div className={styles.heroVisual} aria-hidden="true">
       <div className={styles.heroPowder}><span /></div>
       <div className={styles.heroBag}>RUTILE<br /><strong>TiO₂</strong><small>MALAYSIA</small></div>
+      <div className={styles.portScene}><span /><span /><span /><i /><b /></div>
       <svg className={styles.routeMap} viewBox="0 0 540 240" focusable="false">
-        <path d="M34 140 C130 38 225 205 330 93 S475 52 510 112" />
-        {[['34','140'], ['202','136'], ['330','93'], ['510','112']].map(([cx, cy]) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="7" />)}
+        <path className={styles.mapLand} d="M16 78l52-33 69 13 28 38-33 24-64-7-30 24-31-22zm180 23l39-55 72-20 60 31-17 51-44 19-26 54-50-21-9-37zm225-27l42-24 61 29-8 58-42 31-52-23-24-42z" />
+        <path d="M350 143C268 130 224 75 132 65M350 143C292 111 289 60 250 45M350 143C337 124 351 103 371 87M350 143C410 167 442 164 478 151" />
+        <circle cx="350" cy="143" r="8" />
+        <circle cx="132" cy="65" r="5" /><circle cx="250" cy="45" r="5" /><circle cx="371" cy="87" r="5" /><circle cx="478" cy="151" r="5" />
+        <text x="79" y="53">EUROPEAN UNION</text><text x="214" y="30">UNITED KINGDOM</text>
+        <text x="350" y="74">INDIA</text><text x="455" y="139">BRAZIL</text><text x="360" y="166">MALAYSIA</text>
       </svg>
       <p>Taiping <span>→</span> Port Klang <span>→</span> Global markets</p>
     </div>
@@ -120,6 +149,7 @@ export function MalaysiaAboutPage({aboutPage: page, structuredData}: Props) {
         </section>
 
         <section className={styles.finalCta} data-module="final-cta">
+          <div className={styles.industrialStructure} aria-hidden="true"><span /><span /><i /><b /></div>
           <div><p className={styles.eyebrow}>NEXT STEP</p><h2>{page.finalCta.h2}</h2><p>{page.finalCta.body}</p></div>
           <div className={styles.actions}>
             <a className={styles.lightPrimary} href={page.finalCta.primaryAction.href} data-site-scope="tio2-my" data-source-page="ABOUT-001">{page.finalCta.primaryAction.label}<Arrow /></a>

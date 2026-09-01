@@ -24,4 +24,27 @@ describe('ABOUT-001 JSON-LD', () => {
       'Product', 'Offer', 'AggregateRating', 'Review', 'FAQPage', 'QAPage',
     ]))
   })
+
+  it('removes restricted graph properties and nodes atomically', () => {
+    const partial = buildMalaysiaAboutPageJsonLd(
+      getSiteConfig('tio2-my'),
+      toMalaysiaAboutPageDto(malaysiaAboutPageSource({evidenceState: 'partial'})),
+    )['@graph'] as Array<Record<string, unknown>>
+    const partialOrganization = partial.find(({['@type']: type}) => type === 'Organization')!
+    expect(partialOrganization.description).not.toContain('35,000 metric tons')
+    expect(partial.some(({['@type']: type}) => type === 'Place')).toBe(true)
+
+    const restricted = buildMalaysiaAboutPageJsonLd(
+      getSiteConfig('tio2-my'),
+      toMalaysiaAboutPageDto(malaysiaAboutPageSource({evidenceState: 'restricted'})),
+    )['@graph'] as Array<Record<string, unknown>>
+    const organization = restricted.find(({['@type']: type}) => type === 'Organization')!
+    const aboutPage = restricted.find(({['@type']: type}) => type === 'AboutPage')!
+    expect(organization).not.toHaveProperty('description')
+    expect(organization).not.toHaveProperty('location')
+    expect(aboutPage).not.toHaveProperty('description')
+    expect(restricted.some(({['@type']: type}) => type === 'Place')).toBe(false)
+    expect(JSON.stringify(restricted)).not.toContain('Taiping')
+    expect(JSON.stringify(restricted)).not.toContain('35,000 metric tons')
+  })
 })

@@ -5,6 +5,7 @@ declare(strict_types=1);
 if (! defined('ABSPATH')) exit;
 
 const TIO2_MY_ABOUT_PAGE_CONTRACT_META = '_tio2_my_about_page_contract_json';
+const TIO2_MY_ABOUT_PAGE_EVIDENCE_META = '_tio2_my_about_page_evidence_json';
 
 function tio2_register_about_page_v01_content_type(): void
 {
@@ -27,6 +28,11 @@ function tio2_my_about_page_contract_path(): string
     return dirname(__DIR__) . '/config/tio2-my-about-page.json';
 }
 
+function tio2_my_about_page_evidence_path(): string
+{
+    return dirname(__DIR__) . '/config/tio2-my-about-evidence.json';
+}
+
 /** @return string|WP_Error */
 function tio2_my_about_page_approved_contract_json()
 {
@@ -35,6 +41,97 @@ function tio2_my_about_page_approved_contract_json()
     return is_string($json) && '' !== $json
         ? $json
         : new WP_Error('tio2_my_about_page_contract_missing', 'The approved Malaysia About page contract is unavailable.');
+}
+
+/** @return string|WP_Error */
+function tio2_my_about_page_approved_evidence_json()
+{
+    $path = tio2_my_about_page_evidence_path();
+    $json = is_readable($path) ? file_get_contents($path) : false;
+    return is_string($json) && '' !== $json
+        ? $json
+        : new WP_Error('tio2_my_about_page_evidence_missing', 'The approved Malaysia About page evidence is unavailable.');
+}
+
+/** @return true|WP_Error */
+function tio2_validate_about_page_v01_evidence(string $stored)
+{
+    $approved_json = tio2_my_about_page_approved_evidence_json();
+    if (is_wp_error($approved_json)) return $approved_json;
+    $approved = json_decode($approved_json, true);
+    $evidence = json_decode($stored, true);
+    if (! is_array($approved) || ! is_array($evidence)) {
+        return new WP_Error('tio2_my_about_page_evidence_invalid', 'The Malaysia About evidence payload is invalid.');
+    }
+    if (
+        ($evidence['schemaVersion'] ?? null) !== ($approved['schemaVersion'] ?? null) ||
+        ($evidence['contentVersion'] ?? null) !== ($approved['contentVersion'] ?? null) ||
+        ! in_array($evidence['evidenceState'] ?? null, ['sufficient', 'partial', 'restricted'], true) ||
+        ! isset($evidence['facts']) || ! is_array($evidence['facts'])
+    ) return new WP_Error('tio2_my_about_page_evidence_identity', 'The Malaysia About evidence identity is invalid.');
+
+    $approved_by_key = [];
+    foreach ($approved['facts'] as $fact) $approved_by_key[(string) $fact['key']] = $fact;
+    $facts = [];
+    $ranks = ['user_approved_public' => 0, 'restricted' => 1, 'not_public' => 2];
+    foreach ($evidence['facts'] as $fact) {
+        $key = is_array($fact) ? (string) ($fact['key'] ?? '') : '';
+        $auth = is_array($fact) ? ($fact['authorization'] ?? null) : null;
+        if (
+            '' === $key || isset($facts[$key]) || ! isset($approved_by_key[$key]) ||
+            ! is_string($auth) || ! isset($ranks[$auth]) ||
+            wp_json_encode($fact['value'] ?? null) !== wp_json_encode($approved_by_key[$key]['value'] ?? null)
+        ) return new WP_Error('tio2_my_about_page_evidence_fact', 'A Malaysia About evidence fact is invalid.');
+        $facts[$key] = $fact;
+    }
+    if (count($facts) !== count($approved_by_key)) {
+        return new WP_Error('tio2_my_about_page_evidence_inventory', 'The Malaysia About evidence inventory is incomplete.');
+    }
+    foreach (['organization.name', 'product.main', 'supplier.intent'] as $key) {
+        if ('user_approved_public' !== $facts[$key]['authorization']) {
+            return new WP_Error('tio2_my_about_page_evidence_safe_fact', 'A required safe About fact is not public.');
+        }
+    }
+    $bindings = [
+        'hero.paragraph.1' => ['organization.name', 'location.full'],
+        'hero.paragraph.2' => ['product.main', 'export.port', 'documents.support'],
+        'hero.paragraph.3' => ['product.main', 'export.port', 'documents.support'],
+        'hero.paragraph.4' => ['export.port', 'documents.support'],
+        'hero.paragraph.5' => ['supplier.intent'],
+        'hero.paragraph.6' => ['compliance.support'],
+        'metadata.description' => ['organization.name', 'location.full', 'documents.support', 'export.port'],
+        'schema.organization.description.base' => ['organization.name', 'location.full', 'product.main', 'documents.support', 'export.port'],
+        'schema.organization.description.scale' => ['scale.annual', 'scale.markets', 'scale.customers'],
+    ];
+    foreach ($bindings as $output => $dependencies) {
+        $expected_rank = 0;
+        foreach ($dependencies as $dependency) {
+            $expected_rank = max($expected_rank, $ranks[$facts[$dependency]['authorization']]);
+        }
+        if ($ranks[$facts[$output]['authorization']] !== $expected_rank) {
+            return new WP_Error('tio2_my_about_page_evidence_atomicity', 'A Malaysia About evidence output is not authorized atomically.');
+        }
+    }
+    $primary = ['organization.name', 'location.full', 'product.main', 'scale.annual', 'scale.markets', 'scale.customers', 'export.port', 'documents.support', 'compliance.support', 'supplier.intent', 'areas.served'];
+    $scale = ['scale.annual', 'scale.markets', 'scale.customers'];
+    $restricted = array_values(array_filter($primary, static fn(string $key): bool => 'user_approved_public' !== $facts[$key]['authorization']));
+    $restricted_pattern = array_merge($scale, ['location.full']);
+    sort($restricted);
+    sort($scale);
+    sort($restricted_pattern);
+    if ([] === $restricted) {
+        $derived_state = 'sufficient';
+    } elseif ($restricted === $scale) {
+        $derived_state = 'partial';
+    } elseif ($restricted === $restricted_pattern) {
+        $derived_state = 'restricted';
+    } else {
+        return new WP_Error('tio2_my_about_page_evidence_pattern', 'The Malaysia About restricted evidence pattern is unsupported.');
+    }
+    if ($derived_state !== $evidence['evidenceState']) {
+        return new WP_Error('tio2_my_about_page_evidence_state', 'The Malaysia About evidence state is inconsistent.');
+    }
+    return true;
 }
 
 /** @return true|WP_Error */
@@ -65,6 +162,12 @@ function tio2_validate_about_page_v01_contract(int $post_id)
         '/about/' !== ($contract['identity']['path'] ?? null) ||
         'about-page-v0.1-malaysia' !== ($contract['identity']['schemaVersion'] ?? null)
     ) return new WP_Error('tio2_my_about_page_contract_invalid', 'The About page payload identity is invalid.');
+    $evidence = get_post_meta($post_id, TIO2_MY_ABOUT_PAGE_EVIDENCE_META, true);
+    if (! is_string($evidence) || '' === $evidence) {
+        return new WP_Error('tio2_my_about_page_evidence_missing', 'The stored Malaysia About evidence payload is missing.');
+    }
+    $evidence_validation = tio2_validate_about_page_v01_evidence($evidence);
+    if (is_wp_error($evidence_validation)) return $evidence_validation;
     return true;
 }
 
@@ -83,7 +186,9 @@ function tio2_resolve_malaysia_about_page_record_json(): string
     $validation = tio2_validate_about_page_v01_contract($post_id);
     if (is_wp_error($validation)) throw new \GraphQL\Error\UserError('The Malaysia About page record failed scope or contract validation.');
     $contract_json = get_post_meta($post_id, TIO2_MY_ABOUT_PAGE_CONTRACT_META, true);
+    $evidence_json = get_post_meta($post_id, TIO2_MY_ABOUT_PAGE_EVIDENCE_META, true);
     if (! is_string($contract_json) || '' === $contract_json) throw new \GraphQL\Error\UserError('The Malaysia About page record has no approved contract payload.');
+    if (! is_string($evidence_json) || '' === $evidence_json) throw new \GraphQL\Error\UserError('The Malaysia About page record has no approved evidence payload.');
     return wp_json_encode([
         'id' => 'about-page-' . $post_id,
         'modifiedGmt' => str_replace(' ', 'T', (string) get_post_field('post_modified_gmt', $post_id)),
@@ -91,6 +196,7 @@ function tio2_resolve_malaysia_about_page_record_json(): string
         'siteScopes' => ['nodes' => [['slug' => 'tio2-my']]],
         'publishingFields' => ['publicPath' => '/about'],
         'malaysiaAboutPageContractJson' => $contract_json,
+        'malaysiaAboutPageEvidenceJson' => $evidence_json,
     ]);
 }
 

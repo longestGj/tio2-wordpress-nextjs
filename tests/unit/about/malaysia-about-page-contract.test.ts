@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest'
 
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-about-page.json'
+import approvedEvidence from '@/wordpress/plugins/tio2-site-model/config/tio2-my-about-evidence.json'
 
 describe('ABOUT-001 approved contract', () => {
   it('freezes identity, module copy, route fallbacks and media register', () => {
@@ -13,5 +14,11 @@ describe('ABOUT-001 approved contract', () => {
     expect(approvedContract.media).toHaveLength(12)
     expect(approvedContract.media.every(({method}) => method === 'HTML_CSS_SVG_REBUILD')).toBe(true)
     expect(JSON.stringify(approvedContract)).not.toMatch(/legalName|AggregateRating|Offer|FAQPage|QAPage/u)
+    expect(approvedEvidence).toMatchObject({
+      schemaVersion: 'about-evidence-v0.1',
+      contentVersion: 'ABOUT-001-G7-PCR-02:FACTS-V0.1',
+      evidenceState: 'sufficient',
+    })
+    expect(approvedEvidence.facts).toHaveLength(20)
   })
 })

@@ -12,6 +12,11 @@ $contract_json = is_readable($contract_path) ? file_get_contents($contract_path)
 if (! is_string($contract_json) || '' === $contract_json || ! is_array(json_decode($contract_json, true))) {
     throw new RuntimeException('The approved Malaysia About page contract is missing or invalid.');
 }
+$evidence_path = dirname(__DIR__) . '/plugins/tio2-site-model/config/tio2-my-about-evidence.json';
+$evidence_json = is_readable($evidence_path) ? file_get_contents($evidence_path) : false;
+if (! is_string($evidence_json) || '' === $evidence_json || ! is_array(json_decode($evidence_json, true))) {
+    throw new RuntimeException('The approved Malaysia About page evidence is missing or invalid.');
+}
 if (! term_exists($site_id, 'site_scope')) {
     $term = wp_insert_term($site_id, 'site_scope', ['slug' => $site_id]);
     if (is_wp_error($term)) throw new RuntimeException($term->get_error_message());
@@ -37,6 +42,7 @@ if (is_wp_error($scope)) throw new RuntimeException($scope->get_error_message())
 wp_update_post(['ID' => $post_id, 'post_name' => $internal_slug]);
 update_post_meta($post_id, 'public_path', $public_path);
 update_post_meta($post_id, TIO2_MY_ABOUT_PAGE_CONTRACT_META, $contract_json);
+update_post_meta($post_id, TIO2_MY_ABOUT_PAGE_EVIDENCE_META, $evidence_json);
 clean_post_cache($post_id);
 $validation = tio2_validate_about_page_v01_contract($post_id);
 if (is_wp_error($validation)) throw new RuntimeException($validation->get_error_message());

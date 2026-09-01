@@ -20,7 +20,10 @@ describe('ABOUT-001 GraphQL query isolation', () => {
     vi.stubEnv('WORDPRESS_GRAPHQL_URL', 'https://cms.example.test/graphql')
     await expect(getMalaysiaAboutPage()).resolves.toMatchObject({identity: {siteId: 'tio2-my', path: '/about'}})
     const next = (fetchMock.mock.calls[0]?.[1] as RequestInit & {next?: {tags?: string[]}}).next
-    expect(next?.tags).toEqual(['site:tio2-my', 'route:tio2-my:/about', 'content:tio2-my--about'])
+    expect(next?.tags).toEqual([
+      'site:tio2-my', 'route:tio2-my:/about', 'content:tio2-my--about',
+      'content-version:tio2-my:ABOUT-001-G7-PCR-02:FACTS-V0.1',
+    ])
     expect(JSON.stringify(fetchMock.mock.calls)).not.toMatch(/tio2-a|tio2-b/iu)
   })
 

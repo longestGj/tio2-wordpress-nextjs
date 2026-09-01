@@ -1,5 +1,6 @@
 import type {FetchGraphQLOptions} from './client'
-import {aboutPageContentTag, routeTag, siteTag} from './cache-tags'
+import approvedEvidence from '@/wordpress/plugins/tio2-site-model/config/tio2-my-about-evidence.json'
+import {aboutPageContentTag, aboutPageVersionTag, routeTag, siteTag} from './cache-tags'
 import {fetchGraphQL} from './client'
 import {
   GetMalaysiaAboutPageDocument,
@@ -23,7 +24,10 @@ export async function getMalaysiaAboutPage(
     {},
     {
       ...options,
-      tags: [siteTag('tio2-my'), routeTag('tio2-my', '/about'), aboutPageContentTag('tio2-my')],
+      tags: [
+        siteTag('tio2-my'), routeTag('tio2-my', '/about'), aboutPageContentTag('tio2-my'),
+        aboutPageVersionTag('tio2-my', approvedEvidence.contentVersion),
+      ],
     },
   )
   let source: unknown

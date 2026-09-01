@@ -15,4 +15,13 @@ describe('ABOUT-001 metadata', () => {
     expect(metadata.openGraph).toMatchObject({type: 'website', url: dto.seo.canonical, title: dto.seo.openGraphTitle, images: []})
     expect(metadata.alternates).not.toHaveProperty('languages')
   })
+
+  it('omits restricted description fields instead of emitting null or fallback copy', () => {
+    const dto = toMalaysiaAboutPageDto(malaysiaAboutPageSource({evidenceState: 'restricted'}))
+    const metadata = buildMalaysiaAboutPageMetadata(getSiteConfig('tio2-my'), dto, {})
+    expect(metadata).not.toHaveProperty('description')
+    expect(metadata.openGraph).not.toHaveProperty('description')
+    expect(metadata.alternates).toEqual({canonical: 'https://tio2malaysia.com/about/'})
+    expect(metadata.robots).toEqual({index: false, follow: false})
+  })
 })

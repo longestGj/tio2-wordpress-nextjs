@@ -1,4 +1,6 @@
-# ABOUT-001 Gate 8 Local Verification
+# ABOUT-001 Gate 8 Local Verification (Superseded)
+
+Superseded by `GATE9_CONDITIONAL_RETURN_RESUBMISSION_2026-09-01.md`. This historical record is not the evidence for Review ID `ABOUT-001-G9-PCR-01`.
 
 Status: `READY_FOR_GATE9_READ_ONLY_SUBMISSION`. This local record does not authorize deployment, publication, indexing, Gate 9 PASS or Gate 10.
 

@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest'
 
 import {
+  aboutPageVersionTag,
   contentListTag,
   contentTag,
   entityTag,
@@ -27,6 +28,10 @@ describe('WordPress cache tags', () => {
     expect(contentListTag('tio2-my')).toBe('content-list:tio2-my')
     expect(sitemapTag('tio2-my')).toBe('sitemap:tio2-my')
     expect(routeTag('tio2-my', '/')).toBe('route:tio2-my:/')
+    expect(aboutPageVersionTag('tio2-my', 'ABOUT-001-G7-PCR-02:FACTS-V0.1')).toBe(
+      'content-version:tio2-my:ABOUT-001-G7-PCR-02:FACTS-V0.1',
+    )
+    expect(() => aboutPageVersionTag('tio2-my', 'draft')).toThrow('Invalid Malaysia About content version')
   })
 
   it.each([

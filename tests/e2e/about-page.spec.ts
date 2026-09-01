@@ -12,7 +12,7 @@ const approved = JSON.parse(readFileSync(
   applications: {items: readonly {alt: string}[]}
 }
 const baseUrl = 'http://127.0.0.1:3004'
-const widths = [390, 768, 1024, 1440] as const
+const widths = [390, 430, 768, 1440] as const
 const moduleOrder = [
   'breadcrumb', 'hero', 'who-we-are', 'why-malaysia', 'what-we-do', 'markets',
   'applications', 'how-we-work', 'documentation', 'company-facts', 'final-cta',
@@ -20,7 +20,7 @@ const moduleOrder = [
 
 for (const width of widths) {
   test(`ABOUT-001 ${width}px runtime contract`, async ({page}) => {
-    await page.setViewportSize({width, height: width === 390 ? 844 : 1000})
+    await page.setViewportSize({width, height: width <= 430 ? 844 : 1000})
     await page.emulateMedia({reducedMotion: 'reduce'})
     const remoteRequests: string[] = []
     page.on('request', (request) => {
@@ -33,7 +33,7 @@ for (const width of widths) {
     expect(await page.locator('[data-module]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-module')))).toEqual(moduleOrder)
 
     const header = page.locator('header')
-    await assertRenderedMalaysiaHeaderLogo(header.locator('img[alt="TiO2 Malaysia"]'), width === 390
+    await assertRenderedMalaysiaHeaderLogo(header.locator('img[alt="TiO2 Malaysia"]'), width <= 430
       ? {width: 110, height: 110 / 3}
       : width === 768
         ? {width: 120, height: 40}
@@ -65,6 +65,16 @@ for (const width of widths) {
     await expect(page.locator('[data-module="markets"] a[href="/markets/"]')).toHaveCount(5)
     await expect(page.locator('[data-module="applications"] a[href="/applications/"]')).toHaveCount(5)
     expect(await page.locator('a[href^="/request-a-quote/"]').count()).toBeGreaterThanOrEqual(5)
+    await expect(page.locator('[data-module="hero"] svg text')).toHaveText([
+      'EUROPEAN UNION', 'UNITED KINGDOM', 'INDIA', 'BRAZIL', 'MALAYSIA',
+    ])
+    for (const selector of ['[data-module="hero"] [class*="portScene"]', '[data-module="final-cta"] [class*="industrialStructure"]']) {
+      const visual = page.locator(selector)
+      await expect(visual).toBeVisible()
+      const box = await visual.boundingBox()
+      expect(box?.width).toBeGreaterThan(40)
+      expect(box?.height).toBeGreaterThan(40)
+    }
     await expect(page.locator('link[rel="canonical"]')).toHaveCount(1)
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://tio2malaysia.com/about/')
     await expect(page.locator('link[hreflang]')).toHaveCount(0)
@@ -83,6 +93,10 @@ for (const width of widths) {
     const expectedFooterSize = width <= 430 ? '14px' : '12px'
     expect(await page.locator('footer h2').evaluateAll((nodes) => nodes.map((node) => getComputedStyle(node).fontSize))).toEqual([expectedFooterSize, expectedFooterSize, expectedFooterSize])
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    const moduleHeights = await page.locator('[data-module]').evaluateAll((nodes) => Object.fromEntries(
+      nodes.map((node) => [node.getAttribute('data-module'), Math.round(node.getBoundingClientRect().height)]),
+    ))
+    expect(Object.values(moduleHeights).every((height) => Number(height) > 0)).toBe(true)
     const footerColumns = await page.locator('footer nav').evaluateAll((nodes) => nodes.map((node) => {
       const rect = node.getBoundingClientRect()
       return {left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom}
