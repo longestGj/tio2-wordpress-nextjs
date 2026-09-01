@@ -1,6 +1,5 @@
 import type {Tio2MyGlobalChrome} from './tio2-my-global-chrome-types'
-
-export type MalaysiaProductDetailSlug = 'm-350' | 'm-510'
+import type {MalaysiaProductDetailSlug} from './product-detail-v01-registry'
 
 export interface ProductDetailAction {
   readonly targetPageId: string

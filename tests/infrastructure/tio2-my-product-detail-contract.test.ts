@@ -8,6 +8,7 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
     )).default
     expect(registry).toMatchObject({
       reviewId: 'PRODUCT-DETAIL-G7-PCR-02',
+      hashAlgorithm: 'sha256-json-recursive-key-sort-v1',
       siteScope: 'tio2-my',
       templateVersion: 'product-detail-v1',
     })
@@ -17,7 +18,12 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
       expect.objectContaining({pageId: 'GRADE-M350', path: '/products/m-350/'}),
     ])
     expect(registry.identities.filter((item) => item.implementationState === 'APPROVED_M510_CANDIDATE')).toEqual([
-      expect.objectContaining({pageId: 'GRADE-M510', path: '/products/m-510/'}),
+      expect.objectContaining({
+        pageId: 'GRADE-M510',
+        path: '/products/m-510/',
+        approvedSourceSha256: '09B41E1AB403372495D4BE8DB3DDD1260A710E310327FC289D8D344B05AB095C',
+        approvedCanonicalSha256: '706A8962F5B90D857EE2595138CDEDCA4E22A7398F5C18CDCFA8E1E8186C4D22',
+      }),
     ])
     expect(registry.identities.filter((item) => item.implementationState.startsWith('IDENTITY_ONLY'))).toHaveLength(12)
   })
@@ -37,9 +43,13 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
 
     expect(plugin).toContain("require_once __DIR__ . '/includes/product-detail-v01.php';")
     expect(php).toContain('function tio2_my_product_detail_approved_grades')
+    expect(php).toContain('tio2-my-product-detail-identities.json')
+    expect(php).toContain('function tio2_my_product_detail_canonical_sha256')
+    expect(php).toContain("'sha256-json-recursive-key-sort-v1'")
+    expect(php).toContain("'approvedCanonicalSha256'")
+    expect(php).toContain("'approvedSourceSha256'")
+    expect(php).toContain('tio2_my_product_detail_approved_hash_mismatch')
     expect(php).toContain('function tio2_my_product_detail_public_projection')
-    expect(php).toContain("'m-350' => [")
-    expect(php).toContain("'m-510' => [")
     expect(php).toContain("'tax_query'")
     expect(php).toContain("'terms' => ['tio2-my']")
     expect(php).toContain('hash_equals')
@@ -47,6 +57,7 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
     expect(php).not.toContain("'tio2-b'")
     expect(seeds).toContain("$internal_slug = 'tio2-my-m-350'")
     expect(seeds).toContain("$internal_slug = 'tio2-my-m-510'")
+    expect(seeds.match(/tio2_my_product_detail_approved_grades\(\)/gu)).toHaveLength(2)
     expect(seeds).not.toMatch(/m-896|m-996|m-2196|m-2377|cr-901/iu)
     expect(schema).toContain('malaysiaProductDetailRecordJson(slug: String!): String!')
   })
@@ -87,8 +98,23 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
     ]
     for (const file of files) expect(existsSync(file)).toBe(false)
     const route = readFileSync('app/products/[familySlug]/page.tsx', 'utf8')
-    expect(route).toContain("['m-350', 'm-510']")
+    expect(route).toContain('APPROVED_MALAYSIA_PRODUCT_DETAIL_SLUGS')
+    expect(route).toContain('isApprovedMalaysiaProductDetailSlug')
     expect(route).not.toMatch(/m-896|m-996|m-2196|m-2377|cr-901/iu)
+  })
+
+  it('derives route, DTO, types, cache and PHP authorization without local slug allowlists', () => {
+    const derivedFiles = [
+      'app/products/[familySlug]/page.tsx',
+      'lib/wordpress/product-detail-v01-types.ts',
+      'lib/wordpress/product-detail-v01-dto.ts',
+      'lib/wordpress/cache-tags.ts',
+      'wordpress/plugins/tio2-site-model/includes/product-detail-v01.php',
+    ]
+    for (const path of derivedFiles) {
+      const source = readFileSync(path, 'utf8')
+      expect(source, path).not.toMatch(/['"]m-(?:350|510)['"]/u)
+    }
   })
 
   it('keeps restricted relationships and commerce fields out of the public contract', () => {

@@ -1,22 +1,19 @@
-import m350Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m350.json'
-import m510Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m510.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
 import type {
   MalaysiaProductDetailDto,
   MalaysiaProductDetailModules,
-  MalaysiaProductDetailSlug,
   ProductDetailApplicationItem,
 } from './product-detail-v01-types'
+import {
+  getApprovedMalaysiaProductDetail,
+  isApprovedMalaysiaProductDetailSlug,
+  type MalaysiaProductDetailSlug,
+} from './product-detail-v01-registry'
 import {normalizeWordPressGmt} from './time'
 import {CrossSiteContentError} from './types'
 
 type UnknownRecord = Record<string, unknown>
-
-const approvedContracts: Readonly<Record<MalaysiaProductDetailSlug, UnknownRecord>> = {
-  'm-350': m350Contract,
-  'm-510': m510Contract,
-}
 
 export class ProductDetailContractError extends Error {
   constructor(readonly field: string) {
@@ -191,10 +188,6 @@ function validateModules(value: unknown, approvedContract: UnknownRecord): Malay
   } as MalaysiaProductDetailModules
 }
 
-function isApprovedSlug(value: string): value is MalaysiaProductDetailSlug {
-  return value === 'm-350' || value === 'm-510'
-}
-
 export function toMalaysiaProductDetailDto(sourceValue: MalaysiaProductDetailSource, requestedSlug?: MalaysiaProductDetailSlug): MalaysiaProductDetailDto {
   const source = record(sourceValue, 'productDetail')
   const nodes = record(source.siteScopes, 'identity.siteScopes').nodes
@@ -205,8 +198,8 @@ export function toMalaysiaProductDetailDto(sourceValue: MalaysiaProductDetailSou
   const projection = record(source.publicProjection, 'publicProjection')
   const projectedIdentity = record(projection.identity, 'identity')
   const slug = exactText(projectedIdentity.slug, 'identity.slug')
-  if (!isApprovedSlug(slug) || (requestedSlug && requestedSlug !== slug)) throw new ProductDetailContractError('identity.slug')
-  const approvedContract = approvedContracts[slug]
+  if (!isApprovedMalaysiaProductDetailSlug(slug) || (requestedSlug && requestedSlug !== slug)) throw new ProductDetailContractError('identity.slug')
+  const approvedContract = getApprovedMalaysiaProductDetail(slug).contract as UnknownRecord
   const approvedIdentity = record(approvedContract.identity, 'approved.identity')
   const runtimePath = `/products/${slug}` as `/products/${MalaysiaProductDetailSlug}`
   const fields = record(source.publishingFields, 'publishingFields')

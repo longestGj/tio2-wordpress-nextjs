@@ -8,50 +8,132 @@ if (! defined('ABSPATH')) {
 
 const TIO2_MY_PRODUCT_DETAIL_CONTRACT_META = '_tio2_my_product_detail_contract_json';
 
-/** @return array<string, array<string, string>> */
-function tio2_my_product_detail_approved_grades(): array
+function tio2_my_product_detail_registry_path(): string
 {
-    return [
-        'm-350' => [
-            'page_id' => 'GRADE-M350',
-            'grade_code' => 'M-350',
-            'internal_slug' => 'tio2-my-m-350',
-            'public_path' => '/products/m-350',
-            'canonical' => 'https://tio2malaysia.com/products/m-350/',
-            'contract_file' => 'tio2-my-product-detail-m350.json',
-        ],
-        'm-510' => [
-            'page_id' => 'GRADE-M510',
-            'grade_code' => 'M-510',
-            'internal_slug' => 'tio2-my-m-510',
-            'public_path' => '/products/m-510',
-            'canonical' => 'https://tio2malaysia.com/products/m-510/',
-            'contract_file' => 'tio2-my-product-detail-m510.json',
-        ],
-    ];
+    return dirname(__DIR__) . '/config/tio2-my-product-detail-identities.json';
 }
 
-function tio2_my_product_detail_contract_path(string $slug = 'm-350'): string
+/** @param mixed $value */
+function tio2_my_product_detail_canonicalize_json_value(&$value): void
 {
-    $identity = tio2_my_product_detail_approved_grades()[$slug] ?? null;
-    if (! is_array($identity)) {
-        return '';
+    if (! is_array($value)) {
+        return;
     }
-    return dirname(__DIR__) . '/config/' . $identity['contract_file'];
+    foreach ($value as &$item) {
+        tio2_my_product_detail_canonicalize_json_value($item);
+    }
+    unset($item);
+    if (! array_is_list($value)) {
+        ksort($value, SORT_STRING);
+    }
 }
 
 /** @return string|WP_Error */
-function tio2_my_product_detail_approved_contract_json(string $slug = 'm-350')
+function tio2_my_product_detail_canonical_sha256(string $json)
 {
-    $path = tio2_my_product_detail_contract_path($slug);
-    $json = is_readable($path) ? file_get_contents($path) : false;
-    if (! is_string($json) || '' === $json) {
-        return new WP_Error(
-            'tio2_my_product_detail_contract_missing',
-            'The approved Malaysia Product Detail contract is unavailable.'
-        );
+    $decoded = json_decode($json, true);
+    if (! is_array($decoded)) {
+        return new WP_Error('tio2_my_product_detail_contract_json_invalid', 'The Product Detail contract JSON is invalid.');
     }
-    return $json;
+    tio2_my_product_detail_canonicalize_json_value($decoded);
+    $canonical = wp_json_encode(
+        $decoded,
+        JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION
+    );
+    if (! is_string($canonical)) {
+        return new WP_Error('tio2_my_product_detail_contract_canonical_invalid', 'The Product Detail contract cannot be canonicalized.');
+    }
+    return strtoupper(hash('sha256', $canonical));
+}
+
+/** @return array<string, array<string, mixed>>|WP_Error */
+function tio2_my_product_detail_approved_grades()
+{
+    static $cached = null;
+    if (is_array($cached) || is_wp_error($cached)) {
+        return $cached;
+    }
+    $registry_path = tio2_my_product_detail_registry_path();
+    $registry_json = is_readable($registry_path) ? file_get_contents($registry_path) : false;
+    $registry = is_string($registry_json) ? json_decode($registry_json, true) : null;
+    if (
+        ! is_array($registry) ||
+        'sha256-json-recursive-key-sort-v1' !== ($registry['hashAlgorithm'] ?? null) ||
+        'tio2-my' !== ($registry['siteScope'] ?? null) ||
+        'en' !== ($registry['locale'] ?? null) ||
+        'product-detail-v1' !== ($registry['templateVersion'] ?? null) ||
+        ! is_array($registry['identities'] ?? null)
+    ) {
+        return $cached = new WP_Error('tio2_my_product_detail_registry_invalid', 'The Product Detail approval registry is invalid.');
+    }
+    $approved = [];
+    foreach ($registry['identities'] as $identity) {
+        if (! is_array($identity) || ! str_starts_with((string) ($identity['implementationState'] ?? ''), 'APPROVED_')) {
+            continue;
+        }
+        $slug = $identity['slug'] ?? null;
+        $contract_file = $identity['contractFile'] ?? null;
+        $source_hash = $identity['approvedSourceSha256'] ?? null;
+        $canonical_hash = $identity['approvedCanonicalSha256'] ?? null;
+        if (
+            ! is_string($slug) || ! preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $slug) ||
+            ! is_string($contract_file) || ! preg_match('/^tio2-my-product-detail-[a-z0-9-]+\.json$/', $contract_file) ||
+            ! is_string($source_hash) || ! preg_match('/^[A-F0-9]{64}$/', $source_hash) ||
+            ! is_string($canonical_hash) || ! preg_match('/^[A-F0-9]{64}$/', $canonical_hash) ||
+            isset($approved[$slug])
+        ) {
+            return $cached = new WP_Error('tio2_my_product_detail_registry_entry_invalid', 'An approved Product Detail registry entry is invalid.');
+        }
+        $contract_path = dirname(__DIR__) . '/config/' . $contract_file;
+        $contract_json = is_readable($contract_path) ? file_get_contents($contract_path) : false;
+        $actual_hash = is_string($contract_json)
+            ? tio2_my_product_detail_canonical_sha256($contract_json)
+            : new WP_Error('tio2_my_product_detail_contract_missing', 'The approved Product Detail contract is unavailable.');
+        if (is_wp_error($actual_hash) || ! hash_equals($canonical_hash, $actual_hash)) {
+            return $cached = new WP_Error('tio2_my_product_detail_approved_hash_mismatch', 'The approved Product Detail contract hash does not match the registry.');
+        }
+        $contract = json_decode($contract_json, true);
+        $path = $identity['path'] ?? null;
+        if (
+            ! is_array($contract) ||
+            ! is_string($path) ||
+            $slug !== ($contract['identity']['slug'] ?? null) ||
+            ($identity['pageId'] ?? null) !== ($contract['identity']['pageId'] ?? null) ||
+            ($identity['gradeCode'] ?? null) !== ($contract['identity']['gradeCode'] ?? null) ||
+            $path !== ($contract['identity']['path'] ?? null) ||
+            'tio2-my' !== ($contract['identity']['siteScope'] ?? null)
+        ) {
+            return $cached = new WP_Error('tio2_my_product_detail_registry_identity_mismatch', 'The Product Detail contract identity does not match the registry.');
+        }
+        $approved[$slug] = [
+            'page_id' => (string) $identity['pageId'],
+            'grade_code' => (string) $identity['gradeCode'],
+            'internal_slug' => 'tio2-my-' . $slug,
+            'public_path' => rtrim($path, '/'),
+            'canonical' => 'https://tio2malaysia.com' . $path,
+            'contract_file' => $contract_file,
+            'approved_source_sha256' => $source_hash,
+            'approved_canonical_sha256' => $canonical_hash,
+            'contract_json' => $contract_json,
+        ];
+    }
+    if ([] === $approved) {
+        return $cached = new WP_Error('tio2_my_product_detail_registry_empty', 'No Product Detail contract is approved for preview.');
+    }
+    return $cached = $approved;
+}
+
+/** @return string|WP_Error */
+function tio2_my_product_detail_approved_contract_json(string $slug)
+{
+    $approved = tio2_my_product_detail_approved_grades();
+    if (is_wp_error($approved)) {
+        return $approved;
+    }
+    $identity = $approved[$slug] ?? null;
+    return is_array($identity) && is_string($identity['contract_json'] ?? null)
+        ? $identity['contract_json']
+        : new WP_Error('tio2_my_product_detail_contract_missing', 'The approved Malaysia Product Detail contract is unavailable.');
 }
 
 /** @return true|WP_Error */
@@ -68,8 +150,12 @@ function tio2_validate_product_detail_v01_contract(int $post_id)
         );
     }
     $page_id = get_post_meta($post_id, TIO2_MY_ROUTE_PAGE_ID_META, true);
+    $approved_grades = tio2_my_product_detail_approved_grades();
+    if (is_wp_error($approved_grades)) {
+        return $approved_grades;
+    }
     $matches = array_filter(
-        tio2_my_product_detail_approved_grades(),
+        $approved_grades,
         static fn (array $candidate): bool => $candidate['page_id'] === $page_id
     );
     if (1 !== count($matches)) {
@@ -86,15 +172,14 @@ function tio2_validate_product_detail_v01_contract(int $post_id)
         return new WP_Error('tio2_my_product_detail_invalid_route', 'The Product Detail route identity is invalid.');
     }
 
-    $approved = tio2_my_product_detail_approved_contract_json($slug);
-    if (is_wp_error($approved)) {
-        return $approved;
-    }
     $stored = get_post_meta($post_id, TIO2_MY_PRODUCT_DETAIL_CONTRACT_META, true);
-    if (! is_string($stored) || ! hash_equals($approved, $stored)) {
+    $stored_hash = is_string($stored)
+        ? tio2_my_product_detail_canonical_sha256($stored)
+        : new WP_Error('tio2_my_product_detail_contract_missing', 'The stored Product Detail contract is unavailable.');
+    if (is_wp_error($stored_hash) || ! hash_equals($identity['approved_canonical_sha256'], $stored_hash)) {
         return new WP_Error(
             'tio2_my_product_detail_contract_mismatch',
-            'The stored Malaysia Product Detail payload does not match the approved contract.'
+            'The stored Malaysia Product Detail payload does not match the approved canonical hash.'
         );
     }
 
@@ -301,7 +386,11 @@ function tio2_my_product_detail_public_projection(array $contract, array $readin
 function tio2_resolve_malaysia_product_detail_record_json($root, array $args): string
 {
     $slug = $args['slug'] ?? null;
-    $identity = is_string($slug) ? (tio2_my_product_detail_approved_grades()[$slug] ?? null) : null;
+    $approved_grades = tio2_my_product_detail_approved_grades();
+    if (is_wp_error($approved_grades)) {
+        throw new \GraphQL\Error\UserError('The Malaysia Product Detail approval registry failed validation.');
+    }
+    $identity = is_string($slug) ? ($approved_grades[$slug] ?? null) : null;
     if (! is_array($identity)) {
         throw new \GraphQL\Error\UserError('The requested Malaysia Product Detail is not authorized.');
     }

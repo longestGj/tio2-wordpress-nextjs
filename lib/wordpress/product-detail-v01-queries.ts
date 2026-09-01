@@ -13,8 +13,8 @@ import {
 } from './product-detail-v01-dto'
 import type {
   MalaysiaProductDetailDto,
-  MalaysiaProductDetailSlug,
 } from './product-detail-v01-types'
+import type {MalaysiaProductDetailSlug} from './product-detail-v01-registry'
 
 export const GET_MALAYSIA_PRODUCT_DETAIL = GetMalaysiaProductDetailDocument
 

@@ -70,4 +70,14 @@ describe('M-350 GraphQL query isolation', () => {
     ])
     expect(fetchMock).toHaveBeenCalledOnce()
   })
+
+  it('rejects an identity-only Grade before any CMS request', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubEnv('WORDPRESS_GRAPHQL_URL', 'https://cms.example.test/graphql')
+    await expect(getMalaysiaProductDetail('m-896')).rejects.toThrow(
+      'Invalid Malaysia Product Detail identity: tio2-my/m-896',
+    )
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
 })

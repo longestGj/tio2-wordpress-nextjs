@@ -6,6 +6,7 @@ import {
   SITE_A_PRODUCT_FAMILIES,
   resolveProductPageIdentity,
 } from '@/lib/products/page-graph'
+import {isApprovedMalaysiaProductDetailSlug} from './product-detail-v01-registry'
 
 const siteIdSet = new Set<SiteId>(SITE_IDS)
 const MAX_CANONICAL_PUBLIC_PATH_LENGTH = 172
@@ -194,7 +195,7 @@ export function aboutPageVersionTag(siteId: string, contentVersion: string): str
 
 export function productDetailContentTag(siteId: string, slug: string): string {
   assertSiteId(siteId)
-  if (siteId !== 'tio2-my' || (slug !== 'm-350' && slug !== 'm-510')) {
+  if (siteId !== 'tio2-my' || !isApprovedMalaysiaProductDetailSlug(slug)) {
     throw new Error(`Invalid Malaysia Product Detail identity: ${siteId}/${slug}`)
   }
   return `content:${siteId}--product-detail--${slug}`

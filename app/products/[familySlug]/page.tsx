@@ -15,7 +15,10 @@ import {buildMalaysiaProductDetailMetadata} from '@/lib/seo/product-detail-metad
 import {serializeProductJsonLd} from '@/lib/seo/product-jsonld'
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {getMalaysiaProductDetail} from '@/lib/wordpress/product-detail-v01-queries'
-import type {MalaysiaProductDetailSlug} from '@/lib/wordpress/product-detail-v01-types'
+import {
+  APPROVED_MALAYSIA_PRODUCT_DETAIL_SLUGS,
+  isApprovedMalaysiaProductDetailSlug,
+} from '@/lib/wordpress/product-detail-v01-registry'
 import {getSiteProductPage} from '@/lib/wordpress/product-page-queries'
 import {isPublicRoute} from '@/sites/public-routes'
 
@@ -23,17 +26,11 @@ interface Props {readonly params: Promise<{readonly familySlug: string}>}
 export const revalidate = 3600
 export const dynamicParams = true
 
-const MALAYSIA_PRODUCT_DETAIL_SLUGS = ['m-350', 'm-510'] as const satisfies readonly MalaysiaProductDetailSlug[]
-
-function isMalaysiaProductDetailSlug(value: string): value is MalaysiaProductDetailSlug {
-  return MALAYSIA_PRODUCT_DETAIL_SLUGS.some((slug) => slug === value)
-}
-
 async function loadPage({params}: Props) {
   const site = getCurrentSite()
   const {familySlug} = await params
   if (site.id === 'tio2-my') {
-    if (site.wordpressScope !== 'tio2-my' || !isMalaysiaProductDetailSlug(familySlug)) notFound()
+    if (site.wordpressScope !== 'tio2-my' || !isApprovedMalaysiaProductDetailSlug(familySlug)) notFound()
     const page = await getMalaysiaProductDetail(familySlug)
     return {kind: 'malaysia' as const, page, site}
   }
@@ -47,7 +44,7 @@ async function loadPage({params}: Props) {
 export async function generateStaticParams(): Promise<Array<{familySlug: string}>> {
   const site = getCurrentSite()
   if (site.id === 'tio2-my' && site.wordpressScope === 'tio2-my') {
-    return MALAYSIA_PRODUCT_DETAIL_SLUGS.map((familySlug) => ({familySlug}))
+    return APPROVED_MALAYSIA_PRODUCT_DETAIL_SLUGS.map((familySlug) => ({familySlug}))
   }
   if (site.id !== 'tio2-a' || site.wordpressScope !== 'tio2-a') return []
   return SITE_A_PRODUCT_IDENTITIES.filter(({level, path}) => level === 'family' && isPublicRoute(site.id, path)).map(({familySlug}) => ({familySlug: familySlug!}))

@@ -7,8 +7,11 @@ if (! function_exists('tio2_validate_product_detail_v01_contract')) {
 $site_id = 'tio2-my';
 $internal_slug = 'tio2-my-m-350';
 $public_path = '/products/m-350';
-$contract_path = dirname(__DIR__) . '/plugins/tio2-site-model/config/tio2-my-product-detail-m350.json';
-$contract_json = is_readable($contract_path) ? file_get_contents($contract_path) : false;
+$approved_grades = tio2_my_product_detail_approved_grades();
+if (is_wp_error($approved_grades)) {
+    throw new RuntimeException($approved_grades->get_error_message());
+}
+$contract_json = $approved_grades['m-350']['contract_json'] ?? false;
 if (! is_string($contract_json) || '' === $contract_json || ! is_array(json_decode($contract_json, true))) {
     throw new RuntimeException('The approved Malaysia M-350 Product Detail contract is missing or invalid.');
 }
