@@ -2,7 +2,9 @@
 
 Review ID: `ABOUT-001-G9-PCR-02`
 
-Status: `READY_FOR_GATE9_READ_ONLY_REVIEW / GATE9_NOT_ASSERTED`. This record does not authorize deployment, publication, DNS, indexing or Gate 10.
+Status: `PROJECT_CONTROL_REVIEW_PASS / CLOSED`. Development disposition: `READ_ONLY_QA_APPROVED_WITH_RELEASE_BLOCKERS`. This record does not authorize deployment, publication, DNS, indexing or Gate 10.
+
+Project control closed Review ID `ABOUT-001-G9-PCR-02` after an independent read-only review. The closure decision and retained release boundary are recorded in `GATE9_PROJECT_CONTROL_CLOSURE_2026-09-01.md`.
 
 The media P0 and visual-density P1 closed by the prior review were retained without redesign. This revision addresses only field-level public authorization and Restricted neutral output.
 
