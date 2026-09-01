@@ -6,6 +6,7 @@ const baseUrl = 'http://127.0.0.1:3004'
 const pages = [
   {path: '/', current: 'Home'},
   {path: '/markets/', current: 'Markets'},
+  {path: '/products/', current: 'Products'},
 ] as const
 
 for (const width of [390, 768, 1440] as const) {

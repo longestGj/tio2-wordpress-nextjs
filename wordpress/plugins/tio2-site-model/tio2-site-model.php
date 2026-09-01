@@ -36,6 +36,7 @@ require_once __DIR__ . '/includes/market-hub-v01.php';
 require_once __DIR__ . '/includes/product-hub-v01.php';
 require_once __DIR__ . '/includes/resource-hub-v01.php';
 require_once __DIR__ . '/includes/about-page-v01.php';
+require_once __DIR__ . '/includes/rfq-page-v01.php';
 require_once __DIR__ . '/includes/product-detail-v01.php';
 require_once __DIR__ . '/includes/webhooks.php';
 require_once __DIR__ . '/includes/preview.php';
