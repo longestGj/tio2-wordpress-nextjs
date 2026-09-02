@@ -7,6 +7,7 @@ import {getSiteConfig} from '@/sites'
 import {
   malaysiaM510ProductDetailSource,
   malaysiaM340ProductDetailSource,
+  malaysiaM886ProductDetailSource,
   malaysiaM895ProductDetailSource,
   malaysiaM896ProductDetailSource,
   malaysiaProductDetailSource,
@@ -66,7 +67,7 @@ describe('M-350 route integration', () => {
     expect(metadata.robots).toMatchObject({index: false, follow: false})
   })
 
-  it('generates only the five approved candidates and rejects the other nine Malaysia grade slugs before CMS access', async () => {
+  it('generates only the six approved candidates and rejects the other eight Malaysia grade slugs before CMS access', async () => {
     const route = await import('@/app/products/[familySlug]/page')
     await expect(route.generateStaticParams()).resolves.toEqual([
       {familySlug: 'm-350'},
@@ -74,8 +75,9 @@ describe('M-350 route integration', () => {
       {familySlug: 'm-896'},
       {familySlug: 'm-895'},
       {familySlug: 'm-340'},
+      {familySlug: 'm-886'},
     ])
-    for (const slug of ['m-996', 'm-2196', 'm-200', 'm-108', 'm-210', 'm-886', 'm-52', 'm-2377', 'cr-901']) {
+    for (const slug of ['m-996', 'm-2196', 'm-200', 'm-108', 'm-210', 'm-52', 'm-2377', 'cr-901']) {
       await expect(route.default(props(slug))).rejects.toMatchObject({
         digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
       })
@@ -130,6 +132,17 @@ describe('M-350 route integration', () => {
     expect((await route.generateMetadata(props('m-340'))).alternates?.canonical).toBe(
       'https://tio2malaysia.com/products/m-340/',
     )
+  })
+
+  it('loads M-886 through the same scoped route with ten visible Schema values', async () => {
+    routeMocks.getMalaysiaProductDetail.mockResolvedValue(toMalaysiaProductDetailDto(malaysiaM886ProductDetailSource(), 'm-886'))
+    const route = await import('@/app/products/[familySlug]/page')
+    const markup = renderToStaticMarkup(await route.default(props('m-886')))
+    expect(routeMocks.getMalaysiaProductDetail).toHaveBeenCalledWith('m-886')
+    expect(markup).toContain('M-886 Titanium Dioxide for Plastics and Masterbatch Evaluation')
+    expect(markup).toContain('data-label="Typical value">0.4% max</td>')
+    expect(markup).not.toMatch(/Footwear|Coatings|11\/2024/iu)
+    expect((await route.generateMetadata(props('m-886'))).alternates?.canonical).toBe('https://tio2malaysia.com/products/m-886/')
   })
 
   it('loads and renders the distinct M-510 candidate through the same route and template', async () => {

@@ -1,6 +1,7 @@
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m350.json'
 import m340Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m340.json'
 import m510Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m510.json'
+import m886Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m886.json'
 import m895Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m895.json'
 import m896Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m896.json'
 
@@ -282,6 +283,51 @@ export function malaysiaM340ProductDetailSource(
       globalChromeRef: m340Contract.globalChromeRef,
       breadcrumb: m340Contract.breadcrumb,
       modules,
+    },
+  }
+}
+
+export function m886ProductDetailReadiness(ready = false): Record<string, boolean> {
+  const result = Object.fromEntries(m886Contract.routeRegistry.map((route) => [route.targetPageId, ready]))
+  result['HOME-001'] = true
+  result['PRODUCT-000'] = true
+  return result
+}
+
+export function malaysiaM886ProductDetailSource(
+  readiness: Readonly<Record<string, boolean>> = m886ProductDetailReadiness(),
+): MalaysiaProductDetailSource {
+  const {contextualLink, ...positioning} = m886Contract.positioning
+  const applications = {
+    ...m886Contract.applications,
+    items: m886Contract.applications.items.map(({targetPageId, href, ...item}) =>
+      readiness[targetPageId] ? {...item, targetPageId, href} : item),
+  }
+  const {action, ...technical} = m886Contract.technical
+  const marketItems = m886Contract.markets.items.filter((item) => readiness[item.targetPageId])
+  return {
+    id: 'product-detail-my-886-1',
+    modifiedGmt: '2026-09-02T05:06:07',
+    status: 'publish',
+    siteScopes: {nodes: [{slug: 'tio2-my'}]},
+    publishingFields: {publicPath: '/products/m-886'},
+    publicProjection: {
+      reviewId: m886Contract.reviewId,
+      identity: m886Contract.identity,
+      releaseControls: m886Contract.releaseControls,
+      seo: m886Contract.seo,
+      globalChromeRef: m886Contract.globalChromeRef,
+      breadcrumb: m886Contract.breadcrumb,
+      modules: {
+        hero: {...m886Contract.hero, actions: m886Contract.hero.actions.filter((item) => readiness[item.targetPageId])},
+        positioning: readiness[contextualLink.targetPageId] ? {...positioning, contextualLink} : positioning,
+        applications,
+        evaluation: m886Contract.evaluation,
+        technical: readiness[action.targetPageId] ? {...technical, action} : technical,
+        ...(readiness[m886Contract.documents.targetPageId] ? {documents: m886Contract.documents} : {}),
+        ...(marketItems.length ? {markets: {...m886Contract.markets, items: marketItems}} : {}),
+        ...(readiness[m886Contract.sample.targetPageId] ? {sample: m886Contract.sample} : {}),
+      },
     },
   }
 }
