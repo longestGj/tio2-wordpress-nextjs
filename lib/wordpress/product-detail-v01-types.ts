@@ -36,10 +36,30 @@ export interface ProductDetailApplicationItem {
   readonly relatedTargets?: readonly {readonly targetPageId: string; readonly href: string}[]
 }
 
-export interface ProductDetailTechnicalRow {
+export interface ProductDetailLegacyTechnicalRow {
   readonly property: string
   readonly standard?: string
   readonly typical: string
+}
+
+export interface ProductDetailValueTechnicalRow {
+  readonly property: string
+  readonly value: string
+  readonly testMethod?: string
+}
+
+export type ProductDetailTechnicalRow =
+  | ProductDetailLegacyTechnicalRow
+  | ProductDetailValueTechnicalRow
+
+export function isProductDetailValueTechnicalRow(
+  row: ProductDetailTechnicalRow,
+): row is ProductDetailValueTechnicalRow {
+  return 'value' in row
+}
+
+export function productDetailTechnicalRowValue(row: ProductDetailTechnicalRow): string {
+  return isProductDetailValueTechnicalRow(row) ? row.value : row.typical
 }
 
 export interface MalaysiaProductDetailModules {

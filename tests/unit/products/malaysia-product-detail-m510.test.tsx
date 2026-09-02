@@ -55,8 +55,12 @@ describe('M-510 approved Product Detail candidate', () => {
     })
     const graph = buildMalaysiaProductDetailJsonLd(getSiteConfig('tio2-my'), product)
     const nodes = graph['@graph'] as Array<Record<string, unknown>>
+    const properties = nodes[0]?.additionalProperty as Array<Record<string, unknown>>
     expect(nodes.map((node) => node['@type'])).toEqual(['Product', 'BreadcrumbList'])
-    expect(nodes[0]?.additionalProperty).toHaveLength(12)
+    expect(properties).toHaveLength(12)
+    expect(properties[0]).toEqual({
+      '@type': 'PropertyValue', name: 'TiO₂ content, %', value: '94.5',
+    })
     expect(JSON.stringify(nodes[0])).not.toMatch(/Standard:|Offer|manufacturer|countryOfOrigin/iu)
   })
 

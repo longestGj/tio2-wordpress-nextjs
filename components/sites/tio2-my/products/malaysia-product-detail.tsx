@@ -1,4 +1,7 @@
-import type {MalaysiaProductDetailDto} from '@/lib/wordpress/product-detail-v01-types'
+import {
+  isProductDetailValueTechnicalRow,
+  type MalaysiaProductDetailDto,
+} from '@/lib/wordpress/product-detail-v01-types'
 
 import {
   MalaysiaGlobalFooter,
@@ -36,8 +39,8 @@ export function MalaysiaProductDetail({
     ? product.seo.h1.slice(gradeCode.length + 1)
     : product.seo.h1
   const titleId = `${product.identity.slug}-title`
-  const hasStandardColumn = modules.technical.columns.length === 3 &&
-    modules.technical.rows.every((row) => typeof row.standard === 'string')
+  const hasLegacyStandardColumn = modules.technical.columns.length === 3 &&
+    modules.technical.rows.every((row) => !isProductDetailValueTechnicalRow(row) && typeof row.standard === 'string')
   const sectionLinks = [
     {id: 'positioning', label: 'Positioning'},
     {id: 'applications', label: 'Applications'},
@@ -187,8 +190,19 @@ export function MalaysiaProductDetail({
                 {modules.technical.rows.map((row) => (
                   <tr key={row.property}>
                     <th scope="row">{row.property}</th>
-                    {hasStandardColumn ? <td data-label={modules.technical.columns[1]}>{row.standard}</td> : null}
-                    <td data-label={modules.technical.columns.at(-1)}>{row.typical}</td>
+                    {isProductDetailValueTechnicalRow(row) ? (
+                      <>
+                        <td data-label={modules.technical.columns[1]}>{row.value}</td>
+                        {modules.technical.columns.length === 3
+                          ? <td data-label={modules.technical.columns[2]}>{row.testMethod}</td>
+                          : null}
+                      </>
+                    ) : (
+                      <>
+                        {hasLegacyStandardColumn ? <td data-label={modules.technical.columns[1]}>{row.standard}</td> : null}
+                        <td data-label={modules.technical.columns.at(-1)}>{row.typical}</td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>

@@ -1,5 +1,6 @@
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m350.json'
 import m510Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m510.json'
+import m896Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m896.json'
 
 import type {MalaysiaProductDetailSource} from '@/lib/wordpress/product-detail-v01-dto'
 
@@ -119,6 +120,59 @@ export function malaysiaM510ProductDetailSource(
       seo: m510Contract.seo,
       globalChromeRef: m510Contract.globalChromeRef,
       breadcrumb: m510Contract.breadcrumb,
+      modules,
+    },
+  }
+}
+
+export function m896ProductDetailReadiness(ready = false): Record<string, boolean> {
+  const result = Object.fromEntries(
+    m896Contract.routeRegistry.map((route) => [route.targetPageId, ready]),
+  )
+  result['HOME-001'] = true
+  result['PRODUCT-000'] = true
+  return result
+}
+
+export function malaysiaM896ProductDetailSource(
+  readiness: Readonly<Record<string, boolean>> = m896ProductDetailReadiness(),
+): MalaysiaProductDetailSource {
+  const {contextualLink, ...positioning} = m896Contract.positioning
+  const applications = {
+    ...m896Contract.applications,
+    items: m896Contract.applications.items.map(({targetPageId, href, ...item}) =>
+      readiness[targetPageId] ? {...item, targetPageId, href} : item),
+  }
+  const {action, ...technical} = m896Contract.technical
+  const marketItems = m896Contract.markets.items.filter((item) => readiness[item.targetPageId])
+  const modules = {
+    hero: {
+      ...m896Contract.hero,
+      actions: m896Contract.hero.actions.filter((item) => readiness[item.targetPageId]),
+    },
+    positioning: readiness[contextualLink.targetPageId]
+      ? {...positioning, contextualLink}
+      : positioning,
+    applications,
+    evaluation: m896Contract.evaluation,
+    technical: readiness[action.targetPageId] ? {...technical, action} : technical,
+    ...(readiness[m896Contract.documents.targetPageId] ? {documents: m896Contract.documents} : {}),
+    ...(marketItems.length ? {markets: {...m896Contract.markets, items: marketItems}} : {}),
+    ...(readiness[m896Contract.sample.targetPageId] ? {sample: m896Contract.sample} : {}),
+  }
+  return {
+    id: 'product-detail-my-896-1',
+    modifiedGmt: '2026-09-02T02:03:04',
+    status: 'publish',
+    siteScopes: {nodes: [{slug: 'tio2-my'}]},
+    publishingFields: {publicPath: '/products/m-896'},
+    publicProjection: {
+      reviewId: m896Contract.reviewId,
+      identity: m896Contract.identity,
+      releaseControls: m896Contract.releaseControls,
+      seo: m896Contract.seo,
+      globalChromeRef: m896Contract.globalChromeRef,
+      breadcrumb: m896Contract.breadcrumb,
       modules,
     },
   }

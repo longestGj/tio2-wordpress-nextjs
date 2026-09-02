@@ -4,6 +4,7 @@ import type {
   MalaysiaProductDetailDto,
   MalaysiaProductDetailModules,
   ProductDetailApplicationItem,
+  ProductDetailTechnicalRow,
 } from './product-detail-v01-types'
 import {
   getApprovedMalaysiaProductDetail,
@@ -117,6 +118,67 @@ function validateApplications(value: unknown, approvedValue: unknown): MalaysiaP
   }
 }
 
+function validateTechnicalRows(value: unknown, approvedValue: unknown): readonly ProductDetailTechnicalRow[] {
+  if (!Array.isArray(value) || !Array.isArray(approvedValue) || value.length !== approvedValue.length) {
+    throw new ProductDetailContractError('modules.technical.rows')
+  }
+  return value.map((item, index): ProductDetailTechnicalRow => {
+    const candidate = record(item, `modules.technical.rows[${index}]`)
+    const approved = record(approvedValue[index], `approved.technical.rows[${index}]`)
+    const field = `modules.technical.rows[${index}]`
+    const hasValueShape = 'value' in approved || 'testMethod' in approved
+    if (hasValueShape) {
+      const keys = ['property', 'value', ...('testMethod' in approved ? ['testMethod'] : [])]
+      exactKeys(candidate, keys, field)
+      exactKeys(approved, keys, `approved.technical.rows[${index}]`)
+      for (const key of keys) exactJson(candidate[key], approved[key], `${field}.${key}`)
+      return {
+        property: exactText(approved.property, `approved.technical.rows[${index}].property`),
+        value: exactText(approved.value, `approved.technical.rows[${index}].value`),
+        ...('testMethod' in approved ? {
+          testMethod: exactText(approved.testMethod, `approved.technical.rows[${index}].testMethod`),
+        } : {}),
+      }
+    }
+    const keys = ['property', ...('standard' in approved ? ['standard'] : []), 'typical']
+    exactKeys(candidate, keys, field)
+    exactKeys(approved, keys, `approved.technical.rows[${index}]`)
+    for (const key of keys) exactJson(candidate[key], approved[key], `${field}.${key}`)
+    return {
+      property: exactText(approved.property, `approved.technical.rows[${index}].property`),
+      ...('standard' in approved ? {
+        standard: exactText(approved.standard, `approved.technical.rows[${index}].standard`),
+      } : {}),
+      typical: exactText(approved.typical, `approved.technical.rows[${index}].typical`),
+    }
+  })
+}
+
+function validateTechnical(value: unknown, approvedValue: unknown): MalaysiaProductDetailModules['technical'] {
+  const technical = record(value, 'modules.technical')
+  const approved = record(approvedValue, 'approved.technical')
+  const hasAction = 'action' in technical
+  exactKeys(technical, ['eyebrow', 'heading', 'intro', 'sourceLabel', 'columns', 'rows', 'note', ...(hasAction ? ['action'] : [])], 'modules.technical')
+  for (const key of ['eyebrow', 'heading', 'intro', 'sourceLabel', 'columns', 'note']) {
+    exactJson(technical[key], approved[key], `modules.technical.${key}`)
+  }
+  if (!Array.isArray(approved.columns) || ![2, 3].includes(approved.columns.length)) {
+    throw new ProductDetailContractError('approved.technical.columns')
+  }
+  const rows = validateTechnicalRows(technical.rows, approved.rows)
+  const action = hasAction ? optionalExact(technical, approved, 'action', 'modules.technical') : undefined
+  return {
+    eyebrow: exactText(approved.eyebrow, 'approved.technical.eyebrow'),
+    heading: exactText(approved.heading, 'approved.technical.heading'),
+    intro: exactText(approved.intro, 'approved.technical.intro'),
+    sourceLabel: exactText(approved.sourceLabel, 'approved.technical.sourceLabel'),
+    columns: approved.columns as readonly string[],
+    rows,
+    note: exactText(approved.note, 'approved.technical.note'),
+    ...(action ? {action: action as MalaysiaProductDetailModules['technical']['action']} : {}),
+  }
+}
+
 function validateModules(value: unknown, approvedContract: UnknownRecord): MalaysiaProductDetailModules {
   const modules = record(value, 'modules')
   const allowedKeys = ['hero', 'positioning', 'applications', 'evaluation', 'technical', 'documents', 'markets', 'relatedGrades', 'sample']
@@ -140,12 +202,7 @@ function validateModules(value: unknown, approvedContract: UnknownRecord): Malay
   const applications = validateApplications(modules.applications, approvedContract.applications)
   exactJson(modules.evaluation, approvedContract.evaluation, 'modules.evaluation')
 
-  const approvedTechnical = record(approvedContract.technical, 'approved.technical')
-  const technical = record(modules.technical, 'modules.technical')
-  const hasTechnicalAction = 'action' in technical
-  exactKeys(technical, ['eyebrow', 'heading', 'intro', 'sourceLabel', 'columns', 'rows', 'note', ...(hasTechnicalAction ? ['action'] : [])], 'modules.technical')
-  exactJson({...technical, action: undefined}, {...approvedTechnical, action: undefined}, 'modules.technical')
-  const technicalAction = hasTechnicalAction ? optionalExact(technical, approvedTechnical, 'action', 'modules.technical') : undefined
+  const technical = validateTechnical(modules.technical, approvedContract.technical)
 
   if ('documents' in modules) exactJson(modules.documents, approvedContract.documents, 'modules.documents')
   let markets: UnknownRecord | undefined
@@ -180,7 +237,7 @@ function validateModules(value: unknown, approvedContract: UnknownRecord): Malay
     positioning: {...approvedPositioning, contextualLink: undefined, ...(contextualLink ? {contextualLink} : {})},
     applications,
     evaluation: approvedContract.evaluation,
-    technical: {...approvedTechnical, action: undefined, ...(technicalAction ? {action: technicalAction} : {})},
+    technical,
     ...('documents' in modules ? {documents: approvedContract.documents} : {}),
     ...(markets ? {markets} : {}),
     ...(relatedGrades ? {relatedGrades} : {}),

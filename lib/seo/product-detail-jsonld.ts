@@ -1,4 +1,8 @@
-import type {MalaysiaProductDetailDto} from '@/lib/wordpress/product-detail-v01-types'
+import {
+  isProductDetailValueTechnicalRow,
+  productDetailTechnicalRowValue,
+  type MalaysiaProductDetailDto,
+} from '@/lib/wordpress/product-detail-v01-types'
 import type {SiteConfig} from '@/sites'
 import type {JsonLdObject} from './jsonld'
 import {serializeJsonLd} from './jsonld'
@@ -27,8 +31,8 @@ export function buildMalaysiaProductDetailJsonLd(
     additionalProperty: product.modules.technical.rows.map((row) => ({
       '@type': 'PropertyValue',
       name: row.property,
-      value: row.typical,
-      ...('standard' in row
+      value: productDetailTechnicalRowValue(row),
+      ...(!isProductDetailValueTechnicalRow(row) && 'standard' in row
         ? {description: `Standard: ${row.standard}; Typical Value: ${row.typical}`}
         : {}),
     })),

@@ -18,6 +18,12 @@ describe('M-350 Product and Breadcrumb Schema', () => {
       category: 'Rutile titanium dioxide pigment',
     })
     expect(nodes[0]?.additionalProperty).toHaveLength(15)
+    expect((nodes[0]?.additionalProperty as Array<Record<string, unknown>>)[0]).toEqual({
+      '@type': 'PropertyValue',
+      name: 'TiO₂ content, %',
+      value: '93.5',
+      description: 'Standard: ≥ 92.5; Typical Value: 93.5',
+    })
     expect(nodes[1]?.itemListElement).toHaveLength(3)
   })
 

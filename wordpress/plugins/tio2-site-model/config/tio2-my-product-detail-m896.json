@@ -1,0 +1,261 @@
+{
+  "reviewId": "GRADE-M896-G7-PCR-01",
+  "identity": {
+    "pageId": "GRADE-M896",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "gradeCode": "M-896",
+    "slug": "m-896",
+    "path": "/products/m-896/",
+    "templateVersion": "product-detail-v1",
+    "schemaVersion": "product-detail-v0.1-malaysia",
+    "recordState": "approved_for_preview",
+    "contentRevision": "M896_GATE2_FULL_COPY_V0.2"
+  },
+  "releaseControls": {
+    "indexingAuthorized": false,
+    "sitemapAuthorized": false
+  },
+  "seo": {
+    "primaryKeyword": "M-896 titanium dioxide",
+    "title": "M-896 Titanium Dioxide for Industrial Coatings | TiO2 Malaysia",
+    "description": "Evaluate M-896 titanium dioxide for industrial and weather-resistant coatings. Review typical data, request documents or a sample, and submit an RFQ.",
+    "h1": "M-896 Titanium Dioxide for Industrial Coating Evaluation",
+    "canonical": "https://tio2malaysia.com/products/m-896/",
+    "language": "en",
+    "robots": "noindex,nofollow"
+  },
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-005",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01",
+    "currentNavigationKey": "Products"
+  },
+  "breadcrumb": [
+    {"targetPageId": "HOME-001", "label": "Home", "href": "/"},
+    {"targetPageId": "PRODUCT-000", "label": "Products", "href": "/products/"},
+    {"targetPageId": "GRADE-M896", "label": "M-896", "href": "/products/m-896/"}
+  ],
+  "moduleStatus": {
+    "hero": "verified",
+    "positioning": "verified",
+    "applications": "verified",
+    "evaluation": "verified",
+    "technical": "verified",
+    "documents": "verified",
+    "originSupport": "not_public",
+    "markets": "verified",
+    "relatedGrades": "not_public",
+    "sample": "verified"
+  },
+  "hero": {
+    "eyebrow": "COATINGS · CHLORIDE PROCESS",
+    "summaryLead": "A chloride-process rutile titanium dioxide pigment for industrial and weather-resistant coating evaluation, with alumina and silica inorganic coating and organic treatment.",
+    "summaryBody": "M-896 is documented for water-based and solvent-based industrial coatings, coil coatings, protective and marine coatings, automotive OEM and refinish coatings, exterior powder coatings and weather-resistant architectural coatings. Review the typical product data below and confirm suitability through testing in your own formulation, processing and application conditions.",
+    "proofs": [
+      "M-896 Technical Data Sheet",
+      "Coatings-focused evaluation",
+      "Buyer formulation testing required"
+    ],
+    "visual": {
+      "label": "M-896 product data and evaluation visual",
+      "technicalFile": "Rutile titanium dioxide pigment · Chloride process",
+      "currentData": "Current M-896 technical data · Coatings evaluation",
+      "note": "Product identity · documentation · formulation evaluation"
+    },
+    "facts": [
+      {"label": "Product", "value": "M-896"},
+      {"label": "Type", "value": "Rutile titanium dioxide pigment"},
+      {"label": "Process", "value": "Chloride process"},
+      {"label": "Grade positioning", "value": "Industrial and weather-resistant coating evaluation"},
+      {"label": "Application category", "value": "Coatings"}
+    ],
+    "actions": [
+      {
+        "targetPageId": "CONV-RFQ",
+        "label": "Request an M-896 Quote",
+        "href": "/request-a-quote/",
+        "prefill": {"site_scope": "tio2-my", "grade": "M-896", "source_page": "GRADE-M896"}
+      },
+      {
+        "targetPageId": "CONV-SAMPLE",
+        "label": "Request an M-896 Sample",
+        "href": "/request-sample/",
+        "prefill": {"site_scope": "tio2-my", "grade": "M-896", "source_page": "GRADE-M896"}
+      }
+    ]
+  },
+  "positioning": {
+    "eyebrow": "PRODUCT POSITIONING",
+    "heading": "Where M-896 Fits in Product Evaluation",
+    "lead": "M-896 is a rutile titanium dioxide pigment produced by the chloride process.",
+    "body": "Its documented product profile combines alumina and silica inorganic coating with organic treatment and a coatings-focused application range. Use M-896 as a candidate for formulation testing when your project involves industrial or weather-resistant coating systems. Final Grade selection should account for the complete formulation, dispersion process, substrate, application method, service conditions and destination-document requirements.",
+    "decisionPoints": [
+      "Chloride-process rutile titanium dioxide pigment",
+      "Alumina and silica inorganic coating",
+      "Organic treatment present",
+      "Industrial and weather-resistant coatings focus",
+      "Evaluation of weather resistance, dispersibility, gloss, blue undertone, opacity and tint strength"
+    ],
+    "contextualLink": {
+      "targetPageId": "PRODUCT-PROC-CL",
+      "label": "Learn about chloride-process titanium dioxide",
+      "href": "/products/chloride-process-titanium-dioxide/"
+    }
+  },
+  "applications": {
+    "eyebrow": "APPLICATION DIRECTIONS",
+    "heading": "Coating Application Directions to Evaluate",
+    "intro": "Review each documented direction in the buyer's own formulation, processing and application conditions.",
+    "items": [
+      {
+        "category": "Coatings",
+        "title": "Water-Based and Solvent-Based Industrial Coatings",
+        "body": "Evaluate M-896 in the buyer's water-based or solvent-based industrial coating formulation. Confirm dispersion, appearance, compatibility and finished-film performance under the intended application conditions.",
+        "targetPageId": "APP-COAT",
+        "href": "/applications/titanium-dioxide-for-coatings/"
+      },
+      {
+        "category": "Coatings",
+        "title": "Coil Coatings",
+        "body": "Review M-896 in coil-coating systems using the actual resin system, application process, curing conditions and performance requirements for the project.",
+        "targetPageId": "APP-COAT",
+        "href": "/applications/titanium-dioxide-for-coatings/"
+      },
+      {
+        "category": "Coatings",
+        "title": "Protective and Marine Coatings",
+        "body": "Include M-896 in testing for protective and marine coating formulations where weather resistance, dispersion and finished-film properties are part of the evaluation target.",
+        "targetPageId": "APP-COAT",
+        "href": "/applications/titanium-dioxide-for-coatings/"
+      },
+      {
+        "category": "Coatings",
+        "title": "Automotive OEM and Refinish Coatings",
+        "body": "Evaluate color direction, gloss, opacity, tint strength, dispersion and final coating performance in the complete automotive OEM or refinish system.",
+        "targetPageId": "APP-COAT",
+        "href": "/applications/titanium-dioxide-for-coatings/"
+      },
+      {
+        "category": "Coatings",
+        "title": "Exterior Powder Coatings",
+        "body": "Test M-896 in the intended exterior powder-coating formulation and processing conditions, including the coating's appearance and service-performance requirements.",
+        "targetPageId": "APP-COAT",
+        "href": "/applications/titanium-dioxide-for-coatings/"
+      },
+      {
+        "category": "Coatings",
+        "title": "Weather-Resistant Architectural Coatings",
+        "body": "Review M-896 for architectural coating formulations intended for exterior exposure. Confirm the required appearance and weather-resistance performance through formulation and application testing.",
+        "targetPageId": "APP-COAT",
+        "href": "/applications/titanium-dioxide-for-coatings/"
+      }
+    ]
+  },
+  "evaluation": {
+    "eyebrow": "FORMULATION EVALUATION",
+    "heading": "What to Evaluate in Your Coating Formulation",
+    "intro": "Use the documented M-896 product profile and typical data to frame buyer testing.",
+    "groups": [
+      {
+        "heading": "Coating Performance Review",
+        "items": [
+          "Weather-resistance target under the intended service conditions",
+          "Gloss and blue-undertone direction in the complete formulation",
+          "Opacity and tint-strength requirements",
+          "Finished appearance after the intended application and curing process"
+        ]
+      },
+      {
+        "heading": "Formulation Qualification Review",
+        "items": [
+          "Dispersion behavior in the selected binder and processing system",
+          "Compatibility with the full formulation and additives",
+          "Water-based or solvent-based processing conditions, where applicable",
+          "Substrate, application method, destination requirements and sample-validation results"
+        ]
+      }
+    ],
+    "disclaimer": "These evaluation priorities identify what to check during buyer testing. They do not guarantee a fixed result in every formulation, process or service environment."
+  },
+  "technical": {
+    "eyebrow": "CURRENT PRODUCT DATA",
+    "heading": "Typical Technical Data",
+    "intro": "Review the values reproduced from the M-896 Technical Data Sheet as an input to formulation evaluation.",
+    "sourceLabel": "M-896 Technical Data Sheet",
+    "columns": ["Property", "Value", "Test method"],
+    "rows": [
+      {"property": "TiO₂ content", "value": "92%", "testMethod": "XRF"},
+      {"property": "Inorganic coating", "value": "Alumina, Silica", "testMethod": "Not stated"},
+      {"property": "Organic treatment", "value": "Present", "testMethod": "Not stated"},
+      {"property": "Moisture when packed", "value": "0.5% max", "testMethod": "ISO 787-2"},
+      {"property": "Bulk density (tamped)", "value": "1.2 g/cm³", "testMethod": "ISO 787-11"},
+      {"property": "Oil absorption", "value": "18 g/100 g", "testMethod": "ISO 787-5"},
+      {"property": "pH", "value": "8.0", "testMethod": "ISO 787-9"},
+      {"property": "Specific gravity", "value": "4.0 g/cm³", "testMethod": "ISO 787-10"},
+      {"property": "ISO 591-1 classification", "value": "R2", "testMethod": "Not stated"},
+      {"property": "CAS number", "value": "13463-67-7", "testMethod": "Not stated"},
+      {"property": "Color index", "value": "Pigment White 6", "testMethod": "Not stated"}
+    ],
+    "note": "These values reproduce the typical-properties table in the M-896 Technical Data Sheet. They do not constitute a product specification. 0.5% max is retained as the maximum stated in the source. Confirm suitability in your own formulation and application conditions.",
+    "action": {
+      "targetPageId": "CONV-DOC",
+      "label": "Request the M-896 TDS",
+      "href": "/request-documents/",
+      "prefill": {"site_scope": "tio2-my", "grade": "M-896", "source_page": "GRADE-M896", "requested_type": "TDS"}
+    }
+  },
+  "documents": {
+    "targetPageId": "CONV-DOC",
+    "eyebrow": "DOCUMENT REQUEST",
+    "heading": "Request M-896 Documents",
+    "intro": "Request the M-896 Technical Data Sheet and tell us which additional technical or export documents are needed for your destination and evaluation process. Our team will confirm the applicable document scope for your request.",
+    "actionLabel": "Request M-896 Documents",
+    "href": "/request-documents/",
+    "prefill": {"site_scope": "tio2-my", "grade": "M-896", "source_page": "GRADE-M896", "requested_type": "TDS"},
+    "availability": "Submitting a request does not confirm that every requested document is available or applicable.",
+    "options": [
+      {"title": "Technical Data Sheet (TDS)", "body": "Request the M-896 Technical Data Sheet for product evaluation."},
+      {"title": "Additional document requirements", "body": "Describe the document type, destination and evaluation context. No availability is implied."}
+    ]
+  },
+  "markets": {
+    "eyebrow": "MARKET NAVIGATION",
+    "heading": "Plan Evaluation for Your Destination Market",
+    "intro": "Continue to the relevant destination page for market-specific procurement, document and inquiry guidance.",
+    "items": [
+      {"targetPageId": "MARKET-EU-001", "label": "European Union", "href": "/markets/european-union/"},
+      {"targetPageId": "MARKET-UK-001", "label": "United Kingdom", "href": "/markets/united-kingdom/"},
+      {"targetPageId": "MARKET-IN-001", "label": "India", "href": "/markets/india/"},
+      {"targetPageId": "MARKET-BR-EN", "label": "Brazil", "href": "/markets/brazil/"}
+    ],
+    "note": "These destination paths do not claim M-896 registration, compliance, stock or local availability."
+  },
+  "sample": {
+    "targetPageId": "CONV-SAMPLE",
+    "eyebrow": "QUALIFICATION SUPPORT",
+    "heading": "Request M-896 for Your Own Evaluation",
+    "body": "Share your coating system, destination, evaluation objective and relevant technical requirements so the M-896 sample request can be reviewed in the correct context. Submitting a request does not mean that a sample, quantity, freight arrangement or dispatch timing has been approved.",
+    "actionLabel": "Request an M-896 Sample",
+    "href": "/request-sample/",
+    "prefill": {"site_scope": "tio2-my", "grade": "M-896", "source_page": "GRADE-M896"}
+  },
+  "routeRegistry": [
+    {"targetPageId": "HOME-001", "href": "/", "behavior": "required"},
+    {"targetPageId": "PRODUCT-000", "href": "/products/", "behavior": "required"},
+    {"targetPageId": "CONV-RFQ", "href": "/request-a-quote/", "behavior": "conditional"},
+    {"targetPageId": "CONV-SAMPLE", "href": "/request-sample/", "behavior": "conditional"},
+    {"targetPageId": "CONV-DOC", "href": "/request-documents/", "behavior": "conditional"},
+    {"targetPageId": "PRODUCT-PROC-CL", "href": "/products/chloride-process-titanium-dioxide/", "behavior": "conditional"},
+    {"targetPageId": "APP-COAT", "href": "/applications/titanium-dioxide-for-coatings/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-EU-001", "href": "/markets/european-union/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-UK-001", "href": "/markets/united-kingdom/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-IN-001", "href": "/markets/india/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-BR-EN", "href": "/markets/brazil/", "behavior": "conditional"}
+  ],
+  "evidenceLedger": [
+    {"moduleKey": "identity-seo", "sourceRefs": ["PAGE_REGISTRY_V0.2", "11_PAGE_KEYWORD_MASTER"], "reviewStatus": "candidate_verified"},
+    {"moduleKey": "process-and-broad-application", "sourceRefs": ["PRODUCT_GRADE_APPLICATION_PROCESS_MATRIX_V0.3", "M896_TDS_SHA256_5115450C184397E774AE652CACBC009682793AD1659831EBB35A6737251FC90E"], "reviewStatus": "candidate_verified"},
+    {"moduleKey": "hero-positioning-applications-evaluation", "sourceRefs": ["M896_TDS_SHA256_5115450C184397E774AE652CACBC009682793AD1659831EBB35A6737251FC90E", "GRADE-M896-G2-FULL-COPY-01"], "reviewStatus": "candidate_verified"},
+    {"moduleKey": "technical", "sourceRefs": ["M896_TDS_SHA256_5115450C184397E774AE652CACBC009682793AD1659831EBB35A6737251FC90E"], "reviewStatus": "candidate_verified"}
+  ]
+}
