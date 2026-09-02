@@ -179,6 +179,12 @@ export function aboutPageContentTag(siteId: string): string {
   return `content:${siteId}--about`
 }
 
+export function documentsHubContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid Documents Hub scope: ${siteId}`)
+  return `content:${siteId}--documents`
+}
+
 export function rfqPageContentTag(siteId: string): string {
   assertSiteId(siteId)
   if (siteId !== 'tio2-my') throw new Error(`Invalid RFQ page scope: ${siteId}`)
