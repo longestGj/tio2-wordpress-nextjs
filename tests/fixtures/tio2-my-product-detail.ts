@@ -1,6 +1,7 @@
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m350.json'
 import m340Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m340.json'
 import m510Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m510.json'
+import m52Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m52.json'
 import m886Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m886.json'
 import m895Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m895.json'
 import m896Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m896.json'
@@ -327,6 +328,51 @@ export function malaysiaM886ProductDetailSource(
         ...(readiness[m886Contract.documents.targetPageId] ? {documents: m886Contract.documents} : {}),
         ...(marketItems.length ? {markets: {...m886Contract.markets, items: marketItems}} : {}),
         ...(readiness[m886Contract.sample.targetPageId] ? {sample: m886Contract.sample} : {}),
+      },
+    },
+  }
+}
+
+export function m52ProductDetailReadiness(ready = false): Record<string, boolean> {
+  const result = Object.fromEntries(m52Contract.routeRegistry.map((route) => [route.targetPageId, ready]))
+  result['HOME-001'] = true
+  result['PRODUCT-000'] = true
+  return result
+}
+
+export function malaysiaM52ProductDetailSource(
+  readiness: Readonly<Record<string, boolean>> = m52ProductDetailReadiness(),
+): MalaysiaProductDetailSource {
+  const {contextualLink, ...positioning} = m52Contract.positioning
+  const applications = {
+    ...m52Contract.applications,
+    items: m52Contract.applications.items.map(({targetPageId, href, ...item}) =>
+      readiness[targetPageId] ? {...item, targetPageId, href} : item),
+  }
+  const {action, ...technical} = m52Contract.technical
+  const marketItems = m52Contract.markets.items.filter((item) => readiness[item.targetPageId])
+  return {
+    id: 'product-detail-my-52-1',
+    modifiedGmt: '2026-09-02T06:07:08',
+    status: 'publish',
+    siteScopes: {nodes: [{slug: 'tio2-my'}]},
+    publishingFields: {publicPath: '/products/m-52'},
+    publicProjection: {
+      reviewId: m52Contract.reviewId,
+      identity: m52Contract.identity,
+      releaseControls: m52Contract.releaseControls,
+      seo: m52Contract.seo,
+      globalChromeRef: m52Contract.globalChromeRef,
+      breadcrumb: m52Contract.breadcrumb,
+      modules: {
+        hero: {...m52Contract.hero, actions: m52Contract.hero.actions.filter((item) => readiness[item.targetPageId])},
+        positioning: readiness[contextualLink.targetPageId] ? {...positioning, contextualLink} : positioning,
+        applications,
+        evaluation: m52Contract.evaluation,
+        technical: readiness[action.targetPageId] ? {...technical, action} : technical,
+        ...(readiness[m52Contract.documents.targetPageId] ? {documents: m52Contract.documents} : {}),
+        ...(marketItems.length ? {markets: {...m52Contract.markets, items: marketItems}} : {}),
+        ...(readiness[m52Contract.sample.targetPageId] ? {sample: m52Contract.sample} : {}),
       },
     },
   }

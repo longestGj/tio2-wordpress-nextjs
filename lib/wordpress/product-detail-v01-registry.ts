@@ -5,6 +5,7 @@ import m340Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-pro
 import m350Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m350.json'
 import m510Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m510.json'
 import m886Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m886.json'
+import m52Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m52.json'
 import m895Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m895.json'
 import m896Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m896.json'
 
@@ -37,6 +38,7 @@ const bundledContracts = [
   {file: 'tio2-my-product-detail-m350.json', contract: m350Contract},
   {file: 'tio2-my-product-detail-m510.json', contract: m510Contract},
   {file: 'tio2-my-product-detail-m886.json', contract: m886Contract},
+  {file: 'tio2-my-product-detail-m52.json', contract: m52Contract},
   {file: 'tio2-my-product-detail-m895.json', contract: m895Contract},
   {file: 'tio2-my-product-detail-m896.json', contract: m896Contract},
 ] as const
