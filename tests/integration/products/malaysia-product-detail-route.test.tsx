@@ -5,6 +5,7 @@ import {GraphQLResponseError} from '@/lib/wordpress/client'
 import {toMalaysiaProductDetailDto} from '@/lib/wordpress/product-detail-v01-dto'
 import {getSiteConfig} from '@/sites'
 import {
+  malaysiaM108ProductDetailSource,
   malaysiaM510ProductDetailSource,
   malaysiaM340ProductDetailSource,
   malaysiaM52ProductDetailSource,
@@ -68,18 +69,19 @@ describe('M-350 route integration', () => {
     expect(metadata.robots).toMatchObject({index: false, follow: false})
   })
 
-  it('generates only the seven approved candidates and rejects the other seven Malaysia grade slugs before CMS access', async () => {
+  it('generates only the eight approved candidates and rejects the other six Malaysia grade slugs before CMS access', async () => {
     const route = await import('@/app/products/[familySlug]/page')
     await expect(route.generateStaticParams()).resolves.toEqual([
       {familySlug: 'm-350'},
       {familySlug: 'm-510'},
       {familySlug: 'm-896'},
       {familySlug: 'm-895'},
+      {familySlug: 'm-108'},
       {familySlug: 'm-340'},
       {familySlug: 'm-886'},
       {familySlug: 'm-52'},
     ])
-    for (const slug of ['m-996', 'm-2196', 'm-200', 'm-108', 'm-210', 'm-2377', 'cr-901']) {
+    for (const slug of ['m-996', 'm-2196', 'm-200', 'm-210', 'm-2377', 'cr-901']) {
       await expect(route.default(props(slug))).rejects.toMatchObject({
         digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
       })
@@ -157,6 +159,18 @@ describe('M-350 route integration', () => {
     expect(markup).toContain('Sulfate process')
     expect(markup).not.toMatch(/Plastics|Masterbatch|Paper|Specialty/iu)
     expect((await route.generateMetadata(props('m-52'))).alternates?.canonical).toBe('https://tio2malaysia.com/products/m-52/')
+  })
+
+  it('loads M-108 through the same scoped route with ten visible Schema values', async () => {
+    routeMocks.getMalaysiaProductDetail.mockResolvedValue(toMalaysiaProductDetailDto(malaysiaM108ProductDetailSource(), 'm-108'))
+    const route = await import('@/app/products/[familySlug]/page')
+    const markup = renderToStaticMarkup(await route.default(props('m-108')))
+    expect(routeMocks.getMalaysiaProductDetail).toHaveBeenCalledWith('m-108')
+    expect(markup).toContain('M-108 Titanium Dioxide for Plastics and Masterbatch Evaluation')
+    expect(markup).toContain('data-label="Typical value">0.4% max</td>')
+    expect(markup).toContain('Sulfate process')
+    expect(markup).not.toMatch(/2023V3|V3 2023|Coatings|Printing Inks|Paper|Specialty Materials/iu)
+    expect((await route.generateMetadata(props('m-108'))).alternates?.canonical).toBe('https://tio2malaysia.com/products/m-108/')
   })
 
   it('loads and renders the distinct M-510 candidate through the same route and template', async () => {

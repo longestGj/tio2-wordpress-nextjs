@@ -11,10 +11,10 @@ import {
 import registry from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-identities.json'
 
 describe('Malaysia Product Detail approval registry', () => {
-  it('derives exactly seven preview-enabled contracts and leaves seven identities disabled', () => {
-    expect(APPROVED_MALAYSIA_PRODUCT_DETAIL_SLUGS).toEqual(['m-350', 'm-510', 'm-896', 'm-895', 'm-340', 'm-886', 'm-52'])
-    expect(registry.identities.filter((item) => item.implementationState.startsWith('APPROVED_'))).toHaveLength(7)
-    expect(registry.identities.filter((item) => item.implementationState.startsWith('IDENTITY_ONLY'))).toHaveLength(7)
+  it('derives exactly eight preview-enabled contracts and leaves six identities disabled', () => {
+    expect(APPROVED_MALAYSIA_PRODUCT_DETAIL_SLUGS).toEqual(['m-350', 'm-510', 'm-896', 'm-895', 'm-108', 'm-340', 'm-886', 'm-52'])
+    expect(registry.identities.filter((item) => item.implementationState.startsWith('APPROVED_'))).toHaveLength(8)
+    expect(registry.identities.filter((item) => item.implementationState.startsWith('IDENTITY_ONLY'))).toHaveLength(6)
     expect(isApprovedMalaysiaProductDetailSlug('m-350')).toBe(true)
     expect(isApprovedMalaysiaProductDetailSlug('m-510')).toBe(true)
     expect(isApprovedMalaysiaProductDetailSlug('m-896')).toBe(true)
@@ -22,12 +22,14 @@ describe('Malaysia Product Detail approval registry', () => {
     expect(isApprovedMalaysiaProductDetailSlug('m-340')).toBe(true)
     expect(isApprovedMalaysiaProductDetailSlug('m-886')).toBe(true)
     expect(isApprovedMalaysiaProductDetailSlug('m-52')).toBe(true)
-    expect(isApprovedMalaysiaProductDetailSlug('m-108')).toBe(false)
+    expect(isApprovedMalaysiaProductDetailSlug('m-108')).toBe(true)
+    expect(isApprovedMalaysiaProductDetailSlug('m-210')).toBe(false)
     expect(isApprovedMalaysiaProductDetailSlug('m-996')).toBe(false)
   })
 
   it('selects contracts through registry identity and validates their canonical hashes', () => {
     const m350 = getApprovedMalaysiaProductDetail('m-350')
+    const m108 = getApprovedMalaysiaProductDetail('m-108')
     const m510 = getApprovedMalaysiaProductDetail('m-510')
     const m896 = getApprovedMalaysiaProductDetail('m-896')
     const m895 = getApprovedMalaysiaProductDetail('m-895')
@@ -49,6 +51,8 @@ describe('Malaysia Product Detail approval registry', () => {
     expect(m886.identity.approvedSourceSha256).toBe('D4A68225CC29B06D9B9700DB5CFA9C8D74C154C49E643A450A24B759981267B0')
     expect(canonicalProductDetailContractSha256(m52.contract)).toBe('625C28008CAB44E95062A145897BC7E7B1E1565664AA86161CF9CB79E18EC1C4')
     expect(m52.identity.approvedSourceSha256).toBe('977A72AF33377F7A3CAB12C4F72314E93CFD79F2BE0CCFCFD62A3A2D009DE1A7')
+    expect(canonicalProductDetailContractSha256(m108.contract)).toBe('0579A4F1E452AB6609FAB529D86C07B1DD717039F8B8AAD9DAB37412AC0BF84B')
+    expect(m108.identity.approvedSourceSha256).toBe('998C57D70AC303C0F47AC3E14B0C9214F4D53BC91130044274773B7CD3260BFF')
   })
 
   it('fails closed for wrong, missing or malformed approved hashes', () => {
