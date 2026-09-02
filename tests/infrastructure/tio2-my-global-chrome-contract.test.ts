@@ -86,7 +86,7 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
     expect(product).toMatch(/currentPageId="PRODUCT-000"/u)
     expect(product).toMatch(/sourcePageId="PRODUCT-000"/u)
     expect(productDetail).toMatch(/currentPageId="PRODUCT-000"/u)
-    expect(productDetail).toMatch(/sourcePageId="GRADE-M350"/u)
+    expect(productDetail.match(/sourcePageId=\{pageId\}/gu)).toHaveLength(2)
     expect(resource).toMatch(/currentPageId="RES-000"/u)
     expect(resource).toMatch(/sourcePageId="RES-000"/u)
   })

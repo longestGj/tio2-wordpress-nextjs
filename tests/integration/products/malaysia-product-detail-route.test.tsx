@@ -9,6 +9,7 @@ import {
   malaysiaM200ProductDetailSource,
   malaysiaM210ProductDetailSource,
   malaysiaM2196ProductDetailSource,
+  malaysiaM2377ProductDetailSource,
   malaysiaM510ProductDetailSource,
   malaysiaM340ProductDetailSource,
   malaysiaM52ProductDetailSource,
@@ -73,7 +74,7 @@ describe('M-350 route integration', () => {
     expect(metadata.robots).toMatchObject({index: false, follow: false})
   })
 
-  it('generates only the twelve approved candidates and rejects the other two Malaysia grade slugs before CMS access', async () => {
+  it('generates only the thirteen approved candidates and rejects CR-901 before CMS access', async () => {
     const route = await import('@/app/products/[familySlug]/page')
     await expect(route.generateStaticParams()).resolves.toEqual([
       {familySlug: 'm-350'},
@@ -88,8 +89,9 @@ describe('M-350 route integration', () => {
       {familySlug: 'm-340'},
       {familySlug: 'm-886'},
       {familySlug: 'm-52'},
+      {familySlug: 'm-2377'},
     ])
-    for (const slug of ['m-2377', 'cr-901']) {
+    for (const slug of ['cr-901']) {
       await expect(route.default(props(slug))).rejects.toMatchObject({
         digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
       })
@@ -162,6 +164,24 @@ describe('M-350 route integration', () => {
     expect(markup).not.toContain('"value":"ISO 591-1"')
     expect((await route.generateMetadata(props('m-2196'))).alternates?.canonical).toBe(
       'https://tio2malaysia.com/products/m-2196/',
+    )
+  })
+
+  it('loads M-2377 through the same scoped route with fourteen source values and methods', async () => {
+    routeMocks.getMalaysiaProductDetail.mockResolvedValue(
+      toMalaysiaProductDetailDto(malaysiaM2377ProductDetailSource(), 'm-2377'),
+    )
+    const route = await import('@/app/products/[familySlug]/page')
+    const markup = renderToStaticMarkup(await route.default(props('m-2377')))
+    expect(routeMocks.getMalaysiaProductDetail).toHaveBeenCalledWith('m-2377')
+    expect(markup).toContain('M-2377 Titanium Dioxide for Coatings, Plastics, Masterbatch, Inks and Paper')
+    expect(markup).toContain('data-label="Value">≥93.0%</td>')
+    expect(markup).toContain('data-label="Test method">ISO 591-1:2000(E); ASTM D476-00</td>')
+    expect(markup).toContain('product indicators follow the applicable test report')
+    expect(markup).toContain('"value":"≥93.0%"')
+    expect(markup).not.toContain('"value":"ISO 591-1:2000(E); ASTM D476-00"')
+    expect((await route.generateMetadata(props('m-2377'))).alternates?.canonical).toBe(
+      'https://tio2malaysia.com/products/m-2377/',
     )
   })
 
