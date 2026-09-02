@@ -1,5 +1,6 @@
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m350.json'
 import m108Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m108.json'
+import cr901Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-cr901.json'
 import m200Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m200.json'
 import m210Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m210.json'
 import m2196Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m2196.json'
@@ -336,6 +337,46 @@ export function m2377ProductDetailReadiness(ready = false): Record<string, boole
   result['HOME-001'] = true
   result['PRODUCT-000'] = true
   return result
+}
+
+export function cr901ProductDetailReadiness(ready = false): Record<string, boolean> {
+  const result = Object.fromEntries(cr901Contract.routeRegistry.map((route) => [route.targetPageId, ready]))
+  result['HOME-001'] = true
+  result['PRODUCT-000'] = true
+  return result
+}
+
+export function malaysiaCr901ProductDetailSource(
+  readiness: Readonly<Record<string, boolean>> = cr901ProductDetailReadiness(),
+): MalaysiaProductDetailSource {
+  const applications = cr901Contract.applications
+  const {action, ...technical} = cr901Contract.technical
+  const marketItems = cr901Contract.markets.items.filter((item) => readiness[item.targetPageId])
+  return {
+    id: 'product-detail-my-cr901-1',
+    modifiedGmt: '2026-09-02T13:14:15',
+    status: 'publish',
+    siteScopes: {nodes: [{slug: 'tio2-my'}]},
+    publishingFields: {publicPath: '/products/cr-901'},
+    publicProjection: {
+      reviewId: cr901Contract.reviewId,
+      identity: cr901Contract.identity,
+      releaseControls: cr901Contract.releaseControls,
+      seo: cr901Contract.seo,
+      globalChromeRef: cr901Contract.globalChromeRef,
+      breadcrumb: cr901Contract.breadcrumb,
+      modules: {
+        hero: {...cr901Contract.hero, actions: cr901Contract.hero.actions.filter((item) => readiness[item.targetPageId])},
+        positioning: cr901Contract.positioning,
+        applications,
+        evaluation: cr901Contract.evaluation,
+        technical: readiness[action.targetPageId] ? {...technical, action} : technical,
+        ...(readiness[cr901Contract.documents.targetPageId] ? {documents: cr901Contract.documents} : {}),
+        ...(marketItems.length ? {markets: {...cr901Contract.markets, items: marketItems}} : {}),
+        ...(readiness[cr901Contract.sample.targetPageId] ? {sample: cr901Contract.sample} : {}),
+      },
+    },
+  }
 }
 
 export function malaysiaM2377ProductDetailSource(

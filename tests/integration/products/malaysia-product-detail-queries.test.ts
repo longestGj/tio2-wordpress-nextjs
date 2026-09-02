@@ -3,6 +3,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {GraphQLResponseError} from '@/lib/wordpress/client'
 import {getMalaysiaProductDetail} from '@/lib/wordpress/product-detail-v01-queries'
 import {
+  malaysiaCr901ProductDetailSource,
   malaysiaM108ProductDetailSource,
   malaysiaM200ProductDetailSource,
   malaysiaM210ProductDetailSource,
@@ -290,13 +291,25 @@ describe('M-350 GraphQL query isolation', () => {
     expect(fetchMock).toHaveBeenCalledOnce()
   })
 
-  it('rejects an identity-only Grade before any CMS request', async () => {
+  it('uses an isolated CR-901 query and cache key without trying another Grade', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body)) as {variables: Record<string, unknown>}
+      expect(body.variables).toEqual({slug: 'cr-901'})
+      return new Response(JSON.stringify({data: {malaysiaProductDetailRecordJson: JSON.stringify(malaysiaCr901ProductDetailSource())}}), {status: 200, headers: {'content-type': 'application/json'}})
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubEnv('WORDPRESS_GRAPHQL_URL', 'https://cms.example.test/graphql')
+    await expect(getMalaysiaProductDetail('cr-901')).resolves.toMatchObject({identity: {siteId: 'tio2-my', path: '/products/cr-901', gradeCode: 'CR-901'}})
+    const next = (fetchMock.mock.calls[0]?.[1] as RequestInit & {next?: {tags?: string[]}}).next
+    expect(next?.tags).toEqual(['site:tio2-my', 'route:tio2-my:/products/cr-901', 'content:tio2-my--product-detail--cr-901'])
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+
+  it('rejects an unknown Grade before any CMS request', async () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
     vi.stubEnv('WORDPRESS_GRAPHQL_URL', 'https://cms.example.test/graphql')
-    await expect(getMalaysiaProductDetail('cr-901')).rejects.toThrow(
-      'Invalid Malaysia Product Detail identity: tio2-my/cr-901',
-    )
+    await expect(getMalaysiaProductDetail('not-approved')).rejects.toThrow('Invalid Malaysia Product Detail identity: tio2-my/not-approved')
     expect(fetchMock).not.toHaveBeenCalled()
   })
 })

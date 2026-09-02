@@ -5,6 +5,7 @@ import {GraphQLResponseError} from '@/lib/wordpress/client'
 import {toMalaysiaProductDetailDto} from '@/lib/wordpress/product-detail-v01-dto'
 import {getSiteConfig} from '@/sites'
 import {
+  malaysiaCr901ProductDetailSource,
   malaysiaM108ProductDetailSource,
   malaysiaM200ProductDetailSource,
   malaysiaM210ProductDetailSource,
@@ -74,7 +75,7 @@ describe('M-350 route integration', () => {
     expect(metadata.robots).toMatchObject({index: false, follow: false})
   })
 
-  it('generates only the thirteen approved candidates and rejects CR-901 before CMS access', async () => {
+  it('generates all fourteen approved candidates and rejects unknown slugs before CMS access', async () => {
     const route = await import('@/app/products/[familySlug]/page')
     await expect(route.generateStaticParams()).resolves.toEqual([
       {familySlug: 'm-350'},
@@ -90,8 +91,9 @@ describe('M-350 route integration', () => {
       {familySlug: 'm-886'},
       {familySlug: 'm-52'},
       {familySlug: 'm-2377'},
+      {familySlug: 'cr-901'},
     ])
-    for (const slug of ['cr-901']) {
+    for (const slug of ['not-approved']) {
       await expect(route.default(props(slug))).rejects.toMatchObject({
         digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
       })
@@ -182,6 +184,23 @@ describe('M-350 route integration', () => {
     expect(markup).not.toContain('"value":"ISO 591-1:2000(E); ASTM D476-00"')
     expect((await route.generateMetadata(props('m-2377'))).alternates?.canonical).toBe(
       'https://tio2malaysia.com/products/m-2377/',
+    )
+  })
+
+  it('loads CR-901 through the same scoped route with nine source values and no methods', async () => {
+    routeMocks.getMalaysiaProductDetail.mockResolvedValue(
+      toMalaysiaProductDetailDto(malaysiaCr901ProductDetailSource(), 'cr-901'),
+    )
+    const route = await import('@/app/products/[familySlug]/page')
+    const markup = renderToStaticMarkup(await route.default(props('cr-901')))
+    expect(routeMocks.getMalaysiaProductDetail).toHaveBeenCalledWith('cr-901')
+    expect(markup).toContain('<span>CR-901</span> High-Purity Rutile Titanium Dioxide for Specialty Materials')
+    expect(markup).toContain('data-label="Typical Value">99.97</td>')
+    expect(markup).not.toContain('data-label="Test method"')
+    expect(markup).toContain('do not represent a guaranteed specification')
+    expect(markup).toContain('"value":"99.97"')
+    expect((await route.generateMetadata(props('cr-901'))).alternates?.canonical).toBe(
+      'https://tio2malaysia.com/products/cr-901/',
     )
   })
 

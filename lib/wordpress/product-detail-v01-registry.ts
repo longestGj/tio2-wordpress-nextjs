@@ -1,6 +1,7 @@
 import {createHash} from 'node:crypto'
 
 import registry from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-identities.json'
+import cr901Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-cr901.json'
 import m108Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m108.json'
 import m200Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m200.json'
 import m2196Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m2196.json'
@@ -40,6 +41,7 @@ export class ProductDetailRegistryError extends Error {
 }
 
 const bundledContracts = [
+  {file: 'tio2-my-product-detail-cr901.json', contract: cr901Contract},
   {file: 'tio2-my-product-detail-m108.json', contract: m108Contract},
   {file: 'tio2-my-product-detail-m200.json', contract: m200Contract},
   {file: 'tio2-my-product-detail-m2196.json', contract: m2196Contract},
