@@ -2,7 +2,7 @@ import {existsSync, readFileSync} from 'node:fs'
 import {describe, expect, it} from 'vitest'
 
 describe('Product Detail Gate 7 infrastructure boundary', () => {
-  it('registers all 14 identities but authorizes only the eight approved candidates', async () => {
+  it('registers all 14 identities but authorizes only the nine approved candidates', async () => {
     const registry = (await import(
       '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-identities.json'
     )).default
@@ -58,10 +58,13 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
     expect(registry.identities.filter((item) => item.implementationState === 'APPROVED_M108_CANDIDATE')).toEqual([
       expect.objectContaining({pageId: 'GRADE-M108', path: '/products/m-108/', approvedSourceSha256: '998C57D70AC303C0F47AC3E14B0C9214F4D53BC91130044274773B7CD3260BFF', approvedCanonicalSha256: '0579A4F1E452AB6609FAB529D86C07B1DD717039F8B8AAD9DAB37412AC0BF84B'}),
     ])
-    expect(registry.identities.filter((item) => item.implementationState.startsWith('IDENTITY_ONLY'))).toHaveLength(6)
+    expect(registry.identities.filter((item) => item.implementationState === 'APPROVED_M210_CANDIDATE')).toEqual([
+      expect.objectContaining({pageId: 'GRADE-M210', path: '/products/m-210/', approvedSourceSha256: 'F977D5DD3C49119966CD3C4EC5E846448BBFBD5BE1F4846B82B8CD1CBA6463B2', approvedCanonicalSha256: 'F2CEDE18EFA0ADE179C4D5BAC72BEB25A2E8A826A825C0344757D04ABC4B8B94'}),
+    ])
+    expect(registry.identities.filter((item) => item.implementationState.startsWith('IDENTITY_ONLY'))).toHaveLength(5)
   })
 
-  it('stores eight exact scoped contracts behind one allowlisted projection resolver', () => {
+  it('stores nine exact scoped contracts behind one allowlisted projection resolver', () => {
     const phpPath = 'wordpress/plugins/tio2-site-model/includes/product-detail-v01.php'
     const seedPaths = [
       'wordpress/seed/apply-tio2-my-m350-product-detail.php',
@@ -72,6 +75,7 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
       'wordpress/seed/apply-tio2-my-m886-product-detail.php',
       'wordpress/seed/apply-tio2-my-m52-product-detail.php',
       'wordpress/seed/apply-tio2-my-m108-product-detail.php',
+      'wordpress/seed/apply-tio2-my-m210-product-detail.php',
     ]
     expect(existsSync(phpPath)).toBe(true)
     for (const path of seedPaths) expect(existsSync(path)).toBe(true)
@@ -102,8 +106,9 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
     expect(seeds).toContain("$internal_slug = 'tio2-my-m-886'")
     expect(seeds).toContain("$internal_slug = 'tio2-my-m-52'")
     expect(seeds).toContain("$internal_slug = 'tio2-my-m-108'")
-    expect(seeds.match(/tio2_my_product_detail_approved_grades\(\)/gu)).toHaveLength(8)
-    expect(seeds).not.toMatch(/m-210|m-996|m-2196|m-2377|cr-901/iu)
+    expect(seeds).toContain("$internal_slug = 'tio2-my-m-210'")
+    expect(seeds.match(/tio2_my_product_detail_approved_grades\(\)/gu)).toHaveLength(9)
+    expect(seeds).not.toMatch(/m-200|m-996|m-2196|m-2377|cr-901/iu)
     expect(schema).toContain('malaysiaProductDetailRecordJson(slug: String!): String!')
   })
 
@@ -112,7 +117,7 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
       'wordpress/plugins/tio2-site-model/includes/product-hub-v01.php',
       'utf8',
     )
-    const seeds = ['m350', 'm510', 'm896', 'm895', 'm340', 'm886', 'm52', 'm108'].map((grade) => readFileSync(
+    const seeds = ['m350', 'm510', 'm896', 'm895', 'm340', 'm886', 'm52', 'm108', 'm210'].map((grade) => readFileSync(
       `wordpress/seed/apply-tio2-my-${grade}-product-detail.php`,
       'utf8',
     )).join('\n')
@@ -136,11 +141,12 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
     expect(seeds).toContain("TIO2_MY_ROUTE_PAGE_ID_META, 'GRADE-M886'")
     expect(seeds).toContain("TIO2_MY_ROUTE_PAGE_ID_META, 'GRADE-M52'")
     expect(seeds).toContain("TIO2_MY_ROUTE_PAGE_ID_META, 'GRADE-M108'")
-    expect(seeds.match(/TIO2_MY_ROUTE_RELEASE_STATE_META, 'PREVIEW_ONLY'/gu)).toHaveLength(8)
+    expect(seeds).toContain("TIO2_MY_ROUTE_PAGE_ID_META, 'GRADE-M210'")
+    expect(seeds.match(/TIO2_MY_ROUTE_RELEASE_STATE_META, 'PREVIEW_ONLY'/gu)).toHaveLength(9)
     expect(seeds).not.toContain("TIO2_MY_ROUTE_RELEASE_STATE_META, 'LIVE_APPROVED'")
   })
 
-  it('does not create standalone route files or seeded records for the other six grades', () => {
+  it('does not create standalone route files or seeded records for the other five grades', () => {
     const files = [
       'app/products/m-896/page.tsx',
       'app/products/m-996/page.tsx',
@@ -152,7 +158,7 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
     expect(route).toContain('APPROVED_MALAYSIA_PRODUCT_DETAIL_SLUGS')
     expect(route).toContain('isApprovedMalaysiaProductDetailSlug')
     expect(route).not.toMatch(/m-896|m-895|m-340|m-996|m-2196|m-2377|cr-901/iu)
-    expect(existsSync('wordpress/seed/apply-tio2-my-m210-product-detail.php')).toBe(false)
+    expect(existsSync('wordpress/seed/apply-tio2-my-m200-product-detail.php')).toBe(false)
   })
 
   it('derives route, DTO, types, cache and PHP authorization without local slug allowlists', () => {
@@ -165,12 +171,12 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
     ]
     for (const path of derivedFiles) {
       const source = readFileSync(path, 'utf8')
-      expect(source, path).not.toMatch(/['"]m-(?:52|108|340|350|510|886|895|896)['"]/u)
+      expect(source, path).not.toMatch(/['"]m-(?:52|108|210|340|350|510|886|895|896)['"]/u)
     }
   })
 
   it('keeps restricted relationships and commerce fields out of the public contract', () => {
-    const contract = ['m350', 'm510', 'm896', 'm895', 'm340', 'm886', 'm52', 'm108'].map((grade) => readFileSync(
+    const contract = ['m350', 'm510', 'm896', 'm895', 'm340', 'm886', 'm52', 'm108', 'm210'].map((grade) => readFileSync(
       `wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-${grade}.json`,
       'utf8',
     )).join('\n')
@@ -266,5 +272,21 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
     expect(contract.technical.rows).toHaveLength(10)
     expect(contract.technical.rows.every(({value, testMethod}) => Boolean(value && testMethod))).toBe(true)
     expect(contract.technical.note).toContain('within 48 hours of production')
+  })
+
+  it('pins the M-210 printed-version and two-column twelve-row boundary', async () => {
+    const contract = (await import('@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m210.json')).default
+    expect(contract.hero.eyebrow).toContain('CHLORIDE PROCESS')
+    expect(contract.hero.proofs).toContain('M-210 TDS · V3 2023')
+    expect(contract.applications.items.map(({category}) => category)).toEqual(['Masterbatch', 'Plastics', 'Plastics'])
+    expect(contract.applications.items.map(({title}) => title)).toEqual([
+      'Polyolefin Masterbatch', 'Engineering Plastics: PE, PP and ABS', 'PS and Its Copolymers',
+    ])
+    expect(JSON.stringify(contract)).not.toMatch(/FDA|food.contact|Rubber|Coatings|Printing Inks|Paper|Specialty Materials/iu)
+    expect(contract.evaluation.groups).toHaveLength(2)
+    expect(contract.evaluation.groups.flatMap(({items}) => items)).toHaveLength(8)
+    expect(contract.technical.columns).toEqual(['Property', 'Typical value'])
+    expect(contract.technical.rows).toHaveLength(12)
+    expect(contract.technical.rows.every((row) => !('testMethod' in row) && Boolean(row.value))).toBe(true)
   })
 })

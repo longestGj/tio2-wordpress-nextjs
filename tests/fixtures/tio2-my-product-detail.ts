@@ -1,5 +1,6 @@
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m350.json'
 import m108Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m108.json'
+import m210Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m210.json'
 import m340Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m340.json'
 import m510Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m510.json'
 import m52Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m52.json'
@@ -419,6 +420,51 @@ export function malaysiaM108ProductDetailSource(
         ...(readiness[m108Contract.documents.targetPageId] ? {documents: m108Contract.documents} : {}),
         ...(marketItems.length ? {markets: {...m108Contract.markets, items: marketItems}} : {}),
         ...(readiness[m108Contract.sample.targetPageId] ? {sample: m108Contract.sample} : {}),
+      },
+    },
+  }
+}
+
+export function m210ProductDetailReadiness(ready = false): Record<string, boolean> {
+  const result = Object.fromEntries(m210Contract.routeRegistry.map((route) => [route.targetPageId, ready]))
+  result['HOME-001'] = true
+  result['PRODUCT-000'] = true
+  return result
+}
+
+export function malaysiaM210ProductDetailSource(
+  readiness: Readonly<Record<string, boolean>> = m210ProductDetailReadiness(),
+): MalaysiaProductDetailSource {
+  const {contextualLink, ...positioning} = m210Contract.positioning
+  const applications = {
+    ...m210Contract.applications,
+    items: m210Contract.applications.items.map(({targetPageId, href, ...item}) =>
+      readiness[targetPageId] ? {...item, targetPageId, href} : item),
+  }
+  const {action, ...technical} = m210Contract.technical
+  const marketItems = m210Contract.markets.items.filter((item) => readiness[item.targetPageId])
+  return {
+    id: 'product-detail-my-210-1',
+    modifiedGmt: '2026-09-02T08:09:10',
+    status: 'publish',
+    siteScopes: {nodes: [{slug: 'tio2-my'}]},
+    publishingFields: {publicPath: '/products/m-210'},
+    publicProjection: {
+      reviewId: m210Contract.reviewId,
+      identity: m210Contract.identity,
+      releaseControls: m210Contract.releaseControls,
+      seo: m210Contract.seo,
+      globalChromeRef: m210Contract.globalChromeRef,
+      breadcrumb: m210Contract.breadcrumb,
+      modules: {
+        hero: {...m210Contract.hero, actions: m210Contract.hero.actions.filter((item) => readiness[item.targetPageId])},
+        positioning: readiness[contextualLink.targetPageId] ? {...positioning, contextualLink} : positioning,
+        applications,
+        evaluation: m210Contract.evaluation,
+        technical: readiness[action.targetPageId] ? {...technical, action} : technical,
+        ...(readiness[m210Contract.documents.targetPageId] ? {documents: m210Contract.documents} : {}),
+        ...(marketItems.length ? {markets: {...m210Contract.markets, items: marketItems}} : {}),
+        ...(readiness[m210Contract.sample.targetPageId] ? {sample: m210Contract.sample} : {}),
       },
     },
   }
