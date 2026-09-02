@@ -332,6 +332,21 @@ describe('POST /api/revalidate', () => {
     expect(JSON.stringify(body)).not.toMatch(/tio2-a|tio2-b/iu)
   })
 
+  it('revalidates DOC-000 with exact Malaysia route and content tags only', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/documents/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/documents'])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--documents',
+      'route:tio2-my:/documents',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
+  })
+
   it('revalidates the Malaysia Resources Hub with scope-local tags only', async () => {
     vi.stubEnv('SITE_ID', 'tio2-my')
     const response = await POST(signedRequest(validPayload({

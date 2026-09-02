@@ -11,6 +11,14 @@ $ids = get_posts([
 if (1 !== count($ids)) throw new RuntimeException('Expected exactly one local Malaysia Documents Hub record.');
 $post_id = (int) $ids[0];
 if (true !== tio2_validate_documents_hub_v01_contract($post_id)) throw new RuntimeException('The valid Documents Hub record failed validation.');
+$webhook_state = tio2_get_webhook_affected_state($post_id);
+if (
+    ! in_array('tio2_documents_hub', tio2_webhook_post_types(), true) ||
+    ['/documents'] !== ($webhook_state['paths'] ?? null) ||
+    ['tio2-my'] !== ($webhook_state['siteIds'] ?? null) ||
+    ['/documents'] !== ($webhook_state['sitePaths']['tio2-my'] ?? null) ||
+    ! tio2_is_relevant_webhook_meta_key(TIO2_MY_DOCUMENTS_HUB_CONTRACT_META, $post_id)
+) throw new RuntimeException('Documents Hub webhook routing or contract-meta relevance is invalid.');
 $resolved = json_decode(tio2_resolve_malaysia_documents_hub_record_json(), true, flags: JSON_THROW_ON_ERROR);
 if (
     ['tio2-my'] !== array_column($resolved['siteScopes']['nodes'] ?? [], 'slug') ||

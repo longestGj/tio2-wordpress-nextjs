@@ -14,6 +14,10 @@ describe('DOC-000 WordPress fail-closed boundary', () => {
     expect(php).toContain('The Malaysia Documents Hub record is missing.')
     expect(php).toContain('Multiple Malaysia Documents Hub records were found.')
     expect(php).not.toMatch(/tio2-a|tio2-b|fallback/iu)
+    const webhooks = readFileSync('wordpress/plugins/tio2-site-model/includes/webhooks.php', 'utf8')
+    expect(webhooks).toContain("'tio2_documents_hub'")
+    expect(webhooks).toContain("$paths = ['/documents'];")
+    expect(webhooks).toContain('TIO2_MY_DOCUMENTS_HUB_CONTRACT_META')
   })
 
   it('keeps the approved route out of sitemap while authorization is false', async () => {

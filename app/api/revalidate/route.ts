@@ -12,6 +12,7 @@ import {
   applicationListTag,
   applicationTag,
   contentListTag,
+  documentsHubContentTag,
   entityTag,
   homepageContentTag,
   isValidPublicPath,
@@ -271,11 +272,11 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const tags = new Set<string>()
-  const preciseMalaysiaResourceEvent =
+  const preciseMalaysiaSingletonEvent =
     currentSite.id === 'tio2-my' &&
-    payload.paths.includes('/resources')
+    (payload.paths.includes('/resources') || payload.paths.includes('/documents'))
   for (const siteId of payload.siteIds) {
-    if (!preciseMalaysiaResourceEvent) {
+    if (!preciseMalaysiaSingletonEvent) {
       tags.add(contentListTag(siteId))
       tags.add(siteTag(siteId))
       tags.add(sitemapTag(siteId))
@@ -291,6 +292,9 @@ export async function POST(request: Request): Promise<Response> {
       }
       if (siteId === 'tio2-my' && path === '/about') {
         tags.add(aboutPageContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && path === '/documents') {
+        tags.add(documentsHubContentTag(siteId))
       }
 
       const productIdentity = productIdentityByPath.get(path)

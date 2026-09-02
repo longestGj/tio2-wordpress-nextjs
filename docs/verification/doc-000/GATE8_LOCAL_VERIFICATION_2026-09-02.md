@@ -36,6 +36,14 @@ Status: `IMPLEMENTED_LOCALLY / READY_FOR_GATE_9_READ_ONLY_REVIEW / NOT_PUBLISHED
 - `SITE_ID=tio2-my`, local WordPress GraphQL, preview robots `npm run build` — PASS; `/documents` prerendered.
 - `npx playwright test tests/e2e/documents-hub.spec.ts --config=playwright.config.ts --workers=1` — 6/6 PASS, including 200% scale reflow.
 
+## Gate 9 P0 cache-invalidation correction
+
+- `tio2_documents_hub` is registered in the shared WordPress webhook post-type inventory. Its exact same-scope affected state is `/documents`, and `TIO2_MY_DOCUMENTS_HUB_CONTRACT_META` is a relevant update key.
+- The Next revalidation endpoint maps `/documents` only to `route:tio2-my:/documents` and `content:tio2-my--documents`; the regression response contains no broad site, sitemap, content-list or foreign-scope tag.
+- The GraphQL operation name is versioned to the approved V0.1 contract, so the known pre-contract cache entry is no longer addressable. Normal future updates use the exact webhook invalidation path above.
+- Without deleting `.next` or any cache, two consecutive `SITE_ID=tio2-my npm run build` executions PASS and prerender `/documents` with the current CMS contract.
+- Final P0 regression: 7 Vitest files / 69 tests PASS (the original DOC 20 plus shared revalidation coverage), WordPress runtime PASS, typecheck PASS, targeted ESLint PASS, Playwright 6/6 PASS. The regenerated screenshot hashes are unchanged from the table below.
+
 ## Viewport and interaction evidence
 
 | Viewport | Result | SHA-256 |
