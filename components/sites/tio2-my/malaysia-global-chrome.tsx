@@ -62,7 +62,7 @@ export function MalaysiaGlobalHeader({
   }
 
   return (
-    <header className={styles.header}>
+    <header className={styles.header} lang="en">
       <div className={styles.headerInner}>
         <Link href="/" className={styles.logoLink} aria-label="TiO2 Malaysia home">
           <Image
@@ -128,7 +128,7 @@ export function MalaysiaGlobalFooter({
 }: Omit<GlobalChromeProps, 'currentPageId'>) {
   const navById = new Map(chrome.navigation.map((item) => [item.targetPageId, item]))
   return (
-    <footer className={styles.footer}>
+    <footer className={styles.footer} lang="en">
       <div className={styles.footerGrid}>
         <div className={styles.brandColumn}>
           <Image

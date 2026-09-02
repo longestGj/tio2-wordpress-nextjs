@@ -69,5 +69,14 @@ describe('Legal/Privacy approved page contract', () => {
     expect(container.querySelector('header [aria-current="page"]')).toBeNull()
     expect(container.textContent).not.toMatch(/Internal release controls|Gate 8|Gate 9|TBD/)
   })
+
+  it('marks the shared English chrome inside the Bahasa Malaysia page', () => {
+    const page = toMalaysiaLegalPagesDto(source())[1]!
+    const {container} = render(<MalaysiaLegalPage page={page} />)
+
+    expect(container.querySelector('main')?.getAttribute('lang')).toBe('ms-MY')
+    expect(container.querySelector('header')?.getAttribute('lang')).toBe('en')
+    expect(container.querySelector('footer')?.getAttribute('lang')).toBe('en')
+  })
 })
 /** @vitest-environment jsdom */

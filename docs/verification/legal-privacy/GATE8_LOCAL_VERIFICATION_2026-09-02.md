@@ -2,6 +2,8 @@
 
 Status: `IMPLEMENTED_LOCALLY / READY_FOR_GATE_9_READ_ONLY_REVIEW / NOT_PUBLISHED`
 
+Gate 9 targeted review: `LEGAL-PRIVACY-G9-PCR-01` — P0/P1 corrections implemented locally; this record does not assert the review decision.
+
 ## Scope and architecture
 
 - Exact routes: `/privacy-policy/` (`LEGAL-PRIV-EN`), `/ms/privacy-policy/` (`LEGAL-PRIV-MS`) and `/cookie-policy/` (`LEGAL-COOKIE-EN`), all restricted to `site_scope=tio2-my`.
@@ -9,12 +11,13 @@ Status: `IMPLEMENTED_LOCALLY / READY_FOR_GATE_9_READ_ONLY_REVIEW / NOT_PUBLISHED
 - Shared-Chrome contract coverage now includes Home, Markets, Products/Product Detail, Resources, Documents, About, RFQ and all Legal pages. Page CSS cannot address shared Header, navigation, Logo, RFQ, menu or Footer selectors. The pre-existing RFQ reduced-motion selector was tightened from `.site *` to `.main *` so it cannot cascade into shared Chrome.
 - WordPress uses one private `tio2_legal_page` type with exactly three published `tio2-my` records. Its non-null GraphQL resolver rejects missing, duplicate, invalid-contract, invalid-route and foreign-scope records. There is no cross-scope fallback.
 - Legal updates invalidate only `content:tio2-my--legal-pages` and the exact affected route tag. They do not invalidate another scope or infer another Legal route.
+- A request-path-controlled, Proxy-sanitised language header now selects the Root Layout document language. The initial HTML is `lang="ms-MY"` only for `/ms/privacy-policy/` and remains `lang="en"` for the English Legal routes and all other TiO2 Malaysia routes. The shared English Header, Mobile Menu and Footer are explicitly marked `lang="en"` inside the BM document.
 
 ## Buyer-visible and consent contract
 
 - EN Privacy and BM Privacy each render all 10 approved sections; Cookie Policy renders all 7 approved sections and the one-row browser-storage inventory. Buyer-visible copy is byte-compared against the checked-in approved contract projection.
 - Footer utilities are exactly `Privacy Policy`, `Dasar Privasi (BM)`, `Cookie Policy`, `Cookie Settings`; copyright is exactly `© 2026 TiO2 Malaysia.` Mobile Menu remains the existing eight destinations and has no Legal block.
-- There is no first-visit banner. Cookie Settings opens a minimal modal containing only the approved title/body, `Close` and `Read Cookie Policy`; focus enters the dialog, Tab/Shift+Tab are contained, Escape closes it and focus returns to the trigger.
+- There is no first-visit banner. Cookie Settings opens a minimal modal containing only the approved title/body, `Close` and `Read Cookie Policy`; the dialog has a stable description ID wired through `aria-describedby`, focus enters the dialog, Tab/Shift+Tab are contained, Escape closes it and focus returns to the trigger.
 - The current release state is `no_optional_analytics`. No GA4, GTM, Google Ads or Vercel Analytics request/script is emitted and no `tio2_my_consent_v1` storage record is created. Consent helpers default all four Google states to `denied`; the future model can grant only `analytics_storage`, never advertising states.
 - RFQ now links to the implemented `/privacy-policy/` route. No `/terms-of-use/`, `/legal/privacy-policy/` or Contact fallback was created.
 
@@ -27,15 +30,15 @@ Status: `IMPLEMENTED_LOCALLY / READY_FOR_GATE_9_READ_ONLY_REVIEW / NOT_PUBLISHED
 
 ## Automated verification
 
-- `npx vitest run ...legal... ...global-chrome... ...rfq... ...revalidate...` — 19 files / 128 tests PASS, including independent fixed SHA-256 locks for all three complete Buyer-visible projections.
+- Targeted Gate 9 Vitest (`document-language`, Legal unit/integration/WordPress, shared-Chrome and site-branding contracts) — 10 files / 33 tests PASS, including path-controlled document language, valid-looking cross-path spoof replacement, English shared regions and Cookie-dialog description wiring.
 - WordPress `legal-pages.php` runtime — PASS: 3/3 records, exact route set, exact `tio2-my` webhook state and contract-meta relevance.
 - WordPress `rfq-page.php` runtime — PASS: exact Malaysia record, GraphQL-error missing behavior and no cross-scope fallback.
 - `npm run codegen` — PASS.
 - `npm run typecheck` — PASS.
 - Changed-file ESLint — PASS with zero warnings/errors. Full-repository `npm run lint` remains polluted by pre-existing generated `.tmp/.next-stale-*` trees that are not part of this change.
-- `SITE_ID=tio2-my` preview build against local WordPress GraphQL — PASS; all three Legal routes prerendered.
-- Legal/Privacy Playwright — 13/13 PASS: 390/768/1440 matrix, Axe zero violations, Logo pixel evidence, 84/64px Header, Footer non-overlap/font sizes, metadata, JSON-LD, no Analytics, Cookie Settings keyboard flow, 200% reflow, and 404 checks for both forbidden Legal routes.
-- Shared Chrome regressions — 33/33 PASS across Home, Markets, Products, Documents, Resources and About; RFQ — 10/10 PASS after its Privacy link became the approved crawlable route.
+- `SITE_ID=tio2-my` preview build against local WordPress GraphQL — PASS. All TiO2 Malaysia App Router page routes are server-rendered on demand because the Root Layout now consumes a trusted per-request document-language header; this preserves the required language in the initial HTML response.
+- Legal/Privacy Playwright — 13/13 PASS: raw initial-response and DOM-level `<html lang>` assertions, English Header/Footer language regions, 390/768/1440 matrix, Axe zero violations, Logo pixel evidence, 84/64px Header, Footer non-overlap/font sizes, metadata, JSON-LD, no Analytics, described Cookie Settings keyboard flow, `1440px at 200% zoom-equivalent reflow` using 720 CSS px / 1440 physical px and DPR 2, and 404 checks for both forbidden Legal routes. DPR 2 is not reported as browser zoom.
+- Fresh shared Global Chrome navigation regression — 9/9 PASS across Home, Markets and Products at 390/768/1440. The earlier broader shared-Chrome and RFQ results remain baseline evidence; neither surface's behavior was changed by this correction.
 
 ## Visual evidence
 
@@ -53,7 +56,7 @@ All standard screenshots are full-page captures with reduced motion. The Cookie 
 | `legal-cookie-en-768.png` | `80FCD9BA33D0A63F872E7AF4D6F4EF17F4052EE8FE17C376C2BC682CF06D0344` |
 | `legal-cookie-en-1440.png` | `B763CA0ABFD96E88507F86BAF9BABC5D95D4149E9C16A2B986718147932D015C` |
 | `consent-settings-390.png` | `B703C8771DC9037CFCA52AC68D5788D065B95E12C424E08096252E60050849AD` |
-| `cookie-policy-200-percent.png` | `6D9EB00644FD73AA1B77144A67316493E534178F6A3E6CDEFB780820B30B52C2` |
+| `cookie-policy-1440-at-200-percent-zoom-equivalent.png` | `6D9EB00644FD73AA1B77144A67316493E534178F6A3E6CDEFB780820B30B52C2` |
 
 ## Release blockers
 

@@ -67,7 +67,7 @@ describe('site branding', () => {
     expect(metadata.title).toBe(site.title)
     expect(metadata.description).toBe(site.description)
     const layoutMarkup = renderToStaticMarkup(
-      <RootLayout><main>Child</main></RootLayout>,
+      await RootLayout({children: <main>Child</main>}),
     )
     if (site.id === 'tio2-a') {
       expect(layoutMarkup).toContain(

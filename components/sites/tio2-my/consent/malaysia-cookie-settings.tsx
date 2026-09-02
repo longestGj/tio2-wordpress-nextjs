@@ -86,9 +86,16 @@ export function MalaysiaCookieSettingsHost() {
   if (!open) return null
   return (
     <div className={styles.backdrop} onMouseDown={(event) => { if (event.currentTarget === event.target) close() }}>
-      <section ref={dialogRef} className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="tio2-my-cookie-settings-title">
+      <section
+        ref={dialogRef}
+        className={styles.dialog}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tio2-my-cookie-settings-title"
+        aria-describedby="tio2-my-cookie-settings-description"
+      >
         <h2 id="tio2-my-cookie-settings-title">{consentContract.consent.title}</h2>
-        <p>{consentContract.consent.body}</p>
+        <p id="tio2-my-cookie-settings-description">{consentContract.consent.body}</p>
         <div className={styles.actions}>
           <button ref={closeRef} type="button" onClick={close}>{consentContract.consent.actions.close}</button>
           <a href={consentContract.consent.cookiePolicyHref}>{consentContract.consent.actions.cookiePolicy}</a>
