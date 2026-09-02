@@ -1,0 +1,141 @@
+{
+  "reviewId": "GRADE-M340-G7-PCR-01",
+  "identity": {"pageId": "GRADE-M340", "siteScope": "tio2-my", "locale": "en", "gradeCode": "M-340", "slug": "m-340", "path": "/products/m-340/", "templateVersion": "product-detail-v1", "schemaVersion": "product-detail-v0.1-malaysia", "recordState": "approved_for_preview", "contentRevision": "M340_GATE2_FULL_COPY_V0.1"},
+  "releaseControls": {"indexingAuthorized": false, "sitemapAuthorized": false},
+  "seo": {
+    "primaryKeyword": "M-340 titanium dioxide",
+    "title": "M-340 Titanium Dioxide for Plastics | TiO2 Malaysia",
+    "description": "Evaluate M-340 titanium dioxide for masterbatch, films, injection plastics and other documented uses. Review technical data, request a sample or RFQ.",
+    "h1": "M-340 Titanium Dioxide for Plastics and Masterbatch Evaluation",
+    "canonical": "https://tio2malaysia.com/products/m-340/",
+    "language": "en",
+    "robots": "noindex,nofollow"
+  },
+  "globalChromeRef": {"contractId": "GLOBAL-CHROME-005", "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01", "currentNavigationKey": "Products"},
+  "breadcrumb": [
+    {"targetPageId": "HOME-001", "label": "Home", "href": "/"},
+    {"targetPageId": "PRODUCT-000", "label": "Products", "href": "/products/"},
+    {"targetPageId": "GRADE-M340", "label": "M-340", "href": "/products/m-340/"}
+  ],
+  "moduleStatus": {"hero": "verified", "positioning": "verified", "applications": "verified", "evaluation": "verified", "technical": "verified", "documents": "verified", "originSupport": "not_public", "markets": "verified", "relatedGrades": "not_public", "sample": "verified"},
+  "hero": {
+    "eyebrow": "PLASTICS & MASTERBATCH · CHLORIDE PROCESS",
+    "summaryLead": "A chloride-process rutile titanium dioxide pigment documented for high-concentration masterbatch, films, injection plastics and other plastics evaluation.",
+    "summaryBody": "M-340 uses inorganic and organic treatment and is documented with dispersibility, bluish undertone, whiteness, high-temperature anti-yellowing and stable film-production directions. Review the technical index below and confirm suitability through testing in your own formulation, processing and end-use conditions.",
+    "proofs": ["M-340 Technical Data Sheet", "Plastics and masterbatch evaluation", "Buyer processing tests required"],
+    "visual": {"label": "M-340 product data and evaluation visual", "technicalFile": "Rutile titanium dioxide pigment · Chloride process", "currentData": "Current M-340 technical data · Plastics evaluation", "note": "Product identity · documentation · processing evaluation"},
+    "facts": [
+      {"label": "Product", "value": "M-340"},
+      {"label": "Type", "value": "Rutile titanium dioxide pigment"},
+      {"label": "Process", "value": "Chloride process"},
+      {"label": "Grade positioning", "value": "Plastics and masterbatch evaluation"},
+      {"label": "Application categories", "value": "Plastics and masterbatch"}
+    ],
+    "actions": [
+      {"targetPageId": "CONV-RFQ", "label": "Request an M-340 Quote", "href": "/request-a-quote/", "prefill": {"site_scope": "tio2-my", "grade": "M-340", "source_page": "GRADE-M340"}},
+      {"targetPageId": "CONV-SAMPLE", "label": "Request an M-340 Sample", "href": "/request-sample/", "prefill": {"site_scope": "tio2-my", "grade": "M-340", "source_page": "GRADE-M340"}}
+    ]
+  },
+  "positioning": {
+    "eyebrow": "PRODUCT POSITIONING",
+    "heading": "Where M-340 Fits in Product Evaluation",
+    "lead": "M-340 is a rutile titanium dioxide pigment produced by the chloride process for plastics evaluation.",
+    "body": "Its documented public profile combines inorganic and organic treatment with approved application directions in high-concentration masterbatch, films, silk and wire plastics, injection plastics and moderate-durability plastics. Use M-340 as a candidate when dispersion, color direction, whiteness, heat exposure and production stability are relevant. Final Grade selection should account for resin, additive package, pigment loading, processing temperature, equipment, end-use conditions and destination-document requirements.",
+    "decisionPoints": ["Chloride-process rutile titanium dioxide pigment", "Al₂O₃ inorganic treatment and organic treatment", "High-concentration masterbatch and plastics directions", "Film and injection-processing directions", "Evaluation of dispersibility, bluish undertone, whiteness, high-temperature anti-yellowing and production stability"],
+    "contextualLink": {"targetPageId": "PRODUCT-PROC-CL", "label": "Learn about chloride-process titanium dioxide", "href": "/products/chloride-process-titanium-dioxide/"}
+  },
+  "applications": {
+    "eyebrow": "APPLICATION DIRECTIONS",
+    "heading": "Plastics and Masterbatch Directions to Evaluate",
+    "intro": "Review each documented direction in the buyer's own formulation, processing and end-use conditions.",
+    "items": [
+      {"category": "Masterbatch", "title": "High-Concentration Masterbatch", "body": "Evaluate M-340 at the intended pigment loading and carrier-resin system. Confirm dispersion, color direction, processing behavior and downstream dilution performance under the actual masterbatch conditions.", "targetPageId": "APP-MB", "href": "/applications/titanium-dioxide-for-masterbatch/"},
+      {"category": "Plastics", "title": "High-Quality Films", "body": "Review M-340 in the intended film formulation and production line. Confirm dispersion, film appearance, processing stability and performance at the required thickness and operating conditions.", "targetPageId": "APP-PLAS", "href": "/applications/titanium-dioxide-for-plastics/"},
+      {"category": "Plastics", "title": "Silk and Wire Plastics", "body": "Include M-340 in testing for the source-listed silk and wire plastics direction. Confirm pigment dispersion, processing behavior, appearance and suitability in the buyer’s specific polymer and production process.", "targetPageId": "APP-PLAS", "href": "/applications/titanium-dioxide-for-plastics/"},
+      {"category": "Plastics", "title": "Injection Plastics", "body": "Evaluate M-340 in injection-moulded plastic formulations using the actual resin, additives, pigment loading, processing temperature and moulding conditions.", "targetPageId": "APP-PLAS", "href": "/applications/titanium-dioxide-for-plastics/"},
+      {"category": "Plastics", "title": "Moderate-Durability Plastics", "body": "Review M-340 for plastic applications whose qualification target includes the source-listed moderate-durability direction. Confirm the required service performance through end-use testing.", "targetPageId": "APP-PLAS", "href": "/applications/titanium-dioxide-for-plastics/"}
+    ]
+  },
+  "evaluation": {
+    "eyebrow": "PROCESSING EVALUATION",
+    "heading": "What to Evaluate in Your Plastics Formulation",
+    "intro": "Use the documented M-340 profile and technical index to frame buyer testing.",
+    "groups": [
+      {"heading": "Dispersion and Appearance Review", "items": ["Dispersibility at the intended pigment loading and mixing conditions", "Bluish-undertone direction in the complete formulation", "Whiteness and brightness targets", "Film appearance and production stability where film processing applies"]},
+      {"heading": "Heat and End-Use Qualification", "items": ["High-temperature anti-yellowing direction at the intended processing temperature", "Compatibility with the selected resin and additive package", "Masterbatch, film, injection or wire/silk plastics processing conditions, as applicable", "End-use durability target, destination requirements and sample-validation results"]}
+    ],
+    "disclaimer": "These evaluation priorities identify what to check during buyer testing. They do not guarantee a fixed result in every polymer, process or end-use environment."
+  },
+  "technical": {
+    "eyebrow": "CURRENT PRODUCT DATA", "heading": "Technical Index",
+    "intro": "Review the standard and typical values reproduced from the current M-340 Technical Data Sheet as an input to product evaluation.",
+    "sourceLabel": "M-340 Technical Data Sheet",
+    "columns": ["Technical index", "Standard", "Typical value"],
+    "rows": [
+      {"property": "TiO₂ content, %", "standard": ">= 94.0", "typical": "97.0"},
+      {"property": "Rutile content, %", "standard": ">= 99.8", "typical": "100"},
+      {"property": "Brightness, %", "standard": ">= 94.8", "typical": "95.0"},
+      {"property": "Whiteness vs. standard sample", "standard": "Not less than", "typical": "Not less than"},
+      {"property": "L* (dry powder)", "standard": "--", "typical": "99.3"},
+      {"property": "b* (dry powder)", "standard": "--", "typical": "1.2"},
+      {"property": "Reducing power (Reynolds number)", "standard": "1850", "typical": "1900"},
+      {"property": "Dispersibility (Hegman)", "standard": ">= 6.50", "typical": "6.50"},
+      {"property": "Oil absorption, g/100 g", "standard": "<= 15.0", "typical": "15.0"},
+      {"property": "Volatile at 105 °C, %", "standard": "<= 0.5", "typical": "0.1"},
+      {"property": "Color at 320 °C, dE", "standard": "--", "typical": "0.5"},
+      {"property": "Average particle size (nm), SEM", "standard": "--", "typical": "190"},
+      {"property": "Inorganic treatment", "standard": "Al₂O₃", "typical": "--"},
+      {"property": "Organic treatment", "standard": "Yes", "typical": "--"}
+    ],
+    "note": "These values reproduce the Technical Index table in the M-340 Technical Data Sheet and do not constitute a product specification. “--” means the source table does not state a value in that column. Confirm suitability in your own formulation and processing conditions.",
+    "action": {"targetPageId": "CONV-DOC", "label": "Request the M-340 TDS", "href": "/request-documents/", "prefill": {"site_scope": "tio2-my", "grade": "M-340", "source_page": "GRADE-M340", "requested_type": "TDS"}}
+  },
+  "documents": {
+    "targetPageId": "CONV-DOC", "eyebrow": "DOCUMENT REQUEST", "heading": "Request M-340 Documents",
+    "intro": "Request the M-340 Technical Data Sheet and tell us which additional technical or export documents are needed for your destination and evaluation process. Our team will confirm the applicable document scope for your request.",
+    "actionLabel": "Request M-340 Documents", "href": "/request-documents/",
+    "prefill": {"site_scope": "tio2-my", "grade": "M-340", "source_page": "GRADE-M340", "requested_type": "TDS"},
+    "availability": "Submitting a request does not confirm that every requested document is available or applicable.",
+    "options": [
+      {"title": "Technical Data Sheet (TDS)", "body": "Request the M-340 Technical Data Sheet for product evaluation."},
+      {"title": "Additional document requirements", "body": "Describe the document type, destination and evaluation context. No availability is implied."}
+    ]
+  },
+  "markets": {
+    "eyebrow": "MARKET NAVIGATION", "heading": "Plan Evaluation for Your Destination Market",
+    "intro": "Continue to the relevant destination page for market-specific procurement, document and inquiry guidance.",
+    "items": [
+      {"targetPageId": "MARKET-EU-001", "label": "European Union", "href": "/markets/european-union/"},
+      {"targetPageId": "MARKET-UK-001", "label": "United Kingdom", "href": "/markets/united-kingdom/"},
+      {"targetPageId": "MARKET-IN-001", "label": "India", "href": "/markets/india/"},
+      {"targetPageId": "MARKET-BR-EN", "label": "Brazil", "href": "/markets/brazil/"}
+    ],
+    "note": "These destination paths do not claim M-340 registration, compliance, stock or local availability."
+  },
+  "sample": {
+    "targetPageId": "CONV-SAMPLE", "eyebrow": "QUALIFICATION SUPPORT", "heading": "Request M-340 for Your Own Evaluation",
+    "body": "Share your polymer system, pigment loading, processing conditions, destination and evaluation objective so the M-340 sample request can be reviewed in the correct context. Submitting a request does not mean that a sample, quantity, freight arrangement or dispatch timing has been approved.",
+    "actionLabel": "Request an M-340 Sample", "href": "/request-sample/",
+    "prefill": {"site_scope": "tio2-my", "grade": "M-340", "source_page": "GRADE-M340"}
+  },
+  "routeRegistry": [
+    {"targetPageId": "HOME-001", "href": "/", "behavior": "required"},
+    {"targetPageId": "PRODUCT-000", "href": "/products/", "behavior": "required"},
+    {"targetPageId": "CONV-RFQ", "href": "/request-a-quote/", "behavior": "conditional"},
+    {"targetPageId": "CONV-SAMPLE", "href": "/request-sample/", "behavior": "conditional"},
+    {"targetPageId": "CONV-DOC", "href": "/request-documents/", "behavior": "conditional"},
+    {"targetPageId": "PRODUCT-PROC-CL", "href": "/products/chloride-process-titanium-dioxide/", "behavior": "conditional"},
+    {"targetPageId": "APP-PLAS", "href": "/applications/titanium-dioxide-for-plastics/", "behavior": "conditional"},
+    {"targetPageId": "APP-MB", "href": "/applications/titanium-dioxide-for-masterbatch/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-EU-001", "href": "/markets/european-union/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-UK-001", "href": "/markets/united-kingdom/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-IN-001", "href": "/markets/india/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-BR-EN", "href": "/markets/brazil/", "behavior": "conditional"}
+  ],
+  "evidenceLedger": [
+    {"moduleKey": "identity-seo", "sourceRefs": ["PAGE_REGISTRY_V0.2", "11_PAGE_KEYWORD_MASTER"], "reviewStatus": "candidate_verified"},
+    {"moduleKey": "process-and-broad-application", "sourceRefs": ["PRODUCT_GRADE_APPLICATION_PROCESS_MATRIX_V0.3", "M340_TDS_SHA256_9950FCE6EFCA4F11CC4FFF81777653AC15028CFCE74236873A35EB21FEB927ED"], "reviewStatus": "candidate_verified"},
+    {"moduleKey": "hero-positioning-applications-evaluation", "sourceRefs": ["M340_TDS_SHA256_9950FCE6EFCA4F11CC4FFF81777653AC15028CFCE74236873A35EB21FEB927ED", "GRADE-M340-G2-FULL-COPY-01"], "reviewStatus": "candidate_verified"},
+    {"moduleKey": "technical", "sourceRefs": ["M340_TDS_SHA256_9950FCE6EFCA4F11CC4FFF81777653AC15028CFCE74236873A35EB21FEB927ED"], "reviewStatus": "candidate_verified"}
+  ]
+}

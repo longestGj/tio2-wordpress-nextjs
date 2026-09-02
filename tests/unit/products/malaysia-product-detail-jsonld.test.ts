@@ -2,10 +2,19 @@ import {describe, expect, it} from 'vitest'
 
 import {buildMalaysiaProductDetailJsonLd} from '@/lib/seo/product-detail-jsonld'
 import {toMalaysiaProductDetailDto} from '@/lib/wordpress/product-detail-v01-dto'
+import {productDetailTechnicalRowSchemaValue} from '@/lib/wordpress/product-detail-v01-types'
 import {getSiteConfig} from '@/sites'
 import {malaysiaProductDetailSource} from '@/tests/fixtures/tio2-my-product-detail'
 
 describe('M-350 Product and Breadcrumb Schema', () => {
+  it('selects one meaningful technical cell without ever exposing placeholders', () => {
+    expect(productDetailTechnicalRowSchemaValue({property: 'Value wins', value: '94%', testMethod: 'XRF'})).toBe('94%')
+    expect(productDetailTechnicalRowSchemaValue({property: 'Typical wins', standard: '>= 94', typical: '97'})).toBe('97')
+    expect(productDetailTechnicalRowSchemaValue({property: 'Standard fallback', standard: 'Al₂O₃', typical: '--'})).toBe('Al₂O₃')
+    expect(productDetailTechnicalRowSchemaValue({property: 'Omitted', standard: '--', typical: ' -- '})).toBeUndefined()
+    expect(productDetailTechnicalRowSchemaValue({property: 'Blank omitted', standard: ' ', typical: ''})).toBeUndefined()
+  })
+
   it('uses only the visible scoped facts and all 15 technical rows', () => {
     const dto = toMalaysiaProductDetailDto(malaysiaProductDetailSource())
     const graph = buildMalaysiaProductDetailJsonLd(getSiteConfig('tio2-my'), dto)

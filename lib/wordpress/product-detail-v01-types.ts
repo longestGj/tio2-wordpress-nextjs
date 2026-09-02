@@ -62,6 +62,20 @@ export function productDetailTechnicalRowValue(row: ProductDetailTechnicalRow): 
   return isProductDetailValueTechnicalRow(row) ? row.value : row.typical
 }
 
+function isMeaningfulProductDetailTechnicalCell(value: unknown): value is string {
+  return typeof value === 'string' && value.trim() !== '' && value.trim() !== '--'
+}
+
+export function productDetailTechnicalRowSchemaValue(
+  row: ProductDetailTechnicalRow,
+): string | undefined {
+  if (isProductDetailValueTechnicalRow(row)) {
+    return isMeaningfulProductDetailTechnicalCell(row.value) ? row.value : undefined
+  }
+  if (isMeaningfulProductDetailTechnicalCell(row.typical)) return row.typical
+  return isMeaningfulProductDetailTechnicalCell(row.standard) ? row.standard : undefined
+}
+
 export interface MalaysiaProductDetailModules {
   readonly hero: ProductDetailHero
   readonly positioning: ProductDetailPositioning

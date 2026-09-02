@@ -1,6 +1,6 @@
 import {
   isProductDetailValueTechnicalRow,
-  productDetailTechnicalRowValue,
+  productDetailTechnicalRowSchemaValue,
   type MalaysiaProductDetailDto,
 } from '@/lib/wordpress/product-detail-v01-types'
 import type {SiteConfig} from '@/sites'
@@ -28,14 +28,17 @@ export function buildMalaysiaProductDetailJsonLd(
     description: `${product.modules.hero.summaryLead} ${product.modules.hero.summaryBody}`,
     url: canonical,
     category,
-    additionalProperty: product.modules.technical.rows.map((row) => ({
-      '@type': 'PropertyValue',
-      name: row.property,
-      value: productDetailTechnicalRowValue(row),
-      ...(!isProductDetailValueTechnicalRow(row) && 'standard' in row
-        ? {description: `Standard: ${row.standard}; Typical Value: ${row.typical}`}
-        : {}),
-    })),
+    additionalProperty: product.modules.technical.rows.flatMap((row) => {
+      const value = productDetailTechnicalRowSchemaValue(row)
+      return value === undefined ? [] : [{
+        '@type': 'PropertyValue',
+        name: row.property,
+        value,
+        ...(!isProductDetailValueTechnicalRow(row) && 'standard' in row
+          ? {description: `Standard: ${row.standard}; Typical Value: ${row.typical}`}
+          : {}),
+      }]
+    }),
   }
   const breadcrumbNode = {
     '@type': 'BreadcrumbList',

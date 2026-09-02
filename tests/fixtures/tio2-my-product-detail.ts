@@ -1,4 +1,5 @@
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m350.json'
+import m340Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m340.json'
 import m510Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m510.json'
 import m895Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m895.json'
 import m896Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m896.json'
@@ -227,6 +228,59 @@ export function malaysiaM895ProductDetailSource(
       seo: m895Contract.seo,
       globalChromeRef: m895Contract.globalChromeRef,
       breadcrumb: m895Contract.breadcrumb,
+      modules,
+    },
+  }
+}
+
+export function m340ProductDetailReadiness(ready = false): Record<string, boolean> {
+  const result = Object.fromEntries(
+    m340Contract.routeRegistry.map((route) => [route.targetPageId, ready]),
+  )
+  result['HOME-001'] = true
+  result['PRODUCT-000'] = true
+  return result
+}
+
+export function malaysiaM340ProductDetailSource(
+  readiness: Readonly<Record<string, boolean>> = m340ProductDetailReadiness(),
+): MalaysiaProductDetailSource {
+  const {contextualLink, ...positioning} = m340Contract.positioning
+  const applications = {
+    ...m340Contract.applications,
+    items: m340Contract.applications.items.map(({targetPageId, href, ...item}) =>
+      readiness[targetPageId] ? {...item, targetPageId, href} : item),
+  }
+  const {action, ...technical} = m340Contract.technical
+  const marketItems = m340Contract.markets.items.filter((item) => readiness[item.targetPageId])
+  const modules = {
+    hero: {
+      ...m340Contract.hero,
+      actions: m340Contract.hero.actions.filter((item) => readiness[item.targetPageId]),
+    },
+    positioning: readiness[contextualLink.targetPageId]
+      ? {...positioning, contextualLink}
+      : positioning,
+    applications,
+    evaluation: m340Contract.evaluation,
+    technical: readiness[action.targetPageId] ? {...technical, action} : technical,
+    ...(readiness[m340Contract.documents.targetPageId] ? {documents: m340Contract.documents} : {}),
+    ...(marketItems.length ? {markets: {...m340Contract.markets, items: marketItems}} : {}),
+    ...(readiness[m340Contract.sample.targetPageId] ? {sample: m340Contract.sample} : {}),
+  }
+  return {
+    id: 'product-detail-my-340-1',
+    modifiedGmt: '2026-09-02T04:05:06',
+    status: 'publish',
+    siteScopes: {nodes: [{slug: 'tio2-my'}]},
+    publishingFields: {publicPath: '/products/m-340'},
+    publicProjection: {
+      reviewId: m340Contract.reviewId,
+      identity: m340Contract.identity,
+      releaseControls: m340Contract.releaseControls,
+      seo: m340Contract.seo,
+      globalChromeRef: m340Contract.globalChromeRef,
+      breadcrumb: m340Contract.breadcrumb,
       modules,
     },
   }

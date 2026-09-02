@@ -15,7 +15,7 @@
     {"pageId": "GRADE-M200", "gradeCode": "M-200", "slug": "m-200", "path": "/products/m-200/", "primaryKeyword": "M-200 titanium dioxide", "implementationState": "IDENTITY_ONLY"},
     {"pageId": "GRADE-M108", "gradeCode": "M-108", "slug": "m-108", "path": "/products/m-108/", "primaryKeyword": "M-108 titanium dioxide", "implementationState": "IDENTITY_ONLY"},
     {"pageId": "GRADE-M210", "gradeCode": "M-210", "slug": "m-210", "path": "/products/m-210/", "primaryKeyword": "M-210 titanium dioxide", "implementationState": "IDENTITY_ONLY"},
-    {"pageId": "GRADE-M340", "gradeCode": "M-340", "slug": "m-340", "path": "/products/m-340/", "primaryKeyword": "M-340 titanium dioxide", "implementationState": "IDENTITY_ONLY"},
+    {"pageId": "GRADE-M340", "gradeCode": "M-340", "slug": "m-340", "path": "/products/m-340/", "primaryKeyword": "M-340 titanium dioxide", "implementationState": "APPROVED_M340_CANDIDATE", "contractFile": "tio2-my-product-detail-m340.json", "approvedSourceSha256": "8DF979421B4D716BA82E910A42F62BF4982102BF00D82DB2782578F5B5AB93A6", "approvedCanonicalSha256": "313F39434C74E7219A759E4A3A7F177047BA705ADF88F6441CB3B615E9852B3E"},
     {"pageId": "GRADE-M886", "gradeCode": "M-886", "slug": "m-886", "path": "/products/m-886/", "primaryKeyword": "M-886 titanium dioxide", "implementationState": "IDENTITY_ONLY"},
     {"pageId": "GRADE-M52", "gradeCode": "M-52", "slug": "m-52", "path": "/products/m-52/", "primaryKeyword": "M-52 titanium dioxide", "implementationState": "IDENTITY_ONLY"},
     {"pageId": "GRADE-M2377", "gradeCode": "M-2377", "slug": "m-2377", "path": "/products/m-2377/", "primaryKeyword": "M-2377 titanium dioxide", "implementationState": "IDENTITY_ONLY_RESTRICTED"},

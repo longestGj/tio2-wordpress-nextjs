@@ -4,6 +4,7 @@ import {GraphQLResponseError} from '@/lib/wordpress/client'
 import {getMalaysiaProductDetail} from '@/lib/wordpress/product-detail-v01-queries'
 import {
   malaysiaM510ProductDetailSource,
+  malaysiaM340ProductDetailSource,
   malaysiaM895ProductDetailSource,
   malaysiaM896ProductDetailSource,
   malaysiaProductDetailSource,
@@ -115,6 +116,29 @@ describe('M-350 GraphQL query isolation', () => {
       'site:tio2-my',
       'route:tio2-my:/products/m-895',
       'content:tio2-my--product-detail--m-895',
+    ])
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+
+  it('uses an isolated M-340 query and cache key without trying another Grade', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body)) as {variables: Record<string, unknown>}
+      expect(body.variables).toEqual({slug: 'm-340'})
+      return new Response(JSON.stringify({data: {
+        malaysiaProductDetailRecordJson: JSON.stringify(malaysiaM340ProductDetailSource()),
+      }}), {status: 200, headers: {'content-type': 'application/json'}})
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubEnv('WORDPRESS_GRAPHQL_URL', 'https://cms.example.test/graphql')
+
+    await expect(getMalaysiaProductDetail('m-340')).resolves.toMatchObject({
+      identity: {siteId: 'tio2-my', path: '/products/m-340', gradeCode: 'M-340'},
+    })
+    const next = (fetchMock.mock.calls[0]?.[1] as RequestInit & {next?: {tags?: string[]}}).next
+    expect(next?.tags).toEqual([
+      'site:tio2-my',
+      'route:tio2-my:/products/m-340',
+      'content:tio2-my--product-detail--m-340',
     ])
     expect(fetchMock).toHaveBeenCalledOnce()
   })

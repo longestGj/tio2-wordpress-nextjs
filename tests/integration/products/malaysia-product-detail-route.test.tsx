@@ -6,6 +6,7 @@ import {toMalaysiaProductDetailDto} from '@/lib/wordpress/product-detail-v01-dto
 import {getSiteConfig} from '@/sites'
 import {
   malaysiaM510ProductDetailSource,
+  malaysiaM340ProductDetailSource,
   malaysiaM895ProductDetailSource,
   malaysiaM896ProductDetailSource,
   malaysiaProductDetailSource,
@@ -65,15 +66,16 @@ describe('M-350 route integration', () => {
     expect(metadata.robots).toMatchObject({index: false, follow: false})
   })
 
-  it('generates only the four approved candidates and rejects the other 10 Malaysia grade slugs before CMS access', async () => {
+  it('generates only the five approved candidates and rejects the other nine Malaysia grade slugs before CMS access', async () => {
     const route = await import('@/app/products/[familySlug]/page')
     await expect(route.generateStaticParams()).resolves.toEqual([
       {familySlug: 'm-350'},
       {familySlug: 'm-510'},
       {familySlug: 'm-896'},
       {familySlug: 'm-895'},
+      {familySlug: 'm-340'},
     ])
-    for (const slug of ['m-996', 'm-2196', 'm-200', 'm-108', 'm-210', 'm-340', 'm-886', 'm-52', 'm-2377', 'cr-901']) {
+    for (const slug of ['m-996', 'm-2196', 'm-200', 'm-108', 'm-210', 'm-886', 'm-52', 'm-2377', 'cr-901']) {
       await expect(route.default(props(slug))).rejects.toMatchObject({
         digest: 'NEXT_HTTP_ERROR_FALLBACK;404',
       })
@@ -110,6 +112,23 @@ describe('M-350 route integration', () => {
     expect(markup).toContain('data-label="Typical value">94%</td>')
     expect((await route.generateMetadata(props('m-895'))).alternates?.canonical).toBe(
       'https://tio2malaysia.com/products/m-895/',
+    )
+  })
+
+  it('loads M-340 through the same scoped route with meaningful treatment Schema values', async () => {
+    routeMocks.getMalaysiaProductDetail.mockResolvedValue(
+      toMalaysiaProductDetailDto(malaysiaM340ProductDetailSource(), 'm-340'),
+    )
+    const route = await import('@/app/products/[familySlug]/page')
+    const markup = renderToStaticMarkup(await route.default(props('m-340')))
+    expect(routeMocks.getMalaysiaProductDetail).toHaveBeenCalledWith('m-340')
+    expect(markup).toContain('M-340 Titanium Dioxide for Plastics and Masterbatch Evaluation')
+    expect(markup).toContain('data-label="Standard">Al₂O₃</td>')
+    expect(markup).toContain('"value":"Al₂O₃"')
+    expect(markup).toContain('"value":"Yes"')
+    expect(markup).not.toContain('"value":"--"')
+    expect((await route.generateMetadata(props('m-340'))).alternates?.canonical).toBe(
+      'https://tio2malaysia.com/products/m-340/',
     )
   })
 
