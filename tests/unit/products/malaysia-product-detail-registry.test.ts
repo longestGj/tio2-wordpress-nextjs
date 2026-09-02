@@ -11,10 +11,10 @@ import {
 import registry from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-identities.json'
 
 describe('Malaysia Product Detail approval registry', () => {
-  it('derives exactly ten preview-enabled contracts and leaves four identities disabled', () => {
-    expect(APPROVED_MALAYSIA_PRODUCT_DETAIL_SLUGS).toEqual(['m-350', 'm-510', 'm-896', 'm-895', 'm-200', 'm-108', 'm-210', 'm-340', 'm-886', 'm-52'])
-    expect(registry.identities.filter((item) => item.implementationState.startsWith('APPROVED_'))).toHaveLength(10)
-    expect(registry.identities.filter((item) => item.implementationState.startsWith('IDENTITY_ONLY'))).toHaveLength(4)
+  it('derives exactly eleven preview-enabled contracts and leaves three identities disabled', () => {
+    expect(APPROVED_MALAYSIA_PRODUCT_DETAIL_SLUGS).toEqual(['m-350', 'm-510', 'm-896', 'm-996', 'm-895', 'm-200', 'm-108', 'm-210', 'm-340', 'm-886', 'm-52'])
+    expect(registry.identities.filter((item) => item.implementationState.startsWith('APPROVED_'))).toHaveLength(11)
+    expect(registry.identities.filter((item) => item.implementationState.startsWith('IDENTITY_ONLY'))).toHaveLength(3)
     expect(isApprovedMalaysiaProductDetailSlug('m-350')).toBe(true)
     expect(isApprovedMalaysiaProductDetailSlug('m-510')).toBe(true)
     expect(isApprovedMalaysiaProductDetailSlug('m-896')).toBe(true)
@@ -25,7 +25,8 @@ describe('Malaysia Product Detail approval registry', () => {
     expect(isApprovedMalaysiaProductDetailSlug('m-108')).toBe(true)
     expect(isApprovedMalaysiaProductDetailSlug('m-210')).toBe(true)
     expect(isApprovedMalaysiaProductDetailSlug('m-200')).toBe(true)
-    expect(isApprovedMalaysiaProductDetailSlug('m-996')).toBe(false)
+    expect(isApprovedMalaysiaProductDetailSlug('m-996')).toBe(true)
+    expect(isApprovedMalaysiaProductDetailSlug('m-2196')).toBe(false)
   })
 
   it('selects contracts through registry identity and validates their canonical hashes', () => {
@@ -35,6 +36,7 @@ describe('Malaysia Product Detail approval registry', () => {
     const m210 = getApprovedMalaysiaProductDetail('m-210')
     const m510 = getApprovedMalaysiaProductDetail('m-510')
     const m896 = getApprovedMalaysiaProductDetail('m-896')
+    const m996 = getApprovedMalaysiaProductDetail('m-996')
     const m895 = getApprovedMalaysiaProductDetail('m-895')
     const m340 = getApprovedMalaysiaProductDetail('m-340')
     const m886 = getApprovedMalaysiaProductDetail('m-886')
@@ -46,6 +48,8 @@ describe('Malaysia Product Detail approval registry', () => {
     expect(m510.identity.approvedSourceSha256).toBe('09B41E1AB403372495D4BE8DB3DDD1260A710E310327FC289D8D344B05AB095C')
     expect(canonicalProductDetailContractSha256(m896.contract)).toBe('4049273762F620444A14CEC3ED223C7AC44A0AB73166D058B0B625F73D7F0730')
     expect(m896.identity.approvedSourceSha256).toBe('BA735FA0570E81F8055C76B7AC7B434498446BBD5540A1F2A32F0A9E6F3EC03A')
+    expect(canonicalProductDetailContractSha256(m996.contract)).toBe('695022B33674A055838DC15E2F82C1B7E20605BE32B8984E29DED4382888643B')
+    expect(m996.identity.approvedSourceSha256).toBe('4EAF22AA4F3F551F27CB83B41D644CAA59312B6EF20F02BCBD9AA6522F3EC66A')
     expect(canonicalProductDetailContractSha256(m895.contract)).toBe('C05AFEDE37CD69B5DA4AE5E77C3749093CCD7DEBC004424800FE870747C68E11')
     expect(m895.identity.approvedSourceSha256).toBe('CCBAB8EF7BEBB5641F409CF0925E861D57990EB53186448473754E88B48E3A5A')
     expect(canonicalProductDetailContractSha256(m340.contract)).toBe('313F39434C74E7219A759E4A3A7F177047BA705ADF88F6441CB3B615E9852B3E')
@@ -67,7 +71,7 @@ describe('Malaysia Product Detail approval registry', () => {
     for (const hash of [undefined, '', '0'.repeat(64), 'not-a-sha256']) {
       expect(() => assertApprovedProductDetailContractHash(contract, hash)).toThrow(ProductDetailRegistryError)
     }
-    expect(() => getApprovedMalaysiaProductDetail('m-996')).toThrow(ProductDetailRegistryError)
+    expect(() => getApprovedMalaysiaProductDetail('m-2196')).toThrow(ProductDetailRegistryError)
   })
 
   it('fails closed when the approved M-896 contract is checked against a wrong or missing hash', () => {

@@ -11,6 +11,7 @@ import m886Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-pro
 import m52Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m52.json'
 import m895Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m895.json'
 import m896Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m896.json'
+import m996Contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-detail-m996.json'
 
 type JsonValue = null | boolean | number | string | readonly JsonValue[] | {[key: string]: JsonValue}
 type RegistryIdentity = (typeof registry.identities)[number]
@@ -47,6 +48,7 @@ const bundledContracts = [
   {file: 'tio2-my-product-detail-m52.json', contract: m52Contract},
   {file: 'tio2-my-product-detail-m895.json', contract: m895Contract},
   {file: 'tio2-my-product-detail-m896.json', contract: m896Contract},
+  {file: 'tio2-my-product-detail-m996.json', contract: m996Contract},
 ] as const
 
 function canonicalize(value: JsonValue): JsonValue {

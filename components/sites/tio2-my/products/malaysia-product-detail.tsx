@@ -208,6 +208,7 @@ export function MalaysiaProductDetail({
               </tbody>
             </table>
           </div>
+          {modules.technical.footnote ? <p className={styles.technicalNote}>{modules.technical.footnote}</p> : null}
           <p className={styles.technicalNote}>{modules.technical.note}</p>
           {modules.technical.action ? (
             <a className={styles.textAction} href={actionHref(modules.technical.action.href, modules.technical.action.prefill)} data-contextual-action={modules.technical.action.targetPageId}>

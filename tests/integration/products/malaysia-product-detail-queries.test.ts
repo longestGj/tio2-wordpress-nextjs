@@ -12,6 +12,7 @@ import {
   malaysiaM886ProductDetailSource,
   malaysiaM895ProductDetailSource,
   malaysiaM896ProductDetailSource,
+  malaysiaM996ProductDetailSource,
   malaysiaProductDetailSource,
 } from '@/tests/fixtures/tio2-my-product-detail'
 
@@ -125,6 +126,29 @@ describe('M-350 GraphQL query isolation', () => {
     expect(fetchMock).toHaveBeenCalledOnce()
   })
 
+  it('uses an isolated M-996 query and cache key without trying another Grade', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body)) as {variables: Record<string, unknown>}
+      expect(body.variables).toEqual({slug: 'm-996'})
+      return new Response(JSON.stringify({data: {
+        malaysiaProductDetailRecordJson: JSON.stringify(malaysiaM996ProductDetailSource()),
+      }}), {status: 200, headers: {'content-type': 'application/json'}})
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubEnv('WORDPRESS_GRAPHQL_URL', 'https://cms.example.test/graphql')
+
+    await expect(getMalaysiaProductDetail('m-996')).resolves.toMatchObject({
+      identity: {siteId: 'tio2-my', path: '/products/m-996', gradeCode: 'M-996'},
+    })
+    const next = (fetchMock.mock.calls[0]?.[1] as RequestInit & {next?: {tags?: string[]}}).next
+    expect(next?.tags).toEqual([
+      'site:tio2-my',
+      'route:tio2-my:/products/m-996',
+      'content:tio2-my--product-detail--m-996',
+    ])
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+
   it('uses an isolated M-340 query and cache key without trying another Grade', async () => {
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
       const body = JSON.parse(String(init?.body)) as {variables: Record<string, unknown>}
@@ -222,8 +246,8 @@ describe('M-350 GraphQL query isolation', () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
     vi.stubEnv('WORDPRESS_GRAPHQL_URL', 'https://cms.example.test/graphql')
-    await expect(getMalaysiaProductDetail('m-996')).rejects.toThrow(
-      'Invalid Malaysia Product Detail identity: tio2-my/m-996',
+    await expect(getMalaysiaProductDetail('m-2196')).rejects.toThrow(
+      'Invalid Malaysia Product Detail identity: tio2-my/m-2196',
     )
     expect(fetchMock).not.toHaveBeenCalled()
   })

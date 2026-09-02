@@ -158,8 +158,9 @@ function validateTechnical(value: unknown, approvedValue: unknown): MalaysiaProd
   const technical = record(value, 'modules.technical')
   const approved = record(approvedValue, 'approved.technical')
   const hasAction = 'action' in technical
-  exactKeys(technical, ['eyebrow', 'heading', 'intro', 'sourceLabel', 'columns', 'rows', 'note', ...(hasAction ? ['action'] : [])], 'modules.technical')
-  for (const key of ['eyebrow', 'heading', 'intro', 'sourceLabel', 'columns', 'note']) {
+  const hasFootnote = 'footnote' in approved
+  exactKeys(technical, ['eyebrow', 'heading', 'intro', 'sourceLabel', 'columns', 'rows', ...(hasFootnote ? ['footnote'] : []), 'note', ...(hasAction ? ['action'] : [])], 'modules.technical')
+  for (const key of ['eyebrow', 'heading', 'intro', 'sourceLabel', 'columns', ...(hasFootnote ? ['footnote'] : []), 'note']) {
     exactJson(technical[key], approved[key], `modules.technical.${key}`)
   }
   if (!Array.isArray(approved.columns) || ![2, 3].includes(approved.columns.length)) {
@@ -174,6 +175,7 @@ function validateTechnical(value: unknown, approvedValue: unknown): MalaysiaProd
     sourceLabel: exactText(approved.sourceLabel, 'approved.technical.sourceLabel'),
     columns: approved.columns as readonly string[],
     rows,
+    ...(hasFootnote ? {footnote: exactText(approved.footnote, 'approved.technical.footnote')} : {}),
     note: exactText(approved.note, 'approved.technical.note'),
     ...(action ? {action: action as MalaysiaProductDetailModules['technical']['action']} : {}),
   }
