@@ -55,6 +55,12 @@
     "description": "A focused titanium dioxide purchasing platform for international industrial buyers.",
     "explore": ["HOME-001", "MARKET-000", "PRODUCT-000", "APP-000"],
     "information": ["DOC-000", "RES-000", "ABOUT-001"],
+    "legalUtilities": [
+      {"label": "Privacy Policy", "href": "/privacy-policy/", "action": "NAVIGATE"},
+      {"label": "Dasar Privasi (BM)", "href": "/ms/privacy-policy/", "action": "NAVIGATE"},
+      {"label": "Cookie Policy", "href": "/cookie-policy/", "action": "NAVIGATE"},
+      {"label": "Cookie Settings", "href": null, "action": "OPEN_COOKIE_SETTINGS"}
+    ],
     "copyright": "© 2026 TiO2 Malaysia."
   }
 }

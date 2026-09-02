@@ -185,6 +185,12 @@ export function documentsHubContentTag(siteId: string): string {
   return `content:${siteId}--documents`
 }
 
+export function legalPagesContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid Legal pages scope: ${siteId}`)
+  return `content:${siteId}--legal-pages`
+}
+
 export function rfqPageContentTag(siteId: string): string {
   assertSiteId(siteId)
   if (siteId !== 'tio2-my') throw new Error(`Invalid RFQ page scope: ${siteId}`)

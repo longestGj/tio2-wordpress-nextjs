@@ -9,7 +9,7 @@
 
 .header *, .footer * { box-sizing: border-box; }
 .header a, .footer a { font-weight: 700; text-decoration: none; }
-.header :is(a, button):focus-visible, .footer a:focus-visible { outline: 3px solid #ffbf47; outline-offset: 3px; }
+.header :is(a, button):focus-visible, .footer :is(a, button):focus-visible { outline: 3px solid #ffbf47; outline-offset: 3px; }
 .headerInner { width: min(1280px, calc(100% - 48px)); min-height: 84px; margin: auto; display: flex; align-items: center; gap: 28px; }
 .logoLink { min-width: 180px; min-height: 60px; margin-right: auto; display: inline-flex; align-items: center; line-height: 0; }
 .logo { width: 180px; height: 60px; object-fit: contain; }
@@ -27,7 +27,9 @@
 .footer .brandColumn p, .footer .copyright { max-width: 290px; margin: 0; color: #d4e0eb; font-size: 13px; line-height: 1.55; }
 .footer h2 { margin: 0 0 8px; color: #fff; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
 .footer .footerGrid a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; color: #fff; font-size: 13px; }
-.copyright { max-width: none !important; margin-top: 55px !important; padding-top: 24px; border-top: 1px solid #21456c; font-size: 12px !important; }
+.legalUtilities { margin-top: 48px; padding-top: 20px; display: flex; flex-wrap: wrap; gap: 4px 18px; border-top: 1px solid #21456c; }
+.footer .legalUtilities :is(a, button) { min-height: 44px; padding: 0; border: 0; color: #d4e0eb; background: transparent; font: 600 12px/1.3 Arial, Helvetica, sans-serif; cursor: pointer; }
+.copyright { max-width: none !important; margin-top: 8px !important; padding-top: 0; font-size: 12px !important; }
 
 @media (max-width: 1199px) {
   .desktopNav { gap: 13px; }
@@ -64,6 +66,8 @@
   .footerLogo { width: 150px; height: 50px; }
   .footer h2 { font-size: 14px; }
   .copyright { margin-top: 35px !important; }
+  .legalUtilities { margin-top: 34px; }
+  .copyright { margin-top: 8px !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {

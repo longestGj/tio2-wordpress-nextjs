@@ -68,8 +68,7 @@ for (const viewport of viewports) {
     await expect(page.locator('a[href="/request-sample/"]')).toHaveText(/Request a Sample/)
     await expect(page.locator('a[href="/request-documents/"]')).toHaveText(/Request Documents/)
     await expect(page.locator('main a[href*="contact"]')).toHaveCount(0)
-    await expect(page.locator('form a')).toHaveCount(0)
-    await expect(page.locator('form').getByText('Privacy Policy', {exact: true})).toBeVisible()
+    await expect(page.locator('form').getByRole('link', {name: 'Privacy Policy'})).toHaveAttribute('href', '/privacy-policy/')
 
     await expect(page.locator('link[rel="canonical"]')).toHaveCount(1)
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://tio2malaysia.com/request-a-quote/')

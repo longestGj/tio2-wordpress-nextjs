@@ -16,6 +16,7 @@ import {
   entityTag,
   homepageContentTag,
   isValidPublicPath,
+  legalPagesContentTag,
   marketHubContentTag,
   normalizePublicPath,
   productListTag,
@@ -272,9 +273,11 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const tags = new Set<string>()
+  const malaysiaLegalPaths = new Set(['/privacy-policy', '/ms/privacy-policy', '/cookie-policy'])
   const preciseMalaysiaSingletonEvent =
     currentSite.id === 'tio2-my' &&
-    (payload.paths.includes('/resources') || payload.paths.includes('/documents'))
+    (payload.paths.includes('/resources') || payload.paths.includes('/documents') ||
+      (payload.paths.length === 1 && malaysiaLegalPaths.has(payload.paths[0]!)))
   for (const siteId of payload.siteIds) {
     if (!preciseMalaysiaSingletonEvent) {
       tags.add(contentListTag(siteId))
@@ -295,6 +298,9 @@ export async function POST(request: Request): Promise<Response> {
       }
       if (siteId === 'tio2-my' && path === '/documents') {
         tags.add(documentsHubContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && malaysiaLegalPaths.has(path)) {
+        tags.add(legalPagesContentTag(siteId))
       }
 
       const productIdentity = productIdentityByPath.get(path)

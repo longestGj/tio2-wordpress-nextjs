@@ -13,7 +13,6 @@ beforeEach(() => {
   routeMocks.getCurrentSite.mockReturnValue(getSiteConfig('tio2-my'))
   routeMocks.getMalaysiaRfqPage.mockResolvedValue(toMalaysiaRfqPageDto(malaysiaRfqPageSource()))
   vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'test-key')
-  vi.stubEnv('TIO2_MY_PRIVACY_POLICY_HREF', '/legal/privacy-policy/')
 })
 afterEach(() => { vi.clearAllMocks(); vi.unstubAllEnvs(); vi.resetModules() })
 
@@ -29,6 +28,7 @@ describe('CONV-RFQ route', () => {
     expect(markup).toContain('Sulfate')
     expect(markup).toContain('href="/request-sample/"')
     expect(markup).toContain('href="/request-documents/"')
+    expect(markup).toContain('href="/privacy-policy/"')
     expect(markup.match(/application\/ld\+json/gu)).toHaveLength(1)
     expect(markup).not.toContain('/contact')
   })

@@ -17379,6 +17379,7 @@ type RootQuery {
   "Approved, scope-bound RES-000 record and public H0 projection for TiO2 Malaysia."
   malaysiaResourceHubRecordJson: String!
   malaysiaDocumentsHubRecordJson: String!
+  malaysiaLegalPagesRecordJson: String!
 
   "An object of the mediaItem Type. "
   mediaItem(

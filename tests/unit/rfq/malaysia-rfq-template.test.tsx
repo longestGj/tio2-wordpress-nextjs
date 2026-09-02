@@ -22,7 +22,7 @@ function renderPage() {
       page={dto}
       prefill={{values: {}, sourcePageId: null}}
       receiverAccessKey="test-key"
-      privacyPolicyHref="/legal/privacy-policy/"
+      privacyPolicyHref="/privacy-policy/"
       structuredData={<script type="application/ld+json">{'{"@graph":[]}'}</script>}
     />,
   )
@@ -41,7 +41,7 @@ describe('CONV-RFQ template and form', () => {
     expect(screen.getByRole('heading', {level: 1}).textContent).toBe('Request a Titanium Dioxide Quote')
     expect(container.querySelectorAll('[data-module]')).toHaveLength(4)
     expect(screen.getByRole('form')).toBeTruthy()
-    expect(screen.getByRole('link', {name: 'Privacy Policy'}).getAttribute('href')).toBe('/legal/privacy-policy/')
+    expect(within(screen.getByRole('form')).getByRole('link', {name: 'Privacy Policy'}).getAttribute('href')).toBe('/privacy-policy/')
     expect(screen.getByRole('link', {name: /Request a Sample/u}).getAttribute('href')).toBe('/request-sample/')
     expect(screen.getByRole('link', {name: /Request Documents/u}).getAttribute('href')).toBe('/request-documents/')
     expect(container.textContent).not.toContain('Contact')

@@ -24,6 +24,12 @@ const resourceComponentPath = 'components/sites/tio2-my/resources/malaysia-resou
 const resourceCssPath = 'components/sites/tio2-my/resources/malaysia-resource-hub.module.css'
 const documentsComponentPath = 'components/sites/tio2-my/documents/malaysia-documents-hub.tsx'
 const documentsCssPath = 'components/sites/tio2-my/documents/malaysia-documents-hub.module.css'
+const legalComponentPath = 'components/sites/tio2-my/legal/malaysia-legal-page.tsx'
+const legalCssPath = 'components/sites/tio2-my/legal/malaysia-legal-page.module.css'
+const aboutComponentPath = 'components/sites/tio2-my/about/malaysia-about-page.tsx'
+const aboutCssPath = 'components/sites/tio2-my/about/malaysia-about-page.module.css'
+const rfqComponentPath = 'components/sites/tio2-my/request-a-quote/malaysia-rfq-page.tsx'
+const rfqCssPath = 'components/sites/tio2-my/request-a-quote/malaysia-rfq-page.module.css'
 const legacyHomeHeaderPath = 'components/sites/tio2-my/malaysia-header.tsx'
 
 describe('TiO2 Malaysia shared Global Chrome contract', () => {
@@ -52,6 +58,13 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
     expect(chrome.footer.headings).toEqual({
       explore: 'Explore', information: 'Information', procurement: 'Procurement',
     })
+    expect(chrome.footer.legalUtilities).toEqual([
+      {label: 'Privacy Policy', href: '/privacy-policy/', action: 'NAVIGATE'},
+      {label: 'Dasar Privasi (BM)', href: '/ms/privacy-policy/', action: 'NAVIGATE'},
+      {label: 'Cookie Policy', href: '/cookie-policy/', action: 'NAVIGATE'},
+      {label: 'Cookie Settings', href: null, action: 'OPEN_COOKIE_SETTINGS'},
+    ])
+    expect(chrome.footer.copyright).toBe('© 2026 TiO2 Malaysia.')
     expect(JSON.stringify(chrome)).not.toMatch(/\.png|tio2products|tio2hub|tiovar/iu)
   })
 
@@ -75,10 +88,13 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
     const productDetail = readFileSync(productDetailComponentPath, 'utf8')
     const resource = readFileSync(resourceComponentPath, 'utf8')
     const documents = readFileSync(documentsComponentPath, 'utf8')
+    const legal = readFileSync(legalComponentPath, 'utf8')
+    const about = readFileSync(aboutComponentPath, 'utf8')
+    const rfq = readFileSync(rfqComponentPath, 'utf8')
 
     expect(existsSync(legacyHomeHeaderPath)).toBe(false)
-    for (const page of [home, market, product, productDetail, resource, documents]) {
-      expect(page).toMatch(/from '\.\.\/malaysia-global-chrome'/u)
+    for (const page of [home, market, product, productDetail, resource, documents, legal, about, rfq]) {
+      expect(page).toMatch(/from (?:'\.\.\/malaysia-global-chrome'|'@\/components\/sites\/tio2-my\/malaysia-global-chrome')/u)
       expect(page.match(/<MalaysiaGlobalHeader/gu)).toHaveLength(1)
       expect(page.match(/<MalaysiaGlobalFooter/gu)).toHaveLength(1)
     }
@@ -94,6 +110,12 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
     expect(resource).toMatch(/sourcePageId="RES-000"/u)
     expect(documents).toMatch(/currentPageId="DOC-000"/u)
     expect(documents).toMatch(/sourcePageId="DOC-000"/u)
+    expect(legal).toMatch(/currentPageId=\{page\.pageId\}/u)
+    expect(legal).toMatch(/sourcePageId=\{page\.pageId\}/u)
+    expect(about).toMatch(/currentPageId="ABOUT-001"/u)
+    expect(about).toMatch(/sourcePageId="ABOUT-001"/u)
+    expect(rfq).toMatch(/currentPageId="CONV-RFQ"/u)
+    expect(rfq).toMatch(/sourcePageId="CONV-RFQ"/u)
   })
 
   it('prevents page CSS from styling any shared Chrome surface', () => {
@@ -104,6 +126,9 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
     const productDetailCss = readFileSync(productDetailCssPath, 'utf8')
     const resourceCss = readFileSync(resourceCssPath, 'utf8')
     const documentsCss = readFileSync(documentsCssPath, 'utf8')
+    const legalCss = readFileSync(legalCssPath, 'utf8')
+    const aboutCss = readFileSync(aboutCssPath, 'utf8')
+    const rfqCss = readFileSync(rfqCssPath, 'utf8')
 
     expect(homeCss).not.toMatch(forbiddenChromeSelector)
     expect(marketCss).not.toMatch(forbiddenChromeSelector)
@@ -122,15 +147,25 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
     expect(documentsCss).not.toMatch(forbiddenChromeSelector)
     expect(documentsCss).not.toMatch(/\.site\s+(?:\*|a|h1|h2|h3|p|:is)/u)
     expect(documentsCss).toMatch(/\.main\s+:is\(a,button,select\)/u)
+    expect(legalCss).not.toMatch(forbiddenChromeSelector)
+    expect(legalCss).not.toMatch(/\.site\s+(?:\*|a|h1|h2|h3|p|:is)/u)
+    expect(legalCss).toMatch(/\.main\s+\*/u)
+    expect(aboutCss).not.toMatch(forbiddenChromeSelector)
+    expect(aboutCss).not.toMatch(/\.site\s+(?:\*|a|h1|h2|h3|p|:is)/u)
+    expect(rfqCss).not.toMatch(forbiddenChromeSelector)
+    expect(rfqCss).not.toMatch(/\.site\s+(?:\*|a|h1|h2|h3|p|:is)/u)
   })
 
-  it('resolves Home, Markets and Products through the single site-local Chrome configuration', () => {
+  it('resolves every implemented Malaysia page through the single site-local Chrome configuration', () => {
     const homeDto = readFileSync('lib/wordpress/homepage-v04-dto.ts', 'utf8')
     const marketDto = readFileSync('lib/wordpress/market-hub-v01-dto.ts', 'utf8')
     const productDto = readFileSync('lib/wordpress/product-hub-v01-dto.ts', 'utf8')
     const productDetailDto = readFileSync('lib/wordpress/product-detail-v01-dto.ts', 'utf8')
     const resourceDto = readFileSync('lib/wordpress/resource-hub-v01-dto.ts', 'utf8')
     const documentsDto = readFileSync('lib/wordpress/documents-hub-v01-dto.ts', 'utf8')
+    const legalDto = readFileSync('lib/wordpress/legal-pages-v01-dto.ts', 'utf8')
+    const aboutDto = readFileSync('lib/wordpress/about-page-v01-dto.ts', 'utf8')
+    const rfqDto = readFileSync('lib/wordpress/rfq-page-v01-dto.ts', 'utf8')
     const configImport = "import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'"
 
     expect(homeDto).toContain(configImport)
@@ -139,10 +174,16 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
     expect(productDetailDto).toContain(configImport)
     expect(resourceDto).toContain(configImport)
     expect(documentsDto).toContain(configImport)
+    expect(legalDto).toContain(configImport)
+    expect(aboutDto).toContain(configImport)
+    expect(rfqDto).toContain(configImport)
     expect(homeDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
     expect(marketDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
     expect(productDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
     expect(productDetailDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
     expect(resourceDto).toMatch(/return\s*\{[\s\S]*?\bglobalChrome,/u)
+    expect(legalDto).toMatch(/globalChrome,/u)
+    expect(aboutDto).toMatch(/globalChrome,/u)
+    expect(rfqDto).toMatch(/globalChrome,/u)
   })
 })

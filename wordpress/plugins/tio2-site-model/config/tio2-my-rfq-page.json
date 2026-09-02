@@ -88,7 +88,7 @@
     "intro": "Use the separate request form when you need a sample review or controlled document request instead of a quotation."
   },
   "routes": {
-    "privacy": {"label": "Privacy Policy", "href": null, "owner": "legal_privacy_page_owner"},
+    "privacy": {"label": "Privacy Policy", "href": "/privacy-policy/", "owner": "legal_privacy_page_owner"},
     "sample": {"label": "Request a Sample", "href": "/request-sample/", "owner": "conv_sample_owner"},
     "documents": {"label": "Request Documents", "href": "/request-documents/", "owner": "conv_doc_owner"}
   },

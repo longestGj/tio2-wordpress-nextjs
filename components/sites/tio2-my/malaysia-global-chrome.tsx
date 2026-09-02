@@ -7,6 +7,7 @@ import {useEffect, useRef, useState} from 'react'
 import type {Tio2MyGlobalChrome} from '@/lib/wordpress/tio2-my-global-chrome-types'
 
 import styles from './malaysia-global-chrome.module.css'
+import {MalaysiaCookieSettingsHost, MalaysiaCookieSettingsTrigger} from './consent/malaysia-cookie-settings'
 
 interface GlobalChromeProps {
   readonly chrome: Tio2MyGlobalChrome
@@ -160,7 +161,13 @@ export function MalaysiaGlobalFooter({
           </a>
         </div>
       </div>
+      <nav className={styles.legalUtilities} aria-label="Legal and privacy navigation">
+        {chrome.footer.legalUtilities.map((item) => item.action === 'OPEN_COOKIE_SETTINGS'
+          ? <MalaysiaCookieSettingsTrigger key={item.label}>{item.label}</MalaysiaCookieSettingsTrigger>
+          : <a key={item.label} href={item.href ?? undefined}>{item.label}</a>)}
+      </nav>
       <p className={styles.copyright}>{chrome.footer.copyright}</p>
+      <MalaysiaCookieSettingsHost />
     </footer>
   )
 }

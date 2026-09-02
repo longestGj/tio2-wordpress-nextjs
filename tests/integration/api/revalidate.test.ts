@@ -347,6 +347,19 @@ describe('POST /api/revalidate', () => {
     expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
   })
 
+  it.each(['/privacy-policy/', '/ms/privacy-policy/', '/cookie-policy/'])('revalidates Legal route %s with the shared exact Legal content tag', async (path) => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({siteIds: ['tio2-my'], paths: [path]})))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    const normalized = path.replace(/\/$/, '')
+    expect(body.revalidatedPaths).toEqual([normalized])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--legal-pages', `route:tio2-my:${normalized}`,
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
+  })
+
   it('revalidates the Malaysia Resources Hub with scope-local tags only', async () => {
     vi.stubEnv('SITE_ID', 'tio2-my')
     const response = await POST(signedRequest(validPayload({

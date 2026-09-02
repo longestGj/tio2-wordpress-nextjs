@@ -30,7 +30,7 @@ describe('CONV-RFQ approved contract', () => {
     expect(contract.routes).toMatchObject({
       sample: {label: 'Request a Sample', href: '/request-sample/'},
       documents: {label: 'Request Documents', href: '/request-documents/'},
-      privacy: {label: 'Privacy Policy', href: null},
+      privacy: {label: 'Privacy Policy', href: '/privacy-policy/'},
     })
   })
 
