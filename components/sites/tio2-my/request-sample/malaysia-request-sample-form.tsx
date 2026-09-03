@@ -6,7 +6,7 @@ import {emptyMalaysiaSampleRequestValues,validateMalaysiaSampleRequest,type Mala
 import type {MalaysiaRequestSamplePageDto} from '@/lib/wordpress/request-sample-v01-types'
 import styles from './malaysia-request-sample-page.module.css'
 
-interface Props{readonly page:MalaysiaRequestSamplePageDto;readonly prefill:MalaysiaSamplePrefill}
+interface Props{readonly page:MalaysiaRequestSamplePageDto;readonly prefill:MalaysiaSamplePrefill;readonly receiverReady:boolean}
 type State='ready'|'submitting'|'failure'|'success'|'unavailable'
 type Field=keyof MalaysiaSampleRequestValues
 const labels:Record<Field,string>={grade_id:'Product grade',application_id:'Application',application_other:'Describe the application',test_objective:'What do you need to evaluate?',current_grade_or_target:'Current grade or target requirement',contact_name:'Contact name',company_organisation:'Company or organisation',business_email:'Business email',destination_country_market:'Destination country or market',expected_project_annual_use:'Expected project or annual use',documents_needed:'Documents needed for the trial',additional_context:'Additional non-confidential context'}
@@ -19,7 +19,7 @@ export function createSampleRequestIdempotencyKey(cryptoApi:Crypto|undefined=glo
   const hex=[...bytes].map((byte)=>byte.toString(16).padStart(2,'0')).join('');return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`
 }
 
-export function MalaysiaRequestSampleForm({page,prefill}:Props){
+export function MalaysiaRequestSampleForm({page,prefill,receiverReady}:Props){
   const [values,setValues]=useState<MalaysiaSampleRequestValues>({...emptyMalaysiaSampleRequestValues,grade_id:prefill.grade_id??'',application_id:prefill.application_id??'',destination_country_market:prefill.destination??'',documents_needed:prefill.documents_needed??[]})
   const [context,setContext]=useState({source_page_id:prefill.source_page_id,market_id:prefill.market_id,process_context:prefill.process_context,resource_context:prefill.resource_context})
   const [visible,setVisible]=useState({grade:Boolean(prefill.grade_id),application:Boolean(prefill.application_id),destination:Boolean(prefill.destination),documents:Boolean(prefill.documents_needed?.length),process:Boolean(prefill.process_context),resource:Boolean(prefill.resource_context)})
@@ -44,12 +44,14 @@ export function MalaysiaRequestSampleForm({page,prefill}:Props){
   const described=(field:Field,helper=false)=>[helper?`sample-${field}-helper`:null,errors[field]?`sample-${field}-error`:null].filter(Boolean).join(' ')||undefined
   const contextVisible=Object.values(visible).some(Boolean)
 
+  if(!receiverReady)return <section className={styles.formSurface} data-module="sample-request" aria-labelledby="sample-unavailable-heading"><div className={`${styles.statePanel} ${styles.unavailable}`}><h2 id="sample-unavailable-heading">{page.form.unavailable.heading}</h2><p>{page.form.unavailable.body}</p></div></section>
+
   return <>
     {contextVisible&&<section className={styles.prefill} aria-labelledby="sample-prefill-heading" data-module="prefill-context"><h2 id="sample-prefill-heading">{page.prefill.heading}</h2><p>{page.prefill.body}</p><div className={styles.prefillGrid}>
       {visible.grade&&<Context label="Grade" targetId="sample-grade_id" value={values.grade_id} onRemove={()=>remove('grade')}/>} {visible.application&&<Context label="Application" targetId="sample-application_id" value={page.form.applicationOptions.find((item)=>item.value===values.application_id)?.label??values.application_id} onRemove={()=>remove('application')}/>} {visible.process&&context.process_context&&<Context label="Process context" value={processLabels[context.process_context]} onRemove={()=>remove('process')} removeOnly/>} {visible.destination&&<Context label="Destination" targetId="sample-destination_country_market" value={values.destination_country_market} onRemove={()=>remove('destination')}/>} {visible.documents&&<Context label="Documents" targetId="sample-documents" value={values.documents_needed.map((value)=>page.form.documentOptions.find((item)=>item.value===value)?.label??value).join(', ')} onRemove={()=>remove('documents')}/>} {visible.resource&&context.resource_context&&prefill.resource_context_label&&<Context label="Resource context" value={prefill.resource_context_label} onRemove={()=>remove('resource')} removeOnly/>}
     </div></section>}
     <section className={styles.formSurface} data-module="sample-request" aria-labelledby="sample-form-heading">
-      <form className={styles.form} aria-label="Request a Sample" onSubmit={submit} noValidate>
+      <form className={styles.form} aria-label="Request a Sample" aria-busy={state==='submitting'||undefined} onSubmit={submit} noValidate>
         <p className={styles.eyebrow}>{page.form.eyebrow}</p><h2 id="sample-form-heading">{page.form.heading}</h2><p className={styles.formIntro}>{page.form.intro}</p><p className={styles.warning}>{page.form.warning}</p>
         {Object.keys(errors).length>0&&<div ref={summaryRef} tabIndex={-1} role="alert" className={styles.errorSummary}><h3>{page.form.errors.summary}</h3><ul>{Object.entries(errors).map(([field,message])=><li key={field}><a href={`#sample-${field}`} onClick={(event)=>{event.preventDefault();focusField(field as Field)}}>{labels[field as Field]}: {message}</a></li>)}</ul></div>}
         {state==='unavailable'?<StatePanel refValue={stateRef} kind="unavailable" heading={page.form.unavailable.heading} body={page.form.unavailable.body}/>:state==='success'?<StatePanel refValue={stateRef} kind="success" heading={page.form.success.heading} body={page.form.success.body}/>:<>

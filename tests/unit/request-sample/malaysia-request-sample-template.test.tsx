@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import {cleanup,render,screen,within} from '@testing-library/react'
+import {cleanup,render,screen,waitFor,within} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest'
 import {MalaysiaRequestSamplePage} from '@/components/sites/tio2-my/request-sample/malaysia-request-sample-page'
@@ -8,7 +8,7 @@ import {toMalaysiaRequestSamplePageDto} from '@/lib/wordpress/request-sample-v01
 import {malaysiaRequestSamplePageSource} from '@/tests/fixtures/tio2-my-request-sample-page'
 
 const dto=toMalaysiaRequestSamplePageDto(malaysiaRequestSamplePageSource())
-const renderPage=(prefill=resolveMalaysiaSamplePrefill({}))=>render(<MalaysiaRequestSamplePage page={dto} prefill={prefill} structuredData={null}/>)
+const renderPage=(prefill=resolveMalaysiaSamplePrefill({}),receiverReady=true)=>render(<MalaysiaRequestSamplePage page={dto} prefill={prefill} receiverReady={receiverReady} structuredData={null}/>)
 beforeEach(()=>vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({ok:true,receipt_confirmed:true,kind:'receipt_confirmed'}),{status:200}))))
 afterEach(()=>{cleanup();vi.unstubAllGlobals();vi.clearAllMocks()})
 
@@ -25,6 +25,25 @@ describe('CONV-SAMPLE page and form',()=>{
     expect(container.textContent).not.toContain('CURRENT');expect(within(container.querySelector('header')!).queryAllByRole('link',{current:'page'})).toHaveLength(0)
     for(const item of dto.faq.items)expect(container.textContent).toContain(item.answer)
     expect(container.textContent).not.toMatch(/Free sample|Contact us|Sample quantity Required/iu)
+  })
+  it('server-renders the approved unavailable panel instead of usable controls when receiver readiness is false',()=>{
+    renderPage(resolveMalaysiaSamplePrefill({}),false)
+    expect(screen.queryByRole('form')).toBeNull();expect(screen.queryByLabelText(/Product grade/u)).toBeNull();expect(screen.queryByRole('button',{name:'Submit Sample Request for Review'})).toBeNull()
+    expect(screen.getByRole('heading',{name:'We cannot confirm sample requests right now.'})).toBeTruthy();expect(screen.getByText('The sample request form is not available. No request has been confirmed. Please try again later.')).toBeTruthy();expect(screen.queryByText(/Contact us/iu)).toBeNull()
+  })
+  it('uses disclosure buttons with accurate expanded state and linked FAQ panels',async()=>{
+    const user=userEvent.setup();renderPage();const buttons=dto.faq.items.map((item)=>screen.getByRole('button',{name:item.question}))
+    expect(buttons[0]?.getAttribute('aria-expanded')).toBe('true');expect(buttons[1]?.getAttribute('aria-expanded')).toBe('false')
+    const firstPanel=document.getElementById(buttons[0]!.getAttribute('aria-controls')!);const secondPanel=document.getElementById(buttons[1]!.getAttribute('aria-controls')!)
+    expect(firstPanel?.hasAttribute('hidden')).toBe(false);expect(firstPanel?.getAttribute('aria-labelledby')).toBe(buttons[0]!.id);expect(secondPanel?.hasAttribute('hidden')).toBe(true);expect(secondPanel?.getAttribute('aria-labelledby')).toBe(buttons[1]!.id)
+    buttons[1]!.focus();await user.keyboard('{Enter}');expect(buttons[1]?.getAttribute('aria-expanded')).toBe('true');expect(secondPanel?.hasAttribute('hidden')).toBe(false);expect(document.activeElement).toBe(buttons[1])
+  })
+  it('sets aria-busy only while a submission is in flight',async()=>{
+    let resolveRequest:(value:Response)=>void=()=>undefined
+    vi.mocked(fetch).mockImplementationOnce(()=>new Promise<Response>((resolve)=>{resolveRequest=resolve}))
+    const user=userEvent.setup();renderPage();await fillRequired(user);const form=screen.getByRole('form');await user.click(screen.getByRole('button',{name:'Submit Sample Request for Review'}))
+    await waitFor(()=>expect(form.getAttribute('aria-busy')).toBe('true'));resolveRequest(new Response(JSON.stringify({ok:true,receipt_confirmed:true,kind:'receipt_confirmed'}),{status:200}))
+    await screen.findByRole('heading',{name:'Your sample request has been received.'});expect(form.hasAttribute('aria-busy')).toBe(false)
   })
   it('shows accepted prefill visibly and allows every buyer value to be removed',async()=>{
     const user=userEvent.setup();renderPage(resolveMalaysiaSamplePrefill({source_page_id:'GRADE-M2377',grade_id:'M-2377',application_id:'coatings',process_context:'sulfate',destination:'United Kingdom',document_needs:['tds']}))

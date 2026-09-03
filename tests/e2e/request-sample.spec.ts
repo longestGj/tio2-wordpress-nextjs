@@ -44,6 +44,9 @@ for (const viewport of [
         (nodes) => nodes.map((node) => node.getBoundingClientRect()),
       )
       expect(prefillTargets.every((box) => box.height >= 44 && box.width >= 44)).toBe(true)
+      const privacyTarget = await page.getByRole('form').getByRole('link', {name: 'Privacy Policy'}).boundingBox()
+      expect(privacyTarget?.width).toBeGreaterThanOrEqual(44)
+      expect(privacyTarget?.height).toBeGreaterThanOrEqual(44)
     }
 
     const header = page.locator('header')
@@ -86,6 +89,9 @@ for (const width of [320, 375, 430, 1024, 1280]) {
           .map((node) => node.getBoundingClientRect())
           .filter((box) => box.width > 0))
       expect(boxes.every((box) => box.height >= 44)).toBe(true)
+      const privacyTarget = await page.getByRole('form').getByRole('link', {name: 'Privacy Policy'}).boundingBox()
+      expect(privacyTarget?.width).toBeGreaterThanOrEqual(44)
+      expect(privacyTarget?.height).toBeGreaterThanOrEqual(44)
       const columns = await page.locator('form [data-field-grid]').first().evaluate(
         (node) => getComputedStyle(node).gridTemplateColumns.split(' ').length,
       )
@@ -156,12 +162,16 @@ test('CONV-SAMPLE retains values and token across direct retry, then confirms on
     })
   })
   await page.getByRole('button', {name: 'Submit Sample Request for Review'}).click()
+  await expect(page.getByRole('form')).toHaveAttribute('aria-busy', 'true')
   await expect(page.getByRole('heading', {name: 'We could not confirm that your request was received.'})).toBeVisible()
+  await expect(page.getByRole('form')).not.toHaveAttribute('aria-busy')
   await expect(page.locator('#sample-company_organisation')).toHaveValue('Example Co')
   await page.screenshot({path: resolve(evidence, 'conv-sample-failure.png'), fullPage: true, animations: 'disabled'})
   await page.getByRole('button', {name: 'Try again'}).click()
+  await expect(page.getByRole('form')).toHaveAttribute('aria-busy', 'true')
   await expect(page.getByRole('button', {name: 'Sending your request…'})).toBeDisabled()
   await expect(page.getByRole('heading', {name: 'Your sample request has been received.'})).toBeVisible()
+  await expect(page.getByRole('form')).not.toHaveAttribute('aria-busy')
   expect(tokens).toHaveLength(2)
   expect(tokens[1]).toBe(tokens[0])
   await page.screenshot({path: resolve(evidence, 'conv-sample-success.png'), fullPage: true, animations: 'disabled'})
@@ -177,12 +187,32 @@ test('CONV-SAMPLE replaces a known unavailable form with the approved restricted
   await page.locator('#sample-company_organisation').fill('Example Co')
   await page.locator('#sample-business_email').fill('amina@example.com')
   await page.locator('#sample-destination_country_market').fill('Malaysia')
+  await page.route('**/api/tio2-my/request-sample', async (route) => route.fulfill({status: 503, contentType: 'application/json', body: JSON.stringify({ok: false, receipt_confirmed: false, kind: 'unavailable'})}))
   await page.getByRole('button', {name: 'Submit Sample Request for Review'}).click()
   await expect(page.getByRole('heading', {name: 'We cannot confirm sample requests right now.'})).toBeVisible()
   await expect(page.locator('[data-sample-field]')).toHaveCount(0)
   await expect(page.getByRole('button', {name: 'Submit Sample Request for Review'})).toHaveCount(0)
   await expect(page.getByRole('button', {name: 'Try again'})).toHaveCount(0)
   await page.screenshot({path: resolve(evidence, 'conv-sample-unavailable-390.png'), fullPage: true, animations: 'disabled'})
+})
+
+test('CONV-SAMPLE FAQ buttons expose state, panel relationships and keyboard operation', async ({page}) => {
+  await page.setViewportSize({width: 390, height: 844})
+  await page.goto(`${baseUrl}/request-sample/`, {waitUntil: 'domcontentloaded'})
+  const first = page.getByRole('button', {name: 'What information is needed for a sample request?'})
+  const second = page.getByRole('button', {name: 'Can I submit if I do not know the grade?'})
+  await expect(first).toHaveAttribute('aria-expanded', 'true');await expect(second).toHaveAttribute('aria-expanded', 'false')
+  const panelId = await second.getAttribute('aria-controls');expect(panelId).toBeTruthy();await expect(page.locator(`#${panelId}`)).toBeHidden()
+  await second.focus();await page.keyboard.press('Enter');await expect(second).toHaveAttribute('aria-expanded', 'true');await expect(page.locator(`#${panelId}`)).toBeVisible();await expect(second).toBeFocused()
+})
+
+test('CONV-SAMPLE initial GET fails closed when receiver readiness is absent', async ({page}) => {
+  test.skip(process.env.EXPECT_SAMPLE_INITIAL_UNAVAILABLE !== '1', 'Run against a server started without receiver URL/token')
+  await page.setViewportSize({width: 390, height: 844})
+  const response=await page.goto(`${baseUrl}/request-sample/`, {waitUntil: 'domcontentloaded'});expect(response?.ok()).toBe(true)
+  await expect(page.getByRole('form')).toHaveCount(0);await expect(page.locator('[data-sample-field]')).toHaveCount(0);await expect(page.getByRole('button',{name:'Submit Sample Request for Review'})).toHaveCount(0)
+  await expect(page.getByRole('heading',{name:'We cannot confirm sample requests right now.'})).toBeVisible();await expect(page.getByText('The sample request form is not available. No request has been confirmed. Please try again later.')).toBeVisible()
+  await page.screenshot({path: resolve(evidence, 'conv-sample-initial-unavailable-390.png'), fullPage: true, animations: 'disabled'})
 })
 
 test('CONV-SAMPLE Mobile Menu traps focus, closes on Escape and restores the trigger', async ({page}) => {
