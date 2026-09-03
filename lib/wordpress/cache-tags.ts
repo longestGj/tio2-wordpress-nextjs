@@ -203,6 +203,12 @@ export function requestDocumentsContentTag(siteId: string): string {
   return `content:${siteId}--request-documents`
 }
 
+export function requestSampleContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid Request Sample scope: ${siteId}`)
+  return `content:${siteId}--request-sample`
+}
+
 export function aboutPageVersionTag(siteId: string, contentVersion: string): string {
   assertSiteId(siteId)
   if (siteId !== 'tio2-my' || !/^ABOUT-001-G7-PCR-02:FACTS-V0\.1$/u.test(contentVersion)) {

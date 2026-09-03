@@ -40,6 +40,7 @@ require_once __DIR__ . '/includes/legal-pages-v01.php';
 require_once __DIR__ . '/includes/about-page-v01.php';
 require_once __DIR__ . '/includes/rfq-page-v01.php';
 require_once __DIR__ . '/includes/request-documents-v01.php';
+require_once __DIR__ . '/includes/request-sample-v01.php';
 require_once __DIR__ . '/includes/product-detail-v01.php';
 require_once __DIR__ . '/includes/webhooks.php';
 require_once __DIR__ . '/includes/preview.php';

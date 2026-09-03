@@ -6,6 +6,7 @@ import {
   contentTag,
   entityTag,
   normalizePublicPath,
+  requestSampleContentTag,
   routeTag,
   siteTag,
   sitemapTag,
@@ -28,6 +29,8 @@ describe('WordPress cache tags', () => {
     expect(contentListTag('tio2-my')).toBe('content-list:tio2-my')
     expect(sitemapTag('tio2-my')).toBe('sitemap:tio2-my')
     expect(routeTag('tio2-my', '/')).toBe('route:tio2-my:/')
+    expect(requestSampleContentTag('tio2-my')).toBe('content:tio2-my--request-sample')
+    expect(() => requestSampleContentTag('tio2-a')).toThrow('Invalid Request Sample scope')
     expect(aboutPageVersionTag('tio2-my', 'ABOUT-001-G7-PCR-02:FACTS-V0.1')).toBe(
       'content-version:tio2-my:ABOUT-001-G7-PCR-02:FACTS-V0.1',
     )

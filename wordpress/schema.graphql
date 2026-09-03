@@ -17380,6 +17380,9 @@ type RootQuery {
   malaysiaResourceHubRecordJson: String!
   malaysiaDocumentsHubRecordJson: String!
   malaysiaRequestDocumentsRecordJson: String!
+
+  """Approved, scope-bound CONV-SAMPLE record for TiO2 Malaysia."""
+  malaysiaRequestSampleRecordJson: String!
   malaysiaLegalPagesRecordJson: String!
 
   "An object of the mediaItem Type. "
