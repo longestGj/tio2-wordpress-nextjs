@@ -150,6 +150,30 @@ test('CONV-DOC query prefill is editable, canonical-clean and market-safe', asyn
   await page.screenshot({path: resolve(evidenceDirectory, 'conv-doc-state-other-only-390.png'), fullPage: true, animations: 'disabled'})
 })
 
+test('CONV-DOC production prefill enforces all six M-2377 relationships and discards prohibited contexts', async ({page}) => {
+  await page.setViewportSize({width: 390, height: 844})
+  for (const context of ['Coatings', 'Plastics', 'Masterbatch', 'Printing Inks', 'Paper', 'Sulfate']) {
+    await page.goto(`${baseUrl}/request-documents/?product=M-2377&application_industry=${encodeURIComponent(context)}&source_page_id=GRADE-M2377`, {waitUntil: 'networkidle'})
+    await expect(page.locator('#request-documents-product_grade')).toHaveValue('M-2377')
+    await expect(page.locator('#request-documents-application_industry')).toHaveValue(context)
+    await expect(page.locator('[aria-labelledby="request-documents-prefill-heading"]')).toContainText(context)
+    await page.locator('#request-documents-application_industry').fill('Buyer-entered free text remains editable')
+    await expect(page.locator('#request-documents-application_industry')).toHaveValue('Buyer-entered free text remains editable')
+  }
+
+  for (const context of ['Specialty Materials', 'Rubber', 'Unapproved Application']) {
+    await page.goto(`${baseUrl}/request-documents/?product=M-2377&application_industry=${encodeURIComponent(context)}&source_page_id=GRADE-M2377`, {waitUntil: 'networkidle'})
+    await expect(page.locator('#request-documents-product_grade')).toHaveValue('M-2377')
+    await expect(page.locator('#request-documents-application_industry')).toHaveValue('')
+    await expect(page.locator('[aria-labelledby="request-documents-prefill-heading"]')).not.toContainText(context)
+  }
+
+  await page.goto(`${baseUrl}/request-documents/?product=M-350&application_industry=Coatings&source_page_id=GRADE-M2377`, {waitUntil: 'networkidle'})
+  await expect(page.locator('#request-documents-product_grade')).toHaveValue('')
+  await expect(page.locator('#request-documents-application_industry')).toHaveValue('')
+  await expect(page.locator('[aria-labelledby="request-documents-prefill-heading"]')).toHaveCount(0)
+})
+
 for (const width of [1440, 768, 390] as const) {
   test(`CONV-DOC preserves real 254/500-character content without clipping at ${width}px`, async ({page}) => {
     await page.setViewportSize({width, height: width === 390 ? 844 : 1000})

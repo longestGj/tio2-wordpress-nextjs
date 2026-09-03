@@ -30,6 +30,33 @@ const list = (value: string | readonly string[] | undefined): readonly string[] 
 const grades = new Set<string>(contract.form.gradeOptions)
 const documentTypes = new Set<string>(contract.form.documentTypes.map((item) => item.value))
 const gradePageIds = contract.form.gradeOptions.map((grade) => `GRADE-${grade.replace('-', '')}`)
+const applicationContextsByGrade = new Map<string, ReadonlySet<string>>([
+  ['M-350', new Set(['Coatings', 'Plastics', 'Printing Inks', 'Paper'])],
+  ['M-510', new Set(['Coatings', 'Plastics', 'Masterbatch', 'Printing Inks'])],
+  ['M-896', new Set(['Coatings'])], ['M-996', new Set(['Coatings'])],
+  ['M-2196', new Set(['Coatings'])], ['M-895', new Set(['Coatings'])],
+  ['M-200', new Set(['Plastics', 'Masterbatch'])], ['M-108', new Set(['Plastics', 'Masterbatch'])],
+  ['M-210', new Set(['Plastics', 'Masterbatch'])], ['M-340', new Set(['Plastics', 'Masterbatch'])],
+  ['M-886', new Set(['Plastics', 'Masterbatch'])], ['M-52', new Set(['Coatings', 'Printing Inks'])],
+  ['M-2377', new Set(['Coatings', 'Plastics', 'Masterbatch', 'Printing Inks', 'Paper'])],
+  ['CR-901', new Set(['Specialty Materials'])],
+])
+const processContextByGrade = new Map<string, string>([
+  ...['M-350', 'M-510', 'M-896', 'M-895', 'M-200', 'M-210', 'M-340', 'M-886'].map((grade) => [grade, 'Chloride'] as const),
+  ...['M-996', 'M-2196', 'M-108', 'M-52', 'M-2377'].map((grade) => [grade, 'Sulfate'] as const),
+  ['CR-901', 'Vapor-phase oxidation'],
+])
+const gradeBySource = new Map<string, string>(contract.form.gradeOptions.map((grade) => [`GRADE-${grade.replace('-', '')}`, grade]))
+const applicationBySource = new Map<string, string>([
+  ['APP-COAT', 'Coatings'], ['APP-PLAS', 'Plastics'], ['APP-MB', 'Masterbatch'],
+  ['APP-INK', 'Printing Inks'], ['APP-PAPER', 'Paper'],
+])
+const processBySource = new Map<string, string>([
+  ['PRODUCT-PROC-CL', 'Chloride'], ['PRODUCT-PROC-SU', 'Sulfate'],
+])
+const approvedApplicationContexts = new Set([...applicationBySource.values(), 'Specialty Materials'])
+const approvedProcessContexts = new Set(processContextByGrade.values())
+const approvedVisibleContexts = new Set([...approvedApplicationContexts, ...approvedProcessContexts])
 export const MALAYSIA_REQUEST_DOCUMENTS_SOURCE_PAGE_IDS = Object.freeze([
   'HOME-001', 'MARKET-000', 'PRODUCT-000', 'APP-000', 'DOC-000', 'RES-000',
   'PRODUCT-PROC-CL', 'PRODUCT-PROC-SU',
@@ -43,9 +70,6 @@ export const MALAYSIA_REQUEST_DOCUMENTS_MARKET_IDS = Object.freeze([
 const sourcePageIds = new Set<string>(MALAYSIA_REQUEST_DOCUMENTS_SOURCE_PAGE_IDS)
 const marketIds = new Set<string>(MALAYSIA_REQUEST_DOCUMENTS_MARKET_IDS)
 
-export const normalizeMalaysiaRequestDocumentsSourcePageId = (value: unknown): string | null => (
-  typeof value === 'string' && sourcePageIds.has(value) ? value : null
-)
 export const normalizeMalaysiaRequestDocumentsMarketId = (value: unknown): string | null => (
   typeof value === 'string' && marketIds.has(value) ? value : null
 )
@@ -55,16 +79,67 @@ function safeVisibleContext(value: string | null): string | null {
   return value
 }
 
+function normalizeApprovedVisibleContext(value: string | null): string | null {
+  const safe = safeVisibleContext(value)
+  return safe && approvedVisibleContexts.has(safe) ? safe : null
+}
+
+function relationAllowsContext(grade: string, context: string): boolean {
+  return applicationContextsByGrade.get(grade)?.has(context) === true || processContextByGrade.get(grade) === context
+}
+
+interface SourceRelationContext {
+  readonly productGrade?: unknown
+  readonly applicationIndustry?: unknown
+}
+
+export function normalizeMalaysiaRequestDocumentsSourcePageId(
+  value: unknown,
+  context: SourceRelationContext = {},
+): string | null {
+  if (typeof value !== 'string' || !sourcePageIds.has(value)) return null
+  const grade = typeof context.productGrade === 'string' && grades.has(context.productGrade) ? context.productGrade : null
+  const rawVisibleContext = typeof context.applicationIndustry === 'string' && context.applicationIndustry
+    ? context.applicationIndustry : null
+  const visibleContext = normalizeApprovedVisibleContext(rawVisibleContext)
+  if (rawVisibleContext && !visibleContext) return null
+  if (grade && visibleContext && !relationAllowsContext(grade, visibleContext)) return null
+
+  const expectedGrade = gradeBySource.get(value)
+  if (expectedGrade) return grade === expectedGrade ? value : null
+  const expectedApplication = applicationBySource.get(value)
+  if (expectedApplication) return visibleContext === expectedApplication ? value : null
+  const expectedProcess = processBySource.get(value)
+  if (expectedProcess) return visibleContext === expectedProcess ? value : null
+  if (value === 'PRODUCT-000' && visibleContext && !grade) return null
+  if (value === 'APP-000' && visibleContext && !approvedApplicationContexts.has(visibleContext)) return null
+  return value
+}
+
 export function resolveMalaysiaRequestDocumentsPrefill(input: MalaysiaRequestDocumentsPrefillInput): MalaysiaRequestDocumentsPrefill {
   const values: {product_grade?: string; application_industry?: string; document_types?: readonly string[]} = {}
-  const grade = first(input.product_grade)
-  const application = safeVisibleContext(first(input.application_industry))
+  let grade = first(input.product_grade)
+  if (!grade || !grades.has(grade)) grade = null
+  let application = normalizeApprovedVisibleContext(first(input.application_industry))
+  if (application && grade && !relationAllowsContext(grade, application)) application = null
+  const requestedSource = first(input.source_page_id)
+  let sourcePageId = normalizeMalaysiaRequestDocumentsSourcePageId(requestedSource, {
+    productGrade: grade,
+    applicationIndustry: application,
+  })
+  const specificSource = requestedSource && (
+    gradeBySource.has(requestedSource) || applicationBySource.has(requestedSource) || processBySource.has(requestedSource)
+  )
+  if (specificSource && !sourcePageId) {
+    grade = null
+    application = null
+  }
   const types = [...new Set(list(input.document_types).filter((item) => documentTypes.has(item)))]
-  if (grade && grades.has(grade)) values.product_grade = grade
+  if (grade) values.product_grade = grade
   if (application) values.application_industry = application
   if (types.length) values.document_types = Object.freeze(types)
 
-  const sourcePageId = normalizeMalaysiaRequestDocumentsSourcePageId(first(input.source_page_id))
+  sourcePageId = sourcePageId ?? null
   const marketId = normalizeMalaysiaRequestDocumentsMarketId(first(input.market_id))
   return {values: Object.freeze(values), sourcePageId, marketId, prefillVisible: Object.keys(values).length > 0}
 }

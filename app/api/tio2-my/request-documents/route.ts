@@ -76,7 +76,10 @@ export async function POST(request: Request): Promise<Response> {
     endpoint: process.env.TIO2_MY_REQUEST_DOCUMENTS_RECEIVER_URL ?? null,
     token: process.env.TIO2_MY_REQUEST_DOCUMENTS_RECEIVER_TOKEN ?? null,
     requestToken: token,
-    sourcePageId: normalizeMalaysiaRequestDocumentsSourcePageId(body.source_page_id),
+    sourcePageId: normalizeMalaysiaRequestDocumentsSourcePageId(body.source_page_id, {
+      productGrade: values.product_grade,
+      applicationIndustry: values.application_industry,
+    }),
     marketId: normalizeMalaysiaRequestDocumentsMarketId(body.market_id),
   })
   if (result.kind === 'receipt_confirmed') return json(200, {ok: true, kind: result.kind})

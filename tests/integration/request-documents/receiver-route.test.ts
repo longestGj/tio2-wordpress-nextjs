@@ -81,4 +81,37 @@ describe('CONV-DOC same-origin receiver route', () => {
     expect(payload).not.toHaveProperty('source_page_id')
     expect(payload.market_id).toBe('MARKET-EU-DE')
   })
+
+  it('does not forward a registered source attribution after the visible Grade/context becomes mismatched', async () => {
+    vi.stubEnv('TIO2_MY_REQUEST_DOCUMENTS_RECEIVER_URL', 'https://receiver.example.test')
+    vi.stubEnv('TIO2_MY_REQUEST_DOCUMENTS_RECEIVER_TOKEN', 'secret')
+    const downstream = vi.fn(async () => new Response(JSON.stringify({receiptConfirmed: true}), {status: 200}))
+    vi.stubGlobal('fetch', downstream)
+    await POST(request({...validPayload,
+      product_grade: 'M-350', application_industry: 'Coatings', source_page_id: 'GRADE-M2377',
+    }))
+    const calls = downstream.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
+    const payload = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
+    expect(payload).not.toHaveProperty('source_page_id')
+    expect(payload).toMatchObject({product_grade: 'M-350', application_industry: 'Coatings'})
+  })
+
+  it.each([
+    ['M-2377', 'Coatings', 'APP-COAT', true],
+    ['M-2377', 'Plastics', 'APP-COAT', false],
+    ['M-350', 'Chloride', 'PRODUCT-PROC-CL', true],
+    ['M-2377', 'Sulfate', 'PRODUCT-PROC-CL', false],
+  ] as const)('revalidates %s / %s against specific source %s before forwarding', async (grade, context, sourcePageId, forwarded) => {
+    vi.stubEnv('TIO2_MY_REQUEST_DOCUMENTS_RECEIVER_URL', 'https://receiver.example.test')
+    vi.stubEnv('TIO2_MY_REQUEST_DOCUMENTS_RECEIVER_TOKEN', 'secret')
+    const downstream = vi.fn(async () => new Response(JSON.stringify({receiptConfirmed: true}), {status: 200}))
+    vi.stubGlobal('fetch', downstream)
+    await POST(request({...validPayload,
+      product_grade: grade, application_industry: context, source_page_id: sourcePageId,
+    }))
+    const calls = downstream.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
+    const payload = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
+    expect(payload.source_page_id === sourcePageId).toBe(forwarded)
+    expect(payload).toMatchObject({product_grade: grade, application_industry: context})
+  })
 })
