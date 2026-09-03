@@ -112,7 +112,7 @@ test('CONV-DOC validation, failure retention, retry token and explicit receipt',
     const payload = route.request().postDataJSON() as Record<string, unknown>
     tokens.push(String(payload.request_token))
     expect(payload).toMatchObject({product_grade: 'M-2196', document_types: ['safety'], source_page_id: null})
-    if (attempt === 1) await new Promise((resolveDelay) => setTimeout(resolveDelay, 400))
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 400))
     await route.fulfill({
       status: attempt === 1 ? 502 : 200,
       contentType: 'application/json',
@@ -126,7 +126,7 @@ test('CONV-DOC validation, failure retention, retry token and explicit receipt',
   await page.screenshot({path: resolve(evidenceDirectory, 'conv-doc-state-failure.png'), fullPage: true, animations: 'disabled'})
   await expect(page.locator('#request-documents-company')).toHaveValue('Example Co')
   await page.getByRole('button', {name: 'Try again'}).click()
-  await page.getByRole('button', {name: 'Request Documents'}).click()
+  await expect(page.getByRole('button', {name: 'Submitting…'})).toBeDisabled()
   await expect(page.getByRole('heading', {name: 'Document Request Received'})).toBeVisible()
   await expect(page.getByRole('status')).toBeFocused()
   await page.screenshot({path: resolve(evidenceDirectory, 'conv-doc-state-success.png'), fullPage: true, animations: 'disabled'})
@@ -183,3 +183,20 @@ for (const width of [1440, 768, 390] as const) {
     }
   })
 }
+
+test('CONV-DOC preserves and reports a 501-character pasted value', async ({page}) => {
+  await page.setViewportSize({width: 390, height: 844})
+  await page.goto(`${baseUrl}/request-documents/?product=M-2377&document_types=safety`, {waitUntil: 'networkidle'})
+  await page.locator('#request-documents-full_name').fill('Amina Tan')
+  await page.locator('#request-documents-company').fill('Example Co')
+  await page.locator('#request-documents-business_email').fill('amina@example.com')
+  await page.locator('#request-documents-country_region').fill('Malaysia')
+  const notes = '界'.repeat(501)
+  await page.locator('#request-documents-additional_requirements').fill(notes)
+  await page.getByRole('button', {name: 'Request Documents'}).click()
+  const summary = page.locator('form [role="alert"]')
+  await expect(summary).toBeFocused()
+  await expect(summary).toContainText('Keep Additional Requirements to 500 characters or fewer.')
+  await expect(page.locator('#request-documents-additional_requirements')).toHaveValue(notes)
+  await page.screenshot({path: resolve(evidenceDirectory, 'conv-doc-state-over-limit-390.png'), fullPage: true, animations: 'disabled'})
+})

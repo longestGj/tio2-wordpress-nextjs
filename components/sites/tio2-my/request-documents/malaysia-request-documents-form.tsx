@@ -98,16 +98,8 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
     document.getElementById(`request-documents-${field}`)?.focus()
   }
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+  async function performSubmission() {
     if (pendingRef.current) return
-    const validation = validateMalaysiaRequestDocumentsValues(values)
-    if (!validation.valid) {
-      setErrors(validation.errors)
-      setState('ready')
-      setValidationAttempt((current) => current + 1)
-      return
-    }
     setErrors({})
     setState('submitting')
     pendingRef.current = true
@@ -133,6 +125,19 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
     } finally {
       pendingRef.current = false
     }
+  }
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (pendingRef.current) return
+    const validation = validateMalaysiaRequestDocumentsValues(values)
+    if (!validation.valid) {
+      setErrors(validation.errors)
+      setState('ready')
+      setValidationAttempt((current) => current + 1)
+      return
+    }
+    await performSubmission()
   }
 
   const describedBy = (field: MalaysiaRequestDocumentsFieldKey, helper?: boolean) => [
@@ -171,7 +176,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
         <div className={styles.fieldGrid}>
           <Field field="full_name" label="Full Name" required autoComplete="name" values={values} errors={errors} update={update} />
           <Field field="company" label="Company" required autoComplete="organization" values={values} errors={errors} update={update} />
-          <Field field="business_email" label="Business Email" type="email" required maxLength={254} autoComplete="email" helper="Use the business email where our team can follow up." values={values} errors={errors} update={update} />
+          <Field field="business_email" label="Business Email" type="email" required autoComplete="email" helper="Use the business email where our team can follow up." values={values} errors={errors} update={update} />
           <Field field="country_region" label="Country / Region" required autoComplete="country-name" placeholder="Enter your country or region" helper="Enter the country or region where your company is based." values={values} errors={errors} update={update} />
         </div>
       </fieldset>
@@ -206,7 +211,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
 
         <div className={`${styles.field} ${styles.notes}`} data-request-documents-field="additional_requirements">
           <label htmlFor="request-documents-additional_requirements">Additional Requirements{values.document_types.length === 1 && values.document_types[0] === 'other' && <> <span aria-hidden="true">*</span></>}</label>
-          <textarea id="request-documents-additional_requirements" name="additional_requirements" rows={5} required={values.document_types.length === 1 && values.document_types[0] === 'other'} aria-required={values.document_types.length === 1 && values.document_types[0] === 'other'} aria-invalid={Boolean(errors.additional_requirements)} aria-describedby={describedBy('additional_requirements', true)} value={values.additional_requirements} onChange={(event) => update('additional_requirements', Array.from(event.target.value).slice(0, 500).join(''))} />
+          <textarea id="request-documents-additional_requirements" name="additional_requirements" rows={5} required={values.document_types.length === 1 && values.document_types[0] === 'other'} aria-required={values.document_types.length === 1 && values.document_types[0] === 'other'} aria-invalid={Boolean(errors.additional_requirements)} aria-describedby={describedBy('additional_requirements', true)} value={values.additional_requirements} onChange={(event) => update('additional_requirements', event.target.value)} />
           <p id="request-documents-additional_requirements-helper" className={styles.helper}>Required when Other Documentation is your only selection. Otherwise optional. Do not include confidential information.</p>
           <span className={styles.counter}>{Array.from(values.additional_requirements).length} / 500</span>
           {errors.additional_requirements && <p id="request-documents-additional_requirements-error" className={styles.fieldError}>{errors.additional_requirements}</p>}
@@ -229,7 +234,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
       {state === 'failure' && (
         <div ref={stateRef} tabIndex={-1} className={styles.failure} role="alert">
           <h2>{page.form.failure.heading}</h2><p>{page.form.failure.body}</p>
-          <button type="button" onClick={() => setState('ready')}>{page.form.failure.action}</button>
+          <button type="button" onClick={() => void performSubmission()}>{page.form.failure.action}</button>
         </div>
       )}
       {state === 'success' && (
@@ -247,7 +252,6 @@ interface FieldProps {
   readonly label: string
   readonly required?: boolean
   readonly type?: 'text' | 'email'
-  readonly maxLength?: number
   readonly autoComplete?: string
   readonly placeholder?: string
   readonly helper?: string
@@ -256,12 +260,12 @@ interface FieldProps {
   readonly update: (field: Exclude<MalaysiaRequestDocumentsFieldKey, 'document_types'>, value: string) => void
 }
 
-function Field({field, label, required = false, type = 'text', maxLength, autoComplete, placeholder, helper, values, errors, update}: FieldProps) {
+function Field({field, label, required = false, type = 'text', autoComplete, placeholder, helper, values, errors, update}: FieldProps) {
   const describedBy = [helper ? `request-documents-${field}-helper` : null, errors[field] ? `request-documents-${field}-error` : null].filter(Boolean).join(' ') || undefined
   return (
     <div className={styles.field} data-request-documents-field={field}>
       <label htmlFor={`request-documents-${field}`}>{label}{required && <> <span aria-hidden="true">*</span></>}</label>
-      <input id={`request-documents-${field}`} name={field} type={type} required={required} aria-required={required || undefined} aria-invalid={Boolean(errors[field])} aria-describedby={[describedBy, field === 'business_email' && /@(gmail|yahoo|hotmail|outlook)\./iu.test(values.business_email) ? `request-documents-${field}-advice` : null].filter(Boolean).join(' ') || undefined} autoComplete={autoComplete} placeholder={placeholder} value={values[field]} onChange={(event) => update(field, maxLength ? Array.from(event.target.value).slice(0, maxLength).join('') : event.target.value)} />
+      <input id={`request-documents-${field}`} name={field} type={type} required={required} aria-required={required || undefined} aria-invalid={Boolean(errors[field])} aria-describedby={[describedBy, field === 'business_email' && /@(gmail|yahoo|hotmail|outlook)\./iu.test(values.business_email) ? `request-documents-${field}-advice` : null].filter(Boolean).join(' ') || undefined} autoComplete={autoComplete} placeholder={placeholder} value={values[field]} onChange={(event) => update(field, event.target.value)} />
       {helper && <p id={`request-documents-${field}-helper`} className={styles.helper}>{helper}</p>}
       {field === 'business_email' && /@(gmail|yahoo|hotmail|outlook)\./iu.test(values.business_email) && <p id={`request-documents-${field}-advice`} className={styles.advice}>{pageEmailAdvice}</p>}
       {errors[field] && <p id={`request-documents-${field}-error`} className={styles.fieldError}>{errors[field]}</p>}

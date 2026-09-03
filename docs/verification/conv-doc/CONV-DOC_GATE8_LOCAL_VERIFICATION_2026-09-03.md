@@ -19,17 +19,18 @@
 - The client posts to a same-origin `POST /api/tio2-my/request-documents` boundary. That handler repeats all approved validation, adds trusted scope/page/workflow attribution and forwards only after server-only receiver configuration is present.
 - The POST boundary exists operationally only when both active site ID and WordPress scope are `tio2-my`; it requires a matching Origin, JSON content type and a body of at most 16 KiB.
 - A transport 2xx or `{ok:true}` is insufficient. Only downstream JSON `receiptConfirmed:true` maps to the Buyer-visible success state.
-- The logical request UUID is retained across an unconfirmed retry to support downstream duplicate prevention.
+- The logical request UUID is retained across an unconfirmed retry to support downstream duplicate prevention. The failure-state `Try again` control now performs that retry directly, using the retained values and token; it is not a panel-dismiss action.
+- Client controls do not truncate Business Email or Additional Requirements. A 501-code-point paste remains fully present, enters the linked error summary, focuses that summary and is retained for correction; server and client validation use the same Unicode code-point rule.
 
 ## Focused verification
 
 | Check | Result |
 |---|---|
-| `pnpm vitest run tests/unit/request-documents tests/integration/request-documents tests/infrastructure/tio2-my-request-documents-wordpress.test.ts` | PASS — 11 files, 45 tests |
+| `pnpm vitest run tests/unit/request-documents tests/integration/request-documents tests/infrastructure/tio2-my-request-documents-wordpress.test.ts` | PASS — 11 files, 47 tests after `DOC-G8-PCR-01/02` corrections |
 | Changed-file ESLint | PASS — 0 errors, 0 warnings |
 | `pnpm typecheck` | PASS |
 | `SITE_ID=tio2-my ... NEXT_DIST_DIR=.next-tio2-my pnpm build` | PASS — optimized production build; `/request-documents` and `/api/tio2-my/request-documents` emitted as dynamic routes |
-| Production-build Playwright against local scoped CMS stub | PASS — 13 tests |
+| Production-build Playwright against local scoped CMS stub | PASS — 14 tests |
 | `pnpm codegen` | PASS — schema-validated typed `GetMalaysiaRequestDocumentsPageDocument` generated and consumed |
 | PHP 8.3 executable taxonomy lifecycle harness | PASS — `site_scope` contains `tio2_request_docs` after actual registered `init` callbacks execute |
 
@@ -42,11 +43,11 @@ The browser suite verifies:
 - shared Footer headings, breakpoint font sizes and no page-CSS collision;
 - unique clean HTTPS canonical, no hreflang, `noindex,nofollow` while release gates are closed, and only WebPage + BreadcrumbList JSON-LD;
 - serious/critical Axe violations = 0 at 1440, 768 and 390;
-- error-summary focus, linked errors, value retention, failure/retry, stable request token and explicit positive receipt success;
+- error-summary focus, linked errors, value retention, failure→direct retry→submitting→success, stable request token and explicit positive receipt success;
 - valid editable prefill, eight live Review rows, clean canonical with query strings, and Market not populating Country / Region;
 - wrong-site deployment, forged attribution, cross-origin, non-JSON and oversized POST rejection;
 - unchanged-payload retry token stability, changed-payload token rotation and secure UUID fallback;
-- Other-only programmatic/visible required state and Unicode code-point-consistent 254/500-character controls;
+- Other-only programmatic/visible required state, Unicode code-point-consistent limits, and accessible 501-character over-limit retention/error/focus behavior;
 - exact 254-character email and 500-character Additional Requirements at 1440/768/390, with all eight Review values wrapping inside their own bounds and every relevant form/control/Review box remaining within the viewport.
 
 ## Fresh visual evidence
@@ -59,6 +60,7 @@ The browser suite verifies:
 | `conv-doc-state-prefill-390.png` | 390px | 390×3897 | `BC8DA79A2685B293D81C1C6ACA85F7AC9277AD3910A09E23020E2A427386D1AE` |
 | `conv-doc-state-other-only-390.png` | 390px | 390×3897 | `F3F30DA8F5730169B4CD6FF4AC98D41FEE66A506B8D2F8E98E7816F7815A24B5` |
 | `conv-doc-state-long-content-390.png` | 390px | 390×5217 | `2F8143DFC74DE4B69D87A16EAAF525E7DAA428D2BBEB2FBE0DBDCE2DD0C74996` |
+| `conv-doc-state-over-limit-390.png` | 390px | 390×5120 | `ED46B39A9C2E504B101521FF26ED662FBB43343C889431B4193B97E83F380D9A` |
 | `conv-doc-state-validation.png` | 1280px | 1280×2870 | `EA97AB242389D4D500C2504253B6736D05E8E7A7AE4777F1C4F4510576A6D2BA` |
 | `conv-doc-state-submitting.png` | 1280px | 1280×2855 | `D445692C969808AB658D772820C56E236E2E7CD145E4139B037769BF01B95914` |
 | `conv-doc-state-failure.png` | 1280px | 1280×3020 | `D4427D5088201D2FB78EFD522C7DAC48AC56256F1C6712B1942D6C0C31C17BEE` |
