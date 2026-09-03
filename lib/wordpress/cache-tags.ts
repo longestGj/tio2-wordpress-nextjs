@@ -197,6 +197,12 @@ export function rfqPageContentTag(siteId: string): string {
   return `content:${siteId}--request-a-quote`
 }
 
+export function requestDocumentsContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid Request Documents scope: ${siteId}`)
+  return `content:${siteId}--request-documents`
+}
+
 export function aboutPageVersionTag(siteId: string, contentVersion: string): string {
   assertSiteId(siteId)
   if (siteId !== 'tio2-my' || !/^ABOUT-001-G7-PCR-02:FACTS-V0\.1$/u.test(contentVersion)) {

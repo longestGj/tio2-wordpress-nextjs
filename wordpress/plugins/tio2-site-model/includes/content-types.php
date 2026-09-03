@@ -113,7 +113,7 @@ function tio2_register_content_types(): void
     $object_types = array_merge(
         ['post', 'page'],
         array_keys($content_types),
-        ['tio2_homepage', 'tio2_market_hub', 'tio2_product_hub']
+        ['tio2_homepage', 'tio2_market_hub', 'tio2_product_hub', 'tio2_request_docs']
     );
 
     register_taxonomy('site_scope', $object_types, [

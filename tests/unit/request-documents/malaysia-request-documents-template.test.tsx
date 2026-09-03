@@ -1,0 +1,145 @@
+// @vitest-environment jsdom
+
+import {cleanup, render, screen, within} from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
+
+import {MalaysiaRequestDocumentsPage} from '@/components/sites/tio2-my/request-documents/malaysia-request-documents-page'
+import {createSecureRequestToken} from '@/components/sites/tio2-my/request-documents/malaysia-request-documents-form'
+import {resolveMalaysiaRequestDocumentsPrefill} from '@/lib/request-documents/malaysia-request-documents-prefill'
+import {toMalaysiaRequestDocumentsPageDto} from '@/lib/wordpress/request-documents-v01-dto'
+import {malaysiaRequestDocumentsPageSource} from '@/tests/fixtures/tio2-my-request-documents-page'
+
+const dto = toMalaysiaRequestDocumentsPageDto(malaysiaRequestDocumentsPageSource())
+
+function renderPage(prefill = resolveMalaysiaRequestDocumentsPrefill({})) {
+  return render(<MalaysiaRequestDocumentsPage page={dto} prefill={prefill} structuredData={null} />)
+}
+
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ok: true, kind: 'receipt_confirmed'}), {
+    status: 200, headers: {'content-type': 'application/json'},
+  })))
+})
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.clearAllMocks() })
+
+describe('CONV-DOC page and form', () => {
+  it('renders exact Buyer Clean modules, one form, shared Chrome and no false current nav', () => {
+    const {container} = renderPage()
+    expect(screen.getAllByRole('heading', {level: 1})).toHaveLength(1)
+    expect(screen.getByRole('heading', {level: 1}).textContent).toBe('Request Documents')
+    expect(container.querySelectorAll('[data-request-documents-field]')).toHaveLength(8)
+    expect(within(screen.getByRole('group', {name: /Document Types/u})).getAllByRole('checkbox')).toHaveLength(5)
+    expect(screen.getByRole('form')).toBeTruthy()
+    expect(within(screen.getByRole('form')).getByRole('link', {name: 'Privacy Policy'}).getAttribute('href')).toBe('/privacy-policy/')
+    expect(container.querySelectorAll('header')).toHaveLength(1)
+    expect(container.querySelectorAll('footer')).toHaveLength(1)
+    expect(container.textContent).not.toContain('CURRENT')
+    expect(within(container.querySelector('header')!).queryAllByRole('link', {current: 'page'})).toHaveLength(0)
+    expect(screen.queryByText('Review your prefilled context')).toBeNull()
+  })
+
+  it('shows valid prefill visibly and keeps every value editable', () => {
+    renderPage(resolveMalaysiaRequestDocumentsPrefill({
+      product_grade: 'M-2196', document_types: ['safety'], application_industry: 'Coatings',
+      source_page_id: 'PRODUCT-000',
+    }))
+    expect(screen.getByRole('heading', {name: 'Review your prefilled context'})).toBeTruthy()
+    expect((screen.getByLabelText(/Product Grade/u) as HTMLSelectElement).value).toBe('M-2196')
+    expect((screen.getByRole('checkbox', {name: /^Safety Documentation/u}) as HTMLInputElement).checked).toBe(true)
+    expect((screen.getByLabelText(/Application \/ Industry/u) as HTMLInputElement).value).toBe('Coatings')
+  })
+
+  it('focuses a linked error summary and preserves entered values', async () => {
+    const user = userEvent.setup()
+    renderPage()
+    await user.type(screen.getByLabelText(/^Company/u), 'Retained Company')
+    await user.click(screen.getByRole('button', {name: 'Request Documents'}))
+    const summary = screen.getByRole('alert')
+    expect(document.activeElement).toBe(summary)
+    expect(summary.textContent).toContain('Review the highlighted fields')
+    expect((screen.getByLabelText(/^Company/u) as HTMLInputElement).value).toBe('Retained Company')
+    const name = screen.getByLabelText(/Full Name/u)
+    await user.click(within(summary).getByRole('link', {name: /Full Name/u}))
+    expect(document.activeElement).toBe(name)
+    await user.click(within(summary).getByRole('link', {name: /Document Types/u}))
+    expect(document.activeElement).toBe(screen.getAllByRole('checkbox')[0])
+  })
+
+  it('requires Other-only detail but preserves it when selections change', async () => {
+    const user = userEvent.setup()
+    renderPage()
+    await user.click(screen.getByRole('checkbox', {name: /^Other Documentation/u}))
+    expect(screen.getByLabelText(/Additional Requirements/u).getAttribute('aria-required')).toBe('true')
+    expect(screen.getByText(/Required when Other Documentation is your only selection/u)).toBeTruthy()
+    await user.click(screen.getByRole('button', {name: 'Request Documents'}))
+    expect(screen.getByRole('alert').textContent).toContain('Describe the document you need.')
+    expect(screen.getByText('Describe the document you need.')).toBeTruthy()
+    const notes = screen.getByLabelText(/Additional Requirements/u)
+    await user.type(notes, 'Specific declaration')
+    await user.click(screen.getByRole('checkbox', {name: /^Safety Documentation/u}))
+    await user.click(screen.getByRole('checkbox', {name: /^Other Documentation/u}))
+    expect((notes as HTMLTextAreaElement).value).toBe('Specific declaration')
+  })
+
+  it('uses a fresh idempotency token only after a failed request payload changes', async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(new Response(JSON.stringify({ok: false, kind: 'submission_unconfirmed'}), {status: 502}))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ok: false, kind: 'submission_unconfirmed'}), {status: 502}))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ok: false, kind: 'submission_unconfirmed'}), {status: 502}))
+    const user = userEvent.setup()
+    renderPage(resolveMalaysiaRequestDocumentsPrefill({product_grade: 'M-2196', document_types: ['safety']}))
+    await user.type(screen.getByLabelText(/Full Name/u), 'Amina Tan')
+    await user.type(screen.getByLabelText(/^Company/u), 'Example Co')
+    await user.type(screen.getByLabelText(/Business Email/u), 'amina@example.com')
+    await user.type(screen.getByLabelText(/Country \/ Region/u), 'Malaysia')
+    await user.click(screen.getByRole('button', {name: 'Request Documents'}))
+    await screen.findByRole('alert')
+    await user.click(screen.getByRole('button', {name: 'Try again'}))
+    await user.click(screen.getByRole('button', {name: 'Request Documents'}))
+    await screen.findByRole('alert')
+    await user.click(screen.getByRole('button', {name: 'Try again'}))
+    await user.type(screen.getByLabelText(/^Company/u), ' Updated')
+    await user.click(screen.getByRole('button', {name: 'Request Documents'}))
+    const bodies = vi.mocked(fetch).mock.calls.map((call) => JSON.parse(String(call[1]?.body)) as {request_token: string})
+    expect(bodies[1]?.request_token).toBe(bodies[0]?.request_token)
+    expect(bodies[2]?.request_token).not.toBe(bodies[0]?.request_token)
+  })
+
+  it('creates an RFC 4122 v4 token with secure random bytes when randomUUID is unavailable', () => {
+    const cryptoApi = {getRandomValues: (bytes: Uint8Array) => { bytes.fill(0xab); return bytes }} as Crypto
+    expect(createSecureRequestToken(cryptoApi)).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u)
+    expect(() => createSecureRequestToken({} as Crypto)).toThrow(/secure UUID/u)
+  })
+
+  it('shows receipt success only for the explicit API receipt response', async () => {
+    const user = userEvent.setup()
+    renderPage()
+    await user.type(screen.getByLabelText(/Full Name/u), 'Amina Tan')
+    await user.type(screen.getByLabelText(/^Company/u), 'Example Co')
+    await user.type(screen.getByLabelText(/Business Email/u), 'amina@example.com')
+    await user.type(screen.getByLabelText(/Country \/ Region/u), 'Malaysia')
+    await user.selectOptions(screen.getByLabelText(/Product Grade/u), 'M-2196')
+    await user.click(screen.getByRole('checkbox', {name: /^Safety Documentation/u}))
+    await user.click(screen.getByRole('button', {name: 'Request Documents'}))
+    expect((await screen.findByRole('status')).textContent).toContain('Document Request Received')
+    expect(fetch).toHaveBeenCalledOnce()
+  })
+
+  it('retains values and offers retry for unavailable or ambiguous submission', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(JSON.stringify({ok: false, kind: 'unavailable'}), {status: 503}))
+    const user = userEvent.setup()
+    renderPage()
+    await user.type(screen.getByLabelText(/Full Name/u), 'Amina Tan')
+    await user.type(screen.getByLabelText(/^Company/u), 'Example Co')
+    await user.type(screen.getByLabelText(/Business Email/u), 'amina@example.com')
+    await user.type(screen.getByLabelText(/Country \/ Region/u), 'Malaysia')
+    await user.selectOptions(screen.getByLabelText(/Product Grade/u), 'M-2196')
+    await user.click(screen.getByRole('checkbox', {name: /^Safety Documentation/u}))
+    await user.click(screen.getByRole('button', {name: 'Request Documents'}))
+    expect((await screen.findByRole('alert')).textContent).toContain('Something went wrong')
+    expect(screen.getByRole('button', {name: 'Try again'})).toBeTruthy()
+    expect((screen.getByLabelText(/Full Name/u) as HTMLInputElement).value).toBe('Amina Tan')
+    expect(screen.queryByText('Document Request Received')).toBeNull()
+  })
+})
