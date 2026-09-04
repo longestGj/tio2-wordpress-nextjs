@@ -1,8 +1,12 @@
 import type {Metadata} from 'next'
+import {headers} from 'next/headers'
 import {notFound} from 'next/navigation'
 
 import {MalaysiaRequestDocumentsPage} from '@/components/sites/tio2-my/request-documents/malaysia-request-documents-page'
-import {resolveMalaysiaRequestDocumentsPrefill} from '@/lib/request-documents/malaysia-request-documents-prefill'
+import {
+  deriveMalaysiaRequestDocumentsTrustedSource,
+  resolveMalaysiaRequestDocumentsPrefill,
+} from '@/lib/request-documents/malaysia-request-documents-prefill'
 import {buildMalaysiaRequestDocumentsJsonLd, serializeMalaysiaRequestDocumentsJsonLd} from '@/lib/seo/request-documents-jsonld'
 import {buildMalaysiaRequestDocumentsMetadata} from '@/lib/seo/request-documents-metadata'
 import {getCurrentSite} from '@/lib/sites/current-site'
@@ -29,7 +33,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RequestDocumentsRoute({searchParams}: RouteProps) {
-  const [{site, page}, query] = await Promise.all([loadPage(), searchParams])
+  const {site, page} = await loadPage()
+  const [query, requestHeaders] = await Promise.all([searchParams, headers()])
+  const host = requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host')
+  const protocol = requestHeaders.get('x-forwarded-proto') ?? (host?.startsWith('localhost') ? 'http' : 'https')
+  const requestOrigin = host ? `${protocol}://${host}` : site.url
+  const trustedSourcePageId = deriveMalaysiaRequestDocumentsTrustedSource(
+    requestHeaders.get('referer'),
+    requestOrigin,
+  )
   const prefill = resolveMalaysiaRequestDocumentsPrefill({
     product_grade: query.product_grade ?? query.product,
     application_industry: query.application_industry,
@@ -37,7 +49,7 @@ export default async function RequestDocumentsRoute({searchParams}: RouteProps) 
     source_page_id: query.source_page_id,
     market_id: query.market_id,
     country_region: query.country_region,
-  })
+  }, {trustedSourcePageId})
   const jsonLd = serializeMalaysiaRequestDocumentsJsonLd(buildMalaysiaRequestDocumentsJsonLd(site))
   return <MalaysiaRequestDocumentsPage
     page={page}

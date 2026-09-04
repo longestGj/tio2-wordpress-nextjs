@@ -52,7 +52,7 @@ function tio2_get_webhook_config(string $site_id, ?array $environment = null): ?
  */
 function tio2_webhook_post_types(): array
 {
-    return array_merge(['page', 'post', 'tio2_homepage', 'tio2_market_page', 'tio2_resource_hub', 'tio2_about_page', 'tio2_documents_hub', 'tio2_legal_page', 'tio2_request_docs', 'tio2_request_sample'], array_keys(tio2_content_type_definitions()));
+    return array_merge(['page', 'post', 'tio2_homepage', 'tio2_market_page', 'tio2_resource_hub', 'tio2_about_page', 'tio2_documents_hub', 'tio2_doc_tds', 'tio2_legal_page', 'tio2_request_docs', 'tio2_request_sample'], array_keys(tio2_content_type_definitions()));
 }
 
 /**
@@ -436,6 +436,11 @@ function tio2_get_webhook_affected_state(
         $paths = ['/documents'];
         $entity_ids = [$post_id];
         $site_paths['tio2-my'] = $paths;
+    } elseif ('tio2_doc_tds' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $paths = ['/documents/tds-sds-coa'];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
     } elseif ('tio2_request_docs' === $post->post_type) {
         if (['tio2-my'] !== $site_ids) return null;
         $paths = ['/request-documents'];
@@ -687,6 +692,13 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
         $post instanceof WP_Post &&
         'tio2_documents_hub' === $post->post_type &&
         TIO2_MY_DOCUMENTS_HUB_CONTRACT_META === $meta_key
+    ) {
+        return true;
+    }
+    if (
+        $post instanceof WP_Post &&
+        'tio2_doc_tds' === $post->post_type &&
+        TIO2_MY_DOCUMENT_TDS_CONTRACT_META === $meta_key
     ) {
         return true;
     }

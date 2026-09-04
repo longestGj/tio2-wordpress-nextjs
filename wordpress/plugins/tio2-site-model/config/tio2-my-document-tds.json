@@ -1,0 +1,342 @@
+{
+  "schema_version": "0.1",
+  "package_id": "DOC-TDS-G7-HANDOFF-01",
+  "page": {
+    "site_scope": "tio2-my",
+    "page_id": "DOC-TDS",
+    "route": "/documents/tds-sds-coa/",
+    "language": "en",
+    "page_type": "technical_document_decision_page",
+    "priority": "P1",
+    "mapping_status": "PROVISIONAL_URL",
+    "evidence_status": "FACT_EVIDENCE_REQUIRED",
+    "current_navigation_key": "Documents"
+  },
+  "seo": {
+    "primary_keyword": "titanium dioxide tds",
+    "title": "Titanium Dioxide TDS, SDS & COA: What to Request | TiO2 Malaysia",
+    "meta_description": "Understand the difference between titanium dioxide TDS, SDS and COA, add the relevant product or batch context, and request the documents needed for review.",
+    "canonical_candidate": "https://tio2malaysia.com/documents/tds-sds-coa/",
+    "canonical_activation": "gate_10_controlled",
+    "hreflang": [],
+    "schema_types": [
+      "WebPage",
+      "BreadcrumbList"
+    ],
+    "prohibited_schema_types": [
+      "FAQPage",
+      "QAPage",
+      "Product",
+      "Offer",
+      "DigitalDocument",
+      "HowTo"
+    ]
+  },
+  "request_contract": {
+    "receiver_page_id": "CONV-DOC",
+    "receiver_route": "/request-documents/",
+    "route_key": "REQUEST_DOCUMENTS",
+    "primary_action_label": "Request TDS, SDS or COA",
+    "secondary_action_label": "View Document Hub",
+    "secondary_route": "/documents/",
+    "document_types": [
+      {
+        "selection_label": "TDS",
+        "value": "technical_product"
+      },
+      {
+        "selection_label": "SDS",
+        "value": "safety"
+      },
+      {
+        "selection_label": "COA",
+        "value": "quality_coa"
+      }
+    ],
+    "document_type_cardinality": "one_or_more",
+    "product_grade_cardinality": "zero_or_one_prefill_one_required_before_receiver_submission",
+    "additional_grades": "buyer_free_text_supporting_context_only",
+    "inactive_transport": "prefill.product_grades[]",
+    "source_alias": "source_page=DOC-TDS",
+    "source_normalization": "source_context.page_id",
+    "source_visibility": "hidden_system_non_editable",
+    "route_failure": "remove_visible_action_and_corresponding_schema_relationship_atomically",
+    "contact_fallback": false,
+    "grade_options": [
+      "M-350",
+      "M-510",
+      "M-896",
+      "M-996",
+      "M-2196",
+      "M-895",
+      "M-200",
+      "M-108",
+      "M-210",
+      "M-340",
+      "M-886",
+      "M-52",
+      "M-2377",
+      "CR-901"
+    ]
+  },
+  "modules": [
+    {
+      "id": "hero",
+      "eyebrow": "TECHNICAL DOCUMENTS",
+      "breadcrumb": [
+        {
+          "label": "Home",
+          "route": "/"
+        },
+        {
+          "label": "Documents",
+          "route": "/documents/"
+        },
+        {
+          "label": "TDS, SDS & COA",
+          "route": null
+        }
+      ],
+      "h1": "Titanium Dioxide TDS, SDS & COA: What to Request",
+      "body": "Choose the document types and product context your team needs for technical, safety or batch-quality review, then submit them in one request.",
+      "primary_action": "Request TDS, SDS or COA",
+      "secondary_action": "View Document Hub"
+    },
+    {
+      "id": "direct_answer",
+      "heading": "What is the difference between a TDS, SDS and COA?",
+      "body": "A TDS supports Grade-level technical evaluation, an SDS provides safety and handling information for the relevant product, jurisdiction and language context, and a COA reports results for a specific lot or batch. Select one or more document types and add the product, Grade, revision, language, lot, batch or order details relevant to your review."
+    },
+    {
+      "id": "document_choice",
+      "heading": "Choose the Documents That Match Your Review",
+      "intro": "Start with the decision your team needs to make. You can choose one document type or combine several in the same request.",
+      "choices": [
+        {
+          "id": "tds",
+          "heading": "Technical evaluation",
+          "body": "Choose a TDS and add the relevant product Grade. Include a specific revision only if your review requires one.",
+          "selection_label": "TDS",
+          "selectable": true
+        },
+        {
+          "id": "sds",
+          "heading": "Safety and handling",
+          "body": "Choose an SDS and add the relevant product, market or jurisdiction, and language. Include a specific revision if required.",
+          "selection_label": "SDS",
+          "selectable": true
+        },
+        {
+          "id": "coa",
+          "heading": "Batch quality review",
+          "body": "Choose a COA and add any available lot, batch or order reference.",
+          "selection_label": "COA",
+          "selectable": true
+        },
+        {
+          "id": "multiple",
+          "heading": "Multiple document needs",
+          "body": "Select one or more document types and include the relevant product or transaction context in one request.",
+          "selection_label": "Select more than one",
+          "selectable": false
+        }
+      ]
+    },
+    {
+      "id": "product_grade",
+      "heading": "Add Product Grade Details to Your Request",
+      "intro": "Select the primary Grade for this request. Selecting a Grade adds product context to your request; it does not indicate document availability.",
+      "selector_label": "Product Grade",
+      "placeholder": "Choose a Grade",
+      "helper": "You can change or remove the selected Grade on the request form. If you also need documents for other Grades, note those Grade names in the additional context field for review.",
+      "supplementary_note": "Additional Grades can be included as supporting context for review.",
+      "initial_summary": "No request context selected yet."
+    },
+    {
+      "id": "comparison",
+      "heading": "Compare TDS, SDS and COA",
+      "intro": "Each document supports a different review. Use the comparison below to choose the relevant type and prepare useful context.",
+      "columns": [
+        "Dimension",
+        "TDS",
+        "SDS",
+        "COA"
+      ],
+      "rows": [
+        [
+          "Primary buyer use",
+          "Technical evaluation",
+          "Safety and handling review",
+          "Lot- or batch-specific quality review"
+        ],
+        [
+          "When to request",
+          "When reviewing Grade-level technical information",
+          "When reviewing safety and handling information for the relevant product and market context",
+          "When reviewing results tied to a specific lot, batch or order context"
+        ],
+        [
+          "Typical scope",
+          "Grade + revision",
+          "Product + jurisdiction/language + revision",
+          "Lot/batch/order"
+        ],
+        [
+          "Useful request context",
+          "Product Grade; revision if relevant",
+          "Product; market or jurisdiction; language; revision if relevant",
+          "Product or Grade plus an available lot, batch or order reference"
+        ]
+      ],
+      "note": "The details in the final row are useful context, not a requirement to know every item before starting a request."
+    },
+    {
+      "id": "request_checklist",
+      "heading": "What to Include in Your Request",
+      "intro": "Share the details you already know. You do not need every item before starting a request.",
+      "items": [
+        {
+          "label": "Product Grade",
+          "body": "Select the primary Grade for the request."
+        },
+        {
+          "label": "Document type(s)",
+          "body": "Choose TDS, SDS, COA or more than one type."
+        },
+        {
+          "label": "Market or jurisdiction",
+          "body": "Add it when relevant to the review."
+        },
+        {
+          "label": "Language",
+          "body": "Include the required language when relevant."
+        },
+        {
+          "label": "Revision",
+          "body": "Identify it if a specific version is required."
+        },
+        {
+          "label": "Lot, batch or order reference",
+          "body": "Add an available reference when the request concerns transaction-specific results."
+        },
+        {
+          "label": "Additional requirements or questions",
+          "body": "Share other useful, non-confidential context, including other relevant Grade names."
+        }
+      ],
+      "note": "Required fields are shown on the Request Documents form."
+    },
+    {
+      "id": "request_process",
+      "heading": "How Document Requests Work",
+      "intro": "Use one request to identify the documents and product context your team needs.",
+      "steps": [
+        {
+          "number": 1,
+          "heading": "Choose document types",
+          "body": "Select TDS, SDS, COA or more than one document type."
+        },
+        {
+          "number": 2,
+          "heading": "Add product context",
+          "body": "Choose the primary Grade and include any useful revision, language, lot, batch or order details you know. Add other relevant Grade names as supplementary context when needed."
+        },
+        {
+          "number": 3,
+          "heading": "Review your request",
+          "body": "Check the information carried into the request form. You can change or remove prefilled buyer context before submitting."
+        },
+        {
+          "number": 4,
+          "heading": "Submit for review",
+          "body": "Send the request with your contact and business details. We may contact you if clarification is needed."
+        }
+      ],
+      "microcopy": "Document requests are reviewed after submission; submission does not confirm availability or delivery."
+    },
+    {
+      "id": "buyer_questions",
+      "heading": "Questions Buyers Ask",
+      "items": [
+        {
+          "question": "Can I request more than one document type?",
+          "answer": "Yes. Select the TDS, SDS and COA options that match your review. You can check or change the selected document types on the request form before submitting."
+        },
+        {
+          "question": "How should I identify more than one relevant product Grade?",
+          "answer": "Choose one primary Grade on the request form. If other Grades are relevant, add their names in the additional context field."
+        },
+        {
+          "question": "What information should I include in a document request?",
+          "answer": "Include the product Grade and the document types you need. Add a revision, market or jurisdiction, language, lot, batch or order reference when it is relevant and available. You do not need to know every detail before starting the request."
+        },
+        {
+          "question": "Does selecting a Grade mean its documents are available?",
+          "answer": "No. Selecting a Grade identifies the product context for your request. The requested document types and product details are reviewed after submission."
+        },
+        {
+          "question": "What happens after I submit a request?",
+          "answer": "The request and the information you provide are reviewed. We may contact you if clarification is needed."
+        }
+      ]
+    },
+    {
+      "id": "related_paths",
+      "heading": "Related Document Paths",
+      "intro": "Continue to another document topic or return to the complete Documents overview.",
+      "items": [
+        {
+          "page_id": "DOC-REACH",
+          "heading": "Titanium Dioxide REACH",
+          "body": "Review what procurement teams should verify when assessing EU REACH information and supporting documentation.",
+          "link_label": "Review EU REACH Information",
+          "route": "/documents/reach/",
+          "render_when": "target_route_and_content_approved_and_eligible"
+        },
+        {
+          "page_id": "DOC-COO",
+          "heading": "Certificate of Origin",
+          "body": "Review the origin-document details buyers may need to verify for a shipment or transaction.",
+          "link_label": "Review Origin Documentation",
+          "route": "/documents/certificate-of-origin/",
+          "render_when": "target_route_and_content_approved_and_eligible"
+        },
+        {
+          "page_id": "DOC-000",
+          "heading": "Document Hub",
+          "body": "Explore technical, regulatory and origin-document routes from the Documents overview.",
+          "link_label": "View Document Hub",
+          "route": "/documents/",
+          "render_when": "target_route_and_content_approved_and_eligible"
+        }
+      ]
+    },
+    {
+      "id": "final_cta",
+      "heading": "Request the Documents Needed for Your Review",
+      "body": "Choose one or more document types, add the relevant product or transaction context, and review the details before submitting.",
+      "primary_action": "Request TDS, SDS or COA",
+      "secondary_action": "View Document Hub"
+    }
+  ],
+  "evidence_controls": {
+    "public_document_inventory": false,
+    "filenames_or_previews": false,
+    "direct_downloads": false,
+    "grade_document_availability_matrix": false,
+    "infer_sds_or_coa_from_tds": false,
+    "merge_tds_versions": false,
+    "claims_prohibited": [
+      "currentness",
+      "universal coverage",
+      "compliance approval",
+      "conformity",
+      "release",
+      "request approval",
+      "response time",
+      "guaranteed delivery"
+    ],
+    "unverified_fields": "omit_without_buyer_visible_internal_status",
+    "buyer_visible_internal_terms": false
+  }
+}

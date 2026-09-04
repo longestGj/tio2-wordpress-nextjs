@@ -363,6 +363,20 @@ describe('POST /api/revalidate', () => {
     expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
   })
 
+  it('revalidates DOC-TDS with exact Malaysia route and content tags only', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/documents/tds-sds-coa/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/documents/tds-sds-coa'])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--document-tds',
+      'route:tio2-my:/documents/tds-sds-coa',
+    ])
+  })
+
   it.each(['/privacy-policy/', '/ms/privacy-policy/', '/cookie-policy/'])('revalidates Legal route %s with the shared exact Legal content tag', async (path) => {
     vi.stubEnv('SITE_ID', 'tio2-my')
     const response = await POST(signedRequest(validPayload({siteIds: ['tio2-my'], paths: [path]})))

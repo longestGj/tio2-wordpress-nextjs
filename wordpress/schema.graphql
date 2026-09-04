@@ -17367,26 +17367,38 @@ type RootQuery {
   "Approved, scope-bound ABOUT-001 record for TiO2 Malaysia."
   malaysiaAboutPageRecordJson: String!
 
-  "Approved, scope-bound MARKET-000 record for TiO2 Malaysia."
-  malaysiaMarketHubRecordJson: String!
+  "Approved scope-bound DOC-TDS record and scoped route readiness for TiO2 Malaysia."
+  malaysiaDocumentTdsRecordJson: String!
+
+  "Approved, scope-bound DOC-000 record for TiO2 Malaysia."
+  malaysiaDocumentsHubRecordJson: String!
 
   "Approved, scope-bound MARKET-EU-001 record for TiO2 Malaysia."
   malaysiaEuMarketRecordJson: String!
 
-  "Approved scope-bound M-350 public projection for TiO2 Malaysia."
+  "Approved, scope-bound Legal/Privacy pages for TiO2 Malaysia."
+  malaysiaLegalPagesRecordJson: String!
+
+  "Approved, scope-bound MARKET-000 record for TiO2 Malaysia."
+  malaysiaMarketHubRecordJson: String!
+
+  "Approved scope-bound Grade public projection for TiO2 Malaysia."
   malaysiaProductDetailRecordJson(slug: String!): String!
 
   "Approved, scope-bound PRODUCT-000 record and route readiness for TiO2 Malaysia."
   malaysiaProductHubRecordJson: String!
 
-  "Approved, scope-bound RES-000 record and public H0 projection for TiO2 Malaysia."
-  malaysiaResourceHubRecordJson: String!
-  malaysiaDocumentsHubRecordJson: String!
+  "Approved, scope-bound CONV-DOC record for TiO2 Malaysia."
   malaysiaRequestDocumentsRecordJson: String!
 
-  """Approved, scope-bound CONV-SAMPLE record for TiO2 Malaysia."""
+  "Approved, scope-bound CONV-SAMPLE record for TiO2 Malaysia."
   malaysiaRequestSampleRecordJson: String!
-  malaysiaLegalPagesRecordJson: String!
+
+  "Approved, scope-bound RES-000 record and public H0 projection for TiO2 Malaysia."
+  malaysiaResourceHubRecordJson: String!
+
+  "Approved, scope-bound CONV-RFQ record for TiO2 Malaysia."
+  malaysiaRfqPageRecordJson: String!
 
   "An object of the mediaItem Type. "
   mediaItem(

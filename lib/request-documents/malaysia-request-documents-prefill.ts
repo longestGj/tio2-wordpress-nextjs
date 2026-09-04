@@ -20,6 +20,10 @@ export interface MalaysiaRequestDocumentsPrefill {
   readonly prefillVisible: boolean
 }
 
+export interface MalaysiaRequestDocumentsTrustedContext {
+  readonly trustedSourcePageId?: 'DOC-TDS' | null
+}
+
 const first = (value: string | readonly string[] | undefined): string | null => {
   const candidate = Array.isArray(value) ? value[0] : value
   return typeof candidate === 'string' && candidate.trim() === candidate && candidate ? candidate : null
@@ -29,6 +33,7 @@ const list = (value: string | readonly string[] | undefined): readonly string[] 
 )
 const grades = new Set<string>(contract.form.gradeOptions)
 const documentTypes = new Set<string>(contract.form.documentTypes.map((item) => item.value))
+const documentTypeOrder = ['technical_product', 'safety', 'quality_coa', 'regulatory', 'other'] as const
 const gradePageIds = contract.form.gradeOptions.map((grade) => `GRADE-${grade.replace('-', '')}`)
 const applicationContextsByGrade = new Map<string, ReadonlySet<string>>([
   ['M-350', new Set(['Coatings', 'Plastics', 'Printing Inks', 'Paper'])],
@@ -74,6 +79,22 @@ export const normalizeMalaysiaRequestDocumentsMarketId = (value: unknown): strin
   typeof value === 'string' && marketIds.has(value) ? value : null
 )
 
+export function deriveMalaysiaRequestDocumentsTrustedSource(
+  referer: string | null,
+  requestOrigin: string,
+): 'DOC-TDS' | null {
+  if (!referer) return null
+  try {
+    const source = new URL(referer)
+    const origin = new URL(requestOrigin)
+    return source.origin === origin.origin && source.pathname === '/documents/tds-sds-coa/'
+      ? 'DOC-TDS'
+      : null
+  } catch {
+    return null
+  }
+}
+
 function safeVisibleContext(value: string | null): string | null {
   if (!value || Array.from(value).length > 160 || /[<>\u0000-\u001f\u007f]/u.test(value)) return null
   return value
@@ -116,9 +137,12 @@ export function normalizeMalaysiaRequestDocumentsSourcePageId(
   return value
 }
 
-export function resolveMalaysiaRequestDocumentsPrefill(input: MalaysiaRequestDocumentsPrefillInput): MalaysiaRequestDocumentsPrefill {
+export function resolveMalaysiaRequestDocumentsPrefill(
+  input: MalaysiaRequestDocumentsPrefillInput,
+  trusted: MalaysiaRequestDocumentsTrustedContext = {},
+): MalaysiaRequestDocumentsPrefill {
   const values: {product_grade?: string; application_industry?: string; document_types?: readonly string[]} = {}
-  let grade = first(input.product_grade)
+  let grade = Array.isArray(input.product_grade) ? null : first(input.product_grade)
   if (!grade || !grades.has(grade)) grade = null
   let application = normalizeApprovedVisibleContext(first(input.application_industry))
   if (application && grade && !relationAllowsContext(grade, application)) application = null
@@ -134,12 +158,13 @@ export function resolveMalaysiaRequestDocumentsPrefill(input: MalaysiaRequestDoc
     grade = null
     application = null
   }
-  const types = [...new Set(list(input.document_types).filter((item) => documentTypes.has(item)))]
+  const selectedTypes = new Set(list(input.document_types).filter((item) => documentTypes.has(item)))
+  const types = documentTypeOrder.filter((item) => selectedTypes.has(item))
   if (grade) values.product_grade = grade
   if (application) values.application_industry = application
   if (types.length) values.document_types = Object.freeze(types)
 
-  sourcePageId = sourcePageId ?? null
+  sourcePageId = trusted.trustedSourcePageId === 'DOC-TDS' ? 'DOC-TDS' : sourcePageId ?? null
   const marketId = normalizeMalaysiaRequestDocumentsMarketId(first(input.market_id))
   return {values: Object.freeze(values), sourcePageId, marketId, prefillVisible: Object.keys(values).length > 0}
 }

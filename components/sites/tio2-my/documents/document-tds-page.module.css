@@ -1,0 +1,113 @@
+.site { min-width: 0; color: #112b47; background: #fff; font-family: Arial, Helvetica, sans-serif; }
+.main { overflow: clip; }
+.main * { box-sizing: border-box; }
+.shell { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+.narrow { width: min(920px, calc(100% - 48px)); margin: 0 auto; }
+.main h1, .main h2, .main h3, .main p { margin-top: 0; }
+.main h1 { max-width: 930px; margin-bottom: 22px; color: #052b52; font-size: clamp(40px, 4.5vw, 68px); line-height: 1.04; letter-spacing: -.035em; }
+.main h2 { margin-bottom: 16px; color: #052b52; font-size: clamp(28px, 3vw, 42px); line-height: 1.12; letter-spacing: -.02em; }
+.main h3 { margin-bottom: 8px; color: #052b52; font-size: 18px; line-height: 1.25; }
+.main p { color: #42586d; font-size: 16px; line-height: 1.65; }
+.hero { padding: 30px 0 78px; background: linear-gradient(135deg, #f6fafc 0%, #eef6f8 100%); }
+.breadcrumb { min-height: 44px; margin-bottom: 45px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; color: #53697d; font-size: 13px; }
+.breadcrumb > span { display: inline-flex; align-items: center; gap: 8px; }
+.breadcrumb a { min-height: 44px; display: inline-flex; align-items: center; color: #315b75; }
+.eyebrow, .selectionPanel > span { margin-bottom: 18px !important; color: #00756e !important; font-size: 12px !important; font-weight: 800; letter-spacing: .14em; }
+.lead { max-width: 760px; margin-bottom: 30px !important; font-size: 19px !important; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.primaryButton, .secondaryButton, .secondaryDark { min-height: 48px; padding: 12px 22px; display: inline-flex; align-items: center; justify-content: center; border: 2px solid #00756e; border-radius: 3px; font-size: 14px; font-weight: 800; text-decoration: none; }
+.primaryButton { color: #fff; background: #00756e; }
+.secondaryButton { color: #07534f; background: transparent; }
+.directAnswer { padding: 56px 0; color: #fff; background: #052b52; }
+.directAnswer h2, .directAnswer p { color: #fff; }
+.directAnswer p { margin-bottom: 0; font-size: 18px; }
+.section, .gradeSection, .tintSection, .faqSection { padding: 78px 0; }
+.intro { max-width: 760px; margin-bottom: 34px !important; }
+.choiceGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.choiceCard { min-height: 250px; padding: 24px; display: flex; flex-direction: column; gap: 11px; border: 1px solid #cbd8e2; border-radius: 4px; background: #fff; cursor: pointer; }
+.choiceCard input { width: 20px; height: 20px; accent-color: #00756e; }
+.choiceCard > span:last-child { color: #42586d; font-size: 14px; line-height: 1.55; }
+.choiceLabel { color: #00756e; font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+.choiceSelected { border: 2px solid #00756e; box-shadow: 0 8px 24px rgb(0 71 82 / 12%); }
+.gradeSection, .tintSection, .faqSection { background: #eff7f9; }
+.gradeGrid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, .75fr); gap: 60px; align-items: start; }
+.selectLabel { margin: 24px 0 8px; display: block; font-size: 14px; font-weight: 800; }
+.gradeSection select { width: min(100%, 460px); min-height: 48px; padding: 0 14px; border: 1px solid #8aa1b4; border-radius: 3px; background: #fff; color: #112b47; font: inherit; }
+.helper { max-width: 650px; margin-top: 12px !important; font-size: 14px !important; }
+.note { margin-top: 20px !important; font-size: 14px !important; font-style: italic; }
+.selectionPanel { padding: 28px; border-top: 4px solid #00756e; background: #fff; box-shadow: 0 10px 26px rgb(15 48 74 / 10%); }
+.selectionPanel p { min-height: 54px; color: #112b47; font-weight: 700; }
+.tableWrap { overflow-x: auto; }
+.tableWrap table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.tableWrap th, .tableWrap td { padding: 18px; border: 1px solid #cbd8e2; text-align: left; vertical-align: top; font-size: 14px; line-height: 1.45; }
+.tableWrap thead th { color: #fff; background: #052b52; }
+.tableWrap tbody th { width: 22%; color: #052b52; background: #f3f7fa; }
+.checkGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; }
+.checkGrid article { min-height: 104px; padding: 20px; display: flex; gap: 14px; background: #fff; }
+.checkGrid article > span { width: 28px; height: 28px; flex: 0 0 28px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: #00756e; font-weight: 800; }
+.checkGrid p, .steps p, .relatedGrid p { margin-bottom: 0; font-size: 14px; }
+.steps { margin: 34px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; list-style: none; }
+.steps li { position: relative; min-width: 0; padding-top: 58px; }
+.steps li > span { position: absolute; top: 0; left: 0; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: #00756e; font-weight: 800; }
+.microcopy { margin-top: 32px !important; padding: 18px; border-left: 4px solid #00756e; background: #f3f7fa; }
+.faqList { border-top: 1px solid #bfd0dc; }
+.faqItem { border-bottom: 1px solid #bfd0dc; }
+.faqItem h3 { margin: 0; }
+.faqItem button { width: 100%; min-height: 64px; padding: 14px 4px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border: 0; color: #052b52; background: transparent; font: 800 17px/1.35 Arial, Helvetica, sans-serif; text-align: left; cursor: pointer; }
+.faqItem button span:last-child { font-size: 28px; }
+.faqItem div { padding: 0 4px 20px; }
+.faqItem div p { margin-bottom: 0; }
+.relatedGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.relatedGrid article { min-height: 210px; padding: 26px; display: flex; flex-direction: column; border: 1px solid #cbd8e2; background: #fff; }
+.relatedGrid a { min-height: 44px; margin-top: auto; display: inline-flex; align-items: center; color: #00756e; font-weight: 800; }
+.finalCta { padding: 68px 0; color: #fff; background: #052b52; text-align: center; }
+.finalCta h2, .finalCta p { color: #fff; }
+.finalCta .actions { justify-content: center; }
+.secondaryDark { border-color: #fff; color: #fff; }
+.main :is(a, button, input, select):focus-visible { outline: 3px solid #ffbf47; outline-offset: 3px; }
+
+@media (max-width: 1024px) {
+  .choiceGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  .shell, .narrow { width: min(100% - 32px, 700px); }
+  .hero { padding-bottom: 58px; }
+  .breadcrumb { margin-bottom: 30px; }
+  .section, .gradeSection, .tintSection, .faqSection { padding: 58px 0; }
+  .gradeGrid { grid-template-columns: 1fr; gap: 28px; }
+  .relatedGrid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .shell, .narrow { width: calc(100% - 32px); }
+  .main h1 { font-size: 38px; }
+  .main h2 { font-size: 28px; }
+  .choiceGrid, .checkGrid, .steps { grid-template-columns: 1fr; }
+  .choiceCard { min-height: 0; }
+  .actions > a { width: 100%; }
+  .tableWrap { overflow: visible; }
+  .tableWrap table, .tableWrap thead, .tableWrap tbody, .tableWrap tr, .tableWrap th, .tableWrap td { display: block; width: 100%; }
+  .tableWrap thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tableWrap tr { margin-bottom: 18px; border: 1px solid #cbd8e2; }
+  .tableWrap tbody th { border: 0; border-bottom: 1px solid #cbd8e2; }
+  .tableWrap td { padding-left: 44%; border: 0; border-bottom: 1px solid #dce6ec; position: relative; }
+  .tableWrap td::before { content: attr(data-label); position: absolute; top: 18px; left: 16px; width: 38%; color: #052b52; font-weight: 800; }
+}
+
+@media (max-width: 390px) {
+  .shell, .narrow { width: calc(100% - 28px); }
+  .main h1 { font-size: 34px; }
+  .hero { padding-top: 18px; }
+  .breadcrumb { font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}
+
+@media (forced-colors: active) {
+  .primaryButton, .choiceSelected, .selectionPanel { border: 2px solid ButtonText; }
+  .checkGrid article > span, .steps li > span { forced-color-adjust: none; }
+}

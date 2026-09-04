@@ -193,6 +193,12 @@ export function documentsHubContentTag(siteId: string): string {
   return `content:${siteId}--documents`
 }
 
+export function documentTdsContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid DOC-TDS scope: ${siteId}`)
+  return `content:${siteId}--document-tds`
+}
+
 export function legalPagesContentTag(siteId: string): string {
   assertSiteId(siteId)
   if (siteId !== 'tio2-my') throw new Error(`Invalid Legal pages scope: ${siteId}`)

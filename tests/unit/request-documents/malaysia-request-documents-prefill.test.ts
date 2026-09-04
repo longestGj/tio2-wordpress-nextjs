@@ -1,8 +1,48 @@
 import {describe, expect, it} from 'vitest'
 
-import {resolveMalaysiaRequestDocumentsPrefill} from '@/lib/request-documents/malaysia-request-documents-prefill'
+import {
+  deriveMalaysiaRequestDocumentsTrustedSource,
+  resolveMalaysiaRequestDocumentsPrefill,
+} from '@/lib/request-documents/malaysia-request-documents-prefill'
 
 describe('CONV-DOC prefill normalization', () => {
+  it('normalizes DOC-TDS document types and discards repeated Grade plus public source tampering', () => {
+    expect(resolveMalaysiaRequestDocumentsPrefill({
+      document_types: ['quality_coa', 'safety', 'safety'],
+      product_grade: ['M-2196', 'M-350'],
+      source_page_id: 'DOC-TDS',
+    })).toEqual({
+      values: {document_types: ['safety', 'quality_coa']},
+      sourcePageId: null,
+      marketId: null,
+      prefillVisible: true,
+    })
+  })
+
+  it('accepts DOC-TDS only through the separate trusted server context', () => {
+    expect(resolveMalaysiaRequestDocumentsPrefill({
+      document_types: ['technical_product'],
+    }, {trustedSourcePageId: 'DOC-TDS'})).toMatchObject({
+      values: {document_types: ['technical_product']},
+      sourcePageId: 'DOC-TDS',
+    })
+  })
+
+  it('derives DOC-TDS only from an exact same-origin Referer path', () => {
+    expect(deriveMalaysiaRequestDocumentsTrustedSource(
+      'https://tio2malaysia.com/documents/tds-sds-coa/?x=1',
+      'https://tio2malaysia.com',
+    )).toBe('DOC-TDS')
+    expect(deriveMalaysiaRequestDocumentsTrustedSource(
+      'https://attacker.example/documents/tds-sds-coa/',
+      'https://tio2malaysia.com',
+    )).toBeNull()
+    expect(deriveMalaysiaRequestDocumentsTrustedSource(
+      'https://tio2malaysia.com/documents/tds-sds-coa/evil',
+      'https://tio2malaysia.com',
+    )).toBeNull()
+  })
+
   it('preserves MARKET-EU-001 source and market attribution without inventing visible values', () => {
     expect(resolveMalaysiaRequestDocumentsPrefill({
       source_page_id: 'MARKET-EU-001', market_id: 'MARKET-EU-001',

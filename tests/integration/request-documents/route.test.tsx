@@ -6,6 +6,7 @@ import {getSiteConfig} from '@/sites'
 import {malaysiaRequestDocumentsPageSource} from '@/tests/fixtures/tio2-my-request-documents-page'
 
 const routeMocks = vi.hoisted(() => ({getCurrentSite: vi.fn(), getPage: vi.fn()}))
+vi.mock('next/headers', () => ({headers: vi.fn(async () => new Headers({host: 'localhost:3000'}))}))
 vi.mock('@/lib/sites/current-site', () => ({getCurrentSite: routeMocks.getCurrentSite}))
 vi.mock('@/lib/wordpress/request-documents-v01-queries', () => ({getMalaysiaRequestDocumentsPage: routeMocks.getPage}))
 
