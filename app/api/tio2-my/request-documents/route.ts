@@ -73,8 +73,7 @@ export async function POST(request: Request): Promise<Response> {
     application_industry: text(body.application_industry), additional_requirements: text(body.additional_requirements),
   }
   const result = await submitMalaysiaRequestDocuments(values, {
-    endpoint: process.env.TIO2_MY_REQUEST_DOCUMENTS_RECEIVER_URL ?? null,
-    token: process.env.TIO2_MY_REQUEST_DOCUMENTS_RECEIVER_TOKEN ?? null,
+    accessKey: process.env.TIO2_MY_REQUEST_DOCUMENTS_WEB3FORMS_ACCESS_KEY ?? null,
     requestToken: token,
     sourcePageId: normalizeMalaysiaRequestDocumentsSourcePageId(body.source_page_id, {
       productGrade: values.product_grade,

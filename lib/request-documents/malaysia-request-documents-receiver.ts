@@ -14,13 +14,16 @@ export type MalaysiaRequestDocumentsReceiverResult =
   | {readonly kind: 'unavailable'}
 
 interface ReceiverOptions {
-  readonly endpoint: string | null
-  readonly token: string | null
+  readonly accessKey: string | null
   readonly requestToken: string
   readonly sourcePageId: string | null
   readonly marketId: string | null
   readonly fetcher?: Fetcher
+  readonly timeoutMs?: number
 }
+
+const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
+export const MALAYSIA_REQUEST_DOCUMENTS_SUBMISSION_TIMEOUT_MS = 12_000
 
 export async function submitMalaysiaRequestDocuments(
   values: MalaysiaRequestDocumentsValues,
@@ -28,26 +31,52 @@ export async function submitMalaysiaRequestDocuments(
 ): Promise<MalaysiaRequestDocumentsReceiverResult> {
   const validation = validateMalaysiaRequestDocumentsValues(values)
   if (!validation.valid) return {kind: 'validation_failed', errors: validation.errors}
-  if (!options.endpoint || !options.token) return {kind: 'unavailable'}
+  const accessKey = options.accessKey?.trim()
+  if (!accessKey) return {kind: 'unavailable'}
   const fetcher = options.fetcher ?? fetch
+  const timeoutMs = options.timeoutMs && Number.isFinite(options.timeoutMs) && options.timeoutMs > 0
+    ? options.timeoutMs
+    : MALAYSIA_REQUEST_DOCUMENTS_SUBMISSION_TIMEOUT_MS
+  const controller = new AbortController()
+  const normalizedValues = normalizeMalaysiaRequestDocumentsValues(values)
+  const payload = {
+    access_key: accessKey,
+    subject: 'TiO2 Malaysia document request',
+    from_name: 'TiO2 Malaysia Request Documents',
+    email: normalizedValues.business_email,
+    ...normalizedValues,
+    site_scope: 'tio2-my', page_id: 'CONV-DOC', workflow: 'request_documents',
+    request_token: options.requestToken,
+    ...(options.sourcePageId ? {source_page_id: options.sourcePageId} : {}),
+    ...(options.marketId ? {market_id: options.marketId} : {}),
+  }
+  let timeout: ReturnType<typeof setTimeout> | undefined
   try {
-    const response = await fetcher(options.endpoint, {
-      method: 'POST',
-      headers: {'content-type': 'application/json', authorization: `Bearer ${options.token}`},
-      body: JSON.stringify({
-        ...normalizeMalaysiaRequestDocumentsValues(values),
-        site_scope: 'tio2-my', page_id: 'CONV-DOC', workflow: 'request_documents',
-        request_token: options.requestToken,
-        ...(options.sourcePageId ? {source_page_id: options.sourcePageId} : {}),
-        ...(options.marketId ? {market_id: options.marketId} : {}),
-      }),
-      cache: 'no-store',
-      signal: AbortSignal.timeout(12_000),
+    const timeoutPromise = new Promise<never>((_resolve, reject) => {
+      timeout = setTimeout(() => {
+        controller.abort()
+        reject(new DOMException('The Request Documents receiver timed out', 'AbortError'))
+      }, timeoutMs)
     })
-    if (!response.ok) return {kind: 'submission_unconfirmed'}
-    const body = await response.json() as {receiptConfirmed?: unknown}
-    return body.receiptConfirmed === true ? {kind: 'receipt_confirmed'} : {kind: 'submission_unconfirmed'}
+    const requestPromise = Promise.resolve().then(async (): Promise<MalaysiaRequestDocumentsReceiverResult> => {
+      const response = await fetcher(WEB3FORMS_ENDPOINT, {
+        method: 'POST',
+        headers: {'content-type': 'application/json', accept: 'application/json'},
+        body: JSON.stringify(payload),
+        cache: 'no-store',
+        signal: controller.signal,
+      })
+      const mediaType = response.headers.get('content-type')?.split(';', 1)[0]?.trim().toLowerCase()
+      if (response.status !== 200 || mediaType !== 'application/json') {
+        return {kind: 'submission_unconfirmed'}
+      }
+      const body = await response.json() as {success?: unknown}
+      return body.success === true ? {kind: 'receipt_confirmed'} : {kind: 'submission_unconfirmed'}
+    })
+    return await Promise.race([requestPromise, timeoutPromise])
   } catch {
     return {kind: 'submission_unconfirmed'}
+  } finally {
+    if (timeout) clearTimeout(timeout)
   }
 }
