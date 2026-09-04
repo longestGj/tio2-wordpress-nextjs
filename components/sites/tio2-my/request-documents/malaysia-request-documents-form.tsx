@@ -111,7 +111,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
     try {
       requestTokenRef.current ??= createSecureRequestToken()
       const result = await submitMalaysiaRequestDocuments(values, {
-        accessKey: process.env.NEXT_PUBLIC_TIO2_MY_REQUEST_DOCUMENTS_WEB3FORMS_ACCESS_KEY ?? null,
+        accessKey: process.env.NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY ?? null,
         requestToken: requestTokenRef.current,
         sourcePageId: normalizeMalaysiaRequestDocumentsSourcePageId(prefill.sourcePageId, {
           productGrade: values.product_grade,

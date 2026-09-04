@@ -17,7 +17,7 @@ function renderPage(prefill = resolveMalaysiaRequestDocumentsPrefill({})) {
 }
 
 beforeEach(() => {
-  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_REQUEST_DOCUMENTS_WEB3FORMS_ACCESS_KEY', 'public-test-key')
+  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'public-test-key')
   vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({success: true}), {
     status: 200, headers: {'content-type': 'application/json'},
   })))
@@ -25,8 +25,8 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.clearAllMocks() })
 
 describe('CONV-DOC page and form', () => {
-  it('submits directly to Web3Forms with the dedicated browser routing key', async () => {
-    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_REQUEST_DOCUMENTS_WEB3FORMS_ACCESS_KEY', 'public-test-key')
+  it('submits directly to Web3Forms with the shared Malaysia forms routing key', async () => {
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'public-test-key')
     vi.mocked(fetch).mockResolvedValueOnce(new Response(JSON.stringify({success: true}), {
       status: 200, headers: {'content-type': 'application/json'},
     }))
@@ -216,7 +216,8 @@ describe('CONV-DOC page and form', () => {
   })
 
   it('retains values and offers retry without contacting Web3Forms when the routing key is unavailable', async () => {
-    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_REQUEST_DOCUMENTS_WEB3FORMS_ACCESS_KEY', '')
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', '')
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_REQUEST_DOCUMENTS_WEB3FORMS_ACCESS_KEY', 'deprecated-key-must-be-ignored')
     const user = userEvent.setup()
     renderPage()
     await user.type(screen.getByLabelText(/Full Name/u), 'Amina Tan')

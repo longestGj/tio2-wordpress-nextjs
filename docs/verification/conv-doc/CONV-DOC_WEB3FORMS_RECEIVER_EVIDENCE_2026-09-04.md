@@ -9,7 +9,7 @@ This record supersedes the server-side receiver conclusions previously recorded 
 
 ## Active receiver boundary
 
-- The Client Component reads only `NEXT_PUBLIC_TIO2_MY_REQUEST_DOCUMENTS_WEB3FORMS_ACCESS_KEY`. The old server-only `TIO2_MY_REQUEST_DOCUMENTS_WEB3FORMS_ACCESS_KEY` setting is removed from the active implementation and `.env.example`.
+- The Client Component reads the shared Malaysia forms key `NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY`; old dedicated Documents and server-only settings are no longer read by the active implementation. `.env.example` must contain only an empty placeholder, while the real key belongs in the untracked `.env.local` or deployment secret store.
 - The approved local placement is the untracked worktree-root `.env.local`; production-equivalent hosting must use its Environment Variables facility. No access-key value is stored in tracked files or this evidence.
 - The provider endpoint is fixed and non-overridable: `https://api.web3forms.com/submit`.
 - The recipient is bound to the access key in Web3Forms. Neither `recipient` nor `to` is present in the browser payload.
