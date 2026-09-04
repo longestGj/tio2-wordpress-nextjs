@@ -28,10 +28,17 @@ describe('Legal page metadata and Schema', () => {
   })
 
   it('emits only visible-copy-equivalent WebPage and BreadcrumbList nodes', () => {
-    const page = toMalaysiaLegalPagesDto(sources)[0]!
-    const graph = buildMalaysiaLegalPageJsonLd(getSiteConfig('tio2-my'), page)['@graph'] as Array<Record<string, unknown>>
-    expect(graph.map((node) => node['@type'])).toEqual(['WebPage', 'BreadcrumbList'])
-    expect(graph[0]).toMatchObject({inLanguage: 'en', dateModified: '2026-09-02'})
-    expect(JSON.stringify(graph)).not.toMatch(/FAQPage|Article|LegalService|TermsOfService/)
+    const pages = toMalaysiaLegalPagesDto(sources)
+    const expected = [
+      {inLanguage: 'en', dateModified: '2026-09-05'},
+      {inLanguage: 'ms-MY', dateModified: '2026-09-05'},
+      {inLanguage: 'en', dateModified: '2026-09-02'},
+    ]
+    pages.forEach((page, index) => {
+      const graph = buildMalaysiaLegalPageJsonLd(getSiteConfig('tio2-my'), page)['@graph'] as Array<Record<string, unknown>>
+      expect(graph.map((node) => node['@type'])).toEqual(['WebPage', 'BreadcrumbList'])
+      expect(graph[0]).toMatchObject(expected[index])
+      expect(JSON.stringify(graph)).not.toMatch(/FAQPage|Article|LegalService|TermsOfService/)
+    })
   })
 })

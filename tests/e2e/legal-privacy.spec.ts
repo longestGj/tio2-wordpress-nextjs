@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test} from '@playwright/test'
-import {mkdirSync, readFileSync} from 'node:fs'
+import {existsSync, mkdirSync, readFileSync} from 'node:fs'
 
 import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
 
@@ -22,6 +22,14 @@ const expectedLegalUtilities = ['Privacy Policy', 'Dasar Privasi (BM)', 'Cookie 
 const evidenceDirectory = 'docs/verification/legal-privacy'
 mkdirSync(evidenceDirectory, {recursive: true})
 
+function configuredWeb3FormsAccessKey() {
+  if (!existsSync('.env.local')) return null
+  const match = /^NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY=(.+)$/mu.exec(readFileSync('.env.local', 'utf8'))
+  return match?.[1]?.trim() || null
+}
+
+const localAccessKey = configuredWeb3FormsAccessKey()
+
 function expectedH1(markdown: string) {
   return /^# (.+)$/m.exec(markdown)?.[1]
 }
@@ -42,7 +50,8 @@ for (const contract of approved.pages) {
       const response = await page.goto(`${baseUrl}${contract.path}`, {waitUntil: 'networkidle'})
       expect(response?.ok()).toBe(true)
 
-      expect(await response!.text()).toMatch(new RegExp(`<html[^>]+lang=["']${contract.locale}["']`, 'u'))
+      const initialHtml = await response!.text()
+      expect(initialHtml).toMatch(new RegExp(`<html[^>]+lang=["']${contract.locale}["']`, 'u'))
       await expect(page.locator('html')).toHaveAttribute('lang', contract.locale)
       await expect(page.locator('main')).toHaveAttribute('lang', contract.locale)
       await expect(page.locator('h1')).toHaveText(expectedH1(contract.buyerVisibleMarkdown)!)
@@ -82,6 +91,31 @@ for (const contract of approved.pages) {
       expect(await page.evaluate(() => localStorage.getItem('tio2_my_consent_v1'))).toBeNull()
       await expect(page.getByRole('dialog')).toHaveCount(0)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+
+      if (contract.pageId.startsWith('LEGAL-PRIV-')) {
+        const updated = contract.locale === 'en'
+          ? 'Last updated: 5 September 2026'
+          : 'Kemas kini terakhir: 5 September 2026'
+        const disclosureLead = contract.locale === 'en'
+          ? 'When you submit a Request Documents form, we collect:'
+          : 'Apabila anda menghantar borang Request Documents, kami mengumpul:'
+        expect(initialHtml).toContain(updated)
+        expect(initialHtml).toContain(disclosureLead)
+        expect(initialHtml).not.toMatch(/Internal release controls|Kawalan dalaman sebelum penerbitan/u)
+        const informationSection = page.locator('main article > section').nth(1)
+        const requestDocumentFields = informationSection.locator('ul').nth(1)
+        await expect(requestDocumentFields.locator('li')).toHaveCount(8)
+        await expect(requestDocumentFields).not.toContainText(/upload|phone|whatsapp|website|market|destination|muat naik|telefon|laman web|pasaran|destinasi/iu)
+        await expect(page.locator('main')).not.toContainText(/NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY|access_key\s*[:=]/u)
+        if (localAccessKey) {
+          expect(initialHtml.includes(localAccessKey), 'configured Web3Forms Access Key must not render').toBe(false)
+        }
+        const renderedEmails = new Set(initialHtml.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/giu)?.map((email) => email.toLowerCase()) ?? [])
+        expect(
+          renderedEmails.size === 1 && renderedEmails.has('info@tio2malaysia.com'),
+          'Privacy runtime must render only the approved privacy-contact email identity',
+        ).toBe(true)
+      }
 
       if (width <= 900) {
         const menuButton = page.getByRole('button', {name: 'Open primary navigation'})
