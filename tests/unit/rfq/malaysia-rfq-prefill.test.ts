@@ -3,6 +3,16 @@ import {describe, expect, it} from 'vitest'
 import {resolveMalaysiaRfqPrefill} from '@/lib/rfq/malaysia-rfq-prefill'
 
 describe('CONV-RFQ prefill', () => {
+  it('accepts the MARKET-EU-001 approved public aliases as visible editable context', () => {
+    expect(resolveMalaysiaRfqPrefill({
+      market: 'European Union',
+      source_page: 'MARKET-EU-001',
+    })).toEqual({
+      values: {destination_country: 'European Union'},
+      sourcePageId: 'MARKET-EU-001',
+    })
+  })
+
   it('projects approved explicit context into visible editable values', () => {
     expect(resolveMalaysiaRfqPrefill({
       grade_id: 'M-2377',

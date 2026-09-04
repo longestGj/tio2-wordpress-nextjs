@@ -2,7 +2,11 @@ import {NextResponse, type NextRequest} from 'next/server'
 
 const DOCUMENT_LANGUAGE_HEADER = 'x-tio2-my-document-language'
 const BAHASA_MALAYSIA_PRIVACY_PATH = '/ms/privacy-policy'
-const MALAYSIA_TRAILING_SLASH_PATHS = new Set(['/markets', '/request-documents'])
+const MALAYSIA_TRAILING_SLASH_PATHS = new Set([
+  '/markets',
+  '/markets/european-union',
+  '/request-documents',
+])
 
 export function proxy(request: NextRequest) {
   const pathnameWithoutTrailingSlash = request.nextUrl.pathname.replace(/\/+$/u, '') || '/'

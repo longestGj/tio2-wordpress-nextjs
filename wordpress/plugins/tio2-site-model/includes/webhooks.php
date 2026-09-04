@@ -52,7 +52,7 @@ function tio2_get_webhook_config(string $site_id, ?array $environment = null): ?
  */
 function tio2_webhook_post_types(): array
 {
-    return array_merge(['page', 'post', 'tio2_homepage', 'tio2_resource_hub', 'tio2_about_page', 'tio2_documents_hub', 'tio2_legal_page', 'tio2_request_docs', 'tio2_request_sample'], array_keys(tio2_content_type_definitions()));
+    return array_merge(['page', 'post', 'tio2_homepage', 'tio2_market_page', 'tio2_resource_hub', 'tio2_about_page', 'tio2_documents_hub', 'tio2_legal_page', 'tio2_request_docs', 'tio2_request_sample'], array_keys(tio2_content_type_definitions()));
 }
 
 /**
@@ -414,6 +414,13 @@ function tio2_get_webhook_affected_state(
         $entity_ids = array_values(array_unique($entity_ids));
         sort($entity_ids, SORT_NUMERIC);
         $site_paths['tio2-a'] = $paths;
+    } elseif ('tio2_market_page' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $path = (string) get_post_meta($post_id, 'public_path', true);
+        if ('/markets/european-union' !== $path) return null;
+        $paths = [$path];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
     } elseif ('tio2_resource_hub' === $post->post_type) {
         if (['tio2-my'] !== $site_ids) return null;
         $paths = ['/resources'];
@@ -646,6 +653,14 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
     }
 
     $post = null === $post_id ? null : get_post($post_id);
+    if (
+        $post instanceof WP_Post &&
+        'tio2_market_page' === $post->post_type &&
+        defined('TIO2_MY_EU_MARKET_CONTRACT_META') &&
+        TIO2_MY_EU_MARKET_CONTRACT_META === $meta_key
+    ) {
+        return true;
+    }
     if (
         $post instanceof WP_Post &&
         function_exists('tio2_my_resource_child_dependency_meta_keys') &&

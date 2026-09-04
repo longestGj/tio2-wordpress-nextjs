@@ -104,7 +104,7 @@
     "allowedTypes": ["WebPage", "BreadcrumbList"]
   },
   "prefill": {
-    "approvedSourcePageIds": ["PRODUCT-000"],
+    "approvedSourcePageIds": ["PRODUCT-000", "MARKET-EU-001"],
     "approvedProcessContexts": ["Sulfate"],
     "approvedDocumentLabels": ["TDS", "SDS", "COA", "COO"],
     "approvedResourceContexts": ["Packaging review"]

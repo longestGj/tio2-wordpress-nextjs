@@ -58,7 +58,7 @@ const approvedApplicationContexts = new Set([...applicationBySource.values(), 'S
 const approvedProcessContexts = new Set(processContextByGrade.values())
 const approvedVisibleContexts = new Set([...approvedApplicationContexts, ...approvedProcessContexts])
 export const MALAYSIA_REQUEST_DOCUMENTS_SOURCE_PAGE_IDS = Object.freeze([
-  'HOME-001', 'MARKET-000', 'PRODUCT-000', 'APP-000', 'DOC-000', 'RES-000',
+  'HOME-001', 'MARKET-000', 'MARKET-EU-001', 'PRODUCT-000', 'APP-000', 'DOC-000', 'RES-000',
   'PRODUCT-PROC-CL', 'PRODUCT-PROC-SU',
   'APP-COAT', 'APP-PLAS', 'APP-MB', 'APP-INK', 'APP-PAPER',
   ...gradePageIds,

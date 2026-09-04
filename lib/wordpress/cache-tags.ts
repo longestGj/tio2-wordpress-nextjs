@@ -164,6 +164,14 @@ export function marketHubContentTag(siteId: string): string {
   return `content:${siteId}--markets`
 }
 
+export function marketPageContentTag(siteId: string, pageId: string, locale: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my' || pageId !== 'MARKET-EU-001' || locale !== 'en') {
+    throw new Error(`Invalid Malaysia Market page identity: ${siteId}/${pageId}/${locale}`)
+  }
+  return `content:${siteId}--market--${pageId}--${locale}`
+}
+
 export function productHubContentTag(siteId: string): string {
   assertSiteId(siteId)
   return `content:${siteId}--products`

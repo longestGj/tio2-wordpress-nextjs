@@ -3,6 +3,14 @@ import {describe, expect, it} from 'vitest'
 import {resolveMalaysiaRequestDocumentsPrefill} from '@/lib/request-documents/malaysia-request-documents-prefill'
 
 describe('CONV-DOC prefill normalization', () => {
+  it('preserves MARKET-EU-001 source and market attribution without inventing visible values', () => {
+    expect(resolveMalaysiaRequestDocumentsPrefill({
+      source_page_id: 'MARKET-EU-001', market_id: 'MARKET-EU-001',
+    })).toEqual({
+      values: {}, sourcePageId: 'MARKET-EU-001', marketId: 'MARKET-EU-001', prefillVisible: false,
+    })
+  })
+
   it('keeps only allowlisted visible editable values and safe source attribution', () => {
     expect(resolveMalaysiaRequestDocumentsPrefill({
       product_grade: 'M-2196', application_industry: 'Coatings',

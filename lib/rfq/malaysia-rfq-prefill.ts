@@ -1,6 +1,8 @@
 import contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-rfq-page.json'
 
 export interface MalaysiaRfqPrefillInput {
+  readonly market?: string | readonly string[]
+  readonly source_page?: string | readonly string[]
   readonly grade_id?: string | readonly string[]
   readonly application_id?: string | readonly string[]
   readonly destination_country?: string | readonly string[]
@@ -28,7 +30,8 @@ export function resolveMalaysiaRfqPrefill(input: MalaysiaRfqPrefillInput): Malay
   const values: Record<string, string> = {}
   const grade = first(input.grade_id)
   const application = first(input.application_id)
-  const country = first(input.destination_country)
+  const approvedMarket = first(input.market) === 'European Union' ? 'European Union' : null
+  const country = first(input.destination_country) ?? approvedMarket
 
   if (grade && contract.form.gradeOptions.includes(grade)) values.grade_id = grade
   if (
@@ -46,7 +49,7 @@ export function resolveMalaysiaRfqPrefill(input: MalaysiaRfqPrefillInput): Malay
   if (resource && contract.prefill.approvedResourceContexts.includes(resource)) context.push(resource)
   if (context.length) values.additional_requirements = context.join('\n')
 
-  const source = first(input.source_page_id)
+  const source = first(input.source_page_id) ?? first(input.source_page)
   const sourcePageId = source && contract.prefill.approvedSourcePageIds.includes(source) ? source : null
   return {values: Object.freeze(values), sourcePageId}
 }

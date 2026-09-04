@@ -314,6 +314,22 @@ describe('POST /api/revalidate', () => {
     expect(JSON.stringify(body)).not.toMatch(/tio2-a|tio2-b/iu)
   })
 
+  it('revalidates MARKET-EU-001 with its three scope-local query tags only', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/markets/european-union/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/markets/european-union'])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--market--MARKET-EU-001--en',
+      'route:tio2-my:/markets/european-union',
+      'site:tio2-my',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|tio2-a|tio2-b/iu)
+  })
+
   it('revalidates ABOUT-001 with its scope-local content tag', async () => {
     vi.stubEnv('SITE_ID', 'tio2-my')
     const response = await POST(signedRequest(validPayload({
