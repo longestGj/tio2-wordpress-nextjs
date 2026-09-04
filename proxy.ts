@@ -2,21 +2,26 @@ import {NextResponse, type NextRequest} from 'next/server'
 
 const DOCUMENT_LANGUAGE_HEADER = 'x-tio2-my-document-language'
 const BAHASA_MALAYSIA_PRIVACY_PATH = '/ms/privacy-policy'
+const MALAYSIA_TRAILING_SLASH_PATHS = new Set(['/markets', '/request-documents'])
 
 export function proxy(request: NextRequest) {
-  if (process.env.SITE_ID === 'tio2-my' && request.nextUrl.pathname === '/markets') {
+  const pathnameWithoutTrailingSlash = request.nextUrl.pathname.replace(/\/+$/u, '') || '/'
+  const isMalaysiaTrailingSlashPath = process.env.SITE_ID === 'tio2-my' &&
+    MALAYSIA_TRAILING_SLASH_PATHS.has(pathnameWithoutTrailingSlash)
+
+  if (isMalaysiaTrailingSlashPath && request.nextUrl.pathname === pathnameWithoutTrailingSlash) {
     const canonicalUrl = new URL(request.url)
-    canonicalUrl.pathname = '/markets/'
+    canonicalUrl.pathname = `${pathnameWithoutTrailingSlash}/`
     return NextResponse.redirect(canonicalUrl, 308)
   }
 
   if (
     request.nextUrl.pathname !== '/' &&
     request.nextUrl.pathname.endsWith('/') &&
-    !(process.env.SITE_ID === 'tio2-my' && request.nextUrl.pathname === '/markets/')
+    !isMalaysiaTrailingSlashPath
   ) {
     const canonicalUrl = new URL(request.url)
-    canonicalUrl.pathname = request.nextUrl.pathname.replace(/\/+$/u, '')
+    canonicalUrl.pathname = pathnameWithoutTrailingSlash
     return NextResponse.redirect(canonicalUrl, 308)
   }
 

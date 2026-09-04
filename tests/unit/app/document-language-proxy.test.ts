@@ -9,19 +9,25 @@ const header = 'x-middleware-request-x-tio2-my-document-language'
 afterEach(() => vi.unstubAllEnvs())
 
 describe('TiO2 Malaysia document-language proxy', () => {
-  it('redirects only the Markets hub to its approved trailing-slash URL', () => {
+  it('keeps approved Malaysia hub and conversion routes on their trailing-slash URLs', () => {
     vi.stubEnv('SITE_ID', 'tio2-my')
     const markets = proxy(new NextRequest('https://tio2malaysia.com/markets?source=test'))
+    const requestDocuments = proxy(new NextRequest('https://tio2malaysia.com/request-documents'))
+    const canonicalRequestDocuments = proxy(new NextRequest('https://tio2malaysia.com/request-documents/'))
     const api = proxy(new NextRequest('https://tio2malaysia.com/api/revalidate', {method: 'POST'}))
 
     expect(markets.status).toBe(308)
     expect(markets.headers.get('location')).toBe('https://tio2malaysia.com/markets/?source=test')
+    expect(requestDocuments.status).toBe(308)
+    expect(requestDocuments.headers.get('location')).toBe('https://tio2malaysia.com/request-documents/')
+    expect(canonicalRequestDocuments.status).toBe(200)
+    expect(canonicalRequestDocuments.headers.get('location')).toBeNull()
     expect(api.status).toBe(200)
     expect(api.headers.get('location')).toBeNull()
     expect(api.headers.get(header)).toBeNull()
   })
 
-  it('preserves the original no-trailing-slash behavior outside the Markets exception', () => {
+  it('preserves the original no-trailing-slash behavior outside approved Malaysia exceptions', () => {
     vi.stubEnv('SITE_ID', 'tio2-my')
 
     for (const path of ['/products/', '/privacy-policy/', '/api/revalidate/']) {
@@ -31,6 +37,11 @@ describe('TiO2 Malaysia document-language proxy', () => {
         `https://tio2malaysia.com${path.slice(0, -1)}`,
       )
     }
+
+    vi.stubEnv('SITE_ID', 'tio2-a')
+    const otherSite = proxy(new NextRequest('https://example.test/request-documents/'))
+    expect(otherSite.status).toBe(308)
+    expect(otherSite.headers.get('location')).toBe('https://example.test/request-documents')
   })
 
   it.each([
