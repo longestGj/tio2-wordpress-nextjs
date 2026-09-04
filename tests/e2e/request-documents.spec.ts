@@ -108,16 +108,23 @@ test('CONV-DOC validation, failure retention, retry token and explicit receipt',
   await page.getByRole('checkbox', {name: /^Safety Documentation/u}).check()
   const tokens: string[] = []
   let attempt = 0
-  await page.route('**/api/tio2-my/request-documents', async (route) => {
+  await page.route('https://api.web3forms.com/submit', async (route) => {
     attempt += 1
     const payload = route.request().postDataJSON() as Record<string, unknown>
     tokens.push(String(payload.request_token))
-    expect(payload).toMatchObject({product_grade: 'M-2196', document_types: ['safety'], source_page_id: null})
+    expect(payload).toMatchObject({
+      product_grade: 'M-2196', document_types: ['safety'], site_scope: 'tio2-my',
+      page_id: 'CONV-DOC', workflow: 'request_documents',
+    })
+    expect(typeof payload.access_key).toBe('string')
+    expect(String(payload.access_key).length).toBeGreaterThan(0)
+    expect(payload).not.toHaveProperty('recipient')
+    expect(payload).not.toHaveProperty('to')
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 400))
     await route.fulfill({
-      status: attempt === 1 ? 502 : 200,
+      status: attempt === 1 ? 500 : 200,
       contentType: 'application/json',
-      body: JSON.stringify(attempt === 1 ? {ok: false, kind: 'submission_unconfirmed'} : {ok: true, kind: 'receipt_confirmed'}),
+      body: JSON.stringify(attempt === 1 ? {success: false} : {success: true}),
     })
   })
   await page.getByRole('button', {name: 'Request Documents'}).click()

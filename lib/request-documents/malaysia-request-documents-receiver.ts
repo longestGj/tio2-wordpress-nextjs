@@ -23,6 +23,7 @@ interface ReceiverOptions {
 }
 
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
+const MAX_PROVIDER_PAYLOAD_BYTES = 16 * 1024
 export const MALAYSIA_REQUEST_DOCUMENTS_SUBMISSION_TIMEOUT_MS = 12_000
 
 export async function submitMalaysiaRequestDocuments(
@@ -50,6 +51,10 @@ export async function submitMalaysiaRequestDocuments(
     ...(options.sourcePageId ? {source_page_id: options.sourcePageId} : {}),
     ...(options.marketId ? {market_id: options.marketId} : {}),
   }
+  const serializedPayload = JSON.stringify(payload)
+  if (new TextEncoder().encode(serializedPayload).byteLength > MAX_PROVIDER_PAYLOAD_BYTES) {
+    return {kind: 'submission_unconfirmed'}
+  }
   let timeout: ReturnType<typeof setTimeout> | undefined
   try {
     const timeoutPromise = new Promise<never>((_resolve, reject) => {
@@ -62,8 +67,10 @@ export async function submitMalaysiaRequestDocuments(
       const response = await fetcher(WEB3FORMS_ENDPOINT, {
         method: 'POST',
         headers: {'content-type': 'application/json', accept: 'application/json'},
-        body: JSON.stringify(payload),
+        body: serializedPayload,
         cache: 'no-store',
+        referrerPolicy: 'origin',
+        redirect: 'error',
         signal: controller.signal,
       })
       const mediaType = response.headers.get('content-type')?.split(';', 1)[0]?.trim().toLowerCase()

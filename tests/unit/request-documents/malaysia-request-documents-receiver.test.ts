@@ -17,7 +17,7 @@ const options = {
 }
 
 describe('CONV-DOC receiver boundary', () => {
-  it('submits through the server-side Web3Forms contract', async () => {
+  it('submits through the fixed Web3Forms browser contract', async () => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify({success: true}), {
       status: 200, headers: {'content-type': 'application/json'},
     }))
@@ -30,6 +30,9 @@ describe('CONV-DOC receiver boundary', () => {
     const calls = fetcher.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
     expect(String(calls[0]?.[0])).toBe('https://api.web3forms.com/submit')
     expect(calls[0]?.[1]?.headers).toEqual({'content-type': 'application/json', accept: 'application/json'})
+    expect(calls[0]?.[1]).toMatchObject({
+      cache: 'no-store', referrerPolicy: 'origin', redirect: 'error',
+    })
     const payload = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
     expect(payload).toMatchObject({
       access_key: 'test-access-key', email: 'amina@example.com', site_scope: 'tio2-my',
@@ -40,7 +43,7 @@ describe('CONV-DOC receiver boundary', () => {
     expect(payload).not.toHaveProperty('to')
   })
 
-  it('cannot redirect the server credential or buyer data to another endpoint', async () => {
+  it('cannot redirect the public routing key or buyer data to another endpoint', async () => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify({success: true}), {
       status: 200, headers: {'content-type': 'application/json'},
     }))
@@ -73,6 +76,16 @@ describe('CONV-DOC receiver boundary', () => {
       ...options, fetcher,
     })
     expect(result.kind).toBe('validation_failed')
+    expect(fetcher).not.toHaveBeenCalled()
+  })
+
+  it('rejects a provider payload larger than the approved 16 KB boundary', async () => {
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({success: true}), {
+      status: 200, headers: {'content-type': 'application/json'},
+    }))
+    await expect(submitMalaysiaRequestDocuments({...values, full_name: 'a'.repeat(17 * 1024)}, {
+      ...options, fetcher,
+    })).resolves.toEqual({kind: 'submission_unconfirmed'})
     expect(fetcher).not.toHaveBeenCalled()
   })
 
@@ -115,6 +128,8 @@ describe('CONV-DOC receiver boundary', () => {
     [200, 'application/json', {}],
     [200, 'application/json', {success: false}],
     [202, 'application/json', {success: true}],
+    [307, 'application/json', {success: true}],
+    [308, 'application/json', {success: true}],
     [500, 'application/json', {success: true}],
     [200, 'text/plain', {success: true}],
     [200, 'text/plain; profile=application/json', {success: true}],

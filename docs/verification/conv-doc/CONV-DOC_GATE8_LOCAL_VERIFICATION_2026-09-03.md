@@ -1,5 +1,7 @@
 # CONV-DOC Gate 8 Local Verification — 2026-09-03
 
+> Receiver-runtime update (2026-09-04): the same-origin/server-only receiver sections below are historical Gate 8 evidence and have been superseded by the user-approved Web3Forms free-plan browser-direct runtime. See `CONV-DOC_WEB3FORMS_RECEIVER_EVIDENCE_2026-09-04.md` for the active transport, environment variable and fresh verification. Page layout, visual, CMS, SEO, a11y and shared-Chrome evidence in this record remains applicable.
+
 ## Status and boundary
 
 - Page: `CONV-DOC` / `/request-documents/`

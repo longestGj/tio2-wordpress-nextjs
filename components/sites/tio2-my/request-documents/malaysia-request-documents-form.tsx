@@ -2,7 +2,12 @@
 
 import {useEffect, useMemo, useRef, useState} from 'react'
 
-import type {MalaysiaRequestDocumentsPrefill} from '@/lib/request-documents/malaysia-request-documents-prefill'
+import {
+  normalizeMalaysiaRequestDocumentsMarketId,
+  normalizeMalaysiaRequestDocumentsSourcePageId,
+  type MalaysiaRequestDocumentsPrefill,
+} from '@/lib/request-documents/malaysia-request-documents-prefill'
+import {submitMalaysiaRequestDocuments} from '@/lib/request-documents/malaysia-request-documents-receiver'
 import {
   emptyMalaysiaRequestDocumentsValues,
   validateMalaysiaRequestDocumentsValues,
@@ -105,15 +110,19 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
     pendingRef.current = true
     try {
       requestTokenRef.current ??= createSecureRequestToken()
-      const response = await fetch('/api/tio2-my/request-documents', {
-        method: 'POST', headers: {'content-type': 'application/json'}, cache: 'no-store',
-        body: JSON.stringify({...values, request_token: requestTokenRef.current, source_page_id: prefill.sourcePageId, market_id: prefill.marketId}),
+      const result = await submitMalaysiaRequestDocuments(values, {
+        accessKey: process.env.NEXT_PUBLIC_TIO2_MY_REQUEST_DOCUMENTS_WEB3FORMS_ACCESS_KEY ?? null,
+        requestToken: requestTokenRef.current,
+        sourcePageId: normalizeMalaysiaRequestDocumentsSourcePageId(prefill.sourcePageId, {
+          productGrade: values.product_grade,
+          applicationIndustry: values.application_industry,
+        }),
+        marketId: normalizeMalaysiaRequestDocumentsMarketId(prefill.marketId),
       })
-      const body = await response.json() as {kind?: unknown; errors?: MalaysiaRequestDocumentsErrors}
-      if (response.ok && body.kind === 'receipt_confirmed') {
+      if (result.kind === 'receipt_confirmed') {
         setState('success')
-      } else if (body.kind === 'validation_failed' && body.errors && Object.keys(body.errors).length) {
-        setErrors(body.errors)
+      } else if (result.kind === 'validation_failed' && Object.keys(result.errors).length) {
+        setErrors(result.errors)
         setState('ready')
         setValidationAttempt((current) => current + 1)
         return

@@ -17,13 +17,58 @@ function renderPage(prefill = resolveMalaysiaRequestDocumentsPrefill({})) {
 }
 
 beforeEach(() => {
-  vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ok: true, kind: 'receipt_confirmed'}), {
+  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_REQUEST_DOCUMENTS_WEB3FORMS_ACCESS_KEY', 'public-test-key')
+  vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({success: true}), {
     status: 200, headers: {'content-type': 'application/json'},
   })))
 })
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.clearAllMocks() })
+afterEach(() => { cleanup(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.clearAllMocks() })
 
 describe('CONV-DOC page and form', () => {
+  it('submits directly to Web3Forms with the dedicated browser routing key', async () => {
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_REQUEST_DOCUMENTS_WEB3FORMS_ACCESS_KEY', 'public-test-key')
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(JSON.stringify({success: true}), {
+      status: 200, headers: {'content-type': 'application/json'},
+    }))
+    const user = userEvent.setup()
+    renderPage(resolveMalaysiaRequestDocumentsPrefill({product_grade: 'M-2196', document_types: ['safety']}))
+    await user.type(screen.getByLabelText(/Full Name/u), 'Amina Tan')
+    await user.type(screen.getByLabelText(/^Company/u), 'Example Co')
+    await user.type(screen.getByLabelText(/Business Email/u), 'amina@example.com')
+    await user.type(screen.getByLabelText(/Country \/ Region/u), 'Malaysia')
+    await user.click(screen.getByRole('button', {name: 'Request Documents'}))
+    await screen.findByRole('heading', {name: 'Document Request Received'})
+
+    const calls = vi.mocked(fetch).mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
+    expect(String(calls[0]?.[0])).toBe('https://api.web3forms.com/submit')
+    const payload = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
+    expect(payload).toMatchObject({
+      access_key: 'public-test-key', full_name: 'Amina Tan', company: 'Example Co',
+      business_email: 'amina@example.com', country_region: 'Malaysia', product_grade: 'M-2196',
+      document_types: ['safety'], site_scope: 'tio2-my', page_id: 'CONV-DOC',
+      workflow: 'request_documents',
+    })
+  })
+
+  it('revalidates source attribution against the final visible context before browser submission', async () => {
+    const user = userEvent.setup()
+    renderPage(resolveMalaysiaRequestDocumentsPrefill({
+      product_grade: 'M-2377', application_industry: 'Coatings', document_types: ['safety'],
+      source_page_id: 'GRADE-M2377',
+    }))
+    await user.type(screen.getByLabelText(/Full Name/u), 'Amina Tan')
+    await user.type(screen.getByLabelText(/^Company/u), 'Example Co')
+    await user.type(screen.getByLabelText(/Business Email/u), 'amina@example.com')
+    await user.type(screen.getByLabelText(/Country \/ Region/u), 'Malaysia')
+    await user.selectOptions(screen.getByLabelText(/Product Grade/u), 'M-350')
+    await user.click(screen.getByRole('button', {name: 'Request Documents'}))
+    await screen.findByRole('heading', {name: 'Document Request Received'})
+    const calls = vi.mocked(fetch).mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
+    const payload = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
+    expect(payload).not.toHaveProperty('source_page_id')
+    expect(payload).toMatchObject({product_grade: 'M-350', application_industry: 'Coatings'})
+  })
+
   it('renders exact Buyer Clean modules, one form, shared Chrome and no false current nav', () => {
     const {container} = renderPage()
     expect(screen.getAllByRole('heading', {level: 1})).toHaveLength(1)
@@ -128,7 +173,9 @@ describe('CONV-DOC page and form', () => {
       .mockResolvedValueOnce(new Response(JSON.stringify({ok: false, kind: 'submission_unconfirmed'}), {status: 502}))
       .mockImplementationOnce(async () => {
         await new Promise((resolve) => setTimeout(resolve, 50))
-        return new Response(JSON.stringify({ok: true, kind: 'receipt_confirmed'}), {status: 200})
+        return new Response(JSON.stringify({success: true}), {
+          status: 200, headers: {'content-type': 'application/json'},
+        })
       })
     const user = userEvent.setup()
     renderPage(resolveMalaysiaRequestDocumentsPrefill({product_grade: 'M-2196', document_types: ['safety']}))
@@ -168,8 +215,8 @@ describe('CONV-DOC page and form', () => {
     expect(fetch).toHaveBeenCalledOnce()
   })
 
-  it('retains values and offers retry for unavailable or ambiguous submission', async () => {
-    vi.mocked(fetch).mockResolvedValueOnce(new Response(JSON.stringify({ok: false, kind: 'unavailable'}), {status: 503}))
+  it('retains values and offers retry without contacting Web3Forms when the routing key is unavailable', async () => {
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_REQUEST_DOCUMENTS_WEB3FORMS_ACCESS_KEY', '')
     const user = userEvent.setup()
     renderPage()
     await user.type(screen.getByLabelText(/Full Name/u), 'Amina Tan')
@@ -183,5 +230,6 @@ describe('CONV-DOC page and form', () => {
     expect(screen.getByRole('button', {name: 'Try again'})).toBeTruthy()
     expect((screen.getByLabelText(/Full Name/u) as HTMLInputElement).value).toBe('Amina Tan')
     expect(screen.queryByText('Document Request Received')).toBeNull()
+    expect(fetch).not.toHaveBeenCalled()
   })
 })
