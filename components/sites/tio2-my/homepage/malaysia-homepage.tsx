@@ -7,7 +7,7 @@ import {
   MalaysiaGlobalHeader,
 } from '../malaysia-global-chrome'
 import styles from './malaysia-homepage.module.css'
-import {ResponsiveProductGroups} from './responsive-product-groups'
+import {ResponsiveProductGroup, ResponsiveProductGroups} from './responsive-product-groups'
 
 const rfqAttributes = {
   'data-site-scope': 'tio2-my',
@@ -28,6 +28,13 @@ function UnresolvedAction({children}: {readonly children: React.ReactNode}) {
   return <span className={styles.unresolvedAction} role="link" aria-disabled="true">{children}</span>
 }
 
+function HeroHeading({heading}: {readonly heading: string}) {
+  const accent = 'for Industrial Buyers'
+  const accentStart = heading.lastIndexOf(accent)
+  if (accentStart < 0) return <>{heading}</>
+  return <>{heading.slice(0, accentStart)}<span className={styles.heroAccent}>{accent}</span></>
+}
+
 export function MalaysiaHomepage({homepage, structuredData}: {
   readonly homepage: MalaysiaHomepageDto
   readonly structuredData?: React.ReactNode
@@ -44,7 +51,7 @@ export function MalaysiaHomepage({homepage, structuredData}: {
         <section className={`${styles.section} ${styles.hero}`} data-module="hero" aria-labelledby="my-hero-heading">
           <div className={styles.heroCopy}>
             <Eyebrow>{homepage.hero.eyebrow}</Eyebrow>
-            <h1 id="my-hero-heading">{homepage.hero.heading}</h1>
+            <h1 id="my-hero-heading"><HeroHeading heading={homepage.hero.heading} /></h1>
             <p>{homepage.hero.body}</p>
             <div className={styles.actions}>
               <a className={styles.primaryButton} href={homepage.hero.primaryCta.href} {...rfqAttributes}>
@@ -103,11 +110,13 @@ export function MalaysiaHomepage({homepage, structuredData}: {
           <ResponsiveProductGroups>
             <div className={styles.productGrid}>
               {homepage.products.groups.map((group, index) => (
-                <article key={group.title}>
-                  <span className={styles.groupCount}>{String(index + 1).padStart(2, '0')} / {String(group.gradeIds.length).padStart(2, '0')}</span>
-                  <h3>{group.title}</h3><div className={styles.gradeIds}>{group.gradeIds.map((id) => <span key={id}>{id}</span>)}</div>
-                  <p>{group.description}</p>
-                </article>
+                <ResponsiveProductGroup count={group.gradeIds.length} key={group.title} title={group.title}>
+                  <article>
+                    <span className={styles.groupCount}>{String(index + 1).padStart(2, '0')} / {String(group.gradeIds.length).padStart(2, '0')}</span>
+                    <h3>{group.title}</h3><div className={styles.gradeIds}>{group.gradeIds.map((id) => <span data-product-grade-id key={id}>{id}</span>)}</div>
+                    <p>{group.description}</p>
+                  </article>
+                </ResponsiveProductGroup>
               ))}
             </div>
           </ResponsiveProductGroups>

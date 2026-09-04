@@ -1,36 +1,40 @@
 'use client'
 
-import {useState, useSyncExternalStore} from 'react'
+import {useId, useState} from 'react'
 
 import styles from './malaysia-homepage.module.css'
 
 export function ResponsiveProductGroups({children}: {readonly children: React.ReactNode}) {
-  const desktopTablet = useSyncExternalStore(
-    (notify) => {
-      if (typeof window.matchMedia !== 'function') return () => undefined
-      const media = window.matchMedia('(max-width: 767px)')
-      media.addEventListener('change', notify)
-      return () => media.removeEventListener('change', notify)
-    },
-    () => typeof window.matchMedia !== 'function' ||
-      !window.matchMedia('(max-width: 767px)').matches,
-    () => true,
-  )
+  return children
+}
+
+export function ResponsiveProductGroup({children, count, title}: {
+  readonly children: React.ReactNode
+  readonly count: number
+  readonly title: string
+}) {
   const [mobileOpen, setMobileOpen] = useState(false)
-  const open = desktopTablet || mobileOpen
+  const panelId = useId()
 
   return (
-    <details
-      className={styles.productDetails}
-      open={open}
-      onToggle={(event) => {
-        if (!desktopTablet) {
-          setMobileOpen(event.currentTarget.open)
-        }
-      }}
+    <div
+      className={styles.productGroup}
+      data-product-group
+      data-mobile-open={mobileOpen}
     >
-      <summary>View product groups <span aria-hidden>+</span></summary>
-      {children}
-    </details>
+      <button
+        aria-controls={panelId}
+        aria-expanded={mobileOpen}
+        aria-label={`${title}, ${count} grades, ${mobileOpen ? 'collapse' : 'expand grades'}`}
+        className={styles.productGroupToggle}
+        data-product-disclosure
+        onClick={() => setMobileOpen((open) => !open)}
+        type="button"
+      >
+        <strong>{title}</strong>
+        <span>{count} · {mobileOpen ? 'Collapse' : 'Expand grades'} <b aria-hidden="true">{mobileOpen ? '−' : '+'}</b></span>
+      </button>
+      <div className={styles.productGroupContent} id={panelId}>{children}</div>
+    </div>
   )
 }

@@ -1,9 +1,11 @@
 // @vitest-environment jsdom
 
 import {cleanup, render, screen} from '@testing-library/react'
+import {renderToStaticMarkup} from 'react-dom/server'
 import {afterEach, describe, expect, it} from 'vitest'
 
 import {MalaysiaHomepage} from '@/components/sites/tio2-my/homepage/malaysia-homepage'
+import {ResponsiveProductGroup} from '@/components/sites/tio2-my/homepage/responsive-product-groups'
 import {toMalaysiaHomepageDto} from '@/lib/wordpress/homepage-v04-dto'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json'
 
@@ -41,6 +43,34 @@ describe('MalaysiaHomepage', () => {
     for (const id of approvedContract.products.groups.flatMap((group) => group.gradeIds)) {
       expect(screen.getByText(id)).toBeTruthy()
     }
+  })
+
+  it('renders four independently expandable product groups with approved counts', () => {
+    const {container} = render(<MalaysiaHomepage homepage={homepage()} />)
+    const groups = [...container.querySelectorAll<HTMLElement>('[data-product-group]')]
+    expect(groups).toHaveLength(4)
+    expect(groups.map((group) => group.getAttribute('data-mobile-open'))).toEqual(['false', 'false', 'false', 'false'])
+    expect(groups.map((group) => group.querySelector('[data-product-disclosure]')?.textContent)).toEqual(
+      approvedContract.products.groups.map(
+        (group) => `${group.title}${group.gradeIds.length} · Expand grades +`,
+      ),
+    )
+    const gradeIds = [...container.querySelectorAll('[data-product-grade-id]')]
+      .map((node) => node.textContent)
+    expect(gradeIds).toHaveLength(14)
+    expect(new Set(gradeIds).size).toBe(14)
+  })
+
+  it('server-renders mobile product groups collapsed before hydration', () => {
+    const markup = renderToStaticMarkup(
+      <ResponsiveProductGroup count={4} title="General-purpose Rutile">
+        <article>Grade inventory</article>
+      </ResponsiveProductGroup>,
+    )
+
+    expect(markup).toContain('data-mobile-open="false"')
+    expect(markup).toContain('aria-expanded="false"')
+    expect(markup).toContain('General-purpose Rutile, 4 grades, expand grades')
   })
 
   it('never fabricates provisional or candidate hrefs', () => {

@@ -15,6 +15,50 @@ const moduleOrder = [
   'buyer-questions',
 ] as const
 
+test('MARKET-000 canonical route is the direct representation', async ({page, request}) => {
+  const canonicalResponse = await request.get(`${baseUrl}/markets/`, {maxRedirects: 0})
+  expect(canonicalResponse.status()).toBe(200)
+
+  const nonCanonicalResponse = await request.get(`${baseUrl}/markets`, {maxRedirects: 0})
+  expect(nonCanonicalResponse.status()).toBe(308)
+  expect(nonCanonicalResponse.headers().location).toBe('/markets/')
+
+  const revalidationResponse = await request.post(`${baseUrl}/api/revalidate`, {
+    data: {},
+    maxRedirects: 0,
+  })
+  expect(
+    revalidationResponse.status() < 300 || revalidationResponse.status() >= 400,
+  ).toBe(true)
+  expect(revalidationResponse.headers().location).toBeUndefined()
+
+  const navigationResponse = await page.goto(`${baseUrl}/markets`)
+  expect(navigationResponse?.ok()).toBe(true)
+  expect(new URL(page.url()).pathname).toBe('/markets/')
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    'href',
+    'https://tio2malaysia.com/markets/',
+  )
+  expect(await page.locator('a[data-market-action]').evaluateAll((links) =>
+    links.map((link) => link.getAttribute('href')),
+  )).toEqual([
+    '/markets/european-union/', '/markets/germany/', '/markets/italy/',
+    '/markets/spain/', '/markets/poland/', '/markets/netherlands/',
+    '/markets/belgium/', '/markets/united-kingdom/', '/markets/india/',
+    '/markets/brazil/',
+  ])
+  const graph = JSON.parse(
+    await page.locator('script[type="application/ld+json"]').textContent() ?? '{}',
+  )['@graph'] as Array<Record<string, unknown>>
+  expect(graph[0]).toMatchObject({
+    '@id': 'https://tio2malaysia.com/markets/#collection-page',
+    url: 'https://tio2malaysia.com/markets/',
+  })
+  const sitemap = await request.get(`${baseUrl}/sitemap.xml`)
+  expect(sitemap.status()).toBe(200)
+  expect(await sitemap.text()).not.toContain('https://tio2malaysia.com/markets/')
+})
+
 for (const width of widths) {
   test(`MARKET-000 ${width}px runtime contract`, async ({page}) => {
     await page.setViewportSize({width, height: width === 390 ? 844 : 1000})
