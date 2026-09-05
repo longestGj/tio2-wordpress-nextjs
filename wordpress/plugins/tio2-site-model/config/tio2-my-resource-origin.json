@@ -1,0 +1,287 @@
+{
+  "internal": {
+    "packageId": "RES-ORIGIN-G7-HANDOFF-01",
+    "contentVersion": "RES-ORIGIN_CONTENT_ARCHITECTURE_V0.2",
+    "visualVersion": "RES-ORIGIN-G5-V0.1",
+    "approvedBaselineId": "RES-ORIGIN-G5-V0.1",
+    "relationEligibilityRevision": "RES-ORIGIN-REL-V0.1",
+    "metadataRevision": "RES-ORIGIN-META-V0.1"
+  },
+  "identity": {
+    "pageId": "RES-ORIGIN",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "pageType": "buying_guide",
+    "slug": "non-china-titanium-dioxide",
+    "path": "/resources/non-china-titanium-dioxide/",
+    "canonical": "https://tio2malaysia.com/resources/non-china-titanium-dioxide/"
+  },
+  "releaseControls": {
+    "indexingAuthorized": false,
+    "sitemapAuthorized": false
+  },
+  "seo": {
+    "primaryKeyword": "non china titanium dioxide",
+    "title": "Non-China Titanium Dioxide Supply Guide | TiO2 Malaysia",
+    "description": "Evaluate non-China titanium dioxide supply using checks for origin evidence, technical documents, application fit and destination-market requirements.",
+    "canonical": "https://tio2malaysia.com/resources/non-china-titanium-dioxide/",
+    "language": "en"
+  },
+  "articleMetadata": null,
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-005",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"
+  },
+  "moduleOrder": [
+    "GLOBAL_HEADER",
+    "BREADCRUMB",
+    "HERO",
+    "DIRECT_ANSWER",
+    "SIX_CHECKS",
+    "TECHNICAL_COMPARISON",
+    "APPLICATION_CONTEXT",
+    "DOCUMENT_SCOPE",
+    "DESTINATION_REVIEW",
+    "QUALIFICATION_DECISION",
+    "BUYER_QUESTIONS",
+    "FINAL_ACTION",
+    "GLOBAL_FOOTER"
+  ],
+  "breadcrumb": [
+    {"targetPageId": "HOME-001", "label": "Home", "relationKey": "home"},
+    {"targetPageId": "RES-000", "label": "Resources", "relationKey": "resources_parent"},
+    {"targetPageId": "RES-ORIGIN", "label": "Non-China Titanium Dioxide Supply Guide", "relationKey": null}
+  ],
+  "hero": {
+    "eyebrow": "PROCUREMENT GUIDE",
+    "h1": "Non-China Titanium Dioxide: A Procurement Evaluation Guide",
+    "supportingCopy": "Use a practical framework to evaluate alternative-origin titanium dioxide through supplier and product identity, origin evidence, technical documentation, application conditions and destination-market requirements.",
+    "primaryAction": {"label": "Review Titanium Dioxide Products", "relationKey": "products_primary"},
+    "secondaryAction": {"label": "Request a Quote", "relationKey": "rfq_secondary"},
+    "qualificationPath": [
+      "Confirm the commercial counterparty",
+      "Confirm the product and grade identity",
+      "Verify origin evidence and its scope",
+      "Review current technical documents and methods",
+      "Define application and processing conditions",
+      "Check document, lot and destination requirements"
+    ]
+  },
+  "directAnswer": {
+    "eyebrow": "DIRECT ANSWER",
+    "heading": "What does non-China titanium dioxide mean?",
+    "answer": "Non-China titanium dioxide is a procurement term used to describe titanium dioxide presented as originating outside China. For procurement teams, the label identifies a sourcing category for due diligence; it does not by itself verify origin, establish how a grade will perform, confirm availability or determine how authorities will treat a particular import. Those questions require separate evidence for the supplier, product, transaction, application and destination.",
+    "supportingSentence": "A sound review starts with the exact sourcing question, then checks each evidence category within its stated scope."
+  },
+  "dueDiligence": {
+    "eyebrow": "DUE DILIGENCE",
+    "heading": "Six checks before qualifying an alternative-origin source",
+    "introduction": "Use the six checks as a sequence. A strong answer in one area does not replace missing evidence in another.",
+    "checks": [
+      {
+        "number": "01",
+        "heading": "Confirm the commercial counterparty",
+        "body": "Record the legal supplier identity, its role in the transaction and the contact channel used for the inquiry. A company name, address or brand identity should not be treated as product-origin evidence.",
+        "buyerCheck": "Can the supplier and its role in this transaction be identified clearly?"
+      },
+      {
+        "number": "02",
+        "heading": "Confirm the product and grade identity",
+        "body": "Match the offered product name and grade to the technical documents under review. Similar descriptions, shared application labels or origin wording do not establish that two grades are interchangeable.",
+        "buyerCheck": "Do the offer, technical documents and evaluation sample refer to the same product and grade?"
+      },
+      {
+        "number": "03",
+        "heading": "Verify origin evidence and its scope",
+        "body": "Ask what evidence supports the stated origin and exactly what it covers: a product, lot, order, shipment or other defined transaction. Do not extend an origin statement beyond the scope shown by the evidence.",
+        "buyerCheck": "Is the origin evidence relevant to the material and transaction being evaluated?"
+      },
+      {
+        "number": "04",
+        "heading": "Review current technical documents and methods",
+        "body": "Check the grade name, document revision, units, test methods and stated conditions before comparing values. Results produced by different methods or under different conditions may not be directly comparable.",
+        "buyerCheck": "Are the documents current for the grade, and are the comparison methods compatible?"
+      },
+      {
+        "number": "05",
+        "heading": "Define application and processing conditions",
+        "body": "Describe the buyer's formulation or process, operating conditions, performance priorities and validation method. Grade suitability should be assessed against those conditions rather than inferred from origin or a generic application label.",
+        "buyerCheck": "Are the intended use conditions and acceptance criteria defined?"
+      },
+      {
+        "number": "06",
+        "heading": "Check document, lot and destination requirements",
+        "body": "Identify which records are needed for qualification and how their identifiers relate to the material under review. Separately verify destination-market requirements using current official sources, the relevant product and origin scope, and applicable dates.",
+        "buyerCheck": "Can the evidence set be connected to the material and the intended destination?"
+      }
+    ]
+  },
+  "technicalComparison": {
+    "eyebrow": "TECHNICAL EVALUATION",
+    "heading": "Compare technical evidence—not origin labels",
+    "body": "Origin can help define a sourcing strategy, but technical qualification still depends on grade-specific evidence and the buyer's use conditions. A useful comparison aligns the material identity, document revision, units, test methods and acceptance criteria before any conclusion is drawn.",
+    "steps": [
+      "Confirm that each record refers to the grade being evaluated.",
+      "Align units, test methods and stated test conditions.",
+      "Select criteria that matter to the intended formulation or process.",
+      "Record sample or trial conditions so results can be interpreted correctly.",
+      "Define acceptance criteria before deciding whether qualification should continue."
+    ],
+    "callout": "A side-by-side table organizes evidence. It does not prove identical performance, equivalence or interchangeability."
+  },
+  "applicationContext": {
+    "eyebrow": "USE CONDITIONS",
+    "heading": "Let the application define the test plan",
+    "body": "Coatings, plastics, masterbatch, printing inks and paper can place different demands on titanium dioxide. Start with the buyer's system and processing conditions, then identify the evidence and validation steps needed for that use.",
+    "supportingCopy": "Use the relevant Application page to frame application-specific requirements. Use the Products section to review verified grade information. This guide does not assign a grade to an application or convert a general relationship into a recommendation.",
+    "routes": [
+      {"label": "Titanium Dioxide for Coatings", "relationKey": "application_coatings"},
+      {"label": "Titanium Dioxide for Plastics", "relationKey": "application_plastics"},
+      {"label": "Titanium Dioxide for Masterbatch", "relationKey": "application_masterbatch"},
+      {"label": "Titanium Dioxide for Printing Inks", "relationKey": "application_printing_inks"},
+      {"label": "Titanium Dioxide for Paper", "relationKey": "application_paper"}
+    ]
+  },
+  "documentScope": {
+    "eyebrow": "EVIDENCE REQUEST",
+    "heading": "Build an evidence request around scope",
+    "introduction": "Ask what each record proves, which material it covers and whether it is current for the decision being made. The presence of a document name does not establish availability, applicability or acceptance.",
+    "checklist": [
+      "Supplier identity and role in the transaction",
+      "Product and grade identification",
+      "Current technical data for the grade under review",
+      "Safety information relevant to the material and destination",
+      "Applicable quality or lot record, where required",
+      "Origin evidence relevant to the product and transaction",
+      "Order, lot or shipment identifiers needed to connect the records",
+      "Destination-specific documents or declarations identified during the review"
+    ],
+    "supportingCopy": "Use Documents & Compliance to understand document categories and request paths. Confirm availability and applicability for the specific product and transaction rather than assuming universal coverage.",
+    "action": {"label": "Review Document Categories", "relationKey": "document_categories"}
+  },
+  "destinationReview": {
+    "eyebrow": "DESTINATION CONTEXT",
+    "heading": "Verify destination-market context separately",
+    "introduction": "A sourcing-origin label does not determine the treatment of every import. Review the intended destination, product scope, origin scope, procedure and dates using current official information.",
+    "destinations": [
+      {
+        "name": "European Union",
+        "body": "Use current EU sources and verify the exact product, origin and procedural scope before relying on a trade or compliance conclusion.",
+        "actionLabel": "Review the European Union Market",
+        "relationKey": "market_eu"
+      },
+      {
+        "name": "United Kingdom",
+        "body": "Use UK-specific sources and requirements. Do not assume that an EU conclusion applies in the United Kingdom.",
+        "actionLabel": "Review the United Kingdom Market",
+        "relationKey": "market_uk"
+      },
+      {
+        "name": "India",
+        "body": "Check current official Indian sources, the applicable procedure and the dates relevant to the intended transaction.",
+        "actionLabel": "Review the India Market",
+        "relationKey": "market_india"
+      },
+      {
+        "name": "Brazil",
+        "body": "Use current Brazilian official sources and verify the original Portuguese material where it is the authoritative record.",
+        "actionLabel": "Review the Brazil Market",
+        "relationKey": "market_brazil"
+      }
+    ],
+    "closingCopy": "A dedicated Trade Update may provide dated detail when its official source, scope and review status are current. If those conditions are not met, this guide does not substitute a policy conclusion."
+  },
+  "qualificationDecision": {
+    "eyebrow": "DECISION POINT",
+    "heading": "Decide what happens next",
+    "items": [
+      {
+        "heading": "Continue to product review",
+        "body": "Use this path when the commercial counterparty and product identity are clear, the evidence scope is understood and the application criteria are defined. Continue to Products without treating the guide as a grade recommendation."
+      },
+      {
+        "heading": "Request missing evidence",
+        "body": "Use this path when a document, revision, identifier, method or scope is missing. Ask for the specific evidence needed rather than filling the gap with an assumption."
+      },
+      {
+        "heading": "Hold the qualification decision",
+        "body": "Use this path when evidence conflicts, the material cannot be connected to the records, destination scope is unclear or application validation has not been defined."
+      }
+    ],
+    "note": "A hold is an evidence decision, not a statement that a material is technically unsuitable."
+  },
+  "buyerQuestions": {
+    "eyebrow": "BUYER QUESTIONS",
+    "heading": "Buyer questions about non-China TiO2 sourcing",
+    "items": [
+      {
+        "id": "BQ1",
+        "question": "What does non-China titanium dioxide mean in a procurement review?",
+        "answer": "It is a procurement term for titanium dioxide presented as originating outside China. It is a sourcing category and due-diligence starting point, not proof of verified origin, performance, availability, equivalence or destination-market treatment."
+      },
+      {
+        "id": "BQ2",
+        "question": "What should buyers verify before qualifying an alternative-origin source?",
+        "answer": "Verify the supplier and its transaction role, product and grade identity, origin evidence and scope, current technical documents, compatible test methods, application conditions, document or lot controls and destination requirements."
+      },
+      {
+        "id": "BQ3",
+        "question": "Does a different origin make two titanium dioxide grades equivalent?",
+        "answer": "No. Origin does not establish equivalent performance or interchangeability. Equivalence requires defined criteria, compatible evidence and validation under the buyer's intended use conditions."
+      },
+      {
+        "id": "BQ4",
+        "question": "How should company identity, product origin and shipment evidence be handled?",
+        "answer": "Treat them as separate evidence questions. A company name or location does not by itself establish the origin of every product, lot or shipment, and one transaction record should not be extended beyond its stated scope."
+      },
+      {
+        "id": "BQ5",
+        "question": "What technical information should buyers compare?",
+        "answer": "Compare current grade-specific information using aligned units, test methods and conditions. Select the criteria relevant to the buyer's formulation or process and define acceptance criteria before qualification."
+      },
+      {
+        "id": "BQ6",
+        "question": "How do application and processing requirements affect the review?",
+        "answer": "They determine which properties, documents and validation steps matter. Begin with the intended system and process rather than selecting a grade from an origin label or generic application category."
+      },
+      {
+        "id": "BQ7",
+        "question": "Which documents should buyers request?",
+        "answer": "Request the records needed to establish product identity, technical and safety context, applicable quality or lot information, origin scope and destination requirements. Confirm availability and applicability for the specific material and transaction."
+      },
+      {
+        "id": "BQ8",
+        "question": "How should EU, UK, India or Brazil trade context be checked?",
+        "answer": "Use current official sources for the intended destination and verify the exact product, origin, procedure and dates. Do not infer a current outcome from a general origin description or an undated summary."
+      },
+      {
+        "id": "BQ9",
+        "question": "What should buyers do after completing the review?",
+        "answer": "Continue to product review when the evidence scope and application criteria are clear. Request the missing evidence when a gap is identifiable, or hold the decision when the evidence cannot support qualification."
+      }
+    ]
+  },
+  "finalAction": {
+    "eyebrow": "NEXT STEP",
+    "heading": "Continue with a defined sourcing requirement",
+    "body": "Review verified product information before naming a grade in your inquiry. If you already know the application, destination and evidence needed, include that context in the RFQ so the product and supply discussion starts from a clear requirement.",
+    "primaryAction": {"label": "Review Titanium Dioxide Products", "relationKey": "products_primary"},
+    "secondaryAction": {"label": "Request a Quote", "relationKey": "rfq_secondary"}
+  },
+  "relations": [
+    {"relationKey": "home", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "HOME-001", "targetSiteScope": "tio2-my", "targetPath": "/", "href": "/", "contentStatus": "APPROVED", "routeStatus": "VERIFIED_PUBLIC", "canonicalStatus": "VERIFIED", "publicEligibilityStatus": "ELIGIBLE", "displayOrder": 0},
+    {"relationKey": "resources_parent", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "RES-000", "targetSiteScope": "tio2-my", "targetPath": "/resources/", "href": "/resources/", "contentStatus": "APPROVED", "routeStatus": "VERIFIED_PUBLIC", "canonicalStatus": "VERIFIED", "publicEligibilityStatus": "ELIGIBLE", "displayOrder": 1},
+    {"relationKey": "products_primary", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "PRODUCT-000", "targetSiteScope": "tio2-my", "targetPath": "/products/", "href": "/products/", "contentStatus": "APPROVED", "routeStatus": "VERIFIED_PUBLIC", "canonicalStatus": "VERIFIED", "publicEligibilityStatus": "ELIGIBLE", "displayOrder": 2},
+    {"relationKey": "rfq_secondary", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "CONV-RFQ", "targetSiteScope": "tio2-my", "targetPath": "/request-a-quote/", "href": "/request-a-quote/?source_page=RES-ORIGIN&interest=alternative-origin-sourcing", "contentStatus": "APPROVED", "routeStatus": "VERIFIED_PUBLIC", "canonicalStatus": "VERIFIED", "publicEligibilityStatus": "ELIGIBLE", "displayOrder": 3},
+    {"relationKey": "document_categories", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "DOC-000", "targetSiteScope": "tio2-my", "targetPath": "/documents/", "href": "/documents/", "contentStatus": "APPROVED", "routeStatus": "VERIFIED_PUBLIC", "canonicalStatus": "VERIFIED", "publicEligibilityStatus": "ELIGIBLE", "displayOrder": 4},
+    {"relationKey": "market_eu", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "MARKET-EU-001", "targetSiteScope": "tio2-my", "targetPath": "/markets/european-union/", "href": "/markets/european-union/", "contentStatus": "APPROVED", "routeStatus": "VERIFIED_PUBLIC", "canonicalStatus": "VERIFIED", "publicEligibilityStatus": "ELIGIBLE", "displayOrder": 5},
+    {"relationKey": "application_coatings", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "APP-COAT", "targetSiteScope": "tio2-my", "targetPath": "/applications/titanium-dioxide-for-coatings/", "href": "/applications/titanium-dioxide-for-coatings/", "contentStatus": "NOT_STARTED", "routeStatus": "NOT_IMPLEMENTED", "canonicalStatus": "NOT_VERIFIED", "publicEligibilityStatus": "NOT_ELIGIBLE", "displayOrder": 6},
+    {"relationKey": "application_plastics", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "APP-PLAS", "targetSiteScope": "tio2-my", "targetPath": "/applications/titanium-dioxide-for-plastics/", "href": "/applications/titanium-dioxide-for-plastics/", "contentStatus": "NOT_STARTED", "routeStatus": "NOT_IMPLEMENTED", "canonicalStatus": "NOT_VERIFIED", "publicEligibilityStatus": "NOT_ELIGIBLE", "displayOrder": 7},
+    {"relationKey": "application_masterbatch", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "APP-MB", "targetSiteScope": "tio2-my", "targetPath": "/applications/titanium-dioxide-for-masterbatch/", "href": "/applications/titanium-dioxide-for-masterbatch/", "contentStatus": "NOT_STARTED", "routeStatus": "NOT_IMPLEMENTED", "canonicalStatus": "NOT_VERIFIED", "publicEligibilityStatus": "NOT_ELIGIBLE", "displayOrder": 8},
+    {"relationKey": "application_printing_inks", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "APP-INK", "targetSiteScope": "tio2-my", "targetPath": "/applications/titanium-dioxide-for-printing-inks/", "href": "/applications/titanium-dioxide-for-printing-inks/", "contentStatus": "NOT_STARTED", "routeStatus": "NOT_IMPLEMENTED", "canonicalStatus": "NOT_VERIFIED", "publicEligibilityStatus": "NOT_ELIGIBLE", "displayOrder": 9},
+    {"relationKey": "application_paper", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "APP-PAPER", "targetSiteScope": "tio2-my", "targetPath": "/applications/titanium-dioxide-for-paper/", "href": "/applications/titanium-dioxide-for-paper/", "contentStatus": "NOT_STARTED", "routeStatus": "NOT_IMPLEMENTED", "canonicalStatus": "NOT_VERIFIED", "publicEligibilityStatus": "NOT_ELIGIBLE", "displayOrder": 10},
+    {"relationKey": "market_uk", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "MARKET-UK-001", "targetSiteScope": "tio2-my", "targetPath": "/markets/united-kingdom/", "href": "/markets/united-kingdom/", "contentStatus": "NOT_STARTED", "routeStatus": "NOT_IMPLEMENTED", "canonicalStatus": "NOT_VERIFIED", "publicEligibilityStatus": "NOT_ELIGIBLE", "displayOrder": 11},
+    {"relationKey": "market_india", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "MARKET-IN-001", "targetSiteScope": "tio2-my", "targetPath": "/markets/india/", "href": "/markets/india/", "contentStatus": "NOT_STARTED", "routeStatus": "NOT_IMPLEMENTED", "canonicalStatus": "NOT_VERIFIED", "publicEligibilityStatus": "NOT_ELIGIBLE", "displayOrder": 12},
+    {"relationKey": "market_brazil", "sourcePageId": "RES-ORIGIN", "sourceSiteScope": "tio2-my", "targetPageId": "MARKET-BR-001", "targetSiteScope": "tio2-my", "targetPath": "/markets/brazil/", "href": "/markets/brazil/", "contentStatus": "NOT_STARTED", "routeStatus": "NOT_IMPLEMENTED", "canonicalStatus": "NOT_VERIFIED", "publicEligibilityStatus": "NOT_ELIGIBLE", "displayOrder": 13}
+  ]
+}

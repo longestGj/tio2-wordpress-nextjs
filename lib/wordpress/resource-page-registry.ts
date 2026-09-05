@@ -1,4 +1,5 @@
 import registry from '@/wordpress/plugins/tio2-site-model/config/tio2-my-resource-page-registry.json'
+import resourceOriginContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-resource-origin.json'
 
 const entries = new Map(registry.entries.map((entry) => [entry.pageId, entry] as const))
 
@@ -17,6 +18,10 @@ const resourceOriginIdentity: MalaysiaResourcePageRequestIdentity = Object.freez
   path: '/resources/non-china-titanium-dioxide/',
   canonical: 'https://tio2malaysia.com/resources/non-china-titanium-dioxide/',
 })
+
+export function getApprovedMalaysiaResourceOriginContract() {
+  return resourceOriginContract
+}
 
 export function resolveMalaysiaResourcePageRequest(
   siteId: string,
