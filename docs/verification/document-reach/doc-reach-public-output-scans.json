@@ -1,0 +1,21 @@
+{
+  "route": "/documents/reach/?source_page=DOC-REACH",
+  "scan": {
+    "schema_version": 0,
+    "package_id": 0,
+    "PROVISIONAL_URL": 0,
+    "FACT_EVIDENCE_REQUIRED": 0,
+    "canonical_activation": 0,
+    "request_contract": 0,
+    "source_normalization": 0,
+    "render_when": 0,
+    "evidence_controls": 0,
+    "routeReadiness": 0,
+    "sourceReadiness": 0,
+    "source_context": 0,
+    "Titanium dioxide supplied by IKHLAS TITANIUM (MALAYSIA) SDN. BHD. is covered by an applicable EU REACH registration for the named legal entity and supply arrangement.": 0,
+    "reach compliant titanium dioxide": 0,
+    "registration number": 0,
+    "tonnage band": 0
+  }
+}

@@ -12,4 +12,5 @@ export type MalaysiaDocumentReachDto = MalaysiaDocumentReachContract & {
   readonly cms: {readonly id: string; readonly modified: string; readonly status: 'publish'}
   readonly globalChrome: Tio2MyGlobalChrome
   readonly routeReadiness: Readonly<Record<'CONV-DOC' | 'DOC-000' | 'MARKET-EU-001', boolean>>
+  readonly sourceReadiness: Readonly<Record<string, boolean>>
 }

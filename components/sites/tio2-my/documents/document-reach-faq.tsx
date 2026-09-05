@@ -1,12 +1,26 @@
+'use client'
+
+import {useState} from 'react'
+
 import styles from './document-reach-page.module.css'
 
 interface FaqItem {readonly question: string; readonly answer: string}
 
 export function DocumentReachFaq({items}: {readonly items: readonly FaqItem[]}) {
+  const [open, setOpen] = useState<number | null>(null)
   return <div className={styles.faqList}>
-    {items.map((item) => <details className={styles.faqItem} key={item.question}>
-      <summary><span>{item.question}</span><span aria-hidden="true">+</span></summary>
-      <div><p>{item.answer}</p></div>
-    </details>)}
+    {items.map((item, index) => {
+      const expanded = open === index
+      const answerId = `doc-reach-answer-${index}`
+      return <article className={styles.faqItem} key={item.question}>
+        <h3><button
+          type="button"
+          aria-expanded={expanded}
+          aria-controls={answerId}
+          onClick={() => setOpen(expanded ? null : index)}
+        ><span>{item.question}</span><span aria-hidden="true">{expanded ? '−' : '+'}</span></button></h3>
+        <div id={answerId} hidden={!expanded}><p>{item.answer}</p></div>
+      </article>
+    })}
   </div>
 }

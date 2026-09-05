@@ -58,7 +58,9 @@ export function toDocumentReachRenderModel(page: MalaysiaDocumentReachDto): Docu
       hubRoute: request.secondary_route, hubLabel: request.secondary_action_label,
     },
     modules: [
-      clone(hero), clone(answer), clone(substance), clone(actor), clone(scope), clone(checklist), clone(sources), clone(process), clone(faq),
+      clone(hero), clone(answer), clone(substance), clone(actor), clone(scope), clone(checklist),
+      {...clone(sources), items: sources.items.filter((item) => page.sourceReadiness[item.url]).map(clone)},
+      clone(process), clone(faq),
       {id: related.id, heading: related.heading, items: related.items.filter((item) => page.routeReadiness[item.page_id]).map(({page_id, heading, body, link_label, route}) => ({page_id, heading, body, link_label, route}))},
       clone(finalCta),
     ],

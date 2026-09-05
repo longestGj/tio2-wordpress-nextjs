@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-09-05",
+  "scope": "DOC-REACH / tio2-my",
+  "result": "No approved-source URL, scope, or displayed-date drift found",
+  "sources": [
+    {
+      "name": "European Commission — REACH Regulation",
+      "url": "https://environment.ec.europa.eu/topics/chemicals/reach-regulation_en",
+      "available": true,
+      "observedBoundary": "EU REACH framework, industry responsibilities, registration and EEA reporting context",
+      "contractSourceUpdatedDate": null
+    },
+    {
+      "name": "Your Europe — Registering Chemicals (REACH) FAQs",
+      "url": "https://europa.eu/youreurope/business/product-rules-compliance/chemicals-and-hazardous-substances/registering-chemicals-reach/faq/index_en.htm",
+      "available": true,
+      "observedBoundary": "Manufacturer, importer and Only Representative roles for EU/EEA registration",
+      "officialLastChecked": "2025-10-01",
+      "contractSourceUpdatedDate": null
+    },
+    {
+      "name": "HSE — UK REACH Explained",
+      "url": "https://www.hse.gov.uk/reach/about.htm",
+      "available": true,
+      "observedBoundary": "UK REACH applies independently in Great Britain",
+      "officialUpdated": "2025-09-02",
+      "contractSourceUpdatedDate": "2025-09-02"
+    },
+    {
+      "name": "HSE — Northern Ireland Notifications",
+      "url": "https://www.hse.gov.uk/REACH/northern-ireland.htm",
+      "available": true,
+      "observedBoundary": "Northern Ireland retains EU REACH status and obligations",
+      "officialUpdated": "2025-09-03",
+      "contractSourceUpdatedDate": "2025-09-03"
+    }
+  ],
+  "releaseControl": "Repeat immediately before publication; this check does not authorize Gate 10 or publication"
+}

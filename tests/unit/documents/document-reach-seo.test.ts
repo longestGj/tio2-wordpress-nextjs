@@ -7,11 +7,15 @@ import {getSiteConfig} from '@/sites'
 import approvedContract from '@/tests/fixtures/documents/doc-reach/gate7/DOC-REACH_GATE7_SOURCE_PAYLOAD_V0.1.json'
 
 function page(receiverReady = true) {
+  const sourceReadiness = Object.fromEntries(
+    (approvedContract.modules[6].items as Array<{url: string}>).map(({url}) => [url, true]),
+  )
   return toMalaysiaDocumentReachDto({
     id: 'document-reach-901', modifiedGmt: '2026-09-05T01:02:03', status: 'publish',
     siteScopes: {nodes: [{slug: 'tio2-my'}]}, publishingFields: {publicPath: '/documents/reach'},
     malaysiaDocumentReachContractJson: JSON.stringify(approvedContract),
     routeReadiness: {'CONV-DOC': receiverReady, 'DOC-000': true, 'MARKET-EU-001': true},
+    sourceReadiness,
   })
 }
 
@@ -33,6 +37,7 @@ describe('DOC-REACH SEO and Schema', () => {
     expect(eligible['@graph'].map((node) => node['@type'])).toEqual(['WebPage', 'BreadcrumbList'])
     expect(eligible['@graph'][0]).toMatchObject({
       url: 'https://tio2malaysia.com/documents/reach/', inLanguage: 'en',
+      breadcrumb: {'@id': 'https://tio2malaysia.com/documents/reach/#breadcrumb'},
       relatedLink: [
         'https://tio2malaysia.com/request-documents/',
         'https://tio2malaysia.com/markets/european-union/',
@@ -45,5 +50,13 @@ describe('DOC-REACH SEO and Schema', () => {
       'https://tio2malaysia.com/documents/',
     ])
     expect(JSON.stringify(unavailable)).not.toContain('request-documents')
+  })
+
+  it('keeps official source links on the exact approved HTTPS hosts', () => {
+    const sources = approvedContract.modules[6].items as Array<{url: string}>
+    expect(sources.map(({url}) => new URL(url).hostname)).toEqual([
+      'environment.ec.europa.eu', 'europa.eu', 'www.hse.gov.uk', 'www.hse.gov.uk',
+    ])
+    expect(sources.every(({url}) => new URL(url).protocol === 'https:')).toBe(true)
   })
 })

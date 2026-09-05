@@ -17,6 +17,8 @@ describe('DOC-REACH WordPress and source boundary', () => {
     expect(php).toContain("'post_type' => 'tio2_doc_tds'")
     expect(php).toContain("['tio2-my'] !== array_values")
     expect(php).toContain("'type' => ['non_null' => 'String']")
+    expect(php).toContain('TIO2_MY_DOCUMENT_REACH_SOURCE_READINESS_META')
+    expect(php).toContain("'sourceReadiness' =>")
     expect(php).toContain('The Malaysia DOC-REACH record is missing.')
     expect(php).toContain('Multiple Malaysia DOC-REACH records were found.')
     expect(php).not.toMatch(/tio2-a|tio2-b|Contact fallback/iu)

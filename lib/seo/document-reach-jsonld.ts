@@ -21,7 +21,8 @@ export function buildDocumentReachJsonLd(site: SiteConfig, page: MalaysiaDocumen
       {
         '@type': 'WebPage', '@id': `${canonical}#webpage`, url: canonical,
         name: page.seo.title, description: page.seo.meta_description, inLanguage: page.page.language,
-        isPartOf: {'@id': new URL('/#website', site.url).href}, relatedLink,
+        isPartOf: {'@id': new URL('/#website', site.url).href},
+        breadcrumb: {'@id': `${canonical}#breadcrumb`}, relatedLink,
       },
       {
         '@type': 'BreadcrumbList', '@id': `${canonical}#breadcrumb`,

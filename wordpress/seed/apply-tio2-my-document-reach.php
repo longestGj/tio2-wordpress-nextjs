@@ -40,6 +40,19 @@ if (is_wp_error($scope)) throw new RuntimeException($scope->get_error_message())
 wp_update_post(['ID' => $post_id, 'post_name' => $internal_slug]);
 update_post_meta($post_id, 'public_path', $public_path);
 update_post_meta($post_id, TIO2_MY_DOCUMENT_REACH_CONTRACT_META, $contract_json);
+$contract = json_decode($contract_json, true);
+$source_items = is_array($contract) ? ($contract['modules'][6]['items'] ?? null) : null;
+$source_urls = is_array($source_items)
+    ? array_map(static fn ($item) => is_array($item) && is_string($item['url'] ?? null) ? $item['url'] : '', $source_items)
+    : [];
+if (4 !== count($source_urls) || in_array('', $source_urls, true)) {
+    throw new RuntimeException('The approved DOC-REACH source registry is invalid.');
+}
+update_post_meta(
+    $post_id,
+    TIO2_MY_DOCUMENT_REACH_SOURCE_READINESS_META,
+    wp_json_encode(array_fill_keys($source_urls, true))
+);
 clean_post_cache($post_id);
 $validation = tio2_validate_document_reach_v01_contract($post_id);
 if (is_wp_error($validation)) throw new RuntimeException($validation->get_error_message());

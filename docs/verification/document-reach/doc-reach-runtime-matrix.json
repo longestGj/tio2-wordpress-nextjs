@@ -1,0 +1,159 @@
+{
+  "widths": [
+    {
+      "width": 1440,
+      "viewportWidth": 1440,
+      "scrollWidth": 1440,
+      "scrollHeight": 8501,
+      "minimumActionHeight": 48,
+      "axe": "0 violations"
+    },
+    {
+      "width": 1280,
+      "viewportWidth": 1280,
+      "scrollWidth": 1280,
+      "scrollHeight": 8359,
+      "minimumActionHeight": 48,
+      "axe": "not required"
+    },
+    {
+      "width": 1024,
+      "viewportWidth": 1024,
+      "scrollWidth": 1024,
+      "scrollHeight": 8727,
+      "minimumActionHeight": 48,
+      "axe": "not required"
+    },
+    {
+      "width": 768,
+      "viewportWidth": 768,
+      "scrollWidth": 768,
+      "scrollHeight": 10888,
+      "minimumActionHeight": 48,
+      "axe": "0 violations"
+    },
+    {
+      "width": 640,
+      "viewportWidth": 640,
+      "scrollWidth": 640,
+      "scrollHeight": 11593,
+      "minimumActionHeight": 48,
+      "axe": "not required"
+    },
+    {
+      "width": 430,
+      "viewportWidth": 430,
+      "scrollWidth": 430,
+      "scrollHeight": 13110,
+      "minimumActionHeight": 48,
+      "axe": "not required"
+    },
+    {
+      "width": 390,
+      "viewportWidth": 390,
+      "scrollWidth": 390,
+      "scrollHeight": 13910,
+      "minimumActionHeight": 48,
+      "axe": "0 violations"
+    },
+    {
+      "width": 375,
+      "viewportWidth": 375,
+      "scrollWidth": 375,
+      "scrollHeight": 14295,
+      "minimumActionHeight": 48,
+      "axe": "not required"
+    },
+    {
+      "width": 320,
+      "viewportWidth": 320,
+      "scrollWidth": 320,
+      "scrollHeight": 16288,
+      "minimumActionHeight": 64,
+      "axe": "not required"
+    }
+  ],
+  "visualComparisons": [
+    {
+      "baseline": "DOC-REACH_G5_DESKTOP_1440_FULL_VISUAL_V0.1.png",
+      "actualWidth": 1440,
+      "aspectRatio": 1.1348284608196502,
+      "similarity": 0.9468063055300245,
+      "threshold": 0.88
+    },
+    {
+      "baseline": "DOC-REACH_G5_TABLET_768_FULL_VISUAL_V0.1.png",
+      "actualWidth": 768,
+      "aspectRatio": 1.101912761866208,
+      "similarity": 0.9248906952103758,
+      "threshold": 0.88
+    },
+    {
+      "baseline": "DOC-REACH_G5_MOBILE_390_LOGICAL_2X_FULL_VISUAL_V0.1.png",
+      "actualWidth": 390,
+      "aspectRatio": 1.0678642714570858,
+      "similarity": 0.9007372089460784,
+      "threshold": 0.88
+    },
+    {
+      "baseline": "DOC-REACH_G5_FAQ_OPEN_STATE_1440_V0.1.png",
+      "actualWidth": 1424,
+      "aspectRatio": 1.177869343449928,
+      "similarity": 0.9379021139705882,
+      "threshold": 0.82
+    },
+    {
+      "baseline": "DOC-REACH_G5_MOBILE_MENU_390_LOGICAL_2X_V0.1.png",
+      "actualWidth": 780,
+      "aspectRatio": 1,
+      "similarity": 0.9091294232536765,
+      "threshold": 0.82
+    },
+    {
+      "baseline": "DOC-REACH_G5_REQUEST_ROUTE_UNAVAILABLE_1440_V0.1.png",
+      "actualWidth": 1440,
+      "aspectRatio": 1.1553371553371554,
+      "similarity": 0.9539040958180147,
+      "threshold": 0.88
+    }
+  ],
+  "states": {
+    "keyboard": {
+      "faqExpanded": true,
+      "faqFocusRetained": true,
+      "menuFocusTrapped": true,
+      "menuEscapeReturnedFocus": true
+    },
+    "defaultSources": {
+      "rows": 4,
+      "sourceUpdatedRows": 2,
+      "reviewedRows": 4
+    },
+    "cacheIsolation": {
+      "eligible": 3,
+      "unavailable": 0,
+      "staleSourceRows": 3,
+      "wrongScopeFailed": true,
+      "missingScopeFailed": true,
+      "restoredSourceRows": 4
+    },
+    "prefill": {
+      "semanticLabel": "REACH Documentation",
+      "backForwardSelections": 1,
+      "trustedSource": "DOC-REACH"
+    },
+    "negativePrefill": {
+      "duplicatesDeduplicated": true,
+      "unsupportedDiscarded": true,
+      "htmlEscaped": true,
+      "overlengthPreserved": true,
+      "publicSourceIgnored": true
+    },
+    "systemPreferences": {
+      "zoomProxyWidth": 720,
+      "forcedColors": true,
+      "reducedMotion": true,
+      "focusVisible": true
+    }
+  }
+}

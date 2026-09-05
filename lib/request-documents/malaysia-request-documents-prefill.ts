@@ -92,8 +92,9 @@ export function deriveMalaysiaRequestDocumentsTrustedSource(
     const source = new URL(referer)
     const origin = new URL(requestOrigin)
     if (source.origin !== origin.origin) return null
-    if (source.pathname === '/documents/tds-sds-coa/') return 'DOC-TDS'
-    if (source.pathname === '/documents/reach/') return 'DOC-REACH'
+    const sourcePath = source.pathname.replace(/\/+$/u, '')
+    if (sourcePath === '/documents/tds-sds-coa') return 'DOC-TDS'
+    if (sourcePath === '/documents/reach') return 'DOC-REACH'
     return null
   } catch {
     return null

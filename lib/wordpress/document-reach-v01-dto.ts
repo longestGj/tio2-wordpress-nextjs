@@ -22,6 +22,7 @@ export interface MalaysiaDocumentReachSource {
   readonly publishingFields: unknown
   readonly malaysiaDocumentReachContractJson: unknown
   readonly routeReadiness: unknown
+  readonly sourceReadiness: unknown
 }
 
 function record(value: unknown, field: string): UnknownRecord {
@@ -36,6 +37,9 @@ function exactText(value: unknown, field: string): string {
 
 const approvedSerializedContract = JSON.stringify(approvedContract)
 const readinessKeys = ['CONV-DOC', 'DOC-000', 'MARKET-EU-001'] as const
+const approvedSourceUrls = (approvedContract.modules[6] as unknown as {
+  readonly items: readonly {readonly url: string}[]
+}).items.map(({url}) => url)
 
 export function toMalaysiaDocumentReachDto(sourceValue: MalaysiaDocumentReachSource): MalaysiaDocumentReachDto {
   const source = record(sourceValue, 'documentReach')
@@ -60,10 +64,21 @@ export function toMalaysiaDocumentReachDto(sourceValue: MalaysiaDocumentReachSou
     if (typeof readinessRecord[key] !== 'boolean') throw new DocumentReachContractError(`routeReadiness.${key}`)
     return [key, readinessRecord[key]]
   })) as Record<(typeof readinessKeys)[number], boolean>
+  const sourceReadinessRecord = record(source.sourceReadiness, 'sourceReadiness')
+  if (Object.keys(sourceReadinessRecord).sort().join('|') !== [...approvedSourceUrls].sort().join('|')) {
+    throw new DocumentReachContractError('sourceReadiness')
+  }
+  const sourceReadiness = Object.fromEntries(approvedSourceUrls.map((url) => {
+    if (typeof sourceReadinessRecord[url] !== 'boolean') {
+      throw new DocumentReachContractError(`sourceReadiness.${url}`)
+    }
+    return [url, sourceReadinessRecord[url]]
+  }))
   return {
     ...approvedContract,
     cms: {id: exactText(source.id, 'id'), modified, status: 'publish'},
     globalChrome,
     routeReadiness: Object.freeze(routeReadiness),
+    sourceReadiness: Object.freeze(sourceReadiness),
   }
 }

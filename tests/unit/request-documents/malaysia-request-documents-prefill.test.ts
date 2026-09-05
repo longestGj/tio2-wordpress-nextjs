@@ -63,6 +63,10 @@ describe('CONV-DOC prefill normalization', () => {
       'https://tio2malaysia.com',
     )).toBe('DOC-REACH')
     expect(deriveMalaysiaRequestDocumentsTrustedSource(
+      'https://tio2malaysia.com/documents/reach',
+      'https://tio2malaysia.com',
+    )).toBe('DOC-REACH')
+    expect(deriveMalaysiaRequestDocumentsTrustedSource(
       'https://attacker.example/documents/reach/',
       'https://tio2malaysia.com',
     )).toBeNull()

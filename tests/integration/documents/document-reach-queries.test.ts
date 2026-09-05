@@ -15,6 +15,7 @@ describe('DOC-REACH GraphQL query', () => {
         siteScopes: {nodes: [{slug: 'tio2-my'}]}, publishingFields: {publicPath: '/documents/reach'},
         malaysiaDocumentReachContractJson: JSON.stringify(approvedContract),
         routeReadiness: {'CONV-DOC': true, 'DOC-000': true, 'MARKET-EU-001': true},
+        sourceReadiness: Object.fromEntries((approvedContract.modules[6].items as Array<{url: string}>).map(({url}) => [url, true])),
       })}}), {status: 200, headers: {'content-type': 'application/json'}})
     })
     const dto = await getMalaysiaDocumentReach()

@@ -5,6 +5,7 @@ declare(strict_types=1);
 if (! defined('ABSPATH')) exit;
 
 const TIO2_MY_DOCUMENT_REACH_CONTRACT_META = '_tio2_my_document_reach_contract_json';
+const TIO2_MY_DOCUMENT_REACH_SOURCE_READINESS_META = '_tio2_my_document_reach_source_readiness_json';
 
 function tio2_my_document_reach_contract_path(): string
 {
@@ -19,6 +20,29 @@ function tio2_my_document_reach_approved_contract_json()
     return is_string($json) && '' !== $json
         ? $json
         : new WP_Error('tio2_my_document_reach_contract_missing', 'The approved DOC-REACH contract is unavailable.');
+}
+
+/** @return array<string, bool>|WP_Error */
+function tio2_my_document_reach_source_readiness(int $post_id, array $contract)
+{
+    $items = $contract['modules'][6]['items'] ?? null;
+    $expected_urls = is_array($items)
+        ? array_map(static fn ($item) => is_array($item) && is_string($item['url'] ?? null) ? $item['url'] : null, $items)
+        : [];
+    $stored = get_post_meta($post_id, TIO2_MY_DOCUMENT_REACH_SOURCE_READINESS_META, true);
+    $readiness = is_string($stored) ? json_decode($stored, true) : null;
+    $actual_urls = is_array($readiness) ? array_keys($readiness) : [];
+    sort($expected_urls);
+    sort($actual_urls);
+    if (4 !== count($expected_urls) || $expected_urls !== $actual_urls) {
+        return new WP_Error('tio2_my_document_reach_source_readiness_invalid', 'The DOC-REACH source readiness registry is invalid.');
+    }
+    foreach ($readiness as $ready) {
+        if (! is_bool($ready)) {
+            return new WP_Error('tio2_my_document_reach_source_readiness_invalid', 'The DOC-REACH source readiness registry is invalid.');
+        }
+    }
+    return $readiness;
 }
 
 /** @return true|WP_Error */
@@ -51,6 +75,8 @@ function tio2_validate_document_reach_v01_contract(int $post_id)
         '/documents/reach/' !== ($contract['page']['route'] ?? null) ||
         ['hero', 'direct_answer', 'substance_vs_coverage', 'legal_actor', 'regulatory_scope', 'verification_checklist', 'official_sources', 'request_process', 'buyer_questions', 'related_paths', 'final_cta'] !== $module_ids
     ) return new WP_Error('tio2_my_document_reach_contract_invalid', 'The DOC-REACH payload identity or module order is invalid.');
+    $source_readiness = tio2_my_document_reach_source_readiness($post_id, $contract);
+    if (is_wp_error($source_readiness)) return $source_readiness;
     return true;
 }
 
@@ -89,6 +115,8 @@ function tio2_resolve_malaysia_document_reach_record_json(): string
     $contract_json = get_post_meta($post_id, TIO2_MY_DOCUMENT_REACH_CONTRACT_META, true);
     $contract = is_string($contract_json) ? json_decode($contract_json, true) : null;
     if (! is_string($contract_json) || ! is_array($contract)) throw new \GraphQL\Error\UserError('The Malaysia DOC-REACH payload is unavailable.');
+    $source_readiness = tio2_my_document_reach_source_readiness($post_id, $contract);
+    if (is_wp_error($source_readiness)) throw new \GraphQL\Error\UserError('The Malaysia DOC-REACH source readiness is unavailable.');
     return wp_json_encode([
         'id' => 'document-reach-' . $post_id,
         'modifiedGmt' => str_replace(' ', 'T', (string) get_post_field('post_modified_gmt', $post_id)),
@@ -97,6 +125,7 @@ function tio2_resolve_malaysia_document_reach_record_json(): string
         'publishingFields' => ['publicPath' => '/documents/reach'],
         'malaysiaDocumentReachContractJson' => $contract_json,
         'routeReadiness' => tio2_my_document_reach_route_readiness($contract),
+        'sourceReadiness' => $source_readiness,
     ]);
 }
 

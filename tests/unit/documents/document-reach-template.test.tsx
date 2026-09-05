@@ -6,11 +6,19 @@ import {toDocumentReachRenderModel} from '@/lib/documents/document-reach-render-
 import approvedContract from '@/tests/fixtures/documents/doc-reach/gate7/DOC-REACH_GATE7_SOURCE_PAYLOAD_V0.1.json'
 import {toMalaysiaDocumentReachDto} from '@/lib/wordpress/document-reach-v01-dto'
 
-function renderPage(readiness: Record<string, boolean>) {
+const allSourcesReady = Object.freeze(Object.fromEntries(
+  (approvedContract.modules[6].items as Array<{url: string}>).map(({url}) => [url, true]),
+))
+
+function renderPage(
+  readiness: Record<string, boolean>,
+  sourceReadiness: Record<string, boolean> = allSourcesReady,
+) {
   const dto = toMalaysiaDocumentReachDto({
     id: 'document-reach-1', modifiedGmt: '2026-09-05T01:02:03', status: 'publish',
     siteScopes: {nodes: [{slug: 'tio2-my'}]}, publishingFields: {publicPath: '/documents/reach'},
     malaysiaDocumentReachContractJson: JSON.stringify(approvedContract), routeReadiness: readiness,
+    sourceReadiness,
   })
   return renderToStaticMarkup(<MalaysiaDocumentReachPage
     page={toDocumentReachRenderModel(dto)} structuredData={null}
@@ -30,6 +38,8 @@ describe('DOC-REACH server page template', () => {
     expect(html).toContain('aria-current="page"><span>Documents</span>')
     const faq = approvedContract.modules[8] as {items: Array<{answer: string}>}
     for (const item of faq.items) expect(html).toContain(item.answer)
+    expect(html.match(/<button type="button" aria-expanded="false" aria-controls="doc-reach-answer-/gu)).toHaveLength(5)
+    expect(html).not.toContain('<summary>')
   })
 
   it('renders exact approved answer and four source rows without inventing missing source dates', () => {
@@ -43,6 +53,20 @@ describe('DOC-REACH server page template', () => {
       expect(html).toContain(`href="${source.url}"`)
       expect(new URL(source.url).protocol).toBe('https:')
     }
+  })
+
+  it('removes every field of one stale source row while retaining the other current rows', () => {
+    const stale = (approvedContract.modules[6].items as Array<{
+      name: string; scope: string; source_updated_date: string | null
+      site_reviewed_date: string; link_label: string; url: string
+    }>)[2]!
+    const html = renderPage(ready, {...allSourcesReady, [stale.url]: false})
+    expect(html.match(/data-official-source=/gu)).toHaveLength(3)
+    for (const value of [stale.name, stale.scope, stale.source_updated_date, stale.link_label, stale.url]) {
+      if (!value) continue
+      expect(html).not.toContain(value)
+    }
+    expect(html.match(/Source updated:/gu)).toHaveLength(1)
   })
 
   it('keeps governance, query-only and excluded propositions out of buyer-visible HTML', () => {

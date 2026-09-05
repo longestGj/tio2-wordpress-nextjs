@@ -1,0 +1,88 @@
+{
+  "evidenceClass": "Gate 8 implementation evidence for independent Gate 9 read-only QA",
+  "siteScope": "tio2-my",
+  "pageId": "DOC-REACH",
+  "route": "/documents/reach/",
+  "routeDependencies": [
+    {
+      "pageId": "CONV-DOC",
+      "eligible": "three request actions and one selection panel",
+      "ineligible": "zero request actions, panels, or request-document Schema relationships"
+    },
+    {
+      "pageId": "DOC-000",
+      "eligible": "Document Hub actions retained independently",
+      "ineligible": "its own actions are omitted without cross-scope fallback"
+    },
+    {
+      "pageId": "MARKET-EU-001",
+      "eligible": "approved related path is rendered",
+      "ineligible": "its own related path is omitted independently"
+    }
+  ],
+  "officialSources": [
+    {
+      "name": "European Commission — REACH Regulation",
+      "url": "https://environment.ec.europa.eu/topics/chemicals/reach-regulation_en",
+      "sourceUpdatedDate": null,
+      "siteReviewedDate": "2026-09-05"
+    },
+    {
+      "name": "Your Europe — Registering Chemicals (REACH) FAQs",
+      "url": "https://europa.eu/youreurope/business/product-rules-compliance/chemicals-and-hazardous-substances/registering-chemicals-reach/faq/index_en.htm",
+      "sourceUpdatedDate": null,
+      "siteReviewedDate": "2026-09-05"
+    },
+    {
+      "name": "HSE — UK REACH Explained",
+      "url": "https://www.hse.gov.uk/reach/about.htm",
+      "sourceUpdatedDate": "2025-09-02",
+      "siteReviewedDate": "2026-09-05"
+    },
+    {
+      "name": "HSE — Northern Ireland Notifications",
+      "url": "https://www.hse.gov.uk/REACH/northern-ireland.htm",
+      "sourceUpdatedDate": "2025-09-03",
+      "siteReviewedDate": "2026-09-05"
+    }
+  ],
+  "observedStates": {
+    "keyboard": {
+      "faqExpanded": true,
+      "faqFocusRetained": true,
+      "menuFocusTrapped": true,
+      "menuEscapeReturnedFocus": true
+    },
+    "defaultSources": {
+      "rows": 4,
+      "sourceUpdatedRows": 2,
+      "reviewedRows": 4
+    },
+    "cacheIsolation": {
+      "eligible": 3,
+      "unavailable": 0,
+      "staleSourceRows": 3,
+      "wrongScopeFailed": true,
+      "missingScopeFailed": true,
+      "restoredSourceRows": 4
+    },
+    "prefill": {
+      "semanticLabel": "REACH Documentation",
+      "backForwardSelections": 1,
+      "trustedSource": "DOC-REACH"
+    },
+    "negativePrefill": {
+      "duplicatesDeduplicated": true,
+      "unsupportedDiscarded": true,
+      "htmlEscaped": true,
+      "overlengthPreserved": true,
+      "publicSourceIgnored": true
+    },
+    "systemPreferences": {
+      "zoomProxyWidth": 720,
+      "forcedColors": true,
+      "reducedMotion": true,
+      "focusVisible": true
+    }
+  }
+}

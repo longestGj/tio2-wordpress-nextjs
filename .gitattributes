@@ -3,3 +3,4 @@ tests/fixtures/documents/doc-reach/gate7/DOC-REACH_GATE7_SOURCE_PAYLOAD_V0.1.jso
 wordpress/plugins/tio2-site-model/config/tio2-my-document-reach.json -text
 tests/fixtures/documents/doc-tds/gate7/DOC-TDS_GATE7_SOURCE_PAYLOAD_V0.1.json -text
 wordpress/plugins/tio2-site-model/config/tio2-my-document-tds.json -text
+docs/verification/document-reach/*.json text eol=lf

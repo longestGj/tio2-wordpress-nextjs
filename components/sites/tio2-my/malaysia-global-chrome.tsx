@@ -97,7 +97,7 @@ export function MalaysiaGlobalHeader({
           aria-controls="malaysia-mobile-menu"
           onClick={() => setOpen((current) => !current)}
         >
-          Menu
+          {open ? 'Close' : 'Menu'}
         </button>
       </div>
       <nav
