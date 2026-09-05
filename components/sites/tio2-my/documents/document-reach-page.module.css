@@ -1,0 +1,42 @@
+.site {min-width:0;background:#fff;color:#193a3f}
+.main {--ink:#14383d;--teal:#087b75;--teal-dark:#075b58;--mint:#e9f4f0;--line:#ccdcd8;--paper:#f8fbfa;font-family:var(--font-doc-reach),Arial,sans-serif;overflow:clip}
+.main * {box-sizing:border-box}
+.shell {width:min(1180px,calc(100% - 64px));margin-inline:auto}
+.main h1,.main h2,.main h3,.main p {margin-top:0}
+.main h1 {max-width:850px;margin-bottom:24px;color:var(--ink);font-size:clamp(44px,5.2vw,72px);font-weight:700;letter-spacing:-.045em;line-height:1.02}
+.main h2 {max-width:800px;margin-bottom:18px;color:var(--ink);font-size:clamp(32px,3.1vw,46px);font-weight:700;letter-spacing:-.035em;line-height:1.1}
+.main h3 {margin-bottom:10px;color:var(--ink);font-size:20px;line-height:1.25}
+.main p {color:#496369;font-size:17px;line-height:1.65}
+.eyebrow {margin-bottom:18px!important;color:var(--teal)!important;font-size:12px!important;font-weight:800;letter-spacing:.16em;line-height:1.2!important;text-transform:uppercase}
+.hero {padding:28px 0 88px;background:linear-gradient(135deg,#f5faf8 0%,#fff 62%)}
+.breadcrumb {display:flex;flex-wrap:wrap;gap:10px;margin-bottom:70px;color:#60777b;font-size:13px}
+.breadcrumb span {display:inline-flex;gap:10px}.breadcrumb a {color:#456468;text-decoration:none}.breadcrumb a:hover {text-decoration:underline}
+.heroGrid {display:grid;grid-template-columns:minmax(0,1.7fr) minmax(290px,.7fr);gap:76px;align-items:start}
+.lead {max-width:760px;margin-bottom:18px;font-size:20px!important}.scopeLine {max-width:800px;padding-left:18px;border-left:3px solid var(--teal)}
+.actions {display:flex;flex-wrap:wrap;gap:14px;margin-top:32px}
+.primaryButton,.secondaryButton,.secondaryDark {display:inline-flex;min-height:48px;align-items:center;justify-content:center;padding:12px 22px;border:1px solid var(--teal);border-radius:3px;font-size:15px;font-weight:700;text-decoration:none}
+.primaryButton {background:var(--teal);color:#fff}.secondaryButton {background:#fff;color:var(--teal)}.secondaryDark {border-color:#fff;color:#fff}
+.primaryButton:hover {background:var(--teal-dark)}.primaryButton:focus-visible,.secondaryButton:focus-visible,.secondaryDark:focus-visible,.main a:focus-visible,.faqItem summary:focus-visible {outline:3px solid #f2b84b;outline-offset:3px}
+.orientation {padding:30px;border-top:4px solid var(--teal);background:#fff;box-shadow:0 16px 45px rgba(14,62,62,.09)}
+.orientation h2 {font-size:22px}.orientation div {display:grid;grid-template-columns:66px 1fr;gap:12px;padding:17px 0;border-top:1px solid var(--line)}.orientation strong {color:var(--teal);font-size:14px}.orientation p {margin:0;font-size:14px}
+.answer {padding:58px 0;background:var(--ink)}.answerGrid {display:grid;grid-template-columns:.9fr 1.5fr;gap:80px;align-items:start}.answer h2,.answer p {color:#fff}.answer h2 {font-size:30px}.answer p {margin:0;font-size:19px}
+.section,.tintSection,.checkSection,.processSection,.faqSection {padding:94px 0}
+.tintSection,.faqSection {background:var(--paper)}.checkSection {background:var(--mint)}.processSection {background:#eef5f3}
+.intro {max-width:760px;margin-bottom:40px}
+.cardGrid,.roleGrid,.scopeGrid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.cardGrid article,.scopeGrid article {padding:30px;border:1px solid var(--line);border-top:4px solid var(--teal);background:#fff}
+.roleGrid article {padding:28px;border-left:1px solid var(--line)}.roleGrid article>span {display:block;margin-bottom:22px;color:var(--teal);font-weight:800}
+.note {margin:34px 0 0!important;padding:20px 24px;border-left:4px solid var(--teal);background:#fff;color:#38585e!important}
+.checkGrid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 28px;padding:0;list-style:none}.checkGrid li {display:flex;gap:16px;padding:22px;background:#fff}.checkGrid li>span {display:grid;width:28px;height:28px;flex:0 0 28px;place-items:center;border-radius:50%;background:var(--teal);color:#fff}.checkGrid p {margin:0;font-size:15px}
+.sourceList {border-top:1px solid var(--line)}.sourceList article {display:grid;grid-template-columns:minmax(0,1.3fr) minmax(210px,.55fr) minmax(190px,.45fr);gap:30px;align-items:center;padding:28px 0;border-bottom:1px solid var(--line)}.sourceList p {margin:0;font-size:15px}.sourceList dl {display:grid;grid-template-columns:auto 1fr;gap:6px 10px;margin:0;font-size:13px}.sourceList dt {color:#5f7175}.sourceList dd {margin:0;font-weight:700}.sourceList a {color:var(--teal);font-weight:700;line-height:1.4}
+.processGrid {display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,.65fr);gap:72px;align-items:start}.steps {margin:36px 0 0;padding:0;list-style:none}.steps li {display:grid;grid-template-columns:48px 1fr;gap:20px;padding:24px 0;border-top:1px solid var(--line)}.steps li>span {color:var(--teal);font-weight:800}.steps p {margin:0;font-size:15px}.selectionPanel {position:sticky;top:112px;padding:32px;background:var(--ink);color:#fff}.selectionPanel h3,.selectionPanel p {color:#fff}.selectionPanel>p:first-child {font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.faqList {max-width:900px;border-top:1px solid var(--line)}.faqItem {border-bottom:1px solid var(--line)}.faqItem summary {display:flex;min-height:64px;cursor:pointer;align-items:center;justify-content:space-between;gap:22px;padding:18px 0;color:var(--ink);font-size:18px;font-weight:700;list-style:none}.faqItem summary::-webkit-details-marker {display:none}.faqItem[open] summary span:last-child {transform:rotate(45deg)}.faqItem div {padding:0 48px 22px 0}.faqItem p {margin:0}
+.relatedGrid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.relatedGrid article {padding:30px;border:1px solid var(--line)}.relatedGrid a {color:var(--teal);font-weight:700}
+.finalCta {padding:76px 0;background:var(--teal-dark)}.finalGrid {display:grid;grid-template-columns:1.4fr .7fr;gap:50px;align-items:center}.finalCta h2,.finalCta p,.finalCta .eyebrow {color:#fff!important}.finalCta p {margin-bottom:0}.finalNote {margin-top:14px!important;font-size:14px!important}.finalCta .actions {justify-content:flex-end;margin:0}
+@media (max-width:900px) {
+  .shell {width:min(100% - 48px,720px)}.hero {padding-bottom:70px}.breadcrumb {margin-bottom:48px}.heroGrid,.answerGrid,.processGrid,.finalGrid {grid-template-columns:1fr;gap:42px}.orientation {position:static}.cardGrid,.roleGrid,.scopeGrid {grid-template-columns:1fr}.roleGrid article {border-left:0;border-top:1px solid var(--line)}.sourceList article {grid-template-columns:1fr 1fr}.sourceList article>a {grid-column:1/-1}.selectionPanel {position:static}.finalCta .actions {justify-content:flex-start}
+}
+@media (max-width:600px) {
+  .shell {width:calc(100% - 32px)}.hero {padding:20px 0 58px}.breadcrumb {margin-bottom:38px}.main h1 {font-size:38px}.main h2 {font-size:30px}.main p {font-size:16px}.lead {font-size:18px!important}.section,.tintSection,.checkSection,.processSection,.faqSection {padding:68px 0}.answer {padding:48px 0}.answerGrid {gap:18px}.answer p {font-size:17px}.checkGrid,.relatedGrid {grid-template-columns:1fr}.sourceList article {grid-template-columns:1fr}.sourceList article>a {grid-column:auto}.actions {flex-direction:column}.primaryButton,.secondaryButton,.secondaryDark {width:100%}.orientation {padding:24px}.finalCta {padding:60px 0}
+}
+@media (prefers-reduced-motion:reduce) {.main * {scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}

@@ -377,6 +377,21 @@ describe('POST /api/revalidate', () => {
     ])
   })
 
+  it('revalidates DOC-REACH with exact Malaysia route and content tags only', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/documents/reach/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/documents/reach'])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--document-reach',
+      'route:tio2-my:/documents/reach',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
+  })
+
   it.each(['/privacy-policy/', '/ms/privacy-policy/', '/cookie-policy/'])('revalidates Legal route %s with the shared exact Legal content tag', async (path) => {
     vi.stubEnv('SITE_ID', 'tio2-my')
     const response = await POST(signedRequest(validPayload({siteIds: ['tio2-my'], paths: [path]})))

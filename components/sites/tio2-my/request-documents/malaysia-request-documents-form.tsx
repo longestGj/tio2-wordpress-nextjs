@@ -56,6 +56,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
   const stateRef = useRef<HTMLDivElement>(null)
   const requestTokenRef = useRef<string | null>(null)
   const pendingRef = useRef(false)
+  const isReachContext = values.document_types.includes('other') && values.additional_requirements.trim() === 'REACH documentation'
 
   useEffect(() => {
     if (validationAttempt > 0) summaryRef.current?.focus()
@@ -67,16 +68,19 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
 
   const reviewRows = useMemo(() => {
     const rows: Array<[string, string]> = []
+    const documentTypeLabel = (value: string) => value === 'other' && isReachContext
+      ? 'REACH Documentation'
+      : page.form.documentTypes.find((item) => item.value === value)?.label ?? value
     if (values.full_name.trim()) rows.push(['Full Name', values.full_name.trim()])
     if (values.company.trim()) rows.push(['Company', values.company.trim()])
     if (values.business_email.trim()) rows.push(['Business Email', values.business_email.trim()])
     if (values.country_region.trim()) rows.push(['Country / Region', values.country_region.trim()])
     if (values.product_grade) rows.push(['Product Grade', values.product_grade])
-    if (values.document_types.length) rows.push(['Document Types', values.document_types.map((value) => page.form.documentTypes.find((item) => item.value === value)?.label ?? value).join(', ')])
+    if (values.document_types.length) rows.push(['Document Types', values.document_types.map(documentTypeLabel).join(', ')])
     if (values.application_industry.trim()) rows.push(['Application / Industry', values.application_industry.trim()])
     if (values.additional_requirements.trim()) rows.push(['Additional Requirements', values.additional_requirements.trim()])
     return rows
-  }, [page.form.documentTypes, values])
+  }, [isReachContext, page.form.documentTypes, values])
 
   const update = (field: Exclude<MalaysiaRequestDocumentsFieldKey, 'document_types'>, value: string) => {
     requestTokenRef.current = null
@@ -164,9 +168,10 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
             {prefill.values.product_grade && <li><strong>Product Grade</strong><span>{prefill.values.product_grade}</span></li>}
             {prefill.values.document_types?.map((value) => {
               const option = page.form.documentTypes.find((item) => item.value === value)
-              return option ? <li key={value}><strong>Document Type</strong><span>{option.label}</span></li> : null
+              return option ? <li key={value}><strong>Document Type</strong><span>{value === 'other' && isReachContext ? 'REACH Documentation' : option.label}</span></li> : null
             })}
             {prefill.values.application_industry && <li><strong>Application / Industry</strong><span>{prefill.values.application_industry}</span></li>}
+            {prefill.values.additional_requirements && <li><strong>Additional Requirements</strong><span>{prefill.values.additional_requirements}</span></li>}
           </ul>
         </section>
       )}
@@ -211,7 +216,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
             {page.form.documentTypes.map((option) => (
               <label key={option.value} className={values.document_types.includes(option.value) ? styles.documentTypeSelected : undefined}>
                 <input type="checkbox" name="document_types" value={option.value} checked={values.document_types.includes(option.value)} onChange={() => toggleDocumentType(option.value)} />
-                <span><strong>{option.label}</strong><small>{option.description}</small></span>
+                <span><strong>{option.value === 'other' && isReachContext ? 'REACH Documentation' : option.label}</strong><small>{option.value === 'other' && isReachContext ? 'EU REACH documentation review context' : option.description}</small></span>
               </label>
             ))}
           </div>
@@ -221,7 +226,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
         <div className={`${styles.field} ${styles.notes}`} data-request-documents-field="additional_requirements">
           <label htmlFor="request-documents-additional_requirements">Additional Requirements{values.document_types.length === 1 && values.document_types[0] === 'other' && <> <span aria-hidden="true">*</span></>}</label>
           <textarea id="request-documents-additional_requirements" name="additional_requirements" rows={5} required={values.document_types.length === 1 && values.document_types[0] === 'other'} aria-required={values.document_types.length === 1 && values.document_types[0] === 'other'} aria-invalid={Boolean(errors.additional_requirements)} aria-describedby={describedBy('additional_requirements', true)} value={values.additional_requirements} onChange={(event) => update('additional_requirements', event.target.value)} />
-          <p id="request-documents-additional_requirements-helper" className={styles.helper}>Required when Other Documentation is your only selection. Otherwise optional. Do not include confidential information.</p>
+          <p id="request-documents-additional_requirements-helper" className={styles.helper}>{isReachContext ? 'Required while REACH Documentation is your only selection. You can edit or remove this context.' : 'Required when Other Documentation is your only selection. Otherwise optional. Do not include confidential information.'}</p>
           <span className={styles.counter}>{Array.from(values.additional_requirements).length} / 500</span>
           {errors.additional_requirements && <p id="request-documents-additional_requirements-error" className={styles.fieldError}>{errors.additional_requirements}</p>}
         </div>

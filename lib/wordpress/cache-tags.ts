@@ -199,6 +199,12 @@ export function documentTdsContentTag(siteId: string): string {
   return `content:${siteId}--document-tds`
 }
 
+export function documentReachContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid DOC-REACH scope: ${siteId}`)
+  return `content:${siteId}--document-reach`
+}
+
 export function legalPagesContentTag(siteId: string): string {
   assertSiteId(siteId)
   if (siteId !== 'tio2-my') throw new Error(`Invalid Legal pages scope: ${siteId}`)

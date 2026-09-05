@@ -43,6 +43,52 @@ describe('CONV-DOC prefill normalization', () => {
     )).toBeNull()
   })
 
+  it('keeps REACH request context buyer-visible but rejects public DOC-REACH attribution', () => {
+    expect(resolveMalaysiaRequestDocumentsPrefill({
+      document_types: ['other', 'other'],
+      additional_requirements: 'REACH documentation',
+      source_page_id: 'DOC-REACH',
+      source_page: 'DOC-REACH',
+    })).toEqual({
+      values: {document_types: ['other'], additional_requirements: 'REACH documentation'},
+      sourcePageId: null,
+      marketId: null,
+      prefillVisible: true,
+    })
+  })
+
+  it('derives DOC-REACH only from the exact same-origin page Referer', () => {
+    expect(deriveMalaysiaRequestDocumentsTrustedSource(
+      'https://tio2malaysia.com/documents/reach/?source_page=DOC-REACH',
+      'https://tio2malaysia.com',
+    )).toBe('DOC-REACH')
+    expect(deriveMalaysiaRequestDocumentsTrustedSource(
+      'https://attacker.example/documents/reach/',
+      'https://tio2malaysia.com',
+    )).toBeNull()
+    expect(deriveMalaysiaRequestDocumentsTrustedSource(
+      'https://tio2malaysia.com/documents/reach/evil',
+      'https://tio2malaysia.com',
+    )).toBeNull()
+  })
+
+  it('accepts trusted DOC-REACH attribution independently from editable request values', () => {
+    expect(resolveMalaysiaRequestDocumentsPrefill({
+      document_types: 'other', additional_requirements: 'REACH documentation',
+    }, {trustedSourcePageId: 'DOC-REACH'})).toEqual({
+      values: {document_types: ['other'], additional_requirements: 'REACH documentation'},
+      sourcePageId: 'DOC-REACH', marketId: null, prefillVisible: true,
+    })
+  })
+
+  it('preserves buyer text for form validation and React escaping without making it attribution', () => {
+    const overLimit = 'R'.repeat(501)
+    expect(resolveMalaysiaRequestDocumentsPrefill({additional_requirements: '<b>REACH</b>'}).values)
+      .toEqual({additional_requirements: '<b>REACH</b>'})
+    expect(resolveMalaysiaRequestDocumentsPrefill({additional_requirements: overLimit}).values)
+      .toEqual({additional_requirements: overLimit})
+  })
+
   it('preserves MARKET-EU-001 source and market attribution without inventing visible values', () => {
     expect(resolveMalaysiaRequestDocumentsPrefill({
       source_page_id: 'MARKET-EU-001', market_id: 'MARKET-EU-001',

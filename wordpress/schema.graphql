@@ -17370,6 +17370,8 @@ type RootQuery {
   "Approved scope-bound DOC-TDS record and scoped route readiness for TiO2 Malaysia."
   malaysiaDocumentTdsRecordJson: String!
 
+  malaysiaDocumentReachRecordJson: String!
+
   "Approved, scope-bound DOC-000 record for TiO2 Malaysia."
   malaysiaDocumentsHubRecordJson: String!
 

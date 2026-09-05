@@ -14,6 +14,7 @@ import {
   contentListTag,
   documentsHubContentTag,
   documentTdsContentTag,
+  documentReachContentTag,
   requestDocumentsContentTag,
   requestSampleContentTag,
   entityTag,
@@ -280,7 +281,7 @@ export async function POST(request: Request): Promise<Response> {
   const malaysiaLegalPaths = new Set(['/privacy-policy', '/ms/privacy-policy', '/cookie-policy'])
   const preciseMalaysiaSingletonEvent =
     currentSite.id === 'tio2-my' &&
-    (payload.paths.includes('/resources') || payload.paths.includes('/documents') || payload.paths.includes('/documents/tds-sds-coa') || payload.paths.includes('/request-documents') || payload.paths.includes('/request-sample') || payload.paths.includes('/markets/european-union') ||
+    (payload.paths.includes('/resources') || payload.paths.includes('/documents') || payload.paths.includes('/documents/tds-sds-coa') || payload.paths.includes('/documents/reach') || payload.paths.includes('/request-documents') || payload.paths.includes('/request-sample') || payload.paths.includes('/markets/european-union') ||
       (payload.paths.length === 1 && malaysiaLegalPaths.has(payload.paths[0]!)))
   for (const siteId of payload.siteIds) {
     if (!preciseMalaysiaSingletonEvent) {
@@ -309,6 +310,9 @@ export async function POST(request: Request): Promise<Response> {
       }
       if (siteId === 'tio2-my' && path === '/documents/tds-sds-coa') {
         tags.add(documentTdsContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && path === '/documents/reach') {
+        tags.add(documentReachContentTag(siteId))
       }
       if (siteId === 'tio2-my' && path === '/request-documents') {
         tags.add(requestDocumentsContentTag(siteId))

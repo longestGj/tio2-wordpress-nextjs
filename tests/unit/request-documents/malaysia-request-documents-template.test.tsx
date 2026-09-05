@@ -95,6 +95,15 @@ describe('CONV-DOC page and form', () => {
     expect((screen.getByLabelText(/Application \/ Industry/u) as HTMLInputElement).value).toBe('Coatings')
   })
 
+  it('renders the DOC-REACH other transport as a buyer-visible editable REACH Documentation selection', () => {
+    const {container} = renderPage(resolveMalaysiaRequestDocumentsPrefill({
+      document_types: 'other', additional_requirements: 'REACH documentation',
+    }, {trustedSourcePageId: 'DOC-REACH'}))
+    expect((screen.getByRole('checkbox', {name: /^REACH Documentation/u}) as HTMLInputElement).checked).toBe(true)
+    expect((screen.getByLabelText(/Additional Requirements/u) as HTMLTextAreaElement).value).toBe('REACH documentation')
+    expect(container.textContent).not.toContain('Other Documentation')
+  })
+
   it('focuses a linked error summary and preserves entered values', async () => {
     const user = userEvent.setup()
     renderPage()

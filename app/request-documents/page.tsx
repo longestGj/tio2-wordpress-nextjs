@@ -46,7 +46,9 @@ export default async function RequestDocumentsRoute({searchParams}: RouteProps) 
     product_grade: query.product_grade ?? query.product,
     application_industry: query.application_industry,
     document_types: query['document_types[]'] ?? query.document_types,
+    additional_requirements: query.additional_requirements,
     source_page_id: query.source_page_id,
+    source_page: query.source_page,
     market_id: query.market_id,
     country_region: query.country_region,
   }, {trustedSourcePageId})

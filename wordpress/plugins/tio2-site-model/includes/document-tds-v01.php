@@ -89,6 +89,7 @@ function tio2_my_document_tds_target_ready(string $page_id, string $href): bool
     $ids = get_posts([
         'post_type' => [
             'page', 'post', 'tio2_documents_hub', 'tio2_request_docs', 'tio2_doc_tds', 'tio2_document',
+            'tio2_market_page',
         ],
         'post_status' => ['draft', 'pending', 'private', 'publish', 'future'],
         'fields' => 'ids', 'numberposts' => 2, 'suppress_filters' => false,
