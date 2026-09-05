@@ -1,0 +1,256 @@
+DOC-REACH-G9-P1-DEP-01 final pre-commit verification
+Worktree: C:/Users/longe/.codex/worktrees/609c/16Wordpress_nextjs
+Captured stdout/stderr; trailing whitespace and final blank lines normalized. Synthetic fixture credentials only; no production submission.
+
+COMMAND:
+npm test -- --run tests/unit/documents tests/integration/documents tests/infrastructure/tio2-my-document-reach-wordpress.test.ts tests/infrastructure/tio2-my-document-tds-wordpress.test.ts tests/unit/request-documents tests/integration/request-documents tests/integration/api/revalidate.test.ts tests/unit/wordpress/cache-tags.test.ts tests/unit/legal tests/integration/legal tests/unit/rfq tests/integration/rfq
+EXIT CODE: 0
+OUTPUT:
+
+> test
+> vitest run --run tests/unit/documents tests/integration/documents tests/infrastructure/tio2-my-document-reach-wordpress.test.ts tests/infrastructure/tio2-my-document-tds-wordpress.test.ts tests/unit/request-documents tests/integration/request-documents tests/integration/api/revalidate.test.ts tests/unit/wordpress/cache-tags.test.ts tests/unit/legal tests/integration/legal tests/unit/rfq tests/integration/rfq
+
+
+ RUN  v4.1.11 C:/Users/longe/.codex/worktrees/609c/16Wordpress_nextjs
+
+
+ Test Files  44 passed (44)
+      Tests  323 passed (323)
+   Start at  16:19:58
+   Duration  9.84s (transform 2.08s, setup 5.55s, import 6.54s, tests 13.85s, environment 2.36s)
+
+
+
+COMMAND:
+npm run typecheck
+EXIT CODE: 0
+OUTPUT:
+
+> typecheck
+> tsc --noEmit
+
+
+
+COMMAND:
+npm run lint
+EXIT CODE: 0
+OUTPUT:
+
+> lint
+> eslint .
+
+
+C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\docs\prototypes\site-a-resources\build-visual-prototype.mjs
+  165:10  warning  'renderTakeaways' is defined but never used   @typescript-eslint/no-unused-vars
+  173:10  warning  'renderComparison' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 2 problems (0 errors, 2 warnings)
+
+
+
+COMMAND:
+$env:DOC_REACH_BASE_URL='http://localhost:3014'; $env:DOC_REACH_FIXTURE_URL='http://127.0.0.1:4023'; $env:NEXT_DIST_DIR='.next-doc-reach-dep01'; npx playwright test --config=playwright.document-reach.config.ts
+EXIT CODE: 0
+OUTPUT:
+[WebServer] (node:18512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ▲ Next.js 16.3.2 (Turbopack)
+[WebServer] (node:49316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ✓ Running next.config.ts took 28ms
+[WebServer]
+[WebServer]   Creating an optimized production build ...
+[WebServer] (node:49316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ✓ Compiled successfully in 819ms
+[WebServer]   Running TypeScript ...
+[WebServer]
+[WebServer]   We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+[WebServer]   The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+[WebServer]
+[WebServer]   	- include was updated to add '.next-doc-reach-dep01/types/**/*.ts'
+[WebServer]   	- include was updated to add '.next-doc-reach-dep01/dev/types/**/*.ts'
+[WebServer]
+[WebServer]   Finished TypeScript in 3.6s ...
+[WebServer]   Collecting page data using 15 workers ...
+[WebServer] (node:27232) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:46964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:24848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34716) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57968) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]   Generating static pages using 15 workers (0/37) ...
+[WebServer]   Generating static pages using 15 workers (9/37)
+[WebServer]   Generating static pages using 15 workers (18/37)
+[WebServer]   Generating static pages using 15 workers (27/37)
+[WebServer] ✓ Generating static pages using 15 workers (37/37) in 427ms
+[WebServer]   Finalizing page optimization ...
+[WebServer]
+[WebServer] Route (app)
+[WebServer] ┌ ƒ /
+[WebServer] ├ ƒ /_not-found
+[WebServer] ├ ● /[...path]
+[WebServer] ├ ƒ /about
+[WebServer] ├ ƒ /api/preview
+[WebServer] ├ ƒ /api/revalidate
+[WebServer] ├ ƒ /api/tio2-my/request-sample
+[WebServer] ├ ƒ /applications
+[WebServer] ├ ● /applications/[...segments]
+[WebServer] ├ ƒ /cookie-policy
+[WebServer] ├ ƒ /documents
+[WebServer] ├ ƒ /documents/reach
+[WebServer] ├ ƒ /documents/tds-sds-coa
+[WebServer] ├ ƒ /markets
+[WebServer] ├ ƒ /markets/european-union
+[WebServer] ├ ƒ /ms/privacy-policy
+[WebServer] ├ ƒ /preview/applications
+[WebServer] ├ ƒ /preview/applications/[...segments]
+[WebServer] ├ ƒ /preview/products
+[WebServer] ├ ƒ /preview/products/[familySlug]
+[WebServer] ├ ƒ /preview/products/[familySlug]/[slug]
+[WebServer] ├ ƒ /preview/release-look/products/[slug]
+[WebServer] ├ ƒ /preview/resources
+[WebServer] ├ ƒ /preview/resources/[slug]
+[WebServer] ├ ƒ /privacy-policy
+[WebServer] ├ ƒ /products
+[WebServer] ├ ƒ /products/[familySlug]
+[WebServer] ├ ● /products/[familySlug]/[slug]
+[WebServer] ├ ƒ /request-a-quote
+[WebServer] ├ ƒ /request-documents
+[WebServer] ├ ƒ /request-sample
+[WebServer] ├ ƒ /resources
+[WebServer] ├ ● /resources/[slug]
+[WebServer] ├ ○ /robots.txt
+[WebServer] └ ○ /sitemap.xml
+[WebServer]
+[WebServer]
+[WebServer] ƒ Proxy (Middleware)
+[WebServer]
+[WebServer] ○  (Static)   prerendered as static content
+[WebServer] ●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+[WebServer] ƒ  (Dynamic)  server-rendered on demand
+[WebServer]
+[WebServer] (node:49464) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ▲ Next.js 16.3.2
+[WebServer] - Local:         http://localhost:3014
+[WebServer] - Network:       http://192.168.1.7:3014
+[WebServer] ✓ Ready in 160ms
+[WebServer] ✓ Running next.config.ts took 36ms
+
+Running 25 tests using 1 worker
+
+(node:56368) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [tio2-revalidation] { siteId: 'tio2-my', contentId: 901, paths: [ '/' ] }
+[WebServer] [tio2-revalidation] {
+[WebServer]   siteId: 'tio2-my',
+[WebServer]   contentId: 901,
+[WebServer]   paths: [
+[WebServer]     '/about',
+[WebServer]     '/cookie-policy',
+[WebServer]     '/documents',
+[WebServer]     '/documents/reach',
+[WebServer]     '/markets',
+[WebServer]     '/markets/european-union',
+[WebServer]     '/ms/privacy-policy',
+[WebServer]     '/privacy-policy',
+[WebServer]     '/request-a-quote',
+[WebServer]     '/request-documents',
+[WebServer]     '/resources'
+[WebServer]   ]
+[WebServer] }
+  ok  1 tests\e2e\document-reach-dependencies.spec.ts:57:1 › integrated shared navigation resolves existing Malaysia pages and records the Applications release blocker (9.0s)
+  ok  2 tests\e2e\document-reach-dependencies.spec.ts:89:40 › integrated dependency DOC-000 responds with its own scoped page and usable interaction (1.0s)
+  ok  3 tests\e2e\document-reach-dependencies.spec.ts:89:40 › integrated dependency MARKET-EU-001 responds with its own scoped page and usable interaction (971ms)
+  ok  4 tests\e2e\document-reach-dependencies.spec.ts:89:40 › integrated dependency CONV-DOC responds with its own scoped page and usable interaction (882ms)
+  ok  5 tests\e2e\document-reach-dependencies.spec.ts:89:40 › integrated dependency CONV-RFQ responds with its own scoped page and usable interaction (1.2s)
+  ok  6 tests\e2e\document-reach-dependencies.spec.ts:89:40 › integrated dependency LEGAL-PRIV-EN responds with its own scoped page and usable interaction (886ms)
+  ok  7 tests\e2e\document-reach-dependencies.spec.ts:89:40 › integrated dependency LEGAL-PRIV-BM responds with its own scoped page and usable interaction (894ms)
+  ok  8 tests\e2e\document-reach-dependencies.spec.ts:89:40 › integrated dependency LEGAL-COOKIE-EN responds with its own scoped page and usable interaction (891ms)
+  ok  9 tests\e2e\document-reach-dependencies.spec.ts:159:1 › integrated dependency Cookie Settings CMP opens, traps focus, links to policy and returns focus (1.1s)
+  ok 10 tests\e2e\document-reach.spec.ts:125:1 › DOC-REACH source, approved visual inputs and public output remain controlled (50ms)
+  ok 11 tests\e2e\document-reach.spec.ts:139:29 › DOC-REACH 1440px responsive, visual and shared-Chrome contract (2.2s)
+  ok 12 tests\e2e\document-reach.spec.ts:139:29 › DOC-REACH 1280px responsive, visual and shared-Chrome contract (1.4s)
+  ok 13 tests\e2e\document-reach.spec.ts:139:29 › DOC-REACH 1024px responsive, visual and shared-Chrome contract (1.3s)
+  ok 14 tests\e2e\document-reach.spec.ts:139:29 › DOC-REACH 768px responsive, visual and shared-Chrome contract (1.9s)
+  ok 15 tests\e2e\document-reach.spec.ts:139:29 › DOC-REACH 640px responsive, visual and shared-Chrome contract (1.2s)
+  ok 16 tests\e2e\document-reach.spec.ts:139:29 › DOC-REACH 430px responsive, visual and shared-Chrome contract (1.2s)
+  ok 17 tests\e2e\document-reach.spec.ts:139:29 › DOC-REACH 390px responsive, visual and shared-Chrome contract (1.9s)
+  ok 18 tests\e2e\document-reach.spec.ts:139:29 › DOC-REACH 375px responsive, visual and shared-Chrome contract (1.2s)
+  ok 19 tests\e2e\document-reach.spec.ts:139:29 › DOC-REACH 320px responsive, visual and shared-Chrome contract (1.2s)
+  ok 20 tests\e2e\document-reach.spec.ts:181:1 › DOC-REACH FAQ and shared Mobile Menu are keyboard-operable and match approved states (1.9s)
+  ok 21 tests\e2e\document-reach.spec.ts:218:1 › DOC-REACH exact source ledger and optional dates remain current in the default state (794ms)
+[WebServer] [tio2-revalidation] { siteId: 'tio2-my', contentId: 901, paths: [ '/documents/reach' ] }
+[WebServer] [tio2-revalidation] { siteId: 'tio2-my', contentId: 901, paths: [ '/documents/reach' ] }
+[WebServer] [tio2-revalidation] { siteId: 'tio2-my', contentId: 901, paths: [ '/documents/reach' ] }
+[WebServer] [tio2-revalidation] { siteId: 'tio2-my', contentId: 901, paths: [ '/documents/reach' ] }
+[WebServer] ⨯ Error [CrossSiteContentError]: Content belongs to tio2-a, not tio2-my
+[WebServer]     at <unknown> (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:9314)
+[WebServer]     at A (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:10439)
+[WebServer]     at async B (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:10577)
+[WebServer]     at async D (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:11155) {
+[WebServer]   expectedSiteId: 'tio2-my',
+[WebServer]   actualSiteIds: [ 'tio2-a' ],
+[WebServer]   digest: '597289767'
+[WebServer] }
+[WebServer] ⨯ Error [CrossSiteContentError]: Content belongs to tio2-a, not tio2-my
+[WebServer]     at <unknown> (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:9314)
+[WebServer]     at A (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:10439)
+[WebServer]     at async B (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:10577)
+[WebServer]     at async Module.C [as generateMetadata] (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:10626) {
+[WebServer]   expectedSiteId: 'tio2-my',
+[WebServer]   actualSiteIds: [ 'tio2-a' ],
+[WebServer]   digest: '3588759883'
+[WebServer] }
+[WebServer] [tio2-revalidation] { siteId: 'tio2-my', contentId: 901, paths: [ '/documents/reach' ] }
+[WebServer] ⨯ Error [CrossSiteContentError]: Content belongs to no site, not tio2-my
+[WebServer]     at <unknown> (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:9314)
+[WebServer]     at A (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:10439)
+[WebServer]     at async B (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:10577)
+[WebServer]     at async D (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:11155) {
+[WebServer]   expectedSiteId: 'tio2-my',
+[WebServer]   actualSiteIds: [],
+[WebServer]   digest: '337603687'
+[WebServer] }
+[WebServer] ⨯ Error [CrossSiteContentError]: Content belongs to no site, not tio2-my
+[WebServer]     at <unknown> (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:9314)
+[WebServer]     at A (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:10439)
+[WebServer]     at async B (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:10577)
+[WebServer]     at async Module.C [as generateMetadata] (C:\Users\longe\.codex\worktrees\609c\16Wordpress_nextjs\.next-doc-reach-dep01\server\chunks\ssr\[root-of-the-server]__1h4tksn._.js:1:10626) {
+[WebServer]   expectedSiteId: 'tio2-my',
+[WebServer]   actualSiteIds: [],
+[WebServer]   digest: '2981471627'
+[WebServer] }
+[WebServer] [tio2-revalidation] { siteId: 'tio2-my', contentId: 901, paths: [ '/documents/reach' ] }
+  ok 22 tests\e2e\document-reach.spec.ts:237:1 › DOC-REACH receiver and source readiness transitions invalidate cache atomically (3.1s)
+[WebServer] [tio2-revalidation] { siteId: 'tio2-my', contentId: 901, paths: [ '/request-documents' ] }
+  ok 23 tests\e2e\document-reach.spec.ts:284:1 › DOC-REACH request transport stays editable through Back/Forward and trusted attribution (2.2s)
+  ok 24 tests\e2e\document-reach.spec.ts:313:1 › CONV-DOC ignores public source tampering and validates editable negative input safely (1.1s)
+  ok 25 tests\e2e\document-reach.spec.ts:347:1 › DOC-REACH reflows at 200% with reduced motion and forced colors (780ms)
+
+  25 passed (53.9s)

@@ -1,0 +1,34 @@
+# DOC-REACH-G9-P1-DEP-01 — SHA-256 of final verified working-tree file bytes.
+# Paths relative to repository root. Text hashes are sensitive to Git line-ending conversion.
+14f95e37edbe3197750734982ce489fd0840677737062ce8f9e6106eb7349eca  docs/verification/document-reach/DOC-REACH_G9_DEP01_RETURN_2026-09-05.md
+cdbcaa5bf12634d0535c42557ffba9181f8c2a365a9d5d9edcf695e72ebd9542  docs/verification/document-reach/DOC-REACH_GATE8_LOCAL_VERIFICATION_2026-09-05.md
+c29fd3e7832898f3ccf4b485ee4096a238e2fb55dc4ebbb343d98542c380124f  docs/verification/document-reach/doc-reach-1024.png
+f6338aa6b7dbc2586680070ae63011196c9365c68705fb48b12760b3f6dd7d9d  docs/verification/document-reach/doc-reach-1280.png
+ef36e69ebcc984bd017f9d28fb261cc3b2e34d12c49117d634517838f52094d7  docs/verification/document-reach/doc-reach-1440.png
+f994dc2e5e35f1f869ea28c6b3626faf42290742f27431502f4015957e2cc5b4  docs/verification/document-reach/doc-reach-320.png
+2945a97e76f37a54716bdc65160948433019d5e07014c7ca3949f72ef392a461  docs/verification/document-reach/doc-reach-375.png
+43ce8cf7dbc0801b09e00e4aa211068f10fe1fb1d65caa170c95279df2685021  docs/verification/document-reach/doc-reach-390.png
+d4d1d36023c95e3e4bc0ffda9e3f4687d6a7be7f9e2dd129c72986c67545dd4b  docs/verification/document-reach/doc-reach-430.png
+2aa7f5e905f6ced560a97a84feed2851e303d14712bd3e20a54085f4486ccfb0  docs/verification/document-reach/doc-reach-640.png
+bf9112ee003eb8c31d00117d32b8106dfad54a8aa354cc2d7a8f82844333f821  docs/verification/document-reach/doc-reach-768.png
+b759c24455e1e33d51bbff120d691a085fa85bda552e378fd1469a632b974210  docs/verification/document-reach/doc-reach-dep01-command-output.txt
+1d0774841020e30dfa4935757a6431333c4454728c4e38f9d7973100a4f33af9  docs/verification/document-reach/doc-reach-dep01-playwright-results.json
+293364fc2130810cb7416786cbe4bb9f568fdb43634db7a6ee75e637ec2af257  docs/verification/document-reach/doc-reach-dependency-cmp-390.png
+11ba03325395c59059410cd70c55e78480c9e2ec6a335344091c56aada78e695  docs/verification/document-reach/doc-reach-dependency-conv-doc.png
+bb50f8659e0422903f658309c95911c6317aaeff3343860f87efec8617229b0e  docs/verification/document-reach/doc-reach-dependency-conv-rfq.png
+130bfe07d44498628465fbc1f4cf418d5bca8ccfc3478ab11e22938a2feb1eb9  docs/verification/document-reach/doc-reach-dependency-doc-000.png
+e3c8a610642958f23e291a48bacf4a2517745b6c8eb3b7aab5324ed415df4f2a  docs/verification/document-reach/doc-reach-dependency-ledger.json
+ea4734d14e7cd52c4e9bf2c70b2f516be44f2536aafed73318f7cdbae28f80f3  docs/verification/document-reach/doc-reach-dependency-legal-cookie-en.png
+f780f31a1e060f3ae81d98224fb7df72134106465c1e34c6f865acc0bae8660e  docs/verification/document-reach/doc-reach-dependency-legal-priv-bm.png
+1285a2a99e8f360e1fe984e037b682c7348f2bb9937160c4f529430d604a82f1  docs/verification/document-reach/doc-reach-dependency-legal-priv-en.png
+3a02366ad18f25cfefec8add2d91565aeef6c5c699284735c806bc6e68799643  docs/verification/document-reach/doc-reach-dependency-market-eu-001.png
+48a0bf6a1e6a29bea1b91a3e169fa05ffb57fcd018a821ae5e6ceb72a1bdc8d0  docs/verification/document-reach/doc-reach-faq-open-focus-1440.png
+52e2af5472402c753e6e846c4bfd396bf9378dedcf20b8c99789291e8cb2947e  docs/verification/document-reach/doc-reach-mobile-menu-open-390-2x.png
+4987f0646bed8f4f710e3e45f530910d200a89be358e0d642534852f6f06b65a  docs/verification/document-reach/doc-reach-official-source-freshness.json
+465528ac80facfffb244720d6783226bcc97f575388eeb8b1a9de7e25e8dd78f  docs/verification/document-reach/doc-reach-public-output-scans.json
+7505369c90960c6b155cc2719861e70c107d2e47ffba02ad787f0792232dab74  docs/verification/document-reach/doc-reach-receiver-unavailable-1440.png
+fb46ab94e16134d291cf1f0545e56e65a43a238d71df60c870ae3a0d23ddcbb5  docs/verification/document-reach/doc-reach-runtime-matrix.json
+8e29075efbcae8d1a015caa7ee018f3410236e40816cc9f282a598938801bdae  playwright.document-reach.config.ts
+d57c7e49dbe3d892cfd8d7b288690d7f83b83828942b5f9a9798defbdf51aa76  tests/e2e/document-reach-dependencies.spec.ts
+74310399b168dec3ea9ed4bcdfd9f25542322ae981277b4f10e4b8bb4749b8b0  tests/e2e/document-reach.spec.ts
+5685d61b07f989f94006c0de6a7df1d1fa6c590ae605a9006bc13022bbd3a6be  tests/e2e/support/document-reach-cms.mjs

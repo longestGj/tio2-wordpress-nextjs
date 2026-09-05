@@ -1,88 +1,257 @@
 {
-  "evidenceClass": "Gate 8 implementation evidence for independent Gate 9 read-only QA",
-  "siteScope": "tio2-my",
-  "pageId": "DOC-REACH",
-  "route": "/documents/reach/",
-  "routeDependencies": [
-    {
-      "pageId": "CONV-DOC",
-      "eligible": "three request actions and one selection panel",
-      "ineligible": "zero request actions, panels, or request-document Schema relationships"
-    },
+  "reviewId": "DOC-REACH-G9-P1-DEP-01",
+  "runtime": {
+    "baseUrl": "http://localhost:3014",
+    "fixtureRunId": "bd4c3c21-6944-4950-b339-8c0317fdf3e9",
+    "siteScope": "tio2-my",
+    "mode": "next start; controlled CMS; external submissions intercepted"
+  },
+  "observedAt": "2026-09-05T08:20:36.429Z",
+  "requiredChecks": [
+    "DOC-000",
+    "MARKET-EU-001",
+    "CONV-DOC",
+    "CONV-RFQ",
+    "LEGAL-PRIV-EN",
+    "LEGAL-PRIV-BM",
+    "LEGAL-COOKIE-EN",
+    "COOKIE-SETTINGS-CMP"
+  ],
+  "observations": [
     {
       "pageId": "DOC-000",
-      "eligible": "Document Hub actions retained independently",
-      "ineligible": "its own actions are omitted without cross-scope fallback"
+      "path": "/documents/",
+      "result": "passed",
+      "interaction": "Grade selector navigated to CONV-DOC with M-2196 prefilled",
+      "httpStatus": 200,
+      "finalUrl": "http://localhost:3014/documents",
+      "canonical": "https://tio2malaysia.com/documents/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "h1": "Documents for Product & Supplier Qualification",
+      "screenshot": "doc-reach-dependency-doc-000.png"
     },
     {
       "pageId": "MARKET-EU-001",
-      "eligible": "approved related path is rendered",
-      "ineligible": "its own related path is omitted independently"
+      "path": "/markets/european-union/",
+      "result": "passed",
+      "interaction": "Shared RFQ navigates to rendered RFQ form",
+      "httpStatus": 200,
+      "finalUrl": "http://localhost:3014/markets/european-union/",
+      "canonical": "https://tio2malaysia.com/markets/european-union/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "h1": "Malaysia-Origin Titanium Dioxide for European Union Buyers",
+      "screenshot": "doc-reach-dependency-market-eu-001.png"
+    },
+    {
+      "pageId": "CONV-DOC",
+      "path": "/request-documents/",
+      "result": "passed",
+      "interaction": "Empty submission shows required-field validation; positive/negative receiver flow covered by REACH suite",
+      "httpStatus": 200,
+      "finalUrl": "http://localhost:3014/request-documents/",
+      "canonical": "https://tio2malaysia.com/request-documents/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "h1": "Request Documents",
+      "screenshot": "doc-reach-dependency-conv-doc.png"
+    },
+    {
+      "pageId": "CONV-RFQ",
+      "path": "/request-a-quote/",
+      "result": "passed",
+      "interaction": "Required-field validation; intercepted negative response retains input; retry reaches positive receipt with Malaysia RFQ payload",
+      "httpStatus": 200,
+      "finalUrl": "http://localhost:3014/request-a-quote",
+      "canonical": "https://tio2malaysia.com/request-a-quote/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "h1": "Request a Titanium Dioxide Quote",
+      "screenshot": "doc-reach-dependency-conv-rfq.png"
+    },
+    {
+      "pageId": "LEGAL-PRIV-EN",
+      "path": "/privacy-policy/",
+      "result": "passed",
+      "interaction": "Table of contents navigates to visible policy section",
+      "httpStatus": 200,
+      "finalUrl": "http://localhost:3014/privacy-policy",
+      "canonical": "https://tio2malaysia.com/privacy-policy/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "h1": "Privacy Policy",
+      "screenshot": "doc-reach-dependency-legal-priv-en.png"
+    },
+    {
+      "pageId": "LEGAL-PRIV-BM",
+      "path": "/ms/privacy-policy/",
+      "result": "passed",
+      "interaction": "Table of contents navigates to visible policy section",
+      "httpStatus": 200,
+      "finalUrl": "http://localhost:3014/ms/privacy-policy",
+      "canonical": "https://tio2malaysia.com/ms/privacy-policy/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "h1": "Dasar Privasi",
+      "screenshot": "doc-reach-dependency-legal-priv-bm.png"
+    },
+    {
+      "pageId": "LEGAL-COOKIE-EN",
+      "path": "/cookie-policy/",
+      "result": "passed",
+      "interaction": "Table of contents navigates to visible policy section",
+      "httpStatus": 200,
+      "finalUrl": "http://localhost:3014/cookie-policy",
+      "canonical": "https://tio2malaysia.com/cookie-policy/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "h1": "Cookie Policy",
+      "screenshot": "doc-reach-dependency-legal-cookie-en.png"
+    },
+    {
+      "pageId": "COOKIE-SETTINGS-CMP",
+      "path": "/documents/reach/",
+      "result": "passed",
+      "httpStatus": 200,
+      "canonical": "https://tio2malaysia.com/documents/reach/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "screenshot": "doc-reach-dependency-cmp-390.png",
+      "interaction": "Opened shared dialog, trapped focus, Escape returned focus, policy link loaded real Cookie Policy, no consent written"
     }
   ],
-  "officialSources": [
+  "namedDependenciesVerified": true,
+  "sharedNavigation": [
     {
-      "name": "European Commission — REACH Regulation",
-      "url": "https://environment.ec.europa.eu/topics/chemicals/reach-regulation_en",
-      "sourceUpdatedDate": null,
-      "siteReviewedDate": "2026-09-05"
+      "path": "/",
+      "result": "passed",
+      "httpStatus": 200,
+      "canonical": "https://tio2malaysia.com",
+      "scopes": [
+        "tio2-my"
+      ],
+      "interaction": "Own page H1 visible; shared mobile menu opens and Escape restores focus"
     },
     {
-      "name": "Your Europe — Registering Chemicals (REACH) FAQs",
-      "url": "https://europa.eu/youreurope/business/product-rules-compliance/chemicals-and-hazardous-substances/registering-chemicals-reach/faq/index_en.htm",
-      "sourceUpdatedDate": null,
-      "siteReviewedDate": "2026-09-05"
+      "path": "/markets/",
+      "result": "passed",
+      "httpStatus": 200,
+      "canonical": "https://tio2malaysia.com/markets/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "interaction": "Own page H1 visible; shared mobile menu opens and Escape restores focus"
     },
     {
-      "name": "HSE — UK REACH Explained",
-      "url": "https://www.hse.gov.uk/reach/about.htm",
-      "sourceUpdatedDate": "2025-09-02",
-      "siteReviewedDate": "2026-09-05"
+      "path": "/products/",
+      "result": "passed",
+      "httpStatus": 200,
+      "canonical": "https://tio2malaysia.com/products/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "interaction": "Own page H1 visible; shared mobile menu opens and Escape restores focus"
     },
     {
-      "name": "HSE — Northern Ireland Notifications",
-      "url": "https://www.hse.gov.uk/REACH/northern-ireland.htm",
-      "sourceUpdatedDate": "2025-09-03",
-      "siteReviewedDate": "2026-09-05"
+      "path": "/applications/",
+      "result": "shared_release_blocker",
+      "httpStatus": 404,
+      "canonical": null,
+      "scopes": [],
+      "reason": "APP-000 Malaysia is not implemented: route accepts only Site A. Shared navigation must remain owner-controlled; no replacement page or fallback authorized by DOC-REACH repair."
+    },
+    {
+      "path": "/documents/",
+      "result": "passed",
+      "httpStatus": 200,
+      "canonical": "https://tio2malaysia.com/documents/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "interaction": "Own page H1 visible; shared mobile menu opens and Escape restores focus"
+    },
+    {
+      "path": "/resources/",
+      "result": "passed",
+      "httpStatus": 200,
+      "canonical": "https://tio2malaysia.com/resources/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "interaction": "Own page H1 visible; shared mobile menu opens and Escape restores focus"
+    },
+    {
+      "path": "/about/",
+      "result": "passed",
+      "httpStatus": 200,
+      "canonical": "https://tio2malaysia.com/about/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "interaction": "Own page H1 visible; shared mobile menu opens and Escape restores focus"
+    },
+    {
+      "path": "/request-a-quote/",
+      "result": "passed",
+      "httpStatus": 200,
+      "canonical": "https://tio2malaysia.com/request-a-quote/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "interaction": "Own page H1 visible; shared mobile menu opens and Escape restores focus"
+    },
+    {
+      "path": "/privacy-policy/",
+      "result": "passed",
+      "httpStatus": 200,
+      "canonical": "https://tio2malaysia.com/privacy-policy/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "interaction": "Own page H1 visible; shared mobile menu opens and Escape restores focus"
+    },
+    {
+      "path": "/ms/privacy-policy/",
+      "result": "passed",
+      "httpStatus": 200,
+      "canonical": "https://tio2malaysia.com/ms/privacy-policy/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "interaction": "Own page H1 visible; shared mobile menu opens and Escape restores focus"
+    },
+    {
+      "path": "/cookie-policy/",
+      "result": "passed",
+      "httpStatus": 200,
+      "canonical": "https://tio2malaysia.com/cookie-policy/",
+      "scopes": [
+        "tio2-my"
+      ],
+      "interaction": "Own page H1 visible; shared mobile menu opens and Escape restores focus"
     }
   ],
-  "observedStates": {
-    "keyboard": {
-      "faqExpanded": true,
-      "faqFocusRetained": true,
-      "menuFocusTrapped": true,
-      "menuEscapeReturnedFocus": true
-    },
-    "defaultSources": {
-      "rows": 4,
-      "sourceUpdatedRows": 2,
-      "reviewedRows": 4
-    },
-    "cacheIsolation": {
-      "eligible": 3,
-      "unavailable": 0,
-      "staleSourceRows": 3,
-      "wrongScopeFailed": true,
-      "missingScopeFailed": true,
-      "restoredSourceRows": 4
-    },
-    "prefill": {
-      "semanticLabel": "REACH Documentation",
-      "backForwardSelections": 1,
-      "trustedSource": "DOC-REACH"
-    },
-    "negativePrefill": {
-      "duplicatesDeduplicated": true,
-      "unsupportedDiscarded": true,
-      "htmlEscaped": true,
-      "overlengthPreserved": true,
-      "publicSourceIgnored": true
-    },
-    "systemPreferences": {
-      "zoomProxyWidth": 720,
-      "forcedColors": true,
-      "reducedMotion": true,
-      "focusVisible": true
+  "sharedReleaseBlockers": [
+    {
+      "path": "/applications/",
+      "result": "shared_release_blocker",
+      "httpStatus": 404,
+      "canonical": null,
+      "scopes": [],
+      "reason": "APP-000 Malaysia is not implemented: route accepts only Site A. Shared navigation must remain owner-controlled; no replacement page or fallback authorized by DOC-REACH repair."
     }
-  }
+  ],
+  "gate8EvidenceComplete": false,
+  "releaseControls": [
+    "Real production CMS, approved recipients and mailbox receipt require separate verification; local fixture success does not establish production readiness."
+  ]
 }

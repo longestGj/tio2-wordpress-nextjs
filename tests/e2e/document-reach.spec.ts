@@ -54,24 +54,6 @@ test.afterAll(() => {
     'docs/verification/document-reach/doc-reach-runtime-matrix.json',
     `${JSON.stringify(runtimeEvidence, null, 2)}\n`,
   )
-  writeFileSync(
-    'docs/verification/document-reach/doc-reach-dependency-ledger.json',
-    `${JSON.stringify({
-      evidenceClass: 'Gate 8 implementation evidence for independent Gate 9 read-only QA',
-      siteScope: 'tio2-my',
-      pageId: 'DOC-REACH',
-      route: '/documents/reach/',
-      routeDependencies: [
-        {pageId: 'CONV-DOC', eligible: 'three request actions and one selection panel', ineligible: 'zero request actions, panels, or request-document Schema relationships'},
-        {pageId: 'DOC-000', eligible: 'Document Hub actions retained independently', ineligible: 'its own actions are omitted without cross-scope fallback'},
-        {pageId: 'MARKET-EU-001', eligible: 'approved related path is rendered', ineligible: 'its own related path is omitted independently'},
-      ],
-      officialSources: sourceItems.map(({name, url, source_updated_date, site_reviewed_date}) => ({
-        name, url, sourceUpdatedDate: source_updated_date, siteReviewedDate: site_reviewed_date,
-      })),
-      observedStates: runtimeEvidence.states,
-    }, null, 2)}\n`,
-  )
 })
 
 function approvedBytes(baseline: Baseline) {

@@ -1,5 +1,7 @@
 # DOC-REACH Gate 8 implementation and Gate 9 read-only QA evidence
 
+> Current disposition updated by `DOC-REACH-G9-P1-DEP-01`: the original dependency-completeness claim is withdrawn. See [the DEP-01 return](DOC-REACH_G9_DEP01_RETURN_2026-09-05.md) and the regenerated `doc-reach-dependency-ledger.json` for current integrated runtime observations, test output and open shared blockers. The verification tables below describe the earlier baseline, not the latest return.
+
 ## Control
 
 | Field | Value |
@@ -9,7 +11,7 @@
 | Accepted foundation | `d1b15e253b1202d2e4639646845c7ca8155104a8` |
 | Implementation branch | `codex/doc-reach-gate8-evidence` |
 | Verification date | 2026-09-05 |
-| Gate 8 disposition | Implementation and local evidence complete; ready for independent Gate 9 read-only QA |
+| Gate 8 disposition | Named DOC-REACH dependencies verified in integrated runtime; full-site evidence remains incomplete because shared Applications navigation returns 404 |
 | Gate 9 | Not asserted or pre-approved by this record |
 | Gate 10 / release | Not authorized; no deployment, production CMS write, DNS, publication, or indexing action was performed |
 
