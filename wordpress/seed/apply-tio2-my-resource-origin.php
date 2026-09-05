@@ -53,6 +53,7 @@ wp_update_post(['ID' => $post_id, 'post_name' => $slug]);
 update_post_meta($post_id, 'public_path', $public_path);
 update_post_meta($post_id, 'resource_id', 'RES-ORIGIN');
 update_post_meta($post_id, TIO2_MY_RESOURCE_ORIGIN_CONTRACT_META, $contract_json);
+delete_post_meta($post_id, TIO2_MY_RESOURCE_ORIGIN_ARTICLE_METADATA_META);
 $contract = json_decode($contract_json, true);
 if (! is_array($contract) || ! is_array($contract['relations'] ?? null)) {
     throw new RuntimeException('The approved Malaysia RES-ORIGIN relations are missing.');

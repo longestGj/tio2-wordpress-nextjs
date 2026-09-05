@@ -1,5 +1,6 @@
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-resource-origin.json'
 
+import type {MalaysiaResourceOriginArticleMetadata} from '@/lib/resources/malaysia-resource-origin-article'
 import type {Tio2MyGlobalChrome} from './tio2-my-global-chrome-types'
 
 type DeepReadonly<T> = T extends readonly (infer Item)[]
@@ -11,7 +12,7 @@ type DeepReadonly<T> = T extends readonly (infer Item)[]
 type ApprovedContract = DeepReadonly<typeof approvedContract>
 type PublicContractContent = Omit<
   ApprovedContract,
-  'internal' | 'releaseControls' | 'relations' | 'seo'
+  'articleMetadata' | 'internal' | 'releaseControls' | 'relations' | 'seo'
 > & {
   readonly seo: Omit<ApprovedContract['seo'], 'primaryKeyword'>
 }
@@ -24,6 +25,7 @@ export interface MalaysiaResourceOriginEligibleRelation {
 }
 
 export type MalaysiaResourceOriginPayload = PublicContractContent & {
+  readonly articleMetadata: MalaysiaResourceOriginArticleMetadata | null
   readonly eligibleRelations: readonly MalaysiaResourceOriginEligibleRelation[]
   readonly schemaMode: 'BREADCRUMB_ONLY' | 'ARTICLE_WITH_BREADCRUMB'
 }

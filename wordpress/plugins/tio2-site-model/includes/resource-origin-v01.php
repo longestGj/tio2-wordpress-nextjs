@@ -8,6 +8,7 @@ if (! defined('ABSPATH')) {
 
 const TIO2_MY_RESOURCE_ORIGIN_CONTRACT_META = '_tio2_my_resource_origin_contract_json';
 const TIO2_MY_RESOURCE_ORIGIN_RELATIONS_META = '_tio2_my_resource_origin_relations_json';
+const TIO2_MY_RESOURCE_ORIGIN_ARTICLE_METADATA_META = '_tio2_my_resource_origin_article_metadata_json';
 
 function tio2_my_resource_origin_contract_path(): string
 {
@@ -151,8 +152,53 @@ function tio2_my_resource_origin_public_relation(array $relation, array $approve
     ];
 }
 
+function tio2_my_resource_origin_valid_article_text($value): bool
+{
+    return is_string($value) && '' !== $value && trim($value) === $value;
+}
+
+function tio2_my_resource_origin_valid_article_date($value): bool
+{
+    if (! is_string($value) || 1 !== preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $parts)) {
+        return false;
+    }
+    return checkdate((int) $parts[2], (int) $parts[3], (int) $parts[1]);
+}
+
+/** @return array<string, string>|null */
+function tio2_my_resource_origin_public_article_metadata(?array $metadata): ?array
+{
+    if (
+        null === $metadata ||
+        'APPROVED' !== ($metadata['contentStatus'] ?? null) ||
+        'VISIBLE' !== ($metadata['publicVisibilityStatus'] ?? null)
+    ) return null;
+    foreach (['authorName', 'publisherName', 'publisherLogoAssetKey', 'maintenanceOwner'] as $key) {
+        if (! tio2_my_resource_origin_valid_article_text($metadata[$key] ?? null)) return null;
+    }
+    foreach (['datePublished', 'dateModified', 'lastReviewedAt'] as $key) {
+        if (! tio2_my_resource_origin_valid_article_date($metadata[$key] ?? null)) return null;
+    }
+    if ('/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg' !== $metadata['publisherLogoAssetKey']) {
+        return null;
+    }
+    return [
+        'authorName' => $metadata['authorName'],
+        'publisherName' => $metadata['publisherName'],
+        'publisherLogoAssetKey' => $metadata['publisherLogoAssetKey'],
+        'datePublished' => $metadata['datePublished'],
+        'dateModified' => $metadata['dateModified'],
+        'lastReviewedAt' => $metadata['lastReviewedAt'],
+        'maintenanceOwner' => $metadata['maintenanceOwner'],
+    ];
+}
+
 /** @return array<string, mixed> */
-function tio2_my_resource_origin_public_projection(array $contract, array $relations): array
+function tio2_my_resource_origin_public_projection(
+    array $contract,
+    array $relations,
+    ?array $article_metadata = null
+): array
 {
     $approved_by_key = [];
     foreach (($contract['relations'] ?? []) as $approved) {
@@ -180,8 +226,12 @@ function tio2_my_resource_origin_public_projection(array $contract, array $relat
         return ($left['displayOrder'] <=> $right['displayOrder']) ?:
             strcmp((string) $left['relationKey'], (string) $right['relationKey']);
     });
+    $public_article_metadata = tio2_my_resource_origin_public_article_metadata($article_metadata);
+    $contract['articleMetadata'] = $public_article_metadata;
     $contract['eligibleRelations'] = $eligible;
-    $contract['schemaMode'] = 'BREADCRUMB_ONLY';
+    $contract['schemaMode'] = null === $public_article_metadata
+        ? 'BREADCRUMB_ONLY'
+        : 'ARTICLE_WITH_BREADCRUMB';
     return $contract;
 }
 
@@ -224,13 +274,21 @@ function tio2_resolve_malaysia_resource_origin_record_json(): string
     if (! is_array($relations)) {
         throw new \GraphQL\Error\UserError('The Malaysia RES-ORIGIN relation storage is invalid.');
     }
+    $article_metadata_json = get_post_meta($post_id, TIO2_MY_RESOURCE_ORIGIN_ARTICLE_METADATA_META, true);
+    $article_metadata = is_string($article_metadata_json) && '' !== $article_metadata_json
+        ? json_decode($article_metadata_json, true)
+        : null;
     return wp_json_encode([
         'id' => 'resource-origin-' . $post_id,
         'modifiedGmt' => str_replace(' ', 'T', (string) get_post_field('post_modified_gmt', $post_id)),
         'status' => get_post_status($post_id),
         'siteScopes' => ['nodes' => [['slug' => 'tio2-my']]],
         'publishingFields' => ['publicPath' => '/resources/non-china-titanium-dioxide/'],
-        'resourceOriginPayload' => tio2_my_resource_origin_public_projection($contract, $relations),
+        'resourceOriginPayload' => tio2_my_resource_origin_public_projection(
+            $contract,
+            $relations,
+            is_array($article_metadata) ? $article_metadata : null
+        ),
     ]);
 }
 

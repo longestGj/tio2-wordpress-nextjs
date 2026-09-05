@@ -1,3 +1,6 @@
+import Image from 'next/image'
+
+import {resolveVisibleMalaysiaResourceOriginArticleMetadata} from '@/lib/resources/malaysia-resource-origin-article'
 import type {
   MalaysiaResourceOriginDto,
   MalaysiaResourceOriginEligibleRelation,
@@ -31,6 +34,10 @@ export function MalaysiaResourceOriginPage({
   readonly structuredData?: React.ReactNode
 }) {
   const relations = relationMap(page.eligibleRelations)
+  const articleMetadata = resolveVisibleMalaysiaResourceOriginArticleMetadata(
+    page.schemaMode,
+    page.articleMetadata,
+  )
   return (
     <div className={styles.site} data-site-id="tio2-my" data-site-scope="tio2-my">
       {structuredData}
@@ -59,6 +66,26 @@ export function MalaysiaResourceOriginPage({
               <p className={styles.eyebrow}>{page.hero.eyebrow}</p>
               <h1 id="res-origin-heading">{page.hero.h1}</h1>
               <p>{page.hero.supportingCopy}</p>
+              {articleMetadata ? (
+                <aside className={styles.articleMetadata} aria-label="Article information" data-res-origin-article-metadata>
+                  <div className={styles.articlePublisher}>
+                    <Image
+                      src={articleMetadata.publisherLogoAssetKey}
+                      alt={`${articleMetadata.publisherName} publisher logo`}
+                      width={900}
+                      height={300}
+                    />
+                    <span>Published by <strong>{articleMetadata.publisherName}</strong></span>
+                  </div>
+                  <dl>
+                    <div><dt>Author</dt><dd>{articleMetadata.authorName}</dd></div>
+                    <div><dt>Published</dt><dd><time dateTime={articleMetadata.datePublished}>{articleMetadata.datePublished}</time></dd></div>
+                    <div><dt>Updated</dt><dd><time dateTime={articleMetadata.dateModified}>{articleMetadata.dateModified}</time></dd></div>
+                    <div><dt>Last reviewed</dt><dd><time dateTime={articleMetadata.lastReviewedAt}>{articleMetadata.lastReviewedAt}</time></dd></div>
+                    <div><dt>Maintained by</dt><dd>{articleMetadata.maintenanceOwner}</dd></div>
+                  </dl>
+                </aside>
+              ) : null}
               <div className={styles.actions}>
                 <Action label={page.hero.primaryAction.label} relation={relations.get(page.hero.primaryAction.relationKey)} />
                 <Action label={page.hero.secondaryAction.label} relation={relations.get(page.hero.secondaryAction.relationKey)} secondary />

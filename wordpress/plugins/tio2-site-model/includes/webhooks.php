@@ -752,7 +752,11 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
         $post instanceof WP_Post &&
         'tio2_document' === $post->post_type &&
         'RES-ORIGIN' === get_post_meta($post_id, 'resource_id', true) &&
-        in_array($meta_key, [TIO2_MY_RESOURCE_ORIGIN_CONTRACT_META, TIO2_MY_RESOURCE_ORIGIN_RELATIONS_META], true)
+        in_array($meta_key, [
+            TIO2_MY_RESOURCE_ORIGIN_CONTRACT_META,
+            TIO2_MY_RESOURCE_ORIGIN_RELATIONS_META,
+            TIO2_MY_RESOURCE_ORIGIN_ARTICLE_METADATA_META,
+        ], true)
     ) {
         return true;
     }

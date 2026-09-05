@@ -1,6 +1,10 @@
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-resource-origin.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
+import {
+  projectApprovedMalaysiaResourceOriginArticleMetadata,
+  resolveVisibleMalaysiaResourceOriginArticleMetadata,
+} from '@/lib/resources/malaysia-resource-origin-article'
 import {normalizeWordPressGmt} from './time'
 import {CrossSiteContentError} from './types'
 import type {
@@ -49,7 +53,7 @@ function withoutKeys(source: UnknownRecord, excluded: ReadonlySet<string>): Unkn
 function publicContentFromContract(value: unknown): UnknownRecord {
   const source = record(value, 'contract')
   const seo = record(source.seo, 'seo')
-  const content = withoutKeys(source, new Set(['internal', 'releaseControls', 'relations', 'seo']))
+  const content = withoutKeys(source, new Set(['articleMetadata', 'internal', 'releaseControls', 'relations', 'seo']))
   return {...content, seo: withoutKeys(seo, new Set(['primaryKeyword']))}
 }
 
@@ -116,10 +120,12 @@ export function projectMalaysiaResourceOriginPayload(value: unknown): MalaysiaRe
   if (new Set(eligibleRelations.map(({relationKey}) => relationKey)).size !== eligibleRelations.length) {
     throw new ResourceOriginContractError('relations.relationKey')
   }
+  const articleMetadata = projectApprovedMalaysiaResourceOriginArticleMetadata(source.articleMetadata)
   return {
     ...candidateContent,
+    articleMetadata,
     eligibleRelations: Object.freeze(eligibleRelations.map((relation) => Object.freeze(relation))),
-    schemaMode: source.articleMetadata === null ? 'BREADCRUMB_ONLY' : 'ARTICLE_WITH_BREADCRUMB',
+    schemaMode: articleMetadata ? 'ARTICLE_WITH_BREADCRUMB' : 'BREADCRUMB_ONLY',
   } as MalaysiaResourceOriginPayload
 }
 
@@ -148,7 +154,7 @@ function validatedPublicRelation(value: unknown, index: number): MalaysiaResourc
 
 function validatedPayload(value: unknown): MalaysiaResourceOriginPayload {
   const payload = record(value, 'resourceOriginPayload')
-  const {eligibleRelations: rawRelations, schemaMode, ...content} = payload
+  const {articleMetadata: rawArticleMetadata, eligibleRelations: rawRelations, schemaMode, ...content} = payload
   if (canonicalJson(content) !== canonicalJson(approvedPublicContent)) {
     throw new ResourceOriginContractError('resourceOriginPayload.approvedContent')
   }
@@ -158,10 +164,17 @@ function validatedPayload(value: unknown): MalaysiaResourceOriginPayload {
     new Set(eligibleRelations.map(({relationKey}) => relationKey)).size !== eligibleRelations.length ||
     eligibleRelations.some((relation, index) => index > 0 && relation.displayOrder <= eligibleRelations[index - 1].displayOrder)
   ) throw new ResourceOriginContractError('eligibleRelations')
-  if (schemaMode !== 'BREADCRUMB_ONLY' || approvedContract.articleMetadata !== null) {
+  if (schemaMode !== 'BREADCRUMB_ONLY' && schemaMode !== 'ARTICLE_WITH_BREADCRUMB') {
     throw new ResourceOriginContractError('schemaMode')
   }
-  return {...content, eligibleRelations: Object.freeze(eligibleRelations), schemaMode} as MalaysiaResourceOriginPayload
+  const articleMetadata = resolveVisibleMalaysiaResourceOriginArticleMetadata(schemaMode, rawArticleMetadata)
+  const safeSchemaMode = articleMetadata ? 'ARTICLE_WITH_BREADCRUMB' : 'BREADCRUMB_ONLY'
+  return {
+    ...content,
+    articleMetadata,
+    eligibleRelations: Object.freeze(eligibleRelations),
+    schemaMode: safeSchemaMode,
+  } as MalaysiaResourceOriginPayload
 }
 
 export function toMalaysiaResourceOriginDto(sourceValue: MalaysiaResourceOriginSource): MalaysiaResourceOriginDto {
