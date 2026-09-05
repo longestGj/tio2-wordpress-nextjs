@@ -417,7 +417,7 @@ function tio2_get_webhook_affected_state(
     } elseif ('tio2_market_page' === $post->post_type) {
         if (['tio2-my'] !== $site_ids) return null;
         $path = (string) get_post_meta($post_id, 'public_path', true);
-        if ('/markets/european-union' !== $path) return null;
+        if (! in_array($path, ['/markets/european-union', '/markets/united-kingdom'], true)) return null;
         $paths = [$path];
         $entity_ids = [$post_id];
         $site_paths['tio2-my'] = $paths;
@@ -663,8 +663,10 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
     if (
         $post instanceof WP_Post &&
         'tio2_market_page' === $post->post_type &&
-        defined('TIO2_MY_EU_MARKET_CONTRACT_META') &&
-        TIO2_MY_EU_MARKET_CONTRACT_META === $meta_key
+        (
+            (defined('TIO2_MY_EU_MARKET_CONTRACT_META') && TIO2_MY_EU_MARKET_CONTRACT_META === $meta_key) ||
+            (defined('TIO2_MY_UK_MARKET_CONTRACT_META') && TIO2_MY_UK_MARKET_CONTRACT_META === $meta_key)
+        )
     ) {
         return true;
     }

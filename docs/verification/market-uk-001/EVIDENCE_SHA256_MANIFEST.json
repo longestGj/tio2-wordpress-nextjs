@@ -1,0 +1,226 @@
+{
+  "pageId": "MARKET-UK-001",
+  "date": "2026-09-05",
+  "algorithm": "SHA-256",
+  "root": "docs/verification/market-uk-001",
+  "fileCount": 43,
+  "screenshotCount": 36,
+  "bytePolicy": "Exact on-disk bytes; directory Git -text prevents conversion; manifest excludes itself. Its own hash is delivered with commit.",
+  "files": [
+    {
+      "file": "CHANGED_FILES.json",
+      "bytes": 4950,
+      "sha256": "85c688b06203f95307d698b1705c0b576827b1faf88e0f23c7240b48c482fcd2"
+    },
+    {
+      "file": "chrome-documents-1440.png",
+      "bytes": 350247,
+      "sha256": "f481a5d264bbe079bbcf772bc85979fa79fc30259c00c9d8ca24654f4e2966b2"
+    },
+    {
+      "file": "chrome-documents-390.png",
+      "bytes": 163474,
+      "sha256": "e462ebba27958ebd09130df37cb0720865ea5b8a9be4ae0bd321ffeddceae09d"
+    },
+    {
+      "file": "chrome-documents-768.png",
+      "bytes": 235359,
+      "sha256": "9bb9d88a83110a64314f11e2a1ef76a6ad223f06b7c946de44a0412da9e48aec"
+    },
+    {
+      "file": "chrome-home-1440.png",
+      "bytes": 290028,
+      "sha256": "96df2b954b47ab18a6bfdd318b5486e6cc6d7e0ee51e572a0316d229829bccb5"
+    },
+    {
+      "file": "chrome-home-390.png",
+      "bytes": 39808,
+      "sha256": "7584bfc9818b11c55ddfd15d9a9cbec695f431577dd08b96a462381976db17f0"
+    },
+    {
+      "file": "chrome-home-768.png",
+      "bytes": 54808,
+      "sha256": "d00b9e811401169501b25a791f8edd32af8254d4c6441a228178463bb8c5427c"
+    },
+    {
+      "file": "chrome-markets-1440.png",
+      "bytes": 58244,
+      "sha256": "69e88044d7c40e8f9b4852f62162cbf34a6bb35af1b31c3bc7f626ffc572dbd2"
+    },
+    {
+      "file": "chrome-markets-390.png",
+      "bytes": 36020,
+      "sha256": "7bdf1476b62fbba8f58f6bad35ec1edaa007b5a73dc6ea079109270fa675c4f8"
+    },
+    {
+      "file": "chrome-markets-768.png",
+      "bytes": 41242,
+      "sha256": "daf90c5b3d8a604e46e04b95aa9c0075f030434dacc9fe62ce2fb47dcc083939"
+    },
+    {
+      "file": "chrome-products-1440.png",
+      "bytes": 85448,
+      "sha256": "c105c488c4ec08e9965ea4b6957b4f2fadc9db4a4a9bc2b725d4116553966795"
+    },
+    {
+      "file": "chrome-products-390.png",
+      "bytes": 44985,
+      "sha256": "8c59abafb8f9f2c8a6fd240d77b1e6f90c7062180f0a310cde837b0754b82cd2"
+    },
+    {
+      "file": "chrome-products-768.png",
+      "bytes": 58623,
+      "sha256": "64a8a0babf7bd41b73adeff292dfc23b882bd37ae9afbb073eeda1eb37118653"
+    },
+    {
+      "file": "GATE8_FINAL_REPORT_2026-09-05.md",
+      "bytes": 14280,
+      "sha256": "367879352dc9d9c68ee403562d8010e2aa5f3c0b9436110d626d92a509e24328"
+    },
+    {
+      "file": "GATE8_IN_PROGRESS_2026-09-05.md",
+      "bytes": 5532,
+      "sha256": "9877c6544c72cbb3f0b07fe0251fae881a2385c2c7301ccb9f1bb58e254e0a56"
+    },
+    {
+      "file": "menu-documents-390.png",
+      "bytes": 16251,
+      "sha256": "eb512a712261f83694e2f49a06439e800fea31d0aea40f795d459a02e8592674"
+    },
+    {
+      "file": "menu-documents-768.png",
+      "bytes": 17239,
+      "sha256": "dac83cb3a26506215069ea66a6018196a48bc7e13aed1a876ae241be421aa19a"
+    },
+    {
+      "file": "menu-home-390.png",
+      "bytes": 16315,
+      "sha256": "915453840143815c8876c18e76c46c55c87d3e341afe513565a8aa9597578575"
+    },
+    {
+      "file": "menu-home-768.png",
+      "bytes": 17219,
+      "sha256": "9d4ccc87ecbfdd5fa96096cf48565cda7e88f1a963c52cfe723e02367991518e"
+    },
+    {
+      "file": "menu-markets-390.png",
+      "bytes": 16324,
+      "sha256": "01274ae9c3643b677da1df0b211b73610da50cbafe695df84fd92420ea09fce5"
+    },
+    {
+      "file": "menu-markets-768.png",
+      "bytes": 17235,
+      "sha256": "e00259b333e383bc209320881a58f20990618e1de99216d1752a16070ea5a011"
+    },
+    {
+      "file": "menu-products-390.png",
+      "bytes": 16275,
+      "sha256": "084bcd85391fcb332412ade7cce087868cdf0210d01f8069ac979d54bc20f71a"
+    },
+    {
+      "file": "menu-products-768.png",
+      "bytes": 17162,
+      "sha256": "4f5a05ff4613215185efc3c75be80ef5e2d3e53b25672a0769760c86ae591dba"
+    },
+    {
+      "file": "playwright-results.json",
+      "bytes": 24058,
+      "sha256": "6e17659e05000315b64e71028ac10bf6c5885bc3b4a8be1f0916c8ef9e0b5b4e"
+    },
+    {
+      "file": "runtime-matrix.json",
+      "bytes": 31363,
+      "sha256": "b543cbdf997e9252af0101060d4d5ad2a1b8819c5afb0bc22e8acabe91b15f07"
+    },
+    {
+      "file": "SOURCE_PROVENANCE.json",
+      "bytes": 7195,
+      "sha256": "6478904394afd4835bdbdff3068baa477c183a2f91b7b5fc4f44cd89f85868d4"
+    },
+    {
+      "file": "uk-1440.png",
+      "bytes": 917466,
+      "sha256": "cabe030f6b9c018bc11b9c20f883220553abef35fc4aef57177691168dcb761b"
+    },
+    {
+      "file": "uk-390.png",
+      "bytes": 972730,
+      "sha256": "80cffdb4882aa8b1e0cb086fc3cfa3a76eceef6ee237dce87104e6b3c9fb6329"
+    },
+    {
+      "file": "uk-768.png",
+      "bytes": 953460,
+      "sha256": "07e10ef92f36d1fcc972e3f197cc56e33d9cb074b9904d36b783e08e54eab69f"
+    },
+    {
+      "file": "uk-documents-focus-1440.png",
+      "bytes": 96687,
+      "sha256": "7531ebe3d30b575db69c5d6853afbb0e04eb7d2653ab785eb91b5e6ffc8f7e5b"
+    },
+    {
+      "file": "uk-faq-1440.png",
+      "bytes": 116873,
+      "sha256": "a66922c5825049c762f9dec5e9a9ba3654a6cf1f0eebbffc413c26598b563bac"
+    },
+    {
+      "file": "uk-faq-390.png",
+      "bytes": 59993,
+      "sha256": "2e5d609e7e4013388990e61705ece698c809ab9bd320aa1bff956b74e3a3233b"
+    },
+    {
+      "file": "uk-faq-768.png",
+      "bytes": 104207,
+      "sha256": "51f9c0dcec6e3f74edad89b9aa10033cd861e080678749c1330c1aaf98cbe677"
+    },
+    {
+      "file": "uk-faq-all-collapsed-390.png",
+      "bytes": 47486,
+      "sha256": "90b779b4da7e0d656a44e7a0f7ab7c38b44314be8fbd4837b708d6d9343080ad"
+    },
+    {
+      "file": "uk-faq-all-expanded-1440.png",
+      "bytes": 170769,
+      "sha256": "fb9e9fc460d21a887980176a29a05e3fdb1c9d7467ab6bfe2a19901ee5f5e8f3"
+    },
+    {
+      "file": "uk-menu-390.png",
+      "bytes": 16324,
+      "sha256": "01274ae9c3643b677da1df0b211b73610da50cbafe695df84fd92420ea09fce5"
+    },
+    {
+      "file": "uk-menu-768.png",
+      "bytes": 17991,
+      "sha256": "e718bd53b7c3e6799abea46a1ae2f326ff0ad6fc8b6496272feda9577e8a3b89"
+    },
+    {
+      "file": "uk-reflow-320.png",
+      "bytes": 930934,
+      "sha256": "80e5aeef85adcc7b4030a4bc5eec6d7807e93701bf338d2305b913655efbaafe"
+    },
+    {
+      "file": "uk-reflow-720.png",
+      "bytes": 925873,
+      "sha256": "464a0b6c88fd2b16be4d370737622976d98442193105bfa438cca10a647c1adc"
+    },
+    {
+      "file": "uk-rfq-negative.png",
+      "bytes": 227315,
+      "sha256": "d6e6ce3a7954c86fcc9883e0a3eb34aaf5aeacbe0e23617823dcb54e679db6ae"
+    },
+    {
+      "file": "uk-rfq-positive.png",
+      "bytes": 139242,
+      "sha256": "6c5c6f2b62d0bca038a6a4748e4a781f20645d2ce93408da6367f712a3b7c194"
+    },
+    {
+      "file": "uk-rfq-prefill.png",
+      "bytes": 213316,
+      "sha256": "82614deb890e67e70bfa19222892f592c8f10d964eaf23ef381572f98e05eb10"
+    },
+    {
+      "file": "verification-results.json",
+      "bytes": 7018,
+      "sha256": "8cc9b15a950002f6454a91153ab459373e1cfd92783ed6c4d5fe36d275187450"
+    }
+  ]
+}

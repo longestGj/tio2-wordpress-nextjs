@@ -30,7 +30,8 @@ export function resolveMalaysiaRfqPrefill(input: MalaysiaRfqPrefillInput): Malay
   const values: Record<string, string> = {}
   const grade = first(input.grade_id)
   const application = first(input.application_id)
-  const approvedMarket = first(input.market) === 'European Union' ? 'European Union' : null
+  const market = first(input.market)
+  const approvedMarket = market === 'European Union' || market === 'United Kingdom' ? market : null
   const country = first(input.destination_country) ?? approvedMarket
 
   if (grade && contract.form.gradeOptions.includes(grade)) values.grade_id = grade

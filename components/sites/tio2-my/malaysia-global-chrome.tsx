@@ -29,25 +29,43 @@ export function MalaysiaGlobalHeader({
 }: GlobalChromeProps) {
   const [open, setOpen] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const menuRef = useRef<HTMLElement>(null)
+  const menuRef = useRef<HTMLDialogElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     if (!open) return
-    menuRef.current?.querySelector<HTMLAnchorElement>('a')?.focus()
+    const dialog = menuRef.current
+    if (!dialog) return
+    const trigger = buttonRef.current
+    const rootOverflow = document.documentElement.style.overflow
+    const bodyOverflow = document.body.style.overflow
+    dialog.showModal()
+    document.documentElement.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden'
+    closeRef.current?.focus()
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setOpen(false)
-        buttonRef.current?.focus()
       }
     }
     document.addEventListener('keydown', closeOnEscape)
-    return () => document.removeEventListener('keydown', closeOnEscape)
+    const desktop = window.matchMedia('(min-width: 901px)')
+    const closeOnDesktop = () => { if (desktop.matches) setOpen(false) }
+    desktop.addEventListener('change', closeOnDesktop)
+    return () => {
+      document.removeEventListener('keydown', closeOnEscape)
+      desktop.removeEventListener('change', closeOnDesktop)
+      dialog.close()
+      document.documentElement.style.overflow = rootOverflow
+      document.body.style.overflow = bodyOverflow
+      trigger?.focus()
+    }
   }, [open])
 
   function containMenuFocus(event: React.KeyboardEvent<HTMLElement>) {
     if (event.key !== 'Tab') return
     const links = Array.from(
-      menuRef.current?.querySelectorAll<HTMLAnchorElement>('a[href]') ?? [],
+      menuRef.current?.querySelectorAll<HTMLElement>('button, a[href]') ?? [],
     )
     if (!links.length) return
     const first = links[0]
@@ -63,7 +81,7 @@ export function MalaysiaGlobalHeader({
 
   return (
     <header className={styles.header} lang="en">
-      <div className={styles.headerInner}>
+      <div className={styles.headerInner} inert={open}>
         <Link href="/" className={styles.logoLink} aria-label="TiO2 Malaysia home">
           <Image
             src={chrome.logo.primary.src}
@@ -100,13 +118,23 @@ export function MalaysiaGlobalHeader({
           {open ? 'Close' : 'Menu'}
         </button>
       </div>
-      <nav
+      <dialog
         ref={menuRef}
         id="malaysia-mobile-menu"
+        className={styles.mobileDialog}
+        aria-label="Primary navigation menu"
+        aria-modal="true"
+        onCancel={(event) => { event.preventDefault(); setOpen(false) }}
+        onKeyDown={containMenuFocus}
+      >
+        <div className={styles.menuTopbar}>
+          <Image src={chrome.logo.primary.src} alt={chrome.logo.primary.alt} width={120} height={40} className={styles.menuLogo} />
+          <button ref={closeRef} type="button" className={styles.menuClose} aria-label="Close primary navigation menu" onClick={() => setOpen(false)}>Close</button>
+        </div>
+      <nav
         className={styles.mobileNav}
         aria-label="Mobile navigation"
         hidden={!open}
-        onKeyDown={containMenuFocus}
       >
         {chrome.navigation.map((item) => {
           const current = item.targetPageId === currentPageId
@@ -118,6 +146,7 @@ export function MalaysiaGlobalHeader({
         })}
         <a href={chrome.rfq.href} {...rfqAttributes(sourcePageId)}>{chrome.rfq.label}</a>
       </nav>
+      </dialog>
     </header>
   )
 }

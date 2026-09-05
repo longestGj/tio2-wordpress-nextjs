@@ -5,6 +5,7 @@ const BAHASA_MALAYSIA_PRIVACY_PATH = '/ms/privacy-policy'
 const MALAYSIA_TRAILING_SLASH_PATHS = new Set([
   '/markets',
   '/markets/european-union',
+  '/markets/united-kingdom',
   '/request-documents',
 ])
 

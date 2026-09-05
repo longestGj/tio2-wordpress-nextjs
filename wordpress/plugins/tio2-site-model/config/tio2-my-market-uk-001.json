@@ -1,0 +1,587 @@
+{
+  "packageId": "MARKET-UK-001-G7-HANDOFF-01",
+  "identity": {
+    "pageId": "MARKET-UK-001",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "path": "/markets/united-kingdom/",
+    "pageType": "market_procurement_landing",
+    "marketCode": "UK",
+    "primaryKeyword": "titanium dioxide supplier uk"
+  },
+  "seo": {
+    "title": "Malaysia Titanium Dioxide Supplier for UK Buyers | TiO2 Malaysia",
+    "metaDescription": "Explore Malaysia-origin titanium dioxide for UK industrial applications, representative grades, GB or NI review paths, documents and RFQ steps.",
+    "canonical": "https://tio2malaysia.com/markets/united-kingdom/",
+    "ogTitle": "Malaysia Titanium Dioxide Supplier for UK Buyers"
+  },
+  "breadcrumb": [
+    {
+      "label": "Home",
+      "href": "/",
+      "targetPageId": "HOME-001"
+    },
+    {
+      "label": "Markets",
+      "href": "/markets/",
+      "targetPageId": "MARKET-000"
+    },
+    {
+      "label": "United Kingdom",
+      "href": "/markets/united-kingdom/",
+      "targetPageId": "MARKET-UK-001"
+    }
+  ],
+  "hero": {
+    "eyebrow": "UNITED KINGDOM PROCUREMENT",
+    "h1": "Malaysia-Origin Titanium Dioxide for United Kingdom Buyers",
+    "body": "Evaluate a Malaysia-origin titanium dioxide supply option for UK industrial applications. Begin with application and representative grade paths, identify whether the destination is Great Britain or Northern Ireland, then prepare the product, document and commercial details for assessment.",
+    "actions": [
+      {
+        "label": "Request a Quote",
+        "href": "/request-a-quote/?market=United%20Kingdom&source_page=MARKET-UK-001",
+        "targetPageId": "CONV-RFQ",
+        "siteScope": "tio2-my"
+      },
+      {
+        "label": "Explore Applications",
+        "href": "#application-paths",
+        "targetPageId": "LOCAL-ANCHOR",
+        "siteScope": "tio2-my"
+      },
+      {
+        "label": "Request Documents",
+        "href": "/request-documents/",
+        "targetPageId": "CONV-DOC",
+        "siteScope": "tio2-my"
+      }
+    ]
+  },
+  "directAnswer": {
+    "h2": "Start Your UK Titanium Dioxide Supply Review",
+    "intro": "Start with the intended application, specification or known grade. Explore the representative product paths, then identify whether the goods will be placed on the market in Great Britain or Northern Ireland. That destination determines which regulatory and import checks your team should complete before requesting a quotation.",
+    "support": "TiO2 Malaysia is operated by IKHLAS TITANIUM (MALAYSIA) SDN. BHD. and presents Malaysia-origin titanium dioxide for evaluation by UK industrial buyers.",
+    "actions": [
+      {
+        "label": "Explore Applications",
+        "href": "#application-paths",
+        "targetPageId": "LOCAL-ANCHOR",
+        "siteScope": "tio2-my"
+      }
+    ]
+  },
+  "applications": {
+    "h2": "Titanium Dioxide for UK Industrial Applications",
+    "intro": "Select the application that best matches your intended use, then use the application guidance to prepare the formulation, processing and product questions for your enquiry.",
+    "items": [
+      {
+        "title": "Coatings",
+        "body": "Explore titanium dioxide considerations for coating and paint formulations.",
+        "action": {
+          "label": "Explore Coatings",
+          "href": "/applications/titanium-dioxide-for-coatings/",
+          "targetPageId": "APP-COAT",
+          "siteScope": "tio2-my"
+        }
+      },
+      {
+        "title": "Plastics",
+        "body": "Identify the processing and end-use questions that shape titanium dioxide evaluation for plastics.",
+        "action": {
+          "label": "Explore Plastics",
+          "href": "/applications/titanium-dioxide-for-plastics/",
+          "targetPageId": "APP-PLAS",
+          "siteScope": "tio2-my"
+        }
+      },
+      {
+        "title": "Masterbatch",
+        "body": "Prepare the pigment-selection and processing requirements for a masterbatch enquiry.",
+        "action": {
+          "label": "Explore Masterbatch",
+          "href": "/applications/titanium-dioxide-for-masterbatch/",
+          "targetPageId": "APP-MB",
+          "siteScope": "tio2-my"
+        }
+      },
+      {
+        "title": "Printing Inks",
+        "body": "Explore titanium dioxide considerations for printing-ink formulations and intended use.",
+        "action": {
+          "label": "Explore Printing Inks",
+          "href": "/applications/titanium-dioxide-for-printing-inks/",
+          "targetPageId": "APP-INK",
+          "siteScope": "tio2-my"
+        }
+      },
+      {
+        "title": "Paper",
+        "body": "Identify the product and performance questions relevant to paper applications.",
+        "action": {
+          "label": "Explore Paper Applications",
+          "href": "/applications/titanium-dioxide-for-paper/",
+          "targetPageId": "APP-PAPER",
+          "siteScope": "tio2-my"
+        }
+      }
+    ],
+    "actions": [
+      {
+        "label": "Explore All Applications",
+        "href": "/applications/",
+        "targetPageId": "APP-000",
+        "siteScope": "tio2-my"
+      },
+      {
+        "label": "Explore Representative Grades",
+        "href": "#representative-grades",
+        "targetPageId": "LOCAL-ANCHOR",
+        "siteScope": "tio2-my"
+      }
+    ]
+  },
+  "grades": {
+    "h2": "Representative Grades to Explore",
+    "intro": "Use these six representative grades to begin your evaluation by application, then compare the grade information with your formulation, specification and document requirements.",
+    "groups": [
+      {
+        "title": "Coatings paths",
+        "intro": "Explore M-350, M-510 and M-896 as representative Coatings paths, then compare the grade information with your formulation, specification and document requirements.",
+        "items": [
+          {
+            "name": "M-350",
+            "application": "Coatings",
+            "action": {
+              "label": "Explore M-350",
+              "href": "/products/m-350/",
+              "targetPageId": "GRADE-M350",
+              "siteScope": "tio2-my"
+            },
+            "relationIds": [
+              "REL-M350-COAT"
+            ]
+          },
+          {
+            "name": "M-510",
+            "application": "Coatings",
+            "action": {
+              "label": "Explore M-510",
+              "href": "/products/m-510/",
+              "targetPageId": "GRADE-M510",
+              "siteScope": "tio2-my"
+            },
+            "relationIds": [
+              "REL-M510-COAT"
+            ]
+          },
+          {
+            "name": "M-896",
+            "application": "Coatings",
+            "action": {
+              "label": "Explore M-896",
+              "href": "/products/m-896/",
+              "targetPageId": "GRADE-M896",
+              "siteScope": "tio2-my"
+            },
+            "relationIds": [
+              "REL-M896-COAT"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Plastics and masterbatch paths",
+        "intro": "Explore M-200, M-108 and M-210 as representative Plastics and Masterbatch paths, then compare the grade information with your processing, specification and document requirements.",
+        "items": [
+          {
+            "name": "M-200",
+            "application": "Plastics · Masterbatch",
+            "action": {
+              "label": "Explore M-200",
+              "href": "/products/m-200/",
+              "targetPageId": "GRADE-M200",
+              "siteScope": "tio2-my"
+            },
+            "relationIds": [
+              "REL-M200-PLAS",
+              "REL-M200-MB"
+            ]
+          },
+          {
+            "name": "M-108",
+            "application": "Plastics · Masterbatch",
+            "action": {
+              "label": "Explore M-108",
+              "href": "/products/m-108/",
+              "targetPageId": "GRADE-M108",
+              "siteScope": "tio2-my"
+            },
+            "relationIds": [
+              "REL-M108-PLAS",
+              "REL-M108-MB"
+            ]
+          },
+          {
+            "name": "M-210",
+            "application": "Plastics · Masterbatch",
+            "action": {
+              "label": "Explore M-210",
+              "href": "/products/m-210/",
+              "targetPageId": "GRADE-M210",
+              "siteScope": "tio2-my"
+            },
+            "relationIds": [
+              "REL-M210-PLAS",
+              "REL-M210-MB"
+            ]
+          }
+        ]
+      }
+    ],
+    "closing": "Need a different grade or application path? Continue to the complete product range or describe the required specification in your enquiry.",
+    "actions": [
+      {
+        "label": "View All Titanium Dioxide Grades",
+        "href": "/products/",
+        "targetPageId": "PRODUCT-000",
+        "siteScope": "tio2-my"
+      },
+      {
+        "label": "Explore All Applications",
+        "href": "/applications/",
+        "targetPageId": "APP-000",
+        "siteScope": "tio2-my"
+      }
+    ]
+  },
+  "territory": {
+    "h2": "Where Will the Goods Be Placed on the Market?",
+    "intro": "Select the destination so your team can follow the relevant regulatory and import assessment path.",
+    "items": [
+      {
+        "title": "Great Britain",
+        "label": "England, Scotland and Wales",
+        "body": "UK REACH and GB CLP apply in Great Britain. A GB importer can have registration responsibilities, and a qualifying GB-based Only Representative can take on applicable importer obligations when appointed by a non-GB manufacturer, formulator or article producer. Confirm the legal entity, substance, volume and role for the transaction.",
+        "actions": [
+          {
+            "label": "Check UK REACH roles — HSE",
+            "href": "https://www.hse.gov.uk/REACH/roles.htm",
+            "targetPageId": "OFFICIAL-SOURCE",
+            "siteScope": "tio2-my"
+          },
+          {
+            "label": "Check GB and Northern Ireland chemical classification — HSE",
+            "href": "https://www.hse.gov.uk/chemical-classification/brexit.htm",
+            "targetPageId": "OFFICIAL-SOURCE",
+            "siteScope": "tio2-my"
+          }
+        ]
+      },
+      {
+        "title": "Northern Ireland",
+        "label": "Northern Ireland",
+        "body": "EU REACH and EU CLP continue to apply in Northern Ireland. Confirm the importing entity, applicable EU requirements and the product information needed for the intended use and transaction.",
+        "actions": [
+          {
+            "label": "Check Northern Ireland REACH — HSE",
+            "href": "https://www.hse.gov.uk/reach/about.htm",
+            "targetPageId": "OFFICIAL-SOURCE",
+            "siteScope": "tio2-my"
+          },
+          {
+            "label": "Check GB and Northern Ireland chemical classification — HSE",
+            "href": "https://www.hse.gov.uk/chemical-classification/brexit.htm",
+            "targetPageId": "OFFICIAL-SOURCE",
+            "siteScope": "tio2-my"
+          }
+        ]
+      }
+    ]
+  },
+  "checklist": {
+    "h2": "Build a Complete UK Supply Request",
+    "intro": "A useful supplier evaluation connects the product requirement, destination and commercial request. Prepare the following information before your team asks for a quotation.",
+    "items": [
+      {
+        "number": "01",
+        "title": "Define the intended application",
+        "body": "State the formulation or end-use context, such as coatings, plastics or masterbatch, and identify the performance questions your technical team needs to assess."
+      },
+      {
+        "number": "02",
+        "title": "Identify the grade or specification",
+        "body": "Name the grade when known. When starting from a specification or reference product, share the evaluation criteria so the technical team can identify the next step."
+      },
+      {
+        "number": "03",
+        "title": "Choose Great Britain or Northern Ireland",
+        "body": "Confirm where the goods will be placed on the market so the relevant importer, regulatory and tariff checks can be organised."
+      },
+      {
+        "number": "04",
+        "title": "List the required information",
+        "body": "Identify the technical, safety, quality, Certificate of Analysis, origin and supplier-qualification information your team wants to assess."
+      },
+      {
+        "number": "05",
+        "title": "Add the commercial requirement",
+        "body": "Provide the destination, estimated quantity, required timing and packaging needs so the commercial request can be assessed in context."
+      },
+      {
+        "number": "06",
+        "title": "Confirm the current import position",
+        "body": "Use the UK Trade Tariff and current official trade-remedy sources to check classification and measures for the specific product and transaction."
+      }
+    ],
+    "actions": [
+      {
+        "label": "Explore All Applications",
+        "href": "/applications/",
+        "targetPageId": "APP-000",
+        "siteScope": "tio2-my"
+      },
+      {
+        "label": "Explore Titanium Dioxide Grades",
+        "href": "/products/",
+        "targetPageId": "PRODUCT-000",
+        "siteScope": "tio2-my"
+      }
+    ]
+  },
+  "documents": {
+    "h2": "Request Documents for Product and Supplier Qualification",
+    "intro": "Document requirements depend on the grade, intended use, importing entity and qualification purpose. Tell us what your team needs so the applicable scope can be confirmed.",
+    "items": [
+      {
+        "title": "Technical Data and Product Documentation",
+        "body": "Request the product data and specification information needed to evaluate the selected grade."
+      },
+      {
+        "title": "Safety Documentation",
+        "body": "Identify the safety, handling and storage information required for workplace and product assessment."
+      },
+      {
+        "title": "Quality and COA Documentation",
+        "body": "State the quality and Certificate of Analysis information your purchasing or QA team needs to assess."
+      },
+      {
+        "title": "Origin and Supplier Qualification Documentation",
+        "body": "A Certificate of Origin is available upon request. Include any additional origin or company information required by your supplier-qualification process."
+      }
+    ],
+    "support": "We will assess the requested documents against the selected grade, intended use, importing entity and shipment context.",
+    "actions": [
+      {
+        "label": "Request Documents",
+        "href": "/request-documents/",
+        "targetPageId": "CONV-DOC",
+        "siteScope": "tio2-my"
+      },
+      {
+        "label": "Explore Documents and Compliance",
+        "href": "/documents/",
+        "targetPageId": "DOC-000",
+        "siteScope": "tio2-my"
+      }
+    ]
+  },
+  "origin": {
+    "h2": "How Malaysia Origin Fits the Assessment",
+    "intro": "Malaysia-origin titanium dioxide gives your team a clear origin fact to carry into supplier qualification and import assessment. Use the About page to understand the company and the role of Malaysia origin in the wider supply context.",
+    "support": "Treat origin as one input to the import assessment, then complete classification, tariff and current trade checks for the specific transaction using official UK sources.",
+    "actions": [
+      {
+        "label": "About TiO2 Malaysia",
+        "href": "/about/",
+        "targetPageId": "ABOUT-001",
+        "siteScope": "tio2-my"
+      }
+    ]
+  },
+  "trade": {
+    "h2": "Check Current UK Import Requirements",
+    "intro": "UK customs treatment depends on the product's classification, substantiated origin, destination and the measures in force for the transaction. Use the appropriate UK tariff service and current official notices before relying on a commodity code, duty rate, preference, exclusion, exemption or trade-remedy conclusion.",
+    "support": "The tariff lookup path differs for goods entering Great Britain and Northern Ireland. Select the destination before completing the current classification and measures check.",
+    "actions": [
+      {
+        "label": "Check the UK Trade Tariff — GOV.UK",
+        "href": "https://www.gov.uk/trade-tariff",
+        "targetPageId": "OFFICIAL-SOURCE",
+        "siteScope": "tio2-my"
+      },
+      {
+        "label": "Review active TRA investigations — Trade Remedies Authority",
+        "href": "https://public-file.trade-remedies.service.gov.uk/",
+        "targetPageId": "OFFICIAL-SOURCE",
+        "siteScope": "tio2-my"
+      }
+    ]
+  },
+  "buyerQuestions": {
+    "h2": "Questions From UK Procurement Teams",
+    "items": [
+      {
+        "id": "Q1",
+        "question": "How does TiO2 Malaysia support UK procurement?",
+        "answer": "TiO2 Malaysia provides Malaysia-origin titanium dioxide product information, document-request paths and a structured quotation process for UK buyers. Begin with the intended application and destination, then share the specification and commercial details required for evaluation."
+      },
+      {
+        "id": "Q2",
+        "question": "Which grades can a UK buyer explore first?",
+        "answer": "The page presents M-350, M-510 and M-896 for the global Coatings path, and M-200, M-108 and M-210 for the global Plastics and Masterbatch paths. Use them to begin product evaluation, then compare the grade information with your own formulation and specification requirements."
+      },
+      {
+        "id": "Q3",
+        "question": "Why must we distinguish Great Britain from Northern Ireland?",
+        "answer": "UK REACH and GB CLP apply in Great Britain, while EU REACH and EU CLP continue to apply in Northern Ireland. The destination therefore changes the regulatory and tariff assessment path. Confirm the applicable role and requirements for the transaction."
+      },
+      {
+        "id": "Q4",
+        "question": "What documents can our team request?",
+        "answer": "Your request can identify technical and product information, safety documentation, quality and COA information, and origin or supplier-qualification information. Include the selected grade, intended use and shipment context so the requested document scope can be assessed."
+      },
+      {
+        "id": "Q5",
+        "question": "How should Malaysia origin be used in the UK import assessment?",
+        "answer": "Treat Malaysia origin as one product fact in the import assessment, then verify classification, duty, preference, exclusions, exemptions and current trade-remedy treatment for the specific transaction using official UK sources."
+      },
+      {
+        "id": "Q6",
+        "question": "What should we include in a quotation request?",
+        "answer": "Include the application, grade or specification when known, Great Britain or Northern Ireland destination, estimated quantity, required timing, packaging needs and the documents your team wants to assess."
+      }
+    ]
+  },
+  "finalRfq": {
+    "h2": "Prepare Your UK Titanium Dioxide Supply Request",
+    "intro": "Share the application, grade or specification, Great Britain or Northern Ireland destination, estimated requirement, timing, packaging needs and document questions. The request will be assessed in the relevant product and market context.",
+    "actions": [
+      {
+        "label": "Request a Quote",
+        "href": "/request-a-quote/?market=United%20Kingdom&source_page=MARKET-UK-001",
+        "targetPageId": "CONV-RFQ",
+        "siteScope": "tio2-my"
+      },
+      {
+        "label": "Request Documents",
+        "href": "/request-documents/",
+        "targetPageId": "CONV-DOC",
+        "siteScope": "tio2-my"
+      },
+      {
+        "label": "Explore All Titanium Dioxide Grades",
+        "href": "/products/",
+        "targetPageId": "PRODUCT-000",
+        "siteScope": "tio2-my"
+      }
+    ]
+  },
+  "routeRegistry": [
+    {
+      "targetPageId": "HOME-001",
+      "href": "/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "MARKET-000",
+      "href": "/markets/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "PRODUCT-000",
+      "href": "/products/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "APP-000",
+      "href": "/applications/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "DOC-000",
+      "href": "/documents/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "RES-000",
+      "href": "/resources/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "ABOUT-001",
+      "href": "/about/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "CONV-DOC",
+      "href": "/request-documents/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "CONV-RFQ",
+      "href": "/request-a-quote/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "APP-COAT",
+      "href": "/applications/titanium-dioxide-for-coatings/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "APP-PLAS",
+      "href": "/applications/titanium-dioxide-for-plastics/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "APP-MB",
+      "href": "/applications/titanium-dioxide-for-masterbatch/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "APP-INK",
+      "href": "/applications/titanium-dioxide-for-printing-inks/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "APP-PAPER",
+      "href": "/applications/titanium-dioxide-for-paper/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "GRADE-M350",
+      "href": "/products/m-350/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "GRADE-M510",
+      "href": "/products/m-510/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "GRADE-M896",
+      "href": "/products/m-896/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "GRADE-M200",
+      "href": "/products/m-200/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "GRADE-M108",
+      "href": "/products/m-108/",
+      "siteScope": "tio2-my"
+    },
+    {
+      "targetPageId": "GRADE-M210",
+      "href": "/products/m-210/",
+      "siteScope": "tio2-my"
+    }
+  ],
+  "releaseControls": {
+    "releaseEnabled": false,
+    "indexingAuthorized": false,
+    "sitemapAuthorized": false,
+    "datedTradeEnabled": false
+  }
+}

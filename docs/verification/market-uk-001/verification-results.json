@@ -1,0 +1,115 @@
+{
+  "date": "2026-09-05",
+  "worktree": "C:/Users/longe/.codex/worktrees/609c/16Wordpress_nextjs",
+  "branch": "codex/doc-reach-gate8-evidence",
+  "baseline": "036ea7a8f838acd93ef2f68865b9d6683d123cff",
+  "checks": [
+    {
+      "command": "docker run --rm --network none --mount type=bind,source=<worktree>,target=/work,readonly php:8.3-cli php /work/tests/infrastructure/php/market-uk-webhook-mutations.php",
+      "red": {
+        "exitCode": 255,
+        "reason": "Missing scoped invalidation: _tio2_my_uk_market_contract_json updated before valid"
+      },
+      "green": {
+        "exitCode": 0,
+        "cases": 40,
+        "coverage": "EU/UK updated/deleted; before/after hooks; exact signed scope-local payload; Site A/B/mixed/unrelated meta no delivery. WP transport stubbed, no network."
+      }
+    },
+    {
+      "command": "docker run --rm --network none --mount type=bind,source=<worktree>,target=/work,readonly php:8.3-cli php /work/tests/infrastructure/php/market-uk-seed-failures.php",
+      "red": {
+        "exitCode": 255,
+        "reason": "Success emitted for WP_Error, zero, false, non-publish status"
+      },
+      "green": {
+        "exitCode": 0,
+        "cases": 5,
+        "coverage": "Four failures emit no success; valid local storage publish. In-memory WP doubles only; real seed code, no CMS writes."
+      }
+    },
+    {
+      "command": "docker run --rm --network none --mount type=bind,source=<worktree>,target=/work,readonly php:8.3-cli php /work/tests/infrastructure/php/market-uk-resolver.php",
+      "exitCode": 0,
+      "output": "UK resolver: 7 negative cases, valid scoped payload, 20 conservative route states and String! contract PASS"
+    },
+    {
+      "command": "docker run --rm --network none --mount type=bind,source=<worktree>,target=/work,readonly php:8.3-cli php -l /work/wordpress/seed/apply-tio2-my-market-uk-001.php",
+      "exitCode": 0,
+      "output": "No syntax errors detected"
+    },
+    {
+      "command": "npm test -- --run tests/unit/markets tests/integration/markets tests/integration/api/revalidate.test.ts tests/unit/rfq tests/unit/homepage/malaysia-template.test.tsx tests/unit/homepage/malaysia-styles.test.ts tests/unit/wordpress/cache-tags.test.ts",
+      "chunk_id": "5d1913",
+      "wall_time_seconds": 0.0000024,
+      "exit_code": 0,
+      "original_token_count": 45,
+      "output": "\n Test Files  33 passed (33)\n      Tests  224 passed (224)\n   Start at  18:09:28\n   Duration  8.54s (transform 2.31s, setup 5.93s, import 8.93s, tests 5.24s, environment 4.62s)\n\n"
+    },
+    {
+      "command": "npx eslint <changed/new .ts/.tsx/.mjs files, excluding lib/wordpress/generated.ts>",
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 0,
+      "selection": "git diff --name-only plus git ls-files --others --exclude-standard"
+    },
+    {
+      "command": "npx playwright test --config playwright.market-uk.config.ts",
+      "exitCode": 0,
+      "passed": 21,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0,
+      "startTime": "2026-09-05T10:09:18.504Z",
+      "durationMs": 65307.665,
+      "report": "playwright-results.json",
+      "serverLifecycle": "Default Playwright webServer fixture and Next build/start; UK_REUSE_SERVER not set",
+      "notes": [
+        "Controlled missing/cross-scope requests deliberately produce server 500 logs.",
+        "Six unavailable Application targets recorded as release blockers.",
+        "Node FORCE_COLOR/NO_COLOR notices are non-failing."
+      ]
+    },
+    {
+      "command": "npm run build",
+      "environment": {
+        "SITE_ID": "tio2-my",
+        "NEXT_DIST_DIR": ".next-market-uk-001",
+        "WORDPRESS_GRAPHQL_URL": "http://127.0.0.1:4024/graphql?run=uk-final-20260905-1812",
+        "REVALIDATION_SECRET": "synthetic local test secret",
+        "NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY": "synthetic non-delivering UUID"
+      },
+      "fixtureCommand": "node tests/e2e/support/market-uk-cms.mjs",
+      "start": {
+        "chunk_id": "2b9e63",
+        "wall_time_seconds": 10.0166855,
+        "session_id": 7047,
+        "original_token_count": 69,
+        "output": "\n> build\n> next build\n\n▲ Next.js 16.3.2 (Turbopack)\n✓ Running next.config.ts took 35ms\n\n  Creating an optimized production build ...\n✓ Compiled successfully in 1061ms\n  Running TypeScript ...\n  Finished TypeScript in 5.2s ...\n  Collecting page data using 15 workers ...\n"
+      },
+      "finish": {
+        "chunk_id": "cf2616",
+        "wall_time_seconds": 0.0000029,
+        "exit_code": 0,
+        "original_token_count": 363,
+        "output": "  Generating static pages using 15 workers (0/38) ...\n  Generating static pages using 15 workers (9/38) \r\n  Generating static pages using 15 workers (18/38) \r\n  Generating static pages using 15 workers (28/38) \r\n✓ Generating static pages using 15 workers (38/38) in 523ms\n  Finalizing page optimization ...\n\nRoute (app)\n┌ ƒ /\n├ ƒ /_not-found\n├ ● /[...path]\n├ ƒ /about\n├ ƒ /api/preview\n├ ƒ /api/revalidate\n├ ƒ /api/tio2-my/request-sample\n├ ƒ /applications\n├ ● /applications/[...segments]\n├ ƒ /cookie-policy\n├ ƒ /documents\n├ ƒ /documents/reach\n├ ƒ /documents/tds-sds-coa\n├ ƒ /markets\n├ ƒ /markets/european-union\n├ ƒ /markets/united-kingdom\n├ ƒ /ms/privacy-policy\n├ ƒ /preview/applications\n├ ƒ /preview/applications/[...segments]\n├ ƒ /preview/products\n├ ƒ /preview/products/[familySlug]\n├ ƒ /preview/products/[familySlug]/[slug]\n├ ƒ /preview/release-look/products/[slug]\n├ ƒ /preview/resources\n├ ƒ /preview/resources/[slug]\n├ ƒ /privacy-policy\n├ ƒ /products\n├ ƒ /products/[familySlug]\n├ ● /products/[familySlug]/[slug]\n├ ƒ /request-a-quote\n├ ƒ /request-documents\n├ ƒ /request-sample\n├ ƒ /resources\n├ ● /resources/[slug]\n├ ○ /robots.txt\n└ ○ /sitemap.xml\n\n\nƒ Proxy (Middleware)\n\n○  (Static)   prerendered as static content\n●  (SSG)      prerendered as static HTML (uses generateStaticParams)\nƒ  (Dynamic)  server-rendered on demand\n\n"
+      },
+      "note": "Successful standalone final build supersedes previous fixture-offline failure; no production environment used."
+    },
+    {
+      "command": "npm run typecheck; git diff --exit-code -- tsconfig.json; git diff --check",
+      "result": {
+        "chunk_id": "3f5b7e",
+        "wall_time_seconds": 5.3522184,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": "\n> typecheck\n> tsc --noEmit\n\nwarning: in the working copy of 'tsconfig.json', LF will be replaced by CRLF the next time Git touches it\n"
+      },
+      "note": "PowerShell commands gated on exit code; typecheck after removal of two Next-generated UK include paths. LF/CRLF notices only."
+    }
+  ],
+  "review": {
+    "reviewer": "uk_readonly_review",
+    "status": "Both prior Important/Minor resolved; no additional blocking gap in focused re-review; tests inspected, not rerun by reviewer."
+  }
+}

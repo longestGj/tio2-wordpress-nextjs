@@ -17377,6 +17377,8 @@ type RootQuery {
 
   "Approved, scope-bound MARKET-EU-001 record for TiO2 Malaysia."
   malaysiaEuMarketRecordJson: String!
+  "Approved, scope-bound MARKET-UK-001 record for TiO2 Malaysia."
+  malaysiaUkMarketRecordJson: String!
 
   "Approved, scope-bound Legal/Privacy pages for TiO2 Malaysia."
   malaysiaLegalPagesRecordJson: String!

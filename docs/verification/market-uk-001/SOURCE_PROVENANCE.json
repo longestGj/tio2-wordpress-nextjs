@@ -1,0 +1,144 @@
+{
+  "checkedAt": "2026-09-05",
+  "scope": "Read-only source and immutable asset provenance; no D23 or SVG writes",
+  "gate7AndVisualLockedHashesVerified": 13,
+  "sourceFiles": [
+    {
+      "path": "D:/23MySec/pages/markets/04_planning/visual-designs/market-uk-001/v0.1/MARKET-UK-001_GATE5_DOCUMENTS_FOCUS_DESKTOP_1440_V0.1.png",
+      "sha256": "96b3301ef310a49d6cc84641909eb69881b9ef8892a4da804b8e7d25d33740be",
+      "bytes": 96671
+    },
+    {
+      "path": "D:/23MySec/pages/markets/04_planning/visual-designs/market-uk-001/v0.1/MARKET-UK-001_GATE5_FAQ_ALL_COLLAPSED_MOBILE_390_V0.1.png",
+      "sha256": "a837e237747e464a4c6d912e0b91fa75c8a6bb590f6369fba48d9bd69d00d13d",
+      "bytes": 47747
+    },
+    {
+      "path": "D:/23MySec/pages/markets/04_planning/visual-designs/market-uk-001/v0.1/MARKET-UK-001_GATE5_FAQ_ALL_EXPANDED_DESKTOP_1440_V0.1.png",
+      "sha256": "68e20e6bc34028c6fd35a2065c041f41c0538048406da30a9e9f256654f080c0",
+      "bytes": 170973
+    },
+    {
+      "path": "D:/23MySec/pages/markets/04_planning/visual-designs/market-uk-001/v0.1/MARKET-UK-001_GATE5_FULL_DESKTOP_1440_V0.1.png",
+      "sha256": "5197c6b2b997ebaae75c2617fc9d0339a3de4b949a7dbe52745d7107304ed41b",
+      "bytes": 935094
+    },
+    {
+      "path": "D:/23MySec/pages/markets/04_planning/visual-designs/market-uk-001/v0.1/MARKET-UK-001_GATE5_FULL_MOBILE_390_V0.1.png",
+      "sha256": "122d28a26e63d7034c9c2e330696ee6429f6e28e64bfab0581ce715c16479a56",
+      "bytes": 990070
+    },
+    {
+      "path": "D:/23MySec/pages/markets/04_planning/visual-designs/market-uk-001/v0.1/MARKET-UK-001_GATE5_FULL_TABLET_768_V0.1.png",
+      "sha256": "37712250a50b56b044fc9c067735c483e530273c0499a759a8b9d92d2243d686",
+      "bytes": 967811
+    },
+    {
+      "path": "D:/23MySec/pages/markets/04_planning/visual-designs/market-uk-001/v0.1/MARKET-UK-001_GATE5_FULL_VISUAL_V0.1.html",
+      "sha256": "988e0d2cfa3f2883e4c5ff70b90590894f754aff467977ebe0503e0fd9c9acba",
+      "bytes": 37800
+    },
+    {
+      "path": "D:/23MySec/pages/markets/04_planning/visual-designs/market-uk-001/v0.1/MARKET-UK-001_GATE5_MOBILE_MENU_OPEN_FOCUS_390_V0.1.png",
+      "sha256": "57ccc0a11bad4bc16e15ff929dbdb599bdef45dff05e5d6b2eeabde32653886b",
+      "bytes": 20905
+    },
+    {
+      "path": "D:/23MySec/pages/markets/06_handoff/MARKET-UK-001_GATE7_ACCEPTANCE_AND_BLOCKERS_V0.1.md",
+      "sha256": "cf069dd83e6afaa16c4c862c3bdda679b09aa3bdf67623376e0b2c5affbe821b",
+      "bytes": 10027
+    },
+    {
+      "path": "D:/23MySec/pages/markets/06_handoff/MARKET-UK-001_GATE7_CMS_API_COMPONENT_MAPPING_V0.1.md",
+      "sha256": "25065f0e3035f4fdd69df4c5033185d47b15050f31f10c3057f745269b931c25",
+      "bytes": 24663
+    },
+    {
+      "path": "D:/23MySec/pages/markets/06_handoff/MARKET-UK-001_GATE7_HANDOFF_PACKAGE_V0.1.md",
+      "sha256": "91df8d2142ac3088e889fdf59e28ff7c1af2d12055e9fed1a765d403b520eac6",
+      "bytes": 21406
+    },
+    {
+      "path": "D:/23MySec/pages/markets/06_handoff/MARKET-UK-001_GATE7_MANIFEST_V0.1.md",
+      "sha256": "e13eb0e922e675f56f18fc94ce5bd59d5aedb45dee116df3b66e874a390f80c7",
+      "bytes": 7493
+    },
+    {
+      "path": "D:/23MySec/pages/markets/06_handoff/MARKET-UK-001_GATE7_PROJECT_CONTROL_REVIEW_SUBMISSION_V0.1.md",
+      "sha256": "c5004e1938d6cd535ed4ee7aa14d8e52a2c2db46b80d74d5441dc5310499f79d",
+      "bytes": 6375
+    },
+    {
+      "path": "D:/23MySec/pages/products/01_research/PRODUCT_GRADE_APPLICATION_PROCESS_MATRIX_V0.3.csv",
+      "sha256": "8465e231545d3efc6333ec593441eef65e95173a4708097cec0d7a97a014e406",
+      "bytes": 61284
+    },
+    {
+      "path": "D:/23MySec/brand/logo/production/PRODUCTION_SVG_LOGO_MANIFEST_V1.0.md",
+      "sha256": "81b73a5262269f618e8fb0667c9345279449a1bcb71647422b6a1d3f8ebfe894",
+      "bytes": 8090
+    },
+    {
+      "path": "C:/Users/longe/.codex/worktrees/609c/16Wordpress_nextjs/public/tio2-my/brand/tio2-malaysia-favicon-safe-v0.1.svg",
+      "sha256": "bf4c4ebfb310c3973acfb049befb05c6d63a85fe9ff69141a371fba17552b9cc",
+      "bytes": 1121
+    },
+    {
+      "path": "C:/Users/longe/.codex/worktrees/609c/16Wordpress_nextjs/public/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg",
+      "sha256": "6b0bd13718eab073d81274e5940dc442e42b16532b1ea56dd8384da63f680261",
+      "bytes": 4393
+    },
+    {
+      "path": "C:/Users/longe/.codex/worktrees/609c/16Wordpress_nextjs/public/tio2-my/brand/tio2-malaysia-reverse-monochrome-v0.1.svg",
+      "sha256": "5da74851b867be8e7b7ec8e38c8c0f7efb507e52ac37346f1ccc5d72e54eccfe",
+      "bytes": 2748
+    },
+    {
+      "path": "C:/Users/longe/.codex/worktrees/609c/16Wordpress_nextjs/public/tio2-my/brand/tio2-malaysia-symbol-v0.1.svg",
+      "sha256": "cc21f7e4e579fa76b861b34f9e2adfce3f771726ee577c05015c8f2ad5e0b083",
+      "bytes": 2534
+    }
+  ],
+  "logos": [
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg",
+      "sourcePath": "D:/23MySec/brand/logo/candidates/v0.1/tio2-malaysia-primary-horizontal-v0.1.svg",
+      "localSha256": "6b0bd13718eab073d81274e5940dc442e42b16532b1ea56dd8384da63f680261",
+      "approvedSourceSha256": "eeed3a758e7ae1b847238d1c88e86eee7a8e67b863969af4d286747e9a72487c",
+      "gitBlobSha256": "eeed3a758e7ae1b847238d1c88e86eee7a8e67b863969af4d286747e9a72487c",
+      "onlyCheckoutCrlf": true,
+      "blobEqualsSource": true
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-reverse-monochrome-v0.1.svg",
+      "sourcePath": "D:/23MySec/brand/logo/candidates/v0.1/tio2-malaysia-reverse-monochrome-v0.1.svg",
+      "localSha256": "5da74851b867be8e7b7ec8e38c8c0f7efb507e52ac37346f1ccc5d72e54eccfe",
+      "approvedSourceSha256": "7cfaeafa02ac8469a006c9489db2f92b15b2621e4151b04efe1b30fc734c1b5e",
+      "gitBlobSha256": "7cfaeafa02ac8469a006c9489db2f92b15b2621e4151b04efe1b30fc734c1b5e",
+      "onlyCheckoutCrlf": true,
+      "blobEqualsSource": true
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-symbol-v0.1.svg",
+      "sourcePath": "D:/23MySec/brand/logo/candidates/v0.1/tio2-malaysia-symbol-v0.1.svg",
+      "localSha256": "cc21f7e4e579fa76b861b34f9e2adfce3f771726ee577c05015c8f2ad5e0b083",
+      "approvedSourceSha256": "9fd1fafafad4bc6fef0c05f499c27baf1051eef084d1b834b1061caf3b8b85a0",
+      "gitBlobSha256": "9fd1fafafad4bc6fef0c05f499c27baf1051eef084d1b834b1061caf3b8b85a0",
+      "onlyCheckoutCrlf": true,
+      "blobEqualsSource": true
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-favicon-safe-v0.1.svg",
+      "sourcePath": "D:/23MySec/brand/logo/candidates/v0.1/tio2-malaysia-favicon-safe-v0.1.svg",
+      "localSha256": "bf4c4ebfb310c3973acfb049befb05c6d63a85fe9ff69141a371fba17552b9cc",
+      "approvedSourceSha256": "f1d1b97ff66211410a50279eed16414b5a6e888c27c11419e41265168d08692c",
+      "gitBlobSha256": "f1d1b97ff66211410a50279eed16414b5a6e888c27c11419e41265168d08692c",
+      "onlyCheckoutCrlf": true,
+      "blobEqualsSource": true
+    }
+  ],
+  "limitations": [
+    "Source CSV and production manifest hashes are inventory, not newly approved versions.",
+    "Windows checkout SVG raw bytes differ from approved LF bytes only through CRLF; Git blobs are byte-identical to approved assets. Served-byte identity remains a release check."
+  ]
+}

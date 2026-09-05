@@ -330,6 +330,34 @@ describe('POST /api/revalidate', () => {
     expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|tio2-a|tio2-b/iu)
   })
 
+  it.each(['updated', 'deleted'])('revalidates a %s MARKET-UK-001 payload without other scope or list tags', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/markets/united-kingdom/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/markets/united-kingdom'])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--market--MARKET-UK-001--en',
+      'route:tio2-my:/markets/united-kingdom', 'site:tio2-my',
+    ])
+    expect(revalidateTag.mock.calls).toEqual([
+      ['content:tio2-my--market--MARKET-UK-001--en', 'max'],
+      ['route:tio2-my:/markets/united-kingdom', 'max'],
+      ['site:tio2-my', 'max'],
+    ])
+    expect(revalidatePath.mock.calls).toEqual([['/markets/united-kingdom']])
+  })
+
+  it.each([['tio2-a'], ['tio2-b'], ['tio2-my', 'tio2-a']])('rejects foreign/mixed UK mutation scope %j', async (...siteIds) => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({siteIds, paths: ['/markets/united-kingdom/']})))
+    expect(response.status).toBe(400)
+    expect(revalidateTag).not.toHaveBeenCalled()
+    expect(revalidatePath).not.toHaveBeenCalled()
+  })
+
   it('revalidates ABOUT-001 with its scope-local content tag', async () => {
     vi.stubEnv('SITE_ID', 'tio2-my')
     const response = await POST(signedRequest(validPayload({

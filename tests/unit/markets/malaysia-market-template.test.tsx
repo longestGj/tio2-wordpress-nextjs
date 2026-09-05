@@ -66,10 +66,11 @@ describe('MalaysiaMarketHub', () => {
     expect(button.getAttribute('aria-expanded')).toBe('true')
     const menu = container.querySelector<HTMLElement>('#malaysia-mobile-menu')!
     const links = Array.from(menu.querySelectorAll<HTMLAnchorElement>('a'))
-    await waitFor(() => expect(document.activeElement).toBe(links[0]))
+    const close = screen.getByRole('button', {name: 'Close primary navigation menu'})
+    await waitFor(() => expect(document.activeElement).toBe(close))
     links.at(-1)?.focus()
     fireEvent.keyDown(menu, {key: 'Tab'})
-    expect(document.activeElement).toBe(links[0])
+    expect(document.activeElement).toBe(close)
     await user.keyboard('{Escape}')
     expect(button.getAttribute('aria-expanded')).toBe('false')
     expect(document.activeElement).toBe(button)

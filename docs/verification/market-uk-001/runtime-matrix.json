@@ -1,0 +1,1423 @@
+{
+  "ssr": {
+    "canonical": "https://tio2malaysia.com/markets/united-kingdom/",
+    "faqAnswers": 6,
+    "moduleCount": 12,
+    "jsonLdNodes": 2,
+    "indexing": false,
+    "sitemapOmitted": true
+  },
+  "uk-1440-footer-logo": {
+    "distinctColors": 363,
+    "box": {
+      "x": 80,
+      "y": 586.40625,
+      "width": 180,
+      "height": 60
+    }
+  },
+  "uk-1440": {
+    "sha256": "cabe030f6b9c018bc11b9c20f883220553abef35fc4aef57177691168dcb761b",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 917466,
+    "width": 1440,
+    "height": 8208,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 1440,
+      "height": 8208
+    }
+  },
+  "visual-1440": {
+    "approvedFile": "MARKET-UK-001_GATE5_FULL_DESKTOP_1440_V0.1.png",
+    "approvedSha256": "5197c6b2b997ebaae75c2617fc9d0339a3de4b949a7dbe52745d7107304ed41b",
+    "referenceHeight": 8177,
+    "actualHeight": 8208,
+    "normalizedSimilarity": 0.9860112607868668,
+    "threshold": 0.88,
+    "note": "Supplementary broad-layout signal; not a pixel-equivalence or visual-approval claim."
+  },
+  "layout-1440": {
+    "logo": {
+      "box": {
+        "x": 80,
+        "y": 12,
+        "width": 180,
+        "height": 60
+      },
+      "pixels": {
+        "height": 60,
+        "nonWhite": 3158,
+        "opaque": 10800,
+        "width": 180
+      },
+      "style": {
+        "clip": "auto",
+        "clipPath": "none",
+        "display": "block",
+        "filter": "none",
+        "mixBlendMode": "normal",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible"
+      }
+    },
+    "axeViolations": 0,
+    "height": 8208
+  },
+  "uk-faq-1440": {
+    "sha256": "a66922c5825049c762f9dec5e9a9ba3654a6cf1f0eebbffc413c26598b563bac",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 116873,
+    "width": 1440,
+    "height": 1000,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 1440,
+      "height": 1000
+    }
+  },
+  "uk-768-footer-logo": {
+    "distinctColors": 362,
+    "box": {
+      "x": 48,
+      "y": 470.484375,
+      "width": 180,
+      "height": 60
+    }
+  },
+  "uk-768": {
+    "sha256": "07e10ef92f36d1fcc972e3f197cc56e33d9cb074b9904d36b783e08e54eab69f",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 953460,
+    "width": 768,
+    "height": 10835,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 768,
+      "height": 10835
+    }
+  },
+  "visual-768": {
+    "approvedFile": "MARKET-UK-001_GATE5_FULL_TABLET_768_V0.1.png",
+    "approvedSha256": "37712250a50b56b044fc9c067735c483e530273c0499a759a8b9d92d2243d686",
+    "referenceHeight": 10724,
+    "actualHeight": 10835,
+    "normalizedSimilarity": 0.9458303015216504,
+    "threshold": 0.88,
+    "note": "Supplementary broad-layout signal; not a pixel-equivalence or visual-approval claim."
+  },
+  "layout-768": {
+    "logo": {
+      "box": {
+        "x": 12,
+        "y": 12,
+        "width": 120,
+        "height": 40
+      },
+      "pixels": {
+        "height": 40,
+        "nonWhite": 1528,
+        "opaque": 4800,
+        "width": 120
+      },
+      "style": {
+        "clip": "auto",
+        "clipPath": "none",
+        "display": "block",
+        "filter": "none",
+        "mixBlendMode": "normal",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible"
+      }
+    },
+    "axeViolations": 0,
+    "height": 10835
+  },
+  "uk-faq-768": {
+    "sha256": "51f9c0dcec6e3f74edad89b9aa10033cd861e080678749c1330c1aaf98cbe677",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 104207,
+    "width": 768,
+    "height": 1000,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 768,
+      "height": 1000
+    }
+  },
+  "uk-menu-768-accessibility": [
+    {
+      "role": "dialog",
+      "name": "Primary navigation menu"
+    },
+    {
+      "role": "navigation",
+      "name": "Mobile navigation"
+    }
+  ],
+  "uk-menu-768": {
+    "sha256": "e718bd53b7c3e6799abea46a1ae2f326ff0ad6fc8b6496272feda9577e8a3b89",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 17991,
+    "width": 768,
+    "height": 1000,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 768,
+      "height": 1000
+    }
+  },
+  "uk-390-footer-logo": {
+    "distinctColors": 342,
+    "box": {
+      "x": 20,
+      "y": 396.5,
+      "width": 150,
+      "height": 50
+    }
+  },
+  "uk-390": {
+    "sha256": "80cffdb4882aa8b1e0cb086fc3cfa3a76eceef6ee237dce87104e6b3c9fb6329",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 972730,
+    "width": 390,
+    "height": 14470,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 390,
+      "height": 14470
+    }
+  },
+  "visual-390": {
+    "approvedFile": "MARKET-UK-001_GATE5_FULL_MOBILE_390_V0.1.png",
+    "approvedSha256": "122d28a26e63d7034c9c2e330696ee6429f6e28e64bfab0581ce715c16479a56",
+    "referenceHeight": 14770,
+    "actualHeight": 14470,
+    "normalizedSimilarity": 0.9207710216247957,
+    "threshold": 0.88,
+    "note": "Supplementary broad-layout signal; not a pixel-equivalence or visual-approval claim."
+  },
+  "layout-390": {
+    "logo": {
+      "box": {
+        "x": 10,
+        "y": 12,
+        "width": 120,
+        "height": 40
+      },
+      "pixels": {
+        "height": 40,
+        "nonWhite": 1528,
+        "opaque": 4800,
+        "width": 120
+      },
+      "style": {
+        "clip": "auto",
+        "clipPath": "none",
+        "display": "block",
+        "filter": "none",
+        "mixBlendMode": "normal",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible"
+      }
+    },
+    "axeViolations": 0,
+    "height": 14470
+  },
+  "uk-faq-390": {
+    "sha256": "2e5d609e7e4013388990e61705ece698c809ab9bd320aa1bff956b74e3a3233b",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 59993,
+    "width": 390,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "uk-menu-390-accessibility": [
+    {
+      "role": "dialog",
+      "name": "Primary navigation menu"
+    },
+    {
+      "role": "navigation",
+      "name": "Mobile navigation"
+    }
+  ],
+  "uk-menu-390": {
+    "sha256": "01274ae9c3643b677da1df0b211b73610da50cbafe695df84fd92420ea09fce5",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 16324,
+    "width": 390,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "chrome-Home-1440": {
+    "box": {
+      "x": 80,
+      "y": 20,
+      "width": 180,
+      "height": 60
+    },
+    "pixels": {
+      "height": 60,
+      "nonWhite": 3158,
+      "opaque": 10800,
+      "width": 180
+    },
+    "style": {
+      "clip": "auto",
+      "clipPath": "none",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "opacity": "1",
+      "transform": "none",
+      "visibility": "visible"
+    }
+  },
+  "chrome-home-1440": {
+    "sha256": "96df2b954b47ab18a6bfdd318b5486e6cc6d7e0ee51e572a0316d229829bccb5",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 290028,
+    "width": 1440,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 1440,
+      "height": 844
+    }
+  },
+  "chrome-Home-768": {
+    "box": {
+      "x": 20,
+      "y": 20,
+      "width": 120,
+      "height": 40
+    },
+    "pixels": {
+      "height": 40,
+      "nonWhite": 1528,
+      "opaque": 4800,
+      "width": 120
+    },
+    "style": {
+      "clip": "auto",
+      "clipPath": "none",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "opacity": "1",
+      "transform": "none",
+      "visibility": "visible"
+    }
+  },
+  "chrome-home-768": {
+    "sha256": "d00b9e811401169501b25a791f8edd32af8254d4c6441a228178463bb8c5427c",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 54808,
+    "width": 768,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 768,
+      "height": 844
+    }
+  },
+  "menu-home-768-accessibility": [
+    {
+      "role": "dialog",
+      "name": "Primary navigation menu"
+    },
+    {
+      "role": "navigation",
+      "name": "Mobile navigation"
+    }
+  ],
+  "menu-home-768": {
+    "sha256": "9d4ccc87ecbfdd5fa96096cf48565cda7e88f1a963c52cfe723e02367991518e",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 17219,
+    "width": 768,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 768,
+      "height": 844
+    }
+  },
+  "chrome-Home-390": {
+    "box": {
+      "x": 18,
+      "y": 20,
+      "width": 120,
+      "height": 40
+    },
+    "pixels": {
+      "height": 40,
+      "nonWhite": 1528,
+      "opaque": 4800,
+      "width": 120
+    },
+    "style": {
+      "clip": "auto",
+      "clipPath": "none",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "opacity": "1",
+      "transform": "none",
+      "visibility": "visible"
+    }
+  },
+  "chrome-home-390": {
+    "sha256": "7584bfc9818b11c55ddfd15d9a9cbec695f431577dd08b96a462381976db17f0",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 39808,
+    "width": 390,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "menu-home-390-accessibility": [
+    {
+      "role": "dialog",
+      "name": "Primary navigation menu"
+    },
+    {
+      "role": "navigation",
+      "name": "Mobile navigation"
+    }
+  ],
+  "menu-home-390": {
+    "sha256": "915453840143815c8876c18e76c46c55c87d3e341afe513565a8aa9597578575",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 16315,
+    "width": 390,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "chrome-Markets-1440": {
+    "box": {
+      "x": 80,
+      "y": 20,
+      "width": 180,
+      "height": 60
+    },
+    "pixels": {
+      "height": 60,
+      "nonWhite": 3158,
+      "opaque": 10800,
+      "width": 180
+    },
+    "style": {
+      "clip": "auto",
+      "clipPath": "none",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "opacity": "1",
+      "transform": "none",
+      "visibility": "visible"
+    }
+  },
+  "chrome-markets-1440": {
+    "sha256": "69e88044d7c40e8f9b4852f62162cbf34a6bb35af1b31c3bc7f626ffc572dbd2",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 58244,
+    "width": 1440,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 1440,
+      "height": 844
+    }
+  },
+  "chrome-Markets-768": {
+    "box": {
+      "x": 20,
+      "y": 20,
+      "width": 120,
+      "height": 40
+    },
+    "pixels": {
+      "height": 40,
+      "nonWhite": 1528,
+      "opaque": 4800,
+      "width": 120
+    },
+    "style": {
+      "clip": "auto",
+      "clipPath": "none",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "opacity": "1",
+      "transform": "none",
+      "visibility": "visible"
+    }
+  },
+  "chrome-markets-768": {
+    "sha256": "daf90c5b3d8a604e46e04b95aa9c0075f030434dacc9fe62ce2fb47dcc083939",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 41242,
+    "width": 768,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 768,
+      "height": 844
+    }
+  },
+  "menu-markets-768-accessibility": [
+    {
+      "role": "dialog",
+      "name": "Primary navigation menu"
+    },
+    {
+      "role": "navigation",
+      "name": "Mobile navigation"
+    }
+  ],
+  "menu-markets-768": {
+    "sha256": "e00259b333e383bc209320881a58f20990618e1de99216d1752a16070ea5a011",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 17235,
+    "width": 768,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 768,
+      "height": 844
+    }
+  },
+  "chrome-Markets-390": {
+    "box": {
+      "x": 18,
+      "y": 20,
+      "width": 120,
+      "height": 40
+    },
+    "pixels": {
+      "height": 40,
+      "nonWhite": 1528,
+      "opaque": 4800,
+      "width": 120
+    },
+    "style": {
+      "clip": "auto",
+      "clipPath": "none",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "opacity": "1",
+      "transform": "none",
+      "visibility": "visible"
+    }
+  },
+  "chrome-markets-390": {
+    "sha256": "7bdf1476b62fbba8f58f6bad35ec1edaa007b5a73dc6ea079109270fa675c4f8",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 36020,
+    "width": 390,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "menu-markets-390-accessibility": [
+    {
+      "role": "dialog",
+      "name": "Primary navigation menu"
+    },
+    {
+      "role": "navigation",
+      "name": "Mobile navigation"
+    }
+  ],
+  "menu-markets-390": {
+    "sha256": "01274ae9c3643b677da1df0b211b73610da50cbafe695df84fd92420ea09fce5",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 16324,
+    "width": 390,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "chrome-Products-1440": {
+    "box": {
+      "x": 80,
+      "y": 20,
+      "width": 180,
+      "height": 60
+    },
+    "pixels": {
+      "height": 60,
+      "nonWhite": 3158,
+      "opaque": 10800,
+      "width": 180
+    },
+    "style": {
+      "clip": "auto",
+      "clipPath": "none",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "opacity": "1",
+      "transform": "none",
+      "visibility": "visible"
+    }
+  },
+  "chrome-products-1440": {
+    "sha256": "c105c488c4ec08e9965ea4b6957b4f2fadc9db4a4a9bc2b725d4116553966795",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 85448,
+    "width": 1440,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 1440,
+      "height": 844
+    }
+  },
+  "chrome-Products-768": {
+    "box": {
+      "x": 20,
+      "y": 20,
+      "width": 120,
+      "height": 40
+    },
+    "pixels": {
+      "height": 40,
+      "nonWhite": 1528,
+      "opaque": 4800,
+      "width": 120
+    },
+    "style": {
+      "clip": "auto",
+      "clipPath": "none",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "opacity": "1",
+      "transform": "none",
+      "visibility": "visible"
+    }
+  },
+  "chrome-products-768": {
+    "sha256": "64a8a0babf7bd41b73adeff292dfc23b882bd37ae9afbb073eeda1eb37118653",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 58623,
+    "width": 768,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 768,
+      "height": 844
+    }
+  },
+  "menu-products-768-accessibility": [
+    {
+      "role": "dialog",
+      "name": "Primary navigation menu"
+    },
+    {
+      "role": "navigation",
+      "name": "Mobile navigation"
+    }
+  ],
+  "menu-products-768": {
+    "sha256": "4f5a05ff4613215185efc3c75be80ef5e2d3e53b25672a0769760c86ae591dba",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 17162,
+    "width": 768,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 768,
+      "height": 844
+    }
+  },
+  "chrome-Products-390": {
+    "box": {
+      "x": 18,
+      "y": 20,
+      "width": 120,
+      "height": 40
+    },
+    "pixels": {
+      "height": 40,
+      "nonWhite": 1528,
+      "opaque": 4800,
+      "width": 120
+    },
+    "style": {
+      "clip": "auto",
+      "clipPath": "none",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "opacity": "1",
+      "transform": "none",
+      "visibility": "visible"
+    }
+  },
+  "chrome-products-390": {
+    "sha256": "8c59abafb8f9f2c8a6fd240d77b1e6f90c7062180f0a310cde837b0754b82cd2",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 44985,
+    "width": 390,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "menu-products-390-accessibility": [
+    {
+      "role": "dialog",
+      "name": "Primary navigation menu"
+    },
+    {
+      "role": "navigation",
+      "name": "Mobile navigation"
+    }
+  ],
+  "menu-products-390": {
+    "sha256": "084bcd85391fcb332412ade7cce087868cdf0210d01f8069ac979d54bc20f71a",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 16275,
+    "width": 390,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "chrome-Documents-1440": {
+    "box": {
+      "x": 80,
+      "y": 20,
+      "width": 180,
+      "height": 60
+    },
+    "pixels": {
+      "height": 60,
+      "nonWhite": 3158,
+      "opaque": 10800,
+      "width": 180
+    },
+    "style": {
+      "clip": "auto",
+      "clipPath": "none",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "opacity": "1",
+      "transform": "none",
+      "visibility": "visible"
+    }
+  },
+  "chrome-documents-1440": {
+    "sha256": "f481a5d264bbe079bbcf772bc85979fa79fc30259c00c9d8ca24654f4e2966b2",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 350247,
+    "width": 1440,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 1440,
+      "height": 844
+    }
+  },
+  "chrome-Documents-768": {
+    "box": {
+      "x": 20,
+      "y": 20,
+      "width": 120,
+      "height": 40
+    },
+    "pixels": {
+      "height": 40,
+      "nonWhite": 1528,
+      "opaque": 4800,
+      "width": 120
+    },
+    "style": {
+      "clip": "auto",
+      "clipPath": "none",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "opacity": "1",
+      "transform": "none",
+      "visibility": "visible"
+    }
+  },
+  "chrome-documents-768": {
+    "sha256": "9bb9d88a83110a64314f11e2a1ef76a6ad223f06b7c946de44a0412da9e48aec",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 235359,
+    "width": 768,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 768,
+      "height": 844
+    }
+  },
+  "menu-documents-768-accessibility": [
+    {
+      "role": "dialog",
+      "name": "Primary navigation menu"
+    },
+    {
+      "role": "navigation",
+      "name": "Mobile navigation"
+    }
+  ],
+  "menu-documents-768": {
+    "sha256": "dac83cb3a26506215069ea66a6018196a48bc7e13aed1a876ae241be421aa19a",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 17239,
+    "width": 768,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 768,
+      "height": 844
+    }
+  },
+  "chrome-Documents-390": {
+    "box": {
+      "x": 18,
+      "y": 20,
+      "width": 120,
+      "height": 40
+    },
+    "pixels": {
+      "height": 40,
+      "nonWhite": 1528,
+      "opaque": 4800,
+      "width": 120
+    },
+    "style": {
+      "clip": "auto",
+      "clipPath": "none",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "opacity": "1",
+      "transform": "none",
+      "visibility": "visible"
+    }
+  },
+  "chrome-documents-390": {
+    "sha256": "e462ebba27958ebd09130df37cb0720865ea5b8a9be4ae0bd321ffeddceae09d",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 163474,
+    "width": 390,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "menu-documents-390-accessibility": [
+    {
+      "role": "dialog",
+      "name": "Primary navigation menu"
+    },
+    {
+      "role": "navigation",
+      "name": "Mobile navigation"
+    }
+  ],
+  "menu-documents-390": {
+    "sha256": "eb512a712261f83694e2f49a06439e800fea31d0aea40f795d459a02e8592674",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 16251,
+    "width": 390,
+    "height": 844,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "uk-reflow-720-footer-logo": {
+    "distinctColors": 363,
+    "box": {
+      "x": 48,
+      "y": 219.75,
+      "width": 180,
+      "height": 60
+    }
+  },
+  "uk-reflow-720": {
+    "sha256": "464a0b6c88fd2b16be4d370737622976d98442193105bfa438cca10a647c1adc",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 925873,
+    "width": 720,
+    "height": 11272,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 720,
+      "height": 11272
+    }
+  },
+  "uk-reflow-320-footer-logo": {
+    "distinctColors": 342,
+    "box": {
+      "x": 20,
+      "y": 224.5,
+      "width": 150,
+      "height": 50
+    }
+  },
+  "uk-reflow-320": {
+    "sha256": "80e5aeef85adcc7b4030a4bc5eec6d7807e93701bf338d2305b913655efbaafe",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 930934,
+    "width": 320,
+    "height": 15972,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 320,
+      "height": 15972
+    }
+  },
+  "reflow": {
+    "method": "1440 CSS viewport at 200% equivalent = 720 CSS px; additional 320 CSS px",
+    "widths": [
+      720,
+      320
+    ]
+  },
+  "faqStates": {
+    "expanded": 6,
+    "collapsed": 0,
+    "documentsFocusOutline": "3px"
+  },
+  "failClosed": {
+    "missing": 500,
+    "foreign": 500,
+    "readyGradeItems": 6
+  },
+  "routes": [
+    {
+      "targetPageId": "HOME-001",
+      "href": "/",
+      "siteScope": "tio2-my",
+      "status": 200
+    },
+    {
+      "targetPageId": "MARKET-000",
+      "href": "/markets/",
+      "siteScope": "tio2-my",
+      "status": 200
+    },
+    {
+      "targetPageId": "PRODUCT-000",
+      "href": "/products/",
+      "siteScope": "tio2-my",
+      "status": 200
+    },
+    {
+      "targetPageId": "APP-000",
+      "href": "/applications/",
+      "siteScope": "tio2-my",
+      "status": 404
+    },
+    {
+      "targetPageId": "DOC-000",
+      "href": "/documents/",
+      "siteScope": "tio2-my",
+      "status": 200
+    },
+    {
+      "targetPageId": "RES-000",
+      "href": "/resources/",
+      "siteScope": "tio2-my",
+      "status": 200
+    },
+    {
+      "targetPageId": "ABOUT-001",
+      "href": "/about/",
+      "siteScope": "tio2-my",
+      "status": 200
+    },
+    {
+      "targetPageId": "CONV-DOC",
+      "href": "/request-documents/",
+      "siteScope": "tio2-my",
+      "status": 200
+    },
+    {
+      "targetPageId": "CONV-RFQ",
+      "href": "/request-a-quote/",
+      "siteScope": "tio2-my",
+      "status": 200
+    },
+    {
+      "targetPageId": "APP-COAT",
+      "href": "/applications/titanium-dioxide-for-coatings/",
+      "siteScope": "tio2-my",
+      "status": 500
+    },
+    {
+      "targetPageId": "APP-PLAS",
+      "href": "/applications/titanium-dioxide-for-plastics/",
+      "siteScope": "tio2-my",
+      "status": 500
+    },
+    {
+      "targetPageId": "APP-MB",
+      "href": "/applications/titanium-dioxide-for-masterbatch/",
+      "siteScope": "tio2-my",
+      "status": 500
+    },
+    {
+      "targetPageId": "APP-INK",
+      "href": "/applications/titanium-dioxide-for-printing-inks/",
+      "siteScope": "tio2-my",
+      "status": 500
+    },
+    {
+      "targetPageId": "APP-PAPER",
+      "href": "/applications/titanium-dioxide-for-paper/",
+      "siteScope": "tio2-my",
+      "status": 500
+    },
+    {
+      "targetPageId": "GRADE-M350",
+      "href": "/products/m-350/",
+      "siteScope": "tio2-my",
+      "status": 200
+    },
+    {
+      "targetPageId": "GRADE-M510",
+      "href": "/products/m-510/",
+      "siteScope": "tio2-my",
+      "status": 200
+    },
+    {
+      "targetPageId": "GRADE-M896",
+      "href": "/products/m-896/",
+      "siteScope": "tio2-my",
+      "status": 200
+    },
+    {
+      "targetPageId": "GRADE-M200",
+      "href": "/products/m-200/",
+      "siteScope": "tio2-my",
+      "status": 200
+    },
+    {
+      "targetPageId": "GRADE-M108",
+      "href": "/products/m-108/",
+      "siteScope": "tio2-my",
+      "status": 200
+    },
+    {
+      "targetPageId": "GRADE-M210",
+      "href": "/products/m-210/",
+      "siteScope": "tio2-my",
+      "status": 200
+    }
+  ],
+  "uk-rfq-prefill-footer-logo": {
+    "distinctColors": 363,
+    "box": {
+      "x": 56,
+      "y": 329.890625,
+      "width": 180,
+      "height": 60
+    }
+  },
+  "uk-rfq-prefill": {
+    "sha256": "82614deb890e67e70bfa19222892f592c8f10d964eaf23ef381572f98e05eb10",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 213316,
+    "width": 1280,
+    "height": 2831,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 1280,
+      "height": 2831
+    }
+  },
+  "uk-rfq-negative-footer-logo": {
+    "distinctColors": 363,
+    "box": {
+      "x": 56,
+      "y": 329.890625,
+      "width": 180,
+      "height": 60
+    }
+  },
+  "uk-rfq-negative": {
+    "sha256": "d6e6ce3a7954c86fcc9883e0a3eb34aaf5aeacbe0e23617823dcb54e679db6ae",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 227315,
+    "width": 1280,
+    "height": 3028,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 1280,
+      "height": 3028
+    }
+  },
+  "uk-rfq-positive-footer-logo": {
+    "distinctColors": 361,
+    "box": {
+      "x": 56,
+      "y": 330.125,
+      "width": 180,
+      "height": 60
+    }
+  },
+  "uk-rfq-positive": {
+    "sha256": "6c5c6f2b62d0bca038a6a4748e4a781f20645d2ce93408da6367f712a3b7c194",
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 139242,
+    "width": 1280,
+    "height": 1684,
+    "space": "srgb",
+    "channels": 3,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": false,
+    "autoOrient": {
+      "width": 1280,
+      "height": 1684
+    }
+  },
+  "rfq": {
+    "shared": "/request-a-quote/",
+    "body": "/request-a-quote/?market=United%20Kingdom&source_page=MARKET-UK-001",
+    "countryEditable": true,
+    "implicitGrade": false,
+    "validationFocus": true,
+    "interceptedSubmissions": 2,
+    "negativeThenPositive": true,
+    "externalSubmission": false
+  }
+}

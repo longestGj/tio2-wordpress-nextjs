@@ -19,6 +19,11 @@
 .desktopNav a[aria-current='page']::after { content: ''; position: absolute; right: 8%; bottom: 0; left: 8%; height: 3px; background: #006a63; }
 .header .headerRfq, .footer .footerRfq { min-height: 46px; padding: 0 22px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #006a63; border-radius: 4px; color: #fff; background: #006a63; font-size: 13px; }
 .rfqCompact, .menuButton, .mobileNav { display: none; }
+.header .mobileDialog { position: fixed; inset: 0; width: 100%; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; color: #00244a; background: #fff; font: 16px/1.5 Arial, Helvetica, sans-serif; text-align: left; }
+.mobileDialog::backdrop { background: #031b3a80; }
+.menuTopbar { min-height: 64px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.header .menuLogo { width: 120px; height: 40px; object-fit: contain; }
+.header .menuClose { min-width: 64px; min-height: 44px; padding: 0 13px; border: 1px solid #00244a; border-radius: 4px; color: #00244a; background: #fff; font: 700 14px Arial, Helvetica, sans-serif; cursor: pointer; }
 
 .footer { padding: 64px max(48px, calc((100% - 1280px) / 2)) 28px; color: #fff; background: #031b3a; font-family: Arial, Helvetica, sans-serif; }
 .footerGrid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 70px; }
@@ -50,15 +55,15 @@
   .header nav.mobileNav > a { position: relative; min-height: 48px; padding: 10px 12px; display: flex; align-items: flex-start; justify-content: center; flex-direction: column; border-right: 1px solid #d5e0e7; border-bottom: 1px solid #d5e0e7; color: #00244a; text-align: left; }
   .mobileNav a[aria-current='page'] { padding-left: 24px; font-weight: 800; }
   .mobileNav a[aria-current='page']::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: 8px; width: 4px; background: #14b8a6; }
-  .header nav.mobileNav > a:last-child { align-items: center; color: #fff; background: #00877f; }
+  .header nav.mobileNav > a:last-child { align-items: center; color: #fff; background: #006a63; }
   .footerGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 38px 28px; }
   .brandColumn, .conversionColumn { grid-column: 1 / -1; }
 }
 
 @media (max-width: 430px) {
   .headerInner { width: calc(100% - 20px); }
-  .logoLink { min-width: 110px; }
-  .logo { width: 110px; height: auto; }
+  .logoLink { min-width: 120px; }
+  .logo { width: 120px; height: 40px; }
   .headerRfq, .menuButton { padding: 0 11px; font-size: 12px; }
   .mobileNav { grid-template-columns: 1fr; }
   .footer { padding: 45px 20px 20px; }
