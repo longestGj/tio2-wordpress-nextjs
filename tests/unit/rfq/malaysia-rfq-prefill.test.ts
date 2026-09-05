@@ -3,6 +3,23 @@ import {describe, expect, it} from 'vitest'
 import {resolveMalaysiaRfqPrefill} from '@/lib/rfq/malaysia-rfq-prefill'
 
 describe('CONV-RFQ prefill', () => {
+  it('accepts only the RES-ORIGIN source and generic interest handoff', () => {
+    expect(resolveMalaysiaRfqPrefill({
+      source_page: 'RES-ORIGIN',
+      interest: 'alternative-origin-sourcing',
+      grade_id: 'not-an-approved-grade',
+      destination_country: 'x'.repeat(101),
+    })).toEqual({
+      values: {},
+      sourcePageId: 'RES-ORIGIN',
+      interest: 'alternative-origin-sourcing',
+    })
+    expect(resolveMalaysiaRfqPrefill({
+      source_page: 'RES-ORIGIN',
+      interest: 'origin-proof-guaranteed',
+    })).toEqual({values: {}, sourcePageId: 'RES-ORIGIN'})
+  })
+
   it('accepts the MARKET-EU-001 approved public aliases as visible editable context', () => {
     expect(resolveMalaysiaRfqPrefill({
       market: 'European Union',

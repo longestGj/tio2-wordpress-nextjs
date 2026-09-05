@@ -104,7 +104,7 @@ function tio2_validate_resource_origin_v01_contract(int $post_id)
 }
 
 /** @return array{relationKey: string, targetPageId: string, href: string, displayOrder: int}|null */
-function tio2_my_resource_origin_public_relation(array $relation): ?array
+function tio2_my_resource_origin_public_relation(array $relation, array $approved): ?array
 {
     if (
         'RES-ORIGIN' !== ($relation['sourcePageId'] ?? null) ||
@@ -127,6 +127,12 @@ function tio2_my_resource_origin_public_relation(array $relation): ?array
         ! is_string($href) || ! str_starts_with($href, '/') ||
         ! is_int($display_order) || $display_order < 0
     ) return null;
+    if (
+        $target_page_id !== ($approved['targetPageId'] ?? null) ||
+        $target_path !== ($approved['targetPath'] ?? null) ||
+        $href !== ($approved['href'] ?? null) ||
+        $display_order !== ($approved['displayOrder'] ?? null)
+    ) return null;
     $parts = wp_parse_url($href);
     if (
         ! is_array($parts) || isset($parts['scheme']) || isset($parts['host']) || isset($parts['fragment']) ||
@@ -148,13 +154,21 @@ function tio2_my_resource_origin_public_relation(array $relation): ?array
 /** @return array<string, mixed> */
 function tio2_my_resource_origin_public_projection(array $contract, array $relations): array
 {
+    $approved_by_key = [];
+    foreach (($contract['relations'] ?? []) as $approved) {
+        if (is_array($approved) && is_string($approved['relationKey'] ?? null)) {
+            $approved_by_key[$approved['relationKey']] = $approved;
+        }
+    }
     unset($contract['internal'], $contract['releaseControls'], $contract['relations']);
     if (is_array($contract['seo'] ?? null)) unset($contract['seo']['primaryKeyword']);
     $eligible = [];
     $seen = [];
     foreach ($relations as $relation) {
         if (! is_array($relation)) continue;
-        $public = tio2_my_resource_origin_public_relation($relation);
+        $relation_key = $relation['relationKey'] ?? null;
+        $approved = is_string($relation_key) ? ($approved_by_key[$relation_key] ?? null) : null;
+        $public = is_array($approved) ? tio2_my_resource_origin_public_relation($relation, $approved) : null;
         if (null === $public) continue;
         if (isset($seen[$public['relationKey']])) {
             throw new \GraphQL\Error\UserError('The RES-ORIGIN relation projection is ambiguous.');

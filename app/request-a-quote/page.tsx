@@ -35,6 +35,7 @@ export default async function RequestAQuoteRoute({searchParams}: RfqRouteProps) 
   const prefill = resolveMalaysiaRfqPrefill({
     market: query.market,
     source_page: query.source_page,
+    interest: query.interest,
     grade_id: query.grade_id,
     application_id: query.application_id,
     destination_country: query.destination_country,

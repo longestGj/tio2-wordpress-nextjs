@@ -79,7 +79,11 @@ export function MalaysiaRfqForm({prefill, receiverAccessKey, privacyPolicyHref}:
     setErrors({})
     setState('submitting')
     emitMalaysiaRfqAnalyticsEvent('rfq_submission_started')
-    const result = await submitMalaysiaRfq({...values, source_page_id: prefill.sourcePageId}, {accessKey: receiverAccessKey})
+    const result = await submitMalaysiaRfq({
+      ...values,
+      source_page_id: prefill.sourcePageId,
+      interest: prefill.interest ?? null,
+    }, {accessKey: receiverAccessKey})
     pendingRef.current = false
     setState(result.kind)
     if (result.kind === 'receipt_confirmed') emitMalaysiaRfqAnalyticsEvent('rfq_receipt_confirmed')

@@ -2,6 +2,7 @@ import type {MalaysiaRfqValues} from './malaysia-rfq-validation'
 
 export interface MalaysiaRfqSubmission extends MalaysiaRfqValues {
   readonly source_page_id: string | null
+  readonly interest?: string | null
 }
 
 export type MalaysiaRfqReceiverResult =
@@ -54,6 +55,9 @@ export async function submitMalaysiaRfq(
     website: submission.website,
     additional_requirements: submission.additional_requirements,
     ...(submission.source_page_id ? {source_page_id: submission.source_page_id} : {}),
+    ...(submission.interest === 'alternative-origin-sourcing'
+      ? {interest: 'alternative-origin-sourcing'}
+      : {}),
   }
 
   let timeout: ReturnType<typeof setTimeout> | undefined

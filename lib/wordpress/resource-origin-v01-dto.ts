@@ -75,6 +75,14 @@ function eligibleRelation(value: unknown, index: number): MalaysiaResourceOrigin
   const targetPath = text(relation.targetPath, `relations[${index}].targetPath`)
   const href = text(relation.href, `relations[${index}].href`)
   const displayOrder = relation.displayOrder
+  const approved = approvedRelations.get(relationKey)
+  if (
+    !approved ||
+    targetPageId !== approved.targetPageId ||
+    targetPath !== approved.targetPath ||
+    href !== approved.href ||
+    displayOrder !== approved.displayOrder
+  ) return null
   if (!Number.isInteger(displayOrder) || (displayOrder as number) < 0 || !targetPath.startsWith('/')) return null
   let parsed: URL
   try {

@@ -3,6 +3,7 @@ import contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-rfq-pag
 export interface MalaysiaRfqPrefillInput {
   readonly market?: string | readonly string[]
   readonly source_page?: string | readonly string[]
+  readonly interest?: string | readonly string[]
   readonly grade_id?: string | readonly string[]
   readonly application_id?: string | readonly string[]
   readonly destination_country?: string | readonly string[]
@@ -16,6 +17,7 @@ export interface MalaysiaRfqPrefillInput {
 export interface MalaysiaRfqPrefill {
   readonly values: Readonly<Partial<Record<'grade_id' | 'application_id' | 'destination_country' | 'additional_requirements', string>>>
   readonly sourcePageId: string | null
+  readonly interest?: 'alternative-origin-sourcing'
 }
 
 const first = (value: string | readonly string[] | undefined): string | null => {
@@ -51,6 +53,15 @@ export function resolveMalaysiaRfqPrefill(input: MalaysiaRfqPrefillInput): Malay
   if (context.length) values.additional_requirements = context.join('\n')
 
   const source = first(input.source_page_id) ?? first(input.source_page)
-  const sourcePageId = source && contract.prefill.approvedSourcePageIds.includes(source) ? source : null
-  return {values: Object.freeze(values), sourcePageId}
+  const sourcePageId = source && (
+    contract.prefill.approvedSourcePageIds.includes(source) || source === 'RES-ORIGIN'
+  ) ? source : null
+  const interest = sourcePageId === 'RES-ORIGIN' && first(input.interest) === 'alternative-origin-sourcing'
+    ? 'alternative-origin-sourcing' as const
+    : null
+  return {
+    values: Object.freeze(values),
+    sourcePageId,
+    ...(interest ? {interest} : {}),
+  }
 }

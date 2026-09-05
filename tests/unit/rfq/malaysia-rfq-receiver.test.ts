@@ -24,6 +24,20 @@ describe('CONV-RFQ Web3Forms receiver', () => {
     expect(body).toMatchObject({site_scope: 'tio2-my', page_id: 'CONV-RFQ'})
   })
 
+  it('captures only the approved generic RES-ORIGIN interest value', async () => {
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({success: true}), {
+      status: 200, headers: {'content-type': 'application/json'},
+    }))
+    await submitMalaysiaRfq({...submission, source_page_id: 'RES-ORIGIN', interest: 'alternative-origin-sourcing'}, {accessKey: 'test-key', fetcher})
+    const calls = fetcher.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
+    const body = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
+    expect(body).toMatchObject({source_page_id: 'RES-ORIGIN', interest: 'alternative-origin-sourcing'})
+
+    await submitMalaysiaRfq({...submission, interest: 'origin-proof-guaranteed'}, {accessKey: 'test-key', fetcher})
+    const rejected = JSON.parse(String((fetcher.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>)[1]?.[1]?.body)) as Record<string, unknown>
+    expect(rejected).not.toHaveProperty('interest')
+  })
+
   it.each([
     [200, {}], [200, {success: false}], [202, {success: true}], [500, {success: true}],
   ])('treats ambiguous status/payload %# as unconfirmed', async (status, payload) => {
