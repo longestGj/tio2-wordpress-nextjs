@@ -4,8 +4,11 @@ import {describe, expect, it} from 'vitest'
 
 describe('DOC-TDS WordPress and source boundary', () => {
   it('keeps the checked-in payload byte-identical to the approved Gate 7 source', () => {
-    const approved = readFileSync('D:/23MySec/pages/documents/tds-sds-coa/06_handoff/DOC-TDS_GATE7_SOURCE_PAYLOAD_V0.1.json')
+    const approved = readFileSync('tests/fixtures/documents/doc-tds/gate7/DOC-TDS_GATE7_SOURCE_PAYLOAD_V0.1.json')
     const checkedIn = readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-document-tds.json')
+    expect(createHash('sha256').update(approved).digest('hex')).toBe(
+      '85629fd74fcce082fdce7374ddc7a9e6570dc93db46b1e0871bc194b20e387ea',
+    )
     expect(createHash('sha256').update(checkedIn).digest('hex')).toBe(createHash('sha256').update(approved).digest('hex'))
   })
 

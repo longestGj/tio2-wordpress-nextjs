@@ -6,6 +6,7 @@ import {toMalaysiaDocumentTdsDto} from '@/lib/wordpress/document-tds-v01-dto'
 import {getSiteConfig} from '@/sites'
 
 const mocks = vi.hoisted(() => ({getCurrentSite: vi.fn(), getMalaysiaDocumentTds: vi.fn()}))
+vi.mock('next/font/google', () => ({Inter: () => ({variable: 'inter-font'})}))
 vi.mock('@/lib/sites/current-site', () => ({getCurrentSite: mocks.getCurrentSite}))
 vi.mock('@/lib/wordpress/document-tds-v01-queries', () => ({getMalaysiaDocumentTds: mocks.getMalaysiaDocumentTds}))
 
@@ -23,6 +24,28 @@ beforeEach(() => {
 afterEach(() => { vi.clearAllMocks(); vi.resetModules() })
 
 describe('DOC-TDS route', () => {
+  it('does not pass governance or evidence controls across the public RSC client boundary', async () => {
+    const route = await import('@/app/documents/tds-sds-coa/page')
+    const publicPayload = JSON.stringify(await route.default())
+
+    for (const forbidden of [
+      'schema_version',
+      'package_id',
+      'PROVISIONAL_URL',
+      'FACT_EVIDENCE_REQUIRED',
+      'canonical_activation',
+      'request_contract',
+      'source_normalization',
+      'render_when',
+      'evidence_controls',
+      'direct_downloads',
+      'grade_document_availability_matrix',
+      'buyer_visible_internal_terms',
+      'guaranteed delivery',
+      'routeReadiness',
+    ]) expect(publicPayload).not.toContain(forbidden)
+  })
+
   it('renders exactly one scoped page and one JSON-LD graph', async () => {
     const diagnostic = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const route = await import('@/app/documents/tds-sds-coa/page')

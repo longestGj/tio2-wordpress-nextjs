@@ -2,15 +2,16 @@ import {renderToStaticMarkup} from 'react-dom/server'
 import {describe, expect, it} from 'vitest'
 
 import {MalaysiaDocumentTdsPage} from '@/components/sites/tio2-my/documents/document-tds-page'
+import {toDocumentTdsRenderModel} from '@/lib/documents/document-tds-render-model'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-document-tds.json'
 import {toMalaysiaDocumentTdsDto} from '@/lib/wordpress/document-tds-v01-dto'
 
 function page(readiness: Record<string, boolean>) {
-  return toMalaysiaDocumentTdsDto({
+  return toDocumentTdsRenderModel(toMalaysiaDocumentTdsDto({
     id: 'document-tds-1', modifiedGmt: '2026-09-05T01:02:03', status: 'publish',
     siteScopes: {nodes: [{slug: 'tio2-my'}]}, publishingFields: {publicPath: '/documents/tds-sds-coa'},
     malaysiaDocumentTdsContractJson: JSON.stringify(approvedContract), routeReadiness: readiness,
-  })
+  }))
 }
 
 const ready = {'CONV-DOC': true, 'DOC-000': true, 'DOC-REACH': false, 'DOC-COO': false}
@@ -25,6 +26,16 @@ describe('DOC-TDS page template', () => {
     expect(html).toContain('aria-current="page"><span>Documents</span>')
     const questions = approvedContract.modules[7] as {items: Array<{answer: string}>}
     for (const item of questions.items) expect(html).toContain(item.answer)
+  })
+
+  it('renders the approved three-document decision key in the hero', () => {
+    const html = renderToStaticMarkup(<MalaysiaDocumentTdsPage page={page(ready)} structuredData={null} />)
+
+    expect(html).toContain('aria-label="Document decision key"')
+    expect(html).toContain('Three documents · three review needs')
+    expect(html).toContain('Grade-level information')
+    expect(html).toContain('Product, jurisdiction and language context')
+    expect(html).toContain('Lot-, batch- or order-specific results')
   })
 
   it('uses one synchronized href for all three primary actions', () => {

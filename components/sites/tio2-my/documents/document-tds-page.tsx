@@ -1,74 +1,117 @@
 'use client'
 
-import {useState} from 'react'
 import Link from 'next/link'
+import {useEffect, useState, type ReactNode} from 'react'
 
 import {
   MalaysiaGlobalFooter,
   MalaysiaGlobalHeader,
 } from '@/components/sites/tio2-my/malaysia-global-chrome'
+import type {DocumentTdsRenderModel} from '@/lib/documents/document-tds-render-model'
 import {
   buildDocumentTdsRequestHref,
   documentTdsSelectionSummary,
   normalizeDocumentTdsSelection,
+  type DocumentTdsType,
 } from '@/lib/documents/document-tds-state'
-import type {MalaysiaDocumentTdsDto} from '@/lib/wordpress/document-tds-v01-types'
 
 import {DocumentTdsFaq} from './document-tds-faq'
 import styles from './document-tds-page.module.css'
 
-interface BreadcrumbItem {readonly label: string; readonly route: string | null}
-interface HeroModule {readonly id: 'hero'; readonly eyebrow: string; readonly breadcrumb: readonly BreadcrumbItem[]; readonly h1: string; readonly body: string; readonly primary_action: string; readonly secondary_action: string}
-interface TextModule {readonly id: string; readonly heading: string; readonly body: string}
-interface Choice {readonly id: string; readonly heading: string; readonly body: string; readonly selection_label: string; readonly selectable: boolean}
-interface ChoiceModule {readonly id: 'document_choice'; readonly heading: string; readonly intro: string; readonly choices: readonly Choice[]}
-interface GradeModule {readonly id: 'product_grade'; readonly heading: string; readonly intro: string; readonly selector_label: string; readonly placeholder: string; readonly helper: string; readonly supplementary_note: string; readonly initial_summary: string}
-interface ComparisonModule {readonly id: 'comparison'; readonly heading: string; readonly intro: string; readonly columns: readonly string[]; readonly rows: readonly (readonly string[])[]; readonly note: string}
-interface LabelItem {readonly label: string; readonly body: string}
-interface ChecklistModule {readonly id: 'request_checklist'; readonly heading: string; readonly intro: string; readonly items: readonly LabelItem[]; readonly note: string}
-interface Step {readonly number: number; readonly heading: string; readonly body: string}
-interface ProcessModule {readonly id: 'request_process'; readonly heading: string; readonly intro: string; readonly steps: readonly Step[]; readonly microcopy: string}
-interface FaqModule {readonly id: 'buyer_questions'; readonly heading: string; readonly items: readonly {readonly question: string; readonly answer: string}[]}
-interface RelatedItem {readonly page_id: 'DOC-REACH' | 'DOC-COO' | 'DOC-000'; readonly heading: string; readonly body: string; readonly link_label: string; readonly route: string}
-interface RelatedModule {readonly id: 'related_paths'; readonly heading: string; readonly intro: string; readonly items: readonly RelatedItem[]}
-interface FinalModule {readonly id: 'final_cta'; readonly heading: string; readonly body: string; readonly primary_action: string; readonly secondary_action: string}
-
-type Modules = readonly [HeroModule, TextModule, ChoiceModule, GradeModule, ComparisonModule, ChecklistModule, ProcessModule, FaqModule, RelatedModule, FinalModule]
-
 export interface MalaysiaDocumentTdsPageProps {
-  readonly page: MalaysiaDocumentTdsDto
-  readonly structuredData: React.ReactNode
+  readonly page: DocumentTdsRenderModel
+  readonly fontClassName?: string
+  readonly structuredData: ReactNode
 }
 
-const choiceValues: Readonly<Record<string, string>> = {
-  tds: 'technical_product', sds: 'safety', coa: 'quality_coa',
+const choiceValues: Readonly<Record<string, DocumentTdsType>> = {
+  tds: 'technical_product',
+  sds: 'safety',
+  coa: 'quality_coa',
 }
 
-export function MalaysiaDocumentTdsPage({page, structuredData}: MalaysiaDocumentTdsPageProps) {
-  const [hero, directAnswer, choice, gradeModule, comparison, checklist, process, faq, related, finalCta] = page.modules as unknown as Modules
-  const [types, setTypes] = useState<readonly string[]>([])
+const historyStateKey = 'tio2MyDocumentTdsSelection'
+
+interface StoredSelection {
+  readonly types: DocumentTdsType[]
+  readonly grade: string
+}
+
+function readStoredSelection(gradeOptions: readonly string[]): StoredSelection | null {
+  if (typeof window === 'undefined') return null
+  const state = window.history.state as Record<string, unknown> | null
+  const candidate = state?.[historyStateKey]
+  if (!candidate || typeof candidate !== 'object') return null
+  const stored = candidate as {types?: unknown; grade?: unknown}
+  const types = Array.isArray(stored.types)
+    ? normalizeDocumentTdsSelection(stored.types.filter((value): value is string => typeof value === 'string'))
+    : []
+  const grade = typeof stored.grade === 'string' && gradeOptions.includes(stored.grade) ? stored.grade : ''
+  return {types, grade}
+}
+
+function storeSelection(types: readonly string[], grade: string) {
+  const state = window.history.state as Record<string, unknown> | null
+  window.history.replaceState({
+    ...(state ?? {}),
+    [historyStateKey]: {types: normalizeDocumentTdsSelection(types), grade},
+  }, '', window.location.href)
+}
+
+export function MalaysiaDocumentTdsPage({page, fontClassName = '', structuredData}: MalaysiaDocumentTdsPageProps) {
+  const [hero, directAnswer, choice, gradeModule, comparison, checklist, process, faq, related, finalCta] = page.modules
+  const [types, setTypes] = useState<readonly DocumentTdsType[]>([])
   const [grade, setGrade] = useState('')
-  const receiverReady = page.routeReadiness['CONV-DOC']
-  const hubReady = page.routeReadiness['DOC-000']
   const requestHref = buildDocumentTdsRequestHref(types, grade)
   const summary = documentTdsSelectionSummary(types, grade)
 
-  function toggleType(value: string) {
-    setTypes((current) => normalizeDocumentTdsSelection(
-      current.includes(value) ? current.filter((item) => item !== value) : [...current, value],
-    ))
+  useEffect(() => {
+    const restore = () => {
+      const stored = readStoredSelection(page.request.gradeOptions)
+      if (!stored) return
+      setTypes(stored.types)
+      setGrade(stored.grade)
+    }
+    restore()
+    window.addEventListener('pageshow', restore)
+    window.addEventListener('popstate', restore)
+    return () => {
+      window.removeEventListener('pageshow', restore)
+      window.removeEventListener('popstate', restore)
+    }
+  }, [page.request.gradeOptions])
+
+  function toggleType(value: DocumentTdsType) {
+    setTypes((current) => {
+      const next = normalizeDocumentTdsSelection(
+        current.includes(value) ? current.filter((item) => item !== value) : [...current, value],
+      )
+      storeSelection(next, grade)
+      return next
+    })
   }
 
-  const requestAction = (label: string, className = styles.primaryButton) => receiverReady
+  function updateGrade(value: string) {
+    setGrade(value)
+    storeSelection(types, value)
+  }
+
+  const requestAction = (label: string, className = styles.primaryButton) => page.request.requestEnabled
     ? <a className={className} data-doc-request="primary" href={requestHref}>{label}</a>
     : null
-  const hubAction = (label: string, className = styles.secondaryButton) => hubReady
-    ? <Link className={className} href="/documents/">{label}</Link>
+  const hubAction = (label: string, className = styles.secondaryButton) => page.request.documentHubEnabled
+    ? <Link className={className} href={page.request.documentHubRoute}>{label}</Link>
     : null
+
+  const decisionKey = [
+    {code: 'TDS', heading: choice.choices[0].heading, detail: 'Grade-level information'},
+    {code: 'SDS', heading: choice.choices[1].heading, detail: 'Product, jurisdiction and language context'},
+    {code: 'COA', heading: choice.choices[2].heading, detail: 'Lot-, batch- or order-specific results'},
+  ]
 
   return <div className={styles.site} data-site-scope="tio2-my" data-page-id="DOC-TDS">
     <MalaysiaGlobalHeader chrome={page.globalChrome} currentPageId="DOC-000" sourcePageId="DOC-TDS" />
-    <main className={styles.main}>
+    <main className={`${styles.main} ${fontClassName}`}>
       <section className={styles.hero} data-module={hero.id}>
         <div className={styles.shell}>
           <nav className={styles.breadcrumb} aria-label="Breadcrumb">
@@ -77,28 +120,39 @@ export function MalaysiaDocumentTdsPage({page, structuredData}: MalaysiaDocument
               {item.route ? <a href={item.route}>{item.label}</a> : <span aria-current="page">{item.label}</span>}
             </span>)}
           </nav>
-          <p className={styles.eyebrow}>{hero.eyebrow}</p>
-          <h1>{hero.h1}</h1>
-          <p className={styles.lead}>{hero.body}</p>
-          <div className={styles.actions}>{requestAction(hero.primary_action)}{hubAction(hero.secondary_action)}</div>
+          <div className={styles.heroGrid} data-visual="hero-grid">
+            <div>
+              <p className={styles.eyebrow}>{hero.eyebrow}</p>
+              <h1>{hero.h1}</h1>
+              <p className={styles.lead}>{hero.body}</p>
+              <div className={styles.actions}>{requestAction(hero.primary_action)}{hubAction(hero.secondary_action)}</div>
+            </div>
+            <aside className={styles.decisionKey} aria-label="Document decision key">
+              <p className={styles.decisionKeyTitle}>Three documents · three review needs</p>
+              {decisionKey.map((item) => <div className={styles.keyRow} key={item.code}>
+                <span className={styles.keyToken}>{item.code}</span>
+                <div><strong>{item.heading}</strong><span>{item.detail}</span></div>
+              </div>)}
+            </aside>
+          </div>
         </div>
       </section>
 
       <section className={styles.directAnswer} data-module={directAnswer.id}>
-        <div className={styles.narrow}><h2>{directAnswer.heading}</h2><p>{directAnswer.body}</p></div>
+        <div className={`${styles.shell} ${styles.answerGrid}`}><h2>{directAnswer.heading}</h2><p>{directAnswer.body}</p></div>
       </section>
 
       <section className={styles.section} data-module={choice.id}>
-        <div className={styles.shell}><h2>{choice.heading}</h2><p className={styles.intro}>{choice.intro}</p>
+        <div className={styles.shell}><p className={styles.eyebrow}>CHOOSE BY REVIEW NEED</p><h2>{choice.heading}</h2><p className={styles.intro}>{choice.intro}</p>
           <div className={styles.choiceGrid}>
             {choice.choices.map((item) => {
               const value = choiceValues[item.id]
               const checked = value ? types.includes(value) : false
-              return item.selectable && value ? <label className={`${styles.choiceCard} ${checked ? styles.choiceSelected : ''}`} key={item.id}>
-                <input type="checkbox" checked={checked} onChange={() => toggleType(value)} />
-                <span className={styles.choiceLabel}>{item.selection_label}</span><strong>{item.heading}</strong><span>{item.body}</span>
-              </label> : <article className={styles.choiceCard} key={item.id}>
-                <span className={styles.choiceLabel}>{item.selection_label}</span><strong>{item.heading}</strong><span>{item.body}</span>
+              return item.selectable && value ? <label className={`${styles.choiceCard} ${checked ? styles.choiceSelected : ''}`} htmlFor={`doc-tds-choice-${item.id}`} key={item.id}>
+                <input id={`doc-tds-choice-${item.id}`} name="document_types[]" type="checkbox" value={value} checked={checked} onChange={() => toggleType(value)} />
+                <span className={styles.choiceCode}>{item.selection_label}</span><h3>{item.heading}</h3><p>{item.body}</p><span className={styles.choiceLabel}>{item.selection_label}</span>
+              </label> : <article className={`${styles.choiceCard} ${styles.choiceExplainer}`} key={item.id}>
+                <span className={styles.choiceCode} aria-hidden="true">+</span><h3>{item.heading}</h3><p>{item.body}</p><span className={styles.choiceLabel}>{item.selection_label}</span>
               </article>
             })}
           </div>
@@ -106,55 +160,63 @@ export function MalaysiaDocumentTdsPage({page, structuredData}: MalaysiaDocument
       </section>
 
       <section className={styles.gradeSection} data-module={gradeModule.id}>
-        <div className={styles.shell}><div className={styles.gradeGrid}><div>
-          <h2>{gradeModule.heading}</h2><p>{gradeModule.intro}</p>
+        <div className={`${styles.shell} ${styles.gradeGrid}`}><div>
+          <p className={styles.eyebrow}>ADD PRODUCT CONTEXT</p><h2>{gradeModule.heading}</h2><p className={styles.intro}>{gradeModule.intro}</p>
+          <p className={styles.supplementaryNote}>{gradeModule.supplementary_note}</p>
+        </div><aside className={styles.selectionPanel}>
           <label className={styles.selectLabel} htmlFor="doc-tds-grade">{gradeModule.selector_label}</label>
-          <select id="doc-tds-grade" value={grade} onChange={(event) => setGrade(event.target.value)}>
+          <select id="doc-tds-grade" name="product_grade" value={grade} onChange={(event) => updateGrade(event.target.value)}>
             <option value="">{gradeModule.placeholder}</option>
-            {page.request_contract.grade_options.map((option) => <option key={option} value={option}>{option}</option>)}
+            {page.request.gradeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
           </select>
-          <p className={styles.helper}>{gradeModule.helper}</p><p className={styles.note}>{gradeModule.supplementary_note}</p>
-        </div><aside className={styles.selectionPanel} aria-live="polite">
-          <span>REQUEST CONTEXT</span><p>{summary}</p>{requestAction(page.request_contract.primary_action_label)}
-        </aside></div></div>
+          <p className={styles.helper}>{gradeModule.helper}</p><p className={styles.selectionSummary} aria-live="polite">{summary}</p>
+          {requestAction(page.request.primaryActionLabel)}
+        </aside></div>
       </section>
 
       <section className={styles.section} data-module={comparison.id}>
-        <div className={styles.shell}><h2>{comparison.heading}</h2><p className={styles.intro}>{comparison.intro}</p>
+        <div className={styles.shell}><p className={styles.eyebrow}>DOCUMENT COMPARISON</p><h2>{comparison.heading}</h2><p className={styles.intro}>{comparison.intro}</p>
           <div className={styles.tableWrap}><table><thead><tr>{comparison.columns.map((column) => <th scope="col" key={column}>{column}</th>)}</tr></thead>
             <tbody>{comparison.rows.map((row) => <tr key={row[0]}>{row.map((cell, index) => index === 0 ? <th scope="row" key={cell}>{cell}</th> : <td data-label={comparison.columns[index]} key={cell}>{cell}</td>)}</tr>)}</tbody>
-          </table></div><p className={styles.note}>{comparison.note}</p>
+          </table></div>
+          <div className={styles.comparisonCards}>
+            {comparison.columns.slice(1).map((column, columnIndex) => <article className={styles.comparisonCard} key={column}>
+              <h3>{column}</h3>
+              {comparison.rows.map((row) => <div className={styles.comparisonRow} key={row[0]}><strong>{row[0]}</strong><span>{row[columnIndex + 1]}</span></div>)}
+            </article>)}
+          </div>
+          <p className={styles.note}>{comparison.note}</p>
         </div>
       </section>
 
       <section className={styles.tintSection} data-module={checklist.id}>
-        <div className={styles.shell}><h2>{checklist.heading}</h2><p className={styles.intro}>{checklist.intro}</p>
-          <div className={styles.checkGrid}>{checklist.items.map((item) => <article key={item.label}><span aria-hidden="true">✓</span><div><h3>{item.label}</h3><p>{item.body}</p></div></article>)}</div>
+        <div className={styles.shell}><p className={styles.eyebrow}>PREPARE USEFUL CONTEXT</p><h2>{checklist.heading}</h2><p className={styles.intro}>{checklist.intro}</p>
+          <ul className={styles.checkGrid}>{checklist.items.map((item) => <li key={item.label}><span aria-hidden="true">✓</span><div><h3>{item.label}</h3><p>{item.body}</p></div></li>)}</ul>
           <p className={styles.note}>{checklist.note}</p>
         </div>
       </section>
 
       <section className={styles.section} data-module={process.id}>
-        <div className={styles.shell}><h2>{process.heading}</h2><p className={styles.intro}>{process.intro}</p>
-          <ol className={styles.steps}>{process.steps.map((step) => <li key={step.number}><span>{step.number}</span><div><h3>{step.heading}</h3><p>{step.body}</p></div></li>)}</ol>
+        <div className={styles.shell}><p className={styles.eyebrow}>FOUR REVIEW STEPS</p><h2>{process.heading}</h2><p className={styles.intro}>{process.intro}</p>
+          <ol className={styles.steps}>{process.steps.map((step) => <li key={step.number}><span>{String(step.number).padStart(2, '0')}</span><div><h3>{step.heading}</h3><p>{step.body}</p></div></li>)}</ol>
           <p className={styles.microcopy}>{process.microcopy}</p>
         </div>
       </section>
 
       <section className={styles.faqSection} data-module={faq.id}>
-        <div className={styles.narrow}><h2>{faq.heading}</h2><DocumentTdsFaq items={faq.items} /></div>
+        <div className={styles.shell}><p className={styles.eyebrow}>PRACTICAL ANSWERS</p><h2>{faq.heading}</h2><DocumentTdsFaq items={faq.items} /></div>
       </section>
 
       <section className={styles.section} data-module={related.id}>
-        <div className={styles.shell}><h2>{related.heading}</h2><p className={styles.intro}>{related.intro}</p>
-          <div className={styles.relatedGrid}>{related.items.filter((item) => page.routeReadiness[item.page_id]).map((item) => <article data-related-page-id={item.page_id} key={item.page_id}>
+        <div className={styles.shell}><p className={styles.eyebrow}>CONTINUE YOUR DOCUMENT REVIEW</p><h2>{related.heading}</h2><p className={styles.intro}>{related.intro}</p>
+          <div className={styles.relatedGrid}>{related.items.map((item) => <article data-related-page-id={item.page_id} key={item.page_id}>
             <h3>{item.heading}</h3><p>{item.body}</p><a href={item.route}>{item.link_label}<span aria-hidden="true"> →</span></a>
           </article>)}</div>
         </div>
       </section>
 
       <section className={styles.finalCta} data-module={finalCta.id}>
-        <div className={styles.narrow}><h2>{finalCta.heading}</h2><p>{finalCta.body}</p>
+        <div className={`${styles.shell} ${styles.finalGrid}`} data-visual="final-grid"><div><p className={styles.eyebrow}>DOCUMENT REQUEST</p><h2>{finalCta.heading}</h2><p>{finalCta.body}</p></div>
           <div className={styles.actions}>{requestAction(finalCta.primary_action)}{hubAction(finalCta.secondary_action, styles.secondaryDark)}</div>
         </div>
       </section>
