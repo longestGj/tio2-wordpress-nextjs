@@ -64,19 +64,22 @@ export function MalaysiaResourceOriginPage({
                 <Action label={page.hero.secondaryAction.label} relation={relations.get(page.hero.secondaryAction.relationKey)} secondary />
               </div>
             </div>
-            <ol className={styles.qualificationPath} aria-label="Qualification path">
-              {page.hero.qualificationPath.map((item, index) => (
-                <li key={item}><span>{String(index + 1).padStart(2, '0')}</span>{item}</li>
-              ))}
-            </ol>
+            <div className={styles.qualificationPanel}>
+              <div>Qualification path <span>6 checks</span></div>
+              <ol className={styles.qualificationPath} aria-label="Qualification path">
+                {page.hero.qualificationPath.map((item, index) => (
+                  <li key={item}><span>{String(index + 1).padStart(2, '0')}</span>{item}</li>
+                ))}
+              </ol>
+            </div>
           </div>
         </section>
 
-        <section className={`${styles.section} ${styles.directAnswer}`} data-res-origin-module="DIRECT_ANSWER" aria-labelledby="direct-answer-heading">
-          <p className={styles.eyebrow}>{page.directAnswer.eyebrow}</p>
-          <h2 id="direct-answer-heading">{page.directAnswer.heading}</h2>
-          <p className={styles.lead}>{page.directAnswer.answer}</p>
-          <p className={styles.supporting}>{page.directAnswer.supportingSentence}</p>
+        <section className={`${styles.sectionWide} ${styles.directAnswer}`} data-res-origin-module="DIRECT_ANSWER" aria-labelledby="direct-answer-heading">
+          <div className={styles.directAnswerInner}>
+            <div><p className={styles.eyebrow}>{page.directAnswer.eyebrow}</p><h2 id="direct-answer-heading">{page.directAnswer.heading}</h2></div>
+            <div><p className={styles.lead}>{page.directAnswer.answer}</p><p className={styles.supporting}>{page.directAnswer.supportingSentence}</p></div>
+          </div>
         </section>
 
         <section className={`${styles.section} ${styles.checks}`} data-res-origin-module="SIX_CHECKS" aria-labelledby="checks-heading">
@@ -176,10 +179,12 @@ export function MalaysiaResourceOriginPage({
         </section>
 
         <section className={styles.finalAction} data-res-origin-module="FINAL_ACTION" aria-labelledby="final-action-heading">
-          <div>
-            <p className={styles.eyebrow}>{page.finalAction.eyebrow}</p>
-            <h2 id="final-action-heading">{page.finalAction.heading}</h2>
-            <p>{page.finalAction.body}</p>
+          <div className={styles.finalActionInner}>
+            <div>
+              <p className={styles.eyebrow}>{page.finalAction.eyebrow}</p>
+              <h2 id="final-action-heading">{page.finalAction.heading}</h2>
+              <p>{page.finalAction.body}</p>
+            </div>
             <div className={styles.actions}>
               <Action label={page.finalAction.primaryAction.label} relation={relations.get(page.finalAction.primaryAction.relationKey)} />
               <Action label={page.finalAction.secondaryAction.label} relation={relations.get(page.finalAction.secondaryAction.relationKey)} secondary />
