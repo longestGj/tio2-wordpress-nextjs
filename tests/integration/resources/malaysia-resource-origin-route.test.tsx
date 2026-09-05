@@ -23,6 +23,7 @@ describe('RES-ORIGIN route isolation', () => {
     expect(markup).toContain('data-site-scope="tio2-my"')
     expect(markup).toContain('Non-China Titanium Dioxide: A Procurement Evaluation Guide')
     expect(markup).toContain('What should buyers do after completing the review?')
+    expect(markup.match(/<script type="application\/ld\+json">/gu)).toHaveLength(1)
     expect(mocks.getMalaysiaResourceOrigin).toHaveBeenCalledOnce()
   })
 
