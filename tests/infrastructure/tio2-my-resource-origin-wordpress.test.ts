@@ -52,4 +52,18 @@ describe('RES-ORIGIN WordPress binding', () => {
     expect(php).toContain('The RES-ORIGIN payload is incomplete or has invalid cardinality.')
     expect(php).not.toMatch(/placeholder|coming soon/iu)
   })
+
+  it('projects only public content and eligible relation fields through GraphQL', () => {
+    const php = existsSync(includePath) ? readFileSync(includePath, 'utf8') : ''
+    const resolverStart = php.indexOf('function tio2_resolve_malaysia_resource_origin_record_json')
+    const resolver = php.slice(resolverStart)
+
+    expect(php).toContain("'_tio2_my_resource_origin_relations_json'")
+    expect(php).toContain('function tio2_my_resource_origin_public_projection(array $contract, array $relations): array')
+    expect(php).toContain("'eligibleRelations'")
+    expect(php).toContain("$contract['schemaMode'] = 'BREADCRUMB_ONLY'")
+    expect(resolver).toContain("'resourceOriginPayload'")
+    expect(resolver).not.toContain("'malaysiaResourceOriginContractJson'")
+    expect(resolver).not.toContain("'releaseControls'")
+  })
 })

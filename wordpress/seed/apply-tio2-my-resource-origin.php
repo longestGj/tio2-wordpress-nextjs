@@ -53,6 +53,15 @@ wp_update_post(['ID' => $post_id, 'post_name' => $slug]);
 update_post_meta($post_id, 'public_path', $public_path);
 update_post_meta($post_id, 'resource_id', 'RES-ORIGIN');
 update_post_meta($post_id, TIO2_MY_RESOURCE_ORIGIN_CONTRACT_META, $contract_json);
+$contract = json_decode($contract_json, true);
+if (! is_array($contract) || ! is_array($contract['relations'] ?? null)) {
+    throw new RuntimeException('The approved Malaysia RES-ORIGIN relations are missing.');
+}
+update_post_meta(
+    $post_id,
+    TIO2_MY_RESOURCE_ORIGIN_RELATIONS_META,
+    wp_json_encode($contract['relations'])
+);
 clean_post_cache($post_id);
 
 $validation = tio2_validate_resource_origin_v01_contract($post_id);

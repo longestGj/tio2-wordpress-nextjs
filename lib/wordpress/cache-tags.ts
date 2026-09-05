@@ -182,6 +182,26 @@ export function resourceHubContentTag(siteId: string): string {
   return `content:${siteId}--resources`
 }
 
+export function resourceOriginContentTag(
+  siteId: string,
+  pageId: string,
+  locale: string,
+  contentRevision: string,
+  relationRevision: string,
+  metadataRevision: string,
+): string {
+  assertSiteId(siteId)
+  if (
+    siteId !== 'tio2-my' ||
+    pageId !== 'RES-ORIGIN' ||
+    locale !== 'en' ||
+    contentRevision !== 'RES-ORIGIN_CONTENT_ARCHITECTURE_V0.2' ||
+    relationRevision !== 'RES-ORIGIN-REL-V0.1' ||
+    metadataRevision !== 'RES-ORIGIN-META-V0.1'
+  ) throw new Error(`Invalid Malaysia RES-ORIGIN cache identity: ${siteId}/${pageId}/${locale}`)
+  return `content:${siteId}--${pageId}--${locale}--${contentRevision}--${relationRevision}--${metadataRevision}`
+}
+
 export function aboutPageContentTag(siteId: string): string {
   assertSiteId(siteId)
   return `content:${siteId}--about`

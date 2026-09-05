@@ -1,0 +1,3 @@
+query GetMalaysiaResourceOrigin {
+  malaysiaResourceOriginRecordJson
+}

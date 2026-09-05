@@ -7,6 +7,7 @@ if (! defined('ABSPATH')) {
 }
 
 const TIO2_MY_RESOURCE_ORIGIN_CONTRACT_META = '_tio2_my_resource_origin_contract_json';
+const TIO2_MY_RESOURCE_ORIGIN_RELATIONS_META = '_tio2_my_resource_origin_relations_json';
 
 function tio2_my_resource_origin_contract_path(): string
 {
@@ -91,7 +92,83 @@ function tio2_validate_resource_origin_v01_contract(int $post_id)
             );
         }
     }
+    $relations_json = get_post_meta($post_id, TIO2_MY_RESOURCE_ORIGIN_RELATIONS_META, true);
+    $relations = is_string($relations_json) ? json_decode($relations_json, true) : null;
+    if (! is_array($relations)) {
+        return new WP_Error(
+            'tio2_my_resource_origin_relations_invalid',
+            'The RES-ORIGIN relation storage is invalid.'
+        );
+    }
     return true;
+}
+
+/** @return array{relationKey: string, targetPageId: string, href: string, displayOrder: int}|null */
+function tio2_my_resource_origin_public_relation(array $relation): ?array
+{
+    if (
+        'RES-ORIGIN' !== ($relation['sourcePageId'] ?? null) ||
+        'tio2-my' !== ($relation['sourceSiteScope'] ?? null) ||
+        'tio2-my' !== ($relation['targetSiteScope'] ?? null) ||
+        'APPROVED' !== ($relation['contentStatus'] ?? null) ||
+        'VERIFIED_PUBLIC' !== ($relation['routeStatus'] ?? null) ||
+        'VERIFIED' !== ($relation['canonicalStatus'] ?? null) ||
+        'ELIGIBLE' !== ($relation['publicEligibilityStatus'] ?? null)
+    ) return null;
+    $relation_key = $relation['relationKey'] ?? null;
+    $target_page_id = $relation['targetPageId'] ?? null;
+    $target_path = $relation['targetPath'] ?? null;
+    $href = $relation['href'] ?? null;
+    $display_order = $relation['displayOrder'] ?? null;
+    if (
+        ! is_string($relation_key) || '' === $relation_key ||
+        ! is_string($target_page_id) || '' === $target_page_id ||
+        ! is_string($target_path) || ! str_starts_with($target_path, '/') ||
+        ! is_string($href) || ! str_starts_with($href, '/') ||
+        ! is_int($display_order) || $display_order < 0
+    ) return null;
+    $parts = wp_parse_url($href);
+    if (
+        ! is_array($parts) || isset($parts['scheme']) || isset($parts['host']) || isset($parts['fragment']) ||
+        $target_path !== ($parts['path'] ?? null)
+    ) return null;
+    $query = $parts['query'] ?? '';
+    if (
+        ('rfq_secondary' === $relation_key && 'source_page=RES-ORIGIN&interest=alternative-origin-sourcing' !== $query) ||
+        ('rfq_secondary' !== $relation_key && '' !== $query)
+    ) return null;
+    return [
+        'relationKey' => $relation_key,
+        'targetPageId' => $target_page_id,
+        'href' => $href,
+        'displayOrder' => $display_order,
+    ];
+}
+
+/** @return array<string, mixed> */
+function tio2_my_resource_origin_public_projection(array $contract, array $relations): array
+{
+    unset($contract['internal'], $contract['releaseControls'], $contract['relations']);
+    if (is_array($contract['seo'] ?? null)) unset($contract['seo']['primaryKeyword']);
+    $eligible = [];
+    $seen = [];
+    foreach ($relations as $relation) {
+        if (! is_array($relation)) continue;
+        $public = tio2_my_resource_origin_public_relation($relation);
+        if (null === $public) continue;
+        if (isset($seen[$public['relationKey']])) {
+            throw new \GraphQL\Error\UserError('The RES-ORIGIN relation projection is ambiguous.');
+        }
+        $seen[$public['relationKey']] = true;
+        $eligible[] = $public;
+    }
+    usort($eligible, static function (array $left, array $right): int {
+        return ($left['displayOrder'] <=> $right['displayOrder']) ?:
+            strcmp((string) $left['relationKey'], (string) $right['relationKey']);
+    });
+    $contract['eligibleRelations'] = $eligible;
+    $contract['schemaMode'] = 'BREADCRUMB_ONLY';
+    return $contract;
 }
 
 function tio2_resolve_malaysia_resource_origin_record_json(): string
@@ -124,8 +201,14 @@ function tio2_resolve_malaysia_resource_origin_record_json(): string
         throw new \GraphQL\Error\UserError('The Malaysia RES-ORIGIN record failed scope or contract validation.');
     }
     $contract_json = get_post_meta($post_id, TIO2_MY_RESOURCE_ORIGIN_CONTRACT_META, true);
-    if (! is_string($contract_json) || '' === $contract_json) {
+    $contract = is_string($contract_json) ? json_decode($contract_json, true) : null;
+    if (! is_array($contract)) {
         throw new \GraphQL\Error\UserError('The Malaysia RES-ORIGIN record has no approved contract payload.');
+    }
+    $relations_json = get_post_meta($post_id, TIO2_MY_RESOURCE_ORIGIN_RELATIONS_META, true);
+    $relations = is_string($relations_json) ? json_decode($relations_json, true) : null;
+    if (! is_array($relations)) {
+        throw new \GraphQL\Error\UserError('The Malaysia RES-ORIGIN relation storage is invalid.');
     }
     return wp_json_encode([
         'id' => 'resource-origin-' . $post_id,
@@ -133,7 +216,7 @@ function tio2_resolve_malaysia_resource_origin_record_json(): string
         'status' => get_post_status($post_id),
         'siteScopes' => ['nodes' => [['slug' => 'tio2-my']]],
         'publishingFields' => ['publicPath' => '/resources/non-china-titanium-dioxide/'],
-        'malaysiaResourceOriginContractJson' => $contract_json,
+        'resourceOriginPayload' => tio2_my_resource_origin_public_projection($contract, $relations),
     ]);
 }
 

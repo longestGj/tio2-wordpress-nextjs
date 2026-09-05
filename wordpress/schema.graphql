@@ -17401,6 +17401,9 @@ type RootQuery {
   "Approved, scope-bound RES-000 record and public H0 projection for TiO2 Malaysia."
   malaysiaResourceHubRecordJson: String!
 
+  "Exact-scope TiO2 Malaysia RES-ORIGIN record."
+  malaysiaResourceOriginRecordJson: String!
+
   "Approved, scope-bound CONV-RFQ record for TiO2 Malaysia."
   malaysiaRfqPageRecordJson: String!
 

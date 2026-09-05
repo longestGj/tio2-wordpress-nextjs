@@ -10,6 +10,7 @@ const config: CodegenConfig = {
     'lib/wordpress/product-hub*-queries.graphql',
     'lib/wordpress/product-detail*-queries.graphql',
     'lib/wordpress/resource-hub*-queries.graphql',
+    'lib/wordpress/resource-origin*-queries.graphql',
     'lib/wordpress/documents-hub*-queries.graphql',
     'lib/wordpress/document-tds*-queries.graphql',
     'lib/wordpress/document-reach*-queries.graphql',
