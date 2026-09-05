@@ -7,11 +7,12 @@
 - Managed worktree: `C:\Users\longe\.codex\worktrees\bd8e\16Wordpress_nextjs`
 - Branch: `codex/res-origin-gate8`
 - Base ref: `d1b15e253b1202d2e4639646845c7ca8155104a8`
-- Implementation/evidence tip before this receipt: `c5cc8e7`
+- Gate 9 P0 correction commit: `ee64dd7`
+- Implementation/evidence tip before this amended receipt: `ee64dd7`
 - Site/page/locale: `tio2-my` / `RES-ORIGIN` / `en`
 - Public path: `/resources/non-china-titanium-dioxide/`
 - Local production preview: `http://127.0.0.1:3003/resources/non-china-titanium-dioxide/`
-- Gate 8 status: implemented and locally verified; Gate 9 release, deployment, publication, DNS, sitemap submission and indexing were not performed.
+- Gate 8 status: implemented and locally verified, including the returned `RES-ORIGIN-G9-P0-01` correction; Gate 9 re-review remains pending. Release, deployment, publication, DNS, sitemap submission and indexing were not performed.
 
 The sealed Gate 7 hashes and architecture bindings are recorded in `GATE8_PATH_MAP_2026-09-05.md`.
 
@@ -23,6 +24,19 @@ The sealed Gate 7 hashes and architecture bindings are recorded in `GATE8_PATH_M
 - The RFQ handoff contains only `source_page=RES-ORIGIN&interest=alternative-origin-sourcing`; it does not infer grade, process, destination or application values.
 - Exact metadata, canonical, `noindex, nofollow`, Breadcrumb/WebPage JSON-LD, and no Article until complete real visible article metadata exists.
 - Exact revision-aware cache tag and route-only invalidation for RES-ORIGIN; no cross-site, site-wide or sitemap purge.
+
+## Gate 9 P0 correction
+
+`RES-ORIGIN-G9-P0-01` reported that the conditional Article path could not be reached through the real CMS → DTO → visible page → JSON-LD pipeline. Commit `ee64dd7` replaces the former helper-only injection with one shared, fail-closed runtime state:
+
+- WordPress reads a separate `_tio2_my_resource_origin_article_metadata_json` overlay without changing the frozen approved content contract. It exposes metadata only when the record is explicitly `APPROVED`, explicitly `VISIBLE`, complete, valid and bound to the approved production publisher logo.
+- Internal approval/visibility fields are stripped before GraphQL output. Incomplete, invisible, malformed or unapproved-logo metadata projects as `articleMetadata=null` with `schemaMode=BREADCRUMB_ONLY`; the page remains available.
+- The DTO independently validates the complete public object and downgrades any inconsistent or partial Article payload to Breadcrumb-only mode.
+- The page and JSON-LD builder consume the same `resolveVisibleMalaysiaResourceOriginArticleMetadata` result. When eligible, the Hero visibly renders publisher/logo, author, publication date, modification date, review date and maintenance owner, and the same values drive Article Schema.
+- The route no longer accepts a manual `visible:true` or test-only metadata override. Complete/incomplete/invisible behavior is covered through the CMS-shaped API payload, DTO, route, buyer-visible markup and generated JSON-LD.
+- Article-overlay changes use the existing exact RES-ORIGIN webhook path and revision-aware cache invalidation.
+
+The currently approved JSON contract remains `articleMetadata=null`. The transient WordPress runtime fixture restores its prior value after each branch, and the live local record was rechecked as `BREADCRUMB_ONLY` with no visible Article metadata and no Article Schema.
 
 ## Live CMS and API evidence
 
@@ -87,7 +101,9 @@ Visual hierarchy, palette, spacing rhythm, card treatment and responsive transfo
 
 | Check | Result |
 |---|---|
-| Gate 8 focused Vitest set | PASS — 14 files, 134 tests |
+| Gate 8 focused Vitest set | PASS — 15 files, 137 tests |
+| CMS-shaped DTO → route → visible metadata → JSON-LD integration | PASS — 4/4 complete, incomplete, invisible and unapproved-logo cases |
+| Live WordPress Article projection/runtime fixture | PASS — 1/1; complete approved-visible projection plus fail-closed branches and exact webhook wiring |
 | Exact revalidation + CMS webhook regression set | PASS — 2 files, 60 tests |
 | WordPress webhook routing runtime smoke test | PASS |
 | PHP syntax, `webhooks.php` | PASS in the WordPress PHP 8.3 container |
