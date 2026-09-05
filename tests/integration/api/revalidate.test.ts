@@ -314,6 +314,22 @@ describe('POST /api/revalidate', () => {
     expect(JSON.stringify(body)).not.toMatch(/tio2-a|tio2-b/iu)
   })
 
+  it('revalidates RES-ORIGIN with its exact revision tag and no cross-scope or sitemap purge', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/resources/non-china-titanium-dioxide/'],
+    })))
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/resources/non-china-titanium-dioxide'])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--RES-ORIGIN--en--RES-ORIGIN_CONTENT_ARCHITECTURE_V0.2--RES-ORIGIN-REL-V0.1--RES-ORIGIN-META-V0.1',
+      'route:tio2-my:/resources/non-china-titanium-dioxide',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
+  })
+
   it('revalidates MARKET-EU-001 with its three scope-local query tags only', async () => {
     vi.stubEnv('SITE_ID', 'tio2-my')
     const response = await POST(signedRequest(validPayload({

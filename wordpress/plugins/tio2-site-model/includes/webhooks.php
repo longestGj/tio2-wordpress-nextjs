@@ -356,6 +356,20 @@ function tio2_get_webhook_affected_state(
         }
         $entity_ids = [$post_id];
         $site_paths['tio2-a'] = $paths;
+    } elseif (
+        'tio2_document' === $post->post_type &&
+        ['tio2-my'] === $site_ids &&
+        'RES-ORIGIN' === get_post_meta($post_id, 'resource_id', true)
+    ) {
+        if (
+            'non-china-titanium-dioxide' !== $post->post_name ||
+            '/resources/non-china-titanium-dioxide/' !== get_post_meta($post_id, 'public_path', true)
+        ) {
+            return null;
+        }
+        $paths = ['/resources/non-china-titanium-dioxide'];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
     } elseif (in_array($post->post_type, ['tio2_application', 'tio2_document'], true)) {
         if (['tio2-a'] !== $site_ids || ! function_exists('get_field')) {
             return null;
@@ -731,6 +745,14 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
         $post instanceof WP_Post &&
         'tio2_product' === $post->post_type &&
         tio2_is_relevant_product_webhook_meta_key($meta_key)
+    ) {
+        return true;
+    }
+    if (
+        $post instanceof WP_Post &&
+        'tio2_document' === $post->post_type &&
+        'RES-ORIGIN' === get_post_meta($post_id, 'resource_id', true) &&
+        in_array($meta_key, [TIO2_MY_RESOURCE_ORIGIN_CONTRACT_META, TIO2_MY_RESOURCE_ORIGIN_RELATIONS_META], true)
     ) {
         return true;
     }

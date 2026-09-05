@@ -5,6 +5,7 @@ import {describe, expect, it} from 'vitest'
 const includePath = 'wordpress/plugins/tio2-site-model/includes/resource-origin-v01.php'
 const pluginPath = 'wordpress/plugins/tio2-site-model/tio2-site-model.php'
 const seedPath = 'wordpress/seed/apply-tio2-my-resource-origin.php'
+const webhooksPath = 'wordpress/plugins/tio2-site-model/includes/webhooks.php'
 
 describe('RES-ORIGIN WordPress binding', () => {
   it('binds the approved contract to the existing tio2_document model', () => {
@@ -65,5 +66,17 @@ describe('RES-ORIGIN WordPress binding', () => {
     expect(resolver).toContain("'resourceOriginPayload'")
     expect(resolver).not.toContain("'malaysiaResourceOriginContractJson'")
     expect(resolver).not.toContain("'releaseControls'")
+  })
+
+  it('routes exact-scope CMS changes to only the RES-ORIGIN cache path', () => {
+    const webhooks = readFileSync(webhooksPath, 'utf8')
+    const exactBranch = webhooks.indexOf("'RES-ORIGIN' === get_post_meta")
+    const genericDocumentBranch = webhooks.indexOf("in_array($post->post_type, ['tio2_application', 'tio2_document']")
+
+    expect(exactBranch).toBeGreaterThanOrEqual(0)
+    expect(exactBranch).toBeLessThan(genericDocumentBranch)
+    expect(webhooks).toContain("'/resources/non-china-titanium-dioxide'")
+    expect(webhooks).toContain('TIO2_MY_RESOURCE_ORIGIN_CONTRACT_META')
+    expect(webhooks).toContain('TIO2_MY_RESOURCE_ORIGIN_RELATIONS_META')
   })
 })

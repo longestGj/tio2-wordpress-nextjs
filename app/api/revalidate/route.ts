@@ -30,6 +30,7 @@ import {
   productsHubTag,
   resourceListTag,
   resourceHubContentTag,
+  resourceOriginContentTag,
   resourceTag,
   routeTag,
   siteTag,
@@ -281,7 +282,14 @@ export async function POST(request: Request): Promise<Response> {
   const malaysiaLegalPaths = new Set(['/privacy-policy', '/ms/privacy-policy', '/cookie-policy'])
   const preciseMalaysiaSingletonEvent =
     currentSite.id === 'tio2-my' &&
-    (payload.paths.includes('/resources') || payload.paths.includes('/documents') || payload.paths.includes('/documents/tds-sds-coa') || payload.paths.includes('/documents/reach') || payload.paths.includes('/request-documents') || payload.paths.includes('/request-sample') || payload.paths.includes('/markets/european-union') ||
+    (payload.paths.includes('/resources') ||
+      payload.paths.includes('/resources/non-china-titanium-dioxide') ||
+      payload.paths.includes('/documents') ||
+      payload.paths.includes('/documents/tds-sds-coa') ||
+      payload.paths.includes('/documents/reach') ||
+      payload.paths.includes('/request-documents') ||
+      payload.paths.includes('/request-sample') ||
+      payload.paths.includes('/markets/european-union') ||
       payload.paths.includes('/markets/united-kingdom') ||
       (payload.paths.length === 1 && malaysiaLegalPaths.has(payload.paths[0]!)))
   for (const siteId of payload.siteIds) {
@@ -306,6 +314,16 @@ export async function POST(request: Request): Promise<Response> {
       }
       if (siteId === 'tio2-my' && path === '/resources') {
         tags.add(resourceHubContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && path === '/resources/non-china-titanium-dioxide') {
+        tags.add(resourceOriginContentTag(
+          siteId,
+          'RES-ORIGIN',
+          'en',
+          'RES-ORIGIN_CONTENT_ARCHITECTURE_V0.2',
+          'RES-ORIGIN-REL-V0.1',
+          'RES-ORIGIN-META-V0.1',
+        ))
       }
       if (siteId === 'tio2-my' && path === '/about') {
         tags.add(aboutPageContentTag(siteId))
