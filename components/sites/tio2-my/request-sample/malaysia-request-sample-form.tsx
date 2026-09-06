@@ -2,6 +2,7 @@
 
 import {useEffect,useRef,useState} from 'react'
 import type {MalaysiaSamplePrefill} from '@/lib/request-sample/malaysia-request-sample-prefill'
+import {submitMalaysiaSampleRequest} from '@/lib/request-sample/malaysia-request-sample-receiver'
 import {emptyMalaysiaSampleRequestValues,validateMalaysiaSampleRequest,type MalaysiaSampleRequestErrors,type MalaysiaSampleRequestValues} from '@/lib/request-sample/malaysia-request-sample-validation'
 import type {MalaysiaRequestSamplePageDto} from '@/lib/wordpress/request-sample-v01-types'
 import styles from './malaysia-request-sample-page.module.css'
@@ -34,10 +35,10 @@ export function MalaysiaRequestSampleForm({page,prefill,receiverReady}:Props){
 
   async function performSubmission(){
     if(pendingRef.current)return;pendingRef.current=true;setErrors({});setState('submitting')
-    try{keyRef.current??=createSampleRequestIdempotencyKey();const response=await fetch('/api/tio2-my/request-sample',{method:'POST',headers:{'content-type':'application/json'},cache:'no-store',body:JSON.stringify({...values,idempotency_key:keyRef.current,source_context:context})});const body=await response.json() as {ok?:unknown;receipt_confirmed?:unknown;kind?:unknown;errors?:MalaysiaSampleRequestErrors}
-      if(response.ok&&body.ok===true&&body.receipt_confirmed===true&&body.kind==='receipt_confirmed')setState('success')
-      else if(body.kind==='validation_failed'&&body.errors&&Object.keys(body.errors).length){setErrors(body.errors);setState('ready');setAttempt((value)=>value+1)}
-      else if(body.kind==='unavailable')setState('unavailable');else setState('failure')
+    try{keyRef.current??=createSampleRequestIdempotencyKey();const result=await submitMalaysiaSampleRequest(values,{accessKey:process.env.NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY??null,idempotencyKey:keyRef.current,sourceContext:context})
+      if(result.kind==='receipt_confirmed')setState('success')
+      else if(result.kind==='validation_failed'&&Object.keys(result.errors).length){setErrors(result.errors);setState('ready');setAttempt((value)=>value+1)}
+      else if(result.kind==='unavailable')setState('unavailable');else setState('failure')
     }catch{setState('failure')}finally{pendingRef.current=false}
   }
   async function submit(event:React.FormEvent<HTMLFormElement>){event.preventDefault();if(pendingRef.current)return;const next=validateMalaysiaSampleRequest(values);if(Object.keys(next).length){setErrors(next);setState('ready');setAttempt((value)=>value+1);return}await performSubmission()}

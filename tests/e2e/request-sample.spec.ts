@@ -148,17 +148,15 @@ test('CONV-SAMPLE retains values and token across direct retry, then confirms on
   await page.locator('#sample-destination_country_market').fill('Malaysia')
   const tokens: string[] = []
   let attempt = 0
-  await page.route('**/api/tio2-my/request-sample', async (route) => {
+  await page.route('https://api.web3forms.com/submit', async (route) => {
     attempt += 1
     const payload = route.request().postDataJSON() as {idempotency_key: string}
     tokens.push(payload.idempotency_key)
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 250))
     await route.fulfill({
-      status: attempt === 1 ? 502 : 200,
+      status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(attempt === 1
-        ? {ok: false, receipt_confirmed: false, kind: 'submission_unconfirmed'}
-        : {ok: true, receipt_confirmed: true, kind: 'receipt_confirmed'}),
+      body: JSON.stringify({success: attempt !== 1}),
     })
   })
   await page.getByRole('button', {name: 'Submit Sample Request for Review'}).click()
@@ -177,7 +175,7 @@ test('CONV-SAMPLE retains values and token across direct retry, then confirms on
   await page.screenshot({path: resolve(evidence, 'conv-sample-success.png'), fullPage: true, animations: 'disabled'})
 })
 
-test('CONV-SAMPLE replaces a known unavailable form with the approved restricted panel', async ({page}) => {
+test('CONV-SAMPLE retains the form and offers retry after an unconfirmed provider response', async ({page}) => {
   await page.setViewportSize({width: 390, height: 844})
   await page.goto(`${baseUrl}/request-sample/`, {waitUntil: 'domcontentloaded'})
   await page.locator('#sample-grade_id').selectOption('unknown')
@@ -187,13 +185,11 @@ test('CONV-SAMPLE replaces a known unavailable form with the approved restricted
   await page.locator('#sample-company_organisation').fill('Example Co')
   await page.locator('#sample-business_email').fill('amina@example.com')
   await page.locator('#sample-destination_country_market').fill('Malaysia')
-  await page.route('**/api/tio2-my/request-sample', async (route) => route.fulfill({status: 503, contentType: 'application/json', body: JSON.stringify({ok: false, receipt_confirmed: false, kind: 'unavailable'})}))
+  await page.route('https://api.web3forms.com/submit', async (route) => route.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({success: false})}))
   await page.getByRole('button', {name: 'Submit Sample Request for Review'}).click()
-  await expect(page.getByRole('heading', {name: 'We cannot confirm sample requests right now.'})).toBeVisible()
-  await expect(page.locator('[data-sample-field]')).toHaveCount(0)
-  await expect(page.getByRole('button', {name: 'Submit Sample Request for Review'})).toHaveCount(0)
-  await expect(page.getByRole('button', {name: 'Try again'})).toHaveCount(0)
-  await page.screenshot({path: resolve(evidence, 'conv-sample-unavailable-390.png'), fullPage: true, animations: 'disabled'})
+  await expect(page.getByRole('heading', {name: 'We could not confirm that your request was received.'})).toBeVisible()
+  await expect(page.locator('[data-sample-field]')).toHaveCount(11)
+  await expect(page.getByRole('button', {name: 'Try again'})).toBeVisible()
 })
 
 test('CONV-SAMPLE FAQ buttons expose state, panel relationships and keyboard operation', async ({page}) => {

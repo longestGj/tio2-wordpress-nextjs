@@ -9,8 +9,11 @@ import {malaysiaRequestSamplePageSource} from '@/tests/fixtures/tio2-my-request-
 
 const dto=toMalaysiaRequestSamplePageDto(malaysiaRequestSamplePageSource())
 const renderPage=(prefill=resolveMalaysiaSamplePrefill({}),receiverReady=true)=>render(<MalaysiaRequestSamplePage page={dto} prefill={prefill} receiverReady={receiverReady} structuredData={null}/>)
-beforeEach(()=>vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({ok:true,receipt_confirmed:true,kind:'receipt_confirmed'}),{status:200}))))
-afterEach(()=>{cleanup();vi.unstubAllGlobals();vi.clearAllMocks()})
+beforeEach(()=>{
+  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY','public-test-key')
+  vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({success:true}),{status:200,headers:{'content-type':'application/json'}})))
+})
+afterEach(()=>{cleanup();vi.unstubAllEnvs();vi.unstubAllGlobals();vi.clearAllMocks()})
 
 async function fillRequired(user:ReturnType<typeof userEvent.setup>){
   await user.selectOptions(screen.getByLabelText(/Product grade/u),'M-2196');await user.selectOptions(screen.getByLabelText(/^Application/u),'coatings')
@@ -42,8 +45,10 @@ describe('CONV-SAMPLE page and form',()=>{
     let resolveRequest:(value:Response)=>void=()=>undefined
     vi.mocked(fetch).mockImplementationOnce(()=>new Promise<Response>((resolve)=>{resolveRequest=resolve}))
     const user=userEvent.setup();renderPage();await fillRequired(user);const form=screen.getByRole('form');await user.click(screen.getByRole('button',{name:'Submit Sample Request for Review'}))
-    await waitFor(()=>expect(form.getAttribute('aria-busy')).toBe('true'));resolveRequest(new Response(JSON.stringify({ok:true,receipt_confirmed:true,kind:'receipt_confirmed'}),{status:200}))
+    await waitFor(()=>expect(form.getAttribute('aria-busy')).toBe('true'));resolveRequest(new Response(JSON.stringify({success:true}),{status:200,headers:{'content-type':'application/json'}}))
     await screen.findByRole('heading',{name:'Your sample request has been received.'});expect(form.hasAttribute('aria-busy')).toBe(false)
+    const calls=vi.mocked(fetch).mock.calls;expect(String(calls[0]?.[0])).toBe('https://api.web3forms.com/submit')
+    expect(JSON.parse(String(calls[0]?.[1]?.body))).toMatchObject({access_key:'public-test-key',site_scope:'tio2-my',page_id:'CONV-SAMPLE',grade_id:'M-2196'})
   })
   it('shows accepted prefill visibly and allows every buyer value to be removed',async()=>{
     const user=userEvent.setup();renderPage(resolveMalaysiaSamplePrefill({source_page_id:'GRADE-M2377',grade_id:'M-2377',application_id:'coatings',process_context:'sulfate',destination:'United Kingdom',document_needs:['tds']}))
@@ -61,12 +66,12 @@ describe('CONV-SAMPLE page and form',()=>{
     await user.selectOptions(screen.getByLabelText(/^Application/u),'coatings');expect(screen.queryByLabelText(/Describe the application/u)).toBeNull();await fillRequired(user);await user.click(screen.getByRole('button',{name:'Submit Sample Request for Review'}));await screen.findByRole('heading',{name:'Your sample request has been received.'})
   })
   it('directly retries with retained values and same token, rotating only after a material edit',async()=>{
-    vi.mocked(fetch).mockResolvedValueOnce(new Response(JSON.stringify({ok:false,receipt_confirmed:false,kind:'submission_unconfirmed'}),{status:502})).mockResolvedValueOnce(new Response(JSON.stringify({ok:false,receipt_confirmed:false,kind:'submission_unconfirmed'}),{status:502})).mockResolvedValueOnce(new Response(JSON.stringify({ok:true,receipt_confirmed:true,kind:'receipt_confirmed'}),{status:200}))
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(JSON.stringify({success:false}),{status:200,headers:{'content-type':'application/json'}})).mockResolvedValueOnce(new Response(JSON.stringify({success:false}),{status:200,headers:{'content-type':'application/json'}})).mockResolvedValueOnce(new Response(JSON.stringify({success:true}),{status:200,headers:{'content-type':'application/json'}}))
     const user=userEvent.setup();renderPage();await fillRequired(user);await user.click(screen.getByRole('button',{name:'Submit Sample Request for Review'}));await screen.findByRole('heading',{name:'We could not confirm that your request was received.'});await user.click(screen.getByRole('button',{name:'Try again'}));await screen.findByRole('heading',{name:'We could not confirm that your request was received.'});await user.type(screen.getByLabelText(/Company or organisation/u),' Updated');await user.click(screen.getByRole('button',{name:'Submit Sample Request for Review'}));await screen.findByRole('heading',{name:'Your sample request has been received.'})
     const bodies=vi.mocked(fetch).mock.calls.map((call)=>JSON.parse(String(call[1]?.body)) as {idempotency_key:string});expect(bodies[1]?.idempotency_key).toBe(bodies[0]?.idempotency_key);expect(bodies[2]?.idempotency_key).not.toBe(bodies[0]?.idempotency_key)
   })
-  it('replaces a known unavailable form with the approved restricted panel',async()=>{
-    vi.mocked(fetch).mockResolvedValueOnce(new Response(JSON.stringify({ok:false,receipt_confirmed:false,kind:'unavailable'}),{status:503}))
+  it('replaces the form with the approved restricted panel when the shared key disappears',async()=>{
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY','')
     const user=userEvent.setup();renderPage();await fillRequired(user);await user.click(screen.getByRole('button',{name:'Submit Sample Request for Review'}));await screen.findByRole('heading',{name:'We cannot confirm sample requests right now.'})
     expect(screen.queryByLabelText(/Product grade/u)).toBeNull();expect(screen.queryByRole('button',{name:'Submit Sample Request for Review'})).toBeNull();expect(screen.queryByText(/Contact us/iu)).toBeNull()
   })

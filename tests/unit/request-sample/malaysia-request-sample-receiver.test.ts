@@ -11,14 +11,17 @@ describe('Malaysia Sample Request receiver', () => {
     await expect(submitMalaysiaSampleRequest(values, {...options, accessKey:' '})).resolves.toEqual({kind:'unavailable'})
   })
 
-  it('posts to Web3Forms with the shared key and trusted Malaysia metadata', async () => {
+  it('posts directly to Web3Forms with the shared public key and fixed Malaysia metadata', async () => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify({success:true}), {status:200,headers:{'content-type':'application/json'}}))
     await expect(submitMalaysiaSampleRequest(values, {...options, fetcher})).resolves.toEqual({kind:'receipt_confirmed'})
     const calls=fetcher.mock.calls as unknown as Array<[RequestInfo|URL,RequestInit]>
     expect(String(calls[0]?.[0])).toBe('https://api.web3forms.com/submit')
     const body = JSON.parse(String(calls[0]?.[1].body)) as Record<string, unknown>
     expect(body).toMatchObject({access_key:options.accessKey,email:values.business_email,site_scope:'tio2-my',request_type:'sample_request',page_id:'CONV-SAMPLE',form_version:'request-sample-v0.1-malaysia',privacy_notice_version:'CONV-SAMPLE-G7-HANDOFF-01',idempotency_key:options.idempotencyKey})
+    expect(body).toMatchObject({grade_id:'M-2196',application_id:'coatings',test_objective:'Evaluate dispersion.',source_page_id:'PRODUCT-000'})
+    expect(body).not.toHaveProperty('fields')
     expect(calls[0]?.[1].headers).not.toMatchObject({authorization:expect.anything()})
+    expect(calls[0]?.[1]).toMatchObject({referrerPolicy:'origin',redirect:'error'})
   })
 
   it('fails unconfirmed for provider ambiguity, non-JSON, 422 and transport errors', async () => {
