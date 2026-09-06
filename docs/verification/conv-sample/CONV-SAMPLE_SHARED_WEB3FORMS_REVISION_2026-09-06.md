@@ -30,6 +30,17 @@
 
 The configured tests used a clearly non-production placeholder access key. Playwright intercepted every provider request, so this record does not claim a real Web3Forms delivery.
 
+## Post-merge `main` verification
+
+- Commit under test: `9d62e091dd6ec789ab60fe7c1b643eaf6d7e2708`.
+- Full Vitest run: PASS — 270 files passed, 19 conditionally skipped; 2,377 tests passed, 48 conditionally skipped; 0 failed.
+- Main-path ESLint: PASS — 0 errors and the same 2 pre-existing prototype warnings.
+- Main-path TypeScript: PASS.
+- Main-path TiO2 Malaysia production build: PASS — 40 routes generated.
+- Critical production-server browser regression: PASS — 63 passed and 1 expected missing-key conditional test skipped across Home, Markets, Products, shared navigation, RFQ, Request Documents, and Request Sample.
+- Browser submissions used a test-only placeholder key and interception; no external form submission was sent.
+- The local production server was stopped after verification and generated screenshot changes were restored, leaving `main` clean.
+
 ## Dependency safety revision
 
 - `sanitize-html` is pinned at `2.17.7`, removing the production vulnerability reported for the previous version.
