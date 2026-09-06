@@ -197,7 +197,7 @@ describe('public Application route gates', () => {
 
     expect(hub.revalidate).toBe(3600)
     expect(slug.revalidate).toBe(3600)
-    expect(slug.dynamicParams).toBe(true)
+    expect(slug.dynamicParams).toBe(false)
     expect(await slug.generateStaticParams()).toEqual([])
   })
 

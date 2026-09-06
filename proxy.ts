@@ -1,7 +1,5 @@
 import {NextResponse, type NextRequest} from 'next/server'
 
-const DOCUMENT_LANGUAGE_HEADER = 'x-tio2-my-document-language'
-const BAHASA_MALAYSIA_PRIVACY_PATH = '/ms/privacy-policy'
 const MALAYSIA_TRAILING_SLASH_PATHS = new Set([
   '/markets',
   '/markets/european-union',
@@ -30,18 +28,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(canonicalUrl, 308)
   }
 
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.delete(DOCUMENT_LANGUAGE_HEADER)
-
-  if (process.env.SITE_ID === 'tio2-my' && !request.nextUrl.pathname.startsWith('/api/')) {
-    const pathname = request.nextUrl.pathname.replace(/\/$/u, '') || '/'
-    requestHeaders.set(
-      DOCUMENT_LANGUAGE_HEADER,
-      pathname === BAHASA_MALAYSIA_PRIVACY_PATH ? 'ms-MY' : 'en',
-    )
-  }
-
-  return NextResponse.next({request: {headers: requestHeaders}})
+  return NextResponse.next()
 }
 
 export const config = {

@@ -14,6 +14,9 @@ import {hasScopedPreviewSession} from '@/lib/wordpress/preview-session'
 import type {SiteId} from '@/sites'
 
 async function getRequestHomepage(siteId: SiteId) {
+  if (siteId === 'tio2-my') {
+    return {homepage: await getHomepage(siteId), isDraft: false}
+  }
   const isPreview = await hasScopedPreviewSession(siteId, '/')
   const homepage = isPreview
     ? await getPreviewHomepage(siteId)

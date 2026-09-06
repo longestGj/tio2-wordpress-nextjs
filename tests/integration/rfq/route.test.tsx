@@ -17,15 +17,12 @@ beforeEach(() => {
 afterEach(() => { vi.clearAllMocks(); vi.unstubAllEnvs(); vi.resetModules() })
 
 describe('CONV-RFQ route', () => {
-  it('renders scoped prefill, one graph and unchanged sibling routes', async () => {
+  it('server-renders a static empty shell, one graph and unchanged sibling routes', async () => {
     const route = await import('@/app/request-a-quote/page')
-    const markup = renderToStaticMarkup(await route.default({searchParams: Promise.resolve({
-      grade_id: 'M-2377', application_id: 'Coatings', process_context: 'Sulfate',
-      source_page_id: 'PRODUCT-000',
-    })}))
+    const markup = renderToStaticMarkup(await route.default())
     expect(markup).toContain('data-site-scope="tio2-my"')
-    expect(markup).toContain('value="M-2377" selected=""')
-    expect(markup).toContain('Sulfate')
+    expect(markup).not.toContain('value="M-2377" selected=""')
+    expect(markup).not.toContain('Sulfate')
     expect(markup).toContain('href="/request-sample/"')
     expect(markup).toContain('href="/request-documents/"')
     expect(markup).toContain('href="/privacy-policy/"')
@@ -36,7 +33,7 @@ describe('CONV-RFQ route', () => {
   it('rejects foreign site scope before querying WordPress', async () => {
     routeMocks.getCurrentSite.mockReturnValue(getSiteConfig('tio2-b'))
     const route = await import('@/app/request-a-quote/page')
-    await expect(route.default({searchParams: Promise.resolve({})})).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
+    await expect(route.default()).rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
     expect(routeMocks.getMalaysiaRfqPage).not.toHaveBeenCalled()
   })
 

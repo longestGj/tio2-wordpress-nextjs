@@ -22,7 +22,7 @@ interface ResourceRouteProps {
 }
 
 export const revalidate = 3600
-export const dynamicParams = true
+export const dynamicParams = false
 
 function isSiteA(site: SiteConfig): boolean {
   return site.id === 'tio2-a' && site.wordpressScope === 'tio2-a'

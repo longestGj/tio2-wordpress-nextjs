@@ -4,12 +4,14 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {toHomepageDto} from '@/lib/wordpress/homepage-dto'
 import {getHomepageLinkPolicy} from '@/lib/wordpress/homepage-link-policy'
 import type {AnyHomepageDto} from '@/lib/wordpress/homepage-types'
+import {toMalaysiaHomepageDto} from '@/lib/wordpress/homepage-v04-dto'
 import {toSiteAEditorialHomepageDto} from '@/lib/wordpress/homepage-v02-dto'
 import {getSiteConfig} from '@/sites'
 import {
   makeHomepageNode,
   makeSiteAEditorialHomepageNode,
 } from '@/tests/mocks/handlers'
+import approvedMalaysiaContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json'
 
 const routeMocks = vi.hoisted(() => ({
   getCurrentSite: vi.fn(),
@@ -162,5 +164,30 @@ describe('homepage root route', () => {
     expect(branding).toBeLessThan(jsonLd)
     expect(jsonLd).toBeLessThan(hero)
     expect(hero).toBeLessThan(mainEnd)
+  })
+
+  it('renders the Malaysia homepage without reading a preview cookie', async () => {
+    routeMocks.getCurrentSite.mockReturnValue(getSiteConfig('tio2-my'))
+    routeMocks.hasScopedPreviewSession.mockResolvedValue(true)
+    routeMocks.getPreviewHomepage.mockRejectedValue(
+      new Error('Malaysia public route must not enter preview mode'),
+    )
+    routeMocks.getHomepage.mockResolvedValue(toMalaysiaHomepageDto({
+      id: 'homepage-my-1',
+      modifiedGmt: '2026-09-06T01:02:03',
+      status: 'publish',
+      siteScopes: {nodes: [{slug: 'tio2-my'}]},
+      homepageFields: {homepageSchemaVersion: 'homepage-v0.4-malaysia'},
+      malaysiaHomepageContractJson: JSON.stringify(approvedMalaysiaContract),
+    }))
+    const {default: HomePage} = await import('@/app/page')
+
+    const markup = renderToStaticMarkup(await HomePage())
+
+    expect(routeMocks.getHomepage).toHaveBeenCalledWith('tio2-my')
+    expect(routeMocks.hasScopedPreviewSession).not.toHaveBeenCalled()
+    expect(routeMocks.getPreviewHomepage).not.toHaveBeenCalled()
+    expect(markup).toContain('data-site-id="tio2-my"')
+    expect(markup).toContain('data-site-scope="tio2-my"')
   })
 })

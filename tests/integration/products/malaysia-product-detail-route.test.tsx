@@ -77,6 +77,7 @@ describe('M-350 route integration', () => {
 
   it('generates all fourteen approved candidates and rejects unknown slugs before CMS access', async () => {
     const route = await import('@/app/products/[familySlug]/page')
+    expect(route.dynamicParams).toBe(false)
     await expect(route.generateStaticParams()).resolves.toEqual([
       {familySlug: 'm-350'},
       {familySlug: 'm-510'},

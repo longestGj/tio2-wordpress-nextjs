@@ -12,7 +12,7 @@ import {isPublicRoute} from '@/sites/public-routes'
 
 interface Props {readonly params: Promise<{readonly familySlug: string; readonly slug: string}>}
 export const revalidate = 3600
-export const dynamicParams = true
+export const dynamicParams = false
 
 async function loadPage({params}: Props) {
   const site = getCurrentSite()

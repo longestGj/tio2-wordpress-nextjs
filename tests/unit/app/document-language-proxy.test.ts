@@ -4,11 +4,9 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 
 import {config, proxy} from '@/proxy'
 
-const header = 'x-middleware-request-x-tio2-my-document-language'
-
 afterEach(() => vi.unstubAllEnvs())
 
-describe('TiO2 Malaysia document-language proxy', () => {
+describe('TiO2 Malaysia canonical path proxy', () => {
   it('keeps approved Malaysia hub and conversion routes on their trailing-slash URLs', () => {
     vi.stubEnv('SITE_ID', 'tio2-my')
     const markets = proxy(new NextRequest('https://tio2malaysia.com/markets?source=test'))
@@ -24,7 +22,7 @@ describe('TiO2 Malaysia document-language proxy', () => {
     expect(canonicalRequestDocuments.headers.get('location')).toBeNull()
     expect(api.status).toBe(200)
     expect(api.headers.get('location')).toBeNull()
-    expect(api.headers.get(header)).toBeNull()
+    expect(api.headers.get('x-middleware-request-x-tio2-my-document-language')).toBeNull()
   })
 
   it('preserves the original no-trailing-slash behavior outside approved Malaysia exceptions', () => {
@@ -44,18 +42,10 @@ describe('TiO2 Malaysia document-language proxy', () => {
     expect(otherSite.headers.get('location')).toBe('https://example.test/request-documents')
   })
 
-  it.each([
-    ['/ms/privacy-policy', 'untrusted-language', 'ms-MY'],
-    ['/ms/privacy-policy', 'en', 'ms-MY'],
-    ['/privacy-policy', 'ms-MY', 'en'],
-    ['/markets/', 'ms-MY', 'en'],
-  ])('sets a path-controlled language for %s despite incoming %s', (path, incomingLanguage, expectedLanguage) => {
+  it('does not inject request-time document language headers', () => {
     vi.stubEnv('SITE_ID', 'tio2-my')
-    const request = new NextRequest(`https://tio2malaysia.com${path}`, {
-      headers: {'x-tio2-my-document-language': incomingLanguage},
-    })
-
-    expect(proxy(request).headers.get(header)).toBe(expectedLanguage)
+    const response = proxy(new NextRequest('https://tio2malaysia.com/ms/privacy-policy'))
+    expect(response.headers.get('x-middleware-request-x-tio2-my-document-language')).toBeNull()
   })
 
   it('runs for HTML routes and not for excluded assets', () => {

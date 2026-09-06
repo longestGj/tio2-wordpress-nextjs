@@ -80,6 +80,8 @@ describe('closed three-level Product routes', () => {
     expect(hub.revalidate).toBe(3600)
     expect(family.revalidate).toBe(3600)
     expect(detail.revalidate).toBe(3600)
+    expect(family.dynamicParams).toBe(false)
+    expect(detail.dynamicParams).toBe(false)
     expect(await family.generateStaticParams()).toEqual([])
     expect(await detail.generateStaticParams()).toEqual([])
   })
