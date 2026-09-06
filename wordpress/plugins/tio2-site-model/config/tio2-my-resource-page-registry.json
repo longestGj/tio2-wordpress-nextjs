@@ -11,8 +11,8 @@
     {
       "pageId": "RES-PROC",
       "canonicalPath": "/resources/chloride-vs-sulfate-titanium-dioxide/",
-      "mappingStatus": "NEW_PAGE_CANDIDATE",
-      "publicMappingAllowed": false
+      "mappingStatus": "APPROVED_PRD_V0.3",
+      "publicMappingAllowed": true
     },
     {
       "pageId": "RES-CHEMOURS",

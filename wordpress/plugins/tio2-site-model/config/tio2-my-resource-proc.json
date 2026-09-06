@@ -1,0 +1,228 @@
+{
+  "internal": {
+    "packageId": "RES-PROC-G7-HANDOFF-01",
+    "contentVersion": "RES-PROC_GATE2_CONTENT_ARCHITECTURE_V0.3",
+    "visualVersion": "RES-PROC-G5-V0.1",
+    "approvedBaselineId": "RES-PROC-G5-V0.1",
+    "relationEligibilityRevision": "RES-PROC-REL-V0.1",
+    "metadataRevision": "RES-PROC-META-V0.1",
+    "sourceRevision": "RES-PROC-SOURCE-V0.1"
+  },
+  "identity": {
+    "pageId": "RES-PROC",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "pageType": "buying_guide",
+    "slug": "chloride-vs-sulfate-titanium-dioxide",
+    "path": "/resources/chloride-vs-sulfate-titanium-dioxide/",
+    "canonical": "https://tio2malaysia.com/resources/chloride-vs-sulfate-titanium-dioxide/"
+  },
+  "releaseControls": {
+    "indexingAuthorized": false,
+    "sitemapAuthorized": false
+  },
+  "seo": {
+    "primaryKeyword": "chloride vs sulfate titanium dioxide",
+    "title": "Chloride vs Sulfate Titanium Dioxide | Buyer Guide",
+    "description": "Compare chloride and sulfate titanium dioxide routes, learn what route labels can indicate, and identify the grade-level evidence buyers still need to check.",
+    "canonical": "https://tio2malaysia.com/resources/chloride-vs-sulfate-titanium-dioxide/",
+    "language": "en"
+  },
+  "articleMetadata": null,
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-005",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"
+  },
+  "moduleOrder": [
+    "GLOBAL_HEADER",
+    "BREADCRUMB",
+    "HERO",
+    "DIRECT_ANSWER",
+    "ON_THIS_PAGE",
+    "ROUTE_DIFFERENCE",
+    "LABEL_LIMIT",
+    "GRADE_EVIDENCE",
+    "APPLICATION_OVERLAP",
+    "QUALIFICATION_WORKFLOW",
+    "BUYER_QUESTIONS",
+    "SOURCES",
+    "FINAL_ACTION",
+    "GLOBAL_FOOTER"
+  ],
+  "breadcrumb": [
+    {"targetPageId": "HOME-001", "label": "Home", "relationKey": "home"},
+    {"targetPageId": "RES-000", "label": "Resources", "relationKey": "resources_parent"},
+    {"targetPageId": "RES-PROC", "label": "Chloride vs Sulfate Titanium Dioxide", "relationKey": null}
+  ],
+  "hero": {
+    "eyebrow": "TECHNICAL BUYING GUIDE",
+    "h1": "Chloride vs Sulfate Titanium Dioxide: A Buyer’s Evaluation Guide",
+    "supportingCopy": "Understand what the production route can indicate—and which grade-level evidence still needs to be checked before qualification.",
+    "jumpAction": {"label": "Jump to the grade evaluation framework", "href": "#grade-evidence"},
+    "decisionPath": [
+      "How the routes differ",
+      "Grade-level evidence to compare",
+      "Qualification workflow",
+      "Buyer questions"
+    ]
+  },
+  "directAnswer": {
+    "eyebrow": "THE SHORT ANSWER",
+    "answer": "Chloride and sulfate identify two different production routes for titanium dioxide pigment. The production route can influence how the base pigment is formed, but the route label alone is insufficient to establish a grade-level performance conclusion. Opacity, hiding power, undertone, weatherability, dispersion and formulation suitability should be evaluated using current grade-specific evidence and, where relevant, application-specific testing under the buyer’s intended conditions.",
+    "supportingSentence": "The practical question is therefore not which label wins in general, but whether the exact grade has suitable, comparable evidence for the intended use."
+  },
+  "onThisPage": {
+    "heading": "On this page",
+    "items": [
+      {"label": "How the routes differ", "targetAnchor": "route-difference", "displayOrder": 1},
+      {"label": "What the label cannot prove alone", "targetAnchor": "label-limit", "displayOrder": 2},
+      {"label": "Grade-level evidence to compare", "targetAnchor": "grade-evidence", "displayOrder": 3},
+      {"label": "Qualification workflow", "targetAnchor": "qualification-workflow", "displayOrder": 4},
+      {"label": "Buyer questions", "targetAnchor": "buyer-questions", "displayOrder": 5}
+    ]
+  },
+  "routeDifference": {
+    "eyebrow": "PROCESS ORIENTATION",
+    "heading": "How the Chloride and Sulfate Routes Differ",
+    "introduction": "Chloride and sulfate are established industrial routes for producing pigmentary titanium dioxide (TiO2). The simplified sequences below explain what each label refers to. They are orientation tools, not complete plant descriptions and not performance rankings.",
+    "routeCards": [
+      {
+        "key": "chloride",
+        "label": "Chloride route",
+        "heading": "From titanium-bearing feedstock to purified TiCl4",
+        "flowLabel": "Titanium-bearing feedstock → chlorination → titanium tetrachloride purification → oxidation → base TiO2 → finishing and treatment",
+        "body": "In the chloride route, titanium-bearing feedstock is chlorinated to form titanium tetrachloride (TiCl4). The TiCl4 is purified and then oxidized to form titanium dioxide. The base pigment then proceeds through finishing and treatment steps used to create a commercial grade."
+      },
+      {
+        "key": "sulfate",
+        "label": "Sulfate route",
+        "heading": "From sulfate solution to hydrolysis and calcination",
+        "flowLabel": "Titanium-bearing feedstock → sulfuric-acid digestion or dissolution → titanyl sulfate → hydrolysis → hydrated TiO2 → calcination → base TiO2 → finishing and treatment",
+        "body": "In the sulfate route, titanium-bearing material is digested or dissolved in a sulfuric-acid system to form a titanium-bearing sulfate solution. Hydrolysis produces a hydrated titanium dioxide intermediate, which is calcined to form TiO2 before finishing and treatment."
+      }
+    ],
+    "sharedQualifier": "Both descriptions stop at buyer-relevant orientation. Route chemistry and formation conditions can matter, but the material a buyer evaluates is also shaped by the exact grade design, treatment and production control. Official European records also show that rutile pigment can be produced through either route; this does not make rutile grades interchangeable.",
+    "sourceKeys": ["epa_process", "jrc_bref", "jrc_preliminary", "eurlex_rutile"]
+  },
+  "labelLimit": {
+    "eyebrow": "EVIDENCE BOUNDARY",
+    "heading": "What the Route Can Indicate—and What the Label Cannot Prove Alone",
+    "introduction": "A production-route label belongs in a complete grade record, but it should not be used as a shortcut for properties that require grade-level evidence.",
+    "canIndicateHeading": "The route can provide context for",
+    "canIndicate": [
+      "the chemistry used to separate and form the titanium dioxide base pigment;",
+      "the intermediate and formation path;",
+      "questions a technical team may ask about crystal formation and subsequent processing; and",
+      "why production route remains a relevant field when reviewing an exact grade."
+    ],
+    "cannotEstablishHeading": "The label alone is insufficient to establish",
+    "cannotEstablish": [
+      "exact opacity or hiding performance;",
+      "undertone, whiteness or colour response in the buyer’s system;",
+      "weatherability or durability in a defined end use;",
+      "dispersion or processing behaviour in a specific resin, vehicle or process;",
+      "regulatory or document applicability; or",
+      "grade equivalence, substitution or commercial suitability."
+    ],
+    "commercialBoundary": "Route labels also do not establish price, production economics, availability or general versatility. Those depend on the specific product, application, supplier and transaction and are not compared on this page.",
+    "bridge": "Do not ignore the route, and do not stop at the route. The next decision should be based on the exact grade evidence and the buyer’s application conditions."
+  },
+  "gradeEvidence": {
+    "eyebrow": "GRADE EVALUATION",
+    "heading": "Which Grade-Level Evidence Should Buyers Compare?",
+    "introduction": "Start with the performance question that matters in the intended formulation or process. Then compare current evidence for the exact grades using compatible methods and conditions.",
+    "rows": [
+      {"question": "Opacity and hiding", "evidence": "Current grade-specific optical data, the declared method and a formulation-relevant comparison", "interpretation": "Values from different methods, pigment concentrations or formulations should not be treated as directly equivalent."},
+      {"question": "Undertone and whiteness", "evidence": "Grade-specific colour or undertone data with its method, reference and test conditions", "interpretation": "Do not assign a universal colour response to either production route."},
+      {"question": "Weatherability and durability", "evidence": "Surface-treatment information and relevant accelerated or outdoor exposure evidence", "interpretation": "The test type, substrate, binder or system, exposure conditions and duration must be understood."},
+      {"question": "Dispersion and processability", "evidence": "Grade treatment, relevant physical data and evidence from the buyer’s resin, vehicle or process window", "interpretation": "Use in the same application family does not prove identical processing behaviour."},
+      {"question": "Thermal and process stability", "evidence": "Grade-specific evidence for the intended temperature, residence time and processing conditions", "interpretation": "The route label alone does not establish suitability for the intended process."},
+      {"question": "Evidence comparability", "evidence": "Current technical data sheet (TDS), source date, test method, units, typical-versus-specification status and sample identity", "interpretation": "A typical value describes reported product data; it is not automatically a guaranteed specification."}
+    ],
+    "tableNote": "This framework organizes the questions a buyer should resolve. It is not a product specification, a process scorecard or a grade recommendation."
+  },
+  "applicationOverlap": {
+    "eyebrow": "APPLICATION CONTEXT",
+    "heading": "Can Both Routes Serve the Same Application Family?",
+    "answer": "Yes, application-family overlap can occur. First-party evidence from LB Group identifies a chloride-process rutile grade and a sulfate-process rutile grade for plastics-related use. Separately, Tronox states that it uses both chloride and sulfate processes to make products used by manufacturers of coatings, plastics and décor paper.",
+    "evidenceItems": [
+      {"sourceKey": "lb_blr886", "statement": "LB Group describes BLR-886 as a rutile titanium dioxide pigment produced by the chloride process for plastics."},
+      {"sourceKey": "lb_lr108", "statement": "LB Group describes LR-108 as a rutile titanium dioxide pigment produced by the sulfate process for masterbatch, compounding and plastics."},
+      {"sourceKey": "tronox_portfolio", "statement": "Tronox provides broader portfolio context by stating that it uses both processes to make products used by coatings, plastics and décor-paper manufacturers."}
+    ],
+    "evidenceLimit": "The two LB Group examples directly establish plastics-family overlap. The Tronox statement provides portfolio-existence context only; it is not used to claim that each route separately covers all three application families. None of these examples establishes identical performance, equivalence, substitution or suitability in a buyer’s formulation.",
+    "sourceActions": [
+      {"sourceKey": "lb_blr886", "label": "Review the LB Group BLR-886 source"},
+      {"sourceKey": "lb_lr108", "label": "Review the LB Group LR-108 technical data sheet"},
+      {"sourceKey": "tronox_portfolio", "label": "Review the Tronox titanium dioxide source"}
+    ]
+  },
+  "qualificationWorkflow": {
+    "eyebrow": "QUALIFICATION METHOD",
+    "heading": "A Five-Step Route-to-Grade Qualification Workflow",
+    "introduction": "Use the route label as one input, then move the comparison to the exact grade, evidence and intended operating conditions.",
+    "steps": [
+      {"number": "01", "heading": "Define the application and decision criteria", "body": "Record the formulation, substrate, processing window and performance questions that matter. Define the evidence and acceptance criteria needed for the decision."},
+      {"number": "02", "heading": "Identify the exact candidate grade and route", "body": "Confirm the product and grade identity, then record the stated production route as one field in the grade record. Do not treat it as the performance conclusion."},
+      {"number": "03", "heading": "Collect current grade-specific evidence", "body": "Obtain relevant technical data, treatment information, test methods, dates and evidence status from the correct product or document source. Check that every record refers to the material being evaluated."},
+      {"number": "04", "heading": "Normalize the comparison", "body": "Align units, methods, test conditions and typical-versus-specification status before comparing values. Record any mismatch that prevents a like-for-like interpretation."},
+      {"number": "05", "heading": "Validate in the intended system", "body": "Where relevant, use application-specific laboratory or production testing under the buyer’s intended conditions before qualification, substitution or scale-up decisions."}
+    ],
+    "outcomes": [
+      {"heading": "Continue to testing", "body": "Use this path when the grade identity and evidence are clear enough to support an application-relevant test plan."},
+      {"heading": "Request the missing evidence", "body": "Use this path when a current document, test method, treatment detail, sample identity or comparison condition is missing."},
+      {"heading": "Hold the comparison", "body": "Use this path when methods or materials cannot be aligned, evidence conflicts, or the intended conditions have not been defined. A hold is an evidence decision, not proof that a route or grade is unsuitable."}
+    ]
+  },
+  "buyerQuestions": {
+    "eyebrow": "BUYER QUESTIONS",
+    "heading": "Buyer Questions",
+    "items": [
+      {"id": "better-process", "question": "Which process makes better titanium dioxide?", "answer": "The process label does not establish a universal winner. Production route can influence how the base pigment is formed, but grade-level performance still needs to be assessed using current evidence for the exact grade and, where relevant, testing under the buyer’s intended conditions."},
+      {"id": "rutile-routes", "question": "Can both chloride and sulfate routes produce rutile TiO2?", "answer": "Yes. Official European records support that rutile pigment can be produced through either route. That process-and-crystal-form fact does not make individual rutile grades interchangeable."},
+      {"id": "same-route-equivalent", "question": "Does the same production route mean two grades are equivalent?", "answer": "No. A shared route label does not establish equivalent performance or substitution. Equivalence requires defined criteria, compatible methods, evidence for each exact grade and validation in the intended formulation or process."},
+      {"id": "route-performance", "question": "Which route gives higher opacity, a bluer undertone or better weather resistance?", "answer": "The route label alone is insufficient to establish those grade-level conclusions. Compare current grade-specific optical and colour data, treatment information, durability evidence, methods and test conditions, then validate the properties that matter in the intended system."}
+    ]
+  },
+  "sources": {
+    "eyebrow": "SOURCE NOTES",
+    "heading": "Sources and Review Basis",
+    "introduction": "The process descriptions use official technical sources. Manufacturer sources are limited to what the named producer says about its own route or grade and are not used to establish universal process superiority.",
+    "visibleReviewDate": "2026-09-05",
+    "groups": [
+      {"key": "epa", "authority": "U.S. Environmental Protection Agency", "sourceTitles": ["Technical Support Document for the Titanium Dioxide Production Sector"], "useOnPage": "High-level recognition of the chloride and sulfate routes and the chloride-route sequence from chlorination through TiCl4 purification and oxidation.", "date": "Published 2009; source reviewed 5 September 2026.", "sourceKeys": ["epa_process"]},
+      {"key": "jrc", "authority": "European Commission Joint Research Centre", "sourceTitles": ["Large Volume Inorganic Chemicals—Solids and Others Industry BREF", "Draft Preliminary Report for EU Ecolabel Paints"], "useOnPage": "Official scope for both industrial routes and concise process-mechanics support for the formation and finishing descriptions. The preliminary report is a draft dated 16 October 2024 and is not used as final policy or comparative-performance evidence.", "date": "BREF adopted August 2007; preliminary report dated 16 October 2024; sources reviewed 5 September 2026.", "sourceKeys": ["jrc_bref", "jrc_preliminary"]},
+      {"key": "eurlex", "authority": "European Commission official decision record", "sourceTitles": ["Case M.8451 — Tronox / Cristal"], "useOnPage": "Support for the limited statement that rutile pigment can be produced through either route. It is not used as grade-suitability or equivalence evidence.", "date": "2018; source reviewed 5 September 2026.", "sourceKeys": ["eurlex_rutile"]},
+      {"key": "tronox", "authority": "Tronox", "sourceTitles": ["Titanium Dioxide"], "useOnPage": "Broader portfolio-existence context: the producer states that it uses both chloride and sulfate processes for products used by coatings, plastics and décor-paper manufacturers. It does not establish that each route separately serves every listed application.", "date": "Source reviewed 5 September 2026.", "sourceKeys": ["tronox_portfolio"]},
+      {"key": "lb_blr886", "authority": "LB Group BLR-886", "sourceTitles": ["BILLIONS BLR-886 pigment"], "useOnPage": "Direct named-grade evidence for a chloride-process rutile titanium dioxide pigment described for plastics.", "date": "Source reviewed 5 September 2026.", "sourceKeys": ["lb_blr886"]},
+      {"key": "lb_lr108", "authority": "LB Group LR-108", "sourceTitles": ["LR-108 Technical Data Sheet"], "useOnPage": "Direct named-grade evidence for a sulfate-process rutile titanium dioxide pigment described for masterbatch, compounding and plastics.", "date": "Technical data sheet dated November 2024; source reviewed 5 September 2026.", "sourceKeys": ["lb_lr108"]}
+    ],
+    "sourceNote": "A source supports only the statement family identified above. Publication dates and source-review dates are different."
+  },
+  "externalSources": [
+    {"sourceKey": "epa_process", "approvedLabel": "View the U.S. EPA technical support document", "approvedUrl": "https://www.epa.gov/sites/default/files/2015-07/documents/tsd_titanium_dioxide_epa_1-22-09.pdf", "statementFamily": "official_process_orientation", "publicationOrDocumentDate": "2009", "approvedVisibleReviewDate": "2026-09-05", "evidenceStatus": "APPROVED"},
+    {"sourceKey": "jrc_bref", "approvedLabel": "View the JRC BREF source page", "approvedUrl": "https://bureau-industrial-transformation.jrc.ec.europa.eu/reference/large-volume-inorganic-chemicals-solids-and-others-industry", "statementFamily": "official_route_scope", "publicationOrDocumentDate": "2007-08", "approvedVisibleReviewDate": "2026-09-05", "evidenceStatus": "APPROVED"},
+    {"sourceKey": "jrc_preliminary", "approvedLabel": "View the JRC preliminary report", "approvedUrl": "https://susproc.jrc.ec.europa.eu/product-bureau/sites/default/files/2024-10/Draft%20Preliminary%20Report%202%20EU%20Ecolabel%20paints%2016%20Oct%202024_PDF.pdf", "statementFamily": "draft_process_mechanics", "publicationOrDocumentDate": "2024-10-16", "approvedVisibleReviewDate": "2026-09-05", "evidenceStatus": "APPROVED"},
+    {"sourceKey": "eurlex_rutile", "approvedLabel": "View the European Commission decision record", "approvedUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52018M8451(03)", "statementFamily": "rutile_process_scope", "publicationOrDocumentDate": "2018", "approvedVisibleReviewDate": "2026-09-05", "evidenceStatus": "APPROVED"},
+    {"sourceKey": "tronox_portfolio", "approvedLabel": "View the Tronox titanium dioxide source", "approvedUrl": "https://www.tronox.com/products/titanium-dioxide/", "statementFamily": "producer_portfolio_context", "publicationOrDocumentDate": null, "approvedVisibleReviewDate": "2026-09-05", "evidenceStatus": "APPROVED"},
+    {"sourceKey": "lb_blr886", "approvedLabel": "View the LB Group BLR-886 source", "approvedUrl": "https://www.lomonbillions.global/products/billions-blr-886/", "statementFamily": "named_grade_chloride_plastics", "publicationOrDocumentDate": null, "approvedVisibleReviewDate": "2026-09-05", "evidenceStatus": "APPROVED"},
+    {"sourceKey": "lb_lr108", "approvedLabel": "View the LB Group LR-108 technical data sheet", "approvedUrl": "https://www.lomonbillions.global/wp-content/uploads/2024/12/TDS-LR-108-EN-screen.pdf", "statementFamily": "named_grade_sulfate_plastics", "publicationOrDocumentDate": "2024-11", "approvedVisibleReviewDate": "2026-09-05", "evidenceStatus": "APPROVED"}
+  ],
+  "finalAction": {
+    "eyebrow": "NEXT STEP",
+    "heading": "Continue Your Product Evaluation",
+    "body": "Use the route comparison to frame the questions, then review current information for the exact titanium dioxide grades under consideration. Compare grade evidence against the intended formulation, process and acceptance criteria before deciding whether testing should continue.",
+    "productsAction": {"label": "Compare Titanium Dioxide Products", "relationKey": "products_primary"},
+    "processActions": [
+      {"label": "Explore Chloride-Process Titanium Dioxide", "relationKey": "chloride_process"},
+      {"label": "Explore Sulfate-Process Titanium Dioxide", "relationKey": "sulfate_process"}
+    ]
+  },
+  "relations": [
+    {"relationKey": "home", "sourcePageId": "RES-PROC", "sourceSiteScope": "tio2-my", "targetPageId": "HOME-001", "targetSiteScope": "tio2-my", "targetPath": "/", "href": "/", "contentStatus": "APPROVED", "routeStatus": "VERIFIED_PUBLIC", "canonicalStatus": "VERIFIED", "publicEligibilityStatus": "ELIGIBLE", "displayOrder": 0},
+    {"relationKey": "resources_parent", "sourcePageId": "RES-PROC", "sourceSiteScope": "tio2-my", "targetPageId": "RES-000", "targetSiteScope": "tio2-my", "targetPath": "/resources/", "href": "/resources/", "contentStatus": "APPROVED", "routeStatus": "VERIFIED_PUBLIC", "canonicalStatus": "VERIFIED", "publicEligibilityStatus": "ELIGIBLE", "displayOrder": 1},
+    {"relationKey": "products_primary", "sourcePageId": "RES-PROC", "sourceSiteScope": "tio2-my", "targetPageId": "PRODUCT-000", "targetSiteScope": "tio2-my", "targetPath": "/products/", "href": "/products/", "contentStatus": "APPROVED", "routeStatus": "VERIFIED_PUBLIC", "canonicalStatus": "VERIFIED", "publicEligibilityStatus": "ELIGIBLE", "displayOrder": 2},
+    {"relationKey": "chloride_process", "sourcePageId": "RES-PROC", "sourceSiteScope": "tio2-my", "targetPageId": "PRODUCT-PROC-CL", "targetSiteScope": "tio2-my", "targetPath": "/products/chloride-process-titanium-dioxide/", "href": "/products/chloride-process-titanium-dioxide/", "contentStatus": "APPROVED", "routeStatus": "NOT_IMPLEMENTED", "canonicalStatus": "NOT_VERIFIED", "publicEligibilityStatus": "NOT_ELIGIBLE", "displayOrder": 3},
+    {"relationKey": "sulfate_process", "sourcePageId": "RES-PROC", "sourceSiteScope": "tio2-my", "targetPageId": "PRODUCT-PROC-SU", "targetSiteScope": "tio2-my", "targetPath": "/products/sulfate-process-titanium-dioxide/", "href": "/products/sulfate-process-titanium-dioxide/", "contentStatus": "APPROVED", "routeStatus": "NOT_IMPLEMENTED", "canonicalStatus": "NOT_VERIFIED", "publicEligibilityStatus": "NOT_ELIGIBLE", "displayOrder": 4}
+  ]
+}

@@ -1,9 +1,10 @@
 import registry from '@/wordpress/plugins/tio2-site-model/config/tio2-my-resource-page-registry.json'
 import resourceOriginContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-resource-origin.json'
+import resourceProcContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-resource-proc.json'
 
 const entries = new Map(registry.entries.map((entry) => [entry.pageId, entry] as const))
 
-export interface MalaysiaResourcePageRequestIdentity {
+export interface MalaysiaResourceOriginPageRequestIdentity {
   readonly pageId: 'RES-ORIGIN'
   readonly siteScope: 'tio2-my'
   readonly locale: 'en'
@@ -11,7 +12,19 @@ export interface MalaysiaResourcePageRequestIdentity {
   readonly canonical: 'https://tio2malaysia.com/resources/non-china-titanium-dioxide/'
 }
 
-const resourceOriginIdentity: MalaysiaResourcePageRequestIdentity = Object.freeze({
+export interface MalaysiaResourceProcPageRequestIdentity {
+  readonly pageId: 'RES-PROC'
+  readonly siteScope: 'tio2-my'
+  readonly locale: 'en'
+  readonly path: '/resources/chloride-vs-sulfate-titanium-dioxide/'
+  readonly canonical: 'https://tio2malaysia.com/resources/chloride-vs-sulfate-titanium-dioxide/'
+}
+
+export type MalaysiaResourcePageRequestIdentity =
+  | MalaysiaResourceOriginPageRequestIdentity
+  | MalaysiaResourceProcPageRequestIdentity
+
+const resourceOriginIdentity: MalaysiaResourceOriginPageRequestIdentity = Object.freeze({
   pageId: 'RES-ORIGIN',
   siteScope: 'tio2-my',
   locale: 'en',
@@ -19,8 +32,20 @@ const resourceOriginIdentity: MalaysiaResourcePageRequestIdentity = Object.freez
   canonical: 'https://tio2malaysia.com/resources/non-china-titanium-dioxide/',
 })
 
+const resourceProcIdentity: MalaysiaResourceProcPageRequestIdentity = Object.freeze({
+  pageId: 'RES-PROC',
+  siteScope: 'tio2-my',
+  locale: 'en',
+  path: '/resources/chloride-vs-sulfate-titanium-dioxide/',
+  canonical: 'https://tio2malaysia.com/resources/chloride-vs-sulfate-titanium-dioxide/',
+})
+
 export function getApprovedMalaysiaResourceOriginContract() {
   return resourceOriginContract
+}
+
+export function getApprovedMalaysiaResourceProcContract() {
+  return resourceProcContract
 }
 
 export function resolveMalaysiaResourcePageRequest(
@@ -28,15 +53,14 @@ export function resolveMalaysiaResourcePageRequest(
   wordpressScope: string,
   path: string,
 ): MalaysiaResourcePageRequestIdentity | null {
-  if (
-    siteId !== resourceOriginIdentity.siteScope ||
-    wordpressScope !== resourceOriginIdentity.siteScope ||
-    path !== resourceOriginIdentity.path
-  ) return null
-
-  const entry = entries.get(resourceOriginIdentity.pageId)
+  if (siteId !== 'tio2-my' || wordpressScope !== 'tio2-my') return null
+  const identity = [resourceOriginIdentity, resourceProcIdentity].find(
+    (candidate) => candidate.path === path,
+  )
+  if (!identity) return null
+  const entry = entries.get(identity.pageId)
   return entry?.canonicalPath === path && entry.publicMappingAllowed
-    ? resourceOriginIdentity
+    ? identity
     : null
 }
 
