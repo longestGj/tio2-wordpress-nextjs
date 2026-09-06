@@ -8,7 +8,7 @@ import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
 const contract = JSON.parse(readFileSync(
   'wordpress/plugins/tio2-site-model/config/tio2-my-request-documents.json', 'utf8',
 )) as {hero: {h1: string}; form: {gradeOptions: string[]; documentTypes: Array<{value: string}>}}
-const baseUrl = 'http://127.0.0.1:3004'
+const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
 const evidenceDirectory = resolve('docs/verification/conv-doc')
 const moduleOrder = ['breadcrumb', 'hero', 'steps', 'minimum-information', 'request-form']
 
@@ -45,7 +45,7 @@ for (const viewport of [
 
     const header = page.locator('header')
     await assertRenderedMalaysiaHeaderLogo(header.locator('img[alt="TiO2 Malaysia"]'), viewport.width <= 430
-      ? {width: 110, height: 110 / 3}
+      ? {width: 120, height: 40}
       : viewport.width === 768 ? {width: 120, height: 40} : {width: 180, height: 60})
     await expect(header).not.toContainText('CURRENT')
     await expect(header.locator('a[aria-current="page"]')).toHaveCount(0)

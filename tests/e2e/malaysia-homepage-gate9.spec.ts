@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test, type Page} from '@playwright/test'
 
-const baseUrl = 'http://127.0.0.1:3004'
+const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
 const widths = [320, 390, 768, 1024, 1440] as const
 const productGroups = [
   {name: 'Coatings Grades', count: 6},

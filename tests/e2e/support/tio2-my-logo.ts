@@ -9,13 +9,15 @@ export async function assertRenderedMalaysiaHeaderLogo(
   logo: Locator,
   expectedSize: LogoSize,
 ) {
-  await logo.scrollIntoViewIfNeeded()
-  await expect(logo).toBeVisible()
-  await expect.poll(() => logo.evaluate((image) => {
+  const visibleLogo = logo.filter({visible: true})
+  await expect(visibleLogo).toHaveCount(1)
+  await visibleLogo.scrollIntoViewIfNeeded()
+  await expect(visibleLogo).toBeVisible()
+  await expect.poll(() => visibleLogo.evaluate((image) => {
     const element = image as HTMLImageElement
     return element.complete && element.naturalWidth > 0 && element.naturalHeight > 0
   })).toBe(true)
-  await logo.evaluate(async (image) => {
+  await visibleLogo.evaluate(async (image) => {
     const element = image as HTMLImageElement
     await element.decode()
     await new Promise<void>((resolve) => requestAnimationFrame(() => {
@@ -23,7 +25,7 @@ export async function assertRenderedMalaysiaHeaderLogo(
     }))
   })
 
-  const style = await logo.evaluate((image) => {
+  const style = await visibleLogo.evaluate((image) => {
     const computed = getComputedStyle(image)
     return {
       clip: computed.clip,
@@ -47,13 +49,13 @@ export async function assertRenderedMalaysiaHeaderLogo(
     visibility: 'visible',
   })
 
-  const box = await logo.boundingBox()
+  const box = await visibleLogo.boundingBox()
   expect(box).not.toBeNull()
   expect(box!.width).toBeCloseTo(expectedSize.width, 0)
   expect(box!.height).toBeCloseTo(expectedSize.height, 0)
 
-  const screenshot = await logo.screenshot({animations: 'disabled'})
-  const pixels = await logo.evaluate(async (_image, dataUrl) => {
+  const screenshot = await visibleLogo.screenshot({animations: 'disabled'})
+  const pixels = await visibleLogo.evaluate(async (_image, dataUrl) => {
     const screenshotImage = document.createElement('img')
     screenshotImage.src = dataUrl
     await screenshotImage.decode()

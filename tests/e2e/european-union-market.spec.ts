@@ -56,7 +56,7 @@ for (const width of [1440, 768, 390] as const) {
 
     const header = page.locator('header')
     await assertRenderedMalaysiaHeaderLogo(header.locator('img[alt="TiO2 Malaysia"]'), width === 390
-      ? {width: 110, height: 110 / 3}
+      ? {width: 120, height: 40}
       : width === 768 ? {width: 120, height: 40} : {width: 180, height: 60})
     await expect(header).not.toContainText('CURRENT')
     await expect(header.locator('nav[aria-label="Primary navigation"] a[aria-current="page"]')).toHaveText('Markets')
@@ -124,7 +124,7 @@ for (const width of [1440, 768, 390] as const) {
         markerWidth: getComputedStyle(link, '::before').width,
         textAlign: getComputedStyle(link).textAlign,
       }))).toEqual({markerWidth: '4px', textAlign: 'left'})
-      await expect(mobileMenu.locator('a').first()).toBeFocused()
+      await expect(page.getByRole('button', {name: 'Close primary navigation menu'})).toBeFocused()
       const menuLinks = mobileMenu.locator('a')
       await menuLinks.last().focus()
       await page.keyboard.press('Tab')

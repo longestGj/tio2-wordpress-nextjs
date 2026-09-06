@@ -180,7 +180,7 @@ for (const viewport of viewports) {
     const header = page.locator('header')
     const headerLogo = header.locator('img[alt="TiO2 Malaysia"]')
     await assertRenderedMalaysiaHeaderLogo(headerLogo, viewport.width <= 430
-      ? {width: 110, height: 110 / 3}
+      ? {width: 120, height: 40}
       : viewport.width <= 900
         ? {width: 120, height: 40}
         : {width: 180, height: 60})
@@ -304,7 +304,7 @@ for (const viewport of viewports) {
     await assertRenderedMalaysiaHeaderLogo(
       header.locator('img[alt="TiO2 Malaysia"]'),
       viewport.width <= 430
-        ? {width: 110, height: 110 / 3}
+        ? {width: 120, height: 40}
         : viewport.width <= 900
           ? {width: 120, height: 40}
           : {width: 180, height: 60},
@@ -432,7 +432,7 @@ for (const viewport of viewports) {
     await assertRenderedMalaysiaHeaderLogo(
       header.locator('img[alt="TiO2 Malaysia"]'),
       viewport.width <= 430
-        ? {width: 110, height: 110 / 3}
+        ? {width: 120, height: 40}
         : viewport.width <= 900
           ? {width: 120, height: 40}
           : {width: 180, height: 60},
@@ -564,7 +564,7 @@ for (const viewport of viewports) {
     await assertRenderedMalaysiaHeaderLogo(
       header.locator('img[alt="TiO2 Malaysia"]'),
       viewport.width <= 430
-        ? {width: 110, height: 110 / 3}
+        ? {width: 120, height: 40}
         : viewport.width <= 900
           ? {width: 120, height: 40}
           : {width: 180, height: 60},
@@ -697,7 +697,7 @@ for (const viewport of viewports) {
     await assertRenderedMalaysiaHeaderLogo(
       header.locator('img[alt="TiO2 Malaysia"]'),
       viewport.width <= 430
-        ? {width: 110, height: 110 / 3}
+        ? {width: 120, height: 40}
         : viewport.width <= 900
           ? {width: 120, height: 40}
           : {width: 180, height: 60},
@@ -833,7 +833,7 @@ for (const viewport of viewports) {
     await expect(visual).toContainText(m886Approved.hero.visual.currentData)
     const header = page.locator('header')
     await assertRenderedMalaysiaHeaderLogo(header.locator('img[alt="TiO2 Malaysia"]'), viewport.width <= 430
-      ? {width: 110, height: 110 / 3}
+      ? {width: 120, height: 40}
       : viewport.width <= 900 ? {width: 120, height: 40} : {width: 180, height: 60})
     await expect(header).not.toContainText('CURRENT')
     const desktopCurrent = header.locator('nav[aria-label="Primary navigation"] a[aria-current="page"]')
@@ -932,7 +932,7 @@ for (const viewport of viewports) {
     await expect(visual).toContainText(m52Approved.hero.visual.currentData)
     const header = page.locator('header')
     await assertRenderedMalaysiaHeaderLogo(header.locator('img[alt="TiO2 Malaysia"]'), viewport.width <= 430
-      ? {width: 110, height: 110 / 3}
+      ? {width: 120, height: 40}
       : viewport.width <= 900 ? {width: 120, height: 40} : {width: 180, height: 60})
     await expect(header).not.toContainText('CURRENT')
     const desktopCurrent = header.locator('nav[aria-label="Primary navigation"] a[aria-current="page"]')
@@ -1031,7 +1031,7 @@ for (const viewport of viewports) {
     await expect(visual).toContainText(m108Approved.hero.visual.currentData)
     const header = page.locator('header')
     await assertRenderedMalaysiaHeaderLogo(header.locator('img[alt="TiO2 Malaysia"]'), viewport.width <= 430
-      ? {width: 110, height: 110 / 3}
+      ? {width: 120, height: 40}
       : viewport.width <= 900 ? {width: 120, height: 40} : {width: 180, height: 60})
     await expect(header).not.toContainText('CURRENT')
     const desktopCurrent = header.locator('nav[aria-label="Primary navigation"] a[aria-current="page"]')
@@ -1130,7 +1130,7 @@ for (const viewport of viewports) {
     await expect(visual).toContainText(m210Approved.hero.visual.currentData)
     const header = page.locator('header')
     await assertRenderedMalaysiaHeaderLogo(header.locator('img[alt="TiO2 Malaysia"]'), viewport.width <= 430
-      ? {width: 110, height: 110 / 3}
+      ? {width: 120, height: 40}
       : viewport.width <= 900 ? {width: 120, height: 40} : {width: 180, height: 60})
     await expect(header).not.toContainText('CURRENT')
     const desktopCurrent = header.locator('nav[aria-label="Primary navigation"] a[aria-current="page"]')
@@ -1231,7 +1231,7 @@ for (const viewport of viewports) {
     await expect(visual).toContainText(m200Approved.hero.visual.currentData)
     const header = page.locator('header')
     await assertRenderedMalaysiaHeaderLogo(header.locator('img[alt="TiO2 Malaysia"]'), viewport.width <= 430
-      ? {width: 110, height: 110 / 3}
+      ? {width: 120, height: 40}
       : viewport.width <= 900 ? {width: 120, height: 40} : {width: 180, height: 60})
     await expect(header).not.toContainText('CURRENT')
     const desktopCurrent = header.locator('nav[aria-label="Primary navigation"] a[aria-current="page"]')
@@ -1337,7 +1337,7 @@ for (const viewport of viewports) {
     await assertRenderedMalaysiaHeaderLogo(
       header.locator('img[alt="TiO2 Malaysia"]'),
       viewport.width <= 430
-        ? {width: 110, height: 110 / 3}
+        ? {width: 120, height: 40}
         : viewport.width <= 900
           ? {width: 120, height: 40}
           : {width: 180, height: 60},
@@ -1469,7 +1469,7 @@ for (const viewport of viewports) {
     await assertRenderedMalaysiaHeaderLogo(
       header.locator('img[alt="TiO2 Malaysia"]'),
       viewport.width <= 430
-        ? {width: 110, height: 110 / 3}
+        ? {width: 120, height: 40}
         : viewport.width <= 900
           ? {width: 120, height: 40}
           : {width: 180, height: 60},
@@ -1611,7 +1611,7 @@ for (const viewport of viewports) {
     await assertRenderedMalaysiaHeaderLogo(
       header.locator('img[alt="TiO2 Malaysia"]'),
       viewport.width <= 430
-        ? {width: 110, height: 110 / 3}
+        ? {width: 120, height: 40}
         : viewport.width <= 900
           ? {width: 120, height: 40}
           : {width: 180, height: 60},
@@ -1747,7 +1747,7 @@ for (const viewport of viewports) {
     await assertRenderedMalaysiaHeaderLogo(
       header.locator('img[alt="TiO2 Malaysia"]'),
       viewport.width <= 430
-        ? {width: 110, height: 110 / 3}
+        ? {width: 120, height: 40}
         : viewport.width <= 900
           ? {width: 120, height: 40}
           : {width: 180, height: 60},

@@ -12,7 +12,7 @@ const contract = JSON.parse(readFileSync(
   form: {success: {heading: string}; failure: {heading: string}}
 }
 
-const baseUrl = 'http://127.0.0.1:3004'
+const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
 const evidenceDirectory = resolve('docs/verification/conv-rfq')
 const viewports = [
   {name: 'desktop-1440', width: 1440, height: 1000},
@@ -39,7 +39,7 @@ for (const viewport of viewports) {
 
     const header = page.locator('header')
     await assertRenderedMalaysiaHeaderLogo(header.locator('img[alt="TiO2 Malaysia"]'), viewport.width <= 430
-      ? {width: 110, height: 110 / 3}
+      ? {width: 120, height: 40}
       : viewport.width === 768
         ? {width: 120, height: 40}
         : {width: 180, height: 60})

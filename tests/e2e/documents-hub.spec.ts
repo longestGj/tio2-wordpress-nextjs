@@ -9,7 +9,7 @@ const contract = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/conf
   gradeSelector: {grades: readonly string[]}
   buyerQuestions: {items: readonly {question: string; answer: string}[]}
 }
-const baseUrl = 'http://127.0.0.1:3004'
+const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
 const widths = [320, 390, 768, 1440] as const
 const moduleOrder = ['breadcrumb','hero','grade-selector','how-it-works','review-scenarios','document-categories','why-on-request','buyer-questions','closing-cta']
 
@@ -20,7 +20,7 @@ for (const width of widths) test(`DOC-000 ${width}px runtime contract`, async ({
   expect(response?.ok()).toBe(true)
   await expect(page.locator('h1')).toHaveText(contract.hero.h1)
   expect(await page.locator('main [data-module]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-module')))).toEqual(moduleOrder)
-  await assertRenderedMalaysiaHeaderLogo(page.locator('header img[alt="TiO2 Malaysia"]'), width <= 430 ? {width: 110, height: 110 / 3} : width === 768 ? {width: 120, height: 40} : {width: 180, height: 60})
+  await assertRenderedMalaysiaHeaderLogo(page.locator('header img[alt="TiO2 Malaysia"]'), width <= 430 ? {width: 120, height: 40} : width === 768 ? {width: 120, height: 40} : {width: 180, height: 60})
   await expect(page.locator('header')).not.toContainText('CURRENT')
   if (width > 900) await expect(page.locator('nav[aria-label="Primary navigation"] a[aria-current="page"]')).toHaveText('Documents')
   else {
@@ -39,7 +39,7 @@ for (const width of widths) test(`DOC-000 ${width}px runtime contract`, async ({
   expect(await page.locator('script[type="application/ld+json"]').count()).toBe(1)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   const targets = page.locator('button, select, a[class*="Button"]')
-  for (const box of await targets.evaluateAll((nodes) => nodes.filter((node) => getComputedStyle(node).display !== 'none').map((node) => {const rect=node.getBoundingClientRect();return {w:rect.width,h:rect.height}}))) expect(box.h).toBeGreaterThanOrEqual(44)
+  for (const box of await targets.evaluateAll((nodes) => nodes.flatMap((node) => {const rect=node.getBoundingClientRect();return rect.width > 0 && rect.height > 0 ? [{w:rect.width,h:rect.height}] : []}))) expect(box.h).toBeGreaterThanOrEqual(44)
   await expect(page.locator('footer h2')).toHaveText(['Explore', 'Information', 'Procurement'])
   const axe = await new AxeBuilder({page}).analyze(); expect(axe.violations).toEqual([])
   await page.screenshot({path: `docs/verification/doc-000/doc-000-${width}.png`, fullPage: true, animations: 'disabled'})

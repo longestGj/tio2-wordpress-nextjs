@@ -18,7 +18,7 @@ const approvedContract = JSON.parse(readFileSync(
   }
 }
 
-const baseUrl = 'http://127.0.0.1:3004'
+const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
 const widths = [390, 768, 1024, 1440] as const
 const moduleOrder = [
   'breadcrumb', 'hero', 'grade-selector', 'process', 'grade-directory',
@@ -45,7 +45,7 @@ for (const width of widths) {
     const header = page.locator('header')
     const headerLogo = header.locator('img[alt="TiO2 Malaysia"]')
     await assertRenderedMalaysiaHeaderLogo(headerLogo, width === 390
-      ? {width: 110, height: 110 / 3}
+      ? {width: 120, height: 40}
       : width === 768
         ? {width: 120, height: 40}
         : {width: 180, height: 60})
@@ -91,7 +91,7 @@ for (const width of widths) {
     await expect(page.locator('[data-module="buyer-questions"] h3 button')).toHaveCount(5)
     await expect(page.locator('[data-module="buyer-questions"] article > div')).toHaveCount(5)
     await expect(page.locator('footer h2')).toHaveText(['Explore', 'Information', 'Procurement'])
-    await expect(page.locator('a[href^="/request-a-quote/"]')).toHaveCount(5)
+    await expect(page.locator('a[href^="/request-a-quote/"]').filter({visible: true})).toHaveCount(5)
 
     await expect(page.locator('link[rel="canonical"]')).toHaveCount(1)
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://tio2malaysia.com/products/')

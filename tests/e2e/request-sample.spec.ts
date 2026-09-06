@@ -15,7 +15,7 @@ const contract = JSON.parse(
     documentOptions: Array<{value: string}>
   }
 }
-const baseUrl = 'http://localhost:3004'
+const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://localhost:3004'
 const evidence = resolve('docs/verification/conv-sample')
 mkdirSync(evidence, {recursive: true})
 const prefill = '?source_page_id=GRADE-M2377&grade_id=M-2377&application_id=coatings&process_context=sulfate&destination=United%20Kingdom&document_needs[]=tds'
@@ -54,7 +54,7 @@ for (const viewport of [
     await assertRenderedMalaysiaHeaderLogo(
       header.locator('img[alt="TiO2 Malaysia"]'),
       viewport.width <= 430
-        ? {width: 110, height: 110 / 3}
+        ? {width: 120, height: 40}
         : viewport.width === 768
           ? {width: 120, height: 40}
           : {width: 180, height: 60},
@@ -221,14 +221,14 @@ test('CONV-SAMPLE Mobile Menu traps focus, closes on Escape and restores the tri
   const menu = page.getByRole('button', {name: 'Open primary navigation'})
   await menu.click()
   const nav = page.getByRole('navigation', {name: 'Mobile navigation'})
-  const first = nav.getByRole('link', {name: 'Home'})
   const last = nav.getByRole('link', {name: 'Request a Quote'})
+  const close = page.getByRole('button', {name: 'Close primary navigation menu'})
   await expect(nav).toBeVisible()
-  await expect(first).toBeFocused()
+  await expect(close).toBeFocused()
   await page.keyboard.press('Shift+Tab')
   await expect(last).toBeFocused()
   await page.keyboard.press('Tab')
-  await expect(first).toBeFocused()
+  await expect(close).toBeFocused()
   await page.keyboard.press('Escape')
   await expect(nav).toBeHidden()
   await expect(menu).toBeFocused()

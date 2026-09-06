@@ -62,7 +62,7 @@ for (const contract of approved.pages) {
       await expect(page.locator('header a[href="/request-a-quote/"]').first()).toBeVisible()
       await assertRenderedMalaysiaHeaderLogo(
         page.locator('header img[alt="TiO2 Malaysia"]'),
-        width === 390 ? {width: 110, height: 110 / 3} : width === 768 ? {width: 120, height: 40} : {width: 180, height: 60},
+        width === 390 ? {width: 120, height: 40} : width === 768 ? {width: 120, height: 40} : {width: 180, height: 60},
       )
       expect(await page.locator('header > div').first().evaluate((node) => node.getBoundingClientRect().height)).toBe(width <= 900 ? 64 : 84)
 

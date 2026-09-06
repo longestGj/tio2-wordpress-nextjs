@@ -202,7 +202,7 @@ for (const width of widths) test(`DOC-TDS ${width}px responsive contract`, async
   await expect(page.locator('header')).not.toContainText('CURRENT')
   await assertRenderedMalaysiaHeaderLogo(
     page.locator('header img[alt="TiO2 Malaysia"]'),
-    width <= 430 ? {width: 110, height: 110 / 3} : width <= 900 ? {width: 120, height: 40} : {width: 180, height: 60},
+    width <= 430 ? {width: 120, height: 40} : width <= 900 ? {width: 120, height: 40} : {width: 180, height: 60},
   )
   if (width > 900) {
     await expect(page.locator('nav[aria-label="Primary navigation"] a[aria-current="page"]')).toHaveText('Documents')

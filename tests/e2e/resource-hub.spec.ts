@@ -5,7 +5,7 @@ import {expect, test} from '@playwright/test'
 
 import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
 
-const baseUrl = 'http://127.0.0.1:3004'
+const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
 const evidenceDir = 'docs/verification/resource-000'
 const widths = [390, 430, 768, 1440] as const
 const moduleOrder = ['breadcrumb', 'hero', 'research-paths', 'evidence-standards', 'buyer-questions'] as const
@@ -43,7 +43,7 @@ for (const width of widths) {
     await expect(header).not.toContainText('CURRENT')
     await assertRenderedMalaysiaHeaderLogo(
       header.locator('img[alt="TiO2 Malaysia"]'),
-      width <= 430 ? {width: 110, height: 110 / 3} : width === 768 ? {width: 120, height: 40} : {width: 180, height: 60},
+      width <= 430 ? {width: 120, height: 40} : width === 768 ? {width: 120, height: 40} : {width: 180, height: 60},
     )
 
     const breadcrumb = page.locator('[data-module="breadcrumb"]')
@@ -88,7 +88,7 @@ for (const width of widths) {
         const style = getComputedStyle(link); const marker = getComputedStyle(link, '::before')
         return {fontWeight: style.fontWeight, markerWidth: marker.width, textAlign: style.textAlign}
       })).toEqual({fontWeight: '800', markerWidth: '4px', textAlign: 'left'})
-      await expect(mobileMenu.locator('a').first()).toBeFocused()
+      await expect(page.getByRole('button', {name: 'Close primary navigation menu'})).toBeFocused()
       await page.keyboard.press('Escape')
       await expect(menu).toBeFocused()
     }

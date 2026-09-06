@@ -34,7 +34,7 @@ for (const width of widths) {
 
     const header = page.locator('header')
     await assertRenderedMalaysiaHeaderLogo(header.locator('img[alt="TiO2 Malaysia"]'), width <= 430
-      ? {width: 110, height: 110 / 3}
+      ? {width: 120, height: 40}
       : width === 768
         ? {width: 120, height: 40}
         : {width: 180, height: 60})

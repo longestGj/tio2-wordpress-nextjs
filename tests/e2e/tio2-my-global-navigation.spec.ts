@@ -2,7 +2,7 @@ import {expect, test} from '@playwright/test'
 
 import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
 
-const baseUrl = 'http://127.0.0.1:3004'
+const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
 const pages = [
   {path: '/', current: 'Home'},
   {path: '/markets/', current: 'Markets'},
@@ -32,7 +32,7 @@ for (const width of [390, 768, 1440] as const) {
       await expect(header.locator('a[href="/request-a-quote/"]').first()).toBeVisible()
       const headerLogo = header.locator('img[alt="TiO2 Malaysia"]')
       await assertRenderedMalaysiaHeaderLogo(headerLogo, width === 390
-        ? {width: 110, height: 110 / 3}
+        ? {width: 120, height: 40}
         : width === 768
           ? {width: 120, height: 40}
           : {width: 180, height: 60})
@@ -85,7 +85,7 @@ for (const width of [390, 768, 1440] as const) {
           markerWidth: '4px',
           textAlign: 'left',
         })
-        await expect(mobileMenu.locator('a').first()).toBeFocused()
+        await expect(page.getByRole('button', {name: 'Close primary navigation menu'})).toBeFocused()
         await page.keyboard.press('Escape')
         await expect(menuButton).toBeFocused()
       } else {

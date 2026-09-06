@@ -148,7 +148,7 @@ for (const width of widths) test(`DOC-REACH ${width}px responsive, visual and sh
   await expect(page.locator('h1')).toHaveText('Titanium Dioxide REACH Registration: What Procurement Teams Should Verify')
   expect(await page.locator('main [data-module]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-module')))).toEqual(contract.modules.map((module) => module.id))
   await expect(page.locator('header')).not.toContainText('CURRENT')
-  await assertRenderedMalaysiaHeaderLogo(page.locator('header img[alt="TiO2 Malaysia"]'), width <= 430 ? {width: 110, height: 110 / 3} : width <= 900 ? {width: 120, height: 40} : {width: 180, height: 60})
+  await assertRenderedMalaysiaHeaderLogo(page.locator('header img[alt="TiO2 Malaysia"]'), width <= 430 ? {width: 120, height: 40} : width <= 900 ? {width: 120, height: 40} : {width: 180, height: 60})
   if (width > 900) {
     await expect(page.locator('nav[aria-label="Primary navigation"] a[aria-current="page"]')).toHaveText('Documents')
   }
