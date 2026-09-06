@@ -58,7 +58,7 @@ describe.runIf(process.platform === 'win32')('local WordPress env generator', ()
     expect(new Set(secrets).size).toBe(secretNames.length)
   })
 
-  it('rotates a legacy environment without replacing its database or URL settings', () => {
+  it('rotates a legacy environment, preserves its settings, and backfills new site keys', () => {
     const directory = mkdtempSync(join(tmpdir(), 'tio2-wordpress-env-rotate-'))
     temporaryDirectories.push(directory)
     const outputPath = join(directory, '.env')
@@ -106,6 +106,18 @@ describe.runIf(process.platform === 'win32')('local WordPress env generator', ()
     expect(output).toContain('WORDPRESS_DB_PASSWORD=retained_database_password')
     expect(output).toContain('WORDPRESS_ADMIN_EMAIL=retained@example.test')
     expect(output).toContain('WORDPRESS_ADMIN_USER=tio2-local-editor')
+    expect(output).toContain(
+      'NEXTJS_REVALIDATION_URL_TIO2_MY=http://host.docker.internal:3003/api/revalidate',
+    )
+    expect(output).toMatch(
+      /^NEXTJS_REVALIDATION_SECRET_TIO2_MY=[0-9a-f]{64}$/mu,
+    )
+    expect(output).toContain(
+      'NEXTJS_PREVIEW_URL_TIO2_MY=http://127.0.0.1:3003/api/preview',
+    )
+    expect(output).toMatch(
+      /^NEXTJS_PREVIEW_SECRET_TIO2_MY=[0-9a-f]{64}$/mu,
+    )
     expect(output).not.toContain(legacySecret)
   })
 

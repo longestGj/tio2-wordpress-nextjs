@@ -672,6 +672,9 @@ function tio2_site_a_editorial_find_wp_path(string $path, string $expected_entit
             'resourceId' => (string) get_post_meta($post_id, 'resource_id', true),
             'scopes' => array_values($scopes),
         ];
+        if ([] !== $owner['scopes'] && ! in_array('tio2-a', $owner['scopes'], true)) {
+            continue;
+        }
         $owner_entity_type = ['tio2_application' => 'application', 'tio2_document' => 'resource'][$owner['postType']] ?? null;
         $owner_id = 'application' === $owner_entity_type ? $owner['applicationId'] : ('resource' === $owner_entity_type ? $owner['resourceId'] : null);
         $opposite_id = 'application' === $owner_entity_type ? $owner['resourceId'] : $owner['applicationId'];

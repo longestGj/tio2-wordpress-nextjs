@@ -56,11 +56,12 @@ tio2_site_a_editorial_find_wp_record('application', 'coatings');
 $GLOBALS['controlled_path_ids'] = [901];
 $GLOBALS['controlled_path_records'] = [901 => ['postType' => 'page', 'status' => 'draft', 'post_name' => 'intruder', 'post_title' => 'Intruder', 'public_path' => '/applications/coatings', 'application_id' => '', 'resource_id' => '', 'scopes' => ['tio2-a']]];
 try { tio2_site_a_editorial_find_wp_path('/applications/coatings', 'application', 'coatings'); throw new RuntimeException('Wrong-type canonical path owner was accepted.'); } catch (RuntimeException $expected) { if (!str_contains($expected->getMessage(), 'owned by another record')) throw $expected; }
-$GLOBALS['controlled_path_ids'] = [11, 516, 902];
+$GLOBALS['controlled_path_ids'] = [11, 516, 902, 903];
 $GLOBALS['controlled_path_records'] = [
     11 => ['postType' => 'page', 'status' => 'publish', 'post_name' => 'tio2-a--applications', 'post_title' => 'Site A Synthetic Test Applications', 'public_path' => '/applications', 'application_id' => '', 'resource_id' => '', 'scopes' => ['tio2-a']],
     516 => ['postType' => 'page', 'status' => 'publish', 'post_name' => 'tio2-b--applications', 'post_title' => 'Site B Synthetic Test Applications', 'public_path' => '/applications', 'application_id' => '', 'resource_id' => '', 'scopes' => ['tio2-b']],
     902 => ['postType' => 'tio2_application', 'status' => 'draft', 'post_name' => 'applications', 'post_title' => 'Applications', 'public_path' => '/applications', 'application_id' => 'applications-hub', 'resource_id' => '', 'scopes' => ['tio2-a']],
+    903 => ['postType' => 'tio2_resource_hub', 'status' => 'publish', 'post_name' => 'tio2-my-applications', 'post_title' => 'TiO2 Malaysia Applications', 'public_path' => '/applications', 'application_id' => '', 'resource_id' => '', 'scopes' => ['tio2-my']],
 ];
 $managed_path_owner = tio2_site_a_editorial_find_wp_path('/applications', 'application', 'applications-hub');
 if (['entityType' => 'application', 'id' => 'applications-hub'] !== $managed_path_owner) throw new RuntimeException('Exact generic route shells did not preserve the managed path owner.');

@@ -49,8 +49,10 @@ describe('WordPress bootstrap readiness', () => {
         'WORDPRESS_ADMIN_EMAIL=admin@example.test',
         `NEXTJS_REVALIDATION_SECRET_TIO2_A=${'b'.repeat(64)}`,
         `NEXTJS_REVALIDATION_SECRET_TIO2_B=${'c'.repeat(64)}`,
+        `NEXTJS_REVALIDATION_SECRET_TIO2_MY=${'f'.repeat(64)}`,
         `NEXTJS_PREVIEW_SECRET_TIO2_A=${'d'.repeat(64)}`,
         `NEXTJS_PREVIEW_SECRET_TIO2_B=${'e'.repeat(64)}`,
+        `NEXTJS_PREVIEW_SECRET_TIO2_MY=${'0'.repeat(64)}`,
       ].join('\n'),
     )
     writeFileSync(join(wordpressDirectory, 'docker-compose.yml'), 'services: {}\n')
@@ -212,8 +214,10 @@ exit 0
         'WORDPRESS_ADMIN_EMAIL=admin@example.test',
         `NEXTJS_REVALIDATION_SECRET_TIO2_A=${'b'.repeat(64)}`,
         `NEXTJS_REVALIDATION_SECRET_TIO2_B=${'c'.repeat(64)}`,
+        `NEXTJS_REVALIDATION_SECRET_TIO2_MY=${'f'.repeat(64)}`,
         `NEXTJS_PREVIEW_SECRET_TIO2_A=${'d'.repeat(64)}`,
         `NEXTJS_PREVIEW_SECRET_TIO2_B=${'e'.repeat(64)}`,
+        `NEXTJS_PREVIEW_SECRET_TIO2_MY=${'0'.repeat(64)}`,
       ].join('\n'),
     )
     writeFileSync(join(wordpressDirectory, 'docker-compose.yml'), 'services: {}\n')

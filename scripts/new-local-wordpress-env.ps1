@@ -48,9 +48,11 @@ $SourcePath = if ((Test-Path -LiteralPath $OutputPath) -and $Force) {
 } else {
     $TemplatePath
 }
+$ExistingNames = @{}
 $OutputLines = foreach ($Line in Get-Content -LiteralPath $SourcePath) {
     if ($Line -match '^([^#=]+)=(.*)$') {
         $Name = $Matches[1]
+        $ExistingNames[$Name] = $true
         if ($GeneratedValues.ContainsKey($Name)) {
             "$Name=$($GeneratedValues[$Name])"
             continue
@@ -61,6 +63,22 @@ $OutputLines = foreach ($Line in Get-Content -LiteralPath $SourcePath) {
         }
     }
     $Line
+}
+foreach ($TemplateLine in Get-Content -LiteralPath $TemplatePath) {
+    if ($TemplateLine -notmatch '^([^#=]+)=(.*)$') {
+        continue
+    }
+    $Name = $Matches[1]
+    if ($ExistingNames.ContainsKey($Name)) {
+        continue
+    }
+    if ($GeneratedValues.ContainsKey($Name)) {
+        $OutputLines += "$Name=$($GeneratedValues[$Name])"
+    }
+    else {
+        $OutputLines += $TemplateLine
+    }
+    $ExistingNames[$Name] = $true
 }
 
 $OutputDirectory = Split-Path -Parent $OutputPath
