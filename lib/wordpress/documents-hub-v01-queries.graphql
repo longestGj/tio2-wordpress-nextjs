@@ -1,0 +1,3 @@
+query GetMalaysiaDocumentsHubV01 {
+  malaysiaDocumentsHubRecordJson
+}

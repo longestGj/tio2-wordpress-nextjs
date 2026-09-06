@@ -1,0 +1,418 @@
+{
+  "packageId": "HOME-001-G7-HANDOFF-01",
+  "identity": {
+    "pageId": "HOME-001",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "path": "/",
+    "schemaVersion": "homepage-v0.4-malaysia",
+    "lifecycle": "APPROVED_FOR_HANDOFF"
+  },
+  "seo": {
+    "title": "Malaysia Titanium Dioxide Supplier | TiO₂ Malaysia",
+    "description": "Explore titanium dioxide grades, applications, destination markets and document request paths through TiO₂ Malaysia for international industrial buyers.",
+    "canonical": "https://tio2malaysia.com/",
+    "robots": "index, follow",
+    "h1": "Malaysia Titanium Dioxide for Industrial Buyers",
+    "primaryKeyword": "malaysia titanium dioxide"
+  },
+  "schemaGraph": {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://tio2malaysia.com/#website",
+        "url": "https://tio2malaysia.com/",
+        "name": "TiO₂ Malaysia",
+        "inLanguage": "en",
+        "publisher": {
+          "@id": "https://tio2malaysia.com/#organization"
+        }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://tio2malaysia.com/#webpage",
+        "url": "https://tio2malaysia.com/",
+        "name": "Malaysia Titanium Dioxide for Industrial Buyers",
+        "isPartOf": {
+          "@id": "https://tio2malaysia.com/#website"
+        },
+        "about": [
+          {
+            "@id": "https://tio2malaysia.com/#brand"
+          },
+          {
+            "@id": "https://tio2malaysia.com/#organization"
+          },
+          {
+            "@id": "https://tio2malaysia.com/#titanium-dioxide"
+          }
+        ],
+        "inLanguage": "en"
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://tio2malaysia.com/#organization",
+        "name": "IKHLAS TITANIUM (MALAYSIA) SDN. BHD."
+      },
+      {
+        "@type": "Brand",
+        "@id": "https://tio2malaysia.com/#brand",
+        "name": "TiO₂ Malaysia"
+      },
+      {
+        "@type": "Product",
+        "@id": "https://tio2malaysia.com/#titanium-dioxide",
+        "name": "Titanium Dioxide",
+        "description": "Fourteen titanium dioxide grades organised into four product groups.",
+        "brand": {
+          "@id": "https://tio2malaysia.com/#brand"
+        },
+        "manufacturer": {
+          "@id": "https://tio2malaysia.com/#organization"
+        }
+      }
+    ]
+  },
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-005",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"
+  },
+  "hero": {
+    "eyebrow": "FOR INTERNATIONAL INDUSTRIAL BUYERS",
+    "heading": "Malaysia Titanium Dioxide for Industrial Buyers",
+    "body": "For international industrial buyers sourcing titanium dioxide from Malaysia, explore product grades, destination markets, applications, procurement documents and quotation requirements from one clear starting point.",
+    "primaryCta": {
+      "targetPageId": "CONV-RFQ",
+      "label": "Request a Quote",
+      "href": "/request-a-quote/",
+      "mappingState": "PLANNED_CONVERSION"
+    },
+    "secondaryCta": {
+      "targetPageId": "PRODUCT-000",
+      "label": "View Products",
+      "href": "/products/",
+      "mappingState": "APPROVED"
+    },
+    "media": {
+      "src": "/tio2-my/homepage-hero-material-reference.png",
+      "alt": "",
+      "width": 1122,
+      "height": 1402,
+      "role": "ATMOSPHERE_ONLY",
+      "assetState": "CLEARANCE_REQUIRED"
+    }
+  },
+  "startHere": {
+    "label": "START HERE",
+    "intro": "Select a starting point based on your market, product or documentation needs.",
+    "items": [
+      {
+        "targetPageId": "MARKET-000",
+        "title": "Markets",
+        "description": "Destination markets",
+        "href": "/markets/",
+        "mappingState": "APPROVED"
+      },
+      {
+        "targetPageId": "PRODUCT-000",
+        "title": "Products",
+        "description": "Fourteen grades",
+        "href": "/products/",
+        "mappingState": "APPROVED"
+      },
+      {
+        "targetPageId": "DOC-000",
+        "title": "Documents",
+        "description": "Guidance and requests",
+        "href": "/documents/",
+        "mappingState": "PLANNED_ARCHITECTURE"
+      }
+    ]
+  },
+  "markets": {
+    "eyebrow": "MARKETS",
+    "heading": "Start with your destination market",
+    "intro": "Select your destination market to review relevant sourcing, product and documentation considerations.",
+    "items": [
+      {
+        "targetPageId": "MARKET-EU-001",
+        "code": "EU",
+        "title": "European Union",
+        "description": "Review product, sourcing and documentation considerations for the European Union market.",
+        "ctaLabel": "European Union market →",
+        "href": "/markets/european-union/",
+        "mappingState": "APPROVED"
+      },
+      {
+        "targetPageId": "MARKET-UK-001",
+        "code": "UK",
+        "title": "United Kingdom",
+        "description": "Review product, sourcing and documentation considerations for the United Kingdom market.",
+        "ctaLabel": "United Kingdom market →",
+        "href": "/markets/united-kingdom/",
+        "mappingState": "APPROVED"
+      },
+      {
+        "targetPageId": "MARKET-IN-001",
+        "code": "IN",
+        "title": "India",
+        "description": "Review product, sourcing and quotation considerations for the India market.",
+        "ctaLabel": "India market →",
+        "href": "/markets/india/",
+        "mappingState": "APPROVED"
+      },
+      {
+        "targetPageId": "MARKET-BR-EN",
+        "code": "BR",
+        "title": "Brazil",
+        "description": "Review product, sourcing and documentation considerations for the Brazil market.",
+        "ctaLabel": "Brazil market →",
+        "href": "/markets/brazil/",
+        "mappingState": "APPROVED"
+      }
+    ],
+    "sectionCta": {
+      "targetPageId": "MARKET-000",
+      "label": "View All Markets →",
+      "href": "/markets/",
+      "mappingState": "APPROVED"
+    }
+  },
+  "products": {
+    "eyebrow": "PRODUCTS",
+    "heading": "Four product groups. Fourteen grades.",
+    "intro": "Compare grades by product group and intended use, then continue to the relevant product page for detailed information.",
+    "countLabel": "14 GRADES ACROSS FOUR PRODUCT GROUPS",
+    "groups": [
+      {
+        "title": "Coatings Grades",
+        "description": "Grades grouped for coatings applications and product selection.",
+        "gradeIds": ["M-350", "M-510", "M-896", "M-996", "M-2196", "M-895"]
+      },
+      {
+        "title": "Plastics & Masterbatch Grades",
+        "description": "Grades for plastics processing and masterbatch applications.",
+        "gradeIds": ["M-200", "M-108", "M-210", "M-340", "M-886"]
+      },
+      {
+        "title": "Inks & Multi-Application",
+        "description": "Grades for printing inks and selected multi-application uses.",
+        "gradeIds": ["M-52", "M-2377"]
+      },
+      {
+        "title": "Specialty Grade",
+        "description": "A specialty grade for selected product and application requirements.",
+        "gradeIds": ["CR-901"]
+      }
+    ],
+    "processLinks": [
+      {
+        "targetPageId": "PRODUCT-PROC-CL",
+        "label": "Chloride Process →",
+        "href": "/products/chloride-process-titanium-dioxide/",
+        "mappingState": "APPROVED"
+      },
+      {
+        "targetPageId": "PRODUCT-PROC-SU",
+        "label": "Sulfate Process →",
+        "href": "/products/sulfate-process-titanium-dioxide/",
+        "mappingState": "APPROVED"
+      }
+    ],
+    "primaryCta": {
+      "targetPageId": "PRODUCT-000",
+      "label": "View All 14 Grades",
+      "href": "/products/",
+      "mappingState": "APPROVED"
+    }
+  },
+  "applications": {
+    "eyebrow": "APPLICATIONS",
+    "heading": "Explore by use case",
+    "intro": "Choose the application that best matches your product, formulation or processing requirements.",
+    "items": [
+      {
+        "targetPageId": "APP-COAT",
+        "symbol": "C",
+        "title": "Coatings",
+        "description": "Review titanium dioxide for coatings and the key criteria used to compare suitable grades.",
+        "ctaLabel": "Coatings information →",
+        "href": null,
+        "mappingState": "PROVISIONAL_URL"
+      },
+      {
+        "targetPageId": "APP-PLAS",
+        "symbol": "P",
+        "title": "Plastics",
+        "description": "Review titanium dioxide for plastics processing and the factors used to compare suitable grades.",
+        "ctaLabel": "Plastics information →",
+        "href": null,
+        "mappingState": "PROVISIONAL_URL"
+      },
+      {
+        "targetPageId": "APP-MB",
+        "symbol": "M",
+        "title": "Masterbatch",
+        "description": "Review titanium dioxide for masterbatch production and relevant grade-selection factors. This refers to TiO₂ input, not finished masterbatch supply.",
+        "ctaLabel": "Masterbatch information →",
+        "href": null,
+        "mappingState": "PROVISIONAL_URL"
+      },
+      {
+        "targetPageId": "APP-INK",
+        "symbol": "I",
+        "title": "Printing Inks",
+        "description": "Review titanium dioxide for printing ink applications and related product options.",
+        "ctaLabel": "Printing inks information →",
+        "href": null,
+        "mappingState": "PROVISIONAL_URL"
+      },
+      {
+        "targetPageId": "APP-PAPER",
+        "symbol": "P",
+        "title": "Paper",
+        "description": "Review titanium dioxide for paper applications and relevant product information.",
+        "ctaLabel": "Paper information →",
+        "href": null,
+        "mappingState": "PROVISIONAL_URL"
+      }
+    ]
+  },
+  "company": {
+    "eyebrow": "COMPANY & SUPPLY",
+    "heading": "Know the company behind TiO₂ Malaysia",
+    "body": "TiO₂ Malaysia is operated by IKHLAS TITANIUM (MALAYSIA) SDN. BHD., a titanium dioxide manufacturer. Visit the About section for company details, supply information, and available information on origin and documentation.",
+    "cta": {
+      "targetPageId": "ABOUT-001",
+      "label": "About TiO₂ Malaysia →",
+      "href": "/about/",
+      "mappingState": "APPROVED"
+    },
+    "entityName": "IKHLAS TITANIUM (MALAYSIA) SDN. BHD.",
+    "summaries": [
+      {
+        "title": "Supply overview",
+        "description": "Understand the product, market and procurement scope."
+      },
+      {
+        "title": "Company information",
+        "description": "Review the operating entity and company details."
+      },
+      {
+        "title": "Origin & documentation",
+        "description": "Review available information on origin and related documentation."
+      }
+    ]
+  },
+  "documents": {
+    "eyebrow": "DOCUMENTS",
+    "heading": "Access product and procurement documentation",
+    "intro": "Use the Documents Hub to review document types and guidance, or submit a request when documentation is needed for a specific product or purchasing requirement.",
+    "items": [
+      {
+        "targetPageId": "DOC-000",
+        "title": "Documents Hub",
+        "description": "Review guidance on product, sourcing and compliance documentation.",
+        "ctaLabel": "View Document Information →",
+        "href": "/documents/",
+        "mappingState": "PLANNED_ARCHITECTURE"
+      },
+      {
+        "targetPageId": "CONV-DOC",
+        "title": "Request Documents",
+        "description": "Request documentation for a specific product, application or purchasing requirement.",
+        "ctaLabel": "Request Documents →",
+        "href": "/request-documents/",
+        "mappingState": "PLANNED_CONVERSION"
+      }
+    ]
+  },
+  "resources": {
+    "eyebrow": "RESOURCES & BUYER ANSWERS",
+    "heading": "Technical and sourcing topics for purchasing teams",
+    "intro": "Use the short answers below for initial guidance, then open the relevant resource for detailed context and supporting evidence.",
+    "topics": [
+      {
+        "targetPageId": "RES-ORIGIN",
+        "title": "Alternative-origin sourcing considerations",
+        "description": "Review the factors buyers may need to assess when comparing sourcing origins, including trade measures and documentation requirements.",
+        "ctaLabel": "Read sourcing considerations →",
+        "href": "/resources/non-china-titanium-dioxide/",
+        "mappingState": "APPROVED"
+      },
+      {
+        "targetPageId": "RES-PROC",
+        "title": "Chloride and sulfate process overview",
+        "description": "Understand chloride and sulfate process terminology before comparing relevant titanium dioxide grades.",
+        "ctaLabel": "Read process overview →",
+        "href": null,
+        "mappingState": "PAGE_AND_ROUTE_NOT_APPROVED"
+      }
+    ],
+    "answers": [
+      {
+        "question": "Where should buyers start?",
+        "answer": "Start with the destination market, then narrow the search by application or product group and confirm the documentation needed for purchasing.",
+        "cta": {
+          "targetPageId": "MARKET-000",
+          "label": "Market information →",
+          "href": "/markets/",
+          "mappingState": "APPROVED"
+        }
+      },
+      {
+        "question": "How are the products organised?",
+        "answer": "Fourteen grades are organised into four product groups: coatings, plastics & masterbatch, inks & multi-application, and specialty grades.",
+        "cta": {
+          "targetPageId": "PRODUCT-000",
+          "label": "View all 14 grades →",
+          "href": "/products/",
+          "mappingState": "APPROVED"
+        }
+      },
+      {
+        "question": "How can a quotation request be prepared?",
+        "answer": "Include the destination market, application, preferred grade if known, quantity, packaging requirements and required documents.",
+        "cta": {
+          "targetPageId": "CONV-RFQ",
+          "label": "Request a Quote →",
+          "href": "/request-a-quote/",
+          "mappingState": "PLANNED_CONVERSION"
+        }
+      }
+    ]
+  },
+  "pageRfq": {
+    "eyebrow": "REQUEST A QUOTE",
+    "heading": "Prepare a structured quotation request",
+    "body": "Provide the key purchasing details needed to structure your quotation request.",
+    "fieldSummaries": [
+      "Destination Market",
+      "Application",
+      "Grade / Product",
+      "Quantity",
+      "Packaging",
+      "Document Needs"
+    ],
+    "cta": {
+      "targetPageId": "CONV-RFQ",
+      "label": "Request a Quote",
+      "href": "/request-a-quote/",
+      "mappingState": "PLANNED_CONVERSION"
+    }
+  },
+  "footer": {
+    "description": "Titanium dioxide product, market and procurement information for international industrial buyers.",
+    "explore": ["HOME-001", "MARKET-000", "PRODUCT-000", "APP-000"],
+    "information": ["DOC-000", "RES-000", "ABOUT-001"],
+    "procurement": "CONV-RFQ",
+    "copyright": "© 2026 TiO2 Malaysia."
+  },
+  "responsive": {
+    "mobileMaxWidth": 767,
+    "desktopTabletPageRfq": true,
+    "mobilePageRfq": false,
+    "mobileProductGroupsCollapsed": true
+  }
+}

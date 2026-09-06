@@ -9,6 +9,8 @@ import {
   makeHomepageNode,
   makeSiteAEditorialHomepageNode,
 } from '@/tests/mocks/handlers'
+import approvedMalaysiaContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json'
+import {toMalaysiaHomepageDto} from '@/lib/wordpress/homepage-v04-dto'
 
 function homepageFixture(): HomepageDto {
   return toHomepageDto(makeHomepageNode('tio2-b'), 'tio2-b', {
@@ -41,6 +43,20 @@ function collectJsonLdTypes(value: unknown): string[] {
 }
 
 describe('homepage JSON-LD', () => {
+  it('emits the approved Malaysia five-node graph without inferred fields', async () => {
+    const {buildHomepageJsonLd} = await import('@/lib/seo/homepage-jsonld')
+    const homepage = toMalaysiaHomepageDto({
+      id: 'homepage-my-1', modifiedGmt: '2026-08-31T01:02:03', status: 'publish',
+      siteScopes: {nodes: [{slug: 'tio2-my'}]},
+      homepageFields: {homepageSchemaVersion: 'homepage-v0.4-malaysia'},
+      malaysiaHomepageContractJson: JSON.stringify(approvedMalaysiaContract),
+    })
+    const graph = buildHomepageJsonLd(getSiteConfig('tio2-my'), homepage)
+    expect(graph).toEqual(approvedMalaysiaContract.schemaGraph)
+    expect((graph as {'@graph': unknown[]})['@graph']).toHaveLength(5)
+    expect(JSON.stringify(graph).match(/"manufacturer"/gu)).toHaveLength(1)
+    expect(JSON.stringify(graph)).not.toMatch(/FAQPage|Offer|ItemList|ContactPoint|PostalAddress|sameAs|ProductGroup|countryOfOrigin|price|inventory|availability|rating|GTIN/u)
+  })
   it('emits only base schema for the Site A v0.2 visible content', async () => {
     const {buildHomepageJsonLd} = await import('@/lib/seo/homepage-jsonld')
     const graph = buildHomepageJsonLd(

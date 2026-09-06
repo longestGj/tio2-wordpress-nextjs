@@ -1,6 +1,7 @@
 import type {SiteId} from '@/sites'
 import type {SiteAEditorialHomepageDto} from './homepage-v02-types'
 import type {SiteABrandHomepageDto} from './homepage-v03-types'
+import type {MalaysiaHomepageDto} from './homepage-v04-types'
 
 export interface HomepageImageDto {
   readonly src: string
@@ -143,4 +144,4 @@ export interface HomepageDto {
   readonly seo: HomepageSeoDto
 }
 
-export type AnyHomepageDto = HomepageDto | SiteAEditorialHomepageDto | SiteABrandHomepageDto
+export type AnyHomepageDto = HomepageDto | SiteAEditorialHomepageDto | SiteABrandHomepageDto | MalaysiaHomepageDto

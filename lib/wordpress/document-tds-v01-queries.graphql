@@ -1,0 +1,3 @@
+query GetMalaysiaDocumentTdsV01 {
+  malaysiaDocumentTdsRecordJson
+}

@@ -1,0 +1,146 @@
+{
+  "reviewId": "GRADE-M895-G7-PCR-01",
+  "identity": {
+    "pageId": "GRADE-M895",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "gradeCode": "M-895",
+    "slug": "m-895",
+    "path": "/products/m-895/",
+    "templateVersion": "product-detail-v1",
+    "schemaVersion": "product-detail-v0.1-malaysia",
+    "recordState": "approved_for_preview",
+    "contentRevision": "M895_GATE2_FULL_COPY_V0.1"
+  },
+  "releaseControls": {"indexingAuthorized": false, "sitemapAuthorized": false},
+  "seo": {
+    "primaryKeyword": "M-895 titanium dioxide",
+    "title": "M-895 Titanium Dioxide for Coatings | TiO2 Malaysia",
+    "description": "Evaluate M-895 titanium dioxide for architectural and industrial coatings. Review typical data, request documents or a sample, and submit an RFQ.",
+    "h1": "M-895 Titanium Dioxide for Architectural and Industrial Coatings",
+    "canonical": "https://tio2malaysia.com/products/m-895/",
+    "language": "en",
+    "robots": "noindex,nofollow"
+  },
+  "globalChromeRef": {"contractId": "GLOBAL-CHROME-005", "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01", "currentNavigationKey": "Products"},
+  "breadcrumb": [
+    {"targetPageId": "HOME-001", "label": "Home", "href": "/"},
+    {"targetPageId": "PRODUCT-000", "label": "Products", "href": "/products/"},
+    {"targetPageId": "GRADE-M895", "label": "M-895", "href": "/products/m-895/"}
+  ],
+  "moduleStatus": {"hero": "verified", "positioning": "verified", "applications": "verified", "evaluation": "verified", "technical": "verified", "documents": "verified", "originSupport": "not_public", "markets": "verified", "relatedGrades": "not_public", "sample": "verified"},
+  "hero": {
+    "eyebrow": "COATINGS · CHLORIDE PROCESS",
+    "summaryLead": "A chloride-process rutile titanium dioxide pigment documented for interior and exterior architectural coatings and industrial coatings.",
+    "summaryBody": "M-895 combines alumina and zirconia inorganic coating with organic treatment. Its current technical data identifies dispersion, opacity, gloss, a bright blue-toned white and weather resistance as key evaluation directions. Review the typical product data below and confirm suitability through testing in your own formulation, processing and application conditions.",
+    "proofs": ["M-895 TDS · V1 2026", "Coatings-focused evaluation", "Buyer formulation testing required"],
+    "visual": {"label": "M-895 product file and current TDS visual", "technicalFile": "Rutile titanium dioxide pigment · Chloride process", "currentData": "TDS · V1 2026 · Coatings grade", "note": "Product identity · documentation · formulation evaluation"},
+    "facts": [
+      {"label": "Product", "value": "M-895"},
+      {"label": "Type", "value": "Rutile titanium dioxide pigment"},
+      {"label": "Process", "value": "Chloride process"},
+      {"label": "Grade positioning", "value": "Architectural and industrial coating evaluation"},
+      {"label": "Application category", "value": "Coatings"}
+    ],
+    "actions": [
+      {"targetPageId": "CONV-RFQ", "label": "Request an M-895 Quote", "href": "/request-a-quote/", "prefill": {"site_scope": "tio2-my", "grade": "M-895", "source_page": "GRADE-M895"}},
+      {"targetPageId": "CONV-SAMPLE", "label": "Request an M-895 Sample", "href": "/request-sample/", "prefill": {"site_scope": "tio2-my", "grade": "M-895", "source_page": "GRADE-M895"}}
+    ]
+  },
+  "positioning": {
+    "eyebrow": "PRODUCT POSITIONING",
+    "heading": "Where M-895 Fits in Product Evaluation",
+    "lead": "M-895 is a rutile titanium dioxide pigment manufactured by the chloride process for coatings evaluation.",
+    "body": "Its documented product profile combines alumina and zirconia inorganic coating with organic treatment and a focused application range covering interior architectural, exterior architectural and industrial coatings. Use M-895 as a candidate for formulation testing when dispersion, opacity, gloss, color direction and weather-resistance targets are relevant. Final Grade selection should account for the complete formulation, dispersion process, substrate, application method, service conditions and destination-document requirements.",
+    "decisionPoints": ["Chloride-process rutile titanium dioxide pigment", "Alumina and zirconia inorganic coating", "Organic treatment present", "Interior and exterior architectural coating directions", "Industrial coating direction", "Evaluation of dispersion, opacity, gloss, blue-toned whiteness and weather resistance"],
+    "contextualLink": {"targetPageId": "PRODUCT-PROC-CL", "label": "Learn about chloride-process titanium dioxide", "href": "/products/chloride-process-titanium-dioxide/"}
+  },
+  "applications": {
+    "eyebrow": "APPLICATION DIRECTIONS",
+    "heading": "Coating Application Directions to Evaluate",
+    "intro": "Review each documented direction in the buyer's own formulation, processing and application conditions.",
+    "items": [
+      {"category": "Coatings", "title": "Interior Architectural Coatings", "body": "Evaluate M-895 in the intended interior architectural coating formulation. Confirm dispersion, opacity, gloss, color direction, compatibility and finished-film appearance under the actual application conditions.", "targetPageId": "APP-COAT", "href": "/applications/titanium-dioxide-for-coatings/"},
+      {"category": "Coatings", "title": "Exterior Architectural Coatings", "body": "Review M-895 in exterior architectural coating systems where weather resistance and appearance are part of the qualification target. Confirm performance in the complete formulation and intended exposure conditions.", "targetPageId": "APP-COAT", "href": "/applications/titanium-dioxide-for-coatings/"},
+      {"category": "Coatings", "title": "Industrial Coatings", "body": "Include M-895 in industrial coating formulation testing when dispersion, opacity, gloss, color direction and weather resistance are relevant to the project. Validate the result with the actual binder, substrate, application and curing process.", "targetPageId": "APP-COAT", "href": "/applications/titanium-dioxide-for-coatings/"}
+    ]
+  },
+  "evaluation": {
+    "eyebrow": "FORMULATION EVALUATION",
+    "heading": "What to Evaluate in Your Coating Formulation",
+    "intro": "Use the documented M-895 profile and typical data to frame buyer testing.",
+    "groups": [
+      {"heading": "Optical and Appearance Review", "items": ["Dispersion behavior in the selected binder and processing system", "Opacity target in the complete formulation", "Gloss and finished-film appearance", "Bright blue-toned white direction under the intended color system"]},
+      {"heading": "Durability and Qualification Review", "items": ["Weather-resistance target under the intended service conditions", "Compatibility with the full formulation and additives", "Interior, exterior or industrial application conditions, as applicable", "Substrate, application method, curing conditions, destination requirements and sample-validation results"]}
+    ],
+    "disclaimer": "These evaluation priorities identify what to check during buyer testing. They do not guarantee a fixed result in every formulation, process or service environment."
+  },
+  "technical": {
+    "eyebrow": "CURRENT PRODUCT DATA",
+    "heading": "Typical Technical Data",
+    "intro": "Review the values reproduced from the current M-895 Technical Data Sheet as an input to formulation evaluation.",
+    "sourceLabel": "M-895 TDS · V1 2026",
+    "columns": ["Property", "Typical value", "Test method"],
+    "rows": [
+      {"property": "TiO₂ content", "value": "94%", "testMethod": "XRF"},
+      {"property": "Inorganic coating", "value": "Alumina, zirconia", "testMethod": "Not stated"},
+      {"property": "Organic treatment", "value": "Present", "testMethod": "Not stated"},
+      {"property": "Moisture when packed", "value": "0.5% max", "testMethod": "ISO 787-2"},
+      {"property": "Bulk density (tamped)", "value": "1.3 g/cm³", "testMethod": "ISO 787-11"},
+      {"property": "Oil absorption", "value": "16 g/100 g", "testMethod": "ISO 787-5"},
+      {"property": "pH", "value": "7.4", "testMethod": "ISO 787-9"},
+      {"property": "Specific gravity", "value": "4.1 g/cm³", "testMethod": "ISO 787-10"},
+      {"property": "Identification", "value": "ISO 591-1: R2", "testMethod": "Not stated"},
+      {"property": "CAS number", "value": "13463-67-7", "testMethod": "Not stated"},
+      {"property": "Color index", "value": "Pigment White 6", "testMethod": "Not stated"}
+    ],
+    "note": "These values reproduce the typical-value table in the M-895 TDS and do not constitute a product specification. The moisture value is measured within 48 hours of production, as stated in the source. Confirm suitability in your own formulation and application conditions.",
+    "action": {"targetPageId": "CONV-DOC", "label": "Request the M-895 TDS", "href": "/request-documents/", "prefill": {"site_scope": "tio2-my", "grade": "M-895", "source_page": "GRADE-M895", "requested_type": "TDS"}}
+  },
+  "documents": {
+    "targetPageId": "CONV-DOC", "eyebrow": "DOCUMENT REQUEST", "heading": "Request M-895 Documents",
+    "intro": "Request the current M-895 Technical Data Sheet and tell us which additional technical or export documents are needed for your destination and evaluation process. Our team will confirm the applicable document scope for your request.",
+    "actionLabel": "Request M-895 Documents", "href": "/request-documents/",
+    "prefill": {"site_scope": "tio2-my", "grade": "M-895", "source_page": "GRADE-M895", "requested_type": "TDS"},
+    "availability": "Submitting a request does not confirm that every requested document is available or applicable.",
+    "options": [
+      {"title": "Technical Data Sheet (TDS)", "body": "Request the current M-895 Technical Data Sheet for product evaluation."},
+      {"title": "Additional document requirements", "body": "Describe the document type, destination and evaluation context. No availability is implied."}
+    ]
+  },
+  "markets": {
+    "eyebrow": "MARKET NAVIGATION", "heading": "Plan Evaluation for Your Destination Market", "intro": "Continue to the relevant destination page for market-specific procurement, document and inquiry guidance.",
+    "items": [
+      {"targetPageId": "MARKET-EU-001", "label": "European Union", "href": "/markets/european-union/"},
+      {"targetPageId": "MARKET-UK-001", "label": "United Kingdom", "href": "/markets/united-kingdom/"},
+      {"targetPageId": "MARKET-IN-001", "label": "India", "href": "/markets/india/"},
+      {"targetPageId": "MARKET-BR-EN", "label": "Brazil", "href": "/markets/brazil/"}
+    ],
+    "note": "These destination paths do not claim M-895 registration, compliance, stock or local availability."
+  },
+  "sample": {
+    "targetPageId": "CONV-SAMPLE", "eyebrow": "QUALIFICATION SUPPORT", "heading": "Request M-895 for Your Own Evaluation",
+    "body": "Share your coating system, destination, evaluation objective and relevant technical requirements so the M-895 sample request can be reviewed in the correct context. Submitting a request does not mean that a sample, quantity, freight arrangement or dispatch timing has been approved.",
+    "actionLabel": "Request an M-895 Sample", "href": "/request-sample/",
+    "prefill": {"site_scope": "tio2-my", "grade": "M-895", "source_page": "GRADE-M895"}
+  },
+  "routeRegistry": [
+    {"targetPageId": "HOME-001", "href": "/", "behavior": "required"},
+    {"targetPageId": "PRODUCT-000", "href": "/products/", "behavior": "required"},
+    {"targetPageId": "CONV-RFQ", "href": "/request-a-quote/", "behavior": "conditional"},
+    {"targetPageId": "CONV-SAMPLE", "href": "/request-sample/", "behavior": "conditional"},
+    {"targetPageId": "CONV-DOC", "href": "/request-documents/", "behavior": "conditional"},
+    {"targetPageId": "PRODUCT-PROC-CL", "href": "/products/chloride-process-titanium-dioxide/", "behavior": "conditional"},
+    {"targetPageId": "APP-COAT", "href": "/applications/titanium-dioxide-for-coatings/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-EU-001", "href": "/markets/european-union/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-UK-001", "href": "/markets/united-kingdom/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-IN-001", "href": "/markets/india/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-BR-EN", "href": "/markets/brazil/", "behavior": "conditional"}
+  ],
+  "evidenceLedger": [
+    {"moduleKey": "identity-seo", "sourceRefs": ["PAGE_REGISTRY_V0.2", "11_PAGE_KEYWORD_MASTER"], "reviewStatus": "candidate_verified"},
+    {"moduleKey": "process-and-broad-application", "sourceRefs": ["PRODUCT_GRADE_APPLICATION_PROCESS_MATRIX_V0.3", "M895_TDS_V1_2026_SHA256_5B7E11F6CB3E05FFD5212197FAAF43E14F10704BDEC5F6D258576E3BC17D40C5"], "reviewStatus": "candidate_verified"},
+    {"moduleKey": "hero-positioning-applications-evaluation", "sourceRefs": ["M895_TDS_V1_2026_SHA256_5B7E11F6CB3E05FFD5212197FAAF43E14F10704BDEC5F6D258576E3BC17D40C5", "GRADE-M895-G2-FULL-COPY-01"], "reviewStatus": "candidate_verified"},
+    {"moduleKey": "technical", "sourceRefs": ["M895_TDS_V1_2026_SHA256_5B7E11F6CB3E05FFD5212197FAAF43E14F10704BDEC5F6D258576E3BC17D40C5"], "reviewStatus": "candidate_verified"}
+  ]
+}

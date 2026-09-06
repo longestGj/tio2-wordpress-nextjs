@@ -1,0 +1,96 @@
+{
+  "packageId": "MARKET-000-G7-HANDOFF-01",
+  "identity": {
+    "pageId": "MARKET-000",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "path": "/markets/",
+    "pageType": "navigation_hub",
+    "schemaVersion": "market-hub-v0.1-malaysia",
+    "lifecycle": "APPROVED_FOR_HANDOFF"
+  },
+  "releaseControls": {
+    "firstLevelRoutesApproved": false,
+    "indexingAuthorized": false,
+    "sitemapAuthorized": false
+  },
+  "seo": {
+    "title": "Markets for Titanium Dioxide Procurement | TiO2 Malaysia",
+    "routeSafeDescription": "Navigate titanium dioxide procurement information for the European Union, United Kingdom, India, and Brazil, with clear guidance on the next review step.",
+    "fullRouteDescription": "Choose a destination market for titanium dioxide procurement in the European Union, United Kingdom, India, or Brazil, then continue to the relevant market page.",
+    "canonical": "https://tio2malaysia.com/markets/",
+    "hreflang": null
+  },
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-005",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"
+  },
+  "breadcrumb": [
+    {"targetPageId": "HOME-001", "label": "Home", "href": "/"},
+    {"targetPageId": "MARKET-000", "label": "Markets", "href": "/markets/"}
+  ],
+  "hero": {
+    "eyebrow": "DESTINATION MARKET NAVIGATION",
+    "h1": "Choose Your Destination Market",
+    "body": "Start with the region or country where your procurement requirements need to be reviewed. Use this hub to choose the appropriate market path and find where product, application, document, trade-update, and quotation questions belong.",
+    "primaryAction": {"label": "Choose a Market", "href": "#destination-market"},
+    "chapterNumber": "01",
+    "chapterLabel": "MARKETS",
+    "chapterMarkets": "EU / UK / IN / BR",
+    "chapterDescription": "Destination-first procurement navigation"
+  },
+  "destinations": {
+    "anchorId": "destination-market",
+    "eyebrow": "DESTINATION MARKET",
+    "h2": "Start with the market tied to your procurement requirements",
+    "intro": "Use the European Union overview for shared regional context, choose an EU country destination when local context matters, or start directly with the United Kingdom, India, or Brazil.",
+    "items": [
+      {"targetPageId": "MARKET-EU-001", "label": "European Union", "description": "Start with the European Union overview when you need the shared regional procurement context. Choose a country destination when the next step depends on local market context.", "actionLabel": "Explore the European Union", "href": "/markets/european-union/", "group": "eu-parent"},
+      {"targetPageId": "MARKET-EU-DE", "label": "Germany", "description": null, "actionLabel": "Germany", "href": "/markets/germany/", "group": "eu-country"},
+      {"targetPageId": "MARKET-EU-IT", "label": "Italy", "description": null, "actionLabel": "Italy", "href": "/markets/italy/", "group": "eu-country"},
+      {"targetPageId": "MARKET-EU-ES", "label": "Spain", "description": null, "actionLabel": "Spain", "href": "/markets/spain/", "group": "eu-country"},
+      {"targetPageId": "MARKET-EU-PL", "label": "Poland", "description": null, "actionLabel": "Poland", "href": "/markets/poland/", "group": "eu-country"},
+      {"targetPageId": "MARKET-EU-NL", "label": "Netherlands", "description": null, "actionLabel": "Netherlands", "href": "/markets/netherlands/", "group": "eu-country"},
+      {"targetPageId": "MARKET-EU-BE", "label": "Belgium", "description": null, "actionLabel": "Belgium", "href": "/markets/belgium/", "group": "eu-country"},
+      {"targetPageId": "MARKET-UK-001", "label": "United Kingdom", "description": "Use the United Kingdom path when your next procurement questions need a UK-specific context.", "actionLabel": "Explore the United Kingdom", "href": "/markets/united-kingdom/", "group": "standalone"},
+      {"targetPageId": "MARKET-IN-001", "label": "India", "description": "Use the India path when your next procurement questions need an India-specific context.", "actionLabel": "Explore India", "href": "/markets/india/", "group": "standalone"},
+      {"targetPageId": "MARKET-BR-EN", "label": "Brazil", "description": "Use the Brazil path when your next procurement questions need Brazil-specific market context.", "actionLabel": "Explore Brazil", "href": "/markets/brazil/", "group": "standalone"}
+    ]
+  },
+  "choice": {
+    "eyebrow": "HOW TO CHOOSE",
+    "h2": "Choose the level of market context you need",
+    "intro": "The right starting point depends on whether your question is regional, destination-specific, or outside the European Union.",
+    "items": [
+      {"title": "Start with the EU overview", "body": "Use the European Union path for shared regional procurement context and to understand how the EU country destinations relate to the wider market structure."},
+      {"title": "Choose an EU country destination", "body": "Use a country path when your next question depends on the destination market. Country pages provide local procurement context; they do not replace the EU overview."},
+      {"title": "Use a standalone market path", "body": "Choose the United Kingdom, India, or Brazil when that destination is the primary context for the next procurement check."}
+    ],
+    "directAnswer": "Choose the European Union overview for shared regional context. Choose a country destination for local procurement context. Use the United Kingdom, India, or Brazil paths when those markets are the destination."
+  },
+  "procurement": {
+    "eyebrow": "NEXT PROCUREMENT CHECK",
+    "h2": "Continue with the next procurement check",
+    "intro": "Choosing a destination is one part of the review. Continue with the section that addresses your next question.",
+    "items": [
+      {"targetPageId": "PRODUCT-000", "title": "Review pigment grades", "body": "Use Products when you need to review grade pages or begin from product requirements. Product suitability still depends on technical evaluation.", "actionLabel": "Explore Products", "href": "/products/"},
+      {"targetPageId": "APP-000", "title": "Start from the application", "body": "Use Applications when the first known input is coatings, plastics, masterbatch, printing inks, or paper. Product relationships appear only where technical evidence permits.", "actionLabel": "Explore Applications", "href": "/applications/"},
+      {"targetPageId": "DOC-000", "title": "Plan document review", "body": "Use Documents to understand document categories and controlled request paths. A page or request does not promise that a document is available for every product or market.", "actionLabel": "Review Documents", "href": "/documents/"}
+    ]
+  },
+  "trade": {
+    "eyebrow": "CURRENT INFORMATION",
+    "h2": "Keep time-sensitive trade information separate",
+    "body": "Market pages organize procurement context. Detailed trade-policy information belongs in Resources, where official sources, scope, and update dates can be reviewed. This hub does not state current duties, measures, or customs outcomes.",
+    "criteria": "Official sources · Scope · Update dates",
+    "action": {"targetPageId": "RES-000", "label": "Review Resources", "href": "/resources/"}
+  },
+  "buyerQuestions": [
+    {"id": "Q1", "question": "How is the market navigation organized?", "answer": "The market navigation is organized around the European Union, United Kingdom, India, and Brazil. Within the EU structure, Germany, Italy, Spain, Poland, the Netherlands, and Belgium are separate country destinations."},
+    {"id": "Q2", "question": "Should I start with the European Union overview or a country destination?", "answer": "Start with the European Union overview for shared regional context. Choose a country destination when the next procurement question depends on local market context."},
+    {"id": "Q3", "question": "What does a market page help me review?", "answer": "A market page organizes destination-specific procurement context and directs you to the relevant Products, Applications, Documents, or Resources section. It does not replace technical evaluation or document confirmation."},
+    {"id": "Q4", "question": "Where should I check current trade-policy information?", "answer": "Detailed, time-sensitive trade information belongs in Resources and must be checked against current official sources, scope, and update dates. This hub does not state policy outcomes."},
+    {"id": "Q5", "question": "Where should I start if I do not know the grade?", "answer": "Product selection is handled by Products and Applications. Start with Products when you have a grade or technical requirement, or with Applications when the end use is the first known input."},
+    {"id": "Q6", "question": "Where are technical and origin documents handled?", "answer": "Document explanations and controlled request paths belong in Documents. Availability, version, and market applicability must be confirmed through the relevant document process."}
+  ]
+}

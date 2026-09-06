@@ -18,6 +18,7 @@ import {
 } from '@/tests/mocks/handlers'
 import {makeSiteABrandHomepageNode} from '@/tests/mocks/site-a-brand-homepage'
 import {server} from '@/tests/mocks/server'
+import approvedMalaysiaContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json'
 
 interface GraphQLRequestBody {
   readonly query?: string
@@ -27,6 +28,49 @@ interface GraphQLRequestBody {
 describe('getHomepage', () => {
   beforeEach(() => {
     process.env.WORDPRESS_GRAPHQL_URL = graphqlEndpoint
+  })
+
+  it('dispatches Malaysia to one exact scope-bound v0.4 query', async () => {
+    let requests = 0
+    server.use(
+      http.post(graphqlEndpoint, async ({request}) => {
+        requests += 1
+        const body = (await request.json()) as GraphQLRequestBody
+        expect(body.variables).toEqual({slug: 'tio2-my--homepage'})
+        expect(body.query).toContain('query GetMalaysiaHomepage')
+        expect(body.query).toContain('malaysiaHomepageContractJson')
+        return HttpResponse.json({data: {tio2Homepage: {
+          id: 'homepage-my-1',
+          modifiedGmt: '2026-08-31T01:02:03',
+          status: 'publish',
+          siteScopes: {nodes: [{slug: 'tio2-my'}]},
+          homepageFields: {homepageSchemaVersion: 'homepage-v0.4-malaysia'},
+          malaysiaHomepageContractJson: JSON.stringify(approvedMalaysiaContract),
+        }}})
+      }),
+    )
+
+    await expect(getHomepage('tio2-my')).resolves.toMatchObject({
+      identity: {siteId: 'tio2-my', schemaVersion: 'homepage-v0.4-malaysia'},
+      seo: {canonical: 'https://tio2malaysia.com/'},
+    })
+    expect(requests).toBe(1)
+  })
+
+  it('attaches only Malaysia cache tags to the v0.4 request', async () => {
+    server.use(http.post(graphqlEndpoint, () => HttpResponse.json({data: {tio2Homepage: null}})))
+    const interceptedFetch = globalThis.fetch
+    let observedTags: readonly string[] | undefined
+    globalThis.fetch = async (input, init) => {
+      observedTags = (init as RequestInit & {next?: {readonly tags?: readonly string[]}}).next?.tags
+      return interceptedFetch(input, init)
+    }
+    try { await getHomepage('tio2-my') } finally { globalThis.fetch = interceptedFetch }
+    expect(observedTags).toEqual([
+      'site:tio2-my',
+      'route:tio2-my:/' ,
+      'content:tio2-my--homepage',
+    ])
   })
 
   it('dispatches Site A to the deterministic brand v0.3 document', async () => {

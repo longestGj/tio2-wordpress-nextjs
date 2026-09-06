@@ -15,6 +15,7 @@ import {getHomepageLinkPolicy} from './homepage-link-policy'
 import type {AnyHomepageDto, HomepageDto} from './homepage-types'
 import {getSiteAEditorialHomepage} from './homepage-v02-queries'
 import {getSiteABrandHomepage} from './homepage-v03-queries'
+import {getMalaysiaHomepage} from './homepage-v04-queries'
 
 export const GET_HOMEPAGE = GetHomepageDocument
 
@@ -50,6 +51,11 @@ export async function getHomepage(
   options: Pick<FetchGraphQLOptions, 'timeoutMs'> = {},
 ): Promise<AnyHomepageDto | null> {
   const profile = getSiteTemplateProfile(siteId)
+
+  if (profile.homepage.schemaVersion === 'homepage-v0.4-malaysia') {
+    if (siteId !== 'tio2-my') throw new Error(`Unsupported Malaysia Homepage owner: ${siteId}`)
+    return getMalaysiaHomepage(options)
+  }
 
   if (profile.homepage.schemaVersion === 'homepage-v0.3-brand') {
     if (siteId !== 'tio2-a') throw new Error(`Unsupported brand Homepage owner: ${siteId}`)

@@ -24,6 +24,20 @@ const siteTemplateProfiles: Readonly<Record<SiteId, SiteTemplateProfile>> = Obje
       proposalId,
     }),
   }),
+  'tio2-my': Object.freeze({
+    siteId: 'tio2-my',
+    shell: Object.freeze({
+      key: 'tio2-my-shell-v0.4',
+      state: 'active',
+      proposalId: 'HOME-001-G7-HANDOFF-01',
+    }),
+    homepage: Object.freeze({
+      key: 'tio2-my-homepage-v0.4',
+      state: 'active',
+      schemaVersion: 'homepage-v0.4-malaysia',
+      proposalId: 'HOME-001-G7-HANDOFF-01',
+    }),
+  }),
 })
 
 for (const siteId of Object.keys(siteTemplateProfiles) as SiteId[]) {

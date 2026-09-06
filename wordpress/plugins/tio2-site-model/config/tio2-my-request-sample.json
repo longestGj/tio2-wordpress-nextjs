@@ -1,0 +1,53 @@
+{
+  "packageId": "CONV-SAMPLE-G7-HANDOFF-01",
+  "reviewId": "CONV-SAMPLE-G7-PCR-01",
+  "identity": {"pageId":"CONV-SAMPLE","siteScope":"tio2-my","locale":"en","path":"/request-sample/","schemaVersion":"request-sample-v0.1-malaysia"},
+  "globalChromeRef": {"contractId":"GLOBAL-CHROME-005","logoManifestId":"TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"},
+  "moduleOrder": ["global_header","breadcrumb","hero","prefill_context","sample_request","human_review","faq","global_footer"],
+  "breadcrumb": [{"label":"Home","href":"/"},{"label":"Request a Sample","href":"/request-sample/"}],
+  "hero": {
+    "eyebrow":"TECHNICAL EVALUATION REQUEST",
+    "h1":"Request a Titanium Dioxide Sample for Technical Evaluation",
+    "body":"Share the Malaysia-origin titanium dioxide grade you are considering—or tell us if you are not sure—together with your application, destination and test objective. We will use this context to review the request.",
+    "stages":["REQUEST","HUMAN REVIEW","SEPARATE OUTCOME"]
+  },
+  "prefill": {"heading":"Context brought from your previous page","body":"Review any details carried into this form. You can change or remove them before submitting."},
+  "form": {
+    "eyebrow":"SAMPLE REQUEST",
+    "heading":"Tell us what you need to evaluate",
+    "intro":"Fields marked Required provide the minimum context for review.",
+    "warning":"Please share non-confidential information only. Do not include a complete formulation, payment details or other unnecessary sensitive information.",
+    "sections":["EVALUATION CONTEXT","BUSINESS AND DESTINATION CONTEXT","OPTIONAL TRIAL CONTEXT"],
+    "fields":[
+      {"key":"grade_id","label":"Product grade","control":"select","required":true},
+      {"key":"application_id","label":"Application","control":"select","required":true},
+      {"key":"application_other","label":"Describe the application","control":"textarea","requiredWhen":"application_id=other","maxLength":500},
+      {"key":"test_objective","label":"What do you need to evaluate?","control":"textarea","required":true,"maxLength":2000,"helper":"Describe the result, processing question or trial objective you need to assess. Do not include a confidential formulation."},
+      {"key":"current_grade_or_target","label":"Current grade or target requirement","control":"text","required":false,"maxLength":1000,"helper":"Share a non-confidential reference point if it will help the review."},
+      {"key":"contact_name","label":"Contact name","control":"text","required":true,"maxLength":120},
+      {"key":"company_organisation","label":"Company or organisation","control":"text","required":true,"maxLength":200},
+      {"key":"business_email","label":"Business email","control":"email","required":true,"maxLength":254,"helper":"Use an address where we can contact you about this request."},
+      {"key":"destination_country_market","label":"Destination country or market","control":"text","required":true,"maxLength":120,"placeholder":"Enter your destination country or market","helper":"Enter the country or market relevant to this evaluation."},
+      {"key":"expected_project_annual_use","label":"Expected project or annual use","control":"text","required":false,"maxLength":500,"helper":"This is project context, not a requested sample quantity."},
+      {"key":"documents_needed","label":"Documents needed for the trial","control":"multiselect","required":false,"helper":"Selection does not confirm document availability or release."},
+      {"key":"additional_context","label":"Additional non-confidential context","control":"textarea","required":false,"maxLength":2000,"helper":"Add only information needed to understand the evaluation."}
+    ],
+    "gradeOptions":["M-350","M-510","M-896","M-996","M-2196","M-895","M-200","M-108","M-210","M-340","M-886","M-52","M-2377","CR-901","unknown"],
+    "applicationOptions":[{"value":"coatings","label":"Coatings"},{"value":"plastics","label":"Plastics"},{"value":"masterbatch","label":"Masterbatch"},{"value":"printing_inks","label":"Printing Inks"},{"value":"paper","label":"Paper"},{"value":"specialty_materials","label":"Specialty Materials"},{"value":"other","label":"Other"},{"value":"not_sure","label":"Not sure"}],
+    "documentOptions":[{"value":"tds","label":"TDS"},{"value":"sds","label":"SDS"},{"value":"coa","label":"COA"},{"value":"coo","label":"COO"},{"value":"other_not_sure","label":"Other / Not sure"}],
+    "privacyNotice":"We use the information you provide to review and respond to your sample request. Learn more in our Privacy Policy.",
+    "privacyHref":"/privacy-policy/",
+    "submitLabel":"Submit Sample Request for Review",
+    "submittingLabel":"Sending your request…",
+    "submitHelper":"Submitting starts a human review. Any sample arrangement will be confirmed separately.",
+    "errors":{"summary":"Check the information you entered.","grade_id":"Choose a product grade or select “I do not know the grade”.","application_id":"Choose an application, Other or Not sure.","application_other":"Describe the application or choose a different option.","test_objective":"Describe what you need to evaluate.","contact_name":"Enter your contact name.","company_organisation":"Enter your company or organisation.","business_email":"Enter a business email address in a valid format.","destination_country_market":"Enter your destination country or market."},
+    "failure":{"heading":"We could not confirm that your request was received.","body":"Your entries are still on this page. Please try again.","action":"Try again"},
+    "success":{"heading":"Your sample request has been received.","body":"Our team will review the information provided and contact you if clarification is needed. Any sample arrangement will be confirmed separately."},
+    "unavailable":{"heading":"We cannot confirm sample requests right now.","body":"The sample request form is not available. No request has been confirmed. Please try again later."}
+  },
+  "humanReview":{"eyebrow":"HUMAN REVIEW","heading":"What happens after you submit","steps":[{"title":"Request received","body":"Your request and the context you provided are received."},{"title":"Human review","body":"A person reviews the grade, application, destination and test objective."},{"title":"Clarification if needed","body":"We may ask for clarification if the available information is not enough."},{"title":"Separate outcome","body":"Any outcome is communicated separately after review."}],"note":"Do not know the grade? Choose the unknown-grade option and describe your application and test objective."},
+  "faq":{"eyebrow":"CLEAR ANSWERS","heading":"Sample request questions","intro":"Direct answers about the minimum information, unknown grades and human review.","items":[{"question":"What information is needed for a sample request?","answer":"Provide your contact name, company, business email, destination, application, product grade or an unknown-grade choice, and your test objective. Optional non-confidential project context can help a person review the request."},{"question":"Can I submit if I do not know the grade?","answer":"Yes. Choose “I do not know the grade,” then describe the application and test objective. This keeps the request open for human review without creating an automatic product recommendation."},{"question":"Does submission mean a sample is approved?","answer":"No. Submitting starts a human review; it does not approve a sample or confirm any sample arrangement. Any sample arrangement will be confirmed separately."},{"question":"What happens if more information is needed?","answer":"A reviewer may ask for clarification. Any outcome is communicated separately after the request has been reviewed."}]},
+  "seo":{"primaryKeyword":"titanium dioxide sample supplier","title":"Request a Titanium Dioxide Sample | TiO2 Malaysia","description":"Request a Malaysia-origin titanium dioxide sample for technical evaluation by sharing the grade, application, destination and test objective for human review.","canonical":"https://tio2malaysia.com/request-sample/","language":"en","hreflang":[]},
+  "schema":{"allowedTypes":["WebPage","BreadcrumbList"]},
+  "releaseControls":{"indexingAuthorized":false}
+}

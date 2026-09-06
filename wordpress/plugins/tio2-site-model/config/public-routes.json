@@ -18,6 +18,15 @@
           "template": "site-b-homepage-v0.1-frozen"
         }
       ]
+    },
+    "tio2-my": {
+      "expectedPublicUrls": 1,
+      "routes": [
+        {
+          "path": "/",
+          "template": "tio2-my-homepage-v0.4"
+        }
+      ]
     }
   }
 }

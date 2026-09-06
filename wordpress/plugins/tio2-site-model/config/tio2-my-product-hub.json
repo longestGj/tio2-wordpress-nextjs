@@ -1,0 +1,194 @@
+{
+  "reviewId": "PRODUCT-000-G7-PCR-04",
+  "identity": {
+    "pageId": "PRODUCT-000",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "path": "/products/",
+    "pageType": "product_hub",
+    "schemaVersion": "product-hub-v0.1-malaysia",
+    "relationshipVersion": "PRODUCT_V0.3",
+    "contentRevision": "PRODUCT-000_GATE5_V0.13"
+  },
+  "releaseControls": {
+    "indexingAuthorized": false,
+    "sitemapAuthorized": false
+  },
+  "seo": {
+    "primaryKeyword": "titanium dioxide pigment",
+    "title": "Titanium Dioxide Pigment Grades | TiO2 Malaysia",
+    "h1": "Titanium Dioxide Pigment Grades for Industrial Applications",
+    "description": "Explore 14 titanium dioxide pigment grades by application, production process and portfolio group, then continue to grade pages for technical evaluation.",
+    "canonical": "https://tio2malaysia.com/products/",
+    "language": "en"
+  },
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-005",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"
+  },
+  "breadcrumb": [
+    {"targetPageId": "HOME-001", "label": "Home", "href": "/"},
+    {"targetPageId": "PRODUCT-000", "label": "Products", "href": "/products/"}
+  ],
+  "hero": {
+    "eyebrow": "TITANIUM DIOXIDE PRODUCTS",
+    "h1": "Titanium Dioxide Pigment Grades for Industrial Applications",
+    "intro": "Explore 14 titanium dioxide pigment grades using the application selector, production-process categories or complete grade directory, then continue to individual grade pages for technical evaluation.",
+    "rutileStatement": "The portfolio includes rutile titanium dioxide pigment grades for multiple industrial applications.",
+    "qualification": "Listed grades are starting points for technical evaluation and do not guarantee suitability for a specific formulation or operating condition.",
+    "primaryAction": {"label": "Start Grade Selection", "href": "#grade-selector"},
+    "secondaryAction": {"label": "Request a Quote", "targetPageId": "CONV-RFQ", "href": "/request-a-quote/?source_page_id=PRODUCT-000"},
+    "summary": {
+      "title": "14 grades. Four portfolio groups.",
+      "body": "Browse the complete directory by product family.",
+      "items": [
+        {"count": 6, "label": "Coatings Grades"},
+        {"count": 5, "label": "Plastics & Masterbatch"},
+        {"count": 2, "label": "Inks & Multi-Application"},
+        {"count": 1, "label": "Specialty Grade"}
+      ]
+    }
+  },
+  "selector": {
+    "anchorId": "grade-selector",
+    "eyebrow": "APPLICATION-FIRST SELECTION",
+    "heading": "Start with Your Application",
+    "intro": "Choose the closest application to view the grades listed for that use case.",
+    "controlLabel": "Step 1 — Select an application",
+    "resultHeading": "Grades to Review",
+    "resultActionLabel": "View Grade",
+    "disclaimer": "Listed grades are starting points for technical evaluation and do not guarantee suitability for a specific formulation or operating condition.",
+    "noResult": "No grade is listed for this application. Browse all grades or share your requirements for technical review.",
+    "notSureNote": "Not sure? Review the complete directory or share your requirements for technical review.",
+    "failure": "Grade selection is temporarily unavailable. Please use the complete grade directory below.",
+    "applications": [
+      {"id": "coatings", "label": "Coatings", "gradeIds": ["M-350", "M-510", "M-896", "M-996", "M-2196", "M-895", "M-52", "M-2377"]},
+      {"id": "plastics", "label": "Plastics", "gradeIds": ["M-350", "M-510", "M-200", "M-108", "M-210", "M-340", "M-886", "M-2377"]},
+      {"id": "masterbatch", "label": "Masterbatch", "gradeIds": ["M-510", "M-200", "M-108", "M-210", "M-340", "M-886", "M-2377"]},
+      {"id": "printing-inks", "label": "Printing Inks", "gradeIds": ["M-350", "M-510", "M-52", "M-2377"]},
+      {"id": "paper", "label": "Paper", "gradeIds": ["M-350", "M-2377"]},
+      {"id": "specialty-materials", "label": "Specialty Materials", "gradeIds": ["CR-901"]},
+      {"id": "not-sure", "label": "Not Sure", "gradeIds": []}
+    ]
+  },
+  "process": {
+    "eyebrow": "PROCESS-LED NAVIGATION",
+    "heading": "Browse by Production Process",
+    "intro": "Use production-process classification when it is a required sourcing parameter. Process classification does not determine application suitability on its own.",
+    "routes": [
+      {"targetPageId": "PRODUCT-PROC-CL", "title": "Chloride Process Titanium Dioxide", "body": "Browse grades classified under the chloride process and continue to the dedicated process page.", "actionLabel": "Explore Chloride Grades", "href": "/products/chloride-process-titanium-dioxide/"},
+      {"targetPageId": "PRODUCT-PROC-SU", "title": "Sulfate Process Titanium Dioxide", "body": "Browse grades classified under the sulfate process and continue to the dedicated process page.", "actionLabel": "Explore Sulfate Grades", "href": "/products/sulfate-process-titanium-dioxide/"}
+    ],
+    "specialRow": {"gradeId": "CR-901", "targetPageId": "GRADE-CR901", "classification": "Vapor-phase oxidation", "actionLabel": "View Grade", "href": "/products/cr-901/"},
+    "classifications": [
+      {"name": "Chloride", "gradeIds": ["M-350", "M-510", "M-896", "M-895", "M-200", "M-210", "M-340", "M-886"]},
+      {"name": "Sulfate", "gradeIds": ["M-996", "M-2196", "M-108", "M-52", "M-2377"]},
+      {"name": "Vapor-phase oxidation", "gradeIds": ["CR-901"]}
+    ]
+  },
+  "directory": {
+    "eyebrow": "COMPLETE PRODUCT DIRECTORY",
+    "heading": "Browse All 14 Titanium Dioxide Grades",
+    "intro": "Open an individual grade page for detailed technical evaluation. The portfolio is organised into four navigation groups: Coatings, Plastics & Masterbatch, Inks & Multi-Application and Specialty.",
+    "disambiguation": "Portfolio groups are navigation categories. A grade may appear in more than one application result because application relationships can span multiple navigation groups.",
+    "actionLabel": "View Grade",
+    "groups": [
+      {
+        "id": "coatings-grades",
+        "label": "Coatings Grades",
+        "grades": [
+          {"gradeId": "M-350", "pageId": "GRADE-M350", "href": "/products/m-350/", "summary": "Excellent hue and high gloss with strong hiding power."},
+          {"gradeId": "M-510", "pageId": "GRADE-M510", "href": "/products/m-510/", "summary": "TMP/TME-free multi-application grade with high brightness and durability."},
+          {"gradeId": "M-896", "pageId": "GRADE-M896", "href": "/products/m-896/", "summary": "Superior weather resistance with high gloss and excellent opacity for demanding exterior coatings."},
+          {"gradeId": "M-996", "pageId": "GRADE-M996", "href": "/products/m-996/", "summary": "High-durability coatings grade with high opacity and good gloss."},
+          {"gradeId": "M-2196", "pageId": "GRADE-M2196", "href": "/products/m-2196/", "summary": "Highly durable coatings pigment with high opacity and easy dispersion."},
+          {"gradeId": "M-895", "pageId": "GRADE-M895", "href": "/products/m-895/", "summary": "High-opacity, high-gloss coatings grade with good weather resistance."}
+        ]
+      },
+      {
+        "id": "plastics-masterbatch-grades",
+        "label": "Plastics & Masterbatch Grades",
+        "grades": [
+          {"gradeId": "M-200", "pageId": "GRADE-M200", "href": "/products/m-200/", "summary": "High-durability exterior plastics grade with strong anti-chalking performance."},
+          {"gradeId": "M-108", "pageId": "GRADE-M108", "href": "/products/m-108/", "summary": "High-heat-stability plastics grade with low oil absorption and rapid dispersion."},
+          {"gradeId": "M-210", "pageId": "GRADE-M210", "href": "/products/m-210/", "summary": "High hiding power and easy dispersion for polyolefin masterbatch."},
+          {"gradeId": "M-340", "pageId": "GRADE-M340", "href": "/products/m-340/", "summary": "High whiteness with strong high-temperature anti-yellowing performance."},
+          {"gradeId": "M-886", "pageId": "GRADE-M886", "href": "/products/m-886/", "summary": "Bright-white plastics grade with excellent dispersion and processability."}
+        ]
+      },
+      {
+        "id": "inks-multi-application-grades",
+        "label": "Inks & Multi-Application Grades",
+        "grades": [
+          {"gradeId": "M-52", "pageId": "GRADE-M52", "href": "/products/m-52/", "summary": "Very high gloss, high opacity and low abrasivity for printing inks."},
+          {"gradeId": "M-2377", "pageId": "GRADE-M2377", "href": "/products/m-2377/", "summary": "High gloss and brightness with good opacity and easy dispersion."}
+        ]
+      },
+      {
+        "id": "specialty-grade",
+        "label": "Specialty Grade",
+        "grades": [
+          {"gradeId": "CR-901", "pageId": "GRADE-CR901", "href": "/products/cr-901/", "summary": "High-purity grade with low impurities and stable batch-to-batch quality."}
+        ]
+      }
+    ]
+  },
+  "evaluation": {
+    "eyebrow": "PROCUREMENT CHECKLIST",
+    "heading": "How to Evaluate a Titanium Dioxide Grade",
+    "intro": "Use the application, process classification when relevant, grade-specific technical data, destination requirements and buyer validation as separate evaluation inputs.",
+    "items": [
+      {"title": "Define the application", "body": "Record the resin or material system, end use, processing conditions and performance targets that the grade must be evaluated against."},
+      {"title": "Confirm whether process matters", "body": "Identify whether chloride or sulfate production-process classification is a required sourcing parameter. Process classification does not determine application suitability."},
+      {"title": "Review applicable technical data", "body": "Review information issued for the grade you are evaluating. Do not infer missing values from another grade, an older source or an unrelated TDS."},
+      {"title": "Identify destination and document needs", "body": "Confirm the destination market and the technical, quality, compliance or origin documents required for the applicable request."},
+      {"title": "Validate in the buyer's system", "body": "Confirm final suitability through the buyer's own formulation, processing conditions, performance requirements and qualification process."}
+    ]
+  },
+  "support": {
+    "eyebrow": "CONTINUE THE REVIEW",
+    "heading": "Continue Your Procurement Review",
+    "items": [
+      {"targetPageId": "APP-000", "title": "Review by Application", "body": "Review grades listed for each application and continue to detailed application guidance.", "actionLabel": "Explore Applications", "href": "/applications/"},
+      {"targetPageId": "DOC-000", "title": "Identify Required Documents", "body": "Review technical, quality, compliance and origin-document pathways for the applicable request.", "actionLabel": "Explore Documents", "href": "/documents/"},
+      {"targetPageId": "MARKET-000", "title": "Review Destination Context", "body": "Review destination-market procurement context without assuming local availability, registration or regulatory acceptance.", "actionLabel": "Explore Markets", "href": "/markets/"}
+    ]
+  },
+  "buyerQuestions": [
+    {"id": "Q1", "question": "How do I choose a titanium dioxide pigment grade?", "answer": "Start with the intended application, then use production-process classification if it is a required sourcing parameter. Review the relevant grade page and confirm the available product information against the formulation, processing conditions, destination and documentation requirements. A listed result is a starting point for evaluation, not a suitability guarantee."},
+    {"id": "Q2", "question": "Which grades are listed in this product center?", "answer": "The product center lists 14 grades: M-350, M-510, M-896, M-996, M-2196, M-895, M-200, M-108, M-210, M-340, M-886, M-52, M-2377 and CR-901."},
+    {"id": "Q3", "question": "What is the difference between application and process selection?", "answer": "Application selection groups grades by listed use-case relationships, while process selection groups grades by their production-process classification. A process classification does not determine application suitability on its own."},
+    {"id": "Q4", "question": "What if no grade is shown for my application?", "answer": "A missing result means that the selector has no listed grade for that application. It should not automatically be interpreted as a technical rejection of every grade. Buyers can contact the team when a requirement is not represented in the selector."},
+    {"id": "Q5", "question": "Does a listed grade guarantee suitability?", "answer": "No. A listed grade is a starting point for technical evaluation. Final suitability should be confirmed against the buyer's formulation, processing conditions, performance requirements, destination requirements and applicable documentation."}
+  ],
+  "finalRfq": {
+    "eyebrow": "SHARE YOUR REQUIREMENTS",
+    "heading": "Request a Quote for Your Requirements",
+    "body": "Share your application, destination market, expected quantity and any grade you are evaluating.",
+    "note": "Quotation, availability and documentation remain subject to review.",
+    "action": {"label": "Request a Quote", "targetPageId": "CONV-RFQ", "href": "/request-a-quote/?source_page_id=PRODUCT-000"}
+  },
+  "routeRegistry": [
+    {"targetPageId": "HOME-001", "href": "/", "behavior": "required"},
+    {"targetPageId": "CONV-RFQ", "href": "/request-a-quote/", "behavior": "fixed-release-blocker"},
+    {"targetPageId": "PRODUCT-PROC-CL", "href": "/products/chloride-process-titanium-dioxide/", "behavior": "conditional"},
+    {"targetPageId": "PRODUCT-PROC-SU", "href": "/products/sulfate-process-titanium-dioxide/", "behavior": "conditional"},
+    {"targetPageId": "APP-000", "href": "/applications/", "behavior": "conditional"},
+    {"targetPageId": "DOC-000", "href": "/documents/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-000", "href": "/markets/", "behavior": "conditional"},
+    {"targetPageId": "GRADE-M350", "href": "/products/m-350/", "behavior": "required-grade"},
+    {"targetPageId": "GRADE-M510", "href": "/products/m-510/", "behavior": "required-grade"},
+    {"targetPageId": "GRADE-M896", "href": "/products/m-896/", "behavior": "required-grade"},
+    {"targetPageId": "GRADE-M996", "href": "/products/m-996/", "behavior": "required-grade"},
+    {"targetPageId": "GRADE-M2196", "href": "/products/m-2196/", "behavior": "required-grade"},
+    {"targetPageId": "GRADE-M895", "href": "/products/m-895/", "behavior": "required-grade"},
+    {"targetPageId": "GRADE-M200", "href": "/products/m-200/", "behavior": "required-grade"},
+    {"targetPageId": "GRADE-M108", "href": "/products/m-108/", "behavior": "required-grade"},
+    {"targetPageId": "GRADE-M210", "href": "/products/m-210/", "behavior": "required-grade"},
+    {"targetPageId": "GRADE-M340", "href": "/products/m-340/", "behavior": "required-grade"},
+    {"targetPageId": "GRADE-M886", "href": "/products/m-886/", "behavior": "required-grade"},
+    {"targetPageId": "GRADE-M52", "href": "/products/m-52/", "behavior": "required-grade"},
+    {"targetPageId": "GRADE-M2377", "href": "/products/m-2377/", "behavior": "required-grade"},
+    {"targetPageId": "GRADE-CR901", "href": "/products/cr-901/", "behavior": "required-grade"}
+  ]
+}

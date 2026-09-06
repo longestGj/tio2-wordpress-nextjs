@@ -36,6 +36,7 @@ describe.runIf(process.platform === 'win32')('local sites controller', () => {
       sites: [
         {siteId: 'tio2-a', port: 3001, distDir: '.next-tio2-a'},
         {siteId: 'tio2-b', port: 3002, distDir: '.next-tio2-b'},
+        {siteId: 'tio2-my', port: 3003, distDir: '.next-tio2-my'},
       ],
       startup: {
         statePersistence: 'after-each-start',
@@ -67,6 +68,7 @@ describe.runIf(process.platform === 'win32')('local sites controller', () => {
       sites: [
         {siteId: 'tio2-a', port: 3001, running: false},
         {siteId: 'tio2-b', port: 3002, running: false},
+        {siteId: 'tio2-my', port: 3003, running: false},
       ],
     })
   })

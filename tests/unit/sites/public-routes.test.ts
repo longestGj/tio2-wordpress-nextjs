@@ -11,6 +11,7 @@ describe('public route inventory', () => {
   it.each([
     ['tio2-a', 'site-a-homepage-brand-v0.3'],
     ['tio2-b', 'site-b-homepage-v0.1-frozen'],
+    ['tio2-my', 'tio2-my-homepage-v0.4'],
   ] as const)('maps %s root to %s', (siteId, template) => {
     expect(getPublicRoutes(siteId)).toEqual([{path: '/', template}])
     expect(getExpectedPublicUrlCount(siteId)).toBe(1)
@@ -55,6 +56,7 @@ describe('public route inventory', () => {
           ],
         },
         'tio2-b': {expectedPublicUrls: 1, routes: [{path: '/', template: 'site-b-homepage-v0.1-frozen'}]},
+        'tio2-my': {expectedPublicUrls: 1, routes: [{path: '/', template: 'tio2-my-homepage-v0.4'}]},
       },
     })).toThrow('Duplicate public route for tio2-a: /')
   })
@@ -65,6 +67,7 @@ describe('public route inventory', () => {
       sites: {
         'tio2-a': {expectedPublicUrls: 2, routes: [{path: '/', template: 'site-a-homepage-editorial-v0.2'}]},
         'tio2-b': {expectedPublicUrls: 1, routes: [{path: '/', template: 'site-b-homepage-v0.1-frozen'}]},
+        'tio2-my': {expectedPublicUrls: 1, routes: [{path: '/', template: 'tio2-my-homepage-v0.4'}]},
       },
     })).toThrow('Expected public URL count mismatch for tio2-a')
   })
@@ -75,6 +78,7 @@ describe('public route inventory', () => {
       sites: {
         'tio2-a': {expectedPublicUrls: 1, routes: [{path: '/', template: 'site-b-homepage-v0.1-frozen'}]},
         'tio2-b': {expectedPublicUrls: 1, routes: [{path: '/', template: 'site-b-homepage-v0.1-frozen'}]},
+        'tio2-my': {expectedPublicUrls: 1, routes: [{path: '/', template: 'tio2-my-homepage-v0.4'}]},
       },
     })).toThrow('Homepage template does not belong to tio2-a')
   })
@@ -91,6 +95,7 @@ describe('public route inventory', () => {
           ],
         },
         'tio2-b': {expectedPublicUrls: 1, routes: [{path: '/', template: 'site-b-homepage-v0.1-frozen'}]},
+        'tio2-my': {expectedPublicUrls: 1, routes: [{path: '/', template: 'tio2-my-homepage-v0.4'}]},
       },
     })).toThrow('Public route inventory must contain exactly one root route for tio2-a')
   })

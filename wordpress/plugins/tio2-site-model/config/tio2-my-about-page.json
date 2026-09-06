@@ -1,0 +1,164 @@
+{
+  "packageId": "ABOUT-001-G7-PCR-02",
+  "identity": {
+    "pageId": "ABOUT-001",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "path": "/about/",
+    "pageType": "about_page",
+    "schemaVersion": "about-page-v0.1-malaysia",
+    "lifecycle": "GATE7_CLOSED_GATE8_AUTHORIZED"
+  },
+  "releaseControls": {
+    "indexingAuthorized": false,
+    "sitemapAuthorized": false,
+    "externalActionsReleaseReady": false
+  },
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-005",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"
+  },
+  "seo": {
+    "title": "Malaysia Titanium Dioxide Manufacturer | TiO2 Malaysia",
+    "description": "Learn about IKHLAS TITANIUM (MALAYSIA) SDN. BHD., a Malaysia-based rutile TiO2 manufacturer with product documentation and export coordination through Port Klang.",
+    "canonical": "https://tio2malaysia.com/about/",
+    "openGraphTitle": "Malaysia-Based Titanium Dioxide Supply for Global Markets | TiO2 Malaysia",
+    "language": "en",
+    "hreflang": null
+  },
+  "breadcrumb": [
+    {"targetPageId": "HOME-001", "label": "Home", "href": "/"},
+    {"targetPageId": "ABOUT-001", "label": "About", "href": "/about/"}
+  ],
+  "hero": {
+    "eyebrow": "ABOUT IKHLAS TITANIUM",
+    "h1": "Malaysia-Based Titanium Dioxide Supply for Global Markets",
+    "paragraphs": [
+      "IKHLAS TITANIUM (MALAYSIA) SDN. BHD. is a Malaysia-based rutile TiO2 manufacturer located in Taiping, Perak.",
+      "We are a Malaysia-based rutile titanium dioxide manufacturer and supplier. We supply rutile TiO2 grades for paints and coatings, plastics, masterbatch, printing inks and paper, with export coordination through Port Klang and application-based documentation for international buyers.",
+      "We focus on rutile TiO2 grades for paints, coatings, plastics, masterbatch, printing inks and paper applications, with quality control, application-based documentation and export coordination for international buyers.",
+      "Our finished products are exported through Port Klang, supported by TDS, SDS, COA, COO and other documents according to customer and destination-market requirements.",
+      "For direct sourcing details, see our titanium dioxide supplier in Malaysia page.",
+      "For markets requiring REACH-related documentation, origin documents or specific import compliance review, we provide documentation-ready support according to grade and destination-market requirements."
+    ],
+    "primaryAction": {"label": "Request a Quote", "href": "/request-a-quote/"},
+    "secondaryAction": {"label": "Contact Us", "href": "/contact/"}
+  },
+  "whoWeAre": {
+    "eyebrow": "WHO WE ARE",
+    "h2": "Who We Are",
+    "facts": [
+      {"label": "Operating Company", "value": "IKHLAS TITANIUM (MALAYSIA) SDN. BHD."},
+      {"label": "Location", "value": "NO.33 Industrial Perusahaan Ringan Tupai, 34000 Taiping, Perak, Malaysia"},
+      {"label": "Main Product", "value": "Rutile titanium dioxide grades", "href": "/products/"},
+      {"label": "Annual Supply", "value": "More than 35,000 metric tons of titanium dioxide"},
+      {"label": "Markets Served", "value": "Customers in over 30 countries"},
+      {"label": "Customer Base", "value": "Long-term cooperation with more than 200 factory customers"},
+      {"label": "Export Coordination", "value": "Port Klang, Malaysia"}
+    ]
+  },
+  "whyMalaysia": {
+    "eyebrow": "WHY MALAYSIA",
+    "h2": "Why Malaysia Matters",
+    "items": [
+      {"title": "Origin Diversification", "body": "Malaysia offers an alternative sourcing base that supports stable and flexible supply strategies."},
+      {"title": "Supply Chain Resilience", "body": "Strategic location and reliable infrastructure help ensure continuity and efficiency in global supply chains."},
+      {"title": "International Trade Readiness", "body": "Aligned with global trade standards and documentation practices for smoother cross-border transactions."},
+      {"title": "Strategic Market Access", "body": "Well-positioned to serve key industrial markets across Europe, Asia, and South America."}
+    ]
+  },
+  "whatWeDo": {
+    "eyebrow": "WHAT WE DO",
+    "h2": "What We Do",
+    "items": [
+      {"title": "Titanium Dioxide Supply", "body": "Supplying a range of titanium dioxide grades suitable for industrial applications."},
+      {"title": "Grade & Application Matching", "body": "Helping customers identify the right grade for their process and performance needs."},
+      {"title": "Technical Documentation Support", "body": "Providing product information such as TDS and SDS, subject to availability and requirements."},
+      {"title": "International Trade & Logistics Coordination", "body": "Coordinating export processes and logistics to support timely and compliant deliveries."}
+    ]
+  },
+  "markets": {
+    "eyebrow": "MARKETS WE SERVE",
+    "h2": "Markets We Serve",
+    "items": [
+      {"targetPageId": "MARKET-EU-001", "title": "European Union", "body": "Supporting industrial buyers across the EU with reliable supply, documentation, and responsive communication.", "href": "/markets/"},
+      {"targetPageId": "MARKET-UK-001", "title": "United Kingdom", "body": "Serving UK customers with consistent product information, trade support, and clear documentation processes.", "href": "/markets/"},
+      {"targetPageId": "MARKET-IN-001", "title": "India", "body": "Working with Indian buyers and distributors to support their sourcing and operational requirements.", "href": "/markets/"},
+      {"targetPageId": "MARKET-BR-EN", "title": "Brazil", "body": "Supporting industrial markets in Brazil with reliable supply coordination and transparent trade communication.", "href": "/markets/"}
+    ],
+    "action": {"label": "View All Markets", "href": "/markets/"}
+  },
+  "applications": {
+    "eyebrow": "APPLICATIONS",
+    "h2": "Applications We Support",
+    "items": [
+      {"title": "Coatings", "body": "Architectural, industrial, and protective coating applications.", "href": "/applications/", "mediaKey": "about.applications.coatings", "alt": "White coating being applied with a brush."},
+      {"title": "Plastics", "body": "Used in a wide range of plastic products and compounds.", "href": "/applications/", "mediaKey": "about.applications.plastics", "alt": "White plastic pipes."},
+      {"title": "Printing Inks", "body": "Supporting ink formulations for quality and consistency.", "href": "/applications/", "mediaKey": "about.applications.printing_inks", "alt": "Open containers of coloured printing ink."},
+      {"title": "Paper / Related Uses", "body": "Applied in paper and other industrial related uses.", "href": "/applications/", "mediaKey": "about.applications.paper", "alt": "A stack of white paper."}
+    ],
+    "action": {"label": "View All Applications", "href": "/applications/"}
+  },
+  "howWeWork": {
+    "eyebrow": "HOW WE WORK",
+    "h2": "How We Work",
+    "items": [
+      {"title": "Product Information Before Promotion", "body": "We provide clear product information so you can evaluate with confidence."},
+      {"title": "Application Fit Before Recommendation", "body": "We focus on matching the right grade to your specific application needs."},
+      {"title": "Documentation Before Procurement", "body": "Documentation is shared subject to availability and transaction requirements."},
+      {"title": "Reliable Communication Throughout Supply", "body": "We maintain clear and responsive communication from inquiry to delivery."}
+    ]
+  },
+  "documentation": {
+    "eyebrow": "DOCUMENTATION",
+    "h2": "Documentation & Transparency",
+    "intro": [
+      "We believe informed decisions lead to successful partnerships.",
+      "Product information can be provided upon request and may include TDS, SDS, and other relevant documentation, subject to availability and transaction requirements."
+    ],
+    "items": [
+      {"title": "TDS", "label": "Technical Data Sheet", "status": "Available upon request", "href": "/documents/"},
+      {"title": "SDS", "label": "Safety Data Sheet", "status": "Available upon request", "href": "/documents/"},
+      {"title": "Other Documents", "label": "Other Documents", "status": "Available upon request", "href": "/request-documents/"}
+    ]
+  },
+  "companyFacts": {
+    "eyebrow": "COMPANY FACTS",
+    "h2": "Company Facts",
+    "items": [
+      {"label": "Company", "value": "IKHLAS TITANIUM (MALAYSIA) SDN. BHD."},
+      {"label": "Base", "value": "Malaysia"},
+      {"label": "Focus", "value": "Titanium Dioxide Supply"},
+      {"label": "Markets", "value": "EU, UK, India, Brazil"},
+      {"label": "Audience", "value": "Industrial Buyers & Procurement Teams"}
+    ]
+  },
+  "finalCta": {
+    "h2": "Discuss Your Titanium Dioxide Requirements",
+    "body": "Share your application, target market, and product needs. We'll respond with the right information and next steps.",
+    "primaryAction": {"label": "Request a Quote", "href": "/request-a-quote/"},
+    "secondaryAction": {"label": "Contact Us", "href": "/contact/"}
+  },
+  "schema": {
+    "organizationDescription": "IKHLAS TITANIUM (MALAYSIA) SDN. BHD. is a Malaysia-based rutile TiO2 manufacturer located in Taiping, Perak. It supplies rutile TiO2 grades for paints and coatings, plastics, masterbatch, printing inks and paper, with product documentation and export coordination through Port Klang. The page states annual supply of more than 35,000 metric tons, customers in over 30 countries and long-term cooperation with more than 200 factory customers.",
+    "organizationName": "IKHLAS TITANIUM (MALAYSIA) SDN. BHD.",
+    "brandName": "TiO2 Malaysia",
+    "placeName": "Taiping manufacturing site",
+    "address": {"streetAddress": "NO.33 Industrial Perusahaan Ringan Tupai", "postalCode": "34000", "addressLocality": "Taiping", "addressRegion": "Perak", "addressCountry": "MY"},
+    "areas": ["European Union", "United Kingdom", "India", "Brazil"]
+  },
+  "media": [
+    {"key": "about.hero.composite", "method": "HTML_CSS_SVG_REBUILD", "decorative": true},
+    {"key": "about.hero.route_map", "method": "HTML_CSS_SVG_REBUILD", "decorative": true},
+    {"key": "about.markets.map", "method": "HTML_CSS_SVG_REBUILD", "decorative": true},
+    {"key": "about.markets.flag.eu", "method": "HTML_CSS_SVG_REBUILD", "decorative": true},
+    {"key": "about.markets.flag.uk", "method": "HTML_CSS_SVG_REBUILD", "decorative": true},
+    {"key": "about.markets.flag.india", "method": "HTML_CSS_SVG_REBUILD", "decorative": true},
+    {"key": "about.markets.flag.brazil", "method": "HTML_CSS_SVG_REBUILD", "decorative": true},
+    {"key": "about.applications.coatings", "method": "HTML_CSS_SVG_REBUILD", "decorative": false},
+    {"key": "about.applications.plastics", "method": "HTML_CSS_SVG_REBUILD", "decorative": false},
+    {"key": "about.applications.printing_inks", "method": "HTML_CSS_SVG_REBUILD", "decorative": false},
+    {"key": "about.applications.paper", "method": "HTML_CSS_SVG_REBUILD", "decorative": false},
+    {"key": "about.final_cta.background", "method": "HTML_CSS_SVG_REBUILD", "decorative": true}
+  ]
+}

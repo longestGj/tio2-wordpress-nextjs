@@ -1,4 +1,8 @@
 import type {AnyHomepageDto} from '@/lib/wordpress/homepage-types'
+import type {HomepageDto} from '@/lib/wordpress/homepage-types'
+import type {SiteAEditorialHomepageDto} from '@/lib/wordpress/homepage-v02-types'
+import type {SiteABrandHomepageDto} from '@/lib/wordpress/homepage-v03-types'
+import type {MalaysiaHomepageDto} from '@/lib/wordpress/homepage-v04-types'
 import {isStrictUtcInstant} from '@/lib/wordpress/time'
 import type {SiteConfig} from '@/sites'
 import {serializeJsonLd} from './jsonld'
@@ -28,10 +32,37 @@ function isValidVisibleFaq(faq: {readonly items: readonly {readonly question: st
   return true
 }
 
+function isMalaysiaHomepage(homepage: AnyHomepageDto): homepage is MalaysiaHomepageDto {
+  return homepage.identity.siteId === 'tio2-my' &&
+    homepage.identity.schemaVersion === 'homepage-v0.4-malaysia'
+}
+
+function hasVisibleFaq(
+  homepage: AnyHomepageDto,
+): homepage is HomepageDto | SiteABrandHomepageDto {
+  return homepage.identity.schemaVersion === 'homepage-v0.1' ||
+    homepage.identity.schemaVersion === 'homepage-v0.3-brand'
+}
+
+export function buildHomepageJsonLd(
+  site: SiteConfig,
+  homepage: MalaysiaHomepageDto,
+): JsonLdObject
+export function buildHomepageJsonLd(
+  site: SiteConfig,
+  homepage: HomepageDto | SiteAEditorialHomepageDto | SiteABrandHomepageDto,
+): JsonLdObject[]
 export function buildHomepageJsonLd(
   site: SiteConfig,
   homepage: AnyHomepageDto,
-): JsonLdObject[] {
+): JsonLdObject | JsonLdObject[]
+export function buildHomepageJsonLd(
+  site: SiteConfig,
+  homepage: AnyHomepageDto,
+): JsonLdObject | JsonLdObject[] {
+  if (isMalaysiaHomepage(homepage)) {
+    return homepage.schemaGraph as unknown as JsonLdObject
+  }
   const canonical = new URL('/', site.url).href
   const organizationId = new URL('/#organization', site.url).href
   const websiteId = new URL('/#website', site.url).href
@@ -71,11 +102,7 @@ export function buildHomepageJsonLd(
     pageObject,
   ]
 
-  if (
-    (homepage.identity.schemaVersion === 'homepage-v0.1' ||
-      homepage.identity.schemaVersion === 'homepage-v0.3-brand') &&
-    isValidVisibleFaq(homepage.faq)
-  ) {
+  if (hasVisibleFaq(homepage) && isValidVisibleFaq(homepage.faq)) {
     values.push({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
@@ -92,7 +119,7 @@ export function buildHomepageJsonLd(
 }
 
 export function serializeHomepageJsonLd(
-  values: readonly JsonLdObject[],
+  values: JsonLdObject | readonly JsonLdObject[],
 ): string {
   return serializeJsonLd(values)
 }

@@ -149,7 +149,7 @@ describe('Application JSON-LD', () => {
       '/applications/coatings',
       application.identity.path,
     ])
-    const visible = (_siteId: 'tio2-a' | 'tio2-b', path: string) =>
+    const visible = (_siteId: import('@/sites').SiteId, path: string) =>
       visiblePaths.has(path)
     const items = buildApplicationBreadcrumbItems(application, site, visible)
     const breadcrumbs = nodeOfType(

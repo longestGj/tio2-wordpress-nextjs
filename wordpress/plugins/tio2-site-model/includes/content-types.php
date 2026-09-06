@@ -11,7 +11,7 @@ if (! defined('ABSPATH')) {
  */
 function tio2_supported_site_ids(): array
 {
-    return ['tio2-a', 'tio2-b'];
+    return ['tio2-a', 'tio2-b', 'tio2-my'];
 }
 
 function tio2_expected_homepage_schema_version(string $site_id): ?string
@@ -19,6 +19,7 @@ function tio2_expected_homepage_schema_version(string $site_id): ?string
     return match ($site_id) {
         'tio2-a' => 'homepage-v0.3-brand',
         'tio2-b' => 'homepage-v0.1',
+        'tio2-my' => 'homepage-v0.4-malaysia',
         default => null,
     };
 }
@@ -109,7 +110,11 @@ function tio2_register_content_types(): void
         'rewrite' => false,
     ]);
 
-    $object_types = array_merge(['post', 'page'], array_keys($content_types), ['tio2_homepage']);
+    $object_types = array_merge(
+        ['post', 'page'],
+        array_keys($content_types),
+        ['tio2_homepage', 'tio2_market_hub', 'tio2_product_hub', 'tio2_request_docs', 'tio2_request_sample']
+    );
 
     register_taxonomy('site_scope', $object_types, [
         'labels' => [

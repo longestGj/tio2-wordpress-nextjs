@@ -4,24 +4,35 @@ import {getCurrentSite} from '@/lib/sites/current-site'
 
 describe('site registry', () => {
   it('exposes the central site IDs and Site A RFQ mail target', () => {
-    expect(SITE_IDS).toEqual(['tio2-a', 'tio2-b'])
+    expect(SITE_IDS).toEqual(['tio2-a', 'tio2-b', 'tio2-my'])
     expect(getSiteConfig('tio2-a').rfqHref).toBe(
       'mailto:contact@tio2products.com',
     )
   })
 
-  it.each(['tio2-a', 'tio2-b'])('loads %s', (id) => {
+  it.each(['tio2-a', 'tio2-b', 'tio2-my'])('loads %s', (id) => {
     expect(getSiteConfig(id).id).toBe(id)
   })
 
   it.each([
     ['tio2-a', 'https://tio2products.com', 'contact@tio2products.com'],
     ['tio2-b', 'https://tio2hub.com', 'contact@tio2hub.com'],
+    ['tio2-my', 'https://tio2malaysia.com', null],
   ])('maps %s to its approved production origin', (id, url, contactEmail) => {
     const site = getSiteConfig(id)
 
     expect(site.url).toBe(url)
     expect(site.contactEmail).toBe(contactEmail)
+  })
+
+  it('keeps the Malaysia RFQ on the Malaysia origin without inventing contact details', () => {
+    expect(getSiteConfig('tio2-my')).toMatchObject({
+      id: 'tio2-my',
+      locale: 'en',
+      wordpressScope: 'tio2-my',
+      rfqHref: 'https://tio2malaysia.com/request-a-quote/',
+      contactEmail: null,
+    })
   })
 
   it('rejects an unknown site', () => {

@@ -1,10 +1,13 @@
 import {describe, expect, it} from 'vitest'
 
 import {
+  aboutPageVersionTag,
   contentListTag,
   contentTag,
+  documentReachContentTag,
   entityTag,
   normalizePublicPath,
+  requestSampleContentTag,
   routeTag,
   siteTag,
   sitemapTag,
@@ -23,6 +26,18 @@ describe('WordPress cache tags', () => {
       'route:tio2-b:/applications/coatings',
     )
     expect(entityTag('tio2-b', 7)).toBe('entity:tio2-b:7')
+    expect(siteTag('tio2-my')).toBe('site:tio2-my')
+    expect(contentListTag('tio2-my')).toBe('content-list:tio2-my')
+    expect(sitemapTag('tio2-my')).toBe('sitemap:tio2-my')
+    expect(routeTag('tio2-my', '/')).toBe('route:tio2-my:/')
+    expect(requestSampleContentTag('tio2-my')).toBe('content:tio2-my--request-sample')
+    expect(documentReachContentTag('tio2-my')).toBe('content:tio2-my--document-reach')
+    expect(() => documentReachContentTag('tio2-a')).toThrow('Invalid DOC-REACH scope')
+    expect(() => requestSampleContentTag('tio2-a')).toThrow('Invalid Request Sample scope')
+    expect(aboutPageVersionTag('tio2-my', 'ABOUT-001-G7-PCR-02:FACTS-V0.1')).toBe(
+      'content-version:tio2-my:ABOUT-001-G7-PCR-02:FACTS-V0.1',
+    )
+    expect(() => aboutPageVersionTag('tio2-my', 'draft')).toThrow('Invalid Malaysia About content version')
   })
 
   it.each([

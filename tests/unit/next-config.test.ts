@@ -23,6 +23,13 @@ afterEach(() => {
 })
 
 describe('Next.js configuration', () => {
+  it('delegates page-only slash normalization without redirecting API routes', async () => {
+    const config = await loadConfig()
+
+    expect(config.skipTrailingSlashRedirect).toBe(true)
+    expect(config.trailingSlash).toBeUndefined()
+  })
+
   it('permits only local WordPress uploads through the real Next image matcher by default', async () => {
     vi.stubEnv('WORDPRESS_MEDIA_ORIGIN', undefined)
     const config = await loadConfig()

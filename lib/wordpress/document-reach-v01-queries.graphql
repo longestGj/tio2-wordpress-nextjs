@@ -1,0 +1,3 @@
+query GetMalaysiaDocumentReachV01 {
+  malaysiaDocumentReachRecordJson
+}

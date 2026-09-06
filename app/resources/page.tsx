@@ -6,12 +6,19 @@ import {
   TechnicalResourcePageRenderer,
 } from '@/components/resources/technical-resource-page'
 import {SiteABrandShell} from '@/components/sites/tio2-a/site-a-brand-shell'
+import {MalaysiaResourceHub} from '@/components/sites/tio2-my/resources/malaysia-resource-hub'
 import {
   buildResourceJsonLd,
   serializeResourceJsonLd,
 } from '@/lib/seo/resource-jsonld'
+import {
+  buildMalaysiaResourceHubJsonLd,
+  serializeMalaysiaResourceHubJsonLd,
+} from '@/lib/seo/resource-hub-jsonld'
+import {buildMalaysiaResourceHubMetadata} from '@/lib/seo/resource-hub-metadata'
 import {buildResourceMetadata} from '@/lib/seo/resource-metadata'
 import {getCurrentSite} from '@/lib/sites/current-site'
+import {getMalaysiaResourceHub} from '@/lib/wordpress/resource-hub-v01-queries'
 import {getSiteResource} from '@/lib/wordpress/resource-queries'
 import type {SiteConfig} from '@/sites'
 import {isPublicRoute} from '@/sites/public-routes'
@@ -24,8 +31,12 @@ function isSiteA(site: SiteConfig): boolean {
   return site.id === 'tio2-a' && site.wordpressScope === 'tio2-a'
 }
 
-async function getApprovedResource() {
+async function loadPage() {
   const site = getCurrentSite()
+  if (site.id === 'tio2-my') {
+    const resourceHub = await getMalaysiaResourceHub()
+    return {kind: 'malaysia' as const, resourceHub, site}
+  }
   if (!isSiteA(site) || !isPublicRoute(site.id, CANONICAL_PATH)) notFound()
   const resource = await getSiteResource(site, CANONICAL_PATH)
   if (
@@ -38,20 +49,33 @@ async function getApprovedResource() {
   ) {
     notFound()
   }
-  return {resource, site}
+  return {kind: 'site-a' as const, resource, site}
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const {resource, site} = await getApprovedResource()
-  return buildResourceMetadata(resource, site)
+  const result = await loadPage()
+  return result.kind === 'malaysia'
+    ? buildMalaysiaResourceHubMetadata(result.site, result.resourceHub)
+    : buildResourceMetadata(result.resource, result.site)
 }
 
 export default async function ResourcesPage() {
-  const {resource, site} = await getApprovedResource()
-  const jsonLd = serializeResourceJsonLd(buildResourceJsonLd(resource, site))
+  const result = await loadPage()
+  if (result.kind === 'malaysia') {
+    const jsonLd = serializeMalaysiaResourceHubJsonLd(
+      buildMalaysiaResourceHubJsonLd(result.site, result.resourceHub),
+    )
+    return (
+      <MalaysiaResourceHub
+        resourceHub={result.resourceHub}
+        structuredData={<script type="application/ld+json" dangerouslySetInnerHTML={{__html: jsonLd}} />}
+      />
+    )
+  }
+  const jsonLd = serializeResourceJsonLd(buildResourceJsonLd(result.resource, result.site))
   return (
     <SiteABrandShell
-      site={site}
+      site={result.site}
       inquiryHref="#inquiry"
       structuredData={
         <script
@@ -61,7 +85,7 @@ export default async function ResourcesPage() {
       }
     >
       <TechnicalResourcePageRenderer
-        resource={resource}
+        resource={result.resource}
         visibility={isPublicRoute}
       />
     </SiteABrandShell>

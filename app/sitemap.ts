@@ -1,11 +1,17 @@
 import type {MetadataRoute} from 'next'
 
 import {ProductPageContractError} from '@/lib/products/page-dto'
+import {
+  getMalaysiaEuMarketRelatedRouteStates,
+  projectMalaysiaEuMarketDynamicState,
+} from '@/lib/markets/malaysia-eu-market-projection'
 import {resolveProductPageIdentity, type ProductPageIdentity} from '@/lib/products/page-graph'
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {HomepageContractError} from '@/lib/wordpress/homepage-dto'
 import {getHomepage} from '@/lib/wordpress/homepage-queries'
 import {getSiteProductPage} from '@/lib/wordpress/product-page-queries'
+import {EuMarketPageContractError} from '@/lib/wordpress/market-page-v01-dto'
+import {getMalaysiaEuMarketPage} from '@/lib/wordpress/market-page-v01-queries'
 import {isStrictUtcInstant} from '@/lib/wordpress/time'
 import {CrossSiteContentError} from '@/lib/wordpress/types'
 import type {SiteConfig} from '@/sites'
@@ -53,6 +59,7 @@ export class SitemapIntegrityError extends Error {
 export interface SitemapSources {
   readonly getHomepage: typeof getHomepage
   readonly getSiteProductPage: typeof getSiteProductPage
+  readonly getMalaysiaEuMarketPage?: typeof getMalaysiaEuMarketPage
   readonly getPublicRoutes: typeof getPublicRoutes
   readonly getSiteTemplateProfile: typeof getSiteTemplateProfile
 }
@@ -60,6 +67,7 @@ export interface SitemapSources {
 const defaultSitemapSources: SitemapSources = {
   getHomepage,
   getSiteProductPage,
+  getMalaysiaEuMarketPage,
   getPublicRoutes,
   getSiteTemplateProfile,
 }
@@ -216,6 +224,49 @@ async function productEntry(
   return {url: new URL(route.path, site.url).href}
 }
 
+async function malaysiaEuMarketEntry(
+  site: SiteConfig,
+  source: typeof getMalaysiaEuMarketPage,
+): Promise<MetadataRoute.Sitemap[number] | null> {
+  let marketPage
+  try {
+    marketPage = await source()
+  } catch (error) {
+    if (error instanceof EuMarketPageContractError || error instanceof CrossSiteContentError) {
+      throw new SitemapIntegrityError({
+        reason: 'source-invalid', firstId: 'MARKET-EU-001',
+        path: '/markets/european-union/',
+      })
+    }
+    throw error
+  }
+  if (site.id !== 'tio2-my' || marketPage.identity.siteId !== 'tio2-my' ||
+    marketPage.identity.path !== '/markets/european-union/' ||
+    marketPage.identity.locale !== 'en') {
+    throw new SitemapIntegrityError({
+      reason: 'source-invalid', firstId: marketPage.identity.pageId,
+      path: '/markets/european-union/',
+    })
+  }
+  const state = projectMalaysiaEuMarketDynamicState({
+    evidence: marketPage.trade.evidence ?? {},
+    importEvidence: marketPage.importRoles.source ?? {},
+    routeState: marketPage.relations.tradeUpdate.routeState,
+    datedContext: marketPage.trade.datedContext,
+    action: marketPage.relations.tradeUpdate,
+    originHold: marketPage.releaseControls.originHold,
+    releaseEnabled: marketPage.releaseControls.releaseEnabled,
+    indexingAuthorized: marketPage.releaseControls.indexingAuthorized,
+    relatedRoutesReady: marketPage.releaseControls.relatedRoutesReady,
+    conversionRuntimeReady: marketPage.releaseControls.conversionRuntimeReady,
+    runtimeAcceptanceReady: marketPage.releaseControls.runtimeAcceptanceReady,
+    tradeFreshness: marketPage.releaseControls.tradeFreshness,
+    relatedRouteStates: getMalaysiaEuMarketRelatedRouteStates(marketPage),
+  })
+  if (!state.canIndex || !marketPage.releaseControls.sitemapAuthorized) return null
+  return sitemapEntry(site, marketPage.identity.path, marketPage.identity.modified)
+}
+
 export async function buildSitemap(
   site: SiteConfig,
   sources: SitemapSources = defaultSitemapSources,
@@ -224,13 +275,18 @@ export async function buildSitemap(
   const profile = sources.getSiteTemplateProfile(site.id)
   const validatedRoutes = validateRoutes(site, routes, profile)
 
-  return Promise.all(
+  const entries = await Promise.all(
     validatedRoutes.map((item) =>
       item.kind === 'homepage'
         ? homepageEntry(site, item.route, profile, sources)
         : productEntry(site, item.route, item.identity, sources),
     ),
   )
+  if (site.id === 'tio2-my' && sources.getMalaysiaEuMarketPage) {
+    const marketEntry = await malaysiaEuMarketEntry(site, sources.getMalaysiaEuMarketPage)
+    if (marketEntry) entries.push(marketEntry)
+  }
+  return entries
 }
 
 export default function sitemap(): Promise<MetadataRoute.Sitemap> {

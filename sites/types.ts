@@ -3,7 +3,7 @@ export interface DefaultSeo {
   readonly description: string
 }
 
-export const SITE_IDS = ['tio2-a', 'tio2-b'] as const
+export const SITE_IDS = ['tio2-a', 'tio2-b', 'tio2-my'] as const
 
 export type SiteId = (typeof SITE_IDS)[number]
 
@@ -11,15 +11,20 @@ export type HomepageSchemaVersion =
   | 'homepage-v0.1'
   | 'homepage-v0.2-editorial-geo'
   | 'homepage-v0.3-brand'
+  | 'homepage-v0.4-malaysia'
 
 export type TemplateState = 'active' | 'frozen'
 
-export type ShellTemplateKey = 'site-a-shell-active' | 'site-b-shell-v0.1-frozen'
+export type ShellTemplateKey =
+  | 'site-a-shell-active'
+  | 'site-b-shell-v0.1-frozen'
+  | 'tio2-my-shell-v0.4'
 
 export type HomepageTemplateKey =
   | 'site-a-homepage-editorial-v0.2'
   | 'site-a-homepage-brand-v0.3'
   | 'site-b-homepage-v0.1-frozen'
+  | 'tio2-my-homepage-v0.4'
 
 export const PRODUCT_TEMPLATE_KEY = 'site-a-product-v0.1' as const
 
@@ -60,8 +65,8 @@ export interface SiteConfig {
   readonly description: string
   readonly url: string
   readonly wordpressScope: SiteId
-  readonly locale: 'en-US'
-  readonly contactEmail: string
+  readonly locale: 'en-US' | 'en'
+  readonly contactEmail: string | null
   readonly rfqHref: string
   readonly defaultSeo: DefaultSeo
 }
@@ -69,7 +74,7 @@ export interface SiteConfig {
 export function assertSiteRfqHref(site: SiteConfig): void {
   const target = new URL(site.rfqHref)
   if (target.protocol === 'mailto:') {
-    if (target.href !== `mailto:${site.contactEmail}`) {
+    if (!site.contactEmail || target.href !== `mailto:${site.contactEmail}`) {
       throw new Error(`Invalid RFQ mail target for ${site.id}`)
     }
     return

@@ -1,0 +1,94 @@
+{
+  "packageId": "CONV-DOC-G7-HANDOFF-01",
+  "reviewId": "CONV-DOC-G7-PCR-01",
+  "identity": {
+    "pageId": "CONV-DOC",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "path": "/request-documents/",
+    "schemaVersion": "request-documents-v0.1-malaysia"
+  },
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-005",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"
+  },
+  "moduleOrder": [
+    "global_header", "breadcrumb", "hero", "steps", "minimum_information",
+    "prefill_review", "your_details", "request_details", "review",
+    "privacy_submit", "outcome", "global_footer"
+  ],
+  "breadcrumb": [
+    {"label": "Home", "href": "/"},
+    {"label": "Request Documents", "href": "/request-documents/"}
+  ],
+  "hero": {
+    "eyebrow": "Controlled document request",
+    "h1": "Request Documents",
+    "body": "Select a product grade and the documentation your team needs, then provide the business details required for review."
+  },
+  "steps": [
+    {"title": "Your Details", "body": "Provide your business contact information."},
+    {"title": "Request Details", "body": "Choose one Product Grade and at least one document type."},
+    {"title": "Human Review", "body": "Our team reviews the details and follows up when needed."}
+  ],
+  "minimumInformation": "Please do not include passwords, payment details, personal identification numbers or confidential formulations.",
+  "prefill": {
+    "heading": "Review your prefilled context",
+    "body": "These values came from your previous selection or a supported link. You can change or remove them before submitting."
+  },
+  "form": {
+    "fields": [
+      {"key": "full_name", "label": "Full Name", "control": "text", "required": true},
+      {"key": "company", "label": "Company", "control": "text", "required": true},
+      {"key": "business_email", "label": "Business Email", "control": "email", "required": true, "maxLength": 254, "helper": "Use the business email where our team can follow up."},
+      {"key": "country_region", "label": "Country / Region", "control": "text", "required": true, "placeholder": "Enter your country or region", "helper": "Enter the country or region where your company is based."},
+      {"key": "product_grade", "label": "Product Grade", "control": "select", "required": true},
+      {"key": "document_types", "label": "Document Types", "control": "multiselect", "required": true},
+      {"key": "application_industry", "label": "Application / Industry (optional)", "control": "text", "required": false, "helper": "Add context to help the reviewer understand your request."},
+      {"key": "additional_requirements", "label": "Additional Requirements", "control": "textarea", "required": false, "maxLength": 500}
+    ],
+    "gradeOptions": ["M-350", "M-510", "M-896", "M-996", "M-2196", "M-895", "M-200", "M-108", "M-210", "M-340", "M-886", "M-52", "M-2377", "CR-901"],
+    "documentTypes": [
+      {"value": "technical_product", "label": "Technical Data & Product Documentation", "description": "Technical data and product information"},
+      {"value": "safety", "label": "Safety Documentation", "description": "Safety and handling information"},
+      {"value": "quality_coa", "label": "Quality & COA Documentation", "description": "Quality and COA-related information"},
+      {"value": "origin_supplier_qualification", "label": "Origin & Supplier Qualification Documentation", "description": "Origin and supplier-qualification information"},
+      {"value": "other", "label": "Other Documentation", "description": "Another document-related need"}
+    ],
+    "reviewHeading": "Check your request before submitting",
+    "privacyNotice": "We use the information you provide to review and respond to your document request. Learn more in our Privacy Policy.",
+    "privacyHref": "/privacy-policy/",
+    "submitLabel": "Request Documents",
+    "submittingLabel": "Submitting…",
+    "submittingHelper": "Keep this page open while we submit your request.",
+    "emailAdvice": "If possible, use your company email to help us verify the business context. You can still continue.",
+    "errors": {
+      "summary": "Review the highlighted fields",
+      "full_name": "Enter your full name.",
+      "company": "Enter your company name.",
+      "business_email": "Enter an email in the format name@company.com.",
+      "country_region": "Enter your country or region.",
+      "product_grade": "Select a Product Grade.",
+      "document_types": "Select at least one Document Type.",
+      "other_only": "Describe the document you need.",
+      "additional_requirements_max": "Keep Additional Requirements to 500 characters or fewer."
+    },
+    "failure": {"heading": "Something went wrong", "body": "Your information is still here. Please try submitting again.", "action": "Try again"},
+    "success": {
+      "heading": "Document Request Received",
+      "body": "Thank you. We’ve received your document request. Our team will review the details and contact you at the business email provided if additional information is needed.",
+      "boundary": "Document availability and applicable scope are confirmed during review.",
+      "action": {"label": "Return to Documents", "href": "/documents/"}
+    }
+  },
+  "seo": {
+    "primaryKeywordStatus": "NO_PRIMARY_KEYWORD",
+    "title": "Request Documents | TiO2 Malaysia",
+    "description": "Submit a controlled request for titanium dioxide product, safety, quality, COA, origin or supplier-qualification documentation for human review.",
+    "canonical": "https://tio2malaysia.com/request-documents/",
+    "language": "en",
+    "hreflang": []
+  },
+  "schema": {"allowedTypes": ["WebPage", "BreadcrumbList"]},
+  "releaseControls": {"indexingAuthorized": false}
+}

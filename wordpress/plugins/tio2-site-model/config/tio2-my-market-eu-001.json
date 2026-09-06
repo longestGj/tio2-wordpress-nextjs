@@ -1,0 +1,232 @@
+{
+  "packageId": "MARKET-EU-001-G7-HANDOFF-01",
+  "identity": {
+    "pageId": "MARKET-EU-001",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "path": "/markets/european-union/",
+    "slug": "european-union",
+    "pageType": "market_procurement_landing",
+    "schemaVersion": "market-page-v0.1-malaysia",
+    "primaryKeyword": "titanium dioxide supplier Europe",
+    "parentPageId": "MARKET-000",
+    "currentNavigationKey": "markets",
+    "contentVersion": "Gate 2 V0.2 + Final Content Polish Delta V0.1 + Gate 5 V0.1"
+  },
+  "releaseControls": {
+    "originHold": "OPEN",
+    "tradeFreshness": "CURRENT_AS_OF_2026-09-04",
+    "relatedRoutesReady": false,
+    "conversionRuntimeReady": false,
+    "runtimeAcceptanceReady": false,
+    "releaseEnabled": false,
+    "indexingAuthorized": false,
+    "sitemapAuthorized": false
+  },
+  "seo": {
+    "title": "Malaysia Titanium Dioxide Supplier for EU Buyers | TiO2 Malaysia",
+    "metaDescription": "Evaluate Malaysia-origin titanium dioxide grades for EU coatings, plastics, masterbatch, inks and paper. Request documents, samples or a quote.",
+    "canonical": "https://tio2malaysia.com/markets/european-union/",
+    "hreflang": null,
+    "ogTitle": "Malaysia-Origin Titanium Dioxide for European Union Buyers",
+    "ogDescription": "Explore Malaysia-origin titanium dioxide grades, application paths, documents and import considerations for European Union procurement."
+  },
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-005",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"
+  },
+  "moduleOrder": [
+    "breadcrumb",
+    "hero",
+    "supplier-definition",
+    "procurement-path",
+    "applications",
+    "grades",
+    "documents",
+    "import-roles",
+    "origin",
+    "trade",
+    "destinations",
+    "buyer-questions",
+    "conversion"
+  ],
+  "breadcrumb": [
+    {"targetPageId": "HOME-001", "label": "Home", "href": "/", "routeState": "available"},
+    {"targetPageId": "MARKET-000", "label": "Markets", "href": "/markets/", "routeState": "available"},
+    {"targetPageId": "MARKET-EU-001", "label": "European Union", "href": "/markets/european-union/", "routeState": "available"}
+  ],
+  "relations": {
+    "productsHub": {"targetPageId": "PRODUCT-000", "label": "Explore Titanium Dioxide Grades", "href": "/products/", "routeState": "available"},
+    "applicationHub": {"targetPageId": "APP-000", "label": "Explore All Applications", "href": "/applications/", "routeState": "planned"},
+    "documentsHub": {"targetPageId": "DOC-000", "label": "View the Documents Process", "href": "/documents/", "routeState": "available"},
+    "about": {"targetPageId": "ABOUT-001", "label": "About TiO2 Malaysia", "href": "/about/", "routeState": "available"},
+    "resourcesHub": {"targetPageId": "RES-000", "label": "Resources", "href": "/resources/", "routeState": "available"},
+    "tradeUpdate": {"targetPageId": "RES-TRADE-EU", "label": "View the EU Trade Update", "href": "/resources/eu-titanium-dioxide-anti-dumping-duty/", "routeState": "planned"},
+    "rfq": {"targetPageId": "CONV-RFQ", "label": "Request a Quote", "href": "/request-a-quote/?market=European%20Union&source_page=MARKET-EU-001", "routeState": "available"},
+    "requestDocuments": {"targetPageId": "CONV-DOC", "label": "Request Documents", "href": "/request-documents/?source_page_id=MARKET-EU-001&market_id=MARKET-EU-001", "routeState": "available"},
+    "sample": {"targetPageId": "CONV-SAMPLE", "label": "Request a Sample", "href": "/request-sample/?source_page_id=MARKET-EU-001&market_id=MARKET-EU-001", "routeState": "available"}
+  },
+  "hero": {
+    "eyebrow": "MALAYSIA-ORIGIN SUPPLY · EUROPEAN UNION",
+    "h1": "Malaysia-Origin Titanium Dioxide for European Union Buyers",
+    "body": "TiO2 Malaysia, operated by IKHLAS TITANIUM (MALAYSIA) SDN. BHD., supplies Malaysia-origin rutile titanium dioxide for EU industrial buyers evaluating coatings, plastics, masterbatch, printing inks and paper applications. Explore grade information, request applicable documents and prepare a sample or quotation request for your destination."
+  },
+  "supplierDefinition": {
+    "eyebrow": "SUPPLIER AND PRODUCT",
+    "h2": "Titanium Dioxide Supply for EU Industrial Applications",
+    "body": "TiO2 Malaysia is the international-facing supply platform operated by IKHLAS TITANIUM (MALAYSIA) SDN. BHD. The company identifies Taiping, Malaysia as its manufacturing site and Malaysia as the origin of its titanium dioxide. EU buyers can evaluate approved grade paths by application, request supporting product and supplier information, and prepare a commercial enquiry for the selected destination.",
+    "qualification": "Manufacturing-site and origin statements are company-provided information. Product, document, origin and transaction requirements should be confirmed for the selected grade and purchasing context.",
+    "facts": [
+      {"label": "Operating company", "value": "IKHLAS TITANIUM (MALAYSIA) SDN. BHD."},
+      {"label": "Product", "value": "Rutile titanium dioxide pigment"},
+      {"label": "Stated manufacturing site", "value": "Taiping, Perak, Malaysia"},
+      {"label": "Stated product origin", "value": "Malaysia"},
+      {"label": "Industrial application paths", "value": "Coatings · Plastics · Masterbatch · Printing Inks · Paper"}
+    ]
+  },
+  "procurement": {
+    "answerHeading": "What should EU buyers check first?",
+    "answer": "Start with the intended application and grade, then confirm the EU importing entity, relevant REACH and CLP responsibilities, current product and safety information, customs classification, substantiated origin and destination requirements.",
+    "eyebrow": "PROCUREMENT PATH",
+    "h2": "Plan Your EU Titanium Dioxide Procurement Path",
+    "intro": "A useful supplier assessment starts with the product and transaction rather than a generic compliance label.",
+    "items": [
+      {"number": "01", "title": "Define the application", "body": "State whether the titanium dioxide will be evaluated for coatings, plastics, masterbatch, printing inks or paper. The intended use determines which technical questions and product information matter most."},
+      {"number": "02", "title": "Identify grades to evaluate", "body": "Share a known grade when you have one. If the grade is still open, begin with the application, formulation, process and evaluation criteria before narrowing the product selection."},
+      {"number": "03", "title": "Confirm the importing role", "body": "Identify the EU importing entity and confirm whether an only-representative arrangement is relevant to the substance, supply chain and annual volume."},
+      {"number": "04", "title": "Request the required information", "body": "Specify the technical, safety, quality and COA-related, origin, and supplier-qualification information your team needs."},
+      {"number": "05", "title": "Check classification and origin", "body": "Verify the current CN or TARIC classification, the substantiated origin of the goods and the measures that apply to the specific transaction."},
+      {"number": "06", "title": "Prepare the commercial request", "body": "Provide the destination country, estimated quantity, required timing and packaging requirements so the enquiry can be assessed in context."}
+    ],
+    "boundary": "Requirements vary by product, importer role and transaction. Confirm the current position with the responsible EU importer and qualified advisers where needed."
+  },
+  "applications": {
+    "eyebrow": "APPLICATIONS",
+    "h2": "Evaluate Titanium Dioxide by Intended Application",
+    "intro": "Use the intended application to define the technical questions that matter before selecting a grade. The criteria below describe evaluation topics; they are not performance claims for every grade.",
+    "items": [
+      {"targetPageId": "APP-COAT", "title": "Coatings", "body": "Define opacity and hiding-power targets, dispersion and whiteness requirements, and any weatherability requirements relevant to the coating system.", "actionLabel": "Explore Coatings", "href": "/applications/titanium-dioxide-for-coatings/", "routeState": "planned"},
+      {"targetPageId": "APP-PLAS", "title": "Plastics", "body": "Assess whiteness and opacity targets, dispersion needs, the resin system and the processing-temperature conditions of the intended use.", "actionLabel": "Explore Plastics", "href": "/applications/titanium-dioxide-for-plastics/", "routeState": "planned"},
+      {"targetPageId": "APP-MB", "title": "Masterbatch", "body": "Consider pigment-loading targets, dispersion, the carrier or resin system and compatibility with the intended production process.", "actionLabel": "Explore Masterbatch", "href": "/applications/titanium-dioxide-for-masterbatch/", "routeState": "planned"},
+      {"targetPageId": "APP-INK", "title": "Printing Inks", "body": "Define opacity and whiteness requirements, dispersion needs and the formulation conditions relevant to the printing-ink system.", "actionLabel": "Explore Printing Inks", "href": "/applications/titanium-dioxide-for-printing-inks/", "routeState": "planned"},
+      {"targetPageId": "APP-PAPER", "title": "Paper", "body": "Assess brightness, opacity and whiteness targets together with the paper application and process requirements.", "actionLabel": "Explore Paper", "href": "/applications/titanium-dioxide-for-paper/", "routeState": "planned"}
+    ]
+  },
+  "grades": {
+    "eyebrow": "TITANIUM DIOXIDE GRADES",
+    "h2": "Explore Titanium Dioxide Grades by Application",
+    "intro": "Explore representative titanium dioxide grades for coatings, plastics and masterbatch applications. Grade selection should be confirmed against formulation, processing, technical and documentation requirements.",
+    "groups": [
+      {
+        "label": "Coatings",
+        "items": [
+          {"targetPageId": "GRADE-M350", "label": "M-350", "positioning": "Decorative, industrial and automotive coatings", "actionLabel": "View Grade", "href": "/products/m-350/", "routeState": "available"},
+          {"targetPageId": "GRADE-M510", "label": "M-510", "positioning": "Architectural and automotive coatings", "actionLabel": "View Grade", "href": "/products/m-510/", "routeState": "available"},
+          {"targetPageId": "GRADE-M896", "label": "M-896", "positioning": "Industrial and weather-resistant coatings", "actionLabel": "View Grade", "href": "/products/m-896/", "routeState": "available"}
+        ]
+      },
+      {
+        "label": "Plastics & Masterbatch",
+        "items": [
+          {"targetPageId": "GRADE-M200", "label": "M-200", "positioning": "Exterior plastics and durable plastic masterbatch", "actionLabel": "View Grade", "href": "/products/m-200/", "routeState": "available"},
+          {"targetPageId": "GRADE-M108", "label": "M-108", "positioning": "Masterbatch, compounds, polyolefin and PVC film", "actionLabel": "View Grade", "href": "/products/m-108/", "routeState": "available"},
+          {"targetPageId": "GRADE-M210", "label": "M-210", "positioning": "Polyolefin masterbatch and engineering plastics", "actionLabel": "View Grade", "href": "/products/m-210/", "routeState": "available"}
+        ]
+      }
+    ],
+    "allGradesAction": {"targetPageId": "PRODUCT-000", "label": "View All Titanium Dioxide Grades", "href": "/products/", "routeState": "available"}
+  },
+  "documents": {
+    "eyebrow": "DOCUMENTS",
+    "h2": "Request Documents for Product and Supplier Qualification",
+    "intro": "Document needs depend on the selected grade, intended use, importing entity and request purpose. Identify what your team needs and confirm applicability and availability after the request context is submitted.",
+    "categories": [
+      {"title": "Technical Data & Product Documentation", "body": "Product data and specifications used to evaluate the selected grade."},
+      {"title": "Safety Documentation", "body": "Safety, handling and storage information used in workplace and product assessment."},
+      {"title": "Quality & COA Documentation", "body": "Quality and COA-related information used in QA and purchasing checks."},
+      {"title": "Origin & Supplier Qualification Documentation", "body": "Origin and company information used in supplier qualification and purchasing assessment."}
+    ],
+    "serviceNote": "The current documentation request service is in English. Availability and applicable scope are confirmed for the selected grade and request purpose."
+  },
+  "importRoles": {
+    "eyebrow": "EU IMPORT RESPONSIBILITIES",
+    "h2": "Confirm the EU Importing Role and Applicable Responsibilities",
+    "answer": "For products imported from outside the EU or EEA, REACH and CLP responsibilities generally sit with the EU importer or, for applicable REACH obligations, an EU-established only representative. The non-EU supplier supports the assessment with relevant product and supply-chain information. The exact responsibility depends on the substance, importer role, annual volume and transaction circumstances.",
+    "checklist": [
+      "Identify the EU importing entity.",
+      "Confirm whether an EU-established only representative is relevant for applicable REACH obligations.",
+      "Check the substance, annual volume, intended use and supply-chain circumstances.",
+      "Confirm the classification, labelling and information duties applicable to the transaction."
+    ],
+    "referenceLine": "Official reference: European Chemicals Agency, REACH and CLP for non-EU companies. Checked 4 September 2026.",
+    "source": {
+      "title": "European Chemicals Agency, REACH and CLP for non-EU companies",
+      "url": "https://echa.europa.eu/support/getting-started/enquiry-on-reach-and-clp",
+      "sourceDate": "2026-09-04",
+      "checkedDate": "2026-09-04",
+      "status": "current",
+      "applicableScope": "EU importer and only-representative responsibilities",
+      "actionLabel": "Check the ECHA Guidance"
+    }
+  },
+  "origin": {
+    "eyebrow": "MALAYSIA MANUFACTURING AND ORIGIN",
+    "h2": "Malaysia Manufacturing and Origin Information",
+    "body": "TiO2 Malaysia is operated by IKHLAS TITANIUM (MALAYSIA) SDN. BHD. The company identifies Taiping, Perak, Malaysia as its manufacturing site and Malaysia as the origin of its titanium dioxide. EU buyers should confirm the origin evidence and document scope required for the selected product and transaction.",
+    "sourceLine": "Company-provided manufacturing and origin information, reviewed September 2026."
+  },
+  "trade": {
+    "eyebrow": "EU CUSTOMS AND TRADE CONTEXT",
+    "h2": "Check Current EU Customs and Trade Requirements",
+    "evergreenAnswer": "EU customs treatment depends on the product's classification, substantiated origin and the measures in force at the time of import. Verify the current TARIC position and applicable official rules for the specific product and transaction.",
+    "commercialBridge": "For EU buyers assessing sourcing diversification, Malaysia-origin supply can be considered as a separate procurement path. Any customs or trade treatment still depends on product classification, substantiated origin and the measures applicable to the transaction.",
+    "datedHeading": "Current titanium dioxide trade context",
+    "datedContext": "Checked 4 September 2026: the EU has definitive anti-dumping measures concerning defined titanium dioxide imports originating in China. On 25 August 2026, the European Commission opened an absorption reinvestigation concerning those measures. The investigation is ongoing, so buyers should not rely on a fixed rate or scope without a current official check.",
+    "clarification": "Measures concerning goods of one origin do not, by themselves, determine the customs treatment of goods of another origin. Product classification, substantiated origin and the measures in force must be assessed together.",
+    "evidence": {
+      "claimId": "EU-G6-R02",
+      "sourceUrl": "https://eur-lex.europa.eu/eli/reg_impl/2025/4/oj",
+      "sourceTitle": "Commission Implementing Regulation (EU) 2025/4",
+      "sourceDate": "2025-01-09",
+      "checkedDate": "2026-09-04",
+      "reviewedAt": "2026-09-04",
+      "status": "current",
+      "applicableScope": "European Union titanium dioxide trade context"
+    },
+    "references": [
+      {"label": "Commission Implementing Regulation (EU) 2025/4", "url": "https://eur-lex.europa.eu/eli/reg_impl/2025/4/oj", "sourceDate": "2025-01-09"},
+      {"label": "Notice C/2026/4533", "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:52026XC04533", "sourceDate": "2026-08-25"},
+      {"label": "EU Customs Tariff (TARIC)", "url": "https://taxation-customs.ec.europa.eu/customs-4/calculation-customs-duties/customs-tariff/eu-customs-tariff-taric_en", "sourceDate": "2026-09-04"}
+    ]
+  },
+  "destinations": {
+    "eyebrow": "EU DESTINATION PATHS",
+    "h2": "Explore Titanium Dioxide Supply by EU Destination",
+    "intro": "Use a country page when the purchasing question depends on a specific destination, local industrial context or delivery information.",
+    "items": [
+      {"targetPageId": "MARKET-EU-DE", "label": "Germany", "href": "/markets/germany/", "routeState": "planned"},
+      {"targetPageId": "MARKET-EU-IT", "label": "Italy", "href": "/markets/italy/", "routeState": "planned"},
+      {"targetPageId": "MARKET-EU-ES", "label": "Spain", "href": "/markets/spain/", "routeState": "planned"},
+      {"targetPageId": "MARKET-EU-PL", "label": "Poland", "href": "/markets/poland/", "routeState": "planned"},
+      {"targetPageId": "MARKET-EU-NL", "label": "Netherlands", "href": "/markets/netherlands/", "routeState": "planned"},
+      {"targetPageId": "MARKET-EU-BE", "label": "Belgium", "href": "/markets/belgium/", "routeState": "planned"}
+    ],
+    "helper": "For EU-wide import, documentation and trade context, continue with this European Union page."
+  },
+  "buyerQuestions": [
+    {"id": "Q1", "question": "Can TiO2 Malaysia supply titanium dioxide to EU buyers?", "answer": "Yes. TiO2 Malaysia supplies Malaysia-origin titanium dioxide for evaluation by EU industrial buyers. Buyers can review application paths and representative grades, request documents, and submit sample or quotation enquiries. TiO2 Malaysia is operated by IKHLAS TITANIUM (MALAYSIA) SDN. BHD. in Malaysia and is not presented as an EU-established supplier."},
+    {"id": "Q2", "question": "Is TiO2 Malaysia an EU-based supplier?", "answer": "No. TiO2 Malaysia is operated from Malaysia and is not presented as an EU-established supplier. The platform supports industrial buyers, including procurement teams in the European Union."},
+    {"id": "Q3", "question": "What applications are TiO2 Malaysia titanium dioxide grades intended for?", "answer": "The current approved grade paths cover coatings, plastics, masterbatch, printing inks, paper and one Specialty Materials path. Grade selection should be based on formulation, process and technical requirements together with current product information and supporting documentation."},
+    {"id": "Q4", "question": "Who handles REACH and CLP responsibilities for an EU import?", "answer": "The applicable responsibilities generally depend on the EU importing role and the structure of the transaction. They generally sit with the EU importer or, for applicable REACH obligations, an EU-established only representative. Confirm the substance, annual volume and transaction circumstances."},
+    {"id": "Q5", "question": "What documents can EU buyers request?", "answer": "EU buyers can request product, safety, quality, COA-related, origin and supplier-qualification documentation. Availability and applicable scope are confirmed after the selected grade and request purpose are submitted."},
+    {"id": "Q6", "question": "How should we select a grade?", "answer": "Start with the intended application, formulation, process and evaluation criteria. Then compare the relevant product information and identify the grade in your request when known."},
+    {"id": "Q7", "question": "Do EU measures on Chinese titanium dioxide determine the treatment of Malaysian-origin goods?", "answer": "No. Treatment must be assessed using the specific product classification, substantiated origin and measures in force for the transaction."},
+    {"id": "Q8", "question": "What should we include in a quotation request?", "answer": "Include the application, grade if known, destination country, estimated quantity, required timing, packaging needs and the information your team needs to assess."}
+  ],
+  "conversion": {
+    "eyebrow": "EUROPEAN UNION SUPPLY REQUEST",
+    "h2": "Prepare Your EU Titanium Dioxide Supply Request",
+    "body": "Share the intended application, grade if known, EU destination and estimated requirement so the enquiry can be assessed in the right product and market context.",
+    "responseNote": "A submission starts the appropriate product, document, sample or commercial assessment. It does not confirm document availability, sample approval, price, inventory, delivery timing or customs treatment."
+  }
+}

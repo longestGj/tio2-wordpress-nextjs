@@ -21,7 +21,8 @@ $StateDirectory = [System.IO.Path]::GetFullPath($StateDirectory)
 $StatePath = Join-Path $StateDirectory 'sites.json'
 $LocalSites = @(
     [PSCustomObject]@{siteId = 'tio2-a'; port = 3001; distDir = '.next-tio2-a'},
-    [PSCustomObject]@{siteId = 'tio2-b'; port = 3002; distDir = '.next-tio2-b'}
+    [PSCustomObject]@{siteId = 'tio2-b'; port = 3002; distDir = '.next-tio2-b'},
+    [PSCustomObject]@{siteId = 'tio2-my'; port = 3003; distDir = '.next-tio2-my'}
 )
 
 if (@(@($Plan, $KeepRunning, $Stop, $Status) | Where-Object { $_ }).Count -gt 1) {
@@ -56,15 +57,17 @@ $NodeExecutable = (Get-Command node -ErrorAction Stop).Source
 $NodeExecutable = (Resolve-Path -LiteralPath $NodeExecutable).Path
 $NextCliPath = (Resolve-Path -LiteralPath (Join-Path $RepositoryRoot 'node_modules/next/dist/bin/next')).Path
 $WordPressEnvironmentPath = Join-Path $RepositoryRoot 'wordpress/.env'
-if (-not (Test-Path -LiteralPath $WordPressEnvironmentPath)) {
+$WordPressEnvironment = @{}
+if (-not ($Status -or $Stop) -and -not (Test-Path -LiteralPath $WordPressEnvironmentPath)) {
     throw 'Missing wordpress/.env. Generate it before starting the local sites.'
 }
-$WordPressEnvironment = @{}
-foreach ($Line in Get-Content -LiteralPath $WordPressEnvironmentPath) {
-    $TrimmedLine = $Line.Trim()
-    if (-not $TrimmedLine -or $TrimmedLine.StartsWith('#')) { continue }
-    $Name, $Value = $TrimmedLine -split '=', 2
-    $WordPressEnvironment[$Name.Trim()] = $Value.Trim()
+if (Test-Path -LiteralPath $WordPressEnvironmentPath) {
+    foreach ($Line in Get-Content -LiteralPath $WordPressEnvironmentPath) {
+        $TrimmedLine = $Line.Trim()
+        if (-not $TrimmedLine -or $TrimmedLine.StartsWith('#')) { continue }
+        $Name, $Value = $TrimmedLine -split '=', 2
+        $WordPressEnvironment[$Name.Trim()] = $Value.Trim()
+    }
 }
 if ($CancellationPath) {
     $CancellationPath = [System.IO.Path]::GetFullPath($CancellationPath)
@@ -378,7 +381,7 @@ if ($Stop) {
             }
         }
     }
-    [ordered]@{mode = 'stopped'; ports = @(3001, 3002)} | ConvertTo-Json -Compress
+    [ordered]@{mode = 'stopped'; ports = @(3001, 3002, 3003)} | ConvertTo-Json -Compress
     exit 0
 }
 

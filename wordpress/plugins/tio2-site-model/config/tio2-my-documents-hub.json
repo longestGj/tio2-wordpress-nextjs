@@ -1,0 +1,99 @@
+{
+  "packageId": "DOC-000-G7-HANDOFF-01",
+  "identity": {
+    "pageId": "DOC-000",
+    "siteScope": "tio2-my",
+    "path": "/documents/",
+    "schemaVersion": "documents-hub-v0.1-malaysia",
+    "locale": "en",
+    "pageType": "navigation_hub",
+    "primaryKeyword": "NO_PRIMARY_KEYWORD",
+    "currentNavigationKey": "Documents"
+  },
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-005",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"
+  },
+  "breadcrumb": [
+    {"targetPageId": "HOME-001", "label": "Home", "href": "/"},
+    {"targetPageId": "DOC-000", "label": "Documents", "href": "/documents/"}
+  ],
+  "hero": {
+    "eyebrow": "DOCUMENT HUB",
+    "h1": "Documents for Product & Supplier Qualification",
+    "body": "Request technical, safety, quality, COA, origin and supplier-qualification documentation for the titanium dioxide grade your team is evaluating.",
+    "note": "Requests are currently handled in English.",
+    "primaryAction": {"label": "Start a Document Request", "href": "/request-documents/"}
+  },
+  "gradeSelector": {
+    "fieldId": "document-grade",
+    "heading": "Select a Product Grade",
+    "body": "Select the product grade the documents relate to. It will be prefilled on the request form and can be changed before submission.",
+    "fieldLabel": "Product Grade",
+    "prompt": "Select a product grade",
+    "helper": "Choose one grade to continue.",
+    "validation": "Select a product grade to continue.",
+    "selectedTemplate": "Selected product grade: {GRADE}",
+    "primaryActionLabel": "Continue to Request Documents",
+    "assistancePrefix": "Not sure which grade to select?",
+    "assistanceLabel": "Explore Products.",
+    "assistanceHref": "/products/",
+    "receiverPath": "/request-documents/",
+    "grades": ["M-350", "M-510", "M-896", "M-996", "M-2196", "M-895", "M-200", "M-108", "M-210", "M-340", "M-886", "M-52", "M-2377", "CR-901"]
+  },
+  "howItWorks": {
+    "heading": "How It Works",
+    "items": [
+      {"stableId": "identify-review-need", "order": 1, "heading": "Identify Your Review Need", "body": "Choose product evaluation, quality and supplier qualification, or origin review."},
+      {"stableId": "select-product-grade", "order": 2, "heading": "Select a Product Grade", "body": "Choose the titanium dioxide grade the documents should relate to."},
+      {"stableId": "request-documents", "order": 3, "heading": "Request Documents", "body": "Continue with the grade prefilled, select the document types you need, and submit your request."}
+    ]
+  },
+  "reviewScenarios": {
+    "heading": "Supporting Your Review Process",
+    "intro": "Start with the decision your team is preparing to make.",
+    "items": [
+      {"heading": "Product Evaluation", "body": "Review product data, specifications, safety and handling information for the selected grade."},
+      {"heading": "Quality & Supplier Qualification", "body": "Support QA and supplier qualification with quality information, COA-related documentation and supplier details."},
+      {"heading": "Origin & Supplier Qualification Review", "body": "Request origin and supplier-qualification information for purchasing and internal review."}
+    ]
+  },
+  "documentCategories": {
+    "heading": "Documentation You Can Request",
+    "intro": "Choose the category that best matches your review.",
+    "items": [
+      {"heading": "Technical Data & Product Documentation", "body": "Technical product data and specifications for evaluating the selected grade."},
+      {"heading": "Safety Documentation", "body": "Safety, handling and storage information for workplace and product review."},
+      {"heading": "Quality & COA Documentation", "body": "Quality information and COA-related documentation for QA and purchasing checks."},
+      {"heading": "Origin & Supplier Qualification Documentation", "body": "Origin and company documentation for supplier qualification and purchasing review."}
+    ]
+  },
+  "whyOnRequest": {
+    "heading": "Why Documents Are Provided on Request",
+    "body": "Documentation can differ by product and review purpose. Submitting a request helps match the materials to the selected grade and the information your team needs. Availability and applicable scope are confirmed during review."
+  },
+  "buyerQuestions": {
+    "heading": "Buyer Questions",
+    "items": [
+      {"id": "documents", "order": 1, "question": "What documents can I request?", "answer": "You can request technical/product, safety, quality/COA, and origin/supplier-qualification documentation."},
+      {"id": "grade", "order": 2, "question": "Do I need to know the Product Grade?", "answer": "Yes. Select the Product Grade the documents should relate to. If you are not sure, explore Products before continuing."},
+      {"id": "multiple", "order": 3, "question": "Can I request more than one document type?", "answer": "Yes. On the Request Documents form, you can select the document types your team needs."},
+      {"id": "change", "order": 4, "question": "Can I change the prefilled Product Grade?", "answer": "Yes. The selected Product Grade is prefilled on the request form and can be changed before submission."},
+      {"id": "why", "order": 5, "question": "Why are documents provided on request?", "answer": "Documentation can differ by product and review purpose. A request helps match the materials to the selected Grade and your team's needs."},
+      {"id": "language", "order": 6, "question": "What language is used for document requests?", "answer": "Requests are currently handled in English."}
+    ]
+  },
+  "closingCta": {
+    "selectorTargetId": "document-grade",
+    "eyebrow": "DOCUMENT REQUEST",
+    "heading": "Ready to Request Documents?",
+    "body": "Select the product grade the documents relate to. We’ll carry it into the request form, where you can choose the document types you need.",
+    "unselectedLabel": "Select a Product Grade",
+    "selectedLabel": "Continue to Request Documents"
+  },
+  "seo": {
+    "title": "Documents for Product Qualification | TiO2 Malaysia",
+    "description": "Request technical, safety, quality, COA, origin and supplier-qualification documentation for a selected titanium dioxide grade."
+  },
+  "releaseControls": {"indexingAuthorized": false, "sitemapAuthorized": false}
+}

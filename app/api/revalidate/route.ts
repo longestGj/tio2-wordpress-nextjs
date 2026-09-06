@@ -8,18 +8,28 @@ import {resolveProductPageIdentity} from '@/lib/products/page-graph'
 import {getCurrentSite} from '@/lib/sites/current-site'
 import {SITE_IDS} from '@/sites'
 import {
+  aboutPageContentTag,
   applicationListTag,
   applicationTag,
   contentListTag,
+  documentsHubContentTag,
+  documentTdsContentTag,
+  documentReachContentTag,
+  requestDocumentsContentTag,
+  requestSampleContentTag,
   entityTag,
   homepageContentTag,
   isValidPublicPath,
+  legalPagesContentTag,
+  marketHubContentTag,
+  marketPageContentTag,
   normalizePublicPath,
   productListTag,
   productDetailTag,
   productFamilyTag,
   productsHubTag,
   resourceListTag,
+  resourceHubContentTag,
   resourceTag,
   routeTag,
   siteTag,
@@ -268,13 +278,51 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const tags = new Set<string>()
+  const malaysiaLegalPaths = new Set(['/privacy-policy', '/ms/privacy-policy', '/cookie-policy'])
+  const preciseMalaysiaSingletonEvent =
+    currentSite.id === 'tio2-my' &&
+    (payload.paths.includes('/resources') || payload.paths.includes('/documents') || payload.paths.includes('/documents/tds-sds-coa') || payload.paths.includes('/documents/reach') || payload.paths.includes('/request-documents') || payload.paths.includes('/request-sample') || payload.paths.includes('/markets/european-union') ||
+      (payload.paths.length === 1 && malaysiaLegalPaths.has(payload.paths[0]!)))
   for (const siteId of payload.siteIds) {
-    tags.add(contentListTag(siteId))
-    tags.add(siteTag(siteId))
-    tags.add(sitemapTag(siteId))
+    if (!preciseMalaysiaSingletonEvent) {
+      tags.add(contentListTag(siteId))
+      tags.add(siteTag(siteId))
+      tags.add(sitemapTag(siteId))
+    }
     for (const path of payload.paths) {
       tags.add(routeTag(siteId, path))
       if (path === '/') tags.add(homepageContentTag(siteId))
+      if (siteId === 'tio2-my' && path === '/markets') {
+        tags.add(marketHubContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && path === '/markets/european-union') {
+        tags.add(siteTag(siteId))
+        tags.add(marketPageContentTag(siteId, 'MARKET-EU-001', 'en'))
+      }
+      if (siteId === 'tio2-my' && path === '/resources') {
+        tags.add(resourceHubContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && path === '/about') {
+        tags.add(aboutPageContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && path === '/documents') {
+        tags.add(documentsHubContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && path === '/documents/tds-sds-coa') {
+        tags.add(documentTdsContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && path === '/documents/reach') {
+        tags.add(documentReachContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && path === '/request-documents') {
+        tags.add(requestDocumentsContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && path === '/request-sample') {
+        tags.add(requestSampleContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && malaysiaLegalPaths.has(path)) {
+        tags.add(legalPagesContentTag(siteId))
+      }
 
       const productIdentity = productIdentityByPath.get(path)
       if (productIdentity) {

@@ -6,6 +6,7 @@ import {
   SITE_A_PRODUCT_FAMILIES,
   resolveProductPageIdentity,
 } from '@/lib/products/page-graph'
+import {isApprovedMalaysiaProductDetailSlug} from './product-detail-v01-registry'
 
 const siteIdSet = new Set<SiteId>(SITE_IDS)
 const MAX_CANONICAL_PUBLIC_PATH_LENGTH = 172
@@ -156,6 +157,92 @@ export function contentTag(siteId: string, contentId: number): string {
 export function homepageContentTag(siteId: string): string {
   assertSiteId(siteId)
   return `content:${siteId}--homepage`
+}
+
+export function marketHubContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  return `content:${siteId}--markets`
+}
+
+export function marketPageContentTag(siteId: string, pageId: string, locale: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my' || pageId !== 'MARKET-EU-001' || locale !== 'en') {
+    throw new Error(`Invalid Malaysia Market page identity: ${siteId}/${pageId}/${locale}`)
+  }
+  return `content:${siteId}--market--${pageId}--${locale}`
+}
+
+export function productHubContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  return `content:${siteId}--products`
+}
+
+export function resourceHubContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  return `content:${siteId}--resources`
+}
+
+export function aboutPageContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  return `content:${siteId}--about`
+}
+
+export function documentsHubContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid Documents Hub scope: ${siteId}`)
+  return `content:${siteId}--documents`
+}
+
+export function documentTdsContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid DOC-TDS scope: ${siteId}`)
+  return `content:${siteId}--document-tds`
+}
+
+export function documentReachContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid DOC-REACH scope: ${siteId}`)
+  return `content:${siteId}--document-reach`
+}
+
+export function legalPagesContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid Legal pages scope: ${siteId}`)
+  return `content:${siteId}--legal-pages`
+}
+
+export function rfqPageContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid RFQ page scope: ${siteId}`)
+  return `content:${siteId}--request-a-quote`
+}
+
+export function requestDocumentsContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid Request Documents scope: ${siteId}`)
+  return `content:${siteId}--request-documents`
+}
+
+export function requestSampleContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid Request Sample scope: ${siteId}`)
+  return `content:${siteId}--request-sample`
+}
+
+export function aboutPageVersionTag(siteId: string, contentVersion: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my' || !/^ABOUT-001-G7-PCR-02:FACTS-V0\.1$/u.test(contentVersion)) {
+    throw new Error(`Invalid Malaysia About content version: ${siteId}/${contentVersion}`)
+  }
+  return `content-version:${siteId}:${contentVersion}`
+}
+
+export function productDetailContentTag(siteId: string, slug: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my' || !isApprovedMalaysiaProductDetailSlug(slug)) {
+    throw new Error(`Invalid Malaysia Product Detail identity: ${siteId}/${slug}`)
+  }
+  return `content:${siteId}--product-detail--${slug}`
 }
 
 export function routeTag(siteId: string, path: string): string {

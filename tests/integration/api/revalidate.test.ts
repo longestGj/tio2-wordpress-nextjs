@@ -284,12 +284,174 @@ describe('POST /api/revalidate', () => {
     expect(revalidatePath).not.toHaveBeenCalled()
   })
 
-  it.each(['tio2-a', 'tio2-b'] as const)('accepts central site ID %s for its owning site', async (siteId) => {
+  it.each(['tio2-a', 'tio2-b', 'tio2-my'] as const)('accepts central site ID %s for its owning site', async (siteId) => {
     vi.stubEnv('SITE_ID', siteId)
 
     const response = await POST(signedRequest(validPayload({siteIds: [siteId]})))
 
     expect(response.status).toBe(200)
+  })
+
+  it('revalidates the Malaysia Markets Hub with scope-local tags only', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const payload = validPayload({
+      siteIds: ['tio2-my'],
+      paths: ['/markets/'],
+    })
+
+    const response = await POST(signedRequest(payload))
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/markets'])
+    expect(body.revalidatedTags).toEqual([
+      'content-list:tio2-my',
+      'content:tio2-my--markets',
+      'route:tio2-my:/markets',
+      'site:tio2-my',
+      'sitemap:tio2-my',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/tio2-a|tio2-b/iu)
+  })
+
+  it('revalidates MARKET-EU-001 with its three scope-local query tags only', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/markets/european-union/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/markets/european-union'])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--market--MARKET-EU-001--en',
+      'route:tio2-my:/markets/european-union',
+      'site:tio2-my',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|tio2-a|tio2-b/iu)
+  })
+
+  it('revalidates ABOUT-001 with its scope-local content tag', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/about/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/about'])
+    expect(body.revalidatedTags).toEqual([
+      'content-list:tio2-my',
+      'content:tio2-my--about',
+      'route:tio2-my:/about',
+      'site:tio2-my',
+      'sitemap:tio2-my',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/tio2-a|tio2-b/iu)
+  })
+
+  it('revalidates DOC-000 with exact Malaysia route and content tags only', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/documents/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/documents'])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--documents',
+      'route:tio2-my:/documents',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
+  })
+
+  it('revalidates DOC-TDS with exact Malaysia route and content tags only', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/documents/tds-sds-coa/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/documents/tds-sds-coa'])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--document-tds',
+      'route:tio2-my:/documents/tds-sds-coa',
+    ])
+  })
+
+  it('revalidates DOC-REACH with exact Malaysia route and content tags only', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/documents/reach/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/documents/reach'])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--document-reach',
+      'route:tio2-my:/documents/reach',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
+  })
+
+  it.each(['/privacy-policy/', '/ms/privacy-policy/', '/cookie-policy/'])('revalidates Legal route %s with the shared exact Legal content tag', async (path) => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({siteIds: ['tio2-my'], paths: [path]})))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    const normalized = path.replace(/\/$/, '')
+    expect(body.revalidatedPaths).toEqual([normalized])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--legal-pages', `route:tio2-my:${normalized}`,
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
+  })
+
+  it('revalidates the Malaysia Resources Hub with scope-local tags only', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/resources/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/resources'])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--resources',
+      'route:tio2-my:/resources',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/tio2-a|tio2-b/iu)
+  })
+
+  it('invalidates an H5 child dependency and Resources projection without broad site tags', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'],
+      paths: ['/resources/eu-titanium-dioxide-anti-dumping-duty/', '/resources/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual([
+      '/resources', '/resources/eu-titanium-dioxide-anti-dumping-duty',
+    ])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--resources',
+      'route:tio2-my:/resources',
+      'route:tio2-my:/resources/eu-titanium-dioxide-anti-dumping-duty',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
+  })
+
+  it('keeps a referenced child canonical moved outside /resources on exact tags', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/legacy-resource/', '/resources/'],
+    })))
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--resources',
+      'route:tio2-my:/legacy-resource',
+      'route:tio2-my:/resources',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
   })
 
   it('rejects unknown body properties', async () => {

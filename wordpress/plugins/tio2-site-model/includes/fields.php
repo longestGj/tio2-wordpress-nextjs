@@ -483,7 +483,7 @@ function tio2_get_authoring_site_scope(int $post_id): ?string
         return null;
     }
     $slugs = array_values(array_unique(array_map('strval', $slugs)));
-    return 1 === count($slugs) && in_array($slugs[0], ['tio2-a', 'tio2-b'], true)
+    return 1 === count($slugs) && in_array($slugs[0], tio2_supported_site_ids(), true)
         ? $slugs[0]
         : null;
 }
@@ -499,7 +499,7 @@ function tio2_is_valid_public_path(string $path): bool
  */
 function tio2_build_internal_slug(string $site_id, string $public_path)
 {
-    if (! in_array($site_id, ['tio2-a', 'tio2-b'], true)) {
+    if (! in_array($site_id, tio2_supported_site_ids(), true)) {
         return new WP_Error('tio2_invalid_site_scope', 'Managed content must have exactly one supported site scope.');
     }
     if (! tio2_is_valid_public_path($public_path)) {
@@ -533,7 +533,7 @@ function tio2_get_managed_post_route_identity(int $post_id)
         return $site_scopes;
     }
     $site_scopes = array_values(array_unique(array_map('strval', $site_scopes)));
-    if (1 !== count($site_scopes) || ! in_array($site_scopes[0], ['tio2-a', 'tio2-b'], true)) {
+    if (1 !== count($site_scopes) || ! in_array($site_scopes[0], tio2_supported_site_ids(), true)) {
         return new WP_Error('tio2_invalid_site_scope', 'Managed content must have exactly one supported site scope.');
     }
 
@@ -559,7 +559,7 @@ function tio2_get_managed_post_route_identity(int $post_id)
  */
 function tio2_find_managed_route_post_ids(string $site_id, string $public_path): array
 {
-    if (! in_array($site_id, ['tio2-a', 'tio2-b'], true) || ! tio2_is_valid_public_path($public_path)) {
+    if (! in_array($site_id, tio2_supported_site_ids(), true) || ! tio2_is_valid_public_path($public_path)) {
         return [];
     }
 
@@ -582,7 +582,7 @@ function tio2_find_managed_route_post_ids(string $site_id, string $public_path):
             continue;
         }
         $site_scopes = array_values(array_unique(array_map('strval', $site_scopes)));
-        $supported_scopes = array_values(array_intersect($site_scopes, ['tio2-a', 'tio2-b']));
+        $supported_scopes = array_values(array_intersect($site_scopes, tio2_supported_site_ids()));
         $has_exact_scope = 1 === count($site_scopes) && 1 === count($supported_scopes);
         if (
             ($has_exact_scope && $supported_scopes[0] === $site_id) ||
@@ -707,7 +707,7 @@ function tio2_sync_managed_post_routing($post_id): void
 
 function tio2_preserve_internal_slug(string $sanitized, string $raw_title, string $context): string
 {
-    $internal_slug_pattern = '~^tio2-(?:a|b)--(?:homepage|home|[a-z0-9]+(?:-[a-z0-9]+)*(?:--[a-z0-9]+(?:-[a-z0-9]+)*)*)$~';
+    $internal_slug_pattern = '~^tio2-(?:a|b|my)--(?:homepage|home|[a-z0-9]+(?:-[a-z0-9]+)*(?:--[a-z0-9]+(?:-[a-z0-9]+)*)*)$~';
 
     if (
         'query' === $context &&
@@ -1006,6 +1006,7 @@ function tio2_validate_homepage_contract(int $post_id)
     }
 
     return match ($schema_version) {
+        'homepage-v0.4-malaysia' => tio2_validate_homepage_v04_contract($post_id),
         'homepage-v0.3-brand' => tio2_validate_homepage_v03_contract($post_id),
         'homepage-v0.2-editorial-geo' => tio2_validate_homepage_v02_contract($post_id),
         default => tio2_validate_homepage_v01_fields($post_id, $site_id),

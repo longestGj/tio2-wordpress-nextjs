@@ -10,6 +10,8 @@ import type {
 } from '@/lib/wordpress/homepage-types'
 import type {SiteAEditorialHomepageDto} from '@/lib/wordpress/homepage-v02-types'
 import type {SiteABrandHomepageDto} from '@/lib/wordpress/homepage-v03-types'
+import type {MalaysiaHomepageDto} from '@/lib/wordpress/homepage-v04-types'
+import {MalaysiaHomepage} from '@/components/sites/tio2-my/homepage/malaysia-homepage'
 import type {SiteConfig} from '@/sites'
 import {getSiteTemplateProfile} from '@/sites'
 
@@ -33,6 +35,11 @@ function isLegacyHomepage(homepage: AnyHomepageDto): homepage is HomepageDto {
   return homepage.identity.schemaVersion === 'homepage-v0.1'
 }
 
+function isMalaysiaHomepage(homepage: AnyHomepageDto): homepage is MalaysiaHomepageDto {
+  return homepage.identity.siteId === 'tio2-my' &&
+    homepage.identity.schemaVersion === 'homepage-v0.4-malaysia'
+}
+
 export function HomepageRenderer({site, homepage, jsonLd}: HomepageRendererProps) {
   const profile = getSiteTemplateProfile(site.id)
   const structuredData = jsonLd ? (
@@ -41,6 +48,13 @@ export function HomepageRenderer({site, homepage, jsonLd}: HomepageRendererProps
       dangerouslySetInnerHTML={{__html: jsonLd}}
     />
   ) : null
+
+  if (
+    profile.homepage.key === 'tio2-my-homepage-v0.4' &&
+    isMalaysiaHomepage(homepage)
+  ) {
+    return <MalaysiaHomepage homepage={homepage} structuredData={structuredData} />
+  }
 
   if (
     profile.homepage.key === 'site-a-homepage-brand-v0.3' &&

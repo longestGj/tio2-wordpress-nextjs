@@ -113,7 +113,7 @@ export function buildPageJsonLd(
   ]
 }
 
-export function serializeJsonLd(value: readonly JsonLdObject[]): string {
+export function serializeJsonLd(value: JsonLdObject | readonly JsonLdObject[]): string {
   return JSON.stringify(value)
     .replaceAll('<', '\\u003c')
     .replaceAll('\u2028', '\\u2028')

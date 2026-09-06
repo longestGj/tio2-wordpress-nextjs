@@ -14,7 +14,7 @@ const TIO2_WEBHOOK_MAX_PATHS = 256;
  */
 function tio2_get_webhook_config(string $site_id, ?array $environment = null): ?array
 {
-    if (! in_array($site_id, ['tio2-a', 'tio2-b'], true)) {
+    if (! in_array($site_id, tio2_supported_site_ids(), true)) {
         return null;
     }
 
@@ -52,7 +52,7 @@ function tio2_get_webhook_config(string $site_id, ?array $environment = null): ?
  */
 function tio2_webhook_post_types(): array
 {
-    return array_merge(['page', 'post', 'tio2_homepage'], array_keys(tio2_content_type_definitions()));
+    return array_merge(['page', 'post', 'tio2_homepage', 'tio2_market_page', 'tio2_resource_hub', 'tio2_about_page', 'tio2_documents_hub', 'tio2_doc_tds', 'tio2_legal_page', 'tio2_request_docs', 'tio2_request_sample'], array_keys(tio2_content_type_definitions()));
 }
 
 /**
@@ -277,7 +277,7 @@ function tio2_normalize_webhook_paths(array $paths): ?array
 function tio2_site_scope_state_from_slugs(array $term_slugs): array
 {
     $term_slugs = array_values(array_unique(array_map('strval', $term_slugs)));
-    $site_ids = array_values(array_intersect(['tio2-a', 'tio2-b'], $term_slugs));
+    $site_ids = array_values(array_intersect(tio2_supported_site_ids(), $term_slugs));
     sort($site_ids, SORT_STRING);
 
     return ['siteIds' => $site_ids, 'hasTerms' => ! empty($term_slugs)];
@@ -414,6 +414,52 @@ function tio2_get_webhook_affected_state(
         $entity_ids = array_values(array_unique($entity_ids));
         sort($entity_ids, SORT_NUMERIC);
         $site_paths['tio2-a'] = $paths;
+    } elseif ('tio2_market_page' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $path = (string) get_post_meta($post_id, 'public_path', true);
+        if ('/markets/european-union' !== $path) return null;
+        $paths = [$path];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
+    } elseif ('tio2_resource_hub' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $paths = ['/resources'];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
+    } elseif ('tio2_about_page' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $paths = ['/about'];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
+    } elseif ('tio2_documents_hub' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $paths = ['/documents'];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
+    } elseif ('tio2_doc_tds' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $document_path = get_post_meta($post_id, 'public_path', true);
+        if (! in_array($document_path, ['/documents/tds-sds-coa', '/documents/reach'], true)) return null;
+        $paths = [$document_path];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
+    } elseif ('tio2_request_docs' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $paths = ['/request-documents'];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
+    } elseif ('tio2_request_sample' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $paths = ['/request-sample'];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
+    } elseif ('tio2_legal_page' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $path = (string) get_post_meta($post_id, 'public_path', true);
+        if (! in_array($path, ['/privacy-policy', '/ms/privacy-policy', '/cookie-policy'], true)) return null;
+        $paths = [$path];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
     } elseif (in_array($post->post_type, ['page', 'post'], true)) {
         if (1 !== count($site_ids)) {
             return null;
@@ -431,6 +477,19 @@ function tio2_get_webhook_affected_state(
             return null;
         }
         $entity_ids = [$post_id];
+    }
+
+    if (function_exists('tio2_my_resource_dependency_paths')) {
+        $dependency_paths = tio2_my_resource_dependency_paths($post_id, $scope_state);
+        if ([] !== $dependency_paths) {
+            $paths = tio2_normalize_webhook_paths(array_merge($paths, $dependency_paths));
+            if (null === $paths) return null;
+            $site_paths['tio2-my'] = array_values(array_unique(array_merge(
+                $site_paths['tio2-my'] ?? [],
+                $dependency_paths
+            )));
+            sort($site_paths['tio2-my'], SORT_STRING);
+        }
     }
 
     sort($site_ids, SORT_STRING);
@@ -491,7 +550,7 @@ function tio2_build_webhook_payload(
     sort($entity_ids, SORT_NUMERIC);
     if (
         1 !== count($site_ids) ||
-        ! in_array($site_ids[0], ['tio2-a', 'tio2-b'], true) ||
+        ! in_array($site_ids[0], tio2_supported_site_ids(), true) ||
         null === $paths ||
         count($entity_ids) > TIO2_WEBHOOK_MAX_PATHS ||
         array_filter($entity_ids, static fn (int $entity_id): bool => $entity_id <= 0)
@@ -601,6 +660,71 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
     }
 
     $post = null === $post_id ? null : get_post($post_id);
+    if (
+        $post instanceof WP_Post &&
+        'tio2_market_page' === $post->post_type &&
+        defined('TIO2_MY_EU_MARKET_CONTRACT_META') &&
+        TIO2_MY_EU_MARKET_CONTRACT_META === $meta_key
+    ) {
+        return true;
+    }
+    if (
+        $post instanceof WP_Post &&
+        function_exists('tio2_my_resource_child_dependency_meta_keys') &&
+        in_array($meta_key, tio2_my_resource_child_dependency_meta_keys(), true) &&
+        tio2_my_resource_hub_references_child($post_id)
+    ) {
+        return true;
+    }
+    if (
+        $post instanceof WP_Post &&
+        'tio2_resource_hub' === $post->post_type &&
+        in_array($meta_key, [TIO2_MY_RESOURCE_HUB_CONTRACT_META, TIO2_MY_RESOURCE_HUB_RELATIONS_META], true)
+    ) {
+        return true;
+    }
+    if (
+        $post instanceof WP_Post &&
+        'tio2_about_page' === $post->post_type &&
+        in_array($meta_key, [TIO2_MY_ABOUT_PAGE_CONTRACT_META, TIO2_MY_ABOUT_PAGE_EVIDENCE_META], true)
+    ) {
+        return true;
+    }
+    if (
+        $post instanceof WP_Post &&
+        'tio2_documents_hub' === $post->post_type &&
+        TIO2_MY_DOCUMENTS_HUB_CONTRACT_META === $meta_key
+    ) {
+        return true;
+    }
+    if (
+        $post instanceof WP_Post &&
+        'tio2_doc_tds' === $post->post_type &&
+        in_array($meta_key, [TIO2_MY_DOCUMENT_TDS_CONTRACT_META, TIO2_MY_DOCUMENT_REACH_CONTRACT_META], true)
+    ) {
+        return true;
+    }
+    if (
+        $post instanceof WP_Post &&
+        'tio2_request_docs' === $post->post_type &&
+        TIO2_MY_REQUEST_DOCUMENTS_CONTRACT_META === $meta_key
+    ) {
+        return true;
+    }
+    if (
+        $post instanceof WP_Post &&
+        'tio2_request_sample' === $post->post_type &&
+        TIO2_MY_REQUEST_SAMPLE_CONTRACT_META === $meta_key
+    ) {
+        return true;
+    }
+    if (
+        $post instanceof WP_Post &&
+        'tio2_legal_page' === $post->post_type &&
+        TIO2_MY_LEGAL_PAGE_CONTRACT_META === $meta_key
+    ) {
+        return true;
+    }
     if (
         $post instanceof WP_Post &&
         'tio2_product' === $post->post_type &&

@@ -10,6 +10,7 @@ if (distDir.includes('..') || /^[A-Za-z]:/.test(distDir) || /^[\\/]/.test(distDi
 
 const nextConfig: NextConfig = {
   distDir,
+  skipTrailingSlashRedirect: true,
   images: {
     remotePatterns: [siteAEditorialMediaRemotePattern()],
   },

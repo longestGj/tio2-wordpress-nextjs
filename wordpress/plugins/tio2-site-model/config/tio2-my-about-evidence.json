@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "about-evidence-v0.1",
+  "contentVersion": "ABOUT-001-G7-PCR-02:FACTS-V0.1",
+  "evidenceState": "sufficient",
+  "facts": [
+    {"key": "organization.name", "authorization": "user_approved_public", "value": "IKHLAS TITANIUM (MALAYSIA) SDN. BHD."},
+    {"key": "location.full", "authorization": "user_approved_public", "value": "NO.33 Industrial Perusahaan Ringan Tupai, 34000 Taiping, Perak, Malaysia"},
+    {"key": "product.main", "authorization": "user_approved_public", "value": "Rutile titanium dioxide grades"},
+    {"key": "scale.annual", "authorization": "user_approved_public", "value": "More than 35,000 metric tons of titanium dioxide"},
+    {"key": "scale.markets", "authorization": "user_approved_public", "value": "Customers in over 30 countries"},
+    {"key": "scale.customers", "authorization": "user_approved_public", "value": "Long-term cooperation with more than 200 factory customers"},
+    {"key": "export.port", "authorization": "user_approved_public", "value": "Port Klang, Malaysia"},
+    {"key": "documents.support", "authorization": "user_approved_public", "value": "TDS, SDS, COA, COO and other documents according to customer and destination-market requirements"},
+    {"key": "compliance.support", "authorization": "user_approved_public", "value": "REACH-related documentation, origin documents or specific import compliance review"},
+    {"key": "supplier.intent", "authorization": "user_approved_public", "value": "titanium dioxide supplier in Malaysia"},
+    {"key": "areas.served", "authorization": "user_approved_public", "value": ["European Union", "United Kingdom", "India", "Brazil"]}
+  ]
+}

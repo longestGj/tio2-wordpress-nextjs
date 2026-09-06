@@ -1,0 +1,230 @@
+{
+  "schema_version": "0.1",
+  "package_id": "DOC-REACH-G7-HANDOFF-01",
+  "page": {
+    "site_scope": "tio2-my",
+    "page_id": "DOC-REACH",
+    "route": "/documents/reach/",
+    "language": "en",
+    "page_type": "document_compliance_decision_page",
+    "priority": "P1",
+    "mapping_status": "PROVISIONAL_URL",
+    "evidence_status": "FACT_EVIDENCE_REQUIRED",
+    "current_navigation_key": "Documents",
+    "regulatory_subject": "EU_REACH_ONLY"
+  },
+  "seo": {
+    "primary_keyword": "titanium dioxide reach registration",
+    "secondary_keyword": "titanium dioxide reach supplier",
+    "query_language_only": [
+      "reach compliant titanium dioxide"
+    ],
+    "title": "Titanium Dioxide REACH Registration: What to Verify | TiO2 Malaysia",
+    "meta_description": "Understand which EU REACH information titanium dioxide buyers should verify across substance identity, legal-entity scope, supply-chain role, source and review date.",
+    "canonical_candidate": "https://tio2malaysia.com/documents/reach/",
+    "canonical_activation": "gate_10_controlled",
+    "hreflang": [],
+    "schema_types": [
+      "WebPage",
+      "BreadcrumbList"
+    ],
+    "prohibited_schema_types": [
+      "FAQPage",
+      "QAPage",
+      "Product",
+      "Offer",
+      "DigitalDocument",
+      "HowTo"
+    ],
+    "social": {
+      "og_type": "website",
+      "og_title_source": "seo.title",
+      "og_description_source": "seo.meta_description",
+      "og_url_source": "seo.canonical_candidate",
+      "twitter_card": null,
+      "twitter_title_source": "seo.title",
+      "twitter_description_source": "seo.meta_description",
+      "image_source": null
+    }
+  },
+  "answer_decision": {
+    "current_state": "USER_APPROVED_CURRENT_BASELINE_ONLY",
+    "approved_general_answer": "An EU REACH document review should identify the substance, the relevant legal entity and supply-chain role, the intended EU/EEA market or use, and the source, scope and date of the information reviewed. Public substance-level information does not by itself establish that a specific legal entity or supply arrangement is covered by an applicable registration.",
+    "excluded_stronger_proposition": "Titanium dioxide supplied by IKHLAS TITANIUM (MALAYSIA) SDN. BHD. is covered by an applicable EU REACH registration for the named legal entity and supply arrangement.",
+    "future_change": "new_scoped_user_decision_and_entity_arrangement_evidence_required"
+  },
+  "request_contract": {
+    "receiver_page_id": "CONV-DOC",
+    "receiver_route": "/request-documents/",
+    "route_key": "REQUEST_DOCUMENTS",
+    "primary_action_label": "Request REACH Documentation",
+    "secondary_action_label": "View Document Hub",
+    "secondary_route": "/documents/",
+    "document_type": {
+      "transport_key": "prefill.document_types[]",
+      "value": "other",
+      "receiver_label": "Other Documentation",
+      "page_semantic_label": "REACH Documentation"
+    },
+    "additional_requirements": {
+      "transport_key": "prefill.additional_requirements",
+      "value": "REACH documentation",
+      "visibility": "buyer_visible_editable_removable",
+      "receiver_validation": "required_when_other_is_the_sole_document_type"
+    },
+    "buyer_context": [
+      "product_grade",
+      "application_or_use",
+      "eu_eea_destination",
+      "known_legal_entity_or_supply_chain_details"
+    ],
+    "source_alias": "source_page=DOC-REACH",
+    "source_normalization": "source_context.page_id=DOC-REACH",
+    "source_visibility": "hidden_system_non_editable",
+    "public_query_source_is_authoritative": false,
+    "route_failure": "remove_visible_action_and_corresponding_schema_relationship_atomically",
+    "contact_fallback": false,
+    "cross_scope_fallback": false,
+    "sample_public_destination": "/request-documents/?document_types%5B%5D=other&additional_requirements=REACH%20documentation"
+  },
+  "modules": [
+    {
+      "id": "hero",
+      "eyebrow": "EU REACH DOCUMENT REVIEW",
+      "breadcrumb": [
+        {"label": "Home", "route": "/"},
+        {"label": "Documents", "route": "/documents/"},
+        {"label": "Titanium Dioxide REACH", "route": null}
+      ],
+      "h1": "Titanium Dioxide REACH Registration: What Procurement Teams Should Verify",
+      "body": "Understand which EU REACH information matters for titanium dioxide procurement, distinguish substance-level information from supplier-specific evidence, and prepare the context needed to review or request supporting documentation.",
+      "scope_line": "For procurement teams reviewing supply into the EU/EEA. UK REACH applies separately in Great Britain; Northern Ireland remains subject to EU REACH arrangements.",
+      "orientation_heading": "Start with the applicable framework",
+      "orientation": [
+        {"label": "EU / EEA", "body": "Review the substance, legal entity, role and supply arrangement."},
+        {"label": "GB", "body": "UK REACH operates separately in Great Britain."},
+        {"label": "NI", "body": "EU REACH arrangements continue to apply in Northern Ireland."}
+      ],
+      "primary_action": "Request REACH Documentation",
+      "secondary_action": "View Document Hub"
+    },
+    {
+      "id": "direct_answer",
+      "heading": "What Should an EU REACH Document Review Confirm?",
+      "body": "An EU REACH document review should identify the substance, the relevant legal entity and supply-chain role, the intended EU/EEA market or use, and the source, scope and date of the information reviewed. Public substance-level information does not by itself establish that a specific legal entity or supply arrangement is covered by an applicable registration."
+    },
+    {
+      "id": "substance_vs_coverage",
+      "heading": "Separate Substance Information From Supplier Coverage",
+      "intro": "Public substance information and evidence for a particular supply arrangement answer different questions.",
+      "items": [
+        {"heading": "Substance information", "body": "A public substance entry can help identify regulatory information about a substance. It can support substance identification and provide general regulatory context."},
+        {"heading": "Legal-entity and supply-arrangement evidence", "body": "This evidence should identify the relevant legal entity, its role in the supply chain and the scope to which the information applies. A generic substance entry does not answer those entity- and arrangement-specific questions on its own."},
+        {"heading": "Commercial Grade identity", "body": "A commercial Grade name identifies a product offering. It is not the registrant or an independent registration record. Include the relevant Grade in a request when it helps connect the procurement review to the product being considered."}
+      ]
+    },
+    {
+      "id": "legal_actor",
+      "heading": "Identify the Relevant Legal Actor and Supply-Chain Role",
+      "intro": "REACH responsibilities depend on the legal entity and its role in the relevant arrangement. Identify the party named in the evidence before deciding what that evidence supports.",
+      "roles": [
+        {"heading": "Manufacturer", "body": "Identify the EEA-established entity manufacturing the substance, where that role applies to the arrangement being reviewed."},
+        {"heading": "Importer", "body": "Identify the EEA-established entity responsible for bringing the substance into the EEA, where that role applies."},
+        {"heading": "Only Representative", "body": "A manufacturer, formulator or article producer established outside the EEA may appoint an EEA-based Only Representative to fulfil relevant importer obligations under REACH, where applicable."}
+      ],
+      "note": "An Only Representative relationship must be assessed for the named entities and supply arrangement involved. Do not assume that a seller, product name or general substance record identifies the registrant or confirms an Only Representative appointment."
+    },
+    {
+      "id": "regulatory_scope",
+      "heading": "Confirm the EU/EEA Scope — and Keep UK REACH Separate",
+      "jurisdictions": [
+        {"heading": "European Union / EEA", "body": "References to EU REACH on this page include the EEA countries where REACH applies: Norway, Iceland and Liechtenstein."},
+        {"heading": "Great Britain", "body": "UK REACH operates separately in Great Britain. Evidence for EU REACH should not automatically be treated as confirmation under UK REACH."},
+        {"heading": "Northern Ireland", "body": "EU REACH continues to apply in Northern Ireland. Identify the destination and applicable framework before relying on supporting documentation."}
+      ],
+      "note": "If a procurement review involves Great Britain, Northern Ireland or more than one destination, identify each destination and the framework relevant to it before relying on supporting documentation."
+    },
+    {
+      "id": "verification_checklist",
+      "heading": "Use This Buyer Verification Checklist",
+      "intro": "Use the following questions to prepare an internal review or a documentation request:",
+      "items": [
+        {"label": "Substance identity", "body": "What substance is referenced by the information?"},
+        {"label": "Legal entity", "body": "Which entity is named or otherwise covered by the evidence?"},
+        {"label": "Supply-chain role", "body": "Is the relevant role manufacturer, importer or Only Representative?"},
+        {"label": "Market and use", "body": "Which EU/EEA destination, intended use and supply arrangement are being assessed?"},
+        {"label": "Scope", "body": "What does the information cover, and what remains outside its scope?"},
+        {"label": "Source and date", "body": "When was the official source updated, if stated, and when was it last reviewed for this page?"},
+        {"label": "Clarification", "body": "Which entity- or arrangement-specific details still need to be confirmed?"}
+      ],
+      "threshold_note": "Where a one-tonne-per-year figure is relevant, treat it only as a general threshold applied in the appropriate legal-entity and substance context. Applicable exemptions and other REACH conditions must also be considered; the figure alone does not determine whether a specific arrangement is registered or exempt."
+    },
+    {
+      "id": "official_sources",
+      "heading": "Review the Source, Scope and Date",
+      "intro": "Use official sources to understand the regulatory framework, then check whether the information addresses the legal entity and supply arrangement relevant to the procurement decision.",
+      "items": [
+        {"name": "European Commission — REACH Regulation", "scope": "General REACH framework, objectives and industry responsibilities.", "source_updated_date": null, "site_reviewed_date": "2026-09-05", "link_label": "Review the European Commission REACH overview", "url": "https://environment.ec.europa.eu/topics/chemicals/reach-regulation_en"},
+        {"name": "Your Europe — Registering Chemicals (REACH) FAQs", "scope": "General registrant roles, non-EU/EEA company responsibilities and the Only Representative option.", "source_updated_date": null, "site_reviewed_date": "2026-09-05", "link_label": "Review the official EU REACH FAQs", "url": "https://europa.eu/youreurope/business/product-rules-compliance/chemicals-and-hazardous-substances/registering-chemicals-reach/faq/index_en.htm"},
+        {"name": "HSE — UK REACH Explained", "scope": "The independent UK REACH framework for Great Britain.", "source_updated_date": "2025-09-02", "site_reviewed_date": "2026-09-05", "link_label": "Review the HSE UK REACH overview", "url": "https://www.hse.gov.uk/reach/about.htm"},
+        {"name": "HSE — Northern Ireland Notifications", "scope": "Northern Ireland's continuing EU REACH status and the related Great Britain interface.", "source_updated_date": "2025-09-03", "site_reviewed_date": "2026-09-05", "link_label": "Review the HSE Northern Ireland guidance", "url": "https://www.hse.gov.uk/REACH/northern-ireland.htm"}
+      ],
+      "boundary": "Official framework sources do not, by themselves, establish that a specific legal entity or supply arrangement is covered by an applicable registration."
+    },
+    {
+      "id": "request_process",
+      "heading": "How to Request REACH Documentation",
+      "steps": [
+        {"number": 1, "heading": "Describe the information you need", "body": "Explain the EU REACH documentation or clarification required for your procurement review."},
+        {"number": 2, "heading": "Add the relevant context", "body": "Include the product or Grade, intended EU/EEA destination, application or use, and any known legal-entity or supply-chain details."},
+        {"number": 3, "heading": "Review the request", "body": "Check the information carried into the Request Documents form. You can change or remove buyer-provided context before submitting."},
+        {"number": 4, "heading": "Submit for review", "body": "Send the request with your contact and business details. Requests are reviewed after submission. We may ask for additional context before the relevant documentation can be assessed."}
+      ],
+      "request_selection": "REACH Documentation",
+      "request_note": "Submission does not confirm document availability."
+    },
+    {
+      "id": "buyer_questions",
+      "heading": "Questions Buyers Ask",
+      "items": [
+        {"question": "Is public substance information enough to confirm coverage under an applicable registration?", "answer": "No. Public substance information can support substance identification and general regulatory understanding. It does not, on its own, establish that a specific legal entity or supply arrangement is covered by an applicable registration."},
+        {"question": "Which legal entity and supply-chain role should be checked?", "answer": "Identify the EEA-established legal entity relevant to the arrangement and determine whether its applicable role is manufacturer, importer or Only Representative. Do not assume that the commercial supplier or Grade name is the registrant."},
+        {"question": "Does EU REACH information also confirm UK REACH coverage?", "answer": "No. UK REACH operates separately in Great Britain, while Northern Ireland remains subject to EU REACH arrangements. Check the destination and applicable framework before relying on the information."},
+        {"question": "What information should I include in a REACH document request?", "answer": "Include the product or Grade, intended EU/EEA destination, application or use, and the documentation or clarification required. Add known legal-entity or supply-chain details when they are available. You do not need every detail before starting a request."},
+        {"question": "Does submitting a request confirm registration or document availability?", "answer": "No. A request provides context for review. We may ask for clarification before the relevant documentation can be assessed, and submission does not confirm document availability."}
+      ]
+    },
+    {
+      "id": "related_paths",
+      "heading": "Related Procurement Paths",
+      "items": [
+        {"page_id": "MARKET-EU-001", "heading": "European Union Market", "body": "Review the wider procurement, supply and documentation context for buyers serving the European Union.", "link_label": "Review the EU Market", "route": "/markets/european-union/", "render_when": "target_route_and_content_approved_and_eligible"},
+        {"page_id": "DOC-000", "heading": "Document Hub", "body": "Explore technical, regulatory and origin-document routes from the Documents overview.", "link_label": "View Document Hub", "route": "/documents/", "render_when": "target_route_and_content_approved_and_eligible"}
+      ]
+    },
+    {
+      "id": "final_cta",
+      "heading": "Prepare Your REACH Documentation Request",
+      "body": "Add the product, EU/EEA destination, intended use and supply-chain context relevant to your review. You can check and edit the information before submitting.",
+      "primary_action": "Request REACH Documentation",
+      "secondary_action": "View Document Hub",
+      "note": "Submission does not confirm document availability."
+    }
+  ],
+  "evidence_controls": {
+    "public_document_inventory": false,
+    "filenames_or_previews": false,
+    "direct_downloads": false,
+    "company_registration_claim": false,
+    "grade_registration_claim": false,
+    "named_importer_or_only_representative_claim": false,
+    "registration_number_or_tonnage_band_claim": false,
+    "uk_reach_equivalence_claim": false,
+    "legal_advice_claim": false,
+    "unqualified_reach_compliant_claim": false,
+    "request_or_document_availability_claim": false,
+    "unverified_fields": "omit_without_buyer_visible_internal_status",
+    "buyer_visible_internal_terms": false,
+    "source_freshness_recheck": ["gate_7", "gate_9", "pre_publication"]
+  }
+}
