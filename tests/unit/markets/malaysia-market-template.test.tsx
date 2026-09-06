@@ -64,6 +64,8 @@ describe('MalaysiaMarketHub', () => {
     const button = screen.getByRole('button', {name: 'Open primary navigation'})
     await user.click(button)
     expect(button.getAttribute('aria-expanded')).toBe('true')
+    await waitFor(() => expect(container.querySelector('main')?.hasAttribute('inert')).toBe(true))
+    expect(container.querySelector('footer')?.hasAttribute('inert')).toBe(true)
     const menu = container.querySelector<HTMLElement>('#malaysia-mobile-menu')!
     const links = Array.from(menu.querySelectorAll<HTMLAnchorElement>('a'))
     const close = screen.getByRole('button', {name: 'Close primary navigation menu'})
@@ -74,5 +76,7 @@ describe('MalaysiaMarketHub', () => {
     await user.keyboard('{Escape}')
     expect(button.getAttribute('aria-expanded')).toBe('false')
     expect(document.activeElement).toBe(button)
+    expect(container.querySelector('main')?.hasAttribute('inert')).toBe(false)
+    expect(container.querySelector('footer')?.hasAttribute('inert')).toBe(false)
   })
 })

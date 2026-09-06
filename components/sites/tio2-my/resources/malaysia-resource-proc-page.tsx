@@ -171,15 +171,15 @@ export function MalaysiaResourceProcPage({
             <h2 id="grade-evidence-heading">{page.gradeEvidence.heading}</h2>
             <p>{page.gradeEvidence.introduction}</p>
           </div>
-          <div className={styles.evidenceLedger} role="list" aria-label="Grade-level evidence comparison framework">
+          <ol className={styles.evidenceLedger} aria-label="Grade-level evidence comparison framework">
             {page.gradeEvidence.rows.map((row) => (
-              <article key={row.question} role="listitem" data-grade-evidence-record>
+              <li key={row.question} data-grade-evidence-record>
                 <h3 data-grade-question>{row.question}</h3>
                 <div data-grade-evidence><strong>Evidence to compare</strong><p>{row.evidence}</p></div>
                 <div data-grade-interpretation><strong>Interpretation boundary</strong><p>{row.interpretation}</p></div>
-              </article>
+              </li>
             ))}
-          </div>
+          </ol>
           <p className={styles.tableNote}>{page.gradeEvidence.tableNote}</p>
         </section>
 
