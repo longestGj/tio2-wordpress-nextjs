@@ -172,9 +172,12 @@ function tio2_my_resource_proc_public_projection(array $contract, array $relatio
     $application_keys = ['lb_blr886', 'lb_lr108', 'tronox_portfolio'];
     $available = [];
     $external = [];
+    $seen_sources = [];
     foreach ($source_records as $source) {
         if (! is_array($source) || ! is_string($source['sourceKey'] ?? null) || ! isset($approved_sources[$source['sourceKey']])) continue;
         $key = $source['sourceKey'];
+        if (isset($seen_sources[$key])) throw new \GraphQL\Error\UserError('The RES-PROC source projection is ambiguous.');
+        $seen_sources[$key] = true;
         $status = $source['evidenceStatus'] ?? null;
         $comparable = $source;
         $comparable['evidenceStatus'] = 'APPROVED';
