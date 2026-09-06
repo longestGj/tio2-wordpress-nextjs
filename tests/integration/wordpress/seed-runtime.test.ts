@@ -41,19 +41,25 @@ interface RuntimeSharedFixture {
 
 interface RuntimeHomepage {
   id: number
-  siteId: string
+  siteId: string | null
   slug: string
   status: string
   publicPath: string
   schemaVersion: string
   seedMarker: string
+  siteScopes: string[]
 }
 
 interface RuntimeSnapshot {
   routes: RuntimePage[]
   sharedFixtures: RuntimeSharedFixture[]
   homepages: RuntimeHomepage[]
-  publicUrls: Array<{ownerId: number; siteId: string; path: string; ownerType: string}>
+  publicUrls: Array<{
+    ownerId: number
+    siteId: string | null
+    path: string
+    ownerType: string
+  }>
 }
 
 function execute(command: string, arguments_: string[], timeout = 180_000) {
@@ -118,7 +124,17 @@ function exportSnapshot(): RuntimeSnapshot {
     /TIO2_AUDIT_JSON_BEGIN\s*([\s\S]*?)\s*TIO2_AUDIT_JSON_END/,
   )
   expect(match, result.stdout).not.toBeNull()
-  return JSON.parse(match![1]) as RuntimeSnapshot
+  const snapshot = JSON.parse(match![1]) as RuntimeSnapshot
+  const managedSiteIds = new Set(['tio2-a', 'tio2-b'])
+  return {
+    ...snapshot,
+    homepages: snapshot.homepages.filter(({seedMarker, siteId, siteScopes}) =>
+      (siteId !== null && managedSiteIds.has(siteId)) ||
+      managedSiteIds.has(seedMarker) ||
+      siteScopes.some((scope) => managedSiteIds.has(scope))),
+    publicUrls: snapshot.publicUrls.filter(({siteId}) =>
+      siteId !== null && managedSiteIds.has(siteId)),
+  }
 }
 
 function readSeedSummary(stdout: string) {
@@ -127,9 +143,32 @@ function readSeedSummary(stdout: string) {
   return JSON.parse(match![1]) as Record<string, number>
 }
 
+function malaysiaHomepageState() {
+  const result = wp(['eval', String.raw`
+$ids=tio2_find_homepage_ids('tio2-my',false);
+if(1!==count($ids)){WP_CLI::error('Expected one independently scoped Malaysia homepage.');}
+$id=(int)$ids[0];
+$scopes=wp_get_object_terms($id,'site_scope',['fields'=>'slugs']);
+if(is_wp_error($scopes)){WP_CLI::error($scopes->get_error_message());}
+echo 'TIO2_MY_HOME '.wp_json_encode([
+  'id'=>$id,
+  'status'=>(string)get_post_status($id),
+  'slug'=>(string)get_post_field('post_name',$id),
+  'scopes'=>array_values($scopes),
+  'schemaVersion'=>(string)get_field('homepage_schema_version',$id,false),
+  'contractHash'=>hash('sha256',(string)get_post_meta($id,'_tio2_my_homepage_contract_json',true)),
+]);
+`])
+  expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+  const match = result.stdout.match(/TIO2_MY_HOME (\{.*\})/)
+  expect(match, result.stdout).not.toBeNull()
+  return JSON.parse(match![1]) as unknown
+}
+
 describe.runIf(runLiveWordPress)('WordPress RootOnly seed lifecycle', () => {
   it('retains every identity while reducing each site to its published Homepage', () => {
     try {
+      const malaysiaHomepageBefore = malaysiaHomepageState()
       const before = exportSnapshot()
       const beforeRouteIds = before.routes.map(({id}) => id).sort((a, b) => a - b)
       const beforeFixtureIds = before.sharedFixtures.map(({id}) => id).sort((a, b) => a - b)
@@ -143,6 +182,7 @@ describe.runIf(runLiveWordPress)('WordPress RootOnly seed lifecycle', () => {
       })
 
       const rootOnly = exportSnapshot()
+      expect(malaysiaHomepageState()).toEqual(malaysiaHomepageBefore)
       expect(rootOnly.routes.map(({id}) => id).sort((a, b) => a - b)).toEqual(
         beforeRouteIds,
       )
@@ -371,7 +411,9 @@ describe.runIf(runLiveWordPress)('WordPress seed PHP runtime', () => {
       expect(initialSnapshot.homepages.find((entry) => entry.siteId === siteId)).toMatchObject({
         status: 'publish',
         publicPath: '/',
-        schemaVersion: 'homepage-v0.1',
+        schemaVersion: siteId === 'tio2-a'
+          ? 'homepage-v0.3-brand'
+          : 'homepage-v0.1',
         seedMarker: siteId,
       })
     }
