@@ -330,6 +330,22 @@ describe('POST /api/revalidate', () => {
     expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
   })
 
+  it('revalidates RES-PROC with source-complete scope-local tags only', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({
+      siteIds: ['tio2-my'], paths: ['/resources/chloride-vs-sulfate-titanium-dioxide/'],
+    })))
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual(['/resources/chloride-vs-sulfate-titanium-dioxide'])
+    expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--RES-PROC--en--RES-PROC_GATE2_CONTENT_ARCHITECTURE_V0.3--RES-PROC-REL-V0.1--RES-PROC-META-V0.1--RES-PROC-SOURCE-V0.1',
+      'route:tio2-my:/resources/chloride-vs-sulfate-titanium-dioxide',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|site:tio2-my|tio2-a|tio2-b/iu)
+  })
+
   it('revalidates MARKET-EU-001 with its three scope-local query tags only', async () => {
     vi.stubEnv('SITE_ID', 'tio2-my')
     const response = await POST(signedRequest(validPayload({

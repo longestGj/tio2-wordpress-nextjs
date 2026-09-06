@@ -31,6 +31,7 @@ import {
   resourceListTag,
   resourceHubContentTag,
   resourceOriginContentTag,
+  resourceProcContentTag,
   resourceTag,
   routeTag,
   siteTag,
@@ -284,6 +285,7 @@ export async function POST(request: Request): Promise<Response> {
     currentSite.id === 'tio2-my' &&
     (payload.paths.includes('/resources') ||
       payload.paths.includes('/resources/non-china-titanium-dioxide') ||
+      payload.paths.includes('/resources/chloride-vs-sulfate-titanium-dioxide') ||
       payload.paths.includes('/documents') ||
       payload.paths.includes('/documents/tds-sds-coa') ||
       payload.paths.includes('/documents/reach') ||
@@ -323,6 +325,17 @@ export async function POST(request: Request): Promise<Response> {
           'RES-ORIGIN_CONTENT_ARCHITECTURE_V0.2',
           'RES-ORIGIN-REL-V0.1',
           'RES-ORIGIN-META-V0.1',
+        ))
+      }
+      if (siteId === 'tio2-my' && path === '/resources/chloride-vs-sulfate-titanium-dioxide') {
+        tags.add(resourceProcContentTag(
+          siteId,
+          'RES-PROC',
+          'en',
+          'RES-PROC_GATE2_CONTENT_ARCHITECTURE_V0.3',
+          'RES-PROC-REL-V0.1',
+          'RES-PROC-META-V0.1',
+          'RES-PROC-SOURCE-V0.1',
         ))
       }
       if (siteId === 'tio2-my' && path === '/about') {

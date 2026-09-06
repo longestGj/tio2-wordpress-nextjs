@@ -38,6 +38,7 @@ require_once __DIR__ . '/includes/market-page-uk-v01.php';
 require_once __DIR__ . '/includes/product-hub-v01.php';
 require_once __DIR__ . '/includes/resource-hub-v01.php';
 require_once __DIR__ . '/includes/resource-origin-v01.php';
+require_once __DIR__ . '/includes/resource-proc-v01.php';
 require_once __DIR__ . '/includes/documents-hub-v01.php';
 require_once __DIR__ . '/includes/document-tds-v01.php';
 require_once __DIR__ . '/includes/document-reach-v01.php';

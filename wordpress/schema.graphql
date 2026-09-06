@@ -17404,6 +17404,9 @@ type RootQuery {
   "Exact-scope TiO2 Malaysia RES-ORIGIN record."
   malaysiaResourceOriginRecordJson: String!
 
+  "Exact-scope TiO2 Malaysia RES-PROC record."
+  malaysiaResourceProcRecordJson: String!
+
   "Approved, scope-bound CONV-RFQ record for TiO2 Malaysia."
   malaysiaRfqPageRecordJson: String!
 

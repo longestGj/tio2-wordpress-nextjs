@@ -202,6 +202,28 @@ export function resourceOriginContentTag(
   return `content:${siteId}--${pageId}--${locale}--${contentRevision}--${relationRevision}--${metadataRevision}`
 }
 
+export function resourceProcContentTag(
+  siteId: string,
+  pageId: string,
+  locale: string,
+  contentRevision: string,
+  relationRevision: string,
+  metadataRevision: string,
+  sourceRevision: string,
+): string {
+  assertSiteId(siteId)
+  if (
+    siteId !== 'tio2-my' ||
+    pageId !== 'RES-PROC' ||
+    locale !== 'en' ||
+    contentRevision !== 'RES-PROC_GATE2_CONTENT_ARCHITECTURE_V0.3' ||
+    relationRevision !== 'RES-PROC-REL-V0.1' ||
+    metadataRevision !== 'RES-PROC-META-V0.1' ||
+    sourceRevision !== 'RES-PROC-SOURCE-V0.1'
+  ) throw new Error(`Invalid Malaysia RES-PROC cache identity: ${siteId}/${pageId}/${locale}`)
+  return `content:${siteId}--${pageId}--${locale}--${contentRevision}--${relationRevision}--${metadataRevision}--${sourceRevision}`
+}
+
 export function aboutPageContentTag(siteId: string): string {
   assertSiteId(siteId)
   return `content:${siteId}--about`
