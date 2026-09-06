@@ -62,7 +62,11 @@ function comparableContent(value: unknown): UnknownRecord {
     const approved = approvedContract.externalSources.find(
       (entry) => entry.sourceKey === candidate.sourceKey,
     )
-    if (!approved || (candidate.evidenceStatus !== 'APPROVED' && candidate.evidenceStatus !== 'REVOKED')) {
+    if (
+      !approved ||
+      (candidate.evidenceStatus !== 'APPROVED' && candidate.evidenceStatus !== 'REVOKED') ||
+      (candidate.evidenceStatus === 'REVOKED' && !APPLICATION_SOURCE_KEYS.has(String(candidate.sourceKey)))
+    ) {
       throw new ResourceProcContractError(`externalSources[${index}].evidenceStatus`)
     }
     return {...candidate, evidenceStatus: approved.evidenceStatus}
@@ -196,18 +200,20 @@ export function projectMalaysiaResourceProcPayload(value: unknown): MalaysiaReso
   } as MalaysiaResourceProcPayload
 }
 
-const approvedPayload = projectMalaysiaResourceProcPayload(approvedContract)
+const allowedPublicContent = new Set<string>()
+for (let mask = 0; mask < 8; mask += 1) {
+  const candidate = structuredClone(approvedContract)
+  ;[...APPLICATION_SOURCE_KEYS].forEach((sourceKey, index) => {
+    if ((mask & (1 << index)) === 0) return
+    candidate.externalSources.find((source) => source.sourceKey === sourceKey)!.evidenceStatus = 'REVOKED'
+  })
+  allowedPublicContent.add(canonicalJson(projectPublicContent(candidate)))
+}
 
 function validatedPayload(value: unknown): MalaysiaResourceProcPayload {
   const payload = record(value, 'resourceProcPayload')
   const {articleMetadata: rawArticleMetadata, eligibleRelations, schemaMode, ...content} = payload
-  const {
-    articleMetadata: _approvedArticle,
-    eligibleRelations: _approvedRelations,
-    schemaMode: _approvedSchema,
-    ...approvedContent
-  } = approvedPayload
-  if (canonicalJson(content) !== canonicalJson(approvedContent)) {
+  if (!allowedPublicContent.has(canonicalJson(content))) {
     throw new ResourceProcContractError('resourceProcPayload.approvedContent')
   }
   if (!Array.isArray(eligibleRelations)) throw new ResourceProcContractError('eligibleRelations')
