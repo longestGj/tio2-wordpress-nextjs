@@ -1202,16 +1202,27 @@ describe('Product manifest validator CLI', () => {
     expect(await loaderResidues()).toEqual([])
   })
 
-  it('cleans a partially created loader when its write rejects', async () => {
+  it('retries a transient Windows cleanup error after a loader write rejects', async () => {
     const fixture = await temporaryManifest(completeManifest())
     const preloadPath = join(fixture.directory, 'fail-loader-write.cjs')
     await writeFile(preloadPath, [
       "const fs = require('node:fs/promises')",
       "const {syncBuiltinESMExports} = require('node:module')",
       'const originalWriteFile = fs.writeFile',
+      'const originalRm = fs.rm',
+      'let rejectedCleanupOnce = false',
       'fs.writeFile = async (...args) => {',
       '  await originalWriteFile(...args)',
       "  throw new Error('injected loader write failure')",
+      '}',
+      'fs.rm = async (path, ...args) => {',
+      "  if (!rejectedCleanupOnce && String(path).includes('product-manifest-loaders')) {",
+      '    rejectedCleanupOnce = true',
+      "    const error = new Error('injected transient loader cleanup failure')",
+      "    error.code = 'EPERM'",
+      '    throw error',
+      '  }',
+      '  return originalRm(path, ...args)',
       '}',
       'syncBuiltinESMExports()',
       '',

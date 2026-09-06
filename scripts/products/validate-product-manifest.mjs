@@ -1,6 +1,7 @@
 import {randomUUID} from 'node:crypto'
 import {mkdir, mkdtemp, readFile, rm, writeFile} from 'node:fs/promises'
 import {join} from 'node:path'
+import {setTimeout as delay} from 'node:timers/promises'
 import {fileURLToPath, pathToFileURL} from 'node:url'
 
 import ts from 'typescript'
@@ -13,6 +14,23 @@ const MANIFEST_SOURCE_URL = new URL(
 const RUNTIME_ROOT_PATH = fileURLToPath(
   new URL('../../.tmp/product-manifest-loaders/', import.meta.url),
 )
+const TRANSIENT_CLEANUP_ERROR_CODES = new Set(['EBUSY', 'ENOTEMPTY', 'EPERM'])
+
+async function removeTemporaryRuntime(path) {
+  const maximumRetries = 5
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      await rm(path, {recursive: true, force: true, maxRetries: 3, retryDelay: 50})
+      return
+    } catch (error) {
+      const code = error && typeof error === 'object' ? error.code : undefined
+      if (attempt >= maximumRetries || !TRANSIENT_CLEANUP_ERROR_CODES.has(code)) {
+        throw error
+      }
+      await delay(50 * (attempt + 1))
+    }
+  }
+}
 
 async function loadManifestApi() {
   const source = await readFile(MANIFEST_SOURCE_URL, 'utf8')
@@ -50,7 +68,7 @@ async function loadManifestApi() {
     })
     return await import(temporaryModuleUrl.href)
   } finally {
-    await rm(temporaryRuntimePath, {recursive: true, force: true})
+    await removeTemporaryRuntime(temporaryRuntimePath)
   }
 }
 

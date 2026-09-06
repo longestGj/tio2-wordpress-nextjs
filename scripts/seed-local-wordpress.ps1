@@ -156,12 +156,24 @@ $PageKeys = [System.Collections.Generic.HashSet[string]]::new(
 )
 
 foreach ($Site in $Manifest.sites) {
+    $HomepageFields = if (
+        $Site.siteId -eq 'tio2-a' -and
+        $null -ne $Site.homepage.PSObject.Properties['fixture_source']
+    ) {
+        [PSCustomObject]@{
+            fixture_source = [string] $Site.homepage.fixture_source
+            homepage_schema_version = [string] $Site.homepage.homepage_schema_version
+        }
+    }
+    else {
+        $Site.homepage
+    }
     $Homepages.Add([PSCustomObject]@{
         siteId = $Site.siteId
         internalSlug = "$($Site.siteId)--homepage"
         postStatus = 'publish'
         title = $Site.homepage.hero_heading
-        fields = $Site.homepage
+        fields = $HomepageFields
         marker = $Site.siteId
     })
     foreach ($Page in $Site.pages) {

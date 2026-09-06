@@ -236,7 +236,11 @@ describe('seed execution plan', () => {
         postStatus: string
         siteScopes: string[]
       }>
-      homepages: Array<{siteId: string; postStatus: string}>
+      homepages: Array<{
+        siteId: string
+        postStatus: string
+        fields: Record<string, unknown>
+      }>
     }
 
     expect(plan.seedMode).toBe('root-only')
@@ -252,6 +256,10 @@ describe('seed execution plan', () => {
         postStatus: 'publish',
       })
     }
+    expect(plan.homepages.find(({siteId}) => siteId === 'tio2-a')!.fields).toEqual({
+      fixture_source: 'site-a-brand-homepage-data.php',
+      homepage_schema_version: 'homepage-v0.3-brand',
+    })
     expect(plan.entities.find(({id}) => id === 'test-product-reference')).toMatchObject({
       postStatus: 'draft',
       siteScopes: ['tio2-a'],

@@ -93,9 +93,10 @@
         }
       ],
       "homepage": {
-        "homepage_schema_version": "homepage-v0.2-editorial-geo",
+        "fixture_source": "site-a-brand-homepage-data.php",
+        "homepage_schema_version": "homepage-v0.3-brand",
         "hero_eyebrow": "Synthetic buyer question framework",
-        "hero_heading": "A Buyer-Led Guide to Clarifying Titanium Dioxide Requirements",
+        "hero_heading": "Application-Specific Titanium Dioxide",
         "hero_summary": "This synthetic local editorial fixture organizes questions for a demo review; it does not claim product fit, supply capability, or commercial availability.",
         "hero_image": 0,
         "hero_image_alt": "",
