@@ -1,21 +1,15 @@
-import {existsSync, readFileSync} from 'node:fs'
-import {resolve} from 'node:path'
 import {describe, expect, it} from 'vitest'
 
-const contractPath = resolve(
-  'wordpress/plugins/tio2-site-model/config/tio2-my-resource-proc.json',
-)
+import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-resource-proc.json'
 
-function loadContract(): Record<string, any> | null {
-  if (!existsSync(contractPath)) return null
-  return JSON.parse(readFileSync(contractPath, 'utf8')) as Record<string, any>
+function loadContract() {
+  return approvedContract
 }
 
 describe('RES-PROC approved content contract', () => {
   it('binds the exact Malaysia identity and locked SEO values', () => {
     const contract = loadContract()
-    expect(contract, 'missing scoped RES-PROC CMS contract').not.toBeNull()
-    expect(contract?.identity).toEqual({
+    expect(contract.identity).toEqual({
       pageId: 'RES-PROC',
       siteScope: 'tio2-my',
       locale: 'en',
@@ -25,7 +19,7 @@ describe('RES-PROC approved content contract', () => {
       canonical:
         'https://tio2malaysia.com/resources/chloride-vs-sulfate-titanium-dioxide/',
     })
-    expect(contract?.seo).toEqual({
+    expect(contract.seo).toEqual({
       primaryKeyword: 'chloride vs sulfate titanium dioxide',
       title: 'Chloride vs Sulfate Titanium Dioxide | Buyer Guide',
       description:
@@ -38,7 +32,7 @@ describe('RES-PROC approved content contract', () => {
 
   it('preserves the exact fourteen-module order', () => {
     const contract = loadContract()
-    expect(contract?.moduleOrder).toEqual([
+    expect(contract.moduleOrder).toEqual([
       'GLOBAL_HEADER',
       'BREADCRUMB',
       'HERO',
@@ -59,17 +53,17 @@ describe('RES-PROC approved content contract', () => {
   it('keeps the approved content cardinalities and atomic Process action pair', () => {
     const contract = loadContract()
     expect({
-      routes: contract?.routeDifference?.routeCards?.length,
-      canIndicate: contract?.labelLimit?.canIndicate?.length,
-      cannotEstablish: contract?.labelLimit?.cannotEstablish?.length,
-      gradeRows: contract?.gradeEvidence?.rows?.length,
-      overlapStatements: contract?.applicationOverlap?.evidenceItems?.length,
-      workflowSteps: contract?.qualificationWorkflow?.steps?.length,
-      outcomes: contract?.qualificationWorkflow?.outcomes?.length,
-      buyerQuestions: contract?.buyerQuestions?.items?.length,
-      sourceGroups: contract?.sources?.groups?.length,
-      sourceLinks: contract?.externalSources?.length,
-      processActions: contract?.finalAction?.processActions?.length,
+      routes: contract.routeDifference.routeCards.length,
+      canIndicate: contract.labelLimit.canIndicate.length,
+      cannotEstablish: contract.labelLimit.cannotEstablish.length,
+      gradeRows: contract.gradeEvidence.rows.length,
+      overlapStatements: contract.applicationOverlap.evidenceItems.length,
+      workflowSteps: contract.qualificationWorkflow.steps.length,
+      outcomes: contract.qualificationWorkflow.outcomes.length,
+      buyerQuestions: contract.buyerQuestions.items.length,
+      sourceGroups: contract.sources.groups.length,
+      sourceLinks: contract.externalSources.length,
+      processActions: contract.finalAction.processActions.length,
     }).toEqual({
       routes: 2,
       canIndicate: 4,
@@ -83,20 +77,20 @@ describe('RES-PROC approved content contract', () => {
       sourceLinks: 7,
       processActions: 2,
     })
-    expect(contract?.finalAction?.processActions?.map(
-      ({relationKey}: {relationKey: string}) => relationKey,
-    )).toEqual(['chloride_process', 'sulfate_process'])
+    expect(contract.finalAction.processActions.map(({relationKey}) => relationKey)).toEqual([
+      'chloride_process', 'sulfate_process',
+    ])
   })
 
   it('preserves the approved thesis and avoids a route winner or Grade recommendation', () => {
     const contract = loadContract()
-    expect(contract?.hero?.h1).toBe(
+    expect(contract.hero.h1).toBe(
       'Chloride vs Sulfate Titanium Dioxide: A Buyer’s Evaluation Guide',
     )
-    expect(contract?.directAnswer?.answer).toBe(
+    expect(contract.directAnswer.answer).toBe(
       'Chloride and sulfate identify two different production routes for titanium dioxide pigment. The production route can influence how the base pigment is formed, but the route label alone is insufficient to establish a grade-level performance conclusion. Opacity, hiding power, undertone, weatherability, dispersion and formulation suitability should be evaluated using current grade-specific evidence and, where relevant, application-specific testing under the buyer’s intended conditions.',
     )
-    expect(contract?.gradeEvidence?.tableNote).toBe(
+    expect(contract.gradeEvidence.tableNote).toBe(
       'This framework organizes the questions a buyer should resolve. It is not a product specification, a process scorecard or a grade recommendation.',
     )
     expect(JSON.stringify(contract)).not.toMatch(/"winner"|"recommendedGrade"|"equivalentGrade"/u)
@@ -104,7 +98,7 @@ describe('RES-PROC approved content contract', () => {
 
   it('keeps seven source links in their approved statement families', () => {
     const contract = loadContract()
-    expect(contract?.externalSources?.map((source: Record<string, unknown>) => ({
+    expect(contract.externalSources.map((source) => ({
       sourceKey: source.sourceKey,
       statementFamily: source.statementFamily,
       evidenceStatus: source.evidenceStatus,
@@ -121,11 +115,11 @@ describe('RES-PROC approved content contract', () => {
 
   it('keeps release controls, Article and source review state fail-closed', () => {
     const contract = loadContract()
-    expect(contract?.releaseControls).toEqual({
+    expect(contract.releaseControls).toEqual({
       indexingAuthorized: false,
       sitemapAuthorized: false,
     })
-    expect(contract?.articleMetadata).toBeNull()
-    expect(contract?.sources?.visibleReviewDate).toBe('2026-09-05')
+    expect(contract.articleMetadata).toBeNull()
+    expect(contract.sources.visibleReviewDate).toBe('2026-09-05')
   })
 })

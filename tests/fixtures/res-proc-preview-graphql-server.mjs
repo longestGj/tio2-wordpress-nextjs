@@ -9,7 +9,11 @@ const contract = JSON.parse(readFileSync(
 function payload() {
   const value = structuredClone(contract)
   const approvedSources = value.externalSources.filter((source) => source.evidenceStatus === 'APPROVED')
-  value.externalSources = approvedSources.map(({evidenceStatus: _status, ...source}) => source)
+  value.externalSources = approvedSources.map((source) => {
+    const publicSource = {...source}
+    delete publicSource.evidenceStatus
+    return publicSource
+  })
   value.applicationOverlap.evidenceAvailable = true
   value.eligibleRelations = value.relations
     .filter((relation) => (
