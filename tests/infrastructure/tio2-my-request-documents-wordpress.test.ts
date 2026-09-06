@@ -43,7 +43,7 @@ describe('CONV-DOC WordPress fail-closed boundary', () => {
   it('keeps CONV-DOC outside the controlled sitemap before Gate 10 authorization', () => {
     const contract = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-request-documents.json', 'utf8')) as {releaseControls: {indexingAuthorized: boolean}}
     expect(contract.releaseControls.indexingAuthorized).toBe(false)
-    const sitemap = readFileSync('app/sitemap.ts', 'utf8')
+    const sitemap = readFileSync('app/(en)/sitemap.ts', 'utf8')
     expect(sitemap).not.toContain('requestDocuments')
     expect(sitemap).not.toContain('/request-documents')
   })

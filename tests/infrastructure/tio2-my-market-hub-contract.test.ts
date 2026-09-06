@@ -7,7 +7,7 @@ const phpPath = 'wordpress/plugins/tio2-site-model/includes/market-hub-v01.php'
 const seedPath = 'wordpress/seed/apply-tio2-my-market-hub.php'
 const cssPath = 'components/sites/tio2-my/markets/malaysia-market-hub.module.css'
 const queryPath = 'lib/wordpress/market-hub-v01-queries.ts'
-const pagePath = 'app/markets/page.tsx'
+const pagePath = 'app/(en)/markets/page.tsx'
 const schemaPath = 'wordpress/schema.graphql'
 
 describe('MARKET-000 immutable WordPress contract', () => {

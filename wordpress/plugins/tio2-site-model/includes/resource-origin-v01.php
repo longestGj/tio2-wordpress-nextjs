@@ -242,7 +242,7 @@ function tio2_resolve_malaysia_resource_origin_record_json(): string
         'post_status' => 'publish',
         'name' => 'non-china-titanium-dioxide',
         'fields' => 'ids',
-        'numberposts' => 2,
+        'numberposts' => -1,
         'suppress_filters' => false,
         'tax_query' => [[
             'taxonomy' => 'site_scope',
@@ -252,6 +252,13 @@ function tio2_resolve_malaysia_resource_origin_record_json(): string
             'include_children' => false,
         ]],
     ]);
+    $ids = array_values(array_filter($ids, static function ($candidate_id): bool {
+        $scopes = wp_get_object_terms((int) $candidate_id, 'site_scope', ['fields' => 'slugs']);
+        if (is_wp_error($scopes)) return false;
+        $scopes = array_values(array_unique(array_map('strval', $scopes)));
+        sort($scopes, SORT_STRING);
+        return ['tio2-my'] === $scopes;
+    }));
     if (1 !== count($ids)) {
         throw new \GraphQL\Error\UserError(
             0 === count($ids)

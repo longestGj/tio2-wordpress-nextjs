@@ -6,7 +6,7 @@ const plugin=readFileSync('wordpress/plugins/tio2-site-model/tio2-site-model.php
 const seed=readFileSync('wordpress/seed/apply-tio2-my-request-sample.php','utf8')
 const webhooks=readFileSync('wordpress/plugins/tio2-site-model/includes/webhooks.php','utf8')
 const contentTypes=readFileSync('wordpress/plugins/tio2-site-model/includes/content-types.php','utf8')
-const revalidate=readFileSync('app/api/revalidate/route.ts','utf8')
+const revalidate=readFileSync('app/(en)/api/revalidate/route.ts','utf8')
 
 describe('TiO2 Malaysia Sample Request WordPress model',()=>{
   it('registers and loads one private scope-bound type and non-null GraphQL field',()=>{

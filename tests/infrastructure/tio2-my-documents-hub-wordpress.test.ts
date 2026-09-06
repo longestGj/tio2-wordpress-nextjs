@@ -23,7 +23,7 @@ describe('DOC-000 WordPress fail-closed boundary', () => {
   it('keeps the approved route out of sitemap while authorization is false', async () => {
     const contract = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-documents-hub.json', 'utf8')) as {releaseControls: {sitemapAuthorized: boolean}}
     expect(contract.releaseControls.sitemapAuthorized).toBe(false)
-    const sitemap = readFileSync('app/sitemap.ts', 'utf8')
+    const sitemap = readFileSync('app/(en)/sitemap.ts', 'utf8')
     expect(sitemap).not.toContain('documentsHub')
   })
 

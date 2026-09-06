@@ -5,7 +5,7 @@ const contractPath = 'wordpress/plugins/tio2-site-model/config/tio2-my-product-h
 const phpPath = 'wordpress/plugins/tio2-site-model/includes/product-hub-v01.php'
 const seedPath = 'wordpress/seed/apply-tio2-my-product-hub.php'
 const queryPath = 'lib/wordpress/product-hub-v01-queries.ts'
-const pagePath = 'app/products/page.tsx'
+const pagePath = 'app/(en)/products/page.tsx'
 
 describe('PRODUCT-000 immutable Malaysia Hub contract', () => {
   it('locks the approved identity, directory and relationship counts', async () => {

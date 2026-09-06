@@ -192,15 +192,15 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
 
   it('does not create standalone Grade route files', () => {
     const files = [
-      'app/products/m-896/page.tsx',
-      'app/products/m-996/page.tsx',
-      'app/products/m-2196/page.tsx',
-      'app/products/m-2377/page.tsx',
-      'app/products/cr-901/page.tsx',
+      'app/(en)/products/m-896/page.tsx',
+      'app/(en)/products/m-996/page.tsx',
+      'app/(en)/products/m-2196/page.tsx',
+      'app/(en)/products/m-2377/page.tsx',
+      'app/(en)/products/cr-901/page.tsx',
       'wordpress/seed/apply-tio2-my-product-details.php',
     ]
     for (const file of files) expect(existsSync(file)).toBe(false)
-    const route = readFileSync('app/products/[familySlug]/page.tsx', 'utf8')
+    const route = readFileSync('app/(en)/products/[familySlug]/page.tsx', 'utf8')
     expect(route).toContain('APPROVED_MALAYSIA_PRODUCT_DETAIL_SLUGS')
     expect(route).toContain('isApprovedMalaysiaProductDetailSlug')
     expect(route).not.toMatch(/m-896|m-895|m-340|m-996|m-2196|m-2377|cr-901/iu)
@@ -212,7 +212,7 @@ describe('Product Detail Gate 7 infrastructure boundary', () => {
 
   it('derives route, DTO, types, cache and PHP authorization without local slug allowlists', () => {
     const derivedFiles = [
-      'app/products/[familySlug]/page.tsx',
+      'app/(en)/products/[familySlug]/page.tsx',
       'lib/wordpress/product-detail-v01-types.ts',
       'lib/wordpress/product-detail-v01-dto.ts',
       'lib/wordpress/cache-tags.ts',

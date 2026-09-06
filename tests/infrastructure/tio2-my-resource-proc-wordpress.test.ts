@@ -34,10 +34,23 @@ describe('RES-PROC WordPress binding', () => {
     expect(contentRead).toBeGreaterThan(scopedQuery)
     expect(php).toContain("'operator' => 'AND'")
     expect(php).toContain("'include_children' => false")
+    expect(php).toContain("wp_get_object_terms((int) $candidate_id, 'site_scope', ['fields' => 'slugs'])")
+    expect(php).toContain("return ['tio2-my'] === $scopes")
     expect(php).toContain('The RES-PROC payload is incomplete or has invalid cardinality.')
     expect(php).toMatch(/count\(\$contract\['moduleOrder'\][^)]*\)/u)
     expect(php).toMatch(/count\(\$contract\['gradeEvidence'\]\['rows'\][^)]*\)/u)
     expect(php).toMatch(/count\(\$contract\['externalSources'\][^)]*\)/u)
+  })
+
+  it('keeps the local seed collision-safe when another scope shares the slug', () => {
+    const seed = readFileSync(seedPath, 'utf8')
+    expect(seed).toContain('$candidate_ids = get_posts([')
+    expect(seed).toContain("'meta_value' => 'RES-PROC'")
+    expect(seed).toContain("return [$site_id] === $scopes")
+    expect(seed).toContain('A same-slug RES-PROC record exists outside exact site_scope=tio2-my.')
+    expect(seed).not.toContain("wp_update_post(['ID' => $post_id, 'post_status' => 'draft'])")
+    expect(seed).toContain("['post_name' => $slug]")
+    expect(seed).toContain("if ('publish' !== get_post_status($post_id))")
   })
 
   it('projects public source state, atomic Process relations and conditional Article metadata', () => {

@@ -26,7 +26,7 @@ describe('DOC-TDS WordPress and source boundary', () => {
     const plugin = readFileSync('wordpress/plugins/tio2-site-model/tio2-site-model.php', 'utf8')
     const webhook = readFileSync('wordpress/plugins/tio2-site-model/includes/webhooks.php', 'utf8')
     const seed = readFileSync('wordpress/seed/apply-tio2-my-document-tds.php', 'utf8')
-    const sitemap = readFileSync('app/sitemap.ts', 'utf8')
+    const sitemap = readFileSync('app/(en)/sitemap.ts', 'utf8')
     expect(plugin).toContain("includes/document-tds-v01.php")
     expect(webhook).toContain("'tio2_doc_tds'")
     expect(webhook).toContain("in_array($document_path, ['/documents/tds-sds-coa', '/documents/reach'], true)")

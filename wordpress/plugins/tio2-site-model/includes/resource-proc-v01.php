@@ -224,7 +224,7 @@ function tio2_resolve_malaysia_resource_proc_record_json(): string
         'post_status' => 'publish',
         'name' => 'chloride-vs-sulfate-titanium-dioxide',
         'fields' => 'ids',
-        'numberposts' => 2,
+        'numberposts' => -1,
         'suppress_filters' => false,
         'tax_query' => [[
             'taxonomy' => 'site_scope',
@@ -234,6 +234,13 @@ function tio2_resolve_malaysia_resource_proc_record_json(): string
             'include_children' => false,
         ]],
     ]);
+    $ids = array_values(array_filter($ids, static function ($candidate_id): bool {
+        $scopes = wp_get_object_terms((int) $candidate_id, 'site_scope', ['fields' => 'slugs']);
+        if (is_wp_error($scopes)) return false;
+        $scopes = array_values(array_unique(array_map('strval', $scopes)));
+        sort($scopes, SORT_STRING);
+        return ['tio2-my'] === $scopes;
+    }));
     if (1 !== count($ids)) throw new \GraphQL\Error\UserError(0 === count($ids) ? 'The Malaysia RES-PROC record is missing.' : 'Multiple Malaysia RES-PROC records were found.');
     $post_id = (int) $ids[0];
     if (is_wp_error(tio2_validate_resource_proc_v01_contract($post_id))) throw new \GraphQL\Error\UserError('The Malaysia RES-PROC record failed scope or contract validation.');

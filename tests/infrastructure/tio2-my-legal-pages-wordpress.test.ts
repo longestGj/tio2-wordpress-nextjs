@@ -20,7 +20,7 @@ describe('Legal/Privacy WordPress and route isolation', () => {
     expect(readFileSync('wordpress/plugins/tio2-site-model/config/public-routes.json', 'utf8')).not.toMatch(/terms-of-use|legal\/privacy-policy/)
     expect(existsSync('app/terms-of-use/page.tsx')).toBe(false)
     expect(existsSync('app/legal/privacy-policy/page.tsx')).toBe(false)
-    expect(readFileSync('app/sitemap.ts', 'utf8')).not.toMatch(/LEGAL-PRIV-EN|privacy-policy|cookie-policy/)
+    expect(readFileSync('app/(en)/sitemap.ts', 'utf8')).not.toMatch(/LEGAL-PRIV-EN|privacy-policy|cookie-policy/)
     expect(readFileSync('lib/rfq/malaysia-rfq-runtime.ts', 'utf8')).not.toContain('TIO2_MY_PRIVACY_POLICY_HREF')
   })
 })

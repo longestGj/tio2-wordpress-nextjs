@@ -32,6 +32,8 @@ describe('RES-ORIGIN WordPress binding', () => {
     expect(php).toContain("'terms' => ['tio2-my']")
     expect(php).toContain("'operator' => 'AND'")
     expect(php).toContain("'include_children' => false")
+    expect(php).toContain("wp_get_object_terms((int) $candidate_id, 'site_scope', ['fields' => 'slugs'])")
+    expect(php).toContain("return ['tio2-my'] === $scopes")
     expect(php).toContain("'malaysiaResourceOriginRecordJson'")
     expect(php).toContain('throw new \\GraphQL\\Error\\UserError')
 
@@ -41,6 +43,14 @@ describe('RES-ORIGIN WordPress binding', () => {
     expect(resolverStart).toBeGreaterThanOrEqual(0)
     expect(scopedQuery).toBeGreaterThan(resolverStart)
     expect(contentRead).toBeGreaterThan(scopedQuery)
+  })
+
+  it('keeps the local seed exact-scope and preserves an existing published record', () => {
+    const seed = readFileSync(seedPath, 'utf8')
+    expect(seed).toContain("'meta_value' => 'RES-ORIGIN'")
+    expect(seed).toContain("return [$site_id] === $scopes")
+    expect(seed).toContain("['post_name' => $slug]")
+    expect(seed).not.toContain("wp_update_post(['ID' => $post_id, 'post_status' => 'draft'])")
   })
 
   it('blocks missing, partial or altered approved content instead of padding it', () => {

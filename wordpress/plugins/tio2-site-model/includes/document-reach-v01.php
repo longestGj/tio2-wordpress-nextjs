@@ -123,7 +123,10 @@ function tio2_resolve_malaysia_document_reach_record_json(): string
         'status' => get_post_status($post_id),
         'siteScopes' => ['nodes' => [['slug' => 'tio2-my']]],
         'publishingFields' => ['publicPath' => '/documents/reach'],
-        'malaysiaDocumentReachContractJson' => $contract_json,
+        'malaysiaDocumentReachContractJson' => wp_json_encode(
+            $contract,
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        ),
         'routeReadiness' => tio2_my_document_reach_route_readiness($contract),
         'sourceReadiness' => $source_readiness,
     ]);
