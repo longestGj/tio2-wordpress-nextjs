@@ -21,6 +21,9 @@ const auditScriptPath = fileURLToPath(
 const exportAuditPath = fileURLToPath(
   new URL('../../wordpress/seed/export-audit.php', import.meta.url),
 )
+const applySeedPath = fileURLToPath(
+  new URL('../../wordpress/seed/apply-seed.php', import.meta.url),
+)
 
 interface SharedEntity {
   id: string
@@ -151,6 +154,17 @@ describe('representative WordPress seed manifest', () => {
 })
 
 describe('seed execution plan', () => {
+  it('preserves an exact supported homepage owned by a site outside the two-site seed plan', () => {
+    const source = readFileSync(applySeedPath, 'utf8')
+
+    expect(source).toContain('$is_separately_scoped_foreign_homepage')
+    expect(source).toContain('tio2_supported_site_ids()')
+    expect(source).toContain('tio2_homepage_internal_slug($foreign_site_id)')
+    expect(source).toMatch(
+      /if \(\$is_separately_scoped_foreign_homepage\) \{\s*continue;\s*\}/,
+    )
+  })
+
   it('honors neutral per-entity status and scopes from an injected manifest', () => {
     const temporaryDirectory = mkdtempSync(join(tmpdir(), 'tio2-seed-manifest-'))
     const temporaryManifestPath = join(temporaryDirectory, 'representative-content.json')

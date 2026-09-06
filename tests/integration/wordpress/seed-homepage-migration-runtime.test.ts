@@ -64,6 +64,29 @@ echo 'TIO2_STATE '.wp_json_encode($rows);
   return JSON.parse(match![1]) as unknown[]
 }
 
+function malaysiaHomepageState() {
+  const php = String.raw`
+$ids=tio2_find_homepage_ids('tio2-my',false);
+if(1!==count($ids)){WP_CLI::error('Expected one separately scoped Malaysia homepage.');}
+$id=(int)$ids[0];
+$scopes=wp_get_object_terms($id,'site_scope',['fields'=>'slugs']);
+if(is_wp_error($scopes)){WP_CLI::error($scopes->get_error_message());}
+echo 'TIO2_MY_HOME '.wp_json_encode([
+  'id'=>$id,
+  'status'=>(string)get_post_status($id),
+  'slug'=>(string)get_post_field('post_name',$id),
+  'scopes'=>array_values($scopes),
+  'schemaVersion'=>(string)get_field('homepage_schema_version',$id,false),
+  'contractHash'=>hash('sha256',(string)get_post_meta($id,'_tio2_my_homepage_contract_json',true)),
+]);
+`
+  const result = wp(['eval', php])
+  expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+  const match = result.stdout.match(/TIO2_MY_HOME (\{.*\})/)
+  expect(match, result.stdout).not.toBeNull()
+  return JSON.parse(match![1]) as unknown
+}
+
 function rawFixture(php: string) {
   const result = wp(['eval', php])
   expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
@@ -130,6 +153,7 @@ describe.runIf(runLiveWordPress)('homepage seed migration transaction', () => {
   })
 
   it('restores exact managed state for failures before and after root release', () => {
+    const malaysiaHomepageBefore = malaysiaHomepageState()
     prepareRootMigrationState()
     restoreExactRootRollbackMetadata()
 
@@ -256,6 +280,7 @@ echo $id;
     const seed = powershell(seedScript, ['-ScalePages', '500', '-SeedMode', 'LegacyBaseline'])
     expect(seed.status, `${seed.stdout}\n${seed.stderr}`).toBe(0)
     expect(seed.stdout).toContain('"pages_superseded":1')
+    expect(malaysiaHomepageState()).toEqual(malaysiaHomepageBefore)
     const successfulState = snapshotManagedState()
     for (const rootBefore of rootsBeforeSuccessfulMigration) {
       expect(successfulState.find(

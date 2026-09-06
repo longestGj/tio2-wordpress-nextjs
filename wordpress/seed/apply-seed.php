@@ -609,6 +609,18 @@ try {
             tio2_seed_abort("Homepage preflight rejected invalid status at post {$candidate_id}.");
         }
 
+        $foreign_site_id = 1 === count($candidate_scopes) ? $candidate_scopes[0] : '';
+        $is_separately_scoped_foreign_homepage =
+            '' !== $foreign_site_id &&
+            ! isset($planned_homepages_by_site[$foreign_site_id]) &&
+            in_array($foreign_site_id, tio2_supported_site_ids(), true) &&
+            $candidate_slug === tio2_homepage_internal_slug($foreign_site_id) &&
+            in_array($candidate_marker, ['', $foreign_site_id], true) &&
+            '' === $candidate_error;
+        if ($is_separately_scoped_foreign_homepage) {
+            continue;
+        }
+
         $claimed_sites = [];
         foreach ($planned_homepages_by_site as $site_id => $homepage) {
             if (
