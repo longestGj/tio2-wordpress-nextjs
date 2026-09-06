@@ -19,10 +19,14 @@ describe('controlled Malaysia Resource Page Registry mapping', () => {
       'APPROVED_PRD_V0.3',
       '/resources/wrong/',
     )).toBe(false)
+    expect(malaysiaResourceMappingAllowsPublic(
+      'RES-PROC',
+      'APPROVED_PRD_V0.3',
+      '/resources/chloride-vs-sulfate-titanium-dioxide/',
+    )).toBe(true)
   })
 
   it.each([
-    ['RES-PROC', 'NEW_PAGE_CANDIDATE', '/resources/chloride-vs-sulfate-titanium-dioxide/'],
     ['RES-CHEMOURS', 'NEW_PAGE_CANDIDATE', '/resources/chemours-titanium-dioxide-alternatives/'],
     ['RES-R706', 'NEW_PAGE_CANDIDATE', '/resources/ti-pure-r-706-alternative/'],
     ['RES-TRADE-EU', 'PLANNED_CONTENT', '/resources/eu-titanium-dioxide-anti-dumping-duty/'],
