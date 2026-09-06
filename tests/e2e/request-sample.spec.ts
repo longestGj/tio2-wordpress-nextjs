@@ -207,7 +207,7 @@ test('CONV-SAMPLE FAQ buttons expose state, panel relationships and keyboard ope
 })
 
 test('CONV-SAMPLE initial GET fails closed when receiver readiness is absent', async ({page}) => {
-  test.skip(process.env.EXPECT_SAMPLE_INITIAL_UNAVAILABLE !== '1', 'Run against a server started without receiver URL/token')
+  test.skip(process.env.EXPECT_SAMPLE_INITIAL_UNAVAILABLE !== '1', 'Run against a server started without the shared Web3Forms access key')
   await page.setViewportSize({width: 390, height: 844})
   const response=await page.goto(`${baseUrl}/request-sample/`, {waitUntil: 'domcontentloaded'});expect(response?.ok()).toBe(true)
   await expect(page.getByRole('form')).toHaveCount(0);await expect(page.locator('[data-sample-field]')).toHaveCount(0);await expect(page.getByRole('button',{name:'Submit Sample Request for Review'})).toHaveCount(0)

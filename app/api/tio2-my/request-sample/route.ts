@@ -37,7 +37,7 @@ export async function POST(request:Request):Promise<Response>{
   const rawSource=body.source_context&&typeof body.source_context==='object'&&!Array.isArray(body.source_context)?body.source_context as UnknownRecord:{}
   const normalizedSource=resolveMalaysiaSamplePrefill({source_page_id:text(rawSource.source_page_id),grade_id:values.grade_id,application_id:values.application_id,market_id:text(rawSource.market_id),process_context:text(rawSource.process_context),resource_context:text(rawSource.resource_context)})
   const sourceContext=normalizedSource.source_page_id?{source_page_id:normalizedSource.source_page_id,...(normalizedSource.market_id?{market_id:normalizedSource.market_id}:{}),...(normalizedSource.process_context?{process_context:normalizedSource.process_context}:{}),...(normalizedSource.resource_context?{resource_context:normalizedSource.resource_context}:{})}:{}
-  const result=await submitMalaysiaSampleRequest(values,{endpoint:process.env.TIO2_MY_REQUEST_SAMPLE_RECEIVER_URL??null,token:process.env.TIO2_MY_REQUEST_SAMPLE_RECEIVER_TOKEN??null,idempotencyKey:key,sourceContext})
+  const result=await submitMalaysiaSampleRequest(values,{accessKey:process.env.NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY??null,idempotencyKey:key,sourceContext})
   if(result.kind==='receipt_confirmed')return json(200,{ok:true,receipt_confirmed:true,kind:result.kind,...(result.requestReference?{request_reference:result.requestReference}:{})})
   if(result.kind==='validation_failed')return json(400,{ok:false,receipt_confirmed:false,kind:result.kind,errors:result.errors})
   if(result.kind==='unavailable')return json(503,{ok:false,receipt_confirmed:false,kind:result.kind})

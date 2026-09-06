@@ -19,9 +19,12 @@ describe('CONV-SAMPLE same-origin receiver route', () => {
     expect(await response.json()).toEqual({ok:false,receipt_confirmed:false,kind:'unavailable'})
   })
   it('returns success only for explicit downstream confirmation', async () => {
-    vi.stubEnv('TIO2_MY_REQUEST_SAMPLE_RECEIVER_URL','https://receiver.example.test');vi.stubEnv('TIO2_MY_REQUEST_SAMPLE_RECEIVER_TOKEN','secret')
-    vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({ok:true,receipt_confirmed:true}),{status:200})))
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY','shared-web3forms-key')
+    const downstream=vi.fn(async()=>new Response(JSON.stringify({success:true}),{status:200,headers:{'content-type':'application/json'}}));vi.stubGlobal('fetch',downstream)
     const response=await POST(request(valid));expect(response.status).toBe(200);expect(await response.json()).toEqual({ok:true,receipt_confirmed:true,kind:'receipt_confirmed'})
+    const calls=downstream.mock.calls as unknown as Array<[RequestInfo|URL,RequestInit]>
+    expect(String(calls[0]?.[0])).toBe('https://api.web3forms.com/submit')
+    expect(JSON.parse(String(calls[0]?.[1].body))).toMatchObject({access_key:'shared-web3forms-key',site_scope:'tio2-my',page_id:'CONV-SAMPLE'})
   })
   it('rejects wrong site, origin, content type, body size and malformed JSON', async () => {
     vi.stubEnv('SITE_ID','tio2-a');expect((await POST(request(valid))).status).toBe(404);vi.stubEnv('SITE_ID','tio2-my')
@@ -32,14 +35,14 @@ describe('CONV-SAMPLE same-origin receiver route', () => {
     expect((await POST(new Request('https://tio2malaysia.com/api/tio2-my/request-sample',{method:'POST',headers:{'content-type':'application/json',origin:'https://tio2malaysia.com'},body:'{bad'}))).status).toBe(400)
   })
   it('accepts the complete worst-case valid Unicode payload within the bounded envelope',async()=>{
-    vi.stubEnv('TIO2_MY_REQUEST_SAMPLE_RECEIVER_URL','https://receiver.example.test');vi.stubEnv('TIO2_MY_REQUEST_SAMPLE_RECEIVER_TOKEN','secret')
-    const downstream=vi.fn(async()=>new Response(JSON.stringify({ok:true,receipt_confirmed:true}),{status:200}));vi.stubGlobal('fetch',downstream)
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY','shared-web3forms-key')
+    const downstream=vi.fn(async()=>new Response(JSON.stringify({success:true}),{status:200,headers:{'content-type':'application/json'}}));vi.stubGlobal('fetch',downstream)
     const response=await POST(request({...valid,application_id:'other',application_other:'😀'.repeat(500),test_objective:'😀'.repeat(2000),current_grade_or_target:'😀'.repeat(1000),contact_name:'😀'.repeat(120),company_organisation:'😀'.repeat(200),business_email:`${'a'.repeat(242)}@example.com`,destination_country_market:'😀'.repeat(120),expected_project_annual_use:'😀'.repeat(500),documents_needed:['tds','sds','coa','coo','other_not_sure'],additional_context:'😀'.repeat(2000)}))
     expect(response.status).toBe(200);expect(downstream).toHaveBeenCalledOnce()
   })
   it('preserves only validated non-personal provenance before forwarding', async () => {
-    vi.stubEnv('TIO2_MY_REQUEST_SAMPLE_RECEIVER_URL','https://receiver.example.test');vi.stubEnv('TIO2_MY_REQUEST_SAMPLE_RECEIVER_TOKEN','secret')
-    const downstream=vi.fn(async()=>new Response(JSON.stringify({ok:true,receipt_confirmed:true}),{status:200}));vi.stubGlobal('fetch',downstream)
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY','shared-web3forms-key')
+    const downstream=vi.fn(async()=>new Response(JSON.stringify({success:true}),{status:200,headers:{'content-type':'application/json'}}));vi.stubGlobal('fetch',downstream)
     await POST(request({...valid,grade_id:'M-2377',source_context:{source_page_id:'GRADE-M2377',market_id:'MARKET-UK-001',process_context:'sulfate',resource_context:'RES-ORIGIN'}}))
     const calls=downstream.mock.calls as unknown as Array<[RequestInfo|URL,RequestInit]>
     const payload=JSON.parse(String(calls[0]?.[1].body)) as Record<string,unknown>
