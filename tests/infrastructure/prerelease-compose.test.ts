@@ -87,10 +87,21 @@ describe('tio2-my local prerelease Compose contract', () => {
       'prerelease_db',
       'prerelease_wp',
       'prerelease_npm_cache',
+      'prerelease_sample_receipts',
     ])
     expect(source).not.toMatch(/local-dev-password|GENERATE_WITH|gmail\.com/iu)
     expect(source).toContain('${WORDPRESS_DB_PASSWORD}')
     expect(source).toContain('${NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY}')
+  })
+
+  it('keeps Sample receipts persistent across candidate container replacement and binds server inputs', () => {
+    const compose = readCompose()
+    expect(compose?.services.web.environment).toMatchObject({
+      TIO2_MY_SAMPLE_RECEIVER_BINDING: '${TIO2_MY_SAMPLE_RECEIVER_BINDING}',
+      TIO2_MY_SAMPLE_RECEIPT_DIRECTORY: '/var/lib/tio2-sample-receipts',
+      TIO2_MY_RFQ_ATTRIBUTION_SECRET: '${TIO2_MY_RFQ_ATTRIBUTION_SECRET}',
+    })
+    expect(compose?.services.web.volumes).toContain('prerelease_sample_receipts:/var/lib/tio2-sample-receipts')
   })
 
   it('lists every and only tio2-my apply seed with its current SHA-256', () => {

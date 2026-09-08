@@ -90,6 +90,9 @@ services:
       PRERELEASE_SOURCE_COMMIT: ${PRERELEASE_SOURCE_COMMIT:-unbound}
       PRERELEASE_NEXT_BUILD_ID: ${PRERELEASE_NEXT_BUILD_ID:-building}
       NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY: ${NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY}
+      TIO2_MY_RFQ_ATTRIBUTION_SECRET: ${TIO2_MY_RFQ_ATTRIBUTION_SECRET}
+      TIO2_MY_SAMPLE_RECEIVER_BINDING: ${TIO2_MY_SAMPLE_RECEIVER_BINDING}
+      TIO2_MY_SAMPLE_RECEIPT_DIRECTORY: /var/lib/tio2-sample-receipts
       TIO2_MY_REQUEST_SAMPLE_READY: "true"
       TIO2_MY_REQUEST_DOCUMENTS_READY: "true"
       VERCEL_ENV: preview
@@ -113,6 +116,7 @@ services:
     ports:
       - 127.0.0.1:3100:3000
     volumes:
+      - prerelease_sample_receipts:/var/lib/tio2-sample-receipts
       - ${PRERELEASE_SOURCE_DIR}:/workspace
       - ${PRERELEASE_RUN_DIR}:/run-state
     healthcheck:
@@ -125,3 +129,4 @@ volumes:
   prerelease_db:
   prerelease_wp:
   prerelease_npm_cache:
+  prerelease_sample_receipts:
