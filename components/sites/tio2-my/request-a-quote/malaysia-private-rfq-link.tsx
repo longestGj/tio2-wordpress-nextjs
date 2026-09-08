@@ -22,7 +22,7 @@ export function MalaysiaPrivateRfqLink({
 
     event.preventDefault()
     try {
-      await fetch('/api/tio2-my/rfq-attribution', {
+      await fetch('/api/rfq/context', {
         method: 'POST',
         credentials: 'same-origin',
         headers: {'x-requested-with': 'fetch'},

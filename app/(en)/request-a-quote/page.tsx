@@ -1,7 +1,7 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
 
-import {MalaysiaRfqQueryPage} from '@/components/sites/tio2-my/request-a-quote/malaysia-rfq-query-page'
+import {MalaysiaRfqPage} from '@/components/sites/tio2-my/request-a-quote/malaysia-rfq-page'
 import {resolveMalaysiaRfqRuntime} from '@/lib/rfq/malaysia-rfq-runtime'
 import {buildMalaysiaRfqJsonLd, serializeMalaysiaRfqJsonLd} from '@/lib/seo/rfq-jsonld'
 import {buildMalaysiaRfqMetadata} from '@/lib/seo/rfq-metadata'
@@ -30,9 +30,9 @@ export default async function RequestAQuoteRoute() {
   const runtime = resolveMalaysiaRfqRuntime()
   const jsonLd = serializeMalaysiaRfqJsonLd(buildMalaysiaRfqJsonLd(site))
   return (
-    <MalaysiaRfqQueryPage
+    <MalaysiaRfqPage
       page={page}
-      receiverAccessKey={runtime.receiverAccessKey}
+      receiverAvailable={Boolean(runtime.receiverAccessKey)}
       privacyPolicyHref={runtime.privacyPolicyHref}
       structuredData={<script type="application/ld+json" dangerouslySetInnerHTML={{__html: jsonLd}} />}
     />

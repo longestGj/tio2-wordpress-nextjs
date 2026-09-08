@@ -1,6 +1,6 @@
 import {createHmac, timingSafeEqual} from 'node:crypto'
 
-export const MALAYSIA_RFQ_ATTRIBUTION_COOKIE = 'my_rfq_context'
+export const MALAYSIA_RFQ_ATTRIBUTION_COOKIE = 'rfq_context'
 export const MALAYSIA_RFQ_ATTRIBUTION_MAX_AGE_SECONDS = 600
 
 function secret(value: string | undefined): string | null {

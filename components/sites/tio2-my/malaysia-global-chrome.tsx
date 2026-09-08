@@ -9,7 +9,7 @@ interface GlobalChromeProps {
   readonly sourcePageId: string
 }
 
-const approvedDropdownSources = new Set([
+const inlineMobileMenuSources = new Set([
   'MARKET-EU-DE', 'MARKET-EU-IT', 'PRODUCT-PROC-SU', 'RES-R706', 'RES-CHEMOURS',
 ])
 
@@ -18,9 +18,8 @@ export function MalaysiaGlobalHeader({chrome, currentPageId, sourcePageId}: Glob
   return <MalaysiaGlobalHeaderClient
     chrome={projectMalaysiaGlobalChrome(chrome)}
     currentHref={chrome.navigation.find((item) => item.targetPageId === currentPageId)?.href ?? null}
-    approvedDropdown={approvedDropdownSources.has(sourcePageId)}
+    inlineMobileMenu={inlineMobileMenuSources.has(sourcePageId)}
     privateRfqAttribution={privateRfqAttribution}
-    {...privateRfqAttribution ? {} : {publicSourcePageId: sourcePageId}}
   />
 }
 
@@ -28,8 +27,7 @@ export function MalaysiaGlobalFooter({chrome, sourcePageId}: Omit<GlobalChromePr
   const privateRfqAttribution = sourcePageId === 'APP-000'
   return <MalaysiaGlobalFooterClient
     chrome={projectMalaysiaGlobalChrome(chrome)}
-    approvedDropdown={approvedDropdownSources.has(sourcePageId)}
+    inlineMobileMenu={inlineMobileMenuSources.has(sourcePageId)}
     privateRfqAttribution={privateRfqAttribution}
-    {...privateRfqAttribution ? {} : {publicSourcePageId: sourcePageId}}
   />
 }

@@ -12,16 +12,8 @@ import {MalaysiaPrivateRfqLink} from './request-a-quote/malaysia-private-rfq-lin
 
 interface GlobalChromeClientProps {
   readonly chrome: MalaysiaGlobalChromePublicProjection
-  readonly approvedDropdown: boolean
+  readonly inlineMobileMenu: boolean
   readonly privateRfqAttribution: boolean
-  readonly publicSourcePageId?: string
-}
-
-function rfqAttributes(publicSourcePageId: string | undefined) {
-  return publicSourcePageId ? {
-    'data-site-scope': 'tio2-my',
-    'data-source-page': publicSourcePageId,
-  } as const : {}
 }
 
 function RfqLink({
@@ -30,26 +22,23 @@ function RfqLink({
   href,
   onClick,
   privateRfqAttribution,
-  publicSourcePageId,
 }: {
   readonly children: React.ReactNode
   readonly className?: string
   readonly href: string
   readonly onClick?: () => void
   readonly privateRfqAttribution: boolean
-  readonly publicSourcePageId?: string
 }) {
   return privateRfqAttribution
     ? <MalaysiaPrivateRfqLink className={className} href={href} onClick={onClick}>{children}</MalaysiaPrivateRfqLink>
-    : <a className={className} href={href} {...rfqAttributes(publicSourcePageId)} onClick={onClick}>{children}</a>
+    : <a className={className} href={href} onClick={onClick}>{children}</a>
 }
 
 export function MalaysiaGlobalHeaderClient({
   chrome,
   currentHref,
-  approvedDropdown,
+  inlineMobileMenu,
   privateRfqAttribution,
-  publicSourcePageId,
 }: GlobalChromeClientProps & {readonly currentHref: string | null}) {
   const [open, setOpen] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
@@ -60,7 +49,7 @@ export function MalaysiaGlobalHeaderClient({
 
   useEffect(() => {
     if (!open) return
-    if (approvedDropdown) {
+    if (inlineMobileMenu) {
       const header = headerRef.current
       const menu = dropdownRef.current
       const trigger = buttonRef.current
@@ -127,7 +116,7 @@ export function MalaysiaGlobalHeaderClient({
       document.body.style.overflow = bodyOverflow
       trigger?.focus()
     }
-  }, [open, approvedDropdown])
+  }, [open, inlineMobileMenu])
 
   function containMenuFocus(event: React.KeyboardEvent<HTMLElement>) {
     if (event.key !== 'Tab') return
@@ -148,11 +137,11 @@ export function MalaysiaGlobalHeaderClient({
 
   const mobileNavigation = <nav
     ref={dropdownRef}
-    id={approvedDropdown ? 'malaysia-mobile-menu' : undefined}
+    id={inlineMobileMenu ? 'malaysia-mobile-menu' : undefined}
     className={styles.mobileNav}
     aria-label="Mobile navigation"
     hidden={!open}
-    onClick={approvedDropdown ? (event) => {
+    onClick={inlineMobileMenu ? (event) => {
       if ((event.target as HTMLElement).closest('a[href]')) setOpen(false)
     } : undefined}
   >
@@ -162,12 +151,12 @@ export function MalaysiaGlobalHeaderClient({
         <span>{item.label}</span>
       </a>
     })}
-    <RfqLink href={chrome.rfq.href} privateRfqAttribution={privateRfqAttribution} publicSourcePageId={publicSourcePageId}>{chrome.rfq.label}</RfqLink>
+    <RfqLink href={chrome.rfq.href} privateRfqAttribution={privateRfqAttribution}>{chrome.rfq.label}</RfqLink>
   </nav>
 
   return (
-    <header ref={headerRef} className={styles.header} lang="en" data-chrome-variant={approvedDropdown ? 'gate8-approved' : undefined}>
-      <div className={styles.headerInner} inert={open && !approvedDropdown}>
+    <header ref={headerRef} className={`${styles.header} ${inlineMobileMenu ? styles.inlineMobileHeader : ''}`} lang="en">
+      <div className={styles.headerInner} inert={open && !inlineMobileMenu}>
         <Link href="/" className={styles.logoLink} aria-label="TiO2 Malaysia home">
           <Image
             src={chrome.logo.primary.src}
@@ -188,7 +177,7 @@ export function MalaysiaGlobalHeaderClient({
             )
           })}
         </nav>
-        <RfqLink className={styles.headerRfq} href={chrome.rfq.href} privateRfqAttribution={privateRfqAttribution} publicSourcePageId={publicSourcePageId}>
+        <RfqLink className={styles.headerRfq} href={chrome.rfq.href} privateRfqAttribution={privateRfqAttribution}>
           <span className={styles.rfqFull}>{chrome.rfq.label}</span>
           <span className={styles.rfqCompact}>{chrome.rfq.compactLabel}</span>
         </RfqLink>
@@ -204,7 +193,7 @@ export function MalaysiaGlobalHeaderClient({
           {open ? 'Close' : 'Menu'}
         </button>
       </div>
-      {approvedDropdown ? mobileNavigation : <dialog
+      {inlineMobileMenu ? mobileNavigation : <dialog
         ref={menuRef}
         id="malaysia-mobile-menu"
         className={styles.mobileDialog}
@@ -215,7 +204,7 @@ export function MalaysiaGlobalHeaderClient({
       >
         <div className={styles.menuTopbar}>
           <Image src={chrome.logo.primary.src} alt={chrome.logo.primary.alt} width={120} height={40} className={styles.menuLogo} />
-          <RfqLink className={styles.headerRfq} href={chrome.rfq.href} privateRfqAttribution={privateRfqAttribution} publicSourcePageId={publicSourcePageId} onClick={() => setOpen(false)}>{chrome.rfq.compactLabel}</RfqLink>
+          <RfqLink className={styles.headerRfq} href={chrome.rfq.href} privateRfqAttribution={privateRfqAttribution} onClick={() => setOpen(false)}>{chrome.rfq.compactLabel}</RfqLink>
           <button ref={closeRef} type="button" className={styles.menuClose} aria-label="Close primary navigation menu" onClick={() => setOpen(false)}>Close</button>
         </div>
         {mobileNavigation}
@@ -226,12 +215,11 @@ export function MalaysiaGlobalHeaderClient({
 
 export function MalaysiaGlobalFooterClient({
   chrome,
-  approvedDropdown,
+  inlineMobileMenu,
   privateRfqAttribution,
-  publicSourcePageId,
 }: GlobalChromeClientProps) {
   return (
-    <><footer className={styles.footer} lang="en" data-chrome-variant={approvedDropdown ? 'gate8-approved' : undefined}>
+    <><footer className={`${styles.footer} ${inlineMobileMenu ? styles.inlineMobileFooter : ''}`} lang="en">
       <div className={styles.footerGrid}>
         <div className={styles.brandColumn}>
           <Image
@@ -253,7 +241,7 @@ export function MalaysiaGlobalFooterClient({
         </nav>
         <div className={styles.conversionColumn}>
           <h2>{chrome.footer.headings.procurement}</h2>
-          <RfqLink className={styles.footerRfq} href={chrome.rfq.href} privateRfqAttribution={privateRfqAttribution} publicSourcePageId={publicSourcePageId}>
+          <RfqLink className={styles.footerRfq} href={chrome.rfq.href} privateRfqAttribution={privateRfqAttribution}>
             {chrome.rfq.label}
           </RfqLink>
         </div>
@@ -264,8 +252,8 @@ export function MalaysiaGlobalFooterClient({
           : <a key={item.label} href={item.href ?? undefined}>{item.label}</a>)}
       </nav>
       <p className={styles.copyright}>{chrome.footer.copyright}</p>
-      {!approvedDropdown && <MalaysiaCookieSettingsHost />}
+      {!inlineMobileMenu && <MalaysiaCookieSettingsHost />}
     </footer>
-    {approvedDropdown && <MalaysiaCookieSettingsHost/>}</>
+    {inlineMobileMenu && <MalaysiaCookieSettingsHost/>}</>
   )
 }

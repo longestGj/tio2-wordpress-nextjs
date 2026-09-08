@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 
-import {POST as recordAttribution} from '../../../app/api/tio2-my/rfq-attribution/route'
-import {POST as submitPrivateRfq} from '../../../app/api/tio2-my/rfq-private-submit/route'
+import {POST as recordAttribution} from '../../../app/api/rfq/context/route'
+import {POST as submitRfq} from '../../../app/api/rfq/submit/route'
 import {
   createMalaysiaRfqAttributionToken,
   isMalaysiaApplicationHubReferer,
@@ -35,15 +35,15 @@ describe('APP-000 private RFQ attribution', () => {
   })
 
   it('accepts only the same-origin application hub Referer', () => {
-    expect(isMalaysiaApplicationHubReferer('https://tio2malaysia.com/api/tio2-my/rfq-attribution', 'https://tio2malaysia.com/applications/')).toBe(true)
-    expect(isMalaysiaApplicationHubReferer('https://tio2malaysia.com/api/tio2-my/rfq-attribution', 'https://tio2malaysia.com/applications')).toBe(true)
-    expect(isMalaysiaApplicationHubReferer('https://tio2malaysia.com/api/tio2-my/rfq-attribution', 'https://evil.example/applications/')).toBe(false)
-    expect(isMalaysiaApplicationHubReferer('https://tio2malaysia.com/api/tio2-my/rfq-attribution', 'https://tio2malaysia.com/products/')).toBe(false)
+    expect(isMalaysiaApplicationHubReferer('https://tio2malaysia.com/api/rfq/context', 'https://tio2malaysia.com/applications/')).toBe(true)
+    expect(isMalaysiaApplicationHubReferer('https://tio2malaysia.com/api/rfq/context', 'https://tio2malaysia.com/applications')).toBe(true)
+    expect(isMalaysiaApplicationHubReferer('https://tio2malaysia.com/api/rfq/context', 'https://evil.example/applications/')).toBe(false)
+    expect(isMalaysiaApplicationHubReferer('https://tio2malaysia.com/api/rfq/context', 'https://tio2malaysia.com/products/')).toBe(false)
   })
 
   it('records attribution in an HttpOnly opaque cookie without exposing the source', async () => {
     vi.stubEnv('TIO2_MY_RFQ_ATTRIBUTION_SECRET', secret)
-    const response = recordAttribution(new NextRequest('https://tio2malaysia.com/api/tio2-my/rfq-attribution', {
+    const response = recordAttribution(new NextRequest('https://tio2malaysia.com/api/rfq/context', {
       method: 'POST', headers: {referer: 'https://tio2malaysia.com/applications/'},
     }))
     expect(response.status).toBe(204)
@@ -56,7 +56,7 @@ describe('APP-000 private RFQ attribution', () => {
 
   it('uses the forwarded browser host when the local runtime URL is normalized', () => {
     vi.stubEnv('TIO2_MY_RFQ_ATTRIBUTION_SECRET', secret)
-    const response = recordAttribution(new NextRequest('http://localhost:4391/api/tio2-my/rfq-attribution', {
+    const response = recordAttribution(new NextRequest('http://localhost:4391/api/rfq/context', {
       method: 'POST',
       headers: {host: '127.0.0.1:4391', referer: 'http://127.0.0.1:4391/applications/'},
     }))
@@ -65,7 +65,7 @@ describe('APP-000 private RFQ attribution', () => {
 
   it('does not record attribution for a foreign Referer', () => {
     vi.stubEnv('TIO2_MY_RFQ_ATTRIBUTION_SECRET', secret)
-    const response = recordAttribution(new NextRequest('https://tio2malaysia.com/api/tio2-my/rfq-attribution', {
+    const response = recordAttribution(new NextRequest('https://tio2malaysia.com/api/rfq/context', {
       method: 'POST', headers: {referer: 'https://evil.example/applications/'},
     }))
     expect(response.status).toBe(404)
@@ -82,7 +82,7 @@ describe('APP-000 private RFQ attribution', () => {
       return Response.json({success: false})
     }))
     const token = createMalaysiaRfqAttributionToken(secret)
-    const response = await submitPrivateRfq(new NextRequest('https://tio2malaysia.com/api/tio2-my/rfq-private-submit', {
+    const response = await submitRfq(new NextRequest('https://tio2malaysia.com/api/rfq/submit', {
       method: 'POST',
       headers: {'content-type': 'application/json', cookie: `${MALAYSIA_RFQ_ATTRIBUTION_COOKIE}=${token}`},
       body: JSON.stringify({...buyer, source_page_id: 'ATTACKER-VALUE', site_scope: 'ATTACKER-VALUE'}),
@@ -92,14 +92,20 @@ describe('APP-000 private RFQ attribution', () => {
     expect(`${response.headers.get('content-type')}\n${await response.text()}`).not.toContain('APP-000')
   })
 
-  it('returns a generic pass-through signal when no private cookie exists', async () => {
+  it('submits normally without adding a private source when no attribution cookie exists', async () => {
     vi.stubEnv('TIO2_MY_RFQ_ATTRIBUTION_SECRET', secret)
-    const receiver = vi.fn()
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'test-key')
+    const receiver = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+      const forwarded = JSON.parse(String(init?.body)) as Record<string, unknown>
+      expect(forwarded).not.toHaveProperty('source_page_id')
+      return Response.json({success: false})
+    })
     vi.stubGlobal('fetch', receiver)
-    const response = await submitPrivateRfq(new NextRequest('https://tio2malaysia.com/api/tio2-my/rfq-private-submit', {
+    const response = await submitRfq(new NextRequest('https://tio2malaysia.com/api/rfq/submit', {
       method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(buyer),
     }))
-    expect(response.status).toBe(204)
-    expect(receiver).not.toHaveBeenCalled()
+    expect(response.status).toBe(200)
+    expect(receiver).toHaveBeenCalledOnce()
+    expect(await response.json()).toEqual({kind: 'submission_unconfirmed'})
   })
 })
