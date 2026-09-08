@@ -11,7 +11,10 @@ interface GlobalChromeProps {
 
 const inlineMobileMenuSources = new Set([
   'MARKET-EU-DE', 'MARKET-EU-IT', 'PRODUCT-PROC-SU', 'RES-R706', 'RES-CHEMOURS',
+  'SYS-404', 'CONV-THANK',
 ])
+
+const copyrightFirstSources = new Set(['SYS-404', 'CONV-THANK'])
 
 export function MalaysiaGlobalHeader({chrome, currentPageId, sourcePageId}: GlobalChromeProps) {
   return <MalaysiaGlobalHeaderClient
@@ -23,6 +26,7 @@ export function MalaysiaGlobalHeader({chrome, currentPageId, sourcePageId}: Glob
 
 export function MalaysiaGlobalFooter({chrome, sourcePageId}: Omit<GlobalChromeProps, 'currentPageId'>) {
   return <MalaysiaGlobalFooterClient
+    copyrightFirst={copyrightFirstSources.has(sourcePageId)}
     chrome={projectMalaysiaGlobalChrome(chrome)}
     inlineMobileMenu={inlineMobileMenuSources.has(sourcePageId)}
   />

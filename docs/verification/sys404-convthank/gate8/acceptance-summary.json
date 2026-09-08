@@ -1,0 +1,70 @@
+{
+  "recorded_at": "2026-09-08T17:25:00+08:00",
+  "dispatch_id": "G8-SYS404-CONVTHANK-20260908-01",
+  "site_scope": "tio2-my",
+  "implementation_commit": "1571a67",
+  "build_id": "2z5DYuzAHx0An8WWlUsz2",
+  "runtime": "http://127.0.0.1:4381",
+  "pages": {
+    "SYS-404": {
+      "acceptance_ids": [
+        "SYS404-G9-AC01", "SYS404-G9-AC02", "SYS404-G9-AC03", "SYS404-G9-AC04",
+        "SYS404-G9-AC05", "SYS404-G9-AC06", "SYS404-G9-AC07", "SYS404-G9-AC08",
+        "SYS404-G9-AC09", "SYS404-G9-AC10", "SYS404-G9-AC11"
+      ],
+      "gate8_result": "READY_FOR_GATE9_WITH_OPEN_INTEGRATION_ITEM",
+      "observed": [
+        "Root and nested unmatched routes return HTTP 404 with exact approved content.",
+        "Representative registered routes remain HTTP 200.",
+        "Exact five recovery hrefs, shared chrome, zero current navigation, SEO exclusions, no schema and three responsive widths are verified.",
+        "No optional 404 analytics implementation exists and browser evidence observed no external analytics or form request."
+      ]
+    },
+    "CONV-THANK": {
+      "acceptance_ids": [
+        "CT-G9-01", "CT-G9-02", "CT-G9-03", "CT-G9-04", "CT-G9-05", "CT-G9-06",
+        "CT-G9-07", "CT-G9-08", "CT-G9-09", "CT-G9-10", "CT-G9-11", "CT-G9-12",
+        "CT-G9-13", "CT-G9-14", "CT-G9-15", "CT-G9-16"
+      ],
+      "gate8_result": "READY_FOR_GATE9_WITH_OPEN_ANALYTICS_AND_DEVICE_ITEMS",
+      "observed": [
+        "Direct, Quote, Documents and Sample states render exactly one approved panel at 1440x900, 768x900 and 390x844.",
+        "Eight negative eligibility classes resolve to Direct with no receipt cue.",
+        "Quote, Documents and Sample browser-intercepted receiver paths preserve their distinct positive acknowledgement predicates and emit no real external submission.",
+        "The session marker is same-tab sessionStorage, exact-field allowlist only, ten-minute TTL and contains no buyer or request data.",
+        "The route is HTTP 200 with clean canonical, noindex/nofollow, no JSON-LD and sitemap exclusion; Chromium and Firefox smoke checks pass."
+      ]
+    }
+  },
+  "verification": {
+    "targeted_vitest": "56 passed",
+    "gate8_playwright": "19 passed, 17 visual-duplicate checks intentionally skipped in Firefox",
+    "form_transition_playwright": "3 passed; all provider responses intercepted locally",
+    "typecheck": "passed",
+    "build": "passed; 62/62 static pages generated",
+    "repository_vitest": "2758 passed, 50 skipped, 1 unrelated baseline hash failure",
+    "repository_lint": "targeted changed-file lint passed; full lint has 3 unrelated pre-existing errors and 3 unrelated warnings"
+  },
+  "open_items": [
+    {
+      "id": "SYS404-DEP02-CONTACT",
+      "owner": "Contact target-page owner",
+      "impact": "The approved /contact/ recovery href is exact, but the current candidate resolves it to SYS-404 (HTTP 404)."
+    },
+    {
+      "id": "THANK-DEP04-ANALYTICS",
+      "owner": "Analytics and shared Consent owners",
+      "impact": "No distinct source-flow conversion event integration exists to exercise consent accept/deny/withdraw cardinality; success-state UI and no-PII marker behavior are verified."
+    },
+    {
+      "id": "DEVICE-AT-COVERAGE",
+      "owner": "Gate 9 device/accessibility verification",
+      "impact": "Responsive browser proxies, keyboard, axe, reduced motion, Chromium and Firefox were exercised; physical touch device, screen reader and native 200% zoom remain for Gate 9."
+    },
+    {
+      "id": "BASELINE-QUALITY-DRIFT",
+      "owner": "Repository baseline owner",
+      "impact": "The dispatched baseline has one unrelated evidence hash failure and unrelated lint findings; changed-file lint and all targeted tests pass."
+    }
+  ]
+}

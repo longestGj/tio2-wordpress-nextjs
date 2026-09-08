@@ -1,5 +1,5 @@
-import {fireEvent, render, screen, waitFor, within} from '@testing-library/react'
-import {describe, expect, it} from 'vitest'
+import {cleanup, fireEvent, render, screen, waitFor, within} from '@testing-library/react'
+import {afterEach, describe, expect, it} from 'vitest'
 
 import {
   MalaysiaCookieSettingsHost,
@@ -8,6 +8,8 @@ import {
   transitionConsent,
 } from '@/components/sites/tio2-my/consent/malaysia-cookie-settings'
 import approved from '@/wordpress/plugins/tio2-site-model/config/tio2-my-legal-pages.json'
+
+afterEach(() => {cleanup(); localStorage.clear(); delete window.__TIO2_SHARED_CONSENT__; delete window.dataLayer})
 
 describe('SHARED-CONSENT-TIO2-MY', () => {
   it('defaults every Google signal to denied and never grants advertising states', () => {
@@ -32,13 +34,13 @@ describe('SHARED-CONSENT-TIO2-MY', () => {
     const descriptionId = dialog.getAttribute('aria-describedby')
     expect(descriptionId).toBe('cookie-settings-description')
     expect(document.getElementById(descriptionId!)?.textContent).toBe(approved.consent.body)
-    expect(screen.queryByRole('button', {name: /Accept analytics/i})).toBeNull()
+    expect(screen.getByRole('button', {name: 'Accept analytics'})).toBeTruthy()
     const close = within(dialog).getByRole('button', {name: 'Close'})
     const policy = within(dialog).getByRole('link', {name: 'Read Cookie Policy'})
     expect(document.activeElement).toBe(close)
     policy.focus()
     fireEvent.keyDown(document, {key: 'Tab'})
-    expect(document.activeElement).toBe(close)
+    expect(document.activeElement).toBe(screen.getByRole('checkbox'))
     fireEvent.keyDown(document, {key: 'Tab', shiftKey: true})
     expect(document.activeElement).toBe(policy)
     fireEvent.keyDown(document, {key: 'Escape'})
@@ -48,3 +50,17 @@ describe('SHARED-CONSENT-TIO2-MY', () => {
   })
 })
 /** @vitest-environment jsdom */
+
+
+it('persists a shared analytics choice and withdraws it without storing buyer data', () => {
+  localStorage.clear()
+  render(<><MalaysiaCookieSettingsTrigger>Manage preferences</MalaysiaCookieSettingsTrigger><MalaysiaCookieSettingsHost /></>)
+  fireEvent.click(screen.getByRole('button', {name: 'Manage preferences'}))
+  fireEvent.click(screen.getByRole('button', {name: 'Accept analytics'}))
+  expect(window.__TIO2_SHARED_CONSENT__).toEqual({siteScope:'tio2-my',analytics:'granted'})
+  fireEvent.click(screen.getByRole('button', {name: 'Manage preferences'}))
+  expect(screen.getByRole('checkbox', {name: 'Allow analytics'}).getAttribute('checked')).not.toBeNull()
+  fireEvent.click(screen.getByRole('button', {name: 'Reject / withdraw analytics'}))
+  expect(window.__TIO2_SHARED_CONSENT__).toEqual({siteScope:'tio2-my',analytics:'denied'})
+  expect(JSON.parse(localStorage.getItem('tio2-my:consent:v1')!)).toEqual({version:1,choice:'necessary_only'})
+})

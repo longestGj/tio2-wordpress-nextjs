@@ -302,7 +302,8 @@ test('DOC-REACH request transport stays editable through Back/Forward and truste
   await expect(page.getByRole('checkbox', {name: /^REACH Documentation/u})).toBeChecked()
   await fillRequiredRequestFields(page)
   await page.getByRole('button', {name: 'Request Documents'}).click()
-  await page.getByRole('heading', {name: 'Document Request Received'}).waitFor()
+  await page.waitForURL(/\/thank-you\/?\?request=documents$/u)
+  await page.getByRole('heading', {name: 'Thank you. We’ve received your document request.'}).waitFor()
   expect(submitted).toMatchObject({
     site_scope: 'tio2-my', page_id: 'CONV-DOC', document_types: ['other'],
     additional_requirements: 'REACH documentation', source_page_id: 'DOC-REACH',
@@ -337,7 +338,8 @@ test('CONV-DOC ignores public source tampering and validates editable negative i
   await expect(page.getByLabel(/Additional Requirements/u)).toHaveValue(overlength)
   await page.getByLabel(/Additional Requirements/u).fill('Buyer-edited REACH request')
   await page.getByRole('button', {name: 'Request Documents'}).click()
-  await page.getByRole('heading', {name: 'Document Request Received'}).waitFor()
+  await page.waitForURL(/\/thank-you\/?\?request=documents$/u)
+  await page.getByRole('heading', {name: 'Thank you. We’ve received your document request.'}).waitFor()
   expect(submitted).not.toHaveProperty('source_page_id')
   expect(submitted).toMatchObject({document_types: ['other'], additional_requirements: 'Buyer-edited REACH request'})
   await context.close()

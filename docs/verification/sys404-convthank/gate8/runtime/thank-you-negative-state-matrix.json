@@ -1,0 +1,34 @@
+[
+  {
+    "name": "markerless",
+    "state": "direct"
+  },
+  {
+    "name": "unsupported",
+    "state": "direct"
+  },
+  {
+    "name": "duplicate",
+    "state": "direct"
+  },
+  {
+    "name": "legacy",
+    "state": "direct"
+  },
+  {
+    "name": "mismatch",
+    "state": "direct"
+  },
+  {
+    "name": "stale",
+    "state": "direct"
+  },
+  {
+    "name": "future",
+    "state": "direct"
+  },
+  {
+    "name": "extra-marker-field",
+    "state": "direct"
+  }
+]

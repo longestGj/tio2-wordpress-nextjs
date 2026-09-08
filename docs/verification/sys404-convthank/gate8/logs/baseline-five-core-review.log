@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs
+
+
+ Test Files  1 passed (1)
+      Tests  15 passed | 1 skipped (16)
+   Start at  17:14:42
+   Duration  3.00s (transform 311ms, setup 548ms, import 1.33s, tests 452ms, environment 0ms)
+

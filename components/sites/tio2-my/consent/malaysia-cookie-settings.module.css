@@ -10,3 +10,6 @@
 .dialog .actions :is(button,a):focus-visible { outline:3px solid #008078; outline-offset:3px; }
 @media(max-width:560px) { .dialog { padding:26px 20px; } .dialog h2 { font-size:26px; } .dialog .actions :is(button,a) { width:100%; } }
 @media(prefers-reduced-motion:reduce) { .backdrop * { transition:none!important; animation:none!important; } }
+
+.preference {display:flex;align-items:center;gap:12px;min-height:48px;margin-top:16px;font-size:16px;}
+.preference input {width:22px;height:22px;accent-color:#008078;}

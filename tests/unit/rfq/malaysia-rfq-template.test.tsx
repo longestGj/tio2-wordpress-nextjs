@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import {cleanup, render, screen, within} from '@testing-library/react'
+import {cleanup, render, screen, waitFor, within} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
@@ -9,6 +9,10 @@ import {toMalaysiaRfqPageDto} from '@/lib/wordpress/rfq-page-v01-dto'
 import {malaysiaRfqPageSource} from '@/tests/fixtures/tio2-my-rfq-page'
 
 const receiver = vi.fn()
+const transitionMocks = vi.hoisted(() => ({navigate: vi.fn()}))
+vi.mock('@/lib/thank-you/malaysia-thank-you-session', async (original) => ({
+  ...await original(), navigateToMalaysiaThankYou: transitionMocks.navigate,
+}))
 
 const dto = toMalaysiaRfqPageDto(malaysiaRfqPageSource())
 
@@ -75,7 +79,7 @@ describe('CONV-RFQ template and form', () => {
     await user.type(screen.getByLabelText(/Your Name/u), 'A Buyer')
     await user.type(screen.getByLabelText(/Business Email/u), 'buyer@example.com')
     await user.click(screen.getByRole('button', {name: 'REQUEST QUOTE'}))
-    expect((await screen.findByRole('status')).textContent).toContain('Thank you. We’ve received your quotation request.')
+    await waitFor(() => expect(transitionMocks.navigate).toHaveBeenCalledWith('quote'))
     expect(receiver).toHaveBeenCalledOnce()
     expect(receiver.mock.calls[0]?.[0]).toBe('/api/rfq/submit')
   })
@@ -117,3 +121,24 @@ describe('CONV-RFQ template and form', () => {
     expect(container.textContent).not.toContain('Contact')
   })
 })
+  it('retries only the receipt transition after confirmed receipt storage fails', async () => {
+    transitionMocks.navigate.mockImplementationOnce(() => {throw new Error('Storage unavailable')})
+    const user = userEvent.setup()
+    renderPage()
+    await user.selectOptions(screen.getByLabelText(/Product \/ Grade/u), 'M-350')
+    await user.selectOptions(screen.getByLabelText(/^Application/u), 'Coatings')
+    await user.type(screen.getByLabelText(/Required Quantity/u), '20')
+    await user.type(screen.getByLabelText(/Destination Country/u), 'Malaysia')
+    await user.type(screen.getByLabelText(/Company Name/u), 'Example Industries')
+    await user.type(screen.getByLabelText(/Your Name/u), 'A Buyer')
+    await user.type(screen.getByLabelText(/Business Email/u), 'buyer@example.com')
+    await user.click(screen.getByRole('button', {name: 'REQUEST QUOTE'}))
+    await waitFor(() => expect(transitionMocks.navigate).toHaveBeenCalledWith('quote'))
+    await user.click(screen.getByRole('button', {name: 'TRY AGAIN'}))
+    await user.click(screen.getByRole('button', {name: 'REQUEST QUOTE'}))
+    await waitFor(() => expect(transitionMocks.navigate).toHaveBeenCalledTimes(2))
+    await user.click(screen.getByRole('button', {name: 'REQUEST QUOTE'}))
+    expect(transitionMocks.navigate).toHaveBeenCalledTimes(2)
+    expect(receiver).toHaveBeenCalledOnce()
+    expect(receiver.mock.calls[0]?.[0]).toBe('/api/rfq/submit')
+  })

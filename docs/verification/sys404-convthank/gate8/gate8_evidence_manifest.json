@@ -1,0 +1,700 @@
+{
+  "schema_version": "gate8-evidence-manifest-v1.0",
+  "handoff_id": "SYS404-G6-HANDOFF-01 + CONVTHANK-G6-HANDOFF-01",
+  "gate8_task_id": "G8-SYS404-CONVTHANK-20260908-01",
+  "site_scope": "tio2-my",
+  "receipt_path": "docs/verification/sys404-convthank/gate8/GATE8_IMPLEMENTATION_RECEIPT_2026-09-08.md",
+  "pages": [
+    {
+      "page_id": "SYS-404",
+      "acceptance_condition_ids": [
+        "SYS404-G9-AC01",
+        "SYS404-G9-AC02",
+        "SYS404-G9-AC03",
+        "SYS404-G9-AC04",
+        "SYS404-G9-AC05",
+        "SYS404-G9-AC06",
+        "SYS404-G9-AC07",
+        "SYS404-G9-AC08",
+        "SYS404-G9-AC09",
+        "SYS404-G9-AC10",
+        "SYS404-G9-AC11"
+      ],
+      "runtime_path": "/gate8-unmatched-root"
+    },
+    {
+      "page_id": "CONV-THANK",
+      "acceptance_condition_ids": [
+        "CT-G9-01",
+        "CT-G9-02",
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-05",
+        "CT-G9-06",
+        "CT-G9-07",
+        "CT-G9-08",
+        "CT-G9-09",
+        "CT-G9-10",
+        "CT-G9-11",
+        "CT-G9-12",
+        "CT-G9-13",
+        "CT-G9-14",
+        "CT-G9-15",
+        "CT-G9-16"
+      ],
+      "runtime_path": "/thank-you"
+    }
+  ],
+  "git": {
+    "repository": "D:\\16Wordpress_nextjs\\.worktrees\\sys404-convthank-gate8",
+    "branch": "codex/sys404-convthank-gate8",
+    "baseline_commit": "cfe9ef37ca3a8d9c6b05365ca6b09bcd22baf670",
+    "implementation_commit": "1571a67da57d5dd6f2b358ba20508ba46c76f581",
+    "evidence_head": "7fa0b1026c80c4b12bc1725fff1ad7ef1492a676",
+    "clean_checked_at": "2026-09-08T09:28:32.1593634Z"
+  },
+  "build": {
+    "directory": ".next-sys404-convthank-final",
+    "build_id": "2z5DYuzAHx0An8WWlUsz2",
+    "implementation_commit": "1571a67da57d5dd6f2b358ba20508ba46c76f581"
+  },
+  "runtime": {
+    "base_url": "http://127.0.0.1:4381",
+    "site_scope": "tio2-my",
+    "environment_type": "local-production",
+    "started_at": "2026-09-08T17:20:00+08:00",
+    "hold_until": "GATE9_PASS_OR_RETURN_NOTICE",
+    "require_build_marker": true,
+    "checks": [
+      {
+        "path": "/gate8-unmatched-root",
+        "expected_status": 404,
+        "contains": [
+          "Page Not Found | TiO2 Malaysia"
+        ]
+      },
+      {
+        "path": "/gate8/unmatched/nested",
+        "expected_status": 404,
+        "contains": [
+          "PAGE NOT FOUND"
+        ]
+      },
+      {
+        "path": "/thank-you",
+        "expected_status": 200,
+        "contains": [
+          "data-page-id=\"CONV-THANK\"",
+          "How can we help?"
+        ]
+      },
+      {
+        "path": "/products",
+        "expected_status": 200,
+        "contains": [
+          "Titanium Dioxide Pigment Grades"
+        ]
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "path": "docs/verification/sys404-convthank/gate8/build-id.txt",
+      "sha256": "0d0fca794c9f0c1075069e8bc5d03a4cd0b6f53fbb8e0e2e4caad93186a72356",
+      "evidence_type": "IDENTITY",
+      "proves": [
+        "SYS404-G9-AC10",
+        "SYS404-G9-AC11",
+        "CT-G9-15",
+        "CT-G9-16"
+      ],
+      "command": "Generated from committed Gate 8 verification outputs",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/acceptance-summary.json",
+      "sha256": "44666660a83e2f85544f236f877ba7a39fff62889be97d0a3cf48bf9bc3de3f1",
+      "evidence_type": "SOURCE_INSPECTION",
+      "proves": [
+        "SYS404-G9-AC08",
+        "SYS404-G9-AC09",
+        "CT-G9-10",
+        "CT-G9-15",
+        "CT-G9-16"
+      ],
+      "command": "Generated from committed Gate 8 verification outputs",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/runtime-contract.json",
+      "sha256": "9942e01aacccedfe380daa83c79338340d5479e79ab0ebf4423b9ddc07578419",
+      "evidence_type": "ACTUAL_RUNTIME",
+      "proves": [
+        "SYS404-G9-AC01",
+        "SYS404-G9-AC03",
+        "SYS404-G9-AC04",
+        "CT-G9-01",
+        "CT-G9-02",
+        "CT-G9-12"
+      ],
+      "command": "node docs/verification/sys404-convthank/gate8/support/capture-runtime.mjs",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/thank-you-negative-state-matrix.json",
+      "sha256": "cc1c2449753099585cbd5764727f5ebabf04fb2dea705fd5023028d74e051d56",
+      "evidence_type": "ACTUAL_RUNTIME",
+      "proves": [
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-09",
+        "CT-G9-13",
+        "CT-G9-14"
+      ],
+      "command": "Generated from committed Gate 8 verification outputs",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/visual-contact-sheet.jpg",
+      "sha256": "d82e51fc7fdcacc0374185bf5565cdc575b1260a3922a29f4ce5f4c331fbe9c8",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "SYS404-G9-AC08",
+        "SYS404-G9-AC09",
+        "CT-G9-10",
+        "CT-G9-15",
+        "CT-G9-16"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/conv-thank-direct-desktop-1440.png",
+      "sha256": "5c5a3d799cbfbd7cfcec76bb0a1fcd183ea5c9c9962a33a97bb2c042f03b0509",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-09",
+        "CT-G9-13",
+        "CT-G9-14"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/conv-thank-direct-mobile-390.png",
+      "sha256": "ab984559da5f9693d4706d5038703e3fc5889800e46a600df621e5eae6404f34",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-09",
+        "CT-G9-13",
+        "CT-G9-14"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/conv-thank-direct-tablet-768.png",
+      "sha256": "4527067a75ae12abd2b442f41726b0008cbb8d6f28585d859cc9b13a23466c8b",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-09",
+        "CT-G9-13",
+        "CT-G9-14"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/conv-thank-documents-desktop-1440.png",
+      "sha256": "ec3c3383dbb67af84823b7181c088879052fef1dee7970e9814dedb676718ec3",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-09",
+        "CT-G9-13",
+        "CT-G9-14"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/conv-thank-documents-mobile-390.png",
+      "sha256": "6ffc961896c147679a9da0f53a0151c201fb0d0b82f50185d35545fbb0fdbddd",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-09",
+        "CT-G9-13",
+        "CT-G9-14"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/conv-thank-documents-tablet-768.png",
+      "sha256": "c7c7aec14a0492cb5c764133cc3094420b38acb70e76fb920c7e7268700e71c2",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-09",
+        "CT-G9-13",
+        "CT-G9-14"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/conv-thank-quote-desktop-1440.png",
+      "sha256": "a74878027df2d283e706d47cef8086f81b80e76c279476256b0c0ec7d2763d59",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-09",
+        "CT-G9-13",
+        "CT-G9-14"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/conv-thank-quote-mobile-390.png",
+      "sha256": "35e66adf5f07f2b2e437ab581cb701fff414b69584705b20fd73e8d4ac3d0967",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-09",
+        "CT-G9-13",
+        "CT-G9-14"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/conv-thank-quote-tablet-768.png",
+      "sha256": "16514008cd8a64cb4bbaf62775eec97773f058d2dc5ed596a79dd9d9d4a32065",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-09",
+        "CT-G9-13",
+        "CT-G9-14"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/conv-thank-sample-desktop-1440.png",
+      "sha256": "9c8cf627ff299351c8f22325896ca825dc1f206d5f54f68e4718271481aa9f7b",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-09",
+        "CT-G9-13",
+        "CT-G9-14"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/conv-thank-sample-mobile-390.png",
+      "sha256": "477dd4ffb5df0408fc8e12bf365a264a9b0ce9eb7858f5fb780f7af84d59ab4b",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-09",
+        "CT-G9-13",
+        "CT-G9-14"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/conv-thank-sample-tablet-768.png",
+      "sha256": "af00551c4966b68a91c1065141e896ac5d45c560bd4bb004feb0fce2d883a3ed",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-03",
+        "CT-G9-04",
+        "CT-G9-09",
+        "CT-G9-13",
+        "CT-G9-14"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/sys-404-desktop-1440.png",
+      "sha256": "5b2df7ede78364b5ca5733977b66788e194b7adf87a3c6c26b9ca4c8b2cc180d",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "SYS404-G9-AC02",
+        "SYS404-G9-AC05",
+        "SYS404-G9-AC06",
+        "SYS404-G9-AC07"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/sys-404-mobile-390.png",
+      "sha256": "72fa990c9d6f16647af0e5224a663300e8b8168a0df3a8db07735b2f12aed202",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "SYS404-G9-AC02",
+        "SYS404-G9-AC05",
+        "SYS404-G9-AC06",
+        "SYS404-G9-AC07"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/runtime/sys-404-tablet-768.png",
+      "sha256": "51a8357b214f834be6437f86c19cc7d38084c45d61dc185a6388942e7e995f17",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "SYS404-G9-AC02",
+        "SYS404-G9-AC05",
+        "SYS404-G9-AC06",
+        "SYS404-G9-AC07"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/form-transition/conv-doc-state-failure.png",
+      "sha256": "ec954f26871ccedcb38b352e3a5d36d3c8725e954a8837298b9ea826a9868ec7",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-05",
+        "CT-G9-06",
+        "CT-G9-07",
+        "CT-G9-08",
+        "CT-G9-10"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/form-transition/conv-doc-state-submitting.png",
+      "sha256": "e5db06ec8ef3bc14d8ef2489b5de96696a3dfb1b1c233f3e90fd84513784abb9",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-05",
+        "CT-G9-06",
+        "CT-G9-07",
+        "CT-G9-08",
+        "CT-G9-10"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/form-transition/conv-doc-state-success.png",
+      "sha256": "71647f9dd5a743ae298114bae507bd7bd6a3fa9a587372cf296b37dc81b80207",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-05",
+        "CT-G9-06",
+        "CT-G9-07",
+        "CT-G9-08",
+        "CT-G9-10"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/form-transition/conv-doc-state-validation.png",
+      "sha256": "5236ae768ec030dc26a5f21420b6f837afbb681226bfc276eaf16fab740616d8",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-05",
+        "CT-G9-06",
+        "CT-G9-07",
+        "CT-G9-08",
+        "CT-G9-10"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/form-transition/conv-sample-failure.png",
+      "sha256": "37e8fd9b9637a85230425372d4c2dce4ab570fb14666590032fc74c6cd9f79de",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-05",
+        "CT-G9-06",
+        "CT-G9-07",
+        "CT-G9-08",
+        "CT-G9-10"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/form-transition/conv-sample-success.png",
+      "sha256": "91b05757f8f00bcfcdc6c3ed76f0435b678dfafb05d20d8dcdefcbdf5ad87075",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-05",
+        "CT-G9-06",
+        "CT-G9-07",
+        "CT-G9-08",
+        "CT-G9-10"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/form-transition/doc-simulated-receiver.json",
+      "sha256": "389164f584386c7ae2612a26dddc35c3935ed04d72c7e7fab984df6569811343",
+      "evidence_type": "RECEIVER",
+      "proves": [
+        "CT-G9-05",
+        "CT-G9-06",
+        "CT-G9-07",
+        "CT-G9-08",
+        "CT-G9-10"
+      ],
+      "command": "Generated from committed Gate 8 verification outputs",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/form-transition/rfq-simulated-receiver.json",
+      "sha256": "7cf8979c2724ffb3328be6503336159e5fb0f3b7354202e425683fb60d479af0",
+      "evidence_type": "RECEIVER",
+      "proves": [
+        "CT-G9-05",
+        "CT-G9-06",
+        "CT-G9-07",
+        "CT-G9-08",
+        "CT-G9-10"
+      ],
+      "command": "Generated from committed Gate 8 verification outputs",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/form-transition/rfq-simulated-success.png",
+      "sha256": "7a8e93057a09edb169f5204df8cc8a4def7b203ef983bc03deea53b18f8285fc",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "CT-G9-05",
+        "CT-G9-06",
+        "CT-G9-07",
+        "CT-G9-08",
+        "CT-G9-10"
+      ],
+      "command": "Playwright full-page screenshot; visually inspected contact sheet",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/logs/build.log",
+      "sha256": "162f1668fe696d93db7ff048439343dd835c70b079a82e67824a7e082e9f1cc4",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "SYS404-G9-AC10",
+        "SYS404-G9-AC11",
+        "CT-G9-15",
+        "CT-G9-16"
+      ],
+      "command": "NEXT_DIST_DIR=.next-sys404-convthank-final npm run build",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/logs/targeted-vitest.log",
+      "sha256": "f7a3b2d5286db945ee5cb1fc0eb2156f7ac53b234755ab115b4616f7015cb563",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "SYS404-G9-AC08",
+        "SYS404-G9-AC09",
+        "CT-G9-10",
+        "CT-G9-15",
+        "CT-G9-16"
+      ],
+      "command": "npx vitest run <nine SYS-404/CONV-THANK suites>",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/logs/playwright-final.log",
+      "sha256": "387ebe16921fa37fadcca59e61b422e3bea4158e449682e59fa2e98073e702a2",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "SYS404-G9-AC08",
+        "SYS404-G9-AC09",
+        "CT-G9-10",
+        "CT-G9-15",
+        "CT-G9-16"
+      ],
+      "command": "npx playwright test --config=playwright.sys404-convthank.config.ts",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/logs/form-transition-final.log",
+      "sha256": "76bfd513ca2542271990874ebfb8b37a190f3841873b005b26d26cb4e34cf284",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "CT-G9-05",
+        "CT-G9-06",
+        "CT-G9-07",
+        "CT-G9-08",
+        "CT-G9-10"
+      ],
+      "command": "npx playwright test <three source-form specs> -g positive-receipt",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/logs/sample-transition-final.log",
+      "sha256": "c8f884eb29982a084abf7fd5bbc8d0727778e4ddf29b3faf0842c50284f9498e",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "CT-G9-05",
+        "CT-G9-06",
+        "CT-G9-07",
+        "CT-G9-08",
+        "CT-G9-10"
+      ],
+      "command": "npx playwright test tests/e2e/request-sample.spec.ts -g explicit-receipt",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/logs/typecheck.log",
+      "sha256": "d98c656d4bd66d7ecbbb46c5061cc283ccb9638f83d21d23fc68fc683deb581b",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "SYS404-G9-AC08",
+        "SYS404-G9-AC09",
+        "CT-G9-10",
+        "CT-G9-15",
+        "CT-G9-16"
+      ],
+      "command": "npm run typecheck",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/logs/unit-full.log",
+      "sha256": "894832125f2baa01fc7aef8a29601fd4ebf3723c44c47ee5cd8d3184d4e7df4e",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "SYS404-G9-AC08",
+        "SYS404-G9-AC09",
+        "CT-G9-10",
+        "CT-G9-15",
+        "CT-G9-16"
+      ],
+      "command": "npm test",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/logs/lint-full.log",
+      "sha256": "668e39102b9b8da0973e734dc512cd43987a2f7a775d84ff4d5f9736181a68b2",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "SYS404-G9-AC08",
+        "SYS404-G9-AC09",
+        "CT-G9-10",
+        "CT-G9-15",
+        "CT-G9-16"
+      ],
+      "command": "npm run lint",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    },
+    {
+      "path": "docs/verification/sys404-convthank/gate8/logs/baseline-five-core-review.log",
+      "sha256": "3017ba48bab7b36d58446803cbb8f8a6c4226acadc088ab747d1334668785146",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "SYS404-G9-AC08",
+        "SYS404-G9-AC09",
+        "CT-G9-10",
+        "CT-G9-15",
+        "CT-G9-16"
+      ],
+      "command": "npx vitest run tests/unit/editorial/five-core-review.test.ts (main comparison)",
+      "environment": "Windows local-production tio2-my candidate at http://127.0.0.1:4381; no external submission"
+    }
+  ],
+  "receipt_evidence_references": [
+    "docs/verification/sys404-convthank/gate8/build-id.txt",
+    "docs/verification/sys404-convthank/gate8/acceptance-summary.json",
+    "docs/verification/sys404-convthank/gate8/runtime/runtime-contract.json",
+    "docs/verification/sys404-convthank/gate8/runtime/thank-you-negative-state-matrix.json",
+    "docs/verification/sys404-convthank/gate8/runtime/visual-contact-sheet.jpg",
+    "docs/verification/sys404-convthank/gate8/runtime/conv-thank-direct-desktop-1440.png",
+    "docs/verification/sys404-convthank/gate8/runtime/conv-thank-direct-mobile-390.png",
+    "docs/verification/sys404-convthank/gate8/runtime/conv-thank-direct-tablet-768.png",
+    "docs/verification/sys404-convthank/gate8/runtime/conv-thank-documents-desktop-1440.png",
+    "docs/verification/sys404-convthank/gate8/runtime/conv-thank-documents-mobile-390.png",
+    "docs/verification/sys404-convthank/gate8/runtime/conv-thank-documents-tablet-768.png",
+    "docs/verification/sys404-convthank/gate8/runtime/conv-thank-quote-desktop-1440.png",
+    "docs/verification/sys404-convthank/gate8/runtime/conv-thank-quote-mobile-390.png",
+    "docs/verification/sys404-convthank/gate8/runtime/conv-thank-quote-tablet-768.png",
+    "docs/verification/sys404-convthank/gate8/runtime/conv-thank-sample-desktop-1440.png",
+    "docs/verification/sys404-convthank/gate8/runtime/conv-thank-sample-mobile-390.png",
+    "docs/verification/sys404-convthank/gate8/runtime/conv-thank-sample-tablet-768.png",
+    "docs/verification/sys404-convthank/gate8/runtime/sys-404-desktop-1440.png",
+    "docs/verification/sys404-convthank/gate8/runtime/sys-404-mobile-390.png",
+    "docs/verification/sys404-convthank/gate8/runtime/sys-404-tablet-768.png",
+    "docs/verification/sys404-convthank/gate8/form-transition/conv-doc-state-failure.png",
+    "docs/verification/sys404-convthank/gate8/form-transition/conv-doc-state-submitting.png",
+    "docs/verification/sys404-convthank/gate8/form-transition/conv-doc-state-success.png",
+    "docs/verification/sys404-convthank/gate8/form-transition/conv-doc-state-validation.png",
+    "docs/verification/sys404-convthank/gate8/form-transition/conv-sample-failure.png",
+    "docs/verification/sys404-convthank/gate8/form-transition/conv-sample-success.png",
+    "docs/verification/sys404-convthank/gate8/form-transition/doc-simulated-receiver.json",
+    "docs/verification/sys404-convthank/gate8/form-transition/rfq-simulated-receiver.json",
+    "docs/verification/sys404-convthank/gate8/form-transition/rfq-simulated-success.png",
+    "docs/verification/sys404-convthank/gate8/logs/build.log",
+    "docs/verification/sys404-convthank/gate8/logs/targeted-vitest.log",
+    "docs/verification/sys404-convthank/gate8/logs/playwright-final.log",
+    "docs/verification/sys404-convthank/gate8/logs/form-transition-final.log",
+    "docs/verification/sys404-convthank/gate8/logs/sample-transition-final.log",
+    "docs/verification/sys404-convthank/gate8/logs/typecheck.log",
+    "docs/verification/sys404-convthank/gate8/logs/unit-full.log",
+    "docs/verification/sys404-convthank/gate8/logs/lint-full.log",
+    "docs/verification/sys404-convthank/gate8/logs/baseline-five-core-review.log"
+  ],
+  "known_open_items": [
+    {
+      "id": "SYS404-DEP02-CONTACT",
+      "owner": "Contact target-page owner",
+      "blocking_layer": "INTEGRATION",
+      "closure_evidence": "Current /contact/ target must return its registered non-404 page while the exact SYS-404 href remains unchanged.",
+      "closure_timing": "Before SYS404-G9-AC03 integration pass"
+    },
+    {
+      "id": "THANK-DEP04-ANALYTICS",
+      "owner": "Analytics and shared Consent owners",
+      "blocking_layer": "RELEASE",
+      "closure_evidence": "Distinct three-flow success event and consent accept/deny/withdraw cardinality trace with zero PII.",
+      "closure_timing": "Before CT-G9-11 and release pass"
+    },
+    {
+      "id": "DEVICE-AT-COVERAGE",
+      "owner": "Gate 9 device and accessibility verification",
+      "blocking_layer": "PAGE_GATE9",
+      "closure_evidence": "Physical touch-device, screen-reader and native 200 percent zoom evidence.",
+      "closure_timing": "During SYS404-G9-AC07 and CT-G9-14/15"
+    },
+    {
+      "id": "BASELINE-QUALITY-DRIFT",
+      "owner": "Repository baseline owner",
+      "blocking_layer": "RECHECK_SCOPE",
+      "closure_evidence": "Reconcile the unrelated five-core evidence hash and pre-existing shared-menu lint findings without changing this implementation.",
+      "closure_timing": "Before full-repository quality gate is asserted"
+    }
+  ]
+}

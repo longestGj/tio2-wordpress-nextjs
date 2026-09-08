@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import {cleanup, render, screen, within} from '@testing-library/react'
+import {cleanup, render, screen, waitFor, within} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
@@ -9,6 +9,12 @@ import {createSecureRequestToken} from '@/components/sites/tio2-my/request-docum
 import {resolveMalaysiaRequestDocumentsPrefill} from '@/lib/request-documents/malaysia-request-documents-prefill'
 import {toMalaysiaRequestDocumentsPageDto} from '@/lib/wordpress/request-documents-v01-dto'
 import {malaysiaRequestDocumentsPageSource} from '@/tests/fixtures/tio2-my-request-documents-page'
+
+const transitionMocks = vi.hoisted(() => ({navigate: vi.fn()}))
+vi.mock('@/lib/thank-you/malaysia-thank-you-session', async (original) => ({
+  ...await original<typeof import('@/lib/thank-you/malaysia-thank-you-session')>(),
+  navigateToMalaysiaThankYou: transitionMocks.navigate,
+}))
 
 const dto = toMalaysiaRequestDocumentsPageDto(malaysiaRequestDocumentsPageSource())
 
@@ -37,7 +43,8 @@ describe('CONV-DOC page and form', () => {
     await user.type(screen.getByLabelText(/Business Email/u), 'amina@example.com')
     await user.type(screen.getByLabelText(/Country \/ Region/u), 'Malaysia')
     await user.click(screen.getByRole('button', {name: 'Request Documents'}))
-    await screen.findByRole('heading', {name: 'Document Request Received'})
+    await waitFor(() => expect(transitionMocks.navigate).toHaveBeenCalledWith('documents'))
+    expect(screen.queryByText('Document Request Received')).toBeNull()
 
     const calls = vi.mocked(fetch).mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
     expect(String(calls[0]?.[0])).toBe('https://api.web3forms.com/submit')
@@ -62,7 +69,7 @@ describe('CONV-DOC page and form', () => {
     await user.type(screen.getByLabelText(/Country \/ Region/u), 'Malaysia')
     await user.selectOptions(screen.getByLabelText(/Product Grade/u), 'M-350')
     await user.click(screen.getByRole('button', {name: 'Request Documents'}))
-    await screen.findByRole('heading', {name: 'Document Request Received'})
+    await waitFor(() => expect(transitionMocks.navigate).toHaveBeenCalledWith('documents'))
     const calls = vi.mocked(fetch).mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
     const payload = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
     expect(payload).not.toHaveProperty('source_page_id')
@@ -197,8 +204,7 @@ describe('CONV-DOC page and form', () => {
     await user.click(screen.getByRole('button', {name: 'Try again'}))
     expect((await screen.findByRole('button', {name: 'Submitting…'}) as HTMLButtonElement).disabled).toBe(true)
     expect((screen.getByLabelText(/^Company/u) as HTMLInputElement).value).toBe('Retained Company')
-    await screen.findByRole('heading', {name: 'Document Request Received'})
-    expect(screen.getByRole('status').textContent).toContain('Document Request Received')
+    await waitFor(() => expect(transitionMocks.navigate).toHaveBeenCalledWith('documents'))
     const bodies = vi.mocked(fetch).mock.calls.map((call) => JSON.parse(String(call[1]?.body)) as {request_token: string})
     expect(bodies).toHaveLength(2)
     expect(bodies[1]?.request_token).toBe(bodies[0]?.request_token)
@@ -220,7 +226,7 @@ describe('CONV-DOC page and form', () => {
     await user.selectOptions(screen.getByLabelText(/Product Grade/u), 'M-2196')
     await user.click(screen.getByRole('checkbox', {name: /^Safety Documentation/u}))
     await user.click(screen.getByRole('button', {name: 'Request Documents'}))
-    expect((await screen.findByRole('status')).textContent).toContain('Document Request Received')
+    await waitFor(() => expect(transitionMocks.navigate).toHaveBeenCalledWith('documents'))
     expect(fetch).toHaveBeenCalledOnce()
   })
 

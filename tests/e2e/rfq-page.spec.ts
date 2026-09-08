@@ -155,8 +155,12 @@ test('CONV-RFQ validates, retains values, and confirms only a positive JSON ackn
     await route.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({success: true})})
   })
   await page.getByRole('button', {name: 'REQUEST QUOTE'}).click()
-  await expect(page.getByRole('heading', {name: contract.form.success.heading})).toBeVisible()
-  await expect(page.getByRole('status')).toBeFocused()
+  await expect(page).toHaveURL(/\/thank-you\/?\?request=quote$/u)
+  await expect(page.getByRole('heading', {name: 'Thank you. We’ve received your quotation request.'})).toBeVisible()
+  expect(await page.content()).not.toContain('buyer@example.com')
+  expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem('tio2-my:thank-you:receipt:v1') ?? '{}'))).toMatchObject({
+    version: 1, request: 'quote',
+  })
   expect(submissionCount).toBe(2)
   await page.screenshot({path:resolve(evidenceDirectory,'rfq-simulated-success.png'),fullPage:true})
   writeFileSync(resolve(evidenceDirectory,'rfq-simulated-receiver.json'),JSON.stringify({checkedAt:new Date().toISOString(),baseUrl,mode:'Browser-intercepted responses; no external submission',validation:true,failureRetainsValues:true,retry:true,explicitPositiveJsonRequired:true,attempts:submissionCount,providerAccepted:false,inboxConfirmed:false},null,2)+'\n')

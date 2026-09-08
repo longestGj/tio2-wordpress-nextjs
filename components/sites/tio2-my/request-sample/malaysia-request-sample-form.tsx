@@ -1,15 +1,15 @@
 'use client'
 
 import {useEffect,useRef,useState} from 'react'
-import {resolveSubmissionEnvironment} from '@/lib/forms/submission-environment'
 import type {MalaysiaSamplePrefill} from '@/lib/request-sample/malaysia-request-sample-prefill'
 import {submitMalaysiaSampleRequest} from '@/lib/request-sample/malaysia-request-sample-receiver'
 import {emptyMalaysiaSampleRequestValues,validateMalaysiaSampleRequest,type MalaysiaSampleRequestErrors,type MalaysiaSampleRequestValues} from '@/lib/request-sample/malaysia-request-sample-validation'
 import type {MalaysiaRequestSamplePageDto} from '@/lib/wordpress/request-sample-v01-types'
 import styles from './malaysia-request-sample-page.module.css'
+import {navigateToMalaysiaThankYou} from '@/lib/thank-you/malaysia-thank-you-session'
 
 interface Props{readonly page:MalaysiaRequestSamplePageDto;readonly prefill:MalaysiaSamplePrefill;readonly receiverReady:boolean}
-type State='ready'|'submitting'|'failure'|'success'|'unavailable'
+type State='ready'|'submitting'|'failure'|'unavailable'
 type Field=keyof MalaysiaSampleRequestValues
 const labels:Record<Field,string>={grade_id:'Product grade',application_id:'Application',application_other:'Describe the application',test_objective:'What do you need to evaluate?',current_grade_or_target:'Current grade or target requirement',contact_name:'Contact name',company_organisation:'Company or organisation',business_email:'Business email',destination_country_market:'Destination country or market',expected_project_annual_use:'Expected project or annual use',documents_needed:'Documents needed for the trial',additional_context:'Additional non-confidential context'}
 const processLabels:Record<NonNullable<MalaysiaSamplePrefill['process_context']>,string>={chloride:'Chloride',sulfate:'Sulfate','vapor-phase-oxidation':'Vapor-phase oxidation'}
@@ -26,8 +26,8 @@ export function MalaysiaRequestSampleForm({page,prefill,receiverReady}:Props){
   const [context,setContext]=useState({source_page_id:prefill.source_page_id,market_id:prefill.market_id,process_context:prefill.process_context,resource_context:prefill.resource_context})
   const [visible,setVisible]=useState({grade:Boolean(prefill.grade_id),application:Boolean(prefill.application_id),destination:Boolean(prefill.destination),documents:Boolean(prefill.documents_needed?.length),process:Boolean(prefill.process_context),resource:Boolean(prefill.resource_context)})
   const [errors,setErrors]=useState<MalaysiaSampleRequestErrors>({});const [state,setState]=useState<State>('ready');const [attempt,setAttempt]=useState(0)
-  const summaryRef=useRef<HTMLDivElement>(null);const stateRef=useRef<HTMLDivElement>(null);const keyRef=useRef<string|null>(null);const pendingRef=useRef(false)
-  useEffect(()=>{if(attempt)summaryRef.current?.focus()},[attempt]);useEffect(()=>{if(['failure','success','unavailable'].includes(state))stateRef.current?.focus()},[state])
+  const summaryRef=useRef<HTMLDivElement>(null);const stateRef=useRef<HTMLDivElement>(null);const keyRef=useRef<string|null>(null);const transitionStartedRef=useRef(false);const completedRef=useRef(false);const pendingRef=useRef(false)
+  useEffect(()=>{if(attempt)summaryRef.current?.focus()},[attempt]);useEffect(()=>{if(['failure','unavailable'].includes(state))stateRef.current?.focus()},[state])
   const rotate=()=>{keyRef.current=null;if(state==='failure'||state==='unavailable')setState('ready')}
   const update=(field:Exclude<Field,'documents_needed'>,value:string)=>{rotate();setValues((current)=>({...current,[field]:value}));if(errors[field]||(field==='application_id'&&value!=='other'&&errors.application_other))setErrors((current)=>({...current,[field]:undefined,...(field==='application_id'&&value!=='other'?{application_other:undefined}:{})}))}
   const toggleDocument=(value:string)=>{rotate();setValues((current)=>({...current,documents_needed:current.documents_needed.includes(value)?current.documents_needed.filter((item)=>item!==value):[...current.documents_needed,value]}));if(errors.documents_needed)setErrors((current)=>({...current,documents_needed:undefined}))}
@@ -35,14 +35,14 @@ export function MalaysiaRequestSampleForm({page,prefill,receiverReady}:Props){
   const focusField=(field:Field)=>field==='documents_needed'?document.querySelector<HTMLInputElement>('#sample-documents input')?.focus():document.getElementById(`sample-${field}`)?.focus()
 
   async function performSubmission(){
-    if(pendingRef.current)return;pendingRef.current=true;setErrors({});setState('submitting')
-    try{keyRef.current??=createSampleRequestIdempotencyKey();const result=await submitMalaysiaSampleRequest(values,{accessKey:process.env.NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY??null,idempotencyKey:keyRef.current,sourceContext:context,environment:resolveSubmissionEnvironment(process.env.NEXT_PUBLIC_TIO2_RUNTIME_ENVIRONMENT)})
-      if(result.kind==='receipt_confirmed')setState('success')
+    if(pendingRef.current||transitionStartedRef.current)return;if(completedRef.current){try{navigateToMalaysiaThankYou('sample'); transitionStartedRef.current = true}catch{setState('failure')}return};pendingRef.current=true;setErrors({});setState('submitting')
+    try{keyRef.current??=createSampleRequestIdempotencyKey();const result=await submitMalaysiaSampleRequest(values,{idempotencyKey:keyRef.current,sourceContext:context})
+      if(result.kind==='receipt_confirmed'){completedRef.current=true;navigateToMalaysiaThankYou('sample'); transitionStartedRef.current = true}
       else if(result.kind==='validation_failed'&&Object.keys(result.errors).length){setErrors(result.errors);setState('ready');setAttempt((value)=>value+1)}
       else if(result.kind==='unavailable')setState('unavailable');else setState('failure')
     }catch{setState('failure')}finally{pendingRef.current=false}
   }
-  async function submit(event:React.FormEvent<HTMLFormElement>){event.preventDefault();if(pendingRef.current)return;const next=validateMalaysiaSampleRequest(values);if(Object.keys(next).length){setErrors(next);setState('ready');setAttempt((value)=>value+1);return}await performSubmission()}
+  async function submit(event:React.FormEvent<HTMLFormElement>){event.preventDefault();if(pendingRef.current||transitionStartedRef.current)return;const next=validateMalaysiaSampleRequest(values);if(Object.keys(next).length){setErrors(next);setState('ready');setAttempt((value)=>value+1);return}await performSubmission()}
   const described=(field:Field,helper=false)=>[helper?`sample-${field}-helper`:null,errors[field]?`sample-${field}-error`:null].filter(Boolean).join(' ')||undefined
   const contextVisible=Object.values(visible).some(Boolean)
 
@@ -56,7 +56,7 @@ export function MalaysiaRequestSampleForm({page,prefill,receiverReady}:Props){
       <form className={styles.form} aria-label="Request a Sample" aria-busy={state==='submitting'||undefined} onSubmit={submit} noValidate>
         <p className={styles.eyebrow}>{page.form.eyebrow}</p><h2 id="sample-form-heading">{page.form.heading}</h2><p className={styles.formIntro}>{page.form.intro}</p><p className={styles.warning}>{page.form.warning}</p>
         {Object.keys(errors).length>0&&<div ref={summaryRef} tabIndex={-1} role="alert" className={styles.errorSummary}><h3>{page.form.errors.summary}</h3><ul>{Object.entries(errors).map(([field,message])=><li key={field}><a href={`#sample-${field}`} onClick={(event)=>{event.preventDefault();focusField(field as Field)}}>{labels[field as Field]}: {message}</a></li>)}</ul></div>}
-        {state==='unavailable'?<StatePanel refValue={stateRef} kind="unavailable" heading={page.form.unavailable.heading} body={page.form.unavailable.body}/>:state==='success'?<StatePanel refValue={stateRef} kind="success" heading={page.form.success.heading} body={page.form.success.body}/>:<>
+        {state==='unavailable'?<StatePanel refValue={stateRef} kind="unavailable" heading={page.form.unavailable.heading} body={page.form.unavailable.body}/>:<>
         <fieldset disabled={state==='submitting'}><legend><span><b>01</b> {page.form.sections[0]}</span></legend><div className={styles.fieldGrid} data-field-grid>
           <SelectField id="grade_id" label="Product grade" value={values.grade_id} error={errors.grade_id} describedBy={described('grade_id')} onChange={(value)=>update('grade_id',value)}><option value="">Choose a grade</option>{page.form.gradeOptions.map((grade)=><option key={grade} value={grade}>{grade==='unknown'?'I do not know the grade':grade}</option>)}</SelectField>
           <SelectField id="application_id" label="Application" value={values.application_id} error={errors.application_id} describedBy={described('application_id')} onChange={(value)=>update('application_id',value)}><option value="">Choose an application</option>{page.form.applicationOptions.map((item)=><option key={item.value} value={item.value}>{item.label}</option>)}</SelectField>
@@ -87,4 +87,4 @@ function SelectField({id,label,value,error,describedBy,onChange,children}:{id:'g
 type TextFieldName=Exclude<Field,'grade_id'|'application_id'|'documents_needed'>
 function TextField({field,label,value,error,onChange,required=false,type='text',autoComplete,placeholder,helper}:{field:TextFieldName;label:string;value:string;error?:string;onChange:(field:TextFieldName,value:string)=>void;required?:boolean;type?:'text'|'email';autoComplete?:string;placeholder?:string;helper?:string}){const ids=[helper?`sample-${field}-helper`:null,error?`sample-${field}-error`:null].filter(Boolean).join(' ')||undefined;return <div className={styles.field} data-sample-field={field}><label htmlFor={`sample-${field}`}>{label} <small>{required?'Required':'Optional'}</small></label><input id={`sample-${field}`} type={type} required={required} aria-required={required||undefined} aria-invalid={Boolean(error)} aria-describedby={ids} autoComplete={autoComplete} placeholder={placeholder} value={value} onChange={(event)=>onChange(field,event.target.value)}/>{helper&&<p id={`sample-${field}-helper`} className={styles.helper}>{helper}</p>}{error&&<p id={`sample-${field}-error`} className={styles.fieldError}>{error}</p>}</div>}
 function TextArea({field,label,value,error,onChange,required=false,placeholder,helper}:{field:TextFieldName;label:string;value:string;error?:string;onChange:(field:TextFieldName,value:string)=>void;required?:boolean;placeholder?:string;helper?:string}){const ids=[helper?`sample-${field}-helper`:null,error?`sample-${field}-error`:null].filter(Boolean).join(' ')||undefined;return <div className={`${styles.field} ${styles.wide}`} data-sample-field={field}><label htmlFor={`sample-${field}`}>{label} <small>{required?'Required':'Optional'}</small></label><textarea id={`sample-${field}`} rows={field==='test_objective'?5:4} required={required} aria-required={required||undefined} aria-invalid={Boolean(error)} aria-describedby={ids} placeholder={placeholder} value={value} onChange={(event)=>onChange(field,event.target.value)}/>{helper&&<p id={`sample-${field}-helper`} className={styles.helper}>{helper}</p>}<span className={styles.counter}>{Array.from(value).length} / {field==='application_other'?500:2000}</span>{error&&<p id={`sample-${field}-error`} className={styles.fieldError}>{error}</p>}</div>}
-function StatePanel({refValue,kind,heading,body,action}:{refValue:React.RefObject<HTMLDivElement|null>;kind:'failure'|'success'|'unavailable';heading:string;body:string;action?:React.ReactNode}){return <div ref={refValue} tabIndex={-1} role={kind==='success'?'status':'alert'} className={`${styles.statePanel} ${styles[kind]}`}><h3>{heading}</h3><p>{body}</p>{action}</div>}
+function StatePanel({refValue,kind,heading,body,action}:{refValue:React.RefObject<HTMLDivElement|null>;kind:'failure'|'unavailable';heading:string;body:string;action?:React.ReactNode}){return <div ref={refValue} tabIndex={-1} role="alert" className={`${styles.statePanel} ${styles[kind]}`}><h3>{heading}</h3><p>{body}</p>{action}</div>}

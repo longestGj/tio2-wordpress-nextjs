@@ -2,13 +2,14 @@
 
 import {useEffect, useRef, useState, useSyncExternalStore} from 'react'
 
+import {navigateToMalaysiaThankYou} from '@/lib/thank-you/malaysia-thank-you-session'
+
 import styles from './malaysia-rfq-page.module.css'
 
 type SubmissionState =
   | 'form_ready'
   | 'validation_failed'
   | 'submitting'
-  | 'receipt_confirmed'
   | 'submission_unconfirmed'
   | 'service_unavailable'
 
@@ -168,11 +169,13 @@ function MalaysiaRfqInteractiveForm({form, receiverAvailable, privacyPolicyHref,
   const [state, setState] = useState<SubmissionState>(receiverAvailable ? 'form_ready' : 'service_unavailable')
   const summaryRef = useRef<HTMLDivElement>(null)
   const messageRef = useRef<HTMLDivElement>(null)
+  const transitionStartedRef = useRef(false)
+  const completedRef = useRef(false)
   const pendingRef = useRef(false)
 
   useEffect(() => {
     if (state === 'validation_failed') summaryRef.current?.focus()
-    if (state === 'submission_unconfirmed' || state === 'receipt_confirmed') messageRef.current?.focus()
+    if (state === 'submission_unconfirmed') messageRef.current?.focus()
   }, [state])
 
   function update(field: RfqFieldKey, value: string) {
@@ -194,7 +197,8 @@ function MalaysiaRfqInteractiveForm({form, receiverAvailable, privacyPolicyHref,
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (pendingRef.current) return
+    if (pendingRef.current || transitionStartedRef.current) return
+    if (completedRef.current) {try {navigateToMalaysiaThankYou('quote'); transitionStartedRef.current = true} catch {setState('submission_unconfirmed')} return}
     const result = validate(values, form)
     if (!result.valid) {
       setErrors(result.errors)
@@ -215,9 +219,8 @@ function MalaysiaRfqInteractiveForm({form, receiverAvailable, privacyPolicyHref,
         setState('submission_unconfirmed')
       } else {
         const body = await response.json() as {readonly kind?: unknown}
-        setState(body.kind === 'receipt_confirmed' || body.kind === 'service_unavailable'
-          ? body.kind
-          : 'submission_unconfirmed')
+        if (body.kind === 'receipt_confirmed') {completedRef.current = true; navigateToMalaysiaThankYou('quote'); transitionStartedRef.current = true}
+        else setState(body.kind === 'service_unavailable' ? body.kind : 'submission_unconfirmed')
       }
     } catch {
       setState('submission_unconfirmed')
@@ -228,9 +231,6 @@ function MalaysiaRfqInteractiveForm({form, receiverAvailable, privacyPolicyHref,
 
   if (state === 'service_unavailable') {
     return <div className={styles.stateMessage} role="status" aria-live="polite"><h3>{form.unavailable.heading}</h3><p>{form.unavailable.body}</p></div>
-  }
-  if (state === 'receipt_confirmed') {
-    return <div ref={messageRef} tabIndex={-1} className={`${styles.stateMessage} ${styles.successMessage}`} role="status" aria-live="polite"><h3>{form.success.heading}</h3><p>{form.success.body}</p></div>
   }
 
   return (

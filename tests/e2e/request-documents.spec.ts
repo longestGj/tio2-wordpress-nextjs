@@ -138,8 +138,12 @@ test('CONV-DOC validation, failure retention, retry token and explicit receipt',
   await expect(page.locator('#request-documents-company')).toHaveValue('Example Co')
   await page.getByRole('button', {name: 'Try again'}).click()
   await expect(page.getByRole('button', {name: 'Submitting…'})).toBeDisabled()
-  await expect(page.getByRole('heading', {name: 'Document Request Received'})).toBeVisible()
-  await expect(page.getByRole('status')).toBeFocused()
+  await expect(page).toHaveURL(/\/thank-you\/?\?request=documents$/u)
+  await expect(page.getByRole('heading', {name: 'Thank you. We’ve received your document request.'})).toBeVisible()
+  expect(await page.content()).not.toContain('amina@example.com')
+  expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem('tio2-my:thank-you:receipt:v1') ?? '{}'))).toMatchObject({
+    version: 1, request: 'documents',
+  })
   await page.screenshot({path: resolve(evidenceDirectory, 'conv-doc-state-success.png'), fullPage: true, animations: 'disabled'})
   expect(tokens).toHaveLength(2)
   expect(tokens[0]).toBe(tokens[1])

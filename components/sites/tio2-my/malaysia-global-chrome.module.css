@@ -30,6 +30,7 @@
 .legalUtilities { margin-top:48px; padding-top:20px; display:flex; flex-wrap:wrap; gap:4px 18px; border-top:1px solid #21456c; }
 .footer .legalUtilities :is(a,button) { min-width:44px; min-height:44px; padding:0; display:inline-flex; align-items:center; border:0; color:#d4e0eb; background:transparent; font:500 14px/1.5 var(--font-my-shared),Inter,Arial,sans-serif; cursor:pointer; }
 .copyright { max-width:none!important; margin-top:8px!important; padding-top:0; font-size:14px!important; }
+.footer[data-chrome-variant='gate8-approved'] > .copyright + .legalUtilities { margin-top:8px; }
 @media(max-width:1100px) {
  .headerInner { height:63px; width:calc(100% - 32px); gap:8px; }
  .logoLink { min-width:120px; min-height:44px; }

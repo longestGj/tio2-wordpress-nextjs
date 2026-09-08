@@ -1,0 +1,32 @@
+{
+  "checkedAt": "2026-09-08T09:51:57.3726008Z",
+  "candidate": {
+    "url": "http://127.0.0.1:4381",
+    "buildId": "2z5DYuzAHx0An8WWlUsz2",
+    "gitHead": "46985d8689b1d4e90beafe7638ce9f967e0e6da0"
+  },
+  "attempts": [
+    {
+      "channel": "Playwright Chromium",
+      "marker": "GATE8-WEB3FORMS-20260908094400",
+      "result": "The form remained on /request-a-quote and did not reach the success receipt within 20 seconds."
+    },
+    {
+      "channel": "Direct Web3Forms API using exact receiver payload",
+      "marker": "GATE8-WEB3FORMS-20260908094532",
+      "result": "HTTP 403 text/html; provider success JSON absent."
+    },
+    {
+      "channel": "User-profile Chrome",
+      "marker": "GATE8-CHROME-20260908094621",
+      "result": "Visible form error: Something went wrong while submitting your request. Values retained; no success receipt."
+    }
+  ],
+  "providerAccepted": false,
+  "inbox": {
+    "mailbox": "mike.longestgj@gmail.com",
+    "confirmed": false,
+    "reason": "No provider acceptance; the available signed-in Chrome Gmail account was a different mailbox, so target-inbox receipt could not be inspected."
+  },
+  "conclusion": "REAL_CONNECTIVITY_FAILED"
+}

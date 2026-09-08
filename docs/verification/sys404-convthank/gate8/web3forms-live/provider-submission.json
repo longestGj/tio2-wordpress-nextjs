@@ -1,0 +1,46 @@
+{
+  "checkedAt": "2026-09-08T09:45:34.405Z",
+  "mode": "Real external Web3Forms API exchange using the exact CONV-RFQ receiver payload contract",
+  "candidate": {
+    "url": "http://127.0.0.1:4381",
+    "buildId": "2z5DYuzAHx0An8WWlUsz2",
+    "gitHead": "46985d8689b1d4e90beafe7638ce9f967e0e6da0"
+  },
+  "marker": "GATE8-WEB3FORMS-20260908094532",
+  "provider": {
+    "status": 403,
+    "contentType": "text/html; charset=UTF-8",
+    "elapsedMs": 1426,
+    "body": {
+      "unparsed": true
+    }
+  },
+  "payload": {
+    "subject": "TiO2 Malaysia quotation request",
+    "from_name": "TiO2 Malaysia RFQ",
+    "email": "mike.longestgj@gmail.com",
+    "site_scope": "tio2-my",
+    "page_id": "CONV-RFQ",
+    "workflow_type": "rfq",
+    "locale": "en",
+    "request_token": "b18be3d9-bb71-475c-aa08-6555d5ea46d9",
+    "grade_id": "M-350",
+    "application_id": "Coatings",
+    "quantity_mt": "1",
+    "quantity_unit": "MT",
+    "destination_country": "Malaysia",
+    "destination_port_city": "Port Klang",
+    "company_name": "Gate 8 Web3Forms Verification",
+    "contact_name": "Gate 8 Verification",
+    "business_email": "mike.longestgj@gmail.com",
+    "phone_whatsapp": "",
+    "website": "",
+    "additional_requirements": "Authorized delivery test; no quotation action required. Evidence marker: GATE8-WEB3FORMS-20260908094532"
+  },
+  "inbox": {
+    "mailbox": "mike.longestgj@gmail.com",
+    "confirmed": false,
+    "checkedAt": null
+  },
+  "notes": "Access key excluded from evidence. This test request explicitly asks for no quotation action."
+}

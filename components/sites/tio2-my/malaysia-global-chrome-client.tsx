@@ -12,6 +12,7 @@ import {MalaysiaPrivateRfqLink} from './request-a-quote/malaysia-private-rfq-lin
 
 interface GlobalChromeClientProps {
   readonly chrome: MalaysiaGlobalChromePublicProjection
+  readonly copyrightFirst?: boolean
   readonly inlineMobileMenu: boolean
 }
 
@@ -209,6 +210,7 @@ export function MalaysiaGlobalHeaderClient({
 
 export function MalaysiaGlobalFooterClient({
   chrome,
+  copyrightFirst = false,
   inlineMobileMenu,
 }: GlobalChromeClientProps) {
   return (
@@ -239,12 +241,13 @@ export function MalaysiaGlobalFooterClient({
           </RfqLink>
         </div>
       </div>
+      {copyrightFirst && <p className={styles.copyright}>{chrome.footer.copyright}</p>}
       <nav className={styles.legalUtilities} aria-label="Legal and privacy navigation">
         {chrome.footer.legalUtilities.map((item) => item.href === null
           ? <MalaysiaCookieSettingsTrigger key={item.label}>{item.label}</MalaysiaCookieSettingsTrigger>
           : <a key={item.label} href={item.href ?? undefined}>{item.label}</a>)}
       </nav>
-      <p className={styles.copyright}>{chrome.footer.copyright}</p>
+      {!copyrightFirst && <p className={styles.copyright}>{chrome.footer.copyright}</p>}
       {!inlineMobileMenu && <MalaysiaCookieSettingsHost />}
     </footer>
     {inlineMobileMenu && <MalaysiaCookieSettingsHost/>}</>
