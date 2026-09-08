@@ -8,9 +8,9 @@ const privateReceiver = process.env.APP000_RFQ_RECEIVER_URL ?? 'http://127.0.0.1
 const headingOrder = [
   'Explore Titanium Dioxide by Application',
   'Choose by Application',
-  'How to Use This Page',
-  'Continue Your Evaluation',
-  'Share Your Requirement',
+  'How to Use This Application Hub',
+  'Continue Your Procurement Review',
+  'Share Your Application Requirements',
 ]
 
 for (const viewport of [
@@ -113,13 +113,11 @@ test('category and support links expose the nine approved exact accessible names
 
 test('RFQ handoff keeps a clean URL and sends private APP-000 attribution without preselecting buyer fields', async ({page, request}) => {
   await request.post(`${privateReceiver}/reset`)
-  const publicApiEvidence: string[] = []
-  page.on('response', async (response) => {
-    if (!response.url().includes('/api/tio2-my/rfq-')) return
-    publicApiEvidence.push(`${response.url()}\n${JSON.stringify(response.headers())}\n${await response.text()}`)
-  })
   await page.goto('/applications/', {waitUntil: 'networkidle'})
+  const attributionResponsePromise = page.waitForResponse((response) => response.url().endsWith('/api/tio2-my/rfq-attribution'))
   await page.locator('main').getByRole('link', {name: 'Request a Quote'}).first().click()
+  const attributionResponse = await attributionResponsePromise
+  expect(attributionResponse.status()).toBe(204)
   await expect.poll(() => new URL(page.url()).pathname).toBe('/request-a-quote')
   expect(new URL(page.url()).search).toBe('')
   await expect(page.locator('#rfq-grade_id')).toHaveValue('')
@@ -135,7 +133,13 @@ test('RFQ handoff keeps a clean URL and sends private APP-000 attribution withou
   await page.locator('#rfq-company_name').fill('Gate 8 Test Company')
   await page.locator('#rfq-contact_name').fill('Gate 8 Tester')
   await page.locator('#rfq-business_email').fill('gate8@example.com')
+  const submissionResponsePromise = page.waitForResponse((response) => response.url().endsWith('/api/tio2-my/rfq-private-submit'))
   await page.getByRole('button', {name: 'REQUEST QUOTE'}).click()
+  const submissionResponse = await submissionResponsePromise
+  const publicApiEvidence = [
+    attributionResponse.url(), JSON.stringify(await attributionResponse.allHeaders()),
+    submissionResponse.url(), JSON.stringify(await submissionResponse.allHeaders()), await submissionResponse.text(),
+  ].join('\n')
   await expect(page.getByText('Something went wrong while submitting your request.')).toBeVisible()
   const captureResponse = await request.get(`${privateReceiver}/capture`)
   const {payload: submitted} = await captureResponse.json() as {payload: Record<string, unknown> | null}
@@ -146,5 +150,5 @@ test('RFQ handoff keeps a clean URL and sends private APP-000 attribution withou
     grade_id: 'M-350',
     application_id: 'Coatings',
   })
-  expect(publicApiEvidence.join('\n')).not.toMatch(/APP-000|source_page_id|site_scope/iu)
+  expect(publicApiEvidence).not.toMatch(/APP-000|source_page_id|site_scope/iu)
 })

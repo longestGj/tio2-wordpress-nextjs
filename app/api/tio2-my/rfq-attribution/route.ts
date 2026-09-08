@@ -9,7 +9,12 @@ import {
 
 export function POST(request: NextRequest) {
   const token = createMalaysiaRfqAttributionToken(process.env.TIO2_MY_RFQ_ATTRIBUTION_SECRET)
-  if (!token || !isMalaysiaApplicationHubReferer(request.url, request.headers.get('referer'))) {
+  const forwardedHost = request.headers.get('x-forwarded-host')?.split(',')[0]?.trim()
+  const host = forwardedHost || request.headers.get('host')
+  const forwardedProtocol = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim()
+  const protocol = forwardedProtocol || new URL(request.url).protocol.replace(/:$/u, '')
+  const effectiveRequestUrl = host ? `${protocol}://${host}` : request.url
+  if (!token || !isMalaysiaApplicationHubReferer(effectiveRequestUrl, request.headers.get('referer'))) {
     return new NextResponse(null, {status: 404, headers: {'cache-control': 'no-store'}})
   }
   const response = new NextResponse(null, {status: 204, headers: {'cache-control': 'no-store'}})

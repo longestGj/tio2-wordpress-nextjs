@@ -54,6 +54,15 @@ describe('APP-000 private RFQ attribution', () => {
     expect(`${serialized}\n${await response.text()}`).not.toContain('APP-000')
   })
 
+  it('uses the forwarded browser host when the local runtime URL is normalized', () => {
+    vi.stubEnv('TIO2_MY_RFQ_ATTRIBUTION_SECRET', secret)
+    const response = recordAttribution(new NextRequest('http://localhost:4391/api/tio2-my/rfq-attribution', {
+      method: 'POST',
+      headers: {host: '127.0.0.1:4391', referer: 'http://127.0.0.1:4391/applications/'},
+    }))
+    expect(response.status).toBe(204)
+  })
+
   it('does not record attribution for a foreign Referer', () => {
     vi.stubEnv('TIO2_MY_RFQ_ATTRIBUTION_SECRET', secret)
     const response = recordAttribution(new NextRequest('https://tio2malaysia.com/api/tio2-my/rfq-attribution', {
