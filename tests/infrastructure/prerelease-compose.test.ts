@@ -10,6 +10,7 @@ const seedManifestPath = 'ops/prerelease/seed-manifest.json'
 
 interface ComposeContract {
   services: Record<string, {
+    user?: string
     ports?: string[]
     environment?: Record<string, string>
     volumes?: string[]
@@ -61,6 +62,7 @@ describe('tio2-my local prerelease Compose contract', () => {
     expect(compose?.services.wpcli.volumes).toContain(
       '${PRERELEASE_SOURCE_DIR}/wordpress/seed:/workspace/wordpress/seed:ro',
     )
+    expect(compose?.services.wpcli.user).toBe('33:33')
   })
 
   it('uses project-owned persistent volumes and no literal credentials', () => {
