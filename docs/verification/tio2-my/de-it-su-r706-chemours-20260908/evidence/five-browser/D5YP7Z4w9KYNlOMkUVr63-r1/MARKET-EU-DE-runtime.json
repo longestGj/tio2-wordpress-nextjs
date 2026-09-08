@@ -1,0 +1,343 @@
+{
+  "id": "MARKET-EU-DE",
+  "time": "2026-09-08T02:57:08.098Z",
+  "buildId": "D5YP7Z4w9KYNlOMkUVr63",
+  "base": "http://127.0.0.1:3236",
+  "source": {
+    "packageId": "MARKET-EU-DE-G6-HANDOFF-02",
+    "packageSha256": "75e184dfe89d9acbbb28da100dc8271c7c1a84f89c85f71d11b5ca1bc4d885c2",
+    "bodySha256": "f95f338b4b966d48e0a10c0ad81b6fd7ffd21e552cee780bc9597d2e67b6c4d8",
+    "contractSha256": "a2a5d629258e1d24aff03d6a3b3a24f194d89c5c6c1f5e6b68bb8eaef5faa187",
+    "visualSha256": "9f729196ea8135b7daa9aa83cc8e43768eafa27a35792605de67d125e0eccdbc",
+    "sourceMainSha256": "78185c011fa02fe65fc47eb24d988101f033cf2780bf2c995179449dc659e7a1",
+    "renderedBodySha256": "64d60867dfc4f462020006f6fad09bf5491130c0211327f8d85f22afc7739d27",
+    "stylesheetSha256": "367f9394da8a4952bb9a8869ec394ab265ed0cffc515ca76f9b849ec48a6ac09",
+    "visualOverrideSha256": "d5723d30d33b265beb60d8afe5394621eb5c1ada23d2a89f56ad0d4d7f21b10d"
+  },
+  "cms": {
+    "url": "http://127.0.0.1:8187/graphql",
+    "id": "editorial-18554",
+    "recordPageId": "MARKET-EU-DE",
+    "status": "publish",
+    "publishingFields": {
+      "publicPath": "/markets/germany"
+    },
+    "siteScopes": {
+      "nodes": [
+        {
+          "slug": "tio2-my"
+        }
+      ]
+    },
+    "contractSha256": "037d7b19f9963fb358d576a960fa256c99700cbf0eb3a0867bce3e6af88f9bc5",
+    "availableGradePaths": [],
+    "unavailableInternalPaths": []
+  },
+  "captures": [
+    {
+      "filename": "MARKET-EU-DE-1440-full.png",
+      "sha256": "741da478d194789773e1a1aa05f009f61073acaa5bb2c475a1fe61843084647f",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "MARKET-EU-DE-1440-keyboard-focus.png",
+      "sha256": "b7afeb380f211a36c7150b1335c6cb70eb3a0f16b8d81d3cf11ff6aae360e73e",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "MARKET-EU-DE-1440-cookie.png",
+      "sha256": "8911b377be62ff7d3f1d6bbab399a13b4f1eb532a55ecb22565fb48ce02af5e6",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "MARKET-EU-DE-768-full.png",
+      "sha256": "51e954bb007f5a9c742646377fd857ae4a80e34e75ff8959686cbd603c228bc4",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "MARKET-EU-DE-768-menu.png",
+      "sha256": "1e3041cf284996cc2bdf3cc04636ff1490cc42e05ae8402c39549b70c784fea6",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "MARKET-EU-DE-768-keyboard-focus.png",
+      "sha256": "2ef60516af4a5ddc8643c278bbcd1ce5e7b4a160a1d86de4b51c1fcae630cc7f",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "MARKET-EU-DE-768-cookie.png",
+      "sha256": "516c2879cd406660837ff049102a8f6a1faa8e77a9177628031ab33a5e08503a",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "MARKET-EU-DE-390-full.png",
+      "sha256": "09d5df5c625414f169952f0fe79ad314473f6dc67f7174f7da0b4100331bfdc4",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "MARKET-EU-DE-390-menu.png",
+      "sha256": "2f5e57e56a440a41421fe919f041425b6a50e018ee7cf59ae7276f39ed7ea78f",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "MARKET-EU-DE-390-keyboard-focus.png",
+      "sha256": "572a8d04eca21a99e05109e4631c9603bd6720eed0ab380a81894d1d68136f45",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "MARKET-EU-DE-390-cookie.png",
+      "sha256": "938ee818080151a2fc7ac3436ece6a031bf2d8a09c5a25898db8eff72035ce15",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    }
+  ],
+  "states": [
+    {
+      "width": 1440,
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "height": 5228,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headerHeight": 84
+      },
+      "renderedFonts": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-28pt-Bold",
+          "isCustomFont": true,
+          "glyphCount": 36
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "focused": {
+        "text": "Markets",
+        "href": "/markets/",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 132,
+        "bottom": 176
+      }
+    },
+    {
+      "width": 1440,
+      "cookieHeading": {
+        "text": "Cookie settings",
+        "color": "rgb(6, 43, 91)",
+        "background": "rgb(255, 255, 255)",
+        "font": "approvedVariableFont, \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "contrast": 13.959419428188236
+      }
+    },
+    {
+      "width": 768,
+      "geometry": {
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 6185,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headerHeight": 64
+      },
+      "renderedFonts": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-28pt-Bold",
+          "isCustomFont": true,
+          "glyphCount": 36
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "focused": {
+        "text": "Markets",
+        "href": "/markets/",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 112,
+        "bottom": 156
+      }
+    },
+    {
+      "width": 768,
+      "cookieHeading": {
+        "text": "Cookie settings",
+        "color": "rgb(6, 43, 91)",
+        "background": "rgb(255, 255, 255)",
+        "font": "approvedVariableFont, \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "contrast": 13.959419428188236
+      }
+    },
+    {
+      "width": 390,
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 8000,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headerHeight": 64
+      },
+      "renderedFonts": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-28pt-Bold",
+          "isCustomFont": true,
+          "glyphCount": 36
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "focused": {
+        "text": "Markets",
+        "href": "/markets/",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 92,
+        "bottom": 136
+      }
+    },
+    {
+      "width": 390,
+      "cookieHeading": {
+        "text": "Cookie settings",
+        "color": "rgb(6, 43, 91)",
+        "background": "rgb(255, 255, 255)",
+        "font": "approvedVariableFont, \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "contrast": 13.959419428188236
+      }
+    }
+  ],
+  "destinations": [
+    {
+      "path": "/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/",
+      "siteScope": "tio2-my",
+      "heading": "Malaysia Titanium Dioxide for Industrial Buyers",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/markets/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/markets/",
+      "siteScope": "tio2-my",
+      "heading": "Choose Your Destination Market",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/markets/european-union/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/markets/european-union/",
+      "siteScope": "tio2-my",
+      "heading": "Malaysia-Origin Titanium Dioxide for European Union Buyers",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/request-a-quote/?source_page_id=MARKET-EU-DE&destination_country=Germany",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/request-a-quote?source_page_id=MARKET-EU-DE&destination_country=Germany",
+      "siteScope": "tio2-my",
+      "heading": "Request a Titanium Dioxide Quote",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products",
+      "siteScope": "tio2-my",
+      "heading": "Titanium Dioxide Pigment Grades for Industrial Applications",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-coatings/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/applications/titanium-dioxide-for-coatings/",
+      "siteScope": "tio2-my",
+      "heading": "Titanium Dioxide for Coatings",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-plastics/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/applications/titanium-dioxide-for-plastics/",
+      "siteScope": "tio2-my",
+      "heading": "Titanium Dioxide for Plastics",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-masterbatch/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/applications/titanium-dioxide-for-masterbatch/",
+      "siteScope": "tio2-my",
+      "heading": "Titanium Dioxide for Masterbatch",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/request-documents/?source_page_id=MARKET-EU-DE",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/request-documents/?source_page_id=MARKET-EU-DE",
+      "siteScope": "tio2-my",
+      "heading": "Request Documents",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/request-sample/?source_page_id=MARKET-EU-DE",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/request-sample?source_page_id=MARKET-EU-DE",
+      "siteScope": "tio2-my",
+      "heading": "Request a Titanium Dioxide Sample for Technical Evaluation",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/resources/eu-titanium-dioxide-anti-dumping-duty/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/resources/eu-titanium-dioxide-anti-dumping-duty/",
+      "siteScope": "tio2-my",
+      "heading": "EU Titanium Dioxide Anti-Dumping Duty: Current Measure and 2026 Review",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    }
+  ],
+  "consoleEvents": [
+    {
+      "type": "warning",
+      "text": "The resource http://127.0.0.1:3236/_next/static/css/b299bcc3c5e3e046.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally."
+    },
+    {
+      "type": "warning",
+      "text": "The resource http://127.0.0.1:3236/_next/static/css/a8075e576638a45b.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally."
+    }
+  ],
+  "pageErrors": [],
+  "blockedRequests": [],
+  "networkFailures": [],
+  "failures": [],
+  "coverage": {
+    "browser": "chromium",
+    "viewports": "1440x900,768x900,390x844 DPR1",
+    "nativeZoom": "NOT_TESTED",
+    "realDevice": "NOT_TESTED",
+    "screenReader": "NOT_TESTED",
+    "externalSources": "NOT_TESTED",
+    "realFormSubmission": "NOT_PERFORMED",
+    "screenshotReview": "PENDING"
+  }
+}

@@ -1,0 +1,22 @@
+# Independent alternatives payload review
+
+Date: 2026-09-08. Reviewer: `/root/sulfate_intake`, separate from alternatives author. Scope: R706/Chemours builder, generated configs, CSS and exact routes; read-only review of others' implementation. Baseline `84db14e`, current uncommitted five-page candidate. This is a source-level implementation review, not Gate 9 acceptance.
+
+Reviewed both complete Gate 6 V0.2 packages, both approved B V0.3/C contracts, alternatives intake, builder, scoped CSS, routes and source bindings. Re-executed `node scripts/editorial/build-alternative-payloads.mjs --check` and `node --test scripts/editorial/build-alternative-payloads.test.mjs`: exact source/output consistency passed; all three tests passed. The builder checks 48 R706 and 32 Chemours approved buyer blocks in order against frozen main content.
+
+No actionable code defect found in this assigned export scope. Findings below distinguish implemented boundaries from open acceptance:
+
+| Area | Source review result |
+|---|---|
+| Identity | Exact Page IDs and candidate paths; EN/tio2-my; provisional true. No shared registry or owner data rewritten by these exports. |
+| Public content | Exact frozen main copied; approved buyer blocks preserved. Six body modules each. R706 keeps 93 wt% minimum distinct from typical properties, TS-6706 paint tests separate from bulk-flow subject/context, buyer-owned qualification and independence. Chemours has no R706-specific relation and retains exact-grade-first guidance and full publisher/no-affiliation wording. |
+| Actions | Clean Products/Documents hrefs; R706 clean Sample href after buyer-context explanation and same-page evaluation-brief target. No direct Grade hrefs, query parameters, inferred competitor pairing or body RFQ. Shared fixed RFQ is outside generated body and requires integrated neutral-context checks. |
+| SEO/release boundary | Exact Title/Meta/H1; no candidate canonical emitted and schemaType none; preserves no-index mapping boundary. Chemours conditional TechArticle correctly remains inactive. No Product/Offer/Review/FAQ/comparison graph introduced. |
+| R706 open acceptance | Gate 6 §5/AC10 expects WebPage+BreadcrumbList, but D01 canonical/mapping approval is still open. Parent explicitly retained schemaType none as the conservative local candidate because the graph is URL-bound. This is a recorded deferred D01/AC10 acceptance condition, not a claim that all R706 schema acceptance passed. No unapproved canonical or graph should be manufactured to close it. |
+| CSS/assets | All generated rules target the matching `[data-editorial-page] main`; no Header/Footer/Consent or @font-face asset ownership. Shared font variable is used. Current approved selectors do not contain functional-selector commas, so the builder's simple comma splitting does not corrupt these two frozen outputs. A future source with `:is(a,b)` would need parser adaptation, but current fixed hash prevents silent source evolution. |
+| Security | Main extraction excludes page-external prototype script/Chrome/assets. Standard internal paths and HTTPS source URLs are retained; page routes delegate to existing scoped server loader. Runtime sanitization and missing/foreign-scope behavior remain parent integration checks, not established by generation. |
+| Freshness | Visible review date remains 6 September 2026. Config status unverified and evidenceDate null do not falsely assert current source review. Operational 90-day due date is separately supported by the intake's Resource Playbook reference. Serving current public facts still needs parent/source-owner freshness evidence. |
+
+Review limitations: no runtime server, CMS query, source reachability, receiver, actual screenshot, native zoom or external browser was exercised in this review. Exact unchanged rendered output can be accepted for integration; the earlier package dependencies and Gate 9 conditions remain open until observed. Shared Chrome, source freshness, candidate mapping and real conversion acknowledgement/binding must be reported separately.
+
+Independent direct comparison also passed: each generated bodyHtml equals the corresponding frozen main.innerHTML byte-for-byte; rendered body hashes match; both have zero script/style/header/footer/form/iframe descendants and zero internal query parameters. CSSOM traversal found 81 scoped R706 style rules and 91 scoped Chemours rules, all under their matching page main boundary.

@@ -1,0 +1,723 @@
+{
+    "taskId": "G8-DE-IT-SU-R706-CHEMOURS-20260908-01",
+    "environment": "local",
+    "siteurl": "http://127.0.0.1:8187",
+    "time": "2026-09-08T02:49:00+00:00",
+    "method": "actual PHP resolver and in-process WPGraphQL; InnoDB transaction/savepoints; outbound HTTP blocked",
+    "mutationScope": [
+        18554,
+        18556,
+        18558,
+        18560,
+        18562
+    ],
+    "baseline": {
+        "MARKET-EU-DE": {
+            "postId": 18554,
+            "payloadSha256": "037d7b19f9963fb358d576a960fa256c99700cbf0eb3a0867bce3e6af88f9bc5",
+            "canonical": "https://tio2malaysia.com/markets/germany/",
+            "scope": "tio2-my",
+            "directAndGraphqlEqual": true,
+            "freshnessRequired": false
+        },
+        "MARKET-EU-IT": {
+            "postId": 18556,
+            "payloadSha256": "981cb7527d0192753314c938550ed99d9d5aec8ce9806f69e37d0e8800a25e77",
+            "canonical": "https://tio2malaysia.com/markets/italy/",
+            "scope": "tio2-my",
+            "directAndGraphqlEqual": true,
+            "freshnessRequired": false
+        },
+        "PRODUCT-PROC-SU": {
+            "postId": 18558,
+            "payloadSha256": "c0b2c1818e9d6d1b5fc6188585442782347f9761a5fc7bb32a18f0ab236868f9",
+            "canonical": "https://tio2malaysia.com/products/sulfate-process-titanium-dioxide/",
+            "scope": "tio2-my",
+            "directAndGraphqlEqual": true,
+            "freshnessRequired": false
+        },
+        "RES-R706": {
+            "postId": 18560,
+            "payloadSha256": "bd88cd0f8673ffd290c69bac9b1e16c7aa38cb1e57bf9344b5b5ea56188a81a4",
+            "canonical": null,
+            "scope": "tio2-my",
+            "directAndGraphqlEqual": true,
+            "freshnessRequired": true
+        },
+        "RES-CHEMOURS": {
+            "postId": 18562,
+            "payloadSha256": "b22b0e309ee1d57987feb1eb97d7c07f41bbd284242b3f877905e9a7051c57bf",
+            "canonical": null,
+            "scope": "tio2-my",
+            "directAndGraphqlEqual": true,
+            "freshnessRequired": true
+        }
+    },
+    "results": [
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "request-scope",
+            "inputScope": null,
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "request-scope",
+            "inputScope": "",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "request-scope",
+            "inputScope": "tio2-a",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "request-scope",
+            "inputScope": "tio2-b",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "freshness-not-applicable",
+            "approvedPayloadFreshness": null,
+            "noInventedPageReviewGate": true
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "draft",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "missing",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "wrong-route",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "wrong-slug",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "wrong-page-id",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "duplicate",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "wrong-scope",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "missing-scope",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "changed-body",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-DE",
+            "state": "changed-canonical",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "request-scope",
+            "inputScope": null,
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "request-scope",
+            "inputScope": "",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "request-scope",
+            "inputScope": "tio2-a",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "request-scope",
+            "inputScope": "tio2-b",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "freshness-not-applicable",
+            "approvedPayloadFreshness": null,
+            "noInventedPageReviewGate": true
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "draft",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "missing",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "wrong-route",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "wrong-slug",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "wrong-page-id",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "duplicate",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "wrong-scope",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "missing-scope",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "changed-body",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "MARKET-EU-IT",
+            "state": "changed-canonical",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "request-scope",
+            "inputScope": null,
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "request-scope",
+            "inputScope": "",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "request-scope",
+            "inputScope": "tio2-a",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "request-scope",
+            "inputScope": "tio2-b",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "freshness-not-applicable",
+            "approvedPayloadFreshness": null,
+            "noInventedPageReviewGate": true
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "draft",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "missing",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "wrong-route",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "wrong-slug",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "wrong-page-id",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "duplicate",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "wrong-scope",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "missing-scope",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "changed-body",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "PRODUCT-PROC-SU",
+            "state": "changed-canonical",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "request-scope",
+            "inputScope": null,
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "request-scope",
+            "inputScope": "",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "request-scope",
+            "inputScope": "tio2-a",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "request-scope",
+            "inputScope": "tio2-b",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "freshness-clock-boundary",
+            "testedAt": "2026-12-06T00:00:00+08:00",
+            "validatorRejected": true,
+            "databaseClockChanged": false
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "draft",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "missing",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "wrong-route",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "wrong-slug",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "wrong-page-id",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "duplicate",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "wrong-scope",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "missing-scope",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "changed-body",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "changed-canonical",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "freshness-status",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "freshness-eventStatus",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "freshness-nextReviewDue",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "freshness-pageId",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "freshness-evidenceArtifactSha256",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-R706",
+            "state": "freshness-missing",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "request-scope",
+            "inputScope": null,
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "request-scope",
+            "inputScope": "",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "request-scope",
+            "inputScope": "tio2-a",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "request-scope",
+            "inputScope": "tio2-b",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "freshness-clock-boundary",
+            "testedAt": "2026-12-06T00:00:00+08:00",
+            "validatorRejected": true,
+            "databaseClockChanged": false
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "draft",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "missing",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "wrong-route",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "wrong-slug",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "wrong-page-id",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "duplicate",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "wrong-scope",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "missing-scope",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "changed-body",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "changed-canonical",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "freshness-status",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "freshness-eventStatus",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "freshness-nextReviewDue",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "freshness-pageId",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "freshness-evidenceArtifactSha256",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        },
+        {
+            "pageId": "RES-CHEMOURS",
+            "state": "freshness-missing",
+            "phpRejected": true,
+            "graphqlRejected": true,
+            "graphqlErrorCount": 1
+        }
+    ],
+    "restoration": {
+        "MARKET-EU-DE": {
+            "postId": 18554,
+            "beforeSha256": "4e00aa1fafa9eaa483b177f77cf89013f35c7335007644148caac1e7c777caca",
+            "afterSha256": "4e00aa1fafa9eaa483b177f77cf89013f35c7335007644148caac1e7c777caca",
+            "exactlyRestored": true,
+            "resolverAndGraphqlRestored": true
+        },
+        "MARKET-EU-IT": {
+            "postId": 18556,
+            "beforeSha256": "77e2f53d24c89d44f6836bdd0d185c73374a9dcb37defafa0dd3d4d31565d4d0",
+            "afterSha256": "77e2f53d24c89d44f6836bdd0d185c73374a9dcb37defafa0dd3d4d31565d4d0",
+            "exactlyRestored": true,
+            "resolverAndGraphqlRestored": true
+        },
+        "PRODUCT-PROC-SU": {
+            "postId": 18558,
+            "beforeSha256": "ab5c20f22b5fc7e34dbfc02e2616e9d55f8fd9cbb21a2fc186e0674f1c6bba75",
+            "afterSha256": "ab5c20f22b5fc7e34dbfc02e2616e9d55f8fd9cbb21a2fc186e0674f1c6bba75",
+            "exactlyRestored": true,
+            "resolverAndGraphqlRestored": true
+        },
+        "RES-R706": {
+            "postId": 18560,
+            "beforeSha256": "5a79c605b65ae636811f286d29faf3459100c420fa9f8a3d0f6e128bb6e77b5b",
+            "afterSha256": "5a79c605b65ae636811f286d29faf3459100c420fa9f8a3d0f6e128bb6e77b5b",
+            "exactlyRestored": true,
+            "resolverAndGraphqlRestored": true
+        },
+        "RES-CHEMOURS": {
+            "postId": 18562,
+            "beforeSha256": "31496b4601522f2572c247b9037cfcd96c2bd9c525f1118fcbd86e42438b28a4",
+            "afterSha256": "31496b4601522f2572c247b9037cfcd96c2bd9c525f1118fcbd86e42438b28a4",
+            "exactlyRestored": true,
+            "resolverAndGraphqlRestored": true
+        }
+    },
+    "pass": true,
+    "failure": null
+}

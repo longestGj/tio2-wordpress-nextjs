@@ -1,0 +1,1992 @@
+{
+  "browser": "Firefox",
+  "version": "151.0",
+  "buildId": "olH5kVkkyEhmfGAHQ_2SJ",
+  "base": "http://127.0.0.1:3236",
+  "time": "2026-09-08T02:51:59.028Z",
+  "method": "read-only local GET/HEAD; external resources and every write blocked",
+  "pages": [
+    {
+      "pageId": "MARKET-EU-DE",
+      "width": 1440,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow"
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "fullHeight": 5232,
+        "headerHeight": 85,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "pass": false,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n85 !== 84\n\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:54\n    at check (file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:38:44)\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:9"
+    },
+    {
+      "pageId": "MARKET-EU-DE",
+      "width": 390,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow"
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "fullHeight": 8003,
+        "headerHeight": 65,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "pass": false,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n65 !== 64\n\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:54\n    at check (file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:38:44)\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:9"
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "width": 1440,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow"
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "fullHeight": 5053,
+        "headerHeight": 85,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "pass": false,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n85 !== 84\n\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:54\n    at check (file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:38:44)\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:9"
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "width": 390,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow"
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "fullHeight": 7705,
+        "headerHeight": 65,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "pass": false,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n65 !== 64\n\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:54\n    at check (file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:38:44)\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:9"
+    },
+    {
+      "pageId": "PRODUCT-PROC-SU",
+      "width": 1440,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow"
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [
+        "CollectionPage",
+        "BreadcrumbList",
+        "ItemList"
+      ],
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "fullHeight": 3545,
+        "headerHeight": 85,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "pass": false,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n85 !== 84\n\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:54\n    at check (file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:38:44)\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:9"
+    },
+    {
+      "pageId": "PRODUCT-PROC-SU",
+      "width": 390,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow"
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [
+        "CollectionPage",
+        "BreadcrumbList",
+        "ItemList"
+      ],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "fullHeight": 5413,
+        "headerHeight": 65,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "pass": false,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n65 !== 64\n\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:54\n    at check (file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:38:44)\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:9"
+    },
+    {
+      "pageId": "RES-R706",
+      "width": 1440,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow"
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [],
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "fullHeight": 4857,
+        "headerHeight": 85,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "pass": false,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n85 !== 84\n\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:54\n    at check (file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:38:44)\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:9"
+    },
+    {
+      "pageId": "RES-R706",
+      "width": 390,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow"
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "fullHeight": 7351,
+        "headerHeight": 65,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "pass": false,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n65 !== 64\n\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:54\n    at check (file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:38:44)\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:9"
+    },
+    {
+      "pageId": "RES-CHEMOURS",
+      "width": 1440,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow"
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [],
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "fullHeight": 3052,
+        "headerHeight": 85,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "pass": false,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n85 !== 84\n\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:54\n    at check (file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:38:44)\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:9"
+    },
+    {
+      "pageId": "RES-CHEMOURS",
+      "width": 390,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow"
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "fullHeight": 4555,
+        "headerHeight": 65,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "pass": false,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n65 !== 64\n\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:54\n    at check (file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:38:44)\n    at file:///D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/.tmp/five-firefox.mjs:67:9"
+    }
+  ],
+  "captures": [
+    {
+      "filename": "MARKET-EU-DE-1440-failure.png",
+      "sha256": "f4c3f916bf0109e3d6bd2b0d219357d101d6e5a643251757331ba640491dc193",
+      "fullPage": false,
+      "viewed": true
+    },
+    {
+      "filename": "MARKET-EU-DE-390-failure.png",
+      "sha256": "a3770aaee6e9cabdac92148adecdeac2d18f764a42a8e90af2b7d893ff9231f3",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "MARKET-EU-IT-1440-failure.png",
+      "sha256": "a1851f7b63163308e515728a15718276b85987244c3f314d67596f19f9f31f9b",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "MARKET-EU-IT-390-failure.png",
+      "sha256": "601bccf5259d79fed8c3ad33fea9b06da12555923d7f432422faeb43267e3a9a",
+      "fullPage": false,
+      "viewed": true
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-1440-failure.png",
+      "sha256": "2fa2aedf279dd39cf8dbf0ea968ea0aee1134d28631b93d696fe27b62894f129",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-failure.png",
+      "sha256": "117e6ee8ab9cba4311704f4fa85bb07aa81c95a38c4eba158dfbfad4694ef330",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "RES-R706-1440-failure.png",
+      "sha256": "4200f1166239b37cce15777793d68193554b0dfedc2c7a48ebdeb648921ee13a",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "RES-R706-390-failure.png",
+      "sha256": "a951353d384cc640abff0559efdd02300a46252bf62af5de01ef77c4d33c1fe4",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "RES-CHEMOURS-1440-failure.png",
+      "sha256": "58b875e48fb2dd16b360d27b9c82ce7927a3d86e1e8f41d39d2fa950941085d6",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "RES-CHEMOURS-390-failure.png",
+      "sha256": "dfb98c46a2812746382cad27ee1a10acaedb23aca621395c609686c835c6d89b",
+      "fullPage": false,
+      "viewed": false
+    }
+  ],
+  "failures": [
+    {
+      "pageId": "MARKET-EU-DE",
+      "width": 1440,
+      "error": "Expected values to be strictly equal:\n\n85 !== 84\n"
+    },
+    {
+      "pageId": "MARKET-EU-DE",
+      "width": 390,
+      "error": "Expected values to be strictly equal:\n\n65 !== 64\n"
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "width": 1440,
+      "error": "Expected values to be strictly equal:\n\n85 !== 84\n"
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "width": 390,
+      "error": "Expected values to be strictly equal:\n\n65 !== 64\n"
+    },
+    {
+      "pageId": "PRODUCT-PROC-SU",
+      "width": 1440,
+      "error": "Expected values to be strictly equal:\n\n85 !== 84\n"
+    },
+    {
+      "pageId": "PRODUCT-PROC-SU",
+      "width": 390,
+      "error": "Expected values to be strictly equal:\n\n65 !== 64\n"
+    },
+    {
+      "pageId": "RES-R706",
+      "width": 1440,
+      "error": "Expected values to be strictly equal:\n\n85 !== 84\n"
+    },
+    {
+      "pageId": "RES-R706",
+      "width": 390,
+      "error": "Expected values to be strictly equal:\n\n65 !== 64\n"
+    },
+    {
+      "pageId": "RES-CHEMOURS",
+      "width": 1440,
+      "error": "Expected values to be strictly equal:\n\n85 !== 84\n"
+    },
+    {
+      "pageId": "RES-CHEMOURS",
+      "width": 390,
+      "error": "Expected values to be strictly equal:\n\n65 !== 64\n"
+    }
+  ],
+  "visualReadback": "Preliminary screenshots MARKET-EU-DE-1440-failure.png and MARKET-EU-IT-390-failure.png actually opened; visible hero/content clean, measured header +1px defect retained. Cookie checks not reached. Superseded by forthcoming rebuild for final acceptance.",
+  "limitations": [
+    "Not real-device coverage",
+    "Not native browser 200% zoom",
+    "Not screen-reader speech/AT",
+    "FontFaceSet and computed family prove loaded CSS font selection, not CDP glyph provenance"
+  ],
+  "pass": false
+}

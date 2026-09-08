@@ -1,0 +1,2198 @@
+{
+  "browser": "Firefox",
+  "version": "151.0",
+  "buildId": "D5YP7Z4w9KYNlOMkUVr63",
+  "base": "http://127.0.0.1:3236",
+  "time": "2026-09-08T02:56:52.443Z",
+  "method": "read-only local GET/HEAD; external resources and every write blocked",
+  "pages": [
+    {
+      "pageId": "MARKET-EU-DE",
+      "width": 1440,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow",
+        "approved-header-height",
+        "desktop-current-navigation",
+        "no-in-page-anchor-applicable",
+        "cookie-open-keyboard-cycle-Escape-focus-restore"
+      ],
+      "failures": [
+        {
+          "label": "Inter-loaded-and-selected",
+          "error": "The expression evaluated to a falsy value:\n\n  assert.ok(result.geometry.loadedFonts.some(font => /Inter/u.test(font.family) && font.status === 'loaded'))\n"
+        }
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "fullHeight": 5231,
+        "headerHeight": 84,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "localAnchors": [],
+      "pass": false
+    },
+    {
+      "pageId": "MARKET-EU-DE",
+      "width": 390,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow",
+        "approved-header-height",
+        "mobile-current-single-nav-first-focus-cycle-inert-Escape-restore",
+        "no-in-page-anchor-applicable",
+        "cookie-open-keyboard-cycle-Escape-focus-restore"
+      ],
+      "failures": [
+        {
+          "label": "Inter-loaded-and-selected",
+          "error": "The expression evaluated to a falsy value:\n\n  assert.ok(result.geometry.loadedFonts.some(font => /Inter/u.test(font.family) && font.status === 'loaded'))\n"
+        }
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "fullHeight": 8002,
+        "headerHeight": 64,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "localAnchors": [],
+      "pass": false
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "width": 1440,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow",
+        "approved-header-height",
+        "desktop-current-navigation",
+        "no-in-page-anchor-applicable",
+        "cookie-open-keyboard-cycle-Escape-focus-restore"
+      ],
+      "failures": [
+        {
+          "label": "Inter-loaded-and-selected",
+          "error": "The expression evaluated to a falsy value:\n\n  assert.ok(result.geometry.loadedFonts.some(font => /Inter/u.test(font.family) && font.status === 'loaded'))\n"
+        }
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "fullHeight": 5052,
+        "headerHeight": 84,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "localAnchors": [],
+      "pass": false
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "width": 390,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow",
+        "approved-header-height",
+        "mobile-current-single-nav-first-focus-cycle-inert-Escape-restore",
+        "no-in-page-anchor-applicable",
+        "cookie-open-keyboard-cycle-Escape-focus-restore"
+      ],
+      "failures": [
+        {
+          "label": "Inter-loaded-and-selected",
+          "error": "The expression evaluated to a falsy value:\n\n  assert.ok(result.geometry.loadedFonts.some(font => /Inter/u.test(font.family) && font.status === 'loaded'))\n"
+        }
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "fullHeight": 7704,
+        "headerHeight": 64,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "localAnchors": [],
+      "pass": false
+    },
+    {
+      "pageId": "PRODUCT-PROC-SU",
+      "width": 1440,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow",
+        "approved-header-height",
+        "desktop-current-navigation",
+        "in-page-anchor-focus",
+        "cookie-open-keyboard-cycle-Escape-focus-restore"
+      ],
+      "failures": [
+        {
+          "label": "Inter-loaded-and-selected",
+          "error": "The input did not match the regular expression /Inter/u. Input:\n\n'\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif'\n"
+        }
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [
+        "CollectionPage",
+        "BreadcrumbList",
+        "ItemList"
+      ],
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "fullHeight": 3544,
+        "headerHeight": 84,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "localAnchors": [
+        {
+          "href": "#sulfate-grades",
+          "hash": "#sulfate-grades",
+          "targetExists": true,
+          "targetOrChildFocused": true,
+          "focusVisible": false,
+          "targetTop": 23.816665649414062
+        }
+      ],
+      "pass": false
+    },
+    {
+      "pageId": "PRODUCT-PROC-SU",
+      "width": 390,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow",
+        "approved-header-height",
+        "mobile-current-single-nav-first-focus-cycle-inert-Escape-restore",
+        "in-page-anchor-focus",
+        "cookie-open-keyboard-cycle-Escape-focus-restore"
+      ],
+      "failures": [
+        {
+          "label": "Inter-loaded-and-selected",
+          "error": "The input did not match the regular expression /Inter/u. Input:\n\n'\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif'\n"
+        }
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [
+        "CollectionPage",
+        "BreadcrumbList",
+        "ItemList"
+      ],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "fullHeight": 5412,
+        "headerHeight": 64,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "localAnchors": [
+        {
+          "href": "#sulfate-grades",
+          "hash": "#sulfate-grades",
+          "targetExists": true,
+          "targetOrChildFocused": true,
+          "focusVisible": false,
+          "targetTop": 23.966659545898438
+        }
+      ],
+      "pass": false
+    },
+    {
+      "pageId": "RES-R706",
+      "width": 1440,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow",
+        "approved-header-height",
+        "desktop-current-navigation",
+        "in-page-anchor-focus",
+        "cookie-open-keyboard-cycle-Escape-focus-restore"
+      ],
+      "failures": [
+        {
+          "label": "Inter-loaded-and-selected",
+          "error": "The input did not match the regular expression /Inter/u. Input:\n\n'\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif'\n"
+        }
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [],
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "fullHeight": 4856,
+        "headerHeight": 84,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "localAnchors": [
+        {
+          "href": "#evaluation-brief",
+          "hash": "#evaluation-brief",
+          "targetExists": true,
+          "targetOrChildFocused": true,
+          "focusVisible": false,
+          "targetTop": 24.199996948242188
+        }
+      ],
+      "pass": false
+    },
+    {
+      "pageId": "RES-R706",
+      "width": 390,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow",
+        "approved-header-height",
+        "mobile-current-single-nav-first-focus-cycle-inert-Escape-restore",
+        "in-page-anchor-focus",
+        "cookie-open-keyboard-cycle-Escape-focus-restore"
+      ],
+      "failures": [
+        {
+          "label": "Inter-loaded-and-selected",
+          "error": "The input did not match the regular expression /Inter/u. Input:\n\n'\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif'\n"
+        }
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "fullHeight": 7350,
+        "headerHeight": 64,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "localAnchors": [
+        {
+          "href": "#evaluation-brief",
+          "hash": "#evaluation-brief",
+          "targetExists": true,
+          "targetOrChildFocused": true,
+          "focusVisible": false,
+          "targetTop": 24.933334350585938
+        }
+      ],
+      "pass": false
+    },
+    {
+      "pageId": "RES-CHEMOURS",
+      "width": 1440,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow",
+        "approved-header-height",
+        "desktop-current-navigation",
+        "no-in-page-anchor-applicable",
+        "cookie-open-keyboard-cycle-Escape-focus-restore"
+      ],
+      "failures": [
+        {
+          "label": "Inter-loaded-and-selected",
+          "error": "The input did not match the regular expression /Inter/u. Input:\n\n'\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif'\n"
+        }
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [],
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "fullHeight": 3051,
+        "headerHeight": 84,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "localAnchors": [],
+      "pass": false
+    },
+    {
+      "pageId": "RES-CHEMOURS",
+      "width": 390,
+      "assertions": [
+        "HTTP200",
+        "exact-build-identity",
+        "exact-initial-copy",
+        "exact-H1-and-module-count",
+        "canonical-metadata-preview-policy",
+        "exact-page-schema",
+        "no-horizontal-overflow",
+        "approved-header-height",
+        "mobile-current-single-nav-first-focus-cycle-inert-Escape-restore",
+        "no-in-page-anchor-applicable",
+        "cookie-open-keyboard-cycle-Escape-focus-restore"
+      ],
+      "failures": [
+        {
+          "label": "Inter-loaded-and-selected",
+          "error": "The input did not match the regular expression /Inter/u. Input:\n\n'\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif'\n"
+        }
+      ],
+      "pageErrors": [],
+      "blockedRequests": [],
+      "schemaTypes": [],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "fullHeight": 4554,
+        "headerHeight": 64,
+        "mainFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headingFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerFont": "\"approvedVariableFont\", \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "loadedFonts": [
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "400"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "500"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "600"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter",
+            "status": "unloaded",
+            "weight": "700"
+          },
+          {
+            "family": "Inter Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          },
+          {
+            "family": "approvedVariableFont",
+            "status": "loaded",
+            "weight": "100 900"
+          },
+          {
+            "family": "approvedVariableFont Fallback",
+            "status": "unloaded",
+            "weight": "normal"
+          }
+        ]
+      },
+      "localAnchors": [],
+      "pass": false
+    }
+  ],
+  "captures": [
+    {
+      "filename": "MARKET-EU-DE-1440-full.png",
+      "sha256": "954401b38b0cc79a059fcfecc48e56dad948c8470175ccd464686140215fd69f",
+      "fullPage": true,
+      "viewed": false
+    },
+    {
+      "filename": "MARKET-EU-DE-390-full.png",
+      "sha256": "55c2788d415e514f72236e499ec69439b8a62950b0c92ed2a175870d0f5df535",
+      "fullPage": true,
+      "viewed": false
+    },
+    {
+      "filename": "MARKET-EU-DE-390-menu.png",
+      "sha256": "fca6db574d478d2df9d1e26845769fd72b5ae712f1f4a3f3ab44bfdac9820699",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "MARKET-EU-DE-390-cookie.png",
+      "sha256": "d9c9c7f7763cca65cc01ffd217f21d00d71f2652041e25a940719f75fc14bd54",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "MARKET-EU-IT-1440-full.png",
+      "sha256": "c7ebc3411de0eddea6d7e6c1834562bb952f40fcad451a2272db12faca4847a4",
+      "fullPage": true,
+      "viewed": false
+    },
+    {
+      "filename": "MARKET-EU-IT-390-full.png",
+      "sha256": "be9a304008171443507958427b52f3e6f2b9b123fa60dfe999649af0b7864c97",
+      "fullPage": true,
+      "viewed": false
+    },
+    {
+      "filename": "MARKET-EU-IT-390-menu.png",
+      "sha256": "c5c686a5c1a46e89b64f4a568b0c4a4d553f3442eb6674b613d3e0a71771d5de",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "MARKET-EU-IT-390-cookie.png",
+      "sha256": "fc1953911e128e528b8374c26573b68aa6ff1a93e241d13976afe111bdb05522",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-1440-full.png",
+      "sha256": "b54ae5bc3ac78fd3b0ef6334d8b4110381b0c24271db522ef3c32132b24488e3",
+      "fullPage": true,
+      "viewed": false
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-full.png",
+      "sha256": "af123989b65a315019bf860e0e545abc2c922806daed0a101204ce6b69ebe369",
+      "fullPage": true,
+      "viewed": false
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-menu.png",
+      "sha256": "db7abcd3fd1cbfb8711132a290ec3523b7a6d86fb2878d2a1c625a74e132ccab",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-cookie.png",
+      "sha256": "65ef2c6f0955b941a132aa4952996f2ba5c9429122ab3c1431d751a5bfa9264b",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "RES-R706-1440-full.png",
+      "sha256": "458a737b7193ce0e499bd7a78cad0a0331d59b968acd44d319118b29933ec5d5",
+      "fullPage": true,
+      "viewed": false
+    },
+    {
+      "filename": "RES-R706-390-full.png",
+      "sha256": "54c92d5b4fbe6d0994ed425ff96b40554eea92be3857829b3c5c8ac4f55f2037",
+      "fullPage": true,
+      "viewed": false
+    },
+    {
+      "filename": "RES-R706-390-menu.png",
+      "sha256": "4d2c2d476e2d70f3f77fef1614f15d3a1bc991735d50a7d889a23f7dbf7385fc",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "RES-R706-390-cookie.png",
+      "sha256": "2fbb5f8bb0f21c2df2deff5c9e878003580c69cd9e6f5ac1027773e39d882959",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "RES-CHEMOURS-1440-full.png",
+      "sha256": "8c74dc073977ad97b6817107a584ea5ea119a1752fcffe24540075fad569f343",
+      "fullPage": true,
+      "viewed": false
+    },
+    {
+      "filename": "RES-CHEMOURS-390-full.png",
+      "sha256": "bb851cfc947d7259bf5d169ed9d0457dca5bb87a4c32075256ecc8b743c80715",
+      "fullPage": true,
+      "viewed": false
+    },
+    {
+      "filename": "RES-CHEMOURS-390-menu.png",
+      "sha256": "187834ab2f2ff779e486fbd9a5b8f9a8c3dac103ef85ead38d6563008c0430fd",
+      "fullPage": false,
+      "viewed": false
+    },
+    {
+      "filename": "RES-CHEMOURS-390-cookie.png",
+      "sha256": "8bfe46b673c7ea412191dd3a5fa7b84230ba2cbc34106937878272b679107eb8",
+      "fullPage": false,
+      "viewed": false
+    }
+  ],
+  "failures": [
+    {
+      "pageId": "MARKET-EU-DE",
+      "width": 1440,
+      "label": "Inter-loaded-and-selected",
+      "error": "The expression evaluated to a falsy value:\n\n  assert.ok(result.geometry.loadedFonts.some(font => /Inter/u.test(font.family) && font.status === 'loaded'))\n"
+    },
+    {
+      "pageId": "MARKET-EU-DE",
+      "width": 390,
+      "label": "Inter-loaded-and-selected",
+      "error": "The expression evaluated to a falsy value:\n\n  assert.ok(result.geometry.loadedFonts.some(font => /Inter/u.test(font.family) && font.status === 'loaded'))\n"
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "width": 1440,
+      "label": "Inter-loaded-and-selected",
+      "error": "The expression evaluated to a falsy value:\n\n  assert.ok(result.geometry.loadedFonts.some(font => /Inter/u.test(font.family) && font.status === 'loaded'))\n"
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "width": 390,
+      "label": "Inter-loaded-and-selected",
+      "error": "The expression evaluated to a falsy value:\n\n  assert.ok(result.geometry.loadedFonts.some(font => /Inter/u.test(font.family) && font.status === 'loaded'))\n"
+    },
+    {
+      "pageId": "PRODUCT-PROC-SU",
+      "width": 1440,
+      "label": "Inter-loaded-and-selected",
+      "error": "The input did not match the regular expression /Inter/u. Input:\n\n'\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif'\n"
+    },
+    {
+      "pageId": "PRODUCT-PROC-SU",
+      "width": 390,
+      "label": "Inter-loaded-and-selected",
+      "error": "The input did not match the regular expression /Inter/u. Input:\n\n'\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif'\n"
+    },
+    {
+      "pageId": "RES-R706",
+      "width": 1440,
+      "label": "Inter-loaded-and-selected",
+      "error": "The input did not match the regular expression /Inter/u. Input:\n\n'\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif'\n"
+    },
+    {
+      "pageId": "RES-R706",
+      "width": 390,
+      "label": "Inter-loaded-and-selected",
+      "error": "The input did not match the regular expression /Inter/u. Input:\n\n'\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif'\n"
+    },
+    {
+      "pageId": "RES-CHEMOURS",
+      "width": 1440,
+      "label": "Inter-loaded-and-selected",
+      "error": "The input did not match the regular expression /Inter/u. Input:\n\n'\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif'\n"
+    },
+    {
+      "pageId": "RES-CHEMOURS",
+      "width": 390,
+      "label": "Inter-loaded-and-selected",
+      "error": "The input did not match the regular expression /Inter/u. Input:\n\n'\"approvedVariableFont\", \"approvedVariableFont Fallback\", Arial, sans-serif'\n"
+    }
+  ],
+  "visualReadback": "PENDING",
+  "limitations": [
+    "Not real-device coverage",
+    "Not native browser 200% zoom",
+    "Not screen-reader speech/AT",
+    "FontFaceSet and computed family prove loaded CSS font selection, not CDP glyph provenance"
+  ],
+  "pass": false
+}

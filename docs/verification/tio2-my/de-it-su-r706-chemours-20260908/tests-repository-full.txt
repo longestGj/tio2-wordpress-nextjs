@@ -1,0 +1,503 @@
+
+> test
+> vitest run
+
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8
+
+ ❯ tests/integration/wordpress/site-a-product-audit-runtime.test.ts (5 tests | 5 failed) 3642ms
+     × passes one complete capability argument to WP-CLI eval-file for D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\scripts\apply-local-site-a-product-drafts.ps1 1364ms
+     × passes one complete capability argument to WP-CLI eval-file for D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\scripts\audit-site-a-products.ps1 1468ms
+     × reaches the capability boundary through WP-CLI eval-file for /workspace/wordpress/seed/apply-site-a-product-drafts.php 258ms
+     × reaches the capability boundary through WP-CLI eval-file for /workspace/wordpress/seed/export-site-a-product-audit.php 261ms
+     × rejects every draft, scope, manifest, privacy, route, GraphQL, and Site B safety violation 284ms
+ ❯ tests/integration/wordpress/site-a-product-representative-import-runtime.test.ts (6 tests | 4 failed) 8950ms
+     × accepts only the approved resolved literal fixture and hands exact hashes through separate Plan and Apply capabilities 761ms
+     × accepts rendered Compose services that do not publish ports 818ms
+     × loads through the real WP-CLI eval-file entrypoint before rejecting a missing capability 565ms
+     × plans three targets, applies transactionally, reads back normalized fields, and is idempotent 490ms
+ ❯ tests/infrastructure/site-a-editorial-draft-import-contract.test.ts (12 tests | 7 failed) 16372ms
+     × uses a null Plan hash, then binds Apply to the returned Plan with a fresh token 1496ms
+     × passes one-use capability values through inherited Docker environment without exposing them in argv 1294ms
+     × restores inherited capability environment when Docker exits unsuccessfully or throws 1385ms
+     × requires exactly one parseable audit marker with the complete expected result shape 1511ms
+     × derives the complete ordered deferred Product edge contract from staged manifests 1713ms
+     × rejects UNC, device, and provider manifest paths before either wrapper stages or reads them 1629ms
+     × attempts every cleanup and final source hash when the first runtime deletion fails 5785ms
+ ❯ tests/integration/wordpress/site-a-editorial-draft-import-runtime.test.ts (3 tests | 3 failed) 769ms
+     × binds deterministic plans and atomically imports exactly 28+11 deferred drafts 273ms
+     × rejects direct importer invocation outside the exact local WordPress environment before capability reads 239ms
+     × rejects direct audit invocation outside the exact local WordPress environment before capability reads 252ms
+ ❯ tests/integration/wordpress/site-a-application-page-draft-import-runtime.test.ts (1 test | 1 failed) 292ms
+     × plans and applies exactly one approved Plastics draft 288ms
+ ❯ tests/integration/wordpress/site-a-editorial-audit-runtime.test.ts (1 test | 1 failed) 315ms
+     × hashes exact 28+11 readback and rejects every non-deferred mismatch 311ms
+ ❯ tests/integration/wordpress/site-a-product-draft-import-runtime.test.ts (1 test | 1 failed) 471ms
+     × plans without writes, applies deterministic draft-only upserts, and leaves Site B unchanged 463ms
+ ❯ scripts/editorial/build-de-it-payloads.test.mjs (0 test)
+✔ alternative payloads preserve all approved buyer copy and freeze identity (668.7603ms)
+ ❯ scripts/editorial/build-alternative-payloads.test.mjs (0 test)
+✔ RES-R706 preserves neutral owner actions and does not publish candidate SEO (64.142ms)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  scripts/editorial/build-alternative-payloads.test.mjs [ scripts/editorial/build-alternative-payloads.test.mjs ]
+Error: No test suite found in file D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/scripts/editorial/build-alternative-payloads.test.mjs
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/24]⎯
+
+ FAIL  scripts/editorial/build-de-it-payloads.test.mjs [ scripts/editorial/build-de-it-payloads.test.mjs ]
+Error: No test suite found in file D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8/scripts/editorial/build-de-it-payloads.test.mjs
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/24]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 22 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/infrastructure/site-a-editorial-draft-import-contract.test.ts > local Site A editorial draft wrapper contract > uses a null Plan hash, then binds Apply to the returned Plan with a fresh token
+AssertionError:
+Exception: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\scripts\apply-local-site-a-editorial-drafts.ps1:28
+Line |
+  28 |  … pe Leaf)) { throw "Missing required local editorial import file: $Req …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Missing required local editorial import file:
+     | D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/infrastructure/site-a-editorial-draft-import-contract.test.ts:231:65
+    229|   it.skipIf(!existsSync(productManifestPath))('uses a null Plan hash, …
+    230|     const {result, capabilities} = captureApplyCapabilities()
+    231|     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+       |                                                                 ^
+    232|     expect(capabilities).toHaveLength(2)
+    233|     expect(capabilities[0]).toMatchObject({mode: 'plan', planSha256: n…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/24]⎯
+
+ FAIL  tests/infrastructure/site-a-editorial-draft-import-contract.test.ts > local Site A editorial draft wrapper contract > passes one-use capability values through inherited Docker environment without exposing them in argv
+AssertionError: expected { …(2) } to deeply equal { caught: null, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "caught": null,
++   "caught": "Missing required local editorial import file: D:\\16Wordpress_nextjs\\.worktrees\\de-it-su-r706-chemours-gate8\\wordpress\\.env",
+    "restored": "sentinel-before-wrapper",
+  }
+
+ ❯ tests/infrastructure/site-a-editorial-draft-import-contract.test.ts:244:23
+    242|       const {result, captures, outcome, tokenName} = runWrapperWithCon…
+    243|       expect(result.status, `${result.stdout}\n${result.stderr}`).toBe…
+    244|       expect(outcome).toEqual({caught: null, restored: 'sentinel-befor…
+       |                       ^
+    245|       expect(captures).toHaveLength(1)
+    246|       expect(captures[0].environmentToken).toMatch(/^[a-f0-9]{64}$/u)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/24]⎯
+
+ FAIL  tests/infrastructure/site-a-editorial-draft-import-contract.test.ts > local Site A editorial draft wrapper contract > restores inherited capability environment when Docker exits unsuccessfully or throws
+AssertionError: expected 'Missing required local editorial impo…' to contain 'exit code 17'
+
+Expected: "exit code 17"
+Received: "Missing required local editorial import file: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env"
+
+ ❯ tests/infrastructure/site-a-editorial-draft-import-contract.test.ts:262:33
+    260|         const {result, captures, outcome, tokenName} = runWrapperWithC…
+    261|         expect(result.status, `${result.stdout}\n${result.stderr}`).to…
+    262|         expect(outcome?.caught).toContain(expectedMessage)
+       |                                 ^
+    263|         expect(outcome?.restored).toBe('sentinel-before-wrapper')
+    264|         if (scenario === 'docker-failure') {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/24]⎯
+
+ FAIL  tests/infrastructure/site-a-editorial-draft-import-contract.test.ts > local Site A editorial draft wrapper contract > requires exactly one parseable audit marker with the complete expected result shape
+AssertionError: expected 'Missing required local editorial audi…' to contain 'exactly one deterministic result'
+
+Expected: "exactly one deterministic result"
+Received: "Missing required local editorial audit file: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env"
+
+ ❯ tests/infrastructure/site-a-editorial-draft-import-contract.test.ts:285:31
+    283|       const {result, outcome} = runWrapperWithControlledDocker(auditWr…
+    284|       expect(result.status, `${result.stdout}\n${result.stderr}`).toBe…
+    285|       expect(outcome?.caught).toContain(expectedMessage)
+       |                               ^
+    286|       expect(outcome?.restored).toBe('sentinel-before-wrapper')
+    287|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/24]⎯
+
+ FAIL  tests/infrastructure/site-a-editorial-draft-import-contract.test.ts > local Site A editorial draft wrapper contract > derives the complete ordered deferred Product edge contract from staged manifests
+AssertionError: expected { …(2) } to deeply equal { caught: null, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "caught": null,
++   "caught": "Missing required local editorial audit file: D:\\16Wordpress_nextjs\\.worktrees\\de-it-su-r706-chemours-gate8\\wordpress\\.env",
+    "restored": "sentinel-before-wrapper",
+  }
+
+ ❯ tests/infrastructure/site-a-editorial-draft-import-contract.test.ts:299:29
+    297|       const valid = runWrapperWithControlledDocker(auditWrapperPath, '…
+    298|       expect(valid.result.status, `${valid.result.stdout}\n${valid.res…
+    299|       expect(valid.outcome).toEqual({caught: null, restored: 'sentinel…
+       |                             ^
+    300|
+    301|       const strict = runWrapperWithControlledDocker(auditWrapperPath, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/24]⎯
+
+ FAIL  tests/infrastructure/site-a-editorial-draft-import-contract.test.ts > local Site A editorial draft wrapper contract > rejects UNC, device, and provider manifest paths before either wrapper stages or reads them
+AssertionError: expected '\nException: D:\16Wordpress_nextjs\.w…' to contain 'local fixed-disk path'
+
+- Expected
++ Received
+
+- local fixed-disk path
++
++ Exception: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\scripts\apply-local-site-a-editorial-drafts.ps1:28
++ Line |
++   28 |  … pe Leaf)) { throw "Missing required local editorial import file: $Req …
++      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++      | Missing required local editorial import file:
++      | D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env
++
+
+ ❯ tests/infrastructure/site-a-editorial-draft-import-contract.test.ts:358:54
+    356|         const result = runWrapperWithManifestPath(wrapperPath, unsafeP…
+    357|         expect(result.status, `${result.stdout}\n${result.stderr}`).no…
+    358|         expect(`${result.stdout}\n${result.stderr}`).toContain('local …
+       |                                                      ^
+    359|       }
+    360|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/24]⎯
+
+ FAIL  tests/infrastructure/site-a-editorial-draft-import-contract.test.ts > local Site A editorial draft wrapper contract > attempts every cleanup and final source hash when the first runtime deletion fails
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/infrastructure/site-a-editorial-draft-import-contract.test.ts:363:3
+    361|   }, 60_000)
+    362|
+    363|   it('attempts every cleanup and final source hash when the first runt…
+       |   ^
+    364|     expect(existsSync(runtimeLibraryPath), 'shared editorial runtime b…
+    365|     const directory = mkdtempSync(join(tmpdir(), 'tio2-editorial-clean…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/24]⎯
+
+ FAIL  tests/integration/wordpress/site-a-application-page-draft-import-runtime.test.ts > single Site A Application page draft importer > plans and applies exactly one approved Plastics draft
+AssertionError:
+couldn't find env file: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/integration/wordpress/site-a-application-page-draft-import-runtime.test.ts:89:65
+     87|     expect(existsSync(importerPath), 'single-page Application importer…
+     88|     const result = runControlledImporter()
+     89|     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+       |                                                                 ^
+     90|     expect(JSON.parse(result.stdout)).toEqual({
+     91|       id: 'plastics',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/24]⎯
+
+ FAIL  tests/integration/wordpress/site-a-editorial-audit-runtime.test.ts > controlled WordPress Site A editorial normalized audit boundary > hashes exact 28+11 readback and rejects every non-deferred mismatch
+AssertionError:
+couldn't find env file: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/integration/wordpress/site-a-editorial-audit-runtime.test.ts:97:65
+     95|
+     96|     const result = runControlledAudit()
+     97|     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+       |                                                                 ^
+     98|     expect(JSON.parse(result.stdout)).toEqual({
+     99|       records: 39,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/24]⎯
+
+ FAIL  tests/integration/wordpress/site-a-editorial-draft-import-runtime.test.ts > controlled WordPress Site A editorial draft importer boundary > binds deterministic plans and atomically imports exactly 28+11 deferred drafts
+AssertionError:
+couldn't find env file: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/integration/wordpress/site-a-editorial-draft-import-runtime.test.ts:203:65
+    201|
+    202|     const result = runControlledImporter()
+    203|     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+       |                                                                 ^
+    204|     expect(JSON.parse(result.stdout)).toEqual({
+    205|       planSha256: expect.stringMatching(/^[a-f0-9]{64}$/u),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/24]⎯
+
+ FAIL  tests/integration/wordpress/site-a-editorial-draft-import-runtime.test.ts > controlled WordPress Site A editorial draft importer boundary > rejects direct importer invocation outside the exact local WordPress environment before capability reads
+ FAIL  tests/integration/wordpress/site-a-editorial-draft-import-runtime.test.ts > controlled WordPress Site A editorial draft importer boundary > rejects direct audit invocation outside the exact local WordPress environment before capability reads
+AssertionError:
+couldn't find env file: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env
+: expected 1 to be 42 // Object.is equality
+
+- Expected
++ Received
+
+- 42
++ 1
+
+ ❯ tests/integration/wordpress/site-a-editorial-draft-import-runtime.test.ts:218:65
+    216|   ])('rejects direct %s invocation outside the exact local WordPress e…
+    217|     const result = runDirectPhpBoundary(entrypointPath)
+    218|     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(4…
+       |                                                                 ^
+    219|     expect(result.stdout).toContain('exact local WordPress environment…
+    220|     expect(result.stdout).not.toContain('capability file is required')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/24]⎯
+
+ FAIL  tests/integration/wordpress/site-a-product-audit-runtime.test.ts > local Site A Product draft audit boundary > passes one complete capability argument to WP-CLI eval-file for D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\scripts\apply-local-site-a-product-drafts.ps1
+AssertionError:
+Exception: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\scripts\apply-local-site-a-product-drafts.ps1:22
+Line |
+  22 |          throw "Missing required local WordPress file: $RequiredFile"
+     |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Missing required local WordPress file:
+     | D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/integration/wordpress/site-a-product-audit-runtime.test.ts:200:65
+    198|   ])('passes one complete capability argument to WP-CLI eval-file for …
+    199|     const {result, dockerArgs} = captureWrapperDockerArgs(wrapperPath,…
+    200|     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+       |                                                                 ^
+    201|     expect(dockerArgs).toHaveLength(1)
+    202|     const args = dockerArgs[0]
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/24]⎯
+
+ FAIL  tests/integration/wordpress/site-a-product-audit-runtime.test.ts > local Site A Product draft audit boundary > passes one complete capability argument to WP-CLI eval-file for D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\scripts\audit-site-a-products.ps1
+AssertionError:
+Exception: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\scripts\audit-site-a-products.ps1:19
+Line |
+  19 |          throw "Missing required local Product audit file: $RequiredFi …
+     |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Missing required local Product audit file:
+     | D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/integration/wordpress/site-a-product-audit-runtime.test.ts:200:65
+    198|   ])('passes one complete capability argument to WP-CLI eval-file for …
+    199|     const {result, dockerArgs} = captureWrapperDockerArgs(wrapperPath,…
+    200|     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+       |                                                                 ^
+    201|     expect(dockerArgs).toHaveLength(1)
+    202|     const args = dockerArgs[0]
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/24]⎯
+
+ FAIL  tests/integration/wordpress/site-a-product-audit-runtime.test.ts > local Site A Product draft audit boundary > reaches the capability boundary through WP-CLI eval-file for /workspace/wordpress/seed/apply-site-a-product-drafts.php
+ FAIL  tests/integration/wordpress/site-a-product-audit-runtime.test.ts > local Site A Product draft audit boundary > reaches the capability boundary through WP-CLI eval-file for /workspace/wordpress/seed/export-site-a-product-audit.php
+AssertionError: expected '\ncouldn\'t find env file: D:\16Wordp…' to contain 'capability file is required'
+
+- Expected
++ Received
+
+- capability file is required
++
++ couldn't find env file: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env
++
+
+ ❯ tests/integration/wordpress/site-a-product-audit-runtime.test.ts:218:22
+    216|       expect(result.status, output).not.toBe(0)
+    217|       expect(output).not.toContain('strict_types declaration must be t…
+    218|       expect(output).toContain('capability file is required')
+       |                      ^
+    219|     },
+    220|   )
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/24]⎯
+
+ FAIL  tests/integration/wordpress/site-a-product-audit-runtime.test.ts > local Site A Product draft audit boundary > rejects every draft, scope, manifest, privacy, route, GraphQL, and Site B safety violation
+AssertionError:
+couldn't find env file: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/integration/wordpress/site-a-product-audit-runtime.test.ts:226:65
+    224|
+    225|     const result = runControlledAudit()
+    226|     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+       |                                                                 ^
+    227|     expect(JSON.parse(result.stdout)).toEqual({checked: 17})
+    228|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/24]⎯
+
+ FAIL  tests/integration/wordpress/site-a-product-draft-import-runtime.test.ts > controlled WordPress Site A Product draft importer boundary > plans without writes, applies deterministic draft-only upserts, and leaves Site B unchanged
+AssertionError:
+couldn't find env file: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/integration/wordpress/site-a-product-draft-import-runtime.test.ts:184:65
+    182|
+    183|     const result = runControlledImporter()
+    184|     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+       |                                                                 ^
+    185|     expect(JSON.parse(result.stdout)).toEqual({
+    186|       products: 25,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/24]⎯
+
+ FAIL  tests/integration/wordpress/site-a-product-representative-import-runtime.test.ts > local representative-content PowerShell boundary > accepts only the approved resolved literal fixture and hands exact hashes through separate Plan and Apply capabilities
+AssertionError:
+Missing required local representative-content file: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordp
+ress\.env
+At D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\scripts\apply-local-site-a-product-representatives.ps1
+:23 char:9
++         throw "Missing required local representative-content file: $R ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Missing require...\wordpress\.env:String) [], RuntimeException
+    + FullyQualifiedErrorId : Missing required local representative-content file: D:\16Wordpress_nextjs\.worktrees\de-
+   it-su-r706-chemours-gate8\wordpress\.env
+
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/integration/wordpress/site-a-product-representative-import-runtime.test.ts:153:61
+    151|     try {
+    152|       const plan = runWrapper('Plan', fixturePath, temporary, logPath)
+    153|       expect(plan.status, `${plan.stdout}\n${plan.stderr}`).toBe(0)
+       |                                                             ^
+    154|       const apply = runWrapper('Apply', fixturePath, temporary, logPat…
+    155|       expect(apply.status, `${apply.stdout}\n${apply.stderr}`).toBe(0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/24]⎯
+
+ FAIL  tests/integration/wordpress/site-a-product-representative-import-runtime.test.ts > local representative-content PowerShell boundary > accepts rendered Compose services that do not publish ports
+AssertionError:
+Missing required local representative-content file: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordp
+ress\.env
+At D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\scripts\apply-local-site-a-product-representatives.ps1
+:23 char:9
++         throw "Missing required local representative-content file: $R ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Missing require...\wordpress\.env:String) [], RuntimeException
+    + FullyQualifiedErrorId : Missing required local representative-content file: D:\16Wordpress_nextjs\.worktrees\de-
+   it-su-r706-chemours-gate8\wordpress\.env
+
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/integration/wordpress/site-a-product-representative-import-runtime.test.ts:234:67
+    232|         TIO2_TEST_DOCKER_EMPTY_SERVICES: '1',
+    233|       })
+    234|       expect(result.status, `${result.stdout}\n${result.stderr}`).toBe…
+       |                                                                   ^
+    235|     } finally {
+    236|       rmSync(temporary, {recursive: true, force: true})
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/24]⎯
+
+ FAIL  tests/integration/wordpress/site-a-product-representative-import-runtime.test.ts > controlled WordPress representative-content importer boundary > loads through the real WP-CLI eval-file entrypoint before rejecting a missing capability
+AssertionError: expected '\ncouldn\'t find env file: D:\16Wordp…' to contain 'The local representative capability f…'
+
+- Expected
++ Received
+
+- The local representative capability file is required.
++
++ couldn't find env file: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env
++
+
+ ❯ tests/integration/wordpress/site-a-product-representative-import-runtime.test.ts:392:50
+    390|     )
+    391|     expect(result.status).not.toBe(0)
+    392|     expect(`${result.stdout}\n${result.stderr}`).toContain(
+       |                                                  ^
+    393|       'The local representative capability file is required.',
+    394|     )
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/24]⎯
+
+ FAIL  tests/integration/wordpress/site-a-product-representative-import-runtime.test.ts > controlled WordPress representative-content importer boundary > plans three targets, applies transactionally, reads back normalized fields, and is idempotent
+AssertionError:
+couldn't find env file: D:\16Wordpress_nextjs\.worktrees\de-it-su-r706-chemours-gate8\wordpress\.env
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/integration/wordpress/site-a-product-representative-import-runtime.test.ts:403:65
+    401|     expect(existsSync(importerPath), 'PHP importer is missing').toBe(t…
+    402|     const result = runControlledImporter()
+    403|     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
+       |                                                                 ^
+    404|     expect(JSON.parse(result.stdout)).toEqual({
+    405|       targets: ['hub', 'coatings', 'TP-C120'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/24]⎯
+
+
+ Test Files  9 failed | 281 passed | 20 skipped (310)
+      Tests  22 failed | 2588 passed | 50 skipped (2660)
+   Start at  11:14:33
+   Duration  95.55s (transform 10.31s, setup 50.15s, import 58.92s, tests 204.40s, environment 17.53s)

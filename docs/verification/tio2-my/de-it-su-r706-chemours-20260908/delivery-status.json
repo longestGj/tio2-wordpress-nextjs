@@ -1,0 +1,15 @@
+{
+  "taskId": "G8-DE-IT-SU-R706-CHEMOURS-20260908-01",
+  "target": {
+    "threadId": "01a07e7e-24ef-7390-beab-f50fcbf169e0",
+    "title": "00-Gate9-01my开发",
+    "hostId": "local"
+  },
+  "state": "PREPARED",
+  "sent": false,
+  "preparedAt": "2026-09-08T11:17:36.7212225+08:00",
+  "sentAt": null,
+  "receipt": null,
+  "acceptance": "NOT_CLAIMED",
+  "gate9Result": "NOT_CLAIMED"
+}

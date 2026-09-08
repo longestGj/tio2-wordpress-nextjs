@@ -1,0 +1,182 @@
+{
+  "time": "2026-09-08T02:33:27.3527861Z",
+  "baseline": "84db14e",
+  "scope": "READ_ONLY_INTAKE_ONLY",
+  "allBoundSourceHashesMatch": true,
+  "sources": [
+    {
+      "pageId": "MARKET-EU-DE",
+      "role": "buyerCopy",
+      "path": "D:/23MySec/pages/markets/germany/04_planning/MARKET-EU-DE_GATE2_FULL_BUYER_CLEAN_COPY_V0.2.md",
+      "bytes": 7086,
+      "sha256": "f95f338b4b966d48e0a10c0ad81b6fd7ffd21e552cee780bc9597d2e67b6c4d8",
+      "expectedSha256": "f95f338b4b966d48e0a10c0ad81b6fd7ffd21e552cee780bc9597d2e67b6c4d8",
+      "match": true
+    },
+    {
+      "pageId": "MARKET-EU-DE",
+      "role": "contract",
+      "path": "D:/23MySec/pages/markets/germany/04_planning/MARKET-EU-DE_GATE2_CONTENT_CONTRACT_V0.2.md",
+      "bytes": 8592,
+      "sha256": "a2a5d629258e1d24aff03d6a3b3a24f194d89c5c6c1f5e6b68bb8eaef5faa187",
+      "expectedSha256": "a2a5d629258e1d24aff03d6a3b3a24f194d89c5c6c1f5e6b68bb8eaef5faa187",
+      "match": true
+    },
+    {
+      "pageId": "MARKET-EU-DE",
+      "role": "visual",
+      "path": "D:/23MySec/pages/markets/germany/04_planning/gate4-v0.1/MARKET-EU-DE_GATE4_COMPLETE_VISUAL_V0.1.html",
+      "bytes": 23813,
+      "sha256": "9f729196ea8135b7daa9aa83cc8e43768eafa27a35792605de67d125e0eccdbc",
+      "expectedSha256": "9f729196ea8135b7daa9aa83cc8e43768eafa27a35792605de67d125e0eccdbc",
+      "match": true
+    },
+    {
+      "pageId": "MARKET-EU-DE",
+      "role": "cssAfterInline",
+      "path": "D:/23MySec/pages/markets/germany/04_planning/gate4-v0.1/visual-direction.css",
+      "bytes": 3977,
+      "sha256": "d5723d30d33b265beb60d8afe5394621eb5c1ada23d2a89f56ad0d4d7f21b10d",
+      "expectedSha256": "d5723d30d33b265beb60d8afe5394621eb5c1ada23d2a89f56ad0d4d7f21b10d",
+      "match": true
+    },
+    {
+      "pageId": "MARKET-EU-DE",
+      "role": "freeze",
+      "path": "D:/23MySec/pages/markets/germany/04_planning/gate4-v0.1/approval_core/source-freeze.json",
+      "bytes": 16224,
+      "sha256": "46c4f2dbc289861f9910b2cf27dc8ea5dc2ff8c6305a6ccfaf2512211fa4370c",
+      "expectedSha256": "46c4f2dbc289861f9910b2cf27dc8ea5dc2ff8c6305a6ccfaf2512211fa4370c",
+      "match": true
+    },
+    {
+      "pageId": "MARKET-EU-DE",
+      "role": "evidenceIndex",
+      "path": "D:/23MySec/pages/markets/germany/04_planning/gate4-v0.1/evidence_index.json",
+      "bytes": 45754,
+      "sha256": "dfffa0bb0e295837a27ec8405fcfdf3294e51b90bafae2bd18c8b7b37b5583c3",
+      "expectedSha256": "dfffa0bb0e295837a27ec8405fcfdf3294e51b90bafae2bd18c8b7b37b5583c3",
+      "match": true
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "role": "buyerCopy",
+      "path": "D:/23MySec/pages/markets/italy/04_planning/MARKET-EU-IT_GATE2_FULL_BUYER_CLEAN_COPY_V0.2.md",
+      "bytes": 6869,
+      "sha256": "a7d047af04b5127cc54f97938e4d622b1e1b496691747516322924f6e0b44208",
+      "expectedSha256": "a7d047af04b5127cc54f97938e4d622b1e1b496691747516322924f6e0b44208",
+      "match": true
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "role": "contract",
+      "path": "D:/23MySec/pages/markets/italy/04_planning/MARKET-EU-IT_GATE2_CONTENT_CONTRACT_V0.2.md",
+      "bytes": 8710,
+      "sha256": "ac49b66055bf36b87583e3919005ccbf87919a9900d9a9103aaa7d39936a6e19",
+      "expectedSha256": "ac49b66055bf36b87583e3919005ccbf87919a9900d9a9103aaa7d39936a6e19",
+      "match": true
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "role": "visual",
+      "path": "D:/23MySec/pages/markets/italy/04_planning/gate4-v0.1/MARKET-EU-IT_GATE4_COMPLETE_VISUAL_V0.1.html",
+      "bytes": 28199,
+      "sha256": "ed7d54648e058fee6ee4d6ff7ca76d3fe3f440eda0e5d0d7b8871b6da0f15615",
+      "expectedSha256": "ed7d54648e058fee6ee4d6ff7ca76d3fe3f440eda0e5d0d7b8871b6da0f15615",
+      "match": true
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "role": "freeze",
+      "path": "D:/23MySec/pages/markets/italy/04_planning/gate4-v0.2/MARKET-EU-IT_GATE4_FREEZE_RECORD_V0.2.json",
+      "bytes": 16133,
+      "sha256": "a5b0e25d7d294f5b486594a70b19fe7407b195180940daf7258f01f6aee90410",
+      "expectedSha256": "a5b0e25d7d294f5b486594a70b19fe7407b195180940daf7258f01f6aee90410",
+      "match": true
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "role": "evidenceIndex",
+      "path": "D:/23MySec/pages/markets/italy/04_planning/gate4-v0.2/MARKET-EU-IT_GATE4_EVIDENCE_INDEX_V0.2.json",
+      "bytes": 37035,
+      "sha256": "deba8a2d8c1e10970dfc2d867fc7d694c7c08475e8960e37bd6b7b4fcb0fd116",
+      "expectedSha256": "deba8a2d8c1e10970dfc2d867fc7d694c7c08475e8960e37bd6b7b4fcb0fd116",
+      "match": true
+    }
+  ],
+  "pages": [
+    {
+      "pageId": "MARKET-EU-DE",
+      "siteScope": "tio2-my",
+      "section": "markets",
+      "locale": "en",
+      "path": "/markets/germany/",
+      "h1": "Titanium Dioxide Supplier for Germany",
+      "seoTitle": "Titanium Dioxide Supplier for Germany | TiO2 Malaysia",
+      "metaDescription": "Evaluate Malaysia-origin titanium dioxide for coatings, plastics and masterbatch procurement in Germany. Review products, documents, samples and quote inputs.",
+      "canonical": "https://tio2malaysia.com/markets/germany/",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "bodyLinkOccurrences": 19,
+      "moduleCount": 7,
+      "gradeLinks": [],
+      "sourceOnlyDocuments": "/request-documents/?source_page_id=MARKET-EU-DE",
+      "sourceOnlySample": "/request-sample/?source_page_id=MARKET-EU-DE",
+      "rfq": "/request-a-quote/?source_page_id=MARKET-EU-DE&destination_country=Germany",
+      "rfqOccurrences": 3,
+      "bodyExtraction": "Exact complete main HTML; exclude prototype shared chrome/dialog/scripts; preserve all text/semantics; scope page CSS only",
+      "font": {
+        "family": "Inter",
+        "path": "D:/23MySec/pages/markets/germany/04_planning/gate4-v0.1/dependencies/Inter-Variable.ttf",
+        "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+        "weight": "100 900",
+        "note": "Actual hash computed; prototype font asset identity, production binding required"
+      },
+      "stableAcPrefix": "DE-G9-AC",
+      "stableAcCount": 14,
+      "tradeRule": "Omit entire Use the EU Titanium Dioxide Trade Update sentence if scoped route/content/current official-source freshness is ineligible"
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "siteScope": "tio2-my",
+      "section": "markets",
+      "locale": "en",
+      "path": "/markets/italy/",
+      "h1": "Titanium Dioxide Supplier for Italy",
+      "seoTitle": "Titanium Dioxide Supplier for Italy | TiO2 Malaysia",
+      "metaDescription": "Evaluate Malaysia-origin titanium dioxide for coatings, compound, masterbatch and packaging-printing projects in Italy. Review products, documents and quote inputs.",
+      "canonical": "https://tio2malaysia.com/markets/italy/",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "bodyLinkOccurrences": 19,
+      "moduleCount": 7,
+      "gradeLinks": [],
+      "sourceOnlyDocuments": "/request-documents/?source_page_id=MARKET-EU-IT",
+      "sourceOnlySample": "/request-sample/?source_page_id=MARKET-EU-IT",
+      "rfq": "/request-a-quote/?source_page_id=MARKET-EU-IT&destination_country=Italy",
+      "rfqOccurrences": 3,
+      "bodyExtraction": "Exact complete main HTML; exclude prototype shared chrome/dialog/scripts; preserve all text/semantics; scope page CSS only",
+      "font": {
+        "family": "Inter",
+        "path": "D:/23MySec/pages/markets/italy/04_planning/gate4-v0.1/dependencies/Inter-Variable.ttf",
+        "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+        "weight": "100 900",
+        "note": "Actual hash computed; prototype font asset identity, production binding required"
+      },
+      "stableAcPrefix": "MARKET-EU-IT-G9-AC",
+      "stableAcCount": 12,
+      "tradeRule": "Omit entire Use the EU Titanium Dioxide Trade Update sentence if scoped route/content/current official-source freshness is ineligible"
+    }
+  ],
+  "visualReadback": [
+    "D:/23MySec/pages/markets/germany/04_planning/gate4-v0.1/approval_core/1440-full.png",
+    "D:/23MySec/pages/markets/italy/04_planning/gate4-v0.1/approval_core/MARKET-EU-IT_GATE4_1440_FULL_V0.1.png"
+  ],
+  "runtimeVerified": false,
+  "liveSourceFreshnessVerified": false,
+  "gate9Pass": false
+}

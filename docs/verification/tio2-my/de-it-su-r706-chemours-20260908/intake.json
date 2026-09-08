@@ -1,0 +1,69 @@
+{
+  "time": "2026-09-08T02:28:44.546Z",
+  "dispatch": "G8-DE-IT-SU-R706-CHEMOURS-20260908-01",
+  "baseCommit": "84db14e",
+  "worktree": "D:\\16Wordpress_nextjs\\.worktrees\\de-it-su-r706-chemours-gate8",
+  "state": "RECEIVED_IDENTITY_VERIFIED_DEVELOPMENT_STARTING",
+  "results": [
+    {
+      "pageId": "MARKET-EU-DE",
+      "siteScope": "tio2-my",
+      "packageId": "MARKET-EU-DE-G6-HANDOFF-02",
+      "packagePath": "pages/markets/germany/06_handoff/MARKET-EU-DE_GATE6_HANDOFF_PACKAGE_V0.2.md",
+      "sha256": "75e184dfe89d9acbbb28da100dc8271c7c1a84f89c85f71d11b5ca1bc4d885c2",
+      "packageBytes": 28197,
+      "manifestPath": "pages/markets/germany/MARKET-EU-DE_CURRENT_GATE_BASELINE_MANIFEST_V0.11.md",
+      "manifestSha256": "3a28c9d18b32dd12ca8d3d4b67500332b73646b6ac561071d23dc33d0f968513",
+      "identity": "VERIFIED",
+      "manifestBinding": "VERIFIED"
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "siteScope": "tio2-my",
+      "packageId": "MARKET-EU-IT-G6-HANDOFF-01",
+      "packagePath": "pages/markets/italy/06_handoff/MARKET-EU-IT_GATE6_HANDOFF_PACKAGE_V0.1.md",
+      "sha256": "2a21d8bea4c9647ec58a64a085c973ac8f42b159f603c9faa3439b00bae3c6af",
+      "packageBytes": 25458,
+      "manifestPath": "pages/markets/italy/MARKET-EU-IT_CURRENT_GATE_BASELINE_MANIFEST_V0.11.md",
+      "manifestSha256": "8d3300e35f59afd5360068cfbb7ef4f4003c132cec430e8077f3ae9150c3a379",
+      "identity": "VERIFIED",
+      "manifestBinding": "VERIFIED"
+    },
+    {
+      "pageId": "PRODUCT-PROC-SU",
+      "siteScope": "tio2-my",
+      "packageId": "PRODUCT-PROC-SU-G6-HANDOFF-01",
+      "packagePath": "pages/products/sulfate-process/06_handoff/PRODUCT-PROC-SU_GATE6_HANDOFF_PACKAGE_V0.1.md",
+      "sha256": "343a220cb92d058a6c8914c4e30af405d619076b14ec96eb06a2e59ef0b7f192",
+      "packageBytes": 32938,
+      "manifestPath": "pages/products/sulfate-process/PRODUCT-PROC-SU_CURRENT_GATE_BASELINE_MANIFEST_V0.11.md",
+      "manifestSha256": "4f88ba9dca86467646ff60918f0edc0d6f1ee028b37dadcac40a7f55588ede2c",
+      "identity": "VERIFIED",
+      "manifestBinding": "VERIFIED"
+    },
+    {
+      "pageId": "RES-R706",
+      "siteScope": "tio2-my",
+      "packageId": "RES-R706-G6-HANDOFF-02",
+      "packagePath": "pages/resources/r706-alternative/06_handoff/RES-R706_GATE6_HANDOFF_PACKAGE_V0.2.md",
+      "sha256": "6b94e44cd514edee1adb6ab09bd2d45950509cffd3c6282e79ca3cb05ebd110c",
+      "packageBytes": 20631,
+      "manifestPath": "pages/resources/r706-alternative/RES-R706_CURRENT_GATE_BASELINE_MANIFEST_V0.7.md",
+      "manifestSha256": "565c2539046e865a04c3461c8562907a87cd3e0182c3346cab36c3459ab99017",
+      "identity": "VERIFIED",
+      "manifestBinding": "VERIFIED"
+    },
+    {
+      "pageId": "RES-CHEMOURS",
+      "siteScope": "tio2-my",
+      "packageId": "RES-CHEMOURS-G6-HANDOFF-02",
+      "packagePath": "pages/resources/chemours-alternatives/06_handoff/RES-CHEMOURS_GATE6_HANDOFF_PACKAGE_V0.2.md",
+      "sha256": "708568bb8c03585856a66e48fc9f98ec53a359564d697f021d5c613c2105bd9c",
+      "packageBytes": 20180,
+      "manifestPath": "pages/resources/chemours-alternatives/RES-CHEMOURS_CURRENT_GATE_BASELINE_MANIFEST_V0.19.md",
+      "manifestSha256": "0b21554088a6517a7142f14404a21ea18b9e2f11cecfdfbdf22e43cc589d4ce8",
+      "identity": "VERIFIED",
+      "manifestBinding": "VERIFIED"
+    }
+  ]
+}
