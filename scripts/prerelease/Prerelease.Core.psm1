@@ -424,6 +424,32 @@ function Get-PrereleaseLiveIdentity {
     }
 }
 
+function Invoke-PrereleaseGet {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)] [string] $Uri)
+
+    $currentUri = [Uri] $Uri
+    for ($redirectCount = 0; $redirectCount -le 5; $redirectCount++) {
+        try {
+            return Invoke-WebRequest -Uri $currentUri.AbsoluteUri -Method Get -UseBasicParsing -TimeoutSec 30
+        }
+        catch {
+            $webResponse = $_.Exception.Response
+            if ($null -eq $webResponse) { throw }
+            $statusCode = [int] $webResponse.StatusCode
+            $location = [string] $webResponse.Headers['Location']
+            if ($statusCode -notin @(301, 302, 303, 307, 308) -or [string]::IsNullOrWhiteSpace($location)) { throw }
+            if ($redirectCount -ge 5) { throw "Too many redirects for $Uri" }
+            $nextUri = [Uri]::new($currentUri, $location)
+            if ($nextUri.Scheme -ne $currentUri.Scheme -or $nextUri.Authority -ne $currentUri.Authority) {
+                throw "Prerelease GET redirect left the expected origin: $($nextUri.AbsoluteUri)"
+            }
+            $currentUri = $nextUri
+        }
+    }
+    throw "Prerelease GET redirect chain did not resolve: $Uri"
+}
+
 function Test-PrereleaseHttpRound {
     [CmdletBinding()]
     param(
@@ -441,7 +467,7 @@ function Test-PrereleaseHttpRound {
     )
     $results = foreach ($target in $targets) {
         try {
-            $response = Invoke-WebRequest -Uri $target.url -Method Get -UseBasicParsing -TimeoutSec 30
+            $response = Invoke-PrereleaseGet -Uri $target.url
             if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 400) { throw "HTTP $($response.StatusCode)" }
             $markers = Test-PrereleaseHtmlIdentity -Html ([string] $response.Content) -ExpectedPageId $target.pageId
             if (-not $markers.valid) { throw "identity markers: $($markers.reasons -join ', ')" }
