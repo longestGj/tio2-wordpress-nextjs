@@ -127,14 +127,14 @@ describe.runIf(process.platform === 'win32')('prerelease runtime identity', () =
   })
 
   it('requires site, page and robots markers in prerelease HTML', () => {
-    const good = '<html data-site-scope="tio2-my"><head><meta name="robots" content="noindex, nofollow"></head><body data-page-id="CONV-RFQ"></body></html>'
+    const good = '<html data-site-scope="tio2-my"><head><meta name="robots" content="noindex, nofollow"></head><body data-page-id="CONV-SAMPLE"></body></html>'
     const wrongSite = good.replace('tio2-my', 'tio2-a')
     const missingNoFollow = good.replace('noindex, nofollow', 'noindex')
     const command = [
       `Import-Module ${psQuote(modulePath)} -Force`,
-      `$good=Test-PrereleaseHtmlIdentity -Html ${psQuote(good)} -ExpectedPageId 'CONV-RFQ'`,
-      `$wrongSite=Test-PrereleaseHtmlIdentity -Html ${psQuote(wrongSite)} -ExpectedPageId 'CONV-RFQ'`,
-      `$missingNoFollow=Test-PrereleaseHtmlIdentity -Html ${psQuote(missingNoFollow)} -ExpectedPageId 'CONV-RFQ'`,
+      `$good=Test-PrereleaseHtmlIdentity -Html ${psQuote(good)} -ExpectedPageId 'CONV-SAMPLE'`,
+      `$wrongSite=Test-PrereleaseHtmlIdentity -Html ${psQuote(wrongSite)} -ExpectedPageId 'CONV-SAMPLE'`,
+      `$missingNoFollow=Test-PrereleaseHtmlIdentity -Html ${psQuote(missingNoFollow)} -ExpectedPageId 'CONV-SAMPLE'`,
       '[pscustomobject]@{good=$good;wrongSite=$wrongSite;missingNoFollow=$missingNoFollow}|ConvertTo-Json -Depth 5 -Compress',
     ].join('; ')
     expect(JSON.parse(invokePowerShell(command))).toMatchObject({
@@ -142,6 +142,14 @@ describe.runIf(process.platform === 'win32')('prerelease runtime identity', () =
       wrongSite: {valid: false},
       missingNoFollow: {valid: false},
     })
+  })
+
+  it('validates public RFQ structure without requiring removed internal attributes', () => {
+    const html='<html><head><link rel="canonical" href="https://tio2malaysia.com/request-a-quote/"/><meta name="robots" content="noindex, nofollow"/></head><body><h1 id="rfq-h1">Request a Quote</h1><form><input id="rfq-business_email"/></form></body></html>'
+    for (const [body, valid] of [[html,true],[html.replace('rfq-business_email','other'),false],[html.replace('tio2malaysia.com','tio2products.com'),false]] as const) {
+      const command=`Import-Module ${psQuote(modulePath)} -Force; Test-PrereleaseHtmlIdentity -Html ${psQuote(body)} -ExpectedPageId 'CONV-RFQ' | ConvertTo-Json -Compress`
+      expect(JSON.parse(invokePowerShell(command)).valid).toBe(valid)
+    }
   })
 
   it('requires the exact db, wordpress and web containers to be running and healthy', () => {

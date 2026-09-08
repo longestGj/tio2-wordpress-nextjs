@@ -34,3 +34,12 @@ it('fails closed when key/recipient binding is missing or site is wrong',async()
  vi.stubEnv('TIO2_MY_SAMPLE_RECEIVER_BINDING','')
  const response=await POST(request({}));expect(response.status).toBe(503);expect(await response.json()).toEqual({ok:false,receipt_confirmed:false})
 })
+
+it('accepts the configured public origin behind the local container port mapping, but rejects other origins',async()=>{
+ vi.stubEnv('NEXT_PUBLIC_SITE_URL','http://127.0.0.1:3100')
+ const provider=vi.fn();vi.stubGlobal('fetch',provider)
+ const make=(origin:string)=>new NextRequest('http://0.0.0.0:3000/api/sample/submit',{method:'POST',headers:{origin,'content-type':'application/json'},body:'{}'})
+ expect((await POST(make('http://127.0.0.1:3100'))).status).toBe(400)
+ expect((await POST(make('https://other.example'))).status).toBe(403)
+ expect(provider).not.toHaveBeenCalled()
+})

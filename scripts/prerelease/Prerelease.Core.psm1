@@ -310,10 +310,23 @@ function Test-PrereleaseHtmlIdentity {
     )
 
     $reasons = [System.Collections.Generic.List[string]]::new()
-    if ($Html -notmatch '(?i)data-site-scope\s*=\s*["'']tio2-my["'']') {
+    if ($ExpectedPageId -eq 'CONV-RFQ') {
+        # Public RFQ projection deliberately omits internal scope/page attributes.
+        # Runtime site/commit/Build identity is checked separately by the caller.
+        $canonical = $null
+        foreach ($match in [regex]::Matches($Html, '(?is)<link\b[^>]*>')) {
+            $tag = $match.Value
+            if ($tag -match '(?i)rel\s*=\s*["'']canonical["'']' -and $tag -match '(?i)href\s*=\s*["''](?<href>[^"'']*)["'']') { $canonical = $Matches.href }
+        }
+        if ($canonical -ne 'https://tio2malaysia.com/request-a-quote/') { $reasons.Add('rfq_canonical') }
+        if ($Html -notmatch '(?i)<h1\b[^>]*\bid\s*=\s*["'']rfq-h1["'']') { $reasons.Add('rfq_heading') }
+        if ($Html -notmatch '(?i)<input\b[^>]*\bid\s*=\s*["'']rfq-business_email["'']') { $reasons.Add('rfq_form') }
+        if ($Html -match '(?i)data-site-scope\s*=\s*["''](?!tio2-my["''])') { $reasons.Add('foreign_site_scope') }
+    }
+    elseif ($Html -notmatch '(?i)data-site-scope\s*=\s*["'']tio2-my["'']') {
         $reasons.Add('site_scope_marker')
     }
-    if (-not [string]::IsNullOrWhiteSpace($ExpectedPageId)) {
+    if ($ExpectedPageId -ne 'CONV-RFQ' -and -not [string]::IsNullOrWhiteSpace($ExpectedPageId)) {
         $escapedPageId = [regex]::Escape($ExpectedPageId)
         $pagePattern = '(?i)data-page-id\s*=\s*["'']' + $escapedPageId + '["'']'
         if ($Html -notmatch $pagePattern) {

@@ -58,8 +58,13 @@ test('representative CMS pages, navigation and metadata are bound to tio2-my', a
   for (const route of representativeRoutes) {
     const response = await page.goto(`${baseUrl}${route.path}`, {waitUntil: 'domcontentloaded'})
     expect(response?.status(), route.path).toBe(200)
-    await expect(page.locator('[data-site-scope="tio2-my"]').first(), route.path).toBeVisible()
-    if (route.pageId) await expect(page.locator(`[data-page-id="${route.pageId}"]`), route.path).toHaveCount(1)
+    if (route.pageId === 'CONV-RFQ') {
+      await expect(page.locator('h1#rfq-h1')).toBeVisible()
+      await expect(page.locator('#rfq-business_email')).toBeVisible()
+    } else {
+      await expect(page.locator('[data-site-scope="tio2-my"]').first(), route.path).toBeVisible()
+      if (route.pageId) await expect(page.locator(`[data-page-id="${route.pageId}"]`), route.path).toHaveCount(1)
+    }
     await expect(page.locator('header'), route.path).toBeVisible()
     await expect(page.locator('footer'), route.path).toBeVisible()
     await expect(page.locator('link[rel="canonical"]'), route.path).toHaveAttribute('href', /^https:\/\/tio2malaysia\.com(?:\/|$)/u)
@@ -100,7 +105,7 @@ for (const viewport of [
   })
 }
 
-test('homepage remains single-axis at native Chromium 200% page scale', async ({page, context}) => {
+test('homepage remains single-axis at emulated Chromium 200% page scale (not native browser zoom)', async ({page, context}) => {
   await page.setViewportSize({width: 1440, height: 1000})
   const session = await context.newCDPSession(page)
   await session.send('Emulation.setPageScaleFactor', {pageScaleFactor: 2})
@@ -108,6 +113,6 @@ test('homepage remains single-axis at native Chromium 200% page scale', async ({
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
   await page.keyboard.press('Tab')
   await expect(page.locator(':focus')).toBeVisible()
-  await page.screenshot({path: resolve(evidenceRoot, 'homepage-native-200-percent.png'), fullPage: false, animations: 'disabled'})
+  await page.screenshot({path: resolve(evidenceRoot, 'homepage-emulated-page-scale-200-percent.png'), fullPage: false, animations: 'disabled'})
   await session.send('Emulation.setPageScaleFactor', {pageScaleFactor: 1})
 })
