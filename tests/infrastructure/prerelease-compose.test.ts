@@ -28,6 +28,16 @@ describe('tio2-my local prerelease Compose contract', () => {
     expect(existsSync(seedManifestPath)).toBe(true)
   })
 
+  it('exports Linux entrypoint scripts with LF line endings', () => {
+    for (const path of [
+      'ops/prerelease/bootstrap-wordpress.sh',
+      'ops/prerelease/collect-cms-identity.sh',
+    ]) {
+      const attribute = execFileSync('git', ['check-attr', 'eol', '--', path], {encoding: 'utf8'})
+      expect(attribute.trim()).toBe(`${path}: eol: lf`)
+    }
+  })
+
   it('exposes only the website and WordPress admin on loopback', () => {
     const compose = readCompose()
     expect(compose).not.toBeNull()
