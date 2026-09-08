@@ -148,10 +148,10 @@ test('CONV-SAMPLE retains values and token across direct retry, then confirms on
   await page.locator('#sample-destination_country_market').fill('Malaysia')
   const tokens: string[] = []
   let attempt = 0
-  await page.route('https://api.web3forms.com/submit', async (route) => {
+  await page.route('**/api/sample/submit', async (route) => {
     attempt += 1
-    const payload = route.request().postDataJSON() as {idempotency_key: string}
-    tokens.push(payload.idempotency_key)
+    const payload = route.request().postDataJSON() as {idempotencyKey: string}
+    tokens.push(payload.idempotencyKey)
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 250))
     await route.fulfill({
       status: 200,
@@ -191,7 +191,7 @@ test('CONV-SAMPLE retains the form and offers retry after an unconfirmed provide
   await page.locator('#sample-company_organisation').fill('Example Co')
   await page.locator('#sample-business_email').fill('amina@example.com')
   await page.locator('#sample-destination_country_market').fill('Malaysia')
-  await page.route('https://api.web3forms.com/submit', async (route) => route.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({success: false})}))
+  await page.route('**/api/sample/submit', async (route) => route.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({success: false})}))
   await page.getByRole('button', {name: 'Submit Sample Request for Review'}).click()
   await expect(page.getByRole('heading', {name: 'We could not confirm that your request was received.'})).toBeVisible()
   await expect(page.locator('[data-sample-field]')).toHaveCount(11)

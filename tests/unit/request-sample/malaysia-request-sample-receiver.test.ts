@@ -1,46 +1,27 @@
 import {describe, expect, it, vi} from 'vitest'
-
 import {submitMalaysiaSampleRequest} from '@/lib/request-sample/malaysia-request-sample-receiver'
-
 const values = {grade_id:'M-2196',application_id:'coatings',application_other:'',test_objective:'Evaluate dispersion.',current_grade_or_target:'',contact_name:'Amina Tan',company_organisation:'Example Co',business_email:'amina@example.com',destination_country_market:'Malaysia',expected_project_annual_use:'',documents_needed:['tds'],additional_context:''}
-const options = {accessKey:'shared-web3forms-key',idempotencyKey:'72a190ef-315a-4a5a-91be-0329d316eb39',sourceContext:{source_page_id:'PRODUCT-000'}}
+const options = {idempotencyKey:'72a190ef-315a-4a5a-91be-0329d316eb39',sourceContext:{source_page_id:'PRODUCT-000'}}
 
-describe('Malaysia Sample Request receiver', () => {
-  it('is unavailable without the shared Web3Forms access key', async () => {
-    await expect(submitMalaysiaSampleRequest(values, {...options, accessKey:null})).resolves.toEqual({kind:'unavailable'})
-    await expect(submitMalaysiaSampleRequest(values, {...options, accessKey:' '})).resolves.toEqual({kind:'unavailable'})
-  })
 
-  it('posts directly to Web3Forms with the shared public key and fixed Malaysia metadata', async () => {
-    const fetcher = vi.fn(async () => new Response(JSON.stringify({ok:true,receipt_confirmed:true}), {status:200,headers:{'content-type':'application/json'}}))
-    await expect(submitMalaysiaSampleRequest(values, {...options, fetcher})).resolves.toEqual({kind:'receipt_confirmed'})
-    const calls=fetcher.mock.calls as unknown as Array<[RequestInfo|URL,RequestInit]>
-    expect(String(calls[0]?.[0])).toBe('https://api.web3forms.com/submit')
-    const body = JSON.parse(String(calls[0]?.[1].body)) as Record<string, unknown>
-    expect(body).toMatchObject({access_key:options.accessKey,email:values.business_email,site_scope:'tio2-my',request_type:'sample_request',page_id:'CONV-SAMPLE',form_version:'request-sample-v0.1-malaysia',privacy_notice_version:'CONV-SAMPLE-G7-HANDOFF-01',idempotency_key:options.idempotencyKey})
-    expect(body).toMatchObject({grade_id:'M-2196',application_id:'coatings',test_objective:'Evaluate dispersion.',source_page_id:'PRODUCT-000'})
-    expect(body).not.toHaveProperty('fields')
-    expect(body).not.toHaveProperty('environment')
-    expect(body).not.toHaveProperty('test_run_id')
-    expect(body.subject).toBe('TiO2 Malaysia sample request')
-    expect(calls[0]?.[1].headers).not.toMatchObject({authorization:expect.anything()})
-    expect(calls[0]?.[1]).toMatchObject({referrerPolicy:'origin',redirect:'error'})
-  })
+describe('Sample same-origin receiver client',()=>{
+ it('sends only values/context/idempotency to the local receiver and requires both acknowledgement flags',async()=>{
+  const fetcher=vi.fn(async()=>Response.json({ok:true,receipt_confirmed:true}))
+  expect(await submitMalaysiaSampleRequest(values,{...options,fetcher})).toEqual({kind:'receipt_confirmed'})
+  const [url,init]=(fetcher.mock.calls as unknown as [string,RequestInit][])[0]
+  expect(url).toBe('/api/sample/submit')
+  expect(init.credentials).toBe('same-origin')
+  expect(JSON.parse(String(init.body))).toEqual({values,idempotencyKey:options.idempotencyKey,sourceContext:options.sourceContext})
+  expect(String(init.body)).not.toMatch(/access_key|recipient|receipt_confirmed|environment/)
+ })
+ it.each([{success:true},{ok:true},{receipt_confirmed:true},{ok:false,receipt_confirmed:true}])('rejects incomplete or provider-only acknowledgement %j',async(body)=>{
+  expect(await submitMalaysiaSampleRequest(values,{...options,fetcher:async()=>Response.json(body)})).toEqual({kind:'submission_unconfirmed'})
+ })
+ it('keeps submission fields retryable if server configuration becomes unavailable',async()=>{
+  expect(await submitMalaysiaSampleRequest(values,{...options,fetcher:async()=>Response.json({ok:false,receipt_confirmed:false,unavailable:true},{status:503})})).toEqual({kind:'submission_unconfirmed'})
+ })
+})
 
-  it('uses the idempotency key as the local prerelease test run ID', async () => {
-    const fetcher = vi.fn(async () => new Response(JSON.stringify({success:true}), {status:200,headers:{'content-type':'application/json'}}))
-    await submitMalaysiaSampleRequest(values, {...options, fetcher, environment:'local-prerelease'})
-    const body=JSON.parse(String((fetcher.mock.calls as unknown as Array<[RequestInfo|URL,RequestInit]>)[0]?.[1].body)) as Record<string,unknown>
-    expect(body).toMatchObject({environment:'local-prerelease',test_run_id:options.idempotencyKey,subject:'[LOCAL PRERELEASE] TiO2 Malaysia sample request'})
-    expect(body).not.toHaveProperty('recipient')
-  })
-
-  it('fails unconfirmed for provider ambiguity, non-JSON, 422 and transport errors', async () => {
-    await expect(submitMalaysiaSampleRequest(values, {...options, fetcher:async () => new Response(JSON.stringify({ok:true,receipt_confirmed:false}), {status:200,headers:{'content-type':'application/json'}})})).resolves.toEqual({kind:'submission_unconfirmed'})
-    await expect(submitMalaysiaSampleRequest(values, {...options, fetcher:async () => new Response(JSON.stringify({ok:false,receipt_confirmed:true}), {status:200,headers:{'content-type':'application/json'}})})).resolves.toEqual({kind:'submission_unconfirmed'})
-    await expect(submitMalaysiaSampleRequest(values, {...options, fetcher:async () => new Response(JSON.stringify({success:false}), {status:200,headers:{'content-type':'application/json'}})})).resolves.toEqual({kind:'submission_unconfirmed'})
-    await expect(submitMalaysiaSampleRequest(values, {...options, fetcher:async () => new Response('ok', {status:200,headers:{'content-type':'text/plain'}})})).resolves.toEqual({kind:'submission_unconfirmed'})
-    await expect(submitMalaysiaSampleRequest(values, {...options, fetcher:async () => new Response('{}', {status:422})})).resolves.toEqual({kind:'submission_unconfirmed'})
-    await expect(submitMalaysiaSampleRequest(values, {...options, fetcher:async () => {throw new Error('network')}})).resolves.toEqual({kind:'submission_unconfirmed'})
-  })
+it('retains a retryable result for transient server storage failures',async()=>{
+ expect(await submitMalaysiaSampleRequest(values,{...options,fetcher:async()=>Response.json({ok:false,receipt_confirmed:false},{status:503})})).toEqual({kind:'submission_unconfirmed'})
 })

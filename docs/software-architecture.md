@@ -26,7 +26,10 @@ flowchart TB
   Buyer --> Forms[浏览器表单]
   Forms --> RFQ[RFQ服务端接口与接收适配器]
   RFQ --> Provider[Web3Forms]
-  Forms --> Other[Sample / Documents客户端适配器]
+  Forms --> Sample[Sample站内接收接口 /api/sample/submit]
+  Sample --> Ledger[持久化去重记录：摘要和状态]
+  Sample --> Provider
+  Forms --> Other[Documents客户端适配器]
   Other --> Provider
 ```
 
@@ -44,7 +47,7 @@ flowchart TB
 | SEO | `lib/seo/`及页面metadata、robots/sitemap入口 | 标题、canonical、结构化数据和索引控制；策略按站点/页面/环境区分 |
 | CMS模型 | `wordpress/plugins/tio2-site-model/`；PHP | 自定义内容类型、字段、scope、发布合同、GraphQL字段、预览与更新通知 |
 | 数据与媒体 | WordPress + MariaDB；uploads、`public/` | 内容记录和媒体；按站点/环境归属，不从策划本机目录读取生产数据 |
-| 外部表单接收 | Web3Forms；RFQ经`app/api/rfq/` | RFQ由服务端转交，Sample/Documents仍由客户端适配器调用；服务商返回与实际收件分别验证 |
+| 外部表单接收 | Web3Forms；RFQ经`app/api/rfq/` | RFQ与Sample由服务端转交，Documents由客户端适配器调用；服务商返回与实际收件分别验证 |
 | 环境承载 | 开发Compose、预发布Compose及Node.js进程 | 本地CMS、构建及Web运行；详见第7节 |
 
 这张表说明当前职责，不声称已经强制实现Clean Architecture、DDD或统一分层框架。确切依赖版本以[package-lock.json](../package-lock.json)及当次安装为准；依赖声明见[package.json](../package.json)。预发布容器使用的运行时由[Compose](../ops/prerelease/docker-compose.yml)规定，不用历史设计中的版本号推断当前版本。
@@ -107,7 +110,7 @@ SEO由站点配置、内容合同及页面metadata共同生成。`app/robots.ts`
 
 ## 6. 表单的数据流与外部依赖
 
-Malaysia的RFQ主表单已改为服务端转交；Request Sample、Request Documents仍使用客户端接收适配器。RFQ当前主链路：
+Malaysia的RFQ与Sample主表单已改为服务端转交；Request Documents仍由客户端适配器调用Web3Forms。RFQ当前主链路：
 
 ```text
 浏览器输入 / 预填 / 本地校验
@@ -178,7 +181,7 @@ Compose项目为`d16-tio2-my-prerelease`。配置来自忽略的`.env.prerelease
 | 所有页面采用统一ISR/预生成策略 | 历史设计方向；当前路由和查询策略分别核对 | 双站设计第2节；当前客户端/路由 |
 | 两个Vercel Project、自动CI已经运行 | 设计图不是部署或自动化证据 | 双站设计第4节；vercel.json |
 | Production自动允许索引 | 当前存在页面固定noindex和额外授权开关 | lib/seo/各页面实现 |
-| Malaysia三表单均浏览器直连 / 自有API保存询盘 | RFQ已由自有API转交，Sample/Documents仍走客户端；转交不等于数据库保存 | 本文第6节与适配器 |
+| Malaysia三表单均浏览器直连 / 自有API保存询盘 | RFQ与Sample已由自有API转交，Documents仍走客户端；Sample另保存去重摘要与状态，未建立询盘数据库 | 本文第6节与适配器 |
 | Agent、Superpowers、TDD属于网站模块 | 它们属于开发工作方式，访客请求链路不依赖它们 | 开发交付流程 |
 
 预发布历史设计中的精确版本和当时状态也不替代当前锁文件、Compose及当次运行记录。历史“双站设计”不是无效文件；它保留原决策背景和适用合同，只是不再单独代表当前系统全貌。
@@ -190,3 +193,11 @@ Compose项目为`d16-tio2-my-prerelease`。配置来自忽略的`.env.prerelease
 - 新设计应标明目标状态；完成实现后以源码和运行证据更新现状，不把“拟采用”直接写成“已部署”。
 - 软件架构现状在本文集中维护；站点身份在site-registry，环境具体操作在prerelease-environment，开发流程在development-workflow。各入口引用而不复制整份架构。
 - 本次只整理文档与引用，未修改应用、CMS、测试和部署配置；运行状态、覆盖情况和生产绑定仍需对应任务的独立证据。
+
+### Sample站内接收与持久化去重（Gate8定向返修）
+
+`/api/sample/submit`只在`tio2-my`身份、收件配置与相同key的SHA-256绑定、绝对持久化目录均有效时可用。浏览器仅提交字段、来源上下文和UUID请求标识，不能指定收件人、key、scope或确认字段。站内接口验证字段和同源请求，服务端固定Web3Forms端点、网站及表单元数据。配置绑定证明配置一致性，不代替服务商账户与实际邮箱核对。
+
+服务端先持久化pending记录，再发送；只有HTTP200、JSON、`success===true`且confirmed记录持久化后才返回`ok=true, receipt_confirmed=true`。去重记录只保存版本、scope、带密钥的内容摘要、状态和时间，不保存买家字段、key或provider响应。相同请求标识与内容的成功重试返回已有确认；内容改变返回409；并发、超时、进程中断等未决结果不盲目重发。明确拒绝允许同标识重试。存储或配置不可用时关闭接收。
+
+此实现使用本地持久化目录和文件锁，适用于共享该目录的本地进程；生产部署需核对持久化能力与多实例一致性。未决pending/uncertain记录不可为了重试而自动删除，需先核实原请求。实际邮箱送达仍是独立运营证据，不映射为浏览器同步确认字段。本轮代码/测试不构成真实接收或生产可用证明。

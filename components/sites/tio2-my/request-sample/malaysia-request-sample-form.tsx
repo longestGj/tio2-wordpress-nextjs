@@ -1,7 +1,6 @@
 'use client'
 
 import {useEffect,useRef,useState} from 'react'
-import {resolveSubmissionEnvironment} from '@/lib/forms/submission-environment'
 import type {MalaysiaSamplePrefill} from '@/lib/request-sample/malaysia-request-sample-prefill'
 import {submitMalaysiaSampleRequest} from '@/lib/request-sample/malaysia-request-sample-receiver'
 import {emptyMalaysiaSampleRequestValues,validateMalaysiaSampleRequest,type MalaysiaSampleRequestErrors,type MalaysiaSampleRequestValues} from '@/lib/request-sample/malaysia-request-sample-validation'
@@ -37,7 +36,7 @@ export function MalaysiaRequestSampleForm({page,prefill,receiverReady}:Props){
 
   async function performSubmission(){
     if(pendingRef.current||transitionStartedRef.current)return;if(completedRef.current){try{navigateToMalaysiaThankYou('sample'); transitionStartedRef.current = true}catch{setState('failure')}return};pendingRef.current=true;setErrors({});setState('submitting')
-    try{keyRef.current??=createSampleRequestIdempotencyKey();const result=await submitMalaysiaSampleRequest(values,{accessKey:process.env.NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY??null,idempotencyKey:keyRef.current,sourceContext:context,environment:resolveSubmissionEnvironment(process.env.NEXT_PUBLIC_TIO2_RUNTIME_ENVIRONMENT)})
+    try{keyRef.current??=createSampleRequestIdempotencyKey();const result=await submitMalaysiaSampleRequest(values,{idempotencyKey:keyRef.current,sourceContext:context})
       if(result.kind==='receipt_confirmed'){completedRef.current=true;navigateToMalaysiaThankYou('sample'); transitionStartedRef.current = true}
       else if(result.kind==='validation_failed'&&Object.keys(result.errors).length){setErrors(result.errors);setState('ready');setAttempt((value)=>value+1)}
       else if(result.kind==='unavailable')setState('unavailable');else setState('failure')
