@@ -41,6 +41,22 @@ describe('CONV-DOC receiver boundary', () => {
     })
     expect(payload).not.toHaveProperty('recipient')
     expect(payload).not.toHaveProperty('to')
+    expect(payload).not.toHaveProperty('environment')
+    expect(payload).not.toHaveProperty('test_run_id')
+    expect(payload.subject).toBe('TiO2 Malaysia document request')
+  })
+
+  it('uses the request token as the local prerelease test run ID', async () => {
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({success: true}), {
+      status: 200, headers: {'content-type': 'application/json'},
+    }))
+    await submitMalaysiaRequestDocuments(values, {...options, fetcher, environment: 'local-prerelease'})
+    const payload = JSON.parse(String((fetcher.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>)[0]?.[1]?.body)) as Record<string, unknown>
+    expect(payload).toMatchObject({
+      environment: 'local-prerelease', test_run_id: 'req-1',
+      subject: '[LOCAL PRERELEASE] TiO2 Malaysia document request',
+    })
+    expect(payload).not.toHaveProperty('recipient')
   })
 
   it('cannot redirect the public routing key or buyer data to another endpoint', async () => {

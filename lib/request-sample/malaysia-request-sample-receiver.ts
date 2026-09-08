@@ -1,4 +1,5 @@
 import {validateMalaysiaSampleRequest, type MalaysiaSampleRequestErrors, type MalaysiaSampleRequestValues} from './malaysia-request-sample-validation'
+import {buildSubmissionEnvironment,type SubmissionEnvironment} from '@/lib/forms/submission-environment'
 
 type Fetcher = (input: string | URL | Request, init?: RequestInit) => Promise<Response>
 export type MalaysiaSampleReceiverResult =
@@ -14,7 +15,7 @@ export interface MalaysiaSampleSourceContext {
   readonly resource_context?: string
 }
 
-interface Options {readonly accessKey:string|null;readonly idempotencyKey:string;readonly sourceContext?:MalaysiaSampleSourceContext;readonly fetcher?:Fetcher;readonly timeoutMs?:number}
+interface Options {readonly accessKey:string|null;readonly idempotencyKey:string;readonly sourceContext?:MalaysiaSampleSourceContext;readonly fetcher?:Fetcher;readonly timeoutMs?:number;readonly environment?:SubmissionEnvironment}
 const WEB3FORMS_ENDPOINT='https://api.web3forms.com/submit'
 export const MALAYSIA_SAMPLE_SUBMISSION_TIMEOUT_MS=12_000
 const trim = (value:string) => value.trim()
@@ -27,12 +28,14 @@ export async function submitMalaysiaSampleRequest(values:MalaysiaSampleRequestVa
   const controller=new AbortController()
   const timeoutMs=options.timeoutMs&&Number.isFinite(options.timeoutMs)&&options.timeoutMs>0?options.timeoutMs:MALAYSIA_SAMPLE_SUBMISSION_TIMEOUT_MS
   const sourceContext=options.sourceContext
+  const submissionEnvironment=buildSubmissionEnvironment(options.environment??undefined,options.idempotencyKey,'TiO2 Malaysia sample request')
   const payload={
     access_key:accessKey,
-    subject:'TiO2 Malaysia sample request',
+    subject:submissionEnvironment.subject,
     from_name:'TiO2 Malaysia Request a Sample',
     email:trim(values.business_email),
     site_scope:'tio2-my',request_type:'sample_request',page_id:'CONV-SAMPLE',workflow:'request_sample',idempotency_key:options.idempotencyKey,
+    ...submissionEnvironment.fields,
     form_version:'request-sample-v0.1-malaysia',privacy_notice_version:'CONV-SAMPLE-G7-HANDOFF-01',
     grade_id:values.grade_id,
     application_id:values.application_id,
