@@ -1,0 +1,13 @@
+
+> test
+> vitest run tests/unit/legal tests/unit/thank-you tests/unit/rfq tests/integration/rfq tests/unit/request-documents tests/unit/request-sample tests/unit/applications tests/integration/applications tests/infrastructure/tio2-my-global-chrome-contract.test.ts --exclude .prerelease/** --exclude .tmp/** --exclude tmp/**
+
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/sys404-convthank-gate8
+
+
+ Test Files  44 passed (44)
+      Tests  314 passed (314)
+   Start at  21:45:26
+   Duration  11.02s (transform 1.86s, setup 6.25s, import 5.05s, tests 22.69s, environment 3.35s)
+
