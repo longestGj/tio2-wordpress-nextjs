@@ -1,4 +1,5 @@
 import type {MalaysiaRfqValues} from './malaysia-rfq-validation'
+import {buildSubmissionEnvironment, type SubmissionEnvironment} from '@/lib/forms/submission-environment'
 
 export interface MalaysiaRfqSubmission extends MalaysiaRfqValues {
   readonly source_page_id: string | null
@@ -15,6 +16,7 @@ interface SubmitOptions {
   readonly fetcher?: typeof fetch
   readonly endpoint?: string
   readonly timeoutMs?: number
+  readonly environment?: SubmissionEnvironment
 }
 
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
@@ -32,9 +34,14 @@ export async function submitMalaysiaRfq(
     : MALAYSIA_RFQ_SUBMISSION_TIMEOUT_MS
   const controller = new AbortController()
   const requestToken = globalThis.crypto?.randomUUID?.() ?? `rfq-${Date.now()}`
+  const submissionEnvironment = buildSubmissionEnvironment(
+    options.environment ?? undefined,
+    requestToken,
+    'TiO2 Malaysia quotation request',
+  )
   const payload = {
     access_key: options.accessKey,
-    subject: 'TiO2 Malaysia quotation request',
+    subject: submissionEnvironment.subject,
     from_name: 'TiO2 Malaysia RFQ',
     email: submission.business_email,
     site_scope: 'tio2-my',
@@ -42,6 +49,7 @@ export async function submitMalaysiaRfq(
     workflow_type: 'rfq',
     locale: 'en',
     request_token: requestToken,
+    ...submissionEnvironment.fields,
     grade_id: submission.grade_id,
     application_id: submission.application_id,
     quantity_mt: submission.quantity_mt,

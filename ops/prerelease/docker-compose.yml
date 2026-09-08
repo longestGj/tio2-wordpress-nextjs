@@ -1,0 +1,124 @@
+services:
+  db:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: ${WORDPRESS_DB_NAME}
+      MARIADB_USER: ${WORDPRESS_DB_USER}
+      MARIADB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${WORDPRESS_DB_ROOT_PASSWORD}
+    volumes:
+      - prerelease_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -u root -p$${MARIADB_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  wordpress:
+    image: wordpress:php8.3-apache
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:8180:80
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      NEXTJS_REVALIDATION_URL_TIO2_MY: http://web:3000/api/revalidate
+      NEXTJS_REVALIDATION_SECRET_TIO2_MY: ${NEXTJS_REVALIDATION_SECRET_TIO2_MY}
+      NEXTJS_PREVIEW_URL_TIO2_MY: http://web:3000/api/preview
+      NEXTJS_PREVIEW_SECRET_TIO2_MY: ${NEXTJS_PREVIEW_SECRET_TIO2_MY}
+      WORDPRESS_CONFIG_EXTRA: define('WP_ENVIRONMENT_TYPE', 'local');
+    volumes:
+      - prerelease_wp:/var/www/html
+      - ${PRERELEASE_SOURCE_DIR}/wordpress/plugins/tio2-site-model:/var/www/html/wp-content/plugins/tio2-site-model:ro
+    healthcheck:
+      test: ["CMD-SHELL", "php -r 'exit(@file_get_contents(\"http://localhost/\") === false ? 1 : 0);'"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  wpcli:
+    image: wordpress:cli-php8.3
+    profiles: ["tools"]
+    depends_on:
+      db:
+        condition: service_healthy
+      wordpress:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_ADMIN_USER: ${WORDPRESS_ADMIN_USER}
+      WORDPRESS_ADMIN_PASSWORD: ${WORDPRESS_ADMIN_PASSWORD}
+      WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL}
+    volumes:
+      - prerelease_wp:/var/www/html
+      - ${PRERELEASE_SOURCE_DIR}/wordpress/plugins/tio2-site-model:/var/www/html/wp-content/plugins/tio2-site-model:ro
+      - ${PRERELEASE_SOURCE_DIR}/wordpress/seed:/workspace/wordpress/seed:ro
+      - ${PRERELEASE_SOURCE_DIR}/wordpress/bootstrap:/workspace/wordpress/bootstrap:ro
+      - ${PRERELEASE_SOURCE_DIR}/ops/prerelease:/workspace/ops/prerelease:ro
+      - ${PRERELEASE_RUN_DIR}/seed-support:/workspace/.tmp
+      - ${PRERELEASE_RUN_DIR}:/run-state
+    working_dir: /var/www/html
+
+  builder:
+    image: node:24.16-bookworm-slim
+    profiles: ["tools"]
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    working_dir: /workspace
+    command: ["bash", "-lc", "npm ci --cache /npm-cache && npm run build"]
+    environment: &next_environment
+      SITE_ID: tio2-my
+      NEXT_DIST_DIR: .next-prerelease
+      WORDPRESS_GRAPHQL_URL: http://wordpress/graphql
+      WORDPRESS_PREVIEW_URL: http://wordpress/wp-json/tio2/v1/preview
+      WORDPRESS_PREVIEW_SECRET: ${NEXTJS_PREVIEW_SECRET_TIO2_MY}
+      REVALIDATION_SECRET: ${NEXTJS_REVALIDATION_SECRET_TIO2_MY}
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3100
+      NEXT_PUBLIC_TIO2_RUNTIME_ENVIRONMENT: local-prerelease
+      PRERELEASE_RUN_ID: ${PRERELEASE_RUN_ID:-unbound}
+      PRERELEASE_SOURCE_COMMIT: ${PRERELEASE_SOURCE_COMMIT:-unbound}
+      PRERELEASE_NEXT_BUILD_ID: ${PRERELEASE_NEXT_BUILD_ID:-building}
+      NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY: ${NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY}
+      TIO2_MY_REQUEST_SAMPLE_READY: "true"
+      TIO2_MY_REQUEST_DOCUMENTS_READY: "true"
+      VERCEL_ENV: preview
+      SEO_ALLOW_INDEXING_LOCAL_TEST: "false"
+      TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED: "false"
+      TIO2_MY_REQUEST_SAMPLE_INDEXING_RELEASE_AUTHORIZED: "false"
+      TIO2_MY_REQUEST_DOCUMENTS_INDEXING_RELEASE_AUTHORIZED: "false"
+    volumes:
+      - ${PRERELEASE_SOURCE_DIR}:/workspace
+      - prerelease_npm_cache:/npm-cache
+      - ${PRERELEASE_RUN_DIR}:/run-state
+
+  web:
+    image: node:24.16-bookworm-slim
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    working_dir: /workspace
+    command: ["node", "node_modules/next/dist/bin/next", "start", "--hostname", "0.0.0.0", "--port", "3000"]
+    environment: *next_environment
+    ports:
+      - 127.0.0.1:3100:3000
+    volumes:
+      - ${PRERELEASE_SOURCE_DIR}:/workspace
+      - ${PRERELEASE_RUN_DIR}:/run-state
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  prerelease_db:
+  prerelease_wp:
+  prerelease_npm_cache:

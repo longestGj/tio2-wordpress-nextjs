@@ -2,6 +2,7 @@
 
 import {useEffect, useMemo, useRef, useState} from 'react'
 
+import {resolveSubmissionEnvironment} from '@/lib/forms/submission-environment'
 import {
   normalizeMalaysiaRequestDocumentsMarketId,
   normalizeMalaysiaRequestDocumentsSourcePageId,
@@ -122,6 +123,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
           applicationIndustry: values.application_industry,
         }),
         marketId: normalizeMalaysiaRequestDocumentsMarketId(prefill.marketId),
+        environment: resolveSubmissionEnvironment(process.env.NEXT_PUBLIC_TIO2_RUNTIME_ENVIRONMENT),
       })
       if (result.kind === 'receipt_confirmed') {
         setState('success')

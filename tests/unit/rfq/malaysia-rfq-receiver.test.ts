@@ -22,6 +22,24 @@ describe('CONV-RFQ Web3Forms receiver', () => {
     const calls = fetcher.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
     const body = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
     expect(body).toMatchObject({site_scope: 'tio2-my', page_id: 'CONV-RFQ'})
+    expect(body).not.toHaveProperty('environment')
+    expect(body).not.toHaveProperty('test_run_id')
+    expect(body.subject).toBe('TiO2 Malaysia quotation request')
+  })
+
+  it('marks a prerelease request with its generated request token', async () => {
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({success: true}), {
+      status: 200, headers: {'content-type': 'application/json'},
+    }))
+    await submitMalaysiaRfq(submission, {accessKey: 'test-key', fetcher, environment: 'local-prerelease'})
+    const body = JSON.parse(String((fetcher.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>)[0]?.[1]?.body)) as Record<string, unknown>
+    expect(body).toMatchObject({
+      environment: 'local-prerelease',
+      test_run_id: body.request_token,
+      subject: '[LOCAL PRERELEASE] TiO2 Malaysia quotation request',
+    })
+    expect(body).not.toHaveProperty('recipient')
+    expect(body).not.toHaveProperty('to')
   })
 
   it('captures only the approved generic RES-ORIGIN interest value', async () => {

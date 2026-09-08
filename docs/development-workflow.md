@@ -79,6 +79,12 @@ D16可以指出内容或设计冲突并提出具体修改建议；不自行改�
 
 `verify:local`、`sites:start`等现有脚本可能覆盖多个站点或带有本地数据操作；先读当前脚本范围，不因名字包含local/verify就把它当作单页只读检查。`verify:root-only`继续遵守根文件的专门授权限制。
 
+### `tio2-my`本地预发布环境
+
+完成本地`main`串行集成后，使用[本地预发布环境](prerelease-environment.md)进行`tio2-my`全站组合测试。它从干净`main`的精确commit生成冻结源码，绑定独立WordPress/MariaDB、Next Build ID、CMS身份和loopback runtime。feature runtime用于开发中定向检查；本地预发布用于集成后的全站本地检查；远程Preview和Production仍是不同环境及授权范围。
+
+`HEALTHY`只证明当前本地预发布组合内部一致并通过规定的只读检查，不自动形成Gate 9通过、`INTEGRATION_READY`、Gate 10、部署或发布授权。普通测试阻止非GET请求；真实RFQ、Sample和Documents测试只能通过显式live命令及本地开关执行，并分别报告服务商接受与人工收件确认。
+
 ## 5. 回执与独立验收
 
 沿用`docs/verification/`已有对应页面或功能位置；新网站使用`docs/verification/<site-id>/<task-id>/`避免重名。已有路径不批量迁移。一次任务用一份主回执链接详细证据即可，不为每个状态新增一套报告。

@@ -2,6 +2,7 @@
 
 import {useEffect, useRef, useState} from 'react'
 
+import {resolveSubmissionEnvironment} from '@/lib/forms/submission-environment'
 import {emitMalaysiaRfqAnalyticsEvent} from '@/lib/rfq/malaysia-rfq-analytics'
 import {toMalaysiaRfqHistoryDraft} from '@/lib/rfq/malaysia-rfq-history'
 import type {MalaysiaRfqPrefill} from '@/lib/rfq/malaysia-rfq-prefill'
@@ -96,7 +97,10 @@ export function MalaysiaRfqForm({prefill, receiverAccessKey, privacyPolicyHref}:
       ...values,
       source_page_id: prefill.sourcePageId,
       interest: prefill.interest ?? null,
-    }, {accessKey: receiverAccessKey})
+    }, {
+      accessKey: receiverAccessKey,
+      environment: resolveSubmissionEnvironment(process.env.NEXT_PUBLIC_TIO2_RUNTIME_ENVIRONMENT),
+    })
     pendingRef.current = false
     setState(result.kind)
     if (result.kind === 'receipt_confirmed') emitMalaysiaRfqAnalyticsEvent('rfq_receipt_confirmed')

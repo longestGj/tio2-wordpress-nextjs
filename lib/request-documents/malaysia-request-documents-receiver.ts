@@ -4,6 +4,7 @@ import {
   type MalaysiaRequestDocumentsErrors,
   type MalaysiaRequestDocumentsValues,
 } from './malaysia-request-documents-validation'
+import {buildSubmissionEnvironment, type SubmissionEnvironment} from '@/lib/forms/submission-environment'
 
 type Fetcher = (input: string | URL | Request, init?: RequestInit) => Promise<Response>
 
@@ -20,6 +21,7 @@ interface ReceiverOptions {
   readonly marketId: string | null
   readonly fetcher?: Fetcher
   readonly timeoutMs?: number
+  readonly environment?: SubmissionEnvironment
 }
 
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
@@ -40,14 +42,20 @@ export async function submitMalaysiaRequestDocuments(
     : MALAYSIA_REQUEST_DOCUMENTS_SUBMISSION_TIMEOUT_MS
   const controller = new AbortController()
   const normalizedValues = normalizeMalaysiaRequestDocumentsValues(values)
+  const submissionEnvironment = buildSubmissionEnvironment(
+    options.environment ?? undefined,
+    options.requestToken,
+    'TiO2 Malaysia document request',
+  )
   const payload = {
     access_key: accessKey,
-    subject: 'TiO2 Malaysia document request',
+    subject: submissionEnvironment.subject,
     from_name: 'TiO2 Malaysia Request Documents',
     email: normalizedValues.business_email,
     ...normalizedValues,
     site_scope: 'tio2-my', page_id: 'CONV-DOC', workflow: 'request_documents',
     request_token: options.requestToken,
+    ...submissionEnvironment.fields,
     ...(options.sourcePageId ? {source_page_id: options.sourcePageId} : {}),
     ...(options.marketId ? {market_id: options.marketId} : {}),
   }
