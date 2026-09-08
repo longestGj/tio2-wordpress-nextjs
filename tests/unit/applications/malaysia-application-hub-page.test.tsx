@@ -48,4 +48,40 @@ describe('APP-000 renderer', () => {
     expect((markup.match(/data-grade-occurrence=/gu) ?? [])).toHaveLength(30)
     expect(markup).toContain('data-module="evaluation-guide"')
   })
+
+  it('renders the exact full, applications-only, grades-only, mixed and no-destination variants', () => {
+    const applicationIds = contract.applications.flatMap((item) => item.targetPageId ? [item.targetPageId] : [])
+    const gradeIds = [...new Set(contract.applications.flatMap((item) => item.grades.map((grade) => grade.targetPageId)))]
+    const supportIds = contract.support.items.map((item) => item.targetPageId)
+    const off = (ids: readonly string[]) => Object.fromEntries(ids.map((id) => [id, false]))
+
+    const full = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={dto()} />)
+    expect(full).toContain(contract.applicationPaths.sentences.both)
+
+    const gradesOnly = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={dto(off(applicationIds))} />)
+    expect(gradesOnly).toContain(contract.applicationPaths.sentences.gradesOnly)
+    expect(gradesOnly).not.toContain(contract.applicationPaths.sentences.applicationsOnly)
+
+    const applicationsOnly = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={dto(off(gradeIds))} />)
+    expect(applicationsOnly).toContain(contract.applicationPaths.sentences.applicationsOnly)
+    expect(applicationsOnly).not.toContain(contract.applicationPaths.sentences.gradesOnly)
+
+    const mixed = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={dto({'APP-COAT': false, 'GRADE-M350': false})} />)
+    expect(mixed).toContain(contract.applicationPaths.sentences.both)
+    expect(mixed).not.toContain('data-application-action="APP-COAT"')
+    expect(mixed).toContain('data-grade-state="plain"')
+
+    const noDestination = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={dto({
+      ...off(applicationIds), ...off(gradeIds), ...off(supportIds), 'CONV-RFQ': false,
+    })} />)
+    expect(noDestination).toContain(applicationHubQualification())
+    expect(noDestination).not.toContain(contract.applicationPaths.sentences.both)
+    expect(noDestination).not.toContain('data-module="procurement-paths"')
+    expect(noDestination).not.toContain('data-module="final-rfq"')
+    expect((noDestination.match(/data-grade-state="plain"/gu) ?? [])).toHaveLength(30)
+  })
 })
+
+function applicationHubQualification(): string {
+  return contract.applicationPaths.qualification
+}

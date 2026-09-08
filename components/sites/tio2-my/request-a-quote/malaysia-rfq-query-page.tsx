@@ -7,6 +7,7 @@ import {mergeMalaysiaRfqHistoryDraft} from '@/lib/rfq/malaysia-rfq-history'
 import {resolveMalaysiaRfqPrefill, type MalaysiaRfqPrefill} from '@/lib/rfq/malaysia-rfq-prefill'
 import type {MalaysiaRfqPageDto} from '@/lib/wordpress/rfq-page-v01-types'
 
+import {MALAYSIA_RFQ_PRIVATE_SOURCE_STATE_KEY} from './malaysia-private-rfq-link'
 import {MalaysiaRfqPage} from './malaysia-rfq-page'
 
 interface Props {
@@ -16,7 +17,7 @@ interface Props {
   readonly structuredData: ReactNode
 }
 
-const RFQ_EMPTY_BROWSER_CONTEXT = JSON.stringify(['', null])
+const RFQ_EMPTY_BROWSER_CONTEXT = JSON.stringify(['', null, null])
 const subscribeToLocation = (callback: () => void) => {
   window.addEventListener('popstate', callback)
   window.addEventListener('pageshow', callback)
@@ -28,6 +29,7 @@ const subscribeToLocation = (callback: () => void) => {
 const getBrowserContext = () => JSON.stringify([
   window.location.search,
   window.history.state?.tio2MyRfqDraft ?? null,
+  window.history.state?.[MALAYSIA_RFQ_PRIVATE_SOURCE_STATE_KEY] ?? null,
 ])
 const getServerContext = () => RFQ_EMPTY_BROWSER_CONTEXT
 
@@ -54,7 +56,13 @@ export function MalaysiaRfqQueryPage(props: Props) {
     getBrowserContext,
     getServerContext,
   )
-  const [search, draft] = JSON.parse(context) as [string, unknown]
-  const prefill = mergeMalaysiaRfqHistoryDraft(resolvePrefill(search), draft)
+  const [search, draft, privateSource] = JSON.parse(context) as [string, unknown, unknown]
+  const publicPrefill = resolvePrefill(search)
+  const prefill = mergeMalaysiaRfqHistoryDraft(
+    publicPrefill.sourcePageId || typeof privateSource !== 'string'
+      ? publicPrefill
+      : resolveMalaysiaRfqPrefill({source_page_id: privateSource}),
+    draft,
+  )
   return <MalaysiaRfqPage key={JSON.stringify(prefill)} {...props} prefill={prefill} />
 }

@@ -8,6 +8,7 @@ import type {Tio2MyGlobalChrome} from '@/lib/wordpress/tio2-my-global-chrome-typ
 
 import styles from './malaysia-global-chrome.module.css'
 import {MalaysiaCookieSettingsHost, MalaysiaCookieSettingsTrigger} from './consent/malaysia-cookie-settings'
+import {MalaysiaPrivateRfqLink} from './request-a-quote/malaysia-private-rfq-link'
 
 interface GlobalChromeProps {
   readonly chrome: Tio2MyGlobalChrome
@@ -24,6 +25,24 @@ function rfqAttributes(sourcePageId: string) {
     'data-site-scope': 'tio2-my',
     'data-source-page': sourcePageId,
   } as const
+}
+
+function RfqLink({
+  children,
+  className,
+  href,
+  onClick,
+  sourcePageId,
+}: {
+  readonly children: React.ReactNode
+  readonly className?: string
+  readonly href: string
+  readonly onClick?: () => void
+  readonly sourcePageId: string
+}) {
+  return sourcePageId === 'APP-000'
+    ? <MalaysiaPrivateRfqLink className={className} href={href} sourcePageId={sourcePageId} onClick={onClick}>{children}</MalaysiaPrivateRfqLink>
+    : <a className={className} href={href} {...rfqAttributes(sourcePageId)} onClick={onClick}>{children}</a>
 }
 
 export function MalaysiaGlobalHeader({
@@ -143,7 +162,7 @@ export function MalaysiaGlobalHeader({
         <span>{item.label}</span>
       </a>
     })}
-    <a href={chrome.rfq.href} {...rfqAttributes(sourcePageId)}>{chrome.rfq.label}</a>
+    <RfqLink href={chrome.rfq.href} sourcePageId={sourcePageId}>{chrome.rfq.label}</RfqLink>
   </nav>
 
   return (
@@ -169,10 +188,10 @@ export function MalaysiaGlobalHeader({
             )
           })}
         </nav>
-        <a className={styles.headerRfq} href={chrome.rfq.href} {...rfqAttributes(sourcePageId)}>
+        <RfqLink className={styles.headerRfq} href={chrome.rfq.href} sourcePageId={sourcePageId}>
           <span className={styles.rfqFull}>{chrome.rfq.label}</span>
           <span className={styles.rfqCompact}>{chrome.rfq.compactLabel}</span>
-        </a>
+        </RfqLink>
         <button
           ref={buttonRef}
           type="button"
@@ -196,7 +215,7 @@ export function MalaysiaGlobalHeader({
       >
         <div className={styles.menuTopbar}>
           <Image src={chrome.logo.primary.src} alt={chrome.logo.primary.alt} width={120} height={40} className={styles.menuLogo} />
-          <a className={styles.headerRfq} href={chrome.rfq.href} {...rfqAttributes(sourcePageId)} onClick={() => setOpen(false)}>{chrome.rfq.compactLabel}</a>
+          <RfqLink className={styles.headerRfq} href={chrome.rfq.href} sourcePageId={sourcePageId} onClick={() => setOpen(false)}>{chrome.rfq.compactLabel}</RfqLink>
           <button ref={closeRef} type="button" className={styles.menuClose} aria-label="Close primary navigation menu" onClick={() => setOpen(false)}>Close</button>
         </div>
         {mobileNavigation}
@@ -239,9 +258,9 @@ export function MalaysiaGlobalFooter({
         </nav>
         <div className={styles.conversionColumn}>
           <h2>{chrome.footer.headings.procurement}</h2>
-          <a className={styles.footerRfq} href={chrome.rfq.href} {...rfqAttributes(sourcePageId)}>
+          <RfqLink className={styles.footerRfq} href={chrome.rfq.href} sourcePageId={sourcePageId}>
             {chrome.rfq.label}
-          </a>
+          </RfqLink>
         </div>
       </div>
       <nav className={styles.legalUtilities} aria-label="Legal and privacy navigation">

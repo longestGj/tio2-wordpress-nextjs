@@ -1,6 +1,7 @@
 import type {MalaysiaApplicationHubDto} from '@/lib/wordpress/application-hub-v01-types'
 
 import {MalaysiaGlobalFooter, MalaysiaGlobalHeader} from '../malaysia-global-chrome'
+import {MalaysiaPrivateRfqLink} from '../request-a-quote/malaysia-private-rfq-link'
 import styles from './malaysia-application-hub.module.css'
 
 export function MalaysiaApplicationHub({
@@ -52,7 +53,7 @@ export function MalaysiaApplicationHub({
             <p className={styles.lead}>{applicationHub.hero.intro}</p>
             <div className={styles.actions}>
               <a className={styles.primaryButton} href={applicationHub.hero.primaryAction.href}>{applicationHub.hero.primaryAction.label}</a>
-              {rfqReady ? <a className={styles.outlineButton} href={applicationHub.hero.rfq.href} data-source-page="APP-000">{applicationHub.hero.rfq.label}</a> : null}
+              {rfqReady ? <MalaysiaPrivateRfqLink className={styles.outlineButton} href={applicationHub.hero.rfq.href} sourcePageId="APP-000">{applicationHub.hero.rfq.label}</MalaysiaPrivateRfqLink> : null}
             </div>
           </div>
           <nav className={styles.heroIndex} aria-label={applicationHub.hero.selectorLabel}>
@@ -128,7 +129,7 @@ export function MalaysiaApplicationHub({
             <h2 id="final-rfq-heading">{applicationHub.finalRfq.heading}</h2>
             <p>{applicationHub.finalRfq.body}</p>
             <p className={styles.rfqNote}>{applicationHub.finalRfq.note}</p>
-            <a className={styles.primaryButton} href={applicationHub.finalRfq.action.href} data-source-page="APP-000">{applicationHub.finalRfq.action.label}</a>
+            <MalaysiaPrivateRfqLink className={styles.primaryButton} href={applicationHub.finalRfq.action.href} sourcePageId="APP-000">{applicationHub.finalRfq.action.label}</MalaysiaPrivateRfqLink>
           </section>
         ) : null}
         </div>

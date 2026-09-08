@@ -69,3 +69,34 @@ test('mobile menu, same-page navigation and cookie settings remain operable', as
   await expect(page.getByRole('dialog')).toBeVisible()
   if (testInfo.project.name === 'chromium') await page.screenshot({path: resolve(evidence, 'app000-mobile-cookie-settings.png'), fullPage: true, animations: 'disabled'})
 })
+
+test('RFQ handoff keeps a clean URL and sends private APP-000 attribution without preselecting buyer fields', async ({page}) => {
+  let submitted: Record<string, unknown> | null = null
+  await page.route('https://api.web3forms.com/submit', async (route) => {
+    submitted = route.request().postDataJSON() as Record<string, unknown>
+    await route.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({success: false})})
+  })
+  await page.goto('/applications/', {waitUntil: 'networkidle'})
+  await page.locator('main').getByRole('link', {name: 'Request a Quote'}).first().click()
+  await expect(page).toHaveURL(/\/request-a-quote\/$/u)
+  expect(new URL(page.url()).search).toBe('')
+  await expect(page.locator('#rfq-grade_id')).toHaveValue('')
+  await expect(page.locator('#rfq-application_id')).toHaveValue('')
+
+  await page.locator('#rfq-grade_id').selectOption('M-350')
+  await page.locator('#rfq-application_id').selectOption('Coatings')
+  await page.locator('#rfq-quantity_mt').fill('12')
+  await page.locator('#rfq-destination_country').fill('Malaysia')
+  await page.locator('#rfq-company_name').fill('Gate 8 Test Company')
+  await page.locator('#rfq-contact_name').fill('Gate 8 Tester')
+  await page.locator('#rfq-business_email').fill('gate8@example.com')
+  await page.getByRole('button', {name: 'REQUEST QUOTE'}).click()
+  await expect(page.getByRole('alert')).toContainText('Something went wrong')
+  expect(submitted).toMatchObject({
+    page_id: 'CONV-RFQ',
+    site_scope: 'tio2-my',
+    source_page_id: 'APP-000',
+    grade_id: 'M-350',
+    application_id: 'Coatings',
+  })
+})
