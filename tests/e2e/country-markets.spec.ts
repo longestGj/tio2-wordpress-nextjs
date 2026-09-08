@@ -15,7 +15,7 @@ interface CountryContract {
 
 const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3029'
 const wordpressUrl = process.env.WORDPRESS_GRAPHQL_URL
-const evidenceRoot = 'docs/verification/tio2-my/market-four-gate9-repair-20260908/screenshots'
+const evidenceRoot = 'docs/verification/tio2-my/market-four-gate9-es-f01-repair-20260908/screenshots'
 const pages = [
   ['spain', 'tio2-my-market-eu-es.json'],
   ['india', 'tio2-my-market-in-001.json'],
@@ -32,7 +32,7 @@ const runtimeEvidence: Record<string, unknown> = {}
 
 mkdirSync(evidenceRoot, {recursive: true})
 test.afterAll(() => writeFileSync(
-  'docs/verification/tio2-my/market-four-gate9-repair-20260908/runtime-matrix.json',
+  'docs/verification/tio2-my/market-four-gate9-es-f01-repair-20260908/runtime-matrix.json',
   `${JSON.stringify(runtimeEvidence, null, 2)}\n`,
 ))
 
@@ -324,13 +324,32 @@ test('Spain preserves the approved typography, action geometry, hover and keyboa
   await primary.hover()
   await expect(primary).toHaveCSS('color', 'rgb(255, 255, 255)')
   await expect(primary).toHaveCSS('background-color', 'rgb(0, 128, 120)')
+  await expect(primary).toHaveCSS('text-decoration-line', 'underline')
   await expect(primary).toHaveCSS('text-decoration-thickness', '2px')
 
-  for (const link of [secondary, page.locator('main nav[aria-label="Breadcrumb"] a').first()]) {
+  for (const [kind, link] of [
+    ['secondary', secondary],
+    ['breadcrumb', page.locator('main nav[aria-label="Breadcrumb"] a').first()],
+  ] as const) {
     await link.hover()
     await expect(link).toHaveCSS('color', 'rgb(0, 128, 120)')
     await expect(link).toHaveCSS('background-color', 'rgb(245, 248, 251)')
+    await expect(link).toHaveCSS('text-decoration-line', 'underline')
     await expect(link).toHaveCSS('text-decoration-thickness', '2px')
+    if (kind === 'secondary') {
+      const bytes = await page.screenshot({
+        path: `${evidenceRoot}/spain-1440-secondary-hover.png`,
+        fullPage: false,
+        animations: 'disabled',
+      })
+      runtimeEvidence['MARKET-EU-ES-secondary-hover'] = {
+        backgroundColor: 'rgb(245, 248, 251)',
+        color: 'rgb(0, 128, 120)',
+        screenshotSha256: createHash('sha256').update(bytes).digest('hex'),
+        textDecorationLine: 'underline',
+        textDecorationThickness: '2px',
+      }
+    }
     await link.focus()
     expect(await link.evaluate((node) => node.matches(':focus-visible'))).toBe(true)
     await expect(link).toHaveCSS('outline-offset', '3px')

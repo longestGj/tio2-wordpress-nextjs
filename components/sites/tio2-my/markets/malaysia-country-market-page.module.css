@@ -89,7 +89,7 @@
 .site[data-page-id='MARKET-EU-ES'] .relatedActions .text + .text::before { content:'·'; margin-right:8px; color:#334155; text-decoration:none; }
 .site[data-page-id='MARKET-EU-ES'] .main a:focus-visible { outline-offset:3px; }
 .site[data-page-id='MARKET-EU-ES'] .actions a { min-height:50px; padding:13px 24px; }
-.site[data-page-id='MARKET-EU-ES'] .main a:hover { color:#008078; background:#f5f8fb; text-decoration-thickness:2px; }
+.site[data-page-id='MARKET-EU-ES'] .main a:hover { color:#008078; background:#f5f8fb; text-decoration-line:underline; text-decoration-thickness:2px; }
 .site[data-page-id='MARKET-EU-ES'] .actions .primary:hover { color:#fff; border-color:#008078; background:#008078; text-decoration:underline; text-decoration-thickness:2px; }
 .site[data-page-id='MARKET-EU-ES'] .actions .text:hover { color:#008078; background:#f5f8fb; }
 
