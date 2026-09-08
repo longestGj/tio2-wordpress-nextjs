@@ -40,6 +40,8 @@ describe('prerelease WordPress bootstrap contract', () => {
     expect(script).toContain('seed_record_is_current')
     expect(script).toContain('wp option get d16_prerelease_seed_records 2>/dev/null')
     expect(script).not.toContain('wp option get d16_prerelease_seed_records --format=json')
+    expect(script).toContain('if [[ "$next_records" != "$current" ]]')
+    expect(script).toContain('if [[ "$existing_marker" != "$seed_path" ]]')
     expect(script.indexOf('verify_seed_manifest')).toBeLessThan(script.indexOf('wp eval-file'))
     expect(script).toMatch(/validate-prerelease-site\.php[\s\S]*collect-cms-identity\.sh/)
   })
