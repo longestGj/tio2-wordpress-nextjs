@@ -358,11 +358,16 @@ try {
                 $env:TIO2_PRERELEASE_EVIDENCE_DIR = $evidenceRoot
                 $env:TIO2_PRERELEASE_COMMAND_UUID = $commandUuid
                 Push-Location $RepositoryRoot
+                $previousTestErrorActionPreference = $ErrorActionPreference
                 try {
+                    $ErrorActionPreference = 'Continue'
                     $testOutput = @(& $NpxExecutable playwright test $actionPlan.spec --workers=1 2>&1)
                     $testExit = $LASTEXITCODE
                 }
-                finally { Pop-Location }
+                finally {
+                    $ErrorActionPreference = $previousTestErrorActionPreference
+                    Pop-Location
+                }
                 if ($testExit -ne 0) { throw "$Action Playwright suite failed with exit code $testExit." }
             }
             finally {

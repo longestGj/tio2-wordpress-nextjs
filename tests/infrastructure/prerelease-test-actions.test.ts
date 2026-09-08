@@ -51,6 +51,13 @@ describe.runIf(process.platform === 'win32')('prerelease test action boundaries'
     expect(output).not.toMatch(/access.?key|email|contact/i)
   })
 
+  it('uses the native Playwright exit code when Node writes warnings to stderr', () => {
+    const controller = readFileSync(controllerPath, 'utf8')
+    expect(controller).toContain('$previousTestErrorActionPreference = $ErrorActionPreference')
+    expect(controller).toMatch(/\$ErrorActionPreference = 'Continue'[\s\S]*& \$NpxExecutable playwright test/u)
+    expect(controller).toContain('$ErrorActionPreference = $previousTestErrorActionPreference')
+  })
+
   it('defines both smoke and explicit live-form suites', () => {
     const smoke = readFileSync(resolve('tests/e2e/prerelease-smoke.spec.ts'), 'utf8')
     const live = readFileSync(resolve('tests/e2e/prerelease-live-forms.spec.ts'), 'utf8')
