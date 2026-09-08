@@ -1,0 +1,149 @@
+{
+  "checkedAt": "2026-09-08T03:21:18.531Z",
+  "implementationCommit": "4a7e170b0bba90ce8428b8f23788c15e3e64dde4",
+  "buildId": "nueBC1PmlOz7I74G5G0oP",
+  "frontend": "http://127.0.0.1:3231",
+  "cmsMode": "direct isolated WordPress :8186; no overlay",
+  "applications": [
+    {
+      "path": "/applications/titanium-dioxide-for-coatings/",
+      "status": 200,
+      "canonical": null,
+      "openGraphUrl": null,
+      "robots": "noindex, nofollow",
+      "jsonLdCount": 0,
+      "applicationHubLinks": 4
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-plastics/",
+      "status": 200,
+      "canonical": null,
+      "openGraphUrl": null,
+      "robots": "noindex, nofollow",
+      "jsonLdCount": 0,
+      "applicationHubLinks": 3
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-masterbatch/",
+      "status": 200,
+      "canonical": null,
+      "openGraphUrl": null,
+      "robots": "noindex, nofollow",
+      "jsonLdCount": 0,
+      "applicationHubLinks": 3
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-printing-inks/",
+      "status": 200,
+      "canonical": null,
+      "openGraphUrl": null,
+      "robots": "noindex, nofollow",
+      "jsonLdCount": 0,
+      "applicationHubLinks": 3
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-paper/",
+      "status": 200,
+      "canonical": null,
+      "openGraphUrl": null,
+      "robots": "noindex, nofollow",
+      "jsonLdCount": 0,
+      "applicationHubLinks": 3
+    }
+  ],
+  "applicationHub": {
+    "path": "/applications/",
+    "status": 404
+  },
+  "brazil": [
+    {
+      "path": "/markets/brazil/",
+      "pageId": "MARKET-BR-EN",
+      "expectedLanguage": "en",
+      "status": 200,
+      "language": "en",
+      "identityCount": 1,
+      "canonical": "https://tio2malaysia.com/markets/brazil/",
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/pt-br/markets/brazil/",
+      "pageId": "MARKET-BR-PT",
+      "expectedLanguage": "pt-BR",
+      "status": 200,
+      "language": "pt-BR",
+      "identityCount": 1,
+      "canonical": "https://tio2malaysia.com/pt-br/markets/brazil/",
+      "robots": "noindex, nofollow"
+    }
+  ],
+  "uk": {
+    "links": [
+      {
+        "label": "TRA public file: AD0086",
+        "href": "https://public-file.trade-remedies.service.gov.uk/case/ad0086/"
+      },
+      {
+        "label": "Trade Remedies Notice 2026/14",
+        "href": "https://www.gov.uk/government/publications/trade-remedies-notice-registration-of-imports-of-rutile-titanium-dioxide-originating-from-china/trade-remedies-notice-202614-registration-of-imports-of-rutile-titanium-dioxide-originating-from-china"
+      },
+      {
+        "label": "Trade Remedies Notices collection",
+        "href": "https://www.gov.uk/government/collections/trade-remedies-notices"
+      },
+      {
+        "label": "UK Trade Tariff",
+        "href": "https://www.gov.uk/trade-tariff"
+      },
+      {
+        "label": "HMRC trade remedies guidance",
+        "href": "https://www.gov.uk/guidance/check-when-you-need-to-pay-anti-dumping-countervailing-and-safeguard-duties"
+      },
+      {
+        "label": "HMRC Northern Ireland tariff-route guidance",
+        "href": "https://www.gov.uk/hmrc-internal-manuals/customs-cds-volume-3-tariff-step-by-step-guide/cdssg08020"
+      }
+    ],
+    "maintainedLinkCount": 1,
+    "path": "/resources/uk-titanium-dioxide-anti-dumping-investigation/",
+    "status": 200,
+    "officialSources": [
+      {
+        "label": "TRA public file: AD0086",
+        "href": "https://public-file.trade-remedies.service.gov.uk/case/ad0086/",
+        "status": "NOT_RERUN",
+        "priorEvidence": "../trade4-app5-gate9-repair-20260908/runtime-results.json (6/6 HTTP 200)"
+      },
+      {
+        "label": "Trade Remedies Notice 2026/14",
+        "href": "https://www.gov.uk/government/publications/trade-remedies-notice-registration-of-imports-of-rutile-titanium-dioxide-originating-from-china/trade-remedies-notice-202614-registration-of-imports-of-rutile-titanium-dioxide-originating-from-china",
+        "status": "NOT_RERUN",
+        "priorEvidence": "../trade4-app5-gate9-repair-20260908/runtime-results.json (6/6 HTTP 200)"
+      },
+      {
+        "label": "Trade Remedies Notices collection",
+        "href": "https://www.gov.uk/government/collections/trade-remedies-notices",
+        "status": "NOT_RERUN",
+        "priorEvidence": "../trade4-app5-gate9-repair-20260908/runtime-results.json (6/6 HTTP 200)"
+      },
+      {
+        "label": "UK Trade Tariff",
+        "href": "https://www.gov.uk/trade-tariff",
+        "status": "NOT_RERUN",
+        "priorEvidence": "../trade4-app5-gate9-repair-20260908/runtime-results.json (6/6 HTTP 200)"
+      },
+      {
+        "label": "HMRC trade remedies guidance",
+        "href": "https://www.gov.uk/guidance/check-when-you-need-to-pay-anti-dumping-countervailing-and-safeguard-duties",
+        "status": "NOT_RERUN",
+        "priorEvidence": "../trade4-app5-gate9-repair-20260908/runtime-results.json (6/6 HTTP 200)"
+      },
+      {
+        "label": "HMRC Northern Ireland tariff-route guidance",
+        "href": "https://www.gov.uk/hmrc-internal-manuals/customs-cds-volume-3-tariff-step-by-step-guide/cdssg08020",
+        "status": "NOT_RERUN",
+        "priorEvidence": "../trade4-app5-gate9-repair-20260908/runtime-results.json (6/6 HTTP 200)"
+      }
+    ]
+  }
+}

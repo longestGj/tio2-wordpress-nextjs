@@ -1,4 +1,6 @@
 import type {FetchGraphQLOptions} from './client'
+import {filterReviewedTradeCards} from '@/lib/editorial/editorial-hub-freshness'
+import {getMalaysiaEditorialPage} from './editorial-v01-queries'
 import {resourceHubContentTag, routeTag, siteTag} from './cache-tags'
 import {fetchGraphQL} from './client'
 import {
@@ -33,5 +35,8 @@ export async function getMalaysiaResourceHub(
   try { source = JSON.parse(data.malaysiaResourceHubRecordJson) } catch {
     throw new ResourceHubContractError('resourceHubRecordJson')
   }
-  return toMalaysiaResourceHubDto(source as MalaysiaResourceHubSource)
+  const hub=toMalaysiaResourceHubDto(source as MalaysiaResourceHubSource)
+  return filterReviewedTradeCards(hub,async pageId=>{
+    try {await getMalaysiaEditorialPage(pageId,'tio2-my');return true} catch {return false}
+  })
 }

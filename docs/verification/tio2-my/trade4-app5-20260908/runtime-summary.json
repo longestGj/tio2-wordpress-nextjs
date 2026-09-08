@@ -1,0 +1,311 @@
+{
+  "checkedAt": "2026-09-08T01:16:57.139Z",
+  "builds": [
+    "UV4ipmsCJ7cj7M2EHPfID"
+  ],
+  "pages": [
+    {
+      "id": "RES-TRADE-EU",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "cmsId": "editorial-18529",
+      "availableGradePaths": [],
+      "unavailableInternalPaths": [],
+      "viewportWidths": [
+        1440,
+        768,
+        390
+      ],
+      "axeSeriousCritical": 0,
+      "anchorCount": 0,
+      "browserErrors": []
+    },
+    {
+      "id": "RES-TRADE-UK",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "cmsId": "editorial-18531",
+      "availableGradePaths": [],
+      "unavailableInternalPaths": [],
+      "viewportWidths": [
+        1440,
+        768,
+        390
+      ],
+      "axeSeriousCritical": 0,
+      "anchorCount": 0,
+      "browserErrors": []
+    },
+    {
+      "id": "RES-TRADE-IN",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "cmsId": "editorial-18533",
+      "availableGradePaths": [],
+      "unavailableInternalPaths": [],
+      "viewportWidths": [
+        1440,
+        768,
+        390
+      ],
+      "axeSeriousCritical": 0,
+      "anchorCount": 0,
+      "browserErrors": []
+    },
+    {
+      "id": "RES-TRADE-BR",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "cmsId": "editorial-18535",
+      "availableGradePaths": [],
+      "unavailableInternalPaths": [],
+      "viewportWidths": [
+        1440,
+        768,
+        390
+      ],
+      "axeSeriousCritical": 0,
+      "anchorCount": 0,
+      "browserErrors": []
+    },
+    {
+      "id": "APP-COAT",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "cmsId": "editorial-18537",
+      "availableGradePaths": [
+        "/products/m-350/",
+        "/products/m-510/",
+        "/products/m-896/",
+        "/products/m-996/",
+        "/products/m-2196/",
+        "/products/m-895/",
+        "/products/m-52/",
+        "/products/m-2377/"
+      ],
+      "unavailableInternalPaths": [],
+      "viewportWidths": [
+        1440,
+        768,
+        390
+      ],
+      "axeSeriousCritical": 0,
+      "anchorCount": 9,
+      "browserErrors": []
+    },
+    {
+      "id": "APP-PLAS",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "cmsId": "editorial-18539",
+      "availableGradePaths": [
+        "/products/m-350/",
+        "/products/m-510/",
+        "/products/m-200/",
+        "/products/m-108/",
+        "/products/m-210/",
+        "/products/m-340/",
+        "/products/m-886/",
+        "/products/m-2377/"
+      ],
+      "unavailableInternalPaths": [],
+      "viewportWidths": [
+        1440,
+        768,
+        390
+      ],
+      "axeSeriousCritical": 0,
+      "anchorCount": 2,
+      "browserErrors": []
+    },
+    {
+      "id": "APP-MB",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "cmsId": "editorial-18541",
+      "availableGradePaths": [
+        "/products/m-510/",
+        "/products/m-200/",
+        "/products/m-108/",
+        "/products/m-210/",
+        "/products/m-340/",
+        "/products/m-886/",
+        "/products/m-2377/"
+      ],
+      "unavailableInternalPaths": [],
+      "viewportWidths": [
+        1440,
+        768,
+        390
+      ],
+      "axeSeriousCritical": 0,
+      "anchorCount": 2,
+      "browserErrors": []
+    },
+    {
+      "id": "APP-INK",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "cmsId": "editorial-18543",
+      "availableGradePaths": [
+        "/products/m-350/",
+        "/products/m-510/",
+        "/products/m-52/",
+        "/products/m-2377/"
+      ],
+      "unavailableInternalPaths": [
+        "/applications/"
+      ],
+      "viewportWidths": [
+        1440,
+        768,
+        390
+      ],
+      "axeSeriousCritical": 0,
+      "anchorCount": 2,
+      "browserErrors": []
+    },
+    {
+      "id": "APP-PAPER",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "cmsId": "editorial-18545",
+      "availableGradePaths": [
+        "/products/m-350/",
+        "/products/m-2377/"
+      ],
+      "unavailableInternalPaths": [],
+      "viewportWidths": [
+        1440,
+        768,
+        390
+      ],
+      "axeSeriousCritical": 0,
+      "anchorCount": 2,
+      "browserErrors": []
+    }
+  ],
+  "destinations": [
+    {
+      "path": "/markets/european-union/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/markets/european-union/"
+    },
+    {
+      "path": "/products/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products"
+    },
+    {
+      "path": "/request-a-quote/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/request-a-quote"
+    },
+    {
+      "path": "/markets/united-kingdom/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/markets/united-kingdom/"
+    },
+    {
+      "path": "/markets/india/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/markets/india/"
+    },
+    {
+      "path": "/markets/brazil/",
+      "status": 404,
+      "url": "http://127.0.0.1:3216/markets/brazil"
+    },
+    {
+      "path": "/pt-br/markets/brazil/",
+      "status": 404,
+      "url": "http://127.0.0.1:3216/pt-br/markets/brazil"
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/"
+    },
+    {
+      "path": "/applications/",
+      "status": 404,
+      "url": "http://127.0.0.1:3216/applications"
+    },
+    {
+      "path": "/products/m-350/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-350"
+    },
+    {
+      "path": "/products/m-510/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-510"
+    },
+    {
+      "path": "/products/m-896/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-896"
+    },
+    {
+      "path": "/products/m-996/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-996"
+    },
+    {
+      "path": "/products/m-2196/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-2196"
+    },
+    {
+      "path": "/products/m-895/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-895"
+    },
+    {
+      "path": "/products/m-52/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-52"
+    },
+    {
+      "path": "/products/m-2377/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-2377"
+    },
+    {
+      "path": "/request-documents/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/request-documents/"
+    },
+    {
+      "path": "/request-sample/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/request-sample"
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-masterbatch/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/applications/titanium-dioxide-for-masterbatch/"
+    },
+    {
+      "path": "/products/m-200/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-200"
+    },
+    {
+      "path": "/products/m-108/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-108"
+    },
+    {
+      "path": "/products/m-210/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-210"
+    },
+    {
+      "path": "/products/m-340/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-340"
+    },
+    {
+      "path": "/products/m-886/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-886"
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-plastics/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/applications/titanium-dioxide-for-plastics/"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-09-08T02:47:20.5198323Z",
+  "environment": "isolated local WordPress :8186, read-only probe",
+  "writesPerformed": false,
+  "brazilEnRecordPresent": true,
+  "brazilPtRecordPresent": true,
+  "rfqRecordPresent": false,
+  "rfqErrors": [
+    "The Malaysia RFQ page record failed scope or contract validation."
+  ],
+  "editorial": [
+    {
+      "pageId": "APP-COAT",
+      "recordPresent": false,
+      "errors": [
+        "Editorial record is missing, ambiguous or invalid."
+      ]
+    },
+    {
+      "pageId": "RES-TRADE-UK",
+      "recordPresent": false,
+      "errors": [
+        "Editorial record is missing, ambiguous or invalid."
+      ]
+    }
+  ]
+}

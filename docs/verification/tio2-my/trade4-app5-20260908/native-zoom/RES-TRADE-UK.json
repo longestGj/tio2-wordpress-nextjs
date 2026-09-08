@@ -1,0 +1,113 @@
+{
+  "id": "RES-TRADE-UK",
+  "time": "2026-09-08T01:17:28.467Z",
+  "build": "UV4ipmsCJ7cj7M2EHPfID",
+  "before": {
+    "innerWidth": 1424,
+    "innerHeight": 905,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 1,
+    "scrollWidth": 1424,
+    "scrollHeight": 6238
+  },
+  "after": {
+    "innerWidth": 712,
+    "innerHeight": 452,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 2,
+    "scrollWidth": 712,
+    "scrollHeight": 7483
+  },
+  "captures": [
+    {
+      "file": "RES-TRADE-UK-full-part-1.png",
+      "sha256": "c1f9ddf397c1a3d4c94bdd3dd4aeb5e476b77c16913ff4af557e187c751de812",
+      "width": 1424,
+      "height": 10000,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "width": 1424,
+        "height": 10000,
+        "scale": 1
+      }
+    },
+    {
+      "file": "RES-TRADE-UK-full-part-2.png",
+      "sha256": "05bb61c00120008458fa6f91bf9490578b9f9162c102b6fc15bfc69abe63a34d",
+      "width": 1424,
+      "height": 4967,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 10000,
+        "width": 1424,
+        "height": 4967,
+        "scale": 1
+      }
+    },
+    {
+      "file": "RES-TRADE-UK-top.png",
+      "sha256": "1392559463306494f8bde300557a538cfadc71b5efe12db2c9385e377881437b",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment"
+    },
+    {
+      "file": "RES-TRADE-UK-cookie.png",
+      "sha256": "d3c9c32cc05a18616e160c9d7380e80b4a5e6e7a60fa64b1e944d004bda4cff1",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment"
+    },
+    {
+      "file": "RES-TRADE-UK-menu.png",
+      "sha256": "2576f8f37c7f6c1a996fce09e5692f028e0537f68da61e40c556a23246c1fb5a",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+      "time": "2026-09-08T01:26:07.153Z"
+    },
+    {
+      "file": "RES-TRADE-UK-menu-rfq.png",
+      "sha256": "329415e98767069e50f338495d08855b4e07eba3280c53a2ac2191ac3c8dc2c5",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+      "time": "2026-09-08T01:26:08.237Z"
+    }
+  ],
+  "nativeZoom": 2,
+  "menuRecheck": {
+    "time": "2026-09-08T01:26:08.256Z",
+    "build": "UV4ipmsCJ7cj7M2EHPfID",
+    "before": {
+      "innerWidth": 1424,
+      "innerHeight": 905,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 1,
+      "scrollWidth": 1424
+    },
+    "after": {
+      "innerWidth": 712,
+      "innerHeight": 452,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 2,
+      "scrollWidth": 712
+    },
+    "nativeZoom": 2,
+    "oldEvidenceDirectory": "D:\\16Wordpress_nextjs\\.worktrees\\trade4-app5-gate8\\.tmp\\editorial-menu-recheck-3EB30P",
+    "keyboard": "Close -> ShiftTab top RFQ -> ShiftTab final RFQ fully in viewport -> Tab top RFQ -> Tab Close -> Escape trigger",
+    "lastRect": {
+      "x": 0,
+      "y": 400.5,
+      "width": 712,
+      "height": 52
+    }
+  }
+}

@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/trade4-app5-gate8
+
+
+ Test Files  51 passed (51)
+      Tests  479 passed (479)
+   Start at  09:54:57
+   Duration  10.33s (transform 3.07s, setup 8.83s, import 11.07s, tests 6.96s, environment 4.99s)
+

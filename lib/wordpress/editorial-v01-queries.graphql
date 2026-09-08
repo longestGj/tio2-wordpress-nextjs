@@ -1,0 +1,3 @@
+query GetMalaysiaEditorialRecord($pageId: String!, $siteScope: String!) {
+  malaysiaEditorialRecordJson(pageId: $pageId, siteScope: $siteScope)
+}

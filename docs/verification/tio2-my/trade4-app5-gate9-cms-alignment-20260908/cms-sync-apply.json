@@ -1,0 +1,30 @@
+{
+    "schemaVersion": "gate9-local-cms-approved-contract-sync-v0.1",
+    "environment": "tio2my9 isolated review clone :8186",
+    "taskId": "G8-TRADE4-APP5-20260908-01",
+    "mode": "Apply",
+    "writesPerformed": true,
+    "results": [
+        {
+            "key": "APP-COAT",
+            "postId": 18537,
+            "storedSha256": "a12800d9c47bef1f8d5bb146e8a89264dfd079c37af3619684ef1d168bbc673b",
+            "expectedSha256": "a12800d9c47bef1f8d5bb146e8a89264dfd079c37af3619684ef1d168bbc673b",
+            "exact": true
+        },
+        {
+            "key": "RES-TRADE-UK",
+            "postId": 18531,
+            "storedSha256": "a2d2901d2a2040f6ffce86b844b033b09060f352be8fcd80ca6812feb05d2e45",
+            "expectedSha256": "a2d2901d2a2040f6ffce86b844b033b09060f352be8fcd80ca6812feb05d2e45",
+            "exact": true
+        },
+        {
+            "key": "CONV-RFQ",
+            "postId": 17326,
+            "storedSha256": "05867a362556255d564df614dc1492f1e6e35be4d5eae90a3ee2a81731692938",
+            "expectedSha256": "05867a362556255d564df614dc1492f1e6e35be4d5eae90a3ee2a81731692938",
+            "exact": true
+        }
+    ]
+}

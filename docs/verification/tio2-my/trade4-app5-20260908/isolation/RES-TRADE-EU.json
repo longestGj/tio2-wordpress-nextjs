@@ -1,0 +1,85 @@
+{
+  "id": "RES-TRADE-EU",
+  "time": "2026-09-08T01:13:04.037Z",
+  "ledger": [
+    {
+      "mode": "Withdraw",
+      "mutation": {
+        "pageId": "RES-TRADE-EU",
+        "mode": "Withdraw",
+        "postId": 18529,
+        "resolverValid": false,
+        "duplicateId": 0
+      },
+      "invalidation": {
+        "ok": true,
+        "eventId": "257706c6-d050-4c09-84bd-a010254ffd98",
+        "revalidatedTags": [
+          "content:tio2-my--editorial--RES-TRADE-EU--en",
+          "content:tio2-my--resources",
+          "route:tio2-my:/resources",
+          "route:tio2-my:/resources/eu-titanium-dioxide-anti-dumping-duty"
+        ],
+        "revalidatedPaths": [
+          "/resources",
+          "/resources/eu-titanium-dioxide-anti-dumping-duty"
+        ]
+      },
+      "status": 404,
+      "factsSuppressed": true
+    },
+    {
+      "mode": "Pending",
+      "mutation": {
+        "pageId": "RES-TRADE-EU",
+        "mode": "Pending",
+        "postId": 18529,
+        "resolverValid": false,
+        "duplicateId": 0
+      },
+      "invalidation": {
+        "ok": true,
+        "eventId": "902a5be1-43ea-42df-9ba4-72f9accbc9ef",
+        "revalidatedTags": [
+          "content:tio2-my--editorial--RES-TRADE-EU--en",
+          "content:tio2-my--resources",
+          "route:tio2-my:/resources",
+          "route:tio2-my:/resources/eu-titanium-dioxide-anti-dumping-duty"
+        ],
+        "revalidatedPaths": [
+          "/resources",
+          "/resources/eu-titanium-dioxide-anti-dumping-duty"
+        ]
+      },
+      "status": 404,
+      "factsSuppressed": true
+    },
+    {
+      "mode": "Expired",
+      "mutation": {
+        "pageId": "RES-TRADE-EU",
+        "mode": "Expired",
+        "postId": 18529,
+        "resolverValid": false,
+        "duplicateId": 0
+      },
+      "invalidation": {
+        "ok": true,
+        "eventId": "2174c173-281f-4c89-b17b-0cd85a0cbf50",
+        "revalidatedTags": [
+          "content:tio2-my--editorial--RES-TRADE-EU--en",
+          "content:tio2-my--resources",
+          "route:tio2-my:/resources",
+          "route:tio2-my:/resources/eu-titanium-dioxide-anti-dumping-duty"
+        ],
+        "revalidatedPaths": [
+          "/resources",
+          "/resources/eu-titanium-dioxide-anti-dumping-duty"
+        ]
+      },
+      "status": 404,
+      "factsSuppressed": true
+    }
+  ],
+  "restored": true
+}

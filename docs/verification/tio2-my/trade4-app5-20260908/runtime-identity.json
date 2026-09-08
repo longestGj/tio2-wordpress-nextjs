@@ -1,0 +1,15 @@
+{
+  "codeCommit": "b325aec6b5121f2ded604bcf3afad7886515990f",
+  "branch": "codex/trade4-app5-gate8",
+  "baseCommit": "2c97fe19b56f14e12c6e27daa7fd3c9a49207570",
+  "siteId": "tio2-my",
+  "buildId": "UV4ipmsCJ7cj7M2EHPfID",
+  "buildDir": ".next-trade4-app5-verified",
+  "worktree": "D:\\16Wordpress_nextjs\\.worktrees\\trade4-app5-gate8",
+  "processId": 69604,
+  "processCommand": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3216",
+  "portOwner": 69604,
+  "frontend": "http://127.0.0.1:3216",
+  "cms": "http://127.0.0.1:8186/graphql",
+  "verifiedAt": "2026-09-08T01:19:46.1002985Z"
+}

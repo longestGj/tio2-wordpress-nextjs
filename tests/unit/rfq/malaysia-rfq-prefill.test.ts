@@ -51,6 +51,18 @@ describe('CONV-RFQ prefill', () => {
     })
   })
 
+  it.each([
+    ['MARKET-EU-ES', 'Spain'],
+    ['MARKET-IN-001', 'India'],
+    ['MARKET-EU-NL', 'Netherlands'],
+    ['MARKET-EU-BE', 'Belgium'],
+  ])('accepts %s with only its visible editable destination context', (sourcePageId, destinationCountry) => {
+    expect(resolveMalaysiaRfqPrefill({
+      source_page_id: sourcePageId,
+      destination_country: destinationCountry,
+    })).toEqual({values: {destination_country: destinationCountry}, sourcePageId})
+  })
+
   it('discards invalid, broad-region and frozen PRODUCT context without leakage', () => {
     expect(resolveMalaysiaRfqPrefill({
       grade_id: 'M-2377',

@@ -1,0 +1,456 @@
+{
+  "checkedAt": "2026-09-08T01:49:45.312Z",
+  "runtimeCode": "b325aec6b5121f2ded604bcf3afad7886515990f",
+  "deliveryCommit": "6de21ad",
+  "sameCandidateClickReturn": true,
+  "countryLatestRepairsIncluded": false,
+  "gate9FindingClosure": false,
+  "rows": [
+    {
+      "id": "APP-COAT",
+      "finding": "ES-G9-F03",
+      "time": "2026-09-08T01:49:31.782Z",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "siteScope": "tio2-my",
+      "cmsId": "editorial-18537",
+      "approvedPayloadExact": true,
+      "approvedRenderedTextExact": true,
+      "sources": [
+        {
+          "path": "pages/applications/coatings/06_handoff/APP-COAT_GATE6_HANDOFF_PACKAGE_V0.1.md",
+          "sha256": "0ed6c22408f96e4282917b935dd551d0d0ed4b74becbd78a6eefac967460f915",
+          "verifiedSha256": "0ed6c22408f96e4282917b935dd551d0d0ed4b74becbd78a6eefac967460f915"
+        },
+        {
+          "path": "pages/applications/coatings/APP-COAT_CURRENT_GATE_BASELINE_MANIFEST_V0.9.md",
+          "sha256": "ee0913a556524154c650cc9c99f63c4de29f977d6132bfa08953a35a8f263470",
+          "verifiedSha256": "ee0913a556524154c650cc9c99f63c4de29f977d6132bfa08953a35a8f263470"
+        },
+        {
+          "path": "pages/applications/coatings/04_planning/gate4-v0.1/APP-COAT_GATE4_COMPLETE_VISUAL_V0.1.html",
+          "sha256": "a1e8c4153831aa829698f62e0c30c1fc7a77ec5bbb1f23ce264dede5d61443d2",
+          "verifiedSha256": "a1e8c4153831aa829698f62e0c30c1fc7a77ec5bbb1f23ce264dede5d61443d2"
+        },
+        {
+          "path": "pages/applications/coatings/04_planning/gate4-v0.2/approval_core/source-freeze.json",
+          "sha256": "7f40b7202990a25b17448bd6d75480caebd813cb71a4905d9f8d4a7d1a551226",
+          "verifiedSha256": "7f40b7202990a25b17448bd6d75480caebd813cb71a4905d9f8d4a7d1a551226"
+        },
+        {
+          "path": "pages/applications/coatings/05_review/gate4-complete-independent-v0.2/REVIEW.md",
+          "sha256": "831c240029b3d82ff26aad79623381185a1dd8b03ca3599a03569d214fe316aa",
+          "verifiedSha256": "831c240029b3d82ff26aad79623381185a1dd8b03ca3599a03569d214fe316aa"
+        },
+        {
+          "path": "pages/applications/coatings/05_review/APP-COAT_GATE4_FINAL_PROJECT_CONTROL_AND_CLOSURE_V0.2.md",
+          "sha256": "aa88bbea28c48ee88a490a2ed8658a9818f0cf98697f40d6e9af1e5a445f64ed",
+          "verifiedSha256": "aa88bbea28c48ee88a490a2ed8658a9818f0cf98697f40d6e9af1e5a445f64ed"
+        },
+        {
+          "path": "pages/applications/coatings/05_review/APP-COAT_GATE4_TO_GATE6_HANDOFF_V0.2.md",
+          "sha256": "246843b27cd9bbaa02109d5b515f5935e880f37ab6a986830be4a95b6ae677de",
+          "verifiedSha256": "246843b27cd9bbaa02109d5b515f5935e880f37ab6a986830be4a95b6ae677de"
+        },
+        {
+          "path": "pages/applications/coatings/APP-COAT_CURRENT_GATE_BASELINE_MANIFEST_V0.8.md",
+          "sha256": "90c14df2e2f1f99ede5374fee3a07c3e16a228dec61cc735a73a7d47b2aafe62",
+          "verifiedSha256": "90c14df2e2f1f99ede5374fee3a07c3e16a228dec61cc735a73a7d47b2aafe62"
+        },
+        {
+          "path": "pages/applications/coatings/04_planning/APP-COAT_GATE2_CONTENT_SKELETON_V0.1.md",
+          "sha256": "efa3c0af5bf2e69d6942dafdc83df2decdc571b4c988589788bd0f77a55b0fc2",
+          "verifiedSha256": "efa3c0af5bf2e69d6942dafdc83df2decdc571b4c988589788bd0f77a55b0fc2"
+        },
+        {
+          "path": "pages/applications/coatings/04_planning/APP-COAT_GATE2_FULL_BUYER_CLEAN_COPY_V0.2.md",
+          "sha256": "e5c9ffa7bcd7ae0375e45e27ba9bc26b95d00d317ff19c243e7e931b17706531",
+          "verifiedSha256": "e5c9ffa7bcd7ae0375e45e27ba9bc26b95d00d317ff19c243e7e931b17706531"
+        },
+        {
+          "path": "pages/applications/coatings/04_planning/APP-COAT_GATE2_CONTENT_CONTRACT_V0.1.md",
+          "sha256": "ab5fd1d67eae464193d6e20b3f80a94afd36e29383ffb5a2c99db8e7103de400",
+          "verifiedSha256": "ab5fd1d67eae464193d6e20b3f80a94afd36e29383ffb5a2c99db8e7103de400"
+        },
+        {
+          "path": "pages/applications/coatings/05_review/gate6-v0.1/APP-COAT_GATE6_AUTHOR_SELF_CHECK_V0.1.json",
+          "sha256": "14cee05f4e1b1cccaa74545e968d874ff637109ea7a3f317472c3ae6b0c39889",
+          "verifiedSha256": "14cee05f4e1b1cccaa74545e968d874ff637109ea7a3f317472c3ae6b0c39889"
+        }
+      ],
+      "cmsReview": null,
+      "click": {
+        "source": "http://127.0.0.1:3216/markets/spain/",
+        "sourceStatus": 200,
+        "sourceBuild": "UV4ipmsCJ7cj7M2EHPfID",
+        "label": "TiO2 for Coatings",
+        "approvedHref": "/applications/titanium-dioxide-for-coatings/",
+        "target": "http://127.0.0.1:3216/applications/titanium-dioxide-for-coatings/",
+        "targetStatus": 200,
+        "back": "http://127.0.0.1:3216/markets/spain/",
+        "backVerified": true
+      },
+      "explicitTradeReturn": null,
+      "otherCandidate": {
+        "base": "http://127.0.0.1:3029",
+        "finalUrl": "http://127.0.0.1:3029/applications/titanium-dioxide-for-coatings",
+        "status": 404,
+        "containsExpectedEditorialPage": false
+      },
+      "screenshot": "APP-COAT-target-1440.png"
+    },
+    {
+      "id": "APP-PLAS",
+      "finding": "ES-G9-F03",
+      "time": "2026-09-08T01:49:34.791Z",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "siteScope": "tio2-my",
+      "cmsId": "editorial-18539",
+      "approvedPayloadExact": true,
+      "approvedRenderedTextExact": true,
+      "sources": [
+        {
+          "path": "pages/applications/plastics/06_handoff/APP-PLAS_GATE6_HANDOFF_PACKAGE_V0.1.md",
+          "sha256": "30b1a564dd7cb4dc04e9f7feeb2a3d904403d4313bfa20319aee84ac514f9c0d",
+          "verifiedSha256": "30b1a564dd7cb4dc04e9f7feeb2a3d904403d4313bfa20319aee84ac514f9c0d"
+        },
+        {
+          "path": "pages/applications/plastics/APP-PLAS_CURRENT_GATE_BASELINE_MANIFEST_V0.9.md",
+          "sha256": "39fcf884a97bcb79631a233d7dcad21a748cfbf02d9c9da845ce5dfafbdc34c5",
+          "verifiedSha256": "39fcf884a97bcb79631a233d7dcad21a748cfbf02d9c9da845ce5dfafbdc34c5"
+        },
+        {
+          "path": "pages/applications/plastics/APP-PLAS_CURRENT_GATE_BASELINE_MANIFEST_V0.8.md",
+          "sha256": "f9c2a0121f202ee95eb654ab6a9b91ef2d5f285321401cc17140ec1e547fbc02",
+          "verifiedSha256": "f9c2a0121f202ee95eb654ab6a9b91ef2d5f285321401cc17140ec1e547fbc02"
+        },
+        {
+          "path": "pages/applications/plastics/05_review/gate6-v0.1/APP-PLAS_GATE6_AUTHOR_SELF_CHECK_V0.1.json",
+          "sha256": "1fde1acc233a222b62b6ce6576f5a60c8fb123d168444e681f5bf5ab3232f9cc",
+          "verifiedSha256": "1fde1acc233a222b62b6ce6576f5a60c8fb123d168444e681f5bf5ab3232f9cc"
+        }
+      ],
+      "cmsReview": null,
+      "click": {
+        "source": "http://127.0.0.1:3216/markets/spain/",
+        "sourceStatus": 200,
+        "sourceBuild": "UV4ipmsCJ7cj7M2EHPfID",
+        "label": "TiO2 for Plastics",
+        "approvedHref": "/applications/titanium-dioxide-for-plastics/",
+        "target": "http://127.0.0.1:3216/applications/titanium-dioxide-for-plastics/",
+        "targetStatus": 200,
+        "back": "http://127.0.0.1:3216/markets/spain/",
+        "backVerified": true
+      },
+      "explicitTradeReturn": null,
+      "otherCandidate": {
+        "base": "http://127.0.0.1:3029",
+        "finalUrl": "http://127.0.0.1:3029/applications/titanium-dioxide-for-plastics",
+        "status": 404,
+        "containsExpectedEditorialPage": false
+      },
+      "screenshot": "APP-PLAS-target-1440.png"
+    },
+    {
+      "id": "APP-MB",
+      "finding": "ES-G9-F03",
+      "time": "2026-09-08T01:49:37.662Z",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "siteScope": "tio2-my",
+      "cmsId": "editorial-18541",
+      "approvedPayloadExact": true,
+      "approvedRenderedTextExact": true,
+      "sources": [
+        {
+          "path": "pages/applications/masterbatch/06_handoff/APP-MB_GATE6_HANDOFF_PACKAGE_V0.1.md",
+          "sha256": "fc8f25356db20de25fbbbbfee086335563f5e017fdb4097726d058d045e64c7c",
+          "verifiedSha256": "fc8f25356db20de25fbbbbfee086335563f5e017fdb4097726d058d045e64c7c"
+        },
+        {
+          "path": "pages/applications/masterbatch/APP-MB_CURRENT_GATE_BASELINE_MANIFEST_V0.10.md",
+          "sha256": "ffa79ebb3f1f31230371981075f2a58b9cbe0a7937a8d50d243a850b7288b003",
+          "verifiedSha256": "ffa79ebb3f1f31230371981075f2a58b9cbe0a7937a8d50d243a850b7288b003"
+        }
+      ],
+      "cmsReview": null,
+      "click": {
+        "source": "http://127.0.0.1:3216/markets/spain/",
+        "sourceStatus": 200,
+        "sourceBuild": "UV4ipmsCJ7cj7M2EHPfID",
+        "label": "TiO2 for Masterbatch",
+        "approvedHref": "/applications/titanium-dioxide-for-masterbatch/",
+        "target": "http://127.0.0.1:3216/applications/titanium-dioxide-for-masterbatch/",
+        "targetStatus": 200,
+        "back": "http://127.0.0.1:3216/markets/spain/",
+        "backVerified": true
+      },
+      "explicitTradeReturn": null,
+      "otherCandidate": {
+        "base": "http://127.0.0.1:3029",
+        "finalUrl": "http://127.0.0.1:3029/applications/titanium-dioxide-for-masterbatch",
+        "status": 404,
+        "containsExpectedEditorialPage": false
+      },
+      "screenshot": "APP-MB-target-1440.png"
+    },
+    {
+      "id": "RES-TRADE-EU",
+      "finding": "ES-G9-F03",
+      "time": "2026-09-08T01:49:41.400Z",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "siteScope": "tio2-my",
+      "cmsId": "editorial-18529",
+      "approvedPayloadExact": true,
+      "approvedRenderedTextExact": true,
+      "sources": [
+        {
+          "path": "pages/resources/eu-trade/06_handoff/RES-TRADE-EU_GATE6_HANDOFF_PACKAGE_V0.1.md",
+          "sha256": "bb1b44d42fa32232965e62e3255cde05518f2570224b827a1cf68c7b4fd021ad",
+          "verifiedSha256": "bb1b44d42fa32232965e62e3255cde05518f2570224b827a1cf68c7b4fd021ad"
+        },
+        {
+          "path": "pages/resources/eu-trade/RES-TRADE-EU_CURRENT_GATE_BASELINE_MANIFEST_V0.7.md",
+          "sha256": "c169ff9cb5b97eca0111aedcf1066d97b4ccc3e2430fa3a7fc50ad1f890b696e",
+          "verifiedSha256": "c169ff9cb5b97eca0111aedcf1066d97b4ccc3e2430fa3a7fc50ad1f890b696e"
+        },
+        {
+          "path": "pages/resources/eu-trade/05_review/RES-TRADE-EU_GATE4_TO_GATE5_HANDOFF_V0.1.md",
+          "sha256": "b802ca89e176ad08d30dd80b3bf79ba6efa6f5a34efb0701ea0b03c54d8a9b7b",
+          "verifiedSha256": "b802ca89e176ad08d30dd80b3bf79ba6efa6f5a34efb0701ea0b03c54d8a9b7b"
+        },
+        {
+          "path": "pages/resources/eu-trade/04_planning/gate4-v0.1/RES-TRADE-EU_GATE4_COMPLETE_VISUAL_V0.1.html",
+          "sha256": "c525751ddb4002493a4d5303fb1f5930ed69e0ff489f224e26765a7cced29bbf",
+          "verifiedSha256": "c525751ddb4002493a4d5303fb1f5930ed69e0ff489f224e26765a7cced29bbf"
+        },
+        {
+          "path": "pages/resources/eu-trade/05_review/gate5-independent-v0.1/report.md",
+          "sha256": "fb10674c5d935a9009826dd44c98d907f23982982471c7118b55598cc3a7bfc8",
+          "verifiedSha256": "fb10674c5d935a9009826dd44c98d907f23982982471c7118b55598cc3a7bfc8"
+        },
+        {
+          "path": "pages/resources/eu-trade/05_review/RES-TRADE-EU_GATE5_CONTROLLER_ACCEPTANCE_AND_VISUAL_CLOSURE_V0.1.md",
+          "sha256": "14fb2b51bf8c8dd0274a5bad872d1be2e35eac3f66725805effd5129da1370ed",
+          "verifiedSha256": "14fb2b51bf8c8dd0274a5bad872d1be2e35eac3f66725805effd5129da1370ed"
+        },
+        {
+          "path": "pages/resources/eu-trade/RES-TRADE-EU_CURRENT_GATE_BASELINE_MANIFEST_V0.6.md",
+          "sha256": "0a10c64429db6fc66d736b7d846a2560d0e0bcaf2544b8fc8efc3d06eba8ea56",
+          "verifiedSha256": "0a10c64429db6fc66d736b7d846a2560d0e0bcaf2544b8fc8efc3d06eba8ea56"
+        },
+        {
+          "path": "pages/resources/eu-trade/04_planning/RES-TRADE-EU_GATE2_CONTENT_SKELETON_V0.1.md",
+          "sha256": "daebb10e9d26fcf622bcec6cb5fbad832279653d72dc0bc4c011ce9b0789dfa3",
+          "verifiedSha256": "daebb10e9d26fcf622bcec6cb5fbad832279653d72dc0bc4c011ce9b0789dfa3"
+        },
+        {
+          "path": "pages/resources/eu-trade/04_planning/RES-TRADE-EU_GATE2_FULL_BUYER_CLEAN_COPY_V0.2.md",
+          "sha256": "9e119c657d6eed9346ef132e0c2039a5c99327fb9087a273df689b8a2d8a8cb1",
+          "verifiedSha256": "9e119c657d6eed9346ef132e0c2039a5c99327fb9087a273df689b8a2d8a8cb1"
+        },
+        {
+          "path": "pages/resources/eu-trade/04_planning/RES-TRADE-EU_GATE2_CONTENT_CONTRACT_V0.2.md",
+          "sha256": "64e46520ab226c1ec3eb16fa49a60804b8c45df16b545a7400198a90da77e49f",
+          "verifiedSha256": "64e46520ab226c1ec3eb16fa49a60804b8c45df16b545a7400198a90da77e49f"
+        },
+        {
+          "path": "pages/resources/eu-trade/04_planning/gate3-v0.1/RES-TRADE-EU_GATE3_WIREFRAME_V0.1.html",
+          "sha256": "e0dd1b936c5010a07b4f67b682e1c43ab8ec4ed283f7b1fc924ea6760be4b509",
+          "verifiedSha256": "e0dd1b936c5010a07b4f67b682e1c43ab8ec4ed283f7b1fc924ea6760be4b509"
+        },
+        {
+          "path": "pages/resources/eu-trade/01_research/evidence/2026-09-07/RES-TRADE-EU_GATE2_FRESH_OFFICIAL_RECHECK_2026-09-07.md",
+          "sha256": "09a7dd47e589542935d77fefda5b71919dd96d1e1a5a62cf749cb6c25508a668",
+          "verifiedSha256": "09a7dd47e589542935d77fefda5b71919dd96d1e1a5a62cf749cb6c25508a668"
+        },
+        {
+          "path": "pages/resources/eu-trade/05_review/gate6-v0.1/self-check.json",
+          "sha256": "fb24c5e33ef2855644475c28daeb0c8d0a5517215e56dc98fc761eb3c9fa90c5",
+          "verifiedSha256": "fb24c5e33ef2855644475c28daeb0c8d0a5517215e56dc98fc761eb3c9fa90c5"
+        }
+      ],
+      "cmsReview": {
+        "schemaVersion": "editorial-review-v0.1",
+        "pageId": "RES-TRADE-EU",
+        "siteScope": "tio2-my",
+        "packageSha256": "bb1b44d42fa32232965e62e3255cde05518f2570224b827a1cf68c7b4fd021ad",
+        "evidenceArtifactSha256": "A40568E5A4A9EFE636D7DAB86E488A918B44A1D4DFE92AEAC4837A49A786329E",
+        "evidenceDate": "2026-09-08",
+        "checkedAt": "2026-09-08T08:35:21+08:00",
+        "timeZone": "Asia/Kuala_Lumpur",
+        "outcome": "NO_MATERIAL_CHANGE_LOCATED_IN_BOUNDED_OFFICIAL_CHECK",
+        "policyId": "RES-TRADE-EU-FRESHNESS-V0.1",
+        "status": "verified",
+        "eventStatus": "no_open_trigger",
+        "nextReviewDue": "2026-10-07"
+      },
+      "click": {
+        "source": "http://127.0.0.1:3216/markets/spain/",
+        "sourceStatus": 200,
+        "sourceBuild": "UV4ipmsCJ7cj7M2EHPfID",
+        "label": "EU TiO2 Trade Update",
+        "approvedHref": "/resources/eu-titanium-dioxide-anti-dumping-duty/",
+        "target": "http://127.0.0.1:3216/resources/eu-titanium-dioxide-anti-dumping-duty/",
+        "targetStatus": 200,
+        "back": "http://127.0.0.1:3216/markets/spain/",
+        "backVerified": true
+      },
+      "explicitTradeReturn": {
+        "href": "/markets/european-union/",
+        "url": "http://127.0.0.1:3216/markets/european-union/",
+        "status": 200
+      },
+      "otherCandidate": {
+        "base": "http://127.0.0.1:3029",
+        "finalUrl": "http://127.0.0.1:3029/resources/eu-titanium-dioxide-anti-dumping-duty",
+        "status": 404,
+        "containsExpectedEditorialPage": false
+      },
+      "screenshot": "RES-TRADE-EU-target-1440.png"
+    },
+    {
+      "id": "RES-TRADE-IN",
+      "finding": "IN-G9-F01",
+      "time": "2026-09-08T01:49:45.233Z",
+      "build": "UV4ipmsCJ7cj7M2EHPfID",
+      "siteScope": "tio2-my",
+      "cmsId": "editorial-18533",
+      "approvedPayloadExact": true,
+      "approvedRenderedTextExact": true,
+      "sources": [
+        {
+          "path": "pages/resources/india-trade/06_handoff/RES-TRADE-IN_GATE6_HANDOFF_PACKAGE_V0.1.md",
+          "sha256": "5fa99b705b7e8a21ec2d68eb68e2f9235f295d1723bf31387a3f882b8186e0e9",
+          "verifiedSha256": "5fa99b705b7e8a21ec2d68eb68e2f9235f295d1723bf31387a3f882b8186e0e9"
+        },
+        {
+          "path": "pages/resources/india-trade/RES-TRADE-IN_CURRENT_GATE_BASELINE_MANIFEST_V0.7.md",
+          "sha256": "2fba2ebed1290293c00f80972c725c0b21b705ed118c40405970ddb07feb5453",
+          "verifiedSha256": "2fba2ebed1290293c00f80972c725c0b21b705ed118c40405970ddb07feb5453"
+        },
+        {
+          "path": "pages/resources/india-trade/05_review/RES-TRADE-IN_GATE4_TO_GATE5_HANDOFF_V0.1.md",
+          "sha256": "b401814ed956b7b55f252356234fc04f6424025c13c08f9e125a70ac43155144",
+          "verifiedSha256": "b401814ed956b7b55f252356234fc04f6424025c13c08f9e125a70ac43155144"
+        },
+        {
+          "path": "pages/resources/india-trade/04_planning/gate4-v0.1/RES-TRADE-IN_GATE4_COMPLETE_VISUAL_V0.1.html",
+          "sha256": "617d8371fa0e73dc14e571ce9b3c75c8d84390c638e19039487db4f432e5d833",
+          "verifiedSha256": "617d8371fa0e73dc14e571ce9b3c75c8d84390c638e19039487db4f432e5d833"
+        },
+        {
+          "path": "pages/resources/india-trade/05_review/gate5-independent-v0.1/report.md",
+          "sha256": "8602bb59552ec4265e5e34918880c53fd2b6792a3c05c43a42ffb6b8b7b0cd57",
+          "verifiedSha256": "8602bb59552ec4265e5e34918880c53fd2b6792a3c05c43a42ffb6b8b7b0cd57"
+        },
+        {
+          "path": "pages/resources/india-trade/05_review/RES-TRADE-IN_GATE5_CONTROLLER_ACCEPTANCE_AND_VISUAL_CLOSURE_V0.1.md",
+          "sha256": "744081f2c04b8c4c589d37eeba2b6a39f438e0354128d9c0168dcc8b09d4d93a",
+          "verifiedSha256": "744081f2c04b8c4c589d37eeba2b6a39f438e0354128d9c0168dcc8b09d4d93a"
+        },
+        {
+          "path": "pages/resources/india-trade/RES-TRADE-IN_CURRENT_GATE_BASELINE_MANIFEST_V0.6.md",
+          "sha256": "06b9fa66eeb3bfc7f14df4ce87520bd4b585e075749963af9cc41f890a020c5c",
+          "verifiedSha256": "06b9fa66eeb3bfc7f14df4ce87520bd4b585e075749963af9cc41f890a020c5c"
+        },
+        {
+          "path": "pages/resources/india-trade/04_planning/RES-TRADE-IN_GATE2_CONTENT_SKELETON_V0.1.md",
+          "sha256": "f02f2492fde9673264dbc707ad5e0fdeed2f0aa6ec3ffa4b6be4fb09d4456501",
+          "verifiedSha256": "f02f2492fde9673264dbc707ad5e0fdeed2f0aa6ec3ffa4b6be4fb09d4456501"
+        },
+        {
+          "path": "pages/resources/india-trade/04_planning/RES-TRADE-IN_GATE2_FULL_BUYER_CLEAN_COPY_V0.2.md",
+          "sha256": "1234d6f2b0615aa5da488ef51dde282251e175315d9f34e140080e7e3a65252a",
+          "verifiedSha256": "1234d6f2b0615aa5da488ef51dde282251e175315d9f34e140080e7e3a65252a"
+        },
+        {
+          "path": "pages/resources/india-trade/04_planning/RES-TRADE-IN_GATE2_CONTENT_CONTRACT_V0.1.md",
+          "sha256": "5fe907038d4d08708f7c447aef65ee3c6c2caf5c926e273b824230dd7ee0354f",
+          "verifiedSha256": "5fe907038d4d08708f7c447aef65ee3c6c2caf5c926e273b824230dd7ee0354f"
+        },
+        {
+          "path": "pages/resources/india-trade/01_research/evidence/RES-TRADE-IN_GATE2_FRESH_OFFICIAL_RECHECK_2026-09-07.md",
+          "sha256": "d87c735d24e6c583151c7cdc7261c301c09dfc75f048bb8895fb73ec818cd212",
+          "verifiedSha256": "d87c735d24e6c583151c7cdc7261c301c09dfc75f048bb8895fb73ec818cd212"
+        },
+        {
+          "path": "pages/resources/india-trade/05_review/RES-TRADE-IN_GATE2_FULL_COPY_PROJECT_CONTROL_REVIEW_V0.1.md",
+          "sha256": "c30b6b9cec4a75d3c945ed96d49059e0efb61519f7f74c854255367e06b818f8",
+          "verifiedSha256": "c30b6b9cec4a75d3c945ed96d49059e0efb61519f7f74c854255367e06b818f8"
+        },
+        {
+          "path": "pages/resources/india-trade/04_planning/gate3-v0.1/RES-TRADE-IN_GATE3_WIREFRAME_V0.1.html",
+          "sha256": "2d1ddbc9455977add8374022a5ba395c9e11fcb2cc462c9f5c37d2635af2e41c",
+          "verifiedSha256": "2d1ddbc9455977add8374022a5ba395c9e11fcb2cc462c9f5c37d2635af2e41c"
+        },
+        {
+          "path": "pages/resources/india-trade/05_review/RES-TRADE-IN_GATE3_PREAUTHORIZED_APPROVAL_AND_CLOSURE_V0.1.md",
+          "sha256": "a527487734dd201d74560341623d50c74b2b57e626459904188ca20d75435e0e",
+          "verifiedSha256": "a527487734dd201d74560341623d50c74b2b57e626459904188ca20d75435e0e"
+        },
+        {
+          "path": "pages/resources/india-trade/05_review/RES-TRADE-IN_GATE3_TO_GATE4_HANDOFF_V0.1.md",
+          "sha256": "91f7fb0687bafa674ac476c2d1ff04c2180c5640bdfcd0f63ff24400f57176ef",
+          "verifiedSha256": "91f7fb0687bafa674ac476c2d1ff04c2180c5640bdfcd0f63ff24400f57176ef"
+        },
+        {
+          "path": "pages/resources/india-trade/04_planning/gate4-v0.1/input-index.json",
+          "sha256": "12d6eba27fff30581bf2dc0b8bf03e148226af92d0c324a43b23b1b6b1ed40bc",
+          "verifiedSha256": "12d6eba27fff30581bf2dc0b8bf03e148226af92d0c324a43b23b1b6b1ed40bc"
+        },
+        {
+          "path": "pages/resources/india-trade/04_planning/gate4-v0.1/freeze-record.json",
+          "sha256": "ae485f48e235eefd5c0cad2ee72c8d3d1be5ed03b82dae755be9558d9dbeef36",
+          "verifiedSha256": "ae485f48e235eefd5c0cad2ee72c8d3d1be5ed03b82dae755be9558d9dbeef36"
+        },
+        {
+          "path": "pages/resources/india-trade/04_planning/gate4-v0.1/evidence-index.json",
+          "sha256": "653677ca1e455a5e85ab658cac93c8ab41e73459c8ee0350f51e66c1b0afc761",
+          "verifiedSha256": "653677ca1e455a5e85ab658cac93c8ab41e73459c8ee0350f51e66c1b0afc761"
+        },
+        {
+          "path": "pages/resources/india-trade/05_review/gate6-v0.1/RES-TRADE-IN_GATE6_AUTHOR_SELF_CHECK_V0.1.json",
+          "sha256": "1fe360786cf9bbe26c066eebd6ab5213ef0dce3684cc1993e9625ae537401859",
+          "verifiedSha256": "1fe360786cf9bbe26c066eebd6ab5213ef0dce3684cc1993e9625ae537401859"
+        }
+      ],
+      "cmsReview": {
+        "schemaVersion": "editorial-review-v0.1",
+        "pageId": "RES-TRADE-IN",
+        "siteScope": "tio2-my",
+        "packageSha256": "5fa99b705b7e8a21ec2d68eb68e2f9235f295d1723bf31387a3f882b8186e0e9",
+        "evidenceArtifactSha256": "A40568E5A4A9EFE636D7DAB86E488A918B44A1D4DFE92AEAC4837A49A786329E",
+        "evidenceDate": "2026-09-08",
+        "checkedAt": "2026-09-08T08:35:21+08:00",
+        "timeZone": "Asia/Kuala_Lumpur",
+        "outcome": "NO_MATERIAL_CHANGE_LOCATED_IN_BOUNDED_OFFICIAL_CHECK",
+        "policyId": "RES-TRADE-IN-FRESHNESS-V0.1",
+        "status": "verified",
+        "eventStatus": "no_open_trigger",
+        "nextReviewDue": "2026-10-07"
+      },
+      "click": {
+        "source": "http://127.0.0.1:3216/markets/india/",
+        "sourceStatus": 200,
+        "sourceBuild": "UV4ipmsCJ7cj7M2EHPfID",
+        "label": "Review the India Titanium Dioxide Trade Update",
+        "approvedHref": "/resources/india-titanium-dioxide-anti-dumping-duty/",
+        "target": "http://127.0.0.1:3216/resources/india-titanium-dioxide-anti-dumping-duty/",
+        "targetStatus": 200,
+        "back": "http://127.0.0.1:3216/markets/india/",
+        "backVerified": true
+      },
+      "explicitTradeReturn": {
+        "href": "/markets/india/",
+        "url": "http://127.0.0.1:3216/markets/india/",
+        "status": 200
+      },
+      "otherCandidate": {
+        "base": "http://127.0.0.1:3029",
+        "finalUrl": "http://127.0.0.1:3029/resources/india-titanium-dioxide-anti-dumping-duty",
+        "status": 404,
+        "containsExpectedEditorialPage": false
+      },
+      "screenshot": "RES-TRADE-IN-target-1440.png"
+    }
+  ]
+}

@@ -1,21 +1,26 @@
 import {NextResponse, type NextRequest} from 'next/server'
+import {editorialPageIdForPath} from './lib/editorial/malaysia-editorial-contracts'
 
 const MALAYSIA_TRAILING_SLASH_PATHS = new Set([
   '/markets',
   '/markets/european-union',
   '/markets/united-kingdom',
   '/markets/poland',
-  '/markets/brazil',
-  '/pt-br/markets/brazil',
   '/products/chloride-process-titanium-dioxide',
   '/documents/certificate-of-origin',
+  '/markets/spain',
+  '/markets/india',
+  '/markets/netherlands',
+  '/markets/belgium',
+  '/markets/brazil',
+  '/pt-br/markets/brazil',
   '/request-documents',
 ])
 
 export function proxy(request: NextRequest) {
   const pathnameWithoutTrailingSlash = request.nextUrl.pathname.replace(/\/+$/u, '') || '/'
   const isMalaysiaTrailingSlashPath = process.env.SITE_ID === 'tio2-my' &&
-    MALAYSIA_TRAILING_SLASH_PATHS.has(pathnameWithoutTrailingSlash)
+    (MALAYSIA_TRAILING_SLASH_PATHS.has(pathnameWithoutTrailingSlash) || Boolean(editorialPageIdForPath(pathnameWithoutTrailingSlash)))
 
   if (isMalaysiaTrailingSlashPath && request.nextUrl.pathname === pathnameWithoutTrailingSlash) {
     const canonicalUrl = new URL(request.url)

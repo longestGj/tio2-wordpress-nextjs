@@ -1,0 +1,22 @@
+{
+    "success": true,
+    "cases": {
+        "valid-RES-TRADE-EU": true,
+        "valid-RES-TRADE-UK": true,
+        "valid-RES-TRADE-IN": true,
+        "valid-RES-TRADE-BR": true,
+        "unverified": true,
+        "withdrawn": true,
+        "event-pending": true,
+        "old-date": true,
+        "invalid-date": true,
+        "future-date": true,
+        "future-timestamp": true,
+        "altered-artifact-sha": true,
+        "altered-package-sha": true,
+        "open-key": true,
+        "before-kl-midnight": true,
+        "after-kl-midnight": true,
+        "undated-application": true
+    }
+}

@@ -1,0 +1,61 @@
+[
+  {
+    "scope": "tio2-my",
+    "status": 200,
+    "errors": [
+      "Editorial delivery authentication required."
+    ]
+  },
+  {
+    "scope": "tio2-a",
+    "status": 200,
+    "errors": [
+      "Editorial scope or Page ID is not authorized."
+    ]
+  },
+  {
+    "scope": "tio2-b",
+    "status": 200,
+    "errors": [
+      "Editorial scope or Page ID is not authorized."
+    ]
+  },
+  {
+    "scope": "",
+    "status": 200,
+    "errors": [
+      "Editorial scope or Page ID is not authorized."
+    ]
+  },
+  {
+    "scope": "unknown",
+    "status": 200,
+    "errors": [
+      "Editorial scope or Page ID is not authorized."
+    ]
+  },
+  {
+    "scope": "tio2-a",
+    "authenticated": true,
+    "status": 200,
+    "errors": [
+      "Editorial scope or Page ID is not authorized."
+    ]
+  },
+  {
+    "scope": "tio2-b",
+    "authenticated": true,
+    "status": 200,
+    "errors": [
+      "Editorial scope or Page ID is not authorized."
+    ]
+  },
+  {
+    "scope": "omitted",
+    "authenticated": true,
+    "status": 200,
+    "errors": [
+      "Variable \"$siteScope\" of required type \"String!\" was not provided."
+    ]
+  }
+]

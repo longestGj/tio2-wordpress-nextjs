@@ -166,8 +166,10 @@ export function marketHubContentTag(siteId: string): string {
 
 export function marketPageContentTag(siteId: string, pageId: string, locale: string): string {
   assertSiteId(siteId)
-  const validIdentity = locale === 'en' && ['MARKET-EU-001', 'MARKET-UK-001', 'MARKET-EU-PL', 'MARKET-BR-EN'].includes(pageId) ||
-    locale === 'pt-BR' && pageId === 'MARKET-BR-PT'
+  const validIdentity = locale === 'en' && [
+    'MARKET-EU-001', 'MARKET-UK-001', 'MARKET-EU-PL', 'MARKET-EU-ES', 'MARKET-IN-001',
+    'MARKET-EU-NL', 'MARKET-EU-BE', 'MARKET-BR-EN',
+  ].includes(pageId) || locale === 'pt-BR' && pageId === 'MARKET-BR-PT'
   if (siteId !== 'tio2-my' || !validIdentity) {
     throw new Error(`Invalid Malaysia Market page identity: ${siteId}/${pageId}/${locale}`)
   }

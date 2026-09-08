@@ -1,0 +1,161 @@
+{
+  "checkedAt": "2026-09-08T02:46:23.283Z",
+  "implementationCommit": "4a7e170b0bba90ce8428b8f23788c15e3e64dde4",
+  "buildId": "Zqczu1KDcx63nns7yjF5_",
+  "frontend": "http://127.0.0.1:3230",
+  "cmsMode": "read-only local GraphQL response overlay over isolated WordPress :8186; no CMS write",
+  "applications": [
+    {
+      "path": "/applications/titanium-dioxide-for-coatings/",
+      "status": 200,
+      "canonical": null,
+      "openGraphUrl": null,
+      "robots": "noindex, nofollow",
+      "jsonLdCount": 0,
+      "applicationHubLinks": 4
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-plastics/",
+      "status": 200,
+      "canonical": null,
+      "openGraphUrl": null,
+      "robots": "noindex, nofollow",
+      "jsonLdCount": 0,
+      "applicationHubLinks": 3
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-masterbatch/",
+      "status": 200,
+      "canonical": null,
+      "openGraphUrl": null,
+      "robots": "noindex, nofollow",
+      "jsonLdCount": 0,
+      "applicationHubLinks": 3
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-printing-inks/",
+      "status": 200,
+      "canonical": null,
+      "openGraphUrl": null,
+      "robots": "noindex, nofollow",
+      "jsonLdCount": 0,
+      "applicationHubLinks": 3
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-paper/",
+      "status": 200,
+      "canonical": null,
+      "openGraphUrl": null,
+      "robots": "noindex, nofollow",
+      "jsonLdCount": 0,
+      "applicationHubLinks": 3
+    }
+  ],
+  "applicationHub": {
+    "path": "/applications/",
+    "status": 404
+  },
+  "brazil": [
+    {
+      "path": "/markets/brazil/",
+      "pageId": "MARKET-BR-EN",
+      "expectedLanguage": "en",
+      "status": 200,
+      "language": "en",
+      "identityCount": 1,
+      "canonical": "https://tio2malaysia.com/markets/brazil/",
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/pt-br/markets/brazil/",
+      "pageId": "MARKET-BR-PT",
+      "expectedLanguage": "pt-BR",
+      "status": 200,
+      "language": "pt-BR",
+      "identityCount": 1,
+      "canonical": "https://tio2malaysia.com/pt-br/markets/brazil/",
+      "robots": "noindex, nofollow"
+    }
+  ],
+  "uk": {
+    "links": [
+      {
+        "label": "TRA public file: AD0086",
+        "href": "https://public-file.trade-remedies.service.gov.uk/case/ad0086/"
+      },
+      {
+        "label": "Trade Remedies Notice 2026/14",
+        "href": "https://www.gov.uk/government/publications/trade-remedies-notice-registration-of-imports-of-rutile-titanium-dioxide-originating-from-china/trade-remedies-notice-202614-registration-of-imports-of-rutile-titanium-dioxide-originating-from-china"
+      },
+      {
+        "label": "Trade Remedies Notices collection",
+        "href": "https://www.gov.uk/government/collections/trade-remedies-notices"
+      },
+      {
+        "label": "UK Trade Tariff",
+        "href": "https://www.gov.uk/trade-tariff"
+      },
+      {
+        "label": "HMRC trade remedies guidance",
+        "href": "https://www.gov.uk/guidance/check-when-you-need-to-pay-anti-dumping-countervailing-and-safeguard-duties"
+      },
+      {
+        "label": "HMRC Northern Ireland tariff-route guidance",
+        "href": "https://www.gov.uk/hmrc-internal-manuals/customs-cds-volume-3-tariff-step-by-step-guide/cdssg08020"
+      }
+    ],
+    "maintainedLinkCount": 1,
+    "path": "/resources/uk-titanium-dioxide-anti-dumping-investigation/",
+    "status": 200,
+    "officialSources": [
+      {
+        "label": "TRA public file: AD0086",
+        "href": "https://public-file.trade-remedies.service.gov.uk/case/ad0086/",
+        "status": 200,
+        "finalUrl": "https://public-file.trade-remedies.service.gov.uk/case/ad0086/",
+        "title": "Trade Remedies Authority | AD0086",
+        "error": null
+      },
+      {
+        "label": "Trade Remedies Notice 2026/14",
+        "href": "https://www.gov.uk/government/publications/trade-remedies-notice-registration-of-imports-of-rutile-titanium-dioxide-originating-from-china/trade-remedies-notice-202614-registration-of-imports-of-rutile-titanium-dioxide-originating-from-china",
+        "status": 200,
+        "finalUrl": "https://www.gov.uk/government/publications/trade-remedies-notice-registration-of-imports-of-rutile-titanium-dioxide-originating-from-china/trade-remedies-notice-202614-registration-of-imports-of-rutile-titanium-dioxide-originating-from-china",
+        "title": "Trade remedies notice 2026/14: registration of imports of rutile titanium dioxide originating from China - GOV.UK",
+        "error": null
+      },
+      {
+        "label": "Trade Remedies Notices collection",
+        "href": "https://www.gov.uk/government/collections/trade-remedies-notices",
+        "status": 200,
+        "finalUrl": "https://www.gov.uk/government/collections/trade-remedies-notices",
+        "title": "Trade remedies notices - GOV.UK",
+        "error": null
+      },
+      {
+        "label": "UK Trade Tariff",
+        "href": "https://www.gov.uk/trade-tariff",
+        "status": 200,
+        "finalUrl": "https://www.gov.uk/trade-tariff",
+        "title": "Trade Tariff: look up commodity codes, duty and VAT rates - GOV.UK",
+        "error": null
+      },
+      {
+        "label": "HMRC trade remedies guidance",
+        "href": "https://www.gov.uk/guidance/check-when-you-need-to-pay-anti-dumping-countervailing-and-safeguard-duties",
+        "status": 200,
+        "finalUrl": "https://www.gov.uk/guidance/check-when-you-need-to-pay-anti-dumping-countervailing-and-safeguard-duties",
+        "title": "Check when you need to pay anti-dumping, countervailing and safeguard duties - GOV.UK",
+        "error": null
+      },
+      {
+        "label": "HMRC Northern Ireland tariff-route guidance",
+        "href": "https://www.gov.uk/hmrc-internal-manuals/customs-cds-volume-3-tariff-step-by-step-guide/cdssg08020",
+        "status": 200,
+        "finalUrl": "https://www.gov.uk/hmrc-internal-manuals/customs-cds-volume-3-tariff-step-by-step-guide/cdssg08020",
+        "title": "CDSSG08020 - Step-By-Step Guide, Step 3 - the Commodity Code and the Customs Declaration (DEs 6/14 - 6/17): Commodity Codes and Taxes - HMRC internal manual - GOV.UK",
+        "error": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+▲ Next.js 16.3.2 (webpack)
+✓ Running next.config.ts took 28ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.8s
+  Running TypeScript ...
+  Finished TypeScript in 5.1s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/52) ...
+  Generating static pages using 15 workers (13/52) 
+  Generating static pages using 15 workers (26/52) 
+  Generating static pages using 15 workers (39/52) 
+✓ Generating static pages using 15 workers (52/52) in 3.6s
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)                                                    Revalidate  Expire
+┌ ○ /
+├ ○ /_not-found
+├ ● /[...path]
+├ ○ /about                                                             1h      1y
+├ ƒ /api/preview
+├ ƒ /api/revalidate
+├ ○ /applications                                                      1h      1y
+├ ● /applications/[...segments]
+├ ƒ /applications/titanium-dioxide-for-coatings
+├ ƒ /applications/titanium-dioxide-for-masterbatch
+├ ƒ /applications/titanium-dioxide-for-paper
+├ ƒ /applications/titanium-dioxide-for-plastics
+├ ƒ /applications/titanium-dioxide-for-printing-inks
+├ ○ /cookie-policy                                                     1h      1y
+├ ○ /documents                                                         1h      1y
+├ ○ /documents/reach                                                   1h      1y
+├ ○ /documents/tds-sds-coa                                             1h      1y
+├ ○ /markets                                                           1h      1y
+├ ○ /markets/belgium                                                   1h      1y
+├ ○ /markets/european-union                                            1h      1y
+├ ○ /markets/india                                                     1h      1y
+├ ○ /markets/netherlands                                               1h      1y
+├ ○ /markets/spain                                                     1h      1y
+├ ○ /markets/united-kingdom                                            1h      1y
+├ ○ /ms/privacy-policy                                                 1h      1y
+├ ƒ /preview/applications
+├ ƒ /preview/applications/[...segments]
+├ ƒ /preview/products
+├ ƒ /preview/products/[familySlug]
+├ ƒ /preview/products/[familySlug]/[slug]
+├ ƒ /preview/release-look/products/[slug]
+├ ƒ /preview/resources
+├ ƒ /preview/resources/[slug]
+├ ○ /privacy-policy                                                    1h      1y
+├ ○ /products                                                          1h      1y
+├   /products/[familySlug]
+│ ├ ● /products/m-350                                                  1h      1y
+│ ├ ● /products/m-510                                                  1h      1y
+│ ├ ● /products/m-896                                                  1h      1y
+│ └ ● [+11 more paths]
+├ ● /products/[familySlug]/[slug]
+├ ○ /request-a-quote                                                   1h      1y
+├ ○ /request-documents                                                 1h      1y
+├ ○ /request-sample                                                    1h      1y
+├ ƒ /resources
+├ ● /resources/[slug]
+├ ƒ /resources/brazil-titanium-dioxide-anti-dumping-duty
+├ ○ /resources/chloride-vs-sulfate-titanium-dioxide                    1h      1y
+├ ƒ /resources/eu-titanium-dioxide-anti-dumping-duty
+├ ƒ /resources/india-titanium-dioxide-anti-dumping-duty
+├ ○ /resources/non-china-titanium-dioxide                              1h      1y
+├ ƒ /resources/uk-titanium-dioxide-anti-dumping-investigation
+├ ○ /robots.txt
+└ ○ /sitemap.xml
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

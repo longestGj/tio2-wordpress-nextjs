@@ -1,0 +1,75 @@
+{
+  "id": "RES-TRADE-EU",
+  "time": "2026-09-08T01:58:41.852Z",
+  "build": "1AwBNw0A1szLVVlTyLyQU",
+  "before": {
+    "innerWidth": 1424,
+    "innerHeight": 905,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 1,
+    "scrollWidth": 1424,
+    "scrollHeight": 5235
+  },
+  "after": {
+    "innerWidth": 712,
+    "innerHeight": 452,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 2,
+    "scrollWidth": 712,
+    "scrollHeight": 6130
+  },
+  "captures": [
+    {
+      "file": "RES-TRADE-EU-full-part-1.png",
+      "sha256": "274bc1678c5d666e9fcda2ed577be51ba7862b3dfabf8c8bf55101ec91292f95",
+      "width": 1424,
+      "height": 10000,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "width": 1424,
+        "height": 10000,
+        "scale": 1
+      }
+    },
+    {
+      "file": "RES-TRADE-EU-full-part-2.png",
+      "sha256": "84943bb7e9b56e607ace8809ab5350469f9fa64fdec06fd611b2c60d756b9a83",
+      "width": 1424,
+      "height": 2260,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 10000,
+        "width": 1424,
+        "height": 2260,
+        "scale": 1
+      }
+    },
+    {
+      "file": "RES-TRADE-EU-top.png",
+      "sha256": "73e22437301e60eb0555a34f5761e5245215d63777331af19d82f334a8dbc897",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    },
+    {
+      "file": "RES-TRADE-EU-menu.png",
+      "sha256": "3d62ee194a14a6d3f3b09e2b3bea0adc26a32de184ce98807daf8017f29f998e",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    },
+    {
+      "file": "RES-TRADE-EU-cookie.png",
+      "sha256": "7f3a93d12d1c9768d6b5522a3bedad69fbaa9001ecc5d54791c65d8d72773c2b",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    }
+  ],
+  "nativeZoom": 2
+}

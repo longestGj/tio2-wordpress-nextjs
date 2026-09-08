@@ -1,0 +1,197 @@
+{
+  "id": "APP-PAPER",
+  "time": "2026-09-08T01:13:58.271Z",
+  "build": "UV4ipmsCJ7cj7M2EHPfID",
+  "base": "http://127.0.0.1:3216",
+  "source": {
+    "packageId": "APP-PAPER-G6-HANDOFF-01",
+    "packageSha256": "c50e1287cdd88a3ebac79cf0accd895be5292d43355b257a9974a9a2effcf1fa",
+    "bodySha256": "14a77a04347e78b7ad080cd9d8b7f6251692450380216506e6e0745724012542",
+    "visualSha256": "e3d7907131d98b987328bf084ba80ed90476363e3caa9936252c5558784bac9f"
+  },
+  "cms": {
+    "environment": "real isolated WordPress :8186",
+    "id": "editorial-18545",
+    "availableGradePaths": [
+      "/products/m-350/",
+      "/products/m-2377/"
+    ],
+    "unavailableInternalPaths": []
+  },
+  "captures": [
+    {
+      "width": 1440,
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "height": 8725,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "APP-PAPER-1440.png",
+      "sha256": "77b3122d3c5314dc5379e7ac5de372f947c26a89de89d78a35841b2ca5c24b82"
+    },
+    {
+      "width": 768,
+      "geometry": {
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 9677,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "APP-PAPER-768.png",
+      "sha256": "efc58931be07c1d9f60a118242b990e9a848050fbf168853f1b4a9d249aa6545"
+    },
+    {
+      "width": 390,
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 14724,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "APP-PAPER-390.png",
+      "sha256": "cc5eeb612e475c628fb641e5ec60ce58c256b77194ef977abf8b6a7ce9a388bd"
+    }
+  ],
+  "anchorStates": [
+    {
+      "tag": "H2",
+      "id": "",
+      "text": "Define the paper result and system"
+    },
+    {
+      "tag": "H2",
+      "id": "",
+      "text": "Grades to Review"
+    }
+  ],
+  "destinations": [
+    {
+      "path": "/products/m-350/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-350"
+    },
+    {
+      "path": "/products/m-2377/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products/m-2377"
+    },
+    {
+      "path": "/products/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/products"
+    },
+    {
+      "path": "/request-documents/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/request-documents/"
+    },
+    {
+      "path": "/request-sample/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/request-sample"
+    },
+    {
+      "path": "/request-a-quote/",
+      "status": 200,
+      "url": "http://127.0.0.1:3216/request-a-quote"
+    }
+  ],
+  "browserErrors": [],
+  "pageNetwork": [
+    {
+      "url": "http://127.0.0.1:3216/applications/titanium-dioxide-for-paper/?probe=canonical",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/css/a77979556e4dc241.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/css/82f0f10d089ec09c.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/css/21e3f5f930281619.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/css/3192cdb5c6859ccf.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/chunks/webpack-4c53185fff0b00dd.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/chunks/87c73c54-fd33669cffb637e8.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/chunks/1968-c39d22d888004b23.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/chunks/main-app-0ecc20be3472597f.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/chunks/5604-acf779aff7d96ab4.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/chunks/9497-62f5b637f349a788.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/chunks/8634-778b2ad4bc5aacfe.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/chunks/app/(en)/applications/titanium-dioxide-for-paper/page-76608468f4c3f948.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/?_rsc=AA4P_k49mZ1v9tHc",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/css/a8075e576638a45b.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/css/b299bcc3c5e3e046.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/?_rsc=hyYyXJeaOFCDkFOH",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/_next/static/chunks/app/(en)/page-fa68dd5132c32575.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3216/tio2-my/brand/tio2-malaysia-reverse-monochrome-v0.1.svg",
+      "method": "GET"
+    }
+  ],
+  "axeSeriousCritical": 0
+}

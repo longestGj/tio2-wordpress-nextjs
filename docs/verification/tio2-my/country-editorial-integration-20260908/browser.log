@@ -1,0 +1,98 @@
+
+Running 47 tests using 1 worker
+
+(node:70940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\country-markets.spec.ts:46:1 › WordPress resolver returns four exact tio2-my records without fallback (421ms)
+  ok  2 [chromium] › tests\e2e\country-markets.spec.ts:91:3 › MARKET-EU-ES initial HTML, metadata, links and graph stay inside the approved contract (95ms)
+  ok  3 [chromium] › tests\e2e\country-markets.spec.ts:155:5 › MARKET-EU-ES 1440px shared Chrome, responsive layout, a11y and screenshot (2.0s)
+  ok  4 [chromium] › tests\e2e\country-markets.spec.ts:155:5 › MARKET-EU-ES 768px shared Chrome, responsive layout, a11y and screenshot (1.9s)
+  ok  5 [chromium] › tests\e2e\country-markets.spec.ts:155:5 › MARKET-EU-ES 390px shared Chrome, responsive layout, a11y and screenshot (1.8s)
+  ok  6 [chromium] › tests\e2e\country-markets.spec.ts:91:3 › MARKET-IN-001 initial HTML, metadata, links and graph stay inside the approved contract (44ms)
+  ok  7 [chromium] › tests\e2e\country-markets.spec.ts:155:5 › MARKET-IN-001 1440px shared Chrome, responsive layout, a11y and screenshot (2.3s)
+  ok  8 [chromium] › tests\e2e\country-markets.spec.ts:155:5 › MARKET-IN-001 768px shared Chrome, responsive layout, a11y and screenshot (2.1s)
+  ok  9 [chromium] › tests\e2e\country-markets.spec.ts:155:5 › MARKET-IN-001 390px shared Chrome, responsive layout, a11y and screenshot (2.1s)
+  ok 10 [chromium] › tests\e2e\country-markets.spec.ts:91:3 › MARKET-EU-NL initial HTML, metadata, links and graph stay inside the approved contract (38ms)
+  ok 11 [chromium] › tests\e2e\country-markets.spec.ts:155:5 › MARKET-EU-NL 1440px shared Chrome, responsive layout, a11y and screenshot (1.8s)
+  ok 12 [chromium] › tests\e2e\country-markets.spec.ts:155:5 › MARKET-EU-NL 768px shared Chrome, responsive layout, a11y and screenshot (1.8s)
+  ok 13 [chromium] › tests\e2e\country-markets.spec.ts:155:5 › MARKET-EU-NL 390px shared Chrome, responsive layout, a11y and screenshot (1.9s)
+  ok 14 [chromium] › tests\e2e\country-markets.spec.ts:91:3 › MARKET-EU-BE initial HTML, metadata, links and graph stay inside the approved contract (39ms)
+  ok 15 [chromium] › tests\e2e\country-markets.spec.ts:155:5 › MARKET-EU-BE 1440px shared Chrome, responsive layout, a11y and screenshot (1.8s)
+  ok 16 [chromium] › tests\e2e\country-markets.spec.ts:155:5 › MARKET-EU-BE 768px shared Chrome, responsive layout, a11y and screenshot (1.8s)
+  ok 17 [chromium] › tests\e2e\country-markets.spec.ts:155:5 › MARKET-EU-BE 390px shared Chrome, responsive layout, a11y and screenshot (2.0s)
+  x  18 [chromium] › tests\e2e\country-markets.spec.ts:289:1 › all four country pages reach editable scoped RFQ and document forms without submitting externally (5.9s)
+(node:37476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 19 [chromium] › tests\e2e\country-markets.spec.ts:309:1 › Spain preserves the approved typography, action geometry, hover and keyboard-focus states (1.7s)
+  ok 20 [chromium] › tests\e2e\country-markets.spec.ts:364:1 › India exposes every main action in forward and reverse keyboard order with visible focus (1.4s)
+  ok 21 [chromium] › tests\e2e\country-markets.spec.ts:424:3 › Belgium 1440px keeps the two BE-04 inline focus targets clear and stable (1.1s)
+  ok 22 [chromium] › tests\e2e\country-markets.spec.ts:424:3 › Belgium 768px keeps the two BE-04 inline focus targets clear and stable (1.1s)
+  ok 23 [chromium] › tests\e2e\country-markets.spec.ts:424:3 › Belgium 390px keeps the two BE-04 inline focus targets clear and stable (1.1s)
+  ok 24 [chromium] › tests\e2e\editorial-native-zoom.spec.ts:8:1 › nine pages preserve actual browser 200% zoom and keyboard states (35.4s)
+  ok 25 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › RES-TRADE-EU live CMS SSR and responsive interactions (2.8s)
+  ok 26 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › RES-TRADE-UK live CMS SSR and responsive interactions (3.0s)
+  ok 27 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › RES-TRADE-IN live CMS SSR and responsive interactions (3.2s)
+  ok 28 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › RES-TRADE-BR live CMS SSR and responsive interactions (3.1s)
+  ok 29 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › APP-COAT live CMS SSR and responsive interactions (3.8s)
+  ok 30 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › APP-PLAS live CMS SSR and responsive interactions (4.4s)
+  ok 31 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › APP-MB live CMS SSR and responsive interactions (3.7s)
+  ok 32 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › APP-INK live CMS SSR and responsive interactions (3.3s)
+  ok 33 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › APP-PAPER live CMS SSR and responsive interactions (3.4s)
+  ok 34 [chromium] › tests\e2e\editorial-nine.spec.ts:102:1 › editorial preview routes remain absent from sitemap and queryless canonicals (20ms)
+  ok 35 [chromium] › tests\e2e\legal-privacy.spec.ts:43:5 › LEGAL-PRIV-EN 390px approved runtime contract (1.9s)
+  ok 36 [chromium] › tests\e2e\legal-privacy.spec.ts:43:5 › LEGAL-PRIV-EN 768px approved runtime contract (1.8s)
+  ok 37 [chromium] › tests\e2e\legal-privacy.spec.ts:43:5 › LEGAL-PRIV-EN 1440px approved runtime contract (1.9s)
+  ok 38 [chromium] › tests\e2e\legal-privacy.spec.ts:43:5 › LEGAL-PRIV-MS 390px approved runtime contract (1.8s)
+  ok 39 [chromium] › tests\e2e\legal-privacy.spec.ts:43:5 › LEGAL-PRIV-MS 768px approved runtime contract (1.9s)
+  ok 40 [chromium] › tests\e2e\legal-privacy.spec.ts:43:5 › LEGAL-PRIV-MS 1440px approved runtime contract (1.9s)
+  ok 41 [chromium] › tests\e2e\legal-privacy.spec.ts:43:5 › LEGAL-COOKIE-EN 390px approved runtime contract (1.7s)
+  ok 42 [chromium] › tests\e2e\legal-privacy.spec.ts:43:5 › LEGAL-COOKIE-EN 768px approved runtime contract (1.7s)
+  ok 43 [chromium] › tests\e2e\legal-privacy.spec.ts:43:5 › LEGAL-COOKIE-EN 1440px approved runtime contract (1.7s)
+  ok 44 [chromium] › tests\e2e\legal-privacy.spec.ts:141:1 › shared Cookie Settings is minimal, keyboard-contained and does not enable analytics (937ms)
+  ok 45 [chromium] › tests\e2e\legal-privacy.spec.ts:167:1 › Cookie inventory reflows at 1440px with a 200% zoom-equivalent 720 CSS px viewport (896ms)
+  ok 46 [chromium] › tests\e2e\legal-privacy.spec.ts:186:3 › /terms-of-use/ remains unregistered (640ms)
+  ok 47 [chromium] › tests\e2e\legal-privacy.spec.ts:186:3 › /legal/privacy-policy/ remains unregistered (642ms)
+
+
+  1) [chromium] › tests\e2e\country-markets.spec.ts:289:1 › all four country pages reach editable scoped RFQ and document forms without submitting externally 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: locator('#rfq-destination_country')
+    Expected: "Spain"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" with timeout 5000ms
+      - waiting for locator('#rfq-destination_country')
+
+
+      293 |     await page.locator('main a[href^="/request-a-quote/"]').first().click()
+      294 |     await expect(page).toHaveURL(new RegExp(`/request-a-quote\\?`))
+    > 295 |     await expect(page.locator('#rfq-destination_country')).toHaveValue(contract.destinationCountry)
+          |                                                            ^
+      296 |     await page.locator('#rfq-destination_country').fill(`${contract.destinationCountry} receiving point`)
+      297 |     await expect(page.locator('#rfq-destination_country')).toHaveValue(`${contract.destinationCountry} receiving point`)
+      298 |
+        at D:\16Wordpress_nextjs\.worktrees\trade4-app5-gate8\tests\e2e\country-markets.spec.ts:295:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .tmp\playwright-results\country-markets-all-four-c-c4197-thout-submitting-externally-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .tmp\playwright-results\country-markets-all-four-c-c4197-thout-submitting-externally-chromium\error-context.md
+
+    Error Context: .tmp\playwright-results\country-markets-all-four-c-c4197-thout-submitting-externally-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    .tmp\playwright-results\country-markets-all-four-c-c4197-thout-submitting-externally-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace .tmp\playwright-results\country-markets-all-four-c-c4197-thout-submitting-externally-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\e2e\country-markets.spec.ts:289:1 › all four country pages reach editable scoped RFQ and document forms without submitting externally 
+  46 passed (2.1m)

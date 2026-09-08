@@ -1,0 +1,127 @@
+{
+  "id": "APP-PLAS",
+  "time": "2026-09-08T01:17:44.431Z",
+  "build": "UV4ipmsCJ7cj7M2EHPfID",
+  "before": {
+    "innerWidth": 1424,
+    "innerHeight": 905,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 1,
+    "scrollWidth": 1424,
+    "scrollHeight": 9486
+  },
+  "after": {
+    "innerWidth": 712,
+    "innerHeight": 452,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 2,
+    "scrollWidth": 712,
+    "scrollHeight": 11789
+  },
+  "captures": [
+    {
+      "file": "APP-PLAS-full-part-1.png",
+      "sha256": "641e551f8535ba9f3718be7af72fcc6d20e831614f1ff5a5fca165ea4a16dc2d",
+      "width": 1424,
+      "height": 10000,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "width": 1424,
+        "height": 10000,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-PLAS-full-part-2.png",
+      "sha256": "bce47ed209af91c6618fe72c4f18a9b7279e116261437afc84eb759debf8e36c",
+      "width": 1424,
+      "height": 10000,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 10000,
+        "width": 1424,
+        "height": 10000,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-PLAS-full-part-3.png",
+      "sha256": "a451981466426cdc249686904f57fdaeec45bf27c39cfe92cc3ffced1c2fe5f2",
+      "width": 1424,
+      "height": 3579,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 20000,
+        "width": 1424,
+        "height": 3579,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-PLAS-top.png",
+      "sha256": "1a002c805d3859bed2bc4cafd79d86bb24dda2d3307a52695642769eeface5cd",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment"
+    },
+    {
+      "file": "APP-PLAS-cookie.png",
+      "sha256": "b8bd38bda2b34d286fa457297906edff54853a7dcc0bf1bb3a4a5d36f57f126e",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment"
+    },
+    {
+      "file": "APP-PLAS-menu.png",
+      "sha256": "eb43097c3e515db0c2187ce9a5c33beac4bc7e2dc9c06da211a92bb015de0ff6",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+      "time": "2026-09-08T01:26:20.271Z"
+    },
+    {
+      "file": "APP-PLAS-menu-rfq.png",
+      "sha256": "19109a99f373cd26691340ec9982f2c0b804b4b58ca98e32356fa51ac52e8cb0",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+      "time": "2026-09-08T01:26:21.352Z"
+    }
+  ],
+  "nativeZoom": 2,
+  "menuRecheck": {
+    "time": "2026-09-08T01:26:21.371Z",
+    "build": "UV4ipmsCJ7cj7M2EHPfID",
+    "before": {
+      "innerWidth": 1424,
+      "innerHeight": 905,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 1,
+      "scrollWidth": 1424
+    },
+    "after": {
+      "innerWidth": 712,
+      "innerHeight": 452,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 2,
+      "scrollWidth": 712
+    },
+    "nativeZoom": 2,
+    "oldEvidenceDirectory": "D:\\16Wordpress_nextjs\\.worktrees\\trade4-app5-gate8\\.tmp\\editorial-menu-recheck-3EB30P",
+    "keyboard": "Close -> ShiftTab top RFQ -> ShiftTab final RFQ fully in viewport -> Tab top RFQ -> Tab Close -> Escape trigger",
+    "lastRect": {
+      "x": 0,
+      "y": 400.5,
+      "width": 712,
+      "height": 52
+    }
+  }
+}

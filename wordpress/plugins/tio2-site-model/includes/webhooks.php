@@ -52,7 +52,7 @@ function tio2_get_webhook_config(string $site_id, ?array $environment = null): ?
  */
 function tio2_webhook_post_types(): array
 {
-    return array_merge(['page', 'post', 'tio2_homepage', 'tio2_market_page', 'tio2_product_hub', 'tio2_resource_hub', 'tio2_about_page', 'tio2_documents_hub', 'tio2_doc_tds', 'tio2_legal_page', 'tio2_request_docs', 'tio2_request_sample'], array_keys(tio2_content_type_definitions()));
+    return array_merge(['page', 'post', 'tio2_homepage', 'tio2_market_page', 'tio2_product_hub', 'tio2_my_editorial', 'tio2_resource_hub', 'tio2_about_page', 'tio2_documents_hub', 'tio2_doc_tds', 'tio2_legal_page', 'tio2_request_docs', 'tio2_request_sample'], array_keys(tio2_content_type_definitions()));
 }
 
 /**
@@ -449,10 +449,23 @@ function tio2_get_webhook_affected_state(
         $paths = [$product_path];
         $entity_ids = [$post_id];
         $site_paths['tio2-my'] = $paths;
+    } elseif ('tio2_my_editorial' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $page_id = (string) get_post_meta($post_id, '_tio2_editorial_page_id', true);
+        $identity = tio2_editorial_identity($page_id);
+        if (!$identity) return null;
+        $paths = [$identity['path']];
+        if (str_starts_with($page_id,'RES-TRADE-')) $paths[]='/resources';
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
     } elseif ('tio2_market_page' === $post->post_type) {
         if (['tio2-my'] !== $site_ids) return null;
         $path = (string) get_post_meta($post_id, 'public_path', true);
-        if (! in_array($path, ['/markets/european-union', '/markets/united-kingdom', '/markets/poland', '/markets/brazil', '/pt-br/markets/brazil'], true)) return null;
+        if (! in_array($path, [
+            '/markets/european-union', '/markets/united-kingdom', '/markets/poland', '/markets/spain',
+            '/markets/india', '/markets/netherlands', '/markets/belgium',
+            '/markets/brazil', '/pt-br/markets/brazil',
+        ], true)) return null;
         $paths = [$path];
         $entity_ids = [$post_id];
         $site_paths['tio2-my'] = $paths;
@@ -675,6 +688,7 @@ function tio2_send_webhook(int $post_id, ?array $affected = null): bool
 
 function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = null): bool
 {
+    if (in_array($meta_key, ['_tio2_my_editorial_contract', '_tio2_my_editorial_review', '_tio2_editorial_page_id'], true)) return true;
     if (in_array($meta_key, [
         'public_path',
         'seo_title',
@@ -712,6 +726,7 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
             (defined('TIO2_MY_EU_MARKET_CONTRACT_META') && TIO2_MY_EU_MARKET_CONTRACT_META === $meta_key) ||
             (defined('TIO2_MY_UK_MARKET_CONTRACT_META') && TIO2_MY_UK_MARKET_CONTRACT_META === $meta_key) ||
             (defined('TIO2_MY_POLAND_MARKET_CONTRACT_META') && TIO2_MY_POLAND_MARKET_CONTRACT_META === $meta_key) ||
+            (defined('TIO2_MY_COUNTRY_MARKET_CONTRACT_META') && TIO2_MY_COUNTRY_MARKET_CONTRACT_META === $meta_key) ||
             (defined('TIO2_MY_BRAZIL_EN_MARKET_CONTRACT_META') && TIO2_MY_BRAZIL_EN_MARKET_CONTRACT_META === $meta_key) ||
             (defined('TIO2_MY_BRAZIL_PT_MARKET_CONTRACT_META') && TIO2_MY_BRAZIL_PT_MARKET_CONTRACT_META === $meta_key)
         )

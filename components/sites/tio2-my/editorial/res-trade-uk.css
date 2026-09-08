@@ -1,0 +1,92 @@
+[data-editorial-page="RES-TRADE-UK"] main,[data-editorial-page="RES-TRADE-UK"] main *{box-sizing:border-box}
+[data-editorial-page="RES-TRADE-UK"] main{margin:0;font-family:var(--font-my-shared),Arial,sans-serif;color:#102d46;background:white}
+[data-editorial-page="RES-TRADE-UK"] main{max-width:1200px;margin:auto;padding:28px 40px 64px}
+[data-editorial-page="RES-TRADE-UK"] main .module{max-width:960px;margin:auto;padding:38px 0;border-bottom:1px solid #d7e1e7}
+[data-editorial-page="RES-TRADE-UK"] main .module:first-child{padding-top:12px}
+[data-editorial-page="RES-TRADE-UK"] main .module:last-child{border:0;padding-bottom:0}
+[data-editorial-page="RES-TRADE-UK"] main h1{font-size:46px;line-height:1.15;letter-spacing:-1.4px;margin:0 0 24px}
+[data-editorial-page="RES-TRADE-UK"] main h2{font-size:30px;line-height:1.25;margin:0 0 24px;letter-spacing:-.5px}
+[data-editorial-page="RES-TRADE-UK"] main h3{font-size:22px;margin:26px 0 18px}
+[data-editorial-page="RES-TRADE-UK"] main p,[data-editorial-page="RES-TRADE-UK"] main li{font-size:17px;line-height:1.65;margin:0 0 18px}
+[data-editorial-page="RES-TRADE-UK"] main ul{padding-left:25px;margin:22px 0}
+[data-editorial-page="RES-TRADE-UK"] main li{padding-left:6px}
+[data-editorial-page="RES-TRADE-UK"] main code{font:inherit;font-variant-numeric:tabular-nums}
+[data-editorial-page="RES-TRADE-UK"] main a{display:inline-flex;align-items:center;min-height:44px;min-width:44px;max-width:100%;color:#008078;text-underline-offset:4px;font-weight:600;overflow-wrap:anywhere}
+[data-editorial-page="RES-TRADE-UK"] main a:focus-visible{outline:3px solid #008078;outline-offset:3px}
+[data-editorial-page="RES-TRADE-UK"] main .module-1 p:nth-of-type(3) a,[data-editorial-page="RES-TRADE-UK"] main .module-7 p:first-of-type a{padding:12px 20px;background:#008078;border:1px solid #008078;color:white;text-decoration:none}
+[data-editorial-page="RES-TRADE-UK"] main .module-1 p:nth-of-type(5) a{padding:11px 20px;border:1px solid #008078;text-decoration:none}
+[data-editorial-page="RES-TRADE-UK"] main table{width:100%;table-layout:fixed;border-collapse:collapse;margin:22px 0 26px;font-size:16px;line-height:1.6}
+[data-editorial-page="RES-TRADE-UK"] main th,[data-editorial-page="RES-TRADE-UK"] main td{border:1px solid #cbd8e0;padding:16px;text-align:left;vertical-align:top;overflow-wrap:break-word}
+[data-editorial-page="RES-TRADE-UK"] main th{background:#eff4f6;font-weight:600}
+[data-editorial-page="RES-TRADE-UK"] main .table-1 th:first-child{width:32%}
+[data-editorial-page="RES-TRADE-UK"] main .table-2 th:first-child{width:25%}
+[data-editorial-page="RES-TRADE-UK"] main .table-2 th:nth-child(2){width:23%}
+[data-editorial-page="RES-TRADE-UK"] main .table-3 th:first-child{width:26%}
+[data-editorial-page="RES-TRADE-UK"] main .table-3 th:nth-child(2){width:37%}
+@media(max-width:1100px){[data-editorial-page="RES-TRADE-UK"] main{padding:24px 32px 48px}
+[data-editorial-page="RES-TRADE-UK"] main .module{padding:32px 0}
+[data-editorial-page="RES-TRADE-UK"] main h1{font-size:40px}
+[data-editorial-page="RES-TRADE-UK"] main th,[data-editorial-page="RES-TRADE-UK"] main td{padding:14px}
+}
+@media(max-width:600px){[data-editorial-page="RES-TRADE-UK"] main{padding:20px 20px 40px}
+[data-editorial-page="RES-TRADE-UK"] main .module{padding:30px 0}
+[data-editorial-page="RES-TRADE-UK"] main h1{font-size:34px;letter-spacing:-.8px}
+[data-editorial-page="RES-TRADE-UK"] main h2{font-size:27px}
+[data-editorial-page="RES-TRADE-UK"] main p,[data-editorial-page="RES-TRADE-UK"] main li{font-size:16px;line-height:1.65}
+[data-editorial-page="RES-TRADE-UK"] main .module-1 a{width:100%;justify-content:center}
+[data-editorial-page="RES-TRADE-UK"] main li{padding-left:1px}
+[data-editorial-page="RES-TRADE-UK"] main table,[data-editorial-page="RES-TRADE-UK"] main tbody,[data-editorial-page="RES-TRADE-UK"] main tr,[data-editorial-page="RES-TRADE-UK"] main td{display:block;width:100%}
+[data-editorial-page="RES-TRADE-UK"] main thead{position:absolute;width:1px;height:1px;overflow:clip;clip-path:inset(50%)}
+[data-editorial-page="RES-TRADE-UK"] main tbody tr{margin:0 0 20px;border:1px solid #cbd8e0;padding:4px 16px;background:#fff}
+[data-editorial-page="RES-TRADE-UK"] main td{border:0;padding:12px 0}
+[data-editorial-page="RES-TRADE-UK"] main td+td{border-top:1px solid #e0e7eb}
+[data-editorial-page="RES-TRADE-UK"] main td::before{content:attr(data-label);display:block;font-size:14px;font-weight:700;line-height:1.4;margin-bottom:6px;color:#526673}
+[data-editorial-page="RES-TRADE-UK"] main table{font-size:16px;line-height:1.65}
+}
+[data-editorial-page="RES-TRADE-UK"] main{color:#334155}
+[data-editorial-page="RES-TRADE-UK"] main{padding-top:40px;padding-bottom:72px}
+[data-editorial-page="RES-TRADE-UK"] main .module{padding:44px 0;border-color:#D9E2EC}
+[data-editorial-page="RES-TRADE-UK"] main h1,[data-editorial-page="RES-TRADE-UK"] main h2,[data-editorial-page="RES-TRADE-UK"] main h3{color:#062B5B}
+[data-editorial-page="RES-TRADE-UK"] main h1{font-size:52px;line-height:1.13;letter-spacing:-1.5px;font-weight:700}
+[data-editorial-page="RES-TRADE-UK"] main h2{font-size:36px;line-height:1.2;font-weight:700;margin-bottom:26px}
+[data-editorial-page="RES-TRADE-UK"] main h3{font-size:26px;font-weight:600}
+[data-editorial-page="RES-TRADE-UK"] main .module:first-child{padding:32px;background:#F5F8FB;border-top:4px solid #062B5B;border-bottom:1px solid #D9E2EC}
+[data-editorial-page="RES-TRADE-UK"] main .module-1 p:first-of-type{font-size:18px;line-height:1.65}
+[data-editorial-page="RES-TRADE-UK"] main .module-1 p:nth-of-type(2){border-left:3px solid #062B5B;padding-left:18px}
+[data-editorial-page="RES-TRADE-UK"] main .module-1 p:nth-of-type(4),[data-editorial-page="RES-TRADE-UK"] main .module-1 p:nth-of-type(6){font-size:16px}
+[data-editorial-page="RES-TRADE-UK"] main .module-1 p:last-child{margin-bottom:0}
+[data-editorial-page="RES-TRADE-UK"] main .module-1 p:nth-of-type(3) a,[data-editorial-page="RES-TRADE-UK"] main .module-7 p:first-of-type a{border-radius:6px;font-size:16px}
+[data-editorial-page="RES-TRADE-UK"] main .module-1 p:nth-of-type(5) a{border-radius:6px;color:#062B5B;border-color:#062B5B;background:#fff;font-size:16px}
+[data-editorial-page="RES-TRADE-UK"] main th{background:#062B5B;color:#fff;font-weight:600}
+[data-editorial-page="RES-TRADE-UK"] main td{border-color:#D9E2EC}
+[data-editorial-page="RES-TRADE-UK"] main tbody tr:nth-child(even){background:#F5F8FB}
+[data-editorial-page="RES-TRADE-UK"] main td:first-child{font-weight:600;color:#062B5B}
+[data-editorial-page="RES-TRADE-UK"] main code{font-variant-numeric:tabular-nums;color:#062B5B;font-weight:500}
+[data-editorial-page="RES-TRADE-UK"] main .module-3 p:nth-of-type(3){padding:20px;background:#F5F8FB;border:1px solid #D9E2EC;line-height:1.9}
+[data-editorial-page="RES-TRADE-UK"] main .module-4 p:first-of-type{padding:20px;border-left:3px solid #062B5B;background:#F5F8FB}
+[data-editorial-page="RES-TRADE-UK"] main li::marker{color:#062B5B}
+[data-editorial-page="RES-TRADE-UK"] main a:hover{text-decoration-thickness:2px}
+[data-editorial-page="RES-TRADE-UK"] main .module-1 p:nth-of-type(3) a:hover,[data-editorial-page="RES-TRADE-UK"] main .module-7 p:first-of-type a:hover{background:#062B5B;border-color:#062B5B}
+[data-editorial-page="RES-TRADE-UK"] main .module-7 h3{padding-top:28px;border-top:1px solid #D9E2EC}
+[data-editorial-page="RES-TRADE-UK"] main .module-7>p:last-child{padding:20px;background:#F5F8FB;margin-bottom:0}
+@media(max-width:1100px){[data-editorial-page="RES-TRADE-UK"] main{padding-top:28px;padding-bottom:56px}
+[data-editorial-page="RES-TRADE-UK"] main .module{padding:36px 0}
+[data-editorial-page="RES-TRADE-UK"] main h1{font-size:40px;letter-spacing:-1px}
+[data-editorial-page="RES-TRADE-UK"] main h2{font-size:30px}
+[data-editorial-page="RES-TRADE-UK"] main .module:first-child{padding:28px}
+}
+@media(max-width:600px){[data-editorial-page="RES-TRADE-UK"] main{padding-top:20px;padding-bottom:40px}
+[data-editorial-page="RES-TRADE-UK"] main h1{font-size:34px;letter-spacing:-.8px}
+[data-editorial-page="RES-TRADE-UK"] main h2{font-size:28px}
+[data-editorial-page="RES-TRADE-UK"] main h3{font-size:24px}
+[data-editorial-page="RES-TRADE-UK"] main .module{padding:32px 0}
+[data-editorial-page="RES-TRADE-UK"] main .module:first-child{padding:20px}
+[data-editorial-page="RES-TRADE-UK"] main .module-1 p:first-of-type{font-size:17px}
+[data-editorial-page="RES-TRADE-UK"] main .module-1 p:nth-of-type(3) a{padding:12px 10px}
+[data-editorial-page="RES-TRADE-UK"] main td:first-child{font-weight:600}
+[data-editorial-page="RES-TRADE-UK"] main tbody tr{border-top:3px solid #062B5B;border-radius:0 0 8px 8px;background:#fff}
+[data-editorial-page="RES-TRADE-UK"] main tbody tr:nth-child(even){background:#F5F8FB}
+[data-editorial-page="RES-TRADE-UK"] main td::before{color:#334155}
+[data-editorial-page="RES-TRADE-UK"] main .module-3 p:nth-of-type(3){padding:16px}
+[data-editorial-page="RES-TRADE-UK"] main .module-4 p:first-of-type{padding:16px}
+}

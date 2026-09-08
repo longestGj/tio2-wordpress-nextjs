@@ -1,0 +1,381 @@
+/* Generated from the approved Gate 4 main-page styles. Shared Chrome styles are intentionally excluded. */
+[data-editorial-page="APP-MB"] main {
+  color-scheme:light;--navy:#062b5b;--deep:#031b3a;--teal:#008078;--accent:#00a99d;--text:#334155;--muted:#5d6b7b;--soft:#f5f8fb;--border:#d9e2ec;--white:#fff
+}
+[data-editorial-page="APP-MB"] main * {
+  box-sizing:border-box
+}
+[data-editorial-page="APP-MB"] main {
+  scroll-behavior:smooth
+}
+[data-editorial-page="APP-MB"] main {
+  margin:0;background:var(--white);color:var(--text);font-family:var(--font-my-shared),Arial,sans-serif;line-height:1.65
+}
+[data-editorial-page="APP-MB"] main {
+  display:block
+}
+[data-editorial-page="APP-MB"] main .content {
+  width:min(1200px,calc(100% - 64px));margin:0 auto
+}
+[data-editorial-page="APP-MB"] main .hero {
+  padding:74px 0 68px;background:linear-gradient(112deg,var(--deep),var(--navy));color:var(--white)
+}
+[data-editorial-page="APP-MB"] main .heroInner {
+  max-width:1040px;margin-left:max(32px,calc((100% - 1200px)/2))
+}
+[data-editorial-page="APP-MB"] main .hero h1 {
+  max-width:860px;margin:0 0 24px;font-size:clamp(44px,5vw,64px);line-height:1.06;letter-spacing:-.035em
+}
+[data-editorial-page="APP-MB"] main .heroLead {
+  max-width:860px;font-size:20px;line-height:1.62
+}
+[data-editorial-page="APP-MB"] main .heroLead p {
+  margin:0
+}
+[data-editorial-page="APP-MB"] main .heroLinks {
+  margin-top:34px
+}
+[data-editorial-page="APP-MB"] main .heroLinks p {
+  display:flex;flex-wrap:wrap;gap:12px;margin:0
+}
+[data-editorial-page="APP-MB"] main .heroLinks a {
+  min-height:48px;padding:12px 18px;border:1px solid #fff;border-radius:7px;display:inline-flex;align-items:center;color:#fff;font-weight:700;text-decoration:none
+}
+[data-editorial-page="APP-MB"] main .heroLinks a:first-child {
+  border-color:var(--teal);background:var(--teal)
+}
+[data-editorial-page="APP-MB"] main .bodySection {
+  padding:72px 0;border-bottom:1px solid var(--border)
+}
+[data-editorial-page="APP-MB"] main .sectionAlt {
+  background:var(--soft)
+}
+[data-editorial-page="APP-MB"] main .bodySection h2 {
+  max-width:820px;margin:0 0 28px;color:var(--navy);font-size:clamp(32px,3.5vw,44px);line-height:1.15;letter-spacing:-.02em
+}
+[data-editorial-page="APP-MB"] main .bodySection p,
+[data-editorial-page="APP-MB"] main .bodySection ul,
+[data-editorial-page="APP-MB"] main .bodySection ol {
+  max-width:880px
+}
+[data-editorial-page="APP-MB"] main .bodySection p {
+  margin:0 0 22px;font-size:17px
+}
+[data-editorial-page="APP-MB"] main .bodySection ul,
+[data-editorial-page="APP-MB"] main .bodySection ol {
+  margin:0 0 24px;padding-left:25px
+}
+[data-editorial-page="APP-MB"] main .bodySection li {
+  margin:7px 0;padding-left:5px
+}
+[data-editorial-page="APP-MB"] main .bodySection a {
+  min-width:44px;min-height:44px;display:inline-flex;align-items:center;color:var(--teal);font-weight:650;text-underline-offset:3px
+}
+[data-editorial-page="APP-MB"] main .bodySection :is(a,button):focus-visible {
+  outline:3px solid var(--teal);outline-offset:4px
+}
+[data-editorial-page="APP-MB"] main .bodySection code {
+  padding:.1em .3em;border-radius:3px;background:#eaf1f5;color:var(--navy);font:600 .92em var(--font-my-shared),Arial,sans-serif
+}
+[data-editorial-page="APP-MB"] main .tableWrap {
+  width:100%;margin:30px 0 28px;overflow:visible
+}
+[data-editorial-page="APP-MB"] main table {
+  width:100%;border-collapse:collapse;background:var(--white);font-size:15px;line-height:1.55
+}
+[data-editorial-page="APP-MB"] main th,
+[data-editorial-page="APP-MB"] main td {
+  padding:17px 18px;border:1px solid var(--border);vertical-align:top;text-align:left
+}
+[data-editorial-page="APP-MB"] main th {
+  color:var(--navy);background:#eaf1f5;font-size:14px;letter-spacing:.01em
+}
+[data-editorial-page="APP-MB"] main tbody tr:nth-child(even) {
+  background:#fbfcfd
+}
+[data-editorial-page="APP-MB"] main [data-module="grades-to-review"] table {
+  table-layout:fixed
+}
+[data-editorial-page="APP-MB"] main [data-module="grades-to-review"] th:nth-child(1) {
+  width:22%
+}
+[data-editorial-page="APP-MB"] main [data-module="grades-to-review"] th:nth-child(2) {
+  width:25%
+}
+[data-editorial-page="APP-MB"] main [data-module="grades-to-review"] td:last-child a {
+  min-height:44px;display:inline-flex;align-items:center
+}
+[data-editorial-page="APP-MB"] main .sourceSection ol {
+  max-width:1000px
+}
+[data-editorial-page="APP-MB"] main .sourceSection li {
+  margin-bottom:18px
+}
+@media(max-width:1100px) {
+[data-editorial-page="APP-MB"] main .content {
+  width:calc(100% - 48px)
+}
+[data-editorial-page="APP-MB"] main .hero {
+  padding:58px 0 54px
+}
+[data-editorial-page="APP-MB"] main .heroInner {
+  margin:0 auto
+}
+[data-editorial-page="APP-MB"] main .hero h1 {
+  font-size:48px
+}
+[data-editorial-page="APP-MB"] main .bodySection {
+  padding:58px 0
+}
+[data-editorial-page="APP-MB"] main .bodySection h2 {
+  font-size:36px
+}
+[data-editorial-page="APP-MB"] main .tableWrap {
+  overflow-x:auto
+}
+}
+@media(max-width:620px) {
+[data-editorial-page="APP-MB"] main .content {
+  width:calc(100% - 36px)
+}
+[data-editorial-page="APP-MB"] main .hero {
+  padding:46px 0 44px
+}
+[data-editorial-page="APP-MB"] main .hero h1 {
+  font-size:38px;line-height:1.1
+}
+[data-editorial-page="APP-MB"] main .heroLead {
+  font-size:17px
+}
+[data-editorial-page="APP-MB"] main .heroLinks p {
+  display:grid
+}
+[data-editorial-page="APP-MB"] main .heroLinks .linkSeparator {
+  display:none
+}
+[data-editorial-page="APP-MB"] main .heroLinks a {
+  width:100%;justify-content:center;text-align:center
+}
+[data-editorial-page="APP-MB"] main .bodySection {
+  padding:46px 0
+}
+[data-editorial-page="APP-MB"] main .bodySection h2 {
+  font-size:30px
+}
+[data-editorial-page="APP-MB"] main .bodySection p {
+  font-size:16px
+}
+[data-editorial-page="APP-MB"] main .tableWrap {
+  overflow:visible
+}
+[data-editorial-page="APP-MB"] main table,
+[data-editorial-page="APP-MB"] main thead,
+[data-editorial-page="APP-MB"] main tbody,
+[data-editorial-page="APP-MB"] main tr,
+[data-editorial-page="APP-MB"] main th,
+[data-editorial-page="APP-MB"] main td {
+  display:block;width:100%
+}
+[data-editorial-page="APP-MB"] main thead {
+  position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0
+}
+[data-editorial-page="APP-MB"] main tbody {
+  display:grid;gap:18px
+}
+[data-editorial-page="APP-MB"] main tr {
+  border:1px solid var(--border);border-radius:10px;background:#fff!important;overflow:hidden
+}
+[data-editorial-page="APP-MB"] main td {
+  display:grid;grid-template-columns:minmax(104px,38%) 1fr;gap:12px;padding:14px 15px;border:0;border-bottom:1px solid var(--border)
+}
+[data-editorial-page="APP-MB"] main td:last-child {
+  border-bottom:0
+}
+[data-editorial-page="APP-MB"] main td::before {
+  content:attr(data-label);color:var(--navy);font-size:13px;font-weight:750;line-height:1.45
+}
+[data-editorial-page="APP-MB"] main [data-module="grades-to-review"] table {
+  table-layout:auto
+}
+[data-editorial-page="APP-MB"] main [data-module="grades-to-review"] td:last-child a {
+  min-height:44px
+}
+[data-editorial-page="APP-MB"] main .sourceSection ol {
+  padding-left:22px
+}
+[data-editorial-page="APP-MB"] main .sourceSection li {
+  padding-left:2px;overflow-wrap:anywhere
+}
+}
+@media(prefers-reduced-motion:reduce) {
+[data-editorial-page="APP-MB"] main {
+  scroll-behavior:auto
+}
+}
+[data-editorial-page="APP-MB"] main .hero {
+  background:#031b3a;padding:80px 0 72px;border-bottom:4px solid #00a99d
+}
+[data-editorial-page="APP-MB"] main .hero h1 {
+  font-weight:700;max-width:900px;letter-spacing:-.035em
+}
+[data-editorial-page="APP-MB"] main .heroLead {
+  max-width:840px
+}
+[data-editorial-page="APP-MB"] main .heroLinks .linkSeparator {
+  display:none
+}
+[data-editorial-page="APP-MB"] main .heroLinks a {
+  font-size:16px;font-weight:600
+}
+[data-editorial-page="APP-MB"] main .heroLinks a:hover {
+  background:#062b5b;border-color:#fff
+}
+[data-editorial-page="APP-MB"] main .heroLinks a:focus-visible {
+  outline:3px solid #fff;outline-offset:4px
+}
+[data-editorial-page="APP-MB"] main .bodySection {
+  padding:68px 0
+}
+[data-editorial-page="APP-MB"] main .bodySection h2 {
+  font-weight:700;font-size:40px;line-height:1.18;margin-bottom:26px
+}
+[data-editorial-page="APP-MB"] main .bodySection p {
+  max-width:880px;font-size:17px;line-height:1.68
+}
+[data-editorial-page="APP-MB"] main .bodySection a:hover {
+  text-decoration-thickness:2px;color:#062b5b
+}
+[data-editorial-page="APP-MB"] main .bodySection .tableWrap {
+  margin:32px 0;border-radius:12px;box-shadow:0 3px 12px rgba(3,27,58,.035)
+}
+[data-editorial-page="APP-MB"] main table {
+  font-size:16px;line-height:1.6;border-collapse:separate;border-spacing:0
+}
+[data-editorial-page="APP-MB"] main th {
+  font-size:14px;font-weight:700;background:#062b5b;color:#fff;border-color:#062b5b;padding:18px 20px
+}
+[data-editorial-page="APP-MB"] main td {
+  padding:20px;border-top:0;border-right:0
+}
+[data-editorial-page="APP-MB"] main td:last-child {
+  border-right:1px solid #d9e2ec
+}
+[data-editorial-page="APP-MB"] main tbody tr:nth-child(even) {
+  background:#f5f8fb
+}
+[data-editorial-page="APP-MB"] main tbody td:first-child {
+  font-weight:600;color:#062b5b
+}
+[data-editorial-page="APP-MB"] main th:first-child {
+  border-top-left-radius:12px
+}
+[data-editorial-page="APP-MB"] main th:last-child {
+  border-top-right-radius:12px
+}
+[data-editorial-page="APP-MB"] main tbody tr:last-child td:first-child {
+  border-bottom-left-radius:12px
+}
+[data-editorial-page="APP-MB"] main tbody tr:last-child td:last-child {
+  border-bottom-right-radius:12px
+}
+[data-editorial-page="APP-MB"] main [data-module="grades-to-review"] td {
+  font-weight:400
+}
+[data-editorial-page="APP-MB"] main [data-module="grades-to-review"] tbody td:first-child {
+  font-weight:600
+}
+[data-editorial-page="APP-MB"] main [data-module="prepare-your-request"] ul {
+  list-style:none;padding:0;max-width:1000px
+}
+[data-editorial-page="APP-MB"] main [data-module="prepare-your-request"] li {
+  margin:16px 0;padding:22px 24px;background:#fff;border:1px solid #d9e2ec;border-radius:12px;line-height:1.68
+}
+[data-editorial-page="APP-MB"] main [data-module="prepare-your-request"] li a {
+  font-weight:700
+}
+[data-editorial-page="APP-MB"] main .sourceSection {
+  padding-top:52px;padding-bottom:52px
+}
+[data-editorial-page="APP-MB"] main .sourceSection h2 {
+  font-size:32px
+}
+[data-editorial-page="APP-MB"] main .sourceSection li {
+  font-size:15px;line-height:1.65;margin-bottom:22px
+}
+@media(max-width:1100px) {
+[data-editorial-page="APP-MB"] main .hero {
+  padding:60px 0 56px
+}
+[data-editorial-page="APP-MB"] main .hero h1 {
+  font-size:48px
+}
+[data-editorial-page="APP-MB"] main .bodySection {
+  padding:56px 0
+}
+[data-editorial-page="APP-MB"] main .bodySection h2 {
+  font-size:36px
+}
+[data-editorial-page="APP-MB"] main th,
+[data-editorial-page="APP-MB"] main td {
+  padding:16px
+}
+[data-editorial-page="APP-MB"] main table {
+  font-size:15px
+}
+}
+@media(max-width:620px) {
+[data-editorial-page="APP-MB"] main .hero {
+  padding:44px 0 42px
+}
+[data-editorial-page="APP-MB"] main .hero h1 {
+  font-size:38px;line-height:1.12
+}
+[data-editorial-page="APP-MB"] main .heroLinks a {
+  padding:12px;line-height:1.5
+}
+[data-editorial-page="APP-MB"] main .bodySection {
+  padding:44px 0
+}
+[data-editorial-page="APP-MB"] main .bodySection h2 {
+  font-size:30px;line-height:1.2
+}
+[data-editorial-page="APP-MB"] main .bodySection p {
+  font-size:16px;line-height:1.68
+}
+[data-editorial-page="APP-MB"] main .tableWrap {
+  box-shadow:none
+}
+[data-editorial-page="APP-MB"] main table {
+  font-size:16px
+}
+[data-editorial-page="APP-MB"] main tbody {
+  gap:16px
+}
+[data-editorial-page="APP-MB"] main tr {
+  overflow:visible;border-radius:12px
+}
+[data-editorial-page="APP-MB"] main td {
+  display:block;padding:16px 18px;border:0;border-bottom:1px solid #d9e2ec;font-weight:400!important
+}
+[data-editorial-page="APP-MB"] main td::before {
+  display:block;margin-bottom:6px;font-size:14px;font-weight:700;line-height:1.5;color:#062b5b
+}
+[data-editorial-page="APP-MB"] main td:first-child {
+  background:#f5f8fb;border-radius:12px 12px 0 0
+}
+[data-editorial-page="APP-MB"] main td:last-child {
+  border:0
+}
+[data-editorial-page="APP-MB"] main [data-module="grades-to-review"] td {
+  display:grid;grid-template-columns:90px 1fr;gap:12px;align-items:center
+}
+[data-editorial-page="APP-MB"] main [data-module="grades-to-review"] td::before {
+  margin:0
+}
+[data-editorial-page="APP-MB"] main [data-module="prepare-your-request"] li {
+  padding:18px
+}
+[data-editorial-page="APP-MB"] main .sourceSection h2 {
+  font-size:28px
+}
+}

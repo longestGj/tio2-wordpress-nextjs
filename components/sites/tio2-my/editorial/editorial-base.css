@@ -1,0 +1,2 @@
+body:has([data-editorial-page]) { margin: 0; }
+[data-editorial-page] main [tabindex="-1"]:focus-visible { outline: 3px solid #008078; outline-offset: 4px; }

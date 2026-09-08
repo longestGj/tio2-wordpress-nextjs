@@ -1,0 +1,3 @@
+query GetMalaysiaCountryMarketPage($pageId: String!) {
+  malaysiaCountryMarketRecordJson(pageId: $pageId)
+}

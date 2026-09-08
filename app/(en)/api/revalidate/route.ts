@@ -6,6 +6,7 @@ import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {resolveProductPageIdentity} from '@/lib/products/page-graph'
 import {getCurrentSite} from '@/lib/sites/current-site'
+import {editorialPageIdForPath,editorialTag} from '@/lib/editorial/malaysia-editorial-contracts'
 import {SITE_IDS} from '@/sites'
 import {
   aboutPageContentTag,
@@ -287,6 +288,12 @@ export async function POST(request: Request): Promise<Response> {
 
   const tags = new Set<string>()
   const malaysiaLegalPaths = new Set(['/privacy-policy', '/ms/privacy-policy', '/cookie-policy'])
+  const malaysiaCountryMarketPageIds = new Map<string, string>([
+    ['/markets/spain', 'MARKET-EU-ES'],
+    ['/markets/india', 'MARKET-IN-001'],
+    ['/markets/netherlands', 'MARKET-EU-NL'],
+    ['/markets/belgium', 'MARKET-EU-BE'],
+  ] as const)
   const preciseMalaysiaSingletonEvent =
     currentSite.id === 'tio2-my' &&
     (payload.paths.includes('/resources') ||
@@ -304,6 +311,8 @@ export async function POST(request: Request): Promise<Response> {
       payload.paths.includes('/markets/brazil') ||
       payload.paths.includes('/pt-br/markets/brazil') ||
       payload.paths.includes('/products/chloride-process-titanium-dioxide') ||
+      payload.paths.some((path) => malaysiaCountryMarketPageIds.has(path)) ||
+      payload.paths.some((path) => Boolean(editorialPageIdForPath(path))) ||
       (payload.paths.length === 1 && malaysiaLegalPaths.has(payload.paths[0]!)))
   for (const siteId of payload.siteIds) {
     if (!preciseMalaysiaSingletonEvent) {
@@ -341,6 +350,13 @@ export async function POST(request: Request): Promise<Response> {
           'en',
           'product-process-chloride-v0.1',
         ))
+      }
+      const countryMarketPageId = malaysiaCountryMarketPageIds.get(path)
+      const editorialPageId = editorialPageIdForPath(path)
+      if (siteId === 'tio2-my' && editorialPageId) tags.add(editorialTag(siteId, editorialPageId))
+      if (siteId === 'tio2-my' && countryMarketPageId) {
+        tags.add(siteTag(siteId))
+        tags.add(marketPageContentTag(siteId, countryMarketPageId, 'en'))
       }
       if (siteId === 'tio2-my' && path === '/resources') {
         tags.add(resourceHubContentTag(siteId))

@@ -38,6 +38,8 @@ require_once __DIR__ . '/includes/market-page-uk-v01.php';
 require_once __DIR__ . '/includes/market-page-poland-v01.php';
 require_once __DIR__ . '/includes/market-page-brazil-en-v01.php';
 require_once __DIR__ . '/includes/market-page-brazil-pt-v02.php';
+require_once __DIR__ . '/includes/market-country-v01.php';
+require_once __DIR__ . '/includes/editorial-v01.php';
 require_once __DIR__ . '/includes/product-hub-v01.php';
 require_once __DIR__ . '/includes/product-process-chloride-v01.php';
 require_once __DIR__ . '/includes/resource-hub-v01.php';
