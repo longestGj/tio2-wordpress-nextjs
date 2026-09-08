@@ -44,6 +44,7 @@ function writeValidEnvironment(repository: string) {
     'WORDPRESS_ADMIN_EMAIL=admin@example.test',
     'NEXTJS_REVALIDATION_SECRET_TIO2_MY=revalidation-secret',
     'NEXTJS_PREVIEW_SECRET_TIO2_MY=preview-secret',
+    'WORDPRESS_EDITORIAL_API_TOKEN=isolated-editorial-secret',
     'NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY=receiver-key',
     'PRERELEASE_LIVE_FORMS_ENABLED=false',
   ].join('\n'))
@@ -219,6 +220,17 @@ describe.runIf(process.platform === 'win32')('local prerelease controller', () =
     expect(`${result.stdout}\n${result.stderr}`).toContain('WORDPRESS_DB_PASSWORD')
     expect(`${result.stdout}\n${result.stderr}`).not.toContain('root-secret')
     expect(`${result.stdout}\n${result.stderr}`).not.toContain('receiver-key')
+  })
+
+  it('rejects an absent editorial token before starting the stack without echoing secrets', () => {
+    const directory = temporaryDirectory('d16-prerelease-editorial-env-')
+    writeValidEnvironment(directory)
+    const environmentFile = join(directory, '.env.prerelease.local')
+    writeFileSync(environmentFile, readFileSync(environmentFile, 'utf8').replace('WORDPRESS_EDITORIAL_API_TOKEN=isolated-editorial-secret', 'WORDPRESS_EDITORIAL_API_TOKEN='))
+    const result = spawnSync('powershell', ['-NoProfile', '-Command', `$ErrorActionPreference='Stop'; Import-Module '${modulePath.replaceAll("'", "''")}' -Force; Assert-PrereleaseEnvironmentFile -Path '${environmentFile.replaceAll("'", "''")}'`], {encoding: 'utf8'})
+    expect(result.status).not.toBe(0)
+    expect(`${result.stdout}\n${result.stderr}`).toContain('WORDPRESS_EDITORIAL_API_TOKEN')
+    expect(`${result.stdout}\n${result.stderr}`).not.toContain('database-secret')
   })
 
   it('resets only CMS data volumes, removes attached containers and starts a fresh run', () => {

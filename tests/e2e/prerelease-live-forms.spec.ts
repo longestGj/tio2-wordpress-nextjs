@@ -26,7 +26,7 @@ async function submitAndRecord(page: Page, workflow: string) {
   expect(response.status()).toBe(200)
   expect(acknowledged).toBe(true)
   const request = workflow === 'rfq' ? 'quote' : workflow
-  await expect(page).toHaveURL(`${baseUrl}/thank-you/?request=${request}`)
+  await expect(page).toHaveURL((url) => url.origin === new URL(baseUrl).origin && url.pathname.replace(/\/$/u, '') === '/thank-you' && url.searchParams.get('request') === request)
   await expect(page.locator(`[data-thank-you-panel="${request}"]`)).toBeVisible()
   const headings = {quote: 'Thank you. We’ve received your quotation request.', sample: 'Thank you. We’ve received your sample request.', documents: 'Thank you. We’ve received your document request.'}
   await expect(page.locator('h1')).toHaveText(headings[request as keyof typeof headings])
