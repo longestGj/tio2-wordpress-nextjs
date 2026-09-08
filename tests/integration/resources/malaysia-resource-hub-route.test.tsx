@@ -7,9 +7,10 @@ import {getSiteConfig} from '@/sites'
 import {malaysiaResourceHubSource} from '@/tests/fixtures/tio2-my-resource-hub'
 
 const routeMocks = vi.hoisted(() => ({
-  getCurrentSite: vi.fn(), getMalaysiaResourceHub: vi.fn(), getSiteResource: vi.fn(),
+  connection: vi.fn(), getCurrentSite: vi.fn(), getMalaysiaResourceHub: vi.fn(), getSiteResource: vi.fn(),
 }))
 
+vi.mock('next/server', () => ({connection: routeMocks.connection}))
 vi.mock('@/lib/sites/current-site', () => ({getCurrentSite: routeMocks.getCurrentSite}))
 vi.mock('@/components/sites/tio2-a/site-a-brand-shell', () => ({
   SiteABrandShell: ({children}: {children: React.ReactNode}) => <>{children}</>,
@@ -27,6 +28,7 @@ describe('RES-000 route integration', () => {
   it('branches before Site A lookup and renders the H0 graph', async () => {
     const route = await import('@/app/resources/page')
     const markup = renderToStaticMarkup(await route.default())
+    expect(routeMocks.connection).toHaveBeenCalledOnce()
     expect(routeMocks.getMalaysiaResourceHub).toHaveBeenCalledOnce()
     expect(routeMocks.getSiteResource).not.toHaveBeenCalled()
     expect(markup).toContain('data-site-scope="tio2-my"')

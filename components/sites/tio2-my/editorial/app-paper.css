@@ -1,0 +1,416 @@
+/* Generated from the approved Gate 4 main-page styles. Shared Chrome styles are intentionally excluded. */
+[data-editorial-page="APP-PAPER"] main {
+  --navy:#062b5b;--deep:#031b3a;--teal:#008078;--accent:#00a99d;--soft:#f5f8fb;--border:#d9e2ec;--text:#334155;--muted:#5d6b7d
+}
+[data-editorial-page="APP-PAPER"] main * {
+  box-sizing:border-box
+}
+[data-editorial-page="APP-PAPER"] main {
+  scroll-behavior:smooth
+}
+[data-editorial-page="APP-PAPER"] main {
+  margin:0;color:var(--text);background:#fff;font:400 17px/1.7 var(--font-my-shared),Arial,sans-serif
+}
+[data-editorial-page="APP-PAPER"] main {
+  display:block
+}
+[data-editorial-page="APP-PAPER"] main a {
+  color:var(--teal);text-underline-offset:3px;overflow-wrap:anywhere
+}
+[data-editorial-page="APP-PAPER"] main .hero {
+  padding:70px 32px 76px;background:linear-gradient(115deg,var(--deep),var(--navy));color:#fff
+}
+[data-editorial-page="APP-PAPER"] main .heroInner,
+[data-editorial-page="APP-PAPER"] main .sectionInner {
+  width:min(1120px,100%);margin:0 auto
+}
+[data-editorial-page="APP-PAPER"] main .hero h1 {
+  max-width:900px;margin:0;color:#fff;font-size:clamp(44px,5vw,64px);line-height:1.06;letter-spacing:-.035em
+}
+[data-editorial-page="APP-PAPER"] main .hero> .heroInner>p {
+  max-width:920px;margin:26px 0 0;font-size:20px;line-height:1.6
+}
+[data-editorial-page="APP-PAPER"] main .heroActions {
+  margin-top:32px
+}
+[data-editorial-page="APP-PAPER"] main .heroActions p {
+  display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:0;font-size:0
+}
+[data-editorial-page="APP-PAPER"] main .heroActions a {
+  min-width:44px;min-height:48px;padding:12px 18px;border:1px solid #fff;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;text-decoration:none
+}
+[data-editorial-page="APP-PAPER"] main .heroActions a:first-child {
+  border-color:var(--teal);background:var(--teal)
+}
+[data-editorial-page="APP-PAPER"] main .contentSection {
+  padding:72px 32px;border-top:1px solid #edf1f5;scroll-margin-top:20px
+}
+[data-editorial-page="APP-PAPER"] main .contentSection:nth-of-type(even) {
+  background:var(--soft)
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner>h2 {
+  max-width:900px;margin:0 0 26px;color:var(--navy);font-size:clamp(30px,3.2vw,42px);line-height:1.15;letter-spacing:-.02em
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner h3 {
+  margin:38px 0 12px;color:var(--navy);font-size:23px;line-height:1.25
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner p,
+[data-editorial-page="APP-PAPER"] main .sectionInner>ul,
+[data-editorial-page="APP-PAPER"] main .sectionInner>ol {
+  max-width:940px
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner p {
+  margin:0 0 22px
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner ul,
+[data-editorial-page="APP-PAPER"] main .sectionInner ol {
+  margin:0 0 24px;padding-left:25px
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner li {
+  margin:.46em 0;padding-left:4px
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner a {
+  min-width:44px;min-height:44px;padding-block:8px;display:inline-flex;align-items:center
+}
+[data-editorial-page="APP-PAPER"] main .contentSection:target {
+  outline:4px solid var(--teal);outline-offset:-4px
+}
+[data-editorial-page="APP-PAPER"] main .system-definition> .sectionInner>ul {
+  columns:2;column-gap:52px
+}
+[data-editorial-page="APP-PAPER"] main .system-definition li {
+  break-inside:avoid
+}
+[data-editorial-page="APP-PAPER"] main .laboratory-screen ol {
+  padding:24px 28px 24px 48px;border-left:4px solid var(--teal);background:#fff
+}
+[data-editorial-page="APP-PAPER"] main .next-evidence> .sectionInner>p:first-of-type {
+  padding:22px 24px;border:1px solid var(--border);background:#fff
+}
+[data-editorial-page="APP-PAPER"] main table {
+  width:100%;margin:30px 0;border-collapse:collapse;background:#fff;font-size:15px;line-height:1.55
+}
+[data-editorial-page="APP-PAPER"] main th,
+[data-editorial-page="APP-PAPER"] main td {
+  padding:17px 16px;border:1px solid var(--border);text-align:left;vertical-align:top
+}
+[data-editorial-page="APP-PAPER"] main th {
+  color:var(--navy);background:#eaf1f7;font-weight:700
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods table,
+[data-editorial-page="APP-PAPER"] main .evidence-roles table {
+  table-layout:fixed
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods th:first-child {
+  width:19%
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods th:nth-child(2) {
+  width:43%
+}
+[data-editorial-page="APP-PAPER"] main .evidence-roles th:first-child {
+  width:22%
+}
+[data-editorial-page="APP-PAPER"] main .evidence-roles th:nth-child(2) {
+  width:34%
+}
+[data-editorial-page="APP-PAPER"] main .grades table {
+  max-width:900px;table-layout:fixed
+}
+[data-editorial-page="APP-PAPER"] main .grades th:first-child {
+  width:26%
+}
+[data-editorial-page="APP-PAPER"] main .grades td:first-child {
+  color:var(--navy);font-weight:700
+}
+[data-editorial-page="APP-PAPER"] main .grades td:last-child {
+  white-space:nowrap
+}
+[data-editorial-page="APP-PAPER"] main .request-paths> .sectionInner>ul {
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:30px;padding:0;list-style:none
+}
+[data-editorial-page="APP-PAPER"] main .request-paths> .sectionInner>ul>li {
+  min-width:0;margin:0;padding:24px;border:1px solid var(--border);background:#fff
+}
+[data-editorial-page="APP-PAPER"] main .request-paths> .sectionInner>ul>li>a {
+  margin-bottom:8px;padding:10px 14px;border:1px solid var(--teal);border-radius:6px;justify-content:center;font-weight:700;text-decoration:none
+}
+[data-editorial-page="APP-PAPER"] main .sources ol {
+  max-width:1040px;padding-left:24px
+}
+[data-editorial-page="APP-PAPER"] main .sources li {
+  margin:0 0 18px;padding-left:8px;overflow-wrap:anywhere
+}
+@media(max-width:1100px) {
+[data-editorial-page="APP-PAPER"] main {
+  font-size:16px
+}
+[data-editorial-page="APP-PAPER"] main .hero {
+  padding:58px 24px 60px
+}
+[data-editorial-page="APP-PAPER"] main .contentSection {
+  padding:58px 24px
+}
+[data-editorial-page="APP-PAPER"] main .system-definition> .sectionInner>ul {
+  columns:1
+}
+[data-editorial-page="APP-PAPER"] main .request-paths> .sectionInner>ul {
+  grid-template-columns:1fr
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods table,
+[data-editorial-page="APP-PAPER"] main .evidence-roles table,
+[data-editorial-page="APP-PAPER"] main .grades table {
+  border:0;background:transparent
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods thead,
+[data-editorial-page="APP-PAPER"] main .evidence-roles thead,
+[data-editorial-page="APP-PAPER"] main .grades thead {
+  position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods tbody,
+[data-editorial-page="APP-PAPER"] main .evidence-roles tbody,
+[data-editorial-page="APP-PAPER"] main .grades tbody {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods tr,
+[data-editorial-page="APP-PAPER"] main .evidence-roles tr,
+[data-editorial-page="APP-PAPER"] main .grades tr {
+  min-width:0;padding:16px;border:1px solid var(--border);display:block;background:#fff
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods td,
+[data-editorial-page="APP-PAPER"] main .evidence-roles td,
+[data-editorial-page="APP-PAPER"] main .grades td {
+  padding:10px 0;border:0;border-bottom:1px solid #e8edf2;display:block;white-space:normal
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods td:last-child,
+[data-editorial-page="APP-PAPER"] main .evidence-roles td:last-child,
+[data-editorial-page="APP-PAPER"] main .grades td:last-child {
+  border-bottom:0
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods td::before,
+[data-editorial-page="APP-PAPER"] main .evidence-roles td::before,
+[data-editorial-page="APP-PAPER"] main .grades td::before {
+  content:attr(data-label);margin-bottom:3px;display:block;color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase
+}
+[data-editorial-page="APP-PAPER"] main .grades td:first-child {
+  font-size:20px
+}
+}
+@media(max-width:560px) {
+[data-editorial-page="APP-PAPER"] main .hero {
+  padding:46px 20px 48px
+}
+[data-editorial-page="APP-PAPER"] main .contentSection {
+  padding:48px 20px
+}
+[data-editorial-page="APP-PAPER"] main .hero h1 {
+  font-size:40px
+}
+[data-editorial-page="APP-PAPER"] main .hero> .heroInner>p {
+  font-size:18px
+}
+[data-editorial-page="APP-PAPER"] main .heroActions p {
+  display:grid
+}
+[data-editorial-page="APP-PAPER"] main .heroActions a {
+  width:100%
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods tbody,
+[data-editorial-page="APP-PAPER"] main .evidence-roles tbody,
+[data-editorial-page="APP-PAPER"] main .grades tbody {
+  grid-template-columns:1fr
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner>h2 {
+  font-size:30px
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner h3 {
+  font-size:21px
+}
+[data-editorial-page="APP-PAPER"] main .laboratory-screen ol {
+  padding:20px 18px 20px 38px
+}
+[data-editorial-page="APP-PAPER"] main .sources ol {
+  padding-left:22px
+}
+}
+@media(prefers-reduced-motion:reduce) {
+[data-editorial-page="APP-PAPER"] main {
+  scroll-behavior:auto
+}
+}
+[data-editorial-page="APP-PAPER"] main {
+  font-size:17px;line-height:1.68
+}
+[data-editorial-page="APP-PAPER"] main .hero {
+  background:#062b5b;padding:72px 32px 76px
+}
+[data-editorial-page="APP-PAPER"] main .hero h1 {
+  font-size:60px;line-height:1.08;letter-spacing:-.035em;max-width:900px
+}
+[data-editorial-page="APP-PAPER"] main .hero>.heroInner>p {
+  max-width:900px;font-size:19px;line-height:1.65
+}
+[data-editorial-page="APP-PAPER"] main .hero>.heroInner>p+p {
+  font-size:17px;line-height:1.7;color:#e2eaf3
+}
+[data-editorial-page="APP-PAPER"] main .heroActions a {
+  font-size:16px;font-weight:600;min-height:50px
+}
+[data-editorial-page="APP-PAPER"] main .contentSection {
+  padding:68px 32px;border-top-color:#d9e2ec
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner>h2 {
+  font-size:38px;line-height:1.2;max-width:900px;margin-bottom:26px
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner>p {
+  max-width:900px
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner p:last-child {
+  margin-bottom:0
+}
+[data-editorial-page="APP-PAPER"] main .system-definition>.sectionInner>ul {
+  padding:24px 28px 24px 48px;border:1px solid #d9e2ec;border-radius:12px;background:#fff
+}
+[data-editorial-page="APP-PAPER"] main .system-definition li::marker,
+[data-editorial-page="APP-PAPER"] main .laboratory-screen li::marker {
+  color:#008078;font-weight:700
+}
+[data-editorial-page="APP-PAPER"] main .laboratory-screen ol {
+  border-radius:0 12px 12px 0;padding-block:26px
+}
+[data-editorial-page="APP-PAPER"] main .next-evidence>.sectionInner>p:first-of-type {
+  border-radius:12px;padding:26px 28px
+}
+[data-editorial-page="APP-PAPER"] main table {
+  font-size:16px;line-height:1.62;margin:30px 0
+}
+[data-editorial-page="APP-PAPER"] main th,
+[data-editorial-page="APP-PAPER"] main td {
+  padding:20px 18px
+}
+[data-editorial-page="APP-PAPER"] main th {
+  background:#062b5b;color:#fff;font-size:15px
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods td:first-child,
+[data-editorial-page="APP-PAPER"] main .evidence-roles td:first-child {
+  font-weight:600;color:#062b5b
+}
+[data-editorial-page="APP-PAPER"] main .grades td:first-child {
+  font-size:21px
+}
+[data-editorial-page="APP-PAPER"] main .grades a {
+  font-weight:600
+}
+[data-editorial-page="APP-PAPER"] main .request-paths>.sectionInner>ul>li {
+  border-radius:12px;padding:24px;box-shadow:0 2px 8px rgb(3 27 58 / 3%)
+}
+[data-editorial-page="APP-PAPER"] main .request-paths>.sectionInner>ul>li>a {
+  width:100%;font-size:16px;line-height:1.4;min-height:50px;font-weight:600
+}
+[data-editorial-page="APP-PAPER"] main .request-paths code {
+  font-family:inherit;font-weight:600
+}
+[data-editorial-page="APP-PAPER"] main .sources {
+  background:#fff!important
+}
+[data-editorial-page="APP-PAPER"] main .sources ol {
+  font-size:15px;line-height:1.7
+}
+[data-editorial-page="APP-PAPER"] main .sources li {
+  padding-bottom:18px;border-bottom:1px solid #d9e2ec
+}
+[data-editorial-page="APP-PAPER"] main .sources li:last-child {
+  border-bottom:0;padding-bottom:0
+}
+[data-editorial-page="APP-PAPER"] main a:focus-visible {
+  outline:3px solid #008078;outline-offset:4px;border-radius:3px
+}
+[data-editorial-page="APP-PAPER"] main .hero a:focus-visible {
+  outline-color:#fff
+}
+[data-editorial-page="APP-PAPER"] main a:hover {
+  color:#00645e
+}
+[data-editorial-page="APP-PAPER"] main .heroActions a:hover {
+  color:#fff;background:#00645e;border-color:#00645e
+}
+[data-editorial-page="APP-PAPER"] main .request-paths a:hover {
+  background:#f5f8fb
+}
+@media(max-width:1100px) {
+[data-editorial-page="APP-PAPER"] main {
+  font-size:16px
+}
+[data-editorial-page="APP-PAPER"] main .hero {
+  padding:56px 24px 60px
+}
+[data-editorial-page="APP-PAPER"] main .hero h1 {
+  font-size:48px
+}
+[data-editorial-page="APP-PAPER"] main .hero>.heroInner>p {
+  font-size:18px
+}
+[data-editorial-page="APP-PAPER"] main .hero>.heroInner>p+p {
+  font-size:16px
+}
+[data-editorial-page="APP-PAPER"] main .contentSection {
+  padding:56px 24px
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner>h2 {
+  font-size:34px
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods tr,
+[data-editorial-page="APP-PAPER"] main .evidence-roles tr,
+[data-editorial-page="APP-PAPER"] main .grades tr {
+  padding:20px;border-radius:12px
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods td::before,
+[data-editorial-page="APP-PAPER"] main .evidence-roles td::before,
+[data-editorial-page="APP-PAPER"] main .grades td::before {
+  font-size:14px;line-height:1.5;letter-spacing:.025em;color:#5d6b7d
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods td,
+[data-editorial-page="APP-PAPER"] main .evidence-roles td,
+[data-editorial-page="APP-PAPER"] main .grades td {
+  padding:12px 0
+}
+[data-editorial-page="APP-PAPER"] main .request-paths>.sectionInner>ul>li>a {
+  width:auto
+}
+}
+@media(max-width:560px) {
+[data-editorial-page="APP-PAPER"] main .hero {
+  padding:44px 20px 48px
+}
+[data-editorial-page="APP-PAPER"] main .hero h1 {
+  font-size:40px;line-height:1.1
+}
+[data-editorial-page="APP-PAPER"] main .hero>.heroInner>p {
+  font-size:18px
+}
+[data-editorial-page="APP-PAPER"] main .contentSection {
+  padding:46px 20px
+}
+[data-editorial-page="APP-PAPER"] main .sectionInner>h2 {
+  font-size:30px;line-height:1.22
+}
+[data-editorial-page="APP-PAPER"] main .system-definition>.sectionInner>ul {
+  padding:18px 20px 18px 38px
+}
+[data-editorial-page="APP-PAPER"] main .optical-methods tr,
+[data-editorial-page="APP-PAPER"] main .evidence-roles tr,
+[data-editorial-page="APP-PAPER"] main .grades tr {
+  padding:18px
+}
+[data-editorial-page="APP-PAPER"] main .next-evidence>.sectionInner>p:first-of-type {
+  padding:22px
+}
+[data-editorial-page="APP-PAPER"] main .request-paths>.sectionInner>ul>li {
+  padding:22px
+}
+[data-editorial-page="APP-PAPER"] main .request-paths>.sectionInner>ul>li>a {
+  width:100%
+}
+[data-editorial-page="APP-PAPER"] main .sources ol {
+  font-size:15px
+}
+}

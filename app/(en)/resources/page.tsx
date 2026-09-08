@@ -1,5 +1,6 @@
 import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
+import {connection} from 'next/server'
 
 import {
   isValidatedTechnicalResourcePageDto,
@@ -34,6 +35,7 @@ function isSiteA(site: SiteConfig): boolean {
 async function loadPage() {
   const site = getCurrentSite()
   if (site.id === 'tio2-my') {
+    await connection()
     const resourceHub = await getMalaysiaResourceHub()
     return {kind: 'malaysia' as const, resourceHub, site}
   }

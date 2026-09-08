@@ -510,6 +510,7 @@ describe('POST /api/revalidate', () => {
       '/resources', '/resources/eu-titanium-dioxide-anti-dumping-duty',
     ])
     expect(body.revalidatedTags).toEqual([
+      'content:tio2-my--editorial--RES-TRADE-EU--en',
       'content:tio2-my--resources',
       'route:tio2-my:/resources',
       'route:tio2-my:/resources/eu-titanium-dioxide-anti-dumping-duty',

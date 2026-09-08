@@ -1,0 +1,381 @@
+/* Generated from the approved Gate 4 main-page styles. Shared Chrome styles are intentionally excluded. */
+[data-editorial-page="APP-INK"] main {
+  --navy:#062b5b;--deep:#031b3a;--teal:#008078;--soft:#f5f8fb;--border:#d9e2ec;--text:#334155;--muted:#5d6b7d
+}
+[data-editorial-page="APP-INK"] main * {
+  box-sizing:border-box
+}
+[data-editorial-page="APP-INK"] main {
+  scroll-behavior:smooth
+}
+[data-editorial-page="APP-INK"] main {
+  margin:0;color:var(--text);background:#fff;font:400 17px/1.72 var(--font-my-shared),Arial,sans-serif
+}
+[data-editorial-page="APP-INK"] main {
+  display:block
+}
+[data-editorial-page="APP-INK"] main a {
+  color:var(--teal);text-underline-offset:3px;overflow-wrap:anywhere
+}
+[data-editorial-page="APP-INK"] main .hero {
+  padding:32px 32px 76px;background:linear-gradient(180deg,#f5f8fb 0,#fff 100%)
+}
+[data-editorial-page="APP-INK"] main .heroInner,
+[data-editorial-page="APP-INK"] main .sectionInner {
+  width:min(1120px,100%);margin:0 auto
+}
+[data-editorial-page="APP-INK"] main .breadcrumb {
+  display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:44px;color:var(--muted);font-size:14px
+}
+[data-editorial-page="APP-INK"] main .breadcrumb a {
+  min-width:44px;min-height:44px;display:inline-flex;align-items:center;color:var(--teal)
+}
+[data-editorial-page="APP-INK"] main .eyebrow {
+  margin:0 0 12px;color:var(--teal);font-size:13px;font-weight:700;letter-spacing:.13em
+}
+[data-editorial-page="APP-INK"] main .hero h1 {
+  max-width:940px;margin:0;color:var(--navy);font-size:clamp(42px,5vw,64px);line-height:1.06;letter-spacing:-.035em
+}
+[data-editorial-page="APP-INK"] main .hero h1+p {
+  max-width:940px;margin:26px 0 0;font-size:20px;line-height:1.6
+}
+[data-editorial-page="APP-INK"] main .heroActions {
+  display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:32px
+}
+[data-editorial-page="APP-INK"] main .heroActions a {
+  min-width:44px;min-height:48px;padding:12px 18px;border:1px solid var(--teal);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:650;text-decoration:none
+}
+[data-editorial-page="APP-INK"] main .actionSeparator {
+  color:var(--muted)
+}
+[data-editorial-page="APP-INK"] main .primaryAction {
+  color:#fff;background:var(--teal)
+}
+[data-editorial-page="APP-INK"] main .secondaryAction {
+  color:var(--teal);background:#fff
+}
+[data-editorial-page="APP-INK"] main .contentSection {
+  padding:72px 32px;border-top:1px solid #edf1f5;scroll-margin-top:20px
+}
+[data-editorial-page="APP-INK"] main .contentSection:nth-of-type(even) {
+  background:var(--soft)
+}
+[data-editorial-page="APP-INK"] main .sectionInner>h2 {
+  max-width:900px;margin:0 0 26px;color:var(--navy);font-size:clamp(30px,3.2vw,42px);line-height:1.15;letter-spacing:-.02em
+}
+[data-editorial-page="APP-INK"] main .sectionInner h3 {
+  margin:38px 0 12px;color:var(--navy);font-size:23px;line-height:1.25
+}
+[data-editorial-page="APP-INK"] main .sectionInner p,
+[data-editorial-page="APP-INK"] main .sectionInner>ul {
+  max-width:940px
+}
+[data-editorial-page="APP-INK"] main .sectionInner li {
+  margin:.4em 0
+}
+[data-editorial-page="APP-INK"] main .sectionInner a {
+  min-width:44px;min-height:44px;padding-block:8px;display:inline-block
+}
+[data-editorial-page="APP-INK"] main .system-definition ul {
+  columns:2;column-gap:48px
+}
+[data-editorial-page="APP-INK"] main .system-definition li {
+  break-inside:avoid
+}
+[data-editorial-page="APP-INK"] main .contentSection:target {
+  outline:4px solid #008078;outline-offset:-4px
+}
+[data-editorial-page="APP-INK"] main table {
+  width:100%;margin:30px 0;border-collapse:collapse;background:#fff;font-size:15px;line-height:1.55
+}
+[data-editorial-page="APP-INK"] main th,
+[data-editorial-page="APP-INK"] main td {
+  padding:17px 16px;border:1px solid var(--border);text-align:left;vertical-align:top
+}
+[data-editorial-page="APP-INK"] main th {
+  color:var(--navy);background:#eaf1f7;font-weight:700
+}
+[data-editorial-page="APP-INK"] main .documents-matrix table {
+  table-layout:fixed
+}
+[data-editorial-page="APP-INK"] main .documents-matrix th:first-child {
+  width:22%
+}
+[data-editorial-page="APP-INK"] main .documents-matrix th:nth-child(2) {
+  width:32%
+}
+[data-editorial-page="APP-INK"] main .grades table {
+  max-width:900px
+}
+[data-editorial-page="APP-INK"] main .grades th:first-child {
+  width:24%
+}
+[data-editorial-page="APP-INK"] main .grades td:first-child {
+  color:var(--navy);font-weight:700
+}
+[data-editorial-page="APP-INK"] main .grades td:last-child {
+  white-space:nowrap
+}
+[data-editorial-page="APP-INK"] main .requestCards {
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin:34px 0
+}
+[data-editorial-page="APP-INK"] main .requestCard {
+  min-width:0;padding:24px;border:1px solid var(--border);background:#fff
+}
+[data-editorial-page="APP-INK"] main .requestCard p {
+  margin:0
+}
+[data-editorial-page="APP-INK"] main .requestCard a {
+  min-height:48px;padding:10px 0;display:inline-flex;align-items:center;font-weight:700
+}
+[data-editorial-page="APP-INK"] main .request> .sectionInner>p:last-child {
+  padding:18px 20px;border-left:4px solid var(--teal);background:#fff
+}
+[data-editorial-page="APP-INK"] main .sources ol {
+  max-width:980px;padding-left:24px
+}
+[data-editorial-page="APP-INK"] main .sources li {
+  margin:0 0 18px;padding-left:8px;overflow-wrap:anywhere
+}
+@media(max-width:1100px) {
+[data-editorial-page="APP-INK"] main {
+  font-size:16px
+}
+[data-editorial-page="APP-INK"] main .hero {
+  padding:28px 24px 60px
+}
+[data-editorial-page="APP-INK"] main .contentSection {
+  padding:58px 24px
+}
+[data-editorial-page="APP-INK"] main .breadcrumb {
+  margin-bottom:34px
+}
+[data-editorial-page="APP-INK"] main .requestCards {
+  grid-template-columns:1fr
+}
+[data-editorial-page="APP-INK"] main .system-definition ul {
+  columns:1
+}
+[data-editorial-page="APP-INK"] main .documents-matrix table,
+[data-editorial-page="APP-INK"] main .grades table {
+  border:0;background:transparent
+}
+[data-editorial-page="APP-INK"] main .documents-matrix thead,
+[data-editorial-page="APP-INK"] main .grades thead {
+  position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)
+}
+[data-editorial-page="APP-INK"] main .documents-matrix tbody,
+[data-editorial-page="APP-INK"] main .grades tbody {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px
+}
+[data-editorial-page="APP-INK"] main .documents-matrix tr,
+[data-editorial-page="APP-INK"] main .grades tr {
+  min-width:0;padding:16px;border:1px solid var(--border);display:block;background:#fff
+}
+[data-editorial-page="APP-INK"] main .documents-matrix td,
+[data-editorial-page="APP-INK"] main .grades td {
+  padding:10px 0;border:0;border-bottom:1px solid #e8edf2;display:block;white-space:normal
+}
+[data-editorial-page="APP-INK"] main .documents-matrix td:last-child,
+[data-editorial-page="APP-INK"] main .grades td:last-child {
+  border-bottom:0
+}
+[data-editorial-page="APP-INK"] main .documents-matrix td::before,
+[data-editorial-page="APP-INK"] main .grades td::before {
+  content:attr(data-label);margin-bottom:3px;display:block;color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase
+}
+[data-editorial-page="APP-INK"] main .grades td:first-child {
+  font-size:20px
+}
+}
+@media(max-width:560px) {
+[data-editorial-page="APP-INK"] main .hero {
+  padding:22px 20px 48px
+}
+[data-editorial-page="APP-INK"] main .contentSection {
+  padding:48px 20px
+}
+[data-editorial-page="APP-INK"] main .breadcrumb {
+  margin-bottom:26px
+}
+[data-editorial-page="APP-INK"] main .hero h1 {
+  font-size:38px
+}
+[data-editorial-page="APP-INK"] main .hero h1+p {
+  font-size:18px
+}
+[data-editorial-page="APP-INK"] main .heroActions {
+  display:grid
+}
+[data-editorial-page="APP-INK"] main .heroActions a {
+  width:100%
+}
+[data-editorial-page="APP-INK"] main .actionSeparator {
+  text-align:center;line-height:1
+}
+[data-editorial-page="APP-INK"] main .documents-matrix tbody,
+[data-editorial-page="APP-INK"] main .grades tbody {
+  grid-template-columns:1fr
+}
+[data-editorial-page="APP-INK"] main .sectionInner>h2 {
+  font-size:30px
+}
+[data-editorial-page="APP-INK"] main .sectionInner h3 {
+  font-size:21px
+}
+[data-editorial-page="APP-INK"] main .sources ol {
+  padding-left:22px
+}
+[data-editorial-page="APP-INK"] main .requestCard {
+  padding:20px
+}
+}
+@media(prefers-reduced-motion:reduce) {
+[data-editorial-page="APP-INK"] main {
+  scroll-behavior:auto
+}
+}
+[data-editorial-page="APP-INK"] main a:focus-visible {
+  outline:3px solid #008078;outline-offset:3px
+}
+[data-editorial-page="APP-INK"] main {
+  font:400 17px/1.65 var(--font-my-shared),Arial,sans-serif
+}
+[data-editorial-page="APP-INK"] main .hero {
+  background:#f5f8fb;padding-bottom:64px
+}
+[data-editorial-page="APP-INK"] main .heroInner,
+[data-editorial-page="APP-INK"] main .sectionInner {
+  width:min(1200px,100%)
+}
+[data-editorial-page="APP-INK"] main .hero h1 {
+  max-width:940px;font-size:60px;line-height:1.08;letter-spacing:-.035em
+}
+[data-editorial-page="APP-INK"] main .hero h1+p {
+  max-width:880px;font-size:20px;line-height:1.65
+}
+[data-editorial-page="APP-INK"] main .contentSection {
+  padding-top:64px;padding-bottom:64px;background:#fff;border-top:1px solid #d9e2ec
+}
+[data-editorial-page="APP-INK"] main .system-definition,
+[data-editorial-page="APP-INK"] main .documents-matrix,
+[data-editorial-page="APP-INK"] main .request {
+  background:#f5f8fb
+}
+[data-editorial-page="APP-INK"] main .sectionInner>h2 {
+  max-width:920px;font-size:40px;line-height:1.18;margin-bottom:26px
+}
+[data-editorial-page="APP-INK"] main .sectionInner>p {
+  max-width:860px;margin-top:0;margin-bottom:22px
+}
+[data-editorial-page="APP-INK"] main .sectionInner>p:last-child {
+  margin-bottom:0
+}
+[data-editorial-page="APP-INK"] main .system-definition ul {
+  max-width:1040px;margin-block:24px;padding-left:24px
+}
+[data-editorial-page="APP-INK"] main .system-definition li {
+  padding:3px 0 3px 4px
+}
+[data-editorial-page="APP-INK"] main table {
+  font-size:16px;line-height:1.6
+}
+[data-editorial-page="APP-INK"] main th {
+  background:#f5f8fb
+}
+[data-editorial-page="APP-INK"] main th,
+[data-editorial-page="APP-INK"] main td {
+  padding:20px
+}
+[data-editorial-page="APP-INK"] main .documents-matrix td:first-child {
+  font-weight:600;color:#062b5b
+}
+[data-editorial-page="APP-INK"] main .grades table {
+  max-width:960px
+}
+[data-editorial-page="APP-INK"] main .requestCard {
+  border-radius:12px;padding:26px;box-shadow:0 2px 8px rgb(6 43 91 / 3%)
+}
+[data-editorial-page="APP-INK"] main .requestCard a {
+  line-height:1.45;padding-block:10px
+}
+[data-editorial-page="APP-INK"] main code {
+  font:600 1em/1.65 var(--font-my-shared),Arial,sans-serif;color:#062b5b;overflow-wrap:anywhere
+}
+[data-editorial-page="APP-INK"] main .sources ol {
+  max-width:980px
+}
+[data-editorial-page="APP-INK"] main .sources li {
+  padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid #d9e2ec;font-size:16px;line-height:1.65
+}
+[data-editorial-page="APP-INK"] main .sources li:last-child {
+  border-bottom:0;padding-bottom:0;margin-bottom:0
+}
+[data-editorial-page="APP-INK"] main a:hover {
+  text-decoration-thickness:2px
+}
+[data-editorial-page="APP-INK"] main .primaryAction:hover {
+  background:#062b5b;border-color:#062b5b
+}
+[data-editorial-page="APP-INK"] main .secondaryAction:hover {
+  background:#f5f8fb
+}
+@media(max-width:1100px) {
+[data-editorial-page="APP-INK"] main {
+  font-size:16px
+}
+[data-editorial-page="APP-INK"] main .hero h1 {
+  font-size:48px
+}
+[data-editorial-page="APP-INK"] main .hero {
+  padding-bottom:56px
+}
+[data-editorial-page="APP-INK"] main .contentSection {
+  padding-block:56px
+}
+[data-editorial-page="APP-INK"] main .sectionInner>h2 {
+  font-size:36px
+}
+[data-editorial-page="APP-INK"] main .documents-matrix tr,
+[data-editorial-page="APP-INK"] main .grades tr {
+  border-radius:12px;padding:20px
+}
+[data-editorial-page="APP-INK"] main .documents-matrix td,
+[data-editorial-page="APP-INK"] main .grades td {
+  padding:12px 0
+}
+[data-editorial-page="APP-INK"] main .requestCard {
+  padding:24px
+}
+}
+@media(max-width:560px) {
+[data-editorial-page="APP-INK"] main .hero h1 {
+  font-size:38px;line-height:1.12
+}
+[data-editorial-page="APP-INK"] main .hero h1+p {
+  font-size:18px
+}
+[data-editorial-page="APP-INK"] main .hero {
+  padding-bottom:44px
+}
+[data-editorial-page="APP-INK"] main .contentSection {
+  padding-block:44px
+}
+[data-editorial-page="APP-INK"] main .sectionInner>h2 {
+  font-size:30px;line-height:1.2
+}
+[data-editorial-page="APP-INK"] main .heroActions {
+  gap:8px
+}
+[data-editorial-page="APP-INK"] main .actionSeparator {
+  font-size:16px;line-height:14px
+}
+[data-editorial-page="APP-INK"] main .documents-matrix tr,
+[data-editorial-page="APP-INK"] main .grades tr,
+[data-editorial-page="APP-INK"] main .requestCard {
+  padding:20px
+}
+[data-editorial-page="APP-INK"] main .sources li {
+  font-size:15px;line-height:1.65
+}
+}

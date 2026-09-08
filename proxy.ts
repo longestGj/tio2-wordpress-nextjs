@@ -1,4 +1,5 @@
 import {NextResponse, type NextRequest} from 'next/server'
+import {editorialPageIdForPath} from './lib/editorial/malaysia-editorial-contracts'
 
 const MALAYSIA_TRAILING_SLASH_PATHS = new Set([
   '/markets',
@@ -14,7 +15,7 @@ const MALAYSIA_TRAILING_SLASH_PATHS = new Set([
 export function proxy(request: NextRequest) {
   const pathnameWithoutTrailingSlash = request.nextUrl.pathname.replace(/\/+$/u, '') || '/'
   const isMalaysiaTrailingSlashPath = process.env.SITE_ID === 'tio2-my' &&
-    MALAYSIA_TRAILING_SLASH_PATHS.has(pathnameWithoutTrailingSlash)
+    (MALAYSIA_TRAILING_SLASH_PATHS.has(pathnameWithoutTrailingSlash) || Boolean(editorialPageIdForPath(pathnameWithoutTrailingSlash)))
 
   if (isMalaysiaTrailingSlashPath && request.nextUrl.pathname === pathnameWithoutTrailingSlash) {
     const canonicalUrl = new URL(request.url)

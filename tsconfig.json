@@ -45,7 +45,9 @@
     ".next-tio2-b/types/**/*.ts",
     ".next-tio2-b/dev/types/**/*.ts",
     ".next-tio2-my/types/**/*.ts",
-    ".next-tio2-my/dev/types/**/*.ts"
+    ".next-tio2-my/dev/types/**/*.ts",
+    ".next-trade4-app5-verified/types/**/*.ts",
+    ".next-trade4-app5-verified/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

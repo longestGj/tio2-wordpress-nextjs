@@ -22,6 +22,8 @@ interface GraphQLResponse<TData> {
 export interface FetchGraphQLOptions {
   readonly tags?: readonly string[]
   readonly timeoutMs?: number
+  readonly cache?: 'force-cache' | 'no-store'
+  readonly headers?: Readonly<Record<string,string>>
 }
 
 export class GraphQLResponseError extends Error {
@@ -84,6 +86,7 @@ export async function fetchGraphQL<TData, TVariables>(
   } = {
     method: 'POST',
     headers: {
+      ...options.headers,
       accept: 'application/json',
       'content-type': 'application/json',
     },
@@ -91,7 +94,7 @@ export async function fetchGraphQL<TData, TVariables>(
       query: typeof document === 'string' ? document : print(document),
       variables,
     }),
-    cache: 'force-cache',
+    cache: options.cache ?? 'force-cache',
     signal,
   }
 

@@ -6,6 +6,7 @@ import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {resolveProductPageIdentity} from '@/lib/products/page-graph'
 import {getCurrentSite} from '@/lib/sites/current-site'
+import {editorialPageIdForPath,editorialTag} from '@/lib/editorial/malaysia-editorial-contracts'
 import {SITE_IDS} from '@/sites'
 import {
   aboutPageContentTag,
@@ -300,6 +301,7 @@ export async function POST(request: Request): Promise<Response> {
       payload.paths.includes('/markets/european-union') ||
       payload.paths.includes('/markets/united-kingdom') ||
       payload.paths.some((path) => malaysiaCountryMarketPageIds.has(path)) ||
+      payload.paths.some((path) => Boolean(editorialPageIdForPath(path))) ||
       (payload.paths.length === 1 && malaysiaLegalPaths.has(payload.paths[0]!)))
   for (const siteId of payload.siteIds) {
     if (!preciseMalaysiaSingletonEvent) {
@@ -322,6 +324,8 @@ export async function POST(request: Request): Promise<Response> {
         tags.add(marketPageContentTag(siteId, 'MARKET-UK-001', 'en'))
       }
       const countryMarketPageId = malaysiaCountryMarketPageIds.get(path)
+      const editorialPageId = editorialPageIdForPath(path)
+      if (siteId === 'tio2-my' && editorialPageId) tags.add(editorialTag(siteId, editorialPageId))
       if (siteId === 'tio2-my' && countryMarketPageId) {
         tags.add(siteTag(siteId))
         tags.add(marketPageContentTag(siteId, countryMarketPageId, 'en'))

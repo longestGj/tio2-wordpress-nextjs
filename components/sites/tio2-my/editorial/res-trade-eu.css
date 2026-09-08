@@ -1,0 +1,60 @@
+[data-editorial-page="RES-TRADE-EU"] main,[data-editorial-page="RES-TRADE-EU"] main *{box-sizing:border-box}
+[data-editorial-page="RES-TRADE-EU"] main{margin:0;font-family:var(--font-my-shared),Arial,sans-serif;color:#334155;background:#fff}
+[data-editorial-page="RES-TRADE-EU"] main{max-width:1200px;margin:0 auto;padding:28px 40px 72px}
+[data-editorial-page="RES-TRADE-EU"] main .breadcrumb{max-width:960px;margin:0 auto 32px;color:#334155;font-size:14px;line-height:1.6}
+[data-editorial-page="RES-TRADE-EU"] main .module{max-width:960px;margin:0 auto;padding:44px 0;border-bottom:1px solid #D9E2EC}
+[data-editorial-page="RES-TRADE-EU"] main .module:first-of-type{padding-top:18px;border-top:4px solid #00A99D}
+[data-editorial-page="RES-TRADE-EU"] main .module:last-child{border:0;padding-bottom:0}
+[data-editorial-page="RES-TRADE-EU"] main h1,[data-editorial-page="RES-TRADE-EU"] main h2,[data-editorial-page="RES-TRADE-EU"] main h3{color:#062B5B;font-weight:700}
+[data-editorial-page="RES-TRADE-EU"] main h1{font-size:56px;line-height:1.12;letter-spacing:-1.8px;margin:0 0 28px}
+[data-editorial-page="RES-TRADE-EU"] main h2{font-size:36px;line-height:1.2;letter-spacing:-.8px;margin:0 0 26px;max-width:900px}
+[data-editorial-page="RES-TRADE-EU"] main h3{font-size:24px;font-weight:600;line-height:1.35;margin:30px 0 18px}
+[data-editorial-page="RES-TRADE-EU"] main p,[data-editorial-page="RES-TRADE-EU"] main li{font-size:17px;line-height:1.65;margin:0 0 20px}
+[data-editorial-page="RES-TRADE-EU"] main strong{font-weight:600;color:#062B5B}
+[data-editorial-page="RES-TRADE-EU"] main ul,[data-editorial-page="RES-TRADE-EU"] main ol{padding-left:27px;margin:24px 0}
+[data-editorial-page="RES-TRADE-EU"] main li{padding-left:7px}
+[data-editorial-page="RES-TRADE-EU"] main a{display:inline-flex;align-items:center;min-height:44px;min-width:44px;max-width:100%;color:#008078;font-weight:600;text-underline-offset:4px;overflow-wrap:anywhere}
+[data-editorial-page="RES-TRADE-EU"] main a:hover{color:#062B5B;text-decoration-thickness:2px}
+[data-editorial-page="RES-TRADE-EU"] main a:focus-visible{outline:3px solid #008078;outline-offset:3px}
+[data-editorial-page="RES-TRADE-EU"] main code{font:inherit;font-variant-numeric:tabular-nums;color:#062B5B}
+[data-editorial-page="RES-TRADE-EU"] main table{border-collapse:collapse;table-layout:fixed;width:100%;margin:20px 0 26px;font-size:16px;line-height:1.55}
+[data-editorial-page="RES-TRADE-EU"] main th,[data-editorial-page="RES-TRADE-EU"] main td{border:1px solid #D9E2EC;padding:18px 16px;vertical-align:top;text-align:left;overflow-wrap:break-word}
+[data-editorial-page="RES-TRADE-EU"] main th{background:#062B5B;color:#fff;font-weight:600}
+[data-editorial-page="RES-TRADE-EU"] main tbody tr:nth-child(even){background:#F5F8FB}
+[data-editorial-page="RES-TRADE-EU"] main th:first-child{width:48%}
+[data-editorial-page="RES-TRADE-EU"] main th:nth-child(2),[data-editorial-page="RES-TRADE-EU"] main th:nth-child(3){width:26%}
+[data-editorial-page="RES-TRADE-EU"] main td:nth-child(2){font-variant-numeric:tabular-nums;font-weight:600;color:#062B5B}
+[data-editorial-page="RES-TRADE-EU"] main .module-1 p:nth-last-child(2),[data-editorial-page="RES-TRADE-EU"] main .module-1 p:last-child{margin-bottom:12px}
+[data-editorial-page="RES-TRADE-EU"] main .module-1 p:nth-last-child(2) a,[data-editorial-page="RES-TRADE-EU"] main .module-6>p:nth-of-type(2) a{padding:14px 22px;background:#008078;border:1px solid #008078;border-radius:6px;color:#fff;text-decoration:none;font-size:16px;line-height:1.5}
+[data-editorial-page="RES-TRADE-EU"] main .module-1 p:last-child a{padding:13px 22px;border:1px solid #008078;border-radius:6px;text-decoration:none;font-size:16px;line-height:1.5}
+[data-editorial-page="RES-TRADE-EU"] main .module-1 p:nth-last-child(2) a:hover,[data-editorial-page="RES-TRADE-EU"] main .module-6>p:nth-of-type(2) a:hover{background:#062B5B;border-color:#062B5B}
+[data-editorial-page="RES-TRADE-EU"] main .module-1 p:last-child a:hover{background:#F5F8FB;color:#008078}
+[data-editorial-page="RES-TRADE-EU"] main .module-4 ol li{padding:14px 0 14px 9px;margin:0;border-bottom:1px solid #D9E2EC}
+[data-editorial-page="RES-TRADE-EU"] main .module-4 ol li::marker{font-weight:600;color:#062B5B}
+[data-editorial-page="RES-TRADE-EU"] main .module-5 ul li{padding:18px 20px;margin:0 0 12px;background:#F5F8FB;border-left:3px solid #D9E2EC}
+[data-editorial-page="RES-TRADE-EU"] main .module-6 ul{padding-left:22px}
+[data-editorial-page="RES-TRADE-EU"] main .module-6 ul li{font-size:15px;line-height:1.65;margin-bottom:12px}
+[data-editorial-page="RES-TRADE-EU"] main .module-6>p:last-child{padding-top:20px;border-top:1px solid #D9E2EC;font-size:14px;margin-bottom:0}
+@media(max-width:1100px){[data-editorial-page="RES-TRADE-EU"] main{padding:24px 32px 56px}
+[data-editorial-page="RES-TRADE-EU"] main .module{padding:36px 0}
+[data-editorial-page="RES-TRADE-EU"] main h1{font-size:44px;letter-spacing:-1.2px}
+[data-editorial-page="RES-TRADE-EU"] main h2{font-size:32px}
+}
+@media(max-width:600px){[data-editorial-page="RES-TRADE-EU"] main{padding:22px 20px 44px}
+[data-editorial-page="RES-TRADE-EU"] main .breadcrumb{margin-bottom:24px}
+[data-editorial-page="RES-TRADE-EU"] main .module{padding:32px 0}
+[data-editorial-page="RES-TRADE-EU"] main .module:first-of-type{padding-top:18px}
+[data-editorial-page="RES-TRADE-EU"] main h1{font-size:34px;letter-spacing:-.8px;line-height:1.14;margin-bottom:24px}
+[data-editorial-page="RES-TRADE-EU"] main h2{font-size:28px;letter-spacing:-.5px}
+[data-editorial-page="RES-TRADE-EU"] main h3{font-size:22px}
+[data-editorial-page="RES-TRADE-EU"] main p,[data-editorial-page="RES-TRADE-EU"] main li{font-size:16px;line-height:1.65}
+[data-editorial-page="RES-TRADE-EU"] main li{padding-left:1px}
+[data-editorial-page="RES-TRADE-EU"] main .module-1 a,[data-editorial-page="RES-TRADE-EU"] main .module-6>p:nth-of-type(2) a{width:100%;justify-content:center}
+[data-editorial-page="RES-TRADE-EU"] main table{font-size:14px;line-height:1.55}
+[data-editorial-page="RES-TRADE-EU"] main th,[data-editorial-page="RES-TRADE-EU"] main td{padding:14px 8px}
+[data-editorial-page="RES-TRADE-EU"] main .module-5 ul{padding-left:19px}
+[data-editorial-page="RES-TRADE-EU"] main .module-5 ul li{padding:14px 12px}
+[data-editorial-page="RES-TRADE-EU"] main .module-4 ol li{padding:12px 0 12px 4px}
+}
+@media(prefers-reduced-motion:reduce){[data-editorial-page="RES-TRADE-EU"] main *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}

@@ -1,0 +1,103 @@
+[data-editorial-page="RES-TRADE-IN"] main,[data-editorial-page="RES-TRADE-IN"] main *{box-sizing:border-box}
+[data-editorial-page="RES-TRADE-IN"] main{margin:0;font-family:var(--font-my-shared),Arial,sans-serif;color:#102d46;background:white}
+[data-editorial-page="RES-TRADE-IN"] main{max-width:1200px;margin:auto;padding:28px 40px 64px}
+[data-editorial-page="RES-TRADE-IN"] main .module{padding:38px 0;border-bottom:1px solid #d7e1e7}
+[data-editorial-page="RES-TRADE-IN"] main .module:first-child{padding-top:12px}
+[data-editorial-page="RES-TRADE-IN"] main .module:last-child{border:0;padding-bottom:0}
+[data-editorial-page="RES-TRADE-IN"] main h1{max-width:1040px;font-size:46px;line-height:1.15;letter-spacing:-1.4px;margin:0 0 24px}
+[data-editorial-page="RES-TRADE-IN"] main h2{font-size:30px;line-height:1.25;letter-spacing:-.5px;margin:0 0 24px}
+[data-editorial-page="RES-TRADE-IN"] main h3{font-size:22px;margin:26px 0 18px}
+[data-editorial-page="RES-TRADE-IN"] main p,[data-editorial-page="RES-TRADE-IN"] main li{font-size:17px;line-height:1.65;margin:0 0 18px;max-width:1020px}
+[data-editorial-page="RES-TRADE-IN"] main ul,[data-editorial-page="RES-TRADE-IN"] main ol{padding-left:25px;margin:22px 0}
+[data-editorial-page="RES-TRADE-IN"] main li{padding-left:6px}
+[data-editorial-page="RES-TRADE-IN"] main code{font:inherit;font-variant-numeric:tabular-nums}
+[data-editorial-page="RES-TRADE-IN"] main a{display:inline-flex;align-items:center;min-width:44px;min-height:44px;max-width:100%;color:#008078;font-weight:600;text-underline-offset:4px;overflow-wrap:anywhere}
+[data-editorial-page="RES-TRADE-IN"] main a:focus-visible{outline:3px solid #008078;outline-offset:3px}
+[data-editorial-page="RES-TRADE-IN"] main .module-1 p:nth-of-type(3) a,[data-editorial-page="RES-TRADE-IN"] main .module-8 p:first-of-type a{padding:12px 20px;background:#008078;border:1px solid #008078;color:white;text-decoration:none}
+[data-editorial-page="RES-TRADE-IN"] main .module-1 p:nth-of-type(5) a{padding:11px 20px;border:1px solid #008078;text-decoration:none}
+[data-editorial-page="RES-TRADE-IN"] main table{width:100%;table-layout:fixed;border-collapse:collapse;margin:22px 0 26px;font-size:16px;line-height:1.6}
+[data-editorial-page="RES-TRADE-IN"] main th,[data-editorial-page="RES-TRADE-IN"] main td{border:1px solid #cbd8e0;padding:16px;text-align:left;vertical-align:top;overflow-wrap:break-word}
+[data-editorial-page="RES-TRADE-IN"] main th{background:#eff4f6;font-weight:600}
+[data-editorial-page="RES-TRADE-IN"] main .table-1 th:first-child{width:18%}
+[data-editorial-page="RES-TRADE-IN"] main .table-1 th:nth-child(2){width:39%}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 th:first-child{width:7%}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 th:nth-child(2){width:13%}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 th:nth-child(3){width:18%}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 th:nth-child(4){width:46%}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 th:nth-child(5){width:16%}
+[data-editorial-page="RES-TRADE-IN"] main .table-3 th:first-child{width:20%}
+[data-editorial-page="RES-TRADE-IN"] main .table-3 th:nth-child(2){width:33%}
+@media(max-width:1100px){[data-editorial-page="RES-TRADE-IN"] main{padding:24px 32px 48px}
+[data-editorial-page="RES-TRADE-IN"] main .module{padding:32px 0}
+[data-editorial-page="RES-TRADE-IN"] main h1{font-size:40px}
+[data-editorial-page="RES-TRADE-IN"] main th,[data-editorial-page="RES-TRADE-IN"] main td{padding:14px}
+[data-editorial-page="RES-TRADE-IN"] main .table-2,[data-editorial-page="RES-TRADE-IN"] main .table-2 tbody,[data-editorial-page="RES-TRADE-IN"] main .table-2 tr,[data-editorial-page="RES-TRADE-IN"] main .table-2 td{display:block;width:100%}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 thead{position:absolute;width:1px;height:1px;overflow:clip;clip-path:inset(50%)}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 tbody tr{margin:0 0 20px;border:1px solid #cbd8e0;padding:4px 16px}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 td{border:0;padding:12px 0}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 td+td{border-top:1px solid #e0e7eb}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 td::before{content:attr(data-label);display:block;font-size:14px;font-weight:700;line-height:1.4;margin-bottom:6px;color:#526673}
+}
+@media(max-width:600px){[data-editorial-page="RES-TRADE-IN"] main{padding:20px 20px 40px}
+[data-editorial-page="RES-TRADE-IN"] main .module{padding:30px 0}
+[data-editorial-page="RES-TRADE-IN"] main h1{font-size:34px;letter-spacing:-.8px}
+[data-editorial-page="RES-TRADE-IN"] main h2{font-size:27px}
+[data-editorial-page="RES-TRADE-IN"] main p,[data-editorial-page="RES-TRADE-IN"] main li{font-size:16px;line-height:1.65}
+[data-editorial-page="RES-TRADE-IN"] main .module-1 a{width:100%;justify-content:center}
+[data-editorial-page="RES-TRADE-IN"] main li{padding-left:1px}
+[data-editorial-page="RES-TRADE-IN"] main table,[data-editorial-page="RES-TRADE-IN"] main table tbody,[data-editorial-page="RES-TRADE-IN"] main table tr,[data-editorial-page="RES-TRADE-IN"] main table td{display:block;width:100%}
+[data-editorial-page="RES-TRADE-IN"] main table thead{position:absolute;width:1px;height:1px;overflow:clip;clip-path:inset(50%)}
+[data-editorial-page="RES-TRADE-IN"] main table tbody tr{margin:0 0 20px;border:1px solid #cbd8e0;padding:4px 16px}
+[data-editorial-page="RES-TRADE-IN"] main table td{border:0;padding:12px 0}
+[data-editorial-page="RES-TRADE-IN"] main table td+td{border-top:1px solid #e0e7eb}
+[data-editorial-page="RES-TRADE-IN"] main table td::before{content:attr(data-label);display:block;font-size:14px;font-weight:700;line-height:1.4;margin-bottom:6px;color:#526673}
+}
+[data-editorial-page="RES-TRADE-IN"] main{color:#334155}
+[data-editorial-page="RES-TRADE-IN"] main{padding-top:40px;padding-bottom:72px}
+[data-editorial-page="RES-TRADE-IN"] main h1,[data-editorial-page="RES-TRADE-IN"] main h2,[data-editorial-page="RES-TRADE-IN"] main h3,[data-editorial-page="RES-TRADE-IN"] main strong{color:#062B5B}
+[data-editorial-page="RES-TRADE-IN"] main h1{font-size:54px;line-height:1.12;letter-spacing:-1.7px;max-width:1080px;margin-bottom:30px}
+[data-editorial-page="RES-TRADE-IN"] main h2{font-size:36px;line-height:1.2;letter-spacing:-.8px;max-width:1000px}
+[data-editorial-page="RES-TRADE-IN"] main h3{font-size:26px;font-weight:600}
+[data-editorial-page="RES-TRADE-IN"] main p,[data-editorial-page="RES-TRADE-IN"] main li{font-size:18px;line-height:1.65}
+[data-editorial-page="RES-TRADE-IN"] main .module{padding:48px 0;border-color:#D9E2EC}
+[data-editorial-page="RES-TRADE-IN"] main .module-1{border-bottom:2px solid #D9E2EC}
+[data-editorial-page="RES-TRADE-IN"] main .module-1 p:nth-of-type(2){padding:22px 24px;border-left:4px solid #008078;background:#F5F8FB;border-radius:0 10px 10px 0}
+[data-editorial-page="RES-TRADE-IN"] main .module-1 p:nth-of-type(4),[data-editorial-page="RES-TRADE-IN"] main .module-1 p:nth-of-type(6){font-size:16px}
+[data-editorial-page="RES-TRADE-IN"] main .module-1 p:nth-of-type(3) a,[data-editorial-page="RES-TRADE-IN"] main .module-8 p:first-of-type a{border-radius:7px}
+[data-editorial-page="RES-TRADE-IN"] main .module-1 p:nth-of-type(3) a strong,[data-editorial-page="RES-TRADE-IN"] main .module-8 p:first-of-type a strong{color:#fff}
+[data-editorial-page="RES-TRADE-IN"] main .module-1 p:nth-of-type(5) a{border-radius:7px}
+[data-editorial-page="RES-TRADE-IN"] main a:hover{color:#062B5B}
+[data-editorial-page="RES-TRADE-IN"] main .module-1 p:nth-of-type(3) a:hover,[data-editorial-page="RES-TRADE-IN"] main .module-8 p:first-of-type a:hover{background:#062B5B;border-color:#062B5B;color:#fff}
+[data-editorial-page="RES-TRADE-IN"] main .module-1 p:nth-of-type(5) a:hover{background:#F5F8FB}
+[data-editorial-page="RES-TRADE-IN"] main th{background:#062B5B;color:#fff}
+[data-editorial-page="RES-TRADE-IN"] main td{border-color:#D9E2EC}
+[data-editorial-page="RES-TRADE-IN"] main tbody tr:nth-child(even){background:#F5F8FB}
+[data-editorial-page="RES-TRADE-IN"] main table{font-variant-numeric:tabular-nums}
+[data-editorial-page="RES-TRADE-IN"] main td:first-child{font-weight:600;color:#062B5B}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 td:last-child{font-weight:600;color:#062B5B}
+[data-editorial-page="RES-TRADE-IN"] main .module-3 li::marker,[data-editorial-page="RES-TRADE-IN"] main .module-5 li::marker,[data-editorial-page="RES-TRADE-IN"] main .module-7 li::marker{color:#008078}
+[data-editorial-page="RES-TRADE-IN"] main .module-8 h3{border-top:1px solid #D9E2EC;padding-top:28px}
+[data-editorial-page="RES-TRADE-IN"] main .module-8 li{font-size:16px}
+[data-editorial-page="RES-TRADE-IN"] main .module-8>p:last-child{padding:20px 24px;background:#F5F8FB;border-radius:10px;font-size:16px}
+@media(max-width:1100px){[data-editorial-page="RES-TRADE-IN"] main{padding-top:32px;padding-bottom:56px}
+[data-editorial-page="RES-TRADE-IN"] main h1{font-size:44px;letter-spacing:-1.1px}
+[data-editorial-page="RES-TRADE-IN"] main h2{font-size:32px}
+[data-editorial-page="RES-TRADE-IN"] main .module{padding:40px 0}
+[data-editorial-page="RES-TRADE-IN"] main p,[data-editorial-page="RES-TRADE-IN"] main li{font-size:17px}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 tbody tr{padding:4px 20px;border-radius:10px;border-color:#D9E2EC}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 td::before{color:#062B5B}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 td:first-child{border-bottom:2px solid #D9E2EC}
+[data-editorial-page="RES-TRADE-IN"] main .table-2 td:last-child{font-size:18px}
+}
+@media(max-width:600px){[data-editorial-page="RES-TRADE-IN"] main{padding-top:24px;padding-bottom:44px}
+[data-editorial-page="RES-TRADE-IN"] main h1{font-size:34px;line-height:1.16;letter-spacing:-.7px}
+[data-editorial-page="RES-TRADE-IN"] main h2{font-size:28px;line-height:1.23;letter-spacing:-.45px}
+[data-editorial-page="RES-TRADE-IN"] main .module{padding:34px 0}
+[data-editorial-page="RES-TRADE-IN"] main p,[data-editorial-page="RES-TRADE-IN"] main li{font-size:16px;line-height:1.65}
+[data-editorial-page="RES-TRADE-IN"] main .module-1 p:nth-of-type(2){padding:18px 18px}
+[data-editorial-page="RES-TRADE-IN"] main .module-1 p:nth-of-type(3) a,[data-editorial-page="RES-TRADE-IN"] main .module-8 p:first-of-type a{text-align:center;justify-content:center}
+[data-editorial-page="RES-TRADE-IN"] main table tbody tr{border-radius:10px;border-color:#D9E2EC}
+[data-editorial-page="RES-TRADE-IN"] main table td::before{color:#062B5B}
+[data-editorial-page="RES-TRADE-IN"] main .module-8>p:last-child{padding:18px}
+[data-editorial-page="RES-TRADE-IN"] main .module-8 h3{font-size:24px}
+}

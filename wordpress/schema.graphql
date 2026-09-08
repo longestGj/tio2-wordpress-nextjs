@@ -17367,6 +17367,9 @@ type RootQuery {
   "Approved, scope-bound ABOUT-001 record for TiO2 Malaysia."
   malaysiaAboutPageRecordJson: String!
 
+  "Approved scope-bound country Market record for TiO2 Malaysia."
+  malaysiaCountryMarketRecordJson(pageId: String!): String!
+
   "Approved scope-bound DOC-REACH record and scoped route readiness for TiO2 Malaysia."
   malaysiaDocumentReachRecordJson: String!
 
@@ -17375,6 +17378,9 @@ type RootQuery {
 
   "Approved, scope-bound DOC-000 record for TiO2 Malaysia."
   malaysiaDocumentsHubRecordJson: String!
+
+  "Exact source-bound Malaysia editorial record; fails closed for invalid scope, content or freshness."
+  malaysiaEditorialRecordJson(pageId: String!, siteScope: String!): String!
 
   "Approved, scope-bound MARKET-EU-001 record for TiO2 Malaysia."
   malaysiaEuMarketRecordJson: String!
@@ -17411,9 +17417,6 @@ type RootQuery {
 
   "Approved, scope-bound MARKET-UK-001 record for TiO2 Malaysia."
   malaysiaUkMarketRecordJson: String!
-
-  "Approved scope-bound country Market record for TiO2 Malaysia."
-  malaysiaCountryMarketRecordJson(pageId: String!): String!
 
   "An object of the mediaItem Type. "
   mediaItem(
