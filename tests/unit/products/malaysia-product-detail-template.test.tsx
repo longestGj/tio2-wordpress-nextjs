@@ -51,7 +51,7 @@ describe('MalaysiaProductDetail shared template', () => {
     expect(markup).toContain('aria-current="page"')
     expect(markup).not.toMatch(/>\s*CURRENT\s*</u)
     expect(markup.match(/href="\/request-a-quote\//gu)).toHaveLength(4)
-    expect(markup).toContain('data-source-page="GRADE-M350"')
+    expect(markup).not.toContain('data-source-page="GRADE-M350"')
   })
 
   it('renders only resolver-approved contextual modules and scoped prefill', async () => {

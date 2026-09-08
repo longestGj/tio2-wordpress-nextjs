@@ -46,8 +46,11 @@ describe('five approved pages consume the shared dropdown Chrome variant', () =>
     expect(container.querySelector('main')?.hasAttribute('inert')).toBe(false)
     expect(container.querySelector('footer')?.hasAttribute('inert')).toBe(false)
     expect(screen.queryByRole('navigation', {name: 'Mobile navigation'})).toBeNull()
-    for (const anchor of container.querySelectorAll<HTMLAnchorElement>('a[data-source-page]')) {
-      expect(anchor.getAttribute('href')).toBe('/request-a-quote/')
+    const rfqLinks = container.querySelectorAll<HTMLAnchorElement>('header a[href="/request-a-quote/"], footer a[href="/request-a-quote/"]')
+    expect(rfqLinks.length).toBeGreaterThanOrEqual(3)
+    for (const anchor of rfqLinks) {
+      expect(anchor.getAttribute('data-site-scope')).toBeNull()
+      expect(anchor.getAttribute('data-source-page')).toBeNull()
     }
   })
 

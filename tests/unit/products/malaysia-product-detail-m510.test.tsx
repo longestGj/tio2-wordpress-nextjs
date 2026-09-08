@@ -40,7 +40,7 @@ describe('M-510 approved Product Detail candidate', () => {
     expect(markup).not.toContain('data-label="Standard"')
     expect(markup).not.toContain('data-module="related-grades"')
     expect(markup).not.toContain('Related grades')
-    expect(markup).toContain('data-source-page="GRADE-M510"')
+    expect(markup).not.toContain('data-source-page="GRADE-M510"')
   })
 
   it('emits exact M-510 metadata and a 12-property two-node graph', () => {

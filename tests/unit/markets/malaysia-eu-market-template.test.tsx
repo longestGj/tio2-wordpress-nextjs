@@ -68,8 +68,8 @@ describe('MalaysiaEuMarketPage', () => {
     const chromeRfq = container.querySelectorAll('header a[href="/request-a-quote/"], footer a[href="/request-a-quote/"]')
     expect(chromeRfq.length).toBeGreaterThanOrEqual(3)
     for (const link of chromeRfq) {
-      expect(link.getAttribute('data-site-scope')).toBe('tio2-my')
-      expect(link.getAttribute('data-source-page')).toBe('MARKET-EU-001')
+      expect(link.getAttribute('data-site-scope')).toBeNull()
+      expect(link.getAttribute('data-source-page')).toBeNull()
     }
     const current = container.querySelectorAll('a[aria-current="page"]')
     expect(current).toHaveLength(2)

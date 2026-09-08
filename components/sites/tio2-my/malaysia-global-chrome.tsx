@@ -14,20 +14,16 @@ const inlineMobileMenuSources = new Set([
 ])
 
 export function MalaysiaGlobalHeader({chrome, currentPageId, sourcePageId}: GlobalChromeProps) {
-  const privateRfqAttribution = sourcePageId === 'APP-000'
   return <MalaysiaGlobalHeaderClient
     chrome={projectMalaysiaGlobalChrome(chrome)}
     currentHref={chrome.navigation.find((item) => item.targetPageId === currentPageId)?.href ?? null}
     inlineMobileMenu={inlineMobileMenuSources.has(sourcePageId)}
-    privateRfqAttribution={privateRfqAttribution}
   />
 }
 
 export function MalaysiaGlobalFooter({chrome, sourcePageId}: Omit<GlobalChromeProps, 'currentPageId'>) {
-  const privateRfqAttribution = sourcePageId === 'APP-000'
   return <MalaysiaGlobalFooterClient
     chrome={projectMalaysiaGlobalChrome(chrome)}
     inlineMobileMenu={inlineMobileMenuSources.has(sourcePageId)}
-    privateRfqAttribution={privateRfqAttribution}
   />
 }

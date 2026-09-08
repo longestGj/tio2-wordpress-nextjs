@@ -46,8 +46,8 @@ describe('MalaysiaResourceHub H0', () => {
     const scoped = container.querySelectorAll('header a[href="/request-a-quote/"], footer a[href="/request-a-quote/"]')
     expect(scoped.length).toBeGreaterThanOrEqual(3)
     for (const link of scoped) {
-      expect(link.getAttribute('data-site-scope')).toBe('tio2-my')
-      expect(link.getAttribute('data-source-page')).toBe('RES-000')
+      expect(link.getAttribute('data-site-scope')).toBeNull()
+      expect(link.getAttribute('data-source-page')).toBeNull()
     }
   })
 

@@ -1,7 +1,7 @@
 import {NextResponse, type NextRequest} from 'next/server'
 
 import {
-  isMalaysiaRfqAttributionToken,
+  resolveMalaysiaRfqAttributionToken,
   MALAYSIA_RFQ_ATTRIBUTION_COOKIE,
 } from '@/lib/rfq/malaysia-rfq-private-attribution'
 import {submitMalaysiaRfq, type MalaysiaRfqSubmission} from '@/lib/rfq/malaysia-rfq-receiver'
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
   }
   const value = (field: typeof fields[number]) => record[field] as string
   const cookie = request.cookies.get(MALAYSIA_RFQ_ATTRIBUTION_COOKIE)?.value
-  const attributed = isMalaysiaRfqAttributionToken(cookie, process.env.TIO2_MY_RFQ_ATTRIBUTION_SECRET)
+  const source = resolveMalaysiaRfqAttributionToken(cookie, process.env.TIO2_MY_RFQ_ATTRIBUTION_SECRET)
   const values: MalaysiaRfqSubmission = {
     grade_id: value('grade_id'),
     application_id: value('application_id'),
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     phone_whatsapp: value('phone_whatsapp'),
     website: value('website'),
     additional_requirements: value('additional_requirements'),
-    source_page_id: attributed ? 'APP-000' : null,
+    source_page_id: source,
   }
   const validation = validateMalaysiaRfqValues(values)
   if (!validation.valid) return NextResponse.json({kind: 'submission_unconfirmed'}, {status: 400})
@@ -51,6 +51,6 @@ export async function POST(request: NextRequest) {
     endpoint: process.env.TIO2_MY_WEB3FORMS_ENDPOINT,
   })
   const response = NextResponse.json(result, {headers: {'cache-control': 'no-store'}})
-  if (attributed) response.cookies.set(MALAYSIA_RFQ_ATTRIBUTION_COOKIE, '', {path: '/', maxAge: 0})
+  if (source) response.cookies.set(MALAYSIA_RFQ_ATTRIBUTION_COOKIE, '', {path: '/', maxAge: 0})
   return response
 }

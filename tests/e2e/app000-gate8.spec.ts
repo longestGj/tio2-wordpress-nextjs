@@ -78,6 +78,25 @@ test('APP and RFQ buyer-delivered surfaces contain no internal identities', asyn
   }
 })
 
+test('shared Chrome RFQ links navigate cleanly and record only opaque server context', async ({page}) => {
+  for (const path of [
+    '/', '/markets/', '/products/m-350/', '/documents/tds-sds-coa/', '/resources/',
+    '/products/chloride-process-titanium-dioxide/',
+  ]) {
+    await page.context().clearCookies()
+    const sourceResponse = await page.goto(path, {waitUntil: 'networkidle'})
+    expect(sourceResponse?.status(), path).toBe(200)
+    const contextResponsePromise = page.waitForResponse((response) => response.url().endsWith('/api/rfq/context'))
+    await page.locator('header').getByRole('link', {name: 'Request a Quote'}).first().click()
+    expect((await contextResponsePromise).status(), path).toBe(204)
+    await expect.poll(() => new URL(page.url()).pathname).toBe('/request-a-quote')
+    expect(new URL(page.url()).search).toBe('')
+    const cookie = (await page.context().cookies()).find(({name}) => name === 'rfq_context')
+    expect(cookie).toMatchObject({httpOnly: true, sameSite: 'Strict'})
+    expect(cookie?.value).not.toMatch(/HOME|MARKET|GRADE|DOC|RES|PRODUCT|APP|CONV/u)
+  }
+})
+
 test('all 30 Grade occurrences resolve to the approved 14 live destinations', async ({page, request}) => {
   await page.goto('/applications/', {waitUntil: 'networkidle'})
   const hrefs = await page.locator('#application-selector details li > a').evaluateAll((links) => links.map((link) => link.getAttribute('href')))

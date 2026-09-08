@@ -47,7 +47,7 @@ describe('M-340 approved Product Detail candidate', () => {
     expect(markup).toContain('data-label="Typical value">--</td>')
     expect(markup).not.toMatch(/Rubber|origin|Not Recommended|Related grades/iu)
     expect(markup).not.toContain('data-module="documents"')
-    expect(markup).toContain('data-source-page="GRADE-M340"')
+    expect(markup).not.toContain('data-source-page="GRADE-M340"')
   })
 
   it('emits exact metadata and fourteen meaningful Product properties', () => {

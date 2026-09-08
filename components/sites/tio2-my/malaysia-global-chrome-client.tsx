@@ -13,7 +13,6 @@ import {MalaysiaPrivateRfqLink} from './request-a-quote/malaysia-private-rfq-lin
 interface GlobalChromeClientProps {
   readonly chrome: MalaysiaGlobalChromePublicProjection
   readonly inlineMobileMenu: boolean
-  readonly privateRfqAttribution: boolean
 }
 
 function RfqLink({
@@ -21,24 +20,19 @@ function RfqLink({
   className,
   href,
   onClick,
-  privateRfqAttribution,
 }: {
   readonly children: React.ReactNode
   readonly className?: string
   readonly href: string
   readonly onClick?: () => void
-  readonly privateRfqAttribution: boolean
 }) {
-  return privateRfqAttribution
-    ? <MalaysiaPrivateRfqLink className={className} href={href} onClick={onClick}>{children}</MalaysiaPrivateRfqLink>
-    : <a className={className} href={href} onClick={onClick}>{children}</a>
+  return <MalaysiaPrivateRfqLink className={className} href={href} onClick={onClick}>{children}</MalaysiaPrivateRfqLink>
 }
 
 export function MalaysiaGlobalHeaderClient({
   chrome,
   currentHref,
   inlineMobileMenu,
-  privateRfqAttribution,
 }: GlobalChromeClientProps & {readonly currentHref: string | null}) {
   const [open, setOpen] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
@@ -151,7 +145,7 @@ export function MalaysiaGlobalHeaderClient({
         <span>{item.label}</span>
       </a>
     })}
-    <RfqLink href={chrome.rfq.href} privateRfqAttribution={privateRfqAttribution}>{chrome.rfq.label}</RfqLink>
+    <RfqLink href={chrome.rfq.href}>{chrome.rfq.label}</RfqLink>
   </nav>
 
   return (
@@ -177,7 +171,7 @@ export function MalaysiaGlobalHeaderClient({
             )
           })}
         </nav>
-        <RfqLink className={styles.headerRfq} href={chrome.rfq.href} privateRfqAttribution={privateRfqAttribution}>
+        <RfqLink className={styles.headerRfq} href={chrome.rfq.href}>
           <span className={styles.rfqFull}>{chrome.rfq.label}</span>
           <span className={styles.rfqCompact}>{chrome.rfq.compactLabel}</span>
         </RfqLink>
@@ -204,7 +198,7 @@ export function MalaysiaGlobalHeaderClient({
       >
         <div className={styles.menuTopbar}>
           <Image src={chrome.logo.primary.src} alt={chrome.logo.primary.alt} width={120} height={40} className={styles.menuLogo} />
-          <RfqLink className={styles.headerRfq} href={chrome.rfq.href} privateRfqAttribution={privateRfqAttribution} onClick={() => setOpen(false)}>{chrome.rfq.compactLabel}</RfqLink>
+          <RfqLink className={styles.headerRfq} href={chrome.rfq.href} onClick={() => setOpen(false)}>{chrome.rfq.compactLabel}</RfqLink>
           <button ref={closeRef} type="button" className={styles.menuClose} aria-label="Close primary navigation menu" onClick={() => setOpen(false)}>Close</button>
         </div>
         {mobileNavigation}
@@ -216,7 +210,6 @@ export function MalaysiaGlobalHeaderClient({
 export function MalaysiaGlobalFooterClient({
   chrome,
   inlineMobileMenu,
-  privateRfqAttribution,
 }: GlobalChromeClientProps) {
   return (
     <><footer className={`${styles.footer} ${inlineMobileMenu ? styles.inlineMobileFooter : ''}`} lang="en">
@@ -241,7 +234,7 @@ export function MalaysiaGlobalFooterClient({
         </nav>
         <div className={styles.conversionColumn}>
           <h2>{chrome.footer.headings.procurement}</h2>
-          <RfqLink className={styles.footerRfq} href={chrome.rfq.href} privateRfqAttribution={privateRfqAttribution}>
+          <RfqLink className={styles.footerRfq} href={chrome.rfq.href}>
             {chrome.rfq.label}
           </RfqLink>
         </div>
