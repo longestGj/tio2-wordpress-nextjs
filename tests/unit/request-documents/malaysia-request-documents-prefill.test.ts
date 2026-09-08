@@ -101,6 +101,13 @@ describe('CONV-DOC prefill normalization', () => {
     })
   })
 
+  it.each(['MARKET-EU-ES', 'MARKET-IN-001', 'MARKET-EU-NL', 'MARKET-EU-BE'])
+  ('accepts %s as source-only attribution without visible prefill', (pageId) => {
+    expect(resolveMalaysiaRequestDocumentsPrefill({source_page_id: pageId, market_id: pageId})).toEqual({
+      values: {}, sourcePageId: pageId, marketId: pageId, prefillVisible: false,
+    })
+  })
+
   it('keeps only allowlisted visible editable values and safe source attribution', () => {
     expect(resolveMalaysiaRequestDocumentsPrefill({
       product_grade: 'M-2196', application_industry: 'Coatings',

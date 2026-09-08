@@ -14,6 +14,12 @@ describe('TiO2 Malaysia canonical path proxy', () => {
     const canonicalRequestDocuments = proxy(new NextRequest('https://tio2malaysia.com/request-documents/'))
     const api = proxy(new NextRequest('https://tio2malaysia.com/api/revalidate', {method: 'POST'}))
 
+    for (const countryPath of ['/markets/spain', '/markets/india', '/markets/netherlands', '/markets/belgium']) {
+      const response = proxy(new NextRequest(`https://tio2malaysia.com${countryPath}`))
+      expect(response.status, countryPath).toBe(308)
+      expect(response.headers.get('location'), countryPath).toBe(`https://tio2malaysia.com${countryPath}/`)
+    }
+
     expect(markets.status).toBe(308)
     expect(markets.headers.get('location')).toBe('https://tio2malaysia.com/markets/?source=test')
     expect(requestDocuments.status).toBe(308)

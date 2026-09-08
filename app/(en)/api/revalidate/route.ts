@@ -281,6 +281,12 @@ export async function POST(request: Request): Promise<Response> {
 
   const tags = new Set<string>()
   const malaysiaLegalPaths = new Set(['/privacy-policy', '/ms/privacy-policy', '/cookie-policy'])
+  const malaysiaCountryMarketPageIds = new Map<string, string>([
+    ['/markets/spain', 'MARKET-EU-ES'],
+    ['/markets/india', 'MARKET-IN-001'],
+    ['/markets/netherlands', 'MARKET-EU-NL'],
+    ['/markets/belgium', 'MARKET-EU-BE'],
+  ] as const)
   const preciseMalaysiaSingletonEvent =
     currentSite.id === 'tio2-my' &&
     (payload.paths.includes('/resources') ||
@@ -293,6 +299,7 @@ export async function POST(request: Request): Promise<Response> {
       payload.paths.includes('/request-sample') ||
       payload.paths.includes('/markets/european-union') ||
       payload.paths.includes('/markets/united-kingdom') ||
+      payload.paths.some((path) => malaysiaCountryMarketPageIds.has(path)) ||
       (payload.paths.length === 1 && malaysiaLegalPaths.has(payload.paths[0]!)))
   for (const siteId of payload.siteIds) {
     if (!preciseMalaysiaSingletonEvent) {
@@ -313,6 +320,11 @@ export async function POST(request: Request): Promise<Response> {
       if (siteId === 'tio2-my' && path === '/markets/united-kingdom') {
         tags.add(siteTag(siteId))
         tags.add(marketPageContentTag(siteId, 'MARKET-UK-001', 'en'))
+      }
+      const countryMarketPageId = malaysiaCountryMarketPageIds.get(path)
+      if (siteId === 'tio2-my' && countryMarketPageId) {
+        tags.add(siteTag(siteId))
+        tags.add(marketPageContentTag(siteId, countryMarketPageId, 'en'))
       }
       if (siteId === 'tio2-my' && path === '/resources') {
         tags.add(resourceHubContentTag(siteId))

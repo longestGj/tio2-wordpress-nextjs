@@ -1,0 +1,149 @@
+{
+  "MARKET-EU-ES-ssr": {
+    "canonical": "https://tio2malaysia.com/markets/spain/",
+    "jsonLdNodes": 2,
+    "moduleOrder": [
+      "hero",
+      "applications",
+      "documents",
+      "quote"
+    ],
+    "robots": "noindex, nofollow",
+    "sitemapOmitted": true
+  },
+  "MARKET-EU-ES-1440": {
+    "axeSeriousCritical": 0,
+    "approvedLogicalHeight": 2673,
+    "height": 2741,
+    "heightDeltaRatio": 0.0254,
+    "noHorizontalOverflow": true,
+    "screenshotSha256": "fe0f4e51d1f43b64de3bec8e6df4483ce5c067de2c320786c27eadc4e8375b36"
+  },
+  "MARKET-EU-ES-768": {
+    "axeSeriousCritical": 0,
+    "approvedLogicalHeight": 2951,
+    "height": 3001,
+    "heightDeltaRatio": 0.0169,
+    "noHorizontalOverflow": true,
+    "screenshotSha256": "217a79e8a9a1da0bb85397fa5bb10493ddac99cb7ef19e53287328a3e7d80250"
+  },
+  "MARKET-EU-ES-390": {
+    "axeSeriousCritical": 0,
+    "approvedLogicalHeight": 3954,
+    "height": 4069,
+    "heightDeltaRatio": 0.0291,
+    "noHorizontalOverflow": true,
+    "screenshotSha256": "c1c26ba20b1a4bc8af58934864b0e495601e7e9f21e124b9641a977736d6c5b7"
+  },
+  "MARKET-IN-001-ssr": {
+    "canonical": "https://tio2malaysia.com/markets/india/",
+    "jsonLdNodes": 2,
+    "moduleOrder": [
+      "hero",
+      "material",
+      "applications",
+      "documents",
+      "quote"
+    ],
+    "robots": "noindex, nofollow",
+    "sitemapOmitted": true
+  },
+  "MARKET-IN-001-1440": {
+    "axeSeriousCritical": 0,
+    "approvedLogicalHeight": 4617,
+    "height": 4559,
+    "heightDeltaRatio": 0.0126,
+    "noHorizontalOverflow": true,
+    "screenshotSha256": "c6b6fbf86b0c23ab07870838ff256e2bf498c15419c298f2d8bceccfde6d589e"
+  },
+  "MARKET-IN-001-768": {
+    "axeSeriousCritical": 0,
+    "approvedLogicalHeight": 5253,
+    "height": 5280,
+    "heightDeltaRatio": 0.0051,
+    "noHorizontalOverflow": true,
+    "screenshotSha256": "80d2fc201e6b5a3e7f1cf628577b86e00026d667195609873b62ab0dcb68542a"
+  },
+  "MARKET-IN-001-390": {
+    "axeSeriousCritical": 0,
+    "approvedLogicalHeight": 6793,
+    "height": 6843,
+    "heightDeltaRatio": 0.0074,
+    "noHorizontalOverflow": true,
+    "screenshotSha256": "1d054ba7c2db0c67def9a2d86cc33ab1c4f6376f4ba373c004a4f615b64a0166"
+  },
+  "MARKET-EU-NL-ssr": {
+    "canonical": "https://tio2malaysia.com/markets/netherlands/",
+    "jsonLdNodes": 2,
+    "moduleOrder": [
+      "hero",
+      "applications",
+      "products",
+      "documents",
+      "quote"
+    ],
+    "robots": "noindex, nofollow",
+    "sitemapOmitted": true
+  },
+  "MARKET-EU-NL-1440": {
+    "axeSeriousCritical": 0,
+    "approvedLogicalHeight": 3590,
+    "height": 3576,
+    "heightDeltaRatio": 0.0039,
+    "noHorizontalOverflow": true,
+    "screenshotSha256": "7a253850da032c1afe7a224b61984dc3b4629b901b07c595f76033847e0a2a86"
+  },
+  "MARKET-EU-NL-768": {
+    "axeSeriousCritical": 0,
+    "approvedLogicalHeight": 4048,
+    "height": 4184,
+    "heightDeltaRatio": 0.0336,
+    "noHorizontalOverflow": true,
+    "screenshotSha256": "58ab813c88d5bf1a03fa88333ad1046a0197b9dde61d0e9bc450851da865c08c"
+  },
+  "MARKET-EU-NL-390": {
+    "axeSeriousCritical": 0,
+    "approvedLogicalHeight": 5320,
+    "height": 5544,
+    "heightDeltaRatio": 0.0421,
+    "noHorizontalOverflow": true,
+    "screenshotSha256": "9cb7fd363acfc5e84d8dbf3a9f5bf04f9efe2e2f73128fdcc772dda4d65e1ccd"
+  },
+  "MARKET-EU-BE-ssr": {
+    "canonical": "https://tio2malaysia.com/markets/belgium/",
+    "jsonLdNodes": 2,
+    "moduleOrder": [
+      "hero",
+      "product-origin",
+      "applications",
+      "documents",
+      "quote"
+    ],
+    "robots": "noindex, nofollow",
+    "sitemapOmitted": true
+  },
+  "MARKET-EU-BE-1440": {
+    "axeSeriousCritical": 0,
+    "approvedLogicalHeight": 3654,
+    "height": 3730,
+    "heightDeltaRatio": 0.0208,
+    "noHorizontalOverflow": true,
+    "screenshotSha256": "d98e9983ee0820e6b8cef2342c547aee08e27674fb4ed9e772c5de3634da7688"
+  },
+  "MARKET-EU-BE-768": {
+    "axeSeriousCritical": 0,
+    "approvedLogicalHeight": 4170,
+    "height": 4200,
+    "heightDeltaRatio": 0.0072,
+    "noHorizontalOverflow": true,
+    "screenshotSha256": "662eb64e3e3c53cf00352413aad90cc23d36f128864605491556e66b66e7656e"
+  },
+  "MARKET-EU-BE-390": {
+    "axeSeriousCritical": 0,
+    "approvedLogicalHeight": 5369,
+    "height": 5565,
+    "heightDeltaRatio": 0.0365,
+    "noHorizontalOverflow": true,
+    "screenshotSha256": "1c0c7a3101d1cde22342862cd8e9ed4a90c8f49d91fe5911cabf3832370ff1ba"
+  }
+}

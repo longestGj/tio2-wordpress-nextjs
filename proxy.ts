@@ -4,6 +4,10 @@ const MALAYSIA_TRAILING_SLASH_PATHS = new Set([
   '/markets',
   '/markets/european-union',
   '/markets/united-kingdom',
+  '/markets/spain',
+  '/markets/india',
+  '/markets/netherlands',
+  '/markets/belgium',
   '/request-documents',
 ])
 

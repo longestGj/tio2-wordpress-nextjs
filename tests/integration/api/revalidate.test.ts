@@ -382,6 +382,24 @@ describe('POST /api/revalidate', () => {
     expect(revalidatePath.mock.calls).toEqual([['/markets/united-kingdom']])
   })
 
+  it.each([
+    ['/markets/spain/', 'MARKET-EU-ES'],
+    ['/markets/india/', 'MARKET-IN-001'],
+    ['/markets/netherlands/', 'MARKET-EU-NL'],
+    ['/markets/belgium/', 'MARKET-EU-BE'],
+  ])('revalidates %s with only its scope-local country Market tags', async (path, pageId) => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(validPayload({siteIds: ['tio2-my'], paths: [path]})))
+    const body = await response.json()
+    const normalized = path.slice(0, -1)
+    expect(response.status).toBe(200)
+    expect(body.revalidatedPaths).toEqual([normalized])
+    expect(body.revalidatedTags).toEqual([
+      `content:tio2-my--market--${pageId}--en`, `route:tio2-my:${normalized}`, 'site:tio2-my',
+    ])
+    expect(JSON.stringify(body)).not.toMatch(/content-list|sitemap|tio2-a|tio2-b/iu)
+  })
+
   it.each([['tio2-a'], ['tio2-b'], ['tio2-my', 'tio2-a']])('rejects foreign/mixed UK mutation scope %j', async (...siteIds) => {
     vi.stubEnv('SITE_ID', 'tio2-my')
     const response = await POST(signedRequest(validPayload({siteIds, paths: ['/markets/united-kingdom/']})))

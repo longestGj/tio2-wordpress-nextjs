@@ -17412,6 +17412,9 @@ type RootQuery {
   "Approved, scope-bound MARKET-UK-001 record for TiO2 Malaysia."
   malaysiaUkMarketRecordJson: String!
 
+  "Approved scope-bound country Market record for TiO2 Malaysia."
+  malaysiaCountryMarketRecordJson(pageId: String!): String!
+
   "An object of the mediaItem Type. "
   mediaItem(
     "The globally unique identifier of the object."
