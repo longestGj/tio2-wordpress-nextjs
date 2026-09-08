@@ -27,6 +27,8 @@ Sample服务器另需在同一忽略文件配置`TIO2_MY_SAMPLE_RECEIVER_BINDING
 
 `PRERELEASE_LIVE_FORMS_ENABLED=false`是默认值。启动前会检查必需字段，错误只报告字段名，不输出字段值。
 
+Editorial 页面还需要独立生成的本地预发布 `WORDPRESS_EDITORIAL_API_TOKEN`。Compose 将它映射到 Next 服务端同名变量和本栈 WordPress 的 `EDITORIAL_API_TOKEN`；不放入 `NEXT_PUBLIC_*`、不复用其他环境凭据。启动前拒绝缺失或示例值。CMS 正常和普通页面可访问并不能代替 editorial 受保护查询及页面验证。
+
 ## 日常命令
 
 工作目录为主D16 checkout。本工具仍要求调用工作树当前分支为main且干净，不直接接受develop。准备预发布时先保存并隔离开发工作，再安全切换至已通过晋级检查的main；不得丢弃未提交修改或为启动而自动提交其他任务内容。先核对任务授权、现有运行及干净main；命令存在不表示当前环境已启动或测试通过。

@@ -24,6 +24,14 @@ function readCompose(): ComposeContract | null {
 }
 
 describe('tio2-my local prerelease Compose contract', () => {
+  it('shares a private editorial credential only between the isolated CMS and Next server', () => {
+    const compose = readCompose()
+    expect(compose?.services.wordpress.environment?.EDITORIAL_API_TOKEN).toBe('${WORDPRESS_EDITORIAL_API_TOKEN}')
+    for (const service of ['builder', 'web']) {
+      expect(compose?.services[service].environment?.WORDPRESS_EDITORIAL_API_TOKEN).toBe('${WORDPRESS_EDITORIAL_API_TOKEN}')
+      expect(Object.keys(compose?.services[service].environment ?? {}).filter(key => key.startsWith('NEXT_PUBLIC_') && key.includes('EDITORIAL'))).toEqual([])
+    }
+  })
   it('provides the committed configuration inputs', () => {
     expect(existsSync(composePath)).toBe(true)
     expect(existsSync(environmentExamplePath)).toBe(true)
