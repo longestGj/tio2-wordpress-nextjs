@@ -18,7 +18,8 @@ function source() {
 
 describe('Malaysia Homepage DTO', () => {
   it('accepts only the exact approved contract and scope', () => {
-    expect(toMalaysiaHomepageDto(source())).toMatchObject({
+    const homepage = toMalaysiaHomepageDto(source())
+    expect(homepage).toMatchObject({
       packageId: 'HOME-001-G7-HANDOFF-01',
       identity: {
         id: 'homepage-my-1',
@@ -31,6 +32,16 @@ describe('Malaysia Homepage DTO', () => {
       products: {groups: expect.any(Array)},
       schemaGraph: {'@graph': expect.any(Array)},
     })
+    expect(homepage.applications.items.map(({href}) => href)).toEqual([
+      '/applications/titanium-dioxide-for-coatings/',
+      '/applications/titanium-dioxide-for-plastics/',
+      '/applications/titanium-dioxide-for-masterbatch/',
+      '/applications/titanium-dioxide-for-printing-inks/',
+      '/applications/titanium-dioxide-for-paper/',
+    ])
+    expect(homepage.resources.topics[1]?.href).toBe(
+      '/resources/chloride-vs-sulfate-titanium-dioxide/',
+    )
   })
 
   it('rejects foreign scope without retry or fallback', () => {

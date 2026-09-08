@@ -73,13 +73,24 @@ describe('MalaysiaHomepage', () => {
     expect(markup).toContain('General-purpose Rutile, 4 grades, expand grades')
   })
 
-  it('never fabricates provisional or candidate hrefs', () => {
+  it('renders the six approved prerelease Home actions as native links', () => {
     const {container} = render(<MalaysiaHomepage homepage={homepage()} />)
-    for (const item of approvedContract.applications.items) {
-      expect(screen.getByText(item.ctaLabel).closest('a')).toBeNull()
+    const approvedActions = [
+      ['Coatings information →', '/applications/titanium-dioxide-for-coatings/'],
+      ['Plastics information →', '/applications/titanium-dioxide-for-plastics/'],
+      ['Masterbatch information →', '/applications/titanium-dioxide-for-masterbatch/'],
+      ['Printing inks information →', '/applications/titanium-dioxide-for-printing-inks/'],
+      ['Paper information →', '/applications/titanium-dioxide-for-paper/'],
+      ['Read process overview →', '/resources/chloride-vs-sulfate-titanium-dioxide/'],
+    ] as const
+
+    for (const [label, href] of approvedActions) {
+      const link = screen.getByRole('link', {name: label})
+      expect(link.getAttribute('href')).toBe(href)
+      expect(link.getAttribute('aria-disabled')).not.toBe('true')
+      expect(screen.queryByText(label, {selector: '[role="link"]'})).toBeNull()
     }
-    expect(screen.getByText(approvedContract.resources.topics[1]!.ctaLabel).closest('a')).toBeNull()
-    expect(container.querySelector('a[href*="chloride-vs-sulfate"]')).toBeNull()
+    expect(container.querySelectorAll('[aria-disabled="true"]')).toHaveLength(0)
   })
 
   it('keeps shared Chrome attribution private while retaining page-owned RFQ context', () => {
