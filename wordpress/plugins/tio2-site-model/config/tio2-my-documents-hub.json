@@ -68,6 +68,16 @@
       {"heading": "Origin & Supplier Qualification Documentation", "body": "Origin and company documentation for supplier qualification and purchasing review."}
     ]
   },
+  "documentGuides": {
+    "eyebrow": "DOCUMENT GUIDES",
+    "heading": "Document Guides",
+    "intro": "Review practical guidance before requesting documents for a product grade.",
+    "items": [
+      {"targetPageId": "DOC-TDS", "label": "TDS, SDS and COA Guide", "href": "/documents/tds-sds-coa/"},
+      {"targetPageId": "DOC-REACH", "label": "REACH Documentation Guide", "href": "/documents/reach/"},
+      {"targetPageId": "DOC-COO", "label": "Certificate of Origin Guide", "href": "/documents/certificate-of-origin/"}
+    ]
+  },
   "whyOnRequest": {
     "heading": "Why Documents Are Provided on Request",
     "body": "Documentation can differ by product and review purpose. Submitting a request helps match the materials to the selected grade and the information your team needs. Availability and applicable scope are confirmed during review."
