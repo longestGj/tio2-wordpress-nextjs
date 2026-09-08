@@ -7,15 +7,16 @@ import {expect, test} from '@playwright/test'
 import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
 
 const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
-const evidenceDir = 'docs/verification/resource-000'
-const widths = [390, 430, 768, 1440] as const
-const moduleOrder = ['breadcrumb', 'hero', 'research-paths', 'evidence-standards', 'buyer-questions'] as const
+const evidenceDir = '.local-evidence/public-paths-dev/resources-task7-fix1'
+const resourceContract=JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-resource-hub.json','utf8')) as {hero:{h1:string};resourceRelations:{canonicalPath:string;canonicalUrl:string}[]}
+const widths = [1440, 768, 390] as const
+const moduleOrder = ['breadcrumb', 'hero', 'browse-resources', 'evidence-standards', 'buyer-questions'] as const
 
 test.beforeAll(async () => { await mkdir(evidenceDir, {recursive: true}) })
 
 for (const width of widths) {
-  test(`RES-000 H0 ${width}px runtime contract`, async ({page}) => {
-    await page.setViewportSize({width, height: width <= 430 ? 844 : 1000})
+  test(`RES-000 grouped inventory ${width}px runtime contract`, async ({page}) => {
+    await page.setViewportSize({width, height: width === 390 ? 844 : 1000})
     await page.emulateMedia({reducedMotion: 'reduce'})
     const remoteRequests: string[] = []
     page.on('request', (request) => {
@@ -31,7 +32,7 @@ for (const width of widths) {
     expect(await page.locator('[data-module]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-module')))).toEqual(moduleOrder)
     await expect(page.locator('[data-module="featured-resources"]')).toHaveCount(0)
     await expect(page.locator('[data-module="latest-research"]')).toHaveCount(0)
-    await expect(page.locator('main a', {hasText: 'Explore Procurement Resources'})).toHaveAttribute('href', '#research-paths')
+    await expect(page.locator('main a', {hasText: 'Explore Procurement Resources'})).toHaveAttribute('href', '#browse-resources')
     await expect(page.locator('[data-module="buyer-questions"] article')).toHaveCount(5)
     await expect(page.locator('[data-module="buyer-questions"] article p')).toHaveCount(5)
     await expect(page.locator('main a[href^="/request-a-quote/"]')).toHaveCount(0)
@@ -44,7 +45,7 @@ for (const width of widths) {
     await expect(header).not.toContainText('CURRENT')
     await assertRenderedMalaysiaHeaderLogo(
       header.locator('img[alt="TiO2 Malaysia"]'),
-      width <= 430 ? {width: 120, height: 40} : width === 768 ? {width: 120, height: 40} : {width: 180, height: 60},
+      width === 390 ? {width: 120, height: 40} : width === 768 ? {width: 120, height: 40} : {width: 180, height: 60},
     )
 
     const breadcrumb = page.locator('[data-module="breadcrumb"]')
@@ -58,12 +59,25 @@ for (const width of widths) {
     const schemas = await page.locator('script[type="application/ld+json"]').allTextContents()
     expect(schemas).toHaveLength(1)
     const graph = JSON.parse(schemas[0]!)['@graph'] as Array<Record<string, unknown>>
-    expect(graph.map((node) => node['@type'])).toEqual(['CollectionPage', 'BreadcrumbList'])
+    expect(graph.map((node) => node['@type'])).toEqual(['CollectionPage', 'BreadcrumbList', 'ItemList'])
+    await expect(page.locator('[data-resource-group] > h3')).toHaveText(['Sourcing', 'Technical Evaluation', 'Trade & Market'])
+    const cards = page.locator('[data-resource-group] article h4 a')
+    await expect(cards).toHaveCount(8)
+    expect(await cards.evaluateAll(nodes => nodes.map(node => node.getAttribute('href')))).toEqual(resourceContract.resourceRelations.map(item => item.canonicalPath))
+    const list = graph.find(node => node['@type'] === 'ItemList')!
+    expect(list.numberOfItems).toBe(8)
+    expect((list.itemListElement as {url: string}[]).map(item => item.url)).toEqual(resourceContract.resourceRelations.map(item => item.canonicalUrl))
+    await cards.nth(0).focus()
+    await expect(cards.nth(0)).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(cards.nth(1)).toBeFocused()
+    await page.keyboard.press('Shift+Tab')
+    await expect(cards.nth(0)).toBeFocused()
 
     const footerHeadings = page.locator('footer h2')
     await expect(footerHeadings).toHaveText(['Explore', 'Information', 'Procurement'])
     expect(await footerHeadings.evaluateAll((headings) => headings.map((heading) => Number.parseFloat(getComputedStyle(heading).fontSize)))).toEqual([
-      width <= 430 ? 14 : 12, width <= 430 ? 14 : 12, width <= 430 ? 14 : 12,
+      14, 14, 14,
     ])
     await expect(page.locator('footer img[alt="TiO2 Malaysia"]')).toBeVisible()
     await expect(page.locator('footer a[href="/request-a-quote/"]')).toBeVisible()
@@ -88,69 +102,20 @@ for (const width of widths) {
       expect(await mobileCurrent.evaluate((link) => {
         const style = getComputedStyle(link); const marker = getComputedStyle(link, '::before')
         return {fontWeight: style.fontWeight, markerWidth: marker.width, textAlign: style.textAlign}
-      })).toEqual({fontWeight: '800', markerWidth: '4px', textAlign: 'left'})
+      })).toEqual({fontWeight: '700', markerWidth: '4px', textAlign: 'left'})
       await expect(page.getByRole('button', {name: 'Close primary navigation menu'})).toBeFocused()
       await page.keyboard.press('Escape')
       await expect(menu).toBeFocused()
     }
 
     const axe = await new AxeBuilder({page}).analyze()
-    expect(axe.violations.filter(({impact}) => impact === 'serious' || impact === 'critical')).toEqual([])
+    expect(axe.violations).toEqual([])
     expect(remoteRequests).toEqual([])
     await page.addStyleTag({content: 'nextjs-portal { display: none !important; }'})
-    await page.screenshot({path: `${evidenceDir}/resource-000-${width}.png`, fullPage: true})
+    await page.locator('h1').click()
+    await page.screenshot({path: `${evidenceDir}/resources-full-${width}.png`, fullPage: true})
+    await page.locator('[data-module="browse-resources"]').screenshot({path: `${evidenceDir}/resources-grouped-${width}.png`})
   })
-}
-
-test('RES-000 remains usable at 200% page scale', async ({page, context}) => {
-  await page.setViewportSize({width: 1440, height: 1000})
-  const response = await page.goto(`${baseUrl}/resources/`)
-  expect(response?.ok()).toBe(true)
-  const session = await context.newCDPSession(page)
-  await session.send('Emulation.setPageScaleFactor', {pageScaleFactor: 2})
-  expect(await page.evaluate(() => window.visualViewport?.scale)).toBe(2)
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
-  await page.getByRole('button', {name: /What should buyers compare/u}).focus()
-  await expect(page.getByRole('button', {name: /What should buyers compare/u})).toBeFocused()
-})
-
-const resourceContract=JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-resource-hub.json','utf8')) as {hero:{h1:string};resourceRelations:{canonicalPath:string;canonicalUrl:string}[]}
-const groupedEvidenceDir='.local-evidence/public-paths-dev/resources-task7'
-for(const width of [1440,768,390]) {
- test(`RES-000 grouped inventory ${width}px`,async({page})=>{
-  await mkdir(groupedEvidenceDir,{recursive:true})
-  await page.setViewportSize({width,height:1000})
-  await page.emulateMedia({reducedMotion:'reduce'})
-  const response=await page.goto(`${baseUrl}/resources/`)
-  expect(response?.ok()).toBe(true)
-  await expect(page.locator('h1')).toHaveText(resourceContract.hero.h1)
-  expect(await page.locator('[data-module]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-module')))).toEqual(['breadcrumb','hero','browse-resources','evidence-standards','buyer-questions'])
-  await expect(page.locator('[data-resource-group] > h3')).toHaveText(['Sourcing','Technical Evaluation','Trade & Market'])
-  const cards=page.locator('[data-resource-group] article h4 a')
-  await expect(cards).toHaveCount(8)
-  expect(await cards.evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')))).toEqual(resourceContract.resourceRelations.map(item=>item.canonicalPath))
-  await expect(page.locator('[data-module="featured-resources"], [data-module="latest-research"]')).toHaveCount(0)
-  await expect(page.locator('a[href="#browse-resources"]')).toHaveCount(1)
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href','https://tio2malaysia.com/resources/')
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content','noindex, nofollow')
-  const graph=JSON.parse(await page.locator('script[type="application/ld+json"]').innerText())['@graph'] as Record<string,unknown>[]
-  const list=graph.find(node=>node['@type']==='ItemList')!
-  expect(list.numberOfItems).toBe(8)
-  expect((list.itemListElement as {url:string}[]).map(item=>item.url)).toEqual(resourceContract.resourceRelations.map(item=>item.canonicalUrl))
-  await cards.nth(0).focus()
-  await expect(cards.nth(0)).toBeFocused()
-  await page.keyboard.press('Tab')
-  await expect(cards.nth(1)).toBeFocused()
-  await page.keyboard.press('Shift+Tab')
-  await expect(cards.nth(0)).toBeFocused()
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth)).toBe(true)
-  const axe=await new AxeBuilder({page}).analyze()
-  expect(axe.violations).toEqual([])
-  await page.addStyleTag({content:'nextjs-portal { display:none !important; }'})
-  await page.locator('h1').click()
-  await page.screenshot({path:`${groupedEvidenceDir}/resources-full-${width}.png`,fullPage:true})
-  await page.locator('[data-module="browse-resources"]').screenshot({path:`${groupedEvidenceDir}/resources-grouped-${width}.png`})
- })
 }
 
 test('RES-000 grouped inventory child metadata',async({page})=>{

@@ -246,13 +246,13 @@ function tio2_my_resource_public_card(
         if (null === $published_at) return null;
         $card['publishedAt'] = $published_at;
     }
+    if (function_exists('tio2_editorial_ids') && in_array($page_id,tio2_editorial_ids(),true)) {
+        $editorial_ids=tio2_editorial_candidates($page_id);
+        if (count($editorial_ids)!==1 || is_wp_error(tio2_editorial_validate_record($editorial_ids[0],$page_id))) return null;
+        $editorial_payload=json_decode((string)get_post_meta($editorial_ids[0],TIO2_EDITORIAL_META,true),true);
+        if (!tio2_editorial_review_valid($editorial_payload,get_post_meta($editorial_ids[0],TIO2_EDITORIAL_REVIEW_META,true))) return null;
+    }
     if ('TRADE_UPDATE' === $resource_type) {
-        if (function_exists('tio2_editorial_ids') && in_array($page_id,tio2_editorial_ids(),true)) {
-            $editorial_ids=tio2_editorial_candidates($page_id);
-            if (count($editorial_ids)!==1 || is_wp_error(tio2_editorial_validate_record($editorial_ids[0],$page_id))) return null;
-            $editorial_payload=json_decode((string)get_post_meta($editorial_ids[0],TIO2_EDITORIAL_META,true),true);
-            if (!tio2_editorial_review_valid($editorial_payload,get_post_meta($editorial_ids[0],TIO2_EDITORIAL_REVIEW_META,true))) return null;
-        }
         $official_source_name = tio2_my_resource_nonempty_text($relation['officialSourceName'] ?? null);
         $official_source_url = tio2_my_resource_https_url($relation['officialSourceUrl'] ?? null);
         $applicable_scope = tio2_my_resource_nonempty_text($relation['applicableScope'] ?? null);
