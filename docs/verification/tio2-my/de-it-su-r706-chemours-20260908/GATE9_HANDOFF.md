@@ -14,7 +14,7 @@
 - 本地 Next：`http://127.0.0.1:3236`，交接进程 PID `49532`（2026-09-08 11:17 +08:00 核验；后续重新启动以新的运行身份为准）。
 - 本地 CMS：`http://127.0.0.1:8187/graphql`，Docker project `tio2my5`，独立数据库/文件卷，插件只读挂载本工作区。
 - CMS task guard：`G8-DE-IT-SU-R706-CHEMOURS-20260908-01`；五条新记录 ID：18554、18556、18558、18560、18562。详见 [CMS 导入回读](cms-seed.json) 与 [当前交付绑定](delivery-identity.json)。
-- 证据 commit：在本文件所属的后续 evidence commit 中固定；该 commit 不改变以上实现代码或运行构建。
+- 证据 commit：**`fcd4992e7d12e9024c57c0fbb9538c1b927b978c`**；该 commit 不改变以上实现代码或运行构建。送达回执由其后的独立文档 commit 记录。
 
 | Page ID | 本地审查入口 | Package ID |
 |---|---|---|
@@ -69,6 +69,6 @@
 
 ## 5. 送达与独立验收
 
-目标：D23 **00-Gate9-01my开发**，thread `01a07e7e-24ef-7390-beab-f50fcbf169e0`。本地交接材料已准备，消息送达结果单独记录在 [交付状态](delivery-status.json)。在状态被写为 `SENT` 前不宣称已发出；无论送达状态如何，均不等同于对方接单或独立验收通过。
+目标：D23 **00-Gate9-01my开发**，thread `01a07e7e-24ef-7390-beab-f50fcbf169e0`。2026-09-08 11:19 +08:00 已通过 Codex 跨任务消息接口送达审查指令；接口返回同一 thread ID 且 `isError=false`。详细结果见 [交付状态](delivery-status.json)。这只证明消息送达，不等同于对方已完成接单或独立验收通过。
 
 可直接转交：请审查任务 `G8-DE-IT-SU-R706-CHEMOURS-20260908-01` 的上述五页，锁定代码 `3cb56f4ed3afe0e938aed4f2fe311a35c4c63f28`、Build `D5YP7Z4w9KYNlOMkUVr63`、本地 3236/8187 组合。按原包 AC/依赖独立只读验收，保留本节未决项，反馈时标明具体 AC、页面、复现与当前版本。D16 承接原范围技术返修。

@@ -5,11 +5,15 @@
     "title": "00-Gate9-01my开发",
     "hostId": "local"
   },
-  "state": "PREPARED",
-  "sent": false,
+  "state": "SENT",
+  "sent": true,
   "preparedAt": "2026-09-08T11:17:36.7212225+08:00",
-  "sentAt": null,
-  "receipt": null,
+  "sentAt": "2026-09-08T11:19:30.8134794+08:00",
+  "receipt": {
+    "tool": "mcp__codex_app__send_message_to_thread",
+    "returnedThreadId": "01a07e7e-24ef-7390-beab-f50fcbf169e0",
+    "isError": false
+  },
   "acceptance": "NOT_CLAIMED",
   "gate9Result": "NOT_CLAIMED"
 }
