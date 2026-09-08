@@ -45,7 +45,7 @@ record_seed_result() {
   local hash="$2"
   local output="$3"
   local current
-  current="$(wp option get d16_prerelease_seed_records --format=json 2>/dev/null || printf '{}')"
+  current="$(wp option get d16_prerelease_seed_records 2>/dev/null || printf '{}')"
   local next_records
   next_records="$(CURRENT_RECORDS="$current" SEED_PATH="$path" SEED_HASH="$hash" SEED_OUTPUT="$output" php -r '
     $records = json_decode((string) getenv("CURRENT_RECORDS"), true);
@@ -67,6 +67,18 @@ record_seed_result() {
   ')"
   printf '%s' "$next_records" > /run-state/seed-records.next.json
   wp option update d16_prerelease_seed_records "$(cat /run-state/seed-records.next.json)" --autoload=no >/dev/null
+}
+
+seed_record_is_current() {
+  local path="$1"
+  local hash="$2"
+  local current
+  current="$(wp option get d16_prerelease_seed_records 2>/dev/null || printf '{}')"
+  CURRENT_RECORDS="$current" SEED_PATH="$path" SEED_HASH="$hash" php -r '
+    $records = json_decode((string) getenv("CURRENT_RECORDS"), true);
+    $record = is_array($records) ? ($records[getenv("SEED_PATH")] ?? null) : null;
+    exit(is_array($record) && hash_equals((string) ($record["sha256"] ?? ""), getenv("SEED_HASH")) ? 0 : 1);
+  '
 }
 
 until wp db check --quiet >/dev/null 2>&1; do sleep 2; done
@@ -101,7 +113,7 @@ prepare_editorial_reviews
 
 while IFS=$'\t' read -r seed_path seed_hash; do
   option_name="d16_prerelease_seed_${seed_hash}"
-  if [[ "$(wp option get "$option_name" 2>/dev/null || true)" == "$seed_path" ]]; then
+  if [[ "$(wp option get "$option_name" 2>/dev/null || true)" == "$seed_path" ]] && seed_record_is_current "$seed_path" "$seed_hash"; then
     continue
   fi
   case "$seed_path" in
