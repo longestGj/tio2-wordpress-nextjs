@@ -184,6 +184,160 @@ function Test-PrereleaseSeedManifest {
     return @($verified)
 }
 
+function Get-PrereleaseSha256 {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)] [string] $Path)
+
+    $stream = [System.IO.File]::OpenRead($Path)
+    try {
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            return ([System.BitConverter]::ToString($sha256.ComputeHash($stream)) -replace '-', '').ToLowerInvariant()
+        }
+        finally { $sha256.Dispose() }
+    }
+    finally { $stream.Dispose() }
+}
+
+function New-PrereleaseFrozenSource {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [string] $RepositoryRoot,
+        [Parameter(Mandatory)] [ValidatePattern('^[a-fA-F0-9]{40}$')] [string] $Commit,
+        [Parameter(Mandatory)] [string] $RunsRoot,
+        [DateTimeOffset] $Now = [DateTimeOffset]::UtcNow
+    )
+
+    $runId = $Now.ToUniversalTime().ToString('yyyyMMddTHHmmssZ') + '-' + $Commit.Substring(0, 12).ToLowerInvariant()
+    $runRoot = Join-Path $RunsRoot $runId
+    $sourcePath = Join-Path $runRoot 'source'
+    $archivePath = Join-Path $runRoot 'source.tar'
+    if (Test-Path -LiteralPath $runRoot) { throw "Prerelease run already exists: $runId" }
+    [System.IO.Directory]::CreateDirectory($sourcePath) | Out-Null
+
+    $archiveOutput = @(& git -C $RepositoryRoot archive --format=tar --output=$archivePath $Commit 2>&1)
+    if ($LASTEXITCODE -ne 0) { throw "Failed to archive prerelease commit: $($archiveOutput -join "`n")" }
+    $archiveSha256 = Get-PrereleaseSha256 -Path $archivePath
+    $extractOutput = @(& tar -xf $archivePath -C $sourcePath 2>&1)
+    if ($LASTEXITCODE -ne 0) { throw "Failed to extract prerelease source archive: $($extractOutput -join "`n")" }
+
+    [pscustomobject][ordered]@{
+        runId         = $runId
+        runRoot       = $runRoot
+        sourcePath    = $sourcePath
+        archivePath   = $archivePath
+        archiveSha256 = $archiveSha256
+        commit        = $Commit.ToLowerInvariant()
+    }
+}
+
+function Get-PrereleaseRuntimeStatus {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [object] $RunManifest,
+        [Parameter(Mandatory)] [string] $CurrentMainCommit,
+        [Parameter(Mandatory)] [object] $LiveIdentity
+    )
+
+    $reasons = [System.Collections.Generic.List[string]]::new()
+    if ($RunManifest.state -ne 'HEALTHY') { $reasons.Add('recorded_state') }
+    if ($LiveIdentity.reachable -ne $true) { $reasons.Add('runtime_unreachable') }
+    if ($LiveIdentity.buildId -ne $RunManifest.buildId) { $reasons.Add('build_id_mismatch') }
+    if ($LiveIdentity.siteId -ne $RunManifest.siteId) { $reasons.Add('site_id_mismatch') }
+    if ($LiveIdentity.cmsIdentitySha256 -ne $RunManifest.cmsIdentitySha256) { $reasons.Add('cms_identity_mismatch') }
+    if ($LiveIdentity.sourceCommit -and $LiveIdentity.sourceCommit -ne $RunManifest.commit) { $reasons.Add('source_commit_mismatch') }
+    if ($LiveIdentity.runId -and $RunManifest.runId -and $LiveIdentity.runId -ne $RunManifest.runId) { $reasons.Add('run_id_mismatch') }
+
+    $state = if ($reasons.Count -gt 0) {
+        'UNHEALTHY'
+    }
+    elseif ($CurrentMainCommit -ne $RunManifest.commit) {
+        'STALE_MAIN'
+    }
+    else {
+        'HEALTHY'
+    }
+
+    [pscustomobject][ordered]@{
+        state            = $state
+        runtimePreserved = $true
+        runId            = $RunManifest.runId
+        commit           = $RunManifest.commit
+        buildId          = $RunManifest.buildId
+        siteId           = $RunManifest.siteId
+        reasons          = @($reasons)
+    }
+}
+
+function Write-PrereleaseJsonFile {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [object] $Value,
+        [Parameter(Mandatory)] [string] $Path
+    )
+
+    $directory = Split-Path -Parent $Path
+    [System.IO.Directory]::CreateDirectory($directory) | Out-Null
+    $temporary = "$Path.tmp-$PID"
+    [System.IO.File]::WriteAllText($temporary, (($Value | ConvertTo-Json -Depth 20) + "`n"), [System.Text.UTF8Encoding]::new($false))
+    Move-Item -LiteralPath $temporary -Destination $Path -Force
+}
+
+function Get-PrereleaseLiveIdentity {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [object] $RunManifest,
+        [Parameter(Mandatory)] [string] $RunRoot
+    )
+
+    $cmsPath = Join-Path $RunRoot 'cms-identity.json'
+    $cmsSha = if (Test-Path -LiteralPath $cmsPath) { Get-PrereleaseSha256 -Path $cmsPath } else { $null }
+    try {
+        $response = Invoke-RestMethod -Uri 'http://127.0.0.1:3100/api/prerelease-identity' -Method Get -TimeoutSec 10
+        [pscustomobject]@{
+            reachable         = $true
+            buildId           = $response.buildId
+            siteId            = $response.siteId
+            runId             = $response.runId
+            sourceCommit      = $response.sourceCommit
+            cmsIdentitySha256 = $cmsSha
+        }
+    }
+    catch {
+        [pscustomobject]@{
+            reachable         = $false
+            buildId           = $null
+            siteId            = $null
+            runId             = $null
+            sourceCommit      = $null
+            cmsIdentitySha256 = $cmsSha
+        }
+    }
+}
+
+function Test-PrereleaseHttpRound {
+    [CmdletBinding()]
+    param()
+
+    $targets = @(
+        'http://127.0.0.1:3100/',
+        'http://127.0.0.1:3100/request-a-quote/',
+        'http://127.0.0.1:3100/request-sample/',
+        'http://127.0.0.1:3100/request-documents/',
+        'http://127.0.0.1:3100/privacy-policy/',
+        'http://127.0.0.1:8180/graphql'
+    )
+    $results = foreach ($target in $targets) {
+        try {
+            $response = Invoke-WebRequest -Uri $target -Method Get -UseBasicParsing -TimeoutSec 30
+            if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 400) { throw "HTTP $($response.StatusCode)" }
+            [pscustomobject]@{ url = $target; status = [int] $response.StatusCode }
+        }
+        catch { throw "Prerelease GET check failed for ${target}: $($_.Exception.Message)" }
+    }
+    return @($results)
+}
+
 Export-ModuleMember -Function @(
     'Get-PrereleasePlan',
     'Get-PrereleaseGitIdentity',
@@ -194,5 +348,11 @@ Export-ModuleMember -Function @(
     'Invoke-PrereleaseDocker',
     'Get-PrereleaseComposeArguments',
     'Assert-PrereleaseOwnedVolumes',
-    'Test-PrereleaseSeedManifest'
+    'Test-PrereleaseSeedManifest',
+    'Get-PrereleaseSha256',
+    'New-PrereleaseFrozenSource',
+    'Get-PrereleaseRuntimeStatus',
+    'Write-PrereleaseJsonFile',
+    'Get-PrereleaseLiveIdentity',
+    'Test-PrereleaseHttpRound'
 )
