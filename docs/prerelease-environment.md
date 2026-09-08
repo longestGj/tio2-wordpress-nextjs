@@ -38,7 +38,7 @@ Sample服务器另需在同一忽略文件配置`TIO2_MY_SAMPLE_RECEIVER_BINDING
 | `npm run prerelease:test` | 当前候选身份HEALTHY；在调用仓库运行Playwright，写新证据目录 | 用例实际执行、零非GET请求、退出码与result；仅代表性冒烟 |
 | `npm run prerelease:stop` | 操作准确专用栈，会中断该候选访问 | 目标栈停止；数据和历史证据保留 |
 
-正常顺序：核对当前状态与候选 → 需要新候选时按保持条件停止旧实例并start → 核对身份 → test → 补齐本批次适用验收。没有新版本或重验依据时不重复构建。测试源码commit/未提交差异也要记录，不能假设它与冻结运行源码相同。
+正常顺序：核对当前状态与候选 → 需要新候选时按保持条件停止旧实例并start → 核对身份 → test → 补齐本批次适用验收。没有新版本或重验依据时不重复构建。RFQ公开投影使用canonical、批准H1与表单字段识别；站点/commit/Build仍由运行身份接口核对，不要求恢复已移除的内部data属性。测试源码commit/未提交差异也要记录，不能假设它与冻结运行源码相同。
 
 `start`先核对当前分支为`main`且工作树干净，再通过`git archive <full-commit>`创建冻结源码。它启动CMS、校验所有seed哈希、按seed脚本及其config/seed输入目录哈希判断复用；输入变化时重新应用当前批准seed、构建Next.js、启动Web，并执行两轮只读HTTP检查。操作锁位于`.prerelease/operation.lock`。
 
@@ -52,7 +52,7 @@ Sample服务器另需在同一忽略文件配置`TIO2_MY_SAMPLE_RECEIVER_BINDING
 | `RESETTING` | 控制器正持有同一操作锁执行数据删除、重新初始化和新运行构建 |
 | `STOPPED` | 没有当前运行，或已通过控制器停止 |
 
-`test`仅运行`tests/e2e/prerelease-smoke.spec.ts`。测试拦截所有非GET请求，验证代表性页面、CMS页面身份、导航、canonical/robots、Cookie Settings、三张表单的本地验证、键盘流程、1440/768/390布局、横向溢出和Chromium 200%页面缩放。结果必须记录`externalPostCount: 0`。
+`test`仅运行`tests/e2e/prerelease-smoke.spec.ts`。测试拦截所有非GET请求，验证代表性页面、CMS页面身份、导航、canonical/robots、Cookie Settings、三张表单的本地验证、键盘流程、1440/768/390布局、横向溢出和Chromium 200%页面缩放模拟（不等于浏览器原生200%缩放）。结果必须记录`externalPostCount: 0`。
 
 `stop`只停止此Compose项目并保留数据及运行证据。
 

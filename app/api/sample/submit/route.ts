@@ -5,7 +5,10 @@ const headers={'cache-control':'no-store'}
 const rejected=(status:number)=>NextResponse.json({ok:false,receipt_confirmed:false},{status,headers})
 export async function POST(request:NextRequest){
  const origin=request.headers.get('origin')
- if(origin&&origin!==request.nextUrl.origin)return rejected(403)
+ // The container listens on an internal origin; browsers use the configured public origin.
+ let expectedOrigin=request.nextUrl.origin
+ try{if(process.env.NEXT_PUBLIC_SITE_URL)expectedOrigin=new URL(process.env.NEXT_PUBLIC_SITE_URL).origin}catch{return rejected(403)}
+ if(origin&&origin!==expectedOrigin)return rejected(403)
  if(request.headers.get('content-type')?.split(';')[0].trim().toLowerCase()!=='application/json')return rejected(415)
  const config=resolveMalaysiaSampleReceiverConfig(process.env)
  if(!config)return rejected(503)
