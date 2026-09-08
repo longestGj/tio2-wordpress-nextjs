@@ -115,8 +115,17 @@ function Invoke-PrereleaseDocker {
         [string] $DockerExecutable = 'docker'
     )
 
-    $output = @(& $DockerExecutable @Arguments 2>&1)
-    if ($LASTEXITCODE -ne 0) {
+    $previousErrorActionPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        $rawOutput = @(& $DockerExecutable @Arguments 2>&1)
+        $dockerExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+    $output = @($rawOutput | ForEach-Object { [string] $_ })
+    if ($dockerExitCode -ne 0) {
         throw "Docker command failed: $DockerExecutable $($Arguments -join ' ')`n$($output -join "`n")"
     }
     return $output

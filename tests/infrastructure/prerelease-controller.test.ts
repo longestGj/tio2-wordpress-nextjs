@@ -170,6 +170,21 @@ describe.runIf(process.platform === 'win32')('local prerelease controller', () =
     })
   })
 
+  it('uses the native exit code when Docker writes successful progress to stderr', () => {
+    const directory = temporaryDirectory('d16-prerelease-stderr-')
+    const executable = join(directory, 'docker-progress.cmd')
+    writeFileSync(executable, '@echo off\r\n>&2 echo Network prerelease_default Creating\r\nexit /b 0\r\n')
+    const command = [
+      "$ErrorActionPreference='Stop'",
+      `Import-Module '${modulePath.replaceAll("'", "''")}' -Force`,
+      `Invoke-PrereleaseDocker -DockerExecutable '${executable.replaceAll("'", "''")}' -Arguments @('compose','up') | Out-Null`,
+      "'OK'",
+    ].join('; ')
+    const result = spawnSync('powershell', ['-NoProfile', '-Command', command], {encoding: 'utf8'})
+    expect(result.status, result.stderr).toBe(0)
+    expect(result.stdout.trim()).toBe('OK')
+  })
+
   it('rejects missing or placeholder configuration without echoing values', () => {
     const directory = temporaryDirectory('d16-prerelease-env-')
     const environmentFile = join(directory, '.env.prerelease.local')
