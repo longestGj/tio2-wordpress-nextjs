@@ -129,7 +129,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
         marketId: normalizeMalaysiaRequestDocumentsMarketId(prefill.marketId),
         environment: resolveSubmissionEnvironment(process.env.NEXT_PUBLIC_TIO2_RUNTIME_ENVIRONMENT),
       })
-      if (result.kind === 'receipt_confirmed') {
+      if (result.kind === 'provider_accepted') {
         completedRef.current = true
         navigateToMalaysiaThankYou('documents'); transitionStartedRef.current = true
       } else if (result.kind === 'validation_failed' && Object.keys(result.errors).length) {

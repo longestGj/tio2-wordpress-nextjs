@@ -2,7 +2,7 @@ export type MalaysiaRfqAnalyticsEvent =
   | 'rfq_validation_failed'
   | 'rfq_submission_started'
   | 'rfq_submission_unconfirmed'
-  | 'rfq_receipt_confirmed'
+  | 'rfq_provider_accepted'
 
 declare global {
   interface Window {

@@ -7,9 +7,9 @@ it('emits distinct acknowledged source conversions only when consent is granted,
   localStorage.setItem('tio2-my:consent:v1', JSON.stringify({version:1,choice:'analytics_accepted'}))
   for (const request of ['quote','documents','sample'] as const) session.emitMalaysiaSourceSuccess(request)
   expect(window.dataLayer).toEqual([
-    {event:'rfq_receipt_confirmed',ad_personalization:'denied'},
-    {event:'documents_receipt_confirmed',ad_personalization:'denied'},
-    {event:'sample_receipt_confirmed',ad_personalization:'denied'},
+    {event:'rfq_provider_accepted',ad_personalization:'denied'},
+    {event:'documents_provider_accepted',ad_personalization:'denied'},
+    {event:'sample_provider_accepted',ad_personalization:'denied'},
   ])
   localStorage.setItem('tio2-my:consent:v1', JSON.stringify({version:1,choice:'necessary_only'}))
   session.emitMalaysiaSourceSuccess('quote')

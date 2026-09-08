@@ -24,13 +24,10 @@ flowchart TB
   WP --> Hooks[Next.js预览 / 缓存更新接口]
   Hooks --> Next
   Buyer --> Forms[浏览器表单]
-  Forms --> RFQ[RFQ服务端接口与接收适配器]
-  RFQ --> Provider[Web3Forms]
-  Forms --> Sample[Sample站内接收接口 /api/sample/submit]
-  Sample --> Ledger[持久化去重记录：摘要和状态]
-  Sample --> Provider
-  Forms --> Other[Documents客户端适配器]
-  Other --> Provider
+  Forms --> BrowserTransport[三表单共享浏览器接收适配器]
+  BrowserTransport --> Provider[Web3Forms]
+  Dormant[停用兼容资产：RFQ/Sample服务端接口] --> Ledger[Sample持久化去重记录：摘要和状态]
+  Dormant --> Provider
 ```
 
 图中为主要链路，不表示所有内容一律来自CMS，也不表示所有页面都支持同一种草稿预览。Web3Forms以外的实际收件配置与最终送达需另核实。
@@ -47,7 +44,7 @@ flowchart TB
 | SEO | `lib/seo/`及页面metadata、robots/sitemap入口 | 标题、canonical、结构化数据和索引控制；策略按站点/页面/环境区分 |
 | CMS模型 | `wordpress/plugins/tio2-site-model/`；PHP | 自定义内容类型、字段、scope、发布合同、GraphQL字段、预览与更新通知 |
 | 数据与媒体 | WordPress + MariaDB；uploads、`public/` | 内容记录和媒体；按站点/环境归属，不从策划本机目录读取生产数据 |
-| 外部表单接收 | Web3Forms；RFQ经`app/api/rfq/` | RFQ与Sample由服务端转交，Documents由客户端适配器调用；服务商返回与实际收件分别验证 |
+| 外部表单接收 | Web3Forms；`lib/forms/web3forms-browser.ts` | Malaysia三张活跃表单由浏览器共享传输直接调用；RFQ/Sample服务端接口作为停用兼容资产保留；服务商返回与实际收件分别验证 |
 | 环境承载 | 开发Compose、预发布Compose及Node.js进程 | 本地CMS、构建及Web运行；详见第7节 |
 
 这张表说明当前职责，不声称已经强制实现Clean Architecture、DDD或统一分层框架。确切依赖版本以[package-lock.json](../package-lock.json)及当次安装为准；依赖声明见[package.json](../package.json)。预发布容器使用的运行时由[Compose](../ops/prerelease/docker-compose.yml)规定，不用历史设计中的版本号推断当前版本。
@@ -110,24 +107,23 @@ SEO由站点配置、内容合同及页面metadata共同生成。`app/robots.ts`
 
 ## 6. 表单的数据流与外部依赖
 
-Malaysia的RFQ与Sample主表单已改为服务端转交；Request Documents仍由客户端适配器调用Web3Forms。RFQ当前主链路：
+Malaysia的RFQ、Sample与Request Documents活跃表单使用同一浏览器传输调用Web3Forms。当前主链路：
 
 ```text
 浏览器输入 / 预填 / 本地校验
-  → POST /api/rfq/submit
-  → 服务端再次校验字段、解析来源cookie、调用接收适配器
-  → Web3Forms
-  → 页面按响应更新提交状态
+  → 页面专属校验与payload映射
+  → 共享浏览器传输POST Web3Forms
+  → 仅HTTP 200、JSON且success=true时记录当前会话成功状态、发送同意条件下的provider_accepted事件并进入对应Thank You状态
 ```
 
 对应实现：[RFQ表单](../components/sites/tio2-my/request-a-quote/malaysia-rfq-form.tsx)、[RFQ适配器](../lib/rfq/malaysia-rfq-receiver.ts)、[Sample适配器](../lib/request-sample/malaysia-request-sample-receiver.ts)、[Documents适配器](../lib/request-documents/malaysia-request-documents-receiver.ts)。各表单的防重复、超时及状态细节按各自代码合同解释，不假设完全一致。
 
-- [RFQ提交接口](../app/api/rfq/submit/route.ts)从请求字段建立提交对象，来源由服务端cookie解析，不直接采用客户端source_page_id。它转交Web3Forms，不因此构成内部CRM、订单系统或询盘数据库。
+- [RFQ提交接口](../app/api/rfq/submit/route.ts)及[Sample提交接口](../app/api/sample/submit/route.ts)继续作为停用的兼容/回退资产存在；当前浏览器表单不调用、回退或自动重试这些接口。重新启用需新的架构决定。
 - [私有RFQ链接](../components/sites/tio2-my/request-a-quote/malaysia-private-rfq-link.tsx)对适用普通点击先请求[context接口](../app/api/rfq/context/route.ts)，再导航。接口按同源Referer与路径允许列表识别来源，用`TIO2_MY_RFQ_ATTRIBUTION_SECRET`生成HMAC token，写入HttpOnly、SameSite=strict、最长600秒的`rfq_context` cookie。无有效来源/token时不建立归因；具体规则见[来源实现](../lib/rfq/malaysia-rfq-private-attribution.ts)。
-- 提交接口使用服务端识别的来源；获得适配器返回后，有效来源cookie被清除。RFQ表单浏览器预填保留公开业务字段，内部来源处理与可编辑字段是不同链路。
+- 活跃RFQ表单只采用公开预填允许列表解析来源字段；服务端cookie归因仍属于停用RFQ兼容接口，不能作为当前活跃流程证据。
 - `site_scope`、page/workflow和请求标识等进入payload；这些字段本身不能证明provider账户或收件目的地配置正确。
-- RFQ提交接口当前仍读取名为`NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY`的环境变量，不能因新增服务端接口就宣称凭据命名或所有客户端暴露路径已完成迁移；Sample/Documents配置另按其实现核对。归因签名密钥属于服务端配置，本文不展示任何值。
-- RFQ接收适配器还保留浏览器分支（尝试另一私有提交路径及直接发送回退）；当前主RFQ表单直接调用`/api/rfq/submit`，不能把适配器内分支当成主表单路径。调用方和运行覆盖须分别核实。
+- 三张活跃表单的就绪条件均为公开Web3Forms access key；接收邮箱及停用服务端配置不进入浏览器bundle或公开诊断。
+- 共享传输返回`provider_accepted`、`provider_rejected`、`submission_unconfirmed`或`unavailable`；网络、超时及模糊响应保留字段并等待买家手动重试，同一未改输入复用request token，买家字段改变后生成新token。
 - provider确认、页面显示结果和实际邮件到达分别验证；浏览器测试模拟provider不能证明真实接收。
 - 以上针对Malaysia当前三类表单，不把其他网站历史演示表单自动视为同一生产链路。
 
