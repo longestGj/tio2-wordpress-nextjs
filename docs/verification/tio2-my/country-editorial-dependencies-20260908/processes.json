@@ -1,0 +1,10 @@
+[
+  {
+    "ProcessId": 69604,
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3216"
+  },
+  {
+    "ProcessId": 68904,
+    "CommandLine": "\"node\"   \"C:\\Users\\longe\\.codex\\worktrees\\bfe8\\16Wordpress_nextjs\\node_modules\\.bin\\\\..\\next\\dist\\bin\\next\" start --hostname 127.0.0.1 -p 3029"
+  }
+]
