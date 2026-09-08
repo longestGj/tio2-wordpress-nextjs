@@ -15,7 +15,7 @@ describe('SYS-404 route boundary', () => {
     const markup = renderToStaticMarkup(route.default())
     expect(markup).toContain('data-page-id="SYS-404"')
     expect(markup).toContain('Let’s help you find what you need.')
-    expect(route.generateMetadata()).toEqual({title: 'Page Not Found | TiO2 Malaysia', robots: {index: false, follow: true}})
+    expect(route.generateMetadata()).toEqual({title: 'Page Not Found | TiO2 Malaysia', robots: 'noindex, follow'})
   })
 
   it('does not project Malaysia content or metadata into another site', async () => {
@@ -27,4 +27,3 @@ describe('SYS-404 route boundary', () => {
     expect(route.generateMetadata()).toEqual({})
   })
 })
-

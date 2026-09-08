@@ -156,7 +156,9 @@ test('CONV-SAMPLE retains values and token across direct retry, then confirms on
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({success: attempt !== 1}),
+      body: JSON.stringify(attempt === 1
+        ? {ok: true, receipt_confirmed: false}
+        : {ok: true, receipt_confirmed: true}),
     })
   })
   await page.getByRole('button', {name: 'Submit Sample Request for Review'}).click()
@@ -168,8 +170,8 @@ test('CONV-SAMPLE retains values and token across direct retry, then confirms on
   await page.getByRole('button', {name: 'Try again'}).click()
   await expect(page.getByRole('form')).toHaveAttribute('aria-busy', 'true')
   await expect(page.getByRole('button', {name: 'Sending your request…'})).toBeDisabled()
-  await expect(page.getByRole('heading', {name: 'Your sample request has been received.'})).toBeVisible()
-  await expect(page.getByRole('form')).not.toHaveAttribute('aria-busy')
+  await expect(page).toHaveURL(/\/thank-you\/?\?request=sample$/u)
+  await expect(page.getByRole('heading', {name: 'Thank you. We’ve received your sample request.'})).toBeVisible()
   expect(tokens).toHaveLength(2)
   expect(tokens[1]).toBe(tokens[0])
   await page.screenshot({path: resolve(evidence, 'conv-sample-success.png'), fullPage: true, animations: 'disabled'})

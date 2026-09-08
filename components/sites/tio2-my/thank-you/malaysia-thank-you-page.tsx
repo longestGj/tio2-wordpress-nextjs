@@ -1,7 +1,6 @@
 'use client'
 
 import {useLayoutEffect, useState} from 'react'
-import Link from 'next/link'
 
 import {MalaysiaGlobalFooter, MalaysiaGlobalHeader} from '@/components/sites/tio2-my/malaysia-global-chrome'
 import {resolveMalaysiaThankYouRequest, type MalaysiaThankYouState} from '@/lib/thank-you/malaysia-thank-you-session'
@@ -53,7 +52,7 @@ export function MalaysiaThankYouPage({initialState}: {readonly initialState?: Ma
           <h1 id="thank-you-heading">{panel.heading}</h1>
           <p>{panel.body}</p>
           <div className={`${styles.actions} ${panel.actions.length === 3 ? styles.threeActions : ''}`}>
-            {panel.actions.map(([label, href], index) => <Link key={label} className={`${styles.action} ${index === 0 ? styles.primary : ''}`} href={href}>{label}</Link>)}
+            {panel.actions.map(([label, href], index) => <a key={label} className={`${styles.action} ${index === 0 ? styles.primary : ''}`} href={href}>{label}</a>)}
           </div>
         </section>
       </main>
