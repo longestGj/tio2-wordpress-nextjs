@@ -1,4 +1,5 @@
 import {mkdir} from 'node:fs/promises'
+import {readFileSync} from 'node:fs'
 
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test} from '@playwright/test'
@@ -111,4 +112,59 @@ test('RES-000 remains usable at 200% page scale', async ({page, context}) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
   await page.getByRole('button', {name: /What should buyers compare/u}).focus()
   await expect(page.getByRole('button', {name: /What should buyers compare/u})).toBeFocused()
+})
+
+const resourceContract=JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-resource-hub.json','utf8')) as {hero:{h1:string};resourceRelations:{canonicalPath:string;canonicalUrl:string}[]}
+const groupedEvidenceDir='.local-evidence/public-paths-dev/resources-task7'
+for(const width of [1440,768,390]) {
+ test(`RES-000 grouped inventory ${width}px`,async({page})=>{
+  await mkdir(groupedEvidenceDir,{recursive:true})
+  await page.setViewportSize({width,height:1000})
+  await page.emulateMedia({reducedMotion:'reduce'})
+  const response=await page.goto(`${baseUrl}/resources/`)
+  expect(response?.ok()).toBe(true)
+  await expect(page.locator('h1')).toHaveText(resourceContract.hero.h1)
+  expect(await page.locator('[data-module]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-module')))).toEqual(['breadcrumb','hero','browse-resources','evidence-standards','buyer-questions'])
+  await expect(page.locator('[data-resource-group] > h3')).toHaveText(['Sourcing','Technical Evaluation','Trade & Market'])
+  const cards=page.locator('[data-resource-group] article h4 a')
+  await expect(cards).toHaveCount(8)
+  expect(await cards.evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')))).toEqual(resourceContract.resourceRelations.map(item=>item.canonicalPath))
+  await expect(page.locator('[data-module="featured-resources"], [data-module="latest-research"]')).toHaveCount(0)
+  await expect(page.locator('a[href="#browse-resources"]')).toHaveCount(1)
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href','https://tio2malaysia.com/resources/')
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content','noindex, nofollow')
+  const graph=JSON.parse(await page.locator('script[type="application/ld+json"]').innerText())['@graph'] as Record<string,unknown>[]
+  const list=graph.find(node=>node['@type']==='ItemList')!
+  expect(list.numberOfItems).toBe(8)
+  expect((list.itemListElement as {url:string}[]).map(item=>item.url)).toEqual(resourceContract.resourceRelations.map(item=>item.canonicalUrl))
+  await cards.nth(0).focus()
+  await expect(cards.nth(0)).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(cards.nth(1)).toBeFocused()
+  await page.keyboard.press('Shift+Tab')
+  await expect(cards.nth(0)).toBeFocused()
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth)).toBe(true)
+  const axe=await new AxeBuilder({page}).analyze()
+  expect(axe.violations).toEqual([])
+  await page.addStyleTag({content:'nextjs-portal { display:none !important; }'})
+  await page.locator('h1').click()
+  await page.screenshot({path:`${groupedEvidenceDir}/resources-full-${width}.png`,fullPage:true})
+  await page.locator('[data-module="browse-resources"]').screenshot({path:`${groupedEvidenceDir}/resources-grouped-${width}.png`})
+ })
+}
+
+test('RES-000 grouped inventory child metadata',async({page})=>{
+ for(const [slug,type] of [['chemours-titanium-dioxide-alternatives','TechArticle'],['ti-pure-r-706-alternative','WebPage']] as const){
+  const path=`/resources/${slug}/`
+  const response=await page.goto(`${baseUrl}${path}`)
+  expect(response?.ok()).toBe(true)
+  await expect(page.locator('link[rel="canonical"]')).toHaveCount(1)
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href','https://tio2malaysia.com'+path)
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content','https://tio2malaysia.com'+path)
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content','noindex, nofollow')
+  const graph=JSON.parse(await page.locator('script[type="application/ld+json"]').innerText())['@graph'] as Record<string,unknown>[]
+  expect(graph.map(node=>node['@type'])).toEqual([type,'BreadcrumbList'])
+  expect(graph[0].url).toBe('https://tio2malaysia.com'+path)
+  expect(graph[0].name).toBe(await page.locator('h1').innerText())
+ }
 })

@@ -13,7 +13,7 @@ import {emptyMalaysiaRequestDocumentsValues} from '@/lib/request-documents/malay
 import alternatives from '@/wordpress/plugins/tio2-site-model/config/tio2-my-alternatives-review-evidence.json'
 import trade from '@/wordpress/plugins/tio2-site-model/config/tio2-my-editorial-review-evidence.json'
 
-const now=new Date('2026-09-08T12:00:00Z')
+const now=new Date('2026-09-09T12:00:00Z')
 const oldIds=['RES-TRADE-EU','RES-TRADE-UK','RES-TRADE-IN','RES-TRADE-BR','APP-COAT','APP-PLAS','APP-MB','APP-INK','APP-PAPER']
 function envelope(id:string,unavailableInternalPaths:string[]=[]){
  const page=getEditorialContract(id)
@@ -66,7 +66,7 @@ describe('independent five-page common-core review',()=>{
   expect(()=>assertEditorialReview(page,review,now)).not.toThrow()
   expect(()=>assertEditorialReview(page,review,new Date('2026-12-05T15:59:59Z'))).not.toThrow()
   expect(()=>assertEditorialReview(page,review,new Date('2026-12-05T16:00:00Z'))).toThrow()
-  for(const mutation of [{packageSha256:'0'.repeat(64)},{evidenceArtifactSha256:'0'.repeat(64)},{status:'unverified'},{eventStatus:'event_pending'},{evidenceDate:'2026-09-09'},{nextReviewDue:'2026-12-06'},{unexpected:true}]){
+  for(const mutation of [{packageSha256:'0'.repeat(64)},{evidenceArtifactSha256:'0'.repeat(64)},{status:'unverified'},{eventStatus:'event_pending'},{evidenceDate:'2026-09-10'},{nextReviewDue:'2026-12-06'},{unexpected:true}]){
    expect(()=>assertEditorialReview(page,{...review,...mutation},now)).toThrow()
   }
   expect(()=>assertEditorialReview(page,trade.pages[0].currentReview,now)).toThrow()
@@ -85,8 +85,8 @@ describe('independent five-page common-core review',()=>{
   const page=getEditorialContract(id)
   expect(()=>toMalaysiaEditorialDto(page,envelope(id,['/products/']))).toThrow('suppression policy')
   expect(()=>buildEditorialMetadata(getSiteConfig('tio2-a'),page)).toThrow('scope')
-  expect(buildEditorialJsonLd(getSiteConfig('tio2-my'),page)).toBeNull()
-  expect(buildEditorialMetadata(getSiteConfig('tio2-my'),page).alternates?.canonical).toBeUndefined()
+  expect((buildEditorialJsonLd(getSiteConfig('tio2-my'),page)!['@graph'] as Record<string,unknown>[]).map(node=>node['@type'])).toEqual([id==='RES-CHEMOURS'?'TechArticle':'WebPage','BreadcrumbList'])
+  expect(buildEditorialMetadata(getSiteConfig('tio2-my'),page).alternates?.canonical).toBe('https://tio2malaysia.com'+page.identity.path)
   expect(()=>editorialTag('tio2-b',id)).toThrow()
  })
  it.each(['PRODUCT-PROC-SU','MARKET-EU-DE','MARKET-EU-IT'])('keeps source-only Documents entry neutral even with extra URL context: %s',id=>{
@@ -117,10 +117,10 @@ foreach(['RES-R706','RES-CHEMOURS','RES-TRADE-EU'] as $id){
  $entries=array_values(array_filter($manifest['pages'],fn($p)=>$p['pageId']===$id));
  $review=$entries[0]['currentReview'];
  $payload=json_decode(file_get_contents($base.'/config/tio2-my-editorial-'.strtolower($id).'.json'),true);
- $checks[$id.'-valid']=tio2_editorial_review_valid_at($payload,$review,new DateTimeImmutable('2026-09-08T12:00:00Z'));
+ $checks[$id.'-valid']=tio2_editorial_review_valid_at($payload,$review,new DateTimeImmutable('2026-09-09T12:00:00Z'));
  foreach(['status'=>'unverified','eventStatus'=>'event_pending','packageSha256'=>str_repeat('0',64),'evidenceArtifactSha256'=>str_repeat('0',64),'nextReviewDue'=>'2027-01-01','unexpected'=>true] as $key=>$value){
   $changed=$review;$changed[$key]=$value;
-  $checks[$id.'-'.$key]=!tio2_editorial_review_valid_at($payload,$changed,new DateTimeImmutable('2026-09-08T12:00:00Z'));
+  $checks[$id.'-'.$key]=!tio2_editorial_review_valid_at($payload,$changed,new DateTimeImmutable('2026-09-09T12:00:00Z'));
  }
  $checks[$id.'-expired']=!tio2_editorial_review_valid_at($payload,$review,new DateTimeImmutable('2026-12-05T16:00:00Z'));
 }

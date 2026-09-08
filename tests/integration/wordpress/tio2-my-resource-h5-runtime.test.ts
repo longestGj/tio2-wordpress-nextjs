@@ -25,25 +25,24 @@ try{
   $create=static function(string$page_id,string$path)use(&$created,$marker,$wpdb):int{$id=wp_insert_post(['post_type'=>'page','post_status'=>'draft','post_title'=>'FIXTURE_ONLY '.$page_id,'post_name'=>'fixture-'.wp_generate_uuid4()],true);if(is_wp_error($id)){throw new RuntimeException($id->get_error_message());}$id=(int)$id;update_post_meta($id,'_tio2_runtime_fixture',$marker);update_post_meta($id,'public_path',untrailingslashit($path));update_post_meta($id,TIO2_MY_ROUTE_PAGE_ID_META,$page_id);update_post_meta($id,TIO2_MY_ROUTE_CANONICAL_META,'https://tio2malaysia.com'.$path);update_post_meta($id,TIO2_MY_ROUTE_RELEASE_STATE_META,'LIVE_APPROVED');wp_set_object_terms($id,['tio2-my'],'site_scope',false);$wpdb->update($wpdb->posts,['post_status'=>'publish'],['ID'=>$id],['%s'],['%d']);clean_post_cache($id);$created[]=$id;return$id;};
   $origin_path='/resources/fixture-origin-${process.pid}/';$proc_path='/resources/fixture-proc-${process.pid}/';$trade_path='/resources/fixture-trade-${process.pid}/';
   $origin_id=$create('RES-ORIGIN',$origin_path);$proc_id=$create('RES-PROC',$proc_path);$trade_id=$create('RES-TRADE-EU',$trade_path);
-  $base=static function(string$page_id,string$type,string$title,string$path,string$mapping,int$order,?int$rank,string$cta):array{return['pageId'=>$page_id,'siteScope'=>'tio2-my','locale'=>'en','resourceType'=>$type,'title'=>$title,'summary'=>'FIXTURE_ONLY_APPROVED_CHILD_SUMMARY','canonicalPath'=>$path,'canonicalUrl'=>'https://tio2malaysia.com'.$path,'mappingStatus'=>$mapping,'childContentStatus'=>'APPROVED','claimStatus'=>'APPROVED','publicEligibilityStatus'=>'ELIGIBLE','routeStatus'=>'VERIFIED_PUBLIC','canonicalStatus'=>'VERIFIED','lastReviewedAt'=>'2026-09-01','featuredRank'=>$rank,'displayOrder'=>$order,'ctaLabel'=>$cta,'sourceOwner'=>'FIXTURE_ONLY_OWNER','recordReviewDate'=>'2026-09-01'];};
-  $relations=[
-    $base('RES-ORIGIN','PROCUREMENT_GUIDE','Non-China Titanium Dioxide Supply Guide',$origin_path,'APPROVED_PRD_V0.3',10,1,'Read the sourcing guide'),
-    $base('RES-PROC','TECHNICAL_GUIDE','Chloride vs Sulfate Titanium Dioxide',$proc_path,'FIXTURE_PUBLIC_ELIGIBLE',20,null,'Read the technical guide'),
-    array_merge($base('RES-TRADE-EU','TRADE_UPDATE','FIXTURE_ONLY_TRADE_UPDATE',$trade_path,'FIXTURE_PUBLIC_ELIGIBLE',30,null,'Read the trade update'),['officialSourceName'=>'FIXTURE_ONLY_OFFICIAL_SOURCE','officialSourceUrl'=>'https://example.invalid/official-source','applicableScope'=>'FIXTURE_ONLY_SCOPE','sourceDate'=>'2026-08-01','reviewDate'=>'2026-09-01','freshnessStatus'=>'CURRENT_APPROVED','publicStatusLabel'=>'FIXTURE_ONLY_STATUS','freshnessOwner'=>'FIXTURE_ONLY_ROLE','nextReviewDue'=>'2026-10-01','eventReviewTrigger'=>'FIXTURE_ONLY_EVENT_TRIGGER']),
-  ];
+  $contract=json_decode((string)file_get_contents(tio2_my_resource_hub_contract_path()),true);
+  $relations=array_values(array_filter($contract['resourceRelations'],static fn(array $item):bool=>in_array($item['pageId'],['RES-ORIGIN','RES-PROC','RES-TRADE-EU'],true)));
   update_post_meta($hub_id,TIO2_MY_RESOURCE_HUB_RELATIONS_META,wp_json_encode($relations));
-  $mapping=static fn(string$page_id,string$status,string$path):bool=>in_array($page_id,['RES-ORIGIN','RES-PROC','RES-TRADE-EU'],true)&&in_array($status,['APPROVED_PRD_V0.3','FIXTURE_PUBLIC_ELIGIBLE'],true);
-  $cached_h4=tio2_my_resource_public_projection($relations,$mapping);
-  if('H4_TRADE_ITEM'!==$cached_h4['publicState']||['RES-ORIGIN']!==array_column($cached_h4['featuredResources'],'pageId')||['RES-PROC','RES-TRADE-EU']!==array_column($cached_h4['latestResources'],'pageId')){throw new RuntimeException('H4 cache fixture projection failed: '.wp_json_encode($cached_h4));}
+  $fixture_ids=['RES-ORIGIN'=>$origin_id,'RES-PROC'=>$proc_id,'RES-TRADE-EU'=>$trade_id];
+  $ready=static fn(string$page_id,string$path):bool=>isset($fixture_ids[$page_id])&&get_post_meta($fixture_ids[$page_id],TIO2_MY_ROUTE_RELEASE_STATE_META,true)==='LIVE_APPROVED';
+  $cached_h4=tio2_my_resource_public_projection($relations,null,$ready);
+  $flatten=static fn(array $projection):array=>array_merge(...array_column($projection['resourceGroups'],'items'));
+  if('H3_GROUPED_PUBLIC_RESOURCES'!==$cached_h4['publicState']||['RES-ORIGIN','RES-PROC','RES-TRADE-EU']!==array_column($flatten($cached_h4),'pageId')){throw new RuntimeException('Grouped cache fixture projection failed: '.wp_json_encode($cached_h4));}
   $GLOBALS['tio2_webhook_queue']=[];
   tio2_capture_post_meta_before_mutation(null,$trade_id,TIO2_MY_ROUTE_RELEASE_STATE_META,'REVOKED');
   $queued=$GLOBALS['tio2_webhook_queue'][$trade_id]??null;
   if(!is_array($queued)||['tio2-my']!==$queued['siteIds']||!in_array('/resources',$queued['paths'],true)||!in_array(untrailingslashit($trade_path),$queued['paths'],true)){throw new RuntimeException('Exact H5 dependency invalidation was not queued.');}
   update_post_meta($trade_id,TIO2_MY_ROUTE_RELEASE_STATE_META,'REVOKED');
-  $recomputed=tio2_my_resource_public_projection($relations,$mapping);
-  if('H3_MULTIPLE_PUBLIC_RESOURCES'!==$recomputed['publicState']||['RES-ORIGIN']!==array_column($recomputed['featuredResources'],'pageId')||['RES-PROC']!==array_column($recomputed['latestResources'],'pageId')){throw new RuntimeException('H5 steady-state recomputation failed.');}
+  $recomputed=tio2_my_resource_public_projection($relations,null,$ready);
+  if('H3_GROUPED_PUBLIC_RESOURCES'!==$recomputed['publicState']||['RES-ORIGIN','RES-PROC']!==array_column($flatten($recomputed),'pageId')){throw new RuntimeException('Revoked grouped steady-state recomputation failed.');}
   $serialized=wp_json_encode($recomputed);
-  foreach(['RES-TRADE-EU','FIXTURE_ONLY_OFFICIAL_SOURCE','FIXTURE_ONLY_STATUS','2026-08-01']as$removed){if(str_contains((string)$serialized,$removed)){throw new RuntimeException('H5 stale atom survived: '.$removed);}}
+  $trade=array_values(array_filter($relations,static fn(array $item):bool=>$item['pageId']==='RES-TRADE-EU'))[0];
+  foreach(['RES-TRADE-EU',$trade['officialSourceName'],$trade['publicStatusLabel'],$trade['sourceDate']]as$removed){if(str_contains((string)$serialized,$removed)){throw new RuntimeException('Revoked stale atom survived: '.$removed);}}
   echo 'RES_000_H5_RUNTIME_PASS';
 }finally{$cleanup();}
 `

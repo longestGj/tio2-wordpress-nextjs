@@ -5,18 +5,13 @@ import styles from './malaysia-resource-hub.module.css'
 import {ResourceFaq} from './resource-faq'
 
 function ResourceCards({items}: {readonly items: readonly MalaysiaResourceCard[]}) {
-  const labels = {
-    PROCUREMENT_GUIDE: 'PROCUREMENT GUIDE',
-    TECHNICAL_GUIDE: 'TECHNICAL GUIDE',
-    TRADE_UPDATE: 'TRADE & MARKET UPDATE',
-  } as const
   return (
     <div className={styles.resourceGrid}>
       {items.map((item) => (
         <article key={item.pageId}>
-          <p className={styles.cardKind}>{item.contextLabel ?? labels[item.resourceType]}</p>
-          <h3>{item.title}</h3><p>{item.summary}</p>
-          <p>Last reviewed: <time dateTime={item.lastReviewedAt}>{item.lastReviewedAt}</time></p>
+          {item.contextLabel ? <p className={styles.cardKind}>{item.contextLabel}</p> : null}
+          <h4><a href={item.href}>{item.title} <span aria-hidden="true">→</span></a></h4><p>{item.summary}</p>
+          {item.lastReviewedAt ? <p>Last reviewed: <time dateTime={item.lastReviewedAt}>{item.lastReviewedAt}</time></p> : null}
           {item.trade ? (
             <dl>
               <div><dt>Source</dt><dd><a href={item.trade.officialSourceUrl}>{item.trade.officialSourceName}</a></dd></div>
@@ -26,7 +21,6 @@ function ResourceCards({items}: {readonly items: readonly MalaysiaResourceCard[]
               <div><dt>Status</dt><dd>{item.trade.publicStatusLabel}</dd></div>
             </dl>
           ) : null}
-          <a href={item.href}>{item.ctaLabel} <span aria-hidden="true">→</span></a>
         </article>
       ))}
     </div>
@@ -63,7 +57,7 @@ export function MalaysiaResourceHub({
               <p className={styles.eyebrow}>{resourceHub.hero.eyebrow}</p>
               <h1 id="resource-hero-heading">{resourceHub.hero.h1}</h1>
               <p>{resourceHub.hero.body}</p>
-              <a href={resourceHub.featuredResources.length ? '#featured-resources' : resourceHub.hero.primaryAction.href}>
+              <a href={resourceHub.hero.primaryAction.href}>
                 {resourceHub.hero.primaryAction.label}
               </a>
             </div>
@@ -79,36 +73,15 @@ export function MalaysiaResourceHub({
           </div>
         </section>
 
-        {resourceHub.featuredResources.length ? (
-          <section id="featured-resources" className={`${styles.section} ${styles.featured}`} data-module="featured-resources" aria-labelledby="featured-heading">
-            <p className={styles.eyebrow}>FEATURED RESOURCES</p>
-            <h2 id="featured-heading">Featured procurement research</h2>
-            <ResourceCards items={resourceHub.featuredResources} />
-          </section>
-        ) : null}
-
-        <section id={resourceHub.decisionPaths.anchorId} className={`${styles.section} ${styles.paths}`} data-module="research-paths" aria-labelledby="paths-heading">
-          <div className={styles.sectionIntro}>
-            <h2 id="paths-heading">{resourceHub.decisionPaths.heading}</h2>
-            <p>{resourceHub.decisionPaths.intro}</p>
-          </div>
-          <div className={styles.pathGrid}>
-            {resourceHub.decisionPaths.items.map((item) => (
-              <article key={item.label}>
-                <p className={styles.pathLabel}>{item.label}</p>
-                <h3>{item.heading}</h3><p>{item.body}</p>
-              </article>
-            ))}
-          </div>
+        <section id="browse-resources" className={styles.section} data-module="browse-resources" aria-labelledby="browse-heading">
+          <h2 id="browse-heading">{resourceHub.resourceInventory.heading}</h2>
+          {resourceHub.resourceGroups.map(group => (
+            <section key={group.key} className={styles.resourceGroup} data-resource-group={group.key} aria-labelledby={`group-${group.key}`}>
+              <h3 id={`group-${group.key}`}>{group.heading}</h3>
+              <ResourceCards items={group.items} />
+            </section>
+          ))}
         </section>
-
-        {resourceHub.latestResources.length ? (
-          <section className={`${styles.section} ${styles.latest}`} data-module="latest-research" aria-labelledby="latest-heading">
-            <p className={styles.eyebrow}>LATEST RESEARCH</p>
-            <h2 id="latest-heading">Latest procurement research</h2>
-            <ResourceCards items={resourceHub.latestResources} />
-          </section>
-        ) : null}
 
         <section className={`${styles.section} ${styles.evidence}`} data-module="evidence-standards" aria-labelledby="evidence-heading">
           <div className={styles.sectionIntro}>

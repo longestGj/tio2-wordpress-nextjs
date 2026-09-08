@@ -135,9 +135,9 @@ function tio2_validate_resource_hub_v01_contract(int $post_id)
         'tio2-my' !== ($contract['identity']['siteScope'] ?? null) ||
         '/resources/' !== ($contract['identity']['path'] ?? null) ||
         'resource-hub-v0.1-malaysia' !== ($contract['identity']['schemaVersion'] ?? null) ||
-        [] !== ($contract['resourceRelations'] ?? null)
+        ! is_array($contract['resourceRelations'] ?? null)
     ) {
-        return new WP_Error('tio2_my_resource_hub_contract_invalid', 'The Resources Hub payload identity or H0 projection is invalid.');
+        return new WP_Error('tio2_my_resource_hub_contract_invalid', 'The Resources Hub payload identity or grouped projection is invalid.');
     }
     $relations_json = get_post_meta($post_id, TIO2_MY_RESOURCE_HUB_RELATIONS_META, true);
     $relations = is_string($relations_json) ? json_decode($relations_json, true) : null;
@@ -186,6 +186,17 @@ function tio2_my_resource_public_card(
     $mapping_status = tio2_my_resource_nonempty_text($relation['mappingStatus'] ?? null);
     $canonical_path = tio2_my_resource_nonempty_text($relation['canonicalPath'] ?? null);
     $resource_type = $relation['resourceType'] ?? null;
+    $contract = json_decode((string) file_get_contents(tio2_my_resource_hub_contract_path()), true);
+    $approved = null;
+    foreach ($contract['resourceRelations'] ?? [] as $candidate) {
+        if (($candidate['pageId'] ?? null) === $page_id) $approved = $candidate;
+    }
+    if (! is_array($approved)) return null;
+    foreach ($approved as $key => $value) if (($relation[$key] ?? null) !== $value) return null;
+    foreach (['lastReviewedAt', 'contextLabel', 'publishedAt'] as $key) {
+        if (array_key_exists($key, $relation) !== array_key_exists($key, $approved) ||
+            ($relation[$key] ?? null) !== ($approved[$key] ?? null)) return null;
+    }
     if (
         null === $page_id || null === $mapping_status || null === $canonical_path ||
         ! in_array($resource_type, ['PROCUREMENT_GUIDE', 'TECHNICAL_GUIDE', 'TRADE_UPDATE'], true)
@@ -213,7 +224,7 @@ function tio2_my_resource_public_card(
     $source_owner = tio2_my_resource_nonempty_text($relation['sourceOwner'] ?? null);
     $record_review_date = tio2_my_resource_iso_date($relation['recordReviewDate'] ?? null);
     if (
-        null === $title || null === $summary || null === $canonical_url || null === $last_reviewed_at ||
+        null === $title || null === $summary || null === $canonical_url || (isset($relation['lastReviewedAt']) && null === $last_reviewed_at) ||
         null === $cta_label || null === $source_owner || null === $record_review_date ||
         1 !== preg_match('#^/resources/[a-z0-9]+(?:-[a-z0-9]+)*/$#D', $canonical_path) ||
         'https://tio2malaysia.com' . $canonical_path !== $canonical_url
@@ -226,8 +237,8 @@ function tio2_my_resource_public_card(
         'href' => $canonical_path,
         'resourceType' => $resource_type,
         'ctaLabel' => $cta_label,
-        'lastReviewedAt' => $last_reviewed_at,
     ];
+    if (null !== $last_reviewed_at) $card['lastReviewedAt'] = $last_reviewed_at;
     $context_label = tio2_my_resource_nonempty_text($relation['contextLabel'] ?? null);
     if (null !== $context_label) $card['contextLabel'] = $context_label;
     if (array_key_exists('publishedAt', $relation) && null !== $relation['publishedAt']) {
@@ -272,7 +283,7 @@ function tio2_my_resource_public_card(
 /**
  * @param callable(string, string, string): bool|null $mapping_allows_public
  * @param callable(string, string): bool|null $target_is_ready
- * @return array{publicState: string, featuredResources: array<int, array<string, mixed>>, latestResources: array<int, array<string, mixed>>}
+ * @return array{publicState: string, resourceGroups: array<int, array<string, mixed>>}
  */
 function tio2_my_resource_public_projection(
     array $relations,
@@ -282,51 +293,27 @@ function tio2_my_resource_public_projection(
 {
     $eligible = [];
     $seen = [];
+    $definitions = ['sourcing' => 'Sourcing', 'technical-evaluation' => 'Technical Evaluation', 'trade-market' => 'Trade & Market'];
     foreach ($relations as $relation) {
         if (! is_array($relation)) continue;
         $card = tio2_my_resource_public_card($relation, $mapping_allows_public, $target_is_ready);
         if (null === $card) continue;
-        $page_id = (string) $card['pageId'];
-        if (isset($seen[$page_id])) {
-            throw new \GraphQL\Error\UserError('The Malaysia Resources Hub relation projection is ambiguous.');
-        }
-        $seen[$page_id] = true;
-        $rank = $relation['featuredRank'] ?? null;
         $order = $relation['displayOrder'] ?? null;
-        if ((null !== $rank && (! is_int($rank) || $rank < 1 || $rank > 3)) || ! is_int($order) || $order < 0) continue;
-        $eligible[] = ['card' => $card, 'rank' => $rank, 'order' => $order];
+        $group = $relation['groupKey'] ?? null;
+        if (! is_int($order) || $order < 0 || ! is_string($group) || ! isset($definitions[$group])) continue;
+        if (isset($seen[$card['pageId']])) throw new \GraphQL\Error\UserError('The Malaysia Resources Hub relation projection is ambiguous.');
+        $seen[$card['pageId']] = true;
+        $eligible[] = ['card' => $card, 'order' => $order, 'group' => $group];
     }
-    $rank_seen = [];
-    foreach ($eligible as $item) {
-        if (null === $item['rank']) continue;
-        if (isset($rank_seen[$item['rank']])) {
-            throw new \GraphQL\Error\UserError('The Malaysia Resources Hub featured ranks are ambiguous.');
-        }
-        $rank_seen[$item['rank']] = true;
+    $groups = [];
+    foreach ($definitions as $key => $heading) {
+        $items = array_values(array_filter($eligible, static fn (array $item): bool => $item['group'] === $key));
+        usort($items, static fn (array $a, array $b): int => ($a['order'] <=> $b['order']) ?: strcmp($a['card']['pageId'], $b['card']['pageId']));
+        if ([] !== $items) $groups[] = ['key' => $key, 'heading' => $heading, 'items' => array_map(static fn (array $item): array => $item['card'], $items)];
     }
-    $compare = static function (array $left, array $right): int {
-        return ($left['order'] <=> $right['order']) ?:
-            strcmp((string) $left['card']['pageId'], (string) $right['card']['pageId']);
-    };
-    if (1 === count($eligible)) {
-        $featured_items = $eligible;
-        $latest_items = [];
-    } else {
-        $featured_items = array_values(array_filter($eligible, static fn (array $item): bool => null !== $item['rank']));
-        usort($featured_items, static function (array $left, array $right) use ($compare): int {
-            return ($left['rank'] <=> $right['rank']) ?: $compare($left, $right);
-        });
-        $latest_items = array_values(array_filter($eligible, static fn (array $item): bool => null === $item['rank']));
-        usort($latest_items, $compare);
-    }
-    $featured = array_values(array_map(static fn (array $item): array => $item['card'], $featured_items));
-    $latest = array_values(array_map(static fn (array $item): array => $item['card'], $latest_items));
-    $cards = array_merge($featured, $latest);
-    $has_trade = [] !== array_filter($cards, static fn (array $card): bool => 'TRADE_UPDATE' === $card['resourceType']);
-    $state = [] === $cards
-        ? 'H0_NO_QUALIFIED_RESOURCE'
-        : ($has_trade ? 'H4_TRADE_ITEM' : (1 === count($cards) ? 'H2_ONE_PUBLIC_RESOURCE' : 'H3_MULTIPLE_PUBLIC_RESOURCES'));
-    return ['publicState' => $state, 'featuredResources' => $featured, 'latestResources' => $latest];
+    $count = count($eligible);
+    $state = 0 === $count ? 'H0_NO_QUALIFIED_RESOURCE' : (1 === $count ? 'H2_ONE_PUBLIC_RESOURCE' : 'H3_GROUPED_PUBLIC_RESOURCES');
+    return ['publicState' => $state, 'resourceGroups' => $groups];
 }
 
 /** @return list<string> */
@@ -345,7 +332,7 @@ function tio2_my_resource_child_dependency_meta_keys(): array
         'route_status',
         'canonical_status',
         'last_reviewed_at',
-        'featured_rank',
+        'group_key',
         'display_order',
         'cta_label',
         'source_owner',

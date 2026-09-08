@@ -77,7 +77,6 @@
 .applicationEvidence li,.applicationEvidence > p:not(.applicationAnswer) { color:#53647a; font-size:16px; line-height:1.7; }
 .sourceActions { margin-top:24px; display:grid; gap:8px; }
 .sourceActions a,.externalSources a { min-height:44px; display:inline-flex; align-items:center; color:var(--teal); font-weight:750; overflow-wrap:anywhere; }
-.evidenceUnavailable { margin:0; padding:22px; border-left:3px solid var(--teal); color:var(--navy); background:#fff; font-size:17px; line-height:1.65; }
 .workflowSteps { margin:46px 0 0; padding:0; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; list-style:none; }
 .workflowSteps li { min-width:0; padding:24px 20px; border:1px solid var(--border); }
 .workflowSteps li > span { color:var(--teal); font-size:13px; font-weight:850; letter-spacing:.1em; }

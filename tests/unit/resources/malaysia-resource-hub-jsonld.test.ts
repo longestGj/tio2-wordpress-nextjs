@@ -31,7 +31,7 @@ describe('RES-000 JSON-LD', () => {
     const schema = buildMalaysiaResourceHubJsonLd(getSiteConfig('tio2-my'), resourceHub) as {'@graph': Array<Record<string, unknown>>}
     expect(schema['@graph'].map((node) => node['@type'])).toEqual(['CollectionPage', 'BreadcrumbList', 'ItemList'])
     const list = schema['@graph'][2] as {numberOfItems: number; itemListElement: Array<{name: string; url: string}>}
-    const visible = [...resourceHub.featuredResources, ...resourceHub.latestResources]
+    const visible = resourceHub.resourceGroups.flatMap(group=>group.items)
     expect(list.numberOfItems).toBe(visible.length)
     expect(list.itemListElement.map(({name, url}) => ({name, url}))).toEqual(
       visible.map((item) => ({name: item.title, url: new URL(item.href, 'https://tio2malaysia.com').href})),
@@ -40,8 +40,7 @@ describe('RES-000 JSON-LD', () => {
 
   it('emits one ItemList entry for an unranked H2 resource normalized to Featured', () => {
     const resourceHub = hub(resourceH2UnrankedRelations)
-    expect(resourceHub.featuredResources.map(({pageId}) => pageId)).toEqual(['RES-PROC'])
-    expect(resourceHub.latestResources).toEqual([])
+    expect(resourceHub.resourceGroups.flatMap(group=>group.items.map(({pageId})=>pageId))).toEqual(['RES-PROC'])
     const schema = buildMalaysiaResourceHubJsonLd(getSiteConfig('tio2-my'), resourceHub) as {'@graph': Array<Record<string, unknown>>}
     const itemList = schema['@graph'].find((node) => node['@type'] === 'ItemList') as {
       numberOfItems: number
@@ -51,7 +50,7 @@ describe('RES-000 JSON-LD', () => {
     expect(itemList.itemListElement).toEqual([{
       '@type': 'ListItem',
       position: 1,
-      name: 'Chloride vs Sulfate Titanium Dioxide',
+      name: contract.resourceRelations.find(item=>item.pageId==='RES-PROC')!.title,
       url: 'https://tio2malaysia.com/resources/chloride-vs-sulfate-titanium-dioxide/',
     }])
   })

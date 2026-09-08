@@ -1,0 +1,62 @@
+[
+  {
+    "url": "https://www.tipure.com/en/products/coatings/r-706",
+    "startedAt": "2026-09-08T23:02:21.972Z",
+    "checkedAt": "2026-09-08T23:02:22.802Z",
+    "status": 403,
+    "finalUrl": "https://www.tipure.com/en/products/coatings/r-706",
+    "mediaType": "text/html; charset=UTF-8",
+    "date": "Tue, 08 Sep 2026 23:02:22 GMT",
+    "lastModified": null,
+    "bytes": 5568,
+    "sha256": "f2dc8cd68e2e3a65fafc26e5f0cf7d182c40d0b1a8793f4a524262cafc4eb09b"
+  },
+  {
+    "url": "https://www.tipure.com/en/-/media/files/tipure/legacy/ti-pure-r-706-tds.pdf",
+    "startedAt": "2026-09-08T23:02:22.009Z",
+    "checkedAt": "2026-09-08T23:02:23.229Z",
+    "status": 200,
+    "finalUrl": "https://www.tipure.com/en/-/media/files/tipure/legacy/ti-pure-r-706-tds.pdf",
+    "mediaType": "application/pdf",
+    "date": "Tue, 08 Sep 2026 23:02:22 GMT",
+    "lastModified": "Mon, 08 Nov 2021 18:01:47 GMT",
+    "bytes": 81847,
+    "sha256": "1ac8f7095888d8c7422f60f6b75cb0f7edbd22a11a9b3c9175345cd251f41137"
+  },
+  {
+    "url": "https://investors.chemours.com/news-releases/news-release-details/chemours-launches-ti-puretm-ts-6706-tmptme-free-version-flagship",
+    "startedAt": "2026-09-08T23:02:22.010Z",
+    "checkedAt": "2026-09-08T23:02:22.773Z",
+    "status": 200,
+    "finalUrl": "https://investors.chemours.com/news-releases/news-release-details/chemours-launches-ti-puretm-ts-6706-tmptme-free-version-flagship",
+    "mediaType": "text/html; charset=UTF-8",
+    "date": "Tue, 08 Sep 2026 23:02:22 GMT",
+    "lastModified": "Tue, 08 Sep 2026 23:01:56 GMT",
+    "bytes": 50784,
+    "sha256": "8745860c67c6463c06fb6781f2fe95c24238b034d8625089b63cfa24b1a55bb3"
+  },
+  {
+    "url": "https://www.tipure.com/en/products",
+    "startedAt": "2026-09-08T23:02:22.010Z",
+    "checkedAt": "2026-09-08T23:02:22.816Z",
+    "status": 403,
+    "finalUrl": "https://www.tipure.com/en/products",
+    "mediaType": "text/html; charset=UTF-8",
+    "date": "Tue, 08 Sep 2026 23:02:22 GMT",
+    "lastModified": null,
+    "bytes": 5502,
+    "sha256": "a855d2a0bfa8421924511c2a42381a50303b4f77c5b00f2f530dd4003cf0f9c8"
+  },
+  {
+    "url": "https://www.tipure.com/en/applications/coatings",
+    "startedAt": "2026-09-08T23:02:22.011Z",
+    "checkedAt": "2026-09-08T23:02:22.805Z",
+    "status": 403,
+    "finalUrl": "https://www.tipure.com/en/applications/coatings",
+    "mediaType": "text/html; charset=UTF-8",
+    "date": "Tue, 08 Sep 2026 23:02:22 GMT",
+    "lastModified": null,
+    "bytes": 5541,
+    "sha256": "126360aa37f48c36d6982ee6d229e3d0422b1032b80703ff85211d1b10ebf09b"
+  }
+]

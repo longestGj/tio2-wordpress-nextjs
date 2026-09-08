@@ -32,3 +32,11 @@ it('does not fail a repeated start when WP-CLI rejects an unchanged option updat
   const output=execFileSync(bash,['-c',`set -e\nprevious_input_hash=unchanged\ninput_hash=unchanged\nwp() { return 1; }\n${update}\necho retained`],{encoding:'utf8'})
   expect(output.trim()).toBe('retained')
 })
+
+it('does not repeat an unchanged editorial task marker update during a successor refresh',()=>{
+ const script=readFileSync('ops/prerelease/bootstrap-wordpress.sh','utf8').replaceAll('\r\n','\n')
+ const block=script.match(/  case "\$seed_path" in[\s\S]*?\n  esac/)![0]
+ const bash=process.platform==='win32'?'C:/Program Files/Git/bin/bash.exe':'bash'
+ const output=execFileSync(bash,['-c',`set -e\nseed_path=wordpress/seed/apply-tio2-my-editorial-five.php\nwp() { if [[ "$1 $2" == 'option get' ]]; then echo G8-DE-IT-SU-R706-CHEMOURS-20260908-01; else return 1; fi; }\n${block}\necho retained`],{encoding:'utf8'})
+ expect(output.trim()).toBe('retained')
+})

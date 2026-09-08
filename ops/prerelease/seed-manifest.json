@@ -35,6 +35,10 @@
       "sha256": "6803960b9fddf9afa6a0c48a899568b14af8e2c26ac456890b7afba42f790995"
     },
     {
+      "path": "wordpress/seed/refresh-tio2-my-resource-candidate.php",
+      "sha256": "958b7254a43f2f75ae3c0b6d52d371bf954cb0e5c7b2ee1ae1f2e7ee7f955f98"
+    },
+    {
       "path": "wordpress/seed/apply-tio2-my-editorial-five.php",
       "sha256": "58a0d7f6a8158405df7dab6922b296e5b3404a9990da944e81a3cf282f7f607d"
     },
@@ -144,7 +148,7 @@
     },
     {
       "path": "wordpress/seed/apply-tio2-my-resource-hub.php",
-      "sha256": "c0cb2724c15fa1694b7ae282a7b995c2131e2c4e963028a36bbc3741480ada90"
+      "sha256": "4a61383585092a1eb9b9880837628b02a42cecb330f4b3a94cb2f51babd5cf75"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-resource-origin.php",

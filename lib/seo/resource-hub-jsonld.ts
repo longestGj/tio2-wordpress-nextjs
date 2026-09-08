@@ -11,7 +11,7 @@ export function buildMalaysiaResourceHubJsonLd(
     throw new Error('RES-000 Schema is available only for tio2-my')
   }
   const canonical = new URL('/resources/', site.url).href
-  const visible = [...resourceHub.featuredResources, ...resourceHub.latestResources]
+  const visible = resourceHub.resourceGroups.flatMap(group => group.items)
   const graph: Array<Record<string, unknown>> = [
     {
       '@type': 'CollectionPage', '@id': `${canonical}#webpage`, url: canonical,
@@ -42,4 +42,10 @@ export function buildMalaysiaResourceHubJsonLd(
 
 export function serializeMalaysiaResourceHubJsonLd(value: JsonLdObject): string {
   return serializeJsonLd(value)
+}
+
+/** Candidate projection only; the production sitemap retains its separate release authorization. */
+export function buildMalaysiaResourceReleaseSitemap(resourceHub: MalaysiaResourceHubDto): readonly {url: string}[] {
+  if (resourceHub.identity.siteId !== 'tio2-my') throw new Error('Resource sitemap scope mismatch')
+  return resourceHub.resourceGroups.flatMap(group => group.items.map(item => ({url: new URL(item.href, 'https://tio2malaysia.com').href})))
 }

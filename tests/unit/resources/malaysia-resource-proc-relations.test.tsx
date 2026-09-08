@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import {render} from '@testing-library/react'
+import {renderToStaticMarkup} from 'react-dom/server'
 import {describe, expect, it} from 'vitest'
 
 import {MalaysiaResourceProcPage} from '@/components/sites/tio2-my/resources/malaysia-resource-proc-page'
@@ -59,14 +60,34 @@ describe('RES-PROC controlled actions', () => {
     expect(links.every((item) => item.getAttribute('rel') === 'noopener noreferrer')).toBe(true)
   })
 
-  it('omits the application evidence block when one required source is revoked', () => {
+  it.each([
+    [['lb_blr886']],
+    [['lb_lr108']],
+    [['tronox_portfolio']],
+    [['lb_blr886', 'lb_lr108']],
+    [['lb_blr886', 'tronox_portfolio']],
+    [['lb_lr108', 'tronox_portfolio']],
+    [['lb_blr886', 'lb_lr108', 'tronox_portfolio']],
+  ] as const)('server HTML atomically omits application evidence with revoked sources %j', (revokedKeys) => {
     const contract = structuredClone(approvedContract)
-    contract.externalSources.find((item) => item.sourceKey === 'lb_blr886')!.evidenceStatus = 'REVOKED'
-    const {container} = render(<MalaysiaResourceProcPage page={malaysiaResourceProcDto(contract)} />)
-    const overlap = container.querySelector('[data-res-proc-module="APPLICATION_OVERLAP"]')!
+    for (const key of revokedKeys) {
+      contract.externalSources.find((item) => item.sourceKey === key)!.evidenceStatus = 'REVOKED'
+    }
+    const html = renderToStaticMarkup(<MalaysiaResourceProcPage page={malaysiaResourceProcDto(contract)} />)
+    const document = new DOMParser().parseFromString(html, 'text/html')
+    const overlap = document.querySelector('[data-res-proc-module="APPLICATION_OVERLAP"]')!
 
-    expect(overlap.textContent).toContain(contract.applicationOverlap.heading)
-    expect(overlap.textContent).not.toContain('BLR-886')
+    expect(overlap.textContent).toBe(`${contract.applicationOverlap.eyebrow}${contract.applicationOverlap.heading}`)
+    expect(overlap.textContent).not.toContain('The supporting evidence for this section is not currently available.')
+    for (const item of contract.applicationOverlap.evidenceItems) {
+      expect(overlap.textContent).not.toContain(item.statement)
+    }
     expect(overlap.querySelectorAll('a')).toHaveLength(0)
+    for (const key of revokedKeys) {
+      const source = contract.externalSources.find((item) => item.sourceKey === key)!
+      expect(document.body.textContent).not.toContain(source.approvedLabel)
+      expect(html).not.toContain(source.approvedUrl)
+    }
+    expect([...document.querySelectorAll('[data-res-proc-module]')]).toHaveLength(14)
   })
 })

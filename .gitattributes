@@ -20,3 +20,8 @@ components/sites/tio2-my/editorial/res-r706.css text eol=lf
 components/sites/tio2-my/editorial/res-chemours.css text eol=lf
 app/(en)/resources/ti-pure-r-706-alternative/page.tsx text eol=lf
 app/(en)/resources/chemours-titanium-dioxide-alternatives/page.tsx text eol=lf
+
+# Current candidate evidence and seed hashes bind these exact LF bytes.
+docs/verification/tio2-my/prerelease-public-paths-20260909/* text eol=lf
+wordpress/seed/refresh-tio2-my-resource-candidate.php text eol=lf
+wordpress/seed/apply-tio2-my-resource-hub.php text eol=lf
