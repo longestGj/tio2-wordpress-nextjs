@@ -15,7 +15,7 @@ export function MalaysiaPolandMarketPage({marketPage:page,structuredData,fontCla
   readonly structuredData?:ReactNode
   readonly fontClassName?:string
 }) {
-  return <div className={fontClassName} data-site-scope="tio2-my">
+  return <div className={fontClassName} data-site-id="tio2-my" data-site-scope="tio2-my" data-page-id={page.identity.pageId}>
     {structuredData}
     <MalaysiaGlobalHeader chrome={page.globalChrome} currentPageId="MARKET-000" sourcePageId="MARKET-EU-PL"/>
     <main className={styles.main}>

@@ -58,7 +58,7 @@ test('representative CMS pages, navigation and metadata are bound to tio2-my', a
     if (route.pageId) await expect(page.locator(`[data-page-id="${route.pageId}"]`), route.path).toHaveCount(1)
     await expect(page.locator('header'), route.path).toBeVisible()
     await expect(page.locator('footer'), route.path).toBeVisible()
-    await expect(page.locator('link[rel="canonical"]'), route.path).toHaveAttribute('href', /^https:\/\/tio2malaysia\.com\//u)
+    await expect(page.locator('link[rel="canonical"]'), route.path).toHaveAttribute('href', /^https:\/\/tio2malaysia\.com(?:\/|$)/u)
     await expect(page.locator('meta[name="robots"]'), route.path).toHaveAttribute('content', /noindex/u)
   }
 })
