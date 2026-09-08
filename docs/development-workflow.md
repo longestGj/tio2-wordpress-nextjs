@@ -4,6 +4,8 @@
 
 2026-09-07补充依据：用户批准将Poland复盘落实为交接实例与流程改进。直接使用[任务记录模板](templates/development-task-record.md)，或在已有主回执补齐对应字段；[Poland实例](examples/poland-development-handoff.md)展示实际交付、返修和停止点。三个逻辑入口是“策划批准入口、D16实施记录、最新交付与接收”，不要求另外创建三份内容重复的文件。
 
+2026-09-08补充依据：D23 Gate9采用[Gate8→Gate9机器交接合同V1.0](D:/23MySec/docs/architecture/GATE8_GATE9_EVIDENCE_HANDOFF_CONTRACT_V1.0.md)、[Evidence Manifest Schema V1.0](D:/23MySec/docs/architecture/GATE8_EVIDENCE_MANIFEST_SCHEMA_V1.0.json)和[当前Gate9基线](D:/23MySec/docs/architecture/GATE9_AGENT_SKILL_CURRENT_BASELINE_MANIFEST_V1.0.md)。D23任务按本文件第6节执行机器交回和本地`main`串行集成；该节是D16唯一当前队列规则，D23接口文件只作为来源和版本依据。
+
 ## 1. 分工
 
 | 责任方 | 负责内容 | 交接结果 |
@@ -90,8 +92,10 @@ D16可以指出内容或设计冲突并提出具体修改建议；不自行改�
 本次实现及相对批准源的差异：
 测试环境 / 日期 / 结果 / 证据路径：
 预览入口及对应运行版本（适用时）：
+Gate8 Evidence Manifest路径 / evidence HEAD / runtime保持条件（D23任务适用时）：
 未决项 / 影响 / 下一责任方：
 技术完成状态 / 策划验收记录引用 / 发布授权与实际部署状态：
+RECHECK_SCOPE_STATUS / PAGE_GATE9_STATUS / INTEGRATION_STATUS / RELEASE_STATUS（D23任务适用时）：
 交付目标 / 送达方式与依据 / 接单或验收反馈：
 ```
 
@@ -107,7 +111,29 @@ D16可以指出内容或设计冲突并提出具体修改建议；不自行改�
 
 指定版本的实现问题被独立接收后，保存接收记录并停止重复返修及无关测试。只有新反证、代码/内容/环境变化或明确新任务触发对应范围的工作。Gate整体因外部依赖未关闭时，不自动把页面重新标记为代码待修；已关闭问题遇到具体新反证也不能拒绝处理。
 
-## 6. 发布：D16执行，授权按网站和环境限定
+## 6. D23 Gate8机器交回与本地main串行集成
+
+### Gate8机器交回
+
+D23任务的Gate8首次交回及每次返修交回都在任务证据目录生成`gate8_evidence_manifest.json`，并通过D23当前Schema验证。Manifest至少绑定交接与任务ID、`site_scope`、Page ID和接受条件ID、repository/branch/baseline/implementation/evidence HEAD、工作树检查时间、Build目录与Build ID、runtime身份及路径检查、证据路径与SHA-256、人工回执和已知开放项。证据使用仓库相对路径并进入指定evidence HEAD；工作树字节因Git换行过滤与commit blob不同的，分别记录SHA-256和blob ID。
+
+Gate6交付内的代码或片段按`APPROVED_CONTRACT`、`REFERENCE_IMPLEMENTATION`或`PROTOTYPE_ONLY`接收；未标身份的代码按`PROTOTYPE_ONLY`处理。技术实现可以替换参考实现，但不得改变已批准合同的结果。
+
+人工主回执中每份验收证据各写一行`EVIDENCE: <repo-relative-path>`，这些路径的集合必须与Manifest的`receipt_evidence_references`完全一致。交回时runtime的`hold_until`为`GATE9_PASS_OR_RETURN_NOTICE`；保持同一候选，直到Gate9向原Gate8任务发出通过、返修/补证或明确释放通知。运行身份必须更换时，先交回新的implementation、evidence、Build和runtime身份及差异；无法保持时如实标记受影响条件为环境失败或未验证。
+
+Gate9返回分别记录`RECHECK_SCOPE_STATUS`、`PAGE_GATE9_STATUS`、`INTEGRATION_STATUS`和`RELEASE_STATUS`。局部复验通过、页面Gate9通过、进入集成队列和发布授权是四个不同事实；`INTEGRATION_READY`只表示具备进入本地`main`队列的资格，不等于已合并，也不授予合并权限。
+
+### 本地main唯一串行队列
+
+1. 同一时间只由一个D16集成任务更新本地`main`；开始前确认没有其他集成任务处于`INTEGRATING`。
+2. 集成前重新读取本地`main` HEAD和工作树状态、目标分支HEAD，以及Gate9接受的implementation、evidence HEAD和Build身份。目标分支在验收后发生实质代码变化时，原`INTEGRATION_READY`失效，按差异影响重新复验。
+3. 只有当前用户指令或已有明确授权覆盖本地合并时才执行。合并冲突涉及批准语义时返回原实现owner；集成任务不静默改写批准内容或行为。
+4. 合并后记录`main`前后commit、合入对象、冲突处理和受影响批次的组合回归。组合回归失败时使用`CONFLICT_RETURNED`或`INTEGRATION_BLOCKED`，不能把单页旧PASS扩张为`main`通过。
+5. `INTEGRATION_STATUS`使用`NOT_READY / INTEGRATION_READY / QUEUED / INTEGRATING / INTEGRATED_LOCAL_MAIN / INTEGRATION_BLOCKED / CONFLICT_RETURNED`之一，并在当前任务入口保存依据。
+
+本地`main`集成不授权Git push、Preview或Production部署、生产WordPress写入、DNS、sitemap、索引或发布。对应操作继续按第7节取得和复用准确范围的授权。
+
+## 7. 发布：D16执行，授权按网站和环境限定
 
 发布任务至少明确网站、目标环境、待部署代码/内容版本、适用验收、发布范围、回退方式和部署后验证。配置或交付仍有缺项时，先完成可核查的发布准备再提交具体待决定项。
 
@@ -117,7 +143,7 @@ D16可以指出内容或设计冲突并提出具体修改建议；不自行改�
 - 记录实际部署ID/版本、URL、时间、验证结果及回退定位；真实对外表单提交需相应授权，模拟结果不能宣称收件成功。
 - 发布失败时按已授权的回退方案处理；回退超出既定范围时提出具体影响与所需决定。不能以“发布归D16”推导无限生产权限。
 
-## 7. D23实例与历史兼容
+## 8. D23实例与历史兼容
 
 D23两个交接点的逐项输入、输出、接收检查和缺项处理见[Gate 6→8 / Gate 8→9详细清单](d23-gate-handoff.md)。这份清单补充本流程，不新增审批或要求其他网站采用同一Gate编号。
 

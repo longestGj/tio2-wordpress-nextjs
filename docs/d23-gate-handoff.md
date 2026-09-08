@@ -1,6 +1,6 @@
 # D23 Gate 6→8 与 Gate 8→9 交接清单
 
-依据：用户授权的D16交接流程整理；D23当前[工作流V3.2](D:/23MySec/docs/architecture/GATE_WORKFLOW_V3.2.md)及Poland有效交付和验收记录。本文件明确D16如何接收、交回D23任务，不修改策划批准方式。其他策划项目可复用内容要求，但不强制采用D23编号。
+依据：用户授权的D16交接流程整理；D23当前[工作流V3.2](D:/23MySec/docs/architecture/GATE_WORKFLOW_V3.2.md)、[Gate8→Gate9机器交接合同V1.0](D:/23MySec/docs/architecture/GATE8_GATE9_EVIDENCE_HANDOFF_CONTRACT_V1.0.md)、[Evidence Manifest Schema V1.0](D:/23MySec/docs/architecture/GATE8_EVIDENCE_MANIFEST_SCHEMA_V1.0.json)、[Gate9当前基线](D:/23MySec/docs/architecture/GATE9_AGENT_SKILL_CURRENT_BASELINE_MANIFEST_V1.0.md)及Poland有效交付和验收记录。本文件明确D16如何接收、交回D23任务，不修改策划批准方式。其他策划项目可复用内容要求，但不强制采用D23编号。
 
 沿用[开发交付流程](development-workflow.md)、[任务记录](templates/development-task-record.md)和[Poland实例](examples/poland-development-handoff.md)。以下清单放入已有交付包或主回执即可；一个权威入口可引用多个原件，无需复制正文、重新导出资产或新增一轮审批。
 
@@ -16,6 +16,7 @@
 |---|---|---|
 | 任务身份与范围 | 网站ID、页面/功能ID、语言、URL、任务范围和明确限制 | 与网站登记、现有代码及目标环境一致；不能只给页面名称 |
 | 唯一有效基线 | 当前Manifest或等价入口、交付包ID、有效批准/关闭记录、采用的版本/哈希、覆盖历史说明 | 原件可读取且组合一致。包内旧的“草稿/未授权”字样结合后续有效记录解释，不能只凭文件存在推断批准或无视后续授权 |
+| 代码身份 | 交付包中的代码、HTML、脚本或组件片段标为`APPROVED_CONTRACT`、`REFERENCE_IMPLEMENTATION`或`PROTOTYPE_ONLY` | 未标身份的代码按`PROTOTYPE_ONLY`接收；参考实现可替换，批准合同的结果必须保持 |
 | 完整内容合同 | 正文唯一编辑源、模块及顺序、必需/可选内容、字段语义、长度或格式约束、链接/动作、条件/空值/失败行为 | 足以完整表示与输出；不得只交图片让开发猜文案。无相关动态行为时明确不适用 |
 | 完整视觉与状态 | 可读设计源、原始资产和依赖、适用响应式尺寸/重排、整页及菜单/弹窗/焦点等状态、共享样式来源 | 当前共享实现与批准组合是否一致；不能只检查静态首屏或默认状态。特殊缩放/设备要求须有依据 |
 | 资产与内容权属 | 所用Logo、字体、图片/文件的准确版本、使用范围和所属网站；替换/缺失处理按需说明 | 资产可取得且允许用于该范围；生产运行不能依赖策划项目的本机路径。无页面媒体可明确说明 |
@@ -51,6 +52,7 @@ Gate 6说明页面应管理、显示和执行的结果；WordPress post type/字
 |---|---|---|
 | 批准与任务对应 | 网站/任务身份、采用的Gate 6批准包、接受条件ID、相对批准源的明确差异 | 本次验收对象和范围，是否遗漏或擅改批准要求 |
 | 精确源码身份 | 分支、commit/ref、工作区是否有未提交内容；有则提供对应文件/差异快照和哈希；本轮改动与共享消费者 | 基础commit不能冒充全部实现；同一轮截图、代码和修复可追溯 |
+| 机器交接Manifest | `gate8_evidence_manifest.json`及其Schema验证结果；绑定implementation/evidence/Build/runtime、证据hash、回执引用和开放项 | 验收对象、证据字节、运行候选和接受条件能被预检脚本重复核对 |
 | 实际运行入口 | 可访问URL、环境类型、站点身份、Build/部署ID、核验时间、启动/访问必要说明、受限处 | 实际服务提供的版本；本地production模式不等于生产部署。入口不可用时明确相关运行验收未具备条件 |
 | 数据及技术映射 | 内容语义→WordPress记录/字段→API/查询→DTO/组件/路由；涉及的metadata、缓存、导航、表单和媒体实现位置 | 数据来自哪里、怎样进入实际页面、归属如何保证；不能只提供种子JSON或策划HTML代替实际数据链 |
 | 当前数据/配置关联 | 相关CMS记录、唯一归属/状态、响应或合同哈希；配置变量位置及必要脱敏关联，不含密钥原值 | 当前实现确实消费对应数据和配置；非空变量不能证明provider账户或收件成功 |
@@ -63,10 +65,11 @@ Gate 6说明页面应管理、显示和执行的结果；WordPress post type/字
 
 ### 交回前检查与缺项处理
 
-1. D16先核对实际预览版本、适用测试结果、截图质量及数据恢复；已知范围内的实现缺陷应先修复。确需先交局部成果时明确“部分可验”和缺失条件，不宣称全部完成。
+1. D16先核对实际预览版本、适用测试结果、截图质量及数据恢复；已知范围内的实现缺陷应先修复。确需先交局部成果时明确“部分可验”和缺失条件，不宣称全部完成。首次及返修交回均生成符合Schema的`gate8_evidence_manifest.json`，证据进入指定evidence HEAD。
 2. Gate 9所需的批准/实现身份无法锁定、指定环境不可访问或核心证据缺失时，记录其阻止的验收项目；D23仍可审阅不受影响材料，但不能签受阻项目通过。
 3. 账户/邮箱、正在开发的目标页面等外部依赖，按合同列为开放条件并交对应owner；允许后置的发布控制不自动升级为本页代码缺陷。验收整体是否关闭由D23有效规则和授权决定。
-4. 发送前定位准确任务，发送后保留工具或人工送达依据；面板排队不等于消息送达，送达不等于接单。收到D23反馈后保存Review ID、适用实现和具体结论。
+4. 人工回执中每份证据单列`EVIDENCE: <repo-relative-path>`，引用集合与Manifest的`receipt_evidence_references`完全一致。发送前定位准确任务，发送后保留工具或人工送达依据；面板排队不等于消息送达，送达不等于接单。
+5. runtime保持到Gate9向原Gate8任务发送`GATE9_PASS_OR_RETURN_NOTICE`对应的通过、返修/补证或释放通知。收到反馈后保存Review ID、适用implementation/evidence/Build/runtime和具体结论。
 
 ## 3. Gate 9退回Gate 8及最终接收
 
@@ -75,6 +78,8 @@ Gate 6说明页面应管理、显示和执行的结果；WordPress post type/字
 D16按原Finding ID回复根因、最小变更、新源码/运行身份、对应复测和共享影响面；旧证据可继承时说明版本与影响依据，已失效证据保留原件并标记替代，不重做身份未变且有依据继承的全部检查。
 
 独立接收后在当前任务入口记录“哪些条件/问题在哪个实现关闭、哪些仍开放、下一责任方”。实现问题已关闭且没有新反证时停止页面返修。Gate 9整体未关闭与Gate 10未授权仍分别保留，不能由局部接收推导发布许可。
+
+Gate9每次返回同时保存`RECHECK_SCOPE_STATUS`、`PAGE_GATE9_STATUS`、`INTEGRATION_STATUS`和`RELEASE_STATUS`。`INTEGRATION_READY`只表示实现可以进入D16本地`main`队列；实际合并严格引用[开发交付流程第6节](development-workflow.md#6-d23-gate8机器交回与本地main串行集成)的唯一当前规则，不由本清单另建一套队列。该状态不授权合并、push、部署或发布。
 
 ## 4. Poland 对应关系
 
