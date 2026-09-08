@@ -160,7 +160,7 @@
     },
     {
       "path": "wordpress/seed/apply-tio2-my-prerelease-public-paths.php",
-      "sha256": "75cbe500385b5143b85afc237744792e76530a9075f4f050975a76a8805cc73b"
+      "sha256": "496ca0fab2c9ed6b1dbb095011a4a03ee80c08b18825275f201e72c247b863e4"
     }
   ]
 }

@@ -17,6 +17,13 @@ type Eligibility = {
   collections: Record<string, number>
 }
 
+type ApplicationHub = {
+  applications: Array<{
+    key: string
+    grades: Array<{targetPageId: string; href: string}>
+  }>
+}
+
 const d16Path = resolve('wordpress/plugins/tio2-site-model/config/tio2-my-prerelease-public-paths.json')
 const d23Path = 'D:/23MySec/docs/architecture/data/PRERELEASE_PUBLIC_PATH_ELIGIBILITY_V1.0.json'
 
@@ -41,6 +48,9 @@ describe('TiO2 Malaysia prerelease public-path eligibility', () => {
 
   it('preserves the approved collection declarations and every route-backed target set', () => {
     const config = readEligibility(d16Path)
+    const applicationHub = JSON.parse(
+      readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-application-hub.json', 'utf8'),
+    ) as ApplicationHub
     expect(config.collections).toEqual({
       homeActions: 6,
       productGrades: 14,
@@ -62,6 +72,25 @@ describe('TiO2 Malaysia prerelease public-path eligibility', () => {
     expect(countRole('application-support')).toBe(3)
     expect(countRole('resource-item')).toBe(8)
     expect(countRole('document-guide')).toBe(3)
+
+    const gradeOccurrences = applicationHub.applications.map((application) => ({
+      application: application.key,
+      count: application.grades.length,
+    }))
+    expect(gradeOccurrences).toEqual([
+      {application: 'COAT', count: 8},
+      {application: 'PLAS', count: 8},
+      {application: 'MB', count: 7},
+      {application: 'INK', count: 4},
+      {application: 'PAPER', count: 2},
+      {application: 'SPECIALTY', count: 1},
+    ])
+    const routeTuples = new Set(config.routes.map((route) => `${route.pageId}|${route.path}`))
+    const mappedGradeTuples = applicationHub.applications.flatMap((application) =>
+      application.grades.map((grade) => `${grade.targetPageId}|${grade.href}`),
+    )
+    expect(mappedGradeTuples).toHaveLength(30)
+    expect(mappedGradeTuples.every((tuple) => routeTuples.has(tuple))).toBe(true)
   })
 
   it('keeps CONV-THANK as the single native route outside CMS mutation', () => {
@@ -84,6 +113,8 @@ describe('TiO2 Malaysia prerelease public-path eligibility', () => {
     expect(seed).toContain("wp_get_environment_type() !== 'local'")
     expect(seed).toContain("getenv('D16_TIO2_MY_PRERELEASE_ROUTE_SEED') !== '1'")
     expect(seed).toContain('TIO2_MY_PRERELEASE_PUBLIC_PATHS_RESULT')
+    expect(seed).not.toContain("'cmsRouteCount'")
+    expect(seed).not.toContain("'nativeRouteCount'")
     expect(seed).toContain("'CONV-THANK'")
     expect(seed).toContain("tio2_find_homepage_ids('tio2-my', false)")
     expect(seed).toContain("tio2_homepage_internal_slug('tio2-my')")

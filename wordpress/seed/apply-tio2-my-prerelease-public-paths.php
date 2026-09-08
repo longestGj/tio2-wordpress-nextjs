@@ -129,6 +129,4 @@ echo 'TIO2_MY_PRERELEASE_PUBLIC_PATHS_RESULT ' . wp_json_encode([
     'candidateId' => $config['candidateId'],
     'state' => 'APPLIED',
     'routeCount' => 42,
-    'cmsRouteCount' => 41,
-    'nativeRouteCount' => 1,
 ], JSON_UNESCAPED_SLASHES) . PHP_EOL;
