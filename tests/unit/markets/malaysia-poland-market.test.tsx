@@ -23,6 +23,7 @@ describe('Poland content is rendered from the scoped CMS record', () => {
   it('renders every approved heading, paragraph and main action without adding a form or FAQ', () => {
     render(<MalaysiaPolandMarketPage marketPage={toMalaysiaPolandMarketPageDto(source())}/> )
     const main = screen.getByRole('main')
+    expect(document.querySelector('[data-site-scope="tio2-my"][data-page-id="MARKET-EU-PL"]')).not.toBeNull()
     const copy = readFileSync('tests/fixtures/markets/poland/approved-copy.md','utf8').replace(/<!--[\s\S]*?-->/g,'')
     const lines = copy.split(/\r?\n/).filter(line => line.trim())
     for (const line of lines) {
