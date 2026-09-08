@@ -14,6 +14,7 @@ interface ComposeContract {
     ports?: string[]
     environment?: Record<string, string>
     volumes?: string[]
+    healthcheck?: {test: string[]}
   }>
   volumes: Record<string, unknown>
 }
@@ -46,6 +47,14 @@ describe('tio2-my local prerelease Compose contract', () => {
     expect(compose?.services.db).not.toHaveProperty('ports')
     expect(compose?.services.wordpress.ports).toEqual(['127.0.0.1:8180:80'])
     expect(compose?.services.web.ports).toEqual(['127.0.0.1:3100:3000'])
+  })
+
+  it('accepts the WordPress canonical redirect without following it outside the container', () => {
+    const command = readCompose()?.services.wordpress.healthcheck?.test.join(' ') ?? ''
+    expect(command).toContain('curl')
+    expect(command).toContain('--fail')
+    expect(command).not.toContain('--location')
+    expect(command).not.toContain('file_get_contents')
   })
 
   it('binds the web and CMS services to tio2-my prerelease identity', () => {
