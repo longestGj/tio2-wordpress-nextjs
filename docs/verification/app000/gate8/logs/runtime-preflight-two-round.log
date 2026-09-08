@@ -1,0 +1,65 @@
+{
+  "recordedAt": "2026-09-08T10:27:35.585Z",
+  "status": "PASS",
+  "baseUrl": "http://127.0.0.1:4391",
+  "siteScope": "tio2-my",
+  "implementationCommit": "f0285f288e256ce0c48205931dd8edf4b802b285",
+  "buildId": "jf9b1VFzbgKGSQMVOMMbU",
+  "rounds": 2,
+  "observations": [
+    {
+      "round": 1,
+      "path": "/applications",
+      "status": 200,
+      "expectedStatus": 200,
+      "missing": [],
+      "buildMarker": true,
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "path": "/request-a-quote",
+      "status": 200,
+      "expectedStatus": 200,
+      "missing": [],
+      "buildMarker": true,
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "path": "/products/m-350",
+      "status": 200,
+      "expectedStatus": 200,
+      "missing": [],
+      "buildMarker": true,
+      "result": "PASS"
+    },
+    {
+      "round": 2,
+      "path": "/applications",
+      "status": 200,
+      "expectedStatus": 200,
+      "missing": [],
+      "buildMarker": true,
+      "result": "PASS"
+    },
+    {
+      "round": 2,
+      "path": "/request-a-quote",
+      "status": 200,
+      "expectedStatus": 200,
+      "missing": [],
+      "buildMarker": true,
+      "result": "PASS"
+    },
+    {
+      "round": 2,
+      "path": "/products/m-350",
+      "status": 200,
+      "expectedStatus": 200,
+      "missing": [],
+      "buildMarker": true,
+      "result": "PASS"
+    }
+  ]
+}
