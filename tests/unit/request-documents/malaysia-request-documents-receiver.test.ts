@@ -92,6 +92,14 @@ describe('CONV-DOC receiver boundary', () => {
     })).resolves.toMatchObject({kind: 'unavailable'})
   })
 
+  it('classifies a missing access key as unavailable before applying the payload-size guard', async () => {
+    const fetcher = vi.fn()
+    await expect(submitMalaysiaRequestDocuments({...values, full_name: 'a'.repeat(17 * 1024)}, {
+      ...options, accessKey: null, fetcher,
+    })).resolves.toMatchObject({kind: 'unavailable'})
+    expect(fetcher).not.toHaveBeenCalled()
+  })
+
   it('returns safe validation errors without calling a receiver', async () => {
     const fetcher = vi.fn()
     const result = await submitMalaysiaRequestDocuments(emptyMalaysiaRequestDocumentsValues, {

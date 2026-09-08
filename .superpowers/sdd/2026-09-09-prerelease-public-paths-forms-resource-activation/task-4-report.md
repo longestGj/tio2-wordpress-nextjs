@@ -86,3 +86,33 @@ Output: 1 test file passed, 4 tests passed, 0 failed.
 - Documents token behavior is split across `uses a fresh idempotency token only after a failed request payload changes` and `retries immediately with retained values and the same token, then confirms success`; the latter also exercises the disabled pending state.
 - Sample and Documents do not currently have separately named component tests that resubmit after completed navigation and assert the provider call count remains one. Their production forms retain `completedRef` plus `transitionStartedRef` guards, but this report does not claim an explicit component assertion for those two completed guards.
 - The pending tests exercise disabled/busy state while the first request is unresolved; they do not fire a synthetic second submit event to assert call count directly. The synchronous `pendingRef` guards are present in all three implementations, but that lower-level duplicate-dispatch assertion is not separately named in the current tests.
+
+## Review fix round 1
+
+The review found that the Documents adapter applied its 16 KB payload guard before classifying an absent public access key. That ordering returned `submission_unconfirmed` for an oversized, otherwise valid payload with `accessKey: null`, instead of the required `unavailable` outcome.
+
+### TDD RED
+
+Command:
+
+`npx vitest run tests/unit/request-documents/malaysia-request-documents-receiver.test.ts`
+
+Output: 1 failed / 20 passed. The new test `classifies a missing access key as unavailable before applying the payload-size guard` expected `unavailable` and received `submission_unconfirmed`. The provider fetch remained uncalled.
+
+### Fix and GREEN
+
+The adapter now preserves validation precedence, then delegates missing-key classification to `submitWeb3FormsBrowser` before normalizing/building/measuring the payload. This returns the exact shared `Web3FormsBrowserResult` and still performs no fetch.
+
+Command:
+
+`npx vitest run tests/unit/request-documents/malaysia-request-documents-receiver.test.ts tests/unit/request-documents/malaysia-request-documents-template.test.tsx`
+
+Output: 2 test files passed, 34 tests passed, 0 failed.
+
+Targeted lint was first invoked with the repository's obsolete `--file` flag and ESLint rejected that CLI option before linting. The corrected command was:
+
+`npx eslint lib/request-documents/malaysia-request-documents-receiver.ts tests/unit/request-documents/malaysia-request-documents-receiver.test.ts`
+
+Output: exit 0 with no findings.
+
+Self-review: the change is limited to outcome precedence and its combined regression test; validation still runs first, oversized configured submissions remain `submission_unconfirmed`, and missing-key submissions never call the fetcher.

@@ -39,6 +39,19 @@ export function submitMalaysiaRequestDocuments(
       kind: "validation_failed",
       errors: validation.errors,
     });
+  const accessKey = options.accessKey?.trim() || null;
+  if (!accessKey)
+    return submitWeb3FormsBrowser(
+      {
+        workflow: "documents",
+        accessKey,
+        requestToken: options.requestToken,
+        timeoutMs:
+          options.timeoutMs ?? MALAYSIA_REQUEST_DOCUMENTS_SUBMISSION_TIMEOUT_MS,
+        payload: {},
+      },
+      { fetcher: options.fetcher },
+    );
   const normalized = normalizeMalaysiaRequestDocumentsValues(values);
   const environment = buildSubmissionEnvironment(
     options.environment ?? undefined,
@@ -78,7 +91,7 @@ export function submitMalaysiaRequestDocuments(
   return submitWeb3FormsBrowser(
     {
       workflow: "documents",
-      accessKey: options.accessKey?.trim() || null,
+      accessKey,
       requestToken: options.requestToken,
       timeoutMs:
         options.timeoutMs ?? MALAYSIA_REQUEST_DOCUMENTS_SUBMISSION_TIMEOUT_MS,
