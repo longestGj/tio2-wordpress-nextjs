@@ -70,6 +70,7 @@ describe('prerelease WordPress bootstrap contract', () => {
     expect(validator).toContain("['publish', 'draft']")
     expect(validator).toContain('duplicateIdentities')
     expect(validator).toContain('wp_json_encode')
+    expect(validator).not.toContain('declare(strict_types=1)')
     expect(validator).not.toMatch(/post_content|user_email|password/i)
   })
 
