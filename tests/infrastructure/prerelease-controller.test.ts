@@ -185,6 +185,14 @@ describe.runIf(process.platform === 'win32')('local prerelease controller', () =
     expect(result.stdout.trim()).toBe('OK')
   })
 
+  it('follows same-origin permanent redirects during the startup HTTP round', () => {
+    const source = readFileSync(modulePath, 'utf8')
+    expect(source).toContain('function Invoke-PrereleaseGet')
+    expect(source).toContain("$statusCode -notin @(301, 302, 303, 307, 308)")
+    expect(source).toContain("$nextUri.Authority -ne $currentUri.Authority")
+    expect(source).toContain('$response = Invoke-PrereleaseGet -Uri $target.url')
+  })
+
   it('rejects missing or placeholder configuration without echoing values', () => {
     const directory = temporaryDirectory('d16-prerelease-env-')
     const environmentFile = join(directory, '.env.prerelease.local')
