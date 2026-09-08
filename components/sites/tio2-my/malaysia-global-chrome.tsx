@@ -14,6 +14,7 @@ interface GlobalChromeProps {
   readonly currentPageId: string
   readonly sourcePageId: string
 }
+
 function rfqAttributes(sourcePageId: string) {
   return {
     'data-site-scope': 'tio2-my',
@@ -48,7 +49,7 @@ export function MalaysiaGlobalHeader({
       }
     }
     document.addEventListener('keydown', closeOnEscape)
-    const desktop = window.matchMedia('(min-width: 1101px)')
+    const desktop = window.matchMedia('(min-width: 901px)')
     const closeOnDesktop = () => { if (desktop.matches) setOpen(false) }
     desktop.addEventListener('change', closeOnDesktop)
     return () => {
@@ -128,7 +129,6 @@ export function MalaysiaGlobalHeader({
       >
         <div className={styles.menuTopbar}>
           <Image src={chrome.logo.primary.src} alt={chrome.logo.primary.alt} width={120} height={40} className={styles.menuLogo} />
-          <a className={styles.headerRfq} href={chrome.rfq.href} {...rfqAttributes(sourcePageId)} onClick={() => setOpen(false)}>{chrome.rfq.compactLabel}</a>
           <button ref={closeRef} type="button" className={styles.menuClose} aria-label="Close primary navigation menu" onClick={() => setOpen(false)}>Close</button>
         </div>
       <nav

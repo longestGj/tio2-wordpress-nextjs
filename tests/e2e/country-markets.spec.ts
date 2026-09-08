@@ -14,7 +14,8 @@ interface CountryContract {
 }
 
 const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3029'
-const evidenceRoot = 'docs/verification/tio2-my/market-four-20260908/screenshots'
+const wordpressUrl = process.env.WORDPRESS_GRAPHQL_URL
+const evidenceRoot = 'docs/verification/tio2-my/market-four-gate9-repair-20260908/screenshots'
 const pages = [
   ['spain', 'tio2-my-market-eu-es.json'],
   ['india', 'tio2-my-market-in-001.json'],
@@ -31,7 +32,7 @@ const runtimeEvidence: Record<string, unknown> = {}
 
 mkdirSync(evidenceRoot, {recursive: true})
 test.afterAll(() => writeFileSync(
-  'docs/verification/tio2-my/market-four-20260908/runtime-matrix.json',
+  'docs/verification/tio2-my/market-four-gate9-repair-20260908/runtime-matrix.json',
   `${JSON.stringify(runtimeEvidence, null, 2)}\n`,
 ))
 
@@ -41,6 +42,40 @@ function loadContract(file: string) {
     'utf8',
   )) as CountryContract
 }
+
+test('WordPress resolver returns four exact tio2-my records without fallback', async ({request}) => {
+  expect(wordpressUrl, 'WORDPRESS_GRAPHQL_URL is required for CMS read-back evidence').toBeTruthy()
+  const readback: Record<string, unknown> = {}
+  for (const [, file] of pages) {
+    const contract = loadContract(file)
+    const variables = {pageId: contract.identity.pageId}
+    const response = await request.post(wordpressUrl!, {data: {
+      query: 'query Gate9CountryMarketReadback($pageId: String!) { malaysiaCountryMarketRecordJson(pageId: $pageId) }',
+      variables,
+    }})
+    expect(response.status()).toBe(200)
+    const body = await response.json() as {
+      readonly data?: {readonly malaysiaCountryMarketRecordJson?: string}
+      readonly errors?: readonly unknown[]
+    }
+    expect(body.errors).toBeUndefined()
+    const raw = JSON.parse(body.data?.malaysiaCountryMarketRecordJson ?? 'null') as {
+      readonly publishingFields?: {readonly publicPath?: string}
+      readonly recordPageId?: string
+      readonly siteScopes?: {readonly nodes?: readonly {readonly slug?: string}[]}
+      readonly status?: string
+    }
+    expect(raw.recordPageId).toBe(contract.identity.pageId)
+    expect(raw.status).toBe('publish')
+    expect(raw.publishingFields?.publicPath).toBe(contract.identity.path.replace(/\/$/u, ''))
+    expect(raw.siteScopes?.nodes?.map(({slug}) => slug)).toEqual(['tio2-my'])
+    readback[contract.identity.pageId] = {body, variables}
+  }
+  writeFileSync(
+    'docs/verification/tio2-my/market-four-gate9-repair-20260908/cms-resolver-readback.json',
+    `${JSON.stringify(readback, null, 2)}\n`,
+  )
+})
 
 async function ready(page: Page, pathname: string) {
   const response = await page.goto(`${baseUrl}${pathname}`, {waitUntil: 'networkidle'})
@@ -129,9 +164,9 @@ for (const [slug, file] of pages) {
       await expect(page.locator('[data-site-scope="tio2-my"][data-page-id]').first())
         .toHaveAttribute('data-page-id', contract.identity.pageId)
 
-      const compact = width <= 1100
+      const compact = width <= 900
       const header = page.locator('header')
-      expect((await header.boundingBox())?.height).toBe(compact ? 64 : 84)
+      expect(await header.locator(':scope > div').first().evaluate((node) => node.getBoundingClientRect().height)).toBe(compact ? 64 : 84)
       await assertRenderedMalaysiaHeaderLogo(header.locator('img[alt="TiO2 Malaysia"]').first(), {
         width: compact ? 120 : 180,
         height: compact ? 40 : 60,
@@ -151,7 +186,7 @@ for (const [slug, file] of pages) {
       }
       await expect(page.locator('footer h2')).toHaveText(['Explore', 'Information', 'Procurement'])
       for (const heading of await page.locator('footer h2').all()) {
-        await expect(heading).toHaveCSS('font-size', '14px')
+        await expect(heading).toHaveCSS('font-size', width === 390 ? '14px' : '12px')
       }
       const footerLogo = page.locator('footer img[alt="TiO2 Malaysia"]').first()
       await footerLogo.scrollIntoViewIfNeeded()
@@ -270,3 +305,124 @@ test('all four country pages reach editable scoped RFQ and document forms withou
     await expect(page.locator('#request-documents-country_region')).toHaveValue('')
   }
 })
+
+test('Spain preserves the approved typography, action geometry, hover and keyboard-focus states', async ({page}) => {
+  await page.setViewportSize({width: 1440, height: 1000})
+  await ready(page, '/markets/spain/')
+
+  await expect(page.locator('main h1')).toHaveCSS('font-weight', '650')
+  for (const heading of await page.locator('main h2').all()) await expect(heading).toHaveCSS('font-weight', '650')
+
+  const primary = page.locator('[data-module="hero"] a').filter({hasText: 'Request a Quote'})
+  const secondary = page.locator('[data-module="hero"] a').filter({hasText: 'Explore Products'})
+  for (const action of [primary, secondary]) {
+    await expect(action).toHaveCSS('min-height', '50px')
+    await expect(action).toHaveCSS('padding-top', '13px')
+    await expect(action).toHaveCSS('padding-right', '24px')
+  }
+
+  await primary.hover()
+  await expect(primary).toHaveCSS('color', 'rgb(255, 255, 255)')
+  await expect(primary).toHaveCSS('background-color', 'rgb(0, 128, 120)')
+  await expect(primary).toHaveCSS('text-decoration-thickness', '2px')
+
+  for (const link of [secondary, page.locator('main nav[aria-label="Breadcrumb"] a').first()]) {
+    await link.hover()
+    await expect(link).toHaveCSS('color', 'rgb(0, 128, 120)')
+    await expect(link).toHaveCSS('background-color', 'rgb(245, 248, 251)')
+    await expect(link).toHaveCSS('text-decoration-thickness', '2px')
+    await link.focus()
+    expect(await link.evaluate((node) => node.matches(':focus-visible'))).toBe(true)
+    await expect(link).toHaveCSS('outline-offset', '3px')
+  }
+
+  await page.setViewportSize({width: 390, height: 844})
+  await ready(page, '/markets/spain/')
+  await expect(page.locator('[data-module="applications"] p').first()).toHaveCSS('font-size', '16px')
+  await expect(page.locator('[data-module="quote"] li').first()).toHaveCSS('font-size', '16px')
+})
+
+test('India exposes every main action in forward and reverse keyboard order with visible focus', async ({page}) => {
+  await page.setViewportSize({width: 1440, height: 1000})
+  await ready(page, '/markets/india/')
+  const expectedHrefs = await page.locator('main a').evaluateAll((links) =>
+    links.map((link) => link.getAttribute('href')))
+  const forward: Array<string | null> = []
+  const focusHashes: string[] = []
+
+  await page.evaluate(() => {
+    (document.activeElement as HTMLElement | null)?.blur()
+    scrollTo(0, 0)
+  })
+  for (let step = 0; step < 80 && forward.length < expectedHrefs.length; step += 1) {
+    await page.keyboard.press('Tab')
+    const focused = await page.evaluate(() => {
+      const element = document.activeElement as HTMLElement | null
+      if (!element?.closest('main') || element.tagName !== 'A') return null
+      const rect = element.getBoundingClientRect()
+      const style = getComputedStyle(element)
+      return {
+        bottom: rect.bottom,
+        href: element.getAttribute('href'),
+        outlineStyle: style.outlineStyle,
+        outlineWidth: style.outlineWidth,
+        top: rect.top,
+        viewportHeight: innerHeight,
+      }
+    })
+    if (!focused) continue
+    forward.push(focused.href)
+    expect(focused.outlineStyle).toBe('solid')
+    expect(focused.outlineWidth).toBe('3px')
+    expect(focused.top).toBeGreaterThanOrEqual(0)
+    expect(focused.bottom).toBeLessThanOrEqual(focused.viewportHeight)
+    if ([0, Math.floor(expectedHrefs.length / 2), expectedHrefs.length - 1].includes(forward.length - 1)) {
+      const bytes = await page.screenshot({
+        path: `${evidenceRoot}/india-keyboard-focus-${String(forward.length).padStart(2, '0')}.png`,
+        fullPage: false,
+        animations: 'disabled',
+      })
+      focusHashes.push(createHash('sha256').update(bytes).digest('hex'))
+    }
+  }
+  expect(forward).toEqual(expectedHrefs)
+
+  const reverse: Array<string | null> = [forward.at(-1) ?? null]
+  for (let step = 1; step < expectedHrefs.length; step += 1) {
+    await page.keyboard.press('Shift+Tab')
+    reverse.push(await page.locator('main a:focus').getAttribute('href'))
+  }
+  expect(reverse).toEqual([...expectedHrefs].reverse())
+  runtimeEvidence['MARKET-IN-001-keyboard'] = {
+    focusScreenshotSha256: focusHashes,
+    forwardHrefs: forward,
+    reverseHrefs: reverse,
+    visibleFocus: true,
+  }
+})
+
+for (const width of [1440, 768, 390] as const) {
+  test(`Belgium ${width}px keeps the two BE-04 inline focus targets clear and stable`, async ({page}) => {
+    await page.setViewportSize({width, height: width === 390 ? 844 : 1000})
+    await ready(page, '/markets/belgium/')
+    const paragraph = page.locator('[data-module="documents"] > div > p').nth(2)
+    const links = [paragraph.getByRole('link', {name: 'Product Hub'}), paragraph.getByRole('link', {name: 'quotation request'})]
+    for (const [index, link] of links.entries()) {
+      await link.scrollIntoViewIfNeeded()
+      const before = await link.boundingBox()
+      expect(before?.height).toBeGreaterThanOrEqual(44)
+      expect(before?.width).toBeGreaterThanOrEqual(44)
+      await expect(link).toHaveCSS('padding-left', '6px')
+      await expect(link).toHaveCSS('padding-right', '6px')
+      await link.focus()
+      expect(await link.evaluate((node) => node.matches(':focus-visible'))).toBe(true)
+      await expect(link).toHaveCSS('outline-offset', '-3px')
+      const after = await link.boundingBox()
+      expect(after).toEqual(before)
+      await paragraph.screenshot({
+        path: `${evidenceRoot}/belgium-${width}-be04-inline-${index + 1}-focus.png`,
+        animations: 'disabled',
+      })
+    }
+  })
+}

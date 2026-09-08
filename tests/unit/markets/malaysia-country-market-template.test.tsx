@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 import {cleanup, render} from '@testing-library/react'
-import {afterEach, describe, expect, it} from 'vitest'
+import {afterEach, describe, expect, it, vi} from 'vitest'
+
+vi.mock('next/font/google', () => ({Inter: () => ({variable: 'test-country-market-font'})}))
 
 import {MalaysiaCountryMarketPage} from '@/components/sites/tio2-my/markets/malaysia-country-market-page'
 import {getMalaysiaCountryMarketContract} from '@/lib/markets/malaysia-country-market-contracts'
@@ -75,5 +77,12 @@ describe('country Market page template', () => {
     const related = quote.querySelector('a[href="/markets/european-union/"]')!
     expect(rfq.compareDocumentPosition(postSubmit) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(postSubmit.compareDocumentPosition(related) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('keeps Belgium inline-link punctuation in one unbroken focus context', () => {
+    const {container} = render(<MalaysiaCountryMarketPage marketPage={dto('MARKET-EU-BE')} />)
+    const link = container.querySelector('[data-module="documents"] a[href^="/request-a-quote/"]')!
+    expect(link.parentElement?.getAttribute('data-punctuation-keep')).toBe('true')
+    expect(link.parentElement?.textContent).toBe('quotation request.')
   })
 })

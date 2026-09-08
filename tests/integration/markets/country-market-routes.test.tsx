@@ -5,6 +5,7 @@ import {getMalaysiaCountryMarketContract, type MalaysiaCountryMarketPageId} from
 import {toMalaysiaCountryMarketPageDto} from '@/lib/wordpress/market-country-v01-dto'
 
 const boundary = vi.hoisted(() => ({site: vi.fn(), query: vi.fn()}))
+vi.mock('next/font/google', () => ({Inter: () => ({variable: 'test-country-market-font'})}))
 vi.mock('@/lib/sites/current-site', () => ({getCurrentSite: boundary.site}))
 vi.mock('@/lib/wordpress/market-country-v01-queries', () => ({getMalaysiaCountryMarketPage: boundary.query}))
 

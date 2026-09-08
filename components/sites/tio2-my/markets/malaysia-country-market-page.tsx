@@ -1,3 +1,4 @@
+import {Inter} from 'next/font/google'
 import type {ReactNode} from 'react'
 
 import type {
@@ -8,11 +9,32 @@ import type {MalaysiaCountryMarketPageDto} from '@/lib/wordpress/market-country-
 import {MalaysiaGlobalFooter, MalaysiaGlobalHeader} from '../malaysia-global-chrome'
 import styles from './malaysia-country-market-page.module.css'
 
+const countryMarketFont = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-my-country-market',
+})
+
 function Paragraph({paragraph}: {readonly paragraph: MalaysiaCountryMarketParagraph}) {
-  return <p>{paragraph.runs.map((run, index) => run.href
-    ? <a key={`${run.href}-${index}`} href={run.href}
-        rel={run.external ? 'external noopener noreferrer' : undefined}>{run.text}</a>
-    : <span key={`${run.text}-${index}`}>{run.text}</span>)}</p>
+  const rendered: ReactNode[] = []
+  for (let index = 0; index < paragraph.runs.length; index += 1) {
+    const run = paragraph.runs[index]
+    const next = paragraph.runs[index + 1]
+    if (run.href && next && !next.href && /^[.,;:!?]+$/u.test(next.text)) {
+      rendered.push(<span key={`${run.href}-${index}`} className={styles.punctuationKeep} data-punctuation-keep="true">
+        <a href={run.href} rel={run.external ? 'external noopener noreferrer' : undefined}>{run.text}</a>
+        <span>{next.text}</span>
+      </span>)
+      index += 1
+    } else if (run.href) {
+      rendered.push(<a key={`${run.href}-${index}`} href={run.href}
+        rel={run.external ? 'external noopener noreferrer' : undefined}>{run.text}</a>)
+    } else {
+      rendered.push(<span key={`${run.text}-${index}`}>{run.text}</span>)
+    }
+  }
+  return <p>{rendered}</p>
 }
 
 function Actions({actions = [], className = ''}: {
@@ -28,7 +50,7 @@ export function MalaysiaCountryMarketPage({marketPage: page, structuredData}: {
   readonly marketPage: MalaysiaCountryMarketPageDto
   readonly structuredData?: ReactNode
 }) {
-  return <div className={styles.site} data-site-scope="tio2-my" data-site-id="tio2-my" data-page-id={page.identity.pageId}>
+  return <div className={`${styles.site} ${countryMarketFont.variable}`} data-site-scope="tio2-my" data-site-id="tio2-my" data-page-id={page.identity.pageId}>
     {structuredData}
     <MalaysiaGlobalHeader chrome={page.globalChrome} currentPageId="MARKET-000" sourcePageId={page.identity.pageId} />
     <main className={styles.main}>

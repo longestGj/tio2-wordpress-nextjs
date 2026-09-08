@@ -1,4 +1,4 @@
-.site { margin:0; color:#334155; background:#fff; font-family:var(--font-my-shared),Inter,Arial,sans-serif; }
+.site { margin:0; color:#334155; background:#fff; font-family:var(--font-my-country-market),Inter,Arial,sans-serif; }
 :global(body):has(.site) { margin:0; }
 .main { font-size:18px; line-height:1.7; overflow-wrap:anywhere; }
 .main *,.main *::before,.main *::after { box-sizing:border-box; }
@@ -8,6 +8,7 @@
 .breadcrumb li:not(:last-child)::after { content:'›'; margin:0 10px; color:#64748b; }
 .main a { min-width:44px; min-height:44px; display:inline-flex; align-items:center; color:#008078; text-underline-offset:4px; }
 .main a:focus-visible { outline:3px solid #008078; outline-offset:4px; }
+.punctuationKeep { white-space:nowrap; }
 .section { padding:64px max(32px,calc((100% - 1200px)/2)); border-top:1px solid #d9e2ec; }
 .section:nth-of-type(odd) { background:#f5f8fb; }
 .reading { max-width:1200px; }
@@ -74,6 +75,8 @@
 .site[data-page-id='MARKET-EU-ES'] .hero .reading { padding-left:0; border-left:0; }
 .site[data-page-id='MARKET-EU-ES'] .reading { max-width:100%; }
 .site[data-page-id='MARKET-EU-ES'] .main h1 { max-width:870px; font-size:56px; }
+.site[data-page-id='MARKET-EU-ES'] .main h1,
+.site[data-page-id='MARKET-EU-ES'] .main h2 { font-weight:650; }
 .site[data-page-id='MARKET-EU-ES'] .main h2 { font-size:34px; }
 .site[data-page-id='MARKET-EU-ES'] .main p { max-width:800px; }
 .site[data-page-id='MARKET-EU-ES'] .hero p { max-width:850px; }
@@ -84,6 +87,11 @@
 .site[data-page-id='MARKET-EU-ES'] .relatedActions { margin-top:24px; gap:4px; font-size:15px; }
 .site[data-page-id='MARKET-EU-ES'] .relatedActions .text { font-size:15px; }
 .site[data-page-id='MARKET-EU-ES'] .relatedActions .text + .text::before { content:'·'; margin-right:8px; color:#334155; text-decoration:none; }
+.site[data-page-id='MARKET-EU-ES'] .main a:focus-visible { outline-offset:3px; }
+.site[data-page-id='MARKET-EU-ES'] .actions a { min-height:50px; padding:13px 24px; }
+.site[data-page-id='MARKET-EU-ES'] .main a:hover { color:#008078; background:#f5f8fb; text-decoration-thickness:2px; }
+.site[data-page-id='MARKET-EU-ES'] .actions .primary:hover { color:#fff; border-color:#008078; background:#008078; text-decoration:underline; text-decoration-thickness:2px; }
+.site[data-page-id='MARKET-EU-ES'] .actions .text:hover { color:#008078; background:#f5f8fb; }
 
 /* Netherlands: alternating open sections and equal application prompts. */
 .site[data-page-id='MARKET-EU-NL'] .section { background:#fff!important; }
@@ -102,6 +110,9 @@
 }
 .site[data-page-id='MARKET-EU-BE'] [data-module='documents'] .actions .text {
   flex-basis:100%; width:fit-content; justify-content:flex-start; white-space:normal; text-align:left;
+}
+.site[data-page-id='MARKET-EU-BE'] [data-module='documents'] > .reading > p a {
+  min-height:44px; padding-inline:6px; display:inline-block; vertical-align:baseline; line-height:44px; outline-offset:-3px;
 }
 
 /* India: approved numbered procurement narrative. */
@@ -181,6 +192,8 @@
   .site[data-page-id='MARKET-EU-ES'] .section { padding:38px 0; }
   .site[data-page-id='MARKET-EU-ES'] .main h1 { font-size:36px; }
   .site[data-page-id='MARKET-EU-ES'] .main h2 { font-size:28px; }
+  .site[data-page-id='MARKET-EU-ES'] .main p,
+  .site[data-page-id='MARKET-EU-ES'] .main li { font-size:16px; }
   .site[data-page-id='MARKET-EU-ES'] .contexts { grid-template-columns:1fr; gap:30px; }
   .site[data-page-id='MARKET-EU-ES'] .context + .context { padding-top:30px; border-top:1px solid #d9e2ec; }
   .site[data-page-id='MARKET-EU-NL'] .main h1 { font-size:34px; }
