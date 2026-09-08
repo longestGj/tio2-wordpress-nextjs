@@ -1,18 +1,28 @@
 {
   "taskId": "G8-DE-IT-SU-R706-CHEMOURS-20260908-01",
   "target": {
-    "threadId": "01a07e7e-24ef-7390-beab-f50fcbf169e0",
-    "title": "00-Gate9-01my开发",
+    "threadId": "01a07e26-2313-7090-b1ec-a0855dfc96a8",
+    "title": "00-Gate6-00My开发2",
     "hostId": "local"
   },
-  "state": "SENT",
+  "state": "SENT_TO_CORRECTED_TARGET",
   "sent": true,
   "preparedAt": "2026-09-08T11:17:36.7212225+08:00",
-  "sentAt": "2026-09-08T11:19:30.8134794+08:00",
+  "sentAt": "2026-09-08T11:22:22.1297176+08:00",
   "receipt": {
     "tool": "mcp__codex_app__send_message_to_thread",
-    "returnedThreadId": "01a07e7e-24ef-7390-beab-f50fcbf169e0",
+    "returnedThreadId": "01a07e26-2313-7090-b1ec-a0855dfc96a8",
     "isError": false
+  },
+  "misdirectedDelivery": {
+    "threadId": "01a07e7e-24ef-7390-beab-f50fcbf169e0",
+    "title": "00-Gate9-01my开发",
+    "sentAt": "2026-09-08T11:19:30.8134794+08:00",
+    "retractedAt": "2026-09-08T11:22:22.1297176+08:00",
+    "retractionReceipt": {
+      "returnedThreadId": "01a07e7e-24ef-7390-beab-f50fcbf169e0",
+      "isError": false
+    }
   },
   "acceptance": "NOT_CLAIMED",
   "gate9Result": "NOT_CLAIMED"
