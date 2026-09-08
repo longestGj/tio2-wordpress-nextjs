@@ -12,6 +12,7 @@ wordpress/plugins/tio2-site-model/config/tio2-my-editorial-market-eu-it.json tex
 wordpress/plugins/tio2-site-model/config/tio2-my-editorial-product-proc-su.json text eol=lf
 wordpress/plugins/tio2-site-model/config/tio2-my-editorial-res-r706.json text eol=lf
 wordpress/plugins/tio2-site-model/config/tio2-my-editorial-res-chemours.json text eol=lf
+ops/prerelease/*.sh text eol=lf
 components/sites/tio2-my/editorial/market-eu-de.css text eol=lf
 components/sites/tio2-my/editorial/market-eu-it.css text eol=lf
 components/sites/tio2-my/editorial/product-proc-su.css text eol=lf

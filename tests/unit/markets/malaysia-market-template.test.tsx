@@ -44,7 +44,7 @@ describe('MalaysiaMarketHub', () => {
     expect(container.textContent).not.toMatch(/PT-BR|RES-TRADE|site_scope|release blocker/iu)
   })
 
-  it('keeps Markets current and all Global Chrome RFQ surfaces scope-bound', () => {
+  it('keeps Markets current and keeps private attribution out of Global Chrome markup', () => {
     const {container} = render(<MalaysiaMarketHub marketHub={marketHub()} />)
     const current = container.querySelectorAll('a[aria-current="page"]')
     expect(current).toHaveLength(2)
@@ -53,8 +53,8 @@ describe('MalaysiaMarketHub', () => {
     const rfqLinks = container.querySelectorAll('a[href="/request-a-quote/"]')
     expect(rfqLinks.length).toBeGreaterThanOrEqual(3)
     for (const link of rfqLinks) {
-      expect(link.getAttribute('data-site-scope')).toBe('tio2-my')
-      expect(link.getAttribute('data-source-page')).toBe('MARKET-000')
+      expect(link.getAttribute('data-site-scope')).toBeNull()
+      expect(link.getAttribute('data-source-page')).toBeNull()
     }
   })
 

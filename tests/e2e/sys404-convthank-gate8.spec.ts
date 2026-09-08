@@ -147,3 +147,10 @@ test('valid routes and controlled sitemap remain distinct from SYS-404 and CONV-
   expect(xml).not.toContain('/thank-you/')
   expect(xml).not.toContain('/missing-gate8-contract/')
 })
+
+
+test('SCT-G9-F01 reserved /404 path returns approved recovery body', async ({page}) => {
+  const response = await page.goto('/404/')
+  expect(response?.status()).toBe(404)
+  await expect(page.locator('h1')).toHaveText('Let’s help you find what you need.')
+})

@@ -20,8 +20,19 @@ describe('Malaysia Sample Request receiver', () => {
     expect(body).toMatchObject({access_key:options.accessKey,email:values.business_email,site_scope:'tio2-my',request_type:'sample_request',page_id:'CONV-SAMPLE',form_version:'request-sample-v0.1-malaysia',privacy_notice_version:'CONV-SAMPLE-G7-HANDOFF-01',idempotency_key:options.idempotencyKey})
     expect(body).toMatchObject({grade_id:'M-2196',application_id:'coatings',test_objective:'Evaluate dispersion.',source_page_id:'PRODUCT-000'})
     expect(body).not.toHaveProperty('fields')
+    expect(body).not.toHaveProperty('environment')
+    expect(body).not.toHaveProperty('test_run_id')
+    expect(body.subject).toBe('TiO2 Malaysia sample request')
     expect(calls[0]?.[1].headers).not.toMatchObject({authorization:expect.anything()})
     expect(calls[0]?.[1]).toMatchObject({referrerPolicy:'origin',redirect:'error'})
+  })
+
+  it('uses the idempotency key as the local prerelease test run ID', async () => {
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({success:true}), {status:200,headers:{'content-type':'application/json'}}))
+    await submitMalaysiaSampleRequest(values, {...options, fetcher, environment:'local-prerelease'})
+    const body=JSON.parse(String((fetcher.mock.calls as unknown as Array<[RequestInfo|URL,RequestInit]>)[0]?.[1].body)) as Record<string,unknown>
+    expect(body).toMatchObject({environment:'local-prerelease',test_run_id:options.idempotencyKey,subject:'[LOCAL PRERELEASE] TiO2 Malaysia sample request'})
+    expect(body).not.toHaveProperty('recipient')
   })
 
   it('fails unconfirmed for provider ambiguity, non-JSON, 422 and transport errors', async () => {

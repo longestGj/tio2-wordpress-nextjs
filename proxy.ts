@@ -18,6 +18,13 @@ const MALAYSIA_TRAILING_SLASH_PATHS = new Set([
 ])
 
 export function proxy(request: NextRequest) {
+  // Next reserves /404; route it through the scoped catch-all not-found boundary.
+  if (process.env.SITE_ID === 'tio2-my' && /^\/404\/?$/.test(request.nextUrl.pathname)) {
+    const recovery = request.nextUrl.clone()
+    recovery.pathname = '/__tio2-recovery-404'
+    recovery.search = ''
+    return NextResponse.rewrite(recovery)
+  }
   const pathnameWithoutTrailingSlash = request.nextUrl.pathname.replace(/\/+$/u, '') || '/'
   const isMalaysiaTrailingSlashPath = process.env.SITE_ID === 'tio2-my' &&
     (MALAYSIA_TRAILING_SLASH_PATHS.has(pathnameWithoutTrailingSlash) || Boolean(editorialPageIdForPath(pathnameWithoutTrailingSlash)))

@@ -1,3 +1,5 @@
+import {readMalaysiaConsentChoice} from '@/lib/consent/malaysia-consent'
+
 export const MALAYSIA_THANK_YOU_MARKER_TTL_MS = 10 * 60 * 1_000
 const MARKER_KEY = 'tio2-my:thank-you:receipt:v1'
 
@@ -84,8 +86,18 @@ export function resolveMalaysiaThankYouRequest(
   return marker.request === candidates[0] ? marker.request : 'direct'
 }
 
+export function emitMalaysiaSourceSuccess(request: MalaysiaThankYouRequest): void {
+  if (typeof window === 'undefined') return
+  const current = window.__TIO2_SHARED_CONSENT__
+  if (current ? current.siteScope !== 'tio2-my' || current.analytics !== 'granted' : readMalaysiaConsentChoice() !== 'analytics_accepted') return
+  const events = {quote: 'rfq_receipt_confirmed', documents: 'documents_receipt_confirmed', sample: 'sample_receipt_confirmed'} as const
+  window.dataLayer ??= []
+  window.dataLayer.push({event: events[request], ad_personalization: 'denied'})
+}
+
 export function navigateToMalaysiaThankYou(request: MalaysiaThankYouRequest): void {
   recordMalaysiaThankYouReceipt(request)
+  emitMalaysiaSourceSuccess(request)
   // A document navigation keeps the receipt transition independent of React render/cache state.
   // eslint-disable-next-line @next/next/no-location-assign-relative-destination
   window.location.assign(`/thank-you/?request=${request}`)

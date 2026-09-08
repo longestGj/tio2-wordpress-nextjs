@@ -82,13 +82,18 @@ describe('MalaysiaHomepage', () => {
     expect(container.querySelector('a[href*="chloride-vs-sulfate"]')).toBeNull()
   })
 
-  it('marks every RFQ action with the Malaysia scope and HOME-001 source', () => {
+  it('keeps shared Chrome attribution private while retaining page-owned RFQ context', () => {
     const {container} = render(<MalaysiaHomepage homepage={homepage()} />)
     const rfqLinks = container.querySelectorAll('a[href="/request-a-quote/"]')
     expect(rfqLinks.length).toBeGreaterThanOrEqual(4)
     for (const link of rfqLinks) {
-      expect(link.getAttribute('data-site-scope')).toBe('tio2-my')
-      expect(link.getAttribute('data-source-page')).toBe('HOME-001')
+      if (link.closest('header, footer')) {
+        expect(link.getAttribute('data-site-scope')).toBeNull()
+        expect(link.getAttribute('data-source-page')).toBeNull()
+      } else {
+        expect(link.getAttribute('data-site-scope')).toBe('tio2-my')
+        expect(link.getAttribute('data-source-page')).toBe('HOME-001')
+      }
     }
     expect(container.querySelector('[data-module="page-rfq"]')?.getAttribute('data-mobile-render')).toBe('false')
   })

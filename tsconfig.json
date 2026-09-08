@@ -56,7 +56,9 @@
     ".next-five/types/**/*.ts",
     ".next-five/dev/types/**/*.ts",
     ".next-five-fixed/types/**/*.ts",
-    ".next-five-fixed/dev/types/**/*.ts"
+    ".next-five-fixed/dev/types/**/*.ts",
+    ".next-sys404-convthank-repair1/types/**/*.ts",
+    ".next-sys404-convthank-repair1/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

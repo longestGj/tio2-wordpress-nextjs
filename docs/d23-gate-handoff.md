@@ -1,88 +1,56 @@
 # D23 Gate 6→8 与 Gate 8→9 交接清单
 
-依据：用户授权的D16交接流程整理；D23当前[工作流V3.2](D:/23MySec/docs/architecture/GATE_WORKFLOW_V3.2.md)、[Gate8→Gate9机器交接合同V1.0](D:/23MySec/docs/architecture/GATE8_GATE9_EVIDENCE_HANDOFF_CONTRACT_V1.0.md)、[Evidence Manifest Schema V1.0](D:/23MySec/docs/architecture/GATE8_EVIDENCE_MANIFEST_SCHEMA_V1.0.json)、[Gate9当前基线](D:/23MySec/docs/architecture/GATE9_AGENT_SKILL_CURRENT_BASELINE_MANIFEST_V1.0.md)及Poland有效交付和验收记录。本文件明确D16如何接收、交回D23任务，不修改策划批准方式。其他策划项目可复用内容要求，但不强制采用D23编号。
+本文件是[通用开发交接清单](development-handoff.md)的D23适配。通用接单输入、业务/架构定位、条件→实现→测试映射、交付证据和返修规则必须执行；这里只维护D23接口差异。适用于采用D23流程的网站，不把Gate编号、Schema或工具强制用于其他策划项目。
 
-沿用[开发交付流程](development-workflow.md)、[任务记录](templates/development-task-record.md)、[Gate8开发任务模板](templates/d23-gate8-development-task.md)和[Poland实例](examples/poland-development-handoff.md)。以下清单放入已有交付包或主回执即可；一个权威入口可引用多个原件，无需复制正文、重新导出资产或新增一轮审批。
+来源：[工作流V3.2](D:/23MySec/docs/architecture/GATE_WORKFLOW_V3.2.md)、[Gate8→Gate9机器交接合同V1.0](D:/23MySec/docs/architecture/GATE8_GATE9_EVIDENCE_HANDOFF_CONTRACT_V1.0.md)、[Evidence Manifest Schema V1.0](D:/23MySec/docs/architecture/GATE8_EVIDENCE_MANIFEST_SCHEMA_V1.0.json)、[Gate9当前基线](D:/23MySec/docs/architecture/GATE9_AGENT_SKILL_CURRENT_BASELINE_MANIFEST_V1.0.md)。这些是现有登记来源；接单通过策划当前入口核对有效版本，不凭文件名猜测。本文不修改D23文件或批准状态。
+
+使用[通用任务模板](templates/development-task.md)和[D23 Gate8模板](templates/d23-gate8-development-task.md)组织任务，用[任务记录](templates/development-task-record.md)保存同一份实际记录。
 
 ## 1. Gate 6→Gate 8：策划交给开发
 
-发送方：D23策划总控/交付负责人。接收方：准确定位的D16开发任务。
-
-交接目的：让D16知道“按哪个批准版本，为哪个网站实现什么内容、呈现与行为，最后按什么条件验收”。Gate 6关闭与Gate 8启动授权分别核对；已有开发授权直接复用，不再次索要同一许可。
+| 通用概念 | D23映射/附加要求 |
+|---|---|
+| 批准输入 | Gate6有效批准组合、交付包、Manifest及原接受条件ID；Gate6关闭不自动授权Gate8开发 |
+| 开发任务 | 准确Gate8任务ID、交接ID、首次/返修轮次、site_scope及Page ID |
+| 交付代码身份 | APPROVED_CONTRACT / REFERENCE_IMPLEMENTATION / PROTOTYPE_ONLY；未标身份按PROTOTYPE_ONLY接收 |
+| 独立验收目标 | 准确Gate9任务及有效验收合同、Schema、冻结基线 |
+| 编号与共享问题 | 接受条件ID贯穿6→8→9，保留ROOT-*共享Finding及owner映射，不重编外部编号 |
 
 ### 交付内容与D16接收检查
 
-| 交付内容 | Gate 6应提供或引用什么 | Gate 8接收时核对什么 |
-|---|---|---|
-| 任务身份与范围 | 网站ID、页面/功能ID、语言、URL、任务范围和明确限制 | 与网站登记、现有代码及目标环境一致；不能只给页面名称 |
-| 唯一有效基线 | 当前Manifest或等价入口、交付包ID、有效批准/关闭记录、采用的版本/哈希、覆盖历史说明 | 原件可读取且组合一致。包内旧的“草稿/未授权”字样结合后续有效记录解释，不能只凭文件存在推断批准或无视后续授权 |
-| 代码身份 | 交付包中的代码、HTML、脚本或组件片段标为`APPROVED_CONTRACT`、`REFERENCE_IMPLEMENTATION`或`PROTOTYPE_ONLY` | 未标身份的代码按`PROTOTYPE_ONLY`接收；参考实现可替换，批准合同的结果必须保持 |
-| 完整内容合同 | 正文唯一编辑源、模块及顺序、必需/可选内容、字段语义、长度或格式约束、链接/动作、条件/空值/失败行为 | 足以完整表示与输出；不得只交图片让开发猜文案。无相关动态行为时明确不适用 |
-| 完整视觉与状态 | 可读设计源、原始资产和依赖、适用响应式尺寸/重排、整页及菜单/弹窗/焦点等状态、共享样式来源 | 当前共享实现与批准组合是否一致；不能只检查静态首屏或默认状态。特殊缩放/设备要求须有依据 |
-| 资产与内容权属 | 所用Logo、字体、图片/文件的准确版本、使用范围和所属网站；替换/缺失处理按需说明 | 资产可取得且允许用于该范围；生产运行不能依赖策划项目的本机路径。无页面媒体可明确说明 |
-| 路由及机器语义 | URL/canonical、Title/Description、语言、适用结构化数据及实体归属、导航归属和索引阶段要求 | 与已有URL和站点策略一致，不自行添加事实、实体或索引许可 |
-| 共享与接收方行为 | Header/Footer/Menu/Cookie等共享owner；按钮目标、表单字段/基数、预填条件、用户可见行为和既有receiver合同 | 哪些已整合、哪些需扩展；不得把Poland目的国误填为公司所在地，不自行发明query或接收规则 |
-| 依赖和开放项 | 上游页面、外部账户/数据/法律条件的当前状态、负责人、对本页的影响；允许后置的条件及依据 | 区分真实冲突与正常后续依赖；不能将尚未就绪链接隐藏、换成假目标或把外部账户未验证写成代码缺失 |
-| 可执行验收合同 | 稳定接受条件ID、应观察的结果、适用正向/负向/交互/隔离范围、失败判据及验收责任方 | 条件能转成检查；同一ID贯穿6→8→9，不在开发侧重编一套。缺少明确行为或责任的条件需澄清 |
-| 交接与授权 | 目标D16任务、请求动作、有效开发/本地数据操作等授权范围、发送依据 | 准确接收目标及实际送达；记录D16接单结果。交付或开发授权不自动覆盖真实发送、远程写入或发布 |
-
-Gate 6说明页面应管理、显示和执行的结果；WordPress post type/字段、API名称、组件路径、缓存技术选择由Gate 8核对现有系统后决定。已有有效技术合同按其范围继承，不要求策划重新设计数据库，也不允许开发改变批准语义。
+完整输入及检查直接执行[通用清单第1节](development-handoff.md#1-批准输入交给开发)。D23原批准正文、视觉、行为、技术合同和授权保持其范围；参考实现可替换但批准结果不能改变。历史“草稿/未授权”标记结合有效后续批准解释，不改写历史原件。
 
 ### Gate 8收到后必须留下的接单结果
 
-在同一任务记录写明：采用的批准组合和授权；现有能力复用/扩展/新增判断；共享差异与受影响消费者；拟定的技术映射及验收检查方式；具体缺项、影响和下一责任方。
-
-接单结果按事实表达，不增加批准关卡：
-
-- **可执行：** 身份、依据和范围清楚，相关输入可用，在已有授权内推进。
-- **部分可执行：** 某依赖或材料缺失，列出受阻条件和可继续工作；例如外部邮箱证据未齐不阻止布局开发。
-- **依赖步骤暂缓：** 缺准确网站身份、相互冲突的批准组合、核心内容/行为无法确定或相应操作未授权。只停受影响步骤，并把具体问题返回其owner。
-
-接单不是Gate 9验收，也不表示已有共享实现符合本次要求。技术映射发现必须改变批准内容或行为时返回原owner处理；普通实现选择由D16完成。
+执行[通用接单结果](development-handoff.md#接单结果)：必须定位D16业务领域、实际批准版本和相关软件架构，建立业务条件→实现位置→测试对应。另保存本节D23身份及原条件ID；可执行、部分可执行和受阻范围沿用通用定义，不增加接单审批。
 
 ## 2. Gate 8→Gate 9：开发交给独立验收
 
-发送方：D16实施负责人。接收方：D23准确定位的只读验收任务。
-
-交接目的：让D23锁定“批准包＋指定实现＋可访问运行结果”，能够独立验证，而不是只收到一句“开发完成”或一组测试计数。
+发送方为D16实施负责人，接收方为准确D23只读验收任务；完整交付内容按[通用清单第2节](development-handoff.md#2-开发交给独立验收)。
 
 ### 主回执必须覆盖的内容
 
-| 交付内容 | Gate 8应提供或引用什么 | Gate 9据此能确认什么 |
-|---|---|---|
-| 批准与任务对应 | 网站/任务身份、采用的Gate 6批准包、接受条件ID、相对批准源的明确差异 | 本次验收对象和范围，是否遗漏或擅改批准要求 |
-| 精确源码身份 | 分支、commit/ref、工作区是否有未提交内容；有则提供对应文件/差异快照和哈希；本轮改动与共享消费者 | 基础commit不能冒充全部实现；同一轮截图、代码和修复可追溯 |
-| 机器交接Manifest | `gate8_evidence_manifest.json`及其Schema验证结果；绑定implementation/evidence/Build/runtime、证据hash、回执引用和开放项 | 验收对象、证据字节、运行候选和接受条件能被预检脚本重复核对 |
-| 实际运行入口 | 可访问URL、环境类型、站点身份、Build/部署ID、核验时间、启动/访问必要说明、受限处 | 实际服务提供的版本；本地production模式不等于生产部署。入口不可用时明确相关运行验收未具备条件 |
-| 数据及技术映射 | 内容语义→WordPress记录/字段→API/查询→DTO/组件/路由；涉及的metadata、缓存、导航、表单和媒体实现位置 | 数据来自哪里、怎样进入实际页面、归属如何保证；不能只提供种子JSON或策划HTML代替实际数据链 |
-| 当前数据/配置关联 | 相关CMS记录、唯一归属/状态、响应或合同哈希；配置变量位置及必要脱敏关联，不含密钥原值 | 当前实现确实消费对应数据和配置；非空变量不能证明provider账户或收件成功 |
-| 验收条件逐项结果 | 每个适用条件的检查方法、运行时间、版本/环境、通过/失败/未验证/不适用及理由、原始证据链接 | 哪些已证明、哪些仍有缺口；开发自检是独立验收输入，不替代其结论 |
-| 视觉与交互证据 | 适用完整页面/状态原图及实际操作记录；需要时提供聚焦前后、原生缩放、布局几何 | 可读、有效、同一版本的状态证据；必须经过开发实际看图，不能只给JSON或axe结果 |
-| 数据异常及影响面回归 | 按实际改动提供scope/异常数据、缓存更新、共享消费者等必要正负向证据；临时修改与恢复结果 | 当前范围的失败处理与隔离成立；不把单页或本地矩阵扩展成全仓、生产证明 |
-| 接收证据分类 | 模拟校验/失败恢复、当前配置接线、历史或当前provider接受、实际邮箱分别说明出处与适用范围 | 不能以页面可达、模拟成功或历史收件替代当前真实接收；未经授权不新增真实提交 |
-| 恢复与回退 | 本轮临时数据恢复确认；必要的实现/内容回退定位和操作范围 | 测试没有留下损坏状态，问题可追溯恢复；回退说明不自动授权生产操作 |
-| 剩余项及交接请求 | 实现缺陷、证据缺口、跨页依赖、外部账户/收件、发布条件分别列负责人/影响；准确目标和希望复验的条件 | 可以定向接单、复验和反馈，不把所有未决项概括为“页面未完成” |
+通用证据之外，D23首次及返修交回必须提供`gate8_evidence_manifest.json`及当前Schema验证结果。Manifest至少绑定任务/交接身份、site_scope、Page ID、原接受条件ID、repository/branch/baseline/implementation/evidence HEAD、工作树检查时间、Build目录/ID、runtime身份及路径检查、证据路径与SHA-256、主回执和开放项。
+
+证据使用仓库相对路径并进入指定evidence HEAD；Git换行过滤导致工作树字节与commit blob不同的，分别记录SHA-256与blob ID。主回执每份证据单列`EVIDENCE: <repo-relative-path>`，集合与`receipt_evidence_references`完全一致。
 
 ### 交回前检查与缺项处理
 
-1. D16先核对实际预览版本、适用测试结果、截图质量及数据恢复；已知范围内的实现缺陷应先修复。确需先交局部成果时明确“部分可验”和缺失条件，不宣称全部完成。首次及返修交回均生成符合Schema的`gate8_evidence_manifest.json`，证据进入指定evidence HEAD。
-2. Gate 9所需的批准/实现身份无法锁定、指定环境不可访问或核心证据缺失时，记录其阻止的验收项目；D23仍可审阅不受影响材料，但不能签受阻项目通过。
-3. 账户/邮箱、正在开发的目标页面等外部依赖，按合同列为开放条件并交对应owner；允许后置的发布控制不自动升级为本页代码缺陷。验收整体是否关闭由D23有效规则和授权决定。
-4. 人工回执中每份证据单列`EVIDENCE: <repo-relative-path>`，引用集合与Manifest的`receipt_evidence_references`完全一致。发送前定位准确任务，发送后保留工具或人工送达依据；面板排队不等于消息送达，送达不等于接单。
-5. runtime保持到Gate9向原Gate8任务发送`GATE9_PASS_OR_RETURN_NOTICE`对应的通过、返修/补证或释放通知。收到反馈后保存Review ID、适用implementation/evidence/Build/runtime和具体结论。
+1. 先执行通用交回前检查；用D23当前工具验证Manifest并执行Gate9 runtime预检，保存机器JSON，准确区分实现、环境和证据失败。核心身份/环境/证据不足时不能签受阻条件通过。
+2. 局部可验与未关闭页面整体状态分别记录；允许后置的发布依赖不自动变成代码缺陷。Gate9整体关闭由其有效规则与授权决定。
+3. runtime的`hold_until`为`GATE9_PASS_OR_RETURN_NOTICE`，保持同一候选直到Gate9向原Gate8任务发出通过、返修/补证或明确释放通知。需更换时先交回新的implementation、evidence、Build/runtime身份及差异；无法保持时如实标为受影响条件环境失败或未验证。
+4. 实际送达规则沿用通用清单。收到反馈后保存Review ID、准确implementation/evidence/Build/runtime及结论，不能把面板排队当送达。
 
 ## 3. Gate 9退回Gate 8及最终接收
 
-退回问题至少可定位到接受条件/稳定Finding ID、实际现象、复现环境与版本、证据、期望结果和责任方。技术修复由D16执行；内容/事实/合同冲突返回原owner，不由验收侧直接改开发代码。
+通用返修、证据继承、恢复和停止规则按[通用清单第3节](development-handoff.md#3-退回接收与后续集成)执行。D23返回同时保存`RECHECK_SCOPE_STATUS`、`PAGE_GATE9_STATUS`、`INTEGRATION_STATUS`、`RELEASE_STATUS`及依据，局部复验通过不能改成页面整体通过，Gate10未授权单独保留。
 
-D16按原Finding ID回复根因、最小变更、新源码/运行身份、对应复测和共享影响面；旧证据可继承时说明版本与影响依据，已失效证据保留原件并标记替代，不重做身份未变且有依据继承的全部检查。
-
-独立接收后在当前任务入口记录“哪些条件/问题在哪个实现关闭、哪些仍开放、下一责任方”。实现问题已关闭且没有新反证时停止页面返修。Gate 9整体未关闭与Gate 10未授权仍分别保留，不能由局部接收推导发布许可。
-
-Gate9每次返回同时保存`RECHECK_SCOPE_STATUS`、`PAGE_GATE9_STATUS`、`INTEGRATION_STATUS`和`RELEASE_STATUS`。`INTEGRATION_READY`只表示实现可以进入D16本地`main`队列；实际合并严格引用[开发交付流程第6节](development-workflow.md#6-d23-gate8机器交回与本地main串行集成)的唯一当前规则，不由本清单另建一套队列。该状态不授权合并、push、部署或发布。
+`INTEGRATION_READY`仅表示具备集成资格，实际任务→develop→main按[开发流程第6节](development-workflow.md#6-分支开发机器交回与串行集成)串行处理，不在此维护第二套队列。D23外部枚举保持原合同，develop结果另记；未实际合入main并验证不能使用`INTEGRATED_LOCAL_MAIN`。资格不授予合并、push、部署或发布权限。
 
 ## 4. Poland 对应关系
 
-- Gate 6输入：原 `PL-G6-DELIVERY-01` 引用批准正文、合同和完整视觉；`PL-G9-01…12`提供接受条件，`PL-DEP-01…06`记录依赖。包文件中的历史草稿状态由后续有效Manifest/批准和用户开发授权解释，不重写历史原件。
-- Gate 8输出：最终53文件快照、新Build、CMS/API/初始HTML映射、相应测试及原图，均由[当前Poland实例](examples/poland-development-handoff.md)链接。
-- Gate 9结果：D23 `PL-G9-RECHECK-04`接收F01/F02/F03及E03采集问题；当前本地接线已验，外部接收、Applications和原发布条件按原责任继续。此例证明可以停止页面返修，同时保持Gate 9整体未关闭。
+以下是历史实例，不是当前整站状态，也不自动启动任务：
+
+- Gate6输入：`PL-G6-DELIVERY-01`引用正文/合同/完整视觉，`PL-G9-01…12`为接受条件，`PL-DEP-01…06`为依赖。
+- Gate8输出：最终53文件快照、新Build、CMS/API/初始HTML映射、测试及原图，见[Poland实例](examples/poland-development-handoff.md)。
+- Gate9结果：`PL-G9-RECHECK-04`接收F01/F02/F03及E03采集问题；该轮本地接线已验，外部接收、Applications及发布条件仍按原责任保留。它说明实现返修可以停止而页面整体仍未关闭，后续状态须查新证据。

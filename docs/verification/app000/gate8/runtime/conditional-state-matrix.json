@@ -1,0 +1,54 @@
+{
+  "recordedAt": "2026-09-08T18:24:30+08:00",
+  "sourceTest": "tests/unit/applications/malaysia-application-hub-page.test.tsx",
+  "commandEvidence": "docs/verification/app000/gate8/logs/targeted-tests.log",
+  "result": "PASS",
+  "states": [
+    {
+      "name": "full",
+      "applicationActions": 5,
+      "linkedGradeOccurrences": 30,
+      "plainGradeOccurrences": 0,
+      "sentence": "both",
+      "supportModule": true,
+      "finalRfqModule": true
+    },
+    {
+      "name": "applications-only",
+      "applicationActions": 5,
+      "linkedGradeOccurrences": 0,
+      "plainGradeOccurrences": 30,
+      "sentence": "applications-only",
+      "supportModule": true,
+      "finalRfqModule": true
+    },
+    {
+      "name": "grades-only",
+      "applicationActions": 0,
+      "linkedGradeOccurrences": 30,
+      "plainGradeOccurrences": 0,
+      "sentence": "grades-only",
+      "supportModule": true,
+      "finalRfqModule": true
+    },
+    {
+      "name": "mixed",
+      "applicationActions": 4,
+      "linkedGradeOccurrences": 29,
+      "plainGradeOccurrences": 1,
+      "sentence": "both",
+      "supportModule": true,
+      "finalRfqModule": true
+    },
+    {
+      "name": "no-destination",
+      "applicationActions": 0,
+      "linkedGradeOccurrences": 0,
+      "plainGradeOccurrences": 30,
+      "sentence": "qualification-only",
+      "supportModule": false,
+      "finalRfqModule": false
+    }
+  ],
+  "itemListRule": "Zero eligible child Application actions omits ItemList/mainEntity; one through five eligible actions produce matching cardinality."
+}

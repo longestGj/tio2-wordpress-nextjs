@@ -1,4 +1,5 @@
 import type {MalaysiaRfqValues} from './malaysia-rfq-validation'
+import {buildSubmissionEnvironment, type SubmissionEnvironment} from '@/lib/forms/submission-environment'
 
 export interface MalaysiaRfqSubmission extends MalaysiaRfqValues {
   readonly source_page_id: string | null
@@ -15,6 +16,7 @@ interface SubmitOptions {
   readonly fetcher?: typeof fetch
   readonly endpoint?: string
   readonly timeoutMs?: number
+  readonly environment?: SubmissionEnvironment
 }
 
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
@@ -24,6 +26,30 @@ export async function submitMalaysiaRfq(
   submission: MalaysiaRfqSubmission,
   options: SubmitOptions,
 ): Promise<MalaysiaRfqReceiverResult> {
+  if (typeof window !== 'undefined') {
+    try {
+      const privateResponse = await fetch('/api/tio2-my/rfq-private-submit', {
+        method: 'POST',
+        headers: {'content-type': 'application/json', accept: 'application/json'},
+        credentials: 'same-origin',
+        body: JSON.stringify(Object.fromEntries(
+          Object.entries(submission).filter(([key]) => key !== 'source_page_id' && key !== 'interest'),
+        )),
+      })
+      if (privateResponse.status !== 204) {
+        if (privateResponse.status !== 200 || !privateResponse.headers.get('content-type')?.includes('application/json')) {
+          return {kind: 'submission_unconfirmed'}
+        }
+        const privateResult = await privateResponse.json() as {readonly kind?: unknown}
+        if (privateResult.kind === 'receipt_confirmed' || privateResult.kind === 'submission_unconfirmed' || privateResult.kind === 'service_unavailable') {
+          return {kind: privateResult.kind}
+        }
+        return {kind: 'submission_unconfirmed'}
+      }
+    } catch {
+      // Preserve the existing direct receiver path when the optional private handoff is unavailable.
+    }
+  }
   if (!options.accessKey?.trim()) return {kind: 'service_unavailable'}
   const fetcher = options.fetcher ?? fetch
   const endpoint = options.endpoint ?? WEB3FORMS_ENDPOINT
@@ -32,9 +58,14 @@ export async function submitMalaysiaRfq(
     : MALAYSIA_RFQ_SUBMISSION_TIMEOUT_MS
   const controller = new AbortController()
   const requestToken = globalThis.crypto?.randomUUID?.() ?? `rfq-${Date.now()}`
+  const submissionEnvironment = buildSubmissionEnvironment(
+    options.environment ?? undefined,
+    requestToken,
+    'TiO2 Malaysia quotation request',
+  )
   const payload = {
     access_key: options.accessKey,
-    subject: 'TiO2 Malaysia quotation request',
+    subject: submissionEnvironment.subject,
     from_name: 'TiO2 Malaysia RFQ',
     email: submission.business_email,
     site_scope: 'tio2-my',
@@ -42,6 +73,7 @@ export async function submitMalaysiaRfq(
     workflow_type: 'rfq',
     locale: 'en',
     request_token: requestToken,
+    ...submissionEnvironment.fields,
     grade_id: submission.grade_id,
     application_id: submission.application_id,
     quantity_mt: submission.quantity_mt,

@@ -20,7 +20,8 @@ describe('CONV-RFQ route', () => {
   it('server-renders a static empty shell, one graph and unchanged sibling routes', async () => {
     const route = await import('@/app/request-a-quote/page')
     const markup = renderToStaticMarkup(await route.default())
-    expect(markup).toContain('data-site-scope="tio2-my"')
+    expect(markup).not.toMatch(/data-site-scope|data-page-id|data-source-page/u)
+    expect(markup).not.toMatch(/APP-000|GLOBAL-CHROME-005|targetPageId|sourcePageId/u)
     expect(markup).not.toContain('value="M-2377" selected=""')
     expect(markup).not.toContain('Sulfate')
     expect(markup).toContain('href="/request-sample/"')

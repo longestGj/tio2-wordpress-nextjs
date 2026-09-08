@@ -2,6 +2,7 @@
 
 import {useEffect, useMemo, useRef, useState} from 'react'
 
+import {resolveSubmissionEnvironment} from '@/lib/forms/submission-environment'
 import {
   normalizeMalaysiaRequestDocumentsMarketId,
   normalizeMalaysiaRequestDocumentsSourcePageId,
@@ -56,6 +57,8 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
   const summaryRef = useRef<HTMLDivElement>(null)
   const stateRef = useRef<HTMLDivElement>(null)
   const requestTokenRef = useRef<string | null>(null)
+  const transitionStartedRef = useRef(false)
+  const completedRef = useRef(false)
   const pendingRef = useRef(false)
   const isReachContext = values.document_types.includes('other') && values.additional_requirements.trim() === 'REACH documentation'
 
@@ -109,7 +112,8 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
   }
 
   async function performSubmission() {
-    if (pendingRef.current) return
+    if (pendingRef.current || transitionStartedRef.current) return
+    if (completedRef.current) {try {navigateToMalaysiaThankYou('documents'); transitionStartedRef.current = true} catch {setState('failure')} return}
     setErrors({})
     setState('submitting')
     pendingRef.current = true
@@ -123,9 +127,11 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
           applicationIndustry: values.application_industry,
         }),
         marketId: normalizeMalaysiaRequestDocumentsMarketId(prefill.marketId),
+        environment: resolveSubmissionEnvironment(process.env.NEXT_PUBLIC_TIO2_RUNTIME_ENVIRONMENT),
       })
       if (result.kind === 'receipt_confirmed') {
-        navigateToMalaysiaThankYou('documents')
+        completedRef.current = true
+        navigateToMalaysiaThankYou('documents'); transitionStartedRef.current = true
       } else if (result.kind === 'validation_failed' && Object.keys(result.errors).length) {
         setErrors(result.errors)
         setState('ready')
@@ -143,7 +149,8 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (pendingRef.current) return
+    if (pendingRef.current || transitionStartedRef.current) return
+    if (completedRef.current) {try {navigateToMalaysiaThankYou('documents'); transitionStartedRef.current = true} catch {setState('failure')} return}
     const validation = validateMalaysiaRequestDocumentsValues(values)
     if (!validation.valid) {
       setErrors(validation.errors)

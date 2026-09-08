@@ -1,6 +1,7 @@
 'use client'
 
 import {useEffect,useRef,useState} from 'react'
+import {resolveSubmissionEnvironment} from '@/lib/forms/submission-environment'
 import type {MalaysiaSamplePrefill} from '@/lib/request-sample/malaysia-request-sample-prefill'
 import {submitMalaysiaSampleRequest} from '@/lib/request-sample/malaysia-request-sample-receiver'
 import {emptyMalaysiaSampleRequestValues,validateMalaysiaSampleRequest,type MalaysiaSampleRequestErrors,type MalaysiaSampleRequestValues} from '@/lib/request-sample/malaysia-request-sample-validation'
@@ -26,7 +27,7 @@ export function MalaysiaRequestSampleForm({page,prefill,receiverReady}:Props){
   const [context,setContext]=useState({source_page_id:prefill.source_page_id,market_id:prefill.market_id,process_context:prefill.process_context,resource_context:prefill.resource_context})
   const [visible,setVisible]=useState({grade:Boolean(prefill.grade_id),application:Boolean(prefill.application_id),destination:Boolean(prefill.destination),documents:Boolean(prefill.documents_needed?.length),process:Boolean(prefill.process_context),resource:Boolean(prefill.resource_context)})
   const [errors,setErrors]=useState<MalaysiaSampleRequestErrors>({});const [state,setState]=useState<State>('ready');const [attempt,setAttempt]=useState(0)
-  const summaryRef=useRef<HTMLDivElement>(null);const stateRef=useRef<HTMLDivElement>(null);const keyRef=useRef<string|null>(null);const pendingRef=useRef(false)
+  const summaryRef=useRef<HTMLDivElement>(null);const stateRef=useRef<HTMLDivElement>(null);const keyRef=useRef<string|null>(null);const transitionStartedRef=useRef(false);const completedRef=useRef(false);const pendingRef=useRef(false)
   useEffect(()=>{if(attempt)summaryRef.current?.focus()},[attempt]);useEffect(()=>{if(['failure','unavailable'].includes(state))stateRef.current?.focus()},[state])
   const rotate=()=>{keyRef.current=null;if(state==='failure'||state==='unavailable')setState('ready')}
   const update=(field:Exclude<Field,'documents_needed'>,value:string)=>{rotate();setValues((current)=>({...current,[field]:value}));if(errors[field]||(field==='application_id'&&value!=='other'&&errors.application_other))setErrors((current)=>({...current,[field]:undefined,...(field==='application_id'&&value!=='other'?{application_other:undefined}:{})}))}
@@ -35,14 +36,14 @@ export function MalaysiaRequestSampleForm({page,prefill,receiverReady}:Props){
   const focusField=(field:Field)=>field==='documents_needed'?document.querySelector<HTMLInputElement>('#sample-documents input')?.focus():document.getElementById(`sample-${field}`)?.focus()
 
   async function performSubmission(){
-    if(pendingRef.current)return;pendingRef.current=true;setErrors({});setState('submitting')
-    try{keyRef.current??=createSampleRequestIdempotencyKey();const result=await submitMalaysiaSampleRequest(values,{accessKey:process.env.NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY??null,idempotencyKey:keyRef.current,sourceContext:context})
-      if(result.kind==='receipt_confirmed')navigateToMalaysiaThankYou('sample')
+    if(pendingRef.current||transitionStartedRef.current)return;if(completedRef.current){try{navigateToMalaysiaThankYou('sample'); transitionStartedRef.current = true}catch{setState('failure')}return};pendingRef.current=true;setErrors({});setState('submitting')
+    try{keyRef.current??=createSampleRequestIdempotencyKey();const result=await submitMalaysiaSampleRequest(values,{accessKey:process.env.NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY??null,idempotencyKey:keyRef.current,sourceContext:context,environment:resolveSubmissionEnvironment(process.env.NEXT_PUBLIC_TIO2_RUNTIME_ENVIRONMENT)})
+      if(result.kind==='receipt_confirmed'){completedRef.current=true;navigateToMalaysiaThankYou('sample'); transitionStartedRef.current = true}
       else if(result.kind==='validation_failed'&&Object.keys(result.errors).length){setErrors(result.errors);setState('ready');setAttempt((value)=>value+1)}
       else if(result.kind==='unavailable')setState('unavailable');else setState('failure')
     }catch{setState('failure')}finally{pendingRef.current=false}
   }
-  async function submit(event:React.FormEvent<HTMLFormElement>){event.preventDefault();if(pendingRef.current)return;const next=validateMalaysiaSampleRequest(values);if(Object.keys(next).length){setErrors(next);setState('ready');setAttempt((value)=>value+1);return}await performSubmission()}
+  async function submit(event:React.FormEvent<HTMLFormElement>){event.preventDefault();if(pendingRef.current||transitionStartedRef.current)return;const next=validateMalaysiaSampleRequest(values);if(Object.keys(next).length){setErrors(next);setState('ready');setAttempt((value)=>value+1);return}await performSubmission()}
   const described=(field:Field,helper=false)=>[helper?`sample-${field}-helper`:null,errors[field]?`sample-${field}-error`:null].filter(Boolean).join(' ')||undefined
   const contextVisible=Object.values(visible).some(Boolean)
 

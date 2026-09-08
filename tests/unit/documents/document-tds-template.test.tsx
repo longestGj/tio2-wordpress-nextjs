@@ -53,6 +53,6 @@ describe('DOC-TDS page template', () => {
     expect(html).not.toContain('data-related-page-id=')
     const main = html.match(/<main[\s\S]*?<\/main>/u)?.[0] ?? ''
     expect(main).not.toMatch(/href="\/contact|mailto:|tel:|request-a-quote/iu)
-    expect(html).toContain('data-source-page="DOC-TDS"')
+    expect(html).not.toContain('data-source-page="DOC-TDS"')
   })
 })

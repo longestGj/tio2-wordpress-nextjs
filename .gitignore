@@ -12,6 +12,9 @@ docker-data/
 .tmp/
 .local-evidence/
 .superpowers/
+.prerelease/
+docs/verification/prerelease/runs/
+!ops/prerelease/.env.example
 wordpress/seed/.runtime-site-a-editorial-capability-*.json
 *.log
 *.tsbuildinfo
