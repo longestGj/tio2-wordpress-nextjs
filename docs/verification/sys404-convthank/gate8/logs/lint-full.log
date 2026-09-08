@@ -1,0 +1,23 @@
+
+> lint
+> eslint .
+
+
+D:\16Wordpress_nextjs\.worktrees\sys404-convthank-gate8\components\sites\tio2-my\thank-you\malaysia-thank-you-page.tsx
+  5:1  warning  Unused eslint-disable directive (no problems were reported from '@next/next/no-html-link-for-pages')
+
+D:\16Wordpress_nextjs\.worktrees\sys404-convthank-gate8\docs\prototypes\site-a-resources\build-visual-prototype.mjs
+  165:10  warning  'renderTakeaways' is defined but never used   @typescript-eslint/no-unused-vars
+  173:10  warning  'renderComparison' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\16Wordpress_nextjs\.worktrees\sys404-convthank-gate8\tests\unit\markets\malaysia-shared-menu-modal.test.tsx
+  14:9  warning  'user' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\16Wordpress_nextjs\.worktrees\sys404-convthank-gate8\tests\unit\tio2-my-five-page-chrome.test.tsx
+  28:140  error  Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+  28:140  error  Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+  28:140  error  Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+
+✖ 7 problems (3 errors, 4 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

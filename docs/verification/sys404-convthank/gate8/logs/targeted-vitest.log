@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/sys404-convthank-gate8
+
+
+ Test Files  9 passed (9)
+      Tests  56 passed (56)
+   Start at  17:17:10
+   Duration  10.15s (transform 940ms, setup 1.34s, import 2.09s, tests 19.77s, environment 2.22s)
+

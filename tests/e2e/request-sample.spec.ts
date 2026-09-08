@@ -16,7 +16,7 @@ const contract = JSON.parse(
   }
 }
 const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://localhost:3004'
-const evidence = resolve('docs/verification/conv-sample')
+const evidence = resolve(process.env.POLAND_EVIDENCE_DIR ?? 'docs/verification/conv-sample')
 mkdirSync(evidence, {recursive: true})
 const prefill = '?source_page_id=GRADE-M2377&grade_id=M-2377&application_id=coatings&process_context=sulfate&destination=United%20Kingdom&document_needs[]=tds'
 
@@ -172,6 +172,10 @@ test('CONV-SAMPLE retains values and token across direct retry, then confirms on
   await expect(page.getByRole('button', {name: 'Sending your request…'})).toBeDisabled()
   await expect(page).toHaveURL(/\/thank-you\/?\?request=sample$/u)
   await expect(page.getByRole('heading', {name: 'Thank you. We’ve received your sample request.'})).toBeVisible()
+  expect(await page.content()).not.toContain('amina@example.com')
+  expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem('tio2-my:thank-you:receipt:v1') ?? '{}'))).toMatchObject({
+    version: 1, request: 'sample',
+  })
   expect(tokens).toHaveLength(2)
   expect(tokens[1]).toBe(tokens[0])
   await page.screenshot({path: resolve(evidence, 'conv-sample-success.png'), fullPage: true, animations: 'disabled'})

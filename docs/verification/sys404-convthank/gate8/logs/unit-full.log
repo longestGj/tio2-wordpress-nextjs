@@ -1,0 +1,34 @@
+
+> test
+> vitest run
+
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/sys404-convthank-gate8
+
+ ❯ tests/unit/editorial/five-core-review.test.ts (16 tests | 1 failed | 1 skipped) 653ms
+     × binds the separate alternatives evidence artifact to its unchanged local bytes 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/editorial/five-core-review.test.ts > independent five-page common-core review > binds the separate alternatives evidence artifact to its unchanged local bytes
+AssertionError: expected '90194de968291490b140a7ef83f23886d68c3…' to be '3b0559416055d44ea15dbf0bea8db5b911e44…' // Object.is equality
+
+Expected: "3b0559416055d44ea15dbf0bea8db5b911e44767eaa0e0d1373e7a5fe895b8e1"
+Received: "90194de968291490b140a7ef83f23886d68c39969916fa10a1a44337e3748d47"
+
+ ❯ tests/unit/editorial/five-core-review.test.ts:60:103
+     58|  })
+     59|  it('binds the separate alternatives evidence artifact to its unchange…
+     60|   expect(createHash('sha256').update(readFileSync(alternatives.evidenc…
+       |                                                                                                       ^
+     61|   expect(alternatives.pages.map(page=>page.pageId)).toEqual(['RES-R706…
+     62|   expect(trade.pages.map(page=>page.pageId)).toEqual(['RES-TRADE-EU','…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 324 passed | 20 skipped (345)
+      Tests  1 failed | 2758 passed | 50 skipped (2809)
+   Start at  17:12:10
+   Duration  132.67s (transform 11.41s, setup 49.86s, import 66.71s, tests 312.87s, environment 25.86s)
+

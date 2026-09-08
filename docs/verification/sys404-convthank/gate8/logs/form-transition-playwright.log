@@ -1,0 +1,12 @@
+
+Running 3 tests using 1 worker
+
+(node:28024) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\request-documents.spec.ts:96:1 › CONV-DOC validation, failure retention, retry token and explicit receipt (2.7s)
+  ok 2 [chromium] › tests\e2e\rfq-page.spec.ts:120:1 › CONV-RFQ validates, retains values, and confirms only a positive JSON acknowledgement (1.2s)
+(node:54240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 3 [chromium] › tests\e2e\request-sample.spec.ts:139:1 › CONV-SAMPLE retains values and token across direct retry, then confirms only explicit receipt (1.4s)
+
+  3 passed (6.7s)

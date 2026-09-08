@@ -1,0 +1,174 @@
+{
+  "capturedAt": "2026-09-08T09:23:03.123Z",
+  "baseUrl": "http://127.0.0.1:4381",
+  "mode": "read-only local production runtime; no external submission",
+  "observations": [
+    {
+      "path": "/gate8-unmatched-root/?email=sentinel%40example.com#private",
+      "finalUrl": "http://127.0.0.1:4381/gate8-unmatched-root?email=sentinel%40example.com",
+      "status": 404,
+      "bytes": 13044,
+      "pageId": null,
+      "title": "Page Not Found | TiO2 Malaysia",
+      "robots": [
+        "noindex",
+        "noindex, follow"
+      ],
+      "canonical": null,
+      "containsReceipt": false,
+      "containsSentinel": true,
+      "containsThankYouInSitemap": null
+    },
+    {
+      "path": "/gate8/unmatched/nested/",
+      "finalUrl": "http://127.0.0.1:4381/gate8/unmatched/nested",
+      "status": 404,
+      "bytes": 12953,
+      "pageId": null,
+      "title": "Page Not Found | TiO2 Malaysia",
+      "robots": [
+        "noindex",
+        "noindex, follow"
+      ],
+      "canonical": null,
+      "containsReceipt": false,
+      "containsSentinel": false,
+      "containsThankYouInSitemap": null
+    },
+    {
+      "path": "/gate8-unmatched-root/",
+      "finalUrl": "http://127.0.0.1:4381/gate8-unmatched-root",
+      "status": 404,
+      "bytes": 12941,
+      "pageId": null,
+      "title": "Page Not Found | TiO2 Malaysia",
+      "robots": [
+        "noindex",
+        "noindex, follow"
+      ],
+      "canonical": null,
+      "containsReceipt": false,
+      "containsSentinel": false,
+      "containsThankYouInSitemap": null
+    },
+    {
+      "path": "/products/",
+      "finalUrl": "http://127.0.0.1:4381/products",
+      "status": 200,
+      "bytes": 67767,
+      "pageId": null,
+      "title": "Titanium Dioxide Pigment Grades | TiO2 Malaysia",
+      "robots": [
+        "noindex, nofollow"
+      ],
+      "canonical": "https://tio2malaysia.com/products/",
+      "containsReceipt": false,
+      "containsSentinel": false,
+      "containsThankYouInSitemap": null
+    },
+    {
+      "path": "/",
+      "finalUrl": "http://127.0.0.1:4381/",
+      "status": 200,
+      "bytes": 61023,
+      "pageId": null,
+      "title": "Malaysia Titanium Dioxide Supplier | TiO₂ Malaysia",
+      "robots": [
+        "noindex, nofollow"
+      ],
+      "canonical": "https://tio2malaysia.com",
+      "containsReceipt": false,
+      "containsSentinel": false,
+      "containsThankYouInSitemap": null
+    },
+    {
+      "path": "/request-documents/",
+      "finalUrl": "http://127.0.0.1:4381/request-documents/",
+      "status": 200,
+      "bytes": 34524,
+      "pageId": "CONV-DOC",
+      "title": "Request Documents | TiO2 Malaysia",
+      "robots": [
+        "noindex, nofollow"
+      ],
+      "canonical": "https://tio2malaysia.com/request-documents/",
+      "containsReceipt": false,
+      "containsSentinel": false,
+      "containsThankYouInSitemap": null
+    },
+    {
+      "path": "/contact/",
+      "finalUrl": "http://127.0.0.1:4381/contact",
+      "status": 404,
+      "bytes": 12915,
+      "pageId": null,
+      "title": "Page Not Found | TiO2 Malaysia",
+      "robots": [
+        "noindex",
+        "noindex, follow"
+      ],
+      "canonical": null,
+      "containsReceipt": false,
+      "containsSentinel": false,
+      "containsThankYouInSitemap": null
+    },
+    {
+      "path": "/request-a-quote/",
+      "finalUrl": "http://127.0.0.1:4381/request-a-quote",
+      "status": 200,
+      "bytes": 34500,
+      "pageId": "CONV-RFQ",
+      "title": "Request a Titanium Dioxide Quote | TiO2 Malaysia",
+      "robots": [
+        "noindex, nofollow"
+      ],
+      "canonical": "https://tio2malaysia.com/request-a-quote/",
+      "containsReceipt": false,
+      "containsSentinel": false,
+      "containsThankYouInSitemap": null
+    },
+    {
+      "path": "/thank-you/",
+      "finalUrl": "http://127.0.0.1:4381/thank-you",
+      "status": 200,
+      "bytes": 13697,
+      "pageId": "CONV-THANK",
+      "title": "Thank You | TiO2 Malaysia",
+      "robots": [
+        "noindex, nofollow"
+      ],
+      "canonical": "https://tio2malaysia.com/thank-you/",
+      "containsReceipt": false,
+      "containsSentinel": false,
+      "containsThankYouInSitemap": null
+    },
+    {
+      "path": "/thank-you/?request=quote",
+      "finalUrl": "http://127.0.0.1:4381/thank-you?request=quote",
+      "status": 200,
+      "bytes": 13757,
+      "pageId": "CONV-THANK",
+      "title": "Thank You | TiO2 Malaysia",
+      "robots": [
+        "noindex, nofollow"
+      ],
+      "canonical": "https://tio2malaysia.com/thank-you/",
+      "containsReceipt": false,
+      "containsSentinel": false,
+      "containsThankYouInSitemap": null
+    },
+    {
+      "path": "/sitemap.xml",
+      "finalUrl": "http://127.0.0.1:4381/sitemap.xml",
+      "status": 200,
+      "bytes": 204,
+      "pageId": null,
+      "title": null,
+      "robots": [],
+      "canonical": null,
+      "containsReceipt": false,
+      "containsSentinel": false,
+      "containsThankYouInSitemap": false
+    }
+  ]
+}
