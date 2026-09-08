@@ -56,10 +56,22 @@ describe.runIf(process.platform === 'win32')('prerelease runtime identity', () =
     ['reachable', {reachable: false}],
   ])('marks a %s mismatch unhealthy', (_name, override) => {
     const manifest = {state: 'HEALTHY', commit: 'a'.repeat(40), buildId: 'build-1', siteId: 'tio2-my', cmsIdentitySha256: 'b'.repeat(64)}
-    const live = {reachable: true, buildId: 'build-1', siteId: 'tio2-my', cmsIdentitySha256: 'b'.repeat(64), ...override}
+    const live = {
+      reachable: true,
+      containersHealthy: true,
+      cmsIdentityRefreshed: true,
+      httpMarkersValid: true,
+      buildId: 'build-1',
+      siteId: 'tio2-my',
+      sourceCommit: manifest.commit,
+      runId: 'run-1',
+      cmsIdentitySha256: 'b'.repeat(64),
+      ...override,
+    }
+    const runManifest = {...manifest, runId: 'run-1'}
     const command = [
       `Import-Module ${psQuote(modulePath)} -Force`,
-      `$manifest=${psQuote(JSON.stringify(manifest))}|ConvertFrom-Json`,
+      `$manifest=${psQuote(JSON.stringify(runManifest))}|ConvertFrom-Json`,
       `$live=${psQuote(JSON.stringify(live))}|ConvertFrom-Json`,
       '$result=Get-PrereleaseRuntimeStatus -RunManifest $manifest -CurrentMainCommit $manifest.commit -LiveIdentity $live',
       '$result|ConvertTo-Json -Compress',
@@ -68,8 +80,8 @@ describe.runIf(process.platform === 'win32')('prerelease runtime identity', () =
   })
 
   it('reports a matching runtime as healthy and a moved main as stale without stopping it', () => {
-    const manifest = {state: 'HEALTHY', commit: 'a'.repeat(40), buildId: 'build-1', siteId: 'tio2-my', cmsIdentitySha256: 'b'.repeat(64)}
-    const live = {reachable: true, buildId: 'build-1', siteId: 'tio2-my', cmsIdentitySha256: 'b'.repeat(64)}
+    const manifest = {state: 'HEALTHY', runId: 'run-1', commit: 'a'.repeat(40), buildId: 'build-1', siteId: 'tio2-my', cmsIdentitySha256: 'b'.repeat(64)}
+    const live = {reachable: true, containersHealthy: true, cmsIdentityRefreshed: true, httpMarkersValid: true, buildId: 'build-1', siteId: 'tio2-my', sourceCommit: manifest.commit, runId: manifest.runId, cmsIdentitySha256: 'b'.repeat(64)}
     const command = [
       `Import-Module ${psQuote(modulePath)} -Force`,
       `$manifest=${psQuote(JSON.stringify(manifest))}|ConvertFrom-Json`,
@@ -81,6 +93,79 @@ describe.runIf(process.platform === 'win32')('prerelease runtime identity', () =
     expect(JSON.parse(invokePowerShell(command))).toMatchObject({
       healthy: {state: 'HEALTHY', runtimePreserved: true},
       stale: {state: 'STALE_MAIN', runtimePreserved: true},
+    })
+  })
+
+  it.each([
+    ['sourceCommit', {sourceCommit: null}],
+    ['runId', {runId: null}],
+    ['containersHealthy', {containersHealthy: false}],
+    ['cmsIdentityRefreshed', {cmsIdentityRefreshed: false}],
+    ['httpMarkersValid', {httpMarkersValid: false}],
+  ])('fails closed when %s is missing or false', (_name, override) => {
+    const manifest = {state: 'HEALTHY', runId: 'run-1', commit: 'a'.repeat(40), buildId: 'build-1', siteId: 'tio2-my', cmsIdentitySha256: 'b'.repeat(64)}
+    const live = {
+      reachable: true,
+      containersHealthy: true,
+      cmsIdentityRefreshed: true,
+      httpMarkersValid: true,
+      buildId: 'build-1',
+      siteId: 'tio2-my',
+      sourceCommit: manifest.commit,
+      runId: manifest.runId,
+      cmsIdentitySha256: manifest.cmsIdentitySha256,
+      ...override,
+    }
+    const command = [
+      `Import-Module ${psQuote(modulePath)} -Force`,
+      `$manifest=${psQuote(JSON.stringify(manifest))}|ConvertFrom-Json`,
+      `$live=${psQuote(JSON.stringify(live))}|ConvertFrom-Json`,
+      '$result=Get-PrereleaseRuntimeStatus -RunManifest $manifest -CurrentMainCommit $manifest.commit -LiveIdentity $live',
+      '$result|ConvertTo-Json -Compress',
+    ].join('; ')
+    expect(JSON.parse(invokePowerShell(command))).toMatchObject({state: 'UNHEALTHY'})
+  })
+
+  it('requires site, page and robots markers in prerelease HTML', () => {
+    const good = '<html data-site-scope="tio2-my"><head><meta name="robots" content="noindex, nofollow"></head><body data-page-id="CONV-RFQ"></body></html>'
+    const wrongSite = good.replace('tio2-my', 'tio2-a')
+    const missingNoFollow = good.replace('noindex, nofollow', 'noindex')
+    const command = [
+      `Import-Module ${psQuote(modulePath)} -Force`,
+      `$good=Test-PrereleaseHtmlIdentity -Html ${psQuote(good)} -ExpectedPageId 'CONV-RFQ'`,
+      `$wrongSite=Test-PrereleaseHtmlIdentity -Html ${psQuote(wrongSite)} -ExpectedPageId 'CONV-RFQ'`,
+      `$missingNoFollow=Test-PrereleaseHtmlIdentity -Html ${psQuote(missingNoFollow)} -ExpectedPageId 'CONV-RFQ'`,
+      '[pscustomobject]@{good=$good;wrongSite=$wrongSite;missingNoFollow=$missingNoFollow}|ConvertTo-Json -Depth 5 -Compress',
+    ].join('; ')
+    expect(JSON.parse(invokePowerShell(command))).toMatchObject({
+      good: {valid: true},
+      wrongSite: {valid: false},
+      missingNoFollow: {valid: false},
+    })
+  })
+
+  it('requires the exact db, wordpress and web containers to be running and healthy', () => {
+    const healthy = [
+      {Service: 'db', State: 'running', Health: 'healthy'},
+      {Service: 'wordpress', State: 'running', Health: 'healthy'},
+      {Service: 'web', State: 'running', Health: 'healthy'},
+    ]
+    const unhealthy = healthy.map((item) => item.Service === 'wordpress' ? {...item, Health: 'unhealthy'} : item)
+    const missing = healthy.filter((item) => item.Service !== 'web')
+    const command = [
+      `Import-Module ${psQuote(modulePath)} -Force`,
+      `$healthy=${psQuote(JSON.stringify(healthy))}|ConvertFrom-Json`,
+      `$unhealthy=${psQuote(JSON.stringify(unhealthy))}|ConvertFrom-Json`,
+      `$missing=${psQuote(JSON.stringify(missing))}|ConvertFrom-Json`,
+      '$a=Test-PrereleaseContainerHealth -Records @($healthy)',
+      '$b=Test-PrereleaseContainerHealth -Records @($unhealthy)',
+      '$c=Test-PrereleaseContainerHealth -Records @($missing)',
+      '[pscustomobject]@{healthy=$a;unhealthy=$b;missing=$c}|ConvertTo-Json -Depth 5 -Compress',
+    ].join('; ')
+    expect(JSON.parse(invokePowerShell(command))).toMatchObject({
+      healthy: {healthy: true, reasons: []},
+      unhealthy: {healthy: false},
+      missing: {healthy: false},
     })
   })
 

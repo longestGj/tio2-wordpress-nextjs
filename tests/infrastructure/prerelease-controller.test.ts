@@ -1,5 +1,5 @@
 import {execFileSync, spawnSync} from 'node:child_process'
-import {mkdtempSync, rmSync, writeFileSync} from 'node:fs'
+import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join, resolve} from 'node:path'
 import {afterEach, describe, expect, it} from 'vitest'
@@ -136,5 +136,22 @@ describe.runIf(process.platform === 'win32')('local prerelease controller', () =
     expect(`${result.stdout}\n${result.stderr}`).toContain('WORDPRESS_DB_PASSWORD')
     expect(`${result.stdout}\n${result.stderr}`).not.toContain('root-secret')
     expect(`${result.stdout}\n${result.stderr}`).not.toContain('receiver-key')
+  })
+
+  it('resets only CMS data volumes, removes attached containers and starts a fresh run', () => {
+    const source = readFileSync(controller, 'utf8')
+    const resetBlock = source.slice(source.indexOf("'ResetData' {"), source.indexOf("{ $_ -in @('Test', 'TestLiveForms') }"))
+    expect(resetBlock).toContain("@('prerelease_db', 'prerelease_wp')")
+    expect(resetBlock).not.toContain('prerelease_npm_cache')
+    expect(resetBlock).toMatch(/@\('rm', '--force', '--stop', 'web', 'wordpress', 'db'\)[\s\S]*volume', 'rm'/u)
+    expect(resetBlock).toContain("-Action', 'Start'")
+    expect(resetBlock).toContain('oldCmsIdentitySha256')
+    expect(resetBlock).toContain('newCmsIdentitySha256')
+  })
+
+  it('stops a newly attempted web service when startup fails', () => {
+    const source = readFileSync(controller, 'utf8')
+    expect(source).toContain('$webStartAttempted = $true')
+    expect(source).toMatch(/catch \{[\s\S]*webStartAttempted[\s\S]*@\('stop', 'web'\)/u)
   })
 })

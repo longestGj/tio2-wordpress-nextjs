@@ -43,7 +43,7 @@ const representativeRoutes = [
   {path: '/products/', pageId: null},
   {path: '/products/m-350/', pageId: null},
   {path: '/resources/', pageId: null},
-  {path: '/resources/process-comparison/', pageId: null},
+  {path: '/resources/chloride-vs-sulfate-titanium-dioxide/', pageId: null},
   {path: '/request-a-quote/', pageId: 'CONV-RFQ'},
   {path: '/request-sample/', pageId: 'CONV-SAMPLE'},
   {path: '/request-documents/', pageId: 'CONV-DOC'},

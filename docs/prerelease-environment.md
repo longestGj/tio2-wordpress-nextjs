@@ -33,7 +33,7 @@ npm run prerelease:reset
 
 `start`先核对当前分支为`main`且工作树干净，再通过`git archive <full-commit>`创建冻结源码。它启动CMS、校验所有seed哈希、只应用未记录的匹配seed、构建Next.js、启动Web，并执行两轮只读HTTP检查。操作锁位于`.prerelease/operation.lock`。
 
-`status`不输出环境变量或密钥。主要状态如下：
+`status`不输出环境变量或密钥。它读取精确Compose项目的`db`、`wordpress`和`web`实时健康状态，通过临时只读WP-CLI运行重新校验站点记录并生成CMS身份，再核对Web身份接口；保存的旧身份文件本身不能构成`HEALTHY`。主要状态如下：
 
 | 状态 | 含义 |
 |---|---|
@@ -44,7 +44,7 @@ npm run prerelease:reset
 
 `test`仅运行`tests/e2e/prerelease-smoke.spec.ts`。测试拦截所有非GET请求，验证代表性页面、CMS页面身份、导航、canonical/robots、Cookie Settings、三张表单的本地验证、键盘流程、1440/768/390布局、横向溢出和Chromium 200%页面缩放。结果必须记录`externalPostCount: 0`。
 
-`stop`只停止此Compose项目并保留数据及运行证据。`reset`要求服务已停止，只删除该项目实际拥有的volume；旧运行证据仍保留。
+`stop`只停止此Compose项目并保留数据及运行证据。`reset`要求服务已停止，先移除仍挂载volume的本项目容器，仅删除`d16-tio2-my-prerelease_prerelease_db`和`d16-tio2-my-prerelease_prerelease_wp`，保留npm缓存和旧运行证据，然后自动执行一次完整`start`。新运行目录的`reset-receipt.json`记录删除的精确volume名称以及重置前后的run ID和CMS身份哈希。
 
 ## 显式真实表单测试
 
