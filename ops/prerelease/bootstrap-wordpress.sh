@@ -143,6 +143,8 @@ while IFS=$'\t' read -r seed_path seed_hash; do
 done < "$verified"
 
 wp eval-file /workspace/wordpress/bootstrap/validate-prerelease-site.php > /run-state/site-validation.json
-wp option update d16_prerelease_seed_input_sha256 "$input_hash" --autoload=no >/dev/null
+if [[ "$previous_input_hash" != "$input_hash" ]]; then
+  wp option update d16_prerelease_seed_input_sha256 "$input_hash" --autoload=no >/dev/null
+fi
 printf '%s\n' "$input_hash" > /run-state/seed-input-sha256.txt
 bash /workspace/ops/prerelease/collect-cms-identity.sh

@@ -24,3 +24,11 @@ it('invalidates seed reuse when its external contract changes while the seed scr
     expect(script).toContain('"$previous_input_hash" == "$input_hash"')
   } finally {rmSync(root,{recursive:true,force:true})}
 })
+
+it('does not fail a repeated start when WP-CLI rejects an unchanged option update', () => {
+  const script=readFileSync('ops/prerelease/bootstrap-wordpress.sh','utf8').replaceAll('\r\n','\n')
+  const update=script.split('> /run-state/site-validation.json\n')[1].split('printf')[0]
+  const bash=process.platform==='win32'?'C:/Program Files/Git/bin/bash.exe':'bash'
+  const output=execFileSync(bash,['-c',`set -e\nprevious_input_hash=unchanged\ninput_hash=unchanged\nwp() { return 1; }\n${update}\necho retained`],{encoding:'utf8'})
+  expect(output.trim()).toBe('retained')
+})
