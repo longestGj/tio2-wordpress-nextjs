@@ -4,6 +4,11 @@ const MALAYSIA_TRAILING_SLASH_PATHS = new Set([
   '/markets',
   '/markets/european-union',
   '/markets/united-kingdom',
+  '/markets/poland',
+  '/markets/brazil',
+  '/pt-br/markets/brazil',
+  '/products/chloride-process-titanium-dioxide',
+  '/documents/certificate-of-origin',
   '/request-documents',
 ])
 

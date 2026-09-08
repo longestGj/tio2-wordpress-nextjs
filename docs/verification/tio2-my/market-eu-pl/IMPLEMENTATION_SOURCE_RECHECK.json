@@ -1,0 +1,113 @@
+{
+  "files": [
+    {
+      "role": "package",
+      "sha256": "18f1f5f2fe1b30a5233b8be3836de6d9c94e70a298dbebe14f5089f065063fdc",
+      "match": true,
+      "path": "D:\\23MySec\\pages\\markets\\poland\\06_handoff\\MARKET-EU-PL_GATE6_HANDOFF_PACKAGE_V0.1.md"
+    },
+    {
+      "role": "copy",
+      "sha256": "ef55a67fa56ecf7fc84072bc1b8f8cf3b62846a0f53b4b7dbe504887a36e15aa",
+      "match": true,
+      "path": "D:\\23MySec\\pages\\markets\\poland\\04_planning\\MARKET-EU-PL_GATE2_FULL_BUYER_CLEAN_COPY_V0.2.md"
+    },
+    {
+      "role": "behavior",
+      "sha256": "77976a11a1792b425d2303c8b0fedbaa22bc05a45c9f8a5026acf8fa83110b30",
+      "match": true,
+      "path": "D:\\23MySec\\pages\\markets\\poland\\04_planning\\MARKET-EU-PL_GATE2_CONTENT_CONTRACT_V0.4.md"
+    },
+    {
+      "role": "visualSource",
+      "sha256": "d470aea165d457d5a7a264c10606f5d77446903abc88f923d7a4b759405a5944",
+      "match": true,
+      "path": "D:\\23MySec\\pages\\markets\\poland\\04_planning\\gate5-v0.1\\source\\MARKET-EU-PL_GATE5_FULL_VISUAL_V0.1.html"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "d95bba7edb4fb7574110b52a5d9f3c6f3dec8b2abe044a354241b9f6139f4630",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/full-page-1440.png"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "89960b0105fa7d94417d2eda4648d5c5535f6659c5093124a725a972f5f1b079",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/hero-primary-focus-1440.png"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "039cafcd1e82eb44f49db41d1de442b9cb65660a4d50abd16f66dc693d541065",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/documents-support-hover-1440.png"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "87e952e0d6ed91ba8581ec797c16da3364d7b87b56956e17b6b81dd1888bd890",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/cookie-settings-focus-1440.png"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "af8cfd260dc460632c18b2ad6a990e2b94ea2c27d6b73b409600f9c68ceef792",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/full-page-768.png"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "71623c9448f874b1a618ebe8c6ecc85675d54bc108049302e3cc82e0d55f1e61",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/hero-primary-focus-768.png"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "ad9f0a1536463a4e6bb20f323dfa5947f1feb5ef6ae3c02ec03f3fd8ee340d3d",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/documents-support-hover-768.png"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "f441642a6097a7b35c574f5ab045fc7cabd3afc2297c3e0b7b953b5557029b38",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/menu-open-focus-768.png"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "07ce5d203e82b573ec6b5b2ff17dd7617986d4b3ec34d0d4df43dc7b5d20cba4",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/cookie-settings-focus-768.png"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "1ed0be2db19a49be3dc469f9d99d00ce9033bed780ad8b40ffd1cb2fe5186a85",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/full-page-390-logical-at2x.png"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "9f11821710cd4cc92d17ff19ff24fc89a33ee9a33f0b7c312f2827c69608153c",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/hero-primary-focus-390-logical-at2x.png"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "549d704288bb9c92950a9ed3d4e3c1881bdca6f48337804754ee1a17c731a962",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/documents-support-hover-390-logical-at2x.png"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "d47f29b567fd1759f91ca8e18b909ddbd3479403d133f2b7b810964b6246453e",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/menu-open-focus-390-logical-at2x.png"
+    },
+    {
+      "role": "approved-png",
+      "sha256": "e65c588b16bfd82d84be3412c3a5d1628bf43c72b48aba6673e2d76022fcd0e6",
+      "match": true,
+      "path": "D:/23MySec/pages/markets/poland/04_planning/gate5-v0.1/approval_core/cookie-settings-focus-390-logical-at2x.png"
+    }
+  ],
+  "checkedAt": "2026-09-07T06:41:07.2480190Z"
+}

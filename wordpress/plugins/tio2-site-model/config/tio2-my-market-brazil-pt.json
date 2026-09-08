@@ -1,0 +1,133 @@
+{
+  "identity": {
+    "pageId": "MARKET-BR-PT",
+    "siteScope": "tio2-my",
+    "locale": "pt-BR",
+    "path": "/pt-br/markets/brazil/",
+    "schemaVersion": "market-brazil-pt-v0.2"
+  },
+  "seo": {
+    "title": "Fornecedor de dióxido de titânio para o Brasil | TiO2 Malaysia",
+    "description": "Dióxido de titânio originário da Malásia para compradores no Brasil. Conheça grades para tintas, plásticos e masterbatch. Solicite documentos ou uma cotação.",
+    "canonical": "https://tio2malaysia.com/pt-br/markets/brazil/"
+  },
+  "languageNotice": "Os links desta página levam a conteúdos e formulários disponíveis em inglês.",
+  "breadcrumb": [
+    {"label": "Início", "href": "/", "targetPageId": "HOME-001"},
+    {"label": "Mercados", "href": "/markets/", "targetPageId": "MARKET-000"},
+    {"label": "Brasil", "href": "/pt-br/markets/brazil/", "targetPageId": "MARKET-BR-PT"}
+  ],
+  "modules": [
+    {
+      "id": "BR-PT-01",
+      "heading": "Dióxido de titânio originário da Malásia para compradores no Brasil",
+      "paragraphs": [
+        "A IKHLAS TITANIUM (MALAYSIA) SDN. BHD. fornece dióxido de titânio industrial originário da Malásia para compradores no Brasil. Consulte os produtos e informações organizadas por aplicação para tintas e revestimentos, plásticos e produção de masterbatch. Solicite documentos de apoio ou envie os dados do seu projeto para solicitar uma cotação."
+      ],
+      "cards": [],
+      "inlineLinks": [],
+      "languageSpans": [],
+      "listItems": [],
+      "actions": [
+        {"label": "Solicitar cotação", "href": "/request-a-quote/", "targetPageId": "CONV-RFQ", "context": {"sourcePageId": "MARKET-BR-PT", "destinationCountry": "Brazil"}},
+        {"label": "Conhecer os produtos", "href": "/products/", "targetPageId": "PRODUCT-000"}
+      ]
+    },
+    {
+      "id": "BR-PT-02",
+      "heading": "Avalie os produtos conforme a aplicação",
+      "paragraphs": [
+        "Comece pelas informações que você já tem sobre a aplicação, o processo e o uso final. Não é preciso definir o produto ou grade exato nem concluir toda a especificação antes de avaliar os produtos ou iniciar uma solicitação de cotação.",
+        "No catálogo de produtos, consulte os grades que deseja avaliar e abra as páginas correspondentes para obter informações específicas. Compare essas informações com os requisitos do seu projeto; a listagem não indica um grade recomendado para o Brasil."
+      ],
+      "cards": [
+        {
+          "heading": "Tintas e revestimentos",
+          "paragraphs": ["Informe o sistema de tinta ou revestimento e o uso final. Indique se o sistema é de base aquosa ou de base solvente, se será usado em ambiente interno ou externo, o substrato e as propriedades que precisam ser avaliadas."],
+          "action": {"label": "Avaliar TiO2 para tintas e revestimentos", "href": "/applications/titanium-dioxide-for-coatings/", "targetPageId": "APP-COAT"}
+        },
+        {
+          "heading": "Plásticos",
+          "paragraphs": ["Informe a resina, o processo de transformação e o produto final. Acrescente os requisitos de aparência, dispersão e processamento que serão usados na avaliação do grade."],
+          "action": {"label": "Avaliar TiO2 para plásticos", "href": "/applications/titanium-dioxide-for-plastics/", "targetPageId": "APP-PLAS"}
+        },
+        {
+          "heading": "Produção de masterbatch",
+          "paragraphs": ["Informe a resina carreadora, o processo de produção e o produto final em que o masterbatch será usado. Inclua os critérios para avaliar o dióxido de titânio como pigmento da formulação."],
+          "action": {"label": "Avaliar TiO2 para masterbatch", "href": "/applications/titanium-dioxide-for-masterbatch/", "targetPageId": "APP-MB"}
+        }
+      ],
+      "inlineLinks": [],
+      "languageSpans": [],
+      "listItems": [],
+      "actions": [
+        {"label": "Conhecer os produtos", "href": "/products/", "targetPageId": "PRODUCT-000"}
+      ]
+    },
+    {
+      "id": "BR-PT-03",
+      "heading": "Documentos para avaliação do produto",
+      "paragraphs": [
+        "Para o grade que estiver avaliando, solicite a ficha técnica (TDS), a ficha de dados de segurança (SDS), o certificado de análise (COA) ou os documentos de origem e de qualificação do fornecedor necessários à sua análise. Cada solicitação abrange um grade selecionado e pode incluir mais de um tipo de documento.",
+        "O Certificado de Origem está disponível mediante solicitação.",
+        "Se ainda não tiver definido o produto ou grade, você pode iniciar a solicitação de documentos, mas deverá selecionar uma opção antes do envio. Você também pode consultar os produtos no catálogo ou selecionar “Not sure / Need help” no formulário de cotação.",
+        "Outros grades podem ser informados em Additional Requirements como contexto complementar, mas o formulário não relaciona tipos de documento a cada um deles. Envie uma solicitação separada para cada grade quando precisar especificar os tipos de documento individualmente."
+      ],
+      "cards": [],
+      "inlineLinks": [
+        {"paragraphIndex": 2, "label": "catálogo", "href": "/products/", "targetPageId": "PRODUCT-000"},
+        {"paragraphIndex": 2, "label": "formulário de cotação", "href": "/request-a-quote/", "targetPageId": "CONV-RFQ", "context": {"sourcePageId": "MARKET-BR-PT"}}
+      ],
+      "languageSpans": [
+        {"paragraphIndex": 2, "label": "Not sure / Need help", "language": "en"},
+        {"paragraphIndex": 3, "label": "Additional Requirements", "language": "en"}
+      ],
+      "listItems": [],
+      "actions": [
+        {"label": "Solicitar documentos", "href": "/request-documents/", "targetPageId": "CONV-DOC", "context": {"sourcePageId": "MARKET-BR-PT"}},
+        {"label": "Acessar a central de documentos", "href": "/documents/", "targetPageId": "DOC-000"}
+      ]
+    },
+    {
+      "id": "BR-PT-04",
+      "heading": "Consulte informações atualizadas sobre comércio exterior no Brasil",
+      "paragraphs": [
+        "As informações sobre comércio exterior e tratamento aduaneiro podem mudar. A atualização sobre o comércio de dióxido de titânio no Brasil foi revisada pela última vez em 06/09/2026. Ela reúne fontes oficiais com suas respectivas datas e indica os dados do produto, da origem, da classificação e da remessa que precisam ser verificados. Use essas fontes e informações na sua própria avaliação da remessa quanto a comércio exterior e tratamento aduaneiro."
+      ],
+      "cards": [],
+      "inlineLinks": [],
+      "languageSpans": [],
+      "listItems": [],
+      "actions": [
+        {"label": "Consultar a atualização sobre comércio exterior de dióxido de titânio no Brasil", "href": "/resources/brazil-titanium-dioxide-anti-dumping-duty/", "targetPageId": "RES-TRADE-BR"}
+      ]
+    },
+    {
+      "id": "BR-PT-05",
+      "heading": "Prepare uma solicitação de cotação para o Brasil",
+      "paragraphs": [
+        "No formulário de cotação, selecione um Product / Grade ou “Not sure / Need help” e uma Application ou “Other / Not sure”. Se estiver avaliando outros grades, informe-os em Additional Requirements. Inclua:",
+        "Após o envio, nossa equipe analisará as informações e entrará em contato pelos dados fornecidos."
+      ],
+      "cards": [],
+      "inlineLinks": [],
+      "languageSpans": [
+        {"paragraphIndex": 0, "label": "Product / Grade", "language": "en"},
+        {"paragraphIndex": 0, "label": "Not sure / Need help", "language": "en"},
+        {"paragraphIndex": 0, "label": "Application", "language": "en"},
+        {"paragraphIndex": 0, "label": "Other / Not sure", "language": "en"},
+        {"paragraphIndex": 0, "label": "Additional Requirements", "language": "en"}
+      ],
+      "listItems": [
+        "a aplicação, o processo ou o requisito principal;",
+        "especificações não confidenciais relevantes, além de requisitos de embalagem, prazo ou documentos;",
+        "a quantidade necessária ou estimada em toneladas métricas (MT);",
+        "o local de entrega no Brasil, com cidade, porto ou ponto de recebimento, se conhecido;",
+        "os dados da empresa e do contato comercial."
+      ],
+      "actions": [
+        {"label": "Solicitar cotação", "href": "/request-a-quote/", "targetPageId": "CONV-RFQ", "context": {"sourcePageId": "MARKET-BR-PT", "destinationCountry": "Brazil"}}
+      ]
+    }
+  ]
+}

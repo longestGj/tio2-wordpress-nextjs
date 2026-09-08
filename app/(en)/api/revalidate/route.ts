@@ -15,6 +15,7 @@ import {
   documentsHubContentTag,
   documentTdsContentTag,
   documentReachContentTag,
+  documentCooContentTag,
   requestDocumentsContentTag,
   requestSampleContentTag,
   entityTag,
@@ -25,6 +26,7 @@ import {
   marketPageContentTag,
   normalizePublicPath,
   productListTag,
+  productProcessContentTag,
   productDetailTag,
   productFamilyTag,
   productsHubTag,
@@ -248,7 +250,11 @@ export async function POST(request: Request): Promise<Response> {
   const unapprovedProductPath = payload.paths.find(
     (path) =>
       (path === '/products' || path.startsWith('/products/')) &&
-      !productIdentityByPath.has(path),
+      !productIdentityByPath.has(path) &&
+      !(
+        currentSite.id === 'tio2-my' &&
+        path === '/products/chloride-process-titanium-dioxide'
+      ),
   )
   if (unapprovedProductPath) {
     return json(400, {
@@ -289,10 +295,15 @@ export async function POST(request: Request): Promise<Response> {
       payload.paths.includes('/documents') ||
       payload.paths.includes('/documents/tds-sds-coa') ||
       payload.paths.includes('/documents/reach') ||
+      payload.paths.includes('/documents/certificate-of-origin') ||
       payload.paths.includes('/request-documents') ||
       payload.paths.includes('/request-sample') ||
       payload.paths.includes('/markets/european-union') ||
       payload.paths.includes('/markets/united-kingdom') ||
+      payload.paths.includes('/markets/poland') ||
+      payload.paths.includes('/markets/brazil') ||
+      payload.paths.includes('/pt-br/markets/brazil') ||
+      payload.paths.includes('/products/chloride-process-titanium-dioxide') ||
       (payload.paths.length === 1 && malaysiaLegalPaths.has(payload.paths[0]!)))
   for (const siteId of payload.siteIds) {
     if (!preciseMalaysiaSingletonEvent) {
@@ -313,6 +324,23 @@ export async function POST(request: Request): Promise<Response> {
       if (siteId === 'tio2-my' && path === '/markets/united-kingdom') {
         tags.add(siteTag(siteId))
         tags.add(marketPageContentTag(siteId, 'MARKET-UK-001', 'en'))
+      }
+      if (siteId === 'tio2-my' && path === '/markets/poland') {
+        tags.add(marketPageContentTag(siteId, 'MARKET-EU-PL', 'en'))
+      }
+      if (siteId === 'tio2-my' && path === '/markets/brazil') {
+        tags.add(marketPageContentTag(siteId, 'MARKET-BR-EN', 'en'))
+      }
+      if (siteId === 'tio2-my' && path === '/pt-br/markets/brazil') {
+        tags.add(marketPageContentTag(siteId, 'MARKET-BR-PT', 'pt-BR'))
+      }
+      if (siteId === 'tio2-my' && path === '/products/chloride-process-titanium-dioxide') {
+        tags.add(productProcessContentTag(
+          siteId,
+          'PRODUCT-PROC-CL',
+          'en',
+          'product-process-chloride-v0.1',
+        ))
       }
       if (siteId === 'tio2-my' && path === '/resources') {
         tags.add(resourceHubContentTag(siteId))
@@ -349,6 +377,9 @@ export async function POST(request: Request): Promise<Response> {
       }
       if (siteId === 'tio2-my' && path === '/documents/reach') {
         tags.add(documentReachContentTag(siteId))
+      }
+      if (siteId === 'tio2-my' && path === '/documents/certificate-of-origin') {
+        tags.add(documentCooContentTag(siteId))
       }
       if (siteId === 'tio2-my' && path === '/request-documents') {
         tags.add(requestDocumentsContentTag(siteId))

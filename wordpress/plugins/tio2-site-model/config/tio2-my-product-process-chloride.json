@@ -1,0 +1,85 @@
+{
+  "identity": {
+    "pageId": "PRODUCT-PROC-CL",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "path": "/products/chloride-process-titanium-dioxide/",
+    "schemaVersion": "product-process-chloride-v0.1"
+  },
+  "seo": {
+    "title": "Chloride Process Titanium Dioxide | TiO2 Malaysia",
+    "description": "Explore eight Malaysia-origin chloride-process titanium dioxide grades, understand what the process label means, and review product information or request a quote.",
+    "canonical": "https://tio2malaysia.com/products/chloride-process-titanium-dioxide/",
+    "socialImage": null
+  },
+  "breadcrumb": [
+    {"label": "Home", "href": "/", "targetPageId": "HOME-001"},
+    {"label": "Products", "href": "/products/", "targetPageId": "PRODUCT-000"},
+    {"label": "Chloride Process Titanium Dioxide", "href": "/products/chloride-process-titanium-dioxide/", "targetPageId": "PRODUCT-PROC-CL"}
+  ],
+  "modules": [
+    {
+      "id": "CL-01",
+      "eyebrow": "CHLORIDE-PROCESS TIO2 GRADES",
+      "heading": "Chloride Process Titanium Dioxide",
+      "paragraphs": ["Explore eight Malaysia-origin chloride-process titanium dioxide grades for applications including coatings, plastics, masterbatch, printing inks and paper. Open a grade page for product-specific information, or share your application and purchasing requirements for a quotation."],
+      "steps": [],
+      "actions": [
+        {"label": "Explore Chloride Grades", "href": "#explore-chloride-process-grades", "targetPageId": "PRODUCT-PROC-CL-GRADES"},
+        {"label": "Request a Quote", "href": "/request-a-quote/", "targetPageId": "CONV-RFQ", "context": {"sourcePageId": "PRODUCT-PROC-CL"}}
+      ]
+    },
+    {
+      "id": "CL-02",
+      "heading": "What the Chloride Process Tells You",
+      "paragraphs": [
+        "At a high level, the chloride route converts titanium-bearing feedstock to titanium tetrachloride (TiCl4), purifies the intermediate and oxidizes it to form titanium dioxide. The base pigment then goes through further finishing and treatment to create individual commercial grades.",
+        "The process label helps identify how the base pigment was formed. It does not, by itself, determine how a grade will perform in your formulation or process. Grade-specific product information and application-relevant evaluation still matter."
+      ],
+      "steps": [],
+      "actions": [
+        {"label": "Compare Chloride and Sulfate Routes", "href": "/resources/chloride-vs-sulfate-titanium-dioxide/", "targetPageId": "RES-PROC"}
+      ]
+    },
+    {
+      "id": "CL-03",
+      "heading": "Explore Chloride-Process Grades",
+      "paragraphs": ["These eight TiO2 Malaysia grades are classified as chloride-process products. Because application needs can overlap, compare the grades relevant to your formulation and process, then open the individual product pages for product-specific information."],
+      "steps": [],
+      "actions": []
+    },
+    {
+      "id": "CL-04",
+      "heading": "How to Evaluate a Chloride-Process Grade",
+      "paragraphs": [],
+      "steps": [
+        {"heading": "1. Define the intended system", "paragraph": "Start with your formulation, process and end-use requirements. For example, this may mean the coating system and exposure conditions for coatings; the resin, processing route and finished product for plastics or masterbatch; the ink system, printing process and substrate for printing inks; or the paper type, production process and end use for paper."},
+        {"heading": "2. Review the exact Grade", "paragraph": "Open the Grade page and compare its documented properties, treatments and application evidence with your requirements. Check the stated methods, units and whether a value is typical or a specification limit."},
+        {"heading": "3. Validate and collect the needed information", "paragraph": "Where relevant, evaluate the candidate under the formulation, processing and performance conditions that matter to your project. If your team needs TDS, SDS, COA or other product documentation, select the Grade and document types on the request form."}
+      ],
+      "actions": [
+        {"label": "Explore Applications", "href": "/applications/", "targetPageId": "APP-000"},
+        {"label": "Request Documents", "href": "/request-documents/", "targetPageId": "CONV-DOC", "context": {"sourcePageId": "PRODUCT-PROC-CL"}}
+      ]
+    },
+    {
+      "id": "CL-05",
+      "heading": "Discuss Your Chloride-Process TiO2 Requirement",
+      "paragraphs": ["Ready to discuss a Grade, or still narrowing the list? Tell us the product or Grade you are evaluating—or choose Not sure / Need help—together with your application, quantity and destination. Our team will review your requirements and contact you using the details provided."],
+      "steps": [],
+      "actions": [
+        {"label": "Request a Quote", "href": "/request-a-quote/", "targetPageId": "CONV-RFQ", "context": {"sourcePageId": "PRODUCT-PROC-CL"}}
+      ]
+    }
+  ],
+  "grades": [
+    {"registeredPageId":"GRADE-M350","gradeNameOrModelCode":"M-350","position":1,"cleanUrl":"/products/m-350/","summary":"Excellent hue and high gloss with strong hiding power.","actionLabel":"View M-350"},
+    {"registeredPageId":"GRADE-M510","gradeNameOrModelCode":"M-510","position":2,"cleanUrl":"/products/m-510/","summary":"TMP/TME-free multi-application grade with high brightness and durability.","actionLabel":"View M-510"},
+    {"registeredPageId":"GRADE-M896","gradeNameOrModelCode":"M-896","position":3,"cleanUrl":"/products/m-896/","summary":"Superior weather resistance with high gloss and excellent opacity for demanding exterior coatings.","actionLabel":"View M-896"},
+    {"registeredPageId":"GRADE-M895","gradeNameOrModelCode":"M-895","position":4,"cleanUrl":"/products/m-895/","summary":"High-opacity, high-gloss coatings grade with good weather resistance.","actionLabel":"View M-895"},
+    {"registeredPageId":"GRADE-M200","gradeNameOrModelCode":"M-200","position":5,"cleanUrl":"/products/m-200/","summary":"High-durability exterior plastics grade with strong anti-chalking performance.","actionLabel":"View M-200"},
+    {"registeredPageId":"GRADE-M210","gradeNameOrModelCode":"M-210","position":6,"cleanUrl":"/products/m-210/","summary":"High hiding power and easy dispersion for polyolefin masterbatch.","actionLabel":"View M-210"},
+    {"registeredPageId":"GRADE-M340","gradeNameOrModelCode":"M-340","position":7,"cleanUrl":"/products/m-340/","summary":"High whiteness with strong high-temperature anti-yellowing performance.","actionLabel":"View M-340"},
+    {"registeredPageId":"GRADE-M886","gradeNameOrModelCode":"M-886","position":8,"cleanUrl":"/products/m-886/","summary":"Bright-white plastics grade with excellent dispersion and processability.","actionLabel":"View M-886"}
+  ]
+}

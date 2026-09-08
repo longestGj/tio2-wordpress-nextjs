@@ -1,0 +1,13 @@
+{
+  "checkedAt": "2026-09-07T07:37:00.892Z",
+  "baseUrl": "http://127.0.0.1:3015",
+  "mode": "Browser-intercepted responses; no external submission",
+  "validation": true,
+  "failureRetainsValues": true,
+  "retry": true,
+  "stableRetryToken": true,
+  "explicitPositiveJsonRequired": true,
+  "attempts": 2,
+  "providerAccepted": false,
+  "inboxConfirmed": false
+}

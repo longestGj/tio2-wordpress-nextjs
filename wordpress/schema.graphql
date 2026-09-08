@@ -17367,6 +17367,18 @@ type RootQuery {
   "Approved, scope-bound ABOUT-001 record for TiO2 Malaysia."
   malaysiaAboutPageRecordJson: String!
 
+  "Validated, scoped Brazil English Market content for TiO2 Malaysia."
+  malaysiaBrazilEnMarketRecordJson: String!
+
+  "Validated, scoped Brazil Portuguese Market content for TiO2 Malaysia."
+  malaysiaBrazilPtMarketRecordJson: String!
+
+  "Validated scoped Chloride Process aggregation content for TiO2 Malaysia."
+  malaysiaChlorideProcessRecordJson: String!
+
+  "Approved scope-bound DOC-COO record for TiO2 Malaysia."
+  malaysiaDocumentCooRecordJson: String!
+
   "Approved scope-bound DOC-REACH record and scoped route readiness for TiO2 Malaysia."
   malaysiaDocumentReachRecordJson: String!
 
@@ -17384,6 +17396,9 @@ type RootQuery {
 
   "Approved, scope-bound MARKET-000 record for TiO2 Malaysia."
   malaysiaMarketHubRecordJson: String!
+
+  "Validated, scoped Poland Market content for TiO2 Malaysia."
+  malaysiaPolandMarketRecordJson: String!
 
   "Approved scope-bound Grade public projection for TiO2 Malaysia."
   malaysiaProductDetailRecordJson(slug: String!): String!

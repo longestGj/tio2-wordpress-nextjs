@@ -50,7 +50,7 @@ describe('MalaysiaProductDetail shared template', () => {
     const markup = await renderDetail()
     expect(markup).toContain('aria-current="page"')
     expect(markup).not.toMatch(/>\s*CURRENT\s*</u)
-    expect(markup.match(/href="\/request-a-quote\//gu)).toHaveLength(3)
+    expect(markup.match(/href="\/request-a-quote\//gu)).toHaveLength(4)
     expect(markup).toContain('data-source-page="GRADE-M350"')
   })
 

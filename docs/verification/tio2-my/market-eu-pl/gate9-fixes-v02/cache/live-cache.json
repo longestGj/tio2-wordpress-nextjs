@@ -1,0 +1,13 @@
+{
+  "checkedAt": "2026-09-07T07:39:16.397Z",
+  "base": "http://127.0.0.1:3015",
+  "postId": 18515,
+  "editedHttpVisible": true,
+  "originalRestored": true,
+  "sha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+  "revalidatedTags": [
+    "content:tio2-my--market--MARKET-EU-PL--en",
+    "route:tio2-my:/markets/poland"
+  ],
+  "foreignScopeEventStatus": 400
+}

@@ -1,0 +1,129 @@
+{
+  "capturedAt": "2026-09-07T08:06:05.959Z",
+  "files": [
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/BUILD_RUNTIME_BINDING.json",
+      "sha256": "4c0577b7819932b20838345becd7584366aabac98bd07d5954646581838b739c"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/F03_CORRECTION_RECEIPT.md",
+      "sha256": "f6b470782579332d2c2470dcb1e910df736cc501c7da62492c41eba351d75f9f"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/IMPLEMENTATION_SNAPSHOT.json",
+      "sha256": "fa527093fc455f2459f931e294a58b95bf7e98c72c0d6b44a2c6ea3f770c7fdd"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/focus/focused-390.png",
+      "sha256": "9b8ef412ecdc72c05f5319512f97cf17b42b64247db7db22db0afa0032f13345"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/focus/focused-768.png",
+      "sha256": "c3d8d8fc816658ae47c616b7c6f6e024d58fb930b528d264400389dcf0024f87"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/focus/result-390.json",
+      "sha256": "5d911a6359e06e2223cbd38ae68862ed1086b37c1963700113a700adf1324a53"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/focus/result-768.json",
+      "sha256": "9de2e93d6592822bc14fd14402a09e3d85990938e6d29d863d251f78c241e095"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/focus/unfocused-390.png",
+      "sha256": "05926ba1a45a7559287a3649432ae6eccbb561990fc413604f0aa8f6e9dd3cef"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/focus/unfocused-768.png",
+      "sha256": "874bdb7e958d0675f5539a573d0a83f1f88922576d027eaf4cc9395041582ae5"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/history/native-zoom-v03.spec.ts.source",
+      "sha256": "60247337480c24ef64bc3fd4c0fdc3cc46cc57140a95ba02845da3cb6d541e92"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/cookie-native-200.png",
+      "sha256": "4aad3e571d273b515a9fc6264285b2cf9117a1ff362cc4a0458bcec8c056fb09"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/evidence.json",
+      "sha256": "9a31cdcec49193a2a04486b1b9095220d7d24f4890c00264acfabd5730f0bdeb"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/menu-native-200-bottom-unfocused.png",
+      "sha256": "5e3a19f51fa187e7d0316addf1c2498f9288f7132f855a2b473ab31626b1764f"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/menu-native-200-bottom.png",
+      "sha256": "0b7fe3ba567c0f5882f484b43f89380e626cbdc04b1a337f3b379100e9da60f1"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/menu-native-200-top.png",
+      "sha256": "56d7a3d75e514d8f243a63e89971d448c8c36f3c7268e3eb9359bafc1a4800f7"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/page-native-200-full.png",
+      "sha256": "9a5c23e8ee736ea15fac9c25b570a5ed1ca159c20d0bde9eef7c1e638fe35f0f"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/page-native-200-viewport-0.png",
+      "sha256": "31de85d5c458ff0854b0e76a2c4fb47c7b369eafb0be6935727387ddb66d412a"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/page-native-200-viewport-1.png",
+      "sha256": "87c67827abc04b9ae9772ee6b4f9f02a6a64838da9a53e851f4f9d24fc157d21"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/page-native-200-viewport-2.png",
+      "sha256": "f040042623e3d6d54ee3d1126e1d33bd0f783a6c149ab347d2d76bf6d9b80569"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/page-native-200-viewport-3.png",
+      "sha256": "3fb6c3710401172f956a4c8b6f57a2503278315c9dfa1a83fa3934a7768dfff2"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/page-native-200-viewport-4.png",
+      "sha256": "24a2c62acdb7a054a4345b667598ce03e765d415330bf3f816eb35b763dd69f1"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/page-native-200-viewport-5.png",
+      "sha256": "0f5fbaf12e87805d2fcbbb8e76a7e91241967b9b6ace0085ec93e3b500d26f9e"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/page-native-200-viewport-6.png",
+      "sha256": "510e70d15e8ef9f950f41a83314b234c8bd36aea287ae7dd8602f1054fd3a6f2"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/page-native-200-viewport-7.png",
+      "sha256": "002a065d27af6cd7ce6342cb63d889e622fb7624e5d9616d81577dbc62bb5257"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/native-zoom/page-native-200-viewport-8.png",
+      "sha256": "3e1991a940f0413391f0890c842431c5ef3c5c293d673f7f279d3e591da46088"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/poland.html",
+      "sha256": "a0c9462bd0b55b5e92d1aa0f34e4e775d95a6754f897f85ad51391c5061e56d5"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/red/focused-768.png",
+      "sha256": "9e69f7a5fecb7e5c305a7d065c059d1d600bf889ac174d2d3f02c96e558117e3"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/red/result-768.json",
+      "sha256": "b39cc0054bcc89845619b76ceb4ac60830614dd1e189ec89e11e3db5ca913855"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/red/unfocused-768.png",
+      "sha256": "874bdb7e958d0675f5539a573d0a83f1f88922576d027eaf4cc9395041582ae5"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/shared-regression/browser-matrix.json",
+      "sha256": "8c7e996dba5756b81fa5df6715d5c9eacc62973b578463f9799f8efec07ed488"
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/test-results.json",
+      "sha256": "cc95f4b52a6ca00bbb0e2fd2e0a5745908e6a0cc4f1b33f2edbc2b4433510f6e"
+    }
+  ]
+}

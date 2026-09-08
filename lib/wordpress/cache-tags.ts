@@ -166,7 +166,9 @@ export function marketHubContentTag(siteId: string): string {
 
 export function marketPageContentTag(siteId: string, pageId: string, locale: string): string {
   assertSiteId(siteId)
-  if (siteId !== 'tio2-my' || !['MARKET-EU-001', 'MARKET-UK-001'].includes(pageId) || locale !== 'en') {
+  const validIdentity = locale === 'en' && ['MARKET-EU-001', 'MARKET-UK-001', 'MARKET-EU-PL', 'MARKET-BR-EN'].includes(pageId) ||
+    locale === 'pt-BR' && pageId === 'MARKET-BR-PT'
+  if (siteId !== 'tio2-my' || !validIdentity) {
     throw new Error(`Invalid Malaysia Market page identity: ${siteId}/${pageId}/${locale}`)
   }
   return `content:${siteId}--market--${pageId}--${locale}`
@@ -175,6 +177,15 @@ export function marketPageContentTag(siteId: string, pageId: string, locale: str
 export function productHubContentTag(siteId: string): string {
   assertSiteId(siteId)
   return `content:${siteId}--products`
+}
+
+export function productProcessContentTag(siteId: string, pageId: string, locale: string, contractVersion: string): string {
+  assertSiteId(siteId)
+  if (
+    siteId !== 'tio2-my' || pageId !== 'PRODUCT-PROC-CL' || locale !== 'en' ||
+    contractVersion !== 'product-process-chloride-v0.1'
+  ) throw new Error(`Invalid Malaysia Product Process identity: ${siteId}/${pageId}/${locale}/${contractVersion}`)
+  return `content:${siteId}--product-process--${pageId}--${locale}--${contractVersion}`
 }
 
 export function resourceHubContentTag(siteId: string): string {
@@ -245,6 +256,12 @@ export function documentReachContentTag(siteId: string): string {
   assertSiteId(siteId)
   if (siteId !== 'tio2-my') throw new Error(`Invalid DOC-REACH scope: ${siteId}`)
   return `content:${siteId}--document-reach`
+}
+
+export function documentCooContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid DOC-COO scope: ${siteId}`)
+  return `content:${siteId}--document-coo`
 }
 
 export function legalPagesContentTag(siteId: string): string {

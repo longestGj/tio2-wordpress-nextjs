@@ -1,0 +1,41 @@
+{
+  "base": "http://127.0.0.1:3015",
+  "width": 390,
+  "box": {
+    "x": 0,
+    "y": 427,
+    "width": 390,
+    "height": 52
+  },
+  "before": [
+    [
+      0,
+      128,
+      120
+    ],
+    [
+      0,
+      128,
+      120
+    ]
+  ],
+  "after": [
+    [
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255
+    ]
+  ],
+  "style": {
+    "background": "rgb(0, 128, 120)",
+    "outline": "rgb(0, 128, 120) solid 3px",
+    "offset": "-6px",
+    "shadow": "rgb(255, 255, 255) 0px 0px 0px 6px inset",
+    "focusVisible": true
+  }
+}

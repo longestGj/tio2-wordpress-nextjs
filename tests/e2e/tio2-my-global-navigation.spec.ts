@@ -12,7 +12,7 @@ const pages = [
 for (const width of [390, 768, 1440] as const) {
   for (const pageContract of pages) {
     test(`${pageContract.current} shared navigation state at ${width}px`, async ({page}) => {
-      const mobileChrome = width <= 900
+      const mobileChrome = width <= 1100
       await page.setViewportSize({width, height: width === 390 ? 844 : 1000})
       const response = await page.goto(`${baseUrl}${pageContract.path}`)
       expect(response?.ok()).toBe(true)
@@ -37,7 +37,7 @@ for (const width of [390, 768, 1440] as const) {
           ? {width: 120, height: 40}
           : {width: 180, height: 60})
       expect(await headerInner.evaluate((node) => node.getBoundingClientRect().height)).toBe(
-        mobileChrome ? 64 : 84,
+        mobileChrome ? 63 : 83,
       )
       expect(await desktopCurrent.evaluate((link) => {
         const marker = getComputedStyle(link, '::after')
@@ -47,8 +47,8 @@ for (const width of [390, 768, 1440] as const) {
           markerHeight: marker.height,
         }
       })).toEqual({
-        fontWeight: '800',
-        markerBackground: 'rgb(0, 106, 99)',
+        fontWeight: '700',
+        markerBackground: 'rgb(0, 128, 120)',
         markerHeight: '3px',
       })
 
@@ -78,10 +78,10 @@ for (const width of [390, 768, 1440] as const) {
             textAlign: style.textAlign,
           }
         })).toEqual({
-          alignItems: 'flex-start',
-          fontWeight: '800',
-          markerBackground: 'rgb(20, 184, 166)',
-          markerLeft: '8px',
+          alignItems: 'center',
+          fontWeight: '700',
+          markerBackground: 'rgb(0, 128, 120)',
+          markerLeft: '16px',
           markerWidth: '4px',
           textAlign: 'left',
         })

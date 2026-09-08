@@ -74,11 +74,11 @@ describe('TiO2 Malaysia shared Global Chrome contract', () => {
 
     expect(component).not.toMatch(/currentLabel|>Current</u)
     expect(component.match(/aria-current=\{current \? 'page' : undefined\}/gu)).toHaveLength(2)
-    expect(css).toMatch(/\.desktopNav a\[aria-current='page'\]\s*\{[^}]*font-weight:\s*800/iu)
-    expect(css).toMatch(/\.desktopNav a\[aria-current='page'\]::after\s*\{[^}]*background:\s*#006a63/iu)
-    expect(css).toMatch(/\.mobileNav a\[aria-current='page'\]\s*\{[^}]*font-weight:\s*800/iu)
-    expect(css).toMatch(/\.mobileNav a\[aria-current='page'\]::before\s*\{[^}]*left:\s*8px[^}]*width:\s*4px[^}]*background:\s*#14b8a6/iu)
-    expect(css).toMatch(/\.header nav\.mobileNav > a\s*\{[^}]*align-items:\s*flex-start[^}]*text-align:\s*left/iu)
+    expect(css).toMatch(/\.desktopNav a\[aria-current='page'\]\s*\{[^}]*font-weight:\s*700/iu)
+    expect(css).toMatch(/\.desktopNav a\[aria-current='page'\]::after\s*\{[^}]*background:\s*#008078/iu)
+    expect(css).toMatch(/\.header nav\.mobileNav>a\[aria-current='page'\]\s*\{[^}]*font-weight:\s*700/iu)
+    expect(css).toMatch(/\.mobileNav a\[aria-current='page'\]::before\s*\{[^}]*left:\s*16px[^}]*width:\s*4px[^}]*background:\s*#008078/iu)
+    expect(css).toMatch(/\.header nav\.mobileNav>a\s*\{[^}]*justify-content:\s*flex-start[^}]*text-align:\s*left/iu)
   })
 
   it('is the only Header, Mobile Menu and Footer implementation consumed by Malaysia pages', () => {

@@ -46,9 +46,9 @@ async function screenshot(page:Page,name:string,fullPage=true){
 }
 async function noOverflow(page:Page){expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)}
 async function chrome(page:Page,width:number,current:string){
-  const mobile=width<=900
+  const mobile=width<=1100
   const logo=await assertRenderedMalaysiaHeaderLogo(page.locator('header > div img').first(),{width:mobile?120:180,height:mobile?40:60})
-  expect((await page.locator('header > div').first().boundingBox())?.height).toBe(mobile?64:84)
+  expect((await page.locator('header > div').first().boundingBox())?.height).toBe(mobile?63:83)
   await expect(page.locator('header')).not.toContainText('CURRENT')
   const desktop=page.getByRole('navigation',{name:'Primary navigation',exact:true})
   if(mobile)await expect(desktop).toHaveCount(0)
@@ -58,7 +58,7 @@ async function chrome(page:Page,width:number,current:string){
   }
   await expect(page.locator('header > div a[href="/request-a-quote/"]')).toBeVisible()
   await expect(page.locator('footer h2')).toHaveText(['Explore','Information','Procurement'])
-  for(const heading of await page.locator('footer h2').all())await expect(heading).toHaveCSS('font-size',width<=430?'14px':'12px')
+  for(const heading of await page.locator('footer h2').all())await expect(heading).toHaveCSS('font-size','14px')
   const boxes=await page.locator('footer h2').evaluateAll(els=>els.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom}}))
   for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){
     const a=boxes[i]!,b=boxes[j]!;expect(a.right<=b.x||b.right<=a.x||a.bottom<=b.y||b.bottom<=a.y).toBe(true)
@@ -93,10 +93,10 @@ async function menu(page:Page,current:string,name:string){
   await expect(nav.locator('[aria-current]')).toHaveText(current)
   expect(await nav.locator('[aria-current]').evaluate(el=>getComputedStyle(el,'::before').width)).toBe('4px')
   await expect(nav.locator('a').first()).toHaveCSS('text-align','left')
-  await expect(nav.locator('a').last()).toHaveCSS('background-color','rgb(0, 106, 99)')
+  await expect(nav.locator('a').last()).toHaveCSS('background-color','rgb(0, 128, 120)')
   await assertRenderedMalaysiaHeaderLogo(dialog.locator('img'),{width:120,height:40})
-  await close.focus();await page.keyboard.press('Shift+Tab');await expect(nav.getByRole('link').last()).toBeFocused()
-  await page.keyboard.press('Tab');await expect(close).toBeFocused()
+  await close.focus();await page.keyboard.press('Shift+Tab');await page.keyboard.press('Shift+Tab');await expect(nav.getByRole('link').last()).toBeFocused()
+  await page.keyboard.press('Tab');await page.keyboard.press('Tab');await expect(close).toBeFocused()
   const axe=await new AxeBuilder({page}).analyze();expect(axe.violations).toEqual([])
   await screenshot(page,name,false)
   await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused()
@@ -168,7 +168,7 @@ for(const width of [1440,768,390])test(`UK ${width}: approved layout, shared Chr
   const heading=page.locator('#application-paths');await page.locator('main a[href="#application-paths"]').first().click();await expect(heading).toBeFocused()
   const faq=page.locator('main details').last();await faq.locator('summary').focus();await page.keyboard.press('Enter');await expect(faq).toHaveAttribute('open','')
   await screenshot(page,'uk-faq-'+width,false)
-  if(width<=900)await menu(page,'Markets','uk-menu-'+width)
+  if(width<=1100)await menu(page,'Markets','uk-menu-'+width)
 })
 
 for(const [path,label] of [['/','Home'],['/markets/','Markets'],['/products/','Products'],['/documents/reach/','Documents']] as const){
@@ -176,7 +176,7 @@ for(const [path,label] of [['/','Home'],['/markets/','Markets'],['/products/','P
     await page.setViewportSize({width,height:844});await ready(page,path)
     records[`chrome-${label}-${width}`]=await chrome(page,width,label);await noOverflow(page)
     await screenshot(page,`chrome-${label.toLowerCase()}-${width}`,false)
-    if(width<=900)await menu(page,label,`menu-${label.toLowerCase()}-${width}`)
+    if(width<=1100)await menu(page,label,`menu-${label.toLowerCase()}-${width}`)
   })
 }
 

@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test} from '@playwright/test'
-import {mkdirSync, readFileSync} from 'node:fs'
+import {mkdirSync, readFileSync, writeFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 
 import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
@@ -13,7 +13,9 @@ const contract = JSON.parse(readFileSync(
 }
 
 const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
-const evidenceDirectory = resolve('docs/verification/conv-rfq')
+const evidenceDirectory = resolve(process.env.POLAND_EVIDENCE_DIR ?? 'docs/verification/conv-rfq')
+mkdirSync(evidenceDirectory, {recursive:true})
+if (process.env.POLAND_EVIDENCE_DIR) test.use({trace:'off'})
 const viewports = [
   {name: 'desktop-1440', width: 1440, height: 1000},
   {name: 'tablet-768', width: 768, height: 1024},
@@ -47,9 +49,9 @@ for (const viewport of viewports) {
     await expect(header.locator('a[aria-current="page"]')).toHaveCount(0)
     await expect(header.locator('a[href="/request-a-quote/"]').first()).toBeVisible()
     const headerInner = header.locator(':scope > div').first()
-    expect(Math.round((await headerInner.boundingBox())?.height ?? 0)).toBe(viewport.width <= 900 ? 64 : 84)
+    expect(Math.round((await headerInner.boundingBox())?.height ?? 0)).toBe(viewport.width <= 1100 ? 63 : 83)
 
-    if (viewport.width <= 900) {
+    if (viewport.width <= 1100) {
       const menuButton = header.getByRole('button', {name: 'Open primary navigation'})
       await menuButton.click()
       const mobileNav = header.locator('nav[aria-label="Mobile navigation"]')
@@ -81,7 +83,7 @@ for (const viewport of viewports) {
     expect(JSON.stringify(graph)).not.toMatch(/Product|Offer|ContactPage|FAQPage|QAPage/)
 
     await expect(page.locator('footer h2')).toHaveText(['Explore', 'Information', 'Procurement'])
-    const expectedFooterSize = viewport.width <= 430 ? '14px' : '12px'
+    const expectedFooterSize = '14px'
     expect(await page.locator('footer h2').evaluateAll((nodes) => nodes.map((node) => getComputedStyle(node).fontSize))).toEqual([
       expectedFooterSize, expectedFooterSize, expectedFooterSize,
     ])
@@ -116,6 +118,7 @@ for (const width of [320, 375, 430, 1024, 1280] as const) {
 }
 
 test('CONV-RFQ validates, retains values, and confirms only a positive JSON acknowledgement', async ({page}) => {
+  await page.route('**/*',route=>route.request().method()==='POST'?route.abort('blockedbyclient'):route.continue())
   await page.setViewportSize({width: 1280, height: 900})
   await page.goto(`${baseUrl}/request-a-quote/`, {waitUntil: 'networkidle'})
   await page.getByRole('button', {name: 'REQUEST QUOTE'}).click()
@@ -155,6 +158,8 @@ test('CONV-RFQ validates, retains values, and confirms only a positive JSON ackn
   await expect(page.getByRole('heading', {name: contract.form.success.heading})).toBeVisible()
   await expect(page.getByRole('status')).toBeFocused()
   expect(submissionCount).toBe(2)
+  await page.screenshot({path:resolve(evidenceDirectory,'rfq-simulated-success.png'),fullPage:true})
+  writeFileSync(resolve(evidenceDirectory,'rfq-simulated-receiver.json'),JSON.stringify({checkedAt:new Date().toISOString(),baseUrl,mode:'Browser-intercepted responses; no external submission',validation:true,failureRetainsValues:true,retry:true,explicitPositiveJsonRequired:true,attempts:submissionCount,providerAccepted:false,inboxConfirmed:false},null,2)+'\n')
 })
 
 test('CONV-RFQ remains outside the controlled sitemap before indexing authorization', async ({request}) => {

@@ -9,6 +9,10 @@ export default defineConfig({
         replacement: fileURLToPath(new URL('./app/(ms)/ms', import.meta.url)),
       },
       {
+        find: /^@\/app\/pt-br(?=\/|$)/,
+        replacement: fileURLToPath(new URL('./app/(pt-br)/pt-br', import.meta.url)),
+      },
+      {
         find: /^@\/app(?=\/|$)/,
         replacement: fileURLToPath(new URL('./app/(en)', import.meta.url)),
       },

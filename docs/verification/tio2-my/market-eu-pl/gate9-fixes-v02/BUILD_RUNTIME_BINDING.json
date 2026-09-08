@@ -1,0 +1,263 @@
+{
+  "checkedAt": "2026-09-07T07:39:23.724Z",
+  "bindings": [
+    {
+      "site": "tio2-my",
+      "base": "http://127.0.0.1:3015",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "dist": ".next-poland-g9",
+      "buildId": "GjJdupnweqs0MK5nxZvnV",
+      "status": 200,
+      "htmlSha256": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "buildIdPresent": true,
+      "assets": [
+        {
+          "path": "/_next/static/chunks/1g_dk9mqjvzeq.css",
+          "sha256": "e1f8da7f1a44ab0b3f32e399a2647752e40130f6444dbe872f010796490e7c76",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/0b6nbkj3sxhu9.css",
+          "sha256": "b831df8bee88cc32ae4bfefa457b367347cf49d930f2a27ced47a770a9c67b1b",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3tnaqqd268tq9.css",
+          "sha256": "94f0fd6cf64f67c0905ddc85e3a554511a044db478cf3aad013d4b98cfa6f3ca",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3450qyhportkm.js",
+          "sha256": "6f7927041946fafd1fabaaa08dc3bc1deab43dbcadc09584ba7f578ca097e745",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/11pxbv08d7b0-.js",
+          "sha256": "9d2c0632a9ee5e6f5c874cb9789b8d92d03e9e3719f3dcbbf227089e04391872",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3o6zmgcd3bghq.js",
+          "sha256": "96f61779130e1673cf55853ad877f53388f7713a117f1b0c71c145bc12c669e4",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/turbopack-3768uzyq27zy0.js",
+          "sha256": "2c030ad3691b16aeef1ff6e9d50e35245ac6a187ea18c1aff096d5bb74c1f65d",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3fntmmi971322.js",
+          "sha256": "34ed6abf4c6d0d1bb3dc56d3f133d2a5dbc3a3c89c791deab314e27143ac14ce",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/1je1j8wd9f3xi.js",
+          "sha256": "d4821ede10fbbd4eec22ba9136331e99567d87fb262d99732558ffe1d42c9ee9",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/14nrli51d3a91.js",
+          "sha256": "ae9f6f471e4b9dd48a784745ae45b04a65805bd3c6cab5e5d05ca4f29798ad64",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/0cz1d0mv5g_q7.js",
+          "sha256": "0973c1d64c88adc8e3c950410cb58b288f72118d5965b78049438deb8f2f9683",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3s6nzrbk-8mnv.js",
+          "sha256": "1d36f2e3f57740f75eb021aaec1208d7e938130e36c106a9f28678e4a98559b0",
+          "status": 200,
+          "matchesBuild": true
+        }
+      ]
+    },
+    {
+      "site": "tio2-a",
+      "base": "http://127.0.0.1:3017",
+      "url": "http://127.0.0.1:3017/",
+      "dist": ".next-poland-g9-a",
+      "buildId": "2em7Cq2F5qlxEtZgH5FYw",
+      "status": 200,
+      "htmlSha256": "4b740b452fe0100acb9f3e1e38858904080add3c18dc8b659204769e3b7c7892",
+      "buildIdPresent": true,
+      "assets": [
+        {
+          "path": "/_next/static/chunks/1g_dk9mqjvzeq.css",
+          "sha256": "e1f8da7f1a44ab0b3f32e399a2647752e40130f6444dbe872f010796490e7c76",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/1-p7e5_lg3tog.css",
+          "sha256": "61f7f209a697eaab3dbec4d4bebec1b71757e78b76edec3c0b164fe9f6bf2665",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3tnaqqd268tq9.css",
+          "sha256": "94f0fd6cf64f67c0905ddc85e3a554511a044db478cf3aad013d4b98cfa6f3ca",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3450qyhportkm.js",
+          "sha256": "6f7927041946fafd1fabaaa08dc3bc1deab43dbcadc09584ba7f578ca097e745",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/11pxbv08d7b0-.js",
+          "sha256": "9d2c0632a9ee5e6f5c874cb9789b8d92d03e9e3719f3dcbbf227089e04391872",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3o6zmgcd3bghq.js",
+          "sha256": "96f61779130e1673cf55853ad877f53388f7713a117f1b0c71c145bc12c669e4",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/turbopack-3768uzyq27zy0.js",
+          "sha256": "2c030ad3691b16aeef1ff6e9d50e35245ac6a187ea18c1aff096d5bb74c1f65d",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3fntmmi971322.js",
+          "sha256": "34ed6abf4c6d0d1bb3dc56d3f133d2a5dbc3a3c89c791deab314e27143ac14ce",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3tu_m6ahdd9ly.js",
+          "sha256": "d91c5c85748bcf737c5750e94f6f4d98c7be94d578eaecc0ef2c975e87556dc4",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/14nrli51d3a91.js",
+          "sha256": "ae9f6f471e4b9dd48a784745ae45b04a65805bd3c6cab5e5d05ca4f29798ad64",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/0cz1d0mv5g_q7.js",
+          "sha256": "0973c1d64c88adc8e3c950410cb58b288f72118d5965b78049438deb8f2f9683",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3s6nzrbk-8mnv.js",
+          "sha256": "1d36f2e3f57740f75eb021aaec1208d7e938130e36c106a9f28678e4a98559b0",
+          "status": 200,
+          "matchesBuild": true
+        }
+      ]
+    },
+    {
+      "site": "tio2-b",
+      "base": "http://127.0.0.1:3018",
+      "url": "http://127.0.0.1:3018/",
+      "dist": ".next-poland-g9-b",
+      "buildId": "NWKVDMtM13HNNtf5aMDrP",
+      "status": 200,
+      "htmlSha256": "be1d7250b8e7986f2d4468f1506a9e92b57b0725712e4b9254184fbd04531026",
+      "buildIdPresent": true,
+      "assets": [
+        {
+          "path": "/_next/static/chunks/1g_dk9mqjvzeq.css",
+          "sha256": "e1f8da7f1a44ab0b3f32e399a2647752e40130f6444dbe872f010796490e7c76",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/1-p7e5_lg3tog.css",
+          "sha256": "61f7f209a697eaab3dbec4d4bebec1b71757e78b76edec3c0b164fe9f6bf2665",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3tnaqqd268tq9.css",
+          "sha256": "94f0fd6cf64f67c0905ddc85e3a554511a044db478cf3aad013d4b98cfa6f3ca",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3450qyhportkm.js",
+          "sha256": "6f7927041946fafd1fabaaa08dc3bc1deab43dbcadc09584ba7f578ca097e745",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/11pxbv08d7b0-.js",
+          "sha256": "9d2c0632a9ee5e6f5c874cb9789b8d92d03e9e3719f3dcbbf227089e04391872",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3o6zmgcd3bghq.js",
+          "sha256": "96f61779130e1673cf55853ad877f53388f7713a117f1b0c71c145bc12c669e4",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/turbopack-3768uzyq27zy0.js",
+          "sha256": "2c030ad3691b16aeef1ff6e9d50e35245ac6a187ea18c1aff096d5bb74c1f65d",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3fntmmi971322.js",
+          "sha256": "34ed6abf4c6d0d1bb3dc56d3f133d2a5dbc3a3c89c791deab314e27143ac14ce",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3tu_m6ahdd9ly.js",
+          "sha256": "d91c5c85748bcf737c5750e94f6f4d98c7be94d578eaecc0ef2c975e87556dc4",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/14nrli51d3a91.js",
+          "sha256": "ae9f6f471e4b9dd48a784745ae45b04a65805bd3c6cab5e5d05ca4f29798ad64",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/0cz1d0mv5g_q7.js",
+          "sha256": "0973c1d64c88adc8e3c950410cb58b288f72118d5965b78049438deb8f2f9683",
+          "status": 200,
+          "matchesBuild": true
+        },
+        {
+          "path": "/_next/static/chunks/3s6nzrbk-8mnv.js",
+          "sha256": "1d36f2e3f57740f75eb021aaec1208d7e938130e36c106a9f28678e4a98559b0",
+          "status": 200,
+          "matchesBuild": true
+        }
+      ]
+    }
+  ],
+  "environment": {
+    "wordpress": "http://localhost:8080/graphql",
+    "mode": "Local production-mode Next builds, not production deployment",
+    "revalidation": "Explicit local-only test secret, signed endpoint accepted on each site",
+    "provider": "Receiver tests intercepted all POST; no actual provider sends or historic key equality claim"
+  }
+}

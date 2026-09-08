@@ -1,156 +1,65 @@
-# TiO₂ local WordPress + two-site Next.js integration
+# D16 多网站开发、测试与发布
 
-This repository is a local-only integration environment for one WordPress CMS and two isolated Next.js sites. The sites share code, schema, and the CMS instance, but each managed Page/Post belongs to exactly one site and the two content sets remain independent:
+本工作区承接不同策划项目的网站内容，负责技术实现、测试、缺陷修复，以及获授权后的部署和发布。当前以 `D:\23MySec` 的 TiO₂ Malaysia 网站为主要实例；`D:\11SEO` 负责另一个网站的策划，具体承接身份在该站任务中核对。
 
-- Site A: `http://localhost:3001` (`SITE_ID=tio2-a`, `.next-tio2-a`)
-- Site B: `http://localhost:3002` (`SITE_ID=tio2-b`, `.next-tio2-b`)
-- WordPress: `http://127.0.0.1:8080` (loopback only)
+## 工作入口
 
-Site A editorial images use the non-secret `WORDPRESS_MEDIA_ORIGIN` contract. It defaults to
-`http://localhost:8080`; production must set the exact public WordPress origin (scheme, host,
-and optional port, with no path or credentials). Both the DTO and Next Image then accept only
-that origin's `/wp-content/uploads/` descendants. Legacy Site B images remain unoptimized.
+| 要做什么 | 先读哪里 |
+|---|---|
+| 了解规则与职责 | [AGENTS.md](AGENTS.md) |
+| 确认网站及策划来源 | [网站登记](docs/site-registry.md) |
+| 接收任务、开发、测试、回执、发布 | [开发交付流程](docs/development-workflow.md) |
+| 记录一次开发任务 / 查看完整实例 | [任务记录模板](docs/templates/development-task-record.md) / [Poland交接实例](docs/examples/poland-development-handoff.md) |
+| 核对D23策划→开发→验收的具体交付 | [Gate 6→8 / Gate 8→9交接清单](docs/d23-gate-handoff.md) |
+| 查既有设计与实施记录 | `docs/superpowers/specs/`、`docs/superpowers/plans/` |
+| 查页面技术验证 | `docs/verification/`对应页面或功能；历史结果须核对版本和日期 |
+| 追溯早期双站操作 | [历史README](docs/runbooks/legacy-two-site-local.md)，不作为当前执行指令 |
 
-The verified code is backed up in a private GitHub repository. Vercel, DNS changes, production deployment, and Search Console work remain paused. The approved origins are `tio2products.com` for Site A and `tio2hub.com` for Site B; local tests use them only for canonical, sitemap, robots, and JSON-LD assertions and never contact the public domains.
+策划项目维护内容、视觉、批准基线及独立验收；D16维护实现与技术证据。已有策划合同直接引用，不重新策划整站，也不要求未来网站都采用D23的Gate编号。
 
-## Requirements
+## 当前实现
 
-- Windows PowerShell 5.1 or newer
-- Node.js 20.9 or newer and npm
-- Docker Desktop with Linux containers
-- Available local ports 8080, 3001, and 3002
+当前代码是共享Next.js应用与WordPress CMS，通过精确站点身份隔离。这是现有实现方式，未来网站是否共享应用、CMS或部署项目按需求决定。
 
-## First-time setup
+| 网站ID | 品牌 / 配置域名 | 本地控制器端口 | 构建目录 |
+|---|---|---|---|
+| `tio2-my` | TiO₂ Malaysia / `tio2malaysia.com` | 3003 | `.next-tio2-my` |
+| `tio2-a` | TIOVAR / `tio2products.com` | 3001 | `.next-tio2-a` |
+| `tio2-b` | TiO2 B / `tio2hub.com` | 3002 | `.next-tio2-b` |
 
-From the repository root:
+身份配置见 `sites/`，控制器配置见 `scripts/start-local-sites.ps1`。其他任务可使用独立端口及构建目录；表中不是运行状态或部署证明。本地WordPress使用 `127.0.0.1:8080`。
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/new-local-wordpress-env.ps1
-docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml up -d
-powershell -ExecutionPolicy Bypass -File scripts/bootstrap-wordpress.ps1
-powershell -ExecutionPolicy Bypass -File scripts/seed-local-wordpress.ps1 -ScalePages 500 -PlanOnly
-npm install
-npx playwright install chromium
-```
+- `app/`、`components/`：路由、页面及共享界面。
+- `lib/`、`sites/`：站点身份、数据读取和校验、业务与SEO逻辑。
+- `wordpress/`：CMS模型、GraphQL契约、内容配置及受控本地seed。
+- `scripts/`、`tests/`：运行工具与验证。
+- `public/`：可被网站提供的资产；草稿、密钥及未批准公开材料不放这里。
+- `content/`、`documents/`、`.agent/tiovar-tds-agent/`：既有TIOVAR产品事实与TDS资料流程，保留其品牌和批准边界。
+- `.tmp/`、`.local-evidence/`：忽略的本地临时产物；正式回执引用的唯一证据不能只留在可清理缓存中。
 
-The `-PlanOnly` command validates the formal seed shape but deliberately does not populate WordPress. Run `npm run verify:local` only after a separately authorized process has established the eligible local Homepage owners described below.
+D16运行所需资产和数据应进入对应代码、CMS或部署环境，不在生产运行时读取策划项目的本机目录。
 
-The environment generator writes the ignored `wordpress/.env` with a non-default editor name plus independent, cryptographically random admin, revalidation, and preview secrets. It refuses to overwrite an existing file unless `-Force` is explicitly supplied and never prints generated secrets. Bootstrap applies that generated password to the real local WordPress administrator and removes the legacy `admin` login. On a fresh install, the password reaches the one-shot WP-CLI process only through standard input, never through container/process arguments or logs. Verification checks both the file contract and the live WordPress login state without logging credentials.
+## 本地运行与验证
 
-If this worktree already has an older `wordpress/.env`, migrate it in place. The force mode preserves its database settings, URLs, and administrator email while rotating every administrator/integration credential:
+使用当前依赖锁文件和相关Next.js本地指南核对运行环境；锁文件指定的 `sanitize-html@2.17.7` 要求Node.js至少22.12.0。开发前核对本机已安装依赖与锁文件是否一致，运行环境记录以当次验证为准。
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/new-local-wordpress-env.ps1 -Force
-docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml up -d --force-recreate --no-deps wordpress
-powershell -ExecutionPolicy Bypass -File scripts/bootstrap-wordpress.ps1
-```
+本地站点需匹配 `SITE_ID`、`NEXT_DIST_DIR`、WordPress入口及该站预览/重验证配置；参考 `.env.example` 与 `wordpress/.env.example`，实际密钥留在忽略文件或对应环境。创建或变更本地CMS按已授权任务使用现有脚本，先检查Plan及恢复范围。
 
-Managed Page/Post routes are unique across both post types for an exact `(site_scope, public_path)` pair. Draft, pending, private, future, published, trashed, and auto-draft owners reserve the route until their path changes or they are permanently deleted. Invalid ownership, duplicate ownership, or a WordPress-suffixed internal slug forces public-ish saves back to draft and leaves a persistent Admin error.
+| 命令 | 使用范围 |
+|---|---|
+| `npm run dev` / `npm run build` / `npm run start` | 当前环境配置指定的站点，执行前核对身份及构建目录 |
+| `npm test -- <相关测试路径>` | 定向Vitest验证 |
+| `npm run lint` / `npm run typecheck` | 代码变化需要时执行 |
+| `npx playwright test <相关测试文件>` | 按实际配置核对测试站点、端口和CMS行为 |
+| `npm run sites:status` | 查看本地控制器状态 |
+| `npm run sites:start` / `npm run sites:stop` | 当前控制器覆盖三个站点；不是单站启动工具，停止时验证所管理进程身份 |
+| `npm run validate` / `npm run verify:local` | 广泛验证，先读取实际脚本；不作为普通单页任务默认检查 |
+| `npm run verify:root-only` | 特定TiO₂发布/505-to-1迁移检查，必须取得新的、单独明确授权 |
 
-The formal seed plan contains five representative pages plus 500 deterministic scale pages per site. All `long-tail-*` pages are visibly labeled synthetic test content and must not be treated as verified commercial or technical claims. The optional TiO₂ custom-post-type fixtures exercise the schema; managed pages do not depend on shared entity content or a cross-site invalidation graph.
+正常开发按影响范围验证。Site B保持业务冻结；Site A的Homepage链接限制不扩展到Malaysia站。
 
-## Site A editorial Homepage experiment
+## 交付与发布
 
-Site A selects the WordPress-owned `homepage-v0.2-editorial-geo` contract. Site B remains frozen on `homepage-v0.1`, including its existing local-only RFQ form and visible content. The Site A fixture renders one RFQ mail link in the Header and one in the Closing section; both target `mailto:contact@tio2products.com`. Site A has no form, and Homepage links to product or application pages remain disabled.
+D16主回执记录网站、批准交付版本、实现版本、验证环境和结果、未决项及下一责任方。开发完成、独立验收通过、发布授权和实际部署分别记录。
 
-The Site A repeater-backed WordPress modules are six decision questions, five application briefs, three supply routes, three evidence items, five evaluation steps, eight FAQs, and four glossary terms. Hero, Direct Answer, Closing, SEO, and Editorial Review fields are single modules. All committed fixture content is synthetic and local-only.
-
-The formal seed can be inspected without changing WordPress:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/seed-local-wordpress.ps1 -ScalePages 500 -PlanOnly
-```
-
-Do not remove `-PlanOnly` for this experiment. Applying that RootOnly plan is the formal 505-to-1 migration. For an already eligible local database with exactly one published Homepage root owner per site, the separate guarded Site A fixture updater is the bounded content-only workflow:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/apply-local-site-a-editorial-fixture.ps1 -PlanOnly
-powershell -ExecutionPolicy Bypass -File scripts/apply-local-site-a-editorial-fixture.ps1 -Apply
-```
-
-Run `-Apply` only when a local fixture update has been separately intended and `-PlanOnly` succeeds. The updater cannot create or publish the Homepage, change its identity, scope, path, or root ownership, or alter Site B. If the published-owner precondition is absent, stop; do not substitute the formal seed, migration, or `verify:root-only`.
-
-The focused local contract checks are:
-
-```powershell
-docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml run --rm --no-TTY --user 33:33 wpcli wp eval-file /workspace/wordpress/tests/homepage-v02.php
-docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml run --rm --no-TTY --user 33:33 wpcli wp eval-file /workspace/wordpress/tests/homepage.php
-docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml run --rm --no-TTY --user 33:33 wpcli wp eval-file /workspace/wordpress/tests/preview.php
-docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml run --rm --no-TTY --user 33:33 wpcli wp eval-file /workspace/wordpress/tests/webhook-routing.php
-npm run lint
-npm run typecheck
-npm test -- tests/unit/sites tests/unit/homepage tests/integration/homepage tests/integration/api/revalidate.test.ts tests/infrastructure/homepage-seed-contract.test.ts tests/infrastructure/homepage-graphql-schema-contract.test.ts
-```
-
-Before browser acceptance, inspect the local WordPress inventory read-only and require one published Homepage owner for each site, with Site A on v0.2 and Site B on v0.1. Once both current-site builds exist, use the repository controller and always stop its recorded processes:
-
-```powershell
-npm run sites:start
-try {
-  npx playwright test tests/e2e/site-a-editorial-homepage.spec.ts tests/e2e/homepage.spec.ts --project=chromium
-} finally {
-  npm run sites:stop
-}
-```
-
-The focused browser files cover Site A and Site B independently at 360, 768, and 1440 pixels. Vercel, deployment, DNS, indexing, production operations, remote writes, and the formal migration remain paused.
-
-## One-command local verification
-
-```powershell
-npm run verify:local
-```
-
-The gate is fail-fast and requires a completely clean Git worktree at both the start and end, including no untracked files. Commit or remove intentional local source changes before running it; ignored `.tmp` logs and build artifacts do not affect this check. It checks Compose configuration and service health, runs the dedicated WordPress homepage smoke before the remaining schema/authoring/webhook/preview contracts, audits the configured public inventory, runs lint, typecheck, deterministic schema refresh and GraphQL code generation, homepage-focused plus complete 4-worker Vitest suites, the opt-in live seed suites, both current-site builds, Chromium acceptance tests, deterministic homepage bundle budgets, two-site mobile Lighthouse audits, and independent HTTP audits. The browser suites cover 360/768/1440 screenshots, section order, site isolation, overflow, keyboard-visible focus, Site A's two RFQ mail links and form-free behavior, Site B's frozen local-only form behavior, native FAQ interaction, axe serious/critical findings, unexpected network requests, unpublished Preview, 404s, and owning-site webhook delivery. The webhook queue preserves each site's exact old/new route pairing during an ownership move instead of forming a cross-product. The live seed stage restores and audits its exact baseline in `finally`, including when a live test fails. The last stdout line is the approved machine-readable homepage success summary. Detailed command logs are written under ignored `.tmp/local-verify`.
-
-Homepage visual evidence is written to ignored `.tmp/homepage-evidence/{siteId}/{width}.png`. Lighthouse JSON reports are written to ignored `.tmp/homepage-evidence/lighthouse`. The deterministic bundle audit compares root-route client JavaScript with the shared/catch-all baseline and enforces 25,600 gzip bytes for each site. Lighthouse uses local mobile emulation only, rejects non-loopback requests or navigation, requires Performance of at least 0.90, and requires Accessibility of exactly 1.00.
-
-Verification always stops only the two Node processes it started, including after a failed test or a bounded startup timeout. The controller writes recoverable process state after every launch and accepts cooperative cancellation. PID, executable path, process start time, Next CLI path, and port arguments are validated immediately before stopping through the retained process handle. It never kills a process merely by name or port.
-
-Local output is deliberately `noindex,nofollow`, and local `robots.txt` uses `Disallow: /`. This protects local and preview evidence even though canonical and sitemap URLs use the approved production domains. A signed preview link creates only an HttpOnly, same-site, expiring session for its exact site and public path; it cannot authorize a second draft path and stops authorizing when the link expiry is reached. Published requests continue through the normal published GraphQL path.
-
-## Keep both sites running for browser review
-
-Run the full gate once so both current build directories exist, then start the controller-owned servers:
-
-```powershell
-npm run sites:start
-npm run sites:status
-```
-
-Open `http://localhost:3001` and `http://localhost:3002`. Standard output, standard error, PID identity, and controller state are stored under ignored `.tmp/local-sites`. The launcher uses hidden Windows processes but leaves the sites available after the command returns. It reads each site's preview and revalidation secrets from the ignored WordPress environment; secrets are never written to logs. The Next servers listen on the local host network so the WordPress container can deliver its signed per-site webhooks, while WordPress port 8080 itself remains loopback-bound.
-
-Stop only those recorded and identity-validated processes:
-
-```powershell
-npm run sites:stop
-```
-
-The equivalent explicit modes are:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -KeepRunning
-powershell -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -Stop
-```
-
-## Stop Docker services
-
-```powershell
-docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml down
-```
-
-Do not add `-v`: the named local database and WordPress volumes are retained by default.
-
-## Troubleshooting
-
-- **Missing `wordpress/.env`:** run `scripts/new-local-wordpress-env.ps1`; keep the generated file local and never commit it.
-- **The environment/admin credential gate rejects retained local state:** use the three-command migration sequence above. Do not hand-edit a predictable password into `.env`.
-- **A Compose service is unavailable:** run `docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml ps`; start it with the setup `up -d` command and rerun bootstrap if needed.
-- **The seed or root inventory is ineligible:** run `scripts/seed-local-wordpress.ps1 -ScalePages 500 -PlanOnly` to validate the formal plan without writes. Do not apply it or run `verify:root-only` without separate formal-migration authorization.
-- **Chromium is missing:** run `npx playwright install chromium`.
-- **A homepage bundle or Lighthouse gate fails:** inspect `.tmp/local-verify/homepage-bundle.log`, `.tmp/local-verify/homepage-lighthouse-a11y.log`, and `.tmp/local-verify/homepage-lighthouse-performance.log`; JSON reports remain under `.tmp/homepage-evidence/lighthouse`.
-- **A build directory is missing or stale:** run `npm run verify:local`; it rebuilds `.next-tio2-a` and `.next-tio2-b` from live local WordPress.
-- **Port 3001 or 3002 is occupied:** inspect the owning application yourself. The controller refuses to kill unrecorded or identity-mismatched processes.
-- **A local site fails health checks:** inspect `.tmp/local-sites/tio2-a.stderr.log` and `.tmp/local-sites/tio2-b.stderr.log`.
-- **A verification gate fails:** inspect the named log under `.tmp/local-verify`; rerunning remains safe because the verifier cleans up its own child processes in `finally`.
-- **The gate reports a dirty worktree:** run `git status --short --untracked-files=all`, then commit or remove every intentional tracked and untracked source file before retrying.
+Preview/Production部署、远程写入、DNS、迁移和索引按明确授权执行；已有授权直接复用。发布前核对目标网站与环境、适用验收、配置及回退，发布后保存实际结果。仓库中的Vercel配置或域名不代表已经部署或获准索引。

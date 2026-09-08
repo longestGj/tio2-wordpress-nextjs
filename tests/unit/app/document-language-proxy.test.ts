@@ -11,6 +11,7 @@ describe('TiO2 Malaysia canonical path proxy', () => {
     vi.stubEnv('SITE_ID', 'tio2-my')
     const markets = proxy(new NextRequest('https://tio2malaysia.com/markets?source=test'))
     const requestDocuments = proxy(new NextRequest('https://tio2malaysia.com/request-documents'))
+    const brazilPt = proxy(new NextRequest('https://tio2malaysia.com/pt-br/markets/brazil?source=test'))
     const canonicalRequestDocuments = proxy(new NextRequest('https://tio2malaysia.com/request-documents/'))
     const api = proxy(new NextRequest('https://tio2malaysia.com/api/revalidate', {method: 'POST'}))
 
@@ -20,6 +21,8 @@ describe('TiO2 Malaysia canonical path proxy', () => {
     expect(requestDocuments.headers.get('location')).toBe('https://tio2malaysia.com/request-documents/')
     expect(canonicalRequestDocuments.status).toBe(200)
     expect(canonicalRequestDocuments.headers.get('location')).toBeNull()
+    expect(brazilPt.status).toBe(308)
+    expect(brazilPt.headers.get('location')).toBe('https://tio2malaysia.com/pt-br/markets/brazil/?source=test')
     expect(api.status).toBe(200)
     expect(api.headers.get('location')).toBeNull()
     expect(api.headers.get('x-middleware-request-x-tio2-my-document-language')).toBeNull()

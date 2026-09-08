@@ -70,7 +70,7 @@ describe('MalaysiaMarketHub', () => {
     await waitFor(() => expect(document.activeElement).toBe(close))
     links.at(-1)?.focus()
     fireEvent.keyDown(menu, {key: 'Tab'})
-    expect(document.activeElement).toBe(close)
+    expect(document.activeElement).toBe(menu.querySelector('a[href], button'))
     await user.keyboard('{Escape}')
     expect(button.getAttribute('aria-expanded')).toBe('false')
     expect(document.activeElement).toBe(button)

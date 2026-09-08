@@ -6,6 +6,18 @@ import {
 } from '@/lib/request-documents/malaysia-request-documents-prefill'
 
 describe('CONV-DOC prefill normalization', () => {
+  it('normalizes the DOC-COO origin request and keeps its source hidden', () => {
+    expect(resolveMalaysiaRequestDocumentsPrefill({
+      document_types: 'origin_supplier_qualification',
+      source_page_id: 'DOC-COO',
+    })).toEqual({
+      values: {document_types: ['origin_supplier_qualification']},
+      sourcePageId: 'DOC-COO',
+      marketId: null,
+      prefillVisible: true,
+    })
+  })
+
   it('normalizes DOC-TDS document types and discards repeated Grade plus public source tampering', () => {
     expect(resolveMalaysiaRequestDocumentsPrefill({
       document_types: ['quality_coa', 'safety', 'safety'],

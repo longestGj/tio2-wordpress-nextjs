@@ -1,0 +1,3 @@
+query GetMalaysiaDocumentCooV04 {
+  malaysiaDocumentCooRecordJson
+}

@@ -1,0 +1,95 @@
+{
+  "checkedAt": "2026-09-07T07:39:23.574Z",
+  "navigation": [
+    {
+      "path": "/",
+      "finalUrl": "http://127.0.0.1:3015/",
+      "status": 200,
+      "h1": "Malaysia Titanium Dioxide for Industrial Buyers",
+      "canonical": "https://tio2malaysia.com"
+    },
+    {
+      "path": "/markets/",
+      "finalUrl": "http://127.0.0.1:3015/markets/",
+      "status": 200,
+      "h1": "Choose Your Destination Market",
+      "canonical": "https://tio2malaysia.com/markets/"
+    },
+    {
+      "path": "/products/",
+      "finalUrl": "http://127.0.0.1:3015/products",
+      "status": 200,
+      "h1": "Titanium Dioxide Pigment Grades for Industrial Applications",
+      "canonical": "https://tio2malaysia.com/products/"
+    },
+    {
+      "path": "/applications/",
+      "finalUrl": "http://127.0.0.1:3015/applications",
+      "status": 404,
+      "canonical": null
+    },
+    {
+      "path": "/documents/",
+      "finalUrl": "http://127.0.0.1:3015/documents",
+      "status": 200,
+      "h1": "Documents for Product & Supplier Qualification",
+      "canonical": "https://tio2malaysia.com/documents/"
+    },
+    {
+      "path": "/resources/",
+      "finalUrl": "http://127.0.0.1:3015/resources",
+      "status": 200,
+      "h1": "Resources for Titanium Dioxide Procurement Decisions",
+      "canonical": "https://tio2malaysia.com/resources/"
+    },
+    {
+      "path": "/about/",
+      "finalUrl": "http://127.0.0.1:3015/about",
+      "status": 200,
+      "h1": "Malaysia-Based Titanium Dioxide Supply for Global Markets",
+      "canonical": "https://tio2malaysia.com/about/"
+    },
+    {
+      "path": "/request-a-quote/",
+      "finalUrl": "http://127.0.0.1:3015/request-a-quote",
+      "status": 200,
+      "h1": "Request a Titanium Dioxide Quote",
+      "canonical": "https://tio2malaysia.com/request-a-quote/"
+    },
+    {
+      "path": "/markets/european-union/",
+      "finalUrl": "http://127.0.0.1:3015/markets/european-union/",
+      "status": 200,
+      "h1": "Malaysia-Origin Titanium Dioxide for European Union Buyers",
+      "canonical": "https://tio2malaysia.com/markets/european-union/"
+    },
+    {
+      "path": "/request-documents/",
+      "finalUrl": "http://127.0.0.1:3015/request-documents/",
+      "status": 200,
+      "h1": "Request Documents",
+      "canonical": "https://tio2malaysia.com/request-documents/"
+    },
+    {
+      "path": "/privacy-policy/",
+      "finalUrl": "http://127.0.0.1:3015/privacy-policy",
+      "status": 200,
+      "h1": "Privacy Policy",
+      "canonical": "https://tio2malaysia.com/privacy-policy/"
+    },
+    {
+      "path": "/ms/privacy-policy/",
+      "finalUrl": "http://127.0.0.1:3015/ms/privacy-policy",
+      "status": 200,
+      "h1": "Dasar Privasi",
+      "canonical": "https://tio2malaysia.com/ms/privacy-policy/"
+    },
+    {
+      "path": "/cookie-policy/",
+      "finalUrl": "http://127.0.0.1:3015/cookie-policy",
+      "status": 200,
+      "h1": "Cookie Policy",
+      "canonical": "https://tio2malaysia.com/cookie-policy/"
+    }
+  ]
+}

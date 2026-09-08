@@ -36,7 +36,7 @@ const list = (value: string | readonly string[] | undefined): readonly string[] 
 )
 const grades = new Set<string>(contract.form.gradeOptions)
 const documentTypes = new Set<string>(contract.form.documentTypes.map((item) => item.value))
-const documentTypeOrder = ['technical_product', 'safety', 'quality_coa', 'regulatory', 'other'] as const
+const documentTypeOrder = ['technical_product', 'safety', 'quality_coa', 'origin_supplier_qualification', 'regulatory', 'other'] as const
 const gradePageIds = contract.form.gradeOptions.map((grade) => `GRADE-${grade.replace('-', '')}`)
 const applicationContextsByGrade = new Map<string, ReadonlySet<string>>([
   ['M-350', new Set(['Coatings', 'Plastics', 'Printing Inks', 'Paper'])],
@@ -69,7 +69,7 @@ export const MALAYSIA_REQUEST_DOCUMENTS_SOURCE_PAGE_IDS = Object.freeze([
   'HOME-001', 'MARKET-000', 'MARKET-EU-001', 'PRODUCT-000', 'APP-000', 'DOC-000', 'RES-000',
   'PRODUCT-PROC-CL', 'PRODUCT-PROC-SU',
   'APP-COAT', 'APP-PLAS', 'APP-MB', 'APP-INK', 'APP-PAPER',
-  'DOC-TDS', 'DOC-REACH',
+  'DOC-TDS', 'DOC-REACH', 'DOC-COO', 'MARKET-BR-EN', 'MARKET-BR-PT',
   ...gradePageIds,
 ] as const)
 export const MALAYSIA_REQUEST_DOCUMENTS_MARKET_IDS = Object.freeze([
@@ -137,7 +137,10 @@ export function normalizeMalaysiaRequestDocumentsSourcePageId(
   const expectedApplication = applicationBySource.get(value)
   if (expectedApplication) return visibleContext === expectedApplication ? value : null
   const expectedProcess = processBySource.get(value)
-  if (expectedProcess) return visibleContext === expectedProcess ? value : null
+  if (expectedProcess) {
+    if (value === 'PRODUCT-PROC-CL' && visibleContext === null) return value
+    return visibleContext === expectedProcess ? value : null
+  }
   if (value === 'PRODUCT-000' && visibleContext && !grade) return null
   if (value === 'APP-000' && visibleContext && !approvedApplicationContexts.has(visibleContext)) return null
   return value

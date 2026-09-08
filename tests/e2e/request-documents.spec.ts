@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test} from '@playwright/test'
-import {mkdirSync, readFileSync} from 'node:fs'
+import {mkdirSync, readFileSync, writeFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 
 import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
@@ -9,7 +9,9 @@ const contract = JSON.parse(readFileSync(
   'wordpress/plugins/tio2-site-model/config/tio2-my-request-documents.json', 'utf8',
 )) as {hero: {h1: string}; form: {gradeOptions: string[]; documentTypes: Array<{value: string}>}}
 const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
-const evidenceDirectory = resolve('docs/verification/conv-doc')
+const evidenceDirectory = resolve(process.env.POLAND_EVIDENCE_DIR ?? 'docs/verification/conv-doc')
+mkdirSync(evidenceDirectory, {recursive:true})
+if (process.env.POLAND_EVIDENCE_DIR) test.use({trace:'off'})
 const moduleOrder = ['breadcrumb', 'hero', 'steps', 'minimum-information', 'request-form']
 
 for (const viewport of [
@@ -50,8 +52,8 @@ for (const viewport of [
     await expect(header).not.toContainText('CURRENT')
     await expect(header.locator('a[aria-current="page"]')).toHaveCount(0)
     await expect(header.locator('a[href="/request-a-quote/"]').first()).toBeVisible()
-    expect(Math.round((await header.locator(':scope > div').first().boundingBox())?.height ?? 0)).toBe(viewport.width <= 900 ? 64 : 84)
-    if (viewport.width <= 900) {
+    expect(Math.round((await header.locator(':scope > div').first().boundingBox())?.height ?? 0)).toBe(viewport.width <= 1100 ? 63 : 83)
+    if (viewport.width <= 1100) {
       const menuButton = header.getByRole('button', {name: 'Open primary navigation'})
       await menuButton.click()
       const mobile = header.locator('nav[aria-label="Mobile navigation"]')
@@ -70,7 +72,7 @@ for (const viewport of [
     expect(JSON.stringify(graph)).not.toMatch(/Product|Offer|FAQPage|QAPage|business_email|document_types/u)
 
     await expect(page.locator('footer h2')).toHaveText(['Explore', 'Information', 'Procurement'])
-    const expectedFooterSize = viewport.width <= 430 ? '14px' : '12px'
+    const expectedFooterSize = '14px'
     expect(await page.locator('footer h2').evaluateAll((nodes) => nodes.map((node) => getComputedStyle(node).fontSize))).toEqual(Array(3).fill(expectedFooterSize))
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
     const axe = await new AxeBuilder({page}).analyze()
@@ -92,6 +94,7 @@ for (const width of [320, 375, 430, 1024, 1280] as const) {
 }
 
 test('CONV-DOC validation, failure retention, retry token and explicit receipt', async ({page}) => {
+  await page.route('**/*',route=>route.request().method()==='POST'?route.abort('blockedbyclient'):route.continue())
   await page.setViewportSize({width: 1280, height: 900})
   await page.goto(`${baseUrl}/request-documents/`, {waitUntil: 'networkidle'})
   await page.getByRole('button', {name: 'Request Documents'}).click()
@@ -140,6 +143,7 @@ test('CONV-DOC validation, failure retention, retry token and explicit receipt',
   await page.screenshot({path: resolve(evidenceDirectory, 'conv-doc-state-success.png'), fullPage: true, animations: 'disabled'})
   expect(tokens).toHaveLength(2)
   expect(tokens[0]).toBe(tokens[1])
+  writeFileSync(resolve(evidenceDirectory,'doc-simulated-receiver.json'),JSON.stringify({checkedAt:new Date().toISOString(),baseUrl,mode:'Browser-intercepted responses; no external submission',validation:true,failureRetainsValues:true,retry:true,stableRetryToken:true,explicitPositiveJsonRequired:true,attempts:tokens.length,providerAccepted:false,inboxConfirmed:false},null,2)+'\n')
 })
 
 test('CONV-DOC query prefill is editable, canonical-clean and market-safe', async ({page}) => {

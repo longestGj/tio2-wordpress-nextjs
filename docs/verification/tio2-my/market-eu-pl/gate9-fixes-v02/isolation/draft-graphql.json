@@ -1,0 +1,24 @@
+{
+  "errors": [
+    {
+      "message": "The Malaysia Poland Market record is missing, ambiguous, unpublished or invalid.",
+      "locations": [
+        {
+          "line": 1,
+          "column": 37
+        }
+      ],
+      "path": [
+        "malaysiaPolandMarketRecordJson"
+      ]
+    }
+  ],
+  "extensions": {
+    "debug": [
+      {
+        "type": "DEBUG_LOGS_INACTIVE",
+        "message": "GraphQL Debug logging is not active. To see debug logs, GRAPHQL_DEBUG must be enabled."
+      }
+    ]
+  }
+}

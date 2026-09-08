@@ -1,0 +1,162 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\16Wordpress_nextjs\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/poland-g9-isolation.spec.ts",
+      "--project=chromium",
+      "--reporter=list,json",
+      "--output=.tmp/poland-g9-isolation-results"
+    ],
+    "configFile": "D:\\16Wordpress_nextjs\\playwright.config.ts",
+    "rootDir": "D:/16Wordpress_nextjs/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/16Wordpress_nextjs/.tmp/poland-g9-isolation-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/16Wordpress_nextjs/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "poland-g9-isolation.spec.ts",
+      "file": "poland-g9-isolation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Poland live CMS rejects invalid owners and restores the exact baseline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 46887,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": " Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-96bcac8d7b88 Creating \n Container wordpress-wpcli-run-96bcac8d7b88 Created \n"
+                    },
+                    {
+                      "text": " Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-35b6c49af270 Creating \n Container wordpress-wpcli-run-35b6c49af270 Created \n"
+                    },
+                    {
+                      "text": " Container wordpress-db-1 Running \n Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-40c92ae1c4fb Creating \n Container wordpress-wpcli-run-40c92ae1c4fb Created \n"
+                    },
+                    {
+                      "text": " Container wordpress-db-1 Running \n Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-241d9ac269de Creating \n Container wordpress-wpcli-run-241d9ac269de Created \n"
+                    },
+                    {
+                      "text": " Container wordpress-db-1 Running \n Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-bbd39d11ad0d Creating \n Container wordpress-wpcli-run-bbd39d11ad0d Created \n"
+                    },
+                    {
+                      "text": " Container wordpress-db-1 Running \n Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-a7f7583954b2 Creating \n Container wordpress-wpcli-run-a7f7583954b2 Created \n"
+                    },
+                    {
+                      "text": " Container wordpress-db-1 Running \n Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-de842aa4cbef Creating \n Container wordpress-wpcli-run-de842aa4cbef Created \n"
+                    },
+                    {
+                      "text": " Container wordpress-db-1 Running \n Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-20103aa2fdf6 Creating \n Container wordpress-wpcli-run-20103aa2fdf6 Created \n"
+                    },
+                    {
+                      "text": " Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-804cf56c3463 Creating \n Container wordpress-wpcli-run-804cf56c3463 Created \n"
+                    },
+                    {
+                      "text": " Container wordpress-db-1 Running \n Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-39e65f7ac818 Creating \n Container wordpress-wpcli-run-39e65f7ac818 Created \n"
+                    },
+                    {
+                      "text": " Container wordpress-db-1 Running \n Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-c6c896076db9 Creating \n Container wordpress-wpcli-run-c6c896076db9 Created \n"
+                    },
+                    {
+                      "text": " Container wordpress-db-1 Running \n Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-916ffad45afa Creating \n Container wordpress-wpcli-run-916ffad45afa Created \n"
+                    },
+                    {
+                      "text": " Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-7727f0175b19 Creating \n Container wordpress-wpcli-run-7727f0175b19 Created \n"
+                    },
+                    {
+                      "text": " Container wordpress-db-1 Running \n Container wordpress-wordpress-1 Running \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-db-1 Waiting \n Container wordpress-db-1 Healthy \n Container wordpress-wpcli-run-8a7596a6ea31 Creating \n Container wordpress-wpcli-run-8a7596a6ea31 Created \n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-09-07T07:37:55.805Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bc45a75f521d0f4a03fd-e565fdcd8b7234dbff58",
+          "file": "poland-g9-isolation.spec.ts",
+          "line": 11,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-07T07:37:55.330Z",
+    "duration": 47631.826,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

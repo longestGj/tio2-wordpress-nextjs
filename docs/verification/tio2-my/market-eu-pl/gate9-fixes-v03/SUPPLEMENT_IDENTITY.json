@@ -1,0 +1,847 @@
+{
+  "checkedAt": "2026-09-07T07:53:33.4553827Z",
+  "buildId": "GjJdupnweqs0MK5nxZvnV",
+  "productionCodeChanged": false,
+  "original51Files": [
+    {
+      "path": "app/(en)/api/revalidate/route.ts",
+      "expected": "071d3a6b5b7bb5fe82a02cb7e5e6af66ef3e636d13a1f6af2c575d32a98fadc4",
+      "actual": "071d3a6b5b7bb5fe82a02cb7e5e6af66ef3e636d13a1f6af2c575d32a98fadc4",
+      "matches": true
+    },
+    {
+      "path": "app/(en)/layout.tsx",
+      "expected": "f87de84248b078cc81d481edb461c07b0c47406dc836b7332a80792531327537",
+      "actual": "f87de84248b078cc81d481edb461c07b0c47406dc836b7332a80792531327537",
+      "matches": true
+    },
+    {
+      "path": "app/(en)/markets/poland/page.tsx",
+      "expected": "01e8c084b57aa9c3f48501bef4ed4673939fbdb804300e35c49c09be09548bda",
+      "actual": "01e8c084b57aa9c3f48501bef4ed4673939fbdb804300e35c49c09be09548bda",
+      "matches": true
+    },
+    {
+      "path": "app/(ms)/ms/layout.tsx",
+      "expected": "9b10a363c7a2381a9525eb5dd2167969845cedc9e1023ba18fce7051a130296c",
+      "actual": "9b10a363c7a2381a9525eb5dd2167969845cedc9e1023ba18fce7051a130296c",
+      "matches": true
+    },
+    {
+      "path": "app/robots.ts",
+      "expected": "1da6452f8e7e361d6abba3744bed77ecbbda8f237d06761e7de0f8fcee06960b",
+      "actual": "1da6452f8e7e361d6abba3744bed77ecbbda8f237d06761e7de0f8fcee06960b",
+      "matches": true
+    },
+    {
+      "path": "components/sites/tio2-my/consent/malaysia-cookie-settings.module.css",
+      "expected": "5251af04f3c41ec651a31e7ddf4b9199a02f5298f6fe43e0c57961c1e10aed84",
+      "actual": "5251af04f3c41ec651a31e7ddf4b9199a02f5298f6fe43e0c57961c1e10aed84",
+      "matches": true
+    },
+    {
+      "path": "components/sites/tio2-my/consent/malaysia-cookie-settings.tsx",
+      "expected": "666a0d1ec3250f0c0dd9502495d6a343f565db2119db6a4e86f96d2c2e7edcd1",
+      "actual": "666a0d1ec3250f0c0dd9502495d6a343f565db2119db6a4e86f96d2c2e7edcd1",
+      "matches": true
+    },
+    {
+      "path": "components/sites/tio2-my/malaysia-global-chrome.module.css",
+      "expected": "40c9ffe56e1612cf854e323fa619466a4f1ee0503683974073f9923cdd54ea29",
+      "actual": "40c9ffe56e1612cf854e323fa619466a4f1ee0503683974073f9923cdd54ea29",
+      "matches": true
+    },
+    {
+      "path": "components/sites/tio2-my/malaysia-global-chrome.tsx",
+      "expected": "f20674d3c4b469121ff2230ab1e7a57a0108b9a4e401a2900f325ea10631707e",
+      "actual": "f20674d3c4b469121ff2230ab1e7a57a0108b9a4e401a2900f325ea10631707e",
+      "matches": true
+    },
+    {
+      "path": "components/sites/tio2-my/markets/malaysia-poland-market-page.module.css",
+      "expected": "345993d0c605a86d50973884e5b353a0061f5c8c765ec6034752a7c7ccc548ab",
+      "actual": "345993d0c605a86d50973884e5b353a0061f5c8c765ec6034752a7c7ccc548ab",
+      "matches": true
+    },
+    {
+      "path": "components/sites/tio2-my/markets/malaysia-poland-market-page.tsx",
+      "expected": "8a2b68eda2bce44c38d6b2df665de3236d983acb77e065b7fc57f72b700bdbe1",
+      "actual": "8a2b68eda2bce44c38d6b2df665de3236d983acb77e065b7fc57f72b700bdbe1",
+      "matches": true
+    },
+    {
+      "path": "lib/seo/market-poland-metadata.ts",
+      "expected": "37dbcf88e6d7b45771162846c32024aa02f7116f5f74e589506ddbb88f7e6e3f",
+      "actual": "37dbcf88e6d7b45771162846c32024aa02f7116f5f74e589506ddbb88f7e6e3f",
+      "matches": true
+    },
+    {
+      "path": "lib/sites/malaysia-shared-font.ts",
+      "expected": "274c4c9faea0988d1774dd5ebd50064a3e8a847fd86780469be847cec54c9284",
+      "actual": "274c4c9faea0988d1774dd5ebd50064a3e8a847fd86780469be847cec54c9284",
+      "matches": true
+    },
+    {
+      "path": "lib/wordpress/cache-tags.ts",
+      "expected": "42918c1d8a7d4737225c1b4411f68311c4bea0daf57c7b224296d10e714218a5",
+      "actual": "42918c1d8a7d4737225c1b4411f68311c4bea0daf57c7b224296d10e714218a5",
+      "matches": true
+    },
+    {
+      "path": "lib/wordpress/generated.ts",
+      "expected": "7d7c4e0d6e35bc3b49f773a9b327299ba5e76b70fb82a234f8f1f389a22261cb",
+      "actual": "7d7c4e0d6e35bc3b49f773a9b327299ba5e76b70fb82a234f8f1f389a22261cb",
+      "matches": true
+    },
+    {
+      "path": "lib/wordpress/market-page-poland-v01-dto.ts",
+      "expected": "a45fd500350418db6de2325811c47cb3bba7ae753024c86f563e6d40c85c71ca",
+      "actual": "a45fd500350418db6de2325811c47cb3bba7ae753024c86f563e6d40c85c71ca",
+      "matches": true
+    },
+    {
+      "path": "lib/wordpress/market-page-poland-v01-queries.graphql",
+      "expected": "b62935d24130b74a0cf0e719c50c1ec9d2ca7c14366a73c0d603b27fec6f1ad0",
+      "actual": "b62935d24130b74a0cf0e719c50c1ec9d2ca7c14366a73c0d603b27fec6f1ad0",
+      "matches": true
+    },
+    {
+      "path": "lib/wordpress/market-page-poland-v01-queries.ts",
+      "expected": "e9ab3b66e3ffdcb4b4961c86fe945087f163f98de652a975c972f503354a2191",
+      "actual": "e9ab3b66e3ffdcb4b4961c86fe945087f163f98de652a975c972f503354a2191",
+      "matches": true
+    },
+    {
+      "path": "lib/wordpress/market-page-poland-v01-types.ts",
+      "expected": "2671134c1b858c5fdde9772a0d1f4e7fe9aa66b0a2baa9bc2ec0d785475592c9",
+      "actual": "2671134c1b858c5fdde9772a0d1f4e7fe9aa66b0a2baa9bc2ec0d785475592c9",
+      "matches": true
+    },
+    {
+      "path": "proxy.ts",
+      "expected": "b3831608d9b8e509e7d1f511d45eb60728ab1a91f9a7ab7f04b8ecb87ce6cb0f",
+      "actual": "b3831608d9b8e509e7d1f511d45eb60728ab1a91f9a7ab7f04b8ecb87ce6cb0f",
+      "matches": true
+    },
+    {
+      "path": "tests/e2e/about-page.spec.ts",
+      "expected": "75ce169e95145001afb4042e7af21fd5b657252f4e46b18bbf76fd5d1e014963",
+      "actual": "75ce169e95145001afb4042e7af21fd5b657252f4e46b18bbf76fd5d1e014963",
+      "matches": true
+    },
+    {
+      "path": "tests/e2e/legal-privacy.spec.ts",
+      "expected": "e5a734aa6d53636bcc8420c5ac35f2efe10f4d7d6e9983719c009a871929126e",
+      "actual": "e5a734aa6d53636bcc8420c5ac35f2efe10f4d7d6e9983719c009a871929126e",
+      "matches": true
+    },
+    {
+      "path": "tests/e2e/market-hub.spec.ts",
+      "expected": "ee9474db34a606d551070b234797a8430829121e5d4b7d900692f4328bc44718",
+      "actual": "ee9474db34a606d551070b234797a8430829121e5d4b7d900692f4328bc44718",
+      "matches": true
+    },
+    {
+      "path": "tests/e2e/poland-g9-isolation.spec.ts",
+      "expected": "6fb97747cfcc694b8b99b4379e1ad12609fc1009f3d3745260a3359fbc72c5cf",
+      "actual": "6fb97747cfcc694b8b99b4379e1ad12609fc1009f3d3745260a3359fbc72c5cf",
+      "matches": true
+    },
+    {
+      "path": "tests/e2e/poland-g9-native-zoom.spec.ts",
+      "expected": "5f5b9c3e0d1d28f63513a975a3c25c2691784da386deb86f9c26d8aa546588c7",
+      "actual": "5f5b9c3e0d1d28f63513a975a3c25c2691784da386deb86f9c26d8aa546588c7",
+      "matches": true
+    },
+    {
+      "path": "tests/e2e/poland-g9-shared-visual.spec.ts",
+      "expected": "c0382a9cc3e980dadbef7f3292bb80251ecde91fbf70c7ad5776afdef70e4cd8",
+      "actual": "c0382a9cc3e980dadbef7f3292bb80251ecde91fbf70c7ad5776afdef70e4cd8",
+      "matches": true
+    },
+    {
+      "path": "tests/e2e/poland-live-cache.spec.ts",
+      "expected": "47eeeeb1c39149679132638fad2aca6adbe16b89579d4a8697e603f99c68f0fb",
+      "actual": "47eeeeb1c39149679132638fad2aca6adbe16b89579d4a8697e603f99c68f0fb",
+      "matches": true
+    },
+    {
+      "path": "tests/e2e/poland-market.spec.ts",
+      "expected": "824dae2e259234ccd8d550999bf7968736b1f13d39a9dc2c132da850d84a8271",
+      "actual": "824dae2e259234ccd8d550999bf7968736b1f13d39a9dc2c132da850d84a8271",
+      "matches": true
+    },
+    {
+      "path": "tests/e2e/request-documents.spec.ts",
+      "expected": "2b380bb43e9b358b7a0950114d5b80e61c1519710fed235b8b7b108418b4d1be",
+      "actual": "2b380bb43e9b358b7a0950114d5b80e61c1519710fed235b8b7b108418b4d1be",
+      "matches": true
+    },
+    {
+      "path": "tests/e2e/rfq-page.spec.ts",
+      "expected": "1142cd2607c7f01c3e31d18c5bf3ef863e30bc90de66ffed42025bdf3427686d",
+      "actual": "1142cd2607c7f01c3e31d18c5bf3ef863e30bc90de66ffed42025bdf3427686d",
+      "matches": true
+    },
+    {
+      "path": "tests/e2e/support/poland-build-artifacts.ts",
+      "expected": "e05e3912299f4372e76626e35b94f1df9dd983d3b90532794fd746283537c475",
+      "actual": "e05e3912299f4372e76626e35b94f1df9dd983d3b90532794fd746283537c475",
+      "matches": true
+    },
+    {
+      "path": "tests/e2e/tio2-my-global-navigation.spec.ts",
+      "expected": "d5385c23f49962de4bf08cd2aa8b0d98180537ec46d2aebae6deaaa30696eae8",
+      "actual": "d5385c23f49962de4bf08cd2aa8b0d98180537ec46d2aebae6deaaa30696eae8",
+      "matches": true
+    },
+    {
+      "path": "tests/e2e/united-kingdom-market.spec.ts",
+      "expected": "d458af3ffb54fe8cce1309e8f50a2ba1eb7fa38ea87f8714c164098734378bd6",
+      "actual": "d458af3ffb54fe8cce1309e8f50a2ba1eb7fa38ea87f8714c164098734378bd6",
+      "matches": true
+    },
+    {
+      "path": "tests/fixtures/markets/poland/approved-copy.md",
+      "expected": "ef55a67fa56ecf7fc84072bc1b8f8cf3b62846a0f53b4b7dbe504887a36e15aa",
+      "actual": "ef55a67fa56ecf7fc84072bc1b8f8cf3b62846a0f53b4b7dbe504887a36e15aa",
+      "matches": true
+    },
+    {
+      "path": "tests/infrastructure/php/market-poland-runtime.php",
+      "expected": "4eedb922def7397a51b4581c9926423b1230099b5efd112556419c7adfb9283c",
+      "actual": "4eedb922def7397a51b4581c9926423b1230099b5efd112556419c7adfb9283c",
+      "matches": true
+    },
+    {
+      "path": "tests/infrastructure/php/poland-g9-isolation-probe.php",
+      "expected": "35bdb92fb1c645f0acd233494ad6c59895a5020c1d81897c30901f68d867691b",
+      "actual": "35bdb92fb1c645f0acd233494ad6c59895a5020c1d81897c30901f68d867691b",
+      "matches": true
+    },
+    {
+      "path": "tests/infrastructure/php/poland-http-probe.php",
+      "expected": "780e375609d64089aee29bd133bf8f0c913e777a4abc70a578be3cbf14ce5a3d",
+      "actual": "780e375609d64089aee29bd133bf8f0c913e777a4abc70a578be3cbf14ce5a3d",
+      "matches": true
+    },
+    {
+      "path": "tests/infrastructure/php/poland-live-probe.php",
+      "expected": "7efe1a264afa71f6b3079204ce800b29e5a0126b556227a7ac0d683cee7755f2",
+      "actual": "7efe1a264afa71f6b3079204ce800b29e5a0126b556227a7ac0d683cee7755f2",
+      "matches": true
+    },
+    {
+      "path": "tests/infrastructure/tio2-my-poland-wordpress.test.ts",
+      "expected": "66a077de3b98478afa965097f81ccca2d1c3b8aa4543bb23a94a6ac46c75276c",
+      "actual": "66a077de3b98478afa965097f81ccca2d1c3b8aa4543bb23a94a6ac46c75276c",
+      "matches": true
+    },
+    {
+      "path": "tests/integration/markets/poland-live-cms.test.tsx",
+      "expected": "3d2d413a32f23f9a469bce092fa0d96e9dcd6ae21aa4569abd135ea6631be9eb",
+      "actual": "3d2d413a32f23f9a469bce092fa0d96e9dcd6ae21aa4569abd135ea6631be9eb",
+      "matches": true
+    },
+    {
+      "path": "tests/integration/markets/poland-queries.test.ts",
+      "expected": "534345fa981b50e09a0b114b22c28666b3fe475e7bae1290417a755cf0844529",
+      "actual": "534345fa981b50e09a0b114b22c28666b3fe475e7bae1290417a755cf0844529",
+      "matches": true
+    },
+    {
+      "path": "tests/integration/markets/poland-revalidate.test.ts",
+      "expected": "51f89e9b853f89de8dc2ed5cd4f5bf0b80feecb452a95f20871ee66befa38fcc",
+      "actual": "51f89e9b853f89de8dc2ed5cd4f5bf0b80feecb452a95f20871ee66befa38fcc",
+      "matches": true
+    },
+    {
+      "path": "tests/integration/markets/poland-route.test.tsx",
+      "expected": "b9a3ceef8d06082ba727bd63a81efee1b36ae4c49fc0efc6e35c7bc31ad8a664",
+      "actual": "b9a3ceef8d06082ba727bd63a81efee1b36ae4c49fc0efc6e35c7bc31ad8a664",
+      "matches": true
+    },
+    {
+      "path": "tests/unit/legal/consent-manager.test.tsx",
+      "expected": "a1fa3639a0e3ed6f6dc9d03489337e86c9c6a2f0fbfe7631d7478def081d1847",
+      "actual": "a1fa3639a0e3ed6f6dc9d03489337e86c9c6a2f0fbfe7631d7478def081d1847",
+      "matches": true
+    },
+    {
+      "path": "tests/unit/markets/malaysia-poland-market.test.tsx",
+      "expected": "9cd073da109c6b1a1d0b8a771956d1a59a6e35e611a9d9d3923157675a1157b7",
+      "actual": "9cd073da109c6b1a1d0b8a771956d1a59a6e35e611a9d9d3923157675a1157b7",
+      "matches": true
+    },
+    {
+      "path": "wordpress/plugins/tio2-site-model/config/tio2-my-market-poland.json",
+      "expected": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+      "actual": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+      "matches": true
+    },
+    {
+      "path": "wordpress/plugins/tio2-site-model/includes/market-page-poland-v01.php",
+      "expected": "e981a4d12fd9e44a4819a3be5a9493357cbb888dea497111eab58ba442926a3b",
+      "actual": "e981a4d12fd9e44a4819a3be5a9493357cbb888dea497111eab58ba442926a3b",
+      "matches": true
+    },
+    {
+      "path": "wordpress/plugins/tio2-site-model/includes/webhooks.php",
+      "expected": "d1c2144c2a2fa74df3f98bd65f6fe165bc7efd0044306bef837f8227333c3226",
+      "actual": "d1c2144c2a2fa74df3f98bd65f6fe165bc7efd0044306bef837f8227333c3226",
+      "matches": true
+    },
+    {
+      "path": "wordpress/plugins/tio2-site-model/tio2-site-model.php",
+      "expected": "1be852c9cb73ac425d8642eaea03cac21ed5f118a6779c8b321beb468beff62d",
+      "actual": "1be852c9cb73ac425d8642eaea03cac21ed5f118a6779c8b321beb468beff62d",
+      "matches": true
+    },
+    {
+      "path": "wordpress/schema.graphql",
+      "expected": "632503a8d5f76da998581da8358250f6cd6551387bfa2e8b09727fb6280d3492",
+      "actual": "632503a8d5f76da998581da8358250f6cd6551387bfa2e8b09727fb6280d3492",
+      "matches": true
+    },
+    {
+      "path": "wordpress/seed/apply-tio2-my-market-poland.php",
+      "expected": "4e2520ec0334e134072bb77f47cee56005462347746ab24a45cf7ea693b86a17",
+      "actual": "4e2520ec0334e134072bb77f47cee56005462347746ab24a45cf7ea693b86a17",
+      "matches": true
+    }
+  ],
+  "originalV02Evidence": [
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\BUILD_RUNTIME_BINDING.json",
+      "expected": "cdbcd914241910fe6dbc6b888c390ae9c42b77b0bae614faf225cfe6a36950af",
+      "actual": "cdbcd914241910fe6dbc6b888c390ae9c42b77b0bae614faf225cfe6a36950af",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\cache\\live-cache.json",
+      "expected": "4d4995f34e4241cae0c023aad5e955a54356fd64f638df100f52dea66483b6c6",
+      "actual": "4d4995f34e4241cae0c023aad5e955a54356fd64f638df100f52dea66483b6c6",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\cache\\test-results.json",
+      "expected": "7faee52e55ec4646c97bbce08b1b80b4366ce1efe438291300d80330dbe3d16c",
+      "actual": "7faee52e55ec4646c97bbce08b1b80b4366ce1efe438291300d80330dbe3d16c",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\EXECUTION_RESULTS.json",
+      "expected": "a68543d894576f4abb612978c57a7d116b856d5a328c3e0516f0383a2bd1afba",
+      "actual": "a68543d894576f4abb612978c57a7d116b856d5a328c3e0516f0383a2bd1afba",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\GATE9_CORRECTION_RECEIPT.md",
+      "expected": "2d991d9385e6cb71e60ac977fdb4f1a8d05a0af0a2d63a44c1e1d4056ea4a18d",
+      "actual": "2d991d9385e6cb71e60ac977fdb4f1a8d05a0af0a2d63a44c1e1d4056ea4a18d",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\http\\navigation.json",
+      "expected": "3fab8377c827cc994c34645a22d0ce039f2c1504fd4304f75a96e4d252c194dc",
+      "actual": "3fab8377c827cc994c34645a22d0ce039f2c1504fd4304f75a96e4d252c194dc",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\http\\poland.html",
+      "expected": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "actual": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\IMPLEMENTATION_SNAPSHOT.json",
+      "expected": "ec4c0028003220dc3017ee4e53758b6bd34c57b246efbcd69e0d76eb6e4a6a5c",
+      "actual": "ec4c0028003220dc3017ee4e53758b6bd34c57b246efbcd69e0d76eb6e4a6a5c",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\baseline-graphql.json",
+      "expected": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "actual": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\baseline.html",
+      "expected": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "actual": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\draft-graphql.json",
+      "expected": "87bcd48c1494692b934555235c441be102ce55cde896c5998d24d505ac2652fa",
+      "actual": "87bcd48c1494692b934555235c441be102ce55cde896c5998d24d505ac2652fa",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\draft-restored-graphql.json",
+      "expected": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "actual": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\draft-restored.html",
+      "expected": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "actual": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\draft.html",
+      "expected": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "actual": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\finally-restored-graphql.json",
+      "expected": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "actual": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\finally-restored.html",
+      "expected": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "actual": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\ledger.json",
+      "expected": "b53406502a99db06cf04532bd7518ed99b155fd0d11125571b16dcca7175f25c",
+      "actual": "b53406502a99db06cf04532bd7518ed99b155fd0d11125571b16dcca7175f25c",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\malformed-graphql.json",
+      "expected": "87bcd48c1494692b934555235c441be102ce55cde896c5998d24d505ac2652fa",
+      "actual": "87bcd48c1494692b934555235c441be102ce55cde896c5998d24d505ac2652fa",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\malformed-restored-graphql.json",
+      "expected": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "actual": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\malformed-restored.html",
+      "expected": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "actual": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\malformed.html",
+      "expected": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "actual": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\missing-graphql.json",
+      "expected": "87bcd48c1494692b934555235c441be102ce55cde896c5998d24d505ac2652fa",
+      "actual": "87bcd48c1494692b934555235c441be102ce55cde896c5998d24d505ac2652fa",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\missing-restored-graphql.json",
+      "expected": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "actual": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\missing-restored.html",
+      "expected": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "actual": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\missing.html",
+      "expected": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "actual": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\multiple-scopes-graphql.json",
+      "expected": "87bcd48c1494692b934555235c441be102ce55cde896c5998d24d505ac2652fa",
+      "actual": "87bcd48c1494692b934555235c441be102ce55cde896c5998d24d505ac2652fa",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\multiple-scopes-restored-graphql.json",
+      "expected": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "actual": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\multiple-scopes-restored.html",
+      "expected": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "actual": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\multiple-scopes.html",
+      "expected": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "actual": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\no-scope-graphql.json",
+      "expected": "87bcd48c1494692b934555235c441be102ce55cde896c5998d24d505ac2652fa",
+      "actual": "87bcd48c1494692b934555235c441be102ce55cde896c5998d24d505ac2652fa",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\no-scope-restored-graphql.json",
+      "expected": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "actual": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\no-scope-restored.html",
+      "expected": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "actual": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\no-scope.html",
+      "expected": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "actual": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\test-results.json",
+      "expected": "d259a5579f1f6317c2d04e118d7394d8a3362558efb73d3b51c5d05c556030e4",
+      "actual": "d259a5579f1f6317c2d04e118d7394d8a3362558efb73d3b51c5d05c556030e4",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\tio2-a-home.html",
+      "expected": "5061d0318a8a024c4d5eae879859aa0ff96ed6d84f7bda999331a79b6866063b",
+      "actual": "5061d0318a8a024c4d5eae879859aa0ff96ed6d84f7bda999331a79b6866063b",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\tio2-a-poland-negative.html",
+      "expected": "df77244dd8bfc5d3cad92ad4866dcb141d1d2348179e82a9f2f3a4445e5f52c5",
+      "actual": "df77244dd8bfc5d3cad92ad4866dcb141d1d2348179e82a9f2f3a4445e5f52c5",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\tio2-b-home.html",
+      "expected": "6195c8cf2bf64afc86f480b356385181b1d294304ae331f58d7d9830eb86a459",
+      "actual": "6195c8cf2bf64afc86f480b356385181b1d294304ae331f58d7d9830eb86a459",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\tio2-b-poland-negative.html",
+      "expected": "defd58a5e956577edec3f3ee225c72b05e6fc0356f48191324c10c072ca2d2e5",
+      "actual": "defd58a5e956577edec3f3ee225c72b05e6fc0356f48191324c10c072ca2d2e5",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\tio2-my-home.html",
+      "expected": "e0c0267ebfc0863ffc7f76d3227cb9652e6ec433d6955401de083bbd2b07b578",
+      "actual": "e0c0267ebfc0863ffc7f76d3227cb9652e6ec433d6955401de083bbd2b07b578",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\wrong-scope-graphql.json",
+      "expected": "87bcd48c1494692b934555235c441be102ce55cde896c5998d24d505ac2652fa",
+      "actual": "87bcd48c1494692b934555235c441be102ce55cde896c5998d24d505ac2652fa",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\wrong-scope-restored-graphql.json",
+      "expected": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "actual": "73879ab6fdaf2ba336f62b4213549b7c329cb0963da0938aef30f64d6d81f6d7",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\wrong-scope-restored.html",
+      "expected": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "actual": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\isolation\\wrong-scope.html",
+      "expected": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "actual": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\native-zoom\\cookie-native-200.png",
+      "expected": "c1b45b613a0205aa7a12dd5b4bf25629ded2ee31785024b81cd902513a8abfc7",
+      "actual": "c1b45b613a0205aa7a12dd5b4bf25629ded2ee31785024b81cd902513a8abfc7",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\native-zoom\\evidence.json",
+      "expected": "fe4edfc52062e75cbc4ff81e94304b711cb54fb30a72842432b8142dae244e40",
+      "actual": "fe4edfc52062e75cbc4ff81e94304b711cb54fb30a72842432b8142dae244e40",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\native-zoom\\page-native-200.png",
+      "expected": "f2814e2345e56204ec3c5014550510b62c3e0770053e2a1ea3084aa3532304d5",
+      "actual": "f2814e2345e56204ec3c5014550510b62c3e0770053e2a1ea3084aa3532304d5",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\RECEIVER_EVIDENCE_AUDIT.md",
+      "expected": "faf2d082c0c49b22860f3dc9070410e2de6ed973cb638843217552cde2389291",
+      "actual": "faf2d082c0c49b22860f3dc9070410e2de6ed973cb638843217552cde2389291",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\receivers\\conv-doc-state-failure.png",
+      "expected": "ec954f26871ccedcb38b352e3a5d36d3c8725e954a8837298b9ea826a9868ec7",
+      "actual": "ec954f26871ccedcb38b352e3a5d36d3c8725e954a8837298b9ea826a9868ec7",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\receivers\\conv-doc-state-submitting.png",
+      "expected": "e5db06ec8ef3bc14d8ef2489b5de96696a3dfb1b1c233f3e90fd84513784abb9",
+      "actual": "e5db06ec8ef3bc14d8ef2489b5de96696a3dfb1b1c233f3e90fd84513784abb9",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\receivers\\conv-doc-state-success.png",
+      "expected": "d11463947fb517a0882707b1b92c0a5aa23d8070d1f3357e0ebdf69475d20365",
+      "actual": "d11463947fb517a0882707b1b92c0a5aa23d8070d1f3357e0ebdf69475d20365",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\receivers\\conv-doc-state-validation.png",
+      "expected": "5236ae768ec030dc26a5f21420b6f837afbb681226bfc276eaf16fab740616d8",
+      "actual": "5236ae768ec030dc26a5f21420b6f837afbb681226bfc276eaf16fab740616d8",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\receivers\\doc-simulated-receiver.json",
+      "expected": "b54b42a6c7e2da14e6bcd96f210d76da71330d37da69a8621659b36224f86b9b",
+      "actual": "b54b42a6c7e2da14e6bcd96f210d76da71330d37da69a8621659b36224f86b9b",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\receivers\\rfq-simulated-receiver.json",
+      "expected": "6ad48853c8dfd496cb266dcc88577f0caabbe434cdb4a440d0cff4c87d5d49b5",
+      "actual": "6ad48853c8dfd496cb266dcc88577f0caabbe434cdb4a440d0cff4c87d5d49b5",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\receivers\\rfq-simulated-success.png",
+      "expected": "9c4bdf9c2b2da2e5e25f69dd072b161ecb1a7fa031d496c1affa4d4170cd979d",
+      "actual": "9c4bdf9c2b2da2e5e25f69dd072b161ecb1a7fa031d496c1affa4d4170cd979d",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\receivers\\test-results.json",
+      "expected": "92009b5acda1cce6e5d1c04c78d7c7f66971b5864607bdb18ed8fe556d300c8b",
+      "actual": "92009b5acda1cce6e5d1c04c78d7c7f66971b5864607bdb18ed8fe556d300c8b",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\browser-matrix.json",
+      "expected": "1f462777341ad16f16782474c4201bf27bac2593aab82156c8a9e9e8dd0a8b8c",
+      "actual": "1f462777341ad16f16782474c4201bf27bac2593aab82156c8a9e9e8dd0a8b8c",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\cookie-1440.png",
+      "expected": "55717184ea1ca1ac32ab580fd87d6327fbbb949d49592d3e7dfcf415b4066d56",
+      "actual": "55717184ea1ca1ac32ab580fd87d6327fbbb949d49592d3e7dfcf415b4066d56",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\cookie-390.png",
+      "expected": "ad71c0115864eb9b91abda2e813bdf34026abab87968946546fafe1330fac823",
+      "actual": "ad71c0115864eb9b91abda2e813bdf34026abab87968946546fafe1330fac823",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\cookie-768.png",
+      "expected": "bc0ec7f6d7fd12c44e310ed92d25a2d24b5acadfe101d95644cf337a84117c78",
+      "actual": "bc0ec7f6d7fd12c44e310ed92d25a2d24b5acadfe101d95644cf337a84117c78",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\focus-1440.png",
+      "expected": "d7a2fe64292840ce3f00ebd81311558bf4164c71a97d334e26b76cbdf6041c1b",
+      "actual": "d7a2fe64292840ce3f00ebd81311558bf4164c71a97d334e26b76cbdf6041c1b",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\focus-390.png",
+      "expected": "ac73734fe7aaec8c7a0d404e3e7db7b6f24adeb8452522df5109f29030d4d0b6",
+      "actual": "ac73734fe7aaec8c7a0d404e3e7db7b6f24adeb8452522df5109f29030d4d0b6",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\focus-768.png",
+      "expected": "3a87c2bd0af26c3dd9a812c4a5ee3f8a41fcecaeb4b7e79b4e82a774e7f929fa",
+      "actual": "3a87c2bd0af26c3dd9a812c4a5ee3f8a41fcecaeb4b7e79b4e82a774e7f929fa",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\hover-pl-04-1440.png",
+      "expected": "79f165ee9da94657e2ef819da5c775d76375cab2e97a2547163f59c7e08ce0a1",
+      "actual": "79f165ee9da94657e2ef819da5c775d76375cab2e97a2547163f59c7e08ce0a1",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\hover-pl-04-390.png",
+      "expected": "996022552e84e04def8f3d83cd547f482676013bf175478108188ae75454eed3",
+      "actual": "996022552e84e04def8f3d83cd547f482676013bf175478108188ae75454eed3",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\hover-pl-04-768.png",
+      "expected": "1711a4e05face24d5f6797628322d4f8ba56eaa7838b94841944b0bd62101d3e",
+      "actual": "1711a4e05face24d5f6797628322d4f8ba56eaa7838b94841944b0bd62101d3e",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\hover-pl-05-1440.png",
+      "expected": "8eb1a30afa08d53787e56a4d09d806a0581e3f292ca287bb3f8d6a64bb134c05",
+      "actual": "8eb1a30afa08d53787e56a4d09d806a0581e3f292ca287bb3f8d6a64bb134c05",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\hover-pl-05-390.png",
+      "expected": "d483d3aece38eec07454e6dfb382db84b6b557a7e8fb9dab568926e3bb583d87",
+      "actual": "d483d3aece38eec07454e6dfb382db84b6b557a7e8fb9dab568926e3bb583d87",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\hover-pl-05-768.png",
+      "expected": "9465eefe2ca4bee930cfb0823db43c63179cdca71dbbba411bb8042a14d767d2",
+      "actual": "9465eefe2ca4bee930cfb0823db43c63179cdca71dbbba411bb8042a14d767d2",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\menu-390.png",
+      "expected": "f9d7b85a7a9e32269d3b02c659bbd23a1b584d0936090abc4d33cffeaaf41b76",
+      "actual": "f9d7b85a7a9e32269d3b02c659bbd23a1b584d0936090abc4d33cffeaaf41b76",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\menu-768.png",
+      "expected": "874bdb7e958d0675f5539a573d0a83f1f88922576d027eaf4cc9395041582ae5",
+      "actual": "874bdb7e958d0675f5539a573d0a83f1f88922576d027eaf4cc9395041582ae5",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\poland-1440.png",
+      "expected": "a8177a9cf91c495bc22f93506089511c287386d57e8390692aa79668a332b76d",
+      "actual": "a8177a9cf91c495bc22f93506089511c287386d57e8390692aa79668a332b76d",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\poland-390.png",
+      "expected": "2f99dc342390aaf69e28651b97f48ce5c60c3785696ff0e5df206982ec81218d",
+      "actual": "2f99dc342390aaf69e28651b97f48ce5c60c3785696ff0e5df206982ec81218d",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\poland-768.png",
+      "expected": "9f6daff5237570134730e711e28def4f3590dfc948d9c493ff47896c300e526c",
+      "actual": "9f6daff5237570134730e711e28def4f3590dfc948d9c493ff47896c300e526c",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\reflow-320.png",
+      "expected": "70df484593b80a3efdd0837ec1fc2c6ba5b34c7740c2879c42f0c1ced87efa34",
+      "actual": "70df484593b80a3efdd0837ec1fc2c6ba5b34c7740c2879c42f0c1ced87efa34",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\runtime\\reflow-720.png",
+      "expected": "ffe3145262aea761759b0f90e1c903796d4b26bee451041875107dd54cf1d0cc",
+      "actual": "ffe3145262aea761759b0f90e1c903796d4b26bee451041875107dd54cf1d0cc",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\shared-navigation-results.json",
+      "expected": "a019fe07e7381a3082665cda0a277acdc7a4f5ae9c23348ee9189d5b5b2cff76",
+      "actual": "a019fe07e7381a3082665cda0a277acdc7a4f5ae9c23348ee9189d5b5b2cff76",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\shared-visual\\cookie-1440.png",
+      "expected": "84f54e48e6c0643f248e9f233189b7f2f0537f9c8d610df72c528926b2cd96a1",
+      "actual": "84f54e48e6c0643f248e9f233189b7f2f0537f9c8d610df72c528926b2cd96a1",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\shared-visual\\cookie-390.png",
+      "expected": "6e0655e7c75e0c6b541cb5f6c80ad04b2d86b3f641bd765926c62c21d4807b98",
+      "actual": "6e0655e7c75e0c6b541cb5f6c80ad04b2d86b3f641bd765926c62c21d4807b98",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\shared-visual\\cookie-768.png",
+      "expected": "080935849398cb91787457f90c47332b6a5933db2874b56dfc51e58ea24725d8",
+      "actual": "080935849398cb91787457f90c47332b6a5933db2874b56dfc51e58ea24725d8",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\shared-visual\\full-1440.png",
+      "expected": "a8177a9cf91c495bc22f93506089511c287386d57e8390692aa79668a332b76d",
+      "actual": "a8177a9cf91c495bc22f93506089511c287386d57e8390692aa79668a332b76d",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\shared-visual\\full-390.png",
+      "expected": "2f99dc342390aaf69e28651b97f48ce5c60c3785696ff0e5df206982ec81218d",
+      "actual": "2f99dc342390aaf69e28651b97f48ce5c60c3785696ff0e5df206982ec81218d",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\shared-visual\\full-768.png",
+      "expected": "9f6daff5237570134730e711e28def4f3590dfc948d9c493ff47896c300e526c",
+      "actual": "9f6daff5237570134730e711e28def4f3590dfc948d9c493ff47896c300e526c",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\shared-visual\\menu-390.png",
+      "expected": "06c2d0be4d7f5d67d669e03f2a4e3ce112c1ba916092b136b430f23854642b91",
+      "actual": "06c2d0be4d7f5d67d669e03f2a4e3ce112c1ba916092b136b430f23854642b91",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\shared-visual\\menu-768.png",
+      "expected": "874bdb7e958d0675f5539a573d0a83f1f88922576d027eaf4cc9395041582ae5",
+      "actual": "874bdb7e958d0675f5539a573d0a83f1f88922576d027eaf4cc9395041582ae5",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\shared-visual\\result-1440.json",
+      "expected": "94dee19e25b0fe4d58809e0bdacaf5cc7b8865d191a19247f34ad46916e942f9",
+      "actual": "94dee19e25b0fe4d58809e0bdacaf5cc7b8865d191a19247f34ad46916e942f9",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\shared-visual\\result-390.json",
+      "expected": "4a57dd7ad620c53a53f54105a2156970fd95b5857632c8909de62d58238a0c30",
+      "actual": "4a57dd7ad620c53a53f54105a2156970fd95b5857632c8909de62d58238a0c30",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\shared-visual\\result-768.json",
+      "expected": "13c98a85819d943f4091b6530b84ef3cd27c651bdf47355f2f1efdad82bdfd45",
+      "actual": "13c98a85819d943f4091b6530b84ef3cd27c651bdf47355f2f1efdad82bdfd45",
+      "matches": true
+    },
+    {
+      "path": "docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02\\unit-results.json",
+      "expected": "0bd860f5cb1aa048badea5d9489eeb822a2244aa29a48eb0e2ae57796c8a459d",
+      "actual": "0bd860f5cb1aa048badea5d9489eeb822a2244aa29a48eb0e2ae57796c8a459d",
+      "matches": true
+    }
+  ],
+  "additionalTest": {
+    "sha256": "60247337480c24ef64bc3fd4c0fdc3cc46cc57140a95ba02845da3cb6d541e92",
+    "path": "tests/e2e/poland-g9-native-zoom-v03.spec.ts"
+  }
+}

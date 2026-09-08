@@ -64,14 +64,14 @@ for (const contract of approved.pages) {
         page.locator('header img[alt="TiO2 Malaysia"]'),
         width === 390 ? {width: 120, height: 40} : width === 768 ? {width: 120, height: 40} : {width: 180, height: 60},
       )
-      expect(await page.locator('header > div').first().evaluate((node) => node.getBoundingClientRect().height)).toBe(width <= 900 ? 64 : 84)
+      expect(await page.locator('header > div').first().evaluate((node) => node.getBoundingClientRect().height)).toBe(width <= 1100 ? 63 : 83)
 
       const footer = page.locator('footer')
       await expect(footer).toHaveAttribute('lang', 'en')
       await expect(footer.locator('h2')).toHaveText(['Explore', 'Information', 'Procurement'])
       await expect(footer.getByRole('navigation', {name: 'Legal and privacy navigation'}).locator(':is(a, button)')).toHaveText(expectedLegalUtilities)
       await expect(footer.locator('p').last()).toHaveText('© 2026 TiO2 Malaysia.')
-      expect(await footer.locator('h2').evaluateAll((nodes) => nodes.map((node) => getComputedStyle(node).fontSize))).toEqual(width === 390 ? ['14px', '14px', '14px'] : ['12px', '12px', '12px'])
+      expect(await footer.locator('h2').evaluateAll((nodes) => nodes.map((node) => getComputedStyle(node).fontSize))).toEqual(['14px', '14px', '14px'])
       expect(await footer.locator(':scope > div').first().evaluate((grid) => {
         const rects = Array.from(grid.children, (child) => child.getBoundingClientRect())
         return rects.some((a, index) => rects.slice(index + 1).some((b) => Math.min(a.right, b.right) > Math.max(a.left, b.left) && Math.min(a.bottom, b.bottom) > Math.max(a.top, b.top)))
@@ -117,7 +117,7 @@ for (const contract of approved.pages) {
         ).toBe(true)
       }
 
-      if (width <= 900) {
+      if (width <= 1100) {
         const menuButton = page.getByRole('button', {name: 'Open primary navigation'})
         await menuButton.click()
         const mobileMenu = page.getByRole('navigation', {name: 'Mobile navigation'})

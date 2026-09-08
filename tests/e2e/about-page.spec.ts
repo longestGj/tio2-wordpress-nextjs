@@ -90,7 +90,7 @@ for (const width of widths) {
     expect(graph[1]).not.toHaveProperty('legalName')
 
     await expect(page.locator('footer h2')).toHaveText(['Explore', 'Information', 'Procurement'])
-    const expectedFooterSize = width <= 430 ? '14px' : '12px'
+    const expectedFooterSize = '14px'
     expect(await page.locator('footer h2').evaluateAll((nodes) => nodes.map((node) => getComputedStyle(node).fontSize))).toEqual([expectedFooterSize, expectedFooterSize, expectedFooterSize])
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
     const moduleHeights = await page.locator('[data-module]').evaluateAll((nodes) => Object.fromEntries(

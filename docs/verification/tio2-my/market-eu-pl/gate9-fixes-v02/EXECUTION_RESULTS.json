@@ -1,0 +1,13 @@
+{
+  "date": "2026-09-07",
+  "source": "Root observed tool exit codes and Playwright/Vitest output; aggregate is not a raw Playwright reporter file",
+  "builds": {"malaysia": "passed", "siteA": "passed", "siteB": "passed"},
+  "unitIntegration": {"files": 10, "passed": 62, "failed": 0, "rawReport": "unit-results.json"},
+  "browserCore": {"passed": 12, "failed": 0, "exitCode": 0, "startUtc": "2026-09-07T07:36:38.586Z", "durationMs": 18610.904, "files": ["poland-g9-native-zoom.spec.ts", "poland-g9-shared-visual.spec.ts", "poland-market.spec.ts"], "rawReporter": "Tool stdout only; detailed per-test evidence in runtime/shared-visual/native-zoom"},
+  "browserAdditional": {"receiverMocked": 2, "homeSharedNavigation": 3, "liveCmsIsolation": 1, "liveCache": 1, "failed": 0},
+  "finalTypecheck": "passed",
+  "scopedEslint": "passed",
+  "gate9IndependentAcceptance": "pending",
+  "productionDeployment": false,
+  "actualProviderSubmissionsThisRun": 0
+}

@@ -1,0 +1,1381 @@
+{
+  "postId": 18515,
+  "seedSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+  "sites": [
+    {
+      "id": "tio2-my",
+      "base": "http://127.0.0.1:3015"
+    },
+    {
+      "id": "tio2-a",
+      "base": "http://127.0.0.1:3017"
+    },
+    {
+      "id": "tio2-b",
+      "base": "http://127.0.0.1:3018"
+    }
+  ],
+  "graphql": "http://127.0.0.1:8080/graphql",
+  "entries": [
+    {
+      "at": "2026-09-07T07:37:56.166Z",
+      "kind": "revalidation",
+      "state": "preflight",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "f4d682a5-a5e6-42ba-8b6b-6fd9ff6159d9",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:37:56.147Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "f4d682a5-a5e6-42ba-8b6b-6fd9ff6159d9",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:37:56.346Z",
+      "kind": "graphql",
+      "state": "baseline",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "baseline-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:37:56.545Z",
+      "kind": "page-http",
+      "state": "baseline",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 200,
+      "sha256": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "htmlFile": "baseline.html"
+    },
+    {
+      "at": "2026-09-07T07:37:56.551Z",
+      "kind": "revalidation",
+      "state": "foreign-event",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "08eb4f95-1af6-4ba5-b68b-b889654ee633",
+        "siteIds": [
+          "tio2-a"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:37:56.546Z"
+      },
+      "status": 400,
+      "result": {
+        "ok": false,
+        "error": "Payload targets another site"
+      }
+    },
+    {
+      "at": "2026-09-07T07:37:56.676Z",
+      "kind": "home-identity",
+      "siteId": "tio2-my",
+      "url": "http://127.0.0.1:3015/",
+      "status": 200,
+      "identity": {
+        "title": "Malaysia Titanium Dioxide Supplier | TiO₂ Malaysia",
+        "lang": "en",
+        "canonical": "https://tio2malaysia.com",
+        "h1": [
+          "Malaysia Titanium Dioxide for Industrial Buyers"
+        ],
+        "header": "<header class=\"malaysia-global-chrome-module__3sRipa__header\" lang=\"en\"><div class=\"malaysia-global-chrome-module__3sRipa__headerInner\"><a class=\"malaysia-global-chrome-module__3sRipa__logoLink\" aria-label=\"TiO2 Malaysia home\" href=\"/\"><img alt=\"TiO2 Malaysia\" fetchpriority=\"high\" loading=\"lazy\" width=\"900\" height=\"300\" decoding=\"async\" data-nimg=\"1\" class=\"malaysia-global-chrome-module__3sRipa__logo\" style=\"color:transparent\" src=\"/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg\"></a><nav class=\"malaysia-global-chrome-module__3sRipa__desktopNav\" aria-label=\"Primary navigation\"><a href=\"/\" aria-current=\"page\"><span>Home</span></a><a href=\"/markets/\"><span>Markets</span></a><a href=\"/products/\"><span>Products</span></a><a href=\"/applications/\"><span>Applications</span></a><a href=\"/documents/\"><span>Documents</span></a><a href=\"/resources/\"><span>Resources</span></a><a href=\"/about/\"><span>About</span></a></nav><a class=\"malaysia-global-chrome-module__3sRipa__headerRfq\" href=\"/request-a-quote/\" data-site-scope=\"tio2-my\" data-source-page=\"HOME-001\"><span class=\"malaysia-global-chrome-module__3sRipa__rfqFull\">Request a Quote</span><span class=\"malaysia-global-chrome-module__3sRipa__rfqCompact\">RFQ</span></a><button type=\"button\" class=\"malaysia-global-chrome-module__3sRipa__menuButton\" aria-label=\"Open primary navigation\" aria-expanded=\"false\" aria-controls=\"malaysia-mobile-menu\">Menu</button></div><dialog id=\"malaysia-mobile-menu\" class=\"malaysia-global-chrome-module__3sRipa__mobileDialog\" aria-label=\"Primary navigation menu\" aria-modal=\"true\"><div class=\"malaysia-global-chrome-module__3sRipa__menuTopbar\"><img alt=\"TiO2 Malaysia\" loading=\"lazy\" width=\"120\" height=\"40\" decoding=\"async\" data-nimg=\"1\" class=\"malaysia-global-chrome-module__3sRipa__menuLogo\" style=\"color:transparent\" src=\"/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg\"><a class=\"malaysia-global-chrome-module__3sRipa__headerRfq\" href=\"/request-a-quote/\" data-site-scope=\"tio2-my\" data-source-page=\"HOME-001\">RFQ</a><button type=\"button\" class=\"malaysia-global-chrome-module__3sRipa__menuClose\" aria-label=\"Close primary navigation menu\">Close</button></div><nav class=\"malaysia-global-chrome-module__3sRipa__mobileNav\" aria-label=\"Mobile navigation\" hidden=\"\"><a href=\"/\" aria-current=\"page\"><span>Home</span></a><a href=\"/markets/\"><span>Markets</span></a><a href=\"/products/\"><span>Products</span></a><a href=\"/applications/\"><span>Applications</span></a><a href=\"/documents/\"><span>Documents</span></a><a href=\"/resources/\"><span>Resources</span></a><a href=\"/about/\"><span>About</span></a><a href=\"/request-a-quote/\" data-site-scope=\"tio2-my\" data-source-page=\"HOME-001\">Request a Quote</a></nav></dialog></header>",
+        "navigation": [
+          {
+            "text": "",
+            "href": "/"
+          },
+          {
+            "text": "Home",
+            "href": "/"
+          },
+          {
+            "text": "Markets",
+            "href": "/markets/"
+          },
+          {
+            "text": "Products",
+            "href": "/products/"
+          },
+          {
+            "text": "Applications",
+            "href": "/applications/"
+          },
+          {
+            "text": "Documents",
+            "href": "/documents/"
+          },
+          {
+            "text": "Resources",
+            "href": "/resources/"
+          },
+          {
+            "text": "About",
+            "href": "/about/"
+          },
+          {
+            "text": "Request a QuoteRFQ",
+            "href": "/request-a-quote/"
+          },
+          {
+            "text": "RFQ",
+            "href": "/request-a-quote/"
+          },
+          {
+            "text": "Home",
+            "href": "/"
+          },
+          {
+            "text": "Markets",
+            "href": "/markets/"
+          },
+          {
+            "text": "Products",
+            "href": "/products/"
+          },
+          {
+            "text": "Applications",
+            "href": "/applications/"
+          },
+          {
+            "text": "Documents",
+            "href": "/documents/"
+          },
+          {
+            "text": "Resources",
+            "href": "/resources/"
+          },
+          {
+            "text": "About",
+            "href": "/about/"
+          },
+          {
+            "text": "Request a Quote",
+            "href": "/request-a-quote/"
+          },
+          {
+            "text": "Home",
+            "href": "/"
+          },
+          {
+            "text": "Markets",
+            "href": "/markets/"
+          },
+          {
+            "text": "Products",
+            "href": "/products/"
+          },
+          {
+            "text": "Applications",
+            "href": "/applications/"
+          },
+          {
+            "text": "Documents",
+            "href": "/documents/"
+          },
+          {
+            "text": "Resources",
+            "href": "/resources/"
+          },
+          {
+            "text": "About",
+            "href": "/about/"
+          },
+          {
+            "text": "Privacy Policy",
+            "href": "/privacy-policy/"
+          },
+          {
+            "text": "Dasar Privasi (BM)",
+            "href": "/ms/privacy-policy/"
+          },
+          {
+            "text": "Cookie Policy",
+            "href": "/cookie-policy/"
+          }
+        ],
+        "media": [
+          {
+            "src": "/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg",
+            "alt": "TiO2 Malaysia"
+          },
+          {
+            "src": "/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg",
+            "alt": "TiO2 Malaysia"
+          },
+          {
+            "src": "/_next/image?url=%2Ftio2-my%2Fhomepage-hero-material-reference.png&w=3840&q=75",
+            "alt": ""
+          },
+          {
+            "src": "/tio2-my/brand/tio2-malaysia-reverse-monochrome-v0.1.svg",
+            "alt": "TiO2 Malaysia"
+          }
+        ],
+        "forms": [],
+        "schema": [
+          "{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"WebSite\",\"@id\":\"https://tio2malaysia.com/#website\",\"url\":\"https://tio2malaysia.com/\",\"name\":\"TiO₂ Malaysia\",\"inLanguage\":\"en\",\"publisher\":{\"@id\":\"https://tio2malaysia.com/#organization\"}},{\"@type\":\"WebPage\",\"@id\":\"https://tio2malaysia.com/#webpage\",\"url\":\"https://tio2malaysia.com/\",\"name\":\"Malaysia Titanium Dioxide for Industrial Buyers\",\"isPartOf\":{\"@id\":\"https://tio2malaysia.com/#website\"},\"about\":[{\"@id\":\"https://tio2malaysia.com/#brand\"},{\"@id\":\"https://tio2malaysia.com/#organization\"},{\"@id\":\"https://tio2malaysia.com/#titanium-dioxide\"}],\"inLanguage\":\"en\"},{\"@type\":\"Organization\",\"@id\":\"https://tio2malaysia.com/#organization\",\"name\":\"IKHLAS TITANIUM (MALAYSIA) SDN. BHD.\"},{\"@type\":\"Brand\",\"@id\":\"https://tio2malaysia.com/#brand\",\"name\":\"TiO₂ Malaysia\"},{\"@type\":\"Product\",\"@id\":\"https://tio2malaysia.com/#titanium-dioxide\",\"name\":\"Titanium Dioxide\",\"description\":\"Fourteen titanium dioxide grades organised into four product groups.\",\"brand\":{\"@id\":\"https://tio2malaysia.com/#brand\"},\"manufacturer\":{\"@id\":\"https://tio2malaysia.com/#organization\"}}]}"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:37:56.687Z",
+      "kind": "revalidation",
+      "state": "foreign-event",
+      "endpoint": "http://127.0.0.1:3017/api/revalidate",
+      "payload": {
+        "eventId": "d6b8683b-e5d8-4b43-be0a-d6246e18e813",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:37:56.678Z"
+      },
+      "status": 400,
+      "result": {
+        "ok": false,
+        "error": "Payload targets another site"
+      }
+    },
+    {
+      "at": "2026-09-07T07:37:56.815Z",
+      "kind": "home-identity",
+      "siteId": "tio2-a",
+      "url": "http://127.0.0.1:3017/",
+      "status": 200,
+      "identity": {
+        "title": "Titanium Dioxide Supplier & TiO2 Grades | TIOVAR",
+        "lang": "en-US",
+        "canonical": "https://tio2products.com",
+        "h1": [
+          "Application-Specific Titanium Dioxide"
+        ],
+        "header": "<header class=\"brand-homepage-module__MjCz4G__siteHeader\"><img alt=\"TIOVAR\" width=\"492\" height=\"111\" decoding=\"async\" data-nimg=\"1\" class=\"brand-homepage-module__MjCz4G__headerLogo\" style=\"color:transparent\" srcset=\"/_next/image?url=%2Fsite-a%2Ftiovar-logo.png&amp;w=640&amp;q=75 1x, /_next/image?url=%2Fsite-a%2Ftiovar-logo.png&amp;w=1080&amp;q=75 2x\" src=\"/_next/image?url=%2Fsite-a%2Ftiovar-logo.png&amp;w=1080&amp;q=75\"><nav aria-label=\"TIOVAR sections\"><span>Products</span><span>Applications</span><span>Technical Resources</span><span>About TIOVAR</span><span>Contact</span></nav><a href=\"#inquiry\">Discuss Your Requirement</a><details class=\"brand-homepage-module__MjCz4G__mobileMenu\"><summary aria-label=\"Mobile navigation\"><span aria-hidden=\"true\">☰</span></summary><nav aria-label=\"TIOVAR mobile sections\"><span>Products</span><span>Applications</span><span>Technical Resources</span><span>About TIOVAR</span><span>Contact</span></nav></details></header>",
+        "navigation": [
+          {
+            "text": "Discuss Your Requirement",
+            "href": "#inquiry"
+          }
+        ],
+        "media": [
+          {
+            "src": "/_next/image?url=%2Fsite-a%2Ftiovar-logo.png&w=1080&q=75",
+            "alt": "TIOVAR"
+          },
+          {
+            "src": "/_next/image?url=%2Fsite-a%2Ftiovar-hero-materials.jpg&w=3840&q=75",
+            "alt": "Titanium dioxide material evaluation in a bright technical laboratory"
+          },
+          {
+            "src": "/_next/image?url=%2Fsite-a%2Ftiovar-logo.png&w=1080&q=75",
+            "alt": "TIOVAR"
+          }
+        ],
+        "forms": [
+          {
+            "action": null,
+            "fields": [
+              "inquiry-field-1",
+              "inquiry-field-2",
+              "inquiry-field-3",
+              "inquiry-field-4",
+              "inquiry-field-5",
+              "inquiry-field-6",
+              "requirement",
+              null
+            ]
+          }
+        ],
+        "schema": [
+          "[{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"@id\":\"https://tio2products.com/#organization\",\"name\":\"TIOVAR\",\"url\":\"https://tio2products.com/\",\"email\":\"contact@tio2products.com\"},{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"@id\":\"https://tio2products.com/#website\",\"name\":\"TIOVAR\",\"url\":\"https://tio2products.com/\",\"publisher\":{\"@id\":\"https://tio2products.com/#organization\"}},{\"@context\":\"https://schema.org\",\"@type\":\"WebPage\",\"@id\":\"https://tio2products.com/#webpage\",\"url\":\"https://tio2products.com/\",\"name\":\"Titanium Dioxide Supplier & TiO2 Grades | TIOVAR\",\"description\":\"TIOVAR supplies application-specific titanium dioxide (TiO2) grades for coatings, plastics, masterbatch, inks and specialized industrial applications.\",\"isPartOf\":{\"@id\":\"https://tio2products.com/#website\"},\"about\":{\"@id\":\"https://tio2products.com/#organization\"},\"dateModified\":\"2026-09-06T08:40:52.000Z\"},{\"@context\":\"https://schema.org\",\"@type\":\"FAQPage\",\"@id\":\"https://tio2products.com/#faq\",\"mainEntity\":[{\"@type\":\"Question\",\"name\":\"Which titanium dioxide grade is suitable for my application?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Selection starts with the formulation, process conditions and performance targets. TIOVAR can identify candidate grades for customer evaluation.\"}},{\"@type\":\"Question\",\"name\":\"Can I request a TDS, SDS or titanium dioxide sample?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Yes. Specify the product or application context and the document or sample needed. TDS files are provided by request, not as public downloads.\"}},{\"@type\":\"Question\",\"name\":\"Can TIOVAR help me compare my current TiO₂ grade?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Yes. Share the current grade, application and target performance so candidate TIOVAR grades can be identified for testing without assuming equivalence.\"}},{\"@type\":\"Question\",\"name\":\"What information should I provide for a grade recommendation or commercial offer?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Provide the application, current grade, target performance, expected quantity, destination and any document or sample requirements.\"}}]}]"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:37:56.824Z",
+      "kind": "canonical-redirect",
+      "state": "tio2-a-poland-negative",
+      "url": "http://127.0.0.1:3017/markets/poland/",
+      "status": 308,
+      "location": "http://127.0.0.1:3017/markets/poland"
+    },
+    {
+      "at": "2026-09-07T07:37:56.834Z",
+      "kind": "page-http",
+      "state": "tio2-a-poland-negative",
+      "url": "http://127.0.0.1:3017/markets/poland",
+      "status": 404,
+      "sha256": "df77244dd8bfc5d3cad92ad4866dcb141d1d2348179e82a9f2f3a4445e5f52c5",
+      "htmlFile": "tio2-a-poland-negative.html"
+    },
+    {
+      "at": "2026-09-07T07:37:56.852Z",
+      "kind": "revalidation",
+      "state": "foreign-event",
+      "endpoint": "http://127.0.0.1:3018/api/revalidate",
+      "payload": {
+        "eventId": "1fba1b21-a441-403c-84f9-75ba5e3a8be8",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:37:56.838Z"
+      },
+      "status": 400,
+      "result": {
+        "ok": false,
+        "error": "Payload targets another site"
+      }
+    },
+    {
+      "at": "2026-09-07T07:37:56.975Z",
+      "kind": "home-identity",
+      "siteId": "tio2-b",
+      "url": "http://127.0.0.1:3018/",
+      "status": 200,
+      "identity": {
+        "title": "Independent Synthetic TiO2 Routes for Site B",
+        "lang": "en-US",
+        "canonical": "https://tio2hub.com",
+        "h1": [
+          "Independent TiO2 Discovery for Site B Buyers"
+        ],
+        "header": "<header>TiO2 B</header>",
+        "navigation": [],
+        "media": [],
+        "forms": [
+          {
+            "action": null,
+            "fields": [
+              null,
+              "name",
+              "company",
+              "countryRegion",
+              "workEmail",
+              "buyerType",
+              "interest",
+              "expectedQuantity",
+              "destination",
+              "message",
+              "privacy",
+              null
+            ]
+          }
+        ],
+        "schema": [
+          "[{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"@id\":\"https://tio2hub.com/#organization\",\"name\":\"TiO2 B\",\"url\":\"https://tio2hub.com/\",\"email\":\"contact@tio2hub.com\"},{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"@id\":\"https://tio2hub.com/#website\",\"name\":\"TiO2 B\",\"url\":\"https://tio2hub.com/\",\"publisher\":{\"@id\":\"https://tio2hub.com/#organization\"}},{\"@context\":\"https://schema.org\",\"@type\":\"WebPage\",\"@id\":\"https://tio2hub.com/#webpage\",\"url\":\"https://tio2hub.com/\",\"name\":\"Independent Synthetic TiO2 Routes for Site B\",\"description\":\"Explore independent local titanium dioxide discovery routes for Site B without commercial claims.\",\"isPartOf\":{\"@id\":\"https://tio2hub.com/#website\"},\"about\":{\"@id\":\"https://tio2hub.com/#organization\"},\"dateModified\":\"2026-09-06T08:40:53.000Z\"},{\"@context\":\"https://schema.org\",\"@type\":\"FAQPage\",\"@id\":\"https://tio2hub.com/#faq\",\"mainEntity\":[{\"@type\":\"Question\",\"name\":\"Which Site B product type is shown?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Only isolated synthetic route labels are shown.\"}},{\"@type\":\"Question\",\"name\":\"How does Site B match applications?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Matching remains an isolated local discovery aid.\"}},{\"@type\":\"Question\",\"name\":\"Which RFQ details help Site B?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Application, quantity, destination, and document needs frame the local check.\"}},{\"@type\":\"Question\",\"name\":\"Can Site B samples be requested?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"No. This local demo sends no request.\"}},{\"@type\":\"Question\",\"name\":\"Are Site B documents supplied?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"No. Coordination needs a separately authorized channel.\"}}]}]"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:37:56.982Z",
+      "kind": "canonical-redirect",
+      "state": "tio2-b-poland-negative",
+      "url": "http://127.0.0.1:3018/markets/poland/",
+      "status": 308,
+      "location": "http://127.0.0.1:3018/markets/poland"
+    },
+    {
+      "at": "2026-09-07T07:37:56.989Z",
+      "kind": "page-http",
+      "state": "tio2-b-poland-negative",
+      "url": "http://127.0.0.1:3018/markets/poland",
+      "status": 404,
+      "sha256": "defd58a5e956577edec3f3ee225c72b05e6fc0356f48191324c10c072ca2d2e5",
+      "htmlFile": "tio2-b-poland-negative.html"
+    },
+    {
+      "at": "2026-09-07T07:38:00.081Z",
+      "kind": "cms-probe",
+      "mode": "begin",
+      "result": {
+        "postId": 18515,
+        "mode": "begin",
+        "snapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+        "candidateIds": [
+          18515
+        ],
+        "status": "publish",
+        "slug": "tio2-my-market-poland",
+        "publicPath": "/markets/poland",
+        "scopes": [
+          "tio2-my"
+        ],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:03.295Z",
+      "kind": "cms-probe",
+      "mode": "missing",
+      "result": {
+        "postId": 18515,
+        "mode": "missing",
+        "snapshotSha256": "7fa8e31e2c04aaa314c6e7d2da4e13ab26e8cc64be247d35c9cfcad8a891daca",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+        "candidateIds": [],
+        "status": "publish",
+        "slug": "poland-g9-hidden-18515",
+        "publicPath": "/poland-g9-hidden-18515",
+        "scopes": [
+          "tio2-my"
+        ],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:03.472Z",
+      "kind": "graphql",
+      "state": "missing",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "missing-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:38:03.480Z",
+      "kind": "revalidation",
+      "state": "missing",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "58579577-985b-4171-80b7-1fba6cff3591",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:38:03.474Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "58579577-985b-4171-80b7-1fba6cff3591",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:03.632Z",
+      "kind": "page-http",
+      "state": "missing",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 500,
+      "sha256": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "htmlFile": "missing.html"
+    },
+    {
+      "at": "2026-09-07T07:38:06.607Z",
+      "kind": "cms-probe",
+      "mode": "reset",
+      "result": {
+        "postId": 18515,
+        "mode": "reset",
+        "snapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+        "candidateIds": [
+          18515
+        ],
+        "status": "publish",
+        "slug": "tio2-my-market-poland",
+        "publicPath": "/markets/poland",
+        "scopes": [
+          "tio2-my"
+        ],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:06.614Z",
+      "kind": "revalidation",
+      "state": "missing-restored",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "7dac9256-3609-4cd3-b834-d818f2716d23",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:38:06.608Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "7dac9256-3609-4cd3-b834-d818f2716d23",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:06.796Z",
+      "kind": "page-http",
+      "state": "missing-restored",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 200,
+      "sha256": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "htmlFile": "missing-restored.html"
+    },
+    {
+      "at": "2026-09-07T07:38:06.902Z",
+      "kind": "graphql",
+      "state": "missing-restored",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "missing-restored-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:38:09.778Z",
+      "kind": "cms-probe",
+      "mode": "no-scope",
+      "result": {
+        "postId": 18515,
+        "mode": "no-scope",
+        "snapshotSha256": "ac60b7427d8979b7b8e08adfbec4d7b85f00b265cab0b72c7e61221d3194d3ae",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+        "candidateIds": [
+          18515
+        ],
+        "status": "publish",
+        "slug": "tio2-my-market-poland",
+        "publicPath": "/markets/poland",
+        "scopes": [],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:09.917Z",
+      "kind": "graphql",
+      "state": "no-scope",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "no-scope-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:38:09.925Z",
+      "kind": "revalidation",
+      "state": "no-scope",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "cbb418c3-01c9-4945-80bc-6c92919432c7",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:38:09.919Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "cbb418c3-01c9-4945-80bc-6c92919432c7",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:10.057Z",
+      "kind": "page-http",
+      "state": "no-scope",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 500,
+      "sha256": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "htmlFile": "no-scope.html"
+    },
+    {
+      "at": "2026-09-07T07:38:13.063Z",
+      "kind": "cms-probe",
+      "mode": "reset",
+      "result": {
+        "postId": 18515,
+        "mode": "reset",
+        "snapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+        "candidateIds": [
+          18515
+        ],
+        "status": "publish",
+        "slug": "tio2-my-market-poland",
+        "publicPath": "/markets/poland",
+        "scopes": [
+          "tio2-my"
+        ],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:13.070Z",
+      "kind": "revalidation",
+      "state": "no-scope-restored",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "41fc802e-a86b-4658-8173-7bfd22982bb0",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:38:13.064Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "41fc802e-a86b-4658-8173-7bfd22982bb0",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:13.260Z",
+      "kind": "page-http",
+      "state": "no-scope-restored",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 200,
+      "sha256": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "htmlFile": "no-scope-restored.html"
+    },
+    {
+      "at": "2026-09-07T07:38:13.382Z",
+      "kind": "graphql",
+      "state": "no-scope-restored",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "no-scope-restored-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:38:16.377Z",
+      "kind": "cms-probe",
+      "mode": "wrong-scope",
+      "result": {
+        "postId": 18515,
+        "mode": "wrong-scope",
+        "snapshotSha256": "a55041eda4a3f2b5d780bd3676db3b81326e31a089441a3cf1442b8b49e3b494",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+        "candidateIds": [
+          18515
+        ],
+        "status": "publish",
+        "slug": "tio2-my-market-poland",
+        "publicPath": "/markets/poland",
+        "scopes": [
+          "tio2-a"
+        ],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:16.524Z",
+      "kind": "graphql",
+      "state": "wrong-scope",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "wrong-scope-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:38:16.536Z",
+      "kind": "revalidation",
+      "state": "wrong-scope",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "ebfbd261-41a3-440b-a178-1dfab92dc814",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:38:16.527Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "ebfbd261-41a3-440b-a178-1dfab92dc814",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:16.676Z",
+      "kind": "page-http",
+      "state": "wrong-scope",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 500,
+      "sha256": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "htmlFile": "wrong-scope.html"
+    },
+    {
+      "at": "2026-09-07T07:38:19.550Z",
+      "kind": "cms-probe",
+      "mode": "reset",
+      "result": {
+        "postId": 18515,
+        "mode": "reset",
+        "snapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+        "candidateIds": [
+          18515
+        ],
+        "status": "publish",
+        "slug": "tio2-my-market-poland",
+        "publicPath": "/markets/poland",
+        "scopes": [
+          "tio2-my"
+        ],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:19.558Z",
+      "kind": "revalidation",
+      "state": "wrong-scope-restored",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "61bac940-f60e-4365-9d6a-8e3d91350f9e",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:38:19.552Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "61bac940-f60e-4365-9d6a-8e3d91350f9e",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:19.712Z",
+      "kind": "page-http",
+      "state": "wrong-scope-restored",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 200,
+      "sha256": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "htmlFile": "wrong-scope-restored.html"
+    },
+    {
+      "at": "2026-09-07T07:38:19.803Z",
+      "kind": "graphql",
+      "state": "wrong-scope-restored",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "wrong-scope-restored-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:38:22.700Z",
+      "kind": "cms-probe",
+      "mode": "multiple-scopes",
+      "result": {
+        "postId": 18515,
+        "mode": "multiple-scopes",
+        "snapshotSha256": "41f1aed76363b71cce653798336f2254c035646fbd541f8e3394cbbde9e61377",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+        "candidateIds": [
+          18515
+        ],
+        "status": "publish",
+        "slug": "tio2-my-market-poland",
+        "publicPath": "/markets/poland",
+        "scopes": [
+          "tio2-a",
+          "tio2-my"
+        ],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:22.855Z",
+      "kind": "graphql",
+      "state": "multiple-scopes",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "multiple-scopes-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:38:22.861Z",
+      "kind": "revalidation",
+      "state": "multiple-scopes",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "c04c22ee-936b-49bc-b2d2-bf4d74f44146",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:38:22.856Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "c04c22ee-936b-49bc-b2d2-bf4d74f44146",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:22.986Z",
+      "kind": "page-http",
+      "state": "multiple-scopes",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 500,
+      "sha256": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "htmlFile": "multiple-scopes.html"
+    },
+    {
+      "at": "2026-09-07T07:38:25.846Z",
+      "kind": "cms-probe",
+      "mode": "reset",
+      "result": {
+        "postId": 18515,
+        "mode": "reset",
+        "snapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+        "candidateIds": [
+          18515
+        ],
+        "status": "publish",
+        "slug": "tio2-my-market-poland",
+        "publicPath": "/markets/poland",
+        "scopes": [
+          "tio2-my"
+        ],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:25.854Z",
+      "kind": "revalidation",
+      "state": "multiple-scopes-restored",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "0752701c-7f37-4129-9f9e-3a51f8c0d053",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:38:25.847Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "0752701c-7f37-4129-9f9e-3a51f8c0d053",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:26.039Z",
+      "kind": "page-http",
+      "state": "multiple-scopes-restored",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 200,
+      "sha256": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "htmlFile": "multiple-scopes-restored.html"
+    },
+    {
+      "at": "2026-09-07T07:38:26.146Z",
+      "kind": "graphql",
+      "state": "multiple-scopes-restored",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "multiple-scopes-restored-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:38:29.034Z",
+      "kind": "cms-probe",
+      "mode": "draft",
+      "result": {
+        "postId": 18515,
+        "mode": "draft",
+        "snapshotSha256": "ef4a2a3db7473de4018910b8a550c2c0dd478e31269dcce7e2cbd1be2154419b",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+        "candidateIds": [
+          18515
+        ],
+        "status": "draft",
+        "slug": "tio2-my-market-poland",
+        "publicPath": "/markets/poland",
+        "scopes": [
+          "tio2-my"
+        ],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:29.194Z",
+      "kind": "graphql",
+      "state": "draft",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "draft-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:38:29.201Z",
+      "kind": "revalidation",
+      "state": "draft",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "2ae0c608-730f-4d78-85eb-82dd6bf8176b",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:38:29.195Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "2ae0c608-730f-4d78-85eb-82dd6bf8176b",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:29.317Z",
+      "kind": "page-http",
+      "state": "draft",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 500,
+      "sha256": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "htmlFile": "draft.html"
+    },
+    {
+      "at": "2026-09-07T07:38:32.274Z",
+      "kind": "cms-probe",
+      "mode": "reset",
+      "result": {
+        "postId": 18515,
+        "mode": "reset",
+        "snapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+        "candidateIds": [
+          18515
+        ],
+        "status": "publish",
+        "slug": "tio2-my-market-poland",
+        "publicPath": "/markets/poland",
+        "scopes": [
+          "tio2-my"
+        ],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:32.282Z",
+      "kind": "revalidation",
+      "state": "draft-restored",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "634d6d98-d247-4de4-aac0-d4707b7c3013",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:38:32.276Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "634d6d98-d247-4de4-aac0-d4707b7c3013",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:32.483Z",
+      "kind": "page-http",
+      "state": "draft-restored",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 200,
+      "sha256": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "htmlFile": "draft-restored.html"
+    },
+    {
+      "at": "2026-09-07T07:38:32.585Z",
+      "kind": "graphql",
+      "state": "draft-restored",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "draft-restored-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:38:35.681Z",
+      "kind": "cms-probe",
+      "mode": "malformed",
+      "result": {
+        "postId": 18515,
+        "mode": "malformed",
+        "snapshotSha256": "0221e6783b2a9e88aea28b8af8473b90c4764c735296d5e650617294862b46fb",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "fdda64eeacbd6c0e450d1824f21d756d96bf8a8641018643a679add8490f11d0",
+        "candidateIds": [
+          18515
+        ],
+        "status": "publish",
+        "slug": "tio2-my-market-poland",
+        "publicPath": "/markets/poland",
+        "scopes": [
+          "tio2-my"
+        ],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:35.869Z",
+      "kind": "graphql",
+      "state": "malformed",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "malformed-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:38:35.878Z",
+      "kind": "revalidation",
+      "state": "malformed",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "8580a5ab-8466-4229-8850-6fc65ec397d7",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:38:35.871Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "8580a5ab-8466-4229-8850-6fc65ec397d7",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:36.018Z",
+      "kind": "page-http",
+      "state": "malformed",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 500,
+      "sha256": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+      "htmlFile": "malformed.html"
+    },
+    {
+      "at": "2026-09-07T07:38:39.099Z",
+      "kind": "cms-probe",
+      "mode": "reset",
+      "result": {
+        "postId": 18515,
+        "mode": "reset",
+        "snapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+        "candidateIds": [
+          18515
+        ],
+        "status": "publish",
+        "slug": "tio2-my-market-poland",
+        "publicPath": "/markets/poland",
+        "scopes": [
+          "tio2-my"
+        ],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:39.107Z",
+      "kind": "revalidation",
+      "state": "malformed-restored",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "e62570e9-07e5-426b-bcdb-bdb2bb8a70be",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:38:39.100Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "e62570e9-07e5-426b-bcdb-bdb2bb8a70be",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:39.291Z",
+      "kind": "page-http",
+      "state": "malformed-restored",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 200,
+      "sha256": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "htmlFile": "malformed-restored.html"
+    },
+    {
+      "at": "2026-09-07T07:38:39.397Z",
+      "kind": "graphql",
+      "state": "malformed-restored",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "malformed-restored-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:38:42.534Z",
+      "kind": "cms-probe",
+      "mode": "restore",
+      "result": {
+        "postId": 18515,
+        "mode": "restore",
+        "snapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "baselineSnapshotSha256": "064f7a6ce3833b8ef06e35e15aaf3cdc6014b1b36902952717a96859682469b7",
+        "contractSha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c",
+        "candidateIds": [
+          18515
+        ],
+        "status": "publish",
+        "slug": "tio2-my-market-poland",
+        "publicPath": "/markets/poland",
+        "scopes": [
+          "tio2-my"
+        ],
+        "modifiedGmt": "2026-09-07 06:27:33"
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:42.544Z",
+      "kind": "revalidation",
+      "state": "finally-restored",
+      "endpoint": "http://127.0.0.1:3015/api/revalidate",
+      "payload": {
+        "eventId": "ea727017-7879-4dde-b732-1d41b32aefda",
+        "siteIds": [
+          "tio2-my"
+        ],
+        "contentId": 18515,
+        "paths": [
+          "/markets/poland"
+        ],
+        "entityIds": [],
+        "modified": "2026-09-07T07:38:42.535Z"
+      },
+      "status": 200,
+      "result": {
+        "ok": true,
+        "eventId": "ea727017-7879-4dde-b732-1d41b32aefda",
+        "revalidatedTags": [
+          "content:tio2-my--market--MARKET-EU-PL--en",
+          "route:tio2-my:/markets/poland"
+        ],
+        "revalidatedPaths": [
+          "/markets/poland"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-07T07:38:42.724Z",
+      "kind": "page-http",
+      "state": "finally-restored",
+      "url": "http://127.0.0.1:3015/markets/poland/",
+      "status": 200,
+      "sha256": "28c09220c1b7d40d30951dfe4ffbf3c1c8e5282632f9161e3f4ed93d44c3f095",
+      "htmlFile": "finally-restored.html"
+    },
+    {
+      "at": "2026-09-07T07:38:42.835Z",
+      "kind": "graphql",
+      "state": "finally-restored",
+      "endpoint": "http://127.0.0.1:8080/graphql",
+      "payload": {
+        "query": "query GetMalaysiaPolandMarketPage { malaysiaPolandMarketRecordJson }"
+      },
+      "status": 200,
+      "resultFile": "finally-restored-graphql.json"
+    },
+    {
+      "at": "2026-09-07T07:38:42.836Z",
+      "kind": "completion",
+      "exactBaselineRestored": true,
+      "allSixInvalidStatesRejected": true
+    }
+  ]
+}

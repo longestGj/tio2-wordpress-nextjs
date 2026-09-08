@@ -1,0 +1,221 @@
+{
+  "capturedAt": "2026-09-07T08:05:45.302Z",
+  "baseCommit": "c2764e6138aa0dc37d1f6cab04bc1ae39f45aecb",
+  "branch": "codex/poland-development",
+  "state": "F03_TARGETED_SELF_CHECK_PASSED_D23_REREVIEW_PENDING",
+  "buildId": "51GHGEaKhS8jeu855WrXQ",
+  "codeFiles": [
+    {
+      "path": "app/(en)/api/revalidate/route.ts",
+      "sha256": "071d3a6b5b7bb5fe82a02cb7e5e6af66ef3e636d13a1f6af2c575d32a98fadc4"
+    },
+    {
+      "path": "app/(en)/layout.tsx",
+      "sha256": "f87de84248b078cc81d481edb461c07b0c47406dc836b7332a80792531327537"
+    },
+    {
+      "path": "app/(en)/markets/poland/page.tsx",
+      "sha256": "01e8c084b57aa9c3f48501bef4ed4673939fbdb804300e35c49c09be09548bda"
+    },
+    {
+      "path": "app/(ms)/ms/layout.tsx",
+      "sha256": "9b10a363c7a2381a9525eb5dd2167969845cedc9e1023ba18fce7051a130296c"
+    },
+    {
+      "path": "app/robots.ts",
+      "sha256": "1da6452f8e7e361d6abba3744bed77ecbbda8f237d06761e7de0f8fcee06960b"
+    },
+    {
+      "path": "components/sites/tio2-my/consent/malaysia-cookie-settings.module.css",
+      "sha256": "5251af04f3c41ec651a31e7ddf4b9199a02f5298f6fe43e0c57961c1e10aed84"
+    },
+    {
+      "path": "components/sites/tio2-my/consent/malaysia-cookie-settings.tsx",
+      "sha256": "666a0d1ec3250f0c0dd9502495d6a343f565db2119db6a4e86f96d2c2e7edcd1"
+    },
+    {
+      "path": "components/sites/tio2-my/malaysia-global-chrome.module.css",
+      "sha256": "63376cb8b24a30ab01ad6a6180cb6cad2a426a59a330f99aa4364e0787102cd6"
+    },
+    {
+      "path": "components/sites/tio2-my/malaysia-global-chrome.tsx",
+      "sha256": "f20674d3c4b469121ff2230ab1e7a57a0108b9a4e401a2900f325ea10631707e"
+    },
+    {
+      "path": "components/sites/tio2-my/markets/malaysia-poland-market-page.module.css",
+      "sha256": "345993d0c605a86d50973884e5b353a0061f5c8c765ec6034752a7c7ccc548ab"
+    },
+    {
+      "path": "components/sites/tio2-my/markets/malaysia-poland-market-page.tsx",
+      "sha256": "8a2b68eda2bce44c38d6b2df665de3236d983acb77e065b7fc57f72b700bdbe1"
+    },
+    {
+      "path": "lib/seo/market-poland-metadata.ts",
+      "sha256": "37dbcf88e6d7b45771162846c32024aa02f7116f5f74e589506ddbb88f7e6e3f"
+    },
+    {
+      "path": "lib/sites/malaysia-shared-font.ts",
+      "sha256": "274c4c9faea0988d1774dd5ebd50064a3e8a847fd86780469be847cec54c9284"
+    },
+    {
+      "path": "lib/wordpress/cache-tags.ts",
+      "sha256": "42918c1d8a7d4737225c1b4411f68311c4bea0daf57c7b224296d10e714218a5"
+    },
+    {
+      "path": "lib/wordpress/generated.ts",
+      "sha256": "7d7c4e0d6e35bc3b49f773a9b327299ba5e76b70fb82a234f8f1f389a22261cb"
+    },
+    {
+      "path": "lib/wordpress/market-page-poland-v01-dto.ts",
+      "sha256": "a45fd500350418db6de2325811c47cb3bba7ae753024c86f563e6d40c85c71ca"
+    },
+    {
+      "path": "lib/wordpress/market-page-poland-v01-queries.graphql",
+      "sha256": "b62935d24130b74a0cf0e719c50c1ec9d2ca7c14366a73c0d603b27fec6f1ad0"
+    },
+    {
+      "path": "lib/wordpress/market-page-poland-v01-queries.ts",
+      "sha256": "e9ab3b66e3ffdcb4b4961c86fe945087f163f98de652a975c972f503354a2191"
+    },
+    {
+      "path": "lib/wordpress/market-page-poland-v01-types.ts",
+      "sha256": "2671134c1b858c5fdde9772a0d1f4e7fe9aa66b0a2baa9bc2ec0d785475592c9"
+    },
+    {
+      "path": "proxy.ts",
+      "sha256": "b3831608d9b8e509e7d1f511d45eb60728ab1a91f9a7ab7f04b8ecb87ce6cb0f"
+    },
+    {
+      "path": "tests/e2e/about-page.spec.ts",
+      "sha256": "75ce169e95145001afb4042e7af21fd5b657252f4e46b18bbf76fd5d1e014963"
+    },
+    {
+      "path": "tests/e2e/legal-privacy.spec.ts",
+      "sha256": "e5a734aa6d53636bcc8420c5ac35f2efe10f4d7d6e9983719c009a871929126e"
+    },
+    {
+      "path": "tests/e2e/market-hub.spec.ts",
+      "sha256": "ee9474db34a606d551070b234797a8430829121e5d4b7d900692f4328bc44718"
+    },
+    {
+      "path": "tests/e2e/poland-g9-isolation.spec.ts",
+      "sha256": "6fb97747cfcc694b8b99b4379e1ad12609fc1009f3d3745260a3359fbc72c5cf"
+    },
+    {
+      "path": "tests/e2e/poland-g9-native-zoom.spec.ts",
+      "sha256": "5f5b9c3e0d1d28f63513a975a3c25c2691784da386deb86f9c26d8aa546588c7"
+    },
+    {
+      "path": "tests/e2e/poland-g9-shared-visual.spec.ts",
+      "sha256": "c0382a9cc3e980dadbef7f3292bb80251ecde91fbf70c7ad5776afdef70e4cd8"
+    },
+    {
+      "path": "tests/e2e/poland-live-cache.spec.ts",
+      "sha256": "47eeeeb1c39149679132638fad2aca6adbe16b89579d4a8697e603f99c68f0fb"
+    },
+    {
+      "path": "tests/e2e/poland-market.spec.ts",
+      "sha256": "824dae2e259234ccd8d550999bf7968736b1f13d39a9dc2c132da850d84a8271"
+    },
+    {
+      "path": "tests/e2e/request-documents.spec.ts",
+      "sha256": "2b380bb43e9b358b7a0950114d5b80e61c1519710fed235b8b7b108418b4d1be"
+    },
+    {
+      "path": "tests/e2e/rfq-page.spec.ts",
+      "sha256": "1142cd2607c7f01c3e31d18c5bf3ef863e30bc90de66ffed42025bdf3427686d"
+    },
+    {
+      "path": "tests/e2e/support/poland-build-artifacts.ts",
+      "sha256": "e05e3912299f4372e76626e35b94f1df9dd983d3b90532794fd746283537c475"
+    },
+    {
+      "path": "tests/e2e/tio2-my-global-navigation.spec.ts",
+      "sha256": "d5385c23f49962de4bf08cd2aa8b0d98180537ec46d2aebae6deaaa30696eae8"
+    },
+    {
+      "path": "tests/e2e/united-kingdom-market.spec.ts",
+      "sha256": "d458af3ffb54fe8cce1309e8f50a2ba1eb7fa38ea87f8714c164098734378bd6"
+    },
+    {
+      "path": "tests/fixtures/markets/poland/approved-copy.md",
+      "sha256": "ef55a67fa56ecf7fc84072bc1b8f8cf3b62846a0f53b4b7dbe504887a36e15aa"
+    },
+    {
+      "path": "tests/infrastructure/php/market-poland-runtime.php",
+      "sha256": "4eedb922def7397a51b4581c9926423b1230099b5efd112556419c7adfb9283c"
+    },
+    {
+      "path": "tests/infrastructure/php/poland-g9-isolation-probe.php",
+      "sha256": "35bdb92fb1c645f0acd233494ad6c59895a5020c1d81897c30901f68d867691b"
+    },
+    {
+      "path": "tests/infrastructure/php/poland-http-probe.php",
+      "sha256": "780e375609d64089aee29bd133bf8f0c913e777a4abc70a578be3cbf14ce5a3d"
+    },
+    {
+      "path": "tests/infrastructure/php/poland-live-probe.php",
+      "sha256": "7efe1a264afa71f6b3079204ce800b29e5a0126b556227a7ac0d683cee7755f2"
+    },
+    {
+      "path": "tests/infrastructure/tio2-my-poland-wordpress.test.ts",
+      "sha256": "66a077de3b98478afa965097f81ccca2d1c3b8aa4543bb23a94a6ac46c75276c"
+    },
+    {
+      "path": "tests/integration/markets/poland-live-cms.test.tsx",
+      "sha256": "3d2d413a32f23f9a469bce092fa0d96e9dcd6ae21aa4569abd135ea6631be9eb"
+    },
+    {
+      "path": "tests/integration/markets/poland-queries.test.ts",
+      "sha256": "534345fa981b50e09a0b114b22c28666b3fe475e7bae1290417a755cf0844529"
+    },
+    {
+      "path": "tests/integration/markets/poland-revalidate.test.ts",
+      "sha256": "51f89e9b853f89de8dc2ed5cd4f5bf0b80feecb452a95f20871ee66befa38fcc"
+    },
+    {
+      "path": "tests/integration/markets/poland-route.test.tsx",
+      "sha256": "b9a3ceef8d06082ba727bd63a81efee1b36ae4c49fc0efc6e35c7bc31ad8a664"
+    },
+    {
+      "path": "tests/unit/legal/consent-manager.test.tsx",
+      "sha256": "a1fa3639a0e3ed6f6dc9d03489337e86c9c6a2f0fbfe7631d7478def081d1847"
+    },
+    {
+      "path": "tests/unit/markets/malaysia-poland-market.test.tsx",
+      "sha256": "9cd073da109c6b1a1d0b8a771956d1a59a6e35e611a9d9d3923157675a1157b7"
+    },
+    {
+      "path": "wordpress/plugins/tio2-site-model/config/tio2-my-market-poland.json",
+      "sha256": "6dde78992cd23eae2ae667f555c5cc31e07b611ac336b363ba39859b1bd94f4c"
+    },
+    {
+      "path": "wordpress/plugins/tio2-site-model/includes/market-page-poland-v01.php",
+      "sha256": "e981a4d12fd9e44a4819a3be5a9493357cbb888dea497111eab58ba442926a3b"
+    },
+    {
+      "path": "wordpress/plugins/tio2-site-model/includes/webhooks.php",
+      "sha256": "d1c2144c2a2fa74df3f98bd65f6fe165bc7efd0044306bef837f8227333c3226"
+    },
+    {
+      "path": "wordpress/plugins/tio2-site-model/tio2-site-model.php",
+      "sha256": "1be852c9cb73ac425d8642eaea03cac21ed5f118a6779c8b321beb468beff62d"
+    },
+    {
+      "path": "wordpress/schema.graphql",
+      "sha256": "632503a8d5f76da998581da8358250f6cd6551387bfa2e8b09727fb6280d3492"
+    },
+    {
+      "path": "wordpress/seed/apply-tio2-my-market-poland.php",
+      "sha256": "4e2520ec0334e134072bb77f47cee56005462347746ab24a45cf7ea693b86a17"
+    },
+    {
+      "path": "tests/e2e/poland-g9-rfq-focus.spec.ts",
+      "sha256": "25b43d2835e890e7bc4023520bf7cc5e07d39191466c06e8ddd13299d9326ba0"
+    },
+    {
+      "path": "tests/e2e/poland-g9-native-zoom-v03.spec.ts",
+      "sha256": "2758aeb1fd62ebd594f3256dd98c358eeed1628854ee47240a581d21de5454e8"
+    }
+  ]
+}

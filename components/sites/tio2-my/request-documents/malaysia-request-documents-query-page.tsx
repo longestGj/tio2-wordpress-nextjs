@@ -18,7 +18,14 @@ interface Props {
 }
 
 const EMPTY_BROWSER_CONTEXT = JSON.stringify(['', '', ''])
-const subscribeToLocation = () => () => undefined
+const subscribeToLocation = (callback: () => void) => {
+  window.addEventListener('popstate', callback)
+  window.addEventListener('pageshow', callback)
+  return () => {
+    window.removeEventListener('popstate', callback)
+    window.removeEventListener('pageshow', callback)
+  }
+}
 const getBrowserContext = () => JSON.stringify([
   window.location.search,
   document.referrer,

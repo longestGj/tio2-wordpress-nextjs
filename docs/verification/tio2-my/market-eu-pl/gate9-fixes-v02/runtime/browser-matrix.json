@@ -1,0 +1,326 @@
+{
+  "mode": "Live local HTTP",
+  "ssr": {
+    "source": "actual local WordPress",
+    "copy": "exact B",
+    "canonical": "https://tio2malaysia.com/markets/poland/",
+    "indexing": false,
+    "sitemapOmitted": true,
+    "queryParity": true
+  },
+  "robots": {
+    "status": 200,
+    "disallowAll": true
+  },
+  "geometry-1440": {
+    "container": {
+      "x": 120,
+      "y": 84,
+      "width": 1200,
+      "height": 350.71875
+    },
+    "axeViolations": 0,
+    "sections": [
+      {
+        "id": "pl-01",
+        "height": 403.71875
+      },
+      {
+        "id": "pl-02",
+        "height": 189.140625
+      },
+      {
+        "id": "pl-03",
+        "height": 498.703125
+      },
+      {
+        "id": "pl-04",
+        "height": 353.234375
+      },
+      {
+        "id": "pl-05",
+        "height": 352.234375
+      }
+    ],
+    "pageHeight": 2355
+  },
+  "poland-1440": {
+    "sha256": "a8177a9cf91c495bc22f93506089511c287386d57e8390692aa79668a332b76d"
+  },
+  "geometry-768": {
+    "container": {
+      "x": 32,
+      "y": 64,
+      "width": 704,
+      "height": 423.8125
+    },
+    "axeViolations": 0,
+    "sections": [
+      {
+        "id": "pl-01",
+        "height": 466.8125
+      },
+      {
+        "id": "pl-02",
+        "height": 227.71875
+      },
+      {
+        "id": "pl-03",
+        "height": 559.3125
+      },
+      {
+        "id": "pl-04",
+        "height": 419.859375
+      },
+      {
+        "id": "pl-05",
+        "height": 418.859375
+      }
+    ],
+    "pageHeight": 2902
+  },
+  "poland-768": {
+    "sha256": "9f6daff5237570134730e711e28def4f3590dfc948d9c493ff47896c300e526c"
+  },
+  "geometry-390": {
+    "container": {
+      "x": 20,
+      "y": 64,
+      "width": 350,
+      "height": 523.3125
+    },
+    "axeViolations": 0,
+    "sections": [
+      {
+        "id": "pl-01",
+        "height": 558.3125
+      },
+      {
+        "id": "pl-02",
+        "height": 356.078125
+      },
+      {
+        "id": "pl-03",
+        "height": 856.75
+      },
+      {
+        "id": "pl-04",
+        "height": 636.265625
+      },
+      {
+        "id": "pl-05",
+        "height": 635.265625
+      }
+    ],
+    "pageHeight": 3880
+  },
+  "poland-390": {
+    "sha256": "2f99dc342390aaf69e28651b97f48ce5c60c3785696ff0e5df206982ec81218d"
+  },
+  "reflow-720": {
+    "sha256": "ffe3145262aea761759b0f90e1c903796d4b26bee451041875107dd54cf1d0cc"
+  },
+  "reflow-320": {
+    "sha256": "70df484593b80a3efdd0837ec1fc2c6ba5b34c7740c2879c42f0c1ced87efa34"
+  },
+  "reflow": {
+    "widths": [
+      720,
+      320
+    ],
+    "method": "1440 viewport at 200% equivalent = 720 CSS pixels; additional 320 CSS pixels"
+  },
+  "CONV-RFQ-controls": [
+    {
+      "tag": "SELECT",
+      "name": "grade_id",
+      "type": null
+    },
+    {
+      "tag": "SELECT",
+      "name": "application_id",
+      "type": null
+    },
+    {
+      "tag": "INPUT",
+      "name": "quantity_mt",
+      "type": "number"
+    },
+    {
+      "tag": "INPUT",
+      "name": "destination_country",
+      "type": "text"
+    },
+    {
+      "tag": "INPUT",
+      "name": "destination_port_city",
+      "type": "text"
+    },
+    {
+      "tag": "INPUT",
+      "name": "company_name",
+      "type": "text"
+    },
+    {
+      "tag": "INPUT",
+      "name": "contact_name",
+      "type": "text"
+    },
+    {
+      "tag": "INPUT",
+      "name": "business_email",
+      "type": "email"
+    },
+    {
+      "tag": "INPUT",
+      "name": "phone_whatsapp",
+      "type": "text"
+    },
+    {
+      "tag": "INPUT",
+      "name": "website",
+      "type": "url"
+    },
+    {
+      "tag": "TEXTAREA",
+      "name": "additional_requirements",
+      "type": null
+    }
+  ],
+  "CONV-DOC-controls": [
+    {
+      "tag": "INPUT",
+      "name": "full_name",
+      "type": "text"
+    },
+    {
+      "tag": "INPUT",
+      "name": "company",
+      "type": "text"
+    },
+    {
+      "tag": "INPUT",
+      "name": "business_email",
+      "type": "email"
+    },
+    {
+      "tag": "INPUT",
+      "name": "country_region",
+      "type": "text"
+    },
+    {
+      "tag": "SELECT",
+      "name": "product_grade",
+      "type": null
+    },
+    {
+      "tag": "INPUT",
+      "name": "application_industry",
+      "type": "text"
+    },
+    {
+      "tag": "INPUT",
+      "name": "document_types",
+      "type": "checkbox"
+    },
+    {
+      "tag": "INPUT",
+      "name": "document_types",
+      "type": "checkbox"
+    },
+    {
+      "tag": "INPUT",
+      "name": "document_types",
+      "type": "checkbox"
+    },
+    {
+      "tag": "INPUT",
+      "name": "document_types",
+      "type": "checkbox"
+    },
+    {
+      "tag": "INPUT",
+      "name": "document_types",
+      "type": "checkbox"
+    },
+    {
+      "tag": "TEXTAREA",
+      "name": "additional_requirements",
+      "type": null
+    }
+  ],
+  "navigation": [
+    {
+      "label": "Home",
+      "href": "/",
+      "targetPageId": "HOME-001",
+      "h1": "Malaysia Titanium Dioxide\nfor Industrial Buyers",
+      "forms": 0
+    },
+    {
+      "label": "Markets",
+      "href": "/markets/",
+      "targetPageId": "MARKET-000",
+      "h1": "Choose Your Destination Market",
+      "forms": 0
+    },
+    {
+      "label": "European Union",
+      "href": "/markets/european-union/",
+      "targetPageId": "MARKET-EU-001",
+      "h1": "Malaysia-Origin Titanium Dioxide for European Union Buyers",
+      "forms": 0
+    },
+    {
+      "label": "Request a Quote",
+      "href": "/request-a-quote/",
+      "targetPageId": "CONV-RFQ",
+      "h1": "Request a Titanium Dioxide Quote",
+      "forms": 1
+    },
+    {
+      "label": "Explore Products",
+      "href": "/products/",
+      "targetPageId": "PRODUCT-000",
+      "h1": "Titanium Dioxide Pigment Grades for Industrial Applications",
+      "forms": 0
+    },
+    {
+      "label": "Request Documents",
+      "href": "/request-documents/",
+      "targetPageId": "CONV-DOC",
+      "h1": "Request Documents",
+      "forms": 1
+    },
+    {
+      "label": "View Document Hub",
+      "href": "/documents/",
+      "targetPageId": "DOC-000",
+      "h1": "Documents for Product & Supplier Qualification",
+      "forms": 1
+    }
+  ],
+  "sharedCookieRegression": [
+    {
+      "path": "/",
+      "width": 1440,
+      "nativeModal": true,
+      "backgroundFocusBlocked": true,
+      "focusRestored": true
+    },
+    {
+      "path": "/markets/united-kingdom/",
+      "width": 768,
+      "nativeModal": true,
+      "backgroundFocusBlocked": true,
+      "focusRestored": true
+    },
+    {
+      "path": "/privacy-policy/",
+      "width": 390,
+      "nativeModal": true,
+      "backgroundFocusBlocked": true,
+      "focusRestored": true
+    }
+  ]
+}

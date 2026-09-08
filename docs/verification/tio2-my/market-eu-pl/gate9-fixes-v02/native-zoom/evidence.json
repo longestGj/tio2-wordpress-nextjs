@@ -1,0 +1,28 @@
+{
+  "checkedAt": "2026-09-07T07:36:40.890Z",
+  "base": "http://127.0.0.1:3015",
+  "browser": "151.0.7922.34",
+  "method": "Chromium native per-tab browser zoom via chrome.tabs.setZoom(2); no viewport resize, pageScaleFactor or CSS zoom",
+  "before": {
+    "innerWidth": 1424,
+    "innerHeight": 905,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 1,
+    "visualScale": 1,
+    "scrollWidth": 1424
+  },
+  "after": {
+    "innerWidth": 712,
+    "innerHeight": 452,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 2,
+    "visualScale": 1,
+    "scrollWidth": 712
+  },
+  "nativeZoomFactor": 2,
+  "keyboard": true,
+  "restoredZoomFactor": 1,
+  "limitations": "Headless Chromium native zoom; browser toolbar itself not screenshot, no real device or screen-reader claim"
+}

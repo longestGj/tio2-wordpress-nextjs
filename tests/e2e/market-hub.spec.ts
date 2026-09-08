@@ -92,7 +92,7 @@ for (const width of widths) {
       }
     })).toEqual({
       fontWeight: '800',
-      markerBackground: 'rgb(0, 106, 99)',
+      markerBackground: 'rgb(0, 128, 120)',
       markerHeight: '3px',
     })
     await expect(page.locator('[data-module]')).toHaveCount(moduleOrder.length)

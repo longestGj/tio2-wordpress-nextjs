@@ -1,0 +1,2905 @@
+{
+  "checkedAt": "2026-09-07T08:04:31.384Z",
+  "base": "http://127.0.0.1:3015",
+  "buildId": "51GHGEaKhS8jeu855WrXQ",
+  "httpSha256": "a0c9462bd0b55b5e92d1aa0f34e4e775d95a6754f897f85ad51391c5061e56d5",
+  "browser": "151.0.7922.34",
+  "before": {
+    "innerWidth": 1424,
+    "innerHeight": 905,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 1,
+    "visualScale": 1,
+    "scrollWidth": 1424,
+    "scrollHeight": 2355,
+    "scrollY": 0
+  },
+  "after": {
+    "innerWidth": 712,
+    "innerHeight": 452,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 2,
+    "visualScale": 1,
+    "scrollWidth": 712,
+    "scrollHeight": 3050,
+    "scrollY": 0
+  },
+  "method": "Native chrome.tabs.setZoom(2), unchanged browser window, raw CDP compositor PNG bytes, no image edits or resizing",
+  "captures": [
+    {
+      "file": "page-native-200-full.png",
+      "sha256": "9a5c23e8ee736ea15fac9c25b570a5ed1ca159c20d0bde9eef7c1e638fe35f0f",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 0
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 6101,
+        "channels": [
+          {
+            "min": 0,
+            "max": 255,
+            "stdev": 111.45360939576912
+          },
+          {
+            "min": 27,
+            "max": 255,
+            "stdev": 98.90416438552604
+          },
+          {
+            "min": 58,
+            "max": 255,
+            "stdev": 85.71309467683868
+          }
+        ]
+      },
+      "method": "CDP compositor full contentSize, scale 1",
+      "nativeZoom": 2
+    },
+    {
+      "file": "page-native-200-viewport-0.png",
+      "sha256": "31de85d5c458ff0854b0e76a2c4fb47c7b369eafb0be6935727387ddb66d412a",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 0
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 905,
+        "channels": [
+          {
+            "min": 0,
+            "max": 255,
+            "stdev": 60.43988922675344
+          },
+          {
+            "min": 32,
+            "max": 255,
+            "stdev": 48.33420774441486
+          },
+          {
+            "min": 68,
+            "max": 255,
+            "stdev": 41.405695935884275
+          }
+        ]
+      },
+      "method": "CDP compositor viewport, no clip",
+      "nativeZoom": 2
+    },
+    {
+      "file": "page-native-200-viewport-1.png",
+      "sha256": "87c67827abc04b9ae9772ee6b4f9f02a6a64838da9a53e851f4f9d24fc157d21",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 361
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 722,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 361,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 361,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 361,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 905,
+        "channels": [
+          {
+            "min": 0,
+            "max": 255,
+            "stdev": 57.567845933272366
+          },
+          {
+            "min": 43,
+            "max": 255,
+            "stdev": 43.50469953780254
+          },
+          {
+            "min": 85,
+            "max": 255,
+            "stdev": 39.20978545984441
+          }
+        ]
+      },
+      "method": "CDP compositor viewport, no clip",
+      "nativeZoom": 2
+    },
+    {
+      "file": "page-native-200-viewport-2.png",
+      "sha256": "f040042623e3d6d54ee3d1126e1d33bd0f783a6c149ab347d2d76bf6d9b80569",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 722
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 1444,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 722,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 722,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 722,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 905,
+        "channels": [
+          {
+            "min": 6,
+            "max": 255,
+            "stdev": 50.394759693320836
+          },
+          {
+            "min": 43,
+            "max": 255,
+            "stdev": 45.28800892611661
+          },
+          {
+            "min": 85,
+            "max": 255,
+            "stdev": 38.437151606000064
+          }
+        ]
+      },
+      "method": "CDP compositor viewport, no clip",
+      "nativeZoom": 2
+    },
+    {
+      "file": "page-native-200-viewport-3.png",
+      "sha256": "3fb6c3710401172f956a4c8b6f57a2503278315c9dfa1a83fa3934a7768dfff2",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 1083
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 2166,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 1083,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 1083,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 1083,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 905,
+        "channels": [
+          {
+            "min": 0,
+            "max": 255,
+            "stdev": 49.49461913961876
+          },
+          {
+            "min": 43,
+            "max": 255,
+            "stdev": 43.81425871634357
+          },
+          {
+            "min": 85,
+            "max": 255,
+            "stdev": 37.06838838572465
+          }
+        ]
+      },
+      "method": "CDP compositor viewport, no clip",
+      "nativeZoom": 2
+    },
+    {
+      "file": "page-native-200-viewport-4.png",
+      "sha256": "24a2c62acdb7a054a4345b667598ce03e765d415330bf3f816eb35b763dd69f1",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 1444
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 2888,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 1444,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 1444,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 1444,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 905,
+        "channels": [
+          {
+            "min": 0,
+            "max": 255,
+            "stdev": 60.02750088017404
+          },
+          {
+            "min": 43,
+            "max": 255,
+            "stdev": 44.04791330424911
+          },
+          {
+            "min": 85,
+            "max": 255,
+            "stdev": 39.53329215430044
+          }
+        ]
+      },
+      "method": "CDP compositor viewport, no clip",
+      "nativeZoom": 2
+    },
+    {
+      "file": "page-native-200-viewport-5.png",
+      "sha256": "0f5fbaf12e87805d2fcbbb8e76a7e91241967b9b6ace0085ec93e3b500d26f9e",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 1805
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 3610,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 1805,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 1805,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 1805,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 905,
+        "channels": [
+          {
+            "min": 0,
+            "max": 255,
+            "stdev": 59.21326062197667
+          },
+          {
+            "min": 43,
+            "max": 255,
+            "stdev": 44.995858511016166
+          },
+          {
+            "min": 85,
+            "max": 255,
+            "stdev": 40.02777907821782
+          }
+        ]
+      },
+      "method": "CDP compositor viewport, no clip",
+      "nativeZoom": 2
+    },
+    {
+      "file": "page-native-200-viewport-6.png",
+      "sha256": "510e70d15e8ef9f950f41a83314b234c8bd36aea287ae7dd8602f1054fd3a6f2",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 2166
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 4332,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 2166,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 2166,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 2166,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 905,
+        "channels": [
+          {
+            "min": 0,
+            "max": 255,
+            "stdev": 114.3409871022278
+          },
+          {
+            "min": 27,
+            "max": 255,
+            "stdev": 103.01601826921993
+          },
+          {
+            "min": 58,
+            "max": 255,
+            "stdev": 88.92837302288812
+          }
+        ]
+      },
+      "method": "CDP compositor viewport, no clip",
+      "nativeZoom": 2
+    },
+    {
+      "file": "page-native-200-viewport-7.png",
+      "sha256": "002a065d27af6cd7ce6342cb63d889e622fb7624e5d9616d81577dbc62bb5257",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 2527
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 5054,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 2527,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 2527,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 2527,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 905,
+        "channels": [
+          {
+            "min": 0,
+            "max": 255,
+            "stdev": 26.041266443727796
+          },
+          {
+            "min": 27,
+            "max": 255,
+            "stdev": 27.492877705809015
+          },
+          {
+            "min": 58,
+            "max": 255,
+            "stdev": 22.570135110798528
+          }
+        ]
+      },
+      "method": "CDP compositor viewport, no clip",
+      "nativeZoom": 2
+    },
+    {
+      "file": "page-native-200-viewport-8.png",
+      "sha256": "3e1991a940f0413391f0890c842431c5ef3c5c293d673f7f279d3e591da46088",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 2598
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 5196,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 2598,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 2598,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 2598,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 905,
+        "channels": [
+          {
+            "min": 0,
+            "max": 255,
+            "stdev": 25.6871752844346
+          },
+          {
+            "min": 27,
+            "max": 255,
+            "stdev": 27.331234570784506
+          },
+          {
+            "min": 58,
+            "max": 255,
+            "stdev": 22.499767313650644
+          }
+        ]
+      },
+      "method": "CDP compositor viewport, no clip",
+      "nativeZoom": 2
+    },
+    {
+      "file": "menu-native-200-top.png",
+      "sha256": "56d7a3d75e514d8f243a63e89971d448c8c36f3c7268e3eb9359bafc1a4800f7",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 0
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 905,
+        "channels": [
+          {
+            "min": 0,
+            "max": 255,
+            "stdev": 85.1858852769994
+          },
+          {
+            "min": 27,
+            "max": 255,
+            "stdev": 78.50944869286454
+          },
+          {
+            "min": 58,
+            "max": 255,
+            "stdev": 66.76658292804315
+          }
+        ]
+      },
+      "method": "CDP compositor viewport, no clip",
+      "nativeZoom": 2
+    },
+    {
+      "file": "menu-native-200-bottom-unfocused.png",
+      "sha256": "5e3a19f51fa187e7d0316addf1c2498f9288f7132f855a2b473ab31626b1764f",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 0
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 905,
+        "channels": [
+          {
+            "min": 0,
+            "max": 255,
+            "stdev": 68.37519726786944
+          },
+          {
+            "min": 27,
+            "max": 255,
+            "stdev": 66.60762688106223
+          },
+          {
+            "min": 58,
+            "max": 255,
+            "stdev": 54.98839012518076
+          }
+        ]
+      },
+      "method": "CDP compositor viewport, no clip",
+      "nativeZoom": 2
+    },
+    {
+      "file": "menu-native-200-bottom.png",
+      "sha256": "0b7fe3ba567c0f5882f484b43f89380e626cbdc04b1a337f3b379100e9da60f1",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 0
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 0,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 905,
+        "channels": [
+          {
+            "min": 0,
+            "max": 255,
+            "stdev": 73.95718497754166
+          },
+          {
+            "min": 27,
+            "max": 255,
+            "stdev": 70.35633899875987
+          },
+          {
+            "min": 58,
+            "max": 255,
+            "stdev": 58.77195694435757
+          }
+        ]
+      },
+      "method": "CDP compositor viewport, no clip",
+      "nativeZoom": 2
+    },
+    {
+      "file": "cookie-native-200.png",
+      "sha256": "4aad3e571d273b515a9fc6264285b2cf9117a1ff362cc4a0458bcec8c056fb09",
+      "geometry": {
+        "innerWidth": 712,
+        "innerHeight": 452,
+        "outerWidth": 1440,
+        "outerHeight": 1000,
+        "dpr": 2,
+        "visualScale": 1,
+        "scrollWidth": 712,
+        "scrollHeight": 3050,
+        "scrollY": 2598
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 5196,
+          "clientWidth": 1424,
+          "clientHeight": 905
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 2598,
+          "clientWidth": 1424,
+          "clientHeight": 905,
+          "scale": 1,
+          "zoom": 2
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 6101
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 2598,
+          "clientWidth": 712,
+          "clientHeight": 452
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 2598,
+          "clientWidth": 712,
+          "clientHeight": 452.5,
+          "scale": 1,
+          "zoom": 2
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 3050
+        }
+      },
+      "pixels": {
+        "width": 1424,
+        "height": 905,
+        "channels": [
+          {
+            "min": 0,
+            "max": 255,
+            "stdev": 123.57663109126374
+          },
+          {
+            "min": 27,
+            "max": 255,
+            "stdev": 111.38583598283776
+          },
+          {
+            "min": 58,
+            "max": 255,
+            "stdev": 96.24744727411041
+          }
+        ]
+      },
+      "method": "CDP compositor viewport, no clip",
+      "nativeZoom": 2
+    }
+  ],
+  "textGeometry": [
+    {
+      "tag": "A",
+      "text": "Home",
+      "box": {
+        "x": 32,
+        "y": 86,
+        "width": 47.2265625,
+        "height": 44,
+        "top": 86,
+        "right": 79.2265625,
+        "bottom": 130,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 36,
+          "y": 99.453125,
+          "width": 39.2265625,
+          "height": 17,
+          "top": 99.453125,
+          "right": 75.2265625,
+          "bottom": 116.453125,
+          "left": 36
+        }
+      ],
+      "scrollWidth": 47,
+      "clientWidth": 47
+    },
+    {
+      "tag": "A",
+      "text": "Markets",
+      "box": {
+        "x": 100.2734375,
+        "y": 86,
+        "width": 61.3671875,
+        "height": 44,
+        "top": 86,
+        "right": 161.640625,
+        "bottom": 130,
+        "left": 100.2734375
+      },
+      "lines": [
+        {
+          "x": 104.2734375,
+          "y": 99.453125,
+          "width": 53.3671875,
+          "height": 17,
+          "top": 99.453125,
+          "right": 157.640625,
+          "bottom": 116.453125,
+          "left": 104.2734375
+        }
+      ],
+      "scrollWidth": 61,
+      "clientWidth": 61
+    },
+    {
+      "tag": "A",
+      "text": "European Union",
+      "box": {
+        "x": 182.6875,
+        "y": 86,
+        "width": 113.8203125,
+        "height": 44,
+        "top": 86,
+        "right": 296.5078125,
+        "bottom": 130,
+        "left": 182.6875
+      },
+      "lines": [
+        {
+          "x": 186.6875,
+          "y": 99.453125,
+          "width": 105.8203125,
+          "height": 17,
+          "top": 99.453125,
+          "right": 292.5078125,
+          "bottom": 116.453125,
+          "left": 186.6875
+        }
+      ],
+      "scrollWidth": 114,
+      "clientWidth": 114
+    },
+    {
+      "tag": "H1",
+      "text": "Titanium Dioxide Supplier for Poland",
+      "box": {
+        "x": 32,
+        "y": 160,
+        "width": 648,
+        "height": 103.828125,
+        "top": 160,
+        "right": 680,
+        "bottom": 263.828125,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 159,
+          "width": 591.7109375,
+          "height": 53,
+          "top": 159,
+          "right": 623.7109375,
+          "bottom": 212,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 210.9140625,
+          "width": 141.1171875,
+          "height": 53,
+          "top": 210.9140625,
+          "right": 173.1171875,
+          "bottom": 263.9140625,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "P",
+      "text": "Malaysia-origin titanium dioxide raw material for industrial procurement in Poland. Review grades for coatings, plastics and masterbatch production, or send us your application, estimated quantity and delivery requirements for a quotation.",
+      "box": {
+        "x": 32,
+        "y": 287.828125,
+        "width": 648,
+        "height": 132,
+        "top": 287.828125,
+        "right": 680,
+        "bottom": 419.828125,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 291.828125,
+          "width": 546.2890625,
+          "height": 24.5,
+          "top": 291.828125,
+          "right": 578.2890625,
+          "bottom": 316.328125,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 324.828125,
+          "width": 606.8984375,
+          "height": 24.5,
+          "top": 324.828125,
+          "right": 638.8984375,
+          "bottom": 349.328125,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 357.828125,
+          "width": 597.90625,
+          "height": 24.5,
+          "top": 357.828125,
+          "right": 629.90625,
+          "bottom": 382.328125,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 390.828125,
+          "width": 477.90625,
+          "height": 24.5,
+          "top": 390.828125,
+          "right": 509.90625,
+          "bottom": 415.328125,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "A",
+      "text": "Request a Quote",
+      "box": {
+        "x": 32,
+        "y": 439.828125,
+        "width": 165.484375,
+        "height": 48,
+        "top": 439.828125,
+        "right": 197.484375,
+        "bottom": 487.828125,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 51,
+          "y": 453.7265625,
+          "width": 127.484375,
+          "height": 19.5,
+          "top": 453.7265625,
+          "right": 178.484375,
+          "bottom": 473.2265625,
+          "left": 51
+        }
+      ],
+      "scrollWidth": 163,
+      "clientWidth": 163
+    },
+    {
+      "tag": "A",
+      "text": "Explore Products",
+      "box": {
+        "x": 213.484375,
+        "y": 439.828125,
+        "width": 133.671875,
+        "height": 48,
+        "top": 439.828125,
+        "right": 347.15625,
+        "bottom": 487.828125,
+        "left": 213.484375
+      },
+      "lines": [
+        {
+          "x": 214.484375,
+          "y": 453.7265625,
+          "width": 131.671875,
+          "height": 19.5,
+          "top": 453.7265625,
+          "right": 346.15625,
+          "bottom": 473.2265625,
+          "left": 214.484375
+        }
+      ],
+      "scrollWidth": 132,
+      "clientWidth": 132
+    },
+    {
+      "tag": "H2",
+      "text": "Confirm the Material You Need",
+      "box": {
+        "x": 32,
+        "y": 572.828125,
+        "width": 648,
+        "height": 36.578125,
+        "top": 572.828125,
+        "right": 680,
+        "bottom": 609.40625,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 572.328125,
+          "width": 463.5859375,
+          "height": 37.5,
+          "top": 572.328125,
+          "right": 495.5859375,
+          "bottom": 609.828125,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "P",
+      "text": "The products presented by TiO2 Malaysia are industrial titanium dioxide raw materials. A finished white masterbatch combines TiO2 with a polymer carrier. If you produce masterbatch, evaluate the TiO2 grade as an input to your own formulation and process.",
+      "box": {
+        "x": 32,
+        "y": 631.40625,
+        "width": 648,
+        "height": 112.1875,
+        "top": 631.40625,
+        "right": 680,
+        "bottom": 743.59375,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 634.90625,
+          "width": 610.65625,
+          "height": 20.5,
+          "top": 634.90625,
+          "right": 642.65625,
+          "bottom": 655.40625,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 662.953125,
+          "width": 643.4921875,
+          "height": 20.5,
+          "top": 662.953125,
+          "right": 675.4921875,
+          "bottom": 683.453125,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 691,
+          "width": 601.09375,
+          "height": 20.5,
+          "top": 691,
+          "right": 633.09375,
+          "bottom": 711.5,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 719.046875,
+          "width": 199.9296875,
+          "height": 20.5,
+          "top": 719.046875,
+          "right": 231.9296875,
+          "bottom": 739.546875,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "H2",
+      "text": "Prepare Your Product Review",
+      "box": {
+        "x": 32,
+        "y": 828.59375,
+        "width": 648,
+        "height": 36.578125,
+        "top": 828.59375,
+        "right": 680,
+        "bottom": 865.171875,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 828.09375,
+          "width": 439.4921875,
+          "height": 37.5,
+          "top": 828.09375,
+          "right": 471.4921875,
+          "bottom": 865.59375,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "P",
+      "text": "You do not need to know the exact grade before you start. Begin with the application information your team already knows, then compare the relevant grades on the product pages.",
+      "box": {
+        "x": 32,
+        "y": 885.171875,
+        "width": 648,
+        "height": 84.140625,
+        "top": 885.171875,
+        "right": 680,
+        "bottom": 969.3125,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 888.671875,
+          "width": 586.5859375,
+          "height": 20.5,
+          "top": 888.671875,
+          "right": 618.5859375,
+          "bottom": 909.171875,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 916.71875,
+          "width": 610.796875,
+          "height": 20.5,
+          "top": 916.71875,
+          "right": 642.796875,
+          "bottom": 937.21875,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 944.765625,
+          "width": 237.3359375,
+          "height": 20.5,
+          "top": 944.765625,
+          "right": 269.3359375,
+          "bottom": 965.265625,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "H3",
+      "text": "Coatings",
+      "box": {
+        "x": 32,
+        "y": 1022.3125,
+        "width": 308,
+        "height": 28.3125,
+        "top": 1022.3125,
+        "right": 340,
+        "bottom": 1050.625,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 1021.3125,
+          "width": 103.9453125,
+          "height": 29.5,
+          "top": 1021.3125,
+          "right": 135.9453125,
+          "bottom": 1050.8125,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 308,
+      "clientWidth": 308
+    },
+    {
+      "tag": "P",
+      "text": "Use your coating system and end use—such as decorative, construction or industrial applications—to decide which grade properties are relevant to compare on the product pages.",
+      "box": {
+        "x": 32,
+        "y": 1066.625,
+        "width": 308,
+        "height": 140.234375,
+        "top": 1066.625,
+        "right": 340,
+        "bottom": 1206.859375,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 1070.125,
+          "width": 302.859375,
+          "height": 20.5,
+          "top": 1070.125,
+          "right": 334.859375,
+          "bottom": 1090.625,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 1098.171875,
+          "width": 300.4765625,
+          "height": 20.5,
+          "top": 1098.171875,
+          "right": 332.4765625,
+          "bottom": 1118.671875,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 1126.21875,
+          "width": 267.0390625,
+          "height": 20.5,
+          "top": 1126.21875,
+          "right": 299.0390625,
+          "bottom": 1146.71875,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 1154.265625,
+          "width": 306.2265625,
+          "height": 20.5,
+          "top": 1154.265625,
+          "right": 338.2265625,
+          "bottom": 1174.765625,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 1182.3125,
+          "width": 252.625,
+          "height": 20.5,
+          "top": 1182.3125,
+          "right": 284.625,
+          "bottom": 1202.8125,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 308,
+      "clientWidth": 308
+    },
+    {
+      "tag": "H3",
+      "text": "Plastics and masterbatch",
+      "box": {
+        "x": 372,
+        "y": 1022.3125,
+        "width": 308,
+        "height": 28.3125,
+        "top": 1022.3125,
+        "right": 680,
+        "bottom": 1050.625,
+        "left": 372
+      },
+      "lines": [
+        {
+          "x": 372,
+          "y": 1021.3125,
+          "width": 292.9921875,
+          "height": 29.5,
+          "top": 1021.3125,
+          "right": 664.9921875,
+          "bottom": 1050.8125,
+          "left": 372
+        }
+      ],
+      "scrollWidth": 308,
+      "clientWidth": 308
+    },
+    {
+      "tag": "P",
+      "text": "Compare grade information against the resin, processing route and finished product, such as film, bags, pipes or fittings. Evaluate direct use in a plastic product separately from TiO2 used as an input for masterbatch production.",
+      "box": {
+        "x": 372,
+        "y": 1066.625,
+        "width": 308,
+        "height": 196.328125,
+        "top": 1066.625,
+        "right": 680,
+        "bottom": 1262.953125,
+        "left": 372
+      },
+      "lines": [
+        {
+          "x": 372,
+          "y": 1070.125,
+          "width": 284.0703125,
+          "height": 20.5,
+          "top": 1070.125,
+          "right": 656.0703125,
+          "bottom": 1090.625,
+          "left": 372
+        },
+        {
+          "x": 372,
+          "y": 1098.171875,
+          "width": 249.2578125,
+          "height": 20.5,
+          "top": 1098.171875,
+          "right": 621.2578125,
+          "bottom": 1118.671875,
+          "left": 372
+        },
+        {
+          "x": 372,
+          "y": 1126.21875,
+          "width": 291.21875,
+          "height": 20.5,
+          "top": 1126.21875,
+          "right": 663.21875,
+          "bottom": 1146.71875,
+          "left": 372
+        },
+        {
+          "x": 372,
+          "y": 1154.265625,
+          "width": 306.28125,
+          "height": 20.5,
+          "top": 1154.265625,
+          "right": 678.28125,
+          "bottom": 1174.765625,
+          "left": 372
+        },
+        {
+          "x": 372,
+          "y": 1182.3125,
+          "width": 265.0703125,
+          "height": 20.5,
+          "top": 1182.3125,
+          "right": 637.0703125,
+          "bottom": 1202.8125,
+          "left": 372
+        },
+        {
+          "x": 372,
+          "y": 1210.359375,
+          "width": 307.8359375,
+          "height": 20.5,
+          "top": 1210.359375,
+          "right": 679.8359375,
+          "bottom": 1230.859375,
+          "left": 372
+        },
+        {
+          "x": 372,
+          "y": 1238.40625,
+          "width": 91.7109375,
+          "height": 20.5,
+          "top": 1238.40625,
+          "right": 463.7109375,
+          "bottom": 1258.90625,
+          "left": 372
+        }
+      ],
+      "scrollWidth": 308,
+      "clientWidth": 308
+    },
+    {
+      "tag": "A",
+      "text": "Explore Products",
+      "box": {
+        "x": 32,
+        "y": 1282.953125,
+        "width": 169.671875,
+        "height": 48,
+        "top": 1282.953125,
+        "right": 201.671875,
+        "bottom": 1330.953125,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 51,
+          "y": 1296.8515625,
+          "width": 131.671875,
+          "height": 19.5,
+          "top": 1296.8515625,
+          "right": 182.671875,
+          "bottom": 1316.3515625,
+          "left": 51
+        }
+      ],
+      "scrollWidth": 168,
+      "clientWidth": 168
+    },
+    {
+      "tag": "H2",
+      "text": "Documents for Product and Supplier Review",
+      "box": {
+        "x": 32,
+        "y": 1415.953125,
+        "width": 648,
+        "height": 73.15625,
+        "top": 1415.953125,
+        "right": 680,
+        "bottom": 1489.109375,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 1415.453125,
+          "width": 548.96875,
+          "height": 37.5,
+          "top": 1415.453125,
+          "right": 580.96875,
+          "bottom": 1452.953125,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 1452.03125,
+          "width": 109.2890625,
+          "height": 37.5,
+          "top": 1452.03125,
+          "right": 141.2890625,
+          "bottom": 1489.53125,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "P",
+      "text": "For a grade you are evaluating, request the TDS, SDS, COA or origin documentation your team needs for review. Select the Product Grade and document types on the request form.",
+      "box": {
+        "x": 32,
+        "y": 1511.109375,
+        "width": 648,
+        "height": 84.140625,
+        "top": 1511.109375,
+        "right": 680,
+        "bottom": 1595.25,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 1514.609375,
+          "width": 545.0859375,
+          "height": 20.5,
+          "top": 1514.609375,
+          "right": 577.0859375,
+          "bottom": 1535.109375,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 1542.65625,
+          "width": 589.578125,
+          "height": 20.5,
+          "top": 1542.65625,
+          "right": 621.578125,
+          "bottom": 1563.15625,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 1570.703125,
+          "width": 298.5625,
+          "height": 20.5,
+          "top": 1570.703125,
+          "right": 330.5625,
+          "bottom": 1591.203125,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "P",
+      "text": "A Certificate of Origin is available upon request.",
+      "box": {
+        "x": 32,
+        "y": 1615.25,
+        "width": 648,
+        "height": 28.046875,
+        "top": 1615.25,
+        "right": 680,
+        "bottom": 1643.296875,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 1618.75,
+          "width": 383.921875,
+          "height": 20.5,
+          "top": 1618.75,
+          "right": 415.921875,
+          "bottom": 1639.25,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "P",
+      "text": "If you are still deciding on a grade, explore the product pages or continue to the quotation request with “Not sure / Need help.”",
+      "box": {
+        "x": 32,
+        "y": 1663.296875,
+        "width": 648,
+        "height": 56.09375,
+        "top": 1663.296875,
+        "right": 680,
+        "bottom": 1719.390625,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 1666.796875,
+          "width": 639.3359375,
+          "height": 20.5,
+          "top": 1666.796875,
+          "right": 671.3359375,
+          "bottom": 1687.296875,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 1694.84375,
+          "width": 369.9921875,
+          "height": 20.5,
+          "top": 1694.84375,
+          "right": 401.9921875,
+          "bottom": 1715.34375,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "A",
+      "text": "Request Documents",
+      "box": {
+        "x": 32,
+        "y": 1739.390625,
+        "width": 193.78125,
+        "height": 48,
+        "top": 1739.390625,
+        "right": 225.78125,
+        "bottom": 1787.390625,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 51,
+          "y": 1753.2890625,
+          "width": 155.78125,
+          "height": 19.5,
+          "top": 1753.2890625,
+          "right": 206.78125,
+          "bottom": 1772.7890625,
+          "left": 51
+        }
+      ],
+      "scrollWidth": 192,
+      "clientWidth": 192
+    },
+    {
+      "tag": "A",
+      "text": "View Document Hub",
+      "box": {
+        "x": 241.78125,
+        "y": 1739.390625,
+        "width": 159.9765625,
+        "height": 48,
+        "top": 1739.390625,
+        "right": 401.7578125,
+        "bottom": 1787.390625,
+        "left": 241.78125
+      },
+      "lines": [
+        {
+          "x": 242.78125,
+          "y": 1753.2890625,
+          "width": 157.9765625,
+          "height": 19.5,
+          "top": 1753.2890625,
+          "right": 400.7578125,
+          "bottom": 1772.7890625,
+          "left": 242.78125
+        }
+      ],
+      "scrollWidth": 158,
+      "clientWidth": 158
+    },
+    {
+      "tag": "H2",
+      "text": "Request a Quote for Delivery to Poland",
+      "box": {
+        "x": 32,
+        "y": 1872.390625,
+        "width": 648,
+        "height": 36.578125,
+        "top": 1872.390625,
+        "right": 680,
+        "bottom": 1908.96875,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 1871.890625,
+          "width": 581.8046875,
+          "height": 37.5,
+          "top": 1871.890625,
+          "right": 613.8046875,
+          "bottom": 1909.390625,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "P",
+      "text": "Tell us about your current requirement, including the application, required or estimated quantity, and delivery location in Poland. Select the product or grade you are evaluating, or choose “Not sure / Need help” if you have not decided yet.",
+      "box": {
+        "x": 32,
+        "y": 1930.96875,
+        "width": 648,
+        "height": 112.1875,
+        "top": 1930.96875,
+        "right": 680,
+        "bottom": 2043.15625,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 1934.46875,
+          "width": 611.3046875,
+          "height": 20.5,
+          "top": 1934.46875,
+          "right": 643.3046875,
+          "bottom": 1954.96875,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 1962.515625,
+          "width": 633.71875,
+          "height": 20.5,
+          "top": 1962.515625,
+          "right": 665.71875,
+          "bottom": 1983.015625,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 1990.5625,
+          "width": 615.8359375,
+          "height": 20.5,
+          "top": 1990.5625,
+          "right": 647.8359375,
+          "bottom": 2011.0625,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 2018.609375,
+          "width": 29.59375,
+          "height": 20.5,
+          "top": 2018.609375,
+          "right": 61.59375,
+          "bottom": 2039.109375,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "P",
+      "text": "If you are considering more than one grade, add that context in Additional Requirements.",
+      "box": {
+        "x": 32,
+        "y": 2063.15625,
+        "width": 648,
+        "height": 56.09375,
+        "top": 2063.15625,
+        "right": 680,
+        "bottom": 2119.25,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 2066.65625,
+          "width": 591.3828125,
+          "height": 20.5,
+          "top": 2066.65625,
+          "right": 623.3828125,
+          "bottom": 2087.15625,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 2094.703125,
+          "width": 115.328125,
+          "height": 20.5,
+          "top": 2094.703125,
+          "right": 147.328125,
+          "bottom": 2115.203125,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "P",
+      "text": "Our team will review your requirements and contact you using the details provided.",
+      "box": {
+        "x": 32,
+        "y": 2139.25,
+        "width": 648,
+        "height": 56.09375,
+        "top": 2139.25,
+        "right": 680,
+        "bottom": 2195.34375,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 2142.75,
+          "width": 584.5625,
+          "height": 20.5,
+          "top": 2142.75,
+          "right": 616.5625,
+          "bottom": 2163.25,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 2170.796875,
+          "width": 75.6875,
+          "height": 20.5,
+          "top": 2170.796875,
+          "right": 107.6875,
+          "bottom": 2191.296875,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    },
+    {
+      "tag": "A",
+      "text": "Request a Quote",
+      "box": {
+        "x": 32,
+        "y": 2215.34375,
+        "width": 165.484375,
+        "height": 48,
+        "top": 2215.34375,
+        "right": 197.484375,
+        "bottom": 2263.34375,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 51,
+          "y": 2229.2421875,
+          "width": 127.484375,
+          "height": 19.5,
+          "top": 2229.2421875,
+          "right": 178.484375,
+          "bottom": 2248.7421875,
+          "left": 51
+        }
+      ],
+      "scrollWidth": 163,
+      "clientWidth": 163
+    },
+    {
+      "tag": "A",
+      "text": "European Union Procurement Overview",
+      "box": {
+        "x": 213.484375,
+        "y": 2215.34375,
+        "width": 306.8125,
+        "height": 48,
+        "top": 2215.34375,
+        "right": 520.296875,
+        "bottom": 2263.34375,
+        "left": 213.484375
+      },
+      "lines": [
+        {
+          "x": 214.484375,
+          "y": 2229.2421875,
+          "width": 304.8125,
+          "height": 19.5,
+          "top": 2229.2421875,
+          "right": 519.296875,
+          "bottom": 2248.7421875,
+          "left": 214.484375
+        }
+      ],
+      "scrollWidth": 305,
+      "clientWidth": 305
+    },
+    {
+      "tag": "P",
+      "text": "A focused titanium dioxide purchasing platform for international industrial buyers.",
+      "box": {
+        "x": 32,
+        "y": 2429.34375,
+        "width": 420,
+        "height": 43.390625,
+        "top": 2429.34375,
+        "right": 452,
+        "bottom": 2472.734375,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 2431.34375,
+          "width": 334.4296875,
+          "height": 17,
+          "top": 2431.34375,
+          "right": 366.4296875,
+          "bottom": 2448.34375,
+          "left": 32
+        },
+        {
+          "x": 32,
+          "y": 2453.0390625,
+          "width": 199.4921875,
+          "height": 17,
+          "top": 2453.0390625,
+          "right": 231.4921875,
+          "bottom": 2470.0390625,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 420,
+      "clientWidth": 420
+    },
+    {
+      "tag": "H2",
+      "text": "Explore",
+      "box": {
+        "x": 32,
+        "y": 2508.734375,
+        "width": 73.71875,
+        "height": 19.59375,
+        "top": 2508.734375,
+        "right": 105.71875,
+        "bottom": 2528.328125,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 2509.734375,
+          "width": 73.71875,
+          "height": 17,
+          "top": 2509.734375,
+          "right": 105.71875,
+          "bottom": 2526.734375,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 74,
+      "clientWidth": 74
+    },
+    {
+      "tag": "A",
+      "text": "Home",
+      "box": {
+        "x": 32,
+        "y": 2548.328125,
+        "width": 44,
+        "height": 44,
+        "top": 2548.328125,
+        "right": 76,
+        "bottom": 2592.328125,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 2561.828125,
+          "width": 39.5390625,
+          "height": 17,
+          "top": 2561.828125,
+          "right": 71.5390625,
+          "bottom": 2578.828125,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 44,
+      "clientWidth": 44
+    },
+    {
+      "tag": "A",
+      "text": "Markets",
+      "box": {
+        "x": 32,
+        "y": 2604.328125,
+        "width": 54.28125,
+        "height": 44,
+        "top": 2604.328125,
+        "right": 86.28125,
+        "bottom": 2648.328125,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 2617.828125,
+          "width": 54.28125,
+          "height": 17,
+          "top": 2617.828125,
+          "right": 86.28125,
+          "bottom": 2634.828125,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 54,
+      "clientWidth": 54
+    },
+    {
+      "tag": "A",
+      "text": "Products",
+      "box": {
+        "x": 32,
+        "y": 2660.328125,
+        "width": 59.921875,
+        "height": 44,
+        "top": 2660.328125,
+        "right": 91.921875,
+        "bottom": 2704.328125,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 2673.828125,
+          "width": 59.921875,
+          "height": 17,
+          "top": 2673.828125,
+          "right": 91.921875,
+          "bottom": 2690.828125,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 60,
+      "clientWidth": 60
+    },
+    {
+      "tag": "A",
+      "text": "Applications",
+      "box": {
+        "x": 32,
+        "y": 2716.328125,
+        "width": 83.171875,
+        "height": 44,
+        "top": 2716.328125,
+        "right": 115.171875,
+        "bottom": 2760.328125,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 2729.828125,
+          "width": 83.171875,
+          "height": 17,
+          "top": 2729.828125,
+          "right": 115.171875,
+          "bottom": 2746.828125,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 83,
+      "clientWidth": 83
+    },
+    {
+      "tag": "H2",
+      "text": "Information",
+      "box": {
+        "x": 372,
+        "y": 2508.734375,
+        "width": 115.1875,
+        "height": 19.59375,
+        "top": 2508.734375,
+        "right": 487.1875,
+        "bottom": 2528.328125,
+        "left": 372
+      },
+      "lines": [
+        {
+          "x": 372,
+          "y": 2509.734375,
+          "width": 115.1875,
+          "height": 17,
+          "top": 2509.734375,
+          "right": 487.1875,
+          "bottom": 2526.734375,
+          "left": 372
+        }
+      ],
+      "scrollWidth": 115,
+      "clientWidth": 115
+    },
+    {
+      "tag": "A",
+      "text": "Documents",
+      "box": {
+        "x": 372,
+        "y": 2548.328125,
+        "width": 76.328125,
+        "height": 44,
+        "top": 2548.328125,
+        "right": 448.328125,
+        "bottom": 2592.328125,
+        "left": 372
+      },
+      "lines": [
+        {
+          "x": 372,
+          "y": 2561.828125,
+          "width": 76.328125,
+          "height": 17,
+          "top": 2561.828125,
+          "right": 448.328125,
+          "bottom": 2578.828125,
+          "left": 372
+        }
+      ],
+      "scrollWidth": 76,
+      "clientWidth": 76
+    },
+    {
+      "tag": "A",
+      "text": "Resources",
+      "box": {
+        "x": 372,
+        "y": 2604.328125,
+        "width": 70.515625,
+        "height": 44,
+        "top": 2604.328125,
+        "right": 442.515625,
+        "bottom": 2648.328125,
+        "left": 372
+      },
+      "lines": [
+        {
+          "x": 372,
+          "y": 2617.828125,
+          "width": 70.515625,
+          "height": 17,
+          "top": 2617.828125,
+          "right": 442.515625,
+          "bottom": 2634.828125,
+          "left": 372
+        }
+      ],
+      "scrollWidth": 71,
+      "clientWidth": 71
+    },
+    {
+      "tag": "A",
+      "text": "About",
+      "box": {
+        "x": 372,
+        "y": 2660.328125,
+        "width": 44,
+        "height": 44,
+        "top": 2660.328125,
+        "right": 416,
+        "bottom": 2704.328125,
+        "left": 372
+      },
+      "lines": [
+        {
+          "x": 372,
+          "y": 2673.828125,
+          "width": 40.2265625,
+          "height": 17,
+          "top": 2673.828125,
+          "right": 412.2265625,
+          "bottom": 2690.828125,
+          "left": 372
+        }
+      ],
+      "scrollWidth": 44,
+      "clientWidth": 44
+    },
+    {
+      "tag": "H2",
+      "text": "Procurement",
+      "box": {
+        "x": 32,
+        "y": 2796.328125,
+        "width": 124.3203125,
+        "height": 19.59375,
+        "top": 2796.328125,
+        "right": 156.3203125,
+        "bottom": 2815.921875,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 2797.328125,
+          "width": 124.3203125,
+          "height": 17,
+          "top": 2797.328125,
+          "right": 156.3203125,
+          "bottom": 2814.328125,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 124,
+      "clientWidth": 124
+    },
+    {
+      "tag": "A",
+      "text": "Request a Quote",
+      "box": {
+        "x": 32,
+        "y": 2835.921875,
+        "width": 149.546875,
+        "height": 44,
+        "top": 2835.921875,
+        "right": 181.546875,
+        "bottom": 2879.921875,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 51,
+          "y": 2849.421875,
+          "width": 111.546875,
+          "height": 17,
+          "top": 2849.421875,
+          "right": 162.546875,
+          "bottom": 2866.421875,
+          "left": 51
+        }
+      ],
+      "scrollWidth": 148,
+      "clientWidth": 148
+    },
+    {
+      "tag": "A",
+      "text": "Privacy Policy",
+      "box": {
+        "x": 32,
+        "y": 2948.921875,
+        "width": 93.8125,
+        "height": 44,
+        "top": 2948.921875,
+        "right": 125.8125,
+        "bottom": 2992.921875,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 2962.421875,
+          "width": 93.8125,
+          "height": 17,
+          "top": 2962.421875,
+          "right": 125.8125,
+          "bottom": 2979.421875,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 94,
+      "clientWidth": 94
+    },
+    {
+      "tag": "A",
+      "text": "Dasar Privasi (BM)",
+      "box": {
+        "x": 143.8125,
+        "y": 2948.921875,
+        "width": 123.7265625,
+        "height": 44,
+        "top": 2948.921875,
+        "right": 267.5390625,
+        "bottom": 2992.921875,
+        "left": 143.8125
+      },
+      "lines": [
+        {
+          "x": 143.8125,
+          "y": 2962.421875,
+          "width": 123.7265625,
+          "height": 17,
+          "top": 2962.421875,
+          "right": 267.5390625,
+          "bottom": 2979.421875,
+          "left": 143.8125
+        }
+      ],
+      "scrollWidth": 124,
+      "clientWidth": 124
+    },
+    {
+      "tag": "A",
+      "text": "Cookie Policy",
+      "box": {
+        "x": 285.5390625,
+        "y": 2948.921875,
+        "width": 90.765625,
+        "height": 44,
+        "top": 2948.921875,
+        "right": 376.3046875,
+        "bottom": 2992.921875,
+        "left": 285.5390625
+      },
+      "lines": [
+        {
+          "x": 285.5390625,
+          "y": 2962.421875,
+          "width": 90.765625,
+          "height": 17,
+          "top": 2962.421875,
+          "right": 376.3046875,
+          "bottom": 2979.421875,
+          "left": 285.5390625
+        }
+      ],
+      "scrollWidth": 91,
+      "clientWidth": 91
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Cookie Settings",
+      "box": {
+        "x": 394.3046875,
+        "y": 2948.921875,
+        "width": 105.40625,
+        "height": 44,
+        "top": 2948.921875,
+        "right": 499.7109375,
+        "bottom": 2992.921875,
+        "left": 394.3046875
+      },
+      "lines": [
+        {
+          "x": 394.3046875,
+          "y": 2962.421875,
+          "width": 105.40625,
+          "height": 17,
+          "top": 2962.421875,
+          "right": 499.7109375,
+          "bottom": 2979.421875,
+          "left": 394.3046875
+        }
+      ],
+      "scrollWidth": 105,
+      "clientWidth": 105
+    },
+    {
+      "tag": "P",
+      "text": "© 2026 TiO2 Malaysia.",
+      "box": {
+        "x": 32,
+        "y": 3000.921875,
+        "width": 648,
+        "height": 21.6953125,
+        "top": 3000.921875,
+        "right": 680,
+        "bottom": 3022.6171875,
+        "left": 32
+      },
+      "lines": [
+        {
+          "x": 32,
+          "y": 3002.921875,
+          "width": 152.96875,
+          "height": 17,
+          "top": 3002.921875,
+          "right": 184.96875,
+          "bottom": 3019.921875,
+          "left": 32
+        }
+      ],
+      "scrollWidth": 648,
+      "clientWidth": 648
+    }
+  ],
+  "focus": [
+    {
+      "state": "rfq-visible-focus",
+      "edgeBefore": [
+        [
+          0,
+          128,
+          120
+        ],
+        [
+          0,
+          128,
+          120
+        ]
+      ],
+      "edgeAfter": [
+        [
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255
+        ]
+      ]
+    },
+    {
+      "state": "menu",
+      "nativeModal": true,
+      "initial": "Close",
+      "reverse": [
+        "top RFQ",
+        "last menu RFQ"
+      ],
+      "lastControlBox": {
+        "x": 0,
+        "y": 400.5,
+        "width": 712,
+        "height": 52
+      },
+      "dialog": {
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 712,
+          "height": 452.5,
+          "top": 0,
+          "right": 712,
+          "bottom": 452.5,
+          "left": 0
+        },
+        "scrollHeight": 479,
+        "clientHeight": 453,
+        "scrollTop": 26.5
+      }
+    },
+    {
+      "state": "cookie",
+      "nativeModal": true,
+      "initial": "Close",
+      "reverse": "Read Cookie Policy",
+      "geometry": [
+        {
+          "text": "Cookie settingsNo optional Analytics or advertising technology is currently active on this site. Necessary functions may use browser storage to operate the site and remember an available privacy setting.CloseRead Cookie Policy",
+          "box": {
+            "x": 76,
+            "y": 90.953125,
+            "width": 560,
+            "height": 270.59375,
+            "top": 90.953125,
+            "right": 636,
+            "bottom": 361.546875,
+            "left": 76
+          },
+          "scrollWidth": 558,
+          "clientWidth": 558
+        },
+        {
+          "text": "Cookie settings",
+          "box": {
+            "x": 109,
+            "y": 123.953125,
+            "width": 494,
+            "height": 35.3984375,
+            "top": 123.953125,
+            "right": 603,
+            "bottom": 159.3515625,
+            "left": 109
+          },
+          "scrollWidth": 494,
+          "clientWidth": 494
+        },
+        {
+          "text": "No optional Analytics or advertising technology is currently active on this site. Necessary functions may use browser storage to operate the site and remember an available privacy setting.",
+          "box": {
+            "x": 109,
+            "y": 177.3515625,
+            "width": 494,
+            "height": 79.1953125,
+            "top": 177.3515625,
+            "right": 603,
+            "bottom": 256.546875,
+            "left": 109
+          },
+          "scrollWidth": 494,
+          "clientWidth": 494
+        },
+        {
+          "text": "Close",
+          "box": {
+            "x": 109,
+            "y": 280.546875,
+            "width": 76.4765625,
+            "height": 48,
+            "top": 280.546875,
+            "right": 185.4765625,
+            "bottom": 328.546875,
+            "left": 109
+          },
+          "scrollWidth": 74,
+          "clientWidth": 74
+        },
+        {
+          "text": "Read Cookie Policy",
+          "box": {
+            "x": 197.4765625,
+            "y": 280.546875,
+            "width": 167.390625,
+            "height": 48,
+            "top": 280.546875,
+            "right": 364.8671875,
+            "bottom": 328.546875,
+            "left": 197.4765625
+          },
+          "scrollWidth": 165,
+          "clientWidth": 165
+        }
+      ]
+    }
+  ],
+  "keyboardFocusRestored": true,
+  "restoredZoomFactor": 1,
+  "limitations": "Headless Chromium, not physical device/other engine/screen reader or browser toolbar evidence"
+}

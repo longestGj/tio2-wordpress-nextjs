@@ -1,0 +1,34 @@
+{
+  "mode": "Live local HTTP",
+  "ssr": {
+    "source": "actual local WordPress",
+    "copy": "exact B",
+    "canonical": "https://tio2malaysia.com/markets/poland/",
+    "indexing": false,
+    "sitemapOmitted": true,
+    "queryParity": true
+  },
+  "sharedCookieRegression": [
+    {
+      "path": "/",
+      "width": 1440,
+      "nativeModal": true,
+      "backgroundFocusBlocked": true,
+      "focusRestored": true
+    },
+    {
+      "path": "/markets/united-kingdom/",
+      "width": 768,
+      "nativeModal": true,
+      "backgroundFocusBlocked": true,
+      "focusRestored": true
+    },
+    {
+      "path": "/privacy-policy/",
+      "width": 390,
+      "nativeModal": true,
+      "backgroundFocusBlocked": true,
+      "focusRestored": true
+    }
+  ]
+}
