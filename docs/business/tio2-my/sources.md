@@ -1,6 +1,6 @@
 # Malaysia 业务来源索引
 
-核对日期：2026-09-08。范围：D16本地资料。本轮未重新核实D23当前批准组合，也未进行运行或收件验收；下面是来源定位，不是新的批准清单。
+核对日期：2026-09-08。范围：D16本地资料，已补充main `41be5cf`同步后的RFQ链路定位。未重新核实D23当前批准组合，也未进行运行或收件验收；下面是来源定位，不是新的批准清单。
 
 | 来源 | 身份与用途 | 有效性边界 |
 |---|---|---|
@@ -9,6 +9,7 @@
 | [定向修复关闭记录](../../verification/conv-rfq/GATE9_PCR01_TARGETED_FIX_CLOSURE_2026-09-02.md) | `CONV-RFQ-G9-PCR-01`；接受commit `0461e594039b89764ecff89fb26b62f2acfd8f61` | 仅关闭超时与robots控制两项；当时页面整体仍在验收，不代表当前发布就绪 |
 | [输入校验](../../../lib/rfq/malaysia-rfq-validation.ts)、[预填](../../../lib/rfq/malaysia-rfq-prefill.ts)、[接收适配器](../../../lib/rfq/malaysia-rfq-receiver.ts) | 当前实现的规则映射 | 代码事实，不是独立业务批准 |
 | [RFQ浏览器测试](../../../tests/e2e/rfq-page.spec.ts) | 已有浏览器检查入口 | 使用前核对真实/模拟边界、运行前提和输出位置；本次未执行 |
+| [当前RFQ表单](../../../components/sites/tio2-my/request-a-quote/malaysia-rfq-form.tsx)、[提交接口](../../../app/api/rfq/submit/route.ts)、[context接口](../../../app/api/rfq/context/route.ts)、[私有来源](../../../lib/rfq/malaysia-rfq-private-attribution.ts) | main `41be5cf`、develop合并`1e2b954`后的主路径：公开字段预填与服务端来源分别处理 | 先前浏览器直连和旧预填函数描述不能代替当前主路径；业务批准追溯与实际运行验证分别处理 |
 | [策划资料导航](../../site-registry.md#d23-当前承接入口)、[交接清单](../../d23-gate-handoff.md) | 查找准确批准组合及接受条件的方法 | 当前任务读取实际来源后才能固定有效版本 |
 
 新增来源时记录：业务领域、文件路径、合同/批准身份、采用版本或hash、适用范围、替代关系。不要仅按最大版本号或最近修改时间判断有效性；任务记录保存本次实际采用值。

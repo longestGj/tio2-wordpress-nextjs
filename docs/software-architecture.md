@@ -1,6 +1,6 @@
 # D16 当前软件架构
 
-核对日期：2026-09-08。代码基线：`de89d8c9dd48f3027d1649fce609d153ac7cc6f1`。本文按用户要求整理现有软件结构，作为当前架构阅读入口；不实施架构变更，不批准尚待讨论的开发流程调整。
+核对日期：2026-09-08。初始代码基线：`de89d8c9dd48f3027d1649fce609d153ac7cc6f1`；本次按合并commit `1e2b954582ab979f9502d4f98aa99e8d251255c7`更新APP-000、共享外壳及RFQ链路，应用代码与main `41be5cf`一致。本文记录现有结构，不实施架构变更或批准业务变化。
 
 核对依据为本地代码、配置与历史设计，未进行运行验收或远程平台核查。本文的“已实现”指仓库中存在对应实现，不表示每条路径已经测试通过或已经部署。网站身份与限制见[网站登记](site-registry.md)和[根规则](../AGENTS.md)；开发方法、Agent/Superpowers及CI/CD执行属于[开发交付流程](development-workflow.md)，不与软件运行架构混为一谈。
 
@@ -23,8 +23,11 @@ flowchart TB
   Assets[仓库public静态资产] --> Next
   WP --> Hooks[Next.js预览 / 缓存更新接口]
   Hooks --> Next
-  Buyer --> Forms[浏览器表单与接收适配逻辑]
-  Forms --> Provider[Web3Forms]
+  Buyer --> Forms[浏览器表单]
+  Forms --> RFQ[RFQ服务端接口与接收适配器]
+  RFQ --> Provider[Web3Forms]
+  Forms --> Other[Sample / Documents客户端适配器]
+  Other --> Provider
 ```
 
 图中为主要链路，不表示所有内容一律来自CMS，也不表示所有页面都支持同一种草稿预览。Web3Forms以外的实际收件配置与最终送达需另核实。
@@ -41,7 +44,7 @@ flowchart TB
 | SEO | `lib/seo/`及页面metadata、robots/sitemap入口 | 标题、canonical、结构化数据和索引控制；策略按站点/页面/环境区分 |
 | CMS模型 | `wordpress/plugins/tio2-site-model/`；PHP | 自定义内容类型、字段、scope、发布合同、GraphQL字段、预览与更新通知 |
 | 数据与媒体 | WordPress + MariaDB；uploads、`public/` | 内容记录和媒体；按站点/环境归属，不从策划本机目录读取生产数据 |
-| 外部表单接收 | Web3Forms | 接受浏览器请求；服务商返回与实际邮箱收件属于不同事实 |
+| 外部表单接收 | Web3Forms；RFQ经`app/api/rfq/` | RFQ由服务端转交，Sample/Documents仍由客户端适配器调用；服务商返回与实际收件分别验证 |
 | 环境承载 | 开发Compose、预发布Compose及Node.js进程 | 本地CMS、构建及Web运行；详见第7节 |
 
 这张表说明当前职责，不声称已经强制实现Clean Architecture、DDD或统一分层框架。确切依赖版本以[package-lock.json](../package-lock.json)及当次安装为准；依赖声明见[package.json](../package.json)。预发布容器使用的运行时由[Compose](../ops/prerelease/docker-compose.yml)规定，不用历史设计中的版本号推断当前版本。
@@ -82,6 +85,8 @@ flowchart TB
 
 ## 5. 缓存、草稿预览与SEO
 
+APP-000应用中心已加入Malaysia专属CMS/GraphQL/DTO与渲染链路，入口为[applications路由](<../app/(en)/applications/page.tsx>)、[查询](../lib/wordpress/application-hub-v01-queries.ts)、[DTO](../lib/wordpress/application-hub-v01-dto.ts)和[CMS模块](../wordpress/plugins/tio2-site-model/includes/application-hub-v01.php)。共享外壳经[公开投影](../lib/wordpress/tio2-my-global-chrome-public.ts)向客户端提供所需展示数据；内部页面标识的处理需结合RFQ来源链路核对。
+
 ### 缓存与更新
 
 [缓存标签](../lib/wordpress/cache-tags.ts)使用站点、路径和内容等身份；[更新接口](<../app/(en)/api/revalidate/route.ts>)校验签名、事件/路径等输入，并调用Next.js的标签/路径刷新能力。WordPress插件包含更新通知逻辑，开发和预发布配置将其接到相应站点实例。
@@ -102,20 +107,24 @@ SEO由站点配置、内容合同及页面metadata共同生成。`app/robots.ts`
 
 ## 6. 表单的数据流与外部依赖
 
-Malaysia当前RFQ、Request Sample、Request Documents均由客户端表单调用各自接收适配函数，向`https://api.web3forms.com/submit`发请求：
+Malaysia的RFQ主表单已改为服务端转交；Request Sample、Request Documents仍使用客户端接收适配器。RFQ当前主链路：
 
 ```text
 浏览器输入 / 预填 / 本地校验
-  → 客户端接收适配函数组装payload
+  → POST /api/rfq/submit
+  → 服务端再次校验字段、解析来源cookie、调用接收适配器
   → Web3Forms
   → 页面按响应更新提交状态
 ```
 
 对应实现：[RFQ表单](../components/sites/tio2-my/request-a-quote/malaysia-rfq-form.tsx)、[RFQ适配器](../lib/rfq/malaysia-rfq-receiver.ts)、[Sample适配器](../lib/request-sample/malaysia-request-sample-receiver.ts)、[Documents适配器](../lib/request-documents/malaysia-request-documents-receiver.ts)。各表单的防重复、超时及状态细节按各自代码合同解释，不假设完全一致。
 
-- 这三条链路未统一经过自有Next.js询盘后端，不构成已实现的内部CRM/询盘数据库。不能把“浏览器→自有服务端询盘API→业务服务→适配器”的讨论示例写成当前事实。
+- [RFQ提交接口](../app/api/rfq/submit/route.ts)从请求字段建立提交对象，来源由服务端cookie解析，不直接采用客户端source_page_id。它转交Web3Forms，不因此构成内部CRM、订单系统或询盘数据库。
+- [私有RFQ链接](../components/sites/tio2-my/request-a-quote/malaysia-private-rfq-link.tsx)对适用普通点击先请求[context接口](../app/api/rfq/context/route.ts)，再导航。接口按同源Referer与路径允许列表识别来源，用`TIO2_MY_RFQ_ATTRIBUTION_SECRET`生成HMAC token，写入HttpOnly、SameSite=strict、最长600秒的`rfq_context` cookie。无有效来源/token时不建立归因；具体规则见[来源实现](../lib/rfq/malaysia-rfq-private-attribution.ts)。
+- 提交接口使用服务端识别的来源；获得适配器返回后，有效来源cookie被清除。RFQ表单浏览器预填保留公开业务字段，内部来源处理与可编辑字段是不同链路。
 - `site_scope`、page/workflow和请求标识等进入payload；这些字段本身不能证明provider账户或收件目的地配置正确。
-- 当前机制使用客户端可用的Web3Forms access key配置；它与数据库、CMS管理员、preview/revalidation服务端密钥不同。本文不展示任何配置值，也不宣称所有凭据都只存在服务端。
+- RFQ提交接口当前仍读取名为`NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY`的环境变量，不能因新增服务端接口就宣称凭据命名或所有客户端暴露路径已完成迁移；Sample/Documents配置另按其实现核对。归因签名密钥属于服务端配置，本文不展示任何值。
+- RFQ接收适配器还保留浏览器分支（尝试另一私有提交路径及直接发送回退）；当前主RFQ表单直接调用`/api/rfq/submit`，不能把适配器内分支当成主表单路径。调用方和运行覆盖须分别核实。
 - provider确认、页面显示结果和实际邮件到达分别验证；浏览器测试模拟provider不能证明真实接收。
 - 以上针对Malaysia当前三类表单，不把其他网站历史演示表单自动视为同一生产链路。
 
@@ -169,7 +178,7 @@ Compose项目为`d16-tio2-my-prerelease`。配置来自忽略的`.env.prerelease
 | 所有页面采用统一ISR/预生成策略 | 历史设计方向；当前路由和查询策略分别核对 | 双站设计第2节；当前客户端/路由 |
 | 两个Vercel Project、自动CI已经运行 | 设计图不是部署或自动化证据 | 双站设计第4节；vercel.json |
 | Production自动允许索引 | 当前存在页面固定noindex和额外授权开关 | lib/seo/各页面实现 |
-| 表单经自有业务API保存询盘 | 属于可能的设计示例，非Malaysia三表单现状 | 本文第6节与适配器 |
+| Malaysia三表单均浏览器直连 / 自有API保存询盘 | RFQ已由自有API转交，Sample/Documents仍走客户端；转交不等于数据库保存 | 本文第6节与适配器 |
 | Agent、Superpowers、TDD属于网站模块 | 它们属于开发工作方式，访客请求链路不依赖它们 | 开发交付流程 |
 
 预发布历史设计中的精确版本和当时状态也不替代当前锁文件、Compose及当次运行记录。历史“双站设计”不是无效文件；它保留原决策背景和适用合同，只是不再单独代表当前系统全貌。
