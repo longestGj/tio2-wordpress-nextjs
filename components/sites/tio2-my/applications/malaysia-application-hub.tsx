@@ -3,6 +3,7 @@ import type {MalaysiaApplicationHubDto} from '@/lib/wordpress/application-hub-v0
 import {MalaysiaGlobalFooter, MalaysiaGlobalHeader} from '../malaysia-global-chrome'
 import {MalaysiaPrivateRfqLink} from '../request-a-quote/malaysia-private-rfq-link'
 import styles from './malaysia-application-hub.module.css'
+import {MalaysiaResponsiveDetails} from './malaysia-responsive-details'
 
 export function MalaysiaApplicationHub({
   applicationHub,
@@ -30,15 +31,15 @@ export function MalaysiaApplicationHub({
   )
 
   return (
-    <div className={styles.site} data-site-id="tio2-my" data-site-scope="tio2-my">
+    <div className={styles.site}>
       {structuredData}
       <MalaysiaGlobalHeader chrome={applicationHub.globalChrome} currentPageId="APP-000" sourcePageId="APP-000" />
       <main className={styles.main}>
         <div className={styles.wrap}>
-        <nav className={styles.breadcrumb} aria-label="Breadcrumb" data-module="breadcrumb">
+        <nav className={styles.breadcrumb} aria-label="Breadcrumb">
           <ol>
             {applicationHub.breadcrumb.map((item, index) => (
-              <li key={item.targetPageId}>
+              <li key={`${item.href}-${item.label}`}>
                 {index === applicationHub.breadcrumb.length - 1
                   ? <span aria-current="page">{item.label}</span>
                   : <a href={item.href}>{item.label}</a>}
@@ -47,57 +48,57 @@ export function MalaysiaApplicationHub({
           </ol>
         </nav>
 
-        <section className={styles.hero} data-module="hero" aria-labelledby="application-hub-heading">
+        <section className={styles.hero} aria-labelledby="application-hub-heading">
           <div className={styles.heroCopy}>
             <h1 id="application-hub-heading">{applicationHub.hero.h1}</h1>
             <p className={styles.lead}>{applicationHub.hero.intro}</p>
             <div className={styles.actions}>
               <a className={styles.primaryButton} href={applicationHub.hero.primaryAction.href}>{applicationHub.hero.primaryAction.label}</a>
-              {rfqReady ? <MalaysiaPrivateRfqLink className={styles.outlineButton} href={applicationHub.hero.rfq.href} sourcePageId="APP-000">{applicationHub.hero.rfq.label}</MalaysiaPrivateRfqLink> : null}
+              {rfqReady ? <MalaysiaPrivateRfqLink className={styles.outlineButton} href={applicationHub.hero.rfq.href}>{applicationHub.hero.rfq.label}</MalaysiaPrivateRfqLink> : null}
             </div>
           </div>
           <nav className={styles.heroIndex} aria-label={applicationHub.hero.selectorLabel}>
             <p>{applicationHub.hero.selectorLabel}</p>
             <ul>
               {applicationHub.applications.map((application) => (
-                <li key={application.key}>
-                  <a href={`#${application.anchorId}`}>{application.title}</a>
+                <li key={application.anchorId}>
+                  <a href={`#${application.anchorId}`}>{application.title}<span className={styles.decorativeArrow} aria-hidden="true">↓</span></a>
                 </li>
               ))}
             </ul>
           </nav>
         </section>
 
-        <section id={applicationHub.applicationPaths.anchorId} className={styles.section} data-module="application-paths" aria-labelledby="application-paths-heading">
+        <section id={applicationHub.applicationPaths.anchorId} className={`${styles.section} ${styles.applicationPaths}`} aria-labelledby="application-paths-heading">
           <header>
             <h2 id="application-paths-heading">{applicationHub.applicationPaths.heading}</h2>
             <p className={styles.intro}>{applicationHub.applicationPaths.qualification}{secondSentence ? ` ${secondSentence}` : ''}</p>
           </header>
           <div className={styles.applicationGrid}>
             {applicationHub.applications.map((application) => (
-              <article id={application.anchorId} key={application.key} className={styles.applicationCard}>
+              <article id={application.anchorId} key={application.anchorId} className={styles.applicationCard}>
                 <div className={styles.scope}><h3>{application.title}</h3><p>{application.scope}</p></div>
-                <details className={styles.grades} open>
+                <MalaysiaResponsiveDetails className={styles.grades}>
                   <summary>{application.gradeLabel}</summary>
                   <ul className={styles.gradeList}>
-                    {application.grades.map((grade) => (
-                      <li key={grade.edgeId} data-grade-occurrence={grade.edgeId}>
+                    {application.grades.map((grade, index) => (
+                      <li key={`${application.anchorId}-${grade.gradeId}-${index}`}>
                         {applicationHub.routeReadiness[grade.targetPageId]
-                          ? <a href={grade.href} data-grade-state="linked">{grade.gradeId}</a>
-                          : <span data-grade-state="plain">{grade.gradeId}</span>}
+                          ? <a href={grade.href}>{grade.gradeId}</a>
+                          : <span>{grade.gradeId}</span>}
                       </li>
                     ))}
                   </ul>
-                </details>
+                </MalaysiaResponsiveDetails>
                 {typeof application.targetPageId === 'string' && applicationHub.routeReadiness[application.targetPageId]
-                  ? <div className={styles.applicationAction}><a className={styles.textLink} href={application.href} data-application-action={application.targetPageId}>{application.actionLabel}</a></div>
+                  ? <div className={styles.applicationAction}><a className={styles.textLink} href={application.href}>{application.actionLabel}<span className={styles.decorativeArrow} aria-hidden="true">→</span></a></div>
                   : null}
               </article>
             ))}
           </div>
         </section>
 
-        <section className={styles.section} data-module="evaluation-guide" aria-labelledby="evaluation-heading">
+        <section className={styles.section} aria-labelledby="evaluation-heading">
           <header>
             <h2 id="evaluation-heading">{applicationHub.evaluation.heading}</h2>
           </header>
@@ -110,26 +111,26 @@ export function MalaysiaApplicationHub({
           </ol>
         </section>
 
-        {supportItems.length ? <section className={`${styles.section} ${styles.support}`} data-module="procurement-paths" aria-labelledby="support-heading">
+        {supportItems.length ? <section className={`${styles.section} ${styles.support}`} aria-labelledby="support-heading">
           <header>
             <h2 id="support-heading">{applicationHub.support.heading}</h2>
           </header>
           <div className={styles.supportGrid}>
             {supportItems.map((item) => (
-              <article key={item.targetPageId}>
+              <article key={item.href}>
                 <h3>{item.title}</h3><p>{item.body}</p>
-                <a className={styles.textLink} href={item.href} data-support-action={item.targetPageId}>{item.actionLabel}</a>
+                <a className={styles.textLink} href={item.href}>{item.actionLabel}<span className={styles.decorativeArrow} aria-hidden="true">→</span></a>
               </article>
             ))}
           </div>
         </section> : null}
 
         {rfqReady ? (
-          <section className={`${styles.section} ${styles.finalRfq}`} data-module="final-rfq" aria-labelledby="final-rfq-heading">
+          <section className={`${styles.section} ${styles.finalRfq}`} aria-labelledby="final-rfq-heading">
             <h2 id="final-rfq-heading">{applicationHub.finalRfq.heading}</h2>
             <p>{applicationHub.finalRfq.body}</p>
             <p className={styles.rfqNote}>{applicationHub.finalRfq.note}</p>
-            <MalaysiaPrivateRfqLink className={styles.primaryButton} href={applicationHub.finalRfq.action.href} sourcePageId="APP-000">{applicationHub.finalRfq.action.label}</MalaysiaPrivateRfqLink>
+            <MalaysiaPrivateRfqLink className={styles.primaryButton} href={applicationHub.finalRfq.action.href}>{applicationHub.finalRfq.action.label}</MalaysiaPrivateRfqLink>
           </section>
         ) : null}
         </div>

@@ -7,6 +7,7 @@ describe('APP-000 approved contract', () => {
     expect(contract.applications.map((item) => item.key)).toEqual(['COAT', 'PLAS', 'MB', 'INK', 'PAPER', 'SPECIALTY'])
     expect(contract.applications.map((item) => item.grades.length)).toEqual([8, 8, 7, 4, 2, 1])
     expect(contract.applications.flatMap((item) => item.grades)).toHaveLength(30)
+    expect(contract.applications.at(-1)?.grades.at(-1)?.edgeId).toBe('APP000-EDGE-SPEC-01')
   })
 
   it('keeps only the approved five child routes and source-only RFQ path', () => {

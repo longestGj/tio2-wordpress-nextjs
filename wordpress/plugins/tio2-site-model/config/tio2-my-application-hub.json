@@ -104,7 +104,7 @@
     {
       "key": "SPECIALTY", "anchorId": "application-specialty-materials", "title": "Specialty Materials", "scope": "For reviewing CR-901 in specialty-material applications.", "gradeLabel": "Grade to Review",
       "grades": [
-        {"edgeId": "APP000-EDGE-SPECIALTY-01", "gradeId": "CR-901", "targetPageId": "GRADE-CR901", "href": "/products/cr-901/"}
+        {"edgeId": "APP000-EDGE-SPEC-01", "gradeId": "CR-901", "targetPageId": "GRADE-CR901", "href": "/products/cr-901/"}
       ]
     }
   ],

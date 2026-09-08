@@ -25,7 +25,7 @@ describe('five approved pages consume the shared dropdown Chrome variant', () =>
   })
   it.each(sources)('%s opens at the first link, isolates the background, cycles through the trigger and restores focus', (sourcePageId) => {
     const currentPageId = sourcePageId.startsWith('MARKET') ? 'MARKET-000' : sourcePageId.startsWith('PRODUCT') ? 'PRODUCT-000' : 'RES-000'
-    const {container} = render(<div><MalaysiaGlobalHeader chrome={chrome} currentPageId={currentPageId} sourcePageId={sourcePageId}/><main><a href="/products/">Body content</a></main><MalaysiaGlobalFooter chrome={chrome} sourcePageId={sourcePageId}/></div>)
+    const {container} = render(<div><MalaysiaGlobalHeader chrome={chrome} currentPageId={currentPageId} sourcePageId={sourcePageId}/><main><a href="#body-content">Body content</a></main><MalaysiaGlobalFooter chrome={chrome} sourcePageId={sourcePageId}/></div>)
     const trigger = screen.getByRole('button', {name: 'Open primary navigation'})
     fireEvent.click(trigger)
     const menu = screen.getByRole('navigation', {name: 'Mobile navigation'})

@@ -24,6 +24,30 @@ export async function submitMalaysiaRfq(
   submission: MalaysiaRfqSubmission,
   options: SubmitOptions,
 ): Promise<MalaysiaRfqReceiverResult> {
+  if (typeof window !== 'undefined') {
+    try {
+      const privateResponse = await fetch('/api/tio2-my/rfq-private-submit', {
+        method: 'POST',
+        headers: {'content-type': 'application/json', accept: 'application/json'},
+        credentials: 'same-origin',
+        body: JSON.stringify(Object.fromEntries(
+          Object.entries(submission).filter(([key]) => key !== 'source_page_id' && key !== 'interest'),
+        )),
+      })
+      if (privateResponse.status !== 204) {
+        if (privateResponse.status !== 200 || !privateResponse.headers.get('content-type')?.includes('application/json')) {
+          return {kind: 'submission_unconfirmed'}
+        }
+        const privateResult = await privateResponse.json() as {readonly kind?: unknown}
+        if (privateResult.kind === 'receipt_confirmed' || privateResult.kind === 'submission_unconfirmed' || privateResult.kind === 'service_unavailable') {
+          return {kind: privateResult.kind}
+        }
+        return {kind: 'submission_unconfirmed'}
+      }
+    } catch {
+      // Preserve the existing direct receiver path when the optional private handoff is unavailable.
+    }
+  }
   if (!options.accessKey?.trim()) return {kind: 'service_unavailable'}
   const fetcher = options.fetcher ?? fetch
   const endpoint = options.endpoint ?? WEB3FORMS_ENDPOINT

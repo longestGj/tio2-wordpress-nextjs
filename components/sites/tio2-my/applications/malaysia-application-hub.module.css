@@ -28,10 +28,10 @@
 .heroIndex > p { margin:0 0 10px;color:var(--navy);font-size:14px;font-weight:800;letter-spacing:.025em; }
 .heroIndex ul { display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;margin:0;padding:0;list-style:none; }
 .heroIndex a { display:flex;align-items:center;min-width:44px;min-height:44px;border-bottom:1px solid transparent;font-size:15px;font-weight:650;text-decoration:none; }
-.heroIndex a::after { margin-left:auto;color:var(--teal);font-size:13px;content:'↓'; }
+.decorativeArrow { margin-left:auto;color:var(--teal);font-size:13px;text-decoration:none; }
 .heroIndex a:hover { border-bottom-color:var(--teal); }
 .section { padding:64px 0;border-top:1px solid var(--line);scroll-margin-top:24px; }
-.section[data-module='application-paths'] { padding-top:0;border-top:0; }
+.applicationPaths { padding-top:0;border-top:0; }
 .section > header > h2::before,.finalRfq > h2::before { display:block;width:44px;height:4px;margin-bottom:16px;border-radius:4px;background:var(--bright);content:''; }
 .intro { max-width:900px;margin-top:0!important;font-size:17px; }
 .applicationGrid { margin-top:34px;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(3,27,58,.045); }
@@ -50,7 +50,7 @@
 .gradeList span { color:var(--ink);border-color:var(--line);background:var(--white); }
 .applicationAction { padding-top:5px; }
 .textLink { display:inline-flex;align-items:center;min-width:44px;min-height:44px;font-size:15px;font-weight:750;line-height:1.45; }
-.textLink::after { margin-left:8px;text-decoration:none;content:'→'; }
+.textLink .decorativeArrow { margin-left:8px; }
 .steps { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin:0;padding:0;list-style:none;counter-reset:step; }
 .steps li { position:relative;padding:28px 26px 26px;border:1px solid var(--line);border-radius:12px;background:var(--white);box-shadow:0 8px 22px rgba(3,27,58,.045);counter-increment:step; }
 .steps li::before { display:block;margin-bottom:18px;color:var(--teal);font-size:13px;font-weight:850;letter-spacing:.1em;content:'0' counter(step); }

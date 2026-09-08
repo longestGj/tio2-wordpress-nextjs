@@ -14,39 +14,43 @@ function dto(overrides: Record<string, boolean> = {}) {
   })
 }
 
+function gradeLinkCount(markup: string): number {
+  return (markup.match(/href="\/products\/(?:m-[^"]+|cr-901)\/"/gu) ?? []).length
+}
+
 describe('APP-000 renderer', () => {
-  it('renders exact module order and 30 grade occurrences without public internal IDs', () => {
+  it('renders the approved reading order and 30 Grade links without public internal IDs', () => {
     const markup = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={dto()} />)
-    expect([...markup.matchAll(/data-module="([^"]+)"/gu)].map((match) => match[1])).toEqual([
-      'breadcrumb', 'hero', 'application-paths', 'evaluation-guide', 'procurement-paths', 'final-rfq',
-    ])
-    expect((markup.match(/data-grade-occurrence=/gu) ?? [])).toHaveLength(30)
-    expect(markup).not.toContain('source_page_id')
-    expect(markup).not.toContain('site_scope')
+    const headings = [contract.hero.h1, contract.applicationPaths.heading, contract.evaluation.heading, contract.support.heading, contract.finalRfq.heading]
+    const positions = headings.map((heading) => markup.indexOf(heading))
+    expect(positions.every((position) => position >= 0)).toBe(true)
+    expect(positions).toEqual([...positions].sort((a, b) => a - b))
+    expect(gradeLinkCount(markup)).toBe(30)
+    expect(markup).not.toMatch(/APP-000|APP000-EDGE|GLOBAL-CHROME-005|data-(?:site-id|site-scope|source-page|grade-occurrence|grade-state|support-action|application-action|module)|(?:currentPageId|sourcePageId|targetPageId|siteScope|edgeId|contractId)["']?\s*[:=]/iu)
   })
 
-  it('uses atomic omission and plain grade fallback for unavailable targets', () => {
+  it('uses atomic omission and plain Grade fallback for unavailable targets', () => {
     const markup = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={dto({
       'APP-COAT': false, 'GRADE-M350': false, 'DOC-000': false, 'CONV-RFQ': false,
     })} />)
-    expect(markup).not.toContain('data-application-action="APP-COAT"')
-    expect(markup).toContain('data-grade-occurrence="APP000-EDGE-COAT-01"')
-    expect(markup).toContain('data-grade-state="plain"')
-    expect(markup).not.toContain('data-support-action="DOC-000"')
-    expect(markup).not.toContain('data-module="final-rfq"')
+    expect(markup).not.toContain(`href="${contract.applications[0].href}"`)
+    expect(markup).not.toContain('href="/products/m-350/"')
+    expect(markup).toContain('>M-350</span>')
+    expect(markup).not.toContain(contract.support.items[1].actionLabel)
+    expect(markup).not.toContain(contract.finalRfq.heading)
   })
 
   it.each([
-    ['child application', {'APP-COAT': false}, 'data-application-action="APP-COAT"'],
-    ['grade', {'GRADE-M350': false}, 'href="/products/m-350/" data-grade-state="linked"'],
-    ['product support', {'PRODUCT-000': false}, 'data-support-action="PRODUCT-000"'],
-    ['document support', {'DOC-000': false}, 'data-support-action="DOC-000"'],
-    ['market support', {'MARKET-000': false}, 'data-support-action="MARKET-000"'],
-  ])('omits only the unavailable %s destination', (_label, readiness, prohibited) => {
+    ['child application', {'APP-COAT': false}, contract.applications[0].actionLabel],
+    ['grade', {'GRADE-M350': false}, 'href="/products/m-350/"'],
+    ['product support', {'PRODUCT-000': false}, contract.support.items[0].actionLabel],
+    ['document support', {'DOC-000': false}, contract.support.items[1].actionLabel],
+    ['market support', {'MARKET-000': false}, contract.support.items[2].actionLabel],
+  ])('omits only the unavailable %s destination', (label, readiness, prohibitedFragment) => {
     const markup = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={dto(readiness)} />)
-    expect(markup).not.toContain(prohibited)
-    expect((markup.match(/data-grade-occurrence=/gu) ?? [])).toHaveLength(30)
-    expect(markup).toContain('data-module="evaluation-guide"')
+    expect(markup).not.toContain(prohibitedFragment)
+    expect(markup).toContain(contract.evaluation.heading)
+    if (label !== 'grade') expect(gradeLinkCount(markup)).toBe(30)
   })
 
   it('renders the exact full, applications-only, grades-only, mixed and no-destination variants', () => {
@@ -68,20 +72,17 @@ describe('APP-000 renderer', () => {
 
     const mixed = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={dto({'APP-COAT': false, 'GRADE-M350': false})} />)
     expect(mixed).toContain(contract.applicationPaths.sentences.both)
-    expect(mixed).not.toContain('data-application-action="APP-COAT"')
-    expect(mixed).toContain('data-grade-state="plain"')
+    expect(mixed).not.toContain(`href="${contract.applications[0].href}"`)
+    expect(mixed).toContain('>M-350</span>')
 
     const noDestination = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={dto({
       ...off(applicationIds), ...off(gradeIds), ...off(supportIds), 'CONV-RFQ': false,
     })} />)
-    expect(noDestination).toContain(applicationHubQualification())
+    expect(noDestination).toContain(contract.applicationPaths.qualification)
     expect(noDestination).not.toContain(contract.applicationPaths.sentences.both)
-    expect(noDestination).not.toContain('data-module="procurement-paths"')
-    expect(noDestination).not.toContain('data-module="final-rfq"')
-    expect((noDestination.match(/data-grade-state="plain"/gu) ?? [])).toHaveLength(30)
+    expect(noDestination).not.toContain(contract.support.heading)
+    expect(noDestination).not.toContain(contract.finalRfq.heading)
+    expect(gradeLinkCount(noDestination)).toBe(0)
+    expect((noDestination.match(/<span>(?:M-|CR-)/gu) ?? [])).toHaveLength(30)
   })
 })
-
-function applicationHubQualification(): string {
-  return contract.applicationPaths.qualification
-}

@@ -25,7 +25,7 @@ describe('APP-000 route integration', () => {
     const markup = renderToStaticMarkup(await route.default())
     expect(routeMocks.getMalaysiaApplicationHub).toHaveBeenCalledOnce()
     expect(routeMocks.getSiteApplication).not.toHaveBeenCalled()
-    expect(markup).toContain('data-site-scope="tio2-my"')
+    expect(markup).not.toMatch(/APP-000|APP000-EDGE|GLOBAL-CHROME-005|data-(?:site-id|site-scope|source-page|grade-occurrence|grade-state|support-action|application-action|module)/iu)
     expect(markup.match(/<h1/gu)).toHaveLength(1)
     expect(markup).toContain('Explore Titanium Dioxide by Application')
     expect(markup.match(/<script type="application\/ld\+json">/gu)).toHaveLength(1)
