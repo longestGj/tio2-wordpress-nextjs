@@ -355,7 +355,7 @@ function Get-PrereleaseLiveIdentity {
         [string] $DockerExecutable = 'docker'
     )
 
-    $cmsPath = Join-Path $RunRoot 'cms-identity.json'
+    $cmsPath = Join-Path $RunRoot 'live-cms-identity.json'
     $containerState = [pscustomobject]@{ healthy = $false; reasons = @('compose_ps_failed') }
     $cmsRefreshed = $false
     try {
@@ -369,7 +369,7 @@ function Get-PrereleaseLiveIdentity {
         }
         $containerState = Test-PrereleaseContainerHealth -Records $records
         if ($containerState.healthy) {
-            $liveCmsCommand = 'wp eval-file /workspace/wordpress/bootstrap/validate-prerelease-site.php > /run-state/site-validation.json && bash /workspace/ops/prerelease/collect-cms-identity.sh'
+            $liveCmsCommand = 'wp eval-file /workspace/wordpress/bootstrap/validate-prerelease-site.php > /run-state/live-site-validation.json && SITE_VALIDATION_PATH=/run-state/live-site-validation.json CMS_IDENTITY_OUTPUT_PATH=/run-state/live-cms-identity.json bash /workspace/ops/prerelease/collect-cms-identity.sh'
             Invoke-PrereleaseDocker -DockerExecutable $DockerExecutable -Arguments @($ComposeArguments + @('--profile', 'tools', 'run', '--rm', '--no-deps', 'wpcli', 'bash', '-lc', $liveCmsCommand)) | Out-Null
             $cmsRefreshed = Test-Path -LiteralPath $cmsPath -PathType Leaf
         }

@@ -33,18 +33,19 @@ npm run prerelease:reset
 
 `start`先核对当前分支为`main`且工作树干净，再通过`git archive <full-commit>`创建冻结源码。它启动CMS、校验所有seed哈希、只应用未记录的匹配seed、构建Next.js、启动Web，并执行两轮只读HTTP检查。操作锁位于`.prerelease/operation.lock`。
 
-`status`不输出环境变量或密钥。它读取精确Compose项目的`db`、`wordpress`和`web`实时健康状态，通过临时只读WP-CLI运行重新校验站点记录并生成CMS身份，再核对Web身份接口；保存的旧身份文件本身不能构成`HEALTHY`。主要状态如下：
+`status`不输出环境变量或密钥。它读取精确Compose项目的`db`、`wordpress`和`web`实时健康状态，通过临时只读WP-CLI运行重新校验站点记录并写入独立的`live-cms-identity.json`，再核对Web身份接口；启动时的`cms-identity.json`保持不变，保存的旧身份文件本身不能构成`HEALTHY`。主要状态如下：
 
 | 状态 | 含义 |
 |---|---|
 | `HEALTHY` | 保存的commit、站点、Build ID、CMS身份和当前运行实例一致，且本地`main`未移动 |
 | `STALE_MAIN` | 运行实例本身仍一致，但本地`main`已前移；服务保持运行，需重新构建后才能代表最新`main` |
 | `UNHEALTHY` | 运行不可达，或Build、站点、CMS、commit/run身份不一致 |
+| `RESETTING` | 控制器正持有同一操作锁执行数据删除、重新初始化和新运行构建 |
 | `STOPPED` | 没有当前运行，或已通过控制器停止 |
 
 `test`仅运行`tests/e2e/prerelease-smoke.spec.ts`。测试拦截所有非GET请求，验证代表性页面、CMS页面身份、导航、canonical/robots、Cookie Settings、三张表单的本地验证、键盘流程、1440/768/390布局、横向溢出和Chromium 200%页面缩放。结果必须记录`externalPostCount: 0`。
 
-`stop`只停止此Compose项目并保留数据及运行证据。`reset`要求服务已停止，先移除仍挂载volume的本项目容器，仅删除`d16-tio2-my-prerelease_prerelease_db`和`d16-tio2-my-prerelease_prerelease_wp`，保留npm缓存和旧运行证据，然后自动执行一次完整`start`。新运行目录的`reset-receipt.json`记录删除的精确volume名称以及重置前后的run ID和CMS身份哈希。
+`stop`只停止此Compose项目并保留数据及运行证据。`reset`要求服务已停止；在删除前先输出`RESETTING` JSON，列出Compose项目及两个精确目标volume。控制器在同一操作锁内移除仍挂载volume的本项目容器，仅删除`d16-tio2-my-prerelease_prerelease_db`和`d16-tio2-my-prerelease_prerelease_wp`，保留npm缓存和旧运行证据，然后执行一次完整的新运行构建。新运行目录的`reset-receipt.json`记录实际删除的volume名称以及重置前后的run ID和CMS身份哈希。
 
 ## 显式真实表单测试
 
