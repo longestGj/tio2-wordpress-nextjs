@@ -36,6 +36,7 @@ describe('prerelease WordPress bootstrap contract', () => {
     expect(script).toContain('site_scope')
     expect(script).toContain('tio2-my')
     expect(script).toContain('/%postname%/')
+    expect(script).toContain('SOURCE_CONFIG=/var/www/html/wp-content/plugins/tio2-site-model/config')
     expect(script.indexOf('verify_seed_manifest')).toBeLessThan(script.indexOf('wp eval-file'))
     expect(script).toMatch(/validate-prerelease-site\.php[\s\S]*collect-cms-identity\.sh/)
   })

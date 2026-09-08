@@ -25,7 +25,7 @@ verify_seed_manifest() {
 
 prepare_editorial_reviews() {
   mkdir -p /workspace/.tmp
-  SOURCE_CONFIG=/workspace/wordpress/plugins/tio2-site-model/config php -r '
+  SOURCE_CONFIG=/var/www/html/wp-content/plugins/tio2-site-model/config php -r '
     foreach ([
         "tio2-my-editorial-review-evidence.json" => "editorial-source-reviews.json",
         "tio2-my-alternatives-review-evidence.json" => "five-source-reviews.json",
