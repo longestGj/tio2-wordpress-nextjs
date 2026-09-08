@@ -2,7 +2,7 @@
 
 依据：用户授权的D16交接流程整理；D23当前[工作流V3.2](D:/23MySec/docs/architecture/GATE_WORKFLOW_V3.2.md)、[Gate8→Gate9机器交接合同V1.0](D:/23MySec/docs/architecture/GATE8_GATE9_EVIDENCE_HANDOFF_CONTRACT_V1.0.md)、[Evidence Manifest Schema V1.0](D:/23MySec/docs/architecture/GATE8_EVIDENCE_MANIFEST_SCHEMA_V1.0.json)、[Gate9当前基线](D:/23MySec/docs/architecture/GATE9_AGENT_SKILL_CURRENT_BASELINE_MANIFEST_V1.0.md)及Poland有效交付和验收记录。本文件明确D16如何接收、交回D23任务，不修改策划批准方式。其他策划项目可复用内容要求，但不强制采用D23编号。
 
-沿用[开发交付流程](development-workflow.md)、[任务记录](templates/development-task-record.md)和[Poland实例](examples/poland-development-handoff.md)。以下清单放入已有交付包或主回执即可；一个权威入口可引用多个原件，无需复制正文、重新导出资产或新增一轮审批。
+沿用[开发交付流程](development-workflow.md)、[任务记录](templates/development-task-record.md)、[Gate8开发任务模板](templates/d23-gate8-development-task.md)和[Poland实例](examples/poland-development-handoff.md)。以下清单放入已有交付包或主回执即可；一个权威入口可引用多个原件，无需复制正文、重新导出资产或新增一轮审批。
 
 ## 1. Gate 6→Gate 8：策划交给开发
 

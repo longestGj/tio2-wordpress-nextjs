@@ -2,7 +2,7 @@
 
 生效依据：2026-09-07用户明确的多网站承接定位；稳定底线见根[AGENTS.md](../AGENTS.md)，网站身份见[网站登记](site-registry.md)。本次规则整理不改变任何页面既有批准或发布授权。
 
-2026-09-07补充依据：用户批准将Poland复盘落实为交接实例与流程改进。直接使用[任务记录模板](templates/development-task-record.md)，或在已有主回执补齐对应字段；[Poland实例](examples/poland-development-handoff.md)展示实际交付、返修和停止点。三个逻辑入口是“策划批准入口、D16实施记录、最新交付与接收”，不要求另外创建三份内容重复的文件。
+2026-09-07补充依据：用户批准将Poland复盘落实为交接实例与流程改进。直接使用[任务记录模板](templates/development-task-record.md)，或在已有主回执补齐对应字段；D23任务可用[Gate8开发任务模板](templates/d23-gate8-development-task.md)组织派发。[Poland实例](examples/poland-development-handoff.md)展示实际交付、返修和停止点。三个逻辑入口是“策划批准入口、D16实施记录、最新交付与接收”，不要求另外创建三份内容重复的文件。
 
 2026-09-08补充依据：D23 Gate9采用[Gate8→Gate9机器交接合同V1.0](D:/23MySec/docs/architecture/GATE8_GATE9_EVIDENCE_HANDOFF_CONTRACT_V1.0.md)、[Evidence Manifest Schema V1.0](D:/23MySec/docs/architecture/GATE8_EVIDENCE_MANIFEST_SCHEMA_V1.0.json)和[当前Gate9基线](D:/23MySec/docs/architecture/GATE9_AGENT_SKILL_CURRENT_BASELINE_MANIFEST_V1.0.md)。D23任务按本文件第6节执行机器交回和本地`main`串行集成；该节是D16唯一当前队列规则，D23接口文件只作为来源和版本依据。
 
