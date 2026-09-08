@@ -17,7 +17,10 @@ interface GlobalChromeProps {
 
 const approvedDropdownSources = new Set([
   'MARKET-EU-DE', 'MARKET-EU-IT', 'PRODUCT-PROC-SU', 'RES-R706', 'RES-CHEMOURS',
+  'SYS-404', 'CONV-THANK',
 ])
+
+const copyrightFirstSources = new Set(['SYS-404', 'CONV-THANK'])
 
 function rfqAttributes(sourcePageId: string) {
   return {
@@ -210,6 +213,12 @@ export function MalaysiaGlobalFooter({
   sourcePageId,
 }: Omit<GlobalChromeProps, 'currentPageId'>) {
   const navById = new Map(chrome.navigation.map((item) => [item.targetPageId, item]))
+  const copyright = <p className={styles.copyright}>{chrome.footer.copyright}</p>
+  const legalUtilities = <nav className={styles.legalUtilities} aria-label="Legal and privacy navigation">
+    {chrome.footer.legalUtilities.map((item) => item.action === 'OPEN_COOKIE_SETTINGS'
+      ? <MalaysiaCookieSettingsTrigger key={item.label}>{item.label}</MalaysiaCookieSettingsTrigger>
+      : <a key={item.label} href={item.href ?? undefined}>{item.label}</a>)}
+  </nav>
   return (
     <><footer className={styles.footer} lang="en" data-chrome-variant={approvedDropdownSources.has(sourcePageId) ? 'gate8-approved' : undefined}>
       <div className={styles.footerGrid}>
@@ -244,12 +253,7 @@ export function MalaysiaGlobalFooter({
           </a>
         </div>
       </div>
-      <nav className={styles.legalUtilities} aria-label="Legal and privacy navigation">
-        {chrome.footer.legalUtilities.map((item) => item.action === 'OPEN_COOKIE_SETTINGS'
-          ? <MalaysiaCookieSettingsTrigger key={item.label}>{item.label}</MalaysiaCookieSettingsTrigger>
-          : <a key={item.label} href={item.href ?? undefined}>{item.label}</a>)}
-      </nav>
-      <p className={styles.copyright}>{chrome.footer.copyright}</p>
+      {copyrightFirstSources.has(sourcePageId) ? <>{copyright}{legalUtilities}</> : <>{legalUtilities}{copyright}</>}
       {!approvedDropdownSources.has(sourcePageId) && <MalaysiaCookieSettingsHost />}
     </footer>
     {approvedDropdownSources.has(sourcePageId) && <MalaysiaCookieSettingsHost/>}</>
