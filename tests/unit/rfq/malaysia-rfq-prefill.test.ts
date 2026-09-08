@@ -4,6 +4,13 @@ import {resolveMalaysiaRfqPrefill} from '@/lib/rfq/malaysia-rfq-prefill'
 import {mergeMalaysiaRfqHistoryDraft, toMalaysiaRfqHistoryDraft} from '@/lib/rfq/malaysia-rfq-history'
 
 describe('CONV-RFQ prefill', () => {
+  it('accepts APP-000 attribution without selecting buyer-controlled Grade or Application values', () => {
+    expect(resolveMalaysiaRfqPrefill({source_page_id: 'APP-000'})).toEqual({
+      values: {},
+      sourcePageId: 'APP-000',
+    })
+  })
+
   it('accepts only the RES-ORIGIN source and generic interest handoff', () => {
     expect(resolveMalaysiaRfqPrefill({
       source_page: 'RES-ORIGIN',

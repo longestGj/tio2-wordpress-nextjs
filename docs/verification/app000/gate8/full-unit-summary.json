@@ -1,0 +1,32 @@
+{
+  "recordedAt": "2026-09-08T18:23:30+08:00",
+  "command": "npm test",
+  "log": "docs/verification/app000/gate8/logs/unit-full.log",
+  "result": "BASELINE_QUALITY_DRIFT",
+  "counts": {
+    "testFilesPassed": 325,
+    "testFilesFailed": 2,
+    "testFilesSkipped": 20,
+    "testsPassed": 2753,
+    "testsFailed": 2,
+    "testsSkipped": 50
+  },
+  "failures": [
+    {
+      "test": "tests/unit/editorial/five-core-review.test.ts > binds the separate alternatives evidence artifact to its unchanged local bytes",
+      "classification": "UNRELATED_EXISTING_EVIDENCE_HASH_DRIFT",
+      "expected": "3b0559416055d44ea15dbf0bea8db5b911e44767eaa0e0d1373e7a5fe895b8e1",
+      "actual": "90194de968291490b140a7ef83f23886d68c39969916fa10a1a44337e3748d47"
+    },
+    {
+      "test": "tests/infrastructure/site-a-editorial-draft-import-contract.test.ts > attempts every cleanup and final source hash when the first runtime deletion fails",
+      "classification": "UNRELATED_SITE_A_FIVE_SECOND_TIMEOUT",
+      "detail": "Timed out at 5 seconds in the full run and again in an isolated recheck; APP-000 does not modify this Site A wrapper."
+    }
+  ],
+  "app000TargetedResult": "13 files / 63 tests passed",
+  "changedFileLint": "passed",
+  "typecheck": "passed",
+  "productionBuild": "passed; 62/62 static pages generated",
+  "gate8Playwright": "14/14 passed across Chromium and Firefox"
+}

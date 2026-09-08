@@ -1,0 +1,43 @@
+{
+  "checkedAt": "2026-09-08T11:25:12.164Z",
+  "baseUrl": "http://127.0.0.1:4391",
+  "transport": "server-to-local-receiver-simulation",
+  "receiverRequestSentExternally": false,
+  "attributionStatus": 204,
+  "submissionStatus": 200,
+  "cookie": {
+    "name": "my_rfq_context",
+    "httpOnly": true,
+    "sameSite": "Strict",
+    "opaque": true
+  },
+  "publicApiInternalMarkerMatches": [],
+  "cleanUrl": "http://127.0.0.1:4391/request-a-quote",
+  "search": "",
+  "gradeValue": "",
+  "applicationValue": "",
+  "submittedPayload": {
+    "subject": "TiO2 Malaysia quotation request",
+    "from_name": "TiO2 Malaysia RFQ",
+    "email": "gate8-repair@example.com",
+    "site_scope": "tio2-my",
+    "page_id": "CONV-RFQ",
+    "workflow_type": "rfq",
+    "locale": "en",
+    "request_token": "75e6d76c-a0c1-44f6-8181-1249f577b099",
+    "grade_id": "M-350",
+    "application_id": "Coatings",
+    "quantity_mt": "12",
+    "quantity_unit": "MT",
+    "destination_country": "Malaysia",
+    "destination_port_city": "",
+    "company_name": "Gate 8 Repair Test Company",
+    "contact_name": "Gate 8 Repair Tester",
+    "business_email": "gate8-repair@example.com",
+    "phone_whatsapp": "",
+    "website": "",
+    "additional_requirements": "",
+    "source_page_id": "APP-000"
+  },
+  "accessKeyExcluded": true
+}

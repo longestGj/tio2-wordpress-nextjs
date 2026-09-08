@@ -1,0 +1,157 @@
+{
+  "checkedAt": "2026-09-08T11:27:14.990Z",
+  "status": "PASSED",
+  "checks": {
+    "implementationCommit": true,
+    "buildId": true,
+    "htmlClean": true,
+    "rscClean": true,
+    "gradeCount": true,
+    "specialtyEdge": true,
+    "mobileCollapsed": true,
+    "mobilePointerKeyboard": true,
+    "tabletDesktopOpen": true,
+    "categoryNames": true,
+    "supportLinks": true,
+    "rfqPrivate": true,
+    "consumersReadOnly": true
+  },
+  "failed": [],
+  "files": [
+    {
+      "path": "acceptance-summary.json",
+      "bytes": 1945,
+      "sha256": "927f4f7c5293a055a54c45707aea1de9cba0378436c33599e6e6b563b13aef31"
+    },
+    {
+      "path": "build-id.txt",
+      "bytes": 250,
+      "sha256": "3f1b1211a66606722243515f02e9788a49f7d39f79915dd24ef62058343061e5"
+    },
+    {
+      "path": "GATE9_REPAIR_RETURN_RECEIPT_2026-09-08.md",
+      "bytes": 4437,
+      "sha256": "058b9672a3b5c9ea5c12a87bbc01e22e874b87edc6cf2b29042f6f89c2f6219c"
+    },
+    {
+      "path": "logs/build-runtime-binding.log",
+      "bytes": 303,
+      "sha256": "c92051aa7e70f3c58fbafda6de6a3e2f546d23902fef99c2664166229e2cd301"
+    },
+    {
+      "path": "logs/evidence-validation.log",
+      "bytes": 56,
+      "sha256": "51686830637fae6a5be8c356d379696c7a30ab7b0bf166dac91d86e3de57d6e4"
+    },
+    {
+      "path": "logs/full-unit.log",
+      "bytes": 1669,
+      "sha256": "c53756f9d49e67e99f88bd4db7cbbf378e52d60390c371771574b6054872b072"
+    },
+    {
+      "path": "logs/lint.log",
+      "bytes": 794,
+      "sha256": "dc53a9d7f675d2450651a95567e77730c95d6e685200b3a145c6db24d96300a8"
+    },
+    {
+      "path": "logs/playwright.log",
+      "bytes": 2933,
+      "sha256": "f56c47a97bb299fe72c80f46c3a4651e4dfc88f826d5a63beff39c78b70fb0d0"
+    },
+    {
+      "path": "logs/runtime-evidence.log",
+      "bytes": 128,
+      "sha256": "415cf07db34518caf477ac99f23eea785f9d0b2817115786174b5afbe7a763ff"
+    },
+    {
+      "path": "logs/targeted-tests.log",
+      "bytes": 683,
+      "sha256": "87d14cf317072a9d4fa907dbf1eed6eb1a5d9a8350b65c15b4aea92fa55032a4"
+    },
+    {
+      "path": "logs/typecheck.log",
+      "bytes": 110,
+      "sha256": "d98c656d4bd66d7ecbbb46c5061cc283ccb9638f83d21d23fc68fc683deb581b"
+    },
+    {
+      "path": "ROLLBACK_RECORD_2026-09-08.md",
+      "bytes": 728,
+      "sha256": "c207cc279000295a82c4ef689bf2beb34da90cac6f0418ed4e1140a1251b0a1b"
+    },
+    {
+      "path": "runtime/app000-desktop-1440.png",
+      "bytes": 621919,
+      "sha256": "8903f53a9e499d478eb9252e96dddda8b3017ca68c4232db7bf4007220dc6edf"
+    },
+    {
+      "path": "runtime/app000-mobile-390-expanded.png",
+      "bytes": 454460,
+      "sha256": "8ff5055c0b14d08bed047127de799566cc28bddbc6a1c01728c8bbd80dfd1b3d"
+    },
+    {
+      "path": "runtime/app000-mobile-390.png",
+      "bytes": 403919,
+      "sha256": "8d0c40a75a78df48413bb73666bdf63456d4426c26c368882cf5cb5a43ba6b7a"
+    },
+    {
+      "path": "runtime/app000-mobile-cookie-settings.png",
+      "bytes": 417385,
+      "sha256": "064847705ba73cd2ede7424f9d92af99ac50b8415db43eb4a85be09b6ab57102"
+    },
+    {
+      "path": "runtime/app000-tablet-768.png",
+      "bytes": 551114,
+      "sha256": "90d1c761d158b7a6e05ac35fd9c9f21a08a9c8314e52438b3e7a8e4284fc5ac5"
+    },
+    {
+      "path": "runtime/consumer-regression-matrix.json",
+      "bytes": 1972,
+      "sha256": "98610dfafb88b72be310088db5dc1b8c13e97c6d6d1e6acc6d7250cd8b7d7e0f"
+    },
+    {
+      "path": "runtime/grade-edge-inventory.json",
+      "bytes": 9379,
+      "sha256": "e1833f5a743906b9f93965e8c950dcf7b46a209c253acd026becd2fc26c84bec"
+    },
+    {
+      "path": "runtime/responsive-state-matrix.json",
+      "bytes": 950,
+      "sha256": "471c7dbe90673f8e78146fc209579e23deaa07cead73b89694cc0f5929268bf0"
+    },
+    {
+      "path": "runtime/rfq-private-handoff.json",
+      "bytes": 1299,
+      "sha256": "97b29291553b04f96bd9fa7da37055de3abee4719ffa2da9b3a71d829e253cae"
+    },
+    {
+      "path": "runtime/route-matrix.json",
+      "bytes": 4011,
+      "sha256": "5f6a971e0bb890d4bc5b88c5e3ead6cb781c390562f00364549b08248623b282"
+    },
+    {
+      "path": "runtime/runtime-contract.json",
+      "bytes": 7792,
+      "sha256": "112c5d2da0efe722ac21f053768da253578d2fb5d9ed7d718f58ad0bc7ec0b81"
+    },
+    {
+      "path": "runtime/shared-instance-map.json",
+      "bytes": 744,
+      "sha256": "c0e37c36d8a353fe7113f8ce2f549fc9e000bd2bcb14e769f4304b6c31bd783c"
+    },
+    {
+      "path": "support/generate-runtime-evidence.mjs",
+      "bytes": 11115,
+      "sha256": "6d9b72b0d8d5739740e5d64dd928609a2623f833c8a7a94ea90e92c12f432717"
+    },
+    {
+      "path": "support/private-rfq-receiver.mjs",
+      "bytes": 1480,
+      "sha256": "a4529eddde967707de0b43f1215bf9eb79d91c9a88bdbbd2729982168c1f68fa"
+    },
+    {
+      "path": "support/validate-evidence.mjs",
+      "bytes": 3311,
+      "sha256": "eb98ebd294c8c656be4d8c47151aa65579fcac5fc3b2c351f11d0cd463b6d0fb"
+    }
+  ]
+}

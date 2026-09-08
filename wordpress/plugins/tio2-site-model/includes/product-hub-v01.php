@@ -126,7 +126,7 @@ function tio2_my_product_target_ready(string $target_page_id, string $href): boo
     $public_path = '/' === $path ? '/' : untrailingslashit($path);
     $ids = get_posts([
         'post_type' => [
-            'page', 'post', 'tio2_homepage', 'tio2_market_hub', 'tio2_product_hub',
+            'page', 'post', 'tio2_homepage', 'tio2_market_hub', 'tio2_product_hub', 'tio2_application_hub',
             'tio2_grade', 'tio2_product', 'tio2_application', 'tio2_document',
         ],
         'post_status' => ['draft', 'pending', 'private', 'publish', 'future'],

@@ -1,0 +1,7 @@
+Implementation commit: 6ece488cf88f060457890ad7f37da0db752564ef
+Build directory: .next-app000-r2b
+Build ID: maNqNFg3Urit7VkLTu5KM
+Runtime: http://127.0.0.1:4391
+CMS fixture: http://127.0.0.1:4390/graphql
+Receiver fixture: http://127.0.0.1:4392
+Build result: PASS, Next.js 16.3.2 production build, 64/64 static pages generated

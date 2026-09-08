@@ -1,0 +1,267 @@
+{
+  "checkedAt": "2026-09-08T10:24:06.893Z",
+  "baseUrl": "http://127.0.0.1:4391",
+  "status": 200,
+  "pageId": "APP-000",
+  "siteScope": "tio2-my",
+  "buildId": "jf9b1VFzbgKGSQMVOMMbU",
+  "implementationCommit": "f0285f288e256ce0c48205931dd8edf4b802b285",
+  "projection": {
+    "title": "Applications | TiO2 Malaysia",
+    "lang": "en",
+    "canonical": "https://tio2malaysia.com/applications/",
+    "robots": "noindex, nofollow",
+    "modules": [
+      "breadcrumb",
+      "hero",
+      "application-paths",
+      "evaluation-guide",
+      "procurement-paths",
+      "final-rfq"
+    ],
+    "gradeOccurrences": [
+      {
+        "edgeId": "APP000-EDGE-COAT-01",
+        "label": "M-350",
+        "state": "linked",
+        "href": "/products/m-350/"
+      },
+      {
+        "edgeId": "APP000-EDGE-COAT-02",
+        "label": "M-510",
+        "state": "linked",
+        "href": "/products/m-510/"
+      },
+      {
+        "edgeId": "APP000-EDGE-COAT-03",
+        "label": "M-896",
+        "state": "linked",
+        "href": "/products/m-896/"
+      },
+      {
+        "edgeId": "APP000-EDGE-COAT-04",
+        "label": "M-996",
+        "state": "linked",
+        "href": "/products/m-996/"
+      },
+      {
+        "edgeId": "APP000-EDGE-COAT-05",
+        "label": "M-2196",
+        "state": "linked",
+        "href": "/products/m-2196/"
+      },
+      {
+        "edgeId": "APP000-EDGE-COAT-06",
+        "label": "M-895",
+        "state": "linked",
+        "href": "/products/m-895/"
+      },
+      {
+        "edgeId": "APP000-EDGE-COAT-07",
+        "label": "M-52",
+        "state": "linked",
+        "href": "/products/m-52/"
+      },
+      {
+        "edgeId": "APP000-EDGE-COAT-08",
+        "label": "M-2377",
+        "state": "linked",
+        "href": "/products/m-2377/"
+      },
+      {
+        "edgeId": "APP000-EDGE-PLAS-01",
+        "label": "M-350",
+        "state": "linked",
+        "href": "/products/m-350/"
+      },
+      {
+        "edgeId": "APP000-EDGE-PLAS-02",
+        "label": "M-510",
+        "state": "linked",
+        "href": "/products/m-510/"
+      },
+      {
+        "edgeId": "APP000-EDGE-PLAS-03",
+        "label": "M-200",
+        "state": "linked",
+        "href": "/products/m-200/"
+      },
+      {
+        "edgeId": "APP000-EDGE-PLAS-04",
+        "label": "M-108",
+        "state": "linked",
+        "href": "/products/m-108/"
+      },
+      {
+        "edgeId": "APP000-EDGE-PLAS-05",
+        "label": "M-210",
+        "state": "linked",
+        "href": "/products/m-210/"
+      },
+      {
+        "edgeId": "APP000-EDGE-PLAS-06",
+        "label": "M-340",
+        "state": "linked",
+        "href": "/products/m-340/"
+      },
+      {
+        "edgeId": "APP000-EDGE-PLAS-07",
+        "label": "M-886",
+        "state": "linked",
+        "href": "/products/m-886/"
+      },
+      {
+        "edgeId": "APP000-EDGE-PLAS-08",
+        "label": "M-2377",
+        "state": "linked",
+        "href": "/products/m-2377/"
+      },
+      {
+        "edgeId": "APP000-EDGE-MB-01",
+        "label": "M-510",
+        "state": "linked",
+        "href": "/products/m-510/"
+      },
+      {
+        "edgeId": "APP000-EDGE-MB-02",
+        "label": "M-200",
+        "state": "linked",
+        "href": "/products/m-200/"
+      },
+      {
+        "edgeId": "APP000-EDGE-MB-03",
+        "label": "M-108",
+        "state": "linked",
+        "href": "/products/m-108/"
+      },
+      {
+        "edgeId": "APP000-EDGE-MB-04",
+        "label": "M-210",
+        "state": "linked",
+        "href": "/products/m-210/"
+      },
+      {
+        "edgeId": "APP000-EDGE-MB-05",
+        "label": "M-340",
+        "state": "linked",
+        "href": "/products/m-340/"
+      },
+      {
+        "edgeId": "APP000-EDGE-MB-06",
+        "label": "M-886",
+        "state": "linked",
+        "href": "/products/m-886/"
+      },
+      {
+        "edgeId": "APP000-EDGE-MB-07",
+        "label": "M-2377",
+        "state": "linked",
+        "href": "/products/m-2377/"
+      },
+      {
+        "edgeId": "APP000-EDGE-INK-01",
+        "label": "M-350",
+        "state": "linked",
+        "href": "/products/m-350/"
+      },
+      {
+        "edgeId": "APP000-EDGE-INK-02",
+        "label": "M-510",
+        "state": "linked",
+        "href": "/products/m-510/"
+      },
+      {
+        "edgeId": "APP000-EDGE-INK-03",
+        "label": "M-52",
+        "state": "linked",
+        "href": "/products/m-52/"
+      },
+      {
+        "edgeId": "APP000-EDGE-INK-04",
+        "label": "M-2377",
+        "state": "linked",
+        "href": "/products/m-2377/"
+      },
+      {
+        "edgeId": "APP000-EDGE-PAPER-01",
+        "label": "M-350",
+        "state": "linked",
+        "href": "/products/m-350/"
+      },
+      {
+        "edgeId": "APP000-EDGE-PAPER-02",
+        "label": "M-2377",
+        "state": "linked",
+        "href": "/products/m-2377/"
+      },
+      {
+        "edgeId": "APP000-EDGE-SPECIALTY-01",
+        "label": "CR-901",
+        "state": "linked",
+        "href": "/products/cr-901/"
+      }
+    ],
+    "childActions": [],
+    "supportActions": [
+      {
+        "id": "PRODUCT-000",
+        "href": "/products/"
+      },
+      {
+        "id": "DOC-000",
+        "href": "/documents/"
+      },
+      {
+        "id": "MARKET-000",
+        "href": "/markets/"
+      }
+    ],
+    "rfqBodyLinks": [
+      {
+        "label": "Request a Quote",
+        "href": "/request-a-quote/"
+      },
+      {
+        "label": "Request a Quote",
+        "href": "/request-a-quote/"
+      }
+    ],
+    "currentNavigation": "Applications",
+    "publicLeak": false,
+    "horizontalOverflow": false,
+    "schema": {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "CollectionPage",
+          "@id": "https://tio2malaysia.com/applications/#webpage",
+          "url": "https://tio2malaysia.com/applications/",
+          "name": "Explore Titanium Dioxide by Application",
+          "description": "Explore titanium dioxide application paths for coatings, plastics, masterbatch, printing inks, paper and specialty materials.",
+          "inLanguage": "en",
+          "breadcrumb": {
+            "@id": "https://tio2malaysia.com/applications/#breadcrumb"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://tio2malaysia.com/applications/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://tio2malaysia.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Applications",
+              "item": "https://tio2malaysia.com/applications/"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

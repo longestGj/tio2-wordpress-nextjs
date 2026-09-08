@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-09-08T12:01:24.484Z",
+  "currentNavigation": "Applications",
+  "breadcrumb": [
+    "Home",
+    "Applications"
+  ],
+  "categoryAccessibleNames": [
+    "Coatings",
+    "Plastics",
+    "Masterbatch",
+    "Printing Inks",
+    "Paper",
+    "Specialty Materials"
+  ],
+  "supportActions": [
+    {
+      "label": "Explore Products",
+      "href": "/products/"
+    },
+    {
+      "label": "Review Documents",
+      "href": "/documents/"
+    },
+    {
+      "label": "Explore Markets",
+      "href": "/markets/"
+    }
+  ],
+  "rfqBodyLinks": [
+    {
+      "label": "Request a Quote",
+      "href": "/request-a-quote/"
+    },
+    {
+      "label": "Request a Quote",
+      "href": "/request-a-quote/"
+    }
+  ],
+  "childActions": []
+}

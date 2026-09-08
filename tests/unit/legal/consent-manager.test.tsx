@@ -30,7 +30,7 @@ describe('SHARED-CONSENT-TIO2-MY', () => {
     expect(dialog.hasAttribute('open')).toBe(true)
     expect(document.documentElement.style.overflow).toBe('hidden')
     const descriptionId = dialog.getAttribute('aria-describedby')
-    expect(descriptionId).toBe('tio2-my-cookie-settings-description')
+    expect(descriptionId).toBe('cookie-settings-description')
     expect(document.getElementById(descriptionId!)?.textContent).toBe(approved.consent.body)
     expect(screen.queryByRole('button', {name: /Accept analytics/i})).toBeNull()
     const close = within(dialog).getByRole('button', {name: 'Close'})

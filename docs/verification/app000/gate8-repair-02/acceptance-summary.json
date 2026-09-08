@@ -1,0 +1,36 @@
+{
+  "taskId": "APP-000-G9-F01-R2-RETURN-01",
+  "siteId": "tio2-my",
+  "pageId": "APP-000",
+  "status": "READY_FOR_GATE9_RE_REVIEW",
+  "implementationCommit": "6ece488cf88f060457890ad7f37da0db752564ef",
+  "buildDirectory": ".next-app000-r2b",
+  "buildId": "maNqNFg3Urit7VkLTu5KM",
+  "runtime": "http://127.0.0.1:4391",
+  "cmsFixture": "http://127.0.0.1:4390/graphql",
+  "privateReceiverFixture": "http://127.0.0.1:4392",
+  "verifiedAt": "2026-09-08T12:01:24.484Z",
+  "findings": {
+    "F01": "PASS candidate: APP and RFQ HTML, DOM, RSC, head, Schema, accessibility, browser state, inline payloads, all 10 loaded client scripts per page, and browser-facing API returned zero internal-identity matches; receiver payload alone contains APP-000",
+    "F02": "PASS regression: 30 Grade occurrences and APP000-EDGE-SPEC-01 retained",
+    "F03": "PASS regression: 390px collapsed and pointer/keyboard open; 768px and 1440px open",
+    "F04": "PASS regression: six category and three support accessible names retained"
+  },
+  "verification": {
+    "targetedTests": "159 passed",
+    "typecheck": "passed",
+    "lint": "0 errors; 4 existing warnings",
+    "productionBuild": "passed",
+    "playwright": "22 passed across Chromium and Firefox",
+    "runtimeEvidence": "30 Grade occurrences; 24 routes; 11 read-only consumers; APP and RFQ each loaded 10 scripts; 0 public-boundary marker matches",
+    "fullUnitSuite": "2768 passed, 50 skipped, 1 unrelated pre-existing evidence-hash failure"
+  },
+  "sharedAttribution": "Home, Markets, Product, Document, Resource and Chloride shared Chrome links use the generic server context endpoint, preserve clean RFQ navigation, and expose only an opaque HttpOnly cookie",
+  "authority": {
+    "gate9Decision": "D23 independent read-only review required",
+    "mergedToMain": false,
+    "pushed": false,
+    "deployed": false,
+    "published": false
+  }
+}

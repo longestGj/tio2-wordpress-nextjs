@@ -1,0 +1,27 @@
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/app000-gate8
+
+ ❯ tests/infrastructure/site-a-editorial-draft-import-contract.test.ts (12 tests | 1 failed | 11 skipped) 5371ms
+     × attempts every cleanup and final source hash when the first runtime deletion fails 5367ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/infrastructure/site-a-editorial-draft-import-contract.test.ts > local Site A editorial draft wrapper contract > attempts every cleanup and final source hash when the first runtime deletion fails
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/infrastructure/site-a-editorial-draft-import-contract.test.ts:363:3
+    361|   }, 60_000)
+    362|
+    363|   it('attempts every cleanup and final source hash when the first runt…
+       |   ^
+    364|     expect(existsSync(runtimeLibraryPath), 'shared editorial runtime b…
+    365|     const directory = mkdtempSync(join(tmpdir(), 'tio2-editorial-clean…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 skipped (12)
+   Start at  18:23:10
+   Duration  5.86s (transform 63ms, setup 228ms, import 37ms, tests 5.37s, environment 0ms)
+
