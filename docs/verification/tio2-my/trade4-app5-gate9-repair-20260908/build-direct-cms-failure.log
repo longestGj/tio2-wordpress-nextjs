@@ -1,0 +1,37 @@
+
+> build
+> next build --webpack
+
+▲ Next.js 16.3.2 (webpack)
+✓ Running next.config.ts took 30ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 12.5s
+  Running TypeScript ...
+
+  We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+  The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+  	- include was updated to add '.next-gate9-repair-4a7e170/types/**/*.ts'
+  	- include was updated to add '.next-gate9-repair-4a7e170/dev/types/**/*.ts'
+
+  Finished TypeScript in 11.2s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/54) ...
+Error occurred prerendering page "/request-a-quote". Read more: https://nextjs.org/docs/messages/prerender-error
+Error [GraphQLResponseError]: The Malaysia RFQ page record failed scope or contract validation.
+    at j (D:\16Wordpress_nextjs\.worktrees\trade4-app5-gate8\.next-gate9-repair-4a7e170\server\chunks\8961.js:1:1403)
+    at async t (D:\16Wordpress_nextjs\.worktrees\trade4-app5-gate8\.next-gate9-repair-4a7e170\server\app\(en)\request-a-quote\page.js:5:34)
+    at async v (D:\16Wordpress_nextjs\.worktrees\trade4-app5-gate8\.next-gate9-repair-4a7e170\server\app\(en)\request-a-quote\page.js:5:1533)
+    at async x (D:\16Wordpress_nextjs\.worktrees\trade4-app5-gate8\.next-gate9-repair-4a7e170\server\app\(en)\request-a-quote\page.js:5:2241) {
+  errors: [
+    {
+      message: 'The Malaysia RFQ page record failed scope or contract validation.',
+      locations: [Array],
+      path: [Array]
+    }
+  ],
+  digest: '1105140084'
+}
+Export encountered an error on /(en)/request-a-quote/page: /request-a-quote, exiting the build.
+⨯ Next.js build worker exited with code: 1 and signal: null

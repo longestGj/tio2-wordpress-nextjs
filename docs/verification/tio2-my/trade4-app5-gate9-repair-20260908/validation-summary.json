@@ -1,0 +1,23 @@
+{
+  "implementationCommit": "4a7e170b0bba90ce8428b8f23788c15e3e64dde4",
+  "findings": {
+    "F01": "IMPLEMENTATION_REPAIRED_CMS_ALIGNMENT_PENDING",
+    "F02": "BLOCKED_APP_000_APPROVAL_AND_DEVELOPMENT_PACKAGE_MISSING",
+    "F03": "REPAIRED_REAL_ISOLATED_CMS_ROUTES_200",
+    "F04": "IMPLEMENTATION_REPAIRED_CMS_ALIGNMENT_PENDING_OFFICIAL_SOURCES_6_OF_6_HTTP_200"
+  },
+  "commands": {
+    "codegen": {"status": "PASS"},
+    "typecheck": {"status": "PASS", "errors": 0},
+    "lint": {"status": "PASS", "errors": 0, "preExistingWarnings": 2},
+    "focusedTests": {"status": "PASS", "filesPassed": 16, "testsPassed": 104},
+    "repositoryTestsWithoutTwoSlowWpCliFiles": {"status": "PASS", "filesPassed": 296, "filesSkipped": 19, "testsPassed": 2595, "testsSkipped": 48},
+    "slowWpCliReruns": {"status": "PASS", "filesPassed": 2, "testsPassed": 17},
+    "directCmsBuild": {"status": "EXPECTED_BLOCKED", "reason": "Stored CONV-RFQ contract lacks approved Brazil source IDs; CMS writes prohibited"},
+    "readOnlyOverlayBuild": {"status": "PASS", "staticPages": "54/54", "buildId": "Zqczu1KDcx63nns7yjF5_"},
+    "chromiumBrazilRoutes": {"status": "PASS", "testsPassed": 2},
+    "ukOfficialSources": {"status": "PASS", "http200": 6, "total": 6}
+  },
+  "cmsWritesPerformed": false,
+  "mergePushDeployPublishPerformed": false
+}

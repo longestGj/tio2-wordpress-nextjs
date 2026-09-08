@@ -1,0 +1,11 @@
+
+> lint
+> eslint .
+
+
+D:\16Wordpress_nextjs\.worktrees\trade4-app5-gate8\docs\prototypes\site-a-resources\build-visual-prototype.mjs
+  165:10  warning  'renderTakeaways' is defined but never used   @typescript-eslint/no-unused-vars
+  173:10  warning  'renderComparison' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 2 problems (0 errors, 2 warnings)
+

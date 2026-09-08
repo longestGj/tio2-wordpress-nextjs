@@ -1,0 +1,15 @@
+{
+  "implementationCommit": "4a7e170b0bba90ce8428b8f23788c15e3e64dde4",
+  "branch": "codex/country-editorial-integration",
+  "siteScope": "tio2-my",
+  "buildId": "Zqczu1KDcx63nns7yjF5_",
+  "buildDir": ".next-gate9-repair-4a7e170",
+  "frontend": "http://127.0.0.1:3230",
+  "frontendPid": 66292,
+  "cms": "http://127.0.0.1:8186/graphql",
+  "cmsMode": "isolated local clone, read-only in this repair",
+  "readOnlyOverlay": "http://127.0.0.1:8191/graphql",
+  "overlayPid": 68968,
+  "overlayPurpose": "Preview only: project approved APP-COAT/UK/RFQ contract deltas without writing stale local CMS records",
+  "verifiedAt": "2026-09-08T02:47:45.9955263Z"
+}
