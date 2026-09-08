@@ -4,6 +4,12 @@ set -euo pipefail
 manifest=/workspace/ops/prerelease/seed-manifest.json
 verified=/run-state/verified-seeds.tsv
 
+# Seed scripts consume approved JSON and other files outside their own source.
+# A changed input must refresh the scoped CMS even when the apply script is unchanged.
+seed_input_fingerprint() {
+  (cd "$1" && find wordpress/plugins/tio2-site-model/config wordpress/seed -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | awk '{print $1}')
+}
+
 verify_seed_manifest() {
   MANIFEST_PATH="$manifest" SOURCE_ROOT=/workspace php -r '
     $manifest = json_decode((string) file_get_contents(getenv("MANIFEST_PATH")), true, 512, JSON_THROW_ON_ERROR);
@@ -112,11 +118,13 @@ wp rewrite structure '/%postname%/' --hard >/dev/null
 # Verify every source byte before any seed is allowed to execute.
 verify_seed_manifest
 prepare_editorial_reviews
+input_hash="$(seed_input_fingerprint /workspace)"
+previous_input_hash="$(wp option get d16_prerelease_seed_input_sha256 2>/dev/null || true)"
 
 while IFS=$'\t' read -r seed_path seed_hash; do
   option_name="d16_prerelease_seed_${seed_hash}"
   existing_marker="$(wp option get "$option_name" 2>/dev/null || true)"
-  if [[ "$existing_marker" == "$seed_path" ]] && seed_record_is_current "$seed_path" "$seed_hash"; then
+  if [[ "$previous_input_hash" == "$input_hash" ]] && [[ "$existing_marker" == "$seed_path" ]] && seed_record_is_current "$seed_path" "$seed_hash"; then
     continue
   fi
   case "$seed_path" in
@@ -135,4 +143,6 @@ while IFS=$'\t' read -r seed_path seed_hash; do
 done < "$verified"
 
 wp eval-file /workspace/wordpress/bootstrap/validate-prerelease-site.php > /run-state/site-validation.json
+wp option update d16_prerelease_seed_input_sha256 "$input_hash" --autoload=no >/dev/null
+printf '%s\n' "$input_hash" > /run-state/seed-input-sha256.txt
 bash /workspace/ops/prerelease/collect-cms-identity.sh

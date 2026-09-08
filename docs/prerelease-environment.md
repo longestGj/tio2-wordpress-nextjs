@@ -40,7 +40,7 @@ Sample服务器另需在同一忽略文件配置`TIO2_MY_SAMPLE_RECEIVER_BINDING
 
 正常顺序：核对当前状态与候选 → 需要新候选时按保持条件停止旧实例并start → 核对身份 → test → 补齐本批次适用验收。没有新版本或重验依据时不重复构建。测试源码commit/未提交差异也要记录，不能假设它与冻结运行源码相同。
 
-`start`先核对当前分支为`main`且工作树干净，再通过`git archive <full-commit>`创建冻结源码。它启动CMS、校验所有seed哈希、只应用未记录的匹配seed、构建Next.js、启动Web，并执行两轮只读HTTP检查。操作锁位于`.prerelease/operation.lock`。
+`start`先核对当前分支为`main`且工作树干净，再通过`git archive <full-commit>`创建冻结源码。它启动CMS、校验所有seed哈希、按seed脚本及其config/seed输入目录哈希判断复用；输入变化时重新应用当前批准seed、构建Next.js、启动Web，并执行两轮只读HTTP检查。操作锁位于`.prerelease/operation.lock`。
 
 `status`不输出环境变量或密钥。它读取精确Compose项目的`db`、`wordpress`和`web`实时健康状态，通过临时只读WP-CLI运行重新校验站点记录并写入独立的`live-cms-identity.json`，再核对Web身份接口；启动时的`cms-identity.json`保持不变，保存的旧身份文件本身不能构成`HEALTHY`。主要状态如下：
 
