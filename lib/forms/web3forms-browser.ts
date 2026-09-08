@@ -90,17 +90,33 @@ export async function submitWeb3FormsBrowser(
 
   try {
     const fetcher = deps.fetcher ?? fetch
-    const request = fetcher(deps.endpoint ?? WEB3FORMS_ENDPOINT, {
-      method: 'POST',
-      headers: {'content-type': 'application/json'},
-      body: JSON.stringify({...input.payload, access_key: input.accessKey}),
-      signal: controller.signal,
-    })
+    const request = (async () => {
+      try {
+        const response = await fetcher(deps.endpoint ?? WEB3FORMS_ENDPOINT, {
+          method: 'POST',
+          headers: {'content-type': 'application/json'},
+          body: JSON.stringify({...input.payload, access_key: input.accessKey}),
+          signal: controller.signal,
+        })
+        const mediaType = responseMediaType(response)
+        let body: unknown
+        if (canContainJson(mediaType)) {
+          try {
+            body = await response.json()
+          } catch {
+            body = undefined
+          }
+        }
+        const success = typeof body === 'object' && body !== null && 'success' in body
+          ? (body as {success?: unknown}).success
+          : undefined
+        return {type: 'response' as const, response, mediaType, success}
+      } catch {
+        return {type: 'network' as const}
+      }
+    })()
     const settled = await Promise.race([
-      request.then(
-        (response) => ({type: 'response' as const, response}),
-        () => ({type: 'network' as const}),
-      ),
+      request,
       terminal.then((reason) => ({type: 'terminal' as const, reason})),
     ])
 
@@ -111,19 +127,7 @@ export async function submitWeb3FormsBrowser(
       return result(input, 'submission_unconfirmed', 'network')
     }
 
-    const {response} = settled
-    const mediaType = responseMediaType(response)
-    let body: unknown
-    if (canContainJson(mediaType)) {
-      try {
-        body = await response.json()
-      } catch {
-        body = undefined
-      }
-    }
-    const success = typeof body === 'object' && body !== null && 'success' in body
-      ? (body as {success?: unknown}).success
-      : undefined
+    const {response, mediaType, success} = settled
 
     if (response.status === 200 && success === true) {
       return result(input, 'provider_accepted', 'accepted', response.status, mediaType)
@@ -132,10 +136,10 @@ export async function submitWeb3FormsBrowser(
       return result(input, 'provider_rejected', 'rejected', response.status, mediaType)
     }
     if (response.status === 400 || response.status === 422) {
-      return result(input, 'submission_unconfirmed', 'invalid_request', response.status, mediaType)
+      return result(input, 'provider_rejected', 'invalid_request', response.status, mediaType)
     }
     if (response.status === 429) {
-      return result(input, 'submission_unconfirmed', 'rate_limited', response.status, mediaType)
+      return result(input, 'provider_rejected', 'rate_limited', response.status, mediaType)
     }
     return result(input, 'submission_unconfirmed', 'unexpected', response.status, mediaType)
   } finally {

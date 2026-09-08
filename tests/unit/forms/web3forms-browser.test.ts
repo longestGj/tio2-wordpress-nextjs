@@ -19,6 +19,30 @@ function response(body: string, status: number, contentType = 'application/json'
   return new Response(body, {status, headers: {'content-type': contentType}})
 }
 
+class PendingJsonResponse extends Response {
+  constructor() {
+    super('', {status: 200, headers: {'content-type': 'application/json'}})
+  }
+
+  override json(): Promise<never> {
+    return new Promise(() => undefined)
+  }
+}
+
+async function settleWithin<T>(promise: Promise<T>, timeoutMs: number): Promise<T | 'still-pending'> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<'still-pending'>((resolve) => {
+        timer = setTimeout(() => resolve('still-pending'), timeoutMs)
+      }),
+    ])
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 afterEach(() => {
   vi.useRealTimers()
 })
@@ -46,9 +70,9 @@ describe('browser-direct Web3Forms transport', () => {
   it.each([
     ['200 JSON success:false', response('{"success":false}', 200), 'provider_rejected', 'rejected'],
     ['200 non-JSON', response('OK', 200, 'text/plain'), 'submission_unconfirmed', 'unexpected'],
-    ['400', response('{"success":false}', 400), 'submission_unconfirmed', 'invalid_request'],
-    ['422', response('{"success":false}', 422), 'submission_unconfirmed', 'invalid_request'],
-    ['429', response('{"success":false}', 429), 'submission_unconfirmed', 'rate_limited'],
+    ['400', response('{"success":false}', 400), 'provider_rejected', 'invalid_request'],
+    ['422', response('{"success":false}', 422), 'provider_rejected', 'invalid_request'],
+    ['429', response('{"success":false}', 429), 'provider_rejected', 'rate_limited'],
     ['500', response('{"success":false}', 500), 'submission_unconfirmed', 'unexpected'],
   ] as const)('classifies %s without accepting the submission', async (_name, providerResponse, kind, category) => {
     const fetcher: typeof fetch = vi.fn(async () => providerResponse)
@@ -84,6 +108,15 @@ describe('browser-direct Web3Forms transport', () => {
     await expect(resultPromise).resolves.toMatchObject({diagnostic: {providerCategory: 'timeout'}})
   })
 
+  it('times out while a resolved response body never finishes parsing', async () => {
+    const fetcher: typeof fetch = vi.fn(async () => new PendingJsonResponse())
+
+    const resultPromise = submitWeb3FormsBrowser({...input, timeoutMs: 10}, {fetcher})
+    const observed = await settleWithin(resultPromise, 100)
+
+    expect(observed).toMatchObject({diagnostic: {providerCategory: 'timeout'}})
+  })
+
   it('classifies caller abort even when fetch ignores its abort signal', async () => {
     const controller = new AbortController()
     const fetcher: typeof fetch = vi.fn(() => new Promise<Response>(() => undefined))
@@ -106,6 +139,18 @@ describe('browser-direct Web3Forms transport', () => {
     controller.abort()
 
     await expect(resultPromise).resolves.toMatchObject({diagnostic: {providerCategory: 'aborted'}})
+  })
+
+  it('honors caller abort while a resolved response body never finishes parsing', async () => {
+    const controller = new AbortController()
+    const fetcher: typeof fetch = vi.fn(async () => new PendingJsonResponse())
+    const resultPromise = submitWeb3FormsBrowser({...input, signal: controller.signal}, {fetcher})
+    await Promise.resolve()
+
+    controller.abort()
+
+    const observed = await settleWithin(resultPromise, 100)
+    expect(observed).toMatchObject({diagnostic: {providerCategory: 'aborted'}})
   })
 
   it('does not dispatch a request when the caller signal is already aborted', async () => {
