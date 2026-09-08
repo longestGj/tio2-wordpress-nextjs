@@ -1,0 +1,73 @@
+{
+  "checkedAt": "2026-09-08T02:59:25.427Z",
+  "endpoint": "http://127.0.0.1:8186/graphql",
+  "overlayUsed": false,
+  "writesPerformedByReadback": false,
+  "editorial": [
+    {
+      "pageId": "APP-COAT",
+      "recordId": "editorial-18537",
+      "siteScopes": [
+        "tio2-my"
+      ],
+      "publicPath": "/applications/titanium-dioxide-for-coatings",
+      "exactApprovedBytes": true,
+      "storedSha256": "a12800d9c47bef1f8d5bb146e8a89264dfd079c37af3619684ef1d168bbc673b",
+      "approvedSha256": "a12800d9c47bef1f8d5bb146e8a89264dfd079c37af3619684ef1d168bbc673b",
+      "provisional": true,
+      "oldUkUrlCount": 0,
+      "maintainedUkUrlCount": 0
+    },
+    {
+      "pageId": "RES-TRADE-UK",
+      "recordId": "editorial-18531",
+      "siteScopes": [
+        "tio2-my"
+      ],
+      "publicPath": "/resources/uk-titanium-dioxide-anti-dumping-investigation",
+      "exactApprovedBytes": true,
+      "storedSha256": "a2d2901d2a2040f6ffce86b844b033b09060f352be8fcd80ca6812feb05d2e45",
+      "approvedSha256": "a2d2901d2a2040f6ffce86b844b033b09060f352be8fcd80ca6812feb05d2e45",
+      "provisional": false,
+      "oldUkUrlCount": 0,
+      "maintainedUkUrlCount": 1
+    }
+  ],
+  "rfq": {
+    "pageId": "CONV-RFQ",
+    "recordId": "rfq-page-17326",
+    "exactApprovedBytes": true,
+    "storedSha256": "05867a362556255d564df614dc1492f1e6e35be4d5eae90a3ee2a81731692938",
+    "approvedSha256": "05867a362556255d564df614dc1492f1e6e35be4d5eae90a3ee2a81731692938",
+    "approvedSourcePageIds": [
+      "PRODUCT-000",
+      "MARKET-EU-001",
+      "MARKET-UK-001",
+      "MARKET-EU-ES",
+      "MARKET-IN-001",
+      "MARKET-EU-NL",
+      "MARKET-EU-BE",
+      "MARKET-BR-EN",
+      "MARKET-BR-PT"
+    ],
+    "brazilSourceIdsPresent": true
+  },
+  "brazil": [
+    {
+      "pageId": "MARKET-BR-EN",
+      "recordId": "market-br-en-18525",
+      "exactApprovedSemanticContract": true,
+      "rawByteEqual": false,
+      "storedSha256": "d035bf2459c4271e8086cd91a35c0a5433530253583042e90d0b95f7f6b474ca",
+      "approvedSha256": "75f5f8583c5842e6334c78fae011e9c20a6bb55fbeece571668fa979760e0d8c"
+    },
+    {
+      "pageId": "MARKET-BR-PT",
+      "recordId": "market-br-pt-18527",
+      "exactApprovedSemanticContract": true,
+      "rawByteEqual": false,
+      "storedSha256": "002c12f46b1f3df5422971bac8ef19f06123651723d2a15d7731c2fdf99bc07b",
+      "approvedSha256": "6f9bd30f3db034ecb209353843799ce43af6dac6f9f37edf0903334a4f04a64e"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "implementationCommit": "4a7e170b0bba90ce8428b8f23788c15e3e64dde4",
+  "cms": "http://127.0.0.1:8186/graphql",
+  "overlayUsed": false,
+  "cmsSync": {
+    "environment": "tio2my9 isolated review clone",
+    "targets": 3,
+    "allStoredHashesExact": true,
+    "rollbackSeedPresent": true
+  },
+  "directReadback": {
+    "appCoatExactBytes": true,
+    "ukExactBytes": true,
+    "rfqExactBytes": true,
+    "brazilApprovedSemanticContracts": "2/2"
+  },
+  "build": {
+    "status": "PASS",
+    "buildId": "nueBC1PmlOz7I74G5G0oP",
+    "staticPages": "54/54"
+  },
+  "runtime": {
+    "url": "http://127.0.0.1:3231",
+    "F01ApplicationRoutes": "5/5 HTTP 200; 5/5 no canonical, og:url or JSON-LD",
+    "F03BrazilRoutes": "2/2 HTTP 200 with exact identity and language",
+    "F04UkRoute": "HTTP 200; maintained link 1/1; official-source set 6 links",
+    "F02ApplicationHub": "OPEN; HTTP 404"
+  },
+  "externalSourceEvidenceReused": "../trade4-app5-gate9-repair-20260908/runtime-results.json: 6/6 HTTP 200",
+  "productionOrRemoteCmsWrites": false,
+  "mergePushDeployPublish": false
+}

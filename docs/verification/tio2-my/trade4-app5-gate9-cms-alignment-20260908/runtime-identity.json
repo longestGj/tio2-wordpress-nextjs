@@ -1,0 +1,14 @@
+{
+  "implementationCommit": "4a7e170b0bba90ce8428b8f23788c15e3e64dde4",
+  "preAlignmentEvidenceCommit": "37073778c4e19c47a96e105e0c7bfb0e1cd75f89",
+  "branch": "codex/country-editorial-integration",
+  "siteScope": "tio2-my",
+  "buildId": "nueBC1PmlOz7I74G5G0oP",
+  "buildDir": ".next-gate9-direct-4a7e170",
+  "frontend": "http://127.0.0.1:3231",
+  "frontendPid": 42664,
+  "cms": "http://127.0.0.1:8186/graphql",
+  "cmsMode": "direct isolated review clone; three authorized approved-contract syncs applied",
+  "overlay": "closed",
+  "verifiedAt": "2026-09-08T03:21:33.9285599Z"
+}
