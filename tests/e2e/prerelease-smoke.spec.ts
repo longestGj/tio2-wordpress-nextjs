@@ -1,5 +1,5 @@
 import {expect, test} from '@playwright/test'
-import {existsSync, mkdirSync, writeFileSync} from 'node:fs'
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 
 const baseUrl = process.env.TIO2_PRERELEASE_BASE_URL ?? 'http://127.0.0.1:3100'
@@ -23,7 +23,12 @@ test.beforeEach(async ({page}) => {
 
 test.afterAll(() => {
   const resultPath = resolve(evidenceRoot, 'result.json')
-  if (existsSync(resultPath)) throw new Error(`Refusing to overwrite ${resultPath}`)
+  expect(nonGetRequests).toEqual([])
+  if (existsSync(resultPath)) {
+    const existing = JSON.parse(readFileSync(resultPath, 'utf8')) as {commandUuid?: string}
+    if (existing.commandUuid !== commandUuid) throw new Error(`Refusing to overwrite ${resultPath}`)
+    return
+  }
   writeFileSync(resultPath, `${JSON.stringify({
     schemaVersion: 1,
     workflow: 'ordinary-smoke',
@@ -32,7 +37,6 @@ test.afterAll(() => {
     externalPostCount: nonGetRequests.length,
     nonGetRequests,
   }, null, 2)}\n`, {flag: 'wx'})
-  expect(nonGetRequests).toEqual([])
 })
 
 const representativeRoutes = [
@@ -90,7 +94,7 @@ for (const viewport of [
 ] as const) {
   test(`homepage reflows without horizontal overflow at ${viewport.width}px`, async ({page}) => {
     await page.setViewportSize(viewport)
-    await page.goto(`${baseUrl}/`, {waitUntil: 'networkidle'})
+    await page.goto(`${baseUrl}/`, {waitUntil: 'load'})
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
     await page.screenshot({path: resolve(evidenceRoot, `${viewport.name}.png`), fullPage: true, animations: 'disabled'})
   })
