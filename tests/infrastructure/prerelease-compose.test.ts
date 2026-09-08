@@ -65,6 +65,9 @@ describe('tio2-my local prerelease Compose contract', () => {
       WORDPRESS_GRAPHQL_URL: 'http://wordpress/graphql',
       NEXT_PUBLIC_TIO2_RUNTIME_ENVIRONMENT: 'local-prerelease',
     })
+    expect(compose?.services.wpcli.environment).toMatchObject({
+      WORDPRESS_CONFIG_EXTRA: "define('WP_ENVIRONMENT_TYPE', 'local');",
+    })
     expect(compose?.services.wordpress.volumes).toContain(
       '${PRERELEASE_SOURCE_DIR}/wordpress/plugins/tio2-site-model:/var/www/html/wp-content/plugins/tio2-site-model:ro',
     )

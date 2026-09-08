@@ -57,6 +57,7 @@ services:
       WORDPRESS_ADMIN_USER: ${WORDPRESS_ADMIN_USER}
       WORDPRESS_ADMIN_PASSWORD: ${WORDPRESS_ADMIN_PASSWORD}
       WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL}
+      WORDPRESS_CONFIG_EXTRA: define('WP_ENVIRONMENT_TYPE', 'local');
     volumes:
       - prerelease_wp:/var/www/html
       - ${PRERELEASE_SOURCE_DIR}/wordpress/plugins/tio2-site-model:/var/www/html/wp-content/plugins/tio2-site-model:ro
