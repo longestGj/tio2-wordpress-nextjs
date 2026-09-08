@@ -30,3 +30,31 @@
 The 11 consumer routes were observed read-only. The nine existing editorial/application 404 results and the Sulfate 404 were retained. No consumer page was edited to change those states.
 
 This receipt requests independent Gate 9 re-review. It does not record a Gate 9 or Gate 10 decision. The branch has not been merged to `main`, pushed, deployed, published, or released.
+
+EVIDENCE: docs/verification/app000/gate8-repair-01/acceptance-summary.json
+EVIDENCE: docs/verification/app000/gate8-repair-01/build-id.txt
+EVIDENCE: docs/verification/app000/gate8-repair-01/evidence-validation.json
+EVIDENCE: docs/verification/app000/gate8-repair-01/ROLLBACK_RECORD_2026-09-08.md
+EVIDENCE: docs/verification/app000/gate8-repair-01/logs/build-runtime-binding.log
+EVIDENCE: docs/verification/app000/gate8-repair-01/logs/evidence-validation.log
+EVIDENCE: docs/verification/app000/gate8-repair-01/logs/full-unit.log
+EVIDENCE: docs/verification/app000/gate8-repair-01/logs/lint.log
+EVIDENCE: docs/verification/app000/gate8-repair-01/logs/playwright.log
+EVIDENCE: docs/verification/app000/gate8-repair-01/logs/runtime-evidence.log
+EVIDENCE: docs/verification/app000/gate8-repair-01/logs/targeted-tests.log
+EVIDENCE: docs/verification/app000/gate8-repair-01/logs/typecheck.log
+EVIDENCE: docs/verification/app000/gate8-repair-01/runtime/app000-desktop-1440.png
+EVIDENCE: docs/verification/app000/gate8-repair-01/runtime/app000-mobile-390-expanded.png
+EVIDENCE: docs/verification/app000/gate8-repair-01/runtime/app000-mobile-390.png
+EVIDENCE: docs/verification/app000/gate8-repair-01/runtime/app000-mobile-cookie-settings.png
+EVIDENCE: docs/verification/app000/gate8-repair-01/runtime/app000-tablet-768.png
+EVIDENCE: docs/verification/app000/gate8-repair-01/runtime/consumer-regression-matrix.json
+EVIDENCE: docs/verification/app000/gate8-repair-01/runtime/grade-edge-inventory.json
+EVIDENCE: docs/verification/app000/gate8-repair-01/runtime/responsive-state-matrix.json
+EVIDENCE: docs/verification/app000/gate8-repair-01/runtime/rfq-private-handoff.json
+EVIDENCE: docs/verification/app000/gate8-repair-01/runtime/route-matrix.json
+EVIDENCE: docs/verification/app000/gate8-repair-01/runtime/runtime-contract.json
+EVIDENCE: docs/verification/app000/gate8-repair-01/runtime/shared-instance-map.json
+EVIDENCE: docs/verification/app000/gate8-repair-01/support/generate-runtime-evidence.mjs
+EVIDENCE: docs/verification/app000/gate8-repair-01/support/private-rfq-receiver.mjs
+EVIDENCE: docs/verification/app000/gate8-repair-01/support/validate-evidence.mjs

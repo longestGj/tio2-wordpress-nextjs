@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-08T11:26:20.927Z",
+  "checkedAt": "2026-09-08T11:27:14.990Z",
   "status": "PASSED",
   "checks": {
     "implementationCommit": true,
@@ -30,8 +30,8 @@
     },
     {
       "path": "GATE9_REPAIR_RETURN_RECEIPT_2026-09-08.md",
-      "bytes": 2278,
-      "sha256": "dcd81969e11fe51307fbe2d62c41d477d2634611e646c8322e2b8eac22680bd6"
+      "bytes": 4437,
+      "sha256": "058b9672a3b5c9ea5c12a87bbc01e22e874b87edc6cf2b29042f6f89c2f6219c"
     },
     {
       "path": "logs/build-runtime-binding.log",
@@ -41,7 +41,7 @@
     {
       "path": "logs/evidence-validation.log",
       "bytes": 56,
-      "sha256": "1262750ef8c6e4f2bbe83214ce963d6fbeff289a6032da956afa948ac7e66a8d"
+      "sha256": "51686830637fae6a5be8c356d379696c7a30ab7b0bf166dac91d86e3de57d6e4"
     },
     {
       "path": "logs/full-unit.log",
