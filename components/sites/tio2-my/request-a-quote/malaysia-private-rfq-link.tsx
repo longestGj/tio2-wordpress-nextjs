@@ -24,12 +24,7 @@ export function MalaysiaPrivateRfqLink({
       event.shiftKey || event.altKey || attributes.target || href !== '/request-a-quote/'
     ) return
 
-    event.preventDefault()
-    const state = window.history.state && typeof window.history.state === 'object'
-      ? {...window.history.state}
-      : {}
-    window.history.pushState({...state, [MALAYSIA_RFQ_PRIVATE_SOURCE_STATE_KEY]: sourcePageId}, '', href)
-    window.location.reload()
+    window.sessionStorage.setItem(MALAYSIA_RFQ_PRIVATE_SOURCE_STATE_KEY, sourcePageId)
   }
 
   return (

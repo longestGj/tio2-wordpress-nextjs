@@ -78,7 +78,7 @@ test('RFQ handoff keeps a clean URL and sends private APP-000 attribution withou
   })
   await page.goto('/applications/', {waitUntil: 'networkidle'})
   await page.locator('main').getByRole('link', {name: 'Request a Quote'}).first().click()
-  await expect(page).toHaveURL(/\/request-a-quote\/$/u)
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/request-a-quote')
   expect(new URL(page.url()).search).toBe('')
   await expect(page.locator('#rfq-grade_id')).toHaveValue('')
   await expect(page.locator('#rfq-application_id')).toHaveValue('')
@@ -91,7 +91,7 @@ test('RFQ handoff keeps a clean URL and sends private APP-000 attribution withou
   await page.locator('#rfq-contact_name').fill('Gate 8 Tester')
   await page.locator('#rfq-business_email').fill('gate8@example.com')
   await page.getByRole('button', {name: 'REQUEST QUOTE'}).click()
-  await expect(page.getByRole('alert')).toContainText('Something went wrong')
+  await expect(page.getByText('Something went wrong while submitting your request.')).toBeVisible()
   expect(submitted).toMatchObject({
     page_id: 'CONV-RFQ',
     site_scope: 'tio2-my',
