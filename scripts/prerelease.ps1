@@ -192,6 +192,17 @@ try {
             finally { Exit-PrereleaseLock -Lock $lock }
         }
         'Status' {
+            $resetOperationPath = Join-Path $StateRoot 'reset-operation.json'
+            if (Test-Path -LiteralPath $resetOperationPath -PathType Leaf) {
+                $resetOperation = Get-Content -LiteralPath $resetOperationPath -Raw | ConvertFrom-Json
+                if ($resetOperation.state -eq 'RESETTING') {
+                    Write-PrereleaseResult ([pscustomobject]@{
+                            action = 'Status'; state = 'RESETTING'; operation = 'ResetData'
+                            oldRunId = $resetOperation.oldRunId; targetVolumes = @($resetOperation.targetVolumes)
+                        })
+                    break
+                }
+            }
             $manifest = Read-PrereleaseCurrentRun -Root $StateRoot
             if ($null -eq $manifest) {
                 Write-PrereleaseResult ([pscustomobject]@{ action = 'Status'; state = 'STOPPED' })
@@ -217,6 +228,10 @@ try {
                 if ($null -ne $manifest) {
                     $runRoot = Split-Path -Parent ((Get-Content -LiteralPath (Join-Path $StateRoot 'current-run.json') -Raw | ConvertFrom-Json).manifestPath)
                     Set-PrereleaseComposeEnvironment -SourcePath $manifest.sourcePath -RunRoot $runRoot -RunId $manifest.runId -Commit $manifest.commit -BuildId $manifest.buildId
+                }
+                else {
+                    $stopIdentity = Get-PrereleaseGitIdentity -RepositoryRoot $RepositoryRoot
+                    Set-PrereleaseComposeEnvironment -SourcePath $RepositoryRoot -RunRoot $StateRoot -RunId 'unrecorded-stop' -Commit $stopIdentity.commit
                 }
                 Invoke-PrereleaseDocker -DockerExecutable $DockerExecutable -Arguments @($compose + 'stop') | Out-Null
                 if ($null -ne $manifest) {
@@ -256,7 +271,6 @@ try {
                     startedAt            = [DateTimeOffset]::UtcNow.ToString('o')
                 }
                 Write-PrereleaseJsonFile -Value $resetOperation -Path $resetOperationPath
-                Write-PrereleaseJsonFile -Value ([ordered]@{ runId = $oldRunId; manifestPath = $resetOperationPath }) -Path (Join-Path $StateRoot 'current-run.json')
                 Write-PrereleaseResult ([pscustomobject]$resetOperation)
 
                 try {
@@ -298,6 +312,11 @@ try {
                     }
                     $newPointer = Get-Content -LiteralPath (Join-Path $StateRoot 'current-run.json') -Raw | ConvertFrom-Json
                     Write-PrereleaseJsonFile -Value $resetReceipt -Path (Join-Path (Split-Path -Parent $newPointer.manifestPath) 'reset-receipt.json')
+                    $resetOperation.state = 'HEALTHY'
+                    $resetOperation.newRunId = $newManifest.runId
+                    $resetOperation.newCmsIdentitySha256 = $newManifest.cmsIdentitySha256
+                    $resetOperation.completedAt = $resetReceipt.completedAt
+                    Write-PrereleaseJsonFile -Value $resetOperation -Path $resetOperationPath
                     Write-PrereleaseResult ([pscustomobject]$resetReceipt)
                 }
                 catch {

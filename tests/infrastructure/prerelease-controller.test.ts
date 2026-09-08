@@ -18,7 +18,8 @@ function createRepository(branch = 'main'): string {
   const directory = temporaryDirectory('d16-prerelease-git-')
   execFileSync('git', ['init', '-b', 'main'], {cwd: directory})
   writeFileSync(join(directory, 'tracked.txt'), 'clean\n')
-  execFileSync('git', ['add', 'tracked.txt'], {cwd: directory})
+  writeFileSync(join(directory, '.gitignore'), '.prerelease/\n.env.prerelease.local\n')
+  execFileSync('git', ['add', 'tracked.txt', '.gitignore'], {cwd: directory})
   execFileSync('git', ['-c', 'user.name=Test', '-c', 'user.email=test@example.test', 'commit', '-m', 'base'], {cwd: directory})
   if (branch !== 'main') execFileSync('git', ['switch', '-c', branch], {cwd: directory})
   return directory
@@ -30,6 +31,65 @@ function invokeController(args: string[]) {
     ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', controller, ...args],
     {encoding: 'utf8'},
   )
+}
+
+function writeValidEnvironment(repository: string) {
+  writeFileSync(join(repository, '.env.prerelease.local'), [
+    'WORDPRESS_DB_NAME=tio2_my_prerelease',
+    'WORDPRESS_DB_USER=tio2_my_prerelease',
+    'WORDPRESS_DB_PASSWORD=database-secret',
+    'WORDPRESS_DB_ROOT_PASSWORD=root-secret',
+    'WORDPRESS_ADMIN_USER=editor',
+    'WORDPRESS_ADMIN_PASSWORD=admin-secret',
+    'WORDPRESS_ADMIN_EMAIL=admin@example.test',
+    'NEXTJS_REVALIDATION_SECRET_TIO2_MY=revalidation-secret',
+    'NEXTJS_PREVIEW_SECRET_TIO2_MY=preview-secret',
+    'NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY=receiver-key',
+    'PRERELEASE_LIVE_FORMS_ENABLED=false',
+  ].join('\n'))
+}
+
+function writeRecordedRun(repository: string) {
+  const stateRoot = join(repository, '.prerelease')
+  const runRoot = join(stateRoot, 'runs', 'existing-run')
+  execFileSync('powershell', ['-NoProfile', '-Command', `New-Item -ItemType Directory -Force -Path '${join(runRoot, 'source').replaceAll("'", "''")}' | Out-Null`])
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], {cwd: repository, encoding: 'utf8'}).trim()
+  const manifestPath = join(runRoot, 'run-manifest.json')
+  writeFileSync(manifestPath, JSON.stringify({
+    schemaVersion: 1,
+    state: 'HEALTHY',
+    runId: 'existing-run',
+    siteId: 'tio2-my',
+    commit,
+    buildId: 'existing-build',
+    cmsIdentitySha256: 'a'.repeat(64),
+    sourcePath: join(runRoot, 'source'),
+  }))
+  writeFileSync(join(stateRoot, 'current-run.json'), JSON.stringify({runId: 'existing-run', manifestPath}))
+  return {stateRoot, manifestPath}
+}
+
+function writeFakeDocker(directory: string, running: boolean): {executable: string; logPath: string} {
+  const executable = join(directory, 'fake-docker.cmd')
+  const logPath = join(directory, 'docker.log')
+  writeFileSync(executable, [
+    '@echo off',
+    `echo %*>>"${logPath}"`,
+    'echo %* | %SystemRoot%\\System32\\findstr.exe /C:"ps --status running --quiet" >nul',
+    'if not errorlevel 1 (',
+    ...(running ? ['  echo prerelease-container'] : []),
+    '  exit /b 0',
+    ')',
+    'echo %* | %SystemRoot%\\System32\\findstr.exe /C:"config --volumes" >nul',
+    'if not errorlevel 1 (',
+    '  echo prerelease_db',
+    '  echo prerelease_wp',
+    '  echo prerelease_npm_cache',
+    '  exit /b 0',
+    ')',
+    'exit /b 0',
+  ].join('\r\n'))
+  return {executable, logPath}
 }
 
 afterEach(() => {
@@ -157,4 +217,29 @@ describe.runIf(process.platform === 'win32')('local prerelease controller', () =
     expect(source).toContain('$webStartAttempted = $true')
     expect(source).toMatch(/catch \{[\s\S]*webStartAttempted[\s\S]*@\('stop', 'web'\)/u)
   })
+
+  it('preserves the recorded run when reset is rejected or a fresh build fails, so Stop and retry remain usable', () => {
+    const repository = createRepository()
+    writeValidEnvironment(repository)
+    const {stateRoot, manifestPath} = writeRecordedRun(repository)
+    const fakeRoot = temporaryDirectory('d16-prerelease-docker-')
+    const runningDocker = writeFakeDocker(fakeRoot, true)
+    const common = ['-RepositoryRoot', repository, '-StateRoot', stateRoot]
+
+    const rejected = invokeController(['-Action', 'ResetData', ...common, '-DockerExecutable', runningDocker.executable])
+    expect(rejected.status).not.toBe(0)
+    expect(`${rejected.stdout}\n${rejected.stderr}`).toContain('requires the prerelease stack to be stopped')
+    expect(JSON.parse(readFileSync(join(stateRoot, 'current-run.json'), 'utf8'))).toMatchObject({manifestPath})
+    expect(invokeController(['-Action', 'Stop', ...common, '-DockerExecutable', runningDocker.executable]).status).toBe(0)
+
+    const stoppedDocker = writeFakeDocker(fakeRoot, false)
+    const buildFailure = invokeController(['-Action', 'ResetData', ...common, '-DockerExecutable', stoppedDocker.executable])
+    expect(buildFailure.status).not.toBe(0)
+    expect(`${buildFailure.stdout}\n${buildFailure.stderr}`).toContain('BUILD_ID')
+    expect(JSON.parse(readFileSync(join(stateRoot, 'current-run.json'), 'utf8'))).toMatchObject({manifestPath})
+    expect(invokeController(['-Action', 'Stop', ...common, '-DockerExecutable', stoppedDocker.executable]).status).toBe(0)
+    const retry = invokeController(['-Action', 'ResetData', ...common, '-DockerExecutable', stoppedDocker.executable])
+    expect(retry.status).not.toBe(0)
+    expect(`${retry.stdout}\n${retry.stderr}`).not.toContain('Cannot bind argument')
+  }, 30_000)
 })
