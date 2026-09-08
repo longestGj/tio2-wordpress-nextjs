@@ -2,10 +2,9 @@
 declare(strict_types=1);
 if (!defined('ABSPATH')) exit;
 
-function tio2_editorial_review_manifest(): ?array {
-    static $manifest=false;
-    if ($manifest!==false) return $manifest;
-    $path=dirname(__DIR__).'/config/tio2-my-editorial-review-evidence.json';
+function tio2_editorial_review_manifest(string $page_id=''): ?array {
+    $filename=in_array($page_id,['RES-R706','RES-CHEMOURS'],true)?'tio2-my-alternatives-review-evidence.json':'tio2-my-editorial-review-evidence.json';
+    $path=dirname(__DIR__).'/config/'.$filename;
     if (!is_file($path)) return null;
     try {
         $decoded=json_decode((string)file_get_contents($path),true,512,JSON_THROW_ON_ERROR);
@@ -47,7 +46,7 @@ function tio2_editorial_review_instant($value): ?DateTimeImmutable {
 }
 
 function tio2_editorial_review_page(array $payload): ?array {
-    $manifest=tio2_editorial_review_manifest();
+    $manifest=tio2_editorial_review_manifest((string)($payload['identity']['pageId']??''));
     $artifact_keys=['checkedAt','evidenceDate','outcome','path','sha256','timeZone'];
     $page_keys=['currentReview','packageSha256','pageId','policy','siteScope'];
     $policy_keys=['approvedNextReviewDue','baselineDate','eventTypes','maximumIntervalDays','policyId','timeZone'];

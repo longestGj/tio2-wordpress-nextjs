@@ -28,5 +28,6 @@ export async function generateMalaysiaEditorialMetadata(pageId:string) {
 }
 export async function renderMalaysiaEditorialRoute(pageId:string) {
   const {site,page}=await requestPage(pageId)
-  return <MalaysiaEditorialPage page={page} structuredData={<script type="application/ld+json" dangerouslySetInnerHTML={{__html:serializeJsonLd(buildEditorialJsonLd(site,page))}}/>}/>
+  const schema=buildEditorialJsonLd(site,page)
+  return <MalaysiaEditorialPage page={page} structuredData={schema?<script type="application/ld+json" dangerouslySetInnerHTML={{__html:serializeJsonLd(schema)}}/>:undefined}/>
 }

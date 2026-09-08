@@ -6,6 +6,7 @@ import type {EditorialDto} from '@/lib/editorial/editorial-types'
 import contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-editorial-app-coat.json'
 
 vi.mock('next/font/google',()=>({Inter:()=>({variable:'editorial-inter-variable'})}))
+vi.mock('next/font/local',()=>({default:()=>({variable:'approved-local-inter-variable'})}))
 vi.mock('@/components/sites/tio2-my/malaysia-global-chrome',()=>({MalaysiaGlobalHeader:()=>null,MalaysiaGlobalFooter:()=>null}))
 afterEach(cleanup)
 it('keeps approved editorial typography scoped to its own wrapper after the global Country font is removed',()=>{

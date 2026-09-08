@@ -4,17 +4,18 @@ import {EDITORIAL_CONTRACTS,getEditorialContract,editorialTag} from '@/lib/edito
 import {buildEditorialMetadata,buildEditorialJsonLd} from '@/lib/seo/editorial-metadata'
 import {getSiteConfig} from '@/sites'
 import evidence from '@/wordpress/plugins/tio2-site-model/config/tio2-my-editorial-review-evidence.json'
+import alternativeEvidence from '@/wordpress/plugins/tio2-site-model/config/tio2-my-alternatives-review-evidence.json'
 
 afterEach(()=>{vi.unstubAllGlobals();vi.unstubAllEnvs()})
 beforeEach(()=>vi.stubEnv('WORDPRESS_EDITORIAL_API_TOKEN','local-test-token'))
 function envelope(pageId:string) {
  const page=getEditorialContract(pageId)
- return {id:'editorial-123',modifiedGmt:'2026-09-08T00:00:00',status:'publish',recordPageId:pageId,siteScopes:{nodes:[{slug:'tio2-my'}]},publishingFields:{publicPath:page.identity.path.slice(0,-1)},editorialContractJson:JSON.stringify(page),freshnessControl:evidence.pages.find(p=>p.pageId===pageId)?.currentReview??null,availableGradePaths:[...new Set([...page.bodyHtml.matchAll(/href="(\/products\/m-[0-9]+\/)"/gu)].map(match=>match[1]))],unavailableInternalPaths:[]}
+ return {id:'editorial-123',modifiedGmt:'2026-09-08T00:00:00',status:'publish',recordPageId:pageId,siteScopes:{nodes:[{slug:'tio2-my'}]},publishingFields:{publicPath:page.identity.path.slice(0,-1)},editorialContractJson:JSON.stringify(page),freshnessControl:[...evidence.pages,...alternativeEvidence.pages].find(p=>p.pageId===pageId)?.currentReview??null,availableGradePaths:[...new Set([...page.bodyHtml.matchAll(/href="(\/products\/m-[0-9]+\/)"/gu)].map(match=>match[1]))],unavailableInternalPaths:[]}
 }
 describe('live-shaped editorial GraphQL delivery',()=>{
  it('omits unavailable breadcrumb destinations from machine navigation and reindexes retained items',()=>{
   const page={...getEditorialContract('APP-INK'),unavailableInternalPaths:['/applications/']}
-  const graph=buildEditorialJsonLd(getSiteConfig('tio2-my'),page)['@graph'] as Array<Record<string,unknown>>
+  const graph=buildEditorialJsonLd(getSiteConfig('tio2-my'),page)!['@graph'] as Array<Record<string,unknown>>
   const crumbs=graph[1].itemListElement as Array<{position:number;item:string}>
   expect(crumbs.map(crumb=>crumb.item)).not.toContain('https://tio2malaysia.com/applications/')
   expect(crumbs.map(crumb=>crumb.position)).toEqual([1,2])
@@ -47,10 +48,14 @@ describe('live-shaped editorial GraphQL delivery',()=>{
  it.each(EDITORIAL_CONTRACTS.map(page=>({page,id:page.identity.pageId})))('binds exact SEO, noindex and permitted Schema for $id',({page})=>{
   const metadata=buildEditorialMetadata(getSiteConfig('tio2-my'),page)
   expect(metadata.title).toEqual({absolute:page.seo.title})
-  expect(metadata.alternates?.canonical).toBe(page.seo.canonical)
+  expect(metadata.alternates?.canonical).toBe(page.seo.canonical??undefined)
   expect(metadata.robots).toEqual({index:false,follow:false})
-  const graph=buildEditorialJsonLd(getSiteConfig('tio2-my'),page)['@graph'] as Array<Record<string,unknown>>
-  expect(graph.map(n=>n['@type'])).toEqual(['WebPage','BreadcrumbList'])
+  const schema=buildEditorialJsonLd(getSiteConfig('tio2-my'),page)
+  if(page.seo.schemaType==='none')expect(schema).toBeNull()
+  else {
+   const graph=schema!['@graph'] as Array<Record<string,unknown>>
+   expect(graph.map(n=>n['@type'])).toEqual(page.identity.pageId==='PRODUCT-PROC-SU'?['CollectionPage','BreadcrumbList','ItemList']:['WebPage','BreadcrumbList'])
+  }
   expect(()=>buildEditorialMetadata(getSiteConfig('tio2-a'),page)).toThrow()
  })
 })

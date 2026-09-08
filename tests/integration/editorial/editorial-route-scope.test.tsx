@@ -5,6 +5,7 @@ import {GraphQLResponseError} from '@/lib/wordpress/client'
 import {getSiteConfig} from '@/sites'
 
 vi.mock('next/font/google',()=>({Inter:()=>({variable:'editorial-inter-variable'})}))
+vi.mock('next/font/local',()=>({default:()=>({variable:'approved-local-inter-variable'})}))
 
 const mocks=vi.hoisted(()=>({site:vi.fn(),query:vi.fn(),connection:vi.fn(),notFound:vi.fn(()=>{throw new Error('NOT_FOUND')})}))
 vi.mock('@/lib/sites/current-site',()=>({getCurrentSite:mocks.site}))

@@ -1,0 +1,72 @@
+[data-editorial-page="MARKET-EU-DE"]{color-scheme:light;--navy:#062b5b;--deep:#031b3a;--teal:#008078;--body:#334155;--soft:#f5f8fb;--line:#d9e2ec}
+[data-editorial-page="MARKET-EU-DE"] main,[data-editorial-page="MARKET-EU-DE"] main *{box-sizing:border-box}[data-editorial-page="MARKET-EU-DE"] main{scroll-behavior:smooth}[data-editorial-page="MARKET-EU-DE"] main{margin:0;color:var(--body);background:#fff;font-family:var(--font-my-shared),Inter,Arial,sans-serif;font-size:16px;line-height:1.65}[data-editorial-page="MARKET-EU-DE"] main .shell{width:min(1200px,calc(100% - 64px));margin:auto}[data-editorial-page="MARKET-EU-DE"] main .prose{max-width:920px}[data-editorial-page="MARKET-EU-DE"] main .prose>:first-child{margin-top:0}[data-editorial-page="MARKET-EU-DE"] main .prose>:last-child{margin-bottom:0}
+[data-editorial-page="MARKET-EU-DE"] main h1,[data-editorial-page="MARKET-EU-DE"] main h2,[data-editorial-page="MARKET-EU-DE"] main h3{color:var(--navy);line-height:1.15;letter-spacing:-.02em}[data-editorial-page="MARKET-EU-DE"] main h1{max-width:880px;margin:24px 0 24px;color:#fff;font-size:clamp(44px,5vw,64px)}[data-editorial-page="MARKET-EU-DE"] main h2{margin:0 0 24px;font-size:clamp(32px,3.4vw,44px)}[data-editorial-page="MARKET-EU-DE"] main h3{margin:0 0 14px;font-size:23px}[data-editorial-page="MARKET-EU-DE"] main p{margin:0 0 18px}[data-editorial-page="MARKET-EU-DE"] main ul{margin:18px 0 0;padding-left:22px}[data-editorial-page="MARKET-EU-DE"] main li{margin:0 0 12px;padding-left:5px}[data-editorial-page="MARKET-EU-DE"] main strong{color:var(--navy)}[data-editorial-page="MARKET-EU-DE"] main code{padding:2px 5px;border-radius:4px;color:var(--navy);background:#e7f1f4;font:600 .9em var(--font-my-shared),Inter,Arial,sans-serif}
+[data-editorial-page="MARKET-EU-DE"] main a{min-width:44px;min-height:44px;display:inline-flex;align-items:center;color:var(--teal);font-weight:650;text-underline-offset:4px}[data-editorial-page="MARKET-EU-DE"] main a:focus-visible{outline:3px solid var(--teal);outline-offset:3px}[data-editorial-page="MARKET-EU-DE"] main .hero{padding:44px 0 76px;color:#fff;background:var(--deep)}[data-editorial-page="MARKET-EU-DE"] main .hero .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:0 8px;color:#d4e0eb;font-size:14px}[data-editorial-page="MARKET-EU-DE"] main .hero .breadcrumb a{color:#fff}[data-editorial-page="MARKET-EU-DE"] main .heroInner>p:not(.heroActions){max-width:770px;font-size:19px;line-height:1.65}[data-editorial-page="MARKET-EU-DE"] main .heroActions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px!important}[data-editorial-page="MARKET-EU-DE"] main .primaryAction,[data-editorial-page="MARKET-EU-DE"] main .secondaryAction{min-height:48px!important;padding:11px 20px;border:1px solid var(--teal);border-radius:7px;text-decoration:none}[data-editorial-page="MARKET-EU-DE"] main .primaryAction{color:#fff!important;background:var(--teal)}[data-editorial-page="MARKET-EU-DE"] main .secondaryAction{color:#fff!important;border-color:#fff;background:transparent}
+[data-editorial-page="MARKET-EU-DE"] main .module{padding:72px 0;border-bottom:1px solid var(--line)}[data-editorial-page="MARKET-EU-DE"] main .module.soft{background:var(--soft)}[data-editorial-page="MARKET-EU-DE"] main .useContext .intro{max-width:960px}[data-editorial-page="MARKET-EU-DE"] main .applicationGrid{margin-top:32px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}[data-editorial-page="MARKET-EU-DE"] main .applicationCard{min-width:0;padding:26px;border:1px solid var(--line);border-top:4px solid var(--teal);border-radius:10px;background:#fff}[data-editorial-page="MARKET-EU-DE"] main .applicationCard p{margin-bottom:15px}[data-editorial-page="MARKET-EU-DE"] main .applicationCard a{width:100%;margin-top:4px}[data-editorial-page="MARKET-EU-DE"] main .destination{background:var(--soft)}[data-editorial-page="MARKET-EU-DE"] main .destinationGrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr);gap:48px;align-items:start}[data-editorial-page="MARKET-EU-DE"] main .checklist{padding:28px;border:1px solid var(--line);border-radius:10px;background:#fff}[data-editorial-page="MARKET-EU-DE"] main .checklist p:first-child{color:var(--navy);font-size:20px;font-weight:700;line-height:1.35}[data-editorial-page="MARKET-EU-DE"] main .finalAction{padding-bottom:0;border-bottom:0}[data-editorial-page="MARKET-EU-DE"] main .conversionPanel{max-width:none;padding:44px;border-radius:10px;color:#fff;background:var(--navy)}[data-editorial-page="MARKET-EU-DE"] main .conversionPanel h2,[data-editorial-page="MARKET-EU-DE"] main .conversionPanel strong{color:#fff}[data-editorial-page="MARKET-EU-DE"] main .conversionPanel a:not(.primaryAction){color:#fff}[data-editorial-page="MARKET-EU-DE"] main .references{max-width:none;padding:56px 0 72px}[data-editorial-page="MARKET-EU-DE"] main .references h3{font-size:28px}[data-editorial-page="MARKET-EU-DE"] main .references li{margin-bottom:16px}[data-editorial-page="MARKET-EU-DE"] main .references a{margin-right:4px}
+@media(max-width:1100px){[data-editorial-page="MARKET-EU-DE"] main .shell{width:calc(100% - 48px)}[data-editorial-page="MARKET-EU-DE"] main .hero{padding:36px 0 60px}[data-editorial-page="MARKET-EU-DE"] main .module{padding:56px 0}[data-editorial-page="MARKET-EU-DE"] main .applicationGrid{grid-template-columns:1fr}[data-editorial-page="MARKET-EU-DE"] main .applicationCard{padding:24px}[data-editorial-page="MARKET-EU-DE"] main .destinationGrid{grid-template-columns:1fr;gap:30px}[data-editorial-page="MARKET-EU-DE"] main .prose{max-width:none}[data-editorial-page="MARKET-EU-DE"] main .references{padding:48px 0 56px}}
+@media(max-width:560px){[data-editorial-page="MARKET-EU-DE"] main{font-size:15px;line-height:1.65}[data-editorial-page="MARKET-EU-DE"] main .shell{width:calc(100% - 40px)}[data-editorial-page="MARKET-EU-DE"] main h1{margin-top:18px;font-size:38px}[data-editorial-page="MARKET-EU-DE"] main h2{font-size:30px}[data-editorial-page="MARKET-EU-DE"] main h3{font-size:21px}[data-editorial-page="MARKET-EU-DE"] main .hero{padding:24px 0 44px}[data-editorial-page="MARKET-EU-DE"] main .heroInner>p:not(.heroActions){font-size:17px}[data-editorial-page="MARKET-EU-DE"] main .heroActions{display:grid}[data-editorial-page="MARKET-EU-DE"] main .heroActions a{width:100%;justify-content:center}[data-editorial-page="MARKET-EU-DE"] main .module{padding:44px 0}[data-editorial-page="MARKET-EU-DE"] main .applicationGrid{gap:16px}[data-editorial-page="MARKET-EU-DE"] main .applicationCard{padding:21px}[data-editorial-page="MARKET-EU-DE"] main .checklist{padding:22px}[data-editorial-page="MARKET-EU-DE"] main .conversionPanel{padding:28px 22px}[data-editorial-page="MARKET-EU-DE"] main .conversionPanel .primaryAction{width:100%;justify-content:center}[data-editorial-page="MARKET-EU-DE"] main .references{padding:40px 0 48px}[data-editorial-page="MARKET-EU-DE"] main .references h3{font-size:25px}[data-editorial-page="MARKET-EU-DE"] main .references a{display:flex;width:100%;height:auto;padding:5px 0}}
+@media(prefers-reduced-motion:reduce){[data-editorial-page="MARKET-EU-DE"] main{scroll-behavior:auto}}
+[data-editorial-page="MARKET-EU-DE"] main{font-size:17px;line-height:1.7}
+[data-editorial-page="MARKET-EU-DE"] main h1{max-width:900px;font-size:58px;line-height:1.08;letter-spacing:-1.25px}
+[data-editorial-page="MARKET-EU-DE"] main h2{max-width:880px;font-size:38px;line-height:1.18;letter-spacing:-.65px}
+[data-editorial-page="MARKET-EU-DE"] main h3{font-size:23px;line-height:1.28;letter-spacing:-.2px}
+[data-editorial-page="MARKET-EU-DE"] main p,[data-editorial-page="MARKET-EU-DE"] main li{max-width:74ch}
+[data-editorial-page="MARKET-EU-DE"] main a{max-width:100%;border-radius:4px;overflow-wrap:anywhere;transition:color .15s ease,background-color .15s ease,border-color .15s ease,transform .15s ease}
+[data-editorial-page="MARKET-EU-DE"] main a:hover{color:#062b5b;background:#f5f8fb;text-decoration-thickness:2px}
+[data-editorial-page="MARKET-EU-DE"] main .prose a:not(.primaryAction){padding-right:3px;padding-left:3px;outline-offset:-3px}
+[data-editorial-page="MARKET-EU-DE"] main .hero{padding-top:48px;padding-bottom:72px;background:#031b3a}
+[data-editorial-page="MARKET-EU-DE"] main .hero .breadcrumb{margin-bottom:28px}
+[data-editorial-page="MARKET-EU-DE"] main .heroInner>p:not(.heroActions){max-width:760px;font-size:20px;line-height:1.65}
+[data-editorial-page="MARKET-EU-DE"] main .heroActions{margin-top:32px!important}
+[data-editorial-page="MARKET-EU-DE"] main .primaryAction,[data-editorial-page="MARKET-EU-DE"] main .secondaryAction{padding:12px 22px;border-radius:7px;font-weight:700}
+[data-editorial-page="MARKET-EU-DE"] main .primaryAction:hover{border-color:#062b5b;color:#fff!important;background:#062b5b;text-decoration:underline}
+[data-editorial-page="MARKET-EU-DE"] main .secondaryAction:hover{border-color:#fff;color:#062b5b!important;background:#fff;text-decoration:underline}
+[data-editorial-page="MARKET-EU-DE"] main .hero :is(a,button):focus-visible,[data-editorial-page="MARKET-EU-DE"] main .conversionPanel :is(a,button):focus-visible{outline-color:#fff}
+[data-editorial-page="MARKET-EU-DE"] main .module{padding-top:68px;padding-bottom:68px}
+[data-editorial-page="MARKET-EU-DE"] main .module>.shell>.prose>h2::after,[data-editorial-page="MARKET-EU-DE"] main .module>.shell.prose>h2::after,[data-editorial-page="MARKET-EU-DE"] main .destination h2::after{content:"";display:block;width:56px;height:4px;margin-top:18px;border-radius:2px;background:#008078}
+[data-editorial-page="MARKET-EU-DE"] main .applicationGrid{gap:24px}
+[data-editorial-page="MARKET-EU-DE"] main .applicationCard{display:flex;min-height:100%;flex-direction:column;padding:28px;border-top-width:5px;border-radius:10px;box-shadow:0 10px 28px rgb(3 27 58 / 7%)}
+[data-editorial-page="MARKET-EU-DE"] main .applicationCard p:last-child{margin-top:auto;margin-bottom:0;padding-top:8px}
+[data-editorial-page="MARKET-EU-DE"] main .applicationCard a{justify-content:flex-start;padding:4px 0}
+[data-editorial-page="MARKET-EU-DE"] main .applicationCard:focus-within{border-color:#008078;box-shadow:0 0 0 3px rgb(0 128 120 / 14%),0 10px 28px rgb(3 27 58 / 7%)}
+[data-editorial-page="MARKET-EU-DE"] main #de-03 .prose,[data-editorial-page="MARKET-EU-DE"] main #de-04 .prose,[data-editorial-page="MARKET-EU-DE"] main #de-06 .prose{max-width:940px}
+[data-editorial-page="MARKET-EU-DE"] main #de-06 .prose{padding-left:28px;border-left:4px solid #008078}
+[data-editorial-page="MARKET-EU-DE"] main .destinationGrid{gap:56px}
+[data-editorial-page="MARKET-EU-DE"] main .checklist{border-top:5px solid #008078;box-shadow:0 10px 28px rgb(3 27 58 / 7%)}
+[data-editorial-page="MARKET-EU-DE"] main .checklist p:first-child{max-width:28ch}
+[data-editorial-page="MARKET-EU-DE"] main .conversionPanel{padding:48px;border-radius:10px;background:#062b5b;box-shadow:0 16px 38px rgb(3 27 58 / 15%)}
+[data-editorial-page="MARKET-EU-DE"] main .conversionPanel p{max-width:70ch}
+[data-editorial-page="MARKET-EU-DE"] main .conversionPanel .primaryAction{background:#008078}
+[data-editorial-page="MARKET-EU-DE"] main .references{display:grid;grid-template-columns:minmax(250px,.34fr) minmax(0,.66fr);gap:24px 48px;align-items:start}
+[data-editorial-page="MARKET-EU-DE"] main .references h3,[data-editorial-page="MARKET-EU-DE"] main .references>p{grid-column:1}
+[data-editorial-page="MARKET-EU-DE"] main .references ul{grid-column:2;grid-row:1/4;margin-top:0}
+[data-editorial-page="MARKET-EU-DE"] main .references li{max-width:none;padding-bottom:14px;border-bottom:1px solid #d9e2ec}
+[data-editorial-page="MARKET-EU-DE"] main .references a{padding:4px 3px;outline-offset:-3px}
+@media(max-width:1100px){
+  [data-editorial-page="MARKET-EU-DE"] main h1{font-size:46px;line-height:1.1}
+  [data-editorial-page="MARKET-EU-DE"] main h2{font-size:34px}
+  [data-editorial-page="MARKET-EU-DE"] main .module{padding-top:56px;padding-bottom:56px}
+  [data-editorial-page="MARKET-EU-DE"] main .applicationGrid{gap:18px}
+  [data-editorial-page="MARKET-EU-DE"] main .applicationCard{padding:26px}
+  [data-editorial-page="MARKET-EU-DE"] main .destinationGrid{gap:30px}
+  [data-editorial-page="MARKET-EU-DE"] main .references{display:block}
+  [data-editorial-page="MARKET-EU-DE"] main .references h3,[data-editorial-page="MARKET-EU-DE"] main .references>p,[data-editorial-page="MARKET-EU-DE"] main .references ul{grid-column:auto;grid-row:auto}
+  [data-editorial-page="MARKET-EU-DE"] main .references ul{margin-top:22px}
+}
+@media(max-width:560px){
+  [data-editorial-page="MARKET-EU-DE"] main{font-size:16px;line-height:1.7}
+  [data-editorial-page="MARKET-EU-DE"] main h1{font-size:37px;line-height:1.1;letter-spacing:-.7px}
+  [data-editorial-page="MARKET-EU-DE"] main h2{font-size:29px;line-height:1.2}
+  [data-editorial-page="MARKET-EU-DE"] main h3{font-size:22px}
+  [data-editorial-page="MARKET-EU-DE"] main .hero{padding-top:28px;padding-bottom:48px}
+  [data-editorial-page="MARKET-EU-DE"] main .hero .breadcrumb{margin-bottom:22px}
+  [data-editorial-page="MARKET-EU-DE"] main .heroInner>p:not(.heroActions){font-size:18px;line-height:1.65}
+  [data-editorial-page="MARKET-EU-DE"] main .module{padding-top:46px;padding-bottom:46px}
+  [data-editorial-page="MARKET-EU-DE"] main .module>.shell>.prose>h2::after,[data-editorial-page="MARKET-EU-DE"] main .module>.shell.prose>h2::after,[data-editorial-page="MARKET-EU-DE"] main .destination h2::after{width:48px;margin-top:15px}
+  [data-editorial-page="MARKET-EU-DE"] main .applicationCard{padding:22px}
+  [data-editorial-page="MARKET-EU-DE"] main #de-06 .prose{padding-left:18px}
+  [data-editorial-page="MARKET-EU-DE"] main .checklist{padding:24px 22px}
+  [data-editorial-page="MARKET-EU-DE"] main .conversionPanel{padding:30px 22px}
+  [data-editorial-page="MARKET-EU-DE"] main .references li{padding-bottom:16px}
+}
+@media(prefers-reduced-motion:reduce){[data-editorial-page="MARKET-EU-DE"] main a{transition:none}}

@@ -36,7 +36,7 @@ export function MalaysiaCookieSettingsTrigger({children, className}: {readonly c
   )
 }
 
-export function MalaysiaCookieSettingsHost() {
+export function MalaysiaCookieSettingsHost({nativeModal=false}:{readonly nativeModal?:boolean}={}) {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLElement | null>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
@@ -59,6 +59,12 @@ export function MalaysiaCookieSettingsHost() {
 
   useEffect(() => {
     if (!open) return
+    const dialog=dialogRef.current
+    const priorOverflow=document.documentElement.style.overflow
+    if(nativeModal && dialog instanceof HTMLDialogElement){
+      dialog.showModal()
+      document.documentElement.style.overflow='hidden'
+    }
     closeRef.current?.focus()
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -80,10 +86,35 @@ export function MalaysiaCookieSettingsHost() {
       }
     }
     document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
-  }, [open])
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      if(nativeModal && dialog instanceof HTMLDialogElement){
+        dialog.close()
+        document.documentElement.style.overflow=priorOverflow
+      }
+    }
+  }, [open,nativeModal])
 
   if (!open) return null
+  const content=<>
+    <h2 id="tio2-my-cookie-settings-title">{consentContract.consent.title}</h2>
+    <p id="tio2-my-cookie-settings-description">{consentContract.consent.body}</p>
+    <div className={styles.actions}>
+      <button ref={closeRef} type="button" onClick={close}>{consentContract.consent.actions.close}</button>
+      <a href={consentContract.consent.cookiePolicyHref}>{consentContract.consent.actions.cookiePolicy}</a>
+    </div>
+  </>
+  if(nativeModal)return <dialog
+    ref={node=>{dialogRef.current=node}}
+    className={`${styles.dialog} ${styles.nativeDialog}`}
+    aria-labelledby="tio2-my-cookie-settings-title"
+    aria-describedby="tio2-my-cookie-settings-description"
+    onCancel={event=>{event.preventDefault();close()}}
+    onClick={event=>{
+      const rect=event.currentTarget.getBoundingClientRect()
+      if(event.target===event.currentTarget && (event.clientX<rect.left || event.clientX>rect.right || event.clientY<rect.top || event.clientY>rect.bottom))close()
+    }}
+  >{content}</dialog>
   return (
     <div className={styles.backdrop} onMouseDown={(event) => { if (event.currentTarget === event.target) close() }}>
       <section
@@ -94,12 +125,7 @@ export function MalaysiaCookieSettingsHost() {
         aria-labelledby="tio2-my-cookie-settings-title"
         aria-describedby="tio2-my-cookie-settings-description"
       >
-        <h2 id="tio2-my-cookie-settings-title">{consentContract.consent.title}</h2>
-        <p id="tio2-my-cookie-settings-description">{consentContract.consent.body}</p>
-        <div className={styles.actions}>
-          <button ref={closeRef} type="button" onClick={close}>{consentContract.consent.actions.close}</button>
-          <a href={consentContract.consent.cookiePolicyHref}>{consentContract.consent.actions.cookiePolicy}</a>
-        </div>
+        {content}
       </section>
     </div>
   )

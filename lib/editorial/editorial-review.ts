@@ -1,5 +1,6 @@
 import type {EditorialContract} from '@/lib/editorial/editorial-types'
 import evidence from '@/wordpress/plugins/tio2-site-model/config/tio2-my-editorial-review-evidence.json'
+import alternativesEvidence from '@/wordpress/plugins/tio2-site-model/config/tio2-my-alternatives-review-evidence.json'
 
 export type EditorialReviewStatus='verified'|'unverified'|'withdrawn'
 export type EditorialReviewEventStatus='no_open_trigger'|'event_pending'
@@ -57,7 +58,6 @@ export class EditorialReviewError extends Error {
  constructor(message:string){super(message);this.name='EditorialReviewError'}
 }
 
-const manifest=evidence as unknown as EvidenceManifest
 const reviewKeys=['checkedAt','eventStatus','evidenceArtifactSha256','evidenceDate','nextReviewDue','outcome','packageSha256','pageId','policyId','schemaVersion','siteScope','status','timeZone'] as const
 const artifactKeys=['checkedAt','evidenceDate','outcome','path','sha256','timeZone'] as const
 const manifestKeys=['evidenceArtifact','pages','schemaVersion','siteScope'] as const
@@ -111,6 +111,7 @@ function samePrimitiveRecord(actual:Record<string,unknown>,expected:Record<strin
 }
 
 function validateManifestPage(page:EditorialContract):EvidencePage{
+ const manifest=(['RES-R706','RES-CHEMOURS'].includes(page.identity.pageId)?alternativesEvidence:evidence) as unknown as EvidenceManifest
  if(!record(manifest as unknown)||!exactKeys(manifest as unknown as Record<string,unknown>,manifestKeys)||manifest.schemaVersion!=='tio2-my-editorial-review-evidence-v0.1'||manifest.siteScope!=='tio2-my'||!Array.isArray(manifest.pages))fail('Invalid trusted review manifest.')
  const artifact=manifest.evidenceArtifact as unknown
  if(!record(artifact)||!exactKeys(artifact,artifactKeys)||!sha256Pattern.test(String(artifact.sha256))||!validDate(artifact.evidenceDate)||!validInstant(artifact.checkedAt)||artifact.timeZone!=='Asia/Kuala_Lumpur'||artifact.outcome!=='NO_MATERIAL_CHANGE_LOCATED_IN_BOUNDED_OFFICIAL_CHECK'||typeof artifact.path!=='string'||artifact.path==='')fail('Invalid trusted evidence artifact.')

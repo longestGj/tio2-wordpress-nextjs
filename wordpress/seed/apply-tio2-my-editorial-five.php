@@ -1,14 +1,13 @@
 <?php
 // Local-only, all-record preflight, create-only/idempotent seed. Never overwrites an existing record.
 $mode=(string)($args[0]??'Plan');
-if (!in_array($mode,['Plan','Apply'],true) || wp_get_environment_type()!=='local' || get_option('tio2_editorial_task_id')!=='G8-TRADE4-APP5-20260908-01') throw new RuntimeException('Seed requires this task-owned local CMS.');
+if (!in_array($mode,['Plan','Apply'],true) || wp_get_environment_type()!=='local' || get_option('tio2_editorial_task_id')!=='G8-DE-IT-SU-R706-CHEMOURS-20260908-01') throw new RuntimeException('Seed requires this task-owned local CMS.');
 $term=get_term_by('slug','tio2-my','site_scope');
 if (!$term || is_wp_error($term)) throw new RuntimeException('Existing Malaysia scope is required.');
-$reviews=json_decode((string)file_get_contents('/workspace/.tmp/editorial-source-reviews.json'),true);
+$reviews=json_decode((string)file_get_contents('/workspace/.tmp/five-source-reviews.json'),true);
 if (!is_array($reviews)) throw new RuntimeException('Dated source review ledger required.');
 $plans=[];
-// This historical task remains limited to its original nine records.
-foreach(['RES-TRADE-EU','RES-TRADE-UK','RES-TRADE-IN','RES-TRADE-BR','APP-COAT','APP-PLAS','APP-MB','APP-INK','APP-PAPER'] as $page_id) {
+foreach(['MARKET-EU-DE','MARKET-EU-IT','PRODUCT-PROC-SU','RES-R706','RES-CHEMOURS'] as $page_id) {
     $json=tio2_editorial_config($page_id); $payload=json_decode($json,true); $identity=tio2_editorial_identity($page_id);
     if (!$identity || is_wp_error(tio2_editorial_validate_payload($page_id,$json))) throw new RuntimeException('Invalid approved source '.$page_id);
     if (!tio2_editorial_review_valid($payload,$reviews[$page_id]??null)) throw new RuntimeException('Missing or expired source review '.$page_id);

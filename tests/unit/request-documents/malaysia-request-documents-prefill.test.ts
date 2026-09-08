@@ -151,7 +151,8 @@ describe('CONV-DOC prefill normalization', () => {
     ['APP-COAT', 'Coatings', 'Plastics'], ['APP-PLAS', 'Plastics', 'Coatings'],
     ['APP-MB', 'Masterbatch', 'Paper'], ['APP-INK', 'Printing Inks', 'Coatings'],
     ['APP-PAPER', 'Paper', 'Printing Inks'], ['PRODUCT-PROC-CL', 'Chloride', 'Sulfate'],
-    ['PRODUCT-PROC-SU', 'Sulfate', 'Chloride'],
+    // PRODUCT-PROC-SU now has an approved source-only entry contract;
+    // query neutrality and later buyer selections are tested in five-core-review.
   ])('binds specific %s attribution only to its exact visible context', (sourcePageId, allowed, mismatched) => {
     expect(resolveMalaysiaRequestDocumentsPrefill({
       application_industry: allowed, source_page_id: sourcePageId,

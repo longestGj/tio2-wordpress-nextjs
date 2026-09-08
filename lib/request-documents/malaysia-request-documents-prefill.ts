@@ -67,7 +67,7 @@ const approvedProcessContexts = new Set(processContextByGrade.values())
 const approvedVisibleContexts = new Set([...approvedApplicationContexts, ...approvedProcessContexts])
 export const MALAYSIA_REQUEST_DOCUMENTS_SOURCE_PAGE_IDS = Object.freeze([
   'HOME-001', 'MARKET-000', 'MARKET-EU-001', 'MARKET-EU-ES', 'MARKET-IN-001',
-  'MARKET-EU-NL', 'MARKET-EU-BE', 'PRODUCT-000', 'APP-000', 'DOC-000', 'RES-000',
+  'MARKET-EU-NL', 'MARKET-EU-BE', 'MARKET-EU-DE', 'MARKET-EU-IT', 'PRODUCT-000', 'APP-000', 'DOC-000', 'RES-000',
   'PRODUCT-PROC-CL', 'PRODUCT-PROC-SU',
   'APP-COAT', 'APP-PLAS', 'APP-MB', 'APP-INK', 'APP-PAPER',
   'DOC-TDS', 'DOC-REACH',
@@ -126,6 +126,9 @@ export function normalizeMalaysiaRequestDocumentsSourcePageId(
   context: SourceRelationContext = {},
 ): string | null {
   if (typeof value !== 'string' || !sourcePageIds.has(value)) return null
+  // These consumers supply attribution only. Buyer-entered fields do not
+  // retrospectively change the page that initiated the document request.
+  if (['MARKET-EU-DE', 'MARKET-EU-IT', 'PRODUCT-PROC-SU'].includes(value)) return value
   const grade = typeof context.productGrade === 'string' && grades.has(context.productGrade) ? context.productGrade : null
   const rawVisibleContext = typeof context.applicationIndustry === 'string' && context.applicationIndustry
     ? context.applicationIndustry : null
@@ -138,7 +141,7 @@ export function normalizeMalaysiaRequestDocumentsSourcePageId(
   const expectedApplication = applicationBySource.get(value)
   if (expectedApplication) return visibleContext === expectedApplication ? value : null
   const expectedProcess = processBySource.get(value)
-  if (expectedProcess) return visibleContext === expectedProcess ? value : null
+  if (expectedProcess) return visibleContext === expectedProcess || (value === 'PRODUCT-PROC-SU' && !rawVisibleContext && !grade) ? value : null
   if (value === 'PRODUCT-000' && visibleContext && !grade) return null
   if (value === 'APP-000' && visibleContext && !approvedApplicationContexts.has(visibleContext)) return null
   return value
@@ -148,6 +151,10 @@ export function resolveMalaysiaRequestDocumentsPrefill(
   input: MalaysiaRequestDocumentsPrefillInput,
   trusted: MalaysiaRequestDocumentsTrustedContext = {},
 ): MalaysiaRequestDocumentsPrefill {
+  const entrySource=first(input.source_page_id) ?? first(input.source_page)
+  if(entrySource && ['MARKET-EU-DE','MARKET-EU-IT','PRODUCT-PROC-SU'].includes(entrySource)) {
+    return {values:Object.freeze({}),sourcePageId:entrySource,marketId:null,prefillVisible:false}
+  }
   const values: {product_grade?: string; application_industry?: string; document_types?: readonly string[]; additional_requirements?: string} = {}
   let grade = Array.isArray(input.product_grade) ? null : first(input.product_grade)
   if (!grade || !grades.has(grade)) grade = null

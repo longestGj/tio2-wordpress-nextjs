@@ -40,7 +40,7 @@ for(const contract of EDITORIAL_CONTRACTS) test(`${contract.identity.pageId} liv
  const jsonld=JSON.parse(document.querySelector('script[type="application/ld+json"]')!.textContent!)
  expect(jsonld['@graph'].map((node:Record<string,unknown>)=>node['@type'])).toEqual(['WebPage','BreadcrumbList'])
  const machineCrumbs=jsonld['@graph'][1].itemListElement as Array<{item:string}>
- for(const href of cms.unavailableInternalPaths) expect(machineCrumbs.map(item=>item.item)).not.toContain(new URL(href,contract.seo.canonical).href)
+ for(const href of cms.unavailableInternalPaths) expect(machineCrumbs.map(item=>item.item)).not.toContain(new URL(href,contract.seo.canonical!).href)
  const browserErrors:string[]=[];page.on('pageerror',error=>browserErrors.push(error.message))
  const captures:unknown[]=[]
  for(const width of [1440,768,390]) {

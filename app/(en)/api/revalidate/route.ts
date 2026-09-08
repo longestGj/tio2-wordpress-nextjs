@@ -249,7 +249,8 @@ export async function POST(request: Request): Promise<Response> {
   const unapprovedProductPath = payload.paths.find(
     (path) =>
       (path === '/products' || path.startsWith('/products/')) &&
-      !productIdentityByPath.has(path),
+      !productIdentityByPath.has(path) &&
+      !(currentSite.id === 'tio2-my' && editorialPageIdForPath(path) === 'PRODUCT-PROC-SU'),
   )
   if (unapprovedProductPath) {
     return json(400, {
