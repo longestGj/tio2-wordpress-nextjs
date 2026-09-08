@@ -5,7 +5,7 @@
     "locale": "en",
     "path": "/applications/titanium-dioxide-for-coatings/",
     "section": "applications",
-    "provisional": false,
+    "provisional": true,
     "schemaVersion": "editorial-v0.1"
   },
   "source": {

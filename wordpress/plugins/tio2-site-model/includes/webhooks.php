@@ -457,6 +457,7 @@ function tio2_get_webhook_affected_state(
         if (! in_array($path, [
             '/markets/european-union', '/markets/united-kingdom', '/markets/spain',
             '/markets/india', '/markets/netherlands', '/markets/belgium',
+            '/markets/brazil', '/pt-br/markets/brazil',
         ], true)) return null;
         $paths = [$path];
         $entity_ids = [$post_id];
@@ -707,7 +708,9 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
         (
             (defined('TIO2_MY_EU_MARKET_CONTRACT_META') && TIO2_MY_EU_MARKET_CONTRACT_META === $meta_key) ||
             (defined('TIO2_MY_UK_MARKET_CONTRACT_META') && TIO2_MY_UK_MARKET_CONTRACT_META === $meta_key) ||
-            (defined('TIO2_MY_COUNTRY_MARKET_CONTRACT_META') && TIO2_MY_COUNTRY_MARKET_CONTRACT_META === $meta_key)
+            (defined('TIO2_MY_COUNTRY_MARKET_CONTRACT_META') && TIO2_MY_COUNTRY_MARKET_CONTRACT_META === $meta_key) ||
+            (defined('TIO2_MY_BRAZIL_EN_MARKET_CONTRACT_META') && TIO2_MY_BRAZIL_EN_MARKET_CONTRACT_META === $meta_key) ||
+            (defined('TIO2_MY_BRAZIL_PT_MARKET_CONTRACT_META') && TIO2_MY_BRAZIL_PT_MARKET_CONTRACT_META === $meta_key)
         )
     ) {
         return true;

@@ -32,7 +32,7 @@ const pages: PageSpec[] = [
     pageId: "APP-COAT",
     slug: "app-coat",
     route: "/applications/titanium-dioxide-for-coatings/",
-    provisional: false,
+    provisional: true,
     packageId: "APP-COAT-G6-HANDOFF-01",
     packageSha256: "0ed6c22408f96e4282917b935dd551d0d0ed4b74becbd78a6eefac967460f915",
     bodySha256: "e5c9ffa7bcd7ae0375e45e27ba9bc26b95d00d317ff19c243e7e931b17706531",

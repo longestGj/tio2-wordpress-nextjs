@@ -11,12 +11,13 @@ function canonical(site:SiteConfig,page:EditorialContract):string {
 }
 export function buildEditorialMetadata(site:SiteConfig,page:EditorialContract):Metadata {
   const url=canonical(site,page)
-  return {title:{absolute:page.seo.title},description:page.seo.metaDescription,alternates:{canonical:url},robots:{index:false,follow:false},
-    openGraph:{type:'website',url,siteName:site.name,title:page.seo.title,description:page.seo.metaDescription,images:[]},
+  return {title:{absolute:page.seo.title},description:page.seo.metaDescription,...(!page.identity.provisional?{alternates:{canonical:url}}:{}),robots:{index:false,follow:false},
+    openGraph:{type:'website',...(!page.identity.provisional?{url}:{}),siteName:site.name,title:page.seo.title,description:page.seo.metaDescription,images:[]},
     twitter:{card:'summary',title:page.seo.title,description:page.seo.metaDescription,images:[]}}
 }
-export function buildEditorialJsonLd(site:SiteConfig,page:EditorialContract & {readonly unavailableInternalPaths?:readonly string[]}):JsonLdObject {
+export function buildEditorialJsonLd(site:SiteConfig,page:EditorialContract & {readonly unavailableInternalPaths?:readonly string[]}):JsonLdObject|null {
   const url=canonical(site,page)
+  if(page.identity.provisional) return null
   const breadcrumb=page.breadcrumb.filter(item=>!page.unavailableInternalPaths?.includes(item.href))
   return {'@context':'https://schema.org','@graph':[
     {'@type':'WebPage','@id':`${url}#webpage`,url,name:page.heading,description:page.seo.metaDescription,inLanguage:'en',isPartOf:{'@id':new URL('/#website',site.url).href},breadcrumb:{'@id':`${url}#breadcrumb`}},

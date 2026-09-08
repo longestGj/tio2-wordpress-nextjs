@@ -300,6 +300,8 @@ export async function POST(request: Request): Promise<Response> {
       payload.paths.includes('/request-sample') ||
       payload.paths.includes('/markets/european-union') ||
       payload.paths.includes('/markets/united-kingdom') ||
+      payload.paths.includes('/markets/brazil') ||
+      payload.paths.includes('/pt-br/markets/brazil') ||
       payload.paths.some((path) => malaysiaCountryMarketPageIds.has(path)) ||
       payload.paths.some((path) => Boolean(editorialPageIdForPath(path))) ||
       (payload.paths.length === 1 && malaysiaLegalPaths.has(payload.paths[0]!)))
@@ -322,6 +324,12 @@ export async function POST(request: Request): Promise<Response> {
       if (siteId === 'tio2-my' && path === '/markets/united-kingdom') {
         tags.add(siteTag(siteId))
         tags.add(marketPageContentTag(siteId, 'MARKET-UK-001', 'en'))
+      }
+      if (siteId === 'tio2-my' && path === '/markets/brazil') {
+        tags.add(marketPageContentTag(siteId, 'MARKET-BR-EN', 'en'))
+      }
+      if (siteId === 'tio2-my' && path === '/pt-br/markets/brazil') {
+        tags.add(marketPageContentTag(siteId, 'MARKET-BR-PT', 'pt-BR'))
       }
       const countryMarketPageId = malaysiaCountryMarketPageIds.get(path)
       const editorialPageId = editorialPageIdForPath(path)

@@ -22,6 +22,7 @@ type PageExpectation = {
   moduleCount: number
   tableBodyRows: number[]
   freshnessPolicyPattern: RegExp
+  approvedLinkMaintenance?: {from: string; to: string}
 }
 
 type EditorialPayload = {
@@ -95,6 +96,10 @@ const pages: PageExpectation[] = [
     moduleCount: 7,
     tableBodyRows: [4, 3, 4],
     freshnessPolicyPattern: /active-case 30-day maximum/,
+    approvedLinkMaintenance: {
+      from: 'https://www.gov.uk/guidance/trade-remedies',
+      to: 'https://www.gov.uk/guidance/check-when-you-need-to-pay-anti-dumping-countervailing-and-safeguard-duties',
+    },
   },
   {
     id: 'RES-TRADE-IN',
@@ -296,7 +301,10 @@ describe('approved Trade Resource editorial payloads', () => {
       expect(contract).toMatch(/(?:Visible|Public) `Last reviewed`(?: date)?: \*{0,2}7 September 2026/)
       expect(`${contract}\n${packageBytes.toString('utf8')}`).toMatch(page.freshnessPolicyPattern)
 
-      expect(payload.bodyHtml).toBe(visualMain?.innerHTML)
+      const approvedVisualHtml = page.approvedLinkMaintenance
+        ? visualMain?.innerHTML.replace(page.approvedLinkMaintenance.from, page.approvedLinkMaintenance.to)
+        : visualMain?.innerHTML
+      expect(payload.bodyHtml).toBe(approvedVisualHtml)
       expect(htmlVisibleBlocks(payload.bodyHtml)).toEqual(markdownPublicBlocks(buyerCopy, page.id))
 
       const body = new JSDOM(`<main>${payload.bodyHtml}</main>`).window.document
@@ -307,7 +315,13 @@ describe('approved Trade Resource editorial payloads', () => {
         page.tableBodyRows,
       )
 
-      const approvedLinks = markdownLinks(buyerCopy, page.id)
+      const approvedLinks = markdownLinks(buyerCopy, page.id).map((link) => ({
+        ...link,
+        href:
+          page.approvedLinkMaintenance && link.href === page.approvedLinkMaintenance.from
+            ? page.approvedLinkMaintenance.to
+            : link.href,
+      }))
       const renderedLinks = Array.from(body.querySelectorAll('a'), (link) => ({
         label: normalizeText(link.textContent ?? ''),
         href: link.getAttribute('href'),

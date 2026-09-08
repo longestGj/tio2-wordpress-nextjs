@@ -1,0 +1,118 @@
+{
+  "identity": {
+    "pageId": "MARKET-BR-EN",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "path": "/markets/brazil/",
+    "schemaVersion": "market-brazil-en-v0.1"
+  },
+  "seo": {
+    "title": "Titanium Dioxide Supplier Brazil | TiO2 Malaysia",
+    "description": "Explore Malaysia-origin industrial titanium dioxide Grades for coatings, plastics and masterbatch production in Brazil. Request documents or request a quote.",
+    "canonical": "https://tio2malaysia.com/markets/brazil/"
+  },
+  "breadcrumb": [
+    {"label": "Home", "href": "/", "targetPageId": "HOME-001"},
+    {"label": "Markets", "href": "/markets/", "targetPageId": "MARKET-000"},
+    {"label": "Brazil", "href": "/markets/brazil/", "targetPageId": "MARKET-BR-EN"}
+  ],
+  "modules": [
+    {
+      "id": "BR-EN-01",
+      "heading": "Titanium Dioxide Supplier for Brazil",
+      "paragraphs": [
+        "IKHLAS TITANIUM (MALAYSIA) SDN. BHD. provides Malaysia-origin industrial titanium dioxide for buyers in Brazil evaluating supply for coatings, plastics and masterbatch production. Explore Product Grades and application information, request supporting documents, or send us your requirements for a quotation."
+      ],
+      "cards": [],
+      "inlineLinks": [],
+      "listItems": [],
+      "actions": [
+        {"label": "Request a Quote", "href": "/request-a-quote/", "targetPageId": "CONV-RFQ", "context": {"sourcePageId": "MARKET-BR-EN", "destinationCountry": "Brazil"}},
+        {"label": "Explore Products", "href": "/products/", "targetPageId": "PRODUCT-000"}
+      ]
+    },
+    {
+      "id": "BR-EN-02",
+      "heading": "Review Products for Your Application",
+      "paragraphs": [
+        "Start with the application, process and end-use information you already have. You do not need an exact Grade or a complete specification before reviewing products or requesting a quotation.",
+        "Use the Product Hub to review candidate Grades, then open the relevant product pages for Grade-specific information. Compare that information against your requirements; the listings do not establish a recommended Grade for Brazil."
+      ],
+      "cards": [
+        {
+          "heading": "Coatings",
+          "paragraphs": ["State the coating system and end use, whether the system is waterborne or solvent-borne, whether it is intended for indoor or outdoor use, the substrate and the properties you need to evaluate."],
+          "action": {"label": "Review TiO2 for Coatings", "href": "/applications/titanium-dioxide-for-coatings/", "targetPageId": "APP-COAT"}
+        },
+        {
+          "heading": "Plastics",
+          "paragraphs": ["State the resin, processing route and finished product. Add the appearance, dispersion and processing requirements you will use to assess a Grade."],
+          "action": {"label": "Review TiO2 for Plastics", "href": "/applications/titanium-dioxide-for-plastics/", "targetPageId": "APP-PLAS"}
+        },
+        {
+          "heading": "Masterbatch Production",
+          "paragraphs": ["State the carrier resin, processing route and downstream product. Include the requirements you will use to evaluate TiO2 as the pigment input to your masterbatch formulation."],
+          "action": {"label": "Review TiO2 for Masterbatch", "href": "/applications/titanium-dioxide-for-masterbatch/", "targetPageId": "APP-MB"}
+        }
+      ],
+      "inlineLinks": [],
+      "listItems": [],
+      "actions": [
+        {"label": "Explore Product Grades", "href": "/products/", "targetPageId": "PRODUCT-000"}
+      ]
+    },
+    {
+      "id": "BR-EN-03",
+      "heading": "Documents for Product Review",
+      "paragraphs": [
+        "For a Grade you are evaluating, request the TDS, SDS, COA or origin and supplier-qualification documentation you need for review. Each document request uses one selected Grade and may include more than one document type.",
+        "A Certificate of Origin is available upon request.",
+        "If you do not yet know the Grade, you may start the document request, but you must select one Grade before submitting. You can also review candidate Grades in the Product Hub or use “Not sure / Need help” on the quotation request.",
+        "You may name other Grades in Additional Requirements as supplementary context, but the form does not assign document types to those additional Grades. Submit a separate request for each Grade when you need to specify its document types independently."
+      ],
+      "cards": [],
+      "inlineLinks": [
+        {"paragraphIndex": 2, "label": "Product Hub", "href": "/products/", "targetPageId": "PRODUCT-000"},
+        {"paragraphIndex": 2, "label": "quotation request", "href": "/request-a-quote/", "targetPageId": "CONV-RFQ", "context": {"sourcePageId": "MARKET-BR-EN"}}
+      ],
+      "listItems": [],
+      "actions": [
+        {"label": "Request Documents", "href": "/request-documents/", "targetPageId": "CONV-DOC", "context": {"sourcePageId": "MARKET-BR-EN"}},
+        {"label": "View Document Hub", "href": "/documents/", "targetPageId": "DOC-000"}
+      ]
+    },
+    {
+      "id": "BR-EN-04",
+      "heading": "Check Current Brazil Trade Information",
+      "paragraphs": [
+        "Brazil trade information can change. The Brazil Titanium Dioxide Trade Update was last reviewed on 6 September 2026. It brings together dated official sources and identifies the product, origin, classification and other shipment details that require verification. Use these sources and details to complete your own shipment-specific trade and customs assessment."
+      ],
+      "cards": [],
+      "inlineLinks": [],
+      "listItems": [],
+      "actions": [
+        {"label": "Review the Brazil Titanium Dioxide Trade Update", "href": "/resources/brazil-titanium-dioxide-anti-dumping-duty/", "targetPageId": "RES-TRADE-BR"}
+      ]
+    },
+    {
+      "id": "BR-EN-05",
+      "heading": "Prepare a Quotation Request for Brazil",
+      "paragraphs": [
+        "On the quotation form, select one Product / Grade or “Not sure / Need help,” and choose the Application or “Other / Not sure.” If you are considering other candidate Grades, add them in Additional Requirements. Include:",
+        "After you submit your quotation request, our team will review your requirements and contact you using the information provided."
+      ],
+      "cards": [],
+      "inlineLinks": [],
+      "listItems": [
+        "the application, process or target requirement;",
+        "any relevant non-confidential product specification, packaging, schedule or document context;",
+        "the required or estimated quantity in metric tonnes (MT);",
+        "the delivery location in Brazil, with a city, port or receiving point if known;",
+        "your company details and business contact information."
+      ],
+      "actions": [
+        {"label": "Request a Quote", "href": "/request-a-quote/", "targetPageId": "CONV-RFQ", "context": {"sourcePageId": "MARKET-BR-EN", "destinationCountry": "Brazil"}}
+      ]
+    }
+  ]
+}

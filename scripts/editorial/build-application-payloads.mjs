@@ -14,7 +14,7 @@ const pages = [
     slug: "app-coat",
     sourceRoot: "coatings",
     route: "/applications/titanium-dioxide-for-coatings/",
-    provisional: false,
+    provisional: true,
     packageId: "APP-COAT-G6-HANDOFF-01",
     packageFile: "06_handoff/APP-COAT_GATE6_HANDOFF_PACKAGE_V0.1.md",
     packageSha256: "0ed6c22408f96e4282917b935dd551d0d0ed4b74becbd78a6eefac967460f915",

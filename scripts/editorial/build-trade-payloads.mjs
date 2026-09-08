@@ -40,6 +40,10 @@ const pages = [
       'Check the active UK AD0086 investigation, rutile titanium dioxide import registration, written scope, key dates and shipment inputs to verify.',
     heading: 'UK Rutile Titanium Dioxide: Active AD0086 Investigation and Import Registration',
     breadcrumbLabel: 'UK Titanium Dioxide Trade Update',
+    approvedLinkMaintenance: {
+      from: 'https://www.gov.uk/guidance/trade-remedies',
+      to: 'https://www.gov.uk/guidance/check-when-you-need-to-pay-anti-dumping-countervailing-and-safeguard-duties',
+    },
   },
   {
     id: 'RES-TRADE-IN',
@@ -167,7 +171,9 @@ for (const page of pages) {
   const h1 = main?.querySelector('h1')?.textContent?.trim()
   if (!main || h1 !== page.heading) throw new Error(`${page.id} visual main/H1 does not match the approved contract`)
 
-  const bodyHtml = main.innerHTML
+  const bodyHtml = page.approvedLinkMaintenance
+    ? main.innerHTML.replace(page.approvedLinkMaintenance.from, page.approvedLinkMaintenance.to)
+    : main.innerHTML
   const route = `/resources/${page.slug}/`
   const payload = {
     identity: {

@@ -17367,6 +17367,12 @@ type RootQuery {
   "Approved, scope-bound ABOUT-001 record for TiO2 Malaysia."
   malaysiaAboutPageRecordJson: String!
 
+  "Validated, scoped Brazil English Market content for TiO2 Malaysia."
+  malaysiaBrazilEnMarketRecordJson: String!
+
+  "Validated, scoped Brazil Portuguese Market content for TiO2 Malaysia."
+  malaysiaBrazilPtMarketRecordJson: String!
+
   "Approved scope-bound country Market record for TiO2 Malaysia."
   malaysiaCountryMarketRecordJson(pageId: String!): String!
 

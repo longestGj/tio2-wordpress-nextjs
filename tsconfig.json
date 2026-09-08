@@ -26,6 +26,9 @@
       "@/app/ms/*": [
         "./app/(ms)/ms/*"
       ],
+      "@/app/pt-br/*": [
+        "./app/(pt-br)/pt-br/*"
+      ],
       "@/app/*": [
         "./app/(en)/*"
       ],
