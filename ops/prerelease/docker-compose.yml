@@ -30,6 +30,7 @@ services:
       NEXTJS_REVALIDATION_SECRET_TIO2_MY: ${NEXTJS_REVALIDATION_SECRET_TIO2_MY}
       NEXTJS_PREVIEW_URL_TIO2_MY: http://web:3000/api/preview
       NEXTJS_PREVIEW_SECRET_TIO2_MY: ${NEXTJS_PREVIEW_SECRET_TIO2_MY}
+      WORDPRESS_CONFIG_EXTRA: define('WP_ENVIRONMENT_TYPE', 'local');
     volumes:
       - prerelease_wp:/var/www/html
       - ${PRERELEASE_SOURCE_DIR}/wordpress/plugins/tio2-site-model:/var/www/html/wp-content/plugins/tio2-site-model:ro
@@ -61,6 +62,7 @@ services:
       - ${PRERELEASE_SOURCE_DIR}/wordpress/seed:/workspace/wordpress/seed:ro
       - ${PRERELEASE_SOURCE_DIR}/wordpress/bootstrap:/workspace/wordpress/bootstrap:ro
       - ${PRERELEASE_SOURCE_DIR}/ops/prerelease:/workspace/ops/prerelease:ro
+      - ${PRERELEASE_RUN_DIR}/seed-support:/workspace/.tmp
       - ${PRERELEASE_RUN_DIR}:/run-state
     working_dir: /var/www/html
 

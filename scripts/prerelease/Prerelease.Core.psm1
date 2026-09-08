@@ -149,6 +149,41 @@ function Assert-PrereleaseOwnedVolumes {
     }
 }
 
+function Test-PrereleaseSeedManifest {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [string] $ManifestPath,
+        [Parameter(Mandatory)] [string] $SourceRoot
+    )
+
+    $manifest = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
+    if ($manifest.schemaVersion -ne 1 -or $manifest.siteScope -ne 'tio2-my') {
+        throw 'Invalid prerelease seed manifest.'
+    }
+    $verified = foreach ($seed in @($manifest.seeds)) {
+        $relativePath = [string] $seed.path
+        $expected = ([string] $seed.sha256).ToLowerInvariant()
+        $absolutePath = Join-Path $SourceRoot ($relativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        if (-not (Test-Path -LiteralPath $absolutePath -PathType Leaf)) {
+            throw "Seed file is missing: $relativePath"
+        }
+        $stream = [System.IO.File]::OpenRead($absolutePath)
+        try {
+            $sha256 = [System.Security.Cryptography.SHA256]::Create()
+            try {
+                $actual = ([System.BitConverter]::ToString($sha256.ComputeHash($stream)) -replace '-', '').ToLowerInvariant()
+            }
+            finally { $sha256.Dispose() }
+        }
+        finally { $stream.Dispose() }
+        if ($expected -notmatch '^[a-f0-9]{64}$' -or $actual -ne $expected) {
+            throw "Seed hash mismatch: $relativePath; expected $expected; actual $actual"
+        }
+        [pscustomobject]@{ path = $relativePath; sha256 = $actual }
+    }
+    return @($verified)
+}
+
 Export-ModuleMember -Function @(
     'Get-PrereleasePlan',
     'Get-PrereleaseGitIdentity',
@@ -158,5 +193,6 @@ Export-ModuleMember -Function @(
     'Assert-PrereleasePorts',
     'Invoke-PrereleaseDocker',
     'Get-PrereleaseComposeArguments',
-    'Assert-PrereleaseOwnedVolumes'
+    'Assert-PrereleaseOwnedVolumes',
+    'Test-PrereleaseSeedManifest'
 )
