@@ -75,3 +75,16 @@ test('Brazil PT page-owned receiver links produce only their approved visible st
   await expect(page.locator('input[name="document_types"]:checked')).toHaveCount(0)
   await expect(page.locator('input[name="country_region"]')).toHaveValue('')
 })
+
+test('Brazil PT RFQ history restores buyer-edited destination instead of reapplying the market prefill', async ({page}) => {
+  await page.goto(`${base}/pt-br/markets/brazil/`, {waitUntil: 'networkidle'})
+  await page.getByRole('main').getByRole('link', {name: 'Solicitar cotação'}).first().click()
+  await page.waitForURL(/\/request-a-quote(?:\/|\?)/u)
+  await expect(page.locator('#rfq-destination_country')).toHaveValue('Brazil')
+  await page.locator('#rfq-destination_country').fill('Argentina')
+  await page.goBack()
+  await page.waitForURL(/\/pt-br\/markets\/brazil\/$/u)
+  await page.goForward()
+  await page.waitForURL(/\/request-a-quote(?:\/|\?)/u)
+  await expect(page.locator('#rfq-destination_country')).toHaveValue('Argentina')
+})

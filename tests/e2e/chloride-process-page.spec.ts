@@ -36,6 +36,16 @@ test('Chloride Process SSR preserves exact identity, head, directory and machine
   expect(links.filter(href => /(?:grade_id|application_id|quantity|destination|document_type)=/u.test(href ?? ''))).toHaveLength(0)
   const graph = JSON.parse(doc.querySelector('script[type="application/ld+json"]')!.textContent!)['@graph']
   expect(graph.map((node: {'@type': string}) => node['@type'])).toEqual(['WebPage','BreadcrumbList','ItemList'])
+  expect(graph[0]).toMatchObject({
+    name: 'Chloride Process Titanium Dioxide',
+    publisher: {'@id': 'https://tio2malaysia.com/#organization'},
+    mainEntity: {'@id': 'https://tio2malaysia.com/products/chloride-process-titanium-dioxide/#chloride-grade-list'},
+  })
+  expect(graph[2]).toMatchObject({
+    '@id': 'https://tio2malaysia.com/products/chloride-process-titanium-dioxide/#chloride-grade-list',
+    name: 'Explore Chloride-Process Grades',
+    numberOfItems: 8,
+  })
   expect(graph[2].itemListOrder).toBe('https://schema.org/ItemListUnordered')
   expect(graph[2].itemListElement.map((item: {name: string}) => item.name)).toEqual(gradeModels)
 })

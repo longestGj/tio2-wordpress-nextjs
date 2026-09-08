@@ -10,8 +10,18 @@ describe('PRODUCT-PROC-CL JSON-LD', () => {
     const graph = buildMalaysiaChlorideProcessJsonLd(getSiteConfig('tio2-my'), page)
     const nodes = graph['@graph'] as Array<Record<string, unknown>>
     expect(nodes.map(node => node['@type'])).toEqual(['WebPage', 'BreadcrumbList', 'ItemList'])
+    expect(nodes[0]).toMatchObject({
+      name: 'Chloride Process Titanium Dioxide',
+      publisher: {'@id': 'https://tio2malaysia.com/#organization'},
+      mainEntity: {'@id': 'https://tio2malaysia.com/products/chloride-process-titanium-dioxide/#chloride-grade-list'},
+    })
     expect((nodes[1]!.itemListElement as unknown[])).toHaveLength(3)
-    expect(nodes[2]).toMatchObject({numberOfItems: 8, itemListOrder: 'https://schema.org/ItemListUnordered'})
+    expect(nodes[2]).toMatchObject({
+      '@id': 'https://tio2malaysia.com/products/chloride-process-titanium-dioxide/#chloride-grade-list',
+      name: 'Explore Chloride-Process Grades',
+      numberOfItems: 8,
+      itemListOrder: 'https://schema.org/ItemListUnordered',
+    })
     expect((nodes[2]!.itemListElement as Array<Record<string, unknown>>)).toEqual(
       page.grades.map(grade => ({
         '@type': 'ListItem', position: grade.position, name: grade.gradeNameOrModelCode,

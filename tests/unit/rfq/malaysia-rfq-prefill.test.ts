@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest'
 
 import {resolveMalaysiaRfqPrefill} from '@/lib/rfq/malaysia-rfq-prefill'
+import {mergeMalaysiaRfqHistoryDraft, toMalaysiaRfqHistoryDraft} from '@/lib/rfq/malaysia-rfq-history'
 
 describe('CONV-RFQ prefill', () => {
   it('accepts only the RES-ORIGIN source and generic interest handoff', () => {
@@ -61,5 +62,82 @@ describe('CONV-RFQ prefill', () => {
       resource_context: '<script>alert(1)</script>',
       source_page_id: 'PRODUCT-M-2377',
     })).toEqual({values: {grade_id: 'M-2377'}, sourcePageId: null})
+  })
+})
+
+describe('CONV-RFQ buyer-edit history draft', () => {
+  it('keeps fresh Brazil URL prefill but lets the current history entry restore buyer-edited destination', () => {
+    const prefill = resolveMalaysiaRfqPrefill({
+      source_page_id: 'MARKET-BR-EN',
+      destination_country: 'Brazil',
+    })
+    const draft = toMalaysiaRfqHistoryDraft(prefill, {
+      grade_id: '',
+      application_id: '',
+      quantity_mt: '',
+      destination_country: 'Chile',
+      destination_port_city: '',
+      company_name: '',
+      contact_name: '',
+      business_email: '',
+      phone_whatsapp: '',
+      website: '',
+      additional_requirements: '',
+    })
+    expect(mergeMalaysiaRfqHistoryDraft(prefill, draft)).toEqual({
+      values: {destination_country: 'Chile'},
+      sourcePageId: 'MARKET-BR-EN',
+    })
+    expect(resolveMalaysiaRfqPrefill({
+      source_page_id: 'MARKET-BR-EN',
+      destination_country: 'Brazil',
+    })).toEqual({values: {destination_country: 'Brazil'}, sourcePageId: 'MARKET-BR-EN'})
+  })
+
+  it('does not store personal contact fields in history state', () => {
+    const prefill = resolveMalaysiaRfqPrefill({source_page_id: 'MARKET-BR-PT', destination_country: 'Brazil'})
+    expect(toMalaysiaRfqHistoryDraft(prefill, {
+      grade_id: 'M-350',
+      application_id: 'Coatings',
+      quantity_mt: '12',
+      destination_country: 'Argentina',
+      destination_port_city: 'Buenos Aires',
+      company_name: 'Private Buyer SA',
+      contact_name: 'Ana',
+      business_email: 'ana@example.com',
+      phone_whatsapp: '+54 11 0000',
+      website: 'https://example.com',
+      additional_requirements: 'Non-confidential requirement.',
+    })).toEqual({
+      values: {
+        grade_id: 'M-350',
+        application_id: 'Coatings',
+        destination_country: 'Argentina',
+        additional_requirements: 'Non-confidential requirement.',
+      },
+      sourcePageId: 'MARKET-BR-PT',
+    })
+  })
+
+  it('preserves an intentional empty value when the buyer clears a URL prefill', () => {
+    const prefill = resolveMalaysiaRfqPrefill({
+      source_page_id: 'MARKET-BR-EN',
+      destination_country: 'Brazil',
+    })
+    const draft = toMalaysiaRfqHistoryDraft(prefill, {
+      grade_id: '',
+      application_id: '',
+      quantity_mt: '',
+      destination_country: '',
+      destination_port_city: '',
+      company_name: '',
+      contact_name: '',
+      business_email: '',
+      phone_whatsapp: '',
+      website: '',
+      additional_requirements: '',
+    })
+
+    expect(mergeMalaysiaRfqHistoryDraft(prefill, draft).values.destination_country).toBe('')
   })
 })

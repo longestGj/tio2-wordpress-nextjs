@@ -3,6 +3,7 @@
 import {useEffect, useRef, useState} from 'react'
 
 import {emitMalaysiaRfqAnalyticsEvent} from '@/lib/rfq/malaysia-rfq-analytics'
+import {toMalaysiaRfqHistoryDraft} from '@/lib/rfq/malaysia-rfq-history'
 import type {MalaysiaRfqPrefill} from '@/lib/rfq/malaysia-rfq-prefill'
 import {submitMalaysiaRfq} from '@/lib/rfq/malaysia-rfq-receiver'
 import {
@@ -57,7 +58,19 @@ export function MalaysiaRfqForm({prefill, receiverAccessKey, privacyPolicyHref}:
   }, [state])
 
   function update(field: MalaysiaRfqFieldKey, value: string) {
-    setValues((current) => ({...current, [field]: value}))
+    setValues((current) => {
+      const next = {...current, [field]: value}
+      if (typeof window !== 'undefined') {
+        const state = window.history.state && typeof window.history.state === 'object'
+          ? {...window.history.state}
+          : {}
+        window.history.replaceState({
+          ...state,
+          tio2MyRfqDraft: toMalaysiaRfqHistoryDraft(prefill, next),
+        }, '', window.location.href)
+      }
+      return next
+    })
     if (errors[field]) setErrors((current) => ({...current, [field]: undefined}))
   }
 

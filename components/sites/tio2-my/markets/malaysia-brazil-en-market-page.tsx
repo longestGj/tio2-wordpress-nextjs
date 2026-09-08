@@ -39,9 +39,9 @@ export function MalaysiaBrazilEnMarketPage({marketPage: page, structuredData}: {
     {structuredData}
     <MalaysiaGlobalHeader chrome={page.globalChrome} currentPageId="MARKET-000" sourcePageId="MARKET-BR-EN"/>
     <main className={styles.main}>
-      {page.modules.map((module, moduleIndex) => <section key={module.id} data-module={module.id} aria-labelledby={`${module.id}-heading`} className={`${styles.section} ${moduleIndex === 0 ? styles.hero : ''} ${moduleIndex === 4 ? styles.final : ''}`}>
+      <nav aria-label="Breadcrumb" className={styles.breadcrumb}><ol>{page.breadcrumb.map((item, index) => <li key={item.targetPageId}>{index < page.breadcrumb.length - 1 ? <a href={item.href}>{item.label}</a> : <span aria-current="page">{item.label}</span>}</li>)}</ol></nav>
+      {page.modules.map((module, moduleIndex) => <section key={module.id} data-module={module.id} aria-labelledby={`${module.id}-heading`} className={`${styles.section} ${moduleIndex === 0 ? styles.hero : ''} ${moduleIndex === 1 ? styles.applicationsSection : ''} ${moduleIndex === 2 ? styles.documentsSection : ''} ${moduleIndex === 3 ? styles.tradeSection : ''} ${moduleIndex === 4 ? styles.rfqSection : ''}`}>
         <div className={styles.container}>
-          {moduleIndex === 0 && <nav aria-label="Breadcrumb" className={styles.breadcrumb}><ol>{page.breadcrumb.map((item, index) => <li key={item.targetPageId}>{index < page.breadcrumb.length - 1 ? <a href={item.href}>{item.label}</a> : <span aria-current="page">{item.label}</span>}</li>)}</ol></nav>}
           {moduleIndex === 0 ? <h1 id={`${module.id}-heading`}>{module.heading}</h1> : <h2 id={`${module.id}-heading`}>{module.heading}</h2>}
           <div className={styles.copy}>
             {module.paragraphs.slice(0, module.id === 'BR-EN-02' || module.id === 'BR-EN-05' ? 1 : undefined).map((paragraph, index) => <InlineParagraph key={index} text={paragraph} links={module.inlineLinks.filter(link => link.paragraphIndex === index)}/>)}

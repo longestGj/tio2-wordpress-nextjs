@@ -14,7 +14,12 @@ export function buildMalaysiaChlorideProcessJsonLd(
   ) {
     throw new Error('PRODUCT-PROC-CL Schema is available only for tio2-my')
   }
+
   const canonical = page.seo.canonical
+  const gradeListId = `${canonical}#chloride-grade-list`
+  const directoryHeading = page.modules.find(module => module.id === 'CL-03')?.heading ?? 'Explore Chloride-Process Grades'
+  const heroHeading = page.modules.find(module => module.id === 'CL-01')?.heading ?? page.seo.title
+
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -22,11 +27,13 @@ export function buildMalaysiaChlorideProcessJsonLd(
         '@type': 'WebPage',
         '@id': `${canonical}#webpage`,
         url: canonical,
-        name: page.seo.title,
+        name: heroHeading,
         description: page.seo.description,
         inLanguage: 'en',
         isPartOf: {'@id': new URL('/#website', site.url).href},
+        publisher: {'@id': new URL('/#organization', site.url).href},
         breadcrumb: {'@id': `${canonical}#breadcrumb`},
+        mainEntity: {'@id': gradeListId},
       },
       {
         '@type': 'BreadcrumbList',
@@ -40,7 +47,8 @@ export function buildMalaysiaChlorideProcessJsonLd(
       },
       {
         '@type': 'ItemList',
-        '@id': `${canonical}#grades`,
+        '@id': gradeListId,
+        name: directoryHeading,
         numberOfItems: page.grades.length,
         itemListOrder: 'https://schema.org/ItemListUnordered',
         itemListElement: page.grades.map(grade => ({

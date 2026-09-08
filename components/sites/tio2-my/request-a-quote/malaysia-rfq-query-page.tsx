@@ -3,6 +3,7 @@
 import {useSyncExternalStore, type ReactNode} from 'react'
 
 import {readBrowserQuery} from '@/lib/navigation/browser-query'
+import {mergeMalaysiaRfqHistoryDraft} from '@/lib/rfq/malaysia-rfq-history'
 import {resolveMalaysiaRfqPrefill, type MalaysiaRfqPrefill} from '@/lib/rfq/malaysia-rfq-prefill'
 import type {MalaysiaRfqPageDto} from '@/lib/wordpress/rfq-page-v01-types'
 
@@ -15,9 +16,20 @@ interface Props {
   readonly structuredData: ReactNode
 }
 
-const subscribeToLocation = () => () => undefined
-const getBrowserSearch = () => window.location.search
-const getServerSearch = () => ''
+const RFQ_EMPTY_BROWSER_CONTEXT = JSON.stringify(['', null])
+const subscribeToLocation = (callback: () => void) => {
+  window.addEventListener('popstate', callback)
+  window.addEventListener('pageshow', callback)
+  return () => {
+    window.removeEventListener('popstate', callback)
+    window.removeEventListener('pageshow', callback)
+  }
+}
+const getBrowserContext = () => JSON.stringify([
+  window.location.search,
+  window.history.state?.tio2MyRfqDraft ?? null,
+])
+const getServerContext = () => RFQ_EMPTY_BROWSER_CONTEXT
 
 function resolvePrefill(search = ''): MalaysiaRfqPrefill {
   const query = readBrowserQuery(search)
@@ -37,11 +49,12 @@ function resolvePrefill(search = ''): MalaysiaRfqPrefill {
 }
 
 export function MalaysiaRfqQueryPage(props: Props) {
-  const search = useSyncExternalStore(
+  const context = useSyncExternalStore(
     subscribeToLocation,
-    getBrowserSearch,
-    getServerSearch,
+    getBrowserContext,
+    getServerContext,
   )
-  const prefill = resolvePrefill(search)
+  const [search, draft] = JSON.parse(context) as [string, unknown]
+  const prefill = mergeMalaysiaRfqHistoryDraft(resolvePrefill(search), draft)
   return <MalaysiaRfqPage key={JSON.stringify(prefill)} {...props} prefill={prefill} />
 }
