@@ -122,6 +122,9 @@ input_hash="$(seed_input_fingerprint /workspace)"
 previous_input_hash="$(wp option get d16_prerelease_seed_input_sha256 2>/dev/null || true)"
 
 while IFS=$'\t' read -r seed_path seed_hash; do
+  if [[ "$seed_path" == "wordpress/seed/apply-tio2-my-prerelease-public-paths.php" ]]; then
+    continue
+  fi
   option_name="d16_prerelease_seed_${seed_hash}"
   existing_marker="$(wp option get "$option_name" 2>/dev/null || true)"
   if [[ "$previous_input_hash" == "$input_hash" ]] && [[ "$existing_marker" == "$seed_path" ]] && seed_record_is_current "$seed_path" "$seed_hash"; then
@@ -142,6 +145,7 @@ while IFS=$'\t' read -r seed_path seed_hash; do
   fi
 done < "$verified"
 
+D16_TIO2_MY_PRERELEASE_ROUTE_SEED=1 wp eval-file /workspace/wordpress/seed/apply-tio2-my-prerelease-public-paths.php
 wp eval-file /workspace/wordpress/bootstrap/validate-prerelease-site.php > /run-state/site-validation.json
 if [[ "$previous_input_hash" != "$input_hash" ]]; then
   wp option update d16_prerelease_seed_input_sha256 "$input_hash" --autoload=no >/dev/null

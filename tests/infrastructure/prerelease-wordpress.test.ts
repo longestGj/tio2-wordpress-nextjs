@@ -46,6 +46,15 @@ describe('prerelease WordPress bootstrap contract', () => {
     expect(script).toMatch(/validate-prerelease-site\.php[\s\S]*collect-cms-identity\.sh/)
   })
 
+  it('applies public-path readiness once after every fixture and before CMS identity export', () => {
+    const script = readFileSync(bootstrapPath, 'utf8')
+    const command = 'wp eval-file /workspace/wordpress/seed/apply-tio2-my-prerelease-public-paths.php'
+    expect(script.split(command)).toHaveLength(2)
+    expect(script.indexOf(command)).toBeGreaterThan(script.indexOf('done < "$verified"'))
+    expect(script.indexOf(command)).toBeLessThan(script.indexOf('validate-prerelease-site.php'))
+    expect(script.indexOf(command)).toBeLessThan(script.indexOf('collect-cms-identity.sh'))
+  })
+
   it('rejects a modified seed during the reusable dry-run check', () => {
     const directory = mkdtempSync(join(tmpdir(), 'd16-prerelease-seed-'))
     temporaryDirectories.push(directory)

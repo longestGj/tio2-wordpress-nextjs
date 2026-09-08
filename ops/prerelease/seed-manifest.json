@@ -157,6 +157,10 @@
     {
       "path": "wordpress/seed/apply-tio2-my-rfq-page.php",
       "sha256": "850a0ec216dc0e9f10acb6899658fd51fc72e76f957ab528924e398a25f12a1b"
+    },
+    {
+      "path": "wordpress/seed/apply-tio2-my-prerelease-public-paths.php",
+      "sha256": "75cbe500385b5143b85afc237744792e76530a9075f4f050975a76a8805cc73b"
     }
   ]
 }
