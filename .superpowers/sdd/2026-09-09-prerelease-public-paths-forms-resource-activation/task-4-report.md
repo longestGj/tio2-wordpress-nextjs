@@ -58,3 +58,31 @@ No full `npm test`, build, browser submission, deployment or external send was r
 
 - Web3Forms Free cannot provide durable deduplication. An unchanged manual retry reuses the correlation token, but a lost positive response can still produce duplicate email.
 - Provider acceptance does not prove destination inbox receipt; that remains separate prerelease/Gate 9 evidence.
+
+## Final verification clarification
+
+The earlier 67/67 GREEN line records the first successful six-file run before the final RFQ token-stability test was added. The final run contained 68 tests:
+
+`npx vitest run tests/unit/rfq/malaysia-rfq-receiver.test.ts tests/unit/rfq/malaysia-rfq-template.test.tsx tests/unit/request-sample/malaysia-request-sample-receiver.test.ts tests/unit/request-sample/malaysia-request-sample-template.test.tsx tests/unit/request-documents/malaysia-request-documents-receiver.test.ts tests/unit/request-documents/malaysia-request-documents-template.test.tsx`
+
+Final output: 6 test files passed, 68 tests passed, 0 failed.
+
+Retained compatibility command:
+
+`npx vitest run tests/integration/request-sample/server-receiver.test.ts tests/unit/rfq/malaysia-rfq-private-attribution.test.ts`
+
+Output: 2 test files passed, 24 tests passed, 0 failed.
+
+Sample readiness route command:
+
+`npx vitest run tests/integration/request-sample/route.test.tsx`
+
+Output: 1 test file passed, 4 tests passed, 0 failed.
+
+### Per-form retry and guard coverage
+
+- RFQ token behavior is explicit in `reuses the request token for an unchanged manual retry and rotates it after buyer input changes`. Pending UI is exercised by `restores fields and actions after a timeout maps to unconfirmed`. The completed guard is explicit in `retries only the receipt transition after confirmed receipt storage fails`, which confirms the provider fetch remains at one call.
+- Sample token behavior is explicit in `directly retries with retained values and same token, rotating only after a material edit`. Pending state is exercised by `sets aria-busy only while a submission is in flight`.
+- Documents token behavior is split across `uses a fresh idempotency token only after a failed request payload changes` and `retries immediately with retained values and the same token, then confirms success`; the latter also exercises the disabled pending state.
+- Sample and Documents do not currently have separately named component tests that resubmit after completed navigation and assert the provider call count remains one. Their production forms retain `completedRef` plus `transitionStartedRef` guards, but this report does not claim an explicit component assertion for those two completed guards.
+- The pending tests exercise disabled/busy state while the first request is unresolved; they do not fire a synthetic second submit event to assert call count directly. The synchronous `pendingRef` guards are present in all three implementations, but that lower-level duplicate-dispatch assertion is not separately named in the current tests.
