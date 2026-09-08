@@ -1,0 +1,6 @@
+Build command: SITE_ID=tio2-my, scoped CMS fixture, local receiver fixture, NEXT_DIST_DIR=.next-app000-r2b, npm run build
+Result: PASS
+Build ID: maNqNFg3Urit7VkLTu5KM
+Routes: /applications, /request-a-quote, /api/rfq/context and /api/rfq/submit present
+Runtime binding: node .tmp/start-app000-r2b.mjs on 127.0.0.1:4391
+Implementation commit: 6ece488cf88f060457890ad7f37da0db752564ef
