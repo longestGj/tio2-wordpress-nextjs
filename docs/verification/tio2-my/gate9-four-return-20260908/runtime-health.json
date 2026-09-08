@@ -1,0 +1,31 @@
+{
+  "checkedAt": "2026-09-08T10:40:00+08:00",
+  "siteId": "tio2-my",
+  "branch": "codex/poland-development",
+  "repairCommit": "c8b11ced84119578edb3f0ef8e27d25cf11e7eb5",
+  "baseUrl": "http://127.0.0.1:3024",
+  "buildDirectory": ".next-g9-four-return",
+  "buildId": "2IMF284tCfKor6WTwWdXq",
+  "routes": [
+    {
+      "path": "/markets/brazil/",
+      "status": 200,
+      "bytes": 40713
+    },
+    {
+      "path": "/pt-br/markets/brazil/",
+      "status": 200,
+      "bytes": 44115
+    },
+    {
+      "path": "/products/chloride-process-titanium-dioxide/",
+      "status": 200,
+      "bytes": 46665
+    },
+    {
+      "path": "/documents/certificate-of-origin/",
+      "status": 200,
+      "bytes": 41372
+    }
+  ]
+}
