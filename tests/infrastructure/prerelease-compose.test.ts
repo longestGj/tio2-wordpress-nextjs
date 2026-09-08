@@ -71,6 +71,9 @@ describe('tio2-my local prerelease Compose contract', () => {
     expect(compose?.services.wpcli.volumes).toContain(
       '${PRERELEASE_SOURCE_DIR}/wordpress/seed:/workspace/wordpress/seed:ro',
     )
+    expect(compose?.services.wpcli.volumes).toContain(
+      '${PRERELEASE_SOURCE_DIR}/wordpress/plugins/tio2-site-model:/workspace/wordpress/plugins/tio2-site-model:ro',
+    )
     expect(compose?.services.wpcli.user).toBe('33:33')
   })
 
