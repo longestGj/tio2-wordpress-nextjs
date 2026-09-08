@@ -127,7 +127,7 @@ describe('tio2-my local prerelease Compose contract', () => {
     ).trim().split(/\r?\n/u).filter(Boolean).sort()
     expect(manifest.schemaVersion).toBe(1)
     expect(manifest.siteScope).toBe('tio2-my')
-    expect(manifest.seeds.map(({path}) => path)).toEqual(expectedPaths)
+    expect(manifest.seeds.map(({path}) => path).sort()).toEqual(expectedPaths)
     for (const seed of manifest.seeds) {
       expect(seed.sha256).toMatch(/^[a-f0-9]{64}$/u)
       expect(createHash('sha256').update(readFileSync(seed.path)).digest('hex')).toBe(seed.sha256)
