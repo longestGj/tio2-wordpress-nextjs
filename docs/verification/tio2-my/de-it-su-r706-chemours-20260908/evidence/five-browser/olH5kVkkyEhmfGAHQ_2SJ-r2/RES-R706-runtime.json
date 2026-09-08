@@ -1,0 +1,242 @@
+{
+  "id": "RES-R706",
+  "time": "2026-09-08T02:51:19.585Z",
+  "buildId": "olH5kVkkyEhmfGAHQ_2SJ",
+  "base": "http://127.0.0.1:3236",
+  "source": {
+    "packageId": "RES-R706-G6-HANDOFF-02",
+    "packageSha256": "6b94e44cd514edee1adb6ab09bd2d45950509cffd3c6282e79ca3cb05ebd110c",
+    "bodySha256": "e19dcd07107cd20a368377abadaf607a4945f9a8614d96b3a7eeda894e40419b",
+    "renderedBodySha256": "8515a9bd29497445a458e0fed0b4293a78459cf3c078675a263715f6938bf30a",
+    "visualSha256": "decf85559122c536ee51b3b6da0a3f3165e9e8542a771b0c279382ec229e5041"
+  },
+  "cms": {
+    "url": "http://127.0.0.1:8187/graphql",
+    "id": "editorial-18560",
+    "recordPageId": "RES-R706",
+    "status": "publish",
+    "publishingFields": {
+      "publicPath": "/resources/ti-pure-r-706-alternative"
+    },
+    "siteScopes": {
+      "nodes": [
+        {
+          "slug": "tio2-my"
+        }
+      ]
+    },
+    "contractSha256": "bd88cd0f8673ffd290c69bac9b1e16c7aa38cb1e57bf9344b5b5ea56188a81a4",
+    "availableGradePaths": [],
+    "unavailableInternalPaths": []
+  },
+  "captures": [
+    {
+      "filename": "RES-R706-1440-full.png",
+      "sha256": "37db9b19bebed4da3f6dbc0ca92d80c2db53df53434e16a026b2b1a885ebdb9c",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-R706-1440-keyboard-focus.png",
+      "sha256": "b589e6586eef6061101868891e1089d095de7db90e26c58480f91d9da4e08576",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-R706-1440-cookie.png",
+      "sha256": "143d0a52657d77a994af2256450e00cbaec14c261a3592daa81acbfae2d9beb5",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-R706-768-full.png",
+      "sha256": "e1ac2ebfa40780430754acc11c2403ac638e749c27a067fa4efc14e4bab448f1",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-R706-768-menu.png",
+      "sha256": "6dbdac8df726af0b8e134acabe31515c29e7a720c0184f8b5265ede78188638f",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-R706-768-keyboard-focus.png",
+      "sha256": "e9e0f9d841546c302b6e60f6a02dcd8301a554a376a13ac79ee44d88a773c8d0",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-R706-768-cookie.png",
+      "sha256": "d258dfa1941e3d86777c3ab4e9415ad484a48194b08721cdda65809863b62393",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-R706-390-full.png",
+      "sha256": "efda4dbbd4729ea82d3d49d9221fdeee66e3a32a9fd79e6c19df29def705d0fa",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-R706-390-menu.png",
+      "sha256": "fb146a9a87481dd02381ab5733bae19bcbae5ec6a7dfece366a0e25fb4d4bcb1",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-R706-390-keyboard-focus.png",
+      "sha256": "6b0fdedae2759621769b3c03fdf94e7ee57431f0416860f8d085d899ddbdfe31",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-R706-390-cookie.png",
+      "sha256": "691113a5f5302f335dc1ca529c349caa736d6f50ac91812d2d8f231a987f39e9",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-R706-anchor-evaluation-brief.png",
+      "sha256": "df011b7f01756f7dfa16f515c5ad9ececb1ada28c3bf617296a596d71dd145db",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    }
+  ],
+  "states": [
+    {
+      "width": 1440,
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "height": 4856,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerHeight": 85
+      },
+      "renderedFonts": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-28pt-Bold",
+          "isCustomFont": true,
+          "glyphCount": 64
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "focused": {
+        "text": "Build Your Evaluation Brief",
+        "href": "#evaluation-brief",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 506.71875,
+        "bottom": 558.765625
+      }
+    },
+    {
+      "width": 768,
+      "geometry": {
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 5590,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerHeight": 65
+      },
+      "renderedFonts": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-28pt-Bold",
+          "isCustomFont": true,
+          "glyphCount": 63
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "focused": {
+        "text": "Build Your Evaluation Brief",
+        "href": "#evaluation-brief",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 495.25,
+        "bottom": 547.296875
+      }
+    },
+    {
+      "width": 390,
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 7316,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerHeight": 65
+      },
+      "renderedFonts": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-28pt-Bold",
+          "isCustomFont": true,
+          "glyphCount": 61
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "focused": {
+        "text": "Build Your Evaluation Brief",
+        "href": "#evaluation-brief",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 640.53125,
+        "bottom": 690.921875
+      }
+    }
+  ],
+  "destinations": [
+    {
+      "path": "/products/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products",
+      "siteScope": "tio2-my",
+      "heading": "Titanium Dioxide Pigment Grades for Industrial Applications",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/request-documents/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/request-documents/",
+      "siteScope": "tio2-my",
+      "heading": "Request Documents",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/request-sample/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/request-sample",
+      "siteScope": "tio2-my",
+      "heading": "Request a Titanium Dioxide Sample for Technical Evaluation",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    }
+  ],
+  "consoleEvents": [],
+  "pageErrors": [],
+  "blockedRequests": [],
+  "networkFailures": [],
+  "failures": [],
+  "coverage": {
+    "browser": "chromium",
+    "viewports": "1440x900,768x900,390x844 DPR1",
+    "nativeZoom": "NOT_TESTED",
+    "realDevice": "NOT_TESTED",
+    "screenReader": "NOT_TESTED",
+    "externalSources": "NOT_TESTED",
+    "realFormSubmission": "NOT_PERFORMED",
+    "screenshotReview": "PENDING"
+  }
+}

@@ -1,0 +1,283 @@
+{
+  "id": "RES-CHEMOURS",
+  "time": "2026-09-08T02:57:32.744Z",
+  "buildId": "D5YP7Z4w9KYNlOMkUVr63",
+  "base": "http://127.0.0.1:3236",
+  "source": {
+    "packageId": "RES-CHEMOURS-G6-HANDOFF-02",
+    "packageSha256": "708568bb8c03585856a66e48fc9f98ec53a359564d697f021d5c613c2105bd9c",
+    "bodySha256": "91ae0f0c13701dd9be8f8cdb68fe81781ebd7ad5f6e460ab022ac3466561e5f6",
+    "renderedBodySha256": "e3ef1726ce74cf3f8e9573146fe4ede626906f52d563ef6887346757b56ea7b6",
+    "visualSha256": "0bfcf6283310b7eb14699428e87e1b50aa4aeb8b8ff98bf9ced52fcd45e464d2"
+  },
+  "cms": {
+    "url": "http://127.0.0.1:8187/graphql",
+    "id": "editorial-18562",
+    "recordPageId": "RES-CHEMOURS",
+    "status": "publish",
+    "publishingFields": {
+      "publicPath": "/resources/chemours-titanium-dioxide-alternatives"
+    },
+    "siteScopes": {
+      "nodes": [
+        {
+          "slug": "tio2-my"
+        }
+      ]
+    },
+    "contractSha256": "b22b0e309ee1d57987feb1eb97d7c07f41bbd284242b3f877905e9a7051c57bf",
+    "availableGradePaths": [],
+    "unavailableInternalPaths": []
+  },
+  "captures": [
+    {
+      "filename": "RES-CHEMOURS-1440-full.png",
+      "sha256": "383961e9a04cb78718fb594dccf051a18bf6dcbf87c5e02532ad29aa84490274",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-CHEMOURS-1440-keyboard-focus.png",
+      "sha256": "bcb5f9870a9f362eaaf2ac1ab8e3fca47fc0ed094b3005769f8477c76f5a56e9",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-CHEMOURS-1440-cookie.png",
+      "sha256": "6bcb370808912e5626b6a9771c57f6d77e939da308097345c4030a2d232dc765",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-CHEMOURS-768-full.png",
+      "sha256": "6270920b99195b1fd40106acda50e5ed3b36515ade5a7a962d54dcf43b5b7c54",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-CHEMOURS-768-menu.png",
+      "sha256": "e1cf2194f79afd804234a916c9f62604a40ab3a805051763fd9ac158260bf57e",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-CHEMOURS-768-keyboard-focus.png",
+      "sha256": "fdbcf3a9c7bbe7720c6dce8ffaeb1ebab89d1756413838075c296562f8c4276d",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-CHEMOURS-768-cookie.png",
+      "sha256": "22d64f727721adcd590e2970db26ae46cf8266a9bf248b9e186a64763f2a41a7",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-CHEMOURS-390-full.png",
+      "sha256": "fba90c2dd282b74506ce2a4633b4e1772478adb8ebd32a9809ed5a0520f202fc",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-CHEMOURS-390-menu.png",
+      "sha256": "4f660a5bdee25d6347c9e10d6d58a195d530f1082090b220cd70a4888baae9f2",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-CHEMOURS-390-keyboard-focus.png",
+      "sha256": "a3835f42b571a9d4da0e02531232e7c016548b1526e99d88b4108f48d99b2a8a",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "RES-CHEMOURS-390-cookie.png",
+      "sha256": "bb90e04c1e06fc270c61055d8d58d4b988fcb851672c328841d0c7a4262e8142",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    }
+  ],
+  "states": [
+    {
+      "width": 1440,
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "height": 3050,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerHeight": 84
+      },
+      "renderedFonts": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-28pt-Bold",
+          "isCustomFont": true,
+          "glyphCount": 54
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "focused": {
+        "text": "Resources",
+        "href": "/resources/",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 100,
+        "bottom": 144
+      }
+    },
+    {
+      "width": 1440,
+      "cookieHeading": {
+        "text": "Cookie settings",
+        "color": "rgb(6, 43, 91)",
+        "background": "rgb(255, 255, 255)",
+        "font": "approvedVariableFont, \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "contrast": 13.959419428188236
+      }
+    },
+    {
+      "width": 768,
+      "geometry": {
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 3705,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerHeight": 64
+      },
+      "renderedFonts": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-28pt-Bold",
+          "isCustomFont": true,
+          "glyphCount": 54
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "focused": {
+        "text": "Resources",
+        "href": "/resources/",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 80,
+        "bottom": 124
+      }
+    },
+    {
+      "width": 768,
+      "cookieHeading": {
+        "text": "Cookie settings",
+        "color": "rgb(6, 43, 91)",
+        "background": "rgb(255, 255, 255)",
+        "font": "approvedVariableFont, \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "contrast": 13.959419428188236
+      }
+    },
+    {
+      "width": 390,
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 4553,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerHeight": 64
+      },
+      "renderedFonts": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-28pt-Bold",
+          "isCustomFont": true,
+          "glyphCount": 53
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "focused": {
+        "text": "Resources",
+        "href": "/resources/",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 76,
+        "bottom": 120
+      }
+    },
+    {
+      "width": 390,
+      "cookieHeading": {
+        "text": "Cookie settings",
+        "color": "rgb(6, 43, 91)",
+        "background": "rgb(255, 255, 255)",
+        "font": "approvedVariableFont, \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "contrast": 13.959419428188236
+      }
+    }
+  ],
+  "destinations": [
+    {
+      "path": "/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/",
+      "siteScope": "tio2-my",
+      "heading": "Malaysia Titanium Dioxide for Industrial Buyers",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/resources/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/resources",
+      "siteScope": "tio2-my",
+      "heading": "Resources for Titanium Dioxide Procurement Decisions",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products",
+      "siteScope": "tio2-my",
+      "heading": "Titanium Dioxide Pigment Grades for Industrial Applications",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/request-documents/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/request-documents/",
+      "siteScope": "tio2-my",
+      "heading": "Request Documents",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    }
+  ],
+  "consoleEvents": [
+    {
+      "type": "warning",
+      "text": "The resource http://127.0.0.1:3236/_next/static/css/b299bcc3c5e3e046.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally."
+    },
+    {
+      "type": "warning",
+      "text": "The resource http://127.0.0.1:3236/_next/static/css/a8075e576638a45b.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally."
+    }
+  ],
+  "pageErrors": [],
+  "blockedRequests": [],
+  "networkFailures": [],
+  "failures": [],
+  "coverage": {
+    "browser": "chromium",
+    "viewports": "1440x900,768x900,390x844 DPR1",
+    "nativeZoom": "NOT_TESTED",
+    "realDevice": "NOT_TESTED",
+    "screenReader": "NOT_TESTED",
+    "externalSources": "NOT_TESTED",
+    "realFormSubmission": "NOT_PERFORMED",
+    "screenshotReview": "PENDING"
+  }
+}

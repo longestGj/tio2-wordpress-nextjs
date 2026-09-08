@@ -6,7 +6,7 @@ require_once __DIR__.'/editorial-review.php';
 const TIO2_EDITORIAL_META = '_tio2_my_editorial_contract';
 const TIO2_EDITORIAL_REVIEW_META = '_tio2_my_editorial_review';
 function tio2_editorial_ids(): array {
-    return ['RES-TRADE-EU','RES-TRADE-UK','RES-TRADE-IN','RES-TRADE-BR','APP-COAT','APP-PLAS','APP-MB','APP-INK','APP-PAPER'];
+    return ['RES-TRADE-EU','RES-TRADE-UK','RES-TRADE-IN','RES-TRADE-BR','APP-COAT','APP-PLAS','APP-MB','APP-INK','APP-PAPER','MARKET-EU-DE','MARKET-EU-IT','PRODUCT-PROC-SU','RES-R706','RES-CHEMOURS'];
 }
 function tio2_editorial_config(string $page_id): string {
     if (!in_array($page_id,tio2_editorial_ids(),true)) return '';
@@ -53,6 +53,8 @@ function tio2_editorial_internal_target_registry(): array {
         '/'=>['pageId'=>'HOME-001','resolver'=>'homepage'],
         '/applications/'=>['pageId'=>'APP-000','resolver'=>'unavailable'],
         '/products/'=>['pageId'=>'PRODUCT-000','resolver'=>'product-hub'],
+        '/resources/'=>['pageId'=>'RES-000','resolver'=>'resource-hub'],
+        '/resources/eu-titanium-dioxide-anti-dumping-duty/'=>['pageId'=>'RES-TRADE-EU','resolver'=>'editorial'],
         '/request-a-quote/'=>['pageId'=>'CONV-RFQ','resolver'=>'rfq'],
         '/request-documents/'=>['pageId'=>'CONV-DOC','resolver'=>'documents'],
         '/request-sample/'=>['pageId'=>'CONV-SAMPLE','resolver'=>'sample'],
@@ -94,6 +96,7 @@ function tio2_editorial_internal_target_ready(array $target,string $href): bool 
     $resolver=$target['resolver'];
     try {
         if($resolver==='product-hub' && function_exists('tio2_resolve_malaysia_product_hub_record_json')) $json=tio2_resolve_malaysia_product_hub_record_json();
+        elseif($resolver==='resource-hub' && function_exists('tio2_resolve_malaysia_resource_hub_record_json')) $json=tio2_resolve_malaysia_resource_hub_record_json();
         elseif($resolver==='rfq' && function_exists('tio2_resolve_malaysia_rfq_page_record_json')) $json=tio2_resolve_malaysia_rfq_page_record_json();
         elseif($resolver==='documents' && function_exists('tio2_resolve_malaysia_request_documents_record_json')) $json=tio2_resolve_malaysia_request_documents_record_json();
         elseif($resolver==='sample' && function_exists('tio2_resolve_malaysia_request_sample_record_json')) $json=tio2_resolve_malaysia_request_sample_record_json();
@@ -115,6 +118,11 @@ function tio2_editorial_unavailable_internal_paths(string $page_id,array $payloa
     // Only APP-INK/PAPER C §6 authorizes broad missing-target link suppression.
     // Other Application and Trade contracts retain their non-Grade destinations;
     // an unavailable mandatory route remains a release blocker instead of being masked.
+    if(in_array($page_id,['MARKET-EU-DE','MARKET-EU-IT'],true)) {
+        preg_match_all('~data-conditional-target="(/[^"?#]*)"~',$payload['bodyHtml']??'',$matches);
+        $registry=tio2_editorial_internal_target_registry();
+        return array_values(array_filter(array_unique($matches[1]),static fn(string $href):bool=>!isset($registry[$href]) || !tio2_editorial_internal_target_ready($registry[$href],$href)));
+    }
     if(!in_array($page_id,['APP-INK','APP-PAPER'],true)) return [];
     $registry=tio2_editorial_internal_target_registry();$unavailable=[];
     foreach(tio2_editorial_internal_paths($payload) as $href) {

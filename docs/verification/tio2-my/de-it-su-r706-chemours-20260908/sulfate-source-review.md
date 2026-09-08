@@ -1,0 +1,7 @@
+# Sulfate implementation source check
+
+2026-09-08, D16, `PRODUCT-PROC-SU-G6-HANDOFF-01`. Exact approved [FTC public decision PDF](https://www.ftc.gov/system/files/documents/cases/docket_9377_tronox_et_al_initial_decision_redacted_public_version_0.pdf) returned HTTP 200 at 02:48:15 UTC. Raw transport identity, length and SHA-256 are in `sulfate-source-http.json`; the downloaded file is ignored scratch, not a new public download.
+
+Read the downloaded 128-page PDF with pypdf. Physical page 10 (printed page 6) and physical page 67 (printed page 63, findings 4–5) describe sulfuric acid and batch processing of feedstock, with a subsequent extraction/treatment stage. These passages support the approved page's limited general process description. This is not product-specific evidence about the five IKHLAS Grades. No market, regulatory, performance, superiority or interchangeability conclusion is imported from this historical litigation record.
+
+The initial web extraction identified the intended FTC Docket 9377 document; later web find/open calls failed, so predicate checking used the actual successful HTTP download instead. Text extraction is not visual-layout validation. The visible approved source-review date remains 6 September 2026. This current bounded check found no contradiction to the cited general process description and does not close independent Gate 9, current legal status, or publication approval.

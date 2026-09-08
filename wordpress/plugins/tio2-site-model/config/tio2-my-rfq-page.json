@@ -104,7 +104,7 @@
     "allowedTypes": ["WebPage", "BreadcrumbList"]
   },
   "prefill": {
-    "approvedSourcePageIds": ["PRODUCT-000", "PRODUCT-PROC-CL", "MARKET-EU-001", "MARKET-UK-001", "MARKET-EU-PL", "MARKET-EU-ES", "MARKET-IN-001", "MARKET-EU-NL", "MARKET-EU-BE", "MARKET-BR-EN", "MARKET-BR-PT"],
+    "approvedSourcePageIds": ["PRODUCT-000", "PRODUCT-PROC-CL", "MARKET-EU-001", "MARKET-UK-001", "MARKET-EU-PL", "MARKET-EU-ES", "MARKET-IN-001", "MARKET-EU-NL", "MARKET-EU-BE", "MARKET-BR-EN", "MARKET-BR-PT", "MARKET-EU-DE", "MARKET-EU-IT", "PRODUCT-PROC-SU"],
     "approvedProcessContexts": ["Sulfate"],
     "approvedDocumentLabels": ["TDS", "SDS", "COA", "COO"],
     "approvedResourceContexts": ["Packaging review"]

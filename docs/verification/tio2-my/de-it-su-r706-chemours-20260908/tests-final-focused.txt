@@ -1,0 +1,99 @@
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/de-it-su-r706-chemours-gate8
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'RES-TRADE-EU' editorial content and its Malaysia route
+[tio2-revalidation] {
+  siteId: 'tio2-my',
+  contentId: 456,
+  paths: [ '/resources/eu-titanium-dioxide-anti-dumping-duty' ]
+}
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'RES-TRADE-UK' editorial content and its Malaysia route
+[tio2-revalidation] {
+  siteId: 'tio2-my',
+  contentId: 456,
+  paths: [ '/resources/uk-titanium-dioxide-anti-dumping-investigation' ]
+}
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'RES-TRADE-IN' editorial content and its Malaysia route
+[tio2-revalidation] {
+  siteId: 'tio2-my',
+  contentId: 456,
+  paths: [ '/resources/india-titanium-dioxide-anti-dumping-duty' ]
+}
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'RES-TRADE-BR' editorial content and its Malaysia route
+[tio2-revalidation] {
+  siteId: 'tio2-my',
+  contentId: 456,
+  paths: [ '/resources/brazil-titanium-dioxide-anti-dumping-duty' ]
+}
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'APP-COAT' editorial content and its Malaysia route
+[tio2-revalidation] {
+  siteId: 'tio2-my',
+  contentId: 456,
+  paths: [ '/applications/titanium-dioxide-for-coatings' ]
+}
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'APP-PLAS' editorial content and its Malaysia route
+[tio2-revalidation] {
+  siteId: 'tio2-my',
+  contentId: 456,
+  paths: [ '/applications/titanium-dioxide-for-plastics' ]
+}
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'APP-MB' editorial content and its Malaysia route
+[tio2-revalidation] {
+  siteId: 'tio2-my',
+  contentId: 456,
+  paths: [ '/applications/titanium-dioxide-for-masterbatch' ]
+}
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'APP-INK' editorial content and its Malaysia route
+[tio2-revalidation] {
+  siteId: 'tio2-my',
+  contentId: 456,
+  paths: [ '/applications/titanium-dioxide-for-printing-inks' ]
+}
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'APP-PAPER' editorial content and its Malaysia route
+[tio2-revalidation] {
+  siteId: 'tio2-my',
+  contentId: 456,
+  paths: [ '/applications/titanium-dioxide-for-paper' ]
+}
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'MARKET-EU-DE' editorial content and its Malaysia route
+[tio2-revalidation] { siteId: 'tio2-my', contentId: 456, paths: [ '/markets/germany' ] }
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'MARKET-EU-IT' editorial content and its Malaysia route
+[tio2-revalidation] { siteId: 'tio2-my', contentId: 456, paths: [ '/markets/italy' ] }
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'PRODUCT-PROC-SU' editorial content and its Malaysia route
+[tio2-revalidation] {
+  siteId: 'tio2-my',
+  contentId: 456,
+  paths: [ '/products/sulfate-process-titanium-dioxide' ]
+}
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'RES-R706' editorial content and its Malaysia route
+[tio2-revalidation] {
+  siteId: 'tio2-my',
+  contentId: 456,
+  paths: [ '/resources/ti-pure-r-706-alternative' ]
+}
+
+stdout | tests/integration/editorial/editorial-revalidation.test.ts > invalidates only 'RES-CHEMOURS' editorial content and its Malaysia route
+[tio2-revalidation] {
+  siteId: 'tio2-my',
+  contentId: 456,
+  paths: [ '/resources/chemours-titanium-dioxide-alternatives' ]
+}
+
+·······································
+
+ Test Files  4 passed (4)
+      Tests  39 passed (39)
+   Start at  10:58:24
+   Duration  2.69s (transform 1.26s, setup 1.44s, import 2.44s, tests 1.82s, environment 1.59s)

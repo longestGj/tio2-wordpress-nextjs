@@ -1,0 +1,301 @@
+{
+  "id": "PRODUCT-PROC-SU",
+  "time": "2026-09-08T02:49:52.340Z",
+  "buildId": "olH5kVkkyEhmfGAHQ_2SJ",
+  "base": "http://127.0.0.1:3236",
+  "source": {
+    "packageId": "PRODUCT-PROC-SU-G6-HANDOFF-01",
+    "packageSha256": "343a220cb92d058a6c8914c4e30af405d619076b14ec96eb06a2e59ef0b7f192",
+    "bodySha256": "8534c95765d8cb7869a686f20963f862f9f155555b49d6ada17fa5e310304fda",
+    "visualSha256": "e17a3fafb143b2a9c7d9b72661093bdb237d453c162b6a7f38feb209cbea485c",
+    "renderedBodySha256": "c9ab0da2cbd66f3631a6fc74564218bf06d84538796b52cc0a230afd623a4eb0"
+  },
+  "cms": {
+    "url": "http://127.0.0.1:8187/graphql",
+    "id": "editorial-18558",
+    "recordPageId": "PRODUCT-PROC-SU",
+    "status": "publish",
+    "publishingFields": {
+      "publicPath": "/products/sulfate-process-titanium-dioxide"
+    },
+    "siteScopes": {
+      "nodes": [
+        {
+          "slug": "tio2-my"
+        }
+      ]
+    },
+    "contractSha256": "c0b2c1818e9d6d1b5fc6188585442782347f9761a5fc7bb32a18f0ab236868f9",
+    "availableGradePaths": [
+      "/products/m-996/",
+      "/products/m-2196/",
+      "/products/m-108/",
+      "/products/m-52/",
+      "/products/m-2377/"
+    ],
+    "unavailableInternalPaths": []
+  },
+  "captures": [
+    {
+      "filename": "PRODUCT-PROC-SU-1440-full.png",
+      "sha256": "75aa0b7df21aecb5c7023c1965599524990fcaf629f964ba5cf3a007313b949e",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-1440-keyboard-focus.png",
+      "sha256": "55fe00ddfbb0b96121900e31111869ffcbb67f18b4212cb6ad2865588810b2c5",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-1440-cookie.png",
+      "sha256": "8aa0e8ad35538088874c036aa2a87592bcc1e6701d796c7f22a5c4041affa91e",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-768-full.png",
+      "sha256": "19738057587ee1aa5bb117bf720a3a7666043d331e548e9f2fd0ae8a4065a225",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-768-menu.png",
+      "sha256": "0806c33689782fd034c57bba1cf2fe6701720b62999b24df44e9628ef6fed51a",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-768-keyboard-focus.png",
+      "sha256": "d080bfa8bde23e0208712c76c648ff75363b0becb9ba01065df1c39730b98c50",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-768-cookie.png",
+      "sha256": "de0a2ca9fc6deac10bb264b372e88d2c4635d6b9e9a6a9bb939ceb3e688ce3a2",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-full.png",
+      "sha256": "b044d68c16c6267691b34437635573dd8dc5c73c5c439ee0b2be389d5a1b5d2c",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-menu.png",
+      "sha256": "2e91993f43d11a376e9012d7c720680b2af87289039a200478d4c301a096353c",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-keyboard-focus.png",
+      "sha256": "004c4d1d276cd6495118b1df2894467f23d37a69247c03d7664a31555276d349",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-cookie.png",
+      "sha256": "ad3324badd0b4797de90bfe090b991762eb4ee448b87b26475451c9530fdeef9",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-anchor-sulfate-grades.png",
+      "sha256": "96a1ad739a9af38b299d634da72906f9afdfa50de3fb74079605470749d4b27b",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    }
+  ],
+  "states": [
+    {
+      "width": 1440,
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "height": 3545,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerHeight": 85
+      }
+    },
+    {
+      "width": 1440,
+      "focused": {
+        "text": "Products",
+        "href": "/products/",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 105,
+        "bottom": 149
+      }
+    },
+    {
+      "width": 768,
+      "geometry": {
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 4425,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerHeight": 65
+      }
+    },
+    {
+      "width": 768,
+      "focused": {
+        "text": "Products",
+        "href": "/products/",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 85,
+        "bottom": 129
+      }
+    },
+    {
+      "width": 390,
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 5412,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerHeight": 65
+      }
+    },
+    {
+      "width": 390,
+      "focused": {
+        "text": "Products",
+        "href": "/products/",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 85,
+        "bottom": 129
+      }
+    }
+  ],
+  "destinations": [
+    {
+      "path": "/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/",
+      "siteScope": "tio2-my",
+      "heading": "Malaysia Titanium Dioxide for Industrial Buyers",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products",
+      "siteScope": "tio2-my",
+      "heading": "Titanium Dioxide Pigment Grades for Industrial Applications",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/request-a-quote/?source_page_id=PRODUCT-PROC-SU",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/request-a-quote?source_page_id=PRODUCT-PROC-SU",
+      "siteScope": "tio2-my",
+      "heading": "Request a Titanium Dioxide Quote",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/m-996/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products/m-996",
+      "siteScope": "tio2-my",
+      "heading": "M-996 Titanium Dioxide for Industrial, Powder and Architectural Coatings",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/m-2196/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products/m-2196",
+      "siteScope": "tio2-my",
+      "heading": "M-2196 Titanium Dioxide for Solvent-Based Furniture and Industrial Paint",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/m-108/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products/m-108",
+      "siteScope": "tio2-my",
+      "heading": "M-108 Titanium Dioxide for Plastics and Masterbatch Evaluation",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/m-52/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products/m-52",
+      "siteScope": "tio2-my",
+      "heading": "M-52 Titanium Dioxide for Printing Inks and Coatings Evaluation",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/m-2377/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products/m-2377",
+      "siteScope": "tio2-my",
+      "heading": "M-2377 Titanium Dioxide for Coatings, Plastics, Masterbatch, Inks and Paper",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/applications/",
+      "status": 404,
+      "actualUrl": "http://127.0.0.1:3236/applications",
+      "siteScope": null,
+      "heading": null,
+      "disposition": "OPEN_DEPENDENCY"
+    },
+    {
+      "path": "/request-documents/?source_page_id=PRODUCT-PROC-SU",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/request-documents/?source_page_id=PRODUCT-PROC-SU",
+      "siteScope": "tio2-my",
+      "heading": "Request Documents",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/resources/chloride-vs-sulfate-titanium-dioxide/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/resources/chloride-vs-sulfate-titanium-dioxide",
+      "siteScope": "tio2-my",
+      "heading": "Chloride vs Sulfate Titanium Dioxide: A Buyer’s Evaluation Guide",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    }
+  ],
+  "consoleEvents": [
+    {
+      "type": "warning",
+      "text": "The resource http://127.0.0.1:3236/_next/static/css/b299bcc3c5e3e046.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally."
+    },
+    {
+      "type": "warning",
+      "text": "The resource http://127.0.0.1:3236/_next/static/css/a8075e576638a45b.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally."
+    }
+  ],
+  "pageErrors": [],
+  "blockedRequests": [],
+  "networkFailures": [],
+  "failures": [
+    "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"Inter\"\u001b[39m\nReceived string:    \u001b[31m\"approvedVariableFont, \\\"approvedVariableFont Fallback\\\", Arial, sans-serif\"\u001b[39m",
+    "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"Inter\"\u001b[39m\nReceived string:    \u001b[31m\"approvedVariableFont, \\\"approvedVariableFont Fallback\\\", Arial, sans-serif\"\u001b[39m",
+    "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"Inter\"\u001b[39m\nReceived string:    \u001b[31m\"approvedVariableFont, \\\"approvedVariableFont Fallback\\\", Arial, sans-serif\"\u001b[39m"
+  ],
+  "coverage": {
+    "browser": "chromium",
+    "viewports": "1440x900,768x900,390x844 DPR1",
+    "nativeZoom": "NOT_TESTED",
+    "realDevice": "NOT_TESTED",
+    "screenReader": "NOT_TESTED",
+    "externalSources": "NOT_TESTED",
+    "realFormSubmission": "NOT_PERFORMED",
+    "screenshotReview": "PENDING"
+  }
+}

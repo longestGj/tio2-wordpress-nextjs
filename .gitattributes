@@ -5,3 +5,17 @@ tests/fixtures/documents/doc-tds/gate7/DOC-TDS_GATE7_SOURCE_PAYLOAD_V0.1.json -t
 wordpress/plugins/tio2-site-model/config/tio2-my-document-tds.json -text
 docs/verification/document-reach/*.json text eol=lf
 docs/verification/market-uk-001/** -text
+docs/verification/tio2-my/de-it-su-r706-chemours-20260908/alternatives-freshness.md text eol=lf
+docs/verification/tio2-my/de-it-su-r706-chemours-20260908/alternatives-source-bindings.json text eol=lf
+wordpress/plugins/tio2-site-model/config/tio2-my-editorial-market-eu-de.json text eol=lf
+wordpress/plugins/tio2-site-model/config/tio2-my-editorial-market-eu-it.json text eol=lf
+wordpress/plugins/tio2-site-model/config/tio2-my-editorial-product-proc-su.json text eol=lf
+wordpress/plugins/tio2-site-model/config/tio2-my-editorial-res-r706.json text eol=lf
+wordpress/plugins/tio2-site-model/config/tio2-my-editorial-res-chemours.json text eol=lf
+components/sites/tio2-my/editorial/market-eu-de.css text eol=lf
+components/sites/tio2-my/editorial/market-eu-it.css text eol=lf
+components/sites/tio2-my/editorial/product-proc-su.css text eol=lf
+components/sites/tio2-my/editorial/res-r706.css text eol=lf
+components/sites/tio2-my/editorial/res-chemours.css text eol=lf
+app/(en)/resources/ti-pure-r-706-alternative/page.tsx text eol=lf
+app/(en)/resources/chemours-titanium-dioxide-alternatives/page.tsx text eol=lf

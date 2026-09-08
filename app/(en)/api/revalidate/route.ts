@@ -254,7 +254,10 @@ export async function POST(request: Request): Promise<Response> {
       !productIdentityByPath.has(path) &&
       !(
         currentSite.id === 'tio2-my' &&
-        path === '/products/chloride-process-titanium-dioxide'
+        (
+          path === '/products/chloride-process-titanium-dioxide' ||
+          editorialPageIdForPath(path) === 'PRODUCT-PROC-SU'
+        )
       ),
   )
   if (unapprovedProductPath) {

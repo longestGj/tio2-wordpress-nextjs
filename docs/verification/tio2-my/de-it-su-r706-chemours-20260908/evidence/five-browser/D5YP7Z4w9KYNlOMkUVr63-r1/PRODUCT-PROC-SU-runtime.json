@@ -1,0 +1,351 @@
+{
+  "id": "PRODUCT-PROC-SU",
+  "time": "2026-09-08T02:57:22.288Z",
+  "buildId": "D5YP7Z4w9KYNlOMkUVr63",
+  "base": "http://127.0.0.1:3236",
+  "source": {
+    "packageId": "PRODUCT-PROC-SU-G6-HANDOFF-01",
+    "packageSha256": "343a220cb92d058a6c8914c4e30af405d619076b14ec96eb06a2e59ef0b7f192",
+    "bodySha256": "8534c95765d8cb7869a686f20963f862f9f155555b49d6ada17fa5e310304fda",
+    "visualSha256": "e17a3fafb143b2a9c7d9b72661093bdb237d453c162b6a7f38feb209cbea485c",
+    "renderedBodySha256": "c9ab0da2cbd66f3631a6fc74564218bf06d84538796b52cc0a230afd623a4eb0"
+  },
+  "cms": {
+    "url": "http://127.0.0.1:8187/graphql",
+    "id": "editorial-18558",
+    "recordPageId": "PRODUCT-PROC-SU",
+    "status": "publish",
+    "publishingFields": {
+      "publicPath": "/products/sulfate-process-titanium-dioxide"
+    },
+    "siteScopes": {
+      "nodes": [
+        {
+          "slug": "tio2-my"
+        }
+      ]
+    },
+    "contractSha256": "c0b2c1818e9d6d1b5fc6188585442782347f9761a5fc7bb32a18f0ab236868f9",
+    "availableGradePaths": [
+      "/products/m-996/",
+      "/products/m-2196/",
+      "/products/m-108/",
+      "/products/m-52/",
+      "/products/m-2377/"
+    ],
+    "unavailableInternalPaths": []
+  },
+  "captures": [
+    {
+      "filename": "PRODUCT-PROC-SU-1440-full.png",
+      "sha256": "8cc97c201e8fafa21cf6f52a2ea1ce61bd25b8422ec07e81c748ddff4daf3815",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-1440-keyboard-focus.png",
+      "sha256": "550d49a5fd4feb45b07beba63f79d9a91fc4387cb808ca5dcf2293d34a2af00f",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-1440-cookie.png",
+      "sha256": "d444ff3a8ce92fbdbdae8987b88b073b87b98490f3c066889442716c6d74527e",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-768-full.png",
+      "sha256": "325de14c0627b28d4e7bfab036afc9fefc821a0c733aadd3b326a211d136e2eb",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-768-menu.png",
+      "sha256": "0386544419a030d1f777afac0c12ed3c7625ff262510f3991bbc24f57af8d576",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-768-keyboard-focus.png",
+      "sha256": "5713e379f0a98fdd7f89752efc2b05d499955014f0918e142a637a78fdab701e",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-768-cookie.png",
+      "sha256": "b3ab40833f71586b29f880d0a721cf5ee477421f7114011753c9c59b4fa8fce6",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-full.png",
+      "sha256": "003c0852a874d8dfeb0aa0f838477426266ac31af49eacf1c672b0e3da6794e9",
+      "kind": "full-page",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-menu.png",
+      "sha256": "5f664f0997121b5346122040fc09671607a38dd5d69ff9d994228e4df0c17a14",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-keyboard-focus.png",
+      "sha256": "cfbb6c449f8c8b07219cc1f999c5349cd6cc05718f4f13c27431f73391ffda49",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-cookie.png",
+      "sha256": "b26226a38dc60fd7154bc5231be9e78a8fe842efae7d9d02d68fcface7df7786",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-anchor-sulfate-grades.png",
+      "sha256": "96a1ad739a9af38b299d634da72906f9afdfa50de3fb74079605470749d4b27b",
+      "kind": "viewport",
+      "actualVisualReview": "PENDING"
+    }
+  ],
+  "states": [
+    {
+      "width": 1440,
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "height": 3544,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerHeight": 84
+      },
+      "renderedFonts": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-28pt-Bold",
+          "isCustomFont": true,
+          "glyphCount": 32
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "focused": {
+        "text": "Products",
+        "href": "/products/",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 104,
+        "bottom": 148
+      }
+    },
+    {
+      "width": 1440,
+      "cookieHeading": {
+        "text": "Cookie settings",
+        "color": "rgb(6, 43, 91)",
+        "background": "rgb(255, 255, 255)",
+        "font": "approvedVariableFont, \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "contrast": 13.959419428188236
+      }
+    },
+    {
+      "width": 768,
+      "geometry": {
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 4424,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerHeight": 64
+      },
+      "renderedFonts": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-28pt-Bold",
+          "isCustomFont": true,
+          "glyphCount": 32
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "focused": {
+        "text": "Products",
+        "href": "/products/",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 84,
+        "bottom": 128
+      }
+    },
+    {
+      "width": 768,
+      "cookieHeading": {
+        "text": "Cookie settings",
+        "color": "rgb(6, 43, 91)",
+        "background": "rgb(255, 255, 255)",
+        "font": "approvedVariableFont, \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "contrast": 13.959419428188236
+      }
+    },
+    {
+      "width": 390,
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 5411,
+        "dpr": 1,
+        "mainFont": "approvedVariableFont, \"approvedVariableFont Fallback\", Arial, sans-serif",
+        "headerHeight": 64
+      },
+      "renderedFonts": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-28pt-Bold",
+          "isCustomFont": true,
+          "glyphCount": 31
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "focused": {
+        "text": "Products",
+        "href": "/products/",
+        "visible": true,
+        "outline": "solid",
+        "width": "3px",
+        "top": 84,
+        "bottom": 128
+      }
+    },
+    {
+      "width": 390,
+      "cookieHeading": {
+        "text": "Cookie settings",
+        "color": "rgb(6, 43, 91)",
+        "background": "rgb(255, 255, 255)",
+        "font": "approvedVariableFont, \"approvedVariableFont Fallback\", Inter, Arial, sans-serif",
+        "contrast": 13.959419428188236
+      }
+    }
+  ],
+  "destinations": [
+    {
+      "path": "/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/",
+      "siteScope": "tio2-my",
+      "heading": "Malaysia Titanium Dioxide for Industrial Buyers",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products",
+      "siteScope": "tio2-my",
+      "heading": "Titanium Dioxide Pigment Grades for Industrial Applications",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/request-a-quote/?source_page_id=PRODUCT-PROC-SU",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/request-a-quote?source_page_id=PRODUCT-PROC-SU",
+      "siteScope": "tio2-my",
+      "heading": "Request a Titanium Dioxide Quote",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/m-996/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products/m-996",
+      "siteScope": "tio2-my",
+      "heading": "M-996 Titanium Dioxide for Industrial, Powder and Architectural Coatings",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/m-2196/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products/m-2196",
+      "siteScope": "tio2-my",
+      "heading": "M-2196 Titanium Dioxide for Solvent-Based Furniture and Industrial Paint",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/m-108/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products/m-108",
+      "siteScope": "tio2-my",
+      "heading": "M-108 Titanium Dioxide for Plastics and Masterbatch Evaluation",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/m-52/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products/m-52",
+      "siteScope": "tio2-my",
+      "heading": "M-52 Titanium Dioxide for Printing Inks and Coatings Evaluation",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/products/m-2377/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/products/m-2377",
+      "siteScope": "tio2-my",
+      "heading": "M-2377 Titanium Dioxide for Coatings, Plastics, Masterbatch, Inks and Paper",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/applications/",
+      "status": 404,
+      "actualUrl": "http://127.0.0.1:3236/applications",
+      "siteScope": null,
+      "heading": null,
+      "disposition": "OPEN_DEPENDENCY"
+    },
+    {
+      "path": "/request-documents/?source_page_id=PRODUCT-PROC-SU",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/request-documents/?source_page_id=PRODUCT-PROC-SU",
+      "siteScope": "tio2-my",
+      "heading": "Request Documents",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    },
+    {
+      "path": "/resources/chloride-vs-sulfate-titanium-dioxide/",
+      "status": 200,
+      "actualUrl": "http://127.0.0.1:3236/resources/chloride-vs-sulfate-titanium-dioxide",
+      "siteScope": "tio2-my",
+      "heading": "Chloride vs Sulfate Titanium Dioxide: A Buyer’s Evaluation Guide",
+      "disposition": "RESPONSE_OBSERVED_NOT_RELEASE_APPROVAL"
+    }
+  ],
+  "consoleEvents": [
+    {
+      "type": "warning",
+      "text": "The resource http://127.0.0.1:3236/_next/static/css/b299bcc3c5e3e046.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally."
+    },
+    {
+      "type": "warning",
+      "text": "The resource http://127.0.0.1:3236/_next/static/css/a8075e576638a45b.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally."
+    }
+  ],
+  "pageErrors": [],
+  "blockedRequests": [],
+  "networkFailures": [],
+  "failures": [],
+  "coverage": {
+    "browser": "chromium",
+    "viewports": "1440x900,768x900,390x844 DPR1",
+    "nativeZoom": "NOT_TESTED",
+    "realDevice": "NOT_TESTED",
+    "screenReader": "NOT_TESTED",
+    "externalSources": "NOT_TESTED",
+    "realFormSubmission": "NOT_PERFORMED",
+    "screenshotReview": "PENDING"
+  }
+}

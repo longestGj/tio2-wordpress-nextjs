@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "alternatives-source-bindings-v0.1",
+  "siteScope": "tio2-my",
+  "planningPathsAreBuildTimeOnly": true,
+  "pages": [
+    {
+      "pageId": "RES-R706",
+      "siteScope": "tio2-my",
+      "sources": {
+        "package": {
+          "path": "pages/resources/r706-alternative/06_handoff/RES-R706_GATE6_HANDOFF_PACKAGE_V0.2.md",
+          "sha256": "6b94e44cd514edee1adb6ab09bd2d45950509cffd3c6282e79ca3cb05ebd110c",
+          "bytes": 20631
+        },
+        "body": {
+          "path": "pages/resources/r706-alternative/04_planning/RES-R706_GATE2_FULL_BUYER_CLEAN_COPY_V0.3.md",
+          "sha256": "e19dcd07107cd20a368377abadaf607a4945f9a8614d96b3a7eeda894e40419b",
+          "bytes": 7084
+        },
+        "contract": {
+          "path": "pages/resources/r706-alternative/04_planning/RES-R706_GATE2_CONTENT_CONTRACT_V0.3.md",
+          "sha256": "dd48986e8f020f22448fc77d92b694300a5556d93bf305e091915eba552a452b",
+          "bytes": 6156
+        },
+        "visual": {
+          "path": "pages/resources/r706-alternative/04_planning/gate4-v0.1/RES-R706_GATE4_COMPLETE_VISUAL_V0.1.html",
+          "sha256": "decf85559122c536ee51b3b6da0a3f3165e9e8542a771b0c279382ec229e5041",
+          "bytes": 23830
+        }
+      },
+      "comparedBuyerBlocks": 48,
+      "outputs": {
+        "config": {
+          "path": "wordpress/plugins/tio2-site-model/config/tio2-my-editorial-res-r706.json",
+          "sha256": "bd88cd0f8673ffd290c69bac9b1e16c7aa38cb1e57bf9344b5b5ea56188a81a4"
+        },
+        "css": {
+          "path": "components/sites/tio2-my/editorial/res-r706.css",
+          "sha256": "b7e16f3822d6ab6fb676b2707aec136053ac4c013c9438a03129f9e2efd67bd4"
+        },
+        "route": {
+          "path": "app/(en)/resources/ti-pure-r-706-alternative/page.tsx",
+          "sha256": "c75a5b12772540112fb97b629cba8aa2174f760f526087687aadc28c5ba6774f"
+        }
+      },
+      "renderedBodySha256": "8515a9bd29497445a458e0fed0b4293a78459cf3c078675a263715f6938bf30a",
+      "differences": [
+        "Frozen main content retained; shared chrome/scripts/assets excluded.",
+        "Page-only CSS scoped to Page ID; Inter consumes shared runtime font.",
+        "Candidate canonical and JSON-LD omitted pending specific authority.",
+        "Visible source review date unchanged; 90-day due 2026-12-05 is operational, not public copy."
+      ]
+    },
+    {
+      "pageId": "RES-CHEMOURS",
+      "siteScope": "tio2-my",
+      "sources": {
+        "package": {
+          "path": "pages/resources/chemours-alternatives/06_handoff/RES-CHEMOURS_GATE6_HANDOFF_PACKAGE_V0.2.md",
+          "sha256": "708568bb8c03585856a66e48fc9f98ec53a359564d697f021d5c613c2105bd9c",
+          "bytes": 20180
+        },
+        "body": {
+          "path": "pages/resources/chemours-alternatives/04_planning/RES-CHEMOURS_GATE2_FULL_BUYER_CLEAN_COPY_V0.3.md",
+          "sha256": "91ae0f0c13701dd9be8f8cdb68fe81781ebd7ad5f6e460ab022ac3466561e5f6",
+          "bytes": 3369
+        },
+        "contract": {
+          "path": "pages/resources/chemours-alternatives/04_planning/RES-CHEMOURS_GATE2_CONTENT_CONTRACT_V0.7.md",
+          "sha256": "ab5ba6f7db66dd411974251dbfcb7201ea9bbf92928f638d2619cfc173ffaea4",
+          "bytes": 4905
+        },
+        "visual": {
+          "path": "pages/resources/chemours-alternatives/04_planning/gate4-v0.1/RES-CHEMOURS_GATE4_COMPLETE_VISUAL_V0.1.html",
+          "sha256": "0bfcf6283310b7eb14699428e87e1b50aa4aeb8b8ff98bf9ced52fcd45e464d2",
+          "bytes": 20463
+        }
+      },
+      "comparedBuyerBlocks": 32,
+      "outputs": {
+        "config": {
+          "path": "wordpress/plugins/tio2-site-model/config/tio2-my-editorial-res-chemours.json",
+          "sha256": "b22b0e309ee1d57987feb1eb97d7c07f41bbd284242b3f877905e9a7051c57bf"
+        },
+        "css": {
+          "path": "components/sites/tio2-my/editorial/res-chemours.css",
+          "sha256": "7f7e672b5894773f3e20be452b22046827b4ba2d8d4a4330382a89a64377b002"
+        },
+        "route": {
+          "path": "app/(en)/resources/chemours-titanium-dioxide-alternatives/page.tsx",
+          "sha256": "8a479ce712c97dcb09a0f0c73f8204e11a73320d9349f237235e2ff8485bdf69"
+        }
+      },
+      "renderedBodySha256": "e3ef1726ce74cf3f8e9573146fe4ede626906f52d563ef6887346757b56ea7b6",
+      "differences": [
+        "Frozen main content retained; shared chrome/scripts/assets excluded.",
+        "Page-only CSS scoped to Page ID; Inter consumes shared runtime font.",
+        "Candidate canonical and JSON-LD omitted pending specific authority.",
+        "Visible source review date unchanged; 90-day due 2026-12-05 is operational, not public copy."
+      ]
+    }
+  ]
+}

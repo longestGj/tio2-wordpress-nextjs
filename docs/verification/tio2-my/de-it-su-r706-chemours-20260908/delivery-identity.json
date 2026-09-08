@@ -1,0 +1,32 @@
+{
+  "taskId": "G8-DE-IT-SU-R706-CHEMOURS-20260908-01",
+  "siteId": "tio2-my",
+  "environment": "local",
+  "branch": "codex/de-it-su-r706-chemours-gate8",
+  "baseCommit": "84db14ee35fe118415bff8327f202ee712e7599c",
+  "implementationCommit": "3cb56f4ed3afe0e938aed4f2fe311a35c4c63f28",
+  "evidenceCommit": "fcd4992e7d12e9024c57c0fbb9538c1b927b978c",
+  "build": {
+    "id": "D5YP7Z4w9KYNlOMkUVr63",
+    "directory": ".next-five-fixed",
+    "frontendUrl": "http://127.0.0.1:3236",
+    "pid": 49532,
+    "verifiedAt": "2026-09-08T11:17:36.7212225+08:00"
+  },
+  "cms": {
+    "dockerProject": "tio2my5",
+    "graphqlUrl": "http://127.0.0.1:8187/graphql",
+    "recordIds": [18554, 18556, 18558, 18560, 18562]
+  },
+  "pages": [
+    {"pageId": "MARKET-EU-DE", "path": "/markets/germany/"},
+    {"pageId": "MARKET-EU-IT", "path": "/markets/italy/"},
+    {"pageId": "PRODUCT-PROC-SU", "path": "/products/sulfate-process-titanium-dioxide/"},
+    {"pageId": "RES-R706", "path": "/resources/ti-pure-r-706-alternative/"},
+    {"pageId": "RES-CHEMOURS", "path": "/resources/chemours-titanium-dioxide-alternatives/"}
+  ],
+  "runtimeChecks": {
+    "fiveFrontendRoutesHttp200": true,
+    "cmsGraphqlHttp200": true
+  }
+}

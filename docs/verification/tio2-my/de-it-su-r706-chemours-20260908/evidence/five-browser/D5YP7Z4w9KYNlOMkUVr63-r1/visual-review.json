@@ -1,0 +1,440 @@
+{
+  "date": "2026-09-08T02:59:31.773Z",
+  "siteScope": "tio2-my",
+  "buildId": "D5YP7Z4w9KYNlOMkUVr63",
+  "base": "http://127.0.0.1:3236",
+  "cms": "http://127.0.0.1:8187/graphql",
+  "reviewer": "/root/sulfate_intake",
+  "result": "BOUNDED_D16_TECHNICAL_BROWSER_REVIEW_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+  "independentGate9Approval": false,
+  "publishingAuthorization": false,
+  "suite": {
+    "file": "tests/e2e/editorial-five.spec.ts",
+    "sha256": "f4c36e2932be189966b3e5a60e4ad22d2f64304578a1304c0d28f4be16f20696",
+    "passed": 6,
+    "failed": 0,
+    "durationSeconds": 34.9
+  },
+  "screenshots": [
+    {
+      "filename": "MARKET-EU-DE-1440-full.png",
+      "sha256": "741da478d194789773e1a1aa05f009f61073acaa5bb2c475a1fe61843084647f",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "MARKET-EU-DE-1440-keyboard-focus.png",
+      "sha256": "b7afeb380f211a36c7150b1335c6cb70eb3a0f16b8d81d3cf11ff6aae360e73e",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-DE-1440-cookie.png",
+      "sha256": "8911b377be62ff7d3f1d6bbab399a13b4f1eb532a55ecb22565fb48ce02af5e6",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-DE-768-full.png",
+      "sha256": "51e954bb007f5a9c742646377fd857ae4a80e34e75ff8959686cbd603c228bc4",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "MARKET-EU-DE-768-menu.png",
+      "sha256": "1e3041cf284996cc2bdf3cc04636ff1490cc42e05ae8402c39549b70c784fea6",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-DE-768-keyboard-focus.png",
+      "sha256": "2ef60516af4a5ddc8643c278bbcd1ce5e7b4a160a1d86de4b51c1fcae630cc7f",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-DE-768-cookie.png",
+      "sha256": "516c2879cd406660837ff049102a8f6a1faa8e77a9177628031ab33a5e08503a",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-DE-390-full.png",
+      "sha256": "09d5df5c625414f169952f0fe79ad314473f6dc67f7174f7da0b4100331bfdc4",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "MARKET-EU-DE-390-menu.png",
+      "sha256": "2f5e57e56a440a41421fe919f041425b6a50e018ee7cf59ae7276f39ed7ea78f",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-DE-390-keyboard-focus.png",
+      "sha256": "572a8d04eca21a99e05109e4631c9603bd6720eed0ab380a81894d1d68136f45",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-DE-390-cookie.png",
+      "sha256": "938ee818080151a2fc7ac3436ece6a031bf2d8a09c5a25898db8eff72035ce15",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-IT-1440-full.png",
+      "sha256": "bf22aa6617302bd806e4816a11179a0e9dd3473f84e188272e609b6e04e73a1c",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "MARKET-EU-IT-1440-keyboard-focus.png",
+      "sha256": "dd9b9141d2a1ca72691f402bf7af31bdf14b82cb6881f3cfcf7b9b73d5d5ab44",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-IT-1440-cookie.png",
+      "sha256": "c6af3409b9a525c51213d2713c3ec4563eb6b96cadc36a60d08e8c03e340a3d1",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-IT-768-full.png",
+      "sha256": "dbe97fe5ac484e11dab0d1c8f685d4bf7ef442c6021abf308cfd82b655750217",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "MARKET-EU-IT-768-menu.png",
+      "sha256": "e99879566b1a12c37eaab30708ae9b42bb15db4183ed1ebe8891561f6a912b22",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-IT-768-keyboard-focus.png",
+      "sha256": "46cb64fc257022f99954cab7e2e5f45613d6abd426a6939b97a456c6d81b0cec",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-IT-768-cookie.png",
+      "sha256": "7a0b17fe745b373caa19c710ff7ff722a30a48fe6710d3a4f263772f9af39874",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-IT-390-full.png",
+      "sha256": "cfba83c698eef9990498526ea9aa5ab12b639cd3481cc638e14ce61501d312d8",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "MARKET-EU-IT-390-menu.png",
+      "sha256": "f8a208ca05181e3230a30bcb82e600a554172141202022469f1dea4eeaa3797f",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-IT-390-keyboard-focus.png",
+      "sha256": "e6760c1eb7d1d9367d408083a421b98c4ef934a0ffcfe2c0aff666909630f100",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "MARKET-EU-IT-390-cookie.png",
+      "sha256": "37f53e5c7360d86138046f3ed425fdaed463d7fd97e1ae0cdb8d20eef7ef7b74",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-1440-full.png",
+      "sha256": "8cc97c201e8fafa21cf6f52a2ea1ce61bd25b8422ec07e81c748ddff4daf3815",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-1440-keyboard-focus.png",
+      "sha256": "550d49a5fd4feb45b07beba63f79d9a91fc4387cb808ca5dcf2293d34a2af00f",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-1440-cookie.png",
+      "sha256": "d444ff3a8ce92fbdbdae8987b88b073b87b98490f3c066889442716c6d74527e",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-768-full.png",
+      "sha256": "325de14c0627b28d4e7bfab036afc9fefc821a0c733aadd3b326a211d136e2eb",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-768-menu.png",
+      "sha256": "0386544419a030d1f777afac0c12ed3c7625ff262510f3991bbc24f57af8d576",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-768-keyboard-focus.png",
+      "sha256": "5713e379f0a98fdd7f89752efc2b05d499955014f0918e142a637a78fdab701e",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-768-cookie.png",
+      "sha256": "b3ab40833f71586b29f880d0a721cf5ee477421f7114011753c9c59b4fa8fce6",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-full.png",
+      "sha256": "003c0852a874d8dfeb0aa0f838477426266ac31af49eacf1c672b0e3da6794e9",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-menu.png",
+      "sha256": "5f664f0997121b5346122040fc09671607a38dd5d69ff9d994228e4df0c17a14",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-keyboard-focus.png",
+      "sha256": "cfbb6c449f8c8b07219cc1f999c5349cd6cc05718f4f13c27431f73391ffda49",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-390-cookie.png",
+      "sha256": "b26226a38dc60fd7154bc5231be9e78a8fe842efae7d9d02d68fcface7df7786",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "PRODUCT-PROC-SU-anchor-sulfate-grades.png",
+      "sha256": "96a1ad739a9af38b299d634da72906f9afdfa50de3fb74079605470749d4b27b",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-CHEMOURS-1440-full.png",
+      "sha256": "383961e9a04cb78718fb594dccf051a18bf6dcbf87c5e02532ad29aa84490274",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "RES-CHEMOURS-1440-keyboard-focus.png",
+      "sha256": "bcb5f9870a9f362eaaf2ac1ab8e3fca47fc0ed094b3005769f8477c76f5a56e9",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-CHEMOURS-1440-cookie.png",
+      "sha256": "6bcb370808912e5626b6a9771c57f6d77e939da308097345c4030a2d232dc765",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-CHEMOURS-768-full.png",
+      "sha256": "6270920b99195b1fd40106acda50e5ed3b36515ade5a7a962d54dcf43b5b7c54",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "RES-CHEMOURS-768-menu.png",
+      "sha256": "e1cf2194f79afd804234a916c9f62604a40ab3a805051763fd9ac158260bf57e",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-CHEMOURS-768-keyboard-focus.png",
+      "sha256": "fdbcf3a9c7bbe7720c6dce8ffaeb1ebab89d1756413838075c296562f8c4276d",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-CHEMOURS-768-cookie.png",
+      "sha256": "22d64f727721adcd590e2970db26ae46cf8266a9bf248b9e186a64763f2a41a7",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-CHEMOURS-390-full.png",
+      "sha256": "fba90c2dd282b74506ce2a4633b4e1772478adb8ebd32a9809ed5a0520f202fc",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "RES-CHEMOURS-390-menu.png",
+      "sha256": "4f660a5bdee25d6347c9e10d6d58a195d530f1082090b220cd70a4888baae9f2",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-CHEMOURS-390-keyboard-focus.png",
+      "sha256": "a3835f42b571a9d4da0e02531232e7c016548b1526e99d88b4108f48d99b2a8a",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-CHEMOURS-390-cookie.png",
+      "sha256": "bb90e04c1e06fc270c61055d8d58d4b988fcb851672c328841d0c7a4262e8142",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-R706-1440-full.png",
+      "sha256": "e5c4fea4a1d7fe5338ea527c4bf39f77441696cd6caa0e3a0c8d7ff84de40bcc",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "RES-R706-1440-keyboard-focus.png",
+      "sha256": "c786d6767b01bcec224f3373340bd36fc35e82587dead8314bbf9859fd92d4c6",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-R706-1440-cookie.png",
+      "sha256": "95a0cdafa630693690f3ab86ad5424ff379c8b03bd80a57c3d1359a1ef40c7e6",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-R706-768-full.png",
+      "sha256": "72ad47fa767a2bf0aa9bd0a046146a09bbb9a226b1763244c2626788e507be9b",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "RES-R706-768-menu.png",
+      "sha256": "ecc5b7c7b5689ba08f2b0993e3481f95d9680a54784dd71a971bfa3681fc75c9",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-R706-768-keyboard-focus.png",
+      "sha256": "851bc0d9e0de71e31781912563b499139adb75330f601828550108e77d7982bc",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-R706-768-cookie.png",
+      "sha256": "39b11bb974991f8523c4abe2cd150af4f480c8cae7027688714859c6dab4bdb4",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-R706-390-full.png",
+      "sha256": "bb5888105abf62d3a95c8e7eb9286d67076d03d4072b9060a937eed6a75aa4f0",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "scaled full-page overview; not pixel-by-pixel or every-character inspection"
+    },
+    {
+      "filename": "RES-R706-390-menu.png",
+      "sha256": "bb176c3ff6e833fda1271fdee9287af89bb7248e3464c060fe9b8757ae8a5d15",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-R706-390-keyboard-focus.png",
+      "sha256": "c691cd791e527d4bca415b7fc33d8f59252199e3aee1e1928f0a983b866edaff",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-R706-390-cookie.png",
+      "sha256": "d80ef1ac58bd702f37ddd9ac8126d712ecb6cfbb22a483c1a09c33d875a1f1c5",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    },
+    {
+      "filename": "RES-R706-anchor-evaluation-brief.png",
+      "sha256": "df011b7f01756f7dfa16f515c5ad9ececb1ada28c3bf617296a596d71dd145db",
+      "reviewer": "/root/sulfate_intake",
+      "status": "ACTUALLY_OPENED_NO_ADDITIONAL_VISUAL_DEFECT_OBSERVED",
+      "inspection": "viewport screenshot inspected for legibility, clipping and visible state"
+    }
+  ],
+  "openDependencies": [
+    {
+      "pageId": "PRODUCT-PROC-SU",
+      "path": "/applications/",
+      "status": 404,
+      "actualUrl": "http://127.0.0.1:3236/applications",
+      "siteScope": null,
+      "heading": null,
+      "disposition": "OPEN_DEPENDENCY"
+    }
+  ],
+  "deferred": [
+    "R706 D01 / AC10: canonical mapping and URL-bound graph approval pending; schemaType none preserved",
+    "Chemours conditional schema approval pending; schemaType none preserved"
+  ],
+  "limits": [
+    "Chromium desktop engine, DPR1 at 1440x900,768x900,390x844 only",
+    "No native browser zoom, real device or screen-reader test",
+    "No actual form submissions or external-source requests",
+    "200 dependency responses do not establish business acceptance or release approval"
+  ]
+}

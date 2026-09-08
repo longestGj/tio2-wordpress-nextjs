@@ -23,7 +23,13 @@ export default defineConfig({
     ],
   },
   test: {
-    exclude: [...configDefaults.exclude, '.worktrees/**', 'tests/e2e/**'],
+    exclude: [
+      ...configDefaults.exclude,
+      '.worktrees/**',
+      'tests/e2e/**',
+      'scripts/editorial/build-alternative-payloads.test.mjs',
+      'scripts/editorial/build-de-it-payloads.test.mjs',
+    ],
     maxWorkers: 4,
     setupFiles: ['./vitest.setup.ts'],
   },

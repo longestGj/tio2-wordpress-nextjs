@@ -15,6 +15,10 @@ interface GlobalChromeProps {
   readonly sourcePageId: string
 }
 
+const approvedDropdownSources = new Set([
+  'MARKET-EU-DE', 'MARKET-EU-IT', 'PRODUCT-PROC-SU', 'RES-R706', 'RES-CHEMOURS',
+])
+
 function rfqAttributes(sourcePageId: string) {
   return {
     'data-site-scope': 'tio2-my',
@@ -27,13 +31,57 @@ export function MalaysiaGlobalHeader({
   currentPageId,
   sourcePageId,
 }: GlobalChromeProps) {
+  const approvedDropdown = approvedDropdownSources.has(sourcePageId)
   const [open, setOpen] = useState(false)
+  const headerRef = useRef<HTMLElement>(null)
+  const dropdownRef = useRef<HTMLElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDialogElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     if (!open) return
+    if (approvedDropdown) {
+      const header = headerRef.current
+      const menu = dropdownRef.current
+      const trigger = buttonRef.current
+      if (!header || !menu || !trigger) return
+      const page = header.parentElement
+      const background = [page?.querySelector('main'), page?.querySelector('footer'),
+        header.querySelector(`.${styles.logoLink}`), header.querySelector(`.${styles.headerRfq}`)]
+        .filter((node): node is HTMLElement => node instanceof HTMLElement)
+        .map((node) => ({node, wasInert: node.hasAttribute('inert')}))
+      const rootOverflow = document.documentElement.style.overflow
+      const bodyOverflow = document.body.style.overflow
+      background.forEach(({node}) => node.setAttribute('inert', ''))
+      document.documentElement.style.overflow = 'hidden'
+      document.body.style.overflow = 'hidden'
+      menu.querySelector<HTMLElement>('a[href]')?.focus()
+      const desktop = window.matchMedia('(min-width: 1101px)')
+      const closeOnDesktop = () => { if (desktop.matches) setOpen(false) }
+      const handleKey = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') { event.preventDefault(); setOpen(false); return }
+        if (event.key !== 'Tab') return
+        const last = Array.from(menu.querySelectorAll<HTMLElement>('a[href]')).at(-1)
+        if (event.shiftKey && document.activeElement === trigger) {
+          event.preventDefault(); last?.focus()
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault(); trigger.focus()
+        }
+      }
+      document.addEventListener('keydown', handleKey)
+      desktop.addEventListener('change', closeOnDesktop)
+      return () => {
+        document.removeEventListener('keydown', handleKey)
+        desktop.removeEventListener('change', closeOnDesktop)
+        background.forEach(({node, wasInert}) => { if (!wasInert) node.removeAttribute('inert') })
+        document.documentElement.style.overflow = rootOverflow
+        document.body.style.overflow = bodyOverflow
+        const desktopCurrent = header.querySelector<HTMLElement>(`.${styles.desktopNav} [aria-current="page"]`)
+        if (desktop.matches) desktopCurrent?.focus({preventScroll: true})
+        else trigger.focus({preventScroll: true})
+      }
+    }
     const dialog = menuRef.current
     if (!dialog) return
     const trigger = buttonRef.current
@@ -60,7 +108,7 @@ export function MalaysiaGlobalHeader({
       document.body.style.overflow = bodyOverflow
       trigger?.focus()
     }
-  }, [open])
+  }, [open, approvedDropdown])
 
   function containMenuFocus(event: React.KeyboardEvent<HTMLElement>) {
     if (event.key !== 'Tab') return
@@ -79,9 +127,28 @@ export function MalaysiaGlobalHeader({
     }
   }
 
+  const mobileNavigation = <nav
+    ref={dropdownRef}
+    id={approvedDropdown ? 'malaysia-mobile-menu' : undefined}
+    className={styles.mobileNav}
+    aria-label="Mobile navigation"
+    hidden={!open}
+    onClick={approvedDropdown ? (event) => {
+      if ((event.target as HTMLElement).closest('a[href]')) setOpen(false)
+    } : undefined}
+  >
+    {chrome.navigation.map((item) => {
+      const current = item.targetPageId === currentPageId
+      return <a key={item.targetPageId} href={item.href} aria-current={current ? 'page' : undefined}>
+        <span>{item.label}</span>
+      </a>
+    })}
+    <a href={chrome.rfq.href} {...rfqAttributes(sourcePageId)}>{chrome.rfq.label}</a>
+  </nav>
+
   return (
-    <header className={styles.header} lang="en">
-      <div className={styles.headerInner} inert={open}>
+    <header ref={headerRef} className={styles.header} lang="en" data-chrome-variant={approvedDropdown ? 'gate8-approved' : undefined}>
+      <div className={styles.headerInner} inert={open && !approvedDropdown}>
         <Link href="/" className={styles.logoLink} aria-label="TiO2 Malaysia home">
           <Image
             src={chrome.logo.primary.src}
@@ -118,7 +185,7 @@ export function MalaysiaGlobalHeader({
           {open ? 'Close' : 'Menu'}
         </button>
       </div>
-      <dialog
+      {approvedDropdown ? mobileNavigation : <dialog
         ref={menuRef}
         id="malaysia-mobile-menu"
         className={styles.mobileDialog}
@@ -132,22 +199,8 @@ export function MalaysiaGlobalHeader({
           <a className={styles.headerRfq} href={chrome.rfq.href} {...rfqAttributes(sourcePageId)} onClick={() => setOpen(false)}>{chrome.rfq.compactLabel}</a>
           <button ref={closeRef} type="button" className={styles.menuClose} aria-label="Close primary navigation menu" onClick={() => setOpen(false)}>Close</button>
         </div>
-      <nav
-        className={styles.mobileNav}
-        aria-label="Mobile navigation"
-        hidden={!open}
-      >
-        {chrome.navigation.map((item) => {
-          const current = item.targetPageId === currentPageId
-          return (
-            <a key={item.targetPageId} href={item.href} aria-current={current ? 'page' : undefined}>
-              <span>{item.label}</span>
-            </a>
-          )
-        })}
-        <a href={chrome.rfq.href} {...rfqAttributes(sourcePageId)}>{chrome.rfq.label}</a>
-      </nav>
-      </dialog>
+        {mobileNavigation}
+      </dialog>}
     </header>
   )
 }
@@ -158,7 +211,7 @@ export function MalaysiaGlobalFooter({
 }: Omit<GlobalChromeProps, 'currentPageId'>) {
   const navById = new Map(chrome.navigation.map((item) => [item.targetPageId, item]))
   return (
-    <footer className={styles.footer} lang="en">
+    <><footer className={styles.footer} lang="en" data-chrome-variant={approvedDropdownSources.has(sourcePageId) ? 'gate8-approved' : undefined}>
       <div className={styles.footerGrid}>
         <div className={styles.brandColumn}>
           <Image
@@ -197,7 +250,8 @@ export function MalaysiaGlobalFooter({
           : <a key={item.label} href={item.href ?? undefined}>{item.label}</a>)}
       </nav>
       <p className={styles.copyright}>{chrome.footer.copyright}</p>
-      <MalaysiaCookieSettingsHost />
+      {!approvedDropdownSources.has(sourcePageId) && <MalaysiaCookieSettingsHost />}
     </footer>
+    {approvedDropdownSources.has(sourcePageId) && <MalaysiaCookieSettingsHost/>}</>
   )
 }

@@ -1,0 +1,47 @@
+{
+  "identity": {
+    "pageId": "RES-R706",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "path": "/resources/ti-pure-r-706-alternative/",
+    "section": "resources",
+    "provisional": true,
+    "schemaVersion": "editorial-v0.1"
+  },
+  "source": {
+    "packageId": "RES-R706-G6-HANDOFF-02",
+    "packageSha256": "6b94e44cd514edee1adb6ab09bd2d45950509cffd3c6282e79ca3cb05ebd110c",
+    "bodySha256": "e19dcd07107cd20a368377abadaf607a4945f9a8614d96b3a7eeda894e40419b",
+    "renderedBodySha256": "8515a9bd29497445a458e0fed0b4293a78459cf3c078675a263715f6938bf30a",
+    "visualSha256": "decf85559122c536ee51b3b6da0a3f3165e9e8542a771b0c279382ec229e5041"
+  },
+  "seo": {
+    "title": "Ti-Pure R-706 Qualification Guide | TiO2 Malaysia",
+    "metaDescription": "Use Ti-Pure R-706 product facts, document labels and coating test dimensions to prepare an independent titanium dioxide qualification brief.",
+    "canonical": null,
+    "schemaType": "none"
+  },
+  "heading": "Qualify Another TiO2 Supply When Ti-Pure R-706 Is Your Reference",
+  "breadcrumb": [
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "Resources",
+      "href": "/resources/"
+    },
+    {
+      "label": "R-706 Qualification Guide",
+      "href": "/resources/ti-pure-r-706-alternative/"
+    }
+  ],
+  "bodyHtml": "<p class=\"breadcrumb\">Home / Resources / R-706 Qualification Guide</p><section class=\"module module-1\" data-module=\"1\"><h1>Qualify Another TiO2 Supply When Ti-Pure R-706 Is Your Reference</h1><p>Turn your current R-706 use into a clear evaluation brief before you assess another titanium dioxide supply. Record the source document, coating system, acceptance criteria and evidence your team uses today, then explore our Grades and qualify the Grade you select in your own formulation and process.</p><p><a href=\"/products/\">Explore Titanium Dioxide Grades</a></p><p><a href=\"#evaluation-brief\">Build Your Evaluation Brief</a></p></section><section class=\"module module-2\" data-module=\"2\"><h2>Establish the R-706 Reference</h2><p>Chemours describes Ti-Pure R-706 as a rutile titanium dioxide pigment made with its proprietary chloride process for interior and exterior coatings. Its product page lists gloss and semi-gloss architectural paints, wood coatings, vehicle refinish and OEM topcoats, and coil coatings among the applications.</p><p>The February 2020 Ti-Pure R-706 Product Information sheet identifies titanium dioxide content as 93 wt% minimum. It labels the remaining values in its properties table as typical unless otherwise specified. Keep that label with every value you use: a stated minimum and a typical reference value do different jobs in a qualification plan.</p><p>Record the exact source and version behind your current specification, together with any internal requirements or control results that govern your use.</p><p><strong>Official sources</strong></p><ul><li><a href=\"https://www.tipure.com/en/products/coatings/r-706\">Ti-Pure R-706 product page</a> — no publication date shown; reviewed 6 September 2026.</li><li><a href=\"https://www.tipure.com/en/-/media/files/tipure/legacy/ti-pure-r-706-tds.pdf\">Ti-Pure R-706 Product Information</a> — February 2020; reviewed 6 September 2026.</li></ul></section><section class=\"module module-3\" data-module=\"3\"><h2 id=\"evaluation-brief\" tabindex=\"-1\">Build an R-706-Specific Evaluation Brief</h2><p>Start with the information you already have. Use these points to organize the brief, then add missing details as your evaluation progresses.</p><ol><li><strong>Current reference:</strong> the R-706 document name, version and values used in your specification or control.</li><li><strong>Coating system:</strong> waterborne, solvent-borne or another route; resin or binder; pigment loading; key additives; and relevant dispersion, application or curing conditions.</li><li><strong>End use:</strong> substrate, interior or exterior exposure, finish and the performance requirements that matter in the finished coating.</li><li><strong>Acceptance plan:</strong> control formulation, test methods, numeric limits or comparison rules, required documents and the people who will approve the result.</li></ol><p>This brief gives a selected Grade a defined test context. It does not identify a product for you or predict the result.</p></section><section class=\"module module-4\" data-module=\"4\"><h2>Plan Tests Around the R-706 Evaluation Dimensions</h2><p>Choose the dimensions that matter in your own formulation rather than treating every item as a required test.</p><h3>Appearance and optical response</h3><p>Consider color or undertone, gloss, tint strength and hiding. Define the instrument, film preparation, substrate, film thickness and R-706 control used for each comparison.</p><h3>Formulation and process response</h3><p>Consider wet-in, dispersion, viscosity or rheology, and stability through the process conditions that matter to you. Keep pigment loading, binder, additives, dispersion energy and application conditions controlled.</p><h3>Durability and mechanical requirements</h3><p>Select exposure and mechanical tests from the coating's actual end use. Record the substrate, preparation, cure, exposure cycle, measurement method and acceptance threshold.</p><h3>Handling, where relevant</h3><p>If powder handling affects your operation, define the receiving, storage, transfer or bulk-flow observations your team will record.</p><p>The R-706 product page highlights particle-size control and undertone, and discusses gloss retention and durability. The February 2020 Product Information sheet discusses wet-in, dispersibility and hiding. Together, these points help identify areas to examine; they do not supply acceptance limits for another product.</p></section><section class=\"module module-5\" data-module=\"5\"><h2>Understand the Scope of the TS-6706 Announcement</h2><p>Chemours' 19 February 2025 announcement describes Ti-Pure TS-6706 as its TMP- and TME-free version of R-706. The announcement reports that Chemours evaluated TS-6706 in water-based and solvent-based architectural and industrial paint systems, with attention to viscosity stability, color, gloss, tint strength, hiding and mechanical strength. It separately reports dry-pigment bulk-flow testing for TS-6706 at laboratory and silo scale.</p><p>The stated TS-6706/R-706 relationship is limited to these two Chemours grades, and the reported evaluation applies to TS-6706 in Chemours' program. When assessing a separately selected supply, use your R-706 control formulation, relevant test conditions and acceptance criteria to create a separate qualification plan.</p><p><a href=\"https://investors.chemours.com/news-releases/news-release-details/chemours-launches-ti-puretm-ts-6706-tmptme-free-version-flagship\">Read the Chemours TS-6706 launch announcement</a> — published 19 February 2025; reviewed 6 September 2026.</p></section><section class=\"module module-6\" data-module=\"6\"><h2>Continue with a Buyer-Selected Grade</h2><h3>1. Explore Titanium Dioxide Grades</h3><p>Use the Product Hub to review our Grades by process and application context. The Hub does not select a Grade from the R-706 name or carry an R-706 product relationship into your evaluation.</p><p><a href=\"/products/\">Explore Titanium Dioxide Grades</a></p><h3>2. Request Documents for the Grade You Select</h3><p>After you select one IKHLAS Grade, use the document request form to request one or more document types for that Grade. If you are also considering other Grades, add them as supplementary context in Additional Requirements. The form does not assign different document types to those additional Grades; submit separate requests when each Grade needs its own document selection.</p><p>Submitting the form records your request for human review. It does not confirm document availability, applicability, release or delivery.</p><p><a href=\"/request-documents/\">Request Documents</a></p><h3>3. Request a Sample When Your Test Context Is Ready</h3><p>Request a sample only after you have selected one IKHLAS Grade and can describe the intended application, delivery destination and what you need to evaluate. Include the R-706 control, relevant test conditions and acceptance criteria as context where useful.</p><p>Submitting the form starts human review. Any sample arrangement is confirmed separately. Use a separate request for another Grade so that each sample has a clear application and test objective.</p><p><a href=\"/request-sample/\">Request a Sample</a></p><p>Ti-Pure and R-706 identify the Chemours reference product discussed in the cited sources. This independent guide is not affiliated with or endorsed by Chemours.</p><p><strong>Last reviewed:</strong> 6 September 2026.</p></section>",
+  "mainClass": "",
+  "freshness": {
+    "lastReviewed": "2026-09-06",
+    "nextReviewDue": "2026-12-05",
+    "status": "unverified",
+    "evidenceDate": null
+  }
+}

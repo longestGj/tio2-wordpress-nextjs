@@ -1,0 +1,47 @@
+{
+  "identity": {
+    "pageId": "RES-CHEMOURS",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "path": "/resources/chemours-titanium-dioxide-alternatives/",
+    "section": "resources",
+    "provisional": true,
+    "schemaVersion": "editorial-v0.1"
+  },
+  "source": {
+    "packageId": "RES-CHEMOURS-G6-HANDOFF-02",
+    "packageSha256": "708568bb8c03585856a66e48fc9f98ec53a359564d697f021d5c613c2105bd9c",
+    "bodySha256": "91ae0f0c13701dd9be8f8cdb68fe81781ebd7ad5f6e460ab022ac3466561e5f6",
+    "renderedBodySha256": "e3ef1726ce74cf3f8e9573146fe4ede626906f52d563ef6887346757b56ea7b6",
+    "visualSha256": "0bfcf6283310b7eb14699428e87e1b50aa4aeb8b8ff98bf9ced52fcd45e464d2"
+  },
+  "seo": {
+    "title": "How to Evaluate Chemours Titanium Dioxide Alternatives",
+    "metaDescription": "Use the exact Ti-Pure grade, application, documented product facts and your own qualification criteria to evaluate another titanium dioxide supply source.",
+    "canonical": null,
+    "schemaType": "none"
+  },
+  "heading": "How to Evaluate a Chemours Titanium Dioxide Alternative",
+  "breadcrumb": [
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "Resources",
+      "href": "/resources/"
+    },
+    {
+      "label": "Chemours Titanium Dioxide Alternatives",
+      "href": "/resources/chemours-titanium-dioxide-alternatives/"
+    }
+  ],
+  "bodyHtml": "<nav class=\"breadcrumb\" aria-label=\"Breadcrumb\"><a href=\"/\">Home</a> / <a href=\"/resources/\">Resources</a> / Chemours Titanium Dioxide Alternatives</nav><section class=\"hero\" data-sectionnumber=\"1\"><div class=\"eyebrow\">Technical Evaluation Guide</div><h1>How to Evaluate a Chemours Titanium Dioxide Alternative</h1><p>If your current reference is a Chemours Ti-Pure grade, start with the exact grade, application and qualification requirements. A brand name alone is not enough to identify a suitable alternative.</p><div class=\"action\"><a class=\"primary\" href=\"/products/\">Explore Titanium Dioxide Products</a></div></section><section class=\"article-section sectionNumber-2\" data-sectionnumber=\"2\"><h2>Why the Exact Ti-Pure Grade Matters</h2><p>Chemours organizes its <a href=\"https://www.tipure.com/en/products\">Ti-Pure portfolio</a> across applications including coatings, plastics and laminates, with product and <a href=\"https://www.tipure.com/en/products/coatings\">application guidance</a> for each area. When evaluating another source, the exact grade and the role it plays in your formulation or process matter.</p><p>Record the full grade name you use, along with its application and end use. These details provide a more useful basis for reviewing another titanium dioxide grade than the brand name alone.</p></section><section class=\"article-section sectionNumber-3\" data-sectionnumber=\"3\"><h2>Prepare Your Evaluation Brief</h2><p>Use these four inputs to organize your evaluation. Start with the information you have, then add details as you review relevant product pages.</p><ol class=\"brief-list\"><li><strong>Current reference and use.</strong> Note the exact Ti-Pure grade, application, formulation or system type, and end use.</li><li><strong>Process and handling constraints.</strong> Describe the conditions that affect how the pigment is dispersed, processed or incorporated in your system.</li><li><strong>Performance and acceptance criteria.</strong> List the properties your application depends on, together with the test methods, target values and pass/fail criteria you use.</li><li><strong>Documents required for review.</strong> Identify the technical, safety, quality or origin documentation needed for your qualification process.</li></ol></section><section class=\"article-section sectionNumber-4\" data-sectionnumber=\"4\"><h2>Compare Documented Facts, Then Qualify the Grade</h2><h3>1. Build a shortlist</h3><p>Use the Product Hub to find IKHLAS grades listed for your application or production process. Treat those relationships as a shortlist for review, not as replacements for your current grade.</p><h3>2. Compare product-specific information</h3><p>Open the relevant product pages and compare documented properties with the criteria in your evaluation brief.</p><h3>3. Validate in your own system</h3><p>Run your normal formulation trials and acceptance tests before changing supply.</p></section><section class=\"article-section sectionNumber-5\" data-sectionnumber=\"5\"><h2>Continue Your Evaluation</h2><h3>Review IKHLAS Titanium Dioxide Grades</h3><p>Explore grades by application or production process, then open the relevant product pages for product-specific information.</p><div class=\"action\"><a class=\"primary\" href=\"/products/\">Explore Titanium Dioxide Products</a></div><h3>Request Documents for a Grade You Are Evaluating</h3><p>If you have selected an IKHLAS grade for review, request the TDS, SDS, COA or origin documentation you need.</p><div class=\"action\"><a class=\"secondary\" href=\"/request-documents/\">Request Product Documents</a></div></section><section class=\"article-section sectionNumber-6\" data-sectionnumber=\"6\"><h2>Sources and Independence</h2><p>The Ti-Pure portfolio and application information referenced in this guide come from the Chemours/Ti-Pure pages linked above.</p><p><strong>Last reviewed:</strong> 6 September 2026</p><p>Chemours and Ti-Pure are referenced only to identify the buyer's starting point. This guide is published independently by IKHLAS TITANIUM (MALAYSIA) SDN. BHD. We are not affiliated with, authorized by or endorsed by Chemours.</p></section>",
+  "mainClass": "",
+  "freshness": {
+    "lastReviewed": "2026-09-06",
+    "nextReviewDue": "2026-12-05",
+    "status": "unverified",
+    "evidenceDate": null
+  }
+}

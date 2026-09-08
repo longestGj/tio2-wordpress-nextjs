@@ -52,7 +52,11 @@
     ".next-trade4-app5-verified/types/**/*.ts",
     ".next-trade4-app5-verified/dev/types/**/*.ts",
     ".next-country-editorial/types/**/*.ts",
-    ".next-country-editorial/dev/types/**/*.ts"
+    ".next-country-editorial/dev/types/**/*.ts",
+    ".next-five/types/**/*.ts",
+    ".next-five/dev/types/**/*.ts",
+    ".next-five-fixed/types/**/*.ts",
+    ".next-five-fixed/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

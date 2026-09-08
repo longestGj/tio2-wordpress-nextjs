@@ -88,6 +88,8 @@ export function resolveMalaysiaSamplePrefill(input: Input): MalaysiaSamplePrefil
   const source = normalizeMalaysiaSampleSourcePageId(one(input.source_page_id))
   if (!source) return {}
   const result: MalaysiaSamplePrefill = {source_page_id: source}
+  // Italy's approved consumer contract permits source attribution only.
+  if (source === 'MARKET-EU-IT') return result
   const requestedGrade = one(input.grade_id)
   const expectedGrade = gradeBySource.get(source)
   const requestedApplication = one(input.application_id)
