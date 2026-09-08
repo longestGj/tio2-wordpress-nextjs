@@ -1,0 +1,169 @@
+{
+  "checkedAt": "2026-09-08T12:03:55.247Z",
+  "status": "PASSED",
+  "checks": {
+    "implementationCommit": true,
+    "buildId": true,
+    "htmlClean": true,
+    "rscClean": true,
+    "appBoundaryClean": true,
+    "rfqBoundaryClean": true,
+    "publicApiClean": true,
+    "gradeCount": true,
+    "specialtyEdge": true,
+    "mobileCollapsed": true,
+    "mobilePointerKeyboard": true,
+    "tabletDesktopOpen": true,
+    "categoryNames": true,
+    "supportLinks": true,
+    "rfqPrivate": true,
+    "consumersReadOnly": true,
+    "targetedTests": true,
+    "playwright": true,
+    "typecheck": true,
+    "fullSuiteBaselineOnly": true
+  },
+  "failed": [],
+  "files": [
+    {
+      "path": "acceptance-summary.json",
+      "bytes": 1921,
+      "sha256": "92c8e72b239a23b59197f9a096390bbea270fd5d28b9d43bcd7263e94cecab33"
+    },
+    {
+      "path": "build-id.txt",
+      "bytes": 327,
+      "sha256": "1c4991798a6eafcbdb8f967b4f901f2970c2ac20091068d8155378dcd4967fe0"
+    },
+    {
+      "path": "GATE9_F01_R2_RETURN_RECEIPT_2026-09-08.md",
+      "bytes": 3917,
+      "sha256": "fa2be8b13faa0700258c9aa1dbdbdb302d7db1ebd26853b9d9167a4083774ca3"
+    },
+    {
+      "path": "logs/build-runtime-binding.log",
+      "bytes": 384,
+      "sha256": "c0e145fb4706d8ec45fa70a17ddb6c5e2782874c92443220f66ae06a3e902081"
+    },
+    {
+      "path": "logs/evidence-validation.log",
+      "bytes": 45,
+      "sha256": "338dc4a0ad1b8fa3a2e99dbef9415d3d994e5738154500454720093df12e3611"
+    },
+    {
+      "path": "logs/full-unit.log",
+      "bytes": 1669,
+      "sha256": "ded1f0bc0627819c9480b8fa6b86718d68db5d77b819e71e02e35f791c37f72b"
+    },
+    {
+      "path": "logs/lint.log",
+      "bytes": 794,
+      "sha256": "dc53a9d7f675d2450651a95567e77730c95d6e685200b3a145c6db24d96300a8"
+    },
+    {
+      "path": "logs/playwright.log",
+      "bytes": 3518,
+      "sha256": "dd75d13ee27f4bcca52bf7b99f4858156ddbae4fcbaa7d950e93fc0b94cbddca"
+    },
+    {
+      "path": "logs/runtime-evidence.log",
+      "bytes": 173,
+      "sha256": "4f32391016f062f7ddeacd8914ec6bf0fb59934e8e6b1169691507dbb01278b5"
+    },
+    {
+      "path": "logs/targeted-tests.log",
+      "bytes": 249,
+      "sha256": "0215cf9254a608d21681357a77ecd0aee2c9f329f7050507e9a10e8759c2d001"
+    },
+    {
+      "path": "logs/typecheck.log",
+      "bytes": 110,
+      "sha256": "d98c656d4bd66d7ecbbb46c5061cc283ccb9638f83d21d23fc68fc683deb581b"
+    },
+    {
+      "path": "ROLLBACK_RECORD_2026-09-08.md",
+      "bytes": 679,
+      "sha256": "5f4739c501c1e431cb4a05b37bbc91d6bd23d518f08bdfa4f57b915bdab765d7"
+    },
+    {
+      "path": "runtime/app000-desktop-1440.png",
+      "bytes": 621919,
+      "sha256": "8903f53a9e499d478eb9252e96dddda8b3017ca68c4232db7bf4007220dc6edf"
+    },
+    {
+      "path": "runtime/app000-mobile-390-expanded.png",
+      "bytes": 454460,
+      "sha256": "8ff5055c0b14d08bed047127de799566cc28bddbc6a1c01728c8bbd80dfd1b3d"
+    },
+    {
+      "path": "runtime/app000-mobile-390.png",
+      "bytes": 403919,
+      "sha256": "8d0c40a75a78df48413bb73666bdf63456d4426c26c368882cf5cb5a43ba6b7a"
+    },
+    {
+      "path": "runtime/app000-mobile-cookie-settings.png",
+      "bytes": 417385,
+      "sha256": "064847705ba73cd2ede7424f9d92af99ac50b8415db43eb4a85be09b6ab57102"
+    },
+    {
+      "path": "runtime/app000-tablet-768.png",
+      "bytes": 551114,
+      "sha256": "90d1c761d158b7a6e05ac35fd9c9f21a08a9c8314e52438b3e7a8e4284fc5ac5"
+    },
+    {
+      "path": "runtime/consumer-regression-matrix.json",
+      "bytes": 1972,
+      "sha256": "828050934b8a107ba66b2861b7b2e1294b920fd37d706026a1531364a08cf72d"
+    },
+    {
+      "path": "runtime/grade-edge-inventory.json",
+      "bytes": 9379,
+      "sha256": "8f14ff398a092179fec9414edb314e7935ad73999a5c5ba4d3ae0884e2354d59"
+    },
+    {
+      "path": "runtime/public-boundary-scan.json",
+      "bytes": 9009,
+      "sha256": "29b0c6ba5814d61f29bc1e4794ceb6603b68c9f333f0ddc9812a9a7b240f730a"
+    },
+    {
+      "path": "runtime/responsive-state-matrix.json",
+      "bytes": 950,
+      "sha256": "020d417162631a1d3c144dc95961b9d287bfc94d2b2bac0b4ae3d821c67452e4"
+    },
+    {
+      "path": "runtime/rfq-private-handoff.json",
+      "bytes": 1296,
+      "sha256": "ac4b63b5a559212418ae39ecf81b0b0b3ba799217ffa8baf1d431bcd26412315"
+    },
+    {
+      "path": "runtime/route-matrix.json",
+      "bytes": 4011,
+      "sha256": "5ea8cb2210044c3f6cb10ca0a43bf08ba5009bd20119286a3515078ea10827b7"
+    },
+    {
+      "path": "runtime/runtime-contract.json",
+      "bytes": 8030,
+      "sha256": "9c3bf2b66e68c19c9840d92b3e638260407927fac5413c2e35c00f208827b8d3"
+    },
+    {
+      "path": "runtime/shared-instance-map.json",
+      "bytes": 744,
+      "sha256": "a8258ef6ee0d36b392c0d4afafa9fc36ead921bf321f7ca8baea0ca96b8800e5"
+    },
+    {
+      "path": "support/generate-runtime-evidence.mjs",
+      "bytes": 13946,
+      "sha256": "2717836860805cbc44930befd5b51dc179a52447ddff787d3b4e73f6aeec3d6a"
+    },
+    {
+      "path": "support/private-rfq-receiver.mjs",
+      "bytes": 1480,
+      "sha256": "a4529eddde967707de0b43f1215bf9eb79d91c9a88bdbbd2729982168c1f68fa"
+    },
+    {
+      "path": "support/validate-evidence.mjs",
+      "bytes": 4265,
+      "sha256": "9aa5e56798fa0e342759e18308a0cbe69ef7dc615d1f9fe8dcef994df3592974"
+    }
+  ]
+}
