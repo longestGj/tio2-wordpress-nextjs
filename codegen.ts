@@ -25,6 +25,7 @@ const config: CodegenConfig = {
     'lib/wordpress/product-queries.graphql',
     'lib/wordpress/product-page-queries.graphql',
     'lib/wordpress/application-queries.graphql',
+    'lib/wordpress/application-hub*-queries.graphql',
     'lib/wordpress/resource-queries.graphql',
   ],
   generates: {

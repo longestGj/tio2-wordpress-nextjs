@@ -1,0 +1,159 @@
+{
+  "reviewId": "APP-000-G6-HANDOFF-02",
+  "identity": {
+    "pageId": "APP-000",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "path": "/applications/",
+    "pageType": "application_hub",
+    "schemaVersion": "application-hub-v0.1-malaysia",
+    "contentRevision": "APP-000_GATE6_V1.1"
+  },
+  "releaseControls": {"indexingAuthorized": false, "sitemapAuthorized": false},
+  "seo": {
+    "title": "Applications | TiO2 Malaysia",
+    "description": "Explore titanium dioxide application paths for coatings, plastics, masterbatch, printing inks, paper and specialty materials.",
+    "canonical": "https://tio2malaysia.com/applications/",
+    "language": "en"
+  },
+  "globalChromeRef": {
+    "contractId": "GLOBAL-CHROME-005",
+    "logoManifestId": "TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"
+  },
+  "breadcrumb": [
+    {"targetPageId": "HOME-001", "label": "Home", "href": "/"},
+    {"targetPageId": "APP-000", "label": "Applications", "href": "/applications/"}
+  ],
+  "hero": {
+    "h1": "Explore Titanium Dioxide by Application",
+    "intro": "This hub organizes titanium dioxide grades by application across coatings, plastics, masterbatch, printing inks, paper and specialty materials. Use each collection as a starting point for technical evaluation.",
+    "primaryAction": {"label": "Explore Applications", "href": "#application-selector"},
+    "rfq": {"label": "Request a Quote", "targetPageId": "CONV-RFQ", "href": "/request-a-quote/"},
+    "selectorLabel": "Choose an Application"
+  },
+  "applicationPaths": {
+    "anchorId": "application-selector",
+    "heading": "Choose by Application",
+    "qualification": "Grades to Review are starting points for technical evaluation, not rankings or guarantees of suitability.",
+    "sentences": {
+      "both": "Open a grade page for product information, or explore an application for guidance on what to evaluate.",
+      "gradesOnly": "Open a grade page for product information.",
+      "applicationsOnly": "Explore an application for guidance on what to evaluate."
+    }
+  },
+  "applications": [
+    {
+      "key": "COAT", "anchorId": "application-coatings", "title": "Coatings", "scope": "For paint and coating formulations.", "gradeLabel": "Grades to Review",
+      "grades": [
+        {"edgeId": "APP000-EDGE-COAT-01", "gradeId": "M-350", "targetPageId": "GRADE-M350", "href": "/products/m-350/"},
+        {"edgeId": "APP000-EDGE-COAT-02", "gradeId": "M-510", "targetPageId": "GRADE-M510", "href": "/products/m-510/"},
+        {"edgeId": "APP000-EDGE-COAT-03", "gradeId": "M-896", "targetPageId": "GRADE-M896", "href": "/products/m-896/"},
+        {"edgeId": "APP000-EDGE-COAT-04", "gradeId": "M-996", "targetPageId": "GRADE-M996", "href": "/products/m-996/"},
+        {"edgeId": "APP000-EDGE-COAT-05", "gradeId": "M-2196", "targetPageId": "GRADE-M2196", "href": "/products/m-2196/"},
+        {"edgeId": "APP000-EDGE-COAT-06", "gradeId": "M-895", "targetPageId": "GRADE-M895", "href": "/products/m-895/"},
+        {"edgeId": "APP000-EDGE-COAT-07", "gradeId": "M-52", "targetPageId": "GRADE-M52", "href": "/products/m-52/"},
+        {"edgeId": "APP000-EDGE-COAT-08", "gradeId": "M-2377", "targetPageId": "GRADE-M2377", "href": "/products/m-2377/"}
+      ],
+      "targetPageId": "APP-COAT", "actionLabel": "Explore Coatings", "href": "/applications/titanium-dioxide-for-coatings/"
+    },
+    {
+      "key": "PLAS", "anchorId": "application-plastics", "title": "Plastics", "scope": "For plastic compounds and finished plastic applications.", "gradeLabel": "Grades to Review",
+      "grades": [
+        {"edgeId": "APP000-EDGE-PLAS-01", "gradeId": "M-350", "targetPageId": "GRADE-M350", "href": "/products/m-350/"},
+        {"edgeId": "APP000-EDGE-PLAS-02", "gradeId": "M-510", "targetPageId": "GRADE-M510", "href": "/products/m-510/"},
+        {"edgeId": "APP000-EDGE-PLAS-03", "gradeId": "M-200", "targetPageId": "GRADE-M200", "href": "/products/m-200/"},
+        {"edgeId": "APP000-EDGE-PLAS-04", "gradeId": "M-108", "targetPageId": "GRADE-M108", "href": "/products/m-108/"},
+        {"edgeId": "APP000-EDGE-PLAS-05", "gradeId": "M-210", "targetPageId": "GRADE-M210", "href": "/products/m-210/"},
+        {"edgeId": "APP000-EDGE-PLAS-06", "gradeId": "M-340", "targetPageId": "GRADE-M340", "href": "/products/m-340/"},
+        {"edgeId": "APP000-EDGE-PLAS-07", "gradeId": "M-886", "targetPageId": "GRADE-M886", "href": "/products/m-886/"},
+        {"edgeId": "APP000-EDGE-PLAS-08", "gradeId": "M-2377", "targetPageId": "GRADE-M2377", "href": "/products/m-2377/"}
+      ],
+      "targetPageId": "APP-PLAS", "actionLabel": "Explore Plastics", "href": "/applications/titanium-dioxide-for-plastics/"
+    },
+    {
+      "key": "MB", "anchorId": "application-masterbatch", "title": "Masterbatch", "scope": "For evaluating titanium dioxide as a pigment input in masterbatch formulations.", "gradeLabel": "Grades to Review",
+      "grades": [
+        {"edgeId": "APP000-EDGE-MB-01", "gradeId": "M-510", "targetPageId": "GRADE-M510", "href": "/products/m-510/"},
+        {"edgeId": "APP000-EDGE-MB-02", "gradeId": "M-200", "targetPageId": "GRADE-M200", "href": "/products/m-200/"},
+        {"edgeId": "APP000-EDGE-MB-03", "gradeId": "M-108", "targetPageId": "GRADE-M108", "href": "/products/m-108/"},
+        {"edgeId": "APP000-EDGE-MB-04", "gradeId": "M-210", "targetPageId": "GRADE-M210", "href": "/products/m-210/"},
+        {"edgeId": "APP000-EDGE-MB-05", "gradeId": "M-340", "targetPageId": "GRADE-M340", "href": "/products/m-340/"},
+        {"edgeId": "APP000-EDGE-MB-06", "gradeId": "M-886", "targetPageId": "GRADE-M886", "href": "/products/m-886/"},
+        {"edgeId": "APP000-EDGE-MB-07", "gradeId": "M-2377", "targetPageId": "GRADE-M2377", "href": "/products/m-2377/"}
+      ],
+      "targetPageId": "APP-MB", "actionLabel": "Explore Masterbatch", "href": "/applications/titanium-dioxide-for-masterbatch/"
+    },
+    {
+      "key": "INK", "anchorId": "application-printing-inks", "title": "Printing Inks", "scope": "For printing-ink formulations.", "gradeLabel": "Grades to Review",
+      "grades": [
+        {"edgeId": "APP000-EDGE-INK-01", "gradeId": "M-350", "targetPageId": "GRADE-M350", "href": "/products/m-350/"},
+        {"edgeId": "APP000-EDGE-INK-02", "gradeId": "M-510", "targetPageId": "GRADE-M510", "href": "/products/m-510/"},
+        {"edgeId": "APP000-EDGE-INK-03", "gradeId": "M-52", "targetPageId": "GRADE-M52", "href": "/products/m-52/"},
+        {"edgeId": "APP000-EDGE-INK-04", "gradeId": "M-2377", "targetPageId": "GRADE-M2377", "href": "/products/m-2377/"}
+      ],
+      "targetPageId": "APP-INK", "actionLabel": "Explore Printing Inks", "href": "/applications/titanium-dioxide-for-printing-inks/"
+    },
+    {
+      "key": "PAPER", "anchorId": "application-paper", "title": "Paper", "scope": "For paper-related applications.", "gradeLabel": "Grades to Review",
+      "grades": [
+        {"edgeId": "APP000-EDGE-PAPER-01", "gradeId": "M-350", "targetPageId": "GRADE-M350", "href": "/products/m-350/"},
+        {"edgeId": "APP000-EDGE-PAPER-02", "gradeId": "M-2377", "targetPageId": "GRADE-M2377", "href": "/products/m-2377/"}
+      ],
+      "targetPageId": "APP-PAPER", "actionLabel": "Explore Paper", "href": "/applications/titanium-dioxide-for-paper/"
+    },
+    {
+      "key": "SPECIALTY", "anchorId": "application-specialty-materials", "title": "Specialty Materials", "scope": "For reviewing CR-901 in specialty-material applications.", "gradeLabel": "Grade to Review",
+      "grades": [
+        {"edgeId": "APP000-EDGE-SPECIALTY-01", "gradeId": "CR-901", "targetPageId": "GRADE-CR901", "href": "/products/cr-901/"}
+      ]
+    }
+  ],
+  "evaluation": {
+    "heading": "How to Use This Application Hub",
+    "items": [
+      {"title": "Choose your application.", "body": "Start with the category that matches what you make. Review more than one path if your work spans several applications."},
+      {"title": "Compare technical information.", "body": "Use current technical data to compare the grades under review against your requirements."},
+      {"title": "Validate in your own system.", "body": "Check the grade in your formulation and process before making a specification decision."}
+    ]
+  },
+  "support": {
+    "heading": "Continue Your Procurement Review",
+    "items": [
+      {"targetPageId": "PRODUCT-000", "title": "Products", "body": "Already know the grade, or need a wider starting point? Use the product directory to review the portfolio and explore process information.", "actionLabel": "Explore Products", "href": "/products/"},
+      {"targetPageId": "DOC-000", "title": "Documents", "body": "Understand technical, quality and origin document types and how to request them.", "actionLabel": "Review Documents", "href": "/documents/"},
+      {"targetPageId": "MARKET-000", "title": "Markets", "body": "Find procurement context for your destination market.", "actionLabel": "Explore Markets", "href": "/markets/"}
+    ]
+  },
+  "finalRfq": {
+    "heading": "Share Your Application Requirements",
+    "body": "Share the intended application, destination market, required quantity and any technical or documentation requirements. Our team will review the request and identify the appropriate next step.",
+    "note": "If you have not selected a grade, choose “Not sure / Need help” on the quotation form. For an application that is still undecided, choose “Other / Not sure”.",
+    "action": {"label": "Request a Quote", "targetPageId": "CONV-RFQ", "href": "/request-a-quote/"}
+  },
+  "routeRegistry": [
+    {"targetPageId": "HOME-001", "href": "/", "behavior": "required"},
+    {"targetPageId": "CONV-RFQ", "href": "/request-a-quote/", "behavior": "conditional"},
+    {"targetPageId": "APP-COAT", "href": "/applications/titanium-dioxide-for-coatings/", "behavior": "conditional"},
+    {"targetPageId": "APP-PLAS", "href": "/applications/titanium-dioxide-for-plastics/", "behavior": "conditional"},
+    {"targetPageId": "APP-MB", "href": "/applications/titanium-dioxide-for-masterbatch/", "behavior": "conditional"},
+    {"targetPageId": "APP-INK", "href": "/applications/titanium-dioxide-for-printing-inks/", "behavior": "conditional"},
+    {"targetPageId": "APP-PAPER", "href": "/applications/titanium-dioxide-for-paper/", "behavior": "conditional"},
+    {"targetPageId": "PRODUCT-000", "href": "/products/", "behavior": "conditional"},
+    {"targetPageId": "DOC-000", "href": "/documents/", "behavior": "conditional"},
+    {"targetPageId": "MARKET-000", "href": "/markets/", "behavior": "conditional"},
+    {"targetPageId": "GRADE-M350", "href": "/products/m-350/", "behavior": "conditional-grade"},
+    {"targetPageId": "GRADE-M510", "href": "/products/m-510/", "behavior": "conditional-grade"},
+    {"targetPageId": "GRADE-M896", "href": "/products/m-896/", "behavior": "conditional-grade"},
+    {"targetPageId": "GRADE-M996", "href": "/products/m-996/", "behavior": "conditional-grade"},
+    {"targetPageId": "GRADE-M2196", "href": "/products/m-2196/", "behavior": "conditional-grade"},
+    {"targetPageId": "GRADE-M895", "href": "/products/m-895/", "behavior": "conditional-grade"},
+    {"targetPageId": "GRADE-M200", "href": "/products/m-200/", "behavior": "conditional-grade"},
+    {"targetPageId": "GRADE-M108", "href": "/products/m-108/", "behavior": "conditional-grade"},
+    {"targetPageId": "GRADE-M210", "href": "/products/m-210/", "behavior": "conditional-grade"},
+    {"targetPageId": "GRADE-M340", "href": "/products/m-340/", "behavior": "conditional-grade"},
+    {"targetPageId": "GRADE-M886", "href": "/products/m-886/", "behavior": "conditional-grade"},
+    {"targetPageId": "GRADE-M52", "href": "/products/m-52/", "behavior": "conditional-grade"},
+    {"targetPageId": "GRADE-M2377", "href": "/products/m-2377/", "behavior": "conditional-grade"},
+    {"targetPageId": "GRADE-CR901", "href": "/products/cr-901/", "behavior": "conditional-grade"}
+  ]
+}
