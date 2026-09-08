@@ -1,0 +1,56 @@
+{
+  "checkedAt": "2026-09-08T11:25:12.164Z",
+  "states": [
+    {
+      "viewport": {
+        "name": "desktop-1440",
+        "width": 1440,
+        "height": 1000
+      },
+      "defaultOpen": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "firstTwoOpenAfterPointerAndKeyboard": null
+    },
+    {
+      "viewport": {
+        "name": "tablet-768",
+        "width": 768,
+        "height": 1024
+      },
+      "defaultOpen": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "firstTwoOpenAfterPointerAndKeyboard": null
+    },
+    {
+      "viewport": {
+        "name": "mobile-390",
+        "width": 390,
+        "height": 844
+      },
+      "defaultOpen": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "firstTwoOpenAfterPointerAndKeyboard": [
+        true,
+        true
+      ]
+    }
+  ]
+}

@@ -10,7 +10,7 @@ const assets = [
   ['symbol', 'brand_symbol_primary', 'tio2-malaysia-symbol-v0.1.svg', 2510, '9fd1fafafad4bc6fef0c05f499c27baf1051eef084d1b834b1061caf3b8b85a0'],
   ['favicon', 'brand_favicon_safe', 'tio2-malaysia-favicon-safe-v0.1.svg', 1107, 'f1d1b97ff66211410a50279eed16414b5a6e888c27c11419e41265168d08692c'],
 ] as const
-const componentPath = 'components/sites/tio2-my/malaysia-global-chrome.tsx'
+const componentPath = 'components/sites/tio2-my/malaysia-global-chrome-client.tsx'
 const cssPath = 'components/sites/tio2-my/malaysia-global-chrome.module.css'
 const homeComponentPath = 'components/sites/tio2-my/homepage/malaysia-homepage.tsx'
 const homeCssPath = 'components/sites/tio2-my/homepage/malaysia-homepage.module.css'

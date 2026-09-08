@@ -45,7 +45,7 @@ describe('M-895 approved Product Detail candidate', () => {
     expect(markup).toContain('data-label="Test method">XRF</td>')
     expect(markup).not.toMatch(/origin|Not Recommended|Related grades/iu)
     expect(markup).not.toContain('data-module="documents"')
-    expect(markup).toContain('data-source-page="GRADE-M895"')
+    expect(markup).not.toContain('data-source-page="GRADE-M895"')
   })
 
   it('uses row.value for Product Schema and emits exact preview metadata', () => {

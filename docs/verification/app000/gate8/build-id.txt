@@ -1,0 +1,8 @@
+site_scope=tio2-my
+page_id=APP-000
+implementation_commit=f0285f288e256ce0c48205931dd8edf4b802b285
+build_directory=.next-app000-f0285f2
+build_id=jf9b1VFzbgKGSQMVOMMbU
+runtime=http://127.0.0.1:4391
+cms_fixture=http://127.0.0.1:4390/graphql
+hold_until=GATE9_PASS_OR_RETURN_NOTICE

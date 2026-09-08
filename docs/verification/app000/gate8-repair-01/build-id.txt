@@ -1,0 +1,6 @@
+implementation_commit=0144b303d0546dc5bb7012e4292df6339f851b78
+build_directory=.next-app000-0144b30
+build_id=cD6FOWG8iVMbgeRxyIqIS
+runtime=http://127.0.0.1:4391
+cms_fixture=http://127.0.0.1:4390/graphql
+private_receiver_fixture=http://127.0.0.1:4392

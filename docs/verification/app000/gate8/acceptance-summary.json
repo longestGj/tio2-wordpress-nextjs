@@ -1,0 +1,40 @@
+{
+  "recordedAt": "2026-09-08T18:24:30+08:00",
+  "dispatchId": "APP-000-G8-DISPATCH-01",
+  "handoffId": "APP-000-G6-HANDOFF-02",
+  "siteScope": "tio2-my",
+  "pageId": "APP-000",
+  "implementationCommit": "f0285f288e256ce0c48205931dd8edf4b802b285",
+  "buildId": "jf9b1VFzbgKGSQMVOMMbU",
+  "runtime": "http://127.0.0.1:4391",
+  "gate8Result": "READY_FOR_INDEPENDENT_GATE9_WITH_OPEN_INTEGRATION_AND_DEVICE_ITEMS",
+  "acceptance": [
+    {"id": "APP000-G9-01", "gate8Status": "PASS", "evidence": "Scoped CMS record, private identity trace, HTTP 200 runtime and clean canonical."},
+    {"id": "APP000-G9-02", "gate8Status": "PASS", "evidence": "Approved body sequence and shared opening/closing rendered; targeted tests and inspected visuals passed."},
+    {"id": "APP000-G9-03", "gate8Status": "PASS", "evidence": "All 30 source occurrences remain ordered 8/8/7/4/2/1 with Page IDs, hrefs, canonicals, locale and scope."},
+    {"id": "APP000-G9-04", "gate8Status": "PASS", "evidence": "Full, applications-only, grades-only, mixed and no-destination render matrix passed."},
+    {"id": "APP000-G9-05", "gate8Status": "PASS", "evidence": "SSR content, six same-page paths, disclosure content, pointer/keyboard and responsive interaction passed."},
+    {"id": "APP000-G9-06", "gate8Status": "PASS_WITH_ATOMIC_OMISSION", "evidence": "Five unavailable child routes are omitted; 30 Grade links, three support cards and two body RFQ links resolve."},
+    {"id": "APP000-G9-07", "gate8Status": "PASS", "evidence": "Clean URL and browser-private APP-000 source attribution reached an intercepted receiver payload; Grade/Application started empty."},
+    {"id": "APP000-G9-08", "gate8Status": "PASS", "evidence": "Breadcrumb, shared header/menu/footer, current navigation and Cookie Settings behavior passed without Contact or Terms."},
+    {"id": "APP000-G9-09", "gate8Status": "PASS", "evidence": "1440, 768 and 390 full-page screenshots were inspected with no clipping, overlap or horizontal overflow."},
+    {"id": "APP000-G9-10", "gate8Status": "OPEN_FOR_GATE9_DEVICE_AT", "evidence": "Chromium, Firefox, keyboard, responsive/touch emulation and axe passed; physical touch, named screen reader and native 200% remain."},
+    {"id": "APP000-G9-11", "gate8Status": "PASS", "evidence": "Exact title, description, canonical, lang and noindex/nofollow verified; no release indexing was enabled."},
+    {"id": "APP000-G9-12", "gate8Status": "PASS", "evidence": "CollectionPage and BreadcrumbList are exact; zero eligible child pages removes ItemList/mainEntity."},
+    {"id": "APP000-G9-13", "gate8Status": "PASS", "evidence": "Public projection has no page/scope/source/Gate leakage; private fields remain limited to CMS, history state and receiver transport."},
+    {"id": "APP000-G9-14", "gate8Status": "PASS_FOR_IMPLEMENTED_SCOPE", "evidence": "Correct, wrong-scope, missing, invalid-contract and controlled-unavailable paths plus isolated rebuild/recovery were exercised."},
+    {"id": "APP000-G9-15", "gate8Status": "PASS_FOR_IMPLEMENTED_SCOPE", "evidence": "Route/query/menu/SEO/form and CMS scope negatives passed with no cross-site fallback."},
+    {"id": "APP000-G9-16", "gate8Status": "OPEN_INTEGRATION", "evidence": "All nine separately owned consumers currently return 404; no consumer edits were authorized."},
+    {"id": "APP000-G9-17", "gate8Status": "OPEN_INTEGRATION", "evidence": "PRODUCT-PROC-CL is 200 with four /applications/ href instances; PRODUCT-PROC-SU remains 404."}
+  ],
+  "verification": {
+    "targetedVitest": "13 files / 63 tests passed",
+    "typecheck": "passed",
+    "changedFileLint": "passed",
+    "build": "passed; 62/62 static pages generated",
+    "playwright": "14/14 passed across Chromium and Firefox",
+    "fullVitest": "2753 passed, 50 skipped, 2 unrelated baseline failures"
+  },
+  "releaseStatus": "NOT_AUTHORIZED",
+  "operationsNotPerformed": ["main merge", "push", "deployment", "production write", "publication", "DNS", "indexing", "Gate 9", "Gate 10"]
+}

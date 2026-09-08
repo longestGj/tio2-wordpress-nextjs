@@ -17244,6 +17244,7 @@ interface TechnicalFields_Fields implements AcfFieldGroup & AcfFieldGroupFields 
 
 "The root entry point into the Graph"
 type RootQuery {
+  malaysiaApplicationHubRecordJson: String!
   "Entry point to get all settings for the site"
   allSettings: Settings
 

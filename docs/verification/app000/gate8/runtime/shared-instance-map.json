@@ -1,0 +1,35 @@
+{
+  "checkedAt": "2026-09-08T10:24:06.893Z",
+  "currentNavigation": "Applications",
+  "breadcrumb": [
+    "Home",
+    "Applications"
+  ],
+  "supportActions": [
+    {
+      "id": "PRODUCT-000",
+      "href": "/products/"
+    },
+    {
+      "id": "DOC-000",
+      "href": "/documents/"
+    },
+    {
+      "id": "MARKET-000",
+      "href": "/markets/"
+    }
+  ],
+  "rfqBodyLinks": [
+    {
+      "label": "Request a Quote",
+      "href": "/request-a-quote/"
+    },
+    {
+      "label": "Request a Quote",
+      "href": "/request-a-quote/"
+    }
+  ],
+  "childActions": [],
+  "headerFooterOwner": "GLOBAL-CHROME-005",
+  "publicLeak": false
+}

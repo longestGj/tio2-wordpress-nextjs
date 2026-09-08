@@ -28,7 +28,9 @@ describe('PRODUCT-PROC-CL template', () => {
     expect(markup).toContain('href="#explore-chloride-process-grades"')
     expect(markup).toContain('id="explore-chloride-process-grades"')
     expect(markup).toContain('tabindex="-1"')
-    expect(markup.match(/data-source-page="PRODUCT-PROC-CL"/gu)?.length).toBeGreaterThanOrEqual(5)
+    expect(markup.match(/data-source-page="PRODUCT-PROC-CL"/gu)?.length).toBe(3)
+    const chrome = (markup.match(/<header[\s\S]*?<\/header>|<footer[\s\S]*?<\/footer>/gu) ?? []).join('')
+    expect(chrome).not.toContain('data-source-page=')
     expect(markup).not.toMatch(/(?:grade_id|application_id|quantity|destination|document_type)=/u)
   })
 

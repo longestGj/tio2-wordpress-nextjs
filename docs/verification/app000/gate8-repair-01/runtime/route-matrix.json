@@ -1,0 +1,150 @@
+{
+  "checkedAt": "2026-09-08T11:25:12.164Z",
+  "baseUrl": "http://127.0.0.1:4391",
+  "routes": [
+    {
+      "path": "/",
+      "initialStatus": 200,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/"
+    },
+    {
+      "path": "/request-a-quote/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/request-a-quote"
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-coatings/",
+      "initialStatus": 404,
+      "status": 404,
+      "finalUrl": "http://127.0.0.1:4391/applications/titanium-dioxide-for-coatings/"
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-plastics/",
+      "initialStatus": 404,
+      "status": 404,
+      "finalUrl": "http://127.0.0.1:4391/applications/titanium-dioxide-for-plastics/"
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-masterbatch/",
+      "initialStatus": 404,
+      "status": 404,
+      "finalUrl": "http://127.0.0.1:4391/applications/titanium-dioxide-for-masterbatch/"
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-printing-inks/",
+      "initialStatus": 404,
+      "status": 404,
+      "finalUrl": "http://127.0.0.1:4391/applications/titanium-dioxide-for-printing-inks/"
+    },
+    {
+      "path": "/applications/titanium-dioxide-for-paper/",
+      "initialStatus": 404,
+      "status": 404,
+      "finalUrl": "http://127.0.0.1:4391/applications/titanium-dioxide-for-paper/"
+    },
+    {
+      "path": "/products/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products"
+    },
+    {
+      "path": "/documents/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/documents"
+    },
+    {
+      "path": "/markets/",
+      "initialStatus": 200,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/markets/"
+    },
+    {
+      "path": "/products/m-350/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/m-350"
+    },
+    {
+      "path": "/products/m-510/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/m-510"
+    },
+    {
+      "path": "/products/m-896/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/m-896"
+    },
+    {
+      "path": "/products/m-996/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/m-996"
+    },
+    {
+      "path": "/products/m-2196/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/m-2196"
+    },
+    {
+      "path": "/products/m-895/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/m-895"
+    },
+    {
+      "path": "/products/m-200/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/m-200"
+    },
+    {
+      "path": "/products/m-108/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/m-108"
+    },
+    {
+      "path": "/products/m-210/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/m-210"
+    },
+    {
+      "path": "/products/m-340/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/m-340"
+    },
+    {
+      "path": "/products/m-886/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/m-886"
+    },
+    {
+      "path": "/products/m-52/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/m-52"
+    },
+    {
+      "path": "/products/m-2377/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/m-2377"
+    },
+    {
+      "path": "/products/cr-901/",
+      "initialStatus": 308,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:4391/products/cr-901"
+    }
+  ]
+}

@@ -164,6 +164,12 @@ export function marketHubContentTag(siteId: string): string {
   return `content:${siteId}--markets`
 }
 
+export function applicationHubContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid Malaysia Application Hub site: ${siteId}`)
+  return `content:${siteId}--applications`
+}
+
 export function marketPageContentTag(siteId: string, pageId: string, locale: string): string {
   assertSiteId(siteId)
   const validIdentity = locale === 'en' && [

@@ -8,11 +8,7 @@ import {MalaysiaRfqPage} from '@/components/sites/tio2-my/request-a-quote/malays
 import {toMalaysiaRfqPageDto} from '@/lib/wordpress/rfq-page-v01-dto'
 import {malaysiaRfqPageSource} from '@/tests/fixtures/tio2-my-rfq-page'
 
-const receiverMocks = vi.hoisted(() => ({submit: vi.fn()}))
-vi.mock('@/lib/rfq/malaysia-rfq-receiver', async (original) => ({
-  ...await original<typeof import('@/lib/rfq/malaysia-rfq-receiver')>(),
-  submitMalaysiaRfq: receiverMocks.submit,
-}))
+const receiver = vi.fn()
 
 const dto = toMalaysiaRfqPageDto(malaysiaRfqPageSource())
 
@@ -20,8 +16,7 @@ function renderPage() {
   return render(
     <MalaysiaRfqPage
       page={dto}
-      prefill={{values: {}, sourcePageId: null}}
-      receiverAccessKey="test-key"
+      receiverAvailable
       privacyPolicyHref="/privacy-policy/"
       structuredData={<script type="application/ld+json">{'{"@graph":[]}'}</script>}
     />,
@@ -29,17 +24,19 @@ function renderPage() {
 }
 
 beforeEach(() => {
-  receiverMocks.submit.mockReset()
-  receiverMocks.submit.mockResolvedValue({kind: 'receipt_confirmed'})
+  receiver.mockReset()
+  receiver.mockResolvedValue(Response.json({kind: 'receipt_confirmed'}))
+  vi.stubGlobal('fetch', receiver)
 })
-afterEach(() => { cleanup(); vi.clearAllMocks() })
+afterEach(() => { cleanup(); vi.clearAllMocks(); vi.unstubAllGlobals() })
 
 describe('CONV-RFQ template and form', () => {
   it('renders the exact Buyer Clean structure with one shared Chrome and permanent task links', () => {
     const {container} = renderPage()
     expect(screen.getAllByRole('heading', {level: 1})).toHaveLength(1)
     expect(screen.getByRole('heading', {level: 1}).textContent).toBe('Request a Titanium Dioxide Quote')
-    expect(container.querySelectorAll('[data-module]')).toHaveLength(4)
+    expect(container.querySelectorAll('[data-module]')).toHaveLength(0)
+    expect(container.innerHTML).not.toMatch(/data-site-scope|data-page-id|data-source-page/u)
     expect(screen.getByRole('form')).toBeTruthy()
     expect(within(screen.getByRole('form')).getByRole('link', {name: 'Privacy Policy'}).getAttribute('href')).toBe('/privacy-policy/')
     expect(screen.getByRole('link', {name: /Request a Sample/u}).getAttribute('href')).toBe('/request-sample/')
@@ -64,7 +61,7 @@ describe('CONV-RFQ template and form', () => {
     expect(grade.getAttribute('aria-invalid')).toBe('true')
     await user.click(within(summary).getByRole('link', {name: /Product \/ Grade/u}))
     expect(document.activeElement).toBe(grade)
-    expect(receiverMocks.submit).not.toHaveBeenCalled()
+    expect(receiver).not.toHaveBeenCalled()
   })
 
   it('shows receipt success only after the receiver explicitly confirms it', async () => {
@@ -79,12 +76,13 @@ describe('CONV-RFQ template and form', () => {
     await user.type(screen.getByLabelText(/Business Email/u), 'buyer@example.com')
     await user.click(screen.getByRole('button', {name: 'REQUEST QUOTE'}))
     expect((await screen.findByRole('status')).textContent).toContain('Thank you. We’ve received your quotation request.')
-    expect(receiverMocks.submit).toHaveBeenCalledOnce()
+    expect(receiver).toHaveBeenCalledOnce()
+    expect(receiver.mock.calls[0]?.[0]).toBe('/api/rfq/submit')
   })
 
   it('restores fields and actions after a timeout maps to unconfirmed', async () => {
     let settle!: (result: {kind: 'submission_unconfirmed'}) => void
-    receiverMocks.submit.mockImplementation(() => new Promise((resolve) => { settle = resolve }))
+    receiver.mockImplementation(() => new Promise((resolve) => { settle = (result) => resolve(Response.json(result)) }))
     const user = userEvent.setup()
     renderPage()
     await user.selectOptions(screen.getByLabelText(/Product \/ Grade/u), 'M-350')
@@ -110,8 +108,7 @@ describe('CONV-RFQ template and form', () => {
     const {container} = render(
       <MalaysiaRfqPage
         page={dto}
-        prefill={{values: {}, sourcePageId: null}}
-        receiverAccessKey={null}
+        receiverAvailable={false}
         privacyPolicyHref={null}
         structuredData={null}
       />,

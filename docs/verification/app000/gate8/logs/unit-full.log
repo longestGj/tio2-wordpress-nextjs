@@ -1,0 +1,49 @@
+
+> test
+> vitest run
+
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/app000-gate8
+
+ ❯ tests/unit/editorial/five-core-review.test.ts (16 tests | 1 failed | 1 skipped) 681ms
+     × binds the separate alternatives evidence artifact to its unchanged local bytes 10ms
+ ❯ tests/infrastructure/site-a-editorial-draft-import-contract.test.ts (12 tests | 1 failed) 107019ms
+     × attempts every cleanup and final source hash when the first runtime deletion fails 5641ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/infrastructure/site-a-editorial-draft-import-contract.test.ts > local Site A editorial draft wrapper contract > attempts every cleanup and final source hash when the first runtime deletion fails
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/infrastructure/site-a-editorial-draft-import-contract.test.ts:363:3
+    361|   }, 60_000)
+    362|
+    363|   it('attempts every cleanup and final source hash when the first runt…
+       |   ^
+    364|     expect(existsSync(runtimeLibraryPath), 'shared editorial runtime b…
+    365|     const directory = mkdtempSync(join(tmpdir(), 'tio2-editorial-clean…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/editorial/five-core-review.test.ts > independent five-page common-core review > binds the separate alternatives evidence artifact to its unchanged local bytes
+AssertionError: expected '90194de968291490b140a7ef83f23886d68c3…' to be '3b0559416055d44ea15dbf0bea8db5b911e44…' // Object.is equality
+
+Expected: "3b0559416055d44ea15dbf0bea8db5b911e44767eaa0e0d1373e7a5fe895b8e1"
+Received: "90194de968291490b140a7ef83f23886d68c39969916fa10a1a44337e3748d47"
+
+ ❯ tests/unit/editorial/five-core-review.test.ts:60:103
+     58|  })
+     59|  it('binds the separate alternatives evidence artifact to its unchange…
+     60|   expect(createHash('sha256').update(readFileSync(alternatives.evidenc…
+       |                                                                                                       ^
+     61|   expect(alternatives.pages.map(page=>page.pageId)).toEqual(['RES-R706…
+     62|   expect(trade.pages.map(page=>page.pageId)).toEqual(['RES-TRADE-EU','…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 325 passed | 20 skipped (347)
+      Tests  2 failed | 2753 passed | 50 skipped (2805)
+   Start at  18:20:27
+   Duration  152.24s (transform 15.93s, setup 73.30s, import 85.77s, tests 348.40s, environment 31.40s)
+
