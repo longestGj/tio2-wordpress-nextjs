@@ -5,6 +5,7 @@ Dispatch ID: G9-BR-CL-COO-FOUR-RETURN-20260908-01
 Repository: D:/16Wordpress_nextjs
 Branch: codex/poland-development
 Baseline HEAD: 155fec8025c8fb679c9cbc90549e4533de8aca84
+Repair commit: c8b11ced84119578edb3f0ef8e27d25cf11e7eb5
 Site ID: tio2-my
 Build directory: .next-g9-four-return
 Build ID: 2IMF284tCfKor6WTwWdXq
@@ -27,6 +28,7 @@ Passed:
 - `$env:SITE_ID='tio2-my'; $env:NEXT_DIST_DIR='.next-g9-four-return'; $env:REVALIDATION_SECRET='poland-local-development-check'; npm run build` — passed; Build ID `2IMF284tCfKor6WTwWdXq`; generated 44/44 static pages and listed `/markets/brazil`, `/pt-br/markets/brazil`, `/products/chloride-process-titanium-dioxide`, `/documents/certificate-of-origin`, `/request-a-quote` and `/request-documents`.
 - `TIO2_MY_BASE_URL=http://127.0.0.1:3024 npx playwright test tests/e2e/brazil-en-market.spec.ts tests/e2e/brazil-pt-market.spec.ts --config=playwright.config.ts -g "Gate 4 V1.1|RFQ history"` — 4 tests passed on the local preview for Build ID `2IMF284tCfKor6WTwWdXq`.
 - `TIO2_MY_BASE_URL=http://127.0.0.1:3024 npx playwright test tests/e2e/chloride-process-page.spec.ts --config=playwright.config.ts -g "Chloride Process SSR preserves exact identity"` — 1 test passed on the local preview for Build ID `2IMF284tCfKor6WTwWdXq`.
+- Finding-focused machine-readable outputs are preserved as `focused-vitest.json` (9 files, 35 tests passed) and `focused-playwright.json` (4 expected, 0 unexpected, 0 flaky, 0 skipped).
 
 Environment notes:
 
@@ -35,6 +37,7 @@ Environment notes:
 
 ## Out-of-scope / open dependencies
 
+- No full-repository test suite was run; verification remained limited to the changed pages and the affected shared RFQ/Chloride consumers.
 - No real form submission, production WordPress write, merge, deployment, DNS, release, sitemap or indexing was performed.
 - Three Application detail pages, Brazil Trade and Applications Hub remain with their existing downstream owners; no fallback, hidden link or copied page was added.
 - DOC-COO historical pre-work status/dirty-path evidence was not reconstructed because the return package forbids fabricating it after the fact.
@@ -54,3 +57,6 @@ Environment notes:
 - tests/e2e/brazil-pt-market.spec.ts
 - tests/e2e/chloride-process-page.spec.ts
 - docs/verification/tio2-my/gate9-four-return-20260908/GATE9_FOUR_PAGE_RETURN_REPAIR_RECEIPT_V1.0.md
+- docs/verification/tio2-my/gate9-four-return-20260908/focused-vitest.json
+- docs/verification/tio2-my/gate9-four-return-20260908/focused-playwright.json
+- docs/verification/tio2-my/gate9-four-return-20260908/runtime-health.json
