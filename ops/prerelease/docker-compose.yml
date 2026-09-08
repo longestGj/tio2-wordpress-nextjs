@@ -35,7 +35,7 @@ services:
       - prerelease_wp:/var/www/html
       - ${PRERELEASE_SOURCE_DIR}/wordpress/plugins/tio2-site-model:/var/www/html/wp-content/plugins/tio2-site-model:ro
     healthcheck:
-      test: ["CMD-SHELL", "php -r 'exit(@file_get_contents(\"http://localhost/\") === false ? 1 : 0);'"]
+      test: ["CMD-SHELL", "curl --silent --show-error --fail --output /dev/null http://localhost/"]
       interval: 5s
       timeout: 5s
       retries: 30
