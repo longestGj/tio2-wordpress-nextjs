@@ -60,6 +60,7 @@ services:
     volumes:
       - prerelease_wp:/var/www/html
       - ${PRERELEASE_SOURCE_DIR}/wordpress/plugins/tio2-site-model:/var/www/html/wp-content/plugins/tio2-site-model:ro
+      - ${PRERELEASE_SOURCE_DIR}/wordpress/plugins/tio2-site-model:/workspace/wordpress/plugins/tio2-site-model:ro
       - ${PRERELEASE_SOURCE_DIR}/wordpress/seed:/workspace/wordpress/seed:ro
       - ${PRERELEASE_SOURCE_DIR}/wordpress/bootstrap:/workspace/wordpress/bootstrap:ro
       - ${PRERELEASE_SOURCE_DIR}/ops/prerelease:/workspace/ops/prerelease:ro
