@@ -338,6 +338,32 @@ function Test-PrereleaseHttpRound {
     return @($results)
 }
 
+function Get-PrereleaseTestActionPlan {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [ValidateSet('Test', 'TestLiveForms')] [string] $Action,
+        [Parameter(Mandatory)] [bool] $LiveFormsEnabled
+    )
+
+    if ($Action -eq 'TestLiveForms') {
+        if (-not $LiveFormsEnabled) {
+            throw 'TestLiveForms requires PRERELEASE_LIVE_FORMS_ENABLED=true in .env.prerelease.local.'
+        }
+        return [pscustomobject][ordered]@{
+            action                = 'TestLiveForms'
+            spec                  = 'tests/e2e/prerelease-live-forms.spec.ts'
+            allowNonGet           = $true
+            expectedWorkflowCount = 3
+        }
+    }
+    [pscustomobject][ordered]@{
+        action                    = 'Test'
+        spec                      = 'tests/e2e/prerelease-smoke.spec.ts'
+        allowNonGet               = $false
+        expectedExternalPostCount = 0
+    }
+}
+
 Export-ModuleMember -Function @(
     'Get-PrereleasePlan',
     'Get-PrereleaseGitIdentity',
@@ -354,5 +380,6 @@ Export-ModuleMember -Function @(
     'Get-PrereleaseRuntimeStatus',
     'Write-PrereleaseJsonFile',
     'Get-PrereleaseLiveIdentity',
-    'Test-PrereleaseHttpRound'
+    'Test-PrereleaseHttpRound',
+    'Get-PrereleaseTestActionPlan'
 )

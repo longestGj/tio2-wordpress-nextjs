@@ -6,7 +6,8 @@ param(
     [switch] $Json,
     [string] $RepositoryRoot = '',
     [string] $StateRoot = '',
-    [string] $DockerExecutable = 'docker'
+    [string] $DockerExecutable = 'docker',
+    [string] $NpxExecutable = 'npx'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -41,6 +42,20 @@ function Read-PrereleaseCurrentRun {
         throw 'The prerelease current-run pointer is invalid.'
     }
     Get-Content -LiteralPath $pointer.manifestPath -Raw | ConvertFrom-Json
+}
+
+function Read-PrereleaseEnvironmentFlag {
+    param(
+        [Parameter(Mandatory)] [string] $Path,
+        [Parameter(Mandatory)] [string] $Name
+    )
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $false }
+    foreach ($line in Get-Content -LiteralPath $Path) {
+        if ($line -match ('^\s*' + [regex]::Escape($Name) + '\s*=\s*(?<value>.*?)\s*$')) {
+            return $Matches.value.Trim("'`"") -eq 'true'
+        }
+    }
+    return $false
 }
 
 try {
@@ -204,6 +219,54 @@ try {
                 Write-PrereleaseResult ([pscustomobject]@{ action = 'ResetData'; state = 'RESET' })
             }
             finally { Exit-PrereleaseLock -Lock $lock }
+        }
+        { $_ -in @('Test', 'TestLiveForms') } {
+            $manifest = Read-PrereleaseCurrentRun -Root $StateRoot
+            if ($null -eq $manifest -or $manifest.state -ne 'HEALTHY') {
+                throw "$Action requires a recorded HEALTHY prerelease runtime."
+            }
+            $runRoot = Split-Path -Parent ((Get-Content -LiteralPath (Join-Path $StateRoot 'current-run.json') -Raw | ConvertFrom-Json).manifestPath)
+            $mainCommit = (@(& git -C $RepositoryRoot rev-parse refs/heads/main 2>$null) | Select-Object -First 1).Trim()
+            $live = Get-PrereleaseLiveIdentity -RunManifest $manifest -RunRoot $runRoot
+            $runtimeStatus = Get-PrereleaseRuntimeStatus -RunManifest $manifest -CurrentMainCommit $mainCommit -LiveIdentity $live
+            if ($runtimeStatus.state -ne 'HEALTHY') {
+                throw "$Action requires HEALTHY runtime identity; actual state is $($runtimeStatus.state)."
+            }
+            $liveEnabled = Read-PrereleaseEnvironmentFlag -Path $environmentFile -Name 'PRERELEASE_LIVE_FORMS_ENABLED'
+            $actionPlan = Get-PrereleaseTestActionPlan -Action $Action -LiveFormsEnabled $liveEnabled
+            $commandUuid = [guid]::NewGuid().ToString()
+            $evidenceId = [DateTimeOffset]::UtcNow.ToString('yyyyMMddTHHmmssZ') + '-' + $commandUuid
+            $evidenceRoot = Join-Path $RepositoryRoot "docs/verification/prerelease/runs/$evidenceId"
+            if (Test-Path -LiteralPath $evidenceRoot) { throw "Prerelease evidence run already exists: $evidenceId" }
+            [System.IO.Directory]::CreateDirectory($evidenceRoot) | Out-Null
+
+            $previousBaseUrl = $env:TIO2_PRERELEASE_BASE_URL
+            $previousEvidence = $env:TIO2_PRERELEASE_EVIDENCE_DIR
+            $previousUuid = $env:TIO2_PRERELEASE_COMMAND_UUID
+            try {
+                $env:TIO2_PRERELEASE_BASE_URL = 'http://127.0.0.1:3100'
+                $env:TIO2_PRERELEASE_EVIDENCE_DIR = $evidenceRoot
+                $env:TIO2_PRERELEASE_COMMAND_UUID = $commandUuid
+                Push-Location $RepositoryRoot
+                try {
+                    $testOutput = @(& $NpxExecutable playwright test $actionPlan.spec --workers=1 2>&1)
+                    $testExit = $LASTEXITCODE
+                }
+                finally { Pop-Location }
+                if ($testExit -ne 0) { throw "$Action Playwright suite failed with exit code $testExit." }
+            }
+            finally {
+                $env:TIO2_PRERELEASE_BASE_URL = $previousBaseUrl
+                $env:TIO2_PRERELEASE_EVIDENCE_DIR = $previousEvidence
+                $env:TIO2_PRERELEASE_COMMAND_UUID = $previousUuid
+            }
+            $resultPath = Join-Path $evidenceRoot 'result.json'
+            if (-not (Test-Path -LiteralPath $resultPath -PathType Leaf)) { throw "$Action did not produce result.json." }
+            $result = Get-Content -LiteralPath $resultPath -Raw | ConvertFrom-Json
+            Write-PrereleaseResult ([pscustomobject]@{
+                    action = $Action; state = 'PASSED'; runId = $manifest.runId
+                    evidenceId = $evidenceId; result = $result
+                })
         }
         default {
             throw "$Action is not implemented yet."
