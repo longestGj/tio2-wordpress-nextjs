@@ -37,6 +37,7 @@ EVIDENCE: docs/verification/app000/gate8-repair-02/build-id.txt
 EVIDENCE: docs/verification/app000/gate8-repair-02/evidence-validation.json
 EVIDENCE: docs/verification/app000/gate8-repair-02/ROLLBACK_RECORD_2026-09-08.md
 EVIDENCE: docs/verification/app000/gate8-repair-02/logs/build-runtime-binding.log
+EVIDENCE: docs/verification/app000/gate8-repair-02/logs/evidence-validation.log
 EVIDENCE: docs/verification/app000/gate8-repair-02/logs/full-unit.log
 EVIDENCE: docs/verification/app000/gate8-repair-02/logs/lint.log
 EVIDENCE: docs/verification/app000/gate8-repair-02/logs/playwright.log
@@ -48,5 +49,14 @@ EVIDENCE: docs/verification/app000/gate8-repair-02/runtime/rfq-private-handoff.j
 EVIDENCE: docs/verification/app000/gate8-repair-02/runtime/grade-edge-inventory.json
 EVIDENCE: docs/verification/app000/gate8-repair-02/runtime/responsive-state-matrix.json
 EVIDENCE: docs/verification/app000/gate8-repair-02/runtime/consumer-regression-matrix.json
+EVIDENCE: docs/verification/app000/gate8-repair-02/runtime/app000-desktop-1440.png
+EVIDENCE: docs/verification/app000/gate8-repair-02/runtime/app000-mobile-390-expanded.png
+EVIDENCE: docs/verification/app000/gate8-repair-02/runtime/app000-mobile-390.png
+EVIDENCE: docs/verification/app000/gate8-repair-02/runtime/app000-mobile-cookie-settings.png
+EVIDENCE: docs/verification/app000/gate8-repair-02/runtime/app000-tablet-768.png
+EVIDENCE: docs/verification/app000/gate8-repair-02/runtime/route-matrix.json
+EVIDENCE: docs/verification/app000/gate8-repair-02/runtime/runtime-contract.json
+EVIDENCE: docs/verification/app000/gate8-repair-02/runtime/shared-instance-map.json
 EVIDENCE: docs/verification/app000/gate8-repair-02/support/generate-runtime-evidence.mjs
+EVIDENCE: docs/verification/app000/gate8-repair-02/support/private-rfq-receiver.mjs
 EVIDENCE: docs/verification/app000/gate8-repair-02/support/validate-evidence.mjs
