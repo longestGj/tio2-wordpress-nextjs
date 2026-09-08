@@ -19,7 +19,9 @@
 ## Steps
 
 - [x] Record five target-owner results and both environments; confirm 3029 still404 and 3216 target click/back passes.
-- [ ] Incorporate Country repair commits and resolve only integration conflicts. Test editorial typography ownership before adapting renderer/font file; keep approved Country styling intact.
-- [ ] Update only browser test expectations for the approved shared menu. Run relevant editorial/Country/Chrome/Consent regressions, types, lint and target build.
-- [ ] Start task-owned 3226; verify five real Country entry/target/return chains, all nine editorial routes and shared interactions, and Country previously repaired behavior. Inspect applicable screenshots, not just assertions.
-- [ ] Commit implementation and evidence; return exact new candidate and original Finding IDs, retained old environments, open dependencies and rollback.
+- [x] Incorporate Country repair commits and resolve only integration conflicts. Test editorial typography ownership before adapting renderer/font file; keep approved Country styling intact.
+- [x] Update only browser test expectations for the approved shared menu. Run relevant editorial/Country/Chrome/Consent regressions, types, lint and target build.
+- [x] Start task-owned 3226; verify five real Country entry/target/return chains, all nine editorial routes and shared interactions, and Country previously repaired behavior. Inspect applicable screenshots, not just assertions.
+- [x] Commit implementation and evidence; return exact new candidate and original Finding IDs, retained old environments, open dependencies and rollback.
+
+Execution: c0f33af/c15de45 incorporate approved Country repairs; 4fa585b scopes editorial typography. 3226 build 1AwBNw0A1szLVVlTyLyQU. 479 related unit/integration tests pass; browser46pass/1RFQconfigurationfailure retained in RETURN.md. Five same-candidate targetclick/return chains pass; four Documents navigation checks pass with no submissions. Original3029/3216 preserved. Independent source and bounded visual review completed; Gate9 remains independent.

@@ -1,0 +1,241 @@
+{
+  "id": "APP-PLAS",
+  "time": "2026-09-08T01:59:33.375Z",
+  "build": "1AwBNw0A1szLVVlTyLyQU",
+  "base": "http://127.0.0.1:3226",
+  "source": {
+    "packageId": "APP-PLAS-G6-HANDOFF-01",
+    "packageSha256": "30b1a564dd7cb4dc04e9f7feeb2a3d904403d4313bfa20319aee84ac514f9c0d",
+    "bodySha256": "8db6d6fa979831e1e5c5930bdfe3ec261bb74d252304658251a37932bbea4f92",
+    "visualSha256": "fd61a0b74f81c094af4193dcd323cb6f4965321ff453039e0b7bd58c6891e6f9"
+  },
+  "cms": {
+    "environment": "real isolated WordPress :8186",
+    "id": "editorial-18539",
+    "availableGradePaths": [
+      "/products/m-350/",
+      "/products/m-510/",
+      "/products/m-200/",
+      "/products/m-108/",
+      "/products/m-210/",
+      "/products/m-340/",
+      "/products/m-886/",
+      "/products/m-2377/"
+    ],
+    "unavailableInternalPaths": []
+  },
+  "captures": [
+    {
+      "width": 1440,
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "height": 9491,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "\"Inter\",\"Inter Fallback\"",
+        "bodyEditorialFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "APP-PLAS-1440.png",
+      "sha256": "bac561ed54508e62c0b5ec9e4b85d1297e5d2be7bbcc0c3b51c88c5232baa9d3"
+    },
+    {
+      "width": 768,
+      "geometry": {
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 11341,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "\"Inter\",\"Inter Fallback\"",
+        "bodyEditorialFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "APP-PLAS-768.png",
+      "sha256": "54ac27c99d2746fa5aa8f00c7f1a37e976f3d76b4cc6b72a46cc7af7ac5e2b97"
+    },
+    {
+      "width": 390,
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 16211,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "\"Inter\",\"Inter Fallback\"",
+        "bodyEditorialFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "APP-PLAS-390.png",
+      "sha256": "99eeeac940d8e578c175ba4186ebfed0a383da9b75d101c83638541e0a918989"
+    }
+  ],
+  "anchorStates": [
+    {
+      "tag": "H2",
+      "id": "grades-to-review",
+      "text": "Grades to review"
+    },
+    {
+      "tag": "H2",
+      "id": "define-your-plastics-system",
+      "text": "Define your plastics system"
+    }
+  ],
+  "destinations": [
+    {
+      "path": "/applications/titanium-dioxide-for-masterbatch/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/applications/titanium-dioxide-for-masterbatch/"
+    },
+    {
+      "path": "/products/m-350/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-350"
+    },
+    {
+      "path": "/products/m-510/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-510"
+    },
+    {
+      "path": "/products/m-200/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-200"
+    },
+    {
+      "path": "/products/m-108/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-108"
+    },
+    {
+      "path": "/products/m-210/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-210"
+    },
+    {
+      "path": "/products/m-340/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-340"
+    },
+    {
+      "path": "/products/m-886/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-886"
+    },
+    {
+      "path": "/products/m-2377/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-2377"
+    },
+    {
+      "path": "/products/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products"
+    },
+    {
+      "path": "/request-documents/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/request-documents/"
+    },
+    {
+      "path": "/request-sample/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/request-sample"
+    },
+    {
+      "path": "/request-a-quote/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/request-a-quote"
+    }
+  ],
+  "browserErrors": [],
+  "pageNetwork": [
+    {
+      "url": "http://127.0.0.1:3226/applications/titanium-dioxide-for-plastics/?probe=canonical",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/9f0e9aacd62c6acf.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/21e3f5f930281619.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/7135d55ff74d201f.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/a77979556e4dc241.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/webpack-ea696ed58583e6ba.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/87c73c54-fd33669cffb637e8.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/1968-c39d22d888004b23.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/main-app-0ecc20be3472597f.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/5604-acf779aff7d96ab4.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/9497-62f5b637f349a788.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/8634-d79a6da12df252b1.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/app/(en)/applications/titanium-dioxide-for-plastics/page-0d7de55ce3dba684.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/?_rsc=1EsGT65a-N9MEoqQ",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/a8075e576638a45b.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/b299bcc3c5e3e046.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/?_rsc=Hg5hIz1zZhPM9EnP",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/app/(en)/page-fa68dd5132c32575.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/tio2-my/brand/tio2-malaysia-reverse-monochrome-v0.1.svg",
+      "method": "GET"
+    }
+  ],
+  "axeSeriousCritical": 0
+}

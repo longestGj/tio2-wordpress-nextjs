@@ -1,0 +1,89 @@
+{
+  "id": "APP-PLAS",
+  "time": "2026-09-08T01:59:00.940Z",
+  "build": "1AwBNw0A1szLVVlTyLyQU",
+  "before": {
+    "innerWidth": 1424,
+    "innerHeight": 905,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 1,
+    "scrollWidth": 1424,
+    "scrollHeight": 9491
+  },
+  "after": {
+    "innerWidth": 712,
+    "innerHeight": 452,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 2,
+    "scrollWidth": 712,
+    "scrollHeight": 11789
+  },
+  "captures": [
+    {
+      "file": "APP-PLAS-full-part-1.png",
+      "sha256": "c7cdcf339d170528cbc0ec979365058b32ddb9ff5c1827b4843caf6752fc3e7e",
+      "width": 1424,
+      "height": 10000,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "width": 1424,
+        "height": 10000,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-PLAS-full-part-2.png",
+      "sha256": "4f28b9cd9d5259261790efe297c556358c90d1e44d998ee656f1acf7e799b6de",
+      "width": 1424,
+      "height": 10000,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 10000,
+        "width": 1424,
+        "height": 10000,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-PLAS-full-part-3.png",
+      "sha256": "c40969277b3fbe836ef07d82b36f7ab6726d09a313086b2005eb2283a16084c4",
+      "width": 1424,
+      "height": 3578,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 20000,
+        "width": 1424,
+        "height": 3578,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-PLAS-top.png",
+      "sha256": "2f642f3e3e06bd86b3b8980008fdf1a5352e5d16e88bf1a9d21873e480bda6c3",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    },
+    {
+      "file": "APP-PLAS-menu.png",
+      "sha256": "6c8e59824699eb34888b75d7fb5f925c7e9ff79b472b8fae7b74d2d32815068f",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    },
+    {
+      "file": "APP-PLAS-cookie.png",
+      "sha256": "12e61d26c69657110303d21bfeb11d29f84f91b9253b11bf26620b2cda4ee89a",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    }
+  ],
+  "nativeZoom": 2
+}

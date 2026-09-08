@@ -1,0 +1,89 @@
+{
+  "id": "RES-TRADE-IN",
+  "time": "2026-09-08T01:58:49.103Z",
+  "build": "1AwBNw0A1szLVVlTyLyQU",
+  "before": {
+    "innerWidth": 1424,
+    "innerHeight": 905,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 1,
+    "scrollWidth": 1424,
+    "scrollHeight": 7735
+  },
+  "after": {
+    "innerWidth": 712,
+    "innerHeight": 452,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 2,
+    "scrollWidth": 712,
+    "scrollHeight": 11026
+  },
+  "captures": [
+    {
+      "file": "RES-TRADE-IN-full-part-1.png",
+      "sha256": "0b643b2dd5be978e1dfcc1c7c71be9090de51534e5e4bb8ae7af5cb53ce852e2",
+      "width": 1424,
+      "height": 10000,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "width": 1424,
+        "height": 10000,
+        "scale": 1
+      }
+    },
+    {
+      "file": "RES-TRADE-IN-full-part-2.png",
+      "sha256": "6c3f993ee713f67d78c292e1cb54b187f61d327d0cc83be6e410b7001e8db6df",
+      "width": 1424,
+      "height": 10000,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 10000,
+        "width": 1424,
+        "height": 10000,
+        "scale": 1
+      }
+    },
+    {
+      "file": "RES-TRADE-IN-full-part-3.png",
+      "sha256": "8954898fb11265a25be4f4c0be33039d6370bcc3cf97b4687aff4efb2b636101",
+      "width": 1424,
+      "height": 2053,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 20000,
+        "width": 1424,
+        "height": 2053,
+        "scale": 1
+      }
+    },
+    {
+      "file": "RES-TRADE-IN-top.png",
+      "sha256": "9146291932a373a61943a1360fd89bdd64d64d7c9a713c559630e185f85d4d7c",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    },
+    {
+      "file": "RES-TRADE-IN-menu.png",
+      "sha256": "3d62ee194a14a6d3f3b09e2b3bea0adc26a32de184ce98807daf8017f29f998e",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    },
+    {
+      "file": "RES-TRADE-IN-cookie.png",
+      "sha256": "d1fa69221866234261aef2fad39168f53cf983c9b14582fffb930864fa669be1",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    }
+  ],
+  "nativeZoom": 2
+}

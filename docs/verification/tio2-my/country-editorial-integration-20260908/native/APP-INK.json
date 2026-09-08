@@ -1,0 +1,75 @@
+{
+  "id": "APP-INK",
+  "time": "2026-09-08T01:59:08.613Z",
+  "build": "1AwBNw0A1szLVVlTyLyQU",
+  "before": {
+    "innerWidth": 1424,
+    "innerHeight": 905,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 1,
+    "scrollWidth": 1424,
+    "scrollHeight": 7762
+  },
+  "after": {
+    "innerWidth": 712,
+    "innerHeight": 452,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 2,
+    "scrollWidth": 712,
+    "scrollHeight": 9083
+  },
+  "captures": [
+    {
+      "file": "APP-INK-full-part-1.png",
+      "sha256": "55e72bba4f29cfc842cd7a0a967fc2c65b4d239213827f61fe61cad1def10078",
+      "width": 1424,
+      "height": 10000,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "width": 1424,
+        "height": 10000,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-INK-full-part-2.png",
+      "sha256": "a127b01f9db64f8d72d757cef6402c112511135d82c9528f882db2940f11cae9",
+      "width": 1424,
+      "height": 8167,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 10000,
+        "width": 1424,
+        "height": 8167,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-INK-top.png",
+      "sha256": "48b7c8a0414948c9453eca0ffc0ba215f2fabad41d803402983b831dbb08ea6b",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    },
+    {
+      "file": "APP-INK-menu.png",
+      "sha256": "6c8e59824699eb34888b75d7fb5f925c7e9ff79b472b8fae7b74d2d32815068f",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    },
+    {
+      "file": "APP-INK-cookie.png",
+      "sha256": "7f3a93d12d1c9768d6b5522a3bedad69fbaa9001ecc5d54791c65d8d72773c2b",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    }
+  ],
+  "nativeZoom": 2
+}

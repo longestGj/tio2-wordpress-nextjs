@@ -1,0 +1,281 @@
+{
+  "id": "APP-COAT",
+  "time": "2026-09-08T01:59:29.000Z",
+  "build": "1AwBNw0A1szLVVlTyLyQU",
+  "base": "http://127.0.0.1:3226",
+  "source": {
+    "packageId": "APP-COAT-G6-HANDOFF-01",
+    "packageSha256": "0ed6c22408f96e4282917b935dd551d0d0ed4b74becbd78a6eefac967460f915",
+    "bodySha256": "e5c9ffa7bcd7ae0375e45e27ba9bc26b95d00d317ff19c243e7e931b17706531",
+    "visualSha256": "a1e8c4153831aa829698f62e0c30c1fc7a77ec5bbb1f23ce264dede5d61443d2"
+  },
+  "cms": {
+    "environment": "real isolated WordPress :8186",
+    "id": "editorial-18537",
+    "availableGradePaths": [
+      "/products/m-350/",
+      "/products/m-510/",
+      "/products/m-896/",
+      "/products/m-996/",
+      "/products/m-2196/",
+      "/products/m-895/",
+      "/products/m-52/",
+      "/products/m-2377/"
+    ],
+    "unavailableInternalPaths": []
+  },
+  "captures": [
+    {
+      "width": 1440,
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "height": 9361,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "\"Inter\",\"Inter Fallback\"",
+        "bodyEditorialFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "APP-COAT-1440.png",
+      "sha256": "4403d8c6e757e8ec2a90be1a4e52ad86132475dbacb168881771345d29fe1991"
+    },
+    {
+      "width": 768,
+      "geometry": {
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 10731,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "\"Inter\",\"Inter Fallback\"",
+        "bodyEditorialFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "APP-COAT-768.png",
+      "sha256": "8aed6fd50f9c255ae4e35755d7dbd8b342e27a41fd3c3f1920d16feb066321e6"
+    },
+    {
+      "width": 390,
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 16676,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "\"Inter\",\"Inter Fallback\"",
+        "bodyEditorialFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "APP-COAT-390.png",
+      "sha256": "62d780906a26e1e2b9dc8cf27a16b29962d6aa26689027fd87efb67c3c9a4e33"
+    }
+  ],
+  "anchorStates": [
+    {
+      "tag": "H2",
+      "id": "",
+      "text": "Grades to Review"
+    },
+    {
+      "tag": "H2",
+      "id": "",
+      "text": "Define the coating before comparing the Grade"
+    },
+    {
+      "tag": "H2",
+      "id": "",
+      "text": "Technical sources"
+    },
+    {
+      "tag": "H2",
+      "id": "",
+      "text": "Technical sources"
+    },
+    {
+      "tag": "H2",
+      "id": "",
+      "text": "Technical sources"
+    },
+    {
+      "tag": "H2",
+      "id": "",
+      "text": "Technical sources"
+    },
+    {
+      "tag": "H2",
+      "id": "",
+      "text": "Technical sources"
+    },
+    {
+      "tag": "H2",
+      "id": "",
+      "text": "Technical sources"
+    },
+    {
+      "tag": "H2",
+      "id": "",
+      "text": "Technical sources"
+    }
+  ],
+  "destinations": [
+    {
+      "path": "/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/"
+    },
+    {
+      "path": "/applications/",
+      "status": 404,
+      "url": "http://127.0.0.1:3226/applications"
+    },
+    {
+      "path": "/products/m-350/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-350"
+    },
+    {
+      "path": "/products/m-510/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-510"
+    },
+    {
+      "path": "/products/m-896/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-896"
+    },
+    {
+      "path": "/products/m-996/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-996"
+    },
+    {
+      "path": "/products/m-2196/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-2196"
+    },
+    {
+      "path": "/products/m-895/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-895"
+    },
+    {
+      "path": "/products/m-52/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-52"
+    },
+    {
+      "path": "/products/m-2377/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-2377"
+    },
+    {
+      "path": "/products/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products"
+    },
+    {
+      "path": "/request-documents/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/request-documents/"
+    },
+    {
+      "path": "/request-sample/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/request-sample"
+    },
+    {
+      "path": "/request-a-quote/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/request-a-quote"
+    }
+  ],
+  "browserErrors": [],
+  "pageNetwork": [
+    {
+      "url": "http://127.0.0.1:3226/applications/titanium-dioxide-for-coatings/?probe=canonical",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/2c40d30dd8254c5c.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/21e3f5f930281619.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/7135d55ff74d201f.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/a77979556e4dc241.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/webpack-ea696ed58583e6ba.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/87c73c54-fd33669cffb637e8.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/1968-c39d22d888004b23.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/main-app-0ecc20be3472597f.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/5604-acf779aff7d96ab4.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/9497-62f5b637f349a788.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/8634-d79a6da12df252b1.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/app/(en)/applications/titanium-dioxide-for-coatings/page-35627af3bbd7e1a7.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/?_rsc=uT26WEG8uXW3v8pU",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/a8075e576638a45b.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/b299bcc3c5e3e046.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/?_rsc=ZYw1dYlqht5WMPNp",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/app/(en)/page-fa68dd5132c32575.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/tio2-my/brand/tio2-malaysia-reverse-monochrome-v0.1.svg",
+      "method": "GET"
+    }
+  ],
+  "axeSeriousCritical": 0
+}

@@ -1,0 +1,43 @@
+{
+  "MARKET-EU-ES-secondary-hover": {
+    "backgroundColor": "rgb(245, 248, 251)",
+    "color": "rgb(0, 128, 120)",
+    "screenshotSha256": "34f468a6901ff8dc3e2b4062e2a144cd505ee1f1e80cda172fefea2efeb1ab25",
+    "textDecorationLine": "underline",
+    "textDecorationThickness": "2px"
+  },
+  "MARKET-IN-001-keyboard": {
+    "focusScreenshotSha256": [
+      "fad20b92c557c031d5f55c961b2a60a88f7827390814421c477c1908c74a678e",
+      "1f68735dfca0a25d9efe7f468ab7108443bca4582a4a8676c14212e256e14671",
+      "6f26f5a521edc9802172d6434000737370b7fd727992173832675b1066d5bb22"
+    ],
+    "forwardHrefs": [
+      "/",
+      "/markets/",
+      "/request-a-quote/?destination_country=India&source_page_id=MARKET-IN-001",
+      "/products/",
+      "/products/",
+      "/products/",
+      "/request-a-quote/?destination_country=India&source_page_id=MARKET-IN-001",
+      "/request-documents/?source_page_id=MARKET-IN-001&market_id=MARKET-IN-001",
+      "/documents/",
+      "/resources/india-titanium-dioxide-anti-dumping-duty/",
+      "/request-a-quote/?destination_country=India&source_page_id=MARKET-IN-001"
+    ],
+    "reverseHrefs": [
+      "/request-a-quote/?destination_country=India&source_page_id=MARKET-IN-001",
+      "/resources/india-titanium-dioxide-anti-dumping-duty/",
+      "/documents/",
+      "/request-documents/?source_page_id=MARKET-IN-001&market_id=MARKET-IN-001",
+      "/request-a-quote/?destination_country=India&source_page_id=MARKET-IN-001",
+      "/products/",
+      "/products/",
+      "/products/",
+      "/request-a-quote/?destination_country=India&source_page_id=MARKET-IN-001",
+      "/markets/",
+      "/"
+    ],
+    "visibleFocus": true
+  }
+}

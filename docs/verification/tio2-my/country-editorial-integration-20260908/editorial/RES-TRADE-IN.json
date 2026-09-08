@@ -1,0 +1,172 @@
+{
+  "id": "RES-TRADE-IN",
+  "time": "2026-09-08T01:59:22.093Z",
+  "build": "1AwBNw0A1szLVVlTyLyQU",
+  "base": "http://127.0.0.1:3226",
+  "source": {
+    "packageId": "RES-TRADE-IN-G6-HANDOFF-01",
+    "packageSha256": "5fa99b705b7e8a21ec2d68eb68e2f9235f295d1723bf31387a3f882b8186e0e9",
+    "bodySha256": "1234d6f2b0615aa5da488ef51dde282251e175315d9f34e140080e7e3a65252a",
+    "renderedBodySha256": "545e54c1a924028d6de0a99e956e5dd785ccdff7ab469e522752060ea6ae39a2",
+    "visualSha256": "617d8371fa0e73dc14e571ce9b3c75c8d84390c638e19039487db4f432e5d833"
+  },
+  "cms": {
+    "environment": "real isolated WordPress :8186",
+    "id": "editorial-18533",
+    "availableGradePaths": [],
+    "unavailableInternalPaths": []
+  },
+  "captures": [
+    {
+      "width": 1440,
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "height": 7735,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "\"Inter\",\"Inter Fallback\"",
+        "bodyEditorialFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "RES-TRADE-IN-1440.png",
+      "sha256": "0481edd7d92b663e81b5ed5cde090faf4cabec6038d4034711fc9ffccca839e0"
+    },
+    {
+      "width": 768,
+      "geometry": {
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 10668,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "\"Inter\",\"Inter Fallback\"",
+        "bodyEditorialFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "RES-TRADE-IN-768.png",
+      "sha256": "96a84217183bdb9350b538eafbe7a0e161a93e2c3236a11889971944b662eab5"
+    },
+    {
+      "width": 390,
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 14868,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "\"Inter\",\"Inter Fallback\"",
+        "bodyEditorialFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "RES-TRADE-IN-390.png",
+      "sha256": "6dd46e2009174b560f7188ae32a4d892f0ae294c416c8295d924d54df8e56f0b"
+    }
+  ],
+  "anchorStates": [],
+  "destinations": [
+    {
+      "path": "/markets/india/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/markets/india/"
+    },
+    {
+      "path": "/products/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products"
+    },
+    {
+      "path": "/request-a-quote/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/request-a-quote"
+    }
+  ],
+  "browserErrors": [],
+  "pageNetwork": [
+    {
+      "url": "http://127.0.0.1:3226/resources/india-titanium-dioxide-anti-dumping-duty/?probe=canonical",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/1e1615e743ecd47a.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/21e3f5f930281619.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/7135d55ff74d201f.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/a77979556e4dc241.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/webpack-ea696ed58583e6ba.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/87c73c54-fd33669cffb637e8.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/1968-c39d22d888004b23.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/main-app-0ecc20be3472597f.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/5604-acf779aff7d96ab4.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/9497-62f5b637f349a788.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/8634-d79a6da12df252b1.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/app/(en)/resources/india-titanium-dioxide-anti-dumping-duty/page-2d45afb4c8a75924.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/?_rsc=kbtDj4UecNCvm8l-",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/a8075e576638a45b.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/b299bcc3c5e3e046.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/?_rsc=9tlKWSo1k_0Jl4Gw",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/app/(en)/page-fa68dd5132c32575.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/tio2-my/brand/tio2-malaysia-reverse-monochrome-v0.1.svg",
+      "method": "GET"
+    }
+  ],
+  "axeSeriousCritical": 0
+}

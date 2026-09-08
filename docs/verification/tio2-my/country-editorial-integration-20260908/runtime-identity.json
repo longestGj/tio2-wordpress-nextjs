@@ -1,0 +1,12 @@
+{
+  "siteScope": "tio2-my",
+  "pid": 21792,
+  "startedAt": "2026-09-08T01:57:32.2873327Z",
+  "buildId": "1AwBNw0A1szLVVlTyLyQU",
+  "branch": "codex/country-editorial-integration",
+  "cms": "http://127.0.0.1:8186/graphql",
+  "codeCommit": "4fa585b",
+  "command": "node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3226",
+  "buildDir": ".next-country-editorial",
+  "url": "http://127.0.0.1:3226"
+}

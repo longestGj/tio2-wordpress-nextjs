@@ -1,0 +1,223 @@
+{
+  "id": "APP-INK",
+  "time": "2026-09-08T01:59:40.461Z",
+  "build": "1AwBNw0A1szLVVlTyLyQU",
+  "base": "http://127.0.0.1:3226",
+  "source": {
+    "packageId": "APP-INK-G6-HANDOFF-01",
+    "packageSha256": "fe8769f96f1450638d1b5f46650be69ca73daeb8efdb1e7d5c99acb2421d014c",
+    "bodySha256": "b5a92976f526fcfee74fdf088ec9ea3ef21456e5ba66965f79c50ec4dd5c938d",
+    "visualSha256": "148baf534aae5beaf66f2b776f2741dccb5f5b2fe458761d2193fa83eb65ae98"
+  },
+  "cms": {
+    "environment": "real isolated WordPress :8186",
+    "id": "editorial-18543",
+    "availableGradePaths": [
+      "/products/m-350/",
+      "/products/m-510/",
+      "/products/m-52/",
+      "/products/m-2377/"
+    ],
+    "unavailableInternalPaths": [
+      "/applications/"
+    ]
+  },
+  "captures": [
+    {
+      "width": 1440,
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "height": 7762,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "\"Inter\",\"Inter Fallback\"",
+        "bodyEditorialFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "APP-INK-1440.png",
+      "sha256": "3a1a1a9043dc240fa150a8a6e4e6960a2fc978ee2e9cc457c0f5ff0463b5d868"
+    },
+    {
+      "width": 768,
+      "geometry": {
+        "width": 768,
+        "scrollWidth": 768,
+        "height": 8685,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "\"Inter\",\"Inter Fallback\"",
+        "bodyEditorialFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "APP-INK-768.png",
+      "sha256": "a3859b82a120a4a8494a7c7c16e8d763618ee579beeace021a770b99872da318"
+    },
+    {
+      "width": 390,
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 12765,
+        "dpr": 1,
+        "font": "Inter, \"Inter Fallback\", Arial, sans-serif",
+        "sharedFont": "\"Inter\",\"Inter Fallback\"",
+        "bodyEditorialFont": "",
+        "bodyMargin": "0px"
+      },
+      "file": "APP-INK-390.png",
+      "sha256": "74deb5431f14b7b243b069d62ec90cb3dd03680011eeab101aefc56b2429060d"
+    }
+  ],
+  "anchorStates": [
+    {
+      "tag": "H2",
+      "id": "",
+      "text": "Define the ink and print system"
+    },
+    {
+      "tag": "H2",
+      "id": "",
+      "text": "Grades to Review"
+    }
+  ],
+  "destinations": [
+    {
+      "path": "/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/"
+    },
+    {
+      "path": "/products/m-350/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-350"
+    },
+    {
+      "path": "/products/m-510/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-510"
+    },
+    {
+      "path": "/products/m-52/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-52"
+    },
+    {
+      "path": "/products/m-2377/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products/m-2377"
+    },
+    {
+      "path": "/products/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/products"
+    },
+    {
+      "path": "/request-documents/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/request-documents/"
+    },
+    {
+      "path": "/request-sample/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/request-sample"
+    },
+    {
+      "path": "/request-a-quote/",
+      "status": 200,
+      "url": "http://127.0.0.1:3226/request-a-quote"
+    }
+  ],
+  "browserErrors": [],
+  "pageNetwork": [
+    {
+      "url": "http://127.0.0.1:3226/applications/titanium-dioxide-for-printing-inks/?probe=canonical",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/1f489c65a351174f.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/21e3f5f930281619.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/7135d55ff74d201f.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/a77979556e4dc241.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/webpack-ea696ed58583e6ba.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/87c73c54-fd33669cffb637e8.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/1968-c39d22d888004b23.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/main-app-0ecc20be3472597f.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/media/8e9860b6e62d6359-s.woff2",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/5604-acf779aff7d96ab4.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/9497-62f5b637f349a788.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/8634-d79a6da12df252b1.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/app/(en)/applications/titanium-dioxide-for-printing-inks/page-aca89ef4dc1b751c.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/?_rsc=y7XNW56CHMsE7ZZV",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/a8075e576638a45b.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/css/b299bcc3c5e3e046.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/?_rsc=u6cb6fetLIWz5QiJ",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/_next/static/chunks/app/(en)/page-fa68dd5132c32575.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:3226/tio2-my/brand/tio2-malaysia-reverse-monochrome-v0.1.svg",
+      "method": "GET"
+    }
+  ],
+  "axeSeriousCritical": 0
+}

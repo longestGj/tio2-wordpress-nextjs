@@ -1,0 +1,89 @@
+{
+  "id": "APP-COAT",
+  "time": "2026-09-08T01:58:56.638Z",
+  "build": "1AwBNw0A1szLVVlTyLyQU",
+  "before": {
+    "innerWidth": 1424,
+    "innerHeight": 905,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 1,
+    "scrollWidth": 1424,
+    "scrollHeight": 9361
+  },
+  "after": {
+    "innerWidth": 712,
+    "innerHeight": 452,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 2,
+    "scrollWidth": 712,
+    "scrollHeight": 11063
+  },
+  "captures": [
+    {
+      "file": "APP-COAT-full-part-1.png",
+      "sha256": "b8b2036e4eda5220190e8a3abb4f63cf5f616a428292b32cf22b3ff562abefa6",
+      "width": 1424,
+      "height": 10000,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "width": 1424,
+        "height": 10000,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-COAT-full-part-2.png",
+      "sha256": "87778b1e49b79aec9dc83a5af4ff1b7168bd7bca1b75254768aaf35dadbfc3d1",
+      "width": 1424,
+      "height": 10000,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 10000,
+        "width": 1424,
+        "height": 10000,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-COAT-full-part-3.png",
+      "sha256": "e2d95c096929b99703cd22870313c3576f9c820ccdd32cf4c7cf8a592f9c8954",
+      "width": 1424,
+      "height": 2126,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 20000,
+        "width": 1424,
+        "height": 2126,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-COAT-top.png",
+      "sha256": "123ea760ec5911ca0da71dc96dd26cd13438bdd94590ec34d62a58913cfd7064",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    },
+    {
+      "file": "APP-COAT-menu.png",
+      "sha256": "6c8e59824699eb34888b75d7fb5f925c7e9ff79b472b8fae7b74d2d32815068f",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    },
+    {
+      "file": "APP-COAT-cookie.png",
+      "sha256": "d1fa69221866234261aef2fad39168f53cf983c9b14582fffb930864fa669be1",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor viewport after 500ms settle"
+    }
+  ],
+  "nativeZoom": 2
+}
