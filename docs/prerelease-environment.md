@@ -2,7 +2,11 @@
 
 这套环境是`tio2-my`完成本地`main`集成后的权威全站本地测试入口。它使用独立Docker Compose项目`d16-tio2-my-prerelease`，包含MariaDB、独立WordPress后台、WP-CLI初始化、Next.js构建和Web运行实例。它不代表远程Preview、Production、Gate 9、Gate 10或发布授权。
 
+与开发环境及CI/CD的关系见[内部开发与测试执行第10–13节](development-execution.md#10-两套本地环境)：开发任务从develop创建分支，相关测试与E2E通过后合回develop；develop组合回归与E2E通过后合入main，核对合并结果再冻结源码交付预发布。当前命令由操作者/Agent显式触发，不代表已配置提交触发的自动CI/CD。`prerelease:test`是代表性冒烟，完整全站验收仍按本批次条件补齐；测试代码版本需与被测候选一起记录。
+
 ## 地址与隔离
+
+本环境在整个系统中的位置见[当前软件架构](software-architecture.md)第7节；本文维护具体操作及副作用。历史双站开发配置与这里的独立预发布不是同一概念。
 
 | 服务 | 本机地址 | 暴露范围 |
 |---|---|---|
@@ -23,13 +27,16 @@
 
 ## 日常命令
 
-```powershell
-npm run prerelease:start
-npm run prerelease:status
-npm run prerelease:test
-npm run prerelease:stop
-npm run prerelease:reset
-```
+工作目录为主D16 checkout。本工具仍要求调用工作树当前分支为main且干净，不直接接受develop。准备预发布时先保存并隔离开发工作，再安全切换至已通过晋级检查的main；不得丢弃未提交修改或为启动而自动提交其他任务内容。先核对任务授权、现有运行及干净main；命令存在不表示当前环境已启动或测试通过。
+
+| 命令 | 前提与副作用 | 应检查的结果 |
+|---|---|---|
+| `npm run prerelease:status` | 核对专用Docker运行，可能启动临时WP-CLI并写本地身份文件 | 机器状态及commit/Build/CMS/run身份；不能只看退出码 |
+| `npm run prerelease:start` | 干净main、配置、Docker和空闲目标端口；写专用CMS、应用受控seed、安装构建依赖并启动容器 | 失败阶段或绑定成功的run/Build/CMS；启动不等于验收 |
+| `npm run prerelease:test` | 当前候选身份HEALTHY；在调用仓库运行Playwright，写新证据目录 | 用例实际执行、零非GET请求、退出码与result；仅代表性冒烟 |
+| `npm run prerelease:stop` | 操作准确专用栈，会中断该候选访问 | 目标栈停止；数据和历史证据保留 |
+
+正常顺序：核对当前状态与候选 → 需要新候选时按保持条件停止旧实例并start → 核对身份 → test → 补齐本批次适用验收。没有新版本或重验依据时不重复构建。测试源码commit/未提交差异也要记录，不能假设它与冻结运行源码相同。
 
 `start`先核对当前分支为`main`且工作树干净，再通过`git archive <full-commit>`创建冻结源码。它启动CMS、校验所有seed哈希、只应用未记录的匹配seed、构建Next.js、启动Web，并执行两轮只读HTTP检查。操作锁位于`.prerelease/operation.lock`。
 
@@ -45,11 +52,17 @@ npm run prerelease:reset
 
 `test`仅运行`tests/e2e/prerelease-smoke.spec.ts`。测试拦截所有非GET请求，验证代表性页面、CMS页面身份、导航、canonical/robots、Cookie Settings、三张表单的本地验证、键盘流程、1440/768/390布局、横向溢出和Chromium 200%页面缩放。结果必须记录`externalPostCount: 0`。
 
-`stop`只停止此Compose项目并保留数据及运行证据。`reset`要求服务已停止；在删除前先输出`RESETTING` JSON，列出Compose项目及两个精确目标volume。控制器在同一操作锁内移除仍挂载volume的本项目容器，仅删除`d16-tio2-my-prerelease_prerelease_db`和`d16-tio2-my-prerelease_prerelease_wp`，保留npm缓存和旧运行证据，然后执行一次完整的新运行构建。新运行目录的`reset-receipt.json`记录实际删除的volume名称以及重置前后的run ID和CMS身份哈希。
+`stop`只停止此Compose项目并保留数据及运行证据。
+
+## 显式数据重置
+
+`npm run prerelease:reset`会删除并重建专用CMS数据和上传文件，不是日常启动步骤、备份恢复或常规CD回滚。仅在任务明确覆盖数据重置时执行；先保存仍需保留的数据和证据，复用已有适用授权。
+
+`reset`要求服务已停止；在删除前先输出`RESETTING` JSON，列出Compose项目及两个精确目标volume。控制器在同一操作锁内移除仍挂载volume的本项目容器，仅删除`d16-tio2-my-prerelease_prerelease_db`和`d16-tio2-my-prerelease_prerelease_wp`，保留npm缓存和旧运行证据，然后执行一次完整的新运行构建。新运行目录的`reset-receipt.json`记录实际删除的volume名称以及重置前后的run ID和CMS身份哈希。
 
 ## 显式真实表单测试
 
-只有需要验证真实Web3Forms接收时，先把`.env.prerelease.local`中的`PRERELEASE_LIVE_FORMS_ENABLED`改为`true`，再明确运行：
+只有任务已有明确授权覆盖三张表单的真实对外测试时，才把`.env.prerelease.local`中的`PRERELEASE_LIVE_FORMS_ENABLED`改为`true`并运行下列命令。配置开关不构成授权；仅授权单张表单时，不能调用这个三张表单入口：
 
 ```powershell
 npm run prerelease:test:forms-live
