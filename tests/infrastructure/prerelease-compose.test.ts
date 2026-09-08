@@ -8,8 +8,17 @@ const composePath = 'ops/prerelease/docker-compose.yml'
 const environmentExamplePath = 'ops/prerelease/.env.example'
 const seedManifestPath = 'ops/prerelease/seed-manifest.json'
 
-function readCompose(): Record<string, any> | null {
-  return existsSync(composePath) ? parse(readFileSync(composePath, 'utf8')) : null
+interface ComposeContract {
+  services: Record<string, {
+    ports?: string[]
+    environment?: Record<string, string>
+    volumes?: string[]
+  }>
+  volumes: Record<string, unknown>
+}
+
+function readCompose(): ComposeContract | null {
+  return existsSync(composePath) ? parse(readFileSync(composePath, 'utf8')) as ComposeContract : null
 }
 
 describe('tio2-my local prerelease Compose contract', () => {

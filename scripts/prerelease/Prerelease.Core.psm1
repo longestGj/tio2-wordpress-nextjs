@@ -364,6 +364,40 @@ function Get-PrereleaseTestActionPlan {
     }
 }
 
+function Assert-PrereleaseEnvironmentFile {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)] [string] $Path)
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        throw 'The prerelease environment file is missing.'
+    }
+    $values = @{}
+    foreach ($line in Get-Content -LiteralPath $Path) {
+        if ($line -match '^\s*#' -or [string]::IsNullOrWhiteSpace($line) -or $line -notmatch '=') { continue }
+        $name, $value = $line -split '=', 2
+        $values[$name.Trim()] = $value.Trim().Trim("'`"")
+    }
+    $required = @(
+        'WORDPRESS_DB_NAME', 'WORDPRESS_DB_USER', 'WORDPRESS_DB_PASSWORD', 'WORDPRESS_DB_ROOT_PASSWORD',
+        'WORDPRESS_ADMIN_USER', 'WORDPRESS_ADMIN_PASSWORD', 'WORDPRESS_ADMIN_EMAIL',
+        'NEXTJS_REVALIDATION_SECRET_TIO2_MY', 'NEXTJS_PREVIEW_SECRET_TIO2_MY',
+        'NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'PRERELEASE_LIVE_FORMS_ENABLED'
+    )
+    foreach ($name in $required) {
+        $value = [string] $values[$name]
+        if ([string]::IsNullOrWhiteSpace($value) -or $value -match '^replace-with-') {
+            throw "Prerelease configuration is missing or still uses a placeholder: $name"
+        }
+    }
+    if ($values.PRERELEASE_LIVE_FORMS_ENABLED -notin @('true', 'false')) {
+        throw 'PRERELEASE_LIVE_FORMS_ENABLED must be true or false.'
+    }
+    [pscustomobject]@{
+        configured      = $true
+        liveFormsEnabled = $values.PRERELEASE_LIVE_FORMS_ENABLED -eq 'true'
+    }
+}
+
 Export-ModuleMember -Function @(
     'Get-PrereleasePlan',
     'Get-PrereleaseGitIdentity',
@@ -381,5 +415,6 @@ Export-ModuleMember -Function @(
     'Write-PrereleaseJsonFile',
     'Get-PrereleaseLiveIdentity',
     'Test-PrereleaseHttpRound',
-    'Get-PrereleaseTestActionPlan'
+    'Get-PrereleaseTestActionPlan',
+    'Assert-PrereleaseEnvironmentFile'
 )

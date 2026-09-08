@@ -109,4 +109,32 @@ describe.runIf(process.platform === 'win32')('local prerelease controller', () =
       blocked: true,
     })
   })
+
+  it('rejects missing or placeholder configuration without echoing values', () => {
+    const directory = temporaryDirectory('d16-prerelease-env-')
+    const environmentFile = join(directory, '.env.prerelease.local')
+    writeFileSync(environmentFile, [
+      'WORDPRESS_DB_NAME=tio2_my_prerelease',
+      'WORDPRESS_DB_USER=tio2_my_prerelease',
+      'WORDPRESS_DB_PASSWORD=replace-with-local-database-password',
+      'WORDPRESS_DB_ROOT_PASSWORD=root-secret',
+      'WORDPRESS_ADMIN_USER=editor',
+      'WORDPRESS_ADMIN_PASSWORD=admin-secret',
+      'WORDPRESS_ADMIN_EMAIL=admin@example.test',
+      'NEXTJS_REVALIDATION_SECRET_TIO2_MY=revalidation-secret',
+      'NEXTJS_PREVIEW_SECRET_TIO2_MY=preview-secret',
+      'NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY=receiver-key',
+      'PRERELEASE_LIVE_FORMS_ENABLED=false',
+    ].join('\n'))
+    const command = [
+      "$ErrorActionPreference='Stop'",
+      `Import-Module '${modulePath.replaceAll("'", "''")}' -Force`,
+      `Assert-PrereleaseEnvironmentFile -Path '${environmentFile.replaceAll("'", "''")}'`,
+    ].join('; ')
+    const result = spawnSync('powershell', ['-NoProfile', '-Command', command], {encoding: 'utf8'})
+    expect(result.status).not.toBe(0)
+    expect(`${result.stdout}\n${result.stderr}`).toContain('WORDPRESS_DB_PASSWORD')
+    expect(`${result.stdout}\n${result.stderr}`).not.toContain('root-secret')
+    expect(`${result.stdout}\n${result.stderr}`).not.toContain('receiver-key')
+  })
 })

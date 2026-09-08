@@ -81,6 +81,7 @@ try {
             if (-not (Test-Path -LiteralPath $environmentFile -PathType Leaf)) {
                 throw "Create the ignored prerelease environment file first: $environmentFile"
             }
+            Assert-PrereleaseEnvironmentFile -Path $environmentFile | Out-Null
             Assert-PrereleasePorts -Ports @(3100, 8180) | Out-Null
             $lock = Enter-PrereleaseLock -StateRoot $StateRoot
             try {
