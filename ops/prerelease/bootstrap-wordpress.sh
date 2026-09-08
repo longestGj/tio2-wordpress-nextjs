@@ -66,7 +66,9 @@ record_seed_result() {
     echo json_encode($records, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
   ')"
   printf '%s' "$next_records" > /run-state/seed-records.next.json
-  wp option update d16_prerelease_seed_records "$(cat /run-state/seed-records.next.json)" --autoload=no >/dev/null
+  if [[ "$next_records" != "$current" ]]; then
+    wp option update d16_prerelease_seed_records "$(cat /run-state/seed-records.next.json)" --autoload=no >/dev/null
+  fi
 }
 
 seed_record_is_current() {
@@ -113,7 +115,8 @@ prepare_editorial_reviews
 
 while IFS=$'\t' read -r seed_path seed_hash; do
   option_name="d16_prerelease_seed_${seed_hash}"
-  if [[ "$(wp option get "$option_name" 2>/dev/null || true)" == "$seed_path" ]] && seed_record_is_current "$seed_path" "$seed_hash"; then
+  existing_marker="$(wp option get "$option_name" 2>/dev/null || true)"
+  if [[ "$existing_marker" == "$seed_path" ]] && seed_record_is_current "$seed_path" "$seed_hash"; then
     continue
   fi
   case "$seed_path" in
@@ -126,7 +129,9 @@ while IFS=$'\t' read -r seed_path seed_hash; do
   esac
   seed_output="$(wp eval-file "/workspace/$seed_path" Apply)"
   record_seed_result "$seed_path" "$seed_hash" "$seed_output"
-  wp option update "$option_name" "$seed_path" --autoload=no >/dev/null
+  if [[ "$existing_marker" != "$seed_path" ]]; then
+    wp option update "$option_name" "$seed_path" --autoload=no >/dev/null
+  fi
 done < "$verified"
 
 wp eval-file /workspace/wordpress/bootstrap/validate-prerelease-site.php > /run-state/site-validation.json
