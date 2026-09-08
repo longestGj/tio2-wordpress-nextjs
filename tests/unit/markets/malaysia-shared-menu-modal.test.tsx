@@ -23,12 +23,8 @@ it('opens the shared dialog with Close focused, locks scroll, wraps both Tab dir
   expect(dialog.querySelector('img')?.getAttribute('src')).toContain('primary-horizontal-v0.1.svg')
   const links=dialog.querySelectorAll('nav a')
   expect([...links].map(a=>a.textContent)).toEqual(['Home','Markets','Products','Applications','Documents','Resources','About','Request a Quote'])
-  const topbarRfq=dialog.querySelector('a[href="/request-a-quote/"]')
-  // Close receives initial focus, but the topbar RFQ precedes it in tab order.
-  // userEvent supplies normal Tab traversal; fireEvent only dispatches keydown.
-  await user.tab({shift:true});expect(document.activeElement).toBe(topbarRfq)
+  // The shared approved menu has Close first and one RFQ link last.
   await user.tab({shift:true});expect(document.activeElement).toBe(links[7])
-  await user.tab();expect(document.activeElement).toBe(topbarRfq)
   await user.tab();expect(document.activeElement).toBe(close)
   fireEvent(dialog,new Event('cancel',{bubbles:false,cancelable:true}))
   expect(document.activeElement).toBe(trigger)

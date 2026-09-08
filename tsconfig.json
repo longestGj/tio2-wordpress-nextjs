@@ -47,7 +47,9 @@
     ".next-tio2-my/types/**/*.ts",
     ".next-tio2-my/dev/types/**/*.ts",
     ".next-trade4-app5-verified/types/**/*.ts",
-    ".next-trade4-app5-verified/dev/types/**/*.ts"
+    ".next-trade4-app5-verified/dev/types/**/*.ts",
+    ".next-country-editorial/types/**/*.ts",
+    ".next-country-editorial/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

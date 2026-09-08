@@ -9,7 +9,7 @@ test('nine pages preserve actual browser 200% zoom and keyboard states',async()=
  test.setTimeout(300_000)
  const base=process.env.TIO2_MY_BASE_URL??'http://127.0.0.1:3216'
  expect(['127.0.0.1','localhost']).toContain(new URL(base).hostname)
- const output=resolve('docs/verification/tio2-my/trade4-app5-20260908/native-zoom');mkdirSync(output,{recursive:true})
+ const output=resolve(process.env.EDITORIAL_NATIVE_EVIDENCE_DIR??'docs/verification/tio2-my/trade4-app5-20260908/native-zoom');mkdirSync(output,{recursive:true})
  const temp=mkdtempSync(resolve('.tmp/editorial-native-')),extension=resolve(temp,'extension');mkdirSync(extension)
  writeFileSync(resolve(extension,'manifest.json'),JSON.stringify({manifest_version:3,name:'Local editorial native zoom verification',version:'1.0',permissions:['tabs'],host_permissions:['http://127.0.0.1/*'],background:{service_worker:'worker.js'}}))
  writeFileSync(resolve(extension,'worker.js'),'chrome.runtime.onInstalled.addListener(()=>{});')

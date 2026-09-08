@@ -15,7 +15,7 @@ interface CountryContract {
 
 const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3029'
 const wordpressUrl = process.env.WORDPRESS_GRAPHQL_URL
-const evidenceRoot = 'docs/verification/tio2-my/market-four-gate9-es-f01-repair-20260908/screenshots'
+const evidenceRoot = process.env.COUNTRY_EVIDENCE_DIR ?? 'docs/verification/tio2-my/market-four-gate9-es-f01-repair-20260908/screenshots'
 const pages = [
   ['spain', 'tio2-my-market-eu-es.json'],
   ['india', 'tio2-my-market-in-001.json'],
@@ -32,7 +32,7 @@ const runtimeEvidence: Record<string, unknown> = {}
 
 mkdirSync(evidenceRoot, {recursive: true})
 test.afterAll(() => writeFileSync(
-  'docs/verification/tio2-my/market-four-gate9-es-f01-repair-20260908/runtime-matrix.json',
+  process.env.COUNTRY_RUNTIME_EVIDENCE ?? 'docs/verification/tio2-my/market-four-gate9-es-f01-repair-20260908/runtime-matrix.json',
   `${JSON.stringify(runtimeEvidence, null, 2)}\n`,
 ))
 
@@ -72,7 +72,7 @@ test('WordPress resolver returns four exact tio2-my records without fallback', a
     readback[contract.identity.pageId] = {body, variables}
   }
   writeFileSync(
-    'docs/verification/tio2-my/market-four-gate9-repair-20260908/cms-resolver-readback.json',
+    process.env.COUNTRY_CMS_EVIDENCE ?? 'docs/verification/tio2-my/market-four-gate9-repair-20260908/cms-resolver-readback.json',
     `${JSON.stringify(readback, null, 2)}\n`,
   )
 })

@@ -7,7 +7,7 @@ import {JSDOM} from 'jsdom'
 import {EDITORIAL_CONTRACTS} from './editorial-fixtures'
 
 const base=process.env.TIO2_MY_BASE_URL??'http://127.0.0.1:3216'
-const root=resolve('docs/verification/tio2-my/trade4-app5-20260908/runtime')
+const root=resolve(process.env.EDITORIAL_EVIDENCE_DIR??'docs/verification/tio2-my/trade4-app5-20260908/runtime')
 const normalize=(text:string|null)=>String(text??'').replace(/\s+/gu,' ').trim()
 test.beforeAll(()=>{expect(['127.0.0.1','localhost']).toContain(new URL(base).hostname);mkdirSync(root,{recursive:true})})
 for(const contract of EDITORIAL_CONTRACTS) test(`${contract.identity.pageId} live CMS SSR and responsive interactions`,async({page,request})=>{
@@ -47,10 +47,12 @@ for(const contract of EDITORIAL_CONTRACTS) test(`${contract.identity.pageId} liv
   await page.setViewportSize({width,height:1000});await page.evaluate(()=>document.fonts.ready)
   for(const logo of await page.locator('header img:visible, footer img:visible').all()) {await logo.scrollIntoViewIfNeeded();expect(await logo.evaluate(async element=>{await (element as HTMLImageElement).decode();return (element as HTMLImageElement).naturalWidth>0})).toBe(true)}
   await page.evaluate(()=>scrollTo(0,0))
-  const geometry=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,height:document.documentElement.scrollHeight,dpr:devicePixelRatio,font:getComputedStyle(document.querySelector('main')!).fontFamily,sharedFont:getComputedStyle(document.documentElement).getPropertyValue('--font-my-shared').trim(),bodyMargin:getComputedStyle(document.body).margin}))
+  const geometry=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,height:document.documentElement.scrollHeight,dpr:devicePixelRatio,font:getComputedStyle(document.querySelector('main')!).fontFamily,sharedFont:getComputedStyle(document.querySelector('main')!).getPropertyValue('--font-my-shared').trim(),bodyEditorialFont:getComputedStyle(document.body).getPropertyValue('--font-my-shared').trim(),bodyMargin:getComputedStyle(document.body).margin}))
   expect(geometry.scrollWidth).toBeLessThanOrEqual(width+1)
   expect(geometry.bodyMargin).toBe('0px')
   expect(geometry.font).toContain('Inter')
+  expect(geometry.sharedFont).not.toBe('')
+  expect(geometry.bodyEditorialFont).toBe('')
   const screenshot=await page.screenshot({path:resolve(root,`${id}-${width}.png`),fullPage:true})
   captures.push({width,geometry,file:`${id}-${width}.png`,sha256:createHash('sha256').update(screenshot).digest('hex')})
   const current=contract.identity.section==='resources'?'Resources':'Applications'
@@ -62,11 +64,9 @@ for(const contract of EDITORIAL_CONTRACTS) test(`${contract.identity.pageId} liv
    await expect(menu).toBeVisible();await expect(menu.getByRole('link',{name:current,exact:true})).toHaveAttribute('aria-current','page')
    await expect(page.getByRole('navigation',{name:'Primary navigation',exact:true})).toHaveCount(0)
    const close=menu.getByRole('button',{name:'Close primary navigation menu',exact:true})
-   const topbarQuote=menu.getByRole('link',{name:'RFQ',exact:true}),lastQuote=menu.getByRole('link',{name:'Request a Quote',exact:true})
+   const lastQuote=menu.getByRole('link',{name:'Request a Quote',exact:true})
    await expect(close).toBeFocused()
-   await page.keyboard.press('Shift+Tab');await expect(topbarQuote).toBeFocused()
    await page.keyboard.press('Shift+Tab');await expect(lastQuote).toBeFocused()
-   await page.keyboard.press('Tab');await expect(topbarQuote).toBeFocused()
    await page.keyboard.press('Tab');await expect(close).toBeFocused()
    await page.screenshot({path:resolve(root,`${id}-${width}-menu.png`)})
    await page.keyboard.press('Escape');await expect(trigger).toBeFocused()

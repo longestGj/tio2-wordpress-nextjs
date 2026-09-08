@@ -4,6 +4,8 @@ import {EditorialContractError,EditorialFreshnessError} from '@/lib/wordpress/ed
 import {GraphQLResponseError} from '@/lib/wordpress/client'
 import {getSiteConfig} from '@/sites'
 
+vi.mock('next/font/google',()=>({Inter:()=>({variable:'editorial-inter-variable'})}))
+
 const mocks=vi.hoisted(()=>({site:vi.fn(),query:vi.fn(),connection:vi.fn(),notFound:vi.fn(()=>{throw new Error('NOT_FOUND')})}))
 vi.mock('@/lib/sites/current-site',()=>({getCurrentSite:mocks.site}))
 vi.mock('@/lib/wordpress/editorial-v01-queries',()=>({getMalaysiaEditorialPage:mocks.query}))
