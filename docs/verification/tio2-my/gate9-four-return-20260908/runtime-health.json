@@ -1,11 +1,28 @@
 {
-  "checkedAt": "2026-09-08T10:40:00+08:00",
+  "checkedAt": "2026-09-08T11:15:29+08:00",
   "siteId": "tio2-my",
   "branch": "codex/poland-development",
   "repairCommit": "c8b11ced84119578edb3f0ef8e27d25cf11e7eb5",
+  "evidenceHeadBeforeCompletion": "bc4abc254401605f2afde1f28a649eb1f9b7d02e",
   "baseUrl": "http://127.0.0.1:3024",
+  "runtimePid": 65528,
+  "runtimeCommand": "node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3024",
   "buildDirectory": ".next-g9-four-return",
   "buildId": "2IMF284tCfKor6WTwWdXq",
+  "continuityEvidence": {
+    "path": "runtime-continuity.json",
+    "rounds": 10,
+    "targetRequests": 40,
+    "targetResponses200": 40,
+    "targetErrors": 0
+  },
+  "masterbatchAdjacentRoute": {
+    "requestedPath": "/applications/titanium-dioxide-for-masterbatch/",
+    "status": 308,
+    "location": "/applications/titanium-dioxide-for-masterbatch",
+    "destinationStatus": 404,
+    "destinationDurationMs": 105
+  },
   "routes": [
     {
       "path": "/markets/brazil/",

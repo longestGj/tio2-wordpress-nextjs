@@ -1,0 +1,449 @@
+{
+  "schemaVersion": 1,
+  "baseUrl": "http://127.0.0.1:3024",
+  "implementationCommit": "c8b11ced84119578edb3f0ef8e27d25cf11e7eb5",
+  "evidenceHeadBeforeRun": "bc4abc254401605f2afde1f28a649eb1f9b7d02e",
+  "buildDirectory": ".next-g9-four-return",
+  "buildId": "2IMF284tCfKor6WTwWdXq",
+  "siteId": "tio2-my",
+  "startedAt": "2026-09-08T03:14:23.053Z",
+  "completedAt": "2026-09-08T03:14:23.412Z",
+  "summary": {
+    "rounds": 10,
+    "targetRequests": 40,
+    "targetResponses200": 40,
+    "targetErrors": 0
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "results": [
+        {
+          "path": "/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.053Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/markets/brazil/",
+          "durationMs": 93,
+          "bytes": 40713
+        },
+        {
+          "path": "/pt-br/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.147Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/pt-br/markets/brazil/",
+          "durationMs": 10,
+          "bytes": 44115
+        },
+        {
+          "path": "/products/chloride-process-titanium-dioxide/",
+          "checkedAt": "2026-09-08T03:14:23.157Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/products/chloride-process-titanium-dioxide/",
+          "durationMs": 8,
+          "bytes": 46665
+        },
+        {
+          "path": "/documents/certificate-of-origin/",
+          "checkedAt": "2026-09-08T03:14:23.165Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/documents/certificate-of-origin/",
+          "durationMs": 16,
+          "bytes": 41372
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "results": [
+        {
+          "path": "/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.181Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/markets/brazil/",
+          "durationMs": 4,
+          "bytes": 40713
+        },
+        {
+          "path": "/pt-br/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.186Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/pt-br/markets/brazil/",
+          "durationMs": 4,
+          "bytes": 44115
+        },
+        {
+          "path": "/products/chloride-process-titanium-dioxide/",
+          "checkedAt": "2026-09-08T03:14:23.190Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/products/chloride-process-titanium-dioxide/",
+          "durationMs": 4,
+          "bytes": 46665
+        },
+        {
+          "path": "/documents/certificate-of-origin/",
+          "checkedAt": "2026-09-08T03:14:23.194Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/documents/certificate-of-origin/",
+          "durationMs": 3,
+          "bytes": 41372
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "results": [
+        {
+          "path": "/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.197Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/markets/brazil/",
+          "durationMs": 4,
+          "bytes": 40713
+        },
+        {
+          "path": "/pt-br/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.201Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/pt-br/markets/brazil/",
+          "durationMs": 6,
+          "bytes": 44115
+        },
+        {
+          "path": "/products/chloride-process-titanium-dioxide/",
+          "checkedAt": "2026-09-08T03:14:23.207Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/products/chloride-process-titanium-dioxide/",
+          "durationMs": 4,
+          "bytes": 46665
+        },
+        {
+          "path": "/documents/certificate-of-origin/",
+          "checkedAt": "2026-09-08T03:14:23.211Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/documents/certificate-of-origin/",
+          "durationMs": 3,
+          "bytes": 41372
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "results": [
+        {
+          "path": "/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.214Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/markets/brazil/",
+          "durationMs": 3,
+          "bytes": 40713
+        },
+        {
+          "path": "/pt-br/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.218Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/pt-br/markets/brazil/",
+          "durationMs": 3,
+          "bytes": 44115
+        },
+        {
+          "path": "/products/chloride-process-titanium-dioxide/",
+          "checkedAt": "2026-09-08T03:14:23.221Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/products/chloride-process-titanium-dioxide/",
+          "durationMs": 4,
+          "bytes": 46665
+        },
+        {
+          "path": "/documents/certificate-of-origin/",
+          "checkedAt": "2026-09-08T03:14:23.225Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/documents/certificate-of-origin/",
+          "durationMs": 4,
+          "bytes": 41372
+        }
+      ]
+    },
+    {
+      "round": 5,
+      "results": [
+        {
+          "path": "/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.229Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/markets/brazil/",
+          "durationMs": 3,
+          "bytes": 40713
+        },
+        {
+          "path": "/pt-br/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.231Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/pt-br/markets/brazil/",
+          "durationMs": 3,
+          "bytes": 44115
+        },
+        {
+          "path": "/products/chloride-process-titanium-dioxide/",
+          "checkedAt": "2026-09-08T03:14:23.234Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/products/chloride-process-titanium-dioxide/",
+          "durationMs": 3,
+          "bytes": 46665
+        },
+        {
+          "path": "/documents/certificate-of-origin/",
+          "checkedAt": "2026-09-08T03:14:23.237Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/documents/certificate-of-origin/",
+          "durationMs": 2,
+          "bytes": 41372
+        }
+      ]
+    },
+    {
+      "round": 6,
+      "results": [
+        {
+          "path": "/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.239Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/markets/brazil/",
+          "durationMs": 3,
+          "bytes": 40713
+        },
+        {
+          "path": "/pt-br/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.242Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/pt-br/markets/brazil/",
+          "durationMs": 3,
+          "bytes": 44115
+        },
+        {
+          "path": "/products/chloride-process-titanium-dioxide/",
+          "checkedAt": "2026-09-08T03:14:23.245Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/products/chloride-process-titanium-dioxide/",
+          "durationMs": 3,
+          "bytes": 46665
+        },
+        {
+          "path": "/documents/certificate-of-origin/",
+          "checkedAt": "2026-09-08T03:14:23.248Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/documents/certificate-of-origin/",
+          "durationMs": 4,
+          "bytes": 41372
+        }
+      ]
+    },
+    {
+      "round": 7,
+      "results": [
+        {
+          "path": "/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.252Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/markets/brazil/",
+          "durationMs": 3,
+          "bytes": 40713
+        },
+        {
+          "path": "/pt-br/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.255Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/pt-br/markets/brazil/",
+          "durationMs": 4,
+          "bytes": 44115
+        },
+        {
+          "path": "/products/chloride-process-titanium-dioxide/",
+          "checkedAt": "2026-09-08T03:14:23.259Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/products/chloride-process-titanium-dioxide/",
+          "durationMs": 5,
+          "bytes": 46665
+        },
+        {
+          "path": "/documents/certificate-of-origin/",
+          "checkedAt": "2026-09-08T03:14:23.264Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/documents/certificate-of-origin/",
+          "durationMs": 5,
+          "bytes": 41372
+        }
+      ]
+    },
+    {
+      "round": 8,
+      "results": [
+        {
+          "path": "/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.269Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/markets/brazil/",
+          "durationMs": 3,
+          "bytes": 40713
+        },
+        {
+          "path": "/pt-br/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.272Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/pt-br/markets/brazil/",
+          "durationMs": 3,
+          "bytes": 44115
+        },
+        {
+          "path": "/products/chloride-process-titanium-dioxide/",
+          "checkedAt": "2026-09-08T03:14:23.275Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/products/chloride-process-titanium-dioxide/",
+          "durationMs": 3,
+          "bytes": 46665
+        },
+        {
+          "path": "/documents/certificate-of-origin/",
+          "checkedAt": "2026-09-08T03:14:23.278Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/documents/certificate-of-origin/",
+          "durationMs": 3,
+          "bytes": 41372
+        }
+      ]
+    },
+    {
+      "round": 9,
+      "results": [
+        {
+          "path": "/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.281Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/markets/brazil/",
+          "durationMs": 3,
+          "bytes": 40713
+        },
+        {
+          "path": "/pt-br/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.284Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/pt-br/markets/brazil/",
+          "durationMs": 3,
+          "bytes": 44115
+        },
+        {
+          "path": "/products/chloride-process-titanium-dioxide/",
+          "checkedAt": "2026-09-08T03:14:23.287Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/products/chloride-process-titanium-dioxide/",
+          "durationMs": 2,
+          "bytes": 46665
+        },
+        {
+          "path": "/documents/certificate-of-origin/",
+          "checkedAt": "2026-09-08T03:14:23.289Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/documents/certificate-of-origin/",
+          "durationMs": 3,
+          "bytes": 41372
+        }
+      ]
+    },
+    {
+      "round": 10,
+      "results": [
+        {
+          "path": "/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.292Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/markets/brazil/",
+          "durationMs": 3,
+          "bytes": 40713
+        },
+        {
+          "path": "/pt-br/markets/brazil/",
+          "checkedAt": "2026-09-08T03:14:23.294Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/pt-br/markets/brazil/",
+          "durationMs": 2,
+          "bytes": 44115
+        },
+        {
+          "path": "/products/chloride-process-titanium-dioxide/",
+          "checkedAt": "2026-09-08T03:14:23.297Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/products/chloride-process-titanium-dioxide/",
+          "durationMs": 3,
+          "bytes": 46665
+        },
+        {
+          "path": "/documents/certificate-of-origin/",
+          "checkedAt": "2026-09-08T03:14:23.299Z",
+          "status": 200,
+          "location": null,
+          "finalUrl": "http://127.0.0.1:3024/documents/certificate-of-origin/",
+          "durationMs": 3,
+          "bytes": 41372
+        }
+      ]
+    }
+  ],
+  "masterbatch": {
+    "noTrailingSlash": {
+      "path": "/applications/titanium-dioxide-for-masterbatch",
+      "checkedAt": "2026-09-08T03:14:23.302Z",
+      "status": 404,
+      "location": null,
+      "finalUrl": "http://127.0.0.1:3024/applications/titanium-dioxide-for-masterbatch",
+      "durationMs": 105,
+      "bytes": 7837
+    },
+    "trailingSlash": {
+      "path": "/applications/titanium-dioxide-for-masterbatch/",
+      "checkedAt": "2026-09-08T03:14:23.407Z",
+      "status": 308,
+      "location": "/applications/titanium-dioxide-for-masterbatch",
+      "finalUrl": "http://127.0.0.1:3024/applications/titanium-dioxide-for-masterbatch/",
+      "durationMs": 5,
+      "bytes": 46
+    }
+  }
+}

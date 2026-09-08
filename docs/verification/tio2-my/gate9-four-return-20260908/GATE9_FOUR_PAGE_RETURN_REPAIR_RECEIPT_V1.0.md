@@ -11,6 +11,17 @@ Build directory: .next-g9-four-return
 Build ID: 2IMF284tCfKor6WTwWdXq
 Local preview: http://127.0.0.1:3024 using .next-g9-four-return
 
+## Gate9 targeted recheck evidence completion
+
+Gate9 return `G9-BR-CL-COO-EVIDENCE-RETURN-20260908-02` was handled without changing the implementation commit or rebuilding the candidate. The production candidate was restarted as a detached hidden process from repository `D:/16Wordpress_nextjs`, with `SITE_ID=tio2-my`, `.next-g9-four-return`, Build ID `2IMF284tCfKor6WTwWdXq`, and implementation commit `c8b11ced84119578edb3f0ef8e27d25cf11e7eb5`. At the completion check, PID `65528` owned the `127.0.0.1:3024` listener.
+
+- `runtime-continuity.json` records 10 sequential rounds across all four target routes: 40/40 responses were HTTP 200, with no timeout or request error. The runtime remained alive after the probe and focused tests.
+- `focused-vitest.json` now exists and records 9 test files, 17/17 suites and 35/35 tests passed.
+- `focused-playwright.json` now exists and records the four requested Chromium scenarios: 4 expected, 0 unexpected, 0 flaky and 0 skipped. These cover Brazil EN visual language, Brazil EN RFQ history, Brazil PT RFQ history and Chloride SSR identity/schema.
+- The adjacent Masterbatch observation was reproduced with the stable runtime. `/applications/titanium-dioxide-for-masterbatch/` returns HTTP 308 with `Location: /applications/titanium-dioxide-for-masterbatch`; the destination then responds HTTP 404 in 105 ms rather than timing out. The prior timeout was therefore a runtime-availability failure after the redirect. The missing adjacent route remains with its existing downstream owner and was not changed in this repair.
+
+This completion restores the exact candidate and supplies the missing evidence only. Gate9 still performs its independent RFQ browser sequence and determines acceptance; this receipt does not declare Gate9 passed.
+
 ## Scope handled
 
 - BR-EN-G9-F01: Brazil EN market page applies the approved Gate4 V1.1 visual language to the five approved modules: hero badge/grid, 58px desktop H1, application cards, navy document band, trade handoff band and RFQ numbered list treatment.
