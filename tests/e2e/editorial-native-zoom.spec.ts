@@ -13,7 +13,7 @@ test('nine pages preserve actual browser 200% zoom and keyboard states',async()=
  const temp=mkdtempSync(resolve('.tmp/editorial-native-')),extension=resolve(temp,'extension');mkdirSync(extension)
  writeFileSync(resolve(extension,'manifest.json'),JSON.stringify({manifest_version:3,name:'Local editorial native zoom verification',version:'1.0',permissions:['tabs'],host_permissions:['http://127.0.0.1/*'],background:{service_worker:'worker.js'}}))
  writeFileSync(resolve(extension,'worker.js'),'chrome.runtime.onInstalled.addListener(()=>{});')
- const context=await chromium.launchPersistentContext(resolve(temp,'profile'),{channel:'chromium',headless:true,viewport:null,deviceScaleFactor:undefined,isMobile:undefined,args:['--window-size=1440,1000',`--disable-extensions-except=${extension}`,`--load-extension=${extension}`]})
+ const context=await chromium.launchPersistentContext(resolve(temp,'profile'),{channel:'chromium',headless:true,viewport:null,deviceScaleFactor:undefined,isMobile:undefined,args:['--window-size=1440,1000','--disable-gpu',`--disable-extensions-except=${extension}`,`--load-extension=${extension}`]})
  try {
   const worker=context.serviceWorkers()[0]??await context.waitForEvent('serviceworker')
   for(const contract of EDITORIAL_CONTRACTS) {
@@ -43,6 +43,10 @@ test('nine pages preserve actual browser 200% zoom and keyboard states',async()=
    const cdp=await context.newCDPSession(page)
    const captures:Array<{file:string;sha256:string;width:number|undefined;height:number|undefined;method:string;clip?:{x:number;y:number;width:number;height:number;scale:number}}>=[]
    async function capture(name:string,fullPage=false) {
+    await page.bringToFront()
+    // Headless GPU viewport captures intermittently omitted menu text despite
+    // visible/focused DOM. Use the software compositor and let the active view settle.
+    if(!fullPage) await page.waitForTimeout(500)
     await page.evaluate(()=>new Promise<void>(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>r()))))
     const metrics=await cdp.send('Page.getLayoutMetrics')
     // Keep each bitmap below Chromium's large compositor-surface boundary.
@@ -55,7 +59,7 @@ test('nine pages preserve actual browser 200% zoom and keyboard states',async()=
      expect(metadata.width).toBeGreaterThan(after.innerWidth*1.9)
      const file=`${id}-${name}${fullPage?`-part-${part+1}`:''}.png`
      writeFileSync(resolve(output,file),bytes)
-     captures.push({file,sha256:createHash('sha256').update(bytes).digest('hex'),width:metadata.width,height:metadata.height,method:'native tabs.setZoom(2), direct CDP compositor segment',...(clip?{clip}:{})})
+     captures.push({file,sha256:createHash('sha256').update(bytes).digest('hex'),width:metadata.width,height:metadata.height,method:`native tabs.setZoom(2), Chromium --disable-gpu, active page, direct CDP compositor ${fullPage?'segment':'viewport after 500ms settle'}`,...(clip?{clip}:{})})
     }
    }
    await page.evaluate(()=>scrollTo(0,0));await capture('full',true);await capture('top')

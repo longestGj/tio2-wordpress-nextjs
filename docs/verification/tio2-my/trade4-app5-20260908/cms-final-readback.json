@@ -1,0 +1,254 @@
+{
+    "time": "2026-09-08T01:19:41+00:00",
+    "environment": "isolated local tio2my9 :8186",
+    "task": "G8-TRADE4-APP5-20260908-01",
+    "rows": [
+        {
+            "pageId": "RES-TRADE-EU",
+            "id": "editorial-18529",
+            "siteScope": [
+                {
+                    "slug": "tio2-my"
+                }
+            ],
+            "status": "publish",
+            "path": "\/resources\/eu-titanium-dioxide-anti-dumping-duty",
+            "payloadSha256": "071b8d1dc53eca3f6956e1db19ce9067a306f8c3a0b5d676f6cb24866a0abb77",
+            "equalsApprovedBytes": true,
+            "source": {
+                "packageId": "RES-TRADE-EU-G6-HANDOFF-01",
+                "packageSha256": "bb1b44d42fa32232965e62e3255cde05518f2570224b827a1cf68c7b4fd021ad",
+                "bodySha256": "9e119c657d6eed9346ef132e0c2039a5c99327fb9087a273df689b8a2d8a8cb1",
+                "renderedBodySha256": "f1cb77f46e24d8392aa87b85aedb0f296d03cdca52037b60f079b503530cb3b5",
+                "visualSha256": "c525751ddb4002493a4d5303fb1f5930ed69e0ff489f224e26765a7cced29bbf"
+            },
+            "reviewStatus": "verified",
+            "eventStatus": "no_open_trigger",
+            "availableGradePaths": [],
+            "unavailableInternalPaths": []
+        },
+        {
+            "pageId": "RES-TRADE-UK",
+            "id": "editorial-18531",
+            "siteScope": [
+                {
+                    "slug": "tio2-my"
+                }
+            ],
+            "status": "publish",
+            "path": "\/resources\/uk-titanium-dioxide-anti-dumping-investigation",
+            "payloadSha256": "8e9c5b448cb6b8f86badcd78473059191eaa0e33bfd0589f252fdb54c839f376",
+            "equalsApprovedBytes": true,
+            "source": {
+                "packageId": "RES-TRADE-UK-G6-HANDOFF-01",
+                "packageSha256": "b20932999d838eebb3c42d3e07cf22af712776a5e6f36de43a1da378e3ff2c59",
+                "bodySha256": "e2df4ca206fc64e984f57d6171b3037d665f279c786405a4081ebb2e63c7ac97",
+                "renderedBodySha256": "efdc0549e80bc5d084eeafae9e63db8bbd9acfeffaf4d4e60e5b75512c73aada",
+                "visualSha256": "9ca15ee7ef19e0949b6bb383bfda20fb9ad2fce50e816ee508786f4958a457ee"
+            },
+            "reviewStatus": "verified",
+            "eventStatus": "no_open_trigger",
+            "availableGradePaths": [],
+            "unavailableInternalPaths": []
+        },
+        {
+            "pageId": "RES-TRADE-IN",
+            "id": "editorial-18533",
+            "siteScope": [
+                {
+                    "slug": "tio2-my"
+                }
+            ],
+            "status": "publish",
+            "path": "\/resources\/india-titanium-dioxide-anti-dumping-duty",
+            "payloadSha256": "b8de5c191e6058b8b92b686d9e4446abd6a7a28d125f4faa7fb18c19cee38656",
+            "equalsApprovedBytes": true,
+            "source": {
+                "packageId": "RES-TRADE-IN-G6-HANDOFF-01",
+                "packageSha256": "5fa99b705b7e8a21ec2d68eb68e2f9235f295d1723bf31387a3f882b8186e0e9",
+                "bodySha256": "1234d6f2b0615aa5da488ef51dde282251e175315d9f34e140080e7e3a65252a",
+                "renderedBodySha256": "545e54c1a924028d6de0a99e956e5dd785ccdff7ab469e522752060ea6ae39a2",
+                "visualSha256": "617d8371fa0e73dc14e571ce9b3c75c8d84390c638e19039487db4f432e5d833"
+            },
+            "reviewStatus": "verified",
+            "eventStatus": "no_open_trigger",
+            "availableGradePaths": [],
+            "unavailableInternalPaths": []
+        },
+        {
+            "pageId": "RES-TRADE-BR",
+            "id": "editorial-18535",
+            "siteScope": [
+                {
+                    "slug": "tio2-my"
+                }
+            ],
+            "status": "publish",
+            "path": "\/resources\/brazil-titanium-dioxide-anti-dumping-duty",
+            "payloadSha256": "b6a465384eac3257b9f299c8f5cc34d8b84c14bdc316619aa86dfabe980e1d89",
+            "equalsApprovedBytes": true,
+            "source": {
+                "packageId": "RES-TRADE-BR-G6-HANDOFF-02",
+                "packageSha256": "9d0b24b5f49a7f275f6385e2db34ade3f12ffab58aa52012b59ce284b1dac592",
+                "bodySha256": "bb83adeb1a2a21ee7b7c4d854d569d5b73ba6a9fc75421a387fe9eeded5b6c5f",
+                "renderedBodySha256": "5241e34f139b6e3def6197aff48d51c545ee25f1e5e59a680c076274aae339af",
+                "visualSha256": "bc7c17dee83596aa480bda6c6764d37931ccf830e0c7a2fe0c24e4c272f2ddeb"
+            },
+            "reviewStatus": "verified",
+            "eventStatus": "no_open_trigger",
+            "availableGradePaths": [],
+            "unavailableInternalPaths": []
+        },
+        {
+            "pageId": "APP-COAT",
+            "id": "editorial-18537",
+            "siteScope": [
+                {
+                    "slug": "tio2-my"
+                }
+            ],
+            "status": "publish",
+            "path": "\/applications\/titanium-dioxide-for-coatings",
+            "payloadSha256": "d7b2f8d9a631db764a831a4d5e58c73737e5df20f8901e72b46fceb5a9c00676",
+            "equalsApprovedBytes": true,
+            "source": {
+                "packageId": "APP-COAT-G6-HANDOFF-01",
+                "packageSha256": "0ed6c22408f96e4282917b935dd551d0d0ed4b74becbd78a6eefac967460f915",
+                "bodySha256": "e5c9ffa7bcd7ae0375e45e27ba9bc26b95d00d317ff19c243e7e931b17706531",
+                "visualSha256": "a1e8c4153831aa829698f62e0c30c1fc7a77ec5bbb1f23ce264dede5d61443d2"
+            },
+            "reviewStatus": null,
+            "eventStatus": null,
+            "availableGradePaths": [
+                "\/products\/m-350\/",
+                "\/products\/m-510\/",
+                "\/products\/m-896\/",
+                "\/products\/m-996\/",
+                "\/products\/m-2196\/",
+                "\/products\/m-895\/",
+                "\/products\/m-52\/",
+                "\/products\/m-2377\/"
+            ],
+            "unavailableInternalPaths": []
+        },
+        {
+            "pageId": "APP-PLAS",
+            "id": "editorial-18539",
+            "siteScope": [
+                {
+                    "slug": "tio2-my"
+                }
+            ],
+            "status": "publish",
+            "path": "\/applications\/titanium-dioxide-for-plastics",
+            "payloadSha256": "601ada7cdeb80fea3a362dd8b54e8391e77889def7f98c666562e5df895ea6d7",
+            "equalsApprovedBytes": true,
+            "source": {
+                "packageId": "APP-PLAS-G6-HANDOFF-01",
+                "packageSha256": "30b1a564dd7cb4dc04e9f7feeb2a3d904403d4313bfa20319aee84ac514f9c0d",
+                "bodySha256": "8db6d6fa979831e1e5c5930bdfe3ec261bb74d252304658251a37932bbea4f92",
+                "visualSha256": "fd61a0b74f81c094af4193dcd323cb6f4965321ff453039e0b7bd58c6891e6f9"
+            },
+            "reviewStatus": null,
+            "eventStatus": null,
+            "availableGradePaths": [
+                "\/products\/m-350\/",
+                "\/products\/m-510\/",
+                "\/products\/m-200\/",
+                "\/products\/m-108\/",
+                "\/products\/m-210\/",
+                "\/products\/m-340\/",
+                "\/products\/m-886\/",
+                "\/products\/m-2377\/"
+            ],
+            "unavailableInternalPaths": []
+        },
+        {
+            "pageId": "APP-MB",
+            "id": "editorial-18541",
+            "siteScope": [
+                {
+                    "slug": "tio2-my"
+                }
+            ],
+            "status": "publish",
+            "path": "\/applications\/titanium-dioxide-for-masterbatch",
+            "payloadSha256": "3997b67d1f3be5ce75e75f1967237226d77bacc472807332a951b1c729df7248",
+            "equalsApprovedBytes": true,
+            "source": {
+                "packageId": "APP-MB-G6-HANDOFF-01",
+                "packageSha256": "fc8f25356db20de25fbbbbfee086335563f5e017fdb4097726d058d045e64c7c",
+                "bodySha256": "06bdd245d1722223c415e0c4cecc7248f64d938cc37f936ae160b240faa9343f",
+                "visualSha256": "96ef54b24f4121dbd79ce4975f9e7c48ff0d6de0a270a82f93652f76525b9c1e"
+            },
+            "reviewStatus": null,
+            "eventStatus": null,
+            "availableGradePaths": [
+                "\/products\/m-510\/",
+                "\/products\/m-200\/",
+                "\/products\/m-108\/",
+                "\/products\/m-210\/",
+                "\/products\/m-340\/",
+                "\/products\/m-886\/",
+                "\/products\/m-2377\/"
+            ],
+            "unavailableInternalPaths": []
+        },
+        {
+            "pageId": "APP-INK",
+            "id": "editorial-18543",
+            "siteScope": [
+                {
+                    "slug": "tio2-my"
+                }
+            ],
+            "status": "publish",
+            "path": "\/applications\/titanium-dioxide-for-printing-inks",
+            "payloadSha256": "c5f86a7431aaee1a1bb6d76d6be1c570a3b3fdbb20da6fd59875b2c943c605a0",
+            "equalsApprovedBytes": true,
+            "source": {
+                "packageId": "APP-INK-G6-HANDOFF-01",
+                "packageSha256": "fe8769f96f1450638d1b5f46650be69ca73daeb8efdb1e7d5c99acb2421d014c",
+                "bodySha256": "b5a92976f526fcfee74fdf088ec9ea3ef21456e5ba66965f79c50ec4dd5c938d",
+                "visualSha256": "148baf534aae5beaf66f2b776f2741dccb5f5b2fe458761d2193fa83eb65ae98"
+            },
+            "reviewStatus": null,
+            "eventStatus": null,
+            "availableGradePaths": [
+                "\/products\/m-350\/",
+                "\/products\/m-510\/",
+                "\/products\/m-52\/",
+                "\/products\/m-2377\/"
+            ],
+            "unavailableInternalPaths": [
+                "\/applications\/"
+            ]
+        },
+        {
+            "pageId": "APP-PAPER",
+            "id": "editorial-18545",
+            "siteScope": [
+                {
+                    "slug": "tio2-my"
+                }
+            ],
+            "status": "publish",
+            "path": "\/applications\/titanium-dioxide-for-paper",
+            "payloadSha256": "5fce675b88452ff6b880f66a5a33c72dd38a811af9f65d41c43a42996c97698f",
+            "equalsApprovedBytes": true,
+            "source": {
+                "packageId": "APP-PAPER-G6-HANDOFF-01",
+                "packageSha256": "c50e1287cdd88a3ebac79cf0accd895be5292d43355b257a9974a9a2effcf1fa",
+                "bodySha256": "14a77a04347e78b7ad080cd9d8b7f6251692450380216506e6e0745724012542",
+                "visualSha256": "e3d7907131d98b987328bf084ba80ed90476363e3caa9936252c5558784bac9f"
+            },
+            "reviewStatus": null,
+            "eventStatus": null,
+            "availableGradePaths": [
+                "\/products\/m-350\/",
+                "\/products\/m-2377\/"
+            ],
+            "unavailableInternalPaths": []
+        }
+    ]
+}

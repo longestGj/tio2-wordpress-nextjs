@@ -41,25 +41,25 @@ Per-page stylesheet `components/sites/tio2-my/editorial/<lowercase-page-id>.css`
 ## Task 1: Intake and exact approved payloads
 
 - [x] Establish worktree and run targeted baseline tests (23 passed).
-- [ ] Audit nine package hashes/current Manifest chain and B/C/visual inputs; store intake.json.
-- [ ] For each page, create config, scoped CSS and explicit route calling `renderMalaysiaEditorialRoute(pageId)` / `generateMalaysiaEditorialMetadata(pageId)` from `lib/editorial/malaysia-editorial-route.tsx`.
-- [ ] First add tests comparing rendered body text/headings/links/table associations to approved B and visual source; run RED, then implement extraction and check GREEN. Retain source provenance and any intentional transformation in receipt.
-- [ ] Fully inspect page-specific dependencies and all stable AC IDs; audit source links and Trade freshness separately.
+- [x] Audit nine package hashes/current Manifest chain and B/C/visual inputs; store intake.json.
+- [x] For each page, create config, scoped CSS and explicit route calling `renderMalaysiaEditorialRoute(pageId)` / `generateMalaysiaEditorialMetadata(pageId)` from `lib/editorial/malaysia-editorial-route.tsx`.
+- [x] First add tests comparing rendered body text/headings/links/table associations to approved B and visual source; run RED, then implement extraction and check GREEN. Retain source provenance and any intentional transformation in receipt.
+- [x] Fully inspect page-specific dependencies and all stable AC IDs; audit source links and Trade freshness separately.
 
 ## Task 2: CMS and delivery integration
 
-- [ ] Add tests in tests/unit/editorial and tests/integration/editorial covering valid and missing/foreign/multiple scopes, wrong identity/path/payload, unsafe HTML, expiry and noindex metadata. Run RED.
-- [ ] Implement lib/editorial/malaysia-editorial-contracts.ts (registry), lib/wordpress/editorial-v01-{dto,queries}.ts and shared renderer/route/SEO. Query variables include pageId and siteScope.
-- [ ] Implement wordpress/plugins/tio2-site-model/includes/editorial-v01.php with exact-scope CPT/meta validation, read-only GraphQL resolver and safe admin edit path. Add bounded seed with plan/apply and rollback ledger.
-- [ ] Extend only relevant route proxy/cache revalidation/webhook dispatch; test invalidation isolation. Codegen schema from isolated CMS.
-- [ ] Run focused unit/integration/PHP tests GREEN and record results.
+- [x] Add tests in tests/unit/editorial and tests/integration/editorial covering valid and missing/foreign/multiple scopes, wrong identity/path/payload, unsafe HTML, expiry and noindex metadata. Run RED.
+- [x] Implement lib/editorial/malaysia-editorial-contracts.ts (registry), lib/wordpress/editorial-v01-{dto,queries}.ts and shared renderer/route/SEO. Query variables include pageId and siteScope.
+- [x] Implement wordpress/plugins/tio2-site-model/includes/editorial-v01.php with exact-scope CPT/meta validation, read-only GraphQL resolver and safe admin edit path. Add bounded seed with plan/apply and rollback ledger.
+- [x] Extend only relevant route proxy/cache revalidation/webhook dispatch; test invalidation isolation. Codegen schema from isolated CMS.
+- [x] Run focused unit/integration/PHP tests GREEN and record results.
 
 ## Task 3: Actual runtime and receipt
 
-- [ ] Use task-owned local CMS/runtime ports, logs and Next build directory. Seed nine records into isolated local CMS after plan audit; capture sanitized readback identity and payload hashes.
-- [ ] Run lint/typecheck/target build and Playwright at 1440/768/390; inspect all screenshots, keyboard anchors/menu/Cookie, table reflow, 200% zoom/reduced motion, receiver navigation (no real submission), seven-surface isolation and failures.
-- [ ] Compare every AC to actual evidence; keep external receivers, unavailable related pages, native devices and publication prerequisites explicitly open.
-- [ ] Independent code review, scoped fixes and rechecks; final code commit and per-page receipt including base/final identities, source mapping, evidence, dependencies and rollback. Do not label self-check Gate 9 PASS.
+- [x] Use task-owned local CMS/runtime ports, logs and Next build directory. Seed nine records into isolated local CMS after plan audit; capture sanitized readback identity and payload hashes.
+- [x] Run lint/typecheck/target build and Playwright at 1440/768/390; inspect all screenshots, keyboard anchors/menu/Cookie, table reflow, 200% zoom/reduced motion, receiver navigation (no real submission), seven-surface isolation and failures.
+- [x] Compare every AC to actual evidence; keep external receivers, unavailable related pages, native devices and publication prerequisites explicitly open.
+- [x] Independent code review, scoped fixes and rechecks; final code commit and per-page receipt including base/final identities, source mapping, evidence, dependencies and rollback. Do not label self-check Gate 9 PASS.
 
 ## Execution ledger
 
@@ -67,3 +67,6 @@ Per-page stylesheet `components/sites/tio2-my/editorial/<lowercase-page-id>.css`
 - Ruling: Branch from 2c97fe1 to inherit committed shared Chrome fixes without absorbing concurrent Poland/Brazil uncommitted code. Other task pages are baseline consumers, not newly delivered here.
 - Ruling: Source freshness agent and Application intake agent are independent read-only subtasks; implementation owner controls shared files and runtime.
 - Preflight: Task 1 produces registry-compatible configs/styles/routes; Task 2 consumes them via explicit interface above. Task 3 consumes runtime from Tasks 1–2. Shared files owned by parent only. No conflicting mutation ownership.
+- Completed 2026-09-08: runtime code b325aec6b5121f2ded604bcf3afad7886515990f, BUILD_ID UV4ipmsCJ7cj7M2EHPfID, local Next 3216 / WordPress 8186 / Docker tio2my9. Nine CMS records restored to exact approved bytes after state exercises.
+- Verification: 426 relevant tests across 44 files; TypeScript, changed-file lint, PHP syntax/parity and target webpack build passed. All 16 planned browser scenarios have final passing evidence across documented runs. All 27 responsive screenshots, 22 native full-body segments and 18 final native menu/RFQ captures actually reviewed. Final test-only capture helper uses software compositor; no production code change after b325aec.
+- Handoff: 121 ACs and 66 dependencies mapped in the receipt evidence directory. Related Applications/Brazil market routes, provisional URL decisions, real receiver verification, other browser/device/assistive-technology coverage and independent Gate 9/Gate 10 remain explicitly open. No remote integration or deployment performed.

@@ -1,0 +1,145 @@
+{
+  "id": "APP-COAT",
+  "time": "2026-09-08T01:12:45.940Z",
+  "ledger": [
+    {
+      "mode": "Draft",
+      "mutation": {
+        "pageId": "APP-COAT",
+        "mode": "Draft",
+        "postId": 18537,
+        "resolverValid": false,
+        "duplicateId": 0
+      },
+      "invalidation": {
+        "ok": true,
+        "eventId": "dcd34db8-a4eb-4229-8954-368002f44936",
+        "revalidatedTags": [
+          "content:tio2-my--editorial--APP-COAT--en",
+          "route:tio2-my:/applications/titanium-dioxide-for-coatings"
+        ],
+        "revalidatedPaths": [
+          "/applications/titanium-dioxide-for-coatings"
+        ]
+      },
+      "status": 404,
+      "factsSuppressed": true
+    },
+    {
+      "mode": "Foreign",
+      "mutation": {
+        "pageId": "APP-COAT",
+        "mode": "Foreign",
+        "postId": 18537,
+        "resolverValid": false,
+        "duplicateId": 0
+      },
+      "invalidation": {
+        "ok": true,
+        "eventId": "f0b91477-a94d-4198-aaaa-9541cb7dbff5",
+        "revalidatedTags": [
+          "content:tio2-my--editorial--APP-COAT--en",
+          "route:tio2-my:/applications/titanium-dioxide-for-coatings"
+        ],
+        "revalidatedPaths": [
+          "/applications/titanium-dioxide-for-coatings"
+        ]
+      },
+      "status": 404,
+      "factsSuppressed": true
+    },
+    {
+      "mode": "Multi",
+      "mutation": {
+        "pageId": "APP-COAT",
+        "mode": "Multi",
+        "postId": 18537,
+        "resolverValid": false,
+        "duplicateId": 0
+      },
+      "invalidation": {
+        "ok": true,
+        "eventId": "c2c11777-f406-4c1d-9627-435ac28c85b0",
+        "revalidatedTags": [
+          "content:tio2-my--editorial--APP-COAT--en",
+          "route:tio2-my:/applications/titanium-dioxide-for-coatings"
+        ],
+        "revalidatedPaths": [
+          "/applications/titanium-dioxide-for-coatings"
+        ]
+      },
+      "status": 404,
+      "factsSuppressed": true
+    },
+    {
+      "mode": "MissingScope",
+      "mutation": {
+        "pageId": "APP-COAT",
+        "mode": "MissingScope",
+        "postId": 18537,
+        "resolverValid": false,
+        "duplicateId": 0
+      },
+      "invalidation": {
+        "ok": true,
+        "eventId": "47f64b7f-3e3a-466e-a2d6-aff38f208b43",
+        "revalidatedTags": [
+          "content:tio2-my--editorial--APP-COAT--en",
+          "route:tio2-my:/applications/titanium-dioxide-for-coatings"
+        ],
+        "revalidatedPaths": [
+          "/applications/titanium-dioxide-for-coatings"
+        ]
+      },
+      "status": 404,
+      "factsSuppressed": true
+    },
+    {
+      "mode": "Malformed",
+      "mutation": {
+        "pageId": "APP-COAT",
+        "mode": "Malformed",
+        "postId": 18537,
+        "resolverValid": false,
+        "duplicateId": 0
+      },
+      "invalidation": {
+        "ok": true,
+        "eventId": "f412054b-af44-4dcd-8964-ea8141e92c57",
+        "revalidatedTags": [
+          "content:tio2-my--editorial--APP-COAT--en",
+          "route:tio2-my:/applications/titanium-dioxide-for-coatings"
+        ],
+        "revalidatedPaths": [
+          "/applications/titanium-dioxide-for-coatings"
+        ]
+      },
+      "status": 404,
+      "factsSuppressed": true
+    },
+    {
+      "mode": "Duplicate",
+      "mutation": {
+        "pageId": "APP-COAT",
+        "mode": "Duplicate",
+        "postId": 18537,
+        "resolverValid": false,
+        "duplicateId": 18547
+      },
+      "invalidation": {
+        "ok": true,
+        "eventId": "d4ddab41-fd98-490f-bcf2-851786a934ea",
+        "revalidatedTags": [
+          "content:tio2-my--editorial--APP-COAT--en",
+          "route:tio2-my:/applications/titanium-dioxide-for-coatings"
+        ],
+        "revalidatedPaths": [
+          "/applications/titanium-dioxide-for-coatings"
+        ]
+      },
+      "status": 404,
+      "factsSuppressed": true
+    }
+  ],
+  "restored": true
+}

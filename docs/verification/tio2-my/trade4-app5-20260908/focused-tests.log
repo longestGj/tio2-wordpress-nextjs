@@ -1,0 +1,13 @@
+
+> test
+> vitest run tests/unit/editorial tests/integration/editorial tests/unit/markets/malaysia-shared-menu-modal.test.tsx tests/unit/legal/consent-manager.test.tsx tests/unit/app/document-language-proxy.test.ts tests/unit/resources tests/integration/resources/malaysia-resource-hub-queries.test.ts tests/integration/resources/malaysia-resource-hub-route.test.tsx tests/integration/api/revalidate.test.ts
+
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/trade4-app5-gate8
+
+
+ Test Files  44 passed (44)
+      Tests  426 passed (426)
+   Start at  09:15:17
+   Duration  22.22s (transform 8.37s, setup 22.67s, import 20.57s, tests 15.48s, environment 8.30s)
+

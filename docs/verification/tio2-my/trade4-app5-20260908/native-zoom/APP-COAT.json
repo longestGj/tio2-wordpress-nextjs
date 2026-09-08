@@ -1,0 +1,127 @@
+{
+  "id": "APP-COAT",
+  "time": "2026-09-08T01:17:39.477Z",
+  "build": "UV4ipmsCJ7cj7M2EHPfID",
+  "before": {
+    "innerWidth": 1424,
+    "innerHeight": 905,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 1,
+    "scrollWidth": 1424,
+    "scrollHeight": 9357
+  },
+  "after": {
+    "innerWidth": 712,
+    "innerHeight": 452,
+    "outerWidth": 1440,
+    "outerHeight": 1000,
+    "dpr": 2,
+    "scrollWidth": 712,
+    "scrollHeight": 11063
+  },
+  "captures": [
+    {
+      "file": "APP-COAT-full-part-1.png",
+      "sha256": "55c36a95998cf933884ac8465697a746d4bcd956c1def92241b23414628298f7",
+      "width": 1424,
+      "height": 10000,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "width": 1424,
+        "height": 10000,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-COAT-full-part-2.png",
+      "sha256": "565fb36b739816db882e4bc3b35ac877f4fcf65e0418ad358a94afc1e3a1b8a2",
+      "width": 1424,
+      "height": 10000,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 10000,
+        "width": 1424,
+        "height": 10000,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-COAT-full-part-3.png",
+      "sha256": "cbf1f6d64b9d0f7328d8b1130a3b69dba7da77bc49ea155c7f99ed22316d9720",
+      "width": 1424,
+      "height": 2126,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment",
+      "clip": {
+        "x": 0,
+        "y": 20000,
+        "width": 1424,
+        "height": 2126,
+        "scale": 1
+      }
+    },
+    {
+      "file": "APP-COAT-top.png",
+      "sha256": "3229963727fc0e65823793c28992a46c653e3103f72738a3245606c04c4d80ea",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment"
+    },
+    {
+      "file": "APP-COAT-cookie.png",
+      "sha256": "b8bd38bda2b34d286fa457297906edff54853a7dcc0bf1bb3a4a5d36f57f126e",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), direct CDP compositor segment"
+    },
+    {
+      "file": "APP-COAT-menu.png",
+      "sha256": "eb43097c3e515db0c2187ce9a5c33beac4bc7e2dc9c06da211a92bb015de0ff6",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+      "time": "2026-09-08T01:26:16.936Z"
+    },
+    {
+      "file": "APP-COAT-menu-rfq.png",
+      "sha256": "19109a99f373cd26691340ec9982f2c0b804b4b58ca98e32356fa51ac52e8cb0",
+      "width": 1424,
+      "height": 905,
+      "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+      "time": "2026-09-08T01:26:18.019Z"
+    }
+  ],
+  "nativeZoom": 2,
+  "menuRecheck": {
+    "time": "2026-09-08T01:26:18.041Z",
+    "build": "UV4ipmsCJ7cj7M2EHPfID",
+    "before": {
+      "innerWidth": 1424,
+      "innerHeight": 905,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 1,
+      "scrollWidth": 1424
+    },
+    "after": {
+      "innerWidth": 712,
+      "innerHeight": 452,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 2,
+      "scrollWidth": 712
+    },
+    "nativeZoom": 2,
+    "oldEvidenceDirectory": "D:\\16Wordpress_nextjs\\.worktrees\\trade4-app5-gate8\\.tmp\\editorial-menu-recheck-3EB30P",
+    "keyboard": "Close -> ShiftTab top RFQ -> ShiftTab final RFQ fully in viewport -> Tab top RFQ -> Tab Close -> Escape trigger",
+    "lastRect": {
+      "x": 0,
+      "y": 400.5,
+      "width": 712,
+      "height": 52
+    }
+  }
+}

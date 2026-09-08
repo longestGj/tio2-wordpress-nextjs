@@ -1,0 +1,434 @@
+[
+  {
+    "id": "RES-TRADE-EU",
+    "time": "2026-09-08T01:26:05.071Z",
+    "build": "UV4ipmsCJ7cj7M2EHPfID",
+    "before": {
+      "innerWidth": 1424,
+      "innerHeight": 905,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 1,
+      "scrollWidth": 1424
+    },
+    "after": {
+      "innerWidth": 712,
+      "innerHeight": 452,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 2,
+      "scrollWidth": 712
+    },
+    "nativeZoom": 2,
+    "oldEvidenceDirectory": "D:\\16Wordpress_nextjs\\.worktrees\\trade4-app5-gate8\\.tmp\\editorial-menu-recheck-3EB30P",
+    "keyboard": "Close -> ShiftTab top RFQ -> ShiftTab final RFQ fully in viewport -> Tab top RFQ -> Tab Close -> Escape trigger",
+    "lastRect": {
+      "x": 0,
+      "y": 400.5,
+      "width": 712,
+      "height": 52
+    },
+    "captures": [
+      {
+        "file": "RES-TRADE-EU-menu.png",
+        "sha256": "2576f8f37c7f6c1a996fce09e5692f028e0537f68da61e40c556a23246c1fb5a",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:03.974Z"
+      },
+      {
+        "file": "RES-TRADE-EU-menu-rfq.png",
+        "sha256": "329415e98767069e50f338495d08855b4e07eba3280c53a2ac2191ac3c8dc2c5",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:05.051Z"
+      }
+    ]
+  },
+  {
+    "id": "RES-TRADE-UK",
+    "time": "2026-09-08T01:26:08.256Z",
+    "build": "UV4ipmsCJ7cj7M2EHPfID",
+    "before": {
+      "innerWidth": 1424,
+      "innerHeight": 905,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 1,
+      "scrollWidth": 1424
+    },
+    "after": {
+      "innerWidth": 712,
+      "innerHeight": 452,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 2,
+      "scrollWidth": 712
+    },
+    "nativeZoom": 2,
+    "oldEvidenceDirectory": "D:\\16Wordpress_nextjs\\.worktrees\\trade4-app5-gate8\\.tmp\\editorial-menu-recheck-3EB30P",
+    "keyboard": "Close -> ShiftTab top RFQ -> ShiftTab final RFQ fully in viewport -> Tab top RFQ -> Tab Close -> Escape trigger",
+    "lastRect": {
+      "x": 0,
+      "y": 400.5,
+      "width": 712,
+      "height": 52
+    },
+    "captures": [
+      {
+        "file": "RES-TRADE-UK-menu.png",
+        "sha256": "2576f8f37c7f6c1a996fce09e5692f028e0537f68da61e40c556a23246c1fb5a",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:07.153Z"
+      },
+      {
+        "file": "RES-TRADE-UK-menu-rfq.png",
+        "sha256": "329415e98767069e50f338495d08855b4e07eba3280c53a2ac2191ac3c8dc2c5",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:08.237Z"
+      }
+    ]
+  },
+  {
+    "id": "RES-TRADE-IN",
+    "time": "2026-09-08T01:26:11.453Z",
+    "build": "UV4ipmsCJ7cj7M2EHPfID",
+    "before": {
+      "innerWidth": 1424,
+      "innerHeight": 905,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 1,
+      "scrollWidth": 1424
+    },
+    "after": {
+      "innerWidth": 712,
+      "innerHeight": 452,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 2,
+      "scrollWidth": 712
+    },
+    "nativeZoom": 2,
+    "oldEvidenceDirectory": "D:\\16Wordpress_nextjs\\.worktrees\\trade4-app5-gate8\\.tmp\\editorial-menu-recheck-3EB30P",
+    "keyboard": "Close -> ShiftTab top RFQ -> ShiftTab final RFQ fully in viewport -> Tab top RFQ -> Tab Close -> Escape trigger",
+    "lastRect": {
+      "x": 0,
+      "y": 400.5,
+      "width": 712,
+      "height": 52
+    },
+    "captures": [
+      {
+        "file": "RES-TRADE-IN-menu.png",
+        "sha256": "2576f8f37c7f6c1a996fce09e5692f028e0537f68da61e40c556a23246c1fb5a",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:10.353Z"
+      },
+      {
+        "file": "RES-TRADE-IN-menu-rfq.png",
+        "sha256": "329415e98767069e50f338495d08855b4e07eba3280c53a2ac2191ac3c8dc2c5",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:11.436Z"
+      }
+    ]
+  },
+  {
+    "id": "RES-TRADE-BR",
+    "time": "2026-09-08T01:26:14.620Z",
+    "build": "UV4ipmsCJ7cj7M2EHPfID",
+    "before": {
+      "innerWidth": 1424,
+      "innerHeight": 905,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 1,
+      "scrollWidth": 1424
+    },
+    "after": {
+      "innerWidth": 712,
+      "innerHeight": 452,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 2,
+      "scrollWidth": 712
+    },
+    "nativeZoom": 2,
+    "oldEvidenceDirectory": "D:\\16Wordpress_nextjs\\.worktrees\\trade4-app5-gate8\\.tmp\\editorial-menu-recheck-3EB30P",
+    "keyboard": "Close -> ShiftTab top RFQ -> ShiftTab final RFQ fully in viewport -> Tab top RFQ -> Tab Close -> Escape trigger",
+    "lastRect": {
+      "x": 0,
+      "y": 400.5,
+      "width": 712,
+      "height": 52
+    },
+    "captures": [
+      {
+        "file": "RES-TRADE-BR-menu.png",
+        "sha256": "2576f8f37c7f6c1a996fce09e5692f028e0537f68da61e40c556a23246c1fb5a",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:13.520Z"
+      },
+      {
+        "file": "RES-TRADE-BR-menu-rfq.png",
+        "sha256": "329415e98767069e50f338495d08855b4e07eba3280c53a2ac2191ac3c8dc2c5",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:14.603Z"
+      }
+    ]
+  },
+  {
+    "id": "APP-COAT",
+    "time": "2026-09-08T01:26:18.041Z",
+    "build": "UV4ipmsCJ7cj7M2EHPfID",
+    "before": {
+      "innerWidth": 1424,
+      "innerHeight": 905,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 1,
+      "scrollWidth": 1424
+    },
+    "after": {
+      "innerWidth": 712,
+      "innerHeight": 452,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 2,
+      "scrollWidth": 712
+    },
+    "nativeZoom": 2,
+    "oldEvidenceDirectory": "D:\\16Wordpress_nextjs\\.worktrees\\trade4-app5-gate8\\.tmp\\editorial-menu-recheck-3EB30P",
+    "keyboard": "Close -> ShiftTab top RFQ -> ShiftTab final RFQ fully in viewport -> Tab top RFQ -> Tab Close -> Escape trigger",
+    "lastRect": {
+      "x": 0,
+      "y": 400.5,
+      "width": 712,
+      "height": 52
+    },
+    "captures": [
+      {
+        "file": "APP-COAT-menu.png",
+        "sha256": "eb43097c3e515db0c2187ce9a5c33beac4bc7e2dc9c06da211a92bb015de0ff6",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:16.936Z"
+      },
+      {
+        "file": "APP-COAT-menu-rfq.png",
+        "sha256": "19109a99f373cd26691340ec9982f2c0b804b4b58ca98e32356fa51ac52e8cb0",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:18.019Z"
+      }
+    ]
+  },
+  {
+    "id": "APP-PLAS",
+    "time": "2026-09-08T01:26:21.371Z",
+    "build": "UV4ipmsCJ7cj7M2EHPfID",
+    "before": {
+      "innerWidth": 1424,
+      "innerHeight": 905,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 1,
+      "scrollWidth": 1424
+    },
+    "after": {
+      "innerWidth": 712,
+      "innerHeight": 452,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 2,
+      "scrollWidth": 712
+    },
+    "nativeZoom": 2,
+    "oldEvidenceDirectory": "D:\\16Wordpress_nextjs\\.worktrees\\trade4-app5-gate8\\.tmp\\editorial-menu-recheck-3EB30P",
+    "keyboard": "Close -> ShiftTab top RFQ -> ShiftTab final RFQ fully in viewport -> Tab top RFQ -> Tab Close -> Escape trigger",
+    "lastRect": {
+      "x": 0,
+      "y": 400.5,
+      "width": 712,
+      "height": 52
+    },
+    "captures": [
+      {
+        "file": "APP-PLAS-menu.png",
+        "sha256": "eb43097c3e515db0c2187ce9a5c33beac4bc7e2dc9c06da211a92bb015de0ff6",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:20.271Z"
+      },
+      {
+        "file": "APP-PLAS-menu-rfq.png",
+        "sha256": "19109a99f373cd26691340ec9982f2c0b804b4b58ca98e32356fa51ac52e8cb0",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:21.352Z"
+      }
+    ]
+  },
+  {
+    "id": "APP-MB",
+    "time": "2026-09-08T01:26:24.673Z",
+    "build": "UV4ipmsCJ7cj7M2EHPfID",
+    "before": {
+      "innerWidth": 1424,
+      "innerHeight": 905,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 1,
+      "scrollWidth": 1424
+    },
+    "after": {
+      "innerWidth": 712,
+      "innerHeight": 452,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 2,
+      "scrollWidth": 712
+    },
+    "nativeZoom": 2,
+    "oldEvidenceDirectory": "D:\\16Wordpress_nextjs\\.worktrees\\trade4-app5-gate8\\.tmp\\editorial-menu-recheck-3EB30P",
+    "keyboard": "Close -> ShiftTab top RFQ -> ShiftTab final RFQ fully in viewport -> Tab top RFQ -> Tab Close -> Escape trigger",
+    "lastRect": {
+      "x": 0,
+      "y": 400.5,
+      "width": 712,
+      "height": 52
+    },
+    "captures": [
+      {
+        "file": "APP-MB-menu.png",
+        "sha256": "eb43097c3e515db0c2187ce9a5c33beac4bc7e2dc9c06da211a92bb015de0ff6",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:23.573Z"
+      },
+      {
+        "file": "APP-MB-menu-rfq.png",
+        "sha256": "19109a99f373cd26691340ec9982f2c0b804b4b58ca98e32356fa51ac52e8cb0",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:24.654Z"
+      }
+    ]
+  },
+  {
+    "id": "APP-INK",
+    "time": "2026-09-08T01:26:28.004Z",
+    "build": "UV4ipmsCJ7cj7M2EHPfID",
+    "before": {
+      "innerWidth": 1424,
+      "innerHeight": 905,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 1,
+      "scrollWidth": 1424
+    },
+    "after": {
+      "innerWidth": 712,
+      "innerHeight": 452,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 2,
+      "scrollWidth": 712
+    },
+    "nativeZoom": 2,
+    "oldEvidenceDirectory": "D:\\16Wordpress_nextjs\\.worktrees\\trade4-app5-gate8\\.tmp\\editorial-menu-recheck-3EB30P",
+    "keyboard": "Close -> ShiftTab top RFQ -> ShiftTab final RFQ fully in viewport -> Tab top RFQ -> Tab Close -> Escape trigger",
+    "lastRect": {
+      "x": 0,
+      "y": 400.5,
+      "width": 712,
+      "height": 52
+    },
+    "captures": [
+      {
+        "file": "APP-INK-menu.png",
+        "sha256": "eb43097c3e515db0c2187ce9a5c33beac4bc7e2dc9c06da211a92bb015de0ff6",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:26.908Z"
+      },
+      {
+        "file": "APP-INK-menu-rfq.png",
+        "sha256": "19109a99f373cd26691340ec9982f2c0b804b4b58ca98e32356fa51ac52e8cb0",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:27.985Z"
+      }
+    ]
+  },
+  {
+    "id": "APP-PAPER",
+    "time": "2026-09-08T01:26:31.320Z",
+    "build": "UV4ipmsCJ7cj7M2EHPfID",
+    "before": {
+      "innerWidth": 1424,
+      "innerHeight": 905,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 1,
+      "scrollWidth": 1424
+    },
+    "after": {
+      "innerWidth": 712,
+      "innerHeight": 452,
+      "outerWidth": 1440,
+      "outerHeight": 1000,
+      "dpr": 2,
+      "scrollWidth": 712
+    },
+    "nativeZoom": 2,
+    "oldEvidenceDirectory": "D:\\16Wordpress_nextjs\\.worktrees\\trade4-app5-gate8\\.tmp\\editorial-menu-recheck-3EB30P",
+    "keyboard": "Close -> ShiftTab top RFQ -> ShiftTab final RFQ fully in viewport -> Tab top RFQ -> Tab Close -> Escape trigger",
+    "lastRect": {
+      "x": 0,
+      "y": 400.5,
+      "width": 712,
+      "height": 52
+    },
+    "captures": [
+      {
+        "file": "APP-PAPER-menu.png",
+        "sha256": "eb43097c3e515db0c2187ce9a5c33beac4bc7e2dc9c06da211a92bb015de0ff6",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:30.218Z"
+      },
+      {
+        "file": "APP-PAPER-menu-rfq.png",
+        "sha256": "19109a99f373cd26691340ec9982f2c0b804b4b58ca98e32356fa51ac52e8cb0",
+        "width": 1424,
+        "height": 905,
+        "method": "native tabs.setZoom(2), viewport:null, Chromium --disable-gpu, page.bringToFront then 500ms settle, direct CDP viewport capture fromSurface:true; native metrics unchanged before/after",
+        "time": "2026-09-08T01:26:31.305Z"
+      }
+    ]
+  }
+]

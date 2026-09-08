@@ -1,0 +1,53 @@
+
+Running 16 tests using 1 worker
+
+(node:63024) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\editorial-isolation.spec.ts:14:45 › APP-COAT real CMS mutations cannot serve stale or foreign content (35.1s)
+  ok  2 [chromium] › tests\e2e\editorial-isolation.spec.ts:14:45 › RES-TRADE-EU real CMS mutations cannot serve stale or foreign content (18.1s)
+  x   3 [chromium] › tests\e2e\editorial-isolation.spec.ts:39:1 › private editorial API rejects anonymous, foreign and missing scope requests (173ms)
+(node:67596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  4 [chromium] › tests\e2e\editorial-native-zoom.spec.ts:8:1 › nine pages preserve actual browser 200% zoom and keyboard states (20.5s)
+  ok  5 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › RES-TRADE-EU live CMS SSR and responsive interactions (3.0s)
+  ok  6 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › RES-TRADE-UK live CMS SSR and responsive interactions (3.2s)
+  ok  7 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › RES-TRADE-IN live CMS SSR and responsive interactions (3.9s)
+  ok  8 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › RES-TRADE-BR live CMS SSR and responsive interactions (3.3s)
+  ok  9 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › APP-COAT live CMS SSR and responsive interactions (4.0s)
+  ok 10 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › APP-PLAS live CMS SSR and responsive interactions (4.5s)
+  ok 11 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › APP-MB live CMS SSR and responsive interactions (3.8s)
+  ok 12 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › APP-INK live CMS SSR and responsive interactions (3.4s)
+  ok 13 [chromium] › tests\e2e\editorial-nine.spec.ts:13:44 › APP-PAPER live CMS SSR and responsive interactions (3.4s)
+  ok 14 [chromium] › tests\e2e\editorial-nine.spec.ts:102:1 › editorial preview routes remain absent from sitemap and queryless canonicals (24ms)
+  ok 15 [chromium] › tests\e2e\editorial-targets.spec.ts:47:60 › GRADE-M350 draft and foreign scope remove warmed Application target links and restore (24.6s)
+  ok 16 [chromium] › tests\e2e\editorial-targets.spec.ts:47:60 › PRODUCT-000 draft and foreign scope remove warmed Application target links and restore (23.9s)
+
+
+  1) [chromium] › tests\e2e\editorial-isolation.spec.ts:39:1 › private editorial API rejects anonymous, foreign and missing scope requests 
+
+    Error: expect(received).toBeNull()
+
+    Received: undefined
+
+      42 |  for(const scope of ['tio2-my','tio2-a','tio2-b','','unknown']) {
+      43 |   const response=await request.post('http://127.0.0.1:8186/graphql',{data:{query,variables:{pageId:'APP-COAT',siteScope:scope}}})
+    > 44 |   const json=await response.json();expect(json.errors?.length).toBeGreaterThan(0);expect(json.data).toBeNull();records.push({scope,status:response.status(),errors:json.errors.map((error:{message:string})=>error.message)})
+         |                                                                                                     ^
+      45 |  }
+      46 |  mkdirSync(output,{recursive:true});writeFileSync(resolve(output,'public-api-rejection.json'),JSON.stringify(records,null,2))
+      47 | })
+        at D:\16Wordpress_nextjs\.worktrees\trade4-app5-gate8\tests\e2e\editorial-isolation.spec.ts:44:101
+
+    Error Context: .tmp\playwright-editorial-final\editorial-isolation-privat-3b58f--and-missing-scope-requests-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .tmp\playwright-editorial-final\editorial-isolation-privat-3b58f--and-missing-scope-requests-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace .tmp\playwright-editorial-final\editorial-isolation-privat-3b58f--and-missing-scope-requests-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\e2e\editorial-isolation.spec.ts:39:1 › private editorial API rejects anonymous, foreign and missing scope requests 
+  15 passed (2.6m)

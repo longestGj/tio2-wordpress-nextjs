@@ -1,0 +1,70 @@
+{
+  "codeCommit": "b325aec6b5121f2ded604bcf3afad7886515990f",
+  "buildId": "UV4ipmsCJ7cj7M2EHPfID",
+  "verifiedAt": "2026-09-08T01:23:14.8387834Z",
+  "checks": [
+    {
+      "log": "build.log",
+      "exitCode": 0,
+      "name": "Next target build --webpack"
+    },
+    {
+      "log": "typecheck.log",
+      "exitCode": 0,
+      "name": "TypeScript"
+    },
+    {
+      "log": "eslint.log",
+      "exitCode": 0,
+      "name": "ESLint changed TS TSX MJS plus final test harness recheck"
+    },
+    {
+      "log": "focused-tests.log",
+      "files": 44,
+      "passed": 426,
+      "exitCode": 0,
+      "name": "Focused Vitest"
+    },
+    {
+      "files": 9,
+      "exitCode": 0,
+      "name": "PHP8.3 lint"
+    },
+    {
+      "log": "freshness-php-parity.json",
+      "passed": 17,
+      "exitCode": 0,
+      "name": "PHP date parity"
+    },
+    {
+      "log": "browser-integration.log",
+      "failed": 1,
+      "failureDisposition": "Corrected test assumption: rejected GraphQL response may omit data",
+      "passed": 15,
+      "name": "Initial browser run"
+    },
+    {
+      "log": "browser-recheck.log",
+      "passed": 2,
+      "exitCode": 0,
+      "name": "Related browser recheck"
+    },
+    {
+      "pages": 9,
+      "log": "native-zoom-final.log",
+      "passed": 1,
+      "exitCode": 0,
+      "name": "Final native 200 percent segmented capture"
+    },
+    {
+      "name": "Final native menu capture and keyboard recheck",
+      "pages": 9,
+      "captures": 18,
+      "exitCode": 0,
+      "result": "native-menu-recheck-results.json",
+      "visualReview": "native-visual-review.md"
+    }
+  ],
+  "releaseAuthorized": false,
+  "gate9Accepted": false
+}

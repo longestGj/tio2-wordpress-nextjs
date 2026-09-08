@@ -1,0 +1,234 @@
+{
+  "target": "PRODUCT-000",
+  "runId": "18640a9c-cd20-470a-93ef-d2563de58375",
+  "time": "2026-09-08T01:14:46.866Z",
+  "base": "http://127.0.0.1:3216",
+  "snapshot": {
+    "target": "PRODUCT-000",
+    "mode": "Snapshot",
+    "postId": 17236,
+    "resolverValid": true,
+    "status": "publish",
+    "scopes": [
+      "tio2-my"
+    ],
+    "restored": false
+  },
+  "ledger": [
+    {
+      "state": "warm",
+      "pages": [
+        {
+          "id": "APP-PAPER",
+          "status": 200,
+          "m350Links": 1,
+          "productHubLinks": 1,
+          "neutralGradesPreserved": true,
+          "schemaTypes": [
+            "WebPage",
+            "BreadcrumbList"
+          ]
+        },
+        {
+          "id": "APP-INK",
+          "status": 200,
+          "m350Links": 1,
+          "productHubLinks": 1,
+          "neutralGradesPreserved": true,
+          "schemaTypes": [
+            "WebPage",
+            "BreadcrumbList"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "Draft",
+      "mutation": {
+        "target": "PRODUCT-000",
+        "mode": "Draft",
+        "postId": 17236,
+        "resolverValid": false,
+        "status": "draft",
+        "scopes": [
+          "tio2-my"
+        ],
+        "restored": false
+      },
+      "pages": [
+        {
+          "id": "APP-PAPER",
+          "status": 200,
+          "m350Links": 0,
+          "productHubLinks": 0,
+          "neutralGradesPreserved": true,
+          "schemaTypes": [
+            "WebPage",
+            "BreadcrumbList"
+          ]
+        },
+        {
+          "id": "APP-INK",
+          "status": 200,
+          "m350Links": 0,
+          "productHubLinks": 0,
+          "neutralGradesPreserved": true,
+          "schemaTypes": [
+            "WebPage",
+            "BreadcrumbList"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "Restore",
+      "restored": {
+        "target": "PRODUCT-000",
+        "mode": "Restore",
+        "postId": 17236,
+        "resolverValid": true,
+        "status": "publish",
+        "scopes": [
+          "tio2-my"
+        ],
+        "restored": true
+      },
+      "pages": [
+        {
+          "id": "APP-PAPER",
+          "status": 200,
+          "m350Links": 1,
+          "productHubLinks": 1,
+          "neutralGradesPreserved": true,
+          "schemaTypes": [
+            "WebPage",
+            "BreadcrumbList"
+          ]
+        },
+        {
+          "id": "APP-INK",
+          "status": 200,
+          "m350Links": 1,
+          "productHubLinks": 1,
+          "neutralGradesPreserved": true,
+          "schemaTypes": [
+            "WebPage",
+            "BreadcrumbList"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "Foreign",
+      "mutation": {
+        "target": "PRODUCT-000",
+        "mode": "Foreign",
+        "postId": 17236,
+        "resolverValid": false,
+        "status": "publish",
+        "scopes": [
+          "tio2-a"
+        ],
+        "restored": false
+      },
+      "pages": [
+        {
+          "id": "APP-PAPER",
+          "status": 200,
+          "m350Links": 0,
+          "productHubLinks": 0,
+          "neutralGradesPreserved": true,
+          "schemaTypes": [
+            "WebPage",
+            "BreadcrumbList"
+          ]
+        },
+        {
+          "id": "APP-INK",
+          "status": 200,
+          "m350Links": 0,
+          "productHubLinks": 0,
+          "neutralGradesPreserved": true,
+          "schemaTypes": [
+            "WebPage",
+            "BreadcrumbList"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "Restore",
+      "restored": {
+        "target": "PRODUCT-000",
+        "mode": "Restore",
+        "postId": 17236,
+        "resolverValid": true,
+        "status": "publish",
+        "scopes": [
+          "tio2-my"
+        ],
+        "restored": true
+      },
+      "pages": [
+        {
+          "id": "APP-PAPER",
+          "status": 200,
+          "m350Links": 1,
+          "productHubLinks": 1,
+          "neutralGradesPreserved": true,
+          "schemaTypes": [
+            "WebPage",
+            "BreadcrumbList"
+          ]
+        },
+        {
+          "id": "APP-INK",
+          "status": 200,
+          "m350Links": 1,
+          "productHubLinks": 1,
+          "neutralGradesPreserved": true,
+          "schemaTypes": [
+            "WebPage",
+            "BreadcrumbList"
+          ]
+        }
+      ]
+    }
+  ],
+  "finalRestore": {
+    "target": "PRODUCT-000",
+    "mode": "Restore",
+    "postId": 17236,
+    "resolverValid": true,
+    "status": "publish",
+    "scopes": [
+      "tio2-my"
+    ],
+    "restored": true
+  },
+  "finalPages": [
+    {
+      "id": "APP-PAPER",
+      "status": 200,
+      "m350Links": 1,
+      "productHubLinks": 1,
+      "neutralGradesPreserved": true,
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "id": "APP-INK",
+      "status": 200,
+      "m350Links": 1,
+      "productHubLinks": 1,
+      "neutralGradesPreserved": true,
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    }
+  ],
+  "restored": true
+}
