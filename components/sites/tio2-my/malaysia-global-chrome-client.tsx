@@ -14,10 +14,10 @@ interface GlobalChromeClientProps {
   readonly chrome: MalaysiaGlobalChromePublicProjection
   readonly approvedDropdown: boolean
   readonly privateRfqAttribution: boolean
-  readonly publicSourcePageId: string | null
+  readonly publicSourcePageId?: string
 }
 
-function rfqAttributes(publicSourcePageId: string | null) {
+function rfqAttributes(publicSourcePageId: string | undefined) {
   return publicSourcePageId ? {
     'data-site-scope': 'tio2-my',
     'data-source-page': publicSourcePageId,
@@ -37,7 +37,7 @@ function RfqLink({
   readonly href: string
   readonly onClick?: () => void
   readonly privateRfqAttribution: boolean
-  readonly publicSourcePageId: string | null
+  readonly publicSourcePageId?: string
 }) {
   return privateRfqAttribution
     ? <MalaysiaPrivateRfqLink className={className} href={href} onClick={onClick}>{children}</MalaysiaPrivateRfqLink>

@@ -20,7 +20,7 @@ export function MalaysiaGlobalHeader({chrome, currentPageId, sourcePageId}: Glob
     currentHref={chrome.navigation.find((item) => item.targetPageId === currentPageId)?.href ?? null}
     approvedDropdown={approvedDropdownSources.has(sourcePageId)}
     privateRfqAttribution={privateRfqAttribution}
-    publicSourcePageId={privateRfqAttribution ? null : sourcePageId}
+    {...privateRfqAttribution ? {} : {publicSourcePageId: sourcePageId}}
   />
 }
 
@@ -30,6 +30,6 @@ export function MalaysiaGlobalFooter({chrome, sourcePageId}: Omit<GlobalChromePr
     chrome={projectMalaysiaGlobalChrome(chrome)}
     approvedDropdown={approvedDropdownSources.has(sourcePageId)}
     privateRfqAttribution={privateRfqAttribution}
-    publicSourcePageId={privateRfqAttribution ? null : sourcePageId}
+    {...privateRfqAttribution ? {} : {publicSourcePageId: sourcePageId}}
   />
 }
