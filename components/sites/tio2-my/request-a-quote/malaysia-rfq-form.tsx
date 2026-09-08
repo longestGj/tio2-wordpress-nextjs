@@ -6,6 +6,7 @@ import {emitMalaysiaRfqAnalyticsEvent} from '@/lib/rfq/malaysia-rfq-analytics'
 import {toMalaysiaRfqHistoryDraft} from '@/lib/rfq/malaysia-rfq-history'
 import type {MalaysiaRfqPrefill} from '@/lib/rfq/malaysia-rfq-prefill'
 import {submitMalaysiaRfq} from '@/lib/rfq/malaysia-rfq-receiver'
+import {navigateToMalaysiaThankYou} from '@/lib/thank-you/malaysia-thank-you-session'
 import {
   emptyMalaysiaRfqValues,
   type MalaysiaRfqErrors,
@@ -21,7 +22,6 @@ type SubmissionState =
   | 'form_ready'
   | 'validation_failed'
   | 'submitting'
-  | 'receipt_confirmed'
   | 'submission_unconfirmed'
   | 'service_unavailable'
 
@@ -54,7 +54,7 @@ export function MalaysiaRfqForm({prefill, receiverAccessKey, privacyPolicyHref}:
 
   useEffect(() => {
     if (state === 'validation_failed') summaryRef.current?.focus()
-    if (state === 'submission_unconfirmed' || state === 'receipt_confirmed') messageRef.current?.focus()
+    if (state === 'submission_unconfirmed') messageRef.current?.focus()
   }, [state])
 
   function update(field: MalaysiaRfqFieldKey, value: string) {
@@ -98,9 +98,18 @@ export function MalaysiaRfqForm({prefill, receiverAccessKey, privacyPolicyHref}:
       interest: prefill.interest ?? null,
     }, {accessKey: receiverAccessKey})
     pendingRef.current = false
-    setState(result.kind)
-    if (result.kind === 'receipt_confirmed') emitMalaysiaRfqAnalyticsEvent('rfq_receipt_confirmed')
-    if (result.kind === 'submission_unconfirmed') emitMalaysiaRfqAnalyticsEvent('rfq_submission_unconfirmed')
+    if (result.kind === 'receipt_confirmed') {
+      try {
+        navigateToMalaysiaThankYou('quote')
+        emitMalaysiaRfqAnalyticsEvent('rfq_receipt_confirmed')
+      } catch {
+        setState('submission_unconfirmed')
+        emitMalaysiaRfqAnalyticsEvent('rfq_submission_unconfirmed')
+      }
+    } else {
+      setState(result.kind)
+      if (result.kind === 'submission_unconfirmed') emitMalaysiaRfqAnalyticsEvent('rfq_submission_unconfirmed')
+    }
   }
 
   if (state === 'service_unavailable') {
@@ -108,15 +117,6 @@ export function MalaysiaRfqForm({prefill, receiverAccessKey, privacyPolicyHref}:
       <div className={styles.stateMessage} role="status" aria-live="polite">
         <h3>{contract.form.unavailable.heading}</h3>
         <p>{contract.form.unavailable.body}</p>
-      </div>
-    )
-  }
-
-  if (state === 'receipt_confirmed') {
-    return (
-      <div ref={messageRef} tabIndex={-1} className={`${styles.stateMessage} ${styles.successMessage}`} role="status" aria-live="polite">
-        <h3>{contract.form.success.heading}</h3>
-        <p>{contract.form.success.body}</p>
       </div>
     )
   }

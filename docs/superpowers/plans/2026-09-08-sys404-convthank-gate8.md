@@ -1,8 +1,8 @@
 # SYS-404 + CONV-THANK Gate 8 Implementation Plan
 
-**Task:** `G8-SYS404-CONVTHANK-20260908-01`  
-**Baseline:** `cfe9ef3`  
-**Branch:** `codex/sys404-convthank-gate8`  
+**Task:** `G8-SYS404-CONVTHANK-20260908-01`
+**Baseline:** `cfe9ef3`
+**Branch:** `codex/sys404-convthank-gate8`
 **Scope:** local `tio2-my` implementation and Gate 9 evidence only. No main merge, push, deploy, production write, publication, DNS, indexing, or real external form submission.
 
 ## Implementation sequence
@@ -17,4 +17,3 @@
 8. Run targeted unit/integration tests, typecheck/lint, scoped build and browser checks at 1440/768/390, keyboard, menu, consent, 200% zoom and Chromium/non-Chromium.
 9. Commit SYS-404, then CONV-THANK, then evidence. Generate a schema-valid `gate8_evidence_manifest.json`, machine validation/precheck outputs and the Gate 8 receipt with exact `EVIDENCE:` lines.
 10. Start a traceable local runtime and hold it for Gate 9. Send the implementation/evidence identities to the assigned D23 task and wait for `GATE9_PASS_OR_RETURN_NOTICE`.
-

@@ -58,8 +58,8 @@ export async function submitMalaysiaSampleRequest(values:MalaysiaSampleRequestVa
       const response=await (options.fetcher??fetch)(WEB3FORMS_ENDPOINT,{method:'POST',headers:{'content-type':'application/json',accept:'application/json'},cache:'no-store',referrerPolicy:'origin',redirect:'error',body:JSON.stringify(payload),signal:controller.signal})
       const mediaType=response.headers.get('content-type')?.split(';',1)[0]?.trim().toLowerCase()
       if(response.status!==200||mediaType!=='application/json')return {kind:'submission_unconfirmed'}
-      const body=await response.json() as {success?:unknown}
-      return body.success===true?{kind:'receipt_confirmed'}:{kind:'submission_unconfirmed'}
+      const body=await response.json() as {ok?:unknown;receipt_confirmed?:unknown}
+      return body.ok===true&&body.receipt_confirmed===true?{kind:'receipt_confirmed'}:{kind:'submission_unconfirmed'}
     })
     return await Promise.race([requestPromise,timeoutPromise])
   }catch{return {kind:'submission_unconfirmed'}}finally{if(timeout)clearTimeout(timeout)}

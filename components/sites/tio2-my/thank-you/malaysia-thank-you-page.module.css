@@ -1,0 +1,25 @@
+.page { color-scheme:light; color:#334155; background:#fff; font-family:var(--font-my-shared),Inter,Arial,sans-serif; }
+.page * { box-sizing:border-box; }
+.main { position:relative; isolation:isolate; min-height:570px; padding:88px 32px; display:grid; place-items:center; overflow:hidden; background:linear-gradient(145deg,#f7fafc 0%,#eef4f7 100%); }
+.main::before,.main::after { content:""; position:absolute; z-index:-1; border-radius:50%; pointer-events:none; }
+.main::before { width:480px; height:480px; right:-190px; top:-250px; background:radial-gradient(circle,rgba(0,128,120,.12),rgba(0,128,120,0) 69%); }
+.main::after { width:420px; height:420px; left:-180px; bottom:-250px; background:radial-gradient(circle,rgba(6,43,91,.10),rgba(6,43,91,0) 70%); }
+.panel { position:relative; width:min(920px,100%); padding:64px 64px 60px; overflow:hidden; border:1px solid rgba(6,43,91,.14); border-radius:16px; background:rgba(255,255,255,.98); box-shadow:0 24px 60px rgba(3,27,58,.10),0 3px 10px rgba(3,27,58,.05); text-align:center; }
+.panel::before { content:""; position:absolute; inset:0 0 auto; height:5px; background:linear-gradient(90deg,#062b5b,#008078); }
+.receiptCue { display:flex; align-items:center; justify-content:center; gap:13px; color:#006b65; font-size:13px; font-weight:780; letter-spacing:.12em; }
+.receiptIcon { width:52px; height:52px; display:inline-grid; place-items:center; border:2px solid #008078; border-radius:50%; color:#fff; background:#008078; box-shadow:0 0 0 7px rgba(0,128,120,.09); font-size:25px; font-weight:700; line-height:1; }
+.panel h1 { max-width:760px; margin:26px auto 18px; color:#062b5b; font-size:clamp(42px,4.15vw,58px); font-weight:730; line-height:1.1; letter-spacing:-.034em; text-wrap:balance; }
+.panel p { max-width:690px; margin:0 auto; color:#334155; font-size:18px; line-height:1.7; text-wrap:pretty; }
+.direct { padding-top:72px; }
+.direct h1 { max-width:620px; margin-top:0; }
+.actions { margin-top:36px; display:flex; justify-content:center; flex-wrap:wrap; gap:12px; }
+.action { min-width:176px; min-height:50px; padding:12px 22px; display:inline-flex; align-items:center; justify-content:center; border:1.5px solid #008078; border-radius:8px; color:#006b65; background:#fff; font-size:15px; font-weight:720; line-height:1.35; text-decoration:none; transition:background-color .16s ease,border-color .16s ease,color .16s ease,transform .16s ease; }
+.action:hover { border-color:#062b5b; color:#062b5b; background:#f3f7fa; }
+.action.primary { border-color:#008078; color:#fff; background:#008078; }
+.action.primary:hover { border-color:#006b65; color:#fff; background:#006b65; }
+.action:focus-visible { outline:3px solid #062b5b; outline-offset:3px; }
+.threeActions .action { min-width:196px; }
+@media(max-width:1100px) { .main { min-height:540px; padding:68px 24px; } .panel { padding:54px 42px 52px; } .panel h1 { font-size:46px; } .direct { padding-top:62px; } }
+@media(max-width:560px) { .main { min-height:560px; padding:44px 18px; } .panel { padding:42px 20px 34px; border-radius:12px; } .panel::before { height:4px; } .receiptCue { flex-direction:column; gap:12px; font-size:12px; } .receiptIcon { width:50px; height:50px; } .panel h1 { margin-top:24px; font-size:35px; line-height:1.13; } .panel p { font-size:16px; line-height:1.65; } .direct { padding-top:48px; } .direct h1 { margin-top:0; } .actions { display:grid; grid-template-columns:1fr; margin-top:30px; gap:11px; } .action,.threeActions .action { width:100%; min-width:0; min-height:50px; } .main::before { right:-300px; } .main::after { left:-280px; } }
+@media(prefers-reduced-motion:reduce) { .page * { scroll-behavior:auto!important; transition:none!important; animation:none!important; } }
+

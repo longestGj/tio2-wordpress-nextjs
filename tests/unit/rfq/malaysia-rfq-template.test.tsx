@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import {cleanup, render, screen, within} from '@testing-library/react'
+import {cleanup, render, screen, waitFor, within} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
@@ -9,9 +9,14 @@ import {toMalaysiaRfqPageDto} from '@/lib/wordpress/rfq-page-v01-dto'
 import {malaysiaRfqPageSource} from '@/tests/fixtures/tio2-my-rfq-page'
 
 const receiverMocks = vi.hoisted(() => ({submit: vi.fn()}))
+const transitionMocks = vi.hoisted(() => ({navigate: vi.fn()}))
 vi.mock('@/lib/rfq/malaysia-rfq-receiver', async (original) => ({
   ...await original<typeof import('@/lib/rfq/malaysia-rfq-receiver')>(),
   submitMalaysiaRfq: receiverMocks.submit,
+}))
+vi.mock('@/lib/thank-you/malaysia-thank-you-session', async (original) => ({
+  ...await original<typeof import('@/lib/thank-you/malaysia-thank-you-session')>(),
+  navigateToMalaysiaThankYou: transitionMocks.navigate,
 }))
 
 const dto = toMalaysiaRfqPageDto(malaysiaRfqPageSource())
@@ -78,8 +83,10 @@ describe('CONV-RFQ template and form', () => {
     await user.type(screen.getByLabelText(/Your Name/u), 'A Buyer')
     await user.type(screen.getByLabelText(/Business Email/u), 'buyer@example.com')
     await user.click(screen.getByRole('button', {name: 'REQUEST QUOTE'}))
-    expect((await screen.findByRole('status')).textContent).toContain('Thank you. We’ve received your quotation request.')
+    await waitFor(() => expect(transitionMocks.navigate).toHaveBeenCalledOnce())
+    expect(screen.queryByText('Thank you. We’ve received your quotation request.')).toBeNull()
     expect(receiverMocks.submit).toHaveBeenCalledOnce()
+    expect(transitionMocks.navigate).toHaveBeenCalledWith('quote')
   })
 
   it('restores fields and actions after a timeout maps to unconfirmed', async () => {

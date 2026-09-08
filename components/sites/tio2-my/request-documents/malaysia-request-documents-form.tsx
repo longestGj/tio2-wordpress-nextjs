@@ -16,6 +16,7 @@ import {
   type MalaysiaRequestDocumentsValues,
 } from '@/lib/request-documents/malaysia-request-documents-validation'
 import type {MalaysiaRequestDocumentsPageDto} from '@/lib/wordpress/request-documents-v01-types'
+import {navigateToMalaysiaThankYou} from '@/lib/thank-you/malaysia-thank-you-session'
 
 import styles from './malaysia-request-documents-page.module.css'
 
@@ -24,7 +25,7 @@ interface Props {
   readonly prefill: MalaysiaRequestDocumentsPrefill
 }
 
-type SubmissionState = 'ready' | 'submitting' | 'failure' | 'success'
+type SubmissionState = 'ready' | 'submitting' | 'failure'
 
 const labels: Record<MalaysiaRequestDocumentsFieldKey, string> = {
   full_name: 'Full Name', company: 'Company', business_email: 'Business Email',
@@ -63,7 +64,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
   }, [validationAttempt])
 
   useEffect(() => {
-    if (state === 'failure' || state === 'success') stateRef.current?.focus()
+    if (state === 'failure') stateRef.current?.focus()
   }, [state])
 
   const reviewRows = useMemo(() => {
@@ -124,7 +125,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
         marketId: normalizeMalaysiaRequestDocumentsMarketId(prefill.marketId),
       })
       if (result.kind === 'receipt_confirmed') {
-        setState('success')
+        navigateToMalaysiaThankYou('documents')
       } else if (result.kind === 'validation_failed' && Object.keys(result.errors).length) {
         setErrors(result.errors)
         setState('ready')
@@ -185,7 +186,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
         </div>
       )}
 
-      <fieldset disabled={state === 'submitting' || state === 'success'}>
+      <fieldset disabled={state === 'submitting'}>
         <legend><span><span aria-hidden="true">1. </span>Your Details</span><small><span aria-hidden="true">*</span> Required</small></legend>
         <div className={styles.fieldGrid}>
           <Field field="full_name" label="Full Name" required autoComplete="name" values={values} errors={errors} update={update} />
@@ -195,7 +196,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
         </div>
       </fieldset>
 
-      <fieldset disabled={state === 'submitting' || state === 'success'}>
+      <fieldset disabled={state === 'submitting'}>
         <legend><span><span aria-hidden="true">2. </span>Request Details</span><small>Choose one Grade and one or more types</small></legend>
         <div className={styles.fieldGrid}>
           <div className={styles.field} data-request-documents-field="product_grade">
@@ -240,7 +241,7 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
       <div className={styles.submitRow}>
         <p className={styles.privacy}>{page.form.privacyNotice.replace('Privacy Policy.', '')}<a href={page.form.privacyHref}>Privacy Policy</a>.</p>
         <div>
-          <button className={styles.submit} type="submit" disabled={state === 'submitting' || state === 'success'}>{state === 'submitting' ? page.form.submittingLabel : page.form.submitLabel}</button>
+          <button className={styles.submit} type="submit" disabled={state === 'submitting'}>{state === 'submitting' ? page.form.submittingLabel : page.form.submitLabel}</button>
           {state === 'submitting' && <p className={styles.submitting} role="status">{page.form.submittingHelper}</p>}
         </div>
       </div>
@@ -249,12 +250,6 @@ export function MalaysiaRequestDocumentsForm({page, prefill}: Props) {
         <div ref={stateRef} tabIndex={-1} className={styles.failure} role="alert">
           <h2>{page.form.failure.heading}</h2><p>{page.form.failure.body}</p>
           <button type="button" onClick={() => void performSubmission()}>{page.form.failure.action}</button>
-        </div>
-      )}
-      {state === 'success' && (
-        <div ref={stateRef} tabIndex={-1} className={styles.success} role="status">
-          <h2>{page.form.success.heading}</h2><p>{page.form.success.body}</p><p>{page.form.success.boundary}</p>
-          <a href={page.form.success.action.href}>{page.form.success.action.label}</a>
         </div>
       )}
     </form>

@@ -12,7 +12,7 @@ describe('Malaysia Sample Request receiver', () => {
   })
 
   it('posts directly to Web3Forms with the shared public key and fixed Malaysia metadata', async () => {
-    const fetcher = vi.fn(async () => new Response(JSON.stringify({success:true}), {status:200,headers:{'content-type':'application/json'}}))
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({ok:true,receipt_confirmed:true}), {status:200,headers:{'content-type':'application/json'}}))
     await expect(submitMalaysiaSampleRequest(values, {...options, fetcher})).resolves.toEqual({kind:'receipt_confirmed'})
     const calls=fetcher.mock.calls as unknown as Array<[RequestInfo|URL,RequestInit]>
     expect(String(calls[0]?.[0])).toBe('https://api.web3forms.com/submit')
@@ -25,6 +25,8 @@ describe('Malaysia Sample Request receiver', () => {
   })
 
   it('fails unconfirmed for provider ambiguity, non-JSON, 422 and transport errors', async () => {
+    await expect(submitMalaysiaSampleRequest(values, {...options, fetcher:async () => new Response(JSON.stringify({ok:true,receipt_confirmed:false}), {status:200,headers:{'content-type':'application/json'}})})).resolves.toEqual({kind:'submission_unconfirmed'})
+    await expect(submitMalaysiaSampleRequest(values, {...options, fetcher:async () => new Response(JSON.stringify({ok:false,receipt_confirmed:true}), {status:200,headers:{'content-type':'application/json'}})})).resolves.toEqual({kind:'submission_unconfirmed'})
     await expect(submitMalaysiaSampleRequest(values, {...options, fetcher:async () => new Response(JSON.stringify({success:false}), {status:200,headers:{'content-type':'application/json'}})})).resolves.toEqual({kind:'submission_unconfirmed'})
     await expect(submitMalaysiaSampleRequest(values, {...options, fetcher:async () => new Response('ok', {status:200,headers:{'content-type':'text/plain'}})})).resolves.toEqual({kind:'submission_unconfirmed'})
     await expect(submitMalaysiaSampleRequest(values, {...options, fetcher:async () => new Response('{}', {status:422})})).resolves.toEqual({kind:'submission_unconfirmed'})
