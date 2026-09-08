@@ -1,0 +1,73 @@
+{
+  "checkedAt": "2026-09-08T11:25:12.164Z",
+  "baseUrl": "http://127.0.0.1:4391",
+  "authority": "read-only",
+  "consumers": [
+    {
+      "pageId": "RES-TRADE-EU",
+      "path": "/resources/eu-titanium-dioxide-anti-dumping-duty/",
+      "status": 404,
+      "applicationsHrefInstances": 0
+    },
+    {
+      "pageId": "RES-TRADE-UK",
+      "path": "/resources/uk-titanium-dioxide-anti-dumping-investigation/",
+      "status": 404,
+      "applicationsHrefInstances": 0
+    },
+    {
+      "pageId": "RES-TRADE-IN",
+      "path": "/resources/india-titanium-dioxide-anti-dumping-duty/",
+      "status": 404,
+      "applicationsHrefInstances": 0
+    },
+    {
+      "pageId": "RES-TRADE-BR",
+      "path": "/resources/brazil-titanium-dioxide-anti-dumping-duty/",
+      "status": 404,
+      "applicationsHrefInstances": 0
+    },
+    {
+      "pageId": "APP-COAT",
+      "path": "/applications/titanium-dioxide-for-coatings/",
+      "status": 404,
+      "applicationsHrefInstances": 0
+    },
+    {
+      "pageId": "APP-PLAS",
+      "path": "/applications/titanium-dioxide-for-plastics/",
+      "status": 404,
+      "applicationsHrefInstances": 0
+    },
+    {
+      "pageId": "APP-MB",
+      "path": "/applications/titanium-dioxide-for-masterbatch/",
+      "status": 404,
+      "applicationsHrefInstances": 0
+    },
+    {
+      "pageId": "APP-INK",
+      "path": "/applications/titanium-dioxide-for-printing-inks/",
+      "status": 404,
+      "applicationsHrefInstances": 0
+    },
+    {
+      "pageId": "APP-PAPER",
+      "path": "/applications/titanium-dioxide-for-paper/",
+      "status": 404,
+      "applicationsHrefInstances": 0
+    },
+    {
+      "pageId": "PRODUCT-PROC-CL",
+      "path": "/products/chloride-process-titanium-dioxide/",
+      "status": 200,
+      "applicationsHrefInstances": 4
+    },
+    {
+      "pageId": "PRODUCT-PROC-SU",
+      "path": "/products/sulfate-process-titanium-dioxide/",
+      "status": 404,
+      "applicationsHrefInstances": 0
+    }
+  ]
+}

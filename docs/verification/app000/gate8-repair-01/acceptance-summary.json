@@ -1,0 +1,41 @@
+{
+  "taskId": "APP-000-G9-REPAIR-RETURN-01",
+  "siteId": "tio2-my",
+  "pageId": "APP-000",
+  "status": "READY_FOR_GATE9_RE_REVIEW",
+  "implementationCommit": "0144b303d0546dc5bb7012e4292df6339f851b78",
+  "buildDirectory": ".next-app000-0144b30",
+  "buildId": "cD6FOWG8iVMbgeRxyIqIS",
+  "runtime": "http://127.0.0.1:4391",
+  "cmsFixture": "http://127.0.0.1:4390/graphql",
+  "privateReceiverFixture": "http://127.0.0.1:4392",
+  "verifiedAt": "2026-09-08T11:25:15.9760731Z",
+  "findings": {
+    "F01": "PASS: raw HTML and RSC expose no listed internal identifier; RFQ source is added only in the server-to-receiver payload behind an opaque HttpOnly cookie",
+    "F02": "PASS: Specialty Materials uses APP000-EDGE-SPEC-01",
+    "F03": "PASS: all six disclosures default closed at 390px, open at 768px and 1440px, and open with pointer and keyboard",
+    "F04": "PASS: six category and three support links have the exact approved accessible names; decorative arrows are aria-hidden"
+  },
+  "verification": {
+    "targetedTests": "44 passed",
+    "typecheck": "passed",
+    "lint": "0 errors; 4 existing warnings outside the repair implementation",
+    "productionBuild": "passed",
+    "playwright": "18 passed across Chromium and Firefox",
+    "runtimeEvidence": "30 Grade occurrences; 24 routes; 11 read-only consumers; 0 public-surface marker matches",
+    "fullUnitSuite": "2761 passed, 50 skipped, 1 unrelated pre-existing evidence-hash failure"
+  },
+  "knownUnrelatedBaseline": {
+    "test": "tests/unit/editorial/five-core-review.test.ts:60",
+    "expectedSha256": "3b0559416055d44ea15dbf0bea8db5b911e44767eaa0e0d1373e7a5fe895b8e1",
+    "actualSha256": "90194de968291490b140a7ef83f23886d68c39969916fa10a1a44337e3748d47",
+    "repairTouchedArtifact": false
+  },
+  "authority": {
+    "gate9Decision": "D23 independent read-only review required",
+    "mergedToMain": false,
+    "pushed": false,
+    "deployed": false,
+    "published": false
+  }
+}

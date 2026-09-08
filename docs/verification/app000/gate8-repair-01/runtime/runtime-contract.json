@@ -1,0 +1,315 @@
+{
+  "checkedAt": "2026-09-08T11:25:12.164Z",
+  "baseUrl": "http://127.0.0.1:4391",
+  "status": 200,
+  "buildId": "cD6FOWG8iVMbgeRxyIqIS",
+  "implementationCommit": "0144b303d0546dc5bb7012e4292df6339f851b78",
+  "projection": {
+    "title": "Applications | TiO2 Malaysia",
+    "lang": "en",
+    "canonical": "https://tio2malaysia.com/applications/",
+    "robots": "noindex, nofollow",
+    "headings": [
+      "Explore Titanium Dioxide by Application",
+      "Choose by Application",
+      "How to Use This Application Hub",
+      "Continue Your Procurement Review",
+      "Share Your Application Requirements"
+    ],
+    "gradeOccurrences": [
+      {
+        "application": "Coatings",
+        "position": 1,
+        "label": "M-350",
+        "state": "linked",
+        "href": "/products/m-350/"
+      },
+      {
+        "application": "Coatings",
+        "position": 2,
+        "label": "M-510",
+        "state": "linked",
+        "href": "/products/m-510/"
+      },
+      {
+        "application": "Coatings",
+        "position": 3,
+        "label": "M-896",
+        "state": "linked",
+        "href": "/products/m-896/"
+      },
+      {
+        "application": "Coatings",
+        "position": 4,
+        "label": "M-996",
+        "state": "linked",
+        "href": "/products/m-996/"
+      },
+      {
+        "application": "Coatings",
+        "position": 5,
+        "label": "M-2196",
+        "state": "linked",
+        "href": "/products/m-2196/"
+      },
+      {
+        "application": "Coatings",
+        "position": 6,
+        "label": "M-895",
+        "state": "linked",
+        "href": "/products/m-895/"
+      },
+      {
+        "application": "Coatings",
+        "position": 7,
+        "label": "M-52",
+        "state": "linked",
+        "href": "/products/m-52/"
+      },
+      {
+        "application": "Coatings",
+        "position": 8,
+        "label": "M-2377",
+        "state": "linked",
+        "href": "/products/m-2377/"
+      },
+      {
+        "application": "Plastics",
+        "position": 1,
+        "label": "M-350",
+        "state": "linked",
+        "href": "/products/m-350/"
+      },
+      {
+        "application": "Plastics",
+        "position": 2,
+        "label": "M-510",
+        "state": "linked",
+        "href": "/products/m-510/"
+      },
+      {
+        "application": "Plastics",
+        "position": 3,
+        "label": "M-200",
+        "state": "linked",
+        "href": "/products/m-200/"
+      },
+      {
+        "application": "Plastics",
+        "position": 4,
+        "label": "M-108",
+        "state": "linked",
+        "href": "/products/m-108/"
+      },
+      {
+        "application": "Plastics",
+        "position": 5,
+        "label": "M-210",
+        "state": "linked",
+        "href": "/products/m-210/"
+      },
+      {
+        "application": "Plastics",
+        "position": 6,
+        "label": "M-340",
+        "state": "linked",
+        "href": "/products/m-340/"
+      },
+      {
+        "application": "Plastics",
+        "position": 7,
+        "label": "M-886",
+        "state": "linked",
+        "href": "/products/m-886/"
+      },
+      {
+        "application": "Plastics",
+        "position": 8,
+        "label": "M-2377",
+        "state": "linked",
+        "href": "/products/m-2377/"
+      },
+      {
+        "application": "Masterbatch",
+        "position": 1,
+        "label": "M-510",
+        "state": "linked",
+        "href": "/products/m-510/"
+      },
+      {
+        "application": "Masterbatch",
+        "position": 2,
+        "label": "M-200",
+        "state": "linked",
+        "href": "/products/m-200/"
+      },
+      {
+        "application": "Masterbatch",
+        "position": 3,
+        "label": "M-108",
+        "state": "linked",
+        "href": "/products/m-108/"
+      },
+      {
+        "application": "Masterbatch",
+        "position": 4,
+        "label": "M-210",
+        "state": "linked",
+        "href": "/products/m-210/"
+      },
+      {
+        "application": "Masterbatch",
+        "position": 5,
+        "label": "M-340",
+        "state": "linked",
+        "href": "/products/m-340/"
+      },
+      {
+        "application": "Masterbatch",
+        "position": 6,
+        "label": "M-886",
+        "state": "linked",
+        "href": "/products/m-886/"
+      },
+      {
+        "application": "Masterbatch",
+        "position": 7,
+        "label": "M-2377",
+        "state": "linked",
+        "href": "/products/m-2377/"
+      },
+      {
+        "application": "Printing Inks",
+        "position": 1,
+        "label": "M-350",
+        "state": "linked",
+        "href": "/products/m-350/"
+      },
+      {
+        "application": "Printing Inks",
+        "position": 2,
+        "label": "M-510",
+        "state": "linked",
+        "href": "/products/m-510/"
+      },
+      {
+        "application": "Printing Inks",
+        "position": 3,
+        "label": "M-52",
+        "state": "linked",
+        "href": "/products/m-52/"
+      },
+      {
+        "application": "Printing Inks",
+        "position": 4,
+        "label": "M-2377",
+        "state": "linked",
+        "href": "/products/m-2377/"
+      },
+      {
+        "application": "Paper",
+        "position": 1,
+        "label": "M-350",
+        "state": "linked",
+        "href": "/products/m-350/"
+      },
+      {
+        "application": "Paper",
+        "position": 2,
+        "label": "M-2377",
+        "state": "linked",
+        "href": "/products/m-2377/"
+      },
+      {
+        "application": "Specialty Materials",
+        "position": 1,
+        "label": "CR-901",
+        "state": "linked",
+        "href": "/products/cr-901/"
+      }
+    ],
+    "childActions": [],
+    "supportActions": [
+      {
+        "label": "Explore Products",
+        "href": "/products/"
+      },
+      {
+        "label": "Review Documents",
+        "href": "/documents/"
+      },
+      {
+        "label": "Explore Markets",
+        "href": "/markets/"
+      }
+    ],
+    "categoryAccessibleNames": [
+      "Coatings",
+      "Plastics",
+      "Masterbatch",
+      "Printing Inks",
+      "Paper",
+      "Specialty Materials"
+    ],
+    "rfqBodyLinks": [
+      {
+        "label": "Request a Quote",
+        "href": "/request-a-quote/"
+      },
+      {
+        "label": "Request a Quote",
+        "href": "/request-a-quote/"
+      }
+    ],
+    "currentNavigation": "Applications",
+    "horizontalOverflow": false,
+    "schema": {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "CollectionPage",
+          "@id": "https://tio2malaysia.com/applications/#webpage",
+          "url": "https://tio2malaysia.com/applications/",
+          "name": "Explore Titanium Dioxide by Application",
+          "description": "Explore titanium dioxide application paths for coatings, plastics, masterbatch, printing inks, paper and specialty materials.",
+          "inLanguage": "en",
+          "breadcrumb": {
+            "@id": "https://tio2malaysia.com/applications/#breadcrumb"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://tio2malaysia.com/applications/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://tio2malaysia.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Applications",
+              "item": "https://tio2malaysia.com/applications/"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "publicSurfaceScan": {
+    "html": {
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 48607,
+      "matches": []
+    },
+    "rsc": {
+      "status": 200,
+      "contentType": "text/x-component",
+      "bytes": 27221,
+      "matches": []
+    }
+  }
+}
