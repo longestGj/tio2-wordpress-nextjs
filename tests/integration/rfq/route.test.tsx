@@ -12,7 +12,7 @@ vi.mock('@/lib/wordpress/rfq-page-v01-queries', () => ({getMalaysiaRfqPage: rout
 beforeEach(() => {
   routeMocks.getCurrentSite.mockReturnValue(getSiteConfig('tio2-my'))
   routeMocks.getMalaysiaRfqPage.mockResolvedValue(toMalaysiaRfqPageDto(malaysiaRfqPageSource()))
-  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'test-key')
+  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', '01234567-89ab-cdef-0123-456789abcdef')
 })
 afterEach(() => { vi.clearAllMocks(); vi.unstubAllEnvs(); vi.resetModules() })
 

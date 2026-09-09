@@ -49,7 +49,7 @@ export function submitMalaysiaSampleRequest(
   return submitWeb3FormsBrowser(
     {
       workflow: "sample",
-      accessKey: options.accessKey?.trim() || null,
+      accessKey: options.accessKey,
       requestToken: options.requestToken,
       timeoutMs: options.timeoutMs ?? MALAYSIA_SAMPLE_SUBMISSION_TIMEOUT_MS,
       payload: {

@@ -9,7 +9,7 @@ import {
 
 const input: Web3FormsBrowserInput = {
   workflow: 'rfq',
-  accessKey: 'public-access-key',
+  accessKey: '01234567-89ab-cdef-0123-456789abcdef',
   requestToken: 'rfq-test-token',
   payload: {email: 'buyer@example.com', product: 'CR-901'},
   timeoutMs: 1_000,
@@ -62,16 +62,16 @@ describe('browser-direct Web3Forms transport', () => {
       workflow: 'rfq', requestToken: 'rfq-test-token', httpStatus: 200,
       mediaType: 'application/json', outcome: 'provider_accepted', providerCategory: 'accepted',
     })
-    expect(posted).toEqual({email: 'buyer@example.com', product: 'CR-901', access_key: 'public-access-key'})
+    expect(posted).toEqual({email: 'buyer@example.com', product: 'CR-901', access_key: '01234567-89ab-cdef-0123-456789abcdef'})
     expect(JSON.stringify(result.diagnostic)).not.toContain('buyer@example.com')
-    expect(JSON.stringify(result.diagnostic)).not.toContain('public-access-key')
+    expect(JSON.stringify(result.diagnostic)).not.toContain('01234567-89ab-cdef-0123-456789abcdef')
   })
 
   it.each([
     ['200 JSON success:false', response('{"success":false}', 200), 'provider_rejected', 'rejected'],
     ['200 non-JSON', response('OK', 200, 'text/plain'), 'submission_unconfirmed', 'unexpected'],
-    ['400', response('{"success":false}', 400), 'provider_rejected', 'invalid_request'],
-    ['422', response('{"success":false}', 422), 'provider_rejected', 'invalid_request'],
+    ['400', response('{"success":false}', 400), 'provider_rejected', 'unknown_invalid_request'],
+    ['422', response('{"success":false}', 422), 'provider_rejected', 'unknown_invalid_request'],
     ['429', response('{"success":false}', 429), 'provider_rejected', 'rate_limited'],
     ['500', response('{"success":false}', 500), 'submission_unconfirmed', 'unexpected'],
   ] as const)('classifies %s without accepting the submission', async (_name, providerResponse, kind, category) => {
@@ -81,6 +81,39 @@ describe('browser-direct Web3Forms transport', () => {
 
     expect(result.kind).toBe(kind)
     expect(result.diagnostic.providerCategory).toBe(category satisfies Web3FormsProviderCategory)
+  })
+
+  // Synthetic wording exercises conservative recognition; these are not historical responses.
+  it.each([
+    [400, {success: false, body: {data: {email: 'PRIVATE_SENTINEL@example.test'}, message: 'Invalid access key: PRIVATE_SENTINEL'}}, 'invalid_access_key'],
+    [422, {success: false, message: 'Origin is not allowed: PRIVATE_SENTINEL'}, 'domain_or_origin_restricted'],
+    [400, {success: false, message: 'Invalid email address: PRIVATE_SENTINEL@example.test'}, 'invalid_email'],
+    [422, {success: false, message: 'Malformed JSON: PRIVATE_SENTINEL'}, 'malformed_request'],
+    [400, {success: false, message: 'Submission blocked by policy: PRIVATE_SENTINEL'}, 'provider_policy'],
+    [400, {success: false, message: 'PRIVATE_SENTINEL'}, 'unknown_invalid_request'],
+    [400, {success: false, body: {data: {message: 'Invalid access key'}, message: 17}}, 'unknown_invalid_request'],
+    [400, {success: false, data: {message: 'Invalid email'}, errors: ['Invalid access key']}, 'unknown_invalid_request'],
+    [400, {success: false, message: 'Please check PRIVATE_SENTINEL, which mentions invalid access key'}, 'unknown_invalid_request'],
+    [400, {success: false, message: 'Invalid access key', body: {message: 'Invalid email'}}, 'unknown_invalid_request'],
+    [400, {success: true, message: 'Invalid access key'}, 'unknown_invalid_request'],
+    [400, ['Invalid access key'], 'unknown_invalid_request'],
+    [422, null, 'unknown_invalid_request'],
+  ] as const)('sanitizes a provider error to an enum only %#', async (status, body, category) => {
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      const result = await submitWeb3FormsBrowser(input, {fetcher: async () => response(JSON.stringify(body), status)})
+      expect(result).toMatchObject({kind: 'provider_rejected', diagnostic: {providerCategory: category}})
+      expect(Object.keys(result.diagnostic).sort()).toEqual(['httpStatus', 'mediaType', 'outcome', 'providerCategory', 'requestToken', 'workflow'])
+      expect(JSON.stringify(result)).not.toMatch(/PRIVATE_SENTINEL|@|message|payload|body|"access_key"/u)
+      expect(log).not.toHaveBeenCalled()
+      expect(error).not.toHaveBeenCalled()
+    } finally { log.mockRestore(); error.mockRestore() }
+  })
+
+  it.each([response('not json', 400), response('Invalid access key', 422, 'text/plain')])('keeps malformed/non-JSON error bodies unknown %#', async providerResponse => {
+    const result = await submitWeb3FormsBrowser(input, {fetcher: async () => providerResponse})
+    expect(result.diagnostic.providerCategory).toBe('unknown_invalid_request')
   })
 
   it('classifies an internal timeout even when fetch ignores its abort signal', async () => {
@@ -188,6 +221,22 @@ describe('browser-direct Web3Forms transport', () => {
     })
     expect(fetcher).not.toHaveBeenCalled()
   })
+
+  it.each(['', ' ', 'replace-with-access-key', 'x'.repeat(52), '01234567-89ab-cdef-0123-456789abcdef ', '01234567-89ab-cdef-0123-456789abcdef\n'])(
+    'fails closed for malformed configuration %# without any fetch', async accessKey => {
+      const fetcher: typeof fetch = vi.fn(async () => response('{"success":true}', 200))
+      const result = await submitWeb3FormsBrowser({...input, accessKey}, {fetcher})
+      expect(result.kind).toBe('unavailable')
+      expect(fetcher).not.toHaveBeenCalled()
+    },
+  )
+
+  it.each(['01234567-89ab-cdef-0123-456789abcdef', 'ABCDEFAB-CDEF-ABCD-EFAB-CDEFABCDEFAB'])(
+    'accepts generic UUID syntax without version or variant restrictions %#', async accessKey => {
+      const result = await submitWeb3FormsBrowser({...input, accessKey}, {fetcher: async () => response('{"success":true}', 200)})
+      expect(result.kind).toBe('provider_accepted')
+    },
+  )
 
   it('creates opaque non-repeating request tokens', () => {
     const first = createWeb3FormsRequestToken()

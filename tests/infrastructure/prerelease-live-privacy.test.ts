@@ -6,8 +6,10 @@ import {tmpdir} from 'node:os'
 import {promisify} from 'node:util'
 import {expect, it} from 'vitest'
 
-it.each(['rejection', 'positive', 'late-provider', 'late-retained'])('keeps live-harness %s evidence private and enforces transport through teardown', async mode => {
+it.each(['rejection', 'unknown-rejection', 'positive', 'late-provider', 'late-retained'])('keeps live-harness %s evidence private and enforces transport through teardown', async mode => {
   const root = mkdtempSync(join(tmpdir(), 'prerelease-live-privacy-'))
+  const rejected = mode.endsWith('rejection')
+  const category = mode === 'rejection' ? 'invalid_access_key' : mode === 'unknown-rejection' ? 'unknown_invalid_request' : 'accepted'
   const secret = 'PRIVATE_BUYER_SENTINEL_98271'
   const inputs = ['rfq-quantity_mt','rfq-destination_country','rfq-company_name','rfq-contact_name','rfq-business_email','rfq-additional_requirements','sample-test_objective','sample-contact_name','sample-company_organisation','sample-business_email','sample-destination_country_market','request-documents-full_name','request-documents-company','request-documents-business_email','request-documents-country_region','request-documents-additional_requirements']
   const selects = ['rfq-grade_id','rfq-application_id','sample-grade_id','sample-application_id','request-documents-product_grade']
@@ -21,7 +23,7 @@ it.each(['rejection', 'positive', 'late-provider', 'late-retained'])('keeps live
     const suite = resolve('tests/e2e/prerelease-live-forms.spec.ts').replaceAll('\\', '/')
     const playwright = resolve('node_modules/@playwright/test/index.mjs').replaceAll('\\', '/')
     const lateTarget = mode === 'late-provider' ? 'https://api.web3forms.com/submit' : '/api/rfq/submit'
-    writeFileSync(join(root, 'privacy.spec.ts'), `import {test} from ${JSON.stringify(playwright)}; test.beforeEach(async({page})=>{await page.route('https://api.web3forms.com/submit',route=>route.fulfill({status:${mode === 'rejection' ? 422 : 200},contentType:'application/json',body:JSON.stringify({success:${mode !== 'rejection'},message:'${secret}'})})); ${mode.startsWith('late-') ? `const capture=page.screenshot.bind(page);page.screenshot=async options=>{const result=await capture(options);if(String(options.path).endsWith('-thank-you-390.png'))await page.evaluate(async target=>{await fetch(target,{method:'POST',body:'${secret}'}).catch(()=>{})},${JSON.stringify(lateTarget)});return result};` : ''}}); import ${JSON.stringify(suite)};`)
+    writeFileSync(join(root, 'privacy.spec.ts'), `import {test} from ${JSON.stringify(playwright)}; test.beforeEach(async({page})=>{await page.route('https://api.web3forms.com/submit',route=>route.fulfill({status:${rejected ? 422 : 200},contentType:'application/json',body:JSON.stringify({success:${!rejected},body:{data:{email:'${secret}@example.com',message:'${secret}'},message:'${mode === 'rejection' ? 'Invalid access key: ' : ''}${secret}'}})})); ${mode.startsWith('late-') ? `const capture=page.screenshot.bind(page);page.screenshot=async options=>{const result=await capture(options);if(String(options.path).endsWith('-thank-you-390.png'))await page.evaluate(async target=>{await fetch(target,{method:'POST',body:'${secret}'}).catch(()=>{})},${JSON.stringify(lateTarget)});return result};` : ''}}); import ${JSON.stringify(suite)};`)
     writeFileSync(join(root, 'playwright.config.ts'), `export default {testDir:${JSON.stringify(root)},testMatch:'privacy.spec.ts',workers:1,retries:0,reporter:'list',outputDir:${JSON.stringify(join(root, 'artifacts'))},use:{trace:'retain-on-failure',screenshot:'only-on-failure',launchOptions:{args:['--host-resolver-rules=MAP api.web3forms.com ~NOTFOUND']}}};`)
     let output = ''
     try {
@@ -33,12 +35,12 @@ it.each(['rejection', 'positive', 'late-provider', 'late-retained'])('keeps live
       output = failure.stdout + failure.stderr
     }
     expect(output).toContain(mode === 'positive' ? '3 passed' : '3 failed')
-    if (mode === 'rejection') expect(output).toContain('provider category invalid_request')
+    if (rejected) expect(output).toContain(`provider category ${category}`)
     expect(output).not.toContain(secret)
     expect(output).not.toMatch(/https?:\/\/|\/api\/rfq\/submit|local-prerelease-privacy-fixture-/iu)
     const files = readdirSync(root, {recursive: true}).map(String)
     expect(files.some(path => /trace\.zip|\.webm$/u.test(path))).toBe(false)
-    expect(files.filter(path => path.endsWith('.png')), output).toHaveLength(mode === 'rejection' ? 0 : 9)
+    expect(files.filter(path => path.endsWith('.png')), output).toHaveLength(rejected ? 0 : 9)
     for (const file of files.filter(path => path.endsWith('error-context.md'))) {
       // Playwright may keep the sanitized error text; it must not capture the buyer DOM.
       const context = readFileSync(join(root, file), 'utf8')
@@ -50,14 +52,14 @@ it.each(['rejection', 'positive', 'late-provider', 'late-retained'])('keeps live
     expect(attempts).toHaveLength(3)
     for (const file of attempts) {
       const raw = readFileSync(join(root, file), 'utf8')
-      expect(raw).not.toMatch(/@|access_key|company|message|payload|PRIVATE_BUYER/iu)
-      expect(JSON.parse(raw).attempt).toMatchObject({httpStatus: mode === 'rejection' ? 422 : 200, providerCategory: mode === 'rejection' ? 'invalid_request' : 'accepted'})
+      expect(raw).not.toMatch(/@|"access_key"|company|message|payload|PRIVATE_BUYER/iu)
+      expect(JSON.parse(raw).attempt).toMatchObject({httpStatus: rejected ? 422 : 200, providerCategory: category})
     }
     const fragments = files.filter(path => path.startsWith('live-forms-'))
     expect(fragments).toHaveLength(3)
     for (const file of fragments) {
       const rawFragment = readFileSync(join(root, file), 'utf8')
-      expect(rawFragment).not.toMatch(/@|access_key|company|message|payload|PRIVATE_BUYER|https?:/iu)
+      expect(rawFragment).not.toMatch(/@|"access_key"|company|message|payload|PRIVATE_BUYER|https?:/iu)
       const fragment = JSON.parse(rawFragment)
       expect(fragment).toMatchObject({externalPostCount: 1, transport: {allowedPostCount: 1, blockedWriteCount: mode.startsWith('late-') ? 1 : 0, status: mode.startsWith('late-') ? 'FAILED' : 'PASSED'}})
       expect(fragment.checks[0].status).toBe(mode === 'positive' ? 'PASSED' : 'FAILED')
@@ -70,10 +72,11 @@ it.each(['rejection', 'positive', 'late-provider', 'late-retained'])('keeps live
     const rawResult = readFileSync(join(root, 'result.json'), 'utf8')
     const evidence = JSON.parse(rawResult)
     expect(evidence.state).toBe(mode === 'positive' ? 'PASSED' : 'FAILED')
+    expect(evidence.inboxStatus).toBe(rejected ? 'NOT_APPLICABLE_PROVIDER_NOT_ACCEPTED' : 'PENDING_MANUAL_CONFIRMATION')
     expect(evidence.formAttempts).toHaveLength(3)
     expect(evidence.transport).toEqual({allowedPostCount: 3, blockedWriteCount: mode.startsWith('late-') ? 3 : 0, status: mode.startsWith('late-') ? 'FAILED' : 'PASSED'})
-    expect(evidence.formAttempts.every((attempt: {providerCategory: string; thankYouRequest: string}) => attempt.providerCategory === (mode === 'rejection' ? 'invalid_request' : 'accepted') && (mode === 'rejection' || ['quote', 'sample', 'documents'].includes(attempt.thankYouRequest)))).toBe(true)
-    expect(rawResult).not.toMatch(/@|access_key|company|message|payload|PRIVATE_BUYER|https?:/iu)
+    expect(evidence.formAttempts.every((attempt: {providerCategory: string; thankYouRequest: string}) => attempt.providerCategory === (category) && (rejected || ['quote', 'sample', 'documents'].includes(attempt.thankYouRequest)))).toBe(true)
+    expect(rawResult).not.toMatch(/@|"access_key"|company|message|payload|PRIVATE_BUYER|https?:/iu)
   } finally {
     await new Promise<void>((done, reject) => server.close(error => error ? reject(error) : done()))
     rmSync(root, {recursive: true, force: true})

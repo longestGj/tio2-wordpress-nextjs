@@ -13,7 +13,7 @@ const values = {
 }
 
 const options = {
-  accessKey: 'test-access-key', requestToken: 'req-1', sourcePageId: null, marketId: null,
+  accessKey: '01234567-89ab-cdef-0123-456789abcdef', requestToken: 'req-1', sourcePageId: null, marketId: null,
 }
 
 describe('CONV-DOC receiver boundary', () => {
@@ -32,7 +32,7 @@ describe('CONV-DOC receiver boundary', () => {
     }))
 
     await expect(submitMalaysiaRequestDocuments(values, {
-      accessKey: 'test-access-key', requestToken: 'req-1', sourcePageId: 'PRODUCT-000',
+      accessKey: '01234567-89ab-cdef-0123-456789abcdef', requestToken: 'req-1', sourcePageId: 'PRODUCT-000',
       marketId: 'MARKET-EU-DE', fetcher,
     })).resolves.toMatchObject({kind: 'provider_accepted'})
 
@@ -41,7 +41,7 @@ describe('CONV-DOC receiver boundary', () => {
     expect(calls[0]?.[1]?.headers).toEqual({'content-type': 'application/json'})
     const payload = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
     expect(payload).toMatchObject({
-      access_key: 'test-access-key', email: 'amina@example.com', site_scope: 'tio2-my',
+      access_key: '01234567-89ab-cdef-0123-456789abcdef', email: 'amina@example.com', site_scope: 'tio2-my',
       page_id: 'CONV-DOC', workflow_type: 'documents', locale: 'en', request_token: 'req-1',
       source_page_id: 'PRODUCT-000', market_id: 'MARKET-EU-DE',
     })

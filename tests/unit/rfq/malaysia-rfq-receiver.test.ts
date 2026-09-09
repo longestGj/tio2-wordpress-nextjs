@@ -12,12 +12,18 @@ const submission: MalaysiaRfqSubmission = {
   contact_name: 'A Buyer', business_email: 'buyer@example.com', phone_whatsapp: '',
   website: '', additional_requirements: '', source_page_id: null,
 }
-const options = {accessKey: 'test-key', requestToken: 'rfq-token'} as const
+const options = {accessKey: '01234567-89ab-cdef-0123-456789abcdef', requestToken: 'rfq-token'} as const
 
 describe('CONV-RFQ Web3Forms receiver', () => {
+  it('does not trim malformed configuration into a usable key', async () => {
+    const fetcher = vi.fn(async () => Response.json({success: true}))
+    const result = await submitMalaysiaRfq(submission, {...options, accessKey: '01234567-89ab-cdef-0123-456789abcdef ', fetcher})
+    expect(result.kind).toBe('unavailable')
+    expect(fetcher).not.toHaveBeenCalled()
+  })
   it('uses the shared browser transport contract with the caller request token', async () => {
     const fetcher = vi.fn(async () => Response.json({success: true}))
-    const result = await submitMalaysiaRfq(submission, {accessKey: 'test-key', requestToken: 'rfq-token', fetcher})
+    const result = await submitMalaysiaRfq(submission, {accessKey: '01234567-89ab-cdef-0123-456789abcdef', requestToken: 'rfq-token', fetcher})
     expect(result.kind).toBe('provider_accepted')
     expect(fetcher).toHaveBeenCalledTimes(1)
     const calls=fetcher.mock.calls as unknown as Array<[RequestInfo|URL,RequestInit]>
