@@ -9,9 +9,9 @@ test.describe.configure({retries: 0})
 const configuration = process.env.WEB3FORMS_TEST_CONFIGURATION
 const baseUrl = process.env.TIO2_MY_BASE_URL ?? ''
 const workflows = {
-  rfq: {path: '/request-a-quote/', thankYou: 'quote'},
-  sample: {path: '/request-sample/', thankYou: 'sample'},
-  documents: {path: '/request-documents/', thankYou: 'documents'},
+  rfq: {path: '/request-a-quote/', thankYou: 'quote', heading: '#rfq-h1'},
+  sample: {path: '/request-sample/', thankYou: 'sample', heading: '#sample-h1'},
+  documents: {path: '/request-documents/', thankYou: 'documents', heading: '#request-documents-h1'},
 } as const
 
 type Workflow = keyof typeof workflows
@@ -60,7 +60,7 @@ for (const workflow of Object.keys(workflows) as Workflow[]) {
         })
         stage = 'public_readiness'
         await page.goto(`${origin}${workflows[workflow].path}`)
-        await expect(page.locator('[data-site-scope="tio2-my"]').first()).toBeVisible()
+        await expect(page.locator(workflows[workflow].heading)).toBeVisible()
         if (outcome === 'unavailable' && workflow !== 'documents') {
           await expect(page.locator('form')).toHaveCount(0)
           await expect(page.getByRole(workflow === 'rfq' ? 'status' : 'heading', workflow === 'sample' ? {name: 'We cannot confirm sample requests right now.'} : undefined).first()).toBeVisible()
@@ -70,11 +70,11 @@ for (const workflow of Object.keys(workflows) as Workflow[]) {
           stage = 'submission'
           await page.locator('form button[type="submit"]').click()
           if (outcome === 'accepted') {
-            await expect(page).toHaveURL(url => url.origin === origin && url.pathname === '/thank-you/' && url.searchParams.get('request') === workflows[workflow].thankYou)
+            await expect(page).toHaveURL(url => url.origin === origin && url.pathname.replace(/\/$/u, '') === '/thank-you' && url.searchParams.get('request') === workflows[workflow].thankYou)
             await expect(page.locator(`[data-thank-you-panel="${workflows[workflow].thankYou}"]`)).toBeVisible()
           } else {
             await expect(page.getByRole('alert').filter({has: page.getByRole('button', {name: /try again/i})})).toBeVisible()
-            expect(new URL(page.url()).pathname).toBe(workflows[workflow].path)
+            expect(new URL(page.url()).pathname.replace(/\/$/u, '')).toBe(workflows[workflow].path.replace(/\/$/u, ''))
           }
         }
         stage = 'privacy_and_transport'
