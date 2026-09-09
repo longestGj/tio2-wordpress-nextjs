@@ -112,7 +112,7 @@ describe('tio2-my local prerelease Compose contract', () => {
     expect(compose?.services.web.volumes).toContain('prerelease_sample_receipts:/var/lib/tio2-sample-receipts')
   })
 
-  it('lists every and only tio2-my apply seed with its current SHA-256', () => {
+  it('lists every tio2-my apply seed and the approved candidate refresh with current SHA-256', () => {
     expect(existsSync(seedManifestPath)).toBe(true)
     if (!existsSync(seedManifestPath)) return
     const manifest = JSON.parse(readFileSync(seedManifestPath, 'utf8')) as {
@@ -122,7 +122,7 @@ describe('tio2-my local prerelease Compose contract', () => {
     }
     const expectedPaths = execFileSync(
       'git',
-      ['ls-files', 'wordpress/seed/apply-tio2-my-*.php'],
+      ['ls-files', 'wordpress/seed/apply-tio2-my-*.php', 'wordpress/seed/refresh-tio2-my-resource-candidate.php'],
       {encoding: 'utf8'},
     ).trim().split(/\r?\n/u).filter(Boolean).sort()
     expect(manifest.schemaVersion).toBe(1)

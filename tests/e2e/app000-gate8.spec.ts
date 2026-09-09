@@ -157,6 +157,16 @@ test('category and support links expose the nine approved exact accessible names
 })
 
 test('RFQ handoff keeps a clean URL and sends private APP-000 attribution without preselecting buyer fields', async ({page, request}) => {
+  // Historical attribution assertions are retained pending their applicability review.
+  // Fail closed before the page can issue a provider or retained-endpoint write.
+  await page.route('**/*', async route => {
+    if (route.request().method() !== 'GET') {
+      await route.abort('blockedbyclient')
+      return
+    }
+    await route.continue()
+  })
+  expect(['127.0.0.1', 'localhost', '[::1]']).toContain(new URL(privateReceiver).hostname)
   await request.post(`${privateReceiver}/reset`)
   await page.goto('/applications/', {waitUntil: 'networkidle'})
   const attributionResponsePromise = page.waitForResponse((response) => response.url().endsWith('/api/rfq/context'))

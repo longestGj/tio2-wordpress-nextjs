@@ -1,3 +1,4 @@
+import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
 import {spawnSync} from 'node:child_process'
 import {fileURLToPath} from 'node:url'
 
@@ -30,11 +31,7 @@ function powershell(arguments_: string[]) {
 
 function wp(arguments_: string[]) {
   return execute('docker', [
-    'compose',
-    '--env-file',
-    'wordpress/.env',
-    '-f',
-    'wordpress/docker-compose.yml',
+    ...wordpressComposeArgs(),
     'run',
     '--rm',
     '--no-TTY',
@@ -48,11 +45,7 @@ function wp(arguments_: string[]) {
 
 function wpWithEnvironment(environment: string, arguments_: string[]) {
   return execute('docker', [
-    'compose',
-    '--env-file',
-    'wordpress/.env',
-    '-f',
-    'wordpress/docker-compose.yml',
+    ...wordpressComposeArgs(),
     'run',
     '--rm',
     '--no-TTY',

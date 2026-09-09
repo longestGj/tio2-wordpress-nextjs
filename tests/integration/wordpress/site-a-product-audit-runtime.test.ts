@@ -1,3 +1,4 @@
+import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
 import {spawnSync} from 'node:child_process'
 import {existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
@@ -20,9 +21,7 @@ const auditWrapperPath = fileURLToPath(
 const manifestPath = 'D:/11SEO/01ComInfo/outputs/site-a-products-v0.1.json'
 function runControlledAudit() {
   const result = spawnSync('docker', [
-    'compose',
-    '--env-file', 'wordpress/.env',
-    '-f', 'wordpress/docker-compose.yml',
+    ...wordpressComposeArgs(),
     'run', '--rm', '--no-TTY', '--no-deps',
     '--entrypoint', 'php',
     'wpcli',
@@ -145,9 +144,7 @@ echo json_encode(['checked' => 17], JSON_THROW_ON_ERROR);
 
 function runWpCliEvalFile(path: string) {
   return spawnSync('docker', [
-    'compose',
-    '--env-file', 'wordpress/.env',
-    '-f', 'wordpress/docker-compose.yml',
+    ...wordpressComposeArgs(),
     'run', '--rm', '--no-TTY', '--user', '33:33',
     'wpcli', 'wp', 'eval-file', path,
   ], {encoding: 'utf8', timeout: 30_000})
@@ -217,6 +214,7 @@ describe('local Site A Product draft audit boundary', () => {
       expect(output).not.toContain('strict_types declaration must be the very first statement')
       expect(output).toContain('capability file is required')
     },
+    35_000,
   )
 
   it('rejects every draft, scope, manifest, privacy, route, GraphQL, and Site B safety violation', () => {

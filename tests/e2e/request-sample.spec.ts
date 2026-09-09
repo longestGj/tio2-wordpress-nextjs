@@ -15,6 +15,8 @@ const contract = JSON.parse(
     documentOptions: Array<{value: string}>
   }
 }
+test.use({trace: 'off', screenshot: 'off', video: 'off'})
+
 const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://localhost:3004'
 const evidence = resolve(process.env.POLAND_EVIDENCE_DIR ?? 'docs/verification/conv-sample')
 mkdirSync(evidence, {recursive: true})
@@ -136,7 +138,25 @@ test('CONV-SAMPLE validates Other and 2001 Unicode characters without truncation
   await page.screenshot({path: resolve(evidence, 'conv-sample-validation-390.png'), fullPage: true, animations: 'disabled'})
 })
 
-test('CONV-SAMPLE retains values and token across direct retry, then confirms only explicit receipt', async ({page}) => {
+test.describe('controlled browser-direct Sample responses', () => {
+  let unexpectedWrites = 0
+  test.beforeEach(async ({page}) => {
+    unexpectedWrites = 0
+    await page.route('**/*', async route => {
+      if (route.request().method() !== 'GET') {
+        unexpectedWrites++
+        await route.abort('blockedbyclient')
+        return
+      }
+      await route.continue()
+    })
+  })
+  test.afterEach(async ({page}) => {
+    await page.close()
+    expect(unexpectedWrites, 'unexpected writes were blocked').toBe(0)
+  })
+
+test('CONV-SAMPLE retains values and token across direct retry, then confirms only explicit provider acknowledgement', async ({page}) => {
   await page.setViewportSize({width: 1280, height: 900})
   await page.goto(`${baseUrl}/request-sample/`, {waitUntil: 'domcontentloaded'})
   await page.locator('#sample-grade_id').selectOption('M-2196')
@@ -148,17 +168,22 @@ test('CONV-SAMPLE retains values and token across direct retry, then confirms on
   await page.locator('#sample-destination_country_market').fill('Malaysia')
   const tokens: string[] = []
   let attempt = 0
-  await page.route('**/api/sample/submit', async (route) => {
+  await page.route('https://api.web3forms.com/submit', async (route) => {
+    if (route.request().method() !== 'POST' || attempt >= 2) {
+      unexpectedWrites++
+      await route.abort('blockedbyclient')
+      return
+    }
     attempt += 1
-    const payload = route.request().postDataJSON() as {idempotencyKey: string}
-    tokens.push(payload.idempotencyKey)
+    const payload = route.request().postDataJSON() as {request_token: string}
+    tokens.push(payload.request_token)
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 250))
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify(attempt === 1
-        ? {ok: true, receipt_confirmed: false}
-        : {ok: true, receipt_confirmed: true}),
+        ? {success: false}
+        : {success: true}),
     })
   })
   await page.getByRole('button', {name: 'Submit Sample Request for Review'}).click()
@@ -166,7 +191,8 @@ test('CONV-SAMPLE retains values and token across direct retry, then confirms on
   await expect(page.getByRole('heading', {name: 'We could not confirm that your request was received.'})).toBeVisible()
   await expect(page.getByRole('form')).not.toHaveAttribute('aria-busy')
   await expect(page.locator('#sample-company_organisation')).toHaveValue('Example Co')
-  await page.screenshot({path: resolve(evidence, 'conv-sample-failure.png'), fullPage: true, animations: 'disabled'})
+  await page.waitForTimeout(300)
+  expect(attempt).toBe(1)
   await page.getByRole('button', {name: 'Try again'}).click()
   await expect(page.getByRole('form')).toHaveAttribute('aria-busy', 'true')
   await expect(page.getByRole('button', {name: 'Sending your request…'})).toBeDisabled()
@@ -177,6 +203,7 @@ test('CONV-SAMPLE retains values and token across direct retry, then confirms on
     version: 1, request: 'sample',
   })
   expect(tokens).toHaveLength(2)
+  expect(tokens[0]).toMatch(/^[A-Za-z0-9_-]{10,}$/u)
   expect(tokens[1]).toBe(tokens[0])
   await page.screenshot({path: resolve(evidence, 'conv-sample-success.png'), fullPage: true, animations: 'disabled'})
 })
@@ -191,11 +218,26 @@ test('CONV-SAMPLE retains the form and offers retry after an unconfirmed provide
   await page.locator('#sample-company_organisation').fill('Example Co')
   await page.locator('#sample-business_email').fill('amina@example.com')
   await page.locator('#sample-destination_country_market').fill('Malaysia')
-  await page.route('**/api/sample/submit', async (route) => route.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({success: false})}))
+  let attempts = 0
+  await page.route('https://api.web3forms.com/submit', async (route) => {
+    if (route.request().method() !== 'POST' || attempts >= 1) {
+      unexpectedWrites++
+      await route.abort('blockedbyclient')
+      return
+    }
+    attempts++
+    await route.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({success: false})})
+  })
   await page.getByRole('button', {name: 'Submit Sample Request for Review'}).click()
   await expect(page.getByRole('heading', {name: 'We could not confirm that your request was received.'})).toBeVisible()
   await expect(page.locator('[data-sample-field]')).toHaveCount(11)
   await expect(page.getByRole('button', {name: 'Try again'})).toBeVisible()
+  await expect(page.locator('#sample-company_organisation')).toHaveValue('Example Co')
+  await page.waitForTimeout(300)
+  expect(attempts).toBe(1)
+  expect(await page.evaluate(() => sessionStorage.getItem('tio2-my:thank-you:receipt:v1'))).toBeNull()
+})
+
 })
 
 test('CONV-SAMPLE FAQ buttons expose state, panel relationships and keyboard operation', async ({page}) => {
