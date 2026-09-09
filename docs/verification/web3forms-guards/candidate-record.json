@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "status": "REPAIR_VERIFIED_PENDING_D23_AND_DEVELOP_COMBINATION",
+  "siteId": "tio2-my",
+  "checkedAt": "2026-09-09T02:40:11.660Z",
+  "branch": "codex/prerelease-web3forms-guards",
+  "baseline": "ba37af03bec4cf9f44f56415afc243be1c297847",
+  "implementationCommit": "525ee53c157dbd24cd17dff97463738a390b6676",
+  "testCommit": "6857888eacdbf8e99f1ea1ce1dcd7e1eadc671f4",
+  "evidenceHead": "Reported after evidence commit to avoid self-reference",
+  "specification": {
+    "path": "D:/23MySec/docs/architecture/PRERELEASE_TASK10_WEB3FORMS_INVALID_REQUEST_RETURN_V1.0.md",
+    "commit": "72989041512a2ca7e4dc61bc1c85fdff063481e8"
+  },
+  "findings": {
+    "F02": "IMPLEMENTED_AND_TESTED",
+    "F03": "IMPLEMENTED_AND_TESTED",
+    "F04": "IMPLEMENTED_AND_TESTED",
+    "F01": "OPEN_CONFIGURATION_OWNER"
+  },
+  "tests": {
+    "affected": {
+      "files": 40,
+      "passed": 379
+    },
+    "privacy": {
+      "files": 2,
+      "passed": 27,
+      "providerBoundary": "LOCALLY_INTERCEPTED_WITH_DNS_BLOCK"
+    },
+    "actualApp": {
+      "passed": 9,
+      "valid": 6,
+      "malformed": 3,
+      "scope": "Three workflows: accepted/rejected with synthetic UUID, unavailable with malformed synthetic configuration",
+      "providerBoundary": "LOCALLY_INTERCEPTED; ALL_OTHER_WRITES_AND_EXTERNAL_READS_BLOCKED"
+    },
+    "types": "PASS",
+    "lint": {
+      "errors": 0,
+      "existingWarnings": 4
+    },
+    "review": "Task, scoped correction and final independent reviews attached"
+  },
+  "runtimes": [
+    {
+      "configuration": "valid",
+      "action": "build",
+      "commit": "525ee53c157dbd24cd17dff97463738a390b6676",
+      "startedAt": "2026-09-09T02:30:38.914Z",
+      "finishedAt": "2026-09-09T02:31:14.657Z",
+      "exitCode": 0,
+      "siteId": "tio2-my",
+      "cms": "http://127.0.0.1:8181/graphql",
+      "port": 3186,
+      "dist": ".next-web3forms-valid",
+      "providerConfiguration": "SYNTHETIC_ONLY",
+      "realProviderRequests": 0,
+      "buildId": "8fDGe425umf-_pofkBw5o",
+      "process": {
+        "pid": 50428,
+        "parentPid": 65936,
+        "startedAt": "2026-09-09T02:31:20.341Z",
+        "cwd": "D:\\16Wordpress_nextjs\\.worktrees\\prerelease-web3forms-guards",
+        "commit": "525ee53c157dbd24cd17dff97463738a390b6676",
+        "port": 3186,
+        "dist": ".next-web3forms-valid"
+      }
+    },
+    {
+      "configuration": "malformed",
+      "action": "build",
+      "commit": "525ee53c157dbd24cd17dff97463738a390b6676",
+      "startedAt": "2026-09-09T02:31:30.703Z",
+      "finishedAt": "2026-09-09T02:31:54.797Z",
+      "exitCode": 0,
+      "siteId": "tio2-my",
+      "cms": "http://127.0.0.1:8181/graphql",
+      "port": 3187,
+      "dist": ".next-web3forms-malformed",
+      "providerConfiguration": "SYNTHETIC_ONLY",
+      "realProviderRequests": 0,
+      "buildId": "IWCqHluSknZ4ZqaH70Y6w",
+      "process": {
+        "pid": 68080,
+        "parentPid": 32460,
+        "startedAt": "2026-09-09T02:32:16.117Z",
+        "cwd": "D:\\16Wordpress_nextjs\\.worktrees\\prerelease-web3forms-guards",
+        "commit": "525ee53c157dbd24cd17dff97463738a390b6676",
+        "port": 3187,
+        "dist": ".next-web3forms-malformed"
+      }
+    }
+  ],
+  "visual": {
+    "reviewer": "D16 controller",
+    "viewed": [
+      "rfq-unavailable-1440.png",
+      "sample-unavailable-1440.png",
+      "rfq-accepted-1440.png",
+      "sample-accepted-1440.png",
+      "documents-accepted-1440-ready.png"
+    ],
+    "result": "Complete public unavailable/Thank states; no entered forms or private diagnostics",
+    "note": "Documents1440 file was reopened individually after a batched-preview display ambiguity; complete original image confirmed."
+  },
+  "privacy": {
+    "formalTextChecks": [
+      {
+        "path": "docs/verification/web3forms-guards/task-1-report.md",
+        "passed": true
+      },
+      {
+        "path": "docs/verification/web3forms-guards/task-1-review.md",
+        "passed": true
+      },
+      {
+        "path": "docs/verification/web3forms-guards/correction-report.md",
+        "passed": true
+      },
+      {
+        "path": "docs/verification/web3forms-guards/task-1-rereview.md",
+        "passed": true
+      },
+      {
+        "path": "docs/verification/web3forms-guards/final-review.md",
+        "passed": true
+      },
+      {
+        "path": "docs/verification/web3forms-guards/task-1-affected.log",
+        "passed": true
+      },
+      {
+        "path": "docs/verification/web3forms-guards/task-1-privacy-green.log",
+        "passed": true
+      },
+      {
+        "path": "docs/verification/web3forms-guards/task-1-typecheck-final.log",
+        "passed": true
+      },
+      {
+        "path": "docs/verification/web3forms-guards/task-1-lint.log",
+        "passed": true
+      },
+      {
+        "path": "docs/verification/web3forms-guards/valid-build.json",
+        "passed": true
+      },
+      {
+        "path": "docs/verification/web3forms-guards/malformed-build.json",
+        "passed": true
+      },
+      {
+        "path": "docs/verification/web3forms-guards/correction-valid-green.log",
+        "passed": true
+      },
+      {
+        "path": "docs/verification/web3forms-guards/correction-malformed-green.log",
+        "passed": true
+      }
+    ],
+    "publicImagesManuallyViewed": 5,
+    "rawRedLogsExcluded": true
+  },
+  "limits": {
+    "realProviderRequests": 0,
+    "actualInboxConfirmed": false,
+    "actualKeyChanged": false,
+    "healthyPrereleaseReset": false,
+    "mainChanged": false,
+    "remoteDeployment": false,
+    "gate9": "NOT_CLAIMED",
+    "gate10": "NOT_AUTHORIZED",
+    "release": "NOT_AUTHORIZED"
+  },
+  "artifacts": [
+    {
+      "path": "docs/verification/web3forms-guards/task-1-report.md",
+      "sha256": "1e5437bb85ffceab3c541ee457929540d6259030a337da205676614b4b1838be"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/task-1-review.md",
+      "sha256": "b2465468bd918c37e7745193aa0fdc60e62d20adc978fe209a567f27b5571b27"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/correction-report.md",
+      "sha256": "a6da4693bb474af007cbd4ccf185c16cfd8ef7422c72d3d34b0bad6c1dc7a25d"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/task-1-rereview.md",
+      "sha256": "d73cc58ea093299898a42888ebc59eff2f309b27d41ef78d19257da009e2632a"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/final-review.md",
+      "sha256": "e2d168febea4c3dff90f5aea9cc32dd24b8d147f7ca103d79428812a4b663f6d"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/task-1-affected.log",
+      "sha256": "34bea477c3ae36aecc6916bc44595d3402293b613cc4ad138f40208d47f4cb7a"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/task-1-privacy-green.log",
+      "sha256": "88b556f78806f174a13511378b796dbc8124631343cb697962d7ff2c2d6d706b"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/task-1-typecheck-final.log",
+      "sha256": "d98c656d4bd66d7ecbbb46c5061cc283ccb9638f83d21d23fc68fc683deb581b"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/task-1-lint.log",
+      "sha256": "1a8f82456dc67527df7eacb998f3602e962b20663ea893f4ceca6a061b26175f"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/valid-build.json",
+      "sha256": "52c2c28553d0e7a4f248cd321b22cc02f51e0d4b4ba8b1f928ed6c0550f870aa"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/malformed-build.json",
+      "sha256": "69be7294055801babe293808ab00459f1d969558f1a5a901c620dd97cd798b44"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/correction-valid-green.log",
+      "sha256": "49086ba89144beaceebbee0011a2b3bd3800d9bb825d3ea37e7a3d8f1393e267"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/correction-malformed-green.log",
+      "sha256": "3de70302501883e722d926dfe8ba051dc755ba952884870e2f2e9b58b9950d94"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/rfq-unavailable-1440.png",
+      "sha256": "030abd0bd537df037277bbe434ad728991c8edddbf71cc8ed3bab45eae651a8a"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/sample-unavailable-1440.png",
+      "sha256": "7f1a7269bb98fe89f8a047a7c3e049eb0095a5d899546cd85ee12f6b4712754f"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/rfq-accepted-1440.png",
+      "sha256": "4e7f491e1c528b98a522d49485f73078f051c1758339d7fbd568dc0c48f66b7a"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/sample-accepted-1440.png",
+      "sha256": "0331550e9474ebe5fc2edac580e1b36c7640a0687e99a95bf4796f48aac6f736"
+    },
+    {
+      "path": "docs/verification/web3forms-guards/documents-accepted-1440-ready.png",
+      "sha256": "9014050969a98f987fb6e044586ac45a7148dfaf5a7d209676c6a2c42aeb9011"
+    }
+  ]
+}
