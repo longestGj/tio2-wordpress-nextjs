@@ -1,4 +1,5 @@
 import AxeBuilder from '@axe-core/playwright'
+import {fillPrivateInput} from './support/private-input'
 import {expect, test} from '@playwright/test'
 import {mkdirSync, readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
@@ -15,6 +16,7 @@ const contract = JSON.parse(
     documentOptions: Array<{value: string}>
   }
 }
+process.env.PLAYWRIGHT_NO_COPY_PROMPT = '1'
 test.use({trace: 'off', screenshot: 'off', video: 'off'})
 
 const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://localhost:3004'
@@ -161,11 +163,11 @@ test('CONV-SAMPLE retains values and token across direct retry, then confirms on
   await page.goto(`${baseUrl}/request-sample/`, {waitUntil: 'domcontentloaded'})
   await page.locator('#sample-grade_id').selectOption('M-2196')
   await page.locator('#sample-application_id').selectOption('coatings')
-  await page.locator('#sample-test_objective').fill('Evaluate dispersion.')
-  await page.locator('#sample-contact_name').fill('Amina Tan')
-  await page.locator('#sample-company_organisation').fill('Example Co')
-  await page.locator('#sample-business_email').fill('amina@example.com')
-  await page.locator('#sample-destination_country_market').fill('Malaysia')
+  await fillPrivateInput(page, '#sample-test_objective', 'Evaluate dispersion.')
+  await fillPrivateInput(page, '#sample-contact_name', 'Amina Tan')
+  await fillPrivateInput(page, '#sample-company_organisation', 'Example Co')
+  await fillPrivateInput(page, '#sample-business_email', 'amina@example.com')
+  await fillPrivateInput(page, '#sample-destination_country_market', 'Malaysia')
   const tokens: string[] = []
   let attempt = 0
   await page.route('https://api.web3forms.com/submit', async (route) => {
@@ -190,7 +192,7 @@ test('CONV-SAMPLE retains values and token across direct retry, then confirms on
   await expect(page.getByRole('form')).toHaveAttribute('aria-busy', 'true')
   await expect(page.getByRole('heading', {name: 'We could not confirm that your request was received.'})).toBeVisible()
   await expect(page.getByRole('form')).not.toHaveAttribute('aria-busy')
-  await expect(page.locator('#sample-company_organisation')).toHaveValue('Example Co')
+  expect(await page.evaluate(expected => (document.querySelector('#sample-company_organisation') as HTMLInputElement)?.value === expected, 'Example Co'), 'company value retained').toBe(true)
   await page.waitForTimeout(300)
   expect(attempt).toBe(1)
   await page.getByRole('button', {name: 'Try again'}).click()
@@ -198,13 +200,10 @@ test('CONV-SAMPLE retains values and token across direct retry, then confirms on
   await expect(page.getByRole('button', {name: 'Sending your request…'})).toBeDisabled()
   await expect(page).toHaveURL(/\/thank-you\/?\?request=sample$/u)
   await expect(page.getByRole('heading', {name: 'Thank you. We’ve received your sample request.'})).toBeVisible()
-  expect(await page.content()).not.toContain('amina@example.com')
-  expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem('tio2-my:thank-you:receipt:v1') ?? '{}'))).toMatchObject({
-    version: 1, request: 'sample',
-  })
+  expect((await page.content()).includes('amina@example.com'), 'buyer value absent from Thank page').toBe(false)
+  expect(await page.evaluate(() => {const marker = JSON.parse(sessionStorage.getItem('tio2-my:thank-you:receipt:v1') ?? '{}'); return marker.version === 1 && marker.request === 'sample'}), 'matching receipt marker').toBe(true)
   expect(tokens).toHaveLength(2)
-  expect(tokens[0]).toMatch(/^[A-Za-z0-9_-]{10,}$/u)
-  expect(tokens[1]).toBe(tokens[0])
+  expect(/^[A-Za-z0-9_-]{10,}$/u.test(tokens[0]) && tokens[1] === tokens[0], 'stable valid retry token').toBe(true)
   await page.screenshot({path: resolve(evidence, 'conv-sample-success.png'), fullPage: true, animations: 'disabled'})
 })
 
@@ -213,11 +212,11 @@ test('CONV-SAMPLE retains the form and offers retry after an unconfirmed provide
   await page.goto(`${baseUrl}/request-sample/`, {waitUntil: 'domcontentloaded'})
   await page.locator('#sample-grade_id').selectOption('unknown')
   await page.locator('#sample-application_id').selectOption('not_sure')
-  await page.locator('#sample-test_objective').fill('Review trial objective.')
-  await page.locator('#sample-contact_name').fill('Amina Tan')
-  await page.locator('#sample-company_organisation').fill('Example Co')
-  await page.locator('#sample-business_email').fill('amina@example.com')
-  await page.locator('#sample-destination_country_market').fill('Malaysia')
+  await fillPrivateInput(page, '#sample-test_objective', 'Review trial objective.')
+  await fillPrivateInput(page, '#sample-contact_name', 'Amina Tan')
+  await fillPrivateInput(page, '#sample-company_organisation', 'Example Co')
+  await fillPrivateInput(page, '#sample-business_email', 'amina@example.com')
+  await fillPrivateInput(page, '#sample-destination_country_market', 'Malaysia')
   let attempts = 0
   await page.route('https://api.web3forms.com/submit', async (route) => {
     if (route.request().method() !== 'POST' || attempts >= 1) {
@@ -232,10 +231,10 @@ test('CONV-SAMPLE retains the form and offers retry after an unconfirmed provide
   await expect(page.getByRole('heading', {name: 'We could not confirm that your request was received.'})).toBeVisible()
   await expect(page.locator('[data-sample-field]')).toHaveCount(11)
   await expect(page.getByRole('button', {name: 'Try again'})).toBeVisible()
-  await expect(page.locator('#sample-company_organisation')).toHaveValue('Example Co')
+  expect(await page.evaluate(expected => (document.querySelector('#sample-company_organisation') as HTMLInputElement)?.value === expected, 'Example Co'), 'company value retained').toBe(true)
   await page.waitForTimeout(300)
   expect(attempts).toBe(1)
-  expect(await page.evaluate(() => sessionStorage.getItem('tio2-my:thank-you:receipt:v1'))).toBeNull()
+  expect(await page.evaluate(() => sessionStorage.getItem('tio2-my:thank-you:receipt:v1') === null), 'no receipt marker on rejection').toBe(true)
 })
 
 })

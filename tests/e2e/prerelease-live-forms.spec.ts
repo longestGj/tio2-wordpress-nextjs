@@ -2,6 +2,7 @@ import {expect, test, type Page} from '@playwright/test'
 import {readFileSync, writeFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {randomUUID} from 'node:crypto'
+import {fillPrivateInput} from './support/private-input'
 import type {Web3FormsWorkflow} from '../../lib/forms/web3forms-browser'
 import {baseUrl, commandUuid, evidenceRoot, recordCheck, capturePublicPage, type TransportCounts} from './support/prerelease-evidence'
 import {buyerEmailTestValue, providerAttempt} from './support/prerelease-live-evidence'
@@ -90,12 +91,12 @@ liveWorkflow('rfq', async (page, email, label) => {
   await page.goto(`${baseUrl}/request-a-quote/`)
   await page.locator('#rfq-grade_id').selectOption({index: 1})
   await page.locator('#rfq-application_id').selectOption({index: 1})
-  await page.locator('#rfq-quantity_mt').fill('1')
-  await page.locator('#rfq-destination_country').fill('Malaysia')
-  await page.locator('#rfq-company_name').fill(label)
-  await page.locator('#rfq-contact_name').fill(label)
-  await page.locator('#rfq-business_email').fill(email)
-  await page.locator('#rfq-additional_requirements').fill(label)
+  await fillPrivateInput(page, '#rfq-quantity_mt', '1')
+  await fillPrivateInput(page, '#rfq-destination_country', 'Malaysia')
+  await fillPrivateInput(page, '#rfq-company_name', label)
+  await fillPrivateInput(page, '#rfq-contact_name', label)
+  await fillPrivateInput(page, '#rfq-business_email', email)
+  await fillPrivateInput(page, '#rfq-additional_requirements', label)
 
 
 })
@@ -104,23 +105,23 @@ liveWorkflow('sample', async (page, email, label) => {
   await page.goto(`${baseUrl}/request-sample/`)
   await page.locator('#sample-grade_id').selectOption('M-2196')
   await page.locator('#sample-application_id').selectOption('coatings')
-  await page.locator('#sample-test_objective').fill(label)
-  await page.locator('#sample-contact_name').fill(label)
-  await page.locator('#sample-company_organisation').fill(label)
-  await page.locator('#sample-business_email').fill(email)
-  await page.locator('#sample-destination_country_market').fill('Malaysia')
+  await fillPrivateInput(page, '#sample-test_objective', label)
+  await fillPrivateInput(page, '#sample-contact_name', label)
+  await fillPrivateInput(page, '#sample-company_organisation', label)
+  await fillPrivateInput(page, '#sample-business_email', email)
+  await fillPrivateInput(page, '#sample-destination_country_market', 'Malaysia')
 
 
 })
 
 liveWorkflow('documents', async (page, email, label) => {
   await page.goto(`${baseUrl}/request-documents/`)
-  await page.locator('#request-documents-full_name').fill(label)
-  await page.locator('#request-documents-company').fill(label)
-  await page.locator('#request-documents-business_email').fill(email)
-  await page.locator('#request-documents-country_region').fill('Malaysia')
+  await fillPrivateInput(page, '#request-documents-full_name', label)
+  await fillPrivateInput(page, '#request-documents-company', label)
+  await fillPrivateInput(page, '#request-documents-business_email', email)
+  await fillPrivateInput(page, '#request-documents-country_region', 'Malaysia')
   await page.locator('#request-documents-product_grade').selectOption('M-2196')
   await page.getByRole('checkbox', {name: /^Safety Documentation/u}).check()
-  await page.locator('#request-documents-additional_requirements').fill(label)
+  await fillPrivateInput(page, '#request-documents-additional_requirements', label)
 
 })

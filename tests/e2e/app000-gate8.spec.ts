@@ -2,6 +2,7 @@ import {mkdirSync, readFileSync, writeFileSync} from 'node:fs'
 import {randomUUID} from 'node:crypto'
 import {resolve} from 'node:path'
 import AxeBuilder from '@axe-core/playwright'
+import {fillPrivateInput} from './support/private-input'
 import {expect, test, type Page} from '@playwright/test'
 
 // D23 APP000_E2E_BROWSER_DIRECT_CONTRACT_SUPERSESSION_RULING_V1.0 governs this suite.
@@ -240,7 +241,7 @@ test('APP RFQ handoff uses one intercepted provider POST and reaches Quote Thank
     for (const [field, value] of Object.entries(values)) {
       const control = page.locator(`#rfq-${field}`)
       if (field === 'grade_id' || field === 'application_id') await control.selectOption(value)
-      else await control.fill(value)
+      else await fillPrivateInput(page, `#rfq-${field}`, value)
     }
     await page.getByRole('button', {name: 'REQUEST QUOTE'}).click()
     await expect(page).toHaveURL(/\/thank-you\/?\?request=quote$/u)
