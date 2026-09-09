@@ -1,0 +1,35 @@
+
+> test
+> vitest run --maxWorkers=4
+
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/prerelease-public-paths-integration
+
+warning: in the working copy of 'identity.txt', LF will be replaced by CRLF the next time Git touches it
+ ❯ tests/infrastructure/prerelease-compose.test.ts (9 tests | 1 failed) 308ms
+     × lists every tio2-my apply seed and the approved candidate refresh with current SHA-256 139ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/infrastructure/prerelease-compose.test.ts > tio2-my local prerelease Compose contract > lists every tio2-my apply seed and the approved candidate refresh with current SHA-256
+AssertionError: expected '014c420d173de6e27d4cb777958c7e424892f…' to be '496ca0fab2c9ed6b1dbb095011a4a03ee80c0…' // Object.is equality
+
+Expected: "496ca0fab2c9ed6b1dbb095011a4a03ee80c08b18825275f201e72c247b863e4"
+Received: "014c420d173de6e27d4cb777958c7e424892f4a1619aba206b154e074eb7f04b"
+
+ ❯ tests/infrastructure/prerelease-compose.test.ts:133:82
+    131|     for (const seed of manifest.seeds) {
+    132|       expect(seed.sha256).toMatch(/^[a-f0-9]{64}$/u)
+    133|       expect(createHash('sha256').update(readFileSync(seed.path)).dige…
+       |                                                                                  ^
+    134|     }
+    135|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 356 passed | 21 skipped (378)
+      Tests  1 failed | 2997 passed | 51 skipped (3049)
+   Start at  09:41:19
+   Duration  174.17s (transform 14.38s, setup 74.53s, import 80.80s, tests 438.78s, environment 31.14s)
+

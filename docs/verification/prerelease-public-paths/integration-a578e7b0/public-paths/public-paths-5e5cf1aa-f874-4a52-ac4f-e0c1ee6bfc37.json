@@ -1,0 +1,11 @@
+{
+  "suite": "public-paths",
+  "commandUuid": "develop-a578e7b0-public-paths-gUcvVd8srLVKb94i9C9b7",
+  "externalPostCount": 0,
+  "checks": [
+    {
+      "check": "public-paths.width.390",
+      "status": "PASSED"
+    }
+  ]
+}

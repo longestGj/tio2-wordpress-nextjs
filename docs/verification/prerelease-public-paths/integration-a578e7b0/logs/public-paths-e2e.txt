@@ -1,0 +1,9 @@
+
+Running 4 tests using 1 worker
+
+  ok 1 [chromium] › tests\e2e\prerelease-public-paths.spec.ts:87:3 › public paths Chromium Axe keyboard inventory and return 1440 (26.3s)
+  ok 2 [chromium] › tests\e2e\prerelease-public-paths.spec.ts:87:3 › public paths Chromium Axe keyboard inventory and return 768 (28.0s)
+  ok 3 [chromium] › tests\e2e\prerelease-public-paths.spec.ts:87:3 › public paths Chromium Axe keyboard inventory and return 390 (23.6s)
+  ok 4 [chromium] › tests\e2e\prerelease-public-paths.spec.ts:152:1 › full 58-object internal link scan permits only approved Contact exception (15.8s)
+
+  4 passed (1.6m)

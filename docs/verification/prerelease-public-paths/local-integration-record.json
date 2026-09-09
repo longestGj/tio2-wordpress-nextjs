@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 1,
+  "status": "DEVELOP_COMBINATION_PASS_PENDING_D23_IDENTITY_CHECK",
+  "siteId": "tio2-my",
+  "recordedAt": "2026-09-09T01:52:34.998664+00:00",
+  "repository": "D:\\16Wordpress_nextjs\\.worktrees\\prerelease-public-paths-integration",
+  "branch": "develop",
+  "accepted": {
+    "implementationCommit": "f81321c07d6026ef1e5119cfb7b58914225ff753",
+    "evidenceHead": "b081001e93f7ad269dd25ff5c5b1a3177f8d63fa",
+    "buildId": "qyjMXbbCPr3yW3ZlKuD97",
+    "manifestSha256": "4c90f90a934b9eb102d1446a661b1fb6e68964e62ed50ba90670b9bfaf3fc257",
+    "gate9ReportSha256": "07d1740dd1840f9fc6355042449c1caef270843650166a2abb8602731f96de08",
+    "appRuling": "V1.1 / a8df6cecf23e397366e264fa0259c7bd6b865486",
+    "integrationStatus": "INTEGRATION_READY"
+  },
+  "git": {
+    "developBefore": "149bbae23cf6b5376a037da528a1379d298bdfd4",
+    "firstMerge": "8a2698d7f4dc3d8d3fb3bafb3d91ee017c0bea58",
+    "repairCommit": "b4eb8b13211449655518315e4f3491675fa8e184",
+    "developTestedCommit": "a578e7b0ce35fc2262ff594c49ac0b03e7677a87",
+    "repairMerge": "a578e7b0ce35fc2262ff594c49ac0b03e7677a87",
+    "testedTree": "e578974888f41780f5acb2d596e29971740a9249",
+    "acceptedTree": "6eb7d71c8f954579b338400a86e601830f4de5e6",
+    "firstMergeTreeEqualsAccepted": true,
+    "conflicts": [],
+    "onlySourceDeltaAfterAcceptance": [
+      ".gitattributes",
+      "tests/infrastructure/prerelease-compose.test.ts"
+    ],
+    "cleanBeforeEvidenceSeal": true,
+    "evidenceHead": "Reported separately after committing this record to avoid self-reference"
+  },
+  "repair": {
+    "cause": "Fresh Windows checkout/archive exported new public-path seed with CRLF; approved Git blob and seed manifest bound LF bytes.",
+    "change": "Exact file text eol=lf plus real Git autocrlf checkout regression; no seed, manifest or business-source change.",
+    "firstFullSuite": {
+      "passed": 2997,
+      "failed": 1,
+      "skipped": 51
+    },
+    "focusedTestsPassed": 10,
+    "seedWorktreeAndArchiveHashesMatch": 41,
+    "approvedSeedSha256": "496ca0fab2c9ed6b1dbb095011a4a03ee80c08b18825275f201e72c247b863e4"
+  },
+  "environment": {
+    "runtime": {
+      "implementationCommit": "a578e7b0ce35fc2262ff594c49ac0b03e7677a87",
+      "buildId": "gUcvVd8srLVKb94i9C9b7",
+      "runId": "public-paths-integration-a578e7b0ce35",
+      "builtAt": "2026-09-09T01:49:30.273Z",
+      "directory": ".next-public-paths-integration",
+      "siteId": "tio2-my",
+      "cmsEndpoint": "http://127.0.0.1:8181/graphql",
+      "siteUrl": "http://127.0.0.1:3184"
+    },
+    "process": {
+      "pid": 56956,
+      "parentPid": 16196,
+      "startedAt": "2026-09-09T01:49:41.020Z",
+      "command": "node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3184",
+      "cwd": "D:\\16Wordpress_nextjs\\.worktrees\\prerelease-public-paths-integration",
+      "sourceCommit": "a578e7b0ce35fc2262ff594c49ac0b03e7677a87",
+      "buildId": "gUcvVd8srLVKb94i9C9b7"
+    },
+    "executionSession": 38404,
+    "cms": "Same accepted dedicated development CMS 8181; no CMS writes in integration browser validation.",
+    "unitPhp": "Explicit three TIO2_TEST_WORDPRESS overrides target isolated d16-public-paths-unit-php on8182 with integration-worktree source mounts, 39 synthetic draft fixture; existing8080 untouched."
+  },
+  "checks": {
+    "lint": {
+      "command": "npm run lint",
+      "exitCode": 0,
+      "warnings": 4
+    },
+    "typecheck": {
+      "command": "NEXT_DIST_DIR=.next-public-paths-integration npm run typecheck",
+      "exitCode": 0
+    },
+    "fullSuite": {
+      "command": "npm test -- --maxWorkers=4",
+      "exitCode": 0,
+      "testsPassed": 2999,
+      "testsSkipped": 51,
+      "skipScope": "Original optional runtime gates; no new skip to obtain green.",
+      "filesPassed": 357,
+      "filesSkipped": 21,
+      "seconds": 162.83
+    },
+    "build": {
+      "command": "node .local-evidence/integration/run.mjs build (npm run build)",
+      "exitCode": 0
+    },
+    "e2e": {
+      "command": "npx playwright test tests/e2e/prerelease-public-paths.spec.ts --project=chromium --workers=1 --output=.tmp/playwright-integration",
+      "exitCode": 0,
+      "testsPassed": 4,
+      "widths": [
+        1440,
+        768,
+        390
+      ],
+      "scopeObjects": 58,
+      "approvedContactException": true,
+      "actualExternalPosts": 0
+    },
+    "formsUnit": {
+      "command": "npx vitest run tests/unit/forms tests/unit/rfq tests/unit/request-sample tests/unit/request-documents tests/unit/thank-you --maxWorkers=4",
+      "exitCode": 0,
+      "testsPassed": 271,
+      "filesPassed": 30
+    },
+    "resourcesParity": {
+      "command": "TIO2_MY_RESOURCE_PHP_RUNTIME=1 npx vitest run tests/integration/resources/malaysia-resource-hub-php-parity.test.ts --maxWorkers=1",
+      "exitCode": 0,
+      "testsPassed": 1
+    }
+  },
+  "visualEvidence": {
+    "imageCount": 15,
+    "allIdenticalToPreviouslyViewed": true,
+    "scope": "Hash-proven inheritance of previously inspected images where equal; changed images require actual inspection before closeout."
+  },
+  "main": {
+    "unchangedCommit": "98c2c573dd090048352fa12415a9cc8eeefc485b",
+    "merged": false
+  },
+  "realProviderSubmissions": 0,
+  "releaseStatus": "NOT_AUTHORIZED",
+  "next": "D23 accepted-identity check; no main merge until its result.",
+  "evidence": [
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/logs/lint-final.txt",
+      "sha256": "31554b13301dea90ff3e4083b59019bfc7370317fbfc6c40b4e91e9999381121"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/logs/typecheck-final.txt",
+      "sha256": "ac610a7904f65ef45008dbf187f8a3526bdd7d8a5f57eb2775d01aa84e451cab"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/logs/fullsuite-first-8a2698d.txt",
+      "sha256": "56d12d995d7874af24a040fa6dc6afff26cef821b0b6e946cdc336d72c284fca"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/logs/fullsuite-final.txt",
+      "sha256": "16183e17888bd1f45e335d35107ba50a307200e609a680ecc61757c9fd492a93"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/logs/build-first-8a2698d.txt",
+      "sha256": "e00da6d9215547b91397cb0c213ff9d67892dddbebd3fef869e371f8344b75c7"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/logs/build-final.txt",
+      "sha256": "a7dbd20c65fb9475d24990ec3953ace1eb791a96b5ecbb94eb10472e76cdf7b4"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/logs/seed-fix-focused.txt",
+      "sha256": "e6437a750b0339b365d8af0959bb7aa2b656073a59e04485a38451e84da532f3"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/logs/public-paths-e2e.txt",
+      "sha256": "d59a4932aaffdddc89e36330124ed12e3fc48acb60565d9e9fc28a7ce8697aa3"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/logs/forms-unit.txt",
+      "sha256": "902f2832410d8b866a6d3fab976cba59ad1a9faf67095b0db12baf9ac8a5cf9a"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/logs/resource-parity.txt",
+      "sha256": "65a5b48942588a84b93e2787438fe4717b0b7132cdc51fdc30a662b74b660c7d"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/APP-000-1440.png",
+      "sha256": "339bf2bcb3fd73cf10a208b3c570765bc85f942ac42b5adb934841daca79518c"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/APP-000-390.png",
+      "sha256": "329a0994f896ff542f34bf66baf881b8a74222b83e21bbb515084f305e435c70"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/APP-000-768.png",
+      "sha256": "f587abbaf0833ff964597b9642921a1d83acb0c397c87705ad1a597de77ab802"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/DOC-000-1440.png",
+      "sha256": "82abf6deaf330f62ebcf274306a3a9b876e0d29f2730e8a12392418c79dd0dba"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/DOC-000-390.png",
+      "sha256": "28390a5a67abb227630112df4c3c5b57eddf382ad4f7af874284393dab191f0d"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/DOC-000-768.png",
+      "sha256": "b9dbc4c8dd763d8494cfc895e09a49298410fdd1efe479308639553d16c74752"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/HOME-001-1440.png",
+      "sha256": "b35a3a62e56a59dc6696d3635a38b28ffa75799c85ea1f32e0a5788045000a38"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/HOME-001-390.png",
+      "sha256": "e2ec59e6c21461d9daaab058faefc4af8e15e03fb84e3fb8b79f841b47a22564"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/HOME-001-768.png",
+      "sha256": "b2fd0606af6e730864914d2e6dc37d86f0364eeec3744c8197eb0c6d6cfef687"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/PRODUCT-000-1440.png",
+      "sha256": "81d3e1cffe29f84a40481e998840ab018063ccf0d26050f64d6f101b226a8211"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/PRODUCT-000-390.png",
+      "sha256": "6091f9c6bb19f87774d8a069d9f165aaffdbebc236e5f2e16b17ad8285b11b69"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/PRODUCT-000-768.png",
+      "sha256": "b06da1d1ccfcaab397ea76fdd94081fb174ee36043772a9db39da63b6c4c8e2b"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/public-paths-27a09fec-622a-4814-9afc-0781e5e74a8a.json",
+      "sha256": "a2320e85c5ae7247b3dc5321918f24a1d70615ab2690ae1b8fb3eaafd4bf5e9f"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/public-paths-29d280f1-ffe5-4f21-8301-c2b74923d330.json",
+      "sha256": "3335dcbfef83e2bda18af05e588b8f27eaed4e0885a70b8557ee222041fcc8fa"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/public-paths-2dd0b92e-f874-418e-a6f9-1a8d6232496c.json",
+      "sha256": "90597c55fb8542ae82c3561e0d4e0a5d947f9cde15626528308f777cb327e0ed"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/public-paths-5e5cf1aa-f874-4a52-ac4f-e0c1ee6bfc37.json",
+      "sha256": "7fafcc94b383ecf9dfa6736a30abc9be1487ece37066db1964db6aa6de3d0754"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/RES-000-1440.png",
+      "sha256": "cfcde95b06d943c6725ab00ee35be0d6aeca66d11e6f3f35568a4bbe5e44249b"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/RES-000-390.png",
+      "sha256": "025a6dbe4870445c07366a56ee4de0d1ed70987252531f1e95ee911b5f17e31c"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/public-paths/RES-000-768.png",
+      "sha256": "ad0444a8954514bc39667e56b8b6e281db80bca161ef4acb569b93a18a4d29a6"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/seed-lf-fix-report.md",
+      "sha256": "7be2a1516c1a24b08fd781a865b1c513b00e93dbfe071dda9578ccfb82f0b3a4"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/seed-lf-fix-review.md",
+      "sha256": "9894a99f79d93350af3a638e2389dcc4a8962b7ec3b3cd651b555d5d16cf187e"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/runtime-identity.json",
+      "sha256": "704cf74523bcdb15b697e6edfadb52c796825cb34d179c2e2b47c05f08584f62"
+    },
+    {
+      "path": "docs/verification/prerelease-public-paths/integration-a578e7b0/image-inheritance.json",
+      "sha256": "55dc5020e8fa776a3485d4dd497aa66acabaaa142953cf9acc28b4b3228d0ba9"
+    }
+  ]
+}
