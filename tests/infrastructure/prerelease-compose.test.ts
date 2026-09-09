@@ -1,6 +1,8 @@
 import {createHash} from 'node:crypto'
 import {execFileSync} from 'node:child_process'
-import {existsSync, readFileSync} from 'node:fs'
+import {existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync} from 'node:fs'
+import {devNull, tmpdir} from 'node:os'
+import {dirname, join, relative, resolve} from 'node:path'
 import {parse} from 'yaml'
 import {describe, expect, it} from 'vitest'
 
@@ -38,13 +40,48 @@ describe('tio2-my local prerelease Compose contract', () => {
     expect(existsSync(seedManifestPath)).toBe(true)
   })
 
-  it('exports Linux entrypoint scripts with LF line endings', () => {
+  it('exports Linux entrypoints and the hash-bound public-paths seed with LF line endings', () => {
     for (const path of [
       'ops/prerelease/bootstrap-wordpress.sh',
       'ops/prerelease/collect-cms-identity.sh',
+      'wordpress/seed/apply-tio2-my-prerelease-public-paths.php',
     ]) {
       const attribute = execFileSync('git', ['check-attr', 'eol', '--', path], {encoding: 'utf8'})
       expect(attribute.trim()).toBe(`${path}: eol: lf`)
+    }
+  })
+
+  it('preserves the approved public-paths seed hash through a Windows-style fresh Git checkout', () => {
+    const seedPath = 'wordpress/seed/apply-tio2-my-prerelease-public-paths.php'
+    const manifest = JSON.parse(readFileSync(seedManifestPath, 'utf8')) as {
+      seeds: Array<{path: string; sha256: string}>
+    }
+    const expected = manifest.seeds.find(seed => seed.path === seedPath)?.sha256
+    const blob = execFileSync('git', ['show', `HEAD:${seedPath}`])
+    const sha256 = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex')
+    expect(sha256(blob)).toBe(expected)
+    const temporaryRoot = resolve(tmpdir())
+    const checkout = mkdtempSync(join(temporaryRoot, 'prerelease-seed-lf-'))
+    const git = (...args: string[]) => execFileSync('git', [
+      '-c', `core.attributesFile=${devNull}`, '-c', 'core.safecrlf=false', ...args,
+    ], {cwd: checkout, stdio: ['pipe', 'pipe', 'pipe']})
+    try {
+      git('init', '--quiet')
+      writeFileSync(join(checkout, '.gitattributes'), readFileSync('.gitattributes'))
+      mkdirSync(dirname(join(checkout, seedPath)), {recursive: true})
+      writeFileSync(join(checkout, seedPath), blob)
+      git('-c', 'core.autocrlf=false', 'add', '--', '.gitattributes', seedPath)
+      unlinkSync(join(checkout, seedPath))
+      git('-c', 'core.autocrlf=true', 'checkout-index', '--force', '--', seedPath)
+      const exported = readFileSync(join(checkout, seedPath))
+      expect(sha256(exported)).toBe(expected)
+      expect(exported.equals(blob)).toBe(true)
+    } finally {
+      const ownedPath = relative(temporaryRoot, resolve(checkout))
+      if (!ownedPath.startsWith('prerelease-seed-lf-') || ownedPath.includes('..')) {
+        throw new Error('Refusing cleanup outside the owned seed checkout')
+      }
+      rmSync(checkout, {recursive: true, force: true})
     }
   })
 

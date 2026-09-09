@@ -27,3 +27,4 @@ docs/verification/prerelease-public-paths/** -text
 docs/verification/tio2-my/prerelease-public-paths-20260909/* text eol=lf
 wordpress/seed/refresh-tio2-my-resource-candidate.php text eol=lf
 wordpress/seed/apply-tio2-my-resource-hub.php text eol=lf
+wordpress/seed/apply-tio2-my-prerelease-public-paths.php text eol=lf
