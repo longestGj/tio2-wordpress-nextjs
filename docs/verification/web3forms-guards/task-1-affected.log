@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/prerelease-web3forms-guards
+
+
+ Test Files  40 passed (40)
+      Tests  379 passed (379)
+   Start at  10:28:14
+   Duration  23.66s (transform 2.51s, setup 6.74s, import 10.06s, tests 68.56s, environment 1.53s)
+
