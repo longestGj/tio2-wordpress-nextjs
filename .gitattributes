@@ -23,6 +23,7 @@ app/(en)/resources/chemours-titanium-dioxide-alternatives/page.tsx text eol=lf
 
 # Current candidate evidence and seed hashes bind these exact LF bytes.
 tests/fixtures/prerelease/scope-58.json text eol=lf
+docs/verification/prerelease-public-paths/** -text
 docs/verification/tio2-my/prerelease-public-paths-20260909/* text eol=lf
 wordpress/seed/refresh-tio2-my-resource-candidate.php text eol=lf
 wordpress/seed/apply-tio2-my-resource-hub.php text eol=lf

@@ -1,0 +1,106 @@
+{
+  "status": "TECHNICAL_CHECKPOINT_PASSED_FINAL_HANDOFF_PENDING",
+  "testedBuild": "OWOLx5-fpBGDQCaOgeiwr",
+  "testedImplementationCommit": "e94f1df9828226b19c48427632c1ebd967a9d230",
+  "subsequentTestOnlyFix": "d2b4686ebc294661c433875bc5796bda293abd61",
+  "commands": [
+    {
+      "command": "npm run lint",
+      "exitCode": 0,
+      "warnings": 4
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm test -- --maxWorkers=4",
+      "exitCode": 0,
+      "filesPassed": 354,
+      "filesSkipped": 21,
+      "testsPassed": 2985,
+      "testsSkipped": 51,
+      "seconds": 137.28,
+      "skipNote": "Pre-existing opt-in and environment-gated cases. No skips added to obtain a pass."
+    },
+    {
+      "command": "npx vitest run tests/unit/forms tests/unit/rfq tests/unit/request-sample tests/unit/request-documents tests/unit/thank-you tests/unit/homepage tests/unit/products/malaysia-product-hub-template.test.tsx tests/unit/applications tests/unit/documents/malaysia-documents-hub-contract.test.tsx tests/unit/resources tests/integration/documents tests/integration/resources tests/infrastructure/prerelease-test-actions.test.ts tests/infrastructure/prerelease-evidence-scope.test.ts tests/infrastructure/tio2-my-prerelease-public-paths.test.ts",
+      "exitCode": 0,
+      "testsPassed": 818,
+      "testsSkipped": 1
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0
+    },
+    {
+      "command": "npx playwright test tests/e2e/prerelease-smoke.spec.ts tests/e2e/prerelease-public-paths.spec.ts --project=chromium --workers=1",
+      "exitCode": 0,
+      "testsPassed": 10,
+      "baseUrl": "http://127.0.0.1:3183",
+      "externalPostCount": 0
+    },
+    {
+      "command": "npx vitest run tests/infrastructure/wordpress-fixture-selection.test.ts tests/infrastructure/wordpress-compose.test.ts",
+      "exitCode": 0,
+      "testsPassed": 8,
+      "note": "Review fix after the full suite; actual imported opt-in suite checked under a blocked process boundary."
+    }
+  ],
+  "ordinaryCheckIds": [
+    "public-paths.width.1440",
+    "public-paths.width.768",
+    "public-paths.width.390",
+    "public-paths.internal-links.58",
+    "smoke.representative",
+    "smoke.local-forms",
+    "smoke.cookie-keyboard",
+    "smoke.reflow.1440",
+    "smoke.reflow.768",
+    "smoke.reflow.390"
+  ],
+  "visualReview": {
+    "screenshots": 27,
+    "viewed": 27,
+    "method": "Actual full-page images opened with view_image; long images were resized by the tool. Overview inspection found no visible clipping, overlap, unloaded logos or development portal. Not pixel-level or independent acceptance.",
+    "rootSpotCheck": [
+      "request-a-quote-empty-390.png",
+      "request-sample-empty-1440.png",
+      "request-documents-empty-768.png",
+      "RES-000-1440.png",
+      "DOC-000-390.png",
+      "APP-000-768.png"
+    ]
+  },
+  "endpointScans": {
+    "activeSourceMatches": 0,
+    "builtClientChunkMatches": 0,
+    "pattern": "/api/rfq/submit|/api/tio2-my/rfq-private-submit|/api/sample/submit"
+  },
+  "simulationOnly": {
+    "sampleCases": 2,
+    "runtime": "http://127.0.0.1:3181",
+    "providerResponses": "Intercepted HTTP 200 / boolean success false, followed only on explicit retry by true. No provider network submission.",
+    "inboxConfirmed": false
+  },
+  "warnings": [
+    "Four historical unused-variable lint warnings (prototype helpers x2, historical app000 evidence generator, shared-menu test).",
+    "Full suite disposable identity.txt LF/CRLF warning.",
+    "Sample simulation inherited NO_COLOR/FORCE_COLOR warning; ordinary candidate run removed NO_COLOR."
+  ],
+  "unitCms": {
+    "project": "d16-public-paths-unit-php",
+    "hostPort": 8182,
+    "guardEmulation": "DB_NAME=tio2_local, DB_HOST=db:3306, home/siteurl=http://localhost:8080 exist only in the isolated project. No HTTP request to the actual 8080 service.",
+    "realDraftReadbacks": 39,
+    "rollbackChecks": "Identity/ACF/taxonomy/relationship effects, queue restore, Site B hash and all 39 draft readbacks preserved; extra and hidden-product collision fixtures rejected and rolled back.",
+    "externalRequests": 0
+  },
+  "pending": [
+    "Final rebuild from the settled source and final evidence seal",
+    "Independent D23 pre-merge acceptance and Task9A integration",
+    "Actual three-form provider and correlated inbox results in Task10",
+    "Contact release dependency",
+    "Production release, indexing and Gate10 authorization"
+  ]
+}

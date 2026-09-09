@@ -1,0 +1,82 @@
+{
+    "schemaVersion": 1,
+    "siteScope": "tio2-my",
+    "wordpressVersion": "7.1",
+    "activePlugins": [
+        {
+            "name": "add-wpgraphql-seo",
+            "version": "5.1.0"
+        },
+        {
+            "name": "advanced-custom-fields",
+            "version": "6.8.9"
+        },
+        {
+            "name": "tio2-site-model",
+            "version": "0.1.0"
+        },
+        {
+            "name": "wp-graphql",
+            "version": "2.22.3"
+        },
+        {
+            "name": "wpgraphql-acf",
+            "version": "2.8.0"
+        },
+        {
+            "name": "wordpress-seo",
+            "version": "28.4"
+        }
+    ],
+    "seedManifestSha256": "c7f3482040f984702edcbe97b9a401296d06b9a162de4772bbb83bdbf4976c25",
+    "orderedSeedHashes": [
+        "e816238b5dd4d4c517a356156451e7479c18c8a1c0c360a9fbbc7d507bc84098",
+        "15a6e7e9a04f6929e4f253ccf6d3e38f154c46f271a68940e8a989a3a8adfe4f",
+        "c0e622661580410a744b16be3c996e5e3e392dd21d2a823a0152cf17f6a50f80",
+        "a9aa04f5568f3e0b27f05e94c6b1879ca66f68a4387e2552c9172441649326ff",
+        "8b31a1305076dfc6b8701535a92aec042e15893830761af62d96459d5cd05c4f",
+        "fce5fac12abe8fb0589a8ae18310f8df2b89a31a1ff87ce770a75eb06c1f44d2",
+        "b11fc21ff6e05a9d9145c28d8cb69e5ba7e9fd609c905b12a9a5814f04db465d",
+        "6803960b9fddf9afa6a0c48a899568b14af8e2c26ac456890b7afba42f790995",
+        "958b7254a43f2f75ae3c0b6d52d371bf954cb0e5c7b2ee1ae1f2e7ee7f955f98",
+        "58a0d7f6a8158405df7dab6922b296e5b3404a9990da944e81a3cf282f7f607d",
+        "15bf9c7a92170c2549def1798408c3e72ae6f2592befc722c747cf528aad9f48",
+        "9f486d966e15cab46c30d7932bdffb3545b403d0ee68763bd7071451fc867b54",
+        "6b5c562d8dc4e10a6c62dd55fc760af44097b017c238a9b2afff055767ce512e",
+        "f2410a937054485d84f3a4e2477989448a950bdb25dd2d5ccda0ef03ec126434",
+        "14c42c99db97e03a2c0145e822da2cad0f867cf8fd20e812f8f1fa57693fd58a",
+        "8286d3a443fb1249fa7e1ae84a9b5f70a5f7c37d075375df67fa515772468ec1",
+        "675c01a038a8683140f5f098ccc528910be11f65555583cec8c3274b74e407de",
+        "ab206ec100e978660402079c6c7dd0d6726d0b00e9d30c7431b0952c26774449",
+        "b4ffbbd9520457ddcce435a930e0d77a899e0cc703a7946ffb0cfc0176b09d14",
+        "be9a36ffb3d47bb7f85e61d331d7915257a3a0da049770eb09d9d32df408e08f",
+        "016ae18b6989da3d92325d628fdc306f57d7beb7834bee359543238d991af9e8",
+        "c5ac4fc2dd19e5cc337643bc8ad95b66430de6397d670c1d55eecebc2e046676",
+        "c8a42dcfb1d3ba97a76e779c2da1983eeab9bc0511644e860fe8a576215c9af3",
+        "cf5afe648b6de7f778e858599ee713ba4b5f48c66dd26899164333ffed71f58e",
+        "b554b6a4ca10bf4dfadfebeb51c6ddb0942b0288a8f84016816e298043a0b8f9",
+        "cf4220dcc29ccd840bc623f51c17f7d6c72b8dad4fee05a6c79119ac4408d067",
+        "5686699907d9e69be25f695f0dd7ce96e3239669cc5a027475cca2da7a8f0517",
+        "a4539e101be70a06f35df1a584659cb6b50878685f080f074940970f96bdf7ff",
+        "84ecdcdc12b01627c19f7bde4cfa2a0f2883cc73ec2ff9cd58628df86af37c66",
+        "0efe487f906e2da62bbc1f6545277d4e9cfa9e94b3a764236961140b8d6be1b0",
+        "9f905c515529df66caa8042cf811074fb37faadc20629dd01dbadab6921b3bc5",
+        "584bcd8831b86f1b130a99aea358da78b19271b958290fb08abf8e8ba949ad39",
+        "05c2fd56c2108f7b0e4468750ef66fe9bbf6bb301de56ebbd64ce1d64a8ae189",
+        "8bf46aced1433faf35e9c1860bd6abac5e14a9d598319c8b8250c7c5b6e31021",
+        "aedca18e1ac015af625d47287655316860851ec606640442a4259d7cc4971c56",
+        "9a54c46914617029f5d6b3af2b4658d9d3bc8c725e5c091580bc08db4811276d",
+        "4a61383585092a1eb9b9880837628b02a42cecb330f4b3a94cb2f51babd5cf75",
+        "9493c1d595e781ba06f2b4d5dd3c5bff243f31393fed890c23840594736e0775",
+        "ff387d54716c46efc864a8f2e34975f386551de350ce2cbc2d0d8895ce6d2e6a",
+        "850a0ec216dc0e9f10acb6899658fd51fc72e76f957ab528924e398a25f12a1b",
+        "496ca0fab2c9ed6b1dbb095011a4a03ee80c08b18825275f201e72c247b863e4"
+    ],
+    "counts": {
+        "seedFiles": 40,
+        "seededRecords": 56,
+        "published": 56,
+        "draft": 0
+    },
+    "initializedAt": "2026-09-08T22:23:11+00:00"
+}
