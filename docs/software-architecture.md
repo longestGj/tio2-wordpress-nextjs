@@ -177,7 +177,7 @@ Compose项目为`d16-tio2-my-prerelease`。配置来自忽略的`.env.prerelease
 | 所有页面采用统一ISR/预生成策略 | 历史设计方向；当前路由和查询策略分别核对 | 双站设计第2节；当前客户端/路由 |
 | 两个Vercel Project、自动CI已经运行 | 设计图不是部署或自动化证据 | 双站设计第4节；vercel.json |
 | Production自动允许索引 | 当前存在页面固定noindex和额外授权开关 | lib/seo/各页面实现 |
-| Malaysia三表单均浏览器直连 / 自有API保存询盘 | RFQ与Sample已由自有API转交，Documents仍走客户端；Sample另保存去重摘要与状态，未建立询盘数据库 | 本文第6节与适配器 |
+| Malaysia自有API保存询盘 | RFQ、Sample、Documents当前均由浏览器直连Web3Forms；保留站内接口为非活动兼容资产，Sample旧接口保存去重摘要与状态，未建立询盘数据库 | 本文第6节与适配器 |
 | Agent、Superpowers、TDD属于网站模块 | 它们属于开发工作方式，访客请求链路不依赖它们 | 开发交付流程 |
 
 预发布历史设计中的精确版本和当时状态也不替代当前锁文件、Compose及当次运行记录。历史“双站设计”不是无效文件；它保留原决策背景和适用合同，只是不再单独代表当前系统全貌。
@@ -190,7 +190,9 @@ Compose项目为`d16-tio2-my-prerelease`。配置来自忽略的`.env.prerelease
 - 软件架构现状在本文集中维护；站点身份在site-registry，环境具体操作在prerelease-environment，开发流程在development-workflow。各入口引用而不复制整份架构。
 - 本次只整理文档与引用，未修改应用、CMS、测试和部署配置；运行状态、覆盖情况和生产绑定仍需对应任务的独立证据。
 
-### Sample站内接收与持久化去重（Gate8定向返修）
+### Sample保留站内接收与持久化去重（非活动兼容行为）
+
+本节记录保留接口的兼容行为，当前Sample浏览器流程不调用或回退到此接口。
 
 `/api/sample/submit`只在`tio2-my`身份、收件配置与相同key的SHA-256绑定、绝对持久化目录均有效时可用。浏览器仅提交字段、来源上下文和UUID请求标识，不能指定收件人、key、scope或确认字段。站内接口验证字段和同源请求，服务端固定Web3Forms端点、网站及表单元数据。配置绑定证明配置一致性，不代替服务商账户与实际邮箱核对。
 
