@@ -1,0 +1,28 @@
+{
+  "packagingStatus": "DRAFT_PENDING_FINAL_REBUILD_AND_REVIEW",
+  "currentSourceHead": "d2b4686ebc294661c433875bc5796bda293abd61",
+  "build": {
+    "implementationCommit": "e94f1df9828226b19c48427632c1ebd967a9d230",
+    "buildId": "OWOLx5-fpBGDQCaOgeiwr",
+    "runId": "public-paths-candidate-e94f1df98282",
+    "builtAt": "2026-09-09T00:41:07.802Z",
+    "directory": ".next-public-paths-candidate",
+    "siteId": "tio2-my",
+    "cmsEndpoint": "http://127.0.0.1:8181/graphql",
+    "siteUrl": "http://127.0.0.1:3183"
+  },
+  "process": {
+    "pid": 75356,
+    "parentPid": 29060,
+    "startedAt": "2026-09-09T00:41:27.434Z",
+    "command": "node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3183",
+    "cwd": "D:\\16Wordpress_nextjs\\.worktrees\\prerelease-public-paths-forms",
+    "sourceCommit": "e94f1df9828226b19c48427632c1ebd967a9d230",
+    "buildId": "OWOLx5-fpBGDQCaOgeiwr"
+  },
+  "execSession": 72155,
+  "cmsProject": "d16-tio2-my-public-paths-dev",
+  "cmsHttp": "http://127.0.0.1:8181",
+  "runtimeEnvironment": "local-production",
+  "heldUntil": "GATE9_PASS_OR_RETURN_NOTICE"
+}

@@ -1,0 +1,9 @@
+{
+  "check": "APP RFQ handoff uses one intercepted provider POST and reaches Quote Thank You",
+  "status": "passed",
+  "providerMockPosts": 1,
+  "contextMockPosts": 1,
+  "blockedWrites": 0,
+  "retainedPosts": 0,
+  "externalPostCount": 0
+}

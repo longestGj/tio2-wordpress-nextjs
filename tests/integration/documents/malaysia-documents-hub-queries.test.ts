@@ -22,7 +22,14 @@ describe('DOC-000 GraphQL query isolation', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
     vi.stubEnv('WORDPRESS_GRAPHQL_URL', 'https://cms.example.test/graphql')
-    await expect(getMalaysiaDocumentsHub()).resolves.toMatchObject({identity: {siteId: 'tio2-my', path: '/documents'}})
+    await expect(getMalaysiaDocumentsHub()).resolves.toMatchObject({
+      identity: {siteId: 'tio2-my', path: '/documents'},
+      documentGuides: {items: [
+        {targetPageId: 'DOC-TDS', label: 'TDS, SDS and COA Guide', href: '/documents/tds-sds-coa/'},
+        {targetPageId: 'DOC-REACH', label: 'REACH Documentation Guide', href: '/documents/reach/'},
+        {targetPageId: 'DOC-COO', label: 'Certificate of Origin Guide', href: '/documents/certificate-of-origin/'},
+      ]},
+    })
     const next = (fetchMock.mock.calls[0]?.[1] as RequestInit & {next?: {tags?: string[]}}).next
     expect(next?.tags).toEqual(['site:tio2-my', 'route:tio2-my:/documents', 'content:tio2-my--documents'])
     expect(JSON.stringify(fetchMock.mock.calls)).not.toMatch(/tio2-a|tio2-b/iu)

@@ -124,10 +124,15 @@ function tio2_my_product_target_ready(string $target_page_id, string $href): boo
     }
     $path = $parsed['path'];
     $public_path = '/' === $path ? '/' : untrailingslashit($path);
+    $stored_paths = array_values(array_unique([
+        $public_path,
+        '/' === $public_path ? '/' : trailingslashit($public_path),
+    ]));
     $ids = get_posts([
         'post_type' => [
             'page', 'post', 'tio2_homepage', 'tio2_market_hub', 'tio2_product_hub', 'tio2_application_hub',
-            'tio2_grade', 'tio2_product', 'tio2_application', 'tio2_document',
+            'tio2_grade', 'tio2_product', 'tio2_application', 'tio2_document', 'tio2_my_editorial',
+            'tio2_rfq_page', 'tio2_documents_hub',
         ],
         'post_status' => ['draft', 'pending', 'private', 'publish', 'future'],
         'fields' => 'ids',
@@ -135,8 +140,8 @@ function tio2_my_product_target_ready(string $target_page_id, string $href): boo
         'suppress_filters' => false,
         'meta_query' => [[
             'key' => 'public_path',
-            'value' => $public_path,
-            'compare' => '=',
+            'value' => $stored_paths,
+            'compare' => 'IN',
         ]],
     ]);
     if (1 !== count($ids)) {
@@ -144,11 +149,15 @@ function tio2_my_product_target_ready(string $target_page_id, string $href): boo
     }
     $post_id = (int) $ids[0];
     $scopes = wp_get_post_terms($post_id, 'site_scope', ['fields' => 'slugs']);
+    $stored_public_path = get_post_meta($post_id, 'public_path', true);
+    $stored_public_path = '/' === $stored_public_path
+        ? '/'
+        : untrailingslashit((string) $stored_public_path);
     $base_ready = ! is_wp_error($scopes) &&
         ['tio2-my'] === array_values(array_unique(array_map('strval', $scopes))) &&
         'publish' === get_post_status($post_id) &&
         $target_page_id === get_post_meta($post_id, TIO2_MY_ROUTE_PAGE_ID_META, true) &&
-        $public_path === get_post_meta($post_id, 'public_path', true) &&
+        $public_path === $stored_public_path &&
         tio2_my_product_target_canonical($public_path) ===
             get_post_meta($post_id, TIO2_MY_ROUTE_CANONICAL_META, true) &&
         'LIVE_APPROVED' === get_post_meta($post_id, TIO2_MY_ROUTE_RELEASE_STATE_META, true);

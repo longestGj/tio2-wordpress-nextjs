@@ -53,7 +53,7 @@ describe('CONV-DOC page and form', () => {
       access_key: 'public-test-key', full_name: 'Amina Tan', company: 'Example Co',
       business_email: 'amina@example.com', country_region: 'Malaysia', product_grade: 'M-2196',
       document_types: ['safety'], site_scope: 'tio2-my', page_id: 'CONV-DOC',
-      workflow: 'request_documents',
+      workflow_type: 'documents', locale: 'en',
     })
   })
 
@@ -216,7 +216,7 @@ describe('CONV-DOC page and form', () => {
     expect(() => createSecureRequestToken({} as Crypto)).toThrow(/secure UUID/u)
   })
 
-  it('shows receipt success only for the explicit API receipt response', async () => {
+  it('navigates only for explicit provider acceptance', async () => {
     const user = userEvent.setup()
     renderPage()
     await user.type(screen.getByLabelText(/Full Name/u), 'Amina Tan')

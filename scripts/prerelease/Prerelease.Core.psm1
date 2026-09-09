@@ -521,17 +521,113 @@ function Get-PrereleaseTestActionPlan {
         }
         return [pscustomobject][ordered]@{
             action                = 'TestLiveForms'
-            spec                  = 'tests/e2e/prerelease-live-forms.spec.ts'
+            specs                 = @('tests/e2e/prerelease-live-forms.spec.ts')
             allowNonGet           = $true
             expectedWorkflowCount = 3
         }
     }
     [pscustomobject][ordered]@{
         action                    = 'Test'
-        spec                      = 'tests/e2e/prerelease-smoke.spec.ts'
+        specs                     = @('tests/e2e/prerelease-smoke.spec.ts', 'tests/e2e/prerelease-public-paths.spec.ts')
         allowNonGet               = $false
         expectedExternalPostCount = 0
     }
+}
+
+function Complete-PrereleaseEvidence {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [string] $EvidenceRoot,
+        [Parameter(Mandatory)] [object] $Manifest,
+        [Parameter(Mandatory)] [string] $CommandUuid,
+        [Parameter(Mandatory)] [ValidateSet('Test', 'TestLiveForms')] [string] $Action,
+        [Parameter(Mandatory)] [int] $TestExit
+    )
+    if ($Manifest.commit -notmatch '^[a-f0-9]{40}$' -or $Manifest.cmsIdentitySha256 -notmatch '^[a-fA-F0-9]{64}$' -or $Manifest.siteId -ne 'tio2-my' -or [string]::IsNullOrWhiteSpace($Manifest.runId) -or [string]::IsNullOrWhiteSpace($Manifest.buildId)) { throw 'Evidence requires complete candidate runtime identity.' }
+    $expectedSuites = if ($Action -eq 'Test') { @('smoke', 'public-paths') } else { @('live-forms') }
+    $expectedIds = @{
+        'smoke' = @('smoke.representative', 'smoke.local-forms', 'smoke.cookie-keyboard', 'smoke.reflow.1440', 'smoke.reflow.768', 'smoke.reflow.390')
+        'public-paths' = @('public-paths.width.1440', 'public-paths.width.768', 'public-paths.width.390', 'public-paths.internal-links.58')
+        'live-forms' = @('live-forms.rfq', 'live-forms.sample', 'live-forms.documents')
+    }
+    $requiredIds = @($expectedSuites | ForEach-Object { $expectedIds[$_] })
+    $allowedPosts = 0; $blockedWrites = 0; $transportValid = $true
+    $checks = @(); $attempts = @(); $seenSuites = @(); $invalid = $false; $posts = 0
+    foreach ($file in @(Get-ChildItem -LiteralPath $EvidenceRoot -Filter '*.json' -File | Sort-Object Name)) {
+        if ($file.Name -notmatch '^(smoke|public-paths|live-forms|provider)-') { continue }
+        try {
+            $fragment = Get-Content -LiteralPath $file.FullName -Raw | ConvertFrom-Json
+            if ($fragment.commandUuid -ne $CommandUuid) { throw 'Foreign fragment.' }
+            if ($file.Name -like 'provider-*') {
+                $attempt = $fragment.attempt
+                Assert-PrereleaseFormAttempt -Attempt $attempt | Out-Null
+                $attempts += $attempt
+                continue
+            }
+            if ($fragment.suite -notin $expectedSuites) { throw 'Unexpected suite.' }
+            if (@($fragment.checks).Count -ne 1 -or $fragment.externalPostCount -isnot [int] -or $fragment.externalPostCount -lt 0) { throw 'Invalid fragment counts.' }
+            $seenSuites += $fragment.suite
+            $posts += [int]$fragment.externalPostCount
+            if ($Action -eq 'TestLiveForms') {
+                $transport = $fragment.transport
+                if ($transport.allowedPostCount -isnot [int] -or $transport.allowedPostCount -lt 0 -or $transport.blockedWriteCount -isnot [int] -or $transport.blockedWriteCount -lt 0) { $transportValid = $false; throw 'Invalid transport counts.' }
+                $allowedPosts += $transport.allowedPostCount
+                $blockedWrites += $transport.blockedWriteCount
+                if ($transport.allowedPostCount -ne 1 -or $transport.blockedWriteCount -ne 0 -or $fragment.externalPostCount -ne 1 -or $transport.status -ne 'PASSED') { $transportValid = $false; $invalid = $true }
+            }
+            foreach ($check in @($fragment.checks)) {
+                if ($check.check -cnotin $expectedIds[$fragment.suite] -or $check.status -notin @('PASSED', 'FAILED', 'NOT_TESTED')) { throw 'Invalid check.' }
+                $checks += [ordered]@{ check = [string]$check.check; status = [string]$check.status }
+            }
+        } catch { $invalid = $true }
+    }
+    foreach ($suite in $expectedSuites) { if (@($seenSuites | Where-Object { $_ -eq $suite }).Count -ne $expectedIds[$suite].Count) { $invalid = $true } }
+    if ($checks.Count -ne $requiredIds.Count -or @(Compare-Object @($checks.check) $requiredIds).Count -ne 0) { $invalid = $true }
+    if (@($checks.check | Select-Object -Unique).Count -ne $checks.Count) { $invalid = $true }
+    if ($checks.Count -eq 0 -or @($checks | Where-Object { $_.status -ne 'PASSED' }).Count -gt 0) { $invalid = $true }
+    if ($Action -eq 'Test' -and ($posts -ne 0 -or $attempts.Count -ne 0)) { $invalid = $true }
+    if ($Action -eq 'TestLiveForms') {
+        if (-not $transportValid -or $allowedPosts -ne 3 -or $blockedWrites -ne 0 -or $posts -ne 3) { $transportValid = $false; $invalid = $true }
+        if ($attempts.Count -ne 3 -or @($attempts.requestToken | Select-Object -Unique).Count -ne 3) { $invalid = $true }
+        foreach ($workflow in @('rfq', 'sample', 'documents')) {
+            $positive = @($attempts | Where-Object { $_.workflow -eq $workflow -and $_.httpStatus -eq 200 -and $_.providerCategory -eq 'accepted' -and $_.thankYouRequest -eq @{rfq='quote';sample='sample';documents='documents'}[$workflow] })
+            if ($positive.Count -ne 1) { $invalid = $true }
+        }
+    }
+    $result = [ordered]@{
+        schemaVersion = 2; action = $Action; commandUuid = $CommandUuid
+        candidateCommit = $Manifest.commit; runId = $Manifest.runId; buildId = $Manifest.buildId
+        cmsIdentitySha256 = $Manifest.cmsIdentitySha256; siteId = $Manifest.siteId
+        checkedAt = [DateTimeOffset]::UtcNow.ToString('o'); testExit = $TestExit
+        state = $(if ($TestExit -eq 0 -and -not $invalid) { 'PASSED' } else { 'FAILED' })
+        evidenceValid = -not $invalid
+        requiredCheckIds = @($requiredIds)
+        completedCheckIds = @($checks | Where-Object { $_.status -eq 'PASSED' } | ForEach-Object { $_.check })
+        requiredWidths = @(1440, 768, 390)
+        requiredChecks = $(if ($Action -eq 'TestLiveForms') { @('direct_provider', 'thank_you', 'one_post_per_workflow', 'no_blocked_writes') } else { @('chromium', 'axe', 'keyboard', 'visible_focus', 'public_paths', 'internal_links_58', 'no_horizontal_overflow', 'back_return_state', 'five_application_provisional_metadata') })
+        inventory = $(if ($Action -eq 'Test') { [ordered]@{registeredObjects=58;eligibleRoutes=42;cmsRoutes=41;nativeRoutes=1;homeActions=6;productGrades=14;productProcesses=2;productSupport=3;applicationChildren=5;applicationGradeOccurrences=30;applicationSupport=3;resourceItems=8;documentGuides=3} } else { $null })
+        removedChecks = @(@('native_browser_200_percent', 'physical_or_touch_device', 'screen_reader_or_at', 'forced_colors') | ForEach-Object { [ordered]@{check=$_;status='NOT_TESTED';reason='NO_LONGER_REQUIRED_BY_USER_DECISION'} })
+        checks = @($checks); externalPostCount = $posts; formAttempts = @($attempts)
+        transport = $(if ($Action -eq 'TestLiveForms') { [ordered]@{allowedPostCount=$allowedPosts;blockedWriteCount=$blockedWrites;status=$(if ($transportValid) {'PASSED'} else {'FAILED'})} } else { $null })
+        inboxStatus = 'PENDING_MANUAL_CONFIRMATION'
+    }
+    Write-PrereleaseJsonFile -Value $result -Path (Join-Path $EvidenceRoot 'result.json')
+    [pscustomobject]$result
+}
+
+function Assert-PrereleaseFormAttempt {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)] [object] $Attempt)
+    $keys = @($Attempt.PSObject.Properties.Name | Sort-Object)
+    $allowed = @('workflow','pageId','requestToken','httpStatus','providerCategory','thankYouRequest','timestamp') | Sort-Object
+    if (@(Compare-Object $keys $allowed).Count -ne 0) { throw 'Unexpected attempt fields.' }
+    if (($Attempt | ConvertTo-Json -Compress) -match '@|access_key|company|message|payload|receiver') { throw 'Unsafe attempt.' }
+    if ($Attempt.workflow -notin @('rfq','sample','documents') -or $Attempt.pageId -ne @{rfq='CONV-RFQ';sample='CONV-SAMPLE';documents='CONV-DOC'}[$Attempt.workflow]) { throw 'Invalid workflow identity.' }
+    if ($Attempt.requestToken -notmatch '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$') { throw 'Invalid request token.' }
+    if ($null -ne $Attempt.httpStatus -and ($Attempt.httpStatus -isnot [int] -or $Attempt.httpStatus -lt 100 -or $Attempt.httpStatus -gt 599)) { throw 'Invalid HTTP status.' }
+    if ($Attempt.providerCategory -notin @('accepted','rejected','rate_limited','invalid_request','network','timeout','aborted','unexpected','pending')) { throw 'Invalid provider category.' }
+    if ($null -ne $Attempt.thankYouRequest -and $Attempt.thankYouRequest -ne @{rfq='quote';sample='sample';documents='documents'}[$Attempt.workflow]) { throw 'Invalid Thank You request.' }
+    if ($Attempt.timestamp -notmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$') { throw 'Invalid attempt timestamp.' }
 }
 
 function Assert-PrereleaseEnvironmentFile {
@@ -589,5 +685,7 @@ Export-ModuleMember -Function @(
     'Get-PrereleaseLiveIdentity',
     'Test-PrereleaseHttpRound',
     'Get-PrereleaseTestActionPlan',
+    'Complete-PrereleaseEvidence',
+    'Assert-PrereleaseFormAttempt',
     'Assert-PrereleaseEnvironmentFile'
 )

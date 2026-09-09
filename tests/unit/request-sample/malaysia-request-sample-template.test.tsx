@@ -17,7 +17,7 @@ const dto=toMalaysiaRequestSamplePageDto(malaysiaRequestSamplePageSource())
 const renderPage=(prefill=resolveMalaysiaSamplePrefill({}),receiverReady=true)=>render(<MalaysiaRequestSamplePage page={dto} prefill={prefill} receiverReady={receiverReady} structuredData={null}/>)
 beforeEach(()=>{
   vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY','public-test-key')
-  vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({ok:true,receipt_confirmed:true}),{status:200,headers:{'content-type':'application/json'}})))
+  vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({success:true}),{status:200,headers:{'content-type':'application/json'}})))
 })
 afterEach(()=>{cleanup();vi.unstubAllEnvs();vi.unstubAllGlobals();vi.clearAllMocks()})
 
@@ -51,10 +51,10 @@ describe('CONV-SAMPLE page and form',()=>{
     let resolveRequest:(value:Response)=>void=()=>undefined
     vi.mocked(fetch).mockImplementationOnce(()=>new Promise<Response>((resolve)=>{resolveRequest=resolve}))
     const user=userEvent.setup();renderPage();await fillRequired(user);const form=screen.getByRole('form');await user.click(screen.getByRole('button',{name:'Submit Sample Request for Review'}))
-    await waitFor(()=>expect(form.getAttribute('aria-busy')).toBe('true'));resolveRequest(new Response(JSON.stringify({ok:true,receipt_confirmed:true}),{status:200,headers:{'content-type':'application/json'}}))
+    await waitFor(()=>expect(form.getAttribute('aria-busy')).toBe('true'));resolveRequest(new Response(JSON.stringify({success:true}),{status:200,headers:{'content-type':'application/json'}}))
     await waitFor(()=>expect(transitionMocks.navigate).toHaveBeenCalledWith('sample'));expect(screen.queryByText('Your sample request has been received.')).toBeNull()
-    const calls=vi.mocked(fetch).mock.calls;expect(String(calls[0]?.[0])).toBe('/api/sample/submit')
-    expect(JSON.parse(String(calls[0]?.[1]?.body))).toMatchObject({values:{grade_id:'M-2196'}})
+    const calls=vi.mocked(fetch).mock.calls;expect(String(calls[0]?.[0])).toBe('https://api.web3forms.com/submit')
+    expect(JSON.parse(String(calls[0]?.[1]?.body))).toMatchObject({grade_id:'M-2196',workflow_type:'sample'})
   })
   it('shows accepted prefill visibly and allows every buyer value to be removed',async()=>{
     const user=userEvent.setup();renderPage(resolveMalaysiaSamplePrefill({source_page_id:'GRADE-M2377',grade_id:'M-2377',application_id:'coatings',process_context:'sulfate',destination:'United Kingdom',document_needs:['tds']}))
@@ -72,12 +72,12 @@ describe('CONV-SAMPLE page and form',()=>{
     await user.selectOptions(screen.getByLabelText(/^Application/u),'coatings');expect(screen.queryByLabelText(/Describe the application/u)).toBeNull();await fillRequired(user);await user.click(screen.getByRole('button',{name:'Submit Sample Request for Review'}));await waitFor(()=>expect(transitionMocks.navigate).toHaveBeenCalledWith('sample'))
   })
   it('directly retries with retained values and same token, rotating only after a material edit',async()=>{
-    vi.mocked(fetch).mockResolvedValueOnce(new Response(JSON.stringify({success:false}),{status:200,headers:{'content-type':'application/json'}})).mockResolvedValueOnce(new Response(JSON.stringify({success:false}),{status:200,headers:{'content-type':'application/json'}})).mockResolvedValueOnce(new Response(JSON.stringify({ok:true,receipt_confirmed:true}),{status:200,headers:{'content-type':'application/json'}}))
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(JSON.stringify({success:false}),{status:200,headers:{'content-type':'application/json'}})).mockResolvedValueOnce(new Response(JSON.stringify({success:false}),{status:200,headers:{'content-type':'application/json'}})).mockResolvedValueOnce(new Response(JSON.stringify({success:true}),{status:200,headers:{'content-type':'application/json'}}))
     const user=userEvent.setup();renderPage();await fillRequired(user);await user.click(screen.getByRole('button',{name:'Submit Sample Request for Review'}));await screen.findByRole('heading',{name:'We could not confirm that your request was received.'});await user.click(screen.getByRole('button',{name:'Try again'}));await screen.findByRole('heading',{name:'We could not confirm that your request was received.'});await user.type(screen.getByLabelText(/Company or organisation/u),' Updated');await user.click(screen.getByRole('button',{name:'Submit Sample Request for Review'}));await waitFor(()=>expect(transitionMocks.navigate).toHaveBeenCalledWith('sample'))
-    const bodies=vi.mocked(fetch).mock.calls.map((call)=>JSON.parse(String(call[1]?.body)) as {idempotencyKey:string});expect(bodies[1]?.idempotencyKey).toBe(bodies[0]?.idempotencyKey);expect(bodies[2]?.idempotencyKey).not.toBe(bodies[0]?.idempotencyKey)
+    const bodies=vi.mocked(fetch).mock.calls.map((call)=>JSON.parse(String(call[1]?.body)) as {request_token:string});expect(bodies[1]?.request_token).toBe(bodies[0]?.request_token);expect(bodies[2]?.request_token).not.toBe(bodies[0]?.request_token)
   })
   it('preserves fields and retry context if the server becomes unavailable after entry',async()=>{
-    vi.stubGlobal('fetch',vi.fn(async()=>Response.json({ok:false,receipt_confirmed:false,unavailable:true},{status:503})))
+    vi.stubGlobal('fetch',vi.fn(async()=>Response.json({success:false},{status:503})))
     const user=userEvent.setup();renderPage();await fillRequired(user);await user.click(screen.getByRole('button',{name:'Submit Sample Request for Review'}));await screen.findByRole('heading',{name:'We could not confirm that your request was received.'})
     expect(screen.getByLabelText(/Product grade/u)).toBeTruthy();expect(screen.getByRole('button',{name:'Try again'})).toBeTruthy();expect((screen.getByLabelText(/Business email/u) as HTMLInputElement).value).toBe('amina@example.com')
   })

@@ -16,7 +16,7 @@ const dependencies = {
   'PRODUCT-000': {field: 'malaysiaProductHubRecordJson', source: record('PRODUCT-000', '/products', 'malaysiaProductHubContractJson', loadContract('tio2-my-product-hub'))},
   'RES-000': {field: 'malaysiaResourceHubRecordJson', source: {
     ...record('RES-000', '/resources', 'malaysiaResourceHubContractJson', loadContract('tio2-my-resource-hub')),
-    resourceProjection: {publicState: 'H0_NO_QUALIFIED_RESOURCE', featuredResources: [], latestResources: []},
+    resourceProjection: {publicState: 'H0_NO_QUALIFIED_RESOURCE', resourceGroups: []},
   }},
   'ABOUT-001': {field: 'malaysiaAboutPageRecordJson', source: {
     ...record('ABOUT-001', '/about', 'malaysiaAboutPageContractJson', loadContract('tio2-my-about-page')),

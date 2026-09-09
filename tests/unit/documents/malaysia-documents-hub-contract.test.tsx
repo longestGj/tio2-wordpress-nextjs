@@ -26,8 +26,16 @@ describe('DOC-000 template and interaction contract', () => {
     expect(screen.getByRole('heading', {level: 1, name: contract.hero.h1})).toBeTruthy()
     expect(Array.from(container.querySelectorAll('main [data-module]'), (node) => node.getAttribute('data-module'))).toEqual([
       'breadcrumb', 'hero', 'grade-selector', 'how-it-works', 'review-scenarios',
-      'document-categories', 'why-on-request', 'buyer-questions', 'closing-cta',
+      'document-categories', 'document-guides', 'why-on-request', 'buyer-questions', 'closing-cta',
     ])
+    expect(dto().documentGuides.items).toEqual([
+      {targetPageId: 'DOC-TDS', label: 'TDS, SDS and COA Guide', href: '/documents/tds-sds-coa/'},
+      {targetPageId: 'DOC-REACH', label: 'REACH Documentation Guide', href: '/documents/reach/'},
+      {targetPageId: 'DOC-COO', label: 'Certificate of Origin Guide', href: '/documents/certificate-of-origin/'},
+    ])
+    const guideModule = container.querySelector('[data-module="document-guides"]')
+    expect(guideModule?.querySelectorAll('a')).toHaveLength(3)
+    for (const item of contract.documentGuides.items) expect(screen.getByRole('link', {name: item.label}).getAttribute('href')).toBe(item.href)
     expect(Array.from(screen.getByLabelText('Product Grade').querySelectorAll('option'), (node) => node.textContent)).toEqual([
       'Select a product grade', ...contract.gradeSelector.grades,
     ])

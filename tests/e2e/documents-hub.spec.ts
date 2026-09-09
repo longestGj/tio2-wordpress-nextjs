@@ -11,7 +11,36 @@ const contract = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/conf
 }
 const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
 const widths = [320, 390, 768, 1440] as const
-const moduleOrder = ['breadcrumb','hero','grade-selector','how-it-works','review-scenarios','document-categories','why-on-request','buyer-questions','closing-cta']
+const moduleOrder = ['breadcrumb','hero','grade-selector','how-it-works','review-scenarios','document-categories','document-guides','why-on-request','buyer-questions','closing-cta']
+
+for (const width of [1440, 768, 390] as const) test(`Document Guides ${width}px native links`, async ({page}) => {
+  const keyWarnings: string[] = []
+  const pageErrors: string[] = []
+  page.on('console', (message) => {
+    if (message.type() === 'error' && message.text().includes('unique "key" prop')) keyWarnings.push(message.text())
+  })
+  page.on('pageerror', (error) => pageErrors.push(error.message))
+  await page.setViewportSize({width, height: width === 390 ? 844 : 1000})
+  await page.goto(`${baseUrl}/documents/`, {waitUntil: 'networkidle'})
+  const guideModule = page.locator('[data-module="document-guides"]')
+  await expect(guideModule.getByText('DOCUMENT GUIDES', {exact: true})).toBeVisible()
+  await expect(guideModule.getByRole('heading', {name: 'Document Guides'})).toBeVisible()
+  await expect(guideModule.getByText('Review practical guidance before requesting documents for a product grade.', {exact: true})).toBeVisible()
+  const links = guideModule.locator('a')
+  await expect(links).toHaveCount(3)
+  await expect(guideModule.getByRole('link', {name: 'TDS, SDS and COA Guide', exact: true})).toHaveCount(1)
+  await expect(guideModule.getByRole('link', {name: 'REACH Documentation Guide', exact: true})).toHaveCount(1)
+  await expect(guideModule.getByRole('link', {name: 'Certificate of Origin Guide', exact: true})).toHaveCount(1)
+  await expect(links.nth(0)).toHaveAttribute('href', '/documents/tds-sds-coa/')
+  await expect(links.nth(1)).toHaveAttribute('href', '/documents/reach/')
+  await expect(links.nth(2)).toHaveAttribute('href', '/documents/certificate-of-origin/')
+  expect(await page.locator('main [data-module]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-module')))).toEqual([
+    'breadcrumb','hero','grade-selector','how-it-works','review-scenarios','document-categories','document-guides','why-on-request','buyer-questions','closing-cta',
+  ])
+  expect({keyWarnings, pageErrors}).toEqual({keyWarnings: [], pageErrors: []})
+  await page.screenshot({path: `.local-evidence/task6-documents/documents-guides-${width}.png`, fullPage: true, animations: 'disabled'})
+  await guideModule.screenshot({path: `.local-evidence/task6-documents/document-guides-module-${width}.png`, animations: 'disabled'})
+})
 
 for (const width of widths) test(`DOC-000 ${width}px runtime contract`, async ({page}) => {
   await page.setViewportSize({width, height: width < 500 ? 844 : 1000})

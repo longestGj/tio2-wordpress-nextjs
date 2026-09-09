@@ -12,9 +12,9 @@ afterEach(() => {
 describe('CONV-RFQ consent-gated analytics', () => {
   it('emits only fixed privacy-safe fields after same-scope analytics consent', () => {
     window.__TIO2_SHARED_CONSENT__ = {siteScope: 'tio2-my', analytics: 'granted'}
-    expect(emitMalaysiaRfqAnalyticsEvent('rfq_receipt_confirmed')).toBe(true)
+    expect(emitMalaysiaRfqAnalyticsEvent('rfq_provider_accepted')).toBe(true)
     expect(window.dataLayer).toEqual([{
-      event: 'rfq_receipt_confirmed', site_scope: 'tio2-my', page_id: 'CONV-RFQ',
+      event: 'rfq_provider_accepted', site_scope: 'tio2-my', page_id: 'CONV-RFQ',
     }])
   })
 

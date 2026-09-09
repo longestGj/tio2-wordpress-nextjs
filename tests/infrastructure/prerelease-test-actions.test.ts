@@ -15,14 +15,14 @@ function invoke(command: string): string {
 }
 
 describe.runIf(process.platform === 'win32')('prerelease test action boundaries', () => {
-  it('limits ordinary Test to the no-submit smoke spec', () => {
+  it('limits ordinary Test to the two no-submit candidate suites', () => {
     const output = invoke([
       `Import-Module ${psQuote(modulePath)} -Force`,
       '$result=Get-PrereleaseTestActionPlan -Action Test -LiveFormsEnabled $false',
       '$result|ConvertTo-Json -Compress',
     ].join('; '))
     expect(JSON.parse(output)).toEqual({
-      action: 'Test', spec: 'tests/e2e/prerelease-smoke.spec.ts', allowNonGet: false,
+      action: 'Test', specs: ['tests/e2e/prerelease-smoke.spec.ts', 'tests/e2e/prerelease-public-paths.spec.ts'], allowNonGet: false,
       expectedExternalPostCount: 0,
     })
   })
@@ -36,7 +36,7 @@ describe.runIf(process.platform === 'win32')('prerelease test action boundaries'
     ].join('; '))
     expect(JSON.parse(denied)).toEqual({
       blocked: true,
-      allowed: {action: 'TestLiveForms', spec: 'tests/e2e/prerelease-live-forms.spec.ts', allowNonGet: true, expectedWorkflowCount: 3},
+      allowed: {action: 'TestLiveForms', specs: ['tests/e2e/prerelease-live-forms.spec.ts'], allowNonGet: true, expectedWorkflowCount: 3},
     })
   })
 
@@ -62,8 +62,8 @@ describe.runIf(process.platform === 'win32')('prerelease test action boundaries'
     const smoke = readFileSync(resolve('tests/e2e/prerelease-smoke.spec.ts'), 'utf8')
     const live = readFileSync(resolve('tests/e2e/prerelease-live-forms.spec.ts'), 'utf8')
     expect(smoke).toContain("request.method() !== 'GET'")
-    expect(smoke).toContain('externalPostCount: nonGetRequests.length')
-    expect(live).toContain("mailboxCheck: 'PENDING_MANUAL_CONFIRMATION'")
-    expect(live).toContain('inboxConfirmed: false')
+    expect(smoke).toContain("recordCheck('smoke', testInfo, nonGetRequests.length)")
+    expect(live).toContain("test.use({trace: 'off', screenshot: 'off', video: 'off'})")
+    expect(live).toContain("process.env.PLAYWRIGHT_NO_COPY_PROMPT = '1'")
   })
 })

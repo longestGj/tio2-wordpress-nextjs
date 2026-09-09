@@ -17,7 +17,7 @@ export interface MalaysiaResourceCard {
   readonly href: string
   readonly resourceType: 'PROCUREMENT_GUIDE' | 'TECHNICAL_GUIDE' | 'TRADE_UPDATE'
   readonly ctaLabel: string
-  readonly lastReviewedAt: string
+  readonly lastReviewedAt?: string
   readonly contextLabel?: string
   readonly publishedAt?: string
   readonly trade?: Readonly<{
@@ -33,8 +33,7 @@ export interface MalaysiaResourceCard {
 export type MalaysiaResourcePublicState =
   | 'H0_NO_QUALIFIED_RESOURCE'
   | 'H2_ONE_PUBLIC_RESOURCE'
-  | 'H3_MULTIPLE_PUBLIC_RESOURCES'
-  | 'H4_TRADE_ITEM'
+  | 'H3_GROUPED_PUBLIC_RESOURCES'
 
 export type MalaysiaResourceHubDto = Omit<ApprovedResourceHubContract, 'identity' | 'resourceRelations'> & {
   readonly identity: Omit<ApprovedResourceHubContract['identity'], 'siteScope' | 'path' | 'schemaVersion'> & {
@@ -47,6 +46,12 @@ export type MalaysiaResourceHubDto = Omit<ApprovedResourceHubContract, 'identity
   }
   readonly globalChrome: Tio2MyGlobalChrome
   readonly publicState: MalaysiaResourcePublicState
-  readonly featuredResources: readonly MalaysiaResourceCard[]
-  readonly latestResources: readonly MalaysiaResourceCard[]
+  readonly resourceGroups: readonly MalaysiaResourceGroup[]
+}
+
+export type MalaysiaResourceGroupKey = 'sourcing' | 'technical-evaluation' | 'trade-market'
+export interface MalaysiaResourceGroup {
+  readonly key: MalaysiaResourceGroupKey
+  readonly heading: 'Sourcing' | 'Technical Evaluation' | 'Trade & Market'
+  readonly items: readonly MalaysiaResourceCard[]
 }

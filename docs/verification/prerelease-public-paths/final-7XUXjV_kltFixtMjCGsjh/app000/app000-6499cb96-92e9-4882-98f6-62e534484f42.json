@@ -1,0 +1,9 @@
+{
+  "check": "all 30 Grade occurrences resolve to the approved 14 live destinations",
+  "status": "passed",
+  "providerMockPosts": 0,
+  "contextMockPosts": 0,
+  "blockedWrites": 0,
+  "retainedPosts": 0,
+  "externalPostCount": 0
+}

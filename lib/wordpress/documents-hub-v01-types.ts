@@ -8,6 +8,9 @@ type DeepReadonly<T> = T extends readonly (infer Item)[]
 
 type ApprovedDocumentsHubContract = DeepReadonly<typeof approvedContract>
 
+export type MalaysiaDocumentGuide = ApprovedDocumentsHubContract['documentGuides']['items'][number]
+export type MalaysiaDocumentGuides = ApprovedDocumentsHubContract['documentGuides']
+
 export type MalaysiaDocumentsHubDto = Omit<ApprovedDocumentsHubContract, 'identity'> & {
   readonly identity: Omit<ApprovedDocumentsHubContract['identity'], 'siteScope' | 'path' | 'schemaVersion'> & {
     readonly id: string

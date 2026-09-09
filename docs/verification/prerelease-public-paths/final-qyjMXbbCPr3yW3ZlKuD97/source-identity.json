@@ -1,0 +1,7 @@
+{
+  "implementationCommit": "f81321c07d6026ef1e5119cfb7b58914225ff753",
+  "branch": "codex/prerelease-public-paths-forms",
+  "cleanBeforePackaging": true,
+  "note": "Clean source checked before creating this evidence directory. Final evidence HEAD is bound by the post-commit external Manifest.",
+  "recordedAt": "2026-09-09T01:14:18.910916+00:00"
+}

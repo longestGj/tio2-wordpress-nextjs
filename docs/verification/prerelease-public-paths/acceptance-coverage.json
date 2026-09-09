@@ -1,0 +1,456 @@
+{
+  "idRule": "PPF IDs are deterministic mappings to sections of the approved combined design, not new acceptance requirements.",
+  "designPath": "D:/23MySec/docs/architecture/PRERELEASE_PUBLIC_PATHS_FORMS_AND_RESOURCE_ACTIVATION_DESIGN_V1.0.md",
+  "designCommit": "40da0e7bcc86e7d6a9e4a8b8732300d7aed536f4",
+  "designSha256": "dc41330a22b42d9ec60b3cdff9b7b1e0b6ed2f48f83ae5c47ef79e0e356f52c3",
+  "pages": [
+    {
+      "page_id": "HOME-001",
+      "runtime_path": "/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58",
+        "PPF-4.2-HOME-SIX-LINKS"
+      ]
+    },
+    {
+      "page_id": "ABOUT-001",
+      "runtime_path": "/about/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "MARKET-000",
+      "runtime_path": "/markets/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "MARKET-EU-001",
+      "runtime_path": "/markets/european-union/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "MARKET-EU-DE",
+      "runtime_path": "/markets/germany/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "MARKET-EU-IT",
+      "runtime_path": "/markets/italy/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "MARKET-EU-ES",
+      "runtime_path": "/markets/spain/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "MARKET-EU-PL",
+      "runtime_path": "/markets/poland/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "MARKET-EU-NL",
+      "runtime_path": "/markets/netherlands/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "MARKET-EU-BE",
+      "runtime_path": "/markets/belgium/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "MARKET-UK-001",
+      "runtime_path": "/markets/united-kingdom/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "MARKET-IN-001",
+      "runtime_path": "/markets/india/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "MARKET-BR-EN",
+      "runtime_path": "/markets/brazil/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "MARKET-BR-PT",
+      "runtime_path": "/pt-br/markets/brazil/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "PRODUCT-000",
+      "runtime_path": "/products/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58",
+        "PPF-4.3-PRODUCT-14-2-3"
+      ]
+    },
+    {
+      "page_id": "PRODUCT-PROC-CL",
+      "runtime_path": "/products/chloride-process-titanium-dioxide/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "PRODUCT-PROC-SU",
+      "runtime_path": "/products/sulfate-process-titanium-dioxide/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-M350",
+      "runtime_path": "/products/m-350/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-M510",
+      "runtime_path": "/products/m-510/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-M896",
+      "runtime_path": "/products/m-896/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-M996",
+      "runtime_path": "/products/m-996/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-M2196",
+      "runtime_path": "/products/m-2196/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-M895",
+      "runtime_path": "/products/m-895/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-M200",
+      "runtime_path": "/products/m-200/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-M108",
+      "runtime_path": "/products/m-108/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-M210",
+      "runtime_path": "/products/m-210/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-M340",
+      "runtime_path": "/products/m-340/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-M886",
+      "runtime_path": "/products/m-886/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-M52",
+      "runtime_path": "/products/m-52/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-M2377",
+      "runtime_path": "/products/m-2377/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "GRADE-CR901",
+      "runtime_path": "/products/cr-901/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "APP-000",
+      "runtime_path": "/applications/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58",
+        "PPF-4.4-APPLICATION-5-30-3"
+      ]
+    },
+    {
+      "page_id": "APP-COAT",
+      "runtime_path": "/applications/titanium-dioxide-for-coatings/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "APP-PLAS",
+      "runtime_path": "/applications/titanium-dioxide-for-plastics/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "APP-MB",
+      "runtime_path": "/applications/titanium-dioxide-for-masterbatch/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "APP-INK",
+      "runtime_path": "/applications/titanium-dioxide-for-printing-inks/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "APP-PAPER",
+      "runtime_path": "/applications/titanium-dioxide-for-paper/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "DOC-000",
+      "runtime_path": "/documents/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58",
+        "PPF-4.5-DOCUMENT-GUIDES-THREE"
+      ]
+    },
+    {
+      "page_id": "DOC-REACH",
+      "runtime_path": "/documents/reach/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "DOC-TDS",
+      "runtime_path": "/documents/tds-sds-coa/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "DOC-COO",
+      "runtime_path": "/documents/certificate-of-origin/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "RES-000",
+      "runtime_path": "/resources/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58",
+        "PPF-4.6-RESOURCE-GROUPS-EIGHT"
+      ]
+    },
+    {
+      "page_id": "RES-ORIGIN",
+      "runtime_path": "/resources/non-china-titanium-dioxide/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "RES-PROC",
+      "runtime_path": "/resources/chloride-vs-sulfate-titanium-dioxide/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "RES-CHEMOURS",
+      "runtime_path": "/resources/chemours-titanium-dioxide-alternatives/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "RES-R706",
+      "runtime_path": "/resources/ti-pure-r-706-alternative/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "RES-TRADE-EU",
+      "runtime_path": "/resources/eu-titanium-dioxide-anti-dumping-duty/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "RES-TRADE-UK",
+      "runtime_path": "/resources/uk-titanium-dioxide-anti-dumping-investigation/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "RES-TRADE-IN",
+      "runtime_path": "/resources/india-titanium-dioxide-anti-dumping-duty/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "RES-TRADE-BR",
+      "runtime_path": "/resources/brazil-titanium-dioxide-anti-dumping-duty/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "CONV-DOC",
+      "runtime_path": "/request-documents/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58",
+        "PPF-4.1-BROWSER-TRANSPORT",
+        "PPF-7.2-LOCAL-VALIDATION"
+      ]
+    },
+    {
+      "page_id": "CONV-RFQ",
+      "runtime_path": "/request-a-quote/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58",
+        "PPF-4.1-BROWSER-TRANSPORT",
+        "PPF-7.2-LOCAL-VALIDATION"
+      ]
+    },
+    {
+      "page_id": "CONV-SAMPLE",
+      "runtime_path": "/request-sample/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58",
+        "PPF-4.1-BROWSER-TRANSPORT",
+        "PPF-7.2-LOCAL-VALIDATION"
+      ]
+    },
+    {
+      "page_id": "CONV-THANK",
+      "runtime_path": "/thank-you/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58",
+        "PPF-4.1-THANK-STATE-BOUNDARY"
+      ]
+    },
+    {
+      "page_id": "LEGAL-PRIV-EN",
+      "runtime_path": "/privacy-policy/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "LEGAL-PRIV-MS",
+      "runtime_path": "/ms/privacy-policy/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "LEGAL-COOKIE-EN",
+      "runtime_path": "/cookie-policy/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58"
+      ]
+    },
+    {
+      "page_id": "SYS-404",
+      "runtime_path": "/404/",
+      "acceptance_condition_ids": [
+        "PPF-7.2-INTERNAL-LINKS-58",
+        "PPF-7.2-SYSTEM-404"
+      ]
+    }
+  ],
+  "contactException": {
+    "id": "SYS404-CONTACT-PRERELEASE-EXCEPTION-20260908-01",
+    "path": "/contact/",
+    "expectedStatus": 404,
+    "status": "USER_APPROVED_PRERELEASE_EXCEPTION"
+  },
+  "removedChecks": [
+    {
+      "check": "native browser 200% zoom",
+      "status": "NOT_TESTED",
+      "reason": "NO_LONGER_REQUIRED_BY_USER_DECISION"
+    },
+    {
+      "check": "physical-device and touch-device testing",
+      "status": "NOT_TESTED",
+      "reason": "NO_LONGER_REQUIRED_BY_USER_DECISION"
+    },
+    {
+      "check": "screen-reader and assistive technology",
+      "status": "NOT_TESTED",
+      "reason": "NO_LONGER_REQUIRED_BY_USER_DECISION"
+    },
+    {
+      "check": "forced-colors testing",
+      "status": "NOT_TESTED",
+      "reason": "NO_LONGER_REQUIRED_BY_USER_DECISION"
+    }
+  ],
+  "liveProviderAndInbox": "NOT_TESTED_IN_TASK9; separate Task10 and final independent Gate9 evidence required"
+}

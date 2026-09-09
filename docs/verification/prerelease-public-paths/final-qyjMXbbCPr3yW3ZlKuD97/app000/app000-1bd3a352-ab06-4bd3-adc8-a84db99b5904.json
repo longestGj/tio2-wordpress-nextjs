@@ -1,0 +1,9 @@
+{
+  "check": "shared Chrome RFQ links retain clean navigation without claiming private provider attribution",
+  "status": "passed",
+  "providerMockPosts": 0,
+  "contextMockPosts": 6,
+  "blockedWrites": 0,
+  "retainedPosts": 0,
+  "externalPostCount": 0
+}

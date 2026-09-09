@@ -1,3 +1,4 @@
+import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
 import {spawnSync} from 'node:child_process'
 import {fileURLToPath} from 'node:url'
 
@@ -8,6 +9,16 @@ const updaterScript = fileURLToPath(
   new URL('../../../scripts/apply-local-site-a-editorial-fixture.ps1', import.meta.url),
 )
 const runLiveWordPress = process.env.WORDPRESS_EDITORIAL_FIXTURE_RUNTIME === '1'
+
+// The historical PowerShell wrapper owns the default Compose target. Do not
+// observe an override target while that wrapper operates on a different CMS.
+if (runLiveWordPress && [
+  'TIO2_TEST_WORDPRESS_ENV',
+  'TIO2_TEST_WORDPRESS_COMPOSE',
+  'TIO2_TEST_WORDPRESS_PROJECT',
+].some(key => process.env[key] !== undefined)) {
+  throw new Error('Editorial fixture wrapper does not support Compose test overrides')
+}
 
 function execute(command: string, arguments_: string[], timeout = 240_000) {
   return spawnSync(command, arguments_, {
@@ -30,11 +41,7 @@ function powershell(arguments_: string[]) {
 
 function wp(arguments_: string[]) {
   return execute('docker', [
-    'compose',
-    '--env-file',
-    'wordpress/.env',
-    '-f',
-    'wordpress/docker-compose.yml',
+    ...wordpressComposeArgs(),
     'run',
     '--rm',
     '--no-TTY',
@@ -48,11 +55,7 @@ function wp(arguments_: string[]) {
 
 function wpWithEnvironment(environment: string, arguments_: string[]) {
   return execute('docker', [
-    'compose',
-    '--env-file',
-    'wordpress/.env',
-    '-f',
-    'wordpress/docker-compose.yml',
+    ...wordpressComposeArgs(),
     'run',
     '--rm',
     '--no-TTY',

@@ -7,6 +7,7 @@ import {describe, expect, it} from 'vitest'
 import {projectEligibleMalaysiaResources} from '@/lib/wordpress/resource-hub-v01-dto'
 import {malaysiaResourceMappingAllowsPublic} from '@/lib/wordpress/resource-page-registry'
 import {
+  groupedResourceRelations,
   resourceFixturePolicies,
   resourceH0Relations,
   resourceH1Relations,
@@ -22,6 +23,9 @@ const harness = fileURLToPath(new URL('../../infrastructure/php/resource-hub-pro
 const pluginRoot = fileURLToPath(new URL('../../../wordpress/plugins/tio2-site-model', import.meta.url))
 
 const vectors = {
+  GROUPED: groupedResourceRelations,
+  NULL_METADATA: groupedResourceRelations.map(item => item.pageId === 'RES-ORIGIN' ? {...item, lastReviewedAt: null} : item),
+  REVOKED: groupedResourceRelations.map(item => item.pageId === 'RES-R706' ? {...item, publicEligibilityStatus: 'REVOKED'} : item),
   H0: resourceH0Relations,
   H1: resourceH1Relations,
   H2: resourceH2Relations,
@@ -39,14 +43,13 @@ describe.runIf(process.env.TIO2_MY_RESOURCE_PHP_RUNTIME === '1')('RES-000 PHP an
       '--entrypoint', 'php',
       'wordpress:php8.3-apache',
       '/dev/stdin', '/plugin/includes/resource-hub-v01.php',
-      Buffer.from(JSON.stringify(vectors)).toString('base64'),
     ], {
       cwd: root,
-      input: readFileSync(harness, 'utf8'),
+      input: readFileSync(harness, 'utf8').replace("(string) ($argv[2] ?? '')", "'" + Buffer.from(JSON.stringify(vectors)).toString('base64') + "'"),
       encoding: 'utf8',
       timeout: 60_000,
     })
-    expect(php.status, php.stderr).toBe(0)
+    expect(php.status, php.stderr + String(php.error ?? '')).toBe(0)
     const actual = JSON.parse(php.stdout) as Record<string, unknown>
     const expected: Record<string, unknown> = Object.fromEntries(Object.entries(vectors).map(([name, relations]) => [
       name,
@@ -54,7 +57,7 @@ describe.runIf(process.env.TIO2_MY_RESOURCE_PHP_RUNTIME === '1')('RES-000 PHP an
     ]))
     expected.REGISTRY_POLICY = {
       originApproved: malaysiaResourceMappingAllowsPublic(
-        'RES-ORIGIN', 'APPROVED_PRD_V0.3', '/resources/non-china-titanium-dioxide/',
+        'RES-ORIGIN', 'APPROVED_PRERELEASE_V1.0', '/resources/non-china-titanium-dioxide/',
       ),
       inventedStatus: malaysiaResourceMappingAllowsPublic(
         'RES-ORIGIN', 'PUBLIC_ELIGIBLE', '/resources/non-china-titanium-dioxide/',

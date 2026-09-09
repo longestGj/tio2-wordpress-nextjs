@@ -1,3 +1,4 @@
+import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
 import {spawnSync} from 'node:child_process'
 import {existsSync} from 'node:fs'
 import {fileURLToPath} from 'node:url'
@@ -12,16 +13,10 @@ const importerPath = fileURLToPath(
 )
 
 function runControlledImporter() {
-  const wordpressEnvironment =
-    process.env.TIO2_TEST_WORDPRESS_ENV ?? 'wordpress/.env'
   return spawnSync(
     'docker',
     [
-      'compose',
-      '--env-file',
-      wordpressEnvironment,
-      '-f',
-      'wordpress/docker-compose.yml',
+      ...wordpressComposeArgs(),
       'run',
       '--rm',
       '--no-TTY',

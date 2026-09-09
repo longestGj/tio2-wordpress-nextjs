@@ -1,0 +1,158 @@
+{
+  "status": "CHECKPOINT_PENDING_INPUT_FAILURE_PRIVACY_FIX_AND_FINAL_REBUILD",
+  "testedBuild": "7XUXjV_kltFixtMjCGsjh",
+  "testedImplementationCommit": "40ef89f7fad46b7b0a3035b55540d07c45fe41ed",
+  "commands": [
+    {
+      "command": "npm run lint",
+      "exitCode": 0,
+      "warnings": 4
+    },
+    {
+      "command": "NEXT_DIST_DIR=.next-public-paths-candidate npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npx eslint tests/e2e/app000-gate8.spec.ts && npx tsc --noEmit",
+      "exitCode": 0,
+      "note": "After final screenshot preparation change."
+    },
+    {
+      "command": "npm test -- --maxWorkers=4",
+      "exitCode": 0,
+      "filesPassed": 356,
+      "filesSkipped": 21,
+      "testsPassed": 2997,
+      "testsSkipped": 51,
+      "seconds": 145.34,
+      "environment": "Windows; three absolute TIO2_TEST_WORDPRESS_* overrides target isolated d16-public-paths-unit-php only."
+    },
+    {
+      "command": "npx vitest run tests/unit/rfq/malaysia-rfq-server-receiver.test.ts tests/unit/rfq/malaysia-rfq-receiver.test.ts --maxWorkers=4",
+      "exitCode": 0,
+      "testsPassed": 19,
+      "redTests": 7,
+      "note": "Fake transport only; explicit compatibility payload/allowlist, noncooperative fetch/body and invalid-timeout deadline regressions."
+    },
+    {
+      "command": "npx vitest run tests/unit/forms tests/unit/rfq tests/unit/request-sample tests/unit/request-documents tests/unit/thank-you tests/unit/homepage tests/unit/products/malaysia-product-hub-template.test.tsx tests/unit/applications tests/unit/documents/malaysia-documents-hub-contract.test.tsx tests/unit/resources tests/integration/documents tests/integration/resources tests/infrastructure/prerelease-test-actions.test.ts tests/infrastructure/prerelease-evidence-scope.test.ts tests/infrastructure/tio2-my-prerelease-public-paths.test.ts",
+      "exitCode": 0,
+      "testsPassed": 818,
+      "testsSkipped": 1,
+      "note": "Earlier focused run before final review fixes; final full suite includes this scope plus the added tests."
+    },
+    {
+      "command": "node .superpowers/sdd/2026-09-09-prerelease-public-paths-forms-resource-activation/task9-final-candidate.mjs build (runs npm run build)",
+      "exitCode": 0,
+      "implementationCommit": "40ef89f7fad46b7b0a3035b55540d07c45fe41ed",
+      "buildId": "7XUXjV_kltFixtMjCGsjh"
+    },
+    {
+      "command": "npx playwright test tests/e2e/prerelease-smoke.spec.ts tests/e2e/prerelease-public-paths.spec.ts --project=chromium --workers=1",
+      "exitCode": 0,
+      "testsPassed": 10,
+      "commandUuid": "task9-final-ordinary-7XUXjV_kltFixtMjCGsjh",
+      "baseUrl": "http://127.0.0.1:3183",
+      "externalPostCount": 0
+    },
+    {
+      "command": "npx playwright test tests/e2e/app000-gate8.spec.ts --project=chromium --workers=1 --output=.tmp/playwright-app000-final",
+      "exitCode": 0,
+      "testsPassed": 11,
+      "seconds": 21.9,
+      "baseUrl": "http://127.0.0.1:3183",
+      "providerMockPosts": 1,
+      "externalPostCount": 0
+    },
+    {
+      "command": "docker compose --env-file .local-evidence/public-paths-dev/environment.local -f .local-evidence/public-paths-dev/compose.yml --project-name d16-tio2-my-public-paths-dev run --rm --no-deps wpcli bash -c [validate-prerelease-site.php then collect-cms-identity.sh]",
+      "exitCode": 0,
+      "note": "Read-only CMS probe; output files task9-final-site-validation.json and task9-final-cms-identity.json."
+    }
+  ],
+  "ordinaryCheckIds": [
+    "public-paths.width.1440",
+    "public-paths.width.768",
+    "public-paths.width.390",
+    "public-paths.internal-links.58",
+    "smoke.representative",
+    "smoke.local-forms",
+    "smoke.cookie-keyboard",
+    "smoke.reflow.1440",
+    "smoke.reflow.768",
+    "smoke.reflow.390"
+  ],
+  "visualReview": {
+    "ordinaryScreenshots": 27,
+    "identicalToPreviouslyActuallyViewed": 27,
+    "finalAppScreenshotsActuallyOpened": 5,
+    "evidence": "visual-review.json"
+  },
+  "endpointScans": {
+    "activeSourceMatches": 0,
+    "builtClientChunkMatches": 0,
+    "pattern": "/api/rfq/submit|/api/tio2-my/rfq-private-submit|/api/sample/submit"
+  },
+  "simulationOnly": {
+    "sampleCases": 2,
+    "runtime": "http://127.0.0.1:3181",
+    "providerResponses": "Intercepted HTTP 200 / boolean success false, followed only on explicit retry by true. No provider network submission.",
+    "inboxConfirmed": false
+  },
+  "warnings": [
+    "Four historical unused-variable lint warnings (prototype helpers x2, historical app000 evidence generator, shared-menu test).",
+    "Full suite disposable identity.txt LF/CRLF warning.",
+    "Sample simulation inherited NO_COLOR/FORCE_COLOR warning; ordinary candidate run removed NO_COLOR."
+  ],
+  "unitCms": {
+    "project": "d16-public-paths-unit-php",
+    "hostPort": 8182,
+    "guardEmulation": "DB_NAME=tio2_local, DB_HOST=db:3306, home/siteurl=http://localhost:8080 exist only in the isolated project. No HTTP request to the actual 8080 service.",
+    "realDraftReadbacks": 39,
+    "rollbackChecks": "Identity/ACF/taxonomy/relationship effects, queue restore, Site B hash and all 39 draft readbacks preserved; extra and hidden-product collision fixtures rejected and rolled back.",
+    "externalRequests": 0
+  },
+  "pending": [
+    "APP review P2: eliminate value-bearing input operation diagnostics and verify sentinel failure paths before final candidate",
+    "Independent source/evidence review and post-clean-commit external Manifest seal",
+    "D23 independent pre-merge acceptance and Task9A integration",
+    "Clean-main prerelease plus three real provider and separately correlated inbox results",
+    "Contact release dependency",
+    "Production release, indexing and Gate10 authorization"
+  ],
+  "skipDisclosure": {
+    "tests": 51,
+    "files": 21,
+    "reason": "Pre-existing optional mutable WordPress runtime suites and one optional PHP container review probe were not enabled. No skip was added to obtain green. This is not all possible tests PASS.",
+    "gates": [
+      "FIVE_REVIEW_PHP_CONTAINER",
+      "NEXT_PUBLIC_TIO2_RUNTIME",
+      "TIO2_MY_PRERELEASE_READINESS_RUNTIME",
+      "TIO2_MY_READINESS_RUNTIME",
+      "TIO2_MY_RESOURCE_H5_RUNTIME",
+      "TIO2_MY_RESOURCE_ORIGIN_ARTICLE_RUNTIME",
+      "TIO2_MY_RESOURCE_PHP_RUNTIME",
+      "TIO2_MY_RESOURCE_PROC_RUNTIME",
+      "WORDPRESS_APPLICATION_RESOURCE_PREVIEW_RUNTIME",
+      "WORDPRESS_APPLICATION_RESOURCE_RUNTIME",
+      "WORDPRESS_APPLICATION_RESOURCE_WEBHOOK_RUNTIME",
+      "WORDPRESS_EDITORIAL_FIXTURE_RUNTIME",
+      "WORDPRESS_HOMEPAGE_GRAPHQL_RUNTIME",
+      "WORDPRESS_PRODUCT_FIXTURE_RUNTIME",
+      "WORDPRESS_PRODUCT_PREVIEW_RUNTIME",
+      "WORDPRESS_PRODUCT_RUNTIME",
+      "WORDPRESS_PRODUCT_WEBHOOK_RUNTIME",
+      "WORDPRESS_ROOT_ONLY_RUNTIME",
+      "WORDPRESS_SEED_RUNTIME",
+      "WORDPRESS_SITE_A_EDITORIAL_PHASE1_PREVIEW_RUNTIME"
+    ],
+    "note": "Gate names are source-inspected applicability controls, not a claim that every named gate was skipped; Windows-gated infrastructure and the locally provisioned adapter probe did execute."
+  },
+  "deferred": [
+    {
+      "id": "M2",
+      "owner": "D16 future cross-platform CI",
+      "detail": "privacy aggregation currently launches Windows PowerShell; present run is Windows, no Linux CI claim."
+    }
+  ]
+}

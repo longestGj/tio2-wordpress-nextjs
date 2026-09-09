@@ -1,0 +1,9 @@
+{
+  "check": "mobile disclosures start closed, open by pointer and keyboard, and expose all 30 Grades",
+  "status": "passed",
+  "providerMockPosts": 0,
+  "contextMockPosts": 0,
+  "blockedWrites": 0,
+  "retainedPosts": 0,
+  "externalPostCount": 0
+}

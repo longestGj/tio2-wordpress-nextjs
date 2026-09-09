@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/prerelease-public-paths-forms
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  09:08:40
+   Duration  5.61s (transform 35ms, setup 168ms, import 21ms, tests 5.29s, environment 0ms)
+

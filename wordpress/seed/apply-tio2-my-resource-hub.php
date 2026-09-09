@@ -44,7 +44,8 @@ if (is_wp_error($scope)) throw new RuntimeException($scope->get_error_message())
 wp_update_post(['ID' => $post_id, 'post_name' => $internal_slug]);
 update_post_meta($post_id, 'public_path', $public_path);
 update_post_meta($post_id, TIO2_MY_RESOURCE_HUB_CONTRACT_META, $contract_json);
-update_post_meta($post_id, TIO2_MY_RESOURCE_HUB_RELATIONS_META, '[]');
+$relations = json_decode($contract_json, true)['resourceRelations'];
+update_post_meta($post_id, TIO2_MY_RESOURCE_HUB_RELATIONS_META, wp_json_encode($relations, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 clean_post_cache($post_id);
 
 $validation = tio2_validate_resource_hub_v01_contract($post_id);
@@ -55,5 +56,5 @@ if ('publish' !== get_post_status($post_id)) throw new RuntimeException('The Mal
 echo wp_json_encode([
     'status' => 'passed', 'postId' => $post_id, 'siteScope' => $site_id,
     'internalSlug' => $internal_slug, 'publicPath' => $public_path,
-    'schemaVersion' => 'resource-hub-v0.1-malaysia', 'publicState' => 'H0_NO_QUALIFIED_RESOURCE',
+    'schemaVersion' => 'resource-hub-v0.1-malaysia', 'publicState' => tio2_my_resource_public_projection($relations)['publicState'],
 ]) . PHP_EOL;

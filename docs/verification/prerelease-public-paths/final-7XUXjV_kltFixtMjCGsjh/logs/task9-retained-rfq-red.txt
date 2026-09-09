@@ -1,0 +1,80 @@
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/prerelease-public-paths-forms
+
+ ❯ tests/unit/rfq/malaysia-rfq-server-receiver.test.ts (7 tests | 7 failed) 17ms
+     × maps explicit fields, fixes MT units and excludes unknown fields and unapproved interest 7ms
+     × bounds noncooperative fetch independently of abort 3ms
+     × bounds noncooperative body independently of abort 1ms
+     × normalizes invalid timeout 0 to the original ten-second deadline 1ms
+     × normalizes invalid timeout -1 to the original ten-second deadline 0ms
+     × normalizes invalid timeout NaN to the original ten-second deadline 0ms
+     × normalizes invalid timeout Infinity to the original ten-second deadline 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/rfq/malaysia-rfq-server-receiver.test.ts > retained RFQ server compatibility contract > maps explicit fields, fixes MT units and excludes unknown fields and unapproved interest
+AssertionError: expected undefined to be 'MT' // Object.is equality
+
+- Expected:
+"MT"
+
++ Received:
+undefined
+
+ ❯ tests/unit/rfq/malaysia-rfq-server-receiver.test.ts:21:35
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/unit/rfq/malaysia-rfq-server-receiver.test.ts > retained RFQ server compatibility contract > bounds noncooperative fetch independently of abort
+ FAIL  tests/unit/rfq/malaysia-rfq-server-receiver.test.ts > retained RFQ server compatibility contract > bounds noncooperative body independently of abort
+AssertionError: expected 'pending' to deeply equal { kind: 'submission_unconfirmed' }
+
+- Expected:
+{
+  "kind": "submission_unconfirmed",
+}
+
++ Received:
+"pending"
+
+ ❯ tests/unit/rfq/malaysia-rfq-server-receiver.test.ts:45:20
+     43|     expect(result).toBe('pending')
+     44|     await vi.advanceTimersByTimeAsync(1)
+     45|     expect(result).toEqual({kind: 'submission_unconfirmed'})
+       |                    ^
+     46|     expect(signal?.aborted).toBe(true)
+     47|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/unit/rfq/malaysia-rfq-server-receiver.test.ts > retained RFQ server compatibility contract > normalizes invalid timeout 0 to the original ten-second deadline
+ FAIL  tests/unit/rfq/malaysia-rfq-server-receiver.test.ts > retained RFQ server compatibility contract > normalizes invalid timeout -1 to the original ten-second deadline
+ FAIL  tests/unit/rfq/malaysia-rfq-server-receiver.test.ts > retained RFQ server compatibility contract > normalizes invalid timeout NaN to the original ten-second deadline
+ FAIL  tests/unit/rfq/malaysia-rfq-server-receiver.test.ts > retained RFQ server compatibility contract > normalizes invalid timeout Infinity to the original ten-second deadline
+AssertionError: expected 'pending' to deeply equal { kind: 'submission_unconfirmed' }
+
+- Expected:
+{
+  "kind": "submission_unconfirmed",
+}
+
++ Received:
+"pending"
+
+ ❯ tests/unit/rfq/malaysia-rfq-server-receiver.test.ts:57:20
+     55|     expect(result).toBe('pending')
+     56|     await vi.advanceTimersByTimeAsync(1)
+     57|     expect(result).toEqual({kind: 'submission_unconfirmed'})
+       |                    ^
+     58|   })
+     59| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed (7)
+   Start at  08:54:37
+   Duration  356ms (transform 43ms, setup 166ms, import 31ms, tests 17ms, environment 0ms)
+

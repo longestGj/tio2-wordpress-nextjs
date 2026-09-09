@@ -1,0 +1,37 @@
+[
+  {
+    "id": "D23-PREMERGE-ACCEPTANCE",
+    "owner": "D23 independent reviewer / project control",
+    "blocking_layer": "INTEGRATION",
+    "closure_evidence": "INTEGRATION_READY and subsequent develop identity check against this accepted candidate",
+    "closure_timing": "Before task-to-develop and develop-to-main integration respectively"
+  },
+  {
+    "id": "THREE-REAL-FORMS-AND-INBOX",
+    "owner": "D16 Task10 and D23 acceptance",
+    "blocking_layer": "PAGE_GATE9",
+    "closure_evidence": "Clean-main prerelease with three separately recorded provider-positive and correlated inbox receipts",
+    "closure_timing": "After authorized serial integration; before final Gate9/release"
+  },
+  {
+    "id": "CONTACT-404",
+    "owner": "D23 planning / user",
+    "blocking_layer": "RELEASE",
+    "closure_evidence": "Separate approved Contact implementation/acceptance or effective release disposition",
+    "closure_timing": "Before release"
+  },
+  {
+    "id": "M2-WINDOWS-PRIVACY-AGGREGATION",
+    "owner": "D16 future cross-platform CI",
+    "blocking_layer": "RECHECK_SCOPE",
+    "closure_evidence": "Portable PowerShell runtime selection or bounded platform split when cross-platform CI is introduced",
+    "closure_timing": "Deferred; nonblocking Windows candidate"
+  },
+  {
+    "id": "PRODUCTION-AUTHORIZATION",
+    "owner": "User / project control",
+    "blocking_layer": "RELEASE",
+    "closure_evidence": "Explicit production, DNS/indexing and Gate10 scope authorization",
+    "closure_timing": "Before such operations"
+  }
+]

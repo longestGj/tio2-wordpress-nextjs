@@ -19,13 +19,7 @@ namespace {
     $payload_json = base64_decode((string) ($argv[2] ?? ''), true);
     $payload = is_string($payload_json) ? json_decode($payload_json, true) : null;
     if (! is_array($payload)) throw new RuntimeException('Invalid parity payload.');
-    $registry = [
-        'RES-ORIGIN' => 'APPROVED_PRD_V0.3',
-        'RES-PROC' => 'FIXTURE_PUBLIC_ELIGIBLE',
-        'RES-TRADE-EU' => 'FIXTURE_PUBLIC_ELIGIBLE',
-    ];
-    $mapping = static fn (string $page_id, string $status, string $path): bool =>
-        ($registry[$page_id] ?? null) === $status && str_starts_with($path, '/resources/');
+    $mapping = 'tio2_my_resource_mapping_allows_public';
     $ready = static fn (string $page_id, string $path): bool =>
         '' !== $page_id && str_starts_with($path, '/resources/');
 
@@ -37,7 +31,7 @@ namespace {
     $output['REGISTRY_POLICY'] = [
         'originApproved' => tio2_my_resource_mapping_allows_public(
             'RES-ORIGIN',
-            'APPROVED_PRD_V0.3',
+            'APPROVED_PRERELEASE_V1.0',
             '/resources/non-china-titanium-dioxide/'
         ),
         'inventedStatus' => tio2_my_resource_mapping_allows_public(

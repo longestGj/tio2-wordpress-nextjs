@@ -2,6 +2,10 @@
 
 import {useEffect, useRef, useState, useSyncExternalStore} from 'react'
 
+import {createWeb3FormsRequestToken} from '@/lib/forms/web3forms-browser'
+import {resolveSubmissionEnvironment} from '@/lib/forms/submission-environment'
+import {resolveMalaysiaRfqPrefill} from '@/lib/rfq/malaysia-rfq-prefill'
+import {submitMalaysiaRfq} from '@/lib/rfq/malaysia-rfq-receiver'
 import {navigateToMalaysiaThankYou} from '@/lib/thank-you/malaysia-thank-you-session'
 
 import styles from './malaysia-rfq-page.module.css'
@@ -160,10 +164,24 @@ function describedBy(field: RfqFieldKey, errors: RfqErrors, helper?: boolean): s
 export function MalaysiaRfqForm(props: MalaysiaRfqFormProps) {
   const context = useSyncExternalStore(subscribeToLocation, getBrowserContext, getServerContext)
   const [search, draft] = JSON.parse(context) as [string, unknown]
-  return <MalaysiaRfqInteractiveForm key={context} {...props} initialValues={publicInitialValues(search, draft, props.form)} />
+  const searchParams = new URLSearchParams(search)
+  const prefill = resolveMalaysiaRfqPrefill({
+    market: searchParams.get('market') ?? undefined,
+    source_page: searchParams.get('source_page') ?? undefined,
+    source_page_id: searchParams.get('source_page_id') ?? undefined,
+    interest: searchParams.get('interest') ?? undefined,
+    grade_id: searchParams.get('grade_id') ?? undefined,
+    application_id: searchParams.get('application_id') ?? undefined,
+    destination_country: searchParams.get('destination_country') ?? undefined,
+    market_id: searchParams.get('market_id') ?? undefined,
+    process_context: searchParams.get('process_context') ?? undefined,
+    resource_context: searchParams.get('resource_context') ?? undefined,
+    document_needs: searchParams.getAll('document_needs[]'),
+  })
+  return <MalaysiaRfqInteractiveForm key={context} {...props} initialValues={publicInitialValues(search, draft, props.form)} sourcePageId={prefill.sourcePageId} interest={prefill.interest} />
 }
 
-function MalaysiaRfqInteractiveForm({form, receiverAvailable, privacyPolicyHref, initialValues}: MalaysiaRfqFormProps & {readonly initialValues: RfqValues}) {
+function MalaysiaRfqInteractiveForm({form, receiverAvailable, privacyPolicyHref, initialValues, sourcePageId, interest}: MalaysiaRfqFormProps & {readonly initialValues:RfqValues;readonly sourcePageId:string|null;readonly interest?:'alternative-origin-sourcing'}) {
   const [values, setValues] = useState<RfqValues>(initialValues)
   const [errors, setErrors] = useState<RfqErrors>({})
   const [state, setState] = useState<SubmissionState>(receiverAvailable ? 'form_ready' : 'service_unavailable')
@@ -172,6 +190,7 @@ function MalaysiaRfqInteractiveForm({form, receiverAvailable, privacyPolicyHref,
   const transitionStartedRef = useRef(false)
   const completedRef = useRef(false)
   const pendingRef = useRef(false)
+  const requestTokenRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (state === 'validation_failed') summaryRef.current?.focus()
@@ -179,6 +198,7 @@ function MalaysiaRfqInteractiveForm({form, receiverAvailable, privacyPolicyHref,
   }, [state])
 
   function update(field: RfqFieldKey, value: string) {
+    requestTokenRef.current = null
     setValues((current) => {
       const next = {...current, [field]: value}
       const draft = Object.fromEntries(draftFields.map((key) => [key, next[key]]))
@@ -209,19 +229,14 @@ function MalaysiaRfqInteractiveForm({form, receiverAvailable, privacyPolicyHref,
     setErrors({})
     setState('submitting')
     try {
-      const response = await fetch('/api/rfq/submit', {
-        method: 'POST',
-        headers: {'content-type': 'application/json', accept: 'application/json'},
-        credentials: 'same-origin',
-        body: JSON.stringify(values),
+      requestTokenRef.current ??= createWeb3FormsRequestToken()
+      const result = await submitMalaysiaRfq({...values, source_page_id: sourcePageId, interest}, {
+        accessKey: process.env.NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY ?? null,
+        requestToken: requestTokenRef.current,
+        environment: resolveSubmissionEnvironment(process.env.NEXT_PUBLIC_TIO2_RUNTIME_ENVIRONMENT),
       })
-      if (response.status !== 200 || !response.headers.get('content-type')?.includes('application/json')) {
-        setState('submission_unconfirmed')
-      } else {
-        const body = await response.json() as {readonly kind?: unknown}
-        if (body.kind === 'receipt_confirmed') {completedRef.current = true; navigateToMalaysiaThankYou('quote'); transitionStartedRef.current = true}
-        else setState(body.kind === 'service_unavailable' ? body.kind : 'submission_unconfirmed')
-      }
+      if (result.kind === 'provider_accepted') {completedRef.current = true; navigateToMalaysiaThankYou('quote'); transitionStartedRef.current = true}
+      else setState(result.kind === 'unavailable' ? 'service_unavailable' : 'submission_unconfirmed')
     } catch {
       setState('submission_unconfirmed')
     } finally {

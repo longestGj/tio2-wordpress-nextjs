@@ -1,97 +1,102 @@
 import {
+  buildSubmissionEnvironment,
+  type SubmissionEnvironment,
+} from "@/lib/forms/submission-environment";
+import {
+  submitWeb3FormsBrowser,
+  type Web3FormsBrowserResult,
+} from "@/lib/forms/web3forms-browser";
+import {
   normalizeMalaysiaRequestDocumentsValues,
   validateMalaysiaRequestDocumentsValues,
   type MalaysiaRequestDocumentsErrors,
   type MalaysiaRequestDocumentsValues,
-} from './malaysia-request-documents-validation'
-import {buildSubmissionEnvironment, type SubmissionEnvironment} from '@/lib/forms/submission-environment'
-
-type Fetcher = (input: string | URL | Request, init?: RequestInit) => Promise<Response>
-
+} from "./malaysia-request-documents-validation";
 export type MalaysiaRequestDocumentsReceiverResult =
-  | {readonly kind: 'receipt_confirmed'}
-  | {readonly kind: 'validation_failed'; readonly errors: MalaysiaRequestDocumentsErrors}
-  | {readonly kind: 'submission_unconfirmed'}
-  | {readonly kind: 'unavailable'}
-
+  | Web3FormsBrowserResult
+  | {
+      readonly kind: "validation_failed";
+      readonly errors: MalaysiaRequestDocumentsErrors;
+    };
 interface ReceiverOptions {
-  readonly accessKey: string | null
-  readonly requestToken: string
-  readonly sourcePageId: string | null
-  readonly marketId: string | null
-  readonly fetcher?: Fetcher
-  readonly timeoutMs?: number
-  readonly environment?: SubmissionEnvironment
+  readonly accessKey: string | null;
+  readonly requestToken: string;
+  readonly sourcePageId: string | null;
+  readonly marketId: string | null;
+  readonly fetcher?: typeof fetch;
+  readonly timeoutMs?: number;
+  readonly environment?: SubmissionEnvironment;
 }
-
-const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
-const MAX_PROVIDER_PAYLOAD_BYTES = 16 * 1024
-export const MALAYSIA_REQUEST_DOCUMENTS_SUBMISSION_TIMEOUT_MS = 12_000
-
-export async function submitMalaysiaRequestDocuments(
+const MAX_PROVIDER_PAYLOAD_BYTES = 16 * 1024;
+export const MALAYSIA_REQUEST_DOCUMENTS_SUBMISSION_TIMEOUT_MS = 12_000;
+export function submitMalaysiaRequestDocuments(
   values: MalaysiaRequestDocumentsValues,
   options: ReceiverOptions,
 ): Promise<MalaysiaRequestDocumentsReceiverResult> {
-  const validation = validateMalaysiaRequestDocumentsValues(values)
-  if (!validation.valid) return {kind: 'validation_failed', errors: validation.errors}
-  const accessKey = options.accessKey?.trim()
-  if (!accessKey) return {kind: 'unavailable'}
-  const fetcher = options.fetcher ?? fetch
-  const timeoutMs = options.timeoutMs && Number.isFinite(options.timeoutMs) && options.timeoutMs > 0
-    ? options.timeoutMs
-    : MALAYSIA_REQUEST_DOCUMENTS_SUBMISSION_TIMEOUT_MS
-  const controller = new AbortController()
-  const normalizedValues = normalizeMalaysiaRequestDocumentsValues(values)
-  const submissionEnvironment = buildSubmissionEnvironment(
+  const validation = validateMalaysiaRequestDocumentsValues(values);
+  if (!validation.valid)
+    return Promise.resolve({
+      kind: "validation_failed",
+      errors: validation.errors,
+    });
+  const accessKey = options.accessKey?.trim() || null;
+  if (!accessKey)
+    return submitWeb3FormsBrowser(
+      {
+        workflow: "documents",
+        accessKey,
+        requestToken: options.requestToken,
+        timeoutMs:
+          options.timeoutMs ?? MALAYSIA_REQUEST_DOCUMENTS_SUBMISSION_TIMEOUT_MS,
+        payload: {},
+      },
+      { fetcher: options.fetcher },
+    );
+  const normalized = normalizeMalaysiaRequestDocumentsValues(values);
+  const environment = buildSubmissionEnvironment(
     options.environment ?? undefined,
     options.requestToken,
-    'TiO2 Malaysia document request',
-  )
+    "TiO2 Malaysia document request",
+  );
   const payload = {
-    access_key: accessKey,
-    subject: submissionEnvironment.subject,
-    from_name: 'TiO2 Malaysia Request Documents',
-    email: normalizedValues.business_email,
-    ...normalizedValues,
-    site_scope: 'tio2-my', page_id: 'CONV-DOC', workflow: 'request_documents',
+    subject: environment.subject,
+    from_name: "TiO2 Malaysia Request Documents",
+    email: normalized.business_email,
+    ...normalized,
+    site_scope: "tio2-my",
+    page_id: "CONV-DOC",
+    workflow_type: "documents",
+    locale: "en",
     request_token: options.requestToken,
-    ...submissionEnvironment.fields,
-    ...(options.sourcePageId ? {source_page_id: options.sourcePageId} : {}),
-    ...(options.marketId ? {market_id: options.marketId} : {}),
-  }
-  const serializedPayload = JSON.stringify(payload)
-  if (new TextEncoder().encode(serializedPayload).byteLength > MAX_PROVIDER_PAYLOAD_BYTES) {
-    return {kind: 'submission_unconfirmed'}
-  }
-  let timeout: ReturnType<typeof setTimeout> | undefined
-  try {
-    const timeoutPromise = new Promise<never>((_resolve, reject) => {
-      timeout = setTimeout(() => {
-        controller.abort()
-        reject(new DOMException('The Request Documents receiver timed out', 'AbortError'))
-      }, timeoutMs)
-    })
-    const requestPromise = Promise.resolve().then(async (): Promise<MalaysiaRequestDocumentsReceiverResult> => {
-      const response = await fetcher(WEB3FORMS_ENDPOINT, {
-        method: 'POST',
-        headers: {'content-type': 'application/json', accept: 'application/json'},
-        body: serializedPayload,
-        cache: 'no-store',
-        referrerPolicy: 'origin',
-        redirect: 'error',
-        signal: controller.signal,
-      })
-      const mediaType = response.headers.get('content-type')?.split(';', 1)[0]?.trim().toLowerCase()
-      if (response.status !== 200 || mediaType !== 'application/json') {
-        return {kind: 'submission_unconfirmed'}
-      }
-      const body = await response.json() as {success?: unknown}
-      return body.success === true ? {kind: 'receipt_confirmed'} : {kind: 'submission_unconfirmed'}
-    })
-    return await Promise.race([requestPromise, timeoutPromise])
-  } catch {
-    return {kind: 'submission_unconfirmed'}
-  } finally {
-    if (timeout) clearTimeout(timeout)
-  }
+    ...environment.fields,
+    ...(options.sourcePageId ? { source_page_id: options.sourcePageId } : {}),
+    ...(options.marketId ? { market_id: options.marketId } : {}),
+  };
+  if (
+    new TextEncoder().encode(
+      JSON.stringify({ ...payload, access_key: options.accessKey }),
+    ).byteLength > MAX_PROVIDER_PAYLOAD_BYTES
+  )
+    return Promise.resolve({
+      kind: "submission_unconfirmed",
+      diagnostic: {
+        workflow: "documents",
+        requestToken: options.requestToken,
+        httpStatus: null,
+        mediaType: null,
+        outcome: "submission_unconfirmed",
+        providerCategory: "unexpected",
+      },
+    });
+  return submitWeb3FormsBrowser(
+    {
+      workflow: "documents",
+      accessKey,
+      requestToken: options.requestToken,
+      timeoutMs:
+        options.timeoutMs ?? MALAYSIA_REQUEST_DOCUMENTS_SUBMISSION_TIMEOUT_MS,
+      payload,
+    },
+    { fetcher: options.fetcher },
+  );
 }

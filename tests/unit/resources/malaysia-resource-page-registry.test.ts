@@ -6,7 +6,7 @@ describe('controlled Malaysia Resource Page Registry mapping', () => {
   it('allows only the current approved Page ID/status/path tuple', () => {
     expect(malaysiaResourceMappingAllowsPublic(
       'RES-ORIGIN',
-      'APPROVED_PRD_V0.3',
+      'APPROVED_PRERELEASE_V1.0',
       '/resources/non-china-titanium-dioxide/',
     )).toBe(true)
     expect(malaysiaResourceMappingAllowsPublic(
@@ -16,12 +16,12 @@ describe('controlled Malaysia Resource Page Registry mapping', () => {
     )).toBe(false)
     expect(malaysiaResourceMappingAllowsPublic(
       'RES-ORIGIN',
-      'APPROVED_PRD_V0.3',
+      'APPROVED_PRERELEASE_V1.0',
       '/resources/wrong/',
     )).toBe(false)
     expect(malaysiaResourceMappingAllowsPublic(
       'RES-PROC',
-      'APPROVED_PRD_V0.3',
+      'APPROVED_PRERELEASE_V1.0',
       '/resources/chloride-vs-sulfate-titanium-dioxide/',
     )).toBe(true)
   })

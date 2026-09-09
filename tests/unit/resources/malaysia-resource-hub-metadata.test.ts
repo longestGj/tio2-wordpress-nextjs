@@ -9,7 +9,7 @@ const hub = () => toMalaysiaResourceHubDto({
   id: 'resource-hub-my-1', modifiedGmt: '2026-09-01T01:02:03', status: 'publish',
   siteScopes: {nodes: [{slug: 'tio2-my'}]}, publishingFields: {publicPath: '/resources'},
   malaysiaResourceHubContractJson: JSON.stringify(contract),
-  resourceProjection: {publicState: 'H0_NO_QUALIFIED_RESOURCE', featuredResources: [], latestResources: []},
+  resourceProjection: {publicState: 'H0_NO_QUALIFIED_RESOURCE', resourceGroups: []},
 })
 
 describe('RES-000 metadata', () => {

@@ -6,6 +6,6 @@ export function malaysiaResourceHubSource(): MalaysiaResourceHubSource {
     id: 'resource-hub-my-1', modifiedGmt: '2026-09-01T01:02:03', status: 'publish',
     siteScopes: {nodes: [{slug: 'tio2-my'}]}, publishingFields: {publicPath: '/resources'},
     malaysiaResourceHubContractJson: JSON.stringify(approvedContract),
-    resourceProjection: {publicState: 'H0_NO_QUALIFIED_RESOURCE', featuredResources: [], latestResources: []},
+    resourceProjection: {publicState: 'H0_NO_QUALIFIED_RESOURCE', resourceGroups: []},
   }
 }

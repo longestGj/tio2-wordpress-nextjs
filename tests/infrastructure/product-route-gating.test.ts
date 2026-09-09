@@ -37,7 +37,7 @@ describe('family-aware Product route inventory', () => {
   })
 })
 
-const routePolicy = {siteId: 'tio2-a' as 'tio2-a' | 'tio2-b', approved: new Set<string>()}
+const routePolicy = {siteId: 'tio2-a' as 'tio2-a' | 'tio2-b' | 'tio2-my', approved: new Set<string>()}
 
 async function loadRoutes() {
   const getSiteProductPage = vi.fn()
@@ -113,6 +113,16 @@ describe('closed three-level Product routes', () => {
     routePolicy.siteId = 'tio2-b'
     routePolicy.approved.add('/products/coatings/tp-c120')
     const {getSiteProductPage, detail} = await loadRoutes()
+    await expect(detail.default({params: Promise.resolve({familySlug: 'coatings', slug: 'tp-c120'})}))
+      .rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
+    expect(getSiteProductPage).not.toHaveBeenCalled()
+  })
+
+  it('keeps the legacy Product route family closed for Malaysia even when a path is injected', async () => {
+    routePolicy.siteId = 'tio2-my'
+    routePolicy.approved.add('/products/coatings/tp-c120')
+    const {getSiteProductPage, detail} = await loadRoutes()
+
     await expect(detail.default({params: Promise.resolve({familySlug: 'coatings', slug: 'tp-c120'})}))
       .rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
     expect(getSiteProductPage).not.toHaveBeenCalled()

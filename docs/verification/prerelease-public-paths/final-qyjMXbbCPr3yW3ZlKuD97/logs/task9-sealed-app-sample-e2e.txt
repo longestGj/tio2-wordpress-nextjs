@@ -1,0 +1,18 @@
+
+Running 13 tests using 1 worker
+
+  ok  1 [chromium] › tests\e2e\app000-gate8.spec.ts:105:3 › APP-000 approved reading sequence at desktop-1440 (2.0s)
+  ok  2 [chromium] › tests\e2e\app000-gate8.spec.ts:105:3 › APP-000 approved reading sequence at tablet-768 (1.9s)
+  ok  3 [chromium] › tests\e2e\app000-gate8.spec.ts:105:3 › APP-000 approved reading sequence at mobile-390 (2.0s)
+  ok  4 [chromium] › tests\e2e\app000-gate8.spec.ts:127:1 › APP-000 head, schema and public projection stay clean (761ms)
+  ok  5 [chromium] › tests\e2e\app000-gate8.spec.ts:140:1 › APP and RFQ visible accessible metadata history and storage surfaces stay buyer clean (1.4s)
+  ok  6 [chromium] › tests\e2e\app000-gate8.spec.ts:147:1 › shared Chrome RFQ links retain clean navigation without claiming private provider attribution (4.9s)
+  ok  7 [chromium] › tests\e2e\app000-gate8.spec.ts:156:1 › all 30 Grade occurrences resolve to the approved 14 live destinations (892ms)
+  ok  8 [chromium] › tests\e2e\app000-gate8.spec.ts:169:1 › mobile menu, same-page navigation and cookie settings remain operable (1.7s)
+  ok  9 [chromium] › tests\e2e\app000-gate8.spec.ts:186:1 › mobile disclosures start closed, open by pointer and keyboard, and expose all 30 Grades (1.8s)
+  ok 10 [chromium] › tests\e2e\app000-gate8.spec.ts:204:1 › category and support links expose the nine approved exact accessible names and preserve Back navigation (2.8s)
+  ok 11 [chromium] › tests\e2e\app000-gate8.spec.ts:226:1 › APP RFQ handoff uses one intercepted provider POST and reaches Quote Thank You (1.1s)
+  ok 12 [chromium] › tests\e2e\request-sample.spec.ts:161:1 › controlled browser-direct Sample responses › CONV-SAMPLE retains values and token across direct retry, then confirms only explicit provider acknowledgement (1.4s)
+  ok 13 [chromium] › tests\e2e\request-sample.spec.ts:210:1 › controlled browser-direct Sample responses › CONV-SAMPLE retains the form and offers retry after an unconfirmed provider response (648ms)
+
+  13 passed (24.0s)

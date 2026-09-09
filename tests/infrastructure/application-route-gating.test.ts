@@ -10,6 +10,14 @@ import type {ApplicationPageDto} from '@/lib/applications/types'
 import {resolveCanonicalEditorialTarget} from '@/lib/editorial/content-targets'
 import type {EditorialLinkResolver} from '@/lib/editorial/types'
 import {getSiteConfig} from '@/sites'
+import {buildEditorialJsonLd, buildEditorialMetadata} from '@/lib/seo/editorial-metadata'
+import {getPublicRoutes} from '@/sites/public-routes'
+import type {EditorialContract} from '@/lib/editorial/editorial-types'
+import coatContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-editorial-app-coat.json'
+import inkContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-editorial-app-ink.json'
+import mbContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-editorial-app-mb.json'
+import paperContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-editorial-app-paper.json'
+import plasContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-editorial-app-plas.json'
 import {applicationDetailInput, applicationHubInput} from '@/tests/fixtures/editorial/application-pages'
 
 vi.mock('next/font/google', () => ({
@@ -189,6 +197,24 @@ afterEach(() => {
   vi.doUnmock('@/lib/wordpress/application-preview')
   vi.clearAllMocks()
   vi.resetModules()
+})
+
+describe('Malaysia prerelease Application metadata policy', () => {
+  it.each([
+    coatContract, plasContract, mbContract, inkContract, paperContract,
+  ] as EditorialContract[])('keeps $identity.pageId provisional while its exact path is a relationship target', (page) => {
+    const site = getSiteConfig('tio2-my')
+    const pageMetadata = buildEditorialMetadata(site, page)
+    const applicationJsonLd = buildEditorialJsonLd(site, page)
+    const releaseSitemapPaths = getPublicRoutes('tio2-my').map(({path}) => path)
+
+    expect(page.identity.provisional).toBe(true)
+    expect(pageMetadata.alternates?.canonical).toBeUndefined()
+    expect(pageMetadata.openGraph?.url).toBeUndefined()
+    expect(applicationJsonLd).toBeNull()
+    expect(pageMetadata.robots).toEqual({index: false, follow: false})
+    expect(releaseSitemapPaths).not.toContain(page.identity.path)
+  })
 })
 
 describe('public Application route gates', () => {
