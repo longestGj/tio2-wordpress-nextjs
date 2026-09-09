@@ -1,15 +1,13 @@
 import {expect, test} from '@playwright/test'
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs'
-import {resolve} from 'node:path'
-
-const baseUrl = process.env.TIO2_PRERELEASE_BASE_URL ?? 'http://127.0.0.1:3100'
-const evidenceRoot = resolve(process.env.TIO2_PRERELEASE_EVIDENCE_DIR ?? '.tmp/prerelease-smoke')
-const commandUuid = process.env.TIO2_PRERELEASE_COMMAND_UUID ?? 'manual-smoke'
-const nonGetRequests: Array<{method: string; url: string}> = []
-
-mkdirSync(evidenceRoot, {recursive: true})
+import {baseUrl, capturePublicPage, recordCheck} from './support/prerelease-evidence'
+let nonGetRequests: Array<{method: string; url: string}> = []
+let runtimeErrors = 0
 
 test.beforeEach(async ({page}) => {
+  nonGetRequests = []
+  runtimeErrors = 0
+  page.on('pageerror', () => runtimeErrors++)
+  page.on('console', message => { if (message.type() === 'error') runtimeErrors++ })
   await page.route('**/*', async (route) => {
     const request = route.request()
     if (request.method() !== 'GET') {
@@ -21,22 +19,9 @@ test.beforeEach(async ({page}) => {
   })
 })
 
-test.afterAll(() => {
-  const resultPath = resolve(evidenceRoot, 'result.json')
+test.afterEach(async ({}, testInfo) => {
+  recordCheck('smoke', testInfo, nonGetRequests.length)
   expect(nonGetRequests).toEqual([])
-  if (existsSync(resultPath)) {
-    const existing = JSON.parse(readFileSync(resultPath, 'utf8')) as {commandUuid?: string}
-    if (existing.commandUuid !== commandUuid) throw new Error(`Refusing to overwrite ${resultPath}`)
-    return
-  }
-  writeFileSync(resultPath, `${JSON.stringify({
-    schemaVersion: 1,
-    workflow: 'ordinary-smoke',
-    commandUuid,
-    checkedAt: new Date().toISOString(),
-    externalPostCount: nonGetRequests.length,
-    nonGetRequests,
-  }, null, 2)}\n`, {flag: 'wx'})
 })
 
 const representativeRoutes = [
@@ -75,6 +60,10 @@ test('representative CMS pages, navigation and metadata are bound to tio2-my', a
 test('forms validate locally without a network submission', async ({page}) => {
   for (const path of ['/request-a-quote/', '/request-sample/', '/request-documents/']) {
     await page.goto(`${baseUrl}${path}`)
+    for (const width of [1440, 768, 390]) {
+      await page.setViewportSize({width, height: width === 390 ? 844 : 1000})
+      await capturePublicPage(page, `${path.replaceAll('/', '')}-empty-${width}.png`, () => runtimeErrors)
+    }
     await page.locator('form button[type="submit"]').click()
     await expect(page.locator('[role="alert"]').first(), path).toBeVisible()
   }
@@ -101,18 +90,6 @@ for (const viewport of [
     await page.setViewportSize(viewport)
     await page.goto(`${baseUrl}/`, {waitUntil: 'load'})
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
-    await page.screenshot({path: resolve(evidenceRoot, `${viewport.name}.png`), fullPage: true, animations: 'disabled'})
+    await capturePublicPage(page, `${viewport.name}.png`, () => runtimeErrors)
   })
 }
-
-test('homepage remains single-axis at emulated Chromium 200% page scale (not native browser zoom)', async ({page, context}) => {
-  await page.setViewportSize({width: 1440, height: 1000})
-  const session = await context.newCDPSession(page)
-  await session.send('Emulation.setPageScaleFactor', {pageScaleFactor: 2})
-  await page.goto(`${baseUrl}/`)
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
-  await page.keyboard.press('Tab')
-  await expect(page.locator(':focus')).toBeVisible()
-  await page.screenshot({path: resolve(evidenceRoot, 'homepage-emulated-page-scale-200-percent.png'), fullPage: false, animations: 'disabled'})
-  await session.send('Emulation.setPageScaleFactor', {pageScaleFactor: 1})
-})

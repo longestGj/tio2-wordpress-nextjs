@@ -17,6 +17,7 @@ function temporaryDirectory(prefix: string): string {
 function createRepository(branch = 'main'): string {
   const directory = temporaryDirectory('d16-prerelease-git-')
   execFileSync('git', ['init', '-b', 'main'], {cwd: directory})
+  execFileSync('git', ['config', 'core.autocrlf', 'false'], {cwd: directory})
   writeFileSync(join(directory, 'tracked.txt'), 'clean\n')
   writeFileSync(join(directory, '.gitignore'), '.prerelease/\n.env.prerelease.local\n')
   execFileSync('git', ['add', 'tracked.txt', '.gitignore'], {cwd: directory})
@@ -28,7 +29,9 @@ function createRepository(branch = 'main'): string {
 function invokeController(args: string[]) {
   return spawnSync(
     'powershell',
-    ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', controller, ...args],
+    ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command',
+      // Fake Docker tests must not inspect or stop unrelated real listeners.
+      `function global:Get-NetTCPConnection { param($State,$LocalPort,$ErrorAction) }; & '${controller.replaceAll("'", "''")}' ${args.map(arg => /^-[A-Za-z]+$/u.test(arg) ? arg : "'" + arg.replaceAll("'", "''") + "'").join(' ')}`],
     {encoding: 'utf8'},
   )
 }
@@ -124,6 +127,15 @@ describe.runIf(process.platform === 'win32')('local prerelease controller', () =
     ])
     expect(result.status).not.toBe(0)
     expect(`${result.stdout}\n${result.stderr}`).toContain('requires branch main; actual branch is feature')
+  })
+
+  it('rejects test code outside the clean main candidate before inspecting the runtime', () => {
+    const repository = createRepository('feature')
+    for (const action of ['Test', 'TestLiveForms']) {
+      const result = invokeController(['-Action', action, '-RepositoryRoot', repository, '-DockerExecutable', join(repository, 'missing.exe')])
+      expect(result.status).not.toBe(0)
+      expect(result.stderr).toContain('requires branch main')
+    }
   })
 
   it('rejects tracked and untracked changes before invoking Docker', () => {

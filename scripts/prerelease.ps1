@@ -330,10 +330,13 @@ try {
             finally { Exit-PrereleaseLock -Lock $lock }
         }
         { $_ -in @('Test', 'TestLiveForms') } {
+            $testSourceIdentity = Get-PrereleaseGitIdentity -RepositoryRoot $RepositoryRoot
+            Assert-PrereleaseSource -GitIdentity $testSourceIdentity | Out-Null
             $manifest = Read-PrereleaseCurrentRun -Root $StateRoot
             if ($null -eq $manifest -or $manifest.state -ne 'HEALTHY') {
                 throw "$Action requires a recorded HEALTHY prerelease runtime."
             }
+            if ($testSourceIdentity.commit -ne $manifest.commit) { throw "$Action requires test sources matching the frozen candidate commit." }
             $runRoot = Split-Path -Parent ((Get-Content -LiteralPath (Join-Path $StateRoot 'current-run.json') -Raw | ConvertFrom-Json).manifestPath)
             $mainCommit = (@(& git -C $RepositoryRoot rev-parse refs/heads/main 2>$null) | Select-Object -First 1).Trim()
             Set-PrereleaseComposeEnvironment -SourcePath $manifest.sourcePath -RunRoot $runRoot -RunId $manifest.runId -Commit $manifest.commit -BuildId $manifest.buildId
@@ -353,35 +356,42 @@ try {
             $previousBaseUrl = $env:TIO2_PRERELEASE_BASE_URL
             $previousEvidence = $env:TIO2_PRERELEASE_EVIDENCE_DIR
             $previousUuid = $env:TIO2_PRERELEASE_COMMAND_UUID
+            $previousConfig = $env:TIO2_PRERELEASE_CONFIG_FILE
+            $previousNoColor = $env:NO_COLOR
+            $testExit = 1
             try {
                 $env:TIO2_PRERELEASE_BASE_URL = 'http://127.0.0.1:3100'
                 $env:TIO2_PRERELEASE_EVIDENCE_DIR = $evidenceRoot
                 $env:TIO2_PRERELEASE_COMMAND_UUID = $commandUuid
+                $env:TIO2_PRERELEASE_CONFIG_FILE = $environmentFile
+                if ($env:FORCE_COLOR) { Remove-Item Env:NO_COLOR -ErrorAction SilentlyContinue }
                 Push-Location $RepositoryRoot
                 $previousTestErrorActionPreference = $ErrorActionPreference
                 try {
                     $ErrorActionPreference = 'Continue'
-                    $testOutput = @(& $NpxExecutable playwright test $actionPlan.spec --workers=1 2>&1)
+                    $specArguments = @($actionPlan.specs)
+                    $testOutput = @(& $NpxExecutable playwright test @specArguments --workers=1 2>&1)
                     $testExit = $LASTEXITCODE
                 }
                 finally {
                     $ErrorActionPreference = $previousTestErrorActionPreference
                     Pop-Location
                 }
-                if ($testExit -ne 0) { throw "$Action Playwright suite failed with exit code $testExit." }
             }
             finally {
                 $env:TIO2_PRERELEASE_BASE_URL = $previousBaseUrl
                 $env:TIO2_PRERELEASE_EVIDENCE_DIR = $previousEvidence
                 $env:TIO2_PRERELEASE_COMMAND_UUID = $previousUuid
+                $env:TIO2_PRERELEASE_CONFIG_FILE = $previousConfig
+                $env:NO_COLOR = $previousNoColor
+                # Finalize even when Playwright crashes or returns nonzero; never publish its raw output.
+                $result = Complete-PrereleaseEvidence -EvidenceRoot $evidenceRoot -Manifest $manifest -CommandUuid $commandUuid -Action $Action -TestExit $testExit
             }
-            $resultPath = Join-Path $evidenceRoot 'result.json'
-            if (-not (Test-Path -LiteralPath $resultPath -PathType Leaf)) { throw "$Action did not produce result.json." }
-            $result = Get-Content -LiteralPath $resultPath -Raw | ConvertFrom-Json
             Write-PrereleaseResult ([pscustomobject]@{
-                    action = $Action; state = 'PASSED'; runId = $manifest.runId
+                    action = $Action; state = $result.state; runId = $manifest.runId
                     evidenceId = $evidenceId; result = $result
                 })
+            if ($result.state -ne 'PASSED') { throw "$Action failed; bound sanitized evidence: $evidenceId." }
         }
         default {
             throw "$Action is not implemented yet."

@@ -136,6 +136,33 @@ function tio2_my_product_detail_approved_contract_json(string $slug)
         : new WP_Error('tio2_my_product_detail_contract_missing', 'The approved Malaysia Product Detail contract is unavailable.');
 }
 
+/** Local candidate readiness does not change the approved Product Detail payload or production policy. */
+function tio2_my_product_detail_local_candidate_ready(array $identity): bool
+{
+    if ('local' !== wp_get_environment_type()) {
+        return false;
+    }
+    $path = dirname(__DIR__) . '/config/tio2-my-prerelease-public-paths.json';
+    $json = is_readable($path) ? file_get_contents($path) : false;
+    $candidate = is_string($json) ? json_decode($json, true) : null;
+    if (
+        ! is_array($candidate) ||
+        'TIO2-MY-PRERELEASE-PUBLIC-PATHS-2026-09-09-V1' !== ($candidate['candidateId'] ?? null) ||
+        'tio2-my' !== ($candidate['siteScope'] ?? null) ||
+        'en' !== ($candidate['locale'] ?? null) ||
+        ! is_array($candidate['routes'] ?? null) || 42 !== count($candidate['routes'])
+    ) {
+        return false;
+    }
+    $matches = array_filter($candidate['routes'], static fn ($route): bool =>
+        is_array($route) &&
+        $identity['page_id'] === ($route['pageId'] ?? null) &&
+        $identity['public_path'] . '/' === ($route['path'] ?? null) &&
+        $identity['canonical'] === ($route['canonical'] ?? null)
+    );
+    return 1 === count($matches);
+}
+
 /** @return true|WP_Error */
 function tio2_validate_product_detail_v01_contract(int $post_id)
 {
@@ -167,7 +194,11 @@ function tio2_validate_product_detail_v01_contract(int $post_id)
         $identity['public_path'] !== get_post_meta($post_id, 'public_path', true) ||
         $identity['internal_slug'] !== get_post_field('post_name', $post_id) ||
         $identity['canonical'] !== get_post_meta($post_id, TIO2_MY_ROUTE_CANONICAL_META, true) ||
-        'PREVIEW_ONLY' !== get_post_meta($post_id, TIO2_MY_ROUTE_RELEASE_STATE_META, true)
+        ! (
+            'PREVIEW_ONLY' === get_post_meta($post_id, TIO2_MY_ROUTE_RELEASE_STATE_META, true) ||
+            ('LIVE_APPROVED' === get_post_meta($post_id, TIO2_MY_ROUTE_RELEASE_STATE_META, true) &&
+                tio2_my_product_detail_local_candidate_ready($identity))
+        )
     ) {
         return new WP_Error('tio2_my_product_detail_invalid_route', 'The Product Detail route identity is invalid.');
     }

@@ -28,6 +28,6 @@ export default async function RequestDocumentsRoute() {
   const jsonLd = serializeMalaysiaRequestDocumentsJsonLd(buildMalaysiaRequestDocumentsJsonLd(site))
   return <MalaysiaRequestDocumentsQueryPage
     page={page}
-    structuredData={<script type="application/ld+json" dangerouslySetInnerHTML={{__html: jsonLd}} />}
+    structuredData={<script key="CONV-DOC-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{__html: jsonLd}} />}
   />
 }

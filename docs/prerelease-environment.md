@@ -72,7 +72,11 @@ Editorial 页面还需要独立生成的本地预发布 `WORDPRESS_EDITORIAL_API
 npm run prerelease:test:forms-live
 ```
 
-该命令会真实对外发送三次请求：RFQ、Request a Sample和Request Documents各一次。主题带`[LOCAL PRERELEASE]`，payload带`environment=local-prerelease`及复用现有请求令牌的`test_run_id`。RFQ与Sample通过真实本地服务端接口提交，Documents直接提交服务商；按各自明确成功契约验证，并验证进入对应Thank You状态。失败不阻止其他表单独立运行；禁止记录含key的网络trace。自动结果只证明对应接口明确接收确认；`inboxConfirmed`保持`false`，实际收件需要另行人工确认。普通`prerelease:test`不会发送表单。
+该命令从三个公开页面各提交一次 RFQ、Sample 和 Documents，全部由浏览器直接调用 Web3Forms。只有 HTTP 200 且解析到 `success=true` 才认定服务商接受，并核对请求令牌及对应 Thank You 状态；失败不自动重试。BuyerEmail/Reply-To 使用 `local-prerelease-${runId}-${workflow}@example.com` 合成测试值，不要求真实发件人邮箱或 SMTP 配置；若服务商拒绝该值，记录实际分类并报告，不换用个人邮箱。收件目标继续由现有 access key 绑定。
+
+真实表单测试关闭 trace、自动截图、视频及 Playwright 错误 DOM 快照，只保存工作流、Page ID、请求令牌、HTTP 状态、服务商分类、Thank You request 和时间戳；可截图的只有成功后的非个人 Thank You 页面。`result.json` 将测试结果绑定到 run/commit/Build/CMS 身份，服务商接受与实际收件分开记录。失败证据同样保留身份，缺失、重复或外来测试片段不会产生 PASSED。
+
+取得三条成功响应后运行 `powershell -NoProfile -File scripts/prerelease/Confirm-PrereleaseInbox.ps1 -EvidenceRoot <本次证据目录>`，按工作流和请求令牌逐项核实收件，并输入显式 UTC 时间。脚本不保存邮箱、正文或附件，不覆盖已有确认；`no` 单独记录为 `received=false`。普通 `prerelease:test` 只运行 smoke 与 public-paths，两套测试合计 10 项，覆盖 1440/768/390、42 条批准路径和原始 58 对象内链扫描；四项已取消检查明确记为 NOT_TESTED。
 
 ## 身份、证据与排错
 

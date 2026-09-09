@@ -12,6 +12,11 @@ beforeEach(()=>{vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY','shared-we
 afterEach(()=>{vi.clearAllMocks();vi.unstubAllEnvs();vi.resetModules()})
 
 describe('CONV-SAMPLE route',()=>{
+  it('keys the schema element crossing the server to client page boundary',async()=>{
+    const route=await import('@/app/request-sample/page')
+    const element=await route.default()
+    expect(element.props.structuredData.key).toBe('CONV-SAMPLE-jsonld')
+  })
   it('server-renders a static empty shell, initial answers, one graph and shared Chrome',async()=>{
     const route=await import('@/app/request-sample/page');const markup=renderToStaticMarkup(await route.default())
     expect(markup).toContain('data-site-scope="tio2-my"');expect(markup).not.toContain('Context brought from your previous page');expect(markup).not.toContain('value="M-2377" selected=""');expect(markup).not.toContain('United Kingdom');expect(markup.match(/application\/ld\+json/gu)).toHaveLength(1);expect(markup.match(/<header/gu)).toHaveLength(1);expect(markup.match(/<footer/gu)).toHaveLength(1);expect(markup).not.toContain('/contact');expect(markup).not.toContain('shared-web3forms-key')
