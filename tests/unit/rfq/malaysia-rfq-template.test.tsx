@@ -38,7 +38,7 @@ async function fillValidRfq(user: ReturnType<typeof userEvent.setup>) {
 }
 
 beforeEach(() => {
-  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'public-test-key')
+  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', '01234567-89ab-cdef-0123-456789abcdef')
   receiver.mockReset()
   receiver.mockResolvedValue(Response.json({success: true}))
   vi.stubGlobal('fetch', receiver)

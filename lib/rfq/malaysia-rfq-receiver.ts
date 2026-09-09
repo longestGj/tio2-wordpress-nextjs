@@ -33,7 +33,7 @@ export function submitMalaysiaRfq(
   return submitWeb3FormsBrowser(
     {
       workflow: "rfq",
-      accessKey: options.accessKey?.trim() || null,
+      accessKey: options.accessKey,
       requestToken: options.requestToken,
       timeoutMs: options.timeoutMs ?? MALAYSIA_RFQ_SUBMISSION_TIMEOUT_MS,
       payload: {

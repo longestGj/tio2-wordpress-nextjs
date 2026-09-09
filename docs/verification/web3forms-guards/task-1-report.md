@@ -1,0 +1,51 @@
+# Task 1 implementation report
+
+Date: 2026-09-09. Site: tio2-my. Scope: PPF-T10-F02–F04, RFQ / Sample / Documents shared browser submission and prerelease evidence. Implementation status: DONE; independent review and exact candidate build/browser verification remain with controller.
+
+Branch: codex/prerelease-web3forms-guards. Source baseline: ba37af03bec4cf9f44f56415afc243be1c297847. Implementation commit: 525ee53c157dbd24cd17dff97463738a390b6676. Worktree: D:/16Wordpress_nextjs/.worktrees/prerelease-web3forms-guards. Git status was clean after commit; no merge performed.
+
+Approved scope: docs/superpowers/plans/2026-09-09-web3forms-guards.md; D23 specification PRERELEASE_TASK10_WEB3FORMS_INVALID_REQUEST_RETURN_V1.0.md, source commit 72989041512a2ca7e4dc61bc1c85fdff063481e8. Superpowers TDD and verification-before-completion applied.
+
+## Changes
+
+- Shared JSON UUID syntax contract is consumed by the TypeScript validator and PowerShell environment preflight. It accepts generic hexadecimal groups without UUID version/variant restrictions and rejects blank, placeholder, malformed-length and whitespace-altered configuration. No account binding claim is made.
+- Browser transport fails closed before fetch. RFQ readiness and Sample route readiness use the validator. All three active receiver adapters preserve configured bytes rather than trimming malformed input into a usable key. Documents retains its existing approved unavailable/retry behavior and entered values.
+- Shared provider response normalizer reads only top-level message and documented nested body.message transiently. It returns an enum; it never examines echoed body.data, logs messages, or returns bodies. Conflicting recognized categories and unrecognized/malformed responses stay unknown_invalid_request. Wording examples are synthetic recognition tests, not captured historical responses or guaranteed provider wording.
+- The browser transport and evidence capture both consume that normalizer. HTTP 200 with boolean success true remains the sole acceptance condition. Existing timeout, caller cancellation, JSON-body timeout, rate-limit, network and unexpected classes remain covered.
+- PowerShell evidence validation accepts only exact diagnostic enum strings while retaining the exact seven-field attempt allowlist and privacy validation of all remaining values. The allowed invalid_access_key enum no longer collides with the unsafe-value matcher.
+- Inbox applicability requires exactly three distinct valid attempts covering the three workflows with HTTP 200 / accepted. Other configurations are NOT_APPLICABLE_PROVIDER_NOT_ACCEPTED. Thank You transitions and transport counts remain independent evidence PASS requirements; manual receipt is never invented.
+- Added actual-app controlled browser tests for six valid-configuration success/rejection scenarios and three malformed-configuration unavailable scenarios. Controller owns execution against committed candidate builds.
+
+## Verification commands and results
+
+All commands below ran from the task worktree using the original junction to the matching installed dependency set. Dependency declarations and lockfile were unchanged. Controller subsequently owns replacing that verified junction with a physical copy for Turbopack candidate builds. Output files are under .superpowers/sdd/2026-09-09-web3forms-guards/. These local ignored logs are recovery material; raw RED outputs can contain synthetic fixture material and must not be copied into formal handoff evidence.
+
+1. Baseline: `npx vitest run tests/unit/forms/web3forms-browser.test.ts tests/unit/rfq/malaysia-rfq-runtime.test.ts tests/infrastructure/prerelease-live-evidence.test.ts tests/infrastructure/prerelease-test-actions.test.ts tests/infrastructure/prerelease-controller.test.ts` — 5 files, 39 tests passed. task-1-baseline.log.
+2. F02 RED: `npx vitest run tests/unit/forms/web3forms-browser.test.ts tests/unit/rfq/malaysia-rfq-runtime.test.ts tests/infrastructure/prerelease-controller.test.ts tests/integration/request-sample/route.test.tsx tests/unit/request-documents/malaysia-request-documents-template.test.tsx` — expected 10 failures, 56 pass before all boundary tests were added. task-1-f02-red.log.
+3. Additional F02 RED: `npx vitest run tests/infrastructure/prerelease-controller.test.ts tests/unit/request-documents/malaysia-request-documents-template.test.tsx` — 5 expected failures, 31 pass. task-1-f02-red-boundaries.log. `npx vitest run tests/unit/request-documents/malaysia-request-documents-template.test.tsx -t "unavailable key"` — 3 expected failures, 1 pass, 12 filtered. task-1-f02-red-documents-whitespace.log. `npx vitest run tests/unit/rfq/malaysia-rfq-receiver.test.ts tests/unit/request-sample/malaysia-request-sample-receiver.test.ts -t "does not trim"` — 2 expected failures, 19 filtered. task-1-f02-red-receivers.log.
+4. F02 GREEN: `npx vitest run tests/unit/forms/web3forms-browser.test.ts tests/unit/rfq/malaysia-rfq-runtime.test.ts tests/infrastructure/prerelease-controller.test.ts tests/integration/request-sample/route.test.tsx tests/unit/request-documents/malaysia-request-documents-template.test.tsx tests/unit/rfq/malaysia-rfq-receiver.test.ts tests/unit/request-sample/malaysia-request-sample-receiver.test.ts` — 7 files, 98 tests passed. task-1-f02-green.log.
+5. F03 RED: `npx vitest run tests/unit/forms/web3forms-browser.test.ts tests/infrastructure/prerelease-live-evidence.test.ts` — 24 expected failures, 25 pass. task-1-f03-red.log. The initial task-1-f03-green.log is an intermediate failed attempt: 2 test-only privacy matcher collisions with the allowed enum; the matcher was corrected to check the exact field name. It is not claimed as GREEN evidence.
+6. F04 RED: `npx vitest run tests/infrastructure/prerelease-evidence-scope.test.ts` — 12 expected failures, 10 pass. task-1-f04-red.log.
+7. F03/F04 GREEN: `npx vitest run tests/unit/forms/web3forms-browser.test.ts tests/infrastructure/prerelease-live-evidence.test.ts tests/infrastructure/prerelease-evidence-scope.test.ts` — 3 files, 71 tests passed. task-1-f03-f04-green.log.
+8. Exact enum RED: `npx vitest run tests/infrastructure/prerelease-evidence-scope.test.ts -t "exact diagnostic enums"` — expected 1 failure, 21 filtered, proving case-insensitive acceptance. task-1-f04-red-exact-enum.log. Corrected to case-sensitive enum membership.
+9. Privacy / exact enum GREEN: `npx vitest run tests/infrastructure/prerelease-live-privacy.test.ts tests/infrastructure/prerelease-evidence-scope.test.ts` — 2 files, 27 tests passed. task-1-privacy-green.log. The five privacy cases invoke the existing real live-test harness only against temporary synthetic markup and locally intercepted provider responses with provider DNS blocked. They cover recognized rejection, unknown rejection, acceptance and late provider/retained-endpoint blocked writes, including finalized aggregate evidence and absence of private artifacts.
+10. Affected regression: `npx vitest run tests/unit/forms tests/unit/rfq tests/unit/request-sample tests/unit/request-documents tests/integration/rfq tests/integration/request-sample tests/integration/request-documents tests/infrastructure/prerelease-controller.test.ts tests/infrastructure/prerelease-evidence-scope.test.ts tests/infrastructure/prerelease-live-evidence.test.ts tests/infrastructure/prerelease-test-actions.test.ts tests/infrastructure/prerelease-inbox-confirmation.test.ts` — 40 files, 379 tests passed. task-1-affected.log.
+11. `npm run typecheck` — final exit 0, task-1-typecheck-final.log. Earlier task-1-typecheck.log records a test-only DOM type narrowing error, fixed before the final check.
+12. `npm run lint` — exit 0; four existing warnings in untouched prototype/verification/market-test files, no errors. task-1-lint.log.
+13. `npx playwright test tests/e2e/web3forms-guards.spec.ts --list` — successful collection. Actual app execution is controller-owned, not claimed complete here.
+14. `git diff --check` and `git diff --cached --check` — exit 0 before commit. Post-commit git status clean.
+
+## Self-review and limits
+
+Reviewed implementation diff against each F02–F04 requirement. Buyer copy, fields, recipient, endpoint architecture, workflow count, formal evidence field allowlist and original timeout/abort structure are preserved. Regressions cover active and dormant same-site receiver consumers. Positive synthetic fixtures were updated only where the new active contract made them invalid; intentional invalid vectors remain.
+
+No real provider requests, real-key access, real environment-file reads/copies, CMS operations, prerelease controller operations against the real environment, main edits, deployments or external writes were performed. Controller tests use temporary repositories and fake Docker. No original runtime or historical formal evidence was changed. No subagents were spawned.
+
+Do not treat simulated provider acceptance as actual Web3Forms acceptance, inbox receipt, configuration repair F01, a live retry, Gate 9/10 approval or release. UUID syntax cannot establish that a provider-issued key exists or targets the approved inbox. Unknown wording stays unknown. Controller still owns independent review, exact candidate builds, actual-app visual/state checks and develop integration.
+
+Candidate browser invocation: set TIO2_MY_BASE_URL to the controller's isolated loopback candidate and WEB3FORMS_TEST_CONFIGURATION to valid or malformed; run only tests/e2e/web3forms-guards.spec.ts. The suite disables trace/screenshots/video, closes entered forms before diagnostic collection, intercepts all provider writes and blocks all other writes/external reads.
+
+
+## Candidate test correction follow-up
+
+Test-only follow-up commit 6857888eacdbf8e99f1ea1ce1dcd7e1eadc671f4 corrects actual-app page identity and normalized pathname assumptions. Production source remains 525ee53c157dbd24cd17dff97463738a390b6676 on both held builds. The corrected actual-app scenarios passed 9/9; five public-state captures were independently inspected and accepted by controller. See correction-report.md for complete RED/GREEN commands, runtime/test identities and the resolved batched-image display ambiguity. Scoped re-review/integration remain controller-owned.

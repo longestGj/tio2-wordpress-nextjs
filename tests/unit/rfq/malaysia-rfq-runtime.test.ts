@@ -13,13 +13,19 @@ describe('CONV-RFQ external readiness consumption', () => {
     })
   })
 
+  it.each(['', ' ', 'replace-with-access-key', 'x'.repeat(52), '01234567-89ab-cdef-0123-456789abcdef '])('blocks malformed receiver configuration %#', key => {
+    const runtime = resolveMalaysiaRfqRuntime({NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY: key})
+    expect(runtime.receiverAccessKey).toBeNull()
+    expect(runtime.blockers).toContain('receiver_configuration')
+  })
+
   it('accepts only a clean same-site Privacy route and explicit readiness', () => {
     expect(resolveMalaysiaRfqRuntime({
-      NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY: 'test-access-key',
+      NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY: '01234567-89ab-cdef-0123-456789abcdef',
       TIO2_MY_REQUEST_SAMPLE_READY: 'true',
       TIO2_MY_REQUEST_DOCUMENTS_READY: 'true',
     })).toEqual({
-      receiverAccessKey: 'test-access-key',
+      receiverAccessKey: '01234567-89ab-cdef-0123-456789abcdef',
       privacyPolicyHref: '/privacy-policy/',
       blockers: [],
     })

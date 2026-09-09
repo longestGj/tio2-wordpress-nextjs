@@ -23,7 +23,7 @@ function renderPage(prefill = resolveMalaysiaRequestDocumentsPrefill({})) {
 }
 
 beforeEach(() => {
-  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'public-test-key')
+  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', '01234567-89ab-cdef-0123-456789abcdef')
   vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({success: true}), {
     status: 200, headers: {'content-type': 'application/json'},
   })))
@@ -32,7 +32,7 @@ afterEach(() => { cleanup(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.clear
 
 describe('CONV-DOC page and form', () => {
   it('submits directly to Web3Forms with the shared Malaysia forms routing key', async () => {
-    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'public-test-key')
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', '01234567-89ab-cdef-0123-456789abcdef')
     vi.mocked(fetch).mockResolvedValueOnce(new Response(JSON.stringify({success: true}), {
       status: 200, headers: {'content-type': 'application/json'},
     }))
@@ -50,7 +50,7 @@ describe('CONV-DOC page and form', () => {
     expect(String(calls[0]?.[0])).toBe('https://api.web3forms.com/submit')
     const payload = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
     expect(payload).toMatchObject({
-      access_key: 'public-test-key', full_name: 'Amina Tan', company: 'Example Co',
+      access_key: '01234567-89ab-cdef-0123-456789abcdef', full_name: 'Amina Tan', company: 'Example Co',
       business_email: 'amina@example.com', country_region: 'Malaysia', product_grade: 'M-2196',
       document_types: ['safety'], site_scope: 'tio2-my', page_id: 'CONV-DOC',
       workflow_type: 'documents', locale: 'en',
@@ -230,8 +230,8 @@ describe('CONV-DOC page and form', () => {
     expect(fetch).toHaveBeenCalledOnce()
   })
 
-  it('retains values and offers retry without contacting Web3Forms when the routing key is unavailable', async () => {
-    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', '')
+  it.each(['', 'replace-with-access-key', 'x'.repeat(52), '01234567-89ab-cdef-0123-456789abcdef '])('retains values and offers retry without contacting Web3Forms for unavailable key %#', async key => {
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', key)
     vi.stubEnv('NEXT_PUBLIC_TIO2_MY_REQUEST_DOCUMENTS_WEB3FORMS_ACCESS_KEY', 'deprecated-key-must-be-ignored')
     const user = userEvent.setup()
     renderPage()
