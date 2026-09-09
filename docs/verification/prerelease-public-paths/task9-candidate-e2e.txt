@@ -1,0 +1,15 @@
+
+Running 10 tests using 1 worker
+
+  ok  1 [chromium] › tests\e2e\prerelease-public-paths.spec.ts:87:3 › public paths Chromium Axe keyboard inventory and return 1440 (19.4s)
+  ok  2 [chromium] › tests\e2e\prerelease-public-paths.spec.ts:87:3 › public paths Chromium Axe keyboard inventory and return 768 (18.6s)
+  ok  3 [chromium] › tests\e2e\prerelease-public-paths.spec.ts:87:3 › public paths Chromium Axe keyboard inventory and return 390 (19.6s)
+  ok  4 [chromium] › tests\e2e\prerelease-public-paths.spec.ts:152:1 › full 58-object internal link scan permits only approved Contact exception (12.5s)
+  ok  5 [chromium] › tests\e2e\prerelease-smoke.spec.ts:42:1 › representative CMS pages, navigation and metadata are bound to tio2-my (1.8s)
+  ok  6 [chromium] › tests\e2e\prerelease-smoke.spec.ts:60:1 › forms validate locally without a network submission (5.4s)
+  ok  7 [chromium] › tests\e2e\prerelease-smoke.spec.ts:72:1 › Cookie Settings supports keyboard focus and return (298ms)
+  ok  8 [chromium] › tests\e2e\prerelease-smoke.spec.ts:89:3 › homepage reflows without horizontal overflow at 1440px (1.1s)
+  ok  9 [chromium] › tests\e2e\prerelease-smoke.spec.ts:89:3 › homepage reflows without horizontal overflow at 768px (1.2s)
+  ok 10 [chromium] › tests\e2e\prerelease-smoke.spec.ts:89:3 › homepage reflows without horizontal overflow at 390px (1.4s)
+
+  10 passed (1.4m)
