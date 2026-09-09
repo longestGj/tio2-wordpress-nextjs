@@ -1,0 +1,14 @@
+
+> test
+> vitest run --maxWorkers=4
+
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/prerelease-public-paths-forms
+
+warning: in the working copy of 'identity.txt', LF will be replaced by CRLF the next time Git touches it
+
+ Test Files  356 passed | 21 skipped (377)
+      Tests  2997 passed | 51 skipped (3048)
+   Start at  08:56:15
+   Duration  145.34s (transform 10.76s, setup 59.51s, import 70.85s, tests 357.59s, environment 34.58s)
+

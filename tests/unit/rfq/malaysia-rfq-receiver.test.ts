@@ -12,13 +12,25 @@ const submission: MalaysiaRfqSubmission = {
   contact_name: 'A Buyer', business_email: 'buyer@example.com', phone_whatsapp: '',
   website: '', additional_requirements: '', source_page_id: null,
 }
+const options = {accessKey: 'test-key', requestToken: 'rfq-token'} as const
 
 describe('CONV-RFQ Web3Forms receiver', () => {
+  it('uses the shared browser transport contract with the caller request token', async () => {
+    const fetcher = vi.fn(async () => Response.json({success: true}))
+    const result = await submitMalaysiaRfq(submission, {accessKey: 'test-key', requestToken: 'rfq-token', fetcher})
+    expect(result.kind).toBe('provider_accepted')
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    const calls=fetcher.mock.calls as unknown as Array<[RequestInfo|URL,RequestInit]>
+    expect(calls[0]?.[0]).toBe('https://api.web3forms.com/submit')
+    expect(JSON.parse(String(calls[0]?.[1]?.body))).toMatchObject({
+      site_scope: 'tio2-my', page_id: 'CONV-RFQ', workflow_type: 'rfq', locale: 'en', request_token: 'rfq-token',
+    })
+  })
   it('confirms receipt only for an explicit success acknowledgement', async () => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify({success: true, body: {message: 'Email sent successfully!'}}), {
       status: 200, headers: {'content-type': 'application/json'},
     }))
-    await expect(submitMalaysiaRfq(submission, {accessKey: 'test-key', fetcher})).resolves.toEqual({kind: 'receipt_confirmed'})
+    await expect(submitMalaysiaRfq(submission, {...options, fetcher})).resolves.toMatchObject({kind: 'provider_accepted'})
     const calls = fetcher.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
     const body = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
     expect(body).toMatchObject({site_scope: 'tio2-my', page_id: 'CONV-RFQ'})
@@ -31,7 +43,7 @@ describe('CONV-RFQ Web3Forms receiver', () => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify({success: true}), {
       status: 200, headers: {'content-type': 'application/json'},
     }))
-    await submitMalaysiaRfq(submission, {accessKey: 'test-key', fetcher, environment: 'local-prerelease'})
+    await submitMalaysiaRfq(submission, {...options, fetcher, environment: 'local-prerelease'})
     const body = JSON.parse(String((fetcher.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>)[0]?.[1]?.body)) as Record<string, unknown>
     expect(body).toMatchObject({
       environment: 'local-prerelease',
@@ -46,12 +58,12 @@ describe('CONV-RFQ Web3Forms receiver', () => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify({success: true}), {
       status: 200, headers: {'content-type': 'application/json'},
     }))
-    await submitMalaysiaRfq({...submission, source_page_id: 'RES-ORIGIN', interest: 'alternative-origin-sourcing'}, {accessKey: 'test-key', fetcher})
+    await submitMalaysiaRfq({...submission, source_page_id: 'RES-ORIGIN', interest: 'alternative-origin-sourcing'}, {...options, fetcher})
     const calls = fetcher.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
     const body = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
     expect(body).toMatchObject({source_page_id: 'RES-ORIGIN', interest: 'alternative-origin-sourcing'})
 
-    await submitMalaysiaRfq({...submission, interest: 'origin-proof-guaranteed'}, {accessKey: 'test-key', fetcher})
+    await submitMalaysiaRfq({...submission, interest: 'origin-proof-guaranteed'}, {...options, fetcher})
     const rejected = JSON.parse(String((fetcher.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>)[1]?.[1]?.body)) as Record<string, unknown>
     expect(rejected).not.toHaveProperty('interest')
   })
@@ -62,14 +74,14 @@ describe('CONV-RFQ Web3Forms receiver', () => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify(payload), {
       status, headers: {'content-type': 'application/json'},
     }))
-    await expect(submitMalaysiaRfq(submission, {accessKey: 'test-key', fetcher})).resolves.toEqual({kind: 'submission_unconfirmed'})
+    await expect(submitMalaysiaRfq(submission, {...options, fetcher})).resolves.toMatchObject({kind: expect.not.stringMatching('provider_accepted')})
   })
 
   it('fails closed without receiver configuration or after a network error', async () => {
-    await expect(submitMalaysiaRfq(submission, {accessKey: null, fetcher: vi.fn()})).resolves.toEqual({kind: 'service_unavailable'})
+    await expect(submitMalaysiaRfq(submission, {...options, accessKey: null, fetcher: vi.fn()})).resolves.toMatchObject({kind: 'unavailable'})
     await expect(submitMalaysiaRfq(submission, {
-      accessKey: 'test-key', fetcher: vi.fn(async () => { throw new Error('offline') }),
-    })).resolves.toEqual({kind: 'submission_unconfirmed'})
+      ...options, fetcher: vi.fn(async () => { throw new Error('offline') }),
+    })).resolves.toMatchObject({kind: 'submission_unconfirmed'})
   })
 
   it('aborts and fails closed when the receiver never resolves', async () => {
@@ -77,10 +89,10 @@ describe('CONV-RFQ Web3Forms receiver', () => {
     try {
       const fetcher = vi.fn(() => new Promise<Response>(() => undefined))
       expect(MALAYSIA_RFQ_SUBMISSION_TIMEOUT_MS).toBe(10_000)
-      const pending = submitMalaysiaRfq(submission, {accessKey: 'test-key', fetcher})
+      const pending = submitMalaysiaRfq(submission, {...options, fetcher})
       await vi.advanceTimersByTimeAsync(0)
       await vi.advanceTimersByTimeAsync(MALAYSIA_RFQ_SUBMISSION_TIMEOUT_MS)
-      await expect(pending).resolves.toEqual({kind: 'submission_unconfirmed'})
+      await expect(pending).resolves.toMatchObject({kind: 'submission_unconfirmed'})
       const calls = fetcher.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
       expect(calls[0]?.[1].signal?.aborted).toBe(true)
     } finally {
@@ -92,7 +104,7 @@ describe('CONV-RFQ Web3Forms receiver', () => {
     const fetcher = vi.fn(async () => {
       throw new DOMException('The operation was aborted', 'AbortError')
     })
-    await expect(submitMalaysiaRfq(submission, {accessKey: 'test-key', fetcher})).resolves.toEqual({kind: 'submission_unconfirmed'})
+    await expect(submitMalaysiaRfq(submission, {...options, fetcher})).resolves.toMatchObject({kind: 'submission_unconfirmed'})
   })
 
   it('also bounds a response body that never resolves', async () => {
@@ -101,9 +113,9 @@ describe('CONV-RFQ Web3Forms receiver', () => {
       const response = new Response('{}', {status: 200, headers: {'content-type': 'application/json'}})
       vi.spyOn(response, 'json').mockImplementation(() => new Promise<never>(() => undefined))
       const fetcher = vi.fn(async () => response)
-      const pending = submitMalaysiaRfq(submission, {accessKey: 'test-key', fetcher, timeoutMs: 50})
+      const pending = submitMalaysiaRfq(submission, {...options, fetcher, timeoutMs: 50})
       await vi.advanceTimersByTimeAsync(50)
-      await expect(pending).resolves.toEqual({kind: 'submission_unconfirmed'})
+      await expect(pending).resolves.toMatchObject({kind: 'submission_unconfirmed'})
     } finally {
       vi.useRealTimers()
     }

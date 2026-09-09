@@ -1,0 +1,11 @@
+{
+  "suite": "public-paths",
+  "commandUuid": "task9-final-ordinary-7XUXjV_kltFixtMjCGsjh",
+  "externalPostCount": 0,
+  "checks": [
+    {
+      "check": "public-paths.width.390",
+      "status": "PASSED"
+    }
+  ]
+}

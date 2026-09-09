@@ -1,0 +1,9 @@
+{
+  "check": "APP-000 approved reading sequence at mobile-390",
+  "status": "passed",
+  "providerMockPosts": 0,
+  "contextMockPosts": 0,
+  "blockedWrites": 0,
+  "retainedPosts": 0,
+  "externalPostCount": 0
+}

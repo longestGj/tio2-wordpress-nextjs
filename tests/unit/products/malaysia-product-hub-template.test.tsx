@@ -7,6 +7,8 @@ import {
   malaysiaProductHubSource,
   productHubReadiness,
 } from '@/tests/fixtures/tio2-my-product-hub'
+import eligibility from '@/wordpress/plugins/tio2-site-model/config/tio2-my-prerelease-public-paths.json'
+import productContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-hub.json'
 
 vi.mock('next/image', () => ({
   default: (props: ImgHTMLAttributes<HTMLImageElement>) => createElement('img', props),
@@ -21,6 +23,13 @@ async function renderHub(readiness = productHubReadiness()) {
       productHub={toMalaysiaProductHubDto(malaysiaProductHubSource(readiness))}
     />,
   )
+}
+
+function exactPrereleaseReadiness(): Record<string, boolean> {
+  return Object.fromEntries(productContract.routeRegistry.map((target) => {
+    const route = eligibility.routes.find(({pageId}) => pageId === target.targetPageId)
+    return [target.targetPageId, route?.path === target.href && route.canonical === new URL(target.href, 'https://tio2malaysia.com').href]
+  }))
 }
 
 describe('MalaysiaProductHub', () => {
@@ -79,5 +88,14 @@ describe('MalaysiaProductHub', () => {
     expect(markup).not.toContain('data-grade-action="GRADE-M510"')
     expect(markup).toContain('data-support-action="MARKET-000"')
     expect(markup).not.toContain('data-support-action="APP-000"')
+  })
+
+  it('renders exactly 14 directory Grade links, two Process links and three support links when ready', async () => {
+    const markup = await renderHub(exactPrereleaseReadiness())
+    const directory = markup.match(/data-module="grade-directory"[\s\S]*?data-module="evaluation"/u)?.[0] ?? ''
+
+    expect(directory.match(/<a[^>]+data-grade-action=/gu)).toHaveLength(14)
+    expect(markup.match(/<a[^>]+data-process-route=/gu)).toHaveLength(2)
+    expect(markup.match(/<a[^>]+data-support-action=/gu)).toHaveLength(3)
   })
 })

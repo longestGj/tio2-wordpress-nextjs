@@ -1,3 +1,4 @@
+import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
 import {spawnSync} from 'node:child_process'
 import {copyFileSync, existsSync, rmSync} from 'node:fs'
 
@@ -7,7 +8,7 @@ const productManifestPath = 'D:/11SEO/01ComInfo/outputs/site-a-products-v0.1.jso
 
 function runReversibleAdapterTest() {
   return spawnSync('docker', [
-    'compose', '--env-file', 'wordpress/.env', '-f', 'wordpress/docker-compose.yml',
+    ...wordpressComposeArgs(),
     'run', '--rm', '--no-TTY', 'wpcli', 'wp', 'eval', String.raw`
 define('TIO2_SITE_A_EDITORIAL_LIBRARY_CONTEXT', true);
 require '/workspace/wordpress/seed/export-site-a-editorial-audit.php';

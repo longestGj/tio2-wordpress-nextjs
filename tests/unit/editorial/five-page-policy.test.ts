@@ -15,10 +15,10 @@ describe('five approved page delivery policies',()=>{
  it('Italy sample stays source-only despite injected market, grade and destination',()=>{
   expect(resolveMalaysiaSamplePrefill({source_page_id:'MARKET-EU-IT',market_id:'MARKET-EU-IT',destination:'Italy',grade_id:'M-996',application_id:'coatings',resource_context:'RES-ORIGIN'})).toEqual({source_page_id:'MARKET-EU-IT'})
  })
- it.each(['RES-R706','RES-CHEMOURS'])('does not emit unapproved canonical or schema for %s',id=>{
+ it.each(['RES-R706','RES-CHEMOURS'])('emits approved candidate canonical and exact schema for %s',id=>{
   const page=getEditorialContract(id),site=getSite('tio2-my')
-  expect(buildEditorialMetadata(site,page).alternates?.canonical).toBeUndefined()
-  expect(buildEditorialJsonLd(site,page)).toBeNull()
+  expect(buildEditorialMetadata(site,page).alternates?.canonical).toBe('https://tio2malaysia.com'+page.identity.path)
+  expect((buildEditorialJsonLd(site,page)!['@graph'] as Record<string,unknown>[]).map(node=>node['@type'])).toEqual([id==='RES-CHEMOURS'?'TechArticle':'WebPage','BreadcrumbList'])
  })
  it('Sulfate retains visible five Grade actions when readiness is empty',()=>{
   const page=getEditorialContract('PRODUCT-PROC-SU')

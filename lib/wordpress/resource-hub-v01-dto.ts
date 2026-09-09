@@ -6,6 +6,7 @@ import {CrossSiteContentError} from './types'
 import {malaysiaResourceMappingAllowsPublic} from './resource-page-registry'
 import type {
   MalaysiaResourceCard,
+  MalaysiaResourceGroup,
   MalaysiaResourceHubDto,
   MalaysiaResourcePublicState,
 } from './resource-hub-v01-types'
@@ -80,6 +81,9 @@ function cardFromRelation(
   const mappingStatus = optionalText(relation.mappingStatus)
   const canonicalPath = optionalText(relation.canonicalPath)
   const resourceType = relation.resourceType
+  const approved = approvedContract.resourceRelations.find(item => item.pageId === pageId)
+  if (!approved || Object.keys(approved).some(key => relation[key] !== (approved as UnknownRecord)[key]) ||
+    ['lastReviewedAt', 'contextLabel', 'publishedAt'].some(key => relation[key] !== (approved as UnknownRecord)[key])) return null
   if (
     !pageId || !mappingStatus || !canonicalPath ||
     (resourceType !== 'PROCUREMENT_GUIDE' && resourceType !== 'TECHNICAL_GUIDE' && resourceType !== 'TRADE_UPDATE')
@@ -103,7 +107,7 @@ function cardFromRelation(
   const ctaLabel = optionalText(relation.ctaLabel)
   const sourceOwner = optionalText(relation.sourceOwner)
   if (
-    !canonicalPath.startsWith('/resources/') || canonicalUrl !== expected || !lastReviewedAt ||
+    !canonicalPath.startsWith('/resources/') || canonicalUrl !== expected || (relation.lastReviewedAt !== undefined && !lastReviewedAt) ||
     !recordReviewDate || !title || !summary || !ctaLabel || !sourceOwner
   ) return null
 
@@ -114,7 +118,7 @@ function cardFromRelation(
     href: canonicalPath,
     resourceType,
     ctaLabel,
-    lastReviewedAt,
+    ...(lastReviewedAt ? {lastReviewedAt} : {}),
   }
   const contextLabel = optionalText(relation.contextLabel)
   const publishedAt = relation.publishedAt === undefined || relation.publishedAt === null
@@ -146,52 +150,40 @@ function cardFromRelation(
   return base
 }
 
+export const malaysiaResourceGroupDefinitions = [
+  {key: 'sourcing', heading: 'Sourcing'},
+  {key: 'technical-evaluation', heading: 'Technical Evaluation'},
+  {key: 'trade-market', heading: 'Trade & Market'},
+] as const
+
 export function projectEligibleMalaysiaResources(
   value: unknown,
   policies: ResourceProjectionPolicies = productionProjectionPolicies,
-): Pick<MalaysiaResourceHubDto, 'publicState' | 'featuredResources' | 'latestResources'> {
+): Pick<MalaysiaResourceHubDto, 'publicState' | 'resourceGroups'> {
   if (!Array.isArray(value)) throw new ResourceHubContractError('resourceRelations')
   const eligible = value.flatMap((raw, index) => {
     const relation = record(raw, `resourceRelations[${index}]`)
     const card = cardFromRelation(relation, policies)
     if (!card || (card.resourceType === 'TRADE_UPDATE' && !card.trade)) return []
     const displayOrder = relation.displayOrder
-    if (!Number.isInteger(displayOrder) || (displayOrder as number) < 0) return []
-    const rank = relation.featuredRank
-    if (rank !== null && rank !== undefined && (!Number.isInteger(rank) || (rank as number) < 1 || (rank as number) > 3)) return []
-    return [{card, featuredRank: rank == null ? null : rank as number, displayOrder: displayOrder as number}]
+    if (!Number.isInteger(displayOrder) || (displayOrder as number) < 0 ||
+      !malaysiaResourceGroupDefinitions.some(group => group.key === relation.groupKey)) return []
+    return [{card, groupKey: relation.groupKey, displayOrder: displayOrder as number}]
   })
-  const unique = new Map<string, (typeof eligible)[number]>()
-  for (const item of eligible) {
-    if (unique.has(item.card.pageId)) throw new ResourceHubContractError('resourceRelations.pageId')
-    unique.set(item.card.pageId, item)
+  if (new Set(eligible.map(item => item.card.pageId)).size !== eligible.length) {
+    throw new ResourceHubContractError('resourceRelations.pageId')
   }
-  const ranks = [...unique.values()].flatMap(({featuredRank}) => featuredRank === null ? [] : [featuredRank])
-  if (new Set(ranks).size !== ranks.length) throw new ResourceHubContractError('resourceRelations.featuredRank')
-  const compare = (a: (typeof eligible)[number], b: (typeof eligible)[number]) =>
-    a.displayOrder - b.displayOrder || a.card.pageId.localeCompare(b.card.pageId)
-  const distinct = [...unique.values()]
-  const featured = distinct.length === 1
-    ? distinct
-    : distinct.filter(({featuredRank}) => featuredRank !== null)
-      .sort((a, b) => (a.featuredRank as number) - (b.featuredRank as number) || compare(a, b))
-  const latest = distinct.length === 1
-    ? []
-    : distinct.filter(({featuredRank}) => featuredRank === null).sort(compare)
-  const ordered = [...featured, ...latest]
-  const hasTrade = ordered.some(({card}) => card.resourceType === 'TRADE_UPDATE')
-  const publicState: MalaysiaResourcePublicState = !ordered.length
-    ? 'H0_NO_QUALIFIED_RESOURCE'
-    : hasTrade
-      ? 'H4_TRADE_ITEM'
-      : ordered.length === 1
-        ? 'H2_ONE_PUBLIC_RESOURCE'
-        : 'H3_MULTIPLE_PUBLIC_RESOURCES'
-  return {
-    publicState,
-    featuredResources: Object.freeze(featured.map(({card}) => Object.freeze(card))),
-    latestResources: Object.freeze(latest.map(({card}) => Object.freeze(card))),
-  }
+  const resourceGroups: MalaysiaResourceGroup[] = malaysiaResourceGroupDefinitions.flatMap(group => {
+    const items = eligible.filter(item => item.groupKey === group.key)
+      .sort((a,b) => a.displayOrder - b.displayOrder || a.card.pageId.localeCompare(b.card.pageId))
+      .map(item => Object.freeze(item.card))
+    return items.length ? [{...group, items: Object.freeze(items)}] : []
+  })
+  return {publicState: resourceState(eligible.length), resourceGroups: Object.freeze(resourceGroups)}
+}
+
+export function resourceState(count: number): MalaysiaResourcePublicState {
+  return count === 0 ? 'H0_NO_QUALIFIED_RESOURCE' : count === 1 ? 'H2_ONE_PUBLIC_RESOURCE' : 'H3_GROUPED_PUBLIC_RESOURCES'
 }
 
 function exactKeys(value: UnknownRecord, expected: readonly string[], field: string): void {
@@ -208,7 +200,8 @@ function validatedPublicCard(value: unknown, field: string): MalaysiaResourceCar
   if (resourceType !== 'PROCUREMENT_GUIDE' && resourceType !== 'TECHNICAL_GUIDE' && resourceType !== 'TRADE_UPDATE') {
     throw new ResourceHubContractError(`${field}.resourceType`)
   }
-  const expectedKeys = ['pageId', 'title', 'summary', 'href', 'resourceType', 'ctaLabel', 'lastReviewedAt']
+  const expectedKeys = ['pageId', 'title', 'summary', 'href', 'resourceType', 'ctaLabel']
+  if (item.lastReviewedAt !== undefined) expectedKeys.push('lastReviewedAt')
   if (item.contextLabel !== undefined) expectedKeys.push('contextLabel')
   if (item.publishedAt !== undefined) expectedKeys.push('publishedAt')
   if (resourceType === 'TRADE_UPDATE') expectedKeys.push('trade')
@@ -218,12 +211,12 @@ function validatedPublicCard(value: unknown, field: string): MalaysiaResourceCar
     throw new ResourceHubContractError(`${field}.href`)
   }
   const lastReviewedAt = isoDate(item.lastReviewedAt)
-  if (!lastReviewedAt) throw new ResourceHubContractError(`${field}.lastReviewedAt`)
+  if (item.lastReviewedAt !== undefined && !lastReviewedAt) throw new ResourceHubContractError(`${field}.lastReviewedAt`)
   const base: MalaysiaResourceCard = {
     pageId: text(item.pageId, `${field}.pageId`), title: text(item.title, `${field}.title`),
     summary: text(item.summary, `${field}.summary`), href, resourceType,
     ctaLabel: text(item.ctaLabel, `${field}.ctaLabel`),
-    lastReviewedAt,
+    ...(lastReviewedAt ? {lastReviewedAt} : {}),
   }
   if (item.contextLabel !== undefined) Object.assign(base, {contextLabel: text(item.contextLabel, `${field}.contextLabel`)})
   if (item.publishedAt !== undefined) {
@@ -251,32 +244,38 @@ function validatedPublicCard(value: unknown, field: string): MalaysiaResourceCar
   }
 }
 
-function validatedPublicProjection(value: unknown): Pick<
-  MalaysiaResourceHubDto,
-  'publicState' | 'featuredResources' | 'latestResources'
-> {
+function validatedPublicProjection(value: unknown): Pick<MalaysiaResourceHubDto, 'publicState' | 'resourceGroups'> {
   const projection = record(value, 'resourceProjection')
-  exactKeys(projection, ['publicState', 'featuredResources', 'latestResources'], 'resourceProjection')
-  if (!Array.isArray(projection.featuredResources) || !Array.isArray(projection.latestResources)) {
-    throw new ResourceHubContractError('resourceProjection')
+  exactKeys(projection, ['publicState', 'resourceGroups'], 'resourceProjection')
+  if (!Array.isArray(projection.resourceGroups)) throw new ResourceHubContractError('resourceProjection')
+  let previous = -1
+  const resourceGroups: MalaysiaResourceGroup[] = projection.resourceGroups.map((raw, index) => {
+    const field = `resourceProjection.resourceGroups[${index}]`
+    const group = record(raw, field)
+    exactKeys(group, ['key', 'heading', 'items'], field)
+    const position = malaysiaResourceGroupDefinitions.findIndex(def => def.key === group.key && def.heading === group.heading)
+    if (position <= previous || !Array.isArray(group.items) || !group.items.length) throw new ResourceHubContractError(field)
+    previous = position
+    const items = group.items.map((item, i) => validatedPublicCard(item, `${field}.items[${i}]`))
+    return {...malaysiaResourceGroupDefinitions[position], items: Object.freeze(items)}
+  })
+  const visible = resourceGroups.flatMap(group => group.items)
+  const approvedProjection = projectEligibleMalaysiaResources(approvedContract.resourceRelations)
+  for (const group of resourceGroups) {
+    const expectedGroup = approvedProjection.resourceGroups.find(item => item.key === group.key)
+    let priorPosition = -1
+    for (const card of group.items) {
+      const position = expectedGroup?.items.findIndex(item => item.pageId === card.pageId) ?? -1
+      if (position <= priorPosition || JSON.stringify(card) !== JSON.stringify(expectedGroup?.items[position])) {
+        throw new ResourceHubContractError('resourceProjection.approvedCard')
+      }
+      priorPosition = position
+    }
   }
-  if (projection.featuredResources.length > 3) throw new ResourceHubContractError('resourceProjection.featuredResources')
-  const featuredResources = projection.featuredResources.map((item, index) => validatedPublicCard(item, `resourceProjection.featuredResources[${index}]`))
-  const latestResources = projection.latestResources.map((item, index) => validatedPublicCard(item, `resourceProjection.latestResources[${index}]`))
-  const visible = [...featuredResources, ...latestResources]
-  if (new Set(visible.map(({pageId}) => pageId)).size !== visible.length) throw new ResourceHubContractError('resourceProjection.pageId')
-  if (visible.length === 1 && (featuredResources.length !== 1 || latestResources.length !== 0)) {
-    throw new ResourceHubContractError('resourceProjection.H2Allocation')
-  }
-  const expectedState: MalaysiaResourcePublicState = !visible.length
-    ? 'H0_NO_QUALIFIED_RESOURCE'
-    : visible.some(({resourceType}) => resourceType === 'TRADE_UPDATE')
-      ? 'H4_TRADE_ITEM'
-      : visible.length === 1
-        ? 'H2_ONE_PUBLIC_RESOURCE'
-        : 'H3_MULTIPLE_PUBLIC_RESOURCES'
+  if (new Set(visible.map(item => item.pageId)).size !== visible.length) throw new ResourceHubContractError('resourceProjection.pageId')
+  const expectedState = resourceState(visible.length)
   if (projection.publicState !== expectedState) throw new ResourceHubContractError('resourceProjection.publicState')
-  return {publicState: expectedState, featuredResources: Object.freeze(featuredResources), latestResources: Object.freeze(latestResources)}
+  return {publicState: expectedState, resourceGroups: Object.freeze(resourceGroups)}
 }
 
 const approvedSerializedContract = JSON.stringify(approvedContract)
@@ -307,9 +306,11 @@ export function toMalaysiaResourceHubDto(sourceValue: MalaysiaResourceHubSource)
     contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId
   ) throw new ResourceHubContractError('malaysiaResourceHubContractJson')
 
+  const {resourceRelations, ...publicContract} = contract
+  if (!Array.isArray(resourceRelations)) throw new ResourceHubContractError('resourceRelations')
   const projection = validatedPublicProjection(source.resourceProjection)
   return {
-    ...contract,
+    ...publicContract,
     identity: {
       ...contract.identity,
       id: text(source.id, 'identity.id'), siteId: 'tio2-my', path: '/resources',

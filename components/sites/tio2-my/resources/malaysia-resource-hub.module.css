@@ -84,8 +84,14 @@
 .pathLabel, .cardKind { margin: 0; color: var(--teal); font-size: 12px; line-height: 1.3; font-weight: 800; letter-spacing: .1em; }
 .resourceMain h3 { margin: 18px 0 0; color: var(--deep-navy); font-size: 22px; line-height: 1.3; }
 .pathGrid article > p:last-child, .resourceGrid article > p { margin: 16px 0 0; color: #5b697d; font-size: 15px; line-height: 1.7; }
-.featured, .latest { border-bottom: 1px solid var(--border); }
-.resourceGrid article > a { min-height: 44px; margin-top: 18px; display: inline-flex; align-items: center; color: var(--teal); font-weight: 800; }
+.resourceGroup { margin-top: 42px; padding-top: 24px; border-top: 1px solid var(--border); }
+.resourceGroup > h3 { font-size: 28px; }
+.resourceGroup .resourceGrid { margin-top: 24px; }
+.resourceGrid h4 { margin: 0; color: var(--deep-navy); font-size: 22px; line-height: 1.3; }
+.resourceGrid article { overflow-wrap: anywhere; }
+.resourceGrid h4 a { min-height: 44px; display: inline-block; color: var(--deep-navy); text-decoration: none; }
+.resourceGrid h4 a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.resourceGrid h4 a span { color: var(--teal); }
 .resourceGrid dl { margin: 20px 0 0; padding-top: 12px; border-top: 1px solid var(--border); font-size: 13px; }
 .resourceGrid dl div { display: grid; grid-template-columns: 100px 1fr; gap: 12px; padding-top: 8px; }
 .resourceGrid dt { font-weight: 800; }.resourceGrid dd { margin: 0; }
@@ -110,6 +116,7 @@
   .heroInner { min-height: auto; grid-template-columns: 1fr; padding-top: 72px; padding-bottom: 72px; }
   .researchDiagram { display: none; }
   .pathGrid, .evidenceGrid, .resourceGrid { gap: 18px; }
+  .resourceGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pathGrid article, .resourceGrid article { padding: 28px 24px; }
   .questions { grid-template-columns: 1fr; gap: 40px; }
 }

@@ -1,0 +1,14 @@
+[
+  {
+    "scope": "active source",
+    "command": "rg -n (/api/rfq/submit|/api/tio2-my/rfq-private-submit|/api/sample/submit) components/sites/tio2-my/request-a-quote components/sites/tio2-my/request-sample components/sites/tio2-my/request-documents lib/rfq/malaysia-rfq-receiver.ts lib/request-sample/malaysia-request-sample-receiver.ts lib/request-documents/malaysia-request-documents-receiver.ts",
+    "exitCode": 1,
+    "matches": 0
+  },
+  {
+    "scope": "built client",
+    "command": "rg -n (/api/rfq/submit|/api/tio2-my/rfq-private-submit|/api/sample/submit) .next-public-paths-candidate/static/chunks",
+    "exitCode": 1,
+    "matches": 0
+  }
+]

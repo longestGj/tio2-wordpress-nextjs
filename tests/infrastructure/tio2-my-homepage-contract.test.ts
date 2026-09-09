@@ -96,7 +96,7 @@ describe('HOME-001 immutable WordPress contract', () => {
     expect(new Set(ids).size).toBe(14)
   })
 
-  it('keeps provisional Application and candidate process routes unresolved', () => {
+  it('binds approved public destinations while preserving provisional mapping identities', () => {
     expect(contract.applications?.items).toHaveLength(5)
     expect(
       contract.applications?.items.map(
@@ -107,15 +107,15 @@ describe('HOME-001 immutable WordPress contract', () => {
         }),
       ),
     ).toEqual([
-      {targetPageId: 'APP-COAT', href: null, mappingState: 'PROVISIONAL_URL'},
-      {targetPageId: 'APP-PLAS', href: null, mappingState: 'PROVISIONAL_URL'},
-      {targetPageId: 'APP-MB', href: null, mappingState: 'PROVISIONAL_URL'},
-      {targetPageId: 'APP-INK', href: null, mappingState: 'PROVISIONAL_URL'},
-      {targetPageId: 'APP-PAPER', href: null, mappingState: 'PROVISIONAL_URL'},
+      {targetPageId: 'APP-COAT', href: '/applications/titanium-dioxide-for-coatings/', mappingState: 'PROVISIONAL_URL'},
+      {targetPageId: 'APP-PLAS', href: '/applications/titanium-dioxide-for-plastics/', mappingState: 'PROVISIONAL_URL'},
+      {targetPageId: 'APP-MB', href: '/applications/titanium-dioxide-for-masterbatch/', mappingState: 'PROVISIONAL_URL'},
+      {targetPageId: 'APP-INK', href: '/applications/titanium-dioxide-for-printing-inks/', mappingState: 'PROVISIONAL_URL'},
+      {targetPageId: 'APP-PAPER', href: '/applications/titanium-dioxide-for-paper/', mappingState: 'PROVISIONAL_URL'},
     ])
     expect(contract.resources?.topics[1]).toMatchObject({
       targetPageId: 'RES-PROC',
-      href: null,
+      href: '/resources/chloride-vs-sulfate-titanium-dioxide/',
       mappingState: 'PAGE_AND_ROUTE_NOT_APPROVED',
     })
   })

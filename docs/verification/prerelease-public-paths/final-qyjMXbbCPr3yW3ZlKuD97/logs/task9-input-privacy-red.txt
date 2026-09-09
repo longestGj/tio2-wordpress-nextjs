@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/prerelease-public-paths-forms
+
+ ❯ tests/infrastructure/private-input-privacy.test.ts (1 test | 1 failed) 6470ms
+   × private input failures keep values out of list JSON step errors and failure artifacts 6467ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/infrastructure/private-input-privacy.test.ts > private input failures keep values out of list JSON step errors and failure artifacts
+AssertionError: private value appeared in child diagnostics: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/infrastructure/private-input-privacy.test.ts:49:121
+     47|     const files = readdirSync(root, {recursive: true}).map(String).fil…
+     48|     const artifacts = files.filter(path => /\.json$|\.md$|\.txt$/u.tes…
+     49|     expect([output, ...artifacts].some(text => text.includes(sentinel)…
+       |                                                                                                                         ^
+     50|     expect(output.includes('6 failed') && output.includes('1 passed'),…
+     51|     expect(artifacts.some(text => text.includes('Private input failed:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  09:05:53
+   Duration  6.81s (transform 32ms, setup 174ms, import 14ms, tests 6.47s, environment 0ms)
+

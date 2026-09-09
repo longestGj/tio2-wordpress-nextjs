@@ -1,0 +1,17 @@
+
+> lint
+> eslint .
+
+
+D:\16Wordpress_nextjs\.worktrees\prerelease-public-paths-integration\docs\prototypes\site-a-resources\build-visual-prototype.mjs
+  165:10  warning  'renderTakeaways' is defined but never used   @typescript-eslint/no-unused-vars
+  173:10  warning  'renderComparison' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\16Wordpress_nextjs\.worktrees\prerelease-public-paths-integration\docs\verification\app000\gate8\support\generate-runtime-evidence.mjs
+  78:22  warning  '_excluded' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\16Wordpress_nextjs\.worktrees\prerelease-public-paths-integration\tests\unit\markets\malaysia-shared-menu-modal.test.tsx
+  14:9  warning  'user' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 4 problems (0 errors, 4 warnings)
+

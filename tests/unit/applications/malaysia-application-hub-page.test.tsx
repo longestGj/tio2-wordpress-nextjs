@@ -4,8 +4,17 @@ import {describe, expect, it} from 'vitest'
 import {MalaysiaApplicationHub} from '@/components/sites/tio2-my/applications/malaysia-application-hub'
 import {toMalaysiaApplicationHubDto} from '@/lib/wordpress/application-hub-v01-dto'
 import contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-application-hub.json'
+import eligibility from '@/wordpress/plugins/tio2-site-model/config/tio2-my-prerelease-public-paths.json'
 
-function dto(overrides: Record<string, boolean> = {}) {
+function exactPrereleaseReadiness(): Record<string, boolean> {
+  return Object.fromEntries(contract.routeRegistry.map((target) => {
+    const route = eligibility.routes.find(({pageId}) => pageId === target.targetPageId)
+    return [target.targetPageId, target.behavior === 'required' ||
+      (route?.path === target.href && route.canonical === new URL(target.href, 'https://tio2malaysia.com').href)]
+  }))
+}
+
+function dto(overrides: Record<string, boolean> = exactPrereleaseReadiness()) {
   return toMalaysiaApplicationHubDto({
     id: 'application-hub-1', modifiedGmt: '2026-09-08T08:00:00', status: 'publish',
     siteScopes: {nodes: [{slug: 'tio2-my'}]}, publishingFields: {publicPath: '/applications'},
@@ -27,6 +36,26 @@ describe('APP-000 renderer', () => {
     expect(positions).toEqual([...positions].sort((a, b) => a - b))
     expect(gradeLinkCount(markup)).toBe(30)
     expect(markup).not.toMatch(/APP-000|APP000-EDGE|GLOBAL-CHROME-005|data-(?:site-id|site-scope|source-page|grade-occurrence|grade-state|support-action|application-action|module)|(?:currentPageId|sourcePageId|targetPageId|siteScope|edgeId|contractId)["']?\s*[:=]/iu)
+  })
+
+  it('renders five child links, the approved 8/8/7/4/2/1 Grade distribution and three support links', () => {
+    const markup = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={dto()} />)
+    const childLinks = contract.applications.flatMap((application) =>
+      application.targetPageId ? [`href="${application.href}"`] : [],
+    )
+    const gradeCounts = contract.applications.map((application) =>
+      (markup.match(new RegExp(`<article id="${application.anchorId}"[\\s\\S]*?</article>`, 'u'))?.[0]
+        .match(/href="\/products\/(?:m-[^"]+|cr-901)\/"/gu) ?? []).length,
+    )
+
+    expect(childLinks).toHaveLength(5)
+    for (const href of childLinks) expect(markup).toContain(href)
+    expect(gradeLinkCount(markup)).toBe(30)
+    expect(gradeCounts).toEqual([8, 8, 7, 4, 2, 1])
+    expect(markup.match(/>Explore (?:Products|Markets)</gu)).toHaveLength(2)
+    expect(markup).toContain('>Review Documents<')
+    expect(contract.applications[5]).not.toHaveProperty('targetPageId')
+    expect(contract.applications[5]?.grades.map(({gradeId}) => gradeId)).toEqual(['CR-901'])
   })
 
   it('uses atomic omission and plain Grade fallback for unavailable targets', () => {

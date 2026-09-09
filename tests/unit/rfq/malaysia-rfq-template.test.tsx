@@ -27,12 +27,23 @@ function renderPage() {
   )
 }
 
+async function fillValidRfq(user: ReturnType<typeof userEvent.setup>) {
+  await user.selectOptions(screen.getByLabelText(/Product \/ Grade/u), 'M-350')
+  await user.selectOptions(screen.getByLabelText(/^Application/u), 'Coatings')
+  await user.type(screen.getByLabelText(/Required Quantity/u), '20')
+  await user.type(screen.getByLabelText(/Destination Country/u), 'Malaysia')
+  await user.type(screen.getByLabelText(/Company Name/u), 'Example Industries')
+  await user.type(screen.getByLabelText(/Your Name/u), 'A Buyer')
+  await user.type(screen.getByLabelText(/Business Email/u), 'buyer@example.com')
+}
+
 beforeEach(() => {
+  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'public-test-key')
   receiver.mockReset()
-  receiver.mockResolvedValue(Response.json({kind: 'receipt_confirmed'}))
+  receiver.mockResolvedValue(Response.json({success: true}))
   vi.stubGlobal('fetch', receiver)
 })
-afterEach(() => { cleanup(); vi.clearAllMocks(); vi.unstubAllGlobals() })
+afterEach(() => { cleanup(); vi.clearAllMocks(); vi.unstubAllGlobals(); vi.unstubAllEnvs() })
 
 describe('CONV-RFQ template and form', () => {
   it('renders the exact Buyer Clean structure with one shared Chrome and permanent task links', () => {
@@ -68,7 +79,7 @@ describe('CONV-RFQ template and form', () => {
     expect(receiver).not.toHaveBeenCalled()
   })
 
-  it('shows receipt success only after the receiver explicitly confirms it', async () => {
+  it('navigates only after the provider explicitly accepts it', async () => {
     const user = userEvent.setup()
     renderPage()
     await user.selectOptions(screen.getByLabelText(/Product \/ Grade/u), 'M-350')
@@ -81,7 +92,18 @@ describe('CONV-RFQ template and form', () => {
     await user.click(screen.getByRole('button', {name: 'REQUEST QUOTE'}))
     await waitFor(() => expect(transitionMocks.navigate).toHaveBeenCalledWith('quote'))
     expect(receiver).toHaveBeenCalledOnce()
-    expect(receiver.mock.calls[0]?.[0]).toBe('/api/rfq/submit')
+    expect(receiver.mock.calls[0]?.[0]).toBe('https://api.web3forms.com/submit')
+  })
+
+  it('reuses the request token for an unchanged manual retry and rotates it after buyer input changes', async () => {
+    receiver.mockResolvedValueOnce(Response.json({success:false})).mockResolvedValueOnce(Response.json({success:false})).mockResolvedValueOnce(Response.json({success:true}))
+    const user=userEvent.setup();renderPage();await fillValidRfq(user)
+    await user.click(screen.getByRole('button',{name:'REQUEST QUOTE'}));await screen.findByRole('button',{name:'TRY AGAIN'})
+    await user.click(screen.getByRole('button',{name:'TRY AGAIN'}));await user.click(screen.getByRole('button',{name:'REQUEST QUOTE'}));await screen.findByRole('button',{name:'TRY AGAIN'})
+    await user.type(screen.getByLabelText(/Company Name/u),' Updated');await user.click(screen.getByRole('button',{name:'REQUEST QUOTE'}))
+    await waitFor(()=>expect(transitionMocks.navigate).toHaveBeenCalledWith('quote'))
+    const bodies=receiver.mock.calls.map((call)=>JSON.parse(String(call[1]?.body)) as {request_token:string})
+    expect(bodies).toHaveLength(3);expect(bodies[1]?.request_token).toBe(bodies[0]?.request_token);expect(bodies[2]?.request_token).not.toBe(bodies[0]?.request_token)
   })
 
   it('restores fields and actions after a timeout maps to unconfirmed', async () => {
@@ -140,5 +162,5 @@ describe('CONV-RFQ template and form', () => {
     await user.click(screen.getByRole('button', {name: 'REQUEST QUOTE'}))
     expect(transitionMocks.navigate).toHaveBeenCalledTimes(2)
     expect(receiver).toHaveBeenCalledOnce()
-    expect(receiver.mock.calls[0]?.[0]).toBe('/api/rfq/submit')
+    expect(receiver.mock.calls[0]?.[0]).toBe('https://api.web3forms.com/submit')
   })

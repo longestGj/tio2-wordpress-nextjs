@@ -1,0 +1,64 @@
+{
+  "authority": {
+    "path": "D:/23MySec/docs/architecture/APP000_E2E_BROWSER_DIRECT_CONTRACT_SUPERSESSION_RULING_V1.0.md",
+    "commit": "158d2f43e206ad96139910f281f30e271e1ff5fa",
+    "sha256": "85aca911c33f69495d3575b23614f72ffd69c7f8b1e02f924c1dcdf75919e068",
+    "idRule": "APP-RULING IDs deterministically map to section 3 requirements; no new requirement is introduced."
+  },
+  "superseded": [
+    {
+      "old": "No Application child links",
+      "replacement": "Exact five child hrefs; 30 Grade occurrences/14 endpoints/three support paths retained."
+    },
+    {
+      "old": "Duplicate final RFQ section and no ItemList",
+      "replacement": "Four approved section headings and CollectionPage/BreadcrumbList/ItemList."
+    },
+    {
+      "old": "Raw HTML/RSC/client-script identity prohibition",
+      "replacement": "Visible body/accessibility/metadata/JSON-LD/history/storage Buyer Clean; fixed fields may occur solely at provider transport boundary."
+    },
+    {
+      "old": "Retained RFQ submit plus private receiver APP attribution",
+      "replacement": "One locally fulfilled Web3Forms POST, strict simulated HTTP200 boolean success=true, Quote Thank state, zero retained POST. No APP-private attribution inferred."
+    },
+    {
+      "old": "Dedicated historical config and generators",
+      "replacement": "Current default Playwright entry; obsolete dedicated config deleted; two historical generators throw before any runtime side effect. Old script hashes cannot authenticate changed script bytes; prior Git history/outputs preserved."
+    }
+  ],
+  "results": {
+    "testsPassed": 11,
+    "testsSkipped": 0,
+    "providerMockPosts": 1,
+    "contextMockPosts": 7,
+    "blockedWrites": 0,
+    "retainedPosts": 0,
+    "actualExternalPosts": 0,
+    "providerAcceptance": false,
+    "inboxConfirmed": false
+  },
+  "privacy": "Payload fields and synthetic values asserted only in memory as booleans. No payload/credentials/email/cookie/session-marker contents in evidence. Context POST locally mocked204 and is compatibility-only, not attribution evidence.",
+  "removedChecks": [
+    {
+      "check": "native browser 200% zoom",
+      "status": "NOT_TESTED",
+      "reason": "NO_LONGER_REQUIRED_BY_USER_DECISION"
+    },
+    {
+      "check": "physical-device and touch-device testing",
+      "status": "NOT_TESTED",
+      "reason": "NO_LONGER_REQUIRED_BY_USER_DECISION"
+    },
+    {
+      "check": "screen-reader and assistive technology",
+      "status": "NOT_TESTED",
+      "reason": "NO_LONGER_REQUIRED_BY_USER_DECISION"
+    },
+    {
+      "check": "forced-colors testing",
+      "status": "NOT_TESTED",
+      "reason": "NO_LONGER_REQUIRED_BY_USER_DECISION"
+    }
+  ]
+}

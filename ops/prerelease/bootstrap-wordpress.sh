@@ -122,6 +122,9 @@ input_hash="$(seed_input_fingerprint /workspace)"
 previous_input_hash="$(wp option get d16_prerelease_seed_input_sha256 2>/dev/null || true)"
 
 while IFS=$'\t' read -r seed_path seed_hash; do
+  if [[ "$seed_path" == "wordpress/seed/apply-tio2-my-prerelease-public-paths.php" ]]; then
+    continue
+  fi
   option_name="d16_prerelease_seed_${seed_hash}"
   existing_marker="$(wp option get "$option_name" 2>/dev/null || true)"
   if [[ "$previous_input_hash" == "$input_hash" ]] && [[ "$existing_marker" == "$seed_path" ]] && seed_record_is_current "$seed_path" "$seed_hash"; then
@@ -129,19 +132,28 @@ while IFS=$'\t' read -r seed_path seed_hash; do
   fi
   case "$seed_path" in
     *apply-tio2-my-editorial.php)
-      wp option update tio2_editorial_task_id G8-TRADE4-APP5-20260908-01 --autoload=no >/dev/null
+      if [[ "$(wp option get tio2_editorial_task_id 2>/dev/null || true)" != "G8-TRADE4-APP5-20260908-01" ]]; then
+        wp option update tio2_editorial_task_id G8-TRADE4-APP5-20260908-01 --autoload=no >/dev/null
+      fi
       ;;
     *apply-tio2-my-editorial-five.php)
-      wp option update tio2_editorial_task_id G8-DE-IT-SU-R706-CHEMOURS-20260908-01 --autoload=no >/dev/null
+      if [[ "$(wp option get tio2_editorial_task_id 2>/dev/null || true)" != "G8-DE-IT-SU-R706-CHEMOURS-20260908-01" ]]; then
+        wp option update tio2_editorial_task_id G8-DE-IT-SU-R706-CHEMOURS-20260908-01 --autoload=no >/dev/null
+      fi
       ;;
   esac
-  seed_output="$(wp eval-file "/workspace/$seed_path" Apply)"
+  if [[ "$seed_path" == "wordpress/seed/refresh-tio2-my-resource-candidate.php" ]]; then
+    seed_output="$(D16_TIO2_MY_PRERELEASE_RESOURCE_REFRESH=1 wp eval-file "/workspace/$seed_path" Apply)"
+  else
+    seed_output="$(wp eval-file "/workspace/$seed_path" Apply)"
+  fi
   record_seed_result "$seed_path" "$seed_hash" "$seed_output"
   if [[ "$existing_marker" != "$seed_path" ]]; then
     wp option update "$option_name" "$seed_path" --autoload=no >/dev/null
   fi
 done < "$verified"
 
+D16_TIO2_MY_PRERELEASE_ROUTE_SEED=1 wp eval-file /workspace/wordpress/seed/apply-tio2-my-prerelease-public-paths.php
 wp eval-file /workspace/wordpress/bootstrap/validate-prerelease-site.php > /run-state/site-validation.json
 if [[ "$previous_input_hash" != "$input_hash" ]]; then
   wp option update d16_prerelease_seed_input_sha256 "$input_hash" --autoload=no >/dev/null

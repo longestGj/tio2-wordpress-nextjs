@@ -5,7 +5,8 @@ import {
   resolveMalaysiaRfqAttributionToken,
   MALAYSIA_RFQ_ATTRIBUTION_COOKIE,
 } from '@/lib/rfq/malaysia-rfq-private-attribution'
-import {submitMalaysiaRfq, type MalaysiaRfqSubmission} from '@/lib/rfq/malaysia-rfq-receiver'
+import type {MalaysiaRfqSubmission} from '@/lib/rfq/malaysia-rfq-receiver'
+import {submitMalaysiaRfqServerCompatibility} from '@/lib/rfq/malaysia-rfq-server-receiver'
 import {validateMalaysiaRfqValues} from '@/lib/rfq/malaysia-rfq-validation'
 
 const fields = [
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
   }
   const validation = validateMalaysiaRfqValues(values)
   if (!validation.valid) return NextResponse.json({kind: 'submission_unconfirmed'}, {status: 400})
-  const result = await submitMalaysiaRfq(values, {
+  const result = await submitMalaysiaRfqServerCompatibility(values, {
     accessKey: process.env.NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY ?? null,
     endpoint: process.env.TIO2_MY_WEB3FORMS_ENDPOINT,
     environment: resolveSubmissionEnvironment(process.env.NEXT_PUBLIC_TIO2_RUNTIME_ENVIRONMENT),

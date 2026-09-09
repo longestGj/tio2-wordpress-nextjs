@@ -1,0 +1,13 @@
+
+> typecheck
+> next typegen && tsc --noEmit
+
+
+  We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+  The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+  	- include was updated to add '.next-public-paths-candidate/types/**/*.ts'
+  	- include was updated to add '.next-public-paths-candidate/dev/types/**/*.ts'
+
+Generating route types...
+✓ Types generated successfully

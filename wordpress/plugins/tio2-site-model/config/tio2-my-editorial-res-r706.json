@@ -5,7 +5,7 @@
     "locale": "en",
     "path": "/resources/ti-pure-r-706-alternative/",
     "section": "resources",
-    "provisional": true,
+    "provisional": false,
     "schemaVersion": "editorial-v0.1"
   },
   "source": {
@@ -18,8 +18,8 @@
   "seo": {
     "title": "Ti-Pure R-706 Qualification Guide | TiO2 Malaysia",
     "metaDescription": "Use Ti-Pure R-706 product facts, document labels and coating test dimensions to prepare an independent titanium dioxide qualification brief.",
-    "canonical": null,
-    "schemaType": "none"
+    "canonical": "https://tio2malaysia.com/resources/ti-pure-r-706-alternative/",
+    "schemaType": "WebPage"
   },
   "heading": "Qualify Another TiO2 Supply When Ti-Pure R-706 Is Your Reference",
   "breadcrumb": [

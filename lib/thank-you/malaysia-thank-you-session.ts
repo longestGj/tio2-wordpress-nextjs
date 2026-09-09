@@ -90,7 +90,7 @@ export function emitMalaysiaSourceSuccess(request: MalaysiaThankYouRequest): voi
   if (typeof window === 'undefined') return
   const current = window.__TIO2_SHARED_CONSENT__
   if (current ? current.siteScope !== 'tio2-my' || current.analytics !== 'granted' : readMalaysiaConsentChoice() !== 'analytics_accepted') return
-  const events = {quote: 'rfq_receipt_confirmed', documents: 'documents_receipt_confirmed', sample: 'sample_receipt_confirmed'} as const
+  const events = {quote: 'rfq_provider_accepted', documents: 'documents_provider_accepted', sample: 'sample_provider_accepted'} as const
   window.dataLayer ??= []
   window.dataLayer.push({event: events[request], ad_personalization: 'denied'})
 }

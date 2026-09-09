@@ -1,0 +1,105 @@
+
+> build
+> next build
+
+▲ Next.js 16.3.2 (Turbopack)
+- Environments: .env.local
+✓ Running next.config.ts took 95ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 10.9s
+  Running TypeScript ...
+
+  We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+  The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+  	- include was updated to add '.next-public-paths-integration/types/**/*.ts'
+  	- include was updated to add '.next-public-paths-integration/dev/types/**/*.ts'
+
+  Finished TypeScript in 18.6s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/65) ...
+  Generating static pages using 15 workers (16/65) 
+  Generating static pages using 15 workers (32/65) 
+  Generating static pages using 15 workers (48/65) 
+✓ Generating static pages using 15 workers (65/65) in 3.6s
+  Finalizing page optimization ...
+
+Route (app)                                                    Revalidate  Expire
+┌ ○ /
+├ ○ /_not-found
+├ ● /[...path]
+├ ○ /about                                                             1h      1y
+├ ƒ /api/prerelease-identity
+├ ƒ /api/preview
+├ ƒ /api/revalidate
+├ ƒ /api/rfq/context
+├ ƒ /api/rfq/submit
+├ ƒ /api/sample/submit
+├ ○ /applications                                                      1h      1y
+├ ● /applications/[...segments]
+├ ƒ /applications/titanium-dioxide-for-coatings
+├ ƒ /applications/titanium-dioxide-for-masterbatch
+├ ƒ /applications/titanium-dioxide-for-paper
+├ ƒ /applications/titanium-dioxide-for-plastics
+├ ƒ /applications/titanium-dioxide-for-printing-inks
+├ ○ /cookie-policy                                                     1h      1y
+├ ○ /documents                                                         1h      1y
+├ ○ /documents/certificate-of-origin                                   1h      1y
+├ ○ /documents/reach                                                   1h      1y
+├ ○ /documents/tds-sds-coa                                             1h      1y
+├ ○ /markets                                                           1h      1y
+├ ○ /markets/belgium                                                   1h      1y
+├ ○ /markets/brazil                                                    1h      1y
+├ ○ /markets/european-union                                            1h      1y
+├ ƒ /markets/germany
+├ ○ /markets/india                                                     1h      1y
+├ ƒ /markets/italy
+├ ○ /markets/netherlands                                               1h      1y
+├ ○ /markets/poland                                                    1h      1y
+├ ○ /markets/spain                                                     1h      1y
+├ ○ /markets/united-kingdom                                            1h      1y
+├ ○ /ms/privacy-policy                                                 1h      1y
+├ ƒ /preview/applications
+├ ƒ /preview/applications/[...segments]
+├ ƒ /preview/products
+├ ƒ /preview/products/[familySlug]
+├ ƒ /preview/products/[familySlug]/[slug]
+├ ƒ /preview/release-look/products/[slug]
+├ ƒ /preview/resources
+├ ƒ /preview/resources/[slug]
+├ ○ /privacy-policy                                                    1h      1y
+├ ○ /products                                                          1h      1y
+├   /products/[familySlug]
+│ ├ ● /products/m-350                                                  1h      1y
+│ ├ ● /products/m-510                                                  1h      1y
+│ ├ ● /products/m-896                                                  1h      1y
+│ └ ● [+11 more paths]
+├ ● /products/[familySlug]/[slug]
+├ ○ /products/chloride-process-titanium-dioxide                        1h      1y
+├ ƒ /products/sulfate-process-titanium-dioxide
+├ ○ /pt-br/markets/brazil                                              1h      1y
+├ ○ /request-a-quote                                                   1h      1y
+├ ○ /request-documents                                                 1h      1y
+├ ƒ /request-sample
+├ ƒ /resources
+├ ● /resources/[slug]
+├ ƒ /resources/brazil-titanium-dioxide-anti-dumping-duty
+├ ƒ /resources/chemours-titanium-dioxide-alternatives
+├ ○ /resources/chloride-vs-sulfate-titanium-dioxide                    1h      1y
+├ ƒ /resources/eu-titanium-dioxide-anti-dumping-duty
+├ ƒ /resources/india-titanium-dioxide-anti-dumping-duty
+├ ○ /resources/non-china-titanium-dioxide                              1h      1y
+├ ƒ /resources/ti-pure-r-706-alternative
+├ ƒ /resources/uk-titanium-dioxide-anti-dumping-investigation
+├ ○ /robots.txt
+├ ○ /sitemap.xml
+└ ƒ /thank-you
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

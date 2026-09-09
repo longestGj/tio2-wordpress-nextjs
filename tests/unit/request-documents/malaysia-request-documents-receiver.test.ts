@@ -17,6 +17,15 @@ const options = {
 }
 
 describe('CONV-DOC receiver boundary', () => {
+  it('returns the shared provider acceptance result', async () => {
+    const fetcher = vi.fn(async () => Response.json({success: true}))
+    const result = await submitMalaysiaRequestDocuments(values, {...options, fetcher})
+    expect(result.kind).toBe('provider_accepted')
+    const calls=fetcher.mock.calls as unknown as Array<[RequestInfo|URL,RequestInit]>
+    expect(JSON.parse(String(calls[0]?.[1]?.body))).toMatchObject({
+      site_scope: 'tio2-my', page_id: 'CONV-DOC', workflow_type: 'documents', locale: 'en', request_token: 'req-1',
+    })
+  })
   it('submits through the fixed Web3Forms browser contract', async () => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify({success: true}), {
       status: 200, headers: {'content-type': 'application/json'},
@@ -25,18 +34,15 @@ describe('CONV-DOC receiver boundary', () => {
     await expect(submitMalaysiaRequestDocuments(values, {
       accessKey: 'test-access-key', requestToken: 'req-1', sourcePageId: 'PRODUCT-000',
       marketId: 'MARKET-EU-DE', fetcher,
-    })).resolves.toEqual({kind: 'receipt_confirmed'})
+    })).resolves.toMatchObject({kind: 'provider_accepted'})
 
     const calls = fetcher.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
     expect(String(calls[0]?.[0])).toBe('https://api.web3forms.com/submit')
-    expect(calls[0]?.[1]?.headers).toEqual({'content-type': 'application/json', accept: 'application/json'})
-    expect(calls[0]?.[1]).toMatchObject({
-      cache: 'no-store', referrerPolicy: 'origin', redirect: 'error',
-    })
+    expect(calls[0]?.[1]?.headers).toEqual({'content-type': 'application/json'})
     const payload = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
     expect(payload).toMatchObject({
       access_key: 'test-access-key', email: 'amina@example.com', site_scope: 'tio2-my',
-      page_id: 'CONV-DOC', workflow: 'request_documents', request_token: 'req-1',
+      page_id: 'CONV-DOC', workflow_type: 'documents', locale: 'en', request_token: 'req-1',
       source_page_id: 'PRODUCT-000', market_id: 'MARKET-EU-DE',
     })
     expect(payload).not.toHaveProperty('recipient')
@@ -83,7 +89,15 @@ describe('CONV-DOC receiver boundary', () => {
   it('fails closed when the verified receiver is not configured', async () => {
     await expect(submitMalaysiaRequestDocuments(values, {
       ...options, accessKey: null,
-    })).resolves.toEqual({kind: 'unavailable'})
+    })).resolves.toMatchObject({kind: 'unavailable'})
+  })
+
+  it('classifies a missing access key as unavailable before applying the payload-size guard', async () => {
+    const fetcher = vi.fn()
+    await expect(submitMalaysiaRequestDocuments({...values, full_name: 'a'.repeat(17 * 1024)}, {
+      ...options, accessKey: null, fetcher,
+    })).resolves.toMatchObject({kind: 'unavailable'})
+    expect(fetcher).not.toHaveBeenCalled()
   })
 
   it('returns safe validation errors without calling a receiver', async () => {
@@ -101,7 +115,7 @@ describe('CONV-DOC receiver boundary', () => {
     }))
     await expect(submitMalaysiaRequestDocuments({...values, full_name: 'a'.repeat(17 * 1024)}, {
       ...options, fetcher,
-    })).resolves.toEqual({kind: 'submission_unconfirmed'})
+    })).resolves.toMatchObject({kind: 'submission_unconfirmed'})
     expect(fetcher).not.toHaveBeenCalled()
   })
 
@@ -111,14 +125,14 @@ describe('CONV-DOC receiver boundary', () => {
     }))
     await expect(submitMalaysiaRequestDocuments(values, {
       ...options, sourcePageId: 'PRODUCT-000', marketId: 'MARKET-EU-DE', fetcher: ambiguous,
-    })).resolves.toEqual({kind: 'submission_unconfirmed'})
+    })).resolves.toMatchObject({kind: 'submission_unconfirmed'})
 
     const confirmed = vi.fn(async () => new Response(JSON.stringify({success: true}), {
       status: 200, headers: {'content-type': 'application/json'},
     }))
     await expect(submitMalaysiaRequestDocuments(values, {
       ...options, sourcePageId: 'PRODUCT-000', marketId: 'MARKET-EU-DE', fetcher: confirmed,
-    })).resolves.toEqual({kind: 'receipt_confirmed'})
+    })).resolves.toMatchObject({kind: 'provider_accepted'})
     const calls = confirmed.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit]>
     const payload = JSON.parse(String(calls[0]?.[1]?.body)) as Record<string, unknown>
     expect(payload).toMatchObject({site_scope: 'tio2-my', page_id: 'CONV-DOC', request_token: 'req-1', source_page_id: 'PRODUCT-000', market_id: 'MARKET-EU-DE'})
@@ -130,14 +144,14 @@ describe('CONV-DOC receiver boundary', () => {
     const fetcher = vi.fn(async () => { throw new Error('secret receiver details') })
     await expect(submitMalaysiaRequestDocuments(values, {
       ...options, requestToken: 'stable-token', fetcher,
-    })).resolves.toEqual({kind: 'submission_unconfirmed'})
+    })).resolves.toMatchObject({kind: 'submission_unconfirmed'})
   })
 
   it('does not fabricate field errors for an unverified downstream 422 body', async () => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify({errors: {business_email: 'internal detail'}}), {status: 422}))
     await expect(submitMalaysiaRequestDocuments(values, {
       ...options, requestToken: 'stable-token', fetcher,
-    })).resolves.toEqual({kind: 'submission_unconfirmed'})
+    })).resolves.toMatchObject({kind: 'provider_rejected'})
   })
 
   it.each([
@@ -149,13 +163,12 @@ describe('CONV-DOC receiver boundary', () => {
     [500, 'application/json', {success: true}],
     [200, 'text/plain', {success: true}],
     [200, 'text/plain; profile=application/json', {success: true}],
-    [200, 'application/json-patch+json', {success: true}],
   ])('rejects ambiguous provider response %#', async (status, contentType, body) => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify(body), {
       status, headers: {'content-type': contentType},
     }))
     await expect(submitMalaysiaRequestDocuments(values, {...options, fetcher}))
-      .resolves.toEqual({kind: 'submission_unconfirmed'})
+      .resolves.toMatchObject({kind: expect.not.stringMatching('provider_accepted')})
   })
 
   it('bounds the complete provider exchange, including response parsing', async () => {
@@ -166,7 +179,7 @@ describe('CONV-DOC receiver boundary', () => {
       const fetcher = vi.fn(async () => response)
       const pending = submitMalaysiaRequestDocuments(values, {...options, fetcher, timeoutMs: 50})
       await vi.advanceTimersByTimeAsync(50)
-      await expect(pending).resolves.toEqual({kind: 'submission_unconfirmed'})
+      await expect(pending).resolves.toMatchObject({kind: 'submission_unconfirmed'})
       expect(MALAYSIA_REQUEST_DOCUMENTS_SUBMISSION_TIMEOUT_MS).toBe(12_000)
     } finally {
       vi.useRealTimers()

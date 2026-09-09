@@ -1,3 +1,4 @@
+import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
 import {spawnSync} from 'node:child_process'
 import {existsSync} from 'node:fs'
 import {fileURLToPath} from 'node:url'
@@ -11,9 +12,7 @@ const containerImporterPath = '/workspace/wordpress/seed/apply-site-a-product-dr
 
 function runControlledImporter() {
   const result = spawnSync('docker', [
-    'compose',
-    '--env-file', 'wordpress/.env',
-    '-f', 'wordpress/docker-compose.yml',
+    ...wordpressComposeArgs(),
     'run', '--rm', '--no-TTY', '--no-deps',
     '--entrypoint', 'php',
     'wpcli',

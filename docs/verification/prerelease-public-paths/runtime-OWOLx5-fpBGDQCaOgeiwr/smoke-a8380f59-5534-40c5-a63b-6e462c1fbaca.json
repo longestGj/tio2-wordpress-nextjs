@@ -1,0 +1,11 @@
+{
+  "suite": "smoke",
+  "commandUuid": "task9-ordinary-OWOLx5-fpBGDQCaOgeiwr",
+  "externalPostCount": 0,
+  "checks": [
+    {
+      "check": "smoke.representative",
+      "status": "PASSED"
+    }
+  ]
+}

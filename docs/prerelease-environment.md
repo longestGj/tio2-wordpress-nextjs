@@ -54,7 +54,7 @@ Editorial 页面还需要独立生成的本地预发布 `WORDPRESS_EDITORIAL_API
 | `RESETTING` | 控制器正持有同一操作锁执行数据删除、重新初始化和新运行构建 |
 | `STOPPED` | 没有当前运行，或已通过控制器停止 |
 
-`test`仅运行`tests/e2e/prerelease-smoke.spec.ts`。测试拦截所有非GET请求，验证代表性页面、CMS页面身份、导航、canonical/robots、Cookie Settings、三张表单的本地验证、键盘流程、1440/768/390布局、横向溢出和Chromium 200%页面缩放模拟（不等于浏览器原生200%缩放）。结果必须记录`externalPostCount: 0`。
+`test`运行`tests/e2e/prerelease-smoke.spec.ts`和`tests/e2e/prerelease-public-paths.spec.ts`，合计10项固定身份检查。测试拦截所有非GET请求，验证代表性页面、CMS页面身份、导航、canonical/robots、Cookie Settings、三张表单的本地验证、键盘流程、1440/768/390布局、横向溢出、42条批准路径和原始58对象内链扫描。结果必须记录`externalPostCount: 0`；不执行已取消的缩放、设备、辅助技术或强制颜色检查。
 
 `stop`只停止此Compose项目并保留数据及运行证据。
 
@@ -72,7 +72,11 @@ Editorial 页面还需要独立生成的本地预发布 `WORDPRESS_EDITORIAL_API
 npm run prerelease:test:forms-live
 ```
 
-该命令会真实对外发送三次请求：RFQ、Request a Sample和Request Documents各一次。主题带`[LOCAL PRERELEASE]`，payload带`environment=local-prerelease`及复用现有请求令牌的`test_run_id`。RFQ与Sample通过真实本地服务端接口提交，Documents直接提交服务商；按各自明确成功契约验证，并验证进入对应Thank You状态。失败不阻止其他表单独立运行；禁止记录含key的网络trace。自动结果只证明对应接口明确接收确认；`inboxConfirmed`保持`false`，实际收件需要另行人工确认。普通`prerelease:test`不会发送表单。
+该命令从三个公开页面各提交一次 RFQ、Sample 和 Documents，全部由浏览器直接调用 Web3Forms。只有 HTTP 200 且解析到 `success=true` 才认定服务商接受，并核对请求令牌及对应 Thank You 状态；失败不自动重试。BuyerEmail/Reply-To 使用 `local-prerelease-${runId}-${workflow}@example.com` 合成测试值，不要求真实发件人邮箱或 SMTP 配置；若服务商拒绝该值，记录实际分类并报告，不换用个人邮箱。收件目标继续由现有 access key 绑定。
+
+真实表单测试关闭 trace、自动截图、视频及 Playwright 错误 DOM 快照，请求记录只保存工作流、Page ID、请求令牌、HTTP 状态、服务商分类、Thank You request 和时间戳；可截图的只有成功后的非个人 Thank You 页面。每个工作流直到页面关闭都必须只有1次允许的POST、0次被阻止的额外写入，片段及汇总保存安全计数和状态；额外写入使测试失败，但不改写已经接受的请求记录。`result.json` 将测试结果绑定到 run/commit/Build/CMS 身份，服务商接受与实际收件分开记录。结果只声明当前动作的固定检查身份，真实表单动作不代表公开路径检查已完成；缺失、重复、替代或外来测试片段不会产生 PASSED。
+
+取得三条成功响应后运行 `powershell -NoProfile -File scripts/prerelease/Confirm-PrereleaseInbox.ps1 -EvidenceRoot <本次证据目录>`，按工作流和请求令牌逐项核实收件，并输入显式 UTC 时间。脚本不保存邮箱、正文或附件，不覆盖已有确认；`no` 单独记录为 `received=false`。普通 `prerelease:test` 只运行 smoke 与 public-paths，两套测试合计 10 项，覆盖 1440/768/390、42 条批准路径和原始 58 对象内链扫描；四项已取消检查明确记为 NOT_TESTED。
 
 ## 身份、证据与排错
 

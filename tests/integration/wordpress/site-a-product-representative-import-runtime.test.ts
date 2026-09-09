@@ -1,3 +1,4 @@
+import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
 import {spawnSync} from 'node:child_process'
 import {createHash} from 'node:crypto'
 import {
@@ -268,11 +269,7 @@ function runControlledImporter() {
   return spawnSync(
     'docker',
     [
-      'compose',
-      '--env-file',
-      'wordpress/.env',
-      '-f',
-      'wordpress/docker-compose.yml',
+      ...wordpressComposeArgs(),
       'run',
       '--rm',
       '--no-TTY',
@@ -382,8 +379,7 @@ describe('controlled WordPress representative-content importer boundary', () => 
     const result = spawnSync(
       'docker',
       [
-        'compose', '--env-file', 'wordpress/.env', '-f',
-        'wordpress/docker-compose.yml', 'run', '--rm', '--no-TTY',
+        ...wordpressComposeArgs(), 'run', '--rm', '--no-TTY',
         'wpcli', 'wp', 'eval-file', containerImporterPath,
       ],
       {cwd: repositoryRoot, encoding: 'utf8', timeout: 30_000},

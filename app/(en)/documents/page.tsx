@@ -24,5 +24,5 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DocumentsPage() {
   const {site, documentsHub} = await loadPage()
   const jsonLd = serializeMalaysiaDocumentsHubJsonLd(buildMalaysiaDocumentsHubJsonLd(site, documentsHub))
-  return <MalaysiaDocumentsHub documentsHub={documentsHub} structuredData={<script type="application/ld+json" dangerouslySetInnerHTML={{__html: jsonLd}} />} />
+  return <MalaysiaDocumentsHub documentsHub={documentsHub} structuredData={<script key="documents-hub-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{__html: jsonLd}} />} />
 }

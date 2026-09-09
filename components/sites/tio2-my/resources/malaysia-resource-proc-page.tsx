@@ -189,7 +189,7 @@ export function MalaysiaResourceProcPage({
               <p className={styles.eyebrow}>{page.applicationOverlap.eyebrow}</p>
               <h2 id="application-overlap-heading">{page.applicationOverlap.heading}</h2>
             </div>
-            {page.applicationOverlap.evidenceAvailable ? (
+            {page.applicationOverlap.evidenceAvailable && (
               <div className={styles.applicationEvidence}>
                 <p className={styles.applicationAnswer}>{page.applicationOverlap.answer}</p>
                 <ul>
@@ -203,7 +203,7 @@ export function MalaysiaResourceProcPage({
                   })}
                 </div>
               </div>
-            ) : <p className={styles.evidenceUnavailable}>The supporting evidence for this section is not currently available.</p>}
+            )}
           </div>
         </section>
 

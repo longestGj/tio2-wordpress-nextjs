@@ -16,6 +16,11 @@ beforeEach(() => {
 afterEach(() => { vi.clearAllMocks(); vi.unstubAllEnvs(); vi.resetModules() })
 
 describe('CONV-DOC route', () => {
+  it('keys the schema element crossing the server to client page boundary', async () => {
+    const route = await import('@/app/request-documents/page')
+    const element = await route.default()
+    expect(element.props.structuredData.key).toBe('CONV-DOC-jsonld')
+  })
   it('server-renders scoped approved fields, a static empty shell, one graph and shared Chrome', async () => {
     const route = await import('@/app/request-documents/page')
     const markup = renderToStaticMarkup(await route.default())

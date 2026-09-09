@@ -5,7 +5,7 @@
     "locale": "en",
     "path": "/resources/chemours-titanium-dioxide-alternatives/",
     "section": "resources",
-    "provisional": true,
+    "provisional": false,
     "schemaVersion": "editorial-v0.1"
   },
   "source": {
@@ -18,8 +18,8 @@
   "seo": {
     "title": "How to Evaluate Chemours Titanium Dioxide Alternatives",
     "metaDescription": "Use the exact Ti-Pure grade, application, documented product facts and your own qualification criteria to evaluate another titanium dioxide supply source.",
-    "canonical": null,
-    "schemaType": "none"
+    "canonical": "https://tio2malaysia.com/resources/chemours-titanium-dioxide-alternatives/",
+    "schemaType": "TechArticle"
   },
   "heading": "How to Evaluate a Chemours Titanium Dioxide Alternative",
   "breadcrumb": [

@@ -1,0 +1,11 @@
+{
+  "suite": "smoke",
+  "commandUuid": "task9-final-ordinary-7XUXjV_kltFixtMjCGsjh",
+  "externalPostCount": 0,
+  "checks": [
+    {
+      "check": "smoke.reflow.768",
+      "status": "PASSED"
+    }
+  ]
+}

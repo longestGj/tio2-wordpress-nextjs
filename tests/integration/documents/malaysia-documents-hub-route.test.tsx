@@ -25,9 +25,13 @@ afterEach(() => { vi.clearAllMocks(); vi.resetModules() })
 describe('DOC-000 route isolation', () => {
   it('renders only the Malaysia scope and server-rendered FAQ answers', async () => {
     const route = await import('@/app/documents/page')
-    const markup = renderToStaticMarkup(await route.default())
+    const page = await route.default()
+    expect((page.props as {structuredData: React.ReactElement}).structuredData.key).toBe('documents-hub-jsonld')
+    const markup = renderToStaticMarkup(page)
     expect(markup).toContain('data-site-scope="tio2-my"')
     expect(markup).toContain(contract.buyerQuestions.items[5].answer)
+    expect(markup).toContain('data-module="document-guides"')
+    for (const item of contract.documentGuides.items) expect(markup).toContain(`<a href="${item.href}">${item.label}`)
     expect(markup.match(/<script type="application\/ld\+json">/gu)).toHaveLength(1)
   })
 

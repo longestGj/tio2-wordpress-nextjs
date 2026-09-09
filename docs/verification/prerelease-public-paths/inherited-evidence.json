@@ -1,0 +1,10 @@
+{
+  "sourceRun": "20260908T162630Z-98c2c573dd09",
+  "sourceCommit": "98c2c573dd090048352fa12415a9cc8eeefc485b",
+  "buildId": "QmeAVzHgLILD56DVWgAww",
+  "summaryPath": "D:\\16Wordpress_nextjs\\.local-evidence\\prerelease-58\\20260908T162630Z-98c2c573dd09\\RESULT.md",
+  "hashManifestPath": "D:\\16Wordpress_nextjs\\.local-evidence\\prerelease-58\\20260908T162630Z-98c2c573dd09\\evidence-hashes.json",
+  "hashManifestSha256": "57ac6324d8c10ef227f64799d39e65b25ffafe8c5678386cc175b6dfe6c7f164",
+  "approvedInheritance": "Only unchanged surfaces: 58-object prior page checks, 174 prior screenshots and 27 prior Chromium/Firefox interactions. The current changed hubs/forms/public paths have separate actual 3183 evidence.",
+  "exclusions": "Historical real-form failures are not inherited as passes. Positive provider/Thank/inbox evidence remains pending Task10. Removed checks remain NOT_TESTED by user decision."
+}

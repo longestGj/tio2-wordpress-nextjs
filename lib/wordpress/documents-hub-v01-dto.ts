@@ -34,6 +34,11 @@ function text(value: unknown, field: string): string {
 }
 
 const approvedSerializedContract = JSON.stringify(approvedContract)
+const documentGuideItems = [
+  {targetPageId: 'DOC-TDS', label: 'TDS, SDS and COA Guide', href: '/documents/tds-sds-coa/'},
+  {targetPageId: 'DOC-REACH', label: 'REACH Documentation Guide', href: '/documents/reach/'},
+  {targetPageId: 'DOC-COO', label: 'Certificate of Origin Guide', href: '/documents/certificate-of-origin/'},
+] as const
 
 export function toMalaysiaDocumentsHubDto(sourceValue: MalaysiaDocumentsHubSource): MalaysiaDocumentsHubDto {
   const source = record(sourceValue, 'documentsHub')
@@ -58,6 +63,11 @@ export function toMalaysiaDocumentsHubDto(sourceValue: MalaysiaDocumentsHubSourc
     contract.gradeSelector.fieldId !== contract.closingCta.selectorTargetId ||
     contract.howItWorks.items.some((item, index) => item.order !== index + 1) ||
     contract.buyerQuestions.items.some((item, index) => item.order !== index + 1) ||
+    contract.documentGuides.items.length !== documentGuideItems.length ||
+    contract.documentGuides.items.some((item, index) => {
+      const expected = documentGuideItems[index]
+      return !expected || item.targetPageId !== expected.targetPageId || item.label !== expected.label || item.href !== expected.href
+    }) ||
     contract.globalChromeRef.contractId !== globalChrome.contractId ||
     contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId
   ) throw new DocumentsHubContractError('malaysiaDocumentsHubContractJson')

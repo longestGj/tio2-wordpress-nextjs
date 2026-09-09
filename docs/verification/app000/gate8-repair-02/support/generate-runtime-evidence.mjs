@@ -2,6 +2,8 @@ import {mkdirSync, readFileSync, writeFileSync} from 'node:fs'
 import {createHash} from 'node:crypto'
 import {chromium} from '@playwright/test'
 
+throw new Error('Superseded by tests/e2e/app000-gate8.spec.ts under the approved browser-direct contract. Historical evidence must not be overwritten.')
+
 const baseUrl = process.env.APP000_BASE_URL ?? 'http://127.0.0.1:4391'
 const receiverUrl = process.env.APP000_RFQ_RECEIVER_URL ?? 'http://127.0.0.1:4392'
 const out = new URL('../runtime/', import.meta.url)

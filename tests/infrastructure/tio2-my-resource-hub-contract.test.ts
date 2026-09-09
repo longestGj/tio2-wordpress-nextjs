@@ -18,18 +18,17 @@ describe('RES-000 immutable Malaysia Hub contract', () => {
       },
       globalChromeRef: {contractId: 'GLOBAL-CHROME-005'},
     })
-    expect(contract.decisionPaths.items).toHaveLength(3)
+    expect(contract.resourceInventory.heading).toBe('Browse Procurement Resources')
     expect(contract.evidencePrinciples.items).toHaveLength(3)
     expect(contract.buyerQuestions).toHaveLength(5)
-    expect(contract.resourceRelations).toEqual([])
+    expect(contract.resourceRelations).toHaveLength(8)
   })
 
   it('contains no candidate, fixture, trade, product-row or cross-scope leakage', () => {
     const serialized = JSON.stringify(contract)
     for (const prohibited of [
-      'RES-ORIGIN', 'RES-PROC', 'RES-CHEMOURS', 'RES-R706',
       'FIXTURE_ONLY', 'example.invalid', 'tio2-a', 'tio2-b', 'TIOVAR',
-      'FAQPage', 'QAPage', 'Article', 'Product', 'Offer',
+      'FAQPage', 'QAPage',
     ]) expect(serialized).not.toContain(prohibited)
   })
 
@@ -68,9 +67,9 @@ describe('RES-000 immutable Malaysia Hub contract', () => {
     expect(webhooks).toContain("$paths = ['/resources'];")
     expect(webhooks).toContain('TIO2_MY_RESOURCE_HUB_RELATIONS_META')
     expect(webhooks).toContain('tio2_my_resource_dependency_paths')
-    expect(registry).toContain('"APPROVED_PRD_V0.3"')
-    expect(registry).toContain('"NEW_PAGE_CANDIDATE"')
-    expect(registry).toContain('"PLANNED_CONTENT"')
+    expect(registry).toContain('"APPROVED_PRERELEASE_V1.0"')
+    expect(registry).not.toContain('"NEW_PAGE_CANDIDATE"')
+    expect(registry).not.toContain('"PLANNED_CONTENT"')
     expect(registry).not.toContain('PUBLIC_ELIGIBLE')
   })
 })

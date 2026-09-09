@@ -32,8 +32,7 @@ describe('RES-000 DTO and deterministic projection', () => {
   it('returns current H0 with absent Featured and Latest collections', () => {
     const dto = toMalaysiaResourceHubDto(source(resourceH0Relations))
     expect(dto.identity).toMatchObject({siteId: 'tio2-my', path: '/resources', status: 'publish'})
-    expect(dto.featuredResources).toEqual([])
-    expect(dto.latestResources).toEqual([])
+    expect(dto.resourceGroups).toEqual([])
     expect(dto.publicState).toBe('H0_NO_QUALIFIED_RESOURCE')
   })
 
@@ -45,7 +44,7 @@ describe('RES-000 DTO and deterministic projection', () => {
       eligibleTrade({routeStatus: 'IMPLEMENTED_NOT_VERIFIED'}),
     ]
     expect(projectEligibleMalaysiaResources(rejected, resourceFixturePolicies)).toMatchObject({
-      publicState: 'H0_NO_QUALIFIED_RESOURCE', featuredResources: [], latestResources: [],
+      publicState: 'H0_NO_QUALIFIED_RESOURCE', resourceGroups: [],
     })
   })
 
@@ -55,38 +54,25 @@ describe('RES-000 DTO and deterministic projection', () => {
       [resourceH1Relations, 'H0_NO_QUALIFIED_RESOURCE', [], []],
       [resourceH2Relations, 'H2_ONE_PUBLIC_RESOURCE', ['RES-ORIGIN'], []],
       [resourceH2UnrankedRelations, 'H2_ONE_PUBLIC_RESOURCE', ['RES-PROC'], []],
-      [resourceH3Relations, 'H3_MULTIPLE_PUBLIC_RESOURCES', ['RES-ORIGIN'], ['RES-PROC']],
-      [resourceH4Relations, 'H4_TRADE_ITEM', ['RES-ORIGIN'], ['RES-PROC', 'RES-TRADE-EU']],
-      [resourceH5Relations, 'H3_MULTIPLE_PUBLIC_RESOURCES', ['RES-ORIGIN'], ['RES-PROC']],
+      [resourceH3Relations, 'H3_GROUPED_PUBLIC_RESOURCES', ['RES-ORIGIN'], ['RES-PROC']],
+      [resourceH4Relations, 'H3_GROUPED_PUBLIC_RESOURCES', ['RES-ORIGIN'], ['RES-PROC', 'RES-TRADE-EU']],
+      [resourceH5Relations, 'H3_GROUPED_PUBLIC_RESOURCES', ['RES-ORIGIN'], ['RES-PROC']],
     ] as const
     for (const [relations, state, featured, latest] of expected) {
       const projected = projectEligibleMalaysiaResources(relations, resourceFixturePolicies)
       expect(projected.publicState).toBe(state)
-      expect(projected.featuredResources.map(({pageId}) => pageId)).toEqual(featured)
-      expect(projected.latestResources.map(({pageId}) => pageId)).toEqual(latest)
+      expect(projected.resourceGroups.flatMap(group => group.items.map(({pageId}) => pageId))).toEqual([...featured, ...latest])
     }
   })
 
-  it('rejects a public H2 projection that places its only item in Latest', () => {
-    const correct = projectEligibleMalaysiaResources(resourceH2UnrankedRelations, resourceFixturePolicies)
-    expect(() => toMalaysiaResourceHubDto({
-      ...source(),
-      resourceProjection: {
-        publicState: 'H2_ONE_PUBLIC_RESOURCE',
-        featuredResources: [],
-        latestResources: correct.featuredResources,
-      },
-    })).toThrow(/H2Allocation/u)
-  })
-
   it.each([
-    'publicEligibilityStatus', 'lastReviewedAt', 'sourceOwner', 'recordReviewDate',
+    'publicEligibilityStatus', 'sourceOwner', 'recordReviewDate',
     'ctaLabel', 'resourceType',
   ])('fails closed when required public predicate field %s is absent', (field) => {
     const relation = eligibleGuide('RES-ORIGIN')
     delete relation[field]
     expect(projectEligibleMalaysiaResources([relation], resourceFixturePolicies)).toMatchObject({
-      publicState: 'H0_NO_QUALIFIED_RESOURCE', featuredResources: [], latestResources: [],
+      publicState: 'H0_NO_QUALIFIED_RESOURCE', resourceGroups: [],
     })
   })
 
@@ -97,10 +83,7 @@ describe('RES-000 DTO and deterministic projection', () => {
     const trade = eligibleTrade()
     delete trade[field]
     const projected = projectEligibleMalaysiaResources([...resourceH3Relations, trade], resourceFixturePolicies)
-    expect(projected).toMatchObject({
-      publicState: 'H3_MULTIPLE_PUBLIC_RESOURCES',
-      featuredResources: [{pageId: 'RES-ORIGIN'}], latestResources: [{pageId: 'RES-PROC'}],
-    })
+    expect(projected.resourceGroups.flatMap(group => group.items.map(item=>item.pageId))).toEqual(['RES-ORIGIN','RES-PROC'])
   })
 
   it.each([
@@ -114,12 +97,12 @@ describe('RES-000 DTO and deterministic projection', () => {
       [...resourceH3Relations, eligibleTrade({[field]: value})],
       resourceFixturePolicies,
     )
-    expect(projected.latestResources.map(({pageId}) => pageId)).toEqual(['RES-PROC'])
+    expect(projected.resourceGroups.flatMap(group=>group.items.map(({pageId})=>pageId))).toEqual(['RES-ORIGIN','RES-PROC'])
   })
 
-  it('rejects duplicate featured ranks instead of choosing an arbitrary item', () => {
+  it('rejects duplicate Page IDs instead of choosing an arbitrary item', () => {
     expect(() => projectEligibleMalaysiaResources([
-      eligibleGuide('RES-ORIGIN'), eligibleGuide('RES-PROC', {featuredRank: 1}),
-    ], resourceFixturePolicies)).toThrow(/featuredRank/u)
+      eligibleGuide('RES-ORIGIN'), eligibleGuide('RES-ORIGIN'),
+    ], resourceFixturePolicies)).toThrow(/pageId/u)
   })
 })

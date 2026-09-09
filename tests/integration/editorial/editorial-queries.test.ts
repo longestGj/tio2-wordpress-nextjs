@@ -58,7 +58,7 @@ describe('live-shaped editorial GraphQL delivery',()=>{
   if(page.seo.schemaType==='none')expect(schema).toBeNull()
   else {
    const graph=schema!['@graph'] as Array<Record<string,unknown>>
-   expect(graph.map(n=>n['@type'])).toEqual(page.identity.pageId==='PRODUCT-PROC-SU'?['CollectionPage','BreadcrumbList','ItemList']:['WebPage','BreadcrumbList'])
+   expect(graph.map(n=>n['@type'])).toEqual(page.identity.pageId==='PRODUCT-PROC-SU'?['CollectionPage','BreadcrumbList','ItemList']:page.identity.pageId==='RES-CHEMOURS'?['TechArticle','BreadcrumbList']:['WebPage','BreadcrumbList'])
   }
   expect(()=>buildEditorialMetadata(getSiteConfig('tio2-a'),page)).toThrow()
  })

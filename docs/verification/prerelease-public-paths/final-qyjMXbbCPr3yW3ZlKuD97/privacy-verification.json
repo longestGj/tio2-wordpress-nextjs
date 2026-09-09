@@ -1,0 +1,10 @@
+{
+  "commit": "f81321c07d6026ef1e5119cfb7b58914225ff753",
+  "focusedParentTestsPassed": 5,
+  "helperNegativeScenarios": 6,
+  "helperPositiveScenarios": 1,
+  "standardEntryDiagnosticProtections": true,
+  "sentinelFoundAfterFix": false,
+  "actualExternalPosts": 0,
+  "note": "Default list, JSON reporter, complete step errors and error-context artifacts inspected in memory; only safe parent output retained."
+}

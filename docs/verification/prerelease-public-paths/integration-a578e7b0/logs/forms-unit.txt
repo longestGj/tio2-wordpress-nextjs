@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/prerelease-public-paths-integration
+
+
+ Test Files  30 passed (30)
+      Tests  271 passed (271)
+   Start at  09:52:08
+   Duration  10.37s (transform 1.90s, setup 4.47s, import 4.01s, tests 22.91s, environment 2.69s)
+

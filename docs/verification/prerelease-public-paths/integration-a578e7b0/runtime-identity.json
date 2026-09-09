@@ -1,0 +1,28 @@
+{
+  "build": {
+    "implementationCommit": "a578e7b0ce35fc2262ff594c49ac0b03e7677a87",
+    "buildId": "gUcvVd8srLVKb94i9C9b7",
+    "runId": "public-paths-integration-a578e7b0ce35",
+    "builtAt": "2026-09-09T01:49:30.273Z",
+    "directory": ".next-public-paths-integration",
+    "siteId": "tio2-my",
+    "cmsEndpoint": "http://127.0.0.1:8181/graphql",
+    "siteUrl": "http://127.0.0.1:3184"
+  },
+  "process": {
+    "pid": 56956,
+    "parentPid": 16196,
+    "startedAt": "2026-09-09T01:49:41.020Z",
+    "command": "node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3184",
+    "cwd": "D:\\16Wordpress_nextjs\\.worktrees\\prerelease-public-paths-integration",
+    "sourceCommit": "a578e7b0ce35fc2262ff594c49ac0b03e7677a87",
+    "buildId": "gUcvVd8srLVKb94i9C9b7"
+  },
+  "identityApi": {
+    "schemaVersion": 1,
+    "siteId": "tio2-my",
+    "runId": "public-paths-integration-a578e7b0ce35",
+    "sourceCommit": "a578e7b0ce35fc2262ff594c49ac0b03e7677a87",
+    "buildId": "gUcvVd8srLVKb94i9C9b7"
+  }
+}
