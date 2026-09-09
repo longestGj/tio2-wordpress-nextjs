@@ -22,7 +22,7 @@ function createRepository(branch = 'main'): string {
   writeFileSync(join(directory, '.gitignore'), '.prerelease/\n.env.prerelease.local\n')
   execFileSync('git', ['add', 'tracked.txt', '.gitignore'], {cwd: directory})
   execFileSync('git', ['-c', 'user.name=Test', '-c', 'user.email=test@example.test', 'commit', '-m', 'base'], {cwd: directory})
-  if (branch !== 'main') execFileSync('git', ['switch', '-c', branch], {cwd: directory})
+  if (branch !== 'main') execFileSync('git', ['switch', '-c', branch], {cwd: directory, stdio: 'pipe'})
   return directory
 }
 

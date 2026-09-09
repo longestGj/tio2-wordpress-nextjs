@@ -84,7 +84,7 @@ async function keyboardReturn(page: Page, link: Locator, consumer: Target) {
 }
 
 for (const width of [1440, 768, 390]) {
-  test(`public paths Chromium Axe keyboard inventory and return ${width}`, async ({page, request}) => {
+  test(`public paths Chromium Axe keyboard inventory and return ${width}`, {annotation: {type: 'prerelease-check', description: `public-paths.width.${width}`}}, async ({page, request}) => {
     await page.setViewportSize({width, height: width === 390 ? 844 : 1000})
     await page.emulateMedia({reducedMotion: 'reduce'})
     expect(eligibility.routes).toHaveLength(42)
@@ -149,7 +149,7 @@ for (const width of [1440, 768, 390]) {
   })
 }
 
-test('full 58-object internal link scan permits only approved Contact exception', async ({page, request}) => {
+test('full 58-object internal link scan permits only approved Contact exception', {annotation: {type: 'prerelease-check', description: 'public-paths.internal-links.58'}}, async ({page, request}) => {
   expect(createHash('sha256').update(scopeBytes).digest('hex')).toBe(scopeSha256)
   expect(scope.pages).toHaveLength(58)
   expect(scope.exception).toMatchObject({path: '/contact/', expectedStatus: 404})

@@ -9,10 +9,15 @@ export const baseUrl = process.env.TIO2_PRERELEASE_BASE_URL ?? 'http://127.0.0.1
 mkdirSync(evidenceRoot, {recursive: true})
 
 // One immutable fragment per test avoids afterAll races and preserves worker failures/restarts.
-export function recordCheck(suite: string, testInfo: TestInfo, externalPostCount = 0) {
+export type TransportCounts = {allowedPostCount: number; blockedWriteCount: number}
+export function recordCheck(suite: string, testInfo: TestInfo, externalPostCount = 0, transport?: TransportCounts) {
+  const ids = testInfo.annotations.filter(annotation => annotation.type === 'prerelease-check')
+  const check = ids.length === 1 ? ids[0]?.description : 'invalid-check-identity'
+  const transportStatus = transport && transport.allowedPostCount === 1 && transport.blockedWriteCount === 0 ? 'PASSED' : 'FAILED'
   writeFileSync(resolve(evidenceRoot, `${suite}-${randomUUID()}.json`), JSON.stringify({
     suite, commandUuid, externalPostCount,
-    checks: [{check: testInfo.title.replace(/[^a-zA-Z0-9_ .:/-]/gu, ''), status: testInfo.status === 'passed' ? 'PASSED' : testInfo.status === 'skipped' ? 'NOT_TESTED' : 'FAILED'}],
+    ...(transport ? {transport: {...transport, status: transportStatus}} : {}),
+    checks: [{check, status: transport && transportStatus === 'FAILED' ? 'FAILED' : testInfo.status === 'passed' ? 'PASSED' : testInfo.status === 'skipped' ? 'NOT_TESTED' : 'FAILED'}],
   }, null, 2), {flag: 'wx'})
 }
 

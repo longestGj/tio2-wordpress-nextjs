@@ -3,7 +3,7 @@ import {readFileSync, writeFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {randomUUID} from 'node:crypto'
 import type {Web3FormsWorkflow} from '../../lib/forms/web3forms-browser'
-import {baseUrl, commandUuid, evidenceRoot, recordCheck, capturePublicPage} from './support/prerelease-evidence'
+import {baseUrl, commandUuid, evidenceRoot, recordCheck, capturePublicPage, type TransportCounts} from './support/prerelease-evidence'
 import {buyerEmailTestValue, providerAttempt} from './support/prerelease-live-evidence'
 
 // Installed Playwright index.js honors this flag before taking an error-context DOM snapshot.
@@ -14,14 +14,18 @@ test.setTimeout(120_000)
 const endpoint = 'https://api.web3forms.com/submit'
 const thankYouRequestByWorkflow = {rfq: 'quote', sample: 'sample', documents: 'documents'} as const
 
+let transport: TransportCounts = {allowedPostCount: 0, blockedWriteCount: 0}
+test.beforeEach(() => { transport = {allowedPostCount: 0, blockedWriteCount: 0} })
+
 test.afterEach(async ({page}, info) => {
-  recordCheck('live-forms', info)
   // Close buyer pages before fixture teardown can collect any diagnostic page artifacts.
   await page.close().catch(() => {})
+  recordCheck('live-forms', info, transport.allowedPostCount, transport)
+  expect(transport, 'live workflow transport through teardown').toEqual({allowedPostCount: 1, blockedWriteCount: 0})
 })
 
 function liveWorkflow(workflow: Web3FormsWorkflow, fill: (page: Page, email: string, label: string) => Promise<void>) {
-  test(`live ${workflow} direct provider and Thank You`, async ({page}) => {
+  test(`live ${workflow} direct provider and Thank You`, {annotation: {type: 'prerelease-check', description: `live-forms.${workflow}`}}, async ({page}) => {
     let stage = 'configuration'
     let runtimeErrors = 0
     page.on('pageerror', () => runtimeErrors++)
@@ -34,16 +38,21 @@ function liveWorkflow(workflow: Web3FormsWorkflow, fill: (page: Page, email: str
       if (!/^PRERELEASE_LIVE_FORMS_ENABLED\s*=\s*['"]?true['"]?\s*$/mu.test(config)) throw new Error('Live action disabled')
       const runId = process.env.PRERELEASE_RUN_ID ?? commandUuid
       const email = buyerEmailTestValue(runId, workflow)
-      let sent = false
       await page.route('**/*', async route => {
         if (route.request().method() === 'GET') return route.continue()
-        if (route.request().url() !== endpoint || route.request().method() !== 'POST' || sent) return route.abort('blockedbyclient')
-        sent = true
+        if (route.request().url() !== endpoint || route.request().method() !== 'POST' || transport.allowedPostCount > 0) {
+          transport.blockedWriteCount++
+          return route.abort('blockedbyclient')
+        }
         try {
           attempt = providerAttempt(workflow, route.request().postDataJSON(), null, null)
+          transport.allowedPostCount++
           save()
-        } catch { return route.abort('blockedbyclient') }
-        await route.continue()
+        } catch {
+          transport.blockedWriteCount++
+          return route.abort('blockedbyclient')
+        }
+        await route.fallback()
       })
       stage = 'public_form_fields'
       await fill(page, email, `LOCAL PRERELEASE TEST ${runId} ${workflow}`)

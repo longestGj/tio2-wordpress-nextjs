@@ -39,7 +39,7 @@ const representativeRoutes = [
   {path: '/privacy-policy/', pageId: 'LEGAL-PRIV-EN'},
 ] as const
 
-test('representative CMS pages, navigation and metadata are bound to tio2-my', async ({page}) => {
+test('representative CMS pages, navigation and metadata are bound to tio2-my', {annotation: {type: 'prerelease-check', description: 'smoke.representative'}}, async ({page}) => {
   for (const route of representativeRoutes) {
     const response = await page.goto(`${baseUrl}${route.path}`, {waitUntil: 'domcontentloaded'})
     expect(response?.status(), route.path).toBe(200)
@@ -57,7 +57,7 @@ test('representative CMS pages, navigation and metadata are bound to tio2-my', a
   }
 })
 
-test('forms validate locally without a network submission', async ({page}) => {
+test('forms validate locally without a network submission', {annotation: {type: 'prerelease-check', description: 'smoke.local-forms'}}, async ({page}) => {
   for (const path of ['/request-a-quote/', '/request-sample/', '/request-documents/']) {
     await page.goto(`${baseUrl}${path}`)
     for (const width of [1440, 768, 390]) {
@@ -69,7 +69,7 @@ test('forms validate locally without a network submission', async ({page}) => {
   }
 })
 
-test('Cookie Settings supports keyboard focus and return', async ({page}) => {
+test('Cookie Settings supports keyboard focus and return', {annotation: {type: 'prerelease-check', description: 'smoke.cookie-keyboard'}}, async ({page}) => {
   await page.goto(`${baseUrl}/`)
   const trigger = page.getByRole('button', {name: 'Cookie Settings'}).first()
   await trigger.focus()
@@ -86,7 +86,7 @@ for (const viewport of [
   {name: 'tablet-768', width: 768, height: 1024},
   {name: 'mobile-390', width: 390, height: 844},
 ] as const) {
-  test(`homepage reflows without horizontal overflow at ${viewport.width}px`, async ({page}) => {
+  test(`homepage reflows without horizontal overflow at ${viewport.width}px`, {annotation: {type: 'prerelease-check', description: `smoke.reflow.${viewport.width}`}}, async ({page}) => {
     await page.setViewportSize(viewport)
     await page.goto(`${baseUrl}/`, {waitUntil: 'load'})
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
