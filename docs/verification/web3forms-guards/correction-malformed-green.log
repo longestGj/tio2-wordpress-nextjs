@@ -1,0 +1,10 @@
+
+Running 3 tests using 1 worker
+
+(node:40092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 tests\e2e\web3forms-guards.spec.ts:39:5 › rfq unavailable with malformed configuration (241ms)
+  ok 2 tests\e2e\web3forms-guards.spec.ts:39:5 › sample unavailable with malformed configuration (218ms)
+  ok 3 tests\e2e\web3forms-guards.spec.ts:39:5 › documents unavailable with malformed configuration (340ms)
+
+  3 passed (1.4s)

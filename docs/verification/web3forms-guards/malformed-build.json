@@ -1,0 +1,15 @@
+{
+  "action": "build",
+  "configuration": "malformed",
+  "commit": "525ee53c157dbd24cd17dff97463738a390b6676",
+  "startedAt": "2026-09-09T02:31:30.703Z",
+  "finishedAt": "2026-09-09T02:31:54.797Z",
+  "exitCode": 0,
+  "siteId": "tio2-my",
+  "cms": "http://127.0.0.1:8181/graphql",
+  "port": 3187,
+  "dist": ".next-web3forms-malformed",
+  "providerConfiguration": "SYNTHETIC_ONLY",
+  "realProviderRequests": 0,
+  "buildId": "IWCqHluSknZ4ZqaH70Y6w"
+}

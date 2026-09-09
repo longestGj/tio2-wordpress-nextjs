@@ -48,7 +48,7 @@ function writeValidEnvironment(repository: string) {
     'NEXTJS_REVALIDATION_SECRET_TIO2_MY=revalidation-secret',
     'NEXTJS_PREVIEW_SECRET_TIO2_MY=preview-secret',
     'WORDPRESS_EDITORIAL_API_TOKEN=isolated-editorial-secret',
-    'NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY=receiver-key',
+    'NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY=01234567-89ab-cdef-0123-456789abcdef',
     'PRERELEASE_LIVE_FORMS_ENABLED=false',
   ].join('\n'))
 }
@@ -232,6 +232,25 @@ describe.runIf(process.platform === 'win32')('local prerelease controller', () =
     expect(`${result.stdout}\n${result.stderr}`).toContain('WORDPRESS_DB_PASSWORD')
     expect(`${result.stdout}\n${result.stderr}`).not.toContain('root-secret')
     expect(`${result.stdout}\n${result.stderr}`).not.toContain('receiver-key')
+  })
+
+  it.each([
+    ['', false], ['replace-with-access-key', false], ['x'.repeat(52), false],
+    ['01234567-89ab-cdef-0123-456789abcdef ', false],
+    ['"01234567-89ab-cdef-0123-456789abcdef "', false],
+    ['01234567-89ab-cdef-0123-456789abcdef', true],
+    ['ABCDEFAB-CDEF-ABCD-EFAB-CDEFABCDEFAB', true],
+    ['"01234567-89ab-cdef-0123-456789abcdef"', true],
+  ])('preflights UUID configuration %# without disclosing the configured value', (key, valid) => {
+    const directory = temporaryDirectory('d16-prerelease-key-')
+    writeValidEnvironment(directory)
+    const environmentFile = join(directory, '.env.prerelease.local')
+    writeFileSync(environmentFile, readFileSync(environmentFile, 'utf8').replace(/NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY=.*/u, `NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY=${key}`))
+    const result = spawnSync('powershell', ['-NoProfile', '-Command', `$ErrorActionPreference='Stop'; Import-Module '${modulePath.replaceAll("'", "''")}' -Force; Assert-PrereleaseEnvironmentFile -Path '${environmentFile.replaceAll("'", "''")}' | ConvertTo-Json -Compress`], {encoding: 'utf8'})
+    expect(result.status === 0).toBe(valid)
+    if (valid) expect(JSON.parse(result.stdout)).toEqual({configured: true, liveFormsEnabled: false})
+    else expect(result.stderr).toContain('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY')
+    if (key) expect(result.stdout + result.stderr).not.toContain(key)
   })
 
   it('rejects an absent editorial token before starting the stack without echoing secrets', () => {

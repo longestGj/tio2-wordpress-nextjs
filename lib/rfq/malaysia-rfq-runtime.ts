@@ -1,3 +1,5 @@
+import {isWeb3FormsAccessKey} from '@/lib/forms/web3forms-config'
+
 export interface MalaysiaRfqRuntimeDependencies {
   readonly receiverAccessKey: string | null
   readonly privacyPolicyHref: string | null
@@ -10,14 +12,11 @@ export interface MalaysiaRfqRuntimeDependencies {
   )[]
 }
 
-function nonempty(value: string | undefined): string | null {
-  return value && value.trim() === value && value ? value : null
-}
-
 export function resolveMalaysiaRfqRuntime(
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): MalaysiaRfqRuntimeDependencies {
-  const receiverAccessKey = nonempty(env.NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY)
+  const configuredKey = env.NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY
+  const receiverAccessKey = isWeb3FormsAccessKey(configuredKey) ? configuredKey : null
   const privacyPolicyHref = '/privacy-policy/'
   const blockers: MalaysiaRfqRuntimeDependencies['blockers'][number][] = []
   if (!receiverAccessKey) blockers.push('receiver_configuration')

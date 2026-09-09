@@ -1,0 +1,13 @@
+
+Running 6 tests using 1 worker
+
+(node:65644) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 tests\e2e\web3forms-guards.spec.ts:39:5 › rfq accepted with valid configuration (423ms)
+  ok 2 tests\e2e\web3forms-guards.spec.ts:39:5 › rfq rejected with valid configuration (307ms)
+  ok 3 tests\e2e\web3forms-guards.spec.ts:39:5 › sample accepted with valid configuration (415ms)
+  ok 4 tests\e2e\web3forms-guards.spec.ts:39:5 › sample rejected with valid configuration (309ms)
+  ok 5 tests\e2e\web3forms-guards.spec.ts:39:5 › documents accepted with valid configuration (396ms)
+  ok 6 tests\e2e\web3forms-guards.spec.ts:39:5 › documents rejected with valid configuration (360ms)
+
+  6 passed (2.9s)

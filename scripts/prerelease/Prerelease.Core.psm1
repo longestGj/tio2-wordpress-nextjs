@@ -1,5 +1,6 @@
 $script:PrereleaseComposeProject = 'd16-tio2-my-prerelease'
 $script:PrereleaseSiteId = 'tio2-my'
+$script:Web3FormsContract = Get-Content -LiteralPath (Join-Path $PSScriptRoot '../../lib/forms/web3forms-contract.json') -Raw | ConvertFrom-Json
 
 function Get-PrereleasePlan {
     [CmdletBinding()]
@@ -594,6 +595,11 @@ function Complete-PrereleaseEvidence {
             if ($positive.Count -ne 1) { $invalid = $true }
         }
     }
+    $allProviderAccepted = $Action -eq 'TestLiveForms' -and $attempts.Count -eq 3 -and @($attempts.requestToken | Select-Object -Unique).Count -eq 3
+    foreach ($workflow in @('rfq', 'sample', 'documents')) {
+        $accepted = @($attempts | Where-Object { $_.workflow -eq $workflow -and $_.httpStatus -eq 200 -and $_.providerCategory -eq 'accepted' })
+        if ($accepted.Count -ne 1) { $allProviderAccepted = $false }
+    }
     $result = [ordered]@{
         schemaVersion = 2; action = $Action; commandUuid = $CommandUuid
         candidateCommit = $Manifest.commit; runId = $Manifest.runId; buildId = $Manifest.buildId
@@ -609,7 +615,7 @@ function Complete-PrereleaseEvidence {
         removedChecks = @(@('native_browser_200_percent', 'physical_or_touch_device', 'screen_reader_or_at', 'forced_colors') | ForEach-Object { [ordered]@{check=$_;status='NOT_TESTED';reason='NO_LONGER_REQUIRED_BY_USER_DECISION'} })
         checks = @($checks); externalPostCount = $posts; formAttempts = @($attempts)
         transport = $(if ($Action -eq 'TestLiveForms') { [ordered]@{allowedPostCount=$allowedPosts;blockedWriteCount=$blockedWrites;status=$(if ($transportValid) {'PASSED'} else {'FAILED'})} } else { $null })
-        inboxStatus = 'PENDING_MANUAL_CONFIRMATION'
+        inboxStatus = $(if ($allProviderAccepted) { 'PENDING_MANUAL_CONFIRMATION' } else { 'NOT_APPLICABLE_PROVIDER_NOT_ACCEPTED' })
     }
     Write-PrereleaseJsonFile -Value $result -Path (Join-Path $EvidenceRoot 'result.json')
     [pscustomobject]$result
@@ -621,11 +627,12 @@ function Assert-PrereleaseFormAttempt {
     $keys = @($Attempt.PSObject.Properties.Name | Sort-Object)
     $allowed = @('workflow','pageId','requestToken','httpStatus','providerCategory','thankYouRequest','timestamp') | Sort-Object
     if (@(Compare-Object $keys $allowed).Count -ne 0) { throw 'Unexpected attempt fields.' }
-    if (($Attempt | ConvertTo-Json -Compress) -match '@|access_key|company|message|payload|receiver') { throw 'Unsafe attempt.' }
     if ($Attempt.workflow -notin @('rfq','sample','documents') -or $Attempt.pageId -ne @{rfq='CONV-RFQ';sample='CONV-SAMPLE';documents='CONV-DOC'}[$Attempt.workflow]) { throw 'Invalid workflow identity.' }
     if ($Attempt.requestToken -notmatch '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$') { throw 'Invalid request token.' }
     if ($null -ne $Attempt.httpStatus -and ($Attempt.httpStatus -isnot [int] -or $Attempt.httpStatus -lt 100 -or $Attempt.httpStatus -gt 599)) { throw 'Invalid HTTP status.' }
-    if ($Attempt.providerCategory -notin @('accepted','rejected','rate_limited','invalid_request','network','timeout','aborted','unexpected','pending')) { throw 'Invalid provider category.' }
+    if ($Attempt.providerCategory -cnotin @('accepted','rejected','rate_limited','invalid_access_key','domain_or_origin_restricted','invalid_email','malformed_request','provider_policy','unknown_invalid_request','network','timeout','aborted','unexpected','pending')) { throw 'Invalid provider category.' }
+    # The validated category may contain access_key; no other field gains an exemption.
+    if (($Attempt | Select-Object -Property * -ExcludeProperty providerCategory | ConvertTo-Json -Compress) -match '@|access_key|company|message|payload|receiver') { throw 'Unsafe attempt.' }
     if ($null -ne $Attempt.thankYouRequest -and $Attempt.thankYouRequest -ne @{rfq='quote';sample='sample';documents='documents'}[$Attempt.workflow]) { throw 'Invalid Thank You request.' }
     if ($Attempt.timestamp -notmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$') { throw 'Invalid attempt timestamp.' }
 }
@@ -641,7 +648,15 @@ function Assert-PrereleaseEnvironmentFile {
     foreach ($line in Get-Content -LiteralPath $Path) {
         if ($line -match '^\s*#' -or [string]::IsNullOrWhiteSpace($line) -or $line -notmatch '=') { continue }
         $name, $value = $line -split '=', 2
-        $values[$name.Trim()] = $value.Trim().Trim("'`"")
+        if ($name.Trim() -eq 'NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY') {
+            # Preserve whitespace in the key; remove only matching dotenv quotes.
+            if ($value.Length -ge 2 -and (($value.StartsWith('"') -and $value.EndsWith('"')) -or ($value.StartsWith("'") -and $value.EndsWith("'")))) {
+                $value = $value.Substring(1, $value.Length - 2)
+            }
+            $values[$name.Trim()] = $value
+        } else {
+            $values[$name.Trim()] = $value.Trim().Trim("'`"")
+        }
     }
     $required = @(
         'WORDPRESS_DB_NAME', 'WORDPRESS_DB_USER', 'WORDPRESS_DB_PASSWORD', 'WORDPRESS_DB_ROOT_PASSWORD',
@@ -655,6 +670,9 @@ function Assert-PrereleaseEnvironmentFile {
         if ([string]::IsNullOrWhiteSpace($value) -or $value -match '^replace-with-') {
             throw "Prerelease configuration is missing or still uses a placeholder: $name"
         }
+    }
+    if ($values.NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY -cnotmatch $script:Web3FormsContract.accessKeyPattern) {
+        throw 'Prerelease configuration requires a UUID-shaped NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY.'
     }
     if ($values.PRERELEASE_LIVE_FORMS_ENABLED -notin @('true', 'false')) {
         throw 'PRERELEASE_LIVE_FORMS_ENABLED must be true or false.'

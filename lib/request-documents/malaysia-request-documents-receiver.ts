@@ -39,7 +39,7 @@ export function submitMalaysiaRequestDocuments(
       kind: "validation_failed",
       errors: validation.errors,
     });
-  const accessKey = options.accessKey?.trim() || null;
+  const accessKey = options.accessKey;
   if (!accessKey)
     return submitWeb3FormsBrowser(
       {

@@ -16,7 +16,7 @@ vi.mock('@/lib/thank-you/malaysia-thank-you-session', async (original) => ({
 const dto=toMalaysiaRequestSamplePageDto(malaysiaRequestSamplePageSource())
 const renderPage=(prefill=resolveMalaysiaSamplePrefill({}),receiverReady=true)=>render(<MalaysiaRequestSamplePage page={dto} prefill={prefill} receiverReady={receiverReady} structuredData={null}/>)
 beforeEach(()=>{
-  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY','public-test-key')
+  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY','01234567-89ab-cdef-0123-456789abcdef')
   vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({success:true}),{status:200,headers:{'content-type':'application/json'}})))
 })
 afterEach(()=>{cleanup();vi.unstubAllEnvs();vi.unstubAllGlobals();vi.clearAllMocks()})

@@ -89,7 +89,7 @@ describe('private RFQ attribution', () => {
 
   it('injects the private source only into the server-to-receiver payload', async () => {
     vi.stubEnv('TIO2_MY_RFQ_ATTRIBUTION_SECRET', secret)
-    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'test-key')
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', '01234567-89ab-cdef-0123-456789abcdef')
     vi.stubEnv('TIO2_MY_WEB3FORMS_ENDPOINT', 'https://receiver.example/submit')
     let forwarded: Record<string, unknown> = {}
     vi.stubGlobal('fetch', vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
@@ -109,7 +109,7 @@ describe('private RFQ attribution', () => {
 
   it('injects a shared consumer source only after validating its opaque token', async () => {
     vi.stubEnv('TIO2_MY_RFQ_ATTRIBUTION_SECRET', secret)
-    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'test-key')
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', '01234567-89ab-cdef-0123-456789abcdef')
     let forwarded: Record<string, unknown> = {}
     vi.stubGlobal('fetch', vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
       forwarded = JSON.parse(String(init?.body)) as Record<string, unknown>
@@ -128,7 +128,7 @@ describe('private RFQ attribution', () => {
 
   it('submits normally without adding a private source when no attribution cookie exists', async () => {
     vi.stubEnv('TIO2_MY_RFQ_ATTRIBUTION_SECRET', secret)
-    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'test-key')
+    vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', '01234567-89ab-cdef-0123-456789abcdef')
     const receiver = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
       const forwarded = JSON.parse(String(init?.body)) as Record<string, unknown>
       expect(forwarded).not.toHaveProperty('source_page_id')

@@ -25,6 +25,7 @@ describe.runIf(process.platform === 'win32')('candidate evidence finalization', 
         expect(evidence).toMatchObject({candidateCommit: manifest.commit, runId: 'run-1', buildId: 'build-1', cmsIdentitySha256: manifest.cmsIdentitySha256, state: exitCode ? 'FAILED' : 'PASSED', requiredWidths: [1440, 768, 390]})
         expect(evidence.requiredChecks).toEqual(expect.arrayContaining(['chromium', 'axe', 'keyboard', 'visible_focus', 'public_paths', 'internal_links_58']))
         expect(evidence.inventory).toEqual({registeredObjects: 58, eligibleRoutes: 42, cmsRoutes: 41, nativeRoutes: 1, homeActions: 6, productGrades: 14, productProcesses: 2, productSupport: 3, applicationChildren: 5, applicationGradeOccurrences: 30, applicationSupport: 3, resourceItems: 8, documentGuides: 3})
+        expect(evidence.inboxStatus).toBe('NOT_APPLICABLE_PROVIDER_NOT_ACCEPTED')
         expect(evidence.checks).toHaveLength(10)
         expect(evidence.requiredCheckIds).toEqual(Object.values(ordinaryChecks).flat())
         expect(evidence.completedCheckIds).toHaveLength(exitCode ? 0 : 10)
@@ -66,7 +67,7 @@ describe.runIf(process.platform === 'win32')('candidate evidence finalization', 
       expect(spawnSync('powershell', ['-NoProfile', '-Command', command]).status).not.toBe(0)
     } finally { rmSync(root, {recursive: true, force: true}) }
   })
-  for (const variant of ['positive', 'duplicate-token', 'duplicate-workflow', 'unknown-workflow', 'unsafe-field', 'missing-transition', 'rejected', 'extra-attempt', 'blocked-write', 'no-post', 'missing-transport']) {
+  for (const variant of ['positive', 'duplicate-token', 'duplicate-workflow', 'unknown-workflow', 'unsafe-field', 'missing-transition', 'rejected', 'all-rejected', 'missing-attempt', 'non-200-accepted', 'extra-attempt', 'blocked-write', 'no-post', 'missing-transport']) {
     it(`preserves separate transport evidence and refuses invalid live acceptance (${variant})`, () => {
       const root = mkdtempSync(join(tmpdir(), 'prerelease-transport-'))
       try {
@@ -77,6 +78,9 @@ describe.runIf(process.platform === 'win32')('candidate evidence finalization', 
         if (variant === 'unknown-workflow') attempts[1]!.workflow = 'unknown'
         if (variant === 'missing-transition') attempts[1]!.thankYouRequest = null
         if (variant === 'rejected') attempts[1]!.providerCategory = 'rejected'
+        if (variant === 'all-rejected') attempts.forEach(attempt => { attempt.httpStatus = 400; attempt.providerCategory = 'invalid_access_key'; attempt.thankYouRequest = null })
+        if (variant === 'missing-attempt') attempts.pop()
+        if (variant === 'non-200-accepted') attempts[1]!.httpStatus = 201
         if (variant === 'unsafe-field') Object.assign(attempts[1]!, {email: 'private@example.com', access_key: 'SECRET_PAYLOAD'})
         if (variant === 'extra-attempt') attempts.push({...attempts[0]!, requestToken: '00000000-0000-4000-8000-000000000009'})
         for (let i = 0; i < 3; i++) writeFileSync(join(root, `live-forms-${i}.json`), JSON.stringify({suite: 'live-forms', commandUuid: 'cmd-1', checks: [{check: `live-forms.${['rfq','sample','documents'][i]}`, status: 'PASSED'}], externalPostCount: variant === 'no-post' && i === 0 ? 0 : 1,
@@ -88,13 +92,28 @@ describe.runIf(process.platform === 'win32')('candidate evidence finalization', 
         const raw = readFileSync(join(root, 'result.json'), 'utf8')
         const evidence = JSON.parse(raw)
         expect(evidence.state).toBe(variant === 'positive' ? 'PASSED' : 'FAILED')
-        expect(evidence.inboxStatus).toBe('PENDING_MANUAL_CONFIRMATION')
+        const allAccepted = ['positive', 'missing-transition', 'blocked-write', 'no-post', 'missing-transport'].includes(variant)
+        expect(evidence.inboxStatus).toBe(allAccepted ? 'PENDING_MANUAL_CONFIRMATION' : 'NOT_APPLICABLE_PROVIDER_NOT_ACCEPTED')
         expect(evidence.requiredCheckIds).toEqual(['live-forms.rfq', 'live-forms.sample', 'live-forms.documents'])
         expect(evidence.requiredChecks).not.toContain('internal_links_58')
         expect(evidence.inventory).toBeNull()
-        expect(raw).not.toMatch(/@|access_key|SECRET_PAYLOAD|inboxReceived/iu)
+        expect(raw).not.toMatch(/@|"access_key"|SECRET_PAYLOAD|inboxReceived/iu)
+        if (variant === 'all-rejected') expect(evidence.formAttempts).toHaveLength(3)
         if (variant === 'extra-attempt') expect(evidence.formAttempts).toHaveLength(4)
       } finally { rmSync(root, {recursive: true, force: true}) }
     })
   }
+  it('accepts only the exact diagnostic enums while retaining the evidence field allowlist', () => {
+    const root = mkdtempSync(join(tmpdir(), 'prerelease-category-'))
+    try {
+      const base = {workflow: 'rfq', pageId: 'CONV-RFQ', requestToken: '00000000-0000-4000-8000-000000000001', httpStatus: 400, providerCategory: 'invalid_access_key', thankYouRequest: null, timestamp: '2026-09-09T01:00:00.000Z'}
+      const categories = ['invalid_access_key', 'domain_or_origin_restricted', 'invalid_email', 'malformed_request', 'provider_policy', 'unknown_invalid_request']
+      const attempts = [...categories.map(providerCategory => ({...base, providerCategory})), {...base, providerCategory: 'INVALID_ACCESS_KEY'}, {...base, providerCategory: 'invalid_access_key PRIVATE_SENTINEL'}, {...base, access_key: 'PRIVATE_SENTINEL'}, {...base, timestamp: 'PRIVATE_SENTINEL@example.test'}]
+      writeFileSync(join(root, 'attempts.json'), JSON.stringify(attempts))
+      const result = spawnSync('powershell', ['-NoProfile', '-Command', `$ErrorActionPreference='Stop'; Import-Module ${quote(modulePath)} -Force; $attempts=Get-Content -Raw ${quote(join(root, 'attempts.json'))}|ConvertFrom-Json; @($attempts | ForEach-Object {try {Assert-PrereleaseFormAttempt -Attempt $_; $true} catch {$false}}) | ConvertTo-Json -Compress`], {encoding: 'utf8'})
+      expect(result.status, result.stderr).toBe(0)
+      expect(JSON.parse(result.stdout)).toEqual([true, true, true, true, true, true, false, false, false, false])
+      expect(result.stdout + result.stderr).not.toMatch(/PRIVATE_SENTINEL|@/u)
+    } finally { rmSync(root, {recursive: true, force: true}) }
+  })
 })

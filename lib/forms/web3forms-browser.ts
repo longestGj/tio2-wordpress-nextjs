@@ -1,6 +1,9 @@
+import {classifyWeb3FormsResponse, type Web3FormsResponseCategory} from './web3forms-provider'
+import {isWeb3FormsAccessKey} from './web3forms-config'
+
 export type Web3FormsWorkflow = 'rfq' | 'sample' | 'documents'
 export type Web3FormsOutcome = 'provider_accepted' | 'provider_rejected' | 'submission_unconfirmed' | 'unavailable'
-export type Web3FormsProviderCategory = 'accepted' | 'rejected' | 'rate_limited' | 'invalid_request' | 'network' | 'timeout' | 'aborted' | 'unexpected'
+export type Web3FormsProviderCategory = Web3FormsResponseCategory | 'network' | 'timeout' | 'aborted'
 
 export interface Web3FormsDiagnostic {
   readonly workflow: Web3FormsWorkflow
@@ -72,7 +75,7 @@ export async function submitWeb3FormsBrowser(
   input: Web3FormsBrowserInput,
   deps: Web3FormsBrowserDependencies = {},
 ): Promise<Web3FormsBrowserResult> {
-  if (!input.accessKey) return result(input, 'unavailable', 'unexpected')
+  if (!isWeb3FormsAccessKey(input.accessKey)) return result(input, 'unavailable', 'unexpected')
   if (input.signal?.aborted) return result(input, 'submission_unconfirmed', 'aborted')
 
   const controller = new AbortController()
@@ -107,10 +110,7 @@ export async function submitWeb3FormsBrowser(
             body = undefined
           }
         }
-        const success = typeof body === 'object' && body !== null && 'success' in body
-          ? (body as {success?: unknown}).success
-          : undefined
-        return {type: 'response' as const, response, mediaType, success}
+        return {type: 'response' as const, response, mediaType, providerCategory: classifyWeb3FormsResponse(response.status, body)}
       } catch {
         return {type: 'network' as const}
       }
@@ -127,16 +127,16 @@ export async function submitWeb3FormsBrowser(
       return result(input, 'submission_unconfirmed', 'network')
     }
 
-    const {response, mediaType, success} = settled
+    const {response, mediaType, providerCategory} = settled
 
-    if (response.status === 200 && success === true) {
+    if (providerCategory === 'accepted') {
       return result(input, 'provider_accepted', 'accepted', response.status, mediaType)
     }
-    if (response.status === 200 && success === false) {
+    if (providerCategory === 'rejected') {
       return result(input, 'provider_rejected', 'rejected', response.status, mediaType)
     }
     if (response.status === 400 || response.status === 422) {
-      return result(input, 'provider_rejected', 'invalid_request', response.status, mediaType)
+      return result(input, 'provider_rejected', providerCategory, response.status, mediaType)
     }
     if (response.status === 429) {
       return result(input, 'provider_rejected', 'rate_limited', response.status, mediaType)
