@@ -10,6 +10,16 @@ const updaterScript = fileURLToPath(
 )
 const runLiveWordPress = process.env.WORDPRESS_EDITORIAL_FIXTURE_RUNTIME === '1'
 
+// The historical PowerShell wrapper owns the default Compose target. Do not
+// observe an override target while that wrapper operates on a different CMS.
+if (runLiveWordPress && [
+  'TIO2_TEST_WORDPRESS_ENV',
+  'TIO2_TEST_WORDPRESS_COMPOSE',
+  'TIO2_TEST_WORDPRESS_PROJECT',
+].some(key => process.env[key] !== undefined)) {
+  throw new Error('Editorial fixture wrapper does not support Compose test overrides')
+}
+
 function execute(command: string, arguments_: string[], timeout = 240_000) {
   return spawnSync(command, arguments_, {
     cwd: repositoryRoot,
