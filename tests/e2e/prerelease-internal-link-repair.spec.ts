@@ -7,9 +7,31 @@ type RepairFixture = {
   dispatchId: string
   reviewId: string
   siteScope: string
-  affectedPages: Array<{pageId: string; path: string}>
+  affectedPages: Array<{
+    pageId: string
+    path: string
+    seo: {
+      canonical: string
+      hreflang: Array<{lang: string; href: string}>
+      schemaCount: number
+      schemaSameSiteUrls: string[]
+    }
+  }>
   queryAwareTargets: string[]
-  consumers: Array<{pageId: string; path: string; expectedStatus: number}>
+  consumers: Array<{
+    pageId: string
+    path: string
+    expectedStatus: number
+    language: string
+    title: string
+    h1: string[]
+    canonical: string | null
+    robots: string[]
+    sharedHeaderFooterHrefs: string[]
+    pageIdMarkerCount: number
+    siteScopeMarkerCount: number
+    foreignScopeMarkerCount: number
+  }>
   contact: {
     path: string
     canonical: string
@@ -38,6 +60,22 @@ function writeEvidence(name: string, value: unknown) {
 
 function expectedUrl(path: string) {
   return new URL(path, baseUrl)
+}
+
+function collectSameSiteUrls(value: unknown, urls: string[] = []) {
+  if (typeof value === 'string') {
+    try {
+      const url = new URL(value)
+      if (url.origin === 'https://tio2malaysia.com') urls.push(url.href)
+    } catch {
+      // Non-URL schema values are expected.
+    }
+  } else if (Array.isArray(value)) {
+    value.forEach((item) => collectSameSiteUrls(item, urls))
+  } else if (value && typeof value === 'object') {
+    Object.values(value).forEach((item) => collectSameSiteUrls(item, urls))
+  }
+  return urls
 }
 
 async function expectDirectResponse(request: APIRequestContext, path: string, status = 200) {
@@ -106,34 +144,36 @@ test('ILR3100-F01 keeps 29 page identities and 47 query-aware targets on direct 
     const nonCanonical = target.path.slice(0, -1)
     const redirect = await request.get(expectedUrl(nonCanonical).href, {maxRedirects: 0})
     expect(redirect.status(), target.pageId).toBe(308)
-    expect(new URL(redirect.headers().location!).pathname, target.pageId).toBe(target.path)
+    expect(new URL(redirect.headers().location!, baseUrl).pathname, target.pageId).toBe(target.path)
 
     const response = await page.goto(expectedUrl(target.path).href, {waitUntil: 'domcontentloaded'})
     expect(response?.status(), target.pageId).toBe(200)
     expect(new URL(page.url()).pathname, target.pageId).toBe(target.path)
-    const canonical = new URL((await page.locator('link[rel="canonical"]').getAttribute('href'))!)
+    const canonicalHref = await page.locator('link[rel="canonical"]').getAttribute('href')
+    expect(canonicalHref, target.pageId).toBe(target.seo.canonical)
+    const canonical = new URL(canonicalHref!)
+    expect(canonical.origin, target.pageId).toBe('https://tio2malaysia.com')
     expect(canonical.pathname, target.pageId).toBe(target.path)
     expect(canonical.search, target.pageId).toBe('')
+    expect(canonical.hash, target.pageId).toBe('')
     await expect(page.locator('meta[name="robots"]'), target.pageId).toHaveAttribute('content', /noindex/u)
 
-    const declaredUrls = await page.locator('link[rel="alternate"][hreflang], script[type="application/ld+json"]').evaluateAll((nodes) => {
-      const urls: string[] = []
-      const visit = (value: unknown) => {
-        if (typeof value === 'string' && value.startsWith('https://tio2malaysia.com')) urls.push(value)
-        else if (Array.isArray(value)) value.forEach(visit)
-        else if (value && typeof value === 'object') Object.values(value).forEach(visit)
-      }
-      for (const node of nodes) {
-        if (node instanceof HTMLLinkElement) urls.push(node.href)
-        else {
-          try { visit(JSON.parse(node.textContent ?? 'null')) } catch { /* tested by page-specific suites */ }
-        }
-      }
-      return urls
-    })
-    for (const declared of declaredUrls) {
-      const path = new URL(declared).pathname
-      expect(path === '/' || path.endsWith('/'), `${target.pageId}: ${declared}`).toBe(true)
+    const hreflang = await page.locator('link[rel="alternate"][hreflang]').evaluateAll((nodes) => nodes.map((node) => ({
+      lang: node.getAttribute('hreflang')!,
+      href: node.getAttribute('href')!,
+    })))
+    expect(hreflang, `${target.pageId}: hreflang`).toEqual(target.seo.hreflang)
+
+    const schemaTexts = await page.locator('script[type="application/ld+json"]').allTextContents()
+    expect(schemaTexts, `${target.pageId}: JSON-LD count`).toHaveLength(target.seo.schemaCount)
+    const schemaSameSiteUrls = schemaTexts
+      .flatMap((schemaText) => collectSameSiteUrls(JSON.parse(schemaText)))
+      .sort()
+    expect(schemaSameSiteUrls, `${target.pageId}: JSON-LD URLs`).toEqual(target.seo.schemaSameSiteUrls)
+    for (const declared of [...hreflang.map(({href}) => href), ...schemaSameSiteUrls]) {
+      const url = new URL(declared)
+      expect(url.origin, `${target.pageId}: ${declared}`).toBe('https://tio2malaysia.com')
+      expect(url.pathname === '/' || url.pathname.endsWith('/'), `${target.pageId}: ${declared}`).toBe(true)
     }
   }
 
@@ -162,9 +202,24 @@ test('all 58 consumers preserve shared Header/Footer routes and the private inde
   for (const consumer of fixture.consumers) {
     const response = await page.goto(expectedUrl(consumer.path).href, {waitUntil: 'domcontentloaded'})
     expect(response?.status(), consumer.pageId).toBe(consumer.expectedStatus)
-    await expect(page.locator('header'), consumer.pageId).toBeAttached()
-    await expect(page.locator('footer'), consumer.pageId).toBeAttached()
-    const hrefs = await page.locator('header a[href], footer a[href]').evaluateAll((links) => links.map((link) => link.getAttribute('href')!))
+    expect(new URL(page.url()).pathname, consumer.pageId).toBe(consumer.path)
+    await expect(page.locator('html'), consumer.pageId).toHaveAttribute('lang', consumer.language)
+    await expect(page).toHaveTitle(consumer.title)
+    expect(await page.locator('h1').allTextContents(), `${consumer.pageId}: h1`).toEqual(consumer.h1)
+    await expect(page.locator(`[data-page-id="${consumer.pageId}"]`), `${consumer.pageId}: page marker`).toHaveCount(consumer.pageIdMarkerCount)
+    await expect(page.locator(`[data-site-scope="${fixture.siteScope}"]`), `${consumer.pageId}: site scope`).toHaveCount(consumer.siteScopeMarkerCount)
+    await expect(page.locator(`[data-site-scope]:not([data-site-scope="${fixture.siteScope}"])`), `${consumer.pageId}: foreign scope`).toHaveCount(consumer.foreignScopeMarkerCount)
+    const canonical = page.locator('link[rel="canonical"]')
+    if (consumer.canonical === null) await expect(canonical, `${consumer.pageId}: canonical`).toHaveCount(0)
+    else await expect(canonical, `${consumer.pageId}: canonical`).toHaveAttribute('href', consumer.canonical)
+    const robots = await page.locator('meta[name="robots"]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('content')!))
+    expect(robots.sort(), `${consumer.pageId}: robots`).toEqual([...consumer.robots].sort())
+    const globalHeader = page.getByRole('banner')
+    const globalFooter = page.getByRole('contentinfo')
+    await expect(globalHeader, consumer.pageId).toBeAttached()
+    await expect(globalFooter, consumer.pageId).toBeAttached()
+    const hrefs = await globalHeader.locator('a[href]').or(globalFooter.locator('a[href]')).evaluateAll((links) => links.map((link) => link.getAttribute('href')!))
+    expect([...hrefs].sort(), `${consumer.pageId}: Header/Footer hrefs`).toEqual(consumer.sharedHeaderFooterHrefs)
     for (const href of hrefs) {
       const url = new URL(href, baseUrl)
       if (url.origin !== new URL(baseUrl).origin && url.origin !== 'https://tio2malaysia.com') continue

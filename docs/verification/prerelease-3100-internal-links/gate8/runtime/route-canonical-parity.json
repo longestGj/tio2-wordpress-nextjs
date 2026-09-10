@@ -1,0 +1,8 @@
+{
+  "findingId": "ILR3100-F01-CANONICAL-REDIRECT-PARITY",
+  "status": "PASSED",
+  "affectedPageCount": 29,
+  "queryAwareTargetCount": 47,
+  "queryPreserved": true,
+  "fragmentPreserved": true
+}

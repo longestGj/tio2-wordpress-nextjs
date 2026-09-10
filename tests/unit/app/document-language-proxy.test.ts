@@ -63,10 +63,12 @@ describe('TiO2 Malaysia canonical path proxy', () => {
       expect(response.headers.get('location'), path).toBeNull()
     }
 
-    vi.stubEnv('SITE_ID', 'tio2-a')
-    const otherSite = proxy(new NextRequest('https://example.test/request-documents/'))
-    expect(otherSite.status).toBe(308)
-    expect(otherSite.headers.get('location')).toBe('https://example.test/request-documents')
+    for (const siteId of ['tio2-a', 'tio2-b']) {
+      vi.stubEnv('SITE_ID', siteId)
+      const otherSite = proxy(new NextRequest('https://example.test/request-documents/'))
+      expect(otherSite.status, siteId).toBe(308)
+      expect(otherSite.headers.get('location'), siteId).toBe('https://example.test/request-documents')
+    }
   })
 
   it('does not inject request-time document language headers', () => {
