@@ -42,6 +42,7 @@ if ($Plan) {
             cancellation = 'cooperative-file'
             secrets = 'per-site-from-wordpress-env'
             hostname = '0.0.0.0'
+            readinessIdentity = 'data-site-id'
         }
         stop = [ordered]@{
             preflightAllRecords = $true
@@ -224,9 +225,10 @@ function Wait-SiteHealthy {
 
         try {
             $Response = Invoke-WebRequest -UseBasicParsing -Uri $HealthUrl -TimeoutSec 5
-            if ([int]$Response.StatusCode -eq 200) {
+            if ([int]$Response.StatusCode -eq 200 -and ([string]$Response.Content).Contains('data-site-id="' + $Record.siteId + '"')) {
                 return
             }
+            Start-Sleep -Milliseconds 500
         }
         catch {
             if (Test-CancellationRequested) {

@@ -1,5 +1,6 @@
 import {execFile} from 'node:child_process'
 import {promisify} from 'node:util'
+import {doctorRuntime} from './doctor.mjs'
 
 import {
   attachLease,
@@ -19,6 +20,7 @@ class UsageError extends Error {
 }
 
 const actionFlags = new Map([
+  ['doctor', new Map([['lease-root', 'value'], ['json', 'switch']])],
   ['reserve', new Map([
     ['lease-root', 'value'],
     ['purpose', 'value'],
@@ -172,6 +174,7 @@ async function statusCommand(args) {
 }
 
 const actions = new Map([
+  ['doctor', args => doctorRuntime(args['lease-root'] === undefined ? {} : {leaseRoot: args['lease-root']})],
   ['reserve', reserveCommand],
   ['attach', attachCommand],
   ['release', releaseCommand],
