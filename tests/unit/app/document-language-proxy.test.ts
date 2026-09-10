@@ -34,15 +34,33 @@ describe('TiO2 Malaysia canonical path proxy', () => {
     expect(api.headers.get('x-middleware-request-x-tio2-my-document-language')).toBeNull()
   })
 
-  it('preserves the original no-trailing-slash behavior outside approved Malaysia exceptions', () => {
+  it.each([
+    '/about',
+    '/products',
+    '/privacy-policy',
+    '/thank-you',
+    '/contact',
+  ])('redirects every Malaysia page identity to its approved trailing-slash URL: %s', (path) => {
     vi.stubEnv('SITE_ID', 'tio2-my')
 
-    for (const path of ['/products/', '/privacy-policy/', '/api/revalidate/']) {
-      const response = proxy(new NextRequest(`https://tio2malaysia.com${path}`))
-      expect(response.status, path).toBe(308)
-      expect(response.headers.get('location'), path).toBe(
-        `https://tio2malaysia.com${path.slice(0, -1)}`,
-      )
+    const redirected = proxy(new NextRequest(`https://tio2malaysia.com${path}?source=review#approved-section`))
+    const canonical = proxy(new NextRequest(`https://tio2malaysia.com${path}/?source=review`))
+
+    expect(redirected.status).toBe(308)
+    expect(redirected.headers.get('location')).toBe(
+      `https://tio2malaysia.com${path}/?source=review#approved-section`,
+    )
+    expect(canonical.status).toBe(200)
+    expect(canonical.headers.get('location')).toBeNull()
+  })
+
+  it('keeps API endpoints outside page URL normalization and preserves other-site behavior', () => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+
+    for (const path of ['/api/revalidate', '/api/revalidate/']) {
+      const response = proxy(new NextRequest(`https://tio2malaysia.com${path}`, {method: 'POST'}))
+      expect(response.status, path).toBe(200)
+      expect(response.headers.get('location'), path).toBeNull()
     }
 
     vi.stubEnv('SITE_ID', 'tio2-a')

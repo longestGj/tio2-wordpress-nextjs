@@ -1,21 +1,4 @@
 import {NextResponse, type NextRequest} from 'next/server'
-import {editorialPageIdForPath} from './lib/editorial/malaysia-editorial-contracts'
-
-const MALAYSIA_TRAILING_SLASH_PATHS = new Set([
-  '/markets',
-  '/markets/european-union',
-  '/markets/united-kingdom',
-  '/markets/poland',
-  '/products/chloride-process-titanium-dioxide',
-  '/documents/certificate-of-origin',
-  '/markets/spain',
-  '/markets/india',
-  '/markets/netherlands',
-  '/markets/belgium',
-  '/markets/brazil',
-  '/pt-br/markets/brazil',
-  '/request-documents',
-])
 
 export function proxy(request: NextRequest) {
   // Next reserves /404; route it through the scoped catch-all not-found boundary.
@@ -26,19 +9,21 @@ export function proxy(request: NextRequest) {
     return NextResponse.rewrite(recovery)
   }
   const pathnameWithoutTrailingSlash = request.nextUrl.pathname.replace(/\/+$/u, '') || '/'
-  const isMalaysiaTrailingSlashPath = process.env.SITE_ID === 'tio2-my' &&
-    (MALAYSIA_TRAILING_SLASH_PATHS.has(pathnameWithoutTrailingSlash) || Boolean(editorialPageIdForPath(pathnameWithoutTrailingSlash)))
+  const isApiPath = pathnameWithoutTrailingSlash === '/api' || pathnameWithoutTrailingSlash.startsWith('/api/')
+  const isMalaysiaPagePath = process.env.SITE_ID === 'tio2-my' &&
+    pathnameWithoutTrailingSlash !== '/' &&
+    !isApiPath
 
-  if (isMalaysiaTrailingSlashPath && request.nextUrl.pathname === pathnameWithoutTrailingSlash) {
+  if (isMalaysiaPagePath && request.nextUrl.pathname === pathnameWithoutTrailingSlash) {
     const canonicalUrl = new URL(request.url)
     canonicalUrl.pathname = `${pathnameWithoutTrailingSlash}/`
     return NextResponse.redirect(canonicalUrl, 308)
   }
 
   if (
+    process.env.SITE_ID !== 'tio2-my' &&
     request.nextUrl.pathname !== '/' &&
-    request.nextUrl.pathname.endsWith('/') &&
-    !isMalaysiaTrailingSlashPath
+    request.nextUrl.pathname.endsWith('/')
   ) {
     const canonicalUrl = new URL(request.url)
     canonicalUrl.pathname = pathnameWithoutTrailingSlash

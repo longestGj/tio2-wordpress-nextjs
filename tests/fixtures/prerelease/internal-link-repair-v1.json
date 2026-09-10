@@ -1,0 +1,489 @@
+{
+  "schemaVersion": "prerelease-3100-internal-link-repair-v1",
+  "dispatchId": "PRERELEASE-3100-IL-G8-REPAIR-20260910-01",
+  "reviewId": "PRERELEASE-3100-IL-RR-20260910-01",
+  "siteScope": "tio2-my",
+  "sources": {
+    "dispatch": {
+      "path": "D:\\23MySec\\docs\\architecture\\internal-link-review\\prerelease-3100-2026-09-10\\PRERELEASE_3100_GATE8_REPAIR_AUTHORIZATION_AND_DISPATCH_V1.0.md",
+      "sha256": "31f27cd659883efc90255a482d399cafe0826a7ca817ee5cee26d22c5d119f5a"
+    },
+    "review": {
+      "path": "D:\\23MySec\\docs\\architecture\\internal-link-review\\prerelease-3100-2026-09-10\\PRERELEASE_3100_INTERNAL_LINK_RUNTIME_REVIEW_V1.0.md",
+      "sha256": "5014b68d0decdc717c7cc0de69fbcff9b8e9220fee059b3689c0011d593c0c26"
+    },
+    "inventory": {
+      "path": "D:\\23MySec\\docs\\architecture\\internal-link-review\\prerelease-3100-2026-09-10\\PRERELEASE_3100_INTERNAL_LINK_INVENTORY_V1.0.json",
+      "sha256": "b7f8c2a88fc276fc120e5cf6e76df24d2fbe7f5fd2efc4260f5c9b0e2e0de21b"
+    }
+  },
+  "affectedPages": [
+    {
+      "pageId": "ABOUT-001",
+      "path": "/about/"
+    },
+    {
+      "pageId": "PRODUCT-000",
+      "path": "/products/"
+    },
+    {
+      "pageId": "GRADE-M350",
+      "path": "/products/m-350/"
+    },
+    {
+      "pageId": "GRADE-M510",
+      "path": "/products/m-510/"
+    },
+    {
+      "pageId": "GRADE-M896",
+      "path": "/products/m-896/"
+    },
+    {
+      "pageId": "GRADE-M996",
+      "path": "/products/m-996/"
+    },
+    {
+      "pageId": "GRADE-M2196",
+      "path": "/products/m-2196/"
+    },
+    {
+      "pageId": "GRADE-M895",
+      "path": "/products/m-895/"
+    },
+    {
+      "pageId": "GRADE-M200",
+      "path": "/products/m-200/"
+    },
+    {
+      "pageId": "GRADE-M108",
+      "path": "/products/m-108/"
+    },
+    {
+      "pageId": "GRADE-M210",
+      "path": "/products/m-210/"
+    },
+    {
+      "pageId": "GRADE-M340",
+      "path": "/products/m-340/"
+    },
+    {
+      "pageId": "GRADE-M886",
+      "path": "/products/m-886/"
+    },
+    {
+      "pageId": "GRADE-M52",
+      "path": "/products/m-52/"
+    },
+    {
+      "pageId": "GRADE-M2377",
+      "path": "/products/m-2377/"
+    },
+    {
+      "pageId": "GRADE-CR901",
+      "path": "/products/cr-901/"
+    },
+    {
+      "pageId": "APP-000",
+      "path": "/applications/"
+    },
+    {
+      "pageId": "DOC-000",
+      "path": "/documents/"
+    },
+    {
+      "pageId": "DOC-REACH",
+      "path": "/documents/reach/"
+    },
+    {
+      "pageId": "DOC-TDS",
+      "path": "/documents/tds-sds-coa/"
+    },
+    {
+      "pageId": "RES-000",
+      "path": "/resources/"
+    },
+    {
+      "pageId": "RES-ORIGIN",
+      "path": "/resources/non-china-titanium-dioxide/"
+    },
+    {
+      "pageId": "RES-PROC",
+      "path": "/resources/chloride-vs-sulfate-titanium-dioxide/"
+    },
+    {
+      "pageId": "CONV-RFQ",
+      "path": "/request-a-quote/"
+    },
+    {
+      "pageId": "CONV-SAMPLE",
+      "path": "/request-sample/"
+    },
+    {
+      "pageId": "LEGAL-PRIV-EN",
+      "path": "/privacy-policy/"
+    },
+    {
+      "pageId": "LEGAL-PRIV-MS",
+      "path": "/ms/privacy-policy/"
+    },
+    {
+      "pageId": "LEGAL-COOKIE-EN",
+      "path": "/cookie-policy/"
+    },
+    {
+      "pageId": "CONV-THANK",
+      "path": "/thank-you/"
+    }
+  ],
+  "queryAwareTargets": [
+    "/about/",
+    "/applications/",
+    "/cookie-policy/",
+    "/documents/",
+    "/documents/reach/",
+    "/documents/tds-sds-coa/",
+    "/ms/privacy-policy/",
+    "/privacy-policy/",
+    "/products/",
+    "/products/cr-901/",
+    "/products/m-108/",
+    "/products/m-200/",
+    "/products/m-210/",
+    "/products/m-2196/",
+    "/products/m-2377/",
+    "/products/m-340/",
+    "/products/m-350/",
+    "/products/m-510/",
+    "/products/m-52/",
+    "/products/m-886/",
+    "/products/m-895/",
+    "/products/m-896/",
+    "/products/m-996/",
+    "/request-a-quote/",
+    "/request-a-quote/?destination_country=Belgium&source_page_id=MARKET-EU-BE",
+    "/request-a-quote/?destination_country=India&source_page_id=MARKET-IN-001",
+    "/request-a-quote/?destination_country=Netherlands&source_page_id=MARKET-EU-NL",
+    "/request-a-quote/?destination_country=Spain&source_page_id=MARKET-EU-ES",
+    "/request-a-quote/?market=European%20Union&source_page=MARKET-EU-001",
+    "/request-a-quote/?market=United%20Kingdom&source_page=MARKET-UK-001",
+    "/request-a-quote/?source_page_id=MARKET-BR-EN",
+    "/request-a-quote/?source_page_id=MARKET-BR-EN&destination_country=Brazil",
+    "/request-a-quote/?source_page_id=MARKET-BR-PT",
+    "/request-a-quote/?source_page_id=MARKET-BR-PT&destination_country=Brazil",
+    "/request-a-quote/?source_page_id=MARKET-EU-DE&destination_country=Germany",
+    "/request-a-quote/?source_page_id=MARKET-EU-IT&destination_country=Italy",
+    "/request-a-quote/?source_page_id=PRODUCT-000",
+    "/request-a-quote/?source_page_id=PRODUCT-PROC-CL",
+    "/request-a-quote/?source_page_id=PRODUCT-PROC-SU",
+    "/request-a-quote/?source_page=RES-ORIGIN&interest=alternative-origin-sourcing",
+    "/request-sample/",
+    "/request-sample/?source_page_id=MARKET-EU-001&market_id=MARKET-EU-001",
+    "/request-sample/?source_page_id=MARKET-EU-DE",
+    "/request-sample/?source_page_id=MARKET-EU-IT",
+    "/resources/",
+    "/resources/chloride-vs-sulfate-titanium-dioxide/",
+    "/resources/non-china-titanium-dioxide/"
+  ],
+  "consumers": [
+    {
+      "pageId": "HOME-001",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "ABOUT-001",
+      "path": "/about/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "MARKET-000",
+      "path": "/markets/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "MARKET-EU-001",
+      "path": "/markets/european-union/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "MARKET-EU-DE",
+      "path": "/markets/germany/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "path": "/markets/italy/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "MARKET-EU-ES",
+      "path": "/markets/spain/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "MARKET-EU-PL",
+      "path": "/markets/poland/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "MARKET-EU-NL",
+      "path": "/markets/netherlands/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "MARKET-EU-BE",
+      "path": "/markets/belgium/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "MARKET-UK-001",
+      "path": "/markets/united-kingdom/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "MARKET-IN-001",
+      "path": "/markets/india/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "MARKET-BR-EN",
+      "path": "/markets/brazil/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "MARKET-BR-PT",
+      "path": "/pt-br/markets/brazil/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "PRODUCT-000",
+      "path": "/products/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "PRODUCT-PROC-CL",
+      "path": "/products/chloride-process-titanium-dioxide/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "PRODUCT-PROC-SU",
+      "path": "/products/sulfate-process-titanium-dioxide/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-M350",
+      "path": "/products/m-350/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-M510",
+      "path": "/products/m-510/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-M896",
+      "path": "/products/m-896/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-M996",
+      "path": "/products/m-996/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-M2196",
+      "path": "/products/m-2196/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-M895",
+      "path": "/products/m-895/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-M200",
+      "path": "/products/m-200/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-M108",
+      "path": "/products/m-108/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-M210",
+      "path": "/products/m-210/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-M340",
+      "path": "/products/m-340/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-M886",
+      "path": "/products/m-886/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-M52",
+      "path": "/products/m-52/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-M2377",
+      "path": "/products/m-2377/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "GRADE-CR901",
+      "path": "/products/cr-901/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "APP-000",
+      "path": "/applications/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "APP-COAT",
+      "path": "/applications/titanium-dioxide-for-coatings/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "APP-PLAS",
+      "path": "/applications/titanium-dioxide-for-plastics/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "APP-MB",
+      "path": "/applications/titanium-dioxide-for-masterbatch/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "APP-INK",
+      "path": "/applications/titanium-dioxide-for-printing-inks/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "APP-PAPER",
+      "path": "/applications/titanium-dioxide-for-paper/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "DOC-000",
+      "path": "/documents/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "DOC-REACH",
+      "path": "/documents/reach/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "DOC-TDS",
+      "path": "/documents/tds-sds-coa/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "DOC-COO",
+      "path": "/documents/certificate-of-origin/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "RES-000",
+      "path": "/resources/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "RES-ORIGIN",
+      "path": "/resources/non-china-titanium-dioxide/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "RES-PROC",
+      "path": "/resources/chloride-vs-sulfate-titanium-dioxide/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "RES-CHEMOURS",
+      "path": "/resources/chemours-titanium-dioxide-alternatives/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "RES-R706",
+      "path": "/resources/ti-pure-r-706-alternative/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "RES-TRADE-EU",
+      "path": "/resources/eu-titanium-dioxide-anti-dumping-duty/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "RES-TRADE-UK",
+      "path": "/resources/uk-titanium-dioxide-anti-dumping-investigation/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "RES-TRADE-IN",
+      "path": "/resources/india-titanium-dioxide-anti-dumping-duty/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "RES-TRADE-BR",
+      "path": "/resources/brazil-titanium-dioxide-anti-dumping-duty/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "CONV-DOC",
+      "path": "/request-documents/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "CONV-RFQ",
+      "path": "/request-a-quote/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "CONV-SAMPLE",
+      "path": "/request-sample/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "CONV-THANK",
+      "path": "/thank-you/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "LEGAL-PRIV-EN",
+      "path": "/privacy-policy/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "LEGAL-PRIV-MS",
+      "path": "/ms/privacy-policy/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "LEGAL-COOKIE-EN",
+      "path": "/cookie-policy/",
+      "expectedStatus": 200
+    },
+    {
+      "pageId": "SYS-404",
+      "path": "/404/",
+      "expectedStatus": 404
+    }
+  ],
+  "contact": {
+    "path": "/contact/",
+    "canonical": "https://tio2malaysia.com/contact/",
+    "pageId": "CONTACT-001",
+    "h1": "Contact TiO2 Malaysia",
+    "aboutAnchorName": "Contact Us",
+    "aboutAnchorCount": 2,
+    "systemAnchorName": "Contact Our Team",
+    "systemProbePath": "/__internal-link-repair-missing-route-20260910__/"
+  }
+}
