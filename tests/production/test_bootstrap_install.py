@@ -65,6 +65,10 @@ class BootstrapInstallTests(unittest.TestCase):
         archive_copy(archive)
         validate_bootstrap_source(archive, stat_reader=trusted_stat)
 
+    def test_server_archive_installs_every_module_imported_by_the_release_entrypoint(self) -> None:
+        """Omitting a release-action module would make the installed sudo command fail to import."""
+        self.assertIn("release_actions.py", REQUIRED_FILES)
+
     def test_rejects_unvalidated_support_code_before_any_root_self_test_runs(self) -> None:
         archive = self.root / "bootstrap"
         archive_copy(archive)

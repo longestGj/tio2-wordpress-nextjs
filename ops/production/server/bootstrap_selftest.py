@@ -4,7 +4,7 @@ from pathlib import Path
 import py_compile
 
 ROOT = Path(__file__).resolve().parent
-for name in ("bootstrap_install.py", "release_contract.py", "release_state.py", "tio2_release.py"):
+for name in ("bootstrap_install.py", "release_contract.py", "release_state.py", "release_actions.py", "tio2_release.py"):
     py_compile.compile(str(ROOT / name), doraise=True)
 
 from release_contract import ACTIONS, DEFAULT_PATHS  # noqa: E402

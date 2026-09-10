@@ -9,6 +9,7 @@ from typing import Sequence
 
 from release_contract import DEFAULT_PATHS, ReleaseError, ReleasePaths, parse_action
 from release_state import ReleaseLock, read_state, redact, write_audit_receipt
+from release_actions import backup_release
 
 
 SAFE_PATH = "/usr/sbin:/usr/bin:/sbin:/bin"
@@ -20,9 +21,11 @@ def clear_environment() -> None:
 
 
 def run_action(action: str, paths: ReleasePaths = DEFAULT_PATHS) -> dict[str, object]:
-    """Dispatch only the non-mutating status action until action modules are added."""
+    """Dispatch only closed, root-owned release actions."""
     if action == "status":
         return {"action": action, "ok": True, "state": read_state(paths.production / "state")}
+    if action == "backup":
+        return backup_release(paths)
     raise ReleaseError("release action is unavailable")
 
 

@@ -22,7 +22,7 @@ class BootstrapError(RuntimeError):
 
 REQUIRED_FILES = (
     "install.sh", "bootstrap_install.py", "bootstrap_selftest.py", "tio2_release.py",
-    "release_contract.py", "release_state.py", "sudoers.tio2-release", "sshd-tio2-production.conf",
+    "release_contract.py", "release_state.py", "release_actions.py", "sudoers.tio2-release", "sshd-tio2-production.conf",
 )
 
 
@@ -258,7 +258,7 @@ def install_bootstrap(source: Path, paths: BootstrapPaths, *, deploy_uid: int, d
     validate_bootstrap_source(source, stat_reader=stat_reader)
     staging: Path | None = Path(tempfile.mkdtemp(prefix=".install-", dir=paths.programs))
     try:
-        for name in ("bootstrap_install.py", "bootstrap_selftest.py", "tio2_release.py", "release_contract.py", "release_state.py", "sshd-tio2-production.conf"):
+        for name in ("bootstrap_install.py", "bootstrap_selftest.py", "tio2_release.py", "release_contract.py", "release_state.py", "release_actions.py", "sshd-tio2-production.conf"):
             _safe_write(staging / name, (source / name).read_bytes(), 0o750, simulation=paths.simulation)
         wrapper = b"#!/bin/sh\nexec /usr/bin/python3 /opt/tio2-production/program/tio2_release.py \"$@\"\n"
         _safe_write(staging / "tio2-release", wrapper, 0o750, simulation=paths.simulation)
