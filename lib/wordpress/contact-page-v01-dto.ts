@@ -26,6 +26,7 @@ function object(value: unknown, field: string): Record<string, unknown> {
 }
 
 function exactFact(value: unknown, key: 'generalInquiries' | 'operatingCompany' | 'manufacturingSite') {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
   const candidate = object(value, `contactDetails.${key}`)
   const expected = approved.contactDetails[key]
   return candidate.label === expected.label && candidate.value === expected.value ? expected : null

@@ -35,4 +35,11 @@ describe('CONTACT-001 scoped DTO', () => {
       expect(toMalaysiaContactPageDto(malaysiaContactPageSource({omitFact: fact})).contactDetails[fact]).toBeNull()
     },
   )
+
+  it('omits an entirely absent approved fact instead of failing or filling it', () => {
+    const source = malaysiaContactPageSource()
+    const content = JSON.parse(source.malaysiaContactPageContractJson) as {contactDetails: Record<string, unknown>}
+    delete content.contactDetails.manufacturingSite
+    expect(toMalaysiaContactPageDto({...source, malaysiaContactPageContractJson: JSON.stringify(content)}).contactDetails.manufacturingSite).toBeNull()
+  })
 })

@@ -2,6 +2,7 @@ import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
 
 import {MalaysiaContactPage} from '@/components/sites/tio2-my/contact/malaysia-contact-page'
+import {MalaysiaContactForm} from '@/components/sites/tio2-my/contact/malaysia-contact-form'
 import {buildMalaysiaContactPageJsonLd, serializeMalaysiaContactPageJsonLd} from '@/lib/seo/contact-page-jsonld'
 import {buildMalaysiaContactPageMetadata} from '@/lib/seo/contact-page-metadata'
 import {getCurrentSite} from '@/lib/sites/current-site'
@@ -24,5 +25,5 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ContactPageRoute() {
   const {site, page} = await loadContactPage()
   const jsonLd = serializeMalaysiaContactPageJsonLd(buildMalaysiaContactPageJsonLd(site, page))
-  return <MalaysiaContactPage page={page} form={null} structuredData={<script type="application/ld+json" dangerouslySetInnerHTML={{__html: jsonLd}} />} />
+  return <MalaysiaContactPage page={page} form={<MalaysiaContactForm form={page.form} />} structuredData={<script type="application/ld+json" dangerouslySetInnerHTML={{__html: jsonLd}} />} />
 }
