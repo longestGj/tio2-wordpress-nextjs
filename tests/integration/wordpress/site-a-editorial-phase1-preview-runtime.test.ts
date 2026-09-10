@@ -8,6 +8,8 @@ const repositoryRoot = fileURLToPath(new URL('../../../', import.meta.url))
 const wordpressEnvironmentPath = `${repositoryRoot}wordpress/.env`
 const runLiveWordPress =
   process.env.WORDPRESS_SITE_A_EDITORIAL_PHASE1_PREVIEW_RUNTIME === '1'
+
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-read-only', hostHttp: false} as const
 const marker = 'TIO2_SITE_A_EDITORIAL_PHASE1_PREVIEW'
 
 interface PreviewTarget {
@@ -117,9 +119,10 @@ function collectSnapshot(): Snapshot {
   const result = spawnSync(
     'docker',
     [
-      ...wordpressComposeArgs(),
+      ...wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'site-a-editorial-phase1-preview-runtime'}),
       'run',
       '--rm',
+      '--no-deps',
       '--no-TTY',
       '--user',
       '33:33',

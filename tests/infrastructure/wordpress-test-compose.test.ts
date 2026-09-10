@@ -6,6 +6,9 @@ import {join, resolve} from 'node:path'
 import {afterEach, describe, expect, it} from 'vitest'
 import type {WordPressRuntimeOptions} from '../helpers/wordpress-runtime'
 
+// Real Docker calls only render config; lifecycle calls below use an injected executor.
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'isolated', hostHttp: false} as const
+
 const roots: string[] = []
 const servers: Server[] = []
 afterEach(async () => {

@@ -74,10 +74,10 @@ $PreviousErrorActionPreference = $ErrorActionPreference
 $ErrorActionPreference = 'Continue'
 try {
     $DockerArguments = @(
-        'compose',
+        'compose', '--project-name', 'wordpress',
         '--env-file', $EnvironmentFile,
         '-f', $ComposeFile,
-        'run', '--rm', '--no-TTY', '--user', '33:33',
+        'run', '--rm', '--no-deps', '--no-TTY', '--user', '33:33',
         '-e', "TIO2_LOCAL_EDITORIAL_CAPABILITY=$CapabilityToken",
         'wpcli',
         'wp', 'eval-file', '/workspace/wordpress/seed/apply-site-a-editorial-fixture.php',

@@ -1,21 +1,28 @@
 import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
+import {registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
+
 import {spawnSync} from 'node:child_process'
 import {copyFileSync, existsSync, rmSync} from 'node:fs'
 
 import {describe, expect, it} from 'vitest'
 
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+const runLiveWordPress = process.env.WORDPRESS_EDITORIAL_LIVE_ADAPTER_RUNTIME === '1'
+registerSharedWordPressMutationLock(runLiveWordPress)
+
+const runtimeProductPath = `wordpress/seed/.runtime-task8-products-${process.pid}-${Date.now()}.json`
 const productManifestPath = 'D:/11SEO/01ComInfo/outputs/site-a-products-v0.1.json'
 
 function runReversibleAdapterTest() {
   return spawnSync('docker', [
-    ...wordpressComposeArgs(),
-    'run', '--rm', '--no-TTY', 'wpcli', 'wp', 'eval', String.raw`
+    ...wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'site-a-editorial-live-adapter-runtime'}),
+    'run', '--rm', '--no-deps', '--no-TTY', 'wpcli', 'wp', 'eval', String.raw`
 define('TIO2_SITE_A_EDITORIAL_LIBRARY_CONTEXT', true);
 require '/workspace/wordpress/seed/export-site-a-editorial-audit.php';
 tio2_site_a_editorial_assert_local_wp_environment();
 $applications = json_decode(file_get_contents('/workspace/tests/fixtures/editorial/site-a-applications.synthetic.json'), true, 512, JSON_THROW_ON_ERROR);
 $resources = json_decode(file_get_contents('/workspace/tests/fixtures/editorial/site-a-resources.synthetic.json'), true, 512, JSON_THROW_ON_ERROR);
-$products = json_decode(file_get_contents('/workspace/wordpress/seed/.runtime-task8-products.json'), true, 512, JSON_THROW_ON_ERROR);
+$products = json_decode(file_get_contents('/workspace/${runtimeProductPath}'), true, 512, JSON_THROW_ON_ERROR);
 $records = tio2_site_a_editorial_expected_records('DeferredProductRelations', $applications, $resources, $products);
 $baseline_records = tio2_site_a_editorial_audit_read_wp_records();
 $baseline_readback = tio2_site_a_editorial_sha256($baseline_records);
@@ -134,9 +141,8 @@ echo wp_json_encode(['records' => count($baseline_records), 'siteB' => $baseline
   })
 }
 
-describe('local WordPress Site A editorial production adapters', () => {
+describe.runIf(runLiveWordPress)('local WordPress Site A editorial production adapters', () => {
   it.skipIf(!existsSync('wordpress/.env') || !existsSync(productManifestPath))('rolls back real identity, ACF, taxonomy, relationship, queue, and audit-extra effects', () => {
-    const runtimeProductPath = 'wordpress/seed/.runtime-task8-products.json'
     copyFileSync(productManifestPath, runtimeProductPath)
     try {
       const result = runReversibleAdapterTest()

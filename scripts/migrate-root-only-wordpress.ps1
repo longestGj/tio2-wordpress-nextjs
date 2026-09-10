@@ -41,8 +41,8 @@ function Invoke-LocalWpEvalFile {
         [switch] $SuppressOutput
     )
     $DockerArguments = @(
-        'compose', '--env-file', $EnvironmentFile, '-f', $ComposeFile,
-        'run', '--rm', '--no-TTY', '--user', '33:33', 'wpcli',
+        'compose', '--project-name', 'wordpress', '--env-file', $EnvironmentFile, '-f', $ComposeFile,
+        'run', '--rm', '--no-deps', '--no-TTY', '--user', '33:33', 'wpcli',
         'wp', 'eval-file', $ContainerScript
     ) + $ScriptArguments
     $PreviousErrorActionPreference = $ErrorActionPreference

@@ -1,3 +1,5 @@
+import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
+import {registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
 import {spawnSync} from 'node:child_process'
 import {existsSync} from 'node:fs'
 import {fileURLToPath} from 'node:url'
@@ -6,12 +8,15 @@ import {describe, expect, it} from 'vitest'
 
 const repositoryRoot = fileURLToPath(new URL('../../../', import.meta.url))
 const runLiveWordPress = process.env.TIO2_MY_READINESS_RUNTIME === '1'
+
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+registerSharedWordPressMutationLock(runLiveWordPress)
 const envFile = process.env.TIO2_WORDPRESS_ENV_FILE ?? 'wordpress/.env'
 
 function wp(script: string) {
   return spawnSync('docker', [
-    'compose', '--env-file', envFile, '-f', 'wordpress/docker-compose.yml',
-    'run', '--rm', '--no-TTY', '--user', '33:33', 'wpcli', 'wp', 'eval', script,
+    ...wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'tio2-my-product-readiness-runtime'}, {...process.env, TIO2_TEST_WORDPRESS_ENV: envFile}),
+    'run', '--rm', '--no-deps', '--no-TTY', '--user', '33:33', 'wpcli', 'wp', 'eval', script,
   ], {cwd: repositoryRoot, encoding: 'utf8', timeout: 180_000})
 }
 

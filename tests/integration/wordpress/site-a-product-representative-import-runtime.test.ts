@@ -1,4 +1,6 @@
 import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
+import {createWordPressWrapperFixture, isolatedPhpArgs, registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
+
 import {spawnSync} from 'node:child_process'
 import {createHash} from 'node:crypto'
 import {
@@ -15,6 +17,10 @@ import {delimiter, join, resolve} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
 import {describe, expect, it} from 'vitest'
+
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+const runLiveWordPress = process.env.WORDPRESS_PRODUCT_REPRESENTATIVE_RUNTIME === '1'
+registerSharedWordPressMutationLock(runLiveWordPress)
 
 const repositoryRoot = resolve(fileURLToPath(new URL('../../..', import.meta.url)))
 const wrapperPath = join(
@@ -46,6 +52,11 @@ function runtimeFiles(): string[] {
 }
 
 function makeFakeDocker(directory: string): string {
+  createWordPressWrapperFixture(directory, [
+    'scripts/apply-local-site-a-product-representatives.ps1',
+    'wordpress/seed/apply-site-a-product-representatives.php',
+    'tests/fixtures/products/site-a-products.approved-representatives.json',
+  ])
   const logPath = join(directory, 'docker-calls.jsonl')
   const fakePath = join(directory, 'fake-docker.mjs')
   writeFileSync(
@@ -90,7 +101,7 @@ if (process.env.TIO2_TEST_DOCKER_FAIL === '1') process.exit(17)
 process.stdout.write('TIO2_SITE_A_PRODUCT_REPRESENTATIVE_RESULT ' + JSON.stringify({mode: capability.mode, fixtureSha256: actualHash, planSha256, actions: []}) + '\n')
 `,
   )
-  writeFileSync(join(directory, 'docker.cmd'), '@node "%~dp0\\fake-docker.mjs" %*\r\n')
+  writeFileSync(join(directory, 'docker.cmd'), `@"${process.execPath}" -- "%~dp0\\fake-docker.mjs" %*\r\n`)
   return logPath
 }
 
@@ -102,6 +113,7 @@ function runWrapper(
   fail = false,
   environment: Record<string, string | undefined> = {},
 ) {
+  const workspace = join(fakeDirectory, 'workspace')
   const baseEnvironment = {...process.env}
   for (const name of [
     'DOCKER_HOST',
@@ -112,18 +124,18 @@ function runWrapper(
   ]) {
     delete baseEnvironment[name]
   }
-  return spawnSync(
+  const result = spawnSync(
     'powershell',
     [
       '-NoProfile',
       '-ExecutionPolicy',
       'Bypass',
       '-File',
-      wrapperPath,
+      join(workspace, 'scripts/apply-local-site-a-product-representatives.ps1'),
       '-Mode',
       mode,
       '-FixturePath',
-      fixture,
+      fixture === fixturePath ? join(workspace, 'tests/fixtures/products/site-a-products.approved-representatives.json') : fixture,
     ],
     {
       cwd: repositoryRoot,
@@ -132,13 +144,15 @@ function runWrapper(
       env: {
         ...baseEnvironment,
         PATH: `${fakeDirectory}${delimiter}${process.env.PATH ?? ''}`,
-        TIO2_TEST_REPOSITORY_ROOT: repositoryRoot,
+        TIO2_TEST_REPOSITORY_ROOT: workspace,
         TIO2_TEST_DOCKER_LOG: logPath,
         ...(fail ? {TIO2_TEST_DOCKER_FAIL: '1'} : {}),
         ...environment,
       },
     },
   )
+  expect(readdirSync(join(workspace, 'wordpress/seed')).filter(name => name.startsWith('.runtime-'))).toEqual([])
+  return result
 }
 
 describe('local representative-content PowerShell boundary', () => {
@@ -223,7 +237,7 @@ describe('local representative-content PowerShell boundary', () => {
     } finally {
       rmSync(temporary, {recursive: true, force: true})
     }
-  })
+  }, 30_000)
 
   it('accepts rendered Compose services that do not publish ports', () => {
     const temporary = mkdtempSync(join(tmpdir(), 'tio2-representative-compose-'))
@@ -269,14 +283,7 @@ function runControlledImporter() {
   return spawnSync(
     'docker',
     [
-      ...wordpressComposeArgs(),
-      'run',
-      '--rm',
-      '--no-TTY',
-      '--no-deps',
-      '--entrypoint',
-      'php',
-      'wpcli',
+      ...isolatedPhpArgs(process.cwd()),
       '-r',
       String.raw`
 define('ABSPATH', __DIR__);
@@ -374,12 +381,12 @@ echo json_encode(['targets' => array_column($normalized, 'target'), 'writes' => 
 }
 
 describe('controlled WordPress representative-content importer boundary', () => {
-  it('loads through the real WP-CLI eval-file entrypoint before rejecting a missing capability', () => {
+  it.skipIf(!runLiveWordPress)('loads through the real WP-CLI eval-file entrypoint before rejecting a missing capability', () => {
     expect(existsSync(importerPath), 'PHP importer is missing').toBe(true)
     const result = spawnSync(
       'docker',
       [
-        ...wordpressComposeArgs(), 'run', '--rm', '--no-TTY',
+        ...wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'site-a-product-representative-import-runtime'}), 'run', '--rm', '--no-deps', '--no-TTY',
         'wpcli', 'wp', 'eval-file', containerImporterPath,
       ],
       {cwd: repositoryRoot, encoding: 'utf8', timeout: 30_000},

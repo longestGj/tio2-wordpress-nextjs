@@ -1,3 +1,5 @@
+import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
+import {registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
 import {spawnSync} from 'node:child_process'
 import {fileURLToPath} from 'node:url'
 
@@ -11,6 +13,9 @@ const seedScript = fileURLToPath(
 )
 const auditScript = fileURLToPath(new URL('../../../scripts/audit-seed.ps1', import.meta.url))
 const runLiveWordPress = process.env.WORDPRESS_PRODUCT_FIXTURE_RUNTIME === '1'
+
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+registerSharedWordPressMutationLock(runLiveWordPress)
 
 interface ProductFixtureState {
   id: number
@@ -51,13 +56,10 @@ function wp(arguments_: string[]) {
   return execute(
     'docker',
     [
-      'compose',
-      '--env-file',
-      'wordpress/.env',
-      '-f',
-      'wordpress/docker-compose.yml',
+      ...wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'product-fixture-runtime'}),
       'run',
       '--rm',
+      '--no-deps',
       '--no-TTY',
       '--user',
       '33:33',

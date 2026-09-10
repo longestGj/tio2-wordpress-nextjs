@@ -1,3 +1,5 @@
+import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
+import {registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
 import {spawnSync} from 'node:child_process'
 import {fileURLToPath} from 'node:url'
 
@@ -7,6 +9,9 @@ const repositoryRoot = fileURLToPath(new URL('../../../', import.meta.url))
 const seedScript = fileURLToPath(new URL('../../../scripts/seed-local-wordpress.ps1', import.meta.url))
 const auditScript = fileURLToPath(new URL('../../../scripts/audit-seed.ps1', import.meta.url))
 const runLiveWordPress = process.env.WORDPRESS_SEED_RUNTIME === '1'
+
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+registerSharedWordPressMutationLock(runLiveWordPress)
 const fixtureIds: number[] = []
 
 function execute(command: string, arguments_: string[], timeout = 240_000) {
@@ -26,13 +31,10 @@ function powershell(script: string, arguments_: string[] = []) {
 
 function wp(arguments_: string[]) {
   return execute('docker', [
-    'compose',
-    '--env-file',
-    'wordpress/.env',
-    '-f',
-    'wordpress/docker-compose.yml',
+    ...wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'seed-homepage-migration-runtime'}),
     'run',
     '--rm',
+    '--no-deps',
     '--no-TTY',
     '--user',
     '33:33',

@@ -1,3 +1,5 @@
+import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
+import {registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
 import {existsSync, readFileSync, writeFileSync} from 'node:fs'
 import {join} from 'node:path'
 import {spawnSync} from 'node:child_process'
@@ -16,8 +18,11 @@ const migrateScript = fileURLToPath(
 const restoreScript = fileURLToPath(
   new URL('../../../scripts/restore-root-only-wordpress.ps1', import.meta.url),
 )
-const evidenceDirectory = join(repositoryRoot, '.local-evidence', 'task-9c-live-test')
+const evidenceDirectory = join(repositoryRoot, '.local-evidence', `task-9c-live-test-${process.pid}-${Date.now()}`)
 const runLiveWordPress = process.env.WORDPRESS_ROOT_ONLY_RUNTIME === '1'
+
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+registerSharedWordPressMutationLock(runLiveWordPress)
 
 function execute(command: string, arguments_: string[], timeout = 1_200_000) {
   return spawnSync(command, arguments_, {
@@ -40,13 +45,10 @@ function powershell(script: string, arguments_: string[] = []) {
 
 function wp(arguments_: string[]) {
   return execute('docker', [
-    'compose',
-    '--env-file',
-    'wordpress/.env',
-    '-f',
-    'wordpress/docker-compose.yml',
+    ...wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'root-only-migration-runtime'}),
     'run',
     '--rm',
+    '--no-deps',
     '--no-TTY',
     '--user',
     '33:33',
