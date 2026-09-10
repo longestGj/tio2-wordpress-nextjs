@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "status": "SUBMISSION_NOT_CONFIRMED",
+  "startedAt": "2026-09-10T11:05:41.046Z",
+  "completedAt": "2026-09-10T11:06:27.69Z",
+  "implementationCommit": "1f3fed832172da5646e504ed339e493ec6d2630f",
+  "buildId": "R4PFrSSFrfr6gvnXpPvxH",
+  "requestToken": "e37c2ef1-96d8-4725-a130-5e55cd3a4f1c",
+  "testSubject": "[LOCAL PRERELEASE] TiO2 Malaysia general inquiry — TEST e37c2ef1-96d8-4725-a130-5e55cd3a4f1c",
+  "syntheticIdentity": true,
+  "payloadValidationPassed": true,
+  "externalPostCount": 1,
+  "blockedWriteCount": 0,
+  "httpStatus": null,
+  "mediaType": null,
+  "parsedSuccess": null,
+  "providerCategory": "not_tested",
+  "failureStage": "provider_response",
+  "automaticRetry": false,
+  "mailboxReceipt": "PENDING"
+}

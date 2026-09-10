@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "contact-001-gate8-targeted-return-v2.0",
+  "pageId": "CONTACT-001",
+  "siteScope": "tio2-my",
+  "gate6Package": "CONTACT-001-G6-HANDOFF-20260910-02",
+  "gate8Dispatch": "G8-CONTACT-001-20260910-01",
+  "implementationCommit": "1f3fed832172da5646e504ed339e493ec6d2630f",
+  "buildId": "R4PFrSSFrfr6gvnXpPvxH",
+  "runtime": "http://127.0.0.1:4491",
+  "gate9Claimed": false,
+  "releaseClaimed": false,
+  "conditions": [
+    {"id":"CONTACT-G9-01","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Current Contact route returns 200 from the bound build and retains exact tio2-my scope."},
+    {"id":"CONTACT-G9-02","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Approved content, facts and dedicated routing are unchanged."},
+    {"id":"CONTACT-G9-03","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Six-field validation, exact visible controls, field focus and zero invalid requests pass."},
+    {"id":"CONTACT-G9-04","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Pending controls disable, a concurrent activation releases one POST, and entered values remain visible."},
+    {"id":"CONTACT-G9-05","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Rejected, ambiguous, timeout and network outcomes preserve values and expose manual retry without automatic retry."},
+    {"id":"CONTACT-G9-06","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Shared Web3Forms classifier accepts only HTTP 200 with parseable JSON success=true; browser success and failure paths are covered."},
+    {"id":"CONTACT-G9-07","gate8Status":"PARTIAL_MAILBOX_PENDING","evidence":"Project Control observed the success state on one authorized synthetic browser submission; mailbox receipt remains pending."},
+    {"id":"CONTACT-G9-08","gate8Status":"READY_UNDER_USER_APPROVED_MINIMAL_SCOPE","evidence":"Pending duplicate guard and no-auto-retry pass; user rejected a separate complex anti-spam or durable dedup service for this browser-direct workflow."},
+    {"id":"CONTACT-G9-09","gate8Status":"READY_FOR_SCOPE_REVIEW","evidence":"Existing approved Privacy Policy route and approved shared Web3Forms data-flow expression are reused without new legal copy."},
+    {"id":"CONTACT-G9-10","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Fact matching, query neutrality and long wrapping are unchanged and pass."},
+    {"id":"CONTACT-G9-11","gate8Status":"READY_WITH_RELEASE_HOLD","evidence":"Head, canonical and robots remain correct; sitemap eligibility remains held pending independent review and release authorization."},
+    {"id":"CONTACT-G9-12","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Bounded JSON-LD remains unchanged."},
+    {"id":"CONTACT-G9-13","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Shared chrome, Privacy link and dedicated destinations remain available."},
+    {"id":"CONTACT-G9-14","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Current build passed 1440/768/390 Chromium and Firefox checks and refreshed screenshots."},
+    {"id":"CONTACT-G9-15","gate8Status":"PARTIAL_NATIVE_200_NOT_VERIFIED","evidence":"Keyboard/focus, reduced motion, Chromium/Firefox and Axe pass. Native browser 200% remains tool-blocked; device/AT evidence is no longer required by CONTACT-G9-SCOPE-20260910-01."},
+    {"id":"CONTACT-G9-16","gate8Status":"READY_AFTER_POST_COMMIT_VALIDATION","evidence":"New committed receipt/evidence and post-commit Manifest validation/preflight are required before independent re-review."}
+  ]
+}

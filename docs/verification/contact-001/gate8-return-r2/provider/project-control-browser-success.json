@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "source": "CONTACT-001 project control user-authorized browser observation",
+  "pageUrl": "http://127.0.0.1:4491/contact/",
+  "browserObservedAt": "2026-09-10T11:12:29.223Z",
+  "testIdentity": "AUTHORIZED SYNTHETIC CONTACT TEST / No business inquiry",
+  "submissionAttemptsInThisObservation": 1,
+  "automaticRetry": false,
+  "manualRetry": false,
+  "preSubmitFieldsComplete": true,
+  "postSubmitControlsDisabled": true,
+  "enteredValuesRegionVisible": true,
+  "successHeading": "Your inquiry has been sent",
+  "successBody": "Thank you. We have received your general inquiry for review.",
+  "providerAcceptanceInferredByImplementedPredicate": "HTTP 200 and parsed JSON success=true",
+  "mailboxReceipt": "MAILBOX_RECEIPT_PENDING",
+  "redaction": {
+    "accessKeyRecorded": false,
+    "receiverAddressRecorded": false,
+    "testEmailRecorded": false,
+    "completePayloadRecorded": false
+  }
+}

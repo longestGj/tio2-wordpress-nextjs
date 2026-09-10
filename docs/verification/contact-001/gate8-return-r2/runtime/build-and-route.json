@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-09-10T11:15:30.8010399Z",
+  "implementationCommit": "1f3fed832172da5646e504ed339e493ec6d2630f",
+  "buildId": "R4PFrSSFrfr6gvnXpPvxH",
+  "runtime": "http://127.0.0.1:4491",
+  "siteScope": "tio2-my",
+  "contactStatus": 200,
+  "privacyStatus": 200,
+  "requestDocumentsStatus": 200
+}

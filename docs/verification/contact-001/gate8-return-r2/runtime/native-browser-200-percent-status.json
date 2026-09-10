@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "pageUrl": "http://127.0.0.1:4491/contact/",
+  "implementationCommit": "1f3fed832172da5646e504ed339e493ec6d2630f",
+  "buildId": "R4PFrSSFrfr6gvnXpPvxH",
+  "status": "NOT_VERIFIED_TOOL_CAPABILITY_BLOCKED",
+  "observations": [
+    {
+      "tool": "Codex in-app browser",
+      "actions": ["Ctrl++", "Ctrl+="],
+      "result": "Visible page and window metrics did not change; no native zoom claim was made."
+    },
+    {
+      "tool": "Windows Computer Use with Edge and Firefox",
+      "result": "The browser URL policy could not reliably identify or enforce the current Windows browser URL, so automation stopped before changing browser zoom."
+    },
+    {
+      "tool": "Playwright visible Edge probe",
+      "result": "Browser shortcut injection left devicePixelRatio and layout viewport unchanged; it was rejected as native zoom evidence."
+    }
+  ],
+  "requiredUserAction": "Open http://127.0.0.1:4491/contact/ in Chrome, Edge or Firefox; use the browser menu to set Zoom to 200%; leave the page and menu showing 200% open for evidence capture.",
+  "prohibitedSubstitutesNotUsed": ["CSS zoom", "viewport emulation", "deviceScaleFactor", "image enlargement"],
+  "gate9Disposition": "CONTACT-G9-15 remains PARTIAL; device/touch and screen-reader/AT checks remain NOT_TESTED / NO_LONGER_REQUIRED_BY_USER_DECISION."
+}

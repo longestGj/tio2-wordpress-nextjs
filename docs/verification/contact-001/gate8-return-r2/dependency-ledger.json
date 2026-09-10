@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "contact-001-gate8-targeted-dependencies-v2.0",
+  "checkedAt": "2026-09-10T19:13:00+08:00",
+  "dependencies": [
+    {"id":"CONTACT-DEP01","status":"GATE8_EVIDENCE_READY","evidence":"Bound local-production Contact route returns 200."},
+    {"id":"CONTACT-DEP02","status":"GATE8_EVIDENCE_READY","evidence":"Approved CMS/DTO/source chain remains unchanged from accepted candidate."},
+    {"id":"CONTACT-DEP03","status":"USER_SCOPE_RESOLVED","evidence":"Contact reuses approved Web3Forms Free browser-direct fixed endpoint and shared Malaysia key binding; no self-hosted processor was added."},
+    {"id":"CONTACT-DEP04","status":"GATE8_EVIDENCE_READY","evidence":"Strict HTTP 200 plus JSON success=true predicate implemented; Project Control observed approved success state."},
+    {"id":"CONTACT-DEP05","status":"USER_SCOPE_RESOLVED","evidence":"Minimal pending duplicate guard and no-auto-retry pass; no separate anti-spam or persistent dedup service is required by the current user decision."},
+    {"id":"CONTACT-DEP06","status":"USER_SCOPE_RESOLVED_FOR_IMPLEMENTATION","evidence":"Existing approved Privacy Policy link and approved shared data-flow expression reused; no new legal copy added."},
+    {"id":"CONTACT-DEP07","status":"GATE8_EVIDENCE_READY","evidence":"Dedicated routes, Privacy and shared chrome checks pass."},
+    {"id":"CONTACT-DEP08","status":"GATE8_EVIDENCE_READY","evidence":"Refreshed three-width and form-state evidence passes."},
+    {"id":"CONTACT-DEP09","status":"PARTIAL","evidence":"Native browser 200% remains NOT_VERIFIED_TOOL_CAPABILITY_BLOCKED. Device/touch and screen-reader/AT evidence was removed by CONTACT-G9-SCOPE-20260910-01."},
+    {"id":"CONTACT-DEP10","status":"PARTIAL_MAILBOX_PENDING","evidence":"Project Control observed browser success for one authorized synthetic submission; mailbox receipt remains pending. A separate earlier D16 POST release received no observable response and was not retried."},
+    {"id":"CONTACT-DEP11","status":"PARTIAL_RELEASE_HOLD","evidence":"SEO/Schema pass; sitemap remains held until release authorization."},
+    {"id":"CONTACT-DEP12","status":"READY_AFTER_POST_COMMIT_VALIDATION","evidence":"Requires schema-valid post-commit Evidence Manifest and two-round Gate9 preflight."}
+  ]
+}
