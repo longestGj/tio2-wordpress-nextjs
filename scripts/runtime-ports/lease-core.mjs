@@ -276,6 +276,13 @@ export async function attachLease({
 
   return withAllocatorLock(resolvedLeaseRoot, async () => {
     const record = await readLeaseRecord(resolvedLeaseRoot, leaseId)
+    if (hasComposeProject
+      && record.composeProject !== null
+      && record.composeProject !== composeProject) {
+      const error = new Error('Lease Compose owner does not match the recorded owner')
+      error.code = 'OWNER_MISMATCH'
+      throw error
+    }
     const processIds = hasProcessId && !record.processIds.includes(processId)
       ? [...record.processIds, processId]
       : record.processIds

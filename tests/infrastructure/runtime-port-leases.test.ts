@@ -257,6 +257,42 @@ describe('runtime port lease allocation', () => {
     expect(readdirSync(leaseRoot).filter(name => name.endsWith('.tmp'))).toEqual([])
   })
 
+  test('keeps the recorded Compose owner when a different project tries to attach', async () => {
+    const leaseRoot = await createLeaseRoot()
+    const lease = await reserveLease({
+      leaseRoot,
+      runId: 'attach-compose-owner',
+      purpose: 'test-next',
+      worktree: repositoryRoot,
+      commit: 'b'.repeat(40),
+      pool: {start: 32500, end: 32501},
+    })
+    const recordPath = join(leaseRoot, `${lease.leaseId}.json`)
+    const projectA = await attachLease({
+      leaseRoot,
+      leaseId: lease.leaseId,
+      processId: process.pid,
+      composeProject: 'project-a',
+    })
+    const projectAAgain = await attachLease({
+      leaseRoot,
+      leaseId: lease.leaseId,
+      processId: process.pid,
+      composeProject: 'project-a',
+    })
+    const beforeMismatch = readFileSync(recordPath, 'utf8')
+
+    expect(projectAAgain).toEqual(projectA)
+    await expect(attachLease({
+      leaseRoot,
+      leaseId: lease.leaseId,
+      processId: process.pid,
+      composeProject: 'project-b',
+    })).rejects.toMatchObject({code: 'OWNER_MISMATCH'})
+    expect(readFileSync(recordPath, 'utf8')).toBe(beforeMismatch)
+    expect(JSON.parse(readFileSync(recordPath, 'utf8'))).toEqual(projectA)
+  })
+
   test('rejects an attachment without a valid owner identity', async () => {
     const leaseRoot = await createLeaseRoot()
     const lease = await reserveLease({
