@@ -17244,6 +17244,9 @@ interface TechnicalFields_Fields implements AcfFieldGroup & AcfFieldGroupFields 
 
 "The root entry point into the Graph"
 type RootQuery {
+  "Approved, scope-bound CONTACT-001 record for TiO2 Malaysia."
+  malaysiaContactPageRecordJson: String!
+
   malaysiaApplicationHubRecordJson: String!
   "Entry point to get all settings for the site"
   allSettings: Settings

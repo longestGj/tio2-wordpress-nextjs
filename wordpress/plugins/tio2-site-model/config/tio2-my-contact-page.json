@@ -1,0 +1,86 @@
+{
+  "identity": {
+    "pageId": "CONTACT-001",
+    "siteScope": "tio2-my",
+    "locale": "en",
+    "path": "/contact/",
+    "contractVersion": "contact-page-v0.1-malaysia"
+  },
+  "breadcrumb": [
+    {"label": "Home", "href": "/"},
+    {"label": "Contact", "href": "/contact/"}
+  ],
+  "hero": {
+    "eyebrow": "GENERAL CONTACT",
+    "h1": "Contact TiO2 Malaysia",
+    "lead": "Use this page for a general question about the company, a partnership or another business matter. For a quotation, product documents or a sample, choose the relevant dedicated request route below.",
+    "action": {"label": "Send a General Inquiry", "href": "#general-inquiry"}
+  },
+  "contactDetails": {
+    "heading": "General contact details",
+    "introBase": "For a general question about the company or another business matter, use the form on this page.",
+    "introDetails": "You can also find the General Inquiries email, Operating Company and Manufacturing Site below.",
+    "generalInquiries": {"label": "General Inquiries", "value": "info@tio2malaysia.com"},
+    "operatingCompany": {"label": "Operating Company", "value": "IKHLAS TITANIUM (MALAYSIA) SDN. BHD."},
+    "manufacturingSite": {"label": "Manufacturing Site", "value": "NO.33 Industrial Perusahaan Ringan Tupai, 34000 Taiping, Perak, Malaysia"}
+  },
+  "specialistRouting": {
+    "heading": "Choose a dedicated request when you need one",
+    "intro": "Requests for quotations, product documents and samples have their own forms. Choose the option that matches your task; each dedicated form asks for the details needed for that request.",
+    "items": [
+      {"title": "Request a Quote", "body": "Share the commercial and product information needed to review a quotation request.", "label": "Request a Quote", "href": "/request-a-quote/"},
+      {"title": "Request Documents", "body": "Identify the product documents you need and provide the context for your request.", "label": "Request Documents", "href": "/request-documents/"},
+      {"title": "Request a Sample", "body": "Share your product and application context for a sample request.", "label": "Request a Sample", "href": "/request-sample/"}
+    ]
+  },
+  "form": {
+    "heading": "Send a general inquiry",
+    "intro": "Use this form for a question about the company, a partnership or another general business matter. Please use the dedicated routes above for quotations, product documents or samples.",
+    "fields": [
+      {"id": "full_name", "label": "Full Name (required)", "help": "Enter the name we should use when replying.", "control": "text", "autocomplete": "name", "inputMode": null, "maxLength": 100},
+      {"id": "company", "label": "Company (required)", "help": "Enter the organisation you represent.", "control": "text", "autocomplete": "organization", "inputMode": null, "maxLength": 160},
+      {"id": "business_email", "label": "Business Email (required)", "help": "We will use this address to reply to your inquiry.", "control": "email", "autocomplete": "email", "inputMode": "email", "maxLength": 254},
+      {"id": "country_region", "label": "Country / Region (required)", "help": "Enter the country or region where your company is based.", "control": "text", "autocomplete": "country-name", "inputMode": null, "maxLength": 100},
+      {"id": "subject", "label": "Subject (required)", "help": "Summarise your question in a few words.", "control": "text", "autocomplete": null, "inputMode": null, "maxLength": 120},
+      {"id": "message", "label": "Message (required)", "help": "Describe the general company or business matter you would like to discuss. Do not include passwords or payment details.", "control": "textarea", "autocomplete": null, "inputMode": null, "maxLength": 2000}
+    ],
+    "privacy": "We will use the information you provide to review and respond to this inquiry. Read our Privacy Policy for more information about how personal data is handled.",
+    "privacyPrefix": "We will use the information you provide to review and respond to this inquiry. Read our",
+    "privacyLinkLabel": "Privacy Policy",
+    "privacySuffix": "for more information about how personal data is handled.",
+    "process": "After you submit, this page will show whether your inquiry was sent. If it cannot be sent, your entries will remain in place so you can try again.",
+    "submitLabel": "Send a General Inquiry",
+    "submittingLabel": "Sending your inquiry…",
+    "summary": {"heading": "Please check the form", "body": "Review the highlighted fields and correct the items listed below."},
+    "errors": {
+      "full_name_empty": "Enter your full name.",
+      "full_name_long": "Keep your name to 100 characters or fewer.",
+      "company_empty": "Enter your company name.",
+      "company_long": "Keep your company name to 160 characters or fewer.",
+      "business_email_empty": "Enter your business email.",
+      "business_email_invalid": "Enter a valid email address, such as name@company.com.",
+      "business_email_long": "Keep your email address to 254 characters or fewer.",
+      "country_region_empty": "Enter your country or region.",
+      "country_region_long": "Keep your country or region to 100 characters or fewer.",
+      "subject_empty": "Enter a subject.",
+      "subject_long": "Keep the subject to 120 characters or fewer.",
+      "message_empty": "Enter your message.",
+      "message_long": "Keep your message to 2,000 characters or fewer."
+    },
+    "failure": {"heading": "Your inquiry was not sent", "body": "We could not send your inquiry. Your information has been kept in the form. Try again when you are ready.", "action": "Try again"},
+    "success": {"heading": "Your inquiry has been sent", "body": "Thank you. We have received your general inquiry for review."}
+  },
+  "seo": {
+    "title": "Contact TiO2 Malaysia | General Inquiries",
+    "description": "Contact TiO2 Malaysia with a general company or business inquiry, or use the dedicated pages to request a quote, product documents or a sample.",
+    "canonical": "https://tio2malaysia.com/contact/",
+    "openGraphTitle": "Contact TiO2 Malaysia"
+  },
+  "schema": {
+    "webPageId": "https://tio2malaysia.com/contact/#webpage",
+    "websiteId": "https://tio2malaysia.com/#website",
+    "organizationId": "https://tio2malaysia.com/#organization",
+    "breadcrumbId": "https://tio2malaysia.com/contact/#breadcrumb",
+    "address": {"streetAddress": "NO.33 Industrial Perusahaan Ringan Tupai", "postalCode": "34000", "addressLocality": "Taiping", "addressRegion": "Perak", "addressCountry": "MY"}
+  }
+}

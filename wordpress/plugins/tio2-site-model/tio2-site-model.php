@@ -52,6 +52,7 @@ require_once __DIR__ . '/includes/document-reach-v01.php';
 require_once __DIR__ . '/includes/document-coo-v04.php';
 require_once __DIR__ . '/includes/legal-pages-v01.php';
 require_once __DIR__ . '/includes/about-page-v01.php';
+require_once __DIR__ . '/includes/contact-page-v01.php';
 require_once __DIR__ . '/includes/rfq-page-v01.php';
 require_once __DIR__ . '/includes/request-documents-v01.php';
 require_once __DIR__ . '/includes/request-sample-v01.php';

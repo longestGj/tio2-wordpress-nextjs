@@ -248,6 +248,12 @@ export function aboutPageContentTag(siteId: string): string {
   return `content:${siteId}--about`
 }
 
+export function contactPageContentTag(siteId: string): string {
+  assertSiteId(siteId)
+  if (siteId !== 'tio2-my') throw new Error(`Invalid Contact page scope: ${siteId}`)
+  return `content:${siteId}--contact`
+}
+
 export function documentsHubContentTag(siteId: string): string {
   assertSiteId(siteId)
   if (siteId !== 'tio2-my') throw new Error(`Invalid Documents Hub scope: ${siteId}`)

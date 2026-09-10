@@ -11,6 +11,10 @@
       "sha256": "15a6e7e9a04f6929e4f253ccf6d3e38f154c46f271a68940e8a989a3a8adfe4f"
     },
     {
+      "path": "wordpress/seed/apply-tio2-my-contact-page.php",
+      "sha256": "cc86c9aa32b9bfe6109218fc652ad9862bea317a1465c55459663ee0ed9a14e2"
+    },
+    {
       "path": "wordpress/seed/apply-tio2-my-country-markets.php",
       "sha256": "c0e622661580410a744b16be3c996e5e3e392dd21d2a823a0152cf17f6a50f80"
     },

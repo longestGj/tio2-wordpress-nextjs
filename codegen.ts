@@ -22,6 +22,7 @@ const config: CodegenConfig = {
     'lib/wordpress/request-sample*-queries.graphql',
     'lib/wordpress/legal-pages*-queries.graphql',
     'lib/wordpress/about-page*-queries.graphql',
+    'lib/wordpress/contact-page*-queries.graphql',
     'lib/wordpress/product-queries.graphql',
     'lib/wordpress/product-page-queries.graphql',
     'lib/wordpress/application-queries.graphql',
