@@ -4,6 +4,7 @@ import {createServer, type Server} from 'node:net'
 import {tmpdir} from 'node:os'
 import {join, resolve} from 'node:path'
 import {afterEach, describe, expect, it} from 'vitest'
+import type {WordPressRuntimeOptions} from '../helpers/wordpress-runtime'
 
 const roots: string[] = []
 const servers: Server[] = []
@@ -82,18 +83,55 @@ async function fixture(hostHttp = true) {
     }
     throw new Error(`Unexpected Docker command: ${args.join(' ')}`)
   }
-  const start = async (extra = {}) => {
+  const options: WordPressRuntimeOptions = {dataMode: 'isolated', runId: 'lifecycle', hostHttp, leaseRoot,
+    commit: 'a'.repeat(40), execute, environment: {}}
+  const start = async (extra: Partial<WordPressRuntimeOptions> = {}) => {
     expect(existsSync('tests/helpers/wordpress-runtime.ts')).toBe(true)
     const {startIsolatedWordPress} = await import('../helpers/wordpress-runtime')
-    return startIsolatedWordPress({dataMode: 'isolated', runId: 'lifecycle', hostHttp, leaseRoot,
-      commit: 'a'.repeat(40), execute, environment: {}, ...extra})
+    Object.assign(options, extra)
+    return startIsolatedWordPress(options)
   }
-  return {start, calls, leaseRoot, port, changeOwner: () => { changedOwner = true }, changeConfig: () => { changedConfig = true },
+  return {start, options, calls, leaseRoot, port, changeOwner: () => { changedOwner = true }, changeConfig: () => { changedConfig = true },
     keepListener: () => { keepListener = true }, setPort: (value: string) => { portOutput = value }, changeState: () => { changingState = true },
     badHash: () => { badHash = true }, badEnvironment: () => { badEnvironment = true }}
 }
 
 describe('owned WordPress lifecycle', () => {
+  for (const [label, mutation] of [
+    ['shared-mutating mode', {dataMode: 'shared-mutating'}],
+    ['isolated mode', {dataMode: 'isolated'}],
+    ['serial authorization', {serialMutationAuthorized: true}],
+    ['HTTP mode', {hostHttp: true}],
+    ['run identity', {runId: 'changed-run'}],
+  ] as const) it(`does not escalate shared read-only access after caller mutates ${label}`, async () => {
+    const f = await fixture(false)
+    const runtime = await f.start({dataMode: 'shared-read-only'})
+    Object.assign(f.options, mutation)
+    const before = f.calls.length
+    await expect(runtime.wp(['option', 'update', 'home', 'https://example.invalid'])).rejects.toThrow(/read-only/u)
+    await runtime.stop()
+    expect(f.calls).toHaveLength(before)
+  })
+
+  it('keeps isolated project arguments and stop ownership fixed after caller mutates options', async () => {
+    const f = await fixture()
+    const runtime = await f.start()
+    const projectName = runtime.projectName
+    const composeArgs = [...runtime.composeArgs]
+    const graphqlUrl = runtime.graphqlUrl
+    Object.assign(f.options, {dataMode: 'shared-read-only', serialMutationAuthorized: false,
+      hostHttp: false, runId: 'changed-run', worktree: 'changed-worktree', leaseRoot: 'changed-lease-root',
+      commit: 'b'.repeat(40), siteId: 'changed-site', stopTimeoutMs: -1,
+      execute: async () => { throw new Error('Replaced executor must not run') }})
+    f.options.environment!.TIO2_TEST_WORDPRESS_PROJECT = 'wordpress'
+    expect(runtime.projectName).toBe(projectName)
+    expect(runtime.composeArgs).toEqual(composeArgs)
+    expect(runtime.graphqlUrl).toBe(graphqlUrl)
+    await runtime.stop()
+    expect(f.calls.filter(args => args.includes('down'))).toEqual([[...composeArgs, 'down']])
+    expect(readdirSync(f.leaseRoot)).toEqual([])
+  })
+
   it('attaches exact project ownership and releases only after down closes the listener', async () => {
     const f = await fixture()
     const runtime = await f.start()

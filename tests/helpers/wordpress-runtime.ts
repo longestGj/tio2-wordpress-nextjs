@@ -74,9 +74,12 @@ function assertReadOnly(args: string[]) {
 }
 
 /** The returned runtime owns only its generated project; shared modes never manage lifecycle. */
-export async function startIsolatedWordPress(options: WordPressRuntimeOptions): Promise<OwnedWordPressRuntime> {
+export async function startIsolatedWordPress(input: WordPressRuntimeOptions): Promise<OwnedWordPressRuntime> {
+  // Capture caller-owned values before validation or the first asynchronous operation.
+  // The copied environment is the only nested options object; callbacks are captured by reference.
+  const options = Object.freeze({...input, environment: Object.freeze({...input.environment ?? process.env})})
   const worktree = resolve(options.worktree ?? process.cwd())
-  const environment = {...(options.environment ?? process.env)}
+  const environment = options.environment
   const composeArgs = Object.freeze(wordpressComposeArgs(options, environment))
   const projectName = composeArgs[2]
   const execute = options.execute ?? (async (args: string[]) => {
