@@ -125,7 +125,7 @@ class ReleaseStateTests(unittest.TestCase):
         receipt = write_audit_receipt(self.root, "prepare", {"ok": False}, actor="root", failure_stage="dispatch")
         payload = json.loads(receipt.read_text(encoding="utf-8"))
         self.assertEqual(payload["actor"], "root")
-        self.assertEqual(payload["failureStage"], "action")
+        self.assertEqual(payload["failureStage"], "dispatch")
 
     def test_failed_privileged_action_writes_a_redacted_receipt(self) -> None:
         paths = tio2_release.ReleasePaths(self.root / "in", self.root / "out", self.root / "prod", self.root / "etc")
@@ -141,7 +141,7 @@ class ReleaseStateTests(unittest.TestCase):
         self.assertEqual(len(receipts), 1)
         payload = json.loads(receipts[0].read_text(encoding="utf-8"))
         self.assertEqual(payload["action"], "prepare")
-        self.assertEqual(payload["failureStage"], "dispatch")
+        self.assertEqual(payload["failureStage"], "action")
 
     def test_cli_captures_sudo_actor_before_environment_reset_and_records_lock_stage(self) -> None:
         paths = tio2_release.ReleasePaths(self.root / "in", self.root / "out", self.root / "prod", self.root / "etc")
