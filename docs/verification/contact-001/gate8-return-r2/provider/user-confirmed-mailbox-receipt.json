@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "status": "USER_CONFIRMED_MAILBOX_RECEIPT",
+  "confirmedOn": "2026-09-10",
+  "confirmationText": "收到了",
+  "testIdentity": "AUTHORIZED SYNTHETIC CONTACT TEST / No business inquiry",
+  "receiverMailbox": "APPROVED_RECEIVER_MAILBOX",
+  "minimumConfirmedMessages": 1,
+  "exactMessageCount": null,
+  "deliveryBoundary": "At least one matching synthetic Contact message reached the approved receiver mailbox.",
+  "excludedInference": "The confirmation does not establish whether one or two messages arrived and does not attribute delivery to the separate 19:05 response-unconfirmed POST.",
+  "gate10Authorized": false,
+  "releaseAuthorized": false
+}

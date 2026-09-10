@@ -7,7 +7,9 @@ CONTACT-001 now reuses the Malaysia site's approved Web3Forms Free browser-direc
 
 The form preserves its six approved visible fields. While a request is pending, controls are disabled and concurrent activation cannot release another request. Only HTTP 200 with parseable JSON `success=true` enters the approved success state. Non-200, timeout, network failure, non-JSON, `success=false` and ambiguous responses enter the approved failure state, keep the entered values and expose only manual retry. The shared fixed-endpoint adapter adds Contact workflow identity and does not place a receiver address in the payload.
 
-Project Control reports one user-authorized synthetic browser submission at `2026-09-10T11:12:29.223Z`. The page displayed `Your inquiry has been sent` and the approved success body after one submit with no retry. This proves the implemented positive predicate was satisfied in that browser observation. Mailbox delivery remains `MAILBOX_RECEIPT_PENDING`; it is not inferred from page success.
+Project Control reports one user-authorized synthetic browser submission at `2026-09-10T11:12:29.223Z`. The page displayed `Your inquiry has been sent` and the approved success body after one submit with no retry. This proves the implemented positive predicate was satisfied in that browser observation.
+
+The user subsequently confirmed `收到了` on `2026-09-10` for the approved receiver mailbox and the test identity `AUTHORIZED SYNTHETIC CONTACT TEST / No business inquiry`. This is recorded as `USER_CONFIRMED_MAILBOX_RECEIPT` and proves that at least one matching synthetic Contact message reached the approved mailbox. The user did not state how many messages arrived, so this evidence does not establish one-versus-two delivery, and it does not attribute delivery to the separate 19:05 response-unconfirmed POST.
 
 For complete audit disclosure, D16 had already executed a separate authorized diagnostic at `2026-09-10T11:05:41.046Z`. Its payload safety gate passed and released one POST, but no HTTP response was observed within 45 seconds. It is recorded as `SUBMISSION_NOT_CONFIRMED` and was not retried. The two observations are recorded separately; neither contains the Access Key, receiver address, test email or full payload.
 
@@ -29,6 +31,7 @@ EVIDENCE: docs/verification/contact-001/gate8-return-r2/acceptance-summary.json
 EVIDENCE: docs/verification/contact-001/gate8-return-r2/dependency-ledger.json
 EVIDENCE: docs/verification/contact-001/gate8-return-r2/provider/project-control-browser-success.json
 EVIDENCE: docs/verification/contact-001/gate8-return-r2/provider/d16-unconfirmed-attempt.json
+EVIDENCE: docs/verification/contact-001/gate8-return-r2/provider/user-confirmed-mailbox-receipt.json
 EVIDENCE: docs/verification/contact-001/gate8-return-r2/runtime/native-browser-200-percent-status.json
 EVIDENCE: docs/verification/contact-001/gate8-return-r2/runtime/build-and-route.json
 EVIDENCE: docs/verification/contact-001/gate8-return-r2/runtime/form-state-chromium.json

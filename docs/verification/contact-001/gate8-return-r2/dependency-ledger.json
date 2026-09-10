@@ -11,7 +11,7 @@
     {"id":"CONTACT-DEP07","status":"GATE8_EVIDENCE_READY","evidence":"Dedicated routes, Privacy and shared chrome checks pass."},
     {"id":"CONTACT-DEP08","status":"GATE8_EVIDENCE_READY","evidence":"Refreshed three-width and form-state evidence passes."},
     {"id":"CONTACT-DEP09","status":"PARTIAL","evidence":"Native browser 200% remains NOT_VERIFIED_TOOL_CAPABILITY_BLOCKED. Device/touch and screen-reader/AT evidence was removed by CONTACT-G9-SCOPE-20260910-01."},
-    {"id":"CONTACT-DEP10","status":"PARTIAL_MAILBOX_PENDING","evidence":"Project Control observed browser success for one authorized synthetic submission; mailbox receipt remains pending. A separate earlier D16 POST release received no observable response and was not retried."},
+    {"id":"CONTACT-DEP10","status":"USER_CONFIRMED_MAILBOX_RECEIPT","evidence":"The user confirmed at least one matching synthetic Contact message reached the approved mailbox on 2026-09-10. The user did not state a quantity, so one-versus-two delivery is not established and the separate 19:05 response-unconfirmed POST remains unattributed."},
     {"id":"CONTACT-DEP11","status":"PARTIAL_RELEASE_HOLD","evidence":"SEO/Schema pass; sitemap remains held until release authorization."},
     {"id":"CONTACT-DEP12","status":"READY_AFTER_POST_COMMIT_VALIDATION","evidence":"Requires schema-valid post-commit Evidence Manifest and two-round Gate9 preflight."}
   ]
