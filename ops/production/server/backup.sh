@@ -9,6 +9,7 @@ readonly BACKUP_ROOT=/opt/tio2-production/backups/releases
 readonly STATE_FILE=/opt/tio2-production/state/state.json
 readonly CONFIG_FILE=/etc/tio2-production/production.env
 readonly BACKUP_KEY=/etc/tio2-production/backup.age.pub
+readonly DB_DEFAULTS=/etc/tio2-production/mariadb-backup.cnf
 readonly OUTGOING=/home/deploy/tio2-outgoing
 readonly COMPOSE_FILE=/etc/tio2-production/production-compose.yml
 readonly DOCKER=/usr/bin/docker
@@ -100,10 +101,11 @@ drain_requests() {
 }
 
 validate_sql() {
-  /usr/bin/gzip -t "$backup_dir/database.sql.gz"
-  /usr/bin/gzip -cd -- "$backup_dir/database.sql.gz" > "$backup_dir/database.sql"
-  /usr/bin/grep -q '^CREATE TABLE ' "$backup_dir/database.sql"
-  /usr/bin/rm -f -- "$backup_dir/database.sql"
+  /usr/bin/gzip -t "$backup_dir/database.sql.gz" || return 1
+  /usr/bin/gzip -cd -- "$backup_dir/database.sql.gz" > "$backup_dir/database.sql" || return 1
+  /usr/bin/grep -q '^CREATE TABLE ' "$backup_dir/database.sql" || return 1
+  /usr/bin/rm -f -- "$backup_dir/database.sql" || return 1
+  return 0
 }
 
 validate_tar() {
@@ -230,6 +232,8 @@ EOF
 
 require_regular_file "$CONFIG_FILE"
 require_regular_file "$BACKUP_KEY"
+require_regular_file "$DB_DEFAULTS"
+[ "$(/usr/bin/stat -c '%a:%u' "$DB_DEFAULTS")" = 600:0 ] || fail 'database client defaults are unsafe'
 [ -x "$AGE" ] || fail 'age is unavailable'
 load_release_id
 release_id="$(/usr/bin/date -u +%Y%m%dT%H%M%SZ)-$release_id"
@@ -245,7 +249,7 @@ backup_dir="$BACKUP_ROOT/$release_id"
 block_mutations
 drain_requests
 compose exec -T db mariadb-dump --defaults-extra-file=/run/secrets/mariadb-backup.cnf --single-transaction --routines --events --all-databases | /usr/bin/gzip -c > "$backup_dir/database.sql.gz"
-validate_sql || fail 'database dump validation failed'
+if ! validate_sql; then fail 'database dump validation failed'; fi
 
 wordpress_container="$(compose ps -q wordpress)" || fail 'WordPress container is unavailable'
 [ -n "$wordpress_container" ] || fail 'WordPress container is unavailable'

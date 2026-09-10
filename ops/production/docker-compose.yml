@@ -10,6 +10,10 @@ services:
       - /etc/tio2-production/production.env
     volumes:
       - db_data:/var/lib/mysql
+    secrets:
+      - source: mariadb_backup_defaults
+        target: mariadb-backup.cnf
+        mode: 0400
     networks:
       - production
     healthcheck:
@@ -140,3 +144,7 @@ networks:
   production:
     driver: bridge
     internal: true
+
+secrets:
+  mariadb_backup_defaults:
+    file: /etc/tio2-production/mariadb-backup.cnf

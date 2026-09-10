@@ -70,6 +70,12 @@ class BootstrapInstallTests(unittest.TestCase):
         self.assertIn("release_actions.py", REQUIRED_FILES)
         self.assertIn("backup.sh", REQUIRED_FILES)
 
+    def test_real_staged_self_test_validates_shell_without_compiling_it_as_python(self) -> None:
+        archive = self.root / "bootstrap-selftest"
+        archive_copy(archive)
+        result = subprocess.run([sys.executable, str(archive / "bootstrap_selftest.py")], cwd=archive, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_rejects_unvalidated_support_code_before_any_root_self_test_runs(self) -> None:
         archive = self.root / "bootstrap"
         archive_copy(archive)
