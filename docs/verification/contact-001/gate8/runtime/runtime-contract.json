@@ -1,0 +1,43 @@
+{
+  "checkedAt": "2026-09-10T10:20:21.032Z",
+  "environment": "local production build with scoped CMS fixture for Contact and local prerelease CMS for existing routes",
+  "baseUrl": "http://127.0.0.1:4491",
+  "status": 200,
+  "buildId": "e9kK97wgApJrE2vMfUtPg",
+  "implementationCommit": "619bd75afd2a4725d9efe9f2e0e0baa3bf3c515e",
+  "projection": {
+    "title": "Contact TiO2 Malaysia | General Inquiries",
+    "lang": "en",
+    "canonical": "https://tio2malaysia.com/contact/",
+    "robots": "index, follow",
+    "pageId": "CONTACT-001",
+    "siteScope": "tio2-my",
+    "modules": [
+      "breadcrumb",
+      "hero",
+      "contact-details",
+      "dedicated-requests",
+      "general-inquiry"
+    ],
+    "fields": [
+      "full_name",
+      "company",
+      "business_email",
+      "country_region",
+      "subject",
+      "message"
+    ],
+    "currentNavigation": [
+      "About",
+      "About"
+    ],
+    "schemaTypes": [
+      "ContactPage",
+      "BreadcrumbList",
+      "Organization"
+    ],
+    "horizontalOverflow": false,
+    "plainGeneralEmail": true,
+    "emailActionCount": 0
+  }
+}

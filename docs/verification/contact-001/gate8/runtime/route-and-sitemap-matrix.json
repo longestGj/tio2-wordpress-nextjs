@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-09-10T10:20:21.032Z",
+  "routes": [
+    {
+      "path": "/contact/",
+      "status": 200,
+      "finalPath": "/contact"
+    },
+    {
+      "path": "/request-a-quote/",
+      "status": 200,
+      "finalPath": "/request-a-quote"
+    },
+    {
+      "path": "/request-documents/",
+      "status": 200,
+      "finalPath": "/request-documents/"
+    },
+    {
+      "path": "/request-sample/",
+      "status": 200,
+      "finalPath": "/request-sample"
+    },
+    {
+      "path": "/privacy-policy/",
+      "status": 200,
+      "finalPath": "/privacy-policy"
+    }
+  ],
+  "sitemapStatus": 200,
+  "contactInSitemap": false,
+  "releaseReason": "CONTACT-DEP03/04/06/09/10 remain open"
+}

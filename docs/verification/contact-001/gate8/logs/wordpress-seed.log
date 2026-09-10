@@ -1,0 +1,9 @@
+ Container wordpress-db-1 Running 
+ Container wordpress-wordpress-1 Running 
+ Container wordpress-db-1 Waiting 
+ Container wordpress-db-1 Healthy 
+ Container wordpress-db-1 Waiting 
+ Container wordpress-db-1 Healthy 
+ Container wordpress-wpcli-run-6fbca3d87706 Creating 
+ Container wordpress-wpcli-run-6fbca3d87706 Created 
+{"status":"passed","postId":18641,"siteScope":"tio2-my","internalSlug":"tio2-my-contact","publicPath":"\/contact","schemaVersion":"contact-page-v0.1-malaysia"}

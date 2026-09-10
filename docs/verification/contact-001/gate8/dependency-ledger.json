@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "contact-001-gate8-dependency-ledger-v1.0",
+  "checkedAt": "2026-09-10T18:22:00+08:00",
+  "dependencies": [
+    {"id":"CONTACT-DEP01","status":"GATE8_EVIDENCE_READY","owner":"Platform owner / Gate 8","blockingLayer":"PAGE_GATE9","evidence":"Local production build exposes CONTACT-001 at /contact with 200 and scoped identity."},
+    {"id":"CONTACT-DEP02","status":"GATE8_EVIDENCE_READY","owner":"CONTACT-001 content owner / Gate 8","blockingLayer":"PAGE_GATE9","evidence":"Local WordPress singleton, GraphQL record, DTO and rendered source chain are captured."},
+    {"id":"CONTACT-DEP03","status":"OPEN","owner":"IKHLAS operational owner + Project Control","blockingLayer":"RELEASE","evidence":"Contact-specific processor and operational receiver decision required."},
+    {"id":"CONTACT-DEP04","status":"OPEN","owner":"Operational owner / Gate 8 after decision","blockingLayer":"RELEASE","evidence":"Authenticated positive predicate and provider/receiver correlation required."},
+    {"id":"CONTACT-DEP05","status":"PARTIAL","owner":"Security/processor owner / Gate 8","blockingLayer":"INTEGRATION","evidence":"Pending duplicate and retry controls pass; anti-spam and durable idempotency await processor selection."},
+    {"id":"CONTACT-DEP06","status":"OPEN","owner":"Privacy/Legal + IKHLAS operations","blockingLayer":"RELEASE","evidence":"Contact processor, recipient, transfer, anti-spam and retention parity approval required."},
+    {"id":"CONTACT-DEP07","status":"GATE8_EVIDENCE_READY","owner":"Destination + Global Chrome/Legal/Consent owners","blockingLayer":"INTEGRATION","evidence":"Quote/Documents/Sample/Privacy return 200; shared Menu and Cookie Settings keyboard checks pass."},
+    {"id":"CONTACT-DEP08","status":"GATE8_EVIDENCE_READY","owner":"CONTACT-001 + Global Chrome/Brand owners","blockingLayer":"PAGE_GATE9","evidence":"Integrated 1440/768/390 default and form-state captures inspected."},
+    {"id":"CONTACT-DEP09","status":"OPEN","owner":"CONTACT-001 + shared accessibility owners","blockingLayer":"PAGE_GATE9","evidence":"Physical device, named screen reader/AT and native 200% verification required."},
+    {"id":"CONTACT-DEP10","status":"OPEN","owner":"IKHLAS operational owner authorizes; Gate 8 executes","blockingLayer":"RELEASE","evidence":"No external Contact request was authorized or made; provider acceptance and receiver receipt remain unproven."},
+    {"id":"CONTACT-DEP11","status":"PARTIAL","owner":"SEO/Schema + Gate 8","blockingLayer":"RELEASE","evidence":"Head and JSON-LD parity are captured; sitemap remains held until release blockers close."},
+    {"id":"CONTACT-DEP12","status":"READY_AFTER_POST_COMMIT_VALIDATION","owner":"Gate 8 developer / Controller reception","blockingLayer":"RECHECK_SCOPE","evidence":"External manifest validation and two-round held-runtime preflight complete after evidence commit."}
+  ]
+}

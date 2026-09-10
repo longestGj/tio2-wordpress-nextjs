@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-09-10T10:20:21.032Z",
+  "externalRequestMade": false,
+  "processorConfigured": false,
+  "receiverConfigured": false,
+  "invalid": {
+    "status": 400,
+    "result": {
+      "kind": "validation_failed",
+      "errors": {
+        "message": "Enter your message."
+      }
+    }
+  },
+  "valid": {
+    "status": 503,
+    "result": {
+      "kind": "submission_unconfirmed"
+    }
+  },
+  "successPredicateAvailable": false,
+  "receiverReceiptConfirmed": false
+}

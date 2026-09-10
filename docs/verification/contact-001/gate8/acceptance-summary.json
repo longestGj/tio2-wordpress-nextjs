@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "contact-001-gate8-acceptance-summary-v1.0",
+  "pageId": "CONTACT-001",
+  "siteScope": "tio2-my",
+  "packageId": "CONTACT-001-G6-HANDOFF-20260910-02",
+  "implementationCommit": "619bd75afd2a4725d9efe9f2e0e0baa3bf3c515e",
+  "buildId": "e9kK97wgApJrE2vMfUtPg",
+  "runtime": "http://127.0.0.1:4491",
+  "liveSubmissionEnabled": false,
+  "externalRequestMade": false,
+  "conditions": [
+    {"id":"CONTACT-G9-01","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Scoped route, CMS query/DTO/cache tags and wrong-scope tests; runtime CONTACT-001/200."},
+    {"id":"CONTACT-G9-02","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Approved copy/order/facts/actions in DOM and three-width captures; email is plain text."},
+    {"id":"CONTACT-G9-03","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Exact six-field client/server validation, boundary, preservation and request-count tests."},
+    {"id":"CONTACT-G9-04","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Pending guard, disabled controls, one request and wrapped six-value readback in Chromium/Firefox."},
+    {"id":"CONTACT-G9-05","gate8Status":"READY_FOR_NEGATIVE_REVIEW","evidence":"Unconfirmed outcomes preserve/edit values, show BC-17, permit only manual retry and never navigate/succeed."},
+    {"id":"CONTACT-G9-06","gate8Status":"BLOCKED_EXTERNAL_DECISION","evidence":"HTTP 200 plus success=true is proven unable to trigger success; no approved positive predicate exists."},
+    {"id":"CONTACT-G9-07","gate8Status":"BLOCKED_EXTERNAL_DECISION","evidence":"No processor/receiver configured and no external request or receipt claimed."},
+    {"id":"CONTACT-G9-08","gate8Status":"PARTIAL","evidence":"Pending duplicate and no-auto-retry controls pass; anti-spam and durable receiver dedup await processor decision."},
+    {"id":"CONTACT-G9-09","gate8Status":"BLOCKED_EXTERNAL_DECISION","evidence":"Approved form notice rendered; processor/receiver/transfer/retention parity decision remains absent."},
+    {"id":"CONTACT-G9-10","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Fact match/missing/mismatch, query neutrality and long wrapping tests pass without fallback."},
+    {"id":"CONTACT-G9-11","gate8Status":"READY_WITH_RELEASE_HOLD","evidence":"Exact head/canonical/robots observed; Contact is intentionally absent from sitemap until blockers close."},
+    {"id":"CONTACT-G9-12","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Bounded ContactPage/BreadcrumbList/visible-source Organization graph and prohibited-key tests."},
+    {"id":"CONTACT-G9-13","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"Shared Chrome/Logo/About mapping/RFQ/Footer/Cookie Settings and destination status matrix pass."},
+    {"id":"CONTACT-G9-14","gate8Status":"READY_FOR_INDEPENDENT_REVIEW","evidence":"1440/768/390 captures inspected; no overflow and controls meet 44px runtime geometry checks."},
+    {"id":"CONTACT-G9-15","gate8Status":"PARTIAL","evidence":"Chromium/Firefox, reduced motion, keyboard focus and Axe pass; physical device, named AT and native 200% remain open."},
+    {"id":"CONTACT-G9-16","gate8Status":"READY_AFTER_MANIFEST_VALIDATION","evidence":"Committed receipt/evidence plus external post-commit schema validation and two-round preflight."}
+  ],
+  "sourceClassification": [
+    {"path":"D:/23MySec/pages/contact/06_handoff/CONTACT-001_GATE6_HANDOFF_PACKAGE_V0.2.md","classification":"APPROVED_CONTRACT"},
+    {"path":"D:/23MySec/pages/contact/04_planning/gate4-v0.2","classification":"PROTOTYPE_ONLY"},
+    {"path":"docs/verification/contact-001/gate8/support/contact-cms-proxy.mjs","classification":"REFERENCE_IMPLEMENTATION"}
+  ]
+}
