@@ -1,5 +1,16 @@
 Set-StrictMode -Version Latest
 
+$script:FrozenContractSha256 = [ordered]@{
+    'ops/production/release-package.schema.json' = 'ad8dbea67cb5c7c4a8503e830b32a061ee46859c3992e0570cc42d4d38362346'
+    'ops/production/release-surface.json' = '42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152'
+    'ops/production/migration-manifest.json' = '230197ea63467b5557e7d1bdb960503b3c636f15eb7564894d124c9a7f1d7b7a'
+}
+
+$script:ProductionRuntimePaths = @(
+    '.env.example', '.gitattributes', 'next.config.ts', 'package.json', 'package-lock.json', 'proxy.ts', 'tsconfig.json', 'vercel.json',
+    'app', 'components', 'content', 'lib', 'public', 'sites', 'wordpress/bootstrap', 'wordpress/plugins', 'ops/production'
+)
+
 function Invoke-ProductionGit {
     [CmdletBinding()]
     param(
@@ -80,6 +91,9 @@ function Assert-ProductionCandidate {
     $receiptPath = Assert-ProductionReceiptPath -RepositoryRoot $RepositoryRoot -PrereleaseReceiptPath $PrereleaseReceiptPath
     try { $receipt = Get-Content -LiteralPath $receiptPath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop }
     catch { throw 'Prerelease receipt is not valid JSON.' }
+    if ($receipt.state -ne 'HEALTHY' -or -not [string]::IsNullOrWhiteSpace([string] $receipt.failedStage) -or [string]::IsNullOrWhiteSpace([string] $receipt.completedAt)) {
+        throw 'Prerelease receipt is not a completed healthy run.'
+    }
     if ($receipt.commit -ne $GitIdentity.commit -or $receipt.siteId -ne 'tio2-my' -or [string]::IsNullOrWhiteSpace([string] $receipt.buildId) -or [string]::IsNullOrWhiteSpace([string] $receipt.cmsIdentitySha256) -or [string] $receipt.cmsIdentitySha256 -notmatch '^[a-fA-F0-9]{64}$') {
         throw 'Prerelease receipt does not contain complete matching commit, site, Build, and CMS identity fields.'
     }
@@ -101,25 +115,111 @@ function New-ProductionUtf8File {
 
 function New-ProductionGzipFile {
     [CmdletBinding()]
-    param([Parameter(Mandatory)] [string] $SourcePath, [Parameter(Mandatory)] [string] $DestinationPath)
+    param([Parameter(Mandatory)] [System.IO.Stream] $SourceStream, [Parameter(Mandatory)] [string] $DestinationPath)
 
-    $input = [System.IO.File]::OpenRead($SourcePath)
+    $SourceStream.Position = 0
+    $output = [System.IO.File]::Open($DestinationPath, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
     try {
-        $output = [System.IO.File]::Open($DestinationPath, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
-        try {
-            $gzip = [System.IO.Compression.GZipStream]::new($output, [System.IO.Compression.CompressionLevel]::Optimal, $true)
-            try { $input.CopyTo($gzip) }
-            finally { $gzip.Dispose() }
-        }
-        finally { $output.Dispose() }
+        $gzip = [System.IO.Compression.GZipStream]::new($output, [System.IO.Compression.CompressionLevel]::Optimal, $true)
+        try { $SourceStream.CopyTo($gzip) }
+        finally { $gzip.Dispose() }
     }
-    finally { $input.Dispose() }
+    finally { $output.Dispose() }
+}
+
+function Test-ProductionGitTreePath {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)] [string] $RepositoryRoot, [Parameter(Mandatory)] [string] $Commit, [Parameter(Mandatory)] [string] $Path)
+
+    $files = @(Invoke-ProductionGit -RepositoryRoot $RepositoryRoot -Arguments @('ls-tree', '-r', '--name-only', $Commit))
+    return @($files | Where-Object { $_ -eq $Path -or $_.StartsWith("$Path/", [System.StringComparison]::Ordinal) }).Count -gt 0
+}
+
+function Get-ProductionArchivePathspecs {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)] [string] $RepositoryRoot, [Parameter(Mandatory)] [string] $Commit)
+
+    $paths = [System.Collections.Generic.List[string]]::new()
+    foreach ($path in $script:ProductionRuntimePaths) {
+        if (Test-ProductionGitTreePath -RepositoryRoot $RepositoryRoot -Commit $Commit -Path $path) { $paths.Add($path) }
+    }
+    $migrationJson = @(Invoke-ProductionGit -RepositoryRoot $RepositoryRoot -Arguments @('show', "$Commit`:ops/production/migration-manifest.json")) -join "`n"
+    try { $migration = $migrationJson | ConvertFrom-Json -ErrorAction Stop }
+    catch { throw 'Frozen Task 1 production contract is not valid JSON.' }
+    foreach ($seed in @($migration.seeds)) {
+        $seedPath = Assert-ProductionArchiveMemberPath -Path ([string] $seed.path)
+        if (-not (Test-ProductionGitTreePath -RepositoryRoot $RepositoryRoot -Commit $Commit -Path $seedPath)) { throw 'Frozen Task 1 production contract has a missing migration seed.' }
+        $paths.Add($seedPath)
+    }
+    return @($paths | Select-Object -Unique)
+}
+
+function ConvertTo-ProductionProcessArgument {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)] [string] $Value)
+
+    return '"' + ($Value -replace '(\\*)"', '$1$1\"' -replace '(\\+)$', '$1$1') + '"'
+}
+
+function New-ProductionGitArchiveLock {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [string] $RepositoryRoot,
+        [Parameter(Mandatory)] [string] $Commit,
+        [Parameter(Mandatory)] [string[]] $Pathspecs,
+        [Parameter(Mandatory)] [string] $ArchivePath
+    )
+
+    $stream = [System.IO.File]::Open($ArchivePath, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::Read)
+    try {
+        $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+        $startInfo.FileName = 'git'
+        $startInfo.UseShellExecute = $false
+        $startInfo.CreateNoWindow = $true
+        $startInfo.RedirectStandardOutput = $true
+        $startInfo.RedirectStandardError = $true
+        $arguments = @('-C', $RepositoryRoot, 'archive', '--format=tar', $Commit, '--') + $Pathspecs
+        $startInfo.Arguments = (@($arguments | ForEach-Object { ConvertTo-ProductionProcessArgument -Value $_ }) -join ' ')
+        $process = [System.Diagnostics.Process]::new()
+        $process.StartInfo = $startInfo
+        if (-not $process.Start()) { throw 'Failed to start Git archive.' }
+        $process.StandardOutput.BaseStream.CopyTo($stream)
+        $errorOutput = $process.StandardError.ReadToEnd()
+        $process.WaitForExit()
+        if ($process.ExitCode -ne 0) { throw 'Failed to create Git archive.' }
+        $stream.Flush($true)
+        $stream.Position = 0
+        return $stream
+    }
+    catch {
+        $stream.Dispose()
+        throw
+    }
+}
+
+function New-ProductionRunReservation {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)] [string] $RunsRoot, [Parameter(Mandatory)] [string] $ReleaseId)
+
+    $runRoot = Join-Path $RunsRoot $ReleaseId
+    [System.IO.Directory]::CreateDirectory($runRoot) | Out-Null
+    try {
+        $handle = [System.IO.File]::Open((Join-Path $runRoot 'reservation.lock'), [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
+        return [pscustomobject]@{ runRoot = $runRoot; handle = $handle }
+    }
+    catch { throw 'Production release run already exists or is reserved.' }
 }
 
 function Get-ProductionArchiveMembers {
     [CmdletBinding()]
     param([Parameter(Mandatory)] [string] $ArchivePath)
 
+    $detail = @(& tar -tvf $ArchivePath 2>&1)
+    if ($LASTEXITCODE -ne 0) { throw 'Failed to enumerate Git archive member types.' }
+    foreach ($line in $detail) {
+        $entry = [string] $line
+        if ([string]::IsNullOrWhiteSpace($entry) -or ($entry[0] -ne '-' -and $entry[0] -ne 'd')) { throw 'Git archive contains a non-regular member.' }
+    }
     $members = @(& tar -tf $ArchivePath 2>&1)
     if ($LASTEXITCODE -ne 0) { throw 'Failed to enumerate the Git archive.' }
     $safe = @($members | ForEach-Object {
@@ -151,13 +251,17 @@ function Assert-ProductionReleaseContract {
         $migration = Get-Content -LiteralPath $migrationPath -Raw | ConvertFrom-Json -ErrorAction Stop
     }
     catch { throw 'Production release contract is not valid JSON.' }
+    foreach ($entry in $script:FrozenContractSha256.GetEnumerator()) {
+        $path = Join-Path $SourcePath ($entry.Key -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        if ((Get-ProductionSha256 -Path $path) -ne $entry.Value) { throw 'Archive does not match the frozen Task 1 production contract.' }
+    }
     if ($schema.properties.schemaVersion.const -ne 'tio2-production-release-v1' -or $schema.properties.siteId.const -ne 'tio2-my' -or $surface.schemaVersion -ne 'tio2-my-production-surface-v1' -or $surface.siteId -ne 'tio2-my' -or $migration.schemaVersion -ne 'tio2-my-production-migration-v1' -or $migration.siteId -ne 'tio2-my') {
-        throw 'Production release contract does not match tio2-my.'
+        throw 'Archive does not match the frozen Task 1 production contract.'
     }
     foreach ($seed in @($migration.seeds)) {
         $relative = Assert-ProductionArchiveMemberPath -Path ([string] $seed.path)
         $candidate = Join-Path $SourcePath ($relative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        if (-not (Test-Path -LiteralPath $candidate -PathType Leaf) -or [string] $seed.sha256 -notmatch '^[a-f0-9]{64}$' -or (Get-ProductionSha256 -Path $candidate) -ne $seed.sha256) { throw 'Production migration manifest does not match the Git archive.' }
+        if (-not (Test-Path -LiteralPath $candidate -PathType Leaf) -or [string] $seed.sha256 -notmatch '^[a-f0-9]{64}$' -or (Get-ProductionSha256 -Path $candidate) -ne $seed.sha256) { throw 'Archive does not match the frozen Task 1 production contract.' }
     }
     foreach ($file in $Files) {
         if ($file.path -notmatch '^(?!/)(?!.*(?:^|/)\.\.(?:/|$)).+$' -or $file.sha256 -notmatch '^[a-f0-9]{64}$') { throw 'Production package manifest file entry is invalid.' }
@@ -174,7 +278,8 @@ function New-ProductionPackage {
     param(
         [Parameter(Mandatory)] [string] $RepositoryRoot,
         [Parameter(Mandatory)] [string] $OutputRoot,
-        [Parameter(Mandatory)] [string] $PrereleaseReceiptPath
+        [Parameter(Mandatory)] [string] $PrereleaseReceiptPath,
+        [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9-]{0,127}$')] [string] $ReleaseId
     )
 
     $repository = (Resolve-Path -LiteralPath $RepositoryRoot -ErrorAction Stop).Path
@@ -187,32 +292,37 @@ function New-ProductionPackage {
     }
     $runsRoot = Join-Path $output 'runs'
     [System.IO.Directory]::CreateDirectory($runsRoot) | Out-Null
-    $releaseId = [DateTimeOffset]::UtcNow.ToString('yyyyMMddTHHmmssZ') + '-' + $identity.commit.Substring(0, 12)
-    $runRoot = Join-Path $runsRoot $releaseId
-    if (Test-Path -LiteralPath $runRoot) { throw 'Production release run already exists.' }
-    [System.IO.Directory]::CreateDirectory($runRoot) | Out-Null
+    $releaseId = if ([string]::IsNullOrWhiteSpace($ReleaseId)) { [DateTimeOffset]::UtcNow.ToString('yyyyMMddTHHmmssZ') + '-' + $identity.commit.Substring(0, 12) } else { $ReleaseId }
+    $reservation = New-ProductionRunReservation -RunsRoot $runsRoot -ReleaseId $releaseId
+    $runRoot = $reservation.runRoot
 
     $tarPath = Join-Path $runRoot 'source.tar'
     $sourcePath = Join-Path $runRoot 'source'
     $archivePath = Join-Path $runRoot 'release.tar.gz'
     $manifestPath = Join-Path $runRoot 'release-manifest.json'
-    $archiveOutput = @(& git -C $repository archive --format=tar --output=$tarPath $identity.commit 2>&1)
-    if ($LASTEXITCODE -ne 0) { throw 'Failed to create Git archive.' }
-    $members = Get-ProductionArchiveMembers -ArchivePath $tarPath
-    [System.IO.Directory]::CreateDirectory($sourcePath) | Out-Null
-    $extractOutput = @(& tar -xf $tarPath -C $sourcePath 2>&1)
-    if ($LASTEXITCODE -ne 0) { throw 'Failed to extract Git archive.' }
-    $orderedMembers = [string[]] $members
-    [System.Array]::Sort($orderedMembers, [System.StringComparer]::Ordinal)
-    $files = foreach ($member in $orderedMembers) {
-        $filePath = Join-Path $sourcePath ($member -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        if (Test-Path -LiteralPath $filePath -PathType Leaf) {
-            [pscustomobject][ordered]@{ path = $member; sha256 = Get-ProductionSha256 -Path $filePath }
+    try {
+        $pathspecs = Get-ProductionArchivePathspecs -RepositoryRoot $repository -Commit $identity.commit
+        $archiveLock = New-ProductionGitArchiveLock -RepositoryRoot $repository -Commit $identity.commit -Pathspecs $pathspecs -ArchivePath $tarPath
+        try {
+            $members = Get-ProductionArchiveMembers -ArchivePath $tarPath
+            [System.IO.Directory]::CreateDirectory($sourcePath) | Out-Null
+            $extractOutput = @(& tar -xf $tarPath -C $sourcePath 2>&1)
+            if ($LASTEXITCODE -ne 0) { throw 'Failed to extract Git archive.' }
+            $orderedMembers = [string[]] $members
+            [System.Array]::Sort($orderedMembers, [System.StringComparer]::Ordinal)
+            $files = foreach ($member in $orderedMembers) {
+                $filePath = Join-Path $sourcePath ($member -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+                if (Test-Path -LiteralPath $filePath -PathType Leaf) {
+                    [pscustomobject][ordered]@{ path = $member; sha256 = Get-ProductionSha256 -Path $filePath }
+                }
+            }
+            $files = @($files)
+            if ($files.Count -eq 0) { throw 'Git archive does not contain files.' }
+            New-ProductionGzipFile -SourceStream $archiveLock -DestinationPath $archivePath
         }
+        finally { $archiveLock.Dispose() }
     }
-    $files = @($files)
-    if ($files.Count -eq 0) { throw 'Git archive does not contain files.' }
-    New-ProductionGzipFile -SourcePath $tarPath -DestinationPath $archivePath
+    finally { $reservation.handle.Dispose() }
     $archiveSha256 = Get-ProductionSha256 -Path $archivePath
     $contract = Assert-ProductionReleaseContract -SourcePath $sourcePath -Commit $identity.commit -ArchiveSha256 $archiveSha256 -Files $files
     $manifest = [ordered]@{
