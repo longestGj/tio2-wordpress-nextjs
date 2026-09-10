@@ -139,7 +139,7 @@ describe('tio2-my production runtime topology', () => {
     expect(dockerfile).toContain(`FROM ${nodeImage} AS dependencies`)
     expect(dockerfile).toContain(`FROM ${nodeImage} AS runtime`)
     expect(dockerfile).toContain('RUN npm ci')
-    expect(dockerfile).toContain('# syntax=docker/dockerfile:1.7')
+    expect(dockerfile).toContain('# syntax=docker/dockerfile:1.10.0')
     expect(dockerfile).toContain('RUN --mount=type=secret,id=wordpress_editorial_api_token,env=WORDPRESS_EDITORIAL_API_TOKEN,required=true npm run build')
     expect(dockerfile).not.toContain('ARG WORDPRESS_EDITORIAL_API_TOKEN')
     expect(dockerfile).toContain('ARG SITE_ID=tio2-my')
@@ -160,6 +160,19 @@ describe('tio2-my production runtime topology', () => {
     expect(dockerfile).toContain('REVALIDATION_SECRET=\\"$NEXTJS_REVALIDATION_SECRET_TIO2_MY\\"')
     expect(dockerfile).toContain('WORDPRESS_PREVIEW_SECRET=\\"$NEXTJS_PREVIEW_SECRET_TIO2_MY\\"')
     expect(dockerfile).toContain('npm run start -- --hostname 0.0.0.0 --port 3000')
+  })
+
+  it('pins a Dockerfile frontend that parses the BuildKit secret environment option', () => {
+    const dockerfile = read(dockerfilePath)
+    const frontend = dockerfile.match(/^# syntax=docker\/dockerfile:(\d+)\.(\d+)\.(\d+)$/mu)
+    const secretBuild = dockerfile.match(/RUN --mount=type=secret,([^\s]+) npm run build/u)
+
+    expect(frontend?.slice(1)).toEqual(['1', '10', '0'])
+    expect(secretBuild?.[1].split(',')).toEqual(expect.arrayContaining([
+      'id=wordpress_editorial_api_token',
+      'env=WORDPRESS_EDITORIAL_API_TOKEN',
+      'required=true',
+    ]))
   })
 
   it('builds a production form bundle with the approved public key and without the editorial credential', () => {
