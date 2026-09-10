@@ -1,6 +1,6 @@
 {
   "schemaVersion": "contact-001-gate8-targeted-dependencies-v2.0",
-  "checkedAt": "2026-09-10T19:50:13+08:00",
+  "checkedAt": "2026-09-10T19:53:04+08:00",
   "dependencies": [
     {"id":"CONTACT-DEP01","status":"GATE8_EVIDENCE_READY","evidence":"Bound local-production Contact route returns 200."},
     {"id":"CONTACT-DEP02","status":"GATE8_EVIDENCE_READY","evidence":"Approved CMS/DTO/source chain remains unchanged from accepted candidate."},
@@ -11,7 +11,7 @@
     {"id":"CONTACT-DEP07","status":"GATE8_EVIDENCE_READY","evidence":"Dedicated routes, Privacy and shared chrome checks pass."},
     {"id":"CONTACT-DEP08","status":"GATE8_EVIDENCE_READY","evidence":"Refreshed three-width and form-state evidence passes."},
     {"id":"CONTACT-DEP09","status":"PARTIAL","evidence":"Native browser 200% remains NOT_VERIFIED_TOOL_CAPABILITY_BLOCKED. Device/touch and screen-reader/AT evidence was removed by CONTACT-G9-SCOPE-20260910-01."},
-    {"id":"CONTACT-DEP10","status":"PARTIAL_PER_ATTEMPT_CORRELATION_OPEN","evidence":"The user confirmed exactly one matching synthetic Contact message in the approved mailbox at 2026-09-10 19:11 Asia/Shanghai. It predates the 19:12:29 browser success and cannot be attributed to it. It is consistent with the 19:05 response-unconfirmed POST only as an inference; that provider response and per-attempt correlation remain unconfirmed."},
+    {"id":"CONTACT-DEP10","status":"USER_CONFIRMED_BROWSER_SUBMISSION_MAILBOX_RECEIPT","evidence":"The user confirmed exactly one matching synthetic Contact message in the approved mailbox at 2026-09-10 19:11 Asia/Shanghai and explicitly attributed it to Project Control's browser submission. The 19:11 mailbox display and 19:12:29 browser observation are recorded as TIMESTAMP_DISCREPANCY / USER_EXPLICIT_ATTRIBUTION_CONTROLS. The separate 19:05 diagnostic POST remains SUBMISSION_NOT_CONFIRMED / NO_SEPARATE_MAILBOX_RECEIPT_CONFIRMED."},
     {"id":"CONTACT-DEP11","status":"PARTIAL_RELEASE_HOLD","evidence":"SEO/Schema pass; sitemap remains held until release authorization."},
     {"id":"CONTACT-DEP12","status":"READY_AFTER_POST_COMMIT_VALIDATION","evidence":"Requires schema-valid post-commit Evidence Manifest and two-round Gate9 preflight."}
   ]
