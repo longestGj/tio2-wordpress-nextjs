@@ -30,6 +30,8 @@ describe('tio2-my one-time production bootstrap', () => {
     expect(source).toContain('unsafe destination symlink')
     expect(source).toContain('_backup_previous_program')
     expect(source).toContain('_restore(target, snapshot')
+    expect(source).toContain('_write_recovery')
+    expect(source).toContain('_recover_pending')
     expect(source).toContain('visudo')
   })
 

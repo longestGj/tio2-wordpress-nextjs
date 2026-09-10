@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import argparse
+import base64
 from dataclasses import dataclass
 import os
+import json
 from pathlib import Path
 import shutil
 import stat
@@ -132,6 +134,86 @@ def _restore(path: Path, snapshot: tuple[str, bytes | str | None, int | None], *
         os.replace(candidate, path)
 
 
+def _sync_parent(path: Path, *, simulation: bool) -> None:
+    if simulation or os.name != "posix":
+        return
+    descriptor = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _recovery_path(paths: BootstrapPaths) -> Path:
+    return paths.production / "bootstrap-recovery.json"
+
+
+def _encode_snapshot(snapshot: tuple[str, bytes | str | None, int | None]) -> dict[str, object]:
+    kind, data, mode = snapshot
+    encoded = base64.b64encode(data).decode("ascii") if isinstance(data, bytes) else data
+    return {"kind": kind, "data": encoded, "mode": mode, "bytes": isinstance(data, bytes)}
+
+
+def _decode_snapshot(value: object) -> tuple[str, bytes | str | None, int | None]:
+    if not isinstance(value, dict) or set(value) != {"kind", "data", "mode", "bytes"}:
+        raise BootstrapError("bootstrap recovery metadata is invalid")
+    kind, data, mode = value["kind"], value["data"], value["mode"]
+    if kind not in {"absent", "file", "link"} or not isinstance(value["bytes"], bool) or (mode is not None and not isinstance(mode, int)):
+        raise BootstrapError("bootstrap recovery metadata is invalid")
+    if value["bytes"]:
+        if not isinstance(data, str):
+            raise BootstrapError("bootstrap recovery metadata is invalid")
+        try:
+            data = base64.b64decode(data.encode("ascii"), validate=True)
+        except ValueError as error:
+            raise BootstrapError("bootstrap recovery metadata is invalid") from error
+    elif data is not None and not isinstance(data, str):
+        raise BootstrapError("bootstrap recovery metadata is invalid")
+    return (kind, data, mode)
+
+
+def _write_recovery(paths: BootstrapPaths, previous: dict[Path, tuple[str, bytes | str | None, int | None]]) -> None:
+    targets = (paths.program_link, paths.wrapper, paths.sudoers)
+    payload = {str(index): _encode_snapshot(previous[target]) for index, target in enumerate(targets)}
+    target = _recovery_path(paths)
+    candidate = target.parent / f".{target.name}.{uuid4().hex}.new"
+    with candidate.open("xb") as stream:
+        stream.write(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8"))
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(candidate, target)
+    _sync_parent(target, simulation=paths.simulation)
+
+
+def _recover_pending(paths: BootstrapPaths) -> None:
+    journal = _recovery_path(paths)
+    if not journal.exists():
+        return
+    try:
+        payload = json.loads(journal.read_text(encoding="utf-8"))
+        targets = (paths.program_link, paths.wrapper, paths.sudoers)
+        snapshots = [_decode_snapshot(payload[str(index)]) for index in range(len(targets))]
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        raise BootstrapError("bootstrap recovery metadata is invalid") from error
+    failures: list[Exception] = []
+    for target, snapshot in zip(targets, snapshots, strict=True):
+        try:
+            _restore(target, snapshot, simulation=paths.simulation)
+            _sync_parent(target, simulation=paths.simulation)
+        except Exception as error:
+            failures.append(error)
+    if failures:
+        raise BootstrapError("bootstrap recovery is incomplete") from failures[0]
+    journal.unlink()
+    _sync_parent(journal, simulation=paths.simulation)
+
+
+def _clear_recovery(paths: BootstrapPaths) -> None:
+    journal = _recovery_path(paths)
+    journal.unlink(missing_ok=True)
+    _sync_parent(journal, simulation=paths.simulation)
+
+
 def _backup_previous_program(paths: BootstrapPaths, previous: tuple[str, bytes | str | None, int | None]) -> None:
     kind, data, _ = previous
     if kind == "absent":
@@ -170,9 +252,10 @@ def _default_sudo_validator(candidate: Path) -> None:
     subprocess.run(["visudo", "-cf", str(candidate)], check=True)
 
 
-def install_bootstrap(source: Path, paths: BootstrapPaths, *, deploy_uid: int, deploy_gid: int, stat_reader: Callable[[Path], os.stat_result] = os.lstat, self_test: Callable[[Path], None] = _default_self_test, sudo_validator: Callable[[Path], None] = _default_sudo_validator, fail_after: str | None = None) -> None:
-    validate_bootstrap_source(source, stat_reader=stat_reader)
+def install_bootstrap(source: Path, paths: BootstrapPaths, *, deploy_uid: int, deploy_gid: int, stat_reader: Callable[[Path], os.stat_result] = os.lstat, self_test: Callable[[Path], None] = _default_self_test, sudo_validator: Callable[[Path], None] = _default_sudo_validator, fail_after: str | None = None, abrupt_after: str | None = None) -> None:
     paths.create_layout(deploy_uid=deploy_uid, deploy_gid=deploy_gid)
+    _recover_pending(paths)
+    validate_bootstrap_source(source, stat_reader=stat_reader)
     staging: Path | None = Path(tempfile.mkdtemp(prefix=".install-", dir=paths.programs))
     try:
         for name in ("bootstrap_install.py", "bootstrap_selftest.py", "tio2_release.py", "release_contract.py", "release_state.py", "sshd-tio2-production.conf"):
@@ -203,17 +286,21 @@ def install_bootstrap(source: Path, paths: BootstrapPaths, *, deploy_uid: int, d
         targets = (paths.program_link, paths.wrapper, paths.sudoers)
         previous = {target: _snapshot(target) for target in targets}
         _backup_previous_program(paths, previous[paths.program_link])
+        _write_recovery(paths, previous)
         try:
             for stage, target, (candidate, _, _, _) in zip(("program", "wrapper", "sudoers"), targets, candidates, strict=True):
                 os.replace(candidate, target)
+                _sync_parent(target, simulation=paths.simulation)
+                if abrupt_after == stage:
+                    raise KeyboardInterrupt("simulated abrupt interruption")
                 if fail_after == stage:
                     raise BootstrapError("injected activation failure")
         except Exception as error:
-            for target, snapshot in previous.items():
-                _restore(target, snapshot, simulation=paths.simulation)
+            _recover_pending(paths)
             if isinstance(error, BootstrapError):
                 raise
             raise BootstrapError("bootstrap activation failed and was restored") from error
+        _clear_recovery(paths)
     finally:
         if staging is not None and staging.exists():
             shutil.rmtree(staging, ignore_errors=True)

@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 SERVER_ROOT = Path(__file__).resolve().parents[2] / "ops" / "production" / "server"
 sys.path.insert(0, str(SERVER_ROOT))
@@ -90,6 +91,49 @@ class BootstrapInstallTests(unittest.TestCase):
         self.assertFalse(self.paths.program_link.exists() or self.paths.program_link.is_symlink())
         self.assertEqual(self.paths.wrapper.read_text(encoding="utf-8"), "old wrapper\n")
         self.assertEqual(self.paths.sudoers.read_text(encoding="utf-8"), "old sudoers\n")
+
+    def test_next_invocation_recovers_a_persisted_interrupted_activation(self) -> None:
+        archive = self.root / "bootstrap"
+        archive_copy(archive)
+        self.paths.create_layout(deploy_uid=1000, deploy_gid=1000)
+        self.paths.wrapper.parent.mkdir(parents=True, exist_ok=True)
+        self.paths.wrapper.write_text("old wrapper\n", encoding="utf-8")
+        self.paths.sudoers.parent.mkdir(parents=True, exist_ok=True)
+        self.paths.sudoers.write_text("old sudoers\n", encoding="utf-8")
+
+        with self.assertRaises(KeyboardInterrupt):
+            install_bootstrap(archive, self.paths, deploy_uid=1000, deploy_gid=1000, stat_reader=trusted_stat, self_test=lambda _: None, sudo_validator=lambda _: None, abrupt_after="wrapper")
+        self.assertTrue((self.paths.production / "bootstrap-recovery.json").exists())
+
+        (archive / "untrusted_test.py").write_text("raise RuntimeError('executed')\n", encoding="utf-8")
+        with self.assertRaisesRegex(BootstrapError, "unexpected bootstrap file"):
+            install_bootstrap(archive, self.paths, deploy_uid=1000, deploy_gid=1000, stat_reader=trusted_stat, self_test=lambda _: None, sudo_validator=lambda _: None)
+
+        self.assertFalse(self.paths.program_link.exists() or self.paths.program_link.is_symlink())
+        self.assertEqual(self.paths.wrapper.read_text(encoding="utf-8"), "old wrapper\n")
+        self.assertEqual(self.paths.sudoers.read_text(encoding="utf-8"), "old sudoers\n")
+        self.assertFalse((self.paths.production / "bootstrap-recovery.json").exists())
+
+    def test_recovery_attempts_every_target_when_one_restore_fails(self) -> None:
+        archive = self.root / "bootstrap"
+        archive_copy(archive)
+        self.paths.create_layout(deploy_uid=1000, deploy_gid=1000)
+        with self.assertRaises(KeyboardInterrupt):
+            install_bootstrap(archive, self.paths, deploy_uid=1000, deploy_gid=1000, stat_reader=trusted_stat, self_test=lambda _: None, sudo_validator=lambda _: None, abrupt_after="program")
+        calls: list[Path] = []
+
+        import bootstrap_install
+        original_restore = bootstrap_install._restore
+        def flaky_restore(path: Path, snapshot: object, *, simulation: bool) -> None:
+            calls.append(path)
+            if len(calls) == 1:
+                raise BootstrapError("injected restore failure")
+            original_restore(path, snapshot, simulation=simulation)
+
+        with patch.object(bootstrap_install, "_restore", flaky_restore), self.assertRaisesRegex(BootstrapError, "recovery is incomplete"):
+            install_bootstrap(archive, self.paths, deploy_uid=1000, deploy_gid=1000, stat_reader=trusted_stat, self_test=lambda _: None, sudo_validator=lambda _: None)
+
+        self.assertEqual(calls, [self.paths.program_link, self.paths.wrapper, self.paths.sudoers])
 
 
 if __name__ == "__main__":
