@@ -27,6 +27,8 @@
     "sites:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -KeepRunning",
     "sites:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -Stop",
     "sites:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -Status",
+    "runtime:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/runtime-ports.ps1 -Action Status -Json",
+    "runtime:doctor": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/runtime-ports.ps1 -Action Doctor -Json",
     "validate": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
