@@ -22,7 +22,7 @@ class BootstrapError(RuntimeError):
 
 REQUIRED_FILES = (
     "install.sh", "bootstrap_install.py", "bootstrap_selftest.py", "tio2_release.py",
-    "release_contract.py", "release_state.py", "release_actions.py", "sudoers.tio2-release", "sshd-tio2-production.conf",
+    "release_contract.py", "release_state.py", "release_actions.py", "backup.sh", "sudoers.tio2-release", "sshd-tio2-production.conf",
 )
 
 
@@ -53,7 +53,7 @@ class BootstrapPaths:
         return cls.for_root(Path("/"))
 
     def create_layout(self, *, deploy_uid: int, deploy_gid: int) -> None:
-        for path in (self.production, self.programs, self.backups, self.releases, self.state, self.configuration):
+        for path in (self.production, self.programs, self.backups, self.backups / "releases", self.backups / "programs", self.releases, self.state, self.configuration):
             _mkdir(path, 0, 0, 0o750, simulation=self.simulation)
         for path in (self.incoming, self.outgoing):
             _mkdir(path, deploy_uid, deploy_gid, 0o700, simulation=self.simulation)
@@ -224,7 +224,7 @@ def _backup_previous_program(paths: BootstrapPaths, previous: tuple[str, bytes |
     programs = paths.programs.resolve(strict=True)
     if source.parent != programs or not source.is_dir():
         raise BootstrapError("existing program link escapes program root")
-    shutil.copytree(source, paths.backups / f"program-{uuid4().hex}", symlinks=True)
+    shutil.copytree(source, paths.backups / "programs" / f"program-{uuid4().hex}", symlinks=True)
 
 
 def validate_bootstrap_source(source: Path, *, stat_reader: Callable[[Path], os.stat_result] = os.lstat) -> None:
@@ -258,7 +258,7 @@ def install_bootstrap(source: Path, paths: BootstrapPaths, *, deploy_uid: int, d
     validate_bootstrap_source(source, stat_reader=stat_reader)
     staging: Path | None = Path(tempfile.mkdtemp(prefix=".install-", dir=paths.programs))
     try:
-        for name in ("bootstrap_install.py", "bootstrap_selftest.py", "tio2_release.py", "release_contract.py", "release_state.py", "release_actions.py", "sshd-tio2-production.conf"):
+        for name in ("bootstrap_install.py", "bootstrap_selftest.py", "tio2_release.py", "release_contract.py", "release_state.py", "release_actions.py", "backup.sh", "sshd-tio2-production.conf"):
             _safe_write(staging / name, (source / name).read_bytes(), 0o750, simulation=paths.simulation)
         wrapper = b"#!/bin/sh\nexec /usr/bin/python3 /opt/tio2-production/program/tio2_release.py \"$@\"\n"
         _safe_write(staging / "tio2-release", wrapper, 0o750, simulation=paths.simulation)

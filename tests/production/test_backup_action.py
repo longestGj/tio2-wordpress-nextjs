@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -12,7 +13,7 @@ sys.path.insert(0, str(SERVER_ROOT))
 
 from release_contract import ReleaseError, ReleasePaths  # noqa: E402
 from release_state import read_state, transition  # noqa: E402
-from release_actions import CommandResult, backup_release  # noqa: E402
+from release_actions import CommandResult, SubprocessCommandRunner, backup_release  # noqa: E402
 
 
 class FakeCommandRunner:
@@ -53,13 +54,13 @@ class BackupActionTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def _runner(self, *, script: CommandResult | None = None) -> FakeCommandRunner:
-        script_path = "/opt/tio2-production/current/ops/production/backup.sh"
+        script_path = "/opt/tio2-production/program/backup.sh"
         return FakeCommandRunner({
             ("/usr/bin/age", "--version"): CommandResult(0, "age 1.2.0\n"),
             ("/usr/bin/df", "--output=avail", "-B1", str(self.paths.production)): CommandResult(0, "Avail\n34359738368\n"),
             ("/usr/bin/free", "-b"): CommandResult(0, "Mem: 8589934592 0 4294967296\n"),
             (script_path,): script or CommandResult(0, json.dumps({
-                "backupId": "a" * 40,
+                "backupId": "20260910T000000Z-" + "a" * 40,
                 "ciphertextSha256": "c" * 64,
                 "manifestSha256": "d" * 64,
             })),
@@ -77,7 +78,7 @@ class BackupActionTests(unittest.TestCase):
             ("/usr/bin/age", "--version"),
             ("/usr/bin/df", "--output=avail", "-B1", str(self.paths.production)),
             ("/usr/bin/free", "-b"),
-            ("/opt/tio2-production/current/ops/production/backup.sh",),
+            ("/opt/tio2-production/program/backup.sh",),
         ])
 
     def test_missing_age_fails_before_backup_mutation_or_state_transition(self) -> None:
@@ -112,6 +113,20 @@ class BackupActionTests(unittest.TestCase):
 
         self.assertEqual(read_state(self.paths.production / "state")["state"], "PREPARED")
         self.assertFalse(self.paths.outgoing.exists())
+
+    def test_fake_executable_receipt_is_the_only_way_to_advance_state(self) -> None:
+        """Replacing the installed backup executable with a failed validator must keep PREPARED."""
+        fake_program = self.root / "fake-backup.cmd"
+        fake_program.write_text("@exit /b 17\n", encoding="utf-8")
+        os.chmod(fake_program, 0o700)
+        self.assertEqual(SubprocessCommandRunner().run((str(fake_program),)).returncode, 17)
+        runner = self._runner()
+        runner.results[(str(fake_program),)] = CommandResult(17, "")
+
+        with self.assertRaisesRegex(ReleaseError, "backup program"):
+            backup_release(self.paths, runner, backup_program=str(fake_program))
+
+        self.assertEqual(read_state(self.paths.production / "state")["state"], "PREPARED")
 
 
 if __name__ == "__main__":

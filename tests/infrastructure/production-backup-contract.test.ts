@@ -1,7 +1,7 @@
 import {existsSync, readFileSync} from 'node:fs'
 import {describe, expect, it} from 'vitest'
 
-const scriptPath = 'ops/production/backup.sh'
+const scriptPath = 'ops/production/server/backup.sh'
 const actionPath = 'ops/production/server/release_actions.py'
 
 describe('tio2-my production backup contract', () => {
@@ -12,7 +12,7 @@ describe('tio2-my production backup contract', () => {
 
     expect(script).toContain('set -euo pipefail')
     expect(script).toContain('umask 077')
-    expect(script).toContain('mariadb-dump --single-transaction')
+    expect(script).toContain('mariadb-dump --defaults-extra-file=/run/secrets/mariadb-backup.cnf --single-transaction')
     expect(script).toContain('gzip -t')
     expect(script).toContain('"$NGINX" -t')
     expect(script).toContain('age -R')

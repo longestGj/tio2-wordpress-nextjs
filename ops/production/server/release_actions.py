@@ -24,6 +24,7 @@ GIB = 1024 * 1024 * 1024
 MIN_FREE_DISK = 8 * GIB
 MIN_AVAILABLE_MEMORY = 2 * GIB
 _SHA256 = re.compile(r"^[a-f0-9]{64}$")
+_BACKUP_ID = re.compile(r"^[0-9]{8}T[0-9]{6}Z-([a-f0-9]{40})$")
 _AGE_PUBLIC_KEY = re.compile(r"^age1[ac-hj-np-z02-9]{20,}$")
 
 
@@ -85,9 +86,7 @@ def _require_backup_key(path: Path) -> None:
 
 
 def _backup_script() -> str:
-    # The exact prepared release provides this root-owned package artifact.
-    # This module itself is installed separately by the bootstrap program.
-    return "/opt/tio2-production/current/ops/production/backup.sh"
+    return "/opt/tio2-production/program/backup.sh"
 
 
 def _parse_backup_result(value: str, expected_backup_id: str) -> dict[str, str]:
@@ -100,12 +99,12 @@ def _parse_backup_result(value: str, expected_backup_id: str) -> dict[str, str]:
     backup_id = result.get("backupId")
     ciphertext = result.get("ciphertextSha256")
     manifest = result.get("manifestSha256")
-    if backup_id != expected_backup_id or not isinstance(ciphertext, str) or not _SHA256.fullmatch(ciphertext) or not isinstance(manifest, str) or not _SHA256.fullmatch(manifest):
+    if not isinstance(backup_id, str) or (match := _BACKUP_ID.fullmatch(backup_id)) is None or match.group(1) != expected_backup_id or not isinstance(ciphertext, str) or not _SHA256.fullmatch(ciphertext) or not isinstance(manifest, str) or not _SHA256.fullmatch(manifest):
         raise ReleaseError("backup program did not return a valid manifest")
     return {"backupId": backup_id, "ciphertextSha256": ciphertext, "manifestSha256": manifest}
 
 
-def backup_release(paths: ReleasePaths, runner: CommandRunner | None = None) -> dict[str, object]:
+def backup_release(paths: ReleasePaths, runner: CommandRunner | None = None, *, backup_program: str | None = None) -> dict[str, object]:
     """Create one backup only after non-mutating prerequisites succeed.
 
     The script owns all volume reads and service lifecycle changes.  State is
@@ -133,7 +132,10 @@ def backup_release(paths: ReleasePaths, runner: CommandRunner | None = None) -> 
     if available_memory < MIN_AVAILABLE_MEMORY:
         raise ReleaseError("memory validation failed")
 
-    receipt = _require_success(active_runner.run((_backup_script(),)), "backup program")
+    # ``backup_program`` is an internal test seam; the privileged entrypoint
+    # always resolves the installed root-owned program path above.
+    program = _backup_script() if backup_program is None else backup_program
+    receipt = _require_success(active_runner.run((program,)), "backup program")
     backup = _parse_backup_result(receipt, release_id)
     next_details = {**details, **backup}
     transition(state_root, {"PREPARED"}, "BACKED_UP", next_details)
