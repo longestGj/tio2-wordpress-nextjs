@@ -13,6 +13,7 @@ docker-data/
 .local-evidence/
 .superpowers/
 .prerelease/
+/.production/
 docs/verification/prerelease/runs/
 !ops/prerelease/.env.example
 wordpress/seed/.runtime-site-a-editorial-capability-*.json
