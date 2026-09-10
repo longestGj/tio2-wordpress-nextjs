@@ -1,7 +1,7 @@
 import {classifyWeb3FormsResponse, type Web3FormsResponseCategory} from './web3forms-provider'
 import {isWeb3FormsAccessKey} from './web3forms-config'
 
-export type Web3FormsWorkflow = 'rfq' | 'sample' | 'documents'
+export type Web3FormsWorkflow = 'rfq' | 'sample' | 'documents' | 'contact'
 export type Web3FormsOutcome = 'provider_accepted' | 'provider_rejected' | 'submission_unconfirmed' | 'unavailable'
 export type Web3FormsProviderCategory = Web3FormsResponseCategory | 'network' | 'timeout' | 'aborted'
 

@@ -11,7 +11,7 @@ export function providerAttempt(workflow: Web3FormsWorkflow, payload: unknown, h
   if (typeof requestToken !== 'string' || !/^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/iu.test(requestToken)) throw new Error('Invalid request token')
   const providerCategory = httpStatus === null ? 'pending' : classifyWeb3FormsResponse(httpStatus, body)
   return {
-    workflow, pageId: {rfq: 'CONV-RFQ', sample: 'CONV-SAMPLE', documents: 'CONV-DOC'}[workflow],
+    workflow, pageId: {rfq: 'CONV-RFQ', sample: 'CONV-SAMPLE', documents: 'CONV-DOC', contact: 'CONTACT-001'}[workflow],
     requestToken, httpStatus, providerCategory, thankYouRequest: null as string | null, timestamp: new Date().toISOString(),
   }
 }

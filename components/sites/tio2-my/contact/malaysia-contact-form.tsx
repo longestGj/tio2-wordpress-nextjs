@@ -2,6 +2,7 @@
 
 import {useEffect, useRef, useState} from 'react'
 
+import {submitMalaysiaContact} from '@/lib/contact/malaysia-contact-receiver'
 import {
   emptyMalaysiaContactValues,
   validateMalaysiaContactValues,
@@ -9,11 +10,13 @@ import {
   type MalaysiaContactFieldName,
   type MalaysiaContactValues,
 } from '@/lib/contact/malaysia-contact-validation'
+import {resolveSubmissionEnvironment} from '@/lib/forms/submission-environment'
+import {createWeb3FormsRequestToken} from '@/lib/forms/web3forms-browser'
 import type {MalaysiaContactPageDto} from '@/lib/wordpress/contact-page-v01-types'
 import styles from './malaysia-contact-page.module.css'
 
 interface Props { readonly form: MalaysiaContactPageDto['form'] }
-type State = 'ready' | 'submitting' | 'failure'
+type State = 'ready' | 'submitting' | 'failure' | 'success'
 
 export function MalaysiaContactForm({form}: Props) {
   const [values, setValues] = useState<MalaysiaContactValues>(emptyMalaysiaContactValues)
@@ -22,12 +25,16 @@ export function MalaysiaContactForm({form}: Props) {
   const [validationAttempt, setValidationAttempt] = useState(0)
   const summaryRef = useRef<HTMLDivElement>(null)
   const failureRef = useRef<HTMLDivElement>(null)
+  const successRef = useRef<HTMLDivElement>(null)
   const pendingRef = useRef(false)
+  const requestTokenRef = useRef<string | null>(null)
 
   useEffect(() => { if (validationAttempt) summaryRef.current?.focus() }, [validationAttempt])
   useEffect(() => { if (state === 'failure') failureRef.current?.focus() }, [state])
+  useEffect(() => { if (state === 'success') successRef.current?.focus() }, [state])
 
   const update = (field: MalaysiaContactFieldName, value: string) => {
+    requestTokenRef.current = null
     setValues((current) => ({...current, [field]: value}))
     if (errors[field]) setErrors((current) => ({...current, [field]: undefined}))
   }
@@ -38,16 +45,18 @@ export function MalaysiaContactForm({form}: Props) {
     pendingRef.current = true
     setState('submitting')
     try {
-      await fetch('/api/contact/submit', {
-        method: 'POST',
-        headers: {'content-type': 'application/json', 'x-tio2-site-scope': 'tio2-my'},
-        body: JSON.stringify(values),
+      requestTokenRef.current ??= createWeb3FormsRequestToken()
+      const result = await submitMalaysiaContact(values, {
+        accessKey: process.env.NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY ?? null,
+        requestToken: requestTokenRef.current,
+        environment: resolveSubmissionEnvironment(process.env.NEXT_PUBLIC_TIO2_RUNTIME_ENVIRONMENT),
       })
+      setState(result.kind === 'provider_accepted' ? 'success' : 'failure')
     } catch {
       // Network and abort outcomes share the approved indeterminate failure state.
+      setState('failure')
     } finally {
       pendingRef.current = false
-      setState('failure')
     }
   }
 
@@ -84,7 +93,7 @@ export function MalaysiaContactForm({form}: Props) {
         <ul>{form.fields.filter((field) => errors[field.id as MalaysiaContactFieldName]).map((field) => <li key={field.id}><a href={`#contact-${field.id}`} onClick={(event) => { event.preventDefault(); focusField(field.id as MalaysiaContactFieldName) }}>{field.label}: {errors[field.id as MalaysiaContactFieldName]}</a></li>)}</ul>
       </div> : null}
 
-      <fieldset disabled={state === 'submitting'} className={styles.fields}><legend className={styles.srOnly}>General inquiry details</legend>
+      <fieldset disabled={state === 'submitting' || state === 'success'} className={styles.fields}><legend className={styles.srOnly}>General inquiry details</legend>
         {form.fields.map((field) => {
           const name = field.id as MalaysiaContactFieldName
           const helpId = `contact-${name}-help`
@@ -106,10 +115,11 @@ export function MalaysiaContactForm({form}: Props) {
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <p className={styles.privacy}>{form.privacyPrefix} <a href="/privacy-policy/">{form.privacyLinkLabel}</a> {form.privacySuffix}</p>
       <p className={styles.process}>{form.process}</p>
-      <button className={styles.submit} type="submit" disabled={state === 'submitting'}>{state === 'submitting' ? form.submittingLabel : form.submitLabel}</button>
+      {state !== 'success' ? <button className={styles.submit} type="submit" disabled={state === 'submitting'}>{state === 'submitting' ? form.submittingLabel : form.submitLabel}</button> : null}
       {state === 'submitting' ? <p role="status" className={styles.srOnly}>{form.submittingLabel}</p> : null}
       {state !== 'ready' ? <EnteredValues form={form} values={values} /> : null}
       {state === 'failure' ? <div ref={failureRef} tabIndex={-1} role="alert" className={styles.failure}><h3>{form.failure.heading}</h3><p>{form.failure.body}</p><button type="button" onClick={() => void retry()}>{form.failure.action}</button></div> : null}
+      {state === 'success' ? <div ref={successRef} tabIndex={-1} role="status" className={styles.success}><h3>{form.success.heading}</h3><p>{form.success.body}</p></div> : null}
     </form>
   )
 }

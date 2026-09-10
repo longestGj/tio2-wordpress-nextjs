@@ -10,7 +10,10 @@ import {malaysiaContactPageSource} from '@/tests/fixtures/tio2-my-contact-page'
 
 const form = toMalaysiaContactPageDto(malaysiaContactPageSource()).form
 
-beforeEach(() => vi.stubGlobal('fetch', vi.fn(async () => Response.json({kind: 'submission_unconfirmed'}, {status: 503}))))
+beforeEach(() => {
+  vi.stubEnv('NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', '01234567-89ab-cdef-0123-456789abcdef')
+  vi.stubGlobal('fetch', vi.fn(async () => Response.json({success: false}, {status: 400})))
+})
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.clearAllMocks() })
 
 async function fillValid(user: ReturnType<typeof userEvent.setup>) {
@@ -67,8 +70,8 @@ describe('CONTACT-001 form shell', () => {
     expect((screen.getByRole('button', {name: 'Sending your inquiry…'}) as HTMLButtonElement).disabled).toBe(true)
     expect(within(screen.getByRole('region', {name: 'Entered form values'})).getByText('Example Co')).toBeTruthy()
     settle(Response.json({success: true}, {status: 200}))
-    expect(await screen.findByRole('heading', {name: 'Your inquiry was not sent'})).toBeTruthy()
-    expect(screen.queryByRole('heading', {name: 'Your inquiry has been sent'})).toBeNull()
+    expect(await screen.findByRole('heading', {name: 'Your inquiry has been sent'})).toBeTruthy()
+    expect(screen.queryByRole('heading', {name: 'Your inquiry was not sent'})).toBeNull()
     expect((screen.getByLabelText(/^Company/u) as HTMLInputElement).value).toBe('Example Co')
   })
 
@@ -83,8 +86,26 @@ describe('CONTACT-001 form shell', () => {
     await user.click(screen.getByRole('button', {name: 'Try again'}))
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2))
     const secondBody = JSON.parse(String(vi.mocked(fetch).mock.calls[1]?.[1]?.body)) as Record<string, string>
-    expect(secondBody.subject).toBe('Partnership Updated')
-    expect(Object.keys(secondBody).sort()).toEqual(['business_email', 'company', 'country_region', 'full_name', 'message', 'subject'])
+    expect(fetch).toHaveBeenCalledWith('https://api.web3forms.com/submit', expect.objectContaining({method: 'POST'}))
+    expect(secondBody.inquiry_subject).toBe('Partnership Updated')
+    expect(secondBody.subject).toBe('TiO2 Malaysia general inquiry')
+    expect(secondBody).toMatchObject({site_scope: 'tio2-my', page_id: 'CONTACT-001', workflow_type: 'contact'})
+    expect(secondBody.access_key).toBe('01234567-89ab-cdef-0123-456789abcdef')
     expect(window.location.pathname).toBe('/')
+  })
+
+  it.each([
+    [200, 'application/json', {success: false}],
+    [202, 'application/json', {success: true}],
+    [200, 'text/plain', {success: true}],
+  ])('keeps the failure state for an ambiguous provider response %#', async (status, contentType, body) => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(JSON.stringify(body), {status, headers: {'content-type': contentType}}))
+    const user = userEvent.setup()
+    render(<MalaysiaContactForm form={form} />)
+    await fillValid(user)
+    await user.click(screen.getByRole('button', {name: 'Send a General Inquiry'}))
+    expect(await screen.findByRole('heading', {name: 'Your inquiry was not sent'})).toBeTruthy()
+    expect(screen.queryByRole('heading', {name: 'Your inquiry has been sent'})).toBeNull()
+    expect(fetch).toHaveBeenCalledOnce()
   })
 })

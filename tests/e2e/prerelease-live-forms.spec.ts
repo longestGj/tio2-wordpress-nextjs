@@ -14,6 +14,7 @@ test.describe.configure({retries: 0})
 test.setTimeout(120_000)
 const endpoint = 'https://api.web3forms.com/submit'
 const thankYouRequestByWorkflow = {rfq: 'quote', sample: 'sample', documents: 'documents'} as const
+type PrereleaseThankYouWorkflow = Exclude<Web3FormsWorkflow, 'contact'>
 
 let transport: TransportCounts = {allowedPostCount: 0, blockedWriteCount: 0}
 test.beforeEach(() => { transport = {allowedPostCount: 0, blockedWriteCount: 0} })
@@ -25,7 +26,7 @@ test.afterEach(async ({page}, info) => {
   expect(transport, 'live workflow transport through teardown').toEqual({allowedPostCount: 1, blockedWriteCount: 0})
 })
 
-function liveWorkflow(workflow: Web3FormsWorkflow, fill: (page: Page, email: string, label: string) => Promise<void>) {
+function liveWorkflow(workflow: PrereleaseThankYouWorkflow, fill: (page: Page, email: string, label: string) => Promise<void>) {
   test(`live ${workflow} direct provider and Thank You`, {annotation: {type: 'prerelease-check', description: `live-forms.${workflow}`}}, async ({page}) => {
     let stage = 'configuration'
     let runtimeErrors = 0

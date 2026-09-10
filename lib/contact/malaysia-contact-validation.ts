@@ -50,6 +50,12 @@ export function validateMalaysiaContactValues(values: MalaysiaContactValues): Ma
   return errors
 }
 
+export function normalizeMalaysiaContactValues(values: MalaysiaContactValues): MalaysiaContactValues {
+  return Object.fromEntries(
+    malaysiaContactFieldNames.map((field) => [field, values[field].trim()]),
+  ) as unknown as MalaysiaContactValues
+}
+
 export function isExactMalaysiaContactPayload(value: unknown): value is MalaysiaContactValues {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false
   const keys = Object.keys(value).sort()

@@ -13,6 +13,7 @@
     "prerelease:test": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prerelease.ps1 -Action Test",
     "prerelease:test:forms-live": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prerelease.ps1 -Action TestLiveForms",
     "diagnose:web3forms": "node --env-file-if-exists=.env.prerelease.local scripts/prerelease/web3forms-compare.mjs",
+    "diagnose:contact-web3forms": "node --env-file-if-exists=.env.local scripts/prerelease/contact-web3forms-live.mjs",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",

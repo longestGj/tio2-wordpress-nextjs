@@ -45,7 +45,7 @@ for (const viewport of [
   })
 }
 
-test('CONTACT-001 validation, pending guard, retained failure and manual retry remain fail-closed', async ({page}, testInfo) => {
+test('CONTACT-001 validation, pending guard, retained failure and manual retry use strict provider acceptance', async ({page}, testInfo) => {
   await page.setViewportSize({width: 390, height: 844})
   await page.goto('/contact/?success=true&full_name=Injected', {waitUntil: 'networkidle'})
   await page.getByRole('button', {name: 'Send a General Inquiry'}).click()
@@ -62,10 +62,10 @@ test('CONTACT-001 validation, pending guard, retained failure and manual retry r
   await page.locator('#contact-subject').fill('S'.repeat(120))
   await page.locator('#contact-message').fill('General business inquiry.')
   const payloads: Array<Record<string, string>> = []
-  await page.route('**/api/contact/submit', async (route) => {
+  await page.route('https://api.web3forms.com/submit', async (route) => {
     payloads.push(route.request().postDataJSON() as Record<string, string>)
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 350))
-    await route.fulfill({status: payloads.length === 1 ? 200 : 429, contentType: payloads.length === 1 ? 'application/json' : 'text/plain', body: payloads.length === 1 ? JSON.stringify({success: true}) : 'rate limited'})
+    await route.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({success: payloads.length > 1})})
   })
   await page.getByRole('button', {name: 'Send a General Inquiry'}).dblclick()
   await expect(page.getByRole('button', {name: 'Sending your inquiry…'})).toBeDisabled()
@@ -78,19 +78,21 @@ test('CONTACT-001 validation, pending guard, retained failure and manual retry r
   await page.locator('#contact-subject').fill('Updated subject')
   await page.getByRole('button', {name: 'Try again'}).click()
   await expect.poll(() => payloads.length).toBe(2)
-  await expect(page.getByRole('heading', {name: 'Your inquiry was not sent'})).toBeVisible()
+  await expect(page.getByRole('heading', {name: 'Your inquiry has been sent'})).toBeVisible()
   await page.waitForTimeout(500)
   expect(payloads).toHaveLength(2)
-  expect(payloads[1]?.subject).toBe('Updated subject')
-  expect(Object.keys(payloads[1] ?? {}).sort()).toEqual(['business_email', 'company', 'country_region', 'full_name', 'message', 'subject'])
+  expect(payloads[1]?.inquiry_subject).toBe('Updated subject')
+  expect(payloads[1]).toMatchObject({site_scope: 'tio2-my', page_id: 'CONTACT-001', workflow_type: 'contact'})
+  expect(payloads[1]?.access_key).toBeTruthy()
   expect(new URL(page.url()).pathname).toBe('/contact')
-  if (testInfo.project.name === 'chromium') await page.screenshot({path: resolve(evidence, 'contact-state-failure-390.png'), fullPage: true, animations: 'disabled'})
+  if (testInfo.project.name === 'chromium') await page.screenshot({path: resolve(evidence, 'contact-state-success-390.png'), fullPage: true, animations: 'disabled'})
   writeFileSync(resolve(evidence, `form-state-${testInfo.project.name}.json`), JSON.stringify({
     checkedAt: new Date().toISOString(), browser: testInfo.project.name,
     mode: 'browser-intercepted local classification; no external submission',
     invalidRequestCount: 0, pendingRequestCount: 1, totalManualAttempts: payloads.length,
-    exactSixFieldPayload: Object.keys(payloads[1] ?? {}).sort(), http200SuccessTrueClassifiedAsFailure: true,
-    rateLimitClassifiedAsFailure: true, autoRetry: false, providerAccepted: false, receiverReceiptConfirmed: false,
+    exactVisibleFields: ['full_name', 'company', 'business_email', 'country_region', 'subject', 'message'],
+    http200SuccessFalseClassifiedAsFailure: true, http200SuccessTrueClassifiedAsAccepted: true,
+    autoRetry: false, providerAccepted: true, receiverReceiptConfirmed: false,
   }, null, 2) + '\n')
 })
 

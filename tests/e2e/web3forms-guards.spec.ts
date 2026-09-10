@@ -12,6 +12,7 @@ const workflows = {
   rfq: {path: '/request-a-quote/', thankYou: 'quote', heading: '#rfq-h1'},
   sample: {path: '/request-sample/', thankYou: 'sample', heading: '#sample-h1'},
   documents: {path: '/request-documents/', thankYou: 'documents', heading: '#request-documents-h1'},
+  contact: {path: '/contact/', thankYou: null, heading: 'h1'},
 } as const
 
 type Workflow = keyof typeof workflows
@@ -27,10 +28,12 @@ async function fillWorkflow(page: Page, workflow: Workflow) {
     await page.locator('#sample-grade_id').selectOption('M-2196')
     await page.locator('#sample-application_id').selectOption('coatings')
     for (const [field, value] of Object.entries({test_objective: name, contact_name: name, company_organisation: name, business_email: email, destination_country_market: 'Malaysia'})) await fillPrivateInput(page, `#sample-${field}`, value)
-  } else {
+  } else if (workflow === 'documents') {
     for (const [field, value] of Object.entries({full_name: name, company: name, business_email: email, country_region: 'Malaysia'})) await fillPrivateInput(page, `#request-documents-${field}`, value)
     await page.locator('#request-documents-product_grade').selectOption('M-2196')
     await page.getByRole('checkbox', {name: /^Safety Documentation/u}).check()
+  } else {
+    for (const [field, value] of Object.entries({full_name: name, company: name, business_email: email, country_region: 'Malaysia', subject: 'Synthetic provider guard', message: 'Synthetic browser guard submission.'})) await fillPrivateInput(page, `#contact-${field}`, value)
   }
 }
 
@@ -61,7 +64,7 @@ for (const workflow of Object.keys(workflows) as Workflow[]) {
         stage = 'public_readiness'
         await page.goto(`${origin}${workflows[workflow].path}`)
         await expect(page.locator(workflows[workflow].heading)).toBeVisible()
-        if (outcome === 'unavailable' && workflow !== 'documents') {
+        if (outcome === 'unavailable' && !['documents', 'contact'].includes(workflow)) {
           await expect(page.locator('form')).toHaveCount(0)
           await expect(page.getByRole(workflow === 'rfq' ? 'status' : 'heading', workflow === 'sample' ? {name: 'We cannot confirm sample requests right now.'} : undefined).first()).toBeVisible()
         } else {
@@ -70,8 +73,13 @@ for (const workflow of Object.keys(workflows) as Workflow[]) {
           stage = 'submission'
           await page.locator('form button[type="submit"]').click()
           if (outcome === 'accepted') {
-            await expect(page).toHaveURL(url => url.origin === origin && url.pathname.replace(/\/$/u, '') === '/thank-you' && url.searchParams.get('request') === workflows[workflow].thankYou)
-            await expect(page.locator(`[data-thank-you-panel="${workflows[workflow].thankYou}"]`)).toBeVisible()
+            if (workflow === 'contact') {
+              await expect(page.getByRole('heading', {name: 'Your inquiry has been sent'})).toBeVisible()
+              await expect(page).toHaveURL(url => url.origin === origin && url.pathname.replace(/\/$/u, '') === '/contact')
+            } else {
+              await expect(page).toHaveURL(url => url.origin === origin && url.pathname.replace(/\/$/u, '') === '/thank-you' && url.searchParams.get('request') === workflows[workflow].thankYou)
+              await expect(page.locator(`[data-thank-you-panel="${workflows[workflow].thankYou}"]`)).toBeVisible()
+            }
           } else {
             await expect(page.getByRole('alert').filter({has: page.getByRole('button', {name: /try again/i})})).toBeVisible()
             expect(new URL(page.url()).pathname.replace(/\/$/u, '')).toBe(workflows[workflow].path.replace(/\/$/u, ''))
