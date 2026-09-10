@@ -51,6 +51,8 @@
 
 ## Task 1：建立可验证基线，打通准备动作
 
+开发状态：已在 `97681ab` 保存，独立审查及修复复审通过。实际 PowerShell→Python 准备联通已验证；修复后 Windows 定向 43 项、隔离 Linux 定向 18 项通过。此结论不包含生产基线接管、完整 Linux 套件或备份适配验收。
+
 **交付结果：** 精确包能通过真实本地打包器进入服务端准备流程；现网基线错误时拒绝，准备不触碰运行服务。
 
 **Files:** 修改 `Production.Core.psm1`、`release_contract.py`、`release_state.py`、`release_actions.py`、`tio2_release.py` 和安装清单；新增 `release_baseline.py`、`tests/production/test_release_baseline.py`、`tests/production/test_prepare_action.py`；扩展 `tests/infrastructure/production-package.test.ts`。
@@ -66,6 +68,8 @@
 验证命令：`python -m unittest discover -s tests/production -p 'test_*.py' -q`；`npx vitest run tests/infrastructure/production-package.test.ts tests/infrastructure/production-contracts.test.ts`。
 
 ## Task 2：完成可恢复备份并验收现有重构
+
+开发状态：独立审查及三项修复复审通过。Windows 98 项通过、2 项 POSIX 专用测试跳过；隔离 Linux 40 项、合同测试 6 项通过；实际安装后的错库拒绝、SIGKILL 重试、解密、数据库/WP/独立插件挂载恢复已验证。仅为本地 amd64 候选工具证据，生产与 ARM64 未验收。
 
 **交付结果：** 真实隔离数据库与完整 WordPress 文件可备份、恢复、核对；错误和重试不损坏旧备份，不导致服务停留在维护状态。
 

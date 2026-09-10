@@ -44,7 +44,9 @@ class BaselineFixture:
         self.save()
 
     def save(self):
-        (self.paths.configuration/'baseline.json').write_text(json.dumps(self.record),encoding='utf-8')
+        path=self.paths.configuration/'baseline.json'
+        path.write_text(json.dumps(self.record),encoding='utf-8')
+        path.chmod(0o600)
 
     def run(self,command):
         self.calls.append(command)
@@ -79,6 +81,20 @@ class ReleaseBaselineTests(unittest.TestCase):
         self.assertEqual((f.paths.configuration/'baseline.json').read_bytes(),before)
         self.assertFalse((f.paths.production/'state/state.json').exists())
         self.assertEqual(len(f.calls),3)
+
+    def test_v2_exposes_validated_config_and_measured_enrolled_backup_tool(self):
+        f=self.fixture
+        f.record['schemaVersion']='tio2-production-baseline-v2'
+        f.record['configuration'].update(nginxIncludes=[],tlsFiles=[])
+        f.record['runtime']['tools']={'wpcliImage':'sha256:'+'f'*64}
+        f.record['runtime']['writers']={'database':'wordpress','hostWriters':'none','containers':['b'*64]}
+        f.record['runtime']['images'].append({'id':'sha256:'+'f'*64,'digests':['wordpress@sha256:'+'f'*64]})
+        f.actual=deepcopy(f.record['runtime']); f.save()
+        value=f.validate()
+        self.assertEqual(value['runtime']['configuration'],f.record['configuration'])
+        self.assertEqual(value['runtime']['tools']['wpcliImage'],'sha256:'+'f'*64)
+        f.actual['images'][-1]['digests']=[]
+        with self.assertRaises(ReleaseError): f.validate()
 
     def test_missing_or_wrong_site_enrollment_fails_before_runtime_reads(self):
         f=self.fixture

@@ -24,7 +24,7 @@ def run_action(action: str, paths: ReleasePaths = DEFAULT_PATHS) -> dict[str, ob
     """Dispatch only closed, root-owned release actions."""
     if action == "status":
         return {"action": action, "ok": True, "state": read_state(paths.production / "state"),
-                "capabilities": {name: {"implemented": name in {"status", "prepare", "backup"}, "ready": name == "status", "reason": "available" if name == "status" else "live-baseline-validation-required" if name == "prepare" else "canonical-baseline-adapter-unavailable" if name == "backup" else "action-unavailable", "productionValidated": False} for name in ("status", "prepare", "backup", "deploy", "verify", "rollback")},
+                "capabilities": {name: {"implemented": name in {"status", "prepare", "backup"}, "ready": name == "status", "reason": "available" if name == "status" else "live-baseline-validation-required" if name == "prepare" else "backup-request-and-live-baseline-validation-required" if name == "backup" else "action-unavailable", "productionValidated": False} for name in ("status", "prepare", "backup", "deploy", "verify", "rollback")},
                 "baseline": {"registered": (paths.configuration / "baseline.json").is_file(), "status": "unverified"},
                 "readiness": "candidate-tooling; live baseline validation is required by prepare"}
     if action == "prepare":

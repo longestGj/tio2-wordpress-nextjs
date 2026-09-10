@@ -19,8 +19,9 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import uuid
 
-from release_contract import DEFAULT_PATHS, ReleaseError, ReleasePaths, sha256_file, _validate_manifest_object
+from release_contract import DEFAULT_PATHS, ReleaseError, ReleasePaths, sha256_file, _open_regular_read
 from release_state import read_state, atomic_write_json
 
 SHA = re.compile(r'[a-f0-9]{64}')
@@ -59,36 +60,37 @@ def tree_files(target):
     return files
 
 
-def load_identities(paths, *, resolve_current=None):
+def load_identities(paths, *, baseline=None):
+    from release_baseline import validate_baseline
+    baseline = baseline or validate_baseline(paths)
     state = read_state(paths.production/'state')
     details = state.get('details', {})
-    if state.get('state') != 'PREPARED' or not COMMIT.fullmatch(str(details.get('commit', ''))) or not SHA.fullmatch(str(details.get('archiveSha256', ''))):
-        raise ReleaseError('backup requires PREPARED candidate identity')
-    candidate = {key: details[key] for key in ('commit', 'archiveSha256')}
-    current = paths.production/'current'
+    candidate = None
+    if state['state'] in ('PREPARED','BACKED_UP'):
+        candidate = details.get('candidate')
+        if not isinstance(candidate,dict) or not COMMIT.fullmatch(str(candidate.get('commit',''))) or not SHA.fullmatch(str(candidate.get('archiveSha256',''))):
+            raise ReleaseError('backup candidate identity is invalid')
+        if details.get('active') != baseline['active'] or details.get('configurationFingerprint') != baseline['configurationFingerprint']:
+            raise ReleaseError('prepared baseline changed')
+    elif state['state'] not in ('IDLE','PUBLIC_VERIFIED','ROLLED_BACK'):
+        raise ReleaseError('backup state is unavailable')
+    return baseline['active'], candidate, Path(baseline['active']['sourceRoot'])
+
+
+def read_backup_request(paths,baseline,candidate):
+    if candidate is None:
+        raise ReleaseError('backup requires a prepared candidate')
     try:
-        target = resolve_current() if resolve_current else (current.resolve(strict=True) if os.path.lexists(current) else paths.production/'legacy')
-    except OSError as error:
-        raise ReleaseError('current pointer is broken') from error
-    if target == (paths.production/'legacy').resolve():
-        record_path = paths.configuration/'legacy-baseline.json'
-        record = read_json(record_path)
-        if set(record) != {'schemaVersion', 'siteId', 'files'} or record['schemaVersion'] != 'tio2-legacy-baseline-v1' or record['siteId'] != 'tio2-my':
-            raise ReleaseError('legacy baseline is invalid')
-        source = {'kind':'legacy', 'manifestSha256':sha256_file(record_path)}
-    else:
-        record_path = paths.production/'state/active-release.json'
-        record = _validate_manifest_object(read_json(record_path))
-        if target != (paths.production/'releases'/record['commit']).resolve():
-            raise ReleaseError('current target does not match active manifest')
-        source = {'kind':'managed', 'commit':record['commit'], 'archiveSha256':record['archiveSha256'], 'manifestSha256':sha256_file(record_path)}
-    try:
-        declared = {entry['path']:entry['sha256'] for entry in record['files']}
-        if not declared or len(declared) != len(record['files']) or any(not SHA.fullmatch(value) for value in declared.values()) or tree_files(target) != declared:
-            raise ReleaseError('active bytes do not match identity')
-    except (KeyError, TypeError) as error:
-        raise ReleaseError('invalid identity file list') from error
-    return source, candidate, target
+        with _open_regular_read(paths.incoming/'backup-request.json') as source:
+            data=source.read(16385)
+        if len(data)>16384:
+            raise ValueError
+        request=json.loads(data)
+        if set(request)!={'schemaVersion','requestId','preparedProofSha256','baselineSha256'} or request['schemaVersion']!='tio2-backup-request-v1' or str(uuid.UUID(request['requestId']))!=request['requestId'] or request['preparedProofSha256']!=candidate['proofSha256'] or request['baselineSha256']!=baseline['active']['enrollmentSha256']:
+            raise ValueError
+        return request
+    except (OSError,ValueError,KeyError,TypeError,AttributeError) as error:
+        raise ReleaseError('backup request identity mismatch') from error
 
 
 @dataclass
@@ -117,6 +119,36 @@ class Attempt:
             shutil.rmtree(self.staging)
 
 
+class BackupJournal:
+    """One root-owned write-ahead recovery record; no caller-selected paths."""
+    KEYS={'schemaVersion','backupId','request','active','candidate','configurationFingerprint','phase','stopIntent','defaultsIntent','validationIntent'}
+    PHASES={'allocated','capturing','captured','finalized','recovered','registered','exported'}
+
+    def __init__(self,paths):
+        self.path=paths.production/'state/backup-journal.json'
+
+    def begin(self,baseline,candidate,request):
+        if os.path.lexists(self.path):
+            raise ReleaseError('backup recovery journal already exists')
+        commit=candidate['commit'] if candidate else baseline['active']['commit'] or '0'*40
+        value={'schemaVersion':'tio2-backup-journal-v1','backupId':datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+commit+'-'+secrets.token_hex(16),'request':request,'active':baseline['active'],'candidate':candidate,'configurationFingerprint':baseline['configurationFingerprint'],'phase':'allocated','stopIntent':False,'defaultsIntent':False,'validationIntent':False}
+        atomic_write_json(self.path,value)
+        return value
+
+    def load(self,baseline,candidate,request):
+        trusted(self.path,private=True)
+        value=read_json(self.path)
+        if set(value)!=self.KEYS or value['schemaVersion']!='tio2-backup-journal-v1' or not BACKUP_ID.fullmatch(str(value['backupId'])) or value['phase'] not in self.PHASES or any(type(value[name]) is not bool for name in ('stopIntent','defaultsIntent','validationIntent')):
+            raise ReleaseError('backup recovery journal schema mismatch')
+        if value['active']!=baseline['active'] or value['candidate']!=candidate or value['request']!=request or value['configurationFingerprint']!=baseline['configurationFingerprint']:
+            raise ReleaseError('backup recovery journal identity mismatch')
+        return value
+
+    def update(self,value,**changes):
+        value.update(changes)
+        atomic_write_json(self.path,value)
+
+
 class Tools:
     def __init__(self, commands=None):
         self.commands = commands or {'docker':('/usr/bin/docker',), 'age':('/usr/bin/age',), 'nginx':('/usr/sbin/nginx',), 'sleep':('/usr/bin/sleep',)}
@@ -133,7 +165,7 @@ class Tools:
 
 def validate_inventory(value):
     required = {'schemaVersion', 'siteId', 'active', 'candidate', 'currentTarget', 'containers', 'images', 'wordpress', 'database', 'volumes', 'counts', 'sizes'}
-    if not isinstance(value, dict) or set(value) != required or value['schemaVersion'] != 'tio2-production-inventory-v1' or value['siteId'] != 'tio2-my':
+    if not isinstance(value, dict) or set(value) != required or value['schemaVersion'] != 'tio2-production-inventory-v2' or value['siteId'] != 'tio2-my':
         raise ReleaseError('inventory schema is invalid')
     for name in ('active', 'candidate', 'wordpress', 'database', 'counts', 'sizes'):
         if not isinstance(value[name], dict) or not value[name]:
@@ -143,9 +175,9 @@ def validate_inventory(value):
             raise ReleaseError('inventory list is incomplete')
     try:
         active, candidate = value['active'], value['candidate']
-        if active['kind'] not in ('legacy','managed') or not SHA.fullmatch(active['manifestSha256']):
+        if active['kind'] not in ('external','managed') or not SHA.fullmatch(active['sourceSha256']) or not SHA.fullmatch(active['enrollmentSha256']):
             raise ValueError
-        for identity in (candidate, *((active,) if active['kind']=='managed' else ())):
+        for identity in (candidate,):
             if not COMMIT.fullmatch(identity['commit']) or not SHA.fullmatch(identity['archiveSha256']):
                 raise ValueError
         if not isinstance(value['currentTarget'],str) or not Path(value['currentTarget']).is_absolute():
@@ -167,7 +199,7 @@ def validate_inventory(value):
         for table in db['tables']:
             if not table['schema'] or not table['table'] or (table['type']=='BASE TABLE' and (type(table['rows']) is not int or table['rows']<0)):
                 raise ValueError
-        if set(v['Name'] for v in value['volumes']) != {'wordpress_db_data','wordpress_wp_data'}:
+        if len(value['volumes']) != 2 or len({v['Name'] for v in value['volumes']}) != 2:
             raise ValueError
         for name in ('counts','sizes'):
             if any(type(number) is not int or number<0 for number in value[name].values()):
@@ -177,8 +209,7 @@ def validate_inventory(value):
     return value
 
 
-DEFAULTS = '/tmp/tio2-backup-defaults.cnf'
-COMPONENTS = ('database.sql.gz', 'wordpress.tar.gz', 'release.tar.gz', 'nginx.conf', 'configuration.tar.gz', 'release-state.json', 'active-identity.json')
+COMPONENTS = ('database.sql.gz', 'wordpress.tar.gz', 'release.tar.gz', 'nginx.tar.gz', 'configuration.tar.gz', 'release-state.json', 'active-identity.json')
 
 
 def archive_tree(source, destination):
@@ -217,7 +248,7 @@ def verify_backup(path, *, receipt=False):
     if path.is_symlink() or not path.is_dir():
         raise ReleaseError('unsafe backup directory')
     manifest = read_json(path/'manifest.json')
-    if set(manifest) != {'schemaVersion','backupId','createdAt','active','candidate','files'} or manifest['schemaVersion'] != 'tio2-production-backup-v2' or not BACKUP_ID.fullmatch(manifest['backupId']) or set(manifest['files']) != set(COMPONENTS):
+    if set(manifest) != {'schemaVersion','backupId','createdAt','active','candidate','files'} or manifest['schemaVersion'] != 'tio2-production-backup-v3' or not BACKUP_ID.fullmatch(manifest['backupId']) or set(manifest['files']) != set(COMPONENTS):
         raise ReleaseError('backup manifest schema is invalid')
     for name, expected in manifest['files'].items():
         trusted(path/name, private=True)
@@ -350,247 +381,406 @@ def _publish_posix(source,outgoing,name,owner):
 
 
 class Backup:
-    def __init__(self, paths=DEFAULT_PATHS, *, tools=None, resolve_current=None, nginx=Path('/etc/nginx/sites-enabled/tio2malaysia.conf'), resources=None):
+    def __init__(self, paths=DEFAULT_PATHS, *, tools=None, baseline_validator=None, resources=None):
+        from release_baseline import validate_baseline
         self.paths, self.tools = paths, tools or Tools()
-        self.resolve_current, self.nginx = resolve_current, nginx
+        self.baseline_validator = baseline_validator or validate_baseline
         self.resources = resources or self.available_resources
-        self.maintenance = False
-        self.stopped = False
+        self.journal = BackupJournal(paths)
 
     def docker(self, *args, **kwargs):
-        return self.tools.run('docker', args, **kwargs)
-
-    def wp(self, *args):
-        return self.docker('run', '--rm', '--network', 'container:'+self.runtime['wordpressContainer'], '--volumes-from', self.runtime['wordpressContainer'], '--env-file', str(self.paths.configuration/'production.env'), '--user', '33:33', '--workdir', '/var/www/html', '--entrypoint', 'wp', self.runtime['wpcliImage'], '--skip-plugins', '--skip-themes', *args)
+        return self.tools.run('docker',args,**kwargs)
 
     def available_resources(self):
-        memory = 0
-        for line in Path('/proc/meminfo').read_text().splitlines():
-            if line.startswith('MemAvailable:'):
-                memory = int(line.split()[1])*1024
-        return shutil.disk_usage(self.paths.production).free, memory
+        memory=next((int(line.split()[1])*1024 for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith('MemAvailable:')),0)
+        return shutil.disk_usage(self.paths.production).free,memory
 
-    def measure(self, *roots):
+    def measure(self,*roots):
         return sum(path.stat().st_size for root in roots for path in ([root] if root.is_file() else root.rglob('*')) if path.is_file())
 
-    def discover(self):
-        self.runtime = read_json(self.paths.configuration/'runtime-baseline.json')
-        runtime = self.runtime
-        if set(runtime) != {'schemaVersion','databaseContainer','wordpressContainer','wpcliImage','databaseImage','wordpressImage'} or runtime['schemaVersion'] != 'tio2-backup-runtime-v1':
-            raise ReleaseError('runtime baseline schema is invalid')
-        for name in ('databaseContainer','wordpressContainer'):
-            if not SHA.fullmatch(str(runtime[name])):
-                raise ReleaseError('runtime container identity is invalid')
-        for name in ('wpcliImage','databaseImage','wordpressImage'):
-            if not re.fullmatch('sha256:[a-f0-9]{64}', str(runtime[name])):
-                raise ReleaseError('runtime image identity is invalid')
-        ids = self.docker('ps', '--all', '--quiet', '--no-trunc').decode().split()
-        if not ids or any(not SHA.fullmatch(cid) for cid in ids):
-            raise ReleaseError('container inventory is unavailable')
-        containers = json.loads(self.docker('inspect', *ids))
-        for role, volume, destination in (('database', 'wordpress_db_data', '/var/lib/mysql'), ('wordpress', 'wordpress_wp_data', '/var/www/html')):
-            matches = [item for item in containers if item['State']['Running'] and any(m.get('Name') == volume for m in item['Mounts'])]
-            if len(matches) != 1 or matches[0]['Id'] != runtime[role+'Container'] or matches[0]['Image'] != runtime[role+'Image'] or not matches[0]['State']['Running']:
-                raise ReleaseError('runtime identity mismatch')
-            if not any(m.get('Name')==volume and m.get('Destination')==destination and m.get('Type')=='volume' for m in matches[0]['Mounts']):
-                raise ReleaseError('runtime volume mismatch')
-        self.containers = [{'id':c['Id'], 'imageId':c['Image'], 'name':c['Name'], 'status':c['State']['Status']} for c in containers]
-        images = json.loads(self.docker('image','inspect', *sorted({c['Image'] for c in containers}|{runtime['wpcliImage']})))
-        self.images = [{'id':i['Id'], 'digests':i['RepoDigests']} for i in images]
-        self.volumes = json.loads(self.docker('volume','inspect','wordpress_db_data','wordpress_wp_data'))
-        if {v['Name'] for v in self.volumes} != {'wordpress_db_data','wordpress_wp_data'}:
-            raise ReleaseError('volume inventory mismatch')
-        self.mounts = {v['Name']:Path(v['Mountpoint']) for v in self.volumes}
-        if any(not path.is_absolute() or not path.is_dir() or path.is_symlink() for path in self.mounts.values()):
-            raise ReleaseError('volume mountpoint is invalid')
+    def require_resources(self,required):
+        free,memory=self.resources()
+        if free<max(8*GIB,required) or memory<2*GIB:
+            raise ReleaseError('insufficient backup resources')
 
-    def install_defaults(self, container):
-        with (self.paths.configuration/'mariadb-backup.cnf').open('rb') as source:
-            self.docker('exec','-i',container,'sh','-c', 'umask 077; set -eu; test ! -e /tmp/tio2-backup-defaults.cnf; cat > /tmp/tio2-backup-defaults.cnf', stdin=source)
+    def initialize(self):
+        self.baseline=self.baseline_validator(self.paths,allow_stopped=os.path.lexists(self.journal.path))
+        self.active,self.candidate,self.target=load_identities(self.paths,baseline=self.baseline)
+        if self.candidate is None:
+            raise ReleaseError('backup requires PREPARED candidate')
+        source=self.baseline['runtime']
+        if source.get('baselineSchema')!='tio2-production-baseline-v2':
+            raise ReleaseError('backup requires administrator baseline v2')
+        roles={c['role']:c for c in source['containers']}
+        self.runtime={'databaseContainer':roles['db']['id'],'wordpressContainer':roles['wordpress']['id'],'databaseImage':roles['db']['imageId'],'wordpressImage':roles['wordpress']['imageId'],'wpcliImage':source['tools']['wpcliImage']}
+        self.database=source['writers']['database']
+        self.config=source['configuration']
+        self.volumes=[{'Name':v['name'],'Mountpoint':v['mountpoint']} for v in source['volumes']]
+        self.mounts={v['role']:Path(v['mountpoint']) for v in source['volumes']}
+        self.images=source['images']
+        self.request=read_backup_request(self.paths,self.baseline,self.candidate)
+        self.index_root=self.paths.production/'state/backup-requests'
+        self.index_root.mkdir(mode=0o700,exist_ok=True)
+        if self.index_root.is_symlink() or os.name=='posix' and (self.index_root.stat().st_uid!=0 or self.index_root.stat().st_mode&0o077):
+            raise ReleaseError('backup request registry is unsafe')
+        self.index_path=self.index_root/(self.request['requestId']+'.json')
+        if os.path.lexists(self.index_path):
+            record=read_json(self.index_path)
+            if set(record)!={'request','backupId'} or record['request']!=self.request or not BACKUP_ID.fullmatch(record['backupId']):
+                raise ReleaseError('backup request UUID was reused with different bindings')
+            final=self.paths.production/'backups/releases'/record['backupId']
+            if final.exists():
+                manifest=verify_backup(final,receipt=True)
+                if manifest['active']!=self.active or manifest['candidate']!=self.candidate:
+                    raise ReleaseError('registered backup identity mismatch')
+                self.replay_final=final
+                return
+            if not self.journal.path.exists() or read_json(self.journal.path).get('backupId')!=record['backupId']:
+                raise ReleaseError('backup request artifact is unavailable')
+        if os.path.lexists(self.journal.path):
+            previous=read_json(self.journal.path)
+            if previous.get('request')!=self.request and previous.get('phase')=='exported':
+                prior=self.paths.production/'backups/releases'/str(previous.get('backupId'))
+                if not BACKUP_ID.fullmatch(prior.name): raise ReleaseError('backup journal identity is invalid')
+                verify_backup(prior,receipt=True)
+                self.journal.path.unlink()
+        if os.path.lexists(self.journal.path):
+            self.record=self.journal.load(self.baseline,self.candidate,self.request)
+        else:
+            if read_state(self.paths.production/'state')['state']!='PREPARED':
+                raise ReleaseError('fresh backup requires PREPARED')
+            self.record=self.journal.begin(self.baseline,self.candidate,self.request)
+        if not self.index_path.exists():
+            atomic_write_json(self.index_path,{'request':self.request,'backupId':self.record['backupId']})
+        self.attempt=Attempt(self.paths,self.record['backupId'],self.record['backupId'][:16],self.paths.production/'backups/releases'/('.'+self.record['backupId']))
+        self.defaults='/tmp/tio2-backup-'+self.record['backupId'][-32:]+'.cnf'
+        self.validation_name='tio2-backup-'+self.record['backupId']
 
-    def sql(self, container, query, *, defaults=True):
-        flags = ('--defaults-extra-file='+DEFAULTS,) if defaults else ('--user=root',)
+    def update(self,**changes):
+        self.journal.update(self.record,**changes)
+
+    def wp(self,*args):
+        return self.docker('run','--rm','--network','container:'+self.runtime['wordpressContainer'],'--volumes-from',self.runtime['wordpressContainer'],'--env-file',self.config['environment']['path'],'--user','33:33','--workdir','/var/www/html','--entrypoint','wp',self.runtime['wpcliImage'],'--skip-plugins','--skip-themes',*args)
+
+    def sql(self,container,query,*,defaults=True):
+        # MariaDB initializes through a temporary socket-only server. TCP is
+        # available only after entrypoint initialization reaches the final server.
+        flags=('--defaults-extra-file='+self.defaults,) if defaults else ('--user=root','--protocol=tcp','--host=127.0.0.1')
         return self.docker('exec',container,'mariadb',*flags,'--batch','--skip-column-names','-e',query).decode().strip()
 
-    def table_counts(self, container):
-        result = []
-        table_list = self.sql(container, "SELECT TABLE_SCHEMA,TABLE_NAME,TABLE_TYPE FROM information_schema.TABLES WHERE TABLE_SCHEMA NOT IN ('information_schema','performance_schema','sys') ORDER BY TABLE_SCHEMA,TABLE_NAME")
-        for line in table_list.splitlines():
-            schema, table, kind = line.split('\t')
-            # Quote DB-derived identifiers; they are SQL data, never shell input.
-            identifier = '.'.join('`'+part.replace('`','``')+'`' for part in (schema,table))
-            rows = int(self.sql(container, 'SELECT COUNT(*) FROM '+identifier)) if kind == 'BASE TABLE' else None
-            result.append({'schema':schema,'table':table,'type':kind,'rows':rows})
-        if not result:
-            raise ReleaseError('database has no tables')
+    def table_counts(self,container,*,defaults=True):
+        result=[]
+        query="SELECT TABLE_SCHEMA,TABLE_NAME,TABLE_TYPE FROM information_schema.TABLES WHERE TABLE_SCHEMA='"+self.database+"' ORDER BY TABLE_SCHEMA,TABLE_NAME"
+        for line in self.sql(container,query,defaults=defaults).splitlines():
+            schema,table,kind=line.split('\t')
+            identifier='.'.join('`'+part.replace('`','``')+'`' for part in (schema,table))
+            result.append({'schema':schema,'table':table,'type':kind,'rows':int(self.sql(container,'SELECT COUNT(*) FROM '+identifier,defaults=defaults)) if kind=='BASE TABLE' else None})
+        if not result: raise ReleaseError('database has no tables')
         return result
 
-    def validate_sql(self, compressed, raw, expected):
-        tail = b''
-        try:
-            with gzip.open(compressed,'rb') as source, raw.open('wb') as output:
-                while block := source.read(1024*1024):
-                    output.write(block)
-                    tail = (tail+block)[-8192:]
-        except (OSError, EOFError) as error:
-            raise ReleaseError('SQL gzip validation failed') from error
-        if not re.search(rb'-- Dump completed on [^\n]+\n?\s*$',tail):
-            raise ReleaseError('SQL dump is incomplete')
-        validation = None
-        try:
-            # Source immutable image, no network, no host/production volumes.
-            validation = self.docker('create','--name','tio2-backup-'+self.attempt.backup_id,'--label','tio2.backup='+self.attempt.backup_id,'--network','none','--mount','type=volume,destination=/var/lib/mysql','--env','MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1',self.runtime['databaseImage']).decode().strip()
-            if not SHA.fullmatch(validation):
-                validation = None
-                raise ReleaseError('validation container identity is invalid')
-            self.docker('start',validation)
-            ready = False
-            for _ in range(60):
-                try:
-                    self.sql(validation,'SELECT 1',defaults=False)
-                    ready = True
-                    break
-                except ReleaseError:
-                    self.tools.run('sleep',('1',))
-            if not ready:
-                raise ReleaseError('validation database did not become ready')
-            with raw.open('rb') as source:
-                self.docker('exec','-i',validation,'mariadb','--user=root','--binary-mode',stdin=source)
-            # Restoring mysql users changes authentication to the source defaults.
-            self.install_defaults(validation)
-            if self.table_counts(validation) != expected:
-                raise ReleaseError('restored database counts differ')
-        finally:
-            if validation:
-                self.docker('rm','--force','--volumes',validation)
-            raw.unlink(missing_ok=True)
+    def check_writers(self,*,stopped):
+        ids=self.docker('ps','--all','--quiet','--no-trunc').decode().split()
+        if not ids or any(not SHA.fullmatch(cid) for cid in ids): raise ReleaseError('container inventory failed')
+        containers=json.loads(self.docker('inspect',*ids))
+        database=next(c for c in containers if c['Id']==self.runtime['databaseContainer'])
+        wordpress=next(c for c in containers if c['Id']==self.runtime['wordpressContainer'])
+        if wordpress['State']['Running'] is stopped or not database['State']['Running']:
+            raise ReleaseError('writer stop state mismatch')
+        # Only the repository's fixed plugin overlay is recoverable from the
+        # separately archived, root-protected active source. No general overlays.
+        relative='wordpress/plugins/tio2-site-model'
+        destination='/var/www/html/wp-content/plugins/tio2-site-model'
+        nested=[m for m in wordpress['Mounts'] if m['Destination'].rstrip('/').startswith('/var/www/html/')]
+        mappings=[]
+        if nested:
+            mount=nested[0]
+            covered={entry['path']:entry['sha256'] for entry in self.active['files'] if entry['path'].startswith(relative+'/')}
+            if (len(nested)!=1 or mount.get('Type')!='bind' or mount.get('RW') is not False
+                or mount['Destination']!=destination or Path(mount.get('Source',''))!=self.target/relative or not covered):
+                raise ReleaseError('WordPress nested mount is unsupported by the full-volume archive')
+            if tree_files(self.target)!={entry['path']:entry['sha256'] for entry in self.active['files']}:
+                raise ReleaseError('WordPress nested mount source inventory changed')
+            mappings=[{'archive':'release.tar.gz','source':relative,'destination':destination,'readOnly':True}]
+        if any(path.rstrip('/').startswith('/var/www/html/') for path in wordpress['HostConfig'].get('Tmpfs',{})):
+            raise ReleaseError('WordPress nested mount tmpfs is unsupported')
+        if stopped and mappings!=self.source_mappings:
+            raise ReleaseError('WordPress nested mount mapping changed during snapshot')
+        self.source_mappings=mappings
+        if database['HostConfig']['PortBindings'] or database['HostConfig']['NetworkMode'] in ('host','none'):
+            raise ReleaseError('database exposes unsupported writer access')
+        networks=database['NetworkSettings']['Networks']
+        if not networks: raise ReleaseError('database network missing')
+        for network in networks:
+            peers=json.loads(self.docker('network','inspect',network))[0]['Containers']
+            if set(peers)-{self.runtime['databaseContainer'],self.runtime['wordpressContainer']}:
+                raise ReleaseError('unaccounted database network writer')
+        protected={v['name'] for v in self.baseline['runtime']['volumes']}
+        def overlaps(source):
+            if not source: return False
+            path=Path(source)
+            return any(path==root or path in root.parents or root in path.parents for root in self.mounts.values())
+        for container in containers:
+            if container['State']['Running'] and container['Id'] not in {self.runtime['databaseContainer'],self.runtime['wordpressContainer']} and any(m.get('RW',True) and (m.get('Name') in protected or overlaps(m.get('Source'))) for m in container['Mounts']):
+                raise ReleaseError('unaccounted running volume writer')
+        self.writer_ips={value['IPAddress'] for name,value in wordpress['NetworkSettings']['Networks'].items() if name in networks}
+        self.containers=[{'id':c['Id'],'imageId':c['Image'],'name':c['Name'],'status':c['State']['Status']} for c in (database,wordpress)]
+        return wordpress
 
-    def capture(self):
-        self.active, self.candidate, self.target = load_identities(self.paths, resolve_current=self.resolve_current)
-        for name in ('production.env','production-compose.yml','backup.age.pub','mariadb-backup.cnf','runtime-baseline.json'):
-            trusted(self.paths.configuration/name, private=True)
-        self.tools.run('age',('--version',))
-        self.discover()
-        working = self.measure(*self.mounts.values(), self.target, self.paths.production/'releases'/self.candidate['commit'], self.paths.configuration)
-        free, memory = self.resources()
-        if free < max(8*GIB,2*working) or memory < 2*GIB:
-            raise ReleaseError('insufficient backup resources')
-        self.attempt = Attempt.create(self.paths,self.candidate['commit'])
-        stage = self.attempt.staging
-        defaults_installed = False
+    def check_database_writers(self,*,stopped=True):
+        container=self.runtime['databaseContainer']
+        # Any configured replica channel is unsupported, even when temporarily
+        # stopped. Recheck this boundary before and throughout the snapshot.
+        if self.sql(container,'SHOW ALL SLAVES STATUS'):
+            raise ReleaseError('database replication channels are unsupported writers')
+        wsrep=dict(line.split('\t',1) for line in self.sql(container,"SHOW GLOBAL VARIABLES WHERE Variable_name IN ('wsrep_on','wsrep_provider')").splitlines())
+        if wsrep!={'wsrep_on':'OFF','wsrep_provider':'none'}:
+            raise ReleaseError('database cluster configuration is unsupported')
+        if self.sql(container,"SELECT COUNT(*) FROM information_schema.PLUGINS WHERE PLUGIN_NAME='group_replication' AND PLUGIN_STATUS='ACTIVE'")!='0':
+            raise ReleaseError('database group replication is unsupported')
+        if self.sql(container,"SELECT COUNT(*) FROM information_schema.EVENTS WHERE STATUS='ENABLED'")!='0':
+            raise ReleaseError('enabled database events are unsupported writers')
+        if self.sql(container,"SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='"+self.database+"' AND TABLE_TYPE='BASE TABLE' AND ENGINE<>'InnoDB'")!='0':
+            raise ReleaseError('nontransactional application tables are unsupported')
+        sessions=self.sql(container,"SELECT ID,USER,HOST FROM information_schema.PROCESSLIST WHERE ID<>CONNECTION_ID()")
+        if sessions:
+            environment=dict(line.split('=',1) for line in Path(self.config['environment']['path']).read_text().splitlines() if '=' in line and not line.startswith('#'))
+            for line in sessions.splitlines():
+                fields=line.split('\t')
+                if len(fields)!=3: raise ReleaseError('unaccounted database sessions')
+                _,user,host=fields
+                if stopped or user!=environment.get('WORDPRESS_DB_USER') or host.rsplit(':',1)[0] not in self.writer_ips:
+                    raise ReleaseError('unaccounted database sessions')
+
+    def check_wordpress_database_binding(self):
+        # Run inside the enrolled WordPress, using its effective wp-config and
+        # connection. The wp-cli helper's env-file is not evidence of live config.
+        probe=r'''define('SHORTINIT', true); require '/var/www/html/wp-load.php';
+global $wpdb; $wpdb->suppress_errors(true);
+$row=$wpdb->get_row('SELECT DATABASE(),@@hostname,@@port,@@server_id', ARRAY_N);
+$host=DB_HOST; $name=preg_replace('/:[0-9]+$/','',$host);
+echo json_encode(['configuredDatabase'=>DB_NAME,'database'=>$row[0]??null,
+'host'=>$host,'addresses'=>gethostbynamel($name)?:[], 'server'=>array_slice($row??[],1)]);'''
         try:
-            self.maintenance = True  # recovery is required even if activation partially fails
-            self.wp('maintenance-mode','activate')
-            self.tools.run('sleep',('5',))
-            self.install_defaults(self.runtime['databaseContainer'])
-            defaults_installed = True
-            tables = self.table_counts(self.runtime['databaseContainer'])
-            database_version = self.sql(self.runtime['databaseContainer'],'SELECT VERSION(),@@character_set_server,@@collation_server')
-            raw = stage/'database.sql'
-            with raw.open('xb') as output:
-                os.chmod(raw,0o600)
-                self.docker('exec',self.runtime['databaseContainer'],'mariadb-dump','--defaults-extra-file='+DEFAULTS,'--single-transaction','--routines','--events','--triggers','--hex-blob','--flush-privileges','--all-databases',stdout=output)
-            with raw.open('rb') as source, gzip.open(stage/'database.sql.gz','wb') as output:
-                shutil.copyfileobj(source,output,1024*1024)
-            self.validate_sql(stage/'database.sql.gz',raw,tables)
-            wordpress = {'core':self.wp('core','version').decode().strip(), 'plugins':json.loads(self.wp('plugin','list','--format=json'))}
-            posts = int(self.wp('post','list','--post_type=any','--format=count'))
-            self.stopped = True
-            self.docker('stop','--time','30',self.runtime['wordpressContainer'])
-            wp_stats = archive_tree(self.mounts['wordpress_wp_data'],stage/'wordpress.tar.gz')
-            archive_tree(self.target,stage/'release.tar.gz')
-            identity_file = self.paths.configuration/'legacy-baseline.json' if self.active['kind']=='legacy' else self.paths.production/'state/active-release.json'
-            shutil.copyfile(identity_file,stage/'active-identity.json')
-            os.chmod(stage/'active-identity.json',0o600)
-            trusted(self.nginx)
-            shutil.copyfile(self.nginx,stage/'nginx.conf')
-            os.chmod(stage/'nginx.conf',0o600)
-            self.tools.run('nginx',('-t',))
-            archive_tree(self.paths.configuration,stage/'configuration.tar.gz')
-            inventory = validate_inventory({'schemaVersion':'tio2-production-inventory-v1','siteId':'tio2-my','active':self.active,'candidate':self.candidate,'currentTarget':str(self.target),'containers':self.containers,'images':self.images,'wordpress':wordpress,'database':{'containerId':self.runtime['databaseContainer'],'version':database_version,'tables':tables},'volumes':self.volumes,'counts':{'posts':posts,'wordpressEntries':wp_stats['entries']},'sizes':{'workingSet':working,'wordpressBytes':wp_stats['bytes'],**{name:(stage/name).stat().st_size for name in COMPONENTS if (stage/name).exists()}}})
-            atomic_write_json(stage/'release-state.json',inventory)
-            return self.attempt
-        except BaseException:
-            self.attempt.cleanup()
-            raise
-        finally:
-            if defaults_installed:
-                self.docker('exec',self.runtime['databaseContainer'],'rm','--',DEFAULTS)
+            observed=json.loads(self.docker('exec',self.runtime['wordpressContainer'],'php','-r',probe))
+            host=re.fullmatch(r'([A-Za-z0-9][A-Za-z0-9_.-]*)(?::([0-9]{1,5}))?',observed['host'])
+            direct=self.sql(self.runtime['databaseContainer'],'SELECT @@hostname,@@port,@@server_id').split('\t')
+            database=json.loads(self.docker('inspect',self.runtime['databaseContainer']))[0]
+            addresses={n['IPAddress'] for n in database['NetworkSettings']['Networks'].values() if n.get('IPAddress')}
+            valid=(observed['configuredDatabase']==self.database and observed['database']==self.database
+                and host is not None and str(int(host[2] or '3306'))==direct[1]
+                and bool(observed['addresses']) and set(observed['addresses'])<=addresses
+                and [str(value) for value in observed['server']]==direct)
+        except (ValueError,KeyError,TypeError,IndexError):
+            raise ReleaseError('WordPress database binding could not be measured') from None
+        if not valid: raise ReleaseError('WordPress database binding disagrees with enrolled database')
+        self.database_connection=observed
+
+    def check_nginx(self):
+        output=self.tools.run('nginx',('-T',)).decode()
+        expected={entry['path'] for entry in [self.config['nginx'],*self.config['nginxIncludes']]}
+        observed=set(re.findall(r'^# configuration file (.+):$',output,re.MULTILINE))
+        if observed!=expected: raise ReleaseError('nginx include inventory mismatch')
+        tls=set(re.findall(r'^\s*ssl_(?:certificate(?:_key)?|trusted_certificate|client_certificate|dhparam)\s+([^;\s]+)\s*;',output,re.MULTILINE))
+        if tls!={entry['path'] for entry in self.config['tlsFiles']}: raise ReleaseError('nginx TLS inventory mismatch')
+
+    def install_defaults(self):
+        source=self.paths.configuration/'mariadb-backup.cnf'; trusted(source,private=True)
+        self.docker('exec',self.runtime['databaseContainer'],'test','!','-e',self.defaults)
+        self.update(defaultsIntent=True)
+        # Only a generated hex suffix enters this fixed shell fragment; secrets stream on stdin.
+        command='umask 077; set -eu; set -C; cat > '+self.defaults
+        with source.open('rb') as stream:
+            self.docker('exec','-i',self.runtime['databaseContainer'],'sh','-c',command,stdin=stream)
+
+    def cleanup_validation(self):
+        if not self.record['validationIntent']: return
+        ids=self.docker('ps','--all','--quiet','--no-trunc','--filter','label=tio2.backup='+self.record['backupId']).decode().split()
+        if len(ids)>1 or any(not SHA.fullmatch(cid) for cid in ids): raise ReleaseError('validation container ownership mismatch')
+        if ids:
+            container=json.loads(self.docker('inspect',ids[0]))[0]
+            if container['Config']['Labels'].get('tio2.backup')!=self.record['backupId'] or ids[0] in self.runtime.values(): raise ReleaseError('validation container ownership mismatch')
+            self.docker('rm','--force','--volumes',ids[0])
+        self.update(validationIntent=False)
 
     def recover(self):
-        if not self.maintenance:
-            return
-        failure = None
-        try:
-            # Start the exact existing container, never Compose up/recreate it.
-            if self.stopped:
+        errors=[]
+        try: self.cleanup_validation()
+        except BaseException as error: errors.append(error)
+        if self.record['defaultsIntent']:
+            try:
+                self.docker('exec',self.runtime['databaseContainer'],'rm','-f','--',self.defaults)
+                self.update(defaultsIntent=False)
+            except BaseException as error: errors.append(error)
+        if self.record['stopIntent']:
+            try:
                 self.docker('start',self.runtime['wordpressContainer'])
-            healthy = False
-            for _ in range(30):
-                status = json.loads(self.docker('inspect',self.runtime['wordpressContainer']))[0]['State']
-                health = status.get('Health',{}).get('Status')
-                if status.get('Running') and health in (None,'healthy'):
-                    self.docker('exec',self.runtime['wordpressContainer'],'curl','--silent','--show-error','--fail','--output','/dev/null','http://localhost/wp-login.php')
-                    healthy = True
-                    break
-                if health == 'unhealthy':
-                    break
-                self.tools.run('sleep',('2',))
-            if not healthy:
-                raise ReleaseError('WordPress recovery health failed')
-        except BaseException as error:
-            failure = error
-        # Deactivation is attempted even when the health probe fails.
+                healthy=False
+                for _ in range(30):
+                    state=json.loads(self.docker('inspect',self.runtime['wordpressContainer']))[0]['State']
+                    if state.get('Running') and state.get('Health',{}).get('Status') in (None,'healthy'):
+                        self.docker('exec',self.runtime['wordpressContainer'],'curl','--silent','--show-error','--fail','--output','/dev/null','http://localhost/wp-login.php')
+                        healthy=True; break
+                    self.tools.run('sleep',('1',))
+                if not healthy: raise ReleaseError('WordPress recovery health failed')
+                self.update(stopIntent=False)
+            except BaseException as error: errors.append(error)
+        if errors: raise ReleaseError('backup recovery remains incomplete') from errors[0]
+
+    def cleanup_stage(self):
+        stage=self.attempt.staging
+        if not os.path.lexists(stage): return
+        if stage.parent!=self.paths.production/'backups/releases' or stage.name!='.'+self.record['backupId'] or stage.is_symlink() or not stage.is_dir(): raise ReleaseError('backup staging ownership mismatch')
+        if os.name=='posix' and (stage.stat().st_uid!=0 or stage.stat().st_mode&0o077): raise ReleaseError('backup staging permissions mismatch')
+        files=list(stage.iterdir())
+        for path in files:
+            if path.name not in {*COMPONENTS,'database.sql','restore.sql','manifest.json','receipt.json','ciphertext.age','export.tar'}: raise ReleaseError('unknown backup staging file')
+            trusted(path,private=True)
+            if path.stat().st_nlink!=1: raise ReleaseError('backup staging hardlink')
+        for path in files: path.unlink()
+        stage.rmdir()
+
+    def validate_sql(self,compressed,raw,expected):
+        tail=b''
         try:
-            self.wp('maintenance-mode','deactivate')
-        except BaseException as error:
-            failure = failure or error
-        if failure:
-            raise ReleaseError('WordPress recovery failed') from failure
-        self.stopped = self.maintenance = False
+            with gzip.open(compressed,'rb') as source,raw.open('wb') as output:
+                os.chmod(raw,0o600)
+                while block:=source.read(1024*1024): output.write(block); tail=(tail+block)[-8192:]
+        except (OSError,EOFError) as error: raise ReleaseError('SQL gzip validation failed') from error
+        if not re.search(rb'-- Dump completed on [^\n]+\n?\s*$',tail): raise ReleaseError('SQL dump is incomplete')
+        self.update(validationIntent=True)
+        validation=self.docker('create','--name',self.validation_name,'--label','tio2.backup='+self.record['backupId'],'--network','none','--mount','type=volume,destination=/var/lib/mysql','--env','MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1',self.runtime['databaseImage']).decode().strip()
+        if not SHA.fullmatch(validation): raise ReleaseError('validation container identity is invalid')
+        try:
+            self.docker('start',validation)
+            ready=False
+            for _ in range(60):
+                try: self.sql(validation,'SELECT 1',defaults=False); ready=True; break
+                except ReleaseError: self.tools.run('sleep',('1',))
+            if not ready: raise ReleaseError('validation database did not become ready')
+            with raw.open('rb') as source: self.docker('exec','-i',validation,'mariadb','--user=root','--binary-mode',stdin=source)
+            if self.table_counts(validation,defaults=False)!=expected: raise ReleaseError('restored database counts differ')
+        finally:
+            self.cleanup_validation()
+            raw.unlink(missing_ok=True)
+
+    def archive_configuration(self,stage):
+        entries=[self.config['environment'],self.config['compose'],self.config['nginx'],*self.config['nginxIncludes'],*self.config['tlsFiles']]
+        with tarfile.open(stage/'configuration.tar.gz','w:gz') as archive:
+            for entry in entries:
+                source=Path(entry['path']); trusted(source)
+                if sha256_file(source)!=entry['sha256']: raise ReleaseError('configuration changed during backup')
+                archive.add(source,arcname='files/'+source.as_posix().lstrip('/').replace(':',''),recursive=False)
+            for name in ('baseline.json','backup.age.pub','mariadb-backup.cnf'):
+                source=self.paths.configuration/name; trusted(source,private=True)
+                archive.add(source,arcname='enrollment/'+name,recursive=False)
+        with tarfile.open(stage/'nginx.tar.gz','w:gz') as archive:
+            for entry in [self.config['nginx'],*self.config['nginxIncludes'],*self.config['tlsFiles']]:
+                source=Path(entry['path']); archive.add(source,arcname=source.as_posix().lstrip('/').replace(':',''),recursive=False)
+
+    def capture(self):
+        self.check_writers(stopped=False); self.check_nginx()
+        self.tools.run('age',('--version',)); trusted(self.paths.configuration/'backup.age.pub',private=True)
+        db_size=self.measure(self.mounts['db'])
+        other=self.measure(self.mounts['wordpress'],self.target,self.paths.production/'releases'/self.candidate['commit'],self.paths.configuration)
+        self.require_resources(8*db_size+4*other+GIB)
+        self.attempt.staging.mkdir(mode=0o700)
+        stage=self.attempt.staging
+        self.update(phase='capturing')
+        wordpress={'core':self.wp('core','version').decode().strip(),'plugins':json.loads(self.wp('plugin','list','--format=json'))}
+        wordpress['sourceMappings']=self.source_mappings
+        posts=int(self.wp('post','list','--post_type=any','--format=count'))
+        self.install_defaults()
+        self.check_wordpress_database_binding()
+        self.check_database_writers(stopped=False)
+        # No maintenance/sleep fence: stop the exact enrolled writer before both snapshots.
+        self.update(stopIntent=True)
+        self.docker('stop','--time','30',self.runtime['wordpressContainer'])
+        self.check_writers(stopped=True); self.check_database_writers()
+        tables=self.table_counts(self.runtime['databaseContainer'])
+        version=self.sql(self.runtime['databaseContainer'],'SELECT VERSION(),@@character_set_server,@@collation_server')
+        raw=stage/'database.sql'
+        with raw.open('xb') as output:
+            os.chmod(raw,0o600)
+            self.docker('exec',self.runtime['databaseContainer'],'mariadb-dump','--defaults-extra-file='+self.defaults,'--single-transaction','--routines','--events','--triggers','--hex-blob','--databases',self.database,stdout=output)
+        self.require_resources(3*raw.stat().st_size+2*db_size+3*other+GIB)
+        with raw.open('rb') as source,gzip.open(stage/'database.sql.gz','wb') as output: shutil.copyfileobj(source,output,1024*1024)
+        os.chmod(stage/'database.sql.gz',0o600)
+        self.validate_sql(stage/'database.sql.gz',raw,tables)
+        wp_stats=archive_tree(self.mounts['wordpress'],stage/'wordpress.tar.gz')
+        archive_tree(self.target,stage/'release.tar.gz')
+        if tree_files(self.target)!={entry['path']:entry['sha256'] for entry in self.active['files']}: raise ReleaseError('active source changed during backup')
+        self.archive_configuration(stage)
+        atomic_write_json(stage/'active-identity.json',self.baseline)
+        self.check_writers(stopped=True); self.check_database_writers()
+        if self.table_counts(self.runtime['databaseContainer'])!=tables: raise ReleaseError('database changed during snapshot')
+        inventory=validate_inventory({'schemaVersion':'tio2-production-inventory-v2','siteId':'tio2-my','active':self.active,'candidate':self.candidate,'currentTarget':str(self.target),'containers':self.containers,'images':self.images,'wordpress':wordpress,'database':{'containerId':self.runtime['databaseContainer'],'version':version,'tables':tables},'volumes':self.volumes,'counts':{'posts':posts,'wordpressEntries':wp_stats['entries']},'sizes':{'workingSet':db_size+other,'wordpressBytes':wp_stats['bytes']}})
+        atomic_write_json(stage/'release-state.json',inventory)
+        for path in stage.iterdir():
+            os.chmod(path,0o600)
+            with path.open('r+b') as source: os.fsync(source.fileno())
+        self.update(phase='captured')
 
     def finalize(self):
-        stage = self.attempt.staging
-        for name in ('wordpress.tar.gz','release.tar.gz','configuration.tar.gz'):
-            validate_tar(stage/name)
+        stage=self.attempt.staging
+        for name in ('wordpress.tar.gz','release.tar.gz','configuration.tar.gz','nginx.tar.gz'): validate_tar(stage/name)
         validate_inventory(read_json(stage/'release-state.json'))
-        atomic_write_json(stage/'manifest.json',{'schemaVersion':'tio2-production-backup-v2','backupId':self.attempt.backup_id,'createdAt':datetime.now(timezone.utc).isoformat(),'active':self.active,'candidate':self.candidate,'files':{name:sha256_file(stage/name) for name in COMPONENTS}})
+        atomic_write_json(stage/'manifest.json',{'schemaVersion':'tio2-production-backup-v3','backupId':self.attempt.backup_id,'createdAt':datetime.now(timezone.utc).isoformat(),'active':self.active,'candidate':self.candidate,'files':{name:sha256_file(stage/name) for name in COMPONENTS}})
         verify_backup(stage)
-        package = stage/'export.tar'
-        try:
-            with tarfile.open(package,'w') as archive:
-                for name in (*COMPONENTS,'manifest.json'):
-                    archive.add(stage/name,arcname=self.attempt.backup_id+'/'+name,recursive=False)
-            with package.open('rb') as source:
-                self.tools.run('age',('-R',str(self.paths.configuration/'backup.age.pub'),'-o',str(stage/'ciphertext.age')),stdin=source)
-        finally:
-            package.unlink(missing_ok=True)
+        package=stage/'export.tar'
+        with tarfile.open(package,'w') as archive:
+            os.chmod(package,0o600)
+            for name in (*COMPONENTS,'manifest.json'): archive.add(stage/name,arcname=self.attempt.backup_id+'/'+name,recursive=False)
+        self.require_resources(2*package.stat().st_size+GIB)
+        (stage/'ciphertext.age').unlink(missing_ok=True)
+        with package.open('rb') as source: self.tools.run('age',('-R',str(self.paths.configuration/'backup.age.pub'),'-o',str(stage/'ciphertext.age')),stdin=source)
         os.chmod(stage/'ciphertext.age',0o600)
-        if not (stage/'ciphertext.age').stat().st_size:
-            raise ReleaseError('empty ciphertext')
+        with (stage/'ciphertext.age').open('r+b') as source: os.fsync(source.fileno())
+        package.unlink()
+        if not (stage/'ciphertext.age').stat().st_size: raise ReleaseError('empty ciphertext')
+        self.update(phase='finalized')
 
-    def run(self, *, owner=deploy_owner):
+    def export(self,final,owner):
+        verify_backup(final,receipt=True)
+        receipt=read_json(final/'receipt.json')
+        if receipt.get('requestId')!=self.request['requestId'] or receipt.get('autoRestoreEligible') is not False: raise ReleaseError('backup receipt request mismatch')
+        output=self.paths.outgoing/(receipt['backupId']+'.tar.age')
+        if os.path.lexists(output):
+            if sha256_file(output)!=receipt['ciphertextSha256']: raise ReleaseError('existing exported ciphertext differs')
+        else: publish_ciphertext(final/'ciphertext.age',self.paths.outgoing,output.name,owner=owner)
+        return receipt
+
+    def run(self,*,owner=deploy_owner):
+        self.initialize()
+        if hasattr(self,'replay_final'):
+            receipt=self.export(self.replay_final,owner)
+            if self.journal.path.exists() and read_json(self.journal.path).get('backupId')==receipt['backupId']:
+                self.record=self.journal.load(self.baseline,self.candidate,self.request)
+                self.update(phase='exported')
+            return receipt
         try:
-            self.capture()
-            self.finalize()
+            phase=self.record['phase']
+            if phase in ('allocated','capturing'):
+                self.recover(); self.cleanup_stage(); self.update(phase='allocated')
+                self.capture()
+            if self.record['phase']=='captured': self.finalize()
             self.recover()
-            stage = self.attempt.staging
-            receipt = {'backupId':self.attempt.backup_id,'manifestSha256':sha256_file(stage/'manifest.json'),'ciphertextSha256':sha256_file(stage/'ciphertext.age')}
-            atomic_write_json(stage/'receipt.json',receipt)
-            verify_backup(stage,receipt=True)
-            final = stage.parent/self.attempt.backup_id
-            os.rename(stage,final)
-            self.attempt.staging = final
-            self.attempt.registered = True
-            retain_backups(self.paths,final,self.active,verify_current=lambda:load_identities(self.paths,resolve_current=self.resolve_current)[0])
-            publish_ciphertext(final/'ciphertext.age',self.paths.outgoing,self.attempt.backup_id+'.tar.age',owner=owner)
+            stage=self.attempt.staging
+            if self.record['phase'] in ('finalized','recovered'):
+                self.update(phase='recovered')
+                receipt={'backupId':self.attempt.backup_id,'requestId':self.request['requestId'],'manifestSha256':sha256_file(stage/'manifest.json'),'ciphertextSha256':sha256_file(stage/'ciphertext.age'),'autoRestoreEligible':False,'writesResumed':True}
+                atomic_write_json(stage/'receipt.json',receipt); verify_backup(stage,receipt=True)
+                final=stage.parent/self.attempt.backup_id
+                os.rename(stage,final)
+                self.attempt.staging=final; self.attempt.registered=True
+                self.update(phase='registered')
+            final=self.paths.production/'backups/releases'/self.attempt.backup_id
+            retain_backups(self.paths,final,self.active,verify_current=lambda:self.baseline_validator(self.paths)['active'])
+            receipt=self.export(final,owner)
+            self.update(phase='exported')
             return receipt
         except BaseException:
-            try:
-                self.recover()
-            finally:
-                if hasattr(self,'attempt'):
-                    self.attempt.cleanup()
+            # Keep root journal/staging for deterministic recovery after failure.
+            self.recover()
             raise
 
 

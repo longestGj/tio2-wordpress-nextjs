@@ -17,6 +17,7 @@ import subprocess
 from release_contract import DEFAULT_PATHS, ReleaseError, _validate_member_name, sha256_file
 
 SCHEMA='tio2-production-baseline-v1'
+BACKUP_SCHEMA='tio2-production-baseline-v2'
 SITE='tio2-my'
 WEBSITE='https://tio2malaysia.com'
 CMS='https://cms.tio2malaysia.com'
@@ -81,9 +82,10 @@ def _docker(arguments,runner):
         raise ReleaseError('baseline runtime read failed') from error
 
 
-def _validate_record(record,paths,runner,stat_reader):
+def _validate_record(record,paths,runner,stat_reader,allow_stopped=False):
     _keys(record,('schemaVersion','siteId','website','cms','enrollment','active','runtime','configuration','writes','handoff'))
-    _require(record['schemaVersion']==SCHEMA and record['siteId']==SITE and record['website']==WEBSITE and record['cms']==CMS,'site')
+    _require(record['schemaVersion'] in (SCHEMA,BACKUP_SCHEMA) and record['siteId']==SITE and record['website']==WEBSITE and record['cms']==CMS,'site')
+    backup_schema=record['schemaVersion']==BACKUP_SCHEMA
     enrollment=record['enrollment']
     _keys(enrollment,('origin','handoffId','recordedAt'))
     _require(enrollment['origin']=='root-administrator' and isinstance(enrollment['handoffId'],str) and 0<len(enrollment['handoffId'])<=128,'enrollment')
@@ -124,11 +126,19 @@ def _validate_record(record,paths,runner,stat_reader):
         if path.is_file(): observed_files.add(path.relative_to(source).as_posix())
     _require(observed_files==set(hashes),'active source membership')
     configuration=record['configuration']
-    _keys(configuration,('environment','compose','nginx'))
+    _keys(configuration,('environment','compose','nginx','nginxIncludes','tlsFiles') if backup_schema else ('environment','compose','nginx'))
     config_hashes={}
-    for role,entry in configuration.items():
+    entries=[(role,configuration[role]) for role in ('environment','compose','nginx')]
+    if backup_schema:
+        for role in ('nginxIncludes','tlsFiles'):
+            _require(isinstance(configuration[role],list) and len(configuration[role])<=1000,'configuration list')
+            entries.extend((role+str(index),entry) for index,entry in enumerate(configuration[role]))
+    seen_config_paths=set()
+    for role,entry in entries:
         _keys(entry,('path','sha256'))
         path=protected_path(entry['path'],stat_reader=stat_reader,private=role=='environment')
+        _require(str(path) not in seen_config_paths,'duplicate configuration')
+        seen_config_paths.add(str(path))
         _require(isinstance(entry['sha256'],str) and SHA.fullmatch(entry['sha256']),'configuration hash')
         digest=sha256_file(path)
         _require(digest==entry['sha256'],'configuration bytes')
@@ -142,7 +152,7 @@ def _validate_record(record,paths,runner,stat_reader):
         environment[name]=value
     _require(environment.get('SITE_ID')==SITE and environment.get('NEXT_PUBLIC_SITE_URL')==WEBSITE and environment.get('WORDPRESS_MEDIA_ORIGIN')==CMS,'configuration site')
     runtime=record['runtime']
-    _keys(runtime,('containers','images','volumes','healthChecks'))
+    _keys(runtime,('containers','images','volumes','healthChecks','tools','writers') if backup_schema else ('containers','images','volumes','healthChecks'))
     _require(isinstance(runtime['containers'],list) and 2<=len(runtime['containers'])<=3,'containers')
     roles,ids=set(),set()
     for container in runtime['containers']:
@@ -157,6 +167,13 @@ def _validate_record(record,paths,runner,stat_reader):
         _require(IMAGE.fullmatch(image['id']) and image['id'] not in image_ids and isinstance(image['digests'],list) and all(isinstance(d,str) and re.fullmatch(r'[^\s]+@sha256:[a-f0-9]{64}',d) for d in image['digests']),'image identity')
         image_ids.add(image['id'])
     _require({c['imageId'] for c in runtime['containers']}<=image_ids,'container images')
+    if backup_schema:
+        _keys(runtime['tools'],('wpcliImage',))
+        _require(runtime['tools']['wpcliImage'] in image_ids,'backup tool image')
+        writers=runtime['writers']
+        _keys(writers,('database','hostWriters','containers'))
+        _require(isinstance(writers['database'],str) and re.fullmatch(r'[a-zA-Z0-9_]{1,64}',writers['database']) and writers['database'] not in ('mysql','sys','information_schema','performance_schema'),'backup database')
+        _require(writers['hostWriters']=='none' and writers['containers']==[next(c['id'] for c in runtime['containers'] if c['role']=='wordpress')],'backup writer boundary')
     _require(isinstance(runtime['volumes'],list) and len(runtime['volumes'])==2,'volumes')
     volume_roles,names=set(),set()
     for volume in runtime['volumes']:
@@ -172,7 +189,7 @@ def _validate_record(record,paths,runner,stat_reader):
     _require({c['Id'] for c in containers}==ids and len(containers)==len(ids),'observed containers')
     for enrolled in runtime['containers']:
         observed=next(c for c in containers if c['Id']==enrolled['id'])
-        _require(observed['Image']==enrolled['imageId'] and observed['State']['Running'] is True,'observed container image/state')
+        _require(observed['Image']==enrolled['imageId'] and (observed['State']['Running'] is True or allow_stopped and enrolled['role']=='wordpress' and observed['State']['Running'] is False),'observed container image/state')
         for volume in runtime['volumes']:
             if volume['containerId']!=enrolled['id']: continue
             attached=[m for m in observed['Mounts'] if m.get('Destination')==volume['destination']]
@@ -186,13 +203,13 @@ def _validate_record(record,paths,runner,stat_reader):
     _require({v['Name'] for v in volumes}==names and len(volumes)==len(names),'observed volumes')
     for enrolled in runtime['volumes']:
         _require(next(v['Mountpoint'] for v in volumes if v['Name']==enrolled['name'])==enrolled['mountpoint'],'observed mountpoint')
-    return {'siteId':SITE,'active':{**active,'sourceSha256':_hash(hashes),'enrollmentSha256':_hash(record)},'runtime':{**runtime,'writes':record['writes'],'handoff':record['handoff'],'enrollment':enrollment},'configurationFingerprint':_hash(config_hashes)}
+    return {'siteId':SITE,'active':{**active,'sourceSha256':_hash(hashes),'enrollmentSha256':_hash(record)},'runtime':{**runtime,'configuration':configuration,'baselineSchema':record['schemaVersion'],'writes':record['writes'],'handoff':record['handoff'],'enrollment':enrollment},'configurationFingerprint':_hash(config_hashes)}
 
 
-def validate_baseline(paths=DEFAULT_PATHS, *, runner=None, stat_reader=None):
+def validate_baseline(paths=DEFAULT_PATHS, *, runner=None, stat_reader=None, allow_stopped=False):
     """Validate independently of PREPARED state; never write or enroll anything."""
     try:
-        return _validate_record(_read_record(paths.configuration/'baseline.json',stat_reader),paths,runner,stat_reader)
+        return _validate_record(_read_record(paths.configuration/'baseline.json',stat_reader),paths,runner,stat_reader,allow_stopped)
     except (KeyError,TypeError,ValueError,AttributeError,StopIteration,OSError) as error:
         raise ReleaseError('baseline schema or runtime mismatch') from error
 

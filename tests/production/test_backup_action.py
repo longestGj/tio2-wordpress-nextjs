@@ -39,6 +39,9 @@ class BackupActionTests(unittest.TestCase):
             configuration=self.root / "configuration",
         )
         self.paths.configuration.mkdir(parents=True)
+        self.paths.incoming.mkdir()
+        self.request={'schemaVersion':'tio2-backup-request-v1','requestId':'01234567-89ab-4def-8123-456789abcdef','preparedProofSha256':'e'*64,'baselineSha256':'f'*64}
+        (self.paths.incoming/'backup-request.json').write_text(json.dumps(self.request))
         (self.paths.configuration / "backup.age.pub").write_text(
             "age1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqe3u8c\n",
             encoding="utf-8",
@@ -47,7 +50,7 @@ class BackupActionTests(unittest.TestCase):
             self.paths.production / "state",
             {"IDLE"},
             "PREPARED",
-            {"commit": "a" * 40, "archiveSha256": "b" * 64},
+            {"commit": "a" * 40, "archiveSha256": "b" * 64,"candidate":{"commit":"a"*40,"archiveSha256":"b"*64,"proofSha256":"e"*64},"active":{"enrollmentSha256":"f"*64}},
         )
 
     def tearDown(self) -> None:
@@ -63,6 +66,7 @@ class BackupActionTests(unittest.TestCase):
                 "backupId": "20260910T000000Z-" + "a" * 40 + "-" + "1" * 32,
                 "ciphertextSha256": "c" * 64,
                 "manifestSha256": "d" * 64,
+                "requestId":self.request['requestId'],"autoRestoreEligible":False,"writesResumed":True,
             })),
         })
 
@@ -73,6 +77,7 @@ class BackupActionTests(unittest.TestCase):
         result = backup_release(self.paths, runner)
 
         self.assertEqual(result["state"], "BACKED_UP")
+        self.assertFalse(result['autoRestoreEligible'])
         self.assertEqual(read_state(self.paths.production / "state")["state"], "BACKED_UP")
         self.assertEqual(runner.calls, [
             ("/usr/bin/age", "--version"),
@@ -80,6 +85,26 @@ class BackupActionTests(unittest.TestCase):
             ("/usr/bin/free", "-b"),
             ("/opt/tio2-production/program/backup.sh",),
         ])
+
+    def test_lost_state_write_and_completed_action_retry_preserve_request_and_receipt(self):
+        from unittest.mock import patch
+        with patch('release_actions.transition',side_effect=ReleaseError('state write interrupted')):
+            with self.assertRaises(ReleaseError): backup_release(self.paths,self._runner())
+        result=backup_release(self.paths,self._runner())
+        self.assertEqual(backup_release(self.paths,self._runner()),result)
+        request={**self.request,'requestId':'12345678-89ab-4def-8123-456789abcdef'}
+        (self.paths.incoming/'backup-request.json').write_text(json.dumps(request))
+        with self.assertRaises(ReleaseError): backup_release(self.paths,self._runner())
+
+    def test_pending_root_request_reaches_recovery_even_if_admission_resources_are_low(self):
+        registry=self.paths.production/'state/backup-requests'
+        registry.mkdir(mode=0o700)
+        (registry/(self.request['requestId']+'.json')).write_text('{}')
+        runner=self._runner()
+        runner.results[("/usr/bin/df", "--output=avail", "-B1", str(self.paths.production))]=CommandResult(0,'0')
+        result=backup_release(self.paths,runner)
+        self.assertEqual(result['state'],'BACKED_UP')
+        self.assertEqual(runner.calls,[("/opt/tio2-production/program/backup.sh",)])
 
     def test_missing_age_fails_before_backup_mutation_or_state_transition(self) -> None:
         """Moving the age check after backup.sh would let an unencryptable backup mutate production."""

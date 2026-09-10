@@ -213,7 +213,7 @@ def _backup_script() -> str:
     return "/opt/tio2-production/program/backup.sh"
 
 
-def _parse_backup_result(value: str, expected_backup_id: str) -> dict[str, str]:
+def _parse_backup_result(value: str, expected_backup_id: str, request_id: str) -> dict[str, object]:
     try:
         result = json.loads(value)
     except json.JSONDecodeError as error:
@@ -225,7 +225,9 @@ def _parse_backup_result(value: str, expected_backup_id: str) -> dict[str, str]:
     manifest = result.get("manifestSha256")
     if not isinstance(backup_id, str) or (match := _BACKUP_ID.fullmatch(backup_id)) is None or match.group(1) != expected_backup_id or not isinstance(ciphertext, str) or not _SHA256.fullmatch(ciphertext) or not isinstance(manifest, str) or not _SHA256.fullmatch(manifest):
         raise ReleaseError("backup program did not return a valid manifest")
-    return {"backupId": backup_id, "ciphertextSha256": ciphertext, "manifestSha256": manifest}
+    if set(result)!={'backupId','ciphertextSha256','manifestSha256','requestId','autoRestoreEligible','writesResumed'} or result['requestId']!=request_id or result['autoRestoreEligible'] is not False or result['writesResumed'] is not True:
+        raise ReleaseError('backup receipt request or write-state mismatch')
+    return result
 
 
 def backup_release(paths: ReleasePaths, runner: CommandRunner | None = None, *, backup_program: str | None = None) -> dict[str, object]:
@@ -237,30 +239,43 @@ def backup_release(paths: ReleasePaths, runner: CommandRunner | None = None, *, 
     active_runner: CommandRunner = runner or SubprocessCommandRunner()
     state_root = paths.production / "state"
     state = read_state(state_root)
-    if state.get("state") != "PREPARED":
+    if state.get("state") not in {"PREPARED","BACKED_UP"}:
         raise ReleaseError("backup requires PREPARED state")
     details = state.get("details")
     if not isinstance(details, dict) or not isinstance(details.get("commit"), str) or not isinstance(details.get("archiveSha256"), str):
         raise ReleaseError("backup release identity is invalid")
     release_id = details["commit"]
 
-    _require_backup_key(paths.configuration / "backup.age.pub")
-    _require_success(active_runner.run(("/usr/bin/age", "--version")), "age")
-    free_disk = _last_number(
-        _require_success(active_runner.run(("/usr/bin/df", "--output=avail", "-B1", str(paths.production))), "disk"),
-        "disk",
-    )
-    if free_disk < MIN_FREE_DISK:
-        raise ReleaseError("disk validation failed")
-    available_memory = _available_memory(_require_success(active_runner.run(("/usr/bin/free", "-b")), "memory"))
-    if available_memory < MIN_AVAILABLE_MEMORY:
-        raise ReleaseError("memory validation failed")
+    from backup_core import read_backup_request
+    request=read_backup_request(paths,{"active":details.get('active',{})},details.get('candidate'))
+    if state['state']=='BACKED_UP' and details.get('requestId')!=request['requestId']:
+        raise ReleaseError('new backup request requires PREPARED state')
+
+    # Recovery must run before fresh admission checks: a low-resource retry
+    # may still need to restart the stopped writer. The core validates the root
+    # request registry and rechecks resources before any fresh snapshot.
+    recovering=os.path.lexists(state_root/'backup-requests'/(request['requestId']+'.json'))
+    if not recovering and state['state']=='PREPARED':
+        _require_backup_key(paths.configuration / "backup.age.pub")
+        _require_success(active_runner.run(("/usr/bin/age", "--version")), "age")
+        free_disk = _last_number(
+            _require_success(active_runner.run(("/usr/bin/df", "--output=avail", "-B1", str(paths.production))), "disk"),
+            "disk",
+        )
+        if free_disk < MIN_FREE_DISK:
+            raise ReleaseError("disk validation failed")
+        available_memory = _available_memory(_require_success(active_runner.run(("/usr/bin/free", "-b")), "memory"))
+        if available_memory < MIN_AVAILABLE_MEMORY:
+            raise ReleaseError("memory validation failed")
 
     # ``backup_program`` is an internal test seam; the privileged entrypoint
     # always resolves the installed root-owned program path above.
     program = _backup_script() if backup_program is None else backup_program
     receipt = _require_success(active_runner.run((program,)), "backup program")
-    backup = _parse_backup_result(receipt, release_id)
+    backup = _parse_backup_result(receipt, release_id, request['requestId'])
     next_details = {**details, **backup}
-    transition(state_root, {"PREPARED"}, "BACKED_UP", next_details)
+    if state['state']=='PREPARED':
+        transition(state_root, {"PREPARED"}, "BACKED_UP", next_details)
+    elif any(details.get(key)!=value for key,value in backup.items()):
+        raise ReleaseError('backup replay receipt changed')
     return {"action": "backup", "ok": True, "state": "BACKED_UP", **backup}

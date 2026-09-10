@@ -99,7 +99,7 @@ class PrepareActionTests(unittest.TestCase):
         self.assertFalse(value['capabilities']['backup']['productionValidated'])
         self.assertTrue(value['capabilities']['backup']['implemented'])
         self.assertFalse(value['capabilities']['backup']['ready'])
-        self.assertEqual(value['capabilities']['backup']['reason'],'canonical-baseline-adapter-unavailable')
+        self.assertEqual(value['capabilities']['backup']['reason'],'backup-request-and-live-baseline-validation-required')
         self.assertEqual(value['baseline']['status'],'unverified')
 
     def test_retry_rejects_changed_candidate_and_recovers_only_exact_orphaned_extraction(self):
