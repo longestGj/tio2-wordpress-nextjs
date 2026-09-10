@@ -16,6 +16,8 @@ type PackageResult = {
   archiveSha256: string
   manifestPath: string
   manifestSha256: string
+  proofPath: string
+  proofSha256: string
 }
 
 const psQuote = (value: string) => `'${value.replaceAll("'", "''")}'`
@@ -60,6 +62,11 @@ function createRepository(options: FixtureOptions = {}): {repository: string; re
   git(repository, ['config', 'core.autocrlf', 'false'])
   git(repository, ['config', 'core.symlinks', 'false'])
   cpSync(contractRoot, join(repository, 'ops', 'production'), {recursive: true})
+  // The production freeze is over LF Git blobs, not a CRLF Windows checkout.
+  for (const name of ['release-package.schema.json', 'release-surface.json', 'migration-manifest.json']) {
+    const file = join(repository, 'ops', 'production', name)
+    writeFileSync(file, readFileSync(file, 'utf8').replaceAll('\r\n', '\n'))
+  }
   const migration = JSON.parse(readFileSync(join(contractRoot, 'migration-manifest.json'), 'utf8')) as {seeds: Array<{path: string}>}
   for (const seed of migration.seeds) {
     const target = join(repository, seed.path)
@@ -125,6 +132,27 @@ afterEach(() => {
 })
 
 describe.runIf(process.platform === 'win32')('deterministic local production package', () => {
+  it('binds prerelease proof to the real package and interoperates with Python prepare', () => {
+    const {repository, receiptPath, commit} = createRepository()
+    const result = invokePackage(repository, join(repository, '.production'), receiptPath)
+    expect(result.status, result.stderr).toBe(0)
+    const packaged = JSON.parse(result.stdout) as PackageResult
+    expect(packaged.proofPath).toBeTruthy()
+    const proof = JSON.parse(readFileSync(packaged.proofPath, 'utf8'))
+    expect(packaged.proofSha256).toBe(sha256(readFileSync(packaged.proofPath)))
+    expect(proof).toMatchObject({
+      schemaVersion: 'tio2-production-proof-v1', contractVersion: 'tio2-production-contracts-v1', commit,
+      archiveSha256: packaged.archiveSha256, manifestSha256: packaged.manifestSha256,
+      source: {branch: 'main', clean: true},
+      prerelease: {state: 'HEALTHY', commit, receiptSha256: sha256(readFileSync(receiptPath))},
+    })
+    const probe = spawnSync('python', [resolve('tests/production/prepare_package_probe.py'), packaged.archivePath, packaged.manifestPath, packaged.proofPath], {encoding: 'utf8', timeout: 30000})
+    expect(probe.status, probe.stderr).toBe(0)
+    const prepared = JSON.parse(probe.stdout)
+    expect(prepared.result).toMatchObject({state: 'PREPARED', candidate: {commit}, active: {kind: 'external', commit: null}})
+    expect(prepared.readOnlyCommands).toHaveLength(3)
+  }, 30000)
+
   it('rejects a feature branch without disclosing ignored secret content', () => {
     const {repository, receiptPath} = createRepository()
     git(repository, ['checkout', '-b', 'feature/package'])
@@ -162,6 +190,7 @@ describe.runIf(process.platform === 'win32')('deterministic local production pac
     ['FAILED state', {state: 'FAILED'}],
     ['failed stage', {failedStage: 'next_build'}],
     ['missing completion', {completedAt: null}],
+    ['invalid completion timestamp', {completedAt: 'not-a-date'}],
   ])('rejects an unhealthy or incomplete prerelease receipt with %s', (_name, override) => {
     const {repository, receiptPath, commit} = createRepository()
     writeFileSync(receiptPath, JSON.stringify(receiptFor(commit, override)))

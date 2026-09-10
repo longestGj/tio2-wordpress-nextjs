@@ -60,7 +60,7 @@ class BackupActionTests(unittest.TestCase):
             ("/usr/bin/df", "--output=avail", "-B1", str(self.paths.production)): CommandResult(0, "Avail\n34359738368\n"),
             ("/usr/bin/free", "-b"): CommandResult(0, "Mem: 8589934592 0 4294967296\n"),
             (script_path,): script or CommandResult(0, json.dumps({
-                "backupId": "20260910T000000Z-" + "a" * 40,
+                "backupId": "20260910T000000Z-" + "a" * 40 + "-" + "1" * 32,
                 "ciphertextSha256": "c" * 64,
                 "manifestSha256": "d" * 64,
             })),

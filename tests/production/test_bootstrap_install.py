@@ -69,6 +69,8 @@ class BootstrapInstallTests(unittest.TestCase):
         """Omitting a release-action module would make the installed sudo command fail to import."""
         self.assertIn("release_actions.py", REQUIRED_FILES)
         self.assertIn("backup.sh", REQUIRED_FILES)
+        self.assertIn("backup_core.py", REQUIRED_FILES)
+        self.assertIn("release_baseline.py", REQUIRED_FILES)
 
     def test_real_staged_self_test_validates_shell_without_compiling_it_as_python(self) -> None:
         archive = self.root / "bootstrap-selftest"

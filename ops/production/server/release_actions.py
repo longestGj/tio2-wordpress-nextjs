@@ -14,17 +14,141 @@ from pathlib import Path
 import re
 import stat
 import subprocess
+import shutil
+import tempfile
 from typing import Protocol
 
 from release_contract import ReleaseError, ReleasePaths
 from release_state import read_state, transition
 
 
+_PREPARE_FILES = {"release.tar.gz": 2*1024**3, "release-manifest.json": 8*1024**2, "release-proof.json": 1024**2}
+_PREPARE_RESERVE = 256*1024**2
+# Snapshot plus extract_release's archive copy plus maximum expanded tree.
+_PREPARE_REQUIRED_FREE = sum(_PREPARE_FILES.values()) + 4*1024**3 + _PREPARE_RESERVE
+_PREPARE_DIRECTORY = re.compile(r"\.prepare-[a-z0-9_]{8}")
+
+
+def _prepare_metadata(path: Path, *, directory: bool, private: bool = True):
+    metadata = path.lstat()
+    valid_type = stat.S_ISDIR(metadata.st_mode) if directory else stat.S_ISREG(metadata.st_mode)
+    if not valid_type or (not directory and metadata.st_nlink != 1):
+        raise ReleaseError("prepare staging type is unsafe")
+    if os.name == "posix" and (metadata.st_uid != 0 or stat.S_IMODE(metadata.st_mode) & (0o077 if private else 0o022)):
+        raise ReleaseError("prepare staging ownership or mode is unsafe")
+    return metadata
+
+
+def _remove_prepare_snapshot(staging: Path) -> None:
+    """Delete only known flat snapshots after checking the entire shape.
+
+    Called with the global lock held inside the fixed protected release root.
+    Empty directories also cover death immediately after mkdtemp. Never recurse,
+    follow links, accept hardlinks, or remove unknown operator-owned content.
+    """
+    if not _PREPARE_DIRECTORY.fullmatch(staging.name):
+        raise ReleaseError("prepare staging name is unsafe")
+    _prepare_metadata(staging, directory=True)
+    files = list(staging.iterdir())
+    for path in files:
+        if path.name not in _PREPARE_FILES:
+            raise ReleaseError("prepare staging contains unknown content")
+        _prepare_metadata(path, directory=False)
+    for path in files:
+        path.unlink()
+    staging.rmdir()
+
+
+def _recover_prepare_snapshots(release_root: Path) -> None:
+    try:
+        _prepare_metadata(release_root.parent, directory=True, private=False)
+        _prepare_metadata(release_root, directory=True, private=False)
+        for path in release_root.iterdir():
+            if _PREPARE_DIRECTORY.fullmatch(path.name):
+                _remove_prepare_snapshot(path)
+    except OSError as error:
+        raise ReleaseError("prepare staging recovery failed") from error
+
+
+def _verify_candidate_tree(destination: Path, manifest: dict[str, object]) -> None:
+    from release_contract import sha256_file
+    actual = {}
+    if destination.is_symlink() or not destination.is_dir():
+        raise ReleaseError("candidate destination is unsafe")
+    for path in destination.rglob("*"):
+        if path.is_symlink():
+            raise ReleaseError("candidate contains a symlink")
+        if path.is_file():
+            actual[path.relative_to(destination).as_posix()] = sha256_file(path)
+    expected = {entry["path"]: entry["sha256"] for entry in manifest["files"]}
+    if actual != expected:
+        raise ReleaseError("candidate bytes do not match prepared package")
+
+
+def prepare_release(paths: ReleasePaths, *, baseline_validator=None, ownership_setter=None) -> dict[str, object]:
+    """Validate fixed inputs, then create only immutable candidate files and state.
+
+    The fixed CLI holds ReleaseLock. Injectable Python boundaries support local
+    fixtures; neither CLI arguments nor environment values select these inputs.
+    """
+    from release_baseline import validate_baseline
+    from release_contract import validate_manifest, inspect_archive, extract_release, validate_prerelease_proof, sha256_file, _open_regular_read
+    release_root = paths.production / "releases"
+    _recover_prepare_snapshots(release_root)
+    baseline = (baseline_validator or validate_baseline)(paths)
+    state_root = paths.production / "state"
+    previous = read_state(state_root)
+    if previous["state"] not in {"IDLE", "PREPARED", "PUBLIC_VERIFIED", "FAILED", "ROLLED_BACK"}:
+        raise ReleaseError("prepare is unavailable in this release state")
+    if shutil.disk_usage(release_root).free < _PREPARE_REQUIRED_FREE:
+        raise ReleaseError("prepare disk reserve is unavailable")
+    staging = Path(tempfile.mkdtemp(prefix=".prepare-", dir=release_root))
+    try:
+        # Snapshot all three upload files before validating. No mutable uploaded
+        # manifest/proof is reread after the immutable root snapshot is created.
+        for name, limit in _PREPARE_FILES.items():
+            with _open_regular_read(paths.incoming / name) as source, (staging / name).open("xb") as target:
+                os.chmod(staging / name, 0o600)
+                copied = 0
+                while block := source.read(1024*1024):
+                    copied += len(block)
+                    if copied > limit:
+                        raise ReleaseError("incoming package exceeds size limit")
+                    if shutil.disk_usage(release_root).free < _PREPARE_RESERVE + len(block):
+                        raise ReleaseError("prepare disk reserve is unavailable")
+                    target.write(block)
+        manifest = validate_manifest(staging / "release-manifest.json", staging / "release.tar.gz")
+        inspect_archive(staging / "release.tar.gz", manifest)
+        proof = validate_prerelease_proof(staging / "release-proof.json", staging / "release-manifest.json", manifest)
+        candidate = {"commit": manifest["commit"], "archiveSha256": manifest["archiveSha256"], "manifestSha256": sha256_file(staging / "release-manifest.json"), "proofSha256": sha256_file(staging / "release-proof.json"), "contractVersion": proof["contractVersion"]}
+        result = {"action": "prepare", "ok": True, "state": "PREPARED", "candidate": candidate, "active": baseline["active"]}
+        destination = paths.production / "releases" / candidate["commit"]
+        if previous["state"] == "PREPARED":
+            details = previous.get("details", {})
+            if details.get("candidate") != candidate or details.get("active") != baseline["active"] or details.get("configurationFingerprint") != baseline["configurationFingerprint"]:
+                raise ReleaseError("prepared identity or baseline changed")
+            _verify_candidate_tree(destination, manifest)
+            return result
+        if destination.exists() or destination.is_symlink():
+            # Recover an extraction completed before an interrupted state write.
+            _verify_candidate_tree(destination, manifest)
+        else:
+            options = {} if ownership_setter is None else {"ownership_setter": ownership_setter}
+            extract_release(staging / "release.tar.gz", manifest, paths, **options)
+        details = {"commit": candidate["commit"], "archiveSha256": candidate["archiveSha256"], "candidate": candidate, "active": baseline["active"], "runtime": baseline["runtime"], "configurationFingerprint": baseline["configurationFingerprint"], "preparedManifest": manifest, "prereleaseProof": proof}
+        transition(state_root, {str(previous["state"])}, "PREPARED", details)
+        return result
+    except OSError as error:
+        raise ReleaseError("prepare filesystem validation failed") from error
+    finally:
+        _remove_prepare_snapshot(staging)
+
+
 GIB = 1024 * 1024 * 1024
 MIN_FREE_DISK = 8 * GIB
 MIN_AVAILABLE_MEMORY = 2 * GIB
 _SHA256 = re.compile(r"^[a-f0-9]{64}$")
-_BACKUP_ID = re.compile(r"^[0-9]{8}T[0-9]{6}Z-([a-f0-9]{40})$")
+_BACKUP_ID = re.compile(r"^[0-9]{8}T[0-9]{6}Z-([a-f0-9]{40})-[a-f0-9]{32}$")
 _AGE_PUBLIC_KEY = re.compile(r"^age1[ac-hj-np-z02-9]{20,}$")
 
 

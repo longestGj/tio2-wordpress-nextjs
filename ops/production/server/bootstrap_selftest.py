@@ -6,7 +6,7 @@ import py_compile
 import subprocess
 
 ROOT = Path(__file__).resolve().parent
-for name in ("bootstrap_install.py", "release_contract.py", "release_state.py", "release_actions.py", "tio2_release.py"):
+for name in ("bootstrap_install.py", "release_contract.py", "release_state.py", "release_actions.py", "release_baseline.py", "backup_core.py", "tio2_release.py"):
     py_compile.compile(str(ROOT / name), doraise=True)
 shell = "/bin/bash" if os.name == "posix" else r"C:\Program Files\Git\bin\bash.exe"
 subprocess.run([shell, "-n", str(ROOT / "backup.sh")], check=True)

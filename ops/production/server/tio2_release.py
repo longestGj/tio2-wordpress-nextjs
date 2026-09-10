@@ -9,7 +9,7 @@ from typing import Sequence
 
 from release_contract import DEFAULT_PATHS, ReleaseError, ReleasePaths, parse_action
 from release_state import ReleaseLock, read_state, redact, write_audit_receipt
-from release_actions import backup_release
+from release_actions import backup_release, prepare_release
 
 
 SAFE_PATH = "/usr/sbin:/usr/bin:/sbin:/bin"
@@ -23,7 +23,12 @@ def clear_environment() -> None:
 def run_action(action: str, paths: ReleasePaths = DEFAULT_PATHS) -> dict[str, object]:
     """Dispatch only closed, root-owned release actions."""
     if action == "status":
-        return {"action": action, "ok": True, "state": read_state(paths.production / "state")}
+        return {"action": action, "ok": True, "state": read_state(paths.production / "state"),
+                "capabilities": {name: {"implemented": name in {"status", "prepare", "backup"}, "ready": name == "status", "reason": "available" if name == "status" else "live-baseline-validation-required" if name == "prepare" else "canonical-baseline-adapter-unavailable" if name == "backup" else "action-unavailable", "productionValidated": False} for name in ("status", "prepare", "backup", "deploy", "verify", "rollback")},
+                "baseline": {"registered": (paths.configuration / "baseline.json").is_file(), "status": "unverified"},
+                "readiness": "candidate-tooling; live baseline validation is required by prepare"}
+    if action == "prepare":
+        return prepare_release(paths)
     if action == "backup":
         return backup_release(paths)
     raise ReleaseError("release action is unavailable")

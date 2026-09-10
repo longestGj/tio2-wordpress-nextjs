@@ -8,6 +8,7 @@ let the fixed action implementations share one verified configuration.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 import hashlib
 import json
 import os
@@ -50,6 +51,43 @@ _MANIFEST_KEYS = frozenset({
 })
 _FILE_KEYS = frozenset({"path", "sha256"})
 
+# Installed program policy, never loaded from an upload. A changed tuple requires
+# a new version and an administrator program upgrade, not an in-place relaxation.
+FROZEN_CONTRACTS = {
+    "tio2-production-contracts-v1": {
+        "ops/production/release-package.schema.json": "ad8dbea67cb5c7c4a8503e830b32a061ee46859c3992e0570cc42d4d38362346",
+        "ops/production/release-surface.json": "42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152",
+        "ops/production/migration-manifest.json": "230197ea63467b5557e7d1bdb960503b3c636f15eb7564894d124c9a7f1d7b7a",
+    },
+}
+
+
+def validate_prerelease_proof(proof_path: Path, manifest_path: Path, manifest: Mapping[str, object]) -> dict[str, object]:
+    """Bind trusted-publisher evidence to exact package bytes; not a signature."""
+    try:
+        with _open_regular_read(proof_path) as source:
+            proof = json.load(source)
+        if not isinstance(proof, dict) or set(proof) != {"schemaVersion", "contractVersion", "siteId", "commit", "archiveSha256", "manifestSha256", "source", "prerelease"}:
+            raise ValueError
+        if proof["schemaVersion"] != "tio2-production-proof-v1" or proof["siteId"] != "tio2-my" or proof["commit"] != manifest["commit"] or proof["archiveSha256"] != manifest["archiveSha256"] or proof["manifestSha256"] != sha256_file(manifest_path):
+            raise ValueError
+        if proof["source"] != {"branch": "main", "clean": True} or type(proof["source"]["clean"]) is not bool:
+            raise ValueError
+        receipt = proof["prerelease"]
+        if not isinstance(receipt, dict) or set(receipt) != {"state", "siteId", "commit", "completedAt", "buildId", "cmsIdentitySha256", "receiptSha256"}:
+            raise ValueError
+        if receipt["state"] != "HEALTHY" or receipt["siteId"] != "tio2-my" or receipt["commit"] != manifest["commit"] or not isinstance(receipt["buildId"], str) or not receipt["buildId"].strip() or len(receipt["buildId"]) > 256:
+            raise ValueError
+        if not _SHA256.fullmatch(receipt["cmsIdentitySha256"]) or not _SHA256.fullmatch(receipt["receiptSha256"]) or datetime.fromisoformat(receipt["completedAt"].replace("Z", "+00:00")).tzinfo is None:
+            raise ValueError
+        contracts = FROZEN_CONTRACTS[proof["contractVersion"]]
+        hashes = {entry["path"]: entry["sha256"] for entry in manifest["files"]}
+        if any(hashes.get(name) != digest for name, digest in contracts.items()):
+            raise ValueError
+        return proof
+    except (OSError, ValueError, TypeError, KeyError, AttributeError) as error:
+        raise ReleaseError("prerelease proof or installed contract version mismatch") from error
+
 
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
@@ -70,11 +108,14 @@ def _open_regular_read(path: Path):
         no_follow = getattr(os, "O_NOFOLLOW", None)
         if no_follow is None:
             raise ReleaseError("safe archive opening requires O_NOFOLLOW")
-        flags |= no_follow
+        flags |= no_follow | os.O_NONBLOCK
+    descriptor = None
     try:
         descriptor = os.open(path, flags)
         metadata = os.fstat(descriptor)
     except OSError as error:
+        if descriptor is not None:
+            os.close(descriptor)
         raise ReleaseError("release archive is unavailable") from error
     if not stat.S_ISREG(metadata.st_mode):
         os.close(descriptor)

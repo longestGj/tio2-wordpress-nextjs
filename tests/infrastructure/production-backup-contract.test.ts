@@ -1,26 +1,22 @@
-import {existsSync, readFileSync} from 'node:fs'
+import {spawnSync} from 'node:child_process'
+import {resolve} from 'node:path'
 import {describe, expect, it} from 'vitest'
 
-const scriptPath = 'ops/production/server/backup.sh'
-const actionPath = 'ops/production/server/release_actions.py'
+describe('tio2-my installed production backup contract', () => {
+  it('executes capture, restore, recovery and ciphertext-only publication through fake tools', () => {
+    const result = spawnSync('python', ['-m', 'unittest',
+      'tests.production.test_backup_core.BackupCoreTests.test_publication_follows_recovery_receipt_and_verification_and_exports_only_ciphertext',
+    ], {encoding: 'utf8', timeout: 60000})
+    expect(result.status, result.stderr).toBe(0)
+  }, 65000)
 
-describe('tio2-my production backup contract', () => {
-  it('ships a closed backup program with validation before encryption and plaintext-free export', () => {
-    expect(existsSync(scriptPath)).toBe(true)
-    expect(existsSync(actionPath)).toBe(true)
-    const script = readFileSync(scriptPath, 'utf8')
-
-    expect(script).toContain('set -euo pipefail')
-    expect(script).toContain('umask 077')
-    expect(script).toContain('mariadb-dump --defaults-extra-file=/run/secrets/mariadb-backup.cnf --single-transaction')
-    expect(script).toContain('gzip -t')
-    expect(script).toContain('"$NGINX" -t')
-    expect(script).toContain('age -R')
-    expect(script).toContain('/home/deploy/tio2-outgoing')
-    expect(script).toContain('keep_newest_three')
-    expect(script).toContain('restart_wordpress')
-    expect(script.indexOf('wordpress_container="$(compose ps -q wordpress)"')).toBeLessThan(
-      script.indexOf('compose stop wordpress'),
-    )
+  it('rejects caller-selected arguments in both installed entrypoints', () => {
+    const bash = process.platform === 'win32' ? 'C:/Program Files/Git/bin/bash.exe' : '/bin/bash'
+    const shell = spawnSync(bash, [resolve('ops/production/server/backup.sh'), '--root', '/tmp/untrusted'], {encoding: 'utf8'})
+    expect(shell.status, shell.stderr).toBe(1)
+    expect(shell.stdout).toBe('')
+    const core = spawnSync('python', [resolve('ops/production/server/backup_core.py'), '--root', '/tmp/untrusted'], {encoding: 'utf8'})
+    expect(core.status, core.stderr).toBe(1)
+    expect(core.stdout).toBe('')
   })
 })

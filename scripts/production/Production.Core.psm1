@@ -1,5 +1,8 @@
 Set-StrictMode -Version Latest
 
+# This version names an immutable reviewed hash tuple, mirrored by the installed
+# Python policy. Contract edits require a new version and administrator upgrade.
+$script:FrozenContractVersion = 'tio2-production-contracts-v1'
 $script:FrozenContractSha256 = [ordered]@{
     'ops/production/release-package.schema.json' = 'ad8dbea67cb5c7c4a8503e830b32a061ee46859c3992e0570cc42d4d38362346'
     'ops/production/release-surface.json' = '42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152'
@@ -89,15 +92,26 @@ function Assert-ProductionCandidate {
     if ($GitIdentity.branch -ne 'main' -or @($GitIdentity.entries).Count -ne 0) { throw 'Production packaging requires a clean main worktree.' }
     if ($GitIdentity.commit -notmatch '^[a-f0-9]{40}$') { throw 'Production packaging requires a valid Git commit.' }
     $receiptPath = Assert-ProductionReceiptPath -RepositoryRoot $RepositoryRoot -PrereleaseReceiptPath $PrereleaseReceiptPath
-    try { $receipt = Get-Content -LiteralPath $receiptPath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop }
+    try {
+        $receiptBytes = [System.IO.File]::ReadAllBytes($receiptPath)
+        $receipt = [System.Text.Encoding]::UTF8.GetString($receiptBytes) | ConvertFrom-Json -ErrorAction Stop
+    }
     catch { throw 'Prerelease receipt is not valid JSON.' }
     if ($receipt.state -ne 'HEALTHY' -or -not [string]::IsNullOrWhiteSpace([string] $receipt.failedStage) -or [string]::IsNullOrWhiteSpace([string] $receipt.completedAt)) {
+        throw 'Prerelease receipt is not a completed healthy run.'
+    }
+    $completionText = if ($receipt.completedAt -is [DateTime]) { $receipt.completedAt.ToUniversalTime().ToString('o') } else { [string] $receipt.completedAt }
+    $completion = [DateTimeOffset]::MinValue
+    if ($completionText -notmatch '(Z|[+-][0-9]{2}:[0-9]{2})$' -or -not [DateTimeOffset]::TryParse($completionText, [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::RoundtripKind, [ref] $completion)) {
         throw 'Prerelease receipt is not a completed healthy run.'
     }
     if ($receipt.commit -ne $GitIdentity.commit -or $receipt.siteId -ne 'tio2-my' -or [string]::IsNullOrWhiteSpace([string] $receipt.buildId) -or [string]::IsNullOrWhiteSpace([string] $receipt.cmsIdentitySha256) -or [string] $receipt.cmsIdentitySha256 -notmatch '^[a-fA-F0-9]{64}$') {
         throw 'Prerelease receipt does not contain complete matching commit, site, Build, and CMS identity fields.'
     }
-    return [pscustomobject][ordered]@{ git = $GitIdentity; receiptPath = $receiptPath; receipt = $receipt }
+    $algorithm = [System.Security.Cryptography.SHA256]::Create()
+    try { $receiptSha256 = ([System.BitConverter]::ToString($algorithm.ComputeHash($receiptBytes)) -replace '-', '').ToLowerInvariant() }
+    finally { $algorithm.Dispose() }
+    return [pscustomobject][ordered]@{ git = $GitIdentity; receiptPath = $receiptPath; receipt = $receipt; receiptSha256 = $receiptSha256 }
 }
 
 function New-ProductionUtf8File {
@@ -284,7 +298,7 @@ function New-ProductionPackage {
 
     $repository = (Resolve-Path -LiteralPath $RepositoryRoot -ErrorAction Stop).Path
     $identity = Get-ProductionGitIdentity -RepositoryRoot $repository
-    $null = Assert-ProductionCandidate -GitIdentity $identity -RepositoryRoot $repository -PrereleaseReceiptPath $PrereleaseReceiptPath
+    $candidateEvidence = Assert-ProductionCandidate -GitIdentity $identity -RepositoryRoot $repository -PrereleaseReceiptPath $PrereleaseReceiptPath
     $output = [System.IO.Path]::GetFullPath($OutputRoot)
     $requiredOutput = [System.IO.Path]::GetFullPath((Join-Path $repository '.production'))
     if (-not $output.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar).Equals($requiredOutput.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar), [System.StringComparison]::OrdinalIgnoreCase)) {
@@ -336,11 +350,31 @@ function New-ProductionPackage {
     }
     New-ProductionUtf8File -Path $manifestPath -Content ($manifest | ConvertTo-Json -Depth 20 -Compress)
     $manifestSha256 = Get-ProductionSha256 -Path $manifestPath
+    # A fixed third upload artifact binds the locally checked evidence to this
+    # exact package. This is consistency evidence, not independent authorization.
+    $proofPath = Join-Path $runRoot 'release-proof.json'
+    $completedAt = if ($candidateEvidence.receipt.completedAt -is [DateTime]) { $candidateEvidence.receipt.completedAt.ToUniversalTime().ToString('o') } else { [string] $candidateEvidence.receipt.completedAt }
+    $proof = [ordered]@{
+        schemaVersion = 'tio2-production-proof-v1'
+        contractVersion = $script:FrozenContractVersion
+        siteId = 'tio2-my'; commit = $identity.commit
+        archiveSha256 = $archiveSha256; manifestSha256 = $manifestSha256
+        source = [ordered]@{ branch = 'main'; clean = $true }
+        prerelease = [ordered]@{
+            state = 'HEALTHY'; siteId = 'tio2-my'; commit = $identity.commit
+            completedAt = $completedAt; buildId = [string] $candidateEvidence.receipt.buildId
+            cmsIdentitySha256 = ([string] $candidateEvidence.receipt.cmsIdentitySha256).ToLowerInvariant()
+            receiptSha256 = $candidateEvidence.receiptSha256
+        }
+    }
+    New-ProductionUtf8File -Path $proofPath -Content ($proof | ConvertTo-Json -Depth 20 -Compress)
+    $proofSha256 = Get-ProductionSha256 -Path $proofPath
 
     [pscustomobject][ordered]@{
         releaseId = $releaseId; commit = $identity.commit
         archivePath = $archivePath; archiveSha256 = $archiveSha256
         manifestPath = $manifestPath; manifestSha256 = $manifestSha256
+        proofPath = $proofPath; proofSha256 = $proofSha256
     }
 }
 
