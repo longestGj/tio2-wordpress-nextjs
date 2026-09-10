@@ -44,7 +44,7 @@ function Read-Containers {
         if ($Labels.'com.docker.compose.project' -ne 'wordpress' -or
             $Files.Count -ne 1 -or -not (Same-Path $Files[0] $ComposeFile) -or
             (-not (Same-Path $WorkingDirectory (Split-Path -Parent $ComposeFile)) -and -not (Same-Path $WorkingDirectory $RepositoryRoot))) {
-            throw 'Development WordPress owner identity mismatch; no containers were stopped.'
+            throw 'Development WordPress owner identity mismatch.'
         }
         $Container
     }
@@ -118,6 +118,23 @@ try {
             $Containers = @(Read-Containers)
             Assert-RecordedContainers $Record $Containers
             $null = Invoke-Docker ($ComposeArguments + @('stop', 'wordpress', 'db'))
+            try {
+                $StoppedContainers = @(Read-Containers)
+                Assert-RecordedContainers $Record $StoppedContainers
+                foreach ($Before in $Containers) {
+                    $After = @($StoppedContainers | Where-Object { $_.Id -eq $Before.Id })[0]
+                    foreach ($Label in @('com.docker.compose.project', 'com.docker.compose.project.working_dir', 'com.docker.compose.project.config_files', 'com.docker.compose.service')) {
+                        if ($Before.Config.Labels.$Label -cne $After.Config.Labels.$Label) {
+                            throw "Container $($Before.Id) owner labels changed."
+                        }
+                    }
+                    if ($Before.Config.Labels.'com.docker.compose.service' -in @('wordpress', 'db') -and $After.State.Running -ne $false) {
+                        throw "Container $($Before.Id) is still running."
+                    }
+                }
+            } catch {
+                throw "Development WordPress verification failed after stop: $($_.Exception.Message) Ownership record was preserved."
+            }
             Write-Result ([ordered]@{project='wordpress';state='stopped';volumes='persistent'})
         }
     }

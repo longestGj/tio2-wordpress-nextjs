@@ -6,7 +6,7 @@ import {afterEach, describe, expect, it} from 'vitest'
 
 const controller = resolve('scripts/local-wordpress.ps1')
 const directories: string[] = []
-function setup(options: {mismatch?: boolean; empty?: boolean; changedIds?: boolean; race?: boolean} = {}) {
+function setup(options: {mismatch?: boolean; empty?: boolean; changedIds?: boolean; race?: boolean; afterStop?: 'still-running' | 'changed-id' | 'changed-label' | 'changed-service'} = {}) {
   const root = mkdtempSync(join(tmpdir(), 'd16-cms-'))
   directories.push(root)
   mkdirSync(join(root, 'wordpress'))
@@ -25,16 +25,19 @@ const fixture = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixture.json'))
 const args = process.argv.slice(2);
 const previous = fs.existsSync(fixture.logPath) ? fs.readFileSync(fixture.logPath, 'utf8').trim().split('\\n').map(JSON.parse) : [];
 fs.appendFileSync(fixture.logPath, JSON.stringify(args) + '\\n');
+const stopped = previous.some(call => call[0] === 'compose' && call.includes('stop'));
+const changedIds = fixture.changedIds || (stopped && fixture.afterStop === 'changed-id');
 if (args[0] === 'ps') {
-  if (!fixture.empty || previous.some(call => call.includes('up'))) console.log(fixture.changedIds ? 'replacement-id' : 'wordpress-id');
+  if (!fixture.empty || previous.some(call => call.includes('up'))) console.log(changedIds ? 'replacement-id' : 'wordpress-id');
 } else if (args[0] === 'inspect') {
   const mismatch = fixture.mismatch || (fixture.race && previous.filter(call => call[0] === 'inspect').length > 0);
-  console.log(JSON.stringify({Id: fixture.changedIds ? 'replacement-id' : 'wordpress-id', Config: {Labels: {
+  const workingDir = stopped && fixture.afterStop === 'changed-label' ? fixture.root : path.join(fixture.root, 'wordpress');
+  console.log(JSON.stringify({Id: changedIds ? 'replacement-id' : 'wordpress-id', Config: {Labels: {
     'com.docker.compose.project': 'wordpress',
-    'com.docker.compose.project.working_dir': mismatch ? path.join(fixture.root, 'other') : path.join(fixture.root, 'wordpress'),
+    'com.docker.compose.project.working_dir': mismatch ? path.join(fixture.root, 'other') : workingDir,
     'com.docker.compose.project.config_files': path.join(fixture.root, 'wordpress/docker-compose.yml'),
-    'com.docker.compose.service': 'wordpress'
-  }}, State: {Running: true}, NetworkSettings: {Ports: {'80/tcp': [{HostIp: '127.0.0.1', HostPort: '8080'}]}}}));
+    'com.docker.compose.service': stopped && fixture.afterStop === 'changed-service' ? 'wpcli' : 'wordpress'
+  }}, State: {Running: !stopped || fixture.afterStop === 'still-running'}, NetworkSettings: {Ports: {'80/tcp': [{HostIp: '127.0.0.1', HostPort: '8080'}]}}}));
 } else if (args[0] !== 'compose') process.exit(9);
 `)
   function calls(): string[][] {
@@ -74,6 +77,23 @@ describe.runIf(process.platform === 'win32')('canonical development WordPress co
     expect(test.invoke('Stop').status).not.toBe(0)
     expect(test.invoke('Stop').stderr).toContain('ownership record')
     expect(test.calls().some(call => call[0] === 'compose')).toBe(false)
+  })
+
+  it.each(['still-running', 'changed-id', 'changed-label', 'changed-service'] as const)('refuses stopped success after Docker accepts Stop but the target is %s', afterStop => {
+    const test = setup({afterStop})
+    test.record()
+    const recordPath = join(test.root, '.runtime/development-wordpress.json')
+    const originalRecord = readFileSync(recordPath, 'utf8')
+    const result = test.invoke('Stop')
+    expect(result.status, result.stdout).not.toBe(0)
+    expect(result.stderr).toContain('after stop')
+    expect(result.stdout).not.toContain('"state":"stopped"')
+    expect(readFileSync(recordPath, 'utf8')).toBe(originalRecord)
+    const calls = test.calls()
+    const stopIndex = calls.findIndex(call => call[0] === 'compose' && call.includes('stop'))
+    expect(stopIndex).toBeGreaterThan(0)
+    expect(calls.slice(stopIndex + 1).some(call => call[0] === 'inspect')).toBe(true)
+    expect(calls.filter(call => call[0] === 'compose')).toHaveLength(1)
   })
 
   it('reports canonical ownership even when Plan is invoked from a linked worktree', () => {
