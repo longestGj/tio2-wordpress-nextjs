@@ -7,8 +7,10 @@ import json
 import os
 from pathlib import Path
 import secrets
+import stat
 import tempfile
 from typing import Any, Callable, Mapping
+import re
 
 from release_contract import ReleaseError, assert_root_owned
 
@@ -122,16 +124,38 @@ def atomic_write_json(
         raise
 
 
-def _check_stat(stat_result: os.stat_result | None) -> None:
+def _check_stat(path: Path, stat_result: os.stat_result | None, stat_reader: Callable[[Path], os.stat_result] | None) -> None:
     if stat_result is not None:
         assert_root_owned(stat_result)
+        return
+    if stat_reader is None and os.name != "posix":
+        return
+    reader = stat_reader or os.lstat
+    try:
+        metadata = reader(path)
+    except OSError as error:
+        raise ReleaseError("release state path is unavailable") from error
+    if stat.S_ISLNK(metadata.st_mode):
+        raise ReleaseError("release state path must not be a symlink")
+    assert_root_owned(metadata)
 
 
-def read_state(state_root: Path, *, stat_result: os.stat_result | None = None) -> dict[str, object]:
-    _check_stat(stat_result)
+def read_state(
+    state_root: Path,
+    *,
+    stat_result: os.stat_result | None = None,
+    stat_reader: Callable[[Path], os.stat_result] | None = None,
+) -> dict[str, object]:
+    _check_stat(state_root, stat_result, stat_reader)
     state_path = state_root / "state.json"
+    try:
+        if state_path.is_symlink():
+            raise ReleaseError("release state path must not be a symlink")
+    except OSError as error:
+        raise ReleaseError("release state path is unavailable") from error
     if not state_path.exists():
         return {"state": "IDLE"}
+    _check_stat(state_path, None, stat_reader)
     try:
         value = json.loads(state_path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
@@ -152,6 +176,10 @@ def transition(
         raise ReleaseError("unexpected release state")
     if next_state not in TRANSITIONS.get(current, set()):
         raise ReleaseError("illegal state transition")
+    commit = details.get("commit")
+    archive_hash = details.get("archiveSha256")
+    if not isinstance(commit, str) or not re.fullmatch(r"[a-f0-9]{40}", commit) or not isinstance(archive_hash, str) or not re.fullmatch(r"[a-f0-9]{64}", archive_hash):
+        raise ReleaseError("release identity requires commit and archive hash")
     value: dict[str, object] = {
         "state": next_state,
         "updatedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
@@ -180,8 +208,11 @@ def write_audit_receipt(
     result: Mapping[str, object],
     *,
     stat_result: os.stat_result | None = None,
+    stat_reader: Callable[[Path], os.stat_result] | None = None,
+    actor: str = "root",
+    failure_stage: str | None = None,
 ) -> Path:
-    _check_stat(stat_result)
+    _check_stat(state_root, stat_result, stat_reader)
     if action not in {"status", "prepare", "backup", "deploy", "verify", "rollback"}:
         raise ReleaseError("fixed action is required")
     audit_root = state_root / "audit"
@@ -189,7 +220,9 @@ def write_audit_receipt(
     receipt = audit_root / name
     atomic_write_json(receipt, {
         "action": action,
+        "actor": actor,
         "createdAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "failureStage": failure_stage or "completed",
         "result": redact(dict(result)),
     })
     return receipt

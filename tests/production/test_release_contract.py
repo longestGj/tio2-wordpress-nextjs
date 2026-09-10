@@ -10,6 +10,7 @@ import tarfile
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 SERVER_ROOT = Path(__file__).resolve().parents[2] / "ops" / "production" / "server"
@@ -36,14 +37,15 @@ def digest(data: bytes) -> str:
 
 
 def manifest_for(archive: Path, files: list[tuple[str, bytes]]) -> dict[str, object]:
+    hashes = {name: digest(data) for name, data in files}
     return {
         "schemaVersion": "tio2-production-release-v1",
         "siteId": "tio2-my",
         "commit": COMMIT,
         "archiveSha256": digest(archive.read_bytes()),
-        "files": [{"path": name, "sha256": digest(data)} for name, data in files],
-        "migrationManifestSha256": "b" * 64,
-        "releaseSurfaceSha256": "c" * 64,
+        "files": [{"path": name, "sha256": hashes[name]} for name, data in files],
+        "migrationManifestSha256": hashes.get("ops/production/migration-manifest.json", "b" * 64),
+        "releaseSurfaceSha256": hashes.get("ops/production/release-surface.json", "c" * 64),
     }
 
 
@@ -64,6 +66,13 @@ def make_archive(path: Path, members: list[tuple[str, str, bytes]]) -> None:
             elif kind == "device":
                 entry.type = tarfile.CHRTYPE
                 archive.addfile(entry)
+            elif kind == "foreign-owner":
+                entry.uid = 1000
+                entry.gid = 1000
+                entry.uname = "deploy"
+                entry.gname = "deploy"
+                entry.size = len(data)
+                archive.addfile(entry, io.BytesIO(data))
             else:
                 raise ValueError(kind)
 
@@ -73,15 +82,19 @@ class ReleaseContractTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
         self.archive = self.root / "release.tar.gz"
-        self.files = [("app/index.txt", b"approved bytes")]
-        make_archive(self.archive, [("app", "directory", b""), ("app/index.txt", "file", b"approved bytes")])
+        self.files = [
+            ("app/index.txt", b"approved bytes"),
+            ("ops/production/migration-manifest.json", b"migration"),
+            ("ops/production/release-surface.json", b"surface"),
+        ]
+        make_archive(self.archive, [(name, "file", data) for name, data in self.files])
         self.manifest = manifest_for(self.archive, self.files)
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
 
     def test_accepts_exact_ordered_regular_file_manifest(self) -> None:
-        self.assertEqual(inspect_archive(self.archive, self.manifest), ["app/index.txt"])
+        self.assertEqual(inspect_archive(self.archive, self.manifest), [name for name, _ in self.files])
 
     def test_rejects_absolute_archive_member(self) -> None:
         make_archive(self.archive, [("/etc/passwd", "file", b"x")])
@@ -94,11 +107,23 @@ class ReleaseContractTests(unittest.TestCase):
             inspect_archive(self.archive, manifest_for(self.archive, [("app/../escape", b"x")]))
 
     def test_rejects_symlink_and_device_members(self) -> None:
-        for kind in ("symlink", "device"):
+        for kind in ("symlink", "device", "foreign-owner"):
             with self.subTest(kind=kind):
-                make_archive(self.archive, [("entry", kind, b"")])
+                make_archive(self.archive, [("entry", kind, b"x")])
                 with self.assertRaisesRegex(ReleaseError, "unsafe archive member"):
                     inspect_archive(self.archive, manifest_for(self.archive, [("entry", b"x")]))
+
+    def test_rejects_contract_hashes_that_do_not_describe_archived_contract_files(self) -> None:
+        files = [
+            ("ops/production/migration-manifest.json", b"migration"),
+            ("ops/production/release-surface.json", b"surface"),
+        ]
+        make_archive(self.archive, [(name, "file", data) for name, data in files])
+        candidate = manifest_for(self.archive, files)
+        candidate["migrationManifestSha256"] = "d" * 64
+        candidate["releaseSurfaceSha256"] = "e" * 64
+        with self.assertRaisesRegex(ReleaseError, "contract hash"):
+            inspect_archive(self.archive, candidate)
 
     def test_rejects_undeclared_and_duplicate_members(self) -> None:
         make_archive(self.archive, [("app/a", "file", b"a"), ("app/b", "file", b"b")])
@@ -116,6 +141,10 @@ class ReleaseContractTests(unittest.TestCase):
             inspect_archive(self.archive, manifest, max_expanded_bytes=1)
         self.assertGreater(MAX_MEMBERS, 1)
         self.assertGreater(MAX_EXPANDED_BYTES, 1)
+
+    def test_stops_before_materializing_member_list(self) -> None:
+        with patch.object(tarfile.TarFile, "getmembers", side_effect=AssertionError("must stream headers")):
+            self.assertEqual(inspect_archive(self.archive, self.manifest), [name for name, _ in self.files])
 
     def test_validate_manifest_rejects_invalid_identity_and_archive_hash(self) -> None:
         manifest_path = self.root / "release-manifest.json"

@@ -158,19 +158,20 @@ def inspect_archive(
     except (OSError, tarfile.TarError) as error:
         raise ReleaseError("invalid release archive") from error
     with source, archive:
-        members = archive.getmembers()
-        if not members:
-            raise ReleaseError("archive members are empty")
-        if len(members) > max_members:
-            raise ReleaseError("too many archive members")
         seen: set[str] = set()
         file_members: list[tarfile.TarInfo] = []
         expanded = 0
-        for member in members:
+        count = 0
+        for member in archive:
+            count += 1
+            if count > max_members:
+                raise ReleaseError("too many archive members")
             name = _validate_member_name(member.name)
             if name in seen:
                 raise ReleaseError("duplicate archive member")
             seen.add(name)
+            if member.uid != 0 or member.gid != 0 or member.uname or member.gname:
+                raise ReleaseError("unsafe archive member")
             if member.isdir():
                 continue
             if not member.isreg():
@@ -179,6 +180,8 @@ def inspect_archive(
             if expanded > max_expanded_bytes:
                 raise ReleaseError("archive expanded size exceeds limit")
             file_members.append(member)
+        if not count:
+            raise ReleaseError("archive members are empty")
         actual = [member.name.rstrip("/") for member in file_members]
         if actual != expected:
             raise ReleaseError("archive members do not match manifest")
@@ -192,6 +195,12 @@ def inspect_archive(
                     digest.update(block)
             if digest.hexdigest() != entry["sha256"]:
                 raise ReleaseError("archive member hash does not match manifest")
+        hashes = {str(entry["path"]): str(entry["sha256"]) for entry in checked["files"] if isinstance(entry, dict)}
+        if (
+            hashes.get("ops/production/migration-manifest.json") != checked["migrationManifestSha256"]
+            or hashes.get("ops/production/release-surface.json") != checked["releaseSurfaceSha256"]
+        ):
+            raise ReleaseError("contract hash does not match archived contract")
     return actual
 
 

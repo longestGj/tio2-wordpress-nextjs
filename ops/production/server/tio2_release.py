@@ -33,6 +33,7 @@ def _emit(value: dict[str, object]) -> None:
 def main(argv: Sequence[str] | None = None) -> int:
     clear_environment()
     arguments = list(sys.argv[1:] if argv is None else argv)
+    action: str | None = None
     try:
         action = parse_action(arguments)
         lock_path = DEFAULT_PATHS.production / "state" / "release.lock"
@@ -42,9 +43,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         _emit(result)
         return 0
     except ReleaseError:
+        if action is not None:
+            try:
+                write_audit_receipt(DEFAULT_PATHS.production / "state", action, {"ok": False, "error": "release error"}, failure_stage="dispatch")
+            except Exception:
+                pass
         _emit({"ok": False, "error": "release error"})
         return 2
     except Exception:
+        if action is not None:
+            try:
+                write_audit_receipt(DEFAULT_PATHS.production / "state", action, {"ok": False, "error": "internal release error"}, failure_stage="dispatch")
+            except Exception:
+                pass
         _emit({"ok": False, "error": "internal release error"})
         return 3
 
