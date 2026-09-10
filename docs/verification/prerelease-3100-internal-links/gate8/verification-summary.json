@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "prerelease-3100-gate8-verification-v1",
+  "capturedAt": "2026-09-10T12:55:10.452Z",
+  "dispatchId": "PRERELEASE-3100-IL-G8-REPAIR-20260910-01",
+  "reviewId": "PRERELEASE-3100-IL-RR-20260910-01",
+  "results": {
+    "targetedVitest": {
+      "files": 19,
+      "tests": 155,
+      "status": "PASSED"
+    },
+    "typecheck": "PASSED",
+    "changedEslint": "PASSED",
+    "internalLinkPlaywright": {
+      "browser": "chromium",
+      "tests": 3,
+      "status": "PASSED",
+      "affectedPages": 29,
+      "queryAwareTargets": 47,
+      "consumers": 58
+    },
+    "contactPlaywright": {
+      "browsers": [
+        "chromium",
+        "firefox"
+      ],
+      "tests": 10,
+      "status": "PASSED"
+    },
+    "visualInspection": {
+      "desktop1440": "PASSED",
+      "mobile390": "PASSED"
+    },
+    "fullRepositoryVitest": {
+      "filesPassed": 361,
+      "filesFailed": 9,
+      "testsPassed": 3087,
+      "testsFailed": 25,
+      "testsSkipped": 52,
+      "status": "FAILED_PREEXISTING_ENVIRONMENT_AND_SITE_A_SCOPE",
+      "notes": [
+        "Most failures require wordpress/.env absent from this isolated worktree.",
+        "Three five-core editorial assertions and one timeout are outside this repair scope."
+      ]
+    }
+  },
+  "claims": {
+    "gate8SelfCheck": "READY_FOR_INDEPENDENT_RECHECK",
+    "gate9": "NOT_CLAIMED",
+    "release": "NOT_AUTHORIZED"
+  }
+}

@@ -1,0 +1,19 @@
+
+Running 10 tests using 1 worker
+
+(node:52404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\contact.spec.ts:15:3 › CONTACT-001 1440px scoped runtime and visual contract (1.7s)
+  ok  2 [chromium] › tests\e2e\contact.spec.ts:15:3 › CONTACT-001 768px scoped runtime and visual contract (1.6s)
+  ok  3 [chromium] › tests\e2e\contact.spec.ts:15:3 › CONTACT-001 390px scoped runtime and visual contract (1.7s)
+  ok  4 [chromium] › tests\e2e\contact.spec.ts:48:1 › CONTACT-001 validation, pending guard, retained failure and manual retry use strict provider acceptance (3.1s)
+  ok  5 [chromium] › tests\e2e\contact.spec.ts:99:1 › CONTACT-001 shared mobile menu and Cookie Settings preserve keyboard focus (947ms)
+(node:73196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  6 [firefox] › tests\e2e\contact.spec.ts:15:3 › CONTACT-001 1440px scoped runtime and visual contract (3.0s)
+  ok  7 [firefox] › tests\e2e\contact.spec.ts:15:3 › CONTACT-001 768px scoped runtime and visual contract (2.2s)
+  ok  8 [firefox] › tests\e2e\contact.spec.ts:15:3 › CONTACT-001 390px scoped runtime and visual contract (2.1s)
+  ok  9 [firefox] › tests\e2e\contact.spec.ts:48:1 › CONTACT-001 validation, pending guard, retained failure and manual retry use strict provider acceptance (3.3s)
+  ok 10 [firefox] › tests\e2e\contact.spec.ts:99:1 › CONTACT-001 shared mobile menu and Cookie Settings preserve keyboard focus (1.2s)
+
+  10 passed (23.4s)

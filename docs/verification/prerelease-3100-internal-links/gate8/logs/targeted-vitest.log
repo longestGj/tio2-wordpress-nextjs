@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/prerelease-3100-internal-links
+
+
+ Test Files  19 passed (19)
+      Tests  155 passed (155)
+   Start at  20:52:06
+   Duration  32.47s (transform 1.20s, setup 3.70s, import 3.86s, tests 50.31s, environment 560ms)
+

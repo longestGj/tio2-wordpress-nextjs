@@ -32,7 +32,7 @@ for (const viewport of [
     await expect(header.locator('a[aria-current="page"]')).toHaveCount(2)
     await expect(header.locator('a[aria-current="page"]').first()).toHaveText('About')
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://tio2malaysia.com/contact/')
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'index, follow')
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow')
     const graph = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent())!)['@graph'] as Array<Record<string, unknown>>
     expect(graph.map((node) => node['@type'])).toEqual(['ContactPage', 'BreadcrumbList', 'Organization'])
     expect(JSON.stringify(graph)).not.toMatch(/"(legalName|telephone|openingHours|hasMap|potentialAction|receiver|processor)"/u)
@@ -84,7 +84,7 @@ test('CONTACT-001 validation, pending guard, retained failure and manual retry u
   expect(payloads[1]?.inquiry_subject).toBe('Updated subject')
   expect(payloads[1]).toMatchObject({site_scope: 'tio2-my', page_id: 'CONTACT-001', workflow_type: 'contact'})
   expect(payloads[1]?.access_key).toBeTruthy()
-  expect(new URL(page.url()).pathname).toBe('/contact')
+  expect(new URL(page.url()).pathname).toBe('/contact/')
   if (testInfo.project.name === 'chromium') await page.screenshot({path: resolve(evidence, 'contact-state-success-390.png'), fullPage: true, animations: 'disabled'})
   writeFileSync(resolve(evidence, `form-state-${testInfo.project.name}.json`), JSON.stringify({
     checkedAt: new Date().toISOString(), browser: testInfo.project.name,

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "prerelease-3100-gate8-runtime-v1",
+  "capturedAt": "2026-09-10T12:55:10.452Z",
+  "siteId": "tio2-my",
+  "candidate": {
+    "baseUrl": "http://127.0.0.1:4511",
+    "runId": "prerelease-3100-g8-c18abbc",
+    "sourceCommit": "c18abbc5f7216508e16163c0dfe25b0e0ecc64a6",
+    "buildDirectory": ".next-prerelease-3100-g8",
+    "buildId": "ATKoXHh9g15QA-Y6c8Y2H"
+  },
+  "cms": {
+    "baseUrl": "http://127.0.0.1:4510",
+    "mode": "prerelease-3100-gate8-composite-cms",
+    "upstream": "http://127.0.0.1:8180/graphql",
+    "contactContractSha256": "731184b9f2f3750d3e6d2f8b6062c9924590cb5cafc4af10ea38f32a94338d9b"
+  },
+  "authoritativePrerelease3100": {
+    "state": "HEALTHY",
+    "preserved": true,
+    "runId": "20260910T084017Z-9571dd2ab7e7",
+    "commit": "9571dd2ab7e7f2c7c9cb373e008ca81b3c534822",
+    "buildId": "UNLFJezDdlPwbqW-BeMgX"
+  },
+  "holdUntil": "GATE9_PASS_OR_RETURN_NOTICE"
+}

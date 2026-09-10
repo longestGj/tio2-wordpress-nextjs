@@ -1,0 +1,21 @@
+{
+  "checkedAt": "2026-09-10T12:53:34.091Z",
+  "browser": "chromium",
+  "mode": "browser-intercepted local classification; no external submission",
+  "invalidRequestCount": 0,
+  "pendingRequestCount": 1,
+  "totalManualAttempts": 2,
+  "exactVisibleFields": [
+    "full_name",
+    "company",
+    "business_email",
+    "country_region",
+    "subject",
+    "message"
+  ],
+  "http200SuccessFalseClassifiedAsFailure": true,
+  "http200SuccessTrueClassifiedAsAccepted": true,
+  "autoRetry": false,
+  "providerAccepted": true,
+  "receiverReceiptConfirmed": false
+}

@@ -1,0 +1,8 @@
+{
+  "findingId": "SCT-G9-F02-CONTACT-TARGET",
+  "status": "PASSED",
+  "sourceInstances": 3,
+  "finalPath": "/contact/",
+  "pageId": "CONTACT-001",
+  "siteScope": "tio2-my"
+}
