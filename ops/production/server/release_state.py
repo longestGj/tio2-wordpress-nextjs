@@ -180,6 +180,11 @@ def transition(
     archive_hash = details.get("archiveSha256")
     if not isinstance(commit, str) or not re.fullmatch(r"[a-f0-9]{40}", commit) or not isinstance(archive_hash, str) or not re.fullmatch(r"[a-f0-9]{64}", archive_hash):
         raise ReleaseError("release identity requires commit and archive hash")
+    current_details = read_state(state_root).get("details")
+    if current != "IDLE" and isinstance(current_details, Mapping) and (
+        current_details.get("commit") != commit or current_details.get("archiveSha256") != archive_hash
+    ):
+        raise ReleaseError("release identity changed")
     value: dict[str, object] = {
         "state": next_state,
         "updatedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),

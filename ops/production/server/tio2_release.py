@@ -31,21 +31,25 @@ def _emit(value: dict[str, object]) -> None:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    actor = os.environ.get("SUDO_USER") or "root"
+    failure_stage = "parse"
     clear_environment()
     arguments = list(sys.argv[1:] if argv is None else argv)
     action: str | None = None
     try:
         action = parse_action(arguments)
+        failure_stage = "lock"
         lock_path = DEFAULT_PATHS.production / "state" / "release.lock"
         with ReleaseLock(lock_path):
+            failure_stage = "action"
             result = run_action(action, DEFAULT_PATHS)
-            write_audit_receipt(DEFAULT_PATHS.production / "state", action, result)
+            write_audit_receipt(DEFAULT_PATHS.production / "state", action, result, actor=actor)
         _emit(result)
         return 0
     except ReleaseError:
         if action is not None:
             try:
-                write_audit_receipt(DEFAULT_PATHS.production / "state", action, {"ok": False, "error": "release error"}, failure_stage="dispatch")
+                write_audit_receipt(DEFAULT_PATHS.production / "state", action, {"ok": False, "error": "release error"}, actor=actor, failure_stage=failure_stage)
             except Exception:
                 pass
         _emit({"ok": False, "error": "release error"})
@@ -53,7 +57,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     except Exception:
         if action is not None:
             try:
-                write_audit_receipt(DEFAULT_PATHS.production / "state", action, {"ok": False, "error": "internal release error"}, failure_stage="dispatch")
+                write_audit_receipt(DEFAULT_PATHS.production / "state", action, {"ok": False, "error": "internal release error"}, actor=actor, failure_stage=failure_stage)
             except Exception:
                 pass
         _emit({"ok": False, "error": "internal release error"})

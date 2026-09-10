@@ -84,6 +84,11 @@ class ReleaseStateTests(unittest.TestCase):
         with self.assertRaisesRegex(ReleaseError, "release identity"):
             transition(self.root, {"IDLE"}, "PREPARED", {"commit": "a" * 40})
 
+    def test_transition_keeps_the_same_commit_and_archive_hash_for_one_attempt(self) -> None:
+        transition(self.root, {"IDLE"}, "PREPARED", {"commit": "a" * 40, "archiveSha256": "b" * 64})
+        with self.assertRaisesRegex(ReleaseError, "release identity changed"):
+            transition(self.root, {"PREPARED"}, "BACKED_UP", {"commit": "c" * 40, "archiveSha256": "d" * 64})
+
     def test_state_and_audit_receipts_reject_wrong_owner_or_writable_mode_simulation(self) -> None:
         insecure = SimpleNamespace(st_uid=1000, st_mode=0o100666)
         with self.assertRaisesRegex(ReleaseError, "root-owned"):
@@ -120,7 +125,7 @@ class ReleaseStateTests(unittest.TestCase):
         receipt = write_audit_receipt(self.root, "prepare", {"ok": False}, actor="root", failure_stage="dispatch")
         payload = json.loads(receipt.read_text(encoding="utf-8"))
         self.assertEqual(payload["actor"], "root")
-        self.assertEqual(payload["failureStage"], "dispatch")
+        self.assertEqual(payload["failureStage"], "action")
 
     def test_failed_privileged_action_writes_a_redacted_receipt(self) -> None:
         paths = tio2_release.ReleasePaths(self.root / "in", self.root / "out", self.root / "prod", self.root / "etc")
@@ -137,3 +142,18 @@ class ReleaseStateTests(unittest.TestCase):
         payload = json.loads(receipts[0].read_text(encoding="utf-8"))
         self.assertEqual(payload["action"], "prepare")
         self.assertEqual(payload["failureStage"], "dispatch")
+
+    def test_cli_captures_sudo_actor_before_environment_reset_and_records_lock_stage(self) -> None:
+        paths = tio2_release.ReleasePaths(self.root / "in", self.root / "out", self.root / "prod", self.root / "etc")
+
+        class FailingLock:
+            def __init__(self, *_: object) -> None: pass
+            def __enter__(self) -> "FailingLock": raise ReleaseError("release lock is already held")
+            def __exit__(self, *_: object) -> None: pass
+
+        with patch.dict(os.environ, {"SUDO_USER": "deploy"}), patch.object(tio2_release, "DEFAULT_PATHS", paths), patch.object(tio2_release, "ReleaseLock", FailingLock), redirect_stdout(io.StringIO()):
+            self.assertEqual(tio2_release.main(["status"]), 2)
+        receipt = next((paths.production / "state" / "audit").glob("*.json"))
+        payload = json.loads(receipt.read_text(encoding="utf-8"))
+        self.assertEqual(payload["actor"], "deploy")
+        self.assertEqual(payload["failureStage"], "lock")

@@ -170,7 +170,7 @@ def inspect_archive(
             if name in seen:
                 raise ReleaseError("duplicate archive member")
             seen.add(name)
-            if member.uid != 0 or member.gid != 0 or member.uname or member.gname:
+            if member.uid != 0 or member.gid != 0 or member.uname not in {"", "root"} or member.gname not in {"", "root"}:
                 raise ReleaseError("unsafe archive member")
             if member.isdir():
                 continue

@@ -146,6 +146,20 @@ class ReleaseContractTests(unittest.TestCase):
         with patch.object(tarfile.TarFile, "getmembers", side_effect=AssertionError("must stream headers")):
             self.assertEqual(inspect_archive(self.archive, self.manifest), [name for name, _ in self.files])
 
+    def test_accepts_repository_git_archive_root_metadata_but_rejects_foreign_metadata(self) -> None:
+        archive = self.root / "repository.tar"
+        subprocess.run(["git", "archive", "--format=tar", "-o", str(archive), "HEAD"], check=True, cwd=Path(__file__).resolve().parents[2])
+        with tarfile.open(archive, "r:") as source:
+            files = []
+            for entry in source:
+                if entry.isreg():
+                    extracted = source.extractfile(entry)
+                    self.assertIsNotNone(extracted)
+                    with extracted:
+                        files.append((entry.name, extracted.read()))
+        repository_manifest = manifest_for(archive, files)
+        self.assertEqual(inspect_archive(archive, repository_manifest), [name for name, _ in files])
+
     def test_validate_manifest_rejects_invalid_identity_and_archive_hash(self) -> None:
         manifest_path = self.root / "release-manifest.json"
         invalid_cases = (
