@@ -171,7 +171,8 @@ def transition(
     next_state: str,
     details: Mapping[str, object],
 ) -> dict[str, object]:
-    current = str(read_state(state_root).get("state"))
+    previous = read_state(state_root)
+    current = str(previous.get("state"))
     if current not in expected:
         raise ReleaseError("unexpected release state")
     if next_state not in TRANSITIONS.get(current, set()):
@@ -180,11 +181,13 @@ def transition(
     archive_hash = details.get("archiveSha256")
     if not isinstance(commit, str) or not re.fullmatch(r"[a-f0-9]{40}", commit) or not isinstance(archive_hash, str) or not re.fullmatch(r"[a-f0-9]{64}", archive_hash):
         raise ReleaseError("release identity requires commit and archive hash")
-    current_details = read_state(state_root).get("details")
-    if current != "IDLE" and isinstance(current_details, Mapping) and (
-        current_details.get("commit") != commit or current_details.get("archiveSha256") != archive_hash
-    ):
-        raise ReleaseError("release identity changed")
+    current_details = previous.get("details")
+    if current != "IDLE":
+        if not isinstance(current_details, Mapping) or not isinstance(current_details.get("commit"), str) or not re.fullmatch(r"[a-f0-9]{40}", current_details["commit"]) or not isinstance(current_details.get("archiveSha256"), str) or not re.fullmatch(r"[a-f0-9]{64}", current_details["archiveSha256"]):
+            raise ReleaseError("stored release identity is invalid")
+        new_attempt = current in {"PUBLIC_VERIFIED", "FAILED", "ROLLED_BACK"} and next_state == "PREPARED"
+        if not new_attempt and (current_details["commit"] != commit or current_details["archiveSha256"] != archive_hash):
+            raise ReleaseError("release identity changed")
     value: dict[str, object] = {
         "state": next_state,
         "updatedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),

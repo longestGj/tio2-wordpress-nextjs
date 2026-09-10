@@ -89,6 +89,20 @@ class ReleaseStateTests(unittest.TestCase):
         with self.assertRaisesRegex(ReleaseError, "release identity changed"):
             transition(self.root, {"PREPARED"}, "BACKED_UP", {"commit": "c" * 40, "archiveSha256": "d" * 64})
 
+    def test_terminal_state_can_start_the_next_attempt_with_a_new_identity(self) -> None:
+        transition(self.root, {"IDLE"}, "PREPARED", {"commit": "a" * 40, "archiveSha256": "b" * 64})
+        transition(self.root, {"PREPARED"}, "BACKED_UP", {"commit": "a" * 40, "archiveSha256": "b" * 64})
+        transition(self.root, {"BACKED_UP"}, "DEPLOYING", {"commit": "a" * 40, "archiveSha256": "b" * 64})
+        transition(self.root, {"DEPLOYING"}, "INTERNAL_VERIFIED", {"commit": "a" * 40, "archiveSha256": "b" * 64})
+        transition(self.root, {"INTERNAL_VERIFIED"}, "PUBLIC_VERIFIED", {"commit": "a" * 40, "archiveSha256": "b" * 64})
+        next_attempt = transition(self.root, {"PUBLIC_VERIFIED"}, "PREPARED", {"commit": "c" * 40, "archiveSha256": "d" * 64})
+        self.assertEqual(next_attempt["details"]["commit"], "c" * 40)
+
+    def test_non_initial_state_without_a_stored_identity_fails_closed(self) -> None:
+        (self.root / "state.json").write_text(json.dumps({"state": "PREPARED"}), encoding="utf-8")
+        with self.assertRaisesRegex(ReleaseError, "stored release identity"):
+            transition(self.root, {"PREPARED"}, "BACKED_UP", {"commit": "a" * 40, "archiveSha256": "b" * 64})
+
     def test_state_and_audit_receipts_reject_wrong_owner_or_writable_mode_simulation(self) -> None:
         insecure = SimpleNamespace(st_uid=1000, st_mode=0o100666)
         with self.assertRaisesRegex(ReleaseError, "root-owned"):
