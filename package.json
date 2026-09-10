@@ -12,6 +12,7 @@
     "prerelease:reset": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prerelease.ps1 -Action ResetData",
     "prerelease:test": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prerelease.ps1 -Action Test",
     "prerelease:test:forms-live": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prerelease.ps1 -Action TestLiveForms",
+    "diagnose:web3forms": "node --env-file-if-exists=.env.prerelease.local scripts/prerelease/web3forms-compare.mjs",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
