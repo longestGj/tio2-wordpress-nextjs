@@ -1,5 +1,7 @@
 name: tio2-production
 
+# The privileged deployment layer must validate the resolved /opt/tio2-production/current symlink target before creating containers.
+
 services:
   db:
     image: mariadb:11.4@sha256:80494b9810694179889f7281ec44ca928241df577159c0356a1070e2e94616a1
@@ -33,7 +35,12 @@ services:
       - 127.0.0.1:8080:80
     volumes:
       - wp_data:/var/www/html
-      - /opt/tio2-production/current/wordpress/plugins/tio2-site-model:/var/www/html/wp-content/plugins/tio2-site-model:ro
+      - type: bind
+        source: /opt/tio2-production/current/wordpress/plugins/tio2-site-model
+        target: /var/www/html/wp-content/plugins/tio2-site-model
+        read_only: true
+        bind:
+          create_host_path: false
     networks:
       - production
     healthcheck:
@@ -43,8 +50,10 @@ services:
       retries: 30
 
   wpcli:
-    # Task 4 exception: the approved constraints provide no wpcli digest; the privileged deployment layer must resolve and record the linux/arm64 digest before use.
-    image: wordpress:cli-php8.3
+    # Task 4 exception: privileged deployment must pull wordpress:cli-php8.3 for linux/arm64, inspect and record its digest and image ID, then tag it as tio2-my-wpcli:resolved before Compose use.
+    image: tio2-my-wpcli:resolved
+    platform: linux/arm64
+    pull_policy: never
     restart: "no"
     profiles: ["tools"]
     depends_on:
@@ -63,8 +72,18 @@ services:
     working_dir: /var/www/html
     volumes:
       - wp_data:/var/www/html
-      - /opt/tio2-production/current/wordpress/plugins/tio2-site-model:/var/www/html/wp-content/plugins/tio2-site-model:ro
-      - /opt/tio2-production/current:/release:ro
+      - type: bind
+        source: /opt/tio2-production/current/wordpress/plugins/tio2-site-model
+        target: /var/www/html/wp-content/plugins/tio2-site-model
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /opt/tio2-production/current
+        target: /release
+        read_only: true
+        bind:
+          create_host_path: false
     networks:
       - production
 
@@ -76,6 +95,8 @@ services:
         condition: service_healthy
     env_file:
       - /etc/tio2-production/production.env
+    environment:
+      WORDPRESS_PREVIEW_URL: http://wordpress/wp-json/tio2/v1/preview
     ports:
       - 127.0.0.1:3000:3000
     networks:
@@ -88,12 +109,15 @@ services:
 
   candidate:
     image: tio2-my-web:candidate
-    restart: unless-stopped
+    restart: "no"
+    profiles: ["candidate"]
     depends_on:
       wordpress:
         condition: service_healthy
     env_file:
       - /etc/tio2-production/production.env
+    environment:
+      WORDPRESS_PREVIEW_URL: http://wordpress/wp-json/tio2/v1/preview
     ports:
       - 127.0.0.1:3001:3000
     networks:

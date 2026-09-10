@@ -1,4 +1,5 @@
 # TIO2_NGINX_STAGING_MARKER: nginx -t must succeed against the staged configuration before activation.
+# Install only after TIO2_NGINX_FIRST_ISSUANCE_MARKER has obtained the apex/www certificate through the fixed HTTP-only bootstrap template.
 
 server {
     listen 80;
