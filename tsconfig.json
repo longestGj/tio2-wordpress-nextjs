@@ -60,7 +60,9 @@
     ".next-sys404-convthank-repair1/types/**/*.ts",
     ".next-sys404-convthank-repair1/dev/types/**/*.ts",
     ".next-sys404-convthank-repair2/types/**/*.ts",
-    ".next-sys404-convthank-repair2/dev/types/**/*.ts"
+    ".next-sys404-convthank-repair2/dev/types/**/*.ts",
+    ".next-contact-gate8/types/**/*.ts",
+    ".next-contact-gate8/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

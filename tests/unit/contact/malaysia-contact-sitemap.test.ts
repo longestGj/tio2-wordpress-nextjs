@@ -23,7 +23,7 @@ describe('CONTACT-001 sitemap release control', () => {
     })
 
     expect(sitemap.map(({url}) => url)).not.toContain('https://tio2malaysia.com/contact/')
-    expect(getPublicRoutes('tio2-my').some(({path}) => path === '/contact/')).toBe(false)
+    expect(getPublicRoutes('tio2-my').some(({path}) => String(path) === '/contact/')).toBe(false)
     expect(getSiteProductPage).not.toHaveBeenCalled()
   })
 })
