@@ -1,0 +1,17 @@
+{
+  "schema_version": "root-hero-gate8-runtime-identity-v1.0",
+  "site_scope": "tio2-my",
+  "branch": "codex/root-hero-seven-gate8",
+  "implementation_commit": "25f7e89d4d41c0e821581757717acf05156335ce",
+  "build_directory": ".next-root-hero-gate8",
+  "build_id": "fhXPekoseOA_c5UmA1zpT",
+  "environment_type": "local-production",
+  "base_url": "http://127.0.0.1:32000/",
+  "run_id": "root-hero-gate8-ac298049ec9b4d25aa6b4c9df243af72",
+  "lease_id": "e4d40a33-b4c9-46b2-ab74-25f9c60b37a5",
+  "process_id": 55112,
+  "started_at": "2026-09-11T09:57:58.383Z",
+  "cms_read_boundary": "http://127.0.0.1:8180/graphql",
+  "hold_until": "GATE9_PASS_OR_RETURN_NOTICE",
+  "external_writes": 0
+}
