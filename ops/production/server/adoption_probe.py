@@ -39,7 +39,7 @@ class LocalSnapshotSource:
 
     def _run(self, arguments: list[str], timeout: int = 30) -> str:
         allowed = {
-            "/usr/bin/docker", "/usr/bin/nginx", "/usr/bin/systemctl", "/usr/bin/mysql", "/usr/bin/uname",
+            "/usr/bin/docker", "/usr/sbin/nginx", "/usr/bin/systemctl", "/usr/bin/mysql", "/usr/bin/uname",
         }
         if not arguments or arguments[0] not in allowed:
             raise AdoptionError("adoption probe command is not allowed")
@@ -117,7 +117,7 @@ class LocalSnapshotSource:
         prerelease = proof.get("prerelease")
         if not isinstance(prerelease, dict):
             raise AdoptionError("incoming release proof mismatch")
-        return {"commit": manifest.get("commit"), "archiveSha256": self._sha(archive_path.read_bytes()), "manifestSha256": self._sha(manifest_path.read_bytes()), "proofSha256": self._sha(proof_path.read_bytes()), "buildId": prerelease.get("buildId"), "cmsIdentitySha256": prerelease.get("cmsIdentitySha256"), "releaseSurfaceSha256": manifest.get("releaseSurfaceSha256"), "backupPublicKeySha256": self._sha(backup_public_key.read_bytes())}
+        return {"commit": manifest.get("commit"), "archiveSha256": self._sha(archive_path.read_bytes()), "manifestSha256": self._sha(manifest_path.read_bytes()), "proofSha256": self._sha(proof_path.read_bytes()), "buildId": prerelease.get("buildId"), "cmsIdentitySha256": prerelease.get("cmsIdentitySha256"), "releaseSurfaceSha256": manifest.get("releaseSurfaceSha256"), "backupPublicKeySha256": self._sha(backup_public_key.read_bytes()), "productionInputSha256": self._sha((incoming / "production-input.json").read_bytes())}
 
     def read_snapshot(self) -> dict[str, object]:
         os_release = {}
@@ -130,7 +130,7 @@ class LocalSnapshotSource:
         database, database_raw = self._container("wordpress-db-1")
         wordpress_volume = self._volume(wordpress_raw, "wordpress_wp_data", "/var/www/html")
         database_volume = self._volume(database_raw, "wordpress_db_data", "/var/lib/mysql")
-        nginx_output = self._run(["/usr/bin/nginx", "-T"])
+        nginx_output = self._run(["/usr/sbin/nginx", "-T"])
         names = sorted(set(name for group in re.findall(r"(?m)^\s*server_name\s+([^;]+);", nginx_output) for name in group.split() if name != "_"))
         memory = next((int(line.split()[1]) * 1024 for line in Path("/proc/meminfo").read_text().splitlines() if line.startswith("MemAvailable:")), 0)
         return {

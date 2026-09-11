@@ -14,7 +14,10 @@ import tarfile
 import tempfile
 from uuid import uuid4
 
-from adoption_contract import AdoptionError, validate_plan
+from adoption_contract import AdoptionError, load_json_strict, validate_plan
+from adoption_internal import InternalAdoption
+from adoption_wordpress import WordPressAdoption
+from adoption_tls import TlsAdoption
 from bootstrap_install import BootstrapPaths, install_bootstrap
 from release_contract import DEFAULT_PATHS, extract_release, inspect_archive, sha256_file, validate_manifest, validate_prerelease_proof
 from release_state import atomic_write_json
@@ -76,6 +79,9 @@ class SystemPhaseAOperations:
 
     def install(self, plan: dict[str, object]) -> dict[str, object]:
         validate_plan(plan)
+        if not Path("/usr/bin/age").is_file():
+            _run(["/usr/bin/apt-get", "update"], timeout=900)
+            _run(["/usr/bin/apt-get", "install", "--yes", "--no-install-recommends", "age"], timeout=900)
         deploy_uid, deploy_gid = _deploy_identity()
         install_bootstrap(self.source_dir, BootstrapPaths.production_paths(), deploy_uid=deploy_uid, deploy_gid=deploy_gid)
         return {"toolCommit": plan["toolCommit"]}
@@ -94,7 +100,7 @@ class SystemPhaseAOperations:
             compose_snapshot.write_bytes(compose_source.read_bytes())
             os.chmod(compose_snapshot, 0o600)
         nginx_snapshot = configuration / "legacy-nginx.snapshot.txt"
-        nginx_bytes = _run(["/usr/bin/nginx", "-T"])
+        nginx_bytes = _run(["/usr/sbin/nginx", "-T"])
         if hashlib.sha256(nginx_bytes).hexdigest() != facts["nginx"]["configurationSha256"]:
             raise AdoptionError("legacy Nginx changed after Plan")
         if not nginx_snapshot.exists():
@@ -123,7 +129,7 @@ class SystemPhaseAOperations:
         manifest = validate_manifest(manifest_path, archive)
         inspect_archive(archive, manifest)
         proof = validate_prerelease_proof(proof_path, manifest_path, manifest)
-        observed = {"commit": manifest["commit"], "archiveSha256": sha256_file(archive), "manifestSha256": sha256_file(manifest_path), "proofSha256": sha256_file(proof_path), "buildId": proof["prerelease"]["buildId"], "cmsIdentitySha256": proof["prerelease"]["cmsIdentitySha256"], "releaseSurfaceSha256": manifest["releaseSurfaceSha256"], "backupPublicKeySha256": sha256_file(incoming / "backup.age.pub")}
+        observed = {"commit": manifest["commit"], "archiveSha256": sha256_file(archive), "manifestSha256": sha256_file(manifest_path), "proofSha256": sha256_file(proof_path), "buildId": proof["prerelease"]["buildId"], "cmsIdentitySha256": proof["prerelease"]["cmsIdentitySha256"], "releaseSurfaceSha256": manifest["releaseSurfaceSha256"], "backupPublicKeySha256": sha256_file(incoming / "backup.age.pub"), "productionInputSha256": sha256_file(incoming / "production-input.json")}
         if observed != plan["candidate"]:
             raise AdoptionError("prepared candidate differs from Plan")
         destination = self.paths.production / "releases" / manifest["commit"]
@@ -225,3 +231,30 @@ class SystemPhaseAOperations:
         atomic_write_json(destination, receipt)
         deploy_uid, deploy_gid = _deploy_identity(); os.chown(destination, deploy_uid, deploy_gid); os.chmod(destination, 0o600)
         return {"receiptSha256": sha256_file(destination)}
+
+    def accept_offhost_evidence(self, plan: dict[str, object], backup: dict[str, object]) -> dict[str, object] | None:
+        path = self.paths.incoming / "adoption-evidence.json"
+        if not path.exists():
+            return None
+        value = load_json_strict(path.read_text(encoding="utf-8"))
+        expected = {"schemaVersion", "siteId", "planHash", "candidate", "backupId", "manifestSha256", "ciphertextSha256", "offHost", "decryption", "restore", "verifiedAt"}
+        if not isinstance(value, dict) or set(value) != expected or value["schemaVersion"] != "tio2-adoption-evidence-v1" or value["siteId"] != "tio2-my" or value["planHash"] != plan["planHash"] or value["candidate"] != plan["candidate"]:
+            raise AdoptionError("off-host adoption evidence is invalid")
+        if any(value[name] != backup[name] for name in ("backupId", "manifestSha256", "ciphertextSha256")):
+            raise AdoptionError("off-host adoption backup identity differs")
+        if value["offHost"] != {"verified": True, "sha256": backup["ciphertextSha256"]} or value["decryption"].get("verified") is not True or value["restore"].get("verified") is not True:
+            raise AdoptionError("off-host adoption verification is incomplete")
+        return {"evidenceSha256": sha256_file(path), "backupId": backup["backupId"]}
+
+    def initialize_content(self, plan: dict[str, object], prepared: dict[str, object], evidence: dict[str, object]) -> dict[str, object]:
+        if evidence.get("evidenceSha256") != sha256_file(self.paths.incoming / "adoption-evidence.json"):
+            raise AdoptionError("off-host adoption evidence changed")
+        return WordPressAdoption(self.paths).initialize(plan, prepared)
+
+    def deploy_internal(self, plan: dict[str, object], prepared: dict[str, object], content: dict[str, object]) -> dict[str, object]:
+        result = InternalAdoption(self.paths).deploy(plan, prepared, content)
+        result["releaseRoot"] = prepared["releaseRoot"]
+        return result
+
+    def activate_public(self, plan: dict[str, object], internal: dict[str, object]) -> dict[str, object] | None:
+        return TlsAdoption(self.paths).activate(plan, internal)

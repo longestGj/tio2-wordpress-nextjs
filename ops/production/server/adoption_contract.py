@@ -63,11 +63,11 @@ def _commit(value: object) -> str:
 
 
 def _validate_candidate(value: object) -> dict[str, object]:
-    candidate = _keys(value, {"commit", "archiveSha256", "manifestSha256", "proofSha256", "buildId", "cmsIdentitySha256", "releaseSurfaceSha256", "backupPublicKeySha256"})
+    candidate = _keys(value, {"commit", "archiveSha256", "manifestSha256", "proofSha256", "buildId", "cmsIdentitySha256", "releaseSurfaceSha256", "backupPublicKeySha256", "productionInputSha256"})
     _commit(candidate["commit"])
-    for name in ("archiveSha256", "manifestSha256", "proofSha256", "cmsIdentitySha256", "releaseSurfaceSha256", "backupPublicKeySha256"):
+    for name in ("archiveSha256", "manifestSha256", "proofSha256", "cmsIdentitySha256", "releaseSurfaceSha256", "backupPublicKeySha256", "productionInputSha256"):
         _hash(candidate[name])
-    if candidate["releaseSurfaceSha256"] != SURFACE_SHA256 or not isinstance(candidate["buildId"], str) or not 0 < len(candidate["buildId"]) <= 256:
+    if candidate["releaseSurfaceSha256"] != SURFACE_SHA256 or not isinstance(candidate["buildId"], str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", candidate["buildId"]):
         raise AdoptionError("adoption candidate mismatch")
     return candidate
 
@@ -121,7 +121,7 @@ def _validate_facts(value: object) -> dict[str, object]:
 
 def _changes(callbacks_match: bool, published_records: int) -> dict[str, object]:
     return {
-        "wordpress": "attach-existing-container" if callbacks_match else "recreate-with-preserved-runtime-and-fixed-callbacks",
+        "wordpress": "recreate-with-preserved-volume-image-and-fixed-callbacks",
         "content": "verify-approved-57" if published_records == 57 else "initialize-approved-57-after-backup",
         "phaseA": ["install-fixed-program", "backup-existing-cms", "await-off-host-verification"],
         "phaseB": ["attach-frontend-network", "build-native-arm64-web", "install-internal-nginx", "await-dns"],
@@ -132,7 +132,7 @@ def _changes(callbacks_match: bool, published_records: int) -> dict[str, object]
 def _rollback() -> dict[str, object]:
     return {
         "phaseA": "preserve-existing-cms-and-resume-writes",
-        "phaseB": "restore-wordpress-and-nginx-snapshots",
+        "phaseB": "preserve-encrypted-backup-and-pre-adoption-container-for-explicit-rollback",
         "phaseC": "restore-http-503-and-preserve-cms",
         "databaseRestore": "separate-explicit-decision",
     }

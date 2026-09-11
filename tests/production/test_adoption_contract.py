@@ -22,6 +22,7 @@ def fixture() -> dict[str, object]:
         "cmsIdentitySha256": "e" * 64,
         "releaseSurfaceSha256": "42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152",
         "backupPublicKeySha256": "8" * 64,
+        "productionInputSha256": "9" * 64,
     }
     facts = {
         "platform": {"osId": "ubuntu", "versionId": "24.04", "architecture": "aarch64", "cpuCount": 1, "memoryAvailableBytes": 5_000_000_000, "diskFreeBytes": 40_000_000_000},

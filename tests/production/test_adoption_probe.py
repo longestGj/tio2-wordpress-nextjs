@@ -13,7 +13,7 @@ from adoption_probe import ProductionProbe  # noqa: E402
 
 
 def snapshot() -> dict[str, object]:
-    candidate = {"commit": "a" * 40, "archiveSha256": "b" * 64, "manifestSha256": "c" * 64, "proofSha256": "d" * 64, "buildId": "build-1", "cmsIdentitySha256": "e" * 64, "releaseSurfaceSha256": "42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152", "backupPublicKeySha256": "8" * 64}
+    candidate = {"commit": "a" * 40, "archiveSha256": "b" * 64, "manifestSha256": "c" * 64, "proofSha256": "d" * 64, "buildId": "build-1", "cmsIdentitySha256": "e" * 64, "releaseSurfaceSha256": "42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152", "backupPublicKeySha256": "8" * 64, "productionInputSha256": "9" * 64}
     return {
         "observedAt": "2026-09-11T00:00:00Z",
         "platform": {"osId": "ubuntu", "versionId": "24.04", "architecture": "aarch64", "cpuCount": 1, "memoryAvailableBytes": 5_000_000_000, "diskFreeBytes": 40_000_000_000},
@@ -52,7 +52,7 @@ class AdoptionProbeTests(unittest.TestCase):
         probe = self.inspect()
         candidate = probe["facts"]["incoming"]
         plan = validate_plan(build_plan(probe, candidate, "7" * 40))
-        self.assertEqual(plan["changes"]["wordpress"], "recreate-with-preserved-runtime-and-fixed-callbacks")
+        self.assertEqual(plan["changes"]["wordpress"], "recreate-with-preserved-volume-image-and-fixed-callbacks")
         self.assertEqual(plan["facts"]["ports"], {"wordpress": 8080, "frontendActive": 3000, "frontendCandidate": 3001, "internalProxy": 8081})
 
     def test_same_snapshot_keeps_the_plan_stable_across_observation_time(self) -> None:

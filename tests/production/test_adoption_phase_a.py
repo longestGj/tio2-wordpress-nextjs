@@ -46,7 +46,7 @@ class AdoptionPhaseATests(unittest.TestCase):
             manifest.return_value = {"commit": self.plan["candidate"]["commit"], "files": [{"path": "expected.txt", "sha256": "9" * 64}], "releaseSurfaceSha256": self.plan["candidate"]["releaseSurfaceSha256"]}
             proof.return_value = {"prerelease": {"buildId": self.plan["candidate"]["buildId"], "cmsIdentitySha256": self.plan["candidate"]["cmsIdentitySha256"]}}
             def file_hash(path):
-                known = {"release.tar.gz": "b" * 64, "release-manifest.json": "c" * 64, "release-proof.json": "d" * 64, "backup.age.pub": "8" * 64}
+                known = {"release.tar.gz": "b" * 64, "release-manifest.json": "c" * 64, "release-proof.json": "d" * 64, "backup.age.pub": "8" * 64, "production-input.json": "9" * 64}
                 return known[Path(path).name] if Path(path).name in known else hashlib.sha256(Path(path).read_bytes()).hexdigest()
             with patch("adoption_phase_a.sha256_file", side_effect=file_hash):
                 with self.assertRaisesRegex(AdoptionError, "prepared release"):

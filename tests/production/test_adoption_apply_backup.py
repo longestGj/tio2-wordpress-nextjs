@@ -19,6 +19,8 @@ class Operations:
     def __init__(self) -> None:
         self.calls: list[str] = []
         self.fail: str | None = None
+        self.evidence_available = False
+        self.dns_ready = False
 
     def _call(self, name: str):
         self.calls.append(name)
@@ -44,6 +46,22 @@ class Operations:
     def publish_phase_a(self, plan, backup):
         self._call("publish_phase_a")
         return {"receiptSha256": "f" * 64}
+
+    def accept_offhost_evidence(self, plan, backup):
+        self._call("accept_offhost_evidence")
+        return {"evidenceSha256": "1" * 64} if self.evidence_available else None
+
+    def initialize_content(self, plan, prepared, evidence):
+        self._call("initialize_content")
+        return {"publishedRecords": 57, "contentSha256": "2" * 64, "pluginSha256": "3" * 64}
+
+    def deploy_internal(self, plan, prepared, content):
+        self._call("deploy_internal")
+        return {"buildId": plan["candidate"]["buildId"], "internalPort": 8081, "checkedObjects": 58, "baselineSha256": "4" * 64}
+
+    def activate_public(self, plan, internal):
+        self._call("activate_public")
+        return {"certificateSha256": "5" * 64, "checkedObjects": 58} if self.dns_ready else None
 
 
 class AdoptionApplyBackupTests(unittest.TestCase):
@@ -72,7 +90,38 @@ class AdoptionApplyBackupTests(unittest.TestCase):
         self.operations.calls.clear()
         second = self.adoption().apply(self.plan["planHash"])
         self.assertEqual(second, first)
-        self.assertEqual(self.operations.calls, [])
+        self.assertEqual(self.operations.calls, ["accept_offhost_evidence"])
+
+    def test_second_apply_initializes_all_content_and_stops_at_internal_dns_gate(self) -> None:
+        self.adoption().apply(self.plan["planHash"])
+        self.operations.evidence_available = True
+        self.operations.calls.clear()
+        result = self.adoption().apply(self.plan["planHash"])
+        self.assertEqual(result["state"], "AWAITING_DNS")
+        self.assertEqual(result["content"]["publishedRecords"], 57)
+        self.assertEqual(result["internal"]["checkedObjects"], 58)
+        self.assertEqual(self.operations.calls, ["accept_offhost_evidence", "initialize_content", "deploy_internal"])
+
+    def test_missing_offhost_evidence_keeps_phase_a_stable(self) -> None:
+        first = self.adoption().apply(self.plan["planHash"])
+        self.operations.calls.clear()
+        second = self.adoption().apply(self.plan["planHash"])
+        self.assertEqual(second, first)
+        self.assertEqual(self.operations.calls, ["accept_offhost_evidence"])
+
+    def test_third_apply_waits_for_dns_then_activates_the_same_candidate(self) -> None:
+        self.adoption().apply(self.plan["planHash"])
+        self.operations.evidence_available = True
+        self.adoption().apply(self.plan["planHash"])
+        self.operations.calls.clear()
+        waiting = self.adoption().apply(self.plan["planHash"])
+        self.assertEqual(waiting["state"], "AWAITING_DNS")
+        self.assertEqual(self.operations.calls, ["activate_public"])
+        self.operations.dns_ready = True; self.operations.calls.clear()
+        ready = self.adoption().apply(self.plan["planHash"])
+        self.assertEqual(ready["state"], "PUBLIC_READY")
+        self.assertEqual(ready["public"]["checkedObjects"], 58)
+        self.assertEqual(self.operations.calls, ["activate_public"])
 
     def test_interrupted_backup_retries_only_from_the_last_durable_phase(self) -> None:
         self.operations.fail = "backup"

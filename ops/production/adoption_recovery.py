@@ -183,7 +183,7 @@ def recover(run_root: Path, identity: Path, maria_image: str) -> dict[str, objec
         raise RecoveryError("phase-A plan differs from local stage")
     backup = phase.get("backup")
     candidate = phase.get("candidate")
-    if not isinstance(candidate, dict) or any(candidate.get(name) != stage.get(local) for name, local in (("commit", "commit"), ("archiveSha256", "archiveSha256"), ("manifestSha256", "manifestSha256"), ("proofSha256", "proofSha256"), ("backupPublicKeySha256", "backupPublicKeySha256"))):
+    if not isinstance(candidate, dict) or any(candidate.get(name) != stage.get(local) for name, local in (("commit", "commit"), ("archiveSha256", "archiveSha256"), ("manifestSha256", "manifestSha256"), ("proofSha256", "proofSha256"), ("backupPublicKeySha256", "backupPublicKeySha256"), ("productionInputSha256", "productionInputSha256"))):
         raise RecoveryError("phase-A candidate differs from local stage")
     if not isinstance(backup, dict) or not isinstance(backup.get("backupId"), str):
         raise RecoveryError("phase-A backup receipt is invalid")

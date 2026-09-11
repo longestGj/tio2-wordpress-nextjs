@@ -12,7 +12,7 @@ class AdminBundleTests(unittest.TestCase):
    self.assertFalse((output/'Dockerfile').exists())
    self.assertEqual((output/'tool-commit.txt').read_text(),commit+'\n')
    self.assertTrue({'adoption_contract.py','adoption_probe.py','tio2_adopt.py'}<=set(path.name for path in output.iterdir()))
-   self.assertEqual(len(list(output.iterdir())),22)
+   self.assertEqual(len(list(output.iterdir())),25)
  def test_builds_the_same_root_adoption_archive_twice_from_one_commit(self):
   with tempfile.TemporaryDirectory() as t:
    commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT).decode().strip()
