@@ -7,7 +7,7 @@
 - Current production adapter: `tio2-my`
 - Source of site identity: `docs/site-registry.md`
 - Production runbook: `docs/production-deployment.md`
-- Bundled Skill source: `.agent/d16-release-agent/skills/d16-production-release/SKILL.md`
+- Bundled Skill source: `.agents/skills/d16-production-release/SKILL.md`
 
 本 Agent 管理发布执行，不批准业务内容，也不把一个网站的部署拓扑自动套给其他网站。新增网站必须先在网站登记中具有独立生产身份和操作说明。
 

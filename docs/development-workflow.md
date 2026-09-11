@@ -210,7 +210,7 @@ D23外部状态枚举保持原合同；`develop`合并结果另记在任务集�
 
 发布任务至少明确网站、目标环境、待部署代码/内容版本、适用验收、发布范围、回退方式和部署后验证。配置或交付仍有缺项时，先完成可核查的发布准备再提交具体待决定项。
 
-重复执行生产发布时使用 [D16 Release Agent](../.agent/d16-release-agent/AGENT.md) 和其 `d16-production-release` Skill；它们组织本节，不扩大授权。目标网站仍须有独立生产适配说明；当前已接入实例为 [TiO₂ Malaysia 发布工具](production-deployment.md)。
+重复执行生产发布时使用 [D16 Release Agent](../.agent/d16-release-agent/AGENT.md) 和项目级 [d16-production-release Skill](../.agents/skills/d16-production-release/SKILL.md)；它们组织本节，不扩大授权。目标网站仍须有独立生产适配说明；当前已接入实例为 [TiO₂ Malaysia 发布工具](production-deployment.md)。
 
 用[任务记录第9节](templates/development-task-record.md#9-发布与运行交接记录适用时)准备实际发布单，允许直接并入已有主回执。发布执行按以下顺序组织：
 
