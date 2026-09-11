@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-11T00:13:24.6393435Z",
+  "taskId": "01a07a66-3c4a-75a2-9df4-648942742f9e",
+  "handoffId": "HOME-001-G6-APP-ALIGN-HANDOFF-V1",
+  "pageId": "HOME-001",
+  "route": "/",
+  "siteScope": "tio2-my",
+  "repository": "D:/16Wordpress_nextjs",
+  "worktree": "D:/16Wordpress_nextjs/.worktrees/home-001-app-align-gate8",
+  "branch": "codex/home-001-app-align-gate8",
+  "baselineCommit": "9571dd2ab7e7f2c7c9cb373e008ca81b3c534822",
+  "upstream": null,
+  "upstreamState": "NO_BRANCH_UPSTREAM",
+  "status": [
+    "# branch.oid 9571dd2ab7e7f2c7c9cb373e008ca81b3c534822",
+    "# branch.head codex/home-001-app-align-gate8"
+  ],
+  "preExistingDirty": [],
+  "d23Main": "abeb317600474b17b2ca64816dd3788c3377ab32",
+  "rollbackImplementationCommit": "616193f3dbf059f0e081c8d59119c008ba2b848b",
+  "dispatchFiles": [
+    {
+      "path": "D:/23MySec/pages/home/06_handoff/HOME-001_APPLICATIONS_ALIGNED_GATE6_HANDOFF_PACKAGE_V1.0.md",
+      "expected": "9024252791e4bb1dbc39cc2f1fc85b795559b263c26f0c302a1b303a0ccbb700",
+      "actual": "9024252791e4bb1dbc39cc2f1fc85b795559b263c26f0c302a1b303a0ccbb700",
+      "matches": true
+    },
+    {
+      "path": "D:/23MySec/pages/home/06_handoff/HOME-001_APPLICATIONS_ALIGNED_GATE6_ACCEPTANCE_AND_BLOCKERS_V1.0.md",
+      "expected": "ca992794c8d368c87ad473f6bd85b33d735f64b52a1df1c3b91418bbdc5220de",
+      "actual": "ca992794c8d368c87ad473f6bd85b33d735f64b52a1df1c3b91418bbdc5220de",
+      "matches": true
+    },
+    {
+      "path": "D:/23MySec/pages/home/05_review/HOME-001_APPLICATIONS_ALIGNED_GATE6_INDEPENDENT_REVIEW_V1.0.md",
+      "expected": "e3f1e7848383e7142fee24fb4355e55ba5d52643fcf4c05ce6429e8b313c6e79",
+      "actual": "e3f1e7848383e7142fee24fb4355e55ba5d52643fcf4c05ce6429e8b313c6e79",
+      "matches": true
+    }
+  ],
+  "frozenAndAuthorizedFiles": [
+    {
+      "path": "components/sites/tio2-my/homepage/malaysia-homepage.tsx",
+      "bytes": 10017,
+      "sha256": "912ff8c08b76b108252023b5f84ca3b65606ced46da275451a5a32acac3dfb2f"
+    },
+    {
+      "path": "components/sites/tio2-my/homepage/malaysia-homepage.module.css",
+      "bytes": 13638,
+      "sha256": "24b924edb2f5c41c18a7b33de3075c8986fda3c261e4147126329fe6457352da"
+    },
+    {
+      "path": "components/sites/tio2-my/homepage/responsive-product-groups.tsx",
+      "bytes": 1238,
+      "sha256": "ba54c9ee0ef4d6cb18e1ec201e9c5deda2ac3c0aa2ec40349c0b8946492dde1b"
+    },
+    {
+      "path": "wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json",
+      "bytes": 15619,
+      "sha256": "c89cc1e7029b96c67c7183b4081e1526905a4f1875da9a9f9f6b290e2cd8554c"
+    },
+    {
+      "path": "lib/seo/homepage-metadata.ts",
+      "bytes": 2207,
+      "sha256": "214953d931381323760e5c49e9493d9de3510f583d9d98578b9737ba6ced7d8a"
+    },
+    {
+      "path": "lib/seo/homepage-jsonld.ts",
+      "bytes": 4190,
+      "sha256": "6a744dc9f3c3f9c6789ee3ca6caca12083e4234ff58f09e25b4d39cb893f0e95"
+    },
+    {
+      "path": "components/sites/tio2-my/malaysia-global-chrome.tsx",
+      "bytes": 1349,
+      "sha256": "910f720791e8ab5fd836932d6ddc3c70c126fb502ccf17c8635b736cca683453"
+    },
+    {
+      "path": "components/sites/tio2-my/malaysia-global-chrome-client.tsx",
+      "bytes": 10830,
+      "sha256": "aeb738d4058dacd0ed09ef3163aca965fbbf247196008db16a395cc9bcbf26c5"
+    },
+    {
+      "path": "components/sites/tio2-my/malaysia-global-chrome.module.css",
+      "bytes": 9896,
+      "sha256": "909c8d03048cb41944a95d2a0e821b068645875cfd1811d9e960b6f6e7d3b6cb"
+    },
+    {
+      "path": "wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json",
+      "bytes": 2482,
+      "sha256": "69cf01751ee949de75837db43826a72aaeef72bf0ed90d6c3e742d28c1077fc2"
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg",
+      "bytes": 4342,
+      "sha256": "eeed3a758e7ae1b847238d1c88e86eee7a8e67b863969af4d286747e9a72487c"
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-reverse-monochrome-v0.1.svg",
+      "bytes": 2725,
+      "sha256": "7cfaeafa02ac8469a006c9489db2f92b15b2621e4151b04efe1b30fc734c1b5e"
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-symbol-v0.1.svg",
+      "bytes": 2510,
+      "sha256": "9fd1fafafad4bc6fef0c05f499c27baf1051eef084d1b834b1061caf3b8b85a0"
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-favicon-safe-v0.1.svg",
+      "bytes": 1107,
+      "sha256": "f1d1b97ff66211410a50279eed16414b5a6e888c27c11419e41265168d08692c"
+    }
+  ],
+  "baselineVerification": {
+    "command": "npm test -- tests/unit/homepage/malaysia-template.test.tsx tests/unit/homepage/malaysia-styles.test.ts tests/unit/homepage/malaysia-dto.test.ts tests/unit/homepage/metadata.test.ts tests/unit/homepage/jsonld.test.ts tests/integration/homepage/route.test.tsx tests/integration/homepage/queries.test.ts tests/integration/homepage/seo.test.tsx tests/infrastructure/tio2-my-homepage-contract.test.ts tests/infrastructure/tio2-my-global-chrome-contract.test.ts",
+    "testFiles": 10,
+    "tests": 63,
+    "result": "PASS"
+  }
+}
