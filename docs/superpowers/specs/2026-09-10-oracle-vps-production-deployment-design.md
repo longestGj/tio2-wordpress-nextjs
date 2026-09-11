@@ -1,5 +1,7 @@
 # TiO₂ Malaysia Oracle VPS Production Deployment Design
 
+> **2026-09-11 current decision:** The approved first phase now preserves the existing WordPress service, container MariaDB and data volumes while installing the fixed program and adding frontend slots. The [production adoption design](2026-09-11-tio2-production-adoption-design.md) supersedes this document's first-takeover, controlled-Compose ownership and data-migration sequence for that phase. The broader migration design below remains historical target context and is not authority to migrate production data.
+
 ## 1. Purpose and decision status
 
 This document defines the approved target design for deploying the `tio2-my` WordPress backend, approved production data and Next.js frontend to the Oracle VPS at `129.146.68.82`. The public website uses `tio2malaysia.com`; `www.tio2malaysia.com` redirects to the apex domain; the CMS remains at `cms.tio2malaysia.com`.

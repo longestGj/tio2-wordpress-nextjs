@@ -1,5 +1,7 @@
 # TiO₂ Malaysia 发布工具操作说明
 
+> 当前固定发布协议已经完成本地实现与演练，但生产服务器尚未登记。已批准的首次接管目标见[生产环境首次接管设计](superpowers/specs/2026-09-11-tio2-production-adoption-design.md)；其中的一次性 Plan/Apply、现有 CMS 接入和完整生产三道门尚未实现或执行，不能直接运行日常 Release 代替首次接管。
+
 网站固定为 `tio2-my`，公网站点 `https://tio2malaysia.com`，CMS `https://cms.tio2malaysia.com`。本工具的源码能力、本地演练和实际生产采用分别记录；本文件不是生产操作授权。发布进入条件仍见[开发交付流程](development-workflow.md#7-发布d16执行授权按网站和环境限定)，当前证据见[四项交付验证](verification/2026-09-11-production-tooling.md)。
 
 ## 适用边界
