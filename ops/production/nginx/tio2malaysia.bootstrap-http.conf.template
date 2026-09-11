@@ -1,0 +1,26 @@
+# TIO2_NGINX_FIRST_ISSUANCE_MARKER: stage this HTTP-only configuration, run nginx -t, then run:
+# certbot certonly --webroot --webroot-path /var/lib/tio2-production/acme -d tio2malaysia.com -d www.tio2malaysia.com
+# Only after Certbot succeeds may the final TLS template be staged and validated.
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name cms.tio2malaysia.com;
+
+    return 301 https://cms.tio2malaysia.com$request_uri;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name tio2malaysia.com www.tio2malaysia.com;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/lib/tio2-production/acme;
+        try_files $uri =404;
+    }
+
+    location / {
+        return 503;
+    }
+}

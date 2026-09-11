@@ -1,5 +1,7 @@
 # D16 开发、测试与发布交付流程
 
+TiO₂ Malaysia 的本地发布控制器、root 登记适用条件与单一操作入口见[生产发布工具](production-deployment.md)；实际分层验证和未验收环境见[发布工具验证记录](verification/2026-09-11-production-tooling.md)。工具可用性不代表生产已采用。
+
 生效依据：2026-09-07用户明确的多网站承接定位；稳定底线见根[AGENTS.md](../AGENTS.md)，网站身份见[网站登记](site-registry.md)。本次规则整理不改变任何页面既有批准或发布授权。
 
 2026-09-07补充依据：用户批准将Poland复盘落实为交接实例与流程改进。直接使用[任务记录模板](templates/development-task-record.md)，或在已有主回执补齐对应字段；D23任务可用[Gate8开发任务模板](templates/d23-gate8-development-task.md)组织派发。[Poland实例](examples/poland-development-handoff.md)展示实际交付、返修和停止点。三个逻辑入口是“策划批准入口、D16实施记录、最新交付与接收”，不要求另外创建三份内容重复的文件。

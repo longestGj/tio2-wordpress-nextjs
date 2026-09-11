@@ -1,5 +1,7 @@
 # D16 当前软件架构
 
+TiO₂ Malaysia 的本地发布控制器、root 登记适用条件与单一操作入口见[生产发布工具](production-deployment.md)；实际分层验证和未验收环境见[发布工具验证记录](verification/2026-09-11-production-tooling.md)。工具可用性不代表生产已采用。
+
 核对日期：2026-09-08。初始代码基线：`de89d8c9dd48f3027d1649fce609d153ac7cc6f1`；本次按合并commit `1e2b954582ab979f9502d4f98aa99e8d251255c7`更新APP-000、共享外壳及RFQ链路，应用代码与main `41be5cf`一致。本文记录现有结构，不实施架构变更或批准业务变化。
 
 核对依据为本地代码、配置与历史设计，未进行运行验收或远程平台核查。本文的“已实现”指仓库中存在对应实现，不表示每条路径已经测试通过或已经部署。网站身份与限制见[网站登记](site-registry.md)和[根规则](../AGENTS.md)；开发方法、Agent/Superpowers及CI/CD执行属于[开发交付流程](development-workflow.md)，不与软件运行架构混为一谈。
