@@ -1,0 +1,46 @@
+{
+  "capturedAt": "2026-09-11T11:10:34.459Z",
+  "runtime": "http://127.0.0.1:32000/",
+  "results": [
+    {
+      "source": "/",
+      "status": 204,
+      "cacheControl": "no-store",
+      "cookieName": "rfq_context",
+      "tokenRedacted": true,
+      "httpOnly": true,
+      "sameSiteStrict": true,
+      "pathRoot": true
+    },
+    {
+      "source": "/applications/",
+      "status": 204,
+      "cacheControl": "no-store",
+      "cookieName": "rfq_context",
+      "tokenRedacted": true,
+      "httpOnly": true,
+      "sameSiteStrict": true,
+      "pathRoot": true
+    },
+    {
+      "source": "/products/",
+      "status": 204,
+      "cacheControl": "no-store",
+      "cookieName": "rfq_context",
+      "tokenRedacted": true,
+      "httpOnly": true,
+      "sameSiteStrict": true,
+      "pathRoot": true
+    },
+    {
+      "source": "/about/",
+      "status": 204,
+      "cacheControl": "no-store",
+      "cookieName": "rfq_context",
+      "tokenRedacted": true,
+      "httpOnly": true,
+      "sameSiteStrict": true,
+      "pathRoot": true
+    }
+  ]
+}

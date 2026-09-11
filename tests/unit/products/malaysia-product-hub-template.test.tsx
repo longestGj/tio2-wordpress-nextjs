@@ -61,6 +61,8 @@ describe('MalaysiaProductHub', () => {
     }
     expect(markup).toContain('aria-current="page"')
     expect(markup).not.toMatch(/>\s*CURRENT\s*</u)
+    expect(markup).not.toMatch(/source_page_id|data-source-page/u)
+    expect(markup).not.toContain('/request-a-quote/?')
   })
 
   it('fails closed for unavailable external actions without removing stable content', async () => {

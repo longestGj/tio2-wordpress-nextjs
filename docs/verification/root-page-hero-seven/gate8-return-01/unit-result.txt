@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/root-hero-seven-gate8
+
+
+ Test Files  11 passed (11)
+      Tests  59 passed (59)
+   Start at  18:42:13
+   Duration  3.91s (transform 1.06s, setup 2.66s, import 3.59s, tests 2.11s, environment 3.66s)
+

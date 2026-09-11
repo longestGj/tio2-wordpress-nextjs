@@ -1,3 +1,9 @@
-import {Inter} from 'next/font/google'
+import localFont from 'next/font/local'
 
-export const malaysiaSharedFont = Inter({subsets:['latin'],weight:['400','500','600','700'],display:'swap',variable:'--font-my-shared'})
+export const malaysiaSharedFont = localFont({
+  src: '../../components/sites/tio2-my/editorial/fonts/Inter-Variable.ttf',
+  display: 'swap',
+  style: 'normal',
+  weight: '100 900',
+  variable: '--font-my-shared',
+})

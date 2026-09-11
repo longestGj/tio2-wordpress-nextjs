@@ -19,6 +19,9 @@
 .heroCopy { max-width: 790px; }
 .heroCopy p { margin-bottom: 13px; color: #40566a; }
 .heroCopy a { min-height: 44px; display: inline-flex; align-items: center; color: #006a63; }
+.whoCopy { max-width: 790px; margin-bottom: 28px; }
+.whoCopy p { margin-bottom: 12px; color: #40566a; }
+.whoCopy a { color: #006a63; }
 .actions { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; }
 .actions a, .sectionAction { min-width: 164px; min-height: 48px; padding: 0 22px; display: inline-flex; align-items: center; justify-content: center; gap: 18px; border-radius: 3px; text-decoration: none; }
 .primary { color: #fff !important; background: #006a63; }

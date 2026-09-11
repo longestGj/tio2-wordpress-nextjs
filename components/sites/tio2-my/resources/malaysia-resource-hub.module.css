@@ -66,6 +66,8 @@
 }
 .heroCopy > a:hover { background: #006a63; border-color: #006a63; }
 .heroCopy > a:focus-visible, .resourceMain a:focus-visible, .resourceMain button:focus-visible { outline: 3px solid #f5b942; outline-offset: 3px; }
+.heroAction { min-width: 44px; min-height: 48px; padding: 0 24px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #008078; border-radius: 4px; color: #fff; background: #008078; font-weight: 800; text-decoration: none; }
+.heroAction:hover { background: #006a63; border-color: #006a63; }
 
 .researchDiagram { position: relative; min-height: 330px; display: grid; grid-template-columns: 110px 1fr; align-items: center; }
 .researchDiagram > strong { width: 104px; height: 104px; border-radius: 50%; border: 2px solid #5ce0d7; display: grid; place-items: center; font-size: 13px; letter-spacing: .12em; }
@@ -115,6 +117,7 @@
 @media (max-width: 900px) {
   .heroInner { min-height: auto; grid-template-columns: 1fr; padding-top: 72px; padding-bottom: 72px; }
   .researchDiagram { display: none; }
+  .heroMedia { display: none; }
   .pathGrid, .evidenceGrid, .resourceGrid { gap: 18px; }
   .resourceGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pathGrid article, .resourceGrid article { padding: 28px 24px; }

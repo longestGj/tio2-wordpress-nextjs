@@ -119,19 +119,15 @@ describe('MalaysiaHomepage', () => {
     expect(container.querySelectorAll('[aria-disabled="true"]')).toHaveLength(0)
   })
 
-  it('keeps shared Chrome attribution private while retaining page-owned RFQ context', () => {
+  it('keeps RFQ attribution private and public RFQ links clean', () => {
     const {container} = render(<MalaysiaHomepage homepage={homepage()} />)
     const rfqLinks = container.querySelectorAll('a[href="/request-a-quote/"]')
     expect(rfqLinks.length).toBeGreaterThanOrEqual(4)
     for (const link of rfqLinks) {
-      if (link.closest('header, footer')) {
-        expect(link.getAttribute('data-site-scope')).toBeNull()
-        expect(link.getAttribute('data-source-page')).toBeNull()
-      } else {
-        expect(link.getAttribute('data-site-scope')).toBe('tio2-my')
-        expect(link.getAttribute('data-source-page')).toBe('HOME-001')
-      }
+      expect(link.getAttribute('data-site-scope')).toBeNull()
+      expect(link.getAttribute('data-source-page')).toBeNull()
     }
+    expect(container.innerHTML).not.toMatch(/HOME-001|source_page_id|data-source-page/u)
     expect(container.querySelector('[data-module="page-rfq"]')?.getAttribute('data-mobile-render')).toBe('false')
   })
 })

@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-09-11T10:43:43.698Z",
+  "runtime": "http://127.0.0.1:32000/",
+  "result": "PASS",
+  "routes": [
+    {
+      "path": "/",
+      "page_id_absent": true,
+      "source_page_id_absent": true,
+      "data_source_page_absent": true
+    },
+    {
+      "path": "/products/",
+      "page_id_absent": true,
+      "source_page_id_absent": true,
+      "data_source_page_absent": true
+    },
+    {
+      "path": "/about/",
+      "page_id_absent": true,
+      "source_page_id_absent": true,
+      "data_source_page_absent": true
+    }
+  ]
+}
