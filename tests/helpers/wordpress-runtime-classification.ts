@@ -4,12 +4,59 @@ import ts from 'typescript'
 
 export const READ_ONLY_PREVIEW_PATH = '/workspace/tests/infrastructure/php/site-a-editorial-phase1-preview.php'
 
+/**
+ * A deliberately narrow language for this one reviewed probe, not a PHP parser.
+ * Unknown tokens/call targets fail closed. The probe needs no database access.
+ */
 export function inspectReadOnlyPreviewPhp(source: string): string[] {
-  const unsafe = /\b(?:wp_insert_post|wp_update_post|wp_delete_post|update_post_meta|delete_post_meta|wp_set_object_terms|update_option|delete_option|file_put_contents|unlink|eval|include|require|shell_exec|exec|system|passthru|proc_open|getenv)\s*\(|\$(?:argv|_ENV|_GET|_POST|_REQUEST)\b|\$wpdb\s*->\s*(?:insert|update|delete|replace|query)\s*\(|\b(?:INSERT\s+INTO|UPDATE\s+\w+\s+SET|DELETE\s+FROM|DROP\s+TABLE|TRUNCATE\s+TABLE)\b|WP_CLI::(?:runcommand|launch_self)\s*\(/iu
-  const languageOrWrite = /\b(?:include|include_once|require|require_once)\b|\b(?:add|update|delete)_(?:option|site_option|metadata|post_meta|user_meta|term_meta)\s*\(/iu
-  const apiMutation = /\b(?:wp_(?:insert|update|delete|set|create|publish|trash|untrash)_[a-z_]+|update_field|delete_field|add_row|update_row|delete_row|acf_update_value)\s*\(|WP_REST_Request\s*\(\s*(?!['"]GET['"])|->\s*set_method\s*\(/iu
-  return unsafe.test(source) || languageOrWrite.test(source) || apiMutation.test(source)
-    ? ['reviewed preview helper contains mutation, SQL or dynamic execution input'] : []
+  const reject = ['reviewed preview helper contains mutation, SQL or dynamic execution input']
+  const opening = /^\s*<\?php\s/u.exec(source)
+  if (!opening || source.includes('?>')) return reject
+  const body = source.slice(opening[0].length)
+  // No interpolation, escape sequences, variable variables, namespaces, heredocs,
+  // shell strings or unrecognized operators are admitted by this small vocabulary.
+  const token = /\s+|\/\/[^\r\n]*|\/\*[\s\S]*?\*\/|'[^'\\\r\n]*'|\$[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_]*|[0-9]+|=>|->|[\[\]{}(),:;.=!]/uy
+  const tokens: string[] = []
+  for (let position = 0; position < body.length;) {
+    token.lastIndex = position
+    const match = token.exec(body)
+    if (!match) return reject
+    const value = match[0]
+    position = token.lastIndex
+    if (!/^\s|^\/\/|^\/\*/u.test(value)) tokens.push(value)
+  }
+  const probe = 'tio2_read_only_editorial_preview_probe'
+  const functions = new Set([probe, 'tio2_get_preview_config', 'is_array', 'time', 'hash_hmac',
+    'tio2_preview_signature_message', 'rest_do_request', 'apply_filters', 'rest_get_server', 'wp_json_encode',
+    'WP_REST_Request', 'RuntimeException'])
+  const keywords = new Set(['function', 'string', 'array', 'if', 'throw', 'new', 'return', 'foreach', 'as', 'echo'])
+  const variables = new Set(['$site_id', '$path', '$config', '$timestamp', '$request', '$response', '$paths', '$targets', '$closed'])
+  const methods = new Map([
+    ['$request', new Set(['set_param', 'set_header'])],
+    ['$response', new Set(['get_status', 'get_headers', 'get_data'])],
+  ])
+  const brackets: string[] = []
+  for (let index = 0; index < tokens.length; index++) {
+    const value = tokens[index], previous = tokens[index - 1], next = tokens[index + 1]
+    if (value.startsWith('$') && !variables.has(value)) return reject
+    if (value === 'new' && (!['WP_REST_Request', 'RuntimeException'].includes(next) || tokens[index + 2] !== '(')) return reject
+    if (value === 'function' && next !== probe) return reject
+    if (value === '->' && (!methods.get(previous)?.has(next) || tokens[index + 2] !== '(')) return reject
+    if (/^[A-Za-z_]/u.test(value)) {
+      const method = previous === '->'
+      if (!functions.has(value) && !keywords.has(value) && !method) return reject
+      if (next === '(' && !method && !functions.has(value) && !['if', 'foreach'].includes(value)) return reject
+      if (value === 'WP_REST_Request' && (tokens[index + 2] !== "'GET'" || tokens[index + 3] !== ','
+        || tokens[index + 4] !== "'/tio2/v1/preview'" || tokens[index + 5] !== ')')) return reject
+      if (value === 'apply_filters' && tokens[index + 2] !== "'rest_post_dispatch'") return reject
+    }
+    if (value === '(' && previous && (previous.startsWith('$') || previous.startsWith("'") || [')', ']', '}'].includes(previous))) return reject
+    if (value === '.' && (previous === '.' || next === '.')) return reject
+    if (value === ':' && (previous === ':' || next === ':')) return reject
+    if (['(', '[', '{'].includes(value)) brackets.push(value)
+    if ([')', ']', '}'].includes(value) && brackets.pop() !== ({')': '(', ']': '[', '}': '{'} as Record<string, string>)[value]) return reject
+  }
+  return brackets.length ? reject : []
 }
 
 type Word = string | {kind: 'compose' | 'php' | 'unknown'}

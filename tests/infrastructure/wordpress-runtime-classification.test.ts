@@ -1,6 +1,6 @@
 import {readFileSync, readdirSync} from 'node:fs'
 import {join, relative, resolve} from 'node:path'
-import {inspectWordPressRuntime as inspectRuntime} from '../helpers/wordpress-runtime-classification'
+import {inspectReadOnlyPreviewPhp, inspectWordPressRuntime as inspectRuntime} from '../helpers/wordpress-runtime-classification'
 import {describe, expect, it} from 'vitest'
 
 const root = resolve('tests')
@@ -84,6 +84,34 @@ describe('WordPress runtime ownership classification', () => {
     const mode = "export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-read-only', hostHttp: false} as const;"
     const source = `${mode}describe.runIf(process.env.RUN === '1')('live', () => {wp(['eval-file', '/workspace/tests/infrastructure/php/site-a-editorial-phase1-preview.php'])})`
     expect(inspectRuntime(source, () => '<?php ' + php)).toContain('reviewed preview helper contains mutation, SQL or dynamic execution input')
+  })
+
+  it.each([
+    "call_user_func('update_option', 'unsafe', 'value');",
+    "call_user_func_array('update_option', ['unsafe', 'value']);",
+    "forward_static_call(['Unsafe', 'write'], 'value');",
+    "RuntimeException::time();",
+    "$operation='update_option'; $operation('unsafe', 'value');",
+    "$path='update_option'; $path('unsafe', 'value');",
+    "$path='update_option'; ($path)('unsafe', 'value');",
+    "$targets=['update_option']; $targets[0]('unsafe', 'value');",
+    "$path='set_method'; $request->$path('POST');",
+    "$request='wpdb'; $response=new $request;",
+    "$wpdb->get_results('ALTER TABLE wp_posts ADD unsafe INT');",
+    "$method='update'; $wpdb->$method('wp_posts', []);",
+    "$method='set_method'; $request->{$method}('POST');",
+    "$wpdb->get_results('SEL' . 'ECT 1');",
+    "$wpdb->get_results('SELECT 1;DELETE FROM wp_posts');",
+    "$wpdb->get_results('/* claimed read-only */ SELECT 1');",
+    "$wpdb->get_results($sql);",
+    "$wpdb->get_results('SELECT 1');",
+    "unknown_plugin_side_effect();",
+  ])('fails closed for indirect PHP execution or any unused database capability: %s', php => {
+    expect(inspectReadOnlyPreviewPhp('<?php ' + php)).toContain('reviewed preview helper contains mutation, SQL or dynamic execution input')
+  })
+
+  it('accepts the tracked read-only helper without granting extra PHP capabilities', () => {
+    expect(inspectReadOnlyPreviewPhp(readFileSync('tests/infrastructure/php/site-a-editorial-phase1-preview.php', 'utf8'))).toEqual([])
   })
 
   it.each([
