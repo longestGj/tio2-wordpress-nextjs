@@ -40,9 +40,35 @@ describe('MalaysiaHomepage', () => {
       'hero', 'start-here', 'markets', 'products', 'applications', 'company',
       'documents', 'resources', 'page-rfq',
     ])
-    for (const id of approvedContract.products.groups.flatMap((group) => group.gradeIds)) {
+    const approvedGradeIds = approvedContract.products.groups.flatMap((group) => group.gradeIds)
+    for (const id of approvedGradeIds) {
       expect(screen.getByText(id)).toBeTruthy()
     }
+    expect(Array.from(container.querySelectorAll('[data-product-grade-id]'), (node) => node.textContent))
+      .toEqual(approvedGradeIds)
+    expect(approvedContract.products.groups.map((group) => group.gradeIds.length)).toEqual([6, 5, 2, 1])
+  })
+
+  it('keeps the exact approved Home body href inventory in module order', () => {
+    const {container} = render(<MalaysiaHomepage homepage={homepage()} />)
+    const expected = [
+      approvedContract.hero.primaryCta.href,
+      approvedContract.hero.secondaryCta.href,
+      ...approvedContract.startHere.items.map((item) => item.href),
+      approvedContract.markets.sectionCta.href,
+      ...approvedContract.markets.items.map((item) => item.href),
+      ...approvedContract.products.processLinks.map((item) => item.href),
+      approvedContract.products.primaryCta.href,
+      ...approvedContract.applications.items.flatMap((item) => item.href ? [item.href] : []),
+      approvedContract.company.cta.href,
+      ...approvedContract.documents.items.map((item) => item.href),
+      ...approvedContract.resources.topics.flatMap((item) => item.href ? [item.href] : []),
+      ...approvedContract.resources.answers.map((item) => item.cta.href),
+      approvedContract.pageRfq.cta.href,
+    ]
+
+    expect(Array.from(container.querySelectorAll('main a[href]'), (link) => link.getAttribute('href')))
+      .toEqual(expected)
   })
 
   it('renders four independently expandable product groups with approved counts', () => {
