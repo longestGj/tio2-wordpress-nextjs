@@ -81,6 +81,43 @@ function Assert-ProductionReceiptPath {
     return $receipt
 }
 
+function Read-ProductionJsonStrict {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)] [string] $Path)
+
+    $parser = @'
+import json, sys
+def reject_duplicates(pairs):
+    value = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValueError("duplicate JSON member")
+        value[key] = item
+    return value
+with open(sys.argv[1], "r", encoding="utf-8-sig") as stream:
+    value = json.load(stream, object_pairs_hook=reject_duplicates)
+sys.stdout.write(json.dumps(value, separators=(",", ":"), ensure_ascii=False))
+'@
+    $parserPath = [IO.Path]::GetTempFileName() + '.py'
+    try {
+        [IO.File]::WriteAllText($parserPath, $parser, [Text.UTF8Encoding]::new($false))
+        $previousPreference = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
+        try {
+            $normalized = @(& python $parserPath $Path 2>$null)
+            $parserExit = $LASTEXITCODE
+        }
+        finally { $ErrorActionPreference = $previousPreference }
+    }
+    finally {
+        Remove-Item -LiteralPath $parserPath -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath ($parserPath -replace '\.py$', '') -Force -ErrorAction SilentlyContinue
+    }
+    if ($parserExit -ne 0 -or $normalized.Count -ne 1) { throw 'Prerelease receipt is not valid strict JSON.' }
+    try { return ($normalized[0] | ConvertFrom-Json -ErrorAction Stop) }
+    catch { throw 'Prerelease receipt is not valid strict JSON.' }
+}
+
 function Assert-ProductionCandidate {
     [CmdletBinding()]
     param(
@@ -92,22 +129,29 @@ function Assert-ProductionCandidate {
     if ($GitIdentity.branch -ne 'main' -or @($GitIdentity.entries).Count -ne 0) { throw 'Production packaging requires a clean main worktree.' }
     if ($GitIdentity.commit -notmatch '^[a-f0-9]{40}$') { throw 'Production packaging requires a valid Git commit.' }
     $receiptPath = Assert-ProductionReceiptPath -RepositoryRoot $RepositoryRoot -PrereleaseReceiptPath $PrereleaseReceiptPath
+    $receiptBytes = [System.IO.File]::ReadAllBytes($receiptPath)
+    $receipt = Read-ProductionJsonStrict -Path $receiptPath
     try {
-        $receiptBytes = [System.IO.File]::ReadAllBytes($receiptPath)
-        $receipt = [System.Text.Encoding]::UTF8.GetString($receiptBytes) | ConvertFrom-Json -ErrorAction Stop
+        $expectedKeys = @('buildId','cmsIdentitySha256','commit','counts','evidenceSha256','forms','releaseSurfaceSha256','runId','schemaVersion','sealedAt','siteId','state') | Sort-Object
+        $actualKeys = @($receipt.PSObject.Properties.Name | Sort-Object)
+        $sealedAtText = if ($receipt.sealedAt -is [DateTime]) { $receipt.sealedAt.ToUniversalTime().ToString('o') } else { [string] $receipt.sealedAt }
+        $sealedAt = [DateTimeOffset]::MinValue
+        if (@(Compare-Object $actualKeys $expectedKeys -CaseSensitive).Count -ne 0 -or
+            $receipt.schemaVersion -cne 'tio2-prerelease-production-gate-v1' -or $receipt.state -cne 'PASSED' -or
+            $receipt.commit -cne $GitIdentity.commit -or $receipt.siteId -cne 'tio2-my' -or
+            [string]::IsNullOrWhiteSpace([string] $receipt.runId) -or [string]::IsNullOrWhiteSpace([string] $receipt.buildId) -or
+            $receipt.cmsIdentitySha256 -notmatch '^[a-f0-9]{64}$' -or $receipt.releaseSurfaceSha256 -cne $script:FrozenContractSha256['ops/production/release-surface.json'] -or
+            $sealedAtText -notmatch '(Z|[+-][0-9]{2}:[0-9]{2})$' -or -not [DateTimeOffset]::TryParse($sealedAtText, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind, [ref] $sealedAt) -or
+            $receipt.counts.businessPages -ne 56 -or $receipt.counts.registeredObjects -ne 58 -or $receipt.counts.widths -ne 3 -or $receipt.counts.browserCases -ne 174 -or
+            $receipt.forms.rfq -cne 'RECEIVED' -or $receipt.forms.sample -cne 'RECEIVED' -or $receipt.forms.documents -cne 'RECEIVED' -or
+            $receipt.evidenceSha256.test -notmatch '^[a-f0-9]{64}$' -or $receipt.evidenceSha256.liveForms -notmatch '^[a-f0-9]{64}$' -or $receipt.evidenceSha256.inbox -notmatch '^[a-f0-9]{64}$') {
+            throw 'invalid'
+        }
+        if (@(Compare-Object @($receipt.counts.PSObject.Properties.Name | Sort-Object) @('browserCases','businessPages','registeredObjects','widths') -CaseSensitive).Count -ne 0 -or
+            @(Compare-Object @($receipt.forms.PSObject.Properties.Name | Sort-Object) @('documents','rfq','sample') -CaseSensitive).Count -ne 0 -or
+            @(Compare-Object @($receipt.evidenceSha256.PSObject.Properties.Name | Sort-Object) @('inbox','liveForms','test') -CaseSensitive).Count -ne 0) { throw 'invalid' }
     }
-    catch { throw 'Prerelease receipt is not valid JSON.' }
-    if ($receipt.state -ne 'HEALTHY' -or -not [string]::IsNullOrWhiteSpace([string] $receipt.failedStage) -or [string]::IsNullOrWhiteSpace([string] $receipt.completedAt)) {
-        throw 'Prerelease receipt is not a completed healthy run.'
-    }
-    $completionText = if ($receipt.completedAt -is [DateTime]) { $receipt.completedAt.ToUniversalTime().ToString('o') } else { [string] $receipt.completedAt }
-    $completion = [DateTimeOffset]::MinValue
-    if ($completionText -notmatch '(Z|[+-][0-9]{2}:[0-9]{2})$' -or -not [DateTimeOffset]::TryParse($completionText, [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::RoundtripKind, [ref] $completion)) {
-        throw 'Prerelease receipt is not a completed healthy run.'
-    }
-    if ($receipt.commit -ne $GitIdentity.commit -or $receipt.siteId -ne 'tio2-my' -or [string]::IsNullOrWhiteSpace([string] $receipt.buildId) -or [string]::IsNullOrWhiteSpace([string] $receipt.cmsIdentitySha256) -or [string] $receipt.cmsIdentitySha256 -notmatch '^[a-fA-F0-9]{64}$') {
-        throw 'Prerelease receipt does not contain complete matching commit, site, Build, and CMS identity fields.'
-    }
+    catch { throw 'Exact production prerelease gate is not satisfied.' }
     $algorithm = [System.Security.Cryptography.SHA256]::Create()
     try { $receiptSha256 = ([System.BitConverter]::ToString($algorithm.ComputeHash($receiptBytes)) -replace '-', '').ToLowerInvariant() }
     finally { $algorithm.Dispose() }
@@ -353,7 +397,7 @@ function New-ProductionPackage {
     # A fixed third upload artifact binds the locally checked evidence to this
     # exact package. This is consistency evidence, not independent authorization.
     $proofPath = Join-Path $runRoot 'release-proof.json'
-    $completedAt = if ($candidateEvidence.receipt.completedAt -is [DateTime]) { $candidateEvidence.receipt.completedAt.ToUniversalTime().ToString('o') } else { [string] $candidateEvidence.receipt.completedAt }
+    $sealedAt = if ($candidateEvidence.receipt.sealedAt -is [DateTime]) { $candidateEvidence.receipt.sealedAt.ToUniversalTime().ToString('o') } else { [string] $candidateEvidence.receipt.sealedAt }
     $proof = [ordered]@{
         schemaVersion = 'tio2-production-proof-v1'
         contractVersion = $script:FrozenContractVersion
@@ -361,10 +405,14 @@ function New-ProductionPackage {
         archiveSha256 = $archiveSha256; manifestSha256 = $manifestSha256
         source = [ordered]@{ branch = 'main'; clean = $true }
         prerelease = [ordered]@{
-            state = 'HEALTHY'; siteId = 'tio2-my'; commit = $identity.commit
-            completedAt = $completedAt; buildId = [string] $candidateEvidence.receipt.buildId
+            state = 'PASSED'; siteId = 'tio2-my'; commit = $identity.commit
+            runId = [string] $candidateEvidence.receipt.runId; sealedAt = $sealedAt
+            buildId = [string] $candidateEvidence.receipt.buildId
             cmsIdentitySha256 = ([string] $candidateEvidence.receipt.cmsIdentitySha256).ToLowerInvariant()
-            receiptSha256 = $candidateEvidence.receiptSha256
+            releaseSurfaceSha256 = [string] $candidateEvidence.receipt.releaseSurfaceSha256
+            counts = $candidateEvidence.receipt.counts
+            forms = $candidateEvidence.receipt.forms
+            productionGateReceiptSha256 = $candidateEvidence.receiptSha256
         }
     }
     New-ProductionUtf8File -Path $proofPath -Content ($proof | ConvertTo-Json -Depth 20 -Compress)

@@ -11,7 +11,7 @@ def build(revision,output):
  tree=ast.parse(blob(revision,'ops/production/server/bootstrap_install.py'))
  names=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='REQUIRED_FILES' for t in n.targets))
  if not isinstance(names,tuple) or any(not re.fullmatch('[A-Za-z0-9_.-]+',n) for n in names):raise ValueError('invalid installer inventory')
- contents={name:blob(revision,'ops/production/Dockerfile' if name=='web.Dockerfile' else 'ops/production/server/'+name) for name in names}
+ contents={name:(revision+'\n').encode() if name=='tool-commit.txt' else blob(revision,'ops/production/Dockerfile' if name=='web.Dockerfile' else 'ops/production/server/'+name) for name in names}
  output.mkdir(parents=True,exist_ok=False)
  for name,data in contents.items():(output/name).write_bytes(data)
  record={'toolCommit':revision,'files':{name:hashlib.sha256(data).hexdigest() for name,data in contents.items()},'installationPerformed':False}

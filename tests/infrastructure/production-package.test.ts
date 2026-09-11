@@ -42,14 +42,18 @@ type FixtureOptions = {
 
 function receiptFor(commit: string, override: Record<string, unknown> = {}) {
   return {
-    schemaVersion: 1,
-    state: 'HEALTHY',
-    failedStage: null,
-    completedAt: '2026-09-10T00:00:00.000Z',
+    schemaVersion: 'tio2-prerelease-production-gate-v1',
+    state: 'PASSED',
     commit,
     siteId: 'tio2-my',
+    runId: 'candidate-1',
     buildId: 'build-candidate-1',
     cmsIdentitySha256: 'a'.repeat(64),
+    releaseSurfaceSha256: '42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152',
+    sealedAt: '2026-09-10T00:00:00.000Z',
+    counts: {businessPages: 56, registeredObjects: 58, widths: 3, browserCases: 174},
+    forms: {rfq: 'RECEIVED', sample: 'RECEIVED', documents: 'RECEIVED'},
+    evidenceSha256: {test: 'b'.repeat(64), liveForms: 'c'.repeat(64), inbox: 'd'.repeat(64)},
     ...override,
   }
 }
@@ -155,7 +159,7 @@ describe.runIf(process.platform === 'win32')('deterministic local production pac
       schemaVersion: 'tio2-production-proof-v1', contractVersion: 'tio2-production-contracts-v1', commit,
       archiveSha256: packaged.archiveSha256, manifestSha256: packaged.manifestSha256,
       source: {branch: 'main', clean: true},
-      prerelease: {state: 'HEALTHY', commit, receiptSha256: sha256(readFileSync(receiptPath))},
+      prerelease: {state: 'PASSED', commit, productionGateReceiptSha256: sha256(readFileSync(receiptPath))},
     })
     const probe = spawnSync('python', [resolve('tests/production/prepare_package_probe.py'), packaged.archivePath, packaged.manifestPath, packaged.proofPath], {encoding: 'utf8', timeout: 30000})
     expect(probe.status, probe.stderr).toBe(0)
@@ -188,6 +192,9 @@ describe.runIf(process.platform === 'win32')('deterministic local production pac
     ['wrong site', {siteId: 'tio2-a'}],
     ['missing build', {buildId: ''}],
     ['missing CMS identity', {cmsIdentitySha256: ''}],
+    ['wrong registered object count', {counts: {businessPages: 56, registeredObjects: 57, widths: 3, browserCases: 174}}],
+    ['wrong browser case count', {counts: {businessPages: 56, registeredObjects: 58, widths: 3, browserCases: 173}}],
+    ['unreceived workflow', {forms: {rfq: 'RECEIVED', sample: 'PENDING', documents: 'RECEIVED'}}],
   ])('rejects a prerelease receipt with %s', (_name, override) => {
     const {repository, receiptPath, commit} = createRepository()
     writeFileSync(receiptPath, JSON.stringify(receiptFor(commit, override)))
@@ -197,17 +204,24 @@ describe.runIf(process.platform === 'win32')('deterministic local production pac
   }, 15_000)
 
   it.each([
-    ['STARTING state', {state: 'STARTING'}],
+    ['wrong schema', {schemaVersion: 1}],
     ['FAILED state', {state: 'FAILED'}],
-    ['failed stage', {failedStage: 'next_build'}],
-    ['missing completion', {completedAt: null}],
-    ['invalid completion timestamp', {completedAt: 'not-a-date'}],
-  ])('rejects an unhealthy or incomplete prerelease receipt with %s', (_name, override) => {
+    ['missing sealing time', {sealedAt: null}],
+    ['invalid sealing timestamp', {sealedAt: 'not-a-date'}],
+  ])('rejects an incomplete production Gate A receipt with %s', (_name, override) => {
     const {repository, receiptPath, commit} = createRepository()
     writeFileSync(receiptPath, JSON.stringify(receiptFor(commit, override)))
     const result = invokePackage(repository, join(repository, '.production'), receiptPath)
     expect(result.status).not.toBe(0)
-    expect(result.stderr).toContain('Prerelease receipt is not a completed healthy run')
+    expect(result.stderr).toContain('Exact production prerelease gate is not satisfied')
+  }, 15_000)
+
+  it('rejects the former healthy-run receipt because it is not a sealed production gate', () => {
+    const {repository, receiptPath, commit} = createRepository()
+    writeFileSync(receiptPath, JSON.stringify({schemaVersion: 1, state: 'HEALTHY', failedStage: null, completedAt: '2026-09-10T00:00:00Z', commit, siteId: 'tio2-my', buildId: 'build-1', cmsIdentitySha256: 'a'.repeat(64)}))
+    const result = invokePackage(repository, join(repository, '.production'), receiptPath)
+    expect(result.status).not.toBe(0)
+    expect(result.stderr).toContain('Exact production prerelease gate is not satisfied')
   }, 15_000)
 
   it('requires a receipt below the explicit prerelease runs directory', () => {
@@ -317,8 +331,8 @@ describe.runIf(process.platform === 'win32')('deterministic local production pac
         const gzip = run ? join(runs, run, 'release.tar.gz') : ''
         if (gzip && existsSync(gzip)) break
         if (archive && existsSync(archive)) {
-          const mutation = spawnSync('powershell', ['-NoProfile', '-Command', `$stream=[System.IO.File]::Open(${psQuote(archive)}, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None); $stream.Dispose()`], {encoding: 'utf8'})
-          mutationWasAllowed ||= mutation.status === 0
+          const mutation = spawnSync('powershell', ['-NoProfile', '-Command', `$ErrorActionPreference='Stop'; $stream=[System.IO.File]::Open(${psQuote(archive)}, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None); $stream.Dispose()`], {encoding: 'utf8'})
+          mutationWasAllowed ||= mutation.status === 0 && !existsSync(gzip)
           if (mutationWasAllowed) break
         }
       }

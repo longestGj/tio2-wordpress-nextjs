@@ -23,7 +23,10 @@ def trusted_stat(_: Path) -> os.stat_result:
 def archive_copy(destination: Path) -> None:
     destination.mkdir()
     for name in REQUIRED_FILES:
-        shutil.copyfile(SERVER_ROOT.parent / "Dockerfile" if name == "web.Dockerfile" else SERVER_ROOT / name, destination / name)
+        if name == "tool-commit.txt":
+            (destination / name).write_text("a" * 40 + "\n", encoding="ascii")
+        else:
+            shutil.copyfile(SERVER_ROOT.parent / "Dockerfile" if name == "web.Dockerfile" else SERVER_ROOT / name, destination / name)
 
 
 def directory_link(link: Path, target: Path) -> None:
@@ -71,6 +74,13 @@ class BootstrapInstallTests(unittest.TestCase):
         self.assertIn("backup.sh", REQUIRED_FILES)
         self.assertIn("backup_core.py", REQUIRED_FILES)
         self.assertIn("release_baseline.py", REQUIRED_FILES)
+        self.assertIn("adoption_contract.py", REQUIRED_FILES)
+        self.assertIn("adoption_probe.py", REQUIRED_FILES)
+        self.assertIn("tio2_adopt.py", REQUIRED_FILES)
+        self.assertIn("tool-commit.txt", REQUIRED_FILES)
+        sudoers = (SERVER_ROOT / "sudoers.tio2-release").read_text(encoding="utf-8")
+        self.assertNotIn("tio2-adopt", sudoers)
+        self.assertNotIn("tio2_adopt.py", sudoers)
 
     def test_real_staged_self_test_validates_shell_without_compiling_it_as_python(self) -> None:
         archive = self.root / "bootstrap-selftest"

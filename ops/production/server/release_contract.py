@@ -74,11 +74,13 @@ def validate_prerelease_proof(proof_path: Path, manifest_path: Path, manifest: M
         if proof["source"] != {"branch": "main", "clean": True} or type(proof["source"]["clean"]) is not bool:
             raise ValueError
         receipt = proof["prerelease"]
-        if not isinstance(receipt, dict) or set(receipt) != {"state", "siteId", "commit", "completedAt", "buildId", "cmsIdentitySha256", "receiptSha256"}:
+        if not isinstance(receipt, dict) or set(receipt) != {"state", "siteId", "commit", "runId", "sealedAt", "buildId", "cmsIdentitySha256", "releaseSurfaceSha256", "counts", "forms", "productionGateReceiptSha256"}:
             raise ValueError
-        if receipt["state"] != "HEALTHY" or receipt["siteId"] != "tio2-my" or receipt["commit"] != manifest["commit"] or not isinstance(receipt["buildId"], str) or not receipt["buildId"].strip() or len(receipt["buildId"]) > 256:
+        if receipt["state"] != "PASSED" or receipt["siteId"] != "tio2-my" or receipt["commit"] != manifest["commit"] or not isinstance(receipt["runId"], str) or not receipt["runId"].strip() or not isinstance(receipt["buildId"], str) or not receipt["buildId"].strip() or len(receipt["buildId"]) > 256:
             raise ValueError
-        if not _SHA256.fullmatch(receipt["cmsIdentitySha256"]) or not _SHA256.fullmatch(receipt["receiptSha256"]) or datetime.fromisoformat(receipt["completedAt"].replace("Z", "+00:00")).tzinfo is None:
+        if not _SHA256.fullmatch(receipt["cmsIdentitySha256"]) or not _SHA256.fullmatch(receipt["releaseSurfaceSha256"]) or receipt["releaseSurfaceSha256"] != manifest["releaseSurfaceSha256"] or not _SHA256.fullmatch(receipt["productionGateReceiptSha256"]) or datetime.fromisoformat(receipt["sealedAt"].replace("Z", "+00:00")).tzinfo is None:
+            raise ValueError
+        if receipt["counts"] != {"businessPages": 56, "registeredObjects": 58, "widths": 3, "browserCases": 174} or receipt["forms"] != {"rfq": "RECEIVED", "sample": "RECEIVED", "documents": "RECEIVED"}:
             raise ValueError
         contracts = FROZEN_CONTRACTS[proof["contractVersion"]]
         hashes = {entry["path"]: entry["sha256"] for entry in manifest["files"]}

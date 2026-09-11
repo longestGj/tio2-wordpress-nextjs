@@ -10,5 +10,7 @@ class AdminBundleTests(unittest.TestCase):
    self.assertEqual(result.returncode,0,result.stderr)
    self.assertEqual((output/'web.Dockerfile').read_bytes(),subprocess.check_output(['git','show',commit+':ops/production/Dockerfile'],cwd=ROOT))
    self.assertFalse((output/'Dockerfile').exists())
-   self.assertEqual(len(list(output.iterdir())),14)
+   self.assertEqual((output/'tool-commit.txt').read_text(),commit+'\n')
+   self.assertTrue({'adoption_contract.py','adoption_probe.py','tio2_adopt.py'}<=set(path.name for path in output.iterdir()))
+   self.assertEqual(len(list(output.iterdir())),18)
 if __name__=='__main__':unittest.main()

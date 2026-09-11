@@ -600,10 +600,20 @@ function Complete-PrereleaseEvidence {
         $accepted = @($attempts | Where-Object { $_.workflow -eq $workflow -and $_.httpStatus -eq 200 -and $_.providerCategory -eq 'accepted' })
         if ($accepted.Count -ne 1) { $allProviderAccepted = $false }
     }
+    $surfacePath = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../ops/production/release-surface.json'))
+    if (-not (Test-Path -LiteralPath $surfacePath -PathType Leaf)) { throw 'Release surface inventory is missing.' }
+    $surfaceStream = [IO.File]::OpenRead($surfacePath)
+    try {
+        $surfaceAlgorithm = [Security.Cryptography.SHA256]::Create()
+        try { $releaseSurfaceSha256 = ([BitConverter]::ToString($surfaceAlgorithm.ComputeHash($surfaceStream)) -replace '-', '').ToLowerInvariant() }
+        finally { $surfaceAlgorithm.Dispose() }
+    }
+    finally { $surfaceStream.Dispose() }
     $result = [ordered]@{
         schemaVersion = 2; action = $Action; commandUuid = $CommandUuid
         candidateCommit = $Manifest.commit; runId = $Manifest.runId; buildId = $Manifest.buildId
         cmsIdentitySha256 = $Manifest.cmsIdentitySha256; siteId = $Manifest.siteId
+        releaseSurfaceSha256 = $releaseSurfaceSha256
         checkedAt = [DateTimeOffset]::UtcNow.ToString('o'); testExit = $TestExit
         state = $(if ($TestExit -eq 0 -and -not $invalid) { 'PASSED' } else { 'FAILED' })
         evidenceValid = -not $invalid
