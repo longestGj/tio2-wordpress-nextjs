@@ -2,7 +2,22 @@
 param([Parameter(Mandatory)] [string] $EvidenceRoot)
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'Prerelease.Core.psm1') -Force
-$result = Get-Content -LiteralPath (Join-Path $EvidenceRoot 'result.json') -Raw | ConvertFrom-Json
+$resultJson = Get-Content -LiteralPath (Join-Path $EvidenceRoot 'result.json') -Raw
+$result = $resultJson | ConvertFrom-Json
+if ($PSVersionTable.PSVersion.Major -ge 7) {
+    $document = [System.Text.Json.JsonDocument]::Parse([string] $resultJson)
+    try {
+        $rawAttempts = @($document.RootElement.GetProperty('formAttempts').EnumerateArray())
+        for ($index = 0; $index -lt $rawAttempts.Count; $index++) {
+            $timestamp = $rawAttempts[$index].GetProperty('timestamp')
+            if ($timestamp.ValueKind -eq [System.Text.Json.JsonValueKind]::String) {
+                $result.formAttempts[$index].timestamp = $timestamp.GetString()
+            }
+        }
+    } finally {
+        $document.Dispose()
+    }
+}
 if ($result.candidateCommit -notmatch '^[a-f0-9]{40}$') { throw 'A candidate commit is required.' }
 $attempts = @($result.formAttempts)
 if ($attempts.Count -ne 3 -or @($attempts.workflow | Select-Object -Unique).Count -ne 3 -or @($attempts.requestToken | Select-Object -Unique).Count -ne 3) { throw 'Exactly three unique workflow attempts are required.' }

@@ -659,7 +659,8 @@ function Assert-PrereleaseFormAttempt {
     if (@(Compare-Object $keys $allowed).Count -ne 0) { throw 'Unexpected attempt fields.' }
     if ($Attempt.workflow -notin @('rfq','sample','documents') -or $Attempt.pageId -ne @{rfq='CONV-RFQ';sample='CONV-SAMPLE';documents='CONV-DOC'}[$Attempt.workflow]) { throw 'Invalid workflow identity.' }
     if ($Attempt.requestToken -notmatch '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$') { throw 'Invalid request token.' }
-    if ($null -ne $Attempt.httpStatus -and ($Attempt.httpStatus -isnot [int] -or $Attempt.httpStatus -lt 100 -or $Attempt.httpStatus -gt 599)) { throw 'Invalid HTTP status.' }
+    $httpStatusIsInteger = $Attempt.httpStatus -is [int] -or $Attempt.httpStatus -is [long]
+    if ($null -ne $Attempt.httpStatus -and (-not $httpStatusIsInteger -or $Attempt.httpStatus -lt 100 -or $Attempt.httpStatus -gt 599)) { throw 'Invalid HTTP status.' }
     if ($Attempt.providerCategory -cnotin @('accepted','rejected','rate_limited','invalid_access_key','domain_or_origin_restricted','invalid_email','malformed_request','provider_policy','unknown_invalid_request','network','timeout','aborted','unexpected','pending')) { throw 'Invalid provider category.' }
     # The validated category may contain access_key; no other field gains an exemption.
     if (($Attempt | Select-Object -Property * -ExcludeProperty providerCategory | ConvertTo-Json -Compress) -match '@|access_key|company|message|payload|receiver') { throw 'Unsafe attempt.' }

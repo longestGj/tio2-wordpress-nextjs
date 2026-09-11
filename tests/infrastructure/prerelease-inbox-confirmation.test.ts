@@ -5,31 +5,50 @@ import {join, resolve} from 'node:path'
 import {describe, expect, it} from 'vitest'
 
 const script = resolve('scripts/prerelease/Confirm-PrereleaseInbox.ps1')
+const modulePath = resolve('scripts/prerelease/Prerelease.Core.psm1')
 const quote = (s: string) => `'${s.replaceAll("'", "''")}'`
 const attempts = ['rfq', 'sample', 'documents'].map((workflow, i) => ({workflow, pageId: ['CONV-RFQ', 'CONV-SAMPLE', 'CONV-DOC'][i], requestToken: `00000000-0000-4000-8000-00000000000${i}`, httpStatus: 200, providerCategory: 'accepted', thankYouRequest: ['quote', 'sample', 'documents'][i], timestamp: '2026-09-09T01:00:00.000Z'}))
 
 describe.runIf(process.platform === 'win32')('inbox correlation operator writer', () => {
-  for (const invalid of [false, 'duplicate', 'unknown', 'rejected', 'non-utc'] as const) {
-    it(`validates exact positive attempts and UTC input (${invalid || 'valid'})`, () => {
-      const root = mkdtempSync(join(tmpdir(), 'prerelease-inbox-'))
+  for (const executable of ['powershell', 'pwsh'] as const) {
+    for (const invalid of [false, 'duplicate', 'unknown', 'rejected', 'non-utc', 'string-status', 'fractional-status', 'low-status', 'high-status'] as const) {
+      it(`validates exact positive attempts and UTC input (${executable}, ${invalid || 'valid'})`, () => {
+        const root = mkdtempSync(join(tmpdir(), 'prerelease-inbox-'))
+        try {
+          const rows = structuredClone(attempts)
+          if (invalid === 'duplicate') rows[1]!.requestToken = rows[0]!.requestToken
+          if (invalid === 'unknown') rows[1]!.workflow = 'other'
+          if (invalid === 'rejected') rows[1]!.providerCategory = 'rejected'
+          if (invalid === 'string-status') (rows[1] as {httpStatus: unknown}).httpStatus = '200'
+          if (invalid === 'fractional-status') rows[1]!.httpStatus = 200.5
+          if (invalid === 'low-status') rows[1]!.httpStatus = 99
+          if (invalid === 'high-status') rows[1]!.httpStatus = 600
+          writeFileSync(join(root, 'result.json'), JSON.stringify({candidateCommit: 'a'.repeat(40), formAttempts: rows}))
+          const date = invalid === 'non-utc' ? '2026-09-09T09:00:00+08:00' : '2026-09-09T01:02:03Z'
+          const oldPwshJsonShim = executable === 'pwsh' ? `function global:ConvertFrom-Json { [CmdletBinding()] param([Parameter(ValueFromPipeline)] [string] $InputObject) process { Microsoft.PowerShell.Utility\\ConvertFrom-Json -InputObject $InputObject } }; ` : ''
+          const command = `$ErrorActionPreference='Stop'; ${oldPwshJsonShim}$global:answers=[System.Collections.Generic.Queue[string]]::new(); @('yes','${date}','no','yes','2026-09-09T01:03:00Z')|ForEach-Object{$global:answers.Enqueue($_)}; function global:Read-Host {param($Prompt) $global:answers.Dequeue()}; & ${quote(script)} -EvidenceRoot ${quote(root)}`
+          const output = spawnSync(executable, ['-NoProfile', '-Command', command], {encoding: 'utf8'})
+          if (invalid) {
+            expect(output.status).not.toBe(0)
+            expect(existsSync(join(root, 'inbox-confirmation.json'))).toBe(false)
+          } else {
+            expect(output.status, output.stderr).toBe(0)
+            const raw = readFileSync(join(root, 'inbox-confirmation.json'), 'utf8').replace(/^\uFEFF/, '')
+            expect(raw).not.toMatch(/@|access_key|receiver|company|message|payload/i)
+            expect(JSON.parse(raw)).toEqual({schemaVersion: 1, candidateCommit: 'a'.repeat(40), receipts: rows.map((row, i) => ({workflow: row.workflow, requestToken: row.requestToken, received: i !== 1, receivedAt: i === 1 ? null : i === 0 ? '2026-09-09T01:02:03.0000000+00:00' : '2026-09-09T01:03:00.0000000+00:00'}))})
+          }
+        } finally { rmSync(root, {recursive: true, force: true}) }
+      })
+    }
+  }
+
+  for (const executable of ['powershell', 'pwsh'] as const) {
+    it(`accepts exact HTTP status boundaries in ${executable}`, () => {
+      const root = mkdtempSync(join(tmpdir(), 'prerelease-status-boundary-'))
       try {
-        const rows = structuredClone(attempts)
-        if (invalid === 'duplicate') rows[1]!.requestToken = rows[0]!.requestToken
-        if (invalid === 'unknown') rows[1]!.workflow = 'other'
-        if (invalid === 'rejected') rows[1]!.providerCategory = 'rejected'
-        writeFileSync(join(root, 'result.json'), JSON.stringify({candidateCommit: 'a'.repeat(40), formAttempts: rows}))
-        const date = invalid === 'non-utc' ? '2026-09-09T09:00:00+08:00' : '2026-09-09T01:02:03Z'
-        const command = `$ErrorActionPreference='Stop'; $global:answers=[System.Collections.Generic.Queue[string]]::new(); @('yes','${date}','no','yes','2026-09-09T01:03:00Z')|ForEach-Object{$global:answers.Enqueue($_)}; function global:Read-Host {param($Prompt) $global:answers.Dequeue()}; & ${quote(script)} -EvidenceRoot ${quote(root)}`
-        const output = spawnSync('powershell', ['-NoProfile', '-Command', command], {encoding: 'utf8'})
-        if (invalid) {
-          expect(output.status).not.toBe(0)
-          expect(existsSync(join(root, 'inbox-confirmation.json'))).toBe(false)
-        } else {
-          expect(output.status, output.stderr).toBe(0)
-          const raw = readFileSync(join(root, 'inbox-confirmation.json'), 'utf8').replace(/^\uFEFF/, '')
-          expect(raw).not.toMatch(/@|access_key|receiver|company|message|payload/i)
-          expect(JSON.parse(raw)).toEqual({schemaVersion: 1, candidateCommit: 'a'.repeat(40), receipts: rows.map((row, i) => ({workflow: row.workflow, requestToken: row.requestToken, received: i !== 1, receivedAt: i === 1 ? null : i === 0 ? '2026-09-09T01:02:03.0000000+00:00' : '2026-09-09T01:03:00.0000000+00:00'}))})
-        }
+        const command = `$ErrorActionPreference='Stop'; Import-Module ${quote(modulePath)} -Force; @([int]100, [long]599) | ForEach-Object { $attempt=[pscustomobject]@{workflow='rfq';pageId='CONV-RFQ';requestToken='00000000-0000-4000-8000-000000000000';httpStatus=$_;providerCategory='accepted';thankYouRequest='quote';timestamp='2026-09-09T01:00:00.000Z'}; Assert-PrereleaseFormAttempt -Attempt $attempt }`
+        const output = spawnSync(executable, ['-NoProfile', '-Command', command], {encoding: 'utf8'})
+        expect(output.status, output.stderr).toBe(0)
       } finally { rmSync(root, {recursive: true, force: true}) }
     })
   }
