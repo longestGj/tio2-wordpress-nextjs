@@ -64,7 +64,6 @@
   .hero { width: calc(100% - 40px); margin-bottom: 38px; padding: 24px; gap: 24px; border-radius: 10px; }
   .hero[data-hero-surface='open'] { padding-inline: 0; }
   .hero[data-hero-surface='preserve'] { padding-inline: 0; }
-  .hero[data-hero-surface='preserve'] .copy h1 { letter-spacing: -.08em; }
   .hero .copy h1 { font-size: 36px; line-height: 1.08; }
   .intro { margin-top: 18px; font-size: 16px; }
   .actions { display: grid; grid-template-columns: 1fr; margin-top: 24px; }

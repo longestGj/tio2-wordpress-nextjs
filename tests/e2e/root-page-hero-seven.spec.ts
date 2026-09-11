@@ -12,7 +12,7 @@ const evidenceDirectory = process.env.ROOT_PAGE_HERO_EVIDENCE_DIR
 const pages = [
   {pageId: 'HOME-001', path: '/', variant: 'flagship-light', maximumHeadingLinesAt390: 3},
   {pageId: 'APP-000', path: '/applications/', variant: 'hub-light', maximumHeadingLinesAt390: 3},
-  {pageId: 'PRODUCT-000', path: '/products/', variant: 'hub-light', maximumHeadingLinesAt390: 3},
+  {pageId: 'PRODUCT-000', path: '/products/', variant: 'hub-light', maximumHeadingLinesAt390: 4},
   {pageId: 'MARKET-000', path: '/markets/', variant: 'hub-light', maximumHeadingLinesAt390: 3},
   {pageId: 'DOC-000', path: '/documents/', variant: 'hub-light', maximumHeadingLinesAt390: 3},
   {pageId: 'RES-000', path: '/resources/', variant: 'hub-dark', maximumHeadingLinesAt390: 4},
@@ -53,6 +53,7 @@ for (const pageContract of pages) {
           actionHeight: actionRect.height,
           actionWidth: actionRect.width,
           headingFontSize: Number.parseFloat(headingStyle.fontSize),
+          headingLetterSpacing: Number.parseFloat(headingStyle.letterSpacing),
           headingLines: Math.ceil(headingRect.height / lineHeight),
           scrollWidth: document.documentElement.scrollWidth,
           clientWidth: document.documentElement.clientWidth,
@@ -60,6 +61,7 @@ for (const pageContract of pages) {
       })
 
       expect(heroChecks.headingFontSize).toBe(viewport.headingSize)
+      expect(heroChecks.headingLetterSpacing).toBeCloseTo(viewport.headingSize * -.035, 1)
       expect(heroChecks.actionFocused).toBe(true)
       expect(heroChecks.actionHeight).toBeGreaterThanOrEqual(44)
       expect(heroChecks.actionWidth).toBeGreaterThanOrEqual(44)
