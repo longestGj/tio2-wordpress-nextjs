@@ -1,5 +1,5 @@
 import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
-import {registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
+import {assertSharedWordPressWrapperTarget, registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
 import {existsSync, readFileSync, writeFileSync} from 'node:fs'
 import {join} from 'node:path'
 import {spawnSync} from 'node:child_process'
@@ -22,6 +22,7 @@ const evidenceDirectory = join(repositoryRoot, '.local-evidence', `task-9c-live-
 const runLiveWordPress = process.env.WORDPRESS_ROOT_ONLY_RUNTIME === '1'
 
 export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+assertSharedWordPressWrapperTarget(runLiveWordPress, process.env)
 registerSharedWordPressMutationLock(runLiveWordPress)
 
 function execute(command: string, arguments_: string[], timeout = 1_200_000) {

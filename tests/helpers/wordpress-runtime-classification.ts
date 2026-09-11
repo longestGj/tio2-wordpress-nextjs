@@ -1,0 +1,249 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
+import ts from 'typescript'
+
+export const READ_ONLY_PREVIEW_PATH = '/workspace/tests/infrastructure/php/site-a-editorial-phase1-preview.php'
+
+export function inspectReadOnlyPreviewPhp(source: string): string[] {
+  const unsafe = /\b(?:wp_insert_post|wp_update_post|wp_delete_post|update_post_meta|delete_post_meta|wp_set_object_terms|update_option|delete_option|file_put_contents|unlink|eval|include|require|shell_exec|exec|system|passthru|proc_open|getenv)\s*\(|\$(?:argv|_ENV|_GET|_POST|_REQUEST)\b|\$wpdb\s*->\s*(?:insert|update|delete|replace|query)\s*\(|\b(?:INSERT\s+INTO|UPDATE\s+\w+\s+SET|DELETE\s+FROM|DROP\s+TABLE|TRUNCATE\s+TABLE)\b|WP_CLI::(?:runcommand|launch_self)\s*\(/iu
+  const languageOrWrite = /\b(?:include|include_once|require|require_once)\b|\b(?:add|update|delete)_(?:option|site_option|metadata|post_meta|user_meta|term_meta)\s*\(/iu
+  const apiMutation = /\b(?:wp_(?:insert|update|delete|set|create|publish|trash|untrash)_[a-z_]+|update_field|delete_field|add_row|update_row|delete_row|acf_update_value)\s*\(|WP_REST_Request\s*\(\s*(?!['"]GET['"])|->\s*set_method\s*\(/iu
+  return unsafe.test(source) || languageOrWrite.test(source) || apiMutation.test(source)
+    ? ['reviewed preview helper contains mutation, SQL or dynamic execution input'] : []
+}
+
+type Word = string | {kind: 'compose' | 'php' | 'unknown'}
+const intersects = (sets: Set<string>[]) => sets.length ? new Set([...sets[0]].filter(item => sets.every(set => set.has(item)))) : new Set<string>()
+
+/** Conservative source proof: unknown arguments/control flow fail closed. */
+export function inspectWordPressRuntime(source: string, readPreview = () => readFileSync(resolve('tests/infrastructure/php/site-a-editorial-phase1-preview.php'), 'utf8')): string[] {
+  const file = ts.createSourceFile('test.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const declarations: ts.VariableDeclaration[] = []
+  const variables = new Map<string, ts.Expression | null>()
+  const imports = new Map<string, {name: string; from: string}>()
+  const calls: ts.CallExpression[] = []
+  const identifiers: ts.Identifier[] = []
+  function visit(node: ts.Node) {
+    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
+      const bindings = node.importClause?.namedBindings
+      if (bindings && ts.isNamedImports(bindings)) for (const binding of bindings.elements) {
+        imports.set(binding.name.text, {name: binding.propertyName?.text ?? binding.name.text, from: node.moduleSpecifier.text})
+      }
+    }
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
+      if (node.name.text === 'WORDPRESS_RUNTIME_MODE') declarations.push(node)
+      const immutable = ts.isVariableDeclarationList(node.parent) && (node.parent.flags & ts.NodeFlags.Const) !== 0
+      variables.set(node.name.text, variables.has(node.name.text) || !immutable ? null : node.initializer ?? null)
+    }
+    if (ts.isIdentifier(node)) identifiers.push(node)
+    if (ts.isCallExpression(node)) calls.push(node)
+    ts.forEachChild(node, visit)
+  }
+  visit(file)
+  const callName = (call: ts.CallExpression) => ts.isIdentifier(call.expression)
+    ? imports.get(call.expression.text)?.name ?? call.expression.text
+    : ts.isPropertyAccessExpression(call.expression) ? call.expression.name.text : ''
+  for (const identifier of identifiers) {
+    let target: ts.Node = identifier
+    while ((ts.isPropertyAccessExpression(target.parent) || ts.isElementAccessExpression(target.parent)) && target.parent.expression === target) target = target.parent
+    const parent = target.parent
+    const assignment = ts.isBinaryExpression(parent) && parent.left === target
+      && parent.operatorToken.kind >= ts.SyntaxKind.FirstAssignment && parent.operatorToken.kind <= ts.SyntaxKind.LastAssignment
+    const methodCall = target !== identifier && ts.isCallExpression(parent) && parent.expression === target
+    if (assignment || methodCall) variables.set(identifier.text, null)
+  }
+  function unwrap(input: ts.Expression, seen = new Set<string>()): ts.Expression {
+    let node = input
+    while (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) || ts.isSatisfiesExpression(node)) node = node.expression
+    if (ts.isIdentifier(node) && variables.get(node.text) && !seen.has(node.text)) {
+      return unwrap(variables.get(node.text)!, new Set([...seen, node.text]))
+    }
+    return node
+  }
+  function words(input?: ts.Expression): Word[] | null {
+    if (!input) return null
+    const node = unwrap(input)
+    if (ts.isCallExpression(node)) {
+      if (callName(node) === 'wordpressComposeArgs') return [{kind: 'compose'}]
+      if (callName(node) === 'isolatedPhpArgs') return [{kind: 'php'}]
+    }
+    if (!ts.isArrayLiteralExpression(node)) return null
+    return node.elements.flatMap(element => {
+      if (ts.isSpreadElement(element)) return words(element.expression) ?? [{kind: 'unknown'}]
+      const value = unwrap(element)
+      return ts.isStringLiteral(value) || ts.isNoSubstitutionTemplateLiteral(value) ? [value.text] : [{kind: 'unknown'}]
+    })
+  }
+  function gate(input: ts.Expression, active = true): Set<string> {
+    const node = unwrap(input)
+    if (ts.isPrefixUnaryExpression(node) && node.operator === ts.SyntaxKind.ExclamationToken) return gate(node.operand, !active)
+    if (ts.isCallExpression(node) && callName(node) === 'Boolean' && node.arguments.length === 1) return gate(node.arguments[0], active)
+    const text = node.getText(file)
+    if (/^process\.env(?:\.[A-Z0-9_]+|\[['"][A-Z0-9_]+['"]\])$/u.test(text)) return new Set(active ? [text + ':truthy'] : [])
+    if (ts.isBinaryExpression(node)) {
+      const operator = node.operatorToken.kind
+      if (operator === ts.SyntaxKind.AmpersandAmpersandToken || operator === ts.SyntaxKind.BarBarToken) {
+        const sides = [gate(node.left, active), gate(node.right, active)]
+        const allRequired = (operator === ts.SyntaxKind.AmpersandAmpersandToken) === active
+        return allRequired ? new Set(sides.flatMap(set => [...set])) : intersects(sides)
+      }
+      const equals = operator === ts.SyntaxKind.EqualsEqualsEqualsToken || operator === ts.SyntaxKind.EqualsEqualsToken
+      const differs = operator === ts.SyntaxKind.ExclamationEqualsEqualsToken || operator === ts.SyntaxKind.ExclamationEqualsToken
+      if ((equals || differs) && active === equals) {
+        const left = unwrap(node.left), right = unwrap(node.right)
+        if (ts.isStringLiteral(right) && right.text === '1' && /^process\.env[.[]/u.test(left.getText(file))) return new Set([left.getText(file) + ':1'])
+      }
+    }
+    return new Set()
+  }
+  function gateOnRegistration(node: ts.CallExpression): Set<string> {
+    let expression: ts.Expression = node
+    while (ts.isCallExpression(expression) || ts.isPropertyAccessExpression(expression)) {
+      if (ts.isPropertyAccessExpression(expression)) {
+        expression = expression.expression
+        continue
+      }
+      if (ts.isPropertyAccessExpression(expression.expression)
+        && ['runIf', 'skipIf'].includes(expression.expression.name.text) && expression.arguments[0]) {
+        const owner = expression.expression.expression.getText(file)
+        if (owner === 'describe' || owner === 'it' || owner === 'test') return gate(expression.arguments[0], expression.expression.name.text === 'runIf')
+      }
+      expression = expression.expression
+    }
+    return new Set()
+  }
+  const abrupt = (statement: ts.Statement): boolean => ts.isReturnStatement(statement) || ts.isThrowStatement(statement)
+    || ts.isBlock(statement) && statement.statements.length > 0 && abrupt(statement.statements[statement.statements.length - 1])
+  function functionName(node: ts.Node): string | null {
+    if (ts.isFunctionDeclaration(node)) return node.name?.text ?? null
+    if ((ts.isArrowFunction(node) || ts.isFunctionExpression(node)) && ts.isVariableDeclaration(node.parent) && ts.isIdentifier(node.parent.name)) return node.parent.name.text
+    return null
+  }
+  function reference(node: ts.Identifier, name: string): boolean {
+    if (node.text !== name) return false
+    const parent = node.parent
+    if ((ts.isFunctionDeclaration(parent) || ts.isVariableDeclaration(parent) || ts.isParameter(parent)) && parent.name === node) return false
+    if (ts.isPropertyAccessExpression(parent) && parent.name === node) return false
+    if (ts.isPropertyAssignment(parent) && parent.name === node) return false
+    return !ts.isImportSpecifier(parent)
+  }
+  function guardsFor(node: ts.Node, visited = new Set<ts.Node>()): Set<string> {
+    const direct = new Set<string>()
+    let namedFunction: ts.Node | null = null
+    for (let current: ts.Node = node; current.parent; current = current.parent) {
+      const parent = current.parent
+      if (ts.isCallExpression(parent) && ts.isCallExpression(parent.expression)
+        && parent.arguments.some(argument => argument === current)
+        && (ts.isArrowFunction(current) || ts.isFunctionExpression(current) || ts.isIdentifier(current))) {
+        for (const item of gateOnRegistration(parent)) direct.add(item)
+      }
+      if (ts.isIfStatement(parent)) {
+        const active = parent.thenStatement === current
+        if (active || parent.elseStatement === current) for (const item of gate(parent.expression, active)) direct.add(item)
+      }
+      if (ts.isBlock(parent)) {
+        const index = parent.statements.findIndex(statement => statement === current)
+        for (const preceding of parent.statements.slice(0, Math.max(0, index))) {
+          if (ts.isIfStatement(preceding) && abrupt(preceding.thenStatement)) for (const item of gate(preceding.expression, false)) direct.add(item)
+        }
+      }
+      if (!namedFunction && functionName(parent)) namedFunction = parent
+    }
+    if (direct.size || !namedFunction || visited.has(namedFunction)) return direct
+    const name = functionName(namedFunction)!
+    const next = new Set([...visited, namedFunction])
+    const usages = identifiers.filter(identifier => reference(identifier, name))
+    return intersects(usages.map(usage => guardsFor(usage, next)))
+  }
+
+  const errors: string[] = []
+  const composeCalls: {node: ts.CallExpression; args: Word[]}[] = []
+  const sharedSinks: ts.CallExpression[] = []
+  let scoped = false
+  for (const call of calls) {
+    const name = callName(call)
+    if (['wordpressComposeArgs', 'startIsolatedWordPress', 'isolatedPhpArgs'].includes(name)) scoped = true
+    if (name === 'startIsolatedWordPress' || name === 'wp') sharedSinks.push(call)
+    const command = call.arguments[0] && unwrap(call.arguments[0])
+    if (!command || !ts.isStringLiteral(command) || command.text !== 'docker' || call.arguments.length < 2) continue
+    const args = words(call.arguments[1])
+    if (!args || typeof args[0] !== 'string' && args[0]?.kind === 'unknown') {
+      errors.push('Docker arguments cannot be statically classified')
+      scoped = true
+    } else if (args[0] === 'compose' || typeof args[0] !== 'string' && args[0]?.kind === 'compose') {
+      scoped = true
+      composeCalls.push({node: call, args})
+      sharedSinks.push(call)
+    } else if (typeof args[0] !== 'string' && args[0]?.kind === 'php') scoped = true
+  }
+  if (!scoped && declarations.length === 0) return errors
+  if (declarations.length !== 1) return [...errors, 'expected exactly one WORDPRESS_RUNTIME_MODE declaration, found ' + declarations.length]
+  const declaration = declarations[0]
+  const statement = declaration.parent.parent
+  if (!ts.isVariableStatement(statement) || !statement.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword)) errors.push('runtime mode must be exported')
+  const initializer = declaration.initializer && unwrap(declaration.initializer)
+  if (!initializer || !ts.isObjectLiteralExpression(initializer)) return [...errors, 'runtime mode must be a literal object']
+  const fields = new Map(initializer.properties.filter(ts.isPropertyAssignment).map(property => [property.name.getText(file), property.initializer.getText(file)]))
+  const mode = fields.get('dataMode')?.replace(/['"]/gu, '')
+  if (!['isolated', 'shared-read-only', 'shared-mutating'].includes(mode ?? '')) errors.push('unknown dataMode')
+  if (!['true', 'false'].includes(fields.get('hostHttp') ?? '')) errors.push('hostHttp must be explicit')
+  if (calls.some(call => callName(call) === 'wordpressComposeArgs' && call.arguments.length === 0)) errors.push('Compose calls require explicit runtime options')
+
+  const sinkGates = sharedSinks.map(sink => guardsFor(sink))
+  if (mode?.startsWith('shared')) {
+    if (sharedSinks.length && sinkGates.some(gates => gates.size === 0)) errors.push('shared Docker execution is not dominated by an opt-in gate')
+    if (!sharedSinks.length && !calls.some(call => gateOnRegistration(call).size > 0)) errors.push('shared suite must be environment gated')
+    for (const {args} of composeCalls) {
+      let index = 1
+      while (typeof args[index] === 'string' && ['--project-name', '-p', '--env-file', '-f'].includes(args[index] as string)) index += 2
+      const command = args[index]
+      if (typeof command !== 'string' || !['run', 'port', 'config', 'ps'].includes(command)) errors.push('shared suite contains a Compose lifecycle or unknown command')
+      if (command === 'run' && !args.includes('--no-deps')) errors.push('shared Compose run must include --no-deps')
+    }
+  }
+  if (mode === 'shared-mutating') {
+    if (fields.get('serialMutationAuthorized') !== 'true') errors.push('shared mutation requires serialMutationAuthorized: true')
+    const registrations = calls.filter(call => callName(call) === 'registerSharedWordPressMutationLock'
+      && ts.isIdentifier(call.expression) && imports.get(call.expression.text)?.from.endsWith('/wordpress-test-support')
+      && ts.isExpressionStatement(call.parent) && call.parent.parent === file)
+    const valid = registrations.some(call => {
+      if (!call.arguments[0]) return false
+      if (unwrap(call.arguments[0]).kind === ts.SyntaxKind.TrueKeyword) return true
+      let condition = unwrap(call.arguments[0])
+      if (ts.isCallExpression(condition) && callName(condition) === 'Boolean' && condition.arguments.length === 1) condition = unwrap(condition.arguments[0])
+      if (ts.isBinaryExpression(condition) && ![ts.SyntaxKind.EqualsEqualsEqualsToken, ts.SyntaxKind.EqualsEqualsToken].includes(condition.operatorToken.kind)) return false
+      if (!ts.isBinaryExpression(condition) && !ts.isPropertyAccessExpression(condition) && !ts.isElementAccessExpression(condition)) return false
+      const enabled = gate(condition)
+      return enabled.size > 0 && sinkGates.length > 0 && sinkGates.every(gates => [...enabled].every(item => gates.has(item)))
+    })
+    if (!valid) errors.push('shared mutation requires an active lock registration bound to its gate')
+  }
+  if (mode === 'shared-read-only') {
+    const allowed = new Set(['core version', 'core is-installed', 'option get', 'option list', 'post get', 'post list',
+      'post meta get', 'post meta list', 'term get', 'term list', 'user get', 'user list', 'plugin list', 'plugin status', 'theme list'])
+    const wpCommands: (Word[] | null)[] = composeCalls.map(({args}) => {
+      const wp = args.indexOf('wp')
+      const run = args.indexOf('run'), service = args.indexOf('wpcli')
+      let validOptions = run >= 0 && service > run && service + 1 === wp
+      for (let index = run + 1; validOptions && index < service; index++) {
+        if (['--rm', '--no-deps', '--no-TTY', '-T'].includes(args[index] as string)) continue
+        if (['--user', '-u'].includes(args[index] as string) && typeof args[index + 1] === 'string') { index++; continue }
+        validOptions = false
+      }
+      if (!validOptions) errors.push('shared-read-only Compose execution options are not allowlisted')
+      return wp < 0 ? null : args.slice(wp + 1)
+    })
+    for (const call of calls) if (callName(call) === 'wp') wpCommands.push(words(call.arguments[0]))
+    for (const args of wpCommands) {
+      const exactPreview = args?.length === 2 && args[0] === 'eval-file' && args[1] === READ_ONLY_PREVIEW_PATH
+      if (exactPreview) {
+        try { errors.push(...inspectReadOnlyPreviewPhp(readPreview())) } catch { errors.push('reviewed preview helper is unavailable') }
+        continue
+      }
+      const length = args?.[1] === 'meta' ? 3 : 2
+      if (!args || args.some(arg => typeof arg !== 'string') || !allowed.has(args.slice(0, length).join(' '))
+        || args.some(arg => typeof arg === 'string' && (/^--(?:require|exec|ssh|http|path|config)(?:=|$)/u.test(arg) || arg.startsWith('@')))) errors.push('shared-read-only WP command is not allowlisted')
+    }
+  }
+  return [...new Set(errors)]
+}

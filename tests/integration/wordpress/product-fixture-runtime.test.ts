@@ -1,5 +1,5 @@
 import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
-import {registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
+import {assertSharedWordPressWrapperTarget, registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
 import {spawnSync} from 'node:child_process'
 import {fileURLToPath} from 'node:url'
 
@@ -15,6 +15,7 @@ const auditScript = fileURLToPath(new URL('../../../scripts/audit-seed.ps1', imp
 const runLiveWordPress = process.env.WORDPRESS_PRODUCT_FIXTURE_RUNTIME === '1'
 
 export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+assertSharedWordPressWrapperTarget(runLiveWordPress, process.env)
 registerSharedWordPressMutationLock(runLiveWordPress)
 
 interface ProductFixtureState {

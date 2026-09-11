@@ -1,6 +1,8 @@
 import {describe, expect, it} from 'vitest'
 import {wordpressComposeArgs} from '../helpers/wordpress-compose'
 
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'isolated', hostHttp: false} as const
+
 describe('explicit WordPress test data ownership', () => {
   it('isolates repeated run IDs into distinct short project names and removes host HTTP', () => {
     const options = {dataMode: 'isolated' as const, runId: 'Vitest / 1234', hostHttp: false}

@@ -33,6 +33,14 @@ export function createWordPressWrapperFixture(directory: string, files: string[]
   return root
 }
 
+/** Wrappers have fixed paths; reject redirects before either side can touch a CMS. */
+export function assertSharedWordPressWrapperTarget(enabled: boolean, environment: Record<string, string | undefined>) {
+  if (enabled && ['TIO2_TEST_WORDPRESS_ENV', 'TIO2_TEST_WORDPRESS_COMPOSE', 'TIO2_TEST_WORDPRESS_PROJECT']
+    .some(key => environment[key] !== undefined)) {
+    throw new Error('Shared WordPress wrapper does not support Compose test overrides')
+  }
+}
+
 /** One machine-wide application lock per shared CMS, including other worktrees. */
 export async function acquireSharedWordPressMutation(options: {
   projectName?: string
