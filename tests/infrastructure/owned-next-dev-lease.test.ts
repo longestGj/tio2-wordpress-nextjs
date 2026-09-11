@@ -63,7 +63,10 @@ interface HarnessOptions {
   readonly foreignListener?: boolean
   readonly lateListenerFailure?: Error
   readonly lateListenerOwners?: number[]
+  readonly lateCloseFailure?: Error
+  readonly lateCloseNever?: boolean
   readonly pauseAcquisition?: 'attach' | 'cleanup-snapshot' | 'cleanup-stop' | 'lease' | 'supervisor'
+  readonly serializeAfterStop?: boolean
   readonly noListener?: boolean
   readonly onIdentityFetch?: (signals: EventEmitter) => void
   readonly spawnFailure?: Error
@@ -93,7 +96,10 @@ function createHarness(options: HarnessOptions = {}) {
   let attachedIdentity = false
   let attachAttempts = 0
   let supervisorCloseCount = 0
+  let supervisorCloseAttempts = 0
+  let supervisorCloseInvocations = 0
   let supervisorCreationCount = 0
+  let stopStarted = false
   let descendantVisible = false
   let resolveAcquisitionStarted!: () => void
   let resumeAcquisition!: () => void
@@ -188,6 +194,7 @@ function createHarness(options: HarnessOptions = {}) {
       await pauseAcquisition('supervisor')
       supervisorCreationCount += 1
       const supervisorNumber = supervisorCreationCount
+      let closePromise: Promise<void> | undefined
       return ({
       async attach(...args: unknown[]) {
         attachCalls.push(args)
@@ -200,6 +207,7 @@ function createHarness(options: HarnessOptions = {}) {
         return descendantVisible ? [identity, descendantIdentity] : [identity]
       },
       async stop(_token: string, stoppedIdentities: Array<typeof identity>) {
+        stopStarted = true
         if (signalSeen) await pauseAcquisition('cleanup-stop')
         events.push('stop-owned-process')
         stopCalls.push(stoppedIdentities)
@@ -209,6 +217,9 @@ function createHarness(options: HarnessOptions = {}) {
         child.emit('exit', 0, null)
       },
       async listenerOwners() {
+        if (supervisorNumber === 1 && stopStarted && options.serializeAfterStop) {
+          await acquisitionGate
+        }
         if (supervisorNumber > 1 && options.lateListenerFailure) {
           throw options.lateListenerFailure
         }
@@ -220,9 +231,25 @@ function createHarness(options: HarnessOptions = {}) {
         if (!alive) events.push('listener-closed')
         return []
       },
-      async close() {
-        supervisorCloseCount += 1
-        if (options.closeFailure) throw options.closeFailure
+      close() {
+        supervisorCloseInvocations += 1
+        if (!closePromise) {
+          supervisorCloseAttempts += 1
+          closePromise = (async () => {
+            if (supervisorNumber === 1 && stopStarted && options.serializeAfterStop) {
+              await acquisitionGate
+            }
+            if (supervisorNumber > 1 && options.lateCloseNever) {
+              await new Promise<void>(() => {})
+            }
+            supervisorCloseCount += 1
+            if (supervisorNumber > 1 && options.lateCloseFailure) {
+              throw options.lateCloseFailure
+            }
+            if (options.closeFailure) throw options.closeFailure
+          })()
+        }
+        return closePromise
       },
       })
     },
@@ -279,6 +306,8 @@ function createHarness(options: HarnessOptions = {}) {
     signals,
     stopCalls,
     get supervisorCloseCount() { return supervisorCloseCount },
+    get supervisorCloseAttempts() { return supervisorCloseAttempts },
+    get supervisorCloseInvocations() { return supervisorCloseInvocations },
     get supervisorCreationCount() { return supervisorCreationCount },
     start: () => startOwnedNextDev({
       environment: {SITE_ID: 'tio2-a'},
@@ -467,6 +496,68 @@ describe('owned Next.js lease lifecycle', () => {
     expect(harness.releaseCalls).toHaveLength(0)
   })
 
+  it('returns fail-closed when a timed-out stop blocks the serialized supervisor queue', async () => {
+    const harness = createHarness({
+      acquisitionHandoffTimeoutMs: 20,
+      cleanupOperationTimeoutMs: 20,
+      closeFailure: new Error('late serialized close failed'),
+      onIdentityFetch: signals => signals.emit('SIGINT'),
+      pauseAcquisition: 'cleanup-stop',
+      serializeAfterStop: true,
+    })
+    const unhandled: unknown[] = []
+    const onUnhandled = (error: unknown) => { unhandled.push(error) }
+    process.on('unhandledRejection', onUnhandled)
+    const starting = harness.start()
+    await harness.acquisitionStarted
+
+    try {
+      const outcome = await Promise.race([
+        starting.then(() => 'resolved', () => 'rejected'),
+        new Promise<'hung'>((resolveHung) => setTimeout(() => resolveHung('hung'), 120)),
+      ])
+      expect(outcome).toBe('rejected')
+      expect(harness.releaseCalls).toHaveLength(0)
+      expect(harness.signals.listenerCount('SIGINT')).toBe(0)
+    } finally {
+      harness.resumeAcquisition()
+      await harness.acquisitionCompleted
+      await starting.catch(() => {})
+      await new Promise((resolveWait) => setTimeout(resolveWait, 20))
+      process.off('unhandledRejection', onUnhandled)
+    }
+
+    expect(harness.supervisorCloseAttempts).toBe(1)
+    expect(harness.supervisorCloseInvocations).toBe(1)
+    expect(unhandled).toHaveLength(0)
+  })
+
+  it('returns fail-closed when a timed-out stop never releases the serialized supervisor queue', async () => {
+    const harness = createHarness({
+      cleanupOperationTimeoutMs: 20,
+      onIdentityFetch: signals => signals.emit('SIGINT'),
+      pauseAcquisition: 'cleanup-stop',
+      serializeAfterStop: true,
+    })
+    const unhandled: unknown[] = []
+    const onUnhandled = (error: unknown) => { unhandled.push(error) }
+    process.on('unhandledRejection', onUnhandled)
+
+    try {
+      const starting = harness.start()
+      await harness.acquisitionStarted
+      await expect(starting).rejects.toThrow('cleanup stop timed out')
+      expect(harness.releaseCalls).toHaveLength(0)
+      expect(harness.signals.listenerCount('SIGINT')).toBe(0)
+      expect(harness.supervisorCloseAttempts).toBe(1)
+      expect(harness.supervisorCloseInvocations).toBe(1)
+      await new Promise((resolveWait) => setTimeout(resolveWait, 20))
+      expect(unhandled).toHaveLength(0)
+    } finally {
+      process.off('unhandledRejection', onUnhandled)
+    }
+  })
+
   it('hands off a supervisor that resolves after SIGINT before cleanup completes', async () => {
     const harness = createHarness({pauseAcquisition: 'supervisor'})
     const starting = harness.start()
@@ -631,6 +722,47 @@ describe('owned Next.js lease lifecycle', () => {
     await waitUntil(() => harness.supervisorCloseCount === 2, 'failed late inspection')
 
     expect(harness.releaseCalls).toHaveLength(0)
+  })
+
+  it('retains a late reserved lease when its fresh listener inspector cannot close', async () => {
+    const harness = createHarness({
+      acquisitionHandoffTimeoutMs: 20,
+      cleanupOperationTimeoutMs: 20,
+      lateCloseFailure: new Error('late inspector close failed'),
+      pauseAcquisition: 'lease',
+    })
+    const starting = harness.start()
+    await harness.acquisitionStarted
+    harness.signals.emit('SIGINT')
+
+    await expect(starting).rejects.toThrow('cancellation handoff is uncertain')
+    harness.resumeAcquisition()
+    await harness.acquisitionCompleted
+    await waitUntil(() => harness.supervisorCloseAttempts === 2, 'late inspector close')
+
+    expect(harness.releaseCalls).toHaveLength(0)
+    expect(harness.supervisorCloseInvocations).toBe(2)
+  })
+
+  it('retains a late reserved lease when its fresh listener inspector close times out', async () => {
+    const harness = createHarness({
+      acquisitionHandoffTimeoutMs: 20,
+      cleanupOperationTimeoutMs: 20,
+      lateCloseNever: true,
+      pauseAcquisition: 'lease',
+    })
+    const starting = harness.start()
+    await harness.acquisitionStarted
+    harness.signals.emit('SIGINT')
+
+    await expect(starting).rejects.toThrow('cancellation handoff is uncertain')
+    harness.resumeAcquisition()
+    await harness.acquisitionCompleted
+    await waitUntil(() => harness.supervisorCloseAttempts === 2, 'late inspector close')
+    await new Promise((resolveWait) => setTimeout(resolveWait, 40))
+
+    expect(harness.releaseCalls).toHaveLength(0)
+    expect(harness.supervisorCloseInvocations).toBe(2)
   })
 
   it('retains the lease when Windows process-tree termination cannot be verified', async () => {

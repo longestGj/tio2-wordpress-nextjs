@@ -434,10 +434,14 @@ export function createOwnedNextDevLauncher(
       return result
     }
 
-    const awaitCleanupOutcome = async <T>(
+    const awaitSupervisorOutcome = async <T>(
       label: string,
       operation: Promise<T>,
     ): Promise<T> => {
+      // A timed-out native request can remain queued and reject much later.
+      // Keep a rejection observer attached even after the bounded caller has
+      // returned fail-closed.
+      void operation.catch(() => {})
       let timeout: ReturnType<typeof setTimeout> | undefined
       try {
         return await Promise.race([
@@ -452,6 +456,13 @@ export function createOwnedNextDevLauncher(
       } finally {
         if (timeout) clearTimeout(timeout)
       }
+    }
+
+    const closeSupervisor = async (
+      label: string,
+      target: ProcessSupervisor,
+    ): Promise<void> => {
+      await awaitSupervisorOutcome(label, target.close())
     }
 
     const rememberIdentities = async (
@@ -504,8 +515,11 @@ export function createOwnedNextDevLauncher(
     ): Promise<ProcessIdentity[]> => {
       if (!supervisor || !ownerToken) return []
       const observed = cancellable
-        ? await checked(supervisor.snapshot(ownerToken))
-        : await awaitCleanupOutcome(
+        ? await checked(awaitSupervisorOutcome(
+          'Owned startup snapshot',
+          supervisor.snapshot(ownerToken),
+        ))
+        : await awaitSupervisorOutcome(
           'Owned cleanup snapshot',
           supervisor.snapshot(ownerToken),
         )
@@ -521,7 +535,7 @@ export function createOwnedNextDevLauncher(
       if (nextServer) {
         if (attachedToSupervisor && supervisor && ownerToken) {
           try {
-            await awaitCleanupOutcome(
+            await awaitSupervisorOutcome(
               'Owned cleanup stop',
               supervisor.stop(ownerToken, await snapshot()),
             )
@@ -560,9 +574,14 @@ export function createOwnedNextDevLauncher(
         }
       }
 
-      if (lease && port !== undefined) {
+      if (lease && port !== undefined && ownedTreeStopped) {
         try {
-          const listenerOwners = await supervisor?.listenerOwners(port)
+          const listenerOwners = supervisor
+            ? await awaitSupervisorOutcome(
+              'Owned cleanup listener inspection',
+              supervisor.listenerOwners(port),
+            )
+            : undefined
           if (!listenerOwners || listenerOwners.length > 0) {
             throw new Error(
               `Port ${port} still has a listening owner; lease retained`,
@@ -572,6 +591,8 @@ export function createOwnedNextDevLauncher(
           listenerClosed = false
           failures.push(error)
         }
+      } else if (lease && port !== undefined && !ownedTreeStopped) {
+        listenerClosed = false
       }
 
       if (ownedTreeStopped && listenerClosed) {
@@ -586,7 +607,7 @@ export function createOwnedNextDevLauncher(
 
       if (supervisor) {
         try {
-          await supervisor.close()
+          await closeSupervisor('Owned supervisor close', supervisor)
         } catch (error) {
           failures.push(error)
         }
@@ -662,7 +683,9 @@ export function createOwnedNextDevLauncher(
         'Process supervisor creation',
         supervisorFactory(),
         (createdSupervisor) => { supervisor = createdSupervisor },
-        async (createdSupervisor) => createdSupervisor.close(),
+        async (createdSupervisor) => {
+          await closeSupervisor('Late process supervisor close', createdSupervisor)
+        },
       )
       port = await checked(findFreePort())
       baseUrl = `http://127.0.0.1:${port}`
@@ -684,25 +707,47 @@ export function createOwnedNextDevLauncher(
             throw new Error('Late runtime lease did not retain exactly one port')
           }
           let inspector: ProcessSupervisor | undefined
+          let inspectionFailure: unknown
           try {
             inspector = await acquireCleanupResource<ProcessSupervisor>(
               'Late runtime lease listener inspector',
               supervisorFactory(),
               () => {},
-              async (lateInspector) => lateInspector.close(),
+              async (lateInspector) => {
+                await closeSupervisor(
+                  'Late delayed listener inspector close',
+                  lateInspector,
+                )
+              },
             )
-            const listenerOwners = await inspector.listenerOwners(reservedLease.ports[0])
+            const listenerOwners = await awaitSupervisorOutcome(
+              'Late runtime lease listener inspection',
+              inspector.listenerOwners(reservedLease.ports[0]),
+            )
             if (listenerOwners.length > 0) {
               throw new Error('Late runtime lease port still has a listener; lease retained')
             }
-            await releaseLease({
-              leaseRoot,
-              leaseId: reservedLease.leaseId,
-              expectedProcessIds: reservedLease.processIds,
-            })
-          } finally {
-            await inspector?.close()
+          } catch (error) {
+            inspectionFailure = error
           }
+          if (inspector) {
+            try {
+              await closeSupervisor('Late listener inspector close', inspector)
+            } catch (error) {
+              inspectionFailure = inspectionFailure
+                ? new AggregateError(
+                  [inspectionFailure, error],
+                  'Late runtime lease inspection and close both failed',
+                )
+                : error
+            }
+          }
+          if (inspectionFailure) throw inspectionFailure
+          await releaseLease({
+            leaseRoot,
+            leaseId: reservedLease.leaseId,
+            expectedProcessIds: reservedLease.processIds,
+          })
         },
       )
       if (lease!.ports.length !== 1 || lease!.ports[0] !== port) {
@@ -800,11 +845,14 @@ export function createOwnedNextDevLauncher(
         )
       })
       await checked(gateReady)
-      const initialIdentity = await checked(supervisor!.attach(
-        nextServer.pid,
-        ownerToken,
-        gate.href,
-        process.execPath,
+      const initialIdentity = await checked(awaitSupervisorOutcome(
+        'Owned supervisor attachment',
+        supervisor!.attach(
+          nextServer.pid,
+          ownerToken,
+          gate.href,
+          process.execPath,
+        ),
       ))
       attachedToSupervisor = true
       await rememberIdentities([initialIdentity], 'startup')
@@ -819,7 +867,10 @@ export function createOwnedNextDevLauncher(
         if (finished(nextServer)) {
           throw new Error(`Next dev exited during startup\n${serverLogs}`)
         }
-        const listenerOwners = await checked(supervisor!.listenerOwners(port))
+        const listenerOwners = await checked(awaitSupervisorOutcome(
+          'Owned startup listener inspection',
+          supervisor!.listenerOwners(port),
+        ))
         if (listenerOwners.length > 0) {
           const members = await snapshot(true)
           if (listenerOwners.some((pid) => !members.some((member) => member.pid === pid))) {
@@ -833,7 +884,10 @@ export function createOwnedNextDevLauncher(
             }))
             const identityResponse = await checked(response.text())
             if (response.ok && robotsIdentityMatches(identityResponse, siteOrigin)) {
-              const finalOwners = await checked(supervisor!.listenerOwners(port))
+              const finalOwners = await checked(awaitSupervisorOutcome(
+                'Owned final listener inspection',
+                supervisor!.listenerOwners(port),
+              ))
               const finalMembers = await snapshot(true)
               if (
                 finalOwners.length === 0 ||
