@@ -43,6 +43,10 @@ Status: `GATE8_F03_REPAIR_COMPLETE / AWAITING_GATE9_RECHECK`
 
 This receipt does not announce Gate 9 PASS and does not authorize Gate 10, merge, push, deployment, publication, DNS or indexing.
 
+## Subsequent status
+
+This receipt preserves the state at the time of the Return-02 handoff. D23 subsequently completed the independent recheck and recorded `PASS / ROOT_HERO_SEVEN_WORKSET_ACCEPTED` for repair implementation `c91f5a9e2da7af46b18b0325b5d58d22c379ad19`, evidence HEAD `0a4d8e679a206dc62fd5cf6d1206fb4e03ca28f3` and Build `O9v9ni00s3gk6I2C3PTqy`. D16's later integration and exact-combination verification are recorded in [DEVELOP_INTEGRATION_RECEIPT_V1.0](../DEVELOP_INTEGRATION_RECEIPT_V1.0.md).
+
 EVIDENCE: docs/verification/root-page-hero-seven/gate8-return-02/build-result.txt  
 EVIDENCE: docs/verification/root-page-hero-seven/gate8-return-02/unit-result.txt  
 EVIDENCE: docs/verification/root-page-hero-seven/gate8-return-02/e2e-result.txt  
