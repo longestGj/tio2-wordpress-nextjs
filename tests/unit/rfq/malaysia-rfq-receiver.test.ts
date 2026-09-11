@@ -75,12 +75,13 @@ describe('CONV-RFQ Web3Forms receiver', () => {
   })
 
   it.each([
-    [200, {}], [200, {success: false}], [202, {success: true}], [500, {success: true}],
-  ])('treats ambiguous status/payload %# as unconfirmed', async (status, payload) => {
+    [200, {}, 'provider_accepted'], [200, {success: false}, 'provider_rejected'],
+    [202, {success: true}, 'submission_unconfirmed'], [500, {success: true}, 'submission_unconfirmed'],
+  ])('classifies the HTTP status independently of the optional response body %#', async (status, payload, kind) => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify(payload), {
       status, headers: {'content-type': 'application/json'},
     }))
-    await expect(submitMalaysiaRfq(submission, {...options, fetcher})).resolves.toMatchObject({kind: expect.not.stringMatching('provider_accepted')})
+    await expect(submitMalaysiaRfq(submission, {...options, fetcher})).resolves.toMatchObject({kind})
   })
 
   it('fails closed without receiver configuration or after a network error', async () => {

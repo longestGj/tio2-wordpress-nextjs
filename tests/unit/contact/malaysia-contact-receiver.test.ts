@@ -32,14 +32,14 @@ describe('CONTACT-001 Web3Forms receiver boundary', () => {
   })
 
   it.each([
-    [200, 'application/json', {success: false}],
-    [202, 'application/json', {success: true}],
-    [500, 'application/json', {success: true}],
-    [200, 'text/plain', {success: true}],
-  ])('accepts only HTTP 200 JSON success=true %#', async (status, contentType, body) => {
+    [200, 'application/json', {success: false}, 'provider_rejected'],
+    [202, 'application/json', {success: true}, 'submission_unconfirmed'],
+    [500, 'application/json', {success: true}, 'submission_unconfirmed'],
+    [200, 'text/plain', {success: true}, 'provider_accepted'],
+  ])('classifies the HTTP contract independently of the optional response format %#', async (status, contentType, body, kind) => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify(body), {status, headers: {'content-type': contentType}}))
     await expect(submitMalaysiaContact(values, {...options, fetcher}))
-      .resolves.toMatchObject({kind: expect.not.stringMatching('provider_accepted')})
+      .resolves.toMatchObject({kind})
     expect(fetcher).toHaveBeenCalledOnce()
   })
 

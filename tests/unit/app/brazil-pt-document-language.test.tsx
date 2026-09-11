@@ -1,6 +1,7 @@
 import {expect, it, vi} from 'vitest'
 
 vi.mock('next/font/google', () => ({Inter: () => ({variable: '--font-my-shared-test'})}))
+vi.mock('next/font/local', () => ({default: () => ({variable: '--font-my-shared-test'})}))
 
 it('uses a dedicated pt-BR root document while preserving the shared Malaysia body font', async () => {
   vi.stubEnv('SITE_ID', 'tio2-my')

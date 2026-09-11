@@ -107,8 +107,8 @@ describe('CONV-RFQ template and form', () => {
   })
 
   it('restores fields and actions after a timeout maps to unconfirmed', async () => {
-    let settle!: (result: {kind: 'submission_unconfirmed'}) => void
-    receiver.mockImplementation(() => new Promise((resolve) => { settle = (result) => resolve(Response.json(result)) }))
+    let settle!: () => void
+    receiver.mockImplementation(() => new Promise((resolve) => { settle = () => resolve(Response.json({success: false}, {status: 503})) }))
     const user = userEvent.setup()
     renderPage()
     await user.selectOptions(screen.getByLabelText(/Product \/ Grade/u), 'M-350')
@@ -122,7 +122,7 @@ describe('CONV-RFQ template and form', () => {
     expect((screen.getByRole('button', {name: 'SUBMITTING…'}) as HTMLButtonElement).disabled).toBe(true)
     expect((screen.getByRole('form').querySelector('fieldset') as HTMLFieldSetElement).disabled).toBe(true)
 
-    settle({kind: 'submission_unconfirmed'})
+    settle()
     expect((await screen.findByRole('button', {name: 'TRY AGAIN'}) as HTMLButtonElement).disabled).toBe(false)
     expect((screen.getByRole('button', {name: 'REQUEST QUOTE'}) as HTMLButtonElement).disabled).toBe(false)
     expect((screen.getByRole('form').querySelector('fieldset') as HTMLFieldSetElement).disabled).toBe(false)

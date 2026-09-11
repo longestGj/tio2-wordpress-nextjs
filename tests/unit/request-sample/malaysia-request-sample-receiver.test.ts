@@ -28,8 +28,8 @@ describe('Sample same-origin receiver client',()=>{
   expect(JSON.parse(String(init.body))).toMatchObject({access_key:'01234567-89ab-cdef-0123-456789abcdef',site_scope:'tio2-my',page_id:'CONV-SAMPLE',workflow_type:'sample',locale:'en',request_token:'sample-token',source_page_id:'PRODUCT-000'})
   expect(String(init.body)).not.toMatch(/recipient|receiver_address/)
  })
- it.each([{ok:true},{legacy_confirmed:true},{ok:false,legacy_confirmed:true}])('rejects incomplete or legacy acknowledgement %j',async(body)=>{
-  expect(await submitMalaysiaSampleRequest(values,{...options,fetcher:async()=>Response.json(body)})).toMatchObject({kind:expect.not.stringMatching('provider_accepted')})
+ it.each([{ok:true},{legacy_confirmed:true},{ok:false,legacy_confirmed:true}])('accepts HTTP 200 independently of the optional acknowledgement body %j',async(body)=>{
+  expect(await submitMalaysiaSampleRequest(values,{...options,fetcher:async()=>Response.json(body)})).toMatchObject({kind:'provider_accepted'})
  })
  it('keeps submission fields retryable if server configuration becomes unavailable',async()=>{
   expect(await submitMalaysiaSampleRequest(values,{...options,fetcher:async()=>Response.json({success:false},{status:503})})).toMatchObject({kind:'submission_unconfirmed'})

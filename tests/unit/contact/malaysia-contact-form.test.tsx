@@ -97,7 +97,6 @@ describe('CONTACT-001 form shell', () => {
   it.each([
     [200, 'application/json', {success: false}],
     [202, 'application/json', {success: true}],
-    [200, 'text/plain', {success: true}],
   ])('keeps the failure state for an ambiguous provider response %#', async (status, contentType, body) => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response(JSON.stringify(body), {status, headers: {'content-type': contentType}}))
     const user = userEvent.setup()

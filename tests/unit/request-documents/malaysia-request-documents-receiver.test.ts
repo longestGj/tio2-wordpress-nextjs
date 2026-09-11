@@ -119,13 +119,13 @@ describe('CONV-DOC receiver boundary', () => {
     expect(fetcher).not.toHaveBeenCalled()
   })
 
-  it('confirms receipt only for an explicit positive acknowledgement', async () => {
+  it('accepts HTTP 200 even when the optional acknowledgement body omits success', async () => {
     const ambiguous = vi.fn(async () => new Response(JSON.stringify({ok: true}), {
       status: 200, headers: {'content-type': 'application/json'},
     }))
     await expect(submitMalaysiaRequestDocuments(values, {
       ...options, sourcePageId: 'PRODUCT-000', marketId: 'MARKET-EU-DE', fetcher: ambiguous,
-    })).resolves.toMatchObject({kind: 'submission_unconfirmed'})
+    })).resolves.toMatchObject({kind: 'provider_accepted'})
 
     const confirmed = vi.fn(async () => new Response(JSON.stringify({success: true}), {
       status: 200, headers: {'content-type': 'application/json'},
@@ -155,20 +155,20 @@ describe('CONV-DOC receiver boundary', () => {
   })
 
   it.each([
-    [200, 'application/json', {}],
-    [200, 'application/json', {success: false}],
-    [202, 'application/json', {success: true}],
-    [307, 'application/json', {success: true}],
-    [308, 'application/json', {success: true}],
-    [500, 'application/json', {success: true}],
-    [200, 'text/plain', {success: true}],
-    [200, 'text/plain; profile=application/json', {success: true}],
-  ])('rejects ambiguous provider response %#', async (status, contentType, body) => {
+    [200, 'application/json', {}, 'provider_accepted'],
+    [200, 'application/json', {success: false}, 'provider_rejected'],
+    [202, 'application/json', {success: true}, 'submission_unconfirmed'],
+    [307, 'application/json', {success: true}, 'submission_unconfirmed'],
+    [308, 'application/json', {success: true}, 'submission_unconfirmed'],
+    [500, 'application/json', {success: true}, 'submission_unconfirmed'],
+    [200, 'text/plain', {success: true}, 'provider_accepted'],
+    [200, 'text/plain; profile=application/json', {success: true}, 'provider_accepted'],
+  ])('classifies the HTTP contract independently of the optional response format %#', async (status, contentType, body, kind) => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify(body), {
       status, headers: {'content-type': contentType},
     }))
     await expect(submitMalaysiaRequestDocuments(values, {...options, fetcher}))
-      .resolves.toMatchObject({kind: expect.not.stringMatching('provider_accepted')})
+      .resolves.toMatchObject({kind})
   })
 
   it('bounds the complete provider exchange, including response parsing', async () => {

@@ -20,6 +20,7 @@ vi.mock('next/font/google', () => ({
   Source_Sans_3: () => ({variable: 'source-sans-font'}),
   Space_Grotesk: () => ({variable: 'space-grotesk-font'}),
 }))
+vi.mock('next/font/local', () => ({default: () => ({variable: 'inter-font'})}))
 
 const sites = [
   {

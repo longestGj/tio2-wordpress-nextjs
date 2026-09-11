@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({getCurrentSite: vi.fn()}))
 
 vi.mock('@/lib/sites/current-site', () => ({getCurrentSite: mocks.getCurrentSite}))
 vi.mock('next/font/google', () => ({Inter: () => ({variable: 'inter-font'})}))
+vi.mock('next/font/local', () => ({default: () => ({variable: '--font-my-shared-test'})}))
 
 beforeEach(() => {
   mocks.getCurrentSite.mockReturnValue(getSiteConfig('tio2-my'))
