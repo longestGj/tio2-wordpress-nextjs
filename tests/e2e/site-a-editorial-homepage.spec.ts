@@ -1,9 +1,10 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {mkdirSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {expect, test, type Page} from '@playwright/test'
 
-const baseUrl = 'http://localhost:3001'
+const baseUrl = requiredLocalUrl('TIO2_A_BASE_URL').origin
 const widths = [360, 768, 1440] as const
 const siteAHeading =
   'A Buyer-Led Guide to Clarifying Titanium Dioxide Requirements'

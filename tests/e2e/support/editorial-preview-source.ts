@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './required-local-url'
 import {spawnSync} from 'node:child_process'
 import {createHmac} from 'node:crypto'
 import {readFileSync} from 'node:fs'
@@ -12,8 +13,8 @@ const repositoryRoot = resolve('.')
 const wordpressEnvironmentPath = resolve('wordpress/.env')
 const wordpressComposePath = resolve('wordpress/docker-compose.yml')
 const wordpressPreviewUrl =
-  'http://127.0.0.1:8080/wp-json/tio2/v1/preview'
-const wordpressGraphqlUrl = 'http://127.0.0.1:8080/graphql'
+  requiredLocalUrl('EDITORIAL_WORDPRESS_PREVIEW_URL', '/wp-json/tio2/v1/preview').href
+const wordpressGraphqlUrl = requiredLocalUrl('EDITORIAL_WORDPRESS_GRAPHQL_URL', '/graphql').href
 
 export interface EditorialPreviewRuntime {
   readonly baseUrl: string
@@ -109,7 +110,7 @@ async function assertWordpressEndpoint(): Promise<void> {
     wordpressPreviewUrl,
     '/wp-json/tio2/v1/preview',
   )
-  const response = await fetch('http://127.0.0.1:8080/wp-json/', {
+  const response = await fetch(new URL('/wp-json/', wordpressGraphqlUrl).href, {
     cache: 'no-store',
   })
   if (!response.ok) {

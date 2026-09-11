@@ -1,7 +1,8 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test} from '@playwright/test'
 
-const baseUrl = process.env.RES_PROC_PREVIEW_URL ?? 'http://127.0.0.1:3013'
+const baseUrl = requiredLocalUrl('RES_PROC_PREVIEW_URL').origin
 const path = '/resources/chloride-vs-sulfate-titanium-dioxide/'
 const widths = [1440, 1024, 768, 430, 390, 375] as const
 const modules = [

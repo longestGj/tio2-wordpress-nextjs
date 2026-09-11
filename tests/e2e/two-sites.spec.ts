@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {spawnSync} from 'node:child_process'
 import {createHmac, randomUUID} from 'node:crypto'
 import {readFileSync} from 'node:fs'
@@ -7,7 +8,7 @@ import {expect, test, type Page} from '@playwright/test'
 const sites = [
   {
     id: 'tio2-a',
-    baseUrl: 'http://localhost:3001',
+    baseUrl: requiredLocalUrl('TIO2_A_BASE_URL').origin,
     domain: 'https://tio2products.com',
     name: 'TiO2 A',
     oppositeDomain: 'https://tio2hub.com',
@@ -15,7 +16,7 @@ const sites = [
   },
   {
     id: 'tio2-b',
-    baseUrl: 'http://localhost:3002',
+    baseUrl: requiredLocalUrl('TIO2_B_BASE_URL').origin,
     domain: 'https://tio2hub.com',
     name: 'TiO2 B',
     oppositeDomain: 'https://tio2products.com',

@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './required-local-url'
 import {createHmac, timingSafeEqual} from 'node:crypto'
 import {readFileSync} from 'node:fs'
 import {createServer} from 'node:http'
@@ -337,7 +338,7 @@ export async function startProductReviewRuntime(): Promise<ProductReviewRuntime>
       environment: {
         PREVIEW_SECRET: PRODUCT_REVIEW_PREVIEW_SECRET,
         SITE_ID: 'tio2-a',
-        WORDPRESS_GRAPHQL_URL: 'http://127.0.0.1:8080/graphql',
+        WORDPRESS_GRAPHQL_URL: requiredLocalUrl('PRODUCT_REVIEW_WORDPRESS_GRAPHQL_URL', '/graphql').href,
         WORDPRESS_PREVIEW_SECRET: PRODUCT_REVIEW_PREVIEW_SECRET,
         WORDPRESS_PREVIEW_URL: source.url,
       },

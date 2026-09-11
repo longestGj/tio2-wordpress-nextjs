@@ -1,6 +1,7 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {expect, test} from '@playwright/test'
 
-const baseUrl = process.env.RES_ORIGIN_BASE_URL ?? 'http://127.0.0.1:3003'
+const baseUrl = requiredLocalUrl('RES_ORIGIN_BASE_URL').origin
 const path = '/resources/non-china-titanium-dioxide/'
 const evidenceDir = 'docs/verification/res-origin'
 

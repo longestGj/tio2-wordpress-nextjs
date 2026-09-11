@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test, type APIRequestContext, type Page} from '@playwright/test'
 import {createHash, createHmac, randomUUID} from 'node:crypto'
@@ -16,8 +17,8 @@ const sourceItems = contract.modules[6]!.items as Array<{
   site_reviewed_date: string; link_label: string; url: string
 }>
 const sourceReadiness = Object.fromEntries(sourceItems.map(({url}) => [url, true]))
-const baseUrl = process.env.DOC_REACH_BASE_URL ?? 'http://localhost:3004'
-const fixtureUrl = process.env.DOC_REACH_FIXTURE_URL ?? 'http://127.0.0.1:4013'
+const baseUrl = requiredLocalUrl('DOC_REACH_BASE_URL').origin
+const fixtureUrl = requiredLocalUrl('DOC_REACH_FIXTURE_URL').origin
 const revalidationSecret = 'doc-reach-e2e-revalidation-secret'
 const widths = [1440, 1280, 1024, 768, 640, 430, 390, 375, 320] as const
 const forbiddenPublicTerms = [

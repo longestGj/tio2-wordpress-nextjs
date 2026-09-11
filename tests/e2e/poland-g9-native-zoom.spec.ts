@@ -1,7 +1,8 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {test,expect,chromium} from '@playwright/test'
 import {mkdtempSync,mkdirSync,writeFileSync} from 'node:fs'
 import {resolve} from 'node:path'
-const base=process.env.TIO2_MY_BASE_URL??'http://127.0.0.1:3015'
+const base=requiredLocalUrl('TIO2_MY_BASE_URL').origin
 test('E03 native browser tab zoom 200 percent with fixed window and keyboard access',async()=>{
   expect(['localhost','127.0.0.1']).toContain(new URL(base).hostname)
   const root=resolve('docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02/native-zoom')

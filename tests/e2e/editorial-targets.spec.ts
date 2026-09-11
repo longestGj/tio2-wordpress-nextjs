@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {test,expect,type APIRequestContext} from '@playwright/test'
 import {execFileSync} from 'node:child_process'
 import {mkdirSync,writeFileSync} from 'node:fs'
@@ -6,7 +7,7 @@ import {resolve} from 'node:path'
 import {JSDOM} from 'jsdom'
 import {getEditorialContract} from './editorial-fixtures'
 
-const base=process.env.TIO2_MY_BASE_URL??'http://127.0.0.1:3216'
+const base=requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const pages=['APP-PAPER','APP-INK'] as const
 type Target='GRADE-M350'|'PRODUCT-000'
 type Mode='Snapshot'|'Draft'|'Foreign'|'Restore'

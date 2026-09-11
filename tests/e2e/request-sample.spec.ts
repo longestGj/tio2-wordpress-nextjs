@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {fillPrivateInput} from './support/private-input'
 import {expect, test} from '@playwright/test'
@@ -19,7 +20,7 @@ const contract = JSON.parse(
 process.env.PLAYWRIGHT_NO_COPY_PROMPT = '1'
 test.use({trace: 'off', screenshot: 'off', video: 'off'})
 
-const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://localhost:3004'
+const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const evidence = resolve(process.env.POLAND_EVIDENCE_DIR ?? 'docs/verification/conv-sample')
 mkdirSync(evidence, {recursive: true})
 const prefill = '?source_page_id=GRADE-M2377&grade_id=M-2377&application_id=coatings&process_context=sulfate&destination=United%20Kingdom&document_needs[]=tds'

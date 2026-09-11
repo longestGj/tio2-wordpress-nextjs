@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {
   existsSync,
   mkdirSync,
@@ -26,10 +27,10 @@ const environment = {
   PREVIEW_SECRET: 'task-9-lifecycle-preview-secret',
   REVALIDATION_SECRET: 'task-9-lifecycle-revalidation-secret',
   SITE_ID: 'tio2-a',
-  WORDPRESS_GRAPHQL_URL: 'http://127.0.0.1:9/graphql',
+  WORDPRESS_GRAPHQL_URL: requiredLocalUrl('WORDPRESS_GRAPHQL_URL', '/graphql').href,
   WORDPRESS_PREVIEW_SECRET: 'task-9-lifecycle-preview-secret',
   WORDPRESS_PREVIEW_URL:
-    'http://127.0.0.1:9/wp-json/tio2/v1/preview',
+    requiredLocalUrl('WORDPRESS_PREVIEW_URL', '/wp-json/tio2/v1/preview').href,
 } as const
 
 async function stopRuntime(runtime: OwnedNextDevRuntime | undefined): Promise<void> {

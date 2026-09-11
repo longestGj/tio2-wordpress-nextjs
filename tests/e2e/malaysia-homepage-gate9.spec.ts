@@ -1,7 +1,8 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test, type Page} from '@playwright/test'
 
-const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
+const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const widths = [320, 390, 768, 1024, 1440] as const
 const productGroups = [
   {name: 'Coatings Grades', count: 6},

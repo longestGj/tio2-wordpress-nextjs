@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {createHash} from 'node:crypto'
 import {mkdirSync, readFileSync, writeFileSync} from 'node:fs'
@@ -13,8 +14,8 @@ interface CountryContract {
   readonly modules: ReadonlyArray<{readonly id: string; readonly heading: string}>
 }
 
-const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3029'
-const wordpressUrl = process.env.WORDPRESS_GRAPHQL_URL
+const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
+const wordpressUrl = requiredLocalUrl('WORDPRESS_GRAPHQL_URL', '/graphql').href
 const evidenceRoot = process.env.COUNTRY_EVIDENCE_DIR ?? 'docs/verification/tio2-my/market-four-gate9-es-f01-repair-20260908/screenshots'
 const pages = [
   ['spain', 'tio2-my-market-eu-es.json'],

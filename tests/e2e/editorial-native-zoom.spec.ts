@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {test,expect,chromium} from '@playwright/test'
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
@@ -7,7 +8,7 @@ import {EDITORIAL_CONTRACTS} from './editorial-fixtures'
 
 test('nine pages preserve actual browser 200% zoom and keyboard states',async()=>{
  test.setTimeout(300_000)
- const base=process.env.TIO2_MY_BASE_URL??'http://127.0.0.1:3216'
+ const base=requiredLocalUrl('TIO2_MY_BASE_URL').origin
  expect(['127.0.0.1','localhost']).toContain(new URL(base).hostname)
  const output=resolve(process.env.EDITORIAL_NATIVE_EVIDENCE_DIR??'docs/verification/tio2-my/trade4-app5-20260908/native-zoom');mkdirSync(output,{recursive:true})
  const temp=mkdtempSync(resolve('.tmp/editorial-native-')),extension=resolve(temp,'extension');mkdirSync(extension)

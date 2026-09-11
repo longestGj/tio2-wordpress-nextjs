@@ -1,8 +1,8 @@
 import {createServer} from 'node:http'
 import {readFileSync} from 'node:fs'
+import {isFixtureEntrypoint, listenFixture} from './fixture-server.mjs'
 
 const contract = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-document-reach.json', 'utf8'))
-const port = Number(process.env.DOC_REACH_CMS_PORT ?? 4013)
 const loadContract = (name) => JSON.parse(readFileSync(`wordpress/plugins/tio2-site-model/config/${name}.json`, 'utf8'))
 const record = (pageId, path, field, payload) => ({
   id: `${pageId}-integrated-e2e`, modifiedGmt: '2026-09-05T01:02:03', status: 'publish',
@@ -79,15 +79,15 @@ function updateState(input) {
   return true
 }
 
-createServer(async (request, response) => {
+export async function documentReachResponse(request, response, suppliedBody) {
   if (request.url === '/__health' && request.method === 'GET') {
     response.writeHead(200, {'content-type': 'application/json'})
     response.end(JSON.stringify({ok: true}))
     return
   }
   const chunks = []
-  for await (const chunk of request) chunks.push(chunk)
-  const body = Buffer.concat(chunks)
+  if (suppliedBody === undefined) for await (const chunk of request) chunks.push(chunk)
+  const body = suppliedBody ?? Buffer.concat(chunks)
   if (request.url === '/__state' && request.method === 'PUT') {
     let input
     try {
@@ -126,4 +126,6 @@ createServer(async (request, response) => {
   }
   response.writeHead(400, {'content-type': 'application/json'})
   response.end(JSON.stringify({errors: [{message: 'Query outside the integrated DOC-REACH fixture registry'}]}))
-}).listen(port, '127.0.0.1', () => process.stdout.write(`DOC-REACH CMS fixture listening on ${port}\n`))
+}
+
+if (isFixtureEntrypoint(import.meta.url)) listenFixture(createServer(documentReachResponse))

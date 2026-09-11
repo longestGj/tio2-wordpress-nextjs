@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {mkdirSync} from 'node:fs'
 import {resolve} from 'node:path'
@@ -6,7 +7,7 @@ import {expect, test, type Browser, type Page} from '@playwright/test'
 const sites = [
   {
     id: 'tio2-b',
-    baseUrl: 'http://localhost:3002',
+    baseUrl: requiredLocalUrl('TIO2_B_BASE_URL').origin,
     heading: 'Independent TiO2 Discovery for Site B Buyers',
     oppositeHeading: 'Titanium Dioxide Supply for Formulators and Distributors',
     editorialOppositeHeading:

@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {test, expect, type Page} from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import {createHash} from 'node:crypto'
@@ -8,8 +9,8 @@ import type {EditorialContract} from '../../lib/editorial/editorial-types'
 
 const ids = ['MARKET-EU-DE', 'MARKET-EU-IT', 'PRODUCT-PROC-SU', 'RES-R706', 'RES-CHEMOURS'] as const
 const contracts = ids.map(id => JSON.parse(readFileSync(`wordpress/plugins/tio2-site-model/config/tio2-my-editorial-${id.toLowerCase()}.json`, 'utf8')) as EditorialContract)
-const base = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3236'
-const cmsUrl = process.env.FIVE_WORDPRESS_GRAPHQL_URL ?? 'http://127.0.0.1:8187/graphql'
+const base = requiredLocalUrl('TIO2_MY_BASE_URL').origin
+const cmsUrl = requiredLocalUrl('FIVE_WORDPRESS_GRAPHQL_URL', '/graphql').href
 const evidenceRoot = resolve(process.env.FIVE_EVIDENCE_DIR ?? 'docs/verification/tio2-my/de-it-su-r706-chemours-20260908/evidence/five-browser/currentbuild')
 const normalize = (value: string | null | undefined) => (value ?? '').replace(/\s+/gu, ' ').trim()
 const hash = (value: string | Buffer) => createHash('sha256').update(value).digest('hex')

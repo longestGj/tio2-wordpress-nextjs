@@ -96,7 +96,7 @@ test.beforeAll(async ({}, testInfo) => {
         REVALIDATION_SECRET:
           wordpressEnv.NEXTJS_REVALIDATION_SECRET_TIO2_A ?? 'test-only',
         SITE_ID: 'tio2-a',
-        WORDPRESS_GRAPHQL_URL: 'http://127.0.0.1:9/graphql',
+        WORDPRESS_GRAPHQL_URL: new URL('/graphql', previewUrl).href,
         WORDPRESS_PREVIEW_SECRET: secret,
         WORDPRESS_PREVIEW_URL: previewUrl,
       },

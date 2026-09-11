@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {test, expect, type Page, type APIRequestContext} from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import {createHash, createHmac, randomUUID} from 'node:crypto'
@@ -8,6 +9,7 @@ import type UkContract from '../../wordpress/plugins/tio2-site-model/config/tio2
 import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
 
 const root='docs/verification/market-uk-001'
+test.use({baseURL: requiredLocalUrl('TIO2_MY_BASE_URL').origin})
 const contract=JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-market-uk-001.json','utf8')) as typeof UkContract
 const uk='/markets/united-kingdom/'
 const rfq='/request-a-quote/?market=United%20Kingdom&source_page=MARKET-UK-001'
@@ -206,7 +208,7 @@ test('UK FAQ expanded/collapsed and Documents keyboard-focus evidence',async({pa
 })
 
 async function state(request:APIRequestContext,mode:string){
-  expect((await request.put('http://127.0.0.1:4024/__state',{data:{mode}})).ok()).toBe(true)
+  expect((await request.put(`${requiredLocalUrl('UK_FIXTURE_URL').origin}/__state`,{data:{mode}})).ok()).toBe(true)
   const body=JSON.stringify({eventId:randomUUID(),siteIds:['tio2-my'],contentId:901,paths:[uk],entityIds:[],modified:new Date().toISOString()})
   const signature=createHmac('sha256','uk-local-revalidation').update(body).digest('hex')
   expect((await request.post('/api/revalidate',{data:body,headers:{'content-type':'application/json','x-tio2-signature':signature}})).status()).toBe(200)

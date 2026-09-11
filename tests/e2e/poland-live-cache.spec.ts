@@ -1,14 +1,19 @@
+import {requiredLocalUrl} from './support/required-local-url'
+import {wordpressComposeArgs} from '../helpers/wordpress-compose'
+
 import {test,expect} from '@playwright/test'
 import {execFileSync} from 'node:child_process'
 import {createHash,createHmac,randomUUID} from 'node:crypto'
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs'
-const base=process.env.TIO2_MY_BASE_URL??'http://127.0.0.1:3015'
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+const composeArgs = wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'poland-live-cache'}, {})
+const base=requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const secret=process.env.POLAND_LOCAL_REVALIDATION_SECRET
 const postId=process.env.POLAND_LOCAL_PROBE_POST_ID
 const evidence=process.env.POLAND_EVIDENCE_DIR??'docs/verification/tio2-my/market-eu-pl/runtime'
 test.use({trace:'off'})
 test('real WordPress edit invalidates Poland HTTP cache and restores approved copy',async({request})=>{
-  test.skip(!secret||!postId,'Explicit local probe ID and local revalidation secret required')
+  if (!secret || !postId) throw new Error('POLAND_LOCAL_PROBE_POST_ID and POLAND_LOCAL_REVALIDATION_SECRET are required')
   const url=new URL(base)
   expect(['127.0.0.1','localhost']).toContain(url.hostname);expect(url.protocol).toBe('http:')
   const seed=readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-market-poland.json')
@@ -23,7 +28,7 @@ test('real WordPress edit invalidates Poland HTTP cache and restores approved co
   const receipt=await preflight.json()
   expect(receipt.revalidatedTags).toEqual(['content:tio2-my--market--MARKET-EU-PL--en','route:tio2-my:/markets/poland'])
   const foreign=await invalidate(['tio2-a']);expect(foreign.status()).toBe(400)
-  const write=(mode:'edit'|'restore')=>JSON.parse(execFileSync('docker',['compose','--env-file','wordpress/.env','-f','wordpress/docker-compose.yml','run','--rm','--no-TTY','--user','33:33','-e','WP_ENVIRONMENT_TYPE=local','wpcli','wp','eval-file','/workspace/tests/infrastructure/php/poland-http-probe.php',postId!,mode,sha],{encoding:'utf8',timeout:30000}).trim())
+  const write=(mode:'edit'|'restore')=>JSON.parse(execFileSync('docker',[...composeArgs,'run','--rm','--no-deps','--no-TTY','--user','33:33','-e','WP_ENVIRONMENT_TYPE=local','wpcli','wp','eval-file','/workspace/tests/infrastructure/php/poland-http-probe.php',postId,mode,sha],{encoding:'utf8',timeout:30000,windowsHide:true}).trim())
   const body=async()=>{const r=await request.get(base+'/markets/poland/');expect(r.status()).toBe(200);return r.text()}
   try {
     write('edit')

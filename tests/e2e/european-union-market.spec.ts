@@ -1,9 +1,10 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test} from '@playwright/test'
 
 import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
 
-const baseUrl = 'http://127.0.0.1:3005'
+const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const moduleOrder = [
   'breadcrumb', 'hero', 'supplier-definition', 'procurement-path', 'applications',
   'grades', 'documents', 'import-roles', 'origin', 'trade', 'destinations',

@@ -1,7 +1,12 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {test, expect} from '@playwright/test'
 import {execFileSync} from 'node:child_process'
 import {createHash, createHmac, randomUUID} from 'node:crypto'
 import {mkdirSync, readFileSync, writeFileSync} from 'node:fs'
+import {wordpressComposeArgs} from '../helpers/wordpress-compose'
+
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+const composeArgs = wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'poland-g9-isolation'}, {})
 
 // Signed request headers must never enter retained Playwright traces.
 test.use({trace: 'off'})
@@ -11,14 +16,14 @@ test.use({trace: 'off'})
 test('Poland live CMS rejects invalid owners and restores the exact baseline', async ({request, page}) => {
   const secret = process.env.POLAND_LOCAL_REVALIDATION_SECRET
   const postId = process.env.POLAND_LOCAL_PROBE_POST_ID
-  test.skip(!secret || !postId, 'Explicit local probe ID and local revalidation secret required')
+  if (!secret || !postId) throw new Error('POLAND_LOCAL_PROBE_POST_ID and POLAND_LOCAL_REVALIDATION_SECRET are required')
   expect(postId).toMatch(/^[1-9][0-9]*$/)
   const sites = [
-    {id: 'tio2-my', base: process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3015'},
-    {id: 'tio2-a', base: process.env.POLAND_A_BASE_URL ?? 'http://127.0.0.1:3017'},
-    {id: 'tio2-b', base: process.env.POLAND_B_BASE_URL ?? 'http://127.0.0.1:3018'},
+    {id: 'tio2-my', base: requiredLocalUrl('TIO2_MY_BASE_URL').origin},
+    {id: 'tio2-a', base: requiredLocalUrl('POLAND_A_BASE_URL').origin},
+    {id: 'tio2-b', base: requiredLocalUrl('POLAND_B_BASE_URL').origin},
   ]
-  const graphql = process.env.POLAND_LOCAL_GRAPHQL_URL ?? 'http://127.0.0.1:8080/graphql'
+  const graphql = requiredLocalUrl('POLAND_LOCAL_GRAPHQL_URL', '/graphql').href
   for (const address of [...sites.map(site => site.base), graphql]) {
     const url = new URL(address)
     expect(['127.0.0.1', 'localhost']).toContain(url.hostname)
@@ -38,7 +43,7 @@ test('Poland live CMS rejects invalid owners and restores the exact baseline', a
     writeFileSync(`${output}/ledger.json`, JSON.stringify({postId: Number(postId), seedSha256: sha, sites, graphql, entries}, null, 2) + '\n')
   }
   const probe = (mode: string) => {
-    const result = JSON.parse(execFileSync('docker', ['compose', '--env-file', 'wordpress/.env', '-f', 'wordpress/docker-compose.yml', 'run', '--rm', '--no-TTY', '--user', '33:33', '-e', 'WP_ENVIRONMENT_TYPE=local', 'wpcli', 'wp', 'eval-file', '/workspace/tests/infrastructure/php/poland-g9-isolation-probe.php', postId!, mode, sha, owner], {encoding: 'utf8', timeout: 30000}).trim())
+    const result = JSON.parse(execFileSync('docker', [...composeArgs, 'run', '--rm', '--no-deps', '--no-TTY', '--user', '33:33', '-e', 'WP_ENVIRONMENT_TYPE=local', 'wpcli', 'wp', 'eval-file', '/workspace/tests/infrastructure/php/poland-g9-isolation-probe.php', postId, mode, sha, owner], {encoding: 'utf8', timeout: 30000, windowsHide: true}).trim())
     record({kind: 'cms-probe', mode, result})
     return result
   }

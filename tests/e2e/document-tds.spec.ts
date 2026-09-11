@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test, type Page} from '@playwright/test'
 import {createHash} from 'node:crypto'
@@ -10,7 +11,7 @@ const contract = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/conf
   modules: Array<{id: string}>
   seo: {title: string; meta_description: string}
 }
-const baseUrl = process.env.DOC_TDS_BASE_URL ?? 'http://localhost:3004'
+const baseUrl = requiredLocalUrl('DOC_TDS_BASE_URL').origin
 const widths = [1440, 1280, 1024, 768, 640, 430, 390, 375, 320] as const
 const forbiddenPublicSourceTerms = [
   'schema_version',

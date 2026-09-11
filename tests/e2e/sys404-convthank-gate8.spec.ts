@@ -1,9 +1,11 @@
 import AxeBuilder from '@axe-core/playwright'
+import {requiredLocalUrl} from './support/required-local-url'
 import {expect, test, type Page} from '@playwright/test'
 import {mkdirSync, writeFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 
 const evidenceDirectory = resolve(process.env.SYS404_CONVTHANK_EVIDENCE_DIR ?? 'docs/verification/sys404-convthank/gate8/runtime')
+test.use({baseURL: requiredLocalUrl('TIO2_MY_BASE_URL').origin})
 const markerKey = 'tio2-my:thank-you:receipt:v1'
 mkdirSync(evidenceDirectory, {recursive: true})
 

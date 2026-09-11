@@ -1,7 +1,8 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {test,expect} from '@playwright/test'
 import {mkdirSync,writeFileSync} from 'node:fs'
 import sharp from 'sharp'
-const base=process.env.TIO2_MY_BASE_URL??'http://127.0.0.1:3015'
+const base=requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const root=process.env.POLAND_F03_EVIDENCE_DIR??'docs/verification/tio2-my/market-eu-pl/gate9-fixes-v04/focus'
 for(const width of [768,390])test(`F03 menu RFQ visibly changes under keyboard focus at ${width}`,async({page})=>{
   mkdirSync(root,{recursive:true});await page.setViewportSize({width,height:1000})

@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {test,expect} from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import {readFileSync,mkdirSync,writeFileSync} from 'node:fs'
@@ -6,7 +7,7 @@ import {createHash} from 'node:crypto'
 import {JSDOM} from 'jsdom'
 import {EDITORIAL_CONTRACTS} from './editorial-fixtures'
 
-const base=process.env.TIO2_MY_BASE_URL??'http://127.0.0.1:3216'
+const base=requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const root=resolve(process.env.EDITORIAL_EVIDENCE_DIR??'docs/verification/tio2-my/trade4-app5-20260908/runtime')
 const normalize=(text:string|null)=>String(text??'').replace(/\s+/gu,' ').trim()
 test.beforeAll(()=>{expect(['127.0.0.1','localhost']).toContain(new URL(base).hostname);mkdirSync(root,{recursive:true})})
@@ -22,7 +23,7 @@ for(const contract of EDITORIAL_CONTRACTS) test(`${contract.identity.pageId} liv
  expect(html).toContain(build)
  const document=new JSDOM(html).window.document
  const taskEnv=Object.fromEntries(readFileSync('wordpress/.env','utf8').split(/\r?\n/u).filter(line=>/^[A-Z_]+=/.test(line)).map(line=>{const i=line.indexOf('=');return [line.slice(0,i),line.slice(i+1)]}))
- const cmsResponse=await request.post('http://127.0.0.1:8186/graphql',{headers:{'x-tio2-editorial-token':taskEnv.WORDPRESS_EDITORIAL_API_TOKEN},data:{query:'query($pageId:String!,$siteScope:String!){malaysiaEditorialRecordJson(pageId:$pageId,siteScope:$siteScope)}',variables:{pageId:id,siteScope:'tio2-my'}}})
+ const cmsResponse=await request.post(requiredLocalUrl('EDITORIAL_WORDPRESS_GRAPHQL_URL', '/graphql').href,{headers:{'x-tio2-editorial-token':taskEnv.WORDPRESS_EDITORIAL_API_TOKEN},data:{query:'query($pageId:String!,$siteScope:String!){malaysiaEditorialRecordJson(pageId:$pageId,siteScope:$siteScope)}',variables:{pageId:id,siteScope:'tio2-my'}}})
  const cms=JSON.parse((await cmsResponse.json()).data.malaysiaEditorialRecordJson)
  const approved=new JSDOM(`<main>${contract.bodyHtml}</main>`).window.document
  for(const anchor of approved.querySelectorAll('a[href]')) {
