@@ -25,18 +25,18 @@ test.afterEach(async ({}, testInfo) => {
 })
 
 const representativeRoutes = [
-  {path: '/', pageId: null},
-  {path: '/about/', pageId: 'ABOUT-001'},
-  {path: '/markets/', pageId: null},
-  {path: '/markets/poland/', pageId: 'MARKET-EU-PL'},
-  {path: '/products/', pageId: null},
-  {path: '/products/m-350/', pageId: null},
-  {path: '/resources/', pageId: null},
-  {path: '/resources/chloride-vs-sulfate-titanium-dioxide/', pageId: null},
-  {path: '/request-a-quote/', pageId: 'CONV-RFQ'},
-  {path: '/request-sample/', pageId: 'CONV-SAMPLE'},
-  {path: '/request-documents/', pageId: 'CONV-DOC'},
-  {path: '/privacy-policy/', pageId: 'LEGAL-PRIV-EN'},
+  {path: '/', canonical: 'https://tio2malaysia.com', pageId: null},
+  {path: '/about/', canonical: 'https://tio2malaysia.com/about/', pageId: null, forbiddenPageId: 'ABOUT-001'},
+  {path: '/markets/', canonical: 'https://tio2malaysia.com/markets/', pageId: null},
+  {path: '/markets/poland/', canonical: 'https://tio2malaysia.com/markets/poland/', pageId: 'MARKET-EU-PL'},
+  {path: '/products/', canonical: 'https://tio2malaysia.com/products/', pageId: null},
+  {path: '/products/m-350/', canonical: 'https://tio2malaysia.com/products/m-350/', pageId: null},
+  {path: '/resources/', canonical: 'https://tio2malaysia.com/resources/', pageId: null},
+  {path: '/resources/chloride-vs-sulfate-titanium-dioxide/', canonical: 'https://tio2malaysia.com/resources/chloride-vs-sulfate-titanium-dioxide/', pageId: null},
+  {path: '/request-a-quote/', canonical: 'https://tio2malaysia.com/request-a-quote/', pageId: 'CONV-RFQ'},
+  {path: '/request-sample/', canonical: 'https://tio2malaysia.com/request-sample/', pageId: 'CONV-SAMPLE'},
+  {path: '/request-documents/', canonical: 'https://tio2malaysia.com/request-documents/', pageId: 'CONV-DOC'},
+  {path: '/privacy-policy/', canonical: 'https://tio2malaysia.com/privacy-policy/', pageId: 'LEGAL-PRIV-EN'},
 ] as const
 
 test('representative CMS pages, navigation and metadata are bound to tio2-my', {annotation: {type: 'prerelease-check', description: 'smoke.representative'}}, async ({page}) => {
@@ -49,10 +49,11 @@ test('representative CMS pages, navigation and metadata are bound to tio2-my', {
     } else {
       await expect(page.locator('[data-site-scope="tio2-my"]').first(), route.path).toBeVisible()
       if (route.pageId) await expect(page.locator(`[data-page-id="${route.pageId}"]`), route.path).toHaveCount(1)
+      if ('forbiddenPageId' in route) await expect(page.locator(`[data-page-id="${route.forbiddenPageId}"]`), route.path).toHaveCount(0)
     }
     await expect(page.locator('header'), route.path).toBeVisible()
     await expect(page.locator('footer'), route.path).toBeVisible()
-    await expect(page.locator('link[rel="canonical"]'), route.path).toHaveAttribute('href', /^https:\/\/tio2malaysia\.com(?:\/|$)/u)
+    await expect(page.locator('link[rel="canonical"]'), route.path).toHaveAttribute('href', route.canonical)
     await expect(page.locator('meta[name="robots"]'), route.path).toHaveAttribute('content', /noindex/u)
   }
 })
