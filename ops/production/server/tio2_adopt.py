@@ -21,7 +21,7 @@ def run(arguments: list[str]) -> dict[str, object]:
     if arguments != ["plan"]:
         if len(arguments) == 2 and arguments[0] == "apply":
             def provider() -> dict[str, object]:
-                plan_path = Path(__file__).resolve().parent.parent / "adoption-plan.json"
+                plan_path = DEFAULT_PATHS.configuration / "adoption-plan.json"
                 return validate_plan(load_json_strict(plan_path.read_text(encoding="utf-8")))
             return Adoption(provider, AdoptionJournal(DEFAULT_PATHS.production / "state" / "adoption.json"), SystemPhaseAOperations(Path(__file__).resolve().parent)).apply(arguments[1])
         raise AdoptionError("fixed adoption action is required")

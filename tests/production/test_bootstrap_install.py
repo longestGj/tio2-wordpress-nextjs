@@ -93,9 +93,12 @@ class BootstrapInstallTests(unittest.TestCase):
     def test_root_adoption_does_not_generate_untrusted_bytecode_and_uses_fixed_sudo_validator(self) -> None:
         root_adopt = (SERVER_ROOT / "root-adopt.sh").read_text(encoding="utf-8")
         bootstrap = (SERVER_ROOT / "bootstrap_install.py").read_text(encoding="utf-8")
+        entrypoint = (SERVER_ROOT / "tio2_adopt.py").read_text(encoding="utf-8")
 
         self.assertIn("PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3", root_adopt)
         self.assertIn('["/usr/sbin/visudo", "-cf", str(candidate)]', bootstrap)
+        self.assertIn('PLAN_FILE="/etc/tio2-production/adoption-plan.json"', root_adopt)
+        self.assertIn('DEFAULT_PATHS.configuration / "adoption-plan.json"', entrypoint)
 
     def test_real_staged_self_test_validates_shell_without_compiling_it_as_python(self) -> None:
         archive = self.root / "bootstrap-selftest"

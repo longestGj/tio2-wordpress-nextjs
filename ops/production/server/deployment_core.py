@@ -24,6 +24,7 @@ from release_baseline import _hash, _read_record, protected_path, validate_basel
 SHA=re.compile(r'[a-f0-9]{64}')
 SCHEMA='tio2-production-baseline-v3'
 ADAPTER='tio2-web-bluegreen-v1'
+HEALTH_ROUTES=('/', '/about/', '/markets/')
 
 
 def validate_rollback_intent_shape(intent):
@@ -191,7 +192,7 @@ class DockerWebAdapter:
         build_id=self.docker('exec',web['id'],'cat','/app/.next/BUILD_ID').decode().strip()
         require(build_id==record['runtime']['deployment']['buildId'],'Next build identity mismatch')
         port=record['runtime']['deployment']['proxyPort' if proxy else 'activePort']
-        for route in ('/','/about','/markets/'):
+        for route in HEALTH_ROUTES:
             try:
                 request=urllib.request.Request('http://127.0.0.1:'+str(port)+route,headers={'Host':'tio2malaysia.com'})
                 with urllib.request.build_opener(NoRedirect).open(request,timeout=15) as response:

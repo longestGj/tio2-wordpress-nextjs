@@ -58,6 +58,7 @@ class DeploymentTests(unittest.TestCase):
 
     def test_proxy_reload_waits_for_new_worker_identity_with_bounded_failure(self):
         import deployment_core as core
+        self.assertEqual(core.HEALTH_ROUTES, ('/', '/about/', '/markets/'))
         adapter=core.DockerWebAdapter(self.f.paths)
         with patch.object(adapter,'health',side_effect=[ReleaseError('proxy release identity mismatch'),{'buildId':'B'}]) as health,patch('deployment_core.time.sleep'):
             self.assertEqual(adapter.wait_proxy({'active':{'commit':'b'*40}}),{'buildId':'B'})
