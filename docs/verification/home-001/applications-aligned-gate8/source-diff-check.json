@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-11T00:43:38.2832500Z",
+  "command": "git diff --check 9571dd2ab7e7f2c7c9cb373e008ca81b3c534822",
+  "exitCode": 0,
+  "result": "PASS",
+  "baselineCommit": "9571dd2ab7e7f2c7c9cb373e008ca81b3c534822",
+  "implementationCommit": "cc55245e83bff0e7c4a63638f65d678dbc3989c3",
+  "changedProductionFiles": [
+    "components/sites/tio2-my/homepage/malaysia-homepage.tsx",
+    "components/sites/tio2-my/homepage/malaysia-homepage.module.css"
+  ],
+  "scopeStatement": "Only the HOME-001 renderer and CSS Module changed in production scope.",
+  "output": []
+}

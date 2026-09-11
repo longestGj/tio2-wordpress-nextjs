@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-11T00:41:48.372Z",
+  "pageId": "HOME-001",
+  "route": "/",
+  "siteScope": "tio2-my",
+  "implementationCommit": "cc55245e83bff0e7c4a63638f65d678dbc3989c3",
+  "buildId": "jWyd3UOiNCdM8j7ue6NvY",
+  "runtimeBaseUrl": "http://127.0.0.1:3291",
+  "gateBoundary": "GATE8_EVIDENCE_READY_ONLY; independent Gate9, integration and release remain separate",
+  "conditions": [
+    {
+      "id": "HOME-VU-A01",
+      "gate8Status": "PASS",
+      "basis": [
+        "exact module/copy/href/grade DOM tests",
+        "frozen CMS preservation",
+        "five-width runtime"
+      ]
+    },
+    {
+      "id": "HOME-VU-A02",
+      "gate8Status": "PASS",
+      "basis": [
+        "approved CSS token/source tests",
+        "computed runtime styles",
+        "five-width visual review"
+      ]
+    },
+    {
+      "id": "HOME-VU-A03",
+      "gate8Status": "PASS",
+      "basis": [
+        "decorative image DOM test",
+        "five-width bounding boxes",
+        "five-width visual review"
+      ]
+    },
+    {
+      "id": "HOME-VU-A04",
+      "gate8Status": "PASS",
+      "basis": [
+        "exact Start Here order/hrefs",
+        "five-width visibility and grid data"
+      ]
+    },
+    {
+      "id": "HOME-VU-A05",
+      "gate8Status": "PASS",
+      "basis": [
+        "four ordered groups and 6/5/2/1 counts",
+        "fourteen unique ordered Grade IDs",
+        "keyboard disclosure and expanded screenshot"
+      ]
+    },
+    {
+      "id": "HOME-VU-A06",
+      "gate8Status": "PASS",
+      "basis": [
+        "page RFQ exact labels/href",
+        "visible at 1440/1024/768 and absent from layout/accessibility at 390/320"
+      ]
+    },
+    {
+      "id": "HOME-VU-A07",
+      "gate8Status": "PASS",
+      "basis": [
+        "shared Header/Footer source reuse",
+        "byte-preserved Chrome and production SVGs",
+        "menu-open and five-width runtime"
+      ]
+    },
+    {
+      "id": "HOME-VU-A08",
+      "gate8Status": "PASS",
+      "basis": [
+        "five-width no-overflow assertions",
+        "computed responsive grid assertions",
+        "seven-image visual review"
+      ]
+    },
+    {
+      "id": "HOME-VU-A09",
+      "gate8Status": "AUTOMATED_PASS_PHYSICAL_AT_NOT_VERIFIED",
+      "basis": [
+        "keyboard menu/disclosure/focus assertions",
+        "44x44 mobile target checks",
+        "zero serious or critical Axe violations"
+      ],
+      "limitation": "Physical screen-reader, touch-device and native 200 percent zoom behavior was not exercised; independent Gate9 remains required."
+    },
+    {
+      "id": "HOME-VU-A10",
+      "gate8Status": "PASS",
+      "basis": [
+        "byte-preserved metadata and JSON-LD sources",
+        "rendered metadata/canonical/H1/JSON-LD tests"
+      ]
+    },
+    {
+      "id": "HOME-VU-A11",
+      "gate8Status": "PASS",
+      "basis": [
+        "tio2-my positive and wrong/missing-scope negative tests",
+        "site marker and scoped asset review"
+      ]
+    },
+    {
+      "id": "HOME-VU-A12",
+      "gate8Status": "READY_FOR_EXTERNAL_MANIFEST_BINDING",
+      "basis": [
+        "exact implementation and Build identity",
+        "committed evidence/receipt to be bound by external manifest",
+        "runtime held for Gate9"
+      ]
+    }
+  ],
+  "targetedResults": {
+    "vitest": {
+      "testFiles": 11,
+      "tests": 70,
+      "passed": 70,
+      "failed": 0
+    },
+    "eslint": {
+      "files": 7,
+      "errors": 0,
+      "warnings": 0
+    },
+    "typecheck": {
+      "exitCode": 0
+    },
+    "visualE2e": {
+      "expected": 7,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "existingHomeGate9RegressionE2e": {
+      "expected": 6,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "knownOpenItems": [
+    {
+      "id": "HOME-VU-DEP-03-APPLICATION-ROUTES",
+      "status": "OPEN",
+      "owner": "Five Applications child-route owners",
+      "layer": "INTEGRATION",
+      "evidence": "docs/verification/home-001/applications-aligned-gate8/runtime/route-liveness.json",
+      "detail": "The five preserved Applications hrefs return 404 in this candidate runtime; Home route/content change is outside scope."
+    },
+    {
+      "id": "HOME-VU-DEP-03-SULFATE-ROUTE",
+      "status": "OPEN",
+      "owner": "Sulfate process route owner",
+      "layer": "INTEGRATION",
+      "evidence": "docs/verification/home-001/applications-aligned-gate8/runtime/route-liveness.json",
+      "detail": "The preserved sulfate process href returns 404 in this candidate runtime; Home route/content change is outside scope."
+    },
+    {
+      "id": "HOME-VU-DEP-04",
+      "status": "OPEN",
+      "owner": "Independent Gate9 reviewer",
+      "layer": "PAGE_GATE9",
+      "detail": "Run independent source/runtime/visual/a11y acceptance on the locked candidate."
+    },
+    {
+      "id": "HOME-VU-DEP-05",
+      "status": "OPEN",
+      "owner": "User and release owner",
+      "layer": "RELEASE",
+      "detail": "No merge, push, deployment, publication, DNS or indexing authorization exists."
+    },
+    {
+      "id": "HOME-VU-A09-PHYSICAL-AT",
+      "status": "NOT_VERIFIED",
+      "owner": "Gate9 device/accessibility reviewer",
+      "layer": "PAGE_GATE9",
+      "detail": "Physical assistive-technology and device behavior remains explicitly unverified."
+    }
+  ],
+  "principalEvidence": [
+    "docs/verification/home-001/applications-aligned-gate8/prework-identity.json",
+    "docs/verification/home-001/applications-aligned-gate8/preservation-report.json",
+    "docs/verification/home-001/applications-aligned-gate8/build-identity.json",
+    "docs/verification/home-001/applications-aligned-gate8/visual-review.json",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/runtime-matrix.json",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/route-liveness.json",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/targeted-vitest-result.json",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/targeted-eslint-result.json",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/typecheck-output.txt",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/typecheck-exit-code.txt",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/playwright-result.json",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/legacy-homepage-playwright-result.json",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-1440.png",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-1024.png",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-768.png",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-390.png",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-320.png",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-390-menu-open.png",
+    "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-390-products-expanded.png"
+  ]
+}

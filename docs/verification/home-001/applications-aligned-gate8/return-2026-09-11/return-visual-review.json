@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-09-11T01:10:25.202Z",
+  "pageId": "HOME-001",
+  "siteScope": "tio2-my",
+  "implementationCommit": "09aa4e446ec3eae870f8fc844a73a4169ac06abe",
+  "buildId": "lcePXqYwI1h1gOF3nVmpW",
+  "runtimeBaseUrl": "http://127.0.0.1:3292",
+  "userDecision": "Remove only the green vertical decoration at the left edge of the Home Hero.",
+  "method": "Opened all seven new runtime PNG files at original detail and compared Hero geometry, copy, actions, image, spacing, page content and shared Chrome with the previous locked candidate.",
+  "findings": [
+    "The Hero edge decoration is absent at 1440, 1024, 768, 390 and 320 CSS pixels.",
+    "Hero border, radius, gradient, shadow, grid, copy, CTAs, image, dimensions and spacing remain visually intact.",
+    "Shared Global Chrome remains byte-identical. The transparent Mobile Menu backdrop is accepted as-is by the user and requires no change.",
+    "This Gate8 return self-review does not declare independent Gate9 acceptance."
+  ],
+  "computedHeroEdgeDecoration": [
+    {
+      "width": 320,
+      "content": "none",
+      "backgroundImage": "none"
+    },
+    {
+      "width": 390,
+      "content": "none",
+      "backgroundImage": "none"
+    },
+    {
+      "width": 768,
+      "content": "none",
+      "backgroundImage": "none"
+    },
+    {
+      "width": 1024,
+      "content": "none",
+      "backgroundImage": "none"
+    },
+    {
+      "width": 1440,
+      "content": "none",
+      "backgroundImage": "none"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/return-2026-09-11/runtime/home-001-1440.png",
+      "viewportWidth": 1440,
+      "state": "default",
+      "width": 1440,
+      "height": 6533,
+      "sha256": "2b35c5077525cc270ef18ed0a033b83e8f12c972f1ab7f7f4a2bd4274d1ebc15",
+      "review": "PASS"
+    },
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/return-2026-09-11/runtime/home-001-1024.png",
+      "viewportWidth": 1024,
+      "state": "default",
+      "width": 1024,
+      "height": 7616,
+      "sha256": "b0cfda755e5a8797d2fec19ddc42da2f33efe78908af93bb0c4bc6d13808fd57",
+      "review": "PASS"
+    },
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/return-2026-09-11/runtime/home-001-768.png",
+      "viewportWidth": 768,
+      "state": "default",
+      "width": 768,
+      "height": 8645,
+      "sha256": "5cc4c44c812dc5c75ba6e831a917fd70565a2cd41af4809a4e5fe42849e489ae",
+      "review": "PASS"
+    },
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/return-2026-09-11/runtime/home-001-390.png",
+      "viewportWidth": 390,
+      "state": "default",
+      "width": 390,
+      "height": 10335,
+      "sha256": "d4d6adf13621493cb2c83ec42789e1610d31e6f73efb45b9930abbce0b5e8553",
+      "review": "PASS"
+    },
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/return-2026-09-11/runtime/home-001-320.png",
+      "viewportWidth": 320,
+      "state": "default",
+      "width": 320,
+      "height": 11065,
+      "sha256": "b31692eed879b6ae1b7d6921a639cce45e68653bc5435a0bd9c15958d81e9392",
+      "review": "PASS"
+    },
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/return-2026-09-11/runtime/home-001-390-menu-open.png",
+      "viewportWidth": 390,
+      "state": "menu-open",
+      "width": 390,
+      "height": 844,
+      "sha256": "970cd2f1b55a01ce93b981fa5c77a46047302d747d8f07fe3f3eabfd54218385",
+      "review": "PASS"
+    },
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/return-2026-09-11/runtime/home-001-390-products-expanded.png",
+      "viewportWidth": 390,
+      "state": "products-expanded",
+      "width": 390,
+      "height": 11142,
+      "sha256": "4f8ebc40203b013e7c7dc06569c9b9dfd01d1058f6c6e72591160924a32132ad",
+      "review": "PASS"
+    }
+  ],
+  "result": "PASS"
+}

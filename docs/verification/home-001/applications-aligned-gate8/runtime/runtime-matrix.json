@@ -1,0 +1,93 @@
+{
+  "pageId": "HOME-001",
+  "route": "/",
+  "siteScope": "tio2-my",
+  "baseUrl": "http://127.0.0.1:3291",
+  "implementationCommit": "cc55245e83bff0e7c4a63638f65d678dbc3989c3",
+  "buildId": "jWyd3UOiNCdM8j7ue6NvY",
+  "viewports": {
+    "320": {
+      "axeViolationCount": 0,
+      "documentsBackground": "rgb(245, 248, 251)",
+      "heroImageBox": {
+        "x": 44,
+        "y": 756.25,
+        "width": 232,
+        "height": 228
+      },
+      "noHorizontalOverflow": true,
+      "pageRfqVisible": false,
+      "screenshotSha256": "1f6ddf0ad83304b9a8feadbf7480073f8f944705d1339849030487befdd1d673",
+      "startHereVisible": true,
+      "visibleGradeCount": 0
+    },
+    "390": {
+      "axeViolationCount": 0,
+      "documentsBackground": "rgb(245, 248, 251)",
+      "heroImageBox": {
+        "x": 52,
+        "y": 667.3125,
+        "width": 286,
+        "height": 228
+      },
+      "noHorizontalOverflow": true,
+      "pageRfqVisible": false,
+      "screenshotSha256": "d57936f6b4bd66ae36a35dc3e2d63aa5bbe11e4fc82b596312dbc03ef35a20d0",
+      "startHereVisible": true,
+      "visibleGradeCount": 0
+    },
+    "768": {
+      "axeViolationCount": 0,
+      "documentsBackground": "rgb(245, 248, 251)",
+      "heroImageBox": {
+        "x": 425.359375,
+        "y": 146,
+        "width": 266.640625,
+        "height": 640.03125
+      },
+      "noHorizontalOverflow": true,
+      "pageRfqVisible": true,
+      "screenshotSha256": "a1d7d5cafe9b863dfa73d30aa7d922af760415b4f93e2182624c94f9eaf91b51",
+      "startHereVisible": true,
+      "visibleGradeCount": 14
+    },
+    "1024": {
+      "axeViolationCount": 0,
+      "documentsBackground": "rgb(245, 248, 251)",
+      "heroImageBox": {
+        "x": 562.796875,
+        "y": 152,
+        "width": 375.203125,
+        "height": 469
+      },
+      "noHorizontalOverflow": true,
+      "pageRfqVisible": true,
+      "screenshotSha256": "afb6b8f7eaf7731fc30ec3d361a0988dc619f12e454163fb5176658cf3654cdf",
+      "startHereVisible": true,
+      "visibleGradeCount": 14
+    },
+    "1440": {
+      "axeViolationCount": 0,
+      "documentsBackground": "rgb(245, 248, 251)",
+      "heroImageBox": {
+        "x": 849.59375,
+        "y": 182,
+        "width": 416.40625,
+        "height": 520.5
+      },
+      "noHorizontalOverflow": true,
+      "pageRfqVisible": true,
+      "screenshotSha256": "3283b737662327842f17f2de152e0bec2d36cf78c923ee643c216c570471b063",
+      "startHereVisible": true,
+      "visibleGradeCount": 14
+    }
+  },
+  "menu390": {
+    "screenshotSha256": "d1b1677eeb995966c75f844737ec7d5cc4af1952c2c2d0a93f5926d0f2ac64b4",
+    "bodyScrollLocked": true
+  },
+  "products390": {
+    "screenshotSha256": "3970e8dbdc3746fc8834283347e91294e88c862d323333dc51e8d1196b7c0ec0",
+    "visibleGradeCount": 14
+  }
+}

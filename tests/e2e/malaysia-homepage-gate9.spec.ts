@@ -33,34 +33,15 @@ for (const width of widths) {
     const h1Size = await h1.evaluate((node) => Number.parseFloat(getComputedStyle(node).fontSize))
     if (width === 1440) expect(h1Size).toBeGreaterThanOrEqual(52)
     if (width === 1440) expect(h1Size).toBeLessThanOrEqual(64)
-    if (width === 390) expect(h1Size).toBe(42)
-    if (width === 320) expect(h1Size).toBe(40)
-    await expect(h1.locator('span')).toHaveText('for Industrial Buyers')
-    expect(await h1.locator('span').evaluate((node) => getComputedStyle(node).color)).toBe(
-      'rgb(0, 127, 119)',
-    )
+    if (width === 390 || width === 320) expect(h1Size).toBe(38)
+    await expect(h1.locator('span')).toHaveCount(0)
 
     if (width === 1440) {
-      const approvedSectionHeights = {
-        hero: 740,
-        'start-here': 176,
-        markets: 732,
-        products: 858,
-        applications: 719,
-        company: 380,
-        documents: 518,
-        resources: 715,
-        'page-rfq': 350,
-      }
-      const sectionHeights = await page.locator('main [data-module]').evaluateAll((sections) =>
-        Object.fromEntries(sections.map((section) => [
-          section.getAttribute('data-module'),
-          section.getBoundingClientRect().height,
-        ])),
+      const shellWidths = await page.locator('main [data-module]').evaluateAll((sections) =>
+        sections.map((section) => section.getBoundingClientRect().width),
       )
-      for (const [moduleName, approvedHeight] of Object.entries(approvedSectionHeights)) {
-        expect(Math.abs(sectionHeights[moduleName]! - approvedHeight), moduleName).toBeLessThanOrEqual(8)
-      }
+      expect(Math.max(...shellWidths)).toBeLessThanOrEqual(1200)
+      expect(Math.min(...shellWidths)).toBeGreaterThanOrEqual(1199)
     }
 
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(

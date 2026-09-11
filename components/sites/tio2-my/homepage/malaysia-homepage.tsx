@@ -28,13 +28,6 @@ function UnresolvedAction({children}: {readonly children: React.ReactNode}) {
   return <span className={styles.unresolvedAction} role="link" aria-disabled="true">{children}</span>
 }
 
-function HeroHeading({heading}: {readonly heading: string}) {
-  const accent = 'for Industrial Buyers'
-  const accentStart = heading.lastIndexOf(accent)
-  if (accentStart < 0) return <>{heading}</>
-  return <>{heading.slice(0, accentStart)}<span className={styles.heroAccent}>{accent}</span></>
-}
-
 export function MalaysiaHomepage({homepage, structuredData}: {
   readonly homepage: MalaysiaHomepageDto
   readonly structuredData?: React.ReactNode
@@ -48,10 +41,10 @@ export function MalaysiaHomepage({homepage, structuredData}: {
         sourcePageId="HOME-001"
       />
       <main className={styles.homepageMain}>
-        <section className={`${styles.section} ${styles.hero}`} data-module="hero" aria-labelledby="my-hero-heading">
+        <section className={styles.hero} data-module="hero" aria-labelledby="my-hero-heading">
           <div className={styles.heroCopy}>
             <Eyebrow>{homepage.hero.eyebrow}</Eyebrow>
-            <h1 id="my-hero-heading"><HeroHeading heading={homepage.hero.heading} /></h1>
+            <h1 id="my-hero-heading">{homepage.hero.heading}</h1>
             <p>{homepage.hero.body}</p>
             <div className={styles.actions}>
               <a className={styles.primaryButton} href={homepage.hero.primaryCta.href} {...rfqAttributes}>
@@ -63,17 +56,15 @@ export function MalaysiaHomepage({homepage, structuredData}: {
             </div>
           </div>
           <div className={styles.heroVisual} aria-hidden="true">
-            <span className={styles.heroMaterialLabel}>TITANIUM DIOXIDE MATERIAL</span>
             <Image
               src={homepage.hero.media.src}
               alt=""
               width={homepage.hero.media.width}
               height={homepage.hero.media.height}
               className={styles.heroImage}
-              sizes="(min-width: 1200px) 500px, 1px"
+              sizes="(min-width: 1101px) 430px, (min-width: 561px) 40vw, calc(100vw - 84px)"
               fetchPriority="high"
             />
-            <span className={styles.circleLarge} /><span className={styles.circleSmall} />
           </div>
         </section>
 
@@ -94,7 +85,7 @@ export function MalaysiaHomepage({homepage, structuredData}: {
           </div>
           <div className={styles.marketGrid}>
             {homepage.markets.items.map((item) => (
-              <article key={item.targetPageId}>
+              <article className={`${styles.card} ${styles.marketCard}`} key={item.targetPageId}>
                 <span className={styles.code}>{item.code}</span><h3>{item.title}</h3><p>{item.description}</p>
                 <ApprovedLink href={item.href}>{item.ctaLabel}</ApprovedLink>
               </article>
@@ -130,7 +121,7 @@ export function MalaysiaHomepage({homepage, structuredData}: {
           <Eyebrow>{homepage.applications.eyebrow}</Eyebrow><h2 id="my-applications-heading">{homepage.applications.heading}</h2><p>{homepage.applications.intro}</p>
           <div className={styles.applicationGrid}>
             {homepage.applications.items.map((item) => (
-              <article key={item.targetPageId}>
+              <article className={`${styles.card} ${styles.applicationCard}`} key={item.targetPageId}>
                 <span className={styles.code}>{item.symbol}</span><h3>{item.title}</h3><p>{item.description}</p>
                 {item.href ? <ApprovedLink href={item.href}>{item.ctaLabel}</ApprovedLink> : <UnresolvedAction>{item.ctaLabel}</UnresolvedAction>}
               </article>
@@ -145,18 +136,18 @@ export function MalaysiaHomepage({homepage, structuredData}: {
 
         <section className={`${styles.section} ${styles.documents}`} data-module="documents" aria-labelledby="my-documents-heading">
           <Eyebrow>{homepage.documents.eyebrow}</Eyebrow><h2 id="my-documents-heading">{homepage.documents.heading}</h2><p>{homepage.documents.intro}</p>
-          <div className={styles.documentGrid}>{homepage.documents.items.map((item) => <article key={item.targetPageId}><h3>{item.title}</h3><p>{item.description}</p><ApprovedLink href={item.href}>{item.ctaLabel}</ApprovedLink></article>)}</div>
+          <div className={styles.documentGrid}>{homepage.documents.items.map((item) => <article className={`${styles.card} ${styles.documentCard}`} key={item.targetPageId}><h3>{item.title}</h3><p>{item.description}</p><ApprovedLink href={item.href}>{item.ctaLabel}</ApprovedLink></article>)}</div>
         </section>
 
-        <section className={`${styles.section} ${styles.tint}`} data-module="resources" aria-labelledby="my-resources-heading">
+        <section className={styles.section} data-module="resources" aria-labelledby="my-resources-heading">
           <Eyebrow>{homepage.resources.eyebrow}</Eyebrow><h2 id="my-resources-heading">{homepage.resources.heading}</h2><p>{homepage.resources.intro}</p>
           <div className={styles.resourceGrid}>
-            <div className={styles.resourceTopics}>{homepage.resources.topics.map((item) => <article key={item.targetPageId}><h3>{item.title}</h3><p>{item.description}</p>{item.href ? <ApprovedLink href={item.href}>{item.ctaLabel}</ApprovedLink> : <UnresolvedAction>{item.ctaLabel}</UnresolvedAction>}</article>)}</div>
-            <div className={styles.buyerAnswers}>{homepage.resources.answers.map((item) => <article key={item.question}><h3>{item.question}</h3><p>{item.answer}</p><ApprovedLink href={item.cta.href} {...(item.cta.targetPageId === 'CONV-RFQ' ? rfqAttributes : {})}>{item.cta.label}</ApprovedLink></article>)}</div>
+            {homepage.resources.topics.map((item) => <article className={`${styles.card} ${styles.resourceCard}`} key={item.targetPageId}><h3>{item.title}</h3><p>{item.description}</p>{item.href ? <ApprovedLink href={item.href}>{item.ctaLabel}</ApprovedLink> : <UnresolvedAction>{item.ctaLabel}</UnresolvedAction>}</article>)}
+            {homepage.resources.answers.map((item) => <article className={`${styles.card} ${styles.answerCard}`} key={item.question}><h3>{item.question}</h3><p>{item.answer}</p><ApprovedLink href={item.cta.href} {...(item.cta.targetPageId === 'CONV-RFQ' ? rfqAttributes : {})}>{item.cta.label}</ApprovedLink></article>)}
           </div>
         </section>
 
-        <section className={`${styles.section} ${styles.pageRfq}`} data-module="page-rfq" data-mobile-render="false" aria-labelledby="my-rfq-heading">
+        <section className={styles.pageRfq} data-module="page-rfq" data-mobile-render="false" aria-labelledby="my-rfq-heading">
           <div><Eyebrow>{homepage.pageRfq.eyebrow}</Eyebrow><h2 id="my-rfq-heading">{homepage.pageRfq.heading}</h2><p>{homepage.pageRfq.body}</p></div>
           <div className={styles.rfqFields}>{homepage.pageRfq.fieldSummaries.map((field) => <span key={field}>{field}</span>)}</div>
           <a className={styles.primaryButton} href={homepage.pageRfq.cta.href} {...rfqAttributes}>{homepage.pageRfq.cta.label}</a>

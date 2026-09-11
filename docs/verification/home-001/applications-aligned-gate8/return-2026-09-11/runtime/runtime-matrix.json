@@ -1,0 +1,113 @@
+{
+  "pageId": "HOME-001",
+  "route": "/",
+  "siteScope": "tio2-my",
+  "baseUrl": "http://127.0.0.1:3292",
+  "implementationCommit": "09aa4e446ec3eae870f8fc844a73a4169ac06abe",
+  "buildId": "lcePXqYwI1h1gOF3nVmpW",
+  "viewports": {
+    "320": {
+      "axeViolationCount": 0,
+      "documentsBackground": "rgb(245, 248, 251)",
+      "heroEdgeDecoration": {
+        "content": "none",
+        "backgroundImage": "none"
+      },
+      "heroImageBox": {
+        "x": 44,
+        "y": 756.25,
+        "width": 232,
+        "height": 228
+      },
+      "noHorizontalOverflow": true,
+      "pageRfqVisible": false,
+      "screenshotSha256": "b31692eed879b6ae1b7d6921a639cce45e68653bc5435a0bd9c15958d81e9392",
+      "startHereVisible": true,
+      "visibleGradeCount": 0
+    },
+    "390": {
+      "axeViolationCount": 0,
+      "documentsBackground": "rgb(245, 248, 251)",
+      "heroEdgeDecoration": {
+        "content": "none",
+        "backgroundImage": "none"
+      },
+      "heroImageBox": {
+        "x": 52,
+        "y": 667.3125,
+        "width": 286,
+        "height": 228
+      },
+      "noHorizontalOverflow": true,
+      "pageRfqVisible": false,
+      "screenshotSha256": "d4d6adf13621493cb2c83ec42789e1610d31e6f73efb45b9930abbce0b5e8553",
+      "startHereVisible": true,
+      "visibleGradeCount": 0
+    },
+    "768": {
+      "axeViolationCount": 0,
+      "documentsBackground": "rgb(245, 248, 251)",
+      "heroEdgeDecoration": {
+        "content": "none",
+        "backgroundImage": "none"
+      },
+      "heroImageBox": {
+        "x": 425.359375,
+        "y": 146,
+        "width": 266.640625,
+        "height": 640.03125
+      },
+      "noHorizontalOverflow": true,
+      "pageRfqVisible": true,
+      "screenshotSha256": "5cc4c44c812dc5c75ba6e831a917fd70565a2cd41af4809a4e5fe42849e489ae",
+      "startHereVisible": true,
+      "visibleGradeCount": 14
+    },
+    "1024": {
+      "axeViolationCount": 0,
+      "documentsBackground": "rgb(245, 248, 251)",
+      "heroEdgeDecoration": {
+        "content": "none",
+        "backgroundImage": "none"
+      },
+      "heroImageBox": {
+        "x": 562.796875,
+        "y": 152,
+        "width": 375.203125,
+        "height": 469
+      },
+      "noHorizontalOverflow": true,
+      "pageRfqVisible": true,
+      "screenshotSha256": "b0cfda755e5a8797d2fec19ddc42da2f33efe78908af93bb0c4bc6d13808fd57",
+      "startHereVisible": true,
+      "visibleGradeCount": 14
+    },
+    "1440": {
+      "axeViolationCount": 0,
+      "documentsBackground": "rgb(245, 248, 251)",
+      "heroEdgeDecoration": {
+        "content": "none",
+        "backgroundImage": "none"
+      },
+      "heroImageBox": {
+        "x": 849.59375,
+        "y": 182,
+        "width": 416.40625,
+        "height": 520.5
+      },
+      "noHorizontalOverflow": true,
+      "pageRfqVisible": true,
+      "screenshotSha256": "2b35c5077525cc270ef18ed0a033b83e8f12c972f1ab7f7f4a2bd4274d1ebc15",
+      "startHereVisible": true,
+      "visibleGradeCount": 14
+    }
+  },
+  "menu390": {
+    "screenshotSha256": "970cd2f1b55a01ce93b981fa5c77a46047302d747d8f07fe3f3eabfd54218385",
+    "bodyScrollLocked": true
+  },
+  "products390": {
+    "screenshotSha256": "4f8ebc40203b013e7c7dc06569c9b9dfd01d1058f6c6e72591160924a32132ad",
+    "visibleGradeCount": 14
+  }
+}

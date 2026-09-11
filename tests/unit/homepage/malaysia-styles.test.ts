@@ -39,10 +39,18 @@ describe('Malaysia Homepage accessible palette', () => {
     expect(contrast(teal, property('--pale'))).toBeGreaterThanOrEqual(4.5)
   })
 
-  it('uses a separately tested light teal on dark page surfaces', () => {
+  it('uses the approved bright teal only with the deep-navy RFQ pairing', () => {
     const lightTeal = property('--teal-light')
-    expect(contrast(lightTeal, '#063873')).toBeGreaterThanOrEqual(4.5)
+    expect(lightTeal.toLowerCase()).toBe('#00a99d')
     expect(contrast(lightTeal, property('--navy-deep'))).toBeGreaterThanOrEqual(4.5)
-    expect(css).toContain('.documents .eyebrow, .pageRfq .eyebrow')
+    expect(css).toContain('.pageRfq .primaryButton')
+    expect(css).toMatch(/\.documents\s*\{[^}]*background:\s*var\(--pale\)/u)
+  })
+
+  it('uses the approved darker body color whenever copy sits on the soft surface', () => {
+    const bodyOnSoft = property('--body-on-soft')
+    expect(bodyOnSoft.toLowerCase()).toBe('#526176')
+    expect(contrast(bodyOnSoft, property('--pale'))).toBeGreaterThanOrEqual(4.5)
+    expect(css).toMatch(/\.tint\s+p,[\s\S]*?\.documents\s*>\s*p:not\(\.eyebrow\)[\s\S]*?color:\s*var\(--body-on-soft\)/u)
   })
 })

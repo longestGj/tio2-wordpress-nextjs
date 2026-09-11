@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-11T01:10:25.202Z",
+  "pageId": "HOME-001",
+  "route": "/",
+  "siteScope": "tio2-my",
+  "implementationCommit": "09aa4e446ec3eae870f8fc844a73a4169ac06abe",
+  "buildId": "lcePXqYwI1h1gOF3nVmpW",
+  "runtimeBaseUrl": "http://127.0.0.1:3292",
+  "findings": [
+    {
+      "id": "HOME-001-G9-USER-CHANGE-01",
+      "status": "GATE8_PASS_READY_FOR_GATE9_RECHECK",
+      "evidence": "Source assertion plus five computed pseudo-element checks and seven visually reviewed runtime images."
+    },
+    {
+      "id": "ROOT-GLOBAL-CHROME-G9-F01",
+      "status": "ACCEPTED_AS_IS_BY_USER / NO_CHANGE_REQUIRED",
+      "evidence": "User decision relayed by project control on 2026-09-11; shared Chrome byte-preservation report."
+    }
+  ],
+  "regressions": {
+    "vitest": {
+      "files": 11,
+      "tests": 71,
+      "passed": 71,
+      "failed": 0
+    },
+    "targetedEslint": {
+      "files": 2,
+      "errors": 0,
+      "warnings": 0
+    },
+    "typecheck": {
+      "exitCode": 0
+    },
+    "visualPlaywright": {
+      "expected": 7,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "existingHomeGate9Playwright": {
+      "expected": 6,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "unchangedOpenItems": [
+    {
+      "id": "HOME-VU-DEP-03-APPLICATION-ROUTES",
+      "status": "OPEN",
+      "layer": "INTEGRATION",
+      "owner": "Five Applications child-route owners"
+    },
+    {
+      "id": "HOME-VU-DEP-03-SULFATE-ROUTE",
+      "status": "OPEN",
+      "layer": "INTEGRATION",
+      "owner": "Sulfate process route owner"
+    },
+    {
+      "id": "HOME-VU-DEP-04",
+      "status": "OPEN",
+      "layer": "PAGE_GATE9",
+      "owner": "Independent Gate9 reviewer"
+    },
+    {
+      "id": "HOME-VU-DEP-05",
+      "status": "OPEN",
+      "layer": "RELEASE",
+      "owner": "User and release owner"
+    }
+  ],
+  "stageBoundary": "No Gate9 declaration, main merge, push, Gate10, deployment, publication, DNS or indexing."
+}

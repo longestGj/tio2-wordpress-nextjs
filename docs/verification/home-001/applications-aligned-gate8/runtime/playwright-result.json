@@ -1,0 +1,318 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\16Wordpress_nextjs\\.worktrees\\home-001-app-align-gate8\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config=playwright.home-001-app-align.config.ts",
+      "--reporter=json"
+    ],
+    "configFile": "D:\\16Wordpress_nextjs\\.worktrees\\home-001-app-align-gate8\\playwright.home-001-app-align.config.ts",
+    "rootDir": "D:/16Wordpress_nextjs/.worktrees/home-001-app-align-gate8/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/16Wordpress_nextjs/.worktrees/home-001-app-align-gate8/.tmp/playwright-home-001-app-align",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/16Wordpress_nextjs/.worktrees/home-001-app-align-gate8/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "malaysia-homepage-visual-unification.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "malaysia-homepage-visual-unification.spec.ts",
+      "file": "malaysia-homepage-visual-unification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "HOME-001 Applications-aligned runtime at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2508,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-11T00:39:16.998Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c4bb559b0a37c736ca9e-7bf32a0e231ed4c21a01",
+          "file": "malaysia-homepage-visual-unification.spec.ts",
+          "line": 72,
+          "column": 3
+        },
+        {
+          "title": "HOME-001 Applications-aligned runtime at 1024px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1984,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-11T00:39:20.223Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c4bb559b0a37c736ca9e-536a64ea71b1842aa023",
+          "file": "malaysia-homepage-visual-unification.spec.ts",
+          "line": 72,
+          "column": 3
+        },
+        {
+          "title": "HOME-001 Applications-aligned runtime at 768px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1830,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-11T00:39:22.215Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c4bb559b0a37c736ca9e-11fefb2a67877724d294",
+          "file": "malaysia-homepage-visual-unification.spec.ts",
+          "line": 72,
+          "column": 3
+        },
+        {
+          "title": "HOME-001 Applications-aligned runtime at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1731,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-11T00:39:24.056Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c4bb559b0a37c736ca9e-dd9d89756796d6f6271e",
+          "file": "malaysia-homepage-visual-unification.spec.ts",
+          "line": 72,
+          "column": 3
+        },
+        {
+          "title": "HOME-001 Applications-aligned runtime at 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1686,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-11T00:39:25.792Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c4bb559b0a37c736ca9e-eb025f82707d611aa3c4",
+          "file": "malaysia-homepage-visual-unification.spec.ts",
+          "line": 72,
+          "column": 3
+        },
+        {
+          "title": "HOME-001 390px shared Menu state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 915,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-11T00:39:27.484Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c4bb559b0a37c736ca9e-b81feccbe59426dda945",
+          "file": "malaysia-homepage-visual-unification.spec.ts",
+          "line": 152,
+          "column": 1
+        },
+        {
+          "title": "HOME-001 390px Products fully expanded state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1137,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-11T00:39:28.405Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c4bb559b0a37c736ca9e-0e75e5b93eea3c8b9e1c",
+          "file": "malaysia-homepage-visual-unification.spec.ts",
+          "line": 175,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-11T00:39:16.493Z",
+    "duration": 13197.259,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
