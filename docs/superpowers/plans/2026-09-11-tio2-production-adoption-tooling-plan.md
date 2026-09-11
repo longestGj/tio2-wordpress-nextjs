@@ -136,7 +136,7 @@
       return {**bound, 'observedAt': probe['observedAt'], 'planHash': canonical_hash(bound)}
   ```
 
-  Probe only fixed sources: `/etc/os-release`, `/proc`, systemd MariaDB properties, `/etc/nginx`, `/opt/tio2-cms/tio2-wordpress-nextjs/wordpress/docker-compose.yml`, fixed Docker labels/inspect APIs, the two named volumes, CMS loopback endpoints, and the three fixed incoming release files. Host MariaDB passes only when its datadir and every open data FD are outside the Docker database mountpoint. CMS output is normalized to site ID, plugin identity, 56 managed records, state, route/page ID/scope and content hashes.
+  Probe only fixed sources: `/etc/os-release`, `/proc`, systemd MariaDB properties, `/etc/nginx`, `/opt/tio2-cms/tio2-wordpress-nextjs/wordpress/docker-compose.yml`, fixed Docker labels/inspect APIs, the two named volumes, CMS loopback endpoints, and the three fixed incoming release files. Host MariaDB passes only when its datadir and every open data FD are outside the Docker database mountpoint. CMS output is normalized to site ID, plugin identity, current managed-record count, state, route/page ID/scope and content hashes. A sparse initial CMS is bound as `initialize-approved-56-after-backup`; it is not treated as already approved.
 
 - [ ] **Step 7: Install the root-only entry without widening daily sudo**
 
@@ -209,7 +209,7 @@
 
 - [ ] **Step 3: Implement root journal and provisional baseline enrollment**
 
-  Persist `/opt/tio2-production/state/adoption.json` with exclusive, root-private, atomic writes. Phase A recomputes Task 1 Plan, obtains the existing global release lock, invokes `install_bootstrap`, copies the observed Compose to `/etc/tio2-production/legacy-compose.snapshot.yml`, and writes a v2 enrollment describing the exact legacy DB/WP containers and volumes. Enrollment must validate against live Docker before it becomes `baseline.json`.
+  Persist `/opt/tio2-production/state/adoption.json` with exclusive, root-private, atomic writes. Phase A recomputes Task 1 Plan, obtains the existing global release lock, invokes `install_bootstrap`, copies the observed Compose to `/etc/tio2-production/legacy-compose.snapshot.yml`, and writes a v2 enrollment describing the exact legacy DB/WP containers and volumes. Enrollment must validate against live Docker before it becomes `baseline.json`. All code, plugin and migration bytes are staged in this first transfer; no later content upload is required.
 
 - [ ] **Step 4: Reuse prepare and canonical backup**
 
@@ -290,7 +290,7 @@
 
 - [ ] **Step 4: Implement controlled WordPress attachment/recreation**
 
-  Capture an immutable snapshot before effects. Create a fixed `tio2-production-frontend` bridge with ownership labels, connect WordPress as alias `wordpress`, and leave DB detached. If callback values differ, stop and rename the old WordPress container, create the replacement from the snapshot with only the two fixed Malaysia callback URL changes, start and health-check it, then remove the old container only after v3 enrollment succeeds. On failure remove the replacement, restore the original name/networks and start the original.
+  Capture an immutable snapshot before effects. After the off-host recovery evidence is accepted, run every seed in the production migration manifest in its fixed order and verify the resulting 56-record approved content fingerprint. If initialization or verification fails, restore the database and WordPress files from the phase-A backup before continuing. Then create a fixed `tio2-production-frontend` bridge, connect WordPress as alias `wordpress`, and leave DB detached. If callback values differ, stop and rename the old WordPress container, create the replacement from the snapshot with only the two fixed Malaysia callback URL changes, start and health-check it, then remove the old container only after v3 enrollment succeeds. On failure remove the replacement, restore the original name/networks and start the original.
 
   Validate the root-private production environment against a fixed field set. In addition to the current example, require `TIO2_MY_RFQ_ATTRIBUTION_SECRET` and a valid `TIO2_MY_SAMPLE_RECEIVER_BINDING` whose `site_scope` is `tio2-my`, whose private recipient is nonempty, and whose `key_sha256` matches the approved Web3Forms key. When this file is absent during first Apply, read only these named values from `/dev/tty` without echo and create it mode0600; never accept an environment path or value on argv/stdin, and never print the values.
 

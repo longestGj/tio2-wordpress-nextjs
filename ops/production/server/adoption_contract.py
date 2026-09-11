@@ -110,7 +110,7 @@ def _validate_facts(value: object) -> dict[str, object]:
         raise AdoptionError("unexpected Nginx server names")
     _hash(nginx["configurationSha256"])
     cms = _keys(facts["cms"], {"siteId", "pluginVersion", "publishedRecords", "contentSha256", "scope", "callbacksMatch"})
-    if cms["siteId"] != SITE or cms["scope"] != SITE or cms["publishedRecords"] != 56 or not isinstance(cms["pluginVersion"], str) or not cms["pluginVersion"]:
+    if cms["siteId"] != SITE or cms["scope"] != SITE or type(cms["publishedRecords"]) is not int or not 0 <= cms["publishedRecords"] <= 56 or not isinstance(cms["pluginVersion"], str) or not cms["pluginVersion"]:
         raise AdoptionError("production CMS content does not match the approved scope")
     _hash(cms["contentSha256"])
     if type(cms["callbacksMatch"]) is not bool:
@@ -119,9 +119,10 @@ def _validate_facts(value: object) -> dict[str, object]:
     return facts
 
 
-def _changes(callbacks_match: bool) -> dict[str, object]:
+def _changes(callbacks_match: bool, published_records: int) -> dict[str, object]:
     return {
         "wordpress": "attach-existing-container" if callbacks_match else "recreate-with-preserved-runtime-and-fixed-callbacks",
+        "content": "verify-approved-56" if published_records == 56 else "initialize-approved-56-after-backup",
         "phaseA": ["install-fixed-program", "backup-existing-cms", "await-off-host-verification"],
         "phaseB": ["attach-frontend-network", "build-native-arm64-web", "install-internal-nginx", "await-dns"],
         "phaseC": ["issue-fixed-tls", "activate-public-nginx", "verify-public-surface"],
@@ -148,7 +149,7 @@ def build_plan(probe: dict[str, object], candidate: dict[str, object], tool_comm
     bound: dict[str, object] = {
         "schemaVersion": SCHEMA, "siteId": SITE, "host": HOST,
         "toolCommit": tool_commit, "candidate": checked_candidate,
-        "facts": facts, "changes": _changes(bool(facts["cms"]["callbacksMatch"])), "rollback": _rollback(),
+        "facts": facts, "changes": _changes(bool(facts["cms"]["callbacksMatch"]), int(facts["cms"]["publishedRecords"])), "rollback": _rollback(),
     }
     return {**bound, "observedAt": probe["observedAt"], "planHash": canonical_hash(bound)}
 
@@ -160,7 +161,7 @@ def validate_plan(value: object) -> dict[str, object]:
     _commit(plan["toolCommit"])
     candidate = _validate_candidate(plan["candidate"])
     facts = _validate_facts(plan["facts"])
-    if facts["incoming"] != candidate or plan["changes"] != _changes(bool(facts["cms"]["callbacksMatch"])) or plan["rollback"] != _rollback():
+    if facts["incoming"] != candidate or plan["changes"] != _changes(bool(facts["cms"]["callbacksMatch"]), int(facts["cms"]["publishedRecords"])) or plan["rollback"] != _rollback():
         raise AdoptionError("adoption plan action mismatch")
     try:
         if not isinstance(plan["observedAt"], str) or datetime.fromisoformat(plan["observedAt"].replace("Z", "+00:00")).tzinfo is None:

@@ -4,6 +4,7 @@
   "seeds": [
     {"path":"wordpress/seed/apply-tio2-my-about-page.php","sha256":"8e3cc46a4198d1832bab03e4ff4076b4c9f663b66f0392f8d20c13a4b7a6f4f9"},
     {"path":"wordpress/seed/apply-tio2-my-application-hub.php","sha256":"d5deb2398ef4a258ca25b0466ba6be20affc57df7912fba76fad80b25292cce8"},
+    {"path":"wordpress/seed/apply-tio2-my-contact-page.php","sha256":"cc86c9aa32b9bfe6109218fc652ad9862bea317a1465c55459663ee0ed9a14e2"},
     {"path":"wordpress/seed/apply-tio2-my-country-markets.php","sha256":"aa9742aaac3fd61f79434a07ff8f4fef103f0ff801ce0ad107a0cabe0425e925"},
     {"path":"wordpress/seed/apply-tio2-my-cr901-product-detail.php","sha256":"af515db3baf58ccdc836436735751899e3e6537ab80437ba3439ee9d7e3744ce"},
     {"path":"wordpress/seed/apply-tio2-my-document-coo.php","sha256":"041db18373757a9fafc1e06752f3b59fe40e255a572f741cb78cefcda59de425"},

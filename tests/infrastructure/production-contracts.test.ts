@@ -87,7 +87,7 @@ describe('tio2-my production release contracts', () => {
       schemaVersion: 'tio2-my-production-migration-v1',
       siteId: 'tio2-my',
     })
-    expect(manifest.seeds).toHaveLength(39)
+    expect(manifest.seeds).toHaveLength(40)
     expect(manifest.seeds.map(seed => seed.path)).toEqual(
       prereleaseManifest.seeds
         .map(seed => seed.path)

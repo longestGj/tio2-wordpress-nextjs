@@ -81,6 +81,13 @@ class AdoptionContractTests(unittest.TestCase):
         with self.assertRaisesRegex(AdoptionError, "hash"):
             validate_plan(value)
 
+    def test_binds_full_content_initialization_when_the_existing_cms_is_sparse(self) -> None:
+        value = fixture()
+        facts = value["facts"]
+        facts["cms"]["publishedRecords"] = 4
+        rebuilt = build_plan({"observedAt": value["observedAt"], "facts": facts}, value["candidate"], value["toolCommit"])
+        self.assertEqual(rebuilt["changes"]["content"], "initialize-approved-56-after-backup")
+
 
 if __name__ == "__main__":
     unittest.main()

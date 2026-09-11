@@ -2,11 +2,11 @@ Set-StrictMode -Version Latest
 
 # This version names an immutable reviewed hash tuple, mirrored by the installed
 # Python policy. Contract edits require a new version and administrator upgrade.
-$script:FrozenContractVersion = 'tio2-production-contracts-v1'
+$script:FrozenContractVersion = 'tio2-production-contracts-v2'
 $script:FrozenContractSha256 = [ordered]@{
     'ops/production/release-package.schema.json' = 'ad8dbea67cb5c7c4a8503e830b32a061ee46859c3992e0570cc42d4d38362346'
     'ops/production/release-surface.json' = '42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152'
-    'ops/production/migration-manifest.json' = '230197ea63467b5557e7d1bdb960503b3c636f15eb7564894d124c9a7f1d7b7a'
+    'ops/production/migration-manifest.json' = '8bc0db54ef1efe5ceff3474e0efc29d0696e6256ed1b9d59d141aed7ce3c1004'
 }
 
 $script:ProductionRuntimePaths = @(

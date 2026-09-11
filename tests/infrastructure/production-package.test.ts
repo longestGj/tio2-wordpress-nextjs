@@ -156,7 +156,7 @@ describe.runIf(process.platform === 'win32')('deterministic local production pac
     const proof = JSON.parse(readFileSync(packaged.proofPath, 'utf8'))
     expect(packaged.proofSha256).toBe(sha256(readFileSync(packaged.proofPath)))
     expect(proof).toMatchObject({
-      schemaVersion: 'tio2-production-proof-v1', contractVersion: 'tio2-production-contracts-v1', commit,
+      schemaVersion: 'tio2-production-proof-v1', contractVersion: 'tio2-production-contracts-v2', commit,
       archiveSha256: packaged.archiveSha256, manifestSha256: packaged.manifestSha256,
       source: {branch: 'main', clean: true},
       prerelease: {state: 'PASSED', commit, productionGateReceiptSha256: sha256(readFileSync(receiptPath))},

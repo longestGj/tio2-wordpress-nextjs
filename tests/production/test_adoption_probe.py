@@ -77,9 +77,16 @@ class AdoptionProbeTests(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(AdoptionError):
                 self.inspect(value)
 
-    def test_rejects_sparse_or_foreign_cms_and_unexpected_nginx_names(self) -> None:
+    def test_accepts_sparse_cms_only_as_a_full_approved_initialization(self) -> None:
+        value = snapshot()
+        value["cms"]["publishedRecords"] = 0
+        probe = self.inspect(value)
+        candidate = probe["facts"]["incoming"]
+        plan = validate_plan(build_plan(probe, candidate, "7" * 40))
+        self.assertEqual(plan["changes"]["content"], "initialize-approved-56-after-backup")
+
+    def test_rejects_foreign_cms_and_unexpected_nginx_names(self) -> None:
         mutations = [
-            ("sparse", lambda value: value["cms"].__setitem__("publishedRecords", 4)),
             ("foreign", lambda value: value["cms"].__setitem__("scope", "tio2-a")),
             ("nginx", lambda value: value["nginx"]["serverNames"].append("unknown.example")),
         ]
