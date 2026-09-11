@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test} from '@playwright/test'
 import {readFileSync} from 'node:fs'
@@ -137,7 +138,7 @@ const m200Approved = JSON.parse(readFileSync(
   readonly technical: {readonly rows: readonly {readonly property: string; readonly value: string}[]}
 }
 
-const baseUrl = 'http://127.0.0.1:3004'
+const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const viewports = [
   {name: '1440', width: 1440, height: 1000},
   {name: '1024', width: 1024, height: 1000},

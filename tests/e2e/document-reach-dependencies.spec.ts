@@ -1,8 +1,9 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {expect, test, type APIRequestContext} from '@playwright/test'
 import {createHmac, randomUUID} from 'node:crypto'
 import {writeFileSync} from 'node:fs'
 
-const baseUrl = process.env.DOC_REACH_BASE_URL ?? 'http://localhost:3004'
+const baseUrl = requiredLocalUrl('DOC_REACH_BASE_URL').origin
 const dependencies = [
   {pageId: 'DOC-000', path: '/documents/'},
   {pageId: 'MARKET-EU-001', path: '/markets/european-union/'},
@@ -29,7 +30,7 @@ async function invalidateDependencies(request: APIRequestContext) {
 }
 
 test.beforeAll(async ({request}) => {
-  const reset = await request.put(`${process.env.DOC_REACH_FIXTURE_URL ?? 'http://127.0.0.1:4013'}/__state`, {data: {reset: true}})
+  const reset = await request.put(`${requiredLocalUrl('DOC_REACH_FIXTURE_URL').origin}/__state`, {data: {reset: true}})
   expect(reset.status()).toBe(200)
   await invalidateDependencies(request)
 })

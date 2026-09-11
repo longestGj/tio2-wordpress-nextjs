@@ -6,6 +6,9 @@
     "codegen": "graphql-codegen --config codegen.ts",
     "schema:refresh": "docker compose --env-file wordpress/.env -f wordpress/docker-compose.yml run --rm wpcli wp graphql generate-static-schema --output=/workspace/wordpress/schema.graphql",
     "start": "next start",
+    "wordpress:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-wordpress.ps1 -Action Start -Json",
+    "wordpress:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-wordpress.ps1 -Action Status -Json",
+    "wordpress:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-wordpress.ps1 -Action Stop -Json",
     "prerelease:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prerelease.ps1 -Action Start",
     "prerelease:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prerelease.ps1 -Action Status -Json",
     "prerelease:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prerelease.ps1 -Action Stop",
@@ -19,6 +22,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test --config=playwright.config.ts",
+    "test:e2e:owned": "node scripts/run-owned-e2e.mjs",
     "audit:homepage:bundle": "node scripts/audit-homepage-bundle.mjs",
     "audit:homepage:lighthouse:a11y": "node scripts/audit-homepage-lighthouse.mjs --mode=a11y",
     "audit:homepage:lighthouse:performance": "node scripts/audit-homepage-lighthouse.mjs --mode=performance",
@@ -27,6 +31,8 @@
     "sites:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -KeepRunning",
     "sites:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -Stop",
     "sites:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-sites.ps1 -Status",
+    "runtime:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/runtime-ports.ps1 -Action Status -Json",
+    "runtime:doctor": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/runtime-ports.ps1 -Action Doctor -Json",
     "validate": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {

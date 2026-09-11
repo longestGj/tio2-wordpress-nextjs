@@ -46,8 +46,8 @@ if ([System.IO.Path]::GetExtension($SnapshotPath) -ne '.json') {
 }
 $ContainerSnapshotPath = ConvertTo-ContainerPath -LocalPath $SnapshotPath
 $DockerArguments = @(
-    'compose', '--env-file', $EnvironmentFile, '-f', $ComposeFile,
-    'run', '--rm', '--no-TTY', '--user', '33:33', 'wpcli',
+    'compose', '--project-name', 'wordpress', '--env-file', $EnvironmentFile, '-f', $ComposeFile,
+    'run', '--rm', '--no-deps', '--no-TTY', '--user', '33:33', 'wpcli',
     'wp', 'eval-file', '/workspace/wordpress/seed/restore-public-routes.php',
     $ContainerSnapshotPath
 )

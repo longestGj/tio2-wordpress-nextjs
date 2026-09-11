@@ -1,9 +1,12 @@
-import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
+import {isolatedPhpArgs} from '../../helpers/wordpress-test-support'
+
 import {spawnSync} from 'node:child_process'
 import {existsSync} from 'node:fs'
 import {fileURLToPath} from 'node:url'
 
 import {describe, expect, it} from 'vitest'
+
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'isolated', hostHttp: false} as const
 
 const importerPath = fileURLToPath(
   new URL(
@@ -16,14 +19,7 @@ function runControlledImporter() {
   return spawnSync(
     'docker',
     [
-      ...wordpressComposeArgs(),
-      'run',
-      '--rm',
-      '--no-TTY',
-      '--no-deps',
-      '--entrypoint',
-      'php',
-      'wpcli',
+      ...isolatedPhpArgs(process.cwd()),
       '-r',
       String.raw`
 define('ABSPATH', __DIR__);

@@ -1,9 +1,10 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test} from '@playwright/test'
 import {mkdirSync, readFileSync} from 'node:fs'
 import {JSDOM} from 'jsdom'
 
-const base = process.env.DOC_COO_BASE_URL ?? 'http://127.0.0.1:3024'
+const base = requiredLocalUrl('DOC_COO_BASE_URL').origin
 const evidence = 'docs/verification/tio2-my/document-coo/runtime'
 const widths = [1440, 1280, 1024, 900, 768, 600, 430, 390, 360] as const
 const fixture = JSON.parse(readFileSync('tests/fixtures/documents/doc-coo/gate6/DOC-COO_GATE6_PUBLIC_PAYLOAD_V0.4.json', 'utf8')) as {

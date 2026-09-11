@@ -1,6 +1,7 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {expect,test} from '@playwright/test'
 
-const baseUrl=process.env.TIO2_MY_BASE_URL??'http://127.0.0.1:3226'
+const baseUrl=requiredLocalUrl('TIO2_MY_BASE_URL').origin
 
 for(const target of [
  {path:'/markets/brazil/',pageId:'MARKET-BR-EN',language:'en'},

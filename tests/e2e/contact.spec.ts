@@ -1,9 +1,11 @@
 import AxeBuilder from '@axe-core/playwright'
+import {requiredLocalUrl} from './support/required-local-url'
 import {expect, test} from '@playwright/test'
 import {mkdirSync, writeFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 
 const evidence = resolve(process.env.CONTACT_EVIDENCE_DIR ?? 'docs/verification/contact-001/gate8/runtime')
+test.use({baseURL: requiredLocalUrl('TIO2_MY_BASE_URL').origin})
 mkdirSync(evidence, {recursive: true})
 const moduleOrder = ['breadcrumb', 'hero', 'contact-details', 'dedicated-requests', 'general-inquiry']
 

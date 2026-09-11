@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test} from '@playwright/test'
 import {readFileSync} from 'node:fs'
@@ -9,7 +10,7 @@ const contract = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/conf
   gradeSelector: {grades: readonly string[]}
   buyerQuestions: {items: readonly {question: string; answer: string}[]}
 }
-const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
+const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const widths = [320, 390, 768, 1440] as const
 const moduleOrder = ['breadcrumb','hero','grade-selector','how-it-works','review-scenarios','document-categories','document-guides','why-on-request','buyer-questions','closing-cta']
 

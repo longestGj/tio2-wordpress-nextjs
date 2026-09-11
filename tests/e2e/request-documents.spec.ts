@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test} from '@playwright/test'
 import {mkdirSync, readFileSync, writeFileSync} from 'node:fs'
@@ -8,7 +9,7 @@ import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
 const contract = JSON.parse(readFileSync(
   'wordpress/plugins/tio2-site-model/config/tio2-my-request-documents.json', 'utf8',
 )) as {hero: {h1: string}; form: {gradeOptions: string[]; documentTypes: Array<{value: string}>}}
-const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
+const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const evidenceDirectory = resolve(process.env.POLAND_EVIDENCE_DIR ?? 'docs/verification/conv-doc')
 mkdirSync(evidenceDirectory, {recursive:true})
 if (process.env.POLAND_EVIDENCE_DIR) test.use({trace:'off'})

@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {mkdir} from 'node:fs/promises'
 import {readFileSync} from 'node:fs'
 
@@ -6,7 +7,7 @@ import {expect, test} from '@playwright/test'
 
 import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
 
-const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
+const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const evidenceDir = '.local-evidence/public-paths-dev/resources-task7-fix1'
 const resourceContract=JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-resource-hub.json','utf8')) as {hero:{h1:string};resourceRelations:{canonicalPath:string;canonicalUrl:string}[]}
 const widths = [1440, 768, 390] as const

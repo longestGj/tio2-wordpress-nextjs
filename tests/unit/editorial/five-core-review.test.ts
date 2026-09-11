@@ -99,7 +99,8 @@ describe('independent five-page common-core review',()=>{
   expect(prefill.values).toEqual({})
   const values={...emptyMalaysiaRequestDocumentsValues,full_name:'Audit Buyer',company:'Example',business_email:'audit@example.invalid',country_region:'Malaysia',product_grade:'M-996',document_types:['safety'],application_industry:id==='PRODUCT-PROC-SU'?'':'Custom buyer coating system'}
   let transmitted:Record<string,unknown>|undefined
-  await submitMalaysiaRequestDocuments(values,{accessKey:'mock-only',requestToken:'review-only',marketId:null,sourcePageId:normalizeMalaysiaRequestDocumentsSourcePageId(prefill.sourcePageId,{productGrade:values.product_grade,applicationIndustry:values.application_industry}),fetcher:async(_url,init)=>{transmitted=JSON.parse(String(init?.body));return Response.json({success:true})}})
+  const result=await submitMalaysiaRequestDocuments(values,{accessKey:'01234567-89ab-cdef-0123-456789abcdef',requestToken:'review-only',marketId:null,sourcePageId:normalizeMalaysiaRequestDocumentsSourcePageId(prefill.sourcePageId,{productGrade:values.product_grade,applicationIndustry:values.application_industry}),fetcher:async(_url,init)=>{transmitted=JSON.parse(String(init?.body));return Response.json({success:true})}})
+  expect(result.kind).toBe('provider_accepted')
   expect(transmitted?.product_grade).toBe('M-996')
   expect(transmitted?.source_page_id).toBe(id)
  })

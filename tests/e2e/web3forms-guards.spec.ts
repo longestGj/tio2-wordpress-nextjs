@@ -1,4 +1,5 @@
 import {expect, test, type Page} from '@playwright/test'
+import {requiredLocalUrl} from './support/required-local-url'
 import {fillPrivateInput} from './support/private-input'
 
 // This suite has no live mode. Provider calls are fulfilled locally; all other
@@ -7,7 +8,7 @@ process.env.PLAYWRIGHT_NO_COPY_PROMPT = '1'
 test.use({trace: 'off', screenshot: 'off', video: 'off', serviceWorkers: 'block', launchOptions: {args: ['--host-resolver-rules=MAP api.web3forms.com ~NOTFOUND']}})
 test.describe.configure({retries: 0})
 const configuration = process.env.WEB3FORMS_TEST_CONFIGURATION
-const baseUrl = process.env.TIO2_MY_BASE_URL ?? ''
+const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const workflows = {
   rfq: {path: '/request-a-quote/', thankYou: 'quote', heading: '#rfq-h1'},
   sample: {path: '/request-sample/', thankYou: 'sample', heading: '#sample-h1'},

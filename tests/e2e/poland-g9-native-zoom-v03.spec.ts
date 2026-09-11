@@ -1,9 +1,10 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {test,expect,chromium} from '@playwright/test'
 import {createHash} from 'node:crypto'
 import {mkdtempSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import sharp from 'sharp'
-const base=process.env.TIO2_MY_BASE_URL??'http://127.0.0.1:3015'
+const base=requiredLocalUrl('TIO2_MY_BASE_URL').origin
 
 test('E03 native 200 percent captures complete pixels, readable text and keyboard states',async()=>{
   expect(['localhost','127.0.0.1']).toContain(new URL(base).hostname)

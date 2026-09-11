@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import AxeBuilder from '@axe-core/playwright'
 import {expect, test} from '@playwright/test'
 import {existsSync, mkdirSync, readFileSync} from 'node:fs'
@@ -16,7 +17,7 @@ const approved = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/conf
   readonly pages: readonly LegalContractPage[]
   readonly consent: {readonly body: string}
 }
-const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
+const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const widths = [390, 768, 1440] as const
 const expectedLegalUtilities = ['Privacy Policy', 'Dasar Privasi (BM)', 'Cookie Policy', 'Cookie Settings']
 const evidenceDirectory = process.env.LEGAL_EVIDENCE_DIR ?? 'docs/verification/tio2-my/market-four-gate9-repair-20260908/legal-privacy'

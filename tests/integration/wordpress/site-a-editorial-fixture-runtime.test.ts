@@ -1,4 +1,5 @@
 import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
+import {registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
 import {spawnSync} from 'node:child_process'
 import {fileURLToPath} from 'node:url'
 
@@ -9,6 +10,9 @@ const updaterScript = fileURLToPath(
   new URL('../../../scripts/apply-local-site-a-editorial-fixture.ps1', import.meta.url),
 )
 const runLiveWordPress = process.env.WORDPRESS_EDITORIAL_FIXTURE_RUNTIME === '1'
+
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+registerSharedWordPressMutationLock(runLiveWordPress)
 
 // The historical PowerShell wrapper owns the default Compose target. Do not
 // observe an override target while that wrapper operates on a different CMS.
@@ -41,9 +45,10 @@ function powershell(arguments_: string[]) {
 
 function wp(arguments_: string[]) {
   return execute('docker', [
-    ...wordpressComposeArgs(),
+    ...wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'site-a-editorial-fixture-runtime'}),
     'run',
     '--rm',
+    '--no-deps',
     '--no-TTY',
     '--user',
     '33:33',
@@ -55,9 +60,10 @@ function wp(arguments_: string[]) {
 
 function wpWithEnvironment(environment: string, arguments_: string[]) {
   return execute('docker', [
-    ...wordpressComposeArgs(),
+    ...wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'site-a-editorial-fixture-runtime'}),
     'run',
     '--rm',
+    '--no-deps',
     '--no-TTY',
     '--user',
     '33:33',

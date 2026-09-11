@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {expect,type Page} from '@playwright/test'
 import {test,artifactMode,artifactOrigin} from './support/poland-build-artifacts'
 import AxeBuilder from '@axe-core/playwright'
@@ -7,7 +8,7 @@ import {JSDOM} from 'jsdom'
 import type PolandContract from '../../wordpress/plugins/tio2-site-model/config/tio2-my-market-poland.json'
 const contract=JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-market-poland.json','utf8')) as typeof PolandContract
 
-const base=artifactMode?artifactOrigin:process.env.TIO2_MY_BASE_URL??'http://127.0.0.1:3015'
+const base=artifactMode?artifactOrigin:requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const evidence=process.env.POLAND_EVIDENCE_DIR??'docs/verification/tio2-my/market-eu-pl/'+(artifactMode?'offline-build':'runtime')
 const records:Record<string,unknown>={mode:artifactMode?'Offline build artifacts; no HTTP server or live cache verification':'Live local HTTP'}
 mkdirSync(evidence,{recursive:true})

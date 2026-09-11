@@ -8,6 +8,8 @@ const repositoryRoot = fileURLToPath(new URL('../../../', import.meta.url))
 const wordpressEnvironmentPath = `${repositoryRoot}wordpress/.env`
 const runLiveWordPress =
   process.env.WORDPRESS_SITE_A_EDITORIAL_PHASE1_PREVIEW_RUNTIME === '1'
+
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-read-only', hostHttp: false} as const
 const marker = 'TIO2_SITE_A_EDITORIAL_PHASE1_PREVIEW'
 
 interface PreviewTarget {
@@ -93,40 +95,21 @@ interface Snapshot {
   readonly targets: Readonly<Record<string, SnapshotResponse>>
 }
 
-const probeScript = String.raw`
-$probe=static function(string $site_id,string $path):array{
-  $config=tio2_get_preview_config($site_id);
-  if(!is_array($config)){throw new RuntimeException('Missing local preview config.');}
-  $timestamp=(string)time();
-  $request=new WP_REST_Request('GET','/tio2/v1/preview');
-  $request->set_param('siteId',$site_id);
-  $request->set_param('path',$path);
-  $request->set_header('x-tio2-preview-timestamp',$timestamp);
-  $request->set_header('x-tio2-preview-signature',hash_hmac('sha256',tio2_preview_signature_message($timestamp,$site_id,$path),$config['secret']));
-  $response=rest_do_request($request);
-  $response=apply_filters('rest_post_dispatch',$response,rest_get_server(),$request);
-  return ['status'=>$response->get_status(),'headers'=>$response->get_headers(),'data'=>$response->get_data()];
-};
-$paths=['/applications','/applications/coatings','/applications/titanium-dioxide-for-water-based-paint','/resources','/resources/titanium-dioxide-surface-treatment'];
-$targets=[];foreach($paths as $path){$targets[$path]=$probe('tio2-a',$path);}
-$closed=[$probe('tio2-b','/applications'),$probe('tio2-a','/resources/not-approved')];
-echo '${marker} '.wp_json_encode(['targets'=>$targets,'closed'=>$closed]);
-`
-
 function collectSnapshot(): Snapshot {
   const result = spawnSync(
     'docker',
     [
-      ...wordpressComposeArgs(),
+      ...wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'site-a-editorial-phase1-preview-runtime'}),
       'run',
       '--rm',
+      '--no-deps',
       '--no-TTY',
       '--user',
       '33:33',
       'wpcli',
       'wp',
-      'eval',
-      probeScript,
+      'eval-file',
+      '/workspace/tests/infrastructure/php/site-a-editorial-phase1-preview.php',
     ],
     {
       cwd: repositoryRoot,

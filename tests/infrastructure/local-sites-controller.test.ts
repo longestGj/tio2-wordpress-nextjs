@@ -43,6 +43,7 @@ describe.runIf(process.platform === 'win32')('local sites controller', () => {
         cancellation: 'cooperative-file',
         secrets: 'per-site-from-wordpress-env',
         hostname: '0.0.0.0',
+        readinessIdentity: 'data-site-id',
       },
       stop: {
         preflightAllRecords: true,
@@ -51,6 +52,27 @@ describe.runIf(process.platform === 'win32')('local sites controller', () => {
         postStopPortProbe: true,
       },
     })
+  })
+
+  it('requires matching HTML site identity before accepting a successful HTTP response', () => {
+    const command = `
+      $ast = [System.Management.Automation.Language.Parser]::ParseFile('${controller.replaceAll("'", "''")}', [ref]$null, [ref]$null)
+      $definition = $ast.Find({param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Wait-SiteHealthy'}, $true)
+      Invoke-Expression $definition.Extent.Text
+      function Test-CancellationRequested { return $false }
+      $script:requests = 0
+      function Invoke-WebRequest {
+        $script:requests += 1
+        $identity = if ($script:requests -eq 1) { 'tio2-b' } else { 'tio2-my' }
+        return [pscustomobject]@{StatusCode=200; Content=('<html data-site-id="' + $identity + '"></html>')}
+      }
+      $HealthTimeoutSeconds = 5
+      Wait-SiteHealthy -Record ([pscustomobject]@{port=3003;siteId='tio2-my'}) -Process ([System.Diagnostics.Process]::GetCurrentProcess())
+      [pscustomobject]@{requests=$script:requests}|ConvertTo-Json -Compress
+    `
+    const result = spawnSync('powershell', ['-NoProfile', '-Command', command], {encoding: 'utf8'})
+    expect(result.status, result.stderr).toBe(0)
+    expect(JSON.parse(result.stdout)).toEqual({requests: 2})
   })
 
   it('reports both fixed local sites stopped when no controller state exists', () => {

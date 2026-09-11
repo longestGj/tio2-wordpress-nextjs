@@ -1,3 +1,5 @@
+import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
+import {registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
 import {spawnSync} from 'node:child_process'
 import {fileURLToPath} from 'node:url'
 
@@ -6,17 +8,17 @@ import {describe, expect, it} from 'vitest'
 const repositoryRoot = fileURLToPath(new URL('../../../', import.meta.url))
 const runLiveWordPress = process.env.WORDPRESS_PRODUCT_WEBHOOK_RUNTIME === '1'
 
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+registerSharedWordPressMutationLock(runLiveWordPress)
+
 function runProductWebhookContract() {
   return spawnSync(
     'docker',
     [
-      'compose',
-      '--env-file',
-      'wordpress/.env',
-      '-f',
-      'wordpress/docker-compose.yml',
+      ...wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'product-webhook-runtime'}),
       'run',
       '--rm',
+      '--no-deps',
       '--no-TTY',
       '--user',
       '33:33',

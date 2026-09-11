@@ -5,7 +5,8 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs'
-import {resolve} from 'node:path'
+import {join, resolve} from 'node:path'
+import {resolveLeaseRoot} from '../../scripts/runtime-ports/lease-root.mjs'
 
 import {expect, test} from '@playwright/test'
 
@@ -22,19 +23,62 @@ const editorialDistPath = resolve('.next-task-9-editorial')
 const productDistPath = resolve('.next-task-9-product')
 const editorialLockPath = resolve('.tmp/task-9-editorial-preview.lock')
 const productLockPath = resolve('.tmp/task-9-product-preview.lock')
+const deliberatelyUnavailableCmsOrigin = new URL('http://127.0.0.1')
+deliberatelyUnavailableCmsOrigin.port = '0'
 const environment = {
   PREVIEW_SECRET: 'task-9-lifecycle-preview-secret',
   REVALIDATION_SECRET: 'task-9-lifecycle-revalidation-secret',
   SITE_ID: 'tio2-a',
-  WORDPRESS_GRAPHQL_URL: 'http://127.0.0.1:9/graphql',
+  WORDPRESS_GRAPHQL_URL: new URL('/graphql', deliberatelyUnavailableCmsOrigin).href,
   WORDPRESS_PREVIEW_SECRET: 'task-9-lifecycle-preview-secret',
-  WORDPRESS_PREVIEW_URL:
-    'http://127.0.0.1:9/wp-json/tio2/v1/preview',
+  WORDPRESS_PREVIEW_URL: new URL(
+    '/wp-json/tio2/v1/preview',
+    deliberatelyUnavailableCmsOrigin,
+  ).href,
 } as const
 
-async function stopRuntime(runtime: OwnedNextDevRuntime | undefined): Promise<void> {
-  await runtime?.stop()
+async function stopRuntime(
+  runtime: Pick<OwnedNextDevRuntime, 'leaseId' | 'stop'> | undefined,
+  leaseExists: (path: string) => boolean = existsSync,
+): Promise<void> {
+  if (!runtime) return
+  const leasePath = join(resolveLeaseRoot(), `${runtime.leaseId}.json`)
+  const existedBeforeStop = leaseExists(leasePath)
+  let stopFailure: unknown
+  try {
+    await runtime.stop()
+  } catch (error) {
+    stopFailure = error
+  }
+  const existsAfterStop = leaseExists(leasePath)
+  let observationFailure: unknown
+  try {
+    expect(existedBeforeStop).toBe(true)
+    expect(existsAfterStop).toBe(false)
+  } catch (error) {
+    observationFailure = error
+  }
+  if (stopFailure && observationFailure) {
+    throw new AggregateError(
+      [stopFailure, observationFailure],
+      'Owned runtime stop and lease observation both failed',
+    )
+  }
+  if (stopFailure) throw stopFailure
+  if (observationFailure) throw observationFailure
 }
+
+test('a failed pre-stop lease observation cannot prevent owned runtime cleanup', async () => {
+  let stopped = false
+  const runtime = {
+    leaseId: 'missing-observation',
+    async stop() { stopped = true },
+  }
+
+  await expect(stopRuntime(runtime, () => false)).rejects.toThrow()
+
+  expect(stopped).toBe(true)
+})
 
 test('a cross-ID contender cannot mutate or clean shared state while an owner remains usable', async () => {
   test.setTimeout(180_000)
@@ -45,6 +89,7 @@ test('a cross-ID contender cannot mutate or clean shared state while an owner re
 
   try {
     owner = await startOwnedNextDev({environment, runtimeId: 'editorial'})
+    expect(owner.leaseId).toMatch(/^[0-9a-f-]{36}$/u)
     const ownedTsconfig = readFileSync(tsconfigPath, 'utf8')
     expect(ownedTsconfig).not.toBe(originalTsconfig)
     expect(existsSync(editorialDistPath)).toBe(true)
@@ -84,6 +129,7 @@ test('a cross-ID contender cannot mutate or clean shared state while an owner re
   let nextOwner: OwnedNextDevRuntime | undefined
   try {
     nextOwner = await startOwnedNextDev({environment, runtimeId: 'product'})
+    expect(nextOwner.leaseId).toMatch(/^[0-9a-f-]{36}$/u)
     const response = await fetch(`${nextOwner.baseUrl}/robots.txt`, {
       cache: 'no-store',
     })

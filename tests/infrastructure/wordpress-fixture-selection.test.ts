@@ -37,7 +37,7 @@ it('preserves the opt-in default target without executing real Docker', () => {
   const result = probe({})
   expect(result.output).toContain('SIDE_EFFECT_BLOCKED')
   expect(result.calls[0]?.[0]).toBe('docker')
-  expect(result.calls[0]?.[1].slice(0, 5)).toEqual(['compose', '--env-file', 'wordpress/.env', '-f', 'wordpress/docker-compose.yml'])
+  expect(result.calls[0]?.[1].slice(0, 7)).toEqual(['compose', '--project-name', 'wordpress', '--env-file', 'wordpress/.env', '-f', 'wordpress/docker-compose.yml'])
 }, 35_000)
 
 it('keeps the original disabled opt-in suite inactive with overrides', () => {

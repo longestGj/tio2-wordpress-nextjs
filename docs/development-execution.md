@@ -2,7 +2,7 @@
 
 日期：2026-09-08。依据：用户要求按项目情况整合 Agent 与 Superpowers，并明确范围为“只整合 D16 内部的开发与测试执行”。本文件细化[开发交付流程](development-workflow.md)第3、4节；网站身份、批准源、外部验收、集成队列与发布授权继续由原流程决定，不增加新的Gate。
 
-阅读方式：开发与技术审查读第1–9节；环境/CI/CD任务读第10–13节及预发布操作说明；发布读[主流程第7节](development-workflow.md#7-发布d16执行授权按网站和环境限定)。按任务复用已读有效内容。本文方法与能力边界相互区分；第12节是2026-09-08源码核对快照，工具实现变化时同步更新，不能永久据此宣称能力缺失或完成。
+阅读方式：开发与技术审查读第1–9节；环境/CI/CD任务读第10–13节及预发布操作说明；发布读[主流程第7节](development-workflow.md#7-发布d16执行授权按网站和环境限定)。按任务复用已读有效内容。本文方法与能力边界相互区分；第12节保留能力核对范围与日期，工具实现变化时同步更新，不能永久据此宣称能力缺失或完成。
 
 ## 1. 目标与承载方式
 
@@ -178,7 +178,7 @@ SDD的返修上限与裁定不能豁免批准条件：真实缺陷可按规则�
 |---|---|---|
 | 源码 | 从develop创建的任务分支/worktree；允许记录清楚的未提交修改 | 精确、干净的本地main commit，经git archive冻结 |
 | Next.js模式 | next dev用于开发；需要时在任务独立目录build/start验证 | 冻结源码执行生产模式build/start，禁止用next dev充当候选 |
-| 网站端口 | 按任务分配未占用端口并记录；现有多站脚本是3001/3002/3003，不能当作单站默认启动器 | 127.0.0.1:3100 |
+| 网站端口 | 共享多站固定3001/3002/3003；人工feature及自动化使用下表的租约/动态端口，不能借用历史端口或将多站脚本当作单站启动器 | 127.0.0.1:3100，固定且不回退 |
 | CMS | 现有开发WordPress在127.0.0.1:8080；共享数据变更串行或另行隔离 | 独立WordPress在127.0.0.1:8180 |
 | 数据/上传 | 开发栈自己的volume和夹具；共享消费者要明确 | 专用prerelease_db/prerelease_wp volume，不能共用开发库或uploads |
 | 配置 | 任务/开发栈自己的忽略文件，不输出值 | 根目录.env.prerelease.local，按预发布配置示例填写 |
@@ -188,6 +188,23 @@ SDD的返修上限与裁定不能豁免批准条件：真实缺陷可按规则�
 | 外部副作用 | 优先模拟；真实动作依适用授权 | 普通预发布测试禁止真实表单发送；单独实发入口依明确授权 |
 
 环境入口：[开发Compose](../wordpress/docker-compose.yml)、[预发布Compose](../ops/prerelease/docker-compose.yml)、[预发布使用说明](prerelease-environment.md)。预发布的具体端口、volume、seed和命令合同以该说明及当前实现为准，不在本文件复制另一套配置。
+
+### 本地端口与测试归属合同
+
+| 用途 / 网站 | 端口分配 | 归属与入口 |
+|---|---|---|
+| 开发`tio2-a` / `tio2-b` / `tio2-my` | 固定`127.0.0.1:3001` / `3002` / `3003` | 同一个多站控制器，逐站记录进程及Build |
+| 开发WordPress | 固定`127.0.0.1:8080` | canonical checkout的保留单例Compose项目`wordpress` |
+| 本地预发布Next / WordPress | 固定`127.0.0.1:3100` / `8180` | 独立项目`d16-tio2-my-prerelease`，不能回退到其他端口 |
+| 人工feature runtime | 租约池`32000-32099` | 先申请再使用返回端口，绑定网站、worktree及保持/释放条件 |
+| 自动化Next / HTTP fixture | 优先OS端口`0`；要求预先传数字时租约池`32100-32999` | 启动器传回真实URL、登记owner并清理 |
+| 隔离WordPress测试 | WP-CLI-only无主机端口；主机HTTP按Docker随机loopback映射 | 唯一`d16-test-*`项目；MariaDB不暴露主机端口 |
+
+租约、控制器命令、日志及`OWNER_MISMATCH`恢复集中见[运行端口操作手册](runtime-ports.md)。默认使用 Git 公共目录下的 `d16-runtime/port-leases`，同一仓库的所有worktree共享原子预留锁；记录保存各自worktree与run身份。无关仓库保持独立，分配时继续检查主机监听。固定端点冲突时报告并保留占用者，不能自动杀进程或重建另一任务的Compose项目。
+
+Docker测试明确声明`isolated`、`shared-read-only`或`shared-mutating`。后两种使用canonical CMS且没有Compose生命周期权限；共享写入保留显式opt-in、串行锁和恢复，不能因端口隔离就解除数据串行要求。开发与预发布持久卷不属于测试清理目标。
+
+普通E2E要求启动器传入真实loopback URL并验证网站与进程身份；缺失配置直接失败，不采用历史固定端口fallback，也不改为跳过。使用`npm run test:e2e:owned -- --site <site-id> --spec <spec-path>`并提供规格要求的CMS/fixture合同；Next的`WORDPRESS_GRAPHQL_URL`须独立明确。固定预发布E2E仍使用原控制器和3100端点。需要严格只读检查使用`npm run runtime:doctor`；`runtime:status`可能创建租约目录及bind探测，`prerelease:status`可能启动临时WP-CLI并写本地身份证据，三者不能混称只读。
 
 开发中的临时页面验收runtime仍可按原合同保持；它属于开发/候选验证用途，不替代集成后预发布。不能为了更新预发布停止其他任务仍需保持的验收runtime。
 
@@ -236,9 +253,12 @@ CI/CD检查命令返回0还不够：应核对机器状态、预期测试是否�
 
 截至本次源码核对：已存在Vitest/Playwright入口、开发Compose、预发布Compose与`scripts/prerelease.ps1`。尚未发现仓库`.github/workflows`；本次没有核查外部CI平台，不据此推断平台配置状态。
 
+本地运行归属与自动化隔离两行于2026-09-11按当前控制器补充；其余能力沿用2026-09-08的核对范围，不据此扩大自动CI/CD或远程平台结论。
+
 | 能力 | 当前已具备 | 当前边界/后续工作 |
 |---|---|---|
-| 开发环境 | 原开发CMS栈及任务开发/测试入口 | 按任务记录端口、Build、数据和授权，不能自动套用多站启动脚本 |
+| 开发环境 | canonical CMS控制器、固定多站入口、端口租约与只读Doctor | 按[端口合同](runtime-ports.md)记录owner、Build、数据和授权；归属不一致时阻止受影响操作 |
+| 自动化运行隔离 | owned E2E/Next启动器、显式WordPress数据模式、无主机/随机loopback Compose配置 | 使用实际分配URL；清理只针对本次核实的owner；共享CMS写入仍需串行和恢复 |
 | 预发布交付 | prerelease:start/status/stop/reset/test及独立真实表单入口 | 由操作者/Agent显式调用，不等于提交后自动流水线 |
 | 固定候选 | 干净main、冻结源码、Build/CMS/run身份、专用栈与操作锁 | 当前干净工作树约束阻止把未提交流程修改混入候选；不能为启动而自动提交其他工作 |
 | 预发布冒烟 | prerelease:test运行prerelease-smoke.spec.ts，拦截非GET请求 | 代表页面和共享能力的冒烟，不证明完整全站合同已覆盖；按本批次补充适用验收矩阵 |

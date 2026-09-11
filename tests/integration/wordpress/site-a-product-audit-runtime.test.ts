@@ -1,11 +1,17 @@
 import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
+import {createWordPressWrapperFixture, isolatedPhpArgs, registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
+
 import {spawnSync} from 'node:child_process'
 import {existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
-import {join} from 'node:path'
+import {basename, join} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
 import {describe, expect, it} from 'vitest'
+
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+const runLiveWordPress = process.env.WORDPRESS_PRODUCT_AUDIT_RUNTIME === '1'
+registerSharedWordPressMutationLock(runLiveWordPress)
 
 const exporterPath = fileURLToPath(
   new URL('../../../wordpress/seed/export-site-a-product-audit.php', import.meta.url),
@@ -21,10 +27,7 @@ const auditWrapperPath = fileURLToPath(
 const manifestPath = 'D:/11SEO/01ComInfo/outputs/site-a-products-v0.1.json'
 function runControlledAudit() {
   const result = spawnSync('docker', [
-    ...wordpressComposeArgs(),
-    'run', '--rm', '--no-TTY', '--no-deps',
-    '--entrypoint', 'php',
-    'wpcli',
+    ...isolatedPhpArgs(process.cwd()),
     '-r', String.raw`
 define('ABSPATH', __DIR__);
 $controlled_posts = [
@@ -144,14 +147,19 @@ echo json_encode(['checked' => 17], JSON_THROW_ON_ERROR);
 
 function runWpCliEvalFile(path: string) {
   return spawnSync('docker', [
-    ...wordpressComposeArgs(),
-    'run', '--rm', '--no-TTY', '--user', '33:33',
+    ...wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId: 'site-a-product-audit-runtime'}),
+    'run', '--rm', '--no-deps', '--no-TTY', '--user', '33:33',
     'wpcli', 'wp', 'eval-file', path,
   ], {encoding: 'utf8', timeout: 30_000})
 }
 
 function captureWrapperDockerArgs(wrapperPath: string, wrapperArgs: string[]) {
   const directory = mkdtempSync(join(tmpdir(), 'tio2-product-wrapper-'))
+  const workspace = createWordPressWrapperFixture(directory, [
+    'scripts/apply-local-site-a-product-drafts.ps1', 'scripts/audit-site-a-products.ps1',
+    'scripts/products/validate-product-manifest.mjs', 'lib/products/content-manifest.ts',
+    'wordpress/seed/apply-site-a-product-drafts.php', 'wordpress/seed/export-site-a-product-audit.php',
+  ])
   const capturePath = join(directory, 'docker-args.jsonl')
   const captureScriptPath = join(directory, 'capture.mjs')
   writeFileSync(captureScriptPath, [
@@ -161,8 +169,8 @@ function captureWrapperDockerArgs(wrapperPath: string, wrapperArgs: string[]) {
   try {
     const quotePowerShell = (value: string) => `'${value.replaceAll("'", "''")}'`
     const command = [
-      'function global:docker { & $env:TIO2_FAKE_DOCKER_NODE $env:TIO2_FAKE_DOCKER_SCRIPT $env:TIO2_DOCKER_ARG_CAPTURE @args }',
-      `& ${quotePowerShell(wrapperPath)} ${wrapperArgs.map((argument) => argument.startsWith('-') ? argument : quotePowerShell(argument)).join(' ')}`,
+      'function global:docker { & $env:TIO2_FAKE_DOCKER_NODE -- $env:TIO2_FAKE_DOCKER_SCRIPT @args }',
+      `& ${quotePowerShell(join(workspace, 'scripts', basename(wrapperPath)))} ${wrapperArgs.map((argument) => argument.startsWith('-') ? argument : quotePowerShell(argument)).join(' ')}`,
     ].join('; ')
     const result = spawnSync('pwsh', [
       '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command,
@@ -189,7 +197,7 @@ function captureWrapperDockerArgs(wrapperPath: string, wrapperArgs: string[]) {
 }
 
 describe('local Site A Product draft audit boundary', () => {
-  it.each([
+  it.skipIf(!existsSync(manifestPath)).each([
     [draftWrapperPath, ['-Mode', 'Plan', '-ManifestPath', manifestPath], containerImporterPath, '.runtime-site-a-product-drafts-capability-'],
     [auditWrapperPath, ['-ManifestPath', manifestPath], containerExporterPath, '.runtime-site-a-product-audit-capability-'],
   ])('passes one complete capability argument to WP-CLI eval-file for %s', (wrapperPath, wrapperArgs, targetPath, capabilityPrefix) => {
@@ -204,7 +212,7 @@ describe('local Site A Product draft audit boundary', () => {
     ])
   })
 
-  it.each([containerImporterPath, containerExporterPath])(
+  it.skipIf(!runLiveWordPress).each([containerImporterPath, containerExporterPath])(
     'reaches the capability boundary through WP-CLI eval-file for %s',
     (path) => {
       const result = runWpCliEvalFile(path)

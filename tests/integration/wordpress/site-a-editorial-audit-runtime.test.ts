@@ -1,9 +1,12 @@
-import {wordpressComposeArgs} from '../../helpers/wordpress-compose'
+import {isolatedPhpArgs} from '../../helpers/wordpress-test-support'
+
 import {spawnSync} from 'node:child_process'
 import {existsSync} from 'node:fs'
 import {fileURLToPath} from 'node:url'
 
 import {describe, expect, it} from 'vitest'
+
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'isolated', hostHttp: false} as const
 
 const exporterPath = fileURLToPath(
   new URL('../../../wordpress/seed/export-site-a-editorial-audit.php', import.meta.url),
@@ -11,8 +14,7 @@ const exporterPath = fileURLToPath(
 
 function runControlledAudit() {
   return spawnSync('docker', [
-    ...wordpressComposeArgs(),
-    'run', '--rm', '--no-TTY', '--no-deps', '--entrypoint', 'php', 'wpcli',
+    ...isolatedPhpArgs(process.cwd()),
     '-r', String.raw`
 define('ABSPATH', __DIR__);
 function wp_json_encode($value) { return json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES); }

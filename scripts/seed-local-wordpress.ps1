@@ -264,10 +264,10 @@ try {
     )
 
     $DockerArguments = @(
-        'compose',
+        'compose', '--project-name', 'wordpress',
         '--env-file', $EnvironmentFile,
         '-f', $ComposeFile,
-        'run', '--rm', '--no-TTY', '--user', '33:33',
+        'run', '--rm', '--no-deps', '--no-TTY', '--user', '33:33',
         'wpcli',
         'wp', 'eval-file', '/workspace/wordpress/seed/apply-seed.php', $ContainerPlanPath
     )

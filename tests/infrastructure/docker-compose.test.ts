@@ -9,6 +9,7 @@ describe('local WordPress compose stack', () => {
     expect(Object.keys(compose.services)).toEqual(['db', 'wordpress', 'wpcli'])
     expect(compose.services.wordpress.depends_on.db.condition).toBe('service_healthy')
     expect(compose.services.wordpress.ports).toEqual(['127.0.0.1:8080:80'])
+    expect(compose.services.db.ports ?? []).toEqual([])
     expect(compose.services.wordpress.environment).toMatchObject({
       NEXTJS_REVALIDATION_URL_TIO2_A:
         '${NEXTJS_REVALIDATION_URL_TIO2_A}',
@@ -38,6 +39,9 @@ describe('local WordPress compose stack', () => {
     expect(Object.keys(compose.volumes)).toEqual(
       expect.arrayContaining(['db_data', 'wp_data'])
     )
+    // Each explicit Compose project must receive its own generated volume names.
+    expect(compose.volumes.db_data?.name).toBeUndefined()
+    expect(compose.volumes.wp_data?.name).toBeUndefined()
   })
 
   it('exposes the repository site model to WordPress and WP-CLI', () => {

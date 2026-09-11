@@ -1,9 +1,10 @@
 import {createServer} from 'node:http'
 import {readFileSync} from 'node:fs'
+import {listenFixture} from './fixture-server.mjs'
+import {requiredLocalUrl} from './required-local-url.ts'
 
 const contract = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-document-tds.json', 'utf8'))
-const port = Number(process.env.DOC_TDS_CMS_PORT ?? 4012)
-const upstream = process.env.DOC_TDS_CMS_UPSTREAM ?? 'http://127.0.0.1:8080/graphql'
+const upstream = requiredLocalUrl('DOC_TDS_CMS_UPSTREAM', '/graphql').href
 
 const source = {
   id: 'document-tds-e2e', modifiedGmt: '2026-09-05T01:02:03', status: 'publish',
@@ -12,7 +13,7 @@ const source = {
   routeReadiness: {'CONV-DOC': true, 'DOC-000': true, 'DOC-REACH': false, 'DOC-COO': false},
 }
 
-createServer(async (request, response) => {
+listenFixture(createServer(async (request, response) => {
   const chunks = []
   for await (const chunk of request) chunks.push(chunk)
   const body = Buffer.concat(chunks)
@@ -34,6 +35,4 @@ createServer(async (request, response) => {
     response.writeHead(502, {'content-type': 'application/json'})
     response.end(JSON.stringify({errors: [{message: error instanceof Error ? error.message : 'CMS proxy failed'}]}))
   }
-}).listen(port, '127.0.0.1', () => {
-  process.stdout.write(`DOC-TDS CMS fixture listening on ${port}\n`)
-})
+}))

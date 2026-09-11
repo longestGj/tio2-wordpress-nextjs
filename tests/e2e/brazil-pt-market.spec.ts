@@ -1,8 +1,9 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {expect, test} from '@playwright/test'
 import {mkdirSync} from 'node:fs'
 import {JSDOM} from 'jsdom'
 
-const base = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3022'
+const base = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const evidence = 'docs/verification/tio2-my/market-br-pt/runtime'
 mkdirSync(evidence, {recursive: true})
 

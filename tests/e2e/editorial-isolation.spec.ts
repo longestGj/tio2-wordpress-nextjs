@@ -1,10 +1,11 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {test,expect} from '@playwright/test'
 import {execFileSync} from 'node:child_process'
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs'
 import {createHmac,randomUUID} from 'node:crypto'
 import {resolve} from 'node:path'
 import {getEditorialContract} from './editorial-fixtures'
-const base=process.env.TIO2_MY_BASE_URL??'http://127.0.0.1:3216'
+const base=requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const env=Object.fromEntries(readFileSync('wordpress/.env','utf8').split(/\r?\n/u).filter(line=>/^[A-Z_]+=/.test(line)).map(line=>{const i=line.indexOf('=');return [line.slice(0,i),line.slice(i+1)]}))
 const output=resolve('docs/verification/tio2-my/trade4-app5-20260908/isolation')
 function probe(id:string,mode:string) {
@@ -40,11 +41,11 @@ test('private editorial API rejects anonymous, foreign and missing scope request
  const query='query($pageId:String!,$siteScope:String!){malaysiaEditorialRecordJson(pageId:$pageId,siteScope:$siteScope)}'
  const records=[]
  for(const scope of ['tio2-my','tio2-a','tio2-b','','unknown']) {
-  const response=await request.post('http://127.0.0.1:8186/graphql',{data:{query,variables:{pageId:'APP-COAT',siteScope:scope}}})
+  const response=await request.post(requiredLocalUrl('EDITORIAL_WORDPRESS_GRAPHQL_URL', '/graphql').href,{data:{query,variables:{pageId:'APP-COAT',siteScope:scope}}})
   const json=await response.json();expect(json.errors?.length).toBeGreaterThan(0);expect(json.data??null).toBeNull();records.push({scope,status:response.status(),errors:json.errors.map((error:{message:string})=>error.message)})
  }
  for(const scope of ['tio2-a','tio2-b',undefined]) {
-  const response=await request.post('http://127.0.0.1:8186/graphql',{headers:{'x-tio2-editorial-token':env.WORDPRESS_EDITORIAL_API_TOKEN},data:{query,variables:{pageId:'APP-COAT',...(scope?{siteScope:scope}:{})}}})
+  const response=await request.post(requiredLocalUrl('EDITORIAL_WORDPRESS_GRAPHQL_URL', '/graphql').href,{headers:{'x-tio2-editorial-token':env.WORDPRESS_EDITORIAL_API_TOKEN},data:{query,variables:{pageId:'APP-COAT',...(scope?{siteScope:scope}:{})}}})
   const json=await response.json();expect(json.errors?.length).toBeGreaterThan(0);expect(json.data??null).toBeNull();records.push({scope:scope??'omitted',authenticated:true,status:response.status(),errors:json.errors.map((error:{message:string})=>error.message)})
  }
  mkdirSync(output,{recursive:true});writeFileSync(resolve(output,'public-api-rejection.json'),JSON.stringify(records,null,2))

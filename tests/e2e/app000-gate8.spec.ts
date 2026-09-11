@@ -1,3 +1,4 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {mkdirSync, readFileSync, writeFileSync} from 'node:fs'
 import {randomUUID} from 'node:crypto'
 import {resolve} from 'node:path'
@@ -8,7 +9,7 @@ import {expect, test, type Page} from '@playwright/test'
 // D23 APP000_E2E_BROWSER_DIRECT_CONTRACT_SUPERSESSION_RULING_V1.0 governs this suite.
 // Failure artifacts must never serialize a filled form, transport payload or session marker.
 process.env.PLAYWRIGHT_NO_COPY_PROMPT = '1'
-test.use({baseURL: process.env.TIO2_PRERELEASE_BASE_URL ?? 'http://127.0.0.1:3183', trace: 'off', screenshot: 'off', video: 'off', serviceWorkers: 'block'})
+test.use({baseURL: requiredLocalUrl('TIO2_MY_BASE_URL').origin, trace: 'off', screenshot: 'off', video: 'off', serviceWorkers: 'block'})
 test.setTimeout(60_000)
 const evidence = resolve(process.env.TIO2_PRERELEASE_EVIDENCE_DIR ?? '.local-evidence/app000-current')
 const providerUrl = 'https://api.web3forms.com/submit'
@@ -39,7 +40,7 @@ test.beforeEach(async ({context}) => {
     const request = route.request()
     const url = new URL(request.url())
     // Compatibility-only context is locally acknowledged; it proves no provider attribution.
-    if (url.origin === new URL(process.env.TIO2_PRERELEASE_BASE_URL ?? 'http://127.0.0.1:3183').origin && url.pathname === '/api/rfq/context' && request.method() === 'POST') {
+    if (url.origin === new URL(requiredLocalUrl('TIO2_MY_BASE_URL').origin).origin && url.pathname === '/api/rfq/context' && request.method() === 'POST') {
       contextMockPosts++
       await route.fulfill({status: 204})
       return

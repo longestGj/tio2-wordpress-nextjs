@@ -1,3 +1,6 @@
+import {registerSharedWordPressMutationLock} from '../../helpers/wordpress-test-support'
+
+
 import {spawnSync} from 'node:child_process'
 import {existsSync} from 'node:fs'
 import {fileURLToPath} from 'node:url'
@@ -12,6 +15,8 @@ import {toMalaysiaProductHubDto} from '@/lib/wordpress/product-hub-v01-dto'
 import {malaysiaProductHubSource} from '@/tests/fixtures/tio2-my-product-hub'
 import applicationContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-application-hub.json'
 
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const
+
 vi.mock('next/image', () => ({
   default: (props: ImgHTMLAttributes<HTMLImageElement>) => createElement('img', props),
 }))
@@ -21,11 +26,12 @@ const runRuntime = process.env.TIO2_MY_PRERELEASE_READINESS_RUNTIME === '1'
 const composeFile = '.local-evidence/public-paths-dev/compose.yml'
 const envFile = '.local-evidence/public-paths-dev/environment.local'
 const project = 'd16-tio2-my-public-paths-dev'
+registerSharedWordPressMutationLock(runRuntime, project)
 
 function wp(script: string) {
   return spawnSync('docker', [
     'compose', '-p', project, '--env-file', envFile, '-f', composeFile,
-    'run', '--rm', '--no-TTY', 'wpcli', 'wp', 'eval', script,
+    'run', '--rm', '--no-deps', '--no-TTY', 'wpcli', 'wp', 'eval', script,
   ], {cwd: repositoryRoot, encoding: 'utf8', timeout: 180_000})
 }
 

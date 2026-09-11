@@ -1,10 +1,11 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {createHash} from 'node:crypto'
 import {mkdirSync, writeFileSync} from 'node:fs'
 import {expect, test} from '@playwright/test'
 
 import {assertRenderedMalaysiaHeaderLogo} from './support/tio2-my-logo'
 
-const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3004'
+const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const evidenceRoot = 'docs/verification/tio2-my/market-four-gate9-repair-20260908/shared-consumers'
 const runtimeEvidence: Record<string, unknown> = {}
 const pages = [

@@ -1,4 +1,6 @@
 import {spawnSync} from 'node:child_process'
+import {createRequire} from 'node:module'
+import {dirname, join} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
 import {describe, expect, it} from 'vitest'
@@ -12,7 +14,7 @@ describe('Site A editorial fixture default test gate', () => {
     const result = spawnSync(
       process.execPath,
       [
-        'node_modules/vitest/vitest.mjs',
+        join(dirname(createRequire(import.meta.url).resolve('vitest/package.json')), 'vitest.mjs'),
         'run',
         'tests/infrastructure/site-a-editorial-fixture-core.test.ts',
       ],

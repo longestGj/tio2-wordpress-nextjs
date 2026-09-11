@@ -1,7 +1,8 @@
+import {requiredLocalUrl} from './support/required-local-url'
 import {test,expect} from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import {mkdirSync,writeFileSync} from 'node:fs'
-const base=process.env.TIO2_MY_BASE_URL??'http://127.0.0.1:3015'
+const base=requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const root='docs/verification/tio2-my/market-eu-pl/gate9-fixes-v02/shared-visual'
 mkdirSync(root,{recursive:true})
 for(const width of [1440,768,390])test(`F01/F02 shared owner ${width}`,async({page,browser})=>{
