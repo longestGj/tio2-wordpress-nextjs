@@ -132,6 +132,17 @@ afterEach(() => {
 })
 
 describe.runIf(process.platform === 'win32')('deterministic local production package', () => {
+  it('preserves frozen LF blobs when the real Windows producer has core.autocrlf=true', () => {
+    const {repository, receiptPath} = createRepository()
+    git(repository, ['config', 'core.autocrlf', 'true'])
+    const result = invokePackage(repository, join(repository, '.production'), receiptPath)
+    expect(result.status, result.stderr).toBe(0)
+    const value = JSON.parse(result.stdout)
+    const probe = spawnSync('python', [resolve('tests/production/prepare_package_probe.py'), value.archivePath, value.manifestPath, value.proofPath], {encoding: 'utf8'})
+    expect(probe.status, probe.stderr).toBe(0)
+    expect(git(repository, ['config', 'core.autocrlf'])).toBe('true')
+  }, 30000)
+
   it('binds prerelease proof to the real package and interoperates with Python prepare', () => {
     const {repository, receiptPath, commit} = createRepository()
     const result = invokePackage(repository, join(repository, '.production'), receiptPath)

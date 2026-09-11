@@ -1,0 +1,215 @@
+{
+  "schemaVersion": "tio2-local-tooling-verification-v1",
+  "siteId": "tio2-my",
+  "date": "2026-09-11",
+  "task4Base": "e9effb3",
+  "productionValidated": false,
+  "runId": "tio2-controller-test-08c150f134df4895a96ef9b94e6694f4",
+  "platform": "linux/amd64",
+  "controller": {
+    "wrongHostPinRejected": true,
+    "interruptedAfterDurableRequest": true,
+    "requestBytesReused": true,
+    "activeImage": "sha256:8ce6a3774db80b337cdb26b557020ed41677a9ad8cb8ed10779744ca16634a51",
+    "buildId": "SYpUybrHqee4_MwBA19uE",
+    "currentImageScan": {
+      "imageId": "sha256:8ce6a3774db80b337cdb26b557020ed41677a9ad8cb8ed10779744ca16634a51",
+      "decompressedBytes": 637652836,
+      "gzipLayers": 11,
+      "privateTokenPresent": false
+    },
+    "cleanupVerified": true,
+    "originalWrongPinScope": "existing-run local binding refusal; actual SSH wrong-key refusal verified in fix1"
+  },
+  "operations": {
+    "release": {
+      "ok": true,
+      "state": "PUBLIC_VERIFIED"
+    },
+    "repeatRelease": {
+      "ok": true,
+      "state": "PUBLIC_VERIFIED"
+    },
+    "rollback": {
+      "ok": true,
+      "state": "ROLLED_BACK"
+    },
+    "repeatRollback": {
+      "ok": true,
+      "state": "ROLLED_BACK"
+    },
+    "verifyRollback": {
+      "ok": true,
+      "state": "ROLLED_BACK"
+    }
+  },
+  "deploymentEvidence": {
+    "backupId": "20260911T005509Z-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-fbd12656cac2f25d15c6f6ef2c61e9da",
+    "baselineSha256": "47c769ccf55bf8fa388cc6718d2f7052efa6d438e97c3b2b5d6e4520a44c1617",
+    "change": {
+      "backwardCompatible": true,
+      "database": "none",
+      "wordpress": "unchanged"
+    },
+    "ciphertextSha256": "71e77e966c678cd29ba362f4624246a758df9a16e4bbd2153c4b8ee00ec37d41",
+    "decryption": {
+      "evidenceSha256": "5c3016e1a9d7a9ecf2456bc6e49f39d37c485588a940ba18be6a6a096f36b985",
+      "verified": true
+    },
+    "manifestSha256": "2d4ff8fb62ce7cb7c4ced820ebc0dff6f58341ba23d67b0766ea9c4efe03ce95",
+    "offHost": {
+      "sha256": "71e77e966c678cd29ba362f4624246a758df9a16e4bbd2153c4b8ee00ec37d41",
+      "verified": true
+    },
+    "preparedProofSha256": "df2f4eacfc1134e602dcdbd5a2eacdc0b235b9e423402ceeaf0196ae03c9409d",
+    "restore": {
+      "evidenceSha256": "62a0bfa551f8a5dca190b269b86e453210edebad612e61aa576c0b172060786a",
+      "verified": true
+    },
+    "schemaVersion": "tio2-deployment-evidence-v1",
+    "siteId": "tio2-my"
+  },
+  "browser": {
+    "entry": "root-enrolled local Nginx via loopback relay 127.0.0.1:65029",
+    "originalPassed": 166,
+    "originalFailed": 8,
+    "originalHarnessExit": 1,
+    "recheckPassed": 9,
+    "uniquePassingObjectViewports": 174,
+    "objects": 58,
+    "viewports": [
+      1440,
+      768,
+      390
+    ],
+    "failedCases": [
+      "APP-000 /applications/ @1440",
+      "APP-000 /applications/ @768",
+      "MARKET-EU-001 /markets/european-union/ @1440",
+      "MARKET-EU-001 /markets/european-union/ @390",
+      "MARKET-EU-001 /markets/european-union/ @768",
+      "MARKET-UK-001 /markets/united-kingdom/ @1440",
+      "MARKET-UK-001 /markets/united-kingdom/ @390",
+      "MARKET-UK-001 /markets/united-kingdom/ @768"
+    ],
+    "recheckedCases": [
+      "APP-000 /applications/ @1440",
+      "APP-000 /applications/ @390",
+      "APP-000 /applications/ @768",
+      "MARKET-EU-001 /markets/european-union/ @1440",
+      "MARKET-EU-001 /markets/european-union/ @390",
+      "MARKET-EU-001 /markets/european-union/ @768",
+      "MARKET-UK-001 /markets/united-kingdom/ @1440",
+      "MARKET-UK-001 /markets/united-kingdom/ @390",
+      "MARKET-UK-001 /markets/united-kingdom/ @768"
+    ],
+    "allOriginalFailuresRechecked": true,
+    "sameCandidateAndProxy": true,
+    "externalFormSubmissions": 0,
+    "visualScope": "174 viewport slices in 6 contact sheets plus 6 selected originals actually viewed; not a full-page visual acceptance"
+  },
+  "arm64": {
+    "scope": "local Docker Desktop emulation preflight",
+    "nativeHost": "x86_64",
+    "nativeArm64": false,
+    "fullNextArm64Build": false,
+    "exitCode": 0,
+    "runtime": {
+      "arch": "arm64",
+      "platform": "linux",
+      "node": "v24.21.0"
+    },
+    "image": "sha256:2fe369e969550cde8e867afc3fe370b260140cab4a23d467074295b42163d553"
+  },
+  "finalFocusedChecks": {
+    "controller": "7/7; 13.75s",
+    "clientExtraction": "2/2",
+    "adminBundle": "1/1",
+    "fixtureBrowser": "174/174; 52.2s; harness only",
+    "pythonSyntax": "passed",
+    "gitDiffCheck": "passed"
+  },
+  "artifacts": [
+    {
+      "path": ".superpowers/sdd/2026-09-11-release-tooling-revised/task-4-runtime-evidence.json",
+      "sha256": "8f12f68611e9830678205cb4aa198bc8ff962b9eeaead64a78da56df6ea16937"
+    },
+    {
+      "path": ".tmp/task4/tio2-controller-test-08c150f134df4895a96ef9b94e6694f4/browser.json",
+      "sha256": "38cb5ef42cf8497d5ca22b6b991f1da35b7df4b0b86ccace6a445c2987492b84"
+    },
+    {
+      "path": ".tmp/task4/browser-details-recheck.json",
+      "sha256": "46f8b026800cd041d8a5d60866bd3a98c684b34f5ba336cf08c85b2f28640747"
+    },
+    {
+      "path": ".tmp/task4/visual-review/inventory.json",
+      "sha256": "39c039a226c40593897916e220817ed1fefae21ccd6743830720c1169af3d812"
+    },
+    {
+      "path": ".superpowers/sdd/2026-09-11-release-tooling-revised/task-4-arm64-preflight.json",
+      "sha256": "ecc79cc229517f3c9dc45605c0887d420d1f48e5ca05156f6d28a16d516915cd"
+    },
+    {
+      "path": ".tmp/task4/controller-final.log",
+      "sha256": "76c77c80f3ef8508c70aaa7b70b09ca9eedb969bcf358f6cd47061357bb87949"
+    },
+    {
+      "path": ".tmp/task4/fixture-final.json",
+      "sha256": "64b7bc6d35f0d1d35e14611b5af46326941d6f89c99af6035e6ec6ab83c186a1"
+    },
+    {
+      "path": ".tmp/task4/tio2-ssh-pin-8891528bf886432197f9c28d4ae1f1a7/evidence.json",
+      "sha256": "a75ee19ae4fc670f55bd1dc01fe14d6c068c257624e3583f1d2bcc82c63a7c44"
+    },
+    {
+      "path": ".tmp/task4/fix1-red.log",
+      "sha256": "a5213b3c0446adfb88b328de7ccde84c2a9ee3e3f8547ab24f8bf5ec4c15ea67"
+    },
+    {
+      "path": ".tmp/task4/fix1-green.log",
+      "sha256": "fa127e62534546c48bbc827bf5dcad1ed82ca92cf50bfa26f4b9f715f0813940"
+    },
+    {
+      "path": ".tmp/task4/fix1-ssh.log",
+      "sha256": "73202335c14fe123914b54e1f3e35ddb8de986f031621d0dc547d3566a2a06d5"
+    }
+  ],
+  "fix1": {
+    "controllerTests": "9/9; 18.83s",
+    "ssh": {
+      "runId": "tio2-ssh-pin-8891528bf886432197f9c28d4ae1f1a7",
+      "scope": "local OpenSSH pin only; status endpoint is a fixture",
+      "cases": [
+        {
+          "port": 22,
+          "correctPin": true,
+          "exitCode": 0,
+          "passed": true
+        },
+        {
+          "port": 22,
+          "correctPin": false,
+          "exitCode": 1,
+          "passed": true
+        },
+        {
+          "port": 57507,
+          "correctPin": true,
+          "exitCode": 0,
+          "passed": true
+        },
+        {
+          "port": 57507,
+          "correctPin": false,
+          "exitCode": 1,
+          "passed": true
+        }
+      ],
+      "remoteStatusExecutions": 2,
+      "passed": true,
+      "cleanupVerified": true
+    },
+    "priorIntegrationEvidenceUnchanged": true
+  }
+}

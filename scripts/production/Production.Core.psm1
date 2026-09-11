@@ -192,7 +192,7 @@ function New-ProductionGitArchiveLock {
         $startInfo.CreateNoWindow = $true
         $startInfo.RedirectStandardOutput = $true
         $startInfo.RedirectStandardError = $true
-        $arguments = @('-C', $RepositoryRoot, 'archive', '--format=tar', $Commit, '--') + $Pathspecs
+        $arguments = @('-C', $RepositoryRoot, '-c', 'core.autocrlf=false', 'archive', '--format=tar', $Commit, '--') + $Pathspecs
         $startInfo.Arguments = (@($arguments | ForEach-Object { ConvertTo-ProductionProcessArgument -Value $_ }) -join ' ')
         $process = [System.Diagnostics.Process]::new()
         $process.StartInfo = $startInfo
@@ -385,3 +385,174 @@ Export-ModuleMember -Function @(
     'Assert-ProductionArchiveMemberPath',
     'New-ProductionPackage'
 )
+
+# Local controller. Transport and recovery boundaries are module functions so
+# isolated tests can substitute them without adding a CLI bypass.
+function Read-ProductionJson($Path) { Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json -AsHashtable }
+function Save-ProductionJson($Path, $Value) {
+    $temporary = "$Path.$([guid]::NewGuid().ToString('N')).tmp"
+    $bytes = [Text.UTF8Encoding]::new($false).GetBytes(($Value | ConvertTo-Json -Depth 50 -Compress))
+    $stream = [IO.File]::Open($temporary, 'CreateNew', 'Write', 'None')
+    try { $stream.Write($bytes); $stream.Flush($true) } finally { $stream.Dispose() }
+    [IO.File]::Move($temporary, $Path, $true)
+}
+function Assert-ProductionConnection($Config) {
+    try {
+        if ($Config.siteId -ne 'tio2-my' -or $Config.username -ne 'deploy' -or $Config.host -notmatch '^[A-Za-z0-9][A-Za-z0-9.-]*$' -or $Config.port -lt 1 -or $Config.port -gt 65535 -or $Config.baselineSha256 -notmatch '^[a-f0-9]{64}$') { throw 'invalid' }
+        if ($Config.hostKey -notmatch '^ssh-ed25519 ([A-Za-z0-9+/]+={0,2})$') { throw 'invalid' }
+        $key = [Convert]::FromBase64String($Matches[1])
+        if ($key.Length -ne 51 -or [Text.Encoding]::ASCII.GetString($key,4,11) -ne 'ssh-ed25519') { throw 'invalid' }
+        if (-not (Test-Path -LiteralPath $Config.identityFile -PathType Leaf)) { throw 'invalid' }
+    } catch { throw 'Production connection identity is missing or invalid.' }
+}
+function Assert-ProductionActionReceipt($Action, $Receipt, $Candidate) {
+    try {
+        if ($Receipt.action -cne $Action -or $Receipt.ok -isnot [bool] -or $Receipt.ok -ne $true) { throw 'invalid' }
+        $states = @{prepare=@('PREPARED');backup=@('BACKED_UP');deploy=@('INTERNAL_VERIFIED','PUBLIC_VERIFIED');verify=@('PUBLIC_VERIFIED','ROLLED_BACK');rollback=@('ROLLED_BACK')}
+        if ($Action -in @('deploy','verify','rollback') -and ($Receipt.databaseRestored -isnot [bool] -or $Receipt.databaseRestored -ne $false)) { throw 'invalid' }
+        if ($Action -eq 'status') { if ($Receipt.state.state -notin @('IDLE','PREPARED','BACKED_UP','DEPLOYING','INTERNAL_VERIFIED','PUBLIC_VERIFIED','FAILED','ROLLING_BACK','ROLLED_BACK')) { throw 'invalid' } }
+        elseif ($Receipt.state -notin $states[$Action]) { throw 'invalid' }
+        if ($null -ne $Candidate -and $Action -ne 'backup') {
+            $observed = if ($Action -eq 'status') { $Receipt.state.details.candidate } else { $Receipt.candidate }
+            foreach ($name in @('commit','archiveSha256','manifestSha256','proofSha256')) { if ($observed[$name] -cne $Candidate[$name]) { throw 'invalid' } }
+        }
+    } catch { throw 'Production action receipt identity or state mismatch.' }
+}
+function Get-ProductionBackupRequest($RunRoot, $ProofSha256, $BaselineSha256) {
+    $path = Join-Path $RunRoot 'backup-request.json'
+    if (Test-Path -LiteralPath $path) {
+        $request = Read-ProductionJson $path
+        if ($request.schemaVersion -ne 'tio2-backup-request-v1' -or $request.preparedProofSha256 -cne $ProofSha256 -or $request.baselineSha256 -cne $BaselineSha256 -or $request.requestId -notmatch '^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$') { throw 'Persisted backup request identity mismatch.' }
+        return $request
+    }
+    $request = [ordered]@{schemaVersion='tio2-backup-request-v1'; requestId=[guid]::NewGuid().ToString();preparedProofSha256=$ProofSha256;baselineSha256=$BaselineSha256}
+    Save-ProductionJson $path $request
+    return $request
+}
+function Invoke-ProductionTransport($Config, $RunRoot, $Kind, $Value) {
+    Assert-ProductionConnection $Config
+    $known = Join-Path $RunRoot 'known_hosts'
+    $lookup = if ($Config.port -eq 22) { $Config.host } else { "[$($Config.host)]:$($Config.port)" }
+    $line = "$lookup $($Config.hostKey)`n"
+    # A dedicated pin file is rebuilt from the operator-enrolled public key;
+    # never trust ssh-keyscan or the user's global SSH config/known_hosts.
+    [IO.File]::WriteAllText($known, $line, [Text.UTF8Encoding]::new($false))
+    $options = @('-F','none','-o','BatchMode=yes','-o','IdentitiesOnly=yes','-o','StrictHostKeyChecking=yes','-o',"UserKnownHostsFile=$known",'-o','GlobalKnownHostsFile=none','-o','ConnectTimeout=15','-o','ServerAliveInterval=15','-o','ServerAliveCountMax=3','-i',$Config.identityFile)
+    $destination = "deploy@$($Config.host)"
+    if ($Kind -eq 'action') {
+        if ($Value -notin @('status','prepare','backup','deploy','verify','rollback')) { throw 'Unsupported fixed action.' }
+        $output = @(& ssh @options -p $Config.port $destination "sudo -n /usr/local/sbin/tio2-release $Value" 2>$null)
+        if ($LASTEXITCODE -ne 0) {
+            $failure=@{action=$Value;exitCode=$LASTEXITCODE;completed=$false;observedAt=[DateTimeOffset]::UtcNow.ToString('o')}
+            try {
+                $remoteError=($output -join "`n")|ConvertFrom-Json -AsHashtable
+                if($remoteError.error -in @('release error','internal release error')){$failure.returnedError=$remoteError.error}
+            } catch {}
+            Save-ProductionJson (Join-Path $RunRoot 'transport-failure.json') $failure
+            if($Value -ne 'status'){
+                try {
+                    $observed=Invoke-ProductionTransport $Config $RunRoot action status
+                    Assert-ProductionActionReceipt status $observed $null
+                    Save-ProductionJson (Join-Path $RunRoot 'failure-status.json') $observed
+                } catch {}
+            }
+            throw 'Remote action failed or disconnected; retry this same run.'
+        }
+        try { return (($output -join "`n") | ConvertFrom-Json -AsHashtable -ErrorAction Stop) } catch { throw 'Remote action receipt is not JSON.' }
+    }
+    if ($Kind -eq 'upload') {
+        if ($Value -notin @('release.tar.gz','release-manifest.json','release-proof.json','backup-request.json','deployment-evidence.json')) { throw 'Unsupported upload.' }
+        & scp @options -P $Config.port (Join-Path $RunRoot $Value) "${destination}:/home/deploy/tio2-incoming/$Value" 2>$null | Out-Null
+    } elseif ($Kind -eq 'download') {
+        if ($Value -notmatch '^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{40}-[a-f0-9]{32}$') { throw 'Invalid backup ID.' }
+        & scp @options -P $Config.port "${destination}:/home/deploy/tio2-outgoing/$Value.tar.age" (Join-Path $RunRoot 'ciphertext.age.part') 2>$null | Out-Null
+    } else { throw 'Unsupported transport.' }
+    if ($LASTEXITCODE -ne 0) { throw 'Transfer failed or disconnected; retry this same run.' }
+}
+function Invoke-ProductionRecovery($Config,$RunRoot) {
+    if ($Config.recoveryImageId -notmatch '^sha256:[a-f0-9]{64}$' -or $Config.dockerContext -notmatch '^[A-Za-z0-9_-]+$' -or -not (Test-Path -LiteralPath $Config.ageIdentityFile -PathType Leaf)) { throw 'Local Linux recovery configuration is required.' }
+    $helper = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../ops/production'))
+    $diagnostic=@(& docker --context $Config.dockerContext run --rm --network none --label "tio2.client-recovery=$([IO.Path]::GetFileName($RunRoot))" --env "TIO2_RECOVERY_IMAGE=$($Config.recoveryImageId)" --mount "type=bind,source=$RunRoot,target=/run-evidence" --mount "type=bind,source=$($Config.ageIdentityFile),target=/identity.age,readonly" --mount "type=bind,source=$helper,target=/tooling,readonly" --mount 'type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock' --entrypoint python3 $Config.recoveryImageId -B /tooling/client_recovery.py 2>&1)
+    $recoveryExit=$LASTEXITCODE
+    [IO.File]::WriteAllText((Join-Path $RunRoot 'recovery.log'),($diagnostic -join "`n"))
+    if ($recoveryExit -ne 0) { throw 'Local decryption/restore verification failed; no deployment evidence was issued.' }
+}
+function New-ProductionDeploymentEvidence($RunRoot,$Prepared,$Backup) {
+    try {
+        $decrypt=Read-ProductionJson (Join-Path $RunRoot 'decryption.json'); $restore=Read-ProductionJson (Join-Path $RunRoot 'restore.json')
+        foreach ($item in @($decrypt,$restore)) {
+            if ($item.verified -isnot [bool] -or $item.verified -ne $true -or $item.backupId -cne $Backup.backupId -or $item.ciphertextSha256 -cne $Backup.ciphertextSha256 -or $item.manifestSha256 -cne $Backup.manifestSha256) { throw 'invalid' }
+        }
+        foreach ($flag in @('uid33PluginLoaded','databaseReadback','wordpressBytesVerified','cleanupVerified')) { if ($restore[$flag] -isnot [bool] -or $restore[$flag] -ne $true) { throw 'invalid' } }
+        if ($restore.permissionPolicy -ne 'tio2-ro-plugin-root-v1' -or $restore.uid33PluginLoaded -ne $true -or $restore.databaseReadback -ne $true -or $restore.wordpressBytesVerified -ne $true) { throw 'invalid' }
+        if ((Get-ProductionSha256 (Join-Path $RunRoot 'ciphertext.age')) -cne $Backup.ciphertextSha256) { throw 'invalid' }
+    } catch { throw 'Verified local recovery evidence is incomplete or mismatched.' }
+    $evidence=[ordered]@{schemaVersion='tio2-deployment-evidence-v1';siteId='tio2-my';preparedProofSha256=$Prepared.candidate.proofSha256;baselineSha256=$Prepared.active.enrollmentSha256;backupId=$Backup.backupId;manifestSha256=$Backup.manifestSha256;ciphertextSha256=$Backup.ciphertextSha256;offHost=@{verified=$true;sha256=$Backup.ciphertextSha256};decryption=@{verified=$true;evidenceSha256=Get-ProductionSha256 (Join-Path $RunRoot 'decryption.json')};restore=@{verified=$true;evidenceSha256=Get-ProductionSha256 (Join-Path $RunRoot 'restore.json')};change=@{database='none';wordpress='unchanged';backwardCompatible=$true}}
+    Save-ProductionJson (Join-Path $RunRoot 'deployment-evidence.json') $evidence
+    return $evidence
+}
+function Invoke-ProductionOperation {
+    param([ValidateSet('Status','Release','Verify','Rollback')]$Operation,[string]$ConfigPath,[string]$RunRoot)
+    $config=Read-ProductionJson $ConfigPath; Assert-ProductionConnection $config
+    $RunRoot=[IO.Path]::GetFullPath($RunRoot); [IO.Directory]::CreateDirectory($RunRoot)|Out-Null
+    $lock=[IO.File]::Open((Join-Path $RunRoot 'controller.lock'),'OpenOrCreate','ReadWrite','None')
+    try {
+        $binding=@{siteId=$config.siteId;host=$config.host;port=$config.port;hostKey=$config.hostKey;baselineSha256=$config.baselineSha256}
+        $bindPath=Join-Path $RunRoot 'connection.json'
+        if (Test-Path $bindPath) { $old=Read-ProductionJson $bindPath; foreach($name in $binding.Keys){if($old[$name] -cne $binding[$name]){throw 'Run connection identity changed.'}} } else { Save-ProductionJson $bindPath $binding }
+        $status=Invoke-ProductionTransport $config $RunRoot action status
+        Assert-ProductionActionReceipt status $status $null
+        Save-ProductionJson (Join-Path $RunRoot 'status.json') $status
+        if($Operation -eq 'Status'){return $status}
+        $manifest=Read-ProductionJson (Join-Path $RunRoot 'release-manifest.json'); $proof=Read-ProductionJson (Join-Path $RunRoot 'release-proof.json')
+        $candidate=@{commit=$manifest.commit;archiveSha256=Get-ProductionSha256 (Join-Path $RunRoot 'release.tar.gz');manifestSha256=Get-ProductionSha256 (Join-Path $RunRoot 'release-manifest.json');proofSha256=Get-ProductionSha256 (Join-Path $RunRoot 'release-proof.json')}
+        if($manifest.siteId -ne 'tio2-my' -or $manifest.archiveSha256 -cne $candidate.archiveSha256 -or $proof.commit -cne $candidate.commit -or $proof.manifestSha256 -cne $candidate.manifestSha256 -or $proof.archiveSha256 -cne $candidate.archiveSha256){throw 'Local package identity mismatch.'}
+        $preparedPath=Join-Path $RunRoot 'prepare.json'
+        if($Operation -eq 'Release' -and -not (Test-Path $preparedPath)){
+            if($status.state.state -eq 'PREPARED'){
+                Assert-ProductionActionReceipt status $status $candidate
+                $prepared=@{action='prepare';ok=$true;state='PREPARED';candidate=$status.state.details.candidate;active=$status.state.details.active}
+            } else {
+                foreach($name in @('release.tar.gz','release-manifest.json','release-proof.json')){Invoke-ProductionTransport $config $RunRoot upload $name}
+                $prepared=Invoke-ProductionTransport $config $RunRoot action prepare
+            }
+            Assert-ProductionActionReceipt prepare $prepared $candidate
+            if($prepared.active.enrollmentSha256 -cne $config.baselineSha256){throw 'Prepared server baseline identity mismatch.'}
+            Save-ProductionJson $preparedPath $prepared
+            $status=Invoke-ProductionTransport $config $RunRoot action status
+        }
+        $prepared=Read-ProductionJson $preparedPath; Assert-ProductionActionReceipt prepare $prepared $candidate
+        if($prepared.active.enrollmentSha256 -cne $config.baselineSha256){throw 'Prepared server baseline identity mismatch.'}
+        Assert-ProductionActionReceipt status $status $candidate
+        if($Operation -eq 'Release'){
+            if($status.state.state -in @('PREPARED','BACKED_UP')){
+                $request=Get-ProductionBackupRequest $RunRoot $candidate.proofSha256 $prepared.active.enrollmentSha256
+                Invoke-ProductionTransport $config $RunRoot upload 'backup-request.json'
+                $backup=Invoke-ProductionTransport $config $RunRoot action backup
+                Assert-ProductionActionReceipt backup $backup $null
+                if($backup.requestId -cne $request.requestId -or $backup.backupId -notmatch '^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{40}-[a-f0-9]{32}$' -or $backup.ciphertextSha256 -notmatch '^[a-f0-9]{64}$' -or $backup.manifestSha256 -notmatch '^[a-f0-9]{64}$' -or $backup.writesResumed -isnot [bool] -or $backup.autoRestoreEligible -isnot [bool] -or $backup.writesResumed -ne $true -or $backup.autoRestoreEligible -ne $false){throw 'Backup receipt identity mismatch.'}
+                $backupPath=Join-Path $RunRoot 'backup.json'
+                if(Test-Path $backupPath){$old=Read-ProductionJson $backupPath;foreach($name in @('requestId','backupId','manifestSha256','ciphertextSha256')){if($old[$name] -cne $backup[$name]){throw 'Backup replay receipt changed.'}}}
+                Save-ProductionJson $backupPath $backup
+                Invoke-ProductionTransport $config $RunRoot download $backup.backupId
+                $part=Join-Path $RunRoot 'ciphertext.age.part'
+                if((Get-ProductionSha256 $part) -cne $backup.ciphertextSha256){throw 'Downloaded ciphertext hash mismatch.'}
+                [IO.File]::Move($part,(Join-Path $RunRoot 'ciphertext.age'),$true)
+                Invoke-ProductionRecovery $config $RunRoot
+                $null=New-ProductionDeploymentEvidence $RunRoot $prepared $backup
+                Invoke-ProductionTransport $config $RunRoot upload 'deployment-evidence.json'
+            }
+            $deploy=Invoke-ProductionTransport $config $RunRoot action deploy
+            Assert-ProductionActionReceipt deploy $deploy $candidate
+            Save-ProductionJson (Join-Path $RunRoot 'deploy.json') $deploy
+            $action='verify'
+        } else {$action=$Operation.ToLowerInvariant()}
+        $result=Invoke-ProductionTransport $config $RunRoot action $action
+        Assert-ProductionActionReceipt $action $result $candidate
+        if($action -eq 'verify' -and $result.state -eq 'PUBLIC_VERIFIED' -and $result.active.commit -cne $candidate.commit){throw 'Verified active identity mismatch.'}
+        if($result.state -eq 'ROLLED_BACK' -and $result.active.sourceSha256 -cne $prepared.active.sourceSha256){throw 'Rollback active identity mismatch.'}
+        Save-ProductionJson (Join-Path $RunRoot "$action.json") $result
+        return $result
+    } finally {$lock.Dispose()}
+}
+Export-ModuleMember -Function Assert-ProductionConnection,Assert-ProductionActionReceipt,Get-ProductionBackupRequest,New-ProductionDeploymentEvidence,Invoke-ProductionOperation

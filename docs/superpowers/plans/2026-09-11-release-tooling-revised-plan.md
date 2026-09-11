@@ -105,6 +105,8 @@
 
 ## Task 4：形成完整操作入口与交付证据
 
+开发状态：实现、独立审查及 SSH 修复复审通过。本地真实控制器完成备份恢复、更新、重复执行和回滚；实际浏览器初跑166项通过加同版本9项复验覆盖174个唯一案例。SSH默认/非默认端口正确与错误公钥4项通过，修复后控制器9项通过。原生ARM64、生产采用和物理异地恢复未验收。整个分支最终审查另行记录。
+
 **交付结果：** 一个本地入口能完整走通状态查询、打包、准备、备份、证据校验、更新、验证与回滚；交付给部署窗口的是已演练工具和适用条件。
 
 **Files:** 新增 `scripts/production.ps1`、`tests/infrastructure/production-controller.test.ts`、`tests/production-runtime/run_release_rehearsal.py`、`tests/e2e/production-public-surface.spec.ts`、`tests/fixtures/production/playwright.fixture.config.ts`、`tests/fixtures/production/server.mjs`、`docs/production-deployment.md`；修改 `Production.Core.psm1`、`package.json` 与相关工作流/架构导航文档。

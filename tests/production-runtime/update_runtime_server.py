@@ -38,7 +38,7 @@ def setup(data):
     upstream=config/'web-upstream.conf'
     upstream.write_text('proxy_pass http://127.0.0.1:'+str(data['ports'][0])+';\nadd_header X-Tio2-Release '+data['commitA']+' always;\n'); upstream.chmod(0o600)
     nginx=Path('/etc/nginx/nginx.conf')
-    nginx.write_text('events {}\nhttp { server { listen 127.0.0.1:'+str(data['proxyPort'])+'; location / { include '+str(upstream)+'; } } }\n')
+    nginx.write_text('events {}\nhttp { server { listen 127.0.0.1:'+str(data['proxyPort'])+'; location / { proxy_set_header Host $http_host; include '+str(upstream)+'; } } }\n')
     execute('/usr/sbin/nginx','-t')
     subprocess.run(['/usr/sbin/nginx'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=True)
     containers=json.loads(execute('/usr/bin/docker','inspect',data['database'],data['wordpress'],data['web']))
