@@ -13,6 +13,89 @@ function testFiles(directory: string): string[] {
 }
 
 describe('WordPress runtime ownership classification', () => {
+  const isolatedMode = "export const WORDPRESS_RUNTIME_MODE = {dataMode:'isolated', hostHttp:false} as const;"
+  const runtimeImport = "import {startIsolatedWordPress} from '../helpers/wordpress-runtime';"
+  const simulationImport = "import {createWordPressRuntimeSimulation} from '../helpers/wordpress-runtime-simulation';"
+
+  it.each(['startIsolatedWordPress', 'launchWordPress'])('binds a live runtime helper imported as %s to the declaration', name => {
+    const imported = `import {startIsolatedWordPress${name === 'startIsolatedWordPress' ? '' : ` as ${name}`}} from '../helpers/wordpress-runtime';`
+    expect(inspectRuntime(`${imported}${isolatedMode}const runtime = await ${name}({dataMode:'shared-mutating', hostHttp:false, serialMutationAuthorized:true, runId:'unsafe'}); await runtime.wp(['option','update','unsafe','yes']);`))
+      .toContain('executed runtime options do not prove the declared runtime mode')
+  })
+
+  it.each([
+    "{dataMode:'shared-read-only', hostHttp:false, runId:'x'}",
+    "{dataMode:mode, hostHttp:false, runId:'x'}",
+    "{...WORDPRESS_RUNTIME_MODE, ...unknown}",
+    "{...WORDPRESS_RUNTIME_MODE, hostHttp:true}",
+    'options',
+    'condition ? WORDPRESS_RUNTIME_MODE : options',
+    '',
+    "{dataMode:'shared-mutating', hostHttp:false, serialMutationAuthorized:true, execute:unknownExecutor}",
+  ])('fails closed for runtime options that cannot prove authority: %s', options => {
+    expect(inspectRuntime(`${runtimeImport}${isolatedMode}startIsolatedWordPress(${options});`))
+      .toContain('executed runtime options do not prove the declared runtime mode')
+  })
+
+  it('rejects the converse live runtime mismatch even under an opt-in gate', () => {
+    const mode = "export const WORDPRESS_RUNTIME_MODE = {dataMode:'shared-read-only', hostHttp:false};"
+    expect(inspectRuntime(`${runtimeImport}${mode}describe.runIf(process.env.RUN === '1')('live', async () => {const runtime = await startIsolatedWordPress({dataMode:'isolated', hostHttp:false, runId:'x'}); await runtime.wp(['post','list']);});`))
+      .toContain('executed runtime options do not prove the declared runtime mode')
+  })
+
+  it.each([
+    'const launch = startIsolatedWordPress; launch(options);',
+    'const {launch} = {launch: startIsolatedWordPress}; launch(options);',
+    'useFactory(startIsolatedWordPress);',
+  ])('rejects a runtime factory escaping through an unproved alias: %s', escape => {
+    expect(inspectRuntime(`${runtimeImport}${isolatedMode}${escape}`)).not.toEqual([])
+  })
+
+  it.each([
+    "import * as runtimeHelper from '../helpers/wordpress-runtime'; const launch = runtimeHelper.startIsolatedWordPress; launch(options);",
+    "import * as runtimeHelper from '../helpers/wordpress-runtime'; runtimeHelper['startIsolatedWordPress'](options);",
+    "import * as runtimeHelper from '../helpers/wordpress-runtime'; runtimeHelper[unknownMember](options);",
+    "const runtimeHelper = await import('../helpers/wordpress-runtime'); const launch = runtimeHelper.startIsolatedWordPress; launch(options);",
+    "const {startIsolatedWordPress: launch} = await import('../helpers/wordpress-runtime'); launch(options);",
+  ])('does not lose runtime authority through a module member or dynamic import: %s', source => {
+    expect(inspectRuntime(`${isolatedMode}${source}`)).not.toEqual([])
+  })
+
+  it('accepts a statically proven direct namespace runtime call', () => {
+    expect(inspectRuntime(`import * as runtimeHelper from '../helpers/wordpress-runtime'; ${isolatedMode}runtimeHelper.startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId:'x'});`)).toEqual([])
+  })
+
+  it('accepts an actual isolated runtime bound to the declaration', () => {
+    expect(inspectRuntime(`${runtimeImport}${isolatedMode}const runtime = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId:'x'}); await runtime.wp(['option','update','owned','yes']);`)).toEqual([])
+  })
+
+  it('accepts only the fixed executor from a verifiable simulation factory', () => {
+    expect(inspectRuntime(`${runtimeImport}${simulationImport}${isolatedMode}const simulation = await createWordPressRuntimeSimulation(); startIsolatedWordPress({...options, execute:simulation.execute});`)).toEqual([])
+  })
+
+  it('does not trust a caller executor merely because the runtime mode fields agree', () => {
+    expect(inspectRuntime(`${runtimeImport}${isolatedMode}startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId:'x', execute:unknownExecutor});`))
+      .toContain('executed runtime options do not prove the declared runtime mode')
+  })
+
+  it('keeps the actual simulated input observable for caller-mutation regression tests', () => {
+    expect(inspectRuntime(`${runtimeImport}${simulationImport}${isolatedMode}const simulation = await createWordPressRuntimeSimulation(); let input; startIsolatedWordPress(input = {...options, execute:simulation.execute});`)).toEqual([])
+  })
+
+  it.each([
+    ["import {createWordPressRuntimeSimulation} from '../unknown';", 'const simulation = await createWordPressRuntimeSimulation();', '{...options, execute:simulation.execute}'],
+    [simulationImport, 'const original = await createWordPressRuntimeSimulation(); const simulation = original;', '{...options, execute:simulation.execute}'],
+    [simulationImport, 'const simulation = await createWordPressRuntimeSimulation();', '{...options, execute:simulation.execute, ...extra}'],
+    [simulationImport, 'const simulation = await createWordPressRuntimeSimulation();', '{...options, execute:simulation.execute, execute:unknownExecutor}'],
+    [simulationImport, 'const simulation = await createWordPressRuntimeSimulation();', '{...options, execute:simulation.execute.bind(null)}'],
+    [simulationImport, 'const simulation = unknownFactory();', '{...options, execute:simulation.execute}'],
+    ["import {createWordPressRuntimeSimulation} from '../../helpers/wordpress-runtime-simulation';", 'const simulation = await createWordPressRuntimeSimulation();', '{...options, execute:simulation.execute}'],
+    [simulationImport, 'async function unsafe(createWordPressRuntimeSimulation) { const simulation = await createWordPressRuntimeSimulation(); } const simulation = await createWordPressRuntimeSimulation();', '{...options, execute:simulation.execute}'],
+  ])('does not mistake an arbitrary executor for simulation: %s %s %s', (imported, setup, options) => {
+    expect(inspectRuntime(`${runtimeImport}${imported}${isolatedMode}${setup}startIsolatedWordPress(${options});`))
+      .toContain('executed runtime options do not prove the declared runtime mode')
+  })
+
   it.each([
     "{dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true}",
     "{...WORDPRESS_RUNTIME_MODE, dataMode: 'shared-mutating', serialMutationAuthorized: true}",
@@ -49,6 +132,18 @@ describe('WordPress runtime ownership classification', () => {
   const lockImport = "import {registerSharedWordPressMutationLock} from '../helpers/wordpress-test-support';"
   const sharedCall = "execute('docker', ['compose', '--project-name', 'wordpress', 'run', '--no-deps', 'wpcli', 'wp', 'post', 'list'])"
   const gatedCall = `describe.runIf(process.env.RUN === '1')('live', () => {${sharedCall}})`
+
+  it.each([
+    ['', "describe.runIf(process.env.RUN === '1')('live', async () => {CALL})", 'shared mutation requires an active lock registration bound to its gate'],
+    ['registerSharedWordPressMutationLock(true);', 'CALL', 'shared Docker execution is not dominated by an opt-in gate'],
+  ])('requires the actual shared runtime to retain gate and lock consistency', (registration, wrapper, error) => {
+    const call = "const runtime = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId:'x'}); await runtime.wp(['option','update','owned','yes']);"
+    expect(inspectRuntime(`${runtimeImport}${lockImport}${mutatingMode}${registration}${wrapper.replace('CALL', call)}`)).toContain(error)
+  })
+
+  it('accepts the authorized gated and locked shared runtime without lifecycle escalation', () => {
+    expect(inspectRuntime(`${runtimeImport}${lockImport}${mutatingMode}registerSharedWordPressMutationLock(process.env.RUN === '1'); describe.runIf(process.env.RUN === '1')('live', async () => {const runtime = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId:'x'}); await runtime.wp(['option','update','owned','yes']);});`)).toEqual([])
+  })
 
   it('does not equate string authorization with a declared boolean', () => {
     const call = "execute('docker', [...wordpressComposeArgs({dataMode:'shared-mutating', hostHttp:false, serialMutationAuthorized:'true'}), 'run', '--no-deps', 'wpcli', 'wp', 'option', 'update', 'unsafe', 'yes'])"
@@ -178,7 +273,7 @@ describe('WordPress runtime ownership classification', () => {
   })
 
   it('rejects undeclared Docker Compose callers and unsafe shared capabilities', () => {
-    const failures = testFiles(root).flatMap(path => inspectRuntime(readFileSync(path, 'utf8')).map(error => `${relative(root, path)}: ${error}`))
+    const failures = testFiles(root).flatMap(path => inspectRuntime(readFileSync(path, 'utf8'), undefined, path).map(error => `${relative(root, path)}: ${error}`))
     expect(failures, failures.join('\n')).toEqual([])
   })
 

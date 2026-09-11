@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs'
-import {resolve} from 'node:path'
+import {dirname, resolve} from 'node:path'
 import ts from 'typescript'
 
 export const READ_ONLY_PREVIEW_PATH = '/workspace/tests/infrastructure/php/site-a-editorial-phase1-preview.php'
@@ -63,16 +63,21 @@ type Word = string | {kind: 'compose' | 'php' | 'unknown'}
 const intersects = (sets: Set<string>[]) => sets.length ? new Set([...sets[0]].filter(item => sets.every(set => set.has(item)))) : new Set<string>()
 
 /** Conservative source proof: unknown arguments/control flow fail closed. */
-export function inspectWordPressRuntime(source: string, readPreview = () => readFileSync(resolve('tests/infrastructure/php/site-a-editorial-phase1-preview.php'), 'utf8')): string[] {
+export function inspectWordPressRuntime(source: string, readPreview = () => readFileSync(resolve('tests/infrastructure/php/site-a-editorial-phase1-preview.php'), 'utf8'), sourcePath = resolve('tests/infrastructure/classification-input.test.ts')): string[] {
   const file = ts.createSourceFile('test.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
   const declarations: ts.VariableDeclaration[] = []
   const variables = new Map<string, ts.Expression | null>()
   const imports = new Map<string, {name: string; from: string}>()
+  const runtimeNamespaces = new Set<string>()
   const calls: ts.CallExpression[] = []
+  const memberAccesses: (ts.PropertyAccessExpression | ts.ElementAccessExpression)[] = []
   const identifiers: ts.Identifier[] = []
+  const runtimeModule = (name: string) => name.startsWith('.')
+    && resolve(dirname(sourcePath), name.replace(/\.ts$/u, '') + '.ts') === resolve('tests/helpers/wordpress-runtime.ts')
   function visit(node: ts.Node) {
     if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
       const bindings = node.importClause?.namedBindings
+      if (bindings && ts.isNamespaceImport(bindings) && runtimeModule(node.moduleSpecifier.text)) runtimeNamespaces.add(bindings.name.text)
       if (bindings && ts.isNamedImports(bindings)) for (const binding of bindings.elements) {
         imports.set(binding.name.text, {name: binding.propertyName?.text ?? binding.name.text, from: node.moduleSpecifier.text})
       }
@@ -81,15 +86,25 @@ export function inspectWordPressRuntime(source: string, readPreview = () => read
       if (node.name.text === 'WORDPRESS_RUNTIME_MODE') declarations.push(node)
       const immutable = ts.isVariableDeclarationList(node.parent) && (node.parent.flags & ts.NodeFlags.Const) !== 0
       variables.set(node.name.text, variables.has(node.name.text) || !immutable ? null : node.initializer ?? null)
+      const awaited = node.initializer
+      if (awaited && ts.isAwaitExpression(awaited) && ts.isCallExpression(awaited.expression)
+        && awaited.expression.expression.kind === ts.SyntaxKind.ImportKeyword && ts.isStringLiteral(awaited.expression.arguments[0])
+        && runtimeModule(awaited.expression.arguments[0].text)) runtimeNamespaces.add(node.name.text)
     }
     if (ts.isIdentifier(node)) identifiers.push(node)
     if (ts.isCallExpression(node)) calls.push(node)
+    if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) memberAccesses.push(node)
     ts.forEachChild(node, visit)
   }
   visit(file)
+  const memberName = (node: ts.PropertyAccessExpression | ts.ElementAccessExpression) => {
+    if (ts.isPropertyAccessExpression(node)) return node.name.text
+    const key = unwrap(node.argumentExpression)
+    return ts.isStringLiteral(key) ? key.text : ''
+  }
   const callName = (call: ts.CallExpression) => ts.isIdentifier(call.expression)
     ? imports.get(call.expression.text)?.name ?? call.expression.text
-    : ts.isPropertyAccessExpression(call.expression) ? call.expression.name.text : ''
+    : ts.isPropertyAccessExpression(call.expression) || ts.isElementAccessExpression(call.expression) ? memberName(call.expression) : ''
   for (const identifier of identifiers) {
     let target: ts.Node = identifier
     while ((ts.isPropertyAccessExpression(target.parent) || ts.isElementAccessExpression(target.parent)) && target.parent.expression === target) target = target.parent
@@ -209,8 +224,28 @@ export function inspectWordPressRuntime(source: string, readPreview = () => read
   const errors: string[] = []
   const executedComposeHelpers = new Set<ts.CallExpression>()
   const composeCalls: {node: ts.CallExpression; args: Word[]}[] = []
+  const runtimeCalls = calls.filter(call => callName(call) === 'startIsolatedWordPress')
   const sharedSinks: ts.CallExpression[] = []
   let scoped = false
+  for (const member of memberAccesses) {
+    if (memberName(member) !== 'startIsolatedWordPress') continue
+    scoped = true
+    if (!ts.isCallExpression(member.parent) || member.parent.expression !== member) errors.push('runtime factory escapes static ownership proof')
+  }
+  for (const identifier of identifiers) {
+    if (runtimeNamespaces.has(identifier.text) && reference(identifier, identifier.text) && !ts.isNamespaceImport(identifier.parent)) {
+      const member = identifier.parent
+      scoped = true
+      if (!(ts.isPropertyAccessExpression(member) || ts.isElementAccessExpression(member)) || member.expression !== identifier
+        || memberName(member) !== 'startIsolatedWordPress' || !ts.isCallExpression(member.parent) || member.parent.expression !== member) {
+        errors.push('runtime namespace escapes static ownership proof')
+      }
+    }
+    if ((imports.get(identifier.text)?.name ?? identifier.text) !== 'startIsolatedWordPress'
+      || !reference(identifier, identifier.text)) continue
+    scoped = true
+    if (!ts.isCallExpression(identifier.parent) || identifier.parent.expression !== identifier) errors.push('runtime factory escapes static ownership proof')
+  }
   for (const call of calls) {
     const name = callName(call)
     if (['wordpressComposeArgs', 'startIsolatedWordPress', 'isolatedPhpArgs'].includes(name)) scoped = true
@@ -289,6 +324,44 @@ export function inspectWordPressRuntime(source: string, readPreview = () => read
     const executed = literalFields(helper.arguments[0], true)
     if (!executed || !declared || ['dataMode', 'hostHttp', 'serialMutationAuthorized'].some(key => executed.get(key) !== declared.get(key))) {
       errors.push('executed Compose options do not prove the declared runtime mode')
+    }
+  }
+  const bindingCount = (name: string) => identifiers.filter(identifier => {
+    const parent = identifier.parent
+    return identifier.text === name && (ts.isVariableDeclaration(parent) || ts.isParameter(parent)
+      || ts.isBindingElement(parent) || ts.isFunctionDeclaration(parent)) && parent.name === identifier
+  }).length
+  const simulatedExecutor = (input?: ts.Expression): boolean => {
+    if (!input) return false
+    let options = stripSyntax(input)
+    // Retain the exact argument object for the helper's caller-mutation tests.
+    if (ts.isBinaryExpression(options) && options.operatorToken.kind === ts.SyntaxKind.EqualsToken
+      && ts.isIdentifier(options.left)) options = stripSyntax(options.right)
+    if (!ts.isObjectLiteralExpression(options)) return false
+    // A spread may supply changing test options, but it can never replace the
+    // final fixed executor. The trusted factory accepts no caller executor and
+    // freezes this capability; merely naming a callback "execute" is no proof.
+    const last = options.properties.at(-1)
+    if (!last || !ts.isPropertyAssignment(last) || !ts.isIdentifier(last.name) || last.name.text !== 'execute'
+      || options.properties.filter(property => ts.isPropertyAssignment(property) && property.name.getText(file) === 'execute').length !== 1) return false
+    const executor = stripSyntax(last.initializer)
+    if (!ts.isPropertyAccessExpression(executor) || executor.name.text !== 'execute' || !ts.isIdentifier(executor.expression)) return false
+    const owner = executor.expression.text
+    const initializer = variables.get(owner)
+    if (!initializer || bindingCount(owner) !== 1) return false
+    const awaited = stripSyntax(initializer)
+    if (!ts.isAwaitExpression(awaited)) return false
+    const factory = stripSyntax(awaited.expression)
+    if (!ts.isCallExpression(factory) || !ts.isIdentifier(factory.expression) || bindingCount(factory.expression.text) !== 0) return false
+    const imported = imports.get(factory.expression.text)
+    return imported?.name === 'createWordPressRuntimeSimulation' && imported.from.startsWith('.')
+      && resolve(dirname(sourcePath), imported.from.replace(/\.ts$/u, '') + '.ts') === resolve('tests/helpers/wordpress-runtime-simulation.ts')
+  }
+  for (const runtime of runtimeCalls) {
+    const executed = literalFields(runtime.arguments[0], true)
+    if (!simulatedExecutor(runtime.arguments[0]) && (!executed || !declared || executed.has('execute')
+      || ['dataMode', 'hostHttp', 'serialMutationAuthorized'].some(key => executed.get(key) !== declared.get(key)))) {
+      errors.push('executed runtime options do not prove the declared runtime mode')
     }
   }
   if (mode === 'isolated') for (const {args} of composeCalls) {

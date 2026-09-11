@@ -1,20 +1,12 @@
 import {execFileSync} from 'node:child_process'
-import {existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'node:fs'
-import {createServer, type Server} from 'node:net'
-import {tmpdir} from 'node:os'
-import {join, resolve} from 'node:path'
+import {existsSync, readFileSync, readdirSync, writeFileSync} from 'node:fs'
+import {join} from 'node:path'
 import {afterEach, describe, expect, it} from 'vitest'
-import type {WordPressRuntimeOptions} from '../helpers/wordpress-runtime'
+import {startIsolatedWordPress, type WordPressRuntimeOptions} from '../helpers/wordpress-runtime'
+import {createWordPressRuntimeSimulation} from '../helpers/wordpress-runtime-simulation'
 
 // Real Docker calls only render config; lifecycle calls below use an injected executor.
 export const WORDPRESS_RUNTIME_MODE = {dataMode: 'isolated', hostHttp: false} as const
-
-const roots: string[] = []
-const servers: Server[] = []
-afterEach(async () => {
-  for (const server of servers.splice(0)) if (server.listening) await new Promise<void>(done => server.close(() => done()))
-  for (const root of roots.splice(0)) rmSync(root, {recursive: true, force: true})
-})
 
 describe('rendered test topologies', () => {
   for (const hostHttp of [false, true]) it(`renders ${hostHttp ? 'random loopback HTTP' : 'no host HTTP'} without a database binding`, () => {
@@ -34,72 +26,30 @@ describe('rendered test topologies', () => {
   })
 })
 
+const simulations: Awaited<ReturnType<typeof createWordPressRuntimeSimulation>>[] = []
+afterEach(async () => {
+  for (const simulation of simulations.splice(0)) await simulation.dispose()
+})
+
 async function fixture(hostHttp = true) {
-  const leaseRoot = mkdtempSync(join(tmpdir(), 'wordpress-owned-test-'))
-  roots.push(leaseRoot)
-  const server = createServer()
-  servers.push(server)
-  if (hostHttp) await new Promise<void>(done => server.listen(0, '127.0.0.1', done))
-  const address = server.address()
-  const port = address && typeof address !== 'string' ? address.port : 0
-  const calls: string[][] = []
-  let started = false
-  let project = ''
-  let changedOwner = false
-  let changedConfig = false
-  let keepListener = false
-  let portOutput = `127.0.0.1:${port}`
-  let changingState = false
-  let badHash = false
-  let badEnvironment = false
-  let inspections = 0
-  const ids = {db: 'a'.repeat(64), wordpress: 'b'.repeat(64)}
-  const execute = async (args: string[]) => {
-    calls.push([...args])
-    if (args[0] === 'inspect') return JSON.stringify((['db', 'wordpress'] as const).map(service => ({
-      Id: ids[service], State: {Status: changingState ? String(inspections++) : 'running'}, Config: {Labels: {
-        'com.docker.compose.project': changedOwner ? 'wordpress' : project,
-        'com.docker.compose.project.config_files': [resolve('wordpress/docker-compose.yml'), resolve(`wordpress/docker-compose.test-${hostHttp ? 'random-http' : 'no-host'}.yml`)].join(','),
-        'com.docker.compose.project.working_dir': resolve('wordpress'),
-        'com.docker.compose.project.environment_file': resolve(badEnvironment ? 'wrong.env' : 'wordpress/.env'),
-        'com.docker.compose.config-hash': badHash ? 'f'.repeat(64) : ids[service],
-        'com.docker.compose.service': service,
-      }},
-    })))
-    if (args[0] === 'ps') return started ? Object.values(ids).map(id => args.includes('--no-trunc') ? id : id.slice(0, 12)).join('\n') : ''
-    project = args[2]
-    if (args.includes('--hash')) return `db ${ids.db}\nwordpress ${ids.wordpress}`
-    if (args.includes('config')) return JSON.stringify({name: project, services: {db: {}, wordpress: {
-      ports: hostHttp ? [{target: 80, host_ip: '127.0.0.1'}] : [], image: changedConfig ? 'changed' : 'original',
-    }}, volumes: {db_data: {name: `${project}_db_data`}, wp_data: {name: `${project}_wp_data`}}})
-    if (args.includes('up')) { started = true; return '' }
-    if (args.includes('port')) return portOutput
-    if (args.includes('down')) {
-      expect(readdirSync(leaseRoot).filter(name => name.endsWith('.json'))).toHaveLength(hostHttp ? 1 : 0)
-      started = false
-      if (server.listening && !keepListener) await new Promise<void>(done => server.close(() => done()))
-      return ''
-    }
-    if (args.includes('run')) {
-      if (args[args.indexOf('wpcli') + 1] !== 'wp') throw new Error('WordPress CLI image requires the wp command')
-      return 'wp-result'
-    }
-    throw new Error(`Unexpected Docker command: ${args.join(' ')}`)
-  }
-  const options: WordPressRuntimeOptions = {dataMode: 'isolated', runId: 'lifecycle', hostHttp, leaseRoot,
-    commit: 'a'.repeat(40), execute, environment: {}}
-  const start = async (extra: Partial<WordPressRuntimeOptions> = {}) => {
-    expect(existsSync('tests/helpers/wordpress-runtime.ts')).toBe(true)
-    const {startIsolatedWordPress} = await import('../helpers/wordpress-runtime')
-    Object.assign(options, extra)
-    return startIsolatedWordPress(options)
-  }
-  return {start, options, calls, leaseRoot, port, changeOwner: () => { changedOwner = true }, changeConfig: () => { changedConfig = true },
-    keepListener: () => { keepListener = true }, setPort: (value: string) => { portOutput = value }, changeState: () => { changingState = true },
-    badHash: () => { badHash = true }, badEnvironment: () => { badEnvironment = true }}
+  const runtimeSimulation = await createWordPressRuntimeSimulation(hostHttp)
+  simulations.push(runtimeSimulation)
+  let options = runtimeSimulation.options
+  const start = async (extra: Partial<WordPressRuntimeOptions> = {}) =>
+    // Assignment preserves the exact input reference for post-call mutation tests.
+    startIsolatedWordPress(options = {...options, ...extra, execute: runtimeSimulation.execute})
+  return {...runtimeSimulation, start, get options() { return options }}
 }
 
 describe('owned WordPress lifecycle', () => {
+  it('cannot replace the simulation capability or inject an executor into its factory', async () => {
+    const simulation = await createWordPressRuntimeSimulation(false)
+    try {
+      expect(Object.isFrozen(simulation)).toBe(true)
+      expect(() => Object.assign(simulation, {execute: async () => 'untrusted'})).toThrow()
+      await expect(createWordPressRuntimeSimulation({execute: async () => 'untrusted'} as unknown as boolean)).rejects.toThrow(/boolean/u)
+    } finally { await simulation.dispose() }
+  })
   for (const [label, mutation] of [
     ['shared-mutating mode', {dataMode: 'shared-mutating'}],
     ['isolated mode', {dataMode: 'isolated'}],
