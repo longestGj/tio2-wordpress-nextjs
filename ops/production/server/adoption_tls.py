@@ -91,7 +91,10 @@ server {{
 def _managed_public_nginx(commit: str, upstream: Path = Path("/etc/tio2-production/web-upstream.conf")) -> bytes:
     value = _public_nginx(commit).decode()
     direct = f"proxy_pass http://127.0.0.1:3000;"
-    return value.replace(direct, f"include {upstream};").encode()
+    value = value.replace(direct, f"include {upstream.as_posix()};")
+    value = value.replace(f"        add_header X-Tio2-Release {commit} always;\n", "")
+    value = value.replace(f" add_header X-Tio2-Release {commit} always;", "")
+    return value.encode()
 
 
 class TlsAdoption:

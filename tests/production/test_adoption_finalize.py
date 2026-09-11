@@ -8,11 +8,19 @@ import unittest
 SERVER = Path(__file__).resolve().parents[2] / "ops" / "production" / "server"
 sys.path.insert(0, str(SERVER))
 
-from adoption_finalize import build_baseline_record  # noqa: E402
+from adoption_finalize import build_baseline_record, refresh_nginx_record  # noqa: E402
 from tests.production.test_adoption_contract import fixture as plan_fixture  # noqa: E402
 
 
 class AdoptionFinalizeTests(unittest.TestCase):
+    def test_refreshes_only_the_enrolled_nginx_hash_for_a_managed_config_migration(self) -> None:
+        original = {"configuration": {"nginx": {"path": "/etc/nginx/site.conf", "sha256": "a" * 64}}, "active": {"commit": "b" * 40}}
+        refreshed = refresh_nginx_record(original, "c" * 64)
+
+        self.assertEqual(original["configuration"]["nginx"]["sha256"], "a" * 64)
+        self.assertEqual(refreshed["configuration"]["nginx"]["sha256"], "c" * 64)
+        self.assertEqual(refreshed["active"], original["active"])
+
     def test_builds_v3_baseline_for_the_exact_adopted_candidate_and_runtime(self) -> None:
         plan = plan_fixture()
         details = {

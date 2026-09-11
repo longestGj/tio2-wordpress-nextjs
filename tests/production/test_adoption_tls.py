@@ -8,7 +8,7 @@ SERVER = Path(__file__).resolve().parents[2] / "ops" / "production" / "server"
 sys.path.insert(0, str(SERVER))
 
 from adoption_contract import AdoptionError  # noqa: E402
-from adoption_tls import _certificate_sha256, _public_nginx  # noqa: E402
+from adoption_tls import _certificate_sha256, _managed_public_nginx, _public_nginx  # noqa: E402
 
 
 class AdoptionTlsTests(unittest.TestCase):
@@ -41,6 +41,11 @@ class AdoptionTlsTests(unittest.TestCase):
             link.symlink_to(outside)
             with self.assertRaisesRegex(AdoptionError, "certificate target"):
                 _certificate_sha256(link, archive)
+
+    def test_managed_public_config_gets_release_header_only_from_the_switchable_upstream(self) -> None:
+        value = _managed_public_nginx("a" * 40).decode()
+        self.assertEqual(value.count("include /etc/tio2-production/web-upstream.conf;"), 2)
+        self.assertNotIn("add_header X-Tio2-Release", value)
 
 
 if __name__ == "__main__": unittest.main()

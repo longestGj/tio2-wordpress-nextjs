@@ -1,6 +1,7 @@
 """Enroll the adopted live site into the fixed daily release protocol."""
 from __future__ import annotations
 
+from copy import deepcopy
 from datetime import datetime, timezone
 import json
 import os
@@ -13,13 +14,19 @@ from adoption_internal import NETWORK, NGINX_CONFIG, WEB_NAME
 from adoption_tls import CERTIFICATE, PRIVATE_KEY, _certbot_target, _managed_public_nginx
 from adoption_wordpress import DB_NAME, WPCLI_IMAGE, WP_NAME
 from deployment_core import DockerWebAdapter, _upstream
-from release_baseline import enroll_baseline, validate_baseline
+from release_baseline import _read_record, enroll_baseline, validate_baseline
 from release_contract import ReleaseError, sha256_file, validate_manifest
 from release_state import ReleaseLock, atomic_write_json, read_state
 
 
 def _entry(path: Path) -> dict[str, str]:
     return {"path": str(path), "sha256": sha256_file(path)}
+
+
+def refresh_nginx_record(record: dict[str, object], nginx_sha256: str) -> dict[str, object]:
+    refreshed = deepcopy(record)
+    refreshed["configuration"]["nginx"]["sha256"] = nginx_sha256
+    return refreshed
 
 
 def build_baseline_record(
@@ -162,15 +169,51 @@ class AdoptionFinalizer:
     def _enroll_state(self, plan: dict[str, object], details: dict[str, object], manifest: dict[str, object], baseline: dict[str, object]) -> dict[str, object]:
         state_root = self.paths.production / "state"
         state = read_state(state_root)
+        desired = self._state_details(plan, details, manifest, baseline)
         if state["state"] == "IDLE":
             atomic_write_json(state_root / "state.json", {
                 "state": "INTERNAL_VERIFIED",
                 "updatedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-                "details": self._state_details(plan, details, manifest, baseline),
+                "details": desired,
             })
         elif state["state"] not in {"INTERNAL_VERIFIED", "PUBLIC_VERIFIED"} or state.get("details", {}).get("commit") != manifest["commit"]:
             raise AdoptionError("daily release state cannot be enrolled")
+        else:
+            refreshed = {**state.get("details", {}), **desired}
+            if refreshed != state.get("details"):
+                atomic_write_json(state_root / "state.json", {
+                    "state": state["state"],
+                    "updatedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                    "details": refreshed,
+                })
         return read_state(state_root)
+
+    def _migrate_managed_nginx(self, record: dict[str, object], plan: dict[str, object], details: dict[str, object], manifest: dict[str, object]) -> dict[str, object]:
+        upstream_path = self.paths.configuration / "web-upstream.conf"
+        expected = _managed_public_nginx(manifest["commit"], upstream_path)
+        if NGINX_CONFIG.read_bytes() == expected:
+            return validate_baseline(self.paths)
+        previous = NGINX_CONFIG.read_bytes()
+        enrolled = False
+        try:
+            self._replace(NGINX_CONFIG, expected, 0o644)
+            subprocess.run(["/usr/sbin/nginx", "-t"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(["/usr/bin/systemctl", "reload", "nginx"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            refreshed = refresh_nginx_record(record, sha256_file(NGINX_CONFIG))
+            DockerWebAdapter(self.paths).wait_proxy(refreshed)
+            draft = self.paths.configuration / "baseline.enrollment.json"
+            atomic_write_json(draft, refreshed)
+            os.chmod(draft, 0o600)
+            baseline = enroll_baseline(self.paths)
+            enrolled = True
+            self._enroll_state(plan, details, manifest, baseline)
+            return baseline
+        except Exception:
+            if not enrolled:
+                self._replace(NGINX_CONFIG, previous, 0o644)
+                subprocess.run(["/usr/sbin/nginx", "-t"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.run(["/usr/bin/systemctl", "reload", "nginx"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            raise
 
     def finalize(self, plan: dict[str, object], details: dict[str, object]) -> dict[str, object]:
         validate_plan(plan)
@@ -181,9 +224,11 @@ class AdoptionFinalizer:
             if manifest["commit"] != plan["candidate"]["commit"] or manifest["archiveSha256"] != plan["candidate"]["archiveSha256"]:
                 raise AdoptionError("daily release enrollment package differs")
             if baseline_path.exists():
+                record = _read_record(baseline_path, None)
                 baseline = validate_baseline(self.paths)
                 if baseline["active"]["commit"] != plan["candidate"]["commit"]:
                     raise AdoptionError("daily release enrollment identity differs")
+                baseline = self._migrate_managed_nginx(record, plan, details, manifest)
                 state = self._enroll_state(plan, details, manifest, baseline)
                 return {"baselineSha256": sha256_file(baseline_path), "state": state["state"]}
 
