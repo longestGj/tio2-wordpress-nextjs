@@ -36,7 +36,7 @@ D11行表示待明确的承接关系，不表示已经新增第四个运行站�
 | feature runtime | 页面或共享功能开发中的定向验证 | 绑定任务分支、独立端口/Build；不能代表本地集成结果 |
 | local prerelease | 本地`main`集成后的权威全站本地测试 | Docker项目`d16-tio2-my-prerelease`；Next `127.0.0.1:3100`，独立WordPress `127.0.0.1:8180`，MariaDB不暴露主机端口；详见[操作说明](prerelease-environment.md) |
 | remote Preview | 获明确授权后的远程预览 | 单独记录部署、CMS和配置身份 |
-| Production | 获明确发布授权后的正式环境 | 单独记录发布、回退、DNS及索引状态 |
+| Production | `https://tio2malaysia.com`；CMS `https://cms.tio2malaysia.com`；Oracle VPS 固定发布程序 | 2026-09-11首次接管完成；日常发布与回退见[发布工具](production-deployment.md)，当前版本与验收见[生产记录](verification/2026-09-11-tio2-production-adoption.md) |
 
 本地预发布的`HEALTHY`不表示Gate 9、Gate 10、远程部署或发布已获批准。
 

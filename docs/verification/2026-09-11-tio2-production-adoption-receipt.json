@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "tio2-production-adoption-verification-v1",
+  "state": "PRODUCTION_VERIFIED",
+  "siteId": "tio2-my",
+  "productionCommit": "27f0a0da59df1e54cd01eab7d77eb7024b338d42",
+  "toolingCommit": "e363e1c3d75622c790ecdf4a599231ed83a9d9f6",
+  "buildId": "wQLBw5iwDoUK0QoWOnb10",
+  "cmsIdentitySha256": "611c094aee1ffe901afd660cbea88e2bea9021c41f010dee9724a28ae7fdfeaf",
+  "activeBaselineSha256": "1189e46490fb155298c00323391d717091d5de490c9ae9d396ff7880ae5f783e",
+  "backupId": "20260911T083550Z-27f0a0da59df1e54cd01eab7d77eb7024b338d42-f7df48b15858476a954e9f1c5767a0ea",
+  "counts": {
+    "registeredObjects": 58,
+    "browserCases": 174,
+    "browserPassed": 174,
+    "providerAccepted": 3,
+    "inboxReceived": 3,
+    "releaseHeaders": 1
+  },
+  "forms": {
+    "rfq": "RECEIVED",
+    "sample": "RECEIVED",
+    "documents": "RECEIVED"
+  },
+  "publicChecks": {
+    "apex": 200,
+    "about": 200,
+    "markets": 200,
+    "www": 301,
+    "cms": 200
+  },
+  "evidenceSha256": {
+    "releaseManifest": "2aa8b1bde2228f3e1f1f4fa1e5cdb5bfda985f9ad865e802af112e7547f6958e",
+    "releaseProof": "537aa41f0f6ddcd73807a1eeb2a20ccc767268ccb8598022667b85acf035298f",
+    "surface": "9c280af2b0c0b310e507a1d36a1db739383ad6f56925f49d0f11ce08d178ea43",
+    "liveForms": "1230b5ca470aff499b4f2d3c8be3d8ed2d3935d420e7f1784ff5a270f8e28018",
+    "inbox": "277f910bdafe4bd8a94b7fd7868b7130f84ea62425dd87bf315e95659492e2bb",
+    "publicVerification": "782333f9970a50c32228db23c39bbc45f2281f8a448b55f6cf088faa1fd19b4d",
+    "privateFinalReceipt": "b806cbfd25fffb18a8a638d7ceb186fe6cc3e2037ddd4133f37480f417a8095c"
+  },
+  "recordedAtUtc": "2026-09-11T10:26:02Z"
+}

@@ -1,6 +1,6 @@
 # TiO₂ Malaysia 发布工具操作说明
 
-> 当前固定发布协议已经完成本地实现与演练，但生产服务器尚未登记。已批准的首次接管目标见[生产环境首次接管设计](superpowers/specs/2026-09-11-tio2-production-adoption-design.md)；其中的一次性 Plan/Apply、现有 CMS 接入和完整生产三道门尚未实现或执行，不能直接运行日常 Release 代替首次接管。
+> 2026-09-11 已完成首次生产接管和三道门验收，正式回执见[生产接管与发布记录](verification/2026-09-11-tio2-production-adoption.md)。生产业务版本固定为 `main@27f0a0da59df1e54cd01eab7d77eb7024b338d42`，服务器状态为 `PUBLIC_VERIFIED`，最终验收状态为 `PRODUCTION_VERIFIED`。以后使用本文件的日常入口；首次 Plan/Apply 只在接管新服务器或重新登记拓扑时使用，不能作为普通发布重复执行。
 
 网站固定为 `tio2-my`，公网站点 `https://tio2malaysia.com`，CMS `https://cms.tio2malaysia.com`。本工具的源码能力、本地演练和实际生产采用分别记录；本文件不是生产操作授权。发布进入条件仍见[开发交付流程](development-workflow.md#7-发布d16执行授权按网站和环境限定)，当前证据见[四项交付验证](verification/2026-09-11-production-tooling.md)。
 
@@ -11,6 +11,14 @@
 首版仅支持 root 登记的 `tio2-production-baseline-v3` / `tio2-web-bluegreen-v1` 拓扑：两个 Web 槽位、固定 Nginx 代理、明确的 frontend bridge（WordPress 可达、数据库不在其中）、CMS 构建回环端口、不可变镜像/容器/卷、插件只读映射，以及精确配置哈希。数据库不能发布端口，数据库网络只有已登记 DB/WP；必须无未登记写入者、宿主机作业或并行管理员变更。实际检查仍会拒绝身份或写入边界变化。
 
 普通发布只更新前端。WordPress 容器、数据库、卷、插件来源和迁移合同必须保持相容；不同 WordPress 文件或 migration manifest 会被拒绝。普通 Release 和 Rollback 不导入 SQL、不重复 seed、不更新 CMS 数据。需要数据变化时另行批准迁移与回退方案。
+
+## 三道发布门
+
+1. **候选门**：从 clean `main` 打包，绑定同一提交的健康预发布回执、Build ID、CMS 指纹和发布表面；任一身份不一致即停止。
+2. **部署门**：只通过 `scripts/production.ps1` 与 deploy 用户的固定 sudo 程序执行 `status / prepare / backup / deploy / verify / rollback`。先完成加密备份与隔离恢复，再切换前端；普通发布不改数据库和 WordPress 数据。
+3. **生产验收门**：服务器达到 `PUBLIC_VERIFIED` 后，再完成公网对象 E2E、适用的真实表单服务商接受与人工收件确认，最后由 `Seal-ProductionReceipt.ps1` 产生 `PRODUCTION_VERIFIED`。服务器状态本身不代替浏览器和收件验收。
+
+任一门失败都保留同一个 RunRoot 和原请求重试或回滚，不删除状态、改写证据、临时绕过主机指纹或改用 root 手工发布。
 
 ## 首次采用与特权程序升级
 
@@ -68,6 +76,8 @@ npm run production -- -Operation Verify -ConfigPath .production/connection.local
 npm run production -- -Operation Rollback -ConfigPath .production/connection.local.json -RunRoot .production/runs/<unique-id>
 ```
 
+当前机器的忽略配置为 `.production/production-connection.json`。它包含主机指纹、部署私钥路径、活动基线、恢复镜像和 age 身份路径；不得提交。发布 Agent 的仓库入口见[AGENT.md](../.agent/d16-release-agent/AGENT.md)。
+
 `Status` 展示能力标记和实际协议状态；`implemented` 不等于 readiness 或生产已验收。`Release` 上传三份包，准备并核对初始 enrollment，持久化第四份 `backup-request.json` 的 UUID 后才发送。服务端备份恢复写入后返回 `writesResumed=true / autoRestoreEligible=false`，因此不具备自动无损 SQL 回退资格。
 
 随后控制器下载加密文件到本地，比较 ciphertext SHA，运行真实 age 解密、完整 manifest/component 校验、全部归档预检和隔离恢复。恢复会逐表对比 SQL 行数、核对完整 WordPress 字节和文章计数，并以 UID33 验证插件加载。只有成功并完成清理后才写入 `decryption.json`、`restore.json`，再生成第五份 `deployment-evidence.json`。此处使用[恢复权限合同](../ops/production/RECOVERY.md)的精确 `tio2-ro-plugin-root-v1`：只有固定插件树允许目录0755/文件0644，配置和其他源码保持私有。
@@ -90,6 +100,13 @@ npm run production -- -Operation Rollback -ConfigPath .production/connection.loc
 
 已部署状态丢失响应时，由同一候选调用固定 deploy/verify 恢复和检查；不重新执行内容导入。服务端切换中断依其 root journal 恢复。恢复动作失败时保留错误和状态，不能把存在 receipt 文件视为完成。
 
+真实表单完成后，用以下两个脚本封存人工收件与最终结果；它们不会保存邮箱地址、邮件正文或 access key：
+
+```powershell
+pwsh -NoProfile -File scripts/production/Confirm-ProductionInbox.ps1 -RunRoot .production/runs/<unique-id>
+pwsh -NoProfile -File scripts/production/Seal-ProductionReceipt.ps1 -RunRoot .production/runs/<unique-id>
+```
+
 ## 本地验证与实际能力
 
 ```powershell
@@ -100,6 +117,6 @@ npx playwright test --config=tests/fixtures/production/playwright.fixture.config
 
 `run_release_rehearsal.py` 是本次开发环境的定向证据重放脚本，不能当作任意机器上的通用生产验收器。它依赖本机 `D:/16Wordpress_nextjs/.env.prerelease.local` 与已有独立预发布容器（只读克隆）、父目录Playwright依赖/浏览器、Task3已保留的三个精确包文件 `.tmp/task3/reuse/tio2-update-test-84e4137a60264b20b140b7252ac69ce8/`、Task3安全Next镜像和已安装工具镜像。缺少任一前置条件会停止，不能用fixture attestation补造clean-main证据。SSH工具镜像可用 `tests/production-runtime/release-runtime.Dockerfile` 从已接受的Task3工具镜像构建；所有fixture/恢复资源按唯一标签归属清理。旧包来源和image/build身份见验证记录；其他机器需要重新形成相应受控候选和CMS证据。
 
-浏览器命令默认验证固定 fixture。真实候选验证必须设置 `TIO2_PRODUCTION_BASE_URL` 为自己的候选地址，同时指定独立 `TIO2_PRODUCTION_ARTIFACTS` 和 `TIO2_PRODUCTION_REPORT`，通过公开代理验收时还应设置 `TIO2_EXPECT_RELEASE` 为准确提交，逐页核对响应头。58对象保持冻结，其中57个正常对象和404；每个对象在1440/768/390核对源代码规定的 canonical redirect、最终状态、可见内容、溢出与适用交互并保留截图。`/about/` 的308到 `/about` 是既有批准代码行为，不修改冻结 surface 来消除它。没有发送真实表单；服务商接收和实际收件仍独立记录。
+浏览器命令默认验证固定 fixture，不发送真实表单。真实候选验证必须设置 `TIO2_PRODUCTION_BASE_URL` 为自己的候选地址，同时指定独立 `TIO2_PRODUCTION_ARTIFACTS` 和 `TIO2_PRODUCTION_REPORT`，通过公开代理验收时还应设置 `TIO2_EXPECT_RELEASE` 为准确提交，逐页核对响应头。58对象保持冻结，其中57个正常对象和404；每个对象在1440/768/390核对源代码规定的 canonical redirect、最终状态、可见内容、溢出与适用交互并保留截图。`/about/` 的308到 `/about` 是既有批准代码行为，不修改冻结 surface 来消除它。真实表单使用独立live入口，服务商接受和实际收件分别记录。
 
-本地独立 client/restore 容器证明转移、解密和恢复机制，不能代表不同物理主机的灾难隔离。生产采用仍需真实异地存储、实际主机与平台、clean-main来源、现网拓扑、独立验收和对应发布授权。当前安全镜像使用编译缓存 tmpfs，避免 BuildKit secret 留在 Turbopack 缓存；当前镜像扫描证据见验证记录。此前共享 BuildKit 缓存可能仍含旧层，本任务没有清空共享缓存或宣称完全擦除。
+本地独立 client/restore 容器证明转移、解密和恢复机制，不能代表不同物理主机的灾难隔离。首次采用已核对实际主机、clean-main来源、现网拓扑和独立验收；后续每次发布仍须形成自己的RunRoot证据和授权。当前安全镜像使用编译缓存 tmpfs，避免 BuildKit secret 留在 Turbopack 缓存；当前镜像扫描证据见验证记录。此前共享 BuildKit 缓存可能仍含旧层，本任务没有清空共享缓存或宣称完全擦除。

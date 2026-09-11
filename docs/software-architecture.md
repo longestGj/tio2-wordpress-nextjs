@@ -1,8 +1,8 @@
 # D16 当前软件架构
 
-TiO₂ Malaysia 的本地发布控制器、root 登记适用条件与单一操作入口见[生产发布工具](production-deployment.md)；实际分层验证和未验收环境见[发布工具验证记录](verification/2026-09-11-production-tooling.md)。工具可用性不代表生产已采用。
+TiO₂ Malaysia 的生产拓扑、发布控制器、root 登记边界与单一操作入口见[生产发布工具](production-deployment.md)；2026-09-11实际接管与分层验收见[生产发布记录](verification/2026-09-11-tio2-production-adoption.md)。
 
-核对日期：2026-09-08。初始代码基线：`de89d8c9dd48f3027d1649fce609d153ac7cc6f1`；本次按合并commit `1e2b954582ab979f9502d4f98aa99e8d251255c7`更新APP-000、共享外壳及RFQ链路，应用代码与main `41be5cf`一致。本文记录现有结构，不实施架构变更或批准业务变化。
+核对日期：2026-09-11。当前生产应用基线为 `main@27f0a0da59df1e54cd01eab7d77eb7024b338d42`；首次接管修复已在 `develop@e363e1c3d75622c790ecdf4a599231ed83a9d9f6` 保存，等待后续正常晋级和发布。本文记录现有结构，不据此批准业务变化。
 
 核对依据为本地代码、配置与历史设计，未进行运行验收或远程平台核查。本文的“已实现”指仓库中存在对应实现，不表示每条路径已经测试通过或已经部署。网站身份与限制见[网站登记](site-registry.md)和[根规则](../AGENTS.md)；开发方法、Agent/Superpowers及CI/CD执行属于[开发交付流程](development-workflow.md)，不与软件运行架构混为一谈。
 
@@ -47,7 +47,7 @@ flowchart TB
 | CMS模型 | `wordpress/plugins/tio2-site-model/`；PHP | 自定义内容类型、字段、scope、发布合同、GraphQL字段、预览与更新通知 |
 | 数据与媒体 | WordPress + MariaDB；uploads、`public/` | 内容记录和媒体；按站点/环境归属，不从策划本机目录读取生产数据 |
 | 外部表单接收 | Web3Forms；`lib/forms/web3forms-browser.ts` | Malaysia三张活跃表单由浏览器共享传输直接调用；RFQ/Sample服务端接口作为停用兼容资产保留；服务商返回与实际收件分别验证 |
-| 环境承载 | 开发Compose、预发布Compose及Node.js进程 | 本地CMS、构建及Web运行；详见第7节 |
+| 环境承载 | 开发Compose、预发布Compose、本地Node.js进程及`tio2-my`生产Oracle VPS | 本地环境见第7节；生产拓扑见第8节 |
 
 这张表说明当前职责，不声称已经强制实现Clean Architecture、DDD或统一分层框架。确切依赖版本以[package-lock.json](../package-lock.json)及当次安装为准；依赖声明见[package.json](../package.json)。预发布容器使用的运行时由[Compose](../ops/prerelease/docker-compose.yml)规定，不用历史设计中的版本号推断当前版本。
 
@@ -153,16 +153,18 @@ Compose项目为`d16-tio2-my-prerelease`。配置来自忽略的`.env.prerelease
 
 它不与开发栈共用数据库/上传卷，不读取D23/D11本机内容。操作、副作用、状态和命令只在[预发布使用说明](prerelease-environment.md)维护。当前文档不证明服务正在运行；预发布测试入口的代表性smoke也不等于全站验收。
 
-## 8. 生产部署：设计意图与待核实事实
+## 8. 生产部署：当前拓扑与能力边界
 
-早期设计提出共享代码分别部署多个Vercel Project，并连接生产WordPress主机。当前仓库[vercel.json](../vercel.json)只声明Next.js框架；本轮没有访问部署平台、DNS或生产CMS。
+`tio2-my`于2026-09-11接管到Oracle VPS的ARM64 Ubuntu环境。公网Nginx处理80/443、TLS、apex/`www`路由和唯一发布响应头；活动Next.js容器通过固定upstream include连接，发布控制器保留两个可切换前端槽位。WordPress容器继续只绑定宿主回环`127.0.0.1:8080`，MariaDB仅位于容器私有网络，不暴露公网端口。数据库卷、WordPress文件卷和只读站点插件来源按活动基线登记。
+
+日常发布由本地 `scripts/production.ps1` 通过deploy用户的固定sudo程序执行。发布前创建加密备份，下载后在本地独立Docker环境完成真实解密与恢复校验；普通发布只更新Next.js前端，不导入SQL、不重复seed、不改变WordPress数据。root只用于首次接管或另行批准的特权程序升级。
 
 | 项目 | 当前结论 |
 |---|---|
 | 多站独立构建/运行身份 | 仓库已提供站点配置及本地实现 |
 | A/B独立Vercel项目 | 早期设计意图，不能由本文认定已配置或上线 |
-| Malaysia生产项目、主机与网络拓扑 | 本轮未核实，不凭域名登记推断 |
-| 生产数据库、上传、备份、缓存和密钥 | 发布任务需核对实际环境与恢复方法 |
+| Malaysia生产项目、主机与网络拓扑 | 已登记Oracle VPS、Nginx、双前端槽位、现有WordPress/MariaDB与固定网络；准确身份见当前活动基线 |
+| 生产数据库、上传、备份、缓存和密钥 | 卷与写入者已登记；发布备份采用age加密并在本地验证恢复；密钥留在忽略配置和服务器保护路径 |
 | 自动CI、CD、监控或自动回滚 | 不因架构图或脚本存在就视为已配置，按实际工具/平台证据记录 |
 
 未来网站是否复用Next.js应用、CMS或部署项目，需要按其需求决定；本文描述现状，不强制所有未来网站沿用同一拓扑。
@@ -190,7 +192,7 @@ Compose项目为`d16-tio2-my-prerelease`。配置来自忽略的`.env.prerelease
 - 涉及模块边界、数据来源、表单链路、站点解析、缓存/预览或环境拓扑变化时，先讨论具体差异并依授权实施，随后更新本文及相关入口。
 - 新设计应标明目标状态；完成实现后以源码和运行证据更新现状，不把“拟采用”直接写成“已部署”。
 - 软件架构现状在本文集中维护；站点身份在site-registry，环境具体操作在prerelease-environment，开发流程在development-workflow。各入口引用而不复制整份架构。
-- 本次只整理文档与引用，未修改应用、CMS、测试和部署配置；运行状态、覆盖情况和生产绑定仍需对应任务的独立证据。
+- 当前生产事实以2026-09-11发布记录和后续每次RunRoot回执为准；本文描述拓扑，不替代当次Status、E2E、收件或回滚证据。
 
 ### Sample保留站内接收与持久化去重（非活动兼容行为）
 
