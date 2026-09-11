@@ -44,15 +44,17 @@ async function maximumColumnsInOneRow(locator: Locator) {
 
 async function assertTargets(locator: Locator) {
   const undersized = await locator.evaluateAll((nodes) => nodes
-    .filter((node) => {
-      const style = getComputedStyle(node)
-      return style.display !== 'none' && style.visibility !== 'hidden'
-    })
     .map((node) => {
+      const style = getComputedStyle(node)
       const rect = node.getBoundingClientRect()
-      return {label: node.textContent?.trim().slice(0, 80), width: rect.width, height: rect.height}
+      return {
+        hidden: style.display === 'none' || style.visibility === 'hidden' || rect.width === 0 || rect.height === 0,
+        label: node.textContent?.trim().slice(0, 80),
+        width: rect.width,
+        height: rect.height,
+      }
     })
-    .filter(({width, height}) => width < 44 || height < 44))
+    .filter(({hidden, width, height}) => !hidden && (width < 44 || height < 44)))
   expect(undersized).toEqual([])
 }
 

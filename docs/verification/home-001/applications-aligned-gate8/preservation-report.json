@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-11T00:41:48.372Z",
+  "pageId": "HOME-001",
+  "route": "/",
+  "siteScope": "tio2-my",
+  "baselineCommit": "9571dd2ab7e7f2c7c9cb373e008ca81b3c534822",
+  "implementationCommit": "cc55245e83bff0e7c4a63638f65d678dbc3989c3",
+  "summary": {
+    "authorizedPresentationFiles": 2,
+    "frozenFiles": 12,
+    "frozenFilesPreserved": 12,
+    "frozenMismatches": 0,
+    "result": "PASS"
+  },
+  "dispatchInputs": [
+    {
+      "path": "D:/23MySec/pages/home/06_handoff/HOME-001_APPLICATIONS_ALIGNED_GATE6_HANDOFF_PACKAGE_V1.0.md",
+      "expected": "9024252791e4bb1dbc39cc2f1fc85b795559b263c26f0c302a1b303a0ccbb700",
+      "actual": "9024252791e4bb1dbc39cc2f1fc85b795559b263c26f0c302a1b303a0ccbb700",
+      "matches": true
+    },
+    {
+      "path": "D:/23MySec/pages/home/06_handoff/HOME-001_APPLICATIONS_ALIGNED_GATE6_ACCEPTANCE_AND_BLOCKERS_V1.0.md",
+      "expected": "ca992794c8d368c87ad473f6bd85b33d735f64b52a1df1c3b91418bbdc5220de",
+      "actual": "ca992794c8d368c87ad473f6bd85b33d735f64b52a1df1c3b91418bbdc5220de",
+      "matches": true
+    },
+    {
+      "path": "D:/23MySec/pages/home/05_review/HOME-001_APPLICATIONS_ALIGNED_GATE6_INDEPENDENT_REVIEW_V1.0.md",
+      "expected": "e3f1e7848383e7142fee24fb4355e55ba5d52643fcf4c05ce6429e8b313c6e79",
+      "actual": "e3f1e7848383e7142fee24fb4355e55ba5d52643fcf4c05ce6429e8b313c6e79",
+      "matches": true
+    }
+  ],
+  "files": [
+    {
+      "path": "components/sites/tio2-my/homepage/malaysia-homepage.tsx",
+      "changeAuthorized": true,
+      "before": {
+        "bytes": 10017,
+        "sha256": "912ff8c08b76b108252023b5f84ca3b65606ced46da275451a5a32acac3dfb2f"
+      },
+      "after": {
+        "bytes": 9634,
+        "sha256": "6acc6edab876588491061b9003c12d7ca9e454e9807f6d4a87fd88a9a69e4c66"
+      },
+      "result": "AUTHORIZED_PRESENTATION_CHANGE"
+    },
+    {
+      "path": "components/sites/tio2-my/homepage/malaysia-homepage.module.css",
+      "changeAuthorized": true,
+      "before": {
+        "bytes": 13638,
+        "sha256": "24b924edb2f5c41c18a7b33de3075c8986fda3c261e4147126329fe6457352da"
+      },
+      "after": {
+        "bytes": 15063,
+        "sha256": "0668540d1747ae8b6b2c59ed908b63eae7687eec79f1d3caad31f82a4af33d08"
+      },
+      "result": "AUTHORIZED_PRESENTATION_CHANGE"
+    },
+    {
+      "path": "components/sites/tio2-my/homepage/responsive-product-groups.tsx",
+      "changeAuthorized": false,
+      "before": {
+        "bytes": 1238,
+        "sha256": "ba54c9ee0ef4d6cb18e1ec201e9c5deda2ac3c0aa2ec40349c0b8946492dde1b"
+      },
+      "after": {
+        "bytes": 1238,
+        "sha256": "ba54c9ee0ef4d6cb18e1ec201e9c5deda2ac3c0aa2ec40349c0b8946492dde1b"
+      },
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json",
+      "changeAuthorized": false,
+      "before": {
+        "bytes": 15619,
+        "sha256": "c89cc1e7029b96c67c7183b4081e1526905a4f1875da9a9f9f6b290e2cd8554c"
+      },
+      "after": {
+        "bytes": 15619,
+        "sha256": "c89cc1e7029b96c67c7183b4081e1526905a4f1875da9a9f9f6b290e2cd8554c"
+      },
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "lib/seo/homepage-metadata.ts",
+      "changeAuthorized": false,
+      "before": {
+        "bytes": 2207,
+        "sha256": "214953d931381323760e5c49e9493d9de3510f583d9d98578b9737ba6ced7d8a"
+      },
+      "after": {
+        "bytes": 2207,
+        "sha256": "214953d931381323760e5c49e9493d9de3510f583d9d98578b9737ba6ced7d8a"
+      },
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "lib/seo/homepage-jsonld.ts",
+      "changeAuthorized": false,
+      "before": {
+        "bytes": 4190,
+        "sha256": "6a744dc9f3c3f9c6789ee3ca6caca12083e4234ff58f09e25b4d39cb893f0e95"
+      },
+      "after": {
+        "bytes": 4190,
+        "sha256": "6a744dc9f3c3f9c6789ee3ca6caca12083e4234ff58f09e25b4d39cb893f0e95"
+      },
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "components/sites/tio2-my/malaysia-global-chrome.tsx",
+      "changeAuthorized": false,
+      "before": {
+        "bytes": 1349,
+        "sha256": "910f720791e8ab5fd836932d6ddc3c70c126fb502ccf17c8635b736cca683453"
+      },
+      "after": {
+        "bytes": 1349,
+        "sha256": "910f720791e8ab5fd836932d6ddc3c70c126fb502ccf17c8635b736cca683453"
+      },
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "components/sites/tio2-my/malaysia-global-chrome-client.tsx",
+      "changeAuthorized": false,
+      "before": {
+        "bytes": 10830,
+        "sha256": "aeb738d4058dacd0ed09ef3163aca965fbbf247196008db16a395cc9bcbf26c5"
+      },
+      "after": {
+        "bytes": 10830,
+        "sha256": "aeb738d4058dacd0ed09ef3163aca965fbbf247196008db16a395cc9bcbf26c5"
+      },
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "components/sites/tio2-my/malaysia-global-chrome.module.css",
+      "changeAuthorized": false,
+      "before": {
+        "bytes": 9896,
+        "sha256": "909c8d03048cb41944a95d2a0e821b068645875cfd1811d9e960b6f6e7d3b6cb"
+      },
+      "after": {
+        "bytes": 9896,
+        "sha256": "909c8d03048cb41944a95d2a0e821b068645875cfd1811d9e960b6f6e7d3b6cb"
+      },
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json",
+      "changeAuthorized": false,
+      "before": {
+        "bytes": 2482,
+        "sha256": "69cf01751ee949de75837db43826a72aaeef72bf0ed90d6c3e742d28c1077fc2"
+      },
+      "after": {
+        "bytes": 2482,
+        "sha256": "69cf01751ee949de75837db43826a72aaeef72bf0ed90d6c3e742d28c1077fc2"
+      },
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg",
+      "changeAuthorized": false,
+      "before": {
+        "bytes": 4342,
+        "sha256": "eeed3a758e7ae1b847238d1c88e86eee7a8e67b863969af4d286747e9a72487c"
+      },
+      "after": {
+        "bytes": 4342,
+        "sha256": "eeed3a758e7ae1b847238d1c88e86eee7a8e67b863969af4d286747e9a72487c"
+      },
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-reverse-monochrome-v0.1.svg",
+      "changeAuthorized": false,
+      "before": {
+        "bytes": 2725,
+        "sha256": "7cfaeafa02ac8469a006c9489db2f92b15b2621e4151b04efe1b30fc734c1b5e"
+      },
+      "after": {
+        "bytes": 2725,
+        "sha256": "7cfaeafa02ac8469a006c9489db2f92b15b2621e4151b04efe1b30fc734c1b5e"
+      },
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-symbol-v0.1.svg",
+      "changeAuthorized": false,
+      "before": {
+        "bytes": 2510,
+        "sha256": "9fd1fafafad4bc6fef0c05f499c27baf1051eef084d1b834b1061caf3b8b85a0"
+      },
+      "after": {
+        "bytes": 2510,
+        "sha256": "9fd1fafafad4bc6fef0c05f499c27baf1051eef084d1b834b1061caf3b8b85a0"
+      },
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-favicon-safe-v0.1.svg",
+      "changeAuthorized": false,
+      "before": {
+        "bytes": 1107,
+        "sha256": "f1d1b97ff66211410a50279eed16414b5a6e888c27c11419e41265168d08692c"
+      },
+      "after": {
+        "bytes": 1107,
+        "sha256": "f1d1b97ff66211410a50279eed16414b5a6e888c27c11419e41265168d08692c"
+      },
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    }
+  ],
+  "boundaries": {
+    "contentAndHrefChangesAuthorized": false,
+    "sharedChromeChangesAuthorized": false,
+    "metadataOrJsonLdChangesAuthorized": false,
+    "cmsJsonChangesAuthorized": false,
+    "svgChangesAuthorized": false,
+    "actualAuthorizedProductionFiles": [
+      "components/sites/tio2-my/homepage/malaysia-homepage.tsx",
+      "components/sites/tio2-my/homepage/malaysia-homepage.module.css"
+    ]
+  }
+}

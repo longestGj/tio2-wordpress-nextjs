@@ -1,0 +1,147 @@
+{
+  "generatedAt": "2026-09-11T00:33:46.2100033Z",
+  "baseUrl": "http://127.0.0.1:3291",
+  "pageId": "HOME-001",
+  "method": "GET_ONLY_NO_FORM_SUBMISSION",
+  "routes": [
+    {
+      "href": "/about/",
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3291/about",
+      "result": "AVAILABLE"
+    },
+    {
+      "href": "/applications/titanium-dioxide-for-coatings/",
+      "method": "GET",
+      "status": 404,
+      "finalUrl": null,
+      "result": "UNAVAILABLE",
+      "error": "HttpResponseException"
+    },
+    {
+      "href": "/applications/titanium-dioxide-for-masterbatch/",
+      "method": "GET",
+      "status": 404,
+      "finalUrl": null,
+      "result": "UNAVAILABLE",
+      "error": "HttpResponseException"
+    },
+    {
+      "href": "/applications/titanium-dioxide-for-paper/",
+      "method": "GET",
+      "status": 404,
+      "finalUrl": null,
+      "result": "UNAVAILABLE",
+      "error": "HttpResponseException"
+    },
+    {
+      "href": "/applications/titanium-dioxide-for-plastics/",
+      "method": "GET",
+      "status": 404,
+      "finalUrl": null,
+      "result": "UNAVAILABLE",
+      "error": "HttpResponseException"
+    },
+    {
+      "href": "/applications/titanium-dioxide-for-printing-inks/",
+      "method": "GET",
+      "status": 404,
+      "finalUrl": null,
+      "result": "UNAVAILABLE",
+      "error": "HttpResponseException"
+    },
+    {
+      "href": "/documents/",
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3291/documents",
+      "result": "AVAILABLE"
+    },
+    {
+      "href": "/markets/",
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3291/markets/",
+      "result": "AVAILABLE"
+    },
+    {
+      "href": "/markets/brazil/",
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3291/markets/brazil/",
+      "result": "AVAILABLE"
+    },
+    {
+      "href": "/markets/european-union/",
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3291/markets/european-union/",
+      "result": "AVAILABLE"
+    },
+    {
+      "href": "/markets/india/",
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3291/markets/india/",
+      "result": "AVAILABLE"
+    },
+    {
+      "href": "/markets/united-kingdom/",
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3291/markets/united-kingdom/",
+      "result": "AVAILABLE"
+    },
+    {
+      "href": "/products/",
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3291/products",
+      "result": "AVAILABLE"
+    },
+    {
+      "href": "/products/chloride-process-titanium-dioxide/",
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3291/products/chloride-process-titanium-dioxide/",
+      "result": "AVAILABLE"
+    },
+    {
+      "href": "/products/sulfate-process-titanium-dioxide/",
+      "method": "GET",
+      "status": 404,
+      "finalUrl": null,
+      "result": "UNAVAILABLE",
+      "error": "HttpResponseException"
+    },
+    {
+      "href": "/request-a-quote/",
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3291/request-a-quote",
+      "result": "AVAILABLE"
+    },
+    {
+      "href": "/request-documents/",
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3291/request-documents/",
+      "result": "AVAILABLE"
+    },
+    {
+      "href": "/resources/chloride-vs-sulfate-titanium-dioxide/",
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3291/resources/chloride-vs-sulfate-titanium-dioxide",
+      "result": "AVAILABLE"
+    },
+    {
+      "href": "/resources/non-china-titanium-dioxide/",
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3291/resources/non-china-titanium-dioxide",
+      "result": "AVAILABLE"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-09-11T00:41:48.372Z",
+  "reviewerRole": "Gate8 implementation self-review; independent Gate9 still required",
+  "pageId": "HOME-001",
+  "siteScope": "tio2-my",
+  "implementationCommit": "cc55245e83bff0e7c4a63638f65d678dbc3989c3",
+  "buildId": "jWyd3UOiNCdM8j7ue6NvY",
+  "runtimeBaseUrl": "http://127.0.0.1:3291",
+  "approvedReference": {
+    "path": "D:/23MySec/pages/home/04_planning/visual-designs/home-applications-aligned-v1.1/homepage-applications-aligned-preview-v1.1.html",
+    "packagePath": "D:/23MySec/pages/home/06_handoff/HOME-001_APPLICATIONS_ALIGNED_GATE6_HANDOFF_PACKAGE_V1.0.md",
+    "packageSha256": "9024252791e4bb1dbc39cc2f1fc85b795559b263c26f0c302a1b303a0ccbb700"
+  },
+  "method": "Opened all seven actual runtime PNG files at original detail and compared section order, hierarchy, responsive composition, media visibility, shared Chrome, page RFQ visibility, menu state and expanded products state with the approved V1.1 evidence.",
+  "observations": [
+    "No horizontal crop, overlap, empty mobile Hero media gap or abnormal whitespace was observed.",
+    "Start Here is present at all five widths; page RFQ is present at 1440/1024/768 and absent at 390/320.",
+    "The 390 menu-open state retains the shared Deep Navy menu and the 390 products-expanded state exposes all fourteen grades.",
+    "This Gate8 self-review does not replace independent Gate9 acceptance or physical assistive-technology testing."
+  ],
+  "screenshots": [
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-1440.png",
+      "viewportWidth": 1440,
+      "state": "default",
+      "width": 1440,
+      "height": 6533,
+      "sha256": "3283b737662327842f17f2de152e0bec2d36cf78c923ee643c216c570471b063",
+      "review": "PASS"
+    },
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-1024.png",
+      "viewportWidth": 1024,
+      "state": "default",
+      "width": 1024,
+      "height": 7616,
+      "sha256": "afb6b8f7eaf7731fc30ec3d361a0988dc619f12e454163fb5176658cf3654cdf",
+      "review": "PASS"
+    },
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-768.png",
+      "viewportWidth": 768,
+      "state": "default",
+      "width": 768,
+      "height": 8645,
+      "sha256": "a1d7d5cafe9b863dfa73d30aa7d922af760415b4f93e2182624c94f9eaf91b51",
+      "review": "PASS"
+    },
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-390.png",
+      "viewportWidth": 390,
+      "state": "default",
+      "width": 390,
+      "height": 10335,
+      "sha256": "d57936f6b4bd66ae36a35dc3e2d63aa5bbe11e4fc82b596312dbc03ef35a20d0",
+      "review": "PASS"
+    },
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-320.png",
+      "viewportWidth": 320,
+      "state": "default",
+      "width": 320,
+      "height": 11065,
+      "sha256": "1f6ddf0ad83304b9a8feadbf7480073f8f944705d1339849030487befdd1d673",
+      "review": "PASS"
+    },
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-390-menu-open.png",
+      "viewportWidth": 390,
+      "state": "menu-open",
+      "width": 390,
+      "height": 844,
+      "sha256": "d1b1677eeb995966c75f844737ec7d5cc4af1952c2c2d0a93f5926d0f2ac64b4",
+      "review": "PASS"
+    },
+    {
+      "path": "docs/verification/home-001/applications-aligned-gate8/runtime/home-001-390-products-expanded.png",
+      "viewportWidth": 390,
+      "state": "products-expanded",
+      "width": 390,
+      "height": 11142,
+      "sha256": "3970e8dbdc3746fc8834283347e91294e88c862d323333dc51e8d1196b7c0ec0",
+      "review": "PASS"
+    }
+  ],
+  "result": "PASS"
+}

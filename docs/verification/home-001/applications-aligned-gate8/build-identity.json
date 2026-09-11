@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-11T00:41:48.372Z",
+  "pageId": "HOME-001",
+  "siteScope": "tio2-my",
+  "branch": "codex/home-001-app-align-gate8",
+  "baselineCommit": "9571dd2ab7e7f2c7c9cb373e008ca81b3c534822",
+  "implementationCommit": "cc55245e83bff0e7c4a63638f65d678dbc3989c3",
+  "nextVersion": "16.3.2",
+  "build": {
+    "directory": ".next-home-001-app-align-cc55245",
+    "buildId": "jWyd3UOiNCdM8j7ue6NvY",
+    "siteId": "tio2-my",
+    "cmsGraphqlUrl": "http://127.0.0.1:8180/graphql",
+    "command": "$env:SITE_ID='tio2-my'; $env:NEXT_DIST_DIR='.next-home-001-app-align-cc55245'; $env:WORDPRESS_GRAPHQL_URL='http://127.0.0.1:8180/graphql'; npm run build",
+    "result": "PASS"
+  },
+  "runtime": {
+    "baseUrl": "http://127.0.0.1:3291",
+    "bindAddress": "127.0.0.1",
+    "port": 3291,
+    "processId": 34908,
+    "startedAt": "2026-09-11T00:29:47.2317155Z",
+    "command": "node --env-file=.env.home-runtime node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3291",
+    "holdUntil": "GATE9_PASS_OR_RETURN_NOTICE",
+    "pageCheck": {
+      "path": "/",
+      "status": 200,
+      "siteMarker": "data-site-id=\"tio2-my\"",
+      "titleMarker": "Malaysia Titanium Dioxide for Industrial Buyers"
+    }
+  }
+}

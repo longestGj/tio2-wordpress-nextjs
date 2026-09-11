@@ -101,4 +101,3 @@
 - [ ] Create one `EVIDENCE: <repo-relative-path>` line for every manifest receipt reference and require exact set equality.
 - [ ] Run the D23 manifest validator and two-round Gate 9 preflight; fix evidence-only defects without changing the locked implementation.
 - [ ] Commit the evidence and receipt, confirm final status, and return exact identities to project control without claiming Gate 9 approval.
-
