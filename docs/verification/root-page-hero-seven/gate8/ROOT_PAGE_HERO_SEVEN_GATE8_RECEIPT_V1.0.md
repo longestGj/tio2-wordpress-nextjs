@@ -33,7 +33,7 @@ All shared conditions `RH7-AC-CORE-01` through `RH7-AC-CORE-13`, page bindings `
 
 ## Evidence references
 
-+EVIDENCE: docs/verification/root-page-hero-seven/gate8/build-result.txt
+EVIDENCE: docs/verification/root-page-hero-seven/gate8/build-result.txt
 EVIDENCE: docs/verification/root-page-hero-seven/gate8/unit-result.txt
 EVIDENCE: docs/verification/root-page-hero-seven/gate8/e2e-result.txt
 EVIDENCE: docs/verification/root-page-hero-seven/gate8/runtime-identity.json
