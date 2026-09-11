@@ -129,14 +129,6 @@
   box-shadow: var(--shadow);
 }
 
-.hero::before {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 6px;
-  background: linear-gradient(180deg, var(--teal-light), var(--navy));
-  content: '';
-}
-
 .heroCopy {
   min-width: 0;
   align-self: center;
@@ -707,10 +699,6 @@
     gap: 24px;
     border-radius: var(--card-radius);
     box-shadow: none;
-  }
-
-  .hero::before {
-    width: 4px;
   }
 
   .heroCopy > p:not(.eyebrow) {

@@ -40,6 +40,10 @@ describe('HOME-001 Applications-aligned visual contract', () => {
     expect(css).not.toMatch(/\.heroImage[^{}]*\{[^}]*display:\s*none/u)
   })
 
+  it('does not render the retired green Hero edge decoration', () => {
+    expect(css).not.toContain('.hero::before')
+  })
+
   it('exposes stable card families while keeping shared Chrome as the only page Chrome', () => {
     for (const styleHook of [
       'styles.startItem',
