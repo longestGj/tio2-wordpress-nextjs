@@ -21,6 +21,7 @@ def fixture() -> dict[str, object]:
         "buildId": "build-1",
         "cmsIdentitySha256": "e" * 64,
         "releaseSurfaceSha256": "42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152",
+        "backupPublicKeySha256": "8" * 64,
     }
     facts = {
         "platform": {"osId": "ubuntu", "versionId": "24.04", "architecture": "aarch64", "cpuCount": 1, "memoryAvailableBytes": 5_000_000_000, "diskFreeBytes": 40_000_000_000},
@@ -35,7 +36,7 @@ def fixture() -> dict[str, object]:
         },
         "hostMariaDb": {"active": True, "dataDirectory": "/var/lib/mysql", "openDataPaths": ["/var/lib/mysql/ibdata1"], "isolationVerified": True},
         "nginx": {"serverNames": ["cms.tio2malaysia.com"], "configurationSha256": "5" * 64},
-        "cms": {"siteId": "tio2-my", "pluginVersion": "7.1", "publishedRecords": 56, "contentSha256": "6" * 64, "scope": "tio2-my", "callbacksMatch": False},
+        "cms": {"siteId": "tio2-my", "pluginVersion": "7.1", "publishedRecords": 57, "contentSha256": "6" * 64, "scope": "tio2-my", "callbacksMatch": False},
         "incoming": candidate,
     }
     probe = {"observedAt": "2026-09-11T00:00:00Z", "facts": facts}
@@ -86,7 +87,7 @@ class AdoptionContractTests(unittest.TestCase):
         facts = value["facts"]
         facts["cms"]["publishedRecords"] = 4
         rebuilt = build_plan({"observedAt": value["observedAt"], "facts": facts}, value["candidate"], value["toolCommit"])
-        self.assertEqual(rebuilt["changes"]["content"], "initialize-approved-56-after-backup")
+        self.assertEqual(rebuilt["changes"]["content"], "initialize-approved-57-after-backup")
 
 
 if __name__ == "__main__":

@@ -63,9 +63,9 @@ def _commit(value: object) -> str:
 
 
 def _validate_candidate(value: object) -> dict[str, object]:
-    candidate = _keys(value, {"commit", "archiveSha256", "manifestSha256", "proofSha256", "buildId", "cmsIdentitySha256", "releaseSurfaceSha256"})
+    candidate = _keys(value, {"commit", "archiveSha256", "manifestSha256", "proofSha256", "buildId", "cmsIdentitySha256", "releaseSurfaceSha256", "backupPublicKeySha256"})
     _commit(candidate["commit"])
-    for name in ("archiveSha256", "manifestSha256", "proofSha256", "cmsIdentitySha256", "releaseSurfaceSha256"):
+    for name in ("archiveSha256", "manifestSha256", "proofSha256", "cmsIdentitySha256", "releaseSurfaceSha256", "backupPublicKeySha256"):
         _hash(candidate[name])
     if candidate["releaseSurfaceSha256"] != SURFACE_SHA256 or not isinstance(candidate["buildId"], str) or not 0 < len(candidate["buildId"]) <= 256:
         raise AdoptionError("adoption candidate mismatch")
@@ -110,7 +110,7 @@ def _validate_facts(value: object) -> dict[str, object]:
         raise AdoptionError("unexpected Nginx server names")
     _hash(nginx["configurationSha256"])
     cms = _keys(facts["cms"], {"siteId", "pluginVersion", "publishedRecords", "contentSha256", "scope", "callbacksMatch"})
-    if cms["siteId"] != SITE or cms["scope"] != SITE or type(cms["publishedRecords"]) is not int or not 0 <= cms["publishedRecords"] <= 56 or not isinstance(cms["pluginVersion"], str) or not cms["pluginVersion"]:
+    if cms["siteId"] != SITE or cms["scope"] != SITE or type(cms["publishedRecords"]) is not int or not 0 <= cms["publishedRecords"] <= 57 or not isinstance(cms["pluginVersion"], str) or not cms["pluginVersion"]:
         raise AdoptionError("production CMS content does not match the approved scope")
     _hash(cms["contentSha256"])
     if type(cms["callbacksMatch"]) is not bool:
@@ -122,7 +122,7 @@ def _validate_facts(value: object) -> dict[str, object]:
 def _changes(callbacks_match: bool, published_records: int) -> dict[str, object]:
     return {
         "wordpress": "attach-existing-container" if callbacks_match else "recreate-with-preserved-runtime-and-fixed-callbacks",
-        "content": "verify-approved-56" if published_records == 56 else "initialize-approved-56-after-backup",
+        "content": "verify-approved-57" if published_records == 57 else "initialize-approved-57-after-backup",
         "phaseA": ["install-fixed-program", "backup-existing-cms", "await-off-host-verification"],
         "phaseB": ["attach-frontend-network", "build-native-arm64-web", "install-internal-nginx", "await-dns"],
         "phaseC": ["issue-fixed-tls", "activate-public-nginx", "verify-public-surface"],

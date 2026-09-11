@@ -13,7 +13,7 @@ from adoption_probe import ProductionProbe  # noqa: E402
 
 
 def snapshot() -> dict[str, object]:
-    candidate = {"commit": "a" * 40, "archiveSha256": "b" * 64, "manifestSha256": "c" * 64, "proofSha256": "d" * 64, "buildId": "build-1", "cmsIdentitySha256": "e" * 64, "releaseSurfaceSha256": "42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152"}
+    candidate = {"commit": "a" * 40, "archiveSha256": "b" * 64, "manifestSha256": "c" * 64, "proofSha256": "d" * 64, "buildId": "build-1", "cmsIdentitySha256": "e" * 64, "releaseSurfaceSha256": "42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152", "backupPublicKeySha256": "8" * 64}
     return {
         "observedAt": "2026-09-11T00:00:00Z",
         "platform": {"osId": "ubuntu", "versionId": "24.04", "architecture": "aarch64", "cpuCount": 1, "memoryAvailableBytes": 5_000_000_000, "diskFreeBytes": 40_000_000_000},
@@ -26,7 +26,7 @@ def snapshot() -> dict[str, object]:
         },
         "hostMariaDb": {"active": True, "dataDirectory": "/var/lib/mysql", "openDataPaths": ["/var/lib/mysql/ibdata1"], "isolationVerified": True},
         "nginx": {"serverNames": ["cms.tio2malaysia.com"], "configurationSha256": "5" * 64},
-        "cms": {"siteId": "tio2-my", "pluginVersion": "7.1", "publishedRecords": 56, "contentSha256": "6" * 64, "scope": "tio2-my", "callbacksMatch": False},
+        "cms": {"siteId": "tio2-my", "pluginVersion": "7.1", "publishedRecords": 57, "contentSha256": "6" * 64, "scope": "tio2-my", "callbacksMatch": False},
         "incoming": candidate,
     }
 
@@ -83,7 +83,7 @@ class AdoptionProbeTests(unittest.TestCase):
         probe = self.inspect(value)
         candidate = probe["facts"]["incoming"]
         plan = validate_plan(build_plan(probe, candidate, "7" * 40))
-        self.assertEqual(plan["changes"]["content"], "initialize-approved-56-after-backup")
+        self.assertEqual(plan["changes"]["content"], "initialize-approved-57-after-backup")
 
     def test_rejects_foreign_cms_and_unexpected_nginx_names(self) -> None:
         mutations = [

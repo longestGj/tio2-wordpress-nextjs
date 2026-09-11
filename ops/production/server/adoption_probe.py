@@ -109,6 +109,7 @@ class LocalSnapshotSource:
     def _incoming(self) -> dict[str, object]:
         incoming = Path("/home/deploy/tio2-incoming")
         manifest_path, proof_path, archive_path = (incoming / "release-manifest.json", incoming / "release-proof.json", incoming / "release.tar.gz")
+        backup_public_key = incoming / "backup.age.pub"
         manifest = load_json_strict(manifest_path.read_text(encoding="utf-8"))
         proof = load_json_strict(proof_path.read_text(encoding="utf-8"))
         if not isinstance(manifest, dict) or not isinstance(proof, dict):
@@ -116,7 +117,7 @@ class LocalSnapshotSource:
         prerelease = proof.get("prerelease")
         if not isinstance(prerelease, dict):
             raise AdoptionError("incoming release proof mismatch")
-        return {"commit": manifest.get("commit"), "archiveSha256": self._sha(archive_path.read_bytes()), "manifestSha256": self._sha(manifest_path.read_bytes()), "proofSha256": self._sha(proof_path.read_bytes()), "buildId": prerelease.get("buildId"), "cmsIdentitySha256": prerelease.get("cmsIdentitySha256"), "releaseSurfaceSha256": manifest.get("releaseSurfaceSha256")}
+        return {"commit": manifest.get("commit"), "archiveSha256": self._sha(archive_path.read_bytes()), "manifestSha256": self._sha(manifest_path.read_bytes()), "proofSha256": self._sha(proof_path.read_bytes()), "buildId": prerelease.get("buildId"), "cmsIdentitySha256": prerelease.get("cmsIdentitySha256"), "releaseSurfaceSha256": manifest.get("releaseSurfaceSha256"), "backupPublicKeySha256": self._sha(backup_public_key.read_bytes())}
 
     def read_snapshot(self) -> dict[str, object]:
         os_release = {}

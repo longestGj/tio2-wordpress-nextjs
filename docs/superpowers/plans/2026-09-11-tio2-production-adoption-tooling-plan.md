@@ -20,7 +20,7 @@
 - Daily privileged actions remain exactly `status prepare backup deploy verify rollback`; adoption Plan/Apply is root-only and absent from deploy sudoers.
 - Plan accepts no caller-selected path, container, image, network, mount, command, or environment override. Apply accepts exactly one lowercase 64-character plan hash.
 - Production Compose is not executed during first adoption. The actual legacy Compose is copied as a protected snapshot and hashed in the enrollment record.
-- No database, WordPress, plugin, or seed change is permitted by the first-adoption adapter. Unknown compatibility or content identity fails closed.
+- 第一次 Apply 只安装程序、登记现状和生成可恢复备份；异地恢复证据通过后，后续 Apply 才能从首次上传的同一发布包更新插件并执行完整57条批准内容初始化。未知兼容性或内容身份一律停止。
 - Build occurs natively on ARM64 with no Swap, one global lock, one-hour timeout, at least 4 GiB available memory, and at least 12 GiB free disk.
 - The accurate private receiver address and Web3Forms key remain in ignored/private configuration. Tracked files and receipts contain only binding/key fingerprints.
 - Every implementation step follows RED-GREEN-REFACTOR; every task ends in an independently reviewable commit.
@@ -136,7 +136,7 @@
       return {**bound, 'observedAt': probe['observedAt'], 'planHash': canonical_hash(bound)}
   ```
 
-  Probe only fixed sources: `/etc/os-release`, `/proc`, systemd MariaDB properties, `/etc/nginx`, `/opt/tio2-cms/tio2-wordpress-nextjs/wordpress/docker-compose.yml`, fixed Docker labels/inspect APIs, the two named volumes, CMS loopback endpoints, and the three fixed incoming release files. Host MariaDB passes only when its datadir and every open data FD are outside the Docker database mountpoint. CMS output is normalized to site ID, plugin identity, current managed-record count, state, route/page ID/scope and content hashes. A sparse initial CMS is bound as `initialize-approved-56-after-backup`; it is not treated as already approved.
+  Probe only fixed sources: `/etc/os-release`, `/proc`, systemd MariaDB properties, `/etc/nginx`, `/opt/tio2-cms/tio2-wordpress-nextjs/wordpress/docker-compose.yml`, fixed Docker labels/inspect APIs, the two named volumes, CMS loopback endpoints, and the three fixed incoming release files. Host MariaDB passes only when its datadir and every open data FD are outside the Docker database mountpoint. CMS output is normalized to site ID, plugin identity, current managed-record count, state, route/page ID/scope and content hashes. A sparse initial CMS is bound as `initialize-approved-57-after-backup`; it is not treated as already approved.
 
 - [ ] **Step 7: Install the root-only entry without widening daily sudo**
 
@@ -176,7 +176,7 @@
 - Consumes Task 1 `build_plan()` and `validate_plan()`.
 - Produces: `AdoptionJournal.load_or_create(plan_hash: str) -> dict`, `transition(expected: set[str], target: str, details: dict) -> dict`.
 - Produces: `Adoption.apply(plan_hash: str) -> dict[str, object]` with first-call state `AWAITING_OFFHOST_VERIFICATION`.
-- Produces local operations `Stage`, `Recover`, `Status`, and `ReportGateCFailure`; `Stage` uploads the three release files plus the separately hashed administrator archive/manifest, while recovery transfer files are `adoption-phase-a.json`, `$BackupId.tar.age`, and `adoption-evidence.json`.
+- Produces local operations `Stage`, `Recover`, `Status`, and `ReportGateCFailure`; `Stage` uploads one fixed batch containing the three release files, the separately hashed administrator archive/manifest, and the backup recipient public key. Recovery transfer files are `adoption-phase-a.json`, `$BackupId.tar.age`, and `adoption-evidence.json`.
 - Reuses existing `install_bootstrap`, `enroll_baseline`, `prepare_release`, `backup_release`, and `client_recovery.py` rather than copying their implementation.
 
 - [ ] **Step 1: Write failing phase and replay tests**
@@ -213,7 +213,7 @@
 
 - [ ] **Step 4: Reuse prepare and canonical backup**
 
-  Use the fixed incoming release package from the plan, invoke `prepare_release`, create one persisted UUID backup request, and call `backup_release` with the inherited lock descriptor. Require `writesResumed=true` and `autoRestoreEligible=false`; write the sanitized phase-A receipt to `/home/deploy/tio2-outgoing/adoption-phase-a.json` beside the encrypted backup. Phase A must not create the frontend network, change WordPress, write Nginx, or build an image.
+  Use the fixed incoming release package from the plan, extract and re-verify the immutable release tree, and create one complete MariaDB plus WordPress-volume backup encrypted with the Plan-bound age public key. Require `writesResumed=true` and `autoRestoreEligible=false`; write the sanitized phase-A receipt to `/home/deploy/tio2-outgoing/adoption-phase-a.json` beside the encrypted backup. Phase A must not create the frontend network, change WordPress content or plugin bytes, write Nginx, or build an image.
 
 - [ ] **Step 5: Write failing local controller tests**
 
@@ -232,7 +232,7 @@
 
 - [ ] **Step 6: Implement fixed Stage/Recover/Status orchestration**
 
-  `Stage` calls `New-ProductionPackage` using the sealed Gate A receipt, calls `build_admin_bundle.py` for one exact tool commit, creates a deterministic administrator tar plus SHA-256 manifest, and uploads only those two administrator artifacts plus the three existing release files. It creates or reuses `.production/private/tio2-backup.agekey` through the fixed local recovery image, keeps the identity file local with owner-only permissions, and uploads only `backup.age.pub`. `Recover` downloads the exact phase-A receipt and ciphertext, performs hash verification and `client_recovery.py`, writes `adoption-evidence.json` by exclusive create, then uploads only that file. `Status` reads daily `status`, downloads a fixed adoption receipt when present, and after validated v3 enrollment creates `.production/production-connection.json` pinned to that baseline. `ReportGateCFailure` reads only the fixed Gate C evidence names beneath the pinned RunRoot, creates one bounded redacted failure receipt, and uploads only that file. All run identity is pinned in `connection.json`.
+  `Stage` calls `New-ProductionPackage` using the sealed Gate A receipt, calls `build_admin_bundle.py` for one exact tool commit, creates a deterministic administrator tar plus SHA-256 manifest, and sends all six fixed files in one upload batch. It creates or reuses `.production/private/tio2-backup.agekey` through the fixed local recovery image, keeps the identity file local, and uploads only `backup.age.pub`. `Recover` downloads the exact phase-A receipt and ciphertext, performs hash verification and the isolated MariaDB/WordPress restore verifier, writes `adoption-evidence.json` by exclusive create, then uploads only that file. `Status` reads daily `status`, downloads a fixed adoption receipt when present, and after validated v3 enrollment creates `.production/production-connection.json` pinned to that baseline. `ReportGateCFailure` reads only the fixed Gate C evidence names beneath the pinned RunRoot, creates one bounded redacted failure receipt, and uploads only that file. All run identity is pinned in `connection.json`.
 
 - [ ] **Step 7: Run GREEN, full backup regression, and commit**
 
@@ -290,7 +290,7 @@
 
 - [ ] **Step 4: Implement controlled WordPress attachment/recreation**
 
-  Capture an immutable snapshot before effects. After the off-host recovery evidence is accepted, run every seed in the production migration manifest in its fixed order and verify the resulting 56-record approved content fingerprint. If initialization or verification fails, restore the database and WordPress files from the phase-A backup before continuing. Then create a fixed `tio2-production-frontend` bridge, connect WordPress as alias `wordpress`, and leave DB detached. If callback values differ, stop and rename the old WordPress container, create the replacement from the snapshot with only the two fixed Malaysia callback URL changes, start and health-check it, then remove the old container only after v3 enrollment succeeds. On failure remove the replacement, restore the original name/networks and start the original.
+  Capture an immutable snapshot before effects. After the off-host recovery evidence is accepted, run every seed in the production migration manifest in its fixed order and verify the resulting 57-record approved content fingerprint, including Contact. If initialization or verification fails, restore the database and WordPress files from the phase-A backup before continuing. Then create a fixed `tio2-production-frontend` bridge, connect WordPress as alias `wordpress`, and leave DB detached. If callback values differ, stop and rename the old WordPress container, create the replacement from the snapshot with only the two fixed Malaysia callback URL changes, start and health-check it, then remove the old container only after v3 enrollment succeeds. On failure remove the replacement, restore the original name/networks and start the original.
 
   Validate the root-private production environment against a fixed field set. In addition to the current example, require `TIO2_MY_RFQ_ATTRIBUTION_SECRET` and a valid `TIO2_MY_SAMPLE_RECEIVER_BINDING` whose `site_scope` is `tio2-my`, whose private recipient is nonempty, and whose `key_sha256` matches the approved Web3Forms key. When this file is absent during first Apply, read only these named values from `/dev/tty` without echo and create it mode0600; never accept an environment path or value on argv/stdin, and never print the values.
 

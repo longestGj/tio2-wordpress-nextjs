@@ -15,7 +15,7 @@ case "$SOURCE_DIR" in
   /home/deploy|/home/deploy/*) die 'bootstrap source must not execute from /home/deploy' ;;
 esac
 
-for source_file in install.sh bootstrap_install.py bootstrap_selftest.py tio2_release.py release_contract.py release_state.py release_actions.py release_baseline.py backup_core.py deployment_core.py web.Dockerfile backup.sh sudoers.tio2-release sshd-tio2-production.conf; do
+for source_file in install.sh bootstrap_install.py bootstrap_selftest.py tio2_release.py release_contract.py release_state.py release_actions.py release_baseline.py backup_core.py deployment_core.py web.Dockerfile backup.sh sudoers.tio2-release sshd-tio2-production.conf adoption_contract.py adoption_probe.py adoption_state.py adoption_apply.py adoption_phase_a.py tio2_adopt.py tool-commit.txt root-adopt.sh; do
   path="$SOURCE_DIR/$source_file"
   [ -f "$path" ] && [ ! -L "$path" ] || die "unsafe bootstrap source: $source_file"
   [ "$(stat -c '%u' "$path")" -eq 0 ] || die "bootstrap source is not root-owned: $source_file"

@@ -23,7 +23,8 @@ class BootstrapError(RuntimeError):
 REQUIRED_FILES = (
     "install.sh", "bootstrap_install.py", "bootstrap_selftest.py", "tio2_release.py",
     "release_contract.py", "release_state.py", "release_actions.py", "release_baseline.py", "backup_core.py", "deployment_core.py", "web.Dockerfile", "backup.sh", "sudoers.tio2-release", "sshd-tio2-production.conf",
-    "adoption_contract.py", "adoption_probe.py", "tio2_adopt.py", "tool-commit.txt",
+    "adoption_contract.py", "adoption_probe.py", "adoption_state.py", "adoption_apply.py", "adoption_phase_a.py", "tio2_adopt.py", "tool-commit.txt",
+    "root-adopt.sh",
 )
 
 
@@ -259,7 +260,7 @@ def install_bootstrap(source: Path, paths: BootstrapPaths, *, deploy_uid: int, d
     validate_bootstrap_source(source, stat_reader=stat_reader)
     staging: Path | None = Path(tempfile.mkdtemp(prefix=".install-", dir=paths.programs))
     try:
-        for name in ("bootstrap_install.py", "bootstrap_selftest.py", "tio2_release.py", "release_contract.py", "release_state.py", "release_actions.py", "release_baseline.py", "backup_core.py", "deployment_core.py", "web.Dockerfile", "backup.sh", "sshd-tio2-production.conf", "adoption_contract.py", "adoption_probe.py", "tio2_adopt.py", "tool-commit.txt"):
+        for name in ("bootstrap_install.py", "bootstrap_selftest.py", "tio2_release.py", "release_contract.py", "release_state.py", "release_actions.py", "release_baseline.py", "backup_core.py", "deployment_core.py", "web.Dockerfile", "backup.sh", "sshd-tio2-production.conf", "adoption_contract.py", "adoption_probe.py", "adoption_state.py", "adoption_apply.py", "adoption_phase_a.py", "tio2_adopt.py", "tool-commit.txt", "root-adopt.sh"):
             _safe_write(staging / name, (source / name).read_bytes(), 0o750, simulation=paths.simulation)
         wrapper = b"#!/bin/sh\nexec /usr/bin/python3 /opt/tio2-production/program/tio2_release.py \"$@\"\n"
         _safe_write(staging / "tio2-release", wrapper, 0o750, simulation=paths.simulation)
