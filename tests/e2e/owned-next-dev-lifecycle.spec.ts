@@ -36,13 +36,48 @@ const environment = {
   ).href,
 } as const
 
-async function stopRuntime(runtime: OwnedNextDevRuntime | undefined): Promise<void> {
+async function stopRuntime(
+  runtime: Pick<OwnedNextDevRuntime, 'leaseId' | 'stop'> | undefined,
+  leaseExists: (path: string) => boolean = existsSync,
+): Promise<void> {
   if (!runtime) return
   const leasePath = join(resolve('.runtime/port-leases'), `${runtime.leaseId}.json`)
-  expect(existsSync(leasePath)).toBe(true)
-  await runtime.stop()
-  expect(existsSync(leasePath)).toBe(false)
+  const existedBeforeStop = leaseExists(leasePath)
+  let stopFailure: unknown
+  try {
+    await runtime.stop()
+  } catch (error) {
+    stopFailure = error
+  }
+  const existsAfterStop = leaseExists(leasePath)
+  let observationFailure: unknown
+  try {
+    expect(existedBeforeStop).toBe(true)
+    expect(existsAfterStop).toBe(false)
+  } catch (error) {
+    observationFailure = error
+  }
+  if (stopFailure && observationFailure) {
+    throw new AggregateError(
+      [stopFailure, observationFailure],
+      'Owned runtime stop and lease observation both failed',
+    )
+  }
+  if (stopFailure) throw stopFailure
+  if (observationFailure) throw observationFailure
 }
+
+test('a failed pre-stop lease observation cannot prevent owned runtime cleanup', async () => {
+  let stopped = false
+  const runtime = {
+    leaseId: 'missing-observation',
+    async stop() { stopped = true },
+  }
+
+  await expect(stopRuntime(runtime, () => false)).rejects.toThrow()
+
+  expect(stopped).toBe(true)
+})
 
 test('a cross-ID contender cannot mutate or clean shared state while an owner remains usable', async () => {
   test.setTimeout(180_000)

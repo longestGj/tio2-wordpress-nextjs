@@ -68,6 +68,7 @@ interface SignalSource {
 }
 
 interface OwnedNextDevDependencies {
+  readonly acquisitionHandoffTimeoutMs?: number
   readonly repositoryRoot?: string
   readonly leaseRoot?: string
   readonly readSourceCommit?: (repositoryRoot: string) => Promise<string>
@@ -256,6 +257,7 @@ export function createOwnedNextDevLauncher(
   ))
   const startupTimeoutMs = dependencies.startupTimeoutMs ?? 90_000
   const pollIntervalMs = dependencies.pollIntervalMs ?? 250
+  const acquisitionHandoffTimeoutMs = dependencies.acquisitionHandoffTimeoutMs ?? 5_000
 
   return async function launchOwnedNextDev({
     environment,
@@ -315,6 +317,7 @@ export function createOwnedNextDevLauncher(
     let stopping: Promise<void> | undefined
     let runtimeReady = false
     let localStateReleased = false
+    let acquisitionHandoffUncertain = false
     const identities = new Map<number, ProcessIdentity>()
     const controller = new AbortController()
     const cancellation = new Promise<never>((_resolve, reject) => {
@@ -325,6 +328,65 @@ export function createOwnedNextDevLauncher(
       )
     })
     cancellation.catch(() => {})
+
+    const acquireOwnedResource = async <T>(
+      label: string,
+      operation: Promise<T>,
+      register: (value: T) => void,
+      disposeLate: (value: T) => Promise<void>,
+    ): Promise<T> => {
+      let registered = false
+      let handoffTimedOut = false
+      const registerOnce = (value: T): T => {
+        if (!registered) {
+          register(value)
+          registered = true
+        }
+        return value
+      }
+      try {
+        const value = await Promise.race([operation, cancellation])
+        registerOnce(value)
+        controller.signal.throwIfAborted()
+        return value
+      } catch (error) {
+        if (!controller.signal.aborted) throw error
+
+        const timeoutError = new Error(
+          `${label} did not settle within the cancellation handoff window`,
+        )
+        let timeout: ReturnType<typeof setTimeout> | undefined
+        try {
+          const value = await Promise.race([
+            operation,
+            new Promise<never>((_resolve, reject) => {
+              timeout = setTimeout(() => reject(timeoutError), acquisitionHandoffTimeoutMs)
+            }),
+          ])
+          registerOnce(value)
+        } catch (handoffError) {
+          if (handoffError === timeoutError) {
+            handoffTimedOut = true
+            acquisitionHandoffUncertain = true
+            void operation.then(disposeLate, () => {}).catch(() => {})
+          } else {
+            throw new AggregateError(
+              [error, handoffError],
+              `${label} failed while handing ownership to cancellation cleanup`,
+            )
+          }
+        } finally {
+          if (timeout) clearTimeout(timeout)
+        }
+        if (handoffTimedOut) {
+          throw new AggregateError(
+            [error, timeoutError],
+            `${label} cancellation handoff is uncertain; ownership evidence retained`,
+          )
+        }
+        throw error
+      }
+    }
 
     const checked = async <T>(operation: Promise<T>): Promise<T> => {
       controller.signal.throwIfAborted()
@@ -347,19 +409,30 @@ export function createOwnedNextDevLauncher(
         }
         identities.set(identity.pid, identity)
         if (lease && !lease.processIds.includes(identity.pid)) {
-          lease = await attachLease({
-            leaseRoot,
-            leaseId: lease.leaseId,
-            processId: identity.pid,
-          })
+          const leaseId = lease.leaseId
+          await acquireOwnedResource<PortLease>(
+            'Runtime lease attachment',
+            attachLease({
+              leaseRoot,
+              leaseId,
+              processId: identity.pid,
+            }),
+            (attachedLease) => { lease = attachedLease },
+            async (attachedLease) => { lease = attachedLease },
+          )
         }
       }
       return observed
     }
 
-    const snapshot = async (): Promise<ProcessIdentity[]> => {
+    const snapshot = async (
+      cancellable = false,
+    ): Promise<ProcessIdentity[]> => {
       if (!supervisor || !ownerToken) return []
-      return rememberIdentities(await supervisor.snapshot(ownerToken))
+      const observed = cancellable
+        ? await checked(supervisor.snapshot(ownerToken))
+        : await supervisor.snapshot(ownerToken)
+      return rememberIdentities(observed)
     }
 
     const cleanup = async (): Promise<void> => {
@@ -367,6 +440,12 @@ export function createOwnedNextDevLauncher(
       let ownedTreeStopped = true
       let listenerClosed = true
       let artifactsRestored = true
+
+      if (acquisitionHandoffUncertain) {
+        failures.push(new Error(
+          'Resource acquisition cancellation handoff is uncertain; lease and locks retained',
+        ))
+      }
 
       if (nextServer) {
         if (attachedToSupervisor && supervisor && ownerToken) {
@@ -499,19 +578,35 @@ export function createOwnedNextDevLauncher(
       if (!/^[0-9a-f]{40}$/iu.test(sourceCommit)) {
         throw new Error('Owned Next source commit must be a 40-character Git SHA')
       }
-      supervisor = await checked(supervisorFactory())
+      await acquireOwnedResource<ProcessSupervisor>(
+        'Process supervisor creation',
+        supervisorFactory(),
+        (createdSupervisor) => { supervisor = createdSupervisor },
+        async (createdSupervisor) => createdSupervisor.close(),
+      )
       port = await checked(findFreePort())
       baseUrl = `http://127.0.0.1:${port}`
       assertExplicitLocalHttpUrl(baseUrl)
-      lease = await checked(reserveLease({
-        leaseRoot,
-        runId: runtimeId,
-        purpose: 'test-next',
-        siteId,
-        worktree: repositoryRoot,
-        commit: sourceCommit,
-        pool: {start: port, end: port},
-      }))
+      await acquireOwnedResource<PortLease>(
+        'Runtime port lease reservation',
+        reserveLease({
+          leaseRoot,
+          runId: runtimeId,
+          purpose: 'test-next',
+          siteId,
+          worktree: repositoryRoot,
+          commit: sourceCommit,
+          pool: {start: port, end: port},
+        }),
+        (reservedLease) => { lease = reservedLease },
+        async (reservedLease) => {
+          await releaseLease({
+            leaseRoot,
+            leaseId: reservedLease.leaseId,
+            expectedProcessIds: reservedLease.processIds,
+          })
+        },
+      )
       if (lease!.ports.length !== 1 || lease!.ports[0] !== port) {
         throw new Error('Owned Next lease did not retain the OS-selected port')
       }
@@ -614,7 +709,7 @@ export function createOwnedNextDevLauncher(
         process.execPath,
       ))
       attachedToSupervisor = true
-      await checked(rememberIdentities([initialIdentity]))
+      await rememberIdentities([initialIdentity])
       controller.signal.throwIfAborted()
       gateReleased = true
       nextServer.send?.({owner: ownerToken, action: 'run'})
@@ -628,7 +723,7 @@ export function createOwnedNextDevLauncher(
         }
         const listenerOwners = await checked(supervisor!.listenerOwners(port))
         if (listenerOwners.length > 0) {
-          const members = await checked(snapshot())
+          const members = await snapshot(true)
           if (listenerOwners.some((pid) => !members.some((member) => member.pid === pid))) {
             throw new Error(`Refused foreign listening owner at ${baseUrl}`)
           }
@@ -641,7 +736,7 @@ export function createOwnedNextDevLauncher(
             const identityResponse = await checked(response.text())
             if (response.ok && robotsIdentityMatches(identityResponse, siteOrigin)) {
               const finalOwners = await checked(supervisor!.listenerOwners(port))
-              const finalMembers = await checked(snapshot())
+              const finalMembers = await snapshot(true)
               if (
                 finalOwners.length === 0 ||
                 finalOwners.some((pid) => !finalMembers.some((member) => member.pid === pid))
