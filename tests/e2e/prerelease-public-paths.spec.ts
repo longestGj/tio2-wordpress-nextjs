@@ -8,7 +8,7 @@ type Target = {pageId: string; path: string; canonical: string; roles: string[]}
 const eligibility = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-prerelease-public-paths.json', 'utf8')) as {routes: Target[]}
 const scopeBytes = readFileSync('tests/fixtures/prerelease/scope-58.json')
 // Exact inherited scope accepted by D23's PRERELEASE_58_INTERNAL_LINK_RELATION_INVENTORY_V1.0.json.
-const scopeSha256 = '7d09c14f87f0b86f223c72d6e3865c0de01fa04b0ca8ded05b1c91fed00fdc60'
+const scopeSha256 = '06dc8f8320fff0ea454709afd6baa2c9a74433597097c6a701eb5907673415c8'
 const scope = JSON.parse(scopeBytes.toString('utf8').replace(/^\uFEFF/u, '')) as {pages: {id: string; path: string; expectedStatus: number}[]; exception: {path: string; expectedStatus: number}}
 const roles = (role: string) => eligibility.routes.filter(route => route.roles.includes(role))
 const fiveApps = roles('application-child')
@@ -149,10 +149,10 @@ for (const width of [1440, 768, 390]) {
   })
 }
 
-test('full 58-object internal link scan permits only approved Contact exception', {annotation: {type: 'prerelease-check', description: 'public-paths.internal-links.58'}}, async ({page, request}) => {
+test('full 58-object internal link scan includes approved live Contact route', {annotation: {type: 'prerelease-check', description: 'public-paths.internal-links.58'}}, async ({page, request}) => {
   expect(createHash('sha256').update(scopeBytes).digest('hex')).toBe(scopeSha256)
   expect(scope.pages).toHaveLength(58)
-  expect(scope.exception).toMatchObject({path: '/contact/', expectedStatus: 404})
+  expect(scope.exception).toMatchObject({path: '/contact/', expectedStatus: 200, status: 'APPROVED_LIVE_ROUTE'})
   const paths = new Set<string>()
   for (const entry of scope.pages) {
     expect((await page.goto(`${baseUrl}${entry.path}`))?.status(), entry.id).toBe(entry.expectedStatus)
@@ -165,6 +165,6 @@ test('full 58-object internal link scan permits only approved Contact exception'
   expect(paths.has('/contact/')).toBe(true)
   for (const path of [...paths].sort()) {
     const response = await request.get(`${baseUrl}${path}`)
-    expect(response.status(), path).toBe(path === '/contact/' ? 404 : 200)
+    expect(response.status(), path).toBe(200)
   }
 })

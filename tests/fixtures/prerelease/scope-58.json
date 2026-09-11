@@ -352,9 +352,9 @@
     }
   ],
   "exception": {
-    "id": "SYS404-CONTACT-PRERELEASE-EXCEPTION-20260908-01",
+    "id": "CONTACT-LIVE-PRERELEASE-20260911-01",
     "path": "/contact/",
-    "expectedStatus": 404,
-    "status": "USER_APPROVED_PRERELEASE_EXCEPTION"
+    "expectedStatus": 200,
+    "status": "APPROVED_LIVE_ROUTE"
   }
 }
