@@ -23,7 +23,7 @@ def trusted_stat(_: Path) -> os.stat_result:
 def archive_copy(destination: Path) -> None:
     destination.mkdir()
     for name in REQUIRED_FILES:
-        shutil.copyfile(SERVER_ROOT / name, destination / name)
+        shutil.copyfile(SERVER_ROOT.parent / "Dockerfile" if name == "web.Dockerfile" else SERVER_ROOT / name, destination / name)
 
 
 def directory_link(link: Path, target: Path) -> None:

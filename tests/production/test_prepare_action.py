@@ -95,7 +95,7 @@ class PrepareActionTests(unittest.TestCase):
         value=tio2_release.run_action('status',self.fixture.paths)
         self.assertEqual(value['state']['state'],'IDLE')
         self.assertTrue(value['capabilities']['prepare']['implemented'])
-        self.assertFalse(value['capabilities']['deploy']['implemented'])
+        self.assertTrue(value['capabilities']['deploy']['implemented'])
         self.assertFalse(value['capabilities']['backup']['productionValidated'])
         self.assertTrue(value['capabilities']['backup']['implemented'])
         self.assertFalse(value['capabilities']['backup']['ready'])

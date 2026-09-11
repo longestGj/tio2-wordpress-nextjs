@@ -47,6 +47,7 @@ services:
           create_host_path: false
     networks:
       - production
+      - frontend
     healthcheck:
       test: ["CMD-SHELL", "curl --silent --show-error --fail --output /dev/null http://localhost/wp-login.php"]
       interval: 5s
@@ -90,6 +91,7 @@ services:
           create_host_path: false
     networks:
       - production
+      - frontend
 
   web:
     image: tio2-my-web:active
@@ -104,7 +106,7 @@ services:
     ports:
       - 127.0.0.1:3000:3000
     networks:
-      - production
+      - frontend
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))\""]
       interval: 5s
@@ -125,7 +127,7 @@ services:
     ports:
       - 127.0.0.1:3001:3000
     networks:
-      - production
+      - frontend
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))\""]
       interval: 5s
@@ -141,6 +143,8 @@ volumes:
     name: wordpress_db_data
 
 networks:
+  frontend:
+    driver: bridge
   production:
     driver: bridge
     internal: true

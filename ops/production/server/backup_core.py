@@ -60,6 +60,43 @@ def tree_files(target):
     return files
 
 
+PLUGIN_SOURCE_MAPPING={'archive':'release.tar.gz','source':'wordpress/plugins/tio2-site-model','destination':'/var/www/html/wp-content/plugins/tio2-site-model','readOnly':True,'permissionPolicy':'tio2-ro-plugin-root-v1'}
+
+
+def restore_mapped_plugin_permissions(restored_source,inventory):
+    """Administrator recovery consumer, never called by normal release actions.
+
+    After authenticated archive/hash validation and safe extraction into a new
+    root-owned tree, materialize only the exact supported readonly plugin's
+    runtime read permissions. The private source archive is never rewritten.
+    """
+    from release_baseline import protected_path
+    root=protected_path(restored_source,directory=True)
+    if inventory['wordpress'].get('sourceMappings')!=[PLUGIN_SOURCE_MAPPING]:
+        raise ReleaseError('unsupported plugin recovery permission policy')
+    if root.resolve()==Path(inventory['active']['sourceRoot']).resolve():
+        raise ReleaseError('recovery cannot modify active source')
+    expected={entry['path']:entry['sha256'] for entry in inventory['active']['files']}
+    if tree_files(root)!=expected: raise ReleaseError('restored source hash mismatch')
+    relative=PLUGIN_SOURCE_MAPPING['source']; plugin=root/relative
+    protected_path(plugin,directory=True)
+    files={name.removeprefix(relative+'/') for name in expected if name.startswith(relative+'/')}
+    if not files: raise ReleaseError('plugin recovery source missing')
+    directories={Path('.')}
+    for name in files: directories.update(Path(name).parents)
+    entries=list(plugin.rglob('*'))
+    if {p.relative_to(plugin) for p in entries if p.is_dir()}|{Path('.')}!=directories:
+        raise ReleaseError('unknown plugin recovery directory')
+    for path in [plugin,*entries]:
+        protected_path(path,directory=path.is_dir())
+    # All inventory/link/ownership checks precede any chmod; no other tree entry
+    # changes. Existing root ownership is verified, then group is fixed to root.
+    for path in [plugin,*entries]:
+        if os.name=='posix': os.chown(path,0,0)
+        os.chmod(path,0o755 if path.is_dir() else 0o644)
+    return {'permissionPolicy':'tio2-ro-plugin-root-v1','files':len(files),'directoryMode':'0755','fileMode':'0644','uid':0,'gid':0}
+
+
 def load_identities(paths, *, baseline=None):
     from release_baseline import validate_baseline
     baseline = baseline or validate_baseline(paths)
@@ -409,7 +446,7 @@ class Backup:
         if self.candidate is None:
             raise ReleaseError('backup requires PREPARED candidate')
         source=self.baseline['runtime']
-        if source.get('baselineSchema')!='tio2-production-baseline-v2':
+        if source.get('baselineSchema') not in ('tio2-production-baseline-v2','tio2-production-baseline-v3'):
             raise ReleaseError('backup requires administrator baseline v2')
         roles={c['role']:c for c in source['containers']}
         self.runtime={'databaseContainer':roles['db']['id'],'wordpressContainer':roles['wordpress']['id'],'databaseImage':roles['db']['imageId'],'wordpressImage':roles['wordpress']['imageId'],'wpcliImage':source['tools']['wpcliImage']}
@@ -494,13 +531,16 @@ class Backup:
         mappings=[]
         if nested:
             mount=nested[0]
+            plugin_source=Path(self.baseline['runtime'].get('deployment',{}).get('pluginSourceRoot',str(self.target/relative)))
             covered={entry['path']:entry['sha256'] for entry in self.active['files'] if entry['path'].startswith(relative+'/')}
             if (len(nested)!=1 or mount.get('Type')!='bind' or mount.get('RW') is not False
-                or mount['Destination']!=destination or Path(mount.get('Source',''))!=self.target/relative or not covered):
+                or mount['Destination']!=destination or Path(mount.get('Source',''))!=plugin_source or not covered):
                 raise ReleaseError('WordPress nested mount is unsupported by the full-volume archive')
             if tree_files(self.target)!={entry['path']:entry['sha256'] for entry in self.active['files']}:
                 raise ReleaseError('WordPress nested mount source inventory changed')
-            mappings=[{'archive':'release.tar.gz','source':relative,'destination':destination,'readOnly':True}]
+            if tree_files(plugin_source)!={name.removeprefix(relative+'/'):digest for name,digest in covered.items()}:
+                raise ReleaseError('preserved WordPress plugin source differs from archived active source')
+            mappings=[dict(PLUGIN_SOURCE_MAPPING)]
         if any(path.rstrip('/').startswith('/var/www/html/') for path in wordpress['HostConfig'].get('Tmpfs',{})):
             raise ReleaseError('WordPress nested mount tmpfs is unsupported')
         if stopped and mappings!=self.source_mappings:

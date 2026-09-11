@@ -21,7 +21,7 @@ def setup(data):
     sources=Path('/root/fixture-program-source'); sources.mkdir(mode=0o700)
     for name in REQUIRED_FILES:
         path=sources/name
-        path.write_bytes((Path('/workspace/ops/production/server')/name).read_bytes().replace(b'\r\n',b'\n'))
+        path.write_bytes((Path('/workspace/ops/production/Dockerfile') if name=='web.Dockerfile' else Path('/workspace/ops/production/server')/name).read_bytes().replace(b'\r\n',b'\n'))
         path.chmod(0o700)
     import pwd
     user=pwd.getpwnam('deploy')

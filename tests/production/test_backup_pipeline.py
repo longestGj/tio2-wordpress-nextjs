@@ -187,7 +187,7 @@ class BackupPipelineTests(unittest.TestCase):
         self.tools.wordpress_overlay={'Type':'bind','Source':str(plugin),'Destination':'/var/www/html/wp-content/plugins/tio2-site-model','RW':False}
         result=self.engine().run(owner=lambda fd:None)
         inventory=json.loads((self.f.paths.production/'backups/releases'/result['backupId']/'release-state.json').read_text())
-        self.assertEqual(inventory['wordpress']['sourceMappings'],[{'archive':'release.tar.gz','source':'wordpress/plugins/tio2-site-model','destination':'/var/www/html/wp-content/plugins/tio2-site-model','readOnly':True}])
+        self.assertEqual(inventory['wordpress']['sourceMappings'],[{'archive':'release.tar.gz','source':'wordpress/plugins/tio2-site-model','destination':'/var/www/html/wp-content/plugins/tio2-site-model','readOnly':True,'permissionPolicy':'tio2-ro-plugin-root-v1'}])
 
     def test_site_model_mapping_requires_exact_read_only_protected_source_and_no_children(self):
         plugin=Path(self.baseline['active']['sourceRoot'])/'wordpress/plugins/tio2-site-model'
@@ -199,6 +199,22 @@ class BackupPipelineTests(unittest.TestCase):
             with self.subTest(overlay=overlay):
                 self.tools.wordpress_overlay=overlay
                 with self.assertRaisesRegex(ReleaseError,'WordPress nested mount'): self.engine().run(owner=lambda fd:None)
+
+    def test_v3_backup_archives_active_plugin_bytes_while_preserving_original_bind(self):
+        self.baseline['runtime']['baselineSchema']='tio2-production-baseline-v3'
+        active=Path(self.baseline['active']['sourceRoot'])/'wordpress/plugins/tio2-site-model'; active.mkdir(parents=True)
+        frozen=Path(self.temp.name)/'original-cms-plugin'; frozen.mkdir()
+        content=b'<?php /* Plugin Name: Synthetic site model */'
+        for root in (active,frozen): (root/'plugin.php').write_bytes(content)
+        self.baseline['active']['files'].append({'path':'wordpress/plugins/tio2-site-model/plugin.php','sha256':hashlib.sha256(content).hexdigest()})
+        self.baseline['runtime']['deployment']={'pluginSourceRoot':str(frozen)}
+        state_path=self.f.paths.production/'state/state.json'; state=json.loads(state_path.read_text()); state['details']['active']=self.baseline['active']; state_path.write_text(json.dumps(state))
+        self.tools.wordpress_overlay={'Type':'bind','Source':str(frozen),'Destination':'/var/www/html/wp-content/plugins/tio2-site-model','RW':False}
+        engine=self.engine(); result=engine.run(owner=lambda fd:None)
+        inventory=json.loads((self.f.paths.production/'backups/releases'/result['backupId']/'release-state.json').read_text())
+        self.assertEqual(inventory['wordpress']['sourceMappings'][0]['archive'],'release.tar.gz')
+        (frozen/'plugin.php').write_bytes(b'tampered')
+        with self.assertRaisesRegex(ReleaseError,'preserved WordPress plugin'): engine.check_writers(stopped=False)
 
     def test_receipt_retry_reuses_verified_backup_and_new_uuid_captures_fresh(self):
         first=self.engine().run(owner=lambda fd:None)
@@ -287,6 +303,25 @@ class BackupPipelineTests(unittest.TestCase):
         self.request['requestId']=str(uuid.uuid4()); self.request_path.write_text(json.dumps(self.request))
         result=self.engine().run(owner=lambda fd:None)
         self.assertEqual(result['requestId'],self.request['requestId'])
+
+
+class PluginRecoveryPermissionsTests(unittest.TestCase):
+    def test_verified_mapping_materializes_only_plugin_read_permissions(self):
+        from release_baseline import protected_path
+        from tests.production.test_release_baseline import safe_stat
+        with tempfile.TemporaryDirectory() as directory,patch('release_baseline.protected_path',side_effect=lambda path,**kw:protected_path(path,stat_reader=safe_stat,**kw)):
+            root=Path(directory); plugin=root/'wordpress/plugins/tio2-site-model'; plugin.mkdir(parents=True)
+            file=plugin/'plugin.php';file.write_bytes(b'<?php echo "verified";');file.chmod(0o600);plugin.chmod(0o700)
+            other=root/'private-config';other.write_bytes(b'private');other.chmod(0o600)
+            inventory={'active':{'sourceRoot':'/never-active-source','files':[{'path':p.relative_to(root).as_posix(),'sha256':core.sha256_file(p)} for p in (file,other)]},'wordpress':{'sourceMappings':[{'archive':'release.tar.gz','source':'wordpress/plugins/tio2-site-model','destination':'/var/www/html/wp-content/plugins/tio2-site-model','readOnly':True,'permissionPolicy':'tio2-ro-plugin-root-v1'}]}}
+            result=core.restore_mapped_plugin_permissions(root,inventory)
+            self.assertEqual(result['files'],1);self.assertEqual(file.read_bytes(),b'<?php echo "verified";')
+            if os.name=='posix':
+                self.assertEqual(plugin.stat().st_mode&0o777,0o755);self.assertEqual(file.stat().st_mode&0o777,0o644);self.assertEqual(other.stat().st_mode&0o777,0o600)
+            (plugin/'unknown').mkdir()
+            with self.assertRaises(ReleaseError):core.restore_mapped_plugin_permissions(root,inventory)
+            (plugin/'unknown').rmdir();file.write_bytes(b'changed')
+            with self.assertRaises(ReleaseError):core.restore_mapped_plugin_permissions(root,inventory)
 
 
 if __name__=='__main__': unittest.main()

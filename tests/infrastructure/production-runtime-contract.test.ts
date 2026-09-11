@@ -50,7 +50,7 @@ function read(path: string): string {
 }
 
 function filesUnder(root: string): string[] {
-  return readdirSync(root, {recursive: true})
+  return readdirSync(root, {recursive: true, encoding: 'utf8'})
     .map((entry) => join(root, entry))
     .filter((entry) => entry.endsWith('.js'))
 }
@@ -66,7 +66,7 @@ describe('tio2-my production runtime topology', () => {
       wp_data: {external: true, name: 'wordpress_wp_data'},
       db_data: {external: true, name: 'wordpress_db_data'},
     })
-    expect(compose?.networks).toEqual({production: {driver: 'bridge', internal: true}})
+    expect(compose?.networks).toEqual({frontend: {driver: 'bridge'}, production: {driver: 'bridge', internal: true}})
 
     expect(compose?.services?.db.image).toBe(mariadbImage)
     expect(compose?.services?.wordpress.image).toBe(wordpressImage)
@@ -140,7 +140,7 @@ describe('tio2-my production runtime topology', () => {
     expect(dockerfile).toContain(`FROM ${nodeImage} AS runtime`)
     expect(dockerfile).toContain('RUN npm ci')
     expect(dockerfile).toContain('# syntax=docker/dockerfile:1.10.0')
-    expect(dockerfile).toContain('RUN --mount=type=secret,id=wordpress_editorial_api_token,env=WORDPRESS_EDITORIAL_API_TOKEN,required=true npm run build')
+    expect(dockerfile).toContain('--mount=type=secret,id=wordpress_editorial_api_token,env=WORDPRESS_EDITORIAL_API_TOKEN,required=true npm run build')
     expect(dockerfile).not.toContain('ARG WORDPRESS_EDITORIAL_API_TOKEN')
     expect(dockerfile).toContain('ARG SITE_ID=tio2-my')
     expect(dockerfile).toContain('ARG NODE_ENV=production')
@@ -165,7 +165,8 @@ describe('tio2-my production runtime topology', () => {
   it('pins a Dockerfile frontend that parses the BuildKit secret environment option', () => {
     const dockerfile = read(dockerfilePath)
     const frontend = dockerfile.match(/^# syntax=docker\/dockerfile:(\d+)\.(\d+)\.(\d+)$/mu)
-    const secretBuild = dockerfile.match(/RUN --mount=type=secret,([^\s]+) npm run build/u)
+    const secretBuild = dockerfile.match(/RUN .*--mount=type=secret,([^\s]+) npm run build/u)
+    expect(dockerfile).toContain('--mount=type=tmpfs,target=/app/.next/cache')
 
     expect(frontend?.slice(1)).toEqual(['1', '10', '0'])
     expect(secretBuild?.[1].split(',')).toEqual(expect.arrayContaining([
@@ -232,7 +233,7 @@ describe('tio2-my production runtime topology', () => {
     expect(new Set(configuredHosts)).toEqual(new Set(approvedHosts))
     expect(nginx).toContain('return 301 https://tio2malaysia.com$request_uri;')
     expect(nginx).toContain('proxy_pass http://127.0.0.1:8080;')
-    expect(nginx).toContain('proxy_pass http://127.0.0.1:3000;')
+    expect(nginx).toContain('include /etc/tio2-production/web-upstream.conf;')
     expect(nginx).toContain('/etc/letsencrypt/live/cms.tio2malaysia.com/fullchain.pem')
     expect(nginx).toContain('/etc/letsencrypt/live/tio2malaysia.com/fullchain.pem')
     expect(nginx).toContain('/etc/letsencrypt/options-ssl-nginx.conf')

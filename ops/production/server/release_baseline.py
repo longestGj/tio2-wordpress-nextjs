@@ -18,6 +18,7 @@ from release_contract import DEFAULT_PATHS, ReleaseError, _validate_member_name,
 
 SCHEMA='tio2-production-baseline-v1'
 BACKUP_SCHEMA='tio2-production-baseline-v2'
+DEPLOYMENT_SCHEMA='tio2-production-baseline-v3'
 SITE='tio2-my'
 WEBSITE='https://tio2malaysia.com'
 CMS='https://cms.tio2malaysia.com'
@@ -84,8 +85,9 @@ def _docker(arguments,runner):
 
 def _validate_record(record,paths,runner,stat_reader,allow_stopped=False):
     _keys(record,('schemaVersion','siteId','website','cms','enrollment','active','runtime','configuration','writes','handoff'))
-    _require(record['schemaVersion'] in (SCHEMA,BACKUP_SCHEMA) and record['siteId']==SITE and record['website']==WEBSITE and record['cms']==CMS,'site')
-    backup_schema=record['schemaVersion']==BACKUP_SCHEMA
+    _require(record['schemaVersion'] in (SCHEMA,BACKUP_SCHEMA,DEPLOYMENT_SCHEMA) and record['siteId']==SITE and record['website']==WEBSITE and record['cms']==CMS,'site')
+    backup_schema=record['schemaVersion'] in (BACKUP_SCHEMA,DEPLOYMENT_SCHEMA)
+    deployment_schema=record['schemaVersion']==DEPLOYMENT_SCHEMA
     enrollment=record['enrollment']
     _keys(enrollment,('origin','handoffId','recordedAt'))
     _require(enrollment['origin']=='root-administrator' and isinstance(enrollment['handoffId'],str) and 0<len(enrollment['handoffId'])<=128,'enrollment')
@@ -152,7 +154,25 @@ def _validate_record(record,paths,runner,stat_reader,allow_stopped=False):
         environment[name]=value
     _require(environment.get('SITE_ID')==SITE and environment.get('NEXT_PUBLIC_SITE_URL')==WEBSITE and environment.get('WORDPRESS_MEDIA_ORIGIN')==CMS,'configuration site')
     runtime=record['runtime']
-    _keys(runtime,('containers','images','volumes','healthChecks','tools','writers') if backup_schema else ('containers','images','volumes','healthChecks'))
+    _keys(runtime,('containers','images','volumes','healthChecks','tools','writers','deployment') if deployment_schema else ('containers','images','volumes','healthChecks','tools','writers') if backup_schema else ('containers','images','volumes','healthChecks'))
+    if deployment_schema:
+        deployment=runtime['deployment']
+        _keys(deployment,('adapter','networkId','ports','activePort','cmsPort','proxyPort','pluginSourceRoot','buildId'))
+        _require(deployment['adapter']=='tio2-web-bluegreen-v1' and isinstance(deployment['networkId'],str) and SHA.fullmatch(deployment['networkId']),'deployment adapter')
+        _require(isinstance(deployment['ports'],list) and len(deployment['ports'])==2 and len(set(deployment['ports']))==2 and all(type(p) is int and 1024<=p<=65535 for p in deployment['ports']),'deployment ports')
+        _require(deployment['activePort'] in deployment['ports'] and all(type(deployment[p]) is int and 1024<=deployment[p]<=65535 for p in ('cmsPort','proxyPort')) and len(set(deployment['ports']+[deployment['cmsPort'],deployment['proxyPort']]))==4,'deployment port isolation')
+        _require(isinstance(active['commit'],str) and isinstance(deployment['buildId'],str) and re.fullmatch(r'[a-zA-Z0-9_-]{1,128}',deployment['buildId']),'deployment identity')
+        plugin=protected_path(deployment['pluginSourceRoot'],stat_reader=stat_reader,directory=True)
+        expected={name.removeprefix('wordpress/plugins/tio2-site-model/'):digest for name,digest in hashes.items() if name.startswith('wordpress/plugins/tio2-site-model/')}
+        observed={}
+        for path in sorted(plugin.rglob('*')):
+            _require(not path.is_symlink(),'plugin source link')
+            if path.is_file():
+                protected_path(path,stat_reader=stat_reader)
+                observed[path.relative_to(plugin).as_posix()]=sha256_file(path)
+        _require(expected and observed==expected,'preserved plugin source bytes')
+        upstream=paths.configuration/'web-upstream.conf'
+        _require(any(e['path']==str(upstream) for e in configuration['nginxIncludes']),'fixed upstream enrollment')
     _require(isinstance(runtime['containers'],list) and 2<=len(runtime['containers'])<=3,'containers')
     roles,ids=set(),set()
     for container in runtime['containers']:
@@ -160,6 +180,7 @@ def _validate_record(record,paths,runner,stat_reader,allow_stopped=False):
         _require(container['role'] in ('db','wordpress','web') and container['role'] not in roles and container['id'] not in ids and SHA.fullmatch(container['id']) and IMAGE.fullmatch(container['imageId']),'container identity')
         roles.add(container['role']); ids.add(container['id'])
     _require({'db','wordpress'}<=roles,'required services')
+    if deployment_schema: _require('web' in roles,'deployed web service')
     image_ids=set()
     _require(isinstance(runtime['images'],list),'image list')
     for image in runtime['images']:

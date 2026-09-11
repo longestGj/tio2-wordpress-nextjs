@@ -108,6 +108,28 @@ class ReleaseBaselineTests(unittest.TestCase):
             with self.assertRaises(ReleaseError): f.validate()
         self.assertEqual(f.calls,[])
 
+    def test_v3_keeps_cms_plugin_source_separate_from_advanced_frontend(self):
+        f=self.fixture
+        f.record['schemaVersion']='tio2-production-baseline-v3'
+        f.record['active']['commit']='c'*40
+        plugin=f.source/'wordpress/plugins/tio2-site-model'; plugin.mkdir(parents=True)
+        (plugin/'plugin.php').write_bytes(b'unchanged')
+        f.record['active']['files'].append({'path':'wordpress/plugins/tio2-site-model/plugin.php','sha256':hashlib.sha256(b'unchanged').hexdigest()})
+        upstream=f.paths.configuration/'web-upstream.conf'; upstream.write_text('fixed upstream')
+        f.record['configuration'].update(nginxIncludes=[{'path':str(upstream),'sha256':hashlib.sha256(upstream.read_bytes()).hexdigest()}],tlsFiles=[])
+        f.record['runtime']['containers'].append({'role':'web','id':'c'*64,'imageId':'sha256:'+'c'*64})
+        f.record['runtime']['images'].append({'id':'sha256:'+'c'*64,'digests':[]})
+        f.record['runtime']['tools']={'wpcliImage':'sha256:'+'c'*64}
+        f.record['runtime']['writers']={'database':'wordpress','hostWriters':'none','containers':['b'*64]}
+        f.record['runtime']['deployment']={'adapter':'tio2-web-bluegreen-v1','networkId':'d'*64,'ports':[3000,3001],'activePort':3000,'cmsPort':8080,'proxyPort':8081,'pluginSourceRoot':str(plugin),'buildId':'next-A'}
+        f.actual=deepcopy(f.record['runtime']); f.save()
+        self.assertEqual(f.validate()['runtime']['deployment']['pluginSourceRoot'],str(plugin))
+        alternate=f.root/'old-cms-plugin'; alternate.mkdir(); (alternate/'plugin.php').write_bytes(b'unchanged')
+        f.record['runtime']['deployment']['pluginSourceRoot']=str(alternate); f.save()
+        self.assertEqual(f.validate()['runtime']['deployment']['pluginSourceRoot'],str(alternate))
+        (alternate/'plugin.php').write_bytes(b'changed')
+        with self.assertRaisesRegex(ReleaseError,'plugin source bytes'): f.validate()
+
     def test_tampered_config_source_container_image_or_volume_fails_closed(self):
         f=self.fixture
         for role in ('container','image','volume'):

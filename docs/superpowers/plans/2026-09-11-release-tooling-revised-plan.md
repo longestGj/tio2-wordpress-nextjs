@@ -87,6 +87,8 @@
 
 ## Task 3：打通基于已部署环境的更新与回滚
 
+开发状态：独立审查及清理中断修复复审通过。本地真实 Next 镜像完成 A→B→A→B、命令故障/SIGKILL/重启及三次备份解密恢复；原源码与独立插件挂载保留。首版适配器仅支持兼容前台更新，拒绝 WordPress/数据变化；生产接管、ARM64及浏览器验收仍未通过。证据使用明示的本地 fixture 身份，不代替 clean main 发布来源。
+
 **交付结果：** 已验证版本 A 可更新到 B；构建、候选、切换任一步失败有确定结果；B 可按兼容性条件回到 A。
 
 **Files:** 新增 `deployment_core.py`、`tests/production/test_deployment_core.py`；修改 `release_actions.py`、`release_state.py`、`tio2_release.py`、安装清单、Dockerfile/Compose/Nginx；新增 `tests/production-runtime/update_rollback.py`。

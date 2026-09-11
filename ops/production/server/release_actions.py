@@ -136,6 +136,8 @@ def prepare_release(paths: ReleasePaths, *, baseline_validator=None, ownership_s
             options = {} if ownership_setter is None else {"ownership_setter": ownership_setter}
             extract_release(staging / "release.tar.gz", manifest, paths, **options)
         details = {"commit": candidate["commit"], "archiveSha256": candidate["archiveSha256"], "candidate": candidate, "active": baseline["active"], "runtime": baseline["runtime"], "configurationFingerprint": baseline["configurationFingerprint"], "preparedManifest": manifest, "prereleaseProof": proof}
+        if isinstance(previous.get('details',{}).get('previousBaseline'),dict):
+            details['previousBaseline']=previous['details']['previousBaseline']
         transition(state_root, {str(previous["state"])}, "PREPARED", details)
         return result
     except OSError as error:
@@ -279,3 +281,18 @@ def backup_release(paths: ReleasePaths, runner: CommandRunner | None = None, *, 
     elif any(details.get(key)!=value for key,value in backup.items()):
         raise ReleaseError('backup replay receipt changed')
     return {"action": "backup", "ok": True, "state": "BACKED_UP", **backup}
+
+
+def deploy_release(paths):
+    from deployment_core import deploy_release as deploy
+    return deploy(paths)
+
+
+def verify_release(paths):
+    from deployment_core import verify_release as verify
+    return verify(paths)
+
+
+def rollback_release(paths):
+    from deployment_core import rollback_release as rollback
+    return rollback(paths)

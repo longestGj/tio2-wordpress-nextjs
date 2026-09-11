@@ -194,11 +194,12 @@ plugin=source/'wordpress/plugins/tio2-site-model'; plugin.mkdir(parents=True)
         wordpress_archive=self.exec(self.client,'cat',prefix+'/wordpress.tar.gz')
         self.docker('run','--rm','-i','--label',LABEL+'='+self.run_id,'--network','none','--mount','type=volume,source='+wordpress_volume+',target=/restore','--entrypoint','tar',self.images['runtime']['Id'],'-xzf','-','-C','/restore',data=wordpress_archive)
         inventory=json.loads(self.exec(self.client,'cat',prefix+'/release-state.json'))
-        mapping={'archive':'release.tar.gz','source':'wordpress/plugins/tio2-site-model','destination':'/var/www/html/wp-content/plugins/tio2-site-model','readOnly':True}
+        mapping={'archive':'release.tar.gz','source':'wordpress/plugins/tio2-site-model','destination':'/var/www/html/wp-content/plugins/tio2-site-model','readOnly':True,'permissionPolicy':'tio2-ro-plugin-root-v1'}
         if inventory['wordpress']['sourceMappings']!=[mapping]: raise RuntimeError('bound plugin recovery mapping mismatch')
         source_volume=self.volume('restored-source')
         source_archive=self.exec(self.client,'cat',prefix+'/release.tar.gz')
         self.docker('run','--rm','-i','--label',LABEL+'='+self.run_id,'--network','none','--mount','type=volume,source='+source_volume+',target=/restore','--entrypoint','tar',self.images['runtime']['Id'],'-xzf','-','-C','/restore',data=source_archive)
+        self.recover_plugin_source(source_volume,inventory)
         restored_plugin=self.owned('volume',source_volume)['Mountpoint']+'/'+mapping['source']
         wordpress=self.container('restored-wp',self.images['wordpress']['Id'],'--network',network,'--env-file',str(self.wp_environment),'--mount','type=volume,source='+wordpress_volume+',target=/var/www/html','--mount','type=bind,source='+restored_plugin+',target='+mapping['destination']+',readonly')
         title=self.wp(wordpress,'post','get',self.post_id,'--field=post_title').decode().strip()
@@ -209,6 +210,11 @@ plugin=source/'wordpress/plugins/tio2-site-model'; plugin.mkdir(parents=True)
         if self.wp(wordpress,'eval','echo TIO2_BACKUP_BOUND_PLUGIN;').decode().strip()!='restored-bound-source': raise RuntimeError('bound plugin was not loaded')
         if self.exec(wordpress,'cat','/var/www/html/wp-content/uploads/fixture/media.bin')!=self.media: raise RuntimeError('restored media mismatch')
         self.exec(wordpress,'curl','--fail','--silent','--output','/dev/null','http://localhost/wp-login.php')
+
+    def recover_plugin_source(self,source_volume,inventory):
+        self.owned('volume',source_volume)
+        code="import sys,json;sys.path.insert(0,'/workspace/ops/production/server');from backup_core import restore_mapped_plugin_permissions;print(json.dumps(restore_mapped_plugin_permissions('/restore',json.load(sys.stdin))))"
+        return json.loads(self.docker('run','--rm','-i','--label',LABEL+'='+self.run_id,'--network','none','--mount','type=bind,source='+str(ROOT).replace('\\','/')+',target=/workspace,readonly','--mount','type=volume,source='+source_volume+',target=/restore','--entrypoint','python3',self.images['runtime']['Id'],'-B','-c',code,data=json.dumps(inventory).encode()))
 
     def cleanup(self):
         failures=[]

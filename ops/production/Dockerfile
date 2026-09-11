@@ -33,7 +33,7 @@ ENV SITE_ID=${SITE_ID} \
     WORDPRESS_PREVIEW_URL=${WORDPRESS_PREVIEW_URL}
 
 COPY . .
-RUN --mount=type=secret,id=wordpress_editorial_api_token,env=WORDPRESS_EDITORIAL_API_TOKEN,required=true npm run build
+RUN --mount=type=tmpfs,target=/app/.next/cache --mount=type=secret,id=wordpress_editorial_api_token,env=WORDPRESS_EDITORIAL_API_TOKEN,required=true npm run build
 RUN npm prune --omit=dev
 
 FROM node:24-bookworm-slim@sha256:2fe369e969550cde8e867afc3fe370b260140cab4a23d467074295b42163d553 AS runtime
