@@ -1,4 +1,4 @@
-import {spawnSync} from 'node:child_process'
+import {execFileSync, spawnSync} from 'node:child_process'
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join, resolve} from 'node:path'
@@ -6,7 +6,7 @@ import {describe, expect, it} from 'vitest'
 
 const quote = (s: string) => `'${s.replaceAll("'", "''")}'`
 const modulePath = resolve('scripts/prerelease/Prerelease.Core.psm1')
-const manifest = {runId: 'run-1', commit: 'a'.repeat(40), buildId: 'build-1', cmsIdentitySha256: 'b'.repeat(64), siteId: 'tio2-my'}
+const manifest = {runId: 'run-1', commit: execFileSync('git', ['rev-parse', 'HEAD'], {encoding: 'utf8'}).trim(), buildId: 'build-1', cmsIdentitySha256: 'b'.repeat(64), siteId: 'tio2-my'}
 const ordinaryChecks = {
   smoke: ['smoke.representative', 'smoke.local-forms', 'smoke.cookie-keyboard', 'smoke.reflow.1440', 'smoke.reflow.768', 'smoke.reflow.390'],
   'public-paths': ['public-paths.width.1440', 'public-paths.width.768', 'public-paths.width.390', 'public-paths.internal-links.58'],

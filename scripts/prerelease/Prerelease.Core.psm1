@@ -209,6 +209,33 @@ function Get-PrereleaseSha256 {
     finally { $stream.Dispose() }
 }
 
+function Get-PrereleaseGitBlobSha256 {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [string] $RepositoryRoot,
+        [Parameter(Mandatory)] [ValidatePattern('^[a-fA-F0-9]{40}$')] [string] $Commit,
+        [Parameter(Mandatory)] [string] $Path
+    )
+
+    if ($Path -notmatch '^(?!/)(?!.*(?:^|/)\.\.(?:/|$))[A-Za-z0-9._/-]+$') { throw 'Git blob path is invalid.' }
+    $quote = { param([string] $Value) '"' + ($Value -replace '(\\*)"', '$1$1\"' -replace '(\\+)$', '$1$1') + '"' }
+    $startInfo = [Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = 'git'
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.Arguments = (@('-C', $RepositoryRoot, 'cat-file', 'blob', "$Commit`:$Path") | ForEach-Object { & $quote $_ }) -join ' '
+    $process = [Diagnostics.Process]::new(); $process.StartInfo = $startInfo
+    if (-not $process.Start()) { throw 'Failed to read the frozen Git blob.' }
+    $algorithm = [Security.Cryptography.SHA256]::Create()
+    try { $digest = ([BitConverter]::ToString($algorithm.ComputeHash($process.StandardOutput.BaseStream)) -replace '-', '').ToLowerInvariant() }
+    finally { $algorithm.Dispose() }
+    $errorText = $process.StandardError.ReadToEnd(); $process.WaitForExit()
+    if ($process.ExitCode -ne 0) { throw 'Failed to read the frozen Git blob.' }
+    return $digest
+}
+
 function New-PrereleaseFrozenSource {
     [CmdletBinding()]
     param(
@@ -600,15 +627,8 @@ function Complete-PrereleaseEvidence {
         $accepted = @($attempts | Where-Object { $_.workflow -eq $workflow -and $_.httpStatus -eq 200 -and $_.providerCategory -eq 'accepted' })
         if ($accepted.Count -ne 1) { $allProviderAccepted = $false }
     }
-    $surfacePath = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../ops/production/release-surface.json'))
-    if (-not (Test-Path -LiteralPath $surfacePath -PathType Leaf)) { throw 'Release surface inventory is missing.' }
-    $surfaceStream = [IO.File]::OpenRead($surfacePath)
-    try {
-        $surfaceAlgorithm = [Security.Cryptography.SHA256]::Create()
-        try { $releaseSurfaceSha256 = ([BitConverter]::ToString($surfaceAlgorithm.ComputeHash($surfaceStream)) -replace '-', '').ToLowerInvariant() }
-        finally { $surfaceAlgorithm.Dispose() }
-    }
-    finally { $surfaceStream.Dispose() }
+    $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+    $releaseSurfaceSha256 = Get-PrereleaseGitBlobSha256 -RepositoryRoot $repositoryRoot -Commit $Manifest.commit -Path 'ops/production/release-surface.json'
     $result = [ordered]@{
         schemaVersion = 2; action = $Action; commandUuid = $CommandUuid
         candidateCommit = $Manifest.commit; runId = $Manifest.runId; buildId = $Manifest.buildId

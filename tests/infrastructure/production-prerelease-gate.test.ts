@@ -1,4 +1,4 @@
-import {spawnSync} from 'node:child_process'
+import {execFileSync, spawnSync} from 'node:child_process'
 import {createHash} from 'node:crypto'
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
@@ -8,9 +8,9 @@ import {afterEach, describe, expect, it} from 'vitest'
 const script = resolve('scripts/prerelease/Seal-ProductionGate.ps1')
 const surfacePath = resolve('ops/production/release-surface.json')
 const temporaryDirectories: string[] = []
-const commit = 'a'.repeat(40)
+const commit = execFileSync('git', ['rev-parse', 'HEAD'], {encoding: 'utf8'}).trim()
 const cmsIdentitySha256 = 'b'.repeat(64)
-const surfaceSha256 = createHash('sha256').update(readFileSync(surfacePath)).digest('hex')
+const surfaceSha256 = createHash('sha256').update(execFileSync('git', ['cat-file', 'blob', `${commit}:ops/production/release-surface.json`])).digest('hex')
 const checkIds = [
   'smoke.representative', 'smoke.local-forms', 'smoke.cookie-keyboard',
   'smoke.reflow.1440', 'smoke.reflow.768', 'smoke.reflow.390',
