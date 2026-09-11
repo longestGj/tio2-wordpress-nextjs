@@ -26,6 +26,18 @@ SCHEMA='tio2-production-baseline-v3'
 ADAPTER='tio2-web-bluegreen-v1'
 
 
+def validate_rollback_intent_shape(intent):
+    require(isinstance(intent,dict) and set(intent)=={'schemaVersion','siteId','candidate','activeBaselineSha256','preparedBaselineSha256','backupId'},'rollback intent fields mismatch')
+    require(intent['schemaVersion']=='tio2-rollback-intent-v1' and intent['siteId']=='tio2-my','rollback intent identity mismatch')
+    candidate=intent['candidate']
+    require(isinstance(candidate,dict) and set(candidate)=={'commit','archiveSha256','manifestSha256','proofSha256'},'rollback candidate fields mismatch')
+    for key,value in candidate.items():
+        require(isinstance(value,str) and re.fullmatch('[a-f0-9]{40}' if key=='commit' else '[a-f0-9]{64}',value),'rollback candidate hash mismatch')
+    for key in ('activeBaselineSha256','preparedBaselineSha256'):
+        require(isinstance(intent[key],str) and SHA.fullmatch(intent[key]),'rollback baseline hash mismatch')
+    require(isinstance(intent['backupId'],str) and re.fullmatch('[0-9]{8}T[0-9]{6}Z-[a-f0-9]{40}-[a-f0-9]{32}',intent['backupId']),'rollback generation mismatch')
+
+
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,req,fp,code,msg,headers,newurl): return None
 
@@ -377,9 +389,15 @@ class Deployment:
             state=transition(self.root,{'INTERNAL_VERIFIED'},'PUBLIC_VERIFIED',details)
         return self.result('verify',state)
 
-    def rollback(self):
+    def rollback(self,intent):
         state=read_state(self.root); details=state.get('details',{})
+        validate_rollback_intent_shape(intent)
+        require(all(details.get('candidate',{}).get(k)==v for k,v in intent['candidate'].items()),'rollback expected candidate changed')
+        evidence=details.get('deploymentEvidence',{})
+        require(evidence.get('baselineSha256')==intent['preparedBaselineSha256'] and evidence.get('backupId')==intent['backupId'],'rollback expected deployment generation changed')
         journal=self.read_record(self.journal_path) if self.journal_path.exists() else None
+        retry=state['state'] in {'ROLLING_BACK','ROLLED_BACK','FAILED'} and journal and journal.get('action')=='rollback' and journal.get('intent')==intent
+        require(retry or (state['state'] in {'PUBLIC_VERIFIED','INTERNAL_VERIFIED'} and details.get('active',{}).get('enrollmentSha256')==intent['activeBaselineSha256']),'rollback expected active baseline changed')
         if state['state']=='ROLLED_BACK':
             self.verify(); return self.result('rollback',state)
         if state['state']=='ROLLING_BACK':
@@ -392,11 +410,11 @@ class Deployment:
         old=self.read_record(self.paths.configuration/'baseline.json')
         require_compatible_trees(Path(old['active']['sourceRoot']),Path(target['active']['sourceRoot']))
         self.adapter.health(target)
-        journal={'schemaVersion':'tio2-deployment-journal-v1','action':'rollback','candidate':details['candidate'],'old':old,'target':target,'evidence':details['deploymentEvidence'],'phase':'switching'}
+        journal={'schemaVersion':'tio2-deployment-journal-v1','action':'rollback','candidate':details['candidate'],'old':old,'target':target,'evidence':details['deploymentEvidence'],'intent':intent,'phase':'switching'}
         self.save(journal); transition(self.root,{state['state']},'ROLLING_BACK',details)
         return self.finish_switch(journal,details)
 
 
 def deploy_release(paths): return Deployment(paths).deploy()
 def verify_release(paths): return Deployment(paths).verify()
-def rollback_release(paths): return Deployment(paths).rollback()
+def rollback_release(paths,intent): return Deployment(paths).rollback(intent)

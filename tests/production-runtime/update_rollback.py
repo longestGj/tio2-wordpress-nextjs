@@ -98,15 +98,23 @@ class UpdateRehearsal(Rehearsal):
         self.exec(self.server,'python3','-B','/workspace/tests/production-runtime/update_runtime_server.py','setup',data=json.dumps(payload).encode())
 
     def action(self,action):
+        data=None
+        if action=='rollback':
+            details=self.action('status')['state']['details']
+            generation=details['deploymentEvidence']['backupId']
+            if not hasattr(self,'rollback_intents'):self.rollback_intents={}
+            if generation not in self.rollback_intents:
+                self.rollback_intents[generation]={'schemaVersion':'tio2-rollback-intent-v1','siteId':'tio2-my','candidate':{k:details['candidate'][k] for k in ('commit','archiveSha256','manifestSha256','proofSha256')},'activeBaselineSha256':details['active']['enrollmentSha256'],'preparedBaselineSha256':details['deploymentEvidence']['baselineSha256'],'backupId':generation}
+            data=json.dumps(self.rollback_intents[generation]).encode()
         try:
-            return json.loads(self.exec(self.server,'/usr/local/sbin/tio2-release',action,timeout=3600))
+            return json.loads(self.exec(self.server,'/usr/local/sbin/tio2-release',action,data=data,timeout=3600))
         except RuntimeError:
             journal=self.exec(self.server,'cat','/opt/tio2-production/state/deployment-journal.json').decode()
             (ROOT/'.superpowers/sdd/2026-09-11-release-tooling-revised/task-3-failed-journal.json').write_text(journal)
             print(json.dumps({'failedAction':action,'journalPhase':json.loads(journal).get('phase'),'reason':json.loads(journal).get('failure')}),flush=True)
             # Diagnostic bypasses no guards, invokes installed core under its lock.
             if action in ('deploy','verify','rollback'):
-                self.exec(self.server,'python3','-B','/workspace/tests/production-runtime/update_runtime_server.py','diagnose',data=json.dumps({'action':action}).encode(),timeout=3600)
+                self.exec(self.server,'python3','-B','/workspace/tests/production-runtime/update_runtime_server.py','diagnose',data=json.dumps({'action':action,'intent':self.rollback_intents[generation] if action=='rollback' else None}).encode(),timeout=3600)
             raise
 
     def prepare_backup(self):

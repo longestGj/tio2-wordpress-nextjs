@@ -429,7 +429,7 @@ function Get-ProductionBackupRequest($RunRoot, $ProofSha256, $BaselineSha256) {
     Save-ProductionJson $path $request
     return $request
 }
-function Invoke-ProductionTransport($Config, $RunRoot, $Kind, $Value) {
+function Invoke-ProductionTransport($Config, $RunRoot, $Kind, $Value, $Intent = $null) {
     Assert-ProductionConnection $Config
     $known = Join-Path $RunRoot 'known_hosts'
     $lookup = if ($Config.port -eq 22) { $Config.host } else { "[$($Config.host)]:$($Config.port)" }
@@ -441,7 +441,12 @@ function Invoke-ProductionTransport($Config, $RunRoot, $Kind, $Value) {
     $destination = "deploy@$($Config.host)"
     if ($Kind -eq 'action') {
         if ($Value -notin @('status','prepare','backup','deploy','verify','rollback')) { throw 'Unsupported fixed action.' }
-        $output = @(& ssh @options -p $Config.port $destination "sudo -n /usr/local/sbin/tio2-release $Value" 2>$null)
+        if ($Value -eq 'rollback') {
+            if ($null -eq $Intent) { throw 'Rollback requires a bound operation intent.' }
+            $output = @(($Intent | ConvertTo-Json -Depth 10 -Compress) | & ssh @options -p $Config.port $destination "sudo -n /usr/local/sbin/tio2-release $Value" 2>$null)
+        } else {
+            $output = @(& ssh @options -p $Config.port $destination "sudo -n /usr/local/sbin/tio2-release $Value" 2>$null)
+        }
         if ($LASTEXITCODE -ne 0) {
             $failure=@{action=$Value;exitCode=$LASTEXITCODE;completed=$false;observedAt=[DateTimeOffset]::UtcNow.ToString('o')}
             try {
@@ -547,7 +552,17 @@ function Invoke-ProductionOperation {
             Save-ProductionJson (Join-Path $RunRoot 'deploy.json') $deploy
             $action='verify'
         } else {$action=$Operation.ToLowerInvariant()}
-        $result=Invoke-ProductionTransport $config $RunRoot action $action
+        if($action -eq 'rollback'){
+            $intentPath=Join-Path $RunRoot 'rollback-intent.json'
+            if(Test-Path -LiteralPath $intentPath){$intent=Read-ProductionJson $intentPath}
+            else{
+                $intent=@{schemaVersion='tio2-rollback-intent-v1';siteId='tio2-my';candidate=$candidate;activeBaselineSha256=$status.state.details.active.enrollmentSha256;preparedBaselineSha256=$prepared.active.enrollmentSha256;backupId=$status.state.details.deploymentEvidence.backupId}
+                Save-ProductionJson $intentPath $intent
+            }
+            foreach($name in $candidate.Keys){if($intent.candidate[$name] -cne $candidate[$name]){throw 'Persisted rollback candidate changed.'}}
+            if($intent.preparedBaselineSha256 -cne $prepared.active.enrollmentSha256 -or $intent.backupId -cne $status.state.details.deploymentEvidence.backupId){throw 'Persisted rollback generation changed.'}
+            $result=Invoke-ProductionTransport $config $RunRoot action $action $intent
+        } else {$result=Invoke-ProductionTransport $config $RunRoot action $action}
         Assert-ProductionActionReceipt $action $result $candidate
         if($action -eq 'verify' -and $result.state -eq 'PUBLIC_VERIFIED' -and $result.active.commit -cne $candidate.commit){throw 'Verified active identity mismatch.'}
         if($result.state -eq 'ROLLED_BACK' -and $result.active.sourceSha256 -cne $prepared.active.sourceSha256){throw 'Rollback active identity mismatch.'}

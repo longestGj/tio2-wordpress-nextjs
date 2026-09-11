@@ -45,6 +45,16 @@ Task3 当前A/B/B2的完整11个gzip层及config/history扫描未发现editorial
 
 Task4独立审查fix1：默认SSH端口22现在写入裸hostname pin，非默认端口仍为 `[host]:port`；字段验证测试先证明存在临时密钥的完整配置有效，再逐字段破坏。新增pin格式回归先RED后GREEN，最终控制器9/9通过。真实SSH-only run `tio2-ssh-pin-8891528bf886432197f9c28d4ae1f1a7` 在本地22/57507各验证正确pin成功、全新RunRoot错误pin由OpenSSH拒绝（exit255），远端fixture Status总执行恰好2次；容器与临时私钥清理通过。旧完整演练的 `wrongHostPinRejected` 只证明已绑定RunRoot拒绝变更pin，本轮才补齐实际SSH错误密钥拒绝证据。SSH-only脚本使用精确既有工具镜像和模拟Status回执，没有重跑CMS/部署/浏览器。操作文档的发布流程锚点同步修正。
 
+## 最终广审统一修复（起点 ad316c7）
+
+三个范围内问题分别修复：备份子进程继承真实入口的同一flock描述符；回滚通过有界stdin intent在root锁内校验调用者观察到的候选、active canonical enrollment、prepare baseline和backup绑定；install.sh按八进制解析stat权限。默认六动作/五上传不变，root工具升级仍由管理员独立安装。
+
+真实Linux父进程单独SIGKILL回归先复现第二调用错误进入操作，修复后子进程存活期间返回锁忙且无操作；子进程结束后恢复可调用。它执行实际main→实际backup.sh→env/Python链，终端backup_core为受控等待sentinel，证明锁的进程生命周期，不冒充一次真实CMS备份。真实backup_core源码未关闭继承描述符，原备份数据/恢复证据不重跑。
+
+安装权限矩阵走实际install.sh入口，允许0600/0640/0644/0700/0750/0755，拒绝0620/0602/0660/0666/0770/0777。仅隔离容器的OS标识设置为Ubuntu24.04，终端Python安装器是记录调用的sentinel；不宣称完成生产Ubuntu安装。Linux另验证intent解析/陈旧拒绝时实际root锁已持有。
+
+定向Python37项涵盖既有backup/state/deployment/bootstrap及新rollback门槛，全部通过；控制器10/10通过；Linux三项（含12权限组合）通过。回滚测试覆盖同候选但不同active enrollment或backup、旧候选、错误prepare baseline、副作用前拒绝，以及回滚已切换但状态写入中断后的同intent恢复/重复调用。短真实SSH演练额外验证Status观察B后模拟另一发布C，B意图通过stdin实际进入当前root门槛，C状态保留、无回滚journal或activation。精确运行ID与日志哈希见相邻证据JSON的 `finalReviewFix`。本轮没有完整CMS/Next构建或浏览器重跑，既有镜像和174视口聚合证据的范围不扩大。
+
 ## 仍须独立记录的目标条件
 
 当前物理Docker主机是amd64。精确生产基础镜像 `node:24-bookworm-slim@sha256:2fe369e969550cde8e867afc3fe370b260140cab4a23d467074295b42163d553` 以 `--platform linux/arm64 --network none` 本地模拟启动成功，实测 `arm64/linux/v24.21.0`；这只是模拟基础运行时preflight，完整Next ARM64构建和原生ARM64启动未验收。当前本地client和restore命名空间不等于不同物理主机。真实服务器交接/拓扑、实际异地存储、clean-main来源、生产DNS/TLS/互联网访问、表单服务商接收/实际收件与用户发布批准均未由本窗口完成。没有安排监控、定时任务、CI触发或新常驻Agent。

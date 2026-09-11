@@ -50,6 +50,32 @@ it('refuses a completion claim with missing decryption or restore records',()=>{
  expect(result.status).not.toBe(0);expect(result.stderr).toContain('recovery evidence')
 })
 import {createHash} from 'node:crypto'
+it('binds rollback to the observed candidate, active baseline and backup generation across an interleaved publish',()=>{
+ const root=controllerFixture()
+ const h=(name:string)=>createHash('sha256').update(readFileSync(join(root,name))).digest('hex')
+ const candidate={commit:'b'.repeat(40),archiveSha256:h('release.tar.gz'),manifestSha256:h('release-manifest.json'),proofSha256:h('release-proof.json')}
+ const active={enrollmentSha256:'d'.repeat(64)}
+ writeFileSync(join(root,'prepare.json'),JSON.stringify({action:'prepare',ok:true,state:'PREPARED',candidate,active:{enrollmentSha256:'c'.repeat(64)}}))
+ const backupId=`20260911T000000Z-${'b'.repeat(40)}-${'a'.repeat(32)}`
+ const result=ps(`& (Get-Module Production.Core) {
+ $script:root=${quote(root)}; $script:candidate=(${quote(JSON.stringify(candidate))}|ConvertFrom-Json -AsHashtable)
+ function script:Invoke-ProductionTransport($Config,$RunRoot,$Kind,$Value,$Intent){
+ if($Value -eq 'status'){return @{action='status';ok=$true;state=@{state='PUBLIC_VERIFIED';details=@{candidate=$script:candidate;active=@{enrollmentSha256='${active.enrollmentSha256}'};deploymentEvidence=@{backupId='${backupId}';baselineSha256='${'c'.repeat(64)}'}}}}}
+ if($Value -eq 'rollback'){
+ # A second publisher changed B to C after Status. Root must receive B's intent.
+ if($null -ne $Intent){Save-ProductionJson (Join-Path $script:root 'sent-intent.json') $Intent;throw 'stale rollback refused before activation'}
+ [IO.File]::WriteAllText((Join-Path $script:root 'activated'),'C was rolled back')
+ throw 'missing intent allowed mutation'
+ }
+ throw 'unexpected action'
+ }
+ }
+ Invoke-ProductionOperation -Operation Rollback -ConfigPath ${quote(join(root,'config.json'))} -RunRoot ${quote(root)}`)
+ expect(result.status).not.toBe(0);expect(result.stderr).toContain('stale rollback refused before activation')
+ const sent=JSON.parse(readFileSync(join(root,'sent-intent.json'),'utf8'))
+ expect(sent).toEqual({schemaVersion:'tio2-rollback-intent-v1',siteId:'tio2-my',candidate,activeBaselineSha256:active.enrollmentSha256,preparedBaselineSha256:'c'.repeat(64),backupId})
+ expect(readFileSync(join(root,'rollback-intent.json'),'utf8')).toBe(readFileSync(join(root,'sent-intent.json'),'utf8'))
+})
 function controllerFixture(){
  const root=mkdtempSync(join(tmpdir(),'tio2-controller-flow-'));roots.push(root)
  writeFileSync(join(root,'identity'),'test-only')

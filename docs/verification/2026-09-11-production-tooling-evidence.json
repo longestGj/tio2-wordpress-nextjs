@@ -173,6 +173,42 @@
     {
       "path": ".tmp/task4/fix1-ssh.log",
       "sha256": "73202335c14fe123914b54e1f3e35ddb8de986f031621d0dc547d3566a2a06d5"
+    },
+    {
+      "path": ".tmp/task4/final-lock-red.log",
+      "sha256": "c02ad6f6c1a47ccdd183223aebd993503e7d0b0ca9d3d6d0cdcd38917011566d"
+    },
+    {
+      "path": ".tmp/task4/final-red-linux.log",
+      "sha256": "079f3d32cd922f103602a74bfd1f7bbdfa0ad57f3237119559d5d951f0985fb4"
+    },
+    {
+      "path": ".tmp/task4/final-red-python.log",
+      "sha256": "3e02b588e85ebed1c5b3d195a215b5e835079df7a337bb29665e5f663c9b680e"
+    },
+    {
+      "path": ".tmp/task4/final-red-controller.log",
+      "sha256": "5a2777f8c2fbb94c622a992b2b83896014b9b09771b08d25628de7a8b8bc0195"
+    },
+    {
+      "path": ".tmp/task4/final-regression-windows.log",
+      "sha256": "d9678b162e049ef0f96ccefb35ed10b68ae58d3f33f1b9f2871f0be1c3b3d056"
+    },
+    {
+      "path": ".tmp/task4/final-green-linux.log",
+      "sha256": "cd79a3bb09e033af8dc72ac1bba24672a07e8b78c2f63c2b4b9666eeea403cfb"
+    },
+    {
+      "path": ".tmp/task4/final-green-controller.log",
+      "sha256": "3b85f17ce731cb03a56ab9660a35e8b7462f5a6cc594906de10cab8bc8361e45"
+    },
+    {
+      "path": ".tmp/task4/final-ssh-wire-latest.log",
+      "sha256": "f4f7341c27c7405dc726e6e9d239550243d2544cc067559413d9214e1130a565"
+    },
+    {
+      "path": ".tmp/task4/tio2-ssh-pin-b279559ee0a94a5ca2e19a159956b22d/evidence.json",
+      "sha256": "f1f38fd1f8b49e2334b23e85ca91d77ba8d60d7202efc58f7d2ca672b5804b5b"
     }
   ],
   "fix1": {
@@ -211,5 +247,85 @@
       "cleanupVerified": true
     },
     "priorIntegrationEvidenceUnchanged": true
+  },
+  "finalReviewFix": {
+    "base": "ad316c7",
+    "scope": "three findings only; local verification; no CMS/build/browser rerun",
+    "pythonTests": {
+      "passed": 37,
+      "seconds": 6.241
+    },
+    "linuxTests": {
+      "passed": 3,
+      "seconds": 1.32,
+      "installModes": {
+        "allowed": [
+          "0600",
+          "0640",
+          "0644",
+          "0700",
+          "0750",
+          "0755"
+        ],
+        "rejected": [
+          "0620",
+          "0602",
+          "0660",
+          "0666",
+          "0770",
+          "0777"
+        ]
+      }
+    },
+    "controllerTests": {
+      "passed": 10,
+      "seconds": 19.61
+    },
+    "ssh": {
+      "runId": "tio2-ssh-pin-b279559ee0a94a5ca2e19a159956b22d",
+      "scope": "local OpenSSH pins plus actual root rollback intent guard; Status interleaving is a fixture",
+      "cases": [
+        {
+          "port": 22,
+          "correctPin": true,
+          "exitCode": 0,
+          "passed": true
+        },
+        {
+          "port": 22,
+          "correctPin": false,
+          "exitCode": 1,
+          "passed": true
+        },
+        {
+          "port": 54845,
+          "correctPin": true,
+          "exitCode": 0,
+          "passed": true
+        },
+        {
+          "port": 54845,
+          "correctPin": false,
+          "exitCode": 1,
+          "passed": true
+        }
+      ],
+      "remoteStatusExecutions": 2,
+      "rollbackInterleaving": {
+        "realStdinIntent": true,
+        "observedCandidate": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "currentCandidate": "cccccccccccccccccccccccccccccccccccccccc",
+        "rootRejectedBeforeJournalOrActivation": true,
+        "statePreserved": true
+      },
+      "passed": true,
+      "cleanupVerified": true
+    },
+    "limits": [
+      "Lock test uses actual main and installed backup.sh exec chain with terminal controlled backup_core waiting sentinel; no data backup in this test",
+      "Install test uses actual shell entry with isolated Ubuntu24.04 OS record and terminal Python sentinel",
+      "SSH interleaving hook simulates completed publisher C state; actual stdin/main/root rollback guard and lock execute",
+      "Existing full backup/deployment/browser evidence unchanged; no production, native ARM64 or physical off-host adoption proof"
+    ]
   }
 }

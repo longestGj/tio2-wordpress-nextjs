@@ -89,7 +89,7 @@ def package():
     print(json.dumps(result))
 
 
-def diagnose(action):
+def diagnose(action, intent=None):
     sys.path.insert(0,'/opt/tio2-production/program')
     from release_contract import DEFAULT_PATHS
     from release_actions import prepare_release
@@ -107,7 +107,8 @@ def diagnose(action):
                 raise RuntimeError('fixed fixture command failed: '+message[-1100:])
             return result.stdout
     with ReleaseLock(DEFAULT_PATHS.production/'state/release.lock'):
-        result=getattr(Deployment(DEFAULT_PATHS,adapter=DiagnosticAdapter(DEFAULT_PATHS)),action)()
+        engine=Deployment(DEFAULT_PATHS,adapter=DiagnosticAdapter(DEFAULT_PATHS))
+        result=engine.rollback(intent) if action=='rollback' else getattr(engine,action)()
     print(json.dumps(result))
 
 
@@ -165,6 +166,7 @@ if __name__=='__main__':
     os.umask(0o077)
     if sys.argv[1:]==['setup']: setup(json.load(sys.stdin))
     elif sys.argv[1:]==['package']: package()
-    elif sys.argv[1:]==['diagnose']: diagnose(json.load(sys.stdin)['action'])
+    elif sys.argv[1:]==['diagnose']:
+        data=json.load(sys.stdin); diagnose(data['action'],data.get('intent'))
     elif sys.argv[1:]==['faults']: faults()
     else: raise SystemExit(2)

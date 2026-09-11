@@ -74,9 +74,15 @@ npm run production -- -Operation Rollback -ConfigPath .production/connection.loc
 
 `Rollback` 只切回登记的先前前端，不恢复数据库。保留旧前端镜像和容器是其前提。返回 `databaseRestored=false`；当前 CMS 数据不会被旧 SQL 覆盖。
 
+回滚还要求控制器和 root 程序采用同一版 `tio2-rollback-intent-v1` 协议。控制器把候选四元组、刚从 Status 观察到的 active enrollment SHA、原 prepare baseline SHA 和 backupId 写入本运行的 `rollback-intent.json`，通过固定 `rollback` 动作的 stdin 发送；不增加动作、命令参数或第六份上传文件。root 最多接收4096字节JSON，在全局锁内检查完整字段、类型与当前候选/基线/备份绑定，匹配后才写journal或切换。另一运行已发布新版本时，旧回滚会在副作用前拒绝。同候选再次部署也必须匹配 canonical active enrollment（含当前容器身份），不能只凭提交相同就回滚。
+
+同一回滚请求因中断或响应丢失重试时复用原 intent；root 仅凭相同 rollback journal intent 接受已变化的目标状态，支持 `ROLLING_BACK`/`ROLLED_BACK` 幂等恢复。不要删除 intent 来绕过陈旧运行拒绝；使用对应实际发布版本的运行记录。旧客户端缺少 intent 会被新root程序拒绝；此协议升级须走前述独立管理员安装流程，普通 Release 不更新root工具。
+
 ## 中断、证据与恢复
 
 任何非零结果停止后续步骤。用相同配置、相同 RunRoot 重试同一个操作，不删除请求或手工改状态。`controller.lock` 防止同一运行并发；`connection.json` 固定 host pin 和初始 baseline；prepare/backup/deploy/verify/rollback 分阶段保留回执。备份 UUID 和请求字节跨重试保持不变；服务端锁忙时稍后重试，不生成新 UUID。
+
+服务端备份子进程继承入口已经持有的同一个 flock 文件描述符。仅入口进程被杀或OOM时，仍存活的备份进程继续持锁，第二次调用不会在其捕获/恢复期间进入操作；子进程结束后锁才释放。这不把所有进程同时被杀的恢复机制替换掉，原持久journal仍负责下一次恢复。
 
 下载先写 `.part`，只有 hash 匹配才发布 `ciphertext.age`。本地恢复失败不会发出部署证据；`recovery.log` 保存非秘密错误；远端非零会保留 `transport-failure.json` 并尝试读取固定Status保存 `failure-status.json`，不继续后续写入阶段。客户端临时解密内容在一次性恢复容器内，主机运行目录保留 ciphertext 和非秘密阶段证据。恢复验证的 Docker 容器、网络和卷带独有标签；意外强杀宿主机导致的残留必须按记录的唯一标签和实际归属核对清理，不能全局 prune。
 

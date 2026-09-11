@@ -171,8 +171,21 @@ class DeploymentTests(unittest.TestCase):
                 self.assertEqual(adapter.active,'c'*40)
                 self.assertEqual(engine.verify()['state'],'PUBLIC_VERIFIED')
                 self.assertEqual(engine.verify()['state'],'PUBLIC_VERIFIED')
-                self.assertEqual(engine.rollback()['active']['commit'],'a'*40)
-                self.assertEqual(engine.rollback()['state'],'ROLLED_BACK')
+                from tests.production.test_final_protocol import intent
+                rollback_intent=intent(read_state(engine.root)['details'])
+                if crash is None:
+                    original=core.transition
+                    def interrupted_rollback(root,expected,state,details):
+                        if state=='ROLLED_BACK':raise OSError('rollback state write interrupted')
+                        return original(root,expected,state,details)
+                    with patch('deployment_core.transition',side_effect=interrupted_rollback),self.assertRaises(OSError):engine.rollback(rollback_intent)
+                    self.assertEqual(read_state(engine.root)['state'],'ROLLING_BACK')
+                    wrong_generation=deepcopy(rollback_intent);wrong_generation['backupId']='20260911T000001Z-'+'c'*40+'-'+'b'*32
+                    calls=len(adapter.calls)
+                    with self.assertRaises(ReleaseError):engine.rollback(wrong_generation)
+                    self.assertEqual(len(adapter.calls),calls)
+                self.assertEqual(engine.rollback(rollback_intent)['active']['commit'],'a'*40)
+                self.assertEqual(engine.rollback(rollback_intent)['state'],'ROLLED_BACK')
                 self.assertEqual(adapter.active,'a'*40)
                 # The next prepare/backup cycle binds the same B to the renewed A enrollment.
                 prior=read_state(engine.root)['details']['previousBaseline']

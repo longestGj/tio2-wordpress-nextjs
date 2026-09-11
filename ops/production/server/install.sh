@@ -19,7 +19,7 @@ for source_file in install.sh bootstrap_install.py bootstrap_selftest.py tio2_re
   path="$SOURCE_DIR/$source_file"
   [ -f "$path" ] && [ ! -L "$path" ] || die "unsafe bootstrap source: $source_file"
   [ "$(stat -c '%u' "$path")" -eq 0 ] || die "bootstrap source is not root-owned: $source_file"
-  [ $((10#$(stat -c '%a' "$path") & 022)) -eq 0 ] || die "bootstrap source is group/world-writable: $source_file"
+  [ $((8#$(stat -c '%a' "$path") & 022)) -eq 0 ] || die "bootstrap source is group/world-writable: $source_file"
 done
 
 if ! command -v age >/dev/null 2>&1; then

@@ -167,8 +167,12 @@ class CommandRunner(Protocol):
 class SubprocessCommandRunner:
     """Run fixed argv tuples only; never create a shell from release data."""
 
+    def __init__(self, lock_descriptor: int | None = None):
+        self.lock_descriptor = lock_descriptor
+
     def run(self, command: tuple[str, ...]) -> CommandResult:
-        completed = subprocess.run(command, check=False, shell=False, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        inherited = () if self.lock_descriptor is None else (self.lock_descriptor,)
+        completed = subprocess.run(command, check=False, shell=False, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, pass_fds=inherited)
         return CommandResult(completed.returncode, completed.stdout)
 
 
@@ -232,13 +236,18 @@ def _parse_backup_result(value: str, expected_backup_id: str, request_id: str) -
     return result
 
 
-def backup_release(paths: ReleasePaths, runner: CommandRunner | None = None, *, backup_program: str | None = None) -> dict[str, object]:
+def backup_release(paths: ReleasePaths, runner: CommandRunner | None = None, *, backup_program: str | None = None, lock_descriptor: int | None = None) -> dict[str, object]:
     """Create one backup only after non-mutating prerequisites succeed.
 
     The script owns all volume reads and service lifecycle changes.  State is
     deliberately advanced only after its validated JSON receipt is available.
     """
-    active_runner: CommandRunner = runner or SubprocessCommandRunner()
+    if runner is None and lock_descriptor is None:
+        raise ReleaseError('backup requires the held release lock descriptor')
+    # pass_fds retains the SAME flock open-file description across backup.sh's
+    # exec/env/Python chain. Parent-only death cannot admit a second action while
+    # backup_core still captures or recovers writers. Never reopen another lock.
+    active_runner: CommandRunner = runner or SubprocessCommandRunner(lock_descriptor)
     state_root = paths.production / "state"
     state = read_state(state_root)
     if state.get("state") not in {"PREPARED","BACKED_UP"}:
@@ -293,6 +302,6 @@ def verify_release(paths):
     return verify(paths)
 
 
-def rollback_release(paths):
+def rollback_release(paths, intent):
     from deployment_core import rollback_release as rollback
-    return rollback(paths)
+    return rollback(paths, intent)
