@@ -132,6 +132,20 @@ class DockerWebAdapter:
     def docker(self,*args,**kwargs): return self.command('/usr/bin/docker',*args,**kwargs)
     def inspect(self,identity): return json.loads(self.docker('inspect',identity))[0]
 
+    def receipt_mount_arguments(self):
+        receipt=str(self.paths.production/'form-receipts')
+        return ['--mount','type=bind,source='+receipt+',target='+receipt]
+
+    def valid_web_mounts(self,mounts):
+        receipt=str(self.paths.production/'form-receipts')
+        return isinstance(mounts,list) and len(mounts)==1 and all(
+            mount.get('Type')=='bind'
+            and mount.get('Source')==receipt
+            and mount.get('Destination')==receipt
+            and mount.get('RW') is True
+            for mount in mounts
+        )
+
     def candidate_name(self,old,details):
         scope=hashlib.sha256(old['enrollment']['handoffId'].encode()).hexdigest()[:8]
         return 'tio2-web-'+scope+'-'+details['commit'][:16]+'-'+details['archiveSha256'][:12]
@@ -161,7 +175,7 @@ class DockerWebAdapter:
         bindings=wpi['HostConfig']['PortBindings'].get('80/tcp')
         require(bindings==[{'HostIp':'127.0.0.1','HostPort':str(d['cmsPort'])}],'build CMS loopback binding mismatch')
         current=self.inspect(_web(record)['id'])
-        require(current['HostConfig']['PortBindings'].get('3000/tcp')==[{'HostIp':'127.0.0.1','HostPort':str(d['activePort'])}] and not current['Mounts'],'web port or mounts mismatch')
+        require(current['HostConfig']['PortBindings'].get('3000/tcp')==[{'HostIp':'127.0.0.1','HostPort':str(d['activePort'])}] and self.valid_web_mounts(current['Mounts']),'web port or mounts mismatch')
         require(set(n['NetworkID'] for n in current['NetworkSettings']['Networks'].values())=={d['networkId']},'web network mismatch')
         env=dict(line.split('=',1) for line in Path(record['configuration']['environment']['path']).read_text().splitlines() if line and not line.startswith('#'))
         for name in ('WORDPRESS_EDITORIAL_API_TOKEN','NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY'):
@@ -172,7 +186,7 @@ class DockerWebAdapter:
         web=_web(record); observed=self.inspect(web['id'])
         require(observed['Image']==web['imageId'] and observed['State']['Running'],'web image or running state mismatch')
         d=record['runtime']['deployment']
-        require(observed['HostConfig']['PortBindings'].get('3000/tcp')==[{'HostIp':'127.0.0.1','HostPort':str(d['activePort'])}] and not observed['Mounts'],'web port or mounts mismatch')
+        require(observed['HostConfig']['PortBindings'].get('3000/tcp')==[{'HostIp':'127.0.0.1','HostPort':str(d['activePort'])}] and self.valid_web_mounts(observed['Mounts']),'web port or mounts mismatch')
         require({n['NetworkID'] for n in observed['NetworkSettings']['Networks'].values()}=={d['networkId']},'web network mismatch')
         build_id=self.docker('exec',web['id'],'cat','/app/.next/BUILD_ID').decode().strip()
         require(build_id==record['runtime']['deployment']['buildId'],'Next build identity mismatch')
@@ -232,7 +246,7 @@ class DockerWebAdapter:
             require(c['Image']==image['id'] and labels.get('tio2.release')==details['commit'] and labels.get('tio2.archive')==details['archiveSha256'],'candidate identity collision')
             cid=c['Id']
         else:
-            cid=self.docker('create','--name',name,'--label','tio2.deployment='+old['enrollment']['handoffId'],'--label','tio2.release='+details['commit'],'--label','tio2.archive='+details['archiveSha256'],'--restart','unless-stopped','--network',d['networkId'],'--env-file',old['configuration']['environment']['path'],'--env','WORDPRESS_GRAPHQL_URL=http://wordpress/graphql','--env','WORDPRESS_PREVIEW_URL=http://wordpress/wp-json/tio2/v1/preview','--publish','127.0.0.1:'+str(port)+':3000',image['id']).decode().strip()
+            cid=self.docker('create','--name',name,'--label','tio2.deployment='+old['enrollment']['handoffId'],'--label','tio2.release='+details['commit'],'--label','tio2.archive='+details['archiveSha256'],'--restart','unless-stopped','--network',d['networkId'],'--env-file',old['configuration']['environment']['path'],'--env','WORDPRESS_GRAPHQL_URL=http://wordpress/graphql','--env','WORDPRESS_PREVIEW_URL=http://wordpress/wp-json/tio2/v1/preview','--publish','127.0.0.1:'+str(port)+':3000',*self.receipt_mount_arguments(),image['id']).decode().strip()
         self.docker('start',cid)
         new=deepcopy(old)
         new['active']={'kind':'managed','commit':details['commit'],'sourceRoot':str(self.paths.production/'releases'/details['commit']),'files':details['preparedManifest']['files']}

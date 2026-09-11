@@ -65,6 +65,17 @@ class DeploymentTests(unittest.TestCase):
         with patch.object(adapter,'health',side_effect=ReleaseError('proxy release identity mismatch')),patch('deployment_core.time.monotonic',side_effect=[0,31]),self.assertRaises(ReleaseError):
             adapter.wait_proxy({})
 
+    def test_fixed_receipt_mount_is_preserved_and_any_other_web_mount_is_rejected(self):
+        import deployment_core as core
+        adapter = core.DockerWebAdapter(self.f.paths)
+        receipt = str(self.f.paths.production / "form-receipts")
+        expected = [{"Type": "bind", "Source": receipt, "Destination": receipt, "RW": True}]
+
+        self.assertTrue(adapter.valid_web_mounts(expected))
+        self.assertFalse(adapter.valid_web_mounts([]))
+        self.assertFalse(adapter.valid_web_mounts(expected + [{"Type": "bind", "Source": "/tmp", "Destination": "/tmp", "RW": True}]))
+        self.assertEqual(adapter.receipt_mount_arguments(), ["--mount", f"type=bind,source={receipt},target={receipt}"])
+
     def test_recovery_retries_after_candidate_deletion_without_reactivating_missing_target(self):
         import deployment_core as core
         for entry in ('failed-switch','interrupted-recovery'):

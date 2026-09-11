@@ -18,6 +18,7 @@ from adoption_contract import AdoptionError, load_json_strict, validate_plan
 from adoption_internal import InternalAdoption
 from adoption_wordpress import WordPressAdoption
 from adoption_tls import TlsAdoption
+from adoption_finalize import AdoptionFinalizer
 from bootstrap_install import BootstrapPaths, install_bootstrap
 from release_contract import DEFAULT_PATHS, extract_release, inspect_archive, sha256_file, validate_manifest, validate_prerelease_proof
 from release_state import atomic_write_json
@@ -258,3 +259,6 @@ class SystemPhaseAOperations:
 
     def activate_public(self, plan: dict[str, object], internal: dict[str, object]) -> dict[str, object] | None:
         return TlsAdoption(self.paths).activate(plan, internal)
+
+    def finalize_daily_release(self, plan: dict[str, object], details: dict[str, object]) -> dict[str, object]:
+        return AdoptionFinalizer(self.paths).finalize(plan, details)

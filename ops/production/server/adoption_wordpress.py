@@ -16,6 +16,14 @@ from release_contract import sha256_file
 from release_state import atomic_write_json
 
 
+def prepare_seed_mount(release_root: Path, seed_tmp: Path) -> str:
+    """Create the nested mountpoint before Docker mounts release_root read-only."""
+    mountpoint = release_root / ".tmp"
+    mountpoint.mkdir(mode=0o755, exist_ok=True)
+    os.chmod(mountpoint, 0o755)
+    return f"type=bind,source={seed_tmp},target=/workspace/.tmp,readonly"
+
+
 PLUGIN_DESTINATION = "/var/www/html/wp-content/plugins/tio2-site-model"
 WP_NAME = "wordpress-wordpress-1"
 DB_NAME = "wordpress-db-1"
@@ -184,7 +192,7 @@ class WordPressAdoption:
         manifest = json.loads((release_root / "ops/production/migration-manifest.json").read_text(encoding="utf-8"))
         if manifest.get("siteId") != "tio2-my" or len(manifest.get("seeds", [])) != 40:
             raise AdoptionError("production migration manifest is invalid")
-        seed_mount = [f"type=bind,source={seed_tmp},target=/workspace/.tmp,readonly"]
+        seed_mount = [prepare_seed_mount(release_root, seed_tmp)]
         for seed in manifest["seeds"]:
             path = release_root / seed["path"]
             if sha256_file(path) != seed["sha256"]:

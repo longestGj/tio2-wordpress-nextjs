@@ -16,6 +16,21 @@ from tests.production.test_adoption_contract import fixture as plan_fixture  # n
 
 
 class AdoptionWordPressTests(unittest.TestCase):
+    def test_seed_mount_creates_mountpoint_inside_read_only_release_tree(self) -> None:
+        from adoption_wordpress import prepare_seed_mount
+
+        with tempfile.TemporaryDirectory() as value:
+            root = Path(value)
+            release = root / "release"
+            seeds = root / "seeds"
+            release.mkdir()
+            seeds.mkdir()
+
+            mount = prepare_seed_mount(release, seeds)
+
+            self.assertTrue((release / ".tmp").is_dir())
+            self.assertEqual(mount, f"type=bind,source={seeds},target=/workspace/.tmp,readonly")
+
     def test_creates_root_private_frontend_and_wordpress_environment_from_bound_input(self) -> None:
         with tempfile.TemporaryDirectory() as value:
             root = Path(value)

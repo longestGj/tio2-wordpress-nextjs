@@ -279,7 +279,9 @@ def extract_release(
         raise ReleaseError("release root is unavailable") from error
     try:
         ownership_setter(staging, 0, 0)
-        mode_setter(staging, 0o750)
+        # The immutable release contains no secrets and must be traversable by
+        # the unprivileged Docker build and WP-CLI users that read it.
+        mode_setter(staging, 0o755)
         staged_archive = staging / ".source.tar"
         digest = hashlib.sha256()
         with _open_regular_read(archive_path) as source, staged_archive.open("xb") as staged:

@@ -18,6 +18,24 @@ from release_state import atomic_write_json
 HOST = "129.146.68.82"
 CERTIFICATE = Path("/etc/letsencrypt/live/tio2malaysia.com/fullchain.pem")
 PRIVATE_KEY = Path("/etc/letsencrypt/live/tio2malaysia.com/privkey.pem")
+CERTIFICATE_ARCHIVE = Path("/etc/letsencrypt/archive/tio2malaysia.com")
+
+
+def _certbot_target(path: Path, prefix: str, archive: Path = CERTIFICATE_ARCHIVE) -> Path:
+    try:
+        resolved = path.resolve(strict=True)
+        allowed = archive.resolve(strict=True)
+    except OSError as error:
+        raise AdoptionError("production certificate target is unavailable") from error
+    if resolved.parent != allowed or not resolved.name.startswith(prefix) or resolved.suffix != ".pem":
+        raise AdoptionError("production certificate target is invalid")
+    return resolved
+
+
+def _certificate_sha256(certificate: Path = CERTIFICATE, archive: Path = CERTIFICATE_ARCHIVE) -> str:
+    """Hash Certbot's resolved fullchain while rejecting an unexpected link target."""
+    resolved = _certbot_target(certificate, "fullchain", archive)
+    return sha256_file(resolved)
 
 
 def _run(arguments: list[str], timeout: int = 600) -> bytes:
@@ -70,6 +88,12 @@ server {{
 """.encode()
 
 
+def _managed_public_nginx(commit: str, upstream: Path = Path("/etc/tio2-production/web-upstream.conf")) -> bytes:
+    value = _public_nginx(commit).decode()
+    direct = f"proxy_pass http://127.0.0.1:3000;"
+    return value.replace(direct, f"include {upstream};").encode()
+
+
 class TlsAdoption:
     def __init__(self, paths): self.paths = paths
 
@@ -108,7 +132,7 @@ class TlsAdoption:
             with urllib.request.urlopen("https://cms.tio2malaysia.com/wp-login.php", timeout=30) as cms:
                 if cms.status != 200:
                     raise AdoptionError("production CMS continuity failed")
-            receipt = {"schemaVersion": "tio2-adoption-public-v1", "siteId": "tio2-my", "planHash": plan["planHash"], "candidate": plan["candidate"], "certificateSha256": sha256_file(CERTIFICATE), "nginxSha256": sha256_file(NGINX_CONFIG), "checkedObjects": len(objects)}
+            receipt = {"schemaVersion": "tio2-adoption-public-v1", "siteId": "tio2-my", "planHash": plan["planHash"], "candidate": plan["candidate"], "certificateSha256": _certificate_sha256(), "nginxSha256": sha256_file(NGINX_CONFIG), "checkedObjects": len(objects)}
             atomic_write_json(receipt_path, receipt)
             return {"certificateSha256": receipt["certificateSha256"], "checkedObjects": len(objects), "nginxSha256": receipt["nginxSha256"]}
         except Exception:

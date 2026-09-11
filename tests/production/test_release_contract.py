@@ -195,6 +195,24 @@ class ReleaseContractTests(unittest.TestCase):
         self.assertEqual((release / "app/index.txt").read_bytes(), b"approved bytes")
         self.assertEqual(DEFAULT_PATHS.production, Path("/opt/tio2-production"))
 
+    def test_extracted_release_root_is_traversable_by_read_only_build_and_wpcli_users(self) -> None:
+        production = self.root / "production"
+        paths = ReleasePaths(self.root / "incoming", self.root / "outgoing", production, self.root / "configuration")
+        (production / "releases").mkdir(parents=True)
+        modes: list[tuple[Path, int]] = []
+
+        release = extract_release(
+            self.archive,
+            self.manifest,
+            paths,
+            ownership_setter=lambda *_: None,
+            mode_setter=lambda path, mode: modes.append((Path(path), mode)),
+        )
+
+        staging_modes = [mode for path, mode in modes if path.parent == production / "releases" and path.name.startswith(".extract-")]
+        self.assertIn(0o755, staging_modes)
+        self.assertEqual(release, production / "releases" / COMMIT)
+
     def test_closed_action_parser_rejects_any_extra_or_unknown_argument(self) -> None:
         self.assertEqual(parse_action(["status"]), "status")
         with self.assertRaisesRegex(ReleaseError, "fixed action"):

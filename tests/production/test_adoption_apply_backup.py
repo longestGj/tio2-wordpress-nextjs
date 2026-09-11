@@ -63,6 +63,10 @@ class Operations:
         self._call("activate_public")
         return {"certificateSha256": "5" * 64, "checkedObjects": 58} if self.dns_ready else None
 
+    def finalize_daily_release(self, plan, details):
+        self._call("finalize_daily_release")
+        return {"baselineSha256": "6" * 64, "state": "INTERNAL_VERIFIED"}
+
 
 class AdoptionApplyBackupTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -121,7 +125,13 @@ class AdoptionApplyBackupTests(unittest.TestCase):
         ready = self.adoption().apply(self.plan["planHash"])
         self.assertEqual(ready["state"], "PUBLIC_READY")
         self.assertEqual(ready["public"]["checkedObjects"], 58)
-        self.assertEqual(self.operations.calls, ["activate_public"])
+        self.assertEqual(ready["daily"]["state"], "INTERNAL_VERIFIED")
+        self.assertEqual(self.operations.calls, ["activate_public", "finalize_daily_release"])
+
+        self.operations.calls.clear()
+        repeated = self.adoption().apply(self.plan["planHash"])
+        self.assertEqual(repeated["daily"]["baselineSha256"], "6" * 64)
+        self.assertEqual(self.operations.calls, ["finalize_daily_release"])
 
     def test_interrupted_backup_retries_only_from_the_last_durable_phase(self) -> None:
         self.operations.fail = "backup"

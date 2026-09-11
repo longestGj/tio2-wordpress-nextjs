@@ -82,12 +82,20 @@ class BootstrapInstallTests(unittest.TestCase):
         self.assertIn("adoption_wordpress.py", REQUIRED_FILES)
         self.assertIn("adoption_internal.py", REQUIRED_FILES)
         self.assertIn("adoption_tls.py", REQUIRED_FILES)
+        self.assertIn("adoption_finalize.py", REQUIRED_FILES)
         self.assertIn("tio2_adopt.py", REQUIRED_FILES)
         self.assertIn("tool-commit.txt", REQUIRED_FILES)
         self.assertIn("root-adopt.sh", REQUIRED_FILES)
         sudoers = (SERVER_ROOT / "sudoers.tio2-release").read_text(encoding="utf-8")
         self.assertNotIn("tio2-adopt", sudoers)
         self.assertNotIn("tio2_adopt.py", sudoers)
+
+    def test_root_adoption_does_not_generate_untrusted_bytecode_and_uses_fixed_sudo_validator(self) -> None:
+        root_adopt = (SERVER_ROOT / "root-adopt.sh").read_text(encoding="utf-8")
+        bootstrap = (SERVER_ROOT / "bootstrap_install.py").read_text(encoding="utf-8")
+
+        self.assertIn("PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3", root_adopt)
+        self.assertIn('["/usr/sbin/visudo", "-cf", str(candidate)]', bootstrap)
 
     def test_real_staged_self_test_validates_shell_without_compiling_it_as_python(self) -> None:
         archive = self.root / "bootstrap-selftest"

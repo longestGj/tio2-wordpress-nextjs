@@ -18,6 +18,7 @@ class PhaseAOperations(Protocol):
     def initialize_content(self, plan: dict[str, object], prepared: dict[str, object], evidence: dict[str, object]) -> dict[str, object]: ...
     def deploy_internal(self, plan: dict[str, object], prepared: dict[str, object], content: dict[str, object]) -> dict[str, object]: ...
     def activate_public(self, plan: dict[str, object], internal: dict[str, object]) -> dict[str, object] | None: ...
+    def finalize_daily_release(self, plan: dict[str, object], details: dict[str, object]) -> dict[str, object]: ...
 
 
 def _backup(value: object) -> dict[str, object]:
@@ -51,9 +52,11 @@ class Adoption:
         return {"schemaVersion": "tio2-production-adoption-receipt-v1", "siteId": "tio2-my", "planHash": value["planHash"], "state": value["state"], "backup": details["backup"], "content": details["content"], "internal": details["internal"]}
 
     @staticmethod
-    def _public_result(value: dict[str, object]) -> dict[str, object]:
+    def _public_result(value: dict[str, object], daily: dict[str, object] | None = None) -> dict[str, object]:
         result = Adoption._internal_result(value)
         result["public"] = value["details"]["public"]
+        if daily is not None:
+            result["daily"] = daily
         return result
 
     def apply(self, plan_hash: str) -> dict[str, object]:
@@ -100,6 +103,7 @@ class Adoption:
                     return self._internal_result(value)
                 value = self.journal.transition({"AWAITING_DNS"}, "PUBLIC_READY", {"public": public})
             elif state == "PUBLIC_READY":
-                return self._public_result(value)
+                daily = self.operations.finalize_daily_release(plan, details)
+                return self._public_result(value, daily)
             else:
                 raise AdoptionError("adoption phase is unavailable")
