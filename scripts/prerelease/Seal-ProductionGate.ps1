@@ -54,6 +54,23 @@ function Get-Sha256([string] $Path) {
     finally { $stream.Dispose() }
 }
 
+function Get-GitBlobSha256([string] $RepositoryRoot, [string] $Commit, [string] $Path) {
+    if ($Commit -notmatch '^[a-f0-9]{40}$' -or $Path -notmatch '^(?!/)(?!.*(?:^|/)\.\.(?:/|$))[A-Za-z0-9._/-]+$') { throw 'Gate A Git identity is invalid.' }
+    $quote = { param([string] $Value) '"' + ($Value -replace '(\\*)"', '$1$1\"' -replace '(\\+)$', '$1$1') + '"' }
+    $startInfo = [Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = 'git'; $startInfo.UseShellExecute = $false; $startInfo.CreateNoWindow = $true
+    $startInfo.RedirectStandardOutput = $true; $startInfo.RedirectStandardError = $true
+    $startInfo.Arguments = (@('-C', $RepositoryRoot, 'cat-file', 'blob', "$Commit`:$Path") | ForEach-Object { & $quote $_ }) -join ' '
+    $process = [Diagnostics.Process]::new(); $process.StartInfo = $startInfo
+    if (-not $process.Start()) { throw 'Failed to read the Gate A Git identity.' }
+    $algorithm = [Security.Cryptography.SHA256]::Create()
+    try { $digest = ([BitConverter]::ToString($algorithm.ComputeHash($process.StandardOutput.BaseStream)) -replace '-', '').ToLowerInvariant() }
+    finally { $algorithm.Dispose() }
+    $errorText = $process.StandardError.ReadToEnd(); $process.WaitForExit()
+    if ($process.ExitCode -ne 0) { throw 'Failed to read the Gate A Git identity.' }
+    return $digest
+}
+
 function Assert-ExactStrings([object[]] $Actual, [string[]] $Expected, [string] $Message) {
     $values = @($Actual | ForEach-Object { [string] $_ })
     if ($values.Count -ne $Expected.Count -or @($values | Select-Object -Unique).Count -ne $values.Count -or @(Compare-Object $values $Expected -CaseSensitive).Count -ne 0) {
@@ -76,8 +93,7 @@ Assert-Identity $test 'Test'
 Assert-Identity $live 'TestLiveForms'
 
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$surfacePath = Join-Path $repositoryRoot 'ops/production/release-surface.json'
-$surfaceSha256 = Get-Sha256 $surfacePath
+$surfaceSha256 = Get-GitBlobSha256 $repositoryRoot $test.candidateCommit 'ops/production/release-surface.json'
 $identityFields = @('candidateCommit', 'runId', 'buildId', 'cmsIdentitySha256', 'releaseSurfaceSha256')
 foreach ($field in $identityFields) {
     if ([string] $test.$field -cne [string] $live.$field) { throw 'Gate A evidence identities do not match.' }

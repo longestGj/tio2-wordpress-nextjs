@@ -1,4 +1,4 @@
-import {execFile, spawnSync} from 'node:child_process'
+import {execFile, execFileSync, spawnSync} from 'node:child_process'
 import {createServer} from 'node:http'
 import {mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {join, resolve} from 'node:path'
@@ -65,7 +65,7 @@ it.each(['rejection', 'unknown-rejection', 'positive', 'late-provider', 'late-re
       expect(fragment.checks[0].status).toBe(mode === 'positive' ? 'PASSED' : 'FAILED')
     }
     const quote = (value: string) => "'" + value.replaceAll("'", "''") + "'"
-    const manifest = {commit: 'a'.repeat(40), cmsIdentitySha256: 'b'.repeat(64), runId: 'fixture', buildId: 'fixture', siteId: 'tio2-my'}
+    const manifest = {commit: execFileSync('git', ['rev-parse', 'HEAD'], {encoding: 'utf8'}).trim(), cmsIdentitySha256: 'b'.repeat(64), runId: 'fixture', buildId: 'fixture', siteId: 'tio2-my'}
     writeFileSync(join(root, 'manifest.json'), JSON.stringify(manifest))
     const result = spawnSync('powershell', ['-NoProfile', '-Command', `$ErrorActionPreference='Stop'; Import-Module ${quote(resolve('scripts/prerelease/Prerelease.Core.psm1'))} -Force; $m=Get-Content -Raw ${quote(join(root, 'manifest.json'))}|ConvertFrom-Json; Complete-PrereleaseEvidence -EvidenceRoot ${quote(root)} -Manifest $m -CommandUuid privacy-fixture -Action TestLiveForms -TestExit ${mode === 'positive' ? 0 : 1}|Out-Null`], {encoding: 'utf8'})
     expect(result.status, result.stderr).toBe(0)
