@@ -49,7 +49,7 @@ export function MalaysiaApplicationHub({
           actions={
             <>
               <a className={styles.primaryButton} href={applicationHub.hero.primaryAction.href}>{applicationHub.hero.primaryAction.label}</a>
-              {rfqReady ? <MalaysiaPrivateRfqLink className={styles.outlineButton} href={applicationHub.hero.rfq.href}>{applicationHub.hero.rfq.label}</MalaysiaPrivateRfqLink> : null}
+              <MalaysiaPrivateRfqLink className={styles.outlineButton} href={applicationHub.hero.rfq.href}>{applicationHub.hero.rfq.label}</MalaysiaPrivateRfqLink>
             </>
           }
           media={<nav className={styles.heroIndex} aria-label={applicationHub.hero.selectorLabel}>

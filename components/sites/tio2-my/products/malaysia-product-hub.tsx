@@ -4,6 +4,7 @@ import {
   MalaysiaGlobalFooter,
   MalaysiaGlobalHeader,
 } from '../malaysia-global-chrome'
+import {MalaysiaPrivateRfqLink} from '../request-a-quote/malaysia-private-rfq-link'
 import {RootPageHero} from '../root-page-hero/root-page-hero'
 import styles from './malaysia-product-hub.module.css'
 import {ProductFaq} from './product-faq'
@@ -64,6 +65,7 @@ export function MalaysiaProductHub({
           breadcrumbLabel="Products"
           breadcrumbModuleName="breadcrumb"
           headingId="product-hero-heading"
+          mobileHeadingTracking="normal"
           moduleName="hero"
           eyebrow={productHub.hero.eyebrow}
           heading={productHub.hero.h1}
@@ -71,9 +73,9 @@ export function MalaysiaProductHub({
           actions={
             <>
               <a className={styles.primaryButton} href={productHub.hero.primaryAction.href}>{productHub.hero.primaryAction.label}</a>
-              <a className={styles.outlineButton} href={productHub.hero.secondaryAction.href} data-site-scope="tio2-my" data-source-page="PRODUCT-000">
+              <MalaysiaPrivateRfqLink className={styles.outlineButton} href="/request-a-quote/">
                 {productHub.hero.secondaryAction.label}
-              </a>
+              </MalaysiaPrivateRfqLink>
             </>
           }
           media={<aside className={styles.portfolioSummary} aria-label={productHub.hero.summary.title}>
@@ -179,9 +181,9 @@ export function MalaysiaProductHub({
             <h2 id="final-rfq-heading">{productHub.finalRfq.heading}</h2>
             <p>{productHub.finalRfq.body}</p><small>{productHub.finalRfq.note}</small>
           </div>
-          <a href={productHub.finalRfq.action.href} data-site-scope="tio2-my" data-source-page="PRODUCT-000">
+          <MalaysiaPrivateRfqLink href="/request-a-quote/">
             {productHub.finalRfq.action.label}
-          </a>
+          </MalaysiaPrivateRfqLink>
         </section>
       </main>
       <MalaysiaGlobalFooter chrome={productHub.globalChrome} sourcePageId="PRODUCT-000" />

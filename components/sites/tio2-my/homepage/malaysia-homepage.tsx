@@ -6,14 +6,10 @@ import {
   MalaysiaGlobalFooter,
   MalaysiaGlobalHeader,
 } from '../malaysia-global-chrome'
+import {MalaysiaPrivateRfqLink} from '../request-a-quote/malaysia-private-rfq-link'
 import {RootPageHero} from '../root-page-hero/root-page-hero'
 import styles from './malaysia-homepage.module.css'
 import {ResponsiveProductGroup, ResponsiveProductGroups} from './responsive-product-groups'
-
-const rfqAttributes = {
-  'data-site-scope': 'tio2-my',
-  'data-source-page': 'HOME-001',
-} as const
 
 function Eyebrow({children}: {readonly children: React.ReactNode}) {
   return <p className={styles.eyebrow}>{children}</p>
@@ -54,9 +50,9 @@ export function MalaysiaHomepage({homepage, structuredData}: {
           intro={<p>{homepage.hero.body}</p>}
           actions={
             <>
-              <a className={styles.primaryButton} href={homepage.hero.primaryCta.href} {...rfqAttributes}>
+              <MalaysiaPrivateRfqLink className={styles.primaryButton} href={homepage.hero.primaryCta.href}>
                 {homepage.hero.primaryCta.label}
-              </a>
+              </MalaysiaPrivateRfqLink>
               <ApprovedLink className={styles.secondaryButton} href={homepage.hero.secondaryCta.href}>
                 {homepage.hero.secondaryCta.label}
               </ApprovedLink>
@@ -150,14 +146,14 @@ export function MalaysiaHomepage({homepage, structuredData}: {
           <Eyebrow>{homepage.resources.eyebrow}</Eyebrow><h2 id="my-resources-heading">{homepage.resources.heading}</h2><p>{homepage.resources.intro}</p>
           <div className={styles.resourceGrid}>
             {homepage.resources.topics.map((item) => <article className={`${styles.card} ${styles.resourceCard}`} key={item.targetPageId}><h3>{item.title}</h3><p>{item.description}</p>{item.href ? <ApprovedLink href={item.href}>{item.ctaLabel}</ApprovedLink> : <UnresolvedAction>{item.ctaLabel}</UnresolvedAction>}</article>)}
-            {homepage.resources.answers.map((item) => <article className={`${styles.card} ${styles.answerCard}`} key={item.question}><h3>{item.question}</h3><p>{item.answer}</p><ApprovedLink href={item.cta.href} {...(item.cta.targetPageId === 'CONV-RFQ' ? rfqAttributes : {})}>{item.cta.label}</ApprovedLink></article>)}
+            {homepage.resources.answers.map((item) => <article className={`${styles.card} ${styles.answerCard}`} key={item.question}><h3>{item.question}</h3><p>{item.answer}</p>{item.cta.targetPageId === 'CONV-RFQ' ? <MalaysiaPrivateRfqLink href={item.cta.href}>{item.cta.label}</MalaysiaPrivateRfqLink> : <ApprovedLink href={item.cta.href}>{item.cta.label}</ApprovedLink>}</article>)}
           </div>
         </section>
 
         <section className={styles.pageRfq} data-module="page-rfq" data-mobile-render="false" aria-labelledby="my-rfq-heading">
           <div><Eyebrow>{homepage.pageRfq.eyebrow}</Eyebrow><h2 id="my-rfq-heading">{homepage.pageRfq.heading}</h2><p>{homepage.pageRfq.body}</p></div>
           <div className={styles.rfqFields}>{homepage.pageRfq.fieldSummaries.map((field) => <span key={field}>{field}</span>)}</div>
-          <a className={styles.primaryButton} href={homepage.pageRfq.cta.href} {...rfqAttributes}>{homepage.pageRfq.cta.label}</a>
+          <MalaysiaPrivateRfqLink className={styles.primaryButton} href={homepage.pageRfq.cta.href}>{homepage.pageRfq.cta.label}</MalaysiaPrivateRfqLink>
         </section>
       </main>
 

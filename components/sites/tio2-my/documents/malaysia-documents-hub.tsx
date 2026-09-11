@@ -36,6 +36,7 @@ export function MalaysiaDocumentsHub({documentsHub, structuredData}: {readonly d
         breadcrumbLabel="Documents"
         breadcrumbModuleName="breadcrumb"
         headingId="documents-heading"
+        mobileHeadingFit="wide"
         moduleName="hero"
         eyebrow={documentsHub.hero.eyebrow}
         heading={documentsHub.hero.h1}

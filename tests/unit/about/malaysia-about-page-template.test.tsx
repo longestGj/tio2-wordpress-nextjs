@@ -9,6 +9,8 @@ describe('MalaysiaAboutPage', () => {
   it('renders the approved initial server DOM and shared Chrome only', () => {
     const dto = toMalaysiaAboutPageDto(malaysiaAboutPageSource())
     const markup = renderToStaticMarkup(<MalaysiaAboutPage aboutPage={dto} />)
+    const hero = markup.match(/data-root-page-hero="true"[\s\S]*?<\/section>/u)?.[0] ?? ''
+    const whoWeAre = markup.match(/data-module="who-we-are"[\s\S]*?<\/section>/u)?.[0] ?? ''
     const moduleOrder = Array.from(markup.matchAll(/data-module="([^"]+)"/gu), (match) => match[1])
     expect(moduleOrder).toEqual([
       'breadcrumb', 'hero', 'who-we-are', 'why-malaysia', 'what-we-do', 'markets',
@@ -18,9 +20,16 @@ describe('MalaysiaAboutPage', () => {
     expect(markup).toContain(dto.hero.h1)
     expect(markup).toContain('aria-current="page"')
     expect(markup).not.toMatch(/>\s*CURRENT\s*</u)
-    expect(markup.match(/data-site-scope="tio2-my"/gu)?.length).toBeGreaterThanOrEqual(3)
+    expect(markup).toContain('data-site-scope="tio2-my"')
+    expect(markup).not.toMatch(/ABOUT-001|source_page_id|data-source-page/u)
     expect(markup).not.toContain('Company-provided information')
     expect(markup).not.toContain('Masterbatch</h3>')
+    expect(hero).toContain(`data-fact-key="${dto.hero.paragraphs[0].id}"`)
+    for (const paragraph of dto.hero.paragraphs.slice(1)) {
+      expect(hero).not.toContain(`data-fact-key="${paragraph.id}"`)
+      expect(whoWeAre).toContain(`data-fact-key="${paragraph.id}"`)
+    }
+    expect(whoWeAre.match(/<dt>/gu)).toHaveLength(7)
   })
 
   it('keeps approved actions and child fallbacks without Contact substitution', () => {

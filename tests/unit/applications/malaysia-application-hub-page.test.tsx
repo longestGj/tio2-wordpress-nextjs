@@ -62,11 +62,15 @@ describe('APP-000 renderer', () => {
     const markup = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={dto({
       'APP-COAT': false, 'GRADE-M350': false, 'DOC-000': false, 'CONV-RFQ': false,
     })} />)
+    const hero = markup.match(/data-root-page-hero="true"[\s\S]*?<\/section>/u)?.[0] ?? ''
     expect(markup).not.toContain(`href="${contract.applications[0].href}"`)
     expect(markup).not.toContain('href="/products/m-350/"')
     expect(markup).toContain('>M-350</span>')
     expect(markup).not.toContain(contract.support.items[1].actionLabel)
     expect(markup).not.toContain(contract.finalRfq.heading)
+    expect(hero).toContain(`href="${contract.hero.rfq.href}"`)
+    expect(hero).toContain(contract.hero.rfq.label)
+    expect(hero).not.toMatch(/source_page_id|data-source-page/u)
   })
 
   it.each([

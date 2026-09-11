@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import type {MalaysiaAboutPageDto} from '@/lib/wordpress/about-page-v01-types'
 import {MalaysiaGlobalFooter, MalaysiaGlobalHeader} from '../malaysia-global-chrome'
+import {MalaysiaPrivateRfqLink} from '../request-a-quote/malaysia-private-rfq-link'
 import {RootPageHero} from '../root-page-hero/root-page-hero'
 import styles from './malaysia-about-page.module.css'
 
@@ -42,10 +43,16 @@ function linkedHeroText(text: string): ReactNode[] {
   return nodes
 }
 
-function HeroCopy({page}: {readonly page: MalaysiaAboutPageDto}) {
+function ApprovedParagraphs({
+  className,
+  paragraphs,
+}: {
+  readonly className: string
+  readonly paragraphs: MalaysiaAboutPageDto['hero']['paragraphs']
+}) {
   return (
-    <div className={styles.heroCopy}>
-      {page.hero.paragraphs.map((paragraph) => (
+    <div className={className}>
+      {paragraphs.map((paragraph) => (
         <p key={paragraph.id} data-fact-key={paragraph.id}>{linkedHeroText(paragraph.text)}</p>
       ))}
     </div>
@@ -86,8 +93,10 @@ function ApplicationArt({kind, alt}: {readonly kind: string; readonly alt: strin
 }
 
 export function MalaysiaAboutPage({aboutPage: page, structuredData}: Props) {
+  const [heroParagraph, ...whoWeAreParagraphs] = page.hero.paragraphs
+
   return (
-    <div className={styles.site} data-site-scope="tio2-my" data-page-id="ABOUT-001">
+    <div className={styles.site} data-site-scope="tio2-my">
       {structuredData}
       <MalaysiaGlobalHeader chrome={page.globalChrome} currentPageId="ABOUT-001" sourcePageId="ABOUT-001" />
       <main className={styles.main}>
@@ -97,11 +106,13 @@ export function MalaysiaAboutPage({aboutPage: page, structuredData}: Props) {
           breadcrumbLabel="About"
           breadcrumbModuleName="breadcrumb"
           moduleName="hero"
+          mobileHeadingFit="wide"
+          mobileHeadingTracking="normal"
           eyebrow={page.hero.eyebrow}
           heading={page.hero.h1}
-          intro={<HeroCopy page={page} />}
+          intro={<ApprovedParagraphs className={styles.heroCopy} paragraphs={heroParagraph ? [heroParagraph] : []} />}
           actions={<>
-              <a className={styles.primary} href={page.hero.primaryAction.href} data-site-scope="tio2-my" data-source-page="ABOUT-001">{page.hero.primaryAction.label}<Arrow /></a>
+              <MalaysiaPrivateRfqLink className={styles.primary} href={page.hero.primaryAction.href}>{page.hero.primaryAction.label}<Arrow /></MalaysiaPrivateRfqLink>
               <a className={styles.secondary} href={page.hero.secondaryAction.href}>{page.hero.secondaryAction.label}</a>
             </>}
           media={page.hero.visualVisible ? <HeroVisual /> : null}
@@ -110,6 +121,7 @@ export function MalaysiaAboutPage({aboutPage: page, structuredData}: Props) {
 
         <section className={styles.identity} data-module="who-we-are">
           <div className={styles.sectionHeading}><p className={styles.eyebrow}>{page.whoWeAre.eyebrow}</p><h2>{page.whoWeAre.h2}</h2></div>
+          <ApprovedParagraphs className={styles.whoCopy} paragraphs={whoWeAreParagraphs} />
           <dl className={styles.factGrid}>{page.whoWeAre.facts.map((fact) => <div key={fact.label}><dt>{fact.label}</dt><dd>{'href' in fact ? <a href={fact.href}>{fact.value}</a> : fact.value}</dd></div>)}</dl>
         </section>
 
@@ -153,7 +165,7 @@ export function MalaysiaAboutPage({aboutPage: page, structuredData}: Props) {
           {page.finalCta.visualVisible ? <div className={styles.industrialStructure} aria-hidden="true"><span /><span /><i /><b /></div> : null}
           <div><p className={styles.eyebrow}>NEXT STEP</p><h2>{page.finalCta.h2}</h2><p>{page.finalCta.body}</p></div>
           <div className={styles.actions}>
-            <a className={styles.lightPrimary} href={page.finalCta.primaryAction.href} data-site-scope="tio2-my" data-source-page="ABOUT-001">{page.finalCta.primaryAction.label}<Arrow /></a>
+            <MalaysiaPrivateRfqLink className={styles.lightPrimary} href={page.finalCta.primaryAction.href}>{page.finalCta.primaryAction.label}<Arrow /></MalaysiaPrivateRfqLink>
             <a className={styles.lightSecondary} href={page.finalCta.secondaryAction.href}>{page.finalCta.secondaryAction.label}</a>
           </div>
         </section>

@@ -46,11 +46,12 @@ export function MalaysiaResourceHub({
           breadcrumbLabel="Resources"
           breadcrumbModuleName="breadcrumb"
           headingId="resource-hero-heading"
+          mobileHeadingTracking="normal"
           moduleName="hero"
           eyebrow={resourceHub.hero.eyebrow}
           heading={resourceHub.hero.h1}
           intro={<p>{resourceHub.hero.body}</p>}
-          actions={<a className={styles.heroAction} href={resourceHub.hero.primaryAction.href}>
+          actions={<a className={styles.heroAction} href="#research-paths">
                 {resourceHub.hero.primaryAction.label}
               </a>}
           mediaClassName={styles.heroMedia}
@@ -65,7 +66,7 @@ export function MalaysiaResourceHub({
             </div>}
         />
 
-        <section id="browse-resources" className={styles.section} data-module="browse-resources" aria-labelledby="browse-heading">
+        <section id="research-paths" className={styles.section} data-module="browse-resources" aria-labelledby="browse-heading">
           <h2 id="browse-heading">{resourceHub.resourceInventory.heading}</h2>
           {resourceHub.resourceGroups.map(group => (
             <section key={group.key} className={styles.resourceGroup} data-resource-group={group.key} aria-labelledby={`group-${group.key}`}>

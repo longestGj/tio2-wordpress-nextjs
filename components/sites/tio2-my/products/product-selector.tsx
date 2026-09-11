@@ -1,10 +1,10 @@
 'use client'
 
 import {useMemo, useState} from 'react'
-import Link from 'next/link'
 
 import type {MalaysiaProductHubDto} from '@/lib/wordpress/product-hub-v01-types'
 
+import {MalaysiaPrivateRfqLink} from '../request-a-quote/malaysia-private-rfq-link'
 import styles from './malaysia-product-hub.module.css'
 
 type Selector = MalaysiaProductHubDto['selector']
@@ -48,9 +48,9 @@ export function ProductSelector({
           ))}
         </div>
         <p>{selector.notSureNote}</p>
-        <Link href="/request-a-quote/?source_page_id=PRODUCT-000" data-site-scope="tio2-my" data-source-page="PRODUCT-000">
+        <MalaysiaPrivateRfqLink href="/request-a-quote/">
           Request a Quote <span aria-hidden="true">→</span>
-        </Link>
+        </MalaysiaPrivateRfqLink>
       </div>
       <div className={styles.selectorResults} aria-live="polite" aria-atomic="true">
         <h3>{selector.resultHeading} — {selectedGrades.length}</h3>

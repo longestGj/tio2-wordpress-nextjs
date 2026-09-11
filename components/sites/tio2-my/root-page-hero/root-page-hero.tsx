@@ -22,6 +22,8 @@ export interface RootPageHeroProps {
   readonly media?: ReactNode
   readonly mediaClassName?: string
   readonly className?: string
+  readonly mobileHeadingFit?: 'default' | 'wide'
+  readonly mobileHeadingTracking?: 'compact' | 'normal'
 }
 
 export function RootPageHero({
@@ -38,6 +40,8 @@ export function RootPageHero({
   media,
   mediaClassName,
   className,
+  mobileHeadingFit = 'default',
+  mobileHeadingTracking = 'compact',
 }: RootPageHeroProps) {
   return (
     <>
@@ -56,6 +60,8 @@ export function RootPageHero({
         data-root-page-hero="true"
         data-hero-variant={variant}
         data-hero-surface={surface}
+        data-hero-mobile-heading-fit={mobileHeadingFit}
+        data-hero-mobile-heading-tracking={mobileHeadingTracking}
         {...(moduleName ? {'data-module': moduleName} : {})}
         {...(headingId ? {'aria-labelledby': headingId} : {'aria-label': heading})}
       >

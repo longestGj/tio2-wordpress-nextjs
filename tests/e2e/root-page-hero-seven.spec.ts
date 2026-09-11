@@ -25,6 +25,8 @@ const viewports = [
   {name: '390', width: 390, headingSize: 36},
 ] as const
 
+const normalMobileTrackingPageIds = new Set(['PRODUCT-000', 'RES-000', 'ABOUT-001'])
+
 for (const pageContract of pages) {
   for (const viewport of viewports) {
     test(`${pageContract.pageId} ${viewport.name}px root Hero contract`, async ({page}) => {
@@ -33,6 +35,9 @@ for (const pageContract of pages) {
 
       const response = await page.goto(`${baseUrl}${pageContract.path}`)
       expect(response?.ok()).toBe(true)
+      if (viewport.width === 390) {
+        await page.addStyleTag({content: 'html { scrollbar-gutter: stable; }'})
+      }
 
       const hero = page.locator('[data-root-page-hero="true"]')
       await expect(hero).toHaveCount(1)
@@ -53,7 +58,9 @@ for (const pageContract of pages) {
           actionHeight: actionRect.height,
           actionWidth: actionRect.width,
           headingFontSize: Number.parseFloat(headingStyle.fontSize),
-          headingLetterSpacing: Number.parseFloat(headingStyle.letterSpacing),
+          headingLetterSpacing: headingStyle.letterSpacing === 'normal'
+            ? 0
+            : Number.parseFloat(headingStyle.letterSpacing),
           headingLines: Math.ceil(headingRect.height / lineHeight),
           scrollWidth: document.documentElement.scrollWidth,
           clientWidth: document.documentElement.clientWidth,
@@ -61,13 +68,33 @@ for (const pageContract of pages) {
       })
 
       expect(heroChecks.headingFontSize).toBe(viewport.headingSize)
-      expect(heroChecks.headingLetterSpacing).toBeCloseTo(viewport.headingSize * -.035, 1)
+      expect(heroChecks.headingLetterSpacing).toBeCloseTo(
+        viewport.width === 390 && normalMobileTrackingPageIds.has(pageContract.pageId)
+          ? 0
+          : viewport.headingSize * -.035,
+        1,
+      )
       expect(heroChecks.actionFocused).toBe(true)
       expect(heroChecks.actionHeight).toBeGreaterThanOrEqual(44)
       expect(heroChecks.actionWidth).toBeGreaterThanOrEqual(44)
-      expect(heroChecks.scrollWidth).toBe(heroChecks.clientWidth)
+      expect(heroChecks.scrollWidth).toBeLessThanOrEqual(heroChecks.clientWidth)
       if (viewport.width === 390) {
         expect(heroChecks.headingLines).toBeLessThanOrEqual(pageContract.maximumHeadingLinesAt390)
+      }
+
+      const heroMarkup = await hero.innerHTML()
+      expect(heroMarkup).not.toContain(pageContract.pageId)
+      expect(heroMarkup).not.toMatch(/source_page_id|data-source-page/u)
+
+      if (pageContract.pageId === 'APP-000') {
+        const actions = hero.locator('[data-root-page-hero-actions] a')
+        await expect(actions).toHaveCount(2)
+        await expect(actions.nth(1)).toHaveAttribute('href', '/request-a-quote/')
+      }
+
+      if (pageContract.pageId === 'RES-000') {
+        await expect(hero.locator('[data-root-page-hero-actions] a')).toHaveAttribute('href', '#research-paths')
+        await expect(page.locator('#research-paths')).toHaveCount(1)
       }
 
       if (pageContract.pageId === 'RES-000') {
