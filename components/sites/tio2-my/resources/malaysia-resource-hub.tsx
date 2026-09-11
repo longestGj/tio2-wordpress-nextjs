@@ -1,6 +1,7 @@
 import type {MalaysiaResourceCard, MalaysiaResourceHubDto} from '@/lib/wordpress/resource-hub-v01-types'
 
 import {MalaysiaGlobalFooter, MalaysiaGlobalHeader} from '../malaysia-global-chrome'
+import {RootPageHero} from '../root-page-hero/root-page-hero'
 import styles from './malaysia-resource-hub.module.css'
 import {ResourceFaq} from './resource-faq'
 
@@ -39,29 +40,21 @@ export function MalaysiaResourceHub({
       {structuredData}
       <MalaysiaGlobalHeader chrome={resourceHub.globalChrome} currentPageId="RES-000" sourcePageId="RES-000" />
       <main className={styles.resourceMain}>
-        <nav className={styles.breadcrumb} aria-label="Breadcrumb" data-module="breadcrumb">
-          <ol>
-            {resourceHub.breadcrumb.map((item, index) => (
-              <li key={item.targetPageId}>
-                {index === resourceHub.breadcrumb.length - 1
-                  ? <span aria-current="page">{item.label}</span>
-                  : <a href={item.href}>{item.label}</a>}
-              </li>
-            ))}
-          </ol>
-        </nav>
-
-        <section className={styles.hero} data-module="hero" aria-labelledby="resource-hero-heading">
-          <div className={styles.heroInner}>
-            <div className={styles.heroCopy}>
-              <p className={styles.eyebrow}>{resourceHub.hero.eyebrow}</p>
-              <h1 id="resource-hero-heading">{resourceHub.hero.h1}</h1>
-              <p>{resourceHub.hero.body}</p>
-              <a href={resourceHub.hero.primaryAction.href}>
+        <RootPageHero
+          pageId="RES-000"
+          variant="hub-dark"
+          breadcrumbLabel="Resources"
+          breadcrumbModuleName="breadcrumb"
+          headingId="resource-hero-heading"
+          moduleName="hero"
+          eyebrow={resourceHub.hero.eyebrow}
+          heading={resourceHub.hero.h1}
+          intro={<p>{resourceHub.hero.body}</p>}
+          actions={<a className={styles.heroAction} href={resourceHub.hero.primaryAction.href}>
                 {resourceHub.hero.primaryAction.label}
-              </a>
-            </div>
-            <div className={styles.researchDiagram} aria-hidden="true">
+              </a>}
+          mediaClassName={styles.heroMedia}
+          media={<div className={styles.researchDiagram} aria-hidden="true">
               <strong>{resourceHub.hero.diagram.start}</strong>
               <span className={styles.diagramLine} />
               <div>
@@ -69,9 +62,8 @@ export function MalaysiaResourceHub({
                   <span key={path}><b>{String(index + 1).padStart(2, '0')}</b>{path}</span>
                 ))}
               </div>
-            </div>
-          </div>
-        </section>
+            </div>}
+        />
 
         <section id="browse-resources" className={styles.section} data-module="browse-resources" aria-labelledby="browse-heading">
           <h2 id="browse-heading">{resourceHub.resourceInventory.heading}</h2>

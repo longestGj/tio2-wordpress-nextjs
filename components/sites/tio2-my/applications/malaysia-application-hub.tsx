@@ -2,6 +2,7 @@ import type {MalaysiaApplicationHubDto} from '@/lib/wordpress/application-hub-v0
 
 import {MalaysiaGlobalFooter, MalaysiaGlobalHeader} from '../malaysia-global-chrome'
 import {MalaysiaPrivateRfqLink} from '../request-a-quote/malaysia-private-rfq-link'
+import {RootPageHero} from '../root-page-hero/root-page-hero'
 import styles from './malaysia-application-hub.module.css'
 import {MalaysiaResponsiveDetails} from './malaysia-responsive-details'
 
@@ -36,28 +37,22 @@ export function MalaysiaApplicationHub({
       <MalaysiaGlobalHeader chrome={applicationHub.globalChrome} currentPageId="APP-000" sourcePageId="APP-000" />
       <main className={styles.main}>
         <div className={styles.wrap}>
-        <nav className={styles.breadcrumb} aria-label="Breadcrumb">
-          <ol>
-            {applicationHub.breadcrumb.map((item, index) => (
-              <li key={`${item.href}-${item.label}`}>
-                {index === applicationHub.breadcrumb.length - 1
-                  ? <span aria-current="page">{item.label}</span>
-                  : <a href={item.href}>{item.label}</a>}
-              </li>
-            ))}
-          </ol>
-        </nav>
-
-        <section className={styles.hero} aria-labelledby="application-hub-heading">
-          <div className={styles.heroCopy}>
-            <h1 id="application-hub-heading">{applicationHub.hero.h1}</h1>
-            <p className={styles.lead}>{applicationHub.hero.intro}</p>
-            <div className={styles.actions}>
+        <RootPageHero
+          pageId="APP-000"
+          variant="hub-light"
+          surface="open"
+          breadcrumbLabel="Applications"
+          headingId="application-hub-heading"
+          eyebrow="APPLICATIONS"
+          heading={applicationHub.hero.h1}
+          intro={<p className={styles.lead}>{applicationHub.hero.intro}</p>}
+          actions={
+            <>
               <a className={styles.primaryButton} href={applicationHub.hero.primaryAction.href}>{applicationHub.hero.primaryAction.label}</a>
               {rfqReady ? <MalaysiaPrivateRfqLink className={styles.outlineButton} href={applicationHub.hero.rfq.href}>{applicationHub.hero.rfq.label}</MalaysiaPrivateRfqLink> : null}
-            </div>
-          </div>
-          <nav className={styles.heroIndex} aria-label={applicationHub.hero.selectorLabel}>
+            </>
+          }
+          media={<nav className={styles.heroIndex} aria-label={applicationHub.hero.selectorLabel}>
             <p>{applicationHub.hero.selectorLabel}</p>
             <ul>
               {applicationHub.applications.map((application) => (
@@ -66,8 +61,8 @@ export function MalaysiaApplicationHub({
                 </li>
               ))}
             </ul>
-          </nav>
-        </section>
+          </nav>}
+        />
 
         <section id={applicationHub.applicationPaths.anchorId} className={`${styles.section} ${styles.applicationPaths}`} aria-labelledby="application-paths-heading">
           <header>

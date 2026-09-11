@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import type {MalaysiaAboutPageDto} from '@/lib/wordpress/about-page-v01-types'
 import {MalaysiaGlobalFooter, MalaysiaGlobalHeader} from '../malaysia-global-chrome'
+import {RootPageHero} from '../root-page-hero/root-page-hero'
 import styles from './malaysia-about-page.module.css'
 
 interface Props {
@@ -90,22 +91,22 @@ export function MalaysiaAboutPage({aboutPage: page, structuredData}: Props) {
       {structuredData}
       <MalaysiaGlobalHeader chrome={page.globalChrome} currentPageId="ABOUT-001" sourcePageId="ABOUT-001" />
       <main className={styles.main}>
-        <nav className={styles.breadcrumb} aria-label="Breadcrumb" data-module="breadcrumb">
-          <ol>{page.breadcrumb.map((item, index) => <li key={item.targetPageId}>{index === 0 ? <a href={item.href}>{item.label}</a> : <span aria-current="page">{item.label}</span>}</li>)}</ol>
-        </nav>
-
-        <section className={`${styles.hero} ${page.hero.visualVisible ? '' : styles.heroNeutral}`} data-module="hero">
-          <div className={styles.heroText}>
-            <p className={styles.eyebrow}>{page.hero.eyebrow}</p>
-            <h1>{page.hero.h1}</h1>
-            <HeroCopy page={page} />
-            <div className={styles.actions}>
+        <RootPageHero
+          pageId="ABOUT-001"
+          variant="corporate-light"
+          breadcrumbLabel="About"
+          breadcrumbModuleName="breadcrumb"
+          moduleName="hero"
+          eyebrow={page.hero.eyebrow}
+          heading={page.hero.h1}
+          intro={<HeroCopy page={page} />}
+          actions={<>
               <a className={styles.primary} href={page.hero.primaryAction.href} data-site-scope="tio2-my" data-source-page="ABOUT-001">{page.hero.primaryAction.label}<Arrow /></a>
               <a className={styles.secondary} href={page.hero.secondaryAction.href}>{page.hero.secondaryAction.label}</a>
-            </div>
-          </div>
-          {page.hero.visualVisible ? <HeroVisual /> : null}
-        </section>
+            </>}
+          media={page.hero.visualVisible ? <HeroVisual /> : null}
+          className={page.hero.visualVisible ? undefined : styles.heroNeutral}
+        />
 
         <section className={styles.identity} data-module="who-we-are">
           <div className={styles.sectionHeading}><p className={styles.eyebrow}>{page.whoWeAre.eyebrow}</p><h2>{page.whoWeAre.h2}</h2></div>

@@ -4,6 +4,7 @@ import {useRef, useState} from 'react'
 
 import type {MalaysiaDocumentsHubDto} from '@/lib/wordpress/documents-hub-v01-types'
 import {MalaysiaGlobalFooter, MalaysiaGlobalHeader} from '../malaysia-global-chrome'
+import {RootPageHero} from '../root-page-hero/root-page-hero'
 import {DocumentsFaq} from './documents-faq'
 import styles from './malaysia-documents-hub.module.css'
 
@@ -29,11 +30,19 @@ export function MalaysiaDocumentsHub({documentsHub, structuredData}: {readonly d
     {structuredData}
     <MalaysiaGlobalHeader chrome={documentsHub.globalChrome} currentPageId="DOC-000" sourcePageId="DOC-000" />
     <main className={styles.main}>
-      <nav className={styles.breadcrumb} aria-label="Breadcrumb" data-module="breadcrumb"><ol>{documentsHub.breadcrumb.map((item, index) => <li key={item.targetPageId}>{index === documentsHub.breadcrumb.length - 1 ? <span aria-current="page">{item.label}</span> : <a href={item.href}>{item.label}</a>}</li>)}</ol></nav>
-      <section className={styles.hero} data-module="hero" aria-labelledby="documents-heading">
-        <div className={styles.heroCopy}><p className={styles.eyebrow}>{documentsHub.hero.eyebrow}</p><h1 id="documents-heading">{documentsHub.hero.h1}</h1><p>{documentsHub.hero.body}</p><small>{documentsHub.hero.note}</small><a className={styles.outlineButton} href={documentsHub.hero.primaryAction.href}>{documentsHub.hero.primaryAction.label}<span aria-hidden="true">→</span></a></div>
-        <div className={styles.heroVisual} aria-hidden="true"><span className={styles.orbit} />{[0,1,2].map((item) => <span className={styles.paper} key={item}><DocumentIcon /></span>)}</div>
-      </section>
+      <RootPageHero
+        pageId="DOC-000"
+        variant="hub-light"
+        breadcrumbLabel="Documents"
+        breadcrumbModuleName="breadcrumb"
+        headingId="documents-heading"
+        moduleName="hero"
+        eyebrow={documentsHub.hero.eyebrow}
+        heading={documentsHub.hero.h1}
+        intro={<><p>{documentsHub.hero.body}</p><small>{documentsHub.hero.note}</small></>}
+        actions={<a className={styles.outlineButton} href={documentsHub.hero.primaryAction.href}>{documentsHub.hero.primaryAction.label}<span aria-hidden="true">→</span></a>}
+        media={<div className={styles.heroVisual} aria-hidden="true"><span className={styles.orbit} />{[0,1,2].map((item) => <span className={styles.paper} key={item}><DocumentIcon /></span>)}</div>}
+      />
       <section className={styles.selector} data-module="grade-selector" aria-labelledby="selector-heading">
         <div><h2 id="selector-heading">{selector.heading}</h2><p>{selector.body}</p>
           <form action={selector.receiverPath} method="get" onSubmit={submit}>

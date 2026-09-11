@@ -6,6 +6,7 @@ import {
   MalaysiaGlobalFooter,
   MalaysiaGlobalHeader,
 } from '../malaysia-global-chrome'
+import {RootPageHero} from '../root-page-hero/root-page-hero'
 import styles from './malaysia-homepage.module.css'
 import {ResponsiveProductGroup, ResponsiveProductGroups} from './responsive-product-groups'
 
@@ -41,21 +42,27 @@ export function MalaysiaHomepage({homepage, structuredData}: {
         sourcePageId="HOME-001"
       />
       <main className={styles.homepageMain}>
-        <section className={styles.hero} data-module="hero" aria-labelledby="my-hero-heading">
-          <div className={styles.heroCopy}>
-            <Eyebrow>{homepage.hero.eyebrow}</Eyebrow>
-            <h1 id="my-hero-heading">{homepage.hero.heading}</h1>
-            <p>{homepage.hero.body}</p>
-            <div className={styles.actions}>
+        <RootPageHero
+          pageId="HOME-001"
+          variant="flagship-light"
+          surface="open"
+          breadcrumbModuleName="breadcrumb"
+          headingId="my-hero-heading"
+          moduleName="hero"
+          eyebrow={homepage.hero.eyebrow}
+          heading={homepage.hero.heading}
+          intro={<p>{homepage.hero.body}</p>}
+          actions={
+            <>
               <a className={styles.primaryButton} href={homepage.hero.primaryCta.href} {...rfqAttributes}>
                 {homepage.hero.primaryCta.label}
               </a>
               <ApprovedLink className={styles.secondaryButton} href={homepage.hero.secondaryCta.href}>
                 {homepage.hero.secondaryCta.label}
               </ApprovedLink>
-            </div>
-          </div>
-          <div className={styles.heroVisual} aria-hidden="true">
+            </>
+          }
+          media={<div className={styles.heroVisual} aria-hidden="true">
             <Image
               src={homepage.hero.media.src}
               alt=""
@@ -65,8 +72,8 @@ export function MalaysiaHomepage({homepage, structuredData}: {
               sizes="(min-width: 1101px) 430px, (min-width: 561px) 40vw, calc(100vw - 84px)"
               fetchPriority="high"
             />
-          </div>
-        </section>
+          </div>}
+        />
 
         <section className={styles.startHere} data-module="start-here" aria-label="Start here">
           <div className={styles.startIntro}><Eyebrow>{homepage.startHere.label}</Eyebrow><p>{homepage.startHere.intro}</p></div>

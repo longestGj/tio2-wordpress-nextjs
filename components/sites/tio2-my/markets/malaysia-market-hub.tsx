@@ -4,6 +4,7 @@ import {
   MalaysiaGlobalFooter,
   MalaysiaGlobalHeader,
 } from '../malaysia-global-chrome'
+import {RootPageHero} from '../root-page-hero/root-page-hero'
 import styles from './malaysia-market-hub.module.css'
 
 function Eyebrow({children}: {readonly children: React.ReactNode}) {
@@ -30,33 +31,25 @@ export function MalaysiaMarketHub({
         sourcePageId="MARKET-000"
       />
       <main className={styles.marketMain}>
-        <nav className={styles.breadcrumb} aria-label="Breadcrumb" data-module="breadcrumb">
-          <ol>
-            {marketHub.breadcrumb.map((item, index) => (
-              <li key={item.targetPageId}>
-                {index === marketHub.breadcrumb.length - 1
-                  ? <span aria-current="page">{item.label}</span>
-                  : <a href={item.href}>{item.label}</a>}
-              </li>
-            ))}
-          </ol>
-        </nav>
-
-        <section className={`${styles.section} ${styles.hero}`} data-module="hero" aria-labelledby="market-hero-heading">
-          <div className={styles.heroCopy}>
-            <Eyebrow>{marketHub.hero.eyebrow}</Eyebrow>
-            <h1 id="market-hero-heading">{marketHub.hero.h1}</h1>
-            <p>{marketHub.hero.body}</p>
-            <a className={styles.primaryButton} href={marketHub.hero.primaryAction.href}>
+        <RootPageHero
+          pageId="MARKET-000"
+          variant="hub-light"
+          breadcrumbLabel="Markets"
+          breadcrumbModuleName="breadcrumb"
+          headingId="market-hero-heading"
+          moduleName="hero"
+          eyebrow={marketHub.hero.eyebrow}
+          heading={marketHub.hero.h1}
+          intro={<p>{marketHub.hero.body}</p>}
+          actions={<a className={styles.primaryButton} href={marketHub.hero.primaryAction.href}>
               {marketHub.hero.primaryAction.label}
-            </a>
-          </div>
-          <aside className={styles.chapter} aria-label="Markets chapter">
+            </a>}
+          media={<aside className={styles.chapter} aria-label="Markets chapter">
             <div><strong aria-hidden="true">{marketHub.hero.chapterNumber}</strong><span>{marketHub.hero.chapterLabel}</span></div>
             <b>{marketHub.hero.chapterMarkets}</b>
             <p>{marketHub.hero.chapterDescription}</p>
-          </aside>
-        </section>
+          </aside>}
+        />
 
         <section
           id={marketHub.destinations.anchorId}

@@ -4,6 +4,7 @@ import {
   MalaysiaGlobalFooter,
   MalaysiaGlobalHeader,
 } from '../malaysia-global-chrome'
+import {RootPageHero} from '../root-page-hero/root-page-hero'
 import styles from './malaysia-product-hub.module.css'
 import {ProductFaq} from './product-faq'
 import {ProductSelector} from './product-selector'
@@ -56,33 +57,26 @@ export function MalaysiaProductHub({
         sourcePageId="PRODUCT-000"
       />
       <main className={styles.productMain}>
-        <nav className={styles.breadcrumb} aria-label="Breadcrumb" data-module="breadcrumb">
-          <ol>
-            {productHub.breadcrumb.map((item, index) => (
-              <li key={item.targetPageId}>
-                {index === productHub.breadcrumb.length - 1
-                  ? <span aria-current="page">{item.label}</span>
-                  : <a href={item.href}>{item.label}</a>}
-              </li>
-            ))}
-          </ol>
-        </nav>
-
-        <section className={`${styles.section} ${styles.hero}`} data-module="hero" aria-labelledby="product-hero-heading">
-          <div className={styles.heroCopy}>
-            <Eyebrow>{productHub.hero.eyebrow}</Eyebrow>
-            <h1 id="product-hero-heading">{productHub.hero.h1}</h1>
-            <p>{productHub.hero.intro}</p>
-            <p>{productHub.hero.rutileStatement}</p>
-            <p className={styles.qualification}>{productHub.hero.qualification}</p>
-            <div className={styles.heroActions}>
+        <RootPageHero
+          pageId="PRODUCT-000"
+          variant="hub-light"
+          surface="preserve"
+          breadcrumbLabel="Products"
+          breadcrumbModuleName="breadcrumb"
+          headingId="product-hero-heading"
+          moduleName="hero"
+          eyebrow={productHub.hero.eyebrow}
+          heading={productHub.hero.h1}
+          intro={<><p>{productHub.hero.intro}</p><p>{productHub.hero.rutileStatement}</p><p className={styles.qualification}>{productHub.hero.qualification}</p></>}
+          actions={
+            <>
               <a className={styles.primaryButton} href={productHub.hero.primaryAction.href}>{productHub.hero.primaryAction.label}</a>
               <a className={styles.outlineButton} href={productHub.hero.secondaryAction.href} data-site-scope="tio2-my" data-source-page="PRODUCT-000">
                 {productHub.hero.secondaryAction.label}
               </a>
-            </div>
-          </div>
-          <aside className={styles.portfolioSummary} aria-label={productHub.hero.summary.title}>
+            </>
+          }
+          media={<aside className={styles.portfolioSummary} aria-label={productHub.hero.summary.title}>
             <h2>{productHub.hero.summary.title}</h2>
             <p>{productHub.hero.summary.body}</p>
             <div>
@@ -92,8 +86,8 @@ export function MalaysiaProductHub({
                 </div>
               ))}
             </div>
-          </aside>
-        </section>
+          </aside>}
+        />
 
         <section id={productHub.selector.anchorId} className={`${styles.section} ${styles.selector}`} data-module="grade-selector" aria-labelledby="selector-heading">
           <SectionIntro eyebrow={productHub.selector.eyebrow} heading={productHub.selector.heading} intro={productHub.selector.intro} headingId="selector-heading" />
