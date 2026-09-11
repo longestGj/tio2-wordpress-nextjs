@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-11T01:10:25.202Z",
+  "pageId": "HOME-001",
+  "siteScope": "tio2-my",
+  "branch": "codex/home-001-app-align-gate8",
+  "implementationCommit": "09aa4e446ec3eae870f8fc844a73a4169ac06abe",
+  "build": {
+    "directory": ".next-home-001-app-align-09aa4e4",
+    "buildId": "lcePXqYwI1h1gOF3nVmpW",
+    "nextVersion": "16.3.2",
+    "result": "PASS",
+    "staticPages": 65,
+    "output": "docs/verification/home-001/applications-aligned-gate8/return-2026-09-11/build-output.txt"
+  },
+  "runtime": {
+    "baseUrl": "http://127.0.0.1:3292",
+    "bindAddress": "127.0.0.1",
+    "port": 3292,
+    "processId": 74624,
+    "startedAt": "2026-09-11T01:06:58.0056198Z",
+    "holdUntil": "GATE9_PASS_OR_RETURN_NOTICE"
+  }
+}

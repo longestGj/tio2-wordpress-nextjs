@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-11T01:10:25.202Z",
+  "pageId": "HOME-001",
+  "route": "/",
+  "siteScope": "tio2-my",
+  "userChangeId": "HOME-001-G9-USER-CHANGE-01",
+  "previousEvidenceHead": "63898249810817bbd298fba259410fc7565c320c",
+  "previousImplementation": "cc55245e83bff0e7c4a63638f65d678dbc3989c3",
+  "implementationCommit": "09aa4e446ec3eae870f8fc844a73a4169ac06abe",
+  "decision": {
+    "heroEdgeDecoration": "REMOVE_AT_ALL_FIVE_WIDTHS",
+    "sharedMenuBackdrop": "ACCEPTED_AS_IS_BY_USER / NO_CHANGE_REQUIRED"
+  },
+  "files": [
+    {
+      "path": "components/sites/tio2-my/homepage/malaysia-homepage.module.css",
+      "changeAuthorized": true,
+      "beforeSha256": "0668540d1747ae8b6b2c59ed908b63eae7687eec79f1d3caad31f82a4af33d08",
+      "afterSha256": "f0523ac7bab39fb4f1869ea8de713cd26fd1429a29f1035cc36d34558970dec5",
+      "deliveredWorktreeSha256": "f0523ac7bab39fb4f1869ea8de713cd26fd1429a29f1035cc36d34558970dec5",
+      "changed": true,
+      "result": "AUTHORIZED_HERO_DECORATION_REMOVAL"
+    },
+    {
+      "path": "components/sites/tio2-my/homepage/malaysia-homepage.tsx",
+      "changeAuthorized": false,
+      "beforeSha256": "2bc62ec728ceb3b8d098cbb243af3941660d78e98b75fe00093a3c6e89bbe7c3",
+      "afterSha256": "2bc62ec728ceb3b8d098cbb243af3941660d78e98b75fe00093a3c6e89bbe7c3",
+      "deliveredWorktreeSha256": "6acc6edab876588491061b9003c12d7ca9e454e9807f6d4a87fd88a9a69e4c66",
+      "changed": false,
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "components/sites/tio2-my/homepage/responsive-product-groups.tsx",
+      "changeAuthorized": false,
+      "beforeSha256": "a38c7cefaf375e421caeed19f5848b2b67d2abf29c6e6dd54f729bb6b3c3c285",
+      "afterSha256": "a38c7cefaf375e421caeed19f5848b2b67d2abf29c6e6dd54f729bb6b3c3c285",
+      "deliveredWorktreeSha256": "ba54c9ee0ef4d6cb18e1ec201e9c5deda2ac3c0aa2ec40349c0b8946492dde1b",
+      "changed": false,
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "components/sites/tio2-my/malaysia-global-chrome.tsx",
+      "changeAuthorized": false,
+      "beforeSha256": "f7223e144c3d39a8a5779bac01cca7cd4e7fe7858738d1f12b4ba7a52ca1d0fb",
+      "afterSha256": "f7223e144c3d39a8a5779bac01cca7cd4e7fe7858738d1f12b4ba7a52ca1d0fb",
+      "deliveredWorktreeSha256": "910f720791e8ab5fd836932d6ddc3c70c126fb502ccf17c8635b736cca683453",
+      "changed": false,
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "components/sites/tio2-my/malaysia-global-chrome-client.tsx",
+      "changeAuthorized": false,
+      "beforeSha256": "a868cb72e90f7e4881650241c308cf5912b4ec24f7a921c522822d3a27fddd45",
+      "afterSha256": "a868cb72e90f7e4881650241c308cf5912b4ec24f7a921c522822d3a27fddd45",
+      "deliveredWorktreeSha256": "aeb738d4058dacd0ed09ef3163aca965fbbf247196008db16a395cc9bcbf26c5",
+      "changed": false,
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "components/sites/tio2-my/malaysia-global-chrome.module.css",
+      "changeAuthorized": false,
+      "beforeSha256": "1718c8b5aacf1b6e24ca24e57d0eedb90fe4eaedb8dff4444c553e2db83b931e",
+      "afterSha256": "1718c8b5aacf1b6e24ca24e57d0eedb90fe4eaedb8dff4444c553e2db83b931e",
+      "deliveredWorktreeSha256": "909c8d03048cb41944a95d2a0e821b068645875cfd1811d9e960b6f6e7d3b6cb",
+      "changed": false,
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json",
+      "changeAuthorized": false,
+      "beforeSha256": "f538230bbc7122f902b2648482c11afdf84b0f82693ef1e3609019b5b8256064",
+      "afterSha256": "f538230bbc7122f902b2648482c11afdf84b0f82693ef1e3609019b5b8256064",
+      "deliveredWorktreeSha256": "c89cc1e7029b96c67c7183b4081e1526905a4f1875da9a9f9f6b290e2cd8554c",
+      "changed": false,
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "lib/seo/homepage-metadata.ts",
+      "changeAuthorized": false,
+      "beforeSha256": "6802409b608d95e8bb09418f48d492668260fac312123eededa10187ecd1c5e3",
+      "afterSha256": "6802409b608d95e8bb09418f48d492668260fac312123eededa10187ecd1c5e3",
+      "deliveredWorktreeSha256": "214953d931381323760e5c49e9493d9de3510f583d9d98578b9737ba6ced7d8a",
+      "changed": false,
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "lib/seo/homepage-jsonld.ts",
+      "changeAuthorized": false,
+      "beforeSha256": "306603ec781bbfdd06efe8717d72684c07766266be27d6c90bd383cfd2ef8bf2",
+      "afterSha256": "306603ec781bbfdd06efe8717d72684c07766266be27d6c90bd383cfd2ef8bf2",
+      "deliveredWorktreeSha256": "6a744dc9f3c3f9c6789ee3ca6caca12083e4234ff58f09e25b4d39cb893f0e95",
+      "changed": false,
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-primary-horizontal-v0.1.svg",
+      "changeAuthorized": false,
+      "beforeSha256": "eeed3a758e7ae1b847238d1c88e86eee7a8e67b863969af4d286747e9a72487c",
+      "afterSha256": "eeed3a758e7ae1b847238d1c88e86eee7a8e67b863969af4d286747e9a72487c",
+      "deliveredWorktreeSha256": "eeed3a758e7ae1b847238d1c88e86eee7a8e67b863969af4d286747e9a72487c",
+      "changed": false,
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-reverse-monochrome-v0.1.svg",
+      "changeAuthorized": false,
+      "beforeSha256": "7cfaeafa02ac8469a006c9489db2f92b15b2621e4151b04efe1b30fc734c1b5e",
+      "afterSha256": "7cfaeafa02ac8469a006c9489db2f92b15b2621e4151b04efe1b30fc734c1b5e",
+      "deliveredWorktreeSha256": "7cfaeafa02ac8469a006c9489db2f92b15b2621e4151b04efe1b30fc734c1b5e",
+      "changed": false,
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-symbol-v0.1.svg",
+      "changeAuthorized": false,
+      "beforeSha256": "9fd1fafafad4bc6fef0c05f499c27baf1051eef084d1b834b1061caf3b8b85a0",
+      "afterSha256": "9fd1fafafad4bc6fef0c05f499c27baf1051eef084d1b834b1061caf3b8b85a0",
+      "deliveredWorktreeSha256": "9fd1fafafad4bc6fef0c05f499c27baf1051eef084d1b834b1061caf3b8b85a0",
+      "changed": false,
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    },
+    {
+      "path": "public/tio2-my/brand/tio2-malaysia-favicon-safe-v0.1.svg",
+      "changeAuthorized": false,
+      "beforeSha256": "f1d1b97ff66211410a50279eed16414b5a6e888c27c11419e41265168d08692c",
+      "afterSha256": "f1d1b97ff66211410a50279eed16414b5a6e888c27c11419e41265168d08692c",
+      "deliveredWorktreeSha256": "f1d1b97ff66211410a50279eed16414b5a6e888c27c11419e41265168d08692c",
+      "changed": false,
+      "result": "PRESERVED_BYTE_FOR_BYTE"
+    }
+  ],
+  "summary": {
+    "changedProductionFiles": [
+      "components/sites/tio2-my/homepage/malaysia-homepage.module.css"
+    ],
+    "preservedProductionFiles": 12,
+    "unauthorizedChanges": 0,
+    "result": "PASS"
+  }
+}

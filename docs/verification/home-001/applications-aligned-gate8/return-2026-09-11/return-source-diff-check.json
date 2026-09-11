@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-11T01:10:46.5830392Z",
+  "command": "git diff --check 63898249810817bbd298fba259410fc7565c320c",
+  "exitCode": 0,
+  "result": "PASS",
+  "previousEvidenceHead": "63898249810817bbd298fba259410fc7565c320c",
+  "implementationCommit": "09aa4e446ec3eae870f8fc844a73a4169ac06abe",
+  "implementationFiles": [
+    "components/sites/tio2-my/homepage/malaysia-homepage.module.css",
+    "tests/unit/homepage/malaysia-visual-unification.test.ts"
+  ],
+  "evidenceOnlyUncommittedFiles": [
+    "tests/e2e/malaysia-homepage-visual-unification.spec.ts",
+    "docs/verification/home-001/applications-aligned-gate8/return-2026-09-11/"
+  ],
+  "scopeStatement": "The only production change is removal of the HOME-001 Hero ::before decoration; shared Global Chrome is unchanged."
+}

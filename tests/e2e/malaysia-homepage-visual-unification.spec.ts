@@ -86,6 +86,12 @@ for (const width of widths) {
     const heroImageBox = await page.locator('[data-module="hero"] img[alt=""]').boundingBox()
     expect(heroImageBox?.width).toBeGreaterThan(200)
     expect(heroImageBox?.height).toBeGreaterThan(200)
+    const heroEdgeDecoration = await page.locator('[data-module="hero"]').evaluate((node) => {
+      const pseudo = getComputedStyle(node, '::before')
+      return {content: pseudo.content, backgroundImage: pseudo.backgroundImage}
+    })
+    expect(heroEdgeDecoration.content).toBe('none')
+    expect(heroEdgeDecoration.backgroundImage).toBe('none')
 
     const startHere = page.locator('[data-module="start-here"]')
     await expect(startHere).toBeVisible()
@@ -139,6 +145,7 @@ for (const width of widths) {
     ;(audit.viewports as Record<string, unknown>)[String(width)] = {
       axeViolationCount,
       documentsBackground,
+      heroEdgeDecoration,
       heroImageBox,
       noHorizontalOverflow: true,
       pageRfqVisible: width > 560,
