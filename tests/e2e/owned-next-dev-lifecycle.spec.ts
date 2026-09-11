@@ -1,4 +1,3 @@
-import {requiredLocalUrl} from './support/required-local-url'
 import {
   existsSync,
   mkdirSync,
@@ -6,7 +5,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs'
-import {resolve} from 'node:path'
+import {join, resolve} from 'node:path'
 
 import {expect, test} from '@playwright/test'
 
@@ -23,18 +22,26 @@ const editorialDistPath = resolve('.next-task-9-editorial')
 const productDistPath = resolve('.next-task-9-product')
 const editorialLockPath = resolve('.tmp/task-9-editorial-preview.lock')
 const productLockPath = resolve('.tmp/task-9-product-preview.lock')
+const deliberatelyUnavailableCmsOrigin = new URL('http://127.0.0.1')
+deliberatelyUnavailableCmsOrigin.port = '0'
 const environment = {
   PREVIEW_SECRET: 'task-9-lifecycle-preview-secret',
   REVALIDATION_SECRET: 'task-9-lifecycle-revalidation-secret',
   SITE_ID: 'tio2-a',
-  WORDPRESS_GRAPHQL_URL: requiredLocalUrl('WORDPRESS_GRAPHQL_URL', '/graphql').href,
+  WORDPRESS_GRAPHQL_URL: new URL('/graphql', deliberatelyUnavailableCmsOrigin).href,
   WORDPRESS_PREVIEW_SECRET: 'task-9-lifecycle-preview-secret',
-  WORDPRESS_PREVIEW_URL:
-    requiredLocalUrl('WORDPRESS_PREVIEW_URL', '/wp-json/tio2/v1/preview').href,
+  WORDPRESS_PREVIEW_URL: new URL(
+    '/wp-json/tio2/v1/preview',
+    deliberatelyUnavailableCmsOrigin,
+  ).href,
 } as const
 
 async function stopRuntime(runtime: OwnedNextDevRuntime | undefined): Promise<void> {
-  await runtime?.stop()
+  if (!runtime) return
+  const leasePath = join(resolve('.runtime/port-leases'), `${runtime.leaseId}.json`)
+  expect(existsSync(leasePath)).toBe(true)
+  await runtime.stop()
+  expect(existsSync(leasePath)).toBe(false)
 }
 
 test('a cross-ID contender cannot mutate or clean shared state while an owner remains usable', async () => {
@@ -46,6 +53,7 @@ test('a cross-ID contender cannot mutate or clean shared state while an owner re
 
   try {
     owner = await startOwnedNextDev({environment, runtimeId: 'editorial'})
+    expect(owner.leaseId).toMatch(/^[0-9a-f-]{36}$/u)
     const ownedTsconfig = readFileSync(tsconfigPath, 'utf8')
     expect(ownedTsconfig).not.toBe(originalTsconfig)
     expect(existsSync(editorialDistPath)).toBe(true)
@@ -85,6 +93,7 @@ test('a cross-ID contender cannot mutate or clean shared state while an owner re
   let nextOwner: OwnedNextDevRuntime | undefined
   try {
     nextOwner = await startOwnedNextDev({environment, runtimeId: 'product'})
+    expect(nextOwner.leaseId).toMatch(/^[0-9a-f-]{36}$/u)
     const response = await fetch(`${nextOwner.baseUrl}/robots.txt`, {
       cache: 'no-store',
     })

@@ -28,6 +28,11 @@ namespace D16OwnedE2E {
         public SafeFileHandle job;
         public Dictionary<int, Member> members = new Dictionary<int, Member>();
     }
+    sealed class SnapshotExitRaceException : Exception {
+        public readonly int pid;
+        public SnapshotExitRaceException(int pid, Exception inner)
+            : base("Snapshot process exited before identity capture", inner) { this.pid = pid; }
+    }
 
     public sealed class Supervisor : IDisposable {
         readonly Dictionary<string, Owner> owners = new Dictionary<string, Owner>();
@@ -94,6 +99,10 @@ namespace D16OwnedE2E {
             }
             throw new InvalidOperationException("Owned process tree exceeded safe snapshot limit");
         }
+        static bool SnapshotExitRaceMayRetry(Exception error, int[] pids, int pid) {
+            return (error is ArgumentException || error is InvalidOperationException)
+                && Array.IndexOf(pids, pid) < 0;
+        }
         static void Validate(Owner owner, Member member, string token) {
             if (member.process.HasExited) return;
             bool inJob;
@@ -125,26 +134,44 @@ namespace D16OwnedE2E {
                 return identity;
             } catch { process.Dispose(); throw; }
         }
-        public Identity[] Snapshot(string token) {
-            Owner owner = owners[token];
+        Identity[] SnapshotOnce(string token, Owner owner) {
             foreach (int pid in JobPids(owner)) {
                 Member member;
                 if (owner.members.TryGetValue(pid, out member)) { Validate(owner, member, token); continue; }
                 Process process;
                 try { process = Process.GetProcessById(pid); }
-                catch (ArgumentException) { continue; } // Already ended, not an unknown live owner.
+                catch (ArgumentException error) { throw new SnapshotExitRaceException(pid, error); }
                 try {
                     bool inJob;
-                    IntPtr handle = process.Handle;
-                    if (process.HasExited) { process.Dispose(); continue; }
+                    IntPtr handle;
+                    try { handle = process.Handle; }
+                    catch (InvalidOperationException error) { throw new SnapshotExitRaceException(pid, error); }
+                    try { if (process.HasExited) { process.Dispose(); continue; } }
+                    catch (InvalidOperationException error) { throw new SnapshotExitRaceException(pid, error); }
                     if (!IsProcessInJob(handle, owner.job, out inJob) || !inJob)
                         throw new InvalidOperationException("Snapshot process left its owned Job");
-                    Identity identity = Capture(process, token);
+                    Identity identity;
+                    try { identity = Capture(process, token); }
+                    catch (InvalidOperationException error) { throw new SnapshotExitRaceException(pid, error); }
                     if (identity == null) { process.Dispose(); continue; }
                     owner.members.Add(pid, new Member {process = process, identity = identity});
                 } catch { process.Dispose(); throw; }
             }
             return owner.members.Values.Where(member => !member.process.HasExited).Select(member => member.identity).ToArray();
+        }
+        public Identity[] Snapshot(string token) {
+            Owner owner = owners[token];
+            for (int attempt = 0; attempt < 5; attempt++) {
+                try { return SnapshotOnce(token, owner); }
+                catch (SnapshotExitRaceException error) {
+                    int[] refreshed = JobPids(owner);
+                    if (!SnapshotExitRaceMayRetry(error.InnerException, refreshed, error.pid))
+                        throw new InvalidOperationException("Snapshot process remains in the owned Job; lease retained", error.InnerException);
+                    if (attempt == 4)
+                        throw new InvalidOperationException("Owned process snapshot exit-race retries exhausted; lease retained", error.InnerException);
+                }
+            }
+            throw new InvalidOperationException("Owned process snapshot could not stabilize; lease retained");
         }
         int Depth(Owner owner, Identity identity) {
             int depth = 0;
@@ -163,16 +190,32 @@ namespace D16OwnedE2E {
                 Member member;
                 if (!owner.members.TryGetValue(identity.pid, out member) || !Equal(identity, member.identity))
                     throw new InvalidOperationException("Process identity mismatch; process and lease retained");
-                Validate(owner, member, token);
+                try { Validate(owner, member, token); }
+                catch (Exception error) {
+                    throw new InvalidOperationException("Owned stop preflight validation failed; lease retained: " + error.Message, error);
+                }
             }
             for (int attempt = 0; attempt < 5; attempt++) {
-                Identity[] current = Snapshot(token);
+                Identity[] current;
+                try { current = Snapshot(token); }
+                catch (Exception error) {
+                    throw new InvalidOperationException("Owned stop snapshot failed; lease retained: " + error.Message, error);
+                }
                 if (current.Length == 0 && JobPids(owner).Length == 0) return;
                 foreach (Identity identity in current.OrderByDescending(item => Depth(owner, item))) {
                     Member member = owner.members[identity.pid];
-                    Validate(owner, member, token); // Immediately before handle-based termination.
+                    try { Validate(owner, member, token); } // Immediately before handle-based termination.
+                    catch (Exception error) {
+                        throw new InvalidOperationException("Owned stop termination validation failed; lease retained: " + error.Message, error);
+                    }
                     if (member.process.HasExited) continue;
-                    member.process.Kill();
+                    try { member.process.Kill(); }
+                    catch (InvalidOperationException) {
+                        // The retained handle, not a fresh PID lookup, is the
+                        // only authority that can make an exit race benign.
+                        if (!member.process.HasExited) throw;
+                        continue;
+                    }
                     if (!member.process.WaitForExit(5000))
                         throw new InvalidOperationException("Owned process did not stop; lease retained");
                 }
