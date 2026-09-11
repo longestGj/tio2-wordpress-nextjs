@@ -17,6 +17,8 @@
 
 数据库、WordPress文件、Sample收据台账和npm缓存使用`d16-tio2-my-prerelease_`前缀的专用volume。控制器不会停止其他项目进程，也不会删除此前缀之外的volume。
 
+3100/8180始终固定，不能用临时端口池替代。开发、feature和自动化运行的端口及归属见[运行端口操作手册](runtime-ports.md)。`npm run runtime:doctor`严格只读检查固定端点、Docker来源和租约；出现`owner-mismatch`或未知监听时，先记录实际owner并停止受影响动作。Doctor不启动临时WP-CLI、不写身份文件，也不能代替下文`prerelease:status`对run/Build/CMS的核验。
+
 ## 首次配置
 
 需要Docker Desktop、Node.js/npm、Git、PowerShell和本仓库已安装的Playwright浏览器。只在本地`main`工作树干净时启动。
@@ -84,7 +86,7 @@ npm run prerelease:test:forms-live
 
 常见恢复步骤：
 
-- 3100或8180被占用：定位并处理占用者；控制器不会终止未知进程。
+- 3100或8180被占用：先用`npm run runtime:doctor`及[归属恢复说明](runtime-ports.md#doctor判读与owner_mismatch恢复)定位；未知或不匹配owner保留现场，由原运行owner核实后处理，控制器不会终止未知进程或自动换端口。
 - 配置失败：按报告的字段名修正`.env.prerelease.local`，不要粘贴值到任务消息或日志。
 - CMS/seed失败：查看本次`run-manifest.json`的`failedStage`；seed哈希不匹配时先核对当前`main`和Manifest，不能跳过校验。
 - Build或HTTP失败：保留失败run目录，修复代码或环境后从新的干净`main`重新执行`start`。

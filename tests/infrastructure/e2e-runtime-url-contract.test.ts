@@ -50,6 +50,28 @@ test('only a prerelease basename and explicit port 3100 qualify for the fixed UR
   expect(fixedRuntimeUrls('tests/e2e/prerelease-example.spec.ts', "const url = 'http://127.0.0.1:3101/'")).toHaveLength(1)
 })
 
+describe('runtime endpoint documentation contract', () => {
+  function runbook() {
+    const path = resolve('docs/runtime-ports.md')
+    expect(existsSync(path), 'The runtime ownership runbook must exist').toBe(true)
+    return readFileSync(path, 'utf8')
+  }
+
+  test('keeps the six stable development and prerelease endpoints in its operator table', () => {
+    const endpoints = runbook().split(/\r?\n/u)
+      .filter(line => line.startsWith('|'))
+      .flatMap(line => [...line.matchAll(/`(http:\/\/127\.0\.0\.1:[0-9]+)`/gu)].map(match => match[1]))
+    expect(endpoints).toEqual([
+      'http://127.0.0.1:3001', 'http://127.0.0.1:3002', 'http://127.0.0.1:3003',
+      'http://127.0.0.1:8080', 'http://127.0.0.1:3100', 'http://127.0.0.1:8180',
+    ])
+  })
+
+  test.each(['32000-32099', '32100-32999'])('documents dynamic lease range %s', range => {
+    expect(runbook()).toContain(range)
+  })
+})
+
 describe('requiredLocalUrl', () => {
   test('fails closed for missing, remote, credentialed or wrong-path configuration', async () => {
     const modulePath = resolve('tests/e2e/support/required-local-url.ts')

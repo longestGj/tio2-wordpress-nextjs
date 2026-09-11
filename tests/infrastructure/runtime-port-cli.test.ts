@@ -1,5 +1,5 @@
 import {randomUUID} from 'node:crypto'
-import {mkdtempSync, rmSync, writeFileSync} from 'node:fs'
+import {existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {dirname, join, resolve} from 'node:path'
 import {spawnSync} from 'node:child_process'
@@ -31,6 +31,47 @@ afterEach(() => {
 })
 
 describe('runtime port CLI', () => {
+  test('every operator runbook npm command resolves to a package entry', () => {
+    const runbookPath = resolve(repositoryRoot, 'docs/runtime-ports.md')
+    expect(existsSync(runbookPath), 'The runtime ownership runbook must exist').toBe(true)
+    const runbook = readFileSync(runbookPath, 'utf8')
+    const {scripts} = JSON.parse(readFileSync(resolve(repositoryRoot, 'package.json'), 'utf8')) as {scripts: Record<string, string>}
+    const commands = [...runbook.matchAll(/npm run ([a-z0-9:-]+)/gu)].map(match => match[1])
+    expect(commands).toEqual(expect.arrayContaining([
+      'wordpress:start', 'sites:start', 'runtime:status', 'runtime:doctor', 'prerelease:status', 'test:e2e:owned',
+    ]))
+    expect([...new Set(commands)].filter(command => !scripts[command])).toEqual([])
+  })
+
+  test('the packaged runtime:doctor reads lease evidence without changing or releasing it', () => {
+    const root = createLeaseRoot()
+    const initialized = spawnSync('git', ['init', '--quiet', root], {encoding: 'utf8'})
+    expect(initialized.status, initialized.stderr).toBe(0)
+    const leaseRoot = join(root, '.runtime/port-leases')
+    mkdirSync(leaseRoot, {recursive: true})
+    const leaseId = randomUUID()
+    const leasePath = join(leaseRoot, `${leaseId}.json`)
+    const evidence = JSON.stringify({
+      schemaVersion: 1, leaseId, runId: 'doctor-read-only', purpose: 'fixture', siteId: null,
+      worktree: root, commit: 'a'.repeat(40), host: '127.0.0.1', ports: [32998], processIds: [],
+      composeProject: null, createdAt: '2026-01-01T00:00:00.000Z', retainUntil: null,
+    })
+    writeFileSync(leasePath, evidence)
+    const {scripts} = JSON.parse(readFileSync(resolve(repositoryRoot, 'package.json'), 'utf8')) as {scripts: Record<string, string>}
+    const [command, ...args] = scripts['runtime:doctor'].split(' ')
+    const scriptArgument = args.indexOf('-File') + 1
+    expect(scriptArgument).toBeGreaterThan(0)
+    args[scriptArgument] = resolve(repositoryRoot, args[scriptArgument])
+    const result = spawnSync(command, args, {cwd: root, encoding: 'utf8', timeout: 30000})
+
+    expect(result.status, result.stderr).toBe(0)
+    expect(JSON.parse(result.stdout)).toMatchObject({
+      ok: true, action: 'doctor', actionsTaken: [], leases: [{lease: {leaseId}}],
+    })
+    expect(readdirSync(leaseRoot)).toEqual([`${leaseId}.json`])
+    expect(readFileSync(leasePath, 'utf8')).toBe(evidence)
+  }, 35000)
+
   test('reserves a lease and emits one JSON response', () => {
     const leaseRoot = createLeaseRoot()
     const result = runCli([

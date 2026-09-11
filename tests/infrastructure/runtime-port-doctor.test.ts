@@ -41,7 +41,7 @@ describe('read-only runtime Doctor', () => {
 
   it('rejects duplicate project labels originating in another checkout', async () => {
     const report = await doctor({probePort: async () => true, dockerInspect: async () => [canonical, {...canonical, workingDir: resolve('../other/wordpress')}]})
-    expect(report.fixedEndpoints.find((item: {port: number}) => item.port === 8080).state).toBe('owner-mismatch')
+    expect(report.fixedEndpoints.find((item: {port: number}) => item.port === 8080)).toMatchObject({state: 'owner-mismatch'})
     expect(report.duplicateProjects).toContain('wordpress')
     expect(report.actionsTaken).toEqual([])
   })
