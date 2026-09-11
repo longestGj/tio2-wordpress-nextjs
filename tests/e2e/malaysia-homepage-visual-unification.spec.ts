@@ -2,8 +2,9 @@ import AxeBuilder from '@axe-core/playwright'
 import {createHash} from 'node:crypto'
 import {mkdirSync, writeFileSync} from 'node:fs'
 import {expect, test, type Locator, type Page} from '@playwright/test'
+import {requiredLocalUrl} from './support/required-local-url'
 
-const baseUrl = process.env.TIO2_MY_BASE_URL ?? 'http://127.0.0.1:3291'
+const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const evidenceRoot = process.env.HOME_001_EVIDENCE_ROOT
   ?? 'docs/verification/home-001/applications-aligned-gate8/runtime'
 const widths = [1440, 1024, 768, 390, 320] as const
