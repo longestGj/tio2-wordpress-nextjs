@@ -1,0 +1,28 @@
+
+Running 21 tests using 1 worker
+
+(node:42412) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › HOME-001 1440px root Hero contract (848ms)
+  ok  2 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › HOME-001 768px root Hero contract (747ms)
+  ok  3 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › HOME-001 390px root Hero contract (717ms)
+  ok  4 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › APP-000 1440px root Hero contract (756ms)
+  ok  5 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › APP-000 768px root Hero contract (732ms)
+  ok  6 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › APP-000 390px root Hero contract (770ms)
+  ok  7 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › PRODUCT-000 1440px root Hero contract (771ms)
+  ok  8 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › PRODUCT-000 768px root Hero contract (740ms)
+  ok  9 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › PRODUCT-000 390px root Hero contract (753ms)
+  ok 10 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › MARKET-000 1440px root Hero contract (712ms)
+  ok 11 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › MARKET-000 768px root Hero contract (669ms)
+  ok 12 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › MARKET-000 390px root Hero contract (673ms)
+  ok 13 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › DOC-000 1440px root Hero contract (740ms)
+  ok 14 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › DOC-000 768px root Hero contract (702ms)
+  ok 15 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › DOC-000 390px root Hero contract (721ms)
+  ok 16 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › RES-000 1440px root Hero contract (694ms)
+  ok 17 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › RES-000 768px root Hero contract (705ms)
+  ok 18 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › RES-000 390px root Hero contract (688ms)
+  ok 19 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › ABOUT-001 1440px root Hero contract (827ms)
+  ok 20 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › ABOUT-001 768px root Hero contract (785ms)
+  ok 21 [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › ABOUT-001 390px root Hero contract (750ms)
+
+  21 passed (16.4s)

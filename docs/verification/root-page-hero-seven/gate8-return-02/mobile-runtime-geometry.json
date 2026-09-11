@@ -1,0 +1,130 @@
+{
+  "capturedAt": "2026-09-11T11:10:19.283Z",
+  "runtime": "http://127.0.0.1:32000/",
+  "observations": [
+    {
+      "pageId": "PRODUCT-000",
+      "path": "/products/",
+      "browserSurfaceWidth": 390,
+      "effectiveLayoutWidth": 375,
+      "heroRect": {
+        "left": 20,
+        "right": 355,
+        "width": 335
+      },
+      "heroBoxSizing": "border-box",
+      "heroPadding": {
+        "left": "0px",
+        "right": "0px"
+      },
+      "heading": {
+        "lines": 4,
+        "fontFamily": "malaysiaSharedFont, \"malaysiaSharedFont Fallback\", Inter, Arial, sans-serif",
+        "fontSize": "36px",
+        "fontWeight": "700",
+        "letterSpacing": "normal",
+        "transform": "none",
+        "fontStretch": "100%"
+      },
+      "actionRect": {
+        "left": 20,
+        "right": 355,
+        "width": 335
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "pageId": "DOC-000",
+      "path": "/documents/",
+      "browserSurfaceWidth": 390,
+      "effectiveLayoutWidth": 375,
+      "heroRect": {
+        "left": 20,
+        "right": 355,
+        "width": 335
+      },
+      "heroBoxSizing": "border-box",
+      "heroPadding": {
+        "left": "24px",
+        "right": "24px"
+      },
+      "heading": {
+        "lines": 3,
+        "fontFamily": "malaysiaSharedFont, \"malaysiaSharedFont Fallback\", Inter, Arial, sans-serif",
+        "fontSize": "36px",
+        "fontWeight": "700",
+        "letterSpacing": "-1.62px",
+        "transform": "none",
+        "fontStretch": "100%"
+      },
+      "actionRect": {
+        "left": 45,
+        "right": 330,
+        "width": 285
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "pageId": "RES-000",
+      "path": "/resources/",
+      "browserSurfaceWidth": 390,
+      "effectiveLayoutWidth": 375,
+      "heroRect": {
+        "left": 20,
+        "right": 355,
+        "width": 335
+      },
+      "heroBoxSizing": "border-box",
+      "heroPadding": {
+        "left": "24px",
+        "right": "24px"
+      },
+      "heading": {
+        "lines": 4,
+        "fontFamily": "malaysiaSharedFont, \"malaysiaSharedFont Fallback\", Inter, Arial, sans-serif",
+        "fontSize": "36px",
+        "fontWeight": "700",
+        "letterSpacing": "normal",
+        "transform": "none",
+        "fontStretch": "100%"
+      },
+      "actionRect": {
+        "left": 45,
+        "right": 330,
+        "width": 285
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "pageId": "ABOUT-001",
+      "path": "/about/",
+      "browserSurfaceWidth": 390,
+      "effectiveLayoutWidth": 375,
+      "heroRect": {
+        "left": 20,
+        "right": 355,
+        "width": 335
+      },
+      "heroBoxSizing": "border-box",
+      "heroPadding": {
+        "left": "24px",
+        "right": "24px"
+      },
+      "heading": {
+        "lines": 4,
+        "fontFamily": "malaysiaSharedFont, \"malaysiaSharedFont Fallback\", Inter, Arial, sans-serif",
+        "fontSize": "36px",
+        "fontWeight": "700",
+        "letterSpacing": "normal",
+        "transform": "none",
+        "fontStretch": "100%"
+      },
+      "actionRect": {
+        "left": 45,
+        "right": 330,
+        "width": 285
+      },
+      "horizontalOverflow": false
+    }
+  ]
+}
