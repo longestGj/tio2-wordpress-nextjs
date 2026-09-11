@@ -1,0 +1,154 @@
+name: tio2-production
+
+# The privileged deployment layer must validate the resolved /opt/tio2-production/current symlink target before creating containers.
+
+services:
+  db:
+    image: mariadb:11.4@sha256:80494b9810694179889f7281ec44ca928241df577159c0356a1070e2e94616a1
+    restart: unless-stopped
+    env_file:
+      - /etc/tio2-production/production.env
+    volumes:
+      - db_data:/var/lib/mysql
+    secrets:
+      - source: mariadb_backup_defaults
+        target: mariadb-backup.cnf
+        mode: 0400
+    networks:
+      - production
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  wordpress:
+    image: wordpress:php8.3-apache@sha256:5a93c470ae8220fddf71f6ebe3bc94e615ddc2ae4d9810f795b830fb11c41a17
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - /etc/tio2-production/production.env
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      NEXTJS_REVALIDATION_URL_TIO2_MY: http://web:3000/api/revalidate
+      NEXTJS_PREVIEW_URL_TIO2_MY: http://web:3000/api/preview
+      WORDPRESS_CONFIG_EXTRA: define('WP_ENVIRONMENT_TYPE', 'production');
+    ports:
+      - 127.0.0.1:8080:80
+    volumes:
+      - wp_data:/var/www/html
+      - type: bind
+        source: /opt/tio2-production/current/wordpress/plugins/tio2-site-model
+        target: /var/www/html/wp-content/plugins/tio2-site-model
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      - production
+      - frontend
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --show-error --fail --output /dev/null http://localhost/wp-login.php"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  wpcli:
+    # Task 4 exception: privileged deployment must pull wordpress:cli-php8.3 for linux/arm64, inspect and record its digest and image ID, then tag it as tio2-my-wpcli:resolved before Compose use.
+    image: tio2-my-wpcli:resolved
+    platform: linux/arm64
+    pull_policy: never
+    restart: "no"
+    profiles: ["tools"]
+    depends_on:
+      db:
+        condition: service_healthy
+      wordpress:
+        condition: service_healthy
+    env_file:
+      - /etc/tio2-production/production.env
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      NEXTJS_REVALIDATION_URL_TIO2_MY: http://web:3000/api/revalidate
+      NEXTJS_PREVIEW_URL_TIO2_MY: http://web:3000/api/preview
+      WORDPRESS_CONFIG_EXTRA: define('WP_ENVIRONMENT_TYPE', 'production');
+    user: "33:33"
+    working_dir: /var/www/html
+    volumes:
+      - wp_data:/var/www/html
+      - type: bind
+        source: /opt/tio2-production/current/wordpress/plugins/tio2-site-model
+        target: /var/www/html/wp-content/plugins/tio2-site-model
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /opt/tio2-production/current
+        target: /release
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      - production
+      - frontend
+
+  web:
+    image: tio2-my-web:active
+    restart: unless-stopped
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    env_file:
+      - /etc/tio2-production/production.env
+    environment:
+      WORDPRESS_PREVIEW_URL: http://wordpress/wp-json/tio2/v1/preview
+    ports:
+      - 127.0.0.1:3000:3000
+    networks:
+      - frontend
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))\""]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  candidate:
+    image: tio2-my-web:candidate
+    restart: "no"
+    profiles: ["candidate"]
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    env_file:
+      - /etc/tio2-production/production.env
+    environment:
+      WORDPRESS_PREVIEW_URL: http://wordpress/wp-json/tio2/v1/preview
+    ports:
+      - 127.0.0.1:3001:3000
+    networks:
+      - frontend
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))\""]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  wp_data:
+    external: true
+    name: wordpress_wp_data
+  db_data:
+    external: true
+    name: wordpress_db_data
+
+networks:
+  frontend:
+    driver: bridge
+  production:
+    driver: bridge
+    internal: true
+
+secrets:
+  mariadb_backup_defaults:
+    file: /etc/tio2-production/mariadb-backup.cnf
