@@ -13,10 +13,48 @@ function testFiles(directory: string): string[] {
 }
 
 describe('WordPress runtime ownership classification', () => {
+  it.each([
+    "{dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true}",
+    "{...WORDPRESS_RUNTIME_MODE, dataMode: 'shared-mutating', serialMutationAuthorized: true}",
+    "{...WORDPRESS_RUNTIME_MODE, ...other}",
+    "{...WORDPRESS_RUNTIME_MODE, hostHttp: process.env.HTTP === '1'}",
+    "{dataMode: 'isolated', hostHttp: 'false'}",
+    'options',
+    "process.env.MODE ? WORDPRESS_RUNTIME_MODE : other",
+    '',
+  ])('binds executed helper options to the isolated declaration: %s', options => {
+    const declaration = "export const WORDPRESS_RUNTIME_MODE = {dataMode: 'isolated', hostHttp: false} as const;"
+    const call = `spawnSync('docker', [...wordpressComposeArgs(${options}), 'run', '--no-deps', 'wpcli', 'wp', 'option', 'update', 'unsafe', 'yes'])`
+    expect(inspectRuntime(`${declaration}${call}`)).not.toEqual([])
+  })
+
+  it('rejects a canonical Compose target masked by an isolated declaration', () => {
+    expect(inspectRuntime("export const WORDPRESS_RUNTIME_MODE = {dataMode: 'isolated', hostHttp: false}; spawnSync('docker', ['compose', '--project-name', 'wordpress', 'run', '--no-deps', 'wpcli', 'wp', 'option', 'update', 'unsafe', 'yes'])")).not.toEqual([])
+  })
+
+  it('rejects the converse helper mismatch even under an opt-in gate', () => {
+    expect(inspectRuntime("export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-read-only', hostHttp: false}; describe.runIf(process.env.RUN === '1')('live', () => spawnSync('docker', [...wordpressComposeArgs({dataMode:'isolated', hostHttp:false}), 'run', '--no-deps', 'wpcli', 'wp', 'post', 'list']))")).not.toEqual([])
+  })
+
+  it.each([
+    "const alias = WORDPRESS_RUNTIME_MODE; alias.dataMode = 'shared-mutating';",
+    'mutate(WORDPRESS_RUNTIME_MODE);',
+    "Object.assign(WORDPRESS_RUNTIME_MODE, {dataMode:'shared-mutating'});",
+  ])('fails closed when declared authority escapes static proof: %s', escape => {
+    const declaration = "export const WORDPRESS_RUNTIME_MODE = {dataMode:'isolated', hostHttp:false};"
+    expect(inspectRuntime(`${declaration}${escape}spawnSync('docker', [...wordpressComposeArgs({...WORDPRESS_RUNTIME_MODE, runId:'x'}), 'run', '--no-deps', 'wpcli', 'wp', 'option', 'update', 'unsafe', 'yes'])`)).not.toEqual([])
+  })
+
   const mutatingMode = "export const WORDPRESS_RUNTIME_MODE = {dataMode: 'shared-mutating', hostHttp: false, serialMutationAuthorized: true} as const;"
   const lockImport = "import {registerSharedWordPressMutationLock} from '../helpers/wordpress-test-support';"
   const sharedCall = "execute('docker', ['compose', '--project-name', 'wordpress', 'run', '--no-deps', 'wpcli', 'wp', 'post', 'list'])"
   const gatedCall = `describe.runIf(process.env.RUN === '1')('live', () => {${sharedCall}})`
+
+  it('does not equate string authorization with a declared boolean', () => {
+    const call = "execute('docker', [...wordpressComposeArgs({dataMode:'shared-mutating', hostHttp:false, serialMutationAuthorized:'true'}), 'run', '--no-deps', 'wpcli', 'wp', 'option', 'update', 'unsafe', 'yes'])"
+    expect(inspectRuntime(`${lockImport}${mutatingMode}registerSharedWordPressMutationLock(true); describe.runIf(process.env.RUN === '1')('live', () => {${call}})`))
+      .toContain('executed Compose options do not prove the declared runtime mode')
+  })
 
   it.each([
     'infrastructure/site-a-editorial-fixture-core.test.ts',

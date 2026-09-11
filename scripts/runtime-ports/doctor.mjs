@@ -3,6 +3,7 @@ import {readFile, readdir} from 'node:fs/promises'
 import {createConnection} from 'node:net'
 import {dirname, join, resolve} from 'node:path'
 import {promisify} from 'node:util'
+import {resolveLeaseRoot} from './lease-root.mjs'
 
 const execFileAsync = promisify(execFile)
 const pathKey = value => typeof value === 'string' ? value.replaceAll('\\', '/').replace(/\/$/u, '').toLowerCase() : ''
@@ -83,11 +84,12 @@ async function readLeaseEvidence(leaseRoot, owners, docker, probePort) {
 
 /** Read-only evidence. No stop, lease release, cleanup or state writes occur here. */
 export async function doctorRuntime({
-  leaseRoot = resolve('.runtime/port-leases'),
+  leaseRoot,
   repositoryRoot,
   dockerInspect = inspectCompose,
   probePort = probeListener,
 } = {}) {
+  leaseRoot ??= resolveLeaseRoot(repositoryRoot)
   repositoryRoot ??= await canonicalRepositoryRoot()
   const fixed = [
     {environment: 'development', service: 'next', siteId: 'tio2-a', port: 3001},

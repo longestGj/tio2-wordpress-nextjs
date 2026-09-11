@@ -3,6 +3,7 @@ import {createHash} from 'node:crypto'
 import {createServer} from 'node:net'
 import {dirname, resolve} from 'node:path'
 import {promisify} from 'node:util'
+import {resolveLeaseRoot} from '../../scripts/runtime-ports/lease-root.mjs'
 import {wordpressComposeArgs, type WordPressComposeOptions} from './wordpress-compose'
 // @ts-expect-error -- Runtime leases are intentionally delivered as an MJS script.
 import {attachLease, listLeases, registerObservedLease, releaseLease} from '../../scripts/runtime-ports/lease-core.mjs'
@@ -97,7 +98,7 @@ export async function startIsolatedWordPress(input: WordPressRuntimeOptions): Pr
   let configHash = ''
   let serviceHashes: Record<string, string> = {}
   let owners: Container[] = []
-  const leaseRoot = options.leaseRoot ?? resolve(worktree, '.runtime/port-leases')
+  const leaseRoot = options.leaseRoot ?? resolveLeaseRoot(worktree)
   const configFiles = composeArgs.flatMap((arg, index) => arg === '-f' ? [normalizePath(resolve(worktree, composeArgs[index + 1]))] : [])
   const projectDirectory = normalizePath(dirname(resolve(worktree, composeArgs[composeArgs.indexOf('-f') + 1])))
   const environmentFile = normalizePath(resolve(worktree, composeArgs[composeArgs.indexOf('--env-file') + 1]))

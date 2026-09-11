@@ -78,7 +78,7 @@ describe('runtime port CLI', () => {
     const root = createLeaseRoot()
     const initialized = spawnSync('git', ['init', '--quiet', root], {encoding: 'utf8'})
     expect(initialized.status, initialized.stderr).toBe(0)
-    const leaseRoot = join(root, '.runtime/port-leases')
+    const leaseRoot = join(root, '.git/d16-runtime/port-leases')
     mkdirSync(leaseRoot, {recursive: true})
     const leaseId = randomUUID()
     const leasePath = join(leaseRoot, `${leaseId}.json`)

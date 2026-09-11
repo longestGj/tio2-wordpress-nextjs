@@ -8,6 +8,7 @@ import {afterEach, beforeEach, expect, test} from 'vitest'
 import {http, passthrough} from 'msw'
 import {server} from '../mocks/server'
 import './owned-e2e-review-regressions.cases'
+import {resolveLeaseRoot} from '../../scripts/runtime-ports/lease-root.mjs'
 
 beforeEach(() => server.use(http.all(/^http:\/\/127\.0\.0\.1:\d+\//u, () => passthrough())))
 
@@ -170,5 +171,5 @@ test('owned identity',async({page})=>{await page.goto(base);await expect(page.lo
   })
   expect(result.exitCode, result.output).toBe(0)
   expect(result.urls.TIO2_MY_BASE_URL).toMatch(/^http:\/\/127\.0\.0\.1:32[1-9][0-9]{2}$/u)
-  expect(await readdir(join(root, '.runtime/port-leases'))).toEqual([])
+  expect(await readdir(resolveLeaseRoot(root))).toEqual([])
 }, 90_000)

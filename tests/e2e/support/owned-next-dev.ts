@@ -16,6 +16,8 @@ import {
 import {createServer} from 'node:net'
 import {resolve} from 'node:path'
 import {promisify} from 'node:util'
+import {resolveLeaseRoot} from '../../../scripts/runtime-ports/lease-root.mjs'
+import {boundedOutcome, createOwnershipHandoff} from '../../../scripts/runtime-ports/ownership-handoff.mjs'
 
 import {tio2A} from '../../../sites/tio2-a'
 import {tio2B} from '../../../sites/tio2-b'
@@ -228,7 +230,7 @@ export function createOwnedNextDevLauncher(
 ): (options: OwnedNextDevOptions) => Promise<OwnedNextDevRuntime> {
   const repositoryRoot = resolve(dependencies.repositoryRoot ?? '.')
   const leaseRoot = resolve(
-    dependencies.leaseRoot ?? resolve(repositoryRoot, '.runtime/port-leases'),
+    dependencies.leaseRoot ?? resolveLeaseRoot(repositoryRoot),
   )
   const tsconfigPath = resolve(repositoryRoot, 'tsconfig.json')
   const globalLifecycleLockPath = resolve(
@@ -321,7 +323,6 @@ export function createOwnedNextDevLauncher(
     let localStateReleased = false
     const identities = new Map<number, ProcessIdentity>()
     const pendingLeaseAttachments = new Map<string, Promise<PortLease>>()
-    const unresolvedAcquisitions = new Set<Promise<unknown>>()
     const controller = new AbortController()
     const cancellation = new Promise<never>((_resolve, reject) => {
       controller.signal.addEventListener(
@@ -332,100 +333,11 @@ export function createOwnedNextDevLauncher(
     })
     cancellation.catch(() => {})
 
-    const acquireOwnedResource = async <T>(
-      label: string,
-      operation: Promise<T>,
-      register: (value: T) => void,
-      disposeLate: (value: T) => Promise<void>,
-    ): Promise<T> => {
-      let registered = false
-      let handoffTimedOut = false
-      const registerOnce = (value: T): T => {
-        if (!registered) {
-          register(value)
-          registered = true
-        }
-        return value
-      }
-      try {
-        const value = await Promise.race([operation, cancellation])
-        registerOnce(value)
-        unresolvedAcquisitions.delete(operation)
-        controller.signal.throwIfAborted()
-        return value
-      } catch (error) {
-        if (!controller.signal.aborted) throw error
-
-        const timeoutError = new Error(
-          `${label} did not settle within the cancellation handoff window`,
-        )
-        let timeout: ReturnType<typeof setTimeout> | undefined
-        try {
-          const value = await Promise.race([
-            operation,
-            new Promise<never>((_resolve, reject) => {
-              timeout = setTimeout(() => reject(timeoutError), acquisitionHandoffTimeoutMs)
-            }),
-          ])
-          registerOnce(value)
-        } catch (handoffError) {
-          if (handoffError === timeoutError) {
-            handoffTimedOut = true
-            unresolvedAcquisitions.add(operation)
-            void operation.then(async (value) => {
-              await disposeLate(value)
-              unresolvedAcquisitions.delete(operation)
-            }, () => {}).catch(() => {})
-          } else {
-            throw new AggregateError(
-              [error, handoffError],
-              `${label} failed while handing ownership to cancellation cleanup`,
-            )
-          }
-        } finally {
-          if (timeout) clearTimeout(timeout)
-        }
-        if (handoffTimedOut) {
-          throw new AggregateError(
-            [error, timeoutError],
-            `${label} cancellation handoff is uncertain after ${error instanceof Error ? error.message : String(error)}; ownership evidence retained`,
-          )
-        }
-        throw error
-      }
-    }
-
-    const acquireCleanupResource = async <T>(
-      label: string,
-      operation: Promise<T>,
-      register: (value: T) => void,
-      disposeLate: (value: T) => Promise<void>,
-    ): Promise<T> => {
-      const timeoutError = new Error(`${label} cleanup handoff timed out`)
-      let timeout: ReturnType<typeof setTimeout> | undefined
-      try {
-        const value = await Promise.race([
-          operation,
-          new Promise<never>((_resolve, reject) => {
-            timeout = setTimeout(() => reject(timeoutError), acquisitionHandoffTimeoutMs)
-          }),
-        ])
-        register(value)
-        unresolvedAcquisitions.delete(operation)
-        return value
-      } catch (error) {
-        if (error === timeoutError) {
-          unresolvedAcquisitions.add(operation)
-          void operation.then(async (value) => {
-            await disposeLate(value)
-            unresolvedAcquisitions.delete(operation)
-          }, () => {}).catch(() => {})
-        }
-        throw error
-      } finally {
-        if (timeout) clearTimeout(timeout)
-      }
-    }
+    const {acquireOwnedResource, acquireCleanupResource, unresolvedAcquisitions} = createOwnershipHandoff({
+      cancellation, signal: controller.signal,
+      handoffTimeoutMs: acquisitionHandoffTimeoutMs,
+      operationTimeoutMs: cleanupOperationTimeoutMs,
+    })
 
     const checked = async <T>(operation: Promise<T>): Promise<T> => {
       controller.signal.throwIfAborted()
@@ -434,29 +346,8 @@ export function createOwnedNextDevLauncher(
       return result
     }
 
-    const awaitSupervisorOutcome = async <T>(
-      label: string,
-      operation: Promise<T>,
-    ): Promise<T> => {
-      // A timed-out native request can remain queued and reject much later.
-      // Keep a rejection observer attached even after the bounded caller has
-      // returned fail-closed.
-      void operation.catch(() => {})
-      let timeout: ReturnType<typeof setTimeout> | undefined
-      try {
-        return await Promise.race([
-          operation,
-          new Promise<never>((_resolve, reject) => {
-            timeout = setTimeout(
-              () => reject(new Error(`${label} timed out; lease retained`)),
-              cleanupOperationTimeoutMs,
-            )
-          }),
-        ])
-      } finally {
-        if (timeout) clearTimeout(timeout)
-      }
-    }
+    const awaitSupervisorOutcome = <T>(label: string, operation: Promise<T>): Promise<T> =>
+      boundedOutcome(label, operation, cleanupOperationTimeoutMs)
 
     const closeSupervisor = async (
       label: string,

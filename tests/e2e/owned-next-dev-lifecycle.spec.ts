@@ -6,6 +6,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import {join, resolve} from 'node:path'
+import {resolveLeaseRoot} from '../../scripts/runtime-ports/lease-root.mjs'
 
 import {expect, test} from '@playwright/test'
 
@@ -41,7 +42,7 @@ async function stopRuntime(
   leaseExists: (path: string) => boolean = existsSync,
 ): Promise<void> {
   if (!runtime) return
-  const leasePath = join(resolve('.runtime/port-leases'), `${runtime.leaseId}.json`)
+  const leasePath = join(resolveLeaseRoot(), `${runtime.leaseId}.json`)
   const existedBeforeStop = leaseExists(leasePath)
   let stopFailure: unknown
   try {

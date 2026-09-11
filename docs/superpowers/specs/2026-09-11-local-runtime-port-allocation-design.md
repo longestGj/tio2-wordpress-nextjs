@@ -124,14 +124,14 @@ Using the same numeric port on the developer computer and VPS does not create a 
 
 ### 5.1 Lease directory
 
-Local runtime leases live under the ignored repository-local directory:
+Local runtime leases live under the Git common directory, shared by every worktree of the repository and outside tracked source:
 
 ```text
-.runtime/port-leases/
+<git-common-dir>/d16-runtime/port-leases/
   <lease-id>.json
 ```
 
-The directory is runtime state and is never committed. A lease contains no secret values.
+The directory is runtime state and is never committed. A lease contains no secret values. Default CLI, PowerShell, Doctor, owned Next, WordPress runtime and public E2E calls resolve the same directory; the worktree/run fields retain the individual caller identity. A non-Git standalone project uses its own `.runtime/port-leases`. Explicit test/diagnostic root injection creates a separate reservation domain and is not a daily launcher option. Unrelated repositories do not share a machine-global registry.
 
 Each record contains:
 

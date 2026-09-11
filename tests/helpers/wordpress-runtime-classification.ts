@@ -111,7 +111,10 @@ export function inspectWordPressRuntime(source: string, readPreview = () => read
     if (!input) return null
     const node = unwrap(input)
     if (ts.isCallExpression(node)) {
-      if (callName(node) === 'wordpressComposeArgs') return [{kind: 'compose'}]
+      if (callName(node) === 'wordpressComposeArgs') {
+        executedComposeHelpers.add(node)
+        return [{kind: 'compose'}]
+      }
       if (callName(node) === 'isolatedPhpArgs') return [{kind: 'php'}]
     }
     if (!ts.isArrayLiteralExpression(node)) return null
@@ -204,6 +207,7 @@ export function inspectWordPressRuntime(source: string, readPreview = () => read
   }
 
   const errors: string[] = []
+  const executedComposeHelpers = new Set<ts.CallExpression>()
   const composeCalls: {node: ts.CallExpression; args: Word[]}[] = []
   const sharedSinks: ts.CallExpression[] = []
   let scoped = false
@@ -235,6 +239,70 @@ export function inspectWordPressRuntime(source: string, readPreview = () => read
   if (!['isolated', 'shared-read-only', 'shared-mutating'].includes(mode ?? '')) errors.push('unknown dataMode')
   if (!['true', 'false'].includes(fields.get('hostHttp') ?? '')) errors.push('hostHttp must be explicit')
   if (calls.some(call => callName(call) === 'wordpressComposeArgs' && call.arguments.length === 0)) errors.push('Compose calls require explicit runtime options')
+
+  // Only the exported, immutable declaration may be spread into an executed
+  // helper. Do not resolve aliases/dynamic expressions into apparent authority.
+  const stripSyntax = (input: ts.Expression): ts.Expression => {
+    while (ts.isParenthesizedExpression(input) || ts.isAsExpression(input) || ts.isSatisfiesExpression(input)) input = input.expression
+    return input
+  }
+  const literalFields = (input: ts.Expression | undefined, allowMode: boolean): Map<string, string> | null => {
+    if (!input) return null
+    const node = stripSyntax(input)
+    const isMode = (expression: ts.Expression) => ts.isIdentifier(expression)
+      && expression.text === 'WORDPRESS_RUNTIME_MODE' && variables.get(expression.text) === declaration.initializer
+    if (allowMode && isMode(node)) return literalFields(declaration.initializer, false)
+    if (!ts.isObjectLiteralExpression(node)) return null
+    const result = new Map<string, string>()
+    for (const property of node.properties) {
+      if (ts.isSpreadAssignment(property)) {
+        if (!allowMode || !isMode(stripSyntax(property.expression))) return null
+        const spread = literalFields(declaration.initializer, false)
+        if (!spread) return null
+        for (const [key, value] of spread) {
+          if (result.has(key)) return null
+          result.set(key, value)
+        }
+        continue
+      }
+      if (!ts.isPropertyAssignment(property) || !ts.isIdentifier(property.name)) return null
+      const key = property.name.text
+      if (result.has(key)) return null
+      const value = stripSyntax(property.initializer)
+      if (['dataMode', 'hostHttp', 'serialMutationAuthorized'].includes(key)) {
+        if (key === 'dataMode' ? !ts.isStringLiteral(value)
+          : value.kind !== ts.SyntaxKind.TrueKeyword && value.kind !== ts.SyntaxKind.FalseKeyword) return null
+        result.set(key, ts.isStringLiteral(value) ? value.text : value.getText(file))
+      } else result.set(key, '<non-authority>')
+    }
+    return result
+  }
+  const declared = literalFields(declaration.initializer, false)
+  if (!declared || variables.get('WORDPRESS_RUNTIME_MODE') !== declaration.initializer) errors.push('runtime mode must be an immutable literal without aliases or spreads')
+  for (const identifier of identifiers.filter(node => reference(node, 'WORDPRESS_RUNTIME_MODE'))) {
+    const parent = identifier.parent
+    if (ts.isSpreadAssignment(parent) || ts.isTypeQueryNode(parent) || ts.isPropertyAccessExpression(parent)) continue
+    if (ts.isCallExpression(parent) && ['wordpressComposeArgs', 'startIsolatedWordPress'].includes(callName(parent)) && parent.arguments[0] === identifier) continue
+    errors.push('runtime mode escapes static ownership proof')
+  }
+  for (const helper of executedComposeHelpers) {
+    const executed = literalFields(helper.arguments[0], true)
+    if (!executed || !declared || ['dataMode', 'hostHttp', 'serialMutationAuthorized'].some(key => executed.get(key) !== declared.get(key))) {
+      errors.push('executed Compose options do not prove the declared runtime mode')
+    }
+  }
+  if (mode === 'isolated') for (const {args} of composeCalls) {
+    if (args[0] !== 'compose') continue
+    const projectIndex = args.findIndex(arg => arg === '--project-name' || arg === '-p')
+    const project = args[projectIndex + 1]
+    // Direct Docker config rendering is the existing no-lifecycle test surface.
+    // A direct runnable command has no proof of the helper's isolated topology.
+    let index = 1
+    while (typeof args[index] === 'string' && ['--project-name', '-p', '--env-file', '-f'].includes(args[index] as string)) index += 2
+    if (projectIndex < 0 || typeof project !== 'string' || !project.startsWith('d16-test-') || args[index] !== 'config') {
+      errors.push('direct Compose target cannot be masked by an isolated declaration')
+    }
+  }
 
   const sinkGates = sharedSinks.map(sink => guardsFor(sink))
   if (mode?.startsWith('shared')) {

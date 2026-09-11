@@ -4,6 +4,7 @@ import {mkdir, readFile, readdir, rename, rm, writeFile} from 'node:fs/promises'
 import {createServer} from 'node:net'
 import {join, resolve, sep} from 'node:path'
 import {promisify} from 'node:util'
+import {resolveLeaseRoot} from './lease-root.mjs'
 
 export const FEATURE_PORT_POOL = Object.freeze({start: 32000, end: 32099})
 export const TEST_FALLBACK_PORT_POOL = Object.freeze({start: 32100, end: 32999})
@@ -244,23 +245,25 @@ async function writeLeaseRecord(leaseRoot, record) {
   }
 }
 
-export async function listLeases({leaseRoot = resolve('.runtime/port-leases')} = {}) {
-  const resolvedLeaseRoot = resolve(leaseRoot)
+export async function listLeases({leaseRoot, worktree} = {}) {
+  const resolvedLeaseRoot = leaseRoot === undefined ? resolveLeaseRoot(worktree) : resolve(leaseRoot)
   await mkdir(resolvedLeaseRoot, {recursive: true})
   return readLeaseRecords(resolvedLeaseRoot)
 }
 
 export async function inspectLease({
-  leaseRoot = resolve('.runtime/port-leases'),
+  leaseRoot,
+  worktree,
   leaseId,
 }) {
-  const resolvedLeaseRoot = resolve(leaseRoot)
+  const resolvedLeaseRoot = leaseRoot === undefined ? resolveLeaseRoot(worktree) : resolve(leaseRoot)
   const record = await readLeaseRecord(resolvedLeaseRoot, leaseId)
   return {lease: record, stale: await isLeaseStale(record)}
 }
 
 export async function attachLease({
-  leaseRoot = resolve('.runtime/port-leases'),
+  leaseRoot,
+  worktree,
   leaseId,
   processId,
   composeProject,
@@ -272,7 +275,7 @@ export async function attachLease({
     || (!hasProcessId && !hasComposeProject)) {
     throw invalidLease('Attachment requires a valid process ID or Compose project')
   }
-  const resolvedLeaseRoot = resolve(leaseRoot)
+  const resolvedLeaseRoot = leaseRoot === undefined ? resolveLeaseRoot(worktree) : resolve(leaseRoot)
 
   return withAllocatorLock(resolvedLeaseRoot, async () => {
     const record = await readLeaseRecord(resolvedLeaseRoot, leaseId)
@@ -297,7 +300,7 @@ export async function attachLease({
 }
 
 export async function registerObservedLease({
-  leaseRoot = resolve('.runtime/port-leases'),
+  leaseRoot,
   runId,
   purpose,
   siteId = null,
@@ -318,7 +321,7 @@ export async function registerObservedLease({
     || (processIds.length === 0 && composeProject === null)) {
     throw invalidLease('Observed lease requires valid metadata, ports, and an owner identity')
   }
-  const resolvedLeaseRoot = resolve(leaseRoot)
+  const resolvedLeaseRoot = leaseRoot === undefined ? resolveLeaseRoot(worktree) : resolve(leaseRoot)
 
   return withAllocatorLock(resolvedLeaseRoot, async () => {
     const records = await discardOwnedStaleLeases(
@@ -360,7 +363,8 @@ export async function registerObservedLease({
 }
 
 export async function releaseLease({
-  leaseRoot = resolve('.runtime/port-leases'),
+  leaseRoot,
+  worktree,
   leaseId,
   expectedProcessIds = [],
   expectedComposeProject = null,
@@ -372,7 +376,7 @@ export async function releaseLease({
       || (typeof expectedComposeProject === 'string' && expectedComposeProject.length > 0))) {
     throw invalidLease('Expected lease ownership must be valid')
   }
-  const resolvedLeaseRoot = resolve(leaseRoot)
+  const resolvedLeaseRoot = leaseRoot === undefined ? resolveLeaseRoot(worktree) : resolve(leaseRoot)
   const recordPath = leasePath(resolvedLeaseRoot, leaseId)
 
   return withAllocatorLock(resolvedLeaseRoot, async () => {
@@ -401,7 +405,7 @@ export async function releaseLease({
 }
 
 export async function reserveLease({
-  leaseRoot = resolve('.runtime/port-leases'),
+  leaseRoot,
   runId,
   purpose,
   siteId = null,
@@ -412,7 +416,7 @@ export async function reserveLease({
   pool = purpose === 'feature-next' ? FEATURE_PORT_POOL : TEST_FALLBACK_PORT_POOL,
 }) {
   assertReservationOptions({purpose, commit, count, pool})
-  const resolvedLeaseRoot = resolve(leaseRoot)
+  const resolvedLeaseRoot = leaseRoot === undefined ? resolveLeaseRoot(worktree) : resolve(leaseRoot)
 
   return withAllocatorLock(resolvedLeaseRoot, async () => {
     const records = await discardOwnedStaleLeases(

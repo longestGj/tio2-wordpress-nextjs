@@ -200,7 +200,7 @@ SDD的返修上限与裁定不能豁免批准条件：真实缺陷可按规则�
 | 自动化Next / HTTP fixture | 优先OS端口`0`；要求预先传数字时租约池`32100-32999` | 启动器传回真实URL、登记owner并清理 |
 | 隔离WordPress测试 | WP-CLI-only无主机端口；主机HTTP按Docker随机loopback映射 | 唯一`d16-test-*`项目；MariaDB不暴露主机端口 |
 
-租约、控制器命令、日志及`OWNER_MISMATCH`恢复集中见[运行端口操作手册](runtime-ports.md)。`.runtime/port-leases`默认属于当前工作区，不是全机器统一注册表；并行运行仍须核对实际监听、共享资源与准确owner。固定端点冲突时报告并保留占用者，不能自动杀进程或重建另一任务的Compose项目。
+租约、控制器命令、日志及`OWNER_MISMATCH`恢复集中见[运行端口操作手册](runtime-ports.md)。默认使用 Git 公共目录下的 `d16-runtime/port-leases`，同一仓库的所有worktree共享原子预留锁；记录保存各自worktree与run身份。无关仓库保持独立，分配时继续检查主机监听。固定端点冲突时报告并保留占用者，不能自动杀进程或重建另一任务的Compose项目。
 
 Docker测试明确声明`isolated`、`shared-read-only`或`shared-mutating`。后两种使用canonical CMS且没有Compose生命周期权限；共享写入保留显式opt-in、串行锁和恢复，不能因端口隔离就解除数据串行要求。开发与预发布持久卷不属于测试清理目标。
 

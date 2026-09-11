@@ -10,6 +10,8 @@ import ts from 'typescript'
 import {attachLease, registerObservedLease, releaseLease, reserveLease} from './runtime-ports/lease-core.mjs'
 import {doctorRuntime} from './runtime-ports/doctor.mjs'
 import {createProcessSupervisor} from './runtime-ports/owned-process-tree.mjs'
+import {resolveLeaseRoot} from './runtime-ports/lease-root.mjs'
+import {boundedOutcome, createOwnershipHandoff} from './runtime-ports/ownership-handoff.mjs'
 import {requiredLocalUrl} from '../tests/e2e/support/required-local-url.ts'
 
 const execFileAsync = promisify(execFile)
@@ -90,9 +92,16 @@ function finished(child) { return child.exitCode !== null || child.signalCode !=
 
 /** Public programmatic entry point also permits controlled executables for integration tests. */
 export async function runOwnedE2e(args, dependencies = {}) {
+  const signals = dependencies.signals ?? process
+  const spawnProcess = dependencies.spawnProcess ?? spawn
+  const reservePort = dependencies.reserveLease ?? reserveLease
+  const attachPort = dependencies.attachLease ?? attachLease
+  const releasePort = dependencies.releaseLease ?? releaseLease
+  const observePort = dependencies.registerObservedLease ?? registerObservedLease
+  const fetchIdentity = dependencies.fetchIdentity ?? fetch
   const options = parseArgs(args)
   const root = resolve(dependencies.repositoryRoot ?? defaultRoot)
-  const leaseRoot = resolve(dependencies.leaseRoot ?? resolve(root, '.runtime/port-leases'))
+  const leaseRoot = dependencies.leaseRoot === undefined ? resolveLeaseRoot(root) : resolve(dependencies.leaseRoot)
   const emit = dependencies.emit ?? (event => process.stdout.write(`${JSON.stringify(event)}\n`))
   const specs = options.specs.map(spec => {
     const path = resolve(root, spec)
@@ -158,7 +167,8 @@ export async function runOwnedE2e(args, dependencies = {}) {
   }
   const runId = `e2e-${randomUUID()}`
   const outputRoot = resolve(root, '.tmp/owned-e2e', runId)
-  const sourceCommit = (await execFileAsync('git', ['rev-parse', 'HEAD'], {cwd: root, windowsHide: true})).stdout.trim()
+  const sourceCommit = dependencies.readSourceCommit ? await dependencies.readSourceCommit(root)
+    : (await execFileAsync('git', ['rev-parse', 'HEAD'], {cwd: root, windowsHide: true, timeout: 5_000})).stdout.trim()
   const metadata = {leaseRoot, runId, worktree: root, commit: sourceCommit}
   const children = []
   const leases = []
@@ -173,26 +183,85 @@ export async function runOwnedE2e(args, dependencies = {}) {
   const lockPath = resolve(root, '.tmp/owned-e2e.lock')
   const cancellation = new Promise((_, reject) => controller.signal.addEventListener('abort', () => reject(controller.signal.reason), {once: true}))
   cancellation.catch(() => {})
-  const checked = promise => Promise.race([promise, cancellation])
-
-  let identityWrite = Promise.resolve()
-  const remember = async (record, identities) => {
+  const operationTimeoutMs = dependencies.cleanupOperationTimeoutMs ?? 30_000
+  const uncertainties = []
+  const {acquireOwnedResource, acquireCleanupResource, unresolvedAcquisitions} = createOwnershipHandoff({
+    cancellation, signal: controller.signal,
+    handoffTimeoutMs: dependencies.acquisitionHandoffTimeoutMs ?? 5_000,
+    operationTimeoutMs,
+  })
+  const native = async (label, promise) => {
+    try { return await boundedOutcome(label, promise, operationTimeoutMs) }
+    catch (error) { uncertainties.push(error); throw error }
+  }
+  const checked = async promise => {
+    // The request may have started before a synchronous cancellation callback.
+    // Observe it even when the already-aborted signal prevents awaiting it.
+    void Promise.resolve(promise).catch(() => {})
+    controller.signal.throwIfAborted()
+    const result = await Promise.race([promise, cancellation])
+    controller.signal.throwIfAborted()
+    return result
+  }
+  const closes = new WeakMap()
+  const closeSupervisor = target => {
+    if (!closes.has(target)) closes.set(target, native('Owned supervisor close', Promise.resolve().then(() => target.close())))
+    return closes.get(target)
+  }
+  const pendingAttachments = new Map()
+  const pendingNativeAttachments = new Set()
+  const validateIdentities = (record, identities) => {
     for (const identity of identities) {
+      const previous = record.identities.get(identity.pid)
+      if (!Number.isInteger(identity.pid) || identity.pid < 1 || typeof identity.startTime !== 'string' || !identity.startTime
+        || identity.token !== record.token || typeof identity.command !== 'string' || !identity.command
+        || typeof identity.executable !== 'string' || !identity.executable
+        || previous && ['startTime', 'token', 'executable', 'command'].some(key => previous[key] !== identity[key])) {
+        const error = new Error('Owned process identity mismatch; lease retained')
+        uncertainties.push(error)
+        throw error
+      }
       record.identities.set(identity.pid, identity)
-      if (record.lease && !record.lease.processIds.includes(identity.pid)) Object.assign(record.lease, await attachLease({leaseRoot, leaseId: record.lease.leaseId, processId: identity.pid}))
     }
-    const evidence = JSON.stringify(children.map(child => ({label: child.label, token: child.token, identities: [...child.identities.values()]})), null, 2)
-    identityWrite = identityWrite.then(() => writeFile(resolve(outputRoot, 'process-identities.json'), evidence))
-    await identityWrite
     return identities
   }
-  const snapshot = async record => remember(record, await supervisor.snapshot(record.token))
+
+  let identityWrite = Promise.resolve()
+  const persistIdentities = async () => {
+    const evidence = JSON.stringify(children.map(child => ({label: child.label, token: child.token, identities: [...child.identities.values()]})), null, 2)
+    identityWrite = identityWrite.then(() => writeFile(resolve(outputRoot, 'process-identities.json'), evidence))
+    await native('Process identity evidence write', identityWrite)
+  }
+  const remember = async (record, identities, phase = 'startup') => {
+    validateIdentities(record, identities)
+    await persistIdentities()
+    for (const identity of identities) {
+      if (!record.lease || record.lease.processIds.includes(identity.pid)) continue
+      const key = `${record.lease.leaseId}:${identity.pid}:${identity.startTime}:${identity.token}`
+      let operation = pendingAttachments.get(key)
+      if (!operation) {
+        operation = Promise.resolve().then(() => attachPort({leaseRoot, leaseId: record.lease.leaseId, processId: identity.pid}))
+        pendingAttachments.set(key, operation)
+        void operation.finally(() => { if (pendingAttachments.get(key) === operation) pendingAttachments.delete(key) }).catch(() => {})
+      }
+      const register = lease => {
+        if (lease.leaseId !== record.lease.leaseId || !lease.processIds.includes(identity.pid)
+          || JSON.stringify(lease.ports) !== JSON.stringify(record.lease.ports)) throw new Error('Lease attachment identity mismatch')
+        Object.assign(record.lease, lease, {processIds: [...new Set([...record.lease.processIds, ...lease.processIds])]})
+      }
+      await (phase === 'cleanup' ? acquireCleanupResource : acquireOwnedResource)(
+        'Runtime lease attachment', operation, register, async lease => { register(lease); await persistIdentities() },
+      )
+    }
+    return identities
+  }
+  const snapshot = async record => remember(record, await checked(native('Owned startup snapshot', supervisor.snapshot(record.token))))
   const start = async (label, commandArgs, env, lease) => {
     controller.signal.throwIfAborted()
     const token = randomBytes(32).toString('hex')
     const gate = new URL('./runtime-ports/owned-entry-gate.mjs', import.meta.url)
     gate.searchParams.set('owner', token)
-    const child = spawn(process.execPath, ['--import', gate.href, ...commandArgs], {cwd: root, env, stdio: ['pipe', 'pipe', 'pipe', 'ipc'], windowsHide: true})
+    const child = spawnProcess(process.execPath, ['--import', gate.href, ...commandArgs], {cwd: root, env, stdio: ['pipe', 'pipe', 'pipe', 'ipc'], windowsHide: true})
     const record = {label, child, token, lease, identities: new Map(), attached: false, released: false, stopped: false, output: '', error: null}
     children.push(record)
     child.stdout.on('data', chunk => { record.output = (record.output + chunk.toString()).slice(-256_000) })
@@ -216,8 +285,30 @@ export async function runOwnedE2e(args, dependencies = {}) {
       record.completion.then(() => { clearTimeout(timeout); reject(new Error(`${label} exited before ownership attachment`)) }, error => { clearTimeout(timeout); reject(error) })
     })
     await checked(gated)
-    const identity = await supervisor.attach(child.pid, token, gate.href, process.execPath)
-    record.attached = true
+    const attachment = Promise.resolve().then(() => supervisor.attach(child.pid, token, gate.href, process.execPath))
+    pendingNativeAttachments.add(attachment)
+    void attachment.finally(() => pendingNativeAttachments.delete(attachment)).catch(() => {})
+    void attachment.catch(async () => {
+      // Cleanup may have returned while this request was still in the native
+      // queue. A rejected late attach owns no result to hand to disposeLate,
+      // but the original supervisor still needs its one close attempt.
+      if (stopping) { await stopping.catch(() => {}); await closeSupervisor(supervisor) }
+    }).catch(() => {})
+    const acceptAttachment = identity => {
+      if (identity.pid !== child.pid || identity.token !== token || !identity.command?.includes(token)
+        || identity.executable?.toLowerCase() !== process.execPath.toLowerCase()) {
+        const error = new Error('Owned process identity mismatch; lease retained')
+        uncertainties.push(error); throw error
+      }
+      validateIdentities(record, [identity])
+      record.attached = true
+    }
+    const identity = await acquireOwnedResource('Owned supervisor attachment', attachment, acceptAttachment, async lateIdentity => {
+      try {
+        acceptAttachment(lateIdentity)
+        await stopRecord(record)
+      } finally { await closeSupervisor(supervisor) }
+    })
     await remember(record, [identity])
     controller.signal.throwIfAborted()
     record.released = true
@@ -240,22 +331,46 @@ export async function runOwnedE2e(args, dependencies = {}) {
     }
     throw new Error(`Timed out waiting for ${description}`)
   }
+  const stopRecord = async record => {
+    if (record.attached) {
+      const members = validateIdentities(record, await native('Owned cleanup snapshot', supervisor.snapshot(record.token)))
+      // Lease persistence is evidence work. Its timeout must not prevent stopping
+      // a tree whose native identities have just been proved independently.
+      try { await remember(record, members, 'cleanup') } catch (error) { uncertainties.push(error) }
+      await native('Owned cleanup stop', supervisor.stop(record.token, members))
+      if ((await native('Owned stopped snapshot', supervisor.snapshot(record.token))).length) throw new Error(`${record.label} descendants remain; lease retained`)
+    } else if (!record.released) {
+      if (!finished(record.child)) {
+        record.child.kill()
+        await native('Unreleased entry gate stop', record.completion)
+      }
+      if (!finished(record.child)) throw new Error('Unreleased entry gate survived; lease retained')
+    } else throw new Error('Target ran without verified ownership; lease retained')
+    record.stopped = true
+    emit({event: 'stopped', runId, label: record.label, pid: record.child.pid})
+  }
+  const disposeLateLease = async lease => {
+    if (!leases.some(current => current.leaseId === lease.leaseId)) leases.push(lease)
+    // A lease acquired after cancellation is never released against an old
+    // listener sample or a closed supervisor. Use a fresh bounded inspector.
+    if (children.length) return
+    let inspector, failure
+    try {
+      inspector = await acquireCleanupResource('Late lease inspector',
+        Promise.resolve().then(() => (dependencies.supervisorFactory ?? createProcessSupervisor)()),
+        () => {}, closeSupervisor)
+      for (const port of lease.ports) if ((await native('Late lease listener inspection', inspector.listenerOwners(port))).length) throw new Error('Late lease listener remains')
+    } catch (error) { failure = error }
+    if (inspector) try { await closeSupervisor(inspector) } catch (error) { failure ??= error }
+    if (failure) throw failure
+    await native('Late lease release', releasePort({leaseRoot, leaseId: lease.leaseId, expectedProcessIds: lease.processIds}))
+  }
+  const acquireLease = operation => acquireOwnedResource('Runtime lease reservation', operation,
+    lease => { leases.push(lease) }, disposeLateLease)
   const cleanup = () => stopping ??= (async () => {
     const failures = []
     for (const record of [...children].reverse()) {
-      try {
-        if (record.attached) {
-          await supervisor.stop(record.token, await snapshot(record))
-          if ((await snapshot(record)).length) throw new Error(`${record.label} descendants remain; lease retained`)
-        } else if (!record.released && !finished(record.child)) {
-          // Only an unreleased entry gate can reach here. Its original spawn
-          // handle is still ours, and it has not executed any target code.
-          record.child.kill()
-          await record.completion
-        }
-        record.stopped = true
-        emit({event: 'stopped', runId, label: record.label, pid: record.child.pid})
-      }
+      try { await stopRecord(record) }
       catch (error) { failures.push(error) }
     }
     // A surviving Playwright descendant may not itself have a port lease. Keep
@@ -266,11 +381,19 @@ export async function runOwnedE2e(args, dependencies = {}) {
       const owners = children.filter(record => lease.processIds.includes(record.child.pid))
       if (!allProcessesStopped || owners.some(record => !record.stopped)) continue
       try {
-        for (const port of lease.ports) if ((await supervisor.listenerOwners(port)).length) throw new Error(`Port ${port} still has a listening owner; lease retained`)
-        await releaseLease({leaseRoot, leaseId: lease.leaseId, expectedProcessIds: lease.processIds})
+        if (!supervisor) throw new Error('No supervisor for listener proof; lease retained')
+        for (const port of lease.ports) if ((await native('Owned cleanup listener inspection', supervisor.listenerOwners(port))).length) throw new Error(`Port ${port} still has a listening owner; lease retained`)
       }
       catch (error) { failures.push(error) }
     }
+    // Do not close ahead of a still-pending native attach. Its late-result owner
+    // stops the gated tree and closes this exact supervisor once.
+    if (supervisor && pendingNativeAttachments.size === 0) {
+      try { await closeSupervisor(supervisor) } catch (error) { failures.push(error) }
+    }
+    if (unresolvedAcquisitions.size || pendingNativeAttachments.size) failures.push(new Error('Ownership handoff uncertain; lease and evidence retained'))
+    failures.push(...uncertainties)
+    if (!allProcessesStopped) failures.push(new Error('Owned trees were not proved stopped; lease retained'))
     if (originalTsconfig !== undefined && failures.length === 0) {
       try {
         const path = resolve(root, 'tsconfig.json')
@@ -285,19 +408,33 @@ export async function runOwnedE2e(args, dependencies = {}) {
       } catch (error) { failures.push(error) }
     }
     // Build/output artifacts remain under the run's named directories for diagnosis.
-    if (lock) { try { await lock.close(); await rm(lockPath) } catch (error) { failures.push(error) } }
-    if (supervisor) { try { await supervisor.close() } catch (error) { failures.push(error) } }
-    for (const [signal, handler] of signalHandlers) process.off(signal, handler)
+    if (failures.length === 0) for (const lease of [...leases].reverse()) {
+      try { await native('Owned lease release', releasePort({leaseRoot, leaseId: lease.leaseId, expectedProcessIds: lease.processIds})) }
+      catch (error) { failures.push(error); break }
+    }
+    if (lock) {
+      try { await native('Owned lock close', lock.close()); if (failures.length === 0) await native('Owned lock release', rm(lockPath)) }
+      catch (error) { failures.push(error) }
+    }
+    for (const [signal, handler] of signalHandlers) signals.off(signal, handler)
+    try {
+      await boundedOutcome('Cleanup evidence write', writeFile(resolve(outputRoot, 'cleanup-state.json'), JSON.stringify({
+        runId, leaseRoot, leases: leases.map(lease => lease.leaseId),
+        stopped: children.map(record => ({label: record.label, pid: record.child.pid, stopped: record.stopped})),
+        failures: failures.map(error => error.message), pending: unresolvedAcquisitions.size,
+      }, null, 2)), operationTimeoutMs)
+    } catch (error) { failures.push(error) }
     if (failures.length) throw new AggregateError(failures, `Owned E2E cleanup failed: ${failures.map(error => error.message).join('; ')}`)
   })()
 
   try {
-    for (const [signal, handler] of signalHandlers) process.on(signal, handler)
+    for (const [signal, handler] of signalHandlers) signals.on(signal, handler)
     await mkdir(outputRoot, {recursive: true})
     lock = await open(lockPath, 'wx')
     await lock.writeFile(JSON.stringify({runId, pid: process.pid}))
     originalTsconfig = await readFile(resolve(root, 'tsconfig.json'), 'utf8')
-    supervisor = await (dependencies.supervisorFactory ?? createProcessSupervisor)()
+    await acquireOwnedResource('Process supervisor creation', Promise.resolve().then(() => (dependencies.supervisorFactory ?? createProcessSupervisor)()),
+      value => { supervisor = value }, closeSupervisor)
     for (const fixture of fixtures) {
       const record = await start(`fixture:${fixture.name}`, [fixture.script, '--port', '0'], selected)
       const discovered = await waitFor(record, async () => {
@@ -311,10 +448,9 @@ export async function runOwnedE2e(args, dependencies = {}) {
         return null
       }, `fixture ${fixture.name} JSON`)
       const members = await snapshot(record)
-      const listenerOwners = await supervisor.listenerOwners(discovered.port)
+      const listenerOwners = await checked(native('Fixture listener inspection', supervisor.listenerOwners(discovered.port)))
       if (!listenerOwners.length || listenerOwners.some(pid => !members.some(identity => identity.pid === pid))) throw new Error(`Fixture ${fixture.name} has a foreign listening owner`)
-      const lease = await registerObservedLease({...metadata, purpose: 'fixture', siteId: options.site, ports: [discovered.port], processIds: [record.child.pid]})
-      leases.push(lease)
+      const lease = await acquireLease(Promise.resolve().then(() => observePort({...metadata, purpose: 'fixture', siteId: options.site, ports: [discovered.port], processIds: [record.child.pid]})))
       record.lease = lease
       await remember(record, members)
       selected[fixture.name] = new URL(contract.urls.get(fixture.name), discovered.baseUrl).href
@@ -324,8 +460,7 @@ export async function runOwnedE2e(args, dependencies = {}) {
     const sites = [...new Set(baseVariables.map(name => baseSite(name) ?? options.site))]
     if (!sites.length) sites.push(options.site)
     for (const siteId of sites) {
-      const lease = await reserveLease({...metadata, purpose: 'test-next', siteId})
-      leases.push(lease)
+      const lease = await acquireLease(Promise.resolve().then(() => reservePort({...metadata, purpose: 'test-next', siteId})))
       const baseUrl = `http://127.0.0.1:${lease.ports[0]}`
       const distDir = `.next-owned-${runId}-${siteId}`
       distDirs.push(distDir)
@@ -335,14 +470,14 @@ export async function runOwnedE2e(args, dependencies = {}) {
       const record = await start(`next:${siteId}`, [dependencies.nextCli ?? installedCli(root, 'next', 'next'), 'dev', '--webpack', '--hostname', '127.0.0.1', '--port', String(lease.ports[0])], env, lease)
       const listenerPids = await waitFor(record, async () => {
         try {
-          const listenerOwners = await supervisor.listenerOwners(lease.ports[0])
+          const listenerOwners = await checked(native('Owned startup listener inspection', supervisor.listenerOwners(lease.ports[0])))
           if (!listenerOwners.length) return false
           const members = await snapshot(record)
           if (listenerOwners.some(pid => !members.some(identity => identity.pid === pid))) throw new Error(`Refused foreign listening owner at ${baseUrl}`)
-          const response = await fetch(`${baseUrl}/`, {redirect: 'manual', signal: AbortSignal.timeout(5_000)})
+          const response = await fetchIdentity(`${baseUrl}/`, {redirect: 'manual', signal: AbortSignal.timeout(5_000)})
           const html = await response.text()
           if (response.ok && new RegExp(`data-site-id=["']${siteId}["']`, 'u').test(html)) {
-            const after = await supervisor.listenerOwners(lease.ports[0])
+            const after = await checked(native('Owned final listener inspection', supervisor.listenerOwners(lease.ports[0])))
             const live = await snapshot(record)
             if (!after.length || after.some(pid => !live.some(identity => identity.pid === pid))) throw new Error(`Refused foreign listening owner at ${baseUrl}`)
             return after
@@ -365,6 +500,10 @@ export async function runOwnedE2e(args, dependencies = {}) {
     // Test output is useful to the invoking terminal; never print the environment.
     if (!dependencies.emit && playwright.output) process.stdout.write(playwright.output)
     return {runId, exitCode, outputRoot, sourceCommit, output: playwright.output, urls: Object.fromEntries([...contract.urls.keys()].map(name => [name, selected[name]]))}
+  } catch (error) {
+    if (/timed out|handoff|identity mismatch/iu.test(error.message)) uncertainties.push(error)
+    try { await cleanup() } catch (cleanupError) { throw new AggregateError([error, cleanupError], `${error.message}; ${cleanupError.message}`) }
+    throw error
   } finally { await cleanup() }
 }
 

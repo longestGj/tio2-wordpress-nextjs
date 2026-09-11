@@ -53,7 +53,9 @@ npm run prerelease:status
 
 ## 租约、申请、附加与释放
 
-默认租约目录是调用工作区的`.runtime/port-leases/`。Node CLI可以用`--lease-root <absolute-path>`指定目录；PowerShell包装器使用默认目录。不同工作区的默认目录不是全机器统一注册表；并行启动器需要共享登记时，须显式使用同一租约根，同时继续探测实际端口。Doctor默认只读取当前工作区的租约，不能由空列表推断其他worktree没有运行。
+默认租约目录通过 Git `--git-common-dir` 定位为 `<Git公共目录>/d16-runtime/port-leases/`（普通仓库通常为主 checkout 的 `.git/d16-runtime/port-leases/`）。同一仓库的主 checkout、所有 linked worktree、Node CLI、PowerShell、Doctor、owned Next 和公共 E2E 启动器共享同一锁与登记目录，因此即使第一个进程尚未绑定端口，另一个 worktree 也不会重复预留该端口。记录仍保存实际 worktree、run ID 和 commit；各任务的日志和构建目录保持独立。
+
+这是仓库级登记域，不合并无关仓库；各次预留仍检查实际主机监听。非 Git 的独立测试项目使用该项目的 `.runtime/port-leases/`。Git 查询失败会报错，不能静默创建另一登记域。Node CLI 的既有 `--lease-root <absolute-path>` 仅用于明确的测试、诊断或恢复注入；它会创建独立预留域，不能用它绕开日常共享登记。PowerShell 和公共 E2E 不提供此覆盖选项。Doctor 默认读取本仓库所有 worktree 的租约，空列表不能证明其他仓库或未登记进程不存在。
 
 每份`<leaseId>.json`只保存下列字段，不保存密钥：
 
@@ -160,14 +162,14 @@ docker ps -a --filter label=com.docker.compose.project=wordpress --format '{{.ID
 
 ## 中断、日志与交回
 
-owned E2E/Next启动器在正常结束、断言失败、启动失败、超时、SIGINT和SIGTERM时复用同一清理路径：核实owner → 停止本次进程树 → 等待监听关闭 → 释放本次租约。Next与WordPress helper的调用方仍须在`finally`/`afterAll`中`await runtime.stop()`；不能依赖测试成功才清理。WordPress部分启动或归属无法核实会保留现场并返回准确项目/Compose参数，不能保证自动清除。系统强制终止、断电或身份不匹配同样不能保证自动清理，下一次先Doctor并核对证据。不得运行按端口批量杀进程或全局Docker清理。
+owned E2E/Next启动器在正常结束、断言失败、启动失败、超时、SIGINT和SIGTERM时复用同一清理路径：核实owner → 停止本次进程树 → 等待监听关闭 → 成功关闭supervisor → 释放本次租约。原生请求有30秒等待上限；取消后的资源交接有5秒窗口，清理不使用已经取消的启动信号。挂起、身份不符或监听存活会返回错误并保留租约和证据；迟到结果继续核对，不能根据旧监听样本提前释放。迟到的未启动租约必须用新supervisor检查监听，并成功关闭检查器后才能释放。Next与WordPress helper的调用方仍须在`finally`/`afterAll`中`await runtime.stop()`；不能依赖测试成功才清理。WordPress部分启动或归属无法核实会保留现场并返回准确项目/Compose参数，不能保证自动清除。系统强制终止、断电或身份不匹配同样不能保证自动清理，下一次先Doctor并核对证据。不得运行按端口批量杀进程或全局Docker清理。
 
 | 证据位置 | 内容与使用 |
 |---|---|
-| `.runtime/port-leases/` | 当前工作区的租约；清理完成后本次记录应消失 |
+| `<Git公共目录>/d16-runtime/port-leases/` | 本仓库各worktree共享的租约；确认全部进程停止、监听关闭及supervisor关闭后，本次记录才释放 |
 | canonical checkout的`.runtime/development-wordpress.json` | 开发CMS的repository/commit/Compose/container IDs；与实时标签一起使用 |
 | `.tmp/local-sites/sites.json`及同目录stdout/stderr日志 | 多站启动身份与日志，具体路径来自记录 |
-| `.tmp/owned-e2e/<runId>/` | `process-identities.json`、Playwright产物和规格证据；启动器控制台JSON/Playwright输出需由任务另存 |
+| `.tmp/owned-e2e/<runId>/` | `process-identities.json`、`cleanup-state.json`、Playwright产物和规格证据；启动器控制台JSON/Playwright输出需由任务另存 |
 | owned Next helper的`serverLogOffset()` / `serverErrorsSince(offset)` | 进程内的服务器日志读取接口；调用方保存当次需要的错误证据，不能假定已有日志目录 |
 | `.prerelease/runs/`及预发布测试证据 | 继续按预发布使用说明记录源码、Build、CMS与测试身份 |
 
