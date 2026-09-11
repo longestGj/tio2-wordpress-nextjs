@@ -76,7 +76,7 @@ npm run production -- -Operation Verify -ConfigPath .production/connection.local
 npm run production -- -Operation Rollback -ConfigPath .production/connection.local.json -RunRoot .production/runs/<unique-id>
 ```
 
-当前机器的忽略配置为 `.production/production-connection.json`。它包含主机指纹、部署私钥路径、活动基线、恢复镜像和 age 身份路径；不得提交。发布 Agent 的仓库入口见[AGENT.md](../.agent/d16-release-agent/AGENT.md)。
+当前机器的忽略配置为 `.production/production-connection.json`。它包含主机指纹、部署私钥路径、活动基线、恢复镜像和 age 身份路径；不得提交。发布 Agent 的仓库入口见[d16-release-agent.toml](../.codex/agents/d16-release-agent.toml)。
 
 `Status` 展示能力标记和实际协议状态；`implemented` 不等于 readiness 或生产已验收。`Release` 上传三份包，准备并核对初始 enrollment，持久化第四份 `backup-request.json` 的 UUID 后才发送。服务端备份恢复写入后返回 `writesResumed=true / autoRestoreEligible=false`，因此不具备自动无损 SQL 回退资格。
 

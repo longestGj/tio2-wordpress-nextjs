@@ -9,7 +9,7 @@ Use the repository's evidence-bound release protocol. A successful command or re
 
 ## Start
 
-In `D:\16Wordpress_nextjs`, read the root `AGENTS.md`, `docs/site-registry.md`, `docs/development-workflow.md` section 7, and the target site's production runbook. Read `.agent/d16-release-agent/AGENT.md` when the current branch contains it; its absence on an older production `main` does not itself block status checks or a registered routine release.
+In `D:\16Wordpress_nextjs`, read the root `AGENTS.md`, `docs/site-registry.md`, `docs/development-workflow.md` section 7, and the target site's production runbook. Use the project-scoped `.codex/agents/d16-release-agent.toml` when delegating release execution; its absence on an older production `main` does not itself block status checks or a registered routine release.
 
 Resolve the site, environment, exact `main` commit, authorization, and operation mode:
 
