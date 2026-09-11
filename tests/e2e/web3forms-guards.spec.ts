@@ -57,7 +57,8 @@ for (const workflow of Object.keys(workflows) as Workflow[]) {
           if (request.method() === 'GET') return new URL(request.url()).origin === origin ? route.continue() : route.abort('blockedbyclient')
           if (request.method() === 'POST' && request.url() === 'https://api.web3forms.com/submit') {
             posts++
-            return route.fulfill({status: outcome === 'accepted' ? 200 : 400, contentType: 'application/json', body: JSON.stringify(outcome === 'accepted' ? {success: true} : {success: false, body: {message: 'Invalid access key: GUARD_PROVIDER_SENTINEL', data: {email: 'guard-check@example.test'}}})})
+            if (outcome === 'accepted') return route.fulfill({status: 200, contentType: 'text/plain', body: 'OK'})
+            return route.fulfill({status: 400, contentType: 'application/json', body: JSON.stringify({success: false, body: {message: 'Invalid access key: GUARD_PROVIDER_SENTINEL', data: {email: 'guard-check@example.test'}}})})
           }
           blockedWrites++
           return route.abort('blockedbyclient')
