@@ -1,5 +1,7 @@
 # D16 多网站生产发布阶段一实施计划
 
+> **状态：已作废，禁止执行。** 2026-09-12后续确认将开发终点收紧为Gate8在Gate9通过后合入`develop`并写开发回执，同时把发布入口改为独立触发、五类公共包和七个固定动作。本计划基于更早的责任边界与六动作接口；待更新后的[发布架构规格](../specs/2026-09-12-multisite-production-release-architecture-design.md)完成书面复核后重新制定。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 在不改动现有 WordPress、MariaDB、Nginx 内容、DNS 和公众流量的前提下，把当前生产系统登记为服务器、共享 CMS 与 `tio2-my` 三个主体；证明当前候选可归类为 `frontend-only`，并恢复同一 RunRoot 的生产发布。
