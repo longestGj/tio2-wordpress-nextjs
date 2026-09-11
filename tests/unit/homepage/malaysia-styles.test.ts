@@ -46,4 +46,11 @@ describe('Malaysia Homepage accessible palette', () => {
     expect(css).toContain('.pageRfq .primaryButton')
     expect(css).toMatch(/\.documents\s*\{[^}]*background:\s*var\(--pale\)/u)
   })
+
+  it('uses the approved darker body color whenever copy sits on the soft surface', () => {
+    const bodyOnSoft = property('--body-on-soft')
+    expect(bodyOnSoft.toLowerCase()).toBe('#526176')
+    expect(contrast(bodyOnSoft, property('--pale'))).toBeGreaterThanOrEqual(4.5)
+    expect(css).toMatch(/\.tint\s+p,[\s\S]*?\.documents\s*>\s*p:not\(\.eyebrow\)[\s\S]*?color:\s*var\(--body-on-soft\)/u)
+  })
 })

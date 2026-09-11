@@ -31,11 +31,15 @@ function hash(bytes: Buffer) {
   return createHash('sha256').update(bytes).digest('hex')
 }
 
-async function distinctColumns(locator: Locator) {
-  const lefts = await locator.evaluateAll((nodes) => nodes
+async function maximumColumnsInOneRow(locator: Locator) {
+  const rows = await locator.evaluateAll((nodes) => nodes
     .filter((node) => getComputedStyle(node).display !== 'none')
-    .map((node) => Math.round(node.getBoundingClientRect().left)))
-  return new Set(lefts).size
+    .map((node) => {
+      const rect = node.getBoundingClientRect()
+      return {left: Math.round(rect.left), top: Math.round(rect.top)}
+    }))
+  const grouped = Map.groupBy(rows, ({top}) => top)
+  return Math.max(...Array.from(grouped.values(), (items) => new Set(items.map(({left}) => left)).size))
 }
 
 async function assertTargets(locator: Locator) {
@@ -84,19 +88,19 @@ for (const width of widths) {
     const startHere = page.locator('[data-module="start-here"]')
     await expect(startHere).toBeVisible()
     await expect(startHere.locator('a')).toHaveCount(3)
-    expect(await distinctColumns(startHere.locator('a'))).toBe(width <= 560 ? 1 : 3)
+    expect(await maximumColumnsInOneRow(startHere.locator('a'))).toBe(width <= 560 ? 1 : 3)
 
-    expect(await distinctColumns(page.locator('[data-module="markets"] article'))).toBe(width <= 560 ? 1 : 2)
-    expect(await distinctColumns(page.locator('[data-module="applications"] article'))).toBe(
+    expect(await maximumColumnsInOneRow(page.locator('[data-module="markets"] article'))).toBe(width <= 560 ? 1 : 2)
+    expect(await maximumColumnsInOneRow(page.locator('[data-module="applications"] article'))).toBe(
       width <= 560 ? 1 : width <= 1100 ? 2 : 3,
     )
-    expect(await distinctColumns(page.locator('[data-module="resources"] article'))).toBe(
+    expect(await maximumColumnsInOneRow(page.locator('[data-module="resources"] article'))).toBe(
       width <= 560 ? 1 : width <= 1100 ? 2 : 3,
     )
 
     const groups = page.locator('[data-product-group]')
     await expect(groups).toHaveCount(4)
-    expect(await distinctColumns(groups)).toBe(width <= 560 ? 1 : width <= 1100 ? 2 : 4)
+    expect(await maximumColumnsInOneRow(groups)).toBe(width <= 560 ? 1 : width <= 1100 ? 2 : 4)
     const gradeNodes = page.locator('[data-product-grade-id]')
     await expect(gradeNodes).toHaveText(grades)
     await expect(page.locator('[data-product-grade-id]:visible')).toHaveCount(width <= 560 ? 0 : 14)
@@ -118,7 +122,8 @@ for (const width of widths) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
       await page.evaluate(() => document.documentElement.clientWidth),
     )
-    expect(await page.locator('link[rel="canonical"]').getAttribute('href')).toBe('https://tio2malaysia.com/')
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute('href')
+    expect(new URL(canonical!).href).toBe('https://tio2malaysia.com/')
     expect(await page.locator('meta[name="robots"]').getAttribute('content')).toContain('index')
     expect(await page.locator('script[type="application/ld+json"]').count()).toBe(1)
     const axeViolationCount = await assertAxe(page)

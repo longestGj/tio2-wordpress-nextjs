@@ -5,6 +5,7 @@
   --teal-light: #00a99d;
   --ink: #334155;
   --muted: #64748b;
+  --body-on-soft: #526176;
   --pale: #f5f8fb;
   --line: #d9e2ec;
   --white: #fff;
@@ -240,6 +241,12 @@
   background: var(--pale);
   box-shadow: 0 0 0 100vmax var(--pale);
   clip-path: inset(0 -100vmax);
+}
+
+.tint p,
+.company p,
+.documents > p:not(.eyebrow) {
+  color: var(--body-on-soft);
 }
 
 .sectionHeading,
