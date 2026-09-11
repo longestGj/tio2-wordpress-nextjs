@@ -7,6 +7,7 @@ import {join, resolve} from 'node:path'
 import {afterEach, beforeEach, expect, test} from 'vitest'
 import {http, passthrough} from 'msw'
 import {server} from '../mocks/server'
+import './owned-e2e-review-regressions.cases'
 
 beforeEach(() => server.use(http.all(/^http:\/\/127\.0\.0\.1:\d+\//u, () => passthrough())))
 
@@ -41,7 +42,7 @@ const fixture=await (await fetch(process.env.DOC_REACH_FIXTURE_URL)).text();
 const html=await (await fetch(process.env.DOC_REACH_BASE_URL)).text();
 await writeFile(${JSON.stringify(resultPath)},JSON.stringify({argv:process.argv.slice(2),env:process.env,leases,fixture,html}));`)
   const events: Array<Record<string, unknown>> = []
-  const result = await runOwnedE2e(['--site', 'tio2-my', '--spec', 'tests/e2e/document-reach.spec.ts', '--fixture', `DOC_REACH_FIXTURE_URL=${fixture}`], {
+  const result = await runOwnedE2e(['--site', 'tio2-my', '--spec', 'tests/e2e/document-reach.spec.ts', '--fixture', `DOC_REACH_FIXTURE_URL=${fixture}`, '--fixture', `WORDPRESS_GRAPHQL_URL=${fixture}`], {
     repositoryRoot: resolve('.'), leaseRoot, nextCli, playwrightCli,
     environment: {...process.env, UNRELATED_SECRET: 'must-not-leak'},
     emit: (event: Record<string, unknown>) => events.push(event),
@@ -53,7 +54,13 @@ await writeFile(${JSON.stringify(resultPath)},JSON.stringify({argv:process.argv.
   expect(output.html).toContain('data-site-id="tio2-my"')
   expect(output.env.TIO2_MY_BASE_URL).toBe(output.env.DOC_REACH_BASE_URL)
   expect(output.env.UNRELATED_SECRET).toBeUndefined()
-  expect(output.leases.map((lease: {purpose: string}) => lease.purpose).sort()).toEqual(['fixture', 'test-next'])
+  const identities = JSON.parse(await readFile(join(result.outputRoot, 'process-identities.json'), 'utf8'))
+  expect(new Set(identities.map((record: {token: string}) => record.token)).size).toBe(identities.length)
+  for (const record of identities) {
+    expect(record.token).toMatch(/^[a-f0-9]{64}$/u)
+    expect(record.identities[0]).toMatchObject({pid: expect.any(Number), startTime: expect.stringMatching(/^[0-9]+$/u), command: expect.stringContaining(record.token), token: record.token})
+  }
+  expect(output.leases.map((lease: {purpose: string}) => lease.purpose).sort()).toEqual(['fixture', 'fixture', 'test-next'])
   for (const lease of output.leases) expect(lease.processIds).toHaveLength(1)
   const nextPort = Number(new URL(output.env.TIO2_MY_BASE_URL).port)
   expect(nextPort).toBeGreaterThanOrEqual(32100)
@@ -88,6 +95,7 @@ const port=Number(process.argv[process.argv.indexOf('--port')+1]);createServer((
   try {
     const result = runOwnedE2e(['--site', 'tio2-my', '--spec', 'tests/e2e/document-reach.spec.ts', '--fixture', 'DOC_REACH_FIXTURE_URL=tests/e2e/support/document-reach-cms.mjs'], {
       repositoryRoot: resolve('.'), nextCli, playwrightCli, leaseRoot, startupTimeoutMs: 3_000,
+      environment: {...process.env, WORDPRESS_GRAPHQL_URL: `http://127.0.0.1:${address.port}/graphql`},
       emit: (event: Record<string, unknown>) => {
         events.push(event)
         if (mode === 'SIGTERM' && event.event === 'ready' && event.label === 'next:tio2-my') process.emit('SIGTERM')
@@ -156,7 +164,7 @@ const base=requiredLocalUrl('TIO2_MY_BASE_URL').origin;
 test('owned identity',async({page})=>{await page.goto(base);await expect(page.locator('[data-site-id="tio2-my"]')).toHaveText('Owned runtime ready')});`)
   const fixture = join(root, 'fixture.mjs')
   await writeFile(fixture, `import {createServer} from 'node:http';const server=createServer((q,s)=>s.writeHead(503).end('no CMS in this test')).listen(0,'127.0.0.1',()=>{const {port}=server.address();console.log(JSON.stringify({host:'127.0.0.1',port,baseUrl:'http://127.0.0.1:'+port}))});`)
-  const result = await runOwnedE2e(['--site', 'tio2-my', '--spec', 'tests/e2e/runtime.spec.ts', '--fixture', `SMOKE_FIXTURE_URL=${fixture}`], {
+  const result = await runOwnedE2e(['--site', 'tio2-my', '--spec', 'tests/e2e/runtime.spec.ts', '--fixture', `WORDPRESS_GRAPHQL_URL=${fixture}`], {
     repositoryRoot: root,
     startupTimeoutMs: 60_000,
   })

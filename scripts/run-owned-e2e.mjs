@@ -1,5 +1,5 @@
 import {spawn, execFile} from 'node:child_process'
-import {randomUUID} from 'node:crypto'
+import {randomBytes, randomUUID} from 'node:crypto'
 import {existsSync, readFileSync} from 'node:fs'
 import {mkdir, open, readFile, writeFile, rm} from 'node:fs/promises'
 import {dirname, isAbsolute, relative, resolve} from 'node:path'
@@ -9,6 +9,7 @@ import {createRequire} from 'node:module'
 import ts from 'typescript'
 import {attachLease, registerObservedLease, releaseLease, reserveLease} from './runtime-ports/lease-core.mjs'
 import {doctorRuntime} from './runtime-ports/doctor.mjs'
+import {createProcessSupervisor} from './runtime-ports/owned-process-tree.mjs'
 import {requiredLocalUrl} from '../tests/e2e/support/required-local-url.ts'
 
 const execFileAsync = promisify(execFile)
@@ -16,7 +17,9 @@ const defaultRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const platformKeys = ['PATH', 'Path', 'SystemRoot', 'SYSTEMROOT', 'WINDIR', 'COMSPEC', 'PATHEXT', 'TEMP', 'TMP', 'HOME', 'USERPROFILE', 'LOCALAPPDATA', 'APPDATA', 'LANG', 'CI', 'PLAYWRIGHT_BROWSERS_PATH']
 const runtimeKeys = ['WORDPRESS_GRAPHQL_URL', 'WORDPRESS_PREVIEW_URL', 'WORDPRESS_PREVIEW_SECRET', 'WORDPRESS_EDITORIAL_API_TOKEN', 'PREVIEW_SECRET', 'REVALIDATION_SECRET', 'NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY', 'TIO2_MY_RFQ_ATTRIBUTION_SECRET']
 const baseSite = name => name === 'TIO2_A_BASE_URL' || name === 'POLAND_A_BASE_URL' ? 'tio2-a'
-  : name === 'TIO2_B_BASE_URL' || name === 'POLAND_B_BASE_URL' ? 'tio2-b' : null
+  : name === 'TIO2_B_BASE_URL' || name === 'POLAND_B_BASE_URL' ? 'tio2-b'
+    : name === 'TIO2_MY_BASE_URL' ? 'tio2-my' : null
+const runtimeUrlPaths = new Map([['WORDPRESS_GRAPHQL_URL', '/graphql'], ['WORDPRESS_PREVIEW_URL', '/wp-json/tio2/v1/preview']])
 
 function installedCli(root, packageName, command) {
   const packagePath = createRequire(resolve(root, 'package.json')).resolve(`${packageName}/package.json`)
@@ -62,6 +65,7 @@ function readContract(paths, root) {
     const source = ts.createSourceFile(path, readFileSync(path, 'utf8'), ts.ScriptTarget.Latest, true)
     const visit = node => {
       if (ts.isPropertyAccessExpression(node) && node.expression.getText(source) === 'process.env') names.add(node.name.text)
+      if (ts.isElementAccessExpression(node) && node.expression.getText(source) === 'process.env' && ts.isStringLiteralLike(node.argumentExpression)) names.add(node.argumentExpression.text)
       if (ts.isCallExpression(node) && node.expression.getText(source) === 'requiredLocalUrl' && ts.isStringLiteralLike(node.arguments[0])) {
         const name = node.arguments[0].text
         const expectedPath = node.arguments[1] && ts.isStringLiteralLike(node.arguments[1]) ? node.arguments[1].text : '/'
@@ -84,24 +88,6 @@ function readContract(paths, root) {
 
 function finished(child) { return child.exitCode !== null || child.signalCode !== null }
 
-async function stopChild(child) {
-  if (finished(child) || !child.pid) return
-  if (process.platform === 'win32') {
-    await execFileAsync('taskkill', ['/PID', String(child.pid), '/T', '/F'], {windowsHide: true}).catch(error => {
-      if (!finished(child)) throw error
-    })
-  } else {
-    try { process.kill(-child.pid, 'SIGTERM') } catch (error) { if (error.code !== 'ESRCH') throw error }
-  }
-  const deadline = Date.now() + 5_000
-  while (!finished(child) && Date.now() < deadline) await new Promise(done => setTimeout(done, 25))
-  if (!finished(child) && process.platform !== 'win32') {
-    try { process.kill(-child.pid, 'SIGKILL') } catch (error) { if (error.code !== 'ESRCH') throw error }
-    await new Promise(done => setTimeout(done, 100))
-  }
-  if (!finished(child)) throw new Error(`Owned child ${child.pid} could not be stopped; lease retained`)
-}
-
 /** Public programmatic entry point also permits controlled executables for integration tests. */
 export async function runOwnedE2e(args, dependencies = {}) {
   const options = parseArgs(args)
@@ -119,26 +105,56 @@ export async function runOwnedE2e(args, dependencies = {}) {
   const contract = readContract(specs, root)
   const fixtureContract = readContract(fixtures.map(fixture => fixture.script), root)
   for (const name of fixtureContract.names) contract.names.add(name)
-  for (const [name, path] of fixtureContract.urls) contract.urls.set(name, path)
-  // A fixture without a direct test consumer is still a declared CMS transport.
+  for (const [name, path] of fixtureContract.urls) {
+    if (contract.urls.has(name) && contract.urls.get(name) !== path) throw new Error(`Conflicting URL paths for ${name}`)
+    contract.urls.set(name, path)
+  }
+  // Next's transport has an exact, independent contract. Other fixtures and
+  // spec-specific CMS variables never implicitly select it.
+  contract.names.add('WORDPRESS_GRAPHQL_URL')
+  contract.urls.set('WORDPRESS_GRAPHQL_URL', '/graphql')
   for (const fixture of fixtures) {
-    if (!/^[A-Z][A-Z0-9_]*_FIXTURE_URL$/u.test(fixture.name) || !fixture.script.endsWith('.mjs')) throw new Error(`Invalid fixture contract ${fixture.name}`)
-    contract.urls.set(fixture.name, '/')
+    if ((!fixture.name.endsWith('_FIXTURE_URL') && !contract.urls.has(fixture.name) && !runtimeUrlPaths.has(fixture.name)) || !fixture.script.endsWith('.mjs')) throw new Error(`Invalid fixture contract ${fixture.name}`)
+    if (Object.hasOwn(options.environment, fixture.name)) throw new Error(`${fixture.name} cannot be provided by both --env and --fixture`)
+    if (fixture.name.endsWith('_BASE_URL')) throw new Error(`${fixture.name} belongs to a Next runtime, not a fixture`)
+    contract.names.add(fixture.name)
+    contract.urls.set(fixture.name, contract.urls.get(fixture.name) ?? runtimeUrlPaths.get(fixture.name) ?? '/')
   }
   for (const [name, value] of Object.entries(options.environment)) {
-    if (!contract.names.has(name) || platformKeys.includes(name) || name === 'NODE_OPTIONS') throw new Error(`Environment key ${name} is not allowed by the selected specification contract`)
-    if (contract.urls.has(name) || name.endsWith('_URL') || /^https?:\/\//u.test(value)) requiredLocalUrl(name, contract.urls.get(name) ?? '/', {[name]: value})
+    if ((!contract.names.has(name) && !runtimeKeys.includes(name)) || platformKeys.includes(name) || name === 'NODE_OPTIONS') throw new Error(`Environment key ${name} is not allowed by the selected specification contract`)
+    if (contract.urls.has(name) || runtimeUrlPaths.has(name) || name.endsWith('_URL') || /^https?:\/\//u.test(value)) requiredLocalUrl(name, contract.urls.get(name) ?? runtimeUrlPaths.get(name) ?? '/', {[name]: value})
   }
   const input = dependencies.environment ?? process.env
   const selected = Object.fromEntries([...new Set([...platformKeys, ...runtimeKeys, ...contract.names])]
     .filter(name => input[name] !== undefined && name !== 'NODE_OPTIONS')
     .map(name => [name, input[name]]))
   Object.assign(selected, options.environment)
+  // A declared fixture is the only provider of its name. Ignore a stale ambient
+  // value rather than validating or forwarding it to any consumer.
+  for (const fixture of fixtures) delete selected[fixture.name]
+  const baseVariables = [...contract.urls].filter(([name, path]) => path === '/' && (name.endsWith('_BASE_URL') || name === 'RES_PROC_PREVIEW_URL')).map(([name]) => name)
+  // These names are generated later from owned Next leases. An ambient stale
+  // frontend URL must not reach an earlier fixture consumer.
+  for (const name of baseVariables) delete selected[name]
+  const fixtureNames = new Set(fixtures.map(fixture => fixture.name))
   for (const [name, path] of contract.urls) {
-    if (selected[name] !== undefined) requiredLocalUrl(name, path, selected)
+    if (baseVariables.includes(name) || fixtureNames.has(name)) continue
+    requiredLocalUrl(name, path, selected)
   }
-  for (const name of ['WORDPRESS_GRAPHQL_URL', 'WORDPRESS_PREVIEW_URL']) {
-    if (selected[name]) requiredLocalUrl(name, name.endsWith('GRAPHQL_URL') ? '/graphql' : '/wp-json/tio2/v1/preview', selected)
+  const cms8080Names = []
+  for (const [name, value] of Object.entries(selected)) {
+    if (baseVariables.includes(name)) continue
+    if (contract.urls.has(name) || runtimeUrlPaths.has(name) || name.endsWith('_URL') || /^https?:\/\//u.test(value)) {
+      const url = requiredLocalUrl(name, contract.urls.get(name) ?? runtimeUrlPaths.get(name) ?? '/', selected)
+      if (url.port === '8080') cms8080Names.push(name)
+    }
+  }
+  // This is deliberately before a fixture, Next or Playwright process exists:
+  // fixtures can themselves use upstream CMS / preview endpoints.
+  if (cms8080Names.length) {
+    const report = await (dependencies.doctorRuntime ?? doctorRuntime)({leaseRoot})
+    const endpoint = report.fixedEndpoints.find(endpoint => endpoint.port === 8080)
+    if (endpoint?.state !== 'expected-owner') throw new Error(`Canonical CMS ownership is ${endpoint?.state ?? 'unknown'} for ${cms8080Names.join(', ')}; E2E refused`)
   }
   const runId = `e2e-${randomUUID()}`
   const outputRoot = resolve(root, '.tmp/owned-e2e', runId)
@@ -152,16 +168,32 @@ export async function runOwnedE2e(args, dependencies = {}) {
   let stopping
   let lock
   let originalTsconfig
+  let supervisor
   const distDirs = []
   const lockPath = resolve(root, '.tmp/owned-e2e.lock')
   const cancellation = new Promise((_, reject) => controller.signal.addEventListener('abort', () => reject(controller.signal.reason), {once: true}))
   cancellation.catch(() => {})
   const checked = promise => Promise.race([promise, cancellation])
 
-  const start = (label, commandArgs, env) => {
+  let identityWrite = Promise.resolve()
+  const remember = async (record, identities) => {
+    for (const identity of identities) {
+      record.identities.set(identity.pid, identity)
+      if (record.lease && !record.lease.processIds.includes(identity.pid)) Object.assign(record.lease, await attachLease({leaseRoot, leaseId: record.lease.leaseId, processId: identity.pid}))
+    }
+    const evidence = JSON.stringify(children.map(child => ({label: child.label, token: child.token, identities: [...child.identities.values()]})), null, 2)
+    identityWrite = identityWrite.then(() => writeFile(resolve(outputRoot, 'process-identities.json'), evidence))
+    await identityWrite
+    return identities
+  }
+  const snapshot = async record => remember(record, await supervisor.snapshot(record.token))
+  const start = async (label, commandArgs, env, lease) => {
     controller.signal.throwIfAborted()
-    const child = spawn(process.execPath, commandArgs, {cwd: root, env, stdio: 'pipe', windowsHide: true, detached: process.platform !== 'win32'})
-    const record = {label, child, output: '', error: null}
+    const token = randomBytes(32).toString('hex')
+    const gate = new URL('./runtime-ports/owned-entry-gate.mjs', import.meta.url)
+    gate.searchParams.set('owner', token)
+    const child = spawn(process.execPath, ['--import', gate.href, ...commandArgs], {cwd: root, env, stdio: ['pipe', 'pipe', 'pipe', 'ipc'], windowsHide: true})
+    const record = {label, child, token, lease, identities: new Map(), attached: false, released: false, stopped: false, output: '', error: null}
     children.push(record)
     child.stdout.on('data', chunk => { record.output = (record.output + chunk.toString()).slice(-256_000) })
     child.stderr.on('data', chunk => { record.output = (record.output + chunk.toString()).slice(-256_000) })
@@ -170,7 +202,26 @@ export async function runOwnedE2e(args, dependencies = {}) {
       child.once('exit', code => done(code ?? 1))
     })
     record.completion.catch(() => {})
+    if (label !== 'playwright') {
+      record.completion.then(code => {
+        if (!stopping) controller.abort(new Error(`${label} exited before readiness or during consumers (exit ${code})`))
+      }, error => { if (!stopping) controller.abort(error) })
+    }
     emit({event: 'started', runId, label, pid: child.pid})
+    const gated = new Promise((done, reject) => {
+      const timeout = setTimeout(() => reject(new Error(`${label} entry gate timed out`)), 15_000)
+      child.on('message', message => {
+        if (message?.owner === token && message?.action === 'gated' && message.pid === child.pid) { clearTimeout(timeout); done() }
+      })
+      record.completion.then(() => { clearTimeout(timeout); reject(new Error(`${label} exited before ownership attachment`)) }, error => { clearTimeout(timeout); reject(error) })
+    })
+    await checked(gated)
+    const identity = await supervisor.attach(child.pid, token, gate.href, process.execPath)
+    record.attached = true
+    await remember(record, [identity])
+    controller.signal.throwIfAborted()
+    record.released = true
+    child.send({owner: token, action: 'run'})
     return record
   }
   const healthyChild = record => {
@@ -181,7 +232,9 @@ export async function runOwnedE2e(args, dependencies = {}) {
     const deadline = Date.now() + (dependencies.startupTimeoutMs ?? 90_000)
     while (Date.now() < deadline) {
       healthyChild(record)
-      const result = await checked(check())
+      const exited = record.completion.then(() => { healthyChild(record); throw new Error(`${record.label} exited before readiness`) })
+      const result = await checked(Promise.race([check(), exited]))
+      healthyChild(record)
       if (result) return result
       await checked(new Promise(done => setTimeout(done, 100)))
     }
@@ -190,13 +243,32 @@ export async function runOwnedE2e(args, dependencies = {}) {
   const cleanup = () => stopping ??= (async () => {
     const failures = []
     for (const record of [...children].reverse()) {
-      try { await stopChild(record.child); emit({event: 'stopped', runId, label: record.label, pid: record.child.pid}) }
+      try {
+        if (record.attached) {
+          await supervisor.stop(record.token, await snapshot(record))
+          if ((await snapshot(record)).length) throw new Error(`${record.label} descendants remain; lease retained`)
+        } else if (!record.released && !finished(record.child)) {
+          // Only an unreleased entry gate can reach here. Its original spawn
+          // handle is still ours, and it has not executed any target code.
+          record.child.kill()
+          await record.completion
+        }
+        record.stopped = true
+        emit({event: 'stopped', runId, label: record.label, pid: record.child.pid})
+      }
       catch (error) { failures.push(error) }
     }
+    // A surviving Playwright descendant may not itself have a port lease. Keep
+    // the run's leases as evidence until every owned process tree is confirmed
+    // stopped, rather than releasing them merely because Next has exited.
+    const allProcessesStopped = children.every(record => record.stopped)
     for (const lease of [...leases].reverse()) {
       const owners = children.filter(record => lease.processIds.includes(record.child.pid))
-      if (owners.some(record => !finished(record.child))) continue
-      try { await releaseLease({leaseRoot, leaseId: lease.leaseId, expectedProcessIds: lease.processIds}) }
+      if (!allProcessesStopped || owners.some(record => !record.stopped)) continue
+      try {
+        for (const port of lease.ports) if ((await supervisor.listenerOwners(port)).length) throw new Error(`Port ${port} still has a listening owner; lease retained`)
+        await releaseLease({leaseRoot, leaseId: lease.leaseId, expectedProcessIds: lease.processIds})
+      }
       catch (error) { failures.push(error) }
     }
     if (originalTsconfig !== undefined && failures.length === 0) {
@@ -213,9 +285,10 @@ export async function runOwnedE2e(args, dependencies = {}) {
       } catch (error) { failures.push(error) }
     }
     // Build/output artifacts remain under the run's named directories for diagnosis.
-    if (lock) { await lock.close(); await rm(lockPath) }
+    if (lock) { try { await lock.close(); await rm(lockPath) } catch (error) { failures.push(error) } }
+    if (supervisor) { try { await supervisor.close() } catch (error) { failures.push(error) } }
     for (const [signal, handler] of signalHandlers) process.off(signal, handler)
-    if (failures.length) throw new AggregateError(failures, 'Owned E2E cleanup failed')
+    if (failures.length) throw new AggregateError(failures, `Owned E2E cleanup failed: ${failures.map(error => error.message).join('; ')}`)
   })()
 
   try {
@@ -224,8 +297,9 @@ export async function runOwnedE2e(args, dependencies = {}) {
     lock = await open(lockPath, 'wx')
     await lock.writeFile(JSON.stringify({runId, pid: process.pid}))
     originalTsconfig = await readFile(resolve(root, 'tsconfig.json'), 'utf8')
+    supervisor = await (dependencies.supervisorFactory ?? createProcessSupervisor)()
     for (const fixture of fixtures) {
-      const record = start(`fixture:${fixture.name}`, [fixture.script, '--port', '0'], selected)
+      const record = await start(`fixture:${fixture.name}`, [fixture.script, '--port', '0'], selected)
       const discovered = await waitFor(record, async () => {
         for (const line of record.output.split(/\r?\n/u)) {
           if (!line.startsWith('{') || !line.endsWith('}')) continue
@@ -236,23 +310,19 @@ export async function runOwnedE2e(args, dependencies = {}) {
         }
         return null
       }, `fixture ${fixture.name} JSON`)
+      const members = await snapshot(record)
+      const listenerOwners = await supervisor.listenerOwners(discovered.port)
+      if (!listenerOwners.length || listenerOwners.some(pid => !members.some(identity => identity.pid === pid))) throw new Error(`Fixture ${fixture.name} has a foreign listening owner`)
       const lease = await registerObservedLease({...metadata, purpose: 'fixture', siteId: options.site, ports: [discovered.port], processIds: [record.child.pid]})
       leases.push(lease)
-      selected[fixture.name] = discovered.baseUrl
-      emit({event: 'ready', runId, label: record.label, pid: record.child.pid, leaseId: lease.leaseId, ...discovered})
+      record.lease = lease
+      await remember(record, members)
+      selected[fixture.name] = new URL(contract.urls.get(fixture.name), discovered.baseUrl).href
+      emit({event: 'ready', runId, label: record.label, pid: record.child.pid, listenerPids: listenerOwners, leaseId: lease.leaseId, ...discovered})
     }
-    const cmsUrls = [...contract.urls].filter(([name, path]) => path === '/graphql' && selected[name]).map(([name]) => selected[name])
-    const fixtureUrls = fixtures.map(fixture => `${selected[fixture.name]}/graphql`)
-    if (fixtureUrls.length > 1 && !selected.WORDPRESS_GRAPHQL_URL) throw new Error('Multiple CMS fixtures require an explicit WORDPRESS_GRAPHQL_URL contract')
-    selected.WORDPRESS_GRAPHQL_URL = fixtureUrls[0] ?? selected.WORDPRESS_GRAPHQL_URL ?? (new Set(cmsUrls).size === 1 ? cmsUrls[0] : undefined)
     requiredLocalUrl('WORDPRESS_GRAPHQL_URL', '/graphql', selected)
-    if (new URL(selected.WORDPRESS_GRAPHQL_URL).port === '8080') {
-      const report = await doctorRuntime({leaseRoot})
-      const endpoint = report.fixedEndpoints.find(endpoint => endpoint.port === 8080)
-      if (endpoint?.state !== 'expected-owner') throw new Error(`Canonical CMS ownership is ${endpoint?.state ?? 'unknown'}; E2E refused`)
-    }
-    const baseVariables = [...contract.urls].filter(([name, path]) => path === '/' && (name.endsWith('_BASE_URL') || name === 'RES_PROC_PREVIEW_URL')).map(([name]) => name)
-    const sites = [...new Set([options.site, ...baseVariables.map(baseSite).filter(Boolean)])]
+    const sites = [...new Set(baseVariables.map(name => baseSite(name) ?? options.site))]
+    if (!sites.length) sites.push(options.site)
     for (const siteId of sites) {
       const lease = await reserveLease({...metadata, purpose: 'test-next', siteId})
       leases.push(lease)
@@ -262,28 +332,35 @@ export async function runOwnedE2e(args, dependencies = {}) {
       const env = {...selected, SITE_ID: siteId, NEXT_DIST_DIR: distDir, NEXT_TELEMETRY_DISABLED: '1'}
       // The shared installation uses junctions outside worktrees. Webpack supports
       // that layout without widening Turbopack's filesystem root into other work.
-      const record = start(`next:${siteId}`, [dependencies.nextCli ?? installedCli(root, 'next', 'next'), 'dev', '--webpack', '--hostname', '127.0.0.1', '--port', String(lease.ports[0])], env)
-      const attached = await attachLease({leaseRoot, leaseId: lease.leaseId, processId: record.child.pid})
-      Object.assign(lease, attached)
-      await waitFor(record, async () => {
+      const record = await start(`next:${siteId}`, [dependencies.nextCli ?? installedCli(root, 'next', 'next'), 'dev', '--webpack', '--hostname', '127.0.0.1', '--port', String(lease.ports[0])], env, lease)
+      const listenerPids = await waitFor(record, async () => {
         try {
+          const listenerOwners = await supervisor.listenerOwners(lease.ports[0])
+          if (!listenerOwners.length) return false
+          const members = await snapshot(record)
+          if (listenerOwners.some(pid => !members.some(identity => identity.pid === pid))) throw new Error(`Refused foreign listening owner at ${baseUrl}`)
           const response = await fetch(`${baseUrl}/`, {redirect: 'manual', signal: AbortSignal.timeout(5_000)})
           const html = await response.text()
-          if (response.ok && new RegExp(`data-site-id=["']${siteId}["']`, 'u').test(html)) return true
+          if (response.ok && new RegExp(`data-site-id=["']${siteId}["']`, 'u').test(html)) {
+            const after = await supervisor.listenerOwners(lease.ports[0])
+            const live = await snapshot(record)
+            if (!after.length || after.some(pid => !live.some(identity => identity.pid === pid))) throw new Error(`Refused foreign listening owner at ${baseUrl}`)
+            return after
+          }
           if (response.ok && /data-site-id=/u.test(html)) throw new Error(`Wrong site identity at ${baseUrl}`)
           return false
         } catch (error) {
-          if (error.message.startsWith('Wrong site identity')) throw error
+          if (!['TypeError', 'TimeoutError'].includes(error.name)) throw error
           return false
         }
       }, `${siteId} identity at ${baseUrl}`)
       for (const name of baseVariables) if ((baseSite(name) ?? options.site) === siteId) selected[name] = baseUrl
       selected[`TIO2_${siteId.slice(5).toUpperCase()}_BASE_URL`] = baseUrl
-      emit({event: 'ready', runId, label: record.label, pid: record.child.pid, leaseId: lease.leaseId, baseUrl, siteId})
+      emit({event: 'ready', runId, label: record.label, pid: record.child.pid, listenerPids, leaseId: lease.leaseId, baseUrl, siteId})
     }
     for (const [name, path] of contract.urls) requiredLocalUrl(name, path, selected)
     for (const name of contract.names) if (name.endsWith('_EVIDENCE_DIR') && !options.environment[name]) selected[name] = outputRoot
-    const playwright = start('playwright', [dependencies.playwrightCli ?? installedCli(root, '@playwright/test', 'playwright'), 'test', ...options.specs, '--output', resolve(outputRoot, 'playwright')], selected)
+    const playwright = await start('playwright', [dependencies.playwrightCli ?? installedCli(root, '@playwright/test', 'playwright'), 'test', ...options.specs, '--output', resolve(outputRoot, 'playwright')], selected)
     const exitCode = await checked(playwright.completion)
     // Test output is useful to the invoking terminal; never print the environment.
     if (!dependencies.emit && playwright.output) process.stdout.write(playwright.output)
