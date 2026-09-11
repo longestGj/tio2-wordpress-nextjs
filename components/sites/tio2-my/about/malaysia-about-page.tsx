@@ -106,7 +106,6 @@ export function MalaysiaAboutPage({aboutPage: page, structuredData}: Props) {
           breadcrumbLabel="About"
           breadcrumbModuleName="breadcrumb"
           moduleName="hero"
-          mobileHeadingFit="wide"
           mobileHeadingTracking="normal"
           eyebrow={page.hero.eyebrow}
           heading={page.hero.h1}

@@ -18,7 +18,10 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
   return (
     <html lang={site.locale}>
-      <body className={site.id === 'tio2-my' ? malaysiaSharedFont.variable : undefined}>
+      <body
+        className={site.id === 'tio2-my' ? malaysiaSharedFont.variable : undefined}
+        style={site.id === 'tio2-my' ? {margin: 0} : undefined}
+      >
         <SiteHeader site={site} />
         {children}
       </body>

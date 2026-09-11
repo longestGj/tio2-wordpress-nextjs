@@ -10,13 +10,13 @@ const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const evidenceDirectory = process.env.ROOT_PAGE_HERO_EVIDENCE_DIR
 
 const pages = [
-  {pageId: 'HOME-001', path: '/', variant: 'flagship-light', maximumHeadingLinesAt390: 3},
-  {pageId: 'APP-000', path: '/applications/', variant: 'hub-light', maximumHeadingLinesAt390: 3},
-  {pageId: 'PRODUCT-000', path: '/products/', variant: 'hub-light', maximumHeadingLinesAt390: 4},
-  {pageId: 'MARKET-000', path: '/markets/', variant: 'hub-light', maximumHeadingLinesAt390: 3},
-  {pageId: 'DOC-000', path: '/documents/', variant: 'hub-light', maximumHeadingLinesAt390: 3},
-  {pageId: 'RES-000', path: '/resources/', variant: 'hub-dark', maximumHeadingLinesAt390: 4},
-  {pageId: 'ABOUT-001', path: '/about/', variant: 'corporate-light', maximumHeadingLinesAt390: 4},
+  {pageId: 'HOME-001', path: '/', variant: 'flagship-light', surface: 'open', maximumHeadingLinesAt390: 3},
+  {pageId: 'APP-000', path: '/applications/', variant: 'hub-light', surface: 'open', maximumHeadingLinesAt390: 3},
+  {pageId: 'PRODUCT-000', path: '/products/', variant: 'hub-light', surface: 'preserve', maximumHeadingLinesAt390: 4},
+  {pageId: 'MARKET-000', path: '/markets/', variant: 'hub-light', surface: 'framed', maximumHeadingLinesAt390: 3},
+  {pageId: 'DOC-000', path: '/documents/', variant: 'hub-light', surface: 'framed', maximumHeadingLinesAt390: 3},
+  {pageId: 'RES-000', path: '/resources/', variant: 'hub-dark', surface: 'framed', maximumHeadingLinesAt390: 4},
+  {pageId: 'ABOUT-001', path: '/about/', variant: 'corporate-light', surface: 'framed', maximumHeadingLinesAt390: 4},
 ] as const
 
 const viewports = [
@@ -36,7 +36,8 @@ for (const pageContract of pages) {
       const response = await page.goto(`${baseUrl}${pageContract.path}`)
       expect(response?.ok()).toBe(true)
       if (viewport.width === 390) {
-        await page.addStyleTag({content: 'html { scrollbar-gutter: stable; }'})
+        // Match Gate9's 390px browser surface with a 375px classic-scrollbar layout viewport.
+        await page.addStyleTag({content: 'html { width: 375px; }'})
       }
 
       const hero = page.locator('[data-root-page-hero="true"]')
@@ -50,20 +51,30 @@ for (const pageContract of pages) {
         if (!heading || !firstAction) throw new Error('Root Hero is missing its heading or action')
         firstAction.focus()
         const headingStyle = getComputedStyle(heading)
+        const heroStyle = getComputedStyle(element)
+        const heroRect = element.getBoundingClientRect()
         const headingRect = heading.getBoundingClientRect()
         const lineHeight = Number.parseFloat(headingStyle.lineHeight)
         const actionRect = firstAction.getBoundingClientRect()
         return {
           actionFocused: document.activeElement === firstAction,
           actionHeight: actionRect.height,
+          actionLeft: actionRect.left,
+          actionRight: actionRect.right,
           actionWidth: actionRect.width,
           headingFontSize: Number.parseFloat(headingStyle.fontSize),
           headingLetterSpacing: headingStyle.letterSpacing === 'normal'
             ? 0
             : Number.parseFloat(headingStyle.letterSpacing),
           headingLines: Math.ceil(headingRect.height / lineHeight),
+          heroBoxSizing: heroStyle.boxSizing,
+          heroLeft: heroRect.left,
+          heroRight: heroRect.right,
+          heroPaddingLeft: Number.parseFloat(heroStyle.paddingLeft),
+          heroPaddingRight: Number.parseFloat(heroStyle.paddingRight),
           scrollWidth: document.documentElement.scrollWidth,
           clientWidth: document.documentElement.clientWidth,
+          layoutWidth: document.documentElement.getBoundingClientRect().width,
         }
       })
 
@@ -71,7 +82,7 @@ for (const pageContract of pages) {
       expect(heroChecks.headingLetterSpacing).toBeCloseTo(
         viewport.width === 390 && normalMobileTrackingPageIds.has(pageContract.pageId)
           ? 0
-          : viewport.headingSize * -.035,
+          : viewport.headingSize * (viewport.width === 390 ? -.045 : -.035),
         1,
       )
       expect(heroChecks.actionFocused).toBe(true)
@@ -79,6 +90,16 @@ for (const pageContract of pages) {
       expect(heroChecks.actionWidth).toBeGreaterThanOrEqual(44)
       expect(heroChecks.scrollWidth).toBeLessThanOrEqual(heroChecks.clientWidth)
       if (viewport.width === 390) {
+        const effectiveClientWidth = Math.min(heroChecks.scrollWidth, heroChecks.clientWidth, heroChecks.layoutWidth)
+        expect(heroChecks.heroBoxSizing).toBe('border-box')
+        expect(heroChecks.heroLeft).toBeGreaterThanOrEqual(0)
+        expect(heroChecks.heroRight).toBeLessThanOrEqual(effectiveClientWidth)
+        expect(heroChecks.actionLeft).toBeGreaterThanOrEqual(heroChecks.heroLeft)
+        expect(heroChecks.actionRight).toBeLessThanOrEqual(heroChecks.heroRight)
+        if (pageContract.surface === 'framed') {
+          expect(heroChecks.heroPaddingLeft).toBe(24)
+          expect(heroChecks.heroPaddingRight).toBe(24)
+        }
         expect(heroChecks.headingLines).toBeLessThanOrEqual(pageContract.maximumHeadingLinesAt390)
       }
 
