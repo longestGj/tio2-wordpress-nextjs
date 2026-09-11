@@ -69,6 +69,7 @@ interface SignalSource {
 
 interface OwnedNextDevDependencies {
   readonly acquisitionHandoffTimeoutMs?: number
+  readonly cleanupOperationTimeoutMs?: number
   readonly repositoryRoot?: string
   readonly leaseRoot?: string
   readonly readSourceCommit?: (repositoryRoot: string) => Promise<string>
@@ -258,6 +259,7 @@ export function createOwnedNextDevLauncher(
   const startupTimeoutMs = dependencies.startupTimeoutMs ?? 90_000
   const pollIntervalMs = dependencies.pollIntervalMs ?? 250
   const acquisitionHandoffTimeoutMs = dependencies.acquisitionHandoffTimeoutMs ?? 5_000
+  const cleanupOperationTimeoutMs = dependencies.cleanupOperationTimeoutMs ?? 30_000
 
   return async function launchOwnedNextDev({
     environment,
@@ -317,8 +319,9 @@ export function createOwnedNextDevLauncher(
     let stopping: Promise<void> | undefined
     let runtimeReady = false
     let localStateReleased = false
-    let acquisitionHandoffUncertain = false
     const identities = new Map<number, ProcessIdentity>()
+    const pendingLeaseAttachments = new Map<string, Promise<PortLease>>()
+    const unresolvedAcquisitions = new Set<Promise<unknown>>()
     const controller = new AbortController()
     const cancellation = new Promise<never>((_resolve, reject) => {
       controller.signal.addEventListener(
@@ -347,6 +350,7 @@ export function createOwnedNextDevLauncher(
       try {
         const value = await Promise.race([operation, cancellation])
         registerOnce(value)
+        unresolvedAcquisitions.delete(operation)
         controller.signal.throwIfAborted()
         return value
       } catch (error) {
@@ -367,8 +371,11 @@ export function createOwnedNextDevLauncher(
         } catch (handoffError) {
           if (handoffError === timeoutError) {
             handoffTimedOut = true
-            acquisitionHandoffUncertain = true
-            void operation.then(disposeLate, () => {}).catch(() => {})
+            unresolvedAcquisitions.add(operation)
+            void operation.then(async (value) => {
+              await disposeLate(value)
+              unresolvedAcquisitions.delete(operation)
+            }, () => {}).catch(() => {})
           } else {
             throw new AggregateError(
               [error, handoffError],
@@ -381,10 +388,42 @@ export function createOwnedNextDevLauncher(
         if (handoffTimedOut) {
           throw new AggregateError(
             [error, timeoutError],
-            `${label} cancellation handoff is uncertain; ownership evidence retained`,
+            `${label} cancellation handoff is uncertain after ${error instanceof Error ? error.message : String(error)}; ownership evidence retained`,
           )
         }
         throw error
+      }
+    }
+
+    const acquireCleanupResource = async <T>(
+      label: string,
+      operation: Promise<T>,
+      register: (value: T) => void,
+      disposeLate: (value: T) => Promise<void>,
+    ): Promise<T> => {
+      const timeoutError = new Error(`${label} cleanup handoff timed out`)
+      let timeout: ReturnType<typeof setTimeout> | undefined
+      try {
+        const value = await Promise.race([
+          operation,
+          new Promise<never>((_resolve, reject) => {
+            timeout = setTimeout(() => reject(timeoutError), acquisitionHandoffTimeoutMs)
+          }),
+        ])
+        register(value)
+        unresolvedAcquisitions.delete(operation)
+        return value
+      } catch (error) {
+        if (error === timeoutError) {
+          unresolvedAcquisitions.add(operation)
+          void operation.then(async (value) => {
+            await disposeLate(value)
+            unresolvedAcquisitions.delete(operation)
+          }, () => {}).catch(() => {})
+        }
+        throw error
+      } finally {
+        if (timeout) clearTimeout(timeout)
       }
     }
 
@@ -395,8 +434,29 @@ export function createOwnedNextDevLauncher(
       return result
     }
 
+    const awaitCleanupOutcome = async <T>(
+      label: string,
+      operation: Promise<T>,
+    ): Promise<T> => {
+      let timeout: ReturnType<typeof setTimeout> | undefined
+      try {
+        return await Promise.race([
+          operation,
+          new Promise<never>((_resolve, reject) => {
+            timeout = setTimeout(
+              () => reject(new Error(`${label} timed out; lease retained`)),
+              cleanupOperationTimeoutMs,
+            )
+          }),
+        ])
+      } finally {
+        if (timeout) clearTimeout(timeout)
+      }
+    }
+
     const rememberIdentities = async (
       observed: ProcessIdentity[],
+      phase: 'cleanup' | 'startup',
     ): Promise<ProcessIdentity[]> => {
       for (const identity of observed) {
         if (
@@ -410,13 +470,27 @@ export function createOwnedNextDevLauncher(
         identities.set(identity.pid, identity)
         if (lease && !lease.processIds.includes(identity.pid)) {
           const leaseId = lease.leaseId
-          await acquireOwnedResource<PortLease>(
-            'Runtime lease attachment',
-            attachLease({
+          const attachmentKey = `${identity.pid}:${identity.startTime}:${identity.token}`
+          const existingAttachment = pendingLeaseAttachments.get(attachmentKey)
+          const attachment = existingAttachment ?? attachLease({
               leaseRoot,
               leaseId,
               processId: identity.pid,
-            }),
+            })
+          if (!existingAttachment) {
+            pendingLeaseAttachments.set(attachmentKey, attachment)
+            void attachment.finally(() => {
+              if (pendingLeaseAttachments.get(attachmentKey) === attachment) {
+                pendingLeaseAttachments.delete(attachmentKey)
+              }
+            }).catch(() => {})
+          }
+          const acquireAttachment = phase === 'cleanup'
+            ? acquireCleanupResource
+            : acquireOwnedResource
+          await acquireAttachment<PortLease>(
+            'Runtime lease attachment',
+            attachment,
             (attachedLease) => { lease = attachedLease },
             async (attachedLease) => { lease = attachedLease },
           )
@@ -431,8 +505,11 @@ export function createOwnedNextDevLauncher(
       if (!supervisor || !ownerToken) return []
       const observed = cancellable
         ? await checked(supervisor.snapshot(ownerToken))
-        : await supervisor.snapshot(ownerToken)
-      return rememberIdentities(observed)
+        : await awaitCleanupOutcome(
+          'Owned cleanup snapshot',
+          supervisor.snapshot(ownerToken),
+        )
+      return rememberIdentities(observed, cancellable ? 'startup' : 'cleanup')
     }
 
     const cleanup = async (): Promise<void> => {
@@ -441,16 +518,13 @@ export function createOwnedNextDevLauncher(
       let listenerClosed = true
       let artifactsRestored = true
 
-      if (acquisitionHandoffUncertain) {
-        failures.push(new Error(
-          'Resource acquisition cancellation handoff is uncertain; lease and locks retained',
-        ))
-      }
-
       if (nextServer) {
         if (attachedToSupervisor && supervisor && ownerToken) {
           try {
-            await supervisor.stop(ownerToken, await snapshot())
+            await awaitCleanupOutcome(
+              'Owned cleanup stop',
+              supervisor.stop(ownerToken, await snapshot()),
+            )
             if ((await snapshot()).length > 0) {
               throw new Error('Owned Next descendants remain; lease retained')
             }
@@ -516,6 +590,12 @@ export function createOwnedNextDevLauncher(
         } catch (error) {
           failures.push(error)
         }
+      }
+
+      if (unresolvedAcquisitions.size > 0) {
+        failures.push(new Error(
+          'Resource acquisition cancellation handoff is uncertain; lease and locks retained',
+        ))
       }
 
       if (
@@ -600,11 +680,29 @@ export function createOwnedNextDevLauncher(
         }),
         (reservedLease) => { lease = reservedLease },
         async (reservedLease) => {
-          await releaseLease({
-            leaseRoot,
-            leaseId: reservedLease.leaseId,
-            expectedProcessIds: reservedLease.processIds,
-          })
+          if (reservedLease.ports.length !== 1) {
+            throw new Error('Late runtime lease did not retain exactly one port')
+          }
+          let inspector: ProcessSupervisor | undefined
+          try {
+            inspector = await acquireCleanupResource<ProcessSupervisor>(
+              'Late runtime lease listener inspector',
+              supervisorFactory(),
+              () => {},
+              async (lateInspector) => lateInspector.close(),
+            )
+            const listenerOwners = await inspector.listenerOwners(reservedLease.ports[0])
+            if (listenerOwners.length > 0) {
+              throw new Error('Late runtime lease port still has a listener; lease retained')
+            }
+            await releaseLease({
+              leaseRoot,
+              leaseId: reservedLease.leaseId,
+              expectedProcessIds: reservedLease.processIds,
+            })
+          } finally {
+            await inspector?.close()
+          }
         },
       )
       if (lease!.ports.length !== 1 || lease!.ports[0] !== port) {
@@ -709,7 +807,7 @@ export function createOwnedNextDevLauncher(
         process.execPath,
       ))
       attachedToSupervisor = true
-      await rememberIdentities([initialIdentity])
+      await rememberIdentities([initialIdentity], 'startup')
       controller.signal.throwIfAborted()
       gateReleased = true
       nextServer.send?.({owner: ownerToken, action: 'run'})

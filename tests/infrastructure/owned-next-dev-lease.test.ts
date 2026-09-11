@@ -57,8 +57,13 @@ class FakeChild extends EventEmitter {
 interface HarnessOptions {
   readonly acquisitionHandoffTimeoutMs?: number
   readonly closeFailure?: Error
+  readonly cleanupAttachFailure?: Error
+  readonly cleanupDescendantAfterSignal?: boolean
+  readonly cleanupOperationTimeoutMs?: number
   readonly foreignListener?: boolean
-  readonly pauseAcquisition?: 'attach' | 'lease' | 'supervisor'
+  readonly lateListenerFailure?: Error
+  readonly lateListenerOwners?: number[]
+  readonly pauseAcquisition?: 'attach' | 'cleanup-snapshot' | 'cleanup-stop' | 'lease' | 'supervisor'
   readonly noListener?: boolean
   readonly onIdentityFetch?: (signals: EventEmitter) => void
   readonly spawnFailure?: Error
@@ -75,9 +80,11 @@ function createHarness(options: HarnessOptions = {}) {
   const signals = new EventEmitter()
   const child = new FakeChild()
   const foreignProcessId = 97531
+  const descendantProcessId = processId + 1
   let now = 0
   let alive = true
   let spawned = false
+  let signalSeen = false
   let lease = {
     leaseId,
     ports: [port],
@@ -86,6 +93,8 @@ function createHarness(options: HarnessOptions = {}) {
   let attachedIdentity = false
   let attachAttempts = 0
   let supervisorCloseCount = 0
+  let supervisorCreationCount = 0
+  let descendantVisible = false
   let resolveAcquisitionStarted!: () => void
   let resumeAcquisition!: () => void
   let resolveAcquisitionCompleted!: () => void
@@ -113,11 +122,23 @@ function createHarness(options: HarnessOptions = {}) {
     executable: process.execPath,
     token: 'b'.repeat(64),
   }
+  const descendantIdentity = {
+    ...identity,
+    pid: descendantProcessId,
+    parentPid: processId,
+    startTime: '638931456000000001',
+    command: 'node owned Next descendant',
+  }
   const attachCalls: unknown[][] = []
   const releaseCalls: Array<Record<string, unknown>> = []
+  const stopCalls: Array<Array<typeof identity>> = []
+  if (options.cleanupDescendantAfterSignal) {
+    signals.on('SIGINT', () => { descendantVisible = true })
+  }
 
   const startOwnedNextDev = launcherFactory()({
     acquisitionHandoffTimeoutMs: options.acquisitionHandoffTimeoutMs,
+    cleanupOperationTimeoutMs: options.cleanupOperationTimeoutMs,
     repositoryRoot: root,
     leaseRoot: join(root, '.runtime', 'port-leases'),
     readSourceCommit: async () => commit,
@@ -142,9 +163,20 @@ function createHarness(options: HarnessOptions = {}) {
         throw new Error('duplicate lease attachment during cancellation cleanup')
       }
       expect(attachedIdentity).toBe(true)
-      expect(request).toMatchObject({leaseId, processId})
+      const requestedProcessId = Number(request.processId)
+      expect([processId, descendantProcessId]).toContain(requestedProcessId)
+      expect(request).toMatchObject({leaseId, processId: requestedProcessId})
+      if (
+        requestedProcessId === descendantProcessId &&
+        options.cleanupAttachFailure
+      ) {
+        throw options.cleanupAttachFailure
+      }
       await pauseAcquisition('attach')
-      lease = {...lease, processIds: [processId]}
+      lease = {
+        ...lease,
+        processIds: [...new Set([...lease.processIds, requestedProcessId])],
+      }
       return lease
     },
     releaseLease: async (request: Record<string, unknown>) => {
@@ -154,6 +186,8 @@ function createHarness(options: HarnessOptions = {}) {
     },
     createProcessSupervisor: async () => {
       await pauseAcquisition('supervisor')
+      supervisorCreationCount += 1
+      const supervisorNumber = supervisorCreationCount
       return ({
       async attach(...args: unknown[]) {
         attachCalls.push(args)
@@ -161,16 +195,26 @@ function createHarness(options: HarnessOptions = {}) {
         return identity
       },
       async snapshot() {
-        return alive ? [identity] : []
+        if (signalSeen) await pauseAcquisition('cleanup-snapshot')
+        if (!alive) return []
+        return descendantVisible ? [identity, descendantIdentity] : [identity]
       },
-      async stop() {
+      async stop(_token: string, stoppedIdentities: Array<typeof identity>) {
+        if (signalSeen) await pauseAcquisition('cleanup-stop')
         events.push('stop-owned-process')
+        stopCalls.push(stoppedIdentities)
         if (options.stopFailure) throw options.stopFailure
         alive = false
         child.exitCode = 0
         child.emit('exit', 0, null)
       },
       async listenerOwners() {
+        if (supervisorNumber > 1 && options.lateListenerFailure) {
+          throw options.lateListenerFailure
+        }
+        if (supervisorNumber > 1 && options.lateListenerOwners) {
+          return options.lateListenerOwners
+        }
         if (foreignAlive) return [foreignProcessId]
         if (spawned && alive && !options.noListener) return [processId]
         if (!alive) events.push('listener-closed')
@@ -200,6 +244,7 @@ function createHarness(options: HarnessOptions = {}) {
     fetchIdentity: async (input: string | URL | Request) => {
       events.push('ready-identity')
       expect(new URL(String(input)).pathname).toBe('/robots.txt')
+      if (options.onIdentityFetch) signalSeen = true
       options.onIdentityFetch?.(signals)
       return new Response([
         'User-Agent: *',
@@ -223,14 +268,18 @@ function createHarness(options: HarnessOptions = {}) {
     acquisitionStarted,
     attachCalls,
     child,
+    get currentLease() { return lease },
     events,
     foreignProcessId,
+    descendantProcessId,
     get foreignAlive() { return foreignAlive },
     releaseCalls,
     resumeAcquisition,
     root,
     signals,
+    stopCalls,
     get supervisorCloseCount() { return supervisorCloseCount },
+    get supervisorCreationCount() { return supervisorCreationCount },
     start: () => startOwnedNextDev({
       environment: {SITE_ID: 'tio2-a'},
       runtimeId: 'editorial',
@@ -353,6 +402,71 @@ describe('owned Next.js lease lifecycle', () => {
     expect(harness.signals.listenerCount('SIGINT')).toBe(0)
   })
 
+  it('attaches a descendant discovered after SIGINT before cleanup stops the verified tree', async () => {
+    const harness = createHarness({
+      cleanupDescendantAfterSignal: true,
+      onIdentityFetch: signals => signals.emit('SIGINT'),
+    })
+
+    await expect(harness.start()).rejects.toThrow('Owned Next dev interrupted: SIGINT')
+
+    expect(harness.stopCalls).toHaveLength(1)
+    expect(harness.stopCalls[0]?.map(identity => identity.pid)).toEqual([
+      processId,
+      harness.descendantProcessId,
+    ])
+    expect(harness.releaseCalls[0]).toMatchObject({
+      leaseId,
+      expectedProcessIds: [processId, harness.descendantProcessId],
+    })
+  })
+
+  it('does not stop or release when cleanup cannot attach a newly discovered descendant', async () => {
+    const harness = createHarness({
+      cleanupAttachFailure: new Error('descendant lease attachment failed'),
+      cleanupDescendantAfterSignal: true,
+      onIdentityFetch: signals => signals.emit('SIGINT'),
+    })
+
+    await expect(harness.start()).rejects.toThrow('descendant lease attachment failed')
+
+    expect(harness.stopCalls).toHaveLength(0)
+    expect(harness.releaseCalls).toHaveLength(0)
+    expect(harness.child.exitCode).toBeNull()
+  })
+
+  it('bounds a cleanup snapshot after SIGINT and retains the lease', async () => {
+    const harness = createHarness({
+      acquisitionHandoffTimeoutMs: 20,
+      cleanupOperationTimeoutMs: 20,
+      onIdentityFetch: signals => signals.emit('SIGINT'),
+      pauseAcquisition: 'cleanup-snapshot',
+    })
+    const starting = harness.start()
+    await harness.acquisitionStarted
+    setTimeout(harness.resumeAcquisition, 40)
+
+    await expect(starting).rejects.toThrow('cleanup snapshot timed out')
+    await harness.acquisitionCompleted
+    expect(harness.releaseCalls).toHaveLength(0)
+  })
+
+  it('bounds cleanup stop after SIGINT and retains the lease', async () => {
+    const harness = createHarness({
+      acquisitionHandoffTimeoutMs: 20,
+      cleanupOperationTimeoutMs: 20,
+      onIdentityFetch: signals => signals.emit('SIGINT'),
+      pauseAcquisition: 'cleanup-stop',
+    })
+    const starting = harness.start()
+    await harness.acquisitionStarted
+    setTimeout(harness.resumeAcquisition, 40)
+
+    await expect(starting).rejects.toThrow('cleanup stop timed out')
+    await harness.acquisitionCompleted
+    expect(harness.releaseCalls).toHaveLength(0)
+  })
+
   it('hands off a supervisor that resolves after SIGINT before cleanup completes', async () => {
     const harness = createHarness({pauseAcquisition: 'supervisor'})
     const starting = harness.start()
@@ -417,6 +531,106 @@ describe('owned Next.js lease lifecycle', () => {
     harness.resumeAcquisition()
     await harness.acquisitionCompleted
     await waitUntil(() => harness.supervisorCloseCount === 1, 'late supervisor cleanup')
+  })
+
+  it('reuses an in-flight attachment that settles during bounded cleanup reconciliation', async () => {
+    const harness = createHarness({
+      acquisitionHandoffTimeoutMs: 20,
+      pauseAcquisition: 'attach',
+    })
+    const starting = harness.start()
+    await harness.acquisitionStarted
+
+    harness.signals.emit('SIGINT')
+    setTimeout(harness.resumeAcquisition, 30)
+
+    await expect(starting).rejects.toThrow('Owned Next dev interrupted: SIGINT')
+    await harness.acquisitionCompleted
+    expect(harness.events.filter(event => event === 'attach-pid')).toHaveLength(1)
+    expect(harness.stopCalls).toHaveLength(1)
+    expect(harness.releaseCalls[0]).toMatchObject({
+      leaseId,
+      expectedProcessIds: [processId],
+    })
+  })
+
+  it('retains evidence without stopping when an attachment outlives both bounded windows', async () => {
+    const harness = createHarness({
+      acquisitionHandoffTimeoutMs: 20,
+      pauseAcquisition: 'attach',
+    })
+    const starting = harness.start()
+    await harness.acquisitionStarted
+
+    harness.signals.emit('SIGINT')
+
+    await expect(starting).rejects.toThrow('cleanup handoff timed out')
+    expect(harness.events.filter(event => event === 'attach-pid')).toHaveLength(1)
+    expect(harness.stopCalls).toHaveLength(0)
+    expect(harness.releaseCalls).toHaveLength(0)
+
+    harness.resumeAcquisition()
+    await harness.acquisitionCompleted
+    await waitUntil(
+      () => harness.currentLease.processIds.includes(processId),
+      'late attachment evidence',
+    )
+    expect(harness.releaseCalls).toHaveLength(0)
+  })
+
+  it('uses a fresh listener inspector before releasing a late reserved lease', async () => {
+    const harness = createHarness({
+      acquisitionHandoffTimeoutMs: 20,
+      pauseAcquisition: 'lease',
+    })
+    const starting = harness.start()
+    await harness.acquisitionStarted
+    harness.signals.emit('SIGINT')
+
+    await expect(starting).rejects.toThrow('cancellation handoff is uncertain')
+    harness.resumeAcquisition()
+    await harness.acquisitionCompleted
+    await waitUntil(() => harness.releaseCalls.length === 1, 'late lease release')
+
+    expect(harness.supervisorCreationCount).toBe(2)
+    expect(harness.supervisorCloseCount).toBe(2)
+    expect(harness.releaseCalls[0]).toMatchObject({leaseId, expectedProcessIds: []})
+  })
+
+  it('retains a late reserved lease when a fresh inspector finds a listener', async () => {
+    const harness = createHarness({
+      acquisitionHandoffTimeoutMs: 20,
+      lateListenerOwners: [97531],
+      pauseAcquisition: 'lease',
+    })
+    const starting = harness.start()
+    await harness.acquisitionStarted
+    harness.signals.emit('SIGINT')
+
+    await expect(starting).rejects.toThrow('cancellation handoff is uncertain')
+    harness.resumeAcquisition()
+    await harness.acquisitionCompleted
+    await waitUntil(() => harness.supervisorCloseCount === 2, 'late listener inspection')
+
+    expect(harness.releaseCalls).toHaveLength(0)
+  })
+
+  it('retains a late reserved lease when fresh listener inspection errors', async () => {
+    const harness = createHarness({
+      acquisitionHandoffTimeoutMs: 20,
+      lateListenerFailure: new Error('listener inspection unavailable'),
+      pauseAcquisition: 'lease',
+    })
+    const starting = harness.start()
+    await harness.acquisitionStarted
+    harness.signals.emit('SIGINT')
+
+    await expect(starting).rejects.toThrow('cancellation handoff is uncertain')
+    harness.resumeAcquisition()
+    await harness.acquisitionCompleted
+    await waitUntil(() => harness.supervisorCloseCount === 2, 'failed late inspection')
+
+    expect(harness.releaseCalls).toHaveLength(0)
   })
 
   it('retains the lease when Windows process-tree termination cannot be verified', async () => {
