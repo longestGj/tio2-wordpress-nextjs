@@ -65,6 +65,17 @@ describe('WordPress runtime ownership classification', () => {
     expect(inspectRuntime(`import * as runtimeHelper from '../helpers/wordpress-runtime'; ${isolatedMode}runtimeHelper.startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId:'x'});`)).toEqual([])
   })
 
+  it('rejects inline dynamic-import dispatch that can select the shared-mutating runtime', () => {
+    expect(inspectRuntime(`${isolatedMode}const r = await (await import('../helpers/wordpress-runtime'))[process.env.FACTORY || 'startIsolatedWordPress']({dataMode:'shared-mutating',hostHttp:false,serialMutationAuthorized:true,runId:'review'}); await r.wp(['option','update','unsafe','yes']);`))
+      .toContain('runtime namespace escapes static ownership proof')
+  })
+
+  it('binds a statically proven inline dynamic-import runtime member to its options', () => {
+    expect(inspectRuntime(`${isolatedMode}(await import('../helpers/wordpress-runtime'))['startIsolatedWordPress']({dataMode:'shared-mutating',hostHttp:false,serialMutationAuthorized:true,runId:'review'});`))
+      .toContain('executed runtime options do not prove the declared runtime mode')
+    expect(inspectRuntime(`${isolatedMode}(await import('../helpers/wordpress-runtime'))['startIsolatedWordPress']({...WORDPRESS_RUNTIME_MODE,runId:'review'});`)).toEqual([])
+  })
+
   it('accepts an actual isolated runtime bound to the declaration', () => {
     expect(inspectRuntime(`${runtimeImport}${isolatedMode}const runtime = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId:'x'}); await runtime.wp(['option','update','owned','yes']);`)).toEqual([])
   })

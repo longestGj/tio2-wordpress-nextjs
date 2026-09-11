@@ -228,6 +228,13 @@ export function inspectWordPressRuntime(source: string, readPreview = () => read
   const sharedSinks: ts.CallExpression[] = []
   let scoped = false
   for (const member of memberAccesses) {
+    const owner = unwrap(member.expression)
+    const imported = ts.isAwaitExpression(owner) ? unwrap(owner.expression) : null
+    if (imported && ts.isCallExpression(imported) && imported.expression.kind === ts.SyntaxKind.ImportKeyword
+      && ts.isStringLiteral(imported.arguments[0]) && runtimeModule(imported.arguments[0].text)) {
+      scoped = true
+      if (memberName(member) !== 'startIsolatedWordPress') errors.push('runtime namespace escapes static ownership proof')
+    }
     if (memberName(member) !== 'startIsolatedWordPress') continue
     scoped = true
     if (!ts.isCallExpression(member.parent) || member.parent.expression !== member) errors.push('runtime factory escapes static ownership proof')
