@@ -1,0 +1,39 @@
+{
+  "checked_at": "2026-09-11T10:43:36.417Z",
+  "runtime": "http://127.0.0.1:32000/",
+  "result": "PASS",
+  "routes": [
+    {
+      "path": "/",
+      "status": 204,
+      "http_only": true,
+      "same_site_strict": true,
+      "source_id_absent": true,
+      "opaque_cookie": true
+    },
+    {
+      "path": "/applications/",
+      "status": 204,
+      "http_only": true,
+      "same_site_strict": true,
+      "source_id_absent": true,
+      "opaque_cookie": true
+    },
+    {
+      "path": "/products/",
+      "status": 204,
+      "http_only": true,
+      "same_site_strict": true,
+      "source_id_absent": true,
+      "opaque_cookie": true
+    },
+    {
+      "path": "/about/",
+      "status": 204,
+      "http_only": true,
+      "same_site_strict": true,
+      "source_id_absent": true,
+      "opaque_cookie": true
+    }
+  ]
+}

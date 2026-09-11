@@ -1,0 +1,29 @@
+
+Running 21 tests using 1 worker
+
+
+
+(node:30600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › HOME-001 1440px root Hero contract
+[2/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › HOME-001 768px root Hero contract
+[3/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › HOME-001 390px root Hero contract
+[4/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › APP-000 1440px root Hero contract
+[5/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › APP-000 768px root Hero contract
+[6/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › APP-000 390px root Hero contract
+[7/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › PRODUCT-000 1440px root Hero contract
+[8/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › PRODUCT-000 768px root Hero contract
+[9/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › PRODUCT-000 390px root Hero contract
+[10/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › MARKET-000 1440px root Hero contract
+[11/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › MARKET-000 768px root Hero contract
+[12/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › MARKET-000 390px root Hero contract
+[13/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › DOC-000 1440px root Hero contract
+[14/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › DOC-000 768px root Hero contract
+[15/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › DOC-000 390px root Hero contract
+[16/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › RES-000 1440px root Hero contract
+[17/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › RES-000 768px root Hero contract
+[18/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › RES-000 390px root Hero contract
+[19/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › ABOUT-001 1440px root Hero contract
+[20/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › ABOUT-001 768px root Hero contract
+[21/21] [chromium] › tests\e2e\root-page-hero-seven.spec.ts:32:5 › ABOUT-001 390px root Hero contract
+  21 passed (18.0s)
