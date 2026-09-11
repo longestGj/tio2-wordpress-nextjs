@@ -24,18 +24,20 @@ export interface FixedEndpointReport {
 export interface DoctorLeaseEvidence {
   lease: {
     schemaVersion: 1
-    leaseId: string
-    runId: string
-    purpose: 'feature-next' | 'test-next' | 'test-wordpress' | 'fixture'
-    siteId: string | null
-    worktree: string
-    commit: string
     host: '127.0.0.1'
     ports: number[]
-    processIds: number[]
-    composeProject: string | null
-    createdAt: string
-    retainUntil: string | null
+    // Doctor checks the array, but retains invalid PID entries as incomplete evidence.
+    processIds: unknown[]
+    // Raw metadata is not validated by Doctor; even the filename check coerces leaseId.
+    leaseId?: unknown
+    runId?: unknown
+    purpose?: unknown
+    siteId?: unknown
+    worktree?: unknown
+    commit?: unknown
+    composeProject?: unknown
+    createdAt?: unknown
+    retainUntil?: unknown
   }
   stale: boolean
   evidenceIncomplete: boolean

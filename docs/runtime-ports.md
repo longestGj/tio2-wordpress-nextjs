@@ -119,10 +119,11 @@ CLI也提供`node scripts/runtime-ports/cli.mjs reserve|attach|release|status|do
 
 ```powershell
 npm run test:e2e:owned -- --site tio2-my --spec tests/e2e/product-hub.spec.ts --env WORDPRESS_GRAPHQL_URL=http://127.0.0.1:8080/graphql
-npm run test:e2e:owned -- --site tio2-my --spec tests/e2e/document-reach.spec.ts --fixture DOC_REACH_FIXTURE_URL=tests/e2e/support/document-reach-cms.mjs --env WORDPRESS_GRAPHQL_URL=http://127.0.0.1:8080/graphql
 ```
 
 该npm入口调用[owned E2E启动器](../scripts/run-owned-e2e.mjs)，可重复传`--spec`、`--fixture`和合同允许的`--env`。fixture使用端口`0`并输出JSON，由启动器把实际URL传给声明的变量。Next的`WORDPRESS_GRAPHQL_URL`是独立合同：普通`*_FIXTURE_URL`不会隐式成为Next的CMS；若要让fixture承担Next GraphQL，须显式声明相应`WORDPRESS_GRAPHQL_URL`来源。
+
+DOC-REACH状态测试需要`DOC_REACH_FIXTURE_URL`与Next的`WORDPRESS_GRAPHQL_URL`指向同一个fixture进程：前者使用其origin，后者使用同源`/graphql`；同时须满足签名revalidation等规格合同。当前每个`--fixture`声明都启动独立进程，即使重复传同一个脚本也不共享状态；启动器没有单实例的多变量URL别名映射。因此本手册不提供DOC-REACH的单命令示例，应先由支持共享fixture映射的owned工作流供给并验证两个实际URL，不能把状态控制fixture与8080 CMS或另一fixture实例拼接使用。
 
 启动器生成`TIO2_MY_BASE_URL`等前端URL、检查网站标记和监听进程身份。规格通过`requiredLocalUrl`拒绝缺失、远程、带凭据、查询参数、片段或错误路径的URL；配置缺失会失败，不回退历史端口，也不因此跳过测试。传入8080相关CMS URL时，启动器在创建fixture、Next或Playwright进程前检查Doctor，只有`expected-owner`才继续。密钥从当前任务已有忽略配置安全加载，不放入命令行、文档或回执。
 

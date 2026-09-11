@@ -43,6 +43,37 @@ describe('runtime port CLI', () => {
     expect([...new Set(commands)].filter(command => !scripts[command])).toEqual([])
   })
 
+  test('documented stateful CMS examples connect browser controls to the same fixture as Next', () => {
+    const runbook = readFileSync(resolve(repositoryRoot, 'docs/runtime-ports.md'), 'utf8')
+    const examples = [...runbook.matchAll(/^npm run test:e2e:owned -- (.+)$/gmu)]
+    expect(examples.length).toBeGreaterThan(0)
+    const statefulCmsConsumers = new Map([
+      ['tests/e2e/document-reach.spec.ts', 'DOC_REACH_FIXTURE_URL'],
+      ['tests/e2e/document-reach-dependencies.spec.ts', 'DOC_REACH_FIXTURE_URL'],
+    ])
+    for (const [, example] of examples) {
+      const args = example.split(/\s+/u)
+      const bindings = new Map<string, string>()
+      const specs: string[] = []
+      for (let index = 0; index < args.length; index += 2) {
+        const [flag, value] = args.slice(index, index + 2)
+        if (flag === '--spec') specs.push(value)
+        if (flag !== '--env' && flag !== '--fixture') continue
+        const separator = value.indexOf('=')
+        const name = value.slice(0, separator)
+        // Every --fixture entry starts a distinct process, even for the same script.
+        if (flag === '--fixture') bindings.set(name, `owned-fixture-${index}`)
+        else if (name.endsWith('_URL')) bindings.set(name, new URL(value.slice(separator + 1)).origin)
+      }
+      for (const spec of specs) {
+        const consumer = statefulCmsConsumers.get(spec)
+        if (!consumer) continue
+        expect(bindings.has(consumer), `${spec} needs its state-control fixture`).toBe(true)
+        expect(bindings.get(consumer), `${spec} state updates must reach Next's CMS`).toBe(bindings.get('WORDPRESS_GRAPHQL_URL'))
+      }
+    }
+  })
+
   test('the packaged runtime:doctor reads lease evidence without changing or releasing it', () => {
     const root = createLeaseRoot()
     const initialized = spawnSync('git', ['init', '--quiet', root], {encoding: 'utf8'})

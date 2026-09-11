@@ -1,9 +1,10 @@
 import {randomUUID} from 'node:crypto'
 import {spawnSync} from 'node:child_process'
-import {existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
+import {existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join, resolve} from 'node:path'
 import {afterEach, describe, expect, it} from 'vitest'
+import ts from 'typescript'
 
 const directories: string[] = []
 const repositoryRoot = resolve('.')
@@ -19,7 +20,66 @@ async function doctor(options: Record<string, unknown>) {
 }
 afterEach(() => directories.splice(0).forEach(directory => rmSync(directory, {recursive: true, force: true})))
 
+function strictDoctorDiagnostics(source: string) {
+  const inputPath = resolve('tests/infrastructure/doctor-type-contract.mts')
+  const options: ts.CompilerOptions = {
+    strict: true, noEmit: true, types: [], target: ts.ScriptTarget.ES2022,
+    module: ts.ModuleKind.NodeNext, moduleResolution: ts.ModuleResolutionKind.NodeNext,
+  }
+  const host = ts.createCompilerHost(options)
+  const readSource = host.getSourceFile
+  host.getSourceFile = (name, languageVersion, onError, createNewSourceFile) => resolve(name) === inputPath
+    ? ts.createSourceFile(name, source, languageVersion, true)
+    : readSource(name, languageVersion, onError, createNewSourceFile)
+  const program = ts.createProgram([inputPath], options, host)
+  return ts.getPreEmitDiagnostics(program).map(diagnostic => ({
+    code: diagnostic.code,
+    message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
+  }))
+}
+
 describe('read-only runtime Doctor', () => {
+  it.each([
+    {name: 'absent metadata', metadata: {}, processIds: [], stale: true, evidenceIncomplete: false},
+    {name: 'unvalidated metadata and PID values', metadata: {leaseId: 17, runId: 42, purpose: false}, processIds: ['not-a-pid'], stale: false, evidenceIncomplete: true},
+  ])('preserves raw lease evidence with $name instead of promising a validated allocator record', async ({metadata, processIds, stale, evidenceIncomplete}) => {
+    const leaseRoot = temporaryDirectory()
+    const lease = {schemaVersion: 1, host: '127.0.0.1', ports: [32998], ...metadata, processIds}
+    const leasePath = join(leaseRoot, `${metadata.leaseId}.json`)
+    const content = JSON.stringify(lease)
+    writeFileSync(leasePath, content)
+    const report = await doctor({leaseRoot, probePort: async () => false, dockerInspect: async () => []})
+    expect(report.leaseError).toBeNull()
+    expect(report.leases).toEqual([{lease, stale, evidenceIncomplete}])
+    expect(report.actionsTaken).toEqual([])
+    expect(readFileSync(leasePath, 'utf8')).toBe(content)
+    expect(readdirSync(leaseRoot)).toEqual([`${metadata.leaseId}.json`])
+  })
+
+  it('allows strict consumers to represent raw partial evidence and narrow unknown metadata', () => {
+    expect(strictDoctorDiagnostics(`
+import {doctorRuntime, type DoctorLeaseEvidence} from '../../scripts/runtime-ports/doctor.mjs';
+const partial: DoctorLeaseEvidence['lease'] = {schemaVersion: 1, host: '127.0.0.1', ports: [32998], processIds: []};
+const raw: DoctorLeaseEvidence['lease'] = {...partial, leaseId: 17, runId: 42, purpose: false, siteId: [], worktree: null, commit: 7, processIds: ['not-a-pid'], composeProject: false, createdAt: [], retainUntil: false};
+declare const report: Awaited<ReturnType<typeof doctorRuntime>>;
+const evidence = report.leases[0].lease;
+if (typeof evidence.runId === 'string') { const runId: string = evidence.runId; runId.toUpperCase(); }
+void raw;
+`)).toEqual([])
+  })
+
+  it('rejects strict consumers that treat unchecked runId, leaseId or PID values as guaranteed primitives', () => {
+    const diagnostics = strictDoctorDiagnostics(`
+import {doctorRuntime} from '../../scripts/runtime-ports/doctor.mjs';
+declare const report: Awaited<ReturnType<typeof doctorRuntime>>;
+const runId: string = report.leases[0].lease.runId;
+const leaseId: string = report.leases[0].lease.leaseId;
+const pid: number = report.leases[0].lease.processIds[0];
+void [runId, leaseId, pid];
+`)
+    expect(diagnostics.map(diagnostic => diagnostic.code), JSON.stringify(diagnostics)).toEqual([2322, 2322, 2322])
+  })
+
   it('reports all six fixed endpoints and recognizes canonical development CMS ownership', async () => {
     const report = await doctor({probePort: async (port: number) => port === 8080, dockerInspect: async () => [canonical]})
     expect(report.fixedEndpoints.map((item: {port: number}) => item.port)).toEqual([3001, 3002, 3003, 8080, 3100, 8180])
