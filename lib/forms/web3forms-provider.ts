@@ -46,8 +46,10 @@ export function classifyWeb3FormsResponse(status: number, body: unknown): Web3Fo
   if (status === 429) return 'rate_limited'
   if (status === 200) {
     const success = record(body)?.success
-    if (success === true) return 'accepted'
     if (success === false) return 'rejected'
+    // Web3Forms defines HTTP 200 itself as the success contract. Its response
+    // body is useful when present, but gateways may omit or alter that body.
+    return 'accepted'
   }
   return 'unexpected'
 }

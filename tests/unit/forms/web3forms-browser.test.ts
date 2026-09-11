@@ -48,7 +48,7 @@ afterEach(() => {
 })
 
 describe('browser-direct Web3Forms transport', () => {
-  it('accepts only a status-200 JSON success:true response and posts the access key', async () => {
+  it('accepts a status-200 response with explicit JSON success:true and posts the access key', async () => {
     let posted: unknown
     const fetcher: typeof fetch = vi.fn(async (_url, init) => {
       posted = JSON.parse(String(init?.body))
@@ -68,8 +68,20 @@ describe('browser-direct Web3Forms transport', () => {
   })
 
   it.each([
+    ['empty response', response('', 200, 'text/plain')],
+    ['plain-text response', response('OK', 200, 'text/plain')],
+    ['JSON without a success flag', response('{"message":"Email sent successfully!"}', 200)],
+  ])('accepts Web3Forms HTTP 200 success even when the optional response body is %s', async (_name, providerResponse) => {
+    const result = await submitWeb3FormsBrowser(input, {fetcher: async () => providerResponse})
+
+    expect(result).toMatchObject({
+      kind: 'provider_accepted',
+      diagnostic: {httpStatus: 200, outcome: 'provider_accepted', providerCategory: 'accepted'},
+    })
+  })
+
+  it.each([
     ['200 JSON success:false', response('{"success":false}', 200), 'provider_rejected', 'rejected'],
-    ['200 non-JSON', response('OK', 200, 'text/plain'), 'submission_unconfirmed', 'unexpected'],
     ['400', response('{"success":false}', 400), 'provider_rejected', 'unknown_invalid_request'],
     ['422', response('{"success":false}', 422), 'provider_rejected', 'unknown_invalid_request'],
     ['429', response('{"success":false}', 429), 'provider_rejected', 'rate_limited'],
