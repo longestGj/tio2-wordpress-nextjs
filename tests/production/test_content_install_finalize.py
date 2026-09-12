@@ -79,7 +79,7 @@ class FinalizationTests(unittest.TestCase):
         backend.subject=SimpleNamespace(subject_id='tio2-my');backend.configuration=self.root
         backend._runtime=lambda *args:runtime
         with patch('content_hooks.ContentHooks',return_value=hooks):
-            backend.recover('owner',{'hooks':{},'runtime':{'dbContainer':'db'}})
+            backend.recover('owner',{'hooks':{'publicOrigin':'http://127.0.0.1'},'runtime':{'dbContainer':'db'}})
         self.assertFalse(marker.exists());self.assertTrue(json.loads(state_path.read_text())['closed'])
 
     def test_actual_recovery_checks_foreign_marker_before_fence_mutation(self):
