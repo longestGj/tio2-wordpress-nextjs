@@ -988,9 +988,42 @@ function Invoke-D16FrontendRecovery($Config,$RunRoot,$Backup) {
     [IO.File]::WriteAllText((Join-Path $RunRoot 'frontend-recovery.log'),($output -join "`n"))
     if($LASTEXITCODE -ne 0){throw 'Frontend decryption/restore verification failed.'}
     $restore=($output -join "`n")|ConvertFrom-Json -AsHashtable
+    if($restore.schemaVersion -cne 'd16-frontend-restore-v1' -or $restore.binding -isnot [Collections.IDictionary] -or $restore.binding.Count -ne $Backup.binding.Count){throw 'Frontend restore binding is incomplete.'}
+    foreach($name in $Backup.binding.Keys){if($restore.binding[$name] -cne $Backup.binding[$name]){throw 'Frontend restore binding mismatch.'}}
     foreach($name in @('backupId','ciphertextSha256','manifestSha256')){if($restore[$name] -cne $Backup[$name]){throw 'Frontend restore identity mismatch.'}}
+    if($restore.buildId -cne $Backup.active.buildId -or $restore.imageId -cne $Backup.active.imageId -or
+       $restore.health.buildId -cne $Backup.active.buildId -or $restore.health.status -cne 200 -or $restore.health.bytes -le 0 -or
+       ((ConvertTo-D16CanonicalObject $restore.cmsExcluded)|ConvertTo-Json -Compress) -cne ((ConvertTo-D16CanonicalObject $Backup.cmsExcluded)|ConvertTo-Json -Compress)){throw 'Frontend restored image, health or CMS scope mismatch.'}
     foreach($name in @('verified','fullArchiveRead','isolated','cleanupVerified')){if($restore[$name] -isnot [bool] -or -not $restore[$name]){throw 'Frontend restore is incomplete.'}}
     Save-ProductionJson (Join-Path $RunRoot 'frontend-restore.json') $restore
+}
+
+function Assert-D16BackupReceipt($Binding,$Backup) {
+    if($Backup -isnot [Collections.IDictionary] -or $Backup.Count -ne 7 -or $Backup.schemaVersion -cne 'd16-frontend-backup-receipt-v1' -or
+       $Backup.binding -isnot [Collections.IDictionary] -or $Backup.binding.Count -ne $Binding.Count){throw 'Server frontend backup receipt is incomplete.'}
+    foreach($name in $Binding.Keys){if(-not $Binding[$name] -or $Backup.binding[$name] -cne $Binding[$name]){throw "Server backup binding mismatch: $name"}}
+    if($Backup.backupId -cnotmatch ('^[0-9]{8}T[0-9]{6}Z-'+[regex]::Escape($Binding.sourceCommit)+'-[a-f0-9]{32}$')){throw 'Server backup ID does not match the candidate.'}
+    foreach($name in @('ciphertextSha256','manifestSha256')){if($Backup[$name] -isnot [string] -or $Backup[$name] -cnotmatch '^[a-f0-9]{64}$'){throw 'Server backup hash is incomplete.'}}
+    if($Backup.active -isnot [Collections.IDictionary] -or $Backup.active.Count -ne 5){throw 'Server backup active identity is incomplete.'}
+    foreach($name in @('commit','sourceRoot','imageId','buildId','containerId')){if($Backup.active[$name] -isnot [string] -or -not $Backup.active[$name]){throw 'Server backup active identity is incomplete.'}}
+    if($Backup.active.commit -cnotmatch '^[a-f0-9]{40}$' -or $Backup.active.imageId -cnotmatch '^sha256:[a-f0-9]{64}$' -or $Backup.active.containerId -cnotmatch '^[a-f0-9]{64}$'){throw 'Server backup active identity is invalid.'}
+    if($Backup.cmsExcluded -isnot [Collections.IDictionary] -or $Backup.cmsExcluded.Count -ne 3){throw 'Server backup CMS scope is incomplete.'}
+    foreach($name in @('database','wordpress','cms')){if($Backup.cmsExcluded[$name] -isnot [bool] -or -not $Backup.cmsExcluded[$name]){throw 'Server backup includes CMS.'}}
+}
+
+function Receive-D16FrontendBackup($Config,$RunRoot,$Backup) {
+    $ciphertext=Join-Path $RunRoot 'ciphertext.age';$part=Join-Path $RunRoot 'ciphertext.age.part'
+    if((Test-Path -LiteralPath $ciphertext) -and (Get-ProductionSha256 $ciphertext) -cne $Backup.ciphertextSha256){throw 'Local backup ciphertext changed.'}
+    try{
+        Invoke-D16ProductionTransport $Config $RunRoot download $Backup.backupId
+        if((Get-ProductionSha256 $part) -cne $Backup.ciphertextSha256){throw 'Downloaded frontend backup hash mismatch.'}
+        [IO.File]::Move($part,$ciphertext,$true)
+        Invoke-D16FrontendRecovery $Config $RunRoot $Backup
+        Invoke-D16ProductionTransport $Config $RunRoot upload 'frontend-restore.json'
+        # status.json (or backup.json) retains the server receipt. Publish the
+        # local acceptance only after recovery so failed transfers remain retryable.
+        Save-ProductionJson (Join-Path $RunRoot 'frontend-backup.json') $Backup
+    }finally{if(Test-Path -LiteralPath $part){Remove-Item -LiteralPath $part}}
 }
 
 function Assert-D16CompletionEvidence($RunRoot,$Binding,$Backup) {
@@ -1067,6 +1100,14 @@ function Invoke-D16ProductionOperation {
         if($status.state.details['requestId']){Assert-D16ActionReceipt status $status $binding}
         $action=$Operation.ToLowerInvariant()
         $savedBackup=$status.state.details['frontendBackup']
+        if($action -ceq 'backup' -and $status.state.state -ceq 'BACKED_UP' -and -not(Test-Path -LiteralPath (Join-Path $RunRoot 'frontend-backup.json'))){
+            Assert-D16ActionReceipt status $status $binding
+            Assert-D16BackupReceipt $binding $savedBackup
+            Receive-D16FrontendBackup $config $RunRoot $savedBackup
+            # Keep the observed status response; no second backup was dispatched.
+            Save-ProductionJson (Join-Path $RunRoot 'backup.json') $status
+            return $status
+        }
         $localBackup=$null
         if($savedBackup -or (Test-Path -LiteralPath (Join-Path $RunRoot 'frontend-backup.json')) -or $action -cin @('stage','activate','verify','rollback')){
             $localBackup=Assert-D16LocalBackup $RunRoot $binding $savedBackup
@@ -1089,16 +1130,11 @@ function Invoke-D16ProductionOperation {
         }
         if($action -ceq 'backup'){
             $backup=$result.state.details.frontendBackup
-            foreach($name in $binding.Keys){if($backup.binding[$name] -cne $binding[$name]){throw 'Backup binding mismatch.'}}
+            Assert-D16BackupReceipt $binding $backup
             $path=Join-Path $RunRoot 'frontend-backup.json'
             if(Test-Path -LiteralPath $path){$old=Read-ProductionJson $path;foreach($name in @('backupId','ciphertextSha256','manifestSha256')){if($old[$name] -cne $backup[$name]){throw 'Backup replay changed.'}}}
-            Save-ProductionJson $path $backup
-            Invoke-D16ProductionTransport $config $RunRoot download $backup.backupId
-            $part=Join-Path $RunRoot 'ciphertext.age.part'
-            if((Get-ProductionSha256 $part) -cne $backup.ciphertextSha256){throw 'Downloaded frontend backup hash mismatch.'}
-            [IO.File]::Move($part,(Join-Path $RunRoot 'ciphertext.age'),$true)
-            Invoke-D16FrontendRecovery $config $RunRoot $backup
-            Invoke-D16ProductionTransport $config $RunRoot upload 'frontend-restore.json'
+            Save-ProductionJson (Join-Path $RunRoot 'backup.json') $result
+            Receive-D16FrontendBackup $config $RunRoot $backup
         }elseif($action -cin @('stage','activate','verify','rollback')){
             $backup=Read-ProductionJson (Join-Path $RunRoot 'frontend-backup.json')
             foreach($name in @('backupId','ciphertextSha256','manifestSha256')){if($result.state.details.frontendBackup[$name] -cne $backup[$name]){throw 'Action backup identity mismatch.'}}
