@@ -53,10 +53,15 @@ try {
         $records[(string)$p['ID']] = ['fields'=>$fields, 'parent'=>$parent, 'meta'=>[], 'terms'=>[]];
     }
     $metadata = d16_rows("SELECT pm.post_id,pm.meta_key,pm.meta_value
-        FROM {$wpdb->postmeta} pm JOIN {$wpdb->posts} p ON p.ID=pm.post_id WHERE $scope");
+        FROM {$wpdb->postmeta} pm JOIN {$wpdb->posts} p ON p.ID=pm.post_id
+        WHERE $scope ORDER BY pm.meta_id");
     foreach ($metadata as $m) {
         if (in_array($m['meta_key'], ['_edit_lock','_edit_last'], true)) { continue; }
-        $records[(string)$m['post_id']]['meta'][] = d16_json([(string)$m['meta_key'], (string)$m['meta_value']]);
+        // WordPress returns the first meta_id for single-value reads. Preserve
+        // values within each key, but never hash database-local meta IDs.
+        // JSON-encoded keys avoid PHP's numeric-string array-key coercion.
+        $key = d16_json((string)$m['meta_key']);
+        $records[(string)$m['post_id']]['meta'][$key][] = (string)$m['meta_value'];
     }
     $terms = d16_rows("SELECT tr.object_id,tt.taxonomy AS taxonomy,t.slug,t.name,tt.description,
         parent.slug AS parent_slug,tr.term_order
@@ -72,7 +77,7 @@ try {
     }
     $canonical = [];
     foreach ($records as $record) {
-        sort($record['meta'], SORT_STRING);
+        ksort($record['meta'], SORT_STRING);
         sort($record['terms'], SORT_STRING);
         $canonical[] = d16_json($record);
     }

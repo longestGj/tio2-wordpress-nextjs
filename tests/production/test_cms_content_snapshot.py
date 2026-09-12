@@ -64,6 +64,9 @@ class SnapshotTests(unittest.TestCase):
             $f=json_decode(file_get_contents('/fixture/data.json'),true);
             if(!empty($f['error'])) {$this->last_error='db failed';return null;}
             $key=str_contains($sql,'pm.meta_key')?'meta':(str_contains($sql,'AS taxonomy')?'terms':'posts');
+            if ($key === 'meta' && str_contains($sql,'ORDER BY pm.meta_id')) {
+              usort($f[$key],fn($a,$b)=>(int)($a['meta_id']??0)<=>(int)($b['meta_id']??0));
+            }
             return $f[$key];
           }
         }
@@ -80,6 +83,34 @@ class SnapshotTests(unittest.TestCase):
                                      'php:8.3-cli', 'php', '/probe.php'],
                                     capture_output=True, text=True, timeout=30)
         return result
+
+    def test_duplicate_meta_value_order_is_semantic_but_meta_ids_are_not(self):
+        if not shutil.which('docker'):
+            self.skipTest('local PHP fixture requires Docker')
+        if subprocess.run(['docker', 'image', 'inspect', 'php:8.3-cli'], capture_output=True, timeout=15).returncode:
+            self.skipTest('local PHP fixture requires existing php:8.3-cli image')
+        fixture = {
+            'posts': [dict(ID='4', post_type='page', post_name='home', post_title='Hello',
+                           post_content='Body', post_excerpt='', post_status='publish',
+                           menu_order='0', post_password='', post_parent='0', parent_type=None, parent_slug=None)],
+            'meta': [dict(meta_id='5', post_id='4', meta_key='cta', meta_value='First'),
+                     dict(meta_id='8', post_id='4', meta_key='cta', meta_value='Second'),
+                     dict(meta_id='11', post_id='4', meta_key='headline', meta_value='Title')],
+            'terms': [],
+        }
+        baseline = json.loads(self.run_php(fixture).stdout)
+        reversed_values = deepcopy(fixture)
+        reversed_values['meta'][0]['meta_value'] = 'Second'
+        reversed_values['meta'][1]['meta_value'] = 'First'
+        self.assertNotEqual(json.loads(self.run_php(reversed_values).stdout)['contentSha256'],
+                            baseline['contentSha256'])
+        remapped = deepcopy(fixture)
+        remapped['posts'][0]['ID'] = '40'
+        for row, meta_id in zip(remapped['meta'], ['500', '800', '100']):
+            row['post_id'] = '40'
+            row['meta_id'] = meta_id
+        remapped['meta'].reverse()
+        self.assertEqual(json.loads(self.run_php(remapped).stdout), baseline)
 
     def test_php_hash_covers_content_and_ignores_database_ids_and_order(self):
         if not shutil.which('docker'):
