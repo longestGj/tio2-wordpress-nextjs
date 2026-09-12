@@ -89,6 +89,55 @@ try {Invoke-D16ProductionOperation OPERATION (Join-Path $root 'config.json') $ro
         self.assertEqual(result.returncode,0,result.stderr)
         self.assertTrue(json.loads(result.stdout)['localCandidateMatched'])
 
+    def test_test_wrapper_runs_fixed_isolated_local_harness_without_ssh(self):
+        setup="""
+function global:python {$global:calls.Add(('local-test '+($args -join ' ')));$global:LASTEXITCODE=0;'isolated diagnostic';'{"isolated":true}'}
+Remove-Item -LiteralPath (Join-Path $root 'config.json')
+"""
+        result,calls=self.run_client(operation='Test',setup=setup)
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertEqual(len(calls),1)
+        self.assertIn('content_next_rehearsal.py --package',calls[0])
+        self.assertTrue(calls[0].replace('\\','/').endswith('payload/content/package.json'))
+        self.assertEqual(json.loads(result.stdout)['exitCode'],0)
+
+    def test_test_wrapper_reports_failed_isolated_harness_without_production_actions(self):
+        setup="function global:python {$global:calls.Add('local-test');$global:LASTEXITCODE=1;'isolated test failed'}"
+        result,calls=self.run_client(operation='Test',setup=setup)
+        self.assertNotEqual(result.returncode,0)
+        self.assertEqual(calls,['local-test'])
+
+    def publish_transport(self, fail=''):
+        return """
+$global:phase='IDLE'
+function global:ssh {
+ $global:calls.Add($args[-1]);$global:LASTEXITCODE=0;$action=($args[-1] -split ' ')[-1]
+ if($action -eq 'FAIL_ACTION'){$global:phase='RECOVERY_REQUIRED';$global:LASTEXITCODE=255;return}
+ if($action -ne 'status'){$global:phase=switch($action){'prepare'{'PREPARED'}'backup'{'BACKED_UP'}'stage'{'INTERNAL_VERIFIED'}'activate'{'ACTIVATED'}'verify'{if($global:phase -eq 'ACTIVATED'){'PUBLIC_VERIFIED'}else{'COMPLETED'}}}}
+ @{ok=$true;subject='test-site';action=$action;state=@{state=$global:phase;details=$global:binding};recoveryRequired=($global:phase -eq 'RECOVERY_REQUIRED')}|ConvertTo-Json -Depth 20 -Compress
+}
+""".replace('FAIL_ACTION',fail)
+
+    def test_publish_wrapper_runs_fixed_sequence_to_completion(self):
+        result,calls=self.run_client(operation='Publish',setup=self.publish_transport())
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertEqual([call.split()[-1] for call in calls if call.startswith('sudo ') and not call.endswith(' status')],['prepare','backup','stage','activate','verify','verify'])
+        self.assertEqual(json.loads(result.stdout)['state']['state'],'COMPLETED')
+
+    def test_publish_wrapper_stops_after_uncertain_action_and_only_observes_status(self):
+        result,calls=self.run_client(operation='Publish',setup=self.publish_transport('activate'))
+        self.assertNotEqual(result.returncode,0)
+        actions=[call.split()[-1] for call in calls if call.startswith('sudo ')]
+        self.assertEqual([action for action in actions if action!='status'],['prepare','backup','stage','activate'])
+        self.assertIn('RECOVERY_REQUIRED',result.stderr)
+
+    def test_publish_wrapper_does_not_restart_completed_candidate(self):
+        setup=self.publish_transport()+"\n$global:phase='COMPLETED'"
+        result,calls=self.run_client(operation='Publish',setup=setup)
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertEqual(calls,['sudo -n /usr/local/sbin/d16-release test-site status'])
+        self.assertTrue(json.loads(result.stdout)['alreadyCompleted'])
+
     def test_hash_bound_proof_still_requires_matching_subject(self):
         def change(manifest,proof,package_path,proof_path):
             proof['subject']='other-site';proof_path.write_text(json.dumps(proof))

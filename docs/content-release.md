@@ -4,10 +4,12 @@
 
 ## 操作模型
 
-1. 准备指定网站的内容包及该包的预发布通过回执。
-2. 暂停共享 CMS 写入，对整个数据库做一次备份。
-3. 导入本次网站内容，刷新缓存，检查实际页面。
-4. 验证成功后开放写入并记录回执；失败则在写入仍暂停时恢复本次整库备份，验证后开放。
+日常内容操作为 `Test`、`Publish`、`Rollback`；`Status` 只读查看当前状态。
+
+1. `Test` 调用固定的本地隔离测试脚本，读取本地预发布来源并克隆到独立测试资源，将指定内容包导入后验证实际 WordPress、Next 页面及恢复链路。使用 `ContentPath`，或从 `RunRoot/payload/content/package.json` 取包；`PythonExe` 可指定本地 Python。此操作不连接生产 SSH，日志保存在返回的 `logPath`，不会凭退出码编造预发布通过回执。
+2. 完成实际测试后，使用该包及其有效预发布回执准备不可变候选。`Publish` 从候选 `RunRoot` 和连接 `ConfigPath` 读取网站与版本，内部依次完成准备、暂停共享 CMS 写入、整库备份、导入、缓存刷新、实际页面验证及回执封存。
+3. `Publish` 失败后停止后续步骤，只查询并记录服务器状态；服务器在仍可恢复的窗口内处理导入/验证失败的回退。需要手动恢复时，对同一 `RunRoot` 执行 `Rollback`，由服务器核对窗口及备份所有权；不盲目重跑发布。
+4. 已完成的同一候选再次调用 `Publish` 只报告现有完成状态。中断状态须先核对 `Status`，通过明确的恢复动作续接，不重新备份已改变的数据或撤销已经开放写入的成功发布。
 
 备份包含其他网站的数据。发布成功并重新开放写入后，不自动恢复历史整库备份；需要改正内容时再发一个修正包。上传文件不在数据库里，本版只接受沿用现有媒体的内容包，新增或替换媒体在导入前拒绝。
 
@@ -17,7 +19,7 @@
 - `PackageContent` 使用 `ContentPath`、`ContentPrereleasePath`、`CandidateMetadataPath`、`OutputPath` 四个参数。等价 Python 工具为 [prepare_content_candidate.py](../scripts/production/prepare_content_candidate.py)。输出目录必须尚不存在；工具不生成测试通过证明。
 - 内容包 `d16-content-package-v1` 的记录只有 `pageId` 和 `content`，不接收数据库 ID、metadata 名、SQL 或可执行脚本。现有 `tio2-my` 页面由安装的 PHP 注册表定位；新网站需要自己的已验证内容合同。
 - 预发布回执绑定网站、代码版本、前台 Build、内容哈希和测试 runId。候选还绑定当前配置、CMS 合同及上次生产回执。
-- 固定动作使用 `Prepare → Backup → Stage → Activate → Verify → Verify`。第一次 Verify 完成实际验证和开放写入，第二次封存完成回执；内容发布不强制重复无关的表单邮件测试。
+- `Publish` 内部固定动作使用 `Prepare → Backup → Stage → Activate → Verify → Verify`。第一次 Verify 完成实际验证和开放写入，第二次封存完成回执；这些低层动作保留作诊断及明确恢复入口，日常不需要逐条执行。内容发布不强制重复无关的表单邮件测试。
 - 中断后先 Status。仍在暂停写入窗口内时，显式 Rollback 使用同一备份恢复。若已发布/已恢复且窗口已关闭，只核对持久化证据并补记回执，不重新写数据库。
 
 客户端支持按登记配置选择网站，不代表所有网站已经安装内容适配器。旧前台发布仍受已验证兼容事务约束；本次没有实现任意新网站的前台部署。

@@ -1191,8 +1191,51 @@ function Invoke-D16ContentOperation($Operation,$Config,$RunRoot,$Status,$Binding
     return $result
 }
 
+function Invoke-D16ContentTest($RunRoot,$ContentPath,$PythonExe) {
+    if(-not $ContentPath){
+        if(-not $RunRoot){throw 'Content Test requires ContentPath or RunRoot.'}
+        $ContentPath=Join-Path $RunRoot 'payload/content/package.json'
+    }
+    $ContentPath=[IO.Path]::GetFullPath($ContentPath)
+    if(-not(Test-Path -LiteralPath $ContentPath -PathType Leaf)){throw 'Content test package does not exist.'}
+    if(-not $RunRoot){$RunRoot=Join-Path ([IO.Path]::GetTempPath()) ('d16-content-test-'+[guid]::NewGuid().ToString())}
+    $RunRoot=[IO.Path]::GetFullPath($RunRoot);[IO.Directory]::CreateDirectory($RunRoot)|Out-Null
+    $log=Join-Path $RunRoot ('content-test-'+[guid]::NewGuid().ToString()+'.log')
+    $runner=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../tests/production-runtime/content_next_rehearsal.py'))
+    $output=@(& $PythonExe -B $runner --package $ContentPath 2>&1)
+    $exitCode=$LASTEXITCODE
+    [IO.File]::WriteAllText($log,($output -join "`n"),[Text.UTF8Encoding]::new($false))
+    if($exitCode -ne 0){throw "Isolated content Test failed; log: $log"}
+    return @{action='test';exitCode=0;packagePath=$ContentPath;logPath=$log}
+}
+
+function Invoke-D16ContentPublish($ConfigPath,$RunRoot) {
+    if(-not $RunRoot -or -not(Test-Path -LiteralPath (Join-Path $RunRoot 'candidate-manifest.json') -PathType Leaf)){throw 'Content Publish requires an immutable content candidate RunRoot.'}
+    $initial=Invoke-D16ProductionOperation Status $ConfigPath $RunRoot
+    if($initial.recoveryRequired){throw "Content Publish stopped before mutation; server state: $($initial.state.state). Inspect Status and use explicit recovery."}
+    if($initial.localCandidateMatched -and $initial.state.state -ceq 'COMPLETED'){
+        return @{schemaVersion='d16-content-client-publish-v1';action='publish';subject=$initial.subject;state=$initial.state;alreadyCompleted=$true}
+    }
+    if($initial.state.state -cnotin @('IDLE','COMPLETED','ROLLED_BACK') -or ($initial.localCandidateMatched -and $initial.state.state -cne 'IDLE')){
+        throw "Content Publish stopped before mutation; server state: $($initial.state.state). Reconcile the existing run explicitly."
+    }
+    foreach($step in @('Prepare','Backup','Stage','Activate','Verify','Verify')){
+        try{$result=Invoke-D16ProductionOperation $step $ConfigPath $RunRoot}
+        catch{
+            $observed=$null
+            try{$observed=Invoke-D16ProductionOperation Status $ConfigPath $RunRoot}catch{}
+            Save-ProductionJson (Join-Path $RunRoot 'publish-failure.json') @{action='publish';failedStep=$step;status=$observed;completed=$false}
+            $state=if($observed){$observed.state.state}else{'unavailable'}
+            throw "Content Publish stopped at $step; server state: $state. No later step or automatic client rollback was dispatched."
+        }
+    }
+    return @{schemaVersion='d16-content-client-publish-v1';action='publish';subject=$result.subject;state=$result.state;alreadyCompleted=$false}
+}
+
 function Invoke-D16ProductionOperation {
-    param([ValidateSet('Status','Prepare','Backup','Stage','Activate','Verify','Rollback')]$Operation,[string]$ConfigPath,[string]$RunRoot)
+    param([ValidateSet('Test','Publish','Status','Prepare','Backup','Stage','Activate','Verify','Rollback')]$Operation,[string]$ConfigPath,[string]$RunRoot,[string]$ContentPath,[string]$PythonExe='python')
+    if($Operation -ceq 'Test'){return Invoke-D16ContentTest $RunRoot $ContentPath $PythonExe}
+    if($Operation -ceq 'Publish'){return Invoke-D16ContentPublish $ConfigPath $RunRoot}
     $config=Read-ProductionJson $ConfigPath;Assert-ProductionConnection $config -RegisteredSite
     $RunRoot=[IO.Path]::GetFullPath($RunRoot);[IO.Directory]::CreateDirectory($RunRoot)|Out-Null
     $lock=[IO.File]::Open((Join-Path $RunRoot 'controller.lock'),'OpenOrCreate','ReadWrite','None')

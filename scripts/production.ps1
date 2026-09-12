@@ -1,7 +1,7 @@
 #requires -Version 7.2
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)][ValidateSet('Package','PackageContent','Status','Prepare','Backup','Stage','Activate','Verify','Rollback')][string]$Operation,
+    [Parameter(Mandatory)][ValidateSet('Package','PackageContent','Test','Publish','Status','Prepare','Backup','Stage','Activate','Verify','Rollback')][string]$Operation,
     [string]$ConfigPath,
     [string]$RunRoot,
     [string]$PrereleaseReceiptPath,
@@ -9,7 +9,8 @@ param(
     [string]$ContentPath,
     [string]$ContentPrereleasePath,
     [string]$CandidateMetadataPath,
-    [string]$OutputPath
+    [string]$OutputPath,
+    [string]$PythonExe='python'
 )
 $ErrorActionPreference='Stop'
 Import-Module (Join-Path $PSScriptRoot 'production/Production.Core.psm1') -Force
@@ -22,6 +23,8 @@ try {
         $output=@(& python -B (Join-Path $PSScriptRoot 'production/prepare_content_candidate.py') --content $ContentPath --prerelease $ContentPrereleasePath --metadata $CandidateMetadataPath --output $OutputPath)
         if($LASTEXITCODE -ne 0 -or $output.Count -ne 1){throw 'Content candidate preparation failed.'}
         $result=$output[0]|ConvertFrom-Json -AsHashtable
+    } elseif($Operation -eq 'Test') {
+        $result=Invoke-D16ProductionOperation -Operation Test -RunRoot $RunRoot -ContentPath $ContentPath -PythonExe $PythonExe
     } else {
         if(-not $ConfigPath -or -not $RunRoot){throw 'ConfigPath and RunRoot are required.'}
         $result=Invoke-D16ProductionOperation -Operation $Operation -ConfigPath $ConfigPath -RunRoot $RunRoot
