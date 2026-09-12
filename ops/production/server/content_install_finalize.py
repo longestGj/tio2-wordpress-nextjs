@@ -34,7 +34,9 @@ class Finalization:
         binding=self.backend.observe();previous=self._read()
         if previous:
             if previous['phase'] not in {'completed','recovered'}: raise ReleaseError('finalization requires explicit recovery')
-            if previous['binding']==binding and previous['phase']=='completed': return previous
+            if previous['binding']==binding and previous['phase']=='completed':
+                self.backend.validate_completed(previous)
+                return previous
             archive=self.path.with_name(self.path.name+'.'+previous['owner']+'.'+digest(previous))
             if archive.exists() and json.loads(archive.read_bytes())!=previous: raise ReleaseError('finalization history collision')
             if not archive.exists(): atomic_write_json(archive,previous)
@@ -196,6 +198,15 @@ class InstalledFinalization:
         atomic_write_json(self.configuration/'content-baseline.json',{'schemaVersion':'d16-content-baseline-v1',
             'subject':self.subject.subject_id,'previousProductionReceipt':binding['controllerStateSha256']})
         atomic_write_json(self.configuration/'content-runtime.json',binding['runtime'])
+
+    def validate_completed(self,state):
+        binding=state['binding']
+        expected={'schemaVersion':'d16-content-baseline-v1','subject':self.subject.subject_id,
+                  'previousProductionReceipt':binding['controllerStateSha256']}
+        if (self._record('content-runtime.json')!=binding['runtime'] or self._record('content-baseline.json')!=expected
+                or self._record('frontend-enrollment.json')!=state['evidence']['frontendEnrollment']
+                or self._runtime(state['owner'],binding)._state().get('closed') is not True):
+            raise ReleaseError('completed content capability differs from verified enrollment')
 
 
 def finalize_content(subject,package_path):

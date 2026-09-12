@@ -28,6 +28,8 @@ class Effects:
         if (self.root/'fence').exists(): raise AssertionError('capability published before reopening')
         (self.root/'baseline').write_text('verified')
         (self.root/'active').write_text(owner)
+    def validate_completed(self,state):
+        if not (self.root/'active').exists():raise ReleaseError('completed capability missing')
 
 
 class FinalizationTests(unittest.TestCase):
@@ -73,6 +75,10 @@ class FinalizationTests(unittest.TestCase):
         self.engine.finalize()
         self.effects.observe=lambda:{'packageSha256':'b'*64,'frontend':'new-build'}
         self.assertEqual('completed',self.engine.finalize()['phase'])
+
+    def test_completed_retry_cannot_claim_missing_capability_is_installed(self):
+        self.engine.finalize();(self.root/'active').unlink()
+        with self.assertRaises(ReleaseError):self.engine.finalize()
 
     def test_actual_recovery_handles_enter_hook_success_before_identity_journal(self):
         from content_install_finalize import InstalledFinalization
