@@ -87,6 +87,28 @@ afterEach(() => {
 })
 
 describe.runIf(process.platform === 'win32')('production prerelease Gate A sealing', () => {
+  it('ends development at Gate8-owned develop merge and starts release independently', () => {
+    const developmentWorkflow = readFileSync('docs/development-workflow.md', 'utf8')
+    const developmentReceipt = readFileSync('docs/templates/development-receipt.md', 'utf8')
+    const releaseReceipt = readFileSync('docs/templates/release-candidate-receipt.md', 'utf8')
+    const releaseAgent = readFileSync('.codex/agents/d16-release-agent.toml', 'utf8')
+    const releaseSkill = readFileSync('.agents/skills/d16-production-release/SKILL.md', 'utf8')
+
+    expect(developmentWorkflow).toContain('MERGED_TO_DEVELOP')
+    expect(developmentWorkflow).toContain('Gate8 调用独立代码复审')
+    expect(developmentWorkflow).not.toContain('Gate9')
+    expect(developmentReceipt).toContain('MERGED_TO_DEVELOP')
+    expect(developmentReceipt).not.toMatch(/生产命令|发布授权/u)
+    for (const state of ['FROZEN', 'INTEGRATION_PASSED', 'MAIN_PRERELEASE_PASSED', 'PACKAGED', 'PRODUCTION_VERIFIED']) {
+      expect(releaseReceipt).toContain(state)
+    }
+    expect(releaseAgent).toContain('独立发布指令')
+    expect(releaseAgent).toContain('冻结')
+    expect(releaseAgent).toContain('main')
+    expect(releaseSkill).toContain('subject + action')
+    expect(releaseSkill).toContain('not-installed')
+  })
+
   it('seals one exact passed candidate with three received workflows', () => {
     const {paths} = fixture()
     const result = seal(paths)

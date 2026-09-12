@@ -1,4 +1,4 @@
 interface:
   display_name: "D16 Production Release"
-  short_description: "Run evidence-bound D16 production releases"
-  default_prompt: "Use $d16-production-release to prepare, execute, verify, or close a D16 production release."
+  short_description: "Run authorized subject-scoped D16 releases"
+  default_prompt: "Use $d16-production-release for this independently authorized D16 release."

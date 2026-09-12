@@ -1,5 +1,5 @@
 import {spawnSync} from 'node:child_process'
-import {mkdtempSync,readFileSync,writeFileSync,rmSync} from 'node:fs'
+import {mkdtempSync,readFileSync,writeFileSync,rmSync,mkdirSync,existsSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join,resolve} from 'node:path'
 import {afterEach,expect,it} from 'vitest'
@@ -118,4 +118,40 @@ for(const fault of ['disconnect','wrong-backup','restore-failed'])it(`stops befo
  expect(ps(inject).status).not.toBe(0)
  expect(readFileSync(join(root,'backup-request.json'))).toEqual(before)
  expect(readFileSync(join(root,'calls.txt'),'utf8')).not.toContain('deploy')
+})
+
+it('seals exact original CMS identity bytes only to the fixed compatibility RunRoot and preserves an existing different target',()=>{
+ const repo=mkdtempSync(join(tmpdir(),'d16-cms-seal-'));roots.push(repo)
+ const run=join(repo,'.production/runs/20260911T215847Z-8bf2a3d437b0')
+ const source=join(repo,'.prerelease/runs/20260911T214529Z-8bf2a3d437b0')
+ mkdirSync(run,{recursive:true});mkdirSync(source,{recursive:true})
+ const raw=Buffer.from('{\r\n  "siteScope": "tio2-my"\r\n}\r\n')
+ writeFileSync(join(source,'cms-identity.json'),raw)
+ const proof={schemaVersion:'tio2-production-proof-v1',siteId:'tio2-my',commit:'8bf2a3d437b0582ef0ce193b69478622e26419af',prerelease:{cmsIdentitySha256:createHash('sha256').update(raw).digest('hex')}}
+ writeFileSync(join(run,'release-proof.json'),JSON.stringify(proof))
+ const command=`Save-ProductionCmsIdentity -RepositoryRoot ${quote(repo)} -RunRoot ${quote(run)}`
+ let result=ps(command);expect(result.status,result.stderr).toBe(0)
+ expect(readFileSync(join(run,'cms-identity.json'))).toEqual(raw)
+ result=ps(command);expect(result.status,result.stderr).toBe(0)
+ writeFileSync(join(run,'cms-identity.json'),'other identity')
+ result=ps(command);expect(result.status).not.toBe(0);expect(result.stderr).toContain('identity')
+ expect(readFileSync(join(run,'cms-identity.json'),'utf8')).toBe('other identity')
+ rmSync(join(run,'cms-identity.json'))
+ writeFileSync(join(source,'cms-identity.json'),JSON.stringify({siteScope:'tio2-my'}))
+ result=ps(command);expect(result.status).not.toBe(0);expect(existsSync(join(run,'cms-identity.json'))).toBe(false)
+ const other=join(repo,'other');mkdirSync(other)
+ result=ps(command.replace(quote(run),quote(other)));expect(result.status).not.toBe(0);expect(existsSync(join(other,'cms-identity.json'))).toBe(false)
+},15000)
+
+it('permits only the fixed CMS identity and compatibility transaction upload names',()=>{
+ const root=controllerFixture()
+ const result=ps(`& (Get-Module Production.Core) {
+ function script:scp { $global:LASTEXITCODE=0 }
+ foreach($name in @('cms-identity.json','compatibility-transaction.json')) {
+ [IO.File]::WriteAllText((Join-Path ${quote(root)} $name),'fixture')
+ Invoke-ProductionTransport -Config (Read-ProductionJson ${quote(join(root,'config.json'))}) -RunRoot ${quote(root)} -Kind upload -Value $name
+ }
+ try { Invoke-ProductionTransport -Config (Read-ProductionJson ${quote(join(root,'config.json'))}) -RunRoot ${quote(root)} -Kind upload -Value '../private.json'; throw 'unsafe upload accepted' } catch { if($_.Exception.Message -eq 'unsafe upload accepted'){throw} }
+ }`)
+ expect(result.status,result.stderr).toBe(0)
 })

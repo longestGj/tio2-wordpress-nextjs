@@ -43,6 +43,30 @@ def _hash(value):
     return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
 
+def validate_registered_ingress(registry, nginx_dump, runner, *, subject_id=None):
+    """Validate global Nginx membership and snapshot only the requested TLS owner.
+
+    ``subject_id=None`` is reserved for the one-time host adoption snapshot. A
+    normal subject validation still checks the complete Nginx graph but never
+    opens another subject's private key.
+    """
+    from nginx_inventory import classify_nginx
+    from tls_identity import resolve_certificate
+
+    inventory=classify_nginx(nginx_dump,registry)
+    if subject_id is None:
+        subjects=[registry.resolve(name) for name in sorted(registry.subjects)]
+    else:
+        subjects=[registry.resolve(subject_id)]
+    certificates=[]
+    for subject in subjects:
+        for policy in subject.certificates:
+            certificates.append({'owner':subject.owner,**resolve_certificate(policy,runner).as_dict()})
+    names=sorted({reference.value for entry in inventory.files for reference in entry.references if reference.kind=='server_name'})
+    details={'nginxInventory':inventory.as_dict(),'certificates':certificates}
+    return {'serverNames':names,'configurationSha256':_hash(details),**details}
+
+
 def protected_path(path, *, stat_reader=None, private=False, directory=False):
     path=Path(path)
     _require(path.is_absolute(),'absolute path')
