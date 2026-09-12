@@ -21,6 +21,7 @@ class BootstrapError(RuntimeError):
 
 
 REQUIRED_FILES = (
+    "cms_content_snapshot.py", "cms_content_snapshot.php",
     "content_hooks.py", "content_install.py", "content_install_artifact.py",
     "content_install_database.py", "content_install_resources.py", "content_install_backend.py",
     "content_install_cli.py", "content_install_identity.py", "content_install_finalize.py", "frontend_candidate.py",

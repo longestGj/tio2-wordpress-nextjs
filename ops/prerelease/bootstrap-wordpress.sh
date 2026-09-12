@@ -153,7 +153,20 @@ while IFS=$'\t' read -r seed_path seed_hash; do
   fi
 done < "$verified"
 
-D16_TIO2_MY_PRERELEASE_ROUTE_SEED=1 wp eval-file /workspace/wordpress/seed/apply-tio2-my-prerelease-public-paths.php
+# This seed runs last, but must still be recorded in the same verified ledger.
+route_seed_path=wordpress/seed/apply-tio2-my-prerelease-public-paths.php
+route_seed_hash="$(awk -F '\t' -v path="$route_seed_path" '$1 == path {print $2}' "$verified")"
+if [[ ! "$route_seed_hash" =~ ^[a-f0-9]{64}$ ]]; then
+  echo 'Final route seed is missing or duplicated in the verified manifest.' >&2
+  exit 4
+fi
+route_seed_output="$(D16_TIO2_MY_PRERELEASE_ROUTE_SEED=1 wp eval-file /workspace/wordpress/seed/apply-tio2-my-prerelease-public-paths.php)"
+case "$route_seed_output" in
+  'TIO2_MY_PRERELEASE_PUBLIC_PATHS_RESULT '*)
+    record_seed_result "$route_seed_path" "$route_seed_hash" "${route_seed_output#TIO2_MY_PRERELEASE_PUBLIC_PATHS_RESULT }"
+    ;;
+  *) echo 'Final route seed returned an unexpected result.' >&2; exit 4 ;;
+esac
 wp eval-file /workspace/wordpress/bootstrap/validate-prerelease-site.php > /run-state/site-validation.json
 if [[ "$previous_input_hash" != "$input_hash" ]]; then
   wp option update d16_prerelease_seed_input_sha256 "$input_hash" --autoload=no >/dev/null

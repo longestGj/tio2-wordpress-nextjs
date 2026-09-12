@@ -50,6 +50,39 @@ def valid_hash(value):
     return isinstance(value, str) and re.fullmatch('[a-f0-9]{64}', value) is not None
 
 
+def verify_comparison(value, candidate, identity_hash, proof, live):
+    from cms_content_snapshot import validate_snapshot
+    require(isinstance(value, dict) and set(value) == {'schemaVersion', 'candidate', 'prereleaseIdentitySha256',
+            'proofSha256', 'snapshot', 'verification', 'verificationSha256', 'observedAt', 'containerId'}, 'comparison fields')
+    require(value['schemaVersion'] == 'd16-cms-comparison-evidence-v1' and value['candidate'] == candidate
+            and value['prereleaseIdentitySha256'] == identity_hash
+            and value['proofSha256'] == digest(canonical(proof)), 'comparison identity')
+    validate_snapshot(value['snapshot']); validate_snapshot(live['contentSnapshot'])
+    require(value['snapshot'] == live['contentSnapshot']
+            and value['snapshot']['publishedRecords'] == live['publishedRecords'], 'actual CMS content; content release required if it differs')
+    verification = value['verification']
+    require(isinstance(verification, dict) and set(verification) == {'schemaVersion', 'state', 'siteId', 'commit',
+            'runId', 'contentSnapshotSha256', 'passed', 'failed', 'skipped', 'completedAt'}, 'comparison verification fields')
+    require(verification['schemaVersion'] == 'd16-cms-comparison-verification-v1'
+            and verification['state'] == 'PASSED' and verification['siteId'] == 'tio2-my'
+            and verification['commit'] == candidate['commit']
+            and isinstance(verification['runId'], str) and 0 < len(verification['runId'].strip()) <= 200
+            and verification['contentSnapshotSha256'] == digest(canonical(value['snapshot']))
+            and type(verification['passed']) is int and verification['passed'] > 0
+            and verification['passed'] >= proof['prerelease']['counts']['browserCases']
+            and type(verification['failed']) is int and verification['failed'] == 0
+            and type(verification['skipped']) is int and verification['skipped'] == 0
+            and value['verificationSha256'] == digest(canonical(verification)), 'comparison verification')
+    require(isinstance(value['containerId'], str) and re.fullmatch('[a-f0-9]{64}', value['containerId']), 'comparison container')
+    observed = datetime.fromisoformat(value['observedAt'].replace('Z', '+00:00'))
+    completed = datetime.fromisoformat(verification['completedAt'].replace('Z', '+00:00'))
+    now = datetime.now(timezone.utc)
+    require(observed.tzinfo is not None and completed.tzinfo is not None
+            and -30 <= (now-observed).total_seconds() <= 86400
+            and -30 <= (now-completed).total_seconds() <= 86400
+            and -30 <= (observed-completed).total_seconds() <= 86400, 'comparison freshness')
+
+
 @dataclass(frozen=True)
 class CmsEvidence:
     prerelease_identity_sha256: str
@@ -64,6 +97,7 @@ class CmsEvidence:
     published_records: int
     adoption_content_sha256: str
     live_content_sha256: str
+    comparison_content_sha256: str
     verified: bool = True
 
     def as_dict(self): return asdict(self)
@@ -93,7 +127,9 @@ def verify_frontend_only_evidence(proof, identity_bytes, seed_manifest, adoption
         manifest = strict_json(raw_manifest)
         require(manifest['schemaVersion'] == 1 and manifest['siteScope'] == 'tio2-my', 'seed scope')
         seeds = manifest['seeds']
-        require(isinstance(seeds, list) and len(seeds) == counts['seedFiles'], 'seed list')
+        # Legacy seedFiles counted ledger entries; the final route seed was omitted.
+        # Actual content evidence, not execution counts, establishes equivalence.
+        require(isinstance(seeds, list) and 0 < counts['seedFiles'] <= len(seeds), 'seed list')
         paths, hashes = [], []
         for seed in seeds:
             require(isinstance(seed, dict) and set(seed) == {'path', 'sha256'}, 'seed fields')
@@ -111,23 +147,43 @@ def verify_frontend_only_evidence(proof, identity_bytes, seed_manifest, adoption
         adopted_manifest = strict_json(raw_adoption_manifest)
         require(set(adopted_manifest) == {'schemaVersion', 'siteId', 'seeds'}
                 and adopted_manifest['schemaVersion'] == 'tio2-my-production-migration-v1'
-                and adopted_manifest['siteId'] == 'tio2-my' and adopted_manifest['seeds'] == seeds, 'actual adoption seed sequence')
-        require(adoption['candidate'] == candidate and adoption['siteScope'] == 'tio2-my'
+                and adopted_manifest['siteId'] == 'tio2-my', 'actual adoption seed sequence')
+        adopted_seeds = adopted_manifest['seeds']
+        require(isinstance(adopted_seeds, list) and len(adopted_seeds) > 0, 'adoption seeds')
+        adopted_paths, adopted_hashes = [], []
+        for item in adopted_seeds:
+            require(isinstance(item, dict) and set(item) == {'path', 'sha256'}, 'adoption seed fields')
+            path = item['path']
+            require(isinstance(path, str) and path.startswith('wordpress/seed/') and '\\' not in path
+                    and '..' not in PurePosixPath(path).parts and PurePosixPath(path).as_posix() == path
+                    and path not in adopted_paths and valid_hash(item['sha256']), 'adoption seed path/hash')
+            adopted_paths.append(path); adopted_hashes.append(item['sha256'])
+        # The original CMS adoption and a later frontend release have separate
+        # identities. The caller authenticates adoption against its protected
+        # plan/journal; fresh content comparison below links the two.
+        adopted_candidate = adoption['candidate']
+        require(isinstance(adopted_candidate, dict)
+                and set(adopted_candidate) == {'commit', 'archiveSha256', 'manifestSha256'}
+                and isinstance(adopted_candidate['commit'], str)
+                and re.fullmatch('[a-f0-9]{40}', adopted_candidate['commit']) is not None
+                and all(valid_hash(adopted_candidate[key]) for key in ('archiveSha256', 'manifestSha256')), 'adoption candidate')
+        require(adoption['siteScope'] == 'tio2-my'
                 and adoption['seedManifestSha256'] == adoption_seed_hash
-                and seed_manifest['archiveFiles'].get('ops/production/migration-manifest.json') == adoption_seed_hash
-                and adoption['orderedSeedHashes'] == hashes, 'adoption identity')
+                and adoption['orderedSeedHashes'] == adopted_hashes, 'adoption identity')
         require(type(adoption['publishedRecords']) is int and adoption['publishedRecords'] == counts['published']
                 and valid_hash(adoption['contentSha256']), 'adoption content')
-        require(set(live_scope) == {'siteScope', 'publishedRecords', 'contentSha256', 'observedAt'}, 'live fields')
+        require(set(live_scope) == {'siteScope', 'publishedRecords', 'contentSha256', 'observedAt', 'contentSnapshot'}, 'live fields')
         require(live_scope['siteScope'] == 'tio2-my' and type(live_scope['publishedRecords']) is int
                 and live_scope['publishedRecords'] == adoption['publishedRecords']
                 and live_scope['contentSha256'] == adoption['contentSha256'], 'live content')
         observed = datetime.fromisoformat(live_scope['observedAt'].replace('Z', '+00:00'))
         require(observed.tzinfo is not None and -30 <= (datetime.now(timezone.utc) - observed).total_seconds() <= 300, 'live freshness')
+        verify_comparison(seed_manifest['comparisonEvidence'], candidate, identity_hash, proof, live_scope)
         seed_record = {**seed_manifest, 'manifestBytes': seed_hash}
         adoption_record = {**adoption, 'migrationManifestBytes': adoption_seed_hash}
         return CmsEvidence(identity_hash, digest(canonical(proof)), digest(canonical(candidate)), seed_hash, adoption_seed_hash,
                            digest(canonical(seed_record)), digest(canonical(adoption_record)), digest(canonical(live_scope)),
-                           'tio2-my', counts['published'], adoption['contentSha256'], live_scope['contentSha256'])
+                           'tio2-my', counts['published'], adoption['contentSha256'], live_scope['contentSha256'],
+                           digest(canonical(live_scope['contentSnapshot'])))
     except (KeyError, TypeError, ValueError, AttributeError, OverflowError) as error:
         raise ReleaseError('CMS evidence is incomplete or invalid') from error
