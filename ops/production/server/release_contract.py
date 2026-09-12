@@ -54,11 +54,18 @@ _FILE_KEYS = frozenset({"path", "sha256"})
 # Installed program policy, never loaded from an upload. A changed tuple requires
 # a new version and an administrator program upgrade, not an in-place relaxation.
 FROZEN_CONTRACTS = {
-    "tio2-production-contracts-v2": {
-        "ops/production/release-package.schema.json": "ad8dbea67cb5c7c4a8503e830b32a061ee46859c3992e0570cc42d4d38362346",
-        "ops/production/release-surface.json": "42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152",
-        "ops/production/migration-manifest.json": "8bc0db54ef1efe5ceff3474e0efc29d0696e6256ed1b9d59d141aed7ce3c1004",
-    },
+    "tio2-production-contracts-v2": (
+        {
+            "ops/production/release-package.schema.json": "ad8dbea67cb5c7c4a8503e830b32a061ee46859c3992e0570cc42d4d38362346",
+            "ops/production/release-surface.json": "42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152",
+            "ops/production/migration-manifest.json": "8bc0db54ef1efe5ceff3474e0efc29d0696e6256ed1b9d59d141aed7ce3c1004",
+        },
+        {
+            "ops/production/release-package.schema.json": "bf4d8667b2959a51ed671c703d082c5f5bda30909d52f5a34367457c66f1f219",
+            "ops/production/release-surface.json": "42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152",
+            "ops/production/migration-manifest.json": "8bc0db54ef1efe5ceff3474e0efc29d0696e6256ed1b9d59d141aed7ce3c1004",
+        },
+    ),
 }
 
 
@@ -84,7 +91,7 @@ def validate_prerelease_proof(proof_path: Path, manifest_path: Path, manifest: M
             raise ValueError
         contracts = FROZEN_CONTRACTS[proof["contractVersion"]]
         hashes = {entry["path"]: entry["sha256"] for entry in manifest["files"]}
-        if any(hashes.get(name) != digest for name, digest in contracts.items()):
+        if not any(all(hashes.get(name) == digest for name, digest in contract.items()) for contract in contracts):
             raise ValueError
         return proof
     except (OSError, ValueError, TypeError, KeyError, AttributeError) as error:
@@ -140,7 +147,7 @@ def _validate_member_name(name: object) -> str:
     return str(name).rstrip("/")
 
 
-def _validate_manifest_object(manifest: Mapping[str, object]) -> dict[str, object]:
+def _validate_legacy_v1_manifest_object(manifest: Mapping[str, object]) -> dict[str, object]:
     if set(manifest) != _MANIFEST_KEYS:
         raise ReleaseError("invalid manifest")
     if manifest.get("schemaVersion") != "tio2-production-release-v1" or manifest.get("siteId") != "tio2-my":
@@ -166,8 +173,8 @@ def _validate_manifest_object(manifest: Mapping[str, object]) -> dict[str, objec
     return dict(manifest)
 
 
-def validate_manifest(manifest_path: Path, archive_path: Path) -> dict[str, object]:
-    """Read a strictly shaped manifest and bind it to the uploaded archive."""
+def validate_legacy_v1_manifest(manifest_path: Path, archive_path: Path) -> dict[str, object]:
+    """Read the frozen TiO2 v1 package only for compatibility migration."""
     try:
         with _open_regular_read(manifest_path) as source:
             value = json.load(source)
@@ -175,7 +182,7 @@ def validate_manifest(manifest_path: Path, archive_path: Path) -> dict[str, obje
         raise ReleaseError("invalid manifest") from error
     if not isinstance(value, dict):
         raise ReleaseError("invalid manifest")
-    manifest = _validate_manifest_object(value)
+    manifest = _validate_legacy_v1_manifest_object(value)
     try:
         archive_hash = sha256_file(archive_path)
     except OSError as error:
@@ -183,6 +190,11 @@ def validate_manifest(manifest_path: Path, archive_path: Path) -> dict[str, obje
     if archive_hash != manifest["archiveSha256"]:
         raise ReleaseError("archive hash does not match manifest")
     return manifest
+
+
+def validate_manifest(manifest_path: Path, archive_path: Path) -> dict[str, object]:
+    """Compatibility alias for callers installed before typed candidates."""
+    return validate_legacy_v1_manifest(manifest_path, archive_path)
 
 
 def inspect_archive(
@@ -193,7 +205,7 @@ def inspect_archive(
     max_expanded_bytes: int = MAX_EXPANDED_BYTES,
 ) -> list[str]:
     """Reject unsafe tar metadata and return the exact ordered file members."""
-    checked = _validate_manifest_object(manifest)
+    checked = _validate_legacy_v1_manifest_object(manifest)
     expected = [str(entry["path"]) for entry in checked["files"] if isinstance(entry, dict)]
     try:
         source = _open_regular_read(archive_path)
@@ -267,7 +279,7 @@ def extract_release(
     mode_setter: Callable[[str | Path, int], None] = os.chmod,
 ) -> Path:
     """Safely extract one validated archive into its immutable release path."""
-    checked = _validate_manifest_object(manifest)
+    checked = _validate_legacy_v1_manifest_object(manifest)
     inspect_archive(archive_path, checked)
     release_root = paths.production / "releases"
     destination = release_root / str(checked["commit"])

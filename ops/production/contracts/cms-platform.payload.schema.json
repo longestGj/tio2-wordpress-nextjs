@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://d16.local/contracts/cms-platform.payload.schema.json",
+  "title": "D16 cms-platform payload index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["releaseType", "files"],
+  "properties": {
+    "releaseType": {"const": "cms-platform"},
+    "files": {"type": "array", "minItems": 1, "items": {"$ref": "candidate-envelope.schema.json#/$defs/file", "properties": {"path": {"pattern": "^cms/"}}}}
+  }
+}

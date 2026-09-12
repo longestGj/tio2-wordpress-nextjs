@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://d16.local/contracts/combined.payload.schema.json",
+  "title": "D16 combined payload index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["releaseType", "files"],
+  "properties": {
+    "releaseType": {"const": "combined"},
+    "files": {
+      "type": "array",
+      "minItems": 2,
+      "items": {"$ref": "candidate-envelope.schema.json#/$defs/file", "properties": {"path": {"pattern": "^(?:content|frontend)/"}}},
+      "allOf": [
+        {"contains": {"properties": {"path": {"pattern": "^content/"}}, "required": ["path"]}},
+        {"contains": {"properties": {"path": {"pattern": "^frontend/"}}, "required": ["path"]}}
+      ]
+    }
+  }
+}
