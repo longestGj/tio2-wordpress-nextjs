@@ -120,6 +120,25 @@ class CollectorTests(unittest.TestCase):
         with self.assertRaises(release_contract.ReleaseError): self.invoke()
         self.assertEqual(self.output.read_text(), 'preserved')
 
+    def test_rejects_source_changed_during_second_snapshot_read(self):
+        reads = 0
+        def reader(*args):
+            nonlocal reads
+            reads += 1
+            if reads == 2:
+                (self.source / 'wordpress/plugins/tio2-site-model/plugin.php').write_bytes(b'changed')
+            return deepcopy(self.snapshot)
+        with self.assertRaises(release_contract.ReleaseError): self.invoke(reader)
+        self.assertFalse(self.output.exists())
+
+    def test_collected_evidence_is_accepted_by_production_consumer(self):
+        from cms_evidence import verify_comparison
+        result = self.invoke()
+        candidate = {key: self.proof[key] for key in ('commit', 'archiveSha256', 'manifestSha256')}
+        live = {'publishedRecords': 57, 'contentSnapshot': deepcopy(self.snapshot)}
+        verify_comparison(json.loads(self.output.read_bytes()), candidate, sha(self.identity),
+                          json.loads((self.run / 'release-proof.json').read_bytes()), live)
+        self.assertEqual(result['verification']['runId'], 'fresh-real-run')
     def test_rejects_changed_content_between_observations(self):
         values = iter([self.snapshot, {**self.snapshot, 'contentSha256': 'e' * 64}])
         with self.assertRaises(release_contract.ReleaseError): self.invoke(lambda *args: next(values))
@@ -127,7 +146,7 @@ class CollectorTests(unittest.TestCase):
 
     def test_rejects_bad_verification_and_never_fills_missing_counts(self):
         for key, value in [('commit', 'c' * 40), ('contentSnapshotSha256', 'e' * 64), ('passed', True),
-                           ('passed', 0), ('failed', 1), ('skipped', 1), ('runId', ''), ('state', 'FAILED'),
+                           ('passed', 0), ('failed', 1), ('skipped', 1), ('runId', ''), ('runId', ' '), ('runId', 'r' * 201), ('state', 'FAILED'),
                            ('completedAt', (self.now-timedelta(hours=25)).isoformat()),
                            ('completedAt', (self.now+timedelta(minutes=1)).isoformat()), ('completedAt', '2026-09-13T00:00:00')]:
             saved = deepcopy(self.verification); self.verification[key] = value
@@ -158,5 +177,3 @@ class CollectorTests(unittest.TestCase):
 
 
 if __name__ == '__main__': unittest.main()
-
-

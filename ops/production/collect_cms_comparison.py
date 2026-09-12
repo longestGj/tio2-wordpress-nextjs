@@ -101,7 +101,7 @@ def _verify_verification(value, proof, snapshot, now):
                               'passed', 'failed', 'skipped', 'completedAt'}, 'verification fields')
         require(value['schemaVersion'] == 'd16-cms-comparison-verification-v1' and value['state'] == 'PASSED'
                 and value['siteId'] == 'tio2-my' and value['commit'] == proof['commit'], 'verification candidate')
-        require(isinstance(value['runId'], str) and bool(value['runId'].strip()), 'verification run')
+        require(isinstance(value['runId'], str) and 0 < len(value['runId']) <= 200 and bool(value['runId'].strip()), 'verification run')
         require(value['contentSnapshotSha256'] == digest(canonical(snapshot)), 'verified snapshot')
         require(all(type(value[key]) is int for key in ('passed', 'failed', 'skipped'))
                 and value['passed'] > 0 and value['failed'] == 0 and value['skipped'] == 0, 'verification counts')
@@ -155,6 +155,7 @@ def collect(run_root, source_root, wordpress_container64hex, verification_path, 
     _verify_container(runner, wordpress_container64hex, source_root)
     after = reader(_SnapshotRunner(runner), wordpress_container64hex)
     validate_snapshot(after)
+    _verify_source(source_root, manifest)
     require(canonical(snapshot) == canonical(after), 'content changed during collection')
     record = {'schemaVersion': 'd16-cms-comparison-evidence-v1',
               'candidate': {key: proof[key] for key in ('commit', 'archiveSha256', 'manifestSha256')},
@@ -179,5 +180,3 @@ def main():
 
 
 if __name__ == '__main__': main()
-
-
