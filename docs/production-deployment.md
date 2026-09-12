@@ -50,7 +50,7 @@ pwsh -NoProfile -File scripts/production.ps1 -Operation Rollback -ConfigPath .pr
 - `backup` 导出与事务绑定的加密前台备份，本地核对 ciphertext、真实解密并隔离恢复；
 - `stage` 在非活动槽构建、健康检查并持久化 `INTERNAL_VERIFIED`；
 - `activate` 通过登记 upstream 切换前台，不修改 WordPress、MariaDB、seed、Nginx 公共配置、TLS 或 sudo；
-- 第一次 `verify` 核对活动 commit、Build、镜像/容器、代理、CMS 未变化和 58 个登记对象，进入 `PUBLIC_VERIFIED`。
+- 第一次 `verify` 只核对活动 commit、Build、镜像/容器、代理、CMS 未变化以及固定健康路由等技术身份，进入 `PUBLIC_VERIFIED`。58 个登记对象和 174 个浏览器案例属于随后独立运行的业务验收，并由第二次 `verify` 消费，不得从第一次公开技术检查推断。
 
 任何动作的主体、类型、候选、基线、备份、CMS 或 RunRoot 不一致都停止。`PUBLIC_VERIFIED` 只说明服务器公开验证完成，不代替业务 E2E 和收件。
 
@@ -58,14 +58,29 @@ pwsh -NoProfile -File scripts/production.ps1 -Operation Rollback -ConfigPath .pr
 
 在已有明确授权下，对 58 个对象、3 个视口、174 个浏览器案例运行公网 E2E，且非授权写请求为 0。RFQ、Sample、Documents 每个流程按批准次数真实提交；服务商接受、Thank You 和实际收件分别记录，失败不自动重发。
 
-使用固定脚本封存人工收件和最终回执：
+业务 E2E 运行器输出一个独立、只读的 `d16-production-business-e2e-evidence-v1` JSON：它绑定同一 `siteId`、commit、release ID、候选 manifest、CMS 身份和第一次 `verify` 的完整活动前台身份，并记录 `58 × 3 = 174`、174 通过、0 失败、0 外部 POST 以及实际 run ID。`production-live-forms.json` 必须记录三类流程各一次、互不重复的 request token、HTTP 200、`accepted` 和对应 Thank You 状态。
+
+收件确认输入和原始邮件保存在忽略的本地证据目录。确认 JSON 使用 `d16-production-inbox-confirmation-input-v1`，为 RFQ、Sample、Documents 分别记录对应 request token、`received=true`、明确 UTC 时间、实际 recipient 和预期 subject；只有操作者已查看真实收件后才能创建。固定脚本读取该确认输入及三份明确指定的真实 `.eml`，检查每封邮件恰有一个且互不重复的 `Message-ID`、至少一个 `Received`，并匹配 recipient 和 subject。脚本不会生成邮件，也不会替操作者确认收件；输出 JSON 不复制收件地址、subject 或正文。
+
+使用一个非交互、失败关闭的固定脚本生成第二次 `Verify` 的完整六文件：
 
 ```powershell
-pwsh -NoProfile -File scripts/production/Confirm-ProductionInbox.ps1 -RunRoot .production/runs/<release-id>
-pwsh -NoProfile -File scripts/production/Seal-ProductionReceipt.ps1 -RunRoot .production/runs/<release-id>
+pwsh -NoProfile -File scripts/production/New-ProductionCompletionEvidence.ps1 `
+  -RunRoot .production/runs/<release-id> `
+  -BusinessE2EPath <actual-business-e2e-evidence.json> `
+  -InboxConfirmationPath <confirmed-inbox-input.json> `
+  -RfqEmlPath <actual-rfq.eml> `
+  -SampleEmlPath <actual-sample.eml> `
+  -DocumentsEmlPath <actual-documents.eml>
+
+pwsh -NoProfile -File scripts/production.ps1 -Operation Verify `
+  -ConfigPath .production/production-connection.json `
+  -RunRoot .production/runs/<release-id>
 ```
 
-最终证据上传到主体固定 incoming 文件名后，再用同一 RunRoot 执行第二次 `Verify`。只有状态进入 `COMPLETED` 且候选回执为 `PRODUCTION_VERIFIED`，才能宣布发布完成。
+生成器读取同一 RunRoot 已持久化的 candidate/subject/run/request/CMS、备份和活动身份，拒绝任何漂移、缺项、旧输出或不完整 E2E。它只生成 `business-e2e-receipt.json`、`inbox-confirmation-receipt.json`、三份固定名原始 `.eml` 和绑定前五项 SHA-256 的 `completion-receipt.json`。历史 `Confirm-ProductionInbox.ps1` 与 `Seal-ProductionReceipt.ps1` 只对应首次接管的旧回执，不能作为阶段一第二次 `Verify` 的输入。
+
+最终证据上传到主体固定 incoming 文件名后，再用同一 RunRoot 执行第二次 `Verify`。只有服务器状态进入 `COMPLETED`，且发布候选回执随后记录为 `PRODUCTION_VERIFIED`，才能宣布发布完成。
 
 ## 4. 回退与 `RECOVERY_REQUIRED`
 

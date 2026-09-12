@@ -88,10 +88,11 @@ Import-Module 'MODULE' -Force
    result=self.powershell(script,root)
    self.assertEqual(result.returncode,0,result.stderr);self.assertIn('passed',result.stdout)
 
- def _run_compatibility_client(self,before_stage='',before_verify='',backup_flow=None,expected_restores=2):
+ def _run_compatibility_client(self,before_stage='',before_evidence='',before_verify='',backup_flow=None,expected_restores=2):
   # Only external ssh/scp/docker processes are substitutes. All client binding,
   # transfer ordering, restore receipt parsing and final-evidence checks run.
   module=Path(__file__).resolve().parents[2]/'scripts/production/Production.Core.psm1'
+  evidence_script=Path(__file__).resolve().parents[2]/'scripts/production/New-ProductionCompletionEvidence.ps1'
   with tempfile.TemporaryDirectory() as t:
    root=Path(t)
    script="""$ErrorActionPreference='Stop'
@@ -121,6 +122,7 @@ Import-Module 'MODULE' -Force
   if($action -ceq 'backup'){$global:fixtureBackup.binding=$request.binding;$global:fixtureStatus.state.details.frontendBackup=$global:fixtureBackup}
   $next=@{prepare='PREPARED';backup='BACKED_UP';stage='INTERNAL_VERIFIED';activate='ACTIVATED';rollback='ROLLED_BACK'}
   if($action -ceq 'verify'){$global:fixtureStatus.state.state=if($global:fixtureStatus.state.state -ceq 'ACTIVATED'){'PUBLIC_VERIFIED'}else{'COMPLETED'}}else{$global:fixtureStatus.state.state=$next[$action]}
+  if($action -ceq 'activate'){$global:fixtureStatus.state.details.activeFrontend=@{commit=$request.binding.sourceCommit;sourceRoot='/fixture/source-B';imageId=('sha256:'+('b'*64));buildId='build-B';containerId=('b'*64)}}
   if($action -ceq 'backup' -and $global:fixtureLoseBackupResponse){$global:fixtureLoseBackupResponse=$false;$global:LASTEXITCODE=255;return}
   return (@{ok=$true;subject='tio2-my';action=$action;state=$global:fixtureStatus.state}|ConvertTo-Json -Depth 50 -Compress)
  }
@@ -142,15 +144,24 @@ Import-Module 'MODULE' -Force
  BEFORE_STAGE
  foreach($operation in @('Stage','Activate','Verify')){$result=Invoke-D16ProductionOperation $operation $configPath $root}
  if($result.state.state -cne 'PUBLIC_VERIFIED'){throw 'First Verify crossed the final acceptance boundary'}
- $binding=Read-ProductionJson (Join-Path $root 'frontend-binding.json');$fields=$binding.Clone();$fields.backupId=$global:fixtureBackup.backupId
- $e2e=$fields.Clone();$e2e.schemaVersion='d16-production-business-e2e-v1';$e2e.environment='production';$e2e.suite='business-e2e';$e2e.state='PASSED';$e2e.runId='fixture-e2e'
- Save-ProductionJson (Join-Path $root 'business-e2e-receipt.json') $e2e
- $inbox=$fields.Clone();$inbox.schemaVersion='d16-production-inbox-v1';$inbox.source='server-inbox';$inbox.forms=@{}
- foreach($form in @('rfq','sample','documents')){[IO.File]::WriteAllText((Join-Path $root ($form+'-received.eml')),"Message-ID: <$form@fixture>`r`nReceived: from local; Sat, 12 Sep 2026 00:00:00 +0000`r`n`r`nfixture");$inbox.forms[$form]=@{state='RECEIVED';messageId="<$form@fixture>";emlSha256=(Get-ProductionSha256 (Join-Path $root ($form+'-received.eml')))}}
- Save-ProductionJson (Join-Path $root 'inbox-confirmation-receipt.json') $inbox
- $receipt=$fields.Clone();$receipt.schemaVersion='d16-release-completion-v1';$receipt.businessE2E='PASSED';$receipt.forms=@{rfq='RECEIVED';sample='RECEIVED';documents='RECEIVED'};$receipt.evidenceSha256=@{}
- foreach($name in @('business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml')){$receipt.evidenceSha256[$name]=Get-ProductionSha256 (Join-Path $root $name)}
- Save-ProductionJson (Join-Path $root 'completion-receipt.json') $receipt
+  $binding=Read-ProductionJson (Join-Path $root 'frontend-binding.json')
+  $active=$global:fixtureStatus.state.details.activeFrontend
+  $e2eInput=@{schemaVersion='d16-production-business-e2e-evidence-v1';siteId='tio2-my';commit=$binding.sourceCommit;releaseId=$binding.releaseId;candidateManifestSha256=$binding.candidateManifestSha256;cmsIdentitySha256=$binding.cmsEvidenceSha256;environment='production';suite='business-e2e';state='PASSED';runId='fixture-e2e';counts=@{registeredObjects=58;widths=3;browserCases=174;passed=174;failed=0;externalPostCount=0};active=$active}
+  $e2eInputPath=Join-Path $base 'actual-business-e2e.json';Save-ProductionJson $e2eInputPath $e2eInput
+  $attempts=@();$confirmForms=@{};$mailPaths=@{}
+  foreach($form in @('rfq','sample','documents')){
+   $token=@{rfq='11111111-1111-4111-8111-111111111111';sample='22222222-2222-4222-8222-222222222222';documents='33333333-3333-4333-8333-333333333333'}[$form]
+   $subject="Fixture acceptance $form $token";$recipient='production-inbox@example.test'
+   $attempts+=@{workflow=$form;pageId=@{rfq='CONV-RFQ';sample='CONV-SAMPLE';documents='CONV-DOC'}[$form];requestToken=$token;httpStatus=200;providerCategory='accepted';thankYouRequest=@{rfq='quote';sample='sample';documents='documents'}[$form];timestamp='2026-09-12T00:00:00Z'}
+   $mailPath=Join-Path $base ($form+'-source.eml');[IO.File]::WriteAllText($mailPath,"Message-ID: <$form@fixture>`r`nReceived: from provider.example; Sat, 12 Sep 2026 00:00:00 +0000`r`nTo: $recipient`r`nSubject: $subject`r`n`r`nSynthetic integration-test body")
+   $mailPaths[$form]=$mailPath;$confirmForms[$form]=@{requestToken=$token;received=$true;confirmedAtUtc='2026-09-12T00:05:00Z';recipient=$recipient;subject=$subject}
+  }
+  Save-ProductionJson (Join-Path $root 'production-live-forms.json') @{schemaVersion='tio2-production-live-forms-evidence-v1';siteId='tio2-my';commit=$binding.sourceCommit;attempts=$attempts;counts=@{workflows=3;accepted=3;posts=3}}
+  $confirmationInputPath=Join-Path $base 'confirmed-inbox.json';Save-ProductionJson $confirmationInputPath @{schemaVersion='d16-production-inbox-confirmation-input-v1';siteId='tio2-my';commit=$binding.sourceCommit;releaseId=$binding.releaseId;forms=$confirmForms}
+  BEFORE_EVIDENCE
+  try { & 'EVIDENCE_SCRIPT' -RunRoot $root -BusinessE2EPath $e2eInputPath -InboxConfirmationPath $confirmationInputPath -RfqEmlPath $mailPaths.rfq -SampleEmlPath $mailPaths.sample -DocumentsEmlPath $mailPaths.documents | Out-Null } catch { Write-Error ($_.Exception.Message + "`n" + $_.ScriptStackTrace); throw }
+  foreach($name in @('business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml','completion-receipt.json')){if(-not(Test-Path -LiteralPath (Join-Path $root $name) -PathType Leaf)){throw "Evidence script omitted $name"}}
+  $inbox=Read-ProductionJson (Join-Path $root 'inbox-confirmation-receipt.json');$receipt=Read-ProductionJson (Join-Path $root 'completion-receipt.json')
  BEFORE_VERIFY
  $mailPath=Join-Path $root 'rfq-received.eml';$bytes=[IO.File]::ReadAllBytes($mailPath);[IO.File]::AppendAllText($mailPath,'changed')
  $count=$global:fixtureEvents.Count;$rejected=$false;try{Invoke-D16ProductionOperation Verify $configPath $root|Out-Null}catch{$rejected=$true}
@@ -163,12 +174,24 @@ Import-Module 'MODULE' -Force
  if(@($global:fixtureEvents|Where-Object {$_ -ceq 'docker-restore'}).Count -ne EXPECTED_RESTORES){throw 'Backup did not restore before proceeding'}
 } 'ROOT'
 'passed'
-""".replace('BACKUP_FLOW',backup_flow or "foreach($operation in @('Prepare','Backup','Backup')){$result=Invoke-D16ProductionOperation $operation $configPath $root}").replace('EXPECTED_RESTORES',str(expected_restores)).replace('BEFORE_STAGE',before_stage).replace('BEFORE_VERIFY',before_verify).replace('MODULE',str(module).replace("'","''")).replace('ROOT',root.as_posix())
+""".replace('BACKUP_FLOW',backup_flow or "foreach($operation in @('Prepare','Backup','Backup')){$result=Invoke-D16ProductionOperation $operation $configPath $root}").replace('EXPECTED_RESTORES',str(expected_restores)).replace('BEFORE_STAGE',before_stage).replace('BEFORE_EVIDENCE',before_evidence).replace('BEFORE_VERIFY',before_verify).replace('MODULE',str(module).replace("'","''")).replace('EVIDENCE_SCRIPT',str(evidence_script).replace("'","''")).replace('ROOT',root.as_posix())
    result=self.powershell(script,root)
    self.assertEqual(result.returncode,0,result.stderr);self.assertIn('passed',result.stdout)
 
  def test_compatibility_client_orchestrates_prepare_backup_and_both_verify_boundaries(self):
   self._run_compatibility_client()
+
+ def test_completion_generator_rejects_coverage_identity_and_real_mail_mismatch_without_outputs(self):
+  self._run_compatibility_client(before_evidence="""
+  $confirmation=Read-ProductionJson $confirmationInputPath
+  $activeBuild=$active.buildId
+  $invoke={& 'EVIDENCE_SCRIPT' -RunRoot $root -BusinessE2EPath $e2eInputPath -InboxConfirmationPath $confirmationInputPath -RfqEmlPath $mailPaths.rfq -SampleEmlPath $mailPaths.sample -DocumentsEmlPath $mailPaths.documents|Out-Null}
+  $assertRejected={param($label)$failed=$false;try{& $invoke}catch{$failed=$true};$found=@('business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml','completion-receipt.json')|Where-Object{Test-Path -LiteralPath (Join-Path $root $_)};if(-not $failed -or $found){throw "Completion evidence did not fail closed: $label"}}
+  $e2eInput.counts.browserCases=173;Save-ProductionJson $e2eInputPath $e2eInput;& $assertRejected 'coverage';$e2eInput.counts.browserCases=174
+  $e2eInput.active.buildId='other-build';Save-ProductionJson $e2eInputPath $e2eInput;& $assertRejected 'active identity';$e2eInput.active.buildId=$activeBuild;Save-ProductionJson $e2eInputPath $e2eInput
+  $confirmation.forms.rfq.recipient='other@example.test';Save-ProductionJson $confirmationInputPath $confirmation;& $assertRejected 'recipient';$confirmation.forms.rfq.recipient=$recipient;Save-ProductionJson $confirmationInputPath $confirmation
+  $sampleBytes=[IO.File]::ReadAllBytes($mailPaths.sample);$sampleText=[IO.File]::ReadAllText($mailPaths.sample).Replace('<sample@fixture>','<rfq@fixture>');[IO.File]::WriteAllText($mailPaths.sample,$sampleText);& $assertRejected 'Message-ID uniqueness';[IO.File]::WriteAllBytes($mailPaths.sample,$sampleBytes)
+  """)
 
  def test_lost_backup_response_recovers_same_committed_backup_without_reissuing_backup(self):
   self._run_compatibility_client(expected_restores=1,backup_flow="""
