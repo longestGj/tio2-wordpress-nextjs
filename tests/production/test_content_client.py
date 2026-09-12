@@ -122,6 +122,36 @@ foreach($name in $global:binding.Keys){
         self.assertNotEqual(result.returncode,0)
         self.assertIn('acceptance boundary',result.stderr)
 
+    def test_explicit_bound_rollback_can_request_server_owned_window_recovery(self):
+        setup="""
+function global:ssh {
+ $global:calls.Add($args[-1]);$global:LASTEXITCODE=0;$action=($args[-1] -split ' ')[-1]
+ $state=if($action -eq 'status'){'RECOVERY_REQUIRED'}else{'ROLLED_BACK'}
+ @{ok=$true;subject='test-site';action=$action;state=@{state=$state;details=$global:binding};recoveryRequired=$true}|ConvertTo-Json -Depth 20 -Compress
+}
+"""
+        result,calls=self.run_client(operation='Rollback',setup=setup)
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertEqual(calls,['sudo -n /usr/local/sbin/d16-release test-site status','sudo -n /usr/local/sbin/d16-release test-site rollback'])
+
+    def test_verify_recovery_requires_explicit_terminal_reconciliation_offer(self):
+        for offered in ('verify','rollback','unavailable'):
+            setup="""
+function global:ssh {
+ $global:calls.Add($args[-1]);$global:LASTEXITCODE=0;$action=($args[-1] -split ' ')[-1]
+ $state=if($action -eq 'status'){'RECOVERY_REQUIRED'}else{'PUBLIC_VERIFIED'}
+ @{ok=$true;subject='test-site';action=$action;state=@{state=$state;details=$global:binding};recoveryRequired=$true;contentTerminalReconciliation='OFFERED'}|ConvertTo-Json -Depth 20 -Compress
+}
+""".replace('OFFERED',offered)
+            with self.subTest(offered=offered):
+                result,calls=self.run_client(operation='Verify',setup=setup)
+                if offered=='verify':
+                    self.assertEqual(result.returncode,0,result.stderr)
+                    self.assertEqual(len(calls),2)
+                else:
+                    self.assertNotEqual(result.returncode,0)
+                    self.assertEqual(len(calls),1)
+
     def test_disconnect_never_accepts_unbound_content_status(self):
         setup="""
 function global:ssh {

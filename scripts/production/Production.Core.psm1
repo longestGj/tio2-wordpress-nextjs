@@ -1166,7 +1166,10 @@ function Invoke-D16ContentOperation($Operation,$Config,$RunRoot,$Status,$Binding
     if(-not $admission){Assert-D16ActionReceipt status $Status $Binding.identity $Config.siteId}
     Save-ProductionJson (Join-Path $RunRoot 'status.json') $Status
     if($action -ceq 'status'){return $Status}
-    if($Status.recoveryRequired){throw 'Server requires recovery; no content action was retried.'}
+    # An explicit rollback remains server-gated by the owned shared window. Other
+    # actions cannot replay an uncertain import or reopen writers from the client.
+    $terminalVerify=$action -ceq 'verify' -and $Status['contentTerminalReconciliation'] -ceq 'verify' -and $Status.state.state -cnotin @('PUBLIC_VERIFIED','COMPLETED')
+    if($Status.recoveryRequired -and $action -cne 'rollback' -and -not $terminalVerify){throw 'Server requires recovery; no content action was retried.'}
     if($action -ceq 'prepare'){
         # Upload the manifest last. Fixed server installation owns these paths.
         foreach($name in @('payload/content/package.json','content-prerelease.json','candidate-manifest.json')){Invoke-D16ProductionTransport $Config $RunRoot upload $name}
@@ -1174,7 +1177,7 @@ function Invoke-D16ContentOperation($Operation,$Config,$RunRoot,$Status,$Binding
     $result=Invoke-D16ProductionTransport $Config $RunRoot action $action
     Assert-D16ActionReceipt $action $result $Binding.identity $Config.siteId
     if($action -ceq 'verify'){
-        $expected=if($Status.state.state -ceq 'ACTIVATED'){'PUBLIC_VERIFIED'}else{'COMPLETED'}
+        $expected=if($Status.state.state -ceq 'ACTIVATED' -or $terminalVerify){'PUBLIC_VERIFIED'}else{'COMPLETED'}
         if($result.state.state -cne $expected){throw 'Content verify crossed the wrong acceptance boundary.'}
     }
     Save-ProductionJson (Join-Path $RunRoot ($action+'.json')) $result
