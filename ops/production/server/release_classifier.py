@@ -79,6 +79,10 @@ class ReleaseUnit:
     paths: tuple[str, ...]
     receipt_ids: tuple[str, ...]
 
+    def __post_init__(self) -> None:
+        if not self.paths:
+            raise ReleaseError("unclassified release change")
+
 
 def _tokens(path: str) -> frozenset[str]:
     return frozenset(part.lower() for part in re.split(r"[./_-]+", path) if part)
@@ -124,19 +128,25 @@ def classify_release(change_set: ChangeSet) -> tuple[ReleaseUnit, ...]:
     if not explicit_host.issubset(git_paths):
         raise ReleaseError("unclassified release change")
 
-    host_paths = tuple(path for path in change_set.git_paths if _is_host(path, explicit_host))
-    remaining = tuple(path for path in change_set.git_paths if path not in host_paths)
-
     declared_scopes = set(change_set.content_scopes)
-    raw_content_paths = tuple(path for path in remaining if _is_content(path))
+    raw_content_paths = tuple(path for path in change_set.git_paths if _is_content(path))
     actual_scopes = {_content_scope(path) for path in raw_content_paths}
     if raw_content_paths and actual_scopes != declared_scopes:
         raise ReleaseError("unclassified release change")
     if not raw_content_paths and len(declared_scopes) > 1:
         raise ReleaseError("unclassified release change")
+    if explicit_host.intersection(raw_content_paths):
+        raise ReleaseError("unclassified release change")
+
+    host_paths = tuple(
+        path for path in change_set.git_paths if not _is_content(path) and _is_host(path, explicit_host)
+    )
+    remaining = tuple(path for path in change_set.git_paths if path not in host_paths)
 
     cross_scope = len(actual_scopes) > 1
-    cms_paths = tuple(path for path in remaining if _is_cms(path) or (cross_scope and _is_content(path)))
+    cms_paths = tuple(
+        path for path in remaining if (not _is_content(path) and _is_cms(path)) or (cross_scope and _is_content(path))
+    )
     if cross_scope and not cms_paths:
         raise ReleaseError("unclassified release change")
     if change_set.cms_contract_changed and not cms_paths:

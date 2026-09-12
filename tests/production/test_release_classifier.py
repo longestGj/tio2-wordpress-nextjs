@@ -9,7 +9,7 @@ from pathlib import Path
 SERVER_ROOT = Path(__file__).resolve().parents[2] / "ops" / "production" / "server"
 sys.path.insert(0, str(SERVER_ROOT))
 
-from release_classifier import ChangeSet, classify_release  # noqa: E402
+from release_classifier import ChangeSet, ReleaseUnit, classify_release  # noqa: E402
 from release_contract import ReleaseError  # noqa: E402
 
 
@@ -83,6 +83,38 @@ class ReleaseClassifierTests(unittest.TestCase):
                 )
             )
 
+    def test_content_scope_is_checked_before_explicit_host_classification(self) -> None:
+        paths = (
+            "content/tio2-a/records.json",
+            "wordpress/seed/tio2-a/records.json",
+        )
+        for path in paths:
+            with self.subTest(path=path), self.assertRaisesRegex(ReleaseError, "unclassified release change"):
+                classify_release(
+                    self.changes(
+                        git_paths=(path,),
+                        site_ids=("tio2-my",),
+                        content_scopes=("tio2-my",),
+                        host_paths=(path,),
+                    )
+                )
+
+    def test_content_namespace_cannot_overlap_explicit_host_paths(self) -> None:
+        paths = (
+            "content/tio2-my/records.json",
+            "wordpress/seed/tio2-my/records.json",
+        )
+        for path in paths:
+            with self.subTest(path=path), self.assertRaisesRegex(ReleaseError, "unclassified release change"):
+                classify_release(
+                    self.changes(
+                        git_paths=(path,),
+                        site_ids=("tio2-my",),
+                        content_scopes=("tio2-my",),
+                        host_paths=(path,),
+                    )
+                )
+
     def test_two_actual_content_scopes_are_a_cms_platform_change(self) -> None:
         units = classify_release(
             self.changes(
@@ -154,6 +186,10 @@ class ReleaseClassifierTests(unittest.TestCase):
         )
         self.assertEqual(units[0].paths, ("app/a.tsx", "components/z.tsx"))
         self.assertEqual(units[0].receipt_ids, ("DEV-1", "DEV-2"))
+
+    def test_release_units_reject_empty_paths(self) -> None:
+        with self.assertRaisesRegex(ReleaseError, "unclassified release change"):
+            ReleaseUnit("tio2-my", "content-only", (), ("DEV-17",))
 
 
 if __name__ == "__main__":
