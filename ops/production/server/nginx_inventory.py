@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import fnmatch
+import glob
 import hashlib
 import os
 from pathlib import Path
@@ -119,6 +120,8 @@ def _include_references(value: str, logical: dict[str, tuple[object, str]]) -> l
         raise ReleaseError("unregistered Nginx include")
     matches = sorted(key for key in logical if fnmatch.fnmatchcase(key, value))
     if not matches:
+        if glob.has_magic(value):
+            return []
         raise ReleaseError("unregistered Nginx include")
     return [NginxReference("include", key, logical[key][1]) for key in matches]
 
