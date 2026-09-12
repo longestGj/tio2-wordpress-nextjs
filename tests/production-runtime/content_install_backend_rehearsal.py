@@ -1,9 +1,9 @@
-"""EXPERIMENTAL: incomplete administrator backend rehearsal, never production.
+"""Resource-intensive isolated administrator backend rehearsal, never production.
 
-No full successful run has been recorded. A Docker Desktop host stopped during
-installation on 2026-09-12 with host disk pressure; no further run is authorized
-by retaining this fixture. Explicit opt-in and sufficient Docker VM storage are
-required. Nested vfs copies images and execution trees and can grow substantially.
+A full success and verification-failure rollback were recorded on 2026-09-12.
+An earlier Docker Desktop host stopped during installation with disk pressure.
+Explicit opt-in and sufficient Docker VM storage remain required. Nested vfs
+copies images and execution trees and can grow substantially.
 
 Uses real WordPress, MariaDB, Nginx, installed hooks, backup restore, resource
 installer, enrollment and journal. The frontend is an explicitly generated,
@@ -292,7 +292,7 @@ require_once '/var/www/html/wp-admin/includes/plugin.php';activate_plugin('tio2-
 
 def outer(args):
     if not args.allow_experimental_nested_docker:
-        raise RuntimeError('incomplete nested Docker rehearsal requires explicit experimental opt-in')
+        raise RuntimeError('nested Docker rehearsal requires explicit experimental opt-in')
     root = Path(__file__).resolve().parents[2]
     token = 'd16-test-backend-' + secrets.token_hex(6)
     image_names = ['tio2-release-runtime:task4', 'wordpress:php8.3-apache', 'mariadb:11.4', 'wordpress:cli-php8.3']

@@ -12,6 +12,12 @@
 
 ## Global Constraints
 
+### 2026-09-12 execution status
+
+Implementation and independent review of all three tasks are complete. Real resource upgrade/restore, whole-database restore/fence recovery, installed hooks against production Next.js, and complete installer success/verification-failure rollback have passed in isolated local environments. The exact-source frontend rehearsal remains blocked before build by unavailable Docker Hub dependencies; an earlier fixture run is retained only as earlier evidence. Therefore this branch is not yet eligible for merge to develop or production release. See the [verification evidence directory](../../verification/production-release-system/development/2026-09-12-my-production-installation/).
+
+The task lists below retain the original planned sequence; completed implementation is not a claim that the final runtime/merge gate has passed.
+
 - Work in `codex/my-production-installation`, based on `b39cc830`; no production connections/writes, main changes or root AGENTS edits during development.
 - Preserve prior candidate evidence, shared consumers and unrelated work. No arbitrary incoming scripts, credentials in receipts, fabricated verification or generic Campaign framework.
 - Real installation resources must be the ones exercised by the Docker rehearsal. Production enrollment follows observed identity and successful checks, never mere config existence.
