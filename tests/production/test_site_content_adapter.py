@@ -168,6 +168,7 @@ class ContentControllerTests(unittest.TestCase):
         with patch('release_controller.transition', side_effect=interrupted):
             with self.assertRaises(ReleaseError): self.execute('verify')
         self.assertFalse(self.runtime.fenced)
+        self.assertEqual(self.execute('status').get('contentTerminalReconciliation'),'verify')
         result = self.execute('verify')
         self.assertEqual(result['afterState'],'PUBLIC_VERIFIED')
         self.assertEqual(self.execute('verify')['afterState'],'COMPLETED')
@@ -206,6 +207,26 @@ class ContentControllerTests(unittest.TestCase):
         self.assertEqual(result['identity']['releaseType'],'content-only')
         (self.subject.state_root/'compatibility-transaction.json').write_text('{}')
         self.assertTrue(self.execute('status')['ok'])
+
+    def test_completion_survives_archival_by_next_site_window(self):
+        self.execute('prepare','backup','stage','activate','verify')
+        journal = self.engine.path
+        saved = journal.read_bytes()
+        journal.with_name(journal.name+'.release-17').write_bytes(saved)
+        later = json.loads(saved)
+        later.update(siteId='other-site', releaseId='other-release')
+        journal.write_bytes(canonical(later))
+        self.assertEqual(self.execute('verify')['afterState'],'COMPLETED')
+
+    def test_archived_terminal_cannot_substitute_different_backup(self):
+        self.execute('prepare','backup','stage','activate','verify')
+        journal = self.engine.path
+        saved = json.loads(journal.read_bytes())
+        saved['backup'] = {'substituted':'not-the-verified-backup'}
+        journal.with_name(journal.name+'.release-17').write_bytes(canonical(saved))
+        journal.unlink()
+        with self.assertRaises(ReleaseError): self.execute('verify')
+        self.assertFalse(self.runtime.fenced)
 
 
 if __name__ == '__main__': unittest.main()

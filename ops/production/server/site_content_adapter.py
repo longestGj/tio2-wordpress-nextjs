@@ -3,9 +3,28 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 
 from content_release import canonical, validate_package
 from release_contract import ReleaseError, _open_regular_read
+
+
+def terminal_record(path, site_id, release_id):
+    """Read closed-window evidence, including its immutable archive, never restore it."""
+    if not isinstance(release_id, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]{0,127}', release_id):
+        raise ReleaseError('invalid content evidence identity')
+    for candidate in (path, path.with_name(path.name + '.' + release_id)):
+        if not candidate.exists() and not candidate.is_symlink():
+            continue
+        with _open_regular_read(candidate) as source:
+            raw = source.read(32 * 1024 * 1024 + 1)
+        if len(raw) > 32 * 1024 * 1024:
+            raise ReleaseError('content evidence is too large')
+        state = json.loads(raw, object_pairs_hook=_unique)
+        if (state.get('schemaVersion') == 'd16-content-window-v1'
+                and state.get('siteId') == site_id and state.get('releaseId') == release_id):
+            return state if state.get('phase') in {'completed','rolled-back'} else None
+    return None
 
 
 class SafeContentRollback(ReleaseError):
@@ -130,9 +149,11 @@ class SiteContentAdapter:
 
     def terminal_evidence(self, context, phase):
         package = self._package(context)
-        state = self._window(context, self.engine_factory(context), package)
-        if state['phase'] != phase:
+        state = terminal_record(self.engine_factory(context).path, context.subject.subject_id, context.candidate.release_id)
+        if state is None or state['phase'] != phase:
             return None
+        if validate_package(state['package'], context.subject.subject_id) != package:
+            raise ReleaseError('content terminal package mismatch')
         if phase not in {'completed', 'rolled-back'}:
             raise ReleaseError('invalid content terminal phase')
         if (phase == 'completed' or state['backup'] is not None) and state.get('verification', {}).get('verified') is not True:

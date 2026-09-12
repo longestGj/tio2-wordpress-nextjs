@@ -75,7 +75,7 @@ class ReleaseController:
             return self._execute(subject_id, action)
 
     def _execute(self, subject_id, action):
-        from site_content_adapter import SiteContentAdapter, SafeContentRollback
+        from site_content_adapter import SiteContentAdapter, SafeContentRollback, terminal_record
         subject = self.registry.resolve(subject_id)
         window = self._shared_content_window()
         if window is not None and action != 'status' and (
@@ -115,12 +115,9 @@ class ReleaseController:
                            "stageResumeAvailable": current == "STAGED" and stage_proven and not recovery,
                            "capabilities": {name: name == "status" or subject.kind == "site" and any(release_capabilities.values()) for name in sorted(D16_ACTIONS)}}
             terminal_path = self.registry.cms.state_root / 'content-window.json'
-            if state.get('details', {}).get('releaseType') == 'content-only' and terminal_path.exists():
-                with _open_regular_read(terminal_path) as source:
-                    terminal = json.load(source, object_pairs_hook=_unique)
-                if (terminal.get('siteId') == subject_id
-                        and terminal.get('releaseId') == state['details']['releaseId']
-                        and terminal.get('phase') in {'completed','rolled-back'}):
+            if state.get('details', {}).get('releaseType') == 'content-only':
+                terminal = terminal_record(terminal_path, subject_id, state['details']['releaseId'])
+                if terminal:
                     result['contentTerminalReconciliation'] = 'verify' if terminal['phase'] == 'completed' else 'rollback'
             compatibility = subject.state_root / 'compatibility-transaction.json'
             if compatibility.exists() and state.get('details', {}).get('releaseType') == 'frontend-only':
@@ -338,12 +335,10 @@ class ReleaseController:
         # A terminal engine record proves the publication window already closed.
         # Repair only controller bookkeeping; never import/restore after reopening.
         path = self.registry.cms.state_root / 'content-window.json'
-        if not path.exists():
-            return None
-        with _open_regular_read(path) as source:
-            window = json.load(source, object_pairs_hook=_unique)
+        from site_content_adapter import terminal_record
+        window = terminal_record(path, subject.subject_id, state['details']['releaseId'])
         expected = 'completed' if action == 'verify' else 'rolled-back'
-        if window.get('phase') != expected:
+        if window is None or window.get('phase') != expected:
             return None
         context, identity, adapter = self._context(subject, state)
         details = dict(state['details'])
