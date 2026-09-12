@@ -141,23 +141,30 @@ def _port_from_proxy(value: str) -> str:
 
 
 def _directives(content: str) -> tuple[tuple[str, tuple[str, ...]], ...]:
-    """Tokenize effective Nginx syntax while decoding quoted and escaped arguments."""
+    """Mirror the relevant ``ngx_conf_read_token`` states and fail closed."""
     directives: list[tuple[str, tuple[str, ...]]] = []
     statement: list[str] = []
     token: list[str] = []
-    token_started = False
     quote: str | None = None
     escaped = False
     comment = False
-    variable_brace = False
+    variable = False
+    state = "space"
     block_depth = 0
 
     def finish_token() -> None:
-        nonlocal token_started
-        if token_started:
-            statement.append("".join(token))
-            token.clear()
-            token_started = False
+        statement.append("".join(token))
+        token.clear()
+
+    def finish_statement(*, block: bool) -> None:
+        nonlocal block_depth
+        if not statement or block and statement[0] in _RESOURCE_DIRECTIVES:
+            raise ReleaseError("invalid Nginx directive syntax")
+        if not block:
+            directives.append((statement[0], tuple(statement[1:])))
+        statement.clear()
+        if block:
+            block_depth += 1
 
     for character in content:
         if comment:
@@ -165,70 +172,94 @@ def _directives(content: str) -> tuple[tuple[str, tuple[str, ...]], ...]:
                 comment = False
             continue
         if escaped:
-            token.append(character)
-            token_started = True
+            if character in {'"', "'", "\\"}:
+                token.append(character)
+            elif character == "t":
+                token.append("\t")
+            elif character == "r":
+                token.append("\r")
+            elif character == "n":
+                token.append("\n")
+            else:
+                token.extend(("\\", character))
             escaped = False
             continue
+
+        if state == "need_space":
+            if character.isspace():
+                state = "space"
+            elif character == ";":
+                finish_statement(block=False)
+                state = "space"
+            elif character == "{":
+                finish_statement(block=True)
+                state = "space"
+            elif character == ")":
+                token.append(character)
+                state = "token"
+            else:
+                raise ReleaseError("invalid Nginx directive syntax")
+            continue
+
+        if state == "space":
+            if character.isspace():
+                continue
+            if character in ";{":
+                finish_statement(block=character == "{")
+                continue
+            if character == "}":
+                if statement or block_depth == 0:
+                    raise ReleaseError("invalid Nginx directive syntax")
+                block_depth -= 1
+                continue
+            if character == "#":
+                comment = True
+                continue
+            state = "token"
+            variable = character == "$"
+            if character == "\\":
+                escaped = True
+            elif character in {'"', "'"}:
+                quote = character
+            else:
+                token.append(character)
+            continue
+
         if character == "\\":
             escaped = True
-            token_started = True
             continue
+        if character == "$":
+            token.append(character)
+            variable = True
+            continue
+        if character == "{" and variable:
+            token.append(character)
+            continue
+        variable = False
+
         if quote is not None:
             if character == quote:
                 quote = None
+                finish_token()
+                state = "need_space"
             else:
                 token.append(character)
             continue
-        if variable_brace:
-            if character == "}":
-                token.append(character)
-                variable_brace = False
-            elif character.isalnum() or character == "_":
-                token.append(character)
-            else:
-                raise ReleaseError("invalid Nginx variable syntax")
-            continue
-        if character in {'"', "'"}:
-            quote = character
-            token_started = True
-            continue
-        if character == "#":
-            finish_token()
-            comment = True
-            continue
+
         if character.isspace():
             finish_token()
+            state = "space"
             continue
-        if character == ";":
+        if character in ";{":
             finish_token()
-            if not statement:
-                raise ReleaseError("invalid Nginx directive syntax")
-            directives.append((statement[0], tuple(statement[1:])))
-            statement.clear()
-            continue
-        if character == "{":
-            if token and token[-1] == "$":
-                token.append(character)
-                variable_brace = True
-                continue
-            finish_token()
-            if not statement or statement[0] in _RESOURCE_DIRECTIVES:
-                raise ReleaseError("invalid Nginx directive syntax")
-            statement.clear()
-            block_depth += 1
-            continue
-        if character == "}":
-            finish_token()
-            if statement or block_depth == 0:
-                raise ReleaseError("invalid Nginx directive syntax")
-            block_depth -= 1
+            finish_statement(block=character == "{")
+            state = "space"
             continue
         token.append(character)
-        token_started = True
-    if quote is not None or escaped or variable_brace:
+
+    if quote is not None or escaped:
         raise ReleaseError("invalid Nginx quoted syntax")
-    finish_token()
-    if statement or block_depth:
+    if state != "space" or statement or block_depth:
         raise ReleaseError("invalid Nginx directive syntax")
     return tuple(directives)
 
@@ -347,9 +378,7 @@ def _effective_files(dump: str) -> dict[str, str]:
         else:
             raise ReleaseError("Nginx configuration dump boundary is invalid")
         content_end = boundaries[index + 1].start() if index + 1 < len(boundaries) else len(dump)
-        if dump[content_end - 2:content_end] == "\r\n":
-            content_end -= 2
-        elif dump[content_end - 1:content_end] == "\n":
+        if dump[content_end - 1:content_end] == "\n":
             content_end -= 1
         else:
             raise ReleaseError("Nginx configuration dump separator is invalid")

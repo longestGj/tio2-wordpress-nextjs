@@ -146,8 +146,8 @@ class NginxInventoryTests(unittest.TestCase):
 
     def test_quoted_and_escaped_arguments_are_decoded_and_fully_validated(self) -> None:
         valid = (
-            "set $backend ${upstream}; set $note escaped\\#hash\\;value;\n"
-            + self.site_config(server_name='tio2"malaysia".com www.tio2malaysia\\.com')
+            'set $note "line\\nfeed with an escaped \\"quote";\n'
+            + self.site_config(server_name='"tio2malaysia.com" "www.tio2malaysia.com"')
         )
         self.site_path.write_text(valid, encoding="utf-8", newline="\n")
         inventory = classify_nginx(self.dump({self.site_path: valid}), self.registry)
@@ -157,14 +157,44 @@ class NginxInventoryTests(unittest.TestCase):
             ["tio2malaysia.com", "www.tio2malaysia.com"],
         )
 
+        escaped_cert_path = Path("/etc/letsencrypt/live/tio2malaysia.com/full\nchain.pem")
+        site_subject = self.registry.resolve("tio2-my")
+        escaped_policy = replace(site_subject.certificates[0], fullchain_path=escaped_cert_path)
+        escaped_subjects = dict(self.registry.subjects)
+        escaped_subjects["tio2-my"] = replace(site_subject, certificates=(escaped_policy,))
+        escaped_registry = SubjectRegistry(MappingProxyType(escaped_subjects))
+        escaped_content = self.site_config().replace(
+            self.site_cert.as_posix(),
+            '"/etc/letsencrypt/live/tio2malaysia.com/full\\nchain.pem"',
+        )
+        self.site_path.write_text(escaped_content, encoding="utf-8", newline="\n")
+        escaped_inventory = classify_nginx(self.dump({self.site_path: escaped_content}), escaped_registry)
+        escaped_site = next(entry for entry in escaped_inventory.files if entry.logical_path == self.site_path)
+        self.assertIn(
+            escaped_cert_path.as_posix(),
+            [reference.value for reference in escaped_site.references if reference.kind == "ssl_certificate"],
+        )
+
         for server_name, message in (
             ('tio2malaysia.com "unknown.example"', "unregistered Nginx domain"),
-            ("tio2malaysia.com cms\\.tio2malaysia.com", "domain owner"),
+            ("tio2malaysia.com cms.tio2malaysia.com", "domain owner"),
+            ('tio2"malaysia".com www.tio2malaysia.com', "unregistered Nginx domain"),
+            ("tio2malaysia.com www.tio2malaysia\\.com", "unregistered Nginx domain"),
+            ('"tio2malaysia.com"www.tio2malaysia.com', "directive syntax"),
         ):
             content = self.site_config(server_name=server_name)
             self.site_path.write_text(content, encoding="utf-8", newline="\n")
             with self.subTest(server_name=server_name), self.assertRaisesRegex(ReleaseError, message):
                 classify_nginx(self.dump({self.site_path: content}), self.registry)
+
+    def test_hash_inside_an_unquoted_token_does_not_start_a_comment(self) -> None:
+        content = (
+            "set $note abc#; server_name unknown.example;\n"
+            "set $other value;\n"
+        )
+        self.site_path.write_text(content, encoding="utf-8", newline="\n")
+        with self.assertRaisesRegex(ReleaseError, "unregistered Nginx domain"):
+            classify_nginx(self.dump({self.site_path: content}), self.registry)
 
     def test_nginx_dump_boundaries_preserve_source_blank_lines_and_final_newlines(self) -> None:
         content = "\n" + self.site_config() + "\n\n"
@@ -173,8 +203,13 @@ class NginxInventoryTests(unittest.TestCase):
         site = next(entry for entry in inventory.files if entry.logical_path == self.site_path)
         self.assertEqual(site.sha256, hashlib.sha256(content.encode("utf-8")).hexdigest())
 
-        for final_content in ("proxy_pass http://127.0.0.1:3000;", "proxy_pass http://127.0.0.1:3000;\n\n"):
-            self.upstream_path.write_text(final_content, encoding="utf-8", newline="\n")
+        for final_content in (
+            "proxy_pass http://127.0.0.1:3000;",
+            "proxy_pass http://127.0.0.1:3000;\n",
+            "proxy_pass http://127.0.0.1:3000;\r",
+            "proxy_pass http://127.0.0.1:3000;\r\n",
+        ):
+            self.upstream_path.write_text(final_content, encoding="utf-8", newline="")
             inventory = classify_nginx(self.dump({self.site_path: content, self.upstream_path: final_content}), self.registry)
             final_file = next(entry for entry in inventory.files if entry.logical_path == self.upstream_path)
             with self.subTest(final_content=repr(final_content)):
