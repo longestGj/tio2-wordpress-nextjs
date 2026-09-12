@@ -37,6 +37,22 @@ def fixture():
 
 
 class CmsEvidenceTests(unittest.TestCase):
+    def test_distinct_adoption_identity_preserves_content_continuity(self):
+        values = list(fixture())
+        original = verify_frontend_only_evidence(*values)
+        values[3]['candidate'] = {'commit': '1' * 40, 'archiveSha256': '2' * 64, 'manifestSha256': '3' * 64}
+        changed = verify_frontend_only_evidence(*values)
+        self.assertEqual(changed.candidate_sha256, original.candidate_sha256)
+        self.assertNotEqual(changed.adoption_sha256, original.adoption_sha256)
+        self.assertEqual(changed.live_content_sha256, original.live_content_sha256)
+        for fault in ('content', 'seed', 'candidate-shape'):
+            bad = deepcopy(values)
+            if fault == 'content': bad[4]['contentSha256'] = '9' * 64
+            elif fault == 'seed': bad[3]['orderedSeedHashes'] = []
+            else: bad[3]['candidate']['extra'] = 'invalid'
+            with self.subTest(fault=fault), self.assertRaises(ReleaseError):
+                verify_frontend_only_evidence(*bad)
+
     def test_identity_hash_is_not_compared_to_content_hash(self):
         inputs = fixture()
         evidence = verify_frontend_only_evidence(*inputs)

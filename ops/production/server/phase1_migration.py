@@ -625,7 +625,9 @@ class SystemMigrationInputs:
         require(journal['schemaVersion'] == 'tio2-production-adoption-journal-v1' and journal['state'] == 'PUBLIC_READY'
                 and journal['planHash'] == adoption_plan['planHash'], 'original adoption journal')
         adopted = {key: adoption_plan['candidate'][key] for key in release_identity}
-        require(adopted == release_identity, 'original adoption candidate')
+        # validate_plan and journal.planHash authenticate the original adoption.
+        # Read its own frozen seeds, then compare content continuity with the
+        # separately validated PREPARED archive; their release IDs may differ.
         adopted_root = Path('/opt/tio2-production/releases') / adopted['commit']
         content = journal['details']['content']
         migration_bytes = m._read(adopted_root / 'ops/production/migration-manifest.json')
