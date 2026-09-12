@@ -12,6 +12,38 @@ import {POST} from '@/app/api/revalidate/route'
 
 const secret = 'revalidation-test-secret'
 
+it('expires a signed completed content batch immediately and invalidates the site layout and sitemap', async () => {
+  const contentRelease = {releaseId: 'release-17', contentSha256: 'a'.repeat(64)}
+  const response = await POST(signedRequest({...validPayload(), contentRelease}))
+  expect(response.status).toBe(200)
+  expect(revalidateTag).toHaveBeenCalled()
+  for (const [, profile] of revalidateTag.mock.calls) expect(profile).toEqual({expire: 0})
+  expect(revalidatePath).toHaveBeenCalledWith('/', 'layout')
+  expect(revalidatePath).toHaveBeenCalledWith('/sitemap.xml')
+  expect(await response.json()).toMatchObject({ok: true, contentRelease})
+})
+
+it.each([
+  {releaseId: 'release-18', contentSha256: 'a'.repeat(64)},
+  {releaseId: 'release-17', contentSha256: 'b'.repeat(64)},
+])('rejects event ID reuse with changed content release identity %j', async (changed) => {
+  const payload = {...validPayload(), contentRelease: {releaseId: 'release-17', contentSha256: 'a'.repeat(64)}}
+  expect((await POST(signedRequest(payload))).status).toBe(200)
+  vi.clearAllMocks()
+  const response = await POST(signedRequest({...payload, contentRelease: changed}))
+  expect(response.status).toBe(409)
+  expect(await response.json()).toMatchObject({ok: false})
+  expect(revalidateTag).not.toHaveBeenCalled()
+  expect(revalidatePath).not.toHaveBeenCalled()
+})
+
+it('does not claim a content release refresh for an event previously used by an ordinary update', async () => {
+  const payload = validPayload()
+  expect((await POST(signedRequest(payload))).status).toBe(200)
+  const response = await POST(signedRequest({...payload, contentRelease: {releaseId: 'release-17', contentSha256: 'a'.repeat(64)}}))
+  expect(response.status).toBe(409)
+})
+
 interface RevalidationPayload {
   eventId: string
   siteIds: string[]
