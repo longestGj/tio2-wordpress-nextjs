@@ -42,9 +42,36 @@ def main():
                 except Exception: time.sleep(1)
             else: raise AssertionError('database startup timed out')
             db.sql("CREATE TABLE wordpress.records (scope VARCHAR(20) PRIMARY KEY, value VARCHAR(20)) ENGINE=InnoDB; INSERT INTO wordpress.records VALUES ('tio2-my','original'),('other','keep');")
+            partial_root = root / 'partial'
+            partial_root.mkdir()
+            partial = InstallationDatabase(config, partial_root)
+            original_docker = partial.docker
+            def fail_before_marker(*args, **kwargs):
+                if any('cat > ' in str(arg) for arg in args):
+                    raise RuntimeError('injected disconnect before marker creation')
+                return original_docker(*args, **kwargs)
+            partial.docker = fail_before_marker
+            try: partial.enter('partial-window', partial.observe())
+            except RuntimeError: pass
+            partial.docker = original_docker
+            partial.leave('partial-window')
+            assert partial._state()['closed'] is True
             baseline = db.observe()
             db.enter('test-window',baseline)
             backup = db.backup('test-window')
+            restore_volumes=[]
+            original_transport=db.docker
+            def track_restore_cleanup(*args,**kwargs):
+                if args[0]=='rm' and str(args[-1]).startswith('d16-install-restore-'):
+                    info=json.loads(original_transport('inspect',args[-1]))[0]
+                    restore_volumes.extend(m['Name'] for m in info['Mounts'] if m['Type']=='volume')
+                return original_transport(*args,**kwargs)
+            db.docker=track_restore_cleanup
+            assert db.verify_backup_restore('test-window', backup)['verified'] is True
+            db.docker=original_transport
+            assert restore_volumes, 'MariaDB anonymous volume was not observed'
+            for volume in restore_volumes:
+                assert subprocess.run(['docker','volume','inspect',volume],capture_output=True).returncode != 0, 'backup copy remained in anonymous volume'
             denied = subprocess.run(['docker','exec','-i',name,'mariadb','-uwp','-p'+password,'wordpress',
                                      '-e',"UPDATE records SET value='bad'"],capture_output=True)
             assert denied.returncode != 0
@@ -58,12 +85,24 @@ def main():
             db.assert_window('test-window')
             db.restore('test-window',backup)
             assert db.sql('SELECT scope,value FROM wordpress.records ORDER BY scope') == 'other\tkeep\ntio2-my\toriginal'
+            original_sql=db.sql
+            failed=[False]
+            def interrupt_opening(query):
+                if query=='SET GLOBAL read_only=OFF;' and not failed[0]:
+                    failed[0]=True
+                    raise RuntimeError('disconnect after persistent fence removal')
+                return original_sql(query)
+            db.sql=interrupt_opening
+            try:db.leave('test-window')
+            except RuntimeError:pass
+            db.sql=original_sql
+            db.leave('test-window')
             db.leave('test-window')
             assert db.sql('SELECT @@GLOBAL.read_only') == '0'
             print(json.dumps({'result':'PASS','isolatedContainer':name,'fullDatabaseRestored':True,
                               'otherScopePreserved':True,'restartFence':True,'normalWriterDenied':True}))
         finally:
-            run('docker','rm','-f',name)
+            run('docker','rm','-f','--volumes',name)
 
 
 if __name__ == '__main__': main()

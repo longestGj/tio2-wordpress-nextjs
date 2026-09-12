@@ -8,6 +8,9 @@ import json
 import os
 from pathlib import Path
 import re
+import secrets
+import tempfile
+import time
 
 from content_docker import ContentDockerRuntime
 from release_contract import ReleaseError
@@ -103,11 +106,74 @@ class InstallationDatabase(ContentDockerRuntime):
             raise ReleaseError('full installation database restore differs')
 
     def leave(self, owner):
-        state = self._owned(owner)
-        marker = self.docker('exec',self.config['dbContainer'],'cat',self.FENCE_CONFIG)
-        if marker != self._marker(owner): raise ReleaseError('installation fence changed')
-        self.docker('exec',self.config['dbContainer'],'rm',self.FENCE_CONFIG)
+        state = self._state()
+        inspect = json.loads(self.docker('inspect',self.config['dbContainer']))[0]
+        if state['owner']!=owner or inspect['Id']!=state['baseline']['containerId']:
+            raise ReleaseError('installation database owner or container changed')
+        marker = self.docker('exec',self.config['dbContainer'],'sh','-c',
+                            'if test -f '+self.FENCE_CONFIG+'; then cat '+self.FENCE_CONFIG+'; elif test -e '+self.FENCE_CONFIG+'; then exit 2; fi')
+        if not marker:
+            expected = state['baseline']['readOnly']+'\t'+state['baseline']['events']
+            flags=self.sql('SELECT @@GLOBAL.read_only, @@GLOBAL.event_scheduler')
+            if flags==expected:
+                state['closed']=True;atomic_write_json(self.state_path,state);return
+            if state['closed'] or not state.get('opening') or flags not in {'1\tOFF','1\tDISABLED','0\tOFF','0\tDISABLED'}:
+                raise ReleaseError('partial installation fence outcome uncertain')
+        else:
+            if state['closed'] or marker != self._marker(owner): raise ReleaseError('installation fence changed')
+            state['opening']=True
+            atomic_write_json(self.state_path,state)
+            self.docker('exec',self.config['dbContainer'],'rm',self.FENCE_CONFIG)
         self.sql('SET GLOBAL read_only=OFF;')
         if state['baseline']['events'] == 'ON': self.sql('SET GLOBAL event_scheduler=ON;')
         state['closed'] = True
         atomic_write_json(self.state_path,state)
+
+    def verify_backup_restore(self, owner, backup):
+        """Restore before any plugin mutation, in a network-isolated disposable DB."""
+        self.assert_window(owner)
+        source = self.state_path.parent/'database.sql'
+        if source.is_symlink() or backup.get('owner') != owner or hashlib.sha256(source.read_bytes()).hexdigest() != backup.get('sha256'):
+            raise ReleaseError('installation restore rehearsal backup mismatch')
+        name = 'd16-install-restore-'+hashlib.sha256(owner.encode()).hexdigest()[:20]
+        existing = self.docker('ps','-a','--filter','name=^/'+name+'$','--format','{{.ID}}').decode().split()
+        for cid in existing:
+            info = json.loads(self.docker('inspect',cid))[0]
+            if (info['Config'].get('Labels') or {}).get('d16.install-owner') != owner:
+                raise ReleaseError('foreign restore-check container')
+            self.docker('rm','-f','--volumes',cid)
+        image = self._state()['baseline']['imageId']
+        created = False
+        with tempfile.TemporaryDirectory(prefix='restore-check-',dir=self.state_path.parent) as temporary:
+            root = Path(temporary); os.chmod(root,0o700)
+            password = secrets.token_hex(32)
+            secret = root/'password'; secret.write_text(password); os.chmod(secret,0o600)
+            defaults = root/'admin.cnf'; defaults.write_text('[client]\nuser=root\npassword='+password+'\n'); os.chmod(defaults,0o600)
+            try:
+                self.docker('run','-d','--name',name,'--network','none','--label','d16.install-owner='+owner,
+                            '-e','MARIADB_ROOT_PASSWORD_FILE=/run/secrets/password',
+                            '--mount','type=bind,source='+str(secret)+',target=/run/secrets/password,readonly',
+                            '--mount','type=bind,source='+str(defaults)+',target=/run/secrets/admin.cnf,readonly',image)
+                created = True
+                for _ in range(90):
+                    try:
+                        self.docker('exec',name,'mariadb','--defaults-extra-file=/run/secrets/admin.cnf','-e','SELECT 1')
+                        break
+                    except ReleaseError: time.sleep(1)
+                else: raise ReleaseError('isolated restoration database unavailable')
+                self.docker('exec','-i',name,'mariadb','--defaults-extra-file=/run/secrets/admin.cnf',data=source.read_bytes())
+                restored = ContentDockerRuntime({**self.config,'dbContainer':name,'dbDefaultsFile':'/run/secrets/admin.cnf'},root)._dump()
+                if hashlib.sha256(restored).hexdigest() != backup['sha256']:
+                    raise ReleaseError('installation backup cannot restore identical shared database')
+            finally:
+                if created:
+                    info = json.loads(self.docker('inspect',name))[0]
+                    if (info['Config'].get('Labels') or {}).get('d16.install-owner') != owner:
+                        raise ReleaseError('restore-check container ownership changed')
+                    volumes=[m['Name'] for m in info.get('Mounts',[]) if m['Type']=='volume']
+                    self.docker('rm','-f','--volumes',name)
+                    remaining=set(self.docker('volume','ls','--format','{{.Name}}').decode().splitlines())
+                    if remaining.intersection(volumes):
+                        raise ReleaseError('restore-check database volume cleanup failed')
+        self.assert_window(owner)
+        return {'verified':True,'databaseSha256':backup['sha256'],'networkIsolated':True,'cleanupVerified':True}

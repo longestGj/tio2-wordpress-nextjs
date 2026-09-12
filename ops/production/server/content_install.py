@@ -1,6 +1,6 @@
 """Durable administrator installation transaction; CLI holds the host release lock.
 
-Docker/filesystem effects live in content_install_docker. A saved plan binds both
+Docker/filesystem effects live in content_install_backend. A saved plan binds both
 artifact bytes and the observed deployment before any maintenance or DB write.
 """
 from copy import deepcopy
@@ -88,6 +88,7 @@ class Installation:
             self._save(state, 'enrolling')
             self.backend.enroll(owner, evidence)
             # Never restore DB automatically after a possible reopening.
+            state['openingTarget'] = 'completed'
             self._save(state, 'opening')
             self.backend.leave(owner, plan['baseline'])
             self._save(state, 'completed')
@@ -113,6 +114,21 @@ class Installation:
         self._save(state, 'recovery-required')
         baseline = state['plan']['baseline']
         self.backend.restore(plan_sha256, baseline, state.get('backup'))
+        state['openingTarget'] = 'rolled-back'
+        state['recoveryFrom'] = 'opening'
+        self._save(state, 'recovery-required')
         self.backend.leave(plan_sha256, baseline)
         self._save(state, 'rolled-back')
+        return state
+
+    def finish_opening(self, plan_sha256):
+        state=self.status()
+        if (state['phase']=='idle' or state['plan']['planSha256']!=plan_sha256
+                or state.get('openingTarget') not in {'completed','rolled-back'}):
+            raise ReleaseError('installation opening owner or target mismatch')
+        if state['phase']==state['openingTarget']: return state
+        if state['phase']!='opening' and not (state['phase']=='recovery-required' and state.get('recoveryFrom')=='opening'):
+            raise ReleaseError('installation is not awaiting reopening')
+        self.backend.leave(plan_sha256,state['plan']['baseline'])
+        self._save(state,state['openingTarget'])
         return state

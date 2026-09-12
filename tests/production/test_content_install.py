@@ -48,7 +48,7 @@ class FilesystemInstallation:
         if self.failure == 'leave':
             (self.root / 'fence').unlink()
             raise ReleaseError('opening outcome uncertain')
-        (self.root / 'fence').unlink()
+        (self.root / 'fence').unlink(missing_ok=True)
 
     def restore(self, owner, baseline, backup):
         if self.failure == 'restore':
@@ -137,11 +137,38 @@ class InstallationTests(unittest.TestCase):
         with self.assertRaises(ReleaseError): self.installation.rollback(plan['planSha256'])
         self.assertEqual(b'new-plugin', (self.root / 'plugin').read_bytes())
 
+    def test_rollback_opening_uncertainty_cannot_overwrite_later_writes(self):
+        def fail_install(owner, baseline, backup):
+            (self.root / 'plugin').write_bytes(b'partial-upgrade')
+            self.backend.failure = 'leave'
+            raise ReleaseError('install failed')
+        self.backend.install = fail_install
+        plan = self.plan()
+        with self.assertRaises(ReleaseError): self.installation.apply(plan)
+        (self.root / 'plugin').write_bytes(b'later-external-edit')
+        self.backend.failure = None
+        try: self.installation.rollback(plan['planSha256'])
+        except Exception: pass
+        self.assertEqual(b'later-external-edit', (self.root / 'plugin').read_bytes())
+
     def test_altered_plan_or_artifact_rejected(self):
         plan = self.plan()
         plan['artifactSha256'] = 'b' * 64
         with self.assertRaises(ReleaseError): self.installation.apply(plan)
         self.assertFalse((self.root / 'fence').exists())
+
+    def test_finish_opening_never_restores_old_data(self):
+        self.backend.failure='leave'
+        plan=self.plan()
+        with self.assertRaises(ReleaseError):self.installation.apply(plan)
+        self.backend.failure=None
+        (self.root/'plugin').write_bytes(b'later-content')
+        result=self.installation.finish_opening(plan['planSha256'])
+        self.assertEqual('completed',result['phase'])
+        self.assertEqual(b'later-content',(self.root/'plugin').read_bytes())
+
+    def test_finish_opening_requires_owned_opening_phase(self):
+        with self.assertRaises(ReleaseError):self.installation.finish_opening('a'*64)
 
 
 if __name__ == '__main__': unittest.main()
