@@ -599,7 +599,7 @@ class SystemMigrationInputs:
 
     def inputs(self):
         from adoption_contract import validate_plan
-        from cms_evidence import strict_json, verify_frontend_only_evidence
+        from cms_evidence import strict_json, verify_frontend_only_evidence, read_prerelease_seed_hashes
         from release_contract import validate_manifest, validate_prerelease_proof, inspect_archive, sha256_file
         m = self.migration
         require(self.baseline is not None and self.live_scope is not None, 'fresh runtime snapshot')
@@ -622,6 +622,8 @@ class SystemMigrationInputs:
         release_identity = {key: candidate[key] for key in ('commit', 'archiveSha256', 'manifestSha256')}
         seed_snapshot = {'manifestBytes': seed_bytes, 'candidate': release_identity,
                          'archiveFiles': {item['path']: item['sha256'] for item in manifest['files']},
+                         'seedSourceHashes': read_prerelease_seed_hashes(seed_bytes,
+                             lambda path: m._read(self.input_root / 'prerelease-seeds' / path, limit=8 * 1024 * 1024)),
                          'comparisonEvidence': strict_json(m._read(self.input_root / 'cms-comparison-evidence.json'))}
         adoption_plan = validate_plan(m._json(Path('/etc/tio2-production/adoption-plan.json')))
         journal = m._json(Path('/opt/tio2-production/state/adoption.json'))

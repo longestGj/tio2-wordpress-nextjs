@@ -2,7 +2,8 @@
 
 seed_manifest is a snapshot made only after validating the frozen archive:
 manifestBytes are the original prerelease seed manifest, candidate is its three
-release identity fields, and archiveFiles maps validated member paths to hashes.
+release identity fields, and seedSourceHashes comes from reading and validating
+the original prerelease script bytes. Production archive validation is separate.
 adoption is derived from the root-protected adoption plan/journal and its frozen
 seed archive; live_scope must come from a new read-only production query.
 """
@@ -103,6 +104,30 @@ class CmsEvidence:
     def as_dict(self): return asdict(self)
 
 
+def read_prerelease_seed_hashes(manifest_bytes, read_source):
+    """Validate each original prerelease script before returning its byte hash.
+
+    The reader is rooted by the caller, never by a path from an upload.
+    Production archive hashes remain independently verified by the migration.
+    """
+    manifest = strict_json(manifest_bytes)
+    require(manifest.get('schemaVersion') == 1 and manifest.get('siteScope') == 'tio2-my', 'seed scope')
+    seeds = manifest.get('seeds')
+    require(isinstance(seeds, list) and 0 < len(seeds) <= 10000, 'seed list')
+    hashes = {}
+    for seed in seeds:
+        require(isinstance(seed, dict) and set(seed) == {'path', 'sha256'}, 'seed fields')
+        path = seed['path']
+        require(isinstance(path, str) and path.startswith('wordpress/seed/') and '\\' not in path
+                and ':' not in path and '..' not in PurePosixPath(path).parts
+                and PurePosixPath(path).as_posix() == path and path not in hashes
+                and valid_hash(seed['sha256']), 'seed path/hash')
+        data = read_source(path)
+        require(isinstance(data, bytes) and digest(data) == seed['sha256'], 'prerelease seed bytes')
+        hashes[path] = digest(data)
+    return hashes
+
+
 def verify_frontend_only_evidence(proof, identity_bytes, seed_manifest, adoption, live_scope) -> CmsEvidence:
     try:
         require(isinstance(identity_bytes, bytes), 'identity bytes')
@@ -137,9 +162,10 @@ def verify_frontend_only_evidence(proof, identity_bytes, seed_manifest, adoption
             require(isinstance(path, str) and path.startswith('wordpress/seed/') and '\\' not in path
                     and '..' not in PurePosixPath(path).parts and PurePosixPath(path).as_posix() == path
                     and path not in paths and valid_hash(sha), 'seed path/hash')
-            require(seed_manifest['archiveFiles'].get(path) == sha, 'archived seed')
+            require(seed_manifest['seedSourceHashes'].get(path) == sha, 'prerelease seed source')
             paths.append(path); hashes.append(sha)
         require(identity['orderedSeedHashes'] == hashes, 'ordered seed hashes')
+        require(set(seed_manifest['seedSourceHashes']) == set(paths), 'prerelease seed inventory')
         require(set(adoption) == {'siteScope', 'candidate', 'publishedRecords', 'contentSha256', 'seedManifestSha256', 'orderedSeedHashes', 'migrationManifestBytes'}, 'adoption fields')
         raw_adoption_manifest = adoption['migrationManifestBytes']
         require(isinstance(raw_adoption_manifest, bytes), 'adoption manifest bytes')
