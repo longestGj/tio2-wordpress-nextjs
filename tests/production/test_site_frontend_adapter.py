@@ -231,11 +231,14 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         baseline={**self.context.subject_baseline,'previousProductionReceipt':'receipt-A','configurationSha256':state['details']['configurationFingerprint'],
                   'cmsContractSha256':hashlib.sha256(canonical(state['details']['cmsEvidence'])).hexdigest()}
         host=ReleaseSubject('host','host',self.root/'host/in',self.root/'host/out',self.root/'host/prod',self.root/'host/etc',self.root/'host/state','none')
+        # The real registry loader always enrolls both host and shared CMS.
+        cms=ReleaseSubject('cms','cms',self.root/'cms/in',self.root/'cms/out',self.root/'cms/prod',self.root/'cms/etc',self.root/'cms/state','none')
+        cms.state_root.mkdir(parents=True,exist_ok=True)
         def loader(subject):
             from deployment_core import Deployment
             record=json.loads((subject.configuration/'baseline.json').read_bytes())
             return {**baseline,'record':record,'activeFrontend':Deployment.frontend_identity(record),'configurationSha256':_configuration_fingerprint(record)},deepcopy(host_baseline)
-        controller=ReleaseController(SubjectRegistry({'host':host,'tio2-my':self.subject}),adapters={(self.subject.adapter,'frontend-only'):self.adapter},
+        controller=ReleaseController(SubjectRegistry({'host':host,'cms':cms,'tio2-my':self.subject}),adapters={(self.subject.adapter,'frontend-only'):self.adapter},
             baseline_loader=loader,lock_factory=lambda path:nullcontext())
         status=controller.execute('tio2-my','status')
         self.assertEqual(status.get('compatibilityTransaction'),transaction)
