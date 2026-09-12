@@ -15,7 +15,7 @@
 - 本计划只实现设计第19节阶段一；阶段二的内容generation、`content-only`/`combined`写入与`cms-platform`适配器，以及阶段三的`host-infrastructure`执行、Release Campaign和新站接管，必须使用各自独立计划。
 - 五种发布类型的包和分类合同在阶段一全部建立；未安装的适配器只能返回`capability-not-installed`，不能回退到`frontend-only`或现有单站逻辑。
 - 七个固定动作是`status prepare backup stage activate verify rollback`；`stage`不得改变活动版本，`activate`不得绕过`INTERNAL_VERIFIED`。
-- 开发以Gate9通知、Gate8合入`develop`并写开发回执为终点；发布必须由独立指令触发，冻结准确`develop` commit后才可开始。
+- 开发以 Gate8 调用的独立代码复审通过、Gate8 合入`develop`并写开发回执为终点；发布必须由独立指令触发，冻结准确`develop` commit后才可开始。
 - 当前生产网站候选固定为`8bf2a3d437b0582ef0ce193b69478622e26419af`，生产活动版本仍为`27f0a0da59df1e54cd01eab7d77eb7024b338d42`，本地RunRoot保持`.production/runs/20260911T215847Z-8bf2a3d437b0`。
 - 兼容迁移前后保持现网活动版本、候选身份、`PREPARED`状态、数据库、WordPress文件、Nginx字节、容器和公众流量不变。
 - 共享CMS是主体`cms`，网站主体是`tio2-my`，服务器控制面主体是`host`；路径、域名、端口、容器、证书和运行身份只由root登记解析。
@@ -604,14 +604,14 @@ Commit: `git commit -m "feat(release): add isolated frontend release adapter"`
 - Modify: `tests/infrastructure/production-prerelease-gate.test.ts`
 
 **Interfaces:**
-- Development receipt state: `MERGED_TO_DEVELOP`，由Gate8在Gate9通过并完成准确合并后写入。
+- Development receipt state: `MERGED_TO_DEVELOP`，由 Gate8 调用独立代码复审、通过后完成准确合并并写入。
 - Release candidate receipt states: `FROZEN`、`INTEGRATION_PASSED`、`MAIN_PRERELEASE_PASSED`、`PACKAGED`、`PRODUCTION_VERIFIED`或明确失败状态。
 - 发布Agent只消费Git中的开发回执和实际差异；没有独立发布指令时不得修改`main`或生成生产包。
 
 - [ ] **Step 1: 写文档与Agent边界合同测试**
 
 ```typescript
-it('keeps Gate8/Gate9 ending at develop and release starting independently', () => {
+it('keeps Gate8-owned review and development ending at develop', () => {
   expect(developmentWorkflow).toContain('MERGED_TO_DEVELOP')
   expect(developmentWorkflow).not.toMatch(/Gate8[^\n]*(main|生产|切流)/)
   expect(releaseAgent).toContain('独立发布指令')
@@ -628,7 +628,7 @@ Expected: FAIL，现有文档和Agent仍把开发、`main`、预发布或生产�
 
 - [ ] **Step 3: 更新开发文档和开发回执模板**
 
-`development-workflow.md`只保留Gate8开发/测试、Gate9独立审查、返修、Gate9通知、Gate8合入`develop`和开发回执；`development-execution.md`只保留任务TDD、单元/集成/任务E2E和开发环境。开发回执必须包含任务、主体、合并commit、改动路径、已运行测试、受影响消费者、预计发布影响和未决项，不含生产命令或授权。
+`development-workflow.md`只保留 Gate8 开发/测试、Gate8 调用的独立代码复审、返修、Gate8 合入`develop`和开发回执；`development-execution.md`只保留任务TDD、单元/集成/任务E2E和开发环境。开发回执必须包含任务、主体、合并commit、改动路径、已运行测试、受影响消费者、预计发布影响和未决项，不含生产命令或授权。
 
 - [ ] **Step 4: 新增稳定发布流程和发布架构文档**
 
@@ -640,7 +640,7 @@ Expected: FAIL，现有文档和Agent仍把开发、`main`、预发布或生产�
 
 - [ ] **Step 6: 更新项目级Release Agent和Skill**
 
-Agent从独立发布指令开始，先冻结commit并建立隔离worktree；若发布侧测试发现代码缺陷，写阻断回执并退回Gate8/Gate9，不直接改业务代码。Skill使用`subject + action`统一入口，先读适配状态，再按三道生产门执行；所有路径保持项目级，不复制或安装到个人skills目录。
+Agent从独立发布指令开始，先冻结commit并建立隔离worktree；若发布侧测试发现代码缺陷，写阻断回执并退回 Gate8，不直接改业务代码。Skill使用`subject + action`统一入口，先读适配状态，再按三道生产门执行；所有路径保持项目级，不复制或安装到个人skills目录。
 
 - [ ] **Step 7: 运行阶段一全量验证**
 
@@ -654,7 +654,7 @@ Run: `python tests/production-runtime/run_ssh_pin_rehearsal.py --isolated`
 
 Run: `git diff --check`
 
-Expected: 全部PASS；测试输出无跳过，阶段一未安装适配器全部失败关闭，根`AGENTS.md`无差异，生产环境未被连接或修改。
+Expected: 全部可执行检查 PASS；如实报告当前平台因 Windows/POSIX 设施不可用产生的跳过，不把跳过改写为通过或零跳过。阶段一未安装适配器全部失败关闭，根`AGENTS.md`无差异，生产环境未被连接或修改。
 
 - [ ] **Step 8: 提交Task 6文档与角色合同**
 

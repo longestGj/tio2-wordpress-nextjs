@@ -1,6 +1,6 @@
 # 网站与策划来源登记
 
-更新：2026-09-07。依据：用户明确D16负责多个网站的开发、测试及发布，D23是当前承接实例，D11负责另一网站策划。
+更新：2026-09-12。依据：用户明确D16负责多个网站的开发、测试及发布，D23是当前承接实例，D11负责另一网站策划。
 
 本文件只登记身份和入口，不复制页面进度或宣称网站已上线。运行时身份仍由`sites/`及实际CMS配置实现；新增登记不会自动新增代码或部署。
 
@@ -38,7 +38,17 @@ D11行表示待明确的承接关系，不表示已经新增第四个运行站�
 | remote Preview | 获明确授权后的远程预览 | 单独记录部署、CMS和配置身份 |
 | Production | `https://tio2malaysia.com`；CMS `https://cms.tio2malaysia.com`；Oracle VPS 固定发布程序 | 2026-09-11首次接管完成；日常发布与回退见[发布工具](production-deployment.md)，当前版本与验收见[生产记录](verification/2026-09-11-tio2-production-adoption.md) |
 
-本地预发布的`HEALTHY`不表示Gate 9、Gate 10、远程部署或发布已获批准。
+生产运行手册为[TiO₂ Malaysia 生产运行手册](production-deployment.md)。阶段一适配状态按已验证实现登记：
+
+| 发布类型 | 适配状态 | 主体与边界 |
+|---|---|---|
+| `frontend-only` | `installed` | `tio2-my`；当前只接受已验证兼容事务 |
+| `content-only` | `not-installed` | 合同可识别；写动作失败关闭 |
+| `combined` | `not-installed` | 合同可识别；写动作失败关闭 |
+| `cms-platform` | `not-installed` | `cms` 仅允许阶段一 `status` |
+| `host-infrastructure` | `not-installed` | 阶段一 sudoers 不开放 host 动作 |
+
+本地预发布的 `HEALTHY` 不表示发布侧集成、生产动作或最终验收已经通过。详细控制器合同见[发布架构](release-architecture.md)。
 
 ## 新网站接入时补齐
 

@@ -56,6 +56,21 @@ function filesUnder(root: string): string[] {
 }
 
 describe('tio2-my production runtime topology', () => {
+  it('documents the exact subject-action entrypoint, one RunRoot, three gates, and recovery stop', () => {
+    const workflow = read('docs/release-workflow.md')
+    const runbook = read('docs/production-deployment.md')
+
+    expect(workflow).toContain('独立发布指令')
+    expect(workflow).toContain('冻结 `develop`')
+    expect(workflow).toContain('准确合入 `main`')
+    expect(runbook).toContain('sudo /usr/local/sbin/d16-release tio2-my <action>')
+    expect(runbook).toContain('同一 RunRoot')
+    expect(runbook).toContain('候选门')
+    expect(runbook).toContain('部署门')
+    expect(runbook).toContain('生产验收门')
+    expect(runbook).toContain('RECOVERY_REQUIRED')
+  })
+
   it('uses only fixed Compose services, images, volumes, network, and loopback endpoints', () => {
     const compose = readCompose()
     const source = read(composePath)

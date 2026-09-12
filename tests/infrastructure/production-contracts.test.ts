@@ -33,6 +33,26 @@ const sha256GitBlob = (path: string) => createHash('sha256')
   .digest('hex')
 
 describe('tio2-my production release contracts', () => {
+  it('documents the phase-one controller, package types, actions, and installed capability', () => {
+    const architecture = readFileSync('docs/release-architecture.md', 'utf8')
+    const registry = readFileSync('docs/site-registry.md', 'utf8')
+
+    for (const component of [
+      '候选合同与分类器', '主体登记与资源所有权', '状态、锁与审计回执',
+      '发布控制器', '类型适配器', '固定特权入口',
+    ]) expect(architecture).toContain(component)
+    for (const releaseType of [
+      'frontend-only', 'content-only', 'combined', 'cms-platform', 'host-infrastructure',
+    ]) expect(architecture).toContain(releaseType)
+    for (const action of ['status', 'prepare', 'backup', 'stage', 'activate', 'verify', 'rollback']) {
+      expect(architecture).toContain(`\`${action}\``)
+    }
+    expect(registry).toContain('`frontend-only` | `installed`')
+    for (const releaseType of ['content-only', 'combined', 'cms-platform', 'host-infrastructure']) {
+      expect(registry).toContain(`\`${releaseType}\` | \`not-installed\``)
+    }
+  })
+
   it('freezes the Malaysia release surface, identity, ports, and ordered 58 objects', () => {
     const surface = readJson<Surface>(productionPath('release-surface.json'))
     const prereleaseScope = readJson<{pages: SurfaceObject[]}>('tests/fixtures/prerelease/scope-58.json')
