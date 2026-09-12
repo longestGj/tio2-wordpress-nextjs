@@ -5,7 +5,7 @@ import {randomUUID} from 'node:crypto'
 import {fillPrivateInput} from './support/private-input'
 import type {Web3FormsWorkflow} from '../../lib/forms/web3forms-browser'
 import {baseUrl, commandUuid, evidenceRoot, recordCheck, capturePublicPage, type TransportCounts} from './support/prerelease-evidence'
-import {buyerEmailTestValue, providerAttempt} from './support/prerelease-live-evidence'
+import {buyerEmailTestValue, providerAttempt, sanitizeLiveFailure} from './support/prerelease-live-evidence'
 
 // Installed Playwright index.js honors this flag before taking an error-context DOM snapshot.
 process.env.PLAYWRIGHT_NO_COPY_PROMPT = '1'
@@ -79,9 +79,12 @@ function liveWorkflow(workflow: PrereleaseThankYouWorkflow, fill: (page: Page, e
         await page.setViewportSize({width, height: width === 390 ? 844 : 1000})
         await capturePublicPage(page, `${workflow}-thank-you-${width}.png`, () => runtimeErrors)
       }
-    } catch {
+    } catch (error) {
       if (attempt?.providerCategory === 'pending') attempt.providerCategory = 'timeout'
       save()
+      writeFileSync(resolve(evidenceRoot, `failure-${randomUUID()}.json`), JSON.stringify({
+        commandUuid, workflow, failure: sanitizeLiveFailure(stage, error),
+      }, null, 2), {flag: 'wx'})
       // Underlying locator/network errors can contain entered values; retain safe stage/category only.
       throw new Error(`Live ${workflow} failed at ${stage}; provider category ${attempt?.providerCategory ?? 'not_attempted'}`)
     }

@@ -39,6 +39,15 @@ it.each(['rejection', 'unknown-rejection', 'positive', 'late-provider', 'late-re
     expect(output).not.toContain(secret)
     expect(output).not.toMatch(/https?:\/\/|\/api\/rfq\/submit|local-prerelease-privacy-fixture-/iu)
     const files = readdirSync(root, {recursive: true}).map(String)
+    if (rejected) {
+      const failures = files.filter(path => /^failure-.*\.json$/u.test(path))
+      expect(failures).toHaveLength(3)
+      for (const file of failures) {
+        const diagnostic = readFileSync(join(root, file), 'utf8')
+        expect(diagnostic).not.toContain(secret)
+        expect(JSON.parse(diagnostic)).toMatchObject({commandUuid: 'privacy-fixture', failure: {stage: 'provider_response', category: 'unknown', field: 'other'}})
+      }
+    }
     expect(files.some(path => /trace\.zip|\.webm$/u.test(path))).toBe(false)
     expect(files.filter(path => path.endsWith('.png')), output).toHaveLength(rejected ? 0 : 9)
     for (const file of files.filter(path => path.endsWith('error-context.md'))) {
