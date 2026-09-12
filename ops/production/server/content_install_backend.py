@@ -196,6 +196,8 @@ class InstallationBackend:
 
     def enroll(self,owner,evidence):
         from frontend_candidate import assemble_installation_enrollment
+        from bootstrap_install import _mkdir
+        import pwd
         self.database.assert_window(owner)
         old=json.loads(base64.b64decode(json.loads((self.directory/'original-files.json').read_bytes())[str(self.configuration/'baseline.json')]['data']))
         records=assemble_installation_enrollment(self.subject,old,evidence['pages'],self.config['previousProductionReceipt'])
@@ -208,6 +210,9 @@ class InstallationBackend:
             raise ReleaseError('untrusted installed hook program path')
         script=('#!/bin/sh\nexec /usr/bin/env -i PATH=/usr/sbin:/usr/bin:/sbin:/bin /usr/bin/python3 -B '+shlex.quote(str(program))+' --config '+shlex.quote(str(self.configuration/'content-hooks.json'))+' "$@"\n').encode()
         write_file(self.wrapper,script,0o755)
+        deploy=pwd.getpwnam('deploy')
+        for path in (self.subject.incoming/'frontend-payload',self.subject.incoming/'frontend-payload/frontend'):
+            _mkdir(path,deploy.pw_uid,deploy.pw_gid,0o700,simulation=False)
 
     def restore(self,owner,baseline,backup):
         original_path=self.directory/'original-files.json'

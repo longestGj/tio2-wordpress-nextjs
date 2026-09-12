@@ -85,5 +85,28 @@ class MaintenanceConfigurationTests(unittest.TestCase):
             self.assertEqual(b'approved',base64.b64decode(snapshot[str(present)]['data']))
             self.assertIsNone(snapshot[str(absent)])
 
+    def test_recovery_before_any_effect_does_not_require_missing_backup(self):
+        from content_install_backend import InstallationBackend
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);backend=object.__new__(InstallationBackend)
+            backend.directory=root;backend.marker=root/'marker'
+            backend.database=SimpleNamespace(state_path=root/'database-state')
+            backend.restore('owner',{},None)
+            backend.leave('owner',{})
+            self.assertEqual([],list(root.iterdir()))
+
+    def test_foreign_marker_is_rejected_before_database_reopens(self):
+        from content_install_backend import InstallationBackend
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);backend=object.__new__(InstallationBackend)
+            backend.directory=root;backend.marker=root/'marker'
+            backend.marker.write_text(json.dumps({'siteId':'tio2-my','owner':'someone-else'}))
+            state=root/'database-state';state.write_text('paused')
+            backend.database=SimpleNamespace(state_path=state,leave=lambda owner:state.write_text('open'))
+            with self.assertRaises(ReleaseError):backend.leave('owner',{})
+            self.assertEqual('paused',state.read_text())
+
 
 if __name__=='__main__': unittest.main()
