@@ -1,8 +1,47 @@
-import {execFileSync} from 'node:child_process'
+import {execFileSync, spawnSync} from 'node:child_process'
 import {mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 import {expect, it} from 'vitest'
+
+it.each(['success', 'failed', 'unverified', 'unexpected-output'] as const)(
+  'records the final route seed only after verified successful execution: %s', (scenario) => {
+    const script = readFileSync('ops/prerelease/bootstrap-wordpress.sh', 'utf8').replaceAll('\r\n', '\n')
+    const tail = script.split('done < "$verified"\n')[1].split('wp eval-file /workspace/wordpress/bootstrap/validate-prerelease-site.php')[0]
+    const root = mkdtempSync(join(tmpdir(), 'd16-route-ledger-'))
+    const path = 'wordpress/seed/apply-tio2-my-prerelease-public-paths.php'
+    const hash = 'a'.repeat(64)
+    const payload = '{"candidateId":"TIO2-MY-PRERELEASE-PUBLIC-PATHS-2026-09-09-V1","state":"APPLIED","routeCount":42}'
+    try {
+      const verified = join(root, 'verified.tsv').replaceAll('\\', '/')
+      writeFileSync(verified, scenario === 'unverified' ? '' : `${path}\t${hash}\n`)
+      const bash = process.platform === 'win32' ? 'C:/Program Files/Git/bin/bash.exe' : 'bash'
+      const result = spawnSync(bash, ['-c', `set -euo pipefail
+verified="$1"
+wp() {
+  echo executed >&2
+  if [[ "$2" != /workspace/${path} ]]; then return 9; fi
+  if [[ "$SCENARIO" == failed ]]; then return 7; fi
+  if [[ "$SCENARIO" == unexpected-output ]]; then echo unknown; else
+    printf '%s\\n' 'TIO2_MY_PRERELEASE_PUBLIC_PATHS_RESULT ${payload}'
+  fi
+}
+record_seed_result() { printf 'record:%s|%s|%s\\n' "$1" "$2" "$3"; }
+${tail}
+echo validated`, 'test', verified], {encoding: 'utf8', env: {...process.env, SCENARIO: scenario}})
+      if (scenario === 'success') {
+        expect(result.status).toBe(0)
+        expect(result.stdout).toContain(`record:${path}|${hash}|${payload}`)
+        expect(result.stdout.indexOf('record:')).toBeLessThan(result.stdout.indexOf('validated'))
+      } else {
+        expect(result.status).not.toBe(0)
+        expect(result.stdout).not.toContain('record:')
+        expect(result.stdout).not.toContain('validated')
+        if (scenario === 'unverified') expect(result.stderr).not.toContain('executed')
+      }
+    } finally { rmSync(root, {recursive: true, force: true}) }
+  },
+)
 
 it('invalidates seed reuse when its external contract changes while the seed script stays unchanged', () => {
   const script=readFileSync('ops/prerelease/bootstrap-wordpress.sh','utf8')
