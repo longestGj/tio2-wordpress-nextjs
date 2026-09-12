@@ -64,7 +64,17 @@ Consumes a trusted installed runtime configuration and immutable d16-content-pac
 
 ## Progress / rulings
 
-- User approved spec at d184504. Implementation started; no item is marked complete based on prior audits.
+- User approved spec at d184504. Implementation is present; final integration review and merge are tracked in the development receipt. The checklist above preserves the initial work breakdown rather than retroactively claiming every regression test had an observed red phase.
 - Task 1 and Task 2 operate on disjoint files; Task 3 engine work is separate from the primary's controller integration.
 - Canonical content hash is an integrity comparison, never a substitute for the approved content input.
 - A runtime interface or fake backend does not demonstrate production writer fencing or real database restore. Installation must remain unavailable until the concrete runtime and rehearsal pass.
+
+### Implementation evidence (2026-09-12)
+
+- Task 1: configured client and immutable offline builder committed; client Status, explicitly requested recovery and read-only terminal reconciliation covered. CMS worker independently reviewed client changes.
+- Task 2: 57 page policies/1692 text paths, PHP and TS validation, projection and conversion-page SEO wiring committed. Observed behavioral red/green: Sample body, Editorial text, projected relation text and conversion SEO. Other page tests are regression coverage.
+- Task 3: full database engine, fixed installed PHP registry/importer, controller and enrolled adapter integration committed. Observed behavioral red/green: classifier handling executable seed code, proof tamper rejection, completion persistence/reconciliation, prior frontend admission, terminal archive retention and configured capability reporting. External Test/Publish/Rollback wrappers now hide the fixed internal steps.
+- Fresh primary verification: 61 controller/adapter/enrollment tests; 185 direct content/cache tests; TypeScript check; same-PID Next development fixture initial/change/restore with visible paragraph, metadata and JSON-LD. Next fixture does not establish real WP-to-Next production E2E.
+- Real isolated MariaDB/WordPress rehearsal passed with writer denial, publication and whole database restore across two scopes, including interrupted restore, restart-persistent fencing, exact database identity and modification timestamps.
+- Actual WPGraphQL-to-Next production-build rehearsal passed on Build Bb4YWK810UdFCmT3skUd4, same process35948: cached old HOME before signed refresh, updated body/title/description and actual sitemap after refresh, actual prior HTML read before injected failure, full database restore and revalidated restored page. Primary inspected its browser screenshot. Subsequent probe/cleanup refinement has five direct regression tests; artifact records the original full-chain execution.
+- Production remains not installed: sealed importer, credentials, maintenance/identity/cache/public-verification programs and actual target configuration require separate installation and real prerelease/production acceptance. No remote writes occurred here.
