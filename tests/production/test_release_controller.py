@@ -352,3 +352,140 @@ class ControllerTests(unittest.TestCase):
             controller.execute("tio2-my", "prepare")
         self.assertEqual(self.state()["state"], "IDLE")
         self.assertEqual(self.adapter.calls, [])
+
+    def test_json_and_quoted_log_secrets_are_redacted_from_all_controller_outputs(self):
+        logs = [
+            '{"password":"quoted-secret","ok":true}',
+            json.dumps({"nested": [json.dumps({"token": "nested-json-secret"})]}),
+            'log: {"credential": "embedded-secret"}',
+            "'api_key' = 'single-quoted-secret'; status=ok",
+            '"password": "unterminated-secret has spaces',
+            'password=unquoted-secret',
+            'password=first-word second-word-secret; outcome=ok',
+            '{"pass\\u0077ord":"escaped-key-secret"}',
+        ]
+        with patch.object(self.adapter, "prepare", return_value={"ok": True, "logs": logs}):
+            result = self.execute("prepare")
+        root = self.subjects["tio2-my"].state_root
+        outputs = [json.dumps(result), (root / "state.json").read_text()]
+        outputs.extend(path.read_text() for path in (root / "audit").iterdir())
+        for secret in ("quoted-secret", "nested-json-secret", "embedded-secret", "single-quoted-secret", "unterminated-secret", "unquoted-secret", "second-word-secret", "escaped-key-secret"):
+            for output in outputs:
+                with self.subTest(secret=secret): self.assertNotIn(secret, output)
+        from release_state import redact
+        self.assertEqual(redact(redact(logs)), redact(logs))
+
+    def test_interrupted_staged_write_resumes_from_durable_proof_without_replaying_adapter(self):
+        self.execute("prepare", "backup")
+        from release_controller import transition as real_transition
+        def interrupt_after_staged(root, expected, target, details):
+            value = real_transition(root, expected, target, details)
+            if target == "STAGED":
+                raise KeyboardInterrupt("injected after STAGED fsync")
+            return value
+        with patch("release_controller.transition", side_effect=interrupt_after_staged):
+            with self.assertRaises(KeyboardInterrupt): self.execute("stage")
+        self.assertEqual(self.state()["state"], "STAGED")
+        restart = self.controller()
+        status = restart.execute("tio2-my", "status")
+        self.assertTrue(status.get("stageResumeAvailable"))
+        self.assertFalse(status["recoveryRequired"])
+        # Resume is based on root-owned persisted proof, not mutable incoming.
+        (self.subjects["tio2-my"].incoming / "payload/frontend/app.js").write_bytes(b"changed-upload")
+        for _ in range(2):
+            self.assertEqual(restart.execute("tio2-my", "stage")["afterState"], "INTERNAL_VERIFIED")
+        self.assertEqual([action for action, _ in self.adapter.calls].count("stage"), 1)
+        self.assertEqual(self.active.read_text(), "old")
+
+    def test_staged_without_bound_verification_proof_requires_recovery(self):
+        self.execute("prepare", "backup", "stage")
+        root = self.subjects["tio2-my"].state_root
+        staged = self.state()
+        staged["state"] = "STAGED"
+        staged["details"].pop("stageVerification", None)
+        atomic_write_json(root / "state.json", staged)
+        restart = self.controller()
+        self.assertTrue(restart.execute("tio2-my", "status")["recoveryRequired"])
+        for action in ("stage", "activate", "prepare"):
+            with self.assertRaisesRegex(ReleaseError, "recovery-required"):
+                restart.execute("tio2-my", action)
+        self.assertEqual([action for action, _ in self.adapter.calls].count("stage"), 1)
+        self.assertEqual(self.active.read_text(), "old")
+
+    def test_successful_activate_result_blocks_replaying_a_restored_internal_state(self):
+        self.execute("prepare", "backup", "stage")
+        snapshot = self.state()
+        self.execute("activate")
+        root = self.subjects["tio2-my"].state_root
+        atomic_write_json(root / "state.json", snapshot)
+        restart = self.controller()
+        self.assertTrue(restart.execute("tio2-my", "status")["recoveryRequired"])
+        for action in ("activate", "stage"):
+            with self.assertRaisesRegex(ReleaseError, "recovery-required"):
+                restart.execute("tio2-my", action)
+        self.assertEqual([action for action, _ in self.adapter.calls].count("activate"), 1)
+
+    def test_successful_result_requires_the_same_full_state_identity(self):
+        self.execute("prepare", "backup", "stage", "activate")
+        path = self.subjects["tio2-my"].state_root / "transaction.json"
+        original = json.loads(path.read_text())
+        changes = {"releaseId": "other", "subject": "other-site", "releaseType": "content-only",
+                   "sourceCommit": "c" * 40, "candidateManifestSha256": "d" * 64,
+                   "previousProductionReceipt": "PROD-other", "adapterVersion": "other-v1"}
+        for key, value in changes.items():
+            atomic_write_json(path, {**original, "identity": {**original["identity"], key: value}})
+            with self.subTest(key=key):
+                self.assertTrue(self.execute("status")["recoveryRequired"])
+                with self.assertRaisesRegex(ReleaseError, "recovery-required"): self.execute("verify")
+        atomic_write_json(path, original)
+
+    def test_successful_result_allows_later_states_and_is_archived_for_next_release(self):
+        self.execute("prepare", "backup", "stage", "activate")
+        self.assertFalse(self.execute("status")["recoveryRequired"])
+        self.execute("verify")
+        self.assertFalse(self.execute("status")["recoveryRequired"])
+        self.evidence()
+        self.execute("verify")
+        self.assertFalse(self.execute("status")["recoveryRequired"])
+        root = self.subjects["tio2-my"].state_root
+        previous_transaction = (root / "transaction.json").read_bytes()
+        manifest_path = self.subjects["tio2-my"].incoming / "candidate-manifest.json"
+        manifest = json.loads(manifest_path.read_text())
+        manifest.update(releaseId="release-18", sourceCommit="c" * 40, previousProductionReceipt="PROD-17")
+        manifest_path.write_text(json.dumps(manifest))
+        self.baseline["previousProductionReceipt"] = "PROD-17"
+        self.execute("prepare")
+        digest = hashlib.sha256(previous_transaction).hexdigest()
+        self.assertEqual((root / "transaction-history" / (digest + ".json")).read_bytes(), previous_transaction)
+        self.assertEqual(self.state()["details"]["previousTransactionSha256"], digest)
+        for action in ("status", "backup", "stage", "activate"):
+            self.execute(action)
+            self.assertFalse(self.execute("status")["recoveryRequired"])
+        self.assertEqual(json.loads((root / "transaction.json").read_text())["identity"]["releaseId"], "release-18")
+
+    def test_rollback_result_can_prepare_a_new_attempt_of_the_same_candidate(self):
+        self.execute("prepare", "backup", "stage", "activate", "rollback")
+        self.assertFalse(self.execute("status")["recoveryRequired"])
+        self.execute("prepare", "backup", "stage")
+        self.assertFalse(self.execute("status")["recoveryRequired"])
+        self.assertIn("previousTransactionSha256", self.state()["details"])
+        self.execute("activate")
+        self.assertEqual([action for action, _ in self.adapter.calls].count("activate"), 2)
+
+    def test_activated_state_without_its_transaction_requires_recovery(self):
+        self.execute("prepare", "backup", "stage", "activate")
+        (self.subjects["tio2-my"].state_root / "transaction.json").unlink()
+        self.assertTrue(self.execute("status")["recoveryRequired"])
+        with self.assertRaisesRegex(ReleaseError, "recovery-required"): self.execute("rollback")
+
+    def test_repeated_candidate_uses_distinct_transaction_generations(self):
+        self.execute("prepare", "backup", "stage", "activate", "verify")
+        self.evidence()
+        self.execute("verify", "prepare", "backup", "stage")
+        internal_snapshot = self.state()
+        self.execute("activate")
+        root = self.subjects["tio2-my"].state_root
+        atomic_write_json(root / "state.json", internal_snapshot)
+        self.assertTrue(self.controller().execute("tio2-my", "status")["recoveryRequired"])
+        with self.assertRaisesRegex(ReleaseError, "recovery-required"): self.execute("activate")
+        self.assertEqual([action for action, _ in self.adapter.calls].count("activate"), 2)

@@ -77,6 +77,11 @@ class ReleaseStateTests(unittest.TestCase):
         for secret in ("hunter2", "abc.def", "token=abc", "password=bad"):
             self.assertNotIn(secret, raw)
 
+    def test_unparseably_deep_json_log_is_redacted_instead_of_falling_back_to_raw_text(self):
+        from release_state import redact
+        nested = "[" * 1100 + '{"pass\\u0077ord":"deep-json-secret"}' + "]" * 1100
+        self.assertFalse("deep-json-secret" in redact(nested), "deep JSON exposed the secret")
+
     def test_lock_rejects_concurrent_holder_through_injected_fcntl_boundary(self) -> None:
         fake = FakeFlock()
         first = ReleaseLock(self.root / "release.lock", lock_api=fake)

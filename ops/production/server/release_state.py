@@ -273,9 +273,25 @@ def redact(value: Any) -> Any:
     if isinstance(value, tuple):
         return [redact(item) for item in value]
     if isinstance(value, str):
+        # Logs may serialize dictionaries (and even further serialized logs).
+        # Decode JSON before inspecting keys so quoting/Unicode escapes cannot
+        # bypass the same recursive policy applied to structured adapter output.
+        try:
+            decoded = json.loads(value)
+            if isinstance(decoded, (dict, list, str)):
+                return json.dumps(redact(decoded), sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+        except RecursionError:
+            return "[REDACTED]"
+        except ValueError:
+            pass
         value = re.sub(r"(?is)-----BEGIN [^-]*PRIVATE KEY-----.*?-----END [^-]*PRIVATE KEY-----", "[REDACTED]", value)
         value = re.sub(r"(?i)\bBearer\s+\S+", "Bearer [REDACTED]", value)
-        value = re.sub(r"(?i)\b[\w-]*(?:secret|token|password|credential|private[_-]?key|api[_-]?key)[\w-]*\s*[:=]\s*(?:\"[^\"]*\"|'[^']*'|[^\s,;]+)", "[REDACTED]", value)
+        # Non-JSON prefixes, single-quoted keys and truncated log lines still
+        # need safe handling. An unterminated quoted value consumes the rest of
+        # the line rather than leaking words after its first whitespace.
+        value = re.sub(
+            r'''(?i)["']?\b[\w.-]*(?:secret|token|password|credential|private|key)[\w.-]*["']?\s*[:=]\s*(?:"(?:\\.|[^"\\])*(?:"|$)|'(?:\\.|[^'\\])*(?:'|$)|[^\r\n,;]+)''',
+            "[REDACTED]", value)
         value = re.sub(r"(https?://)[^/@\s]+:[^/@\s]+@", r"\1[REDACTED]@", value)
         return value
     return value

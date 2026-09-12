@@ -3,11 +3,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from email import policy
 from email.parser import BytesParser
 from pathlib import Path
 from types import MappingProxyType
 from typing import Mapping
+from uuid import uuid4
 
 from candidate_contract import CandidateEnvelope, validate_payload
 from release_adapter import ReleaseContext, _CONTEXT_AUTHORITY
@@ -82,16 +84,25 @@ class ReleaseController:
                 raise ReleaseError("stored subject identity mismatch")
             validate_identity(details)
         journal = self._journal(subject)
-        recovery = (current == "RECOVERY_REQUIRED" or journal is not None
-                    and (journal.get("phase") != "RESULT" or journal.get("afterState") == "RECOVERY_REQUIRED"))
+        stage_proven = self._stage_proven(state)
+        recovery = (current == "RECOVERY_REQUIRED" or self._transaction_conflicts(subject, state, journal)
+                    or current == "STAGED" and not stage_proven)
         if action == "status":
             return redact({"ok": True, "action": action, "subject": subject_id, "state": state,
                            "recoveryRequired": recovery,
+                           "stageResumeAvailable": current == "STAGED" and stage_proven and not recovery,
                            "capabilities": {name: name == "status" or subject.kind == "site" and any(key[0] == subject.adapter for key in self.adapters) for name in sorted(D16_ACTIONS)}})
         if recovery:
             raise ReleaseError("recovery-required")
         if current != "IDLE" and state.get("schemaVersion") != STATE_SCHEMA:
             raise ReleaseError("legacy state requires explicit migration")
+        if action == "stage" and current in {"STAGED", "INTERNAL_VERIFIED"} and stage_proven:
+            # The successful internal verification and its full identity were
+            # fsynced together with STAGED. Re-entry only finishes that state
+            # write; never rebuild/restage or reinterpret mutable incoming data.
+            after = (transition(subject.state_root, {"STAGED"}, "INTERNAL_VERIFIED", state["details"])
+                     if current == "STAGED" else state)
+            return self._receipt(subject, action, state, after)
         allowed = {"prepare": {"IDLE", "FAILED", "ROLLED_BACK", "COMPLETED"},
                    "backup": {"PREPARED"}, "stage": {"BACKED_UP"},
                    "activate": {"INTERNAL_VERIFIED"},
@@ -124,9 +135,22 @@ class ReleaseController:
             self._receipt(subject, action, state, state, failure_stage="validation")
             raise
         details = {**(state.get("details", {}) if action != "prepare" else {}), **identity}
+        if action == "prepare" and journal is not None:
+            # Archive before publishing the next PREPARED state. If interrupted
+            # here the old terminal state still agrees with the old RESULT. The
+            # next state's hash reference is the only permission to retain an
+            # earlier result until the next active-version intent replaces it.
+            digest = self._transaction_digest(journal)
+            archive = subject.state_root / "transaction-history" / (digest + ".json")
+            if archive.exists() or archive.is_symlink():
+                if sha256_file(archive) != digest:
+                    raise ReleaseError("recovery-required")
+            else:
+                atomic_write_json(archive, journal)
+            details["previousTransactionSha256"] = digest
         commit_action = action in {"activate", "rollback"}
         intent = {"schemaVersion": "d16-release-transaction-v1", "phase": "INTENT", "action": action,
-                  "actor": self.actor, "beforeState": current, "identity": identity}
+                  "transactionId": uuid4().hex, "actor": self.actor, "beforeState": current, "identity": identity}
         if commit_action:
             atomic_write_json(context.transaction_path, redact(intent))
         try:
@@ -134,12 +158,15 @@ class ReleaseController:
             if not isinstance(result, Mapping) or result.get("ok") is not True:
                 raise ReleaseError("adapter verification failed")
             details["actionEvidence"] = redact(dict(result))
+            if action == "stage":
+                if result.get("internalVerified") is not True:
+                    raise ReleaseError("internal verification is required")
+                details["stageVerification"] = {"schemaVersion": "d16-stage-verification-v1",
+                                                "identity": identity, "internalVerified": True}
             target = {"prepare": "PREPARED", "backup": "BACKED_UP", "stage": "STAGED",
                       "activate": "ACTIVATED", "verify": "PUBLIC_VERIFIED", "rollback": "ROLLED_BACK"}[action]
             after = transition(subject.state_root, {current}, target, details)
             if action == "stage":
-                if result.get("internalVerified") is not True:
-                    raise ReleaseError("internal verification is required")
                 after = transition(subject.state_root, {"STAGED"}, "INTERNAL_VERIFIED", details)
             if commit_action:
                 atomic_write_json(context.transaction_path, redact({**intent, "phase": "RESULT", "afterState": after["state"], "ok": True}))
@@ -154,11 +181,49 @@ class ReleaseController:
             else:
                 actual = read_state(subject.state_root)["state"]
                 if actual in {"PREPARED", "BACKED_UP", "STAGED", "INTERNAL_VERIFIED", "ACTIVATED"}:
+                    details["failedFromState"] = actual
                     after = transition(subject.state_root, {actual}, "FAILED", details)
                 else:
                     after = read_state(subject.state_root)
             self._receipt(subject, action, state, after, failure_stage="adapter-or-persistence")
             raise ReleaseError("release action failed") from error
+
+    @staticmethod
+    def _transaction_digest(journal):
+        return hashlib.sha256(json.dumps(journal, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode()).hexdigest()
+
+    def _transaction_conflicts(self, subject, state, journal):
+        if journal is None:
+            return state["state"] in {"ACTIVATED", "PUBLIC_VERIFIED", "COMPLETED", "ROLLED_BACK"}
+        if journal.get("phase") != "RESULT" or journal.get("ok") is not True:
+            return True
+        details = state.get("details", {})
+        current = state["state"]
+        digest = self._transaction_digest(journal)
+        if (current in {"PREPARED", "BACKED_UP", "STAGED", "INTERNAL_VERIFIED", "FAILED"}
+                and details.get("previousTransactionSha256") == digest):
+            try:
+                return sha256_file(subject.state_root / "transaction-history" / (digest + ".json")) != digest
+            except (OSError, ReleaseError):
+                return True
+        if journal["identity"] != {key: details.get(key) for key in IDENTITY_FIELDS}:
+            return True
+        if journal["action"] == "activate":
+            if journal["afterState"] != "ACTIVATED":
+                return True
+            return (current not in {"ACTIVATED", "PUBLIC_VERIFIED", "COMPLETED", "ROLLED_BACK"}
+                    and not (current == "FAILED" and details.get("failedFromState") == "ACTIVATED"))
+        return journal["afterState"] != "ROLLED_BACK" or current != "ROLLED_BACK"
+
+    @staticmethod
+    def _stage_proven(state):
+        details = state.get("details", {})
+        evidence = details.get("stageVerification")
+        return (isinstance(evidence, Mapping)
+                and set(evidence) == {"schemaVersion", "identity", "internalVerified"}
+                and evidence["schemaVersion"] == "d16-stage-verification-v1"
+                and evidence["internalVerified"] is True
+                and evidence["identity"] == {key: details.get(key) for key in IDENTITY_FIELDS})
 
     def _context(self, subject, state):
         manifest = subject.incoming / "candidate-manifest.json"
@@ -200,6 +265,8 @@ class ReleaseController:
                     or value.get("schemaVersion") != "d16-release-transaction-v1"
                     or value.get("action") not in {"activate", "rollback"}
                     or value.get("phase") not in {"INTENT", "RESULT"}
+                    or not isinstance(value.get("transactionId"), str)
+                    or re.fullmatch(r"[a-f0-9]{32}", value["transactionId"]) is None
                     or not isinstance(value.get("identity"), dict)
                     or value["identity"].get("subject") != subject.subject_id):
                 raise ValueError()
