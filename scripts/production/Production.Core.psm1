@@ -678,6 +678,49 @@ Export-ModuleMember -Function @(
 # Local controller. Transport and recovery boundaries are module functions so
 # isolated tests can substitute them without adding a CLI bypass.
 function Read-ProductionJson($Path) { Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json -AsHashtable }
+function Save-ProductionCmsIdentity {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string] $RepositoryRoot, [Parameter(Mandatory)][string] $RunRoot)
+    $repository = [IO.Path]::GetFullPath($RepositoryRoot)
+    $fixedRun = [IO.Path]::GetFullPath((Join-Path $repository '.production/runs/20260911T215847Z-8bf2a3d437b0'))
+    if ([IO.Path]::GetFullPath($RunRoot) -cne $fixedRun -or -not [IO.Directory]::Exists($fixedRun)) { throw 'CMS identity requires the fixed existing production RunRoot.' }
+    $source = Join-Path $repository '.prerelease/runs/20260911T214529Z-8bf2a3d437b0/cms-identity.json'
+    $target = Join-Path $fixedRun 'cms-identity.json'
+    $proofPath = Join-Path $fixedRun 'release-proof.json'
+    foreach ($path in @($source, $target, $proofPath)) {
+        $cursor = $path
+        while ($cursor -and $cursor.Length -ge $repository.Length) {
+            if (Test-Path -LiteralPath $cursor) {
+                $item = Get-Item -LiteralPath $cursor -Force
+                if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'CMS identity path contains a link.' }
+            }
+            if ($cursor -eq $repository) { break }
+            $cursor = [IO.Path]::GetDirectoryName($cursor)
+        }
+    }
+    $proof = Read-ProductionJson $proofPath
+    if ($proof.schemaVersion -cne 'tio2-production-proof-v1' -or $proof.siteId -cne 'tio2-my' -or
+        $proof.commit -cne '8bf2a3d437b0582ef0ce193b69478622e26419af' -or $proof.prerelease.cmsIdentitySha256 -cnotmatch '^[a-f0-9]{64}$') { throw 'CMS identity proof is invalid.' }
+    $stream = [IO.File]::Open($source, 'Open', 'Read', 'Read')
+    try {
+        if ($stream.Length -gt 1048576) { throw 'CMS identity exceeds the size limit.' }
+        $buffer = [IO.MemoryStream]::new()
+        try { $stream.CopyTo($buffer); $bytes = $buffer.ToArray() } finally { $buffer.Dispose() }
+    } finally { $stream.Dispose() }
+    $hash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant()
+    if ($hash -cne $proof.prerelease.cmsIdentitySha256) { throw 'Original CMS identity bytes do not match proof.' }
+    if ([IO.File]::Exists($target)) {
+        if ((Get-ProductionSha256 $target) -cne $hash) { throw 'Existing CMS identity differs; refusing replacement.' }
+        return $target
+    }
+    $temporary = Join-Path $fixedRun ('.cms-identity.' + [guid]::NewGuid().ToString('N') + '.tmp')
+    try {
+        $output = [IO.File]::Open($temporary, 'CreateNew', 'Write', 'None')
+        try { $output.Write($bytes); $output.Flush($true) } finally { $output.Dispose() }
+        [IO.File]::Move($temporary, $target, $false)
+    } finally { if ([IO.File]::Exists($temporary)) { Remove-Item -LiteralPath $temporary } }
+    return $target
+}
 function Save-ProductionJson($Path, $Value) {
     $temporary = "$Path.$([guid]::NewGuid().ToString('N')).tmp"
     $bytes = [Text.UTF8Encoding]::new($false).GetBytes(($Value | ConvertTo-Json -Depth 50 -Compress))
@@ -755,7 +798,7 @@ function Invoke-ProductionTransport($Config, $RunRoot, $Kind, $Value, $Intent = 
         try { return (($output -join "`n") | ConvertFrom-Json -AsHashtable -ErrorAction Stop) } catch { throw 'Remote action receipt is not JSON.' }
     }
     if ($Kind -eq 'upload') {
-        if ($Value -notin @('release.tar.gz','release-manifest.json','release-proof.json','backup-request.json','deployment-evidence.json')) { throw 'Unsupported upload.' }
+        if ($Value -cnotin @('release.tar.gz','release-manifest.json','release-proof.json','backup-request.json','deployment-evidence.json','cms-identity.json','compatibility-transaction.json')) { throw 'Unsupported upload.' }
         & scp @options -P $Config.port (Join-Path $RunRoot $Value) "${destination}:/home/deploy/tio2-incoming/$Value" 2>$null | Out-Null
     } elseif ($Kind -eq 'download') {
         if ($Value -notmatch '^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{40}-[a-f0-9]{32}$') { throw 'Invalid backup ID.' }
@@ -859,4 +902,4 @@ function Invoke-ProductionOperation {
         return $result
     } finally {$lock.Dispose()}
 }
-Export-ModuleMember -Function Assert-ProductionConnection,Assert-ProductionActionReceipt,Get-ProductionBackupRequest,New-ProductionDeploymentEvidence,Invoke-ProductionOperation
+Export-ModuleMember -Function Assert-ProductionConnection,Assert-ProductionActionReceipt,Get-ProductionBackupRequest,New-ProductionDeploymentEvidence,Invoke-ProductionOperation,Save-ProductionCmsIdentity

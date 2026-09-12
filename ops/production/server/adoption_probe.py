@@ -22,6 +22,28 @@ from subject_registry import SubjectRegistry, load_registry
 
 _CMS_PROBE_PHP = r'''require "/var/www/html/wp-load.php"; $rows=get_posts(["post_type"=>"any","post_status"=>"publish","numberposts"=>-1,"orderby"=>"ID","order"=>"ASC"]); $out=[]; foreach($rows as $row){$scope=get_post_meta($row->ID,"site_scope",true); if($scope==="tio2-my"){$out[]=["id"=>$row->ID,"type"=>$row->post_type,"slug"=>$row->post_name,"status"=>$row->post_status,"modified"=>$row->post_modified_gmt,"content"=>hash("sha256",$row->post_title."\n".$row->post_content)];}} echo json_encode(["siteId"=>"tio2-my","pluginVersion"=>get_option("tio2_site_model_version", "unknown"),"rows"=>$out]);'''
 
+# Exactly the adoption initialize() ordering/fields/hash algorithm. SHORTINIT
+# avoids plugin/bootstrap side effects; the only SQL is the fixed SELECT below.
+_CMS_CONTENT_PHP = r'''define('SHORTINIT',true);require '/var/www/html/wp-load.php';global $wpdb;$rows=$wpdb->get_results($wpdb->prepare("SELECT DISTINCT p.ID,p.post_type,p.post_name,p.post_title,p.post_content FROM {$wpdb->posts} p JOIN {$wpdb->term_relationships} tr ON tr.object_id=p.ID JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id=tr.term_taxonomy_id JOIN {$wpdb->terms} t ON t.term_id=tt.term_id WHERE p.post_status='publish' AND tt.taxonomy='site_scope' AND t.slug=%s ORDER BY p.post_type,p.post_title,p.ID",'tio2-my'));$out=[];foreach($rows as $r)$out[]=['type'=>$r->post_type,'slug'=>$r->post_name,'title'=>$r->post_title,'content'=>hash('sha256',$r->post_content)];echo json_encode($out,JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR);'''
+
+
+def read_cms_scope(runner: CommandRunner, wordpress_id: str) -> dict[str, object]:
+    if not isinstance(wordpress_id, str) or not re.fullmatch('[a-f0-9]{64}', wordpress_id):
+        raise ReleaseError('CMS container identity is invalid')
+    result = runner.run(('/usr/bin/docker', 'exec', wordpress_id, 'php', '-r', _CMS_CONTENT_PHP))
+    try:
+        rows = json.loads(result.stdout)
+        if (result.returncode != 0 or not isinstance(rows, list) or not rows or len(rows) > 100000
+                or any(not isinstance(row, dict) or set(row) != {'type', 'slug', 'title', 'content'}
+                       or not all(isinstance(value, str) for value in row.values())
+                       or not re.fullmatch('[a-f0-9]{64}', row['content']) for row in rows)):
+            raise ValueError()
+        content_hash = hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        return {'siteScope': 'tio2-my', 'publishedRecords': len(rows), 'contentSha256': content_hash,
+                'observedAt': datetime.now(timezone.utc).isoformat()}
+    except (ValueError, TypeError, KeyError) as error:
+        raise ReleaseError('CMS scope read failed') from error
+
 
 def registered_ingress_snapshot(dump: str, registry: SubjectRegistry, runner: CommandRunner) -> dict[str, object]:
     """Create one immutable in-memory ingress snapshot from the shared parsers."""
@@ -89,6 +111,9 @@ class LocalSnapshotSource:
         }:
             return True
         if arguments == ("/usr/bin/docker", "exec", "wordpress-wordpress-1", "php", "-r", _CMS_PROBE_PHP):
+            return True
+        if (len(arguments) == 6 and arguments[:2] == ('/usr/bin/docker', 'exec')
+                and re.fullmatch('[a-f0-9]{64}', arguments[2]) and arguments[3:] == ('php', '-r', _CMS_CONTENT_PHP)):
             return True
         if len(arguments) == 3 and arguments[:2] == ("/usr/bin/readlink", "--canonicalize-existing"):
             return arguments[2] in self._tls_live_paths
