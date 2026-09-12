@@ -918,6 +918,12 @@ function Assert-D16ActionReceipt($Action,$Receipt,$Binding,$ExpectedSubject = $n
     $allowed=@{status=@('IDLE','PREPARED','BACKED_UP','STAGED','INTERNAL_VERIFIED','ACTIVATED','PUBLIC_VERIFIED','COMPLETED','FAILED','ROLLED_BACK','RECOVERY_REQUIRED');prepare=@('PREPARED');backup=@('BACKED_UP');stage=@('INTERNAL_VERIFIED');activate=@('ACTIVATED');verify=@('PUBLIC_VERIFIED','COMPLETED');rollback=@('ROLLED_BACK')}
     if($Receipt.state.state -cnotin $allowed[$Action]){throw 'D16 receipt state mismatch.'}
     if($null -ne $Binding){
+        if($Binding.releaseType -ceq 'content-only'){
+            foreach($name in @('releaseId','subject','releaseType','sourceCommit','candidateManifestSha256','previousProductionReceipt','adapterVersion')){
+                if(-not $Binding[$name] -or $Receipt.state.details[$name] -cne $Binding[$name]){throw "D16 content receipt binding mismatch: $name"}
+            }
+            return
+        }
         $pendingRequest=$Action -ceq 'status' -and $Receipt.state.state -ceq 'PREPARED' -and -not $Receipt.state.details['requestId']
         foreach($name in @('releaseId','subject','releaseType','sourceCommit','candidateManifestSha256','previousProductionReceipt','adapterVersion','runRoot','transactionSha256','cmsEvidenceSha256','requestId')){
             if($pendingRequest -and $name -ceq 'requestId'){continue}
@@ -944,14 +950,20 @@ function Invoke-D16ProductionTransport($Config,$RunRoot,$Kind,$Value) {
         if($LASTEXITCODE -ne 0){
             Save-ProductionJson (Join-Path $RunRoot 'transport-failure.json') @{action=$Value;exitCode=$LASTEXITCODE;completed=$false}
             if($Value -cne 'status'){
-                try{$observed=Invoke-D16ProductionTransport $Config $RunRoot action status;$bound=$null;if(Test-Path -LiteralPath (Join-Path $RunRoot 'frontend-binding.json')){$bound=Read-ProductionJson (Join-Path $RunRoot 'frontend-binding.json')};Assert-D16ActionReceipt status $observed $bound $Config.siteId;Save-ProductionJson (Join-Path $RunRoot 'failure-status.json') $observed}catch{}
+                try{
+                    $observed=Invoke-D16ProductionTransport $Config $RunRoot action status;$bound=$null
+                    if(Test-Path -LiteralPath (Join-Path $RunRoot 'content-binding.json')){$bound=(Read-ProductionJson (Join-Path $RunRoot 'content-binding.json')).identity}
+                    elseif(Test-Path -LiteralPath (Join-Path $RunRoot 'frontend-binding.json')){$bound=Read-ProductionJson (Join-Path $RunRoot 'frontend-binding.json')}
+                    Assert-D16ActionReceipt status $observed $bound $Config.siteId
+                    Save-ProductionJson (Join-Path $RunRoot 'failure-status.json') $observed
+                }catch{}
             }
             throw 'D16 action disconnected or failed; persistent status was queried. Reuse this RunRoot.'
         }
         try{return (($output -join "`n")|ConvertFrom-Json -AsHashtable -ErrorAction Stop)}catch{throw 'D16 action did not return JSON.'}
     }
     if($Kind -eq 'upload'){
-        if($Value -cnotin @('backup-request.json','frontend-action.json','frontend-restore.json','completion-receipt.json','business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml')){throw 'Unsupported fixed D16 upload.'}
+        if($Value -cnotin @('backup-request.json','frontend-action.json','frontend-restore.json','completion-receipt.json','business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml','candidate-manifest.json','payload/content/package.json','content-prerelease.json')){throw 'Unsupported fixed D16 upload.'}
         & scp @options -P $Config.port (Join-Path $RunRoot $Value) "${destination}:${incoming}/$Value" 2>$null|Out-Null
     }elseif($Kind -eq 'download'){
         if($Value -isnot [string] -or $Value -cnotmatch '\A[0-9]{8}T[0-9]{6}Z-[a-f0-9]{40}-[a-f0-9]{32}\z'){throw 'Invalid frontend backup ID.'}
@@ -1091,6 +1103,84 @@ function Assert-D16LocalBackup($RunRoot,$Binding,$RemoteBackup) {
     return $local
 }
 
+function Get-D16ContentBinding($RunRoot,$SiteId) {
+    # Reuse the server's strict envelope and exact payload validators. Python is
+    # already required by packaging; no incoming package supplies executable code.
+    $validator=@'
+import hashlib,json,sys
+from pathlib import Path
+sys.path.insert(0,sys.argv[1])
+from candidate_contract import CandidateEnvelope,validate_payload
+from content_release import validate_package
+def unique(pairs):
+    value={}
+    for key,item in pairs:
+        if key in value: raise ValueError('duplicate JSON member')
+        value[key]=item
+    return value
+def read(path):
+    if path.is_symlink() or not path.is_file() or path.stat().st_size>16*1024*1024: raise ValueError('invalid file')
+    return json.loads(path.read_bytes(),object_pairs_hook=unique)
+try:
+    root=Path(sys.argv[2]);site=sys.argv[3]
+    manifest=root/'candidate-manifest.json'
+    envelope=CandidateEnvelope.from_path(manifest)
+    if envelope.subject!=site or envelope.release_type!='content-only': raise ValueError('subject/type')
+    payload=validate_payload(envelope,root/'payload')
+    if len(payload.files)!=1 or payload.files[0][0]!='content/package.json': raise ValueError('payload inventory')
+    package=validate_package(read(root/'payload/content/package.json'),site)
+    proof_path=root/'content-prerelease.json';proof=read(proof_path)
+    proof_hash=hashlib.sha256(proof_path.read_bytes()).hexdigest()
+    if set(proof)!={'schemaVersion','subject','sourceCommit','buildId','contentSha256','state','runId'}: raise ValueError('proof schema')
+    if (proof['schemaVersion']!='d16-content-prerelease-v1' or proof['subject']!=site
+        or proof['sourceCommit']!=envelope.source_commit or proof['buildId']!=envelope.build_id
+        or proof['contentSha256']!=package['contentSha256'] or proof['state']!='PASSED'
+        or not isinstance(proof['runId'],str) or not proof['runId'].strip()
+        or proof_hash!=envelope.prerelease_receipt_sha256): raise ValueError('proof binding')
+    identity=dict(releaseId=envelope.release_id,subject=site,releaseType='content-only',sourceCommit=envelope.source_commit,
+        candidateManifestSha256=hashlib.sha256(manifest.read_bytes()).hexdigest(),
+        previousProductionReceipt=envelope.previous_production_receipt,adapterVersion='d16-site-content-v1')
+    print(json.dumps(dict(identity=identity,contentSha256=package['contentSha256'],prereleaseReceiptSha256=proof_hash,payloadSha256=envelope.payload_sha256),separators=(',',':')))
+except Exception:
+    sys.exit(1)
+'@
+    $path=Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString()+'.py')
+    try{
+        [IO.File]::WriteAllText($path,$validator,[Text.UTF8Encoding]::new($false))
+        $server=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../ops/production/server'))
+        $output=@(& python -B $path $server $RunRoot $SiteId 2>$null)
+        if($LASTEXITCODE -ne 0 -or $output.Count -ne 1){throw 'Content candidate, payload or prerelease proof identity mismatch.'}
+        $binding=$output[0]|ConvertFrom-Json -AsHashtable
+    }finally{if(Test-Path -LiteralPath $path){Remove-Item -LiteralPath $path}}
+    $bindingPath=Join-Path $RunRoot 'content-binding.json'
+    if(Test-Path -LiteralPath $bindingPath){
+        $old=Read-ProductionJson $bindingPath
+        if(((ConvertTo-D16CanonicalObject $old)|ConvertTo-Json -Depth 20 -Compress) -cne ((ConvertTo-D16CanonicalObject $binding)|ConvertTo-Json -Depth 20 -Compress)){throw 'Persisted content candidate changed.'}
+    }else{Save-ProductionJson $bindingPath $binding}
+    return $binding
+}
+
+function Invoke-D16ContentOperation($Operation,$Config,$RunRoot,$Status,$Binding) {
+    $action=$Operation.ToLowerInvariant()
+    $admission=$action -ceq 'prepare' -and $Status.state.state -cin @('IDLE','COMPLETED','ROLLED_BACK')
+    if(-not $admission){Assert-D16ActionReceipt status $Status $Binding.identity $Config.siteId}
+    Save-ProductionJson (Join-Path $RunRoot 'status.json') $Status
+    if($action -ceq 'status'){return $Status}
+    if($Status.recoveryRequired){throw 'Server requires recovery; no content action was retried.'}
+    if($action -ceq 'prepare'){
+        # Upload the manifest last. Fixed server installation owns these paths.
+        foreach($name in @('payload/content/package.json','content-prerelease.json','candidate-manifest.json')){Invoke-D16ProductionTransport $Config $RunRoot upload $name}
+    }
+    $result=Invoke-D16ProductionTransport $Config $RunRoot action $action
+    Assert-D16ActionReceipt $action $result $Binding.identity $Config.siteId
+    if($action -ceq 'verify'){
+        $expected=if($Status.state.state -ceq 'ACTIVATED'){'PUBLIC_VERIFIED'}else{'COMPLETED'}
+        if($result.state.state -cne $expected){throw 'Content verify crossed the wrong acceptance boundary.'}
+    }
+    Save-ProductionJson (Join-Path $RunRoot ($action+'.json')) $result
+    return $result
+}
+
 function Invoke-D16ProductionOperation {
     param([ValidateSet('Status','Prepare','Backup','Stage','Activate','Verify','Rollback')]$Operation,[string]$ConfigPath,[string]$RunRoot)
     $config=Read-ProductionJson $ConfigPath;Assert-ProductionConnection $config -RegisteredSite
@@ -1100,7 +1190,10 @@ function Invoke-D16ProductionOperation {
         $connection=@{siteId=$config.siteId;host=$config.host;port=$config.port;hostKey=$config.hostKey;baselineSha256=$config.baselineSha256}
         $connectionPath=Join-Path $RunRoot 'connection.json'
         if(Test-Path -LiteralPath $connectionPath){$old=Read-ProductionJson $connectionPath;foreach($name in $connection.Keys){if($connection[$name] -cne $old[$name]){throw 'Run connection identity changed.'}}}else{Save-ProductionJson $connectionPath $connection}
+        $contentBinding=$null
+        if((Test-Path -LiteralPath (Join-Path $RunRoot 'candidate-manifest.json')) -or (Test-Path -LiteralPath (Join-Path $RunRoot 'content-binding.json'))){$contentBinding=Get-D16ContentBinding $RunRoot $config.siteId}
         $status=Invoke-D16ProductionTransport $config $RunRoot action status;Assert-D16ActionReceipt status $status $null $config.siteId
+        if($null -ne $contentBinding){return Invoke-D16ContentOperation $Operation $config $RunRoot $status $contentBinding}
         $bindingPath=Join-Path $RunRoot 'frontend-binding.json'
         if(Test-Path -LiteralPath $bindingPath){Assert-D16ActionReceipt status $status (Read-ProductionJson $bindingPath)}
         Save-ProductionJson (Join-Path $RunRoot 'status.json') $status
