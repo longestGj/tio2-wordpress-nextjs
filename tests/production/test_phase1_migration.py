@@ -196,6 +196,8 @@ class Phase1MigrationTests(unittest.TestCase):
         for name, data in {'release.tar.gz': b'validated archive fixture', 'release-manifest.json': b'validated manifest fixture',
                            'release-proof.json': encoded(proof), 'cms-identity.json': identity, 'seed-manifest.json': seeds['manifestBytes'],
                            'cms-comparison-evidence.json': encoded(seeds['comparisonEvidence']),
+                           'prerelease-seeds/wordpress/seed/one.php': b'ONE\n',
+                           'prerelease-seeds/wordpress/seed/two.php': b'TWO\n',
                            'registration/host.json': b'{}', 'registration/cms/subject.json': b'{}',
                            'registration/sites/tio2-my/site.json': b'{"adapter":"tio2-my-v1"}'}.items():
             path = system.input_root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data)
@@ -214,7 +216,10 @@ class Phase1MigrationTests(unittest.TestCase):
             return original_json(path)
         migration._read = read; migration._json = read_json; migration.input_loader = system.inputs
         before = self.protected_tree()
-        for fault in ('none', 'reorder', 'missing', 'replacement', 'receipt', 'archive', 'seed-bytes', 'journal-plan', 'journal-state', 'content-mismatch', 'comparison-missing'):
+        for fault in ('none', 'reorder', 'missing', 'replacement', 'receipt', 'archive', 'seed-bytes', 'journal-plan', 'journal-state', 'content-mismatch', 'comparison-missing', 'prerelease-seed-missing', 'prerelease-seed-changed'):
+            seed_source = system.input_root / 'prerelease-seeds/wordpress/seed/one.php'
+            seed_source.write_bytes(b'CHANGED' if fault == 'prerelease-seed-changed' else b'ONE\n')
+            if fault == 'prerelease-seed-missing': seed_source.unlink()
             comparison_path = system.input_root / 'cms-comparison-evidence.json'
             if fault == 'comparison-missing': comparison_path.unlink()
             else: comparison_path.write_bytes(encoded(seeds['comparisonEvidence']))
