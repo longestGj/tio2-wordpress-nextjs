@@ -1,5 +1,14 @@
 import {classifyWeb3FormsResponse} from '../../../lib/forms/web3forms-provider'
 import type {Web3FormsWorkflow} from '../../../lib/forms/web3forms-browser'
+import {PrivateInputError} from './private-input'
+
+export function sanitizeLiveFailure(stage: string, error: unknown) {
+  return {
+    stage: ['configuration', 'public_form_fields', 'provider_response', 'thank_you_transition'].includes(stage) ? stage : 'unknown',
+    category: error instanceof PrivateInputError && ['execution_failed', 'unavailable', 'not_editable', 'event_failed', 'not_applied', 'operation_failed'].includes(error.category) ? error.category : 'unknown',
+    field: error instanceof PrivateInputError && error.field === 'documents.name' ? 'documents.name' : 'other',
+  }
+}
 
 export function buyerEmailTestValue(runId: string, workflow: Web3FormsWorkflow): string {
   if (!/^[a-zA-Z0-9-]{1,100}$/u.test(runId)) throw new Error('Invalid run identity')
