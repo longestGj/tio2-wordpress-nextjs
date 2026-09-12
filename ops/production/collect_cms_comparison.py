@@ -104,7 +104,7 @@ def _verify_verification(value, proof, snapshot, now):
         require(isinstance(value['runId'], str) and 0 < len(value['runId']) <= 200 and bool(value['runId'].strip()), 'verification run')
         require(value['contentSnapshotSha256'] == digest(canonical(snapshot)), 'verified snapshot')
         require(all(type(value[key]) is int for key in ('passed', 'failed', 'skipped'))
-                and value['passed'] > 0 and value['failed'] == 0 and value['skipped'] == 0, 'verification counts')
+                and value['passed'] >= proof['prerelease']['counts']['browserCases'] and value['failed'] == 0 and value['skipped'] == 0, 'verification counts')
         completed = datetime.fromisoformat(value['completedAt'].replace('Z', '+00:00'))
         require(completed.tzinfo is not None and 0 <= (now-completed).total_seconds() <= 86400, 'verification freshness')
     except (ValueError, TypeError, AttributeError) as error:

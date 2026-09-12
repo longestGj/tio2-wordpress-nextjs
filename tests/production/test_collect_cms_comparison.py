@@ -146,7 +146,7 @@ class CollectorTests(unittest.TestCase):
 
     def test_rejects_bad_verification_and_never_fills_missing_counts(self):
         for key, value in [('commit', 'c' * 40), ('contentSnapshotSha256', 'e' * 64), ('passed', True),
-                           ('passed', 0), ('failed', 1), ('skipped', 1), ('runId', ''), ('runId', ' '), ('runId', 'r' * 201), ('state', 'FAILED'),
+                           ('passed', 0), ('passed', 1), ('passed', 173), ('failed', 1), ('skipped', 1), ('runId', ''), ('runId', ' '), ('runId', 'r' * 201), ('state', 'FAILED'),
                            ('completedAt', (self.now-timedelta(hours=25)).isoformat()),
                            ('completedAt', (self.now+timedelta(minutes=1)).isoformat()), ('completedAt', '2026-09-13T00:00:00')]:
             saved = deepcopy(self.verification); self.verification[key] = value
