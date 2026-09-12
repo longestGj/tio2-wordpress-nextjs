@@ -15,7 +15,7 @@ import re
 from release_contract import ReleaseError, assert_root_owned
 
 
-TRANSITIONS = {
+LEGACY_TRANSITIONS = {
     "IDLE": {"PREPARED"},
     "PREPARED": {"BACKED_UP"},
     "BACKED_UP": {"DEPLOYING"},
@@ -26,6 +26,50 @@ TRANSITIONS = {
     "ROLLING_BACK": {"ROLLED_BACK", "FAILED"},
     "ROLLED_BACK": {"PREPARED"},
 }
+
+# The old graph is only for internal legacy deployment_core callers. The D16
+# controller requires STATE_SCHEMA and never dispatches a legacy write action.
+STATE_SCHEMA = "d16-release-state-v1"
+TRANSITIONS = {
+    "IDLE": {"PREPARED"},
+    "PREPARED": {"BACKED_UP", "FAILED"},
+    "BACKED_UP": {"STAGED", "FAILED"},
+    "STAGED": {"INTERNAL_VERIFIED", "FAILED"},
+    "INTERNAL_VERIFIED": {"ACTIVATED", "FAILED"},
+    "ACTIVATED": {"PUBLIC_VERIFIED", "FAILED", "ROLLED_BACK", "RECOVERY_REQUIRED"},
+    "PUBLIC_VERIFIED": {"COMPLETED", "ROLLED_BACK", "RECOVERY_REQUIRED"},
+    "FAILED": {"PREPARED", "ROLLED_BACK", "RECOVERY_REQUIRED"},
+    "ROLLED_BACK": {"PREPARED"},
+    "COMPLETED": {"PREPARED"},
+    "RECOVERY_REQUIRED": set(),
+}
+IDENTITY_FIELDS = ("releaseId", "subject", "releaseType", "sourceCommit",
+                   "candidateManifestSha256", "previousProductionReceipt", "adapterVersion")
+COMPLETION_FILES = frozenset({"business-e2e-receipt.json", "inbox-confirmation-receipt.json",
+                              "rfq-received.eml", "sample-received.eml", "documents-received.eml"})
+
+
+def validate_identity(details: Mapping[str, object]) -> None:
+    from candidate_contract import RELEASE_TYPES
+    if any(not isinstance(details.get(key), str) or not details[key] for key in IDENTITY_FIELDS):
+        raise ReleaseError("release identity is incomplete")
+    if (not re.fullmatch(r"[a-f0-9]{40}", details["sourceCommit"])
+            or not re.fullmatch(r"[a-f0-9]{64}", details["candidateManifestSha256"])
+            or details["releaseType"] not in RELEASE_TYPES):
+        raise ReleaseError("release identity is invalid")
+
+
+def validate_completion_evidence(details: Mapping[str, object]) -> None:
+    evidence = details.get("completionEvidence")
+    if (not isinstance(evidence, Mapping) or evidence.get("businessE2E") != "PASSED"
+            or evidence.get("forms") != {"rfq": "RECEIVED", "sample": "RECEIVED", "documents": "RECEIVED"}
+            or not isinstance(evidence.get("receiptSha256"), str)
+            or not re.fullmatch(r"[a-f0-9]{64}", evidence["receiptSha256"])
+            or not isinstance(evidence.get("evidenceSha256"), Mapping)
+            or set(evidence["evidenceSha256"]) != COMPLETION_FILES
+            or any(not isinstance(value, str) or not re.fullmatch(r"[a-f0-9]{64}", value)
+                   for value in evidence["evidenceSha256"].values())):
+        raise ReleaseError("completion evidence is required")
 
 _SENSITIVE = ("secret", "token", "password", "credential", "private", "key")
 
@@ -160,7 +204,8 @@ def read_state(
         value = json.loads(state_path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
         raise ReleaseError("invalid release state") from error
-    if not isinstance(value, dict) or value.get("state") not in TRANSITIONS:
+    graph = TRANSITIONS if isinstance(value, dict) and value.get("schemaVersion") == STATE_SCHEMA else LEGACY_TRANSITIONS
+    if not isinstance(value, dict) or value.get("state") not in graph:
         raise ReleaseError("invalid release state")
     return value
 
@@ -175,8 +220,28 @@ def transition(
     current = str(previous.get("state"))
     if current not in expected:
         raise ReleaseError("unexpected release state")
-    if next_state not in TRANSITIONS.get(current, set()):
+    modern = "subject" in details or previous.get("schemaVersion") == STATE_SCHEMA
+    graph = TRANSITIONS if modern else LEGACY_TRANSITIONS
+    if next_state not in graph.get(current, set()):
         raise ReleaseError("illegal state transition")
+    if modern:
+        validate_identity(details)
+        if current != "IDLE":
+            if previous.get("schemaVersion") != STATE_SCHEMA:
+                raise ReleaseError("legacy state requires explicit migration")
+            stored = previous.get("details")
+            if not isinstance(stored, Mapping):
+                raise ReleaseError("stored release identity is invalid")
+            validate_identity(stored)
+            if next_state != "PREPARED" and any(stored[key] != details[key] for key in IDENTITY_FIELDS):
+                raise ReleaseError("release identity changed")
+        if next_state == "COMPLETED":
+            validate_completion_evidence(details)
+        value = {"schemaVersion": STATE_SCHEMA, "state": next_state,
+                 "updatedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                 "details": dict(details)}
+        atomic_write_json(state_root / "state.json", value)
+        return value
     commit = details.get("commit")
     archive_hash = details.get("archiveSha256")
     if not isinstance(commit, str) or not re.fullmatch(r"[a-f0-9]{40}", commit) or not isinstance(archive_hash, str) or not re.fullmatch(r"[a-f0-9]{64}", archive_hash):
@@ -197,16 +262,139 @@ def transition(
     return value
 
 
+def _json_text(value: Any) -> str:
+    return json.dumps(redact(value), sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+
+
+_TEXT_SECRET_KEY = r'''["']?\b[\w.-]*(?:secret|token|password|credential|private|key)[\w.-]*["']?\s*[:=]\s*'''
+
+
+def _sensitive_key(key: object) -> bool:
+    text = str(key)
+    for _ in range(8):
+        if any(marker in text.lower() for marker in _SENSITIVE):
+            return True
+        decoded = re.sub(r"\\u([0-9a-fA-F]{4})", lambda match: chr(int(match[1], 16)), text)
+        if decoded == text:
+            return False
+        text = decoded
+    return True  # Excessively layered escape syntax is not a safe key.
+
+
+def _plain_log_text(value: str) -> str | None:
+    # An escaped assignment key outside a parsed JSON fragment cannot safely
+    # be classified by a literal-key regex. None asks the caller to discard the
+    # entire log, including any other fragments already parsed successfully.
+    if re.search(r'''\\(?:u[0-9a-fA-F]{0,4}|["'\\])[^\r\n,;:=]*[:=]''', value):
+        return None
+    for token in re.findall(r"(?:[\w.-]|\\u[0-9a-fA-F]{4})+", value):
+        if "\\u" in token and _sensitive_key(token):
+            return None
+    value = re.sub(r"(?is)-----BEGIN [^-]*PRIVATE KEY-----.*?-----END [^-]*PRIVATE KEY-----", "[REDACTED]", value)
+    value = re.sub(r"(?i)\bBearer\s+\S+", "Bearer [REDACTED]", value)
+    value = re.sub(
+        _TEXT_SECRET_KEY + r'''(?:"(?:\\.|[^"\\])*(?:"|$)|'(?:\\.|[^'\\])*(?:'|$)|[^\r\n,;]+)''',
+        "[REDACTED]", value, flags=re.I)
+    return re.sub(r"(https?://)[^/@\s]+:[^/@\s]+@", r"\1[REDACTED]@", value)
+
+
+def _assignment_end(value: str, start: int) -> int | None:
+    """Consume the entire sensitive value before looking inside it for JSON."""
+    if start == len(value):
+        return start
+    quote = value[start]
+    if quote in "\"'":
+        cursor = start + 1
+        while cursor < len(value):
+            if value[cursor] == "\\":
+                cursor += 2
+            elif value[cursor] == quote:
+                end = cursor + 1
+                if end < len(value) and not (value[end].isspace() or value[end] in ",;]}"):
+                    return None
+                return end
+            else:
+                cursor += 1
+        return None
+    end = start
+    while end < len(value) and value[end] not in "\r\n,;":
+        # Delimiters inside an unquoted container have no reliable field
+        # boundary; discard the log rather than expose a partial value.
+        if value[end] in "{[\"'\\":
+            return None
+        end += 1
+    return end
+
+
+def _embedded_json_log(value: str) -> str:
+    decoder = json.JSONDecoder()
+    assignment = re.compile(_TEXT_SECRET_KEY, re.I)
+    parts: list[str] = []
+    start = cursor = 0
+    while cursor < len(value):
+        match = assignment.match(value, cursor)
+        if match is not None:
+            end = _assignment_end(value, match.end())
+            prefix = _plain_log_text(value[start:cursor])
+            if end is None or prefix is None:
+                return "[REDACTED]"
+            parts.extend((prefix, "[REDACTED]"))
+            start = cursor = end
+            continue
+        if value.startswith("[REDACTED]", cursor):
+            cursor += len("[REDACTED]")
+            continue
+        if value[cursor] not in "{[":
+            cursor += 1
+            continue
+        tail = value[cursor + 1:].lstrip()
+        looks_like_json = (not tail or tail.startswith(('"', '}')) if value[cursor] == "{"
+                           else not tail or re.match(r'(?:["{\[\]\d-]|true\b|false\b|null\b)', tail) is not None)
+        try:
+            decoded, end = decoder.raw_decode(value, cursor)
+            encoded = _json_text(decoded)
+        except RecursionError:
+            return "[REDACTED]"
+        except ValueError:
+            if looks_like_json:
+                return "[REDACTED]"
+            cursor += 1
+            continue
+        prefix = value[start:cursor]
+        if re.search(_TEXT_SECRET_KEY + r"$", prefix, flags=re.I):
+            return "[REDACTED]"
+        clean_prefix = _plain_log_text(prefix)
+        if clean_prefix is None:
+            return "[REDACTED]"
+        parts.extend((clean_prefix, encoded))
+        start = cursor = end
+    clean_tail = _plain_log_text(value[start:])
+    return "[REDACTED]" if clean_tail is None else "".join((*parts, clean_tail))
+
+
 def redact(value: Any) -> Any:
     if isinstance(value, Mapping):
         return {
-            str(key): "[REDACTED]" if any(marker in str(key).lower() for marker in _SENSITIVE) else redact(item)
+            str(key): "[REDACTED]" if _sensitive_key(key) else redact(item)
             for key, item in value.items()
         }
     if isinstance(value, list):
         return [redact(item) for item in value]
     if isinstance(value, tuple):
         return [redact(item) for item in value]
+    if isinstance(value, str):
+        # Logs may serialize dictionaries (and even further serialized logs).
+        # Decode JSON before inspecting keys so quoting/Unicode escapes cannot
+        # bypass the same recursive policy applied to structured adapter output.
+        try:
+            decoded = json.loads(value)
+            if isinstance(decoded, (dict, list, str)):
+                return _json_text(decoded)
+        except RecursionError:
+            return "[REDACTED]"
+        except ValueError:
+            pass
+        return _embedded_json_log(value)
     return value
 
 
@@ -221,16 +409,16 @@ def write_audit_receipt(
     failure_stage: str | None = None,
 ) -> Path:
     _check_stat(state_root, stat_result, stat_reader)
-    if action not in {"status", "prepare", "backup", "deploy", "verify", "rollback"}:
+    if action not in {"status", "prepare", "backup", "deploy", "stage", "activate", "verify", "rollback"}:
         raise ReleaseError("fixed action is required")
     audit_root = state_root / "audit"
     name = f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-{secrets.token_hex(8)}.json"
     receipt = audit_root / name
-    atomic_write_json(receipt, {
+    atomic_write_json(receipt, redact({
         "action": action,
         "actor": actor,
         "createdAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "failureStage": failure_stage or "completed",
         "result": redact(dict(result)),
-    })
+    }))
     return receipt

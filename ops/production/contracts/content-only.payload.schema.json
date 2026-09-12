@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://d16.local/contracts/content-only.payload.schema.json",
+  "title": "D16 content-only payload index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["releaseType", "files"],
+  "properties": {
+    "releaseType": {"const": "content-only"},
+    "files": {"type": "array", "minItems": 1, "items": {"$ref": "candidate-envelope.schema.json#/$defs/file", "properties": {"path": {"pattern": "^content/"}}}}
+  }
+}

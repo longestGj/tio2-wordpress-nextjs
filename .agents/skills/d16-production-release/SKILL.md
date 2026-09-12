@@ -1,35 +1,40 @@
 ---
 name: d16-production-release
-description: Use when preparing, executing, verifying, closing, or rolling back a D16 website production release, including first adoption, fixed deploy-user operations, production E2E, live form acceptance, inbox confirmation, and release receipts.
+description: Use when a separately authorized D16 website release must be prepared, verified, executed, recovered, rolled back, or closed.
 ---
 
 # D16 Production Release
 
-Use the repository's evidence-bound release protocol. A successful command or reachable page is one stage; completion requires the final acceptance receipt.
+Use the repository's subject-scoped release protocol. This skill is project-level; do not copy or install it into a personal skills directory.
 
-## Start
+## Start from an independent instruction
 
-In `D:\16Wordpress_nextjs`, read the root `AGENTS.md`, `docs/site-registry.md`, `docs/development-workflow.md` section 7, and the target site's production runbook. Use the project-scoped `.codex/agents/d16-release-agent.toml` when delegating release execution; its absence on an older production `main` does not itself block status checks or a registered routine release.
+Require an independent release instruction naming the subject, environment, allowed actions, and endpoint. A `MERGED_TO_DEVELOP` receipt is an input, not a trigger.
 
-Resolve the site, environment, exact `main` commit, authorization, and operation mode:
+Read `AGENTS.md`, `docs/site-registry.md`, `docs/release-workflow.md`, `docs/release-architecture.md`, and the subject's runbook. Freeze the exact `develop` commit in an isolated worktree. Verify Git receipts against the actual diff, then run release-side integration E2E. Return code defects to Gate8 with a blocking receipt; do not edit business code in the release worktree.
 
-| Mode | Entry |
-|---|---|
-| Read-only diagnosis | `scripts/production.ps1 -Operation Status` |
-| Routine release | `Package`, then `Release`, `Verify`, and final acceptance |
-| Rollback | Fixed `Rollback` using the originating RunRoot |
-| First adoption or root program upgrade | Separate adoption design and explicit production authorization |
+Only after integration passes, merge that exact candidate to `main`, build an identity-bound prerelease from clean `main`, and validate it before packaging.
 
-Use the fixed `Status` result to determine whether the server is enrolled. A prose runbook may lag a just-completed adoption; resolve that discrepancy from the persisted server state and update the documentation on `develop`. Never infer an unregistered or registered server solely from a document banner.
+## Resolve `subject + action`
+
+Classify the candidate from actual Git, content, and configuration differences. The package supplies `subject + releaseType`; the operator never overrides the type.
+
+Read the adapter status in `docs/site-registry.md` before any write. Phase one installs only the verified `tio2-my/frontend-only` compatibility path. `content-only`, `combined`, `cms-platform`, and `host-infrastructure` are `not-installed`; their write actions stop with `capability-not-installed`.
+
+The fixed actions are `status`, `prepare`, `backup`, `stage`, `activate`, `verify`, and `rollback`. Use `scripts/production.ps1` and the subject's ignored connection file. Never construct remote shell commands or pass paths and type overrides to the privileged entrypoint.
 
 ## Enforce the three gates
 
-1. **Candidate:** require clean `main` and a healthy prerelease receipt bound to the same site, commit, Build ID, CMS identity, and surface. Package into one immutable RunRoot.
-2. **Deploy:** use the site's ignored connection file and deploy user's fixed controller. Preserve the same RunRoot across retries. Require encrypted backup, real decrypt/restore verification, deployment evidence, and server `PUBLIC_VERIFIED`. Routine release changes only the frontend; treat WordPress, database, seed, migration, Nginx, TLS, sudo, or root-program changes as separate work.
-3. **Acceptance:** run the site's public E2E contract, authorized live forms, token-bound inbox confirmation, and `Seal-ProductionReceipt.ps1`. Announce completion only for `PRODUCTION_VERIFIED`.
+| Gate | Required evidence |
+|---|---|
+| Candidate | One subject/type, exact commit, Build, CMS/configuration identities, previous production receipt, prerelease receipt, and immutable hashes |
+| Deploy | Same RunRoot and request through `status -> prepare -> backup -> stage -> activate -> verify`; encrypted backup, real decryption, isolated restore, and internal verification before activation |
+| Acceptance | `PUBLIC_VERIFIED`, subject-specific business E2E, authorized live forms, inbox confirmation, `New-ProductionCompletionEvidence.ps1` six-file output, and final evidence validated by the second `verify` |
 
-Do not infer success from an SSH disconnect. Read persisted state through `Status`. Do not use ad-hoc remote shell or root to bypass a failed fixed action. If identities diverge, stop writes, report the exact stage, and use the defined retry or rollback path.
+Keep the same RunRoot after interruption. Query `status` rather than infer from an SSH disconnect. Stop all ordinary writes for identity drift, missing evidence, unavailable capability, or `RECOVERY_REQUIRED`.
 
-Keep private keys, access keys, receiver addresses, database credentials, mailbox content, and personal form values in ignored local or platform storage. Tracked receipts contain hashes, counts, statuses, and non-secret identities only.
+For `tio2-my`, run `scripts/production/New-ProductionCompletionEvidence.ps1` only after the actual business E2E summary, explicit confirmed-inbox input, and three real original `.eml` files exist. The script binds them to the persisted candidate, subject, run, request, CMS, backup, and active frontend identities; then call the fixed `Verify` again with the same RunRoot. The historical inbox and receipt scripts do not produce the phase-one six-file contract.
 
-Report production commit separately from later tooling commits on `develop`, so source control never falsely claims an undeployed `main` is live.
+`rollback` uses only the registered previous version and evidence for the same subject and transaction. Do not edit state, Docker, Nginx, sudoers, or protected programs by hand. Administrator installation, first adoption, and future Release Campaign execution require separate instructions.
+
+Report hashes, states, counts, and non-secret identities. Keep keys, credentials, mailbox data, and personal form values out of Git. Announce completion only when the final receipt is `PRODUCTION_VERIFIED`.

@@ -90,6 +90,14 @@ class BootstrapInstallTests(unittest.TestCase):
         self.assertNotIn("tio2-adopt", sudoers)
         self.assertNotIn("tio2_adopt.py", sudoers)
 
+    def test_installed_generation_imports_shared_ingress_and_migration_dependencies(self):
+        archive = self.root / 'bootstrap'
+        archive_copy(archive)
+        def self_test(staged):
+            result = subprocess.run([sys.executable, '-B', '-c', 'import adoption_probe, nginx_inventory, tls_identity, cms_evidence, phase1_migration, d16_release, frontend_backup, site_frontend_adapter'], cwd=staged, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+        install_bootstrap(archive, self.paths, deploy_uid=1000, deploy_gid=1000, stat_reader=trusted_stat, self_test=self_test, sudo_validator=lambda _: None)
+
     def test_root_adoption_does_not_generate_untrusted_bytecode_and_uses_fixed_sudo_validator(self) -> None:
         root_adopt = (SERVER_ROOT / "root-adopt.sh").read_text(encoding="utf-8")
         bootstrap = (SERVER_ROOT / "bootstrap_install.py").read_text(encoding="utf-8")
@@ -105,6 +113,7 @@ class BootstrapInstallTests(unittest.TestCase):
         archive_copy(archive)
         result = subprocess.run([sys.executable, str(archive / "bootstrap_selftest.py")], cwd=archive, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("d16 entrypoint rejection checks passed", result.stdout)
 
     def test_rejects_unvalidated_support_code_before_any_root_self_test_runs(self) -> None:
         archive = self.root / "bootstrap"

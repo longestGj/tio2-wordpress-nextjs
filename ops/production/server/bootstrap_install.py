@@ -21,6 +21,9 @@ class BootstrapError(RuntimeError):
 
 
 REQUIRED_FILES = (
+    "frontend_backup.py", "site_frontend_adapter.py",
+    "nginx_inventory.py", "tls_identity.py", "cms_evidence.py", "phase1_migration.py", "root-migrate-phase1.sh",
+    "candidate_contract.py", "subject_registry.py", "release_adapter.py", "release_controller.py", "d16_release.py",
     "install.sh", "bootstrap_install.py", "bootstrap_selftest.py", "tio2_release.py",
     "release_contract.py", "release_state.py", "release_actions.py", "release_baseline.py", "backup_core.py", "deployment_core.py", "web.Dockerfile", "backup.sh", "sudoers.tio2-release", "sshd-tio2-production.conf",
     "adoption_contract.py", "adoption_probe.py", "adoption_state.py", "adoption_apply.py", "adoption_phase_a.py", "adoption_wordpress.py", "adoption_internal.py", "adoption_tls.py", "adoption_finalize.py", "tio2_adopt.py", "tool-commit.txt",
@@ -105,9 +108,13 @@ def _safe_write(path: Path, data: bytes, mode: int, *, simulation: bool) -> None
         raise BootstrapError("unsafe destination parent")
     path.parent.mkdir(parents=True, exist_ok=True)
     candidate = path.parent / f".{path.name}.{uuid4().hex}.new"
-    candidate.write_bytes(data)
-    candidate.chmod(mode)
+    with candidate.open('xb') as output:
+        output.write(data)
+        output.flush()
+        os.fchmod(output.fileno(), mode) if os.name == 'posix' else candidate.chmod(mode)
+        os.fsync(output.fileno())
     os.replace(candidate, path)
+    _sync_parent(path, simulation=simulation)
 
 
 def _snapshot(path: Path) -> tuple[str, bytes | str | None, int | None]:
@@ -260,7 +267,9 @@ def install_bootstrap(source: Path, paths: BootstrapPaths, *, deploy_uid: int, d
     validate_bootstrap_source(source, stat_reader=stat_reader)
     staging: Path | None = Path(tempfile.mkdtemp(prefix=".install-", dir=paths.programs))
     try:
-        for name in ("bootstrap_install.py", "bootstrap_selftest.py", "tio2_release.py", "release_contract.py", "release_state.py", "release_actions.py", "release_baseline.py", "backup_core.py", "deployment_core.py", "web.Dockerfile", "backup.sh", "sshd-tio2-production.conf", "adoption_contract.py", "adoption_probe.py", "adoption_state.py", "adoption_apply.py", "adoption_phase_a.py", "adoption_wordpress.py", "adoption_internal.py", "adoption_tls.py", "adoption_finalize.py", "tio2_adopt.py", "tool-commit.txt", "root-adopt.sh"):
+        for name in REQUIRED_FILES:
+            if name in {'install.sh', 'sudoers.tio2-release'}:
+                continue
             _safe_write(staging / name, (source / name).read_bytes(), 0o750, simulation=paths.simulation)
         wrapper = b"#!/bin/sh\nexec /usr/bin/python3 /opt/tio2-production/program/tio2_release.py \"$@\"\n"
         _safe_write(staging / "tio2-release", wrapper, 0o750, simulation=paths.simulation)

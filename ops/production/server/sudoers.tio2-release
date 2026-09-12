@@ -1,2 +1,9 @@
-Defaults!/usr/local/sbin/tio2-release env_reset,secure_path=/usr/sbin:/usr/bin:/sbin:/bin,!setenv
-deploy ALL=(root) NOPASSWD: /usr/local/sbin/tio2-release status, /usr/local/sbin/tio2-release prepare, /usr/local/sbin/tio2-release backup, /usr/local/sbin/tio2-release deploy, /usr/local/sbin/tio2-release verify, /usr/local/sbin/tio2-release rollback
+Defaults!/usr/local/sbin/d16-release env_reset,secure_path=/usr/sbin:/usr/bin:/sbin:/bin,!setenv
+deploy ALL=(root) NOPASSWD: /usr/local/sbin/d16-release tio2-my status
+deploy ALL=(root) NOPASSWD: /usr/local/sbin/d16-release tio2-my prepare
+deploy ALL=(root) NOPASSWD: /usr/local/sbin/d16-release tio2-my backup
+deploy ALL=(root) NOPASSWD: /usr/local/sbin/d16-release tio2-my stage
+deploy ALL=(root) NOPASSWD: /usr/local/sbin/d16-release tio2-my activate
+deploy ALL=(root) NOPASSWD: /usr/local/sbin/d16-release tio2-my verify
+deploy ALL=(root) NOPASSWD: /usr/local/sbin/d16-release tio2-my rollback
+deploy ALL=(root) NOPASSWD: /usr/local/sbin/d16-release cms status

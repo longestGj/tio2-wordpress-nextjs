@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import platform
 import re
 import shutil
@@ -14,6 +14,40 @@ import subprocess
 from typing import Protocol
 
 from adoption_contract import AdoptionError, COMPOSE, _validate_facts, load_json_strict
+from release_actions import CommandResult, CommandRunner
+from release_baseline import validate_registered_ingress
+from release_contract import ReleaseError
+from subject_registry import SubjectRegistry, load_registry
+
+
+_CMS_PROBE_PHP = r'''require "/var/www/html/wp-load.php"; $rows=get_posts(["post_type"=>"any","post_status"=>"publish","numberposts"=>-1,"orderby"=>"ID","order"=>"ASC"]); $out=[]; foreach($rows as $row){$scope=get_post_meta($row->ID,"site_scope",true); if($scope==="tio2-my"){$out[]=["id"=>$row->ID,"type"=>$row->post_type,"slug"=>$row->post_name,"status"=>$row->post_status,"modified"=>$row->post_modified_gmt,"content"=>hash("sha256",$row->post_title."\n".$row->post_content)];}} echo json_encode(["siteId"=>"tio2-my","pluginVersion"=>get_option("tio2_site_model_version", "unknown"),"rows"=>$out]);'''
+
+# Exactly the adoption initialize() ordering/fields/hash algorithm. SHORTINIT
+# avoids plugin/bootstrap side effects; the only SQL is the fixed SELECT below.
+_CMS_CONTENT_PHP = r'''define('SHORTINIT',true);require '/var/www/html/wp-load.php';global $wpdb;$rows=$wpdb->get_results($wpdb->prepare("SELECT DISTINCT p.ID,p.post_type,p.post_name,p.post_title,p.post_content FROM {$wpdb->posts} p JOIN {$wpdb->term_relationships} tr ON tr.object_id=p.ID JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id=tr.term_taxonomy_id JOIN {$wpdb->terms} t ON t.term_id=tt.term_id WHERE p.post_status='publish' AND tt.taxonomy='site_scope' AND t.slug=%s ORDER BY p.post_type,p.post_title,p.ID",'tio2-my'));$out=[];foreach($rows as $r)$out[]=['type'=>$r->post_type,'slug'=>$r->post_name,'title'=>$r->post_title,'content'=>hash('sha256',$r->post_content)];echo json_encode($out,JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR);'''
+
+
+def read_cms_scope(runner: CommandRunner, wordpress_id: str) -> dict[str, object]:
+    if not isinstance(wordpress_id, str) or not re.fullmatch('[a-f0-9]{64}', wordpress_id):
+        raise ReleaseError('CMS container identity is invalid')
+    result = runner.run(('/usr/bin/docker', 'exec', wordpress_id, 'php', '-r', _CMS_CONTENT_PHP))
+    try:
+        rows = json.loads(result.stdout)
+        if (result.returncode != 0 or not isinstance(rows, list) or not rows or len(rows) > 100000
+                or any(not isinstance(row, dict) or set(row) != {'type', 'slug', 'title', 'content'}
+                       or not all(isinstance(value, str) for value in row.values())
+                       or not re.fullmatch('[a-f0-9]{64}', row['content']) for row in rows)):
+            raise ValueError()
+        content_hash = hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        return {'siteScope': 'tio2-my', 'publishedRecords': len(rows), 'contentSha256': content_hash,
+                'observedAt': datetime.now(timezone.utc).isoformat()}
+    except (ValueError, TypeError, KeyError) as error:
+        raise ReleaseError('CMS scope read failed') from error
+
+
+def registered_ingress_snapshot(dump: str, registry: SubjectRegistry, runner: CommandRunner) -> dict[str, object]:
+    """Create one immutable in-memory ingress snapshot from the shared parsers."""
+    return validate_registered_ingress(registry, dump, runner)
 
 
 class SnapshotSource(Protocol):
@@ -37,16 +71,96 @@ class ProductionProbe:
 class LocalSnapshotSource:
     """Collect only fixed files, read-only commands and loopback CMS facts."""
 
-    def _run(self, arguments: list[str], timeout: int = 30) -> str:
-        allowed = {
-            "/usr/bin/docker", "/usr/sbin/nginx", "/usr/bin/systemctl", "/usr/bin/mysql", "/usr/bin/uname",
-        }
-        if not arguments or arguments[0] not in allowed:
-            raise AdoptionError("adoption probe command is not allowed")
+    def __init__(self, registry_root: Path = Path("/etc/d16-release")):
+        self.registry_root = registry_root
+        self._tls_live_paths: frozenset[str] = frozenset()
+        self._tls_archives: dict[str, int] = {}
+
+    def _configure_tls_allowlist(self, registry: SubjectRegistry) -> None:
+        live_paths: set[str] = set()
+        archives: dict[str, int] = {}
+        for subject in registry.subjects.values():
+            for certificate in subject.certificates:
+                live_paths.update((certificate.fullchain_path.as_posix(), certificate.private_key_path.as_posix()))
+                archives[certificate.archive_directory.as_posix()] = certificate.min_remaining_seconds
+        self._tls_live_paths = frozenset(live_paths)
+        self._tls_archives = archives
+
+    def _archive_kind(self, value: str) -> str | None:
+        path = PurePosixPath(value)
+        if not path.is_absolute() or path.parent.as_posix() not in self._tls_archives:
+            return None
+        match = re.fullmatch(r"(fullchain|privkey)[1-9][0-9]*\.pem", path.name)
+        return match.group(1) if match is not None else None
+
+    def _command_allowed(self, arguments: tuple[str, ...]) -> bool:
+        if arguments == ("/usr/bin/uname", "-m"):
+            return True
+        if arguments in {
+            ("/usr/bin/systemctl", "is-active", "mariadb"),
+            ("/usr/bin/systemctl", "show", "mariadb", "--property", "MainPID", "--value"),
+            ("/usr/bin/mysql", "--batch", "--skip-column-names", "-e", "SELECT @@datadir;"),
+            ("/usr/sbin/nginx", "-T"),
+        }:
+            return True
+        if len(arguments) >= 3 and arguments[:2] == ("/usr/bin/docker", "inspect"):
+            return all(value in {"wordpress-wordpress-1", "wordpress-db-1"} or re.fullmatch(r"[a-f0-9]{64}", value) for value in arguments[2:])
+        if arguments in {
+            ("/usr/bin/docker", "volume", "inspect", "wordpress_wp_data"),
+            ("/usr/bin/docker", "volume", "inspect", "wordpress_db_data"),
+        }:
+            return True
+        if arguments == ("/usr/bin/docker", "exec", "wordpress-wordpress-1", "php", "-r", _CMS_PROBE_PHP):
+            return True
+        if (len(arguments) == 6 and arguments[:2] == ('/usr/bin/docker', 'exec')
+                and re.fullmatch('[a-f0-9]{64}', arguments[2]) and arguments[3:] == ('php', '-r', _CMS_CONTENT_PHP)):
+            return True
+        if len(arguments) == 3 and arguments[:2] == ("/usr/bin/readlink", "--canonicalize-existing"):
+            return arguments[2] in self._tls_live_paths
+        if len(arguments) == 3 and arguments[:2] == ("/usr/bin/stat", "--printf=%d|%i|%s|%Y|%u|%F|%a"):
+            return self._archive_kind(arguments[2]) is not None
+        if len(arguments) == 3 and arguments[:2] == ("/usr/bin/sha256sum", "--binary"):
+            return self._archive_kind(arguments[2]) is not None
+        if len(arguments) >= 4 and arguments[:3] == ("/usr/bin/openssl", "x509", "-in"):
+            path = arguments[3]
+            if self._archive_kind(path) != "fullchain":
+                return False
+            return arguments in {
+                ("/usr/bin/openssl", "x509", "-in", path, "-noout", "-ext", "subjectAltName", "-enddate"),
+                ("/usr/bin/openssl", "x509", "-in", path, "-pubkey", "-noout"),
+                ("/usr/bin/openssl", "x509", "-in", path, "-checkend", str(self._tls_archives[PurePosixPath(path).parent.as_posix()]), "-noout"),
+            }
+        if len(arguments) == 5 and arguments[:3] == ("/usr/bin/openssl", "pkey", "-in"):
+            return self._archive_kind(arguments[3]) == "privkey" and arguments[4] == "-pubout"
+        return False
+
+    @staticmethod
+    def _execute(arguments: tuple[str, ...], timeout: int) -> CommandResult:
+        nginx_dump = arguments == ("/usr/sbin/nginx", "-T")
         try:
-            result = subprocess.run(arguments, shell=False, check=False, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=timeout)
+            result = subprocess.run(arguments, shell=False, check=False, text=not nginx_dump, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=timeout)
         except (OSError, subprocess.TimeoutExpired) as error:
             raise AdoptionError("adoption probe command failed") from error
+        output = result.stdout
+        if nginx_dump:
+            # Match classify_nginx's UTF-8 source decoding without universal
+            # newline translation; undecodable bytes cannot form a snapshot.
+            try:
+                output = output.decode("utf-8", errors="strict")
+            except UnicodeDecodeError as error:
+                raise AdoptionError("adoption Nginx dump encoding is invalid") from error
+        return CommandResult(result.returncode, output)
+
+    def run(self, command: tuple[str, ...]) -> CommandResult:
+        if not self._command_allowed(command):
+            raise AdoptionError("adoption probe command is not allowed")
+        return self._execute(command, 30)
+
+    def _run(self, arguments: list[str], timeout: int = 30) -> str:
+        command = tuple(arguments)
+        if not self._command_allowed(command):
+            raise AdoptionError("adoption probe command is not allowed")
+        result = self._execute(command, timeout)
         if result.returncode != 0:
             raise AdoptionError("adoption probe command failed")
         return result.stdout
@@ -95,8 +209,7 @@ class LocalSnapshotSource:
         return {"active": active, "dataDirectory": data_directory, "openDataPaths": sorted(set(open_paths)), "isolationVerified": isolated}
 
     def _cms(self, wordpress: dict[str, object]) -> dict[str, object]:
-        php = r'''require "/var/www/html/wp-load.php"; $rows=get_posts(["post_type"=>"any","post_status"=>"publish","numberposts"=>-1,"orderby"=>"ID","order"=>"ASC"]); $out=[]; foreach($rows as $row){$scope=get_post_meta($row->ID,"site_scope",true); if($scope==="tio2-my"){$out[]=["id"=>$row->ID,"type"=>$row->post_type,"slug"=>$row->post_name,"status"=>$row->post_status,"modified"=>$row->post_modified_gmt,"content"=>hash("sha256",$row->post_title."\n".$row->post_content)];}} echo json_encode(["siteId"=>"tio2-my","pluginVersion"=>get_option("tio2_site_model_version", "unknown"),"rows"=>$out]);'''
-        raw = load_json_strict(self._run(["/usr/bin/docker", "exec", "wordpress-wordpress-1", "php", "-r", php], timeout=60))
+        raw = load_json_strict(self._run(["/usr/bin/docker", "exec", "wordpress-wordpress-1", "php", "-r", _CMS_PROBE_PHP], timeout=60))
         if not isinstance(raw, dict) or set(raw) != {"siteId", "pluginVersion", "rows"} or not isinstance(raw["rows"], list):
             raise AdoptionError("CMS probe response mismatch")
         rows = raw["rows"]
@@ -131,14 +244,19 @@ class LocalSnapshotSource:
         wordpress_volume = self._volume(wordpress_raw, "wordpress_wp_data", "/var/www/html")
         database_volume = self._volume(database_raw, "wordpress_db_data", "/var/lib/mysql")
         nginx_output = self._run(["/usr/sbin/nginx", "-T"])
-        names = sorted(set(name for group in re.findall(r"(?m)^\s*server_name\s+([^;]+);", nginx_output) for name in group.split() if name != "_"))
+        try:
+            registry = load_registry(self.registry_root)
+            self._configure_tls_allowlist(registry)
+            ingress = registered_ingress_snapshot(nginx_output, registry, self)
+        except ReleaseError as error:
+            raise AdoptionError("registered ingress probe failed") from error
         memory = next((int(line.split()[1]) * 1024 for line in Path("/proc/meminfo").read_text().splitlines() if line.startswith("MemAvailable:")), 0)
         return {
             "observedAt": datetime.now(timezone.utc).isoformat(),
             "platform": {"osId": os_release.get("ID"), "versionId": os_release.get("VERSION_ID"), "architecture": self._run(["/usr/bin/uname", "-m"]).strip(), "cpuCount": os.cpu_count() or 0, "memoryAvailableBytes": memory, "diskFreeBytes": shutil.disk_usage("/").free},
             "legacy": {"composePath": COMPOSE, "composeSha256": self._sha(compose.read_bytes()), "wordpress": wordpress, "database": database, "wordpressVolume": wordpress_volume, "databaseVolume": database_volume},
             "hostMariaDb": self._host_mariadb(database_volume["mountpoint"]),
-            "nginx": {"serverNames": names, "configurationSha256": self._sha(nginx_output.encode())},
+            "nginx": {"serverNames": ingress["serverNames"], "configurationSha256": ingress["configurationSha256"]},
             "cms": self._cms(wordpress_raw),
             "incoming": self._incoming(),
         }

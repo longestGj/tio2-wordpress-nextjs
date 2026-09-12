@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://d16.local/contracts/frontend-only.payload.schema.json",
+  "title": "D16 frontend-only payload index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["releaseType", "files"],
+  "properties": {
+    "releaseType": {"const": "frontend-only"},
+    "files": {"type": "array", "minItems": 1, "items": {"$ref": "candidate-envelope.schema.json#/$defs/file", "properties": {"path": {"pattern": "^frontend/"}}}}
+  }
+}

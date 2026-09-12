@@ -56,7 +56,7 @@ class RollbackIntentTests(unittest.TestCase):
 
 @unittest.skipUnless(os.name=='posix' and getattr(os,'geteuid',lambda:1)()==0,'isolated Linux root fixture required')
 class FinalPosixTests(unittest.TestCase):
-    def test_cli_parses_and_rejects_intent_while_actual_root_lock_is_held(self):
+    def test_legacy_cli_rejects_rollback_before_reading_intent(self):
         from contextlib import redirect_stdout
         import tio2_release
         from release_contract import ReleasePaths
@@ -66,13 +66,9 @@ class FinalPosixTests(unittest.TestCase):
             details={'candidate':{'commit':'c'*40,'archiveSha256':'a'*64,'manifestSha256':'b'*64,'proofSha256':'d'*64},'active':{'enrollmentSha256':'e'*64},'deploymentEvidence':{'baselineSha256':'f'*64,'backupId':'20260911T000000Z-'+'c'*40+'-'+'a'*32}}
             request=intent(details);request['candidate']['commit']='b'*40
             atomic_write_json(paths.production/'state/state.json',{'state':'PUBLIC_VERIFIED','details':details})
-            parser=tio2_release.read_rollback_intent
-            def parse_under_lock(stream):
-                with self.assertRaises(ReleaseError):
-                    with ReleaseLock(paths.production/'state/release.lock'):pass
-                return parser(stream)
-            stdin=Mock(buffer=io.BytesIO(json.dumps(request).encode()))
-            with patch.object(tio2_release,'DEFAULT_PATHS',paths),patch.object(tio2_release,'read_rollback_intent',side_effect=parse_under_lock),patch.object(sys,'stdin',stdin),patch.object(tio2_release,'clear_environment'),redirect_stdout(io.StringIO()):
+            stdin=Mock()
+            stdin.buffer.read.side_effect=AssertionError('legacy CLI must not read write intent')
+            with patch.object(tio2_release,'DEFAULT_PATHS',paths),patch.object(sys,'stdin',stdin),patch.object(tio2_release,'clear_environment'),redirect_stdout(io.StringIO()):
                 self.assertEqual(tio2_release.main(['rollback']),2)
             self.assertFalse((paths.production/'state/deployment-journal.json').exists())
 
@@ -89,7 +85,8 @@ class FinalPosixTests(unittest.TestCase):
             driver.write_text(f"""import sys,json
 from pathlib import Path
 sys.path.insert(0,{str(SERVER)!r})
-import tio2_release
+from release_actions import backup_release
+from release_state import ReleaseLock
 from release_contract import ReleasePaths
 from release_state import atomic_write_json
 r=Path({tmp!r})
@@ -100,8 +97,8 @@ request={{'schemaVersion':'tio2-backup-request-v1','requestId':'01234567-89ab-4d
 atomic_write_json(paths.production/'state/state.json',{{'state':'PREPARED','details':{{'commit':'a'*40,'archiveSha256':'b'*64,'candidate':{{'commit':'a'*40,'archiveSha256':'b'*64,'proofSha256':'e'*64}},'active':{{'enrollmentSha256':'f'*64}}}}}})
 (r/'paths.json').write_text(json.dumps([str(getattr(paths,k)) for k in ('incoming','outgoing','production','configuration')]))
 p=paths.production/'state/backup-requests';p.mkdir();(p/(request['requestId']+'.json')).write_text('{{}}')
-tio2_release.DEFAULT_PATHS=paths
-raise SystemExit(tio2_release.main(['backup']))
+with ReleaseLock(paths.production/'state/release.lock') as lock:
+    backup_release(paths,lock_descriptor=lock.descriptor)
 """)
             try:
                 parent=subprocess.Popen([sys.executable,str(driver)],stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
@@ -111,7 +108,7 @@ raise SystemExit(tio2_release.main(['backup']))
                 child_pid=int((root/'child.pid').read_text())
                 parent.kill();parent.wait(timeout=5);os.kill(child_pid,0)
                 probe=root/'probe.py'
-                probe.write_text(f"import sys,json\nfrom pathlib import Path\nsys.path.insert(0,{str(SERVER)!r})\nimport tio2_release\nfrom release_contract import ReleasePaths\nr=Path({tmp!r})\ntio2_release.DEFAULT_PATHS=ReleasePaths(*(Path(p) for p in json.loads((r/'paths.json').read_text())))\ndef action(*a,**k):\n (r/'mutation').write_text('unsafe')\n return {{'ok':True}}\ntio2_release.run_action=action\nraise SystemExit(tio2_release.main(['status']))\n")
+                probe.write_text(f"import sys,json\nfrom pathlib import Path\nsys.path.insert(0,{str(SERVER)!r})\nfrom release_state import ReleaseLock\nfrom release_contract import ReleasePaths,ReleaseError\nr=Path({tmp!r})\npaths=ReleasePaths(*(Path(p) for p in json.loads((r/'paths.json').read_text())))\ntry:\n with ReleaseLock(paths.production/'state/release.lock'):\n  (r/'mutation').write_text('entered')\nexcept ReleaseError:\n raise SystemExit(2)\n")
                 retry=subprocess.run([sys.executable,str(probe)],capture_output=True)
                 self.assertEqual(retry.returncode,2,retry.stdout)
                 self.assertFalse((root/'mutation').exists())

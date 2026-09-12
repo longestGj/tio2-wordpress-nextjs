@@ -353,7 +353,92 @@ def deploy_owner(descriptor):
     os.fchmod(descriptor,0o640)
 
 
-def publish_ciphertext(source, outgoing, name, *, owner=deploy_owner):
+def _source_identity(metadata):
+    return tuple(getattr(metadata, field) for field in ('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'))
+
+
+@dataclass(frozen=True)
+class PublishBounds:
+    """Optional caller-owned resource contract for a fixed authenticated source."""
+    identity: tuple
+    handle_identity: tuple
+    size: int
+    maximum_bytes: int
+    reserve_bytes: int
+    sha256: str
+
+    @classmethod
+    def capture(cls, source, *, maximum_bytes, reserve_bytes, expected_sha256):
+        if type(maximum_bytes) is not int or maximum_bytes < 0 or type(reserve_bytes) is not int or reserve_bytes < 0 or not SHA.fullmatch(str(expected_sha256)):
+            raise ReleaseError('invalid bounded publish contract')
+        metadata = source.lstat()
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > maximum_bytes:
+            raise ReleaseError('export source exceeds its size limit or is unsafe')
+        identity = _source_identity(metadata)
+        with _open_regular_read(source) as opened:
+            handle_identity = _source_identity(os.fstat(opened.fileno()))
+            # Windows pathname ctime is creation time, while fstat exposes
+            # change time. Capture both; never drop the handle's change time.
+            same_file = identity == handle_identity if os.name == 'posix' else identity[:-1] == handle_identity[:-1]
+            if not same_file or _source_identity(source.lstat()) != identity:
+                raise ReleaseError('export source changed before publication')
+        return cls(identity,handle_identity,metadata.st_size,maximum_bytes,reserve_bytes,expected_sha256)
+
+    def check_source(self, source, descriptor):
+        try:
+            unchanged = _source_identity(source.lstat()) == self.identity and _source_identity(os.fstat(descriptor)) == self.handle_identity
+        except OSError as error:
+            raise ReleaseError('export source changed during publication') from error
+        if not unchanged:
+            raise ReleaseError('export source changed during publication')
+
+
+def _publish_free_bytes(descriptor, directory):
+    # The descriptor pins the actual destination filesystem on POSIX even if a
+    # deploy-owned pathname is replaced. Portable hosts use the private path.
+    if os.name == 'posix':
+        usage = os.fstatvfs(descriptor)
+        return usage.f_bavail * usage.f_frsize
+    return shutil.disk_usage(directory).free
+
+
+def _copy_ciphertext(source, input_file, output, directory, bounds):
+    try:
+        if bounds is None:
+            shutil.copyfileobj(input_file,output,1024*1024)
+            return
+        import hashlib
+        digest = hashlib.sha256()
+        copied = 0
+        while True:
+            bounds.check_source(source,input_file.fileno())
+            remaining = bounds.size - copied
+            if _publish_free_bytes(output.fileno(),directory) < bounds.reserve_bytes + remaining:
+                raise ReleaseError('export free-space reserve would be exhausted')
+            block = input_file.read(min(1024*1024,remaining+1))
+            bounds.check_source(source,input_file.fileno())
+            if not block:
+                break
+            if copied + len(block) > min(bounds.size,bounds.maximum_bytes):
+                raise ReleaseError('export source exceeds its fixed size')
+            if output.write(block) != len(block):
+                raise ReleaseError('export ciphertext write was incomplete')
+            copied += len(block)
+            digest.update(block)
+            output.flush()
+            if _publish_free_bytes(output.fileno(),directory) < bounds.reserve_bytes + bounds.size - copied:
+                raise ReleaseError('export free-space reserve would be exhausted')
+            bounds.check_source(source,input_file.fileno())
+        if copied != bounds.size or digest.hexdigest() != bounds.sha256:
+            raise ReleaseError('export source size or ciphertext hash changed')
+    finally:
+        # Also drain/fsync a failed partial copy before its private file closes
+        # and the publisher removes only this attempt's temporary artifact.
+        try: output.flush()
+        finally: os.fsync(output.fileno())
+
+
+def publish_ciphertext(source, outgoing, name, *, owner=deploy_owner, bounds=None):
     """Exclusive hard-link publication from a private dir on the outgoing FS.
 
     The ciphertext source remains root-owned. No overwrite is permitted and
@@ -362,28 +447,32 @@ def publish_ciphertext(source, outgoing, name, *, owner=deploy_owner):
     if outgoing.is_symlink() or not outgoing.is_dir():
         raise ReleaseError('outgoing directory is unsafe')
     if os.name == 'posix':
-        return _publish_posix(source,outgoing,name,owner)
+        return _publish_posix(source,outgoing,name,owner,bounds)
+    return _publish_portable(source,outgoing,name,owner,bounds)
+
+
+def _publish_portable(source,outgoing,name,owner,bounds=None):
     private = Path(tempfile.mkdtemp(prefix='.export-',dir=outgoing))
     os.chmod(private,0o700)
     identity = private.stat()
     temporary = private/'ciphertext.age'
     try:
-        with source.open('rb') as input_file, temporary.open('xb') as output:
-            shutil.copyfileobj(input_file,output,1024*1024)
-            output.flush()
-            os.fsync(output.fileno())
-            owner(output.fileno())
-        if sha256_file(temporary) != sha256_file(source):
-            raise ReleaseError('export ciphertext mismatch')
-        # link is atomic and refuses an existing destination, including symlinks.
-        os.link(temporary,outgoing/name,follow_symlinks=False)
+        with _open_regular_read(source) as input_file:
+            with temporary.open('xb') as output:
+                _copy_ciphertext(source,input_file,output,private,bounds)
+                owner(output.fileno())
+            if sha256_file(temporary) != (bounds.sha256 if bounds is not None else sha256_file(source)):
+                raise ReleaseError('export ciphertext mismatch')
+            if bounds is not None: bounds.check_source(source,input_file.fileno())
+            # link is atomic and refuses an existing destination, including symlinks.
+            os.link(temporary,outgoing/name,follow_symlinks=False)
     finally:
         if private.exists() and os.path.samestat(identity,private.stat()):
             temporary.unlink(missing_ok=True)
             private.rmdir()
 
 
-def _publish_posix(source,outgoing,name,owner):
+def _publish_posix(source,outgoing,name,owner,bounds=None):
     """Directory descriptors prevent deploy-owned path replacement from redirecting root writes."""
     directory = os.open(outgoing,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
     private_name = '.export-'+secrets.token_hex(16)
@@ -392,18 +481,17 @@ def _publish_posix(source,outgoing,name,owner):
         os.mkdir(private_name,0o700,dir_fd=directory)
         private_fd = os.open(private_name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=directory)
         descriptor = os.open('ciphertext.age',os.O_RDWR|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=private_fd)
-        with os.fdopen(descriptor,'w+b') as output, source.open('rb') as input_file:
-            shutil.copyfileobj(input_file,output,1024*1024)
-            output.flush()
-            os.fsync(output.fileno())
+        with os.fdopen(descriptor,'w+b') as output, _open_regular_read(source) as input_file:
+            _copy_ciphertext(source,input_file,output,outgoing,bounds)
             output.seek(0)
             import hashlib
             digest = hashlib.sha256()
             while block := output.read(1024*1024):
                 digest.update(block)
-            if digest.hexdigest() != sha256_file(source):
+            if digest.hexdigest() != (bounds.sha256 if bounds is not None else sha256_file(source)):
                 raise ReleaseError('export ciphertext mismatch')
             owner(output.fileno())
+            if bounds is not None: bounds.check_source(source,input_file.fileno())
             if not os.path.samestat(os.fstat(directory),os.stat(outgoing,follow_symlinks=False)) or not os.path.samestat(os.fstat(private_fd),os.stat(private_name,dir_fd=directory,follow_symlinks=False)):
                 raise ReleaseError('export directory was replaced')
             os.link('ciphertext.age',name,src_dir_fd=private_fd,dst_dir_fd=directory,follow_symlinks=False)

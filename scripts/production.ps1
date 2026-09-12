@@ -1,7 +1,7 @@
 #requires -Version 7.2
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)][ValidateSet('Package','Status','Release','Verify','Rollback')][string]$Operation,
+    [Parameter(Mandatory)][ValidateSet('Package','Status','Prepare','Backup','Stage','Activate','Verify','Rollback')][string]$Operation,
     [string]$ConfigPath,
     [string]$RunRoot,
     [string]$PrereleaseReceiptPath,
@@ -15,7 +15,7 @@ try {
         $result=New-ProductionPackage -RepositoryRoot $repository -OutputRoot (Join-Path $repository '.production') -PrereleaseReceiptPath $PrereleaseReceiptPath -ReleaseId $ReleaseId
     } else {
         if(-not $ConfigPath -or -not $RunRoot){throw 'ConfigPath and RunRoot are required.'}
-        $result=Invoke-ProductionOperation -Operation $Operation -ConfigPath $ConfigPath -RunRoot $RunRoot
+        $result=Invoke-D16ProductionOperation -Operation $Operation -ConfigPath $ConfigPath -RunRoot $RunRoot
     }
     $result|ConvertTo-Json -Depth 50 -Compress
 } catch { [Console]::Error.WriteLine($_.Exception.Message); exit 1 }
