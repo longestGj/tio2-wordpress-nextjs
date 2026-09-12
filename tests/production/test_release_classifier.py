@@ -73,6 +73,35 @@ class ReleaseClassifierTests(unittest.TestCase):
         )
         self.assertEqual([(unit.subject, unit.release_type) for unit in cross_scope], [("cms", "cms-platform")])
 
+    def test_content_path_scope_must_match_the_declared_scope(self) -> None:
+        with self.assertRaisesRegex(ReleaseError, "unclassified release change"):
+            classify_release(
+                self.changes(
+                    git_paths=("content/tio2-a/records.json",),
+                    site_ids=("tio2-my",),
+                    content_scopes=("tio2-my",),
+                )
+            )
+
+    def test_two_actual_content_scopes_are_a_cms_platform_change(self) -> None:
+        units = classify_release(
+            self.changes(
+                git_paths=("content/site-b/records.json", "content/tio2-my/records.json"),
+                site_ids=("site-b", "tio2-my"),
+                content_scopes=("site-b", "tio2-my"),
+            )
+        )
+        self.assertEqual(
+            [(unit.subject, unit.release_type, unit.paths) for unit in units],
+            [
+                (
+                    "cms",
+                    "cms-platform",
+                    ("content/site-b/records.json", "content/tio2-my/records.json"),
+                )
+            ],
+        )
+
     def test_host_cms_and_site_changes_remain_separate_units_in_priority_order(self) -> None:
         host = "ops/production/server/controller.py"
         units = classify_release(
@@ -91,6 +120,7 @@ class ReleaseClassifierTests(unittest.TestCase):
         cases = (
             self.changes(receipt_ids=()),
             self.changes(git_paths=("unknown/file.xyz",), site_ids=()),
+            self.changes(git_paths=("unknown/file.xyz",)),
             self.changes(git_paths=("components/shared.tsx",), site_ids=()),
             self.changes(site_ids=("site-b", "tio2-my"), content_scopes=("site-b", "tio2-my")),
             self.changes(git_paths=()),

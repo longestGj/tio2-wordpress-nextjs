@@ -24,6 +24,19 @@ _HOST_TOKENS = frozenset({"certbot", "nginx", "network", "ports", "sudo", "sudoe
 _CMS_PREFIXES = ("ops/cms/", "wordpress/plugins/", "wordpress/schema", "wordpress/core/")
 _CMS_TOKENS = frozenset({"database", "graphql", "schema"})
 _CONTENT_PREFIXES = ("content/", "wordpress/seed/")
+_FRONTEND_PREFIXES = ("app/", "components/", "lib/", "public/", "sites/")
+_FRONTEND_EXACT = frozenset(
+    {
+        ".env.example",
+        ".gitattributes",
+        "next.config.ts",
+        "package.json",
+        "package-lock.json",
+        "proxy.ts",
+        "tsconfig.json",
+        "vercel.json",
+    }
+)
 
 
 def _normalized(values: Iterable[str], field: str) -> tuple[str, ...]:
@@ -85,6 +98,19 @@ def _is_content(path: str) -> bool:
     return path.startswith(_CONTENT_PREFIXES)
 
 
+def _content_scope(path: str) -> str:
+    parts = PurePosixPath(path).parts
+    if path.startswith("content/") and len(parts) >= 3:
+        return parts[1]
+    if path.startswith("wordpress/seed/") and len(parts) >= 4:
+        return parts[2]
+    raise ReleaseError("unclassified release change")
+
+
+def _is_frontend(path: str) -> bool:
+    return path in _FRONTEND_EXACT or path.startswith(_FRONTEND_PREFIXES)
+
+
 def _unit(subject: str, release_type: ReleaseType, paths: Iterable[str], receipts: tuple[str, ...]) -> ReleaseUnit:
     return ReleaseUnit(subject, release_type, tuple(sorted(set(paths))), receipts)
 
@@ -101,7 +127,15 @@ def classify_release(change_set: ChangeSet) -> tuple[ReleaseUnit, ...]:
     host_paths = tuple(path for path in change_set.git_paths if _is_host(path, explicit_host))
     remaining = tuple(path for path in change_set.git_paths if path not in host_paths)
 
-    cross_scope = len(change_set.content_scopes) > 1
+    declared_scopes = set(change_set.content_scopes)
+    raw_content_paths = tuple(path for path in remaining if _is_content(path))
+    actual_scopes = {_content_scope(path) for path in raw_content_paths}
+    if raw_content_paths and actual_scopes != declared_scopes:
+        raise ReleaseError("unclassified release change")
+    if not raw_content_paths and len(declared_scopes) > 1:
+        raise ReleaseError("unclassified release change")
+
+    cross_scope = len(actual_scopes) > 1
     cms_paths = tuple(path for path in remaining if _is_cms(path) or (cross_scope and _is_content(path)))
     if cross_scope and not cms_paths:
         raise ReleaseError("unclassified release change")
@@ -112,7 +146,10 @@ def classify_release(change_set: ChangeSet) -> tuple[ReleaseUnit, ...]:
     remaining = tuple(path for path in remaining if path not in cms_paths)
 
     content_paths = tuple(path for path in remaining if _is_content(path))
-    frontend_paths = tuple(path for path in remaining if path not in content_paths)
+    unknown_paths = tuple(path for path in remaining if path not in content_paths and not _is_frontend(path))
+    if unknown_paths:
+        raise ReleaseError("unclassified release change")
+    frontend_paths = tuple(path for path in remaining if _is_frontend(path))
     if frontend_paths and not change_set.site_ids:
         raise ReleaseError("unclassified release change")
     if content_paths and not change_set.content_scopes:

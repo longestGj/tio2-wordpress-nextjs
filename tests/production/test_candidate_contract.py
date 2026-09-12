@@ -138,6 +138,27 @@ class CandidateContractTests(unittest.TestCase):
                 finally:
                     self.root = original_root
 
+    def test_release_type_directories_cannot_be_top_level_regular_files(self) -> None:
+        cases = (
+            ("frontend-only", "tio2-my", [("frontend", b"file")]),
+            ("content-only", "tio2-my", [("content", b"file")]),
+            ("combined", "tio2-my", [("content", b"file"), ("frontend", b"file")]),
+            ("cms-platform", "cms", [("cms", b"file")]),
+            ("host-infrastructure", "host", [("host", b"file")]),
+        )
+        for index, (release_type, subject, files) in enumerate(cases):
+            with self.subTest(release_type=release_type):
+                case_root = self.root / f"top-level-{index}"
+                case_root.mkdir()
+                original_root = self.root
+                self.root = case_root
+                try:
+                    manifest_path, payload = self.write_candidate(release_type, subject, files)
+                    with self.assertRaisesRegex(ReleaseError, "release type"):
+                        validate_payload(CandidateEnvelope.from_path(manifest_path), payload)
+                finally:
+                    self.root = original_root
+
     def test_combined_requires_both_frontend_and_content(self) -> None:
         for index, files in enumerate(([("frontend/app.js", b"x")], [("content/records.json", b"[]")])):
             with self.subTest(files=files):

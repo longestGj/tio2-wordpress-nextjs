@@ -230,6 +230,8 @@ def _payload_files(root: Path, expected_paths: frozenset[str]) -> tuple[tuple[st
 
 def _validate_type_paths(release_type: str, files: tuple[tuple[str, str], ...]) -> None:
     paths = tuple(path for path, _ in files)
+    if any("/" not in path for path in paths):
+        raise ReleaseError("candidate payload does not match release type")
     prefixes = {path.split("/", 1)[0] for path in paths}
     allowed = {
         "frontend-only": {"frontend"},

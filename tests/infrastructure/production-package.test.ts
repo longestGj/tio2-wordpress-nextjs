@@ -236,6 +236,14 @@ describe.runIf(process.platform === 'win32')('typed local production candidate p
     expect(existsSync(join(fixture.repository, '.production', 'runs'))).toBe(false)
   }, 15_000)
 
+  it('does not silently omit an unknown changed path from the candidate package', () => {
+    const fixture = createRepository({changedPath: 'unknown/file.xyz'})
+    const result = invokePackage(fixture)
+    expect(result.status).not.toBe(0)
+    expect(result.stderr).toContain('unclassified release change')
+    expect(existsSync(join(fixture.repository, '.production', 'runs'))).toBe(false)
+  }, 15_000)
+
   it('includes deleted files in the exact main..candidate change set', () => {
     const fixture = createRepository({deletedPath: 'app/removed.txt'})
     const result = invokePackage(fixture)
