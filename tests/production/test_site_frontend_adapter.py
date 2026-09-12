@@ -41,6 +41,8 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         fixtures.FrontendBackupTests.setUp(self)
         self.cms={'containers':['CMS'],'volumes':['DB'],'wordpressSha256':'7'*64,'configurationSha256':'8'*64,'contentSha256':'9'*64}
         self.cms_before=deepcopy(self.cms)
+        self.comparison_snapshot={'schemaVersion':'d16-cms-content-snapshot-v1','siteScope':'tio2-my',
+                                  'publishedRecords':1,'contentSha256':'a'*64}
         self.record={'active':{'commit':'a'*40,'sourceRoot':str(self.source)},'runtime':{'containers':[{'role':'web','id':'2'*64,'imageId':'sha256:'+'1'*64}],'deployment':{'buildId':'build-A'}}}
         self.context.subject_baseline={'subject':'tio2-my','activeFrontend':self.active,'record':self.record,'cmsRuntime':deepcopy(self.cms)}
         self.context.candidate=SimpleNamespace(source_commit='b'*40,release_id='release-B',subject='tio2-my',release_type='frontend-only')
@@ -183,7 +185,7 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         from cms_evidence import CmsEvidence
         details['cmsEvidence']=CmsEvidence(transaction['artifacts']['cms-identity.json'],transaction['proofObjectSha256'],
             hashlib.sha256(canonical({key:candidate[key] for key in ('commit','archiveSha256','manifestSha256')})).hexdigest(),
-            *['1'*64]*5,'tio2-my',1,'2'*64,'2'*64).as_dict()
+            *['1'*64]*5,'tio2-my',1,'2'*64,'2'*64,hashlib.sha256(canonical(self.comparison_snapshot)).hexdigest()).as_dict()
         details.pop('requestId');details.pop('cmsEvidenceSha256')
         return {'schemaVersion':'d16-release-state-v1','state':'PREPARED','details':details},transaction
 
@@ -373,7 +375,7 @@ class SiteFrontendAdapterTests(unittest.TestCase):
                 with patch('release_baseline._read_record',side_effect=lambda path,*args:deepcopy(values[path.name])),\
                      patch('release_baseline._validate_record',return_value={'runtime':record['runtime'],'configurationFingerprint':'0'*64}),\
                      patch('release_baseline.validate_registered_ingress',return_value=fresh),patch('adoption_probe.LocalSnapshotSource._run',return_value='fresh nginx'),\
-                     patch('adoption_probe.read_cms_scope',return_value=scope),patch('deployment_core.DockerWebAdapter.docker',return_value=b'build-A') as docker_call,\
+                     patch('adoption_probe.read_cms_scope',return_value=scope),patch('cms_content_snapshot.read_content_snapshot',return_value=self.comparison_snapshot),patch('deployment_core.DockerWebAdapter.docker',return_value=b'build-A') as docker_call,\
                      patch('deployment_core.tree',return_value={'wp.php':'7'*64}):
                     if set(names)=={'site.test','www.site.test'}:
                         _,observed=load_live_baselines(subject,registry=registry)
@@ -413,11 +415,42 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         scope={'siteScope':'tio2-my','publishedRecords':1,'contentSha256':'2'*64,'observedAt':'2026-09-12T14:00:00+00:00'}
         with patch('release_baseline._read_record',side_effect=lambda path,*args:deepcopy(values[path.name])),patch('release_baseline._validate_record',return_value=live),\
              patch('release_baseline.validate_registered_ingress',return_value=host['ingress']),patch('adoption_probe.LocalSnapshotSource._run',return_value='fresh nginx'),\
-             patch('adoption_probe.read_cms_scope',return_value=scope),patch('deployment_core.DockerWebAdapter.docker',return_value=b'build-C'),patch('deployment_core.tree',return_value={'wp.php':'7'*64}):
+             patch('adoption_probe.read_cms_scope',return_value=scope),patch('cms_content_snapshot.read_content_snapshot',return_value=self.comparison_snapshot),patch('deployment_core.DockerWebAdapter.docker',return_value=b'build-C'),patch('deployment_core.tree',return_value={'wp.php':'7'*64}):
             observed,global_observed=load_live_baselines(self.subject,registry=controller.registry)
         self.assertEqual(observed['activeFrontend']['commit'],'c'*40);self.assertEqual(observed['activeFrontend']['buildId'],'build-C')
         self.assertEqual(observed['configurationSha256'],'0'*64);self.assertEqual(observed['previousProductionReceipt'],plan['planHash'])
         self.assertEqual(global_observed['baselineSha256'],_digest({'subject':'host','ingress':host['ingress']}))
+
+    def test_trusted_loader_rejects_metadata_drift_with_unchanged_legacy_content(self):
+        from site_frontend_adapter import load_live_baselines,_digest
+        from tests.production.test_adoption_contract import fixture as adoption_fixture
+        controller,_,_=self.compatibility_controller_with_backup()
+        baseline,host=controller.baseline_loader(self.subject)
+        record=deepcopy(baseline['record'])
+        record['runtime']['containers'].append({'role':'wordpress','id':'5'*64,'imageId':'sha256:'+'6'*64})
+        record['runtime']['volumes']=[];record['runtime']['deployment']['pluginSourceRoot']=str(self.source)
+        state_path=self.subject.state_root/'state.json';state=json.loads(state_path.read_bytes())
+        state['details']['cmsEvidence']['comparison_content_sha256']=_digest(self.comparison_snapshot)
+        atomic_write_json(state_path,state)
+        plan=adoption_fixture()
+        values={'baseline.json':record,'adoption-plan.json':plan,
+                'adoption.json':{'schemaVersion':'tio2-production-adoption-journal-v1','state':'PUBLIC_READY','planHash':plan['planHash']},
+                'receipt.json':{'schemaVersion':'d16-phase1-migration-receipt-v1','subject':'tio2-my','state':'PREPARED',
+                                'runtimeAfter':{'ingress':host['preparedIngress']}}}
+        scope={'siteScope':'tio2-my','publishedRecords':1,'contentSha256':'2'*64,'observedAt':'2026-09-12T14:00:00+00:00'}
+        # A metadata/taxonomy change alters the complete probe digest while the
+        # legacy post-content probe and published record count remain identical.
+        changed={**self.comparison_snapshot,'contentSha256':'b'*64}
+        with patch('release_baseline._read_record',side_effect=lambda path,*args:deepcopy(values[path.name])),\
+             patch('release_baseline._validate_record',return_value={'runtime':record['runtime'],'configurationFingerprint':'0'*64}),\
+             patch('release_baseline.validate_registered_ingress',return_value=host['ingress']),\
+             patch('adoption_probe.LocalSnapshotSource._run',return_value='fresh nginx'),\
+             patch('adoption_probe.read_cms_scope',return_value=scope),\
+             patch('cms_content_snapshot.read_content_snapshot',return_value=changed),\
+             patch('deployment_core.DockerWebAdapter.docker',return_value=b'build-A'),\
+             patch('deployment_core.tree',return_value={'wp.php':'7'*64}):
+            with self.assertRaisesRegex(ReleaseError,'CMS.*content|content.*CMS'):
+                load_live_baselines(self.subject,registry=controller.registry)
 
     def test_failed_compatibility_transaction_cannot_be_reprepared_and_lose_evidence(self):
         _,execute,_=self.compatibility_controller_with_backup()
