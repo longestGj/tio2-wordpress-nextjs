@@ -22,7 +22,7 @@ import threading
 from uuid import UUID, uuid4
 from typing import TypedDict
 
-from backup_core import Tools, publish_ciphertext
+from backup_core import Tools, PublishBounds, publish_ciphertext
 from cms_evidence import canonical, strict_json
 from release_contract import ReleaseError, _open_regular_read, sha256_file
 from release_state import IDENTITY_FIELDS, atomic_write_json
@@ -271,7 +271,8 @@ def backup_frontend(context, *, tools=None, publisher=publish_ciphertext) -> Fro
             require(sha256_file(exported)==receipt['ciphertextSha256'],'exported frontend backup changed')
         else:
             _space(subject.outgoing,ciphertext.stat().st_size)
-            publisher(ciphertext,subject.outgoing,backup_id+'.tar.age')
+            publisher(ciphertext,subject.outgoing,backup_id+'.tar.age',bounds=PublishBounds.capture(ciphertext,
+                maximum_bytes=_cipher_limit(MAX_ARCHIVE),reserve_bytes=SPACE_RESERVE,expected_sha256=receipt['ciphertextSha256']))
         return receipt
     with tempfile.TemporaryDirectory(prefix='.frontend-',dir=root) as temporary:
         staging=Path(temporary); files=_source_files(Path(active['sourceRoot']))
@@ -330,7 +331,8 @@ def backup_frontend(context, *, tools=None, publisher=publish_ciphertext) -> Fro
                  'manifestSha256':manifest_hash,'ciphertextSha256':sha256_file(ciphertext),'cmsExcluded':CMS_EXCLUDED}
         atomic_write_json(receipt_path,receipt)
     _space(subject.outgoing,ciphertext.stat().st_size)
-    publisher(ciphertext,subject.outgoing,backup_id+'.tar.age')
+    publisher(ciphertext,subject.outgoing,backup_id+'.tar.age',bounds=PublishBounds.capture(ciphertext,
+        maximum_bytes=_cipher_limit(MAX_ARCHIVE),reserve_bytes=SPACE_RESERVE,expected_sha256=receipt['ciphertextSha256']))
     return receipt
 
 

@@ -10,6 +10,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 import shutil
+import os
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'ops/production/server'))
 from release_contract import ReleaseError
@@ -61,7 +62,7 @@ class FrontendBackupTests(unittest.TestCase):
 
     def backup(self):
         import frontend_backup
-        return frontend_backup.backup_frontend(self.context, tools=self.tools, publisher=lambda source, outgoing, name: (outgoing/name).write_bytes(source.read_bytes()))
+        return frontend_backup.backup_frontend(self.context, tools=self.tools, publisher=lambda source, outgoing, name, **options: (outgoing/name).write_bytes(source.read_bytes()))
 
     def archive(self, receipt): return self.subject.outgoing/(receipt['backupId']+'.tar.age')
 
@@ -158,7 +159,7 @@ class FrontendBackupTests(unittest.TestCase):
     def test_retry_reuses_existing_export_but_rejects_changed_export(self):
         from frontend_backup import backup_frontend
         calls=[]
-        def publish(source,outgoing,name):
+        def publish(source,outgoing,name,**options):
             calls.append(name)
             with (outgoing/name).open('xb') as output:output.write(source.read_bytes())
         receipt=backup_frontend(self.context,tools=self.tools,publisher=publish)
@@ -172,6 +173,45 @@ class FrontendBackupTests(unittest.TestCase):
         with patch('shutil.disk_usage',return_value=SimpleNamespace(free=1024)):
             with self.assertRaisesRegex(ReleaseError,'free-space reserve'):self.backup()
         self.assertFalse(self.archive(receipt).exists())
+
+    def test_atomic_publisher_stops_if_space_drops_after_its_first_copy_block(self):
+        import frontend_backup,backup_core
+        (self.source/'public/large.bin').write_bytes(b'x'*(3*1024**2))
+        for retry in (False,True):
+            with self.subTest(retry=retry):
+                if retry:
+                    receipt=self.backup();self.archive(receipt).unlink()
+                progress=[]
+                def free_bytes(descriptor,directory):
+                    written=os.lseek(descriptor,0,os.SEEK_CUR);progress.append(written)
+                    return frontend_backup.SPACE_RESERVE if written else 20*1024**3
+                def publish(source,outgoing,name,**options):backup_core.publish_ciphertext(source,outgoing,name,owner=lambda fd:None,**options)
+                with patch.object(backup_core,'_publish_free_bytes',side_effect=free_bytes,create=True):
+                    with self.assertRaisesRegex(ReleaseError,'space'):
+                        frontend_backup.backup_frontend(self.context,tools=self.tools,publisher=publish)
+                self.assertTrue(any(value>0 for value in progress))
+                self.assertLessEqual(max(progress),1024**2)
+                self.assertEqual(list(self.subject.outgoing.iterdir()),[])
+
+    def test_atomic_publisher_rejects_growth_and_same_size_source_changes_during_copy(self):
+        import frontend_backup,backup_core
+        for mutation in ('grow','rewrite','mtime-preserved'):
+            with self.subTest(mutation=mutation):
+                self.setUp();(self.source/'public/large.bin').write_bytes(b'x'*(3*1024**2))
+                captured=[];mutated=[]
+                def free_bytes(descriptor,directory):
+                    if os.lseek(descriptor,0,os.SEEK_CUR)>0 and not mutated:
+                        metadata=captured[0].stat()
+                        with captured[0].open('ab' if mutation=='grow' else 'r+b') as output:output.write(b'changed-source')
+                        if mutation=='mtime-preserved':os.utime(captured[0],ns=(metadata.st_atime_ns,metadata.st_mtime_ns))
+                        mutated.append(True)
+                    return 20*1024**3
+                def publish(source,outgoing,name,**options):
+                    captured.append(source);backup_core.publish_ciphertext(source,outgoing,name,owner=lambda fd:None,**options)
+                with patch.object(backup_core,'_publish_free_bytes',side_effect=free_bytes,create=True):
+                    with self.assertRaisesRegex(ReleaseError,'source'):
+                        frontend_backup.backup_frontend(self.context,tools=self.tools,publisher=publish)
+                self.assertTrue(mutated);self.assertEqual(list(self.subject.outgoing.iterdir()),[])
 
     def test_restore_decrypts_and_runs_frontend_on_isolated_network(self):
         from frontend_backup import restore_frontend_backup

@@ -6,6 +6,7 @@ from pathlib import Path
 import shutil
 import sys
 import tarfile
+import tempfile
 import unittest
 from unittest.mock import patch
 from tests.production import test_backup_pipeline as pipeline
@@ -225,6 +226,65 @@ class BackupCoreTests(unittest.TestCase):
         self.assertEqual(replacement[0].read_bytes(),b'other attempt')
         self.assertFalse((self.paths.outgoing/'result.tar.age').exists())
 
+
+
+class BoundedPublicationTests(unittest.TestCase):
+    """Run on Windows and again on the isolated Linux runtime filesystem."""
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name);self.source=self.root/'source.age';self.outgoing=self.root/'outgoing';self.outgoing.mkdir()
+        self.source.write_bytes(b'x'*(3*1024**2));self.reserve=64*1024
+
+    def publishers(self):
+        return [core._publish_portable,*([core._publish_posix] if os.name=='posix' else [])]
+
+    def bounds(self,**overrides):
+        return core.PublishBounds.capture(self.source,**{'maximum_bytes':self.source.stat().st_size,
+            'reserve_bytes':self.reserve,'expected_sha256':core.sha256_file(self.source),**overrides})
+
+    def test_mid_copy_space_failure_and_collision_preserve_existing_bytes(self):
+        target=self.outgoing/'result.age';target.write_bytes(b'previous ciphertext')
+        for publisher in self.publishers():
+            with self.subTest(publisher=publisher.__name__):
+                progress=[]
+                def available(descriptor,directory):
+                    position=os.lseek(descriptor,0,os.SEEK_CUR);progress.append(position)
+                    return self.reserve if position else self.reserve+4*1024**2
+                bounds=self.bounds()
+                with patch.object(core,'_publish_free_bytes',side_effect=available),patch.object(core.os,'fsync',wraps=os.fsync) as sync:
+                    with self.assertRaisesRegex(ReleaseError,'space'):publisher(self.source,self.outgoing,target.name,lambda fd:None,bounds)
+                    self.assertGreater(sync.call_count,0)
+                self.assertEqual(max(progress),1024**2)
+                self.assertEqual(target.read_bytes(),b'previous ciphertext');self.assertEqual(list(self.outgoing.iterdir()),[target])
+                with self.assertRaises(FileExistsError):publisher(self.source,self.outgoing,target.name,lambda fd:None,bounds)
+                self.assertEqual(target.read_bytes(),b'previous ciphertext');self.assertEqual(list(self.outgoing.iterdir()),[target])
+
+    def test_oversized_changed_and_wrong_hash_sources_never_publish(self):
+        with self.assertRaisesRegex(ReleaseError,'source'):self.bounds(maximum_bytes=1)
+        for publisher in self.publishers():
+            for mutation in ('growth-before-copy','wrong-hash'):
+                with self.subTest(publisher=publisher.__name__,mutation=mutation):
+                    bounds=self.bounds(**({'expected_sha256':'0'*64} if mutation=='wrong-hash' else {}))
+                    if mutation=='growth-before-copy':
+                        with self.source.open('ab') as output:output.write(b'growth')
+                    with self.assertRaisesRegex(ReleaseError,'source'):publisher(self.source,self.outgoing,'result.age',lambda fd:None,bounds)
+                    self.assertEqual(list(self.outgoing.iterdir()),[])
+
+    def test_growth_and_same_size_rewrite_during_copy_remove_private_artifacts(self):
+        for publisher in self.publishers():
+            for mutation in ('growth','rewrite','mtime-preserved'):
+                with self.subTest(publisher=publisher.__name__,mutation=mutation):
+                    mutated=[];bounds=self.bounds()
+                    def available(descriptor,directory):
+                        if os.lseek(descriptor,0,os.SEEK_CUR)>0 and not mutated:
+                            metadata=self.source.stat()
+                            with self.source.open('ab' if mutation=='growth' else 'r+b') as output:output.write(b'changed')
+                            if mutation=='mtime-preserved':os.utime(self.source,ns=(metadata.st_atime_ns,metadata.st_mtime_ns))
+                            mutated.append(True)
+                        return self.reserve+4*1024**2
+                    with patch.object(core,'_publish_free_bytes',side_effect=available):
+                        with self.assertRaisesRegex(ReleaseError,'source'):publisher(self.source,self.outgoing,'result.age',lambda fd:None,bounds)
+                    self.assertTrue(mutated);self.assertEqual(list(self.outgoing.iterdir()),[])
 
 
 if __name__=='__main__': unittest.main()

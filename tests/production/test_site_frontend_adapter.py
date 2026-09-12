@@ -49,7 +49,7 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         from deployment_core import Deployment
         self.engine=Deployment(self.subject,adapter=self.slots)
         from site_frontend_adapter import SiteFrontendAdapter
-        self.adapter=SiteFrontendAdapter(engine_factory=lambda subject:self.engine,validator=lambda context:self.cms,backup_tools=self.tools,publisher=lambda source,outgoing,name:(outgoing/name).write_bytes(source.read_bytes()))
+        self.adapter=SiteFrontendAdapter(engine_factory=lambda subject:self.engine,validator=lambda context:self.cms,backup_tools=self.tools,publisher=lambda source,outgoing,name,**options:(outgoing/name).write_bytes(source.read_bytes()))
 
     def state(self,name,evidence=None):
         if evidence is not None: self.details.update(evidence)
@@ -209,7 +209,7 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         atomic_write_json(self.subject.state_root/'compatibility-transaction.json',transaction)
         with self.assertRaises(ReleaseError):compatibility_candidate(self.subject,state)
 
-    def compatibility_controller_with_backup(self):
+    def compatibility_controller_with_backup(self,certificates=()):
         from contextlib import nullcontext
         from cms_evidence import canonical
         from release_controller import ReleaseController
@@ -221,7 +221,7 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         state,transaction=self.compatibility_fixture()
         state['details']['active']['enrollmentSha256']=_digest(self.record)
         state['details']['configurationFingerprint']=_configuration_fingerprint(self.record)
-        ingress=_ingress_with_details({'serverNames':[],'nginxInventory':{'files':[]},'certificates':[]})
+        ingress=_ingress_with_details({'serverNames':[],'nginxInventory':{'files':[]},'certificates':list(certificates)})
         host_baseline={'subject':'host','ingress':ingress,'preparedIngress':deepcopy(ingress),'baselineSha256':_digest({'subject':'host','ingress':ingress})}
         state['details']['hostBaselineSha256']=host_baseline['baselineSha256']
         atomic_write_json(self.subject.configuration/'baseline.json',self.record)
@@ -325,6 +325,75 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         validate_frontend_baselines(context)
         host['ingress']['serverNames'].append('another.test');host['ingress']=_ingress_with_details(host['ingress']);host['baselineSha256']=_digest({'subject':'host','ingress':host['ingress']})
         with self.assertRaisesRegex(ReleaseError,'host or Nginx'):validate_frontend_baselines(context)
+
+    def certificate_snapshot(self,names):
+        return {'owner':self.subject.owner,'certName':'site.test','fullchainPath':'/etc/letsencrypt/live/site.test/fullchain.pem',
+                'privateKeyPath':'/etc/letsencrypt/live/site.test/privkey.pem','resolvedFullchainPath':'/etc/letsencrypt/archive/site.test/fullchain1.pem',
+                'resolvedPrivateKeyPath':'/etc/letsencrypt/archive/site.test/privkey1.pem','fullchainSha256':'1'*64,'privateKeySha256':'2'*64,
+                'san':list(names),'notAfter':'renewed','keyPairVerified':True}
+
+    def test_stage_and_activate_reject_added_or_removed_certificate_sans_before_mutation(self):
+        from site_frontend_adapter import _digest,_ingress_with_details
+        for action in ('stage','activate'):
+            for names in (('site.test',),('site.test','www.site.test','extra.site.test')):
+                with self.subTest(action=action,names=names):
+                    self.setUp();controller,execute,_=self.compatibility_controller_with_backup([self.certificate_snapshot(('site.test','www.site.test'))])
+                    if action=='activate':execute('stage')
+                    baseline,host=controller.baseline_loader(self.subject)
+                    host['ingress']['certificates'][0]['san']=list(names);host['ingress']=_ingress_with_details(host['ingress'])
+                    host['baselineSha256']=_digest({'subject':'host','ingress':host['ingress']})
+                    controller.baseline_loader=lambda subject:(baseline,host);self.slots.calls=[]
+                    with self.assertRaisesRegex(ReleaseError,'TLS|certificate'):execute(action)
+                    self.assertFalse(any(call=='build' or call.startswith('activate:') for call in self.slots.calls))
+
+    def test_trusted_loader_rejects_current_registry_san_policy_changes(self):
+        from dataclasses import replace
+        from subject_registry import CertificatePolicy,SubjectRegistry
+        from site_frontend_adapter import load_live_baselines,_ingress_with_details
+        from tests.production.test_adoption_contract import fixture as adoption_fixture
+        for names in (('site.test',),('site.test','www.site.test','extra.site.test'),('www.site.test','site.test')):
+            with self.subTest(names=names):
+                self.setUp();controller,_,_=self.compatibility_controller_with_backup([self.certificate_snapshot(('site.test','www.site.test'))])
+                baseline,host=controller.baseline_loader(self.subject);record=deepcopy(baseline['record'])
+                record['runtime']['containers'].append({'role':'wordpress','id':'5'*64,'imageId':'sha256:'+'6'*64})
+                record['runtime']['volumes']=[];record['runtime']['deployment']['pluginSourceRoot']=str(self.source)
+                certificate=self.certificate_snapshot(names)
+                certificate.update(resolvedFullchainPath='/etc/letsencrypt/archive/site.test/fullchain2.pem',
+                    resolvedPrivateKeyPath='/etc/letsencrypt/archive/site.test/privkey2.pem',fullchainSha256='3'*64,privateKeySha256='4'*64,notAfter='later renewal')
+                policy=CertificatePolicy('site.test',Path(certificate['fullchainPath']),Path(certificate['privateKeyPath']),Path('/etc/letsencrypt/archive/site.test'),names,0,self.subject.owner)
+                subject=replace(self.subject,domains=names,certificates=(policy,));registry=SubjectRegistry({**controller.registry.subjects,'tio2-my':subject})
+                plan=adoption_fixture();values={'baseline.json':record,'adoption-plan.json':plan,
+                    'adoption.json':{'schemaVersion':'tio2-production-adoption-journal-v1','state':'PUBLIC_READY','planHash':plan['planHash']},
+                    'receipt.json':{'schemaVersion':'d16-phase1-migration-receipt-v1','subject':'tio2-my','state':'PREPARED','runtimeAfter':{'ingress':host['preparedIngress']}}}
+                fresh=_ingress_with_details({**host['ingress'],'certificates':[certificate]})
+                scope={'siteScope':'tio2-my','publishedRecords':1,'contentSha256':'2'*64,'observedAt':'2026-09-12T14:00:00+00:00'}
+                with patch('release_baseline._read_record',side_effect=lambda path,*args:deepcopy(values[path.name])),\
+                     patch('release_baseline._validate_record',return_value={'runtime':record['runtime'],'configurationFingerprint':'0'*64}),\
+                     patch('release_baseline.validate_registered_ingress',return_value=fresh),patch('adoption_probe.LocalSnapshotSource._run',return_value='fresh nginx'),\
+                     patch('adoption_probe.read_cms_scope',return_value=scope),patch('deployment_core.DockerWebAdapter.docker',return_value=b'build-A') as docker_call,\
+                     patch('deployment_core.tree',return_value={'wp.php':'7'*64}):
+                    if set(names)=={'site.test','www.site.test'}:
+                        _,observed=load_live_baselines(subject,registry=registry)
+                        self.assertEqual(observed['ingress']['certificates'],[certificate]);docker_call.assert_called_once()
+                    else:
+                        with self.assertRaisesRegex(ReleaseError,'TLS|certificate'):load_live_baselines(subject,registry=registry)
+                        docker_call.assert_not_called()
+
+    def test_same_san_renewal_allows_stage_activate_and_exact_retries(self):
+        from site_frontend_adapter import _digest,_ingress_with_details
+        controller,execute,_=self.compatibility_controller_with_backup([self.certificate_snapshot(('site.test','www.site.test'))])
+        original_loader=controller.baseline_loader
+        def renewed(subject):
+            baseline,host=original_loader(subject);certificate=host['ingress']['certificates'][0]
+            certificate.update(san=['www.site.test','site.test'],resolvedFullchainPath='/etc/letsencrypt/archive/site.test/fullchain2.pem',
+                resolvedPrivateKeyPath='/etc/letsencrypt/archive/site.test/privkey2.pem',fullchainSha256='3'*64,privateKeySha256='4'*64,notAfter='later renewal')
+            host['ingress']=_ingress_with_details(host['ingress']);host['baselineSha256']=_digest({'subject':'host','ingress':host['ingress']})
+            return baseline,host
+        controller.baseline_loader=renewed
+        candidate_build=json.loads((self.subject.incoming/'release-proof.json').read_bytes())['prerelease']['buildId']
+        for action,state in (('stage','INTERNAL_VERIFIED'),('stage','INTERNAL_VERIFIED'),('activate','ACTIVATED'),('activate','ACTIVATED'),('verify','PUBLIC_VERIFIED'),('rollback','ROLLED_BACK')):
+            self.assertEqual(execute(action)['afterState'],state)
+        self.assertEqual(self.slots.calls.count('build'),1);self.assertEqual(self.slots.calls.count('activate:'+candidate_build),1)
 
     def test_trusted_loader_returns_observed_identities_and_fresh_cms_observation(self):
         from site_frontend_adapter import load_live_baselines,_digest

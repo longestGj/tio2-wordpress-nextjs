@@ -255,8 +255,51 @@ def inside(root, run_id):
             else:raise AssertionError('low-space backup was accepted')
             assert capture.call_count==0 and not list((prod/'backups/frontend').iterdir())
         result['cases'].append({'case':'backup-low-space-before-capture','state':read_state(state_root)['state'],'passed':True,'cms':cms_identity()})
+        from frontend_backup import SPACE_RESERVE
+        import backup_core
+        progress=[]
+        def publish_space(descriptor,directory):
+            position=os.lseek(descriptor,0,os.SEEK_CUR);progress.append(position)
+            return SPACE_RESERVE if position else SPACE_RESERVE+32*1024**3
+        prepared_state=read_state(state_root)
+        with patch.object(backup_core,'_publish_free_bytes',side_effect=publish_space):
+            try:action('backup')
+            except ReleaseError as error:assert isinstance(error.__cause__,ReleaseError) and 'space' in str(error.__cause__)
+            else:raise AssertionError('mid-publication space drop was accepted')
+        assert max(progress)==1024**2 and not list(outgoing.iterdir()) and read_state(state_root)==prepared_state
+        result['cases'].append({'case':'outgoing-space-drop-during-first-publication','state':'PREPARED','copiedBytes':max(progress),
+                                'noPartialExport':True,'passed':True,'cms':cms_identity()})
         backed=action('backup');backup=backed['state']['details']['frontendBackup']
         assert action('backup')['state']['details']['frontendBackup']==backup
+        exported=outgoing/(backup['backupId']+'.tar.age');held_root=outgoing.parent/('.held-export-'+run_id)
+        assert inspect('container',run_id)['Config']['Labels'].get(LABEL)==run_id
+        assert held_root.parent.resolve()==outgoing.parent.resolve() and not held_root.exists()
+        held_root.mkdir(mode=0o700);held_identity=held_root.stat()
+        assert held_identity.st_uid==0 and held_identity.st_dev==outgoing.stat().st_dev
+        held=held_root/'ciphertext.age';exported.rename(held)
+        previous=read_state(state_root);progress.clear()
+        try:
+            with patch.object(backup_core,'_publish_free_bytes',side_effect=publish_space):
+                try:action('backup')
+                except ReleaseError as error:assert isinstance(error.__cause__,ReleaseError) and 'space' in str(error.__cause__)
+                else:raise AssertionError('mid-reexport space drop was accepted')
+            assert max(progress)==1024**2 and not list(outgoing.iterdir()) and read_state(state_root)==previous
+            assert backup_core.sha256_file(held)==backup['ciphertextSha256']
+        finally:
+            assert os.path.samestat(held_identity,held_root.lstat()) and not exported.exists()
+            held.rename(exported);held_root.rmdir()
+        result['cases'].append({'case':'outgoing-space-drop-during-reexport','state':'BACKED_UP','copiedBytes':max(progress),
+                                'noPartialExport':True,'preservedCiphertext':True,'passed':True,'cms':cms_identity()})
+        # Exercise both actual platform publisher implementations on Linux;
+        # faults change the reported free space, never fill a shared disk.
+        from tests.production.test_backup_core import BoundedPublicationTests
+        import unittest
+        test_output=io.StringIO()
+        publication_tests=unittest.TextTestRunner(stream=test_output,verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(BoundedPublicationTests))
+        write(root/'bounded-publication-tests.log',test_output.getvalue())
+        assert publication_tests.wasSuccessful() and publication_tests.testsRun==3 and not publication_tests.skipped,test_output.getvalue()
+        result['cases'].append({'case':'linux-bounded-publication','platform':'posix','publishers':['portable','posix'],
+                                'tests':publication_tests.testsRun,'passed':True,'cms':cms_identity()})
         evidence=restore_frontend_backup(outgoing/(backup['backupId']+'.tar.age'),root/'identity.age')
         assert evidence['backupId']==backup['backupId'] and evidence['manifestSha256']==backup['manifestSha256']
         atomic_write_json(incoming/'frontend-restore.json',evidence);result['restore']=evidence

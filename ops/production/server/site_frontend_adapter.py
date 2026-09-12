@@ -203,6 +203,21 @@ def _ingress_with_details(ingress):
     return result
 
 
+def _certificate_policy(certificates):
+    """Stable Task 2 ownership, live paths and the exact PREPARED SAN set."""
+    return sorted((item['owner'],item['certName'],item['fullchainPath'],item['privateKeyPath'],
+                   tuple(sorted(set(item['san'])))) for item in certificates)
+
+
+def _validate_certificate_renewal(prepared,fresh):
+    require(_certificate_policy(prepared)==_certificate_policy(fresh),'registered TLS certificate policy changed')
+    dynamic={'resolvedFullchainPath','resolvedPrivateKeyPath','fullchainSha256','privateKeySha256','notAfter'}
+    def fixed(values):
+        return sorted(({key:(sorted(set(value)) if key=='san' else value) for key,value in item.items() if key not in dynamic}
+                       for item in values),key=lambda item:(item['owner'],item['certName']))
+    require(fixed(prepared)==fixed(fresh),'registered TLS certificate identity changed')
+
+
 def validate_frontend_baselines(context,baseline=None,host=None):
     """Compare observations, never substitute PREPARED expectations for them."""
     baseline=plain(baseline if baseline is not None else context.subject_baseline)
@@ -266,8 +281,7 @@ def validate_frontend_baselines(context,baseline=None,host=None):
             and host['baselineSha256']==_digest({'subject':'host','ingress':fresh}),'host baseline identity changed')
     expected=deepcopy(original)
     expected['certificates']=[item for item in expected['certificates'] if item['owner']==subject.owner]
-    identity=lambda values:[{key:item[key] for key in ('owner','certName','fullchainPath','privateKeyPath')} for item in values]
-    require(identity(expected['certificates'])==identity(fresh['certificates']),'registered TLS identity changed')
+    _validate_certificate_renewal(expected['certificates'],fresh['certificates'])
     # Fresh certificates have already passed Task 2 owner, SAN, validity and
     # key-pair checks. Their renewed leaf hashes are intentionally not frozen.
     expected['certificates']=deepcopy(fresh['certificates'])
@@ -295,11 +309,21 @@ def load_live_baselines(subject, *, registry=None):
     paths=ReleasePaths(incoming=subject.incoming,outgoing=subject.outgoing,production=subject.production,configuration=subject.configuration)
     registry=registry or load_registry(Path('/etc/d16-release'))
     require(registry.resolve(subject.subject_id)==subject,'frontend registry changed')
+    state=read_record(subject.state_root/'state.json'); details=state.get('details',{})
+    migration=_read_record(subject.state_root.parent.parent/'migration/phase1/receipt.json',None)
+    require(migration.get('schemaVersion')=='d16-phase1-migration-receipt-v1' and migration.get('subject')==subject.subject_id
+            and migration.get('state')=='PREPARED','migration baseline receipt mismatch')
+    prepared=migration['runtimeAfter']['ingress']
+    require(_digest({'subject':'host','ingress':prepared})==details.get('hostBaselineSha256'),'host PREPARED baseline changed')
+    prepared_certificates=[item for item in prepared['certificates'] if item['owner']==subject.owner]
+    policy=[{'owner':item.owner,'certName':item.cert_name,'fullchainPath':item.fullchain_path.as_posix(),
+             'privateKeyPath':item.private_key_path.as_posix(),'san':item.dns_names} for item in subject.certificates]
+    require(_certificate_policy(prepared_certificates)==_certificate_policy(policy),'registered TLS certificate policy changed')
     reader=LocalSnapshotSource();reader._configure_tls_allowlist(registry)
     ingress=validate_registered_ingress(registry,reader._run(['/usr/sbin/nginx','-T']),reader,subject_id=subject.subject_id)
+    _validate_certificate_renewal(prepared_certificates,ingress['certificates'])
     record=_read_record(subject.configuration/'baseline.json',None)
     live=_validate_record(_current_tls(record,ingress['certificates']),paths,None,None)
-    state=read_record(subject.state_root/'state.json'); details=state.get('details',{})
     cms=details.get('cmsEvidence')
     require(isinstance(cms,dict) and cms.get('verified') is True and cms.get('site_scope')==subject.subject_id,'migrated CMS evidence is required')
     wordpress=next(item['id'] for item in live['runtime']['containers'] if item['role']=='wordpress')
@@ -311,9 +335,6 @@ def load_live_baselines(subject, *, registry=None):
     adoption=_read_record(subject.production/'state/adoption.json',None)
     require(adoption.get('schemaVersion')=='tio2-production-adoption-journal-v1' and adoption.get('state')=='PUBLIC_READY'
             and adoption.get('planHash')==plan['planHash'],'previous production receipt changed')
-    migration=_read_record(subject.state_root.parent.parent/'migration/phase1/receipt.json',None)
-    require(migration.get('schemaVersion')=='d16-phase1-migration-receipt-v1' and migration.get('subject')==subject.subject_id
-            and migration.get('state')=='PREPARED','migration baseline receipt mismatch')
     cms_runtime={'containers':[item for item in live['runtime']['containers'] if item['role']!='web'],
                  'volumes':live['runtime']['volumes'],'contentSha256':scope['contentSha256'],
                  'configurationSha256':hashlib.sha256(canonical(record['configuration']['environment'])).hexdigest(),
