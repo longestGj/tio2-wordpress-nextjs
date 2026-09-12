@@ -116,6 +116,18 @@ class ContentHooksTests(unittest.TestCase):
         self.assertEqual(result['contentSha256'],self.package['contentSha256'])
         self.assertTrue(all(result[key] for key in ('content','status','seo','sitemap')))
 
+    def test_origin_canonical_empty_path_and_slash_are_equivalent(self):
+        self.package['records'][0]['content']['seo']['canonical']='https://example.test'
+        self.package['contentSha256']=hashlib.sha256(canonical(self.package['records'])).hexdigest()
+        self.hooks.execute('enter',self.request)
+        self.assertTrue(self.hooks.execute('verify',{**self.request,'package':self.package})['seo'])
+
+    def test_unmapped_seo_field_is_not_silently_verified(self):
+        self.config['pages']['HOME-001']['fields'].append('seo.routeSafeDescription')
+        self.config['expectedIdentity']=self.hooks.observe_identity()
+        self.hooks.execute('enter',self.request)
+        with self.assertRaises(ReleaseError):self.hooks.execute('verify',{**self.request,'package':self.package})
+
     def test_stale_body_cannot_pass_using_script_text(self):
         self.hooks.execute('enter',self.request)
         self.body='Old heading<script>New visible heading</script>'

@@ -69,6 +69,11 @@ def validate_config(config):
     return config
 
 
+def canonical_url(value):
+    parsed=urlsplit(value)
+    return parsed.scheme,parsed.netloc.lower(),parsed.path or '/',parsed.query,parsed.fragment
+
+
 class Page(HTMLParser):
     """Read rendered text, excluding head, scripts and explicitly hidden nodes."""
     def __init__(self,html):
@@ -233,7 +238,7 @@ ksort($files);echo json_encode($files,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNIC
         if status!=200: raise ReleaseError('sitemap unavailable')
         try: root=ET.fromstring(body)
         except ET.ParseError as error: raise ReleaseError('sitemap invalid') from error
-        urls={node.text for node in root.iter() if node.tag.split('}')[-1]=='loc'}
+        urls={canonical_url(node.text) for node in root.iter() if node.tag.split('}')[-1]=='loc' and node.text}
         normalize=lambda text:' '.join(text.split())
         for record in package['records']:
             probe=self.config['pages'].get(record['pageId'])
@@ -242,17 +247,21 @@ ksort($files);echo json_encode($files,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNIC
             if status!=200: raise ReleaseError('page status verification failed')
             page=Page(body);content=record['content'];seo=content.get('seo',{})
             seo={**seo,'description':seo.get('description',seo.get('meta_description')),'canonical':seo.get('canonical',probe.get('canonical'))}
-            if probe.get('canonical') and seo['canonical']!=probe['canonical']: raise ReleaseError('page canonical input differs from registration')
+            if probe.get('canonical') and canonical_url(seo['canonical'])!=canonical_url(probe['canonical']): raise ReleaseError('page canonical input differs from registration')
             if not all(isinstance(seo.get(x),str) and seo[x] for x in ('title','description','canonical')): raise ReleaseError('page SEO input missing')
-            if normalize(''.join(page.titles))!=normalize(seo['title']) or page.meta.get('description')!=seo['description'] or page.links.get('canonical')!=seo['canonical']:
+            if normalize(''.join(page.titles))!=normalize(seo['title']) or page.meta.get('description')!=seo['description'] or not page.links.get('canonical') or canonical_url(page.links['canonical'])!=canonical_url(seo['canonical']):
                 raise ReleaseError('page SEO verification failed')
             if seo.get('openGraphTitle') and page.meta.get('og:title')!=seo['openGraphTitle']: raise ReleaseError('page OpenGraph verification failed')
             robots={x.strip() for x in page.meta.get('robots','').lower().split(',')}
             if probe['robots'] not in robots or (probe['robots']=='index' and 'noindex' in robots): raise ReleaseError('page robots verification failed')
-            if (seo['canonical'] in urls)!=probe['sitemap']: raise ReleaseError('page sitemap verification failed')
+            if (canonical_url(seo['canonical']) in urls)!=probe['sitemap']: raise ReleaseError('page sitemap verification failed')
             visible=normalize(' '.join(page.parts))
             for field in probe['fields']:
-                if field.startswith('seo.'): continue
+                if field.startswith('seo.'):
+                    if field not in {'seo.title','seo.description','seo.meta_description','seo.canonical','seo.openGraphTitle'}:
+                        raise ReleaseError('requested SEO field verification is not installed')
+                    if field.split('.')[1] not in content.get('seo',{}): raise ReleaseError('requested SEO field unavailable')
+                    continue
                 expected=content
                 try:
                     for key in field.split('.'): expected=expected[int(key)] if isinstance(expected,list) else expected[key]
