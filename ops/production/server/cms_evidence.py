@@ -97,6 +97,7 @@ class CmsEvidence:
     published_records: int
     adoption_content_sha256: str
     live_content_sha256: str
+    comparison_content_sha256: str
     verified: bool = True
 
     def as_dict(self): return asdict(self)
@@ -182,6 +183,7 @@ def verify_frontend_only_evidence(proof, identity_bytes, seed_manifest, adoption
         adoption_record = {**adoption, 'migrationManifestBytes': adoption_seed_hash}
         return CmsEvidence(identity_hash, digest(canonical(proof)), digest(canonical(candidate)), seed_hash, adoption_seed_hash,
                            digest(canonical(seed_record)), digest(canonical(adoption_record)), digest(canonical(live_scope)),
-                           'tio2-my', counts['published'], adoption['contentSha256'], live_scope['contentSha256'])
+                           'tio2-my', counts['published'], adoption['contentSha256'], live_scope['contentSha256'],
+                           digest(canonical(live_scope['contentSnapshot'])))
     except (KeyError, TypeError, ValueError, AttributeError, OverflowError) as error:
         raise ReleaseError('CMS evidence is incomplete or invalid') from error

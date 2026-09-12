@@ -56,6 +56,7 @@ def inside(root, run_id):
     from frontend_backup import restore_frontend_backup, read_record
     from deployment_core import Deployment, DockerWebAdapter, _upstream
     from adoption_probe import read_cms_scope
+    from cms_content_snapshot import read_content_snapshot
     from phase1_migration import COMPATIBILITY_COMMIT as B, COMPATIBILITY_RELEASE_ID, COMPATIBILITY_RUN_ROOT
 
     resources = {'containers': [], 'volumes': [], 'networks': []}
@@ -197,7 +198,7 @@ def inside(root, run_id):
                'forms':{'rfq':'RECEIVED','sample':'RECEIVED','documents':'RECEIVED'},'productionGateReceiptSha256':'1'*64}}
         atomic_write_json(incoming/'release-proof.json',proof)
         candidate={key:proof[key] for key in ('commit','archiveSha256','manifestSha256')};candidate.update(proofSha256=digest((incoming/'release-proof.json').read_bytes()),contractVersion=proof['contractVersion'])
-        cms=CmsEvidence(digest(identity_bytes),digest(canonical(proof)),digest(canonical({key:candidate[key] for key in ('commit','archiveSha256','manifestSha256')})),*['1'*64]*5,'tio2-my',scope['publishedRecords'],scope['contentSha256'],scope['contentSha256']).as_dict()
+        cms=CmsEvidence(digest(identity_bytes),digest(canonical(proof)),digest(canonical({key:candidate[key] for key in ('commit','archiveSha256','manifestSha256')})),*['1'*64]*5,'tio2-my',scope['publishedRecords'],scope['contentSha256'],scope['contentSha256'],digest(canonical(read_content_snapshot(SubprocessCommandRunner(),wordpress)))).as_dict()
         cms['live_scope_sha256']=digest(canonical(scope))
         transaction={'schemaVersion':'d16-production-transaction-v1','subject':'tio2-my','releaseType':'frontend-only','releaseId':COMPATIBILITY_RELEASE_ID,'sourceCommit':B,
                      'runRoot':COMPATIBILITY_RUN_ROOT,'candidate':candidate,'artifacts':{name:digest((incoming/name).read_bytes()) for name in ('release.tar.gz','release-manifest.json','release-proof.json','cms-identity.json')},'proofObjectSha256':cms['proof_sha256']}
