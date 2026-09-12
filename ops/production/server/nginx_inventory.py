@@ -14,7 +14,7 @@ from release_contract import ReleaseError
 from subject_registry import SubjectRegistry
 
 
-_BOUNDARY = re.compile(r"(?m)^# configuration file (.+):\s*$")
+_BOUNDARY = re.compile(r"(?m)^# configuration file (.+):[ \t]*\r?$")
 _DIRECTIVE = re.compile(
     r"\b(include|server_name|listen|proxy_pass|ssl_certificate_key|ssl_certificate)\s+([^;{}]+);"
 )
@@ -137,6 +137,47 @@ def _port_from_proxy(value: str) -> str:
     return f"{host}:{port}"
 
 
+def _syntax_without_comments_or_quotes(content: str) -> str:
+    """Mask comments and quoted bytes while preserving statement boundaries."""
+    result: list[str] = []
+    quote: str | None = None
+    escaped = False
+    comment = False
+    for character in content:
+        if comment:
+            if character in "\r\n":
+                comment = False
+                result.append(character)
+            else:
+                result.append(" ")
+            continue
+        if escaped:
+            result.append(" ")
+            escaped = False
+            continue
+        if character == "\\":
+            result.append(" ")
+            escaped = True
+            continue
+        if quote is not None:
+            if character == quote:
+                quote = None
+            result.append(" " if character not in "\r\n" else character)
+            continue
+        if character in {'"', "'"}:
+            quote = character
+            result.append(" ")
+            continue
+        if character == "#":
+            comment = True
+            result.append(" ")
+            continue
+        result.append(character)
+    if quote is not None or escaped:
+        raise ReleaseError("invalid Nginx quoted syntax")
+    return "".join(result)
+
+
 def _classify_references(
     content: str,
     owner: str,
@@ -145,12 +186,14 @@ def _classify_references(
     ports: dict[str, str],
     tls: dict[str, tuple[str, str, str]],
 ) -> tuple[NginxReference, ...]:
-    uncommented = re.sub(r"(?m)#.*$", "", content)
+    uncommented = _syntax_without_comments_or_quotes(content)
     references: list[NginxReference] = []
     certificate_names: set[str] = set()
     private_key_names: set[str] = set()
     for match in _DIRECTIVE.finditer(uncommented):
         kind, raw = match.group(1), match.group(2).strip()
+        if not raw:
+            raise ReleaseError("invalid Nginx directive")
         if kind == "include":
             references.extend(_include_references(raw, logical))
             continue
@@ -199,11 +242,29 @@ def _classify_references(
     return tuple(references)
 
 
-def classify_nginx(dump: str, registry: SubjectRegistry) -> NginxInventory:
-    """Classify the complete effective config without reloading or rewriting it."""
-    if not isinstance(dump, str):
-        raise ReleaseError("Nginx configuration dump is invalid")
-    logical, domains, ports, tls = _indexes(registry)
+def _validate_include_ownership(files: list[NginxFile]) -> None:
+    by_path = {entry.logical_path.as_posix(): entry for entry in files}
+    for source in files:
+        direct = [reference for reference in source.references if reference.kind == "include"]
+        for reference in direct:
+            target = by_path[reference.value]
+            if source.owner != "host" and target.owner not in {"host", source.owner}:
+                raise ReleaseError("Nginx include owner mismatch")
+    for origin in (entry for entry in files if entry.owner != "host"):
+        pending = [reference.value for reference in origin.references if reference.kind == "include"]
+        visited: set[str] = set()
+        while pending:
+            path = pending.pop()
+            if path in visited:
+                continue
+            visited.add(path)
+            target = by_path[path]
+            if target.owner not in {"host", origin.owner}:
+                raise ReleaseError("Nginx nested include owner mismatch")
+            pending.extend(reference.value for reference in target.references if reference.kind == "include")
+
+
+def _effective_files(dump: str) -> dict[str, str]:
     boundaries = list(_BOUNDARY.finditer(dump))
     if not boundaries:
         raise ReleaseError("Nginx configuration dump is empty")
@@ -212,10 +273,34 @@ def classify_nginx(dump: str, registry: SubjectRegistry) -> NginxInventory:
         path = boundary.group(1).strip().replace("\\", "/")
         if path in observed:
             raise ReleaseError("duplicate effective Nginx file")
+        content_start = boundary.end()
+        if dump.startswith("\r\n", content_start):
+            content_start += 2
+        elif dump.startswith("\n", content_start):
+            content_start += 1
+        else:
+            raise ReleaseError("Nginx configuration dump boundary is invalid")
+        content_end = boundaries[index + 1].start() if index + 1 < len(boundaries) else len(dump)
+        if index + 1 < len(boundaries):
+            if dump[content_end - 2:content_end] == "\r\n":
+                content_end -= 2
+            elif dump[content_end - 1:content_end] == "\n":
+                content_end -= 1
+            else:
+                raise ReleaseError("Nginx configuration dump separator is invalid")
+        observed[path] = dump[content_start:content_end]
+    return observed
+
+
+def classify_nginx(dump: str, registry: SubjectRegistry) -> NginxInventory:
+    """Classify the complete effective config without reloading or rewriting it."""
+    if not isinstance(dump, str):
+        raise ReleaseError("Nginx configuration dump is invalid")
+    logical, domains, ports, tls = _indexes(registry)
+    observed = _effective_files(dump)
+    for path in observed:
         if path not in logical:
             raise ReleaseError("unregistered Nginx file")
-        end = boundaries[index + 1].start() if index + 1 < len(boundaries) else len(dump)
-        observed[path] = dump[boundary.end():end].lstrip("\r\n")
     missing = set(logical) - set(observed)
     if missing:
         raise ReleaseError("registered Nginx file is absent from effective configuration")
@@ -236,9 +321,10 @@ def classify_nginx(dump: str, registry: SubjectRegistry) -> NginxInventory:
             current = current_bytes.decode("utf-8")
         except (OSError, UnicodeDecodeError) as error:
             raise ReleaseError("registered Nginx file is unavailable") from error
-        if current.rstrip("\r\n") != observed[path].rstrip("\r\n"):
+        if current != observed[path]:
             raise ReleaseError("registered Nginx file changed during snapshot")
         digest = hashlib.sha256(current_bytes).hexdigest()
         references = _classify_references(current, owner, logical, domains, ports, tls)
         files.append(NginxFile(logical_path, actual_resolved, digest, owner, references))
+    _validate_include_ownership(files)
     return NginxInventory(tuple(files))

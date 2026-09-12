@@ -6,8 +6,9 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import re
+import stat
 from types import MappingProxyType
-from typing import Literal, Mapping
+from typing import Callable, Literal, Mapping
 
 from release_contract import ReleaseError
 
@@ -88,6 +89,83 @@ class SubjectRegistry:
         return MappingProxyType({name: subject for name, subject in self.subjects.items() if subject.kind == "site"})
 
 
+class SecureRegistryReader:
+    """Read registry objects while enforcing stable root-owned filesystem metadata."""
+
+    def __init__(self, *, stat_reader: Callable[[Path], object] = os.lstat):
+        self._stat_reader = stat_reader
+
+    @staticmethod
+    def _identity(value: object) -> tuple[int, int, int, int, int, int, int]:
+        return (
+            int(value.st_dev), int(value.st_ino), int(value.st_mode), int(value.st_uid),
+            int(value.st_nlink), int(value.st_size), int(value.st_mtime_ns),
+        )
+
+    def _metadata(self, path: Path, *, directory: bool) -> object:
+        try:
+            value = self._stat_reader(path)
+        except OSError as error:
+            raise ReleaseError("subject registry is unavailable") from error
+        mode = int(value.st_mode)
+        if directory and not stat.S_ISDIR(mode):
+            raise ReleaseError("subject registry path must be a directory")
+        if not directory and not stat.S_ISREG(mode):
+            raise ReleaseError("subject registry path must be a regular file")
+        if int(value.st_uid) != 0 or mode & 0o022:
+            raise ReleaseError("subject registry path is not root protected")
+        if not directory and int(value.st_nlink) != 1:
+            raise ReleaseError("subject registry file has unsafe link count")
+        return value
+
+    def validate_directory(self, path: Path) -> tuple[int, int, int, int, int, int, int]:
+        return self._identity(self._metadata(path, directory=True))
+
+    def verify_directory(self, path: Path, identity: tuple[int, int, int, int, int, int, int]) -> None:
+        if self.validate_directory(path) != identity:
+            raise ReleaseError("subject registry directory changed during read")
+
+    def read_text(self, path: Path) -> str:
+        before = self._metadata(path, directory=False)
+        flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
+        try:
+            descriptor = os.open(path, flags)
+        except OSError as error:
+            raise ReleaseError("subject registry is unavailable") from error
+        try:
+            opened = os.fstat(descriptor)
+            if (
+                not stat.S_ISREG(opened.st_mode)
+                or opened.st_nlink != 1
+                or (opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino)
+            ):
+                raise ReleaseError("subject registry file changed during read")
+            chunks: list[bytes] = []
+            total = 0
+            while True:
+                chunk = os.read(descriptor, 65536)
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > 1024 * 1024:
+                    raise ReleaseError("subject registry file is too large")
+                chunks.append(chunk)
+            opened_after = os.fstat(descriptor)
+            if (opened_after.st_dev, opened_after.st_ino, opened_after.st_size, opened_after.st_mtime_ns) != (
+                opened.st_dev, opened.st_ino, opened.st_size, opened.st_mtime_ns
+            ):
+                raise ReleaseError("subject registry file changed during read")
+        finally:
+            os.close(descriptor)
+        after = self._metadata(path, directory=False)
+        if self._identity(after) != self._identity(before):
+            raise ReleaseError("subject registry file changed during read")
+        try:
+            return b"".join(chunks).decode("utf-8")
+        except UnicodeError as error:
+            raise ReleaseError("subject registry is unavailable") from error
+
+
 def _strict_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
     value: dict[str, object] = {}
     for key, item in pairs:
@@ -97,9 +175,9 @@ def _strict_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
     return value
 
 
-def _read_json(path: Path) -> dict[str, object]:
+def _read_json(path: Path, reader: SecureRegistryReader) -> dict[str, object]:
     try:
-        value = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_strict_object)
+        value = json.loads(reader.read_text(path), object_pairs_hook=_strict_object)
     except ReleaseError:
         raise
     except (OSError, UnicodeError, json.JSONDecodeError) as error:
@@ -198,8 +276,8 @@ def _certificates(value: object, owner: str) -> tuple[CertificatePolicy, ...]:
     return tuple(result)
 
 
-def _parse_subject(path: Path, expected_id: str, expected_kind: str) -> ReleaseSubject:
-    value = _read_json(path)
+def _parse_subject(path: Path, expected_id: str, expected_kind: str, reader: SecureRegistryReader) -> ReleaseSubject:
+    value = _read_json(path, reader)
     if set(value) != _SUBJECT_KEYS:
         raise ReleaseError("subject registry schema mismatch")
     subject_id = value["subjectId"]
@@ -233,23 +311,29 @@ def _parse_subject(path: Path, expected_id: str, expected_kind: str) -> ReleaseS
     )
 
 
-def load_registry(root: Path) -> SubjectRegistry:
+def load_registry(root: Path, *, reader: SecureRegistryReader | None = None) -> SubjectRegistry:
     """Load the complete fixed subject registry without accepting path overrides."""
     root = Path(root)
+    reader = reader or SecureRegistryReader()
+    directory_identities = {root: reader.validate_directory(root)}
     subjects: dict[str, ReleaseSubject] = {}
-    host = _parse_subject(root / "host.json", "host", "host")
-    cms = _parse_subject(root / "cms" / "subject.json", "cms", "cms")
-    subjects.update(host=host, cms=cms)
+    cms_root = root / "cms"
     sites_root = root / "sites"
+    directory_identities[cms_root] = reader.validate_directory(cms_root)
+    directory_identities[sites_root] = reader.validate_directory(sites_root)
+    host = _parse_subject(root / "host.json", "host", "host", reader)
+    cms = _parse_subject(cms_root / "subject.json", "cms", "cms", reader)
+    subjects.update(host=host, cms=cms)
     try:
-        site_directories = sorted(path for path in sites_root.iterdir() if path.is_dir())
+        site_directories = sorted(sites_root.iterdir())
     except OSError as error:
         raise ReleaseError("subject registry is unavailable") from error
     for directory in site_directories:
+        directory_identities[directory] = reader.validate_directory(directory)
         site_id = directory.name
         if not _SITE_ID.fullmatch(site_id) or site_id in {"host", "cms"}:
             raise ReleaseError("subject registry site identity mismatch")
-        subjects[site_id] = _parse_subject(directory / "site.json", site_id, "site")
+        subjects[site_id] = _parse_subject(directory / "site.json", site_id, "site", reader)
     if len(subjects) == 2:
         raise ReleaseError("subject registry contains no sites")
 
@@ -274,4 +358,6 @@ def load_registry(root: Path) -> SubjectRegistry:
         for certificate in subject.certificates:
             if any(owners.get(("domain", name)) != subject.owner for name in certificate.dns_names):
                 raise ReleaseError("subject registry certificate DNS owner mismatch")
+    for directory, identity in reversed(tuple(directory_identities.items())):
+        reader.verify_directory(directory, identity)
     return SubjectRegistry(MappingProxyType(subjects))

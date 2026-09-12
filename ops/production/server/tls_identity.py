@@ -84,6 +84,17 @@ class CertificateSnapshot:
         }
 
 
+@dataclass(frozen=True)
+class _FileIdentity:
+    device: int
+    inode: int
+    size: int
+    modified: int
+    uid: int
+    file_type: str
+    mode: int
+
+
 def _path_text(path: Path) -> str:
     return path.as_posix()
 
@@ -133,19 +144,31 @@ def _resolve_target(runner: CommandRunner, logical: str, archive: str, prefix: s
     return Path(target)
 
 
-def _validate_regular(runner: CommandRunner, path: Path, *, private: bool) -> None:
+def _validate_regular(runner: CommandRunner, path: Path, *, private: bool) -> _FileIdentity:
     value = _success(
         runner,
-        ("/usr/bin/stat", "--printf=%u|%F|%a", _path_text(path)),
+        ("/usr/bin/stat", "--printf=%d|%i|%s|%Y|%u|%F|%a", _path_text(path)),
         "file",
     ).strip()
     fields = value.split("|")
     try:
-        mode = int(fields[2], 8)
+        device, inode, size, modified, uid = (int(item) for item in fields[:5])
+        mode = int(fields[6], 8)
     except (IndexError, ValueError) as error:
         raise ReleaseError("certificate file validation failed") from error
-    if len(fields) != 3 or fields[0] != "0" or fields[1] != "regular file" or mode & 0o022 or private and mode & 0o077:
+    if (
+        len(fields) != 7
+        or device <= 0
+        or inode <= 0
+        or size < 0
+        or modified < 0
+        or uid != 0
+        or fields[5] != "regular file"
+        or mode & 0o022
+        or private and mode & 0o077
+    ):
         raise ReleaseError("certificate file validation failed")
+    return _FileIdentity(device, inode, size, modified, uid, fields[5], mode)
 
 
 def _sha256(runner: CommandRunner, path: Path) -> str:
@@ -188,8 +211,8 @@ def resolve_certificate(policy: CertificatePolicy, runner: CommandRunner) -> Cer
     fullchain_logical, private_key_logical, archive = _validate_policy(policy)
     fullchain = _resolve_target(runner, fullchain_logical, archive, "fullchain")
     private_key = _resolve_target(runner, private_key_logical, archive, "privkey")
-    _validate_regular(runner, fullchain, private=False)
-    _validate_regular(runner, private_key, private=True)
+    fullchain_identity = _validate_regular(runner, fullchain, private=False)
+    private_key_identity = _validate_regular(runner, private_key, private=True)
     fullchain_sha256 = _sha256(runner, fullchain)
     private_key_sha256 = _sha256(runner, private_key)
     names, not_after = _certificate_details(runner, fullchain)
@@ -218,6 +241,15 @@ def resolve_certificate(policy: CertificatePolicy, runner: CommandRunner) -> Cer
     private_der_hash = hashlib.sha256(_public_key_der(private_public_key)).digest()
     if cert_der_hash != private_der_hash:
         raise ReleaseError("certificate private key mismatch")
+    if (
+        _resolve_target(runner, fullchain_logical, archive, "fullchain") != fullchain
+        or _resolve_target(runner, private_key_logical, archive, "privkey") != private_key
+        or _validate_regular(runner, fullchain, private=False) != fullchain_identity
+        or _validate_regular(runner, private_key, private=True) != private_key_identity
+        or _sha256(runner, fullchain) != fullchain_sha256
+        or _sha256(runner, private_key) != private_key_sha256
+    ):
+        raise ReleaseError("certificate changed during snapshot")
     return CertificateSnapshot(
         cert_name=policy.cert_name,
         fullchain_path=policy.fullchain_path,

@@ -130,6 +130,27 @@ class NginxInventoryTests(unittest.TestCase):
         with self.assertRaisesRegex(ReleaseError, "changed during snapshot"):
             classify_nginx(captured, self.registry)
 
+    def test_hash_inside_quotes_does_not_comment_out_following_directives(self) -> None:
+        content = (
+            'set $note "#"; server_name tio2malaysia.com www.tio2malaysia.com; '
+            f'ssl_certificate {self.site_cert.as_posix()}; '
+            f'ssl_certificate_key {self.site_key.as_posix()};\n'
+        )
+        self.site_path.write_text(content, encoding="utf-8", newline="\n")
+        inventory = classify_nginx(self.dump({self.site_path: content}), self.registry)
+        site = next(entry for entry in inventory.files if entry.logical_path == self.site_path)
+        self.assertEqual(
+            [reference.value for reference in site.references if reference.kind == "server_name"],
+            ["tio2malaysia.com", "www.tio2malaysia.com"],
+        )
+
+    def test_nginx_dump_boundaries_preserve_source_blank_lines_and_final_newlines(self) -> None:
+        content = "\n" + self.site_config() + "\n\n"
+        self.site_path.write_text(content, encoding="utf-8", newline="\n")
+        inventory = classify_nginx(self.dump({self.site_path: content}), self.registry)
+        site = next(entry for entry in inventory.files if entry.logical_path == self.site_path)
+        self.assertEqual(site.sha256, hashlib.sha256(content.encode("utf-8")).hexdigest())
+
     def test_effective_nginx_rejects_unknown_and_cross_subject_key(self) -> None:
         unknown = self.root / "unknown.conf"
         unknown.write_text("server_name unknown.example;\n", encoding="utf-8")
@@ -171,6 +192,64 @@ class NginxInventoryTests(unittest.TestCase):
         with self.assertRaisesRegex(ReleaseError, "certificate/key"):
             classify_nginx(self.dump({self.site_path: mixed}), registry)
 
+    def test_include_graph_preserves_origin_and_rejects_cross_subject_fragments(self) -> None:
+        host_fragment = self.root / "host-tls-options.conf"
+        cms_fragment = self.root / "cms-tls.conf"
+        other_upstream = self.root / "site-b-upstream.conf"
+        host_fragment.write_text("ssl_protocols TLSv1.3;\n", encoding="utf-8", newline="\n")
+        cms_fragment.write_text(
+            f"ssl_certificate {self.cms_cert.as_posix()};\nssl_certificate_key {self.cms_key.as_posix()};\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+        other_upstream.write_text("proxy_pass http://127.0.0.1:4000;\n", encoding="utf-8", newline="\n")
+
+        subjects = dict(self.registry.subjects)
+        subjects["host"] = replace(subjects["host"], nginx_files=(*subjects["host"].nginx_files, NginxPathPolicy(host_fragment, host_fragment.resolve())))
+        subjects["cms"] = replace(subjects["cms"], nginx_files=(*subjects["cms"].nginx_files, NginxPathPolicy(cms_fragment, cms_fragment.resolve())))
+        common = (Path("/fixed/site-b"),) * 5
+        subjects["site-b"] = ReleaseSubject(
+            "site-b", "site", *common, "site-b-v1", (), ("127.0.0.1:4000",),
+            (NginxPathPolicy(other_upstream, other_upstream.resolve()),), (),
+        )
+        registry = SubjectRegistry(MappingProxyType(subjects))
+        contents = dict(self.contents)
+        contents[host_fragment] = host_fragment.read_text(encoding="utf-8")
+        contents[cms_fragment] = cms_fragment.read_text(encoding="utf-8")
+        contents[other_upstream] = other_upstream.read_text(encoding="utf-8")
+        contents[self.host_path] += (
+            f"include {host_fragment.as_posix()};\n"
+            f"include {cms_fragment.as_posix()};\n"
+            f"include {other_upstream.as_posix()};\n"
+        )
+        contents[self.site_path] = self.site_config() + f"include {host_fragment.as_posix()};\n"
+        for path, content in contents.items():
+            path.write_text(content, encoding="utf-8", newline="\n")
+
+        def dump() -> str:
+            return "\n".join(f"# configuration file {path.as_posix()}:\n{content}" for path, content in contents.items())
+
+        classify_nginx(dump(), registry)
+
+        contents[host_fragment] += f"include {cms_fragment.as_posix()};\n"
+        host_fragment.write_text(contents[host_fragment], encoding="utf-8", newline="\n")
+        with self.assertRaisesRegex(ReleaseError, "include owner"):
+            classify_nginx(dump(), registry)
+
+        contents[host_fragment] = "ssl_protocols TLSv1.3;\n"
+        host_fragment.write_text(contents[host_fragment], encoding="utf-8", newline="\n")
+        contents[self.site_path] = self.site_config() + f"include {other_upstream.as_posix()};\n"
+        self.site_path.write_text(contents[self.site_path], encoding="utf-8", newline="\n")
+        with self.assertRaisesRegex(ReleaseError, "include owner"):
+            classify_nginx(dump(), registry)
+
+        contents[self.site_path] = self.site_config()
+        self.site_path.write_text(contents[self.site_path], encoding="utf-8", newline="\n")
+        contents[self.cms_path] = self.cms_config() + f"include {self.upstream_path.as_posix()};\n"
+        self.cms_path.write_text(contents[self.cms_path], encoding="utf-8", newline="\n")
+        with self.assertRaisesRegex(ReleaseError, "include owner"):
+            classify_nginx(dump(), registry)
+
     def test_local_adoption_probe_rejects_mutating_commands(self) -> None:
         source = LocalSnapshotSource()
         for command in (
@@ -181,6 +260,30 @@ class NginxInventoryTests(unittest.TestCase):
         ):
             with self.subTest(command=command), self.assertRaisesRegex(AdoptionError, "not allowed"):
                 source._run(command)
+
+    def test_local_adoption_probe_allows_only_registered_exact_tls_commands(self) -> None:
+        source = LocalSnapshotSource()
+        source._configure_tls_allowlist(self.registry)
+        fullchain = "/etc/letsencrypt/archive/tio2malaysia.com/fullchain1.pem"
+        private_key = "/etc/letsencrypt/archive/tio2malaysia.com/privkey1.pem"
+        allowed = (
+            ("/usr/bin/readlink", "--canonicalize-existing", self.site_cert.as_posix()),
+            ("/usr/bin/stat", "--printf=%d|%i|%s|%Y|%u|%F|%a", fullchain),
+            ("/usr/bin/sha256sum", "--binary", fullchain),
+            ("/usr/bin/openssl", "x509", "-in", fullchain, "-noout", "-ext", "subjectAltName", "-enddate"),
+            ("/usr/bin/openssl", "x509", "-in", fullchain, "-checkend", "604800", "-noout"),
+            ("/usr/bin/openssl", "x509", "-in", fullchain, "-pubkey", "-noout"),
+            ("/usr/bin/openssl", "pkey", "-in", private_key, "-pubout"),
+        )
+        self.assertTrue(all(source._command_allowed(command) for command in allowed))
+        rejected = (
+            ("/usr/bin/openssl", "x509", "-in", fullchain, "-CAcreateserial", "-CAkey", private_key),
+            ("/usr/bin/openssl", "pkey", "-in", private_key, "-text", "-noout"),
+            ("/usr/bin/openssl", "x509", "-in", fullchain, "-checkend", "1", "-noout"),
+            ("/usr/bin/sha256sum", "--binary", "/etc/letsencrypt/archive/unknown/fullchain1.pem"),
+            ("/usr/bin/readlink", "--canonicalize-existing", "/etc/letsencrypt/live/unknown/fullchain.pem"),
+        )
+        self.assertFalse(any(source._command_allowed(command) for command in rejected))
 
 
 if __name__ == "__main__":

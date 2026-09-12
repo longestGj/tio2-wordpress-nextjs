@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import platform
 import re
 import shutil
@@ -51,9 +51,27 @@ class LocalSnapshotSource:
 
     def __init__(self, registry_root: Path = Path("/etc/d16-release")):
         self.registry_root = registry_root
+        self._tls_live_paths: frozenset[str] = frozenset()
+        self._tls_archives: dict[str, int] = {}
 
-    @staticmethod
-    def _command_allowed(arguments: tuple[str, ...]) -> bool:
+    def _configure_tls_allowlist(self, registry: SubjectRegistry) -> None:
+        live_paths: set[str] = set()
+        archives: dict[str, int] = {}
+        for subject in registry.subjects.values():
+            for certificate in subject.certificates:
+                live_paths.update((certificate.fullchain_path.as_posix(), certificate.private_key_path.as_posix()))
+                archives[certificate.archive_directory.as_posix()] = certificate.min_remaining_seconds
+        self._tls_live_paths = frozenset(live_paths)
+        self._tls_archives = archives
+
+    def _archive_kind(self, value: str) -> str | None:
+        path = PurePosixPath(value)
+        if not path.is_absolute() or path.parent.as_posix() not in self._tls_archives:
+            return None
+        match = re.fullmatch(r"(fullchain|privkey)[1-9][0-9]*\.pem", path.name)
+        return match.group(1) if match is not None else None
+
+    def _command_allowed(self, arguments: tuple[str, ...]) -> bool:
         if arguments == ("/usr/bin/uname", "-m"):
             return True
         if arguments in {
@@ -73,13 +91,22 @@ class LocalSnapshotSource:
         if arguments == ("/usr/bin/docker", "exec", "wordpress-wordpress-1", "php", "-r", _CMS_PROBE_PHP):
             return True
         if len(arguments) == 3 and arguments[:2] == ("/usr/bin/readlink", "--canonicalize-existing"):
-            return arguments[2].startswith("/etc/letsencrypt/live/")
-        if len(arguments) == 3 and arguments[:2] == ("/usr/bin/stat", "--printf=%u|%F|%a"):
-            return arguments[2].startswith("/etc/letsencrypt/archive/")
+            return arguments[2] in self._tls_live_paths
+        if len(arguments) == 3 and arguments[:2] == ("/usr/bin/stat", "--printf=%d|%i|%s|%Y|%u|%F|%a"):
+            return self._archive_kind(arguments[2]) is not None
         if len(arguments) == 3 and arguments[:2] == ("/usr/bin/sha256sum", "--binary"):
-            return arguments[2].startswith("/etc/letsencrypt/archive/")
-        if arguments and arguments[0] == "/usr/bin/openssl" and len(arguments) >= 5:
-            return arguments[1] in {"x509", "pkey"} and all(token not in {"-out", "-writerand"} for token in arguments)
+            return self._archive_kind(arguments[2]) is not None
+        if len(arguments) >= 4 and arguments[:3] == ("/usr/bin/openssl", "x509", "-in"):
+            path = arguments[3]
+            if self._archive_kind(path) != "fullchain":
+                return False
+            return arguments in {
+                ("/usr/bin/openssl", "x509", "-in", path, "-noout", "-ext", "subjectAltName", "-enddate"),
+                ("/usr/bin/openssl", "x509", "-in", path, "-pubkey", "-noout"),
+                ("/usr/bin/openssl", "x509", "-in", path, "-checkend", str(self._tls_archives[PurePosixPath(path).parent.as_posix()]), "-noout"),
+            }
+        if len(arguments) == 5 and arguments[:3] == ("/usr/bin/openssl", "pkey", "-in"):
+            return self._archive_kind(arguments[3]) == "privkey" and arguments[4] == "-pubout"
         return False
 
     @staticmethod
@@ -184,7 +211,9 @@ class LocalSnapshotSource:
         database_volume = self._volume(database_raw, "wordpress_db_data", "/var/lib/mysql")
         nginx_output = self._run(["/usr/sbin/nginx", "-T"])
         try:
-            ingress = registered_ingress_snapshot(nginx_output, load_registry(self.registry_root), self)
+            registry = load_registry(self.registry_root)
+            self._configure_tls_allowlist(registry)
+            ingress = registered_ingress_snapshot(nginx_output, registry, self)
         except ReleaseError as error:
             raise AdoptionError("registered ingress probe failed") from error
         memory = next((int(line.split()[1]) * 1024 for line in Path("/proc/meminfo").read_text().splitlines() if line.startswith("MemAvailable:")), 0)

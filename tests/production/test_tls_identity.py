@@ -43,7 +43,8 @@ class FakeCertificateRunner:
                 target = "/etc/letsencrypt/archive/tio2malaysia.com/privkey1.pem"
             return CommandResult(0, target + "\n")
         if binary == "/usr/bin/stat":
-            return CommandResult(0, "0|regular file|600")
+            inode = "10" if command[-1].endswith("fullchain1.pem") or command[-1].endswith("fullchain2.pem") else "20"
+            return CommandResult(0, f"1|{inode}|123|1000|0|regular file|600")
         if binary == "/usr/bin/sha256sum":
             digest = "a" * 64 if self.fullchain == "fullchain1.pem" or command[-1].endswith("privkey1.pem") else "b" * 64
             return CommandResult(0, f"{digest} *{command[-1]}\n")
@@ -111,6 +112,37 @@ class CertificateIdentityTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ReleaseError, "lifetime"):
             resolve_certificate(self.policy, FailingRunner())
+
+    def test_rejects_archive_replacement_and_live_renewal_during_snapshot(self) -> None:
+        class ArchiveReplacingRunner(FakeCertificateRunner):
+            def __init__(self) -> None:
+                super().__init__()
+                self.fullchain_stats = 0
+
+            def run(self, command: tuple[str, ...]) -> CommandResult:
+                if command[0] == "/usr/bin/stat" and command[-1].endswith("fullchain1.pem"):
+                    self.commands.append(command)
+                    self.fullchain_stats += 1
+                    inode = 10 if self.fullchain_stats == 1 else 11
+                    return CommandResult(0, f"1|{inode}|123|1000|0|regular file|600")
+                return super().run(command)
+
+        class RenewalInterleaveRunner(FakeCertificateRunner):
+            def __init__(self) -> None:
+                super().__init__()
+                self.fullchain_links = 0
+
+            def run(self, command: tuple[str, ...]) -> CommandResult:
+                if command[0] == "/usr/bin/readlink" and command[-1].endswith("fullchain.pem"):
+                    self.commands.append(command)
+                    self.fullchain_links += 1
+                    generation = 1 if self.fullchain_links == 1 else 2
+                    return CommandResult(0, f"/etc/letsencrypt/archive/tio2malaysia.com/fullchain{generation}.pem\n")
+                return super().run(command)
+
+        for runner in (ArchiveReplacingRunner(), RenewalInterleaveRunner()):
+            with self.subTest(runner=runner), self.assertRaisesRegex(ReleaseError, "changed during snapshot"):
+                resolve_certificate(self.policy, runner)
 
     def test_adoption_snapshot_uses_registered_nginx_and_tls_identity_without_writes(self) -> None:
         with tempfile.TemporaryDirectory() as value:

@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
+import stat
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
 
 
@@ -11,7 +14,7 @@ SERVER = Path(__file__).resolve().parents[2] / "ops" / "production" / "server"
 sys.path.insert(0, str(SERVER))
 
 from release_contract import ReleaseError  # noqa: E402
-from subject_registry import load_registry  # noqa: E402
+from subject_registry import SecureRegistryReader, load_registry  # noqa: E402
 
 
 class SubjectRegistryTests(unittest.TestCase):
@@ -50,6 +53,24 @@ class SubjectRegistryTests(unittest.TestCase):
             ),
         )
         self.write_site()
+        self.reader = SecureRegistryReader(stat_reader=self.trusted_stat)
+
+    @staticmethod
+    def trusted_stat(path: Path) -> SimpleNamespace:
+        value = os.lstat(path)
+        permissions = 0o700 if stat.S_ISDIR(value.st_mode) else 0o600
+        return SimpleNamespace(
+            st_mode=stat.S_IFMT(value.st_mode) | permissions,
+            st_uid=0,
+            st_dev=value.st_dev,
+            st_ino=value.st_ino,
+            st_nlink=value.st_nlink,
+            st_size=value.st_size,
+            st_mtime_ns=value.st_mtime_ns,
+        )
+
+    def load(self, *, reader: SecureRegistryReader | None = None):
+        return load_registry(self.root, reader=reader or self.reader)
 
     @staticmethod
     def write(path: Path, value: dict[str, object]) -> None:
@@ -99,7 +120,7 @@ class SubjectRegistryTests(unittest.TestCase):
         self.write(self.root / "sites" / "tio2-my" / "site.json", value)
 
     def test_registry_rejects_unknown_subject_and_path_escape(self) -> None:
-        registry = load_registry(self.root)
+        registry = self.load()
         self.assertEqual(registry.resolve("host").kind, "host")
         self.assertEqual(registry.resolve("cms").kind, "cms")
         self.assertEqual(registry.resolve("tio2-my").production.as_posix(), "/opt/tio2-production")
@@ -108,7 +129,7 @@ class SubjectRegistryTests(unittest.TestCase):
 
         self.write_site(production_root="../../root")
         with self.assertRaisesRegex(ReleaseError, "fixed root"):
-            load_registry(self.root)
+            self.load()
 
     def test_registry_rejects_unknown_fields_and_duplicate_owned_resources(self) -> None:
         site_path = self.root / "sites" / "tio2-my" / "site.json"
@@ -116,13 +137,13 @@ class SubjectRegistryTests(unittest.TestCase):
         site["command"] = "/bin/sh"
         self.write(site_path, site)
         with self.assertRaisesRegex(ReleaseError, "schema"):
-            load_registry(self.root)
+            self.load()
 
         site.pop("command")
         site["domains"].append("cms.tio2malaysia.com")
         self.write(site_path, site)
         with self.assertRaisesRegex(ReleaseError, "duplicate domain"):
-            load_registry(self.root)
+            self.load()
 
     def test_registry_rejects_certificate_dns_owned_by_another_subject(self) -> None:
         site_path = self.root / "sites" / "tio2-my" / "site.json"
@@ -137,7 +158,47 @@ class SubjectRegistryTests(unittest.TestCase):
         }]
         self.write(site_path, site)
         with self.assertRaisesRegex(ReleaseError, "certificate DNS owner"):
-            load_registry(self.root)
+            self.load()
+
+    def test_registry_security_boundary_rejects_permissions_symlinks_and_replacement(self) -> None:
+        for unsafe_path, change in (
+            (self.root, lambda value: setattr(value, "st_mode", value.st_mode | 0o020)),
+            (self.root / "cms", lambda value: setattr(value, "st_uid", 1000)),
+            (self.root / "host.json", lambda value: setattr(value, "st_mode", value.st_mode | 0o002)),
+        ):
+            def insecure(path: Path, *, target=unsafe_path, mutate=change) -> SimpleNamespace:
+                value = self.trusted_stat(path)
+                if Path(path) == target:
+                    mutate(value)
+                return value
+
+            with self.subTest(unsafe_path=unsafe_path), self.assertRaisesRegex(ReleaseError, "root protected"):
+                self.load(reader=SecureRegistryReader(stat_reader=insecure))
+
+        site_path = self.root / "sites" / "tio2-my" / "site.json"
+
+        def symlink_file(path: Path) -> SimpleNamespace:
+            value = self.trusted_stat(path)
+            if Path(path) == site_path:
+                value.st_mode = stat.S_IFLNK | 0o777
+            return value
+
+        with self.assertRaisesRegex(ReleaseError, "regular file"):
+            self.load(reader=SecureRegistryReader(stat_reader=symlink_file))
+
+        calls = 0
+
+        def replacing_file(path: Path) -> SimpleNamespace:
+            nonlocal calls
+            value = self.trusted_stat(path)
+            if Path(path) == site_path:
+                calls += 1
+                if calls > 1:
+                    value.st_ino += 1
+            return value
+
+        with self.assertRaisesRegex(ReleaseError, "changed during read"):
+            self.load(reader=SecureRegistryReader(stat_reader=replacing_file))
 
 
 if __name__ == "__main__":
