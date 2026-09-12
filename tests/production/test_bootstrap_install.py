@@ -105,6 +105,7 @@ class BootstrapInstallTests(unittest.TestCase):
         archive_copy(archive)
         result = subprocess.run([sys.executable, str(archive / "bootstrap_selftest.py")], cwd=archive, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("d16 entrypoint rejection checks passed", result.stdout)
 
     def test_rejects_unvalidated_support_code_before_any_root_self_test_runs(self) -> None:
         archive = self.root / "bootstrap"

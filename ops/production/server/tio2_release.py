@@ -1,16 +1,14 @@
-"""Closed root-owned command entry point for TiO2 Malaysia releases."""
+"""Read-only compatibility diagnostics for the retired TiO2 entrypoint."""
 
 from __future__ import annotations
 
 import json
-import io
 import os
 import sys
 from typing import Sequence
 
-from release_contract import DEFAULT_PATHS, ReleaseError, ReleasePaths, parse_action
-from release_state import ReleaseLock, read_state, redact, write_audit_receipt
-from release_actions import backup_release, prepare_release, deploy_release, verify_release, rollback_release
+from release_contract import DEFAULT_PATHS, ReleaseError, ReleasePaths
+from release_state import read_state, redact
 
 
 SAFE_PATH = "/usr/sbin:/usr/bin:/sbin:/bin"
@@ -22,20 +20,15 @@ def clear_environment() -> None:
 
 
 def run_action(action: str, paths: ReleasePaths = DEFAULT_PATHS, *, lock_descriptor=None, rollback_intent=None) -> dict[str, object]:
-    """Dispatch only closed, root-owned release actions."""
+    """Read-only legacy diagnostics; never dispatch a release mutation."""
     if action == "status":
         return {"action": action, "ok": True, "state": read_state(paths.production / "state"),
                 "capabilities": {name: {"implemented": name in {"status", "prepare", "backup", "deploy", "verify", "rollback"}, "ready": name == "status", "reason": "available" if name == "status" else "live-baseline-validation-required" if name == "prepare" else "backup-request-and-live-baseline-validation-required" if name == "backup" else "explicit-v3-web-adapter-and-stage-evidence-required", "productionValidated": False} for name in ("status", "prepare", "backup", "deploy", "verify", "rollback")},
+                "legacyWriteEnabled": False,
+                "writeEntrypoint": "d16-release tio2-my <action>",
                 "baseline": {"registered": (paths.configuration / "baseline.json").is_file(), "status": "unverified"},
                 "readiness": "candidate-tooling; live baseline validation is required by prepare"}
-    if action == "prepare":
-        return prepare_release(paths)
-    if action == "backup":
-        return backup_release(paths, lock_descriptor=lock_descriptor)
-    if action == "deploy": return deploy_release(paths)
-    if action == "verify": return verify_release(paths)
-    if action == "rollback": return rollback_release(paths, rollback_intent)
-    raise ReleaseError("release action is unavailable")
+    raise ReleaseError("legacy-entrypoint-read-only")
 
 
 def _emit(value: dict[str, object]) -> None:
@@ -62,39 +55,21 @@ def read_rollback_intent(stream):
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    actor = os.environ.get("SUDO_USER") or "root"
-    failure_stage = "parse"
     clear_environment()
     arguments = list(sys.argv[1:] if argv is None else argv)
-    action: str | None = None
+    if len(arguments) != 1 or arguments[0] not in {"status", "prepare", "backup", "deploy", "stage", "activate", "verify", "rollback"}:
+        _emit({"ok": False, "error": "release error"})
+        return 2
+    if arguments != ["status"]:
+        _emit({"ok": False, "error": "legacy-entrypoint-read-only", "entrypoint": "d16-release tio2-my <action>"})
+        return 2
     try:
-        action = parse_action(arguments)
-        # Receive bounded data before taking the global lock; an incomplete
-        # stdin writer cannot monopolize it. Identity is checked under lock.
-        raw_intent = sys.stdin.buffer.read(4097) if action == 'rollback' else None
-        failure_stage = "lock"
-        lock_path = DEFAULT_PATHS.production / "state" / "release.lock"
-        with ReleaseLock(lock_path) as lock:
-            failure_stage = "action"
-            options = {'lock_descriptor': lock.descriptor} if action == 'backup' else {'rollback_intent': read_rollback_intent(io.BytesIO(raw_intent))} if action == 'rollback' else {}
-            result = run_action(action, DEFAULT_PATHS, **options)
-            write_audit_receipt(DEFAULT_PATHS.production / "state", action, result, actor=actor)
-        _emit(result)
+        _emit(run_action("status", DEFAULT_PATHS))
         return 0
     except ReleaseError:
-        if action is not None:
-            try:
-                write_audit_receipt(DEFAULT_PATHS.production / "state", action, {"ok": False, "error": "release error"}, actor=actor, failure_stage=failure_stage)
-            except Exception:
-                pass
         _emit({"ok": False, "error": "release error"})
         return 2
     except Exception:
-        if action is not None:
-            try:
-                write_audit_receipt(DEFAULT_PATHS.production / "state", action, {"ok": False, "error": "internal release error"}, actor=actor, failure_stage=failure_stage)
-            except Exception:
-                pass
         _emit({"ok": False, "error": "internal release error"})
         return 3
 

@@ -15,7 +15,7 @@ import re
 from release_contract import ReleaseError, assert_root_owned
 
 
-TRANSITIONS = {
+LEGACY_TRANSITIONS = {
     "IDLE": {"PREPARED"},
     "PREPARED": {"BACKED_UP"},
     "BACKED_UP": {"DEPLOYING"},
@@ -26,6 +26,50 @@ TRANSITIONS = {
     "ROLLING_BACK": {"ROLLED_BACK", "FAILED"},
     "ROLLED_BACK": {"PREPARED"},
 }
+
+# The old graph is only for internal legacy deployment_core callers. The D16
+# controller requires STATE_SCHEMA and never dispatches a legacy write action.
+STATE_SCHEMA = "d16-release-state-v1"
+TRANSITIONS = {
+    "IDLE": {"PREPARED"},
+    "PREPARED": {"BACKED_UP", "FAILED"},
+    "BACKED_UP": {"STAGED", "FAILED"},
+    "STAGED": {"INTERNAL_VERIFIED", "FAILED"},
+    "INTERNAL_VERIFIED": {"ACTIVATED", "FAILED"},
+    "ACTIVATED": {"PUBLIC_VERIFIED", "FAILED", "ROLLED_BACK", "RECOVERY_REQUIRED"},
+    "PUBLIC_VERIFIED": {"COMPLETED", "ROLLED_BACK", "RECOVERY_REQUIRED"},
+    "FAILED": {"PREPARED", "ROLLED_BACK", "RECOVERY_REQUIRED"},
+    "ROLLED_BACK": {"PREPARED"},
+    "COMPLETED": {"PREPARED"},
+    "RECOVERY_REQUIRED": set(),
+}
+IDENTITY_FIELDS = ("releaseId", "subject", "releaseType", "sourceCommit",
+                   "candidateManifestSha256", "previousProductionReceipt", "adapterVersion")
+COMPLETION_FILES = frozenset({"business-e2e-receipt.json", "inbox-confirmation-receipt.json",
+                              "rfq-received.eml", "sample-received.eml", "documents-received.eml"})
+
+
+def validate_identity(details: Mapping[str, object]) -> None:
+    from candidate_contract import RELEASE_TYPES
+    if any(not isinstance(details.get(key), str) or not details[key] for key in IDENTITY_FIELDS):
+        raise ReleaseError("release identity is incomplete")
+    if (not re.fullmatch(r"[a-f0-9]{40}", details["sourceCommit"])
+            or not re.fullmatch(r"[a-f0-9]{64}", details["candidateManifestSha256"])
+            or details["releaseType"] not in RELEASE_TYPES):
+        raise ReleaseError("release identity is invalid")
+
+
+def validate_completion_evidence(details: Mapping[str, object]) -> None:
+    evidence = details.get("completionEvidence")
+    if (not isinstance(evidence, Mapping) or evidence.get("businessE2E") != "PASSED"
+            or evidence.get("forms") != {"rfq": "RECEIVED", "sample": "RECEIVED", "documents": "RECEIVED"}
+            or not isinstance(evidence.get("receiptSha256"), str)
+            or not re.fullmatch(r"[a-f0-9]{64}", evidence["receiptSha256"])
+            or not isinstance(evidence.get("evidenceSha256"), Mapping)
+            or set(evidence["evidenceSha256"]) != COMPLETION_FILES
+            or any(not isinstance(value, str) or not re.fullmatch(r"[a-f0-9]{64}", value)
+                   for value in evidence["evidenceSha256"].values())):
+        raise ReleaseError("completion evidence is required")
 
 _SENSITIVE = ("secret", "token", "password", "credential", "private", "key")
 
@@ -160,7 +204,8 @@ def read_state(
         value = json.loads(state_path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
         raise ReleaseError("invalid release state") from error
-    if not isinstance(value, dict) or value.get("state") not in TRANSITIONS:
+    graph = TRANSITIONS if isinstance(value, dict) and value.get("schemaVersion") == STATE_SCHEMA else LEGACY_TRANSITIONS
+    if not isinstance(value, dict) or value.get("state") not in graph:
         raise ReleaseError("invalid release state")
     return value
 
@@ -175,8 +220,28 @@ def transition(
     current = str(previous.get("state"))
     if current not in expected:
         raise ReleaseError("unexpected release state")
-    if next_state not in TRANSITIONS.get(current, set()):
+    modern = "subject" in details or previous.get("schemaVersion") == STATE_SCHEMA
+    graph = TRANSITIONS if modern else LEGACY_TRANSITIONS
+    if next_state not in graph.get(current, set()):
         raise ReleaseError("illegal state transition")
+    if modern:
+        validate_identity(details)
+        if current != "IDLE":
+            if previous.get("schemaVersion") != STATE_SCHEMA:
+                raise ReleaseError("legacy state requires explicit migration")
+            stored = previous.get("details")
+            if not isinstance(stored, Mapping):
+                raise ReleaseError("stored release identity is invalid")
+            validate_identity(stored)
+            if next_state != "PREPARED" and any(stored[key] != details[key] for key in IDENTITY_FIELDS):
+                raise ReleaseError("release identity changed")
+        if next_state == "COMPLETED":
+            validate_completion_evidence(details)
+        value = {"schemaVersion": STATE_SCHEMA, "state": next_state,
+                 "updatedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                 "details": dict(details)}
+        atomic_write_json(state_root / "state.json", value)
+        return value
     commit = details.get("commit")
     archive_hash = details.get("archiveSha256")
     if not isinstance(commit, str) or not re.fullmatch(r"[a-f0-9]{40}", commit) or not isinstance(archive_hash, str) or not re.fullmatch(r"[a-f0-9]{64}", archive_hash):
@@ -207,6 +272,12 @@ def redact(value: Any) -> Any:
         return [redact(item) for item in value]
     if isinstance(value, tuple):
         return [redact(item) for item in value]
+    if isinstance(value, str):
+        value = re.sub(r"(?is)-----BEGIN [^-]*PRIVATE KEY-----.*?-----END [^-]*PRIVATE KEY-----", "[REDACTED]", value)
+        value = re.sub(r"(?i)\bBearer\s+\S+", "Bearer [REDACTED]", value)
+        value = re.sub(r"(?i)\b[\w-]*(?:secret|token|password|credential|private[_-]?key|api[_-]?key)[\w-]*\s*[:=]\s*(?:\"[^\"]*\"|'[^']*'|[^\s,;]+)", "[REDACTED]", value)
+        value = re.sub(r"(https?://)[^/@\s]+:[^/@\s]+@", r"\1[REDACTED]@", value)
+        return value
     return value
 
 
@@ -221,16 +292,16 @@ def write_audit_receipt(
     failure_stage: str | None = None,
 ) -> Path:
     _check_stat(state_root, stat_result, stat_reader)
-    if action not in {"status", "prepare", "backup", "deploy", "verify", "rollback"}:
+    if action not in {"status", "prepare", "backup", "deploy", "stage", "activate", "verify", "rollback"}:
         raise ReleaseError("fixed action is required")
     audit_root = state_root / "audit"
     name = f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-{secrets.token_hex(8)}.json"
     receipt = audit_root / name
-    atomic_write_json(receipt, {
+    atomic_write_json(receipt, redact({
         "action": action,
         "actor": actor,
         "createdAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "failureStage": failure_stage or "completed",
         "result": redact(dict(result)),
-    })
+    }))
     return receipt

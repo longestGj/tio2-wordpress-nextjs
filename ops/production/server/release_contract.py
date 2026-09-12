@@ -40,6 +40,7 @@ DEFAULT_PATHS = ReleasePaths(
     configuration=Path("/etc/tio2-production"),
 )
 ACTIONS = frozenset({"status", "prepare", "backup", "deploy", "verify", "rollback"})
+D16_ACTIONS = frozenset({"status", "prepare", "backup", "stage", "activate", "verify", "rollback"})
 MAX_MEMBERS = 10_000
 MAX_EXPANDED_BYTES = 2 * 1024 * 1024 * 1024
 

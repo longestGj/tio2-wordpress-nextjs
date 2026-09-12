@@ -47,6 +47,36 @@ class ReleaseStateTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temporary.cleanup()
 
+    def identity(self):
+        return {"releaseId": "r1", "subject": "tio2-my", "releaseType": "frontend-only",
+                "sourceCommit": "a" * 40, "candidateManifestSha256": "b" * 64,
+                "previousProductionReceipt": "prod0", "adapterVersion": "fixture-v1"}
+
+    def test_subject_graph_separates_stage_activation_and_completion(self):
+        previous = "IDLE"
+        for next_state in ("PREPARED", "BACKED_UP", "STAGED", "INTERNAL_VERIFIED", "ACTIVATED", "PUBLIC_VERIFIED"):
+            value = transition(self.root, {previous}, next_state, self.identity())
+            self.assertEqual(value["schemaVersion"], "d16-release-state-v1")
+            previous = next_state
+        with self.assertRaisesRegex(ReleaseError, "completion evidence"):
+            transition(self.root, {"PUBLIC_VERIFIED"}, "COMPLETED", self.identity())
+
+    def test_subject_identity_binds_every_field_and_rejects_legacy_downgrade(self):
+        transition(self.root, {"IDLE"}, "PREPARED", self.identity())
+        before = (self.root / "state.json").read_bytes()
+        for key, value in self.identity().items():
+            with self.subTest(key=key), self.assertRaises(ReleaseError):
+                transition(self.root, {"PREPARED"}, "BACKED_UP", {**self.identity(), key: value + "x"})
+        with self.assertRaises(ReleaseError):
+            transition(self.root, {"PREPARED"}, "BACKED_UP", {"commit": "a" * 40, "archiveSha256": "b" * 64})
+        self.assertEqual((self.root / "state.json").read_bytes(), before)
+
+    def test_audit_redacts_nested_strings_and_all_outer_fields(self):
+        receipt = write_audit_receipt(self.root, "stage", {"errors": ["password=hunter2", {"message": "Bearer abc.def"}]}, actor="token=abc", failure_stage="password=bad")
+        raw = receipt.read_text()
+        for secret in ("hunter2", "abc.def", "token=abc", "password=bad"):
+            self.assertNotIn(secret, raw)
+
     def test_lock_rejects_concurrent_holder_through_injected_fcntl_boundary(self) -> None:
         fake = FakeFlock()
         first = ReleaseLock(self.root / "release.lock", lock_api=fake)
@@ -141,33 +171,20 @@ class ReleaseStateTests(unittest.TestCase):
         self.assertEqual(payload["actor"], "root")
         self.assertEqual(payload["failureStage"], "dispatch")
 
-    def test_failed_privileged_action_writes_a_redacted_receipt(self) -> None:
+    def test_legacy_rejected_write_does_not_create_an_audit_or_state(self) -> None:
         paths = tio2_release.ReleasePaths(self.root / "in", self.root / "out", self.root / "prod", self.root / "etc")
 
-        class NoopLock:
-            def __init__(self, *_: object) -> None: pass
-            def __enter__(self) -> "NoopLock": return self
-            def __exit__(self, *_: object) -> None: pass
-
-        with patch.object(tio2_release, "DEFAULT_PATHS", paths), patch.object(tio2_release, "ReleaseLock", NoopLock), redirect_stdout(io.StringIO()):
+        with patch.dict(os.environ), patch.object(tio2_release, "DEFAULT_PATHS", paths), redirect_stdout(io.StringIO()):
             self.assertEqual(tio2_release.main(["prepare"]), 2)
         receipts = list((paths.production / "state" / "audit").glob("*.json"))
-        self.assertEqual(len(receipts), 1)
-        payload = json.loads(receipts[0].read_text(encoding="utf-8"))
-        self.assertEqual(payload["action"], "prepare")
-        self.assertEqual(payload["failureStage"], "action")
+        self.assertEqual(receipts, [])
+        self.assertFalse(paths.production.exists())
 
-    def test_cli_captures_sudo_actor_before_environment_reset_and_records_lock_stage(self) -> None:
+    def test_legacy_status_is_read_only_and_does_not_create_a_lock(self) -> None:
         paths = tio2_release.ReleasePaths(self.root / "in", self.root / "out", self.root / "prod", self.root / "etc")
 
-        class FailingLock:
-            def __init__(self, *_: object) -> None: pass
-            def __enter__(self) -> "FailingLock": raise ReleaseError("release lock is already held")
-            def __exit__(self, *_: object) -> None: pass
-
-        with patch.dict(os.environ, {"SUDO_USER": "deploy"}), patch.object(tio2_release, "DEFAULT_PATHS", paths), patch.object(tio2_release, "ReleaseLock", FailingLock), redirect_stdout(io.StringIO()):
-            self.assertEqual(tio2_release.main(["status"]), 2)
-        receipt = next((paths.production / "state" / "audit").glob("*.json"))
-        payload = json.loads(receipt.read_text(encoding="utf-8"))
-        self.assertEqual(payload["actor"], "deploy")
-        self.assertEqual(payload["failureStage"], "lock")
+        with patch.dict(os.environ, {"SUDO_USER": "deploy"}), patch.object(tio2_release, "DEFAULT_PATHS", paths), redirect_stdout(io.StringIO()):
+            # A missing legacy root may fail closed on POSIX, or report IDLE on
+            # Windows. Either diagnostic must leave the filesystem untouched.
+            self.assertIn(tio2_release.main(["status"]), {0, 2})
+        self.assertFalse(paths.production.exists())

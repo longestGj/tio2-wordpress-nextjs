@@ -21,6 +21,7 @@ class BootstrapError(RuntimeError):
 
 
 REQUIRED_FILES = (
+    "candidate_contract.py", "subject_registry.py", "release_adapter.py", "release_controller.py", "d16_release.py",
     "install.sh", "bootstrap_install.py", "bootstrap_selftest.py", "tio2_release.py",
     "release_contract.py", "release_state.py", "release_actions.py", "release_baseline.py", "backup_core.py", "deployment_core.py", "web.Dockerfile", "backup.sh", "sudoers.tio2-release", "sshd-tio2-production.conf",
     "adoption_contract.py", "adoption_probe.py", "adoption_state.py", "adoption_apply.py", "adoption_phase_a.py", "adoption_wordpress.py", "adoption_internal.py", "adoption_tls.py", "adoption_finalize.py", "tio2_adopt.py", "tool-commit.txt",

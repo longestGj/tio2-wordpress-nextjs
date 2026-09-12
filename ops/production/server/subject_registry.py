@@ -207,22 +207,22 @@ def _expected_paths(subject_id: str, kind: str) -> tuple[str, str, str, str, str
     if kind == "host":
         return (
             "/home/deploy/d16-incoming/host", "/home/deploy/d16-outgoing/host",
-            "/opt/d16-release", "/etc/d16-release", "/opt/d16-release/state",
+            "/opt/d16-release", "/etc/d16-release", "/opt/d16-release/state/host",
         )
     if kind == "cms":
         return (
             "/home/deploy/d16-incoming/cms", "/home/deploy/d16-outgoing/cms",
-            "/opt/d16-release/cms", "/etc/d16-release/cms", "/opt/d16-release/cms/state",
+            "/opt/d16-release/cms", "/etc/d16-release/cms", "/opt/d16-release/state/cms",
         )
     if subject_id == "tio2-my":
         return (
             "/home/deploy/tio2-incoming", "/home/deploy/tio2-outgoing",
-            "/opt/tio2-production", "/etc/tio2-production", "/opt/tio2-production/state",
+            "/opt/tio2-production", "/etc/tio2-production", "/opt/d16-release/state/tio2-my",
         )
     return (
         f"/home/deploy/d16-incoming/{subject_id}", f"/home/deploy/d16-outgoing/{subject_id}",
         f"/opt/d16-release/sites/{subject_id}", f"/etc/d16-release/sites/{subject_id}",
-        f"/opt/d16-release/sites/{subject_id}/state",
+        f"/opt/d16-release/state/{subject_id}",
     )
 
 

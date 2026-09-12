@@ -18,6 +18,16 @@ from subject_registry import SecureRegistryReader, load_registry  # noqa: E402
 
 
 class SubjectRegistryTests(unittest.TestCase):
+    def test_registered_state_roots_use_global_subject_namespace(self):
+        for name, relative in (("host", "host.json"), ("cms", "cms/subject.json"), ("tio2-my", "sites/tio2-my/site.json")):
+            path = self.root / relative
+            value = json.loads(path.read_text())
+            value["stateRoot"] = "/opt/d16-release/state/" + name
+            self.write(path, value)
+        registry = self.load()
+        for name in ("host", "cms", "tio2-my"):
+            self.assertEqual(registry.resolve(name).state_root.as_posix(), "/opt/d16-release/state/" + name)
+
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -33,7 +43,7 @@ class SubjectRegistryTests(unittest.TestCase):
                 "/home/deploy/d16-outgoing/host",
                 "/opt/d16-release",
                 "/etc/d16-release",
-                "/opt/d16-release/state",
+                "/opt/d16-release/state/host",
                 domains=[],
                 ports=["80", "443"],
             ),
@@ -47,7 +57,7 @@ class SubjectRegistryTests(unittest.TestCase):
                 "/home/deploy/d16-outgoing/cms",
                 "/opt/d16-release/cms",
                 "/etc/d16-release/cms",
-                "/opt/d16-release/cms/state",
+                "/opt/d16-release/state/cms",
                 domains=["cms.tio2malaysia.com"],
                 ports=["127.0.0.1:8080"],
             ),
@@ -113,7 +123,7 @@ class SubjectRegistryTests(unittest.TestCase):
             "/home/deploy/tio2-outgoing",
             production_root,
             "/etc/tio2-production",
-            "/opt/tio2-production/state",
+            "/opt/d16-release/state/tio2-my",
             domains=["tio2malaysia.com", "www.tio2malaysia.com"],
             ports=["127.0.0.1:3000", "127.0.0.1:3001", "127.0.0.1:8081"],
         )
