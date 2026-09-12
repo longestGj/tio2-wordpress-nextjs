@@ -73,6 +73,22 @@ try {Invoke-D16ProductionOperation OPERATION (Join-Path $root 'config.json') $ro
         self.assertNotEqual(result.returncode,0)
         self.assertEqual(len(calls) if isinstance(calls,list) else 1,1)
 
+    def test_status_displays_idle_or_other_candidate_without_claiming_local_match(self):
+        for state,setup in [('IDLE','$global:binding=@{}'),('PREPARED',"$global:binding.candidateManifestSha256='f'*64")]:
+            with self.subTest(state=state):
+                result,calls=self.run_client(operation='Status',status=state,setup=setup)
+                self.assertEqual(result.returncode,0,result.stderr)
+                observed=json.loads(result.stdout)
+                self.assertEqual(observed['subject'],'test-site')
+                self.assertEqual(observed['state']['state'],state)
+                self.assertFalse(observed['localCandidateMatched'])
+                self.assertEqual(calls,['sudo -n /usr/local/sbin/d16-release test-site status'])
+
+    def test_status_marks_matching_content_candidate_only_after_full_binding_check(self):
+        result,calls=self.run_client(operation='Status',status='PREPARED')
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertTrue(json.loads(result.stdout)['localCandidateMatched'])
+
     def test_hash_bound_proof_still_requires_matching_subject(self):
         def change(manifest,proof,package_path,proof_path):
             proof['subject']='other-site';proof_path.write_text(json.dumps(proof))

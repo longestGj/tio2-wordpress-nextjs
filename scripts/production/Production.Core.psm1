@@ -1162,10 +1162,17 @@ except Exception:
 
 function Invoke-D16ContentOperation($Operation,$Config,$RunRoot,$Status,$Binding) {
     $action=$Operation.ToLowerInvariant()
+    if($action -ceq 'status'){
+        # The caller has checked the remote site. Status describes what is there,
+        # including IDLE or another candidate; it does not admit a local mutation.
+        Save-ProductionJson (Join-Path $RunRoot 'status.json') $Status
+        $display=$Status.Clone();$display.localCandidateMatched=$false
+        try{Assert-D16ActionReceipt status $Status $Binding.identity $Config.siteId;$display.localCandidateMatched=$true}catch{}
+        return $display
+    }
     $admission=$action -ceq 'prepare' -and $Status.state.state -cin @('IDLE','COMPLETED','ROLLED_BACK')
     if(-not $admission){Assert-D16ActionReceipt status $Status $Binding.identity $Config.siteId}
     Save-ProductionJson (Join-Path $RunRoot 'status.json') $Status
-    if($action -ceq 'status'){return $Status}
     # An explicit rollback remains server-gated by the owned shared window. Other
     # actions cannot replay an uncertain import or reopen writers from the client.
     $terminalVerify=$action -ceq 'verify' -and $Status['contentTerminalReconciliation'] -ceq 'verify' -and $Status.state.state -cnotin @('PUBLIC_VERIFIED','COMPLETED')
