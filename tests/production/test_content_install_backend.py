@@ -12,6 +12,16 @@ from release_contract import ReleaseError
 
 
 class MaintenanceConfigurationTests(unittest.TestCase):
+    def test_interrupted_temporary_file_does_not_block_restoration(self):
+        from content_install_backend import write_file
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'nginx.conf'
+            orphan=path.with_name('.nginx.conf.install-new')
+            orphan.write_bytes(b'interrupted incomplete bytes')
+            write_file(path,b'restored',0o644)
+            self.assertEqual(b'restored',path.read_bytes())
+            self.assertEqual(b'interrupted incomplete bytes',orphan.read_bytes())
+
     def test_scope_binding_uses_container_id_and_excludes_observation_time(self):
         from content_install_backend import InstallationBackend
         from types import SimpleNamespace

@@ -1,0 +1,21 @@
+{
+  "result": "PASS",
+  "sourceRevision": "e1dbeae32d994ace0703d057a514e16020bed9c1",
+  "artifactSha256": "4964a3f5fd821f0eb1eae3c6af11cc627d3c124723aee7f07bb7f20e0ec4df22",
+  "wpImageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+  "databaseImageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+  "actualPluginUpgradeAndRestore": true,
+  "normalWpAccountUnchanged": true,
+  "sealedIndependentImporter": true,
+  "rootPasswordFileOnly": true,
+  "wrongScopeRejected": true,
+  "otherScopePreserved": true,
+  "httpHealthAfterRestore": true,
+  "testedPrograms": {
+    "content_install_resources.py": "3ec9e141c6f6fbddcc360361e0a05a0f08558f60c82c7d163294c6cbf6c6a3e5",
+    "content_install_artifact.py": "cf4d53b37b8b1a4bc27041fd106786cc966b916bfda40e74a2d55c0de7d1555a",
+    "release_contract.py": "fdce54654acce2cd32c157c357d3aff4174dd2c1eebb724284b68b52fddafa3b",
+    "release_state.py": "c44d697f4afdb4fbd55bf1ad0d2a3a7720cfc4bfc8f7e745832dab17761ec75c"
+  },
+  "harnessSha256": "60b3b3e56e189314b5b388afce95bb7ac5c5427eed405bc2ab2cf6f557a82d7e"
+}

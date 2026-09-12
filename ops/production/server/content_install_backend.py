@@ -14,6 +14,7 @@ import re
 import shlex
 import subprocess
 import time
+from uuid import uuid4
 
 from content_docker import ContentDockerRuntime, validate_config as runtime_config
 from content_hooks import ContentHooks, validate_config as hooks_config
@@ -23,7 +24,7 @@ from content_install_identity import observe_database_binding, observe_frontend_
 from content_release import canonical, validate_package
 from release_baseline import protected_path
 from release_contract import ReleaseError
-from release_state import atomic_write_json
+from release_state import atomic_write_json, _fsync_directory
 
 
 def sha(value): return hashlib.sha256(value).hexdigest()
@@ -43,10 +44,14 @@ def render_maintenance(raw, marker, upstream):
 def write_file(path, data, mode=0o600):
     path = Path(path)
     if path.is_symlink(): raise ReleaseError('installation destination is a symlink')
-    temporary = path.with_name('.'+path.name+'.install-new')
-    with temporary.open('xb') as output:
-        os.chmod(temporary,mode); output.write(data); output.flush(); os.fsync(output.fileno())
-    os.replace(temporary,path)
+    temporary = path.with_name('.'+path.name+'.install-'+uuid4().hex)
+    try:
+        with temporary.open('xb') as output:
+            os.chmod(temporary,mode); output.write(data); output.flush(); os.fsync(output.fileno())
+        os.replace(temporary,path)
+        _fsync_directory(path.parent)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 class InstallationBackend:

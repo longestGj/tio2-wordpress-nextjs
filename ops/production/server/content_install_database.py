@@ -143,7 +143,6 @@ class InstallationDatabase(ContentDockerRuntime):
                 raise ReleaseError('foreign restore-check container')
             self.docker('rm','-f','--volumes',cid)
         image = self._state()['baseline']['imageId']
-        created = False
         with tempfile.TemporaryDirectory(prefix='restore-check-',dir=self.state_path.parent) as temporary:
             root = Path(temporary); os.chmod(root,0o700)
             password = secrets.token_hex(32)
@@ -154,7 +153,6 @@ class InstallationDatabase(ContentDockerRuntime):
                             '-e','MARIADB_ROOT_PASSWORD_FILE=/run/secrets/password',
                             '--mount','type=bind,source='+str(secret)+',target=/run/secrets/password,readonly',
                             '--mount','type=bind,source='+str(defaults)+',target=/run/secrets/admin.cnf,readonly',image)
-                created = True
                 for _ in range(90):
                     try:
                         self.docker('exec',name,'mariadb','--defaults-extra-file=/run/secrets/admin.cnf','-e','SELECT 1')
@@ -166,7 +164,9 @@ class InstallationDatabase(ContentDockerRuntime):
                 if hashlib.sha256(restored).hexdigest() != backup['sha256']:
                     raise ReleaseError('installation backup cannot restore identical shared database')
             finally:
-                if created:
+                present=self.docker('ps','-a','--filter','name=^/'+name+'$','--format','{{.ID}}').decode().split()
+                if present:
+                    if len(present)!=1: raise ReleaseError('ambiguous restore-check ownership')
                     info = json.loads(self.docker('inspect',name))[0]
                     if (info['Config'].get('Labels') or {}).get('d16.install-owner') != owner:
                         raise ReleaseError('restore-check container ownership changed')

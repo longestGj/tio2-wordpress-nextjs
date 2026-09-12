@@ -72,6 +72,21 @@ def main():
             assert restore_volumes, 'MariaDB anonymous volume was not observed'
             for volume in restore_volumes:
                 assert subprocess.run(['docker','volume','inspect',volume],capture_output=True).returncode != 0, 'backup copy remained in anonymous volume'
+            created_name=[]
+            def lose_create_reply(*args,**kwargs):
+                result=original_transport(*args,**kwargs)
+                if args[0]=='run' and '--name' in args and str(args[args.index('--name')+1]).startswith('d16-install-restore-'):
+                    created_name.append(args[args.index('--name')+1])
+                    raise RuntimeError('lost Docker create reply')
+                return result
+            db.docker=lose_create_reply
+            try:db.verify_backup_restore('test-window',backup)
+            except RuntimeError:pass
+            finally:db.docker=original_transport
+            assert created_name
+            leaked=subprocess.run(['docker','inspect',created_name[0]],capture_output=True).returncode==0
+            if leaked:run('docker','rm','-f','--volumes',created_name[0])
+            assert not leaked,'owned restore container survived lost create reply'
             denied = subprocess.run(['docker','exec','-i',name,'mariadb','-uwp','-p'+password,'wordpress',
                                      '-e',"UPDATE records SET value='bad'"],capture_output=True)
             assert denied.returncode != 0
