@@ -66,6 +66,14 @@ class FinalizationTests(unittest.TestCase):
         with self.assertRaises(ReleaseError):self.engine.finalize()
         self.assertFalse((self.root/'active').exists())
 
+    def test_recovered_retry_does_not_block_next_distinct_finalization(self):
+        self.effects.fail='verify'
+        with self.assertRaises(ReleaseError):self.engine.finalize()
+        self.engine.recover();self.effects.fail=None
+        self.engine.finalize()
+        self.effects.observe=lambda:{'packageSha256':'b'*64,'frontend':'new-build'}
+        self.assertEqual('completed',self.engine.finalize()['phase'])
+
     def test_actual_recovery_handles_enter_hook_success_before_identity_journal(self):
         from content_install_finalize import InstalledFinalization
         marker=self.root/'marker';marker.write_text(json.dumps({'owner':'owner','identity':{'build':'new'}}))

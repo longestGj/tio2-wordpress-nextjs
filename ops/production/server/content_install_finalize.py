@@ -35,7 +35,7 @@ class Finalization:
         if previous:
             if previous['phase'] not in {'completed','recovered'}: raise ReleaseError('finalization requires explicit recovery')
             if previous['binding']==binding and previous['phase']=='completed': return previous
-            archive=self.path.with_name(self.path.name+'.'+previous['owner'])
+            archive=self.path.with_name(self.path.name+'.'+previous['owner']+'.'+digest(previous))
             if archive.exists() and json.loads(archive.read_bytes())!=previous: raise ReleaseError('finalization history collision')
             if not archive.exists(): atomic_write_json(archive,previous)
         state={'schemaVersion':'d16-content-finalization-v1','owner':digest(binding),'binding':binding}
