@@ -7,6 +7,7 @@ Only the controller owns the Docker socket. No production host is contacted.
 import argparse
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -15,6 +16,7 @@ import secrets
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 
@@ -113,7 +115,18 @@ echo 'seeded';
                   importerImage=args.wp_image, dbHost=names['db'], database='wordpress',
                   releasePasswordFile=str(root / 'root-password'), releaseUser='root')
     resources = InstallationResources(config, artifact, root / 'installation')
-    snapshot = resources.snapshot()
+    try:
+        snapshot = resources.snapshot()
+    except Exception:
+        from content_install_resources import _safe_path
+        raw = docker('exec', names['wp'], 'tar', '-C', '/var/www/html', '--exclude=./wp-config.php',
+                     '--exclude=./wp-content/uploads', '--exclude=./wp-content/cache', '-cf', '-', '.')
+        with tarfile.open(fileobj=io.BytesIO(raw)) as archive:
+            suspicious = [{'name': item.name, 'type': item.type.decode(errors='replace'), 'size': item.size}
+                          for item in archive if not item.isdir() and
+                          (not _safe_path(item.name.removeprefix('./')) or not item.isfile() or item.size > 16 * 1024 * 1024)]
+        print(json.dumps({'rejectedFixtureMembers': suspicious[:10]}), file=sys.stderr, flush=True)
+        raise
     assert snapshot['pluginFiles'] != {name[len(prefix):]: digest for name, digest in artifact['manifest']['files'].items() if name.startswith(prefix)}
     assert not snapshot['phpPresent']
     sql('SET GLOBAL event_scheduler=OFF; SET GLOBAL read_only=ON;')

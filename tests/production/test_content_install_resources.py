@@ -223,7 +223,8 @@ class InstallationResourcesTests(unittest.TestCase):
         self.assertEqual((self.plugin / 'old.php').read_bytes(), b'old plugin')
 
     def test_execution_snapshot_accepts_wordpress_scoped_javascript_module_path(self):
-        files = {'wp-includes/js/dist/script-modules/@wordpress/interactivity/index.js': b'approved core module'}
+        files = {'wp-includes/js/dist/script-modules/@wordpress/interactivity/index.js': b'approved core module',
+                 'wp-content/themes/twentytwentythree/assets/fonts/inter/Inter-VariableFont_slnt,wght.ttf': b'font'}
         try:
             actual = self.module._untar(tar_bytes(files))
         except ReleaseError:

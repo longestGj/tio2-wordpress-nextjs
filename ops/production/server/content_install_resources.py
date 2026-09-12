@@ -29,7 +29,7 @@ def hashes(files):
 
 def _safe_path(name):
     return (isinstance(name, str) and bool(name) and len(name) < 512
-            and all(re.fullmatch(r'[A-Za-z0-9_@.-]+', part) and part not in {'.', '..'}
+            and all(re.fullmatch(r'[A-Za-z0-9_@.,-]+', part) and part not in {'.', '..'}
                     for part in name.split('/')))
 
 
