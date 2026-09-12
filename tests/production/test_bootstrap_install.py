@@ -94,7 +94,7 @@ class BootstrapInstallTests(unittest.TestCase):
         archive = self.root / 'bootstrap'
         archive_copy(archive)
         def self_test(staged):
-            result = subprocess.run([sys.executable, '-B', '-c', 'import adoption_probe, nginx_inventory, tls_identity, cms_evidence, phase1_migration, d16_release'], cwd=staged, capture_output=True, text=True)
+            result = subprocess.run([sys.executable, '-B', '-c', 'import adoption_probe, nginx_inventory, tls_identity, cms_evidence, phase1_migration, d16_release, frontend_backup, site_frontend_adapter'], cwd=staged, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
         install_bootstrap(archive, self.paths, deploy_uid=1000, deploy_gid=1000, stat_reader=trusted_stat, self_test=self_test, sudo_validator=lambda _: None)
 

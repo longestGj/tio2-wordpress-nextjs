@@ -1,7 +1,163 @@
 import io, tarfile, tempfile, unittest, sys
+import json, subprocess
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'ops/production'))
 class ClientRecoveryTests(unittest.TestCase):
+ def powershell(self,script,root):
+  path=root/'check.ps1';path.write_text(script,encoding='utf-8')
+  return subprocess.run(['pwsh','-NoProfile','-File',str(path)],capture_output=True,text=True,encoding='utf-8',timeout=30)
+
+ def test_d16_receipt_checks_full_run_candidate_cms_request_and_backup_binding(self):
+  module=Path(__file__).resolve().parents[2]/'scripts/production/Production.Core.psm1'
+  with tempfile.TemporaryDirectory() as t:
+   root=Path(t)
+   script="""$ErrorActionPreference='Stop'
+Import-Module 'MODULE' -Force
+$binding=@{releaseId='run-B';subject='tio2-my';releaseType='frontend-only';sourceCommit=('b'*40);candidateManifestSha256=('c'*64);previousProductionReceipt='A';adapterVersion='d16-site-frontend-v1';runRoot='.production/runs/run-B';transactionSha256=('d'*64);cmsEvidenceSha256=('e'*64);requestId='11111111-1111-4111-8111-111111111111'}
+$receipt=@{ok=$true;action='activate';subject='tio2-my';state=@{state='ACTIVATED';details=$binding.Clone()}}
+Assert-D16ActionReceipt 'activate' $receipt $binding
+foreach($name in $binding.Keys){$changed=$receipt.Clone();$changed.state=@{state='ACTIVATED';details=$binding.Clone()};$changed.state.details[$name]='wrong';$rejected=$false;try{Assert-D16ActionReceipt 'activate' $changed $binding}catch{$rejected=$true};if(-not $rejected){throw "Accepted changed $name"}}
+'passed'
+""".replace('MODULE',str(module).replace("'","''"))
+   result=self.powershell(script,root)
+   self.assertEqual(result.returncode,0,result.stderr);self.assertIn('passed',result.stdout)
+
+ def test_d16_transport_disconnect_queries_status_before_returning_uncertainty(self):
+  module=Path(__file__).resolve().parents[2]/'scripts/production/Production.Core.psm1'
+  with tempfile.TemporaryDirectory() as t:
+   root=Path(t);(root/'key').write_text('fixture')
+   script="""$ErrorActionPreference='Stop'
+Import-Module 'MODULE' -Force
+$global:commands=[Collections.Generic.List[string]]::new()
+function global:ssh { $global:commands.Add(($args -join ' ')); if($args[-1] -like '* activate'){ $global:LASTEXITCODE=255;return };$global:LASTEXITCODE=0;'{"ok":true,"subject":"tio2-my","action":"status","state":{"state":"IDLE"}}' }
+$key=[Convert]::ToBase64String([byte[]]([byte[]](0,0,0,11)+[Text.Encoding]::ASCII.GetBytes('ssh-ed25519')+[byte[]](0,0,0,32)+[byte[]]::new(32)))
+$config=@{siteId='tio2-my';host='127.0.0.1';port=2222;username='deploy';hostKey="ssh-ed25519 $key";identityFile='ROOT/key';baselineSha256=('a'*64)}
+$failed=$false;try{Invoke-D16ProductionTransport $config 'ROOT' action activate}catch{$failed=$true}
+if(-not $failed -or $global:commands.Count -ne 2){throw 'Disconnect did not observe persistent status'}
+if($global:commands[0] -notlike '*sudo -n /usr/local/sbin/d16-release tio2-my activate' -or $global:commands[1] -notlike '*sudo -n /usr/local/sbin/d16-release tio2-my status'){throw 'Wrong fixed commands'}
+if(-not(Test-Path -LiteralPath 'ROOT/failure-status.json')){throw 'Missing failure status'}
+'passed'
+""".replace('MODULE',str(module).replace("'","''")).replace('ROOT',root.as_posix())
+   result=self.powershell(script,root)
+   self.assertEqual(result.returncode,0,result.stderr);self.assertIn('passed',result.stdout)
+
+ def test_second_verify_checks_all_local_evidence_before_any_upload(self):
+  module=Path(__file__).resolve().parents[2]/'scripts/production/Production.Core.psm1'
+  with tempfile.TemporaryDirectory() as t:
+   root=Path(t)
+   script="""$ErrorActionPreference='Stop'
+Import-Module 'MODULE' -Force
+& (Get-Module Production.Core) {
+ param($root)
+ $binding=@{releaseId='run';subject='tio2-my';releaseType='frontend-only';sourceCommit=('b'*40);candidateManifestSha256=('c'*64);previousProductionReceipt='A';adapterVersion='site-frontend-v1';runRoot='.production/runs/run';transactionSha256=('d'*64);cmsEvidenceSha256=('e'*64);requestId='11111111-1111-4111-8111-111111111111'}
+ $backup=@{backupId='backup-A'}
+ $fields=$binding.Clone();$fields.backupId=$backup.backupId
+ $e2e=$fields.Clone();$e2e.schemaVersion='d16-production-business-e2e-v1';$e2e.environment='production';$e2e.suite='business-e2e';$e2e.state='PASSED';$e2e.runId='actual-run'
+ Save-ProductionJson (Join-Path $root 'business-e2e-receipt.json') $e2e
+ $inbox=$fields.Clone();$inbox.schemaVersion='d16-production-inbox-v1';$inbox.source='server-inbox';$inbox.forms=@{}
+ foreach($form in @('rfq','sample','documents')){[IO.File]::WriteAllText((Join-Path $root ($form+'-received.eml')),"Message-ID: <$form@fixture>`r`nReceived: from local; Sat, 12 Sep 2026 00:00:00 +0000`r`n`r`nfixture");$inbox.forms[$form]=@{state='RECEIVED';messageId="<$form@fixture>";emlSha256=(Get-ProductionSha256 (Join-Path $root ($form+'-received.eml')))}}
+ Save-ProductionJson (Join-Path $root 'inbox-confirmation-receipt.json') $inbox
+ $receipt=$fields.Clone();$receipt.schemaVersion='d16-release-completion-v1';$receipt.businessE2E='PASSED';$receipt.forms=@{rfq='RECEIVED';sample='RECEIVED';documents='RECEIVED'};$receipt.evidenceSha256=@{}
+ foreach($name in @('business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml')){$receipt.evidenceSha256[$name]=Get-ProductionSha256 (Join-Path $root $name)}
+ Save-ProductionJson (Join-Path $root 'completion-receipt.json') $receipt
+ Assert-D16CompletionEvidence $root $binding $backup
+ foreach($name in $receipt.evidenceSha256.Keys){$path=Join-Path $root $name;$bytes=[IO.File]::ReadAllBytes($path);[IO.File]::AppendAllText($path,'changed');$rejected=$false;try{Assert-D16CompletionEvidence $root $binding $backup}catch{$rejected=$true};[IO.File]::WriteAllBytes($path,$bytes);if(-not $rejected){throw "Accepted altered $name"}}
+} 'ROOT'
+'passed'
+""".replace('MODULE',str(module).replace("'","''")).replace('ROOT',root.as_posix())
+   result=self.powershell(script,root)
+   self.assertEqual(result.returncode,0,result.stderr);self.assertIn('passed',result.stdout)
+
+ def test_status_before_request_admission_can_resume_the_same_persisted_run(self):
+  module=Path(__file__).resolve().parents[2]/'scripts/production/Production.Core.psm1'
+  with tempfile.TemporaryDirectory() as t:
+   root=Path(t)
+   script="""$ErrorActionPreference='Stop'
+Import-Module 'MODULE' -Force
+& (Get-Module Production.Core) {
+ $cms=@{site_scope='tio2-my';verified=$true}
+ $binding=@{releaseId='run';subject='tio2-my';releaseType='frontend-only';sourceCommit=('b'*40);candidateManifestSha256=('c'*64);previousProductionReceipt='A';adapterVersion='site-frontend-v1';runRoot='.production/runs/run';transactionSha256=('d'*64);cmsEvidenceSha256=(Get-ProductionTextSha256 ((ConvertTo-D16CanonicalObject $cms)|ConvertTo-Json -Compress));requestId='11111111-1111-4111-8111-111111111111'}
+ $details=$binding.Clone();$details.Remove('requestId');$details.Remove('cmsEvidenceSha256');$details.cmsEvidence=$cms
+ $status=@{ok=$true;subject='tio2-my';action='status';state=@{state='PREPARED';details=$details}}
+ Assert-D16ActionReceipt status $status $binding
+ $status.state.details.requestId='22222222-2222-4222-8222-222222222222'
+ $rejected=$false;try{Assert-D16ActionReceipt status $status $binding}catch{$rejected=$true};if(-not $rejected){throw 'Accepted another admitted request'}
+}
+'passed'
+""".replace('MODULE',str(module).replace("'","''"))
+   result=self.powershell(script,root)
+   self.assertEqual(result.returncode,0,result.stderr);self.assertIn('passed',result.stdout)
+
+ def test_compatibility_client_orchestrates_prepare_backup_and_both_verify_boundaries(self):
+  # Only external ssh/scp/docker processes are substitutes. All client binding,
+  # transfer ordering, restore receipt parsing and final-evidence checks run.
+  module=Path(__file__).resolve().parents[2]/'scripts/production/Production.Core.psm1'
+  with tempfile.TemporaryDirectory() as t:
+   root=Path(t)
+   script="""$ErrorActionPreference='Stop'
+Import-Module 'MODULE' -Force
+& (Get-Module Production.Core) {
+ param($base)
+ $runId='20260911T215847Z-8bf2a3d437b0';$root=Join-Path $base ('.production/runs/'+$runId)
+ [IO.Directory]::CreateDirectory($root)|Out-Null
+ $global:fixtureRoot=$root;$global:fixtureEvents=[Collections.Generic.List[string]]::new()
+ $artifacts=@{};foreach($name in @('release.tar.gz','release-manifest.json','release-proof.json','cms-identity.json')){[IO.File]::WriteAllText((Join-Path $root $name),'fixture-'+$name);$artifacts[$name]=Get-ProductionSha256 (Join-Path $root $name)}
+ $candidate=@{commit='8bf2a3d437b0582ef0ce193b69478622e26419af';archiveSha256=$artifacts['release.tar.gz'];manifestSha256=$artifacts['release-manifest.json'];proofSha256=$artifacts['release-proof.json'];contractVersion='fixture'}
+ $transaction=@{schemaVersion='d16-production-transaction-v1';subject='tio2-my';releaseType='frontend-only';releaseId=$runId;sourceCommit=$candidate.commit;runRoot=('.production/runs/'+$runId);candidate=$candidate;artifacts=$artifacts;proofObjectSha256=('f'*64)}
+ $details=@{releaseId=$runId;subject='tio2-my';releaseType='frontend-only';sourceCommit=$candidate.commit;candidateManifestSha256=$candidate.manifestSha256;previousProductionReceipt='A';adapterVersion='tio2-web-bluegreen-v1';runRoot=$transaction.runRoot;transactionSha256=(Get-ProductionTextSha256 ((ConvertTo-D16CanonicalObject $transaction)|ConvertTo-Json -Depth 50 -Compress));cmsEvidence=@{site_scope='tio2-my';verified=$true};candidate=$candidate;active=@{enrollmentSha256=('a'*64)}}
+ $global:fixtureStatus=@{ok=$true;subject='tio2-my';action='status';state=@{state='PREPARED';details=$details};compatibilityTransaction=$transaction;recoveryRequired=$false}
+ [IO.File]::WriteAllText((Join-Path $root 'key'),'fixture')
+ [IO.File]::WriteAllText((Join-Path $root 'download-source'),'encrypted process fixture')
+ $global:fixtureBackup=@{schemaVersion='d16-frontend-backup-receipt-v1';backupId=('20260912T000000Z-'+$candidate.commit+'-'+('a'*32));ciphertextSha256=(Get-ProductionSha256 (Join-Path $root 'download-source'));manifestSha256=('b'*64);binding=@{}}
+ function global:ssh {
+  if($args[-1] -cnotmatch '^sudo -n /usr/local/sbin/d16-release tio2-my (status|prepare|backup|stage|activate|verify|rollback)$'){throw 'Unexpected remote command'}
+  $action=$Matches[1];$global:fixtureEvents.Add('action:'+$action);$global:LASTEXITCODE=0
+  if($action -ceq 'status'){return ($global:fixtureStatus|ConvertTo-Json -Depth 50 -Compress)}
+  $request=Get-Content -LiteralPath (Join-Path $global:fixtureRoot 'frontend-action.json') -Raw|ConvertFrom-Json -AsHashtable
+  foreach($key in $request.binding.Keys){$global:fixtureStatus.state.details[$key]=$request.binding[$key]}
+  if($action -ceq 'backup'){$global:fixtureBackup.binding=$request.binding;$global:fixtureStatus.state.details.frontendBackup=$global:fixtureBackup}
+  $next=@{prepare='PREPARED';backup='BACKED_UP';stage='INTERNAL_VERIFIED';activate='ACTIVATED';rollback='ROLLED_BACK'}
+  if($action -ceq 'verify'){$global:fixtureStatus.state.state=if($global:fixtureStatus.state.state -ceq 'ACTIVATED'){'PUBLIC_VERIFIED'}else{'COMPLETED'}}else{$global:fixtureStatus.state.state=$next[$action]}
+  return (@{ok=$true;subject='tio2-my';action=$action;state=$global:fixtureStatus.state}|ConvertTo-Json -Depth 50 -Compress)
+ }
+ function global:scp {
+  if($args[-1] -like 'deploy@*'){$global:fixtureEvents.Add('upload:'+([IO.Path]::GetFileName($args[-2])))}
+  else{$global:fixtureEvents.Add('download');[IO.File]::Copy((Join-Path $global:fixtureRoot 'download-source'),$args[-1],$true)}
+  $global:LASTEXITCODE=0
+ }
+ function global:docker {
+  $global:fixtureEvents.Add('docker-restore');$global:LASTEXITCODE=0
+  return (@{schemaVersion='d16-frontend-restore-v1';backupId=$global:fixtureBackup.backupId;ciphertextSha256=$global:fixtureBackup.ciphertextSha256;manifestSha256=$global:fixtureBackup.manifestSha256;binding=$global:fixtureBackup.binding;verified=$true;fullArchiveRead=$true;isolated=$true;cleanupVerified=$true}|ConvertTo-Json -Depth 50 -Compress)
+ }
+ $key=[Convert]::ToBase64String([byte[]]([byte[]](0,0,0,11)+[Text.Encoding]::ASCII.GetBytes('ssh-ed25519')+[byte[]](0,0,0,32)+[byte[]]::new(32)))
+ $config=@{siteId='tio2-my';host='127.0.0.1';port=2222;username='deploy';hostKey="ssh-ed25519 $key";identityFile=(Join-Path $root 'key');baselineSha256=('a'*64);ageIdentityFile=(Join-Path $root 'key');recoveryImageId=('sha256:'+('a'*64));dockerContext='desktop-linux'}
+ $configPath=Join-Path $root 'config.json';Save-ProductionJson $configPath $config
+ foreach($operation in @('Prepare','Backup','Backup','Stage','Activate','Verify')){$result=Invoke-D16ProductionOperation $operation $configPath $root}
+ if($result.state.state -cne 'PUBLIC_VERIFIED'){throw 'First Verify crossed the final acceptance boundary'}
+ $binding=Read-ProductionJson (Join-Path $root 'frontend-binding.json');$fields=$binding.Clone();$fields.backupId=$global:fixtureBackup.backupId
+ $e2e=$fields.Clone();$e2e.schemaVersion='d16-production-business-e2e-v1';$e2e.environment='production';$e2e.suite='business-e2e';$e2e.state='PASSED';$e2e.runId='fixture-e2e'
+ Save-ProductionJson (Join-Path $root 'business-e2e-receipt.json') $e2e
+ $inbox=$fields.Clone();$inbox.schemaVersion='d16-production-inbox-v1';$inbox.source='server-inbox';$inbox.forms=@{}
+ foreach($form in @('rfq','sample','documents')){[IO.File]::WriteAllText((Join-Path $root ($form+'-received.eml')),"Message-ID: <$form@fixture>`r`nReceived: from local; Sat, 12 Sep 2026 00:00:00 +0000`r`n`r`nfixture");$inbox.forms[$form]=@{state='RECEIVED';messageId="<$form@fixture>";emlSha256=(Get-ProductionSha256 (Join-Path $root ($form+'-received.eml')))}}
+ Save-ProductionJson (Join-Path $root 'inbox-confirmation-receipt.json') $inbox
+ $receipt=$fields.Clone();$receipt.schemaVersion='d16-release-completion-v1';$receipt.businessE2E='PASSED';$receipt.forms=@{rfq='RECEIVED';sample='RECEIVED';documents='RECEIVED'};$receipt.evidenceSha256=@{}
+ foreach($name in @('business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml')){$receipt.evidenceSha256[$name]=Get-ProductionSha256 (Join-Path $root $name)}
+ Save-ProductionJson (Join-Path $root 'completion-receipt.json') $receipt
+ $mailPath=Join-Path $root 'rfq-received.eml';$bytes=[IO.File]::ReadAllBytes($mailPath);[IO.File]::AppendAllText($mailPath,'changed')
+ $count=$global:fixtureEvents.Count;$rejected=$false;try{Invoke-D16ProductionOperation Verify $configPath $root|Out-Null}catch{$rejected=$true}
+ if(-not $rejected -or ($global:fixtureEvents.GetRange($count,$global:fixtureEvents.Count-$count) -join ',') -cne 'action:status'){throw 'Invalid final evidence was uploaded'}
+ [IO.File]::WriteAllBytes($mailPath,$bytes);$count=$global:fixtureEvents.Count
+ $result=Invoke-D16ProductionOperation Verify $configPath $root
+ if($result.state.state -cne 'COMPLETED'){throw 'Second Verify did not complete'}
+ $expected='action:status,upload:backup-request.json,upload:frontend-action.json,upload:business-e2e-receipt.json,upload:inbox-confirmation-receipt.json,upload:rfq-received.eml,upload:sample-received.eml,upload:documents-received.eml,upload:completion-receipt.json,action:verify'
+ if(($global:fixtureEvents.GetRange($count,$global:fixtureEvents.Count-$count) -join ',') -cne $expected){throw 'Final evidence upload order changed'}
+ if(($global:fixtureEvents|Where-Object {$_ -ceq 'docker-restore'}).Count -ne 2){throw 'Backup did not restore before proceeding'}
+} 'ROOT'
+'passed'
+""".replace('MODULE',str(module).replace("'","''")).replace('ROOT',root.as_posix())
+   result=self.powershell(script,root)
+   self.assertEqual(result.returncode,0,result.stderr);self.assertIn('passed',result.stdout)
+
  def test_rejects_links_duplicates_and_escape_before_any_extraction(self):
   from client_recovery import safe_extract
   for name,kind,duplicate in [('../escape','file',False),('link','link',False),('same','file',True),('/absolute','file',False),('safe\\escape','file',False)]:

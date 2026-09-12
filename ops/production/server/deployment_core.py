@@ -120,7 +120,9 @@ def _upstream(record):
 
 class DockerWebAdapter:
     """Explicit Linux Docker + host Nginx adapter; unknown topology is refused."""
-    def __init__(self, paths): self.paths=paths
+    def __init__(self, paths):
+        self.paths=paths
+        self.checkpoint=lambda phase: None
 
     def command(self,*args,timeout=120,env=None):
         try:
@@ -194,7 +196,8 @@ class DockerWebAdapter:
         port=record['runtime']['deployment']['proxyPort' if proxy else 'activePort']
         for route in HEALTH_ROUTES:
             try:
-                request=urllib.request.Request('http://127.0.0.1:'+str(port)+route,headers={'Host':'tio2malaysia.com'})
+                domain=self.paths.domains[0] if hasattr(self.paths,'domains') else 'tio2malaysia.com'
+                request=urllib.request.Request('http://127.0.0.1:'+str(port)+route,headers={'Host':domain})
                 with urllib.request.build_opener(NoRedirect).open(request,timeout=15) as response:
                     require(response.status==200 and bool(response.read(256)),'web HTTP health failed')
                     if proxy: require(response.headers.get('X-Tio2-Release')==record['active']['commit'],'proxy release identity mismatch')
@@ -223,6 +226,9 @@ class DockerWebAdapter:
         environment=dict(line.split('=',1) for line in Path(old['configuration']['environment']['path']).read_text().splitlines() if line and not line.startswith('#'))
         tag='tio2-web:'+details['commit']+'-'+details['archiveSha256'][:12]
         argv=['build','--network','host','--file',str(dockerfile),'--tag',tag,'--label','tio2.release='+details['commit'],'--label','tio2.archive='+details['archiveSha256'],'--secret','id=wordpress_editorial_api_token,env=WORDPRESS_EDITORIAL_API_TOKEN','--build-arg','WORDPRESS_GRAPHQL_URL=http://127.0.0.1:'+str(d['cmsPort'])+'/graphql','--build-arg','WORDPRESS_PREVIEW_URL=http://127.0.0.1:'+str(d['cmsPort'])+'/wp-json/tio2/v1/preview','--build-arg','NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY='+environment['NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY'],str(source)]
+        if details.get('buildId'):
+            require(re.fullmatch(r'[A-Za-z0-9_-]{1,128}',details['buildId']) is not None,'invalid candidate Build ID')
+            argv[-1:-1]=['--build-arg','TIO2_BUILD_ID='+details['buildId']]
         self.docker(*argv,timeout=3600,env={**os.environ,'DOCKER_BUILDKIT':'1','WORDPRESS_EDITORIAL_API_TOKEN':environment['WORDPRESS_EDITORIAL_API_TOKEN']})
         image=json.loads(self.docker('image','inspect',tag))[0]
         return {'id':image['Id'],'digests':image.get('RepoDigests') or []}
@@ -285,8 +291,11 @@ class DockerWebAdapter:
                 self.docker('network','connect',*(['--alias','web'] if active else []),network,web['id'])
         self.health(record)
         _replace_bytes(self.paths.configuration/'web-upstream.conf',_upstream(record))
+        self.checkpoint('upstream-replaced')
         self.command('/usr/sbin/nginx','-t')
+        self.checkpoint('nginx-tested')
         self.command('/usr/sbin/nginx','-s','reload')
+        self.checkpoint('nginx-reloaded')
         current=self.paths.production/'current'; temporary=self.paths.production/'.current-next'
         if os.path.lexists(temporary):
             require(temporary.is_symlink(),'unexpected current staging file'); temporary.unlink()
@@ -303,6 +312,121 @@ class Deployment:
         self.read_record=record_reader or (lambda p:_read_record(p,None))
         self.validate_backup=backup_validator or validate_saved_backup
         self.journal_path=self.root/'deployment-journal.json'
+
+    @staticmethod
+    def frontend_identity(record):
+        web=_web(record)
+        return {'commit':record['active']['commit'],'sourceRoot':record['active']['sourceRoot'],
+                'buildId':record['runtime']['deployment']['buildId'],'imageId':web['imageId'],'containerId':web['id']}
+
+    def _frontend_journal(self,context,backup):
+        from frontend_backup import binding,read_record
+        path=context.subject.state_root/'frontend-deployment.json'
+        if not path.exists(): return None
+        journal=read_record(path)
+        require(journal.get('schemaVersion')=='d16-frontend-deployment-v1' and journal.get('binding')==binding(context)
+                and journal.get('backup')==backup,'frontend deployment journal mismatch')
+        return journal
+
+    def _frontend_save(self,context,journal,**changes):
+        journal.update(changes)
+        atomic_write_json(context.subject.state_root/'frontend-deployment.json',journal)
+
+    def _frontend_reverted(self,context,journal,backup,*,switch):
+        from release_adapter import SafeFrontendRollback
+        from frontend_backup import binding
+        old=journal['old']
+        if switch:
+            self._frontend_save(context,journal,phase='recovering')
+            self.adapter.activate(old,journal['target'])
+            atomic_write_json(context.subject.configuration/'baseline.json',old)
+        health=self.adapter.health(old,proxy=True)
+        active=self.frontend_identity(old)
+        require(active==backup['active'] and health.get('buildId')==active['buildId'],'restored frontend identity mismatch')
+        self.adapter.discard_candidate(old,context.state['details'],journal.get('image'))
+        evidence={'schemaVersion':'d16-safe-frontend-rollback-v1','binding':binding(context),'backup':backup,
+                  'active':active,'publicVerified':True,'health':health,'cmsUnchanged':True}
+        self._frontend_save(context,journal,phase='rolled-back',recovery=evidence)
+        raise SafeFrontendRollback(evidence)
+
+    def stage(self,context,backup):
+        """Build and verify one slot. This operation never changes upstream."""
+        from frontend_backup import binding,plain
+        require(context.state['state'] in {'BACKED_UP','STAGED','INTERNAL_VERIFIED'},'stage requires exact backed-up release')
+        journal=self._frontend_journal(context,backup)
+        if journal:
+            if journal['phase'] in {'building','starting','internal-check'}:
+                self._frontend_reverted(context,journal,backup,switch=False)
+            require(journal['phase']=='internal-verified','interrupted frontend stage requires recovery')
+            health=self.adapter.health(journal['target'])
+            require(health.get('buildId')==journal['health']['buildId'],'staged Build ID changed')
+            return {'ok':True,'state':'INTERNAL_VERIFIED','internalVerified':True,'active':self.frontend_identity(journal['target']),'binding':binding(context)}
+        old=plain(context.subject_baseline['record']); details=plain(context.state['details'])
+        if getattr(context.candidate,'build_id',None): details['buildId']=context.candidate.build_id
+        journal={'schemaVersion':'d16-frontend-deployment-v1','binding':binding(context),'backup':backup,
+                 'old':old,'target':None,'phase':'building'}
+        self._frontend_save(context,journal)
+        try:
+            self.adapter.validate(old)
+            image=self.adapter.build(old,details)
+            self._frontend_save(context,journal,phase='starting',image=image)
+            target=self.adapter.candidate(old,details,image,details.get('previousBaseline'))
+            self._frontend_save(context,journal,phase='internal-check',target=target)
+            health=self.adapter.health(target)
+            require(health.get('buildId')==target['runtime']['deployment']['buildId'],'candidate Build ID mismatch')
+            if details.get('buildId'): require(health.get('buildId')==details['buildId'],'bound candidate Build ID mismatch')
+            self._frontend_save(context,journal,phase='internal-verified',health=health)
+            return {'ok':True,'state':'INTERNAL_VERIFIED','internalVerified':True,'active':self.frontend_identity(target),'binding':binding(context)}
+        except Exception:
+            self._frontend_reverted(context,journal,backup,switch=False)
+
+    def activate(self,context,backup):
+        from frontend_backup import binding
+        require(context.state['state'] in {'INTERNAL_VERIFIED','ACTIVATED'},'activate requires INTERNAL_VERIFIED')
+        journal=self._frontend_journal(context,backup)
+        require(journal is not None and journal['phase'] in {'internal-verified','activated'},'frontend internal verification is missing')
+        if journal['phase']=='activated':
+            self.adapter.health(journal['target'],proxy=True)
+            return {'ok':True,'state':'ACTIVATED','active':self.frontend_identity(journal['target']),'binding':binding(context)}
+        self.adapter.health(journal['target'])
+        self._frontend_save(context,journal,phase='switching')
+        previous_checkpoint=getattr(self.adapter,'checkpoint',None)
+        if previous_checkpoint is not None: self.adapter.checkpoint=lambda phase:self._frontend_save(context,journal,phase=phase)
+        try:
+            self.adapter.activate(journal['target'],journal['old'])
+            atomic_write_json(context.subject.configuration/'baseline.json',journal['target'])
+            self._frontend_save(context,journal,phase='activated')
+            return {'ok':True,'state':'ACTIVATED','active':self.frontend_identity(journal['target']),'binding':binding(context)}
+        except Exception:
+            self._frontend_reverted(context,journal,backup,switch=True)
+        finally:
+            if previous_checkpoint is not None: self.adapter.checkpoint=previous_checkpoint
+
+    def verify_frontend(self,context,backup):
+        from frontend_backup import binding
+        journal=self._frontend_journal(context,backup)
+        require(journal is not None and journal['phase']=='activated','frontend activation is missing')
+        try:
+            health=self.adapter.health(journal['target'],proxy=True)
+        except Exception:
+            self._frontend_reverted(context,journal,backup,switch=True)
+        return {'ok':True,'state':'PUBLIC_VERIFIED','active':self.frontend_identity(journal['target']),
+                'binding':binding(context),'publicVerified':True,'health':health}
+
+    def rollback_frontend(self,context,backup):
+        from frontend_backup import binding
+        journal=self._frontend_journal(context,backup)
+        require(journal is not None and journal['phase'] in {'activated','rolled-back'},'frontend rollback version is unavailable')
+        if journal['phase']!='rolled-back':
+            self._frontend_save(context,journal,phase='rolling-back')
+            self.adapter.health(journal['old'])
+            self.adapter.activate(journal['old'],journal['target'])
+            atomic_write_json(context.subject.configuration/'baseline.json',journal['old'])
+        health=self.adapter.health(journal['old'],proxy=True)
+        require(health.get('buildId')==backup['active']['buildId'],'rollback Build ID mismatch')
+        self._frontend_save(context,journal,phase='rolled-back')
+        return {'ok':True,'state':'ROLLED_BACK','active':self.frontend_identity(journal['old']),
+                'binding':binding(context),'publicVerified':True,'health':health}
 
     def save(self,journal,**changes):
         journal.update(changes); atomic_write_json(self.journal_path,journal)

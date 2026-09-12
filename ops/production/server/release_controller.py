@@ -12,7 +12,7 @@ from typing import Mapping
 from uuid import uuid4
 
 from candidate_contract import CandidateEnvelope, validate_payload
-from release_adapter import ReleaseContext, _CONTEXT_AUTHORITY
+from release_adapter import ReleaseContext, SafeFrontendRollback, _CONTEXT_AUTHORITY
 from release_contract import D16_ACTIONS, ReleaseError, _open_regular_read, sha256_file
 from release_state import (COMPLETION_FILES, IDENTITY_FIELDS, STATE_SCHEMA, ReleaseLock, atomic_write_json,
                            read_state, redact, transition, validate_identity,
@@ -51,9 +51,12 @@ class ReleaseController:
 
     @classmethod
     def system(cls, *, actor="root"):
-        # Task 5 installs the frontend adapter. Until then every write capability
-        # is absent, including site capabilities, rather than simulated.
-        return cls(load_registry(Path("/etc/d16-release")), actor=actor)
+        from site_frontend_adapter import SiteFrontendAdapter, load_live_baselines
+        adapter = SiteFrontendAdapter()
+        return cls(load_registry(Path("/etc/d16-release")), actor=actor,
+                   adapters={(name, "frontend-only"): adapter for name in
+                             ("tio2-web-bluegreen-v1", "site-frontend-v1", "d16-site-frontend-v1")},
+                   baseline_loader=load_live_baselines)
 
     def _load_baselines(self, subject):
         # Installing an adapter alone must not turn root-owned declarations into
@@ -87,11 +90,25 @@ class ReleaseController:
         stage_proven = self._stage_proven(state)
         recovery = (current == "RECOVERY_REQUIRED" or self._transaction_conflicts(subject, state, journal)
                     or current == "STAGED" and not stage_proven)
+        frontend_journal = subject.state_root / 'frontend-deployment.json'
+        if frontend_journal.exists():
+            from frontend_backup import read_record
+            recovery = recovery or read_record(frontend_journal).get('phase') in {
+                'switching', 'upstream-replaced', 'nginx-tested', 'nginx-reloaded', 'recovering', 'rolling-back'}
         if action == "status":
-            return redact({"ok": True, "action": action, "subject": subject_id, "state": state,
+            result = {"ok": True, "action": action, "subject": subject_id, "state": state,
                            "recoveryRequired": recovery,
                            "stageResumeAvailable": current == "STAGED" and stage_proven and not recovery,
-                           "capabilities": {name: name == "status" or subject.kind == "site" and any(key[0] == subject.adapter for key in self.adapters) for name in sorted(D16_ACTIONS)}})
+                           "capabilities": {name: name == "status" or subject.kind == "site" and any(key[0] == subject.adapter for key in self.adapters) for name in sorted(D16_ACTIONS)}}
+            compatibility = subject.state_root / 'compatibility-transaction.json'
+            if compatibility.exists():
+                from frontend_backup import read_record
+                from cms_evidence import canonical
+                transaction = read_record(compatibility)
+                if hashlib.sha256(canonical(transaction)).hexdigest() != state['details'].get('transactionSha256'):
+                    raise ReleaseError('compatibility transaction mismatch')
+                result['compatibilityTransaction'] = transaction
+            return redact(result)
         if recovery:
             raise ReleaseError("recovery-required")
         if current != "IDLE" and state.get("schemaVersion") != STATE_SCHEMA:
@@ -100,6 +117,12 @@ class ReleaseController:
             # The successful internal verification and its full identity were
             # fsynced together with STAGED. Re-entry only finishes that state
             # write; never rebuild/restage or reinterpret mutable incoming data.
+            if current == 'INTERNAL_VERIFIED':
+                from site_frontend_adapter import SiteFrontendAdapter
+                if isinstance(self.adapters.get((subject.adapter, state['details']['releaseType'])), SiteFrontendAdapter):
+                    context, _, adapter = self._context(subject, state)
+                    adapter.validate_context(context)
+                    adapter._restore(context, adapter._backup(context))
             after = (transition(subject.state_root, {"STAGED"}, "INTERNAL_VERIFIED", state["details"])
                      if current == "STAGED" else state)
             return self._receipt(subject, action, state, after)
@@ -108,19 +131,29 @@ class ReleaseController:
                    "activate": {"INTERNAL_VERIFIED"},
                    "verify": {"ACTIVATED", "PUBLIC_VERIFIED"},
                    "rollback": {"ACTIVATED", "PUBLIC_VERIFIED", "FAILED"}}
-        if current not in allowed[action]:
+        from site_frontend_adapter import SiteFrontendAdapter
+        frontend = isinstance(self.adapters.get((subject.adapter, state.get('details', {}).get('releaseType'))), SiteFrontendAdapter)
+        repeated = frontend and (action, current) in {
+            ('prepare', 'PREPARED'), ('backup', 'BACKED_UP'), ('activate', 'ACTIVATED'), ('rollback', 'ROLLED_BACK'), ('verify', 'COMPLETED')}
+        if frontend and action == 'prepare' and current in {'FAILED','ROLLED_BACK','COMPLETED'}:
+            raise ReleaseError('compatibility transaction is terminal; a new candidate workflow is not installed')
+        if current not in allowed[action] and not repeated:
             raise ReleaseError("unexpected release state")
-        if action == "verify" and current == "PUBLIC_VERIFIED":
+        if action == "verify" and current in {"PUBLIC_VERIFIED", "COMPLETED"}:
             details = dict(state["details"])
             validate_identity(details)
             if details["subject"] != subject_id:
                 raise ReleaseError("release identity changed")
             try:
+                if frontend:
+                    context, identity, adapter = self._context(subject, state)
+                    adapter.validate_context(context)
+                    adapter._restore(context, adapter._backup(context))
                 details["completionEvidence"] = self._completion(subject, details)
             except Exception:
                 self._receipt(subject, action, state, state, failure_stage="completion-evidence")
                 raise
-            after = transition(subject.state_root, {current}, "COMPLETED", details)
+            after = transition(subject.state_root, {current}, "COMPLETED", details) if current != 'COMPLETED' else state
             return self._receipt(subject, action, state, after)
         try:
             context, identity, adapter = self._context(subject, state)
@@ -134,8 +167,8 @@ class ReleaseController:
         except Exception:
             self._receipt(subject, action, state, state, failure_stage="validation")
             raise
-        details = {**(state.get("details", {}) if action != "prepare" else {}), **identity}
-        if action == "prepare" and journal is not None:
+        details = {**(state.get("details", {}) if action != "prepare" or repeated else {}), **identity}
+        if action == "prepare" and journal is not None and not repeated:
             # Archive before publishing the next PREPARED state. If interrupted
             # here the old terminal state still agrees with the old RESULT. The
             # next state's hash reference is the only permission to retain an
@@ -158,6 +191,15 @@ class ReleaseController:
             if not isinstance(result, Mapping) or result.get("ok") is not True:
                 raise ReleaseError("adapter verification failed")
             details["actionEvidence"] = redact(dict(result))
+            if "binding" in result:
+                from frontend_backup import BINDING_FIELDS
+                candidate_binding = result["binding"]
+                if (not isinstance(candidate_binding, Mapping) or set(candidate_binding) != set(BINDING_FIELDS)
+                        or any(candidate_binding.get(key) != identity[key] for key in IDENTITY_FIELDS)):
+                    raise ReleaseError("adapter binding mismatch")
+                details.update(candidate_binding)
+                if action == "backup": details["frontendBackup"] = result["backup"]
+                if action == "stage": details["frontendStage"] = result
             if action == "stage":
                 if result.get("internalVerified") is not True:
                     raise ReleaseError("internal verification is required")
@@ -165,16 +207,35 @@ class ReleaseController:
                                                 "identity": identity, "internalVerified": True}
             target = {"prepare": "PREPARED", "backup": "BACKED_UP", "stage": "STAGED",
                       "activate": "ACTIVATED", "verify": "PUBLIC_VERIFIED", "rollback": "ROLLED_BACK"}[action]
-            after = transition(subject.state_root, {current}, target, details)
+            if repeated:
+                after = {**state, 'details': details}
+                atomic_write_json(subject.state_root / 'state.json', after)
+            else:
+                after = transition(subject.state_root, {current}, target, details)
             if action == "stage":
                 after = transition(subject.state_root, {"STAGED"}, "INTERNAL_VERIFIED", details)
             if commit_action:
                 atomic_write_json(context.transaction_path, redact({**intent, "phase": "RESULT", "afterState": after["state"], "ok": True}))
             return self._receipt(subject, action, state, after)
-        except Exception as error:
+        except BaseException as error:
+            if (not isinstance(error, Exception) and action == "stage"
+                    and read_state(subject.state_root)["state"] == "STAGED"
+                    and self._stage_proven(read_state(subject.state_root))):
+                # Pure controller persistence after the verified slot proof was
+                # fsynced cannot switch traffic. Preserve Task 3 safe re-entry.
+                raise
             # An exception after entering a commit point cannot prove whether the
             # active version changed. Never retry it or guess that rollback worked.
-            if commit_action:
+            if isinstance(error, SafeFrontendRollback) and self._safe_recovery(error.evidence, details):
+                details["safeRecovery"] = error.evidence
+                after = {"schemaVersion": STATE_SCHEMA, "state": "ROLLED_BACK", "details": details}
+                atomic_write_json(subject.state_root / "state.json", after)
+                atomic_write_json(context.transaction_path, redact({**intent, "action": "rollback", "phase": "RESULT", "afterState": "ROLLED_BACK", "ok": True}))
+            elif action == 'backup' and frontend:
+                # This action only captures and encrypts frontend bytes. Its
+                # durable request permits safe retry after process/transport loss.
+                after = state
+            elif commit_action or action in {'stage','verify'} and frontend or not isinstance(error, Exception) or isinstance(error, SafeFrontendRollback):
                 after = {"schemaVersion": STATE_SCHEMA, "state": "RECOVERY_REQUIRED", "details": details}
                 atomic_write_json(subject.state_root / "state.json", after)
                 atomic_write_json(context.transaction_path, redact({**intent, "phase": "RESULT", "afterState": "RECOVERY_REQUIRED", "ok": False}))
@@ -187,6 +248,22 @@ class ReleaseController:
                     after = read_state(subject.state_root)
             self._receipt(subject, action, state, after, failure_stage="adapter-or-persistence")
             raise ReleaseError("release action failed") from error
+
+    @staticmethod
+    def _safe_recovery(evidence, details):
+        from frontend_backup import BINDING_FIELDS
+        if (not isinstance(evidence, Mapping) or set(evidence) != {"schemaVersion", "binding", "backup", "active", "publicVerified", "health", "cmsUnchanged"}
+                or evidence.get("schemaVersion") != "d16-safe-frontend-rollback-v1"
+                or evidence.get("binding") != {key: details.get(key) for key in BINDING_FIELDS}
+                or evidence.get("backup") != details.get("frontendBackup") or not isinstance(details.get("frontendBackup"), Mapping)
+                or evidence.get("active") != details["frontendBackup"].get("active")
+                or evidence.get("publicVerified") is not True or evidence.get("cmsUnchanged") is not True):
+            return False
+        active, health = evidence.get("active"), evidence.get("health")
+        return (isinstance(active, Mapping) and set(active) == {"commit", "sourceRoot", "buildId", "imageId", "containerId"}
+                and all(isinstance(value, str) and value for value in active.values())
+                and isinstance(health, Mapping) and health.get("proxy") is True
+                and all(health.get(key) == active[key] for key in ("buildId", "imageId", "containerId")))
 
     @staticmethod
     def _transaction_digest(journal):
@@ -227,16 +304,31 @@ class ReleaseController:
 
     def _context(self, subject, state):
         manifest = subject.incoming / "candidate-manifest.json"
-        before_hash = sha256_file(manifest)
-        candidate = CandidateEnvelope.from_path(manifest)
+        compatible = False
+        if not manifest.exists() and (subject.state_root / "compatibility-transaction.json").exists():
+            from site_frontend_adapter import compatibility_candidate,SiteFrontendAdapter
+            adapter = self.adapters.get((subject.adapter, "frontend-only"))
+            if not isinstance(adapter,SiteFrontendAdapter): raise ReleaseError("capability-not-installed")
+            candidate,payload = compatibility_candidate(subject,state)
+            before_hash = candidate.manifest_sha256
+            compatible = True
+        else:
+            before_hash = sha256_file(manifest)
+            candidate = CandidateEnvelope.from_path(manifest)
         if candidate.subject != subject.subject_id:
             raise ReleaseError("candidate subject mismatch")
         adapter = self.adapters.get((subject.adapter, candidate.release_type))
         if adapter is None:
             raise ReleaseError("capability-not-installed")
-        payload = validate_payload(candidate, subject.incoming / "payload")
-        if sha256_file(manifest) != before_hash:
-            raise ReleaseError("candidate changed during validation")
+        from site_frontend_adapter import SiteFrontendAdapter
+        if isinstance(adapter, SiteFrontendAdapter) and not compatible:
+            # Phase one installs only the approved Task 4 compatibility input
+            # path. General v2 candidate preparation/evidence is not installed.
+            raise ReleaseError('capability-not-installed')
+        if not compatible:
+            payload = validate_payload(candidate, subject.incoming / "payload")
+            if sha256_file(manifest) != before_hash:
+                raise ReleaseError("candidate changed during validation")
         baseline, global_baseline = self.baseline_loader(subject)
         if (baseline.get("subject") != subject.subject_id or global_baseline.get("subject") != "host"
                 or baseline.get("previousProductionReceipt") != candidate.previous_production_receipt
@@ -248,6 +340,19 @@ class ReleaseController:
                     "candidateManifestSha256": before_hash,
                     "previousProductionReceipt": candidate.previous_production_receipt,
                     "adapterVersion": adapter.version}
+        if compatible:
+            saved_version=state['details']['adapterVersion']
+            if saved_version not in {adapter.version,*adapter.compatible_versions}:
+                raise ReleaseError('frontend adapter version requires explicit compatibility')
+            identity['adapterVersion']=saved_version
+            from frontend_backup import read_record,plain
+            request=read_record(subject.incoming/'backup-request.json')
+            binding={**identity,'runRoot':state['details']['runRoot'],'transactionSha256':state['details']['transactionSha256'],
+                     'cmsEvidenceSha256':hashlib.sha256(json.dumps(plain(state['details']['cmsEvidence']),sort_keys=True,separators=(',',':'),ensure_ascii=True).encode()).hexdigest(),
+                     'requestId':request['requestId']}
+            if any(key in state['details'] and state['details'][key] != value for key,value in binding.items()):
+                raise ReleaseError('frontend transaction binding changed')
+            baseline={**baseline,'binding':binding}
         validate_identity(identity)
         context = ReleaseContext(_authority=_CONTEXT_AUTHORITY, subject=subject, candidate=candidate,
             payload=payload, state=_freeze(state), subject_baseline=_freeze(baseline),
@@ -282,15 +387,20 @@ class ReleaseController:
 
     def _completion(self, subject, details):
         try:
+            fields = IDENTITY_FIELDS
+            if 'frontendBackup' in details:
+                from frontend_backup import BINDING_FIELDS
+                fields = (*BINDING_FIELDS, 'backupId')
+                details = {**details, 'backupId': details['frontendBackup']['backupId']}
             with _open_regular_read(subject.incoming / "completion-receipt.json") as source:
                 raw = source.read(1024 * 1024 + 1)
             if len(raw) > 1024 * 1024:
                 raise ValueError()
             value = json.loads(raw, object_pairs_hook=_unique)
             if (not isinstance(value, dict)
-                    or set(value) != {*IDENTITY_FIELDS, "schemaVersion", "businessE2E", "forms", "evidenceSha256"}
+                    or set(value) != {*fields, "schemaVersion", "businessE2E", "forms", "evidenceSha256"}
                     or value.get("schemaVersion") != "d16-release-completion-v1"
-                    or any(value.get(key) != details[key] for key in IDENTITY_FIELDS)):
+                    or any(value.get(key) != details[key] for key in fields)):
                 raise ValueError()
             evidence = {"businessE2E": value["businessE2E"], "forms": value["forms"],
                         "receiptSha256": hashlib.sha256(raw).hexdigest(), "evidenceSha256": value["evidenceSha256"]}
@@ -305,18 +415,18 @@ class ReleaseController:
             e2e = json.loads(blobs["business-e2e-receipt.json"], object_pairs_hook=_unique)
             inbox = json.loads(blobs["inbox-confirmation-receipt.json"], object_pairs_hook=_unique)
             if (not isinstance(e2e, dict)
-                    or set(e2e) != {*IDENTITY_FIELDS, "schemaVersion", "environment", "suite", "state", "runId"}
+                    or set(e2e) != {*fields, "schemaVersion", "environment", "suite", "state", "runId"}
                     or e2e.get("schemaVersion") != "d16-production-business-e2e-v1"
                     or e2e.get("environment") != "production" or e2e.get("suite") != "business-e2e"
                     or e2e.get("state") != "PASSED" or not isinstance(e2e.get("runId"), str)
                     or not 1 <= len(e2e["runId"].strip()) <= 256
                     or not isinstance(inbox, dict)
-                    or set(inbox) != {*IDENTITY_FIELDS, "schemaVersion", "source", "forms"}
+                    or set(inbox) != {*fields, "schemaVersion", "source", "forms"}
                     or inbox.get("schemaVersion") != "d16-production-inbox-v1"
                     or inbox.get("source") != "server-inbox"
                     or not isinstance(inbox.get("forms"), dict)
                     or set(inbox["forms"]) != {"rfq", "sample", "documents"}
-                    or any(record.get(key) != details[key] for record in (e2e, inbox) for key in IDENTITY_FIELDS)):
+                    or any(record.get(key) != details[key] for record in (e2e, inbox) for key in fields)):
                 raise ValueError()
             message_ids = set()
             for form in ("rfq", "sample", "documents"):

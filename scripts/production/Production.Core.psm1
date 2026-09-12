@@ -903,3 +903,171 @@ function Invoke-ProductionOperation {
     } finally {$lock.Dispose()}
 }
 Export-ModuleMember -Function Assert-ProductionConnection,Assert-ProductionActionReceipt,Get-ProductionBackupRequest,New-ProductionDeploymentEvidence,Invoke-ProductionOperation,Save-ProductionCmsIdentity
+
+# D16 seven-action client. The historical functions above remain internal
+# compatibility helpers; production.ps1 selects only this subject-bound path.
+function Assert-D16ActionReceipt($Action,$Receipt,$Binding) {
+    if($Receipt.ok -isnot [bool] -or -not $Receipt.ok -or $Receipt.subject -cne 'tio2-my' -or $Receipt.action -cne $Action){throw 'D16 receipt subject/action mismatch.'}
+    $allowed=@{status=@('IDLE','PREPARED','BACKED_UP','STAGED','INTERNAL_VERIFIED','ACTIVATED','PUBLIC_VERIFIED','COMPLETED','FAILED','ROLLED_BACK','RECOVERY_REQUIRED');prepare=@('PREPARED');backup=@('BACKED_UP');stage=@('INTERNAL_VERIFIED');activate=@('ACTIVATED');verify=@('PUBLIC_VERIFIED','COMPLETED');rollback=@('ROLLED_BACK')}
+    if($Receipt.state.state -cnotin $allowed[$Action]){throw 'D16 receipt state mismatch.'}
+    if($null -ne $Binding){
+        $pendingRequest=$Action -ceq 'status' -and $Receipt.state.state -ceq 'PREPARED' -and -not $Receipt.state.details['requestId']
+        foreach($name in @('releaseId','subject','releaseType','sourceCommit','candidateManifestSha256','previousProductionReceipt','adapterVersion','runRoot','transactionSha256','cmsEvidenceSha256','requestId')){
+            if($pendingRequest -and $name -ceq 'requestId'){continue}
+            $observed=$Receipt.state.details[$name]
+            if($pendingRequest -and $name -ceq 'cmsEvidenceSha256' -and -not $observed){$observed=Get-ProductionTextSha256 ((ConvertTo-D16CanonicalObject $Receipt.state.details.cmsEvidence)|ConvertTo-Json -Depth 50 -Compress)}
+            if(-not $Binding[$name] -or $observed -cne $Binding[$name]){throw "D16 receipt binding mismatch: $name"}
+        }
+    }
+}
+
+function Invoke-D16ProductionTransport($Config,$RunRoot,$Kind,$Value) {
+    Assert-ProductionConnection $Config
+    $known=Join-Path $RunRoot 'known_hosts'
+    $lookup=if($Config.port -eq 22){$Config.host}else{"[$($Config.host)]:$($Config.port)"}
+    [IO.File]::WriteAllText($known,"$lookup $($Config.hostKey)`n",[Text.UTF8Encoding]::new($false))
+    $options=@('-F','none','-o','BatchMode=yes','-o','IdentitiesOnly=yes','-o','StrictHostKeyChecking=yes','-o',"UserKnownHostsFile=$known",'-o','GlobalKnownHostsFile=none','-o','ConnectTimeout=15','-o','ServerAliveInterval=15','-o','ServerAliveCountMax=3','-i',$Config.identityFile)
+    $destination="deploy@$($Config.host)"
+    if($Kind -eq 'action'){
+        if($Value -cnotin @('status','prepare','backup','stage','activate','verify','rollback')){throw 'Unsupported D16 action.'}
+        $output=@(& ssh @options -p $Config.port $destination "sudo -n /usr/local/sbin/d16-release tio2-my $Value" 2>$null)
+        if($LASTEXITCODE -ne 0){
+            Save-ProductionJson (Join-Path $RunRoot 'transport-failure.json') @{action=$Value;exitCode=$LASTEXITCODE;completed=$false}
+            if($Value -cne 'status'){
+                try{$observed=Invoke-D16ProductionTransport $Config $RunRoot action status;$bound=$null;if(Test-Path -LiteralPath (Join-Path $RunRoot 'frontend-binding.json')){$bound=Read-ProductionJson (Join-Path $RunRoot 'frontend-binding.json')};Assert-D16ActionReceipt status $observed $bound;Save-ProductionJson (Join-Path $RunRoot 'failure-status.json') $observed}catch{}
+            }
+            throw 'D16 action disconnected or failed; persistent status was queried. Reuse this RunRoot.'
+        }
+        try{return (($output -join "`n")|ConvertFrom-Json -AsHashtable -ErrorAction Stop)}catch{throw 'D16 action did not return JSON.'}
+    }
+    if($Kind -eq 'upload'){
+        if($Value -cnotin @('backup-request.json','frontend-action.json','frontend-restore.json','completion-receipt.json','business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml')){throw 'Unsupported fixed D16 upload.'}
+        & scp @options -P $Config.port (Join-Path $RunRoot $Value) "${destination}:/home/deploy/tio2-incoming/$Value" 2>$null|Out-Null
+    }elseif($Kind -eq 'download'){
+        if($Value -cnotmatch '^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{40}-[a-f0-9]{32}$'){throw 'Invalid frontend backup ID.'}
+        & scp @options -P $Config.port "${destination}:/home/deploy/tio2-outgoing/$Value.tar.age" (Join-Path $RunRoot 'ciphertext.age.part') 2>$null|Out-Null
+    }else{throw 'Unsupported D16 transfer.'}
+    if($LASTEXITCODE -ne 0){throw 'D16 transfer failed; reuse this RunRoot.'}
+}
+
+function ConvertTo-D16CanonicalObject($Value) {
+    if($Value -is [Collections.IDictionary]){
+        $result=[ordered]@{};$names=[string[]]@($Value.Keys);[Array]::Sort($names,[StringComparer]::Ordinal)
+        foreach($name in $names){$result[$name]=ConvertTo-D16CanonicalObject $Value[$name]};return $result
+    }
+    if($Value -is [array]){return ,@($Value|ForEach-Object{ConvertTo-D16CanonicalObject $_})}
+    return $Value
+}
+
+function Get-D16CompatibilityBinding($RunRoot,$Status) {
+    $details=$Status.state.details
+    $transaction=$Status.compatibilityTransaction
+    if($transaction.schemaVersion -cne 'd16-production-transaction-v1' -or $transaction.subject -cne 'tio2-my' -or $transaction.releaseType -cne 'frontend-only'){throw 'Task 4 compatibility transaction is required.'}
+    $expectedRun='.production/runs/'+$transaction.releaseId
+    $normalized=([IO.Path]::GetFullPath($RunRoot) -replace '\\','/').TrimEnd('/')
+    if($transaction.runRoot -cne $expectedRun -or -not $normalized.EndsWith('/'+$expectedRun,[StringComparison]::Ordinal)){throw 'Compatibility RunRoot changed.'}
+    foreach($name in @('release.tar.gz','release-manifest.json','release-proof.json','cms-identity.json')){
+        if((Get-ProductionSha256 (Join-Path $RunRoot $name)) -cne $transaction.artifacts[$name]){throw "Compatibility artifact changed: $name"}
+    }
+    $transactionHash=Get-ProductionTextSha256 ((ConvertTo-D16CanonicalObject $transaction)|ConvertTo-Json -Depth 50 -Compress)
+    if($transactionHash -cne $details.transactionSha256){throw 'Compatibility transaction hash mismatch.'}
+    $cmsHash=Get-ProductionTextSha256 ((ConvertTo-D16CanonicalObject $details.cmsEvidence)|ConvertTo-Json -Depth 50 -Compress)
+    $request=Get-ProductionBackupRequest $RunRoot $details.candidate.proofSha256 $details.active.enrollmentSha256
+    $binding=@{};foreach($name in @('releaseId','subject','releaseType','sourceCommit','candidateManifestSha256','previousProductionReceipt','adapterVersion')){$binding[$name]=$details[$name]}
+    if($binding.sourceCommit -cne $transaction.sourceCommit -or $binding.candidateManifestSha256 -cne $transaction.artifacts['release-manifest.json']){throw 'Compatibility candidate changed.'}
+    $binding.runRoot=$transaction.runRoot;$binding.transactionSha256=$transactionHash;$binding.cmsEvidenceSha256=$cmsHash;$binding.requestId=$request.requestId
+    $path=Join-Path $RunRoot 'frontend-binding.json'
+    if(Test-Path -LiteralPath $path){$old=Read-ProductionJson $path;foreach($name in $binding.Keys){if($old[$name] -cne $binding[$name]){throw 'Persisted frontend binding changed.'}}}else{Save-ProductionJson $path $binding}
+    return $binding
+}
+
+function Invoke-D16FrontendRecovery($Config,$RunRoot,$Backup) {
+    if($Config.recoveryImageId -cnotmatch '^sha256:[a-f0-9]{64}$' -or $Config.dockerContext -cnotmatch '^[A-Za-z0-9_-]+$' -or -not(Test-Path -LiteralPath $Config.ageIdentityFile -PathType Leaf)){throw 'Frontend recovery configuration is required.'}
+    $helper=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../ops/production/server'))
+    $output=@(& docker --context $Config.dockerContext run --rm --network none --mount "type=bind,source=$RunRoot,target=/run-evidence" --mount "type=bind,source=$($Config.ageIdentityFile),target=/identity.age,readonly" --mount "type=bind,source=$helper,target=/tooling,readonly" --mount 'type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock' --entrypoint python3 $Config.recoveryImageId -B /tooling/frontend_backup.py restore /run-evidence/ciphertext.age /identity.age 2>&1)
+    [IO.File]::WriteAllText((Join-Path $RunRoot 'frontend-recovery.log'),($output -join "`n"))
+    if($LASTEXITCODE -ne 0){throw 'Frontend decryption/restore verification failed.'}
+    $restore=($output -join "`n")|ConvertFrom-Json -AsHashtable
+    foreach($name in @('backupId','ciphertextSha256','manifestSha256')){if($restore[$name] -cne $Backup[$name]){throw 'Frontend restore identity mismatch.'}}
+    foreach($name in @('verified','fullArchiveRead','isolated','cleanupVerified')){if($restore[$name] -isnot [bool] -or -not $restore[$name]){throw 'Frontend restore is incomplete.'}}
+    Save-ProductionJson (Join-Path $RunRoot 'frontend-restore.json') $restore
+}
+
+function Assert-D16CompletionEvidence($RunRoot,$Binding,$Backup) {
+    $receipt=Read-ProductionJson (Join-Path $RunRoot 'completion-receipt.json')
+    $e2e=Read-ProductionJson (Join-Path $RunRoot 'business-e2e-receipt.json')
+    $inbox=Read-ProductionJson (Join-Path $RunRoot 'inbox-confirmation-receipt.json')
+    $expected=$Binding.Clone();$expected.backupId=$Backup.backupId
+    foreach($record in @($receipt,$e2e,$inbox)){
+        foreach($name in $expected.Keys){if($record[$name] -cne $expected[$name]){throw "Completion binding mismatch: $name"}}
+    }
+    if($receipt.schemaVersion -cne 'd16-release-completion-v1' -or $receipt.businessE2E -cne 'PASSED' -or
+       $e2e.schemaVersion -cne 'd16-production-business-e2e-v1' -or $e2e.environment -cne 'production' -or $e2e.suite -cne 'business-e2e' -or $e2e.state -cne 'PASSED' -or -not $e2e.runId -or
+       $inbox.schemaVersion -cne 'd16-production-inbox-v1' -or $inbox.source -cne 'server-inbox'){throw 'Production E2E and actual inbox evidence are required.'}
+    $names=@('business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml')
+    if($receipt.evidenceSha256.Count -ne $names.Count){throw 'Completion evidence inventory mismatch.'}
+    foreach($name in $names){if((Get-ProductionSha256 (Join-Path $RunRoot $name)) -cne $receipt.evidenceSha256[$name]){throw "Completion evidence hash mismatch: $name"}}
+    $ids=[Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach($form in @('rfq','sample','documents')){
+        $mail=$inbox.forms[$form]
+        if($receipt.forms[$form] -cne 'RECEIVED' -or $mail.state -cne 'RECEIVED' -or -not $mail.messageId -or -not $ids.Add($mail.messageId) -or
+           $mail.emlSha256 -cne $receipt.evidenceSha256[($form+'-received.eml')]){throw 'Three distinct received messages are required.'}
+    }
+}
+
+function Invoke-D16ProductionOperation {
+    param([ValidateSet('Status','Prepare','Backup','Stage','Activate','Verify','Rollback')]$Operation,[string]$ConfigPath,[string]$RunRoot)
+    $config=Read-ProductionJson $ConfigPath;Assert-ProductionConnection $config
+    $RunRoot=[IO.Path]::GetFullPath($RunRoot);[IO.Directory]::CreateDirectory($RunRoot)|Out-Null
+    $lock=[IO.File]::Open((Join-Path $RunRoot 'controller.lock'),'OpenOrCreate','ReadWrite','None')
+    try{
+        $connection=@{siteId=$config.siteId;host=$config.host;port=$config.port;hostKey=$config.hostKey;baselineSha256=$config.baselineSha256}
+        $connectionPath=Join-Path $RunRoot 'connection.json'
+        if(Test-Path -LiteralPath $connectionPath){$old=Read-ProductionJson $connectionPath;foreach($name in $connection.Keys){if($connection[$name] -cne $old[$name]){throw 'Run connection identity changed.'}}}else{Save-ProductionJson $connectionPath $connection}
+        $status=Invoke-D16ProductionTransport $config $RunRoot action status;Assert-D16ActionReceipt status $status $null
+        $bindingPath=Join-Path $RunRoot 'frontend-binding.json'
+        if(Test-Path -LiteralPath $bindingPath){Assert-D16ActionReceipt status $status (Read-ProductionJson $bindingPath)}
+        Save-ProductionJson (Join-Path $RunRoot 'status.json') $status
+        if($Operation -ceq 'Status'){return $status}
+        if($status.recoveryRequired){throw 'Server requires recovery; no action was retried.'}
+        $binding=Get-D16CompatibilityBinding $RunRoot $status
+        if($status.state.details['requestId']){Assert-D16ActionReceipt status $status $binding}
+        $action=$Operation.ToLowerInvariant()
+        if($action -ceq 'verify' -and $status.state.state -ceq 'PUBLIC_VERIFIED'){
+            Assert-D16CompletionEvidence $RunRoot $binding (Read-ProductionJson (Join-Path $RunRoot 'frontend-backup.json'))
+        }
+        $savedBackup=$status.state.details['frontendBackup']
+        $request=@{schemaVersion='d16-frontend-action-v1';binding=$binding;backupId=$(if($savedBackup){$savedBackup.backupId}else{$null})}
+        Save-ProductionJson (Join-Path $RunRoot 'frontend-action.json') $request
+        Invoke-D16ProductionTransport $config $RunRoot upload 'backup-request.json'
+        Invoke-D16ProductionTransport $config $RunRoot upload 'frontend-action.json'
+        if($action -ceq 'verify' -and $status.state.state -ceq 'PUBLIC_VERIFIED'){
+            foreach($name in @('business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml','completion-receipt.json')){Invoke-D16ProductionTransport $config $RunRoot upload $name}
+        }
+        $result=Invoke-D16ProductionTransport $config $RunRoot action $action
+        Assert-D16ActionReceipt $action $result $binding
+        if($action -ceq 'verify'){
+            $expectedState=if($status.state.state -ceq 'ACTIVATED'){'PUBLIC_VERIFIED'}else{'COMPLETED'}
+            if($result.state.state -cne $expectedState){throw 'Verify crossed the wrong acceptance boundary.'}
+        }
+        if($action -ceq 'backup'){
+            $backup=$result.state.details.frontendBackup
+            foreach($name in $binding.Keys){if($backup.binding[$name] -cne $binding[$name]){throw 'Backup binding mismatch.'}}
+            $path=Join-Path $RunRoot 'frontend-backup.json'
+            if(Test-Path -LiteralPath $path){$old=Read-ProductionJson $path;foreach($name in @('backupId','ciphertextSha256','manifestSha256')){if($old[$name] -cne $backup[$name]){throw 'Backup replay changed.'}}}
+            Save-ProductionJson $path $backup
+            Invoke-D16ProductionTransport $config $RunRoot download $backup.backupId
+            $part=Join-Path $RunRoot 'ciphertext.age.part'
+            if((Get-ProductionSha256 $part) -cne $backup.ciphertextSha256){throw 'Downloaded frontend backup hash mismatch.'}
+            [IO.File]::Move($part,(Join-Path $RunRoot 'ciphertext.age'),$true)
+            Invoke-D16FrontendRecovery $config $RunRoot $backup
+            Invoke-D16ProductionTransport $config $RunRoot upload 'frontend-restore.json'
+        }elseif($action -cin @('stage','activate','verify','rollback')){
+            $backup=Read-ProductionJson (Join-Path $RunRoot 'frontend-backup.json')
+            foreach($name in @('backupId','ciphertextSha256','manifestSha256')){if($result.state.details.frontendBackup[$name] -cne $backup[$name]){throw 'Action backup identity mismatch.'}}
+        }
+        Save-ProductionJson (Join-Path $RunRoot ($action+'.json')) $result
+        return $result
+    }finally{$lock.Dispose()}
+}
+Export-ModuleMember -Function Assert-D16ActionReceipt,Invoke-D16ProductionTransport,Invoke-D16ProductionOperation

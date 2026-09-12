@@ -7,7 +7,7 @@ const core = resolve('ops/production/server/bootstrap_install.py')
 const selfTest = resolve('ops/production/server/bootstrap_selftest.py')
 const sudoers = resolve('ops/production/server/sudoers.tio2-release')
 const sshd = resolve('ops/production/server/sshd-tio2-production.conf')
-const actions = ['status', 'prepare', 'backup', 'deploy', 'verify', 'rollback']
+const actions = ['status', 'prepare', 'backup', 'stage', 'activate', 'verify', 'rollback']
 const read = (path: string) => existsSync(path) ? readFileSync(path, 'utf8') : ''
 
 describe('tio2-my one-time production bootstrap', () => {
@@ -36,10 +36,16 @@ describe('tio2-my one-time production bootstrap', () => {
   })
 
   it('limits deploy sudo to the exact closed release actions', () => {
-    expect(read(sudoers).trim().split(/\r?\n/u)).toEqual([
-      'Defaults!/usr/local/sbin/tio2-release env_reset,secure_path=/usr/sbin:/usr/bin:/sbin:/bin,!setenv',
-      `deploy ALL=(root) NOPASSWD: ${actions.map(action => `/usr/local/sbin/tio2-release ${action}`).join(', ')}`,
+    const entries = read(sudoers).trim().split(/\r?\n/u)
+    expect(entries).toEqual([
+      'Defaults!/usr/local/sbin/d16-release env_reset,secure_path=/usr/sbin:/usr/bin:/sbin:/bin,!setenv',
+      ...actions.map(action => `deploy ALL=(root) NOPASSWD: /usr/local/sbin/d16-release tio2-my ${action}`),
+      'deploy ALL=(root) NOPASSWD: /usr/local/sbin/d16-release cms status',
     ])
+    expect(entries.join('\n')).not.toContain('*')
+    for (const rule of entries.slice(1)) {
+      expect(rule).toMatch(/^deploy ALL=\(root\) NOPASSWD: \/usr\/local\/sbin\/d16-release (?:tio2-my (?:status|prepare|backup|stage|activate|verify|rollback)|cms status)$/u)
+    }
   })
 
   it('stores the exact inactive SSH hardening template', () => {

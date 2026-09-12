@@ -45,6 +45,17 @@ class ReleaseAdapter(Protocol):
     def rollback(self, context: ReleaseContext) -> Mapping[str, object]: ...
 
 
+class SafeFrontendRollback(ReleaseError):
+    """A bounded adapter result, never an inference from exception text.
+
+    The controller validates every identity, backup and public-version field
+    before accepting this as recovery. It alone writes release state.
+    """
+    def __init__(self, evidence):
+        super().__init__('frontend action reverted and publicly verified')
+        self.evidence = evidence
+
+
 class UninstalledAdapter:
     version = "not-installed"
 

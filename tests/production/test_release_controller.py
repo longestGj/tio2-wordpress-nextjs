@@ -103,6 +103,83 @@ class ControllerTests(unittest.TestCase):
         path.write_text(json.dumps(receipt))
         return path
 
+    def test_installed_frontend_adapter_rejects_general_v2_before_runtime_work(self):
+        from site_frontend_adapter import SiteFrontendAdapter
+        controller = self.controller({('tio2-my-v1', 'frontend-only'): SiteFrontendAdapter()})
+        with patch.object(controller, 'baseline_loader', side_effect=AssertionError('runtime must not run')):
+            with self.assertRaisesRegex(ReleaseError, 'capability-not-installed'):
+                controller.execute('tio2-my', 'prepare')
+        self.assertEqual(self.state()['state'], 'IDLE')
+        self.assertEqual(self.active.read_text(), 'old')
+
+    def test_frontend_final_evidence_requires_the_same_run_request_and_backup(self):
+        self.execute('prepare', 'backup', 'stage', 'activate', 'verify')
+        receipt_path = self.evidence()
+        details = dict(self.state()['details'])
+        extra = {'runRoot': '.production/runs/release-17', 'requestId': '11111111-1111-4111-8111-111111111111',
+                 'transactionSha256': 'd' * 64, 'cmsEvidenceSha256': 'e' * 64, 'backupId': 'backup-A'}
+        details.update({key: value for key, value in extra.items() if key != 'backupId'})
+        details['frontendBackup'] = {'backupId': extra['backupId']}
+        incoming = self.subjects['tio2-my'].incoming
+        names = ('completion-receipt.json', 'business-e2e-receipt.json', 'inbox-confirmation-receipt.json')
+        for name in names:
+            value = json.loads((incoming / name).read_bytes())
+            (incoming / name).write_text(json.dumps({**value, **extra}))
+        receipt = json.loads(receipt_path.read_bytes())
+        for name in receipt['evidenceSha256']:
+            receipt['evidenceSha256'][name] = hashlib.sha256((incoming / name).read_bytes()).hexdigest()
+        receipt_path.write_text(json.dumps(receipt))
+        controller = self.controller()
+        self.assertEqual(controller._completion(self.subjects['tio2-my'], details)['businessE2E'], 'PASSED')
+        original = {name: (incoming / name).read_bytes() for name in names}
+        for name in names:
+            for key in extra:
+                with self.subTest(file=name, field=key):
+                    altered = json.loads(original[name]); altered[key] = 'another-release'
+                    (incoming / name).write_text(json.dumps(altered))
+                    if name != 'completion-receipt.json':
+                        changed_receipt = json.loads(original['completion-receipt.json'])
+                        changed_receipt['evidenceSha256'][name] = hashlib.sha256((incoming / name).read_bytes()).hexdigest()
+                        receipt_path.write_text(json.dumps(changed_receipt))
+                    with self.assertRaisesRegex(ReleaseError, 'completion evidence'):
+                        controller._completion(self.subjects['tio2-my'], details)
+                    for restore_name, data in original.items(): (incoming / restore_name).write_bytes(data)
+
+    def test_safe_frontend_recovery_requires_full_backup_and_public_identity(self):
+        from release_adapter import SafeFrontendRollback
+        for corruption in (None,'binding','backup','active','public','health','cms'):
+            with self.subTest(corruption=corruption):
+                self.setUp(); self.execute('prepare','backup','stage')
+                state=self.state(); details=state['details']
+                binding={**{key:details[key] for key in ('releaseId','subject','releaseType','sourceCommit','candidateManifestSha256','previousProductionReceipt','adapterVersion')},
+                         'runRoot':'.production/runs/release-17','transactionSha256':'3'*64,'cmsEvidenceSha256':'4'*64,'requestId':'11111111-1111-4111-8111-111111111111'}
+                active={'commit':'a'*40,'buildId':'build-A','containerId':'1'*64,'imageId':'sha256:'+'2'*64,'sourceRoot':'/owned/A'}
+                backup={'backupId':'20260912T000000Z-'+'b'*40+'-'+'1'*32,'binding':binding,'active':active,'manifestSha256':'5'*64,'ciphertextSha256':'6'*64}
+                details.update(binding); details['frontendBackup']=backup
+                atomic_write_json(self.subjects['tio2-my'].state_root/'state.json',state)
+                evidence={'schemaVersion':'d16-safe-frontend-rollback-v1','binding':dict(binding),'backup':dict(backup),'active':dict(active),
+                          'publicVerified':True,'cmsUnchanged':True,'health':{'buildId':'build-A','containerId':'1'*64,'imageId':'sha256:'+'2'*64,'proxy':True}}
+                if corruption=='binding': evidence['binding']['requestId']='other'
+                if corruption=='backup': evidence['backup']['backupId']='other'
+                if corruption=='active': evidence['active']['commit']='c'*40
+                if corruption=='public': evidence['publicVerified']=False
+                if corruption=='health': evidence['health']['buildId']='wrong'
+                if corruption=='cms': evidence['cmsUnchanged']=False
+                with patch.object(self.adapter,'activate',side_effect=SafeFrontendRollback(evidence)),self.assertRaises(ReleaseError):self.execute('activate')
+                self.assertEqual(self.state()['state'],'ROLLED_BACK' if corruption is None else 'RECOVERY_REQUIRED')
+                self.assertEqual(self.execute('status')['recoveryRequired'],corruption is not None)
+
+    def test_base_exception_at_commit_is_persisted_as_recovery_required(self):
+        self.execute('prepare','backup','stage')
+        with patch.object(self.adapter,'activate',side_effect=KeyboardInterrupt()),self.assertRaises(BaseException):self.execute('activate')
+        self.assertEqual(self.state()['state'],'RECOVERY_REQUIRED')
+
+    def test_system_installs_only_fixed_frontend_adapter_pairs(self):
+        import release_controller
+        with patch.object(release_controller,'load_registry',return_value=self.registry):
+            controller=release_controller.ReleaseController.system()
+        self.assertEqual(set(controller.adapters),{('tio2-web-bluegreen-v1','frontend-only'),('site-frontend-v1','frontend-only'),('d16-site-frontend-v1','frontend-only')})
+
     def test_registered_status_is_isolated_without_candidate_or_adapter(self):
         controller = self.controller({})
         for subject in ("host", "cms", "tio2-my"):
