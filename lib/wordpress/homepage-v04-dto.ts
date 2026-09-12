@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
@@ -31,7 +32,6 @@ function exactText(value: unknown, path: string): string {
   return value
 }
 
-const approvedSerializedContract = JSON.stringify(approvedContract)
 
 export function toMalaysiaHomepageDto(
   sourceValue: MalaysiaHomepageSource,
@@ -75,7 +75,7 @@ export function toMalaysiaHomepageDto(
     throw new HomepageContractError('malaysiaHomepageContractJson')
   }
   if (
-    JSON.stringify(contract) !== approvedSerializedContract ||
+    !matchesInstalledContent(contract, approvedContract) ||
     contract.globalChromeRef.contractId !== globalChrome.contractId ||
     contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId
   ) {

@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-about-page.json'
 import approvedEvidence from '@/wordpress/plugins/tio2-site-model/config/tio2-my-about-evidence.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
@@ -176,7 +177,6 @@ function publicStringArray(facts: ReadonlyMap<string, EvidenceFact>, key: string
     : Object.freeze([])
 }
 
-const approvedSerializedContract = JSON.stringify(approvedContract)
 
 export function toMalaysiaAboutPageDto(sourceValue: MalaysiaAboutPageSource): MalaysiaAboutPageDto {
   const source = record(sourceValue, 'aboutPage')
@@ -193,7 +193,7 @@ export function toMalaysiaAboutPageDto(sourceValue: MalaysiaAboutPageSource): Ma
 
   const contract = parseJson(source.malaysiaAboutPageContractJson, 'malaysiaAboutPageContractJson') as typeof approvedContract
   if (
-    JSON.stringify(contract) !== approvedSerializedContract ||
+    !matchesInstalledContent(contract, approvedContract) ||
     contract.globalChromeRef.contractId !== globalChrome.contractId ||
     contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId
   ) throw new AboutPageContractError('malaysiaAboutPageContractJson')

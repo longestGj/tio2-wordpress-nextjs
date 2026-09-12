@@ -31,10 +31,10 @@ describe('Malaysia Product Hub DTO', () => {
     expect(() => toMalaysiaProductHubDto(source as never)).toThrow(CrossSiteContentError)
   })
 
-  it('rejects changed contract bytes or incomplete readiness', () => {
+  it('rejects unsafe content or incomplete readiness', () => {
     const changed = malaysiaProductHubSource() as unknown as Record<string, unknown>
     const payload = JSON.parse(String(changed.malaysiaProductHubContractJson))
-    payload.seo.title = 'Changed'
+    payload.seo.title = '<script>Changed</script>'
     changed.malaysiaProductHubContractJson = JSON.stringify(payload)
     expect(() => toMalaysiaProductHubDto(changed as never)).toThrow(ProductHubContractError)
 

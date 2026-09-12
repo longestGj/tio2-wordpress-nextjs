@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-document-reach.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
@@ -35,7 +36,6 @@ function exactText(value: unknown, field: string): string {
   return value
 }
 
-const approvedSerializedContract = JSON.stringify(approvedContract)
 const readinessKeys = ['CONV-DOC', 'DOC-000', 'MARKET-EU-001'] as const
 const approvedSourceUrls = (approvedContract.modules[6] as unknown as {
   readonly items: readonly {readonly url: string}[]
@@ -53,7 +53,9 @@ export function toMalaysiaDocumentReachDto(sourceValue: MalaysiaDocumentReachSou
   if (source.status !== 'publish') throw new DocumentReachContractError('status')
   const modified = normalizeWordPressGmt(typeof source.modifiedGmt === 'string' ? source.modifiedGmt : null)
   if (!modified) throw new DocumentReachContractError('modifiedGmt')
-  if (typeof source.malaysiaDocumentReachContractJson !== 'string' || source.malaysiaDocumentReachContractJson !== approvedSerializedContract) {
+  let delivered: unknown
+  try { delivered = JSON.parse(String(source.malaysiaDocumentReachContractJson)) } catch { throw new DocumentReachContractError('malaysiaDocumentReachContractJson') }
+  if (!matchesInstalledContent(delivered, approvedContract)) {
     throw new DocumentReachContractError('malaysiaDocumentReachContractJson')
   }
   const readinessRecord = record(source.routeReadiness, 'routeReadiness')
@@ -75,7 +77,7 @@ export function toMalaysiaDocumentReachDto(sourceValue: MalaysiaDocumentReachSou
     return [url, sourceReadinessRecord[url]]
   }))
   return {
-    ...approvedContract,
+    ...(delivered as typeof approvedContract),
     cms: {id: exactText(source.id, 'id'), modified, status: 'publish'},
     globalChrome,
     routeReadiness: Object.freeze(routeReadiness),

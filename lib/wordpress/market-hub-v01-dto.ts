@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-market-hub.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
@@ -37,7 +38,6 @@ function exactText(value: unknown, field: string): string {
   return value
 }
 
-const approvedSerializedContract = JSON.stringify(approvedContract)
 
 export function toMalaysiaMarketHubDto(
   sourceValue: MalaysiaMarketHubSource,
@@ -75,7 +75,7 @@ export function toMalaysiaMarketHubDto(
     throw new MarketHubContractError('malaysiaMarketHubContractJson')
   }
   if (
-    JSON.stringify(contract) !== approvedSerializedContract ||
+    !matchesInstalledContent(contract, approvedContract) ||
     contract.globalChromeRef.contractId !== globalChrome.contractId ||
     contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId
   ) {

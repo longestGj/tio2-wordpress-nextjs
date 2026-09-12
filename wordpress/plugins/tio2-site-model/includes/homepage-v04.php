@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__.'/content-release-validation.php';
 
 if (! defined('ABSPATH')) {
     exit;
@@ -42,7 +43,7 @@ function tio2_validate_homepage_v04_contract(int $post_id)
         return $approved;
     }
     $stored = get_post_meta($post_id, '_tio2_my_homepage_contract_json', true);
-    if (! is_string($stored) || ! hash_equals($approved, $stored)) {
+    if (! is_string($stored) || ! tio2_my_content_json_matches($stored, $approved)) {
         return new WP_Error(
             'tio2_my_homepage_contract_mismatch',
             'The stored Malaysia Homepage payload does not match the approved contract.'

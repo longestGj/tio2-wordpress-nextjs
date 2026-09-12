@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import sanitizeHtml from 'sanitize-html'
 import type {EditorialContract, EditorialDto} from '@/lib/editorial/editorial-types'
 import {normalizeWordPressGmt} from './time'
@@ -50,7 +51,7 @@ export function toMalaysiaEditorialDto(approved:EditorialContract,value:unknown)
   if(!modified) throw new EditorialContractError('modified')
   let payload:unknown
   try { payload=JSON.parse(String(source.editorialContractJson)) } catch { throw new EditorialContractError('payload') }
-  if(JSON.stringify(payload)!==JSON.stringify(approved)) throw new EditorialContractError('approved revision')
+  if(!matchesInstalledContent(payload,approved)) throw new EditorialContractError('approved revision')
   const delivered=payload as EditorialContract
   const paths=source.availableGradePaths
   if(!Array.isArray(paths) || paths.some(path=>typeof path!=='string' || !/^\/products\/m-[0-9]+\/$/u.test(path) || !delivered.bodyHtml.includes(`href="${path}"`)) || new Set(paths).size!==paths.length) throw new EditorialContractError('Grade readiness')

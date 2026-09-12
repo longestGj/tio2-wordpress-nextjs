@@ -1,3 +1,4 @@
+import {installedContentWithDeliveredText} from './content-release-validation'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
 import type {
@@ -258,7 +259,12 @@ export function toMalaysiaProductDetailDto(sourceValue: MalaysiaProductDetailSou
   const projectedIdentity = record(projection.identity, 'identity')
   const slug = exactText(projectedIdentity.slug, 'identity.slug')
   if (!isApprovedMalaysiaProductDetailSlug(slug) || (requestedSlug && requestedSlug !== slug)) throw new ProductDetailContractError('identity.slug')
-  const approvedContract = getApprovedMalaysiaProductDetail(slug).contract as UnknownRecord
+  let approvedContract: UnknownRecord
+  try {
+    approvedContract = installedContentWithDeliveredText({...projection, ...record(projection.modules, 'modules')}, getApprovedMalaysiaProductDetail(slug).contract as UnknownRecord)
+  } catch {
+    throw new ProductDetailContractError('publicProjection.text')
+  }
   const approvedIdentity = record(approvedContract.identity, 'approved.identity')
   const runtimePath = `/products/${slug}` as `/products/${MalaysiaProductDetailSlug}`
   const fields = record(source.publishingFields, 'publishingFields')

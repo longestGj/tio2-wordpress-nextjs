@@ -50,10 +50,10 @@ describe('Malaysia Homepage DTO', () => {
     expect(() => toMalaysiaHomepageDto(value)).toThrow(CrossSiteContentError)
   })
 
-  it('rejects any payload mutation, malformed JSON, and draft publication', () => {
+  it('rejects unsafe payload mutation, malformed JSON, and draft publication', () => {
     const mutated = source()
     const payload = JSON.parse(mutated.malaysiaHomepageContractJson)
-    payload.hero.heading = 'Unapproved replacement'
+    payload.hero.heading = '<script>Unsafe replacement</script>'
     mutated.malaysiaHomepageContractJson = JSON.stringify(payload)
     expect(() => toMalaysiaHomepageDto(mutated)).toThrow(HomepageContractError)
 

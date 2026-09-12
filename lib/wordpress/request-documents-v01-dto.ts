@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import {CrossSiteContentError} from './types'
 import {normalizeWordPressGmt} from './time'
 import type {MalaysiaRequestDocumentsPageDto} from './request-documents-v01-types'
@@ -22,7 +23,6 @@ export interface MalaysiaRequestDocumentsPageSource {
   readonly malaysiaRequestDocumentsContractJson: unknown
 }
 
-const approvedSerializedContract = JSON.stringify(contract)
 const record = (value: unknown, field: string): UnknownRecord => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new RequestDocumentsContractError(field)
   return value as UnknownRecord
@@ -46,12 +46,12 @@ export function toMalaysiaRequestDocumentsPageDto(sourceValue: MalaysiaRequestDo
   let parsed: unknown
   try { parsed = JSON.parse(source.malaysiaRequestDocumentsContractJson) } catch { throw new RequestDocumentsContractError('malaysiaRequestDocumentsContractJson') }
   if (
-    JSON.stringify(parsed) !== approvedSerializedContract ||
+    !matchesInstalledContent(parsed, contract) ||
     contract.globalChromeRef.contractId !== globalChrome.contractId ||
     contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId
   ) throw new RequestDocumentsContractError('malaysiaRequestDocumentsContractJson')
   return {
-    ...contract,
+    ...(parsed as typeof contract),
     identity: {
       id: text(source.id, 'identity.id'), pageId: 'CONV-DOC', siteScope: 'tio2-my', locale: 'en',
       path: '/request-documents/', schemaVersion: 'request-documents-v0.1-malaysia', status: 'publish', modified,

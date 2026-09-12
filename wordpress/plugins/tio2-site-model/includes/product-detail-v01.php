@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__.'/content-release-validation.php';
 
 if (! defined('ABSPATH')) {
     exit;
@@ -207,7 +208,7 @@ function tio2_validate_product_detail_v01_contract(int $post_id)
     $stored_hash = is_string($stored)
         ? tio2_my_product_detail_canonical_sha256($stored)
         : new WP_Error('tio2_my_product_detail_contract_missing', 'The stored Product Detail contract is unavailable.');
-    if (is_wp_error($stored_hash) || ! hash_equals($identity['approved_canonical_sha256'], $stored_hash)) {
+    if (is_wp_error($stored_hash) || ! tio2_my_content_json_matches($stored, $identity['contract_json'])) {
         return new WP_Error(
             'tio2_my_product_detail_contract_mismatch',
             'The stored Malaysia Product Detail payload does not match the approved canonical hash.'

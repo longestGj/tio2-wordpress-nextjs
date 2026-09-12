@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-product-hub.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
@@ -58,7 +59,6 @@ function validatedReadiness(value: unknown): Readonly<Record<string, boolean>> {
   return Object.freeze(result)
 }
 
-const approvedSerializedContract = JSON.stringify(approvedContract)
 
 export function toMalaysiaProductHubDto(
   sourceValue: MalaysiaProductHubSource,
@@ -96,7 +96,7 @@ export function toMalaysiaProductHubDto(
     throw new ProductHubContractError('malaysiaProductHubContractJson')
   }
   if (
-    JSON.stringify(contract) !== approvedSerializedContract ||
+    !matchesInstalledContent(contract, approvedContract) ||
     contract.globalChromeRef.contractId !== globalChrome.contractId ||
     contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId
   ) {

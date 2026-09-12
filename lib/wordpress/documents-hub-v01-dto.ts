@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-documents-hub.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
@@ -33,7 +34,6 @@ function text(value: unknown, field: string): string {
   return value
 }
 
-const approvedSerializedContract = JSON.stringify(approvedContract)
 const documentGuideItems = [
   {targetPageId: 'DOC-TDS', label: 'TDS, SDS and COA Guide', href: '/documents/tds-sds-coa/'},
   {targetPageId: 'DOC-REACH', label: 'REACH Documentation Guide', href: '/documents/reach/'},
@@ -56,7 +56,7 @@ export function toMalaysiaDocumentsHubDto(sourceValue: MalaysiaDocumentsHubSourc
     throw new DocumentsHubContractError('malaysiaDocumentsHubContractJson')
   }
   if (
-    JSON.stringify(contract) !== approvedSerializedContract ||
+    !matchesInstalledContent(contract, approvedContract) ||
     contract.identity.siteScope !== 'tio2-my' || contract.identity.path !== '/documents/' ||
     contract.identity.locale !== 'en' || contract.identity.pageType !== 'navigation_hub' ||
     contract.identity.primaryKeyword !== 'NO_PRIMARY_KEYWORD' || contract.identity.currentNavigationKey !== 'Documents' ||

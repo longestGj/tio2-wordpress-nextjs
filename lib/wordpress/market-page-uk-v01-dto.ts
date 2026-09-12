@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-market-uk-001.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 import {normalizeWordPressGmt} from './time'
@@ -23,10 +24,10 @@ export function toMalaysiaUkMarketPageDto(value: unknown): MalaysiaUkMarketPageD
   if (!modified) throw new UkMarketContractError('modifiedGmt')
   let payload: unknown
   try { payload = JSON.parse(String(source.malaysiaUkMarketContractJson)) } catch { throw new UkMarketContractError('payload') }
-  // Reject any changed copy, route, relationship, release flag or extra hidden field.
-  if (JSON.stringify(payload) !== JSON.stringify(contract)) throw new UkMarketContractError('payload')
+  // Text edits retain fixed routes, relationships, release flags and field inventory.
+  if (!matchesInstalledContent(payload,contract)) throw new UkMarketContractError('payload')
   const flags = record(source.routeReadiness, 'routeReadiness')
   const ids = contract.routeRegistry.map(r => r.targetPageId)
   if (Object.keys(flags).sort().join('|') !== [...ids].sort().join('|') || ids.some(id => typeof flags[id] !== 'boolean')) throw new UkMarketContractError('routeReadiness')
-  return {...structuredClone(contract), cms:{id:source.id, modified, status:'publish'}, globalChrome, routeReadiness:Object.freeze({...flags}) as Record<string,boolean>}
+  return {...(payload as typeof contract), cms:{id:source.id, modified, status:'publish'}, globalChrome, routeReadiness:Object.freeze({...flags}) as Record<string,boolean>}
 }

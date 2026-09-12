@@ -3,7 +3,7 @@ import contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-request
 import type {JsonLdObject} from './jsonld'
 import {serializeJsonLd} from './jsonld'
 
-export function buildMalaysiaRequestDocumentsJsonLd(site: SiteConfig): JsonLdObject {
+export function buildMalaysiaRequestDocumentsJsonLd(site: SiteConfig, seo: Pick<typeof contract.seo, 'title' | 'description'> = contract.seo): JsonLdObject {
   if (site.id !== 'tio2-my' || site.wordpressScope !== 'tio2-my' || site.url !== 'https://tio2malaysia.com') {
     throw new Error('CONV-DOC Schema is available only for tio2-my')
   }
@@ -13,7 +13,7 @@ export function buildMalaysiaRequestDocumentsJsonLd(site: SiteConfig): JsonLdObj
     '@graph': [
       {
         '@type': 'WebPage', '@id': `${canonical}#webpage`, url: canonical,
-        name: contract.seo.title, description: contract.seo.description,
+        name: seo.title, description: seo.description,
         inLanguage: contract.seo.language,
         isPartOf: {'@id': new URL('/#website', site.url).href},
         about: {'@id': new URL('/#organization', site.url).href},

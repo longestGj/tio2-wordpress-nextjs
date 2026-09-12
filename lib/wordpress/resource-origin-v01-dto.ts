@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-resource-origin.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
@@ -109,7 +110,7 @@ function eligibleRelation(value: unknown, index: number): MalaysiaResourceOrigin
 export function projectMalaysiaResourceOriginPayload(value: unknown): MalaysiaResourceOriginPayload {
   const source = record(value, 'contract')
   const candidateContent = publicContentFromContract(source)
-  if (canonicalJson(candidateContent) !== canonicalJson(approvedPublicContent)) {
+  if (!matchesInstalledContent(candidateContent, approvedPublicContent)) {
     throw new ResourceOriginContractError('approvedContent')
   }
   if (!Array.isArray(source.relations)) throw new ResourceOriginContractError('relations')
@@ -155,7 +156,7 @@ function validatedPublicRelation(value: unknown, index: number): MalaysiaResourc
 function validatedPayload(value: unknown): MalaysiaResourceOriginPayload {
   const payload = record(value, 'resourceOriginPayload')
   const {articleMetadata: rawArticleMetadata, eligibleRelations: rawRelations, schemaMode, ...content} = payload
-  if (canonicalJson(content) !== canonicalJson(approvedPublicContent)) {
+  if (!matchesInstalledContent(content, approvedPublicContent)) {
     throw new ResourceOriginContractError('resourceOriginPayload.approvedContent')
   }
   if (!Array.isArray(rawRelations)) throw new ResourceOriginContractError('eligibleRelations')

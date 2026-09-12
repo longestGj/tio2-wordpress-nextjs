@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/content-release-validation.php';
 if (! defined('ABSPATH')) exit;
 
 const TIO2_MY_UK_MARKET_CONTRACT_META = '_tio2_my_uk_market_contract_json';
@@ -18,7 +19,7 @@ function tio2_validate_market_page_uk_v01_contract(int $post_id)
     if (!is_string($approved) || !is_string($stored)) return new WP_Error('uk_payload', 'Missing UK payload.');
     $baseline = json_decode($approved, true);
     $payload = json_decode($stored, true);
-    if (!is_array($baseline) || !is_array($payload) || wp_json_encode($baseline) !== wp_json_encode($payload) ||
+    if (!is_array($baseline) || !is_array($payload) || !tio2_my_content_matches($payload, $baseline) ||
         'MARKET-UK-001' !== ($payload['identity']['pageId'] ?? null) ||
         'tio2-my' !== ($payload['identity']['siteScope'] ?? null)) return new WP_Error('uk_payload', 'Changed or invalid approved UK payload.');
     return true;

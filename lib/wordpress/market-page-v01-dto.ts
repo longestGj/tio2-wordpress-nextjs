@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-market-eu-001.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
@@ -51,9 +52,6 @@ function immutableContract(value: UnknownRecord): UnknownRecord {
   return clone
 }
 
-const approvedSerializedContract = JSON.stringify(
-  immutableContract(approvedContract as unknown as UnknownRecord),
-)
 
 function hasExactKeys(value: UnknownRecord, keys: readonly string[]): boolean {
   return JSON.stringify(Object.keys(value).sort()) === JSON.stringify(keys)
@@ -151,7 +149,7 @@ export function toMalaysiaEuMarketPageDto(
     throw new EuMarketPageContractError('malaysiaEuMarketContractJson')
   }
   if (
-    JSON.stringify(immutableContract(contract)) !== approvedSerializedContract ||
+    !matchesInstalledContent(immutableContract(contract), immutableContract(approvedContract as unknown as UnknownRecord)) ||
     record(contract.globalChromeRef, 'globalChromeRef').contractId !== globalChrome.contractId ||
     record(contract.globalChromeRef, 'globalChromeRef').logoManifestId !== globalChrome.logoManifestId
   ) {

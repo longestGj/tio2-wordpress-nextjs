@@ -21,7 +21,7 @@ describe('DOC-COO public contract', () => {
       {...source, status: 'draft'},
       {...source, siteScopes: {nodes: [{slug: 'tio2-a'}]}},
       {...source, publishingFields: {publicPath: '/documents/reach'}},
-      {...source, malaysiaDocumentCooContractJson: `${JSON.stringify(approvedContract)} `},
+      {...source, malaysiaDocumentCooContractJson: JSON.stringify({...approvedContract, privateEvidence: 'not-public'})},
     ]) expect(() => toMalaysiaDocumentCooDto(invalid)).toThrow()
   })
 

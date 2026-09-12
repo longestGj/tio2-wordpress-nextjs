@@ -7,6 +7,7 @@ export function buildMalaysiaRfqMetadata(
   site: SiteConfig,
   options: {
     readonly indexingAuthorized: boolean
+    readonly seo?: Pick<typeof contract.seo, 'title' | 'description'>
     readonly env?: Readonly<Record<string, string | undefined>>
   },
 ): Metadata {
@@ -23,16 +24,16 @@ export function buildMalaysiaRfqMetadata(
     env.TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED === 'true'
   )
   return {
-    title: contract.seo.title,
-    description: contract.seo.description,
+    title: (options.seo ?? contract.seo).title,
+    description: (options.seo ?? contract.seo).description,
     alternates: {canonical: contract.seo.canonical},
     robots: {index: indexable, follow: indexable},
     openGraph: {
       type: 'website',
       url: contract.seo.canonical,
       siteName: site.name,
-      title: contract.seo.title,
-      description: contract.seo.description,
+      title: (options.seo ?? contract.seo).title,
+      description: (options.seo ?? contract.seo).description,
       images: [],
     },
   }

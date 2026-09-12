@@ -21,7 +21,7 @@ describe('TiO2 Malaysia Sample Request WordPress model',()=>{
     expect(php).toContain('if (1 !== count($ids)) throw new \\GraphQL\\Error\\UserError')
     expect(php).toContain("['tio2-my'] !== array_values")
     expect(php).toContain("'/request-sample' !== get_post_meta")
-    expect(php).toContain('hash_equals($approved, $stored)')
+    expect(php).toContain('tio2_my_content_json_matches($stored, $approved)')
   })
   it('uses a collision-safe scoped seed and invalidates only the Malaysia route',()=>{
     expect(seed).toContain('A same-slug Sample Request record exists outside site_scope=tio2-my.')

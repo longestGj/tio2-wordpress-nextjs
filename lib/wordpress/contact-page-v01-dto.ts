@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approved from '@/wordpress/plugins/tio2-site-model/config/tio2-my-contact-page.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 import {normalizeWordPressGmt} from './time'
@@ -55,7 +56,9 @@ export function toMalaysiaContactPageDto(source: MalaysiaContactPageSource): Mal
     identity.contractVersion !== approved.identity.contractVersion
   ) throw new ContactPageContractError('identity')
   const details = object(contract.contactDetails, 'contactDetails')
-  const copy = structuredClone(approved)
+  const comparable = {...contract, contactDetails: {...details, generalInquiries: approved.contactDetails.generalInquiries, operatingCompany: approved.contactDetails.operatingCompany, manufacturingSite: approved.contactDetails.manufacturingSite}}
+  if (!matchesInstalledContent(comparable, approved)) throw new ContactPageContractError('contractJson')
+  const copy = contract as typeof approved
   return {
     ...copy,
     identity: {
@@ -63,9 +66,9 @@ export function toMalaysiaContactPageDto(source: MalaysiaContactPageSource): Mal
       contractVersion: 'contact-page-v0.1-malaysia', status: 'publish', modified,
     },
     contactDetails: {
-      heading: approved.contactDetails.heading,
-      introBase: approved.contactDetails.introBase,
-      introDetails: approved.contactDetails.introDetails,
+      heading: copy.contactDetails.heading,
+      introBase: copy.contactDetails.introBase,
+      introDetails: copy.contactDetails.introDetails,
       generalInquiries: exactFact(details.generalInquiries, 'generalInquiries'),
       operatingCompany: exactFact(details.operatingCompany, 'operatingCompany'),
       manufacturingSite: exactFact(details.manufacturingSite, 'manufacturingSite'),
