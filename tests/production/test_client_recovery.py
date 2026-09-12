@@ -88,7 +88,7 @@ Import-Module 'MODULE' -Force
    result=self.powershell(script,root)
    self.assertEqual(result.returncode,0,result.stderr);self.assertIn('passed',result.stdout)
 
- def test_compatibility_client_orchestrates_prepare_backup_and_both_verify_boundaries(self):
+ def _run_compatibility_client(self,before_stage='',before_verify=''):
   # Only external ssh/scp/docker processes are substitutes. All client binding,
   # transfer ordering, restore receipt parsing and final-evidence checks run.
   module=Path(__file__).resolve().parents[2]/'scripts/production/Production.Core.psm1'
@@ -132,7 +132,9 @@ Import-Module 'MODULE' -Force
  $key=[Convert]::ToBase64String([byte[]]([byte[]](0,0,0,11)+[Text.Encoding]::ASCII.GetBytes('ssh-ed25519')+[byte[]](0,0,0,32)+[byte[]]::new(32)))
  $config=@{siteId='tio2-my';host='127.0.0.1';port=2222;username='deploy';hostKey="ssh-ed25519 $key";identityFile=(Join-Path $root 'key');baselineSha256=('a'*64);ageIdentityFile=(Join-Path $root 'key');recoveryImageId=('sha256:'+('a'*64));dockerContext='desktop-linux'}
  $configPath=Join-Path $root 'config.json';Save-ProductionJson $configPath $config
- foreach($operation in @('Prepare','Backup','Backup','Stage','Activate','Verify')){$result=Invoke-D16ProductionOperation $operation $configPath $root}
+ foreach($operation in @('Prepare','Backup','Backup')){$result=Invoke-D16ProductionOperation $operation $configPath $root}
+ BEFORE_STAGE
+ foreach($operation in @('Stage','Activate','Verify')){$result=Invoke-D16ProductionOperation $operation $configPath $root}
  if($result.state.state -cne 'PUBLIC_VERIFIED'){throw 'First Verify crossed the final acceptance boundary'}
  $binding=Read-ProductionJson (Join-Path $root 'frontend-binding.json');$fields=$binding.Clone();$fields.backupId=$global:fixtureBackup.backupId
  $e2e=$fields.Clone();$e2e.schemaVersion='d16-production-business-e2e-v1';$e2e.environment='production';$e2e.suite='business-e2e';$e2e.state='PASSED';$e2e.runId='fixture-e2e'
@@ -143,6 +145,7 @@ Import-Module 'MODULE' -Force
  $receipt=$fields.Clone();$receipt.schemaVersion='d16-release-completion-v1';$receipt.businessE2E='PASSED';$receipt.forms=@{rfq='RECEIVED';sample='RECEIVED';documents='RECEIVED'};$receipt.evidenceSha256=@{}
  foreach($name in @('business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml')){$receipt.evidenceSha256[$name]=Get-ProductionSha256 (Join-Path $root $name)}
  Save-ProductionJson (Join-Path $root 'completion-receipt.json') $receipt
+ BEFORE_VERIFY
  $mailPath=Join-Path $root 'rfq-received.eml';$bytes=[IO.File]::ReadAllBytes($mailPath);[IO.File]::AppendAllText($mailPath,'changed')
  $count=$global:fixtureEvents.Count;$rejected=$false;try{Invoke-D16ProductionOperation Verify $configPath $root|Out-Null}catch{$rejected=$true}
  if(-not $rejected -or ($global:fixtureEvents.GetRange($count,$global:fixtureEvents.Count-$count) -join ',') -cne 'action:status'){throw 'Invalid final evidence was uploaded'}
@@ -154,9 +157,46 @@ Import-Module 'MODULE' -Force
  if(($global:fixtureEvents|Where-Object {$_ -ceq 'docker-restore'}).Count -ne 2){throw 'Backup did not restore before proceeding'}
 } 'ROOT'
 'passed'
-""".replace('MODULE',str(module).replace("'","''")).replace('ROOT',root.as_posix())
+""".replace('BEFORE_STAGE',before_stage).replace('BEFORE_VERIFY',before_verify).replace('MODULE',str(module).replace("'","''")).replace('ROOT',root.as_posix())
    result=self.powershell(script,root)
    self.assertEqual(result.returncode,0,result.stderr);self.assertIn('passed',result.stdout)
+
+ def test_compatibility_client_orchestrates_prepare_backup_and_both_verify_boundaries(self):
+  self._run_compatibility_client()
+
+ def test_local_backup_drift_allows_only_status_and_cannot_change_remote_state(self):
+  self._run_compatibility_client(before_stage="""
+ $backupPath=Join-Path $root 'frontend-backup.json';$original=[IO.File]::ReadAllBytes($backupPath)
+ $remoteBefore=$global:fixtureStatus|ConvertTo-Json -Depth 50 -Compress
+ $local=Read-ProductionJson $backupPath
+ $checks=@('missing','backupId','ciphertextSha256','manifestSha256')+@($local.binding.Keys)
+ foreach($field in $checks){
+  foreach($operation in @('Prepare','Backup','Stage','Activate','Verify','Rollback')){
+   $changed=([Text.Encoding]::UTF8.GetString($original)|ConvertFrom-Json -AsHashtable)
+   if($field -ceq 'missing'){Remove-Item -LiteralPath $backupPath}else{if($field -cin @('backupId','ciphertextSha256','manifestSha256')){$changed[$field]='wrong'}else{$changed.binding[$field]='wrong'};Save-ProductionJson $backupPath $changed}
+   $count=$global:fixtureEvents.Count;$rejected=$false
+   try{Invoke-D16ProductionOperation $operation $configPath $root|Out-Null}catch{$rejected=$true}
+   if(-not $rejected -or ($global:fixtureEvents.GetRange($count,$global:fixtureEvents.Count-$count) -join ',') -cne 'action:status' -or ($global:fixtureStatus|ConvertTo-Json -Depth 50 -Compress) -cne $remoteBefore){throw "Local backup $field reached remote mutation during $operation"}
+   [IO.File]::WriteAllBytes($backupPath,$original)
+  }
+ }
+""")
+
+ def test_second_verify_rejects_invalid_mail_headers_even_when_hashes_match(self):
+  self._run_compatibility_client(before_verify="""
+ $mailPath=Join-Path $root 'rfq-received.eml';$mailOriginal=[IO.File]::ReadAllBytes($mailPath)
+ $inboxPath=Join-Path $root 'inbox-confirmation-receipt.json';$inboxOriginal=[IO.File]::ReadAllBytes($inboxPath)
+ $completionPath=Join-Path $root 'completion-receipt.json';$completionOriginal=[IO.File]::ReadAllBytes($completionPath)
+ foreach($headers in @('Subject: Missing headers',"Message-ID: <rfq@fixture>","Received: from local", "Message-ID: <rfq@fixture>`r`nMessage-ID: <rfq@fixture>`r`nReceived: from local", "Message-ID: <other@fixture>`r`nReceived: from local", "Message-ID: <sample@fixture>`r`nReceived: from local")){
+  [IO.File]::WriteAllText($mailPath,($headers+"`r`n`r`nfixture"))
+  $inbox.forms.rfq.emlSha256=Get-ProductionSha256 $mailPath;Save-ProductionJson $inboxPath $inbox
+  foreach($name in $receipt.evidenceSha256.Keys.Clone()){$receipt.evidenceSha256[$name]=Get-ProductionSha256 (Join-Path $root $name)}
+  Save-ProductionJson $completionPath $receipt
+  $count=$global:fixtureEvents.Count;$rejected=$false;try{Invoke-D16ProductionOperation Verify $configPath $root|Out-Null}catch{$rejected=$true}
+  if(-not $rejected -or ($global:fixtureEvents.GetRange($count,$global:fixtureEvents.Count-$count) -join ',') -cne 'action:status'){throw 'Invalid mail headers reached upload despite updated hashes'}
+ }
+ [IO.File]::WriteAllBytes($mailPath,$mailOriginal);[IO.File]::WriteAllBytes($inboxPath,$inboxOriginal);[IO.File]::WriteAllBytes($completionPath,$completionOriginal)
+""")
 
  def test_rejects_links_duplicates_and_escape_before_any_extraction(self):
   from client_recovery import safe_extract

@@ -52,7 +52,7 @@ def inside(root, run_id):
     from release_baseline import validate_baseline
     from release_state import atomic_write_json, read_state, IDENTITY_FIELDS
     from release_controller import ReleaseController
-    from site_frontend_adapter import SiteFrontendAdapter, load_live_baselines
+    from site_frontend_adapter import SiteFrontendAdapter, load_live_baselines, validate_frontend_baselines
     from frontend_backup import restore_frontend_backup, read_record
     from deployment_core import Deployment, DockerWebAdapter, _upstream
     from adoption_probe import read_cms_scope
@@ -100,9 +100,10 @@ def inside(root, run_id):
         for path in (incoming, outgoing):
             shutil.chown(path, user='deploy', group='deploy'); path.chmod(0o700)
         subject = ReleaseSubject('tio2-my', 'site', incoming, outgoing, prod, config, state_root,
-                                 'tio2-web-bluegreen-v1', ('tio2malaysia.com',), tuple(map(str, (port_a, port_b))),
-                                 (NginxPathPolicy(config/'web-upstream.conf', config/'web-upstream.conf'),))
-        host = ReleaseSubject('host', 'host', root/'host/in', root/'host/out', root/'host/prod', root/'host/etc', root/'state/host', 'none')
+                                 'tio2-web-bluegreen-v1', ('tio2malaysia.com',), tuple(f'127.0.0.1:{port}' for port in (port_a,port_b,proxy_port)),
+                                 tuple(NginxPathPolicy(config/name,config/name) for name in ('web-upstream.conf','frontend.conf')))
+        host = ReleaseSubject('host', 'host', root/'host/in', root/'host/out', root/'host/prod', root/'host/etc', root/'state/host', 'none',
+                              nginx_files=(NginxPathPolicy(Path('/etc/nginx/nginx.conf'),Path('/etc/nginx/nginx.conf')),))
         registry = SubjectRegistry({'host': host, 'tio2-my': subject})
         db_network = resource('networks', 'db', '--internal')
         front_network = resource('networks', 'front')
@@ -167,9 +168,10 @@ def inside(root, run_id):
                'deployment':{'adapter':'tio2-web-bluegreen-v1','networkId':front_network,'ports':[port_a,port_b],'activePort':port_a,'cmsPort':cms_port,'proxyPort':proxy_port,'pluginSourceRoot':str(plugin),'buildId':'build-A'}},
                'writes':{'public':True,'editor':True,'observedAt':now},'handoff':{'backupId':None,'restoreVerified':False}}
         write(config/'web-upstream.conf',_upstream(old))
-        nginx = f'events {{}}\nhttp {{ access_log off; server {{ listen 127.0.0.1:{proxy_port}; server_name tio2malaysia.com; location / {{ include {config}/web-upstream.conf; }} }} }}\n'
+        write(config/'frontend.conf',f'server {{ listen 127.0.0.1:{proxy_port}; server_name tio2malaysia.com; location / {{ include {config}/web-upstream.conf; }} }}\n')
+        nginx = f'events {{}}\nhttp {{ access_log off; include {config}/frontend.conf; }}\n'
         write('/etc/nginx/nginx.conf',nginx)
-        old['configuration']={role:{'path':str(path),'sha256':digest(path.read_bytes())} for role,path in [('environment',config/'environment'),('compose',config/'compose'),('nginx',Path('/etc/nginx/nginx.conf'))]}
+        old['configuration']={role:{'path':str(path),'sha256':digest(path.read_bytes())} for role,path in [('environment',config/'environment'),('compose',config/'compose'),('nginx',config/'frontend.conf')]}
         old['configuration'].update(nginxIncludes=[{'path':str(config/'web-upstream.conf'),'sha256':digest(_upstream(old))}],tlsFiles=[])
         os.symlink(source,prod/'current'); atomic_write_json(config/'baseline.json',old)
         command('/usr/sbin/nginx','-t')
@@ -195,11 +197,24 @@ def inside(root, run_id):
         atomic_write_json(incoming/'release-proof.json',proof)
         candidate={key:proof[key] for key in ('commit','archiveSha256','manifestSha256')};candidate.update(proofSha256=digest((incoming/'release-proof.json').read_bytes()),contractVersion=proof['contractVersion'])
         cms=CmsEvidence(digest(identity_bytes),digest(canonical(proof)),digest(canonical({key:candidate[key] for key in ('commit','archiveSha256','manifestSha256')})),*['1'*64]*5,'tio2-my',scope['publishedRecords'],scope['contentSha256'],scope['contentSha256']).as_dict()
+        cms['live_scope_sha256']=digest(canonical(scope))
         transaction={'schemaVersion':'d16-production-transaction-v1','subject':'tio2-my','releaseType':'frontend-only','releaseId':COMPATIBILITY_RELEASE_ID,'sourceCommit':B,
                      'runRoot':COMPATIBILITY_RUN_ROOT,'candidate':candidate,'artifacts':{name:digest((incoming/name).read_bytes()) for name in ('release.tar.gz','release-manifest.json','release-proof.json','cms-identity.json')},'proofObjectSha256':cms['proof_sha256']}
+        # A generated adoption plan supplies a real validated contract/hash;
+        # this local fixture is never represented as production adoption.
+        sys.path.append(str(ROOT))
+        from tests.production.test_adoption_contract import fixture as adoption_fixture
+        adoption_plan=adoption_fixture()
+        atomic_write_json(config/'adoption-plan.json',adoption_plan)
+        atomic_write_json(prod/'state/adoption.json',{'schemaVersion':'tio2-production-adoption-journal-v1','state':'PUBLIC_READY','planHash':adoption_plan['planHash']})
+        from adoption_probe import LocalSnapshotSource
+        from release_baseline import validate_registered_ingress
+        reader=LocalSnapshotSource();reader._configure_tls_allowlist(registry)
+        ingress=validate_registered_ingress(registry,reader._run(['/usr/sbin/nginx','-T']),reader)
+        atomic_write_json(root/'migration/phase1/receipt.json',{'schemaVersion':'d16-phase1-migration-receipt-v1','subject':'tio2-my','state':'PREPARED','runtimeAfter':{'ingress':ingress}})
         details={'releaseId':COMPATIBILITY_RELEASE_ID,'subject':'tio2-my','releaseType':'frontend-only','sourceCommit':B,'candidateManifestSha256':candidate['manifestSha256'],
-                 'previousProductionReceipt':'local-fixture-adoption','adapterVersion':subject.adapter,'runRoot':COMPATIBILITY_RUN_ROOT,'transactionSha256':digest(canonical(transaction)),
-                 'cmsEvidence':cms,'hostBaselineSha256':'2'*64,'active':live['active'],'runtime':live['runtime'],'configurationFingerprint':live['configurationFingerprint'],
+                 'previousProductionReceipt':adoption_plan['planHash'],'adapterVersion':subject.adapter,'runRoot':COMPATIBILITY_RUN_ROOT,'transactionSha256':digest(canonical(transaction)),
+                 'cmsEvidence':cms,'hostBaselineSha256':digest(canonical({'subject':'host','ingress':ingress})),'active':live['active'],'runtime':live['runtime'],'configurationFingerprint':live['configurationFingerprint'],
                  'commit':B,'archiveSha256':candidate['archiveSha256'],'candidate':candidate,'preparedManifest':manifest,'prereleaseProof':proof}
         initial={'schemaVersion':'d16-release-state-v1','state':'PREPARED','details':details}
         atomic_write_json(state_root/'state.json',initial);atomic_write_json(state_root/'compatibility-transaction.json',transaction)
@@ -207,7 +222,12 @@ def inside(root, run_id):
         write(config/'backup.age.pub',command('/usr/bin/age-keygen','-y',str(root/'identity.age')).stdout)
         request_id=str(uuid.uuid4())
         atomic_write_json(incoming/'backup-request.json',{'schemaVersion':'tio2-backup-request-v1','requestId':request_id,'preparedProofSha256':candidate['proofSha256'],'baselineSha256':live['active']['enrollmentSha256']})
-        adapter=SiteFrontendAdapter();controller=ReleaseController(registry,adapters={(subject.adapter,'frontend-only'):adapter},baseline_loader=load_live_baselines)
+        loader=lambda subject:load_live_baselines(subject,registry=registry)
+        def validate(context):
+            baseline,global_baseline=loader(context.subject)
+            validate_frontend_baselines(context,baseline,global_baseline)
+            return baseline['cmsRuntime']
+        adapter=SiteFrontendAdapter(validator=validate);controller=ReleaseController(registry,adapters={(subject.adapter,'frontend-only'):adapter},baseline_loader=loader)
         def action(name):
             current=read_state(state_root);d=current['details']
             bound={key:d[key] for key in IDENTITY_FIELDS};bound.update(runRoot=d['runRoot'],transactionSha256=d['transactionSha256'],cmsEvidenceSha256=digest(canonical(d['cmsEvidence'])),requestId=request_id)
@@ -226,12 +246,43 @@ def inside(root, run_id):
                     'configurationSha256':digest(canonical([item['Config'] for item in observed])),
                     'contentSha256':read_cms_scope(SubprocessCommandRunner(),wordpress)['contentSha256']}
         before=cms_identity();result['cmsBefore']=before
-        action('prepare');backed=action('backup');backup=backed['state']['details']['frontendBackup']
+        action('prepare')
+        from unittest.mock import patch
+        from types import SimpleNamespace
+        with patch('frontend_backup.shutil.disk_usage',return_value=SimpleNamespace(free=1024)),patch('frontend_backup._capture') as capture:
+            try:action('backup')
+            except ReleaseError:pass
+            else:raise AssertionError('low-space backup was accepted')
+            assert capture.call_count==0 and not list((prod/'backups/frontend').iterdir())
+        result['cases'].append({'case':'backup-low-space-before-capture','state':read_state(state_root)['state'],'passed':True,'cms':cms_identity()})
+        backed=action('backup');backup=backed['state']['details']['frontendBackup']
         assert action('backup')['state']['details']['frontendBackup']==backup
         evidence=restore_frontend_backup(outgoing/(backup['backupId']+'.tar.age'),root/'identity.age')
         assert evidence['backupId']==backup['backupId'] and evidence['manifestSha256']==backup['manifestSha256']
         atomic_write_json(incoming/'frontend-restore.json',evidence);result['restore']=evidence
         backed_state=read_state(state_root)
+        # Read the actual Docker/configuration/Nginx state under drift. These
+        # cases must fail before either frontend build or switch is invoked.
+        for drift in ('active','build','configuration','host'):
+            changed=deepcopy(old);changed_path=None;original_bytes=None
+            if drift=='active':changed['active']['commit']='c'*40;atomic_write_json(config/'baseline.json',changed)
+            elif drift=='build':docker('exec',web,'node','-e',"require('fs').writeFileSync('/app/.next/BUILD_ID','build-C')")
+            else:
+                changed_path=(config/'compose') if drift=='configuration' else Path('/etc/nginx/nginx.conf')
+                original_bytes=changed_path.read_bytes();changed_path.write_bytes(original_bytes+b'# drift fixture\n')
+                if drift=='configuration':changed['configuration']['compose']['sha256']=digest(changed_path.read_bytes());atomic_write_json(config/'baseline.json',changed)
+            try:
+                with patch.object(DockerWebAdapter,'build') as build_call,patch.object(DockerWebAdapter,'activate') as activate_call:
+                    try:action('stage')
+                    except ReleaseError:pass
+                    else:raise AssertionError('fresh '+drift+' drift accepted')
+                    assert build_call.call_count==activate_call.call_count==0
+                assert read_state(state_root)==backed_state
+            finally:
+                atomic_write_json(config/'baseline.json',old)
+                if changed_path:changed_path.write_bytes(original_bytes)
+                if drift=='build':docker('exec',web,'node','-e',"require('fs').writeFileSync('/app/.next/BUILD_ID','build-A')")
+            result['cases'].append({'case':'fresh-'+drift+'-drift','state':'BACKED_UP','buildCalls':0,'activateCalls':0,'passed':True,'cms':cms_identity()})
         before_upstream=(config/'web-upstream.conf').read_bytes()
         action('stage');assert (config/'web-upstream.conf').read_bytes()==before_upstream
         action('stage');action('activate');action('activate');action('verify')

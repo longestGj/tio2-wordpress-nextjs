@@ -1010,9 +1010,42 @@ function Assert-D16CompletionEvidence($RunRoot,$Binding,$Backup) {
     $ids=[Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     foreach($form in @('rfq','sample','documents')){
         $mail=$inbox.forms[$form]
+        $emlPath=Join-Path $RunRoot ($form+'-received.eml')
+        if((Get-Item -LiteralPath $emlPath).Length -gt 8MB){throw 'Received message exceeds limit.'}
+        $eml=[IO.File]::ReadAllText($emlPath)
+        $parts=[regex]::Split($eml,"\r?\n\r?\n",2)
+        if($parts.Count -ne 2){throw 'Received message headers are required.'}
+        $headers=[Collections.Generic.List[object]]::new()
+        foreach($line in [regex]::Split($parts[0],"\r?\n")){
+            if($line -match '^[ \t]'){
+                if($headers.Count -eq 0){throw 'Invalid received message header continuation.'}
+                $headers[-1].value+=' '+$line.Trim()
+            }elseif($line -match '^([!-9;-~]+):[ \t]*(.*)$'){
+                $headers.Add(@{name=$Matches[1];value=$Matches[2].Trim()})
+            }else{throw 'Invalid received message header.'}
+        }
+        $messageIds=@($headers|Where-Object {$_.name -ieq 'Message-ID'})
+        $received=@($headers|Where-Object {$_.name -ieq 'Received' -and $_.value})
+        if($messageIds.Count -ne 1 -or $received.Count -lt 1 -or $messageIds[0].value.Trim() -cnotmatch '^<[^<>\s@]+@[^<>\s@]+>$' -or $messageIds[0].value.Trim() -cne $mail.messageId){throw 'Received message headers do not match inbox receipt.'}
         if($receipt.forms[$form] -cne 'RECEIVED' -or $mail.state -cne 'RECEIVED' -or -not $mail.messageId -or -not $ids.Add($mail.messageId) -or
            $mail.emlSha256 -cne $receipt.evidenceSha256[($form+'-received.eml')]){throw 'Three distinct received messages are required.'}
     }
+}
+
+function Assert-D16LocalBackup($RunRoot,$Binding,$RemoteBackup) {
+    $local=Read-ProductionJson (Join-Path $RunRoot 'frontend-backup.json')
+    if($local.schemaVersion -cne 'd16-frontend-backup-receipt-v1' -or -not $RemoteBackup){throw 'Persisted frontend backup is required.'}
+    foreach($name in $Binding.Keys){
+        if($local.binding[$name] -cne $Binding[$name] -or $RemoteBackup.binding[$name] -cne $Binding[$name]){throw "Local backup binding mismatch: $name"}
+    }
+    foreach($name in @('backupId','ciphertextSha256','manifestSha256')){
+        if(-not $local[$name] -or $local[$name] -cne $RemoteBackup[$name]){throw "Local backup identity mismatch: $name"}
+    }
+    $localJson=(ConvertTo-D16CanonicalObject $local)|ConvertTo-Json -Depth 50 -Compress
+    $remoteJson=(ConvertTo-D16CanonicalObject $RemoteBackup)|ConvertTo-Json -Depth 50 -Compress
+    if($localJson -cne $remoteJson){throw 'Local backup receipt differs from server status.'}
+    if((Get-ProductionSha256 (Join-Path $RunRoot 'ciphertext.age')) -cne $local.ciphertextSha256){throw 'Local backup ciphertext changed.'}
+    return $local
 }
 
 function Invoke-D16ProductionOperation {
@@ -1033,10 +1066,14 @@ function Invoke-D16ProductionOperation {
         $binding=Get-D16CompatibilityBinding $RunRoot $status
         if($status.state.details['requestId']){Assert-D16ActionReceipt status $status $binding}
         $action=$Operation.ToLowerInvariant()
-        if($action -ceq 'verify' -and $status.state.state -ceq 'PUBLIC_VERIFIED'){
-            Assert-D16CompletionEvidence $RunRoot $binding (Read-ProductionJson (Join-Path $RunRoot 'frontend-backup.json'))
-        }
         $savedBackup=$status.state.details['frontendBackup']
+        $localBackup=$null
+        if($savedBackup -or (Test-Path -LiteralPath (Join-Path $RunRoot 'frontend-backup.json')) -or $action -cin @('stage','activate','verify','rollback')){
+            $localBackup=Assert-D16LocalBackup $RunRoot $binding $savedBackup
+        }
+        if($action -ceq 'verify' -and $status.state.state -ceq 'PUBLIC_VERIFIED'){
+            Assert-D16CompletionEvidence $RunRoot $binding $localBackup
+        }
         $request=@{schemaVersion='d16-frontend-action-v1';binding=$binding;backupId=$(if($savedBackup){$savedBackup.backupId}else{$null})}
         Save-ProductionJson (Join-Path $RunRoot 'frontend-action.json') $request
         Invoke-D16ProductionTransport $config $RunRoot upload 'backup-request.json'

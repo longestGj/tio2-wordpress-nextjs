@@ -332,7 +332,7 @@ class ReleaseController:
         baseline, global_baseline = self.baseline_loader(subject)
         if (baseline.get("subject") != subject.subject_id or global_baseline.get("subject") != "host"
                 or baseline.get("previousProductionReceipt") != candidate.previous_production_receipt
-                or baseline.get("configurationSha256") != candidate.configuration_sha256
+                or not compatible and baseline.get("configurationSha256") != candidate.configuration_sha256
                 or baseline.get("cmsContractSha256") != candidate.cms_contract_sha256):
             raise ReleaseError("candidate baseline mismatch")
         identity = {"releaseId": candidate.release_id, "subject": candidate.subject,
@@ -357,6 +357,9 @@ class ReleaseController:
         context = ReleaseContext(_authority=_CONTEXT_AUTHORITY, subject=subject, candidate=candidate,
             payload=payload, state=_freeze(state), subject_baseline=_freeze(baseline),
             global_baseline=_freeze(global_baseline), transaction_path=subject.state_root / "transaction.json")
+        if compatible:
+            from site_frontend_adapter import validate_frontend_baselines
+            validate_frontend_baselines(context)
         return context, identity, adapter
 
     def _journal(self, subject):

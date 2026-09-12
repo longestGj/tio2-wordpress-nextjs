@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -164,29 +165,164 @@ def validate_live_context(context):
     # Controller constructs these baselines through the trusted live loader.
     # Re-running that loader here checks runtime identity on either side of every
     # action, including the unchanged CMS fingerprint and current source bytes.
-    return load_live_baselines(context.subject)[0]['cmsRuntime']
+    baseline,host=load_live_baselines(context.subject)
+    validate_frontend_baselines(context,baseline,host)
+    return baseline['cmsRuntime']
 
 
-def load_live_baselines(subject):
-    from release_baseline import validate_baseline
+def _digest(value): return hashlib.sha256(canonical(plain(value))).hexdigest()
+
+
+def _configuration_fingerprint(record):
+    config=record['configuration']
+    entries={role:config[role] for role in ('environment','compose','nginx')}
+    for role in ('nginxIncludes','tlsFiles'):
+        entries.update({role+str(index):entry for index,entry in enumerate(config[role])})
+    return _digest(entries)
+
+
+def _current_tls(record,certificates):
+    """Only Task 2 validated certificate leaves may rotate; paths stay owned."""
+    result=deepcopy(plain(record))
+    for entry in result['configuration']['tlsFiles']:
+        path=Path(entry['path'])
+        for certificate in certificates:
+            for role in ('Fullchain','PrivateKey'):
+                logical=Path(certificate[role[0].lower()+role[1:]+'Path'])
+                resolved=Path(certificate['resolved'+role+'Path'])
+                prefix='fullchain' if role=='Fullchain' else 'privkey'
+                import re
+                if path==logical or path.parent==resolved.parent and re.fullmatch(prefix+r'[1-9][0-9]*\.pem',path.name):
+                    entry.update(path=str(resolved),sha256=certificate[role[0].lower()+role[1:]+'Sha256'])
+    return result
+
+
+def _ingress_with_details(ingress):
+    result=deepcopy(plain(ingress))
+    result['configurationSha256']=_digest({key:result[key] for key in ('nginxInventory','certificates')})
+    return result
+
+
+def validate_frontend_baselines(context,baseline=None,host=None):
+    """Compare observations, never substitute PREPARED expectations for them."""
+    baseline=plain(baseline if baseline is not None else context.subject_baseline)
+    host=plain(host if host is not None else context.global_baseline)
+    details=plain(context.state['details']); subject=context.subject
+    require(baseline.get('subject')==subject.subject_id and host.get('subject')=='host','frontend baseline subject changed')
+    require(baseline.get('previousProductionReceipt')==details['previousProductionReceipt']
+            and baseline.get('cmsContractSha256')==_digest(details['cmsEvidence']), 'frontend receipt or CMS evidence changed')
+    record=baseline['record']; old=record; allowed=record
+    path=subject.state_root/'frontend-deployment.json'
+    backup=details.get('frontendBackup')
+    if path.exists():
+        journal=read_record(path)
+        require(journal.get('schemaVersion')=='d16-frontend-deployment-v1' and journal.get('binding')==binding(context)
+                and backup is not None and journal.get('backup')==backup,'frontend journal binding changed')
+        old=journal['old'];phase=journal['phase']
+        require(phase in {'building','starting','internal-check','internal-verified','activated','rolled-back'},'frontend journal requires recovery')
+        allowed=journal['target'] if phase=='activated' else old
+        if journal.get('target') is not None and phase in {'internal-verified','activated'}:
+            target=journal['target'];target_identity=Deployment.frontend_identity(target)
+            require(target_identity['commit']==details['sourceCommit']
+                    and target_identity['sourceRoot']==str(subject.production/'releases'/details['sourceCommit'])
+                    and target_identity['buildId']==context.candidate.build_id
+                    and target_identity['imageId']==journal['image']['id'],'frontend journal target changed')
+            require(target['active']=={'kind':'managed','commit':details['sourceCommit'],
+                    'sourceRoot':str(subject.production/'releases'/details['sourceCommit']),
+                    'files':plain(details['preparedManifest']['files'])},'frontend journal candidate files changed')
+            if 'activePort' in old['runtime']['deployment']:
+                require('127.0.0.1:'+str(target['runtime']['deployment']['activePort']) in subject.ports
+                        and target['runtime']['deployment']['activePort']!=old['runtime']['deployment']['activePort'],'frontend journal slot changed')
+            # An action journal can authorize frontend fields only. It cannot
+            # lend its identity to a CMS/configuration/host modification.
+            unchanged=deepcopy(target);unchanged['active']=deepcopy(old['active'])
+            for name in ('containers','images','healthChecks','deployment'):
+                if name in old['runtime']:unchanged['runtime'][name]=deepcopy(old['runtime'][name])
+            unchanged['configuration']['nginxIncludes']=deepcopy(old['configuration']['nginxIncludes'])
+            require(unchanged==old,'frontend journal changed non-frontend fields')
+            require([item for item in target['runtime']['containers'] if item['role']!='web']==[item for item in old['runtime']['containers'] if item['role']!='web'],'frontend journal changed CMS containers')
+            deployment=deepcopy(target['runtime']['deployment'])
+            for name in ('buildId','activePort'):
+                if name in old['runtime']['deployment']:deployment[name]=old['runtime']['deployment'][name]
+            require(deployment==old['runtime']['deployment'],'frontend journal changed runtime configuration')
+            for role in ('images','healthChecks'):
+                before=old['runtime'].get(role,[]);after=target['runtime'].get(role,[])
+                expected=([item for item in before if item['id']!=journal['image']['id']]+[journal['image']]) if role=='images' else deepcopy(before)
+                if role=='healthChecks':
+                    for item in expected:
+                        if item['role']=='web':item['url']='http://127.0.0.1:'+str(target['runtime']['deployment']['activePort'])+'/'
+                require(after==expected,'frontend journal changed runtime inventory')
+            includes=deepcopy(old['configuration']['nginxIncludes'])
+            from deployment_core import _upstream
+            for item in includes:
+                if Path(item['path'])==subject.configuration/'web-upstream.conf': item['sha256']=hashlib.sha256(_upstream(target)).hexdigest()
+            require(target['configuration']['nginxIncludes']==includes,'frontend journal changed Nginx configuration')
+    require(_digest(old)==details['active']['enrollmentSha256']
+            and _configuration_fingerprint(old)==details['configurationFingerprint'],'frontend PREPARED baseline changed')
+    if backup is not None: require(Deployment.frontend_identity(old)==backup.get('active'),'frontend backup active baseline changed')
+    require(record==allowed and baseline['activeFrontend']==Deployment.frontend_identity(allowed),'fresh frontend version or Build ID changed')
+    original=host['preparedIngress'];fresh=host['ingress']
+    require(_digest({'subject':'host','ingress':original})==details['hostBaselineSha256']
+            and host['baselineSha256']==_digest({'subject':'host','ingress':fresh}),'host baseline identity changed')
+    expected=deepcopy(original)
+    expected['certificates']=[item for item in expected['certificates'] if item['owner']==subject.owner]
+    identity=lambda values:[{key:item[key] for key in ('owner','certName','fullchainPath','privateKeyPath')} for item in values]
+    require(identity(expected['certificates'])==identity(fresh['certificates']),'registered TLS identity changed')
+    # Fresh certificates have already passed Task 2 owner, SAN, validity and
+    # key-pair checks. Their renewed leaf hashes are intentionally not frozen.
+    expected['certificates']=deepcopy(fresh['certificates'])
+    if allowed!=old:
+        from deployment_core import _upstream
+        for entry in expected['nginxInventory']['files']:
+            if Path(entry['logicalPath'])==subject.configuration/'web-upstream.conf':
+                require(entry['owner']==subject.owner,'upstream owner changed')
+                entry['sha256']=hashlib.sha256(_upstream(allowed)).hexdigest()
+                for ref in entry['references']:
+                    if ref['kind']=='proxy_pass':ref['value']='127.0.0.1:'+str(allowed['runtime']['deployment']['activePort'])
+    require(fresh==_ingress_with_details(expected),'fresh host or Nginx configuration changed')
+    require(baseline['configurationSha256']==_configuration_fingerprint(_current_tls(allowed,fresh['certificates'])),'fresh frontend configuration changed')
+    require(baseline['cmsRuntime']==plain(context.subject_baseline['cmsRuntime']),'CMS runtime changed')
+
+
+def load_live_baselines(subject, *, registry=None):
+    from release_baseline import _read_record,_validate_record,validate_registered_ingress
     from release_contract import ReleasePaths
     from release_actions import SubprocessCommandRunner
-    from adoption_probe import read_cms_scope
+    from adoption_probe import read_cms_scope,LocalSnapshotSource
+    from subject_registry import load_registry
+    from adoption_contract import validate_plan
     require(subject.subject_id=='tio2-my' and subject.kind=='site','capability-not-installed')
     paths=ReleasePaths(incoming=subject.incoming,outgoing=subject.outgoing,production=subject.production,configuration=subject.configuration)
-    live=validate_baseline(paths)
+    registry=registry or load_registry(Path('/etc/d16-release'))
+    require(registry.resolve(subject.subject_id)==subject,'frontend registry changed')
+    reader=LocalSnapshotSource();reader._configure_tls_allowlist(registry)
+    ingress=validate_registered_ingress(registry,reader._run(['/usr/sbin/nginx','-T']),reader,subject_id=subject.subject_id)
+    record=_read_record(subject.configuration/'baseline.json',None)
+    live=_validate_record(_current_tls(record,ingress['certificates']),paths,None,None)
     state=read_record(subject.state_root/'state.json'); details=state.get('details',{})
     cms=details.get('cmsEvidence')
     require(isinstance(cms,dict) and cms.get('verified') is True and cms.get('site_scope')==subject.subject_id,'migrated CMS evidence is required')
     wordpress=next(item['id'] for item in live['runtime']['containers'] if item['role']=='wordpress')
     scope=read_cms_scope(SubprocessCommandRunner(),wordpress)
-    require(scope['publishedRecords']==cms['published_records'] and scope['contentSha256']==cms['live_content_sha256'],'live CMS content changed')
-    record=read_record(subject.configuration/'baseline.json')
+    require(scope['siteScope']==subject.subject_id and scope['publishedRecords']==cms['published_records']
+            and scope['contentSha256']==cms['live_content_sha256'],'live CMS content changed')
+    require(record==_read_record(subject.configuration/'baseline.json',None),'live baseline changed during validation')
+    plan=validate_plan(_read_record(subject.configuration/'adoption-plan.json',None))
+    adoption=_read_record(subject.production/'state/adoption.json',None)
+    require(adoption.get('schemaVersion')=='tio2-production-adoption-journal-v1' and adoption.get('state')=='PUBLIC_READY'
+            and adoption.get('planHash')==plan['planHash'],'previous production receipt changed')
+    migration=_read_record(subject.state_root.parent.parent/'migration/phase1/receipt.json',None)
+    require(migration.get('schemaVersion')=='d16-phase1-migration-receipt-v1' and migration.get('subject')==subject.subject_id
+            and migration.get('state')=='PREPARED','migration baseline receipt mismatch')
     cms_runtime={'containers':[item for item in live['runtime']['containers'] if item['role']!='web'],
                  'volumes':live['runtime']['volumes'],'contentSha256':scope['contentSha256'],
                  'configurationSha256':hashlib.sha256(canonical(record['configuration']['environment'])).hexdigest(),
                  'wordpressSha256':hashlib.sha256(canonical({name:digest for name,digest in __import__('deployment_core').tree(Path(record['runtime']['deployment']['pluginSourceRoot'])).items()})).hexdigest()}
-    baseline={'subject':subject.subject_id,'previousProductionReceipt':details['previousProductionReceipt'],
-              'configurationSha256':details['configurationFingerprint'],'cmsContractSha256':hashlib.sha256(canonical(cms)).hexdigest(),
-              'record':record,'activeFrontend':Deployment.frontend_identity(record),'cmsRuntime':cms_runtime}
-    return baseline,{'subject':'host','baselineSha256':details['hostBaselineSha256']}
+    observed_active=Deployment.frontend_identity(record)
+    from deployment_core import DockerWebAdapter
+    observed_active['buildId']=DockerWebAdapter(subject).docker('exec',observed_active['containerId'],'cat','/app/.next/BUILD_ID').decode().strip()
+    baseline={'subject':subject.subject_id,'previousProductionReceipt':plan['planHash'],
+              'configurationSha256':live['configurationFingerprint'],'cmsContractSha256':hashlib.sha256(canonical(cms)).hexdigest(),
+              'record':record,'activeFrontend':observed_active,'cmsRuntime':cms_runtime}
+    return baseline,{'subject':'host','baselineSha256':_digest({'subject':'host','ingress':ingress}),
+                     'ingress':ingress,'preparedIngress':migration['runtimeAfter']['ingress']}

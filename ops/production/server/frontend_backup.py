@@ -13,9 +13,12 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import re
+import shutil
+import subprocess
 import tarfile
 import tempfile
 import time
+import threading
 from uuid import UUID, uuid4
 from typing import TypedDict
 
@@ -29,6 +32,67 @@ BINDING_FIELDS = (*IDENTITY_FIELDS, 'runRoot', 'transactionSha256', 'cmsEvidence
 FRONTEND_ROOTS = {'app','components','lib','sites','public','styles','messages','scripts','types'}
 FRONTEND_FILES = {'package.json','package-lock.json','next.config.ts','next.config.js','next.config.mjs','tsconfig.json','next-env.d.ts','postcss.config.mjs','tailwind.config.ts','server.js'}
 MAX_ARCHIVE = 16 * 1024**3
+MAX_IMAGE = 12 * 1024**3
+MAX_FILE = 256 * 1024**2
+MAX_MEMBERS = 10000
+SPACE_RESERVE = 4 * 1024**3
+
+
+def _space(path, additional=0):
+    require(shutil.disk_usage(path).free >= SPACE_RESERVE+additional,'frontend backup free-space reserve would be consumed')
+
+
+class _BoundedSink:
+    """No fileno: a subprocess must never bypass the byte/space checks."""
+    def __init__(self,stream,path,limit): self.stream=stream;self.path=path;self.limit=limit;self.count=0
+    def tell(self):return self.count
+    def write(self,data):
+        require(self.count+len(data)<=self.limit,'frontend write exceeds byte limit')
+        _space(self.path,len(data))
+        written=self.stream.write(data);self.count+=written
+        return written
+    def flush(self):self.stream.flush()
+
+
+def _capture(tools,tool,args,path,limit,*,timeout=1800):
+    """Drain real processes through a capped pipe; abort before writing excess."""
+    with path.open('xb') as output:
+        os.chmod(path,0o600);sink=_BoundedSink(output,path.parent,limit)
+        if not isinstance(tools,Tools):
+            # Python-only process substitutes use exactly the same capped sink.
+            tools.run(tool,args,stdout=sink,timeout=timeout)
+        else:
+            process=None;timer=None
+            try:
+                process=subprocess.Popen((*tools.commands[tool],*args),stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,stdin=subprocess.DEVNULL,shell=False)
+                timer=threading.Timer(timeout,process.kill);timer.start()
+                while block:=process.stdout.read(1024**2):sink.write(block)
+                require(process.wait()==0,tool+' capture failed')
+            except OSError as error:raise ReleaseError(tool+' capture unavailable') from error
+            finally:
+                if timer:timer.cancel()
+                if process:
+                    if process.poll() is None:process.kill()
+                    process.wait()
+                    process.stdout.close()
+        output.flush();os.fsync(output.fileno())
+
+
+def _file_size(path,limit=MAX_FILE):
+    with _open_regular_read(path) as source:size=os.fstat(source.fileno()).st_size
+    require(size<=limit,'frontend file exceeds byte limit')
+    return size
+
+
+def _file_hash(path,limit):
+    digest=hashlib.sha256();total=0
+    with _open_regular_read(path) as source:
+        while block:=source.read(1024**2):
+            total+=len(block);require(total<=limit,'frontend file exceeds byte limit');digest.update(block)
+    return digest.hexdigest()
+
+
+def _cipher_limit(size):return size+65536+(size//65536+1)*32
 
 
 class FrontendBackupReceipt(TypedDict):
@@ -103,16 +167,28 @@ def read_request(context):
 def _source_files(root):
     require(root.is_dir() and not root.is_symlink(), 'frontend source root is unsafe')
     result={}
-    for path in sorted(root.rglob('*')):
+    # Do not traverse excluded CMS/database trees to discover frontend members.
+    paths=[]
+    for name in sorted(FRONTEND_ROOTS|FRONTEND_FILES):
+        entry=root/name
+        if not os.path.lexists(entry):continue
+        paths.append(entry)
+        if entry.is_dir() and not entry.is_symlink():
+            for parent,directories,files in os.walk(entry,followlinks=False):
+                paths.extend(Path(parent)/name for name in directories+files)
+                require(len(paths)<=MAX_MEMBERS,'frontend member count exceeds limit')
+    for path in paths:
         relative=path.relative_to(root).as_posix()
         allowed=relative.split('/')[0] in FRONTEND_ROOTS or relative in FRONTEND_FILES
         if not allowed: continue
         require(not path.is_symlink(), 'frontend source link is forbidden')
         if path.is_file():
             require(path.stat().st_nlink == 1, 'frontend source hardlink is forbidden')
+            _file_size(path,MAX_FILE)
             result['frontend/'+relative]=path
         else: require(path.is_dir(), 'frontend source type is unsafe')
     require(bool(result), 'frontend source is empty')
+    require(len(result)<=MAX_MEMBERS,'frontend member count exceeds limit')
     return result
 
 
@@ -135,7 +211,9 @@ def inspect_archive(path, destination=None):
     try:
         with tarfile.open(path,'r:') as archive:
             for member in archive:
+                require(len(actual)<MAX_MEMBERS,'frontend member count exceeds limit')
                 require(member.isfile() and _allowed(member.name) and member.name not in actual, 'unsafe frontend archive member')
+                require(0<=member.size<=(MAX_IMAGE if member.name=='runtime/image.tar' else MAX_FILE),'frontend member exceeds byte limit')
                 total+=member.size
                 require(total <= MAX_ARCHIVE, 'frontend archive exceeds limit')
                 digest=hashlib.sha256(); data=bytearray() if member.name=='manifest.json' else None
@@ -143,11 +221,12 @@ def inspect_archive(path, destination=None):
                 if destination is not None:
                     target=destination/member.name; target.parent.mkdir(parents=True,exist_ok=True)
                     output=target.open('xb'); os.chmod(target,0o600)
+                    sink=_BoundedSink(output,destination,member.size)
                 try:
                     with archive.extractfile(member) as source:
                         while block:=source.read(1024**2):
                             digest.update(block)
-                            if output: output.write(block)
+                            if output: sink.write(block)
                             if data is not None:
                                 data.extend(block); require(len(data)<=8*1024**2,'frontend manifest exceeds limit')
                     actual[member.name]=digest.hexdigest()
@@ -191,13 +270,11 @@ def backup_frontend(context, *, tools=None, publisher=publish_ciphertext) -> Fro
         if os.path.lexists(exported):
             require(sha256_file(exported)==receipt['ciphertextSha256'],'exported frontend backup changed')
         else:
+            _space(subject.outgoing,ciphertext.stat().st_size)
             publisher(ciphertext,subject.outgoing,backup_id+'.tar.age')
         return receipt
     with tempfile.TemporaryDirectory(prefix='.frontend-',dir=root) as temporary:
         staging=Path(temporary); files=_source_files(Path(active['sourceRoot']))
-        image=staging/'image.tar'
-        with image.open('xb') as output: tools.run('docker',('image','save',active['imageId']),stdout=output)
-        files['runtime/image.tar']=image
         for index,policy in enumerate(subject.nginx_files):
             require(policy.logical_path.resolve(strict=True)==policy.resolved_path.resolve(strict=True),'site Nginx resolution changed')
             files[f'nginx/{index}.conf']=policy.resolved_path
@@ -212,27 +289,47 @@ def backup_frontend(context, *, tools=None, publisher=publish_ciphertext) -> Fro
         records={'subject':plain(asdict(subject)), 'baseline':{'subject':subject.subject_id,'activeFrontend':active},
                  'state':{'state':context.state['state'],'binding':expected},
                  'references':{'hostBaselineSha256':context.state['details'].get('hostBaselineSha256'), 'cmsEvidenceSha256':expected['cmsEvidenceSha256'],'cmsExcluded':CMS_EXCLUDED}}
-        for name,value in records.items():
-            path=staging/(name+'.json'); path.write_bytes(canonical(value)); files['records/'+name+'.json']=path
+        record_bytes={name:canonical(value) for name,value in records.items()}
+        sizes={name:_file_size(path,MAX_FILE) for name,path in files.items()}
+        require(len(files)+len(records)+2<=MAX_MEMBERS,'frontend member count exceeds limit')
+        require(all(len(value)<=MAX_FILE for value in record_bytes.values()),'frontend record exceeds byte limit')
+        observed=json.loads(tools.run('docker',('image','inspect',active['imageId'])))
+        require(len(observed)==1 and observed[0]['Id']==active['imageId'] and type(observed[0].get('Size')) is int and 0<observed[0]['Size']<=MAX_IMAGE,'frontend image size is unavailable or exceeds limit')
+        image_limit=min(MAX_IMAGE,observed[0]['Size']+max(65536,observed[0]['Size']//10))
+        # Include image export, all source/config/record bytes, padded tar/PAX
+        # headers, a maximum-size manifest, and both plaintext/ciphertext peaks.
+        manifest_limit=min(8*1024**2,1024+sum(len(name.encode())+100 for name in files)+4096)
+        archive_limit=image_limit+sum(sizes.values())+sum(map(len,record_bytes.values()))+manifest_limit+(len(files)+len(records)+2)*4096+10240
+        require(archive_limit<=MAX_ARCHIVE,'estimated frontend archive exceeds limit')
+        cipher_limit=_cipher_limit(archive_limit)
+        _space(root,image_limit+sum(map(len,record_bytes.values()))+archive_limit+cipher_limit)
+        _space(subject.outgoing,2*cipher_limit)
+        image=staging/'image.tar';_capture(tools,'docker',('image','save',active['imageId']),image,image_limit)
+        files['runtime/image.tar']=image
+        for name,value in record_bytes.items():
+            path=staging/(name+'.json')
+            with path.open('xb') as output:_BoundedSink(output,staging,MAX_FILE).write(value)
+            files['records/'+name+'.json']=path
         manifest={'schemaVersion':'d16-frontend-backup-v1','backupId':backup_id,'binding':expected,'active':active,
-                  'files':{name:sha256_file(path) for name,path in files.items()},'cmsExcluded':CMS_EXCLUDED}
+                  'files':{name:_file_hash(path,image_limit if name=='runtime/image.tar' else MAX_FILE) for name,path in files.items()},'cmsExcluded':CMS_EXCLUDED}
         manifest_bytes=canonical(manifest); archive=staging/'frontend.tar'
-        with tarfile.open(archive,'w') as tar:
+        require(len(manifest_bytes)<=manifest_limit,'frontend manifest exceeds estimate')
+        with archive.open('xb') as archive_output,tarfile.open(fileobj=_BoundedSink(archive_output,staging,archive_limit),mode='w') as tar:
             for name,path in sorted(files.items()):
                 with _open_regular_read(path) as source:
                     metadata=tarfile.TarInfo(name); metadata.size=os.fstat(source.fileno()).st_size; metadata.mode=0o600
+                    require(metadata.size<=(image_limit if name=='runtime/image.tar' else MAX_FILE),'frontend file grew beyond limit')
                     tar.addfile(metadata,source)
             metadata=tarfile.TarInfo('manifest.json'); metadata.size=len(manifest_bytes); metadata.mode=0o600
             tar.addfile(metadata,io.BytesIO(manifest_bytes))
         _,manifest_hash=inspect_archive(archive)
         encrypted=staging/'ciphertext.age'
-        with encrypted.open('xb') as output:
-            tools.run('age',('--encrypt','--recipients-file',str(subject.configuration/'backup.age.pub'),str(archive)),stdout=output)
-            output.flush(); os.fsync(output.fileno())
+        _capture(tools,'age',('--encrypt','--recipients-file',str(subject.configuration/'backup.age.pub'),str(archive)),encrypted,cipher_limit)
         os.chmod(encrypted,0o600); os.replace(encrypted,ciphertext)
         receipt={'schemaVersion':'d16-frontend-backup-receipt-v1','backupId':backup_id,'binding':expected,'active':active,
                  'manifestSha256':manifest_hash,'ciphertextSha256':sha256_file(ciphertext),'cmsExcluded':CMS_EXCLUDED}
         atomic_write_json(receipt_path,receipt)
+    _space(subject.outgoing,ciphertext.stat().st_size)
     publisher(ciphertext,subject.outgoing,backup_id+'.tar.age')
     return receipt
 
@@ -241,7 +338,12 @@ def restore_frontend_backup(ciphertext: Path, identity: Path, *, tools=None) -> 
     tools=tools or Tools(); network=None; container=None
     with tempfile.TemporaryDirectory(prefix='d16-frontend-restore-') as temporary:
         root=Path(temporary); archive=root/'frontend.tar'
-        with archive.open('xb') as output: tools.run('age',('--decrypt','--identity',str(identity),str(ciphertext)),stdout=output)
+        cipher_size=_file_size(ciphertext,_cipher_limit(MAX_ARCHIVE))
+        # age is not compressed: the authenticated plaintext cannot be larger
+        # than its ciphertext. Keep space for archive plus extracted members.
+        plain_limit=min(MAX_ARCHIVE,cipher_size)
+        _space(root,2*plain_limit)
+        _capture(tools,'age',('--decrypt','--identity',str(identity),str(ciphertext)),archive,plain_limit)
         manifest,manifest_hash=inspect_archive(archive)
         restored=root/'restored'; restored.mkdir(mode=0o700); inspect_archive(archive,restored)
         active=manifest['active']; image=active['imageId']

@@ -8,6 +8,8 @@ import tarfile
 import tempfile
 import unittest
 from types import SimpleNamespace
+from unittest.mock import patch
+import shutil
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'ops/production/server'))
 from release_contract import ReleaseError
@@ -27,7 +29,7 @@ class BackupTools:
             else: stdout.write(b'unit-age:' + source)
             return b''
         if args[:2] == ('image', 'save'): stdout.write(b'frontend-image-only'); return b''
-        if args[:2] == ('image', 'inspect'): return json.dumps([{'Id': 'sha256:' + '1'*64}]).encode()
+        if args[:2] == ('image', 'inspect'): return json.dumps([{'Id': 'sha256:' + '1'*64,'Size':19}]).encode()
         if args[:2] == ('network', 'create'): return b'network-fixture'
         if args[:2] == ('network', 'inspect'): return b'[{"Internal":true,"Labels":{"d16.restore":"fixture"}}]'
         if args[0] == 'create': return b'container-fixture'
@@ -73,6 +75,79 @@ class FrontendBackupTests(unittest.TestCase):
         self.assertEqual(receipt['cmsExcluded'], {'database':True,'wordpress':True,'cms':True})
         self.assertFalse(any('stop' in call or 'mariadb-dump' in call or 'export' in call for call in self.tools.calls))
 
+    def test_low_space_refuses_capture_and_leaves_no_partial_files(self):
+        with patch('shutil.disk_usage',return_value=SimpleNamespace(free=1024)):
+            with self.assertRaises(ReleaseError):self.backup()
+        self.assertFalse(any(call[:3]==('docker','image','save') or call[0]=='age' for call in self.tools.calls))
+        self.assertEqual(list((self.subject.production/'backups/frontend').iterdir()),[])
+
+    def test_image_and_encryption_streams_abort_at_the_write_limit(self):
+        import frontend_backup
+        for phase in ('image','encryption'):
+            with self.subTest(phase=phase):
+                self.setUp();original=self.tools.run;continued=[]
+                def overflow(tool,args=(),**kwargs):
+                    if phase=='image' and args[:2]==('image','save') or phase=='encryption' and tool=='age':
+                        kwargs['stdout'].write(b'x'*(2*1024**2));continued.append(True)
+                        return b''
+                    return original(tool,args,**kwargs)
+                self.tools.run=overflow
+                with patch.object(frontend_backup,'MAX_ARCHIVE',1024**2):
+                    with self.assertRaises(ReleaseError):self.backup()
+                self.assertEqual(continued,[],'oversized stream was written before rejection')
+                self.assertEqual(list((self.subject.production/'backups/frontend').iterdir()),[])
+                if phase=='image':self.assertFalse(any(call[0]=='age' for call in self.tools.calls))
+
+    def test_member_count_and_file_size_are_checked_before_image_save(self):
+        import frontend_backup
+        for field,value in (('MAX_MEMBERS',2),('MAX_FILE',4)):
+            with self.subTest(field=field):
+                self.setUp()
+                with patch.object(frontend_backup,field,value,create=True):
+                    with self.assertRaises(ReleaseError):self.backup()
+                self.assertFalse(any(call[:3]==('docker','image','save') for call in self.tools.calls))
+                self.assertEqual(list((self.subject.production/'backups/frontend').iterdir()),[])
+
+    def test_decryption_limit_aborts_before_archive_or_docker_and_cleans_temporary_files(self):
+        import frontend_backup
+        receipt=self.backup();self.tools.calls=[];continued=[]
+        def overflow(tool,args=(),**kwargs):
+            self.tools.calls.append((tool,*args));kwargs['stdout'].write(b'x'*(2*1024**2));continued.append(True)
+        self.tools.run=overflow
+        with tempfile.TemporaryDirectory(dir=self.root) as temporary,patch('tempfile.tempdir',temporary):
+            with patch.object(frontend_backup,'MAX_ARCHIVE',1024**2):
+                with self.assertRaises(ReleaseError):frontend_backup.restore_frontend_backup(self.archive(receipt),self.root/'key',tools=self.tools)
+            self.assertEqual(list(Path(temporary).iterdir()),[])
+        self.assertEqual(continued,[],'unbounded plaintext was written')
+        self.assertFalse(any(call[0]=='docker' for call in self.tools.calls))
+
+    def test_real_process_cannot_bypass_the_capped_decryption_sink(self):
+        from backup_core import Tools
+        from frontend_backup import restore_frontend_backup
+        ciphertext=self.root/'input.age';ciphertext.write_bytes(b'x'*65536)
+        marker=self.root/'completed'
+        program="import sys;from pathlib import Path;sys.stdout.buffer.write(b'x'*(4*1024**2));sys.stdout.buffer.flush();Path(sys.argv[1]).write_text('unbounded stream completed')"
+        tools=Tools({'age':(sys.executable,'-c',program,str(marker))})
+        with tempfile.TemporaryDirectory(dir=self.root) as temporary,patch('tempfile.tempdir',temporary):
+            with self.assertRaisesRegex(ReleaseError,'byte limit'):restore_frontend_backup(ciphertext,self.root/'key',tools=tools)
+            self.assertEqual(list(Path(temporary).iterdir()),[])
+        self.assertFalse(marker.exists(),'child process finished an uncapped export')
+
+    def test_space_reserve_is_rechecked_during_capture(self):
+        import frontend_backup
+        original=self.tools.run;continued=[]
+        def shrinking_disk(tool,args=(),**kwargs):
+            if args[:2]==('image','save'):
+                kwargs['stdout'].write(b'first')
+                with patch('shutil.disk_usage',return_value=SimpleNamespace(free=frontend_backup.SPACE_RESERVE)):
+                    kwargs['stdout'].write(b'second');continued.append(True)
+            else:return original(tool,args,**kwargs)
+        self.tools.run=shrinking_disk
+        with self.assertRaisesRegex(ReleaseError,'free-space reserve'):self.backup()
+        self.assertFalse(continued)
+        self.assertFalse(any(call[0]=='age' for call in self.tools.calls))
+        self.assertEqual(list((self.subject.production/'backups/frontend').iterdir()),[])
+
     def test_same_backup_request_reuses_generation_without_capture(self):
         first = self.backup(); calls = list(self.tools.calls)
         self.assertEqual(self.backup(), first)
@@ -91,6 +166,12 @@ class FrontendBackupTests(unittest.TestCase):
         self.assertEqual(repeated,receipt);self.assertEqual(len(calls),1)
         self.archive(receipt).write_bytes(b'changed')
         with self.assertRaises(ReleaseError):backup_frontend(self.context,tools=self.tools,publisher=publish)
+
+    def test_retry_reexport_checks_space_before_copying_saved_ciphertext(self):
+        receipt=self.backup();self.archive(receipt).unlink()
+        with patch('shutil.disk_usage',return_value=SimpleNamespace(free=1024)):
+            with self.assertRaisesRegex(ReleaseError,'free-space reserve'):self.backup()
+        self.assertFalse(self.archive(receipt).exists())
 
     def test_restore_decrypts_and_runs_frontend_on_isolated_network(self):
         from frontend_backup import restore_frontend_backup

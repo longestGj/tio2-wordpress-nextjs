@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import unittest
 from types import SimpleNamespace
+from unittest.mock import patch
 from tests.production import test_frontend_backup as fixtures
 from release_contract import ReleaseError
 from release_state import atomic_write_json
@@ -18,7 +19,9 @@ class Slots:
         if self.fail=='build': raise ReleaseError('build failure')
         return {'id':'sha256:'+'3'*64,'digests':[]}
     def candidate(self,old,details,image,previous):
-        target=deepcopy(old); target['active']['commit']=details['commit']; target['runtime']['deployment']['buildId']=self.actual_build or details.get('buildId','build-B')
+        target=deepcopy(old); target['active']['commit']=details['commit']; target['active']['sourceRoot']=str(Path(old['active']['sourceRoot']).parent/details['commit']); target['runtime']['deployment']['buildId']=self.actual_build or details.get('buildId','build-B')
+        if 'images' in target['runtime']:target['runtime']['images']=[*old['runtime']['images'],image]
+        if 'configuration' in target:target['active'].update(kind='managed',files=deepcopy(details['preparedManifest']['files']))
         target['runtime']['containers']=[{'role':'web','id':'4'*64,'imageId':image['id']}]; return target
     def health(self,record,*,proxy=False):
         build=record['runtime']['deployment']['buildId']
@@ -211,15 +214,29 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         from cms_evidence import canonical
         from release_controller import ReleaseController
         from subject_registry import ReleaseSubject,SubjectRegistry
+        from site_frontend_adapter import _digest,_configuration_fingerprint,_ingress_with_details
+        self.record['runtime']['images']=[]
+        self.record['configuration']={key:{'path':str(self.root/key),'sha256':'f'*64} for key in ('environment','compose','nginx')}
+        self.record['configuration'].update(nginxIncludes=[],tlsFiles=[])
         state,transaction=self.compatibility_fixture()
+        state['details']['active']['enrollmentSha256']=_digest(self.record)
+        state['details']['configurationFingerprint']=_configuration_fingerprint(self.record)
+        ingress=_ingress_with_details({'serverNames':[],'nginxInventory':{'files':[]},'certificates':[]})
+        host_baseline={'subject':'host','ingress':ingress,'preparedIngress':deepcopy(ingress),'baselineSha256':_digest({'subject':'host','ingress':ingress})}
+        state['details']['hostBaselineSha256']=host_baseline['baselineSha256']
+        atomic_write_json(self.subject.configuration/'baseline.json',self.record)
         atomic_write_json(self.subject.state_root/'state.json',state)
         atomic_write_json(self.subject.incoming/'backup-request.json',{'schemaVersion':'tio2-backup-request-v1','requestId':self.binding['requestId'],
-            'preparedProofSha256':state['details']['candidate']['proofSha256'],'baselineSha256':'0'*64})
-        baseline={**self.context.subject_baseline,'previousProductionReceipt':'receipt-A','configurationSha256':'f'*64,
+            'preparedProofSha256':state['details']['candidate']['proofSha256'],'baselineSha256':state['details']['active']['enrollmentSha256']})
+        baseline={**self.context.subject_baseline,'previousProductionReceipt':'receipt-A','configurationSha256':state['details']['configurationFingerprint'],
                   'cmsContractSha256':hashlib.sha256(canonical(state['details']['cmsEvidence'])).hexdigest()}
         host=ReleaseSubject('host','host',self.root/'host/in',self.root/'host/out',self.root/'host/prod',self.root/'host/etc',self.root/'host/state','none')
+        def loader(subject):
+            from deployment_core import Deployment
+            record=json.loads((subject.configuration/'baseline.json').read_bytes())
+            return {**baseline,'record':record,'activeFrontend':Deployment.frontend_identity(record),'configurationSha256':_configuration_fingerprint(record)},deepcopy(host_baseline)
         controller=ReleaseController(SubjectRegistry({'host':host,'tio2-my':self.subject}),adapters={(self.subject.adapter,'frontend-only'):self.adapter},
-            baseline_loader=lambda subject:(baseline,{'subject':'host'}),lock_factory=lambda path:nullcontext())
+            baseline_loader=loader,lock_factory=lambda path:nullcontext())
         status=controller.execute('tio2-my','status')
         self.assertEqual(status.get('compatibilityTransaction'),transaction)
         before=(self.subject.incoming/'release-manifest.json').read_bytes()
@@ -254,6 +271,81 @@ class SiteFrontendAdapterTests(unittest.TestCase):
             with self.subTest(action=action),self.assertRaisesRegex(ReleaseError,'recovery-required'):execute(action)
         self.assertEqual(state_path.read_bytes(),before)
         self.assertIn('cmsEvidence',status['state']['details'])
+
+    def test_fresh_active_build_configuration_receipt_and_host_drift_rejected_before_slot_operations(self):
+        for action in ('stage','activate'):
+            for field in ('active','build','configuration','receipt','host'):
+                with self.subTest(action=action,field=field):
+                    self.setUp();controller,execute,_=self.compatibility_controller_with_backup()
+                    if action=='activate': execute('stage')
+                    baseline,host=map(deepcopy,controller.baseline_loader(self.subject))
+                    if field=='active': baseline['activeFrontend']['commit']='c'*40;baseline['record']['active']['commit']='c'*40
+                    elif field=='build': baseline['activeFrontend']['buildId']='build-C';baseline['record']['runtime']['deployment']['buildId']='build-C'
+                    elif field=='configuration': baseline['configurationSha256']='0'*64
+                    elif field=='receipt': baseline['previousProductionReceipt']='receipt-C'
+                    else: host['baselineSha256']='0'*64
+                    controller.baseline_loader=lambda subject:(baseline,host)
+                    self.slots.calls=[]
+                    with self.assertRaises(ReleaseError):execute(action)
+                    self.assertFalse(any(call=='build' or call.startswith('activate:') for call in self.slots.calls),self.slots.calls)
+
+    def test_journal_cannot_authorize_unrelated_configuration_or_cms_changes(self):
+        for field in ('old','environment','cms','candidate-files'):
+            with self.subTest(field=field):
+                self.setUp();controller,execute,_=self.compatibility_controller_with_backup();execute('stage')
+                path=self.subject.state_root/'frontend-deployment.json';journal=json.loads(path.read_bytes())
+                if field=='old':journal['old']['active']['commit']='c'*40
+                elif field=='environment':journal['target']['configuration']['environment']['sha256']='0'*64
+                elif field=='cms':journal['target']['runtime']['containers'].append({'role':'wordpress','id':'bad','imageId':'bad'})
+                else:journal['target']['active']['files']=[]
+                atomic_write_json(path,journal);self.slots.calls=[]
+                with self.assertRaises(ReleaseError):execute('activate')
+                self.assertFalse(any(call.startswith('activate:') for call in self.slots.calls))
+
+    def test_validated_certificate_renewal_is_dynamic_but_host_configuration_is_fixed(self):
+        from site_frontend_adapter import validate_frontend_baselines,_digest,_ingress_with_details,_current_tls,_configuration_fingerprint
+        from frontend_backup import plain
+        controller,_,_=self.compatibility_controller_with_backup()
+        state=json.loads((self.subject.state_root/'state.json').read_bytes())
+        original_context,_,_=controller._context(self.subject,state)
+        baseline,host=map(plain,controller.baseline_loader(self.subject))
+        old_cert={'owner':self.subject.owner,'certName':'site.test','fullchainPath':'/live/site.test/fullchain.pem','privateKeyPath':'/live/site.test/privkey.pem',
+                  'resolvedFullchainPath':'/archive/site.test/fullchain1.pem','resolvedPrivateKeyPath':'/archive/site.test/privkey1.pem',
+                  'fullchainSha256':'1'*64,'privateKeySha256':'2'*64,'san':['site.test'],'notAfter':'old','keyPairVerified':True}
+        current={**old_cert,'resolvedFullchainPath':'/archive/site.test/fullchain2.pem','resolvedPrivateKeyPath':'/archive/site.test/privkey2.pem','fullchainSha256':'3'*64,'privateKeySha256':'4'*64,'notAfter':'renewed'}
+        baseline['record']['configuration']['tlsFiles']=[{'path':old_cert['resolvedFullchainPath'],'sha256':old_cert['fullchainSha256']},{'path':old_cert['resolvedPrivateKeyPath'],'sha256':old_cert['privateKeySha256']}]
+        state['details']['active']['enrollmentSha256']=_digest(baseline['record'])
+        state['details']['configurationFingerprint']=_configuration_fingerprint(baseline['record'])
+        host['preparedIngress']['certificates']=[old_cert];host['preparedIngress']=_ingress_with_details(host['preparedIngress'])
+        host['ingress']['certificates']=[current];host['ingress']=_ingress_with_details(host['ingress'])
+        host['baselineSha256']=_digest({'subject':'host','ingress':host['ingress']})
+        state['details']['hostBaselineSha256']=_digest({'subject':'host','ingress':host['preparedIngress']})
+        baseline['configurationSha256']=_configuration_fingerprint(_current_tls(baseline['record'],[current]))
+        context=SimpleNamespace(subject=self.subject,state=state,candidate=original_context.candidate,subject_baseline=baseline,global_baseline=host)
+        validate_frontend_baselines(context)
+        host['ingress']['serverNames'].append('another.test');host['ingress']=_ingress_with_details(host['ingress']);host['baselineSha256']=_digest({'subject':'host','ingress':host['ingress']})
+        with self.assertRaisesRegex(ReleaseError,'host or Nginx'):validate_frontend_baselines(context)
+
+    def test_trusted_loader_returns_observed_identities_and_fresh_cms_observation(self):
+        from site_frontend_adapter import load_live_baselines,_digest
+        from tests.production.test_adoption_contract import fixture as adoption_fixture
+        controller,_,_=self.compatibility_controller_with_backup()
+        baseline,host=controller.baseline_loader(self.subject)
+        record=deepcopy(baseline['record']);record['active']['commit']='c'*40
+        record['runtime']['containers'].append({'role':'wordpress','id':'5'*64,'imageId':'sha256:'+'6'*64})
+        record['runtime']['volumes']=[];record['runtime']['deployment']['pluginSourceRoot']=str(self.source)
+        plan=adoption_fixture()
+        values={'baseline.json':record,'adoption-plan.json':plan,'adoption.json':{'schemaVersion':'tio2-production-adoption-journal-v1','state':'PUBLIC_READY','planHash':plan['planHash']},
+                'receipt.json':{'schemaVersion':'d16-phase1-migration-receipt-v1','subject':'tio2-my','state':'PREPARED','runtimeAfter':{'ingress':host['preparedIngress']}}}
+        live={'runtime':record['runtime'],'configurationFingerprint':'0'*64}
+        scope={'siteScope':'tio2-my','publishedRecords':1,'contentSha256':'2'*64,'observedAt':'2026-09-12T14:00:00+00:00'}
+        with patch('release_baseline._read_record',side_effect=lambda path,*args:deepcopy(values[path.name])),patch('release_baseline._validate_record',return_value=live),\
+             patch('release_baseline.validate_registered_ingress',return_value=host['ingress']),patch('adoption_probe.LocalSnapshotSource._run',return_value='fresh nginx'),\
+             patch('adoption_probe.read_cms_scope',return_value=scope),patch('deployment_core.DockerWebAdapter.docker',return_value=b'build-C'),patch('deployment_core.tree',return_value={'wp.php':'7'*64}):
+            observed,global_observed=load_live_baselines(self.subject,registry=controller.registry)
+        self.assertEqual(observed['activeFrontend']['commit'],'c'*40);self.assertEqual(observed['activeFrontend']['buildId'],'build-C')
+        self.assertEqual(observed['configurationSha256'],'0'*64);self.assertEqual(observed['previousProductionReceipt'],plan['planHash'])
+        self.assertEqual(global_observed['baselineSha256'],_digest({'subject':'host','ingress':host['ingress']}))
 
     def test_failed_compatibility_transaction_cannot_be_reprepared_and_lose_evidence(self):
         _,execute,_=self.compatibility_controller_with_backup()
