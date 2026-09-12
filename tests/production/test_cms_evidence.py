@@ -45,6 +45,7 @@ def fixture():
              'prerelease': {'state': 'PASSED', 'siteId': 'tio2-my', 'commit': candidate['commit'], 'cmsIdentitySha256': sha(raw_identity),
                             'counts': {'browserCases': 174}}}
     seed_snapshot = {'manifestBytes': raw_manifest, 'candidate': candidate, 'archiveFiles': {s['path']: s['sha256'] for s in seeds}}
+    seed_snapshot['seedSourceHashes'] = {s['path']: s['sha256'] for s in seeds}
     migration_bytes = encoded({'schemaVersion': 'tio2-my-production-migration-v1', 'siteId': 'tio2-my', 'seeds': seeds}) + b'\n'
     seed_snapshot['archiveFiles']['ops/production/migration-manifest.json'] = sha(migration_bytes)
     adoption = {'siteScope': 'tio2-my', 'candidate': candidate, 'publishedRecords': 57, 'contentSha256': 'a' * 64,
@@ -55,6 +56,20 @@ def fixture():
 
 
 class CmsEvidenceTests(unittest.TestCase):
+    def test_prerelease_seed_bytes_are_independent_of_production_archive(self):
+        values = list(fixture())
+        values[2]['seedSourceHashes'] = {s['path']: s['sha256'] for s in json.loads(values[2]['manifestBytes'])['seeds']}
+        values[2]['archiveFiles']['wordpress/seed/one.php'] = sha(b'ONE\r\n')
+        del values[2]['archiveFiles']['wordpress/seed/two.php']
+        self.assertTrue(verify_frontend_only_evidence(*values).verified)
+        values[2]['seedSourceHashes']['wordpress/seed/two.php'] = sha(b'changed')
+        with self.assertRaises(ReleaseError): verify_frontend_only_evidence(*values)
+
+    def test_missing_prerelease_seed_source_evidence_is_rejected(self):
+        values = list(fixture())
+        values[2].pop('seedSourceHashes', None)
+        with self.assertRaises(ReleaseError): verify_frontend_only_evidence(*values)
+
     def test_independent_seed_lists_require_actual_content_equality(self):
         values = list(fixture())
         original = json.loads(values[3]['migrationManifestBytes'])
@@ -130,7 +145,7 @@ class CmsEvidenceTests(unittest.TestCase):
         changes = [(0, ('siteId',)), (0, ('commit',)), (0, ('archiveSha256',)), (0, ('manifestSha256',)),
                    *[(0, ('prerelease', key)) for key in ('state', 'siteId', 'commit', 'cmsIdentitySha256')],
                    (2, ('candidate', 'archiveSha256')), (2, ('candidate', 'commit')), (2, ('candidate', 'manifestSha256')),
-                   (2, ('archiveFiles', 'wordpress/seed/one.php')),
+                   (2, ('seedSourceHashes', 'wordpress/seed/one.php')),
                    *[(3, (key,)) for key in ('siteScope', 'candidate', 'publishedRecords', 'contentSha256', 'seedManifestSha256', 'orderedSeedHashes', 'migrationManifestBytes')],
                    *[(4, (key,)) for key in ('siteScope', 'publishedRecords', 'contentSha256', 'observedAt')]]
         for index, path in changes:
