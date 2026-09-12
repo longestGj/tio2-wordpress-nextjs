@@ -9,6 +9,8 @@ import io
 import json
 from pathlib import Path
 import tarfile
+import subprocess
+import sys
 from contextlib import redirect_stdout
 from unittest.mock import patch
 
@@ -33,12 +35,21 @@ def exercise(env):
             import traceback
             output=io.StringIO()
             execute=ReleaseController.execute
+            run=subprocess.run
+            def diagnostic_run(*args,**kwargs):
+                command=args[0] if args else kwargs.get('args',())
+                build=tuple(command[:2])==('/usr/bin/docker','build')
+                if build:kwargs['stderr']=subprocess.PIPE
+                completed=run(*args,**kwargs)
+                if build and completed.returncode:
+                    print('LOCAL FIXTURE BUILD FAILURE\n'+completed.stderr.decode(errors='replace')[-8192:],file=sys.stderr)
+                return completed
             def traced(controller,*args):
                 try:return execute(controller,*args)
                 except Exception:
                     traceback.print_exc()
                     raise
-            with patch.object(ReleaseController,'execute',traced),redirect_stdout(output):code=main(['tio2-my',name])
+            with patch.object(ReleaseController,'execute',traced),patch('subprocess.run',diagnostic_run),redirect_stdout(output):code=main(['tio2-my',name])
             value=json.loads(output.getvalue())
             assert code==0,value
             return value
