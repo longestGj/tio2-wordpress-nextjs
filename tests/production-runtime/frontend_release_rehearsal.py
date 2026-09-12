@@ -43,6 +43,7 @@ def inside(root, run_id):
     program = Path('/opt/d16-fixture-program'); program.mkdir()
     for path in (ROOT / 'ops/production/server').glob('*.py'):
         shutil.copyfile(path, program / path.name)
+    shutil.copyfile(ROOT / 'ops/production/server/cms_content_snapshot.php', program / 'cms_content_snapshot.php')
     shutil.copyfile(ROOT / 'ops/production/Dockerfile', program / 'web.Dockerfile')
     sys.path.insert(0, str(program))
     from cms_evidence import canonical, CmsEvidence
