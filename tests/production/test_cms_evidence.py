@@ -18,7 +18,7 @@ def encoded(value): return json.dumps(value, sort_keys=True, separators=(',', ':
 
 def fixture():
     candidate = {'commit': 'b' * 40, 'archiveSha256': 'c' * 64, 'manifestSha256': 'd' * 64}
-    seeds = [{'path': 'wordpress/seed/one.php', 'sha256': '1' * 64}, {'path': 'wordpress/seed/two.php', 'sha256': '2' * 64}]
+    seeds = [{'path': 'wordpress/seed/one.php', 'sha256': sha(b'ONE\n')}, {'path': 'wordpress/seed/two.php', 'sha256': sha(b'TWO\n')}]
     raw_manifest = (json.dumps({'schemaVersion': 1, 'siteScope': 'tio2-my', 'seeds': seeds}, indent=2) + '\n').encode()
     identity = {'schemaVersion': 1, 'siteScope': 'tio2-my', 'wordpressVersion': '7.1', 'activePlugins': [],
                 'seedManifestSha256': sha(raw_manifest), 'orderedSeedHashes': [s['sha256'] for s in seeds],
@@ -27,8 +27,10 @@ def fixture():
     proof = {'schemaVersion': 'tio2-production-proof-v1', 'siteId': 'tio2-my', **candidate,
              'prerelease': {'state': 'PASSED', 'siteId': 'tio2-my', 'commit': candidate['commit'], 'cmsIdentitySha256': sha(raw_identity)}}
     seed_snapshot = {'manifestBytes': raw_manifest, 'candidate': candidate, 'archiveFiles': {s['path']: s['sha256'] for s in seeds}}
+    migration_bytes = encoded({'schemaVersion': 'tio2-my-production-migration-v1', 'siteId': 'tio2-my', 'seeds': seeds}) + b'\n'
+    seed_snapshot['archiveFiles']['ops/production/migration-manifest.json'] = sha(migration_bytes)
     adoption = {'siteScope': 'tio2-my', 'candidate': candidate, 'publishedRecords': 57, 'contentSha256': 'a' * 64,
-                'seedManifestSha256': sha(raw_manifest), 'orderedSeedHashes': identity['orderedSeedHashes']}
+                'migrationManifestBytes': migration_bytes, 'seedManifestSha256': sha(migration_bytes), 'orderedSeedHashes': identity['orderedSeedHashes']}
     live = {'siteScope': 'tio2-my', 'publishedRecords': 57, 'contentSha256': 'a' * 64,
             'observedAt': datetime.now(timezone.utc).isoformat()}
     return proof, raw_identity, seed_snapshot, adoption, live
@@ -41,12 +43,14 @@ class CmsEvidenceTests(unittest.TestCase):
         self.assertNotEqual(evidence.prerelease_identity_sha256, evidence.live_content_sha256)
         self.assertEqual(evidence.prerelease_identity_sha256, sha(inputs[1]))
         self.assertEqual(evidence.seed_manifest_sha256, sha(inputs[2]['manifestBytes']))
+        self.assertEqual(evidence.adoption_seed_manifest_sha256, sha(inputs[3]['migrationManifestBytes']))
+        self.assertNotEqual(evidence.adoption_seed_manifest_sha256, evidence.seed_manifest_sha256)
         self.assertTrue(evidence.verified)
         self.assertNotIn('wordpressVersion', json.dumps(evidence.as_dict()))
         self.assertNotIn('one.php', json.dumps(evidence.as_dict()))
 
     def test_reencoded_identity_or_seed_bytes_are_rejected(self):
-        for index, key in ((1, None), (2, 'manifestBytes')):
+        for index, key in ((1, None), (2, 'manifestBytes'), (3, 'migrationManifestBytes')):
             values = list(fixture())
             if key is None: values[index] = encoded(json.loads(values[index]))
             else: values[index][key] = encoded(json.loads(values[index][key]))
@@ -64,7 +68,7 @@ class CmsEvidenceTests(unittest.TestCase):
                    *[(0, ('prerelease', key)) for key in ('state', 'siteId', 'commit', 'cmsIdentitySha256')],
                    (2, ('candidate', 'archiveSha256')), (2, ('candidate', 'commit')), (2, ('candidate', 'manifestSha256')),
                    (2, ('archiveFiles', 'wordpress/seed/one.php')),
-                   *[(3, (key,)) for key in ('siteScope', 'candidate', 'publishedRecords', 'contentSha256', 'seedManifestSha256', 'orderedSeedHashes')],
+                   *[(3, (key,)) for key in ('siteScope', 'candidate', 'publishedRecords', 'contentSha256', 'seedManifestSha256', 'orderedSeedHashes', 'migrationManifestBytes')],
                    *[(4, (key,)) for key in ('siteScope', 'publishedRecords', 'contentSha256', 'observedAt')]]
         for index, path in changes:
             values = deepcopy(fixture()); cursor = values[index]

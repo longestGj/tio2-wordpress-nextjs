@@ -61,4 +61,25 @@ class AdminBundleTests(unittest.TestCase):
     names=set(archive.getnames())
    self.assertIn('admin/root-adopt.sh',names)
    self.assertNotIn('admin-bundle.sha256.json',names)
+ def test_git_replacement_cannot_substitute_commit_or_blob_bytes(self):
+  spec=importlib.util.spec_from_file_location('bundle_replace_test',ROOT/'ops/production/build_admin_bundle.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+  with tempfile.TemporaryDirectory() as t:
+   repo=Path(t)/'repo';repo.mkdir()
+   def git(*args):return subprocess.check_output(['git','-C',str(repo),*args],stderr=subprocess.DEVNULL).decode().strip()
+   git('init','-q');git('config','user.email','test@example.invalid');git('config','user.name','Fixture')
+   server=repo/'ops/production/server';server.mkdir(parents=True)
+   (server/'bootstrap_install.py').write_text("REQUIRED_FILES = ('bootstrap_install.py', 'only.py', 'tool-commit.txt')\n")
+   (server/'only.py').write_bytes(b'COMMIT A REAL BYTES\n');git('add','.');git('commit','-qm','A')
+   first=git('rev-parse','HEAD');first_blob=git('rev-parse','HEAD:ops/production/server/only.py')
+   (server/'only.py').write_bytes(b'COMMIT B REPLACEMENT\n');git('add','.');git('commit','-qm','B')
+   second=git('rev-parse','HEAD');second_blob=git('rev-parse','HEAD:ops/production/server/only.py');module.ROOT=repo
+   for kind,original,replacement in (('commit',first,second),('blob',first_blob,second_blob)):
+    with self.subTest(kind=kind):
+     git('replace',original,replacement)
+     output=Path(t)/(kind+'.tar.gz');record=module.build(first,output)
+     with tarfile.open(output,'r:gz') as archive:
+      self.assertEqual(archive.extractfile('admin/only.py').read(),b'COMMIT A REAL BYTES\n')
+      self.assertEqual(archive.extractfile('admin/tool-commit.txt').read(),(first+'\n').encode())
+     self.assertEqual(record['toolCommit'],first)
+     git('replace','-d',original)
 if __name__=='__main__':unittest.main()

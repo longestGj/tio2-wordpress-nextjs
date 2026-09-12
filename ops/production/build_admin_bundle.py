@@ -15,17 +15,17 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def blob(revision, path):
-    mode = subprocess.check_output(['git', '-C', str(ROOT), 'ls-tree', revision, '--', path]).decode().split()
+    mode = subprocess.check_output(['git', '--no-replace-objects', '-C', str(ROOT), 'ls-tree', revision, '--', path]).decode().split()
     if len(mode) != 4 or mode[0] not in {'100644', '100755'} or mode[1] != 'blob':
         raise ValueError('administrator source must be a regular committed file')
-    return subprocess.check_output(['git', '-C', str(ROOT), 'cat-file', 'blob', revision + ':' + path])
+    return subprocess.check_output(['git', '--no-replace-objects', '-C', str(ROOT), 'cat-file', 'blob', revision + ':' + path])
 
 
 def build(revision, output):
     if not isinstance(revision, str) or not re.fullmatch('[a-f0-9]{40}', revision):
         raise ValueError('exact tool commit required')
     try:
-        kind = subprocess.check_output(['git', '-C', str(ROOT), 'cat-file', '-t', revision], stderr=subprocess.DEVNULL).strip()
+        kind = subprocess.check_output(['git', '--no-replace-objects', '-C', str(ROOT), 'cat-file', '-t', revision], stderr=subprocess.DEVNULL).strip()
     except subprocess.CalledProcessError as error:
         raise ValueError('exact tool commit required') from error
     if kind != b'commit': raise ValueError('exact tool commit required')

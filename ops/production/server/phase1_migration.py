@@ -148,8 +148,17 @@ class Phase1Migration:
             except FileNotFoundError: continue
             is_link = stat.S_ISLNK(metadata.st_mode) or bool(getattr(metadata, 'st_file_attributes', 0) & 0x400)
             if is_link and not (item == path and link): raise ReleaseError('unsafe migration symlink')
-            if not self.paths.simulation and (metadata.st_uid != 0 or stat.S_IMODE(metadata.st_mode) & 0o022):
+            if not self.paths.simulation and (metadata.st_uid != 0 or not is_link and stat.S_IMODE(metadata.st_mode) & 0o022):
                 raise ReleaseError('migration path is not root protected')
+            if is_link:
+                require(path in {self.paths.program_link, self.paths.program_link.with_name('.program.phase1-new')}, 'fixed program link')
+                value = os.readlink(path)
+                require(re.fullmatch(r'programs/[A-Za-z0-9][A-Za-z0-9_.-]*', value) is not None, 'program link target scope')
+                target = path.parent / value
+                # Check the un-resolved path first so a symlink anywhere in the
+                # target ancestry cannot escape the fixed generation directory.
+                self._check(target)
+                require(target.is_dir() and target.resolve(strict=True).parent == (path.parent / 'programs').resolve(strict=True), 'resolved program generation')
 
     def _read(self, path, *, limit=32 * 1024 * 1024):
         self._check(path)
@@ -210,8 +219,8 @@ class Phase1Migration:
         self.checkpoint(name)
         if name == self.fail_after: raise ReleaseError('injected phase1 interruption: ' + name)
 
-    def _snapshot_path(self, path):
-        self._check(path, link=path == self.paths.program_link)
+    def _snapshot_path(self, path, *, link=False):
+        self._check(path, link=link or path == self.paths.program_link)
         if not os.path.lexists(path): return {'kind': 'absent'}
         metadata = path.lstat()
         if stat.S_ISLNK(metadata.st_mode):
@@ -230,7 +239,53 @@ class Phase1Migration:
         return entries
 
     def _installed_hash(self, name, path):
-        return digest(canonical(self._tree(path) if name == 'generation' else self._snapshot_path(path)))
+        return digest(canonical(self._target_snapshot(name, path)))
+
+    def _target_snapshot(self, name, path):
+        if name != 'generation' or not path.exists(): return self._snapshot_path(path, link=name == 'program')
+        self._check(path)
+        require(path.is_dir(), 'program generation directory')
+        entries = {}
+        for item in sorted(path.iterdir()):
+            value = self._snapshot_path(item)
+            require(value['kind'] == 'file', 'flat program generation')
+            entries[item.name] = {**value, 'data': digest(base64.b64decode(value['data']))}
+        metadata = path.stat()
+        return {'kind': 'generation', 'files': entries, 'mode': stat.S_IMODE(metadata.st_mode),
+                'uid': metadata.st_uid, 'gid': metadata.st_gid}
+
+    def _unmanaged(self, targets, absent_parents):
+        """Bind adjacent state/registration/program files, including later transactions."""
+        excluded = {*targets.values(), *(path.with_name('.' + path.name + '.phase1-new') for path in targets.values()), self.paths.legacy_lock}
+        ignored_dirs = {Path(value) for value in absent_parents}
+        roots = (self.paths.legacy_state.parent, self.paths.program_link.parent / 'programs', self.paths.registry,
+                 self.paths.state.parent, self.paths.wrapper.parent, self.paths.sudoers.parent)
+        values = {}
+        for root in roots:
+            if not root.exists(): continue
+            for path in (root, *sorted(root.rglob('*'))):
+                if any(path == item or path.is_relative_to(item) for item in excluded): continue
+                self._check(path)
+                if path.is_dir():
+                    if path not in ignored_dirs:
+                        metadata = path.stat()
+                        values[str(path)] = {'kind': 'directory', 'mode': stat.S_IMODE(metadata.st_mode), 'uid': metadata.st_uid, 'gid': metadata.st_gid}
+                else:
+                    value = self._snapshot_path(path)
+                    values[str(path)] = {**value, 'data': digest(base64.b64decode(value['data']))}
+        return values
+
+    def _expected(self, replacements, staging):
+        sample = self._snapshot_path(staging / 'tool-commit.txt')
+        expected = {'generation': self._target_snapshot('generation', staging)}
+        for name in COMMIT_ORDER[1:]:
+            if name == 'program' and not self.paths.simulation:
+                expected[name] = {'kind': 'link', 'data': replacements[name], 'uid': 0, 'gid': 0}
+            else:
+                mode = 0o440 if name == 'sudoers' else 0o750 if name == 'wrapper' else 0o600
+                content = replacements[name].encode() if name == 'program' else replacements[name]
+                expected[name] = {**sample, 'data': base64.b64encode(content).decode(), 'mode': mode if os.name == 'posix' else sample['mode']}
+        return expected
 
     def _bundle(self):
         manifest = self._json(self.bundle.with_name(self.bundle.name + '.sha256.json'))
@@ -276,7 +331,7 @@ class Phase1Migration:
     def _prepare(self):
         manifest, contents = self._bundle()
         if self.paths.journal.exists(): raise ReleaseError('phase1 recovery required')
-        if self.paths.receipt.exists(): raise ReleaseError('phase1 migration already completed')
+        if self.paths.receipt.exists() or (self.paths.work / 'completed-journal.json').exists(): raise ReleaseError('phase1 migration already completed')
         runtime = _without_observation(self.snapshot())
         inputs = self.input_loader()
         legacy_bytes = self._read(self.paths.legacy_state)
@@ -284,6 +339,7 @@ class Phase1Migration:
         state = migrate_prepared_state(strict_json(legacy_bytes), inputs['transaction'], inputs['hostBaseline'], inputs['cmsEvidence'], inputs['siteBaseline'])
         require(set(inputs['registration']) == set(REGISTRATION_FILES) and all(isinstance(data, bytes) for data in inputs['registration'].values()), 'registration inventory')
         targets = self._targets(manifest['toolCommit'])
+        require(all(not os.path.lexists(path.with_name('.' + path.name + '.phase1-new')) for path in targets.values()), 'no unjournaled staged target')
         before = {name: self._snapshot_path(path) for name, path in targets.items()}
         require(before['generation']['kind'] == 'absent' and before['state']['kind'] == 'absent'
                 and before['transaction']['kind'] == 'absent', 'new migration targets')
@@ -309,6 +365,7 @@ class Phase1Migration:
                    'transactionSha256': digest(replacements['transaction']), 'stateTemplateSha256': digest(canonical(_without_observation(state))),
                    'cmsEvidence': _without_observation(inputs['cmsEvidence'].as_dict()),
                    'beforeSha256': digest(canonical(before)), 'absentParents': sorted(absent_parents),
+                   'unmanagedSha256': digest(canonical(self._unmanaged(targets, absent_parents))),
                    'replacementOrder': list(COMMIT_ORDER), 'runtimeBefore': runtime}
         return MigrationPlan(canonical(binding)), before, replacements
 
@@ -344,8 +401,10 @@ class Phase1Migration:
                     self.self_test(staging)
                     require(self._tree(staging) == data['adminFiles'], 'staged program bytes')
                     self.sudo_validator(staging / 'sudoers.tio2-release')
+                    expected = self._expected(replacements, staging)
                     journal = {'schemaVersion': 'd16-phase1-migration-journal-v1', 'plan': data, 'before': before,
-                               'commits': [], 'staging': staging.name, 'restored': []}
+                               'expected': expected, 'expectedSha256': digest(canonical(expected)),
+                               'commits': [], 'staging': staging.name, 'restored': [], 'restoring': []}
                     self._atomic(self.paths.journal, canonical(journal))
                     for directory in sorted(data['absentParents'], key=lambda value: len(Path(value).parts)):
                         self._mkdir(Path(directory))
@@ -365,20 +424,23 @@ class Phase1Migration:
                             self._atomic(target, replacements[name], 0o440 if name == 'sudoers' else 0o750 if name == 'wrapper' else 0o600,
                                          replaced=lambda: self._point(name + ':replaced'), staged=lambda: self._point(name + ':staged'))
                         journal['commits'][-1]['installedSha256'] = self._installed_hash(name, target)
+                        require(self._target_snapshot(name, target) == expected[name], 'expected installed target')
                         journal['commits'][-1]['committed'] = True
                         self._atomic(self.paths.journal, canonical(journal)); self._point(name + ':committed')
                     for item in journal['commits']:
                         require(self._installed_hash(item['name'], targets[item['name']]) == item['installedSha256'], 'installed migration bytes')
                     after = _without_observation(self.snapshot())
                     require(after == data['runtimeBefore'] and digest(self._read(self.paths.legacy_state)) == data['legacyStateSha256'], 'unchanged production after migration')
+                    require(digest(canonical(self._unmanaged(targets, data['absentParents']))) == data['unmanagedSha256'], 'unchanged surrounding state')
                     self._point('verified')
                     receipt = {'schemaVersion': 'd16-phase1-migration-receipt-v1', 'planHash': plan_hash, 'subject': 'tio2-my',
                                'state': 'PREPARED', 'commits': journal['commits'], 'runtimeAfter': after, 'legacyStateSha256': data['legacyStateSha256']}
                     self._point('receipt')
-                    # The outcome file is the final commit. A complete journal
-                    # without this file still requires explicit recovery.
-                    journal['completed'] = True; self._atomic(self.paths.journal, canonical(journal))
+                    # Publishing the receipt terminates recovery, even if power
+                    # fails before the journal can be moved to its archive.
                     self._atomic(self.paths.receipt, canonical(receipt))
+                    journal['completed'] = True; self._atomic(self.paths.journal, canonical(journal))
+                    os.replace(self.paths.journal, self.paths.work / 'completed-journal.json'); self._sync(self.paths.work)
                     return MigrationReceipt(canonical(receipt))
                 finally:
                     if staging.is_dir(): shutil.rmtree(staging)
@@ -391,30 +453,70 @@ class Phase1Migration:
             # Validate trusted code and journal before reading any recovery path.
             administrator, _ = self._bundle()
             try:
+                require(not os.path.lexists(self.paths.receipt) and not os.path.lexists(self.paths.work / 'completed-journal.json'), 'unfinished migration')
                 journal = self._json(self.paths.journal); plan = journal['plan']; before = journal['before']
                 payload = {key: value for key, value in plan.items() if key != 'planHash'}
                 require(journal['schemaVersion'] == 'd16-phase1-migration-journal-v1' and digest(canonical(payload)) == plan['planHash']
                         and plan['replacementOrder'] == list(COMMIT_ORDER) and set(before) == set(COMMIT_ORDER)
                         and digest(canonical(before)) == plan['beforeSha256'] and re.fullmatch('[a-f0-9]{40}', plan['targetCommit'])
                         and administrator['toolCommit'] == plan['targetCommit'] and administrator['archiveSha256'] == plan['adminArchiveSha256'], 'recovery journal binding')
+                require(not journal.get('completed'), 'unfinished journal')
+                require(isinstance(journal['staging'], str) and re.fullmatch('staging-[a-f0-9]{32}', journal['staging']), 'recovery staging identity')
                 targets = self._targets(plan['targetCommit'])
                 allowed_parents = {str(parent) for target in targets.values() for parent in target.parents if parent.is_relative_to(self.paths.root)}
                 require(set(plan['absentParents']) <= allowed_parents, 'recovery directory scope')
                 require(digest(self._read(self.paths.legacy_state)) == plan['legacyStateSha256'], 'legacy state before recovery')
+                expected = journal['expected']; commits = journal['commits']; restoring = journal['restoring']
+                require(set(expected) == set(COMMIT_ORDER) and digest(canonical(expected)) == journal['expectedSha256']
+                        and [item['name'] for item in commits] == list(COMMIT_ORDER[:len(commits)])
+                        and all(item['committed'] is True for item in commits[:-1])
+                        and (not commits or type(commits[-1]['committed']) is bool)
+                        and len(restoring) == len(set(restoring)) and set(restoring) <= set(COMMIT_ORDER), 'recovery progress')
+                restored_names = [item['name'] for item in journal['restored']]
+                require(len(restored_names) == len(set(restored_names)) and set(restored_names) <= set(restoring)
+                        and all(item['restoredSha256'] == digest(canonical(before[item['name']])) for item in journal['restored']), 'recovery restore progress')
+                retired = self.paths.work / ('retired-' + journal['staging'])
+                self._check(retired)
+                if os.path.lexists(retired):
+                    require('generation' in restoring and not os.path.lexists(targets['generation'])
+                            and self._target_snapshot('generation', retired) == expected['generation'], 'retired migration ownership')
+                for index, name in enumerate(COMMIT_ORDER):
+                    current = self._target_snapshot(name, targets[name])
+                    allowed = [before[name]] if index >= len(commits) or name in restored_names else [expected[name]]
+                    if name in restoring or index < len(commits) and not commits[index]['committed']: allowed.append(before[name])
+                    require(current in allowed, 'current migration ownership')
+                    if index < len(commits) and commits[index]['committed']:
+                        require(commits[index]['installedSha256'] == digest(canonical(expected[name])), 'installed journal target')
+                    temporary = targets[name].with_name('.' + targets[name].name + '.phase1-new')
+                    if os.path.lexists(temporary):
+                        require(name != 'generation' and index < len(commits)
+                                and self._snapshot_path(temporary, link=name == 'program') in
+                                ([expected[name], before[name]] if name in restoring else [expected[name]]), 'staged migration ownership')
+                require(digest(canonical(self._unmanaged(targets, plan['absentParents']))) == plan['unmanagedSha256'], 'surrounding migration ownership')
+                old_program = (self.paths.program_link.parent / plan['oldProgram']['target']).resolve(strict=True)
+                require(self._tree(old_program) == plan['oldProgram']['files'], 'old program before recovery')
+                require(_without_observation(self.snapshot()) == plan['runtimeBefore'], 'runtime before recovery')
             except Exception as error:
                 raise ReleaseError('phase1 recovery journal is invalid') from error
-            failures, restored = [], []
+            failures, restored = [], list(journal['restored'])
             for name in reversed(COMMIT_ORDER):
                 target, previous = targets[name], before[name]
                 try:
+                    if name in restored_names: continue
+                    if name not in journal['restoring']: journal['restoring'].append(name)
+                    self._atomic(self.paths.journal, canonical(journal))
                     temporary = target.parent / ('.' + target.name + '.phase1-new')
                     self._check(temporary, link=name == 'program')
                     if os.path.lexists(temporary): temporary.unlink(); self._sync(temporary.parent)
                     if previous['kind'] == 'absent':
                         self._check(target)
                         if name == 'generation' and target.exists():
+                            require(self._snapshot_path(self.paths.program_link) == before['program'], 'program restored before generation removal')
                             require(self._tree(target) == plan['adminFiles'], 'recovery generation bytes')
-                            shutil.rmtree(target)
+                            retired = self.paths.work / ('retired-' + journal['staging'])
+                            self._check(retired)
+                            require(not os.path.lexists(retired), 'unused retirement path')
+                            os.replace(target, retired); self._sync(self.paths.work)
                         else: target.unlink(missing_ok=True)
                         if target.parent.exists(): self._sync(target.parent)
                     elif previous['kind'] == 'file':
@@ -439,7 +541,6 @@ class Phase1Migration:
             receipt = {'schemaVersion': 'd16-phase1-recovery-receipt-v1', 'planHash': plan['planHash'], 'restored': restored,
                        'runtimeAfter': after, 'legacyStateSha256': digest(self._read(self.paths.legacy_state))}
             self._atomic(self.paths.work / 'recovery-receipt.json', canonical(receipt))
-            self.paths.receipt.unlink(missing_ok=True)
             self._atomic(self.paths.work / 'recovered-journal.json', canonical(journal))
             self.paths.journal.unlink(); self._sync(self.paths.work)
             return RecoveryReceipt(canonical(receipt))
@@ -522,8 +623,17 @@ class SystemMigrationInputs:
         require(adopted == release_identity, 'original adoption candidate')
         adopted_root = Path('/opt/tio2-production/releases') / adopted['commit']
         content = journal['details']['content']
-        require(digest(m._read(adopted_root / 'ops/production/migration-manifest.json')) == content['seedManifestSha256'], 'adoption seed receipt')
-        seeds = strict_json(seed_bytes)['seeds']
+        migration_bytes = m._read(adopted_root / 'ops/production/migration-manifest.json')
+        require(digest(migration_bytes) == content['seedManifestSha256']
+                and seed_snapshot['archiveFiles'].get('ops/production/migration-manifest.json') == content['seedManifestSha256'], 'adoption seed receipt and archive')
+        migration_manifest = strict_json(migration_bytes)
+        require(set(migration_manifest) == {'schemaVersion', 'siteId', 'seeds'}
+                and migration_manifest['schemaVersion'] == 'tio2-my-production-migration-v1'
+                and migration_manifest['siteId'] == 'tio2-my', 'original adoption manifest')
+        # initialize() executed this original manifest list in its recorded
+        # order. The prerelease list must never supply adoption evidence.
+        seeds = migration_manifest['seeds']
+        require(isinstance(seeds, list) and seeds == strict_json(seed_bytes)['seeds'], 'actual adopted seed sequence')
         ordered_hashes = []
         for item in seeds:
             # Validate paths against the manifest before joining a root path.
@@ -534,7 +644,8 @@ class SystemMigrationInputs:
             require(value == item['sha256'], 'original adopted seed bytes')
             ordered_hashes.append(value)
         adoption = {'siteScope': 'tio2-my', 'candidate': adopted, 'publishedRecords': content['publishedRecords'],
-                    'contentSha256': content['contentSha256'], 'seedManifestSha256': digest(seed_bytes), 'orderedSeedHashes': ordered_hashes}
+                    'contentSha256': content['contentSha256'], 'migrationManifestBytes': migration_bytes,
+                    'seedManifestSha256': content['seedManifestSha256'], 'orderedSeedHashes': ordered_hashes}
         cms = verify_frontend_only_evidence(proof, identity, seed_snapshot, adoption, self.live_scope)
         transaction = {'schemaVersion': 'd16-production-transaction-v1', 'subject': 'tio2-my', 'releaseType': 'frontend-only',
                        'releaseId': COMPATIBILITY_RELEASE_ID, 'sourceCommit': COMPATIBILITY_COMMIT, 'runRoot': COMPATIBILITY_RUN_ROOT,

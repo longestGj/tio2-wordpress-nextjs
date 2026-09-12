@@ -56,6 +56,7 @@ class CmsEvidence:
     proof_sha256: str
     candidate_sha256: str
     seed_manifest_sha256: str
+    adoption_seed_manifest_sha256: str
     seed_snapshot_sha256: str
     adoption_sha256: str
     live_scope_sha256: str
@@ -92,7 +93,7 @@ def verify_frontend_only_evidence(proof, identity_bytes, seed_manifest, adoption
         manifest = strict_json(raw_manifest)
         require(manifest['schemaVersion'] == 1 and manifest['siteScope'] == 'tio2-my', 'seed scope')
         seeds = manifest['seeds']
-        require(isinstance(seeds, list) and len(seeds) > 0, 'seed list')
+        require(isinstance(seeds, list) and len(seeds) == counts['seedFiles'], 'seed list')
         paths, hashes = [], []
         for seed in seeds:
             require(isinstance(seed, dict) and set(seed) == {'path', 'sha256'}, 'seed fields')
@@ -103,9 +104,18 @@ def verify_frontend_only_evidence(proof, identity_bytes, seed_manifest, adoption
             require(seed_manifest['archiveFiles'].get(path) == sha, 'archived seed')
             paths.append(path); hashes.append(sha)
         require(identity['orderedSeedHashes'] == hashes, 'ordered seed hashes')
-        require(set(adoption) == {'siteScope', 'candidate', 'publishedRecords', 'contentSha256', 'seedManifestSha256', 'orderedSeedHashes'}, 'adoption fields')
+        require(set(adoption) == {'siteScope', 'candidate', 'publishedRecords', 'contentSha256', 'seedManifestSha256', 'orderedSeedHashes', 'migrationManifestBytes'}, 'adoption fields')
+        raw_adoption_manifest = adoption['migrationManifestBytes']
+        require(isinstance(raw_adoption_manifest, bytes), 'adoption manifest bytes')
+        adoption_seed_hash = digest(raw_adoption_manifest)
+        adopted_manifest = strict_json(raw_adoption_manifest)
+        require(set(adopted_manifest) == {'schemaVersion', 'siteId', 'seeds'}
+                and adopted_manifest['schemaVersion'] == 'tio2-my-production-migration-v1'
+                and adopted_manifest['siteId'] == 'tio2-my' and adopted_manifest['seeds'] == seeds, 'actual adoption seed sequence')
         require(adoption['candidate'] == candidate and adoption['siteScope'] == 'tio2-my'
-                and adoption['seedManifestSha256'] == seed_hash and adoption['orderedSeedHashes'] == hashes, 'adoption identity')
+                and adoption['seedManifestSha256'] == adoption_seed_hash
+                and seed_manifest['archiveFiles'].get('ops/production/migration-manifest.json') == adoption_seed_hash
+                and adoption['orderedSeedHashes'] == hashes, 'adoption identity')
         require(type(adoption['publishedRecords']) is int and adoption['publishedRecords'] == counts['published']
                 and valid_hash(adoption['contentSha256']), 'adoption content')
         require(set(live_scope) == {'siteScope', 'publishedRecords', 'contentSha256', 'observedAt'}, 'live fields')
@@ -115,8 +125,9 @@ def verify_frontend_only_evidence(proof, identity_bytes, seed_manifest, adoption
         observed = datetime.fromisoformat(live_scope['observedAt'].replace('Z', '+00:00'))
         require(observed.tzinfo is not None and -30 <= (datetime.now(timezone.utc) - observed).total_seconds() <= 300, 'live freshness')
         seed_record = {**seed_manifest, 'manifestBytes': seed_hash}
-        return CmsEvidence(identity_hash, digest(canonical(proof)), digest(canonical(candidate)), seed_hash,
-                           digest(canonical(seed_record)), digest(canonical(adoption)), digest(canonical(live_scope)),
+        adoption_record = {**adoption, 'migrationManifestBytes': adoption_seed_hash}
+        return CmsEvidence(identity_hash, digest(canonical(proof)), digest(canonical(candidate)), seed_hash, adoption_seed_hash,
+                           digest(canonical(seed_record)), digest(canonical(adoption_record)), digest(canonical(live_scope)),
                            'tio2-my', counts['published'], adoption['contentSha256'], live_scope['contentSha256'])
     except (KeyError, TypeError, ValueError, AttributeError, OverflowError) as error:
         raise ReleaseError('CMS evidence is incomplete or invalid') from error
