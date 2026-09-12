@@ -15,9 +15,9 @@ from subject_registry import SubjectRegistry
 
 
 _BOUNDARY = re.compile(r"(?m)^# configuration file (.+):[ \t]*\r?$")
-_DIRECTIVE = re.compile(
-    r"\b(include|server_name|listen|proxy_pass|ssl_certificate_key|ssl_certificate)\s+([^;{}]+);"
-)
+_RESOURCE_DIRECTIVES = frozenset({
+    "include", "server_name", "listen", "proxy_pass", "ssl_certificate_key", "ssl_certificate",
+})
 
 
 @dataclass(frozen=True)
@@ -122,7 +122,10 @@ def _include_references(value: str, logical: dict[str, tuple[object, str]]) -> l
 
 
 def _port_from_proxy(value: str) -> str:
-    parsed = urlsplit(value)
+    try:
+        parsed = urlsplit(value)
+    except ValueError as error:
+        raise ReleaseError("unregistered port reference") from error
     if parsed.scheme not in {"http", "https"} or not parsed.hostname:
         raise ReleaseError("unregistered port reference")
     try:
@@ -137,45 +140,97 @@ def _port_from_proxy(value: str) -> str:
     return f"{host}:{port}"
 
 
-def _syntax_without_comments_or_quotes(content: str) -> str:
-    """Mask comments and quoted bytes while preserving statement boundaries."""
-    result: list[str] = []
+def _directives(content: str) -> tuple[tuple[str, tuple[str, ...]], ...]:
+    """Tokenize effective Nginx syntax while decoding quoted and escaped arguments."""
+    directives: list[tuple[str, tuple[str, ...]]] = []
+    statement: list[str] = []
+    token: list[str] = []
+    token_started = False
     quote: str | None = None
     escaped = False
     comment = False
+    variable_brace = False
+    block_depth = 0
+
+    def finish_token() -> None:
+        nonlocal token_started
+        if token_started:
+            statement.append("".join(token))
+            token.clear()
+            token_started = False
+
     for character in content:
         if comment:
             if character in "\r\n":
                 comment = False
-                result.append(character)
-            else:
-                result.append(" ")
             continue
         if escaped:
-            result.append(" ")
+            token.append(character)
+            token_started = True
             escaped = False
             continue
         if character == "\\":
-            result.append(" ")
             escaped = True
+            token_started = True
             continue
         if quote is not None:
             if character == quote:
                 quote = None
-            result.append(" " if character not in "\r\n" else character)
+            else:
+                token.append(character)
+            continue
+        if variable_brace:
+            if character == "}":
+                token.append(character)
+                variable_brace = False
+            elif character.isalnum() or character == "_":
+                token.append(character)
+            else:
+                raise ReleaseError("invalid Nginx variable syntax")
             continue
         if character in {'"', "'"}:
             quote = character
-            result.append(" ")
+            token_started = True
             continue
         if character == "#":
+            finish_token()
             comment = True
-            result.append(" ")
             continue
-        result.append(character)
-    if quote is not None or escaped:
+        if character.isspace():
+            finish_token()
+            continue
+        if character == ";":
+            finish_token()
+            if not statement:
+                raise ReleaseError("invalid Nginx directive syntax")
+            directives.append((statement[0], tuple(statement[1:])))
+            statement.clear()
+            continue
+        if character == "{":
+            if token and token[-1] == "$":
+                token.append(character)
+                variable_brace = True
+                continue
+            finish_token()
+            if not statement or statement[0] in _RESOURCE_DIRECTIVES:
+                raise ReleaseError("invalid Nginx directive syntax")
+            statement.clear()
+            block_depth += 1
+            continue
+        if character == "}":
+            finish_token()
+            if statement or block_depth == 0:
+                raise ReleaseError("invalid Nginx directive syntax")
+            block_depth -= 1
+            continue
+        token.append(character)
+        token_started = True
+    if quote is not None or escaped or variable_brace:
         raise ReleaseError("invalid Nginx quoted syntax")
-    return "".join(result)
+    finish_token()
+    if statement or block_depth:
+        raise ReleaseError("invalid Nginx directive syntax")
+    return tuple(directives)
 
 
 def _classify_references(
@@ -186,19 +241,21 @@ def _classify_references(
     ports: dict[str, str],
     tls: dict[str, tuple[str, str, str]],
 ) -> tuple[NginxReference, ...]:
-    uncommented = _syntax_without_comments_or_quotes(content)
     references: list[NginxReference] = []
     certificate_names: set[str] = set()
     private_key_names: set[str] = set()
-    for match in _DIRECTIVE.finditer(uncommented):
-        kind, raw = match.group(1), match.group(2).strip()
-        if not raw:
-            raise ReleaseError("invalid Nginx directive")
+    for kind, arguments in _directives(content):
+        if kind not in _RESOURCE_DIRECTIVES:
+            continue
         if kind == "include":
-            references.extend(_include_references(raw, logical))
+            if len(arguments) != 1:
+                raise ReleaseError("invalid Nginx include directive")
+            references.extend(_include_references(arguments[0], logical))
             continue
         if kind == "server_name":
-            for name in raw.split():
+            if not arguments:
+                raise ReleaseError("invalid Nginx server_name directive")
+            for name in arguments:
                 if name == "_":
                     continue
                 resource_owner = domains.get(name)
@@ -209,7 +266,9 @@ def _classify_references(
                 references.append(NginxReference(kind, name, resource_owner))
             continue
         if kind == "listen":
-            endpoint = raw.split()[0]
+            if not arguments:
+                raise ReleaseError("invalid Nginx listen directive")
+            endpoint = arguments[0]
             resource_owner = ports.get(endpoint)
             if resource_owner is None:
                 raise ReleaseError("unregistered port reference")
@@ -218,7 +277,9 @@ def _classify_references(
             references.append(NginxReference(kind, endpoint, resource_owner))
             continue
         if kind == "proxy_pass":
-            endpoint = _port_from_proxy(raw)
+            if len(arguments) != 1:
+                raise ReleaseError("invalid Nginx proxy directive")
+            endpoint = _port_from_proxy(arguments[0])
             resource_owner = ports.get(endpoint)
             if resource_owner is None:
                 raise ReleaseError("unregistered port reference")
@@ -226,6 +287,9 @@ def _classify_references(
                 raise ReleaseError("Nginx proxy owner mismatch")
             references.append(NginxReference(kind, endpoint, resource_owner))
             continue
+        if len(arguments) != 1:
+            raise ReleaseError("invalid Nginx TLS directive")
+        raw = arguments[0]
         resource = tls.get(raw)
         if resource is None:
             raise ReleaseError("unregistered Nginx TLS reference")
@@ -261,6 +325,8 @@ def _validate_include_ownership(files: list[NginxFile]) -> None:
             target = by_path[path]
             if target.owner not in {"host", origin.owner}:
                 raise ReleaseError("Nginx nested include owner mismatch")
+            if target.owner == "host" and any(reference.kind != "include" for reference in target.references):
+                raise ReleaseError("Nginx host resource cannot be borrowed by a subject")
             pending.extend(reference.value for reference in target.references if reference.kind == "include")
 
 
@@ -281,13 +347,12 @@ def _effective_files(dump: str) -> dict[str, str]:
         else:
             raise ReleaseError("Nginx configuration dump boundary is invalid")
         content_end = boundaries[index + 1].start() if index + 1 < len(boundaries) else len(dump)
-        if index + 1 < len(boundaries):
-            if dump[content_end - 2:content_end] == "\r\n":
-                content_end -= 2
-            elif dump[content_end - 1:content_end] == "\n":
-                content_end -= 1
-            else:
-                raise ReleaseError("Nginx configuration dump separator is invalid")
+        if dump[content_end - 2:content_end] == "\r\n":
+            content_end -= 2
+        elif dump[content_end - 1:content_end] == "\n":
+            content_end -= 1
+        else:
+            raise ReleaseError("Nginx configuration dump separator is invalid")
         observed[path] = dump[content_start:content_end]
     return observed
 

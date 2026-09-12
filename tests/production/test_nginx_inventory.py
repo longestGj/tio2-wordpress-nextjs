@@ -108,9 +108,9 @@ class NginxInventoryTests(unittest.TestCase):
 
     def dump(self, overrides: dict[Path, str] | None = None, extra: tuple[Path, str] | None = None) -> str:
         contents = {**self.contents, **(overrides or {})}
-        value = "\n".join(f"# configuration file {path.as_posix()}:\n{contents[path]}" for path in contents)
+        value = "".join(f"# configuration file {path.as_posix()}:\n{contents[path]}\n" for path in contents)
         if extra is not None:
-            value += f"\n# configuration file {extra[0].as_posix()}:\n{extra[1]}"
+            value += f"# configuration file {extra[0].as_posix()}:\n{extra[1]}\n"
         return value
 
     def test_effective_inventory_is_sorted_hashed_and_read_only(self) -> None:
@@ -144,12 +144,47 @@ class NginxInventoryTests(unittest.TestCase):
             ["tio2malaysia.com", "www.tio2malaysia.com"],
         )
 
+    def test_quoted_and_escaped_arguments_are_decoded_and_fully_validated(self) -> None:
+        valid = (
+            "set $backend ${upstream}; set $note escaped\\#hash\\;value;\n"
+            + self.site_config(server_name='tio2"malaysia".com www.tio2malaysia\\.com')
+        )
+        self.site_path.write_text(valid, encoding="utf-8", newline="\n")
+        inventory = classify_nginx(self.dump({self.site_path: valid}), self.registry)
+        site = next(entry for entry in inventory.files if entry.logical_path == self.site_path)
+        self.assertEqual(
+            [reference.value for reference in site.references if reference.kind == "server_name"],
+            ["tio2malaysia.com", "www.tio2malaysia.com"],
+        )
+
+        for server_name, message in (
+            ('tio2malaysia.com "unknown.example"', "unregistered Nginx domain"),
+            ("tio2malaysia.com cms\\.tio2malaysia.com", "domain owner"),
+        ):
+            content = self.site_config(server_name=server_name)
+            self.site_path.write_text(content, encoding="utf-8", newline="\n")
+            with self.subTest(server_name=server_name), self.assertRaisesRegex(ReleaseError, message):
+                classify_nginx(self.dump({self.site_path: content}), self.registry)
+
     def test_nginx_dump_boundaries_preserve_source_blank_lines_and_final_newlines(self) -> None:
         content = "\n" + self.site_config() + "\n\n"
         self.site_path.write_text(content, encoding="utf-8", newline="\n")
         inventory = classify_nginx(self.dump({self.site_path: content}), self.registry)
         site = next(entry for entry in inventory.files if entry.logical_path == self.site_path)
         self.assertEqual(site.sha256, hashlib.sha256(content.encode("utf-8")).hexdigest())
+
+        for final_content in ("proxy_pass http://127.0.0.1:3000;", "proxy_pass http://127.0.0.1:3000;\n\n"):
+            self.upstream_path.write_text(final_content, encoding="utf-8", newline="\n")
+            inventory = classify_nginx(self.dump({self.site_path: content, self.upstream_path: final_content}), self.registry)
+            final_file = next(entry for entry in inventory.files if entry.logical_path == self.upstream_path)
+            with self.subTest(final_content=repr(final_content)):
+                self.assertEqual(final_file.sha256, hashlib.sha256(final_content.encode("utf-8")).hexdigest())
+
+    def test_malformed_ipv6_proxy_is_a_release_error(self) -> None:
+        content = self.site_config(proxy="[::1")
+        self.site_path.write_text(content, encoding="utf-8", newline="\n")
+        with self.assertRaisesRegex(ReleaseError, "port reference"):
+            classify_nginx(self.dump({self.site_path: content}), self.registry)
 
     def test_effective_nginx_rejects_unknown_and_cross_subject_key(self) -> None:
         unknown = self.root / "unknown.conf"
@@ -227,7 +262,7 @@ class NginxInventoryTests(unittest.TestCase):
             path.write_text(content, encoding="utf-8", newline="\n")
 
         def dump() -> str:
-            return "\n".join(f"# configuration file {path.as_posix()}:\n{content}" for path, content in contents.items())
+            return "".join(f"# configuration file {path.as_posix()}:\n{content}\n" for path, content in contents.items())
 
         classify_nginx(dump(), registry)
 
@@ -249,6 +284,49 @@ class NginxInventoryTests(unittest.TestCase):
         self.cms_path.write_text(contents[self.cms_path], encoding="utf-8", newline="\n")
         with self.assertRaisesRegex(ReleaseError, "include owner"):
             classify_nginx(dump(), registry)
+
+    def test_host_resource_fragments_cannot_be_borrowed_by_a_subject(self) -> None:
+        host_resource = self.root / "host-resource.conf"
+        host_bridge = self.root / "host-bridge.conf"
+        host_cert = Path("/etc/letsencrypt/live/host.example.com/fullchain.pem")
+        host_key = Path("/etc/letsencrypt/live/host.example.com/privkey.pem")
+        resource_content = (
+            "server_name host.example.com;\n"
+            f"ssl_certificate {host_cert.as_posix()};\n"
+            f"ssl_certificate_key {host_key.as_posix()};\n"
+            "proxy_pass http://127.0.0.1:9000;\n"
+        )
+        bridge_content = f"include {host_resource.as_posix()};\n"
+        host_resource.write_text(resource_content, encoding="utf-8", newline="\n")
+        host_bridge.write_text(bridge_content, encoding="utf-8", newline="\n")
+
+        subjects = dict(self.registry.subjects)
+        host = subjects["host"]
+        host_certificate = self.certificate("host", "host.example.com", host_cert, host_key, ("host.example.com",))
+        subjects["host"] = replace(
+            host,
+            domains=("host.example.com",),
+            ports=(*host.ports, "127.0.0.1:9000"),
+            nginx_files=(
+                *host.nginx_files,
+                NginxPathPolicy(host_bridge, host_bridge.resolve()),
+                NginxPathPolicy(host_resource, host_resource.resolve()),
+            ),
+            certificates=(host_certificate,),
+        )
+        registry = SubjectRegistry(MappingProxyType(subjects))
+        contents = dict(self.contents)
+        contents[self.host_path] += f"include {host_bridge.as_posix()};\n"
+        contents[host_bridge] = bridge_content
+        contents[host_resource] = resource_content
+
+        for subject_include in (host_resource, host_bridge):
+            contents[self.site_path] = self.site_config() + f"include {subject_include.as_posix()};\n"
+            for path, content in contents.items():
+                path.write_text(content, encoding="utf-8", newline="\n")
+            dump = "".join(f"# configuration file {path.as_posix()}:\n{content}\n" for path, content in contents.items())
+            with self.subTest(subject_include=subject_include), self.assertRaisesRegex(ReleaseError, "host resource"):
+                classify_nginx(dump, registry)
 
     def test_local_adoption_probe_rejects_mutating_commands(self) -> None:
         source = LocalSnapshotSource()

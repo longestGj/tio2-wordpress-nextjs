@@ -167,7 +167,7 @@ class CertificateIdentityTests(unittest.TestCase):
             runner = FakeCertificateRunner()
             before = nginx.read_bytes()
             result = registered_ingress_snapshot(
-                f"# configuration file {nginx.as_posix()}:\n{content}", registry, runner
+                f"# configuration file {nginx.as_posix()}:\n{content}\n", registry, runner
             )
             self.assertEqual(result["serverNames"], ["tio2malaysia.com", "www.tio2malaysia.com"])
             self.assertEqual(result["certificates"][0]["certName"], "tio2malaysia.com")
@@ -208,7 +208,7 @@ class CertificateIdentityTests(unittest.TestCase):
             runner = FakeCertificateRunner()
             result = validate_registered_ingress(
                 registry,
-                f"# configuration file {nginx.as_posix()}:\n{content}",
+                f"# configuration file {nginx.as_posix()}:\n{content}\n",
                 runner,
                 subject_id="tio2-my",
             )
