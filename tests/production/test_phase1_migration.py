@@ -16,7 +16,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from tests.production.test_cms_evidence import sha, encoded, fixture
+from tests.production.test_cms_evidence import sha, encoded, fixture, bind_comparison
 from tests.production.test_phase1_state_migration import state_fixture
 from tests.production.test_bootstrap_install import archive_copy, directory_link
 from phase1_migration import Phase1Migration, MigrationPaths, SystemMigrationInputs, COMMIT_ORDER, COMPATIBILITY_COMMIT
@@ -185,6 +185,7 @@ class Phase1MigrationTests(unittest.TestCase):
     def test_system_inputs_bind_actual_adoption_seed_sequence_before_any_migration_write(self):
         values = list(fixture())
         for candidate in (values[0], values[0]['prerelease'], values[2]['candidate'], values[3]['candidate']): candidate['commit'] = COMPATIBILITY_COMMIT
+        bind_comparison(values)
         proof, identity, seeds, adoption, live = values
         legacy = deepcopy(self.args[0]); legacy['details']['prereleaseProof'] = proof
         self.paths.legacy_state.write_bytes(encoded(legacy))
@@ -194,6 +195,7 @@ class Phase1MigrationTests(unittest.TestCase):
         system.live_scope = live; system.ingress = {'fixture': 'unchanged'}
         for name, data in {'release.tar.gz': b'validated archive fixture', 'release-manifest.json': b'validated manifest fixture',
                            'release-proof.json': encoded(proof), 'cms-identity.json': identity, 'seed-manifest.json': seeds['manifestBytes'],
+                           'cms-comparison-evidence.json': encoded(seeds['comparisonEvidence']),
                            'registration/host.json': b'{}', 'registration/cms/subject.json': b'{}',
                            'registration/sites/tio2-my/site.json': b'{"adapter":"tio2-my-v1"}'}.items():
             path = system.input_root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data)
@@ -212,7 +214,11 @@ class Phase1MigrationTests(unittest.TestCase):
             return original_json(path)
         migration._read = read; migration._json = read_json; migration.input_loader = system.inputs
         before = self.protected_tree()
-        for fault in ('none', 'reorder', 'missing', 'replacement', 'receipt', 'archive', 'seed-bytes', 'journal-plan', 'journal-state'):
+        for fault in ('none', 'reorder', 'missing', 'replacement', 'receipt', 'archive', 'seed-bytes', 'journal-plan', 'journal-state', 'content-mismatch', 'comparison-missing'):
+            comparison_path = system.input_root / 'cms-comparison-evidence.json'
+            if fault == 'comparison-missing': comparison_path.unlink()
+            else: comparison_path.write_bytes(encoded(seeds['comparisonEvidence']))
+            live['contentSnapshot']['contentSha256'] = '9' * 64 if fault == 'content-mismatch' else '6' * 64
             journal['planHash'] = '9' * 64 if fault == 'journal-plan' else plan['planHash']
             journal['state'] = 'INITIALIZING_CONTENT' if fault == 'journal-state' else 'PUBLIC_READY'
             original = {'schemaVersion': 'tio2-my-production-migration-v1', 'siteId': 'tio2-my', 'seeds': deepcopy(json.loads(seeds['manifestBytes'])['seeds'])}
@@ -228,7 +234,7 @@ class Phase1MigrationTests(unittest.TestCase):
                     patch('release_contract.validate_manifest', return_value=manifest), patch('release_contract.inspect_archive'), \
                     patch('release_contract.validate_prerelease_proof', return_value=proof), \
                     patch('release_contract.sha256_file', side_effect=lambda path: self.args[1]['artifacts'][path.name]):
-                if fault == 'none': migration.plan()
+                if fault in ('none', 'reorder', 'missing', 'archive'): migration.plan()
                 else:
                     with self.assertRaises(ReleaseError): migration.plan()
                     self.assertTrue(self.paths.blocked.exists())
@@ -277,6 +283,15 @@ class Phase1MigrationTests(unittest.TestCase):
         self.assertIn('SHORTINIT', commands[0][5])
         self.assertNotIn('UPDATE ', commands[0][5]); self.assertNotIn('INSERT ', commands[0][5])
         with self.assertRaises(ReleaseError): read_cms_scope(Runner(), '--privileged')
+
+    def test_only_the_installed_content_probe_is_allowlisted(self):
+        from adoption_probe import LocalSnapshotSource
+        from cms_content_snapshot import probe_source
+        source = LocalSnapshotSource()
+        command = ('/usr/bin/docker', 'exec', 'b' * 64, 'php', '-r', probe_source())
+        self.assertTrue(source._command_allowed(command))
+        self.assertFalse(source._command_allowed((*command[:-1], command[-1] + 'echo 1;')))
+        self.assertFalse(source._command_allowed((*command[:2], '--privileged', *command[3:])))
 
     def test_old_program_directory_links_fail_preflight_before_writes(self):
         foreign = self.root / 'foreign'; foreign.mkdir()

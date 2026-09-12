@@ -318,6 +318,7 @@ def load_live_baselines(subject, *, registry=None):
     from release_contract import ReleasePaths
     from release_actions import SubprocessCommandRunner
     from adoption_probe import read_cms_scope,LocalSnapshotSource
+    from cms_content_snapshot import read_content_snapshot,validate_snapshot
     from subject_registry import load_registry
     from adoption_contract import validate_plan
     require(subject.subject_id=='tio2-my' and subject.kind=='site','capability-not-installed')
@@ -345,6 +346,9 @@ def load_live_baselines(subject, *, registry=None):
     scope=read_cms_scope(SubprocessCommandRunner(),wordpress)
     require(scope['siteScope']==subject.subject_id and scope['publishedRecords']==cms['published_records']
             and scope['contentSha256']==cms['live_content_sha256'],'live CMS content changed')
+    snapshot=validate_snapshot(read_content_snapshot(SubprocessCommandRunner(),wordpress))
+    require(snapshot['publishedRecords']==cms['published_records']
+            and _digest(snapshot)==cms.get('comparison_content_sha256'),'live CMS complete content changed')
     require(record==_read_record(subject.configuration/'baseline.json',None),'live baseline changed during validation')
     plan=validate_plan(_read_record(subject.configuration/'adoption-plan.json',None))
     adoption=_read_record(subject.production/'state/adoption.json',None)

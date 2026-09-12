@@ -115,6 +115,10 @@ class LocalSnapshotSource:
         if (len(arguments) == 6 and arguments[:2] == ('/usr/bin/docker', 'exec')
                 and re.fullmatch('[a-f0-9]{64}', arguments[2]) and arguments[3:] == ('php', '-r', _CMS_CONTENT_PHP)):
             return True
+        if (len(arguments) == 6 and arguments[:2] == ('/usr/bin/docker', 'exec')
+                and re.fullmatch('[a-f0-9]{64}', arguments[2]) and arguments[3:5] == ('php', '-r')):
+            from cms_content_snapshot import probe_source
+            return arguments[5] == probe_source()
         if len(arguments) == 3 and arguments[:2] == ("/usr/bin/readlink", "--canonicalize-existing"):
             return arguments[2] in self._tls_live_paths
         if len(arguments) == 3 and arguments[:2] == ("/usr/bin/stat", "--printf=%d|%i|%s|%Y|%u|%F|%a"):

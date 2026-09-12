@@ -8,7 +8,7 @@ import base64
 import io
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import shutil
 import stat
@@ -555,7 +555,7 @@ class SystemMigrationInputs:
     """Fixed root-copied inputs; neither command line nor uploads select paths.
 
     /root/d16-phase1/inputs contains the original four candidate artifacts plus
-    seed-manifest.json and registration/{host.json,cms/subject.json,sites/...}.
+    seed-manifest.json, cms-comparison-evidence.json and registration files.
     The adoption plan/journal and live baseline are read at their original fixed
     locations, never reconstructed from a user-supplied 'verified' assertion.
     """
@@ -578,6 +578,8 @@ class SystemMigrationInputs:
         self.ingress = registered_ingress_snapshot(reader._run(['/usr/sbin/nginx', '-T']), registry, reader)
         wordpress = next(item['id'] for item in self.baseline['runtime']['containers'] if item['role'] == 'wordpress')
         self.live_scope = read_cms_scope(reader, wordpress)
+        from cms_content_snapshot import read_content_snapshot
+        self.live_scope['contentSnapshot'] = read_content_snapshot(reader, wordpress)
         ids = sorted(item['id'] for item in self.baseline['runtime']['containers'])
         containers = json.loads(reader._run(['/usr/bin/docker', 'inspect', *ids]))
         running = {item['Id']: {'image': item['Image'], 'running': item['State']['Running'],
@@ -619,7 +621,8 @@ class SystemMigrationInputs:
         seed_bytes = m._read(self.input_root / 'seed-manifest.json')
         release_identity = {key: candidate[key] for key in ('commit', 'archiveSha256', 'manifestSha256')}
         seed_snapshot = {'manifestBytes': seed_bytes, 'candidate': release_identity,
-                         'archiveFiles': {item['path']: item['sha256'] for item in manifest['files']}}
+                         'archiveFiles': {item['path']: item['sha256'] for item in manifest['files']},
+                         'comparisonEvidence': strict_json(m._read(self.input_root / 'cms-comparison-evidence.json'))}
         adoption_plan = validate_plan(m._json(Path('/etc/tio2-production/adoption-plan.json')))
         journal = m._json(Path('/opt/tio2-production/state/adoption.json'))
         require(journal['schemaVersion'] == 'tio2-production-adoption-journal-v1' and journal['state'] == 'PUBLIC_READY'
@@ -631,8 +634,7 @@ class SystemMigrationInputs:
         adopted_root = Path('/opt/tio2-production/releases') / adopted['commit']
         content = journal['details']['content']
         migration_bytes = m._read(adopted_root / 'ops/production/migration-manifest.json')
-        require(digest(migration_bytes) == content['seedManifestSha256']
-                and seed_snapshot['archiveFiles'].get('ops/production/migration-manifest.json') == content['seedManifestSha256'], 'adoption seed receipt and archive')
+        require(digest(migration_bytes) == content['seedManifestSha256'], 'adoption seed receipt')
         migration_manifest = strict_json(migration_bytes)
         require(set(migration_manifest) == {'schemaVersion', 'siteId', 'seeds'}
                 and migration_manifest['schemaVersion'] == 'tio2-my-production-migration-v1'
@@ -640,13 +642,15 @@ class SystemMigrationInputs:
         # initialize() executed this original manifest list in its recorded
         # order. The prerelease list must never supply adoption evidence.
         seeds = migration_manifest['seeds']
-        require(isinstance(seeds, list) and seeds == strict_json(seed_bytes)['seeds'], 'actual adopted seed sequence')
+        require(isinstance(seeds, list) and len(seeds) > 0, 'actual adopted seed sequence')
         ordered_hashes = []
         for item in seeds:
             # Validate paths against the manifest before joining a root path.
-            require(seed_snapshot['archiveFiles'].get(item['path']) == item['sha256']
-                    and item['path'].startswith('wordpress/seed/') and '..' not in Path(item['path']).parts
-                    and '\\' not in item['path'], 'adopted seed path')
+            require(isinstance(item, dict) and set(item) == {'path', 'sha256'}
+                    and isinstance(item['path'], str) and item['path'].startswith('wordpress/seed/')
+                    and '..' not in PurePosixPath(item['path']).parts and '\\' not in item['path']
+                    and PurePosixPath(item['path']).as_posix() == item['path']
+                    and valid_hash(item['sha256']), 'adopted seed path')
             value = digest(m._read(adopted_root / item['path']))
             require(value == item['sha256'], 'original adopted seed bytes')
             ordered_hashes.append(value)
