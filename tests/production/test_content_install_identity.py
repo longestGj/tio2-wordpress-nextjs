@@ -83,6 +83,13 @@ class InstallationIdentityTests(unittest.TestCase):
         with self.assertRaises(ReleaseError):
             self.module.assert_frontend_identity(self.hooks, identity, run=self.runner)
 
+    def test_frontend_mount_order_does_not_change_identity(self):
+        self.inspect['Mounts'] = [{'Destination': '/app/one', 'Source': '/one'},
+                                  {'Destination': '/app/two', 'Source': '/two'}]
+        identity = self.module.observe_frontend_identity(self.hooks, run=self.runner)
+        self.inspect['Mounts'].reverse()
+        self.assertEqual(self.module.observe_frontend_identity(self.hooks, run=self.runner), identity)
+
     def test_wrong_site_stopped_or_privileged_frontend_cannot_be_enrolled(self):
         for mutate in [lambda: self.inspect['Config'].update(Env=['SITE_ID=tio2-a']),
                        lambda: self.inspect['State'].update(Running=False),

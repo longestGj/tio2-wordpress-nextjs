@@ -138,7 +138,9 @@ class InstallationResources:
         self.importer = config['importerContainer']
 
     def _inspect(self, container):
-        return json.loads(self.docker('inspect', container))[0]
+        result = json.loads(self.docker('inspect', container))[0]
+        result['Mounts'] = sorted(result['Mounts'], key=lambda mount: mount['Destination'])
+        return result
 
     def _importer_exists(self):
         return bool(self.docker('ps', '-a', '--filter', 'name=^/' + self.importer + '$', '--format', '{{.Names}}').strip())

@@ -137,6 +137,13 @@ class InstallationResourcesTests(unittest.TestCase):
         self.docker.core['wp-content/plugins/graphql/plugin.php'] = b'changed other plugin'
         self.assertNotEqual(self.resources.snapshot(), first)
 
+    def test_docker_mount_order_does_not_change_resource_identity(self):
+        self.docker.wp['Mounts'].append({'Type': 'volume', 'Source': '/volumes/wp',
+                                        'Destination': '/var/www/html', 'RW': True})
+        first = self.resources.snapshot()
+        self.docker.wp['Mounts'].reverse()
+        self.assertEqual(self.resources.snapshot(), first)
+
     def test_backup_restores_original_plugin_and_php_after_partial_install_failure(self):
         self.docker.php = {'release.php': b'old release'}
         backup = self.resources.backup(self.base / 'backup')

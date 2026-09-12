@@ -78,6 +78,7 @@ def observe_frontend_identity(hooks_config, *, run=None):
         if not re.fullmatch('[A-Za-z0-9_.-]{1,128}', build):
             raise ReleaseError('frontend Build identity is invalid')
         material = {key: value.get(key) for key in ('Config', 'HostConfig', 'Mounts')}
+        material['Mounts'] = sorted(material['Mounts'] or [], key=lambda mount: mount['Destination'])
         return {'containerId': value['Id'], 'imageId': value['Image'], 'buildId': build,
                 'configurationSha256': hashlib.sha256(json.dumps(material, sort_keys=True, separators=(',', ':')).encode()).hexdigest()}
     except (ValueError, TypeError, KeyError, UnicodeError, AttributeError) as error:
