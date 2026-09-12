@@ -42,6 +42,10 @@ function d16_content_storage_order($candidate,$existing) {
 }
 
 try {
+    if ($wpdb->get_var('SELECT DATABASE()')!==getenv('D16_CONTENT_DB') ||
+        $wpdb->get_var('SELECT @@hostname')!==getenv('D16_CONTENT_DB_HOSTNAME')) {
+        throw new RuntimeException('Content database differs from the backed-up database.');
+    }
     $raw = stream_get_contents(STDIN,16*1024*1024+1);
     if (strlen($raw)>16*1024*1024) throw new RuntimeException('Package too large.');
     $object=json_decode($raw,false,512,JSON_THROW_ON_ERROR);
@@ -57,7 +61,8 @@ try {
         $last=$page; $entry=$registry[$page];
         if (!tio2_my_content_matches($record['content'],$entry['content'])) throw new RuntimeException('Content changes an immutable field.');
         $ordered=d16_content_storage_order($object->records[$index]->content,json_decode($entry['json']));
-        $plans[]=[$page,$entry,json_encode($ordered,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)];
+        $changed=d16_canonical($ordered)!==d16_canonical(json_decode($entry['json']));
+        $plans[]=[$page,$entry,json_encode($ordered,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES),$changed];
         $before[]=['pageId'=>$page,'content'=>json_decode($entry['json'])];
     }
     $beforeHash=hash('sha256',d16_canonical($before));
@@ -70,13 +75,19 @@ try {
     if ($action!=='import' || (string)$wpdb->get_var('SELECT @@GLOBAL.read_only')!=='1') throw new RuntimeException('Import requires fenced database.');
     if ($wpdb->query('START TRANSACTION')===false) throw new RuntimeException('Transaction unavailable.');
     $active=true;
-    foreach ($plans as [$page,$entry,$json]) {
+    foreach ($plans as [$page,$entry,$json,$changed]) {
+        if (!$changed) continue;
         // Direct fixed metadata update avoids ALL per-record WordPress webhooks.
         $result=$wpdb->query($wpdb->prepare("UPDATE {$wpdb->postmeta} SET meta_value=%s WHERE meta_id=%d AND post_id=%d AND meta_key=%s",$json,$entry['metaId'],$entry['postId'],$entry['metaKey']));
         if ($result===false) throw new RuntimeException('Content update failed.');
+        if ($wpdb->update($wpdb->posts,
+            ['post_modified'=>current_time('mysql'),'post_modified_gmt'=>current_time('mysql',true)],
+            ['ID'=>$entry['postId']],['%s','%s'],['%d'])===false) throw new RuntimeException('Modified timestamp update failed.');
         wp_cache_delete($entry['postId'],'post_meta');
+        wp_cache_delete($entry['postId'],'posts');
         d16_content_check_record($entry,$page);
     }
+    wp_cache_set_last_changed('posts');
     $readback=[];
     foreach ($plans as [$page,$entry]) {
         $stored=$wpdb->get_var($wpdb->prepare("SELECT meta_value FROM {$wpdb->postmeta} WHERE meta_id=%d",$entry['metaId']));

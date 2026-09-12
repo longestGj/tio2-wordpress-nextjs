@@ -73,6 +73,13 @@ identity; `leave` removes only this owner's gate. It must be possible to perform
 internal authenticated reads while ordinary target-site traffic receives maintenance.
 The global shared CMS write fence separately uses MariaDB read_only, disables the
 event scheduler, and drains existing DB sessions before content export and backup.
+An exclusively created owner-bound `zz-d16-content-fence.cnf` in the enrolled DB
+container's `/etc/mysql/conf.d` retains read_only and scheduler suspension across
+that container's restart. The runtime checks MariaDB loads the fixed settings,
+retains the same container ID, and verifies the marker digest at every boundary.
+Only that owner's marker is removed when opening the window. Administrator
+replacement of the DB container during the global lock is unsupported; it cannot
+be mistaken for the enrolled fenced database.
 
 `refresh` receives `siteId`, `owner`, `pageIds`, and `contentRelease` containing the
 release ID and expected content hash (the old hash during recovery). It must perform

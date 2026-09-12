@@ -16,4 +16,3 @@ describe('CMS content-only delivery',()=>{
  expect(toMalaysiaEditorialDto(editorial as EditorialContract,source).bodyHtml).toContain('Updated evaluation guidance.')
  })
 })
-

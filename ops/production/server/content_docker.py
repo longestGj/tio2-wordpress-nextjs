@@ -41,6 +41,7 @@ def validate_config(value):
 
 class ContentDockerRuntime:
     SCRIPT = '/opt/d16-content/release.php'
+    FENCE_CONFIG = '/etc/mysql/conf.d/zz-d16-content-fence.cnf'
 
     @classmethod
     def from_path(cls, config_path, state_directory):
@@ -101,7 +102,8 @@ class ContentDockerRuntime:
 
     def _php(self, action, package):
         container = self.config['importerContainer'] if action == 'import' else self.config['wordpressContainer']
-        result = self.docker('exec','-i','-e','D16_CONTENT_ACTION='+action,container,
+        binding=['-e','D16_CONTENT_DB='+self.config['database'],'-e','D16_CONTENT_DB_HOSTNAME='+self.sql('SELECT @@hostname')]
+        result = self.docker('exec','-i','-e','D16_CONTENT_ACTION='+action,*binding,container,
                              'php',self.SCRIPT,data=canonical(package))
         try: result = json.loads(result)
         except ValueError as error: raise ReleaseError('content importer returned invalid evidence') from error
@@ -111,6 +113,7 @@ class ContentDockerRuntime:
     def preflight(self, package):
         if package['siteId'] != self.config['siteId']: raise ReleaseError('installed content runtime subject mismatch')
         application_writable_sources=set()
+        application_database_host=None
         for name in ('dbContainer','wordpressContainer','importerContainer'):
             inspect = json.loads(self.docker('inspect',self.config[name]))[0]
             if inspect['State']['Running'] is not True or inspect['HostConfig'].get('Privileged'):
@@ -121,9 +124,13 @@ class ContentDockerRuntime:
                 application_writable_sources={mount['Source'] for mount in inspect['Mounts'] if mount.get('RW')}
                 env = dict(item.split('=',1) for item in inspect['Config']['Env'] if '=' in item)
                 user = env.get('WORDPRESS_DB_USER','')
+                application_database_host=env.get('WORDPRESS_DB_HOST')
                 if not re.fullmatch(r'[A-Za-z][A-Za-z0-9_]{0,63}',user) or user in {'root','mariadb.sys'} or 'WORDPRESS_DB_USER_FILE' in env:
                     raise ReleaseError('normal WordPress requires an unprivileged explicit database account')
             if name == 'importerContainer':
+                env = dict(item.split('=',1) for item in inspect['Config']['Env'] if '=' in item)
+                if env.get('WORDPRESS_DB_HOST') != application_database_host or env.get('WORDPRESS_DB_NAME') != self.config['database']:
+                    raise ReleaseError('importer must bind the same enrolled shared database')
                 if not inspect['HostConfig'].get('ReadonlyRootfs'):
                     raise ReleaseError('privileged importer requires a sealed read-only filesystem')
                 for mount in inspect['Mounts']:
@@ -150,6 +157,9 @@ class ContentDockerRuntime:
         flags = self.sql('SELECT @@GLOBAL.read_only, @@GLOBAL.event_scheduler').split('\t')
         if len(flags) != 2 or flags[0] != '0': raise ReleaseError('shared CMS already fenced outside this window')
         state = dict(owner=owner,siteId=self.config['siteId'],readOnly=flags[0],events=flags[1],closed=False)
+        state['dbContainerId']=json.loads(self.docker('inspect',self.config['dbContainer']))[0]['Id']
+        marker=('# d16-content-window-owner='+owner+'\n[mysqld]\nread_only=ON\nevent_scheduler=OFF\n').encode()
+        state['fenceConfigSha256']=hashlib.sha256(marker).hexdigest()
         atomic_write_json(self.state_path,state)
         evidence = self._hook('enter', {'owner':owner,'siteId':self.config['siteId']})
         identity = evidence.get('identity')
@@ -157,6 +167,13 @@ class ContentDockerRuntime:
             raise ReleaseError('maintenance hook must bind frontend/configuration identity')
         state['identity'] = identity
         atomic_write_json(self.state_path,state)
+        # Fixed administrator program, not a package command. Exclusive creation
+        # protects another owner's config; mysql must be able to read it at boot.
+        self.docker('exec','-i',self.config['dbContainer'],'sh','-c',
+                    'umask 022; set -C; cat > '+self.FENCE_CONFIG,data=marker)
+        defaults=self.docker('exec',self.config['dbContainer'],'my_print_defaults','mysqld').decode()
+        if '--read_only=ON' not in defaults or '--event_scheduler=OFF' not in defaults:
+            raise ReleaseError('persistent database fence configuration not loaded')
         self.sql('SET GLOBAL event_scheduler=OFF; SET GLOBAL read_only=ON;')
         # read_only blocks new transactions; terminate old normal writer sessions
         # so no earlier open transaction can commit after the backup starts.
@@ -177,6 +194,12 @@ class ContentDockerRuntime:
         state = self._state()
         if state['owner'] != owner or state['closed'] or state['siteId'] != self.config['siteId']:
             raise ReleaseError('content runtime window owner mismatch')
+        container=json.loads(self.docker('inspect',self.config['dbContainer']))[0]
+        if container['Id'] != state['dbContainerId']:
+            raise ReleaseError('shared database container replaced inside window')
+        marker=self.docker('exec',self.config['dbContainer'],'cat',self.FENCE_CONFIG)
+        if hashlib.sha256(marker).hexdigest() != state['fenceConfigSha256']:
+            raise ReleaseError('persistent database fence owner mismatch')
         if self.sql('SELECT @@GLOBAL.read_only, @@GLOBAL.event_scheduler') not in {'1\tOFF','1\tDISABLED'}:
             raise ReleaseError('shared CMS write fence not active')
         evidence = self._hook('assert', {'owner':owner,'siteId':self.config['siteId']})
@@ -249,6 +272,7 @@ class ContentDockerRuntime:
         self.assert_window(owner)
         state = self._state()
         self._hook('leave',{'owner':owner,'siteId':self.config['siteId']})
+        self.docker('exec',self.config['dbContainer'],'rm',self.FENCE_CONFIG)
         self.sql('SET GLOBAL read_only=OFF;')
         if state['events'] == 'ON': self.sql('SET GLOBAL event_scheduler=ON;')
         state['closed'] = True
