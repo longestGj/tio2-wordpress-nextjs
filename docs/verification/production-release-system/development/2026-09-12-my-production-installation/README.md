@@ -3,7 +3,7 @@
 - 日期：2026-09-12；网站：`tio2-my`，共享 CMS 的其他范围纳入数据保留检查。
 - 分支：`codex/my-production-installation`；基线 develop：`b39cc830995ed9742d2b0cf5e54a8b9679812c80`。
 - 本轮程序验证版本：`aa8499c7d143f70ddbed1b97f0d0b25b07ed4cae`。此后仅整理文档、证据和演练说明；每次演练的实际源版本与逐文件哈希以对应 JSON 为准。
-- 状态：`DEVELOPMENT_VERIFIED`，等待下述开发合并回执。main 保持 `8b92adf391ab1fbe1564e8821f2fdf0535700f96`；本轮没有连接或修改生产服务器。
+- 状态：`MERGED_TO_DEVELOP`，详见[开发回执](../2026-09-12-my-production-installation-development-receipt.md)。main 保持 `8b92adf391ab1fbe1564e8821f2fdf0535700f96`；本轮没有连接或修改生产服务器。
 
 ## 实现与验证
 

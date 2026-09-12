@@ -16,7 +16,7 @@
 
 Implementation and independent review of all three tasks are complete. Real resource upgrade/restore, whole-database restore/fence recovery, installed hooks against production Next.js, and complete installer success/verification-failure rollback passed. After proxy connectivity recovered, the final frontend build/candidate switching/rollback rehearsal passed all 11 cases at ee6aa01e. Full regression passed 558 tests with 9 platform skips and no failures. Development merge follows these verified results; production remains a separate workflow. See the [verification evidence directory](../../verification/production-release-system/development/2026-09-12-my-production-installation/).
 
-The task lists retain the implementation sequence. The last merge-and-receipt item closes only after develop is checked.
+The task lists retain the implementation sequence. All tasks are complete; develop merge a5a8c279 and its post-merge 119-test regression passed. See the development receipt.
 
 - Work in `codex/my-production-installation`, based on `b39cc830`; no production connections/writes, main changes or root AGENTS edits during development.
 - Preserve prior candidate evidence, shared consumers and unrelated work. No arbitrary incoming scripts, credentials in receipts, fabricated verification or generic Campaign framework.
@@ -68,7 +68,7 @@ Consumes current `CandidateEnvelope`, verified registry/live baselines and fresh
 - [x] Implement strict source/proof mapping and fresh baseline, terminal transition and normal-client transport; do not disable WordPress compatibility checks without replacing them with actual enrolled CMS evidence.
 - [x] Run relevant candidate/controller/frontend/client tests. Exercise two different real frontend candidates through fixed entrypoint, actual Docker staging, proxy selection and rollback in isolated resources.
 - [x] Integrate Task 1/2 artifacts, run actual CMS→Next success and rollback with installed hooks, inspect visual evidence, update runbook/ability status as development facts only.
-- [ ] Final independent exact-HEAD review; fix observed defects, merge reviewed tree into develop, write development receipt. Then return to separate release workflow with a new frozen candidate.
+- [x] Final independent exact-HEAD review; fix observed defects, merge reviewed tree into develop, write development receipt. Then return to separate release workflow with a new frozen candidate.
 
 Acceptance test:
 ```python
