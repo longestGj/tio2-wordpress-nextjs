@@ -112,7 +112,16 @@ def verify_frontend_only_evidence(proof, identity_bytes, seed_manifest, adoption
         require(set(adopted_manifest) == {'schemaVersion', 'siteId', 'seeds'}
                 and adopted_manifest['schemaVersion'] == 'tio2-my-production-migration-v1'
                 and adopted_manifest['siteId'] == 'tio2-my' and adopted_manifest['seeds'] == seeds, 'actual adoption seed sequence')
-        require(adoption['candidate'] == candidate and adoption['siteScope'] == 'tio2-my'
+        # The original CMS adoption and a later frontend release have separate
+        # identities. The caller authenticates adoption against its protected
+        # plan/journal; the seed sequence and live content below link the two.
+        adopted_candidate = adoption['candidate']
+        require(isinstance(adopted_candidate, dict)
+                and set(adopted_candidate) == {'commit', 'archiveSha256', 'manifestSha256'}
+                and isinstance(adopted_candidate['commit'], str)
+                and re.fullmatch('[a-f0-9]{40}', adopted_candidate['commit']) is not None
+                and all(valid_hash(adopted_candidate[key]) for key in ('archiveSha256', 'manifestSha256')), 'adoption candidate')
+        require(adoption['siteScope'] == 'tio2-my'
                 and adoption['seedManifestSha256'] == adoption_seed_hash
                 and seed_manifest['archiveFiles'].get('ops/production/migration-manifest.json') == adoption_seed_hash
                 and adoption['orderedSeedHashes'] == hashes, 'adoption identity')

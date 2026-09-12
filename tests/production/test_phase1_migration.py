@@ -197,11 +197,11 @@ class Phase1MigrationTests(unittest.TestCase):
                            'registration/host.json': b'{}', 'registration/cms/subject.json': b'{}',
                            'registration/sites/tio2-my/site.json': b'{"adapter":"tio2-my-v1"}'}.items():
             path = system.input_root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data)
-        plan = {'planHash': '8' * 64, 'candidate': seeds['candidate']}
+        plan = {'planHash': '8' * 64, 'candidate': {'commit': '1' * 40, 'archiveSha256': '2' * 64, 'manifestSha256': '3' * 64}}
         journal = {'schemaVersion': 'tio2-production-adoption-journal-v1', 'state': 'PUBLIC_READY', 'planHash': plan['planHash'],
                    'details': {'content': {'publishedRecords': 57, 'contentSha256': live['contentSha256']}}}
         original_read, original_json = migration._read, migration._json
-        adopted_root = Path('/opt/tio2-production/releases') / COMPATIBILITY_COMMIT
+        adopted_root = Path('/opt/tio2-production/releases') / plan['candidate']['commit']
         actual_files = {'wordpress/seed/one.php': b'ONE\n', 'wordpress/seed/two.php': b'TWO\n'}
         def read(path, **kwargs):
             if path.is_relative_to(adopted_root): return actual_files[path.relative_to(adopted_root).as_posix()]
@@ -212,7 +212,9 @@ class Phase1MigrationTests(unittest.TestCase):
             return original_json(path)
         migration._read = read; migration._json = read_json; migration.input_loader = system.inputs
         before = self.protected_tree()
-        for fault in ('none', 'reorder', 'missing', 'replacement', 'receipt', 'archive', 'seed-bytes'):
+        for fault in ('none', 'reorder', 'missing', 'replacement', 'receipt', 'archive', 'seed-bytes', 'journal-plan', 'journal-state'):
+            journal['planHash'] = '9' * 64 if fault == 'journal-plan' else plan['planHash']
+            journal['state'] = 'INITIALIZING_CONTENT' if fault == 'journal-state' else 'PUBLIC_READY'
             original = {'schemaVersion': 'tio2-my-production-migration-v1', 'siteId': 'tio2-my', 'seeds': deepcopy(json.loads(seeds['manifestBytes'])['seeds'])}
             if fault == 'reorder': original['seeds'].reverse()
             if fault == 'missing': original['seeds'].pop()
