@@ -355,6 +355,65 @@ class Phase1MigrationTests(unittest.TestCase):
             self.migration().recover()
         self.assertEqual(self.protected_tree(), self.original)
 
+    def interrupt_restore_after_temp_fsync(self, target_name='sudoers', apply_point='generation:intent'):
+        migration = self.migration(fail_after=apply_point); plan = migration.plan()
+        with self.assertRaises(ReleaseError): migration.apply(plan.plan_hash)
+        recovery = self.migration(); original_atomic = recovery._atomic
+        target = recovery._targets('a' * 40)[target_name]
+        class Interrupted(BaseException): pass
+        def interrupt(): raise Interrupted()
+        def atomic(path, *args, **kwargs):
+            if path == target: kwargs['staged'] = interrupt
+            return original_atomic(path, *args, **kwargs)
+        recovery._atomic = atomic
+        with self.assertRaises(Interrupted): recovery.recover()
+        self.assertFalse(self.held)
+        return target.with_name('.' + target.name + '.phase1-new')
+
+    def test_restore_temps_outside_apply_commit_prefix_can_be_retried(self):
+        for name in ('sudoers', 'wrapper', 'program', 'registry-site', 'registry-cms', 'registry-host'):
+            temporary = self.interrupt_restore_after_temp_fsync(name)
+            journal = json.loads(self.paths.journal.read_bytes())
+            self.assertEqual([item['name'] for item in journal['commits']], ['generation'])
+            self.assertEqual(self.migration()._snapshot_path(temporary, link=name == 'program'), journal['before'][name])
+            receipt = self.migration().recover()
+            self.assertEqual(self.protected_tree(), self.original, name)
+            self.assertEqual(receipt.as_dict()['runtimeAfter'], self.runtime)
+            self.assertFalse(temporary.exists()); self.assertFalse(self.paths.journal.exists())
+
+    def test_forged_restore_intent_order_is_rejected_before_any_write(self):
+        self.interrupt_restore_after_temp_fsync(apply_point='sudoers:committed')
+        journal = json.loads(self.paths.journal.read_bytes())
+        journal['restoring'] = ['wrapper', 'sudoers']
+        self.paths.journal.write_bytes(encoded(journal))
+        before = self.recovery_bytes()
+        with self.assertRaises(ReleaseError): self.migration().recover()
+        self.assertEqual(self.recovery_bytes(), before)
+
+    def test_foreign_restore_temps_and_invalid_intents_are_rejected_without_writes(self):
+        temporary = self.interrupt_restore_after_temp_fsync()
+        raw_journal = self.paths.journal.read_bytes(); original_temp = temporary.read_bytes()
+        other = self.paths.wrapper.with_name('.' + self.paths.wrapper.name + '.phase1-new')
+        for fault in ('bytes', 'target', 'missing', 'unknown', 'reorder', 'gap', 'duplicate', 'before-hash', 'restored', 'apply-bytes'):
+            journal = json.loads(raw_journal)
+            if fault == 'bytes': temporary.write_bytes(b'FOREIGN')
+            if fault == 'target': temporary.rename(other)
+            if fault == 'missing': journal['restoring'] = []
+            if fault == 'unknown': journal['restoring'] = ['foreign']
+            if fault == 'reorder': journal['restoring'] = ['wrapper', 'sudoers']
+            if fault == 'gap': journal['restoring'] = ['sudoers', 'program']
+            if fault == 'duplicate': journal['restoring'] = ['sudoers', 'sudoers']
+            if fault == 'before-hash': journal['before']['sudoers']['data'] = 'Rk9SRUlHTg=='
+            if fault == 'restored': journal['restored'] = [{'name': 'sudoers', 'restoredSha256': sha(encoded(journal['before']['sudoers']))}]
+            if fault == 'apply-bytes': temporary.write_bytes((self.source / 'sudoers.tio2-release').read_bytes())
+            self.paths.journal.write_bytes(encoded(journal))
+            before = self.recovery_bytes()
+            with self.subTest(fault=fault), self.assertRaises(ReleaseError): self.migration().recover()
+            self.assertEqual(self.recovery_bytes(), before, fault)
+            if other.exists(): other.rename(temporary)
+            temporary.write_bytes(original_temp); self.paths.journal.write_bytes(raw_journal)
+        self.migration().recover(); self.assertEqual(self.protected_tree(), self.original)
+
     def test_recovery_attempts_remaining_targets_after_one_restore_fails_and_can_retry(self):
         migration = self.migration(fail_after='sudoers:committed'); plan = migration.plan()
         with self.assertRaises(ReleaseError): migration.apply(plan.plan_hash)

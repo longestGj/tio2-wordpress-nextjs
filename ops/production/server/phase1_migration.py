@@ -471,7 +471,7 @@ class Phase1Migration:
                         and [item['name'] for item in commits] == list(COMMIT_ORDER[:len(commits)])
                         and all(item['committed'] is True for item in commits[:-1])
                         and (not commits or type(commits[-1]['committed']) is bool)
-                        and len(restoring) == len(set(restoring)) and set(restoring) <= set(COMMIT_ORDER), 'recovery progress')
+                        and restoring == list(reversed(COMMIT_ORDER))[:len(restoring)], 'recovery progress')
                 restored_names = [item['name'] for item in journal['restored']]
                 require(len(restored_names) == len(set(restored_names)) and set(restored_names) <= set(restoring)
                         and all(item['restoredSha256'] == digest(canonical(before[item['name']])) for item in journal['restored']), 'recovery restore progress')
@@ -489,9 +489,14 @@ class Phase1Migration:
                         require(commits[index]['installedSha256'] == digest(canonical(expected[name])), 'installed journal target')
                     temporary = targets[name].with_name('.' + targets[name].name + '.phase1-new')
                     if os.path.lexists(temporary):
-                        require(name != 'generation' and index < len(commits)
-                                and self._snapshot_path(temporary, link=name == 'program') in
-                                ([expected[name], before[name]] if name in restoring else [expected[name]]), 'staged migration ownership')
+                        staged = self._snapshot_path(temporary, link=name == 'program')
+                        # Apply can leave a temp only at an uncommitted intent.
+                        # Recovery can stage the plan-bound old snapshot even
+                        # for targets apply never reached. Its intent must be
+                        # in the continuous reverse-order prefix checked above.
+                        apply_owned = index < len(commits) and not commits[index]['committed'] and staged == expected[name]
+                        recovery_owned = name in restoring and staged == before[name]
+                        require(name != 'generation' and name not in restored_names and (apply_owned or recovery_owned), 'staged migration ownership')
                 require(digest(canonical(self._unmanaged(targets, plan['absentParents']))) == plan['unmanagedSha256'], 'surrounding migration ownership')
                 old_program = (self.paths.program_link.parent / plan['oldProgram']['target']).resolve(strict=True)
                 require(self._tree(old_program) == plan['oldProgram']['files'], 'old program before recovery')
