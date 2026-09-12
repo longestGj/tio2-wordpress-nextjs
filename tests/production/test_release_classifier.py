@@ -49,6 +49,19 @@ class ReleaseClassifierTests(unittest.TestCase):
         )
         self.assertEqual([(unit.subject, unit.release_type) for unit in units], [("tio2-my", "content-only")])
 
+    def test_executable_wordpress_tools_are_platform_code_not_content(self) -> None:
+        for path in ("wordpress/seed/apply-tio2-my-homepage.php", "wordpress/release/import.php",
+                     "wordpress/seed/tio2-my/records.json"):
+            with self.subTest(path=path):
+                units = classify_release(self.changes(git_paths=(path,), content_scopes=()))
+                self.assertEqual([(unit.subject, unit.release_type) for unit in units], [("cms", "cms-platform")])
+
+    def test_content_namespace_rejects_executable_inputs(self) -> None:
+        for suffix in ("php", "sql", "sh", "ps1", "py", "js"):
+            with self.subTest(suffix=suffix), self.assertRaises(ReleaseError):
+                classify_release(self.changes(git_paths=(f"content/tio2-my/import.{suffix}",),
+                                              site_ids=(), content_scopes=("tio2-my",)))
+
     def test_host_resources_take_priority_over_site_attribution(self) -> None:
         path = "ops/production/server/controller.py"
         units = classify_release(self.changes(git_paths=(path,), host_paths=(path,)))
@@ -86,7 +99,6 @@ class ReleaseClassifierTests(unittest.TestCase):
     def test_content_scope_is_checked_before_explicit_host_classification(self) -> None:
         paths = (
             "content/tio2-a/records.json",
-            "wordpress/seed/tio2-a/records.json",
         )
         for path in paths:
             with self.subTest(path=path), self.assertRaisesRegex(ReleaseError, "unclassified release change"):
@@ -102,7 +114,6 @@ class ReleaseClassifierTests(unittest.TestCase):
     def test_content_namespace_cannot_overlap_explicit_host_paths(self) -> None:
         paths = (
             "content/tio2-my/records.json",
-            "wordpress/seed/tio2-my/records.json",
         )
         for path in paths:
             with self.subTest(path=path), self.assertRaisesRegex(ReleaseError, "unclassified release change"):

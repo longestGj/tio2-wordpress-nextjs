@@ -61,6 +61,16 @@ def validate_identity(details: Mapping[str, object]) -> None:
 
 def validate_completion_evidence(details: Mapping[str, object]) -> None:
     evidence = details.get("completionEvidence")
+    if details.get('releaseType') == 'content-only':
+        if (not isinstance(evidence, Mapping)
+                or set(evidence) != {'schemaVersion','siteId','releaseId','phase','contentSha256','backupReceiptSha256','journalSha256'}
+                or evidence['schemaVersion'] != 'd16-content-action-v1' or evidence['phase'] != 'completed'
+                or evidence['siteId'] != details.get('subject') or evidence['releaseId'] != details.get('releaseId')
+                or evidence != details.get('contentEvidence')
+                or any(not isinstance(evidence[name], str) or not re.fullmatch(r'[a-f0-9]{64}', evidence[name])
+                       for name in ('contentSha256','backupReceiptSha256','journalSha256'))):
+            raise ReleaseError('verified content completion evidence is required')
+        return
     if (not isinstance(evidence, Mapping) or evidence.get("businessE2E") != "PASSED"
             or evidence.get("forms") != {"rfq": "RECEIVED", "sample": "RECEIVED", "documents": "RECEIVED"}
             or not isinstance(evidence.get("receiptSha256"), str)

@@ -21,6 +21,7 @@ class BootstrapError(RuntimeError):
 
 
 REQUIRED_FILES = (
+    "site_content_adapter.py", "installed_content.py", "content_release.py", "content_docker.py",
     "frontend_backup.py", "site_frontend_adapter.py",
     "nginx_inventory.py", "tls_identity.py", "cms_evidence.py", "phase1_migration.py", "root-migrate-phase1.sh",
     "candidate_contract.py", "subject_registry.py", "release_adapter.py", "release_controller.py", "d16_release.py",

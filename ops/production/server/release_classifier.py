@@ -21,9 +21,9 @@ _HOST_PREFIXES = (
 )
 _HOST_EXACT = frozenset({"docs/site-registry.md"})
 _HOST_TOKENS = frozenset({"certbot", "nginx", "network", "ports", "sudo", "sudoers"})
-_CMS_PREFIXES = ("ops/cms/", "wordpress/plugins/", "wordpress/schema", "wordpress/core/")
+_CMS_PREFIXES = ("ops/cms/", "wordpress/plugins/", "wordpress/schema", "wordpress/core/", "wordpress/seed/", "wordpress/release/")
 _CMS_TOKENS = frozenset({"database", "graphql", "schema"})
-_CONTENT_PREFIXES = ("content/", "wordpress/seed/")
+_CONTENT_PREFIXES = ("content/",)
 _FRONTEND_PREFIXES = ("app/", "components/", "lib/", "public/", "sites/")
 _FRONTEND_EXACT = frozenset(
     {
@@ -104,10 +104,8 @@ def _is_content(path: str) -> bool:
 
 def _content_scope(path: str) -> str:
     parts = PurePosixPath(path).parts
-    if path.startswith("content/") and len(parts) >= 3:
+    if path.startswith("content/") and len(parts) >= 3 and PurePosixPath(path).suffix == ".json":
         return parts[1]
-    if path.startswith("wordpress/seed/") and len(parts) >= 4:
-        return parts[2]
     raise ReleaseError("unclassified release change")
 
 
