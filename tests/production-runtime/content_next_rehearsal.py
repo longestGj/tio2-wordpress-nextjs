@@ -116,8 +116,7 @@ class NextRuntime(RehearsalRuntime):
         built=subprocess.run(['node',binary,'build','--webpack'],cwd=self.runtime_root,env=env,stdout=log,stderr=log,timeout=600,
             creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
         if built.returncode:raise ReleaseError('isolated production Next build failed')
-        self.next=subprocess.Popen(['node',binary,'start','--hostname','127.0.0.1','--port',str(self.port)],cwd=self.runtime_root,env=env,
-            stdout=log,stderr=log,creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
+        self.next=self.launch_next(binary,env,log)
         backend=self
         class Gate(BaseHTTPRequestHandler):
             def do_GET(self):
@@ -143,6 +142,10 @@ class NextRuntime(RehearsalRuntime):
         self.identity_value={'frontendImageId':'local-next-process:'+str(self.next.pid),'buildId':(self.runtime_root/self.dist/'BUILD_ID').read_text().strip(),
             'configurationSha256':hashlib.sha256(canonical(config)).hexdigest(),
             'cmsContractSha256':hashlib.sha256((ROOT/'wordpress/plugins/tio2-site-model/includes/content-release-paths.json').read_bytes()).hexdigest()}
+
+    def launch_next(self,binary,env,log):
+        return subprocess.Popen(['node',binary,'start','--hostname','127.0.0.1','--port',str(self.port)],cwd=self.runtime_root,env=env,
+            stdout=log,stderr=log,creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
 
     def _hook(self, action, value):
         if self.next.poll() is not None:raise ReleaseError('same Next process is no longer running')
@@ -189,7 +192,7 @@ class NextRuntime(RehearsalRuntime):
             self.next.wait(timeout=15)
 
 
-def main(package_path=None):
+def main(package_path=None, runtime_class=NextRuntime):
     token='d16-test-content-next-'+secrets.token_hex(6)
     names={key:token+'-'+key for key in ('db','wp','importer','network','volume','sealed')}
     resources=[]; backend=None
@@ -252,7 +255,7 @@ def main(package_path=None):
                 package=dict(schemaVersion='d16-content-package-v1',siteId='tio2-my',records=records,files=[],contentSha256=hashlib.sha256(canonical(records)).hexdigest())
             with (directory/'next.log').open('w') as log:
                 try:
-                    backend=NextRuntime.__new__(NextRuntime)
+                    backend=runtime_class.__new__(runtime_class)
                     backend.__init__(config,directory,log)
                     before=backend._php('export',package)['package']
                     policies=json.loads((plugins/'tio2-site-model/includes/content-release-paths.json').read_text())
@@ -272,7 +275,7 @@ def main(package_path=None):
                     # Warm production route must still display the old cached title
                     # before the signed batch. This makes refresh effectiveness observable.
                     for record in before['records']:
-                        _,html=request(backend.url+route(record),headers={'X-D16-Verify':backend.secret})
+                        _,html=request(getattr(backend,'internal_url',backend.url)+route(record),headers={'X-D16-Verify':backend.secret})
                         backend.assert_rendered_fields(record,html)
                     engine.finish('real-next-success')
                     print('Actual WPGraphQL → signed cache refresh → Next HTML/SEO/sitemap passed',flush=True)
@@ -288,7 +291,8 @@ def main(package_path=None):
                     browser_script="""const {chromium}=require('@playwright/test');(async()=>{const browser=await chromium.launch({headless:true});try{const page=await browser.newPage({viewport:{width:1440,height:1000}});await page.goto(process.argv[1],{waitUntil:'networkidle',timeout:60000});await page.screenshot({path:process.argv[2]});}finally{await browser.close()}})().catch(error=>{console.error(error);process.exit(1)})"""
                     subprocess.run(['node','-e',browser_script,'http://127.0.0.1:'+str(backend.port)+route(package['records'][0]),str(screenshot)],cwd=ROOT,check=True,timeout=90)
                     print(json.dumps({'result':'PASS','mode':'real-local-wordpress-wpgraphql-next-production-build','buildId':backend.identity_value['buildId'],'frontendPid':backend.next.pid,
-                        'frontendRestarted':False,'databaseRestored':True,'checks':backend.checks,'screenshot':str(screenshot),'productionTouched':False}),flush=True)
+                        'frontendRestarted':False,'databaseRestored':True,'checks':backend.checks,'screenshot':str(screenshot),'productionTouched':False,
+                        **getattr(backend,'evidence_context',{})}),flush=True)
                 except Exception:
                     log.flush()
                     evidence=ROOT/'.local-evidence';evidence.mkdir(exist_ok=True)

@@ -254,7 +254,23 @@ class ContentDockerRuntime:
             raise ReleaseError('public content/status/SEO/sitemap evidence incomplete')
         if result.get('contentSha256') != expected['contentSha256']:
             raise ReleaseError('public content hash mismatch')
-        return {'verified':True,'contentSha256':expected['contentSha256'],'restored':previous}
+        scope=self.cms_scope()
+        self.assert_window(self._state()['owner'])
+        return {'verified':True,'contentSha256':expected['contentSha256'],'restored':previous,'cmsScope':scope}
+
+    def cms_scope(self):
+        """Same stable scope algorithm used by frontend admission, via this transport."""
+        from adoption_probe import read_cms_scope
+        from release_actions import CommandResult
+        if self.config['siteId']!='tio2-my': raise ReleaseError('CMS scope observer is not installed for this site')
+        wordpress=json.loads(self.docker('inspect',self.config['wordpressContainer']))[0]['Id']
+        runtime=self
+        class ScopeRunner:
+            def run(self,command):
+                if command[0]!='/usr/bin/docker': raise ReleaseError('unexpected scope probe transport')
+                return CommandResult(0,runtime.run(['docker',*command[1:]]).decode('utf-8'))
+        scope=read_cms_scope(ScopeRunner(),wordpress)
+        return {key:scope[key] for key in ('siteScope','publishedRecords','contentSha256')}
 
     def restore(self, backup):
         self.assert_window(self._state()['owner']); self.verify_backup(backup)

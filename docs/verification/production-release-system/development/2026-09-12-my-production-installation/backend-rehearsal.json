@@ -1,0 +1,99 @@
+{
+  "result": "PASS",
+  "cases": [
+    {
+      "case": "verification-failure",
+      "phase": "rolled-back",
+      "publicReopened": true,
+      "bothCmsScopesPreserved": true
+    },
+    {
+      "case": "success",
+      "phase": "completed",
+      "publicReopened": true,
+      "bothCmsScopesPreserved": true
+    }
+  ],
+  "artifactRevision": "aa8499c7d143f70ddbed1b97f0d0b25b07ed4cae",
+  "artifactSha256": "fcc578e135ccf325138d8578b088388c9fe7a283e478901947ba679ac954ff21",
+  "productionValidated": false,
+  "frontendFixture": "generated read-only HTTP; not production Next.js",
+  "serviceManagerAdapter": "real nginx -t and nginx -s reload; no systemd in container",
+  "importedImages": [
+    {
+      "sourceId": "sha256:b2a4521a35489def1d699f65d7c86140c01ba01b26080eb725ea99306dbc69ce",
+      "loadedId": "sha256:8de455489052c9e477e8f204b17011c3cf3304178948ed9e72025cecb6b6f9bb",
+      "materialSha256": "8cf35fcd93ff9a0d67f8b74b84c044aba07efcc099691522ab2dec16c8d7b93a"
+    },
+    {
+      "sourceId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+      "loadedId": "sha256:10d50b2f86b74bf93a76d964d145362e737337328a7620d4812a10deae422b79",
+      "materialSha256": "fd45106f2e43c98d6ccd98ee41fb8468ba60c35053a8ac4b1425e280e82ce407"
+    },
+    {
+      "sourceId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+      "loadedId": "sha256:85dc75bd9f35f403fc3fef5e1b43cd98a5d7479773a3796f31d9589451fb1f46",
+      "materialSha256": "f26a80e82ecbe549dad096ba26b928516626da580882de9fb18ac4375646d43d"
+    },
+    {
+      "sourceId": "sha256:2b5e9d4d3e51909dca1aaa4732e9f5e5bf0377c2114dbd8ff39f060bff202586",
+      "loadedId": "sha256:1a4daccf71f391366293a71fa0ab8ffb413a3ced464ea200ddd30f6657efe6b6",
+      "materialSha256": "7d75c0ad73cea072bf4c3039cec6de94d62c577d033b64eaa590468913ec9f9a"
+    }
+  ],
+  "programSha256": {
+    "content_docker.py": "eb9f5f742c148f5f1b591a556f17f6f5cece629178a13c645eab4b5d704bcd3e",
+    "content_install_resources.py": "16c525476bdf430a977dd0632a6ee8d4e4219d0f6e2fe92598c8c170aa26125d",
+    "cms_evidence.py": "00e6dfe3106d002c49f0f3b0eeeedecac882ac7a51ec835a05a749fb0c9ed3c4",
+    "release_actions.py": "32e3fe6423e6ec3efa9999e0294509c2ed2a42c8eb40e3db9eacf8f81bf343bc",
+    "content_install_backend.py": "b4148adb0b507e2e568bb3740d1389c73b11bf303429102b15ccd961c1565393",
+    "release_contract.py": "85bc6b41094bb07bfd06ee3598507aa19dedcc5d44afc1adf0655a77439a6e57",
+    "installed_content.py": "14c733c139d745210ee4d5e676a53eedc21709f512b48e90417c7c59669fd925",
+    "content_install_artifact.py": "cf4d53b37b8b1a4bc27041fd106786cc966b916bfda40e74a2d55c0de7d1555a",
+    "adoption_finalize.py": "fbdac799e1e2da46e8f4874b7729e19bb70e42f72d9c78cdc949a848560068c3",
+    "release_controller.py": "6dd7af0e1c4bf1b812e372f63de3bb423e7f1152b530ac705b1fe325e666cbd2",
+    "adoption_state.py": "aa6fbd34c6285e0d3f43ec7e5b005290f3313d0f9dfad9d98846d691198c2bdf",
+    "backup_core.py": "324a10e4e3cf258cdb02d9ed331a956363041451980a52ee0251b8693f702ea1",
+    "adoption_wordpress.py": "77815d3f3e118f9eb439a7076fd2c368c9b95f1639aacb3c3c1dd7bcc871db99",
+    "content_install_finalize.py": "5108e0b8941cebe8c46a8dc39456e402933c34b1ad6469c5a6da5ad4e88a8fe6",
+    "tls_identity.py": "71a0b808e0dee752a9ea73e714126bc51e134c6ff34643a2e962bf4852364ca5",
+    "phase1_migration.py": "6305250a9f4c60e4c728fa903bc682c778988fe7db2efb665eb672bd871021a9",
+    "frontend_backup.py": "8ee6b3e08ab0ab8d9e3d7314628de5dbd85d61e7ce8995c0dbcc983b3856aac5",
+    "adoption_apply.py": "1277cc441cddf45554466c367dd85489cca56f3328def95783923af733c7ed92",
+    "bootstrap_install.py": "44dd57dd508b97f49f99b6f837fa9eaeb8a6304d84c5680c68889731ca1ddab3",
+    "release_classifier.py": "1d11d29a861aedc52657e845f92beb286974233771234b0905b7c7ed1e8d84a2",
+    "tio2_release.py": "cc7bbd5c455c9e12c864f73aaef722a829d204ff33e21763b602a87b9c283d95",
+    "site_content_adapter.py": "b84568688cd8eb7fe6a2ae0f54014978066ea5a82df9c56f91db5a7c9acbfcb1",
+    "adoption_phase_a.py": "4e9ca464cbfb8f46c516f2bdf0013f0eb6ded20792cad37dc8f8f7e782f8a796",
+    "adoption_contract.py": "bf75bd534985dba48d3837cb98895a2c781739f8c6af483833e81313bde3b53a",
+    "candidate_contract.py": "552188173b91230ea89e145d3bdafe0555f5dc907866c8a0bcdebb9a1ed154b5",
+    "content_release.py": "cf5a59d2438f282ce2143197802c9892e76418122d1d5412da60de24ec656187",
+    "adoption_internal.py": "aff147129b1f28b35f2bf0c05105e4956b9a2453536bc4a6c50203b999a49dda",
+    "deployment_core.py": "d2f434c5214963ac62ffff80ed102de89c84df1902309777e66a69e3975efd18",
+    "d16_release.py": "43f5f675a5813b23b1678a6ab7a1b8f8979e82b80230e34b371f7de1fb770d3c",
+    "release_baseline.py": "a4cd08fc18061fb4451661a977d1d2c9f2c3074b190f0add354617c88b7445a3",
+    "content_install.py": "a184a5405b884af3a90b58c5f0110fdcb99ecfd68e678a22cf8aa0f2bea7eff6",
+    "content_hooks.py": "bcf348e391e45a2803770bf3a1acee0e9d6be8274991a29d4221063ed43f78ba",
+    "adoption_probe.py": "6550f8170c5ad6f095a1fcff6dbc576f7f46cc8d26fc2ad50142f919305d3542",
+    "site_frontend_adapter.py": "f0afb28478384d3f7f0912bd1c420b9500ae466516dc6139299db38aab6f6802",
+    "adoption_tls.py": "2488f198b822dbc88293f9b2f107320c1110ce0eef1911b8ecc26abb4b735587",
+    "tio2_adopt.py": "d235f1e9dcc796dc2fd689d262f08ccbe4e24f1da8c199dfe2ba88d8bce0981d",
+    "content_install_identity.py": "18f5786fe8757286b47e623f48c6ebb70978b3c6554f136408d05302e127bcdd",
+    "release_adapter.py": "5264ce58cce7cf3df19ea723c3185d2f194c3434b5b15c4d78ffa6add63e4c68",
+    "content_install_cli.py": "311e60d54af11e9de208e031561c4cae463ece500dc347035a185393b7426740",
+    "frontend_candidate.py": "c094d5095823a4cc262183972dcdfd6c8c80b5015759f0f50281a60b2a1b7628",
+    "content_install_database.py": "8fba34fb3a8e99b9d2029c9f2bc045d27a2420dcc2db4b3d7504b0a01e64ee02",
+    "subject_registry.py": "7d7826447a9532db7bc1cd2e22c0a93be886892aaa4bd6cd8746f96151c05840",
+    "bootstrap_selftest.py": "0553c45c0c69535e65c6388dc0f5f9f8e9c5eab643718f5d9608b588b0f26f24",
+    "release_state.py": "f7536e86f733ac6ffee6188781f4945eb00678a910765c3b9a283850ecfe8a63",
+    "nginx_inventory.py": "f2d6faaae87566252e0ce155a3c5051388a3772f5a10d56241ee1672208ef83a"
+  },
+  "helperSource": "frozen development worktree snapshot; per-file hashes recorded",
+  "runtimeImages": [
+    "sha256:b2a4521a35489def1d699f65d7c86140c01ba01b26080eb725ea99306dbc69ce",
+    "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+    "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+    "sha256:2b5e9d4d3e51909dca1aaa4732e9f5e5bf0377c2114dbd8ff39f060bff202586"
+  ],
+  "harnessSha256": "3b8fb08c1c07759f3cb1b75a96a17cd983fdb355824408f6b3fbd06da2195e9f"
+}

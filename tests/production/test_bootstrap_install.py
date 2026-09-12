@@ -39,6 +39,13 @@ def directory_link(link: Path, target: Path) -> None:
 
 
 class BootstrapInstallTests(unittest.TestCase):
+    def test_administrator_inventory_includes_installation_and_candidate_dependencies(self):
+        expected={'content_hooks.py','content_install.py','content_install_artifact.py',
+                  'content_install_database.py','content_install_resources.py',
+                  'content_install_backend.py','content_install_cli.py','content_install_identity.py',
+                  'content_install_finalize.py','frontend_candidate.py'}
+        self.assertFalse(expected-set(REQUIRED_FILES), 'administrator package omits runtime dependencies')
+
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name) / "server-root"

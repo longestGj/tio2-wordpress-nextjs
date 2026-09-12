@@ -1,0 +1,19 @@
+{
+  "runId": "d16-front-44f2df66d1454e23bf6ada8a03e3a988",
+  "passed": false,
+  "productionValidated": false,
+  "schemaVersion": "d16-frontend-rehearsal-v1",
+  "frontendFixture": "generated Node HTTP fixture; not production Next.js",
+  "candidateProvenance": "generated local compatibility fixture, not the approved production candidate",
+  "ageRuntime": {
+    "imageId": "sha256:b2a4521a35489def1d699f65d7c86140c01ba01b26080eb725ea99306dbc69ce",
+    "version": "1.1.1"
+  },
+  "cases": [],
+  "failure": {
+    "type": "RuntimeError",
+    "message": "isolated frontend runtime failed; inspect D:\\16Wordpress_nextjs\\.worktrees\\phase2-tio2-my-content-release\\.tmp\\frontend-release\\d16-front-44f2df66d1454e23bf6ada8a03e3a988\\runtime.stderr"
+  },
+  "cleanupVerified": true,
+  "cleanupScope": "owned containers, networks, volumes and private identity; Docker build cache/images retained"
+}

@@ -104,7 +104,8 @@ def inside(root, run_id):
                                  tuple(NginxPathPolicy(config/name,config/name) for name in ('web-upstream.conf','frontend.conf')))
         host = ReleaseSubject('host', 'host', root/'host/in', root/'host/out', root/'host/prod', root/'host/etc', root/'state/host', 'none',
                               nginx_files=(NginxPathPolicy(Path('/etc/nginx/nginx.conf'),Path('/etc/nginx/nginx.conf')),))
-        registry = SubjectRegistry({'host': host, 'tio2-my': subject})
+        cms_subject=ReleaseSubject('cms','cms',root/'cms/in',root/'cms/out',root/'cms/prod',root/'cms/etc',root/'state/cms','none')
+        registry = SubjectRegistry({'host': host, 'cms':cms_subject, 'tio2-my': subject})
         db_network = resource('networks', 'db', '--internal')
         front_network = resource('networks', 'front')
         db_volume, wp_volume = resource('volumes', 'db'), resource('volumes', 'wp')
@@ -334,6 +335,13 @@ def inside(root, run_id):
         assert action('rollback')['afterState']=='ROLLED_BACK'
         result['cases'].append({'case':'A-B-A-and-exact-retries','state':'ROLLED_BACK','passed':True,'cms':cms_identity()})
         saved_journal=read_record(state_root/'frontend-deployment.json')
+        if '--new-candidates' in sys.argv:
+            from new_frontend_rehearsal import exercise
+            exercise(locals())
+            result['cmsAfter']=cms_identity()
+            assert result['cmsAfter']==before
+            result['cmsUnchanged']=True;result['passed']=True
+            return
 
         # Each case starts from the identical backed-up fixture transaction. The
         # reset below is test setup, not a production recovery command.
@@ -441,6 +449,9 @@ def inside(root, run_id):
         resources['containers'].extend(ids)
         for kind in ('containers','networks','volumes'):
             for identity in reversed(list(dict.fromkeys(resources[kind]))):
+                # A later generation legitimately retires a previously recorded
+                # inactive frontend; only absent owned container IDs are skipped.
+                if kind=='containers' and not docker('ps','-aq','--no-trunc','--filter','id='+identity).strip():continue
                 item=inspect(kind[:-1],identity)
                 labels=item['Config']['Labels'] if kind=='containers' else item.get('Labels',{})
                 assert labels.get(LABEL)==run_id or kind=='containers' and labels.get('tio2.deployment')==run_id
@@ -472,7 +483,7 @@ def run():
                           '--mount','type=volume,source='+volume+',target='+root,
                           '--mount','type=bind,source='+str(ROOT)+',target=/workspace,readonly',
                           '--mount','type=bind,source='+str(folder)+',target=/evidence',RUNTIME_IMAGE).stdout.decode().strip()
-        process=command('docker','exec',container,'python3','-B','/workspace/tests/production-runtime/frontend_release_rehearsal.py','--inside',root,run_id,timeout=1800,check=False)
+        process=command('docker','exec',container,'python3','-B','/workspace/tests/production-runtime/frontend_release_rehearsal.py','--inside',root,run_id,*(['--new-candidates'] if '--new-candidates' in sys.argv else []),timeout=1800,check=False)
         (folder/'runtime.stdout').write_bytes(process.stdout);(folder/'runtime.stderr').write_bytes(process.stderr)
         if (folder/'runtime.json').exists():result.update(json.loads((folder/'runtime.json').read_text()))
         if process.returncode:raise RuntimeError('isolated frontend runtime failed; inspect '+str(folder/'runtime.stderr'))
@@ -492,6 +503,6 @@ def run():
 
 
 if __name__=='__main__':
-    if sys.argv[1:]==['--isolated']:run()
-    elif os.name=='posix' and len(sys.argv)==4 and sys.argv[1]=='--inside' and Path('/.dockerenv').exists():inside(*sys.argv[2:])
+    if sys.argv[1:] in (['--isolated'],['--isolated','--new-candidates']):run()
+    elif os.name=='posix' and len(sys.argv) in (4,5) and sys.argv[1]=='--inside' and (len(sys.argv)==4 or sys.argv[4]=='--new-candidates') and Path('/.dockerenv').exists():inside(*sys.argv[2:4])
     else:raise SystemExit('--isolated required; no production target options')
