@@ -1,0 +1,119 @@
+# D16 五类发布系统阶段一候选回执
+
+- 状态：`PHASE1_TOOLING_CANDIDATE`
+- 验证日期：2026-09-12（Asia/Shanghai）
+- 网站 / 主体：`tio2-my` / site
+- 工具候选 commit：`aa054094ec4a53ec65abbcb5147e118aaeef2adc`
+- 能力：只安装 `tio2-my/frontend-only` 的已验证兼容事务路径
+- 未安装：`content-only`、`combined`、`cms-platform`、`host-infrastructure`
+- 生产操作：未执行
+
+本回执只证明阶段一代码、文档、角色合同和可复现管理员包形成可审查候选。它不表示管理员包已安装、兼容事务已迁移、网站候选已部署或生产已重新验证。
+
+## 验证摘要
+
+| 检查 | 结果 |
+|---|---|
+| 直接合同 TDD 红灯：3 个基础设施文件 | 3 项新增合同按预期因缺少发布架构、发布流程和回执模板失败；原有 19 项通过 |
+| 直接合同绿灯 | 3 files / 22 tests passed |
+| `python -m unittest discover -s tests/production -p 'test_*.py' -v` | 353 tests passed；8 skipped |
+| 阶段一 Vitest 组合 | 5 files / 47 tests passed；0 skipped |
+| `frontend_release_rehearsal.py --isolated` | `passed=true`；22 cases |
+| `run_ssh_pin_rehearsal.py --isolated` | `passed=true`；6 cases |
+| Skill `quick_validate.py` | passed |
+| `git diff --check`、目标文件 Gate 旧角色扫描、根 `AGENTS.md` 差异 | passed；无残留；根规则无差异 |
+
+8 个跳过均来自当前 Windows 与 POSIX 设施差异，未计为通过：2 个需要 Windows 符号链接权限，3 个需要隔离 Linux root fixture，1 个需要真实 root-owned POSIX symlink，2 个需要真实 POSIX filesystem。阶段一未安装适配器的写动作由单元与控制器合同验证为 `capability-not-installed`，没有 fallback。
+
+## 管理员候选与可复现性
+
+两次构建均从上述准确已提交 HEAD 读取 Git object bytes，未读取工作树内容：
+
+| 工件 | SHA-256 |
+|---|---|
+| `.production/candidates/admin-phase1-a.tar.gz` | `4fcdf73b0a26d7f0c1d32b8eb617fb13df5e32e37e813d66f4d4a03d2a566a4f` |
+| `.production/candidates/admin-phase1-b.tar.gz` | `4fcdf73b0a26d7f0c1d32b8eb617fb13df5e32e37e813d66f4d4a03d2a566a4f` |
+| `admin-phase1-a.tar.gz.sha256.json` | `ce3cc7e122b921a6478c5e33c2257892295bf8cdf2b0aa2a6adf0d804c89402f` |
+| `admin-phase1-b.tar.gz.sha256.json` | `ce3cc7e122b921a6478c5e33c2257892295bf8cdf2b0aa2a6adf0d804c89402f` |
+
+两个归档和两个 sidecar 分别逐字节一致。sidecar 记录 `schemaVersion=d16-phase1-admin-v1`、`toolCommit=aa054094ec4a53ec65abbcb5147e118aaeef2adc`、`installationPerformed=false`。
+
+归档有 38 个 `admin/` 下的固定成员：
+
+```text
+adoption_apply.py
+adoption_contract.py
+adoption_finalize.py
+adoption_internal.py
+adoption_phase_a.py
+adoption_probe.py
+adoption_state.py
+adoption_tls.py
+adoption_wordpress.py
+backup.sh
+backup_core.py
+bootstrap_install.py
+bootstrap_selftest.py
+candidate_contract.py
+cms_evidence.py
+d16_release.py
+deployment_core.py
+frontend_backup.py
+install.sh
+nginx_inventory.py
+phase1_migration.py
+release_actions.py
+release_adapter.py
+release_baseline.py
+release_contract.py
+release_controller.py
+release_state.py
+root-adopt.sh
+root-migrate-phase1.sh
+site_frontend_adapter.py
+sshd-tio2-production.conf
+subject_registry.py
+sudoers.tio2-release
+tio2_adopt.py
+tio2_release.py
+tls_identity.py
+tool-commit.txt
+web.Dockerfile
+```
+
+清单来自该 commit 中 `bootstrap_install.py` 的 `REQUIRED_FILES`。归档不包含密钥、connection JSON、RunRoot、生产状态/快照、测试临时目录或未跟踪文件。
+
+## 迁移 dry-run 与故障矩阵
+
+隔离 fixture 上执行：
+
+```text
+python -m unittest tests.production.test_phase1_migration.Phase1MigrationTests.test_plan_is_read_only_binds_old_new_generations_registry_state_and_order -v
+```
+
+结果为 1 test passed。`plan()` 重复产生同一个哈希，绑定旧/新 generation、登记、状态、固定替换顺序和目标 commit；该步骤没有调用 `apply`，没有修改受保护树或运行时。
+
+完整 Python 套件执行了迁移故障矩阵：9 个提交目标各自覆盖 `intent`、`replaced`、`committed` 三个窗口，另覆盖 8 个文件/链接 `staged` 窗口、`verified` 和 `receipt`，共 37 个中断窗口。每个窗口要求恢复原受保护字节与原运行时；额外覆盖损坏 journal、包/源码/plan/旧状态/登记漂移、证据失败、运行漂移、已安装状态篡改、root 拒绝、链接、单目标恢复失败与重试。
+
+前台隔离演练的 22 个场景覆盖低空间、运行身份漂移、A→B→A、精确重试、安全回退和不确定状态；不确定结果保持 `RECOVERY_REQUIRED`。SSH pin 演练 6 个场景覆盖固定 argv、host-key pin 与失败后状态读取。它们均使用本地隔离资源。
+
+## 生产未修改证明与当前版本
+
+本任务调用的外部动作只有本地 Git、Vitest、Python 单元测试、两个 `--isolated` rehearsal、Skill 校验和管理员包构建。没有调用 `scripts/production.ps1` 的远程操作，没有运行 SSH 到生产，没有上传工件，没有执行 migration `apply`，也没有连接或修改生产 Docker、Nginx、CMS、数据库、DNS、TLS 或 sudoers。
+
+| 身份 | 当前可陈述事实 |
+|---|---|
+| 阶段一工具候选 | `aa054094ec4a53ec65abbcb5147e118aaeef2adc`；管理员包 SHA-256 如上 |
+| 兼容发布候选 | 代码只受理 Task 4 迁移的既有不可变候选和同一 RunRoot；本任务未从生产读取其当前状态 |
+| 最近一次已记录活动生产版本 | `main@27f0a0da59df1e54cd01eab7d77eb7024b338d42`，Build ID `wQLBw5iwDoUK0QoWOnb10`，活动基线 `1189e46490fb155298c00323391d717091d5de490c9ae9d396ff7880ae5f783e` |
+| 最近一次生产回执 | 2026-09-11 记录服务器公开验证和最终生产验收通过；RunRoot `.production/runs/20260911T082815Z-27f0a0da59df/` |
+
+上述生产版本来自已提交的 2026-09-11 接管回执，不是本任务 fresh `status`。这一区分是刻意的：阶段一候选形成不授予连接生产的权限。
+
+## 后续生产动作
+
+生产前仍需另一条明确指令，并在动作发生前提交和核对：准确管理员包 SHA-256 与 38 项清单、只读迁移计划及 plan hash、旧程序 generation 回退目标、当前生产 RunRoot、fresh `status`、实际兼容候选/活动身份和完整动作序列。
+
+管理员安装与迁移通过后，仍需使用同一 RunRoot 按 `status -> prepare -> backup -> stage -> activate -> verify` 推进，再完成 58 个对象、174 个浏览器案例、RFQ/Sample/Documents 真实提交、三封邮件确认和第二次 `verify`。只有新的最终生产验收回执成立才能宣称生产完成。
+
+阶段二另行实现内容 generation、`content-only`、`combined` 与 `cms-platform`；阶段三另行实现 `host-infrastructure`、Release Campaign 与新站接管。本候选不包含这些执行能力。
