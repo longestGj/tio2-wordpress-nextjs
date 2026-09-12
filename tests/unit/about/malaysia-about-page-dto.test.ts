@@ -11,9 +11,9 @@ describe('ABOUT-001 DTO', () => {
     expect(dto.globalChrome.navigation.find(({targetPageId}) => targetPageId === 'ABOUT-001')?.href).toBe('/about/')
   })
 
-  it('rejects cross-scope and modified contracts', () => {
+  it('accepts CMS text edits but rejects cross-scope and changed evidence', () => {
     expect(() => toMalaysiaAboutPageDto(malaysiaAboutPageSource({scope: 'tio2-a'}))).toThrow(CrossSiteContentError)
-    expect(() => toMalaysiaAboutPageDto(malaysiaAboutPageSource({tamper: true}))).toThrow(AboutPageContractError)
+    expect(toMalaysiaAboutPageDto(malaysiaAboutPageSource({tamper: true})).hero.h1).toBe('Tampered About page')
     expect(() => toMalaysiaAboutPageDto(malaysiaAboutPageSource({tamperEvidence: true}))).toThrow(AboutPageContractError)
   })
 

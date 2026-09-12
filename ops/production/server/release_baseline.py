@@ -188,6 +188,9 @@ def _validate_record(record,paths,runner,stat_reader,allow_stopped=False):
         _require(isinstance(active['commit'],str) and isinstance(deployment['buildId'],str) and re.fullmatch(r'[a-zA-Z0-9_-]{1,128}',deployment['buildId']),'deployment identity')
         plugin=protected_path(deployment['pluginSourceRoot'],stat_reader=stat_reader,directory=True)
         expected={name.removeprefix('wordpress/plugins/tio2-site-model/'):digest for name,digest in hashes.items() if name.startswith('wordpress/plugins/tio2-site-model/')}
+        from frontend_candidate import enrolled_plugin_files
+        enrolled=enrolled_plugin_files(paths.configuration,plugin)
+        if enrolled is not None: expected=enrolled
         observed={}
         for path in sorted(plugin.rglob('*')):
             _require(not path.is_symlink(),'plugin source link')

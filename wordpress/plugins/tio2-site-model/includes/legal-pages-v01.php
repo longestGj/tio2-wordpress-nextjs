@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__.'/content-release-validation.php';
 
 if (! defined('ABSPATH')) exit;
 
@@ -57,7 +58,7 @@ function tio2_validate_legal_page_v01_contract(int $post_id)
     if (is_wp_error($approved) || ! isset($approved[$path])) return new WP_Error('tio2_my_legal_invalid_route', 'The Legal page route identity is invalid.');
     $stored_json = get_post_meta($post_id, TIO2_MY_LEGAL_PAGE_CONTRACT_META, true);
     $stored = is_string($stored_json) ? json_decode($stored_json, true) : null;
-    if (! is_array($stored) || wp_json_encode($stored, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !== wp_json_encode($approved[$path], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) {
+    if (! is_array($stored) || !tio2_my_content_matches($stored, $approved[$path])) {
         return new WP_Error('tio2_my_legal_contract_mismatch', 'The stored Legal page payload does not match the approved contract.');
     }
     if ('no_optional_analytics' !== ($stored['releaseState'] ?? null) || 'tio2-my' !== (($approved_contract = tio2_my_legal_pages_approved_contract())['siteScope'] ?? null)) {

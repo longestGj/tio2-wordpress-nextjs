@@ -1,4 +1,4 @@
-import {createHmac, timingSafeEqual} from 'node:crypto'
+import {createHash, createHmac, timingSafeEqual} from 'node:crypto'
 import {revalidatePath, revalidateTag} from 'next/cache'
 import {z} from 'zod'
 
@@ -48,7 +48,7 @@ const MAX_BODY_BYTES = 64 * 1024
 const MAX_EVENT_AGE_MS = 5 * 60 * 1000
 const EVENT_TTL_MS = 10 * 60 * 1000
 const MAX_EVENT_IDS = 1024
-const processedEventIds = new Map<string, number>()
+const processedEventIds = new Map<string, {expiresAt: number; requestSha256: string}>()
 
 const uniqueArray = <T>(values: readonly T[]): boolean =>
   new Set(values).size === values.length
@@ -75,6 +75,10 @@ const payloadSchema = z
       .max(256)
       .refine(uniqueArray),
     modified: z.iso.datetime({offset: true}),
+    contentRelease: z.object({
+      releaseId: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/u),
+      contentSha256: z.string().regex(/^[a-f0-9]{64}$/u),
+    }).strict().optional(),
   })
   .strict()
 
@@ -149,8 +153,8 @@ async function readBoundedBody(
 }
 
 function pruneProcessedEvents(now: number): void {
-  for (const [eventId, expiresAt] of processedEventIds) {
-    if (expiresAt > now) break
+  for (const [eventId, event] of processedEventIds) {
+    if (event.expiresAt > now) break
     processedEventIds.delete(eventId)
   }
 
@@ -231,12 +235,18 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   pruneProcessedEvents(now)
-  if (processedEventIds.has(payload.eventId)) {
+  const requestSha256 = createHash('sha256').update(rawBody).digest('hex')
+  const processed = processedEventIds.get(payload.eventId)
+  if (processed) {
+    if (processed.requestSha256 !== requestSha256) {
+      return json(409, {ok: false, error: 'Event ID was already used for a different request'})
+    }
     return json(200, {
       ok: true,
       eventId: payload.eventId,
       revalidatedTags: [],
       revalidatedPaths: [],
+      ...(payload.contentRelease ? {contentRelease: payload.contentRelease} : {}),
     })
   }
 
@@ -448,10 +458,16 @@ export async function POST(request: Request): Promise<Response> {
   const revalidatedTags = [...tags].sort()
   const revalidatedPaths = [...payload.paths].sort()
 
-  for (const tag of revalidatedTags) revalidateTag(tag, 'max')
+  for (const tag of revalidatedTags) revalidateTag(tag, payload.contentRelease ? {expire: 0} : 'max')
   for (const path of revalidatedPaths) revalidatePath(path)
+  if (payload.contentRelease) {
+    // SITE_ID binds this runtime to one website. Complete batches also clear
+    // dependent list/layout routes; the release verifier warms them afterwards.
+    revalidatePath('/', 'layout')
+    revalidatePath('/sitemap.xml')
+  }
 
-  processedEventIds.set(payload.eventId, now + EVENT_TTL_MS)
+  processedEventIds.set(payload.eventId, {expiresAt: now + EVENT_TTL_MS, requestSha256})
   console.info('[tio2-revalidation]', {
     siteId: currentSite.id,
     contentId: payload.contentId,
@@ -463,5 +479,6 @@ export async function POST(request: Request): Promise<Response> {
     eventId: payload.eventId,
     revalidatedTags,
     revalidatedPaths,
+    ...(payload.contentRelease ? {contentRelease: payload.contentRelease} : {}),
   })
 }

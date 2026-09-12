@@ -1,0 +1,84 @@
+{
+  "stdout": {
+    "result": "PASS",
+    "mode": "real-local-wordpress-wpgraphql-next-production-build",
+    "buildId": "1Bm6AZgr0_tR5H4W8IABh",
+    "frontendPid": 7687,
+    "frontendRestarted": false,
+    "databaseRestored": true,
+    "checks": [
+      {
+        "installedHooks": true,
+        "contentSha256": "47a5aca2601aaa454015f14a014179afbe16152731f07345c024f7d889176c2c",
+        "nginx": true
+      },
+      {
+        "installedHooks": true,
+        "contentSha256": "f1d0b23dc8ee3795526cd5a89dc10fd250f4da4d4ac66e02494e7d726a00f85d",
+        "nginx": true
+      },
+      {
+        "installedHooks": true,
+        "contentSha256": "47a5aca2601aaa454015f14a014179afbe16152731f07345c024f7d889176c2c",
+        "nginx": true
+      }
+    ],
+    "screenshot": "D:\\16Wordpress_nextjs\\.worktrees\\phase2-tio2-my-content-release\\.local-evidence\\d16-test-content-next-387ac1422825-restored.png",
+    "productionTouched": false,
+    "hooksImplementation": "ops/production/server/content_hooks.py",
+    "runtimeIdentity": {
+      "frontendImageId": "sha256:83741678402b8eb16452c5db3d8e2b1f1fb5213fe32e3f4d079bf6330bdf9b09",
+      "buildId": "1Bm6AZgr0_tR5H4W8IABh",
+      "configurationSha256": "64b72661563d4e5ac941565c43bd937265d0bd3cbeda3d49ccdf24bf05d3f4fa",
+      "cmsContractSha256": "1aef8ad58e195a9f65844e38a03eccc1ec90887447130f5603ff41923bd6e5dc"
+    },
+    "frontendContainer": "d16-hooks-next-a6f737fab0e2",
+    "nginxImageId": "sha256:4a73073bd557c65b759505da037898b61f1be6cbcc3c2c3aeac22d2a470c1752"
+  },
+  "processEvidence": {
+    "toolSessionId": 30119,
+    "exitCode": 0,
+    "harnessCleanupCommandsCompleted": true,
+    "laterIndependentCleanupInventory": "unavailable: Docker Desktop is unable to start"
+  },
+  "screenshotSha256": "93454316f858cd61d5383a4cc8c304f3842452b79c417884883dd3bb724969d6",
+  "sourceHashesAfterRun": {
+    "tests/production-runtime/content_installed_hooks_rehearsal.py": "da6e1107e9493970dfd059553145f1ad61378fde7f73a41e0582f62b5f123d5d",
+    "tests/production-runtime/content_next_rehearsal.py": "704db0ef79fcc4eb005f52a493fb230b330fbd3e0af5a4e8d3d9a0d61239e151",
+    "tests/production-runtime/content_rehearsal.py": "7675fc42cbaa81ecfbbd4bd50e461f36978a0389afbf6a4afd560605fa44d7d5",
+    "ops/production/server/content_hooks.py": "bcf348e391e45a2803770bf3a1acee0e9d6be8274991a29d4221063ed43f78ba",
+    "ops/production/server/content_docker.py": "eb9f5f742c148f5f1b591a556f17f6f5cece629178a13c645eab4b5d704bcd3e",
+    "ops/production/server/content_release.py": "cf5a59d2438f282ce2143197802c9892e76418122d1d5412da60de24ec656187",
+    "ops/production/server/content_install_finalize.py": "5108e0b8941cebe8c46a8dc39456e402933c34b1ad6469c5a6da5ad4e88a8fe6"
+  },
+  "sourceHashCapturedAt": "2026-09-12T11:28:47.422520+00:00",
+  "sourceHashTiming": "Captured after execution, not a launch-time byte snapshot. The configured-unknown-SEO-field rejection and cmsScope completion metadata were subsequently checked by targeted tests.",
+  "targetedPostRunValidation": {
+    "command": "python -m unittest tests.production.test_content_docker tests.production.test_content_install_finalize tests.production.test_content_release -v",
+    "tests": 25,
+    "seconds": 0.777,
+    "result": "PASS"
+  },
+  "verificationScope": {
+    "siteId": "tio2-my",
+    "pageIds": [
+      "HOME-001"
+    ],
+    "visibleFields": [
+      "hero.heading"
+    ],
+    "seoChecks": [
+      "title",
+      "description",
+      "canonical",
+      "robots"
+    ],
+    "sitemap": true,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "screenshotViewed": true,
+    "fullSiteVisualAcceptance": false
+  }
+}

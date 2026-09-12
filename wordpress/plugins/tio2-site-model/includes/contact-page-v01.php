@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__.'/content-release-validation.php';
 
 if (! defined('ABSPATH')) {
     exit;
@@ -45,6 +46,11 @@ function tio2_validate_contact_page_v01_contract(int $post_id)
         'en' !== ($identity['locale'] ?? null) || '/contact/' !== ($identity['path'] ?? null) ||
         'contact-page-v0.1-malaysia' !== ($identity['contractVersion'] ?? null)
     ) return new WP_Error('tio2_my_contact_page_contract_invalid', 'The Contact page payload identity is invalid.');
+    $installed = json_decode((string)file_get_contents(dirname(__DIR__).'/config/tio2-my-contact-page.json'),true);
+    if (!is_array($contract['contactDetails'] ?? null)) return new WP_Error('tio2_my_contact_page_content_invalid','Invalid Contact details structure.');
+    $comparable = $contract;
+    foreach (['generalInquiries','operatingCompany','manufacturingSite'] as $key) $comparable['contactDetails'][$key] = $installed['contactDetails'][$key];
+    if (!tio2_my_content_matches($comparable,$installed)) return new WP_Error('tio2_my_contact_page_content_invalid','Invalid Contact content structure.');
     return true;
 }
 

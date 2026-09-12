@@ -21,6 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const {site, page} = await loadRfqPage()
   return buildMalaysiaRfqMetadata(site, {
     indexingAuthorized: page.releaseControls.indexingAuthorized,
+    seo: page.seo,
     env: process.env,
   })
 }
@@ -28,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RequestAQuoteRoute() {
   const {site, page} = await loadRfqPage()
   const runtime = resolveMalaysiaRfqRuntime()
-  const jsonLd = serializeMalaysiaRfqJsonLd(buildMalaysiaRfqJsonLd(site))
+  const jsonLd = serializeMalaysiaRfqJsonLd(buildMalaysiaRfqJsonLd(site,page.seo))
   return (
     <MalaysiaRfqPage
       page={page}

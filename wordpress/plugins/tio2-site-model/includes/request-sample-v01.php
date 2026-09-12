@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__.'/content-release-validation.php';
 
 if (! defined('ABSPATH')) exit;
 
@@ -42,7 +43,7 @@ function tio2_validate_request_sample_v01_contract(int $post_id)
     $approved = tio2_my_request_sample_approved_contract_json();
     if (is_wp_error($approved)) return $approved;
     $stored = get_post_meta($post_id, TIO2_MY_REQUEST_SAMPLE_CONTRACT_META, true);
-    if (! is_string($stored) || ! hash_equals($approved, $stored)) return new WP_Error('tio2_my_request_sample_contract_mismatch', 'The stored Malaysia Sample Request payload does not match the approved contract.');
+    if (! is_string($stored) || ! tio2_my_content_json_matches($stored, $approved)) return new WP_Error('tio2_my_request_sample_contract_mismatch', 'The stored Malaysia Sample Request payload does not match the approved contract.');
     $contract = json_decode($stored, true);
     if (! is_array($contract) || 'CONV-SAMPLE-G7-HANDOFF-01' !== ($contract['packageId'] ?? null) || 'CONV-SAMPLE-G7-PCR-01' !== ($contract['reviewId'] ?? null) || 'CONV-SAMPLE' !== ($contract['identity']['pageId'] ?? null) || 'tio2-my' !== ($contract['identity']['siteScope'] ?? null) || '/request-sample/' !== ($contract['identity']['path'] ?? null) || 'request-sample-v0.1-malaysia' !== ($contract['identity']['schemaVersion'] ?? null) || false !== ($contract['releaseControls']['indexingAuthorized'] ?? null)) {
         return new WP_Error('tio2_my_request_sample_contract_invalid', 'The Sample Request payload identity or release controls are invalid.');

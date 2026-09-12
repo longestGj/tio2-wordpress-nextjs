@@ -52,10 +52,13 @@ class ReleaseController:
     @classmethod
     def system(cls, *, actor="root"):
         from site_frontend_adapter import SiteFrontendAdapter, load_live_baselines
+        from installed_content import installed_adapters
+        registry = load_registry(Path('/etc/d16-release'))
         adapter = SiteFrontendAdapter()
-        return cls(load_registry(Path("/etc/d16-release")), actor=actor,
-                   adapters={(name, "frontend-only"): adapter for name in
-                             ("tio2-web-bluegreen-v1", "site-frontend-v1", "d16-site-frontend-v1")},
+        adapters = {(name, "frontend-only"): adapter for name in
+                    ("tio2-web-bluegreen-v1", "site-frontend-v1", "d16-site-frontend-v1")}
+        adapters.update(installed_adapters(registry))
+        return cls(registry, actor=actor, adapters=adapters,
                    baseline_loader=load_live_baselines)
 
     def _load_baselines(self, subject):
@@ -72,7 +75,12 @@ class ReleaseController:
             return self._execute(subject_id, action)
 
     def _execute(self, subject_id, action):
+        from site_content_adapter import SiteContentAdapter, SafeContentRollback, terminal_record
         subject = self.registry.resolve(subject_id)
+        window = self._shared_content_window()
+        if window is not None and action != 'status' and (
+                window.get('siteId') != subject_id or action == 'prepare'):
+            raise ReleaseError('shared CMS publication window is active')
         # These capabilities remain closed for phase one, even when a caller
         # accidentally supplies a matching adapter in the installed mapping.
         if action != "status" and subject.kind in {"host", "cms"}:
@@ -96,12 +104,23 @@ class ReleaseController:
             recovery = recovery or read_record(frontend_journal).get('phase') in {
                 'switching', 'upstream-replaced', 'nginx-tested', 'nginx-reloaded', 'recovering', 'rolling-back'}
         if action == "status":
+            release_capabilities = {kind:any(key == (subject.adapter,kind)
+                and subject_id in getattr(adapter,'enrolled_subjects',{subject_id})
+                for key,adapter in self.adapters.items()) for kind in
+                ('frontend-only','content-only','combined','cms-platform','host-infrastructure')}
             result = {"ok": True, "action": action, "subject": subject_id, "state": state,
+                           "sharedCmsWindowActive": window is not None,
+                           "releaseCapabilities": release_capabilities,
                            "recoveryRequired": recovery,
                            "stageResumeAvailable": current == "STAGED" and stage_proven and not recovery,
-                           "capabilities": {name: name == "status" or subject.kind == "site" and any(key[0] == subject.adapter for key in self.adapters) for name in sorted(D16_ACTIONS)}}
+                           "capabilities": {name: name == "status" or subject.kind == "site" and any(release_capabilities.values()) for name in sorted(D16_ACTIONS)}}
+            terminal_path = self.registry.cms.state_root / 'content-window.json'
+            if state.get('details', {}).get('releaseType') == 'content-only':
+                terminal = terminal_record(terminal_path, subject_id, state['details']['releaseId'])
+                if terminal:
+                    result['contentTerminalReconciliation'] = 'verify' if terminal['phase'] == 'completed' else 'rollback'
             compatibility = subject.state_root / 'compatibility-transaction.json'
-            if compatibility.exists():
+            if compatibility.exists() and state.get('details', {}).get('releaseType') == 'frontend-only' and 'frontendEnrollmentSha256' not in state.get('details', {}):
                 from frontend_backup import read_record
                 from cms_evidence import canonical
                 transaction = read_record(compatibility)
@@ -109,7 +128,16 @@ class ReleaseController:
                     raise ReleaseError('compatibility transaction mismatch')
                 result['compatibilityTransaction'] = transaction
             return redact(result)
-        if recovery:
+        content = isinstance(self.adapters.get((subject.adapter, state.get('details', {}).get('releaseType'))), SiteContentAdapter)
+        if content and action in {'verify','rollback'} and current in {
+                'PREPARED','BACKED_UP','STAGED','INTERNAL_VERIFIED','ACTIVATED','RECOVERY_REQUIRED','FAILED'}:
+            reconciled = self._reconcile_content_terminal(subject, action, state)
+            if reconciled is not None:
+                return reconciled
+        content_recovery = (content and action == 'rollback' and window is not None
+                            and window.get('siteId') == subject_id
+                            and window.get('releaseId') == state.get('details', {}).get('releaseId'))
+        if recovery and not content_recovery:
             raise ReleaseError("recovery-required")
         if current != "IDLE" and state.get("schemaVersion") != STATE_SCHEMA:
             raise ReleaseError("legacy state requires explicit migration")
@@ -131,12 +159,24 @@ class ReleaseController:
                    "activate": {"INTERNAL_VERIFIED"},
                    "verify": {"ACTIVATED", "PUBLIC_VERIFIED"},
                    "rollback": {"ACTIVATED", "PUBLIC_VERIFIED", "FAILED"}}
+        if content_recovery:
+            allowed['rollback'] |= {'PREPARED','BACKED_UP','STAGED','INTERNAL_VERIFIED','RECOVERY_REQUIRED'}
         from site_frontend_adapter import SiteFrontendAdapter
+        from site_content_adapter import SiteContentAdapter, SafeContentRollback
         frontend = isinstance(self.adapters.get((subject.adapter, state.get('details', {}).get('releaseType'))), SiteFrontendAdapter)
+        content = isinstance(self.adapters.get((subject.adapter, state.get('details', {}).get('releaseType'))), SiteContentAdapter)
         repeated = frontend and (action, current) in {
             ('prepare', 'PREPARED'), ('backup', 'BACKED_UP'), ('activate', 'ACTIVATED'), ('rollback', 'ROLLED_BACK'), ('verify', 'COMPLETED')}
         if frontend and action == 'prepare' and current in {'FAILED','ROLLED_BACK','COMPLETED'}:
-            raise ReleaseError('compatibility transaction is terminal; a new candidate workflow is not installed')
+            _, _, next_adapter = self._context(subject, state)
+            if isinstance(next_adapter, SiteFrontendAdapter) and (subject.incoming/'candidate-manifest.json').exists():
+                if current not in {'ROLLED_BACK','COMPLETED'}:
+                    raise ReleaseError('previous frontend transaction is not terminal')
+            elif not isinstance(next_adapter, SiteContentAdapter):
+                raise ReleaseError('compatibility transaction is terminal; a new candidate workflow is not installed')
+            else:
+                frontend, content = False, True
+        repeated = repeated or content and action == 'verify' and current == 'COMPLETED'
         if current not in allowed[action] and not repeated:
             raise ReleaseError("unexpected release state")
         if action == "verify" and current in {"PUBLIC_VERIFIED", "COMPLETED"}:
@@ -149,7 +189,12 @@ class ReleaseController:
                     context, identity, adapter = self._context(subject, state)
                     adapter.validate_context(context)
                     adapter._restore(context, adapter._backup(context))
-                details["completionEvidence"] = self._completion(subject, details)
+                if content:
+                    context, _, adapter = self._context(subject, state)
+                    details['completionEvidence'] = adapter.completed_evidence(context)
+                    validate_completion_evidence(details)
+                else:
+                    details["completionEvidence"] = self._completion(subject, details)
             except Exception:
                 self._receipt(subject, action, state, state, failure_stage="completion-evidence")
                 raise
@@ -191,6 +236,11 @@ class ReleaseController:
             if not isinstance(result, Mapping) or result.get("ok") is not True:
                 raise ReleaseError("adapter verification failed")
             details["actionEvidence"] = redact(dict(result))
+            if action == 'prepare' and isinstance(adapter, SiteFrontendAdapter) and 'preparedDetails' in result:
+                details.update(result['preparedDetails'])
+            if isinstance(adapter, SiteContentAdapter):
+                if 'contentEvidence' in result:
+                    details['contentEvidence'] = result['contentEvidence']
             if "binding" in result:
                 from frontend_backup import BINDING_FIELDS
                 candidate_binding = result["binding"]
@@ -207,7 +257,12 @@ class ReleaseController:
                                                 "identity": identity, "internalVerified": True}
             target = {"prepare": "PREPARED", "backup": "BACKED_UP", "stage": "STAGED",
                       "activate": "ACTIVATED", "verify": "PUBLIC_VERIFIED", "rollback": "ROLLED_BACK"}[action]
-            if repeated:
+            if content_recovery:
+                if result.get('contentEvidence', {}).get('phase') != 'rolled-back':
+                    raise ReleaseError('content recovery not verified')
+                after = {'schemaVersion': STATE_SCHEMA, 'state': 'ROLLED_BACK', 'details': details}
+                atomic_write_json(subject.state_root / 'state.json', after)
+            elif repeated:
                 after = {**state, 'details': details}
                 atomic_write_json(subject.state_root / 'state.json', after)
             else:
@@ -226,7 +281,14 @@ class ReleaseController:
                 raise
             # An exception after entering a commit point cannot prove whether the
             # active version changed. Never retry it or guess that rollback worked.
-            if isinstance(error, SafeFrontendRollback) and self._safe_recovery(error.evidence, details):
+            if isinstance(error, SafeContentRollback) and isinstance(adapter, SiteContentAdapter) and self._safe_content_recovery(error, adapter, context, details):
+                # Only accept the engine's persisted owned window after a real
+                # restore and verification, never exception text or a flag alone.
+                details['contentEvidence'] = error.evidence
+                after = {'schemaVersion': STATE_SCHEMA, 'state': 'ROLLED_BACK', 'details': details}
+                atomic_write_json(subject.state_root / 'state.json', after)
+                atomic_write_json(context.transaction_path, redact({**intent,'action':'rollback','phase':'RESULT','afterState':'ROLLED_BACK','ok':True}))
+            elif isinstance(error, SafeFrontendRollback) and self._safe_recovery(error.evidence, details):
                 details["safeRecovery"] = error.evidence
                 after = {"schemaVersion": STATE_SCHEMA, "state": "ROLLED_BACK", "details": details}
                 atomic_write_json(subject.state_root / "state.json", after)
@@ -235,7 +297,7 @@ class ReleaseController:
                 # This action only captures and encrypts frontend bytes. Its
                 # durable request permits safe retry after process/transport loss.
                 after = state
-            elif commit_action or action in {'stage','verify'} and frontend or not isinstance(error, Exception) or isinstance(error, SafeFrontendRollback):
+            elif commit_action or action in {'backup','stage','verify'} and content or action in {'stage','verify'} and frontend or not isinstance(error, Exception) or isinstance(error, SafeFrontendRollback):
                 after = {"schemaVersion": STATE_SCHEMA, "state": "RECOVERY_REQUIRED", "details": details}
                 atomic_write_json(subject.state_root / "state.json", after)
                 atomic_write_json(context.transaction_path, redact({**intent, "phase": "RESULT", "afterState": "RECOVERY_REQUIRED", "ok": False}))
@@ -264,6 +326,56 @@ class ReleaseController:
                 and all(isinstance(value, str) and value for value in active.values())
                 and isinstance(health, Mapping) and health.get("proxy") is True
                 and all(health.get(key) == active[key] for key in ("buildId", "imageId", "containerId")))
+
+    def _shared_content_window(self):
+        path = self.registry.cms.state_root / 'content-window.json'
+        if not path.exists() and not path.is_symlink():
+            return None
+        with _open_regular_read(path) as source:
+            value = json.load(source, object_pairs_hook=_unique)
+        if not isinstance(value, dict) or value.get('schemaVersion') != 'd16-content-window-v1':
+            raise ReleaseError('shared CMS publication window is invalid')
+        return None if value.get('phase') in {'completed','rolled-back'} else value
+
+    def _reconcile_content_terminal(self, subject, action, state):
+        # A terminal engine record proves the publication window already closed.
+        # Repair only controller bookkeeping; never import/restore after reopening.
+        path = self.registry.cms.state_root / 'content-window.json'
+        from site_content_adapter import terminal_record
+        window = terminal_record(path, subject.subject_id, state['details']['releaseId'])
+        expected = 'completed' if action == 'verify' else 'rolled-back'
+        if window is None or window.get('phase') != expected:
+            return None
+        context, identity, adapter = self._context(subject, state)
+        details = dict(state['details'])
+        if any(details.get(key) != identity[key] for key in IDENTITY_FIELDS):
+            raise ReleaseError('content reconciliation identity changed')
+        evidence = adapter.terminal_evidence(context, expected)
+        saved = details.get('contentEvidence')
+        if (evidence is None or saved is not None and
+                evidence['backupReceiptSha256'] != saved.get('backupReceiptSha256')
+                or saved is None and window.get('backup') is not None):
+            raise ReleaseError('content terminal backup evidence mismatch')
+        details['contentEvidence'] = evidence
+        target = 'PUBLIC_VERIFIED' if action == 'verify' else 'ROLLED_BACK'
+        after = {'schemaVersion':STATE_SCHEMA,'state':target,'details':details}
+        atomic_write_json(context.transaction_path, {
+            'schemaVersion':'d16-release-transaction-v1','phase':'RESULT',
+            'action':'activate' if action == 'verify' else 'rollback',
+            'transactionId':uuid4().hex,'actor':self.actor,'beforeState':state['state'],
+            'identity':identity,'afterState':'ACTIVATED' if action == 'verify' else 'ROLLED_BACK','ok':True})
+        atomic_write_json(subject.state_root/'state.json',after)
+        return self._receipt(subject,action,state,after)
+
+    @staticmethod
+    def _safe_content_recovery(error, adapter, context, details):
+        try:
+            observed = adapter._window(context, adapter.engine_factory(context), adapter._package(context))
+            return (observed.get('phase') == 'rolled-back'
+                    and error.evidence == adapter._evidence(observed)
+                    and error.evidence['backupReceiptSha256'] == details.get('contentEvidence', {}).get('backupReceiptSha256'))
+        except Exception:
+            return False
 
     @staticmethod
     def _transaction_digest(journal):
@@ -318,21 +430,25 @@ class ReleaseController:
         if candidate.subject != subject.subject_id:
             raise ReleaseError("candidate subject mismatch")
         adapter = self.adapters.get((subject.adapter, candidate.release_type))
-        if adapter is None:
+        if adapter is None or subject.subject_id not in getattr(adapter,'enrolled_subjects',{subject.subject_id}):
             raise ReleaseError("capability-not-installed")
         from site_frontend_adapter import SiteFrontendAdapter
-        if isinstance(adapter, SiteFrontendAdapter) and not compatible:
-            # Phase one installs only the approved Task 4 compatibility input
-            # path. General v2 candidate preparation/evidence is not installed.
+        if (isinstance(adapter,SiteFrontendAdapter) and not compatible
+                and getattr(adapter,'baseline_loader',None) is None
+                and not (subject.configuration/'frontend-enrollment.json').exists()):
             raise ReleaseError('capability-not-installed')
         if not compatible:
-            payload = validate_payload(candidate, subject.incoming / "payload")
+            payload = validate_payload(candidate, subject.incoming / ("frontend-payload" if isinstance(adapter,SiteFrontendAdapter) else "payload"))
             if sha256_file(manifest) != before_hash:
                 raise ReleaseError("candidate changed during validation")
-        baseline, global_baseline = self.baseline_loader(subject)
+        loader = getattr(adapter,'baseline_loader',None)
+        if isinstance(adapter, SiteFrontendAdapter) and not compatible and loader is None:
+            from frontend_candidate import load_baselines
+            loader = load_baselines
+        baseline, global_baseline = loader(subject,state,candidate) if loader else self.baseline_loader(subject)
         if (baseline.get("subject") != subject.subject_id or global_baseline.get("subject") != "host"
                 or baseline.get("previousProductionReceipt") != candidate.previous_production_receipt
-                or not compatible and baseline.get("configurationSha256") != candidate.configuration_sha256
+                or not compatible and not (isinstance(adapter, SiteFrontendAdapter) and state.get('details',{}).get('releaseId')==candidate.release_id) and baseline.get("configurationSha256") != candidate.configuration_sha256
                 or baseline.get("cmsContractSha256") != candidate.cms_contract_sha256):
             raise ReleaseError("candidate baseline mismatch")
         identity = {"releaseId": candidate.release_id, "subject": candidate.subject,

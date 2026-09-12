@@ -1,5 +1,11 @@
 # D16 五类发布架构
 
+最小内容发布的当前开发入口、恢复方式与未安装边界见[内容发布说明](content-release.md)。
+
+MY 的 CMS 安装、新前台候选和内容能力启用衔接见[管理员安装说明](production-installation.md)。管理员程序按实际资源登记能力；以下生产安装状态不随开发代码或本地测试自动更新。
+
+> 第二阶段设计更新：用户已接受[最小内容发布改造](superpowers/specs/2026-09-12-minimal-content-release-design.md)，采用暂停共享 CMS 写入、整库备份和发布窗口内失败整库恢复，不再以 generation 或单站历史回退作为实施前提。以下阶段一能力登记仍描述现有实现，内容能力尚未安装。
+
 本文稳定描述 D16 发布系统的代码结构与安全边界。批准设计来源为[五类发布系统与共享 CMS 架构设计](superpowers/specs/2026-09-12-multisite-production-release-architecture-design.md)；实际已安装能力以当前代码、测试和[网站登记](site-registry.md)为准。
 
 ## 1. 六个控制器组件

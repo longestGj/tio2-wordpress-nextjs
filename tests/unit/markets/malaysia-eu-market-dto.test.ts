@@ -24,7 +24,7 @@ describe('Malaysia EU Market DTO', () => {
     })
   })
 
-  it('rejects foreign scope, wrong route and byte-drifted content without fallback', () => {
+  it('rejects foreign scope, wrong route and unsafe content without fallback', () => {
     expect(() => toMalaysiaEuMarketPageDto({
       ...source(), siteScopes: {nodes: [{slug: 'tio2-a'}]},
     })).toThrow(/tio2-my/u)
@@ -33,7 +33,7 @@ describe('Malaysia EU Market DTO', () => {
     })).toThrow(/identity\.path/u)
     const changed = structuredClone(source())
     const payload = JSON.parse(changed.malaysiaEuMarketContractJson)
-    payload.hero.h1 = 'Changed'
+    payload.hero.h1 = '<script>Changed</script>'
     changed.malaysiaEuMarketContractJson = JSON.stringify(payload)
     expect(() => toMalaysiaEuMarketPageDto(changed)).toThrow(/contract/u)
   })

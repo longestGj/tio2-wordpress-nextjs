@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/content-release-validation.php';
 if (!defined('ABSPATH')) exit;
 require_once __DIR__.'/editorial-review.php';
 
@@ -30,7 +31,7 @@ add_action('init','tio2_editorial_register',12);
 function tio2_editorial_validate_payload(string $page_id,string $json) {
     $approved=json_decode(tio2_editorial_config($page_id),true);
     $payload=json_decode($json,true);
-    if (!is_array($approved) || !is_array($payload) || wp_json_encode($approved)!==wp_json_encode($payload)) return new WP_Error('editorial_payload','Unapproved editorial payload.');
+    if (!is_array($approved) || !is_array($payload) || !tio2_my_content_matches($payload,$approved)) return new WP_Error('editorial_payload','Unapproved editorial payload.');
     return true;
 }
 function tio2_editorial_candidates(string $page_id): array {

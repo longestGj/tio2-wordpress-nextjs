@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-document-coo.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
@@ -33,7 +34,6 @@ function exactText(value: unknown, field: string): string {
   return value
 }
 
-const approvedSerializedContract = JSON.stringify(approvedContract)
 
 export function toMalaysiaDocumentCooDto(sourceValue: MalaysiaDocumentCooSource): MalaysiaDocumentCooDto {
   const source = record(sourceValue, 'documentCoo')
@@ -47,11 +47,13 @@ export function toMalaysiaDocumentCooDto(sourceValue: MalaysiaDocumentCooSource)
   if (source.status !== 'publish') throw new DocumentCooContractError('status')
   const modified = normalizeWordPressGmt(typeof source.modifiedGmt === 'string' ? source.modifiedGmt : null)
   if (!modified) throw new DocumentCooContractError('modifiedGmt')
-  if (typeof source.malaysiaDocumentCooContractJson !== 'string' || source.malaysiaDocumentCooContractJson !== approvedSerializedContract) {
+  let delivered: unknown
+  try { delivered = JSON.parse(String(source.malaysiaDocumentCooContractJson)) } catch { throw new DocumentCooContractError('malaysiaDocumentCooContractJson') }
+  if (!matchesInstalledContent(delivered, approvedContract)) {
     throw new DocumentCooContractError('malaysiaDocumentCooContractJson')
   }
   return {
-    ...approvedContract,
+    ...(delivered as typeof approvedContract),
     cms: {id: exactText(source.id, 'id'), modified, status: 'publish'},
     globalChrome,
   }

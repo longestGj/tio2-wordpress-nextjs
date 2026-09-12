@@ -3,7 +3,7 @@ import contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-rfq-pag
 import type {JsonLdObject} from './jsonld'
 import {serializeJsonLd} from './jsonld'
 
-export function buildMalaysiaRfqJsonLd(site: SiteConfig): JsonLdObject {
+export function buildMalaysiaRfqJsonLd(site: SiteConfig, seo: Pick<typeof contract.seo, 'title' | 'description'> = contract.seo): JsonLdObject {
   if (site.id !== 'tio2-my' || site.wordpressScope !== 'tio2-my') {
     throw new Error('CONV-RFQ Schema is available only for tio2-my')
   }
@@ -13,7 +13,7 @@ export function buildMalaysiaRfqJsonLd(site: SiteConfig): JsonLdObject {
     '@graph': [
       {
         '@type': 'WebPage', '@id': `${canonical}#webpage`, url: canonical,
-        name: contract.seo.title, description: contract.seo.description,
+        name: seo.title, description: seo.description,
         inLanguage: contract.seo.language,
         isPartOf: {'@id': new URL('/#website', site.url).href},
         breadcrumb: {'@id': `${canonical}#breadcrumb`},

@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import {CrossSiteContentError} from './types'
 import {normalizeWordPressGmt} from './time'
 import type {MalaysiaRequestSamplePageDto} from './request-sample-v01-types'
@@ -12,7 +13,6 @@ export interface MalaysiaRequestSamplePageSource {
   readonly id: unknown; readonly modifiedGmt: unknown; readonly status: unknown; readonly siteScopes: unknown
   readonly publishingFields: unknown; readonly malaysiaRequestSampleContractJson: unknown
 }
-const approved = JSON.stringify(contract)
 const record = (value: unknown, field: string): UnknownRecord => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new RequestSampleContractError(field)
   return value as UnknownRecord
@@ -35,6 +35,6 @@ export function toMalaysiaRequestSamplePageDto(value: MalaysiaRequestSamplePageS
   if (typeof source.malaysiaRequestSampleContractJson !== 'string') throw new RequestSampleContractError('malaysiaRequestSampleContractJson')
   let parsed: unknown
   try { parsed = JSON.parse(source.malaysiaRequestSampleContractJson) } catch { throw new RequestSampleContractError('malaysiaRequestSampleContractJson') }
-  if (JSON.stringify(parsed) !== approved || contract.globalChromeRef.contractId !== globalChrome.contractId || contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId) throw new RequestSampleContractError('malaysiaRequestSampleContractJson')
-  return {...contract, identity: {id: text(source.id, 'identity.id'), pageId: 'CONV-SAMPLE', siteScope: 'tio2-my', locale: 'en', path: '/request-sample/', schemaVersion: 'request-sample-v0.1-malaysia', status: 'publish', modified}, globalChrome}
+  if (!matchesInstalledContent(parsed, contract) || contract.globalChromeRef.contractId !== globalChrome.contractId || contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId) throw new RequestSampleContractError('malaysiaRequestSampleContractJson')
+  return {...(parsed as typeof contract), identity: {id: text(source.id, 'identity.id'), pageId: 'CONV-SAMPLE', siteScope: 'tio2-my', locale: 'en', path: '/request-sample/', schemaVersion: 'request-sample-v0.1-malaysia', status: 'publish', modified}, globalChrome}
 }

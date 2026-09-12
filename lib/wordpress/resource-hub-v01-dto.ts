@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-resource-hub.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
@@ -278,7 +279,6 @@ function validatedPublicProjection(value: unknown): Pick<MalaysiaResourceHubDto,
   return {publicState: expectedState, resourceGroups: Object.freeze(resourceGroups)}
 }
 
-const approvedSerializedContract = JSON.stringify(approvedContract)
 
 export function toMalaysiaResourceHubDto(sourceValue: MalaysiaResourceHubSource): MalaysiaResourceHubDto {
   const source = record(sourceValue, 'resourceHub')
@@ -301,7 +301,7 @@ export function toMalaysiaResourceHubDto(sourceValue: MalaysiaResourceHubSource)
     throw new ResourceHubContractError('malaysiaResourceHubContractJson')
   }
   if (
-    JSON.stringify(contract) !== approvedSerializedContract ||
+    !matchesInstalledContent(contract, approvedContract) ||
     contract.globalChromeRef.contractId !== globalChrome.contractId ||
     contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId
   ) throw new ResourceHubContractError('malaysiaResourceHubContractJson')

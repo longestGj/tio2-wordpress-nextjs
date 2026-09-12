@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-resource-proc.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
@@ -40,14 +41,6 @@ function text(value: unknown, field: string): string {
   return value
 }
 
-function canonicalJson(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`
-  if (value && typeof value === 'object') {
-    const source = value as UnknownRecord
-    return `{${Object.keys(source).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(source[key])}`).join(',')}}`
-  }
-  return JSON.stringify(value)
-}
 
 function withoutKeys(source: UnknownRecord, excluded: ReadonlySet<string>): UnknownRecord {
   return Object.fromEntries(Object.entries(source).filter(([key]) => !excluded.has(key)))
@@ -149,7 +142,7 @@ function projectEligibleRelations(value: unknown): readonly MalaysiaResourceProc
 
 function projectPublicContent(value: unknown): UnknownRecord {
   const source = record(value, 'contract')
-  if (canonicalJson(comparableContent(source)) !== canonicalJson(approvedComparableContent)) {
+  if (!matchesInstalledContent(comparableContent(source), approvedComparableContent)) {
     throw new ResourceProcContractError('approvedContent')
   }
   const seo = withoutKeys(record(source.seo, 'seo'), new Set(['primaryKeyword']))
@@ -200,20 +193,20 @@ export function projectMalaysiaResourceProcPayload(value: unknown): MalaysiaReso
   } as MalaysiaResourceProcPayload
 }
 
-const allowedPublicContent = new Set<string>()
+const allowedPublicContent: UnknownRecord[] = []
 for (let mask = 0; mask < 8; mask += 1) {
   const candidate = structuredClone(approvedContract)
   ;[...APPLICATION_SOURCE_KEYS].forEach((sourceKey, index) => {
     if ((mask & (1 << index)) === 0) return
     candidate.externalSources.find((source) => source.sourceKey === sourceKey)!.evidenceStatus = 'REVOKED'
   })
-  allowedPublicContent.add(canonicalJson(projectPublicContent(candidate)))
+  allowedPublicContent.push(projectPublicContent(candidate))
 }
 
 function validatedPayload(value: unknown): MalaysiaResourceProcPayload {
   const payload = record(value, 'resourceProcPayload')
   const {articleMetadata: rawArticleMetadata, eligibleRelations, schemaMode, ...content} = payload
-  if (!allowedPublicContent.has(canonicalJson(content))) {
+  if (!allowedPublicContent.some(installed => matchesInstalledContent(content,installed))) {
     throw new ResourceProcContractError('resourceProcPayload.approvedContent')
   }
   if (!Array.isArray(eligibleRelations)) throw new ResourceProcContractError('eligibleRelations')

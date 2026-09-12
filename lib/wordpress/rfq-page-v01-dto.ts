@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import {CrossSiteContentError} from './types'
 import {normalizeWordPressGmt} from './time'
 import type {MalaysiaRfqPageDto} from './rfq-page-v01-types'
@@ -22,7 +23,6 @@ export interface MalaysiaRfqPageSource {
   readonly malaysiaRfqPageContractJson: unknown
 }
 
-const approvedSerializedContract = JSON.stringify(contract)
 
 function record(value: unknown, field: string): UnknownRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new RfqPageContractError(field)
@@ -57,13 +57,13 @@ export function toMalaysiaRfqPageDto(sourceValue: MalaysiaRfqPageSource): Malays
     throw new RfqPageContractError('malaysiaRfqPageContractJson')
   }
   if (
-    JSON.stringify(parsed) !== approvedSerializedContract ||
+    !matchesInstalledContent(parsed, contract) ||
     contract.globalChromeRef.contractId !== globalChrome.contractId ||
     contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId
   ) throw new RfqPageContractError('malaysiaRfqPageContractJson')
 
   return {
-    ...contract,
+    ...(parsed as typeof contract),
     identity: {
       id: text(source.id, 'identity.id'),
       pageId: 'CONV-RFQ',

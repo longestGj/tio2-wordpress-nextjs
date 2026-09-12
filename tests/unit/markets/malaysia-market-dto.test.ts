@@ -24,14 +24,14 @@ describe('Malaysia Market Hub DTO', () => {
     })
   })
 
-  it('rejects cross-scope and byte-drifted records instead of falling back', () => {
+  it('rejects cross-scope and unsafe records instead of falling back', () => {
     expect(() => toMalaysiaMarketHubDto({
       ...source(), siteScopes: {nodes: [{slug: 'tio2-a'}]},
     })).toThrow(/tio2-my/u)
 
     const changed = structuredClone(source())
     const payload = JSON.parse(changed.malaysiaMarketHubContractJson)
-    payload.hero.h1 = 'Changed'
+    payload.hero.h1 = '<script>Changed</script>'
     changed.malaysiaMarketHubContractJson = JSON.stringify(payload)
     expect(() => toMalaysiaMarketHubDto(changed)).toThrow(/market/i)
   })

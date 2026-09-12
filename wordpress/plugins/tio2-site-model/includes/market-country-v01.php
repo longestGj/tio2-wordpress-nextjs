@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/content-release-validation.php';
 if (! defined('ABSPATH')) exit;
 
 const TIO2_MY_COUNTRY_MARKET_CONTRACT_META = '_tio2_my_country_market_contract_json';
@@ -45,7 +46,7 @@ function tio2_validate_country_market_v01_payload(string $json, string $page_id)
     $approved_json = tio2_my_country_market_config_json($page_id);
     $approved = json_decode($approved_json, true);
     $stored = json_decode($json, true);
-    if (! is_array($approved) || ! is_array($stored) || wp_json_encode($approved) !== wp_json_encode($stored) ||
+    if (! is_array($approved) || ! is_array($stored) || !tio2_my_content_matches($stored, $approved) ||
         $page_id !== ($stored['identity']['pageId'] ?? null) || 'tio2-my' !== ($stored['identity']['siteScope'] ?? null)) {
         return new WP_Error('country_market_payload', 'Changed or invalid country Market payload.');
     }

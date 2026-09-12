@@ -1,0 +1,15 @@
+{
+  "result": "PASS",
+  "date": "2026-09-12",
+  "sourceRevision": "aa8499c7d143f70ddbed1b97f0d0b25b07ed4cae",
+  "command": "python -m unittest discover -s tests/production -v",
+  "tests": 558,
+  "skipped": 9,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 590.829,
+  "exitCode": 0,
+  "environment": "Windows; process TEMP and TMP on worktree D drive",
+  "logSha256": "bf569022f99fb09f389d9ce4135e22eeaaf2eb6a974654fcce2ca070b5ac223b",
+  "productionValidated": false
+}

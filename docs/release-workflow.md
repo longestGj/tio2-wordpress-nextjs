@@ -46,6 +46,6 @@
 
 ## 5. 阶段一能力边界
 
-阶段一只安装 `tio2-my/frontend-only` 适配器，并只接通已验证的现有兼容候选事务。`content-only`、`combined`、`cms-platform` 和 `host-infrastructure` 能被合同识别，但写动作必须返回 `capability-not-installed`。
+当前生产登记仍只安装 `tio2-my/frontend-only` 的已验证兼容事务。新前台与内容运行能力须先完成[管理员安装与启用](production-installation.md)并记录实际验收；开发代码存在不改变生产登记。未安装的 `content-only`、`combined`、`cms-platform` 和 `host-infrastructure` 写动作仍返回 `capability-not-installed`。
 
 阶段一候选只能记录为 `PHASE1_TOOLING_CANDIDATE`。它不表示管理员包已安装、生产已改变或发布已完成。内容 generation、共享 CMS 写入、Release Campaign 执行和新站接管分别属于后续计划。

@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-document-tds.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
@@ -34,7 +35,6 @@ function exactText(value: unknown, field: string): string {
   return value
 }
 
-const approvedSerializedContract = JSON.stringify(approvedContract)
 const readinessKeys = ['CONV-DOC', 'DOC-000', 'DOC-REACH', 'DOC-COO'] as const
 
 export function toMalaysiaDocumentTdsDto(sourceValue: MalaysiaDocumentTdsSource): MalaysiaDocumentTdsDto {
@@ -55,7 +55,7 @@ export function toMalaysiaDocumentTdsDto(sourceValue: MalaysiaDocumentTdsSource)
     throw new DocumentTdsContractError('contract')
   }
   if (
-    JSON.stringify(contract) !== approvedSerializedContract ||
+    !matchesInstalledContent(contract, approvedContract) ||
     contract.page.site_scope !== 'tio2-my' || contract.page.page_id !== 'DOC-TDS' ||
     contract.page.route !== '/documents/tds-sds-coa/' || contract.page.language !== 'en'
   ) throw new DocumentTdsContractError('contract')

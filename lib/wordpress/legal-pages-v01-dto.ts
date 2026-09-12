@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import approved from '@/wordpress/plugins/tio2-site-model/config/tio2-my-legal-pages.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
@@ -44,15 +45,16 @@ export function toMalaysiaLegalPagesDto(values: readonly MalaysiaLegalPageSource
     if (!modified) throw new LegalPagesContractError(`records[${index}].modified`)
     let stored: unknown
     try { stored = JSON.parse(text(source.malaysiaLegalPageContractJson, `records[${index}].contract`)) } catch { throw new LegalPagesContractError(`records[${index}].contract`) }
-    if (JSON.stringify(stored) !== JSON.stringify(approvedPage)) throw new LegalPagesContractError(`records[${index}].contract`)
+    if (!matchesInstalledContent(stored, approvedPage)) throw new LegalPagesContractError(`records[${index}].contract`)
 
-    const parsed = parseLegalMarkdown(approvedPage.buyerVisibleMarkdown)
+    const delivered = stored as typeof approvedPage
+    const parsed = parseLegalMarkdown(delivered.buyerVisibleMarkdown)
     const expectedSections = approvedPage.pageId === 'LEGAL-COOKIE-EN' ? 7 : 10
     if (parsed.sections.length !== expectedSections || approvedPage.releaseState !== approved.releaseState) {
       throw new LegalPagesContractError(`records[${index}].copy`)
     }
     byPath.set(approvedPage.path, {
-      ...approvedPage,
+      ...delivered,
       identity: {id: text(source.id, `records[${index}].id`), siteScope: 'tio2-my', status: 'publish', modified},
       globalChrome,
     })

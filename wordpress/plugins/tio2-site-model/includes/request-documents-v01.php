@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__.'/content-release-validation.php';
 
 if (! defined('ABSPATH')) exit;
 
@@ -56,7 +57,7 @@ function tio2_validate_request_documents_v01_contract(int $post_id)
     $approved = tio2_my_request_documents_approved_contract_json();
     if (is_wp_error($approved)) return $approved;
     $stored = get_post_meta($post_id, TIO2_MY_REQUEST_DOCUMENTS_CONTRACT_META, true);
-    if (! is_string($stored) || ! hash_equals($approved, $stored)) {
+    if (! is_string($stored) || ! tio2_my_content_json_matches($stored, $approved)) {
         return new WP_Error('tio2_my_request_documents_contract_mismatch', 'The stored Malaysia Request Documents payload does not match the approved contract.');
     }
     $contract = json_decode($stored, true);

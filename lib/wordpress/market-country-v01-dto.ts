@@ -1,3 +1,4 @@
+import {matchesInstalledContent} from './content-release-validation'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 import {
   getMalaysiaCountryMarketContract,
@@ -45,9 +46,9 @@ export function toMalaysiaCountryMarketPageDto(
   } catch {
     throw new CountryMarketContractError('payload')
   }
-  if (JSON.stringify(payload) !== JSON.stringify(approved)) throw new CountryMarketContractError('payload')
+  if (!matchesInstalledContent(payload, approved)) throw new CountryMarketContractError('payload')
   return {
-    ...structuredClone(approved),
+    ...(payload as typeof approved),
     identity: {...approved.identity, pageId},
     cms: {id: source.id, modified, status: 'publish'},
     globalChrome,

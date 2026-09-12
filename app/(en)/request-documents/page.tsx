@@ -19,13 +19,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const {site, page} = await loadPage()
   return buildMalaysiaRequestDocumentsMetadata(site, {
     indexingAuthorized: page.releaseControls.indexingAuthorized,
+    seo: page.seo,
     env: process.env,
   })
 }
 
 export default async function RequestDocumentsRoute() {
   const {site, page} = await loadPage()
-  const jsonLd = serializeMalaysiaRequestDocumentsJsonLd(buildMalaysiaRequestDocumentsJsonLd(site))
+  const jsonLd = serializeMalaysiaRequestDocumentsJsonLd(buildMalaysiaRequestDocumentsJsonLd(site,page.seo))
   return <MalaysiaRequestDocumentsQueryPage
     page={page}
     structuredData={<script key="CONV-DOC-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{__html: jsonLd}} />}

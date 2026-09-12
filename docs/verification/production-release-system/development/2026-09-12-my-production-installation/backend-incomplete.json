@@ -1,0 +1,36 @@
+{
+  "result": "INCOMPLETE",
+  "date": "2026-09-12",
+  "siteId": "tio2-my",
+  "environment": "isolated local nested Docker only",
+  "productionTouched": false,
+  "artifactRevision": "82d82b233671d2169c65867c7f5173d294db47b4",
+  "artifactSha256": "9c2db877cc0cc20ade5ac9c20f6ac6861954c31805069d9d9d07b6fc1cc98ace",
+  "lastObservedPhases": [
+    "entering",
+    "backing-up",
+    "installing"
+  ],
+  "fullBackendSuccessVerified": false,
+  "intendedHtmlFailureRollbackVerified": false,
+  "earlierObservedRollback": "Real early resource-backup mismatch rolled back and reopened; not the intended post-install HTML failure scenario.",
+  "failure": "Docker Desktop became unavailable during installation; outer docker returned unexpected EOF. Coordinating task reported C drive free space 608 MB. Causation not proven.",
+  "ownedHostImageExportTempDirectoriesRemaining": [],
+  "ownedHostImageExportTempBytesRemaining": 0,
+  "mountOrderingFix": {
+    "commit": "433230a",
+    "resourcesUnitTests": 12,
+    "identityUnitTests": 7,
+    "actualBackendRerun": false
+  },
+  "nextAction": "Historical failed attempt retained. Later backend-rehearsal.json records successful isolated retry; this historical attempt remains INCOMPLETE.",
+  "cleanupCompleted": {
+    "controller": "d16-test-backend-a900cdcec0fe",
+    "volume": "d16-test-backend-a900cdcec0fe-daemon",
+    "requiredLabel": {
+      "d16.test.backend": "d16-test-backend-a900cdcec0fe"
+    },
+    "ownershipVerifiedBeforeRemoval": true,
+    "removedBy": "coordinating task after Docker Desktop restart"
+  }
+}

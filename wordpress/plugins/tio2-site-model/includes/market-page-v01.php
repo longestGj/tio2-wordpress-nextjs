@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__.'/content-release-validation.php';
 
 if (! defined('ABSPATH')) {
     exit;
@@ -133,7 +134,7 @@ function tio2_validate_market_page_v01_contract(int $post_id)
     $approved_contract = json_decode($approved, true);
     if (
         ! is_array($contract) || ! is_array($approved_contract) ||
-        wp_json_encode(tio2_my_eu_market_immutable_contract($contract)) !== wp_json_encode(tio2_my_eu_market_immutable_contract($approved_contract)) ||
+        !tio2_my_content_matches(tio2_my_eu_market_immutable_contract($contract), tio2_my_eu_market_immutable_contract($approved_contract)) ||
         ! tio2_my_eu_market_runtime_fields_are_valid($contract)
     ) {
         return new WP_Error('tio2_my_eu_market_contract_mismatch', 'The stored EU Market Buyer Clean payload or runtime controls are invalid.');
