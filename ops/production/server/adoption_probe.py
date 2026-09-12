@@ -111,11 +111,20 @@ class LocalSnapshotSource:
 
     @staticmethod
     def _execute(arguments: tuple[str, ...], timeout: int) -> CommandResult:
+        nginx_dump = arguments == ("/usr/sbin/nginx", "-T")
         try:
-            result = subprocess.run(arguments, shell=False, check=False, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=timeout)
+            result = subprocess.run(arguments, shell=False, check=False, text=not nginx_dump, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=timeout)
         except (OSError, subprocess.TimeoutExpired) as error:
             raise AdoptionError("adoption probe command failed") from error
-        return CommandResult(result.returncode, result.stdout)
+        output = result.stdout
+        if nginx_dump:
+            # Match classify_nginx's UTF-8 source decoding without universal
+            # newline translation; undecodable bytes cannot form a snapshot.
+            try:
+                output = output.decode("utf-8", errors="strict")
+            except UnicodeDecodeError as error:
+                raise AdoptionError("adoption Nginx dump encoding is invalid") from error
+        return CommandResult(result.returncode, output)
 
     def run(self, command: tuple[str, ...]) -> CommandResult:
         if not self._command_allowed(command):

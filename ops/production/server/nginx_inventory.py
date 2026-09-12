@@ -15,6 +15,8 @@ from subject_registry import SubjectRegistry
 
 
 _BOUNDARY = re.compile(r"(?m)^# configuration file (.+):[ \t]*\r?$")
+# ngx_conf_read_token recognizes only these four bytes as whitespace.
+_NGINX_WHITESPACE = frozenset(" \t\r\n")
 _RESOURCE_DIRECTIVES = frozenset({
     "include", "server_name", "listen", "proxy_pass", "ssl_certificate_key", "ssl_certificate",
 })
@@ -186,7 +188,7 @@ def _directives(content: str) -> tuple[tuple[str, tuple[str, ...]], ...]:
             continue
 
         if state == "need_space":
-            if character.isspace():
+            if character in _NGINX_WHITESPACE:
                 state = "space"
             elif character == ";":
                 finish_statement(block=False)
@@ -202,7 +204,7 @@ def _directives(content: str) -> tuple[tuple[str, tuple[str, ...]], ...]:
             continue
 
         if state == "space":
-            if character.isspace():
+            if character in _NGINX_WHITESPACE:
                 continue
             if character in ";{":
                 finish_statement(block=character == "{")
@@ -246,7 +248,7 @@ def _directives(content: str) -> tuple[tuple[str, tuple[str, ...]], ...]:
                 token.append(character)
             continue
 
-        if character.isspace():
+        if character in _NGINX_WHITESPACE:
             finish_token()
             state = "space"
             continue

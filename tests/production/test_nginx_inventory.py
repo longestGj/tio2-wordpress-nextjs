@@ -3,10 +3,12 @@ from __future__ import annotations
 import hashlib
 from dataclasses import replace
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 from types import MappingProxyType
 import unittest
+from unittest.mock import patch
 
 
 SERVER = Path(__file__).resolve().parents[2] / "ops" / "production" / "server"
@@ -196,6 +198,31 @@ class NginxInventoryTests(unittest.TestCase):
         with self.assertRaisesRegex(ReleaseError, "unregistered Nginx domain"):
             classify_nginx(self.dump({self.site_path: content}), self.registry)
 
+    def test_non_nginx_whitespace_cannot_hide_unknown_resources(self) -> None:
+        for character in ("\v", "\f", "\u00a0"):
+            for prefix, message in (
+                (f"set $note abc{character}#;", "unregistered Nginx domain"),
+                (f"set $note {character}#;", "unregistered Nginx domain"),
+                (f'set $note "abc"{character};', "directive syntax"),
+            ):
+                content = prefix + " server_name unknown.example;\nset $other value;\n"
+                self.site_path.write_text(content, encoding="utf-8", newline="")
+                with self.subTest(character=repr(character), prefix=prefix):
+                    with self.assertRaisesRegex(ReleaseError, message):
+                        classify_nginx(self.dump({self.site_path: content}), self.registry)
+
+    def test_nginx_ascii_whitespace_separates_quoted_and_unquoted_tokens(self) -> None:
+        for character in (" ", "\t", "\r", "\n"):
+            content = f'{character}server_name{character}"tio2malaysia.com"{character}www.tio2malaysia.com;'
+            self.site_path.write_text(content, encoding="utf-8", newline="")
+            with self.subTest(character=repr(character)):
+                inventory = classify_nginx(self.dump({self.site_path: content}), self.registry)
+                site = next(entry for entry in inventory.files if entry.logical_path == self.site_path)
+                self.assertEqual(
+                    [reference.value for reference in site.references if reference.kind == "server_name"],
+                    ["tio2malaysia.com", "www.tio2malaysia.com"],
+                )
+
     def test_nginx_dump_boundaries_preserve_source_blank_lines_and_final_newlines(self) -> None:
         content = "\n" + self.site_config() + "\n\n"
         self.site_path.write_text(content, encoding="utf-8", newline="\n")
@@ -373,6 +400,84 @@ class NginxInventoryTests(unittest.TestCase):
         ):
             with self.subTest(command=command), self.assertRaisesRegex(AdoptionError, "not allowed"):
                 source._run(command)
+
+    def command_output(self, command: tuple[str, ...], output: bytes, returncode: int = 0):
+        # Substitute only the unavailable Linux executable; exercise the real
+        # subprocess pipe and the production runner's capture/decode options.
+        run = subprocess.run
+
+        def execute(arguments, **kwargs):
+            self.assertEqual(arguments, command)
+            program = (
+                f"import sys; sys.stdout.buffer.write(bytes.fromhex('{output.hex()}')); "
+                f"sys.exit({returncode})"
+            )
+            return run((sys.executable, "-c", program), **kwargs)
+
+        return patch("adoption_probe.subprocess.run", side_effect=execute)
+
+    def test_local_adoption_nginx_capture_preserves_source_newlines(self) -> None:
+        source = LocalSnapshotSource()
+        command = ("/usr/sbin/nginx", "-T")
+        for ending in ("", "\n", "\r", "\r\n"):
+            site_content = "# source comment\r\n" + self.site_config().rstrip("\n") + ending
+            final_content = "proxy_pass http://127.0.0.1:3000;" + ending
+            self.site_path.write_bytes(site_content.encode("utf-8"))
+            self.upstream_path.write_bytes(final_content.encode("utf-8"))
+            dump = self.dump({self.site_path: site_content, self.upstream_path: final_content})
+            with self.subTest(ending=repr(ending)), self.command_output(command, dump.encode("utf-8")):
+                captured = source._run(list(command))
+                self.assertEqual(captured, dump)
+                inventory = classify_nginx(captured, self.registry)
+                for path, content in ((self.site_path, site_content), (self.upstream_path, final_content)):
+                    entry = next(entry for entry in inventory.files if entry.logical_path == path)
+                    self.assertEqual(entry.sha256, hashlib.sha256(content.encode("utf-8")).hexdigest())
+                result = source.run(command)
+                self.assertEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, dump)
+
+    def test_local_adoption_nginx_capture_uses_utf8_independent_of_locale(self) -> None:
+        command = ("/usr/sbin/nginx", "-T")
+        content = "# TiO\u2082\n" + self.site_config()
+        self.site_path.write_bytes(content.encode("utf-8"))
+        dump = self.dump({self.site_path: content})
+        with self.command_output(command, dump.encode("utf-8")):
+            captured = LocalSnapshotSource()._run(list(command))
+        self.assertEqual(captured, dump)
+        inventory = classify_nginx(captured, self.registry)
+        site = next(entry for entry in inventory.files if entry.logical_path == self.site_path)
+        self.assertEqual(site.sha256, hashlib.sha256(content.encode("utf-8")).hexdigest())
+
+    def test_local_adoption_nginx_capture_rejects_invalid_utf8(self) -> None:
+        source = LocalSnapshotSource()
+        command = ("/usr/sbin/nginx", "-T")
+        for output in (b"\xff", b"\xc3\x28", b"\xe2\x82"):
+            with self.subTest(output=output), self.command_output(command, output):
+                with self.assertRaisesRegex(AdoptionError, "encoding"):
+                    source._run(list(command))
+                with self.assertRaisesRegex(AdoptionError, "encoding"):
+                    source.run(command)
+
+    def test_local_adoption_tls_runner_retains_text_and_exit_status_contract(self) -> None:
+        source = LocalSnapshotSource()
+        source._configure_tls_allowlist(self.registry)
+        command = (
+            "/usr/bin/openssl", "x509", "-in",
+            "/etc/letsencrypt/archive/tio2malaysia.com/fullchain1.pem",
+            "-pubkey", "-noout",
+        )
+        output = b"-----BEGIN PUBLIC KEY-----\r\nYWJj\r-----END PUBLIC KEY-----\n"
+        expected = "-----BEGIN PUBLIC KEY-----\nYWJj\n-----END PUBLIC KEY-----\n"
+        for returncode in (0, 1):
+            with self.subTest(returncode=returncode), self.command_output(command, output, returncode):
+                result = source.run(command)
+                self.assertEqual(result.returncode, returncode)
+                self.assertEqual(result.stdout, expected)
+                if returncode == 0:
+                    self.assertEqual(source._run(list(command)), expected)
+                else:
+                    with self.assertRaisesRegex(AdoptionError, "command failed"):
+                        source._run(list(command))
 
     def test_local_adoption_probe_allows_only_registered_exact_tls_commands(self) -> None:
         source = LocalSnapshotSource()
