@@ -262,10 +262,82 @@ def transition(
     return value
 
 
+def _json_text(value: Any) -> str:
+    return json.dumps(redact(value), sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+
+
+_TEXT_SECRET_KEY = r'''["']?\b[\w.-]*(?:secret|token|password|credential|private|key)[\w.-]*["']?\s*[:=]\s*'''
+
+
+def _sensitive_key(key: object) -> bool:
+    text = str(key)
+    for _ in range(8):
+        if any(marker in text.lower() for marker in _SENSITIVE):
+            return True
+        decoded = re.sub(r"\\u([0-9a-fA-F]{4})", lambda match: chr(int(match[1], 16)), text)
+        if decoded == text:
+            return False
+        text = decoded
+    return True  # Excessively layered escape syntax is not a safe key.
+
+
+def _plain_log_text(value: str) -> str | None:
+    # An escaped assignment key outside a parsed JSON fragment cannot safely
+    # be classified by a literal-key regex. None asks the caller to discard the
+    # entire log, including any other fragments already parsed successfully.
+    if re.search(r'''\\(?:u[0-9a-fA-F]{0,4}|["'\\])[^\r\n,;:=]*[:=]''', value):
+        return None
+    for token in re.findall(r"(?:[\w.-]|\\u[0-9a-fA-F]{4})+", value):
+        if "\\u" in token and _sensitive_key(token):
+            return None
+    value = re.sub(r"(?is)-----BEGIN [^-]*PRIVATE KEY-----.*?-----END [^-]*PRIVATE KEY-----", "[REDACTED]", value)
+    value = re.sub(r"(?i)\bBearer\s+\S+", "Bearer [REDACTED]", value)
+    value = re.sub(
+        _TEXT_SECRET_KEY + r'''(?:"(?:\\.|[^"\\])*(?:"|$)|'(?:\\.|[^'\\])*(?:'|$)|[^\r\n,;]+)''',
+        "[REDACTED]", value, flags=re.I)
+    return re.sub(r"(https?://)[^/@\s]+:[^/@\s]+@", r"\1[REDACTED]@", value)
+
+
+def _embedded_json_log(value: str) -> str:
+    decoder = json.JSONDecoder()
+    parts: list[str] = []
+    start = cursor = 0
+    while cursor < len(value):
+        if value.startswith("[REDACTED]", cursor):
+            cursor += len("[REDACTED]")
+            continue
+        if value[cursor] not in "{[":
+            cursor += 1
+            continue
+        tail = value[cursor + 1:].lstrip()
+        looks_like_json = (not tail or tail.startswith(('"', '}')) if value[cursor] == "{"
+                           else not tail or re.match(r'(?:["{\[\]\d-]|true\b|false\b|null\b)', tail) is not None)
+        try:
+            decoded, end = decoder.raw_decode(value, cursor)
+            encoded = _json_text(decoded)
+        except RecursionError:
+            return "[REDACTED]"
+        except ValueError:
+            if looks_like_json:
+                return "[REDACTED]"
+            cursor += 1
+            continue
+        prefix = value[start:cursor]
+        if re.search(_TEXT_SECRET_KEY + r"$", prefix, flags=re.I):
+            return "[REDACTED]"
+        clean_prefix = _plain_log_text(prefix)
+        if clean_prefix is None:
+            return "[REDACTED]"
+        parts.extend((clean_prefix, encoded))
+        start = cursor = end
+    clean_tail = _plain_log_text(value[start:])
+    return "[REDACTED]" if clean_tail is None else "".join((*parts, clean_tail))
+
+
 def redact(value: Any) -> Any:
     if isinstance(value, Mapping):
         return {
-            str(key): "[REDACTED]" if any(marker in str(key).lower() for marker in _SENSITIVE) else redact(item)
+            str(key): "[REDACTED]" if _sensitive_key(key) else redact(item)
             for key, item in value.items()
         }
     if isinstance(value, list):
@@ -279,21 +351,12 @@ def redact(value: Any) -> Any:
         try:
             decoded = json.loads(value)
             if isinstance(decoded, (dict, list, str)):
-                return json.dumps(redact(decoded), sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+                return _json_text(decoded)
         except RecursionError:
             return "[REDACTED]"
         except ValueError:
             pass
-        value = re.sub(r"(?is)-----BEGIN [^-]*PRIVATE KEY-----.*?-----END [^-]*PRIVATE KEY-----", "[REDACTED]", value)
-        value = re.sub(r"(?i)\bBearer\s+\S+", "Bearer [REDACTED]", value)
-        # Non-JSON prefixes, single-quoted keys and truncated log lines still
-        # need safe handling. An unterminated quoted value consumes the rest of
-        # the line rather than leaking words after its first whitespace.
-        value = re.sub(
-            r'''(?i)["']?\b[\w.-]*(?:secret|token|password|credential|private|key)[\w.-]*["']?\s*[:=]\s*(?:"(?:\\.|[^"\\])*(?:"|$)|'(?:\\.|[^'\\])*(?:'|$)|[^\r\n,;]+)''',
-            "[REDACTED]", value)
-        value = re.sub(r"(https?://)[^/@\s]+:[^/@\s]+@", r"\1[REDACTED]@", value)
-        return value
+        return _embedded_json_log(value)
     return value
 
 

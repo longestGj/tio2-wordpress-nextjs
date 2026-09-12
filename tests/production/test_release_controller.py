@@ -375,6 +375,60 @@ class ControllerTests(unittest.TestCase):
         from release_state import redact
         self.assertEqual(redact(redact(logs)), redact(logs))
 
+    def test_prefixed_escaped_truncated_and_nested_json_secrets_never_reach_outputs(self):
+        logs = [
+            r'log: {"pass\u0077ord":"fixture-escaped-prefix-secret"}',
+            r'{"pass\u0077ord":"fixture-truncated-secret"',
+            'log: ' + json.dumps({"message": json.dumps({"password": "fixture-nested-prefix-secret"})}),
+            'log: ' + json.dumps({r"pass\u0077ord": "fixture-reescaped-key-secret"}),
+        ]
+        with patch.object(self.adapter, "prepare", return_value={"ok": True, "logs": logs}):
+            result = self.execute("prepare")
+        root = self.subjects["tio2-my"].state_root
+        outputs = [json.dumps(result), (root / "state.json").read_text()]
+        outputs.extend(path.read_text() for path in (root / "audit").iterdir())
+        for secret in ("fixture-escaped-prefix-secret", "fixture-truncated-secret", "fixture-nested-prefix-secret", "fixture-reescaped-key-secret"):
+            for output in outputs:
+                with self.subTest(secret=secret):
+                    self.assertFalse(secret in output, "secret reached a controller output")
+        from release_state import redact
+        cleaned = redact(logs)
+        self.assertEqual(cleaned[1], "[REDACTED]")
+        self.assertEqual(redact(cleaned), cleaned)
+
+    def test_embedded_json_redaction_preserves_benign_password_mentions(self):
+        logs = ["Consult the password policy before continuing.",
+                'log: {"message":"password policy","count":2}',
+                'log: {"password":"remove-me","safe":"kept"} tail']
+        with patch.object(self.adapter, "prepare", return_value={"ok": True, "logs": logs}):
+            result = self.execute("prepare")
+        cleaned = result["state"]["details"]["actionEvidence"]["logs"]
+        self.assertEqual(cleaned[0], logs[0])
+        self.assertEqual(json.loads(cleaned[1][5:]), {"message": "password policy", "count": 2})
+        self.assertEqual(json.loads(cleaned[2][5:-5]), {"password": "[REDACTED]", "safe": "kept"})
+        from release_state import redact
+        self.assertEqual(redact(cleaned), cleaned)
+
+    def test_unreliable_prefixed_json_is_discarded_without_exposing_escaped_keys(self):
+        logs = [
+            r'log: pass\u0077ord "fixture-bare-escaped-key-secret"',
+            'log: ' + '[' * 1100 + r'{"pass\u0077ord":"fixture-deep-prefix-secret"}' + ']' * 1100,
+            r'log: {"safe":1} then {"pass\u0077ord":"fixture-late-truncated-secret"',
+            'log: ' + json.dumps(json.dumps({"password": "fixture-double-encoded-secret"})),
+        ]
+        with patch.object(self.adapter, "prepare", return_value={"ok": True, "logs": logs}):
+            result = self.execute("prepare")
+        root = self.subjects["tio2-my"].state_root
+        outputs = [json.dumps(result), (root / "state.json").read_text()]
+        outputs.extend(path.read_text() for path in (root / "audit").iterdir())
+        for secret in ("fixture-bare-escaped-key-secret", "fixture-deep-prefix-secret", "fixture-late-truncated-secret", "fixture-double-encoded-secret"):
+            for output in outputs:
+                with self.subTest(secret=secret): self.assertFalse(secret in output, "secret reached a controller output")
+        from release_state import redact
+        cleaned = redact(logs)
+        self.assertEqual(cleaned, ["[REDACTED]"] * len(logs))
+        self.assertEqual(redact(cleaned), cleaned)
+
     def test_interrupted_staged_write_resumes_from_durable_proof_without_replaying_adapter(self):
         self.execute("prepare", "backup")
         from release_controller import transition as real_transition
