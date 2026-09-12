@@ -2,7 +2,7 @@ from copy import deepcopy
 from dataclasses import replace
 import unittest
 
-from tests.production.test_cms_evidence import fixture, sha, encoded
+from tests.production.test_cms_evidence import fixture, sha, encoded, bind_comparison
 from cms_evidence import verify_frontend_only_evidence
 from phase1_migration import migrate_prepared_state, COMPATIBILITY_RUN_ROOT, COMPATIBILITY_RELEASE_ID, COMPATIBILITY_COMMIT
 from release_contract import ReleaseError
@@ -11,6 +11,7 @@ from release_contract import ReleaseError
 def state_fixture():
     values = list(fixture())
     for candidate in (values[0], values[0]['prerelease'], values[2]['candidate'], values[3]['candidate']): candidate['commit'] = COMPATIBILITY_COMMIT
+    bind_comparison(values)
     cms = verify_frontend_only_evidence(*values)
     candidate = {**values[2]['candidate'], 'proofSha256': sha(encoded(values[0])), 'contractVersion': 'tio2-production-contracts-v2'}
     legacy = {'state': 'PREPARED', 'updatedAt': '2026-09-11T22:04:00Z', 'details': {

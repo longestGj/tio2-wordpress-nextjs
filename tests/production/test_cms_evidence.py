@@ -16,6 +16,23 @@ def sha(data): return hashlib.sha256(data).hexdigest()
 def encoded(value): return json.dumps(value, sort_keys=True, separators=(',', ':')).encode()
 
 
+def bind_comparison(values):
+    proof, identity, seeds, _, live = values
+    snapshot = {'schemaVersion': 'd16-cms-content-snapshot-v1', 'siteScope': 'tio2-my',
+                'publishedRecords': 57, 'contentSha256': '6' * 64}
+    live['contentSnapshot'] = deepcopy(snapshot)
+    verification = {'schemaVersion': 'd16-cms-comparison-verification-v1', 'state': 'PASSED',
+                    'siteId': 'tio2-my', 'commit': proof['commit'], 'runId': 'test-prerelease-run',
+                    'contentSnapshotSha256': sha(encoded(snapshot)), 'passed': 174, 'failed': 0, 'skipped': 0,
+                    'completedAt': datetime.now(timezone.utc).isoformat()}
+    seeds['comparisonEvidence'] = {'schemaVersion': 'd16-cms-comparison-evidence-v1',
+        'candidate': {key: proof[key] for key in ('commit', 'archiveSha256', 'manifestSha256')},
+        'prereleaseIdentitySha256': sha(identity), 'proofSha256': sha(encoded(proof)),
+        'snapshot': snapshot, 'verification': verification, 'verificationSha256': sha(encoded(verification)),
+        'observedAt': datetime.now(timezone.utc).isoformat(), 'containerId': '7' * 64}
+    return values
+
+
 def fixture():
     candidate = {'commit': 'b' * 40, 'archiveSha256': 'c' * 64, 'manifestSha256': 'd' * 64}
     seeds = [{'path': 'wordpress/seed/one.php', 'sha256': sha(b'ONE\n')}, {'path': 'wordpress/seed/two.php', 'sha256': sha(b'TWO\n')}]
@@ -25,7 +42,8 @@ def fixture():
                 'counts': {'seedFiles': 2, 'seededRecords': 57, 'published': 57, 'draft': 0}, 'initializedAt': '2026-09-11T21:46:51+00:00'}
     raw_identity = (json.dumps(identity, indent=4) + '\r\n').encode()
     proof = {'schemaVersion': 'tio2-production-proof-v1', 'siteId': 'tio2-my', **candidate,
-             'prerelease': {'state': 'PASSED', 'siteId': 'tio2-my', 'commit': candidate['commit'], 'cmsIdentitySha256': sha(raw_identity)}}
+             'prerelease': {'state': 'PASSED', 'siteId': 'tio2-my', 'commit': candidate['commit'], 'cmsIdentitySha256': sha(raw_identity),
+                            'counts': {'browserCases': 174}}}
     seed_snapshot = {'manifestBytes': raw_manifest, 'candidate': candidate, 'archiveFiles': {s['path']: s['sha256'] for s in seeds}}
     migration_bytes = encoded({'schemaVersion': 'tio2-my-production-migration-v1', 'siteId': 'tio2-my', 'seeds': seeds}) + b'\n'
     seed_snapshot['archiveFiles']['ops/production/migration-manifest.json'] = sha(migration_bytes)
@@ -33,10 +51,39 @@ def fixture():
                 'migrationManifestBytes': migration_bytes, 'seedManifestSha256': sha(migration_bytes), 'orderedSeedHashes': identity['orderedSeedHashes']}
     live = {'siteScope': 'tio2-my', 'publishedRecords': 57, 'contentSha256': 'a' * 64,
             'observedAt': datetime.now(timezone.utc).isoformat()}
-    return proof, raw_identity, seed_snapshot, adoption, live
+    return bind_comparison((proof, raw_identity, seed_snapshot, adoption, live))
 
 
 class CmsEvidenceTests(unittest.TestCase):
+    def test_independent_seed_lists_require_actual_content_equality(self):
+        values = list(fixture())
+        original = json.loads(values[3]['migrationManifestBytes'])
+        original['seeds'] = [{'path': 'wordpress/seed/old.php', 'sha256': '5' * 64}]
+        values[3]['migrationManifestBytes'] = encoded(original)
+        values[3]['seedManifestSha256'] = sha(encoded(original))
+        values[3]['orderedSeedHashes'] = ['5' * 64]
+        evidence = verify_frontend_only_evidence(*values)
+        self.assertTrue(evidence.verified)
+        values[4]['contentSnapshot']['contentSha256'] = '8' * 64
+        with self.assertRaisesRegex(ReleaseError, 'content.*differs|content.*mismatch'):
+            verify_frontend_only_evidence(*values)
+
+    def test_missing_or_unbound_comparison_is_rejected(self):
+        for fault in ('missing', 'candidate', 'identity', 'proof', 'snapshot', 'verification', 'failed', 'stale'):
+            values = list(fixture()); comparison = values[2]['comparisonEvidence']
+            if fault == 'missing': del values[2]['comparisonEvidence']
+            elif fault == 'candidate': comparison['candidate']['commit'] = '9' * 40
+            elif fault == 'identity': comparison['prereleaseIdentitySha256'] = '9' * 64
+            elif fault == 'proof': comparison['proofSha256'] = '9' * 64
+            elif fault == 'snapshot': comparison['snapshot']['contentSha256'] = '9' * 64
+            elif fault == 'verification': comparison['verificationSha256'] = '9' * 64
+            elif fault == 'failed':
+                comparison['verification']['failed'] = 1
+                comparison['verificationSha256'] = sha(encoded(comparison['verification']))
+            else: comparison['observedAt'] = (datetime.now(timezone.utc)-timedelta(days=2)).isoformat()
+            with self.subTest(fault=fault), self.assertRaises(ReleaseError):
+                verify_frontend_only_evidence(*values)
+
     def test_distinct_adoption_identity_preserves_content_continuity(self):
         values = list(fixture())
         original = verify_frontend_only_evidence(*values)
