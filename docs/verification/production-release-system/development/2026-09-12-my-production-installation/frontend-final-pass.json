@@ -1,0 +1,619 @@
+{
+  "runId": "d16-front-0166866c02ad4faeb7f014381c19f8c3",
+  "passed": true,
+  "productionValidated": false,
+  "schemaVersion": "d16-frontend-rehearsal-v1",
+  "frontendFixture": "generated Node HTTP fixture; not production Next.js",
+  "candidateProvenance": "generated local compatibility fixture, not the approved production candidate",
+  "ageRuntime": {
+    "imageId": "sha256:b2a4521a35489def1d699f65d7c86140c01ba01b26080eb725ea99306dbc69ce",
+    "version": "1.1.1"
+  },
+  "cases": [
+    {
+      "case": "backup-low-space-before-capture",
+      "state": "PREPARED",
+      "passed": true,
+      "cms": {
+        "containers": [
+          {
+            "id": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "imageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+            "startedAt": "2026-09-12T11:43:05.442630913Z",
+            "running": true,
+            "restartCount": 0
+          },
+          {
+            "id": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "imageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+            "startedAt": "2026-09-12T11:43:11.670426566Z",
+            "running": true,
+            "restartCount": 0
+          }
+        ],
+        "volumes": [
+          {
+            "role": "db",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-db",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-db/_data",
+            "containerId": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "destination": "/var/lib/mysql"
+          },
+          {
+            "role": "wordpress",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-wp",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-wp/_data",
+            "containerId": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "destination": "/var/www/html"
+          }
+        ],
+        "wordpressSha256": "782b2733eedc336d1be1242298c2c2da509a7032fd7784ec8ac96422fd18fed4",
+        "configurationSha256": "75bedacc2245d82b5f47abc34ec791c3ad6d5272ae1db084c04be8aa826ac0c3",
+        "contentSha256": "9d5df7ffd222e4e268fc30778ef6a8e7bdd8fd24d533fa417aa6a6a4986cd753"
+      }
+    },
+    {
+      "case": "outgoing-space-drop-during-first-publication",
+      "state": "PREPARED",
+      "copiedBytes": 1048576,
+      "noPartialExport": true,
+      "passed": true,
+      "cms": {
+        "containers": [
+          {
+            "id": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "imageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+            "startedAt": "2026-09-12T11:43:05.442630913Z",
+            "running": true,
+            "restartCount": 0
+          },
+          {
+            "id": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "imageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+            "startedAt": "2026-09-12T11:43:11.670426566Z",
+            "running": true,
+            "restartCount": 0
+          }
+        ],
+        "volumes": [
+          {
+            "role": "db",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-db",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-db/_data",
+            "containerId": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "destination": "/var/lib/mysql"
+          },
+          {
+            "role": "wordpress",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-wp",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-wp/_data",
+            "containerId": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "destination": "/var/www/html"
+          }
+        ],
+        "wordpressSha256": "782b2733eedc336d1be1242298c2c2da509a7032fd7784ec8ac96422fd18fed4",
+        "configurationSha256": "75bedacc2245d82b5f47abc34ec791c3ad6d5272ae1db084c04be8aa826ac0c3",
+        "contentSha256": "9d5df7ffd222e4e268fc30778ef6a8e7bdd8fd24d533fa417aa6a6a4986cd753"
+      }
+    },
+    {
+      "case": "outgoing-space-drop-during-reexport",
+      "state": "BACKED_UP",
+      "copiedBytes": 1048576,
+      "noPartialExport": true,
+      "preservedCiphertext": true,
+      "passed": true,
+      "cms": {
+        "containers": [
+          {
+            "id": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "imageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+            "startedAt": "2026-09-12T11:43:05.442630913Z",
+            "running": true,
+            "restartCount": 0
+          },
+          {
+            "id": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "imageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+            "startedAt": "2026-09-12T11:43:11.670426566Z",
+            "running": true,
+            "restartCount": 0
+          }
+        ],
+        "volumes": [
+          {
+            "role": "db",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-db",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-db/_data",
+            "containerId": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "destination": "/var/lib/mysql"
+          },
+          {
+            "role": "wordpress",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-wp",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-wp/_data",
+            "containerId": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "destination": "/var/www/html"
+          }
+        ],
+        "wordpressSha256": "782b2733eedc336d1be1242298c2c2da509a7032fd7784ec8ac96422fd18fed4",
+        "configurationSha256": "75bedacc2245d82b5f47abc34ec791c3ad6d5272ae1db084c04be8aa826ac0c3",
+        "contentSha256": "9d5df7ffd222e4e268fc30778ef6a8e7bdd8fd24d533fa417aa6a6a4986cd753"
+      }
+    },
+    {
+      "case": "linux-bounded-publication",
+      "platform": "posix",
+      "publishers": [
+        "portable",
+        "posix"
+      ],
+      "tests": 3,
+      "passed": true,
+      "cms": {
+        "containers": [
+          {
+            "id": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "imageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+            "startedAt": "2026-09-12T11:43:05.442630913Z",
+            "running": true,
+            "restartCount": 0
+          },
+          {
+            "id": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "imageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+            "startedAt": "2026-09-12T11:43:11.670426566Z",
+            "running": true,
+            "restartCount": 0
+          }
+        ],
+        "volumes": [
+          {
+            "role": "db",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-db",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-db/_data",
+            "containerId": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "destination": "/var/lib/mysql"
+          },
+          {
+            "role": "wordpress",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-wp",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-wp/_data",
+            "containerId": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "destination": "/var/www/html"
+          }
+        ],
+        "wordpressSha256": "782b2733eedc336d1be1242298c2c2da509a7032fd7784ec8ac96422fd18fed4",
+        "configurationSha256": "75bedacc2245d82b5f47abc34ec791c3ad6d5272ae1db084c04be8aa826ac0c3",
+        "contentSha256": "9d5df7ffd222e4e268fc30778ef6a8e7bdd8fd24d533fa417aa6a6a4986cd753"
+      }
+    },
+    {
+      "case": "fresh-active-drift",
+      "state": "BACKED_UP",
+      "buildCalls": 0,
+      "activateCalls": 0,
+      "passed": true,
+      "cms": {
+        "containers": [
+          {
+            "id": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "imageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+            "startedAt": "2026-09-12T11:43:05.442630913Z",
+            "running": true,
+            "restartCount": 0
+          },
+          {
+            "id": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "imageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+            "startedAt": "2026-09-12T11:43:11.670426566Z",
+            "running": true,
+            "restartCount": 0
+          }
+        ],
+        "volumes": [
+          {
+            "role": "db",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-db",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-db/_data",
+            "containerId": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "destination": "/var/lib/mysql"
+          },
+          {
+            "role": "wordpress",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-wp",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-wp/_data",
+            "containerId": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "destination": "/var/www/html"
+          }
+        ],
+        "wordpressSha256": "782b2733eedc336d1be1242298c2c2da509a7032fd7784ec8ac96422fd18fed4",
+        "configurationSha256": "75bedacc2245d82b5f47abc34ec791c3ad6d5272ae1db084c04be8aa826ac0c3",
+        "contentSha256": "9d5df7ffd222e4e268fc30778ef6a8e7bdd8fd24d533fa417aa6a6a4986cd753"
+      }
+    },
+    {
+      "case": "fresh-build-drift",
+      "state": "BACKED_UP",
+      "buildCalls": 0,
+      "activateCalls": 0,
+      "passed": true,
+      "cms": {
+        "containers": [
+          {
+            "id": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "imageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+            "startedAt": "2026-09-12T11:43:05.442630913Z",
+            "running": true,
+            "restartCount": 0
+          },
+          {
+            "id": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "imageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+            "startedAt": "2026-09-12T11:43:11.670426566Z",
+            "running": true,
+            "restartCount": 0
+          }
+        ],
+        "volumes": [
+          {
+            "role": "db",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-db",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-db/_data",
+            "containerId": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "destination": "/var/lib/mysql"
+          },
+          {
+            "role": "wordpress",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-wp",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-wp/_data",
+            "containerId": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "destination": "/var/www/html"
+          }
+        ],
+        "wordpressSha256": "782b2733eedc336d1be1242298c2c2da509a7032fd7784ec8ac96422fd18fed4",
+        "configurationSha256": "75bedacc2245d82b5f47abc34ec791c3ad6d5272ae1db084c04be8aa826ac0c3",
+        "contentSha256": "9d5df7ffd222e4e268fc30778ef6a8e7bdd8fd24d533fa417aa6a6a4986cd753"
+      }
+    },
+    {
+      "case": "fresh-configuration-drift",
+      "state": "BACKED_UP",
+      "buildCalls": 0,
+      "activateCalls": 0,
+      "passed": true,
+      "cms": {
+        "containers": [
+          {
+            "id": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "imageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+            "startedAt": "2026-09-12T11:43:05.442630913Z",
+            "running": true,
+            "restartCount": 0
+          },
+          {
+            "id": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "imageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+            "startedAt": "2026-09-12T11:43:11.670426566Z",
+            "running": true,
+            "restartCount": 0
+          }
+        ],
+        "volumes": [
+          {
+            "role": "db",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-db",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-db/_data",
+            "containerId": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "destination": "/var/lib/mysql"
+          },
+          {
+            "role": "wordpress",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-wp",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-wp/_data",
+            "containerId": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "destination": "/var/www/html"
+          }
+        ],
+        "wordpressSha256": "782b2733eedc336d1be1242298c2c2da509a7032fd7784ec8ac96422fd18fed4",
+        "configurationSha256": "75bedacc2245d82b5f47abc34ec791c3ad6d5272ae1db084c04be8aa826ac0c3",
+        "contentSha256": "9d5df7ffd222e4e268fc30778ef6a8e7bdd8fd24d533fa417aa6a6a4986cd753"
+      }
+    },
+    {
+      "case": "fresh-host-drift",
+      "state": "BACKED_UP",
+      "buildCalls": 0,
+      "activateCalls": 0,
+      "passed": true,
+      "cms": {
+        "containers": [
+          {
+            "id": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "imageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+            "startedAt": "2026-09-12T11:43:05.442630913Z",
+            "running": true,
+            "restartCount": 0
+          },
+          {
+            "id": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "imageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+            "startedAt": "2026-09-12T11:43:11.670426566Z",
+            "running": true,
+            "restartCount": 0
+          }
+        ],
+        "volumes": [
+          {
+            "role": "db",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-db",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-db/_data",
+            "containerId": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "destination": "/var/lib/mysql"
+          },
+          {
+            "role": "wordpress",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-wp",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-wp/_data",
+            "containerId": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "destination": "/var/www/html"
+          }
+        ],
+        "wordpressSha256": "782b2733eedc336d1be1242298c2c2da509a7032fd7784ec8ac96422fd18fed4",
+        "configurationSha256": "75bedacc2245d82b5f47abc34ec791c3ad6d5272ae1db084c04be8aa826ac0c3",
+        "contentSha256": "9d5df7ffd222e4e268fc30778ef6a8e7bdd8fd24d533fa417aa6a6a4986cd753"
+      }
+    },
+    {
+      "case": "A-B-A-and-exact-retries",
+      "state": "ROLLED_BACK",
+      "passed": true,
+      "cms": {
+        "containers": [
+          {
+            "id": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "imageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+            "startedAt": "2026-09-12T11:43:05.442630913Z",
+            "running": true,
+            "restartCount": 0
+          },
+          {
+            "id": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "imageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+            "startedAt": "2026-09-12T11:43:11.670426566Z",
+            "running": true,
+            "restartCount": 0
+          }
+        ],
+        "volumes": [
+          {
+            "role": "db",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-db",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-db/_data",
+            "containerId": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "destination": "/var/lib/mysql"
+          },
+          {
+            "role": "wordpress",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-wp",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-wp/_data",
+            "containerId": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "destination": "/var/www/html"
+          }
+        ],
+        "wordpressSha256": "782b2733eedc336d1be1242298c2c2da509a7032fd7784ec8ac96422fd18fed4",
+        "configurationSha256": "75bedacc2245d82b5f47abc34ec791c3ad6d5272ae1db084c04be8aa826ac0c3",
+        "contentSha256": "9d5df7ffd222e4e268fc30778ef6a8e7bdd8fd24d533fa417aa6a6a4986cd753"
+      }
+    },
+    {
+      "case": "new-envelope-1",
+      "commit": "cccccccccccccccccccccccccccccccccccccccc",
+      "buildId": "new-build-1",
+      "passed": true,
+      "actualDocker": true,
+      "cms": {
+        "containers": [
+          {
+            "id": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "imageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+            "startedAt": "2026-09-12T11:43:05.442630913Z",
+            "running": true,
+            "restartCount": 0
+          },
+          {
+            "id": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "imageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+            "startedAt": "2026-09-12T11:43:11.670426566Z",
+            "running": true,
+            "restartCount": 0
+          }
+        ],
+        "volumes": [
+          {
+            "role": "db",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-db",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-db/_data",
+            "containerId": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "destination": "/var/lib/mysql"
+          },
+          {
+            "role": "wordpress",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-wp",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-wp/_data",
+            "containerId": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "destination": "/var/www/html"
+          }
+        ],
+        "wordpressSha256": "782b2733eedc336d1be1242298c2c2da509a7032fd7784ec8ac96422fd18fed4",
+        "configurationSha256": "75bedacc2245d82b5f47abc34ec791c3ad6d5272ae1db084c04be8aa826ac0c3",
+        "contentSha256": "9d5df7ffd222e4e268fc30778ef6a8e7bdd8fd24d533fa417aa6a6a4986cd753"
+      }
+    },
+    {
+      "case": "new-envelope-2",
+      "commit": "dddddddddddddddddddddddddddddddddddddddd",
+      "buildId": "new-build-2",
+      "passed": true,
+      "actualDocker": true,
+      "cms": {
+        "containers": [
+          {
+            "id": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "imageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+            "startedAt": "2026-09-12T11:43:05.442630913Z",
+            "running": true,
+            "restartCount": 0
+          },
+          {
+            "id": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "imageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+            "startedAt": "2026-09-12T11:43:11.670426566Z",
+            "running": true,
+            "restartCount": 0
+          }
+        ],
+        "volumes": [
+          {
+            "role": "db",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-db",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-db/_data",
+            "containerId": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+            "destination": "/var/lib/mysql"
+          },
+          {
+            "role": "wordpress",
+            "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-wp",
+            "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-wp/_data",
+            "containerId": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+            "destination": "/var/www/html"
+          }
+        ],
+        "wordpressSha256": "782b2733eedc336d1be1242298c2c2da509a7032fd7784ec8ac96422fd18fed4",
+        "configurationSha256": "75bedacc2245d82b5f47abc34ec791c3ad6d5272ae1db084c04be8aa826ac0c3",
+        "contentSha256": "9d5df7ffd222e4e268fc30778ef6a8e7bdd8fd24d533fa417aa6a6a4986cd753"
+      }
+    }
+  ],
+  "cmsBefore": {
+    "containers": [
+      {
+        "id": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+        "imageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+        "startedAt": "2026-09-12T11:43:05.442630913Z",
+        "running": true,
+        "restartCount": 0
+      },
+      {
+        "id": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+        "imageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+        "startedAt": "2026-09-12T11:43:11.670426566Z",
+        "running": true,
+        "restartCount": 0
+      }
+    ],
+    "volumes": [
+      {
+        "role": "db",
+        "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-db",
+        "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-db/_data",
+        "containerId": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+        "destination": "/var/lib/mysql"
+      },
+      {
+        "role": "wordpress",
+        "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-wp",
+        "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-wp/_data",
+        "containerId": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+        "destination": "/var/www/html"
+      }
+    ],
+    "wordpressSha256": "782b2733eedc336d1be1242298c2c2da509a7032fd7784ec8ac96422fd18fed4",
+    "configurationSha256": "75bedacc2245d82b5f47abc34ec791c3ad6d5272ae1db084c04be8aa826ac0c3",
+    "contentSha256": "9d5df7ffd222e4e268fc30778ef6a8e7bdd8fd24d533fa417aa6a6a4986cd753"
+  },
+  "restore": {
+    "schemaVersion": "d16-frontend-restore-v1",
+    "verified": true,
+    "fullArchiveRead": true,
+    "backupId": "20260912T114325Z-8bf2a3d437b0582ef0ce193b69478622e26419af-e7714fe3384e4c9f9b919d8577df6819",
+    "binding": {
+      "adapterVersion": "tio2-web-bluegreen-v1",
+      "candidateManifestSha256": "8087ac17c834bbc7040b99f5370132bcd3ea9c286292c4dfc416fa01bc01ecb8",
+      "cmsEvidenceSha256": "940c60dd8c8b81fe0895cdd1de69000b69ce5dd68db2631fb20eef3e6169666b",
+      "previousProductionReceipt": "a76d8a083437386006aedad5fd1198d61fde7c38faaa4d42159560d3a2016f1e",
+      "releaseId": "20260911T215847Z-8bf2a3d437b0",
+      "releaseType": "frontend-only",
+      "requestId": "62a3e76c-c1c7-4775-b3d1-fe0724147765",
+      "runRoot": ".production/runs/20260911T215847Z-8bf2a3d437b0",
+      "sourceCommit": "8bf2a3d437b0582ef0ce193b69478622e26419af",
+      "subject": "tio2-my",
+      "transactionSha256": "fee39c8ecb8255434bbf71599e6deb27fd9ed7dd25d273d5c1fed0731e7a908b"
+    },
+    "ciphertextSha256": "a0fc19befa122285f0b4f12ddfd5e1d61a3c033f7c1138a530b0a87493e145d8",
+    "manifestSha256": "591fc368bb433e4359864c33703e35bf6130b53aaa802158edc2881eb017acfc",
+    "buildId": "build-A",
+    "imageId": "sha256:de9d317bad8fe36c60bb8edab45840669ad20b6bfcfd84c4a0813fedc03c0bde",
+    "slot": "c5b2b55c1da55a6ae2e7a39ea7cdc48c84b13f77cfc8d1dd3f5997514b98ad76",
+    "network": "a4a4c22cdf87679f735960ff2f65fcebc242f88651946babf37bfbcde067d4a8",
+    "isolated": true,
+    "health": {
+      "buildId": "build-A",
+      "status": 200,
+      "bytes": 34
+    },
+    "cmsExcluded": {
+      "database": true,
+      "wordpress": true,
+      "cms": true
+    },
+    "cleanupVerified": true
+  },
+  "newCandidateWorkflow": {
+    "firstBuild": "new-build-1",
+    "secondBuild": "new-build-2",
+    "rollbackBuild": "new-build-1",
+    "entrypoint": "d16_release.main and ReleaseController.system with local fixture registry; real Deployment and DockerWebAdapter",
+    "proofs": "generated local contract fixtures, not production approval"
+  },
+  "cmsAfter": {
+    "containers": [
+      {
+        "id": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+        "imageId": "sha256:4f1d8d202fcf7bcb3902f63af09f9c1a050c2922a89652f22abaec0d4f015e83",
+        "startedAt": "2026-09-12T11:43:05.442630913Z",
+        "running": true,
+        "restartCount": 0
+      },
+      {
+        "id": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+        "imageId": "sha256:65919a9ca10940feb10d9400fead0d639bf86241f47c91e2b9ea4703aa8452cf",
+        "startedAt": "2026-09-12T11:43:11.670426566Z",
+        "running": true,
+        "restartCount": 0
+      }
+    ],
+    "volumes": [
+      {
+        "role": "db",
+        "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-db",
+        "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-db/_data",
+        "containerId": "7e575dbcabd77a4bb7f761e58059446e9b5339125a08c260852fe7716cdd0e65",
+        "destination": "/var/lib/mysql"
+      },
+      {
+        "role": "wordpress",
+        "name": "d16-front-0166866c02ad4faeb7f014381c19f8c3-wp",
+        "mountpoint": "/var/lib/docker/volumes/d16-front-0166866c02ad4faeb7f014381c19f8c3-wp/_data",
+        "containerId": "fad6aa48282afb96c586c0f58ffc6df1045d5b171a898c7427f85631ee1c512e",
+        "destination": "/var/www/html"
+      }
+    ],
+    "wordpressSha256": "782b2733eedc336d1be1242298c2c2da509a7032fd7784ec8ac96422fd18fed4",
+    "configurationSha256": "75bedacc2245d82b5f47abc34ec791c3ad6d5272ae1db084c04be8aa826ac0c3",
+    "contentSha256": "9d5df7ffd222e4e268fc30778ef6a8e7bdd8fd24d533fa417aa6a6a4986cd753"
+  },
+  "cmsUnchanged": true,
+  "cleanupVerified": true,
+  "cleanupScope": "owned containers, networks, volumes and private identity; Docker build cache/images retained"
+}
