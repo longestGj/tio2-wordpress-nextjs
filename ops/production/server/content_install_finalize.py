@@ -7,6 +7,7 @@ from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
+import re
 
 from content_release import canonical, validate_package
 from release_contract import ReleaseError
@@ -14,6 +15,21 @@ from release_state import atomic_write_json
 
 
 def digest(value): return hashlib.sha256(canonical(value)).hexdigest()
+
+
+def checked_scope(state,terminal,actual):
+    """Require full scope evidence already bound to a completed release receipt."""
+    if state['details']['releaseType']=='frontend-only':
+        evidence=state['details'].get('cmsEvidence',{})
+        expected={'siteScope':evidence.get('site_scope'),'publishedRecords':evidence.get('published_records'),
+                  'contentSha256':evidence.get('live_content_sha256')}
+    else:
+        expected=(terminal or {}).get('verification',{}).get('cmsScope')
+    if (not isinstance(expected,dict) or set(expected)!={'siteScope','publishedRecords','contentSha256'}
+            or expected['siteScope']!='tio2-my' or type(expected['publishedRecords']) is not int or expected['publishedRecords']<1
+            or not isinstance(expected['contentSha256'],str) or not re.fullmatch('[a-f0-9]{64}',expected['contentSha256']) or actual!=expected):
+        raise ReleaseError('current CMS scope differs from completed release evidence')
+    return actual
 
 
 class Finalization:
@@ -82,11 +98,11 @@ class InstalledFinalization:
         from deployment_core import Deployment, DockerWebAdapter
         from frontend_candidate import validate_previous_frontend
         from content_hooks import ContentHooks
-        from content_docker import validate_config
+        from content_docker import ContentDockerRuntime, validate_config
         from site_content_adapter import terminal_record, SiteContentAdapter
         state=json.loads(protected_path(self.subject.state_root/'state.json',private=True).read_bytes())
         if state.get('state')!='COMPLETED': raise ReleaseError('finalization requires a completed release')
-        details=state.get('details',{});kind=details.get('releaseType')
+        details=state.get('details',{});kind=details.get('releaseType');terminal=None
         if kind=='frontend-only':
             if not details.get('frontendEnrollmentSha256'): raise ReleaseError('legacy frontend cannot enable content runtime')
             validate_previous_frontend(self.subject,state,self._record('baseline.json'))
@@ -121,8 +137,9 @@ class InstalledFinalization:
         runtime=validate_config(self._record('pending-content-runtime.json'))
         if runtime['siteId']!=self.subject.subject_id or runtime['wordpressContainer']!=hooks['wordpressContainer']:
             raise ReleaseError('pending content runtime scope mismatch')
+        scope=checked_scope(state,terminal,ContentDockerRuntime(runtime,self.subject.state_root).cms_scope())
         return {'subject':self.subject.subject_id,'packageSha256':digest(self.package),'contentSha256':self.package['contentSha256'],
-                'controllerStateSha256':digest(state),'recordSha256':digest(record),'hooks':hooks,'runtime':runtime}
+                'controllerStateSha256':digest(state),'recordSha256':digest(record),'hooks':hooks,'runtime':runtime,'cmsScope':scope}
 
     def _runtime(self,owner,binding):
         from content_docker import ContentDockerRuntime
@@ -149,6 +166,7 @@ class InstalledFinalization:
         if runtime.preflight(self.package)['contentSha256']!=binding['contentSha256']: raise ReleaseError('CMS content changed during finalization')
         runtime.refresh(self.package)
         evidence=runtime.verify_public(self.package,False)
+        if evidence.get('cmsScope')!=binding['cmsScope']: raise ReleaseError('CMS scope changed during finalization verification')
         pages={'ok':True,'content':True,'status':True,'seo':True,'sitemap':True,'contentSha256':binding['contentSha256']}
         records=assemble_installation_enrollment(self.subject,self._record('baseline.json'),pages,binding['controllerStateSha256'])
         return {'verified':evidence['verified'],'pages':pages,'frontendEnrollment':records['frontend']}

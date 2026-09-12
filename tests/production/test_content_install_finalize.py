@@ -80,6 +80,24 @@ class FinalizationTests(unittest.TestCase):
         self.engine.finalize();(self.root/'active').unlink()
         with self.assertRaises(ReleaseError):self.engine.finalize()
 
+    def test_post_content_enrollment_rejects_unrelated_later_scope_change(self):
+        from content_install_finalize import checked_scope
+        state={'details':{'releaseType':'content-only'}}
+        scope={'siteScope':'tio2-my','publishedRecords':3,'contentSha256':'a'*64}
+        terminal={'verification':{'cmsScope':scope}}
+        with self.assertRaises(ReleaseError):checked_scope(state,terminal,{**scope,'contentSha256':'b'*64})
+        self.assertEqual(checked_scope(state,terminal,scope),scope)
+
+    def test_post_content_without_fenced_scope_evidence_is_rejected(self):
+        from content_install_finalize import checked_scope
+        with self.assertRaises(ReleaseError):checked_scope({'details':{'releaseType':'content-only'}},{'verification':{}},
+            {'siteScope':'tio2-my','publishedRecords':3,'contentSha256':'a'*64})
+
+    def test_initial_frontend_scope_uses_verified_frontend_receipt(self):
+        from content_install_finalize import checked_scope
+        state={'details':{'releaseType':'frontend-only','cmsEvidence':{'site_scope':'tio2-my','published_records':3,'live_content_sha256':'a'*64}}}
+        with self.assertRaises(ReleaseError):checked_scope(state,None,{'siteScope':'tio2-my','publishedRecords':3,'contentSha256':'b'*64})
+
     def test_actual_recovery_handles_enter_hook_success_before_identity_journal(self):
         from content_install_finalize import InstalledFinalization
         marker=self.root/'marker';marker.write_text(json.dumps({'owner':'owner','identity':{'build':'new'}}))
