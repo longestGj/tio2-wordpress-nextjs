@@ -222,6 +222,14 @@ class InstallationResourcesTests(unittest.TestCase):
             self.resources.install(self.owner)
         self.assertEqual((self.plugin / 'old.php').read_bytes(), b'old plugin')
 
+    def test_execution_snapshot_accepts_wordpress_scoped_javascript_module_path(self):
+        files = {'wp-includes/js/dist/script-modules/@wordpress/interactivity/index.js': b'approved core module'}
+        try:
+            actual = self.module._untar(tar_bytes(files))
+        except ReleaseError:
+            self.fail('safe WordPress scoped module path was rejected')
+        self.assertEqual(actual, files)
+
 
 if __name__ == '__main__':
     unittest.main()
