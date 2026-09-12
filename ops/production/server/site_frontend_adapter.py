@@ -105,7 +105,12 @@ class SiteFrontendAdapter:
             from candidate_contract import CandidateEnvelope,validate_payload
             path=context.subject.incoming/'candidate-manifest.json'
             require(sha256_file(path)==expected['candidateManifestSha256'] and CandidateEnvelope.from_path(path)==context.candidate,'frontend manifest changed')
-            validate_payload(context.candidate,context.subject.incoming/'payload')
+            validate_payload(context.candidate,context.subject.incoming/'frontend-payload')
+            from frontend_candidate import validate_source
+            from release_actions import _verify_candidate_tree
+            source=validate_source(context.subject,context.candidate,context.subject_baseline)
+            require(all(plain(context.state['details'].get(key))==value for key,value in source.items()),'prepared frontend source changed')
+            _verify_candidate_tree(context.subject.production/'releases'/context.candidate.source_commit,source['preparedManifest'])
         observed=self.validator(context)
         require(plain(observed)==plain(context.subject_baseline['cmsRuntime']),'CMS runtime changed')
         return expected
@@ -132,6 +137,10 @@ class SiteFrontendAdapter:
                 'verified frontend restore is required')
 
     def prepare(self,context):
+        from candidate_contract import CandidateEnvelope
+        if isinstance(context.candidate,CandidateEnvelope) and context.state['state']!='PREPARED':
+            from frontend_candidate import prepare
+            return prepare(context)
         expected=self._validate(context)
         return {'ok':True,'binding':expected,'state':'PREPARED'}
 
@@ -165,7 +174,11 @@ def validate_live_context(context):
     # Controller constructs these baselines through the trusted live loader.
     # Re-running that loader here checks runtime identity on either side of every
     # action, including the unchanged CMS fingerprint and current source bytes.
-    baseline,host=load_live_baselines(context.subject)
+    if 'frontendEnrollmentSha256' in context.state['details']:
+        from frontend_candidate import load_baselines
+        baseline,host=load_baselines(context.subject,plain(context.state),context.candidate)
+    else:
+        baseline,host=load_live_baselines(context.subject)
     validate_frontend_baselines(context,baseline,host)
     return baseline['cmsRuntime']
 
@@ -223,9 +236,11 @@ def validate_frontend_baselines(context,baseline=None,host=None):
     baseline=plain(baseline if baseline is not None else context.subject_baseline)
     host=plain(host if host is not None else context.global_baseline)
     details=plain(context.state['details']); subject=context.subject
+    if 'frontendEnrollmentSha256' in details:
+        require(baseline.get('enrollmentSha256')==details['frontendEnrollmentSha256'],'frontend enrollment changed')
     require(baseline.get('subject')==subject.subject_id and host.get('subject')=='host','frontend baseline subject changed')
     require(baseline.get('previousProductionReceipt')==details['previousProductionReceipt']
-            and baseline.get('cmsContractSha256')==_digest(details['cmsEvidence']), 'frontend receipt or CMS evidence changed')
+            and baseline.get('cmsContractSha256')==details.get('cmsContractSha256',_digest(details['cmsEvidence'])), 'frontend receipt or CMS evidence changed')
     record=baseline['record']; old=record; allowed=record
     path=subject.state_root/'frontend-deployment.json'
     backup=details.get('frontendBackup')

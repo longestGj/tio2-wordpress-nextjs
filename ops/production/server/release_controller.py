@@ -120,7 +120,7 @@ class ReleaseController:
                 if terminal:
                     result['contentTerminalReconciliation'] = 'verify' if terminal['phase'] == 'completed' else 'rollback'
             compatibility = subject.state_root / 'compatibility-transaction.json'
-            if compatibility.exists() and state.get('details', {}).get('releaseType') == 'frontend-only':
+            if compatibility.exists() and state.get('details', {}).get('releaseType') == 'frontend-only' and 'frontendEnrollmentSha256' not in state.get('details', {}):
                 from frontend_backup import read_record
                 from cms_evidence import canonical
                 transaction = read_record(compatibility)
@@ -169,9 +169,13 @@ class ReleaseController:
             ('prepare', 'PREPARED'), ('backup', 'BACKED_UP'), ('activate', 'ACTIVATED'), ('rollback', 'ROLLED_BACK'), ('verify', 'COMPLETED')}
         if frontend and action == 'prepare' and current in {'FAILED','ROLLED_BACK','COMPLETED'}:
             _, _, next_adapter = self._context(subject, state)
-            if not isinstance(next_adapter, SiteContentAdapter):
+            if isinstance(next_adapter, SiteFrontendAdapter) and (subject.incoming/'candidate-manifest.json').exists():
+                if current not in {'ROLLED_BACK','COMPLETED'}:
+                    raise ReleaseError('previous frontend transaction is not terminal')
+            elif not isinstance(next_adapter, SiteContentAdapter):
                 raise ReleaseError('compatibility transaction is terminal; a new candidate workflow is not installed')
-            frontend, content = False, True
+            else:
+                frontend, content = False, True
         repeated = repeated or content and action == 'verify' and current == 'COMPLETED'
         if current not in allowed[action] and not repeated:
             raise ReleaseError("unexpected release state")
@@ -232,6 +236,8 @@ class ReleaseController:
             if not isinstance(result, Mapping) or result.get("ok") is not True:
                 raise ReleaseError("adapter verification failed")
             details["actionEvidence"] = redact(dict(result))
+            if action == 'prepare' and isinstance(adapter, SiteFrontendAdapter) and 'preparedDetails' in result:
+                details.update(result['preparedDetails'])
             if isinstance(adapter, SiteContentAdapter):
                 if 'contentEvidence' in result:
                     details['contentEvidence'] = result['contentEvidence']
@@ -427,19 +433,22 @@ class ReleaseController:
         if adapter is None or subject.subject_id not in getattr(adapter,'enrolled_subjects',{subject.subject_id}):
             raise ReleaseError("capability-not-installed")
         from site_frontend_adapter import SiteFrontendAdapter
-        if isinstance(adapter, SiteFrontendAdapter) and not compatible:
-            # Phase one installs only the approved Task 4 compatibility input
-            # path. General v2 candidate preparation/evidence is not installed.
+        if (isinstance(adapter,SiteFrontendAdapter) and not compatible
+                and getattr(adapter,'baseline_loader',None) is None
+                and not (subject.configuration/'frontend-enrollment.json').exists()):
             raise ReleaseError('capability-not-installed')
         if not compatible:
-            payload = validate_payload(candidate, subject.incoming / "payload")
+            payload = validate_payload(candidate, subject.incoming / ("frontend-payload" if isinstance(adapter,SiteFrontendAdapter) else "payload"))
             if sha256_file(manifest) != before_hash:
                 raise ReleaseError("candidate changed during validation")
         loader = getattr(adapter,'baseline_loader',None)
+        if isinstance(adapter, SiteFrontendAdapter) and not compatible and loader is None:
+            from frontend_candidate import load_baselines
+            loader = load_baselines
         baseline, global_baseline = loader(subject,state,candidate) if loader else self.baseline_loader(subject)
         if (baseline.get("subject") != subject.subject_id or global_baseline.get("subject") != "host"
                 or baseline.get("previousProductionReceipt") != candidate.previous_production_receipt
-                or not compatible and baseline.get("configurationSha256") != candidate.configuration_sha256
+                or not compatible and not (isinstance(adapter, SiteFrontendAdapter) and state.get('details',{}).get('releaseId')==candidate.release_id) and baseline.get("configurationSha256") != candidate.configuration_sha256
                 or baseline.get("cmsContractSha256") != candidate.cms_contract_sha256):
             raise ReleaseError("candidate baseline mismatch")
         identity = {"releaseId": candidate.release_id, "subject": candidate.subject,

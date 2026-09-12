@@ -963,8 +963,9 @@ function Invoke-D16ProductionTransport($Config,$RunRoot,$Kind,$Value) {
         try{return (($output -join "`n")|ConvertFrom-Json -AsHashtable -ErrorAction Stop)}catch{throw 'D16 action did not return JSON.'}
     }
     if($Kind -eq 'upload'){
-        if($Value -cnotin @('backup-request.json','frontend-action.json','frontend-restore.json','completion-receipt.json','business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml','candidate-manifest.json','payload/content/package.json','content-prerelease.json')){throw 'Unsupported fixed D16 upload.'}
-        & scp @options -P $Config.port (Join-Path $RunRoot $Value) "${destination}:${incoming}/$Value" 2>$null|Out-Null
+        if($Value -cnotin @('backup-request.json','frontend-action.json','frontend-restore.json','completion-receipt.json','business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml','candidate-manifest.json','payload/content/package.json','content-prerelease.json','payload/frontend/release.tar.gz','payload/frontend/release-manifest.json','payload/frontend/release-proof.json')){throw 'Unsupported fixed D16 upload.'}
+        $remoteValue=if($Value.StartsWith('payload/frontend/',[StringComparison]::Ordinal)){'frontend-payload/'+$Value.Substring(8)}else{$Value}
+        & scp @options -P $Config.port (Join-Path $RunRoot $Value) "${destination}:${incoming}/$remoteValue" 2>$null|Out-Null
     }elseif($Kind -eq 'download'){
         if($Value -isnot [string] -or $Value -cnotmatch '\A[0-9]{8}T[0-9]{6}Z-[a-f0-9]{40}-[a-f0-9]{32}\z'){throw 'Invalid frontend backup ID.'}
         & scp @options -P $Config.port "${destination}:${outgoing}/$Value.tar.age" (Join-Path $RunRoot 'ciphertext.age.part') 2>$null|Out-Null
@@ -1232,6 +1233,45 @@ function Invoke-D16ContentPublish($ConfigPath,$RunRoot) {
     return @{schemaVersion='d16-content-client-publish-v1';action='publish';subject=$result.subject;state=$result.state;alreadyCompleted=$false}
 }
 
+function Get-D16NewFrontendCandidate($RunRoot,$SiteId) {
+    $validator=@'
+import hashlib,json,sys
+from pathlib import Path
+from types import SimpleNamespace
+sys.path.insert(0,sys.argv[1])
+from candidate_contract import CandidateEnvelope
+from frontend_candidate import validate_source
+from frontend_backup import read_record
+root=Path(sys.argv[2]); manifest=root/'candidate-manifest.json'
+candidate=CandidateEnvelope.from_path(manifest)
+proof=read_record(root/'payload/frontend/release-proof.json')
+validate_source(SimpleNamespace(subject_id=sys.argv[3],incoming=root),candidate,{'cmsRuntime':{'contentSha256':proof['contentSha256']}},payload_root=root/'payload')
+print(json.dumps(dict(releaseId=candidate.release_id,subject=candidate.subject,releaseType=candidate.release_type,sourceCommit=candidate.source_commit,candidateManifestSha256=hashlib.sha256(manifest.read_bytes()).hexdigest(),previousProductionReceipt=candidate.previous_production_receipt,adapterVersion='d16-site-frontend-v1')))
+'@
+    $server=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../ops/production/server'))
+    $output=@(& python -B -c $validator $server $RunRoot $SiteId 2>$null)
+    if($LASTEXITCODE -ne 0 -or $output.Count -ne 1){throw 'Frontend candidate, payload or prerelease identity mismatch.'}
+    return $output[0]|ConvertFrom-Json -AsHashtable
+}
+
+function Save-D16NewFrontendBinding($RunRoot,$Status,$Candidate) {
+    Assert-D16ActionReceipt $Status.action $Status $null $Candidate.subject
+    foreach($name in $Candidate.Keys){if($Status.state.details[$name] -cne $Candidate[$name]){throw "Frontend receipt candidate mismatch: $name"}}
+    $binding=@{}
+    foreach($name in @('releaseId','subject','releaseType','sourceCommit','candidateManifestSha256','previousProductionReceipt','adapterVersion','runRoot','transactionSha256','cmsEvidenceSha256','requestId')){
+        $value=$Status.state.details[$name]
+        if($value -isnot [string] -or -not $value){throw 'Frontend prepared binding is incomplete.'}
+        $binding[$name]=$value
+    }
+    if($binding.runRoot -cne ('frontend/'+$Candidate.releaseId) -or $binding.transactionSha256 -cnotmatch '^[a-f0-9]{64}$' -or $binding.cmsEvidenceSha256 -cnotmatch '^[a-f0-9]{64}$' -or $binding.requestId -cne ([guid]$binding.requestId).ToString()){throw 'Frontend prepared binding is invalid.'}
+    $path=Join-Path $RunRoot 'frontend-binding.json'
+    if(Test-Path -LiteralPath $path){$saved=Read-ProductionJson $path;foreach($name in $binding.Keys){if($saved[$name] -cne $binding[$name]){throw 'Frontend binding changed.'}}}
+    Save-ProductionJson $path $binding
+    $request=@{schemaVersion='d16-frontend-backup-request-v1'};foreach($name in $binding.Keys){$request[$name]=$binding[$name]}
+    Save-ProductionJson (Join-Path $RunRoot 'backup-request.json') $request
+    return $binding
+}
+
 function Invoke-D16ProductionOperation {
     param([ValidateSet('Test','Publish','Status','Prepare','Backup','Stage','Activate','Verify','Rollback')]$Operation,[string]$ConfigPath,[string]$RunRoot,[string]$ContentPath,[string]$PythonExe='python')
     if($Operation -ceq 'Test'){return Invoke-D16ContentTest $RunRoot $ContentPath $PythonExe}
@@ -1243,16 +1283,30 @@ function Invoke-D16ProductionOperation {
         $connection=@{siteId=$config.siteId;host=$config.host;port=$config.port;hostKey=$config.hostKey;baselineSha256=$config.baselineSha256}
         $connectionPath=Join-Path $RunRoot 'connection.json'
         if(Test-Path -LiteralPath $connectionPath){$old=Read-ProductionJson $connectionPath;foreach($name in $connection.Keys){if($connection[$name] -cne $old[$name]){throw 'Run connection identity changed.'}}}else{Save-ProductionJson $connectionPath $connection}
-        $contentBinding=$null
-        if((Test-Path -LiteralPath (Join-Path $RunRoot 'candidate-manifest.json')) -or (Test-Path -LiteralPath (Join-Path $RunRoot 'content-binding.json'))){$contentBinding=Get-D16ContentBinding $RunRoot $config.siteId}
+        $contentBinding=$null;$frontendCandidate=$null
+        if(Test-Path -LiteralPath (Join-Path $RunRoot 'candidate-manifest.json')){
+            $candidate=Read-ProductionJson (Join-Path $RunRoot 'candidate-manifest.json')
+            if($candidate.releaseType -ceq 'frontend-only'){$frontendCandidate=Get-D16NewFrontendCandidate $RunRoot $config.siteId}
+            else{$contentBinding=Get-D16ContentBinding $RunRoot $config.siteId}
+        }elseif(Test-Path -LiteralPath (Join-Path $RunRoot 'content-binding.json')){$contentBinding=Get-D16ContentBinding $RunRoot $config.siteId}
         $status=Invoke-D16ProductionTransport $config $RunRoot action status;Assert-D16ActionReceipt status $status $null $config.siteId
         if($null -ne $contentBinding){return Invoke-D16ContentOperation $Operation $config $RunRoot $status $contentBinding}
+        if($null -ne $frontendCandidate -and $Operation -ceq 'Prepare' -and $status.state.state -cin @('IDLE','COMPLETED','ROLLED_BACK')){
+            if($status.recoveryRequired){throw 'Server requires recovery.'}
+            if($status.state.details['releaseId'] -ceq $frontendCandidate.releaseId){throw 'Frontend candidate replay.'}
+            foreach($name in @('payload/frontend/release.tar.gz','payload/frontend/release-manifest.json','payload/frontend/release-proof.json','candidate-manifest.json')){Invoke-D16ProductionTransport $config $RunRoot upload $name}
+            $prepared=Invoke-D16ProductionTransport $config $RunRoot action prepare
+            if($prepared.state.state -cne 'PREPARED'){throw 'Frontend prepare did not reach PREPARED.'}
+            $null=Save-D16NewFrontendBinding $RunRoot $prepared $frontendCandidate
+            Save-ProductionJson (Join-Path $RunRoot 'prepare.json') $prepared
+            return $prepared
+        }
         $bindingPath=Join-Path $RunRoot 'frontend-binding.json'
         if(Test-Path -LiteralPath $bindingPath){Assert-D16ActionReceipt status $status (Read-ProductionJson $bindingPath)}
         Save-ProductionJson (Join-Path $RunRoot 'status.json') $status
         if($Operation -ceq 'Status'){return $status}
         if($status.recoveryRequired){throw 'Server requires recovery; no action was retried.'}
-        $binding=Get-D16CompatibilityBinding $RunRoot $status
+        $binding=if($null -ne $frontendCandidate){Save-D16NewFrontendBinding $RunRoot $status $frontendCandidate}else{Get-D16CompatibilityBinding $RunRoot $status}
         if($status.state.details['requestId']){Assert-D16ActionReceipt status $status $binding}
         $action=$Operation.ToLowerInvariant()
         $savedBackup=$status.state.details['frontendBackup']
