@@ -154,7 +154,10 @@ class InstallationResourcesTests(unittest.TestCase):
         result = self.resources.install(self.owner)
         self.assertEqual((self.plugin / 'new.php').read_bytes(), b'new plugin')
         self.assertFalse((self.plugin / 'old.php').exists())
-        self.assertEqual(self.docker.php, {'release.php': b'new release', 'registry.php': b'new registry'})
+        self.assertEqual(self.docker.php['release.php'], b'new release')
+        self.assertEqual(self.docker.php['registry.php'], b'new registry')
+        self.assertEqual(json.loads(self.docker.php.get('plugin-manifest.json', b'null')),
+                         {'new.php': hashlib.sha256(b'new plugin').hexdigest()})
         self.assertEqual(result['newImporterId'], 'c' * 64)
         self.assertNotIn('private-root-password', json.dumps(self.docker.importer))
         self.assertTrue(all(not mount['RW'] for mount in self.docker.importer['Mounts']))

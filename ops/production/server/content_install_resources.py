@@ -238,6 +238,7 @@ class InstallationResources:
         sealed = self.directory / ('sealed-' + owner)
         plugin = {name[len(PREFIX):]: data for name, data in self.artifact['contents'].items() if name.startswith(PREFIX)}
         php = {name.rsplit('/', 1)[-1]: data for name, data in self.artifact['contents'].items() if name.startswith('wordpress/release/')}
+        php['plugin-manifest.json'] = (json.dumps(hashes(plugin), sort_keys=True, separators=(',', ':')) + '\n').encode()
         core = {name: data for name, data in files['execution'].items() if not name.startswith('wp-content/plugins/tio2-site-model/')}
         core.update({'wp-content/plugins/tio2-site-model/' + name: data for name, data in plugin.items()})
         core['wp-config.php'] = b"<?php\ndefine('DB_NAME',getenv('WORDPRESS_DB_NAME'));\ndefine('DB_USER',getenv('WORDPRESS_DB_USER'));\ndefine('DB_PASSWORD',rtrim(file_get_contents(getenv('WORDPRESS_DB_PASSWORD_FILE')),\"\\r\\n\"));\ndefine('DB_HOST',getenv('WORDPRESS_DB_HOST'));\ndefine('DISABLE_WP_CRON',true);\ndefine('DISALLOW_FILE_MODS',true);\n$table_prefix='wp_';\ndefine('ABSPATH',__DIR__.'/');\nrequire_once ABSPATH.'wp-settings.php';\n"
