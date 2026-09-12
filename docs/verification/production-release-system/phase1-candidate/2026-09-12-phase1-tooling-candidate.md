@@ -3,7 +3,7 @@
 - 状态：`PHASE1_TOOLING_CANDIDATE`
 - 验证日期：2026-09-12（Asia/Shanghai）
 - 网站 / 主体：`tio2-my` / site
-- 工具候选 commit：`afd87489adbd0cae71b9db3de81c438552e77fcd`
+- 工具候选 commit：`3660a5cb83f25e486a6ddcec7ae33292169dbbed`
 - 能力：只安装 `tio2-my/frontend-only` 的已验证兼容事务路径
 - 未安装：`content-only`、`combined`、`cms-platform`、`host-infrastructure`
 - 生产操作：未执行
@@ -24,8 +24,17 @@
 | `run_ssh_pin_rehearsal.py --isolated` | `passed=true`；6 cases |
 | Skill `quick_validate.py` | passed |
 | `git diff --check`、目标文件 Gate 旧角色扫描、根 `AGENTS.md` 差异 | passed；无残留；根规则无差异 |
+| second Verify 证据接口 TDD 红灯 | 1 项真实客户端集成按预期失败：固定六文件生成脚本不存在，旧脚本不能满足接口 |
+| second Verify 证据接口绿灯 | 真实 PowerShell 生成器产生六文件并驱动同一 RunRoot 从 `PUBLIC_VERIFIED` 进入 `COMPLETED` |
+| 证据生成失败关闭 | 1 项集成通过；分别拒绝 173/174、活动 Build 漂移、recipient 不匹配和重复 Message-ID，失败时无六文件残留 |
+| 当前影响面 Python 回归 | 62 tests：59 passed；3 skipped（隔离 Linux root fixture） |
+| 当前客户端/合同 Vitest | 5 files / 29 tests passed；0 skipped |
+| 当前管理员包单元回归 | 5 tests passed；两次归档与两次 sidecar 分别逐字节一致 |
+| 当前 `git diff --check` | passed |
 
-复审修复只修改文档和基础设施合同测试；管理员程序、容器和 SSH 文件没有变化。因此本轮重新执行 3 个直接合同文件与 `git diff --check`，并复用前一稳定提交上的完整 Python、Docker/前台隔离演练、SSH pin 演练与 Skill 校验证据。8 个跳过均来自当前 Windows 与 POSIX 设施差异，未计为通过：2 个需要 Windows 符号链接权限，3 个需要隔离 Linux root fixture，1 个需要真实 root-owned POSIX symlink，2 个需要真实 POSIX filesystem。阶段一未安装适配器的写动作由单元与控制器合同验证为 `capability-not-installed`，没有 fallback。
+此前完整阶段一验证在 `afd87489adbd0cae71b9db3de81c438552e77fcd` 上执行，包含 353 项 Python、47 项阶段一 Vitest、22 场景前台隔离演练、6 场景 SSH pin 演练和 Skill 校验；其 8 个跳过均来自 Windows 与 POSIX 设施差异，未计为通过：2 个需要 Windows 符号链接权限，3 个需要隔离 Linux root fixture，1 个需要真实 root-owned POSIX symlink，2 个需要真实 POSIX filesystem。后续 `2d5ba983ed41d2a0256efd0692289e13a1e44b0b` 修复了丢失 SSH 回执后的已提交备份恢复。
+
+本轮在准确修复 HEAD 上新增本地 second Verify 证据生成器并修改其直接客户端集成、运行手册和发布 Skill，没有修改 `Production.Core.psm1`、服务端管理员程序、容器或 SSH 文件。因此当前验证选择直接客户端、服务端完成合同、最终协议和相邻 Vitest 合同；未重复 Docker/前台隔离演练、SSH pin 演练或全量 353 项 Python。阶段一未安装适配器的写动作继续由既有单元与控制器合同验证为 `capability-not-installed`，没有 fallback。
 
 ## 管理员候选与可复现性
 
@@ -33,12 +42,12 @@
 
 | 工件 | SHA-256 |
 |---|---|
-| `.production/candidates/admin-phase1-fix1-a.tar.gz` | `2396817455605af8e1d726e9c38caf53e7f760dafd89d987ee99f027b9fbd227` |
-| `.production/candidates/admin-phase1-fix1-b.tar.gz` | `2396817455605af8e1d726e9c38caf53e7f760dafd89d987ee99f027b9fbd227` |
-| `admin-phase1-fix1-a.tar.gz.sha256.json` | `a734d3580b2ed6715b2f4b88602f8efe921ce2337e879961e47c1409afd32f0e` |
-| `admin-phase1-fix1-b.tar.gz.sha256.json` | `a734d3580b2ed6715b2f4b88602f8efe921ce2337e879961e47c1409afd32f0e` |
+| `.production/candidates/admin-phase1-completion-fix-a.tar.gz` | `c619b30e3b494dd46228b5ddf932e9a561d5448179cbec20537b0f6a2f4ca129` |
+| `.production/candidates/admin-phase1-completion-fix-b.tar.gz` | `c619b30e3b494dd46228b5ddf932e9a561d5448179cbec20537b0f6a2f4ca129` |
+| `admin-phase1-completion-fix-a.tar.gz.sha256.json` | `72821af2165f91fbbcc690e65e3204c515af484248d7fe3b152b704a764f78d1` |
+| `admin-phase1-completion-fix-b.tar.gz.sha256.json` | `72821af2165f91fbbcc690e65e3204c515af484248d7fe3b152b704a764f78d1` |
 
-两个归档和两个 sidecar 分别逐字节一致。sidecar 记录 `schemaVersion=d16-phase1-admin-v1`、`toolCommit=afd87489adbd0cae71b9db3de81c438552e77fcd`、`installationPerformed=false`。归档哈希因 `tool-commit.txt` 精确绑定新的稳定提交而变化。
+两个归档和两个 sidecar 分别逐字节一致。sidecar 记录 `schemaVersion=d16-phase1-admin-v1`、`toolCommit=3660a5cb83f25e486a6ddcec7ae33292169dbbed`、`installationPerformed=false`。归档哈希因 `tool-commit.txt` 精确绑定新的修复提交而变化；客户端证据脚本不属于管理员安装清单。
 
 归档有 38 个 `admin/` 下的固定成员：
 
@@ -105,7 +114,7 @@ python -m unittest tests.production.test_phase1_migration.Phase1MigrationTests.t
 
 | 身份 | 当前可陈述事实 |
 |---|---|
-| 阶段一工具候选 | `afd87489adbd0cae71b9db3de81c438552e77fcd`；管理员包 SHA-256 如上 |
+| 阶段一工具候选 | `3660a5cb83f25e486a6ddcec7ae33292169dbbed`；管理员包 SHA-256 如上 |
 | 兼容发布候选 | 代码只受理 Task 4 迁移的既有不可变候选和同一 RunRoot；本任务未从生产读取其当前状态 |
 | 最近一次已记录活动生产版本 | `main@27f0a0da59df1e54cd01eab7d77eb7024b338d42`，Build ID `wQLBw5iwDoUK0QoWOnb10`，活动基线 `1189e46490fb155298c00323391d717091d5de490c9ae9d396ff7880ae5f783e` |
 | 最近一次生产回执 | 2026-09-11 记录服务器公开验证和最终生产验收通过；RunRoot `.production/runs/20260911T082815Z-27f0a0da59df/` |
