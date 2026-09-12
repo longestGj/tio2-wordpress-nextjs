@@ -33,6 +33,26 @@ const sha256GitBlob = (path: string) => createHash('sha256')
   .digest('hex')
 
 describe('tio2-my production release contracts', () => {
+  it('keeps the root documentation navigation compatible with the development-release split', () => {
+    const rootRules = readFileSync('AGENTS.md', 'utf8')
+    const developmentWorkflow = readFileSync('docs/development-workflow.md', 'utf8')
+    const developmentExecution = readFileSync('docs/development-execution.md', 'utf8')
+
+    expect(rootRules).toContain('docs/development-workflow.md#0-按任务阅读与文档职责')
+    expect(rootRules).toContain('CI/CD及两套本地环境读其中第10–13节')
+    expect(rootRules).toContain('发布读开发交付流程第7节')
+    expect(developmentWorkflow).toContain('## 0. 按任务阅读与文档职责')
+    expect(developmentWorkflow).toMatch(/## 7\. 发布[^\n]*\n[\s\S]*独立发布指令/u)
+    expect(developmentWorkflow).toContain('MERGED_TO_DEVELOP')
+    expect(developmentWorkflow).not.toContain('Gate9')
+    for (const heading of [
+      '## 10. 两套本地环境', '## 11. CI/CD如何接入',
+      '## 12. 现有能力与自动化缺口', '## 13. 制品、数据与恢复',
+    ]) expect(developmentExecution).toContain(heading)
+    expect(developmentExecution).toContain('开发侧不修改 `main`')
+    expect(developmentExecution).toContain('独立发布指令')
+  })
+
   it('documents the phase-one controller, package types, actions, and installed capability', () => {
     const architecture = readFileSync('docs/release-architecture.md', 'utf8')
     const registry = readFileSync('docs/site-registry.md', 'utf8')
