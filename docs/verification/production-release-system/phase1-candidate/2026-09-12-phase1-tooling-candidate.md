@@ -3,7 +3,7 @@
 - 状态：`PHASE1_TOOLING_CANDIDATE`
 - 验证日期：2026-09-12（Asia/Shanghai）
 - 网站 / 主体：`tio2-my` / site
-- 工具候选 commit：`aa054094ec4a53ec65abbcb5147e118aaeef2adc`
+- 工具候选 commit：`afd87489adbd0cae71b9db3de81c438552e77fcd`
 - 能力：只安装 `tio2-my/frontend-only` 的已验证兼容事务路径
 - 未安装：`content-only`、`combined`、`cms-platform`、`host-infrastructure`
 - 生产操作：未执行
@@ -16,6 +16,8 @@
 |---|---|
 | 直接合同 TDD 红灯：3 个基础设施文件 | 3 项新增合同按预期因缺少发布架构、发布流程和回执模板失败；原有 19 项通过 |
 | 直接合同绿灯 | 3 files / 22 tests passed |
+| 复审修复 TDD 红灯：跨文档导航合同 | 1 项新增合同按预期因缺少根规则指定的精确标题失败；原有 5 项通过 |
+| 复审修复绿灯：3 个基础设施合同文件 | 3 files / 23 tests passed |
 | `python -m unittest discover -s tests/production -p 'test_*.py' -v` | 353 tests passed；8 skipped |
 | 阶段一 Vitest 组合 | 5 files / 47 tests passed；0 skipped |
 | `frontend_release_rehearsal.py --isolated` | `passed=true`；22 cases |
@@ -23,7 +25,7 @@
 | Skill `quick_validate.py` | passed |
 | `git diff --check`、目标文件 Gate 旧角色扫描、根 `AGENTS.md` 差异 | passed；无残留；根规则无差异 |
 
-8 个跳过均来自当前 Windows 与 POSIX 设施差异，未计为通过：2 个需要 Windows 符号链接权限，3 个需要隔离 Linux root fixture，1 个需要真实 root-owned POSIX symlink，2 个需要真实 POSIX filesystem。阶段一未安装适配器的写动作由单元与控制器合同验证为 `capability-not-installed`，没有 fallback。
+复审修复只修改文档和基础设施合同测试；管理员程序、容器和 SSH 文件没有变化。因此本轮重新执行 3 个直接合同文件与 `git diff --check`，并复用前一稳定提交上的完整 Python、Docker/前台隔离演练、SSH pin 演练与 Skill 校验证据。8 个跳过均来自当前 Windows 与 POSIX 设施差异，未计为通过：2 个需要 Windows 符号链接权限，3 个需要隔离 Linux root fixture，1 个需要真实 root-owned POSIX symlink，2 个需要真实 POSIX filesystem。阶段一未安装适配器的写动作由单元与控制器合同验证为 `capability-not-installed`，没有 fallback。
 
 ## 管理员候选与可复现性
 
@@ -31,12 +33,12 @@
 
 | 工件 | SHA-256 |
 |---|---|
-| `.production/candidates/admin-phase1-a.tar.gz` | `4fcdf73b0a26d7f0c1d32b8eb617fb13df5e32e37e813d66f4d4a03d2a566a4f` |
-| `.production/candidates/admin-phase1-b.tar.gz` | `4fcdf73b0a26d7f0c1d32b8eb617fb13df5e32e37e813d66f4d4a03d2a566a4f` |
-| `admin-phase1-a.tar.gz.sha256.json` | `ce3cc7e122b921a6478c5e33c2257892295bf8cdf2b0aa2a6adf0d804c89402f` |
-| `admin-phase1-b.tar.gz.sha256.json` | `ce3cc7e122b921a6478c5e33c2257892295bf8cdf2b0aa2a6adf0d804c89402f` |
+| `.production/candidates/admin-phase1-fix1-a.tar.gz` | `2396817455605af8e1d726e9c38caf53e7f760dafd89d987ee99f027b9fbd227` |
+| `.production/candidates/admin-phase1-fix1-b.tar.gz` | `2396817455605af8e1d726e9c38caf53e7f760dafd89d987ee99f027b9fbd227` |
+| `admin-phase1-fix1-a.tar.gz.sha256.json` | `a734d3580b2ed6715b2f4b88602f8efe921ce2337e879961e47c1409afd32f0e` |
+| `admin-phase1-fix1-b.tar.gz.sha256.json` | `a734d3580b2ed6715b2f4b88602f8efe921ce2337e879961e47c1409afd32f0e` |
 
-两个归档和两个 sidecar 分别逐字节一致。sidecar 记录 `schemaVersion=d16-phase1-admin-v1`、`toolCommit=aa054094ec4a53ec65abbcb5147e118aaeef2adc`、`installationPerformed=false`。
+两个归档和两个 sidecar 分别逐字节一致。sidecar 记录 `schemaVersion=d16-phase1-admin-v1`、`toolCommit=afd87489adbd0cae71b9db3de81c438552e77fcd`、`installationPerformed=false`。归档哈希因 `tool-commit.txt` 精确绑定新的稳定提交而变化。
 
 归档有 38 个 `admin/` 下的固定成员：
 
@@ -103,7 +105,7 @@ python -m unittest tests.production.test_phase1_migration.Phase1MigrationTests.t
 
 | 身份 | 当前可陈述事实 |
 |---|---|
-| 阶段一工具候选 | `aa054094ec4a53ec65abbcb5147e118aaeef2adc`；管理员包 SHA-256 如上 |
+| 阶段一工具候选 | `afd87489adbd0cae71b9db3de81c438552e77fcd`；管理员包 SHA-256 如上 |
 | 兼容发布候选 | 代码只受理 Task 4 迁移的既有不可变候选和同一 RunRoot；本任务未从生产读取其当前状态 |
 | 最近一次已记录活动生产版本 | `main@27f0a0da59df1e54cd01eab7d77eb7024b338d42`，Build ID `wQLBw5iwDoUK0QoWOnb10`，活动基线 `1189e46490fb155298c00323391d717091d5de490c9ae9d396ff7880ae5f783e` |
 | 最近一次生产回执 | 2026-09-11 记录服务器公开验证和最终生产验收通过；RunRoot `.production/runs/20260911T082815Z-27f0a0da59df/` |
