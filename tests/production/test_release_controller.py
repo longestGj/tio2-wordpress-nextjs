@@ -429,6 +429,51 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(cleaned, ["[REDACTED]"] * len(logs))
         self.assertEqual(redact(cleaned), cleaned)
 
+    def test_sensitive_assignments_cover_json_fragments_before_log_scanning(self):
+        logs = [
+            'worker password="alpha [123] R2_ASSIGNMENT_SECRET" done',
+            "password='alpha {\"safe\":\"R2_OBJECT_SECRET\"} omega'",
+        ]
+        with patch.object(self.adapter, "prepare", return_value={"ok": True, "logs": logs}):
+            result = self.execute("prepare")
+        root = self.subjects["tio2-my"].state_root
+        outputs = [json.dumps(result), (root / "state.json").read_text()]
+        outputs.extend(path.read_text() for path in (root / "audit").iterdir())
+        for secret in ("R2_ASSIGNMENT_SECRET", "R2_OBJECT_SECRET"):
+            for output in outputs:
+                with self.subTest(secret=secret):
+                    self.assertNotIn(secret, output)
+        cleaned = result["state"]["details"]["actionEvidence"]["logs"]
+        self.assertEqual(cleaned[0], "worker [REDACTED] done")
+        from release_state import redact
+        self.assertEqual(redact(cleaned), cleaned)
+
+    def test_assignment_quote_boundaries_preserve_only_outside_json(self):
+        logs = [
+            r'password="alpha \" [123] R3_ESCAPED_DOUBLE_SECRET" log: {"safe":"kept"}',
+            r"password='alpha \' [123] R3_ESCAPED_SINGLE_SECRET' done",
+            'log: {"safe":"before"} password="[123] R3_UNCLOSED_SECRET',
+            'password="[123] R3_TRAILING_ESCAPE_SECRET' + '\\',
+            'password="alpha "R3_AMBIGUOUS_SECRET [123]"',
+            'log: {"password":"R3_JSON_SECRET","safe":"kept"} password="[123] R3_AFTER_JSON_SECRET" log: {"safe":"after"}',
+        ]
+        with patch.object(self.adapter, "prepare", return_value={"ok": True, "logs": logs}):
+            result = self.execute("prepare")
+        root = self.subjects["tio2-my"].state_root
+        outputs = [json.dumps(result), (root / "state.json").read_text()]
+        outputs.extend(path.read_text() for path in (root / "audit").iterdir())
+        for secret in ("R3_ESCAPED_DOUBLE_SECRET", "R3_ESCAPED_SINGLE_SECRET", "R3_UNCLOSED_SECRET", "R3_TRAILING_ESCAPE_SECRET", "R3_AMBIGUOUS_SECRET", "R3_JSON_SECRET", "R3_AFTER_JSON_SECRET"):
+            for output in outputs:
+                with self.subTest(secret=secret):
+                    self.assertNotIn(secret, output)
+        cleaned = result["state"]["details"]["actionEvidence"]["logs"]
+        self.assertEqual(cleaned[0], '[REDACTED] log: {"safe":"kept"}')
+        self.assertEqual(cleaned[1], "[REDACTED] done")
+        self.assertEqual(cleaned[2:5], ["[REDACTED]"] * 3)
+        self.assertEqual(cleaned[5], 'log: {"password":"[REDACTED]","safe":"kept"} [REDACTED] log: {"safe":"after"}')
+        from release_state import redact
+        self.assertEqual(redact(cleaned), cleaned)
+
     def test_interrupted_staged_write_resumes_from_durable_proof_without_replaying_adapter(self):
         self.execute("prepare", "backup")
         from release_controller import transition as real_transition

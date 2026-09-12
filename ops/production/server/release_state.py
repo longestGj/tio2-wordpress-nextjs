@@ -298,11 +298,49 @@ def _plain_log_text(value: str) -> str | None:
     return re.sub(r"(https?://)[^/@\s]+:[^/@\s]+@", r"\1[REDACTED]@", value)
 
 
+def _assignment_end(value: str, start: int) -> int | None:
+    """Consume the entire sensitive value before looking inside it for JSON."""
+    if start == len(value):
+        return start
+    quote = value[start]
+    if quote in "\"'":
+        cursor = start + 1
+        while cursor < len(value):
+            if value[cursor] == "\\":
+                cursor += 2
+            elif value[cursor] == quote:
+                end = cursor + 1
+                if end < len(value) and not (value[end].isspace() or value[end] in ",;]}"):
+                    return None
+                return end
+            else:
+                cursor += 1
+        return None
+    end = start
+    while end < len(value) and value[end] not in "\r\n,;":
+        # Delimiters inside an unquoted container have no reliable field
+        # boundary; discard the log rather than expose a partial value.
+        if value[end] in "{[\"'\\":
+            return None
+        end += 1
+    return end
+
+
 def _embedded_json_log(value: str) -> str:
     decoder = json.JSONDecoder()
+    assignment = re.compile(_TEXT_SECRET_KEY, re.I)
     parts: list[str] = []
     start = cursor = 0
     while cursor < len(value):
+        match = assignment.match(value, cursor)
+        if match is not None:
+            end = _assignment_end(value, match.end())
+            prefix = _plain_log_text(value[start:cursor])
+            if end is None or prefix is None:
+                return "[REDACTED]"
+            parts.extend((prefix, "[REDACTED]"))
+            start = cursor = end
+            continue
         if value.startswith("[REDACTED]", cursor):
             cursor += len("[REDACTED]")
             continue
