@@ -347,6 +347,41 @@ class NginxInventoryTests(unittest.TestCase):
         with self.assertRaisesRegex(ReleaseError, "include owner"):
             classify_nginx(dump(), registry)
 
+    def test_empty_glob_include_is_allowed(self) -> None:
+        empty_pattern = (self.root / "modules-enabled" / "*.conf").as_posix()
+        host_content = self.contents[self.host_path] + f"include {empty_pattern};\n"
+        self.host_path.write_text(host_content, encoding="utf-8", newline="\n")
+
+        inventory = classify_nginx(self.dump({self.host_path: host_content}), self.registry)
+
+        self.assertEqual(len(inventory.files), len(self.contents))
+        host = next(entry for entry in inventory.files if entry.logical_path == self.host_path)
+        self.assertNotIn(empty_pattern, [reference.value for reference in host.references])
+
+    def test_missing_literal_include_remains_rejected(self) -> None:
+        missing = (self.root / "missing.conf").as_posix()
+        host_content = self.contents[self.host_path] + f"include {missing};\n"
+        self.host_path.write_text(host_content, encoding="utf-8", newline="\n")
+
+        with self.assertRaisesRegex(ReleaseError, "unregistered Nginx include"):
+            classify_nginx(self.dump({self.host_path: host_content}), self.registry)
+
+    def test_file_materializing_under_empty_glob_requires_registration(self) -> None:
+        module_root = self.root / "modules-enabled"
+        module_root.mkdir()
+        module = module_root / "http-module.conf"
+        module_content = "load_module modules/ngx_http_fixture_module.so;\n"
+        module.write_text(module_content, encoding="utf-8", newline="\n")
+        pattern = (module_root / "*.conf").as_posix()
+        host_content = self.contents[self.host_path] + f"include {pattern};\n"
+        self.host_path.write_text(host_content, encoding="utf-8", newline="\n")
+
+        with self.assertRaisesRegex(ReleaseError, "unregistered Nginx file"):
+            classify_nginx(
+                self.dump({self.host_path: host_content}, extra=(module, module_content)),
+                self.registry,
+            )
+
     def test_host_resource_fragments_cannot_be_borrowed_by_a_subject(self) -> None:
         host_resource = self.root / "host-resource.conf"
         host_bridge = self.root / "host-bridge.conf"
