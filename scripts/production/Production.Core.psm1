@@ -728,9 +728,13 @@ function Save-ProductionJson($Path, $Value) {
     try { $stream.Write($bytes); $stream.Flush($true) } finally { $stream.Dispose() }
     [IO.File]::Move($temporary, $Path, $true)
 }
-function Assert-ProductionConnection($Config) {
+function Assert-D16SiteId($SiteId) {
+    if($SiteId -isnot [string] -or $SiteId -cnotmatch '\A[a-z0-9][a-z0-9-]{0,62}\z' -or $SiteId -cin @('host','cms')){throw 'Invalid D16 site identity.'}
+}
+function Assert-ProductionConnection($Config, [switch]$RegisteredSite) {
     try {
-        if ($Config.siteId -ne 'tio2-my' -or $Config.username -ne 'deploy' -or $Config.host -notmatch '^[A-Za-z0-9][A-Za-z0-9.-]*$' -or $Config.port -lt 1 -or $Config.port -gt 65535 -or $Config.baselineSha256 -notmatch '^[a-f0-9]{64}$') { throw 'invalid' }
+        if($RegisteredSite){Assert-D16SiteId $Config.siteId}elseif($Config.siteId -cne 'tio2-my'){throw 'invalid'}
+        if ($Config.username -cne 'deploy' -or $Config.host -cnotmatch '\A[A-Za-z0-9][A-Za-z0-9.-]*\z' -or $Config.port -lt 1 -or $Config.port -gt 65535 -or $Config.baselineSha256 -cnotmatch '\A[a-f0-9]{64}\z') { throw 'invalid' }
         if ($Config.hostKey -notmatch '^ssh-ed25519 ([A-Za-z0-9+/]+={0,2})$') { throw 'invalid' }
         $key = [Convert]::FromBase64String($Matches[1])
         if ($key.Length -ne 51 -or [Text.Encoding]::ASCII.GetString($key,4,11) -ne 'ssh-ed25519') { throw 'invalid' }
@@ -906,8 +910,11 @@ Export-ModuleMember -Function Assert-ProductionConnection,Assert-ProductionActio
 
 # D16 seven-action client. The historical functions above remain internal
 # compatibility helpers; production.ps1 selects only this subject-bound path.
-function Assert-D16ActionReceipt($Action,$Receipt,$Binding) {
-    if($Receipt.ok -isnot [bool] -or -not $Receipt.ok -or $Receipt.subject -cne 'tio2-my' -or $Receipt.action -cne $Action){throw 'D16 receipt subject/action mismatch.'}
+function Assert-D16ActionReceipt($Action,$Receipt,$Binding,$ExpectedSubject = $null) {
+    if($null -eq $ExpectedSubject -and $null -ne $Binding){$ExpectedSubject=$Binding.subject}
+    Assert-D16SiteId $ExpectedSubject
+    if($null -ne $Binding -and $Binding.subject -cne $ExpectedSubject){throw 'D16 receipt binding subject mismatch.'}
+    if($Receipt.ok -isnot [bool] -or -not $Receipt.ok -or $Receipt.subject -cne $ExpectedSubject -or $Receipt.action -cne $Action){throw 'D16 receipt subject/action mismatch.'}
     $allowed=@{status=@('IDLE','PREPARED','BACKED_UP','STAGED','INTERNAL_VERIFIED','ACTIVATED','PUBLIC_VERIFIED','COMPLETED','FAILED','ROLLED_BACK','RECOVERY_REQUIRED');prepare=@('PREPARED');backup=@('BACKED_UP');stage=@('INTERNAL_VERIFIED');activate=@('ACTIVATED');verify=@('PUBLIC_VERIFIED','COMPLETED');rollback=@('ROLLED_BACK')}
     if($Receipt.state.state -cnotin $allowed[$Action]){throw 'D16 receipt state mismatch.'}
     if($null -ne $Binding){
@@ -922,7 +929,10 @@ function Assert-D16ActionReceipt($Action,$Receipt,$Binding) {
 }
 
 function Invoke-D16ProductionTransport($Config,$RunRoot,$Kind,$Value) {
-    Assert-ProductionConnection $Config
+    Assert-ProductionConnection $Config -RegisteredSite
+    # Match subject_registry._expected_paths; Malaysia retains its enrolled paths.
+    $incoming=if($Config.siteId -ceq 'tio2-my'){'/home/deploy/tio2-incoming'}else{"/home/deploy/d16-incoming/$($Config.siteId)"}
+    $outgoing=if($Config.siteId -ceq 'tio2-my'){'/home/deploy/tio2-outgoing'}else{"/home/deploy/d16-outgoing/$($Config.siteId)"}
     $known=Join-Path $RunRoot 'known_hosts'
     $lookup=if($Config.port -eq 22){$Config.host}else{"[$($Config.host)]:$($Config.port)"}
     [IO.File]::WriteAllText($known,"$lookup $($Config.hostKey)`n",[Text.UTF8Encoding]::new($false))
@@ -930,11 +940,11 @@ function Invoke-D16ProductionTransport($Config,$RunRoot,$Kind,$Value) {
     $destination="deploy@$($Config.host)"
     if($Kind -eq 'action'){
         if($Value -cnotin @('status','prepare','backup','stage','activate','verify','rollback')){throw 'Unsupported D16 action.'}
-        $output=@(& ssh @options -p $Config.port $destination "sudo -n /usr/local/sbin/d16-release tio2-my $Value" 2>$null)
+        $output=@(& ssh @options -p $Config.port $destination "sudo -n /usr/local/sbin/d16-release $($Config.siteId) $Value" 2>$null)
         if($LASTEXITCODE -ne 0){
             Save-ProductionJson (Join-Path $RunRoot 'transport-failure.json') @{action=$Value;exitCode=$LASTEXITCODE;completed=$false}
             if($Value -cne 'status'){
-                try{$observed=Invoke-D16ProductionTransport $Config $RunRoot action status;$bound=$null;if(Test-Path -LiteralPath (Join-Path $RunRoot 'frontend-binding.json')){$bound=Read-ProductionJson (Join-Path $RunRoot 'frontend-binding.json')};Assert-D16ActionReceipt status $observed $bound;Save-ProductionJson (Join-Path $RunRoot 'failure-status.json') $observed}catch{}
+                try{$observed=Invoke-D16ProductionTransport $Config $RunRoot action status;$bound=$null;if(Test-Path -LiteralPath (Join-Path $RunRoot 'frontend-binding.json')){$bound=Read-ProductionJson (Join-Path $RunRoot 'frontend-binding.json')};Assert-D16ActionReceipt status $observed $bound $Config.siteId;Save-ProductionJson (Join-Path $RunRoot 'failure-status.json') $observed}catch{}
             }
             throw 'D16 action disconnected or failed; persistent status was queried. Reuse this RunRoot.'
         }
@@ -942,10 +952,10 @@ function Invoke-D16ProductionTransport($Config,$RunRoot,$Kind,$Value) {
     }
     if($Kind -eq 'upload'){
         if($Value -cnotin @('backup-request.json','frontend-action.json','frontend-restore.json','completion-receipt.json','business-e2e-receipt.json','inbox-confirmation-receipt.json','rfq-received.eml','sample-received.eml','documents-received.eml')){throw 'Unsupported fixed D16 upload.'}
-        & scp @options -P $Config.port (Join-Path $RunRoot $Value) "${destination}:/home/deploy/tio2-incoming/$Value" 2>$null|Out-Null
+        & scp @options -P $Config.port (Join-Path $RunRoot $Value) "${destination}:${incoming}/$Value" 2>$null|Out-Null
     }elseif($Kind -eq 'download'){
-        if($Value -cnotmatch '^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{40}-[a-f0-9]{32}$'){throw 'Invalid frontend backup ID.'}
-        & scp @options -P $Config.port "${destination}:/home/deploy/tio2-outgoing/$Value.tar.age" (Join-Path $RunRoot 'ciphertext.age.part') 2>$null|Out-Null
+        if($Value -isnot [string] -or $Value -cnotmatch '\A[0-9]{8}T[0-9]{6}Z-[a-f0-9]{40}-[a-f0-9]{32}\z'){throw 'Invalid frontend backup ID.'}
+        & scp @options -P $Config.port "${destination}:${outgoing}/$Value.tar.age" (Join-Path $RunRoot 'ciphertext.age.part') 2>$null|Out-Null
     }else{throw 'Unsupported D16 transfer.'}
     if($LASTEXITCODE -ne 0){throw 'D16 transfer failed; reuse this RunRoot.'}
 }
@@ -1083,14 +1093,14 @@ function Assert-D16LocalBackup($RunRoot,$Binding,$RemoteBackup) {
 
 function Invoke-D16ProductionOperation {
     param([ValidateSet('Status','Prepare','Backup','Stage','Activate','Verify','Rollback')]$Operation,[string]$ConfigPath,[string]$RunRoot)
-    $config=Read-ProductionJson $ConfigPath;Assert-ProductionConnection $config
+    $config=Read-ProductionJson $ConfigPath;Assert-ProductionConnection $config -RegisteredSite
     $RunRoot=[IO.Path]::GetFullPath($RunRoot);[IO.Directory]::CreateDirectory($RunRoot)|Out-Null
     $lock=[IO.File]::Open((Join-Path $RunRoot 'controller.lock'),'OpenOrCreate','ReadWrite','None')
     try{
         $connection=@{siteId=$config.siteId;host=$config.host;port=$config.port;hostKey=$config.hostKey;baselineSha256=$config.baselineSha256}
         $connectionPath=Join-Path $RunRoot 'connection.json'
         if(Test-Path -LiteralPath $connectionPath){$old=Read-ProductionJson $connectionPath;foreach($name in $connection.Keys){if($connection[$name] -cne $old[$name]){throw 'Run connection identity changed.'}}}else{Save-ProductionJson $connectionPath $connection}
-        $status=Invoke-D16ProductionTransport $config $RunRoot action status;Assert-D16ActionReceipt status $status $null
+        $status=Invoke-D16ProductionTransport $config $RunRoot action status;Assert-D16ActionReceipt status $status $null $config.siteId
         $bindingPath=Join-Path $RunRoot 'frontend-binding.json'
         if(Test-Path -LiteralPath $bindingPath){Assert-D16ActionReceipt status $status (Read-ProductionJson $bindingPath)}
         Save-ProductionJson (Join-Path $RunRoot 'status.json') $status
