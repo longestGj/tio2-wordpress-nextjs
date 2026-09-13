@@ -1,0 +1,53 @@
+ Container d16-tio2-my-gate8-return-wordpress-1 Running 
+ Container d16-tio2-my-gate8-return-db-1 Running 
+ Container d16-tio2-my-gate8-return-db-1 Waiting 
+ Container d16-tio2-my-gate8-return-db-1 Healthy 
+ Container d16-tio2-my-gate8-return-db-1 Waiting 
+ Container d16-tio2-my-gate8-return-db-1 Healthy 
+ Container d16-tio2-my-gate8-return-wpcli-run-17223b66c44d Creating 
+ Container d16-tio2-my-gate8-return-wpcli-run-17223b66c44d Created 
+BEGIN apply-tio2-my-cr901-product-detail.php
+{"status":"passed","postId":16,"siteScope":"tio2-my","internalSlug":"tio2-my-cr-901","publicPath":"\/products\/cr-901","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-cr901-product-detail.php
+BEGIN apply-tio2-my-m108-product-detail.php
+{"status":"passed","postId":62,"siteScope":"tio2-my","internalSlug":"tio2-my-m-108","publicPath":"\/products\/m-108","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-m108-product-detail.php
+BEGIN apply-tio2-my-m200-product-detail.php
+{"status":"passed","postId":64,"siteScope":"tio2-my","internalSlug":"tio2-my-m-200","publicPath":"\/products\/m-200","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-m200-product-detail.php
+BEGIN apply-tio2-my-m210-product-detail.php
+{"status":"passed","postId":66,"siteScope":"tio2-my","internalSlug":"tio2-my-m-210","publicPath":"\/products\/m-210","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-m210-product-detail.php
+BEGIN apply-tio2-my-m2196-product-detail.php
+{"status":"passed","postId":68,"siteScope":"tio2-my","internalSlug":"tio2-my-m-2196","publicPath":"\/products\/m-2196","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-m2196-product-detail.php
+BEGIN apply-tio2-my-m2377-product-detail.php
+{"status":"passed","postId":70,"siteScope":"tio2-my","internalSlug":"tio2-my-m-2377","publicPath":"\/products\/m-2377","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-m2377-product-detail.php
+BEGIN apply-tio2-my-m340-product-detail.php
+{"status":"passed","postId":72,"siteScope":"tio2-my","internalSlug":"tio2-my-m-340","publicPath":"\/products\/m-340","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-m340-product-detail.php
+BEGIN apply-tio2-my-m350-product-detail.php
+{"status":"passed","postId":74,"siteScope":"tio2-my","internalSlug":"tio2-my-m-350","publicPath":"\/products\/m-350","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-m350-product-detail.php
+BEGIN apply-tio2-my-m510-product-detail.php
+{"status":"passed","postId":76,"siteScope":"tio2-my","internalSlug":"tio2-my-m-510","publicPath":"\/products\/m-510","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-m510-product-detail.php
+BEGIN apply-tio2-my-m52-product-detail.php
+{"status":"passed","postId":78,"siteScope":"tio2-my","internalSlug":"tio2-my-m-52","publicPath":"\/products\/m-52","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-m52-product-detail.php
+BEGIN apply-tio2-my-m886-product-detail.php
+{"status":"passed","postId":80,"siteScope":"tio2-my","internalSlug":"tio2-my-m-886","publicPath":"\/products\/m-886","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-m886-product-detail.php
+BEGIN apply-tio2-my-m895-product-detail.php
+{"status":"passed","postId":82,"siteScope":"tio2-my","internalSlug":"tio2-my-m-895","publicPath":"\/products\/m-895","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-m895-product-detail.php
+BEGIN apply-tio2-my-m896-product-detail.php
+{"status":"passed","postId":84,"siteScope":"tio2-my","internalSlug":"tio2-my-m-896","publicPath":"\/products\/m-896","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-m896-product-detail.php
+BEGIN apply-tio2-my-m996-product-detail.php
+{"status":"passed","postId":86,"siteScope":"tio2-my","internalSlug":"tio2-my-m-996","publicPath":"\/products\/m-996","recordState":"approved_for_preview","schemaVersion":"product-detail-v0.1-malaysia"}
+END apply-tio2-my-m996-product-detail.php
+BEGIN apply-tio2-my-resource-hub.php
+{"status":"passed","postId":108,"siteScope":"tio2-my","internalSlug":"tio2-my-resources","publicPath":"\/resources","schemaVersion":"resource-hub-v0.1-malaysia","publicState":"H3_GROUPED_PUBLIC_RESOURCES"}
+END apply-tio2-my-resource-hub.php
