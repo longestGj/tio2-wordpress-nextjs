@@ -8,6 +8,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+. (Join-Path $PSScriptRoot '../production/ReleaseCoverage.ps1')
 
 function Read-JsonStrict([string] $Path) {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { throw 'Required Gate A evidence is missing.' }
@@ -94,6 +95,7 @@ Assert-Identity $live 'TestLiveForms'
 
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $surfaceSha256 = Get-GitBlobSha256 $repositoryRoot $test.candidateCommit 'ops/production/release-surface.json'
+$coverage = Get-ReleaseCoverageCounts $surfaceSha256
 $identityFields = @('candidateCommit', 'runId', 'buildId', 'cmsIdentitySha256', 'releaseSurfaceSha256')
 foreach ($field in $identityFields) {
     if ([string] $test.$field -cne [string] $live.$field) { throw 'Gate A evidence identities do not match.' }
@@ -108,7 +110,7 @@ $ordinaryChecks = @(
 )
 Assert-ExactStrings @($test.requiredCheckIds) $ordinaryChecks 'Gate A ordinary check scope is incomplete.'
 Assert-ExactStrings @($test.completedCheckIds) $ordinaryChecks 'Gate A ordinary checks did not all pass.'
-if ($test.externalPostCount -ne 0 -or $test.inventory.registeredObjects -ne 58) { throw 'Gate A ordinary test counts are invalid.' }
+if ($test.externalPostCount -ne 0 -or $test.inventory.registeredObjects -ne $coverage.registeredObjects) { throw 'Gate A ordinary test counts are invalid.' }
 
 $workflowNames = @('rfq', 'sample', 'documents')
 $liveChecks = @($workflowNames | ForEach-Object { "live-forms.$_" })
@@ -155,7 +157,7 @@ $output = [ordered]@{
     cmsIdentitySha256 = ([string] $test.cmsIdentitySha256).ToLowerInvariant()
     releaseSurfaceSha256 = $surfaceSha256
     sealedAt = [DateTimeOffset]::UtcNow.ToString('o')
-    counts = [ordered]@{ businessPages = 56; registeredObjects = 58; widths = 3; browserCases = 174 }
+    counts = $coverage
     forms = [ordered]@{ rfq = 'RECEIVED'; sample = 'RECEIVED'; documents = 'RECEIVED' }
     evidenceSha256 = [ordered]@{
         test = Get-Sha256 $TestReceiptPath

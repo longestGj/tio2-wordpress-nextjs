@@ -121,6 +121,7 @@ describe('tio2-my production release contracts', () => {
       'ops/prerelease/bootstrap-wordpress.sh',
       'wordpress/seed/apply-tio2-my-prerelease-public-paths.php',
       'wordpress/seed/refresh-tio2-my-resource-candidate.php',
+      'wordpress/seed/refresh-tio2-my-trade-candidate.php',
     ])
 
     expect(manifest).toMatchObject({

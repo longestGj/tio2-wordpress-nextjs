@@ -41,7 +41,7 @@ function fixture(overrides: {
     candidateCommit: commit, runId: 'run-1', buildId: 'build-1', cmsIdentitySha256,
     siteId: 'tio2-my', testExit: 0, requiredCheckIds: checkIds,
     completedCheckIds: checkIds, requiredWidths: [1440, 768, 390],
-    inventory: {registeredObjects: 58}, externalPostCount: 0, releaseSurfaceSha256: surfaceSha256,
+    inventory: {registeredObjects: 59}, externalPostCount: 0, releaseSurfaceSha256: surfaceSha256,
     ...overrides.test,
   }
   const live = {
@@ -122,7 +122,7 @@ describe.runIf(process.platform === 'win32')('production prerelease Gate A seali
       buildId: 'build-1',
       cmsIdentitySha256,
       releaseSurfaceSha256: surfaceSha256,
-      counts: {businessPages: 56, registeredObjects: 58, widths: 3, browserCases: 174},
+      counts: {businessPages: 57, registeredObjects: 59, widths: 3, browserCases: 177},
       forms: {rfq: 'RECEIVED', sample: 'RECEIVED', documents: 'RECEIVED'},
       evidenceSha256: {
         test: createHash('sha256').update(readFileSync(paths.test)).digest('hex'),
@@ -134,6 +134,7 @@ describe.runIf(process.platform === 'win32')('production prerelease Gate A seali
   })
 
   it.each([
+    ['old counts for current surface', {test: {inventory: {registeredObjects: 58}}}],
     ['foreign Test commit', {test: {candidateCommit: 'c'.repeat(40)}}],
     ['failed live forms', {live: {state: 'FAILED'}}],
     ['different build', {live: {buildId: 'build-2'}}],

@@ -55,6 +55,13 @@ _FILE_KEYS = frozenset({"path", "sha256"})
 # Installed program policy, never loaded from an upload. A changed tuple requires
 # a new version and an administrator program upgrade, not an in-place relaxation.
 FROZEN_CONTRACTS = {
+    "tio2-production-contracts-v3": (
+        {
+            "ops/production/release-package.schema.json": "bf4d8667b2959a51ed671c703d082c5f5bda30909d52f5a34367457c66f1f219",
+            "ops/production/release-surface.json": "6655c74b695b0f0f4d0f9ac94607ba138bf1d42b063e2d5daa101d2953c19cad",
+            "ops/production/migration-manifest.json": "8bc0db54ef1efe5ceff3474e0efc29d0696e6256ed1b9d59d141aed7ce3c1004",
+        },
+    ),
     "tio2-production-contracts-v2": (
         {
             "ops/production/release-package.schema.json": "ad8dbea67cb5c7c4a8503e830b32a061ee46859c3992e0570cc42d4d38362346",
@@ -68,6 +75,15 @@ FROZEN_CONTRACTS = {
         },
     ),
 }
+
+
+def coverage_counts(surface_sha256: str) -> dict[str, int]:
+    """Installed, reviewed surface identities; never trust uploaded counts."""
+    if surface_sha256 == "42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152":
+        return {"businessPages": 56, "registeredObjects": 58, "widths": 3, "browserCases": 174}
+    if surface_sha256 == "6655c74b695b0f0f4d0f9ac94607ba138bf1d42b063e2d5daa101d2953c19cad":
+        return {"businessPages": 57, "registeredObjects": 59, "widths": 3, "browserCases": 177}
+    raise ReleaseError("release surface is not installed in the coverage policy")
 
 
 def validate_prerelease_proof(proof_path: Path, manifest_path: Path, manifest: Mapping[str, object]) -> dict[str, object]:
@@ -88,7 +104,7 @@ def validate_prerelease_proof(proof_path: Path, manifest_path: Path, manifest: M
             raise ValueError
         if not _SHA256.fullmatch(receipt["cmsIdentitySha256"]) or not _SHA256.fullmatch(receipt["releaseSurfaceSha256"]) or receipt["releaseSurfaceSha256"] != manifest["releaseSurfaceSha256"] or not _SHA256.fullmatch(receipt["productionGateReceiptSha256"]) or datetime.fromisoformat(receipt["sealedAt"].replace("Z", "+00:00")).tzinfo is None:
             raise ValueError
-        if receipt["counts"] != {"businessPages": 56, "registeredObjects": 58, "widths": 3, "browserCases": 174} or receipt["forms"] != {"rfq": "RECEIVED", "sample": "RECEIVED", "documents": "RECEIVED"}:
+        if receipt["counts"] != coverage_counts(manifest["releaseSurfaceSha256"]) or receipt["forms"] != {"rfq": "RECEIVED", "sample": "RECEIVED", "documents": "RECEIVED"}:
             raise ValueError
         contracts = FROZEN_CONTRACTS[proof["contractVersion"]]
         hashes = {entry["path"]: entry["sha256"] for entry in manifest["files"]}

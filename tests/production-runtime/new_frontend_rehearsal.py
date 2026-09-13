@@ -69,7 +69,7 @@ def exercise(env):
                 'archiveSha256':manifest['archiveSha256'],'sourceManifestSha256':sha(root/'release-manifest.json'),
                 'cmsContractSha256':observed['cmsPlatform']['cmsContractSha256'],'contentSha256':observed['frontend']['cmsRuntime']['contentSha256'],
                 'configurationSha256':_configuration_fingerprint(record),'previousProductionReceipt':digest(prior),
-                'state':'PASSED','source':{'branch':'main','clean':True},'counts':{'businessPages':56,'registeredObjects':58,'widths':3,'browserCases':174},
+                'state':'PASSED','source':{'branch':'main','clean':True},'counts':{'businessPages':57,'registeredObjects':59,'widths':3,'browserCases':177},
                 'forms':{'rfq':'RECEIVED','sample':'RECEIVED','documents':'RECEIVED'},'evidenceSha256':'e'*64}
             atomic_write_json(root/'release-proof.json',proof)
             payload=tuple(sorted(('frontend/'+path.name,sha(path)) for path in root.iterdir()))

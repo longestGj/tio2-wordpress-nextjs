@@ -25,7 +25,7 @@ class FrontendCandidateTests(unittest.TestCase):
         self.proof={'schemaVersion':'d16-frontend-prerelease-v1','subject':'tio2-my','sourceCommit':manifest['commit'],'buildId':'new-build',
             'archiveSha256':manifest['archiveSha256'],'sourceManifestSha256':hashlib.sha256((payload/'release-manifest.json').read_bytes()).hexdigest(),
             'cmsContractSha256':'a'*64,'contentSha256':'b'*64,'configurationSha256':'c'*64,'previousProductionReceipt':'prior',
-            'state':'PASSED','source':{'branch':'main','clean':True},'counts':{'businessPages':56,'registeredObjects':58,'widths':3,'browserCases':174},
+            'state':'PASSED','source':{'branch':'main','clean':True},'counts':{'businessPages':57,'registeredObjects':59,'widths':3,'browserCases':177},
             'forms':{'rfq':'RECEIVED','sample':'RECEIVED','documents':'RECEIVED'},'evidenceSha256':'d'*64}
         self.manifest=manifest
         self.write()
@@ -41,6 +41,18 @@ class FrontendCandidateTests(unittest.TestCase):
         with patch('release_contract._root_chown'):
             destination=frontend_candidate.install_source(self.subject,result,ownership_setter=lambda *args:None)
         self.assertEqual((destination/'app/candidate.txt').read_bytes(),b'candidate release B\n')
+    def test_current_surface_admits_177_cases(self):
+        import frontend_candidate
+        self.proof['counts']={'businessPages':57,'registeredObjects':59,'widths':3,'browserCases':177}
+        self.write()
+        result=frontend_candidate.validate_source(self.subject,self.envelope,{'cmsRuntime':{'contentSha256':'b'*64}})
+        self.assertEqual(result['prereleaseProof']['counts']['browserCases'],177)
+    def test_current_surface_rejects_legacy_counts(self):
+        import frontend_candidate
+        self.proof['counts']={'businessPages':56,'registeredObjects':58,'widths':3,'browserCases':174}
+        self.write()
+        with self.assertRaises(ReleaseError):
+            frontend_candidate.validate_source(self.subject,self.envelope,{'cmsRuntime':{'contentSha256':'b'*64}})
     def test_wrong_build_cms_configuration_content_or_receipt_is_rejected(self):
         import frontend_candidate
         for key in ('buildId','cmsContractSha256','configurationSha256','contentSha256','previousProductionReceipt'):

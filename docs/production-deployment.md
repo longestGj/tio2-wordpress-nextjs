@@ -50,15 +50,17 @@ pwsh -NoProfile -File scripts/production.ps1 -Operation Rollback -ConfigPath .pr
 - `backup` 在服务器保存与事务绑定的加密前台备份，客户端只保存并核对备份回执；服务器继续验证备份文件哈希和上一版本身份。日常发布不强制下载、解密或隔离恢复，异地备份与恢复演练单独安排；
 - `stage` 在非活动槽构建、健康检查并持久化 `INTERNAL_VERIFIED`；
 - `activate` 通过登记 upstream 切换前台，不修改 WordPress、MariaDB、seed、Nginx 公共配置、TLS 或 sudo；
-- 第一次 `verify` 只核对活动 commit、Build、镜像/容器、代理、CMS 未变化以及固定健康路由等技术身份，进入 `PUBLIC_VERIFIED`。58 个登记对象和 174 个浏览器案例属于随后独立运行的业务验收，并由第二次 `verify` 消费，不得从第一次公开技术检查推断。
+- 第一次 `verify` 只核对活动 commit、Build、镜像/容器、代理、CMS 未变化以及固定健康路由等技术身份，进入 `PUBLIC_VERIFIED`。登记对象的浏览器业务验收随后独立运行，并由第二次 `verify` 消费，不得从第一次公开技术检查推断。
 
 任何动作的主体、类型、候选、基线、备份、CMS 或 RunRoot 不一致都停止。`PUBLIC_VERIFIED` 只说明服务器公开验证完成，不代替业务 E2E 和收件。
 
 ### 生产验收门
 
-在已有明确授权下，对 58 个对象、3 个视口、174 个浏览器案例运行公网 E2E，且非授权写请求为 0。RFQ、Sample、Documents 每个流程按批准次数真实提交；服务商接受、Thank You 和实际收件分别记录，失败不自动重发。
+在已有明确授权下，按候选清单的准确哈希运行公网 E2E，且非授权写请求为 0。当前清单（SHA-256 `6655c74b695b0f0f4d0f9ac94607ba138bf1d42b063e2d5daa101d2953c19cad`）为 59 个对象、3 个视口、177 个案例；旧清单（`42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152`）仍为 58 个对象、174 个案例。计数不能跨清单借用；未知清单拒绝。当前代码新增的 v3 合同须经管理员工具升级才在服务器生效，不表示已经安装。RFQ、Sample、Documents 每个流程按批准次数真实提交；服务商接受、Thank You 和实际收件分别记录，失败不自动重发。
 
-业务 E2E 运行器输出一个独立、只读的 `d16-production-business-e2e-evidence-v1` JSON：它绑定同一 `siteId`、commit、release ID、候选 manifest、CMS 身份和第一次 `verify` 的完整活动前台身份，并记录 `58 × 3 = 174`、174 通过、0 失败、0 外部 POST 以及实际 run ID。`production-live-forms.json` 必须记录三类流程各一次、互不重复的 request token、HTTP 200、`accepted` 和对应 Thank You 状态。
+业务 E2E 运行器输出一个独立、只读的 `d16-production-business-e2e-evidence-v1` JSON：它绑定同一 `siteId`、commit、release ID、候选 manifest、CMS 身份和第一次 `verify` 的完整活动前台身份，并记录对应清单的全部案例通过、0 失败、0 外部 POST 以及实际 run ID。`production-live-forms.json` 必须记录三类流程各一次、互不重复的 request token、HTTP 200、`accepted` 和对应 Thank You 状态。
+
+最终证据生成器对旧兼容事务读取 RunRoot 根目录的 manifest；对新候选读取 `candidate-manifest.json` 和 `payload/frontend/`，重新验证完整包、预发布 proof 和活动 Build。新候选的服务器逻辑 RunRoot 为 `frontend/<releaseId>`，不将其误认为客户端磁盘目录。
 
 收件确认输入和原始邮件保存在忽略的本地证据目录。确认 JSON 使用 `d16-production-inbox-confirmation-input-v1`，为 RFQ、Sample、Documents 分别记录对应 request token、`received=true`、明确 UTC 时间、实际 recipient 和预期 subject；只有操作者已查看真实收件后才能创建。固定脚本读取该确认输入及三份明确指定的真实 `.eml`，检查每封邮件恰有一个且互不重复的 `Message-ID`、至少一个 `Received`，并匹配 recipient 和 subject。脚本不会生成邮件，也不会替操作者确认收件；输出 JSON 不复制收件地址、subject 或正文。
 

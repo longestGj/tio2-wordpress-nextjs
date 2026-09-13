@@ -6,7 +6,7 @@ import tempfile
 from cms_evidence import canonical, valid_hash
 from candidate_contract import validate_payload
 from frontend_backup import require, read_record
-from release_contract import validate_manifest, inspect_archive, extract_release, sha256_file, _open_regular_read
+from release_contract import validate_manifest, inspect_archive, extract_release, sha256_file, _open_regular_read, coverage_counts
 from release_actions import _verify_candidate_tree
 
 FILES={'frontend/release.tar.gz','frontend/release-manifest.json','frontend/release-proof.json'}
@@ -26,7 +26,7 @@ def validate_source(subject,candidate,baseline,*,payload_root=None):
         'cmsContractSha256':candidate.cms_contract_sha256,'configurationSha256':candidate.configuration_sha256,
         'contentSha256':baseline['cmsRuntime']['contentSha256'],'previousProductionReceipt':candidate.previous_production_receipt,
         'state':'PASSED','source':{'branch':'main','clean':True},
-        'counts':{'businessPages':56,'registeredObjects':58,'widths':3,'browserCases':174},
+        'counts':coverage_counts(manifest['releaseSurfaceSha256']),
         'forms':{'rfq':'RECEIVED','sample':'RECEIVED','documents':'RECEIVED'},'evidenceSha256':proof.get('evidenceSha256')}
     require(proof==expected and proof['source']['clean'] is True and valid_hash(proof['evidenceSha256'])
         and manifest['commit']==candidate.source_commit

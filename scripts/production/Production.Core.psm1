@@ -1,11 +1,12 @@
 Set-StrictMode -Version Latest
+. (Join-Path $PSScriptRoot 'ReleaseCoverage.ps1')
 
 # This version names an immutable reviewed hash tuple, mirrored by the installed
 # Python policy. Contract edits require a new version and administrator upgrade.
-$script:FrozenContractVersion = 'tio2-production-contracts-v2'
+$script:FrozenContractVersion = 'tio2-production-contracts-v3'
 $script:FrozenContractSha256 = [ordered]@{
-    'ops/production/release-package.schema.json' = 'ad8dbea67cb5c7c4a8503e830b32a061ee46859c3992e0570cc42d4d38362346'
-    'ops/production/release-surface.json' = '42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152'
+    'ops/production/release-package.schema.json' = 'bf4d8667b2959a51ed671c703d082c5f5bda30909d52f5a34367457c66f1f219'
+    'ops/production/release-surface.json' = '6655c74b695b0f0f4d0f9ac94607ba138bf1d42b063e2d5daa101d2953c19cad'
     'ops/production/migration-manifest.json' = '8bc0db54ef1efe5ceff3474e0efc29d0696e6256ed1b9d59d141aed7ce3c1004'
 }
 
@@ -137,6 +138,7 @@ function Assert-ProductionCandidate {
     $receiptPath = Assert-ProductionReceiptPath -RepositoryRoot $RepositoryRoot -PrereleaseReceiptPath $PrereleaseReceiptPath
     $receiptBytes = [System.IO.File]::ReadAllBytes($receiptPath)
     $receipt = Read-ProductionJsonStrict -Path $receiptPath
+    $coverage = Get-ReleaseCoverageCounts $script:FrozenContractSha256['ops/production/release-surface.json']
     try {
         $expectedKeys = @('buildId','cmsIdentitySha256','commit','counts','evidenceSha256','forms','previousProductionReceipt','releaseSurfaceSha256','runId','schemaVersion','sealedAt','siteId','state') | Sort-Object
         $actualKeys = @($receipt.PSObject.Properties.Name | Sort-Object)
@@ -148,7 +150,7 @@ function Assert-ProductionCandidate {
             [string]::IsNullOrWhiteSpace([string] $receipt.runId) -or [string]::IsNullOrWhiteSpace([string] $receipt.buildId) -or [string]::IsNullOrWhiteSpace([string] $receipt.previousProductionReceipt) -or
             $receipt.cmsIdentitySha256 -notmatch '^[a-f0-9]{64}$' -or $receipt.releaseSurfaceSha256 -cne $script:FrozenContractSha256['ops/production/release-surface.json'] -or
             $sealedAtText -notmatch '(Z|[+-][0-9]{2}:[0-9]{2})$' -or -not [DateTimeOffset]::TryParse($sealedAtText, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind, [ref] $sealedAt) -or
-            $receipt.counts.businessPages -ne 56 -or $receipt.counts.registeredObjects -ne 58 -or $receipt.counts.widths -ne 3 -or $receipt.counts.browserCases -ne 174 -or
+            $receipt.counts.businessPages -ne $coverage.businessPages -or $receipt.counts.registeredObjects -ne $coverage.registeredObjects -or $receipt.counts.widths -ne $coverage.widths -or $receipt.counts.browserCases -ne $coverage.browserCases -or
             $receipt.forms.rfq -cne 'RECEIVED' -or $receipt.forms.sample -cne 'RECEIVED' -or $receipt.forms.documents -cne 'RECEIVED' -or
             $receipt.evidenceSha256.test -notmatch '^[a-f0-9]{64}$' -or $receipt.evidenceSha256.liveForms -notmatch '^[a-f0-9]{64}$' -or $receipt.evidenceSha256.inbox -notmatch '^[a-f0-9]{64}$') {
             throw 'invalid'

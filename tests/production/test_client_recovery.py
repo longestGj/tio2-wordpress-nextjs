@@ -88,7 +88,7 @@ Import-Module 'MODULE' -Force
    result=self.powershell(script,root)
    self.assertEqual(result.returncode,0,result.stderr);self.assertIn('passed',result.stdout)
 
- def _run_compatibility_client(self,before_stage='',before_evidence='',before_verify='',backup_flow=None):
+ def _run_compatibility_client(self,before_stage='',before_evidence='',before_verify='',backup_flow=None,current_surface=False):
   # Only external ssh/scp/docker processes are substitutes. All client binding,
   # server receipt binding, action ordering and final-evidence checks run.
   module=Path(__file__).resolve().parents[2]/'scripts/production/Production.Core.psm1'
@@ -104,6 +104,8 @@ Import-Module 'MODULE' -Force
  $global:fixtureRoot=$root;$global:fixtureEvents=[Collections.Generic.List[string]]::new()
  $global:fixtureLoseBackupResponse=$false;$global:fixtureRestoreChange=$null
  $artifacts=@{};foreach($name in @('release.tar.gz','release-manifest.json','release-proof.json','cms-identity.json')){[IO.File]::WriteAllText((Join-Path $root $name),'fixture-'+$name);$artifacts[$name]=Get-ProductionSha256 (Join-Path $root $name)}
+ Save-ProductionJson (Join-Path $root 'release-manifest.json') @{releaseSurfaceSha256='SURFACE_SHA'}
+ $artifacts['release-manifest.json']=Get-ProductionSha256 (Join-Path $root 'release-manifest.json')
  $candidate=@{commit='8bf2a3d437b0582ef0ce193b69478622e26419af';archiveSha256=$artifacts['release.tar.gz'];manifestSha256=$artifacts['release-manifest.json'];proofSha256=$artifacts['release-proof.json'];contractVersion='fixture'}
  $transaction=@{schemaVersion='d16-production-transaction-v1';subject='tio2-my';releaseType='frontend-only';releaseId=$runId;sourceCommit=$candidate.commit;runRoot=('.production/runs/'+$runId);candidate=$candidate;artifacts=$artifacts;proofObjectSha256=('f'*64)}
  $active=@{commit=('a'*40);sourceRoot='/fixture/source-A';imageId=('sha256:'+('a'*64));buildId='build-A';containerId=('a'*64)}
@@ -146,7 +148,7 @@ Import-Module 'MODULE' -Force
  if($result.state.state -cne 'PUBLIC_VERIFIED'){throw 'First Verify crossed the final acceptance boundary'}
   $binding=Read-ProductionJson (Join-Path $root 'frontend-binding.json')
   $active=$global:fixtureStatus.state.details.activeFrontend
-  $e2eInput=@{schemaVersion='d16-production-business-e2e-evidence-v1';siteId='tio2-my';commit=$binding.sourceCommit;releaseId=$binding.releaseId;candidateManifestSha256=$binding.candidateManifestSha256;cmsIdentitySha256=$binding.cmsEvidenceSha256;environment='production';suite='business-e2e';state='PASSED';runId='fixture-e2e';counts=@{registeredObjects=58;widths=3;browserCases=174;passed=174;failed=0;externalPostCount=0};active=$active}
+  $e2eInput=@{schemaVersion='d16-production-business-e2e-evidence-v1';siteId='tio2-my';commit=$binding.sourceCommit;releaseId=$binding.releaseId;candidateManifestSha256=$binding.candidateManifestSha256;cmsIdentitySha256=$binding.cmsEvidenceSha256;environment='production';suite='business-e2e';state='PASSED';runId='fixture-e2e';counts=@{registeredObjects=OBJECT_COUNT;widths=3;browserCases=CASE_COUNT;passed=CASE_COUNT;failed=0;externalPostCount=0};active=$active}
   $e2eInputPath=Join-Path $base 'actual-business-e2e.json';Save-ProductionJson $e2eInputPath $e2eInput
   $attempts=@();$confirmForms=@{};$mailPaths=@{}
   foreach($form in @('rfq','sample','documents')){
@@ -177,11 +179,15 @@ Import-Module 'MODULE' -Force
 } 'ROOT'
 'passed'
 """.replace('BACKUP_FLOW',backup_flow or "foreach($operation in @('Prepare','Backup','Backup')){$result=Invoke-D16ProductionOperation $operation $configPath $root}").replace('BEFORE_STAGE',before_stage).replace('BEFORE_EVIDENCE',before_evidence).replace('BEFORE_VERIFY',before_verify).replace('MODULE',str(module).replace("'","''")).replace('EVIDENCE_SCRIPT',str(evidence_script).replace("'","''")).replace('ROOT',root.as_posix())
+   script=script.replace('SURFACE_SHA','6655c74b695b0f0f4d0f9ac94607ba138bf1d42b063e2d5daa101d2953c19cad' if current_surface else '42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152').replace('OBJECT_COUNT','59' if current_surface else '58').replace('CASE_COUNT','177' if current_surface else '174')
    result=self.powershell(script,root)
    self.assertEqual(result.returncode,0,result.stderr);self.assertIn('passed',result.stdout)
 
  def test_compatibility_client_orchestrates_prepare_backup_and_both_verify_boundaries(self):
   self._run_compatibility_client()
+
+ def test_current_surface_completion_requires_177_cases(self):
+  self._run_compatibility_client(current_surface=True)
 
  def test_completion_generator_rejects_coverage_identity_and_real_mail_mismatch_without_outputs(self):
   self._run_compatibility_client(before_evidence="""

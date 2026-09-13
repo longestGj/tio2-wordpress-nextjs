@@ -192,10 +192,10 @@ def inside(root, run_id):
                   'migrationManifestSha256':digest(files['ops/production/migration-manifest.json']),'releaseSurfaceSha256':digest(files['ops/production/release-surface.json'])}
         atomic_write_json(incoming/'release-manifest.json',manifest)
         identity_bytes=canonical({'schemaVersion':1,'siteScope':'tio2-my','fixture':True});write(incoming/'cms-identity.json',identity_bytes)
-        proof={'schemaVersion':'tio2-production-proof-v1','contractVersion':'tio2-production-contracts-v2','siteId':'tio2-my','commit':B,
+        proof={'schemaVersion':'tio2-production-proof-v1','contractVersion':'tio2-production-contracts-v3','siteId':'tio2-my','commit':B,
                'archiveSha256':manifest['archiveSha256'],'manifestSha256':digest((incoming/'release-manifest.json').read_bytes()),'source':{'branch':'main','clean':True},
                'prerelease':{'state':'PASSED','siteId':'tio2-my','commit':B,'runId':'generated-fixture-only','sealedAt':now,'buildId':'build-B','cmsIdentitySha256':digest(identity_bytes),
-               'releaseSurfaceSha256':manifest['releaseSurfaceSha256'],'counts':{'businessPages':56,'registeredObjects':58,'widths':3,'browserCases':174},
+               'releaseSurfaceSha256':manifest['releaseSurfaceSha256'],'counts':{'businessPages':57,'registeredObjects':59,'widths':3,'browserCases':177},
                'forms':{'rfq':'RECEIVED','sample':'RECEIVED','documents':'RECEIVED'},'productionGateReceiptSha256':'1'*64}}
         atomic_write_json(incoming/'release-proof.json',proof)
         candidate={key:proof[key] for key in ('commit','archiveSha256','manifestSha256')};candidate.update(proofSha256=digest((incoming/'release-proof.json').read_bytes()),contractVersion=proof['contractVersion'])
