@@ -68,6 +68,13 @@ class SiteContentAdapterTests(unittest.TestCase):
         with self.assertRaises(ReleaseError): self.adapter().backup(self.context)
         self.assertEqual(self.runtime.backups, 0)
 
+    def test_passed_receipt_cannot_add_an_approval_selector_to_package(self):
+        value={**self.data,'approvalId':'forged-from-candidate'}
+        self.payload.write_bytes(canonical(value))
+        self.context.payload.files=(('content/package.json',hashlib.sha256(self.payload.read_bytes()).hexdigest()),)
+        with self.assertRaises(ReleaseError): self.adapter().prepare(self.context)
+        self.assertEqual(self.runtime.backups,0)
+
     def test_failed_public_check_restores_full_database(self):
         from site_content_adapter import SafeContentRollback
         adapter = self.adapter()

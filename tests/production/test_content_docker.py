@@ -8,6 +8,29 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'ops/production/ser
 
 
 class DockerConfigTests(unittest.TestCase):
+    def test_protected_approval_selector_is_bound_only_to_writes(self):
+        from content_docker import ContentDockerRuntime, validate_config
+        base=dict(schemaVersion='d16-content-runtime-v1',siteId='tio2-my',database='wordpress',
+                  dbContainer='local-db',wordpressContainer='local-wp',importerContainer='local-importer',
+                  dbDefaultsFile='/run/secrets/admin.cnf',
+                  hooks={key:['/usr/local/libexec/d16-window',key] for key in ('identity','enter','assert','leave','refresh','verify')})
+        for selected in (None,'synthetic-registered'):
+            config={**base,**({'approvalId':selected} if selected else {})}
+            runtime=ContentDockerRuntime(config,'.')
+            runtime.sql=lambda query:'enrolled-db'
+            calls=[]
+            def transport(*args,data=None):
+                calls.append((args,data)); return b'{"ok":true}'
+            runtime.docker=transport
+            for action in ('validate','import','export'):
+                runtime._php(action,{'approvalId':'package-cannot-select'})
+                args,_=calls[-1]
+                self.assertNotIn('D16_CONTENT_APPROVAL_ID=package-cannot-select',args)
+                # An explicit empty binding also overrides stale inherited container environment.
+                self.assertIn('D16_CONTENT_APPROVAL_ID='+(selected if selected and action!='export' else ''),args)
+        for value in ('../unsafe','',None,33,'a'*97):
+            with self.assertRaises(Exception): validate_config({**base,'approvalId':value})
+
     def test_reject_shell_hook_and_nonabsolute_credentials(self):
         from content_docker import validate_config
         base = dict(schemaVersion='d16-content-runtime-v1', siteId='tio2-my', database='wordpress',

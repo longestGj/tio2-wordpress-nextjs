@@ -66,6 +66,9 @@ class SiteContentAdapter:
         except (ValueError, UnicodeError) as error:
             raise ReleaseError('invalid content package JSON') from error
         package = validate_package(value, context.subject.subject_id)
+        # This receipt proves prerelease testing only. The installed runtime owns
+        # approvalId and freshly loads independent approval for validate/import.
+        # Never copy candidate/receipt fields into runtime execution configuration.
         with _open_regular_read(context.subject.incoming / 'content-prerelease.json') as source:
             proof_bytes = source.read(1024 * 1024 + 1)
         if (len(proof_bytes) > 1024 * 1024

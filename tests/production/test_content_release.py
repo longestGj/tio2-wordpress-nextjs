@@ -53,6 +53,15 @@ class MemoryRuntime:
 
 
 class ContentReleaseTests(unittest.TestCase):
+    def test_migrated_numeric_domain_does_not_change_legacy_package_format(self):
+        from content_release import canonical, validate_package
+        for page in ('HOME-001','APP-000','MARKET-000'):
+            value=package(); value['records']=[{'pageId':page,'content':{'number':1.5}}]
+            value['contentSha256']=hashlib.sha256(canonical(value['records'])).hexdigest()
+            if page=='MARKET-000': self.assertEqual(validate_package(value,'tio2-my'),value)
+            else:
+                with self.assertRaises(ReleaseError): validate_package(value,'tio2-my')
+
     def setUp(self):
         import content_release
         self.module = content_release

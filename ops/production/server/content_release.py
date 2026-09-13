@@ -19,6 +19,32 @@ def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False).encode('utf-8')
 
 
+def approval_digest(raw):
+    """Full protected JSON digest, not authority and not the legacy package format."""
+    def unique(pairs):
+        value={}
+        for key,item in pairs:
+            if key in value: raise ReleaseError('duplicate approval content key')
+            value[key]=item
+        return value
+    def domain(value):
+        if isinstance(value,dict):
+            for key,item in value.items():
+                key.encode('utf-8'); domain(item)
+        elif isinstance(value,list):
+            for item in value: domain(item)
+        elif isinstance(value,str): value.encode('utf-8')
+        elif value is None or isinstance(value,bool): pass
+        elif type(value) is not int or abs(value)>9007199254740991:
+            raise ReleaseError('unsupported approval content number')
+    try:
+        value=json.loads(raw,object_pairs_hook=unique)
+        domain(value)
+        return hashlib.sha256(canonical(value)).hexdigest()
+    except (ValueError,TypeError,UnicodeError,RecursionError) as error:
+        raise ReleaseError('invalid approval content JSON') from error
+
+
 def validate_package(value, site_id):
     if not isinstance(value, dict) or set(value) != {'schemaVersion','siteId','records','files','contentSha256'}:
         raise ReleaseError('content package schema mismatch')
@@ -34,6 +60,9 @@ def validate_package(value, site_id):
         if not isinstance(record, dict) or set(record) != {'pageId','content'} or not isinstance(record['pageId'], str) or not re.fullmatch(r'[A-Z][A-Z0-9-]{0,95}', record['pageId']) or not isinstance(record['content'], dict):
             raise ReleaseError('content record identity or data invalid')
         ids.append(record['pageId'])
+        if site_id == 'tio2-my' and record['pageId'] in {'HOME-001','APP-000'}:
+            # Full candidate domain check; never infer approval from a test receipt.
+            approval_digest(json.dumps(record['content'],ensure_ascii=False))
     if ids != sorted(set(ids)):
         raise ReleaseError('content records must be unique and ordered')
     try:
