@@ -1,0 +1,9 @@
+Branch: codex/tio2-my-full-public-seo-ga4
+Baseline commit: c5976a23ab1dc93618b0c79008c02fda69ed9f5a
+Implementation commit: 1bbcd0910c67d328e69afac5a78c034194ff764c
+Build ID: tio2-my-seo-ga4-1bbcd091
+Build directory: .next-gate8-full-public-seo-ga4
+Runtime: http://127.0.0.1:3123
+CMS runtime: http://127.0.0.1:8280
+Site scope: tio2-my
+Runtime hold: GATE9_PASS_OR_RETURN_NOTICE

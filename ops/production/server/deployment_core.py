@@ -181,7 +181,7 @@ class DockerWebAdapter:
         require(current['HostConfig']['PortBindings'].get('3000/tcp')==[{'HostIp':'127.0.0.1','HostPort':str(d['activePort'])}] and self.valid_web_mounts(current['Mounts']),'web port or mounts mismatch')
         require(set(n['NetworkID'] for n in current['NetworkSettings']['Networks'].values())=={d['networkId']},'web network mismatch')
         env=dict(line.split('=',1) for line in Path(record['configuration']['environment']['path']).read_text().splitlines() if line and not line.startswith('#'))
-        for name in ('WORDPRESS_EDITORIAL_API_TOKEN','NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY'):
+        for name in ('WORDPRESS_EDITORIAL_API_TOKEN','NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY','NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID','NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID'):
             require(bool(env.get(name)),'required build environment field absent: '+name)
         self.health(record,proxy=True)
 
@@ -225,7 +225,7 @@ class DockerWebAdapter:
         dockerfile=Path(__file__).resolve().parent/'web.Dockerfile'; protected_path(dockerfile)
         environment=dict(line.split('=',1) for line in Path(old['configuration']['environment']['path']).read_text().splitlines() if line and not line.startswith('#'))
         tag='tio2-web:'+details['commit']+'-'+details['archiveSha256'][:12]
-        argv=['build','--network','host','--file',str(dockerfile),'--tag',tag,'--label','tio2.release='+details['commit'],'--label','tio2.archive='+details['archiveSha256'],'--secret','id=wordpress_editorial_api_token,env=WORDPRESS_EDITORIAL_API_TOKEN','--build-arg','WORDPRESS_GRAPHQL_URL=http://127.0.0.1:'+str(d['cmsPort'])+'/graphql','--build-arg','WORDPRESS_PREVIEW_URL=http://127.0.0.1:'+str(d['cmsPort'])+'/wp-json/tio2/v1/preview','--build-arg','NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY='+environment['NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY'],str(source)]
+        argv=['build','--network','host','--file',str(dockerfile),'--tag',tag,'--label','tio2.release='+details['commit'],'--label','tio2.archive='+details['archiveSha256'],'--secret','id=wordpress_editorial_api_token,env=WORDPRESS_EDITORIAL_API_TOKEN','--build-arg','WORDPRESS_GRAPHQL_URL=http://127.0.0.1:'+str(d['cmsPort'])+'/graphql','--build-arg','WORDPRESS_PREVIEW_URL=http://127.0.0.1:'+str(d['cmsPort'])+'/wp-json/tio2/v1/preview','--build-arg','NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY='+environment['NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY'],'--build-arg','NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID='+environment['NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID'],'--build-arg','NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID='+environment['NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID'],str(source)]
         if details.get('buildId'):
             require(re.fullmatch(r'[A-Za-z0-9_-]{1,128}',details['buildId']) is not None,'invalid candidate Build ID')
             argv[-1:-1]=['--build-arg','TIO2_BUILD_ID='+details['buildId']]

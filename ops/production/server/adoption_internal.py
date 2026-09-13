@@ -39,7 +39,7 @@ def _read_env(path: Path) -> dict[str, str]:
         if not separator or name in values or not re.fullmatch(r"[A-Z0-9_]+", name):
             raise AdoptionError("production environment file is invalid")
         values[name] = value
-    required = {"SITE_ID", "NEXT_PUBLIC_SITE_URL", "WORDPRESS_EDITORIAL_API_TOKEN", "NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY", "NEXTJS_REVALIDATION_SECRET_TIO2_MY", "NEXTJS_PREVIEW_SECRET_TIO2_MY"}
+    required = {"SITE_ID", "NEXT_PUBLIC_SITE_URL", "WORDPRESS_EDITORIAL_API_TOKEN", "NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY", "NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID", "NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID", "NEXTJS_REVALIDATION_SECRET_TIO2_MY", "NEXTJS_PREVIEW_SECRET_TIO2_MY"}
     if not required <= set(values) or values["SITE_ID"] != "tio2-my" or values["NEXT_PUBLIC_SITE_URL"] != "https://tio2malaysia.com":
         raise AdoptionError("production environment file is incomplete")
     return values
@@ -75,7 +75,7 @@ class InternalAdoption:
     def _verify_surface(self, release_root: Path, commit: str) -> int:
         surface = json.loads((release_root / "ops/production/release-surface.json").read_text(encoding="utf-8"))
         objects = surface.get("objects")
-        if surface.get("siteId") != "tio2-my" or not isinstance(objects, list) or len(objects) != 58:
+        if surface.get("siteId") != "tio2-my" or not isinstance(objects, list) or len(objects) != 59:
             raise AdoptionError("production release surface is invalid")
         for item in objects:
             request = urllib.request.Request("http://127.0.0.1:8081" + item["path"], headers={"Host": "tio2malaysia.com"})
@@ -100,7 +100,7 @@ class InternalAdoption:
         commit = plan["candidate"]["commit"]
         tag = f"tio2-web:{commit}"
         dockerfile = self.paths.production / "program/web.Dockerfile"
-        build = ["/usr/bin/docker", "build", "--network", "host", "--file", str(dockerfile), "--tag", tag, "--label", f"tio2.release={commit}", "--label", f"tio2.archive={plan['candidate']['archiveSha256']}", "--secret", "id=wordpress_editorial_api_token,env=WORDPRESS_EDITORIAL_API_TOKEN", "--build-arg", "WORDPRESS_GRAPHQL_URL=http://127.0.0.1:8080/graphql", "--build-arg", "WORDPRESS_PREVIEW_URL=http://127.0.0.1:8080/wp-json/tio2/v1/preview", "--build-arg", f"NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY={environment['NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY']}", "--build-arg", "TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED=true", "--build-arg", f"TIO2_BUILD_ID={plan['candidate']['buildId']}", str(release_root)]
+        build = ["/usr/bin/docker", "build", "--network", "host", "--file", str(dockerfile), "--tag", tag, "--label", f"tio2.release={commit}", "--label", f"tio2.archive={plan['candidate']['archiveSha256']}", "--secret", "id=wordpress_editorial_api_token,env=WORDPRESS_EDITORIAL_API_TOKEN", "--build-arg", "WORDPRESS_GRAPHQL_URL=http://127.0.0.1:8080/graphql", "--build-arg", "WORDPRESS_PREVIEW_URL=http://127.0.0.1:8080/wp-json/tio2/v1/preview", "--build-arg", f"NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY={environment['NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY']}", "--build-arg", f"NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID={environment['NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID']}", "--build-arg", f"NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID={environment['NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID']}", "--build-arg", "TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED=true", "--build-arg", f"TIO2_BUILD_ID={plan['candidate']['buildId']}", str(release_root)]
         build_env = {**os.environ, "DOCKER_BUILDKIT": "1", "WORDPRESS_EDITORIAL_API_TOKEN": environment["WORDPRESS_EDITORIAL_API_TOKEN"]}
         _run(build, timeout=3600, environment=build_env)
         image = json.loads(_run(["/usr/bin/docker", "image", "inspect", tag]))[0]

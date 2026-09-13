@@ -32,16 +32,18 @@ describe('independent five-page common-core review',()=>{
     prior.bodyHtml=prior.bodyHtml.replace('https://www.gov.uk/guidance/trade-remedies','https://www.gov.uk/guidance/check-when-you-need-to-pay-anti-dumping-countervailing-and-safeguard-duties')
    }
    if(id==='APP-COAT') prior.identity.provisional=true
-   expect(page).toEqual(prior)
+   if(id.startsWith('RES-TRADE-')) {
+    expect({
+     ...page,
+     bodyHtml:prior.bodyHtml,
+     freshness:prior.freshness,
+     source:{...page.source,renderedBodySha256:prior.source.renderedBodySha256},
+    }).toEqual(prior)
+   } else expect(page).toEqual(prior)
    const schema=buildEditorialJsonLd(getSiteConfig('tio2-my'),page)
    const metadata=buildEditorialMetadata(getSiteConfig('tio2-my'),page)
-   if(page.identity.provisional){
-    expect(schema).toBeNull()
-    expect(metadata.alternates?.canonical).toBeUndefined()
-   }else{
     expect((schema!['@graph'] as Array<Record<string,unknown>>).map(node=>node['@type'])).toEqual(['WebPage','BreadcrumbList'])
-    expect(metadata.alternates?.canonical).toBe(prior.seo.canonical)
-   }
+    expect(metadata.alternates?.canonical).toBe(`https://tio2malaysia.com${page.identity.path}`)
   }
  })
  it('pins historical and current seed authorization to separate immutable page sets',()=>{

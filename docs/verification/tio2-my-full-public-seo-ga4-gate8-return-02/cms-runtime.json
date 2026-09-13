@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-13T01:36:15.691Z",
+  "siteScope": "tio2-my",
+  "runtime": "http://127.0.0.1:8280",
+  "tradeRecords": [
+    {
+      "pageId": "RES-TRADE-EU",
+      "status": "publish",
+      "reviewDate": "2026-09-13",
+      "renderedBodySha256": "b4d189990fa8614417185e812f4d5c4b0239e8a9edee8d099ed1536b715f4b63",
+      "oldCheckedDateAbsent": true
+    },
+    {
+      "pageId": "RES-TRADE-UK",
+      "status": "publish",
+      "reviewDate": "2026-09-13",
+      "renderedBodySha256": "579a3c32c82847b1c841510b7c4b440c7f1e08d4f2287690241d40d1b18388a1",
+      "oldCheckedDateAbsent": true
+    },
+    {
+      "pageId": "RES-TRADE-IN",
+      "status": "publish",
+      "reviewDate": "2026-09-13",
+      "renderedBodySha256": "91d1fce1fa986d1a960798167c2bc864cfbb2a2fdc7b6a9c020196cb862c7647",
+      "oldCheckedDateAbsent": true
+    },
+    {
+      "pageId": "RES-TRADE-BR",
+      "status": "publish",
+      "reviewDate": "2026-09-13",
+      "renderedBodySha256": "c5fbc50c37b0684a3f24e0c74a0c993f2a2cccf75f9f52abeeb712d7a3634986",
+      "oldCheckedDateAbsent": true
+    }
+  ],
+  "resourceHubValid": true,
+  "resourceHubOldCheckedDateAbsent": true
+}

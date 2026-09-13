@@ -1,225 +1,477 @@
 {
   "schemaVersion": "tio2-my-prerelease-public-path-eligibility-v1.0",
-  "candidateId": "TIO2-MY-PRERELEASE-PUBLIC-PATHS-2026-09-09-V1",
+  "candidateId": "TIO2-MY-FULL-PUBLIC-SEO-GA4-GATE6-2026-09-13",
   "siteScope": "tio2-my",
   "locale": "en",
-  "sourceSpec": "PRERELEASE_PUBLIC_PATHS_FORMS_AND_RESOURCE_ACTIVATION_DESIGN_V1.0",
+  "sourceSpec": "TIO2_MY_FULL_PUBLIC_SEO_GA4_GATE6_DELIVERY_V1.0",
   "routes": [
     {
       "pageId": "HOME-001",
       "path": "/",
       "canonical": "https://tio2malaysia.com/",
-      "roles": ["candidate-consumer"],
+      "roles": [
+        "candidate-consumer"
+      ],
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
     },
     {
-      "pageId": "PRODUCT-000",
-      "path": "/products/",
-      "canonical": "https://tio2malaysia.com/products/",
-      "roles": ["candidate-consumer", "application-support"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
-    },
-    {
-      "pageId": "APP-000",
-      "path": "/applications/",
-      "canonical": "https://tio2malaysia.com/applications/",
-      "roles": ["candidate-consumer", "product-support"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
-    },
-    {
-      "pageId": "DOC-000",
-      "path": "/documents/",
-      "canonical": "https://tio2malaysia.com/documents/",
-      "roles": ["candidate-consumer", "product-support", "application-support"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+      "pageId": "ABOUT-001",
+      "path": "/about/",
+      "canonical": "https://tio2malaysia.com/about/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
       "pageId": "MARKET-000",
       "path": "/markets/",
       "canonical": "https://tio2malaysia.com/markets/",
-      "roles": ["product-support", "application-support"],
+      "roles": [
+        "product-support",
+        "application-support"
+      ],
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
     },
     {
-      "pageId": "RES-000",
-      "path": "/resources/",
-      "canonical": "https://tio2malaysia.com/resources/",
-      "roles": ["candidate-consumer"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+      "pageId": "MARKET-EU-001",
+      "path": "/markets/european-union/",
+      "canonical": "https://tio2malaysia.com/markets/european-union/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
-      "pageId": "APP-COAT",
-      "path": "/applications/titanium-dioxide-for-coatings/",
-      "canonical": "https://tio2malaysia.com/applications/titanium-dioxide-for-coatings/",
-      "roles": ["home-action", "application-child"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+      "pageId": "MARKET-EU-DE",
+      "path": "/markets/germany/",
+      "canonical": "https://tio2malaysia.com/markets/germany/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
-      "pageId": "APP-PLAS",
-      "path": "/applications/titanium-dioxide-for-plastics/",
-      "canonical": "https://tio2malaysia.com/applications/titanium-dioxide-for-plastics/",
-      "roles": ["home-action", "application-child"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+      "pageId": "MARKET-EU-IT",
+      "path": "/markets/italy/",
+      "canonical": "https://tio2malaysia.com/markets/italy/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
-      "pageId": "APP-MB",
-      "path": "/applications/titanium-dioxide-for-masterbatch/",
-      "canonical": "https://tio2malaysia.com/applications/titanium-dioxide-for-masterbatch/",
-      "roles": ["home-action", "application-child"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+      "pageId": "MARKET-EU-ES",
+      "path": "/markets/spain/",
+      "canonical": "https://tio2malaysia.com/markets/spain/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
-      "pageId": "APP-INK",
-      "path": "/applications/titanium-dioxide-for-printing-inks/",
-      "canonical": "https://tio2malaysia.com/applications/titanium-dioxide-for-printing-inks/",
-      "roles": ["home-action", "application-child"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+      "pageId": "MARKET-EU-PL",
+      "path": "/markets/poland/",
+      "canonical": "https://tio2malaysia.com/markets/poland/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
-      "pageId": "APP-PAPER",
-      "path": "/applications/titanium-dioxide-for-paper/",
-      "canonical": "https://tio2malaysia.com/applications/titanium-dioxide-for-paper/",
-      "roles": ["home-action", "application-child"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+      "pageId": "MARKET-EU-NL",
+      "path": "/markets/netherlands/",
+      "canonical": "https://tio2malaysia.com/markets/netherlands/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
-      "pageId": "GRADE-M350",
-      "path": "/products/m-350/",
-      "canonical": "https://tio2malaysia.com/products/m-350/",
-      "roles": ["product-grade", "application-grade"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+      "pageId": "MARKET-EU-BE",
+      "path": "/markets/belgium/",
+      "canonical": "https://tio2malaysia.com/markets/belgium/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
-      "pageId": "GRADE-M510",
-      "path": "/products/m-510/",
-      "canonical": "https://tio2malaysia.com/products/m-510/",
-      "roles": ["product-grade", "application-grade"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+      "pageId": "MARKET-UK-001",
+      "path": "/markets/united-kingdom/",
+      "canonical": "https://tio2malaysia.com/markets/united-kingdom/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
-      "pageId": "GRADE-M896",
-      "path": "/products/m-896/",
-      "canonical": "https://tio2malaysia.com/products/m-896/",
-      "roles": ["product-grade", "application-grade"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+      "pageId": "MARKET-IN-001",
+      "path": "/markets/india/",
+      "canonical": "https://tio2malaysia.com/markets/india/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
-      "pageId": "GRADE-M996",
-      "path": "/products/m-996/",
-      "canonical": "https://tio2malaysia.com/products/m-996/",
-      "roles": ["product-grade", "application-grade"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+      "pageId": "MARKET-BR-EN",
+      "path": "/markets/brazil/",
+      "canonical": "https://tio2malaysia.com/markets/brazil/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
-      "pageId": "GRADE-M2196",
-      "path": "/products/m-2196/",
-      "canonical": "https://tio2malaysia.com/products/m-2196/",
-      "roles": ["product-grade", "application-grade"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+      "pageId": "MARKET-BR-PT",
+      "path": "/pt-br/markets/brazil/",
+      "canonical": "https://tio2malaysia.com/pt-br/markets/brazil/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
-      "pageId": "GRADE-M895",
-      "path": "/products/m-895/",
-      "canonical": "https://tio2malaysia.com/products/m-895/",
-      "roles": ["product-grade", "application-grade"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
-    },
-    {
-      "pageId": "GRADE-M200",
-      "path": "/products/m-200/",
-      "canonical": "https://tio2malaysia.com/products/m-200/",
-      "roles": ["product-grade", "application-grade"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
-    },
-    {
-      "pageId": "GRADE-M108",
-      "path": "/products/m-108/",
-      "canonical": "https://tio2malaysia.com/products/m-108/",
-      "roles": ["product-grade", "application-grade"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
-    },
-    {
-      "pageId": "GRADE-M210",
-      "path": "/products/m-210/",
-      "canonical": "https://tio2malaysia.com/products/m-210/",
-      "roles": ["product-grade", "application-grade"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
-    },
-    {
-      "pageId": "GRADE-M340",
-      "path": "/products/m-340/",
-      "canonical": "https://tio2malaysia.com/products/m-340/",
-      "roles": ["product-grade", "application-grade"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
-    },
-    {
-      "pageId": "GRADE-M886",
-      "path": "/products/m-886/",
-      "canonical": "https://tio2malaysia.com/products/m-886/",
-      "roles": ["product-grade", "application-grade"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
-    },
-    {
-      "pageId": "GRADE-M52",
-      "path": "/products/m-52/",
-      "canonical": "https://tio2malaysia.com/products/m-52/",
-      "roles": ["product-grade", "application-grade"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
-    },
-    {
-      "pageId": "GRADE-M2377",
-      "path": "/products/m-2377/",
-      "canonical": "https://tio2malaysia.com/products/m-2377/",
-      "roles": ["product-grade", "application-grade"],
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
-    },
-    {
-      "pageId": "GRADE-CR901",
-      "path": "/products/cr-901/",
-      "canonical": "https://tio2malaysia.com/products/cr-901/",
-      "roles": ["product-grade", "application-grade"],
+      "pageId": "PRODUCT-000",
+      "path": "/products/",
+      "canonical": "https://tio2malaysia.com/products/",
+      "roles": [
+        "candidate-consumer",
+        "application-support"
+      ],
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
     },
     {
       "pageId": "PRODUCT-PROC-CL",
       "path": "/products/chloride-process-titanium-dioxide/",
       "canonical": "https://tio2malaysia.com/products/chloride-process-titanium-dioxide/",
-      "roles": ["product-process"],
+      "roles": [
+        "product-process"
+      ],
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
     },
     {
       "pageId": "PRODUCT-PROC-SU",
       "path": "/products/sulfate-process-titanium-dioxide/",
       "canonical": "https://tio2malaysia.com/products/sulfate-process-titanium-dioxide/",
-      "roles": ["product-process"],
+      "roles": [
+        "product-process"
+      ],
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
     },
     {
-      "pageId": "DOC-TDS",
-      "path": "/documents/tds-sds-coa/",
-      "canonical": "https://tio2malaysia.com/documents/tds-sds-coa/",
-      "roles": ["document-guide"],
+      "pageId": "GRADE-M350",
+      "path": "/products/m-350/",
+      "canonical": "https://tio2malaysia.com/products/m-350/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "GRADE-M510",
+      "path": "/products/m-510/",
+      "canonical": "https://tio2malaysia.com/products/m-510/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "GRADE-M896",
+      "path": "/products/m-896/",
+      "canonical": "https://tio2malaysia.com/products/m-896/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "GRADE-M996",
+      "path": "/products/m-996/",
+      "canonical": "https://tio2malaysia.com/products/m-996/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "GRADE-M2196",
+      "path": "/products/m-2196/",
+      "canonical": "https://tio2malaysia.com/products/m-2196/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "GRADE-M895",
+      "path": "/products/m-895/",
+      "canonical": "https://tio2malaysia.com/products/m-895/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "GRADE-M200",
+      "path": "/products/m-200/",
+      "canonical": "https://tio2malaysia.com/products/m-200/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "GRADE-M108",
+      "path": "/products/m-108/",
+      "canonical": "https://tio2malaysia.com/products/m-108/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "GRADE-M210",
+      "path": "/products/m-210/",
+      "canonical": "https://tio2malaysia.com/products/m-210/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "GRADE-M340",
+      "path": "/products/m-340/",
+      "canonical": "https://tio2malaysia.com/products/m-340/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "GRADE-M886",
+      "path": "/products/m-886/",
+      "canonical": "https://tio2malaysia.com/products/m-886/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "GRADE-M52",
+      "path": "/products/m-52/",
+      "canonical": "https://tio2malaysia.com/products/m-52/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "GRADE-M2377",
+      "path": "/products/m-2377/",
+      "canonical": "https://tio2malaysia.com/products/m-2377/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "GRADE-CR901",
+      "path": "/products/cr-901/",
+      "canonical": "https://tio2malaysia.com/products/cr-901/",
+      "roles": [
+        "product-grade",
+        "application-grade"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "APP-000",
+      "path": "/applications/",
+      "canonical": "https://tio2malaysia.com/applications/",
+      "roles": [
+        "candidate-consumer",
+        "product-support"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "APP-COAT",
+      "path": "/applications/titanium-dioxide-for-coatings/",
+      "canonical": "https://tio2malaysia.com/applications/titanium-dioxide-for-coatings/",
+      "roles": [
+        "home-action",
+        "application-child"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "APP-PLAS",
+      "path": "/applications/titanium-dioxide-for-plastics/",
+      "canonical": "https://tio2malaysia.com/applications/titanium-dioxide-for-plastics/",
+      "roles": [
+        "home-action",
+        "application-child"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "APP-MB",
+      "path": "/applications/titanium-dioxide-for-masterbatch/",
+      "canonical": "https://tio2malaysia.com/applications/titanium-dioxide-for-masterbatch/",
+      "roles": [
+        "home-action",
+        "application-child"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "APP-INK",
+      "path": "/applications/titanium-dioxide-for-printing-inks/",
+      "canonical": "https://tio2malaysia.com/applications/titanium-dioxide-for-printing-inks/",
+      "roles": [
+        "home-action",
+        "application-child"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "APP-PAPER",
+      "path": "/applications/titanium-dioxide-for-paper/",
+      "canonical": "https://tio2malaysia.com/applications/titanium-dioxide-for-paper/",
+      "roles": [
+        "home-action",
+        "application-child"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "DOC-000",
+      "path": "/documents/",
+      "canonical": "https://tio2malaysia.com/documents/",
+      "roles": [
+        "candidate-consumer",
+        "product-support",
+        "application-support"
+      ],
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
     },
     {
       "pageId": "DOC-REACH",
       "path": "/documents/reach/",
       "canonical": "https://tio2malaysia.com/documents/reach/",
-      "roles": ["document-guide"],
+      "roles": [
+        "document-guide"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "DOC-TDS",
+      "path": "/documents/tds-sds-coa/",
+      "canonical": "https://tio2malaysia.com/documents/tds-sds-coa/",
+      "roles": [
+        "document-guide"
+      ],
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
     },
     {
       "pageId": "DOC-COO",
       "path": "/documents/certificate-of-origin/",
       "canonical": "https://tio2malaysia.com/documents/certificate-of-origin/",
-      "roles": ["document-guide"],
+      "roles": [
+        "document-guide"
+      ],
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "CONV-DOC",
+      "path": "/request-documents/",
+      "canonical": "https://tio2malaysia.com/request-documents/",
+      "roles": [
+        "form-workflow"
+      ],
+      "workflow": "documents",
+      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+    },
+    {
+      "pageId": "RES-000",
+      "path": "/resources/",
+      "canonical": "https://tio2malaysia.com/resources/",
+      "roles": [
+        "candidate-consumer"
+      ],
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
     },
     {
       "pageId": "RES-ORIGIN",
       "path": "/resources/non-china-titanium-dioxide/",
       "canonical": "https://tio2malaysia.com/resources/non-china-titanium-dioxide/",
-      "roles": ["resource-item"],
+      "roles": [
+        "resource-item"
+      ],
       "resourceGroup": "sourcing",
       "displayOrder": 1,
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
@@ -228,7 +480,10 @@
       "pageId": "RES-PROC",
       "path": "/resources/chloride-vs-sulfate-titanium-dioxide/",
       "canonical": "https://tio2malaysia.com/resources/chloride-vs-sulfate-titanium-dioxide/",
-      "roles": ["home-action", "resource-item"],
+      "roles": [
+        "home-action",
+        "resource-item"
+      ],
       "resourceGroup": "technical-evaluation",
       "displayOrder": 1,
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
@@ -237,27 +492,39 @@
       "pageId": "RES-CHEMOURS",
       "path": "/resources/chemours-titanium-dioxide-alternatives/",
       "canonical": "https://tio2malaysia.com/resources/chemours-titanium-dioxide-alternatives/",
-      "roles": ["resource-item"],
+      "roles": [
+        "resource-item"
+      ],
       "resourceGroup": "technical-evaluation",
       "displayOrder": 2,
       "schemaPolicy": "EXACT_VISIBLE_PARITY",
-      "schemaTypes": ["TechArticle", "BreadcrumbList"]
+      "schemaTypes": [
+        "TechArticle",
+        "BreadcrumbList"
+      ]
     },
     {
       "pageId": "RES-R706",
       "path": "/resources/ti-pure-r-706-alternative/",
       "canonical": "https://tio2malaysia.com/resources/ti-pure-r-706-alternative/",
-      "roles": ["resource-item"],
+      "roles": [
+        "resource-item"
+      ],
       "resourceGroup": "technical-evaluation",
       "displayOrder": 3,
       "schemaPolicy": "EXACT_VISIBLE_PARITY",
-      "schemaTypes": ["WebPage", "BreadcrumbList"]
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
       "pageId": "RES-TRADE-EU",
       "path": "/resources/eu-titanium-dioxide-anti-dumping-duty/",
       "canonical": "https://tio2malaysia.com/resources/eu-titanium-dioxide-anti-dumping-duty/",
-      "roles": ["resource-item"],
+      "roles": [
+        "resource-item"
+      ],
       "resourceGroup": "trade-market",
       "displayOrder": 1,
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
@@ -266,7 +533,9 @@
       "pageId": "RES-TRADE-UK",
       "path": "/resources/uk-titanium-dioxide-anti-dumping-investigation/",
       "canonical": "https://tio2malaysia.com/resources/uk-titanium-dioxide-anti-dumping-investigation/",
-      "roles": ["resource-item"],
+      "roles": [
+        "resource-item"
+      ],
       "resourceGroup": "trade-market",
       "displayOrder": 2,
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
@@ -275,7 +544,9 @@
       "pageId": "RES-TRADE-IN",
       "path": "/resources/india-titanium-dioxide-anti-dumping-duty/",
       "canonical": "https://tio2malaysia.com/resources/india-titanium-dioxide-anti-dumping-duty/",
-      "roles": ["resource-item"],
+      "roles": [
+        "resource-item"
+      ],
       "resourceGroup": "trade-market",
       "displayOrder": 3,
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
@@ -284,7 +555,9 @@
       "pageId": "RES-TRADE-BR",
       "path": "/resources/brazil-titanium-dioxide-anti-dumping-duty/",
       "canonical": "https://tio2malaysia.com/resources/brazil-titanium-dioxide-anti-dumping-duty/",
-      "roles": ["resource-item"],
+      "roles": [
+        "resource-item"
+      ],
       "resourceGroup": "trade-market",
       "displayOrder": 4,
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
@@ -293,7 +566,9 @@
       "pageId": "CONV-RFQ",
       "path": "/request-a-quote/",
       "canonical": "https://tio2malaysia.com/request-a-quote/",
-      "roles": ["form-workflow"],
+      "roles": [
+        "form-workflow"
+      ],
       "workflow": "rfq",
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
     },
@@ -301,23 +576,71 @@
       "pageId": "CONV-SAMPLE",
       "path": "/request-sample/",
       "canonical": "https://tio2malaysia.com/request-sample/",
-      "roles": ["form-workflow"],
+      "roles": [
+        "form-workflow"
+      ],
       "workflow": "sample",
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
     },
     {
-      "pageId": "CONV-DOC",
-      "path": "/request-documents/",
-      "canonical": "https://tio2malaysia.com/request-documents/",
-      "roles": ["form-workflow"],
-      "workflow": "documents",
-      "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
+      "pageId": "CONTACT-001",
+      "path": "/contact/",
+      "canonical": "https://tio2malaysia.com/contact/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "ContactPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "pageId": "LEGAL-PRIV-EN",
+      "path": "/privacy-policy/",
+      "canonical": "https://tio2malaysia.com/privacy-policy/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "pageId": "LEGAL-PRIV-MS",
+      "path": "/ms/privacy-policy/",
+      "canonical": "https://tio2malaysia.com/ms/privacy-policy/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "pageId": "LEGAL-COOKIE-EN",
+      "path": "/cookie-policy/",
+      "canonical": "https://tio2malaysia.com/cookie-policy/",
+      "roles": [
+        "candidate-consumer"
+      ],
+      "schemaPolicy": "EXACT_VISIBLE_PARITY",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
     },
     {
       "pageId": "CONV-THANK",
       "path": "/thank-you/",
       "canonical": "https://tio2malaysia.com/thank-you/",
-      "roles": ["form-success-state"],
+      "roles": [
+        "form-success-state"
+      ],
       "schemaPolicy": "INHERIT_CURRENT_APPROVED_VISIBLE_PARITY"
     }
   ],
@@ -332,7 +655,11 @@
     "resourceItems": 8,
     "documentGuides": 3
   },
-  "formWorkflows": ["rfq", "sample", "documents"],
+  "formWorkflows": [
+    "rfq",
+    "sample",
+    "documents"
+  ],
   "removedChecks": [
     "native_browser_200_percent",
     "physical_or_touch_device",

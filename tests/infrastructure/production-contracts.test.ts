@@ -73,17 +73,17 @@ describe('tio2-my production release contracts', () => {
     }
   })
 
-  it('freezes the Malaysia release surface, identity, ports, and ordered 58 objects', () => {
+  it('freezes the Malaysia release surface, identity, ports, and ordered 59 objects', () => {
     const surface = readJson<Surface>(productionPath('release-surface.json'))
-    const prereleaseScope = readJson<{pages: SurfaceObject[]}>('tests/fixtures/prerelease/scope-58.json')
+    const prereleaseScope = readJson<{pages: SurfaceObject[]}>('tests/fixtures/prerelease/scope-59.json')
 
     expect(surface).toMatchObject({
       schemaVersion: 'tio2-my-production-surface-v1',
       siteId: 'tio2-my',
       website: 'https://tio2malaysia.com',
     })
-    expect(surface.objects).toHaveLength(58)
-    expect(surface.objects.filter(item => item.expectedStatus === 200)).toHaveLength(57)
+    expect(surface.objects).toHaveLength(59)
+    expect(surface.objects.filter(item => item.expectedStatus === 200)).toHaveLength(58)
     expect(surface.objects.find(item => item.id === 'SYS-404')).toMatchObject({path: '/404/', expectedStatus: 404})
     expect(surface.cms).toBe('https://cms.tio2malaysia.com')
     expect(surface.ports).toEqual({
@@ -160,6 +160,8 @@ describe('tio2-my production release contracts', () => {
       'NEXTJS_PREVIEW_SECRET_TIO2_MY=REQUIRED_ROOT_ONLY_VALUE',
       'WORDPRESS_EDITORIAL_API_TOKEN=REQUIRED_ROOT_ONLY_VALUE',
       'NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY=REQUIRED_APPROVED_UUID',
+      'NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID=REQUIRED_APPROVED_GTM_ID',
+      'NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID=REQUIRED_APPROVED_GA4_ID',
       'TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED=false',
     ])
   })

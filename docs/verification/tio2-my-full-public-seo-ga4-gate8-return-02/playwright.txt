@@ -1,0 +1,11 @@
+
+Running 4 tests using 1 worker
+
+(node:28644) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\tio2-my-full-public-seo-ga4.spec.ts:31:1 › renders the exact 58 routable publication identities without activating blocked analytics (14.6s)
+  ok 2 [chromium] › tests\e2e\tio2-my-full-public-seo-ga4.spec.ts:97:1 › publishes 57 sitemap URLs and keeps the runtime fallback out of search (422ms)
+  ok 3 [chromium] › tests\e2e\tio2-my-full-public-seo-ga4.spec.ts:123:1 › renders the 13 September Trade fact closure on all four pages and the Resource Hub (1.7s)
+  ok 4 [chromium] › tests\e2e\tio2-my-full-public-seo-ga4.spec.ts:165:1 › serves the exact GSC HTML ownership token from the site root (17ms)
+
+  4 passed (17.8s)

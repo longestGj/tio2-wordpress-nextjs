@@ -14,7 +14,7 @@ function marketHub() {
 }
 
 describe('MARKET-000 metadata', () => {
-  it('uses the route-safe description, one self-canonical and noindex before release', () => {
+  it('uses the approved description, one self-canonical and production indexing', () => {
     const metadata = buildMalaysiaMarketHubMetadata(
       getSiteConfig('tio2-my'), marketHub(), {VERCEL_ENV: 'production'},
     )
@@ -22,7 +22,7 @@ describe('MARKET-000 metadata', () => {
       title: approvedContract.seo.title,
       description: approvedContract.seo.routeSafeDescription,
       alternates: {canonical: 'https://tio2malaysia.com/markets/'},
-      robots: {index: false, follow: false},
+      robots: {index: true, follow: true},
     })
     expect(metadata.alternates).not.toHaveProperty('languages')
     expect(metadata.openGraph).not.toHaveProperty('images.0')

@@ -104,7 +104,7 @@ $ordinaryChecks = @(
     'smoke.representative', 'smoke.local-forms', 'smoke.cookie-keyboard',
     'smoke.reflow.1440', 'smoke.reflow.768', 'smoke.reflow.390',
     'public-paths.width.1440', 'public-paths.width.768', 'public-paths.width.390',
-    'public-paths.internal-links.58'
+    'public-paths.internal-links.59'
 )
 Assert-ExactStrings @($test.requiredCheckIds) $ordinaryChecks 'Gate A ordinary check scope is incomplete.'
 Assert-ExactStrings @($test.completedCheckIds) $ordinaryChecks 'Gate A ordinary checks did not all pass.'

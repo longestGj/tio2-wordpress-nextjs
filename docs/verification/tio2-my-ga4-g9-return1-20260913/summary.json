@@ -1,0 +1,53 @@
+{
+  "handoff_id": "G8-G9-TIO2-MY-GA4-ACTIVE-20260913-01-RETURN-01",
+  "site_scope": "tio2-my",
+  "finding": "TIO2-MY-GA4-G9-F01",
+  "repair_status": "RETURN_01_REPAIR_VERIFIED",
+  "implementation_commit": "f61fb259faaa0d691602902336d81ae3e3b92c1f",
+  "build_id": "tio2-my-ga4-g9r1-f61fb259-20260913",
+  "runtime": "http://127.0.0.1:3124",
+  "contract_behavior": {
+    "first_open_actions": [
+      "Accept analytics",
+      "Necessary only",
+      "Cookie Policy"
+    ],
+    "reopen_actions": [
+      "Save preferences",
+      "Accept analytics",
+      "Necessary only",
+      "Close"
+    ],
+    "close_preserves_existing_choice": true,
+    "focus_returns_to_trigger": true
+  },
+  "verification": {
+    "targeted_vitest": "8 files, 104 tests passed",
+    "legal_cmp_playwright": "14/14 passed",
+    "ga4_cmp_playwright": "2/2 passed",
+    "typescript": "passed",
+    "targeted_eslint": "passed",
+    "runtime_routes": "7/7 HTTP 200 with expected GTM and GA4 identities",
+    "isolated_cms": "HTTP 200",
+    "visual_review": "first-open and saved-choice reopen captures inspected"
+  },
+  "preserved_behavior": [
+    "GTM-only loading",
+    "all-denied default consent",
+    "analytics-only grant",
+    "withdrawal removes Malaysia GA cookies",
+    "three approved provider-accepted events",
+    "four approved non-PII parameters",
+    "English and Bahasa Malaysia privacy pages",
+    "Cookie Policy"
+  ],
+  "boundaries": {
+    "real_form_submission": false,
+    "production_wordpress_write": false,
+    "gtm_publication": false,
+    "merge": false,
+    "push": false,
+    "deploy": false,
+    "gate10_authorized": false
+  }
+}

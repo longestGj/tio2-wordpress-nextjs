@@ -1,6 +1,6 @@
 {
-  "registry": "D:/23MySec/docs/architecture/PAGE_REGISTRY_V0.2.md",
-  "registrySha256": "3da1956fe15ad5e15e078bc43fe291804c151bb45528c778f7177c40825a9552",
+  "registry": "D:/23MySec/docs/architecture/TIO2_MY_FULL_PUBLIC_SEO_GA4_GATE6_DELIVERY_V1.0.json",
+  "registrySha256": "a1fa082618a4270b118328e204598fa484b936263c45dc91ba998e53b1f6ca28",
   "pages": [
     {
       "id": "HOME-001",
@@ -249,6 +249,12 @@
       "expectedStatus": 200
     },
     {
+      "id": "CONV-DOC",
+      "name": "Request Documents",
+      "path": "/request-documents/",
+      "expectedStatus": 200
+    },
+    {
       "id": "RES-000",
       "name": "Resources",
       "path": "/resources/",
@@ -303,12 +309,6 @@
       "expectedStatus": 200
     },
     {
-      "id": "CONV-DOC",
-      "name": "Request Documents",
-      "path": "/request-documents/",
-      "expectedStatus": 200
-    },
-    {
       "id": "CONV-RFQ",
       "name": "Request a Quote",
       "path": "/request-a-quote/",
@@ -321,9 +321,9 @@
       "expectedStatus": 200
     },
     {
-      "id": "CONV-THANK",
-      "name": "Thank You",
-      "path": "/thank-you/",
+      "id": "CONTACT-001",
+      "name": "Contact TiO2 Malaysia",
+      "path": "/contact/",
       "expectedStatus": 200
     },
     {
@@ -349,12 +349,12 @@
       "name": "Page Not Found",
       "path": "/404/",
       "expectedStatus": 404
+    },
+    {
+      "id": "CONV-THANK",
+      "name": "Thank You",
+      "path": "/thank-you/",
+      "expectedStatus": 200
     }
-  ],
-  "exception": {
-    "id": "CONTACT-LIVE-PRERELEASE-20260911-01",
-    "path": "/contact/",
-    "expectedStatus": 200,
-    "status": "APPROVED_LIVE_ROUTE"
-  }
+  ]
 }

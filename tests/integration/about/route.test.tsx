@@ -23,7 +23,7 @@ describe('ABOUT-001 route', () => {
     expect(routeMocks.getMalaysiaAboutPage).toHaveBeenCalledOnce()
     expect(markup).toContain('data-site-scope="tio2-my"')
     expect(markup.match(/<script type="application\/ld\+json">/gu)).toHaveLength(1)
-    expect(markup).toContain('"@type":"AboutPage"')
+    expect(markup).toContain('"@type":"WebPage"')
   })
 
   it('rejects foreign scopes before query and propagates missing-record errors', async () => {

@@ -1,0 +1,111 @@
+{
+  "checked_at": "2026-09-13T00:29:34.0213454Z",
+  "base_url": "http://127.0.0.1:3123",
+  "site_scope": "tio2-my",
+  "environment_type": "local-production",
+  "implementation_commit": "e0fa4fd1c3513bf90c7160a85b781f19650981ee",
+  "build_id": "tio2-my-seo-ga4-e0fa4fd1",
+  "checks": [
+    {
+      "path": "/",
+      "expected_status": 200,
+      "actual_status": 200,
+      "markers": [
+        {
+          "marker": "Malaysia Titanium Dioxide Supplier | TiO₂ Malaysia",
+          "present": true
+        },
+        {
+          "marker": "Malaysia Titanium Dioxide for Industrial Buyers",
+          "present": true
+        }
+      ]
+    },
+    {
+      "path": "/privacy-policy/",
+      "expected_status": 200,
+      "actual_status": 200,
+      "markers": [
+        {
+          "marker": "Privacy Policy | TiO2 Malaysia",
+          "present": true
+        },
+        {
+          "marker": "hrefLang=\"ms-MY\"",
+          "present": true
+        }
+      ]
+    },
+    {
+      "path": "/pt-br/markets/brazil/",
+      "expected_status": 200,
+      "actual_status": 200,
+      "markers": [
+        {
+          "marker": "para o Brasil | TiO2 Malaysia",
+          "present": true
+        },
+        {
+          "marker": "hrefLang=\"en\"",
+          "present": true
+        }
+      ]
+    },
+    {
+      "path": "/thank-you/",
+      "expected_status": 200,
+      "actual_status": 200,
+      "markers": [
+        {
+          "marker": "Thank You | TiO2 Malaysia",
+          "present": true
+        },
+        {
+          "marker": "noindex, nofollow",
+          "present": true
+        }
+      ]
+    },
+    {
+      "path": "/__gate8_unknown_public_object__/",
+      "expected_status": 404,
+      "actual_status": 404,
+      "markers": [
+        {
+          "marker": "Page Not Found | TiO2 Malaysia",
+          "present": true
+        },
+        {
+          "marker": "help you find what you need",
+          "present": true
+        },
+        {
+          "marker": "noindex, follow",
+          "present": true
+        }
+      ],
+      "canonical_count": 0
+    },
+    {
+      "path": "/sitemap.xml",
+      "expected_status": 200,
+      "actual_status": 200,
+      "markers": [
+        {
+          "marker": "<urlset",
+          "present": true
+        },
+        {
+          "marker": "https://tio2malaysia.com/markets/poland/",
+          "present": true
+        }
+      ],
+      "sitemap_loc_count": 57
+    }
+  ],
+  "all_statuses_match": true,
+  "all_markers_present": true,
+  "sitemap_exact_57": true,
+  "unknown_route_has_no_canonical": true,
+  "external_google_requests_observed": 0
+}

@@ -2,6 +2,7 @@ import type {Metadata} from 'next'
 import {notFound} from 'next/navigation'
 
 import {MalaysiaThankYouPage} from '@/components/sites/tio2-my/thank-you/malaysia-thank-you-page'
+import {buildMalaysiaThankYouJsonLd, serializeMalaysiaThankYouJsonLd} from '@/lib/seo/thank-you-jsonld'
 import {getCurrentSite} from '@/lib/sites/current-site'
 
 export const dynamic = 'force-dynamic'
@@ -24,6 +25,10 @@ export function generateMetadata(): Metadata {
 
 export default function ThankYouRoute() {
   requireMalaysiaSite()
-  return <MalaysiaThankYouPage />
+  const jsonLd = serializeMalaysiaThankYouJsonLd(buildMalaysiaThankYouJsonLd())
+  return <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{__html: jsonLd}} />
+    <MalaysiaThankYouPage />
+  </>
 }
 

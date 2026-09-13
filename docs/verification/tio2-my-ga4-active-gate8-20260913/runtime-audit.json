@@ -1,0 +1,27 @@
+{
+  "schema_version": "tio2-my-ga4-active-runtime-audit-v1.0",
+  "verified_at": "2026-09-13T12:14:45.0436089+08:00",
+  "site_scope": "tio2-my",
+  "implementation_commit": "30e026318006c141b725a1231f1942f555cd9a07",
+  "test_alignment_commit": "691ad3ed24384eea9f72a269da49035814c93bbd",
+  "build_id": "tio2-my-ga4-g8-30e02631-20260913",
+  "next_runtime": {
+    "url": "http://127.0.0.1:3123",
+    "bind_scope": "127.0.0.1",
+    "request_a_quote_status": 200
+  },
+  "cms_runtime": {
+    "url": "http://127.0.0.1:8280",
+    "bind_scope": "127.0.0.1",
+    "graphql_probe_status": 200,
+    "kind": "isolated-local"
+  },
+  "analytics": {
+    "container_id": "GTM-MWQVK7J4",
+    "measurement_id": "G-QDHLMRH2WB",
+    "container_version": "Preview",
+    "real_form_submission_performed": false,
+    "gtm_published": false
+  },
+  "runtime_hold_until": "GATE9_PASS_OR_RETURN_NOTICE"
+}

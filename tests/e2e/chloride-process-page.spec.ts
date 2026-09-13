@@ -36,7 +36,7 @@ test('Chloride Process SSR preserves exact identity, head, directory and machine
   expect(links).toContain('/applications/')
   expect(links.filter(href => /(?:grade_id|application_id|quantity|destination|document_type)=/u.test(href ?? ''))).toHaveLength(0)
   const graph = JSON.parse(doc.querySelector('script[type="application/ld+json"]')!.textContent!)['@graph']
-  expect(graph.map((node: {'@type': string}) => node['@type'])).toEqual(['WebPage','BreadcrumbList','ItemList'])
+  expect(graph.map((node: {'@type': string}) => node['@type'])).toEqual(['CollectionPage','BreadcrumbList','ItemList'])
   expect(graph[0]).toMatchObject({
     name: 'Chloride Process Titanium Dioxide',
     publisher: {'@id': 'https://tio2malaysia.com/#organization'},

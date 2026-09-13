@@ -2,10 +2,12 @@ import type {Metadata} from 'next'
 
 import type {MalaysiaChlorideProcessPageDto} from '@/lib/wordpress/product-process-chloride-v01-types'
 import type {SiteConfig} from '@/sites'
+import {buildTio2MyPublicationMetadata} from './tio2-my-publication-metadata'
 
 export function buildMalaysiaChlorideProcessMetadata(
   site: SiteConfig,
   page: MalaysiaChlorideProcessPageDto,
+  env: Readonly<Record<string, string | undefined>> = process.env,
 ): Metadata {
   if (
     site.id !== 'tio2-my' ||
@@ -14,14 +16,5 @@ export function buildMalaysiaChlorideProcessMetadata(
   ) {
     throw new Error('PRODUCT-PROC-CL metadata is available only for tio2-my')
   }
-  return {
-    title: page.seo.title,
-    description: page.seo.description,
-    alternates: {canonical: page.seo.canonical},
-    robots: {index: false, follow: false},
-    other: {
-      'twitter:title': page.seo.title,
-      'twitter:description': page.seo.description,
-    },
-  }
+  return buildTio2MyPublicationMetadata('PRODUCT-PROC-CL', env)
 }

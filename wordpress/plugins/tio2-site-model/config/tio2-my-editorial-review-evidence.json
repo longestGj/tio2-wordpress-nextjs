@@ -2,10 +2,10 @@
   "schemaVersion": "tio2-my-editorial-review-evidence-v0.1",
   "siteScope": "tio2-my",
   "evidenceArtifact": {
-    "path": "docs/verification/tio2-my/trade4-app5-20260908/trade-freshness.md",
-    "sha256": "A40568E5A4A9EFE636D7DAB86E488A918B44A1D4DFE92AEAC4837A49A786329E",
-    "evidenceDate": "2026-09-08",
-    "checkedAt": "2026-09-08T08:35:21+08:00",
+    "path": "docs/verification/tio2-my/launch-fact-closure-20260913/TIO2_MY_LAUNCH_FACT_CLOSURE_V1.0.md",
+    "sha256": "56974A5F9508A28512CB71D52F5E9BB7FC7210F7DD0A03D3544FAAD07721557C",
+    "evidenceDate": "2026-09-13",
+    "checkedAt": "2026-09-13T06:34:21+08:00",
     "timeZone": "Asia/Kuala_Lumpur",
     "outcome": "NO_MATERIAL_CHANGE_LOCATED_IN_BOUNDED_OFFICIAL_CHECK"
   },
@@ -16,26 +16,32 @@
       "packageSha256": "bb1b44d42fa32232965e62e3255cde05518f2570224b827a1cf68c7b4fd021ad",
       "policy": {
         "policyId": "RES-TRADE-EU-FRESHNESS-V0.1",
-        "baselineDate": "2026-09-07",
+        "baselineDate": "2026-09-13",
         "maximumIntervalDays": 30,
-        "approvedNextReviewDue": "2026-10-07",
+        "approvedNextReviewDue": "2026-10-13",
         "timeZone": "Asia/Kuala_Lumpur",
-        "eventTypes": ["official-notice", "regulation-or-amendment", "investigation-result", "court-judgment", "relevant-taric-change"]
+        "eventTypes": [
+          "official-notice",
+          "regulation-or-amendment",
+          "investigation-result",
+          "court-judgment",
+          "relevant-taric-change"
+        ]
       },
       "currentReview": {
         "schemaVersion": "editorial-review-v0.1",
         "pageId": "RES-TRADE-EU",
         "siteScope": "tio2-my",
         "packageSha256": "bb1b44d42fa32232965e62e3255cde05518f2570224b827a1cf68c7b4fd021ad",
-        "evidenceArtifactSha256": "A40568E5A4A9EFE636D7DAB86E488A918B44A1D4DFE92AEAC4837A49A786329E",
-        "evidenceDate": "2026-09-08",
-        "checkedAt": "2026-09-08T08:35:21+08:00",
+        "evidenceArtifactSha256": "56974A5F9508A28512CB71D52F5E9BB7FC7210F7DD0A03D3544FAAD07721557C",
+        "evidenceDate": "2026-09-13",
+        "checkedAt": "2026-09-13T06:34:21+08:00",
         "timeZone": "Asia/Kuala_Lumpur",
         "outcome": "NO_MATERIAL_CHANGE_LOCATED_IN_BOUNDED_OFFICIAL_CHECK",
         "policyId": "RES-TRADE-EU-FRESHNESS-V0.1",
         "status": "verified",
         "eventStatus": "no_open_trigger",
-        "nextReviewDue": "2026-10-07"
+        "nextReviewDue": "2026-10-13"
       }
     },
     {
@@ -44,26 +50,31 @@
       "packageSha256": "b20932999d838eebb3c42d3e07cf22af712776a5e6f36de43a1da378e3ff2c59",
       "policy": {
         "policyId": "RES-TRADE-UK-FRESHNESS-V0.1",
-        "baselineDate": "2026-09-07",
+        "baselineDate": "2026-09-13",
         "maximumIntervalDays": 30,
-        "approvedNextReviewDue": "2026-10-07",
+        "approvedNextReviewDue": "2026-10-13",
         "timeZone": "Asia/Kuala_Lumpur",
-        "eventTypes": ["ad0086-status-scope-code-or-timetable", "provisional-or-final-action", "registration-stop", "gb-ni-route-change"]
+        "eventTypes": [
+          "ad0086-status-scope-code-or-timetable",
+          "provisional-or-final-action",
+          "registration-stop",
+          "gb-ni-route-change"
+        ]
       },
       "currentReview": {
         "schemaVersion": "editorial-review-v0.1",
         "pageId": "RES-TRADE-UK",
         "siteScope": "tio2-my",
         "packageSha256": "b20932999d838eebb3c42d3e07cf22af712776a5e6f36de43a1da378e3ff2c59",
-        "evidenceArtifactSha256": "A40568E5A4A9EFE636D7DAB86E488A918B44A1D4DFE92AEAC4837A49A786329E",
-        "evidenceDate": "2026-09-08",
-        "checkedAt": "2026-09-08T08:35:21+08:00",
+        "evidenceArtifactSha256": "56974A5F9508A28512CB71D52F5E9BB7FC7210F7DD0A03D3544FAAD07721557C",
+        "evidenceDate": "2026-09-13",
+        "checkedAt": "2026-09-13T06:34:21+08:00",
         "timeZone": "Asia/Kuala_Lumpur",
         "outcome": "NO_MATERIAL_CHANGE_LOCATED_IN_BOUNDED_OFFICIAL_CHECK",
         "policyId": "RES-TRADE-UK-FRESHNESS-V0.1",
         "status": "verified",
         "eventStatus": "no_open_trigger",
-        "nextReviewDue": "2026-10-07"
+        "nextReviewDue": "2026-10-13"
       }
     },
     {
@@ -72,26 +83,31 @@
       "packageSha256": "5fa99b705b7e8a21ec2d68eb68e2f9235f295d1723bf31387a3f882b8186e0e9",
       "policy": {
         "policyId": "RES-TRADE-IN-FRESHNESS-V0.1",
-        "baselineDate": "2026-09-07",
+        "baselineDate": "2026-09-13",
         "maximumIntervalDays": 30,
-        "approvedNextReviewDue": "2026-10-07",
+        "approvedNextReviewDue": "2026-10-13",
         "timeZone": "Asia/Kuala_Lumpur",
-        "eventTypes": ["ministry-of-finance-or-cbic-add", "dgtr-corrigendum", "court-order", "icegate-or-cbic-tariff-change"]
+        "eventTypes": [
+          "ministry-of-finance-or-cbic-add",
+          "dgtr-corrigendum",
+          "court-order",
+          "icegate-or-cbic-tariff-change"
+        ]
       },
       "currentReview": {
         "schemaVersion": "editorial-review-v0.1",
         "pageId": "RES-TRADE-IN",
         "siteScope": "tio2-my",
         "packageSha256": "5fa99b705b7e8a21ec2d68eb68e2f9235f295d1723bf31387a3f882b8186e0e9",
-        "evidenceArtifactSha256": "A40568E5A4A9EFE636D7DAB86E488A918B44A1D4DFE92AEAC4837A49A786329E",
-        "evidenceDate": "2026-09-08",
-        "checkedAt": "2026-09-08T08:35:21+08:00",
+        "evidenceArtifactSha256": "56974A5F9508A28512CB71D52F5E9BB7FC7210F7DD0A03D3544FAAD07721557C",
+        "evidenceDate": "2026-09-13",
+        "checkedAt": "2026-09-13T06:34:21+08:00",
         "timeZone": "Asia/Kuala_Lumpur",
         "outcome": "NO_MATERIAL_CHANGE_LOCATED_IN_BOUNDED_OFFICIAL_CHECK",
         "policyId": "RES-TRADE-IN-FRESHNESS-V0.1",
         "status": "verified",
         "eventStatus": "no_open_trigger",
-        "nextReviewDue": "2026-10-07"
+        "nextReviewDue": "2026-10-13"
       }
     },
     {
@@ -100,26 +116,34 @@
       "packageSha256": "9d0b24b5f49a7f275f6385e2db34ade3f12ffab58aa52012b59ce284b1dac592",
       "policy": {
         "policyId": "RES-TRADE-BR-FRESHNESS-V0.1",
-        "baselineDate": "2026-09-07",
+        "baselineDate": "2026-09-13",
         "maximumIntervalDays": 30,
-        "approvedNextReviewDue": "2026-10-07",
+        "approvedNextReviewDue": "2026-10-13",
         "timeZone": "Asia/Kuala_Lumpur",
-        "eventTypes": ["gecex-resolution", "secex-circular", "final-public-interest-action", "suspension-or-revision", "court-order", "expiry", "tariff-or-classification-change"]
+        "eventTypes": [
+          "gecex-resolution",
+          "secex-circular",
+          "final-public-interest-action",
+          "suspension-or-revision",
+          "court-order",
+          "expiry",
+          "tariff-or-classification-change"
+        ]
       },
       "currentReview": {
         "schemaVersion": "editorial-review-v0.1",
         "pageId": "RES-TRADE-BR",
         "siteScope": "tio2-my",
         "packageSha256": "9d0b24b5f49a7f275f6385e2db34ade3f12ffab58aa52012b59ce284b1dac592",
-        "evidenceArtifactSha256": "A40568E5A4A9EFE636D7DAB86E488A918B44A1D4DFE92AEAC4837A49A786329E",
-        "evidenceDate": "2026-09-08",
-        "checkedAt": "2026-09-08T08:35:21+08:00",
+        "evidenceArtifactSha256": "56974A5F9508A28512CB71D52F5E9BB7FC7210F7DD0A03D3544FAAD07721557C",
+        "evidenceDate": "2026-09-13",
+        "checkedAt": "2026-09-13T06:34:21+08:00",
         "timeZone": "Asia/Kuala_Lumpur",
         "outcome": "NO_MATERIAL_CHANGE_LOCATED_IN_BOUNDED_OFFICIAL_CHECK",
         "policyId": "RES-TRADE-BR-FRESHNESS-V0.1",
         "status": "verified",
         "eventStatus": "no_open_trigger",
-        "nextReviewDue": "2026-10-07"
+        "nextReviewDue": "2026-10-13"
       }
     }
   ]

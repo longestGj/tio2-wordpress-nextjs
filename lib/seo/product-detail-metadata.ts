@@ -2,7 +2,7 @@ import type {Metadata} from 'next'
 
 import type {MalaysiaProductDetailDto} from '@/lib/wordpress/product-detail-v01-types'
 import type {SiteConfig} from '@/sites'
-import {isPublicIndexingEnabled} from './metadata'
+import {buildTio2MyPublicationMetadata} from './tio2-my-publication-metadata'
 
 export function buildMalaysiaProductDetailMetadata(
   site: SiteConfig,
@@ -16,19 +16,5 @@ export function buildMalaysiaProductDetailMetadata(
   if (canonical !== product.seo.canonical) {
     throw new Error('Malaysia Product Detail canonical does not match its scoped identity')
   }
-  const indexable = product.releaseControls.indexingAuthorized && isPublicIndexingEnabled(env)
-  return {
-    title: product.seo.title,
-    description: product.seo.description,
-    alternates: {canonical},
-    robots: {index: indexable, follow: indexable},
-    openGraph: {
-      type: 'website',
-      url: canonical,
-      siteName: site.name,
-      title: product.seo.title,
-      description: product.seo.description,
-      images: [],
-    },
-  }
+  return buildTio2MyPublicationMetadata(product.identity.pageId, env)
 }

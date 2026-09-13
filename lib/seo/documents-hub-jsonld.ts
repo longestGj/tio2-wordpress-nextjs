@@ -11,7 +11,7 @@ export function buildMalaysiaDocumentsHubJsonLd(site: SiteConfig, hub: MalaysiaD
     '@context': 'https://schema.org',
     '@graph': [
       {
-        '@type': 'WebPage', '@id': `${canonical}#webpage`, url: canonical,
+        '@type': 'CollectionPage', '@id': `${canonical}#webpage`, url: canonical,
         name: hub.seo.title, description: hub.seo.description,
         isPartOf: {'@id': new URL('/#website', site.url).href},
       },
@@ -22,10 +22,11 @@ export function buildMalaysiaDocumentsHubJsonLd(site: SiteConfig, hub: MalaysiaD
         })),
       },
       {
-        '@type': 'FAQPage', '@id': `${canonical}#faq`,
-        mainEntity: hub.buyerQuestions.items.map((item) => ({
-          '@type': 'Question', name: item.question,
-          acceptedAnswer: {'@type': 'Answer', text: item.answer},
+        '@type': 'ItemList', '@id': `${canonical}#document-guides`,
+        numberOfItems: hub.documentGuides.items.length,
+        itemListElement: hub.documentGuides.items.map((item, index) => ({
+          '@type': 'ListItem', position: index + 1, name: item.label,
+          url: new URL(item.href, site.url).href,
         })),
       },
     ],

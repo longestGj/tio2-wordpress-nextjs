@@ -83,7 +83,7 @@ putenv('D16_TIO2_MY_PRERELEASE_ROUTE_SEED');
 echo wp_json_encode([
     'status' => 'passed',
     'candidateId' => 'TIO2-MY-PRERELEASE-PUBLIC-PATHS-2026-09-09-V1',
-    'routeCount' => 42,
-    'cmsRouteCount' => 41,
+    'routeCount' => 58,
+    'cmsRouteCount' => 57,
     'nativeRouteCount' => 1,
 ], JSON_UNESCAPED_SLASHES) . PHP_EOL;

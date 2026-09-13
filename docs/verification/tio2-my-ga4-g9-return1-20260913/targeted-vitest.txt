@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 D:/16Wordpress_nextjs/.worktrees/tio2-my-full-public-seo-ga4
+
+
+ Test Files  8 passed (8)
+      Tests  104 passed (104)
+   Start at  12:38:44
+   Duration  1.98s (transform 337ms, setup 1.65s, import 724ms, tests 320ms, environment 1.63s)
+

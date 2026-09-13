@@ -25,23 +25,24 @@ type ApplicationHub = {
 }
 
 const d16Path = resolve('wordpress/plugins/tio2-site-model/config/tio2-my-prerelease-public-paths.json')
-const d23Path = 'D:/23MySec/docs/architecture/data/PRERELEASE_PUBLIC_PATH_ELIGIBILITY_V1.0.json'
+const gate6InventoryPath = resolve('lib/seo/tio2-my-publication-inventory.data.json')
 
 const readEligibility = (path: string): Eligibility => JSON.parse(readFileSync(path, 'utf8')) as Eligibility
 const tuples = (routes: EligibilityRoute[]) => routes.map(({pageId, path, canonical}) => ({pageId, path, canonical}))
 
 describe('TiO2 Malaysia prerelease public-path eligibility', () => {
-  it('copies the approved candidate identity and exact route tuples from D23', () => {
-    const approved = readEligibility(d23Path)
+  it('copies the closed Gate 6 publication identity and exact route tuples', () => {
+    const approved = JSON.parse(readFileSync(gate6InventoryPath, 'utf8')) as Array<{pageId: string; pathname: string | null; canonical: string | null}>
     const config = readEligibility(d16Path)
 
-    expect(config.candidateId).toBe('TIO2-MY-PRERELEASE-PUBLIC-PATHS-2026-09-09-V1')
-    expect(config.candidateId).toBe(approved.candidateId)
+    expect(config.candidateId).toBe('TIO2-MY-FULL-PUBLIC-SEO-GA4-GATE6-2026-09-13')
     expect(config.siteScope).toBe('tio2-my')
-    expect(config.siteScope).toBe(approved.siteScope)
     expect(config.locale).toBe('en')
-    expect(config.locale).toBe(approved.locale)
-    expect(tuples(config.routes)).toEqual(tuples(approved.routes))
+    expect(tuples(config.routes)).toEqual(approved.filter((page) => page.pathname !== null).map((page) => ({
+      pageId: page.pageId,
+      path: page.pathname,
+      canonical: page.canonical,
+    })))
     expect(new Set(config.routes.map((route) => route.pageId)).size).toBe(config.routes.length)
     expect(new Set(config.routes.map((route) => route.path)).size).toBe(config.routes.length)
   })
@@ -103,7 +104,7 @@ describe('TiO2 Malaysia prerelease public-path eligibility', () => {
       roles: ['form-success-state'],
       schemaPolicy: 'INHERIT_CURRENT_APPROVED_VISIBLE_PARITY',
     }])
-    expect(config.routes).toHaveLength(42)
+    expect(config.routes).toHaveLength(58)
   })
 
   it('ships a fail-closed local WP-CLI seed and an executable WordPress probe', () => {
@@ -119,8 +120,8 @@ describe('TiO2 Malaysia prerelease public-path eligibility', () => {
     expect(seed).toContain("tio2_find_homepage_ids('tio2-my', false)")
     expect(seed).toContain("tio2_homepage_internal_slug('tio2-my')")
     expect(seed).toContain('TIO2_MY_ROUTE_RELEASE_STATE_META')
-    expect(probe).toContain("'routeCount' => 42")
-    expect(probe).toContain("'cmsRouteCount' => 41")
+    expect(probe).toContain("'routeCount' => 58")
+    expect(probe).toContain("'cmsRouteCount' => 57")
     expect(probe).toContain("'nativeRouteCount' => 1")
   })
 })
