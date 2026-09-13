@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 import stat
 
-from cms_evidence import canonical
+from cms_evidence import canonical, valid_hash
 from content_install_backend import write_file
 from frontend_backup import require
 from release_baseline import protected_path
@@ -39,6 +39,7 @@ def assert_repair_closed(root):
     if not root.exists(): return
     path = root/'state.json'
     EnrollmentRepair._safe(root, directory=True)
+    if not any(root.iterdir()): return  # A read-only status call may create it.
     EnrollmentRepair._safe(path)
     state = json.loads(path.read_bytes())
     require(state.get('phase') in {'planned','completed','rolled-back'}, 'CMS registration recovery required')
@@ -102,8 +103,9 @@ class EnrollmentRepair:
     def plan(self):
         if (self.root/'plan.json').exists():
             plan = self._load()
-            require(self.status()['phase'] == 'planned', 'repair already started')
+            require(self.status()['phase'] in {'idle','planned'}, 'repair already started')
             require(self._snapshot() == plan['originals'] and self._observe(plan['originals']) == plan['observation'], 'saved repair plan drift')
+            self._save('planned', plan)
             return plan
         require(self.status()['phase'] == 'idle', 'repair recovery required')
         originals = self._snapshot(); observation = self._observe(originals)
@@ -128,6 +130,7 @@ class EnrollmentRepair:
             require(base64.b64decode(current[name]['data']) in choices and current[name]['mode'] == old['mode'], 'repair target changed externally')
 
     def apply(self, approved_hash):
+        require(valid_hash(approved_hash), 'explicit approved repair hash required')
         plan = self._load(approved_hash); state = self.status()
         if state['phase'] == 'completed':
             self._guard(plan, mixed=True)
@@ -148,6 +151,7 @@ class EnrollmentRepair:
             raise
 
     def rollback(self, approved_hash):
+        require(valid_hash(approved_hash), 'explicit approved repair hash required')
         plan = self._load(approved_hash)
         require(self.status()['phase'] in {'applying', 'completed', 'rolling-back', 'rolled-back'}, 'repair has no writes to restore')
         self._guard(plan, mixed=True)  # Check every target before restoring any.

@@ -55,17 +55,20 @@ class RepairTests(unittest.TestCase):
 
     def test_interruption_after_each_write_can_restore_exact_bytes(self):
         import cms_enrollment_repair as module
-        plan = self.engine.plan(); writer = module.write_file
-        calls = []
-        def interrupt(path, raw, mode):
-            writer(path, raw, mode); calls.append(path)
-            if len(calls) == 2: raise KeyboardInterrupt('power loss')
-        with patch.object(module, 'write_file', interrupt), self.assertRaises(KeyboardInterrupt):
-            self.engine.apply(plan['planSha256'])
-        self.assertEqual('applying', self.engine.status()['phase'])
-        with self.assertRaises(ReleaseError): self.engine.apply(plan['planSha256'])
-        self.assertEqual('rolled-back', self.engine.rollback(plan['planSha256'])['phase'])
-        for name in NAMES: self.assertEqual(self.before[name], (self.config/name).read_bytes())
+        writer = module.write_file
+        for cut in (1,2,3):
+            with self.subTest(cut=cut):
+                engine = module.EnrollmentRepair(self.config,self.engine.root.parent/('cut-'+str(cut)),self.engine.observe)
+                plan = engine.plan(); calls = []
+                def interrupt(path, raw, mode):
+                    writer(path, raw, mode); calls.append(path)
+                    if len(calls) == cut: raise KeyboardInterrupt('power loss')
+                with patch.object(module, 'write_file', interrupt), self.assertRaises(KeyboardInterrupt):
+                    engine.apply(plan['planSha256'])
+                self.assertEqual('applying', engine.status()['phase'])
+                with self.assertRaises(ReleaseError): engine.apply(plan['planSha256'])
+                self.assertEqual('rolled-back', engine.rollback(plan['planSha256'])['phase'])
+                for name in NAMES: self.assertEqual(self.before[name], (self.config/name).read_bytes())
 
     def test_rollback_cannot_overwrite_unrelated_changes(self):
         plan = self.engine.plan(); self.engine.apply(plan['planSha256'])
@@ -88,6 +91,28 @@ class RepairTests(unittest.TestCase):
         fn(self.engine.root)
         (self.engine.root/'state.json').write_text(json.dumps({'phase':'applying','planSha256':plan['planSha256']}))
         with self.assertRaises(ReleaseError): fn(self.engine.root)
+
+    def test_crash_between_plan_and_state_can_resume_without_registration_writes(self):
+        import cms_enrollment_repair as module
+        writer = module.atomic_write_json
+        def crash(path, value):
+            if path.name == 'state.json': raise KeyboardInterrupt('power loss')
+            writer(path, value)
+        with patch.object(module,'atomic_write_json',crash), self.assertRaises(KeyboardInterrupt):
+            self.engine.plan()
+        plan = self.engine.plan()
+        self.assertEqual('planned',self.engine.status()['phase'])
+        for name in NAMES: self.assertEqual(self.before[name],(self.config/name).read_bytes())
+        self.assertEqual('completed',self.engine.apply(plan['planSha256'])['phase'])
+
+    def test_apply_requires_an_explicit_plan_hash(self):
+        self.engine.plan()
+        with self.assertRaises(ReleaseError): self.engine.apply(None)
+
+    def test_status_on_empty_transaction_does_not_block_frontend(self):
+        from cms_enrollment_repair import assert_repair_closed
+        self.assertEqual({'phase':'idle'},self.engine.status())
+        assert_repair_closed(self.engine.root)
 
 
 class RepairAdmissionTests(unittest.TestCase):
