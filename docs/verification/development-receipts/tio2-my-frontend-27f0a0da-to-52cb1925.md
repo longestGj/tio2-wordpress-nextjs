@@ -34,4 +34,10 @@
 
 ## 补录验证
 
-待冻结补录提交后，使用现有 `package_frontend.development_evidence` 实际读取已提交 JSON，与生产基线到候选差异精确比对，并独立复审。补录本身只有文档/机器输入变化，不重复声称运行网站构建或完整发布验收。
+- 补录状态：`MERGED_TO_DEVELOP`；来源分支 `codex/fix-frontend-receipts-52cb1925`，独立复审及准确快进合并对象 `d1d0f16924105e388fc43570778eb4b4e7c7197f`；合并前 develop 为 52cb1925。
+- 在补录分支实际调用现有 `package_frontend.development_evidence` 读取已提交 JSON：精确覆盖校验通过；对同一真实差异传空回执时，稳定拒绝并返回 `development receipts do not cover production baseline..candidate`。
+- `python -B -m unittest tests.production.test_frontend_package_chain`：10 项通过、41.059s、0 跳过。91 条 provenance 与逐路径 Git 历史一致，四项交付集成祖先检查、文档本地链接检查及 `git diff --check` 通过。
+- 独立只读复审 `/root/review_frontend_receipt_completion`：准确 BASE 52cb1925 / HEAD d1d0f169，Ready to merge，无可执行问题；独立核对了全部路径、历史、原交付记录、状态快照哈希与选择字段、JSON 字节及范围限制。
+- 在 `D:/16Wordpress_nextjs/.worktrees/prerelease-public-paths-integration` 合并后，实际树等于复审 HEAD、工作树干净，再次运行现有真实覆盖校验，返回 `MERGED_DEVELOP_REAL_COVERAGE_OK receipts=1`。
+
+补录本身只有文档/机器输入变化，不重复声称运行网站构建或完整发布验收。机器回执缺失这一开发阻断已补齐；新的正式候选仍须独立冻结，取得实时管理员基线、同版本预发布和实际 CMS 等价证据后才能打包。main、生产与暂存的七个用户文件均保持不变。
