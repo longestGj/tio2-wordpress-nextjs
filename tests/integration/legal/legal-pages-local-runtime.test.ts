@@ -9,7 +9,7 @@ import {chromium, expect as playwrightExpect, type Browser, type Page} from '@pl
 import {describe, expect, it} from 'vitest'
 
 import {startIsolatedWordPress, type OwnedWordPressRuntime} from '../../helpers/wordpress-runtime'
-import {prepareLegalReadFixture, runLegalCleanupSteps, unexpectedLegalBrowserDiagnostics} from '../../helpers/legal-read-runtime-fixture'
+import {prepareLegalReadFixture, runLegalCleanupSteps, stopLegalWordPressAfterStartup, unexpectedLegalBrowserDiagnostics} from '../../helpers/legal-read-runtime-fixture'
 // @ts-expect-error -- Runtime leases are intentionally delivered as an MJS script.
 import {attachLease, releaseLease, reserveLease} from '../../../scripts/runtime-ports/lease-core.mjs'
 
@@ -99,6 +99,7 @@ describe.runIf(runLiveRuntime)('isolated WordPress to legal-only Next build acce
 
     const commit = (await execFileAsync('git', ['rev-parse', 'HEAD'], {cwd: repositoryRoot, encoding: 'utf8'})).stdout.trim()
     let wordpress: OwnedWordPressRuntime | undefined
+    let wordpressStartupAttempted = false
     let nextProcess: ChildProcess | undefined
     let browser: Browser | undefined
     let nextLease: {leaseId: string; ports: number[]; processIds: number[]} | undefined
@@ -113,6 +114,7 @@ describe.runIf(runLiveRuntime)('isolated WordPress to legal-only Next build acce
       writeFileSync(environmentPath, environmentContent)
       prepareLegalReadFixture(fixtureTemplateRoot, runDirectory, repositoryRoot)
 
+      wordpressStartupAttempted = true
       wordpress = await startIsolatedWordPress({
         ...WORDPRESS_RUNTIME_MODE, runId: runId, siteId: 'tio2-my', worktree: repositoryRoot, commit: commit,
         environment: {...process.env, TIO2_TEST_WORDPRESS_ENV: environmentPath},
@@ -265,7 +267,7 @@ describe.runIf(runLiveRuntime)('isolated WordPress to legal-only Next build acce
           nextLeaseReleased = true
         }},
         {name: 'WordPress stop', run: async () => {
-          await wordpress?.stop()
+          await stopLegalWordPressAfterStartup(wordpressStartupAttempted, wordpress)
           wordpressStopped = true
         }},
         {name: 'owned run directory', run: () => {
@@ -274,6 +276,16 @@ describe.runIf(runLiveRuntime)('isolated WordPress to legal-only Next build acce
         }},
         {name: 'cleanup evidence', run: () => writeFileSync(resolve(evidenceDirectory, 'cleanup-evidence.json'), JSON.stringify({
           runId, acceptancePassed, nextStopped, nextLeaseReleased, wordpressStopped,
+          wordpressStartupAttempted,
+          wordpressStartupUncertain: wordpressStartupAttempted && !wordpress,
+          retainedRunDirectory: wordpressStartupAttempted && !wordpress ? runDirectory : null,
+          retainedEnvironmentPath: wordpressStartupAttempted && !wordpress ? environmentPath : null,
+          startupFailure: wordpressStartupAttempted && !wordpress ? {
+            projectName: (acceptanceError as {projectName?: string})?.projectName ?? null,
+            composeArgs: (acceptanceError as {composeArgs?: string[]})?.composeArgs ?? null,
+            leaseId: (acceptanceError as {leaseId?: string | null})?.leaseId ?? null,
+          } : null,
+          runDirectoryRetained: existsSync(runDirectory),
           fixtureBuildRemoved: !existsSync(resolve(fixtureRoot, distDir)),
           fixturePublicJunctionRemoved: !existsSync(resolve(fixtureRoot, 'public')),
           syntheticEnvironmentRemoved: !existsSync(runDirectory),

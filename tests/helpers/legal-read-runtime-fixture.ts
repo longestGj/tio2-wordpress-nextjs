@@ -33,6 +33,11 @@ export async function runLegalCleanupSteps(steps: readonly {name: string; run: (
   return errors
 }
 
+export async function stopLegalWordPressAfterStartup(attempted: boolean, runtime?: {stop(): Promise<void>}): Promise<void> {
+  if (attempted && !runtime) throw new Error('WordPress startup returned no handle; owned resources may remain')
+  await runtime?.stop()
+}
+
 export function unexpectedLegalBrowserDiagnostics(diagnostics: readonly string[], baseUrl: string): string[] {
   const homePrefetch = diagnostics.some(value => value.startsWith(`response:404:${baseUrl}/?_rsc=`)
     && /^response:404:http:\/\/127\.0\.0\.1:\d+\/\?_rsc=[A-Za-z0-9_-]+$/u.test(value))

@@ -1,9 +1,13 @@
-import {mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
+import {existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join, resolve} from 'node:path'
 import {afterEach, describe, expect, it} from 'vitest'
 
-import {prepareLegalReadFixture, runLegalCleanupSteps, unexpectedLegalBrowserDiagnostics} from '../helpers/legal-read-runtime-fixture'
+import {prepareLegalReadFixture, runLegalCleanupSteps, stopLegalWordPressAfterStartup, unexpectedLegalBrowserDiagnostics} from '../helpers/legal-read-runtime-fixture'
+import {startIsolatedWordPress, type OwnedWordPressRuntime} from '../helpers/wordpress-runtime'
+import {createWordPressRuntimeSimulation} from '../helpers/wordpress-runtime-simulation'
+
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'isolated', hostHttp: true} as const
 
 const temporaryRoots: string[] = []
 afterEach(() => {
@@ -49,6 +53,49 @@ describe('legal-only local runtime fixture ownership', () => {
     ])
     expect(calls).toEqual(['browser', 'wordpress', 'logs'])
     expect(errors.map(error => error.message)).toEqual(['browser: close failed'])
+  })
+
+  it('retains the synthetic environment after owned WordPress partially starts without returning a handle', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'legal-read-partial-start-'))
+    temporaryRoots.push(root)
+    const runDirectory = resolve(root, 'one')
+    const environmentPath = resolve(runDirectory, 'wordpress.env')
+    mkdirSync(runDirectory)
+    writeFileSync(environmentPath, 'WORDPRESS_DB_NAME=synthetic-only')
+    const simulation = await createWordPressRuntimeSimulation()
+    const {setPort, dispose} = simulation
+    setPort('0.0.0.0:1234')
+    let attempted = false
+    let wordpress: OwnedWordPressRuntime | undefined
+    let startupError: unknown
+    try {
+      attempted = true
+      wordpress = await startIsolatedWordPress({...simulation.options, execute: simulation.execute})
+    } catch (error) { startupError = error }
+    try {
+      expect(startupError).toMatchObject({
+        projectName: expect.stringMatching(/^d16-test-/u),
+        composeArgs: expect.any(Array),
+      })
+      let wordpressStopped = false
+      const errors = await runLegalCleanupSteps([
+        {name: 'WordPress stop', run: async () => {
+          await stopLegalWordPressAfterStartup(attempted, wordpress)
+          wordpressStopped = true
+        }},
+        {name: 'owned run directory', run: () => {
+          if (!wordpressStopped) throw new Error('Startup state uncertain; environment retained')
+          rmSync(runDirectory, {recursive: true, force: false})
+        }},
+      ])
+      expect(errors.map(error => error.message)).toEqual([
+        'WordPress stop: WordPress startup returned no handle; owned resources may remain',
+        'owned run directory: Startup state uncertain; environment retained',
+      ])
+      expect(existsSync(environmentPath)).toBe(true)
+    } finally {
+      await dispose()
+    }
   })
 
   it('allows only the named legal-fixture home prefetch 404 and flags unrelated browser errors', () => {
