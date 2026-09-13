@@ -3,6 +3,8 @@ import base64
 from copy import deepcopy
 import hashlib
 import json
+import os
+import unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -176,3 +178,27 @@ class CmsFrontendTransitionTests(FrontendCandidateTests):
         (self.install_root/'state.json').unlink()
         result = self.prepare()
         self.assertNotIn('cmsInstallationTransition', result['preparedDetails'])
+
+    @unittest.skipUnless(os.name == 'posix' and hasattr(os, 'geteuid') and os.geteuid() == 0, 'POSIX root ownership test')
+    def test_real_protected_evidence_accepts_private_files_and_rejects_group_write(self):
+        from cms_frontend_transition import validate_transition
+        for path in self.subject.state_root.parent.rglob('*'):
+            os.chmod(path, 0o700 if path.is_dir() else 0o600)
+        with patch('subject_registry.load_registry', return_value=self.registry):
+            evidence = validate_transition(self.subject, self.state, self.previous, self.current)
+            self.assertEqual(evidence['currentBaselineSha256'], sha(raw(self.current)))
+            os.chmod(self.repair_root/'plan.json', 0o620)
+            with self.assertRaises(ReleaseError):
+                validate_transition(self.subject, self.state, self.previous, self.current)
+
+    @unittest.skipUnless(os.name == 'posix' and hasattr(os, 'geteuid') and os.geteuid() == 0, 'POSIX symlink test')
+    def test_transition_rejects_symlinked_installation_evidence(self):
+        from cms_frontend_transition import validate_transition
+        for path in self.subject.state_root.parent.rglob('*'):
+            os.chmod(path, 0o700 if path.is_dir() else 0o600)
+        source = self.install_root/'state.json'
+        saved = self.install_root/'state-saved.json'
+        source.rename(saved)
+        source.symlink_to(saved)
+        with patch('subject_registry.load_registry', return_value=self.registry), self.assertRaises(ReleaseError):
+            validate_transition(self.subject, self.state, self.previous, self.current)
