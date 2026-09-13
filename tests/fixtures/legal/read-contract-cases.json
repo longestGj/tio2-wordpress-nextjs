@@ -213,6 +213,81 @@
       "expected": "reject"
     },
     {
+      "name": "rejects update line that appears only after the first H2",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\nIntroduction.\n\n## Details\n\n**Last updated: 14 September 2026**\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "accepts a section update line in addition to the unique hero update",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\n## Details\n\n**Last updated: 15 September 2026**\n\nBody."}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Body."
+    },
+    {
+      "name": "rejects ECMAScript FEFF whitespace at a plain field boundary",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["badge", "label"], "value": "NOTICE\uFEFF"}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "accepts U0085 at a plain field boundary because ECMAScript trim does not remove it",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["seo", "title"], "value": "Policy\u0085"}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Policy"
+    },
+    {
+      "name": "rejects an H2 whose first content character is ECMAScript FEFF whitespace",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\n## \uFEFFHeading\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "accepts U0085 as a non-whitespace H2 content character",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\n## \u0085Heading\n\nBody."}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Body."
+    },
+    {
+      "name": "rejects an update line containing only ECMAScript FEFF whitespace after the colon",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated:\uFEFF**\n\nIntroduction.\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "accepts U0085 as visible update content under ECMAScript whitespace rules",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated:\u0085**\n\nIntroduction.\n\n## Details\n\nBody."}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Body."
+    },
+    {
+      "name": "accepts ECMAScript FEFF whitespace after an action prefix",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions:\uFEFF**CONTACT US ABOUT PRIVACY**\n\n## Details\n\nBody."}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Body."
+    },
+    {
+      "name": "rejects U0085 after an action prefix because it is visible label content",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions:\u0085**CONTACT US ABOUT PRIVACY**\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
       "name": "rejects multiple H1 headings",
       "mutations": [
         {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\n# Another policy\n\n## Details\n\nBody."}

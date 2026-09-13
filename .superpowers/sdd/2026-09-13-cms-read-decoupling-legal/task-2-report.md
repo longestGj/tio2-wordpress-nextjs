@@ -40,3 +40,19 @@ Runtime: `wordpress:cli-php8.3`, image ID `sha256:2b5e9d4d3e51909dca1aaa4732e9f5
 
 - No shared comparator behavior, approved contract, seed, release registry, CMS/DB data, remote service, deployment, `main` or `develop` was changed.
 - The PHP runtime must retain `intl` and `mbstring`; validation fails closed without `intl`, and the verified WordPress PHP 8.3 image supplies both.
+
+## Review fix round 1
+
+Review base: `317cd36b`.
+
+- Update-line parity: the PHP validator previously counted matching update lines across the whole document, while the TypeScript parser requires exactly one match in the hero before the first H2. Shared vectors now prove that a section-only update is rejected and that one hero update plus an additional section update is accepted. The PHP scan is now restricted to hero lines.
+- Whitespace parity: PHP PCRE `\s` / `\S` and `trim()` disagree with ECMAScript for U+FEFF and U+0085. The validator now declares the exact ECMAScript whitespace and line-terminator code points and uses that class for public-field boundaries, H1/H2 content boundaries, update matching, action-prefix removal and action-label trimming. Shared vectors cover both code points at field, heading, update and action positions without loosening the TypeScript contract.
+
+Fix-round TDD and verification:
+
+- RED: the existing TypeScript implementation passed 43/43 shared-vector unit tests after adding ten cases; the PHP harness then failed because it accepted `rejects update line that appears only after the first H2`.
+- GREEN: isolated PHP harness — `PASS 41 shared legal read vectors (8 accepted, 33 rejected); real resolver and write isolation`.
+- PHP syntax: the read validator passed `php -l` in the network-none PHP 8.3 container.
+- Legacy PHP comparator: `PASS 57 page policies, 1692 text paths; editorial and Sample actual validators`.
+- Combined Vitest: 4 files, 48 tests passed (`legal-pages-read-contract`, PHP/DTO integration, WordPress wiring, content-release regression).
+- `npm run typecheck`: Next route type generation and `tsc --noEmit` passed.

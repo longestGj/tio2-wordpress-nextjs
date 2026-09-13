@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 if (! defined('ABSPATH')) exit;
 
+// ECMAScript WhiteSpace + LineTerminator code points used by String.trim and regex \s.
+const TIO2_MY_LEGAL_ECMA_WHITESPACE = '\x{0009}-\x{000D}\x{0020}\x{00A0}\x{1680}\x{2000}-\x{200A}\x{2028}\x{2029}\x{202F}\x{205F}\x{3000}\x{FEFF}';
+
 function tio2_my_legal_read_contract_path(): string
 {
     return dirname(__DIR__) . '/config/tio2-my-legal-read-contract.json';
@@ -48,7 +51,7 @@ function tio2_my_legal_read_text($value, string $field, int $maximum, bool $mark
     $controls = $markdown ? '/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/u' : '/[\x00-\x1f\x7f]/u';
     if (! is_string($value)
         || '' === $value
-        || 1 === preg_match('/^(?:[\s\x{FEFF}])|(?:[\s\x{FEFF}])$/u', $value)
+        || 1 === preg_match('/^[' . TIO2_MY_LEGAL_ECMA_WHITESPACE . ']|[' . TIO2_MY_LEGAL_ECMA_WHITESPACE . ']$/u', $value)
         || ! mb_check_encoding($value, 'UTF-8')
         || mb_strlen($value, 'UTF-8') > $maximum
         || 1 === preg_match($controls, $value)
@@ -75,10 +78,10 @@ function tio2_my_legal_section_id(string $heading)
 /** @return list<string> */
 function tio2_my_legal_action_labels(string $line): array
 {
-    $labels = preg_split('/·/u', (string) preg_replace('/^(Actions|Tindakan):\s*/u', '', $line));
+    $labels = preg_split('/·/u', (string) preg_replace('/^(Actions|Tindakan):[' . TIO2_MY_LEGAL_ECMA_WHITESPACE . ']*/u', '', $line));
     if (! is_array($labels)) return [];
     return array_values(array_filter(array_map(static function (string $label): string {
-        return trim(str_replace('**', '', $label));
+        return (string) preg_replace('/^[' . TIO2_MY_LEGAL_ECMA_WHITESPACE . ']+|[' . TIO2_MY_LEGAL_ECMA_WHITESPACE . ']+$/u', '', str_replace('**', '', $label));
     }, $labels), static fn(string $label): bool => '' !== $label));
 }
 
@@ -90,7 +93,8 @@ function tio2_my_validate_legal_markdown(string $markdown, array $contract)
     $lines = explode("\n", $raw);
 
     $h1_lines = array_values(array_filter($lines, static fn(string $line): bool => 1 === preg_match('/^#(?!#)(?: |$)/u', $line)));
-    if (1 !== count($h1_lines) || $lines[0] !== $h1_lines[0] || 1 !== preg_match('/^# \S(?:.*\S)?$/u', $h1_lines[0])) {
+    $non_whitespace = '[^' . TIO2_MY_LEGAL_ECMA_WHITESPACE . ']';
+    if (1 !== count($h1_lines) || $lines[0] !== $h1_lines[0] || 1 !== preg_match('/^# ' . $non_whitespace . '(?:.*' . $non_whitespace . ')?$/u', $h1_lines[0])) {
         return new WP_Error('tio2_my_legal_read_h1', 'The Legal page Markdown must have exactly one nonempty H1.');
     }
 
@@ -98,7 +102,7 @@ function tio2_my_validate_legal_markdown(string $markdown, array $contract)
     if ([] === $h2_lines) return new WP_Error('tio2_my_legal_read_h2', 'The Legal page Markdown must have a nonempty H2.');
     $section_ids = [];
     foreach ($h2_lines as $line) {
-        if (1 !== preg_match('/^## \S(?:.*\S)?$/u', $line)) return new WP_Error('tio2_my_legal_read_h2', 'The Legal page Markdown must have a nonempty H2.');
+        if (1 !== preg_match('/^## ' . $non_whitespace . '(?:.*' . $non_whitespace . ')?$/u', $line)) return new WP_Error('tio2_my_legal_read_h2', 'The Legal page Markdown must have a nonempty H2.');
         $section_id = tio2_my_legal_section_id(substr($line, 3));
         if (is_wp_error($section_id) || '' === $section_id || in_array($section_id, $section_ids, true)) {
             return is_wp_error($section_id) ? $section_id : new WP_Error('tio2_my_legal_read_section_id', 'The Legal page Markdown section IDs are invalid.');
@@ -154,7 +158,9 @@ function tio2_my_validate_legal_markdown(string $markdown, array $contract)
         return new WP_Error('tio2_my_legal_read_action_layout', 'The Legal page Markdown action layout is invalid.');
     }
 
-    $updated_count = count(array_filter($lines, static fn(string $line): bool => 1 === preg_match('/^\*\*(Last updated|Kemas kini terakhir):\s*\S.*\*\*$/u', $line)));
+    $hero_lines = array_slice($lines, 0, $first_h2_index);
+    $updated_pattern = '/^\*\*(Last updated|Kemas kini terakhir):[' . TIO2_MY_LEGAL_ECMA_WHITESPACE . ']*' . $non_whitespace . '.*\*\*$/u';
+    $updated_count = count(array_filter($hero_lines, static fn(string $line): bool => 1 === preg_match($updated_pattern, $line)));
     return 1 === $updated_count
         ? true
         : new WP_Error('tio2_my_legal_read_update_line', 'The Legal page Markdown must have one visible update line.');
