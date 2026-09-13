@@ -1,0 +1,20 @@
+
+Running 13 tests using 1 worker
+
+(node:46664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-PRIV-EN 390px approved runtime contract (2.2s)
+  ok  2 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-PRIV-EN 768px approved runtime contract (2.1s)
+  ok  3 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-PRIV-EN 1440px approved runtime contract (2.0s)
+  ok  4 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-PRIV-MS 390px approved runtime contract (2.0s)
+  ok  5 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-PRIV-MS 768px approved runtime contract (2.2s)
+  ok  6 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-PRIV-MS 1440px approved runtime contract (2.4s)
+  ok  7 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-COOKIE-EN 390px approved runtime contract (1.8s)
+  ok  8 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-COOKIE-EN 768px approved runtime contract (1.9s)
+  ok  9 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-COOKIE-EN 1440px approved runtime contract (2.1s)
+  ok 10 [chromium] › tests\e2e\legal-privacy.spec.ts:153:1 › shared Cookie Settings exposes active analytics choice and remains keyboard-contained (1.2s)
+  ok 11 [chromium] › tests\e2e\legal-privacy.spec.ts:181:1 › Cookie inventory reflows at 1440px with a 200% zoom-equivalent 720 CSS px viewport (1.7s)
+  ok 12 [chromium] › tests\e2e\legal-privacy.spec.ts:200:3 › /terms-of-use/ remains unregistered (791ms)
+  ok 13 [chromium] › tests\e2e\legal-privacy.spec.ts:200:3 › /legal/privacy-policy/ remains unregistered (784ms)
+
+  13 passed (24.1s)

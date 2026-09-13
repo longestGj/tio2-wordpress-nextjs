@@ -13,13 +13,13 @@ const hub = () => toMalaysiaResourceHubDto({
 })
 
 describe('RES-000 metadata', () => {
-  it('uses exact copy, one self-canonical, no hreflang and noindex before release', () => {
+  it('uses exact copy, one self-canonical and production indexing', () => {
     const metadata = buildMalaysiaResourceHubMetadata(getSiteConfig('tio2-my'), hub(), {VERCEL_ENV: 'production'})
     expect(metadata).toMatchObject({
       title: contract.seo.title,
       description: contract.seo.description,
       alternates: {canonical: 'https://tio2malaysia.com/resources/'},
-      robots: {index: false, follow: false},
+      robots: {index: true, follow: true},
     })
     expect(metadata.alternates).not.toHaveProperty('languages')
     expect(JSON.stringify(metadata)).not.toMatch(/tio2products|tio2hub|pt-BR/iu)

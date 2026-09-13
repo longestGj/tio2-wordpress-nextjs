@@ -31,7 +31,7 @@ export function buildMalaysiaAboutPageJsonLd(site: SiteConfig, page: MalaysiaAbo
     '@context': 'https://schema.org',
     '@graph': [
       {
-        '@type': 'AboutPage', '@id': `${canonical}#webpage`, url: canonical,
+        '@type': 'WebPage', '@id': `${canonical}#webpage`, url: canonical,
         name: page.seo.openGraphTitle,
         ...(page.seo.description ? {description: page.seo.description} : {}),
         inLanguage: page.seo.language,

@@ -1,0 +1,9 @@
+
+Running 2 tests using 1 worker
+
+(node:78236) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\tio2-my-full-public-seo-ga4.spec.ts:31:1 › renders the exact 58 routable publication identities without activating blocked analytics (12.5s)
+  ok 2 [chromium] › tests\e2e\tio2-my-full-public-seo-ga4.spec.ts:97:1 › publishes 57 sitemap URLs and keeps the runtime fallback out of search (387ms)
+
+  2 passed (13.8s)

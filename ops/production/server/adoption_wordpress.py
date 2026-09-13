@@ -82,10 +82,11 @@ class WordPressAdoption:
         if sha256_file(input_path) != plan["candidate"]["productionInputSha256"]:
             raise AdoptionError("production input differs from Plan")
         source = load_json_strict(input_path.read_text(encoding="utf-8"))
-        if not isinstance(source, dict) or set(source) != {"schemaVersion", "siteId", "web3FormsAccessKey", "sampleRecipient"} or source["schemaVersion"] != "tio2-production-input-v1" or source["siteId"] != "tio2-my":
+        if not isinstance(source, dict) or set(source) != {"schemaVersion", "siteId", "web3FormsAccessKey", "sampleRecipient", "gtmContainerId", "ga4MeasurementId"} or source["schemaVersion"] != "tio2-production-input-v2" or source["siteId"] != "tio2-my":
             raise AdoptionError("production input is invalid")
         key, recipient = source["web3FormsAccessKey"], source["sampleRecipient"]
-        if not isinstance(key, str) or not re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}", key) or not isinstance(recipient, str) or not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", recipient):
+        gtm, ga4 = source["gtmContainerId"], source["ga4MeasurementId"]
+        if not isinstance(key, str) or not re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}", key) or not isinstance(recipient, str) or not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", recipient) or not isinstance(gtm, str) or not re.fullmatch(r"GTM-[A-Z0-9]{6,}", gtm) or not isinstance(ga4, str) or not re.fullmatch(r"G-[A-Z0-9]{8,}", ga4):
             raise AdoptionError("production input is invalid")
         existing = dict(line.split("=", 1) for line in wordpress["Config"].get("Env", []) if "=" in line and line.split("=", 1)[0].startswith(("WORDPRESS_", "NEXTJS_", "EDITORIAL_")))
         required_db = {name: existing.get(name, "") for name in ("WORDPRESS_DB_HOST", "WORDPRESS_DB_NAME", "WORDPRESS_DB_USER", "WORDPRESS_DB_PASSWORD")}
@@ -101,6 +102,7 @@ class WordPressAdoption:
             "WORDPRESS_PREVIEW_URL": "http://wordpress/wp-json/tio2/v1/preview",
             "NEXTJS_REVALIDATION_SECRET_TIO2_MY": revalidation, "NEXTJS_PREVIEW_SECRET_TIO2_MY": preview,
             "WORDPRESS_EDITORIAL_API_TOKEN": editorial, "NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY": key,
+            "NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID": gtm, "NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID": ga4,
             "TIO2_MY_RFQ_ATTRIBUTION_SECRET": secrets.token_hex(32), "TIO2_MY_SAMPLE_RECEIVER_BINDING": binding,
             "TIO2_MY_SAMPLE_RECEIPT_DIRECTORY": receipt_dir, "TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED": "true",
             "TIO2_MY_SHARED_CONSENT_READY": "true", "TIO2_MY_REQUEST_SAMPLE_READY": "true", "TIO2_MY_REQUEST_DOCUMENTS_READY": "true",

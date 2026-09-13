@@ -1,0 +1,1 @@
+TypeScript no-emit validation: PASS

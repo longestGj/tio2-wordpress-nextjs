@@ -10,7 +10,7 @@ describe('ABOUT-001 JSON-LD', () => {
     const dto = toMalaysiaAboutPageDto(malaysiaAboutPageSource())
     const graph = buildMalaysiaAboutPageJsonLd(getSiteConfig('tio2-my'), dto)['@graph'] as Array<Record<string, unknown>>
     expect(graph.map((node) => node['@type'])).toEqual([
-      'AboutPage', 'Organization', 'Brand', 'Place',
+      'WebPage', 'Organization', 'Brand', 'Place',
       'AdministrativeArea', 'AdministrativeArea', 'AdministrativeArea', 'AdministrativeArea',
       'BreadcrumbList',
     ])
@@ -39,7 +39,7 @@ describe('ABOUT-001 JSON-LD', () => {
       toMalaysiaAboutPageDto(malaysiaAboutPageSource({evidenceState: 'restricted'})),
     )['@graph'] as Array<Record<string, unknown>>
     const organization = restricted.find(({['@type']: type}) => type === 'Organization')!
-    const aboutPage = restricted.find(({['@type']: type}) => type === 'AboutPage')!
+    const aboutPage = restricted.find(({['@type']: type}) => type === 'WebPage')!
     expect(organization).not.toHaveProperty('description')
     expect(organization).not.toHaveProperty('location')
     expect(aboutPage).not.toHaveProperty('description')
@@ -61,7 +61,7 @@ describe('ABOUT-001 JSON-LD', () => {
         },
       })),
     )['@graph'] as Array<Record<string, unknown>>
-    expect(graph.map((node) => node['@type'])).toEqual(['AboutPage', 'Brand', 'BreadcrumbList'])
+    expect(graph.map((node) => node['@type'])).toEqual(['WebPage', 'Brand', 'BreadcrumbList'])
     expect(JSON.stringify(graph)).not.toMatch(/IKHLAS|Taiping|European Union|documentation/iu)
     expect(graph[0]).not.toHaveProperty('mainEntity')
   })

@@ -1,0 +1,21 @@
+
+Running 14 tests using 1 worker
+
+(node:72248) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-PRIV-EN 390px approved runtime contract (2.0s)
+  ok  2 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-PRIV-EN 768px approved runtime contract (2.0s)
+  ok  3 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-PRIV-EN 1440px approved runtime contract (2.0s)
+  ok  4 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-PRIV-MS 390px approved runtime contract (1.9s)
+  ok  5 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-PRIV-MS 768px approved runtime contract (1.9s)
+  ok  6 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-PRIV-MS 1440px approved runtime contract (2.0s)
+  ok  7 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-COOKIE-EN 390px approved runtime contract (1.7s)
+  ok  8 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-COOKIE-EN 768px approved runtime contract (1.8s)
+  ok  9 [chromium] › tests\e2e\legal-privacy.spec.ts:52:5 › LEGAL-COOKIE-EN 1440px approved runtime contract (1.8s)
+  ok 10 [chromium] › tests\e2e\legal-privacy.spec.ts:153:1 › shared Cookie Settings exposes the exact first-open analytics actions and remains keyboard-contained (1.0s)
+  ok 11 [chromium] › tests\e2e\legal-privacy.spec.ts:183:1 › shared Cookie Settings exposes the exact saved-choice reopen actions (960ms)
+  ok 12 [chromium] › tests\e2e\legal-privacy.spec.ts:202:1 › Cookie inventory reflows at 1440px with a 200% zoom-equivalent 720 CSS px viewport (1.5s)
+  ok 13 [chromium] › tests\e2e\legal-privacy.spec.ts:221:3 › /terms-of-use/ remains unregistered (777ms)
+  ok 14 [chromium] › tests\e2e\legal-privacy.spec.ts:221:3 › /legal/privacy-policy/ remains unregistered (759ms)
+
+  14 passed (22.9s)

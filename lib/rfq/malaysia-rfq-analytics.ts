@@ -19,6 +19,12 @@ export function emitMalaysiaRfqAnalyticsEvent(event: MalaysiaRfqAnalyticsEvent):
   const consent = window.__TIO2_SHARED_CONSENT__
   if (consent?.siteScope !== 'tio2-my' || consent.analytics !== 'granted') return false
   window.dataLayer ??= []
-  window.dataLayer.push({event, site_scope: 'tio2-my', page_id: 'CONV-RFQ'})
+  window.dataLayer.push({
+    event,
+    site_scope: 'tio2-my',
+    page_id: 'CONV-RFQ',
+    source: 'request_form',
+    form_type: 'quote',
+  })
   return true
 }

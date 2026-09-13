@@ -10,6 +10,7 @@ describe('Legal/Privacy WordPress and route isolation', () => {
     expect(php).toContain("'terms' => ['tio2-my']")
     expect(php).toContain("'type' => ['non_null' => 'String']")
     expect(php).not.toMatch(/tio2-a|tio2-b|fallback/iu)
+    expect(php).toContain("'verified_google_analytics_active' !== ($stored['releaseState'] ?? null)")
     const webhooks = readFileSync('wordpress/plugins/tio2-site-model/includes/webhooks.php', 'utf8')
     expect(webhooks).toContain("'tio2_legal_page'")
     expect(webhooks).toContain('TIO2_MY_LEGAL_PAGE_CONTRACT_META')

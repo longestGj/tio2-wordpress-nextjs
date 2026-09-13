@@ -14,17 +14,19 @@ const page = toMalaysiaBrazilPtMarketPageDto({
 })
 
 describe('Brazil PT metadata', () => {
-  it('uses approved PT metadata, noindex and no premature alternates or social image', () => {
+  it('uses approved PT metadata with reciprocal hreflang and no social image', () => {
     const metadata = buildMalaysiaBrazilPtMarketMetadata(getSiteConfig('tio2-my'), page)
     expect(metadata).toMatchObject({
       title: contract.seo.title,
       description: contract.seo.description,
-      alternates: {canonical: contract.seo.canonical},
+      alternates: {canonical: contract.seo.canonical, languages: {
+        'pt-BR': 'https://tio2malaysia.com/pt-br/markets/brazil/',
+        en: 'https://tio2malaysia.com/markets/brazil/',
+        'x-default': 'https://tio2malaysia.com/markets/brazil/',
+      }},
       robots: {index: false, follow: false},
-      openGraph: {type: 'website', locale: 'pt_BR', url: contract.seo.canonical, images: []},
+      openGraph: {type: 'website', url: contract.seo.canonical, images: []},
     })
-    expect(metadata.alternates).not.toHaveProperty('languages')
-    expect(JSON.stringify(metadata)).not.toMatch(/x-default|hreflang|"languages"/u)
   })
 
   it('emits only WebPage and BreadcrumbList with pt-BR and shared entity references', () => {

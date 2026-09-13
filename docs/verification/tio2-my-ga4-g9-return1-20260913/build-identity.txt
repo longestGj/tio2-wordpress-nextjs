@@ -1,0 +1,12 @@
+handoff_id=G8-G9-TIO2-MY-GA4-ACTIVE-20260913-01-RETURN-01
+site_scope=tio2-my
+branch=codex/tio2-my-full-public-seo-ga4
+baseline_commit=b52702cf52a1eb6a8292db160920158a3def3eed
+implementation_commit=f61fb259faaa0d691602902336d81ae3e3b92c1f
+build_id=tio2-my-ga4-g9r1-f61fb259-20260913
+build_directory=.next-tio2-my-ga4-g9r1-f61fb259
+runtime=http://127.0.0.1:3124
+cms_runtime=http://127.0.0.1:8280
+runtime_binding=local-production
+runtime_hold=until Gate9 returns PASS or another RETURN
+

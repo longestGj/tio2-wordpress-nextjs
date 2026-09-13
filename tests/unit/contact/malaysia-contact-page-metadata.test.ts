@@ -14,7 +14,7 @@ describe('CONTACT-001 metadata', () => {
       alternates: {canonical: 'https://tio2malaysia.com/contact/'},
       robots: {index: false, follow: false},
       openGraph: {
-        title: 'Contact TiO2 Malaysia',
+        title: 'Contact TiO2 Malaysia | General Inquiries',
         description: 'Contact TiO2 Malaysia with a general company or business inquiry, or use the dedicated pages to request a quote, product documents or a sample.',
         url: 'https://tio2malaysia.com/contact/',
       },

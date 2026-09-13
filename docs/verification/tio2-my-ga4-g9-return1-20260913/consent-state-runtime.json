@@ -1,0 +1,24 @@
+{
+  "firstOpen": {
+    "buttons": [
+      "Accept analytics",
+      "Necessary only"
+    ],
+    "links": [
+      "Cookie Policy"
+    ],
+    "focused": "Accept analytics",
+    "stored": null
+  },
+  "reopened": {
+    "buttons": [
+      "Save preferences",
+      "Accept analytics",
+      "Necessary only",
+      "Close"
+    ],
+    "links": [],
+    "focused": "Save preferences",
+    "stored": "necessary_only"
+  }
+}

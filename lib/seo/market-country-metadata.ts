@@ -3,6 +3,7 @@ import type {Metadata} from 'next'
 import type {SiteConfig} from '@/sites'
 import type {MalaysiaCountryMarketPageDto} from '@/lib/wordpress/market-country-v01-types'
 import type {JsonLdObject} from './jsonld'
+import {buildTio2MyPublicationMetadata} from './tio2-my-publication-metadata'
 
 function canonical(site: SiteConfig, page: MalaysiaCountryMarketPageDto): string {
   if (site.id !== 'tio2-my' || site.wordpressScope !== 'tio2-my' || page.identity.siteScope !== 'tio2-my') {
@@ -16,21 +17,10 @@ function canonical(site: SiteConfig, page: MalaysiaCountryMarketPageDto): string
 export function buildMalaysiaCountryMarketMetadata(
   site: SiteConfig,
   page: MalaysiaCountryMarketPageDto,
+  env: Readonly<Record<string, string | undefined>> = process.env,
 ): Metadata {
-  const url = canonical(site, page)
-  return {
-    title: page.seo.title,
-    description: page.seo.metaDescription,
-    alternates: {canonical: url},
-    robots: {index: false, follow: false},
-    openGraph: {
-      type: 'website', url, siteName: site.name, title: page.seo.ogTitle,
-      description: page.seo.metaDescription, images: [],
-    },
-    twitter: {
-      card: 'summary', title: page.seo.title, description: page.seo.metaDescription, images: [],
-    },
-  }
+  canonical(site, page)
+  return buildTio2MyPublicationMetadata(page.identity.pageId, env)
 }
 
 export function buildMalaysiaCountryMarketJsonLd(

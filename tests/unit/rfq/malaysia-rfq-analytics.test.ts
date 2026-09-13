@@ -15,6 +15,7 @@ describe('CONV-RFQ consent-gated analytics', () => {
     expect(emitMalaysiaRfqAnalyticsEvent('rfq_provider_accepted')).toBe(true)
     expect(window.dataLayer).toEqual([{
       event: 'rfq_provider_accepted', site_scope: 'tio2-my', page_id: 'CONV-RFQ',
+      source: 'request_form', form_type: 'quote',
     }])
   })
 

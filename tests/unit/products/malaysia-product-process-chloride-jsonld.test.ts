@@ -9,7 +9,7 @@ describe('PRODUCT-PROC-CL JSON-LD', () => {
     const page = malaysiaChlorideProcessDto()
     const graph = buildMalaysiaChlorideProcessJsonLd(getSiteConfig('tio2-my'), page)
     const nodes = graph['@graph'] as Array<Record<string, unknown>>
-    expect(nodes.map(node => node['@type'])).toEqual(['WebPage', 'BreadcrumbList', 'ItemList'])
+    expect(nodes.map(node => node['@type'])).toEqual(['CollectionPage', 'BreadcrumbList', 'ItemList'])
     expect(nodes[0]).toMatchObject({
       name: 'Chloride Process Titanium Dioxide',
       publisher: {'@id': 'https://tio2malaysia.com/#organization'},

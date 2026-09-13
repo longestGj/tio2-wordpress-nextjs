@@ -4,6 +4,7 @@ import type {AnyHomepageDto} from '@/lib/wordpress/homepage-types'
 import type {SiteConfig} from '@/sites'
 import {isPublicIndexingEnabled} from './metadata'
 import {htmlToPlainText, normalizePlainText} from './text'
+import {buildTio2MyPublicationMetadata} from './tio2-my-publication-metadata'
 
 interface HomepageMetadataOptions {
   readonly draftMode?: boolean
@@ -29,6 +30,12 @@ export function buildHomepageMetadata(
   homepage: AnyHomepageDto,
   options: HomepageMetadataOptions = {},
 ): Metadata {
+  if (site.id === 'tio2-my') {
+    if (homepage.identity.siteId !== 'tio2-my' || homepage.identity.status !== 'publish' || options.draftMode) {
+      return buildTio2MyPublicationMetadata('HOME-001', {})
+    }
+    return buildTio2MyPublicationMetadata('HOME-001', options.env)
+  }
   const canonical = new URL('/', site.url).href
   const title = firstText(
     normalizePlainText(homepage.seo.title, 60),

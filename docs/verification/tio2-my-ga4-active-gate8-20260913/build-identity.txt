@@ -1,0 +1,11 @@
+site_scope=tio2-my
+branch=codex/tio2-my-full-public-seo-ga4
+baseline_commit=b52702cf52a1eb6a8292db160920158a3def3eed
+implementation_commit=30e026318006c141b725a1231f1942f555cd9a07
+test_alignment_commit=691ad3ed24384eea9f72a269da49035814c93bbd
+build_id=tio2-my-ga4-g8-30e02631-20260913
+build_directory=.next-tio2-my-ga4-g8-30e02631
+build_id_file_sha256=6334704c70657cfe998ebeb0be785b0a6b2cdd11c501ec50ad730bd1bf2fae65
+runtime=http://127.0.0.1:3123
+cms_runtime=http://127.0.0.1:8280
+verified_at=2026-09-13T12:14:45.0436089+08:00

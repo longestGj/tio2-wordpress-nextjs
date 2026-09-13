@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "siteId": "tio2-my",
+  "implementationCommit": "975a573ec09f4dcb0aca46422b2e9e2e4d20c742",
+  "buildId": "tio2-my-seo-ga4-975a573e",
+  "runtime": "http://127.0.0.1:3123",
+  "cmsRuntime": "http://127.0.0.1:8280",
+  "checkedAt": "2026-09-13T01:36:09.954Z",
+  "checks": {
+    "homeStatus": 200,
+    "consent": {
+      "status": "Necessary only; Analytics unavailable",
+      "analyticsCheckbox": 0,
+      "acceptButton": 0,
+      "saveButton": 0,
+      "withdrawButton": 0,
+      "storedChoice": "necessary_only",
+      "sharedAnalytics": "denied",
+      "googleRequestCount": 0
+    },
+    "trade": [
+      {
+        "path": "/resources/eu-titanium-dioxide-anti-dumping-duty/",
+        "status": 200,
+        "lastReviewed": true,
+        "checked13September": true,
+        "specificFact": true,
+        "oldCheckedDateAbsent": true
+      },
+      {
+        "path": "/resources/uk-titanium-dioxide-anti-dumping-investigation/",
+        "status": 200,
+        "lastReviewed": true,
+        "checked13September": true,
+        "specificFact": true,
+        "oldCheckedDateAbsent": true
+      },
+      {
+        "path": "/resources/india-titanium-dioxide-anti-dumping-duty/",
+        "status": 200,
+        "lastReviewed": true,
+        "checked13September": true,
+        "specificFact": true,
+        "oldCheckedDateAbsent": true
+      },
+      {
+        "path": "/resources/brazil-titanium-dioxide-anti-dumping-duty/",
+        "status": 200,
+        "lastReviewed": true,
+        "checked13September": true,
+        "specificFact": true,
+        "oldCheckedDateAbsent": true
+      }
+    ],
+    "resourceHub": {
+      "status": 200,
+      "reviewed13SeptemberCount": 4,
+      "ukCurrentFact": true,
+      "brazilCurrentFact": true,
+      "oldCheckedDateAbsent": true
+    },
+    "gsc": {
+      "status": 200,
+      "bytes": 53,
+      "sha256": "23C09B78F763724DDDB0470B133ACC3F3D2129B663209E6B8007C290D2B0B32D",
+      "exact": true
+    },
+    "sitemap": {
+      "status": 200,
+      "urlCount": 57
+    },
+    "missing": {
+      "status": 404,
+      "canonicalCount": 0
+    }
+  }
+}

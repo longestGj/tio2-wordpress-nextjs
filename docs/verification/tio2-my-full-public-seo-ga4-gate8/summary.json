@@ -1,0 +1,37 @@
+{
+  "branch": "codex/tio2-my-full-public-seo-ga4",
+  "baseline_commit": "c5976a23ab1dc93618b0c79008c02fda69ed9f5a",
+  "implementation_commit": "e0fa4fd1c3513bf90c7160a85b781f19650981ee",
+  "build_id": "tio2-my-seo-ga4-e0fa4fd1",
+  "build_directory": ".next-gate8-full-public-seo-ga4",
+  "runtime_url": "http://127.0.0.1:3123",
+  "publication_objects": 59,
+  "routable_objects": 58,
+  "indexable_and_sitemap_objects": 57,
+  "search_exceptions": [
+    "SYS-404: 404, noindex/follow, no canonical, excluded from sitemap",
+    "CONV-THANK: 200, noindex/nofollow, no PII marker, excluded from sitemap"
+  ],
+  "verification": {
+    "targeted_vitest": "163 files passed; 1484 passed; 1 skipped",
+    "typecheck": "passed",
+    "eslint": "83 changed TypeScript files passed",
+    "python_adoption": "2 passed",
+    "playwright": "2 passed",
+    "runtime_audit": "passed",
+    "screenshots": 3
+  },
+  "analytics_activation": {
+    "implementation": "GTM-only GA4 with Consent Mode denied defaults",
+    "legal_authorization_active": false,
+    "google_network_requests_observed": 0,
+    "release_blocker": "Real production IDs plus atomically active EN/BM Cookie Policy and Cookie Settings runtime evidence"
+  },
+  "prohibited_actions": {
+    "real_form_send": false,
+    "production_wordpress_write": false,
+    "merge": false,
+    "deploy": false,
+    "publish": false
+  }
+}

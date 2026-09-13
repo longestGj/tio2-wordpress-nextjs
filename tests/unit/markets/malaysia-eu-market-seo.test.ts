@@ -16,19 +16,19 @@ function marketPage() {
 }
 
 describe('MARKET-EU-001 SEO and Schema', () => {
-  it('uses exact metadata, one self-canonical and noindex while release is disabled', () => {
+  it('uses exact Gate 6 metadata, one self-canonical and production indexing', () => {
     const metadata = buildMalaysiaEuMarketMetadata(
       getSiteConfig('tio2-my'), marketPage(), {VERCEL_ENV: 'production'},
     )
     expect(metadata).toMatchObject({
       title: approvedContract.seo.title,
-      description: approvedContract.seo.metaDescription,
+      description: 'Evaluate titanium dioxide supply for EU procurement by application, grade, documents, origin and import requirements. Request a quote from TiO2 Malaysia.',
       alternates: {canonical: approvedContract.seo.canonical},
-      robots: {index: false, follow: false},
+      robots: {index: true, follow: true},
       openGraph: {
         url: approvedContract.seo.canonical,
-        title: approvedContract.seo.ogTitle,
-        description: approvedContract.seo.ogDescription,
+        title: approvedContract.seo.title,
+        description: 'Evaluate titanium dioxide supply for EU procurement by application, grade, documents, origin and import requirements. Request a quote from TiO2 Malaysia.',
       },
     })
     expect(metadata.alternates).not.toHaveProperty('languages')

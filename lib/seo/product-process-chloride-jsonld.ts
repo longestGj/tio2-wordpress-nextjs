@@ -24,7 +24,7 @@ export function buildMalaysiaChlorideProcessJsonLd(
     '@context': 'https://schema.org',
     '@graph': [
       {
-        '@type': 'WebPage',
+        '@type': 'CollectionPage',
         '@id': `${canonical}#webpage`,
         url: canonical,
         name: heroHeading,

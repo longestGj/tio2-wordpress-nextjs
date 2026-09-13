@@ -1,0 +1,695 @@
+{
+  "schema_version": "gate8-evidence-manifest-v1.0",
+  "handoff_id": "G8-G9-TIO2-MY-FULL-PUBLIC-SEO-GA4-20260913-01",
+  "gate8_task_id": "D16-G8-TIO2-MY-FULL-PUBLIC-SEO-GA4-20260913-01",
+  "site_scope": "tio2-my",
+  "receipt_path": "docs/verification/tio2-my-full-public-seo-ga4-gate8/gate8_handoff_receipt.md",
+  "pages": [
+    {
+      "page_id": "HOME-001",
+      "acceptance_condition_ids": [
+        "HOME-001.SEO_EXACT",
+        "HOME-001.RUNTIME"
+      ],
+      "runtime_path": "/"
+    },
+    {
+      "page_id": "ABOUT-001",
+      "acceptance_condition_ids": [
+        "ABOUT-001.SEO_EXACT",
+        "ABOUT-001.RUNTIME"
+      ],
+      "runtime_path": "/about/"
+    },
+    {
+      "page_id": "MARKET-000",
+      "acceptance_condition_ids": [
+        "MARKET-000.SEO_EXACT",
+        "MARKET-000.RUNTIME"
+      ],
+      "runtime_path": "/markets/"
+    },
+    {
+      "page_id": "MARKET-EU-001",
+      "acceptance_condition_ids": [
+        "MARKET-EU-001.SEO_EXACT",
+        "MARKET-EU-001.RUNTIME"
+      ],
+      "runtime_path": "/markets/european-union/"
+    },
+    {
+      "page_id": "MARKET-EU-DE",
+      "acceptance_condition_ids": [
+        "MARKET-EU-DE.SEO_EXACT",
+        "MARKET-EU-DE.RUNTIME"
+      ],
+      "runtime_path": "/markets/germany/"
+    },
+    {
+      "page_id": "MARKET-EU-IT",
+      "acceptance_condition_ids": [
+        "MARKET-EU-IT.SEO_EXACT",
+        "MARKET-EU-IT.RUNTIME"
+      ],
+      "runtime_path": "/markets/italy/"
+    },
+    {
+      "page_id": "MARKET-EU-ES",
+      "acceptance_condition_ids": [
+        "MARKET-EU-ES.SEO_EXACT",
+        "MARKET-EU-ES.RUNTIME"
+      ],
+      "runtime_path": "/markets/spain/"
+    },
+    {
+      "page_id": "MARKET-EU-PL",
+      "acceptance_condition_ids": [
+        "MARKET-EU-PL.SEO_EXACT",
+        "MARKET-EU-PL.RUNTIME"
+      ],
+      "runtime_path": "/markets/poland/"
+    },
+    {
+      "page_id": "MARKET-EU-NL",
+      "acceptance_condition_ids": [
+        "MARKET-EU-NL.SEO_EXACT",
+        "MARKET-EU-NL.RUNTIME"
+      ],
+      "runtime_path": "/markets/netherlands/"
+    },
+    {
+      "page_id": "MARKET-EU-BE",
+      "acceptance_condition_ids": [
+        "MARKET-EU-BE.SEO_EXACT",
+        "MARKET-EU-BE.RUNTIME"
+      ],
+      "runtime_path": "/markets/belgium/"
+    },
+    {
+      "page_id": "MARKET-UK-001",
+      "acceptance_condition_ids": [
+        "MARKET-UK-001.SEO_EXACT",
+        "MARKET-UK-001.RUNTIME"
+      ],
+      "runtime_path": "/markets/united-kingdom/"
+    },
+    {
+      "page_id": "MARKET-IN-001",
+      "acceptance_condition_ids": [
+        "MARKET-IN-001.SEO_EXACT",
+        "MARKET-IN-001.RUNTIME"
+      ],
+      "runtime_path": "/markets/india/"
+    },
+    {
+      "page_id": "MARKET-BR-EN",
+      "acceptance_condition_ids": [
+        "MARKET-BR-EN.SEO_EXACT",
+        "MARKET-BR-EN.RUNTIME"
+      ],
+      "runtime_path": "/markets/brazil/"
+    },
+    {
+      "page_id": "MARKET-BR-PT",
+      "acceptance_condition_ids": [
+        "MARKET-BR-PT.SEO_EXACT",
+        "MARKET-BR-PT.RUNTIME"
+      ],
+      "runtime_path": "/pt-br/markets/brazil/"
+    },
+    {
+      "page_id": "PRODUCT-000",
+      "acceptance_condition_ids": [
+        "PRODUCT-000.SEO_EXACT",
+        "PRODUCT-000.RUNTIME"
+      ],
+      "runtime_path": "/products/"
+    },
+    {
+      "page_id": "PRODUCT-PROC-CL",
+      "acceptance_condition_ids": [
+        "PRODUCT-PROC-CL.SEO_EXACT",
+        "PRODUCT-PROC-CL.RUNTIME"
+      ],
+      "runtime_path": "/products/chloride-process-titanium-dioxide/"
+    },
+    {
+      "page_id": "PRODUCT-PROC-SU",
+      "acceptance_condition_ids": [
+        "PRODUCT-PROC-SU.SEO_EXACT",
+        "PRODUCT-PROC-SU.RUNTIME"
+      ],
+      "runtime_path": "/products/sulfate-process-titanium-dioxide/"
+    },
+    {
+      "page_id": "GRADE-M350",
+      "acceptance_condition_ids": [
+        "GRADE-M350.SEO_EXACT",
+        "GRADE-M350.RUNTIME"
+      ],
+      "runtime_path": "/products/m-350/"
+    },
+    {
+      "page_id": "GRADE-M510",
+      "acceptance_condition_ids": [
+        "GRADE-M510.SEO_EXACT",
+        "GRADE-M510.RUNTIME"
+      ],
+      "runtime_path": "/products/m-510/"
+    },
+    {
+      "page_id": "GRADE-M896",
+      "acceptance_condition_ids": [
+        "GRADE-M896.SEO_EXACT",
+        "GRADE-M896.RUNTIME"
+      ],
+      "runtime_path": "/products/m-896/"
+    },
+    {
+      "page_id": "GRADE-M996",
+      "acceptance_condition_ids": [
+        "GRADE-M996.SEO_EXACT",
+        "GRADE-M996.RUNTIME"
+      ],
+      "runtime_path": "/products/m-996/"
+    },
+    {
+      "page_id": "GRADE-M2196",
+      "acceptance_condition_ids": [
+        "GRADE-M2196.SEO_EXACT",
+        "GRADE-M2196.RUNTIME"
+      ],
+      "runtime_path": "/products/m-2196/"
+    },
+    {
+      "page_id": "GRADE-M895",
+      "acceptance_condition_ids": [
+        "GRADE-M895.SEO_EXACT",
+        "GRADE-M895.RUNTIME"
+      ],
+      "runtime_path": "/products/m-895/"
+    },
+    {
+      "page_id": "GRADE-M200",
+      "acceptance_condition_ids": [
+        "GRADE-M200.SEO_EXACT",
+        "GRADE-M200.RUNTIME"
+      ],
+      "runtime_path": "/products/m-200/"
+    },
+    {
+      "page_id": "GRADE-M108",
+      "acceptance_condition_ids": [
+        "GRADE-M108.SEO_EXACT",
+        "GRADE-M108.RUNTIME"
+      ],
+      "runtime_path": "/products/m-108/"
+    },
+    {
+      "page_id": "GRADE-M210",
+      "acceptance_condition_ids": [
+        "GRADE-M210.SEO_EXACT",
+        "GRADE-M210.RUNTIME"
+      ],
+      "runtime_path": "/products/m-210/"
+    },
+    {
+      "page_id": "GRADE-M340",
+      "acceptance_condition_ids": [
+        "GRADE-M340.SEO_EXACT",
+        "GRADE-M340.RUNTIME"
+      ],
+      "runtime_path": "/products/m-340/"
+    },
+    {
+      "page_id": "GRADE-M886",
+      "acceptance_condition_ids": [
+        "GRADE-M886.SEO_EXACT",
+        "GRADE-M886.RUNTIME"
+      ],
+      "runtime_path": "/products/m-886/"
+    },
+    {
+      "page_id": "GRADE-M52",
+      "acceptance_condition_ids": [
+        "GRADE-M52.SEO_EXACT",
+        "GRADE-M52.RUNTIME"
+      ],
+      "runtime_path": "/products/m-52/"
+    },
+    {
+      "page_id": "GRADE-M2377",
+      "acceptance_condition_ids": [
+        "GRADE-M2377.SEO_EXACT",
+        "GRADE-M2377.RUNTIME"
+      ],
+      "runtime_path": "/products/m-2377/"
+    },
+    {
+      "page_id": "GRADE-CR901",
+      "acceptance_condition_ids": [
+        "GRADE-CR901.SEO_EXACT",
+        "GRADE-CR901.RUNTIME"
+      ],
+      "runtime_path": "/products/cr-901/"
+    },
+    {
+      "page_id": "APP-000",
+      "acceptance_condition_ids": [
+        "APP-000.SEO_EXACT",
+        "APP-000.RUNTIME"
+      ],
+      "runtime_path": "/applications/"
+    },
+    {
+      "page_id": "APP-COAT",
+      "acceptance_condition_ids": [
+        "APP-COAT.SEO_EXACT",
+        "APP-COAT.RUNTIME"
+      ],
+      "runtime_path": "/applications/titanium-dioxide-for-coatings/"
+    },
+    {
+      "page_id": "APP-PLAS",
+      "acceptance_condition_ids": [
+        "APP-PLAS.SEO_EXACT",
+        "APP-PLAS.RUNTIME"
+      ],
+      "runtime_path": "/applications/titanium-dioxide-for-plastics/"
+    },
+    {
+      "page_id": "APP-MB",
+      "acceptance_condition_ids": [
+        "APP-MB.SEO_EXACT",
+        "APP-MB.RUNTIME"
+      ],
+      "runtime_path": "/applications/titanium-dioxide-for-masterbatch/"
+    },
+    {
+      "page_id": "APP-INK",
+      "acceptance_condition_ids": [
+        "APP-INK.SEO_EXACT",
+        "APP-INK.RUNTIME"
+      ],
+      "runtime_path": "/applications/titanium-dioxide-for-printing-inks/"
+    },
+    {
+      "page_id": "APP-PAPER",
+      "acceptance_condition_ids": [
+        "APP-PAPER.SEO_EXACT",
+        "APP-PAPER.RUNTIME"
+      ],
+      "runtime_path": "/applications/titanium-dioxide-for-paper/"
+    },
+    {
+      "page_id": "DOC-000",
+      "acceptance_condition_ids": [
+        "DOC-000.SEO_EXACT",
+        "DOC-000.RUNTIME"
+      ],
+      "runtime_path": "/documents/"
+    },
+    {
+      "page_id": "DOC-REACH",
+      "acceptance_condition_ids": [
+        "DOC-REACH.SEO_EXACT",
+        "DOC-REACH.RUNTIME"
+      ],
+      "runtime_path": "/documents/reach/"
+    },
+    {
+      "page_id": "DOC-TDS",
+      "acceptance_condition_ids": [
+        "DOC-TDS.SEO_EXACT",
+        "DOC-TDS.RUNTIME"
+      ],
+      "runtime_path": "/documents/tds-sds-coa/"
+    },
+    {
+      "page_id": "DOC-COO",
+      "acceptance_condition_ids": [
+        "DOC-COO.SEO_EXACT",
+        "DOC-COO.RUNTIME"
+      ],
+      "runtime_path": "/documents/certificate-of-origin/"
+    },
+    {
+      "page_id": "CONV-DOC",
+      "acceptance_condition_ids": [
+        "CONV-DOC.SEO_EXACT",
+        "CONV-DOC.RUNTIME"
+      ],
+      "runtime_path": "/request-documents/"
+    },
+    {
+      "page_id": "RES-000",
+      "acceptance_condition_ids": [
+        "RES-000.SEO_EXACT",
+        "RES-000.RUNTIME"
+      ],
+      "runtime_path": "/resources/"
+    },
+    {
+      "page_id": "RES-ORIGIN",
+      "acceptance_condition_ids": [
+        "RES-ORIGIN.SEO_EXACT",
+        "RES-ORIGIN.RUNTIME"
+      ],
+      "runtime_path": "/resources/non-china-titanium-dioxide/"
+    },
+    {
+      "page_id": "RES-PROC",
+      "acceptance_condition_ids": [
+        "RES-PROC.SEO_EXACT",
+        "RES-PROC.RUNTIME"
+      ],
+      "runtime_path": "/resources/chloride-vs-sulfate-titanium-dioxide/"
+    },
+    {
+      "page_id": "RES-CHEMOURS",
+      "acceptance_condition_ids": [
+        "RES-CHEMOURS.SEO_EXACT",
+        "RES-CHEMOURS.RUNTIME"
+      ],
+      "runtime_path": "/resources/chemours-titanium-dioxide-alternatives/"
+    },
+    {
+      "page_id": "RES-R706",
+      "acceptance_condition_ids": [
+        "RES-R706.SEO_EXACT",
+        "RES-R706.RUNTIME"
+      ],
+      "runtime_path": "/resources/ti-pure-r-706-alternative/"
+    },
+    {
+      "page_id": "RES-TRADE-EU",
+      "acceptance_condition_ids": [
+        "RES-TRADE-EU.SEO_EXACT",
+        "RES-TRADE-EU.RUNTIME"
+      ],
+      "runtime_path": "/resources/eu-titanium-dioxide-anti-dumping-duty/"
+    },
+    {
+      "page_id": "RES-TRADE-UK",
+      "acceptance_condition_ids": [
+        "RES-TRADE-UK.SEO_EXACT",
+        "RES-TRADE-UK.RUNTIME"
+      ],
+      "runtime_path": "/resources/uk-titanium-dioxide-anti-dumping-investigation/"
+    },
+    {
+      "page_id": "RES-TRADE-IN",
+      "acceptance_condition_ids": [
+        "RES-TRADE-IN.SEO_EXACT",
+        "RES-TRADE-IN.RUNTIME"
+      ],
+      "runtime_path": "/resources/india-titanium-dioxide-anti-dumping-duty/"
+    },
+    {
+      "page_id": "RES-TRADE-BR",
+      "acceptance_condition_ids": [
+        "RES-TRADE-BR.SEO_EXACT",
+        "RES-TRADE-BR.RUNTIME"
+      ],
+      "runtime_path": "/resources/brazil-titanium-dioxide-anti-dumping-duty/"
+    },
+    {
+      "page_id": "CONV-RFQ",
+      "acceptance_condition_ids": [
+        "CONV-RFQ.SEO_EXACT",
+        "CONV-RFQ.RUNTIME"
+      ],
+      "runtime_path": "/request-a-quote/"
+    },
+    {
+      "page_id": "CONV-SAMPLE",
+      "acceptance_condition_ids": [
+        "CONV-SAMPLE.SEO_EXACT",
+        "CONV-SAMPLE.RUNTIME"
+      ],
+      "runtime_path": "/request-sample/"
+    },
+    {
+      "page_id": "CONTACT-001",
+      "acceptance_condition_ids": [
+        "CONTACT-001.SEO_EXACT",
+        "CONTACT-001.RUNTIME"
+      ],
+      "runtime_path": "/contact/"
+    },
+    {
+      "page_id": "LEGAL-PRIV-EN",
+      "acceptance_condition_ids": [
+        "LEGAL-PRIV-EN.SEO_EXACT",
+        "LEGAL-PRIV-EN.RUNTIME"
+      ],
+      "runtime_path": "/privacy-policy/"
+    },
+    {
+      "page_id": "LEGAL-PRIV-MS",
+      "acceptance_condition_ids": [
+        "LEGAL-PRIV-MS.SEO_EXACT",
+        "LEGAL-PRIV-MS.RUNTIME"
+      ],
+      "runtime_path": "/ms/privacy-policy/"
+    },
+    {
+      "page_id": "LEGAL-COOKIE-EN",
+      "acceptance_condition_ids": [
+        "LEGAL-COOKIE-EN.SEO_EXACT",
+        "LEGAL-COOKIE-EN.RUNTIME"
+      ],
+      "runtime_path": "/cookie-policy/"
+    },
+    {
+      "page_id": "SYS-404",
+      "acceptance_condition_ids": [
+        "SYS-404.SEO_EXACT",
+        "SYS-404.RUNTIME"
+      ],
+      "runtime_path": "/__gate8_unknown_public_object__/"
+    },
+    {
+      "page_id": "CONV-THANK",
+      "acceptance_condition_ids": [
+        "CONV-THANK.SEO_EXACT",
+        "CONV-THANK.RUNTIME"
+      ],
+      "runtime_path": "/thank-you/"
+    }
+  ],
+  "git": {
+    "repository": "D:/16Wordpress_nextjs/.worktrees/tio2-my-full-public-seo-ga4",
+    "branch": "codex/tio2-my-full-public-seo-ga4",
+    "baseline_commit": "c5976a23ab1dc93618b0c79008c02fda69ed9f5a",
+    "implementation_commit": "e0fa4fd1c3513bf90c7160a85b781f19650981ee",
+    "evidence_head": "b4ed9870c6413667a9c33d3d5c3e939d435ffc45",
+    "clean_checked_at": "2026-09-13T00:31:34.020229+00:00"
+  },
+  "build": {
+    "directory": ".next-gate8-full-public-seo-ga4",
+    "build_id": "tio2-my-seo-ga4-e0fa4fd1",
+    "implementation_commit": "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+  },
+  "runtime": {
+    "base_url": "http://127.0.0.1:3123",
+    "site_scope": "tio2-my",
+    "environment_type": "local-production",
+    "started_at": "2026-09-13T00:29:34.0213454Z",
+    "hold_until": "GATE9_PASS_OR_RETURN_NOTICE",
+    "require_build_marker": true,
+    "checks": [
+      {
+        "path": "/",
+        "expected_status": 200,
+        "contains": [
+          "Malaysia Titanium Dioxide for Industrial Buyers"
+        ]
+      },
+      {
+        "path": "/privacy-policy/",
+        "expected_status": 200,
+        "contains": [
+          "Privacy Policy",
+          "hrefLang=\"ms-MY\""
+        ]
+      },
+      {
+        "path": "/pt-br/markets/brazil/",
+        "expected_status": 200,
+        "contains": [
+          "para o Brasil",
+          "hrefLang=\"en\""
+        ]
+      },
+      {
+        "path": "/thank-you/",
+        "expected_status": 200,
+        "contains": [
+          "noindex, nofollow"
+        ]
+      },
+      {
+        "path": "/__gate8_unknown_public_object__/",
+        "expected_status": 404,
+        "contains": [
+          "Page Not Found",
+          "noindex, follow"
+        ]
+      },
+      {
+        "path": "/sitemap.xml",
+        "expected_status": 200,
+        "contains": [
+          "57 loc entries",
+          "https://tio2malaysia.com/markets/poland/"
+        ]
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "path": "docs/verification/tio2-my-full-public-seo-ga4-gate8/build-identity.txt",
+      "sha256": "d9f030b7d641be9a9a6942470c410f75c78c4346fd321d88772884b68f269d8c",
+      "evidence_type": "IDENTITY",
+      "proves": [
+        "implementation commit, Build ID, runtime, and site identity"
+      ],
+      "command": "read .next-gate8-full-public-seo-ga4/BUILD_ID and record the bound candidate identity",
+      "environment": "Windows local-production runtime; SITE_ID=tio2-my; Next.js 16.3.2; bound to 127.0.0.1"
+    },
+    {
+      "path": "docs/verification/tio2-my-full-public-seo-ga4-gate8/build.txt",
+      "sha256": "885a0d423cd6325828f7bf55b093a4f6731060f2906f97970732084b747e8413",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "production-equivalent Next.js build succeeds"
+      ],
+      "command": "npm run build with SITE_ID=tio2-my, NEXT_DIST_DIR=.next-gate8-full-public-seo-ga4, and TIO2_BUILD_ID=tio2-my-seo-ga4-e0fa4fd1",
+      "environment": "Windows local-production runtime; SITE_ID=tio2-my; Next.js 16.3.2; bound to 127.0.0.1"
+    },
+    {
+      "path": "docs/verification/tio2-my-full-public-seo-ga4-gate8/eslint.txt",
+      "sha256": "220bde19186dd6606bd7bed176f6a4cf8c1765fa466a7fb5eff840a8ed128634",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "all 83 changed TypeScript files pass ESLint"
+      ],
+      "command": "npx eslint -- <83 changed TypeScript files>",
+      "environment": "Windows local-production runtime; SITE_ID=tio2-my; Next.js 16.3.2; bound to 127.0.0.1"
+    },
+    {
+      "path": "docs/verification/tio2-my-full-public-seo-ga4-gate8/playwright.txt",
+      "sha256": "6e94ad014fbd4481cff56bc18daf0a1ee0f4ec572215e85c937d8ff51e25952b",
+      "evidence_type": "ACTUAL_RUNTIME",
+      "proves": [
+        "58 routable identities, analytics block, 57 sitemap URLs, and 404 behavior"
+      ],
+      "command": "TIO2_PRERELEASE_BASE_URL=http://127.0.0.1:3123 npx playwright test tests/e2e/tio2-my-full-public-seo-ga4.spec.ts --config=playwright.config.ts --project=chromium",
+      "environment": "Windows local-production runtime; SITE_ID=tio2-my; Next.js 16.3.2; bound to 127.0.0.1"
+    },
+    {
+      "path": "docs/verification/tio2-my-full-public-seo-ga4-gate8/python-adoption.txt",
+      "sha256": "f5c5d1fc97bcd49a91185b3fb7c583b67391840178d834289230108fbdb15644",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "production/prerelease adapter adoption checks"
+      ],
+      "command": "python -m pytest tests/production/test_site_frontend_adapter.py tests/production/test_installed_content.py -q",
+      "environment": "Windows local-production runtime; SITE_ID=tio2-my; Next.js 16.3.2; bound to 127.0.0.1"
+    },
+    {
+      "path": "docs/verification/tio2-my-full-public-seo-ga4-gate8/runtime-audit.json",
+      "sha256": "abb1ec01bbe4bea36e75e1f1ac38fd1eaa527d6b06cde1fbb0d4c22748eba9ec",
+      "evidence_type": "ACTUAL_RUNTIME",
+      "proves": [
+        "declared status and markers, exact sitemap count, 404 canonical absence"
+      ],
+      "command": "Invoke-WebRequest against six declared runtime paths on http://127.0.0.1:3123",
+      "environment": "Windows local-production runtime; SITE_ID=tio2-my; Next.js 16.3.2; bound to 127.0.0.1"
+    },
+    {
+      "path": "docs/verification/tio2-my-full-public-seo-ga4-gate8/summary.json",
+      "sha256": "5d4a4f816f2bf3b20d926d2708de527b4bd61f02516d8fc62fdd973ce3fbb58e",
+      "evidence_type": "IDENTITY",
+      "proves": [
+        "candidate scope and consolidated verification result"
+      ],
+      "command": "generate consolidated Gate 8 verification summary from committed logs and runtime audit",
+      "environment": "Windows local-production runtime; SITE_ID=tio2-my; Next.js 16.3.2; bound to 127.0.0.1"
+    },
+    {
+      "path": "docs/verification/tio2-my-full-public-seo-ga4-gate8/targeted-vitest.txt",
+      "sha256": "e1ba98727f9c7f43815701f0d5842f32223f3bfeda819f85cfc7944aa1d43287",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "affected SEO, analytics, consent, page, infrastructure, and production contracts"
+      ],
+      "command": "npx vitest run <163 targeted test files>",
+      "environment": "Windows local-production runtime; SITE_ID=tio2-my; Next.js 16.3.2; bound to 127.0.0.1"
+    },
+    {
+      "path": "docs/verification/tio2-my-full-public-seo-ga4-gate8/typecheck.txt",
+      "sha256": "d98c656d4bd66d7ecbbb46c5061cc283ccb9638f83d21d23fc68fc683deb581b",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "Next route type generation and TypeScript typecheck"
+      ],
+      "command": "npm run typecheck",
+      "environment": "Windows local-production runtime; SITE_ID=tio2-my; Next.js 16.3.2; bound to 127.0.0.1"
+    },
+    {
+      "path": "docs/verification/tio2-my-full-public-seo-ga4-gate8/home-1440.png",
+      "sha256": "fa7b500ef4f8be3fb5d345adc79e86281a201c59babeae34ca007e097418d74f",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "desktop home rendering"
+      ],
+      "command": "npx playwright screenshot --browser chromium --viewport-size 1440,1000 --full-page http://127.0.0.1:3123/",
+      "environment": "Windows local-production runtime; SITE_ID=tio2-my; Next.js 16.3.2; bound to 127.0.0.1"
+    },
+    {
+      "path": "docs/verification/tio2-my-full-public-seo-ga4-gate8/privacy-768.png",
+      "sha256": "3a143077557e2af9fb9e45d8aaccee97cccd0a10f708f5a88fd3eca9a1e1869b",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "tablet Privacy rendering"
+      ],
+      "command": "npx playwright screenshot --browser chromium --viewport-size 768,1024 --full-page http://127.0.0.1:3123/privacy-policy/",
+      "environment": "Windows local-production runtime; SITE_ID=tio2-my; Next.js 16.3.2; bound to 127.0.0.1"
+    },
+    {
+      "path": "docs/verification/tio2-my-full-public-seo-ga4-gate8/brazil-ptbr-mobile.png",
+      "sha256": "9d10c1212ec5496d9e68bed9f93f75f7dd0d8b5e1af67edd3a7543ccb520bfc0",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "mobile Portuguese Brazil rendering"
+      ],
+      "command": "npx playwright screenshot --browser chromium --viewport-size 390,844 --full-page http://127.0.0.1:3123/pt-br/markets/brazil/",
+      "environment": "Windows local-production runtime; SITE_ID=tio2-my; Next.js 16.3.2; bound to 127.0.0.1"
+    }
+  ],
+  "receipt_evidence_references": [
+    "docs/verification/tio2-my-full-public-seo-ga4-gate8/build-identity.txt",
+    "docs/verification/tio2-my-full-public-seo-ga4-gate8/build.txt",
+    "docs/verification/tio2-my-full-public-seo-ga4-gate8/eslint.txt",
+    "docs/verification/tio2-my-full-public-seo-ga4-gate8/playwright.txt",
+    "docs/verification/tio2-my-full-public-seo-ga4-gate8/python-adoption.txt",
+    "docs/verification/tio2-my-full-public-seo-ga4-gate8/runtime-audit.json",
+    "docs/verification/tio2-my-full-public-seo-ga4-gate8/summary.json",
+    "docs/verification/tio2-my-full-public-seo-ga4-gate8/targeted-vitest.txt",
+    "docs/verification/tio2-my-full-public-seo-ga4-gate8/typecheck.txt",
+    "docs/verification/tio2-my-full-public-seo-ga4-gate8/home-1440.png",
+    "docs/verification/tio2-my-full-public-seo-ga4-gate8/privacy-768.png",
+    "docs/verification/tio2-my-full-public-seo-ga4-gate8/brazil-ptbr-mobile.png"
+  ],
+  "known_open_items": [
+    {
+      "id": "REAL_GTM_GA4_IDS_AND_ATOMIC_LEGAL_ACTIVATION",
+      "owner": "D23 or user for approved inputs; D16 release for activation evidence",
+      "blocking_layer": "RELEASE",
+      "closure_evidence": "Real production GTM and GA4 IDs, container-to-destination match, atomically active English and Bahasa Malaysia Privacy/Cookie/Cookie Settings copy, plus denied/accepted/withdrawn runtime network, storage, and cookie evidence.",
+      "closure_timing": "Before analytics activation and before any Gate 10 production release authorization."
+    }
+  ]
+}

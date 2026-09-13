@@ -1,0 +1,35 @@
+{
+  "schema_version": "gate8-return-summary-v1.0",
+  "review_id": "TIO2-MY-G9-PCR-01",
+  "site_scope": "tio2-my",
+  "baseline_commit": "c5976a23ab1dc93618b0c79008c02fda69ed9f5a",
+  "implementation_commit": "1bbcd0910c67d328e69afac5a78c034194ff764c",
+  "build_id": "tio2-my-seo-ga4-1bbcd091",
+  "runtime": "http://127.0.0.1:3123",
+  "cms_runtime": "http://127.0.0.1:8280",
+  "disposition": "READY_FOR_GATE9_RECHECK",
+  "findings_closed": [
+    "CONSENT_INACTIVE_UI_AND_STALE_ACCEPTED_STATE",
+    "TRADE_FACT_FRESHNESS_2026_09_13"
+  ],
+  "additions": [
+    "GSC_ROOT_VERIFICATION_FILE"
+  ],
+  "verification": {
+    "targeted_vitest": "38 files passed; 201 passed; 1 skipped",
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "playwright": "4 passed",
+    "runtime_audit": "passed",
+    "visual_inspection": "passed"
+  },
+  "prohibited_actions": {
+    "real_form_submission": false,
+    "production_wordpress_write": false,
+    "merge": false,
+    "deploy": false,
+    "publish": false,
+    "gate10": false
+  }
+}

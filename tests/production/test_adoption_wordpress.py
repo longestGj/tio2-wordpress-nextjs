@@ -36,7 +36,7 @@ class AdoptionWordPressTests(unittest.TestCase):
             root = Path(value)
             paths = ReleasePaths(root / "incoming", root / "production", root / "configuration", root / "outgoing")
             for path in (paths.incoming, paths.production, paths.configuration, paths.outgoing): path.mkdir(parents=True)
-            source = {"schemaVersion": "tio2-production-input-v1", "siteId": "tio2-my", "web3FormsAccessKey": "01234567-89ab-4def-8123-456789abcdef", "sampleRecipient": "receiver@example.test"}
+            source = {"schemaVersion": "tio2-production-input-v2", "siteId": "tio2-my", "web3FormsAccessKey": "01234567-89ab-4def-8123-456789abcdef", "sampleRecipient": "receiver@example.test", "gtmContainerId": "GTM-ABC1234", "ga4MeasurementId": "G-1A2B3C4D5E"}
             raw = json.dumps(source, separators=(",", ":")).encode(); (paths.incoming / "production-input.json").write_bytes(raw)
             plan = plan_fixture(); plan["candidate"]["productionInputSha256"] = hashlib.sha256(raw).hexdigest()
             wordpress = {"Config": {"Env": ["WORDPRESS_DB_HOST=db:3306", "WORDPRESS_DB_NAME=wordpress", "WORDPRESS_DB_USER=wordpress", "WORDPRESS_DB_PASSWORD=password"]}}
@@ -45,6 +45,8 @@ class AdoptionWordPressTests(unittest.TestCase):
             wp_values = dict(line.split("=", 1) for line in wordpress_path.read_text().splitlines())
             self.assertEqual(values["SITE_ID"], "tio2-my")
             self.assertEqual(values["NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY"], source["web3FormsAccessKey"])
+            self.assertEqual(values["NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID"], source["gtmContainerId"])
+            self.assertEqual(values["NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID"], source["ga4MeasurementId"])
             self.assertEqual(json.loads(values["TIO2_MY_SAMPLE_RECEIVER_BINDING"])["recipient"], source["sampleRecipient"])
             self.assertEqual(wp_values["NEXTJS_REVALIDATION_URL_TIO2_MY"], "http://web:3000/api/revalidate")
             self.assertFalse((paths.incoming / "production-input.json").exists())

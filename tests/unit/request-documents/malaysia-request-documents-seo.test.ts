@@ -7,7 +7,7 @@ import {getSiteConfig} from '@/sites'
 describe('CONV-DOC metadata and Schema', () => {
   const site = getSiteConfig('tio2-my')
 
-  it('uses the exact clean canonical and stays noindex until every release gate passes', () => {
+  it('uses the exact clean canonical and closed Gate 6 authorization', () => {
     const metadata = buildMalaysiaRequestDocumentsMetadata(site, {
       indexingAuthorized: false,
       env: {VERCEL_ENV: 'production', TIO2_MY_REQUEST_DOCUMENTS_INDEXING_RELEASE_AUTHORIZED: 'true'},
@@ -16,7 +16,7 @@ describe('CONV-DOC metadata and Schema', () => {
       title: 'Request Documents | TiO2 Malaysia',
       description: 'Submit a controlled request for titanium dioxide product, safety, quality, COA, origin or supplier-qualification documentation for human review.',
       alternates: {canonical: 'https://tio2malaysia.com/request-documents/'},
-      robots: {index: false, follow: false},
+      robots: {index: true, follow: true},
     })
     expect(metadata.alternates).not.toHaveProperty('languages')
   })

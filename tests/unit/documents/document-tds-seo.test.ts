@@ -14,13 +14,13 @@ const page = toMalaysiaDocumentTdsDto({
 })
 
 describe('DOC-TDS SEO/GEO contract', () => {
-  it('uses exact metadata, one self-canonical, no hreflang and noindex before Gate 10', () => {
+  it('uses exact metadata, one self-canonical and production indexing', () => {
     const metadata = buildDocumentTdsMetadata(getSiteConfig('tio2-my'), page, {VERCEL_ENV: 'production'})
     expect(metadata).toMatchObject({
       title: 'Titanium Dioxide TDS, SDS & COA: What to Request | TiO2 Malaysia',
       description: 'Understand the difference between titanium dioxide TDS, SDS and COA, add the relevant product or batch context, and request the documents needed for review.',
       alternates: {canonical: 'https://tio2malaysia.com/documents/tds-sds-coa/'},
-      robots: {index: false, follow: false},
+      robots: {index: true, follow: true},
     })
     expect(metadata.alternates).not.toHaveProperty('languages')
   })

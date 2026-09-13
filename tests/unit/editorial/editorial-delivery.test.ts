@@ -63,9 +63,9 @@ describe('Malaysia editorial delivery boundary',()=>{
   it('suppresses overdue, withdrawn, unverified and mismatched review revisions',()=>{
     const trade=getEditorialContract('RES-TRADE-EU')
     const control=evidence.pages.find(p=>p.pageId==='RES-TRADE-EU')!.currentReview
-    expect(()=>assertEditorialFreshness(trade,control,new Date('2026-09-08T12:00:00Z'))).not.toThrow()
-    for(const change of [{status:'withdrawn'},{status:'unverified'},{sourceRevision:'wrong'},{evidenceDate:'2027-01-01'}]) expect(()=>assertEditorialFreshness(trade,{...control,...change},new Date('2026-09-08T12:00:00Z'))).toThrow()
-    expect(()=>assertEditorialFreshness(trade,control,new Date('2026-10-08T00:00:00Z'))).toThrow()
-    expect(()=>assertEditorialFreshness(trade,null,new Date('2026-09-08T12:00:00Z'))).toThrow()
+    expect(()=>assertEditorialFreshness(trade,control,new Date('2026-09-13T12:00:00Z'))).not.toThrow()
+    for(const change of [{status:'withdrawn'},{status:'unverified'},{sourceRevision:'wrong'},{evidenceDate:'2027-01-01'}]) expect(()=>assertEditorialFreshness(trade,{...control,...change},new Date('2026-09-13T12:00:00Z'))).toThrow()
+    expect(()=>assertEditorialFreshness(trade,control,new Date('2026-10-14T00:00:00Z'))).toThrow()
+    expect(()=>assertEditorialFreshness(trade,null,new Date('2026-09-13T12:00:00Z'))).toThrow()
   })
 })

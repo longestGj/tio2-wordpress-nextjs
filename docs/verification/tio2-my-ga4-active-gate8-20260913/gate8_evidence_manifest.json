@@ -1,0 +1,316 @@
+{
+  "schema_version": "gate8-evidence-manifest-v1.0",
+  "handoff_id": "G8-G9-TIO2-MY-GA4-ACTIVE-20260913-01",
+  "gate8_task_id": "D16-G8-TIO2-MY-GA4-ACTIVE-20260913-01",
+  "site_scope": "tio2-my",
+  "receipt_path": "docs/verification/tio2-my-ga4-active-gate8-20260913/gate8_handoff_receipt.md",
+  "pages": [
+    {
+      "page_id": "HOME-001",
+      "acceptance_condition_ids": [
+        "GA4.ACTIVE.CONTAINER",
+        "GA4.ACTIVE.PAGE_VIEW"
+      ],
+      "runtime_path": "/"
+    },
+    {
+      "page_id": "CONV-RFQ",
+      "acceptance_condition_ids": [
+        "GA4.EVENT.RFQ_PROVIDER_ACCEPTED",
+        "GA4.NO_PII"
+      ],
+      "runtime_path": "/request-a-quote/"
+    },
+    {
+      "page_id": "CONV-DOC",
+      "acceptance_condition_ids": [
+        "GA4.EVENT.DOCUMENTS_PROVIDER_ACCEPTED",
+        "GA4.NO_PII"
+      ],
+      "runtime_path": "/request-documents/"
+    },
+    {
+      "page_id": "CONV-SAMPLE",
+      "acceptance_condition_ids": [
+        "GA4.EVENT.SAMPLE_PROVIDER_ACCEPTED",
+        "GA4.NO_PII"
+      ],
+      "runtime_path": "/request-sample/"
+    },
+    {
+      "page_id": "LEGAL-PRIV-EN",
+      "acceptance_condition_ids": [
+        "LEGAL.ACTIVE.EN",
+        "CONSENT.ACTIVE"
+      ],
+      "runtime_path": "/privacy-policy/"
+    },
+    {
+      "page_id": "LEGAL-PRIV-MS",
+      "acceptance_condition_ids": [
+        "LEGAL.ACTIVE.MS",
+        "CONSENT.ACTIVE"
+      ],
+      "runtime_path": "/ms/privacy-policy/"
+    },
+    {
+      "page_id": "LEGAL-COOKIE-EN",
+      "acceptance_condition_ids": [
+        "LEGAL.COOKIE.ACTIVE",
+        "CONSENT.ACCEPT_WITHDRAW"
+      ],
+      "runtime_path": "/cookie-policy/"
+    }
+  ],
+  "git": {
+    "repository": "D:/16Wordpress_nextjs/.worktrees/tio2-my-full-public-seo-ga4",
+    "branch": "codex/tio2-my-full-public-seo-ga4",
+    "baseline_commit": "b52702cf52a1eb6a8292db160920158a3def3eed",
+    "implementation_commit": "30e026318006c141b725a1231f1942f555cd9a07",
+    "evidence_head": "c55eb8f8dec38f9d96a817228cf7d66bfac9afeb",
+    "clean_checked_at": "2026-09-13T04:17:14.726106+00:00"
+  },
+  "build": {
+    "directory": ".next-tio2-my-ga4-g8-30e02631",
+    "build_id": "tio2-my-ga4-g8-30e02631-20260913",
+    "implementation_commit": "30e026318006c141b725a1231f1942f555cd9a07"
+  },
+  "runtime": {
+    "base_url": "http://127.0.0.1:3123",
+    "site_scope": "tio2-my",
+    "environment_type": "local-production",
+    "started_at": "2026-09-13T10:02:50+08:00",
+    "hold_until": "GATE9_PASS_OR_RETURN_NOTICE",
+    "require_build_marker": true,
+    "checks": [
+      {
+        "path": "/request-a-quote/",
+        "expected_status": 200,
+        "contains": [
+          "Request a Titanium Dioxide Quote",
+          "GTM-MWQVK7J4"
+        ]
+      },
+      {
+        "path": "/privacy-policy/",
+        "expected_status": 200,
+        "contains": [
+          "Privacy Policy",
+          "G-QDHLMRH2WB"
+        ]
+      },
+      {
+        "path": "/ms/privacy-policy/",
+        "expected_status": 200,
+        "contains": [
+          "Dasar Privasi",
+          "G-QDHLMRH2WB"
+        ]
+      },
+      {
+        "path": "/cookie-policy/",
+        "expected_status": 200,
+        "contains": [
+          "Cookie Policy",
+          "_ga_QDHLMRH2WB"
+        ]
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/build-identity.txt",
+      "sha256": "6f293c6c79f0232681052c9dd50f2fc048ff9c804165e8685a1d70aa3c7515fa",
+      "evidence_type": "IDENTITY",
+      "proves": [
+        "Binds site scope, branch, implementation commit, Build ID and held runtimes."
+      ],
+      "command": "Read Git revisions and the existing BUILD_ID file.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/runtime-audit.json",
+      "sha256": "bd851ec50c950987d1fdc5344a69adeacb85ee2666a4ceb54e0ea1a75bed63c1",
+      "evidence_type": "ACTUAL_RUNTIME",
+      "proves": [
+        "Records HTTP 200 probes for the held Next.js and isolated CMS runtimes."
+      ],
+      "command": "Read-only HTTP probes against 127.0.0.1:3123 and 127.0.0.1:8280.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/summary.json",
+      "sha256": "59c2953292cb8e36fc58e9d646fed687149e907893ec1f77f01cd723c377d8c8",
+      "evidence_type": "IDENTITY",
+      "proves": [
+        "Consolidates the Gate 8 GA4 activation result and boundaries."
+      ],
+      "command": "Generate summary from the final directed verification.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/targeted-vitest.txt",
+      "sha256": "b24a7a9cef49f2fd9c405e339a6205970c32af61134c4d38a437f8777f9611ab",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "Eight affected test files and 37 tests pass."
+      ],
+      "command": "npx vitest run <8 affected GA4, consent, legal and event test files>",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/ga4-active-playwright.txt",
+      "sha256": "54526fcbfafad01cb6446f8c7266b38293f105dc514c6852b3f8e34cc7e7dd1d",
+      "evidence_type": "LOCAL_SIMULATION",
+      "proves": [
+        "Two deterministic GA4/CMP scenarios pass without loading the real receiver."
+      ],
+      "command": "npx playwright test tests/e2e/tio2-my-ga4-active.spec.ts --project=chromium",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/legal-playwright.txt",
+      "sha256": "bd61ddb95a9f4b168bdf03af7c8df60ab034f31c34778ddffb4e8e551f54455b",
+      "evidence_type": "ACTUAL_RUNTIME",
+      "proves": [
+        "Thirteen legal/CMP runtime scenarios pass at the approved widths."
+      ],
+      "command": "npx playwright test tests/e2e/legal-privacy.spec.ts --project=chromium",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/typecheck.txt",
+      "sha256": "d98c656d4bd66d7ecbbb46c5061cc283ccb9638f83d21d23fc68fc683deb581b",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "Next route generation and TypeScript no-emit checking pass."
+      ],
+      "command": "npm run typecheck",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/eslint.txt",
+      "sha256": "892852c3771d9857e928f4f0c2c7598c7677fae88b8ad8a46674e3b6ddbca5a4",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "The thirteen affected implementation and test files pass ESLint."
+      ],
+      "command": "npx eslint <13 affected implementation and test files>",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-observation.md",
+      "sha256": "29dd933540683c7078f5c70fafb6beb4b7c8e48f38cd79e6bfe082b3d9e2d116",
+      "evidence_type": "SOURCE_INSPECTION",
+      "proves": [
+        "Explains the controlled Preview procedure, result and no-form-send boundary."
+      ],
+      "command": "Manual review of the user-shared Preview plus controlled local Chromium.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-runtime-evidence.json",
+      "sha256": "cfcdccab1b5fdda50a5e60b69eda4ada061c7c63ad56ef8c499e5d926a4033e0",
+      "evidence_type": "ACTUAL_RUNTIME",
+      "proves": [
+        "Sanitized Cookie, consent, network, approved-event, no-PII and cross-scope evidence."
+      ],
+      "command": "Controlled local Tag Assistant Preview capture with direct approved dataLayer events.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-initial-denied-consent.png",
+      "sha256": "897b6e5ff4277070b3ecd598950684c343e832ba93aa6e76c788279bfa641f0a",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "Shows all four Consent Mode fields denied before choice."
+      ],
+      "command": "Tag Assistant Preview screenshot at initial Window Loaded.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-accepted-consent.png",
+      "sha256": "af67304acb60887c7106326419c67ffc39efebeb278ff36728c0b86b4a0eb58b",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "Shows analytics_storage granted while all advertising fields remain denied."
+      ],
+      "command": "Tag Assistant Preview screenshot after Accept Analytics.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-google-tag-page-view.png",
+      "sha256": "5e6b160e61e9226b6be2a65a7490bd694f667b2d2ac96b19c80976614c6d79cc",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "Shows the Google Tag succeeded and Page View hits are associated with G-QDHLMRH2WB."
+      ],
+      "command": "Tag Assistant Preview screenshot of the Google Tag details.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-rfq-event-fired.png",
+      "sha256": "9887efc14946bcbc4e71230050a6facdc918863fcc4deea6597cfafacf93e735",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "Shows req-RFQ fired once for rfq_provider_accepted with the approved parameter map."
+      ],
+      "command": "Tag Assistant Preview screenshot after direct approved dataLayer push.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-documents-event-fired.png",
+      "sha256": "9ab44f55ab44076d0dca59ef052e017f11a5d8b4aaaea875bc2681bbdaefb95c",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "Shows REQ-Doc fired once for documents_provider_accepted with the approved parameter map."
+      ],
+      "command": "Tag Assistant Preview screenshot after direct approved dataLayer push.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-sample-event-fired.png",
+      "sha256": "f21c0d64508433a047063ddad56b72c4c634c86ffc21c20728b4b21aa7b0e912",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "Shows ReqSam fired once for sample_provider_accepted with the approved parameter map."
+      ],
+      "command": "Tag Assistant Preview screenshot after direct approved dataLayer push.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3123; isolated local CMS at 127.0.0.1:8280; SITE_ID=tio2-my; GTM Preview; no form submission"
+    }
+  ],
+  "receipt_evidence_references": [
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/build-identity.txt",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/runtime-audit.json",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/summary.json",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/targeted-vitest.txt",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/ga4-active-playwright.txt",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/legal-playwright.txt",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/typecheck.txt",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/eslint.txt",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-observation.md",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-runtime-evidence.json",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-initial-denied-consent.png",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-accepted-consent.png",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-google-tag-page-view.png",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-rfq-event-fired.png",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-documents-event-fired.png",
+    "docs/verification/tio2-my-ga4-active-gate8-20260913/tagassistant-sample-event-fired.png"
+  ],
+  "known_open_items": [
+    {
+      "id": "GATE9_INDEPENDENT_GA4_RUNTIME_RECHECK",
+      "owner": "Gate9 read-only acceptance",
+      "blocking_layer": "PAGE_GATE9",
+      "closure_evidence": "Independently validate commit, Build/runtime identity, hashes, Cookie lifecycle, consent ordering, accepted page_view count, three approved event hits, no PII and cross-scope absence.",
+      "closure_timing": "During Gate9; this Gate8 receipt does not declare Gate9 acceptance."
+    },
+    {
+      "id": "GTM_PRODUCTION_PUBLICATION_AND_GATE10_RELEASE",
+      "owner": "D16 release after explicit user authorization",
+      "blocking_layer": "RELEASE",
+      "closure_evidence": "Separately authorized GTM publication and production release evidence bound to the approved candidate.",
+      "closure_timing": "Only after Gate9 and separate Gate10/release authorization."
+    }
+  ]
+}
