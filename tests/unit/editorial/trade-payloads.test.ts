@@ -170,6 +170,12 @@ function normalizeLaunchFactClosureToGate6(value: string, pageId: string) {
   if (pageId === 'RES-TRADE-UK' || pageId === 'RES-TRADE-IN') {
     normalized = normalized.replaceAll('10 September 2026', '2 September 2026')
   }
+  if (pageId === 'RES-TRADE-UK') {
+    normalized = normalized.replace(
+      'official sources checked on 7 September 2026.',
+      'official sources checked on 7 September.',
+    )
+  }
   if (pageId === 'RES-TRADE-EU') {
     normalized = normalized.replaceAll(
       'https://eur-lex.europa.eu/eli/reg_impl/2025/4/oj',
@@ -183,6 +189,7 @@ function normalizeLaunchFactClosureToGate6(value: string, pageId: string) {
     )
   }
   if (pageId === 'RES-TRADE-BR') {
+    normalized = normalized.replace('When checked on 7 September 2026,', 'When checked on 7 September,')
     normalized = normalized.replace(
       'The public-interest evaluation began on 27 March 2026. The MDIC public-interest page, updated on 26 August 2026, lists Circulars 21 and 82 and the final-submissions phase ending 4 September 2026.',
       'The public-interest evaluation began on 27 March 2026. Circular 82 extended its phases, and the MDIC page lists 4 September 2026 as the final-submissions deadline.',
@@ -426,6 +433,8 @@ const launchFactClosure = [
 ] as const
 
 describe('2026-09-13 Trade launch fact closure', () => {
+  const staleCheckedDate = /checked on (?:<strong>)?7 September(?: 2026)?/iu
+
   for (const expected of launchFactClosure) {
     test(`${expected.id} keeps visible facts and machine freshness on the same review`, async () => {
       const page = pages.find((item) => item.id === expected.id)!
@@ -437,6 +446,7 @@ describe('2026-09-13 Trade launch fact closure', () => {
         evidenceDate: null,
       })
       for (const fact of expected.requiredBodyFacts) expect(payload.bodyHtml).toContain(fact)
+      expect(payload.bodyHtml).not.toMatch(staleCheckedDate)
       expect(payload.bodyHtml).not.toContain('7 September 2026')
       expect(payload.bodyHtml).not.toContain('2 September 2026')
     })
@@ -455,6 +465,7 @@ describe('2026-09-13 Trade launch fact closure', () => {
       expect(item.reviewDate).toBe('2026-09-13')
       expect(item.nextReviewDue).toBe('2026-10-13')
       expect(item.publicStatusLabel).toContain('As checked on 13 September 2026')
+      expect(item.publicStatusLabel).not.toMatch(staleCheckedDate)
       expect(item.publicStatusLabel).not.toContain('7 September 2026')
     }
   })

@@ -146,6 +146,7 @@ test('renders the 13 September Trade fact closure on all four pages and the Reso
     const visible = (await page.locator('main').innerText()).replace(/\s+/gu, ' ')
     for (const fact of item.facts) expect(visible, `${item.path}:${fact}`).toContain(fact)
     expect(visible, item.path).toContain('Last reviewed: 13 September 2026')
+    expect(visible, item.path).not.toMatch(/checked on 7 September(?: 2026)?/iu)
     expect(visible, item.path).not.toContain('7 September 2026')
     expect(visible, item.path).not.toContain('2 September 2026')
   }
@@ -157,6 +158,7 @@ test('renders the 13 September Trade fact closure on all four pages and the Reso
   expect(hub).toContain('The TRA case page was last updated on 10 September 2026.')
   expect(hub).toContain('The DGTR case page was last updated on 10 September 2026.')
   expect(hub).toContain('The public-interest page was updated on 26 August 2026.')
+  expect(hub).not.toMatch(/checked on 7 September(?: 2026)?/iu)
   expect(hub).not.toContain('As checked on 7 September 2026')
 })
 
