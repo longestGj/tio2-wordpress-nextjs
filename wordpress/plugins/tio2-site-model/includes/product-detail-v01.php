@@ -146,12 +146,18 @@ function tio2_my_product_detail_local_candidate_ready(array $identity): bool
     $path = dirname(__DIR__) . '/config/tio2-my-prerelease-public-paths.json';
     $json = is_readable($path) ? file_get_contents($path) : false;
     $candidate = is_string($json) ? json_decode($json, true) : null;
+    $approved_counts = [
+        'TIO2-MY-PRERELEASE-PUBLIC-PATHS-2026-09-09-V1' => 42,
+        'TIO2-MY-FULL-PUBLIC-SEO-GA4-GATE6-2026-09-13' => 58,
+    ];
     if (
         ! is_array($candidate) ||
-        'TIO2-MY-PRERELEASE-PUBLIC-PATHS-2026-09-09-V1' !== ($candidate['candidateId'] ?? null) ||
+        ! is_string($candidate['candidateId'] ?? null) ||
+        ! isset($approved_counts[$candidate['candidateId']]) ||
         'tio2-my' !== ($candidate['siteScope'] ?? null) ||
         'en' !== ($candidate['locale'] ?? null) ||
-        ! is_array($candidate['routes'] ?? null) || 42 !== count($candidate['routes'])
+        ! is_array($candidate['routes'] ?? null) ||
+        $approved_counts[$candidate['candidateId']] !== count($candidate['routes'])
     ) {
         return false;
     }
