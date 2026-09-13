@@ -35,6 +35,33 @@ CMS 安装和前台发布各有自己的备份与回执。管理员入口没有�
 
 候选由冻结的 `release.tar.gz`、`release-manifest.json`、实际预发布生成的 `release-proof.json` 组成。使用 `scripts/production/prepare_frontend_candidate.py` 生成候选封装，再使用正常 `scripts/production.ps1` 发布。打包器只校验已有证据，不生成虚假的测试或收件结果。
 
+### 新前台的完整离线打包入口
+
+`scripts/production.ps1 -Operation Package` 接通完整生成链：干净 main → 已有普通/真实表单/收件证据复核 → 独立生产基线绑定 → Git 精确归档 → `prepare_frontend_candidate.py` → 现有 `frontend_candidate.validate_source` 校验。它不调用生产连接、不构建新网站、不发送表单、不升级 CMS。`New-ProductionPackage` 保留为旧开发分类合同的模块接口，不再是正式 CLI 的新前台生成路径；不能把其散装 payload 当作可上传的新前台包。
+
+生产基线须由获授权管理员执行经过独立 SHA-256 核对的 `scripts/production/frontend_package_baseline.py --release-id <新ID>` 副本取得。脚本仅从 `/opt/tio2-production/program` 加载已安装、root 保护的控制器，对登记的 `tio2-my` 调用现有实时 baseline loader，并要求终态、新 ID、CMS/配置/前台身份连续。stdout 是非秘密 JSON，stderr 给出包含换行的精确 stdout SHA-256。使用现有受核验传输取回 JSON，并把管理员回传哈希独立传给打包器；不能只对任意本地 JSON 自算哈希就声称它来自生产。此一次性观察脚本不安装程序或改状态，管理员执行仍须适用授权。源码未知、观察失败或生产变化则停止，不能借用历史 baseline。
+
+PowerShell 在主 checkout 的干净 main 上调用：
+
+```powershell
+pwsh -NoProfile -File scripts/production.ps1 -Operation Package `
+  -ReleaseId <与基线观察一致的新ID> `
+  -PrereleaseReceiptPath docs/verification/prerelease/runs/<live-evidence>/production-gate.json `
+  -TestReceiptPath docs/verification/prerelease/runs/<ordinary-evidence>/result.json `
+  -PrereleaseRunRoot .prerelease/runs/<candidate-run> `
+  -BaselinePath .production/<verified-baseline.json> `
+  -BaselineSha256 <管理员独立回传的SHA256> `
+  -DevelopmentReceiptPath docs/verification/development-receipts/<frontend-receipt.json>
+```
+
+多份开发回执可通过 PowerShell 数组调用脚本参数。每份必须是已提交的 `d16-development-receipt-v1` JSON，状态 MERGED_TO_DEVELOP、mergeCommit 属于冻结候选、subjects/affectedConsumers 均仅 tio2-my，且 contentScopes/hostPaths 为空、cmsContractChanged=false；所有 paths 精确覆盖生产前台 commit 到候选的**已打包前台路径**变化（含删除），不是已经合入 main 后的空 `main..candidate`。此机器输入不替代发布负责人对其他开发 Markdown 回执的审查；缺少对应机器回执时先补齐开发侧可追溯记录，不改旧证据。
+
+前台包只含 app/components/lib/public/sites、固定顶层运行文件及三个已批准合同文件。不会下发 CMS 插件、seed、管理员程序或其他文档；候选 Git 中完整 tio2-site-model 插件文件集的规范化 SHA-256 必须等于实时基线的已安装 CMS 合同，否则要求另行 CMS 流程。这使已安装的后台和工具升级不被重复分类为本次前台发布。前台查询代码属于这个仅运行前台的包，但仍须声明正确消费者和具备同版本预发布证据。
+
+正式 sealer 原始输出保持不变。打包器复制并严格复验普通测试、实发表单、收件、run、CMS 身份和独立 baseline，在新 `package-evidence/binding.json` 中绑定原始字节哈希，再生成 `d16-frontend-prerelease-v1`；不向旧 gate 填写 previousProductionReceipt。原始收件的分钟精度说明仍随源证据保留，不声称读过原始邮件头。输出目录 `.production/runs/<新ID>` 原子创建且拒绝覆盖，包内 `package-evidence/` 保存输入副本；服务器只接收固定 payload 文件。离线打包不能证明基线仍然新鲜，服务器 Prepare 仍重新观察所有身份并拒绝漂移。
+
+该链的离线测试使用受控合成收件/运行输入，经真实 sealer、真实 CLI、真实 Git 归档和现有服务器校验器验证衔接；不是本次生产验收，不替代实际发布侧回归或生产 177 案例与原始邮件证据。
+
 前台远端上传目录为登记主体的 `incoming/frontend-payload/frontend/`；内容包保留独立 `incoming/payload/content/`。两个目录分别执行严格文件清单验证。旧兼容事务和已完成候选的证据保留。
 
 数据库备份采用共享 CMS 整库范围。一个网站的数据发布也必须暂停共享写入，失败时在本次窗口立即恢复；不提供保留其他站后续更新的单站历史回退。
