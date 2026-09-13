@@ -131,8 +131,9 @@ class ConfigUpdate:
                 'configuration update requires rolled-back frontend generation')
         self.journal_path = subject.state_root/'frontend-deployment.json'
         self.journal = read(self.journal_path)
-        require(self.journal.get('phase') == 'rolled-back' and self.journal.get('target') is None,
-                'configuration update requires failure before target creation')
+        require(self.journal.get('phase') == 'rolled-back' and self.journal.get('target') is None
+                and self.journal.get('image') is None,
+                'configuration update requires failure before image or target creation')
         self.root = update_root(subject, self.state)
 
     def _snapshot(self):
@@ -159,10 +160,17 @@ class ConfigUpdate:
 
     def plan(self):
         if self.root.exists() or self.root.is_symlink():
-            plan = load_plan(self.root, self.subject, self.state)
-            require(self._status() == {'phase':'planned','planSha256':plan['planSha256']},
-                    'configuration update already started')
-            self._guard(plan); return plan
+            safe(self.root, True)
+            if (self.root/'plan.json').exists() or (self.root/'plan.json').is_symlink():
+                plan = load_plan(self.root, self.subject, self.state)
+                status_path = self.root/'status.json'
+                if status_path.exists() or status_path.is_symlink():
+                    require(self._status() == {'phase':'planned','planSha256':plan['planSha256']},
+                            'configuration update already started')
+                self._guard(plan)
+                self._save('planned', plan)
+                return plan
+            require(not any(self.root.iterdir()), 'configuration update incomplete evidence')
         originals = self._snapshot()
         decoded = {n:base64.b64decode(v['data']) for n,v in originals.items()}
         projected(decoded, self.subject.configuration)
@@ -172,7 +180,7 @@ class ConfigUpdate:
         plan['planSha256'] = digest(plan); self._guard(plan)
         parent = self.root.parent
         parent.mkdir(mode=0o700, exist_ok=True); safe(parent, True)
-        self.root.mkdir(mode=0o700); safe(self.root, True)
+        self.root.mkdir(mode=0o700, exist_ok=True); safe(self.root, True)
         atomic_write_json(self.root/'plan.json', plan)
         self._save('planned', plan)
         return plan

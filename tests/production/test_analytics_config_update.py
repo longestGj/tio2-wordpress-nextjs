@@ -133,6 +133,25 @@ class AnalyticsConfigUpdateTests(unittest.TestCase):
         (self.subject.state_root/'state.json').write_bytes(raw(self.state))
         with self.assertRaises(ReleaseError): self.engine.plan()
 
+    def test_existing_built_image_exceeds_update_admission(self):
+        self.journal['image'] = {'id':'sha256:'+'a'*64}
+        (self.subject.state_root/'frontend-deployment.json').write_bytes(raw(self.journal))
+        with self.assertRaises(ReleaseError): self.module.ConfigUpdate(self.subject, lambda:self.identity)
+
+    def test_interrupted_plan_creation_can_be_retried_without_manual_cleanup(self):
+        for after_write in (False, True):
+            with self.subTest(after_write=after_write), AnalyticsConfigUpdateTests('runTest') as fixture:
+                fixture.setUp(); writer = self.module.atomic_write_json
+                def interrupt(path, value):
+                    if after_write: writer(path, value)
+                    raise KeyboardInterrupt('power loss while planning')
+                with patch.object(self.module, 'atomic_write_json', interrupt), self.assertRaises(KeyboardInterrupt):
+                    fixture.engine.plan()
+                plan = fixture.engine.plan()
+                self.assertEqual('planned', fixture.engine._status()['phase'])
+                for name, data in fixture.originals.items():
+                    self.assertEqual(data, (fixture.subject.configuration/name).read_bytes())
+
     def test_real_previous_frontend_gate_accepts_only_receipted_update(self):
         from frontend_candidate import validate_previous_frontend
         plan = self.engine.plan(); self.engine.apply(plan['planSha256'])
@@ -143,6 +162,37 @@ class AnalyticsConfigUpdateTests(unittest.TestCase):
     def test_unfinished_update_blocks_release_admission(self):
         plan = self.engine.plan(); self.engine._save('applying', plan)
         with self.assertRaises(ReleaseError): self.module.assert_update_closed(self.subject, self.state)
+
+    def test_prepare_new_candidate_preserves_old_evidence_and_binds_update(self):
+        from tests.production.test_frontend_candidate import FrontendCandidateTests
+        import frontend_candidate
+        fixture = FrontendCandidateTests(); fixture.setUp(); self.addCleanup(fixture.doCleanups)
+        self.subject.incoming = fixture.subject.incoming
+        self.subject.production = fixture.subject.production
+        c = fixture.envelope
+        manifest = {'schemaVersion':'d16-release-candidate-v1','releaseId':c.release_id,
+            'subject':c.subject,'releaseType':c.release_type,'sourceCommit':c.source_commit,
+            'buildId':c.build_id,'createdAt':c.created_at,'previousProductionReceipt':c.previous_production_receipt,
+            'cmsContractSha256':c.cms_contract_sha256,'configurationSha256':c.configuration_sha256,
+            'prereleaseReceiptSha256':c.prerelease_receipt_sha256,'payloadSha256':c.payload_sha256,
+            'files':[{'path':name,'sha256':value} for name,value in c.files]}
+        (self.subject.incoming/'candidate-manifest.json').write_bytes(raw(manifest))
+        plan = self.engine.plan(); self.engine.apply(plan['planSha256'])
+        current = json.loads((self.subject.configuration/'baseline.json').read_bytes())
+        context = SimpleNamespace(subject=self.subject, candidate=c, state=self.state,
+            subject_baseline={'record':current,'enrollmentSha256':'e'*64,
+                'enrollment':{'cmsEvidence':{}},'cmsRuntime':{'contentSha256':'b'*64}},
+            global_baseline={'baselineSha256':'f'*64,'ingress':{}})
+        real_install = frontend_candidate.install_source
+        with patch.object(frontend_candidate, 'install_source',
+                          side_effect=lambda s,d:real_install(s,d,ownership_setter=lambda *a:None)):
+            result = frontend_candidate.prepare(context)
+        self.assertEqual('PREPARED', result['state'])
+        self.assertEqual(plan['planSha256'], result['preparedDetails']['configurationUpdateTransition']['planSha256'])
+        history = self.subject.state_root/'frontend-history'/'failed-release'
+        self.assertEqual(self.journal, json.loads((history/'frontend-deployment.json').read_bytes()))
+        self.assertEqual(self.state, json.loads((history/'state.json').read_bytes()))
+        self.assertFalse((self.subject.state_root/'frontend-deployment.json').exists())
 
 
 if __name__ == '__main__': unittest.main()

@@ -15,7 +15,7 @@ from deployment_core import DockerWebAdapter
 from frontend_backup import require
 from frontend_candidate import validate_previous_frontend
 from release_actions import SubprocessCommandRunner
-from release_baseline import _validate_record, validate_registered_ingress
+from release_baseline import _validate_record, validate_registered_ingress, protected_path
 from release_contract import ReleaseError
 from release_state import ReleaseLock
 from subject_registry import load_registry
@@ -64,7 +64,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         require(is_administrator(), 'administrator required')
-        safe(Path(__file__).resolve())
+        protected_path(Path(__file__).resolve())
         registry = load_registry(Path('/etc/d16-release')); subject = registry.resolve('tio2-my')
         with ReleaseLock(registry.host.state_root.parent/'release.lock'):
             old = read(subject.state_root/'frontend-deployment.json')['old']
