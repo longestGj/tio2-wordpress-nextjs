@@ -29,4 +29,12 @@ New tests retain the real CMS JSON parser, observation assembly and private-file
 
 ## Handoff
 
-Independent review and develop integration are pending at this record's initial commit. Development verification is not production installation. The production program is still `6405fe79`; the two analytics variables have not been applied by this work.
+Status: `MERGED_TO_DEVELOP`.
+
+- Independent read-only reviewer `/root/review_analytics_config_update` approved exact implementation `bdf91722717e02f5f0415c0fda1a606ef73b557c`, no required fixes. Reviewer inspected code/tests but did not independently rerun them.
+- Documentation-only follow-up: `abd7e497`; reviewed implementation unchanged.
+- Merge: `5fe08863c9b858a4aea907e4a512e791907bc1e5`, from unchanged develop base recorded above.
+- Merged-result Windows regression: same 20 tests, 19 pass and 1 root-only skip, 1.927 seconds.
+- Existing development worktree, main, user stash and earlier incident records retained.
+
+Development verification is not production installation. The production program is still `6405fe79`; the two analytics variables have not been applied by this work. A separately executed administrator upgrade and a fresh configuration plan remain required.
