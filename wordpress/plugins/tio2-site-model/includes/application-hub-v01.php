@@ -3,6 +3,7 @@
 declare(strict_types=1);
 require_once __DIR__.'/content-release-validation.php';
 require_once __DIR__.'/home-application-read-contract.php';
+require_once __DIR__.'/content-write-contract.php';
 
 if (! defined('ABSPATH')) {
     exit;
@@ -58,24 +59,9 @@ function tio2_validate_application_hub_v01_contract(int $post_id)
     if ('/applications' !== get_post_meta($post_id, 'public_path', true) || 'tio2-my-applications' !== get_post_field('post_name', $post_id)) {
         return new WP_Error('tio2_my_application_hub_invalid_route', 'The Application Hub route identity is invalid.');
     }
-    $approved = tio2_my_application_hub_approved_contract_json();
-    if (is_wp_error($approved)) return $approved;
     $stored = get_post_meta($post_id, TIO2_MY_APPLICATION_HUB_CONTRACT_META, true);
-    if (! is_string($stored) || ! tio2_my_content_json_matches($stored, $approved)) {
-        return new WP_Error('tio2_my_application_hub_contract_mismatch', 'The stored Malaysia Application Hub payload does not match the approved contract.');
-    }
-    $contract = json_decode($stored, true);
-    if (
-        ! is_array($contract) ||
-        'APP-000-G6-HANDOFF-02' !== ($contract['reviewId'] ?? null) ||
-        'APP-000' !== ($contract['identity']['pageId'] ?? null) ||
-        'tio2-my' !== ($contract['identity']['siteScope'] ?? null) ||
-        '/applications/' !== ($contract['identity']['path'] ?? null) ||
-        'application-hub-v0.1-malaysia' !== ($contract['identity']['schemaVersion'] ?? null)
-    ) {
-        return new WP_Error('tio2_my_application_hub_contract_invalid', 'The Application Hub payload identity is invalid.');
-    }
-    return true;
+    return is_string($stored) ? tio2_validate_my_content_write('APP-000', $stored, $stored)
+        : new WP_Error('write_schema', 'The stored Malaysia Application Hub payload is invalid.');
 }
 
 /** @return array|WP_Error */

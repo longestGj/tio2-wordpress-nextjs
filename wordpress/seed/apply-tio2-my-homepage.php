@@ -1,79 +1,34 @@
 <?php
-
-if (
-    ! function_exists('tio2_find_homepage_ids') ||
-    ! function_exists('tio2_validate_homepage_contract') ||
-    ! function_exists('update_field')
-) {
-    throw new RuntimeException('Run this file through the project WordPress WP-CLI container.');
+// Explicit --initialize-draft creates only a new technical draft. Otherwise args are approval ID + operation.
+if (PHP_SAPI !== 'cli' || !defined('WP_CLI') || !WP_CLI || !function_exists('tio2_apply_approved_content') || !get_current_user_id()) {
+    throw new RuntimeException('Run through WP-CLI with an explicit --user.');
 }
-
-$site_id = 'tio2-my';
-$internal_slug = 'tio2-my--homepage';
-$contract_path = dirname(__DIR__) . '/plugins/tio2-site-model/config/tio2-my-homepage.json';
-$contract_json = is_readable($contract_path) ? file_get_contents($contract_path) : false;
-if (! is_string($contract_json) || '' === $contract_json || ! is_array(json_decode($contract_json, true))) {
-    throw new RuntimeException('The approved Malaysia Homepage contract is missing or invalid.');
+$json = file_get_contents(dirname(__DIR__).'/plugins/tio2-site-model/config/tio2-my-homepage.json');
+$content = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+$ids = tio2_find_homepage_ids('tio2-my', false);
+if (count($ids)>1) throw new RuntimeException('Ambiguous Malaysia homepage identity.');
+if (($args[0] ?? '') !== '--initialize-draft') {
+    if (count($args ?? []) !== 2 || !$ids) throw new RuntimeException('Supply approval ID and operation for an existing record; initialize a new draft explicitly first.');
+    // Legacy footer is retained only where already installed; new drafts never introduce it.
+    $current = json_decode(get_post_meta((int)$ids[0],TIO2_MY_HOMEPAGE_CONTRACT_META,true),true);
+    if (is_array($current) && array_key_exists('footer',$current)) $content['footer']=$current['footer']; else unset($content['footer']);
+    $result = tio2_apply_approved_content($args[0],$args[1],[['pageId'=>'HOME-001','content'=>wp_json_encode($content)]]);
+    if (is_wp_error($result)) throw new RuntimeException($result->get_error_code().': '.$result->get_error_message());
+    echo wp_json_encode($result).PHP_EOL; return;
 }
-
-if (! term_exists($site_id, 'site_scope')) {
-    $term = wp_insert_term($site_id, 'site_scope', ['slug' => $site_id]);
-    if (is_wp_error($term)) {
-        throw new RuntimeException($term->get_error_message());
-    }
-}
-
-$ids = tio2_find_homepage_ids($site_id, false);
-if (count($ids) > 1) {
-    throw new RuntimeException('Expected no more than one local TiO2 Malaysia homepage record.');
-}
-if ([] === $ids) {
-    $created = wp_insert_post([
-        'post_type' => 'tio2_homepage',
-        'post_status' => 'draft',
-        'post_title' => 'TiO2 Malaysia Homepage',
-        'post_name' => 'tio2-my-homepage',
-    ], true);
-    if (is_wp_error($created)) {
-        throw new RuntimeException($created->get_error_message());
-    }
-    $post_id = (int) $created;
-    $scope = wp_set_object_terms($post_id, [$site_id], 'site_scope', false);
-    if (is_wp_error($scope)) {
-        throw new RuntimeException($scope->get_error_message());
-    }
-} else {
-    $post_id = (int) $ids[0];
-    wp_update_post(['ID' => $post_id, 'post_status' => 'draft']);
-}
-
-$slug_result = tio2_force_homepage_slug($post_id);
-if (is_wp_error($slug_result) || $internal_slug !== get_post_field('post_name', $post_id)) {
-    throw new RuntimeException('The Malaysia Homepage internal slug could not be secured.');
-}
-
-$GLOBALS['tio2_homepage_acf_save_in_progress'][$post_id] = true;
-try {
-    update_field('field_tio2_home_schema_version', 'homepage-v0.4-malaysia', $post_id);
-    update_post_meta($post_id, '_tio2_my_homepage_contract_json', $contract_json);
-} finally {
-    unset($GLOBALS['tio2_homepage_acf_save_in_progress'][$post_id]);
-}
-
-clean_post_cache($post_id);
-$validation = tio2_validate_homepage_contract($post_id);
-if (is_wp_error($validation)) {
-    throw new RuntimeException($validation->get_error_message());
-}
-wp_update_post(['ID' => $post_id, 'post_status' => 'publish']);
-if ('publish' !== get_post_status($post_id)) {
-    throw new RuntimeException('The Malaysia Homepage contract could not be published locally.');
-}
-
-echo wp_json_encode([
-    'status' => 'passed',
-    'postId' => $post_id,
-    'siteScope' => $site_id,
-    'internalSlug' => $internal_slug,
-    'schemaVersion' => 'homepage-v0.4-malaysia',
-]) . PHP_EOL;
+if ($ids) throw new RuntimeException('Draft initialization never overwrites an existing record.');
+$type=get_post_type_object('tio2_homepage');
+if (!$type || !current_user_can($type->cap->create_posts)) throw new RuntimeException('Missing draft creation capability.');
+unset($content['footer']); $json=wp_json_encode($content);
+$valid=tio2_validate_my_content_write('HOME-001',$json,null);
+if (is_wp_error($valid)) throw new RuntimeException($valid->get_error_message());
+if (!term_exists('tio2-my','site_scope')) { $term=wp_insert_term('tio2-my','site_scope',['slug'=>'tio2-my']); if(is_wp_error($term)) throw new RuntimeException($term->get_error_message()); }
+$id=wp_insert_post(['post_type'=>'tio2_homepage','post_status'=>'draft','post_title'=>'TiO2 Malaysia Homepage','post_name'=>'tio2-my-homepage'],true);
+if (is_wp_error($id)) throw new RuntimeException($id->get_error_message());
+$scope=wp_set_object_terms($id,['tio2-my'],'site_scope');
+if (is_wp_error($scope)) throw new RuntimeException($scope->get_error_message());
+$slug=tio2_force_homepage_slug($id);
+if (is_wp_error($slug)) throw new RuntimeException($slug->get_error_message());
+update_field('field_tio2_home_schema_version','homepage-v0.4-malaysia',$id);
+if (!update_post_meta($id,TIO2_MY_HOMEPAGE_CONTRACT_META,wp_slash($json))) throw new RuntimeException('Draft content did not persist.');
+echo wp_json_encode(['status'=>'draft','postId'=>$id,'siteScope'=>'tio2-my','approval'=>'not-granted']).PHP_EOL;

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 require_once __DIR__.'/content-release-validation.php';
 require_once __DIR__.'/home-application-read-contract.php';
+require_once __DIR__.'/content-write-contract.php';
 
 if (! defined('ABSPATH')) {
     exit;
@@ -39,34 +40,10 @@ function tio2_validate_homepage_v04_contract(int $post_id)
         );
     }
 
-    $approved = tio2_my_homepage_approved_contract_json();
-    if (is_wp_error($approved)) {
-        return $approved;
-    }
     $stored = get_post_meta($post_id, '_tio2_my_homepage_contract_json', true);
-    if (! is_string($stored) || ! tio2_my_content_json_matches($stored, $approved)) {
-        return new WP_Error(
-            'tio2_my_homepage_contract_mismatch',
-            'The stored Malaysia Homepage payload does not match the approved contract.'
-        );
-    }
-
-    $contract = json_decode($stored, true);
-    if (
-        ! is_array($contract) ||
-        'HOME-001-G7-HANDOFF-01' !== ($contract['packageId'] ?? null) ||
-        'HOME-001' !== ($contract['identity']['pageId'] ?? null) ||
-        'tio2-my' !== ($contract['identity']['siteScope'] ?? null) ||
-        '/' !== ($contract['identity']['path'] ?? null) ||
-        'homepage-v0.4-malaysia' !== ($contract['identity']['schemaVersion'] ?? null)
-    ) {
-        return new WP_Error(
-            'tio2_my_homepage_contract_invalid',
-            'The Malaysia Homepage payload identity is invalid.'
-        );
-    }
-
-    return true;
+    // Technical validity of installed content only. Historical seed input is not approval authority.
+    return is_string($stored) ? tio2_validate_my_content_write('HOME-001', $stored, $stored)
+        : new WP_Error('write_schema', 'The stored Malaysia Homepage payload is invalid.');
 }
 
 /** Published reads and existing authorized draft preview consumers share identity guards, never approval guards.

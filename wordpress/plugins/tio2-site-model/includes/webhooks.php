@@ -641,6 +641,7 @@ function tio2_sign_webhook_body(string $body, string $secret): string
 function tio2_send_webhook(int $post_id, ?array $affected = null): bool
 {
     $affected = $affected ?? tio2_get_webhook_affected_state($post_id);
+    if (class_exists('Tio2_Approved_Content_Write') && Tio2_Approved_Content_Write::defer_event($post_id, $affected)) return false;
     if (null === $affected || empty($affected['siteIds'])) {
         return false;
     }
@@ -895,6 +896,7 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
 function tio2_queue_webhook(int $post_id, ?array $affected = null): void
 {
     $affected = $affected ?? tio2_get_webhook_affected_state($post_id);
+    if (class_exists('Tio2_Approved_Content_Write') && Tio2_Approved_Content_Write::defer_event($post_id, $affected)) return;
     if (null === $affected) {
         return;
     }
@@ -911,6 +913,7 @@ function tio2_queue_webhook(int $post_id, ?array $affected = null): void
 
 function tio2_flush_webhook_queue(): void
 {
+    if (class_exists('Tio2_Approved_Content_Write') && Tio2_Approved_Content_Write::active()) return;
     $queued = isset($GLOBALS['tio2_webhook_queue']) && is_array($GLOBALS['tio2_webhook_queue'])
         ? $GLOBALS['tio2_webhook_queue']
         : [];

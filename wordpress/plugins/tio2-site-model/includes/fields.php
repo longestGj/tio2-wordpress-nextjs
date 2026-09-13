@@ -1588,7 +1588,10 @@ function tio2_enforce_homepage_contract(int $post_id)
 
     $GLOBALS['tio2_enforcing_homepage_contract'] = true;
     try {
-        $identity_result = tio2_reconcile_homepage_identity($post_id);
+        // MY ordinary writes must never reconcile (mutate) another identity as validation.
+        $identity_result = 'tio2-my' === tio2_get_homepage_site_id($post_id)
+            ? tio2_validate_homepage_record_identity($post_id)
+            : tio2_reconcile_homepage_identity($post_id);
         $result = is_wp_error($identity_result)
             ? $identity_result
             : tio2_validate_homepage_contract($post_id);
