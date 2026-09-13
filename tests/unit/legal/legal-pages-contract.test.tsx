@@ -45,6 +45,13 @@ function source(scope = 'tio2-my') {
   }))
 }
 
+function sourceWithMarkdown(markdown: string) {
+  return source().map((record, index) => index === 0 ? {
+    ...record,
+    malaysiaLegalPageContractJson: JSON.stringify({...approved.pages[0], buyerVisibleMarkdown: markdown}),
+  } : record)
+}
+
 describe('Legal/Privacy approved page contract', () => {
   it('projects only the three exact same-scope page identities', () => {
     const pages = toMalaysiaLegalPagesDto(source())
@@ -158,6 +165,37 @@ describe('Legal/Privacy approved page contract', () => {
     expect(container.querySelector('main')?.getAttribute('lang')).toBe('ms-MY')
     expect(container.querySelector('header')?.getAttribute('lang')).toBe('en')
     expect(container.querySelector('footer')?.getAttribute('lang')).toBe('en')
+  })
+
+  it.each([
+    ['multiline label', '[safe\nlabel](//evil.example/)'],
+    ['multiline destination', '[safe](\n//evil.example/)'],
+  ])('does not render a link with a %s', (_name, unsafeLink) => {
+    const validPage = toMalaysiaLegalPagesDto(source())[0]!
+    const page = {
+      ...validPage,
+      buyerVisibleMarkdown: `# Policy\n\n**Last updated: 14 September 2026**\n\n${unsafeLink}\n\n## Details\n\nBody.`,
+    }
+
+    expect(() => render(<MalaysiaLegalPage page={page} />)).toThrow()
+  })
+
+  it('renders every accepted paragraph before matching trailing actions', () => {
+    const markdown = '# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions: **CONTACT US ABOUT PRIVACY** · **MANAGE COOKIE SETTINGS**\n\n## Details\n\nFirst retained paragraph.\n\nSecond retained paragraph.\n\nActions: **CONTACT US ABOUT PRIVACY** · **MANAGE COOKIE SETTINGS**'
+    const page = toMalaysiaLegalPagesDto(sourceWithMarkdown(markdown))[0]!
+
+    const {container} = render(<MalaysiaLegalPage page={page} />)
+
+    expect(container.textContent).toContain('First retained paragraph.')
+    expect(container.textContent).toContain('Second retained paragraph.')
+    expect(container.textContent).toContain('CONTACT US ABOUT PRIVACY')
+    expect(container.textContent).toContain('MANAGE COOKIE SETTINGS')
+  })
+
+  it('rejects an action line that would hide later section prose', () => {
+    const markdown = '# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions: **CONTACT US ABOUT PRIVACY**\n\n## Details\n\nBody before action.\n\nActions: **CONTACT US ABOUT PRIVACY**\n\nBody after action must not disappear.'
+
+    expect(() => toMalaysiaLegalPagesDto(sourceWithMarkdown(markdown))).toThrow(/buyerVisibleMarkdown/)
   })
 })
 /** @vitest-environment jsdom */

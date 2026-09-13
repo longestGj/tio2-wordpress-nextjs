@@ -34,3 +34,20 @@ Develop merge-base: `7c849af234602cf299cb75e772a0104f77b849cd`
 
 - This is Task 1 only. Task 2 must consume the same config and vectors in the PHP read validator/resolver while retaining existing write validators unchanged.
 - Build-time CMS queries remain intact. No CMS/DB writes, remote calls, deployments, production operations, or `main`/`develop` merges were performed.
+
+## Review fix round 1
+
+Review base: `067c0145828620abf7ce7ac6b46d78a34cee0964`.
+
+- Link grammar: validation previously skipped link labels/destinations containing a newline while the component tokenizer accepted them. Shared cases and rendered tests now cover both bypass forms. Validation rejects leftover multiline link openers, and the component tokenizer uses the same single-line label/destination grammar.
+- Action/content preservation: the supported template layout is now explicit. An action line is allowed only as the final nonempty hero line, with at most one identical duplicate as the final nonempty document line. Section actions without hero actions, differing final actions, and prose after an action are rejected. This retains current label-to-action compatibility while preventing ignored actions or silently discarded prose; arbitrary action placement was never a renderable capability.
+- Focused ownership expanded only to `components/sites/tio2-my/legal/malaysia-legal-page.tsx` and its existing legal component test because validator/renderer grammar must agree at the actual rendering boundary. No general Markdown renderer rewrite was made.
+
+Fix-round TDD and verification:
+
+- Initial focused RED: `npx vitest run tests/unit/legal/legal-pages-read-contract.test.ts tests/unit/legal/legal-pages-contract.test.tsx` exposed the two multiline-link renders and action truncation/difference acceptance. After replacing one unrelated exact action-count assertion with content-presence assertions, the valid RED was 7 failed / 38 passed across 45 tests.
+- Focused GREEN: the same command — 2 files, 45 tests passed.
+- Full legal regression: `npx vitest run tests/unit/legal tests/integration/legal` — 6 files, 66 tests passed.
+- Shared TypeScript write/fixture regression — 2 files, 114 tests passed.
+- Shared PHP comparator regression in read-only, network-none Docker — `PASS 57 page policies, 1692 text paths; editorial and Sample actual validators`.
+- First `npm run typecheck` found only unsupported regex flag `s` (`TS1501`); the flag was unnecessary for the newline-spanning character class. After removal, `npm run typecheck` passed, and focused tests remained 45/45.

@@ -121,6 +121,20 @@
       "expected": "reject"
     },
     {
+      "name": "rejects multiline link label bypass",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\n[safe\nlabel](//evil.example/).\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects multiline link destination bypass",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\n[safe](\n//evil.example/).\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
       "name": "rejects protocol relative link",
       "mutations": [
         {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\n[External](//evil.example/).\n\n## Details\n\nBody."}
@@ -173,6 +187,28 @@
       "name": "rejects unsupported action label",
       "mutations": [
         {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions: **OPEN EXTERNAL PORTAL**\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "accepts matching hero and final trailing actions without losing content",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions: **CONTACT US ABOUT PRIVACY** · **MANAGE COOKIE SETTINGS**\n\n## Details\n\nFirst retained paragraph.\n\nSecond retained paragraph.\n\nActions: **CONTACT US ABOUT PRIVACY** · **MANAGE COOKIE SETTINGS**"}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Second retained paragraph."
+    },
+    {
+      "name": "rejects prose after a section action line",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions: **CONTACT US ABOUT PRIVACY**\n\n## Details\n\nBody before action.\n\nActions: **CONTACT US ABOUT PRIVACY**\n\nBody after action must not disappear."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects final actions that differ from hero actions",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions: **CONTACT US ABOUT PRIVACY**\n\n## Details\n\nBody.\n\nActions: **MANAGE COOKIE SETTINGS**"}
       ],
       "expected": "reject"
     },

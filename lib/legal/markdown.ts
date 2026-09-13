@@ -63,18 +63,40 @@ function validateMarkdown(markdown: string): string {
     throw new Error('Legal buyer copy has invalid section IDs')
   }
 
+  const inlineLinkPattern = /\[[^\]\n]+\]\([^)\n]+\)/gu
   const allowedLinks = new Set<string>(legalReadContract.markdown.allowedLinkDestinations)
   for (const match of raw.matchAll(/\[[^\]\n]+\]\(([^)\n]+)\)/gu)) {
     if (!allowedLinks.has(match[1]!)) throw new Error('Legal buyer copy has an unsupported link')
   }
+  if (/\[[^\]]*\]\(/u.test(raw.replace(inlineLinkPattern, ''))) {
+    throw new Error('Legal buyer copy has malformed multiline link syntax')
+  }
 
   const allowedActions = new Set(legalReadContract.markdown.actionBindings.map(({label}) => label))
-  for (const line of lines.filter((candidate) => /^(Actions|Tindakan):/u.test(candidate))) {
-    const labels = actions(line)
+  const actionEntries = lines.flatMap((line, index) => /^(Actions|Tindakan):/u.test(line) ? [{index, labels: actions(line)}] : [])
+  for (const {labels} of actionEntries) {
     if (labels.length === 0 || labels.some((label) => !allowedActions.has(label))) {
       throw new Error('Legal buyer copy has an unsupported action')
     }
   }
+
+  const firstH2Index = lines.findIndex((line) => /^## /u.test(line))
+  const heroActions = actionEntries.filter(({index}) => index < firstH2Index)
+  const sectionActions = actionEntries.filter(({index}) => index > firstH2Index)
+  const lastNonemptyBefore = (end: number) => {
+    for (let index = end - 1; index >= 0; index -= 1) if (lines[index] !== '') return index
+    return -1
+  }
+  if (
+    heroActions.length > 1
+    || sectionActions.length > 1
+    || (heroActions[0] && heroActions[0].index !== lastNonemptyBefore(firstH2Index))
+    || (sectionActions[0] && (
+      sectionActions[0].index !== lastNonemptyBefore(lines.length)
+      || !heroActions[0]
+      || JSON.stringify(sectionActions[0].labels) !== JSON.stringify(heroActions[0].labels)
+    ))
+  ) throw new Error('Legal buyer copy has an unsupported action layout')
 
   return raw
 }

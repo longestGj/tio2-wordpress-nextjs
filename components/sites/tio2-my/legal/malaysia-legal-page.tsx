@@ -17,7 +17,7 @@ function plainWithBreaks(value: string, key: string): ReactNode[] {
 }
 
 function inline(markdown: string): ReactNode[] {
-  const pattern = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\)|`[^`]+`)/g
+  const pattern = /(\*\*[^*]+\*\*|\[[^\]\n]+\]\([^)\n]+\)|`[^`]+`)/g
   const nodes: ReactNode[] = []
   let cursor = 0
   for (const match of markdown.matchAll(pattern)) {
