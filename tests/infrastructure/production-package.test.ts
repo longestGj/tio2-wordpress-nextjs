@@ -75,9 +75,9 @@ function prereleaseReceipt(commit: string) {
     buildId: 'build-candidate-1',
     previousProductionReceipt: 'PROD-16',
     cmsIdentitySha256: 'a'.repeat(64),
-    releaseSurfaceSha256: '42b29755e99dec1ec71fe07a98a7cf586349cf60bfb25f7f90d74ca6f35bd152',
+    releaseSurfaceSha256: '6655c74b695b0f0f4d0f9ac94607ba138bf1d42b063e2d5daa101d2953c19cad',
     sealedAt: '2026-09-12T00:00:00.000Z',
-    counts: {businessPages: 56, registeredObjects: 58, widths: 3, browserCases: 174},
+    counts: {businessPages: 57, registeredObjects: 59, widths: 3, browserCases: 177},
     forms: {rfq: 'RECEIVED', sample: 'RECEIVED', documents: 'RECEIVED'},
     evidenceSha256: {test: 'b'.repeat(64), liveForms: 'c'.repeat(64), inbox: 'd'.repeat(64)},
   }

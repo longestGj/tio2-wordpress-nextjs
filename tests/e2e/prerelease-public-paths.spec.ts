@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright'
 import {expect, test, type Locator, type Page} from '@playwright/test'
 import {createHash} from 'node:crypto'
 import {readFileSync} from 'node:fs'
-import {baseUrl, capturePublicPage, recordCheck} from './support/prerelease-evidence'
+import {baseUrl, capturePublicPage, isolatePrereleaseTelemetry, recordCheck} from './support/prerelease-evidence'
 
 type Target = {pageId: string; path: string; canonical: string; roles: string[]}
 const eligibility = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-prerelease-public-paths.json', 'utf8')) as {routes: Target[]}
@@ -24,6 +24,8 @@ test.beforeEach(async ({page}) => {
     if (route.request().method() !== 'GET') { nonGetCount++; return route.abort('blockedbyclient') }
     await route.continue()
   })
+  // Match the dedicated consent suite's isolation without relaxing the write guard.
+  await isolatePrereleaseTelemetry(page)
 })
 test.afterEach(async ({}, info) => {
   recordCheck('public-paths', info, nonGetCount)
@@ -40,10 +42,23 @@ async function identity(page: Page, target: Target) {
   expect(new URL(page.url()).pathname.replace(/\/$/u, '')).toBe(target.path.replace(/\/$/u, ''))
   if (target.roles.includes('application-child')) {
     await expect(page.locator(`[data-page-id="${target.pageId}"][data-site-scope="tio2-my"]`)).toHaveCount(1)
-    await expect(page.locator('link[rel="canonical"], meta[property="og:url"]')).toHaveCount(0)
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', target.canonical)
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', target.canonical)
+    // The approved public SEO release supersedes the old provisional-page policy.
+    // The local prerelease still disallows indexing regardless of public authorization.
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /^noindex,\s*nofollow$/u)
     const schemas = await page.locator('script[type="application/ld+json"]').allTextContents()
-    expect(schemas.filter(schema => /https?:\/\//u.test(schema))).toEqual([])
+    const types: string[] = []
+    const collect = (value: unknown): void => {
+      if (Array.isArray(value)) { value.forEach(collect); return }
+      if (!value || typeof value !== 'object') return
+      const object = value as Record<string, unknown>
+      if (typeof object['@type'] === 'string') types.push(object['@type'])
+      else if (Array.isArray(object['@type'])) types.push(...object['@type'].filter((type): type is string => typeof type === 'string'))
+      Object.values(object).forEach(collect)
+    }
+    schemas.forEach(schema => collect(JSON.parse(schema)))
+    expect(types).toEqual(expect.arrayContaining(['WebPage', 'BreadcrumbList']))
   } else {
     await expect(page.locator('link[rel="canonical"]')).toHaveCount(1)
     expect(new URL((await page.locator('link[rel="canonical"]').getAttribute('href'))!).href).toBe(new URL(target.canonical).href)
@@ -115,7 +130,14 @@ for (const width of [1440, 768, 390]) {
           primary = page.locator('[data-resource-group] article h4 a')
           await nativeInventory(primary, roles('resource-item'), 8)
           break
-        default: throw new Error('Unexpected consumer')
+        default:
+          // The public release adds About, markets, Contact and legal consumers.
+          // Exercise a registered native link on each, retaining Axe/layout/return checks.
+          primary = page.locator(eligibility.routes
+            .filter(target => target.pageId !== consumer.pageId)
+            .map(target => `main a[href="${target.path}"]`).join(', '))
+          expect(await primary.count(), `${consumer.pageId}: registered navigation`).toBeGreaterThan(0)
+          break
       }
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
       const axe = await new AxeBuilder({page}).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()
@@ -143,7 +165,7 @@ for (const width of [1440, 768, 390]) {
     const sitemap = await request.get(`${baseUrl}/sitemap.xml`)
     expect(sitemap.status()).toBe(200)
     const xml = await sitemap.text()
-    for (const target of fiveApps) expect(xml).not.toContain(target.canonical)
+    for (const target of fiveApps) expect(xml).toContain(`<loc>${target.canonical}</loc>`)
   })
 }
 

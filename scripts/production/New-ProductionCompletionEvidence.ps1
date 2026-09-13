@@ -10,6 +10,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'ReleaseCoverage.ps1')
 $requiredForms = @('rfq', 'sample', 'documents')
 $bindingNames = @(
     'releaseId', 'subject', 'releaseType', 'sourceCommit',
@@ -104,8 +105,22 @@ if ($binding.subject -cne 'tio2-my' -or $binding.releaseType -cne 'frontend-only
 }
 $expectedRunRoot = '.production/runs/' + $binding.releaseId
 $normalizedRunRoot = $RunRoot.Replace('\', '/')
-if ($binding.runRoot -cne $expectedRunRoot -or -not $normalizedRunRoot.EndsWith('/' + $expectedRunRoot, [StringComparison]::Ordinal)) { throw 'RunRoot does not match the release binding.' }
-if ((Get-Sha256 (Join-Path $RunRoot 'release-manifest.json')) -cne $binding.candidateManifestSha256) { throw 'Candidate manifest does not match the release binding.' }
+if ($binding.runRoot -ceq ('frontend/' + $binding.releaseId)) {
+    # New envelopes use a logical server run identity, not the client's directory.
+    # Reuse full offline payload/proof validation; this invokes no transport.
+    Import-Module (Join-Path $PSScriptRoot 'Production.Core.psm1') -Force
+    $candidate = & (Get-Module Production.Core) { param($root, $site) Get-D16NewFrontendCandidate $root $site } $RunRoot $binding.subject
+    foreach ($name in $candidate.Keys) {
+        if ($candidate[$name] -cne $binding[$name]) { throw "Candidate binding mismatch: $name" }
+    }
+    $sourceManifest = Read-JsonObject (Join-Path $RunRoot 'payload/frontend/release-manifest.json') 'Source manifest'
+    $sourceProof = Read-JsonObject (Join-Path $RunRoot 'payload/frontend/release-proof.json') 'Source proof'
+} else {
+    if ($binding.runRoot -cne $expectedRunRoot -or -not $normalizedRunRoot.EndsWith('/' + $expectedRunRoot, [StringComparison]::Ordinal)) { throw 'RunRoot does not match the release binding.' }
+    if ((Get-Sha256 (Join-Path $RunRoot 'release-manifest.json')) -cne $binding.candidateManifestSha256) { throw 'Candidate manifest does not match the release binding.' }
+    $sourceManifest = Read-JsonObject (Join-Path $RunRoot 'release-manifest.json') 'Source manifest'
+}
+$coverage = Get-ReleaseCoverageCounts $sourceManifest.releaseSurfaceSha256
 
 $backup = Read-JsonObject (Join-Path $RunRoot 'frontend-backup.json') 'Frontend backup receipt'
 if (-not $backup.backupId) { throw 'Frontend backup identity is missing.' }
@@ -124,6 +139,7 @@ $active = $details.activeFrontend
 Assert-ExactNames $active @('commit', 'sourceRoot', 'imageId', 'buildId', 'containerId') 'Active frontend identity'
 if ($active.commit -cne $binding.sourceCommit -or $active.imageId -cnotmatch '^sha256:[a-f0-9]{64}$' -or
     $active.containerId -cnotmatch '^[a-f0-9]{64}$' -or -not $active.sourceRoot -or -not $active.buildId) { throw 'Active frontend identity does not match the candidate.' }
+if ($binding.runRoot -ceq ('frontend/' + $binding.releaseId) -and $active.buildId -cne $sourceProof.buildId) { throw 'Active Build does not match the candidate proof.' }
 
 $businessInput = Read-JsonObject ([IO.Path]::GetFullPath($BusinessE2EPath)) 'Business E2E evidence'
 Assert-ExactNames $businessInput @('schemaVersion', 'siteId', 'commit', 'releaseId', 'candidateManifestSha256', 'cmsIdentitySha256', 'environment', 'suite', 'state', 'runId', 'counts', 'active') 'Business E2E evidence'
@@ -136,8 +152,8 @@ if ($businessInput.schemaVersion -cne 'd16-production-business-e2e-evidence-v1' 
     $businessInput.state -cne 'PASSED' -or $businessInput.runId -isnot [string] -or
     $businessInput.runId.Trim().Length -lt 1 -or $businessInput.runId.Trim().Length -gt 256) { throw 'Business E2E identity is invalid.' }
 Assert-ExactNames $businessInput.counts @('registeredObjects', 'widths', 'browserCases', 'passed', 'failed', 'externalPostCount') 'Business E2E counts'
-if ($businessInput.counts.registeredObjects -ne 58 -or $businessInput.counts.widths -ne 3 -or
-    $businessInput.counts.browserCases -ne 174 -or $businessInput.counts.passed -ne 174 -or
+if ($businessInput.counts.registeredObjects -ne $coverage.registeredObjects -or $businessInput.counts.widths -ne $coverage.widths -or
+    $businessInput.counts.browserCases -ne $coverage.browserCases -or $businessInput.counts.passed -ne $coverage.browserCases -or
     $businessInput.counts.failed -ne 0 -or $businessInput.counts.externalPostCount -ne 0) { throw 'Business E2E coverage is incomplete.' }
 Assert-ExactNames $businessInput.active @('commit', 'sourceRoot', 'imageId', 'buildId', 'containerId') 'Business E2E active identity'
 foreach ($name in @('commit', 'sourceRoot', 'imageId', 'buildId', 'containerId')) {

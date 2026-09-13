@@ -8,16 +8,24 @@ export const commandUuid = process.env.TIO2_PRERELEASE_COMMAND_UUID ?? 'manual-u
 export const baseUrl = process.env.TIO2_PRERELEASE_BASE_URL ?? 'http://127.0.0.1:3100'
 mkdirSync(evidenceRoot, {recursive: true})
 
+export async function isolatePrereleaseTelemetry(page: Page) {
+  await page.route('https://www.googletagmanager.com/gtm.js**', route => {
+    if (route.request().method() !== 'GET') return route.fallback()
+    return route.fulfill({status: 200, contentType: 'application/javascript', body: '/* isolated prerelease telemetry */'})
+  })
+}
+
 // One immutable fragment per test avoids afterAll races and preserves worker failures/restarts.
 export type TransportCounts = {allowedPostCount: number; blockedWriteCount: number}
 export function recordCheck(suite: string, testInfo: TestInfo, externalPostCount = 0, transport?: TransportCounts) {
   const ids = testInfo.annotations.filter(annotation => annotation.type === 'prerelease-check')
   const check = ids.length === 1 ? ids[0]?.description : 'invalid-check-identity'
   const transportStatus = transport && transport.allowedPostCount === 1 && transport.blockedWriteCount === 0 ? 'PASSED' : 'FAILED'
+  const invalidWrites = transport ? transportStatus === 'FAILED' : externalPostCount !== 0
   writeFileSync(resolve(evidenceRoot, `${suite}-${randomUUID()}.json`), JSON.stringify({
     suite, commandUuid, externalPostCount,
     ...(transport ? {transport: {...transport, status: transportStatus}} : {}),
-    checks: [{check, status: transport && transportStatus === 'FAILED' ? 'FAILED' : testInfo.status === 'passed' ? 'PASSED' : testInfo.status === 'skipped' ? 'NOT_TESTED' : 'FAILED'}],
+    checks: [{check, status: invalidWrites ? 'FAILED' : testInfo.status === 'passed' ? 'PASSED' : testInfo.status === 'skipped' ? 'NOT_TESTED' : 'FAILED'}],
   }, null, 2), {flag: 'wx'})
 }
 

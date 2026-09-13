@@ -21,6 +21,13 @@ from release_state import atomic_write_json
 PLUGIN_DEST = '/var/www/html/wp-content/plugins/tio2-site-model'
 PREFIX = 'wordpress/plugins/tio2-site-model/'
 LIMIT = 256 * 1024 * 1024
+# Public test placeholders verified in the official WPGraphQL ACF 2.8.0 archive:
+# https://downloads.wordpress.org/plugin/wpgraphql-acf.2.8.0.zip
+# This is an exact path AND byte identity, never a general .env.example exemption.
+APPROVED_EXECUTION_EXAMPLES = {
+    'wp-content/plugins/wpgraphql-acf/.env.example':
+        '75f07f13f15864e3ccc9709f91cf6163adb17cd049ca91a3089d67350dfa0c1a',
+}
 
 
 def hashes(files):
@@ -161,7 +168,9 @@ class InstallationResources:
             '--exclude=./wp-config.php', '--exclude=./wp-content/uploads', '--exclude=./wp-content/cache',
             '-cf', '-', '.'))
         # An unexpected secret/config artifact is not promoted into privileged execution.
-        if any(name.split('/')[-1].startswith('.env') or name.endswith(('.key', '.pem', '.log')) for name in core):
+        if any((name.split('/')[-1].startswith('.env') or name.endswith(('.key', '.pem', '.log')))
+               and APPROVED_EXECUTION_EXAMPLES.get(name) != hashlib.sha256(data).hexdigest()
+               for name, data in core.items()):
             raise ReleaseError('WordPress execution tree contains unapproved secret/log files')
         php_archive = self.docker('exec', self.wp, 'sh', '-c',
             'if test -L /opt/d16-content; then exit 1; elif test -d /opt/d16-content; then tar -C /opt/d16-content -cf - .; fi')
