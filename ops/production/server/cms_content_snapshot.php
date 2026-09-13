@@ -1,13 +1,47 @@
 <?php
 // Shared probe: SHORTINIT bypasses plugins; SELECTs run in one read-only snapshot.
-// Opaque metadata is hashed verbatim, including embedded IDs/URLs/serialized data.
-// Such references may conservatively reject otherwise equivalent database copies.
+// Known JSON contracts use semantic object ordering. Unknown metadata stays raw.
+// Historical WordPress slugs are outside headless content identity, never deleted.
 define('SHORTINIT', true);
 require '/var/www/html/wp-load.php';
 global $wpdb;
 
 function d16_json($value) {
     return json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+}
+function d16_order_json($value) {
+    if (is_object($value)) {
+        $fields = get_object_vars($value);
+        ksort($fields, SORT_STRING);
+        $result = new stdClass();
+        foreach ($fields as $key => $item) { $result->{(string)$key} = d16_order_json($item); }
+        return $result;
+    }
+    if (is_array($value)) { return array_map('d16_order_json', $value); }
+    return $value;
+}
+function d16_meta_value($key, $value) {
+    static $known = [
+        '_tio2_my_about_page_contract_json', '_tio2_my_about_page_evidence_json',
+        '_tio2_my_application_hub_contract_json', '_tio2_my_brazil_en_market_contract_json',
+        '_tio2_my_brazil_pt_market_contract_json', '_tio2_my_chloride_process_contract_json',
+        '_tio2_my_contact_page_contract_json', '_tio2_my_country_market_contract_json',
+        '_tio2_my_document_coo_contract_json', '_tio2_my_documents_hub_contract_json',
+        '_tio2_my_editorial_contract', '_tio2_my_eu_market_contract_json',
+        '_tio2_my_homepage_contract_json', '_tio2_my_market_hub_contract_json',
+        '_tio2_my_poland_market_contract_json', '_tio2_my_product_detail_contract_json',
+        '_tio2_my_product_hub_contract_json', '_tio2_my_request_documents_contract_json',
+        '_tio2_my_request_sample_contract_json', '_tio2_my_resource_hub_contract_json',
+        '_tio2_my_resource_origin_contract_json', '_tio2_my_resource_proc_contract_json',
+        '_tio2_my_rfq_page_contract_json', '_tio2_my_uk_market_contract_json',
+    ];
+    if (!in_array($key, $known, true)) { return $value; }
+    // Reject invalid/scalar contracts rather than fall back to weaker identity.
+    $decoded = json_decode($value, false, 512, JSON_THROW_ON_ERROR);
+    if (!is_object($decoded) && !is_array($decoded)) { throw new RuntimeException('Invalid contract'); }
+    // PHP contract readers distinguish int and float with strict equality.
+    return json_encode(d16_order_json($decoded), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE |
+        JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR);
 }
 function d16_rows($sql) {
     global $wpdb;
@@ -56,12 +90,12 @@ try {
         FROM {$wpdb->postmeta} pm JOIN {$wpdb->posts} p ON p.ID=pm.post_id
         WHERE $scope ORDER BY pm.meta_id");
     foreach ($metadata as $m) {
-        if (in_array($m['meta_key'], ['_edit_lock','_edit_last'], true)) { continue; }
+        if (in_array($m['meta_key'], ['_edit_lock','_edit_last','_wp_old_slug'], true)) { continue; }
         // WordPress returns the first meta_id for single-value reads. Preserve
         // values within each key, but never hash database-local meta IDs.
         // JSON-encoded keys avoid PHP's numeric-string array-key coercion.
         $key = d16_json((string)$m['meta_key']);
-        $records[(string)$m['post_id']]['meta'][$key][] = (string)$m['meta_value'];
+        $records[(string)$m['post_id']]['meta'][$key][] = d16_meta_value((string)$m['meta_key'], (string)$m['meta_value']);
     }
     $terms = d16_rows("SELECT tr.object_id,tt.taxonomy AS taxonomy,t.slug,t.name,tt.description,
         parent.slug AS parent_slug,tr.term_order
@@ -83,7 +117,7 @@ try {
     }
     sort($canonical, SORT_STRING);
     d16_query('ROLLBACK');
-    echo d16_json(['schemaVersion'=>'d16-cms-content-snapshot-v1', 'siteScope'=>'tio2-my',
+    echo d16_json(['schemaVersion'=>'d16-cms-content-snapshot-v2', 'siteScope'=>'tio2-my',
         'publishedRecords'=>count($posts), 'contentSha256'=>hash('sha256', d16_json($canonical))]);
 } catch (Throwable $error) {
     $wpdb->query('ROLLBACK');

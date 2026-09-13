@@ -13,12 +13,50 @@ sys.path.insert(0, str(SERVER))
 
 
 class SnapshotTests(unittest.TestCase):
+    def test_known_json_formatting_is_equivalent_but_values_and_routes_are_not(self):
+        if not shutil.which('docker') or subprocess.run(
+                ['docker', 'image', 'inspect', 'php:8.3-cli'], capture_output=True, timeout=15).returncode:
+            self.skipTest('local PHP fixture requires existing php:8.3-cli image')
+        fixture = {
+            'posts': [dict(ID='4', post_type='tio2_homepage', post_name='tio2-my--homepage',
+                           post_title='Hello', post_content='Body', post_excerpt='', post_status='publish',
+                           menu_order='0', post_password='', post_parent='0', parent_type=None, parent_slug=None)],
+            'meta': [dict(post_id='4', meta_key='_tio2_my_homepage_contract_json',
+                          meta_value='{"z": [1, "x"], "a": {"b": true}}')], 'terms': [],
+        }
+        def snapshot(value):
+            result = self.run_php(value)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return json.loads(result.stdout)
+        baseline = snapshot(fixture)
+        reordered = deepcopy(fixture)
+        reordered['meta'][0]['meta_value'] = '{"a":{"b":true},"z":[1,"x"]}'
+        self.assertEqual(snapshot(reordered), baseline)
+        self.assertEqual(baseline['schemaVersion'], 'd16-cms-content-snapshot-v2')
+        for value in ['{"a":{"b":false},"z":[1,"x"]}', '{"a":{"b":true},"z":["x",1]}',
+                      '{"a":{"b":true},"z":["1","x"]}', '{"a":[],"z":[1,"x"]}',
+                      '{"a":{"b":true},"z":[1.0,"x"]}']:
+            changed = deepcopy(fixture); changed['meta'][0]['meta_value'] = value
+            self.assertNotEqual(snapshot(changed), baseline)
+        for key in ['_tio2_my_route_release_state', 'unknown_json']:
+            changed = deepcopy(fixture)
+            changed['meta'].append(dict(post_id='4', meta_key=key, meta_value='DRAFT'))
+            self.assertNotEqual(snapshot(changed), baseline)
+        historical = deepcopy(fixture)
+        historical['meta'].append(dict(post_id='4', meta_key='_wp_old_slug', meta_value='old-home'))
+        self.assertEqual(snapshot(historical), baseline)
+        malformed = deepcopy(fixture); malformed['meta'][0]['meta_value'] = '{broken'
+        self.assertNotEqual(self.run_php(malformed).returncode, 0)
+        unknown = deepcopy(fixture); unknown['meta'][0]['meta_key'] = 'unknown_json'
+        unknown_reordered = deepcopy(reordered); unknown_reordered['meta'][0]['meta_key'] = 'unknown_json'
+        self.assertNotEqual(snapshot(unknown), snapshot(unknown_reordered))
+
     def test_snapshot_reader_and_strict_contract(self):
         self.assertTrue((SERVER / 'cms_content_snapshot.py').exists(), 'snapshot reader missing')
         from cms_content_snapshot import read_content_snapshot, validate_snapshot, probe_source
         from release_actions import CommandResult
         from release_contract import ReleaseError
-        value = dict(schemaVersion='d16-cms-content-snapshot-v1', siteScope='tio2-my',
+        value = dict(schemaVersion='d16-cms-content-snapshot-v2', siteScope='tio2-my',
                      publishedRecords=2, contentSha256='a' * 64)
         class Runner:
             def run(self, arguments):
@@ -30,7 +68,8 @@ class SnapshotTests(unittest.TestCase):
         self.assertEqual(runner.arguments[5], probe_source())
         self.assertFalse(probe_source().startswith('<?php'))
         for patch in ({'publishedRecords': True}, {'publishedRecords': 0}, {'siteScope': 'tio2-a'},
-                      {'contentSha256': 'oops'}, {'extra': 1}, {'schemaVersion': 'old'}):
+                      {'contentSha256': 'oops'}, {'extra': 1}, {'schemaVersion': 'old'},
+                      {'schemaVersion': 'd16-cms-content-snapshot-v1'}):
             with self.subTest(patch=patch), self.assertRaises(ReleaseError):
                 validate_snapshot(value | patch)
         with self.assertRaises(ReleaseError):
