@@ -63,7 +63,7 @@ describe('legal-only local runtime fixture ownership', () => {
     mkdirSync(runDirectory)
     writeFileSync(environmentPath, 'WORDPRESS_DB_NAME=synthetic-only')
     const simulation = await createWordPressRuntimeSimulation()
-    const {setPort, dispose} = simulation
+    const {setPort, dispose, calls} = simulation
     setPort('0.0.0.0:1234')
     let attempted = false
     let wordpress: OwnedWordPressRuntime | undefined
@@ -77,6 +77,7 @@ describe('legal-only local runtime fixture ownership', () => {
         projectName: expect.stringMatching(/^d16-test-/u),
         composeArgs: expect.any(Array),
       })
+      expect(calls.some(args => args.includes('up'))).toBe(true)
       let wordpressStopped = false
       const errors = await runLegalCleanupSteps([
         {name: 'WordPress stop', run: async () => {
