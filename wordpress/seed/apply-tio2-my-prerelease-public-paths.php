@@ -14,12 +14,17 @@ defined('TIO2_MY_ROUTE_RELEASE_STATE_META') || define('TIO2_MY_ROUTE_RELEASE_STA
 
 $config_path = dirname(__DIR__) . '/plugins/tio2-site-model/config/tio2-my-prerelease-public-paths.json';
 $config = json_decode((string) file_get_contents($config_path), true, 512, JSON_THROW_ON_ERROR);
+$approved_counts = [
+    'TIO2-MY-PRERELEASE-PUBLIC-PATHS-2026-09-09-V1' => 42,
+    'TIO2-MY-FULL-PUBLIC-SEO-GA4-GATE6-2026-09-13' => 58,
+];
+$expected_count = $approved_counts[$config['candidateId'] ?? ''] ?? null;
 if (
-    ($config['candidateId'] ?? null) !== 'TIO2-MY-PRERELEASE-PUBLIC-PATHS-2026-09-09-V1' ||
+    null === $expected_count ||
     ($config['siteScope'] ?? null) !== 'tio2-my' ||
     ($config['locale'] ?? null) !== 'en' ||
     ! is_array($config['routes'] ?? null) ||
-    count($config['routes']) !== 42
+    count($config['routes']) !== $expected_count
 ) {
     throw new RuntimeException('The prerelease public-path candidate identity is invalid.');
 }
@@ -100,8 +105,8 @@ foreach ($config['routes'] as $route) {
     $plans[] = ['postId' => $post_id, 'pageId' => $page_id, 'canonical' => $canonical];
 }
 
-if (1 !== $native_count || 41 !== count($plans)) {
-    throw new RuntimeException('The prerelease candidate must contain 41 CMS routes and one native route.');
+if (1 !== $native_count || ($expected_count - 1) !== count($plans)) {
+    throw new RuntimeException('The prerelease candidate must contain the approved CMS routes and one native route.');
 }
 
 global $wpdb;
@@ -128,5 +133,5 @@ try {
 echo 'TIO2_MY_PRERELEASE_PUBLIC_PATHS_RESULT ' . wp_json_encode([
     'candidateId' => $config['candidateId'],
     'state' => 'APPLIED',
-    'routeCount' => 42,
+    'routeCount' => $expected_count,
 ], JSON_UNESCAPED_SLASHES) . PHP_EOL;
