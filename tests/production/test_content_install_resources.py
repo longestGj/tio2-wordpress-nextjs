@@ -15,6 +15,29 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'ops/production/server'))
 from release_contract import ReleaseError
 
+# Public test placeholders, not deployment credentials. Exact bytes from
+# https://downloads.wordpress.org/plugin/wpgraphql-acf.2.8.0.zip
+# Entry wpgraphql-acf/.env.example (no trailing newline).
+OFFICIAL_ENV_EXAMPLE = (
+    b'# WordPress Test Environment\n'
+    b'TEST_SITE_WP_URL=http://localhost:8080\n'
+    b'TEST_SITE_DB_HOST=localhost\n'
+    b'TEST_SITE_DB_NAME=wordpress_test\n'
+    b'TEST_SITE_DB_USER=root\n'
+    b'TEST_SITE_DB_PASSWORD=password\n'
+    b'TEST_SITE_TABLE_PREFIX=wp_\n'
+    b'WP_URL=http://localhost:8080\n'
+    b'TEST_SITE_ADMIN_USERNAME=admin\n'
+    b'TEST_SITE_ADMIN_PASSWORD=password\n\n'
+    b'# ACF Configuration\nACF_VERSION=latest\nACF_PRO=1\n'
+    b'ACF_LICENSE_KEY=your_license_key_here\n'
+    b'ACF_EXTENDED_LICENSE_KEY=your_extended_license_key_here\n\n'
+    b'# PHP and WordPress Configuration\nPHP_VERSION=8.0\nWP_VERSION=6.1\n'
+    b'COVERAGE=0\nUSING_XDEBUG=0\nDEBUG=1\nSKIP_TESTS_CLEANUP=0\n'
+    b'WPGRAPHQL_CONTENT_BLOCKS=0'
+)
+OFFICIAL_ENV_PATH = 'wp-content/plugins/wpgraphql-acf/.env.example'
+
 
 def tar_bytes(files):
     output = io.BytesIO()
@@ -136,6 +159,52 @@ class InstallationResourcesTests(unittest.TestCase):
         self.assertNotIn('private', json.dumps(first))
         self.docker.core['wp-content/plugins/graphql/plugin.php'] = b'changed other plugin'
         self.assertNotEqual(self.resources.snapshot(), first)
+
+    def test_official_env_example_is_hash_bound_and_preserved_in_backup_and_importer(self):
+        self.docker.core[OFFICIAL_ENV_PATH] = OFFICIAL_ENV_EXAMPLE
+        try:
+            snapshot = self.resources.snapshot()
+        except ReleaseError:
+            self.fail('unchanged official WPGraphQL ACF example was rejected')
+        self.assertEqual(snapshot['executionFiles'][OFFICIAL_ENV_PATH],
+                         '75f07f13f15864e3ccc9709f91cf6163adb17cd049ca91a3089d67350dfa0c1a')
+        self.assertNotIn('TEST_SITE_DB_PASSWORD', json.dumps(snapshot))
+        self.resources.backup(self.base / 'backup')
+        self.assertEqual((self.base / 'backup/execution' / OFFICIAL_ENV_PATH).read_bytes(), OFFICIAL_ENV_EXAMPLE)
+        self.resources.install(self.owner)
+        mount = next(item for item in self.docker.importer['Mounts'] if item['Destination'] == '/var/www/html')
+        self.assertEqual((Path(mount['Source']) / OFFICIAL_ENV_PATH).read_bytes(), OFFICIAL_ENV_EXAMPLE)
+
+    def test_changed_or_relocated_env_examples_and_other_sensitive_files_stay_rejected(self):
+        cases = [
+            (OFFICIAL_ENV_PATH, OFFICIAL_ENV_EXAMPLE + b'\n'),
+            (OFFICIAL_ENV_PATH, b'DB_PASSWORD=not-an-approved-example'),
+            ('wp-content/plugins/other/.env.example', OFFICIAL_ENV_EXAMPLE),
+            ('.env.example', OFFICIAL_ENV_EXAMPLE),
+            ('wp-content/plugins/wpgraphql-acf/.env', OFFICIAL_ENV_EXAMPLE),
+            ('wp-content/plugins/wpgraphql-acf/.env.local', b'private'),
+            ('wp-content/debug.log', OFFICIAL_ENV_EXAMPLE),
+            ('wp-content/private.key', OFFICIAL_ENV_EXAMPLE),
+            ('wp-content/private.pem', OFFICIAL_ENV_EXAMPLE),
+        ]
+        original = self.docker.core.copy()
+        for path, data in cases:
+            with self.subTest(path=path, size=len(data)):
+                self.docker.core = {**original, OFFICIAL_ENV_PATH: OFFICIAL_ENV_EXAMPLE, path: data}
+                with self.assertRaisesRegex(ReleaseError, 'unapproved secret/log files'):
+                    self.resources.snapshot()
+                self.assertFalse((self.base / 'state').exists())
+                self.assertEqual((self.plugin / 'old.php').read_bytes(), b'old plugin')
+                self.assertIsNone(self.docker.importer)
+
+    def test_official_env_example_drift_after_backup_blocks_install(self):
+        self.docker.core[OFFICIAL_ENV_PATH] = OFFICIAL_ENV_EXAMPLE
+        self.resources.backup(self.base / 'backup')
+        self.docker.core[OFFICIAL_ENV_PATH] += b'\n'
+        with self.assertRaises(ReleaseError):
+            self.resources.install(self.owner)
+        self.assertFalse((self.base / 'state/resources-owner.json').exists())
+        self.assertEqual((self.plugin / 'old.php').read_bytes(), b'old plugin')
 
     def test_docker_mount_order_does_not_change_resource_identity(self):
         self.docker.wp['Mounts'].append({'Type': 'volume', 'Source': '/volumes/wp',
