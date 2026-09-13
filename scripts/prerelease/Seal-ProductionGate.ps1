@@ -41,7 +41,14 @@ sys.stdout.write(json.dumps(value, separators=(",", ":"), ensure_ascii=False))
         Remove-Item -LiteralPath ($parserPath -replace '\.py$', '') -Force -ErrorAction SilentlyContinue
     }
     if ($parserExit -ne 0 -or $normalized.Count -ne 1) { throw 'Gate A evidence is not strict JSON.' }
-    try { return ($normalized[0] | ConvertFrom-Json -ErrorAction Stop) }
+    try {
+        # PowerShell 7.5+ otherwise turns ISO strings into DateTime and loses the
+        # original explicit UTC suffix used by the strict receipt validator.
+        if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) {
+            return ($normalized[0] | ConvertFrom-Json -DateKind String -ErrorAction Stop)
+        }
+        return ($normalized[0] | ConvertFrom-Json -ErrorAction Stop)
+    }
     catch { throw 'Gate A evidence is not strict JSON.' }
 }
 
