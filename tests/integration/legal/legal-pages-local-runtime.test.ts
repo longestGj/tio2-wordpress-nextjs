@@ -1,20 +1,21 @@
 import {execFile, spawn, type ChildProcess} from 'node:child_process'
 import {randomBytes, randomUUID} from 'node:crypto'
-import {existsSync, lstatSync, mkdirSync, readFileSync, rmSync, symlinkSync, unlinkSync, writeFileSync} from 'node:fs'
+import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {createRequire} from 'node:module'
 import {createServer} from 'node:net'
-import {resolve} from 'node:path'
+import {dirname, resolve} from 'node:path'
 import {promisify} from 'node:util'
-import {chromium, expect as playwrightExpect, type Browser} from '@playwright/test'
+import {chromium, expect as playwrightExpect, type Browser, type Page} from '@playwright/test'
 import {describe, expect, it} from 'vitest'
 
 import {startIsolatedWordPress, type OwnedWordPressRuntime} from '../../helpers/wordpress-runtime'
+import {prepareLegalReadFixture, runLegalCleanupSteps, unexpectedLegalBrowserDiagnostics} from '../../helpers/legal-read-runtime-fixture'
 // @ts-expect-error -- Runtime leases are intentionally delivered as an MJS script.
 import {attachLease, releaseLease, reserveLease} from '../../../scripts/runtime-ports/lease-core.mjs'
 
 const execFileAsync = promisify(execFile)
 const repositoryRoot = resolve(import.meta.dirname, '../../..')
-const fixtureRoot = resolve(repositoryRoot, 'tests/fixtures/legal-read-runtime')
+const fixtureTemplateRoot = resolve(repositoryRoot, 'tests/fixtures/legal-read-runtime')
 const canonicalRequire = createRequire(resolve(repositoryRoot, '../../package.json'))
 const nextBin = canonicalRequire.resolve('next/dist/bin/next')
 const runLiveRuntime = process.env.LEGAL_READ_LOCAL_RUNTIME === '1'
@@ -56,24 +57,31 @@ async function stopNext(child: ChildProcess) {
   ])
 }
 
+function recordBrowserDiagnostics(page: Page, diagnostics: string[]) {
+  page.on('console', message => {if (message.type() === 'error') diagnostics.push(`console:error:${message.text()}`)})
+  page.on('pageerror', error => diagnostics.push(`pageerror:${error.message}`))
+  page.on('requestfailed', request => diagnostics.push(`requestfailed:${request.url()}:${request.failure()?.errorText ?? 'unknown'}`))
+  page.on('response', response => {
+    if (response.status() >= 400) diagnostics.push(`response:${response.status()}:${response.url()}`)
+  })
+}
+
 describe.runIf(runLiveRuntime)('isolated WordPress to legal-only Next build acceptance', () => {
   it('renders changed CMS legal records, metadata, anchors and consent controls', async () => {
     const runId = `legal-read-${randomUUID()}`
-    const runDirectory = resolve(repositoryRoot, '.tmp/cms-read-decoupling-legal', runId)
-    const evidenceDirectory = resolve(repositoryRoot, '.local-evidence/cms-read-decoupling-legal/task-3-local-runtime')
+    const runtimeRoot = resolve(repositoryRoot, '.tmp/cms-read-decoupling-legal')
+    const runDirectory = resolve(runtimeRoot, runId)
+    if (dirname(runDirectory) !== runtimeRoot) throw new Error('Legal runtime directory escaped its owned root')
+    const fixtureRoot = resolve(runDirectory, 'next')
+    const evidenceDirectory = resolve(repositoryRoot, '.local-evidence/cms-read-decoupling-legal', runId)
     const distDir = '.next'
     const callbackPort = await closedLoopbackPort()
     const callback = `http://127.0.0.1:${callbackPort}/closed-local-test-endpoint`
     const secret = () => randomBytes(32).toString('hex')
     const environmentPath = resolve(runDirectory, 'wordpress.env')
-    const fixtureTsconfigPath = resolve(fixtureRoot, 'tsconfig.json')
-    const fixtureNextEnvPath = resolve(fixtureRoot, 'next-env.d.ts')
-    const fixturePublicPath = resolve(fixtureRoot, 'public')
-    const fixtureTsconfig = readFileSync(fixtureTsconfigPath, 'utf8')
-    const fixtureNextEnv = readFileSync(fixtureNextEnvPath, 'utf8')
     mkdirSync(runDirectory, {recursive: true})
     mkdirSync(evidenceDirectory, {recursive: true})
-    writeFileSync(environmentPath, [
+    const environmentContent = [
       'WORDPRESS_DB_NAME=legal_runtime',
       'WORDPRESS_DB_USER=legal_runtime',
       `WORDPRESS_DB_PASSWORD=${secret()}`,
@@ -87,7 +95,7 @@ describe.runIf(runLiveRuntime)('isolated WordPress to legal-only Next build acce
         `NEXTJS_PREVIEW_URL_TIO2_${site}=${callback}`,
         `NEXTJS_PREVIEW_SECRET_TIO2_${site}=${secret()}`,
       ]),
-    ].join('\n'))
+    ].join('\n')
 
     const commit = (await execFileAsync('git', ['rev-parse', 'HEAD'], {cwd: repositoryRoot, encoding: 'utf8'})).stdout.trim()
     let wordpress: OwnedWordPressRuntime | undefined
@@ -95,16 +103,15 @@ describe.runIf(runLiveRuntime)('isolated WordPress to legal-only Next build acce
     let browser: Browser | undefined
     let nextLease: {leaseId: string; ports: number[]; processIds: number[]} | undefined
     let nextLogs = ''
-    let fixturePublicLinked = false
     let acceptancePassed = false
     let nextStopped = false
     let nextLeaseReleased = false
     let wordpressStopped = false
     const browserDiagnostics: string[] = []
+    let acceptanceError: unknown
     try {
-      if (existsSync(fixturePublicPath)) throw new Error(`Legal runtime fixture public path already exists: ${fixturePublicPath}`)
-      symlinkSync(resolve(repositoryRoot, 'public'), fixturePublicPath, 'junction')
-      fixturePublicLinked = true
+      writeFileSync(environmentPath, environmentContent)
+      prepareLegalReadFixture(fixtureTemplateRoot, runDirectory, repositoryRoot)
 
       wordpress = await startIsolatedWordPress({
         ...WORDPRESS_RUNTIME_MODE, runId: runId, siteId: 'tio2-my', worktree: repositoryRoot, commit: commit,
@@ -143,6 +150,7 @@ describe.runIf(runLiveRuntime)('isolated WordPress to legal-only Next build acce
         SITE_ID: 'tio2-my',
         WORDPRESS_GRAPHQL_URL: wordpress.graphqlUrl,
         NEXT_DIST_DIR: distDir,
+        LEGAL_READ_CANONICAL_WORKSPACE_ROOT: resolve(repositoryRoot, '../..'),
       }
       let build: {stdout: string; stderr: string}
       try {
@@ -181,6 +189,7 @@ describe.runIf(runLiveRuntime)('isolated WordPress to legal-only Next build acce
       for (const entry of pages) {
         for (const viewport of [{name: 'desktop', width: 1440, height: 1000}, {name: 'mobile', width: 390, height: 844}] as const) {
           const page = await browser.newPage({viewport: {width: viewport.width, height: viewport.height}})
+          recordBrowserDiagnostics(page, browserDiagnostics)
           await page.route('https://www.googletagmanager.com/**', route => route.fulfill({status: 200, body: ''}))
           const response = await page.goto(`${baseUrl}${entry.path}`, {waitUntil: 'domcontentloaded'})
           expect(response?.ok()).toBe(true)
@@ -202,12 +211,7 @@ describe.runIf(runLiveRuntime)('isolated WordPress to legal-only Next build acce
       }
 
       const consentPage = await browser.newPage({viewport: {width: 390, height: 844}})
-      consentPage.on('console', message => browserDiagnostics.push(`console:${message.type()}:${message.text()}`))
-      consentPage.on('pageerror', error => browserDiagnostics.push(`pageerror:${error.message}`))
-      consentPage.on('requestfailed', request => browserDiagnostics.push(`requestfailed:${request.url()}:${request.failure()?.errorText ?? 'unknown'}`))
-      consentPage.on('response', response => {
-        if (response.status() >= 400) browserDiagnostics.push(`response:${response.status()}:${response.url()}`)
-      })
+      recordBrowserDiagnostics(consentPage, browserDiagnostics)
       await consentPage.route('https://www.googletagmanager.com/**', route => route.fulfill({status: 200, body: ''}))
       await consentPage.goto(`${baseUrl}/cookie-policy/`, {waitUntil: 'domcontentloaded'})
       const menuTrigger = consentPage.locator('button[aria-controls="malaysia-mobile-menu"]')
@@ -226,6 +230,8 @@ describe.runIf(runLiveRuntime)('isolated WordPress to legal-only Next build acce
       await playwrightExpect(consentTrigger).toBeFocused()
       await consentPage.close()
 
+      expect(unexpectedLegalBrowserDiagnostics(browserDiagnostics, baseUrl)).toEqual([])
+
       writeFileSync(resolve(evidenceDirectory, 'runtime-evidence.json'), JSON.stringify({
         runId, branch: 'codex/cms-read-approval-decoupling', commit, buildId,
         buildScope: 'representative legal-only target-route production build',
@@ -240,33 +246,44 @@ describe.runIf(runLiveRuntime)('isolated WordPress to legal-only Next build acce
         ],
       }, null, 2))
       acceptancePassed = true
+    } catch (error) {
+      acceptanceError = error
     } finally {
-      await browser?.close()
-      writeFileSync(resolve(evidenceDirectory, 'browser-diagnostics.log'), browserDiagnostics.join('\n'))
-      writeFileSync(resolve(evidenceDirectory, 'next-runtime.log'), nextLogs)
-      if (nextProcess) {
-        await stopNext(nextProcess)
-        nextStopped = true
-      }
-      if (nextLease) {
-        await releaseLease({leaseId: nextLease.leaseId, expectedProcessIds: nextLease.processIds})
-        nextLeaseReleased = true
-      }
-      if (wordpress) {
-        await wordpress.stop()
-        wordpressStopped = true
-      }
-      rmSync(resolve(fixtureRoot, distDir), {recursive: true, force: true})
-      if (fixturePublicLinked && lstatSync(fixturePublicPath).isSymbolicLink()) unlinkSync(fixturePublicPath)
-      writeFileSync(fixtureTsconfigPath, fixtureTsconfig)
-      writeFileSync(fixtureNextEnvPath, fixtureNextEnv)
-      rmSync(runDirectory, {recursive: true, force: true})
-      writeFileSync(resolve(evidenceDirectory, 'cleanup-evidence.json'), JSON.stringify({
-        runId, acceptancePassed, nextStopped, nextLeaseReleased, wordpressStopped,
-        fixtureBuildRemoved: !existsSync(resolve(fixtureRoot, distDir)),
-        fixturePublicJunctionRemoved: !existsSync(fixturePublicPath),
-        syntheticEnvironmentRemoved: !existsSync(runDirectory),
-      }, null, 2))
+      const cleanupErrors = await runLegalCleanupSteps([
+        {name: 'browser close', run: async () => {await browser?.close()}},
+        {name: 'diagnostic logs', run: () => {
+          writeFileSync(resolve(evidenceDirectory, 'browser-diagnostics.log'), browserDiagnostics.join('\n'))
+          writeFileSync(resolve(evidenceDirectory, 'next-runtime.log'), nextLogs)
+        }},
+        {name: 'Next stop', run: async () => {
+          if (nextProcess) await stopNext(nextProcess)
+          nextStopped = true
+        }},
+        {name: 'Next lease release', run: async () => {
+          if (!nextStopped && nextLease) throw new Error('Next process may still run; lease retained')
+          if (nextLease) await releaseLease({leaseId: nextLease.leaseId, expectedProcessIds: nextLease.processIds})
+          nextLeaseReleased = true
+        }},
+        {name: 'WordPress stop', run: async () => {
+          await wordpress?.stop()
+          wordpressStopped = true
+        }},
+        {name: 'owned run directory', run: () => {
+          if (!nextStopped || !nextLeaseReleased || !wordpressStopped) throw new Error('Owned service or lease may still need fixture files; run directory retained')
+          rmSync(runDirectory, {recursive: true, force: false})
+        }},
+        {name: 'cleanup evidence', run: () => writeFileSync(resolve(evidenceDirectory, 'cleanup-evidence.json'), JSON.stringify({
+          runId, acceptancePassed, nextStopped, nextLeaseReleased, wordpressStopped,
+          fixtureBuildRemoved: !existsSync(resolve(fixtureRoot, distDir)),
+          fixturePublicJunctionRemoved: !existsSync(resolve(fixtureRoot, 'public')),
+          syntheticEnvironmentRemoved: !existsSync(runDirectory),
+        }, null, 2))},
+      ])
+      if (cleanupErrors.length) throw new AggregateError(
+        acceptanceError ? [acceptanceError, ...cleanupErrors] : cleanupErrors,
+        'Legal runtime acceptance or cleanup failed; inspect retained run identity and evidence',
+      )
+      if (acceptanceError) throw acceptanceError
     }
   }, 900_000)
 })

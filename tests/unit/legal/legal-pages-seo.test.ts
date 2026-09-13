@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
 
-import {buildMalaysiaLegalPageJsonLd} from '@/lib/seo/legal-page-jsonld'
+import {buildMalaysiaLegalPageJsonLd, serializeMalaysiaLegalPageJsonLd} from '@/lib/seo/legal-page-jsonld'
 import {buildMalaysiaLegalPageMetadata} from '@/lib/seo/legal-page-metadata'
 import {getSiteConfig} from '@/sites'
 import {toMalaysiaLegalPagesDto} from '@/lib/wordpress/legal-pages-v01-dto'
@@ -14,15 +14,20 @@ const sources = approved.pages.map((page, index) => ({
 
 function sourcesWithDeliveredSeo() {
   const seoByPageId = {
-    'LEGAL-PRIV-EN': {title: 'Updated privacy policy', description: 'Published English description.'},
-    'LEGAL-PRIV-MS': {title: 'Dasar privasi dikemas kini', description: 'Penerangan Bahasa Malaysia diterbitkan.'},
-    'LEGAL-COOKIE-EN': {title: 'Updated cookie policy', description: 'Published cookie description.'},
+    'LEGAL-PRIV-EN': {title: 'Updated privacy policy', description: 'Published English description.', effectiveDate: '2026-09-14'},
+    'LEGAL-PRIV-MS': {title: 'Dasar privasi dikemas kini', description: 'Penerangan Bahasa Malaysia diterbitkan.', effectiveDate: '2026-09-15'},
+    'LEGAL-COOKIE-EN': {title: 'Updated cookie policy', description: 'Published cookie description.', effectiveDate: '2026-09-16'},
   } as const
   return sources.map((record, index) => ({
     ...record,
     malaysiaLegalPageContractJson: JSON.stringify({
       ...approved.pages[index]!,
-      seo: {...approved.pages[index]!.seo, ...seoByPageId[approved.pages[index]!.pageId as keyof typeof seoByPageId]},
+      effectiveDate: seoByPageId[approved.pages[index]!.pageId as keyof typeof seoByPageId].effectiveDate,
+      seo: {
+        ...approved.pages[index]!.seo,
+        title: seoByPageId[approved.pages[index]!.pageId as keyof typeof seoByPageId].title,
+        description: seoByPageId[approved.pages[index]!.pageId as keyof typeof seoByPageId].description,
+      },
     }),
   }))
 }
@@ -99,6 +104,19 @@ describe('Legal page metadata and Schema', () => {
       expect(graph.map((node) => node['@type'])).toEqual(['WebPage', 'BreadcrumbList'])
       expect(graph[0]).toMatchObject(expected[index])
       expect(JSON.stringify(graph)).not.toMatch(/FAQPage|Article|LegalService|TermsOfService/)
+    })
+  })
+
+  it('serializes changed delivered CMS title, description and date into every legal WebPage', () => {
+    const pages = toMalaysiaLegalPagesDto(sourcesWithDeliveredSeo())
+    const expected = [
+      {name: 'Updated privacy policy', description: 'Published English description.', dateModified: '2026-09-14'},
+      {name: 'Dasar privasi dikemas kini', description: 'Penerangan Bahasa Malaysia diterbitkan.', dateModified: '2026-09-15'},
+      {name: 'Updated cookie policy', description: 'Published cookie description.', dateModified: '2026-09-16'},
+    ]
+    pages.forEach((page, index) => {
+      const graph = JSON.parse(serializeMalaysiaLegalPageJsonLd(buildMalaysiaLegalPageJsonLd(getSiteConfig('tio2-my'), page)))['@graph'] as Array<Record<string, unknown>>
+      expect(graph[0]).toMatchObject(expected[index]!)
     })
   })
 })
