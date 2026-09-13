@@ -11,6 +11,9 @@
 - Base: `develop@16b5891929f0660ae13aa2e45f6d27d3a3aaf362`.
 - Branch: `codex/fix-analytics-config-update`.
 - Reviewed implementation: `6405fe791c0854937f2405bdfa0f564c06cdb5dd`.
+- Status: `MERGED_TO_DEVELOP`.
+- Reviewed source plus receipt: `9d75f4e39deb8b3eda433932af0e233a339769f6`.
+- Develop merge: `4ecf664067327b3165f600550c692571a7ef0c00`.
 - Development directory: `D:/16Wordpress_nextjs/.worktrees/fix-analytics-config-update`.
 - The separate release worktree's uncommitted incident notes and user's existing
   seven-file stash were not moved, restored, staged, or discarded.
@@ -64,6 +67,10 @@ private orphan temporary evidence without using it as approval.
   skipped cases are not represented as Windows passes. Command:
   `python -B -m unittest tests.production.test_analytics_config_update tests.production.test_analytics_config_update_cli.AdministratorBoundaryTests tests.production.test_frontend_candidate tests.production.test_cms_frontend_transition tests.production.test_cms_enrollment_repair tests.production.test_deployment_core tests.production.test_frontend_backup tests.production.test_bootstrap_install tests.production.test_admin_bundle tests.production.test_phase1_program_upgrade`.
   Expected negative CLI diagnostics appear in the output; unittest exit was 0.
+- Merge verification: server/test tree equals the reviewed source tree;
+  113 directly related Windows tests passed in 10.545 seconds, 3 skips.
+  Linux root rerun from the merged checkout: 17 passed in 1.132 seconds,
+  no skips. The merge did not alter `main` or any production state.
 - Linux image: `python:3.12-slim`, pulled digest
   `sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea`.
   Container network disabled; source bind mount read-only.
