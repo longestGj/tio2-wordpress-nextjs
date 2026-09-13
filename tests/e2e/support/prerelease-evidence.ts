@@ -14,10 +14,11 @@ export function recordCheck(suite: string, testInfo: TestInfo, externalPostCount
   const ids = testInfo.annotations.filter(annotation => annotation.type === 'prerelease-check')
   const check = ids.length === 1 ? ids[0]?.description : 'invalid-check-identity'
   const transportStatus = transport && transport.allowedPostCount === 1 && transport.blockedWriteCount === 0 ? 'PASSED' : 'FAILED'
+  const invalidWrites = transport ? transportStatus === 'FAILED' : externalPostCount !== 0
   writeFileSync(resolve(evidenceRoot, `${suite}-${randomUUID()}.json`), JSON.stringify({
     suite, commandUuid, externalPostCount,
     ...(transport ? {transport: {...transport, status: transportStatus}} : {}),
-    checks: [{check, status: transport && transportStatus === 'FAILED' ? 'FAILED' : testInfo.status === 'passed' ? 'PASSED' : testInfo.status === 'skipped' ? 'NOT_TESTED' : 'FAILED'}],
+    checks: [{check, status: invalidWrites ? 'FAILED' : testInfo.status === 'passed' ? 'PASSED' : testInfo.status === 'skipped' ? 'NOT_TESTED' : 'FAILED'}],
   }, null, 2), {flag: 'wx'})
 }
 
