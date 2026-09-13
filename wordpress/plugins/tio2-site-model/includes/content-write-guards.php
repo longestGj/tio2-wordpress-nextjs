@@ -55,6 +55,44 @@ function tio2_guard_content_meta_by_id($check, int $meta_id, $value = null, $met
     return in_array($row->meta_key, $keys, true) || in_array($meta_key, $keys, true) ? false : $check;
 }
 
+/** Validate a whole ordinary save before core updates the post or emits transitions.
+ * Values here are unslashed, matching the metadata filter's logical input.
+ */
+function tio2_content_save_error(int $post_id, array $meta_input): ?WP_Error {
+    $page = tio2_content_write_page_for_post($post_id);
+    if ($page === null) return null;
+    $definition = tio2_content_write_registry()[$page];
+    $keys = [$definition['meta'],'public_path','_public_path','homepage_schema_version','_homepage_schema_version'];
+    foreach ($meta_input as $key=>$value) {
+        if (!in_array($key, $keys, true)) continue;
+        $rows = get_post_meta($post_id, $key, false);
+        if (count($rows) === 1 && $rows[0] === $value) continue;
+        if ($key === $definition['meta']) {
+            $valid = is_string($value) ? tio2_validate_my_content_write($page, $value, count($rows) === 1 ? $rows[0] : null) : false;
+            if ($valid !== true) return new WP_Error('write_schema', 'Content does not satisfy the technical write contract.', ['status'=>400]);
+        }
+        if (tio2_guard_content_meta(null, $post_id, $key, $value) === false) {
+            return new WP_Error('approval_required', 'Protected content requires an exact approved write.', ['status'=>403]);
+        }
+    }
+    return null;
+}
+
+/** Core's official pre-SQL abort returns WP_Error(empty_content) or 0.
+ * Its PHP error wording is fixed by core; REST below has the precise reason.
+ */
+function tio2_guard_content_save(bool $maybe_empty, array $postarr): bool {
+    if ($maybe_empty || !is_array($postarr['meta_input'] ?? null)) return $maybe_empty;
+    return tio2_content_save_error((int)($postarr['ID'] ?? 0), wp_unslash($postarr['meta_input'])) !== null;
+}
+
+function tio2_guard_content_rest_save($prepared_post, WP_REST_Request $request) {
+    if (is_wp_error($prepared_post)) return $prepared_post;
+    $meta = $request->get_param('meta');
+    if (!is_array($meta)) return $prepared_post;
+    return tio2_content_save_error((int)$request->get_param('id'), $meta) ?? $prepared_post;
+}
+
 function tio2_guard_content_post_data(array $data, array $postarr, array $unsanitized = [], bool $update = false): array {
     $id = (int)($postarr['ID'] ?? 0);
     $page = tio2_content_write_page_for_post($id);
@@ -97,4 +135,7 @@ add_filter('update_post_metadata', 'tio2_guard_content_meta', 1, 5);
 add_filter('delete_post_metadata', 'tio2_guard_content_meta', 1, 5);
 add_filter('update_post_metadata_by_mid', 'tio2_guard_content_meta_by_id', 1, 4);
 add_filter('delete_post_metadata_by_mid', 'tio2_guard_content_meta_by_id', 1, 2);
+add_filter('wp_insert_post_empty_content', 'tio2_guard_content_save', 999, 2);
+add_filter('rest_pre_insert_tio2_homepage', 'tio2_guard_content_rest_save', 999, 2);
+add_filter('rest_pre_insert_tio2_application_hub', 'tio2_guard_content_rest_save', 999, 2);
 add_filter('wp_insert_post_data', 'tio2_guard_content_post_data', 999, 4);

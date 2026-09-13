@@ -58,6 +58,37 @@ if ($mode === 'setup') {
     $GLOBALS['tio2_webhook_queue']=[]; echo '{}'; return;
 }
 $id=guards_home(); $meta=TIO2_MY_HOMEPAGE_CONTRACT_META; $baseline=guards_snapshot($id);
+if ($mode === 'ordinary-save') {
+    $GLOBALS['tio2_webhook_queue']=[];
+    $title=get_post_field('post_title',$id);
+    $candidate=wp_slash(guards_json($fixture['changed']));
+    $r=wp_update_post(['ID'=>$id,'post_title'=>'Rejected title','meta_input'=>[$meta=>$candidate]],true);
+    $out['apiRejected']=is_wp_error($r)&&$r->get_error_code()==='empty_content';
+    $r=wp_update_post(['ID'=>$id,'post_title'=>'Rejected title','meta_input'=>[$meta=>$candidate]]);
+    $out['defaultRejected']=$r===0;
+    $controller=new WP_REST_Posts_Controller('tio2_homepage');
+    $request=new WP_REST_Request('PUT','/wp/v2/tio2_homepage/'.$id);
+    $request->set_param('id',$id); $request->set_param('title','Rejected REST title'); $request->set_param('meta',[$meta=>guards_json($fixture['changed'])]);
+    $r=$controller->update_item($request);
+    $out['restRejected']=is_wp_error($r)&&$r->get_error_code()==='approval_required'&&$r->get_error_data()['status']===403;
+    $request->set_param('meta',[$meta=>'{}']); $r=$controller->update_item($request);
+    $out['restSchemaRejected']=is_wp_error($r)&&$r->get_error_code()==='write_schema'&&$r->get_error_data()['status']===400;
+    $out['unchanged']=guards_snapshot($id)===$baseline&&get_post_field('post_title',$id)===$title;
+    $out['noEvents']=$GLOBALS['tio2_webhook_queue']===[];
+    $GLOBALS['tio2_webhook_queue']=[];
+    wp_update_post(['ID'=>$id,'meta_input'=>[$meta=>wp_slash($baseline[0])]],true);
+    $out['noOpNoEvents']=$GLOBALS['tio2_webhook_queue']===[];
+    // Already-published update: the event must come from real metadata hooks,
+    // not a draft->publish transition masking a lost metadata notification.
+    $r=guards_apply();
+    $out['approvedMetaEvent']=!is_wp_error($r)&&$r['committed']&&isset($r['events'][$id]);
+    wp_update_post(['ID'=>$id,'post_status'=>'draft'],true);
+    $out['withdrawEvent']=get_post_status($id)==='draft'&&isset($GLOBALS['tio2_webhook_queue'][$id]);
+    $GLOBALS['tio2_webhook_queue']=[];
+    $r=wp_update_post(['ID'=>$id,'meta_input'=>[$meta=>wp_slash($baseline[0])]],true);
+    $out['draftSaveAccepted']=$r===$id&&get_post_meta($id,$meta,true)===$baseline[0];
+    echo guards_json($out); return;
+}
 if ($mode === 'self-review') {
     $pointer=get_post_meta($id,'_homepage_schema_version',true);
     update_post_meta($id,'_homepage_schema_version','field_unapproved_pointer');
@@ -163,7 +194,9 @@ if ($mode === 'expire-proof') {
             }
         } finally { $wpdb->get_var("SELECT RELEASE_LOCK('d16-guards-held')"); }
     };
-    add_action('updated_post_meta',$hold,90,3); $r=guards_apply(); remove_action('updated_post_meta',$hold,90); remove_filter('query',$capture);
+    add_action('updated_post_meta',$hold,90,3);
+    $r=tio2_apply_approved_content('synthetic-bulk','update-published',[['pageId'=>'APP-000','content'=>guards_json($fixture['changedApp'])],['pageId'=>'HOME-001','content'=>guards_json($fixture['changed'])]]);
+    remove_action('updated_post_meta',$hold,90); remove_filter('query',$capture);
     $out=['committed'=>!is_wp_error($r)&&$r['committed']];
     $out['lockPlans']=array_map(static function($sql) use($wpdb) {return ['sql'=>$sql,'plan'=>$wpdb->get_results('EXPLAIN '.$sql,ARRAY_A)];},$lock_queries);
     $out['coreVersion']=get_bloginfo('version'); $out['databaseVersion']=$wpdb->db_version();
@@ -189,6 +222,12 @@ if ($mode === 'expire-proof') {
     ] as $sql) {
         $wpdb->query('START TRANSACTION'); $result=$wpdb->query($sql); $out['identityRacesBlocked'][]=$result===false&&str_contains($wpdb->last_error,'Lock wait timeout'); $wpdb->query('ROLLBACK');
     }
+    $app_id=(int)get_option('synthetic_guard_app');
+    $a_scope=(int)$wpdb->get_var("SELECT tt.term_taxonomy_id FROM {$wpdb->term_taxonomy} tt JOIN {$wpdb->terms} t ON t.term_id=tt.term_id WHERE t.slug='tio2-a' AND tt.taxonomy='site_scope'");
+    // Actual autocommit append: before the fix this escapes the MY-only index range.
+    $append=$wpdb->insert($wpdb->term_relationships,['object_id'=>$app_id,'term_taxonomy_id'=>$a_scope]);
+    $out['targetAppendBlocked']=$append===false&&str_contains($wpdb->last_error,'Lock wait timeout');
+    $out['appScopes']=wp_get_post_terms($app_id,'site_scope',['fields'=>'slugs']);
     $wpdb->suppress_errors($suppressed);
     $wpdb->get_var("SELECT GET_LOCK('d16-guards-release',0)"); usleep(500000); $wpdb->get_var("SELECT RELEASE_LOCK('d16-guards-release')");
 } elseif ($mode === 'boundaries') {

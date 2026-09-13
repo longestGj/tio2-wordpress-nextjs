@@ -73,6 +73,10 @@ final class Tio2_Approved_Content_Write {
         $meta_ids=$target_ids;
         foreach($wpdb->last_result as $row) if(in_array($row->post_type,$types,true)) $meta_ids[]=(int)$row->ID;
         $meta_ids=array_values(array_unique($meta_ids)); sort($meta_ids,SORT_NUMERIC);
+        // The MY secondary-index range alone cannot block another site's scope
+        // being appended to a target. Lock each candidate's entire PRIMARY
+        // (object_id, term_taxonomy_id) range, including insertion gaps.
+        foreach($meta_ids as $id) self::query("SELECT term_taxonomy_id FROM {$wpdb->term_relationships} FORCE INDEX (PRIMARY) WHERE object_id={$id} ORDER BY term_taxonomy_id FOR UPDATE");
         foreach($meta_ids as $id) self::query("SELECT meta_id FROM {$wpdb->postmeta} FORCE INDEX (post_id) WHERE post_id={$id} ORDER BY meta_id FOR UPDATE");
     }
 

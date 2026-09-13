@@ -933,6 +933,10 @@ function tio2_flush_webhook_queue(): void
 
 function tio2_handle_post_transition(string $new_status, string $old_status, WP_Post $post): void
 {
+    // MY contract changes have their own metadata events. Core also emits this
+    // hook for unchanged saves; those are not publication transitions.
+    if ($new_status === $old_status && function_exists('tio2_content_write_page_for_post') &&
+        tio2_content_write_page_for_post((int)$post->ID) !== null) return;
     if (
         ! in_array($post->post_type, tio2_webhook_post_types(), true) ||
         ('publish' !== $new_status && 'publish' !== $old_status) ||
