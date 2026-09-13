@@ -12,7 +12,9 @@ import {
   CONSENT_VERSION,
   LEGACY_CONSENT_KEY,
   createMalaysiaConsentRecord,
+  persistMalaysiaConsentChoice,
   readMalaysiaConsentChoice,
+  readStoredMalaysiaConsentChoice,
   removeMalaysiaAnalyticsCookies,
 } from '@/lib/consent/malaysia-consent'
 import * as consentCopy from '@/lib/consent/malaysia-consent-copy'
@@ -139,9 +141,27 @@ it('allows acceptance and withdrawal only with the active approved copy', () => 
   localStorage.clear()
   render(<><MalaysiaCookieSettingsTrigger>Manage preferences</MalaysiaCookieSettingsTrigger><MalaysiaCookieSettingsHost /></>)
   fireEvent.click(screen.getByRole('button', {name: 'Manage preferences'}))
+  const firstOpenDialog = screen.getByRole('dialog', {name: 'Analytics preferences'})
+  expect(within(firstOpenDialog).getAllByRole('button').map((button) => button.textContent)).toEqual([
+    'Accept analytics',
+    'Necessary only',
+  ])
+  expect(within(firstOpenDialog).getByRole('link', {name: 'Cookie Policy'}).getAttribute('href')).toBe('/cookie-policy/')
+  expect(within(firstOpenDialog).queryByRole('button', {name: 'Close'})).toBeNull()
+  expect(within(firstOpenDialog).queryByRole('button', {name: 'Save preferences'})).toBeNull()
+  expect(document.activeElement).toBe(within(firstOpenDialog).getByRole('button', {name: 'Accept analytics'}))
   fireEvent.click(screen.getByRole('button', {name: 'Accept analytics'}))
   expect(window.__TIO2_SHARED_CONSENT__).toEqual({siteScope:'tio2-my',analytics:'granted'})
   fireEvent.click(screen.getByRole('button', {name: 'Manage preferences'}))
+  const reopenedDialog = screen.getByRole('dialog', {name: 'Analytics preferences'})
+  expect(within(reopenedDialog).getAllByRole('button').map((button) => button.textContent)).toEqual([
+    'Save preferences',
+    'Accept analytics',
+    'Necessary only',
+    'Close',
+  ])
+  expect(within(reopenedDialog).queryByRole('link', {name: 'Cookie Policy'})).toBeNull()
+  expect(document.activeElement).toBe(within(reopenedDialog).getByRole('button', {name: 'Save preferences'}))
   expect(screen.getByRole('checkbox', {name: 'Allow analytics'}).getAttribute('checked')).not.toBeNull()
   fireEvent.click(screen.getByRole('button', {name: 'Necessary only'}))
   expect(window.__TIO2_SHARED_CONSENT__).toEqual({siteScope:'tio2-my',analytics:'denied'})
@@ -172,6 +192,14 @@ it('ignores foreign-scope and unsupported-version records', () => {
     choice: 'analytics_accepted', decided_at: '2026-09-13T02:00:00.000Z',
   }))
   expect(readMalaysiaConsentChoice()).toBe('necessary_only')
+})
+
+it('distinguishes a valid stored necessary-only choice from no valid choice', () => {
+  expect(readStoredMalaysiaConsentChoice()).toBeNull()
+  persistMalaysiaConsentChoice('necessary_only', new Date('2026-09-13T02:00:00.000Z'))
+  expect(readStoredMalaysiaConsentChoice()).toBe('necessary_only')
+  localStorage.setItem(CONSENT_KEY, '{"site_scope":"another-site"}')
+  expect(readStoredMalaysiaConsentChoice()).toBeNull()
 })
 
 it('withdrawal removes only the two known GA cookie names', () => {

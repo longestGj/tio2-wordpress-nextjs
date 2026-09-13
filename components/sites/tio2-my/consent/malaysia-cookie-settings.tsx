@@ -6,7 +6,7 @@ import styles from './malaysia-cookie-settings.module.css'
 import {getMalaysiaConsentCopy} from '@/lib/consent/malaysia-consent-copy'
 
 const OPEN_EVENT = 'cookie-settings:open'
-import {readEffectiveMalaysiaConsentChoice, applyMalaysiaConsent, persistMalaysiaConsentChoice, type ConsentChoice} from '@/lib/consent/malaysia-consent'
+import {readEffectiveMalaysiaConsentChoice, readEffectiveStoredMalaysiaConsentChoice, applyMalaysiaConsent, persistMalaysiaConsentChoice, type ConsentChoice} from '@/lib/consent/malaysia-consent'
 export {createDeniedGoogleConsent, transitionConsent} from '@/lib/consent/malaysia-consent'
 
 export function MalaysiaCookieSettingsTrigger({children, className}: {readonly children: ReactNode; readonly className?: string}) {
@@ -25,10 +25,13 @@ export function MalaysiaCookieSettingsHost() {
   const publicConsentCopy = getMalaysiaConsentCopy()
   const analyticsActive = publicConsentCopy.analyticsActive
   const [open, setOpen] = useState(false)
+  const [hasExistingChoice, setHasExistingChoice] = useState(false)
   const [analytics, setAnalytics] = useState(false)
   const [saveError, setSaveError] = useState(false)
   const triggerRef = useRef<HTMLElement | null>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
+  const saveRef = useRef<HTMLButtonElement>(null)
+  const acceptRef = useRef<HTMLButtonElement>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   function close() {
@@ -40,7 +43,9 @@ export function MalaysiaCookieSettingsHost() {
     const onOpen = (event: Event) => {
       const trigger = (event as CustomEvent<{trigger?: HTMLElement}>).detail?.trigger
       triggerRef.current = trigger ?? document.activeElement as HTMLElement | null
-      setAnalytics(readEffectiveMalaysiaConsentChoice(analyticsActive) === 'analytics_accepted')
+      const storedChoice = readEffectiveStoredMalaysiaConsentChoice(analyticsActive)
+      setHasExistingChoice(storedChoice !== null)
+      setAnalytics(storedChoice === 'analytics_accepted')
       setSaveError(false)
       setOpen(true)
     }
@@ -62,7 +67,12 @@ export function MalaysiaCookieSettingsHost() {
     dialog.showModal()
     document.documentElement.style.overflow = 'hidden'
     document.body.style.overflow = 'hidden'
-    closeRef.current?.focus()
+    if (analyticsActive) {
+      if (hasExistingChoice) saveRef.current?.focus()
+      else acceptRef.current?.focus()
+    } else {
+      closeRef.current?.focus()
+    }
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault()
@@ -89,7 +99,7 @@ export function MalaysiaCookieSettingsHost() {
       document.documentElement.style.overflow = rootOverflow
       document.body.style.overflow = bodyOverflow
     }
-  }, [open])
+  }, [analyticsActive, hasExistingChoice, open])
 
   function save(choice: ConsentChoice) {
     const effectiveChoice = analyticsActive ? choice : 'necessary_only'
@@ -114,13 +124,21 @@ export function MalaysiaCookieSettingsHost() {
         <p role="status">{analyticsActive ? (analytics ? 'Analytics allowed' : 'Necessary only') : 'Necessary only; Analytics unavailable'}</p>
         {saveError && <p role="alert">Your browser could not save this preference.</p>}
         <div className={styles.actions}>
-          <button ref={closeRef} type="button" onClick={close}>{publicConsentCopy.close}</button>
-          {analyticsActive && <>
-            <button type="button" onClick={() => save(analytics ? 'analytics_accepted' : 'necessary_only')}>Save preferences</button>
+          {analyticsActive && !hasExistingChoice && <>
+            <button ref={acceptRef} type="button" onClick={() => save('analytics_accepted')}>{publicConsentCopy.accept}</button>
+            <button type="button" onClick={() => save('necessary_only')}>{publicConsentCopy.necessary}</button>
+            <a href={publicConsentCopy.cookiePolicyHref}>{publicConsentCopy.firstOpenCookiePolicy}</a>
+          </>}
+          {analyticsActive && hasExistingChoice && <>
+            <button ref={saveRef} type="button" onClick={() => save(analytics ? 'analytics_accepted' : 'necessary_only')}>Save preferences</button>
             <button type="button" onClick={() => save('analytics_accepted')}>{publicConsentCopy.accept}</button>
             <button type="button" onClick={() => save('necessary_only')}>{publicConsentCopy.necessary}</button>
+            <button ref={closeRef} type="button" onClick={close}>{publicConsentCopy.close}</button>
           </>}
-          <a href={publicConsentCopy.cookiePolicyHref}>{publicConsentCopy.cookiePolicy}</a>
+          {!analyticsActive && <>
+            <button ref={closeRef} type="button" onClick={close}>{publicConsentCopy.close}</button>
+            <a href={publicConsentCopy.cookiePolicyHref}>{publicConsentCopy.cookiePolicy}</a>
+          </>}
         </div>
       </section>
     </dialog>

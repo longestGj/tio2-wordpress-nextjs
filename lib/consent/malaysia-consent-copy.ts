@@ -9,6 +9,7 @@ const common = {
   close: 'Close',
   accept: 'Accept analytics',
   cookiePolicy: 'Read Cookie Policy',
+  firstOpenCookiePolicy: 'Cookie Policy',
   cookiePolicyHref: '/cookie-policy/',
 } as const
 

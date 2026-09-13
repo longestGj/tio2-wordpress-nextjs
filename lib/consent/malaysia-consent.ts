@@ -79,7 +79,7 @@ export function persistMalaysiaConsentChoice(choice: ConsentChoice, decidedAt: D
   window.localStorage.removeItem(LEGACY_CONSENT_KEY)
 }
 
-export function readMalaysiaConsentChoice(): ConsentChoice {
+export function readStoredMalaysiaConsentChoice(): ConsentChoice | null {
   try {
     const currentRaw = window.localStorage.getItem(CONSENT_KEY)
     const current = parseConsentRecord(currentRaw)
@@ -91,24 +91,32 @@ export function readMalaysiaConsentChoice(): ConsentChoice {
       persistMalaysiaConsentChoice(oldCanonical.choice, decidedAt)
       return oldCanonical.choice
     }
-    if (currentRaw !== null) return 'necessary_only'
+    if (currentRaw !== null) return null
 
     const legacy = parseLegacyChoice(window.localStorage.getItem(LEGACY_CONSENT_KEY))
-    if (!legacy) return 'necessary_only'
+    if (!legacy) return null
     persistMalaysiaConsentChoice(legacy.choice)
     return legacy.choice
-  } catch {return 'necessary_only'}
+  } catch {return null}
 }
 
-export function readEffectiveMalaysiaConsentChoice(analyticsActive: boolean): ConsentChoice {
-  const choice = readMalaysiaConsentChoice()
-  if (analyticsActive || choice === 'necessary_only') return choice
+export function readMalaysiaConsentChoice(): ConsentChoice {
+  return readStoredMalaysiaConsentChoice() ?? 'necessary_only'
+}
+
+export function readEffectiveStoredMalaysiaConsentChoice(analyticsActive: boolean): ConsentChoice | null {
+  const choice = readStoredMalaysiaConsentChoice()
+  if (choice === null || analyticsActive || choice === 'necessary_only') return choice
   try {
     persistMalaysiaConsentChoice('necessary_only')
   } catch {
     // The effective choice still fails closed when storage is unavailable.
   }
   return 'necessary_only'
+}
+
+export function readEffectiveMalaysiaConsentChoice(analyticsActive: boolean): ConsentChoice {
+  return readEffectiveStoredMalaysiaConsentChoice(analyticsActive) ?? 'necessary_only'
 }
 
 export function removeMalaysiaAnalyticsCookies(measurementId?: string): void {

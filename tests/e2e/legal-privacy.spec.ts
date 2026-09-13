@@ -150,7 +150,7 @@ for (const contract of approved.pages) {
   }
 }
 
-test('shared Cookie Settings exposes active analytics choice and remains keyboard-contained', async ({page}) => {
+test('shared Cookie Settings exposes the exact first-open analytics actions and remains keyboard-contained', async ({page}) => {
   await page.route('https://www.googletagmanager.com/gtm.js**', (route) =>
     route.fulfill({status: 200, contentType: 'application/javascript', body: '/* deterministic legal-page fixture */'}))
   await page.setViewportSize({width: 390, height: 844})
@@ -160,12 +160,14 @@ test('shared Cookie Settings exposes active analytics choice and remains keyboar
   const dialog = page.getByRole('dialog', {name: 'Analytics preferences'})
   await expect(dialog).toHaveAttribute('aria-describedby', 'cookie-settings-description')
   await expect(page.locator('#cookie-settings-description')).toContainText('Optional Analytics helps us understand aggregate website use and performance.')
-  await expect(dialog.getByRole('button')).toHaveText(['Close', 'Save preferences', 'Accept analytics', 'Necessary only'])
-  await expect(dialog.getByRole('link')).toHaveText(['Read Cookie Policy'])
-  const close = dialog.getByRole('button', {name: 'Close'})
+  await expect(dialog.getByRole('button')).toHaveText(['Accept analytics', 'Necessary only'])
+  await expect(dialog.getByRole('button', {name: 'Close'})).toHaveCount(0)
+  await expect(dialog.getByRole('button', {name: 'Save preferences'})).toHaveCount(0)
+  await expect(dialog.getByRole('link')).toHaveText(['Cookie Policy'])
+  const accept = dialog.getByRole('button', {name: 'Accept analytics'})
   const analytics = dialog.getByRole('checkbox', {name: 'Allow analytics'})
-  const policy = dialog.getByRole('link', {name: 'Read Cookie Policy'})
-  await expect(close).toBeFocused()
+  const policy = dialog.getByRole('link', {name: 'Cookie Policy'})
+  await expect(accept).toBeFocused()
   await policy.focus()
   await page.keyboard.press('Tab')
   await expect(analytics).toBeFocused()
@@ -176,6 +178,25 @@ test('shared Cookie Settings exposes active analytics choice and remains keyboar
   await page.keyboard.press('Escape')
   await expect(dialog).toHaveCount(0)
   await expect(trigger).toBeFocused()
+})
+
+test('shared Cookie Settings exposes the exact saved-choice reopen actions', async ({page}) => {
+  await page.route('https://www.googletagmanager.com/gtm.js**', (route) =>
+    route.fulfill({status: 200, contentType: 'application/javascript', body: '/* deterministic legal-page fixture */'}))
+  await page.setViewportSize({width: 390, height: 844})
+  await page.goto(`${baseUrl}/cookie-policy/`, {waitUntil: 'networkidle'})
+  const trigger = page.locator('footer').getByRole('button', {name: 'Cookie Settings'})
+  await trigger.click()
+  await page.getByRole('dialog', {name: 'Analytics preferences'}).getByRole('button', {name: 'Necessary only'}).click()
+  await trigger.click()
+  const dialog = page.getByRole('dialog', {name: 'Analytics preferences'})
+  await expect(dialog.getByRole('button')).toHaveText(['Save preferences', 'Accept analytics', 'Necessary only', 'Close'])
+  await expect(dialog.getByRole('link')).toHaveCount(0)
+  await expect(dialog.getByRole('button', {name: 'Save preferences'})).toBeFocused()
+  await dialog.getByRole('button', {name: 'Close'}).click()
+  await expect(dialog).toHaveCount(0)
+  await expect(trigger).toBeFocused()
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('tio2_my_consent_v1') ?? 'null')?.choice)).toBe('necessary_only')
 })
 
 test('Cookie inventory reflows at 1440px with a 200% zoom-equivalent 720 CSS px viewport', async ({page}) => {
