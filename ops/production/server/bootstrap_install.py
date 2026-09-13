@@ -26,6 +26,7 @@ REQUIRED_FILES = (
     "content_install_database.py", "content_install_resources.py", "content_install_backend.py",
     "content_install_cli.py", "content_install_identity.py", "content_install_finalize.py", "frontend_candidate.py",
     "cms_enrollment_repair.py", "cms_enrollment_repair_cli.py", "cms_frontend_transition.py",
+    "analytics_config_update.py", "analytics_config_update_cli.py",
     "site_content_adapter.py", "installed_content.py", "content_release.py", "content_docker.py",
     "frontend_backup.py", "site_frontend_adapter.py",
     "nginx_inventory.py", "tls_identity.py", "cms_evidence.py", "phase1_migration.py", "root-migrate-phase1.sh",
