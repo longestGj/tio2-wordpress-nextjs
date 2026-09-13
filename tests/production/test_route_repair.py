@@ -1,5 +1,7 @@
 from copy import deepcopy
 import json
+import os
+import subprocess
 from pathlib import Path
 import sys
 import tempfile
@@ -12,6 +14,32 @@ from release_contract import ReleaseError
 
 
 class RouteRepairTests(unittest.TestCase):
+    def test_probe_reads_scoped_secret_and_get_does_not_require_secret(self):
+        from route_repair_cli import FRONTEND_PROBE
+        stub = """
+global.fetch=async (url,options)=>{
+ if(options.method==='POST'){
+  const event=JSON.parse(options.body);
+  const expected=require('node:crypto').createHmac('sha256','fixture-secret').update(options.body).digest('hex');
+  if(options.headers['x-tio2-signature']!==expected)throw Error('wrong secret');
+  return {ok:true,json:async()=>({ok:true,eventId:event.eventId,revalidatedTags:['site:tio2-my'],revalidatedPaths:[]})};
+ }
+ return {status:200,text:async()=>'<html></html>'};
+};
+"""
+        for refresh, secrets, expected in (
+            (False, {}, 0),
+            (True, {'NEXTJS_REVALIDATION_SECRET_TIO2_MY':'fixture-secret'}, 0),
+            (True, {'REVALIDATION_SECRET':'fixture-secret'}, 0),
+            (True, {}, 1),
+        ):
+            with self.subTest(refresh=refresh, keys=sorted(secrets)):
+                env={k:v for k,v in os.environ.items() if k not in {'REVALIDATION_SECRET','NEXTJS_REVALIDATION_SECRET_TIO2_MY'}}
+                env.update({'SITE_ID':'tio2-my',**secrets})
+                result=subprocess.run(['node','-e',stub+FRONTEND_PROBE],
+                    input=json.dumps({'refresh':refresh,'paths':['/']}).encode(),env=env,capture_output=True,timeout=15)
+                self.assertEqual(result.returncode,expected,result.stderr.decode())
+
     def test_sql_only_updates_bound_metadata_and_preserves_other_values(self):
         from route_repair import change_sql
         changes=[{'record':'tio2_grade:test','meta':'_tio2_my_route_release_state',
