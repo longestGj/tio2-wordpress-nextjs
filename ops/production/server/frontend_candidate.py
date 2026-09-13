@@ -190,7 +190,9 @@ def prepare(context):
             previous=read_record(previous_path)
             phase=previous.get('phase')
             require(phase in {'activated','rolled-back'},'previous frontend slot is not terminal')
-            require(previous.get('target' if phase=='activated' else 'old')==baseline['record'],'previous frontend active slot changed')
+            if previous.get('target' if phase=='activated' else 'old') != baseline['record']:
+                from cms_frontend_transition import validate_transition
+                details['cmsInstallationTransition'] = validate_transition(subject,state,previous,baseline['record'])
             inactive=previous.get('old' if phase=='activated' else 'target')
             if inactive is not None:details['previousBaseline']=inactive
     install_source(subject,source)
