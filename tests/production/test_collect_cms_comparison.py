@@ -31,7 +31,7 @@ class CollectorTests(unittest.TestCase):
         self.root = Path(self.temp.name); self.source = self.root / 'source'; self.source.mkdir()
         self.run = self.root / 'run'; self.run.mkdir(); self.output = self.root / 'evidence.json'
         self.now = datetime.now(timezone.utc)
-        self.snapshot = {'schemaVersion': 'd16-cms-content-snapshot-v1', 'siteScope': 'tio2-my',
+        self.snapshot = {'schemaVersion': 'd16-cms-content-snapshot-v2', 'siteScope': 'tio2-my',
                          'publishedRecords': 57, 'contentSha256': 'a' * 64}
         files = {'wordpress/plugins/tio2-site-model/plugin.php': b'plugin',
                  'wordpress/seed/one.php': b'seed', 'ops/prerelease/check.php': b'check',

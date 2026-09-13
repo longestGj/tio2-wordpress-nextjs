@@ -41,7 +41,7 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         fixtures.FrontendBackupTests.setUp(self)
         self.cms={'containers':['CMS'],'volumes':['DB'],'wordpressSha256':'7'*64,'configurationSha256':'8'*64,'contentSha256':'9'*64}
         self.cms_before=deepcopy(self.cms)
-        self.comparison_snapshot={'schemaVersion':'d16-cms-content-snapshot-v1','siteScope':'tio2-my',
+        self.comparison_snapshot={'schemaVersion':'d16-cms-content-snapshot-v2','siteScope':'tio2-my',
                                   'publishedRecords':1,'contentSha256':'a'*64}
         self.record={'active':{'commit':'a'*40,'sourceRoot':str(self.source)},'runtime':{'containers':[{'role':'web','id':'2'*64,'imageId':'sha256:'+'1'*64}],'deployment':{'buildId':'build-A'}}}
         self.context.subject_baseline={'subject':'tio2-my','activeFrontend':self.active,'record':self.record,'cmsRuntime':deepcopy(self.cms)}
