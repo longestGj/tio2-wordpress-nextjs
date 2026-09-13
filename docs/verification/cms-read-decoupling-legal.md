@@ -1,6 +1,6 @@
 # TiO₂ Malaysia 法律页 CMS 读取解耦：首阶段技术回执
 
-验证日期：2026-09-13。网站 `tio2-my`；范围仅 `/privacy-policy/`、`/ms/privacy-policy/`、`/cookie-policy/`。分支 `codex/cms-read-approval-decoupling`，Task 3 初版代码提交 `6164e048e651f00b083399b56880607e64a95cf4`、复审第一轮代码及最近一次真实运行提交 `2f9a30b73cff407523492a26104c6932b03c44c8`、第二轮异常清理修正代码提交 `51d207af3f0daa9711602e6985584d740a1f5046` 与模拟 `up` 明确断言提交 `ed183e17eab84347ef4d54d25445362fc51b5592`；Task 3 起点 `3d8320133f5f2fbab68b2c0becda097403fb64c2`。这是隔离本地开发验证，不是策划侧独立验收、全站迁移、预发布、生产安装或部署。
+验证日期：2026-09-13。网站 `tio2-my`；范围仅 `/privacy-policy/`、`/ms/privacy-policy/`、`/cookie-policy/`。分支 `codex/cms-read-approval-decoupling`，Task 3 初版代码提交 `6164e048e651f00b083399b56880607e64a95cf4`、最近一次真实运行所用代码提交 `2f9a30b73cff407523492a26104c6932b03c44c8`、异常清理修正 `51d207af`/`ed183e17`、最终复审两项修正代码提交 `5f7e857685b24335138aa2a3497739ce16c84f7b`；Task 3 起点 `3d8320133f5f2fbab68b2c0becda097403fb64c2`。这是隔离本地开发验证，不是策划侧独立验收、全站迁移、预发布、生产安装或部署。
 
 ## 结果与边界
 
@@ -9,7 +9,8 @@
 - TDD RED：新增测试最初观察到 metadata 返回静态批准标题，且 H3 后的 `Published body.` 未出现。最小修复后聚焦 20/20 通过。旧批准 JSON/哈希测试仍作为种子历史验证，不充当运行时读取准入条件。
 - 复审修正补了变更 CMS 标题、描述及三种有效日期的序列化 JSON-LD 断言；把真实法律路由 fixture 构建目录改为每次运行独占，固定模板中的 `public`、`.next` 和 Next 生成文件不再被运行或清理修改。清理步骤分别尝试并聚合错误；无法安全停止服务或释放租约时保留运行目录。浏览器日志只容许明确的 fixture 首页预取 404，其余错误令测试失败。模拟测试先显示原所有权/清理/诊断缺口 3/3 RED，修正后 GREEN；JSON-LD 断言对临时静态日期突变产生 RED，恢复真实 builder 后 GREEN。
 - 第二轮复审发现：WordPress `up` 后若 helper 因验证失败未返回句柄，旧清理逻辑会把空句柄当作已停止，并删除恢复所需的合成环境文件。模拟器经过 helper 的部分启动拒绝，先显示清理错误列表为空（RED）；现以显式“已尝试启动”状态使停止步骤报不确定、保留运行目录和环境文件、聚合后续清理失败，并在清理证据记录不确定状态、项目/Compose/租约身份及保留路径。无启动尝试时仍可正常清理。没有猜测或强制停止未知资源。
-- 本轮定向命令：`npx vitest run tests/unit/legal tests/integration/legal tests/infrastructure/legal-read-contract.test.ts tests/infrastructure/tio2-my-legal-pages-wordpress.test.ts tests/infrastructure/legal-read-runtime-fixture.test.ts tests/infrastructure/wordpress-test-compose.test.ts tests/infrastructure/wordpress-runtime-classification.test.ts tests/unit/analytics/malaysia-ga4.test.tsx tests/unit/rfq/malaysia-rfq-analytics.test.ts` → 224 通过，1 个显式门控的本地运行测试跳过；`npm run typecheck` → 通过。最近一次门控真实链路于上一轮 `2f9a30b7` 代码以 `LEGAL_READ_LOCAL_RUNTIME=1` 运行 → 1/1 通过；本轮只改异常清理路径，未重跑成功链路，不声称旧证据绑定 `51d207af`。
+- 全分支复审两项 P2 修正：PHP 读取身份对每个必需键先检查存在再严格比较，缺失的 `headerCurrentKey` 不再与显式 `null` 混同；共享向量在 PHP resolver 与 TS DTO 同时验证“缺失拒绝、显式 null 接受”。法律页表格只把连续的 `|…|` 行放入表格，同一分块的后续正文完整呈现在段落中。真实 DTO→组件测试验证表头、单行单元格及 `Published final sentence.` 不截字、不进入伪表格行。两处先 RED 后 GREEN；未改变批准文案或延期处理的代码字面量扫描。
+- 本轮定向命令：`npx vitest run tests/unit/legal tests/integration/legal tests/infrastructure/legal-read-contract.test.ts tests/infrastructure/tio2-my-legal-pages-wordpress.test.ts tests/infrastructure/legal-read-runtime-fixture.test.ts tests/infrastructure/wordpress-test-compose.test.ts tests/infrastructure/wordpress-runtime-classification.test.ts tests/unit/analytics/malaysia-ga4.test.tsx tests/unit/rfq/malaysia-rfq-analytics.test.ts` → 227 通过，1 个显式门控的本地运行测试跳过；`npm run typecheck` → 通过。最近一次门控真实链路于 `2f9a30b7` 代码以 `LEGAL_READ_LOCAL_RUNTIME=1` 运行 → 1/1 通过；之后异常清理及表格边界由定向测试验证，未重跑成功链路，不声称旧运行证据绑定 `5f7e8576`。
 
 ## 真实隔离本地链路
 
