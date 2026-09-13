@@ -21,7 +21,8 @@ class ProgramUpgrade:
         self.paths=migration.paths
         self.verify=verify
         self.checkpoint=checkpoint
-        self.work=self.paths.work.parent / 'program-upgrade'
+        manifest,_=self.io._bundle()
+        self.work=self.paths.work.parent / 'program-upgrade' / manifest['toolCommit']
         self.journal=self.work / 'journal.json'
         self.receipt=self.work / 'receipt.json'
 
@@ -45,8 +46,8 @@ class ProgramUpgrade:
                 and digest(canonical(payload))==plan['planHash']==receipt['planHash'],
                 'completed phase1 journal required')
         state=io._json(paths.state)
-        require(state.get('state')=='PREPARED' and state.get('details',{}).get('subject')=='tio2-my',
-                'upgrade requires preserved PREPARED transaction')
+        require(state.get('state') in {'PREPARED','BACKED_UP'} and state.get('details',{}).get('subject')=='tio2-my',
+                'upgrade requires preserved pre-deployment transaction')
         result={}
         for base in (paths.registry,paths.state.parent,paths.work):
             io._check(base)
@@ -164,7 +165,7 @@ def main():
         result=subprocess.run(['/usr/bin/python3','-B','-c',code],cwd=target,
                               check=True,capture_output=True,timeout=60,env={'PATH':'/usr/sbin:/usr/bin:/sbin:/bin'})
         status=json.loads(result.stdout)
-        require(status['ok'] is True and status['state']['state']=='PREPARED'
+        require(status['ok'] is True and status['state']['state'] in {'PREPARED','BACKED_UP'}
                 and status['releaseCapabilities']['frontend-only'] is True
                 and status['recoveryRequired'] is False,'upgraded frontend capability unavailable')
     upgrade=ProgramUpgrade(io,verify=verify)

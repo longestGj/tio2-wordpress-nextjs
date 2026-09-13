@@ -64,7 +64,7 @@ root 登记是路径和资源所有权的唯一来源。deploy 用户的 sudoers
 
 ## 5. 备份、激活与恢复
 
-备份在激活前完成，绑定同一 release、subject、类型、候选 manifest、生产基线和请求。`frontend-only` 备份活动前台槽位、Nginx upstream 与已登记身份，导出加密工件供本地真实解密和隔离恢复校验；它不导出 CMS 内容，也不恢复旧 SQL。
+备份在激活前完成，绑定同一 release、subject、类型、候选 manifest、生产基线和请求。`frontend-only` 在服务器备份活动前台槽位、Nginx upstream 与已登记身份，验证加密文件哈希并保留上一版本的回退能力。客户端核对回执即可继续部署；下载、解密和隔离恢复演练单独安排，不作为每次发布前置条件。它不导出 CMS 内容，也不恢复旧 SQL。
 
 `stage` 在非活动槽构建并验证候选；`activate` 通过固定代理切换，在全局锁和原子日志内记录意图与结果。网络或进程中断后通过 `status` 和持久状态决定下一步。任何无法证明的中断都保持 `RECOVERY_REQUIRED`，由受控恢复处理。
 

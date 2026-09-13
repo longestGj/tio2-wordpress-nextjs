@@ -128,16 +128,6 @@ class SiteFrontendAdapter:
         require(read_record(path)==backup and sha256_file(path.with_name(backup['backupId']+'.tar.age'))==backup['ciphertextSha256'],'saved frontend backup changed')
         return backup
 
-    def _restore(self,context,backup):
-        evidence=read_record(context.subject.incoming/'frontend-restore.json')
-        require(evidence.get('schemaVersion')=='d16-frontend-restore-v1'
-                and all(evidence.get(key) is True for key in ('verified','fullArchiveRead','isolated','cleanupVerified'))
-                and evidence.get('binding')==backup['binding']
-                and all(evidence.get(key)==backup[key] for key in ('backupId','ciphertextSha256','manifestSha256'))
-                and evidence.get('buildId')==backup['active']['buildId'] and evidence.get('imageId')==backup['active']['imageId']
-                and evidence.get('health',{}).get('status')==200 and evidence.get('health',{}).get('bytes',0)>0,
-                'verified frontend restore is required')
-
     def prepare(self,context):
         from candidate_contract import CandidateEnvelope
         if isinstance(context.candidate,CandidateEnvelope) and context.state['state']!='PREPARED':
@@ -156,7 +146,7 @@ class SiteFrontendAdapter:
 
     def _run(self,action,context,allowed):
         require(context.state['state'] in allowed,'frontend action state mismatch')
-        self._validate(context); backup=self._backup(context); self._restore(context,backup)
+        self._validate(context); backup=self._backup(context)
         engine=self.engine_factory(context.subject)
         try: result=getattr(engine,action)(context,backup)
         except SafeFrontendRollback:

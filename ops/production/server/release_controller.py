@@ -147,13 +147,13 @@ class ReleaseController:
         if action == "stage" and current in {"STAGED", "INTERNAL_VERIFIED"} and stage_proven:
             # The successful internal verification and its full identity were
             # fsynced together with STAGED. Re-entry only finishes that state
-            # write; never rebuild/restage or reinterpret mutable incoming data.
-            if current == 'INTERNAL_VERIFIED':
-                from site_frontend_adapter import SiteFrontendAdapter
-                if isinstance(self.adapters.get((subject.adapter, state['details']['releaseType'])), SiteFrontendAdapter):
-                    context, _, adapter = self._context(subject, state)
-                    adapter.validate_context(context)
-                    adapter._restore(context, adapter._backup(context))
+            # write without rebuilding/restaging. Frontend retries still verify
+            # the bound request, live context and saved encrypted backup.
+            from site_frontend_adapter import SiteFrontendAdapter
+            if isinstance(self.adapters.get((subject.adapter, state['details']['releaseType'])), SiteFrontendAdapter):
+                context, _, adapter = self._context(subject, state)
+                adapter.validate_context(context)
+                adapter._backup(context)
             after = (transition(subject.state_root, {"STAGED"}, "INTERNAL_VERIFIED", state["details"])
                      if current == "STAGED" else state)
             return self._receipt(subject, action, state, after)
@@ -191,7 +191,7 @@ class ReleaseController:
                 if frontend:
                     context, identity, adapter = self._context(subject, state)
                     adapter.validate_context(context)
-                    adapter._restore(context, adapter._backup(context))
+                    adapter._backup(context)
                 if content:
                     context, _, adapter = self._context(subject, state)
                     details['completionEvidence'] = adapter.completed_evidence(context)

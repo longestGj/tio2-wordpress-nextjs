@@ -45,6 +45,26 @@ class ProgramUpgradeTests(fixtures.Phase1MigrationTests):
         self.assertEqual(upgrade.apply(plan['planHash'])['state'],'PROGRAM_UPGRADED')
         self.assertEqual(self.paths.blocked.read_bytes(),marker)
 
+    def test_backed_up_transaction_and_previous_upgrade_receipt_are_preserved(self):
+        import json
+        from phase1_migration import canonical
+        state=json.loads(self.paths.state.read_bytes());state['state']='BACKED_UP'
+        self.paths.state.write_bytes(canonical(state))
+        previous=self.paths.work.parent/'program-upgrade'/'receipt.json'
+        previous.parent.mkdir(exist_ok=True)
+        previous.write_bytes(b'previous upgrade receipt')
+        upgrade=self.upgrade();plan=upgrade.plan()
+        self.assertEqual(upgrade.apply(plan['planHash'])['state'],'PROGRAM_UPGRADED')
+        self.assertEqual(previous.read_bytes(),b'previous upgrade receipt')
+        self.assertEqual(json.loads(self.paths.state.read_bytes())['state'],'BACKED_UP')
+
+    def test_activated_transaction_cannot_be_upgraded(self):
+        import json
+        from phase1_migration import canonical
+        state=json.loads(self.paths.state.read_bytes());state['state']='ACTIVATED'
+        self.paths.state.write_bytes(canonical(state))
+        with self.assertRaises(ReleaseError):self.upgrade().plan()
+
     def test_active_migration_journal_still_blocks_upgrade(self):
         self.paths.journal.write_bytes(b'{}')
         with self.assertRaisesRegex(ReleaseError,'unfinished phase1'):

@@ -47,7 +47,7 @@ pwsh -NoProfile -File scripts/production.ps1 -Operation Rollback -ConfigPath .pr
 按 `status -> prepare -> backup -> stage -> activate -> verify` 推进：
 
 - `prepare` 校验并冻结事务身份；
-- `backup` 导出与事务绑定的加密前台备份，本地核对 ciphertext、真实解密并隔离恢复；
+- `backup` 在服务器保存与事务绑定的加密前台备份，客户端只保存并核对备份回执；服务器继续验证备份文件哈希和上一版本身份。日常发布不强制下载、解密或隔离恢复，异地备份与恢复演练单独安排；
 - `stage` 在非活动槽构建、健康检查并持久化 `INTERNAL_VERIFIED`；
 - `activate` 通过登记 upstream 切换前台，不修改 WordPress、MariaDB、seed、Nginx 公共配置、TLS 或 sudo；
 - 第一次 `verify` 只核对活动 commit、Build、镜像/容器、代理、CMS 未变化以及固定健康路由等技术身份，进入 `PUBLIC_VERIFIED`。58 个登记对象和 174 个浏览器案例属于随后独立运行的业务验收，并由第二次 `verify` 消费，不得从第一次公开技术检查推断。

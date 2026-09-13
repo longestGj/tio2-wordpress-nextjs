@@ -1089,7 +1089,12 @@ function Assert-D16CompletionEvidence($RunRoot,$Binding,$Backup) {
 }
 
 function Assert-D16LocalBackup($RunRoot,$Binding,$RemoteBackup) {
-    $local=Read-ProductionJson (Join-Path $RunRoot 'frontend-backup.json')
+    # This file records the server backup identity, not local restore evidence.
+    Assert-D16BackupReceipt $Binding $RemoteBackup
+    $path=Join-Path $RunRoot 'frontend-backup.json'
+    if(-not(Test-Path -LiteralPath $path)){Save-ProductionJson $path $RemoteBackup}
+    $local=Read-ProductionJson $path
+    Assert-D16BackupReceipt $Binding $local
     if($local.schemaVersion -cne 'd16-frontend-backup-receipt-v1' -or -not $RemoteBackup){throw 'Persisted frontend backup is required.'}
     foreach($name in $Binding.Keys){
         if($local.binding[$name] -cne $Binding[$name] -or $RemoteBackup.binding[$name] -cne $Binding[$name]){throw "Local backup binding mismatch: $name"}
@@ -1100,7 +1105,6 @@ function Assert-D16LocalBackup($RunRoot,$Binding,$RemoteBackup) {
     $localJson=(ConvertTo-D16CanonicalObject $local)|ConvertTo-Json -Depth 50 -Compress
     $remoteJson=(ConvertTo-D16CanonicalObject $RemoteBackup)|ConvertTo-Json -Depth 50 -Compress
     if($localJson -cne $remoteJson){throw 'Local backup receipt differs from server status.'}
-    if((Get-ProductionSha256 (Join-Path $RunRoot 'ciphertext.age')) -cne $local.ciphertextSha256){throw 'Local backup ciphertext changed.'}
     return $local
 }
 
@@ -1310,10 +1314,10 @@ function Invoke-D16ProductionOperation {
         if($status.state.details['requestId']){Assert-D16ActionReceipt status $status $binding}
         $action=$Operation.ToLowerInvariant()
         $savedBackup=$status.state.details['frontendBackup']
-        if($action -ceq 'backup' -and $status.state.state -ceq 'BACKED_UP' -and -not(Test-Path -LiteralPath (Join-Path $RunRoot 'frontend-backup.json'))){
+        if($action -ceq 'backup' -and $status.state.state -ceq 'BACKED_UP'){
             Assert-D16ActionReceipt status $status $binding
             Assert-D16BackupReceipt $binding $savedBackup
-            Receive-D16FrontendBackup $config $RunRoot $savedBackup
+            $null=Assert-D16LocalBackup $RunRoot $binding $savedBackup
             # Keep the observed status response; no second backup was dispatched.
             Save-ProductionJson (Join-Path $RunRoot 'backup.json') $status
             return $status
@@ -1344,10 +1348,9 @@ function Invoke-D16ProductionOperation {
             $path=Join-Path $RunRoot 'frontend-backup.json'
             if(Test-Path -LiteralPath $path){$old=Read-ProductionJson $path;foreach($name in @('backupId','ciphertextSha256','manifestSha256')){if($old[$name] -cne $backup[$name]){throw 'Backup replay changed.'}}}
             Save-ProductionJson (Join-Path $RunRoot 'backup.json') $result
-            Receive-D16FrontendBackup $config $RunRoot $backup
+            $null=Assert-D16LocalBackup $RunRoot $binding $backup
         }elseif($action -cin @('stage','activate','verify','rollback')){
-            $backup=Read-ProductionJson (Join-Path $RunRoot 'frontend-backup.json')
-            foreach($name in @('backupId','ciphertextSha256','manifestSha256')){if($result.state.details.frontendBackup[$name] -cne $backup[$name]){throw 'Action backup identity mismatch.'}}
+            $null=Assert-D16LocalBackup $RunRoot $binding $result.state.details.frontendBackup
         }
         Save-ProductionJson (Join-Path $RunRoot ($action+'.json')) $result
         return $result

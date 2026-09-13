@@ -28,10 +28,12 @@ The fixed actions are `status`, `prepare`, `backup`, `stage`, `activate`, `verif
 | Gate | Required evidence |
 |---|---|
 | Candidate | One subject/type, exact commit, Build, CMS/configuration identities, previous production receipt, prerelease receipt, and immutable hashes |
-| Deploy | Same RunRoot and request through `status -> prepare -> backup -> stage -> activate -> verify`; encrypted backup, real decryption, isolated restore, and internal verification before activation |
+| Deploy | Same RunRoot and request through `status -> prepare -> backup -> stage -> activate -> verify`; verified server-side encrypted backup and previous-version rollback identity, then internal verification before activation |
 | Acceptance | `PUBLIC_VERIFIED`, subject-specific business E2E, authorized live forms, inbox confirmation, `New-ProductionCompletionEvidence.ps1` six-file output, and final evidence validated by the second `verify` |
 
 Keep the same RunRoot after interruption. Query `status` rather than infer from an SSH disconnect. Stop all ordinary writes for identity drift, missing evidence, unavailable capability, or `RECOVERY_REQUIRED`.
+
+For daily frontend releases, persist and validate the server backup receipt without downloading the ciphertext. Off-host downloads, decryption and isolated restore drills are separate work, not deployment prerequisites. Do not fabricate restore evidence; keep server ciphertext integrity and rollback checks mandatory. This does not relax shared-CMS database backup rules.
 
 For `tio2-my`, run `scripts/production/New-ProductionCompletionEvidence.ps1` only after the actual business E2E summary, explicit confirmed-inbox input, and three real original `.eml` files exist. The script binds them to the persisted candidate, subject, run, request, CMS, backup, and active frontend identities; then call the fixed `Verify` again with the same RunRoot. The historical inbox and receipt scripts do not produce the phase-one six-file contract.
 

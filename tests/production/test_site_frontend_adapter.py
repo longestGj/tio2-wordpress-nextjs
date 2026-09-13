@@ -64,11 +64,6 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         self.state('PREPARED')
         result=self.adapter.backup(self.context)
         self.state('BACKED_UP',{'frontendBackup':result['backup']})
-        backup=result['backup']
-        restore={'schemaVersion':'d16-frontend-restore-v1','verified':True,'binding':backup['binding'],'backupId':backup['backupId'],
-                 'ciphertextSha256':backup['ciphertextSha256'],'manifestSha256':backup['manifestSha256'],'buildId':'build-A',
-                 'imageId':self.active['imageId'],'fullArchiveRead':True,'isolated':True,'cleanupVerified':True,'health':{'status':200,'bytes':16,'buildId':'build-A'}}
-        atomic_write_json(self.subject.incoming/'frontend-restore.json',restore)
 
     def stage(self):
         self.prepare_backup(); result=self.adapter.stage(self.context)
@@ -136,13 +131,12 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         with self.assertRaises(ReleaseError) as error: self.adapter.rollback(self.context)
         self.assertNotIsInstance(error.exception,SafeFrontendRollback)
 
-    def test_changed_cms_state_identity_and_restore_rejected_before_build(self):
-        for changed in ('cms','state','restore'):
+    def test_changed_cms_and_state_identity_rejected_before_build(self):
+        for changed in ('cms','state'):
             with self.subTest(changed=changed):
                 self.setUp(); self.prepare_backup()
                 if changed=='cms':self.cms['contentSha256']='0'*64
                 if changed=='state': atomic_write_json(self.subject.state_root/'state.json',{'state':'BACKED_UP','details':{**self.details,'releaseId':'other'}})
-                if changed=='restore': atomic_write_json(self.subject.incoming/'frontend-restore.json',{'verified':True})
                 with self.assertRaises(ReleaseError):self.adapter.stage(self.context)
                 self.assertNotIn('build',self.slots.calls)
 
@@ -276,9 +270,6 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         execute('prepare')
         backed=execute('backup');backup=backed['state']['details']['frontendBackup']
         self.assertEqual(execute('backup')['state']['details']['frontendBackup'],backup)
-        atomic_write_json(self.subject.incoming/'frontend-restore.json',{'schemaVersion':'d16-frontend-restore-v1','verified':True,
-            'binding':backup['binding'],'backupId':backup['backupId'],'ciphertextSha256':backup['ciphertextSha256'],'manifestSha256':backup['manifestSha256'],
-            'buildId':'build-A','imageId':self.active['imageId'],'fullArchiveRead':True,'isolated':True,'cleanupVerified':True,'health':{'status':200,'bytes':16,'buildId':'build-A'}})
         return controller,execute,before
 
     def test_unproven_old_frontend_after_stage_failure_requires_recovery(self):
@@ -479,14 +470,70 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         self.assertEqual(state_path.read_bytes(),before)
         self.assertIn('cmsEvidence',json.loads(state_path.read_bytes())['details'])
 
-    def test_real_controller_consumes_compatibility_state_through_A_B_A(self):
+    def test_staged_checkpoint_retry_rejects_missing_server_ciphertext(self):
+        _,execute,_=self.compatibility_controller_with_backup();execute('stage')
+        path=self.subject.state_root/'state.json';state=json.loads(path.read_bytes());state['state']='STAGED'
+        atomic_write_json(path,state)
+        backup=state['details']['frontendBackup']
+        (self.subject.production/'backups/frontend'/(backup['backupId']+'.tar.age')).unlink()
+        with self.assertRaises(ReleaseError):execute('stage')
+        self.assertEqual(json.loads(path.read_bytes())['state'],'STAGED')
+
+    def test_completion_and_completed_retry_need_no_restore_receipt(self):
+        from tests.production.test_release_controller import ControllerTests
+        _,execute,_=self.compatibility_controller_with_backup()
+        for action in ('stage','activate','verify'):execute(action)
+        state=json.loads((self.subject.state_root/'state.json').read_bytes())
+        fixture=SimpleNamespace(state=lambda:state,subjects={'tio2-my':self.subject})
+        ControllerTests.evidence(fixture)
+        backup=state['details']['frontendBackup'];extra={**backup['binding'],'backupId':backup['backupId']}
+        for name in ('business-e2e-receipt.json','inbox-confirmation-receipt.json','completion-receipt.json'):
+            path=self.subject.incoming/name;value=json.loads(path.read_bytes());value.update(extra)
+            if name=='completion-receipt.json':
+                value['evidenceSha256'].update({item:hashlib.sha256((self.subject.incoming/item).read_bytes()).hexdigest() for item in ('business-e2e-receipt.json','inbox-confirmation-receipt.json')})
+            atomic_write_json(path,value)
+        self.assertFalse((self.subject.incoming/'frontend-restore.json').exists())
+        self.assertEqual(execute('verify')['afterState'],'COMPLETED')
+        self.assertEqual(execute('verify')['afterState'],'COMPLETED')
+        ciphertext=self.subject.production/'backups/frontend'/(backup['backupId']+'.tar.age')
+        ciphertext.write_bytes(ciphertext.read_bytes()+b'tampered')
+        with self.assertRaises(ReleaseError):execute('verify')
+
+    def test_server_backup_missing_or_tampered_blocks_each_action_and_retry(self):
+        cases = (
+            ('stage', ()), ('stage', ('stage',)),
+            ('activate', ('stage',)), ('activate', ('stage','activate')),
+            ('verify', ('stage','activate')), ('verify', ('stage','activate','verify')),
+            ('rollback', ('stage','activate')), ('rollback', ('stage','activate','rollback')),
+        )
+        for action, preceding in cases:
+            for artifact in ('receipt', 'ciphertext'):
+                for change in ('missing', 'tampered'):
+                    with self.subTest(action=action,preceding=preceding,artifact=artifact,change=change):
+                        self.setUp(); _,execute,_=self.compatibility_controller_with_backup()
+                        for step in preceding: execute(step)
+                        state=json.loads((self.subject.state_root/'state.json').read_bytes())
+                        backup=state['details']['frontendBackup']
+                        suffix='.json' if artifact=='receipt' else '.tar.age'
+                        path=self.subject.production/'backups/frontend'/(backup['backupId']+suffix)
+                        if change=='missing': path.unlink()
+                        elif artifact=='receipt': atomic_write_json(path,{**backup,'manifestSha256':'0'*64})
+                        else: path.write_bytes(path.read_bytes()+b'tampered')
+                        self.slots.calls=[]
+                        with self.assertRaises(ReleaseError): execute(action)
+                        self.assertFalse(any(call=='build' or call.startswith('activate:') for call in self.slots.calls))
+
+    def test_controller_without_restore_receipt_releases_and_rolls_back_with_retries(self):
         _,execute,before=self.compatibility_controller_with_backup()
+        self.assertFalse((self.subject.incoming/'frontend-restore.json').exists())
+        self.assertEqual(execute('stage')['afterState'],'INTERNAL_VERIFIED')
         self.assertEqual(execute('stage')['afterState'],'INTERNAL_VERIFIED')
         self.assertEqual(execute('activate')['afterState'],'ACTIVATED')
         self.assertEqual(execute('activate')['afterState'],'ACTIVATED')
         self.assertEqual(execute('verify')['afterState'],'PUBLIC_VERIFIED')
         rolled=execute('rollback')
         self.assertEqual(rolled['afterState'],'ROLLED_BACK')
+        self.assertEqual(execute('rollback')['afterState'],'ROLLED_BACK')
         self.assertEqual(rolled['state']['details']['actionEvidence']['active']['buildId'],'build-A')
         self.assertEqual((self.subject.incoming/'release-manifest.json').read_bytes(),before)
         self.assertEqual(self.cms,self.cms_before)
