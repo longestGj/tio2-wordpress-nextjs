@@ -56,7 +56,7 @@ pwsh -NoProfile -File scripts/production.ps1 -Operation Package `
 
 多份开发回执可通过 PowerShell 数组调用脚本参数。每份必须是已提交的 `d16-development-receipt-v1` JSON，状态 MERGED_TO_DEVELOP、mergeCommit 属于冻结候选、subjects/affectedConsumers 均仅 tio2-my，且 contentScopes/hostPaths 为空、cmsContractChanged=false；所有 paths 精确覆盖生产前台 commit 到候选的**已打包前台路径**变化（含删除），不是已经合入 main 后的空 `main..candidate`。此机器输入不替代发布负责人对其他开发 Markdown 回执的审查；缺少对应机器回执时先补齐开发侧可追溯记录，不改旧证据。
 
-前台包只含 app/components/lib/public/sites、固定顶层运行文件及三个已批准合同文件。不会下发 CMS 插件、seed、管理员程序或其他文档；候选 Git 中完整 tio2-site-model 插件文件集的规范化 SHA-256 必须等于实时基线的已安装 CMS 合同，否则要求另行 CMS 流程。这使已安装的后台和工具升级不被重复分类为本次前台发布。前台查询代码属于这个仅运行前台的包，但仍须声明正确消费者和具备同版本预发布证据。
+前台包包含 app/components/lib/public/sites、固定顶层运行文件、三个已批准合同文件，以及前台构建引用的 tio2-site-model/config 和 includes 下的 JSON 数据。不会下发 CMS PHP 程序、seed、管理员程序或其他文档；候选 Git 中完整 tio2-site-model 插件文件集的规范化 SHA-256 必须等于实时基线的已安装 CMS 合同，否则要求另行 CMS 流程。JSON 仅作为不可变前台构建输入，不执行 CMS 安装。这使已安装的后台和工具升级不被重复分类为本次前台发布。前台查询代码属于这个仅运行前台的包，但仍须声明正确消费者和具备同版本预发布证据。
 
 正式 sealer 原始输出保持不变。打包器复制并严格复验普通测试、实发表单、收件、run、CMS 身份和独立 baseline，在新 `package-evidence/binding.json` 中绑定原始字节哈希，再生成 `d16-frontend-prerelease-v1`；不向旧 gate 填写 previousProductionReceipt。原始收件的分钟精度说明仍随源证据保留，不声称读过原始邮件头。输出目录 `.production/runs/<新ID>` 原子创建且拒绝覆盖，包内 `package-evidence/` 保存输入副本；服务器只接收固定 payload 文件。离线打包不能证明基线仍然新鲜，服务器 Prepare 仍重新观察所有身份并拒绝漂移。
 

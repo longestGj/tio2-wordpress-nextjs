@@ -35,6 +35,8 @@ class PackageChainTests(unittest.TestCase):
         self.write('.gitignore', '.production/\n.prerelease/\ndocs/verification/prerelease/runs/\n')
         self.write('app/page.tsx', 'original frontend\n')
         self.write('wordpress/plugins/tio2-site-model/main.php', '<?php // unchanged CMS\n')
+        self.write('wordpress/plugins/tio2-site-model/config/public-routes.json', {'routes': []})
+        self.write('wordpress/plugins/tio2-site-model/includes/content-release-paths.json', {'paths': []})
         self.write('docs/site-registry.md', '| `tio2-my` | Malaysia |\n')
         self.git('init', '-b', 'main')
         self.git('config', 'user.name', 'Offline test')
@@ -88,7 +90,8 @@ class PackageChainTests(unittest.TestCase):
             '-TestReceiptPath',self.evidence/'test.json','-LiveFormsReceiptPath',self.evidence/'result.json',
             '-InboxReceiptPath',self.evidence/'inbox-confirmation.json','-OutputPath',self.evidence/'production-gate.json')
         self.assertEqual(sealed.returncode, 0, sealed.stderr)
-        plugin = {'main.php': sha(self.repo/'wordpress/plugins/tio2-site-model/main.php')}
+        plugin_root=self.repo/'wordpress/plugins/tio2-site-model'
+        plugin = {p.relative_to(plugin_root).as_posix():sha(p) for p in plugin_root.rglob('*') if p.is_file()}
         self.baseline = dict(schemaVersion='d16-frontend-package-baseline-v1', subject='tio2-my',
             releaseId='offline-chain', sourceCommit=self.base, observedAt='2026-09-13T08:30:00Z',
             previousProductionReceipt='1'*64, cmsContractSha256=hashlib.sha256(
@@ -143,7 +146,10 @@ class PackageChainTests(unittest.TestCase):
         import tarfile
         with tarfile.open(self.output/'payload/frontend/release.tar.gz') as archive:
             self.assertEqual(archive.extractfile('app/page.tsx').read(), b'tested frontend\n')
-            self.assertFalse(any(n.startswith(('wordpress/','scripts/','docs/')) for n in archive.getnames()))
+            for name in ('config/public-routes.json','includes/content-release-paths.json'):
+                path='wordpress/plugins/tio2-site-model/'+name
+                self.assertEqual(archive.extractfile(path).read(),(self.repo/path).read_bytes())
+            self.assertFalse(any(n.endswith('.php') or n.startswith(('scripts/','docs/')) for n in archive.getnames()))
         self.assertEqual(originals,{p:p.read_bytes() for p in originals})
         self.assertNotEqual(self.package().returncode,0)
 
@@ -200,6 +206,23 @@ class PackageChainTests(unittest.TestCase):
 
 
 class BaselineProjectionTests(unittest.TestCase):
+    def test_collector_suppresses_bytecode_for_imported_program(self):
+        import sys
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary)
+            (root/'release_contract.py').write_text('class ReleaseError(Exception): pass\n')
+            code="""import runpy, sys
+sys.dont_write_bytecode=False
+collector=runpy.run_path(sys.argv[1])
+sys.path.insert(0,sys.argv[2])
+try: collector['baseline_record']({},'release-1','now')
+except Exception: pass
+assert 'release_contract' in sys.modules
+"""
+            result=subprocess.run([sys.executable,'-c',code,str(ROOT/'scripts/production/frontend_package_baseline.py'),str(root)],capture_output=True,text=True)
+            self.assertEqual(result.returncode,0,result.stderr)
+            self.assertEqual(sorted(p.name for p in root.iterdir()),['release_contract.py'])
+
     def test_observed_baseline_projects_only_bound_nonsecret_fields(self):
         import sys
         sys.path.insert(0,str(ROOT/'scripts/production'))

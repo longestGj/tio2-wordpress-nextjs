@@ -10,6 +10,9 @@ import json
 import re
 import sys
 
+# The administrator may omit -B; installed imports must remain read-only.
+sys.dont_write_bytecode = True
+
 
 def baseline_record(observed, release_id, observed_at):
     from release_contract import ReleaseError

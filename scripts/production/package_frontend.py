@@ -213,7 +213,11 @@ def build(repository, gate_path, test_path, run_root, baseline_path, baseline_sh
         for i,(name,raw) in enumerate(sorted(receipts.items())):
             _write(evidence/f'development-{i}.json',raw)
         source=staging/'source';source.mkdir()
-        payload={n:data for n,data in files.items() if runtime(n) or n in CONTRACTS}
+        # Frontend imports these immutable CMS contract data at build time.
+        # The complete plugin tree was matched to installed CMS above; never
+        # ship PHP installation code in this frontend-only archive.
+        payload={n:data for n,data in files.items() if runtime(n) or n in CONTRACTS
+            or (n.startswith((PLUGIN+'config/',PLUGIN+'includes/')) and n.endswith('.json'))}
         archive_path=source/'release.tar.gz'
         with archive_path.open('xb') as target, gzip.GzipFile(filename='',fileobj=target,mode='wb',mtime=0) as compressed:
             with tarfile.open(fileobj=compressed,mode='w|',format=tarfile.PAX_FORMAT) as archive:
