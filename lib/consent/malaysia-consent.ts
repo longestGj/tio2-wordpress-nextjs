@@ -47,6 +47,18 @@ export function readMalaysiaConsentChoice(): ConsentChoice {
   } catch {return 'necessary_only'}
 }
 
+export function readEffectiveMalaysiaConsentChoice(analyticsActive: boolean): ConsentChoice {
+  const choice = readMalaysiaConsentChoice()
+  if (analyticsActive || choice === 'necessary_only') return choice
+  try {
+    window.localStorage.setItem(CONSENT_KEY, JSON.stringify({version: 1, choice: 'necessary_only', decidedAt: Date.now()}))
+    window.localStorage.removeItem(LEGACY_CONSENT_KEY)
+  } catch {
+    // The effective choice still fails closed when storage is unavailable.
+  }
+  return 'necessary_only'
+}
+
 export function removeMalaysiaAnalyticsCookies(measurementId?: string): void {
   if (typeof document === 'undefined') return
   const suffix = measurementId?.match(/^G-([A-Z0-9]{8,})$/u)?.[1]

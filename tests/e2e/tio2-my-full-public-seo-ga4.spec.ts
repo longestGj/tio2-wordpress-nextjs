@@ -119,3 +119,49 @@ test('publishes 57 sitemap URLs and keeps the runtime fallback out of search', a
   expect((await page.locator('h1').innerText()).replace(/\s+/gu, ' ').trim()).toBe(notFound.h1)
   await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(0)
 })
+
+test('renders the 13 September Trade fact closure on all four pages and the Resource Hub', async ({page}) => {
+  const tradePages = [
+    {
+      path: '/resources/eu-titanium-dioxide-anti-dumping-duty/',
+      facts: ['As checked on 13 September 2026', 'published on 25 August 2026, reopened an absorption reinvestigation'],
+    },
+    {
+      path: '/resources/uk-titanium-dioxide-anti-dumping-investigation/',
+      facts: ['As checked on 13 September 2026', 'last-updated date of 10 September 2026'],
+    },
+    {
+      path: '/resources/india-titanium-dioxide-anti-dumping-duty/',
+      facts: ['As checked on 13 September 2026', 'page update date of 10 September 2026'],
+    },
+    {
+      path: '/resources/brazil-titanium-dioxide-anti-dumping-duty/',
+      facts: ['As checked on 13 September 2026', 'updated on 26 August 2026'],
+    },
+  ] as const
+
+  for (const item of tradePages) {
+    const response = await page.goto(new URL(item.path, baseUrl).href, {waitUntil: 'domcontentloaded'})
+    expect(response?.status(), item.path).toBe(200)
+    const visible = (await page.locator('main').innerText()).replace(/\s+/gu, ' ')
+    for (const fact of item.facts) expect(visible, `${item.path}:${fact}`).toContain(fact)
+    expect(visible, item.path).toContain('Last reviewed: 13 September 2026')
+    expect(visible, item.path).not.toContain('7 September 2026')
+    expect(visible, item.path).not.toContain('2 September 2026')
+  }
+
+  const hubResponse = await page.goto(new URL('/resources/', baseUrl).href, {waitUntil: 'domcontentloaded'})
+  expect(hubResponse?.status()).toBe(200)
+  const hub = (await page.locator('main').innerText()).replace(/\s+/gu, ' ')
+  expect(hub.match(/As checked on 13 September 2026/gu)).toHaveLength(4)
+  expect(hub).toContain('The TRA case page was last updated on 10 September 2026.')
+  expect(hub).toContain('The DGTR case page was last updated on 10 September 2026.')
+  expect(hub).toContain('The public-interest page was updated on 26 August 2026.')
+  expect(hub).not.toContain('As checked on 7 September 2026')
+})
+
+test('serves the exact GSC HTML ownership token from the site root', async ({request}) => {
+  const response = await request.get(new URL('/googleaa2e91750b47f47a.html', baseUrl).href)
+  expect(response.status()).toBe(200)
+  expect(await response.body()).toEqual(Buffer.from('google-site-verification: googleaa2e91750b47f47a.html\n'))
+})

@@ -165,6 +165,32 @@ function normalizeMarkdownInline(value: string) {
   )
 }
 
+function normalizeLaunchFactClosureToGate6(value: string, pageId: string) {
+  let normalized = value.replaceAll('13 September 2026', '7 September 2026')
+  if (pageId === 'RES-TRADE-UK' || pageId === 'RES-TRADE-IN') {
+    normalized = normalized.replaceAll('10 September 2026', '2 September 2026')
+  }
+  if (pageId === 'RES-TRADE-EU') {
+    normalized = normalized.replaceAll(
+      'https://eur-lex.europa.eu/eli/reg_impl/2025/4/oj',
+      'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32025R0004',
+    )
+  }
+  if (pageId === 'RES-TRADE-IN') {
+    normalized = normalized.replaceAll(
+      'https://www.dgtr.gov.in/en/anti-dumping-cases/anti-dumping-investigation-concerning-imports-titanium-dioxide-originating-or',
+      'https://dgtr.gov.in/en/anti-dumping-cases/anti-dumping-investigation-concerning-imports-titanium-dioxide-originating-or',
+    )
+  }
+  if (pageId === 'RES-TRADE-BR') {
+    normalized = normalized.replace(
+      'The public-interest evaluation began on 27 March 2026. The MDIC public-interest page, updated on 26 August 2026, lists Circulars 21 and 82 and the final-submissions phase ending 4 September 2026.',
+      'The public-interest evaluation began on 27 March 2026. Circular 82 extended its phases, and the MDIC page lists 4 September 2026 as the final-submissions deadline.',
+    )
+  }
+  return normalized
+}
+
 function markdownPublicBlocks(markdown: string, pageId: string) {
   const marker = pageId === 'RES-TRADE-EU' ? '### Breadcrumb' : '\n---\n'
   const markerIndex = markdown.indexOf(marker)
@@ -293,8 +319,8 @@ describe('approved Trade Resource editorial payloads', () => {
       ])
       expect(payload.mainClass).toBe(visualMain?.getAttribute('class') ?? '')
       expect(payload.freshness).toEqual({
-        lastReviewed: '2026-09-07',
-        nextReviewDue: '2026-10-07',
+        lastReviewed: '2026-09-13',
+        nextReviewDue: '2026-10-13',
         status: 'unverified',
         evidenceDate: null,
       })
@@ -304,8 +330,9 @@ describe('approved Trade Resource editorial payloads', () => {
       const approvedVisualHtml = page.approvedLinkMaintenance
         ? visualMain?.innerHTML.replace(page.approvedLinkMaintenance.from, page.approvedLinkMaintenance.to)
         : visualMain?.innerHTML
-      expect(payload.bodyHtml).toBe(approvedVisualHtml)
-      expect(htmlVisibleBlocks(payload.bodyHtml)).toEqual(markdownPublicBlocks(buyerCopy, page.id))
+      const gate6ComparableBody = normalizeLaunchFactClosureToGate6(payload.bodyHtml, page.id)
+      expect(gate6ComparableBody).toBe(approvedVisualHtml)
+      expect(htmlVisibleBlocks(gate6ComparableBody)).toEqual(markdownPublicBlocks(buyerCopy, page.id))
 
       const body = new JSDOM(`<main>${payload.bodyHtml}</main>`).window.document
       expect(body.querySelector('h1')?.textContent).toBe(page.heading)
@@ -324,7 +351,7 @@ describe('approved Trade Resource editorial payloads', () => {
       }))
       const renderedLinks = Array.from(body.querySelectorAll('a'), (link) => ({
         label: normalizeText(link.textContent ?? ''),
-        href: link.getAttribute('href'),
+        href: normalizeLaunchFactClosureToGate6(link.getAttribute('href') ?? '', page.id),
       }))
       expect(renderedLinks).toEqual(approvedLinks)
 
@@ -357,4 +384,78 @@ describe('approved Trade Resource editorial payloads', () => {
       expect(css).not.toMatch(/(?:font|font-family):[^;}]*\bInter\b/i)
     })
   }
+})
+
+const launchFactClosure = [
+  {
+    id: 'RES-TRADE-EU',
+    requiredBodyFacts: [
+      'As checked on 13 September 2026',
+      'was published on 9 January 2025 and entered into force on 10 January 2025',
+      'published on 25 August 2026, reopened an absorption reinvestigation',
+      'Last reviewed:</strong> 13 September 2026',
+    ],
+  },
+  {
+    id: 'RES-TRADE-UK',
+    requiredBodyFacts: [
+      'As checked on <strong>13 September 2026</strong>',
+      'initiated on 3 March 2026 and shows a last-updated date of 10 September 2026',
+      'registration continues until a stop notice',
+      'Last reviewed: 13 September 2026',
+    ],
+  },
+  {
+    id: 'RES-TRADE-IN',
+    requiredBodyFacts: [
+      'As checked on <strong>13 September 2026</strong>',
+      '3 August final findings as its latest event when checked on 13 September 2026, and displayed a page update date of 10 September 2026',
+      'recommendations, not as a current payable duty verified in force',
+      'Last reviewed: 13 September 2026',
+    ],
+  },
+  {
+    id: 'RES-TRADE-BR',
+    requiredBodyFacts: [
+      'As checked on <strong>13 September 2026</strong>',
+      'Resolution 850 removed <strong>Siegwerk',
+      'updated on 26 August 2026',
+      'Last reviewed: 13 September 2026',
+    ],
+  },
+] as const
+
+describe('2026-09-13 Trade launch fact closure', () => {
+  for (const expected of launchFactClosure) {
+    test(`${expected.id} keeps visible facts and machine freshness on the same review`, async () => {
+      const page = pages.find((item) => item.id === expected.id)!
+      const payload = await readPayload(page)
+      expect(payload.freshness).toEqual({
+        lastReviewed: '2026-09-13',
+        nextReviewDue: '2026-10-13',
+        status: 'unverified',
+        evidenceDate: null,
+      })
+      for (const fact of expected.requiredBodyFacts) expect(payload.bodyHtml).toContain(fact)
+      expect(payload.bodyHtml).not.toContain('7 September 2026')
+      expect(payload.bodyHtml).not.toContain('2 September 2026')
+    })
+  }
+
+  test('Resource Hub exposes the same four current Trade reviews', async () => {
+    const hub = JSON.parse(await readFile(
+      resolve(repoRoot, 'wordpress/plugins/tio2-site-model/config/tio2-my-resource-hub.json'),
+      'utf8',
+    )) as {resourceRelations: Array<Record<string, unknown>>}
+    const trade = hub.resourceRelations.filter((item) => String(item.pageId).startsWith('RES-TRADE-'))
+    expect(trade).toHaveLength(4)
+    for (const item of trade) {
+      expect(item.recordReviewDate).toBe('2026-09-13')
+      expect(item.lastReviewedAt).toBe('2026-09-13')
+      expect(item.reviewDate).toBe('2026-09-13')
+      expect(item.nextReviewDue).toBe('2026-10-13')
+      expect(item.publicStatusLabel).toContain('As checked on 13 September 2026')
+      expect(item.publicStatusLabel).not.toContain('7 September 2026')
+    }
+  })
 })
