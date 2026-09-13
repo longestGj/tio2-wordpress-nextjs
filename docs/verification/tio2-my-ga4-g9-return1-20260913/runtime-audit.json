@@ -1,0 +1,57 @@
+{
+  "checked_at": "2026-09-13T04:40:47.3423784Z",
+  "implementation_commit": "f61fb259faaa0d691602902336d81ae3e3b92c1f",
+  "build_id": "tio2-my-ga4-g9r1-f61fb259-20260913",
+  "runtime": "http://127.0.0.1:3124",
+  "site_scope": "tio2-my",
+  "checks": [
+    {
+      "path": "/",
+      "status": 200,
+      "contains_gtm": true,
+      "contains_ga4": true
+    },
+    {
+      "path": "/request-a-quote/",
+      "status": 200,
+      "contains_gtm": true,
+      "contains_ga4": true
+    },
+    {
+      "path": "/request-documents/",
+      "status": 200,
+      "contains_gtm": true,
+      "contains_ga4": true
+    },
+    {
+      "path": "/request-sample/",
+      "status": 200,
+      "contains_gtm": true,
+      "contains_ga4": true
+    },
+    {
+      "path": "/privacy-policy/",
+      "status": 200,
+      "contains_gtm": true,
+      "contains_ga4": true
+    },
+    {
+      "path": "/ms/privacy-policy/",
+      "status": 200,
+      "contains_gtm": true,
+      "contains_ga4": true
+    },
+    {
+      "path": "/cookie-policy/",
+      "status": 200,
+      "contains_gtm": true,
+      "contains_ga4": true
+    }
+  ],
+  "cms": {
+    "url": "http://127.0.0.1:8280/graphql",
+    "status": 200
+  },
+  "real_form_submission": false,
+  "production_wordpress_write": false
+}
