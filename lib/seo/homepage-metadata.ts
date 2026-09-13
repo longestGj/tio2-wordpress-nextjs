@@ -30,11 +30,21 @@ export function buildHomepageMetadata(
   homepage: AnyHomepageDto,
   options: HomepageMetadataOptions = {},
 ): Metadata {
-  if (site.id === 'tio2-my') {
-    if (homepage.identity.siteId !== 'tio2-my' || homepage.identity.status !== 'publish' || options.draftMode) {
-      return buildTio2MyPublicationMetadata('HOME-001', {})
+  if (site.id === 'tio2-my' || homepage.identity.siteId === 'tio2-my') {
+    if (site.id !== 'tio2-my' || homepage.identity.siteId !== 'tio2-my' ||
+      homepage.identity.schemaVersion !== 'homepage-v0.4-malaysia') {
+      throw new Error('HOME-001 metadata is available only for tio2-my homepage-v0.4-malaysia')
     }
-    return buildTio2MyPublicationMetadata('HOME-001', options.env)
+    const publication = buildTio2MyPublicationMetadata(
+      'HOME-001', homepage.identity.status === 'publish' && !options.draftMode ? options.env : {},
+    )
+    return {
+      ...publication,
+      title: homepage.seo.title,
+      description: homepage.seo.description,
+      ...(publication.openGraph ? {openGraph: {...publication.openGraph, title: homepage.seo.title, description: homepage.seo.description}} : {}),
+      ...(publication.twitter ? {twitter: {...publication.twitter, title: homepage.seo.title, description: homepage.seo.description}} : {}),
+    }
   }
   const canonical = new URL('/', site.url).href
   const title = firstText(

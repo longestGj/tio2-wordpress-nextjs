@@ -44,7 +44,46 @@ describe('buildHomepageMetadata', () => {
       alternates: {canonical: approvedMalaysiaContract.seo.canonical},
       robots: {index: true, follow: true},
     })
-    expect(metadata.openGraph).not.toHaveProperty('images')
+    expect(metadata.openGraph).toHaveProperty('images', [])
+  })
+  it('uses current validated Malaysia SEO text in metadata and existing social fields', async () => {
+    const {buildHomepageMetadata} = await import('@/lib/seo/homepage-metadata')
+    const homepage = toMalaysiaHomepageDto({
+      id: 'homepage-my-1', modifiedGmt: '2026-08-31T01:02:03', status: 'publish',
+      siteScopes: {nodes: [{slug: 'tio2-my'}]},
+      homepageFields: {homepageSchemaVersion: 'homepage-v0.4-malaysia'},
+      malaysiaHomepageContractJson: JSON.stringify({
+        ...approvedMalaysiaContract,
+        seo: {...approvedMalaysiaContract.seo, title: 'Synthetic home title', description: 'Synthetic home description.'},
+      }),
+    })
+    const site = getSiteConfig('tio2-my')
+    const metadata = buildHomepageMetadata(site, homepage, {env: {VERCEL_ENV: 'production'}})
+    expect(metadata).toMatchObject({
+      title: 'Synthetic home title', description: 'Synthetic home description.',
+      alternates: {canonical: 'https://tio2malaysia.com/'}, robots: {index: true, follow: true},
+      openGraph: {title: 'Synthetic home title', description: 'Synthetic home description.', images: []},
+      twitter: {title: 'Synthetic home title', description: 'Synthetic home description.', images: []},
+    })
+    expect(buildHomepageMetadata(site, homepage, {draftMode: true, env: {VERCEL_ENV: 'production'}}).robots)
+      .toEqual({index: false, follow: false})
+    const draft = {...homepage, identity: {...homepage.identity, status: 'draft' as const}}
+    expect(buildHomepageMetadata(site, draft, {env: {VERCEL_ENV: 'production'}}).robots)
+      .toEqual({index: false, follow: false})
+  })
+
+  it('rejects a wrong-site or wrong-schema Malaysia homepage rather than publishing fallback metadata', async () => {
+    const {buildHomepageMetadata} = await import('@/lib/seo/homepage-metadata')
+    const homepage = toMalaysiaHomepageDto({
+      id: 'homepage-my-1', modifiedGmt: '2026-08-31T01:02:03', status: 'publish',
+      siteScopes: {nodes: [{slug: 'tio2-my'}]},
+      homepageFields: {homepageSchemaVersion: 'homepage-v0.4-malaysia'},
+      malaysiaHomepageContractJson: JSON.stringify(approvedMalaysiaContract),
+    })
+    expect(() => buildHomepageMetadata(getSiteConfig('tio2-a'), homepage)).toThrow()
+    expect(() => buildHomepageMetadata(getSiteConfig('tio2-my'), {
+      ...homepage, identity: {...homepage.identity, schemaVersion: 'homepage-v0.1'},
+    } as unknown as typeof homepage)).toThrow()
   })
   it('keeps Site A v0.2 canonical and locally noindex without metadata keywords', async () => {
     const {buildHomepageMetadata} = await import(
