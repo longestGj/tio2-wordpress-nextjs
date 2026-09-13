@@ -19,3 +19,12 @@
 - 内存演算后 v2 摘要：0a39a908862e458119c6790cad71b43ac764823be0ea72a113a8a567c7d3157e，与预发布目标完全相等。
 - 结论：在本次读到的生产数据上，95 项固定路由元数据足以消除 v2 内容差异；无需覆盖正文或 JSON 合同。此为只读演算，不是数据库更新、备份恢复测试或生产发布验收。
 - 后续执行前必须重新核对生产基线，并完成整库备份、恢复演练和受控写入步骤。尚未生成可执行生产写入包。
+
+## 受控修复实现与演练
+
+- 已实现独立 `route_repair.py` 后端及 root-only CLI，复用 Installation 状态恢复与 InstallationDatabase 写入封锁、整库备份和隔离恢复校验；不启用通用内容适配器、不增加 sudo。
+- 最终相关回归 64 项通过，0 失败（48.145 秒）。独立复审已处理实际数据库账户、表前缀绑定、空 metadata 编码及缓存问题，无剩余阻塞发现。
+- 最终真实隔离演练返回 success=true、backupRestoreRehearsal=true、fullDatabaseFailureRestore=true、historicalRestoreRejected=true、cleanupVerified=true。源预发布库只读导出；更新只发生于拥有独立名称的克隆。
+- 数据库演练的 HTTP/cache 回调为 fixture-only。另在真实本地预发布前台验证站点签名失效通知及 41 个容器内页面请求，返回成功；不等于生产旧前台已验收。
+- 原前台 API 的多路径请求会拒绝部分产品路径；采用其已存在的空路径站点标签失效模式，保留签名、站点及事件校验。SWR 不是同步新页面验收，正式前台验收仍待后续发布。
+- 包构建器从冻结 Git blob 取程序与批准路由，目标包仅绑定 95 项变化。当前仍未执行生产更新，develop/main 合并及正式包冻结另记。
