@@ -28,7 +28,7 @@ function tio2_my_home_application_member_id($value, string $key, array $schema, 
     }
     return is_string($value) ? $value : null;
 }
-function tio2_my_home_application_project($value, $definition, array $schema, string $path) {
+function tio2_my_home_application_project($value, $definition, array $schema, string $path, bool $strict_keys = false) {
     if (in_array($definition, ['$text', '$alt', '$tracking'], true)) {
         // Match ECMAScript trim exactly, including BOM; reject invalid Unicode and C0/DEL.
         $edge_space = '/\A[\x{0009}-\x{000D}\x{0020}\x{00A0}\x{1680}\x{2000}-\x{200A}\x{2028}\x{2029}\x{202F}\x{205F}\x{3000}\x{FEFF}]|[\x{0009}-\x{000D}\x{0020}\x{00A0}\x{1680}\x{2000}-\x{200A}\x{2028}\x{2029}\x{202F}\x{205F}\x{3000}\x{FEFF}]\z/u';
@@ -56,7 +56,7 @@ function tio2_my_home_application_project($value, $definition, array $schema, st
     if (array_key_exists('$list', $node)) {
         if (!is_array($value) || !array_is_list($value) || count($value) < $schema['contentArrayMin'] || count($value) > $schema['contentArrayMax']) throw new \UnexpectedValueException($path);
         $result = [];
-        foreach ($value as $index => $item) $result[] = tio2_my_home_application_project($item, $node['$list'], $schema, $path . '.' . $index);
+        foreach ($value as $index => $item) $result[] = tio2_my_home_application_project($item, $node['$list'], $schema, $path . '.' . $index, $strict_keys);
         return $result;
     }
     if (isset($node['$members'])) {
@@ -68,16 +68,18 @@ function tio2_my_home_application_project($value, $definition, array $schema, st
             foreach ($node['$members'] as $candidate) if (tio2_my_home_application_member_id($candidate, $node['$key'], $schema, true) === $id) { $member = $candidate; break; }
             if ($id === null || $member === null || in_array($id, $seen, true)) throw new \UnexpectedValueException($path . '.' . $index);
             $seen[] = $id;
-            $result[] = tio2_my_home_application_project($item, array_replace(tio2_my_home_application_expand($node['$item'], $schema), $member), $schema, $path . '.' . $index);
+            $result[] = tio2_my_home_application_project($item, array_replace(tio2_my_home_application_expand($node['$item'], $schema), $member), $schema, $path . '.' . $index, $strict_keys);
         }
         return $result;
     }
+    if ($strict_keys && !$value instanceof \stdClass) throw new \UnexpectedValueException($path);
     if ($value instanceof \stdClass) $value = get_object_vars($value);
     if (!is_array($value) || array_is_list($value)) throw new \UnexpectedValueException($path);
+    if ($strict_keys && array_diff_key($value, $node)) throw new \UnexpectedValueException($path);
     $result = [];
     foreach ($node as $key => $child) {
         if (!array_key_exists($key, $value)) throw new \UnexpectedValueException($path . '.' . $key);
-        $result[$key] = tio2_my_home_application_project($value[$key], $child, $schema, $path . '.' . $key);
+        $result[$key] = tio2_my_home_application_project($value[$key], $child, $schema, $path . '.' . $key, $strict_keys);
     }
     return $result;
 }
