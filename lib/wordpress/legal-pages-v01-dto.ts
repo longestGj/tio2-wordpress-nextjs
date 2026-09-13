@@ -1,19 +1,12 @@
-import {matchesInstalledContent} from './content-release-validation'
-import approved from '@/wordpress/plugins/tio2-site-model/config/tio2-my-legal-pages.json'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
-import {parseLegalMarkdown} from '@/lib/legal/markdown'
 import {normalizeWordPressGmt} from './time'
+import {LegalPagesContractError, MALAYSIA_LEGAL_READ_PAGES, validateMalaysiaLegalReadPage} from './legal-pages-read-contract'
 import type {MalaysiaLegalPageDto, MalaysiaLegalPageSource} from './legal-pages-v01-types'
 
 type UnknownRecord = Record<string, unknown>
 
-export class LegalPagesContractError extends Error {
-  constructor(readonly field: string) {
-    super(`Invalid Malaysia Legal/Privacy contract field: ${field}`)
-    this.name = 'LegalPagesContractError'
-  }
-}
+export {LegalPagesContractError} from './legal-pages-read-contract'
 
 function record(value: unknown, field: string): UnknownRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new LegalPagesContractError(field)
@@ -38,29 +31,22 @@ export function toMalaysiaLegalPagesDto(values: readonly MalaysiaLegalPageSource
 
     const fields = record(source.publishingFields, `records[${index}].publishingFields`)
     const publicPath = text(fields.publicPath, `records[${index}].publicPath`)
-    const approvedPage = approved.pages.find((page) => page.path.replace(/\/$/, '') === publicPath)
-    if (!approvedPage || byPath.has(approvedPage.path)) throw new LegalPagesContractError(`records[${index}].path`)
+    const registeredPage = MALAYSIA_LEGAL_READ_PAGES.find((page) => page.path.replace(/\/$/, '') === publicPath)
+    if (!registeredPage || byPath.has(registeredPage.path)) throw new LegalPagesContractError(`records[${index}].path`)
     if (source.status !== 'publish') throw new LegalPagesContractError(`records[${index}].status`)
     const modified = normalizeWordPressGmt(typeof source.modifiedGmt === 'string' ? source.modifiedGmt : null)
     if (!modified) throw new LegalPagesContractError(`records[${index}].modified`)
     let stored: unknown
     try { stored = JSON.parse(text(source.malaysiaLegalPageContractJson, `records[${index}].contract`)) } catch { throw new LegalPagesContractError(`records[${index}].contract`) }
-    if (!matchesInstalledContent(stored, approvedPage)) throw new LegalPagesContractError(`records[${index}].contract`)
-
-    const delivered = stored as typeof approvedPage
-    const parsed = parseLegalMarkdown(delivered.buyerVisibleMarkdown)
-    const expectedSections = approvedPage.pageId === 'LEGAL-COOKIE-EN' ? 7 : 10
-    if (parsed.sections.length !== expectedSections || approvedPage.releaseState !== approved.releaseState) {
-      throw new LegalPagesContractError(`records[${index}].copy`)
-    }
-    byPath.set(approvedPage.path, {
+    const delivered = validateMalaysiaLegalReadPage(stored, publicPath)
+    byPath.set(registeredPage.path, {
       ...delivered,
       identity: {id: text(source.id, `records[${index}].id`), siteScope: 'tio2-my', status: 'publish', modified},
       globalChrome,
     })
   }
 
-  return Object.freeze(approved.pages.map((page) => {
+  return Object.freeze(MALAYSIA_LEGAL_READ_PAGES.map((page) => {
     const value = byPath.get(page.path)
     if (!value) throw new LegalPagesContractError(`missing:${page.pageId}`)
     return value

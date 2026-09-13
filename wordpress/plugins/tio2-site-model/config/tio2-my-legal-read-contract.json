@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "siteScope": "tio2-my",
+  "origin": "https://tio2malaysia.com",
+  "pageType": "legal_policy",
+  "headerCurrentKey": null,
+  "maximumTextCodePoints": 100000,
+  "routes": [
+    {
+      "pageId": "LEGAL-PRIV-EN",
+      "routeKey": "PRIVACY_EN",
+      "path": "/privacy-policy/",
+      "locale": "en",
+      "breadcrumbHrefs": ["/", "/privacy-policy/"]
+    },
+    {
+      "pageId": "LEGAL-PRIV-MS",
+      "routeKey": "PRIVACY_MS",
+      "path": "/ms/privacy-policy/",
+      "locale": "ms-MY",
+      "breadcrumbHrefs": ["/", "/ms/privacy-policy/"]
+    },
+    {
+      "pageId": "LEGAL-COOKIE-EN",
+      "routeKey": "COOKIE_POLICY_EN",
+      "path": "/cookie-policy/",
+      "locale": "en",
+      "breadcrumbHrefs": ["/", "/cookie-policy/"]
+    }
+  ],
+  "markdown": {
+    "allowedLinkDestinations": [
+      "/privacy-policy/",
+      "/ms/privacy-policy/",
+      "/cookie-policy/",
+      "mailto:info@tio2malaysia.com"
+    ],
+    "actionBindings": [
+      {"label": "CONTACT US ABOUT PRIVACY", "action": "mailto:info@tio2malaysia.com"},
+      {"label": "MANAGE COOKIE SETTINGS", "action": "cookie-settings"},
+      {"label": "HUBUNGI KAMI MENGENAI PRIVASI", "action": "mailto:info@tio2malaysia.com"},
+      {"label": "URUS TETAPAN KUKI", "action": "cookie-settings"},
+      {"label": "READ OUR PRIVACY POLICY", "action": "/privacy-policy/"}
+    ]
+  }
+}
