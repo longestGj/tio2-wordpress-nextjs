@@ -36,6 +36,28 @@ class ProgramUpgradeTests(fixtures.Phase1MigrationTests):
         with self.assertRaises(ReleaseError):upgrade.apply(plan['planHash'])
         self.assertEqual(self.paths.program_link.read_bytes(),old)
 
+    def test_historical_block_marker_is_preserved_after_completed_migration(self):
+        from phase1_migration import canonical
+        marker=canonical({'schemaVersion':'d16-phase1-blocked-v1','subject':'tio2-my',
+                          'stage':'preflight','state':'BLOCKED','successful':False})
+        self.paths.blocked.write_bytes(marker)
+        upgrade=self.upgrade();plan=upgrade.plan()
+        self.assertEqual(upgrade.apply(plan['planHash'])['state'],'PROGRAM_UPGRADED')
+        self.assertEqual(self.paths.blocked.read_bytes(),marker)
+
+    def test_active_migration_journal_still_blocks_upgrade(self):
+        self.paths.journal.write_bytes(b'{}')
+        with self.assertRaisesRegex(ReleaseError,'unfinished phase1'):
+            self.upgrade().plan()
+
+    def test_mismatched_completed_journal_blocks_upgrade(self):
+        import json
+        from phase1_migration import canonical
+        path=self.paths.work/'completed-journal.json'
+        journal=json.loads(path.read_bytes());journal['completed']=False
+        path.write_bytes(canonical(journal))
+        with self.assertRaises(ReleaseError):self.upgrade().plan()
+
     def test_interrupted_switch_can_resume_same_plan(self):
         def stop(point):
             if point=='switched':raise KeyboardInterrupt()
