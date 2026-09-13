@@ -38,3 +38,5 @@
 2026-09-13: production read-only diagnosis confirms legacy baseline, database observation, CMS snapshot and route before values pass. Plan/state journals remain absent. Frontend homepage responds 200; 40 slashless routes respond canonical 308 (final targets not asserted by that diagnostic). SITE_ID matches, but REVALIDATION_SECRET is absent from docker exec's environment. Exact deployed Dockerfile 27f0a0da exports that alias from NEXTJS_REVALIDATION_SECRET_TIO2_MY in its entrypoint shell; an independent exec process does not inherit it.
 
 Added regression reproducing both read-only-without-secret and scoped-secret refresh failures, observed two failures before correction. Probe now requires SITE_ID for GET and uses the production scoped secret (legacy alias fallback) only for signed refresh. Missing refresh secret still fails. Related 16 tests pass. No server program or database changed; corrected administrator package still requires release handoff.
+
+2026-09-13：探针修复 5c0c2a66 独立复审无阻塞发现，复审者另运行 5 项测试通过；开发侧 16 项相关测试通过。已合入 develop。发布侧真实容器验证受本机 Docker 启动失败阻塞：dockerInference socket 无法访问。尚未生成或上传替换生产包。
