@@ -44,7 +44,9 @@ $calls=[]; $writeCount=0; $during=0;
 $capture=static function($pre,$request,$url) use (&$calls,&$mode) {
     $payload=json_decode($request['body'],true);
     $calls[]=['url'=>$url,'payload'=>$payload,'signed'=>hash_equals(hash_hmac('sha256',$request['body'],'synthetic-events-secret'),$request['headers']['x-tio2-signature'])];
-    if ($mode==='commit' || $mode==='retry-fail') return ['response'=>['code'=>503,'message'=>'Synthetic failure'],'headers'=>[],'body'=>'{"ok":false}'];
+    if ($mode==='race-holder') { update_option('synthetic_events_race_held',1,false); usleep(2000000); }
+    if (in_array($mode,['commit','outcome-fail','retry-fail','race-holder'],true))
+        return ['response'=>['code'=>503,'message'=>'Synthetic failure'],'headers'=>[],'body'=>'{"ok":false}'];
     if ($mode==='bad-ack') return ['response'=>['code'=>200,'message'=>'OK'],'headers'=>[],
         'body'=>events_json(['ok'=>true,'eventId'=>$payload['eventId'],'revalidatedTags'=>[],
             'revalidatedPaths'=>[],'contentRelease'=>['releaseId'=>'wrong','contentSha256'=>str_repeat('0',64)]])];
@@ -71,17 +73,33 @@ if ($mode === 'storage-fail') {
     echo events_json(['error'=>is_wp_error($result)?$result->get_error_code():null,'unchanged'=>events_snapshots()===$before,
         'calls'=>$calls,'writeCount'=>$writeCount]); return;
 }
-if ($mode === 'commit') {
+if ($mode === 'commit' || $mode === 'outcome-fail') {
+    if ($mode === 'outcome-fail') {
+        $suppress=$wpdb->suppress_errors(true);
+        $reject_outcome=static function($query) {return str_contains($query,'tio2_content_event_') && str_starts_with($query,'UPDATE ')
+            ? 'UPDATE synthetic_missing_receipt_table SET id=1' : $query;};
+        add_filter('query',$reject_outcome);
+    }
     $other=[99999=>['contentId'=>99999,'siteIds'=>['tio2-a'],'paths'=>['/'],'entityIds'=>[], 'sitePaths'=>['tio2-a'=>['/']]]];
     $GLOBALS['tio2_webhook_queue']=$other;
     $flush=static function() use (&$during) {tio2_flush_webhook_queue(); $during=count($GLOBALS['tio2_webhook_queue']);};
     add_action('updated_post_meta',$flush,90);
     $result=events_apply($fixture); remove_action('updated_post_meta',$flush,90);
+    if ($mode === 'outcome-fail') {remove_filter('query',$reject_outcome); $wpdb->suppress_errors($suppress);}
+    $persisted=is_array($result) && isset($result['receiptId']) ? get_option('tio2_content_event_'.$result['receiptId']) : false;
     echo events_json(['receipt'=>$result,'calls'=>$calls,'duringQueueCount'=>$during,
         'otherQueuePreserved'=>$GLOBALS['tio2_webhook_queue']===$other,'writeCount'=>$writeCount,
+        'persistedState'=>is_array($persisted)?$persisted['notificationState']:null,
         'contentMatches'=>events_snapshots()===[events_json($fixture['changedHome']),events_json($fixture['changedApp'])]]); return;
 }
-if (in_array($mode,['retry','retry-fail','bad-ack','stale','noactor','tamper'],true)) {
+if (in_array($mode,['retry','retry-fail','bad-ack','stale','noactor','tamper','race-holder','race-contender'],true)) {
+    if ($mode === 'race-contender') {
+        $deadline=microtime(true)+10;
+        while ((int)$wpdb->get_var("SELECT option_value FROM {$wpdb->options} WHERE option_name='synthetic_events_race_held'")!==1) {
+            if (microtime(true)>$deadline) throw new RuntimeException('Synthetic race holder did not reach HTTP');
+            usleep(10000);
+        }
+    }
     if ($mode === 'tamper') {
         $key='tio2_content_event_'.$args[2]; $original=get_option($key); $altered=$original;
         $altered['payload']['entityIds']=[123456]; update_option($key,$altered,false);
@@ -97,5 +115,6 @@ if (in_array($mode,['retry','retry-fail','bad-ack','stale','noactor','tamper'],t
     $before=events_snapshots(); $result=tio2_retry_approved_content_events($args[2]);
     if ($mode === 'tamper') update_option($key,$original,false);
     echo events_json(['receipt'=>is_wp_error($result)?$result->get_error_code():$result,
-        'calls'=>$calls,'contentUnchanged'=>events_snapshots()===$before,'writeCount'=>$writeCount]); return;
+        'calls'=>$calls,'contentUnchanged'=>events_snapshots()===$before,'writeCount'=>$writeCount,
+        'persistedState'=>(get_option('tio2_content_event_'.$args[2])['notificationState'] ?? null)]); return;
 }
