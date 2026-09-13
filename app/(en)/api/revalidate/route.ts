@@ -6,6 +6,7 @@ import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {resolveProductPageIdentity} from '@/lib/products/page-graph'
 import {getCurrentSite} from '@/lib/sites/current-site'
+import {isApprovedMalaysiaProductDetailSlug} from '@/lib/wordpress/product-detail-v01-registry'
 import {editorialPageIdForPath,editorialTag} from '@/lib/editorial/malaysia-editorial-contracts'
 import {SITE_IDS} from '@/sites'
 import {
@@ -258,6 +259,15 @@ export async function POST(request: Request): Promise<Response> {
         })
       : [],
   )
+  const malaysiaProductSlugByPath = new Map<string, string>()
+  if (currentSite.id === 'tio2-my') {
+    for (const path of payload.paths) {
+      const match = /^\/products\/([^/]+)$/u.exec(path)
+      if (match && isApprovedMalaysiaProductDetailSlug(match[1]!)) {
+        malaysiaProductSlugByPath.set(path, match[1]!)
+      }
+    }
+  }
   const unapprovedProductPath = payload.paths.find(
     (path) =>
       (path === '/products' || path.startsWith('/products/')) &&
@@ -265,6 +275,8 @@ export async function POST(request: Request): Promise<Response> {
       !(
         currentSite.id === 'tio2-my' &&
         (
+          path === '/products' ||
+          malaysiaProductSlugByPath.has(path) ||
           path === '/products/chloride-process-titanium-dioxide' ||
           editorialPageIdForPath(path) === 'PRODUCT-PROC-SU'
         )

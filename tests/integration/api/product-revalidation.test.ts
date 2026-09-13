@@ -68,6 +68,31 @@ afterEach(() => {
   vi.clearAllMocks()
 })
 
+describe('Malaysia Product route admission', () => {
+  it.each(['/products', '/products/cr-901', '/products/m-108'])('accepts a registered MY path: %s', async (path) => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(payloadFor({siteIds: ['tio2-my'], paths: [path]})))
+    expect(response.status).toBe(200)
+    expect(revalidatePath).toHaveBeenCalledExactlyOnceWith(path)
+  })
+
+  it.each(['/products/unknown-grade', '/products/coatings/tp-c120'])('rejects an unknown or Site A product path on MY: %s', async (path) => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(payloadFor({siteIds: ['tio2-my'], paths: [path]})))
+    expect(response.status).toBe(400)
+    expect(revalidateTag).not.toHaveBeenCalled()
+    expect(revalidatePath).not.toHaveBeenCalled()
+  })
+
+  it.each(['tio2-a', 'tio2-b'])('rejects a MY event on a %s runtime', async (siteId) => {
+    vi.stubEnv('SITE_ID', siteId)
+    const response = await POST(signedRequest(payloadFor({siteIds: ['tio2-my'], paths: ['/products/cr-901']})))
+    expect(response.status).toBe(400)
+    expect(revalidateTag).not.toHaveBeenCalled()
+    expect(revalidatePath).not.toHaveBeenCalled()
+  })
+})
+
 describe('Product revalidation', () => {
   it('revalidates the exact Site A Product dependencies for an approved canonical path', async () => {
     const payload = payloadFor({
