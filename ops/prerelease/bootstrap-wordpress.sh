@@ -144,6 +144,8 @@ while IFS=$'\t' read -r seed_path seed_hash; do
   esac
   if [[ "$seed_path" == "wordpress/seed/refresh-tio2-my-resource-candidate.php" ]]; then
     seed_output="$(D16_TIO2_MY_PRERELEASE_RESOURCE_REFRESH=1 wp eval-file "/workspace/$seed_path" Apply)"
+  elif [[ "$seed_path" == "wordpress/seed/refresh-tio2-my-trade-candidate.php" ]]; then
+    seed_output="$(D16_TIO2_MY_PRERELEASE_TRADE_REFRESH=1 wp eval-file "/workspace/$seed_path" Apply)"
   else
     seed_output="$(wp eval-file "/workspace/$seed_path" Apply)"
   fi

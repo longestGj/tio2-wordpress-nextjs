@@ -47,6 +47,10 @@
       "sha256": "58a0d7f6a8158405df7dab6922b296e5b3404a9990da944e81a3cf282f7f607d"
     },
     {
+      "path": "wordpress/seed/refresh-tio2-my-trade-candidate.php",
+      "sha256": "817b7b3981e5b522a161a3dfd58d924e3e7536028d7ae2ab89a9c1c43b554ab2"
+    },
+    {
       "path": "wordpress/seed/apply-tio2-my-editorial.php",
       "sha256": "15bf9c7a92170c2549def1798408c3e72ae6f2592befc722c747cf528aad9f48"
     },
