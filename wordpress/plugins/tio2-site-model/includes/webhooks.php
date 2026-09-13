@@ -52,7 +52,7 @@ function tio2_get_webhook_config(string $site_id, ?array $environment = null): ?
  */
 function tio2_webhook_post_types(): array
 {
-    return array_merge(['page', 'post', 'tio2_homepage', 'tio2_market_page', 'tio2_product_hub', 'tio2_my_editorial', 'tio2_resource_hub', 'tio2_about_page', 'tio2_documents_hub', 'tio2_doc_tds', 'tio2_legal_page', 'tio2_request_docs', 'tio2_request_sample'], array_keys(tio2_content_type_definitions()));
+    return array_merge(['page', 'post', 'tio2_homepage', 'tio2_market_page', 'tio2_product_hub', 'tio2_application_hub', 'tio2_my_editorial', 'tio2_resource_hub', 'tio2_about_page', 'tio2_documents_hub', 'tio2_doc_tds', 'tio2_legal_page', 'tio2_request_docs', 'tio2_request_sample'], array_keys(tio2_content_type_definitions()));
 }
 
 /**
@@ -449,6 +449,11 @@ function tio2_get_webhook_affected_state(
         $paths = [$product_path];
         $entity_ids = [$post_id];
         $site_paths['tio2-my'] = $paths;
+    } elseif ('tio2_application_hub' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $paths = ['/applications'];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
     } elseif ('tio2_my_editorial' === $post->post_type) {
         if (['tio2-my'] !== $site_ids) return null;
         $page_id = (string) get_post_meta($post_id, '_tio2_editorial_page_id', true);
@@ -709,6 +714,22 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
     }
 
     $post = null === $post_id ? null : get_post($post_id);
+    if (
+        $post instanceof WP_Post &&
+        'tio2_homepage' === $post->post_type &&
+        TIO2_MY_HOMEPAGE_CONTRACT_META === $meta_key &&
+        ['tio2-my'] === (tio2_get_site_scope_state($post_id)['siteIds'] ?? [])
+    ) {
+        return true;
+    }
+    if (
+        $post instanceof WP_Post &&
+        'tio2_application_hub' === $post->post_type &&
+        TIO2_MY_APPLICATION_HUB_CONTRACT_META === $meta_key &&
+        ['tio2-my'] === (tio2_get_site_scope_state($post_id)['siteIds'] ?? [])
+    ) {
+        return true;
+    }
     if (
         $post instanceof WP_Post &&
         'tio2_product_hub' === $post->post_type &&
