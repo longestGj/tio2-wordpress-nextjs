@@ -72,7 +72,7 @@ describe('ABOUT-001 field-level evidence projection', () => {
     expect(result.html).toContain('href="/request-a-quote/"')
     expect(result.html).not.toMatch(/heroBag|portScene|routeMap|marketMap|industrialStructure/u)
     expect(JSON.parse(result.schema)['@graph'].map((node: {'@type': string}) => node['@type'])).toEqual([
-      'AboutPage', 'Brand', 'BreadcrumbList',
+      'WebPage', 'Brand', 'BreadcrumbList',
     ])
   })
 })

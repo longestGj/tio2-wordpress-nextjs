@@ -12,7 +12,12 @@ describe('ABOUT-001 metadata', () => {
     expect(metadata.title).toBe(dto.seo.title)
     expect(metadata.alternates).toEqual({canonical: 'https://tio2malaysia.com/about/'})
     expect(metadata.robots).toEqual({index: false, follow: false})
-    expect(metadata.openGraph).toMatchObject({type: 'website', url: dto.seo.canonical, title: dto.seo.openGraphTitle, images: []})
+    expect(metadata.openGraph).toMatchObject({
+      type: 'website',
+      url: dto.seo.canonical,
+      title: 'Malaysia Titanium Dioxide Manufacturer | TiO2 Malaysia',
+      images: [],
+    })
     expect(metadata.alternates).not.toHaveProperty('languages')
   })
 

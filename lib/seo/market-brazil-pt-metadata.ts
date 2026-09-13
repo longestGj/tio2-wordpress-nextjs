@@ -2,6 +2,7 @@ import type {Metadata} from 'next'
 import type {SiteConfig} from '@/sites'
 import type {MalaysiaBrazilPtMarketPageDto} from '@/lib/wordpress/market-page-brazil-pt-v02-types'
 import type {JsonLdObject} from './jsonld'
+import {buildTio2MyPublicationMetadata} from './tio2-my-publication-metadata'
 
 function canonical(site: SiteConfig, page: MalaysiaBrazilPtMarketPageDto): string {
   if (
@@ -14,19 +15,9 @@ function canonical(site: SiteConfig, page: MalaysiaBrazilPtMarketPageDto): strin
   return page.seo.canonical
 }
 
-export function buildMalaysiaBrazilPtMarketMetadata(site: SiteConfig, page: MalaysiaBrazilPtMarketPageDto): Metadata {
-  const url = canonical(site, page)
-  return {
-    title: page.seo.title,
-    description: page.seo.description,
-    alternates: {canonical: url},
-    robots: {index: false, follow: false},
-    openGraph: {
-      type: 'website', locale: 'pt_BR', url, siteName: site.name,
-      title: page.seo.title, description: page.seo.description, images: [],
-    },
-    twitter: {card: 'summary', title: page.seo.title, description: page.seo.description, images: []},
-  }
+export function buildMalaysiaBrazilPtMarketMetadata(site: SiteConfig, page: MalaysiaBrazilPtMarketPageDto, env: Readonly<Record<string,string|undefined>> = process.env): Metadata {
+  canonical(site, page)
+  return buildTio2MyPublicationMetadata('MARKET-BR-PT', env)
 }
 
 export function buildMalaysiaBrazilPtMarketJsonLd(site: SiteConfig, page: MalaysiaBrazilPtMarketPageDto): JsonLdObject {

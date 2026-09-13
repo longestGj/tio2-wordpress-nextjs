@@ -2,17 +2,16 @@ import type {Metadata} from 'next'
 import type {SiteConfig} from '@/sites'
 import type {MalaysiaBrazilEnMarketPageDto} from '@/lib/wordpress/market-page-brazil-en-v01-types'
 import type {JsonLdObject} from './jsonld'
+import {buildTio2MyPublicationMetadata} from './tio2-my-publication-metadata'
 
 function canonical(site: SiteConfig, page: MalaysiaBrazilEnMarketPageDto): string {
   if (site.id !== 'tio2-my' || site.wordpressScope !== 'tio2-my' || page.identity.siteScope !== 'tio2-my' ||
     new URL(page.identity.path, site.url).href !== page.seo.canonical) throw new Error('Brazil English metadata scope mismatch')
   return page.seo.canonical
 }
-export function buildMalaysiaBrazilEnMarketMetadata(site: SiteConfig, page: MalaysiaBrazilEnMarketPageDto): Metadata {
-  const url = canonical(site, page)
-  return {title: page.seo.title, description: page.seo.description, alternates: {canonical: url}, robots: {index: false, follow: false},
-    openGraph: {type: 'website', url, siteName: site.name, title: page.seo.title, description: page.seo.description, images: []},
-    twitter: {card: 'summary', title: page.seo.title, description: page.seo.description, images: []}}
+export function buildMalaysiaBrazilEnMarketMetadata(site: SiteConfig, page: MalaysiaBrazilEnMarketPageDto, env: Readonly<Record<string,string|undefined>> = process.env): Metadata {
+  canonical(site, page)
+  return buildTio2MyPublicationMetadata('MARKET-BR-EN', env)
 }
 export function buildMalaysiaBrazilEnMarketJsonLd(site: SiteConfig, page: MalaysiaBrazilEnMarketPageDto): JsonLdObject {
   const url = canonical(site, page)

@@ -13,27 +13,28 @@ const hub = () => toMalaysiaDocumentsHubDto({
 })
 
 describe('DOC-000 SEO and JSON-LD', () => {
-  it('uses exact metadata, one self-canonical, no hreflang and noindex before release', () => {
+  it('uses exact metadata, one self-canonical and production indexing', () => {
     const metadata = buildMalaysiaDocumentsHubMetadata(getSiteConfig('tio2-my'), hub(), {VERCEL_ENV: 'production'})
     expect(metadata).toMatchObject({
       title: 'Documents for Product Qualification | TiO2 Malaysia',
       description: 'Request technical, safety, quality, COA, origin and supplier-qualification documentation for a selected titanium dioxide grade.',
       alternates: {canonical: 'https://tio2malaysia.com/documents/'},
-      robots: {index: false, follow: false},
+      robots: {index: true, follow: true},
     })
     expect(metadata.alternates).not.toHaveProperty('languages')
     expect(metadata.openGraph).toMatchObject({title: contract.seo.title, description: contract.seo.description, images: []})
   })
 
-  it('emits only WebPage, BreadcrumbList and exact six-question FAQPage', () => {
+  it('emits the approved CollectionPage, BreadcrumbList and document-guide ItemList', () => {
     const schema = buildMalaysiaDocumentsHubJsonLd(getSiteConfig('tio2-my'), hub()) as {'@graph': Array<Record<string, unknown>>}
-    expect(schema['@graph'].map((node) => node['@type'])).toEqual(['WebPage', 'BreadcrumbList', 'FAQPage'])
-    const faq = schema['@graph'][2] as {mainEntity: Array<{name: string; acceptedAnswer: {text: string}}>}
-    expect(faq.mainEntity).toEqual(contract.buyerQuestions.items.map((item) => ({
-      '@type': 'Question', name: item.question,
-      acceptedAnswer: {'@type': 'Answer', text: item.answer},
+    expect(schema['@graph'].map((node) => node['@type'])).toEqual(['CollectionPage', 'BreadcrumbList', 'ItemList'])
+    const list = schema['@graph'][2] as {numberOfItems: number; itemListElement: Array<Record<string, unknown>>}
+    expect(list.numberOfItems).toBe(3)
+    expect(list.itemListElement).toEqual(contract.documentGuides.items.map((item, index) => ({
+      '@type': 'ListItem', position: index + 1, name: item.label,
+      url: new URL(item.href, 'https://tio2malaysia.com').href,
     })))
-    expect(schema['@graph'].some((node) => ['ItemList', 'DigitalDocument', 'Product', 'Offer'].includes(String(node['@type'])))).toBe(false)
+    expect(schema['@graph'].some((node) => ['FAQPage', 'DigitalDocument', 'Product', 'Offer'].includes(String(node['@type'])))).toBe(false)
     expect(JSON.stringify(schema)).not.toMatch(/potentialAction|contentUrl|encodingFormat/iu)
   })
 })

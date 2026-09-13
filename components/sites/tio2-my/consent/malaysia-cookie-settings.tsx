@@ -3,16 +3,9 @@
 import {useEffect, useRef, useState, type ReactNode} from 'react'
 
 import styles from './malaysia-cookie-settings.module.css'
+import {getMalaysiaConsentCopy} from '@/lib/consent/malaysia-consent-copy'
 
 const OPEN_EVENT = 'cookie-settings:open'
-const publicConsentCopy = {
-  title: 'Cookie settings',
-  body: 'No optional Analytics or advertising technology is currently active on this site. Necessary functions may use browser storage to operate the site and remember an available privacy setting.',
-  close: 'Close',
-  cookiePolicy: 'Read Cookie Policy',
-  cookiePolicyHref: '/cookie-policy/',
-} as const
-
 import {CONSENT_KEY, readMalaysiaConsentChoice, applyMalaysiaConsent, type ConsentChoice} from '@/lib/consent/malaysia-consent'
 export {createDeniedGoogleConsent, transitionConsent} from '@/lib/consent/malaysia-consent'
 
@@ -29,6 +22,7 @@ export function MalaysiaCookieSettingsTrigger({children, className}: {readonly c
 }
 
 export function MalaysiaCookieSettingsHost() {
+  const publicConsentCopy = getMalaysiaConsentCopy()
   const [open, setOpen] = useState(false)
   const [analytics, setAnalytics] = useState(false)
   const [saveError, setSaveError] = useState(false)
@@ -97,7 +91,7 @@ export function MalaysiaCookieSettingsHost() {
 
   function save(choice: ConsentChoice) {
     applyMalaysiaConsent(choice, 'update')
-    try {window.localStorage.setItem(CONSENT_KEY, JSON.stringify({version: 1, choice})); close()}
+    try {window.localStorage.setItem(CONSENT_KEY, JSON.stringify({version: 1, choice, decidedAt: Date.now()})); close()}
     catch {setAnalytics(choice === 'analytics_accepted'); setSaveError(true)}
   }
 
@@ -111,14 +105,18 @@ export function MalaysiaCookieSettingsHost() {
       <section className={styles.dialog}>
         <h2 id="cookie-settings-title">{publicConsentCopy.title}</h2>
         <p id="cookie-settings-description">{publicConsentCopy.body}</p>
+        {publicConsentCopy.analyticsActive && <>
+          <p>{publicConsentCopy.necessaryDetail}</p>
+          <p>{publicConsentCopy.analyticsDetail}</p>
+        </>}
         <label className={styles.preference}><input type="checkbox" checked={analytics} onChange={(event) => setAnalytics(event.target.checked)} />Allow analytics</label>
         <p role="status">{analytics ? 'Analytics allowed' : 'Necessary only'}</p>
         {saveError && <p role="alert">Your browser could not save this preference.</p>}
         <div className={styles.actions}>
           <button ref={closeRef} type="button" onClick={close}>{publicConsentCopy.close}</button>
           <button type="button" onClick={() => save(analytics ? 'analytics_accepted' : 'necessary_only')}>Save preferences</button>
-          <button type="button" onClick={() => save('analytics_accepted')}>Accept analytics</button>
-          <button type="button" onClick={() => save('necessary_only')}>Reject / withdraw analytics</button>
+          <button type="button" onClick={() => save('analytics_accepted')}>{publicConsentCopy.accept}</button>
+          <button type="button" onClick={() => save('necessary_only')}>{publicConsentCopy.necessary}</button>
           <a href={publicConsentCopy.cookiePolicyHref}>{publicConsentCopy.cookiePolicy}</a>
         </div>
       </section>

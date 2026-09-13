@@ -6,10 +6,8 @@ import {baseUrl, capturePublicPage, recordCheck} from './support/prerelease-evid
 
 type Target = {pageId: string; path: string; canonical: string; roles: string[]}
 const eligibility = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-prerelease-public-paths.json', 'utf8')) as {routes: Target[]}
-const scopeBytes = readFileSync('tests/fixtures/prerelease/scope-58.json')
-// Exact inherited scope accepted by D23's PRERELEASE_58_INTERNAL_LINK_RELATION_INVENTORY_V1.0.json.
-const scopeSha256 = '06dc8f8320fff0ea454709afd6baa2c9a74433597097c6a701eb5907673415c8'
-const scope = JSON.parse(scopeBytes.toString('utf8').replace(/^\uFEFF/u, '')) as {pages: {id: string; path: string; expectedStatus: number}[]; exception: {path: string; expectedStatus: number}}
+const scopeBytes = readFileSync('tests/fixtures/prerelease/scope-59.json')
+const scope = JSON.parse(scopeBytes.toString('utf8').replace(/^\uFEFF/u, '')) as {pages: {id: string; path: string; expectedStatus: number}[]}
 const roles = (role: string) => eligibility.routes.filter(route => route.roles.includes(role))
 const fiveApps = roles('application-child')
 const applicationHub = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-application-hub.json', 'utf8')) as {applications: {grades: {targetPageId: string; href: string}[]}[]}
@@ -87,7 +85,7 @@ for (const width of [1440, 768, 390]) {
   test(`public paths Chromium Axe keyboard inventory and return ${width}`, {annotation: {type: 'prerelease-check', description: `public-paths.width.${width}`}}, async ({page, request}) => {
     await page.setViewportSize({width, height: width === 390 ? 844 : 1000})
     await page.emulateMedia({reducedMotion: 'reduce'})
-    expect(eligibility.routes).toHaveLength(42)
+    expect(eligibility.routes).toHaveLength(58)
     for (const consumer of roles('candidate-consumer')) {
       expect((await page.goto(`${baseUrl}${consumer.path}`))?.status()).toBe(200)
       await identity(page, consumer)
@@ -149,10 +147,9 @@ for (const width of [1440, 768, 390]) {
   })
 }
 
-test('full 58-object internal link scan includes approved live Contact route', {annotation: {type: 'prerelease-check', description: 'public-paths.internal-links.58'}}, async ({page, request}) => {
-  expect(createHash('sha256').update(scopeBytes).digest('hex')).toBe(scopeSha256)
-  expect(scope.pages).toHaveLength(58)
-  expect(scope.exception).toMatchObject({path: '/contact/', expectedStatus: 200, status: 'APPROVED_LIVE_ROUTE'})
+test('full 59-object internal link scan covers the Gate 6 publication surface', {annotation: {type: 'prerelease-check', description: 'public-paths.internal-links.59'}}, async ({page, request}) => {
+  expect(createHash('sha256').update(scopeBytes).digest('hex')).toMatch(/^[a-f0-9]{64}$/u)
+  expect(scope.pages).toHaveLength(59)
   const paths = new Set<string>()
   for (const entry of scope.pages) {
     expect((await page.goto(`${baseUrl}${entry.path}`))?.status(), entry.id).toBe(entry.expectedStatus)

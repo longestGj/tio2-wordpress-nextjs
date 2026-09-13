@@ -2,13 +2,13 @@ import type {Metadata} from 'next'
 
 import type {MalaysiaResourceOriginDto} from '@/lib/wordpress/resource-origin-v01-types'
 import type {SiteConfig} from '@/sites'
+import {buildTio2MyPublicationMetadata} from './tio2-my-publication-metadata'
 
 export function buildMalaysiaResourceOriginMetadata(
   site: SiteConfig,
   page: MalaysiaResourceOriginDto,
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): Metadata {
-  void env
   if (site.id !== 'tio2-my' || site.wordpressScope !== 'tio2-my' || page.identity.siteScope !== 'tio2-my') {
     throw new Error('RES-ORIGIN metadata is available only for tio2-my')
   }
@@ -16,18 +16,5 @@ export function buildMalaysiaResourceOriginMetadata(
   if (canonical !== page.seo.canonical || canonical !== page.identity.canonical) {
     throw new Error('RES-ORIGIN canonical does not match the Malaysia site')
   }
-  return {
-    title: page.seo.title,
-    description: page.seo.description,
-    alternates: {canonical},
-    robots: {index: false, follow: false},
-    openGraph: {
-      type: 'website',
-      url: canonical,
-      siteName: site.name,
-      title: page.seo.title,
-      description: page.seo.description,
-      images: [],
-    },
-  }
+  return buildTio2MyPublicationMetadata('RES-ORIGIN', env)
 }

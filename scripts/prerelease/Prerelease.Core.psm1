@@ -575,7 +575,7 @@ function Complete-PrereleaseEvidence {
     $expectedSuites = if ($Action -eq 'Test') { @('smoke', 'public-paths') } else { @('live-forms') }
     $expectedIds = @{
         'smoke' = @('smoke.representative', 'smoke.local-forms', 'smoke.cookie-keyboard', 'smoke.reflow.1440', 'smoke.reflow.768', 'smoke.reflow.390')
-        'public-paths' = @('public-paths.width.1440', 'public-paths.width.768', 'public-paths.width.390', 'public-paths.internal-links.58')
+        'public-paths' = @('public-paths.width.1440', 'public-paths.width.768', 'public-paths.width.390', 'public-paths.internal-links.59')
         'live-forms' = @('live-forms.rfq', 'live-forms.sample', 'live-forms.documents')
     }
     $requiredIds = @($expectedSuites | ForEach-Object { $expectedIds[$_] })

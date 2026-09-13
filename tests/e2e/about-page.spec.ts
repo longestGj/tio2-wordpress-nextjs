@@ -84,7 +84,7 @@ for (const width of widths) {
     expect(schemas).toHaveLength(1)
     const graph = JSON.parse(schemas[0]!)['@graph'] as Array<Record<string, unknown>>
     expect(graph.map((node) => node['@type'])).toEqual([
-      'AboutPage', 'Organization', 'Brand', 'Place', 'AdministrativeArea',
+      'WebPage', 'Organization', 'Brand', 'Place', 'AdministrativeArea',
       'AdministrativeArea', 'AdministrativeArea', 'AdministrativeArea', 'BreadcrumbList',
     ])
     expect(graph[1]).toMatchObject({name: approved.schema.organizationName})

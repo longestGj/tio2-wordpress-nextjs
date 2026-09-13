@@ -23,7 +23,7 @@ describe('Legal page metadata and Schema', () => {
       'x-default': 'https://tio2malaysia.com/privacy-policy/',
     }})
     expect(enMeta.robots).toEqual({index: false, follow: false})
-    expect(buildMalaysiaLegalPageMetadata(site, ms!, {}).description).toBe(approved.pages[1]!.seo.description)
+    expect(buildMalaysiaLegalPageMetadata(site, ms!, {}).description).toBe('Ketahui cara TiO2 Malaysia mengendalikan data pertanyaan perniagaan, penyedia perkhidmatan, tempoh penyimpanan, Kuki dan pilihan privasi.')
     expect(buildMalaysiaLegalPageMetadata(site, cookie!, {}).alternates).toEqual({canonical: cookie!.seo.canonical})
   })
 

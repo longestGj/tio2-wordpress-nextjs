@@ -13,12 +13,16 @@ describe('PRODUCT-PROC-CL metadata', () => {
       description: page.seo.description,
       alternates: {canonical: page.seo.canonical},
       robots: {index: false, follow: false},
-      other: {'twitter:title': page.seo.title, 'twitter:description': page.seo.description},
     })
     expect(metadata.alternates).not.toHaveProperty('languages')
-    expect(metadata).not.toHaveProperty('openGraph')
-    expect(metadata).not.toHaveProperty('twitter')
-    expect(JSON.stringify(metadata)).not.toMatch(/twitter:card|twitter:image|og:image/iu)
+    expect(metadata.openGraph).toMatchObject({
+      url: page.seo.canonical,
+      title: page.seo.title,
+      description: page.seo.description,
+      images: [],
+    })
+    expect(metadata.twitter).toMatchObject({title: page.seo.title, description: page.seo.description, images: []})
+    expect(JSON.stringify(metadata)).not.toMatch(/twitter:image|og:image/iu)
   })
 
   it('rejects a foreign site binding', () => {

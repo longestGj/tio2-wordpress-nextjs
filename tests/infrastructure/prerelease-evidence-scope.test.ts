@@ -9,7 +9,7 @@ const modulePath = resolve('scripts/prerelease/Prerelease.Core.psm1')
 const manifest = {runId: 'run-1', commit: execFileSync('git', ['rev-parse', 'HEAD'], {encoding: 'utf8'}).trim(), buildId: 'build-1', cmsIdentitySha256: 'b'.repeat(64), siteId: 'tio2-my'}
 const ordinaryChecks = {
   smoke: ['smoke.representative', 'smoke.local-forms', 'smoke.cookie-keyboard', 'smoke.reflow.1440', 'smoke.reflow.768', 'smoke.reflow.390'],
-  'public-paths': ['public-paths.width.1440', 'public-paths.width.768', 'public-paths.width.390', 'public-paths.internal-links.58'],
+  'public-paths': ['public-paths.width.1440', 'public-paths.width.768', 'public-paths.width.390', 'public-paths.internal-links.59'],
 }
 
 describe.runIf(process.platform === 'win32')('candidate evidence finalization', () => {
@@ -33,7 +33,7 @@ describe.runIf(process.platform === 'win32')('candidate evidence finalization', 
       } finally { rmSync(root, {recursive: true, force: true}) }
     })
   }
-  for (const [replaced, substitute] of [['public-paths.width.390', 'public-paths.unrelated.430'], ['public-paths.internal-links.58', 'public-paths.unrelated.scan'], ['public-paths.width.390', 'public-paths.width.768']]) {
+  for (const [replaced, substitute] of [['public-paths.width.390', 'public-paths.unrelated.430'], ['public-paths.internal-links.59', 'public-paths.unrelated.scan'], ['public-paths.width.390', 'public-paths.width.768']]) {
     it(`rejects a same-count substitution for required check ${replaced} with ${substitute}`, () => {
       const root = mkdtempSync(join(tmpdir(), 'prerelease-substitution-'))
       try {

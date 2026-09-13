@@ -2,6 +2,7 @@ import type {Metadata} from 'next'
 
 import type {SiteConfig} from '@/sites'
 import contract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-rfq-page.json'
+import {buildTio2MyPublicationMetadata} from './tio2-my-publication-metadata'
 
 export function buildMalaysiaRfqMetadata(
   site: SiteConfig,
@@ -17,24 +18,5 @@ export function buildMalaysiaRfqMetadata(
   ) {
     throw new Error('CONV-RFQ metadata is available only for tio2-my')
   }
-  const env = options.env ?? process.env
-  const indexable = (
-    env.VERCEL_ENV === 'production' &&
-    options.indexingAuthorized === true &&
-    env.TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED === 'true'
-  )
-  return {
-    title: (options.seo ?? contract.seo).title,
-    description: (options.seo ?? contract.seo).description,
-    alternates: {canonical: contract.seo.canonical},
-    robots: {index: indexable, follow: indexable},
-    openGraph: {
-      type: 'website',
-      url: contract.seo.canonical,
-      siteName: site.name,
-      title: (options.seo ?? contract.seo).title,
-      description: (options.seo ?? contract.seo).description,
-      images: [],
-    },
-  }
+  return buildTio2MyPublicationMetadata('CONV-RFQ', options.env)
 }

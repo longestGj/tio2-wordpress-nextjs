@@ -91,8 +91,15 @@ export function emitMalaysiaSourceSuccess(request: MalaysiaThankYouRequest): voi
   const current = window.__TIO2_SHARED_CONSENT__
   if (current ? current.siteScope !== 'tio2-my' || current.analytics !== 'granted' : readMalaysiaConsentChoice() !== 'analytics_accepted') return
   const events = {quote: 'rfq_provider_accepted', documents: 'documents_provider_accepted', sample: 'sample_provider_accepted'} as const
+  const pageIds = {quote: 'CONV-RFQ', documents: 'CONV-DOC', sample: 'CONV-SAMPLE'} as const
   window.dataLayer ??= []
-  window.dataLayer.push({event: events[request], ad_personalization: 'denied'})
+  window.dataLayer.push({
+    event: events[request],
+    site_scope: 'tio2-my',
+    page_id: pageIds[request],
+    source: 'web3forms',
+    form_type: request,
+  })
 }
 
 export function navigateToMalaysiaThankYou(request: MalaysiaThankYouRequest): void {

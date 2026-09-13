@@ -16,12 +16,50 @@ export function transitionConsent(choice: ConsentChoice): GoogleConsentSnapshot 
 }
 
 
-export const CONSENT_KEY = 'tio2-my:consent:v1'
+import {readMalaysiaAnalyticsConfig} from '@/lib/analytics/malaysia-ga4'
+
+export const CONSENT_KEY = 'tio2_my_consent_v1'
+export const LEGACY_CONSENT_KEY = 'tio2-my:consent:v1'
+
+function parseConsentChoice(raw: string | null): ConsentChoice | null {
+  if (!raw) return null
+  try {
+    const value = JSON.parse(raw)
+    return value?.version === 1 &&
+      (value.choice === 'analytics_accepted' || value.choice === 'necessary_only')
+      ? value.choice
+      : null
+  } catch {
+    return null
+  }
+}
+
 export function readMalaysiaConsentChoice(): ConsentChoice {
   try {
-    const value = JSON.parse(window.localStorage.getItem(CONSENT_KEY) ?? 'null')
-    return value?.version === 1 && value?.choice === 'analytics_accepted' ? 'analytics_accepted' : 'necessary_only'
+    const current = parseConsentChoice(window.localStorage.getItem(CONSENT_KEY))
+    if (current) return current
+
+    const legacy = parseConsentChoice(window.localStorage.getItem(LEGACY_CONSENT_KEY))
+    if (!legacy) return 'necessary_only'
+    window.localStorage.setItem(CONSENT_KEY, JSON.stringify({version: 1, choice: legacy, decidedAt: Date.now()}))
+    window.localStorage.removeItem(LEGACY_CONSENT_KEY)
+    return legacy
   } catch {return 'necessary_only'}
+}
+
+export function removeMalaysiaAnalyticsCookies(measurementId?: string): void {
+  if (typeof document === 'undefined') return
+  const suffix = measurementId?.match(/^G-([A-Z0-9]{8,})$/u)?.[1]
+  const names = ['_ga', ...(suffix ? [`_ga_${suffix}`] : [])]
+  const hostname = window.location.hostname.toLowerCase()
+  const domains = hostname === 'tio2malaysia.com' || hostname.endsWith('.tio2malaysia.com')
+    ? ['', 'Domain=tio2malaysia.com; ', 'Domain=.tio2malaysia.com; ']
+    : ['']
+  for (const name of names) {
+    for (const domain of domains) {
+      document.cookie = `${name}=; ${domain}Path=/; Max-Age=0; SameSite=Lax`
+    }
+  }
 }
 
 export function applyMalaysiaConsent(choice: ConsentChoice, command: 'default' | 'update') {
@@ -33,5 +71,8 @@ export function applyMalaysiaConsent(choice: ConsentChoice, command: 'default' |
   // eslint-disable-next-line prefer-rest-params, @typescript-eslint/no-unused-vars
   function queueConsent(_type: string, _command: string, _snapshot: GoogleConsentSnapshot) {window.dataLayer!.push(arguments as unknown as Record<string, unknown>)}
   queueConsent('consent', command, transitionConsent(choice))
+  if (command === 'update' && choice === 'necessary_only') {
+    removeMalaysiaAnalyticsCookies(readMalaysiaAnalyticsConfig()?.ga4MeasurementId)
+  }
 }
 

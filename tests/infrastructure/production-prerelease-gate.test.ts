@@ -6,7 +6,6 @@ import {join, resolve} from 'node:path'
 import {afterEach, describe, expect, it} from 'vitest'
 
 const script = resolve('scripts/prerelease/Seal-ProductionGate.ps1')
-const surfacePath = resolve('ops/production/release-surface.json')
 const temporaryDirectories: string[] = []
 const commit = execFileSync('git', ['rev-parse', 'HEAD'], {encoding: 'utf8'}).trim()
 const cmsIdentitySha256 = 'b'.repeat(64)
@@ -15,7 +14,7 @@ const checkIds = [
   'smoke.representative', 'smoke.local-forms', 'smoke.cookie-keyboard',
   'smoke.reflow.1440', 'smoke.reflow.768', 'smoke.reflow.390',
   'public-paths.width.1440', 'public-paths.width.768', 'public-paths.width.390',
-  'public-paths.internal-links.58',
+  'public-paths.internal-links.59',
 ]
 const workflows = ['rfq', 'sample', 'documents'] as const
 const pageIds = {rfq: 'CONV-RFQ', sample: 'CONV-SAMPLE', documents: 'CONV-DOC'}
