@@ -100,3 +100,21 @@ The user subsequently confirmed all three emails received and correct, and speci
 Ran the unchanged Confirm-PrereleaseInbox script with those explicitly confirmed inputs under Windows PowerShell 5.1, then Seal-ProductionGate with the current main ordinary receipt and reconciled live evidence. Gate PASSED for eebfb029 / original run / Build. Forms RFQ, Sample, Documents all RECEIVED. Gate path: the reconciled evidence directory's `production-gate.json`; sealedAt `2026-09-13T22:41:58.9703887+00:00`. Evidence hashes: ordinary `f29b79dc08a7a3b66d7865f2c9858ba09a899be5bce0537fe809e5cad0c74577`, live `56c9112cc0b648589e64372e62005e958ebf286d0846a93554df022bcee31585`, inbox `883e05533b82871f1124520e6c5a07aefe3cfcd96e0eb9fe9d252816ff94c5aa`. Gate inventory counts are the sealer's declared release inventory, not a claim that this turn executed 177 new browser cases.
 
 Prepared fresh baseline observation using the exact existing project observer (SHA-256 `d31dd2fe5d6f7466e3bc0f2b3c8a1175f97dbcd1f4f7bc1068dffc9da0cd453e`). SCP uploaded only that non-secret source file to `/home/deploy/tio2-incoming/main-baseline-eebfb029-3bcd6e7d.py` through the existing deploy key and pinned host key. No remote shell or observer execution occurred in that transfer. User-operated root execution of a protected, hash-verified copy is pending. This observation is within the previously authorized administrator read-only scope; it does not install an administrator generation or CMS payload. New baseline release ID: `tio2-my-main-eebfb029-20260914`.
+
+## Fresh production baseline and actual formal package rejection
+
+The user ran the hash-verified project observer from a root-owned copy and returned JSON plus independent stdout hash. Reconstructed exact JSON bytes including newline matched `e1bec0ccad2ca02cd691da414cb563bff77afc824f60d1a016d507be0e4cb60f`. Saved as ignored `main-baseline-20260914.json`. ObservedAt `2026-09-13T22:42:48.066743+00:00`, active frontend commit `27f0a0da59df1e54cd01eab7d77eb7024b338d42`, CMS `62426e7a28fe083e053f344b70c51a10dd0aeff79bb67da88e1f5b484bed9889`, configuration `3608b8627e8585ca3472e4fadce8216540d7b48bf62885e12ec78bf9d6e543a8`, content `768e729904f8da60f69fc7e9d5d25b5adc6aae34bfccc85c9c4e8ee5075549c0`, previousProductionReceipt `22bf25e67e150b625d43b199c7bb583f12614343bbba5284da7b1f211bffa451`.
+
+Actually executed formal `scripts/production.ps1 -Operation Package` from clean main eebfb029, using the sealed current-main gate, original ordinary test result, exact prerelease RunRoot, independently pinned fresh baseline, and existing committed frontend development receipt. Applied `core.autocrlf=false` only to this child process's Git commands, preserving blob validation and all persistent Git settings. No CMS identity, release type or evidence was overridden.
+
+Actual rejection:
+
+```text
+frontend packaging failed: candidate CMS differs from installed CMS
+Frontend package preparation failed; no candidate was published.
+PACKAGE_EXIT=1
+```
+
+The first orchestration wrapper did not propagate the child failure exit code; its text correctly showed rejection. Added explicit exit propagation only to that ignored wrapper and repeated the same offline packaging check. The formal CLI returned 1; no output directory `.production/runs/tio2-my-main-eebfb029-20260914` was created. Final `package-attempt.log` SHA-256 `aabd26154479abdeb209e7868e2abf594e1eeae2135de0490f58975dd03b59e1`. Neither call uploaded a package or invoked remote deployment actions.
+
+This now demonstrates an actual **package admission rule** rejecting current main against the installed CMS fingerprint. It does not demonstrate a production runtime failure or prove that an old resolver could never run with the new frontend. CMS identity equality is enforced before development-receipt coverage checks; no claim is made that later packaging checks passed. Production deployment remains incomplete, with state `PACKAGE_FAILED_CMS_CONTRACT_MISMATCH`. Further progress requires a separately agreed way to satisfy or change that contract; no installer, ad hoc plugin copying, registration rewrite or gate bypass was performed.
