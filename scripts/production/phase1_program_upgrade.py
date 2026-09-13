@@ -12,7 +12,7 @@ import sys
 if __name__ == '__main__':
     sys.path.insert(0, str(Path(__file__).resolve().parent / 'admin'))
 
-from phase1_migration import Phase1Migration, MigrationPaths, canonical, digest, require
+from phase1_migration import Phase1Migration, MigrationPaths, COMMIT_ORDER, canonical, digest, require
 
 
 class ProgramUpgrade:
@@ -27,11 +27,23 @@ class ProgramUpgrade:
 
     def _preserved(self):
         io=self.io; paths=self.paths
-        require(not paths.journal.exists() and not paths.blocked.exists(),'unfinished phase1 migration')
+        require(not paths.journal.exists(),'unfinished phase1 migration')
         receipt=io._json(paths.receipt)
         require(receipt.get('schemaVersion')=='d16-phase1-migration-receipt-v1'
+                and receipt.get('subject')=='tio2-my' and receipt.get('state')=='PREPARED'
                 and all(item.get('committed') is True for item in receipt['commits'])
-                and len(receipt['commits'])==9,'completed phase1 receipt required')
+                and [item.get('name') for item in receipt['commits']]==list(COMMIT_ORDER),
+                'completed phase1 receipt required')
+        # A failed preflight leaves blocked.json as historical evidence even
+        # after a later successful migration. Preserve it and authenticate the
+        # terminal journal instead of treating that marker as active state.
+        journal=io._json(paths.work/'completed-journal.json')
+        plan=journal['plan']
+        payload={key:value for key,value in plan.items() if key!='planHash'}
+        require(journal.get('schemaVersion')=='d16-phase1-migration-journal-v1'
+                and journal.get('completed') is True and journal.get('commits')==receipt['commits']
+                and digest(canonical(payload))==plan['planHash']==receipt['planHash'],
+                'completed phase1 journal required')
         state=io._json(paths.state)
         require(state.get('state')=='PREPARED' and state.get('details',{}).get('subject')=='tio2-my',
                 'upgrade requires preserved PREPARED transaction')
