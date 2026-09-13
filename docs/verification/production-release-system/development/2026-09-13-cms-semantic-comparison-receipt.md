@@ -32,3 +32,9 @@
 ## 开发合并回执
 
 2026-09-13：实现提交 5ac4c94d（含前序 3444433f、9db2afb1），经独立复审及上述 64 项回归和真实数据库恢复演练，合并到 develop：6da68cf78ccf43f18405bc6a9f502746dcc8d0f3。状态 MERGED_TO_DEVELOP。main 和生产尚未修改；发布侧仍需冻结、集成与预发布核验。
+
+## Production probe configuration correction
+
+2026-09-13: production read-only diagnosis confirms legacy baseline, database observation, CMS snapshot and route before values pass. Plan/state journals remain absent. Frontend homepage responds 200; 40 slashless routes respond canonical 308 (final targets not asserted by that diagnostic). SITE_ID matches, but REVALIDATION_SECRET is absent from docker exec's environment. Exact deployed Dockerfile 27f0a0da exports that alias from NEXTJS_REVALIDATION_SECRET_TIO2_MY in its entrypoint shell; an independent exec process does not inherit it.
+
+Added regression reproducing both read-only-without-secret and scoped-secret refresh failures, observed two failures before correction. Probe now requires SITE_ID for GET and uses the production scoped secret (legacy alias fallback) only for signed refresh. Missing refresh secret still fails. Related 16 tests pass. No server program or database changed; corrected administrator package still requires release handoff.

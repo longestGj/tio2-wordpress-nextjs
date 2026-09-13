@@ -35,14 +35,17 @@ const fs=require('node:fs'),crypto=require('node:crypto');
 let stage='config';
 (async()=>{
  const input=JSON.parse(fs.readFileSync(0,'utf8'));
- if(process.env.SITE_ID!=='tio2-my'||!process.env.REVALIDATION_SECRET)throw Error('config');
+ if(process.env.SITE_ID!=='tio2-my')throw Error('config');
  if(input.refresh){
+  // docker exec receives container configuration, not the entrypoint shell's exports.
+  const secret=process.env.NEXTJS_REVALIDATION_SECRET_TIO2_MY||process.env.REVALIDATION_SECRET;
+  if(!secret)throw Error('config');
   stage='signed-refresh';
   const event={eventId:crypto.randomUUID(),siteIds:['tio2-my'],contentId:1,
    paths:[],entityIds:[],modified:new Date().toISOString()};
   const raw=JSON.stringify(event);
   const response=await fetch('http://127.0.0.1:3000/api/revalidate',{method:'POST',
-   headers:{'Content-Type':'application/json','x-tio2-signature':crypto.createHmac('sha256',process.env.REVALIDATION_SECRET).update(raw).digest('hex')},
+   headers:{'Content-Type':'application/json','x-tio2-signature':crypto.createHmac('sha256',secret).update(raw).digest('hex')},
    body:raw,signal:AbortSignal.timeout(20000)});
   const value=await response.json();
   if(!response.ok||value.ok!==true||value.eventId!==event.eventId||
