@@ -157,8 +157,8 @@ expect(metadata.robots).toEqual({index: false, follow: false})
 - [x] Run `npx vitest run tests/unit/legal tests/integration/legal tests/infrastructure/legal-read-contract.test.ts tests/infrastructure/tio2-my-legal-pages-wordpress.test.ts` and `npm run typecheck`.
 - [x] Use the repository's isolated local WordPress/Next integration workflow to verify real WPGraphQL → build → legal pages with synthetic changed content. Read `docs/development-execution.md` and `docs/runtime-ports.md` before starting resources; never reuse production CMS or shared databases. Capture and inspect desktop/mobile legal screenshots, section anchors and cookie-settings interaction. Report missing infrastructure honestly rather than substituting mocks for live evidence.
 - [x] Record exact branch/HEAD, commands, red/green results, fixture/local-runtime boundaries, screenshots reviewed, and remaining page families in the receipt. Document that runtime reads have changed ONLY for legal pages.
-- [ ] Obtain independent code review before any develop merge; fix findings and rerun affected tests. No merge to main or deployment.
-- [x] Commit Task 3 implementation and local acceptance harness as `6164e048` with `test: verify MY legal read decoupling end to end`; independent review remains a separate unchecked gate above.
+- [x] Independent task and whole-branch review completed; findings fixed and scoped re-review approved `47175c13`, then merged exactly into local develop with 227 targeted tests passing. No merge to main or deployment.
+- [x] Commit Task 3 implementation and local acceptance harness as `6164e048` with `test: verify MY legal read decoupling end to end`; subsequent review fixes and evidence are recorded in the verification receipt.
 
 ## Parent-design continuation gate
 
