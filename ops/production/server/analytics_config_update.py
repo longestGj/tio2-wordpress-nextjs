@@ -8,6 +8,7 @@ from copy import deepcopy
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import stat
 
@@ -170,7 +171,13 @@ class ConfigUpdate:
                 self._guard(plan)
                 self._save('planned', plan)
                 return plan
-            require(not any(self.root.iterdir()), 'configuration update incomplete evidence')
+            # No plan was published, so apply could never have started. Retain
+            # private orphan temp bytes as evidence, but never consume them as a
+            # plan or approval; create a fresh plan from live guarded originals.
+            for orphan in self.root.iterdir():
+                require(re.fullmatch(r'\.plan\.json\.[A-Za-z0-9_-]+\.tmp', orphan.name),
+                        'configuration update incomplete evidence')
+                safe(orphan)
         originals = self._snapshot()
         decoded = {n:base64.b64decode(v['data']) for n,v in originals.items()}
         projected(decoded, self.subject.configuration)

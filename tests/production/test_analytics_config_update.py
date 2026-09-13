@@ -152,6 +152,17 @@ class AnalyticsConfigUpdateTests(unittest.TestCase):
                 for name, data in fixture.originals.items():
                     self.assertEqual(data, (fixture.subject.configuration/name).read_bytes())
 
+    def test_plan_atomic_replace_interruption_preserves_orphan_and_can_retry(self):
+        with patch('release_state.os.replace', side_effect=KeyboardInterrupt('before replace')):
+            with self.assertRaises(KeyboardInterrupt): self.engine.plan()
+        orphans = list(self.engine.root.glob('.plan.json.*.tmp'))
+        self.assertEqual(1, len(orphans))
+        orphan_data = orphans[0].read_bytes()
+        plan = self.engine.plan()
+        self.assertEqual('planned', self.engine._status()['phase'])
+        self.assertEqual(orphan_data, orphans[0].read_bytes())
+        self.assertEqual(plan['planSha256'], self.engine._status()['planSha256'])
+
     def test_real_previous_frontend_gate_accepts_only_receipted_update(self):
         from frontend_candidate import validate_previous_frontend
         plan = self.engine.plan(); self.engine.apply(plan['planSha256'])
