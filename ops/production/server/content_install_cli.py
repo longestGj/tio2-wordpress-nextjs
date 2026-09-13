@@ -22,6 +22,23 @@ def installation_error(action, stage, error):
     return result
 
 
+def resolve_upgrade_source(root, artifact_sha256, requested):
+    """Recovery obtains its mode from the validated saved plan, never omission."""
+    saved_path=root/'state.json';saved_plan_path=root/'plan.json';saved_plan=None
+    if saved_path.exists():
+        protected_path(saved_path,private=True)
+        saved_plan=Installation(saved_path,None,artifact_sha256).status().get('plan')
+    elif saved_plan_path.exists():
+        saved_plan=json.loads(protected_path(saved_plan_path,private=True).read_bytes())
+        Installation(saved_path,None,artifact_sha256)._validate_plan(saved_plan)
+    if saved_plan is not None:
+        previous=saved_plan['baseline'].get('resources',{}).get('previousImporter',{}).get('installationSha256')
+        if requested is not None and requested!=previous:
+            raise ReleaseError('upgrade source differs from saved transaction')
+        return previous
+    return requested
+
+
 def main(argv=None):
     parser=argparse.ArgumentParser(description='Install MY CMS/resources from an immutable administrator-approved artifact')
     parser.add_argument('action',choices=['plan','apply','status','rollback','finish-opening','finalize-content','recover-finalization'])
@@ -44,19 +61,7 @@ def main(argv=None):
         registry=load_registry(Path('/etc/d16-release'))
         root=registry.host.state_root.parent/'installations'/args.sha256
         previous=None
-        saved_path=root/'state.json'
-        saved_plan_path=root/'plan.json'
-        saved_plan=None
-        if saved_path.exists():
-            saved_plan=Installation(saved_path,None,args.sha256).status().get('plan')
-        elif saved_plan_path.exists():
-            saved_plan=json.loads(protected_path(saved_plan_path,private=True).read_bytes())
-            Installation(saved_path,None,args.sha256)._validate_plan(saved_plan)
-        if saved_plan is not None:
-            saved_previous=saved_plan['baseline'].get('resources',{}).get('previousImporter',{}).get('installationSha256')
-            if args.upgrade_from is not None and args.upgrade_from!=saved_previous:
-                raise ReleaseError('upgrade source differs from saved transaction')
-            args.upgrade_from=saved_previous
+        args.upgrade_from=resolve_upgrade_source(root,args.sha256,args.upgrade_from)
         if args.upgrade_from is not None:
             if not re.fullmatch('[a-f0-9]{64}',args.upgrade_from) or args.upgrade_from==args.sha256:
                 raise ReleaseError('upgrade source must be a different installation artifact SHA-256')

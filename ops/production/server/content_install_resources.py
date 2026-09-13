@@ -285,6 +285,19 @@ class InstallationResources:
 
     def verify(self):
         importer = self._inspect(self.importer)
+        created=self.directory/'resources-created.json'
+        owner=json.loads((self.directory/'resources-owner.json').read_bytes())['owner']
+        if created.exists():
+            if json.loads(created.read_bytes())!={'owner':owner,'containerId':importer['Id']}:
+                raise ReleaseError('created importer ID changed before verification')
+        else:
+            # Completed installations made by the previous program generation
+            # predate resources-created.json; their final evidence pins the ID.
+            state_path=self.directory/'state.json'
+            state=json.loads(state_path.read_bytes()) if state_path.is_file() else {}
+            if (state.get('phase')!='completed' or state.get('plan',{}).get('planSha256')!=owner
+                    or state.get('evidence',{}).get('resources',{}).get('importerId')!=importer['Id']):
+                raise ReleaseError('created importer identity evidence missing')
         self.verify_importer(importer)
         expected = {name[len(PREFIX):]: data for name, data in self.artifact['contents'].items() if name.startswith(PREFIX)}
         if hashes(_tree(self.plugin)) != hashes(expected):

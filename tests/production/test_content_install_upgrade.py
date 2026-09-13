@@ -155,6 +155,15 @@ class RepeatUpgradeTests(unittest.TestCase):
         self.docker.containers['importer']['Id']='f'*64
         with self.assertRaises(ReleaseError):self.next.snapshot()
 
+    def test_substituted_new_importer_cannot_pass_verification(self):
+        self.next.backup(self.base/'second-backup');self.next.install(self.next_owner)
+        self.docker.containers['importer']['Id']='f'*64
+        with self.assertRaises(ReleaseError):self.next.verify()
+
+    def test_legacy_completed_installation_without_created_journal_is_accepted(self):
+        (self.prior/'resources-created.json').unlink()
+        self.assertEqual(self.old_id,self.next.snapshot()['previousImporter']['containerId'])
+
     def test_old_plugin_change_rejected_before_backup(self):
         (self.plugin/'new.php').write_bytes(b'unapproved')
         with self.assertRaises(ReleaseError):self.next.backup(self.base/'second-backup')
@@ -162,6 +171,23 @@ class RepeatUpgradeTests(unittest.TestCase):
 
 
 class ErrorReportingTests(unittest.TestCase):
+    def test_fresh_invocation_recovers_mode_from_saved_plan_and_rejects_wrong_source(self):
+        import tempfile
+        from unittest.mock import patch
+        from content_install_cli import resolve_upgrade_source
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td)
+            plan=dict(schemaVersion='d16-content-install-plan-v1',siteId='tio2-my',artifactSha256='b'*64,
+                      baseline={'resources':{'previousImporter':{'installationSha256':'a'*64}}})
+            plan['planSha256']=hashlib.sha256(canonical(plan)).hexdigest()
+            (root/'plan.json').write_bytes(canonical(plan))
+            with patch('content_install_cli.protected_path',lambda p,**kwargs:p):
+                self.assertEqual('a'*64,resolve_upgrade_source(root,'b'*64,None))
+                with self.assertRaises(ReleaseError):resolve_upgrade_source(root,'b'*64,'c'*64)
+                (root/'state.json').write_bytes(canonical(dict(schemaVersion='d16-content-install-state-v1',
+                                                              phase='recovery-required',plan=plan)))
+                self.assertEqual('a'*64,resolve_upgrade_source(root,'b'*64,None))
+
     def test_expected_reason_preserved_and_unexpected_details_hidden(self):
         from content_install_cli import installation_error
         value=installation_error('plan','plan',ReleaseError('maintenance gate already installed'))
