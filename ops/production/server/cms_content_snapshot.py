@@ -12,7 +12,7 @@ from release_contract import ReleaseError
 def validate_snapshot(value: object) -> dict[str, object]:
     if (not isinstance(value, dict)
             or set(value) != {'schemaVersion', 'siteScope', 'publishedRecords', 'contentSha256'}
-            or value['schemaVersion'] != 'd16-cms-content-snapshot-v1'
+            or value['schemaVersion'] != 'd16-cms-content-snapshot-v2'
             or value['siteScope'] != 'tio2-my'
             or type(value['publishedRecords']) is not int
             or not 0 < value['publishedRecords'] <= 100000

@@ -18,7 +18,7 @@ def encoded(value): return json.dumps(value, sort_keys=True, separators=(',', ':
 
 def bind_comparison(values):
     proof, identity, seeds, _, live = values
-    snapshot = {'schemaVersion': 'd16-cms-content-snapshot-v1', 'siteScope': 'tio2-my',
+    snapshot = {'schemaVersion': 'd16-cms-content-snapshot-v2', 'siteScope': 'tio2-my',
                 'publishedRecords': 57, 'contentSha256': '6' * 64}
     live['contentSnapshot'] = deepcopy(snapshot)
     verification = {'schemaVersion': 'd16-cms-comparison-verification-v1', 'state': 'PASSED',
