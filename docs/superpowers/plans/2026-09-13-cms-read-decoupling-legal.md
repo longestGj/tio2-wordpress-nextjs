@@ -70,7 +70,7 @@ Important additional consumers:
 - Link destinations remain explicitly registered legal routes and `mailto:info@tio2malaysia.com`; no arbitrary external destinations, protocol-relative URLs, encoded/control-character bypasses or javascript/data schemes.
 - Preserve currently recognized action labels and bindings as technical compatibility constraints. Record this remaining label/action coupling; removing it requires a separate structured-action migration, not silent behavior changes.
 
-- [ ] Add the regression below using approved data ONLY as test input, not as validation rules:
+- [x] Add the regression below using approved data ONLY as test input, not as validation rules:
 
 ```ts
 it('accepts published content with new headings, date and section count', () => {
@@ -89,11 +89,11 @@ it('accepts published content with new headings, date and section count', () => 
 })
 ```
 
-- [ ] Run `npx vitest run tests/unit/legal/legal-pages-read-contract.test.ts`; confirm failure comes from the current equality check, not environment/import errors.
-- [ ] Implement explicit field projection and validation with the interface above; replace only legal DTO equality calls. Keep original approval fixture hash tests as seed-history checks.
-- [ ] Add shared cases with accepted changed prose/date/SEO/section count, and rejected foreign scope, draft, missing field, wrong type, wrong identity/path/canonical, duplicate record/section, dangerous link, raw HTML and over-limit text. Each case stores a name, mutation, expected accept/reject and expected output text when accepted.
-- [ ] Run `npx vitest run tests/unit/legal tests/integration/legal`; distinguish existing baseline failures from regressions; do not change old expected business text just to pass.
-- [ ] Commit only Task 1 files with `feat: define independent MY legal read contract`.
+- [x] Run `npx vitest run tests/unit/legal/legal-pages-read-contract.test.ts`; confirm failure comes from the current equality check, not environment/import errors.
+- [x] Implement explicit field projection and validation with the interface above; replace only legal DTO equality calls. Keep original approval fixture hash tests as seed-history checks.
+- [x] Add shared cases with accepted changed prose/date/SEO/section count, and rejected foreign scope, draft, missing field, wrong type, wrong identity/path/canonical, duplicate record/section, dangerous link, raw HTML and over-limit text. Each case stores a name, mutation, expected accept/reject and expected output text when accepted.
+- [x] Run `npx vitest run tests/unit/legal tests/integration/legal`; distinguish existing baseline failures from regressions; do not change old expected business text just to pass.
+- [x] Commit only Task 1 files with `feat: define independent MY legal read contract`.
 
 ## Task 2: PHP read validator, resolver wiring and write isolation
 
@@ -109,8 +109,8 @@ it('accepts published content with new headings, date and section count', () => 
 - Existing `tio2_validate_legal_page_v01_contract(int $post_id)` remains write/import validation with unchanged semantics.
 - Runtime validator checks post type, publish status, exact site scopes, public_path, decoded fields and equivalent Task 1 rules. Resolver calls only this new read validator, retains exactly-three/duplicate checks and returns actual stored content.
 
-- [ ] Add a PHP CLI harness with WordPress boundary stubs (posts, meta, terms, hooks), loading the real plugin functions; feed shared cases through the real resolver. Do not mock the validator or comparator.
-- [ ] Prove a changed-heading record is rejected by the old write validator but accepted by the new read resolver:
+- [x] Add a PHP CLI harness with WordPress boundary stubs (posts, meta, terms, hooks), loading the real plugin functions; feed shared cases through the real resolver. Do not mock the validator or comparator.
+- [x] Prove a changed-heading record is rejected by the old write validator but accepted by the new read resolver:
 
 ```php
 check(is_wp_error(tio2_validate_legal_page_v01_contract(1)), 'write approval remains enforced');
@@ -119,12 +119,12 @@ $response = json_decode(tio2_resolve_malaysia_legal_pages_record_json(), true);
 check(str_contains($response[0]['malaysiaLegalPageContractJson'], 'Published body.'), 'CMS prose returned');
 ```
 
-- [ ] Run `php tests/infrastructure/php/legal-read-contract.php`; establish the failing resolver behavior first. If PHP is unavailable locally, use the repository's isolated PHP/container test pattern, recording runtime identity; a skip is not a pass.
-- [ ] Implement read-only validator, require it from legal module, and change resolver call. Keep approval loading functions and write consumers intact.
-- [ ] Have the Vitest integration runner invoke the PHP harness and send its accepted resolver JSON directly to the real TypeScript DTO. Assert actual text, not function-source strings. PHP process nonzero exit must fail the test.
-- [ ] Run `npx vitest run tests/infrastructure/legal-read-contract.test.ts tests/infrastructure/tio2-my-legal-pages-wordpress.test.ts tests/unit/wordpress-content-release.test.ts` and `php tests/infrastructure/php/content-release-validation.php`.
-- [ ] Confirm seed/release-registry call targets remain unchanged; include dangerous metadata and foreign-scope write rejection in the PHP harness.
-- [ ] Commit only Task 2 files with `feat: separate MY legal read validation from write approval`.
+- [x] Run `php tests/infrastructure/php/legal-read-contract.php`; establish the failing resolver behavior first. If PHP is unavailable locally, use the repository's isolated PHP/container test pattern, recording runtime identity; a skip is not a pass.
+- [x] Implement read-only validator, require it from legal module, and change resolver call. Keep approval loading functions and write consumers intact.
+- [x] Have the Vitest integration runner invoke the PHP harness and send its accepted resolver JSON directly to the real TypeScript DTO. Assert actual text, not function-source strings. PHP process nonzero exit must fail the test.
+- [x] Run `npx vitest run tests/infrastructure/legal-read-contract.test.ts tests/infrastructure/tio2-my-legal-pages-wordpress.test.ts tests/unit/wordpress-content-release.test.ts` and `php tests/infrastructure/php/content-release-validation.php`.
+- [x] Confirm seed/release-registry call targets remain unchanged; include dangerous metadata and foreign-scope write rejection in the PHP harness.
+- [x] Commit only Task 2 files with `feat: separate MY legal read validation from write approval`.
 
 ## Task 3: Rendered output, SEO and first-phase acceptance
 
@@ -139,7 +139,7 @@ check(str_contains($response[0]['malaysiaLegalPageContractJson'], 'Published bod
 
 **Interfaces:** Preserve existing component and metadata function signatures. Use Task 1 DTO, existing publication metadata policy and existing JSON-LD serializer.
 
-- [ ] Add rendered changed-copy assertions to existing tests:
+- [x] Add rendered changed-copy assertions to existing tests:
 
 ```ts
 render(<MalaysiaLegalPage page={page} />)
@@ -151,14 +151,14 @@ expect(metadata.description).toBe(page.seo.description)
 expect(metadata.robots).toEqual({index: false, follow: false})
 ```
 
-- [ ] Run the tests to show CMS SEO text is currently ignored. Read installed metadata docs and the existing publication metadata builder before implementation.
-- [ ] In legal metadata builder retain the publication metadata result for routing/indexing, then project delivered title/description into title, description and existing OpenGraph/Twitter title/description fields without dropping their other settings.
-- [ ] Cover multilingual output, canonical/hreflang unchanged, JSON-LD text/date from CMS, malformed query rejection with no fallback, and consent controls unchanged. Preserve all installed fixture hashes; those describe seeds, not runtime admission.
-- [ ] Run `npx vitest run tests/unit/legal tests/integration/legal tests/infrastructure/legal-read-contract.test.ts tests/infrastructure/tio2-my-legal-pages-wordpress.test.ts` and `npm run typecheck`.
-- [ ] Use the repository's isolated local WordPress/Next integration workflow to verify real WPGraphQL → build → legal pages with synthetic changed content. Read `docs/development-execution.md` and `docs/runtime-ports.md` before starting resources; never reuse production CMS or shared databases. Capture and inspect desktop/mobile legal screenshots, section anchors and cookie-settings interaction. Report missing infrastructure honestly rather than substituting mocks for live evidence.
-- [ ] Record exact branch/HEAD, commands, red/green results, fixture/local-runtime boundaries, screenshots reviewed, and remaining page families in the receipt. Document that runtime reads have changed ONLY for legal pages.
+- [x] Run the tests to show CMS SEO text is currently ignored. Read installed metadata docs and the existing publication metadata builder before implementation.
+- [x] In legal metadata builder retain the publication metadata result for routing/indexing, then project delivered title/description into title, description and existing OpenGraph/Twitter title/description fields without dropping their other settings.
+- [x] Cover multilingual output, canonical/hreflang unchanged, JSON-LD text/date from CMS, malformed query rejection with no fallback, and consent controls unchanged. Preserve all installed fixture hashes; those describe seeds, not runtime admission.
+- [x] Run `npx vitest run tests/unit/legal tests/integration/legal tests/infrastructure/legal-read-contract.test.ts tests/infrastructure/tio2-my-legal-pages-wordpress.test.ts` and `npm run typecheck`.
+- [x] Use the repository's isolated local WordPress/Next integration workflow to verify real WPGraphQL → build → legal pages with synthetic changed content. Read `docs/development-execution.md` and `docs/runtime-ports.md` before starting resources; never reuse production CMS or shared databases. Capture and inspect desktop/mobile legal screenshots, section anchors and cookie-settings interaction. Report missing infrastructure honestly rather than substituting mocks for live evidence.
+- [x] Record exact branch/HEAD, commands, red/green results, fixture/local-runtime boundaries, screenshots reviewed, and remaining page families in the receipt. Document that runtime reads have changed ONLY for legal pages.
 - [ ] Obtain independent code review before any develop merge; fix findings and rerun affected tests. No merge to main or deployment.
-- [ ] Commit reviewed first-phase work with `test: verify MY legal read decoupling end to end`.
+- [x] Commit Task 3 implementation and local acceptance harness as `6164e048` with `test: verify MY legal read decoupling end to end`; independent review remains a separate unchecked gate above.
 
 ## Parent-design continuation gate
 
