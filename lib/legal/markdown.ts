@@ -1,3 +1,5 @@
+import legalReadContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-legal-read-contract.json'
+
 export interface ParsedLegalSection {
   readonly id: string
   readonly heading: string
@@ -31,16 +33,84 @@ function actions(line: string | undefined): readonly string[] {
     .filter(Boolean)
 }
 
+const forbiddenControls = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/u
+
+function validateMarkdown(markdown: string): string {
+  if (
+    typeof markdown !== 'string'
+    || markdown.length === 0
+    || markdown.trim() !== markdown
+    || [...markdown].length > legalReadContract.maximumTextCodePoints
+    || forbiddenControls.test(markdown)
+    || /[<>]/u.test(markdown)
+    || /!\[/u.test(markdown)
+  ) throw new Error('Invalid Legal buyer copy')
+
+  const raw = markdown.replace(/\r\n?/gu, '\n')
+  const lines = raw.split('\n')
+  const h1Lines = lines.filter((line) => /^#(?!#)(?: |$)/u.test(line))
+  if (h1Lines.length !== 1 || lines[0] !== h1Lines[0] || !/^# \S(?:.*\S)?$/u.test(h1Lines[0]!)) {
+    throw new Error('Legal buyer copy must have exactly one nonempty H1')
+  }
+
+  const h2Lines = lines.filter((line) => /^##(?!#)(?: |$)/u.test(line))
+  if (h2Lines.length === 0 || h2Lines.some((line) => !/^## \S(?:.*\S)?$/u.test(line))) {
+    throw new Error('Legal buyer copy must have a nonempty H2')
+  }
+
+  const sectionIds = h2Lines.map((line) => legalSectionId(line.slice(3)))
+  if (sectionIds.some((id) => !id) || new Set(sectionIds).size !== sectionIds.length) {
+    throw new Error('Legal buyer copy has invalid section IDs')
+  }
+
+  const inlineLinkPattern = /\[[^\]\n]+\]\([^)\n]+\)/gu
+  const allowedLinks = new Set<string>(legalReadContract.markdown.allowedLinkDestinations)
+  for (const match of raw.matchAll(/\[[^\]\n]+\]\(([^)\n]+)\)/gu)) {
+    if (!allowedLinks.has(match[1]!)) throw new Error('Legal buyer copy has an unsupported link')
+  }
+  if (/\[[^\]]*\]\(/u.test(raw.replace(inlineLinkPattern, ''))) {
+    throw new Error('Legal buyer copy has malformed multiline link syntax')
+  }
+
+  const allowedActions = new Set(legalReadContract.markdown.actionBindings.map(({label}) => label))
+  const actionEntries = lines.flatMap((line, index) => /^(Actions|Tindakan):/u.test(line) ? [{index, labels: actions(line)}] : [])
+  for (const {labels} of actionEntries) {
+    if (labels.length === 0 || labels.some((label) => !allowedActions.has(label))) {
+      throw new Error('Legal buyer copy has an unsupported action')
+    }
+  }
+
+  const firstH2Index = lines.findIndex((line) => /^## /u.test(line))
+  const heroActions = actionEntries.filter(({index}) => index < firstH2Index)
+  const sectionActions = actionEntries.filter(({index}) => index > firstH2Index)
+  const lastNonemptyBefore = (end: number) => {
+    for (let index = end - 1; index >= 0; index -= 1) if (lines[index] !== '') return index
+    return -1
+  }
+  if (
+    heroActions.length > 1
+    || sectionActions.length > 1
+    || (heroActions[0] && heroActions[0].index !== lastNonemptyBefore(firstH2Index))
+    || (sectionActions[0] && (
+      sectionActions[0].index !== lastNonemptyBefore(lines.length)
+      || !heroActions[0]
+      || JSON.stringify(sectionActions[0].labels) !== JSON.stringify(heroActions[0].labels)
+    ))
+  ) throw new Error('Legal buyer copy has an unsupported action layout')
+
+  return raw
+}
+
 export function parseLegalMarkdown(markdown: string): ParsedLegalDocument {
-  const raw = markdown.replace(/\r\n/g, '\n').trim()
+  const raw = validateMarkdown(markdown)
   const sectionMatches = [...raw.matchAll(/^## (.+)$/gm)]
-  if (!raw.startsWith('# ') || sectionMatches.length === 0) throw new Error('Invalid approved Legal buyer copy')
   const firstSection = sectionMatches[0]!
   const hero = raw.slice(0, firstSection.index).trim()
   const heroLines = hero.split('\n')
   const h1 = heroLines[0]!.slice(2).trim()
-  const updatedLine = heroLines.find((line) => /^\*\*(Last updated|Kemas kini terakhir):/.test(line))
-  if (!updatedLine) throw new Error('Approved Legal copy has no visible update date')
+  const updatedLines = heroLines.filter((line) => /^\*\*(Last updated|Kemas kini terakhir):\s*\S.*\*\*$/u.test(line))
+  if (updatedLines.length !== 1) throw new Error('Legal buyer copy has no unique visible update date')
+  const updatedLine = updatedLines[0]!
   const actionLine = heroLines.find((line) => /^(Actions|Tindakan):/.test(line))
   const introMarkdown = heroLines
     .slice(1)

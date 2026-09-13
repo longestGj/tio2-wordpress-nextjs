@@ -1,0 +1,41 @@
+# TiO₂ Malaysia 法律页 CMS 读取解耦：首阶段技术回执
+
+## 开发交付状态
+
+- 状态：`MERGED_TO_DEVELOP`（仅法律页切片，2026-09-13）。任务 ID：`cms-read-decoupling-legal`；批准输入为本仓库 2026-09-13 用户确认的读取/批准解耦设计。
+- 本地 `develop` 由 `7c849af234602cf299cb75e772a0104f77b849cd` fast-forward 至复审通过的 `47175c13fcc06c61993bd6a3d4097c12e757f5de`；来源为 `codex/cms-read-approval-decoupling`。合并后树与复审 HEAD 完全一致。
+- 独立整体复审覆盖 `7c849af2..02d5c1d8`，发现两项 P2；定向复审 `02d5c1d8..47175c13` 确认缺失字段拒绝及表格后正文保留均修复，结论允许本次法律页切片合入本地 develop，无开放 Critical/Important。
+- 合并后在 develop 工作区重跑下文定向命令：227 通过、1 个显式 live 门控跳过；`npm run typecheck` 通过。类型生成器因该工作区已有运行配置临时添加两个 include，已仅撤回本次生成的两行，随后 `npx tsc --noEmit` 再次通过；未把环境特定配置混入合并。
+- 改动范围：法律页 PHP 读取合同、TypeScript DTO/Markdown、法律组件与 SEO、对应测试/独立测试运行接口及文档。既有写入审批、其他 MY 页面族、Site A/B 业务实现未迁移；有关写入和 Analytics 消费者的定向回归通过。
+- 本次技术裁定：允许在现有已归属隔离测试运行器内新增固定 Web 用户调用，以解决测试镜像 UID 差异并符合容器归属规则；风险是共享测试设施回归，已用隔离模式限制及失败路径测试覆盖。无生产运行器改动。
+- 预计后续发布涉及 MY 前端及 CMS 插件兼容性；实际发布类型和安装步骤须由独立发布流程重新分类。本次未修改 main、未推送、未部署；真实浏览器运行仍准确绑定下文旧代码节点，后续边界修正由定向测试证明。
+- 此回执及现有工作区/原始证据保留供剩余页面族与后续独立发布使用；法律页完成不代表整个 MY 解耦完成。
+
+验证日期：2026-09-13。网站 `tio2-my`；范围仅 `/privacy-policy/`、`/ms/privacy-policy/`、`/cookie-policy/`。分支 `codex/cms-read-approval-decoupling`，Task 3 初版代码提交 `6164e048e651f00b083399b56880607e64a95cf4`、最近一次真实运行所用代码提交 `2f9a30b73cff407523492a26104c6932b03c44c8`、异常清理修正 `51d207af`/`ed183e17`、最终复审两项修正代码提交 `5f7e857685b24335138aa2a3497739ce16c84f7b`；Task 3 起点 `3d8320133f5f2fbab68b2c0becda097403fb64c2`。这是隔离本地开发验证，不是策划侧独立验收、全站迁移、预发布、生产安装或部署。
+
+## 结果与边界
+
+- PHP 法律页 resolver 与 TypeScript DTO 使用独立读取合同，接受安全的已发布 CMS 法律文案；原 seed、导入和发布写入批准校验未改。Task 1/2 的先行实现见提交 `f2a30031..3d832013`。
+- Task 3 渲染直接输出 CMS H1、日期、分节、正文；修复 `###` 后紧邻正文原先被静默丢弃的情况。法律页 metadata 输出 CMS SEO 标题与描述，同时保留出版策略产生的 robots、canonical、hreflang、OpenGraph/Twitter 其他属性。未改批准业务文案、路由、缓存、索引或 Analytics 配置。
+- TDD RED：新增测试最初观察到 metadata 返回静态批准标题，且 H3 后的 `Published body.` 未出现。最小修复后聚焦 20/20 通过。旧批准 JSON/哈希测试仍作为种子历史验证，不充当运行时读取准入条件。
+- 复审修正补了变更 CMS 标题、描述及三种有效日期的序列化 JSON-LD 断言；把真实法律路由 fixture 构建目录改为每次运行独占，固定模板中的 `public`、`.next` 和 Next 生成文件不再被运行或清理修改。清理步骤分别尝试并聚合错误；无法安全停止服务或释放租约时保留运行目录。浏览器日志只容许明确的 fixture 首页预取 404，其余错误令测试失败。模拟测试先显示原所有权/清理/诊断缺口 3/3 RED，修正后 GREEN；JSON-LD 断言对临时静态日期突变产生 RED，恢复真实 builder 后 GREEN。
+- 第二轮复审发现：WordPress `up` 后若 helper 因验证失败未返回句柄，旧清理逻辑会把空句柄当作已停止，并删除恢复所需的合成环境文件。模拟器经过 helper 的部分启动拒绝，先显示清理错误列表为空（RED）；现以显式“已尝试启动”状态使停止步骤报不确定、保留运行目录和环境文件、聚合后续清理失败，并在清理证据记录不确定状态、项目/Compose/租约身份及保留路径。无启动尝试时仍可正常清理。没有猜测或强制停止未知资源。
+- 全分支复审两项 P2 修正：PHP 读取身份对每个必需键先检查存在再严格比较，缺失的 `headerCurrentKey` 不再与显式 `null` 混同；共享向量在 PHP resolver 与 TS DTO 同时验证“缺失拒绝、显式 null 接受”。法律页表格只把连续的 `|…|` 行放入表格，同一分块的后续正文完整呈现在段落中。真实 DTO→组件测试验证表头、单行单元格及 `Published final sentence.` 不截字、不进入伪表格行。两处先 RED 后 GREEN；未改变批准文案或延期处理的代码字面量扫描。
+- 本轮定向命令：`npx vitest run tests/unit/legal tests/integration/legal tests/infrastructure/legal-read-contract.test.ts tests/infrastructure/tio2-my-legal-pages-wordpress.test.ts tests/infrastructure/legal-read-runtime-fixture.test.ts tests/infrastructure/wordpress-test-compose.test.ts tests/infrastructure/wordpress-runtime-classification.test.ts tests/unit/analytics/malaysia-ga4.test.tsx tests/unit/rfq/malaysia-rfq-analytics.test.ts` → 227 通过，1 个显式门控的本地运行测试跳过；`npm run typecheck` → 通过。最近一次门控真实链路于 `2f9a30b7` 代码以 `LEGAL_READ_LOCAL_RUNTIME=1` 运行 → 1/1 通过；之后异常清理及表格边界由定向测试验证，未重跑成功链路，不声称旧运行证据绑定 `5f7e8576`。
+
+## 真实隔离本地链路
+
+最近一次成功的真实运行绑定上一轮代码 `2f9a30b7`，运行 ID `legal-read-e902db4b-0f7f-4396-a12c-cdd320b7a620`。新建独立 WordPress/MariaDB Compose 项目 `d16-test-legal-read-e902db4b-0f7f-4396-a12c-cdd320-8ba533bfb38c`，GraphQL 端点 `http://127.0.0.1:32788/graphql`；Next 端点 `http://127.0.0.1:32100`，租约 `1ea44672-0828-491e-8331-810b77a2acf4`。全部端点仅本次运行有效，完成后均已停止。WordPress 安装使用合成账号、`--skip-email`；回调指向未开放的随机 loopback 地址 `http://127.0.0.1:63876`，未发送真实邮件或表单。WPGraphQL 是安装在该独立 WordPress 上的真实插件，不是 GraphQL mock。
+
+在原批准 seed 上，仅对该独立项目的三条法律记录写入合成新 H1、H3 后紧邻正文、日期和 SEO 文本。真实 WPGraphQL 返回改动值；使用真实查询、DTO、组件、SEO 与布局的法律页专用、每运行独占的 Next fixture 做优化构建，Build ID `Q-9vMP1WH0rVqdY937AlM`。构建日志证明三条目标路由静态预渲染并保持 1 小时 revalidate。此为代表性的**法律目标路由 production-mode build**，不是整站 Build 或生产 Build；实际运行时仍依赖 CMS 构建读取，未宣称脱离 CMS 构建。
+
+浏览器在三页桌面 1440×1000 与手机 390×844 检查 CMS H1、H3 后正文、meta description/title、`noindex, nofollow`、语言、分节锚点；手机 Cookie Settings 弹窗可打开、关闭及返回触发按钮，未写入选择。此合成环境没有公开 Analytics 配置，因此弹窗按既有 gate 显示 `Cookie settings` / `Optional Analytics is not active`；活跃配置的同意管理回归由单元测试覆盖，未在本地开启 Analytics。仅目标路由的 fixture 没有首页，记录了数次同类首页 `_rsc` 预取 404；实际断言排除这些明确项后无其他浏览器错误。马来文布局的 8px 外边距来自既有生产布局，未在本任务改动。
+
+原始证据保存在工作区忽略且非 SDD 临时目录：`D:/16Wordpress_nextjs/.worktrees/fix-analytics-config-update/.local-evidence/cms-read-decoupling-legal/legal-read-e902db4b-0f7f-4396-a12c-cdd320b7a620/`。其中 `runtime-evidence.json` 绑定提交/Build/项目/端点/截图；`target-route-build.log`、`next-runtime.log`、`browser-diagnostics.log`、`cleanup-evidence.json` 保留构建、运行与清理证据；`privacy-en-*`、`privacy-ms-*`、`cookie-en-*` 各有桌面/手机全页及首屏截图，另有 `cookie-en-mobile-consent-dialog.png`。执行者已查看最终英文/马来文手机首屏和弹窗；控制者复核了最终英文隐私手机、马来文隐私桌面及 Cookie 弹窗，并核对清理记录；上一版六页桌面/手机截图亦已由双方查看。最终清理记录显示 Next 停止、租约释放、WordPress 停止、每运行独占的临时构建/公共资源 junction/合成环境移除，固定模板未被清理。
+
+## 未决与后续
+
+- 独立代码复审及本地 develop 合入已完成，准确对象见本回执开头；main、预发布和生产未操作。
+- MY 其余读取族尚未迁移：首页、应用、关于、联系、产品及详情、市场、文档、资源、编辑内容与表单页。下一组须先核对各自 PHP 读取/写入调用者、TS DTO、渲染/SEO 与技术字段；发现清单见本轮 SDD `remaining-read-consumers.md`。不能把法律页合同套用全站。
+- Task 1 已记录的安全代码字面量中 `[label](` 被链接扫描保守误拒，是待独立处理的范围外兼容性观察；本次合成/已批准法律内容没有触发，未扩展解析器或 PHP/TS 对等规则。
+- WP 插件安装初试遇到独立卷内 WP-CLI/Web 用户差异；在所有权校验过的隔离 helper 中加入固定 Web 用户调用后成功。失败属于夹具搭建，不是生产故障或共享环境变更。

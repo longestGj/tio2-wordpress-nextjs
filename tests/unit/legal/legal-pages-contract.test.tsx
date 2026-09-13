@@ -1,4 +1,4 @@
-import {render, screen} from '@testing-library/react'
+import {render, screen, within} from '@testing-library/react'
 import {createHash} from 'node:crypto'
 import {describe, expect, it} from 'vitest'
 
@@ -43,6 +43,13 @@ function source(scope = 'tio2-my') {
     publishingFields: {publicPath: page.path.replace(/\/$/, '')},
     malaysiaLegalPageContractJson: JSON.stringify(page),
   }))
+}
+
+function sourceWithMarkdown(markdown: string) {
+  return source().map((record, index) => index === 0 ? {
+    ...record,
+    malaysiaLegalPageContractJson: JSON.stringify({...approved.pages[0], buyerVisibleMarkdown: markdown}),
+  } : record)
 }
 
 describe('Legal/Privacy approved page contract', () => {
@@ -158,6 +165,63 @@ describe('Legal/Privacy approved page contract', () => {
     expect(container.querySelector('main')?.getAttribute('lang')).toBe('ms-MY')
     expect(container.querySelector('header')?.getAttribute('lang')).toBe('en')
     expect(container.querySelector('footer')?.getAttribute('lang')).toBe('en')
+  })
+
+  it.each([
+    ['multiline label', '[safe\nlabel](//evil.example/)'],
+    ['multiline destination', '[safe](\n//evil.example/)'],
+  ])('does not render a link with a %s', (_name, unsafeLink) => {
+    const validPage = toMalaysiaLegalPagesDto(source())[0]!
+    const page = {
+      ...validPage,
+      buyerVisibleMarkdown: `# Policy\n\n**Last updated: 14 September 2026**\n\n${unsafeLink}\n\n## Details\n\nBody.`,
+    }
+
+    expect(() => render(<MalaysiaLegalPage page={page} />)).toThrow()
+  })
+
+  it('renders every accepted paragraph before matching trailing actions', () => {
+    const markdown = '# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions: **CONTACT US ABOUT PRIVACY** · **MANAGE COOKIE SETTINGS**\n\n## Details\n\nFirst retained paragraph.\n\nSecond retained paragraph.\n\nActions: **CONTACT US ABOUT PRIVACY** · **MANAGE COOKIE SETTINGS**'
+    const page = toMalaysiaLegalPagesDto(sourceWithMarkdown(markdown))[0]!
+
+    const {container} = render(<MalaysiaLegalPage page={page} />)
+
+    expect(container.textContent).toContain('First retained paragraph.')
+    expect(container.textContent).toContain('Second retained paragraph.')
+    expect(container.textContent).toContain('CONTACT US ABOUT PRIVACY')
+    expect(container.textContent).toContain('MANAGE COOKIE SETTINGS')
+  })
+
+  it('renders delivered CMS headings and preserves prose immediately after an H3', () => {
+    const markdown = '# Updated policy\n\n**Last updated: 14 September 2026**\n\nIntroduction from the CMS.\n\nActions: **CONTACT US ABOUT PRIVACY** · **MANAGE COOKIE SETTINGS**\n\n## Details\n\n### Published subsection\nPublished body.\n\nActions: **CONTACT US ABOUT PRIVACY** · **MANAGE COOKIE SETTINGS**'
+    const page = toMalaysiaLegalPagesDto(sourceWithMarkdown(markdown))[0]!
+
+    const {container} = render(<MalaysiaLegalPage page={page} />)
+
+    expect(screen.getByRole('heading', {level: 1, name: 'Updated policy'})).toBeTruthy()
+    expect(screen.getByRole('heading', {level: 3, name: 'Published subsection'})).toBeTruthy()
+    expect(screen.getByText('Published body.')).toBeTruthy()
+    expect(within(container).getAllByRole('button', {name: /manage cookie settings/i})).toHaveLength(2)
+  })
+
+  it('renders a delivered table and complete prose immediately after its final row', () => {
+    const markdown = '# Updated policy\n\n**Last updated: 14 September 2026**\n\nIntroduction from the CMS.\n\n## Details\n\n| Field | Value |\n| --- | --- |\n| A | B |\nPublished final sentence.'
+    const page = toMalaysiaLegalPagesDto(sourceWithMarkdown(markdown))[0]!
+
+    render(<MalaysiaLegalPage page={page} />)
+
+    expect(screen.getByRole('columnheader', {name: 'Field'})).toBeTruthy()
+    expect(screen.getByRole('columnheader', {name: 'Value'})).toBeTruthy()
+    expect(screen.getByRole('cell', {name: 'A'})).toBeTruthy()
+    expect(screen.getByRole('cell', {name: 'B'})).toBeTruthy()
+    expect(screen.getByRole('table').querySelectorAll('tbody tr')).toHaveLength(1)
+    expect(screen.getByText('Published final sentence.', {selector: 'p'})).toBeTruthy()
+  })
+
+  it('rejects an action line that would hide later section prose', () => {
+    const markdown = '# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions: **CONTACT US ABOUT PRIVACY**\n\n## Details\n\nBody before action.\n\nActions: **CONTACT US ABOUT PRIVACY**\n\nBody after action must not disappear.'
+
+    expect(() => toMalaysiaLegalPagesDto(sourceWithMarkdown(markdown))).toThrow(/buyerVisibleMarkdown/)
   })
 })
 /** @vitest-environment jsdom */

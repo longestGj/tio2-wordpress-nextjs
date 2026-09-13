@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 require_once __DIR__.'/content-release-validation.php';
+require_once __DIR__.'/legal-pages-read-contract.php';
 
 if (! defined('ABSPATH')) exit;
 
@@ -78,16 +79,18 @@ function tio2_resolve_malaysia_legal_pages_record_json(): string
     $records = [];
     foreach ($ids as $post_id) {
         $post_id = (int) $post_id;
-        $validation = tio2_validate_legal_page_v01_contract($post_id);
+        $validation = tio2_validate_legal_page_read_contract($post_id);
         if (is_wp_error($validation)) throw new \GraphQL\Error\UserError('A Malaysia Legal page record failed scope or contract validation.');
         $path = (string) get_post_meta($post_id, 'public_path', true);
+        $public_contract = tio2_legal_page_read_public_contract($post_id);
+        if (is_wp_error($public_contract)) throw new \GraphQL\Error\UserError('A Malaysia Legal page record failed public projection.');
         $records[$path] = [
             'id' => 'legal-page-' . $post_id,
             'modifiedGmt' => str_replace(' ', 'T', (string) get_post_field('post_modified_gmt', $post_id)),
             'status' => get_post_status($post_id),
             'siteScopes' => ['nodes' => [['slug' => 'tio2-my']]],
             'publishingFields' => ['publicPath' => $path],
-            'malaysiaLegalPageContractJson' => (string) get_post_meta($post_id, TIO2_MY_LEGAL_PAGE_CONTRACT_META, true),
+            'malaysiaLegalPageContractJson' => wp_json_encode($public_contract, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
         ];
     }
     $ordered = [];

@@ -1,0 +1,327 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "name": "accepts changed prose date labels and SEO",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["effectiveDate"], "value": "2026-09-14"},
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["releaseState"], "value": "cms-reviewed-revision"},
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["sourceFile"], "value": "historical-evidence.md"},
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["sourceSha256"], "value": "historical-digest"},
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["breadcrumb", 0, "label"], "value": "Start"},
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["breadcrumb", 1, "label"], "value": "Updated policy"},
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["badge", "label"], "value": "NOTICE"},
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["badge", "subLabel"], "value": "CURRENT"},
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["seo", "title"], "value": "Updated privacy notice"},
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["seo", "description"], "value": "Updated search description"},
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["seo", "primaryKeyword"], "value": "privacy notice"},
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Updated policy\n\n**Last updated: 14 September 2026**\n\nPublished introduction with [Cookie Policy](/cookie-policy/) and [email](mailto:info@tio2malaysia.com).\n\nActions: **CONTACT US ABOUT PRIVACY** · **MANAGE COOKIE SETTINGS**\n\n## Updated information\n\nPublished body."},
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["unrecognizedCmsField"], "value": "must not be projected"}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Published body."
+    },
+    {
+      "name": "accepts supplementary Unicode by code point count",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "repeat", "path": ["seo", "title"], "value": "😀", "count": 60000}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Privacy Policy"
+    },
+    {
+      "name": "rejects foreign scope",
+      "mutations": [
+        {"target": "source", "recordIndex": 0, "operation": "set", "path": ["siteScopes", "nodes", 0, "slug"], "value": "tio2-a"}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects draft record",
+      "mutations": [
+        {"target": "source", "recordIndex": 0, "operation": "set", "path": ["status"], "value": "draft"}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects missing required field",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "delete", "path": ["badge", "subLabel"]}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects wrong field type",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["seo", "title"], "value": 123}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects wrong page identity",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["pageId"], "value": "LEGAL-PRIV-MS"}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects missing nullable header identity",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "delete", "path": ["headerCurrentKey"]}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "accepts explicit null header identity",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["headerCurrentKey"], "value": null}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Privacy Policy"
+    },
+    {
+      "name": "rejects unregistered public path",
+      "mutations": [
+        {"target": "source", "recordIndex": 0, "operation": "set", "path": ["publishingFields", "publicPath"], "value": "/terms"}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects mismatched contract path",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["path"], "value": "/cookie-policy/"}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects mismatched canonical",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["seo", "canonical"], "value": "https://example.test/privacy-policy/"}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects changed breadcrumb destination",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["breadcrumb", 1, "href"], "value": "/cookie-policy/"}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects duplicate collection record",
+      "mutations": [
+        {"target": "collection", "operation": "copy", "fromIndex": 0, "toIndex": 2}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects duplicate generated section id",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\n## Details\n\nFirst.\n\n## Détails\n\nSecond."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects empty generated section id",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\n## 😀\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects arbitrary external link",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\n[External](https://evil.example/).\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects multiline link label bypass",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\n[safe\nlabel](//evil.example/).\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects multiline link destination bypass",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\n[safe](\n//evil.example/).\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects protocol relative link",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\n[External](//evil.example/).\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects encoded executable link",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\n[External](java%73cript:alert(1)).\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects data link",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\n[External](data:text/html,unsafe).\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects image syntax",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\n![Tracking](https://evil.example/pixel.gif)\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects raw HTML",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\n<script>alert(1)</script>\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects control character in text",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["badge", "label"], "value": "BAD\u0000LABEL"}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects line break control in plain text",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["badge", "label"], "value": "BAD\nLABEL"}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects unsupported action label",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions: **OPEN EXTERNAL PORTAL**\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "accepts matching hero and final trailing actions without losing content",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions: **CONTACT US ABOUT PRIVACY** · **MANAGE COOKIE SETTINGS**\n\n## Details\n\nFirst retained paragraph.\n\nSecond retained paragraph.\n\nActions: **CONTACT US ABOUT PRIVACY** · **MANAGE COOKIE SETTINGS**"}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Second retained paragraph."
+    },
+    {
+      "name": "rejects prose after a section action line",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions: **CONTACT US ABOUT PRIVACY**\n\n## Details\n\nBody before action.\n\nActions: **CONTACT US ABOUT PRIVACY**\n\nBody after action must not disappear."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects final actions that differ from hero actions",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions: **CONTACT US ABOUT PRIVACY**\n\n## Details\n\nBody.\n\nActions: **MANAGE COOKIE SETTINGS**"}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects update line that appears only after the first H2",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\nIntroduction.\n\n## Details\n\n**Last updated: 14 September 2026**\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "accepts a section update line in addition to the unique hero update",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\n## Details\n\n**Last updated: 15 September 2026**\n\nBody."}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Body."
+    },
+    {
+      "name": "rejects ECMAScript FEFF whitespace at a plain field boundary",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["badge", "label"], "value": "NOTICE\uFEFF"}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "accepts U0085 at a plain field boundary because ECMAScript trim does not remove it",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["seo", "title"], "value": "Policy\u0085"}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Policy"
+    },
+    {
+      "name": "rejects an H2 whose first content character is ECMAScript FEFF whitespace",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\n## \uFEFFHeading\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "accepts U0085 as a non-whitespace H2 content character",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\n## \u0085Heading\n\nBody."}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Body."
+    },
+    {
+      "name": "rejects an update line containing only ECMAScript FEFF whitespace after the colon",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated:\uFEFF**\n\nIntroduction.\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "accepts U0085 as visible update content under ECMAScript whitespace rules",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated:\u0085**\n\nIntroduction.\n\n## Details\n\nBody."}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Body."
+    },
+    {
+      "name": "accepts ECMAScript FEFF whitespace after an action prefix",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions:\uFEFF**CONTACT US ABOUT PRIVACY**\n\n## Details\n\nBody."}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Body."
+    },
+    {
+      "name": "rejects U0085 after an action prefix because it is visible label content",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions:\u0085**CONTACT US ABOUT PRIVACY**\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects multiple H1 headings",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["buyerVisibleMarkdown"], "value": "# Policy\n\n**Last updated: 14 September 2026**\n\n# Another policy\n\n## Details\n\nBody."}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects impossible calendar date",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["effectiveDate"], "value": "2026-02-30"}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "rejects text over Unicode code point limit",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "repeat", "path": ["seo", "description"], "value": "😀", "count": 100001}
+      ],
+      "expected": "reject"
+    }
+  ]
+}

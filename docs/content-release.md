@@ -26,7 +26,7 @@
 
 ## CMS 与前台内容读取
 
-既有页面的文本不再必须等于打包进代码的完整 JSON。PHP 与 TypeScript 使用同一份[可编辑文本路径](../wordpress/plugins/tio2-site-model/includes/content-release-paths.json)，将通过校验的 CMS 值交给页面和 SEO 输出。身份、结构、URL、媒体引用、枚举、证据状态和受保护字段继续校验。HTML/Markdown 文本变化也必须保持允许的结构和安全约束。
+既有内容发布路径仍按其[可编辑文本路径](../wordpress/plugins/tio2-site-model/includes/content-release-paths.json)及各自写入合同校验，不能据此推断所有 MY 页面在前台读取时均已脱离批准文案。2026-09-13 完成的首个读取纵向切片仅覆盖 `tio2-my` 三个法律页：独立的 PHP/TypeScript 读取合同验证已发布 CMS 记录后，将实际法律正文与 SEO 文本送到页面；原有 seed、导入和发布写入审批校验保持不变。身份、路径、结构、Markdown 安全、路由及索引控制仍受技术约束。其他 MY 页面族仍待逐族审查与迁移；详见[法律页读取回执](verification/cms-read-decoupling-legal.md)。
 
 增加字段、调整页面结构或修改受保护合同仍属于开发任务。适用业务批准要求不会因技术校验通过而消失。
 

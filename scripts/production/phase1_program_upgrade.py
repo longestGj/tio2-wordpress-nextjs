@@ -169,6 +169,7 @@ def main():
                        input_loader=lambda:None,snapshot=lambda:None)
     def verify(target):
         import subprocess
+        from release_state import redact
         # The administrator parent already holds both release locks. Invoke
         # only the read-only status body in the new interpreter, not a second
         # lock acquisition which would deadlock against this upgrade.
@@ -178,7 +179,7 @@ def main():
         status=json.loads(result.stdout)
         require_upgrade_state(status['state'])
         require(status['ok'] is True and status['subject']=='tio2-my'
-                and status['state']==io._json(io.paths.state)
+                and status['state']==redact(io._json(io.paths.state))
                 and status['releaseCapabilities']['frontend-only'] is True
                 and status['recoveryRequired'] is False
                 and status['sharedCmsWindowActive'] is False,'upgraded frontend capability unavailable')

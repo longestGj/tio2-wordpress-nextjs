@@ -17,7 +17,7 @@ function plainWithBreaks(value: string, key: string): ReactNode[] {
 }
 
 function inline(markdown: string): ReactNode[] {
-  const pattern = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\)|`[^`]+`)/g
+  const pattern = /(\*\*[^*]+\*\*|\[[^\]\n]+\]\([^)\n]+\)|`[^`]+`)/g
   const nodes: ReactNode[] = []
   let cursor = 0
   for (const match of markdown.matchAll(pattern)) {
@@ -45,12 +45,20 @@ function MarkdownBody({markdown}: {readonly markdown: string}) {
   const chunks = markdown.split(/\n{2,}/).filter(Boolean)
   return chunks.map((chunk, index) => {
     const lines = chunk.split('\n')
-    if (lines[0]?.startsWith('### ')) return <h3 key={index}>{lines[0].slice(4)}</h3>
+    if (lines[0]?.startsWith('### ')) return <Fragment key={index}>
+      <h3>{lines[0].slice(4)}</h3>
+      {lines.length > 1 ? <p>{inline(lines.slice(1).join('\n'))}</p> : null}
+    </Fragment>
     if (lines.every((line) => line.startsWith('- '))) return <ul key={index}>{lines.map((line) => <li key={line}>{inline(line.slice(2))}</li>)}</ul>
     if (lines.length >= 2 && lines[0]?.startsWith('|') && /^\|[\s:|-]+\|$/.test(lines[1]!)) {
       const cells = (line: string) => line.slice(1, -1).split('|').map((cell) => cell.trim())
       const headers = cells(lines[0])
-      return <div className={styles.tableWrap} key={index}><table><thead><tr>{headers.map((header) => <th scope="col" key={header}>{header}</th>)}</tr></thead><tbody>{lines.slice(2).map((line) => <tr key={line}>{cells(line).map((cell, cellIndex) => <td key={`${cellIndex}-${cell}`} data-label={headers[cellIndex]}>{inline(cell)}</td>)}</tr>)}</tbody></table></div>
+      const followingProse = lines.slice(2).findIndex((line) => !/^\|.*\|$/.test(line))
+      const tableEnd = followingProse === -1 ? lines.length : followingProse + 2
+      return <Fragment key={index}>
+        <div className={styles.tableWrap}><table><thead><tr>{headers.map((header) => <th scope="col" key={header}>{header}</th>)}</tr></thead><tbody>{lines.slice(2, tableEnd).map((line) => <tr key={line}>{cells(line).map((cell, cellIndex) => <td key={`${cellIndex}-${cell}`} data-label={headers[cellIndex]}>{inline(cell)}</td>)}</tr>)}</tbody></table></div>
+        {tableEnd < lines.length ? <p>{inline(lines.slice(tableEnd).join('\n'))}</p> : null}
+      </Fragment>
     }
     return <p key={index}>{inline(chunk)}</p>
   })

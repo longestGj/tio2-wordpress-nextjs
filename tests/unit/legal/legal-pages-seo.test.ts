@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
 
-import {buildMalaysiaLegalPageJsonLd} from '@/lib/seo/legal-page-jsonld'
+import {buildMalaysiaLegalPageJsonLd, serializeMalaysiaLegalPageJsonLd} from '@/lib/seo/legal-page-jsonld'
 import {buildMalaysiaLegalPageMetadata} from '@/lib/seo/legal-page-metadata'
 import {getSiteConfig} from '@/sites'
 import {toMalaysiaLegalPagesDto} from '@/lib/wordpress/legal-pages-v01-dto'
@@ -11,6 +11,26 @@ const sources = approved.pages.map((page, index) => ({
   siteScopes: {nodes: [{slug: 'tio2-my'}]}, publishingFields: {publicPath: page.path.replace(/\/$/, '')},
   malaysiaLegalPageContractJson: JSON.stringify(page),
 }))
+
+function sourcesWithDeliveredSeo() {
+  const seoByPageId = {
+    'LEGAL-PRIV-EN': {title: 'Updated privacy policy', description: 'Published English description.', effectiveDate: '2026-09-14'},
+    'LEGAL-PRIV-MS': {title: 'Dasar privasi dikemas kini', description: 'Penerangan Bahasa Malaysia diterbitkan.', effectiveDate: '2026-09-15'},
+    'LEGAL-COOKIE-EN': {title: 'Updated cookie policy', description: 'Published cookie description.', effectiveDate: '2026-09-16'},
+  } as const
+  return sources.map((record, index) => ({
+    ...record,
+    malaysiaLegalPageContractJson: JSON.stringify({
+      ...approved.pages[index]!,
+      effectiveDate: seoByPageId[approved.pages[index]!.pageId as keyof typeof seoByPageId].effectiveDate,
+      seo: {
+        ...approved.pages[index]!.seo,
+        title: seoByPageId[approved.pages[index]!.pageId as keyof typeof seoByPageId].title,
+        description: seoByPageId[approved.pages[index]!.pageId as keyof typeof seoByPageId].description,
+      },
+    }),
+  }))
+}
 
 describe('Legal page metadata and Schema', () => {
   it('activates one exact GA4/GTM legal state across English, BM and Cookie surfaces', () => {
@@ -42,7 +62,33 @@ describe('Legal page metadata and Schema', () => {
       'x-default': 'https://tio2malaysia.com/privacy-policy/',
     }})
     expect(enMeta.robots).toEqual({index: false, follow: false})
-    expect(buildMalaysiaLegalPageMetadata(site, ms!, {}).description).toBe('Ketahui cara TiO2 Malaysia mengendalikan data pertanyaan perniagaan, penyedia perkhidmatan, tempoh penyimpanan, Kuki dan pilihan privasi.')
+    expect(buildMalaysiaLegalPageMetadata(site, ms!, {}).description).toBe('Ketahui cara TiO2 Malaysia mengendalikan data pertanyaan perniagaan, penyedia perkhidmatan, tempoh penyimpanan, kuki dan pilihan privasi yang berkenaan.')
+    expect(buildMalaysiaLegalPageMetadata(site, cookie!, {}).alternates).toEqual({canonical: cookie!.seo.canonical})
+  })
+
+  it('projects delivered multilingual SEO text without changing publication controls', () => {
+    const [en, ms, cookie] = toMalaysiaLegalPagesDto(sourcesWithDeliveredSeo())
+    const site = getSiteConfig('tio2-my')
+    const enMeta = buildMalaysiaLegalPageMetadata(site, en!, {})
+
+    expect(enMeta.title).toBe('Updated privacy policy')
+    expect(enMeta.description).toBe('Published English description.')
+    expect(enMeta.robots).toEqual({index: false, follow: false})
+    expect(enMeta.alternates).toEqual({canonical: en!.seo.canonical, languages: {
+      en: 'https://tio2malaysia.com/privacy-policy/',
+      'ms-MY': 'https://tio2malaysia.com/ms/privacy-policy/',
+      'x-default': 'https://tio2malaysia.com/privacy-policy/',
+    }})
+    expect(enMeta.openGraph).toMatchObject({
+      type: 'website', url: en!.seo.canonical, siteName: 'TiO2 Malaysia',
+      title: 'Updated privacy policy', description: 'Published English description.', images: [],
+    })
+    expect(enMeta.twitter).toEqual({
+      card: 'summary', title: 'Updated privacy policy', description: 'Published English description.', images: [],
+    })
+    expect(buildMalaysiaLegalPageMetadata(site, ms!, {})).toMatchObject({
+      title: 'Dasar privasi dikemas kini', description: 'Penerangan Bahasa Malaysia diterbitkan.',
+    })
     expect(buildMalaysiaLegalPageMetadata(site, cookie!, {}).alternates).toEqual({canonical: cookie!.seo.canonical})
   })
 
@@ -58,6 +104,19 @@ describe('Legal page metadata and Schema', () => {
       expect(graph.map((node) => node['@type'])).toEqual(['WebPage', 'BreadcrumbList'])
       expect(graph[0]).toMatchObject(expected[index])
       expect(JSON.stringify(graph)).not.toMatch(/FAQPage|Article|LegalService|TermsOfService/)
+    })
+  })
+
+  it('serializes changed delivered CMS title, description and date into every legal WebPage', () => {
+    const pages = toMalaysiaLegalPagesDto(sourcesWithDeliveredSeo())
+    const expected = [
+      {name: 'Updated privacy policy', description: 'Published English description.', dateModified: '2026-09-14'},
+      {name: 'Dasar privasi dikemas kini', description: 'Penerangan Bahasa Malaysia diterbitkan.', dateModified: '2026-09-15'},
+      {name: 'Updated cookie policy', description: 'Published cookie description.', dateModified: '2026-09-16'},
+    ]
+    pages.forEach((page, index) => {
+      const graph = JSON.parse(serializeMalaysiaLegalPageJsonLd(buildMalaysiaLegalPageJsonLd(getSiteConfig('tio2-my'), page)))['@graph'] as Array<Record<string, unknown>>
+      expect(graph[0]).toMatchObject(expected[index]!)
     })
   })
 })

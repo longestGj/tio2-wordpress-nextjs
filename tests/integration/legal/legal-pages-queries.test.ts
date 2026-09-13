@@ -39,4 +39,30 @@ describe('Legal/Privacy GraphQL query isolation', () => {
     fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({data: null, errors: [{message: 'Legal pages missing'}]}), {status: 200, headers: {'content-type': 'application/json'}}))
     await expect(getMalaysiaLegalPages()).rejects.toBeInstanceOf(GraphQLResponseError)
   })
+
+  it('returns changed CMS copy and rejects malformed resolver JSON without a fallback', async () => {
+    const changed = source().map((record, index) => index === 0 ? {
+      ...record,
+      malaysiaLegalPageContractJson: JSON.stringify({
+        ...approved.pages[0],
+        buyerVisibleMarkdown: approved.pages[0]!.buyerVisibleMarkdown.replace('# Privacy Policy', '# Updated policy'),
+        seo: {...approved.pages[0]!.seo, title: 'Updated privacy SEO', description: 'Published CMS description.'},
+      }),
+    } : record)
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({
+      data: {malaysiaLegalPagesRecordJson: JSON.stringify(changed)},
+    }), {status: 200, headers: {'content-type': 'application/json'}}))
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubEnv('WORDPRESS_GRAPHQL_URL', 'https://cms.example.test/graphql')
+
+    const pages = await getMalaysiaLegalPages()
+    expect(pages[0]?.buyerVisibleMarkdown).toContain('# Updated policy')
+    expect(pages[0]?.seo).toMatchObject({title: 'Updated privacy SEO', description: 'Published CMS description.'})
+
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
+      data: {malaysiaLegalPagesRecordJson: '{not-json'},
+    }), {status: 200, headers: {'content-type': 'application/json'}}))
+    await expect(getMalaysiaLegalPages()).rejects.toThrow()
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
 })

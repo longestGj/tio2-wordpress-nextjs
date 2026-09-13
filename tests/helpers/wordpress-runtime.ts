@@ -24,6 +24,7 @@ export interface OwnedWordPressRuntime {
   readonly composeArgs: readonly string[]
   readonly graphqlUrl: string | null
   wp(args: string[]): Promise<string>
+  wpAsWebUser(args: string[]): Promise<string>
   stop(): Promise<void>
 }
 
@@ -193,6 +194,11 @@ export async function startIsolatedWordPress(input: WordPressRuntimeOptions): Pr
       if (stopped || stopping) throw new Error('WordPress runtime has stopped')
       if (options.dataMode === 'shared-read-only') assertReadOnly(args)
       return compose('run', '--rm', '--no-deps', '-T', 'wpcli', 'wp', ...args)
+    },
+    async wpAsWebUser(args: string[]) {
+      if (!isolated) throw new Error('Web-user WP-CLI requires an isolated WordPress project')
+      if (stopped || stopping) throw new Error('WordPress runtime has stopped')
+      return compose('run', '--rm', '--no-deps', '-T', '--user', '33:33', 'wpcli', 'wp', ...args)
     },
     async stop() {
       if (!isolated || stopped) return
