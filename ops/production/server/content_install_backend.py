@@ -30,11 +30,19 @@ from release_state import atomic_write_json, _fsync_directory
 def sha(value): return hashlib.sha256(value).hexdigest()
 
 
-def render_maintenance(raw, marker, upstream):
+def render_maintenance(raw, marker, upstream, *, reuse=False):
     if any(not re.fullmatch(r'/[A-Za-z0-9_./-]+', x) or '..' in x.split('/') for x in (marker,upstream)):
         raise ReleaseError('maintenance path is not a registered literal')
     text = raw.decode('utf-8')
-    if 'd16-install-maintenance' in text: raise ReleaseError('maintenance gate already installed')
+    if 'd16-install-maintenance' in text:
+        if not reuse: raise ReleaseError('maintenance gate already installed')
+        guard=(r'(?m)^([ \t]*)# d16-install-maintenance\n\1if \(-f '+re.escape(marker)+
+               r'\) \{ return 503; \}\n(?=\1include '+re.escape(upstream)+r';[ \t]*$)')
+        stripped,count=re.subn(guard,'',text)
+        if (not 1 <= count <= 2 or 'd16-install-maintenance' in stripped
+                or render_maintenance(stripped.encode(),marker,upstream)!=raw):
+            raise ReleaseError('existing maintenance gate differs from registered rule')
+        return raw
     pattern = r'(?m)^(\s*)include '+re.escape(upstream)+r';[ \t]*$'
     matches = list(re.finditer(pattern,text))
     if not 1 <= len(matches) <= 2: raise ReleaseError('unsupported enrolled Nginx upstream layout')
@@ -55,7 +63,7 @@ def write_file(path, data, mode=0o600):
 
 
 class InstallationBackend:
-    def __init__(self, config, artifact, directory, registry):
+    def __init__(self, config, artifact, directory, registry, *, previous_installation=None):
         keys={'schemaVersion','siteId','runtime','hooks','resources','nginxFile','upstreamFile',
               'verificationPackageFile','previousProductionReceipt'}
         if not isinstance(config,dict) or set(config)!=keys or config['schemaVersion']!='d16-my-installation-v1' or config['siteId']!='tio2-my':
@@ -75,7 +83,9 @@ class InstallationBackend:
             raise ReleaseError('maintenance target not owned by MY')
         if config['upstreamFile']!=str(self.configuration/'web-upstream.conf'):
             raise ReleaseError('installation upstream mismatch')
-        self.resources=InstallationResources(config['resources'],artifact,self.directory)
+        self.previous_installation=previous_installation
+        self.resources=InstallationResources(config['resources'],artifact,self.directory,
+                                            previous_installation=previous_installation)
         self.database=InstallationDatabase(config['runtime'],self.directory)
         self.wrapper=Path('/usr/local/libexec/d16-content-window')
         expected={action:[str(self.wrapper),action] for action in ('identity','enter','assert','leave','refresh','verify')}
@@ -121,7 +131,18 @@ class InstallationBackend:
         if self.marker.exists() or self.marker.is_symlink(): raise ReleaseError('foreign maintenance owner')
         active=self.configuration/'content-runtime.json'
         if active.exists(): raise ReleaseError('content runtime already installed; use explicit upgrade plan')
-        render_maintenance(self.nginx.read_bytes(),str(self.marker),self.config['upstreamFile'])
+        if self.previous_installation is not None:
+            self.resources.upgrade.receipt()
+            if self.config['previousProductionReceipt']!=sha(canonical(state)):
+                raise ReleaseError('upgrade configuration requires the current production receipt')
+            from deployment_core import Deployment
+            current=json.loads(protected_path(self.configuration/'baseline.json',private=True).read_bytes())
+            expected=Deployment.frontend_identity(current)
+            observed=observe_frontend_identity(self.config['hooks'])
+            if any(observed[k]!=expected[k] for k in ('containerId','imageId','buildId')):
+                raise ReleaseError('upgrade frontend differs from current production baseline')
+        render_maintenance(self.nginx.read_bytes(),str(self.marker),self.config['upstreamFile'],
+                           reuse=self.previous_installation is not None)
         files={}
         for path in self._files():
             if path.exists(): protected_path(path); files[str(path)]=sha(path.read_bytes())
@@ -151,7 +172,8 @@ class InstallationBackend:
         atomic_write_json(self.directory/'original-files.json',originals)
         with self.marker.open('xb') as output:
             os.chmod(self.marker,0o600); output.write(canonical({'owner':owner,'siteId':'tio2-my'})); output.flush(); os.fsync(output.fileno())
-        write_file(self.nginx,render_maintenance(self.nginx.read_bytes(),str(self.marker),self.config['upstreamFile']),0o644)
+        write_file(self.nginx,render_maintenance(self.nginx.read_bytes(),str(self.marker),self.config['upstreamFile'],
+                                               reuse=self.previous_installation is not None),0o644)
         self._reload()
         hooks=ContentHooks(self.config['hooks'])
         for attempt in range(30):

@@ -22,7 +22,7 @@ import time
 
 LABEL = 'd16.test.resources'
 OWNER = 'd16.install.owner'
-SERVER_FILES = ('content_install_resources.py', 'content_install_artifact.py', 'release_contract.py', 'release_state.py')
+SERVER_FILES = ('content_install_resources.py', 'content_install_upgrade.py', 'content_install_artifact.py', 'release_contract.py', 'release_state.py')
 
 
 def command(*args, data=None, check=True, timeout=900):
@@ -114,7 +114,7 @@ echo 'seeded';
     config = dict(wordpressContainer=names['wp'], pluginSource=str(plugin), importerContainer=names['importer'],
                   importerImage=args.wp_image, dbHost=names['db'], database='wordpress',
                   releasePasswordFile=str(root / 'root-password'), releaseUser='root')
-    resources = InstallationResources(config, artifact, root / 'installation')
+    resources = InstallationResources(config, artifact, root / args.sha)
     try:
         snapshot = resources.snapshot()
     except Exception:
@@ -129,10 +129,17 @@ echo 'seeded';
         raise
     assert snapshot['pluginFiles'] != {name[len(prefix):]: digest for name, digest in artifact['manifest']['files'].items() if name.startswith(prefix)}
     assert not snapshot['phpPresent']
+    plan=dict(schemaVersion='d16-content-install-plan-v1',siteId='tio2-my',artifactSha256=args.sha,
+              baseline={'resources':snapshot})
+    encode=lambda value: json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()
+    plan['planSha256']=hashlib.sha256(encode(plan)).hexdigest()
+    owner=plan['planSha256']
     sql('SET GLOBAL event_scheduler=OFF; SET GLOBAL read_only=ON;')
     backup = resources.backup(root / 'backup')
     installed = resources.install(owner)
     assert resources.verify()['readonly'] is True
+    private_file(resources.directory/'state.json',encode(dict(schemaVersion='d16-content-install-state-v1',
+        phase='completed',plan=plan,evidence={'verified':True,'resources':installed['verification']})).decode())
     wp_after = json.loads(docker('inspect', names['wp']))[0]
     importer = json.loads(docker('inspect', names['importer']))[0]
     assert wp_after['Id'] == wp_before['Id'] and wp_after['Config']['Env'] == wp_before['Config']['Env']
@@ -157,6 +164,37 @@ echo 'seeded';
     assert wrong.returncode != 0 and b'Content release rejected' in wrong.stderr
     assert scopes() == scope_before
     assert sql('SELECT @@GLOBAL.read_only') == '1'
+    # Real second upgrade, then restore precisely the first installed importer.
+    # Byte-only fixture change exercises replacement without inventing content.
+    from copy import deepcopy
+    from release_contract import ReleaseError
+    next_artifact=deepcopy(artifact)
+    next_artifact['contents'][prefix+'tio2-site-model.php']+=b'\n// isolated second-upgrade marker\n'
+    first_id=importer['Id']; first_php=resources._capture()[0]['phpFiles']
+    upgrade=InstallationResources(config,next_artifact,root/'second-upgrade',previous_installation=resources.directory)
+    next_owner=hashlib.sha256((args.token+'second').encode()).hexdigest()
+    next_backup=upgrade.backup(root/'second-backup')
+    upgrade.install(next_owner)
+    assert json.loads(docker('inspect',names['importer']))[0]['Id']!=first_id
+    assert not json.loads(docker('inspect',first_id))[0]['State']['Running']
+    upgrade.restore(next_owner,next_backup)
+    assert json.loads(docker('inspect',names['importer']))[0]['Id']==first_id
+    assert resources._capture()[0]['phpFiles']==first_php
+    assert resources.verify()==installed['verification']
+    failure=InstallationResources(config,next_artifact,root/'failed-upgrade',previous_installation=resources.directory)
+    failed_owner=hashlib.sha256((args.token+'failed').encode()).hexdigest()
+    failed_backup=failure.backup(root/'failed-backup')
+    original_docker=failure.docker
+    def fail_create(*command,data=None):
+        if command[0]=='create':raise ReleaseError('injected create failure after retaining old importer')
+        return original_docker(*command,data=data)
+    failure.docker=fail_create
+    try:failure.install(failed_owner)
+    except ReleaseError as error:
+        assert str(error)=='injected create failure after retaining old importer'
+    else:raise AssertionError('failure injection did not execute')
+    failure.docker=original_docker;failure.restore(failed_owner,failed_backup)
+    assert resources.verify()==installed['verification'] and scopes()==scope_before
     resources.restore(owner, backup)
     assert {item.relative_to(plugin).as_posix(): item.read_bytes() for item in plugin.rglob('*') if item.is_file()} == original_plugin
     assert not docker('ps', '-a', '--filter', 'name=^/' + names['importer'] + '$', '--format', '{{.Names}}').strip()
@@ -167,6 +205,7 @@ echo 'seeded';
     print(json.dumps({'result': 'PASS', 'sourceRevision': args.revision, 'artifactSha256': args.sha,
                       'wpImageId': args.wp_image, 'databaseImageId': args.db_image,
                       'actualPluginUpgradeAndRestore': True, 'normalWpAccountUnchanged': True,
+                      'secondUpgradeAndExactImporterRestore':True,'secondCreateFailureRecovered':True,
                       'sealedIndependentImporter': True, 'rootPasswordFileOnly': True,
                       'wrongScopeRejected': True, 'otherScopePreserved': True, 'httpHealthAfterRestore': True,
                       'testedPrograms': {name: hashlib.sha256((Path('/inputs') / name).read_bytes()).hexdigest() for name in SERVER_FILES}}), flush=True)
@@ -221,9 +260,18 @@ def outer(args):
                     continue
                 value = json.loads(inspect.stdout)[0]
                 labels = value['Config'].get('Labels') or {}
-                if labels.get(LABEL) != token and not (suffix == 'importer' and labels.get(OWNER) == owner):
+                importer_owned=(suffix=='importer' and re.fullmatch('[a-f0-9]{64}',labels.get(OWNER,''))
+                                and all(m['Source'].startswith(mountpoint+'/') for m in value['Mounts']))
+                if labels.get(LABEL) != token and not importer_owned:
                     raise RuntimeError('refusing to clean an unowned rehearsal container')
                 docker('rm', '--force', '--volumes', value['Id'])
+            retained_ids=docker('ps','-a','--filter','name=^/d16-held-','--format','{{.ID}}').decode().split()
+            for retained_id in retained_ids:
+                value=json.loads(docker('inspect',retained_id))[0]
+                mounts=value.get('Mounts',[])
+                if (mounts and all(m['Source'].startswith(mountpoint+'/') for m in mounts)
+                        and re.fullmatch('[a-f0-9]{64}',(value['Config'].get('Labels') or {}).get(OWNER,''))):
+                    docker('rm','--force','--volumes',value['Id'])
             for kind, suffix in [('volume', 'core'), ('network', 'network'), ('volume', 'data')]:
                 name = token + '-' + suffix
                 inspect = command('docker', kind, 'inspect', name, check=False)

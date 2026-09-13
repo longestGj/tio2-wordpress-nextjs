@@ -57,6 +57,20 @@ class MaintenanceConfigurationTests(unittest.TestCase):
         once=self.render(b'include /etc/upstream;\n','/safe/marker','/etc/upstream')
         with self.assertRaises(ReleaseError): self.render(once,'/safe/marker','/etc/upstream')
 
+    def test_upgrade_reuses_exact_registered_guard_without_rewriting_it(self):
+        raw=b'server {\n  include /etc/upstream;\n}\nserver {\n include /etc/upstream;\n}\n'
+        once=self.render(raw,'/safe/marker','/etc/upstream')
+        self.assertEqual(once,self.render(once,'/safe/marker','/etc/upstream',reuse=True))
+
+    def test_upgrade_refuses_foreign_or_edited_guard(self):
+        once=self.render(b' include /etc/upstream;\n','/safe/marker','/etc/upstream')
+        for changed in (once.replace(b'/safe/marker',b'/foreign/marker'),
+                        once.replace(b'return 503',b'return 200'),
+                        once+b'# d16-install-maintenance\n',
+                        once+b' include /etc/upstream;\n'):
+            with self.subTest(changed=changed),self.assertRaises(ReleaseError):
+                self.render(changed,'/safe/marker','/etc/upstream',reuse=True)
+
     def test_actual_verification_package_loads_and_binds_my(self):
         from content_install_backend import InstallationBackend
         from content_release import canonical
