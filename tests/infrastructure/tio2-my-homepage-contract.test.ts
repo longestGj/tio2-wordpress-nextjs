@@ -152,12 +152,11 @@ describe('HOME-001 immutable WordPress contract', () => {
     }
   })
 
-  it('exposes only a hidden, byte-validated GraphQL contract for tio2-my', () => {
+  it('registers the hidden, scope-bound Malaysia GraphQL contract and preview serializer', () => {
     expect(existsSync(phpPath)).toBe(true)
     expect(php).toContain("'_tio2_my_homepage_contract_json'")
     expect(php).toContain("'malaysiaHomepageContractJson'")
     expect(php).toContain("'tio2-my'")
-    expect(php).toContain('hash_equals')
     expect(php).not.toContain('acf_add_local_field')
     expect(plugin).toContain("require_once __DIR__ . '/includes/homepage-v04.php';")
     expect(fields).toContain("'homepage-v0.4-malaysia' => tio2_validate_homepage_v04_contract($post_id)")

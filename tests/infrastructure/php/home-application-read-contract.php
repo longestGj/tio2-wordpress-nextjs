@@ -79,6 +79,9 @@ namespace {
         ]];
     }
     function resolve_content(string $page): array {
+        if ($page === 'HOME-001' && tio2_homepage_graphql_visibility(true, 'PostObject', get_post(1)) !== false) {
+            throw new \GraphQL\Error\UserError('Homepage is private at the GraphQL model boundary');
+        }
         $json = $page === 'HOME-001'
             ? tio2_resolve_malaysia_homepage_contract_json(get_post(1))
             : json_decode(tio2_resolve_malaysia_application_hub_record_json(), true, 512, JSON_THROW_ON_ERROR)['malaysiaApplicationHubContractJson'];
@@ -92,10 +95,61 @@ namespace {
     require $plugin . '/includes/application-hub-v01.php';
     require $plugin . '/includes/editorial-v01.php';
     require $plugin . '/includes/preview.php';
+    require $plugin . '/includes/product-detail-v01.php';
     $approved = [
         'HOME-001' => json_decode(file_get_contents($plugin . '/config/tio2-my-homepage.json'), true, 512, JSON_THROW_ON_ERROR),
         'APP-000' => json_decode(file_get_contents($plugin . '/config/tio2-my-application-hub.json'), true, 512, JSON_THROW_ON_ERROR),
     ];
+    if (in_array('--visibility-only', $argv, true) || in_array('--parent-only', $argv, true)) {
+        $visibility = in_array('--visibility-only', $argv, true);
+        $available = static fn(): bool => $visibility
+            ? tio2_homepage_graphql_visibility(true, 'PostObject', get_post(1)) === false
+            : tio2_my_product_detail_required_parent_available('HOME-001', '/');
+        $checks = 0;
+        install($approved['HOME-001'], 'HOME-001');
+        check($available(), 'baseline homepage remains available'); $checks++;
+        $changed = $approved['HOME-001'];
+        $changed['packageId'] = 'HOME-001-ENTRY-READ-2';
+        $changed['hero']['heading'] = 'Current homepage through real read entry';
+        install($changed, 'HOME-001');
+        check($available(), $visibility ? 'revised homepage is public at GraphQL model visibility' : 'revised homepage is available as required product parent'); $checks++;
+        check(is_wp_error(tio2_validate_homepage_contract(1)), 'new content does not authorize a write'); $checks++;
+        foreach ([['post_status','draft'],['post_status','future'],['post_status','private'],['post_status','trash'],['post_type','post'],['post_name','wrong-slug'],['scopes',['tio2-a']],['scopes',['tio2-my','tio2-a']],['scopes',['tio2-my','tio2-my']],['revision',true],['autosave',true]] as [$key,$value]) {
+            install($changed, 'HOME-001'); $GLOBALS['records'][1][$key] = $value;
+            check(!$available(), 'read entry rejects ' . $key); $checks++;
+        }
+        foreach (['publish','draft'] as $status) {
+            install($changed, 'HOME-001'); $GLOBALS['records'][2] = $GLOBALS['records'][1]; $GLOBALS['records'][2]['post_status'] = $status;
+            check(!$available(), 'read entry rejects duplicate reserved identity ' . $status); $checks++;
+        }
+        foreach (['page','post'] as $type) {
+            install($changed, 'HOME-001'); $GLOBALS['records'][2] = $GLOBALS['records'][1]; $GLOBALS['records'][2]['post_type'] = $type;
+            check(!$available(), 'read entry rejects root occupied by ' . $type); $checks++;
+        }
+        install($changed, 'HOME-001'); $GLOBALS['records'][1]['meta']['homepage_schema_version'] = 'wrong';
+        check(!$available(), 'read entry rejects wrong schema'); $checks++;
+        install($changed, 'HOME-001'); $GLOBALS['records'] = [];
+        check(!$available(), 'read entry rejects missing record'); $checks++;
+        $unsafe = $changed; $unsafe['hero']['heading'] = '<script>unsafe</script>'; install($unsafe, 'HOME-001');
+        check(!$available(), 'read entry rejects unsafe content'); $checks++;
+        install($changed, 'HOME-001');
+        if ($visibility) {
+            foreach ([true, false, null] as $incoming) {
+                check(tio2_homepage_graphql_visibility($incoming, 'OtherModel', get_post(1)) === $incoming, 'other model privacy preserved'); $checks++;
+                $GLOBALS['records'][1]['post_status'] = 'draft';
+                check(tio2_homepage_graphql_visibility($incoming, 'PostObject', get_post(1)) === $incoming, 'nonpublished privacy preserved'); $checks++;
+            }
+            foreach (['tio2-a','tio2-b'] as $scope) {
+                install($changed, 'HOME-001'); $GLOBALS['records'][1]['scopes'] = [$scope];
+                check(tio2_homepage_graphql_visibility(true, 'PostObject', get_post(1)) === true, 'invalid other-site record still private'); $checks++;
+            }
+        } else {
+            check(!tio2_my_product_detail_required_parent_available('HOME-001', '/products/'), 'parent href pairing retained'); $checks++;
+            check(!tio2_my_product_detail_required_parent_available('PRODUCT-000', '/products/'), 'missing product parent remains unavailable'); $checks++;
+        }
+        echo json_encode(['entry' => $visibility ? 'visibility' : 'required-parent', 'checks' => $checks], JSON_THROW_ON_ERROR);
+        exit;
+    }
     $vectors = json_decode(file_get_contents(dirname(__DIR__, 2) . '/fixtures/home-application-read-cases.json'), true, 512, JSON_THROW_ON_ERROR);
     // Preserve JSON object/array kinds in injected values, even for numeric object keys.
     $vector_objects = json_decode(file_get_contents(dirname(__DIR__, 2) . '/fixtures/home-application-read-cases.json'), false, 512, JSON_THROW_ON_ERROR);

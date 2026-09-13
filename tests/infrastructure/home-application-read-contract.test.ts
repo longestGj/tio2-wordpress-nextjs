@@ -10,6 +10,13 @@ import type {MalaysiaApplicationHubContent} from '@/lib/wordpress/application-hu
 export const WORDPRESS_RUNTIME_MODE = {dataMode: 'isolated', hostHttp: false} as const
 
 describe('PHP home / application read contract and record isolation', () => {
+  for (const entry of ['visibility', 'parent']) it(`accepts current CMS content through the real ${entry} entry and rejects invalid records`, () => {
+    const result = spawnSync('docker', [...isolatedPhpArgs(process.cwd()), '/workspace/tests/infrastructure/php/home-application-read-contract.php', `--${entry}-only`], {encoding: 'utf8'})
+    if (result.status !== 0) throw new Error(`PHP ${entry} entry failed (${result.status}):\n${result.stdout}\n${result.stderr}`)
+    const output = JSON.parse(result.stdout)
+    expect(output.entry).toBe(entry === 'parent' ? 'required-parent' : 'visibility')
+    expect(output.checks).toBeGreaterThanOrEqual(23)
+  })
   it('runs shared vectors through real resolvers and retains record and write guards', () => {
     const result = spawnSync('docker', [...isolatedPhpArgs(process.cwd()), '/workspace/tests/infrastructure/php/home-application-read-contract.php'], {encoding:'utf8', maxBuffer: 12 * 1024 * 1024})
     if (result.status !== 0) throw new Error(`PHP harness failed (${result.status}):\n${result.stdout}\n${result.stderr}`)

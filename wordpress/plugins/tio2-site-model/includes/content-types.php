@@ -147,6 +147,10 @@ function tio2_homepage_graphql_visibility($is_private, string $model_name, $data
         'tio2_homepage' === $data->post_type &&
         'publish' === $data->post_status
     ) {
+        if (function_exists('tio2_get_homepage_site_id') && 'tio2-my' === tio2_get_homepage_site_id((int) $data->ID)) {
+            return !function_exists('tio2_validate_homepage_v04_read_record') ||
+                is_wp_error(tio2_validate_homepage_v04_read_record((int) $data->ID));
+        }
         if (function_exists('tio2_validate_homepage_contract')) {
             $validation = tio2_validate_homepage_contract((int) $data->ID);
             if (is_wp_error($validation)) {
