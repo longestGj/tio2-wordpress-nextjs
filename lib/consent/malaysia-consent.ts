@@ -20,30 +20,83 @@ import {readMalaysiaAnalyticsConfig} from '@/lib/analytics/malaysia-ga4'
 
 export const CONSENT_KEY = 'tio2_my_consent_v1'
 export const LEGACY_CONSENT_KEY = 'tio2-my:consent:v1'
+export const CONSENT_VERSION = 'ga4-active-v1'
 
-function parseConsentChoice(raw: string | null): ConsentChoice | null {
+export interface MalaysiaConsentRecord {
+  readonly site_scope: 'tio2-my'
+  readonly consent_version: typeof CONSENT_VERSION
+  readonly choice: ConsentChoice
+  readonly decided_at: string
+}
+
+function isConsentChoice(value: unknown): value is ConsentChoice {
+  return value === 'analytics_accepted' || value === 'necessary_only'
+}
+
+function isIsoDate(value: unknown): value is string {
+  if (typeof value !== 'string') return false
+  const parsed = new Date(value)
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString() === value
+}
+
+function parseConsentRecord(raw: string | null): MalaysiaConsentRecord | null {
   if (!raw) return null
   try {
-    const value = JSON.parse(raw)
-    return value?.version === 1 &&
-      (value.choice === 'analytics_accepted' || value.choice === 'necessary_only')
-      ? value.choice
-      : null
+    const value = JSON.parse(raw) as Record<string, unknown>
+    const keys = Object.keys(value).sort().join(',')
+    return keys === 'choice,consent_version,decided_at,site_scope' &&
+      value.site_scope === 'tio2-my' && value.consent_version === CONSENT_VERSION &&
+      isConsentChoice(value.choice) && isIsoDate(value.decided_at)
+      ? value as unknown as MalaysiaConsentRecord : null
   } catch {
     return null
   }
 }
 
+function parseLegacyChoice(raw: string | null): {choice: ConsentChoice; decidedAt?: number} | null {
+  if (!raw) return null
+  try {
+    const value = JSON.parse(raw) as Record<string, unknown>
+    if (value.version !== 1 || !isConsentChoice(value.choice)) return null
+    return {choice: value.choice, ...(typeof value.decidedAt === 'number' ? {decidedAt: value.decidedAt} : {})}
+  } catch { return null }
+}
+
+export function createMalaysiaConsentRecord(
+  choice: ConsentChoice,
+  decidedAt: Date = new Date(),
+): MalaysiaConsentRecord {
+  return {
+    site_scope: 'tio2-my',
+    consent_version: CONSENT_VERSION,
+    choice,
+    decided_at: decidedAt.toISOString(),
+  }
+}
+
+export function persistMalaysiaConsentChoice(choice: ConsentChoice, decidedAt: Date = new Date()): void {
+  window.localStorage.setItem(CONSENT_KEY, JSON.stringify(createMalaysiaConsentRecord(choice, decidedAt)))
+  window.localStorage.removeItem(LEGACY_CONSENT_KEY)
+}
+
 export function readMalaysiaConsentChoice(): ConsentChoice {
   try {
-    const current = parseConsentChoice(window.localStorage.getItem(CONSENT_KEY))
-    if (current) return current
+    const currentRaw = window.localStorage.getItem(CONSENT_KEY)
+    const current = parseConsentRecord(currentRaw)
+    if (current) return current.choice
+    const oldCanonical = parseLegacyChoice(currentRaw)
+    if (oldCanonical) {
+      const decidedAt = Number.isFinite(oldCanonical.decidedAt)
+        ? new Date(oldCanonical.decidedAt!) : new Date()
+      persistMalaysiaConsentChoice(oldCanonical.choice, decidedAt)
+      return oldCanonical.choice
+    }
+    if (currentRaw !== null) return 'necessary_only'
 
-    const legacy = parseConsentChoice(window.localStorage.getItem(LEGACY_CONSENT_KEY))
+    const legacy = parseLegacyChoice(window.localStorage.getItem(LEGACY_CONSENT_KEY))
     if (!legacy) return 'necessary_only'
-    window.localStorage.setItem(CONSENT_KEY, JSON.stringify({version: 1, choice: legacy, decidedAt: Date.now()}))
-    window.localStorage.removeItem(LEGACY_CONSENT_KEY)
-    return legacy
+    persistMalaysiaConsentChoice(legacy.choice)
+    return legacy.choice
   } catch {return 'necessary_only'}
 }
 
@@ -51,8 +104,7 @@ export function readEffectiveMalaysiaConsentChoice(analyticsActive: boolean): Co
   const choice = readMalaysiaConsentChoice()
   if (analyticsActive || choice === 'necessary_only') return choice
   try {
-    window.localStorage.setItem(CONSENT_KEY, JSON.stringify({version: 1, choice: 'necessary_only', decidedAt: Date.now()}))
-    window.localStorage.removeItem(LEGACY_CONSENT_KEY)
+    persistMalaysiaConsentChoice('necessary_only')
   } catch {
     // The effective choice still fails closed when storage is unavailable.
   }

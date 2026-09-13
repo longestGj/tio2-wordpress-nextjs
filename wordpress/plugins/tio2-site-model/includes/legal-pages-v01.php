@@ -61,7 +61,7 @@ function tio2_validate_legal_page_v01_contract(int $post_id)
     if (! is_array($stored) || !tio2_my_content_matches($stored, $approved[$path])) {
         return new WP_Error('tio2_my_legal_contract_mismatch', 'The stored Legal page payload does not match the approved contract.');
     }
-    if ('no_optional_analytics' !== ($stored['releaseState'] ?? null) || 'tio2-my' !== (($approved_contract = tio2_my_legal_pages_approved_contract())['siteScope'] ?? null)) {
+    if ('verified_google_analytics_active' !== ($stored['releaseState'] ?? null) || 'tio2-my' !== (($approved_contract = tio2_my_legal_pages_approved_contract())['siteScope'] ?? null)) {
         return new WP_Error('tio2_my_legal_release_state', 'The Legal page release state is invalid.');
     }
     return true;

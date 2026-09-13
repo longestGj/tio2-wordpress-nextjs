@@ -37,8 +37,8 @@ describe('Legal/Privacy exact route assembly', () => {
   })
 
   it.each([
-    ['@/app/privacy-policy/page', 'Last updated: 5 September 2026', 'When you submit a Request Documents form, we collect:'],
-    ['@/app/ms/privacy-policy/page', 'Kemas kini terakhir: 5 September 2026', 'Apabila anda menghantar borang Request Documents, kami mengumpul:'],
+    ['@/app/privacy-policy/page', 'Last updated: 13 September 2026', 'When you submit a Request Documents form, we collect:'],
+    ['@/app/ms/privacy-policy/page', 'Kemas kini terakhir: 13 September 2026', 'Apabila anda menghantar borang Request Documents, kami mengumpul:'],
   ])('renders the V0.2 disclosure in the initial HTML for %s', async (modulePath, updated, disclosure) => {
     const route = modulePath.includes('/ms/')
       ? await import('@/app/ms/privacy-policy/page')

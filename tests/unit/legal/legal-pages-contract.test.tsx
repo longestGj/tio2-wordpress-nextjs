@@ -8,19 +8,19 @@ import {toMalaysiaLegalPagesDto} from '@/lib/wordpress/legal-pages-v01-dto'
 import approved from '@/wordpress/plugins/tio2-site-model/config/tio2-my-legal-pages.json'
 
 const buyerVisibleSha256 = {
-  'LEGAL-PRIV-EN': '143242D903FD9AA09D8C170340BA06211803BB35A7207269B955D63A328E22AA',
-  'LEGAL-PRIV-MS': 'B47CEB633A0517544469EF3047726522A281D594C3403546F771D375D993AB49',
-  'LEGAL-COOKIE-EN': '0288B9B67600517D579FFDF773A78A07AE143A034177B3275C82137B29E5C3B5',
+  'LEGAL-PRIV-EN': 'BBAB67889BB3C4D3493924005BAD1195E212CC7EE39BBE6CBB771E300DC71BE3',
+  'LEGAL-PRIV-MS': 'A4393ADC59F4D3297D47B0C100668575CF726F1B526AC246422E6EDD5D9F09AC',
+  'LEGAL-COOKIE-EN': '277A05588845527AF0EF45AA7B3A7A6B085838AE1D8C70BFFF1E1F4F386A01E8',
 } as const
 
 const privacySourceAuthority = {
   'LEGAL-PRIV-EN': {
-    effectiveDate: '2026-09-05',
+    effectiveDate: '2026-09-13',
     sourceFile: 'LEGAL-PRIV-EN_GATE2_FULL_COPY_V0.2.md',
     sourceSha256: '896A4CBCEE2CF5A9B19C9B65B62B7C247668A3C5C84DA17E0E61CB0B8E556A37',
   },
   'LEGAL-PRIV-MS': {
-    effectiveDate: '2026-09-05',
+    effectiveDate: '2026-09-13',
     sourceFile: 'LEGAL-PRIV-MS_GATE2_FULL_COPY_V0.2.md',
     sourceSha256: '00FB18D246D7FFEA787CDB9BE06EF3B74D547607D62F4E846EFBF2DD0E4FB594',
   },
@@ -70,7 +70,9 @@ describe('Legal/Privacy approved page contract', () => {
     ])
     expect(cookie.raw).not.toContain('Conditional buyer-visible replacement')
     expect(cookie.raw).not.toContain('Internal release controls')
-    expect(cookie.raw).toContain('No optional Analytics technology is active')
+    expect(cookie.raw).toContain('Google Analytics is active for aggregate website measurement')
+    expect(cookie.raw).toContain('Advertising storage, advertising user data and advertising personalisation remain denied in every state')
+    expect(cookie.raw).toContain('`_ga_QDHLMRH2WB`')
   })
 
   it('pins every complete Buyer-visible projection independently of the mutable config', () => {

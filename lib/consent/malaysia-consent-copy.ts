@@ -1,4 +1,5 @@
 import {
+  MALAYSIA_PUBLIC_ANALYTICS_ENV,
   readMalaysiaAnalyticsConfig,
   type MalaysiaAnalyticsEnvironment,
 } from '@/lib/analytics/malaysia-ga4'
@@ -12,7 +13,7 @@ const common = {
 } as const
 
 export function getMalaysiaConsentCopy(
-  env: MalaysiaAnalyticsEnvironment = process.env,
+  env: MalaysiaAnalyticsEnvironment = MALAYSIA_PUBLIC_ANALYTICS_ENV,
   legalAnalyticsAuthorized = approvedLegalPages.releaseControls.optionalAnalyticsAuthorized,
 ) {
   if (legalAnalyticsAuthorized && readMalaysiaAnalyticsConfig(env)) {

@@ -1,4 +1,5 @@
 import {Children, isValidElement, type ReactElement, type ReactNode} from 'react'
+import {readFileSync} from 'node:fs'
 import {describe, expect, it} from 'vitest'
 
 import {MalaysiaGoogleAnalytics} from '@/components/sites/tio2-my/analytics/malaysia-google-analytics'
@@ -14,6 +15,14 @@ const validEnv = {
 }
 
 describe('TiO2 Malaysia GTM-only GA4 delivery', () => {
+  it('exposes public environment bindings through statically replaceable Next.js references', () => {
+    const source = readFileSync('lib/analytics/malaysia-ga4.ts', 'utf8')
+    const consentCopySource = readFileSync('lib/consent/malaysia-consent-copy.ts', 'utf8')
+    expect(source).toContain('NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID: process.env.NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID')
+    expect(source).toContain('NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID: process.env.NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID')
+    expect(consentCopySource).toContain('env: MalaysiaAnalyticsEnvironment = MALAYSIA_PUBLIC_ANALYTICS_ENV')
+  })
+
   it('requires both valid, site-specific public identifiers', () => {
     expect(readMalaysiaAnalyticsConfig(validEnv)).toEqual({
       siteScope: 'tio2-my',
@@ -56,6 +65,6 @@ describe('TiO2 Malaysia GTM-only GA4 delivery', () => {
     expect(scripts[1]?.props.src).toBe('https://www.googletagmanager.com/gtm.js?id=GTM-ABC1234')
     expect(MalaysiaGoogleAnalytics({siteId: 'tio2-a', env: validEnv})).toBeNull()
     expect(MalaysiaGoogleAnalytics({siteId: 'tio2-my', env: {}})).toBeNull()
-    expect(MalaysiaGoogleAnalytics({siteId: 'tio2-my', env: validEnv})).toBeNull()
+    expect(MalaysiaGoogleAnalytics({siteId: 'tio2-my', env: validEnv, legalAnalyticsAuthorized: false})).toBeNull()
   })
 })

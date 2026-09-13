@@ -6,7 +6,7 @@ import styles from './malaysia-cookie-settings.module.css'
 import {getMalaysiaConsentCopy} from '@/lib/consent/malaysia-consent-copy'
 
 const OPEN_EVENT = 'cookie-settings:open'
-import {CONSENT_KEY, readEffectiveMalaysiaConsentChoice, applyMalaysiaConsent, type ConsentChoice} from '@/lib/consent/malaysia-consent'
+import {readEffectiveMalaysiaConsentChoice, applyMalaysiaConsent, persistMalaysiaConsentChoice, type ConsentChoice} from '@/lib/consent/malaysia-consent'
 export {createDeniedGoogleConsent, transitionConsent} from '@/lib/consent/malaysia-consent'
 
 export function MalaysiaCookieSettingsTrigger({children, className}: {readonly children: ReactNode; readonly className?: string}) {
@@ -94,7 +94,7 @@ export function MalaysiaCookieSettingsHost() {
   function save(choice: ConsentChoice) {
     const effectiveChoice = analyticsActive ? choice : 'necessary_only'
     applyMalaysiaConsent(effectiveChoice, 'update')
-    try {window.localStorage.setItem(CONSENT_KEY, JSON.stringify({version: 1, choice: effectiveChoice, decidedAt: Date.now()})); close()}
+    try {persistMalaysiaConsentChoice(effectiveChoice); close()}
     catch {setAnalytics(effectiveChoice === 'analytics_accepted'); setSaveError(true)}
   }
 

@@ -88,15 +88,16 @@ for (const contract of approved.pages) {
       await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(1)
       const jsonLd = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent() ?? '{}') as {'@graph': readonly {'@type': string}[]}
       expect(jsonLd['@graph'].map((node) => node['@type'])).toEqual(['WebPage', 'BreadcrumbList'])
-      expect(analyticsRequests).toEqual([])
+      expect(analyticsRequests.filter((url) => /googletagmanager\.com\/gtag\/js/iu.test(url))).toEqual([])
+      expect(analyticsRequests.filter((url) => /googletagmanager\.com\/gtm\.js\?id=GTM-MWQVK7J4/iu.test(url))).toHaveLength(1)
       expect(await page.evaluate(() => localStorage.getItem('tio2_my_consent_v1'))).toBeNull()
       await expect(page.getByRole('dialog')).toHaveCount(0)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 
       if (contract.pageId.startsWith('LEGAL-PRIV-')) {
         const updated = contract.locale === 'en'
-          ? 'Last updated: 5 September 2026'
-          : 'Kemas kini terakhir: 5 September 2026'
+          ? 'Last updated: 13 September 2026'
+          : 'Kemas kini terakhir: 13 September 2026'
         const disclosureLead = contract.locale === 'en'
           ? 'When you submit a Request Documents form, we collect:'
           : 'Apabila anda menghantar borang Request Documents, kami mengumpul:'
@@ -139,7 +140,7 @@ for (const contract of approved.pages) {
   }
 }
 
-test('shared Cookie Settings is minimal, keyboard-contained and does not enable analytics', async ({page}) => {
+test('shared Cookie Settings exposes active analytics choice and remains keyboard-contained', async ({page}) => {
   await page.setViewportSize({width: 390, height: 844})
   await page.goto(`${baseUrl}/cookie-policy/`, {waitUntil: 'networkidle'})
   const trigger = page.locator('footer').getByRole('button', {name: 'Cookie Settings'})
@@ -148,7 +149,7 @@ test('shared Cookie Settings is minimal, keyboard-contained and does not enable 
   await expect(dialog).toHaveAttribute('aria-describedby', 'tio2-my-cookie-settings-description')
   await expect(page.locator('#tio2-my-cookie-settings-description')).toHaveText(approved.consent.body)
   await expect(dialog).toContainText(approved.consent.body)
-  await expect(dialog.getByRole('button')).toHaveText(['Close'])
+  await expect(dialog.getByRole('button')).toHaveText(['Close', 'Save preferences', 'Accept analytics', 'Necessary only'])
   await expect(dialog.getByRole('link')).toHaveText(['Read Cookie Policy'])
   const close = dialog.getByRole('button', {name: 'Close'})
   const policy = dialog.getByRole('link', {name: 'Read Cookie Policy'})

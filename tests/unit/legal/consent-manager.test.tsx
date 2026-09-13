@@ -9,7 +9,9 @@ import {
 } from '@/components/sites/tio2-my/consent/malaysia-cookie-settings'
 import {
   CONSENT_KEY,
+  CONSENT_VERSION,
   LEGACY_CONSENT_KEY,
+  createMalaysiaConsentRecord,
   readMalaysiaConsentChoice,
   removeMalaysiaAnalyticsCookies,
 } from '@/lib/consent/malaysia-consent'
@@ -19,6 +21,15 @@ import approved from '@/wordpress/plugins/tio2-site-model/config/tio2-my-legal-p
 afterEach(() => {cleanup(); localStorage.clear(); delete window.__TIO2_SHARED_CONSENT__; delete window.dataLayer; vi.restoreAllMocks()})
 
 describe('SHARED-CONSENT-TIO2-MY', () => {
+  it('persists the exact site-scoped active consent record with an ISO decision time', () => {
+    expect(createMalaysiaConsentRecord('analytics_accepted', new Date('2026-09-13T02:00:00.000Z'))).toEqual({
+      site_scope: 'tio2-my',
+      consent_version: CONSENT_VERSION,
+      choice: 'analytics_accepted',
+      decided_at: '2026-09-13T02:00:00.000Z',
+    })
+  })
+
   it('activates the exact GA4 first-layer copy only with both runtime identifiers', () => {
     const active = consentCopy.getMalaysiaConsentCopy({
       NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID: 'GTM-ABC1234',
@@ -34,7 +45,11 @@ describe('SHARED-CONSENT-TIO2-MY', () => {
     expect(consentCopy.getMalaysiaConsentCopy({
       NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID: 'GTM-ABC1234',
       NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID: 'G-1A2B3C4D5E',
-    }).analyticsActive).toBe(false)
+    }).analyticsActive).toBe(true)
+    expect(consentCopy.getMalaysiaConsentCopy({
+      NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID: 'GTM-ABC1234',
+      NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID: 'G-1A2B3C4D5E',
+    }, false).analyticsActive).toBe(false)
   })
 
   it('defaults every Google signal to denied and never grants advertising states', () => {
@@ -84,7 +99,9 @@ describe('SHARED-CONSENT-TIO2-MY', () => {
 
     await waitFor(() => expect(window.__TIO2_SHARED_CONSENT__).toEqual({siteScope: 'tio2-my', analytics: 'denied'}))
     expect(readMalaysiaConsentChoice()).toBe('necessary_only')
-    expect(JSON.parse(localStorage.getItem(CONSENT_KEY)!)).toMatchObject({version: 1, choice: 'necessary_only'})
+    expect(JSON.parse(localStorage.getItem(CONSENT_KEY)!)).toMatchObject({
+      site_scope: 'tio2-my', consent_version: CONSENT_VERSION, choice: 'necessary_only',
+    })
     expect(Array.from(window.dataLayer![0] as unknown as ArrayLike<unknown>)).toEqual([
       'consent', 'default', approved.consent.googleDefaults,
     ])
@@ -128,17 +145,33 @@ it('allows acceptance and withdrawal only with the active approved copy', () => 
   expect(screen.getByRole('checkbox', {name: 'Allow analytics'}).getAttribute('checked')).not.toBeNull()
   fireEvent.click(screen.getByRole('button', {name: 'Necessary only'}))
   expect(window.__TIO2_SHARED_CONSENT__).toEqual({siteScope:'tio2-my',analytics:'denied'})
-  expect(JSON.parse(localStorage.getItem(CONSENT_KEY)!)).toMatchObject({version:1,choice:'necessary_only'})
+  expect(JSON.parse(localStorage.getItem(CONSENT_KEY)!)).toMatchObject({
+    site_scope: 'tio2-my', consent_version: CONSENT_VERSION, choice: 'necessary_only',
+  })
+  expect(JSON.parse(localStorage.getItem(CONSENT_KEY)!).decided_at).toMatch(/^\d{4}-\d{2}-\d{2}T/u)
 })
 
 it('migrates the valid legacy choice to the legal canonical key', () => {
   localStorage.setItem(LEGACY_CONSENT_KEY, JSON.stringify({version: 1, choice: 'analytics_accepted'}))
   expect(readMalaysiaConsentChoice()).toBe('analytics_accepted')
-  expect(JSON.parse(localStorage.getItem(CONSENT_KEY)!)).toMatchObject({
-    version: 1,
-    choice: 'analytics_accepted',
+  expect(JSON.parse(localStorage.getItem(CONSENT_KEY)!)).toEqual({
+    site_scope: 'tio2-my', consent_version: CONSENT_VERSION,
+    choice: 'analytics_accepted', decided_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/u),
   })
   expect(localStorage.getItem(LEGACY_CONSENT_KEY)).toBeNull()
+})
+
+it('ignores foreign-scope and unsupported-version records', () => {
+  localStorage.setItem(CONSENT_KEY, JSON.stringify({
+    site_scope: 'tio2-a', consent_version: CONSENT_VERSION,
+    choice: 'analytics_accepted', decided_at: '2026-09-13T02:00:00.000Z',
+  }))
+  expect(readMalaysiaConsentChoice()).toBe('necessary_only')
+  localStorage.setItem(CONSENT_KEY, JSON.stringify({
+    site_scope: 'tio2-my', consent_version: 'future-version',
+    choice: 'analytics_accepted', decided_at: '2026-09-13T02:00:00.000Z',
+  }))
+  expect(readMalaysiaConsentChoice()).toBe('necessary_only')
 })
 
 it('withdrawal removes only the two known GA cookie names', () => {

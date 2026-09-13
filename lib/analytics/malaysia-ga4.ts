@@ -16,8 +16,13 @@ export interface MalaysiaAnalyticsConfig {
 const GTM_ID = /^GTM-[A-Z0-9]{6,}$/u
 const GA4_ID = /^G-[A-Z0-9]{8,}$/u
 
+export const MALAYSIA_PUBLIC_ANALYTICS_ENV: MalaysiaAnalyticsEnvironment = {
+  NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID: process.env.NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID,
+  NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID: process.env.NEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID,
+}
+
 export function readMalaysiaAnalyticsConfig(
-  env: MalaysiaAnalyticsEnvironment = process.env,
+  env: MalaysiaAnalyticsEnvironment = MALAYSIA_PUBLIC_ANALYTICS_ENV,
 ): MalaysiaAnalyticsConfig | null {
   const gtmContainerId = env[MALAYSIA_GTM_ENV]?.trim().toUpperCase() ?? ''
   const ga4MeasurementId = env[MALAYSIA_GA4_ENV]?.trim().toUpperCase() ?? ''

@@ -13,6 +13,25 @@ const sources = approved.pages.map((page, index) => ({
 }))
 
 describe('Legal page metadata and Schema', () => {
+  it('activates one exact GA4/GTM legal state across English, BM and Cookie surfaces', () => {
+    expect(approved.releaseState).toBe('verified_google_analytics_active')
+    expect(approved.releaseControls.optionalAnalyticsAuthorized).toBe(true)
+    expect(new Set(approved.pages.map((page) => page.releaseState))).toEqual(new Set(['verified_google_analytics_active']))
+    expect(new Set(approved.pages.map((page) => page.effectiveDate))).toEqual(new Set(['2026-09-13']))
+
+    const [en, bm, cookie] = approved.pages.map((page) => page.buyerVisibleMarkdown)
+    for (const copy of [en, bm, cookie]) {
+      expect(copy).toContain('Google Analytics')
+      expect(copy).toContain('Google Tag Manager')
+      expect(copy).not.toMatch(/No optional Analytics technology is active|tidak dianggap sebagai perkhidmatan aktif|not currently active/iu)
+    }
+    expect(en).toContain('We do not send names, email addresses, telephone numbers, company names, free-text inquiry content or form submissions to Google Analytics.')
+    expect(bm).toContain('Kami tidak menghantar nama, alamat e-mel, nombor telefon, nama syarikat, kandungan pertanyaan dalam teks bebas atau penghantaran borang kepada Google Analytics.')
+    expect(cookie).toContain('`tio2_my_consent_v1`')
+    expect(cookie).toContain('`_ga_QDHLMRH2WB`')
+    expect(cookie).not.toMatch(/\[FINAL_|\[GATE_|\[PROPERTY_/u)
+  })
+
   it('emits exact canonical and reciprocal Privacy hreflang while preview stays noindex', () => {
     const [en, ms, cookie] = toMalaysiaLegalPagesDto(sources)
     const site = getSiteConfig('tio2-my')
@@ -30,9 +49,9 @@ describe('Legal page metadata and Schema', () => {
   it('emits only visible-copy-equivalent WebPage and BreadcrumbList nodes', () => {
     const pages = toMalaysiaLegalPagesDto(sources)
     const expected = [
-      {inLanguage: 'en', dateModified: '2026-09-05'},
-      {inLanguage: 'ms-MY', dateModified: '2026-09-05'},
-      {inLanguage: 'en', dateModified: '2026-09-02'},
+      {inLanguage: 'en', dateModified: '2026-09-13'},
+      {inLanguage: 'ms-MY', dateModified: '2026-09-13'},
+      {inLanguage: 'en', dateModified: '2026-09-13'},
     ]
     pages.forEach((page, index) => {
       const graph = buildMalaysiaLegalPageJsonLd(getSiteConfig('tio2-my'), page)['@graph'] as Array<Record<string, unknown>>
