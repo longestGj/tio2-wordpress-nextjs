@@ -1,0 +1,166 @@
+{
+  "version": 1,
+  "textMaxCodePoints": 100000,
+  "contentArrayMin": 1,
+  "contentArrayMax": 32,
+  "notes": "Independent technical schema. Every object key is required; unknown input keys are omitted. $text is bounded plain text; $tracking is 1–160 ASCII letters/digits/dot/underscore/colon/hyphen, starting with a letter or digit; $alt permits empty decorative alt. $ref merges explicit overrides. $members fixes relationship membership by $key (arrays as keys are sets), preserving input display order. Market code and application symbol are fixed category badges; countLabel is display text. Footer is legacy unconsumed input. Text limits are safety bounds, not layout guarantees.",
+  "definitions": {
+    "chrome": {"contractId":"GLOBAL-CHROME-005","logoManifestId":"TIO2MY-PRODUCTION-SVG-LOGO-MANIFEST-01"},
+    "section": {"eyebrow":"$text","heading":"$text","intro":"$text"},
+    "summary": {"title":"$text","description":"$text"},
+    "card": {"title":"$text","description":"$text","ctaLabel":"$text"},
+    "homeAction": {"label":"$text"},
+    "rfq": {"label":"$text","targetPageId":"CONV-RFQ","href":"/request-a-quote/"},
+    "homeRfq": {"$ref":"rfq","mappingState":"PLANNED_CONVERSION"},
+    "homeProducts": {"label":"$text","targetPageId":"PRODUCT-000","href":"/products/","mappingState":"APPROVED"},
+    "homeMarkets": {"label":"$text","targetPageId":"MARKET-000","href":"/markets/","mappingState":"APPROVED"},
+    "grade": {},
+    "evaluation": {"title":"$text","body":"$text"},
+    "support": {"title":"$text","body":"$text","actionLabel":"$text"},
+    "application": {"title":"$text","scope":"$text","gradeLabel":"$text"}
+  },
+  "pages": {
+    "HOME-001": {
+      "packageId":"$tracking",
+      "identity":{"pageId":"HOME-001","siteScope":"tio2-my","locale":"en","path":"/","schemaVersion":"homepage-v0.4-malaysia","lifecycle":"APPROVED_FOR_HANDOFF"},
+      "seo":{"title":"$text","description":"$text","canonical":"https://tio2malaysia.com/","robots":"index, follow","h1":"$text","primaryKeyword":"$text"},
+      "schemaGraph": {
+        "@context":"https://schema.org",
+        "@graph":{"$key":"@id","$item":{},"$members":[
+          {"@type":"WebSite","@id":"https://tio2malaysia.com/#website","url":"https://tio2malaysia.com/","name":"$text","inLanguage":"en","publisher":{"@id":"https://tio2malaysia.com/#organization"}},
+          {"@type":"WebPage","@id":"https://tio2malaysia.com/#webpage","url":"https://tio2malaysia.com/","name":"$text","isPartOf":{"@id":"https://tio2malaysia.com/#website"},"about":{"$key":"@id","$item":{},"$members":[{"@id":"https://tio2malaysia.com/#brand"},{"@id":"https://tio2malaysia.com/#organization"},{"@id":"https://tio2malaysia.com/#titanium-dioxide"}]},"inLanguage":"en"},
+          {"@type":"Organization","@id":"https://tio2malaysia.com/#organization","name":"$text"},
+          {"@type":"Brand","@id":"https://tio2malaysia.com/#brand","name":"$text"},
+          {"@type":"Product","@id":"https://tio2malaysia.com/#titanium-dioxide","name":"$text","description":"$text","brand":{"@id":"https://tio2malaysia.com/#brand"},"manufacturer":{"@id":"https://tio2malaysia.com/#organization"}}
+        ]}
+      },
+      "globalChromeRef":{"$ref":"chrome"},
+      "hero":{"eyebrow":"$text","heading":"$text","body":"$text","primaryCta":{"$ref":"homeRfq"},"secondaryCta":{"$ref":"homeProducts"},"media":{"src":"/tio2-my/homepage-hero-material-reference.png","alt":"$alt","width":1122,"height":1402,"role":"ATMOSPHERE_ONLY","assetState":"CLEARANCE_REQUIRED"}},
+      "startHere":{"label":"$text","intro":"$text","items":{"$key":"targetPageId","$item":{"$ref":"summary"},"$members":[
+        {"targetPageId":"MARKET-000","href":"/markets/","mappingState":"APPROVED"},
+        {"targetPageId":"PRODUCT-000","href":"/products/","mappingState":"APPROVED"},
+        {"targetPageId":"DOC-000","href":"/documents/","mappingState":"PLANNED_ARCHITECTURE"}
+      ]}},
+      "markets":{"$ref":"section","items":{"$key":"targetPageId","$item":{"$ref":"card"},"$members":[
+        {"targetPageId":"MARKET-EU-001","code":"EU","href":"/markets/european-union/","mappingState":"APPROVED"},
+        {"targetPageId":"MARKET-UK-001","code":"UK","href":"/markets/united-kingdom/","mappingState":"APPROVED"},
+        {"targetPageId":"MARKET-IN-001","code":"IN","href":"/markets/india/","mappingState":"APPROVED"},
+        {"targetPageId":"MARKET-BR-EN","code":"BR","href":"/markets/brazil/","mappingState":"APPROVED"}
+      ]},"sectionCta":{"$ref":"homeMarkets"}},
+      "products":{"$ref":"section","countLabel":"$text","groups":{"$key":"gradeIds","$item":{"$ref":"summary"},"$members":[
+        {"gradeIds":{"$values":["M-350","M-510","M-896","M-996","M-2196","M-895"]}},
+        {"gradeIds":{"$values":["M-200","M-108","M-210","M-340","M-886"]}},
+        {"gradeIds":{"$values":["M-52","M-2377"]}},
+        {"gradeIds":{"$values":["CR-901"]}}
+      ]},"processLinks":{"$key":"targetPageId","$item":{"$ref":"homeAction"},"$members":[
+        {"targetPageId":"PRODUCT-PROC-CL","href":"/products/chloride-process-titanium-dioxide/","mappingState":"APPROVED"},
+        {"targetPageId":"PRODUCT-PROC-SU","href":"/products/sulfate-process-titanium-dioxide/","mappingState":"APPROVED"}
+      ]},"primaryCta":{"$ref":"homeProducts"}},
+      "applications":{"$ref":"section","items":{"$key":"targetPageId","$item":{"$ref":"card"},"$members":[
+        {"targetPageId":"APP-COAT","symbol":"C","href":"/applications/titanium-dioxide-for-coatings/","mappingState":"PROVISIONAL_URL"},
+        {"targetPageId":"APP-PLAS","symbol":"P","href":"/applications/titanium-dioxide-for-plastics/","mappingState":"PROVISIONAL_URL"},
+        {"targetPageId":"APP-MB","symbol":"M","href":"/applications/titanium-dioxide-for-masterbatch/","mappingState":"PROVISIONAL_URL"},
+        {"targetPageId":"APP-INK","symbol":"I","href":"/applications/titanium-dioxide-for-printing-inks/","mappingState":"PROVISIONAL_URL"},
+        {"targetPageId":"APP-PAPER","symbol":"P","href":"/applications/titanium-dioxide-for-paper/","mappingState":"PROVISIONAL_URL"}
+      ]}},
+      "company":{"eyebrow":"$text","heading":"$text","body":"$text","cta":{"label":"$text","targetPageId":"ABOUT-001","href":"/about/","mappingState":"APPROVED"},"entityName":"$text","summaries":{"$list":{"$ref":"summary"}}},
+      "documents":{"$ref":"section","items":{"$key":"targetPageId","$item":{"$ref":"card"},"$members":[
+        {"targetPageId":"DOC-000","href":"/documents/","mappingState":"PLANNED_ARCHITECTURE"},
+        {"targetPageId":"CONV-DOC","href":"/request-documents/","mappingState":"PLANNED_CONVERSION"}
+      ]}},
+      "resources":{"$ref":"section","topics":{"$key":"targetPageId","$item":{"$ref":"card"},"$members":[
+        {"targetPageId":"RES-ORIGIN","href":"/resources/non-china-titanium-dioxide/","mappingState":"APPROVED"},
+        {"targetPageId":"RES-PROC","href":"/resources/chloride-vs-sulfate-titanium-dioxide/","mappingState":"PAGE_AND_ROUTE_NOT_APPROVED"}
+      ]},"answers":{"$key":"cta.targetPageId","$item":{"question":"$text","answer":"$text"},"$members":[
+        {"cta":{"$ref":"homeMarkets"}}, {"cta":{"$ref":"homeProducts"}}, {"cta":{"$ref":"homeRfq"}}
+      ]}},
+      "pageRfq":{"eyebrow":"$text","heading":"$text","body":"$text","fieldSummaries":{"$list":"$text"},"cta":{"$ref":"homeRfq"}},
+      "responsive":{"mobileMaxWidth":767,"desktopTabletPageRfq":true,"mobilePageRfq":false,"mobileProductGroupsCollapsed":true}
+    },
+    "APP-000": {
+      "reviewId":"$tracking",
+      "identity":{"pageId":"APP-000","siteScope":"tio2-my","locale":"en","path":"/applications/","pageType":"application_hub","schemaVersion":"application-hub-v0.1-malaysia","contentRevision":"$tracking"},
+      "releaseControls":{"indexingAuthorized":false,"sitemapAuthorized":false},
+      "seo":{"title":"$text","description":"$text","canonical":"https://tio2malaysia.com/applications/","language":"en"},
+      "globalChromeRef":{"$ref":"chrome"},
+      "breadcrumb":{"$key":"targetPageId","$item":{"label":"$text"},"$members":[{"targetPageId":"HOME-001","href":"/"},{"targetPageId":"APP-000","href":"/applications/"}]},
+      "hero":{"h1":"$text","intro":"$text","primaryAction":{"label":"$text","href":"#application-selector"},"rfq":{"$ref":"rfq"},"selectorLabel":"$text"},
+      "applicationPaths":{"anchorId":"application-selector","heading":"$text","qualification":"$text","sentences":{"both":"$text","gradesOnly":"$text","applicationsOnly":"$text"}},
+      "applications":{"$key":"key","$item":{"$ref":"application"},"$members":[
+        {"key":"COAT","anchorId":"application-coatings","targetPageId":"APP-COAT","actionLabel":"$text","href":"/applications/titanium-dioxide-for-coatings/","grades":{"$key":"edgeId","$item":{},"$members":[
+          {"edgeId":"APP000-EDGE-COAT-01","gradeId":"M-350","targetPageId":"GRADE-M350","href":"/products/m-350/"},
+          {"edgeId":"APP000-EDGE-COAT-02","gradeId":"M-510","targetPageId":"GRADE-M510","href":"/products/m-510/"},
+          {"edgeId":"APP000-EDGE-COAT-03","gradeId":"M-896","targetPageId":"GRADE-M896","href":"/products/m-896/"},
+          {"edgeId":"APP000-EDGE-COAT-04","gradeId":"M-996","targetPageId":"GRADE-M996","href":"/products/m-996/"},
+          {"edgeId":"APP000-EDGE-COAT-05","gradeId":"M-2196","targetPageId":"GRADE-M2196","href":"/products/m-2196/"},
+          {"edgeId":"APP000-EDGE-COAT-06","gradeId":"M-895","targetPageId":"GRADE-M895","href":"/products/m-895/"},
+          {"edgeId":"APP000-EDGE-COAT-07","gradeId":"M-52","targetPageId":"GRADE-M52","href":"/products/m-52/"},
+          {"edgeId":"APP000-EDGE-COAT-08","gradeId":"M-2377","targetPageId":"GRADE-M2377","href":"/products/m-2377/"}
+        ]}},
+        {"key":"PLAS","anchorId":"application-plastics","targetPageId":"APP-PLAS","actionLabel":"$text","href":"/applications/titanium-dioxide-for-plastics/","grades":{"$key":"edgeId","$item":{},"$members":[
+          {"edgeId":"APP000-EDGE-PLAS-01","gradeId":"M-350","targetPageId":"GRADE-M350","href":"/products/m-350/"},
+          {"edgeId":"APP000-EDGE-PLAS-02","gradeId":"M-510","targetPageId":"GRADE-M510","href":"/products/m-510/"},
+          {"edgeId":"APP000-EDGE-PLAS-03","gradeId":"M-200","targetPageId":"GRADE-M200","href":"/products/m-200/"},
+          {"edgeId":"APP000-EDGE-PLAS-04","gradeId":"M-108","targetPageId":"GRADE-M108","href":"/products/m-108/"},
+          {"edgeId":"APP000-EDGE-PLAS-05","gradeId":"M-210","targetPageId":"GRADE-M210","href":"/products/m-210/"},
+          {"edgeId":"APP000-EDGE-PLAS-06","gradeId":"M-340","targetPageId":"GRADE-M340","href":"/products/m-340/"},
+          {"edgeId":"APP000-EDGE-PLAS-07","gradeId":"M-886","targetPageId":"GRADE-M886","href":"/products/m-886/"},
+          {"edgeId":"APP000-EDGE-PLAS-08","gradeId":"M-2377","targetPageId":"GRADE-M2377","href":"/products/m-2377/"}
+        ]}},
+        {"key":"MB","anchorId":"application-masterbatch","targetPageId":"APP-MB","actionLabel":"$text","href":"/applications/titanium-dioxide-for-masterbatch/","grades":{"$key":"edgeId","$item":{},"$members":[
+          {"edgeId":"APP000-EDGE-MB-01","gradeId":"M-510","targetPageId":"GRADE-M510","href":"/products/m-510/"},
+          {"edgeId":"APP000-EDGE-MB-02","gradeId":"M-200","targetPageId":"GRADE-M200","href":"/products/m-200/"},
+          {"edgeId":"APP000-EDGE-MB-03","gradeId":"M-108","targetPageId":"GRADE-M108","href":"/products/m-108/"},
+          {"edgeId":"APP000-EDGE-MB-04","gradeId":"M-210","targetPageId":"GRADE-M210","href":"/products/m-210/"},
+          {"edgeId":"APP000-EDGE-MB-05","gradeId":"M-340","targetPageId":"GRADE-M340","href":"/products/m-340/"},
+          {"edgeId":"APP000-EDGE-MB-06","gradeId":"M-886","targetPageId":"GRADE-M886","href":"/products/m-886/"},
+          {"edgeId":"APP000-EDGE-MB-07","gradeId":"M-2377","targetPageId":"GRADE-M2377","href":"/products/m-2377/"}
+        ]}},
+        {"key":"INK","anchorId":"application-printing-inks","targetPageId":"APP-INK","actionLabel":"$text","href":"/applications/titanium-dioxide-for-printing-inks/","grades":{"$key":"edgeId","$item":{},"$members":[
+          {"edgeId":"APP000-EDGE-INK-01","gradeId":"M-350","targetPageId":"GRADE-M350","href":"/products/m-350/"},
+          {"edgeId":"APP000-EDGE-INK-02","gradeId":"M-510","targetPageId":"GRADE-M510","href":"/products/m-510/"},
+          {"edgeId":"APP000-EDGE-INK-03","gradeId":"M-52","targetPageId":"GRADE-M52","href":"/products/m-52/"},
+          {"edgeId":"APP000-EDGE-INK-04","gradeId":"M-2377","targetPageId":"GRADE-M2377","href":"/products/m-2377/"}
+        ]}},
+        {"key":"PAPER","anchorId":"application-paper","targetPageId":"APP-PAPER","actionLabel":"$text","href":"/applications/titanium-dioxide-for-paper/","grades":{"$key":"edgeId","$item":{},"$members":[
+          {"edgeId":"APP000-EDGE-PAPER-01","gradeId":"M-350","targetPageId":"GRADE-M350","href":"/products/m-350/"},
+          {"edgeId":"APP000-EDGE-PAPER-02","gradeId":"M-2377","targetPageId":"GRADE-M2377","href":"/products/m-2377/"}
+        ]}},
+        {"key":"SPECIALTY","anchorId":"application-specialty-materials","grades":{"$key":"edgeId","$item":{},"$members":[
+          {"edgeId":"APP000-EDGE-SPEC-01","gradeId":"CR-901","targetPageId":"GRADE-CR901","href":"/products/cr-901/"}
+        ]}}
+      ]},
+      "evaluation":{"heading":"$text","items":{"$list":{"$ref":"evaluation"}}},
+      "support":{"heading":"$text","items":{"$key":"targetPageId","$item":{"$ref":"support"},"$members":[
+        {"targetPageId":"PRODUCT-000","href":"/products/"},{"targetPageId":"DOC-000","href":"/documents/"},{"targetPageId":"MARKET-000","href":"/markets/"}
+      ]}},
+      "finalRfq":{"heading":"$text","body":"$text","note":"$text","action":{"$ref":"rfq"}},
+      "routeRegistry":{"$key":"targetPageId","$item":{},"$members":[
+        {"targetPageId":"HOME-001","href":"/","behavior":"required"},
+        {"targetPageId":"CONV-RFQ","href":"/request-a-quote/","behavior":"conditional"},
+        {"targetPageId":"APP-COAT","href":"/applications/titanium-dioxide-for-coatings/","behavior":"conditional"},
+        {"targetPageId":"APP-PLAS","href":"/applications/titanium-dioxide-for-plastics/","behavior":"conditional"},
+        {"targetPageId":"APP-MB","href":"/applications/titanium-dioxide-for-masterbatch/","behavior":"conditional"},
+        {"targetPageId":"APP-INK","href":"/applications/titanium-dioxide-for-printing-inks/","behavior":"conditional"},
+        {"targetPageId":"APP-PAPER","href":"/applications/titanium-dioxide-for-paper/","behavior":"conditional"},
+        {"targetPageId":"PRODUCT-000","href":"/products/","behavior":"conditional"},
+        {"targetPageId":"DOC-000","href":"/documents/","behavior":"conditional"},
+        {"targetPageId":"MARKET-000","href":"/markets/","behavior":"conditional"},
+        {"targetPageId":"GRADE-M350","href":"/products/m-350/","behavior":"conditional-grade"},
+        {"targetPageId":"GRADE-M510","href":"/products/m-510/","behavior":"conditional-grade"},
+        {"targetPageId":"GRADE-M896","href":"/products/m-896/","behavior":"conditional-grade"},
+        {"targetPageId":"GRADE-M996","href":"/products/m-996/","behavior":"conditional-grade"},
+        {"targetPageId":"GRADE-M2196","href":"/products/m-2196/","behavior":"conditional-grade"},
+        {"targetPageId":"GRADE-M895","href":"/products/m-895/","behavior":"conditional-grade"},
+        {"targetPageId":"GRADE-M200","href":"/products/m-200/","behavior":"conditional-grade"},
+        {"targetPageId":"GRADE-M108","href":"/products/m-108/","behavior":"conditional-grade"},
+        {"targetPageId":"GRADE-M210","href":"/products/m-210/","behavior":"conditional-grade"},
+        {"targetPageId":"GRADE-M340","href":"/products/m-340/","behavior":"conditional-grade"},
+        {"targetPageId":"GRADE-M886","href":"/products/m-886/","behavior":"conditional-grade"},
+        {"targetPageId":"GRADE-M52","href":"/products/m-52/","behavior":"conditional-grade"},
+        {"targetPageId":"GRADE-M2377","href":"/products/m-2377/","behavior":"conditional-grade"},
+        {"targetPageId":"GRADE-CR901","href":"/products/cr-901/","behavior":"conditional-grade"}
+      ]}
+    }
+  }
+}

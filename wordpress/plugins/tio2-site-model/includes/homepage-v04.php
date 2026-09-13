@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 require_once __DIR__.'/content-release-validation.php';
+require_once __DIR__.'/home-application-read-contract.php';
 
 if (! defined('ABSPATH')) {
     exit;
@@ -68,6 +69,22 @@ function tio2_validate_homepage_v04_contract(int $post_id)
     return true;
 }
 
+/** Published reads and existing authorized draft preview consumers share identity guards, never approval guards.
+ * @return array|WP_Error
+ */
+function tio2_validate_homepage_v04_read_record(int $post_id, string $mode = 'published')
+{
+    $identity = tio2_validate_homepage_record_identity($post_id);
+    if (is_wp_error($identity)) return $identity;
+    $status = ['published' => 'publish', 'preview' => 'draft'][$mode] ?? null;
+    $scopes = wp_get_post_terms($post_id, 'site_scope', ['fields' => 'slugs']);
+    if ($status === null || get_post_status($post_id) !== $status || $identity['siteId'] !== 'tio2-my' || $identity['schemaVersion'] !== 'homepage-v0.4-malaysia' || $scopes !== ['tio2-my']) {
+        return new WP_Error('tio2_my_homepage_read_identity', 'Invalid Malaysia Homepage read identity or status.');
+    }
+    $stored = get_post_meta($post_id, TIO2_MY_HOMEPAGE_CONTRACT_META, true);
+    return tio2_my_home_application_read_content(is_string($stored) ? json_decode($stored) : null, 'HOME-001');
+}
+
 /** @param mixed $source */
 function tio2_resolve_malaysia_homepage_contract_json($source): ?string
 {
@@ -77,12 +94,11 @@ function tio2_resolve_malaysia_homepage_contract_json($source): ?string
     if (! $post instanceof WP_Post || 'tio2_homepage' !== $post->post_type) {
         return null;
     }
-    $validation = tio2_validate_homepage_contract((int) $post->ID);
+    $validation = tio2_validate_homepage_v04_read_record((int) $post->ID);
     if (is_wp_error($validation) || 'tio2-my' !== tio2_get_homepage_site_id((int) $post->ID)) {
         return null;
     }
-    $json = get_post_meta((int) $post->ID, TIO2_MY_HOMEPAGE_CONTRACT_META, true);
-    return is_string($json) && '' !== $json ? $json : null;
+    return wp_json_encode($validation);
 }
 
 function tio2_register_homepage_v04_graphql_field(): void
@@ -100,12 +116,10 @@ function tio2_serialize_homepage_v04_preview(WP_Post $post, string $site_id): ar
     if ('tio2-my' !== $site_id) {
         return [];
     }
+    $content = tio2_validate_homepage_v04_read_record((int) $post->ID, 'preview');
+    if (is_wp_error($content)) return [];
     $payload = tio2_serialize_homepage_preview($post, $site_id);
-    $payload['malaysiaHomepageContractJson'] = (string) get_post_meta(
-        (int) $post->ID,
-        TIO2_MY_HOMEPAGE_CONTRACT_META,
-        true
-    );
+    $payload['malaysiaHomepageContractJson'] = wp_json_encode($content);
     return $payload;
 }
 

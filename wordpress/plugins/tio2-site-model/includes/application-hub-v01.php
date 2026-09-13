@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 require_once __DIR__.'/content-release-validation.php';
+require_once __DIR__.'/home-application-read-contract.php';
 
 if (! defined('ABSPATH')) {
     exit;
@@ -77,6 +78,29 @@ function tio2_validate_application_hub_v01_contract(int $post_id)
     return true;
 }
 
+/** @return array|WP_Error */
+function tio2_validate_application_hub_v01_read_record(int $post_id)
+{
+    $post = get_post($post_id);
+    $scopes = wp_get_post_terms($post_id, 'site_scope', ['fields' => 'slugs']);
+    if (!$post instanceof WP_Post || $post->post_type !== 'tio2_application_hub' || $post->post_status !== 'publish' ||
+        wp_is_post_revision($post_id) || wp_is_post_autosave($post_id) || $scopes !== ['tio2-my'] ||
+        $post->post_name !== 'tio2-my-applications' || get_post_meta($post_id, 'public_path', true) !== '/applications') {
+        return new WP_Error('tio2_my_application_hub_read_identity', 'Invalid Malaysia Application Hub read identity or status.');
+    }
+    $ids = get_posts(['post_type' => 'tio2_application_hub', 'post_status' => ['publish','future','draft','pending','private','auto-draft','trash'], 'fields' => 'ids', 'numberposts' => -1, 'suppress_filters' => false]);
+    $owners = array_values(array_filter(array_map('intval', $ids), static function (int $id): bool {
+        $candidate_scopes = wp_get_post_terms($id, 'site_scope', ['fields' => 'slugs']);
+        return get_post_field('post_name', $id) === 'tio2-my-applications' ||
+            (get_post_meta($id, 'public_path', true) === '/applications' && is_array($candidate_scopes) && in_array('tio2-my', $candidate_scopes, true));
+    }));
+    if ($owners !== [$post_id] || tio2_find_managed_route_post_ids('tio2-my', '/applications') !== []) {
+        return new WP_Error('tio2_my_application_hub_read_duplicate', 'Ambiguous Malaysia Application Hub route ownership.');
+    }
+    $stored = get_post_meta($post_id, TIO2_MY_APPLICATION_HUB_CONTRACT_META, true);
+    return tio2_my_home_application_read_content(is_string($stored) ? json_decode($stored) : null, 'APP-000');
+}
+
 /** @return array<string, bool> */
 function tio2_my_application_hub_route_readiness(array $contract): array
 {
@@ -103,10 +127,10 @@ function tio2_resolve_malaysia_application_hub_record_json(): string
         throw new \GraphQL\Error\UserError(0 === count($ids) ? 'The Malaysia Application Hub record is missing.' : 'Multiple Malaysia Application Hub records were found.');
     }
     $post_id = (int) $ids[0];
-    $validation = tio2_validate_application_hub_v01_contract($post_id);
+    $validation = tio2_validate_application_hub_v01_read_record($post_id);
     if (is_wp_error($validation)) throw new \GraphQL\Error\UserError('The Malaysia Application Hub record failed scope or contract validation.');
-    $contract_json = get_post_meta($post_id, TIO2_MY_APPLICATION_HUB_CONTRACT_META, true);
-    $contract = is_string($contract_json) ? json_decode($contract_json, true) : null;
+    $contract = $validation;
+    $contract_json = wp_json_encode($contract);
     if (! is_string($contract_json) || '' === $contract_json || ! is_array($contract)) {
         throw new \GraphQL\Error\UserError('The Malaysia Application Hub record has no approved contract payload.');
     }

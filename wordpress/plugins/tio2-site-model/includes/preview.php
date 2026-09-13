@@ -723,7 +723,9 @@ function tio2_preview_rest_response(WP_REST_Request $request)
         }
         $homepage = get_post((int) $homepage_ids[0]);
         $validation = $homepage instanceof WP_Post
-            ? tio2_validate_homepage_contract((int) $homepage->ID)
+            ? ('tio2-my' === $site_id
+                ? tio2_validate_homepage_v04_read_record((int) $homepage->ID, 'preview')
+                : tio2_validate_homepage_contract((int) $homepage->ID))
             : new WP_Error('tio2_preview_not_found');
         if (
             ! $homepage instanceof WP_Post ||

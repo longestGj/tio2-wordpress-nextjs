@@ -1,5 +1,4 @@
-import {matchesInstalledContent} from './content-release-validation'
-import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json'
+import {validateMalaysiaHomepageReadContent} from './home-application-read-contract'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
 import {HomepageContractError, HomepageVersionError} from './homepage-dto'
@@ -68,14 +67,13 @@ export function toMalaysiaHomepageDto(
   if (typeof contractJson !== 'string' || !contractJson.trim()) {
     throw new HomepageContractError('malaysiaHomepageContractJson')
   }
-  let contract: typeof approvedContract
+  let contract
   try {
-    contract = JSON.parse(contractJson) as typeof approvedContract
+    contract = validateMalaysiaHomepageReadContent(JSON.parse(contractJson))
   } catch {
     throw new HomepageContractError('malaysiaHomepageContractJson')
   }
   if (
-    !matchesInstalledContent(contract, approvedContract) ||
     contract.globalChromeRef.contractId !== globalChrome.contractId ||
     contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId
   ) {

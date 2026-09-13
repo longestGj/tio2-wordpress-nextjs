@@ -78,9 +78,9 @@ function tio2_editorial_target_record_ready(string $json,string $href): bool {
         ($record['publishingFields']['publicPath']??null)===rtrim($href,'/');
 }
 function tio2_editorial_homepage_target_ready(): bool {
-    if(!function_exists('tio2_find_homepage_ids') || !function_exists('tio2_validate_homepage_v04_contract')) return false;
+    if(!function_exists('tio2_find_homepage_ids') || !function_exists('tio2_validate_homepage_v04_read_record')) return false;
     $ids=array_values(array_filter(tio2_find_homepage_ids('tio2-my',false),static fn(int $id):bool=>get_post_status($id)==='publish'));
-    return count($ids)===1 && !is_wp_error(tio2_validate_homepage_v04_contract((int)$ids[0]));
+    return count($ids)===1 && !is_wp_error(tio2_validate_homepage_v04_read_record((int)$ids[0]));
 }
 function tio2_editorial_page_target_ready(string $page_id,string $href): bool {
     $identity=tio2_editorial_identity($page_id);
