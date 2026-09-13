@@ -115,6 +115,8 @@ def enrollment(subject):
     return record
 
 def load_baselines(subject,state,candidate):
+    from analytics_config_update import assert_update_closed
+    assert_update_closed(subject,state)
     from adoption_probe import LocalSnapshotSource,read_cms_scope
     from release_actions import SubprocessCommandRunner
     from release_baseline import _validate_record,validate_registered_ingress
@@ -191,8 +193,11 @@ def prepare(context):
             phase=previous.get('phase')
             require(phase in {'activated','rolled-back'},'previous frontend slot is not terminal')
             if previous.get('target' if phase=='activated' else 'old') != baseline['record']:
-                from cms_frontend_transition import validate_transition
-                details['cmsInstallationTransition'] = validate_transition(subject,state,previous,baseline['record'])
+                if 'frontendEnrollmentSha256' in state.get('details', {}):
+                    details['configurationUpdateTransition'] = validate_previous_frontend(subject,state,baseline['record'])
+                else:
+                    from cms_frontend_transition import validate_transition
+                    details['cmsInstallationTransition'] = validate_transition(subject,state,previous,baseline['record'])
             inactive=previous.get('old' if phase=='activated' else 'target')
             if inactive is not None:details['previousBaseline']=inactive
     install_source(subject,source)
@@ -272,8 +277,12 @@ def validate_previous_frontend(subject,state,record):
         and journal.get('binding')=={key:details.get(key) for key in BINDING_FIELDS}
         and journal.get('backup')==details.get('frontendBackup'),'previous frontend journal mismatch')
     phase='activated' if state['state']=='COMPLETED' else 'rolled-back'
-    require(state['state'] in {'COMPLETED','ROLLED_BACK'} and journal.get('phase')==phase
-        and record==journal.get('target' if phase=='activated' else 'old'),'previous active frontend changed')
+    require(state['state'] in {'COMPLETED','ROLLED_BACK'} and journal.get('phase')==phase,
+            'previous active frontend changed')
+    old = journal.get('target' if phase=='activated' else 'old')
+    if record != old:
+        from analytics_config_update import validate_update
+        return validate_update(subject,state,old,record)
 
 def validate_next_ingress(subject,prepared,fresh,record):
     from copy import deepcopy
