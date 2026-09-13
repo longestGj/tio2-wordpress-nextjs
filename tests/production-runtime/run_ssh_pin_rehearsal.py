@@ -1,6 +1,7 @@
-"""Real loopback OpenSSH pins, lost receipts and isolated backup recovery.
+"""Real loopback OpenSSH pins, lost responses and backup receipt recovery.
 
-Root release states are synthetic; lost-backup recovery uses real age and Docker.
+Root release states are synthetic; backup creation uses real age and Docker.
+Lost-backup recovery saves the server receipt without local download or restore.
 The frontend runner separately exercises the real release controller.
 """
 import hashlib, io, json, os, socket, sys, tarfile, time, uuid
@@ -97,7 +98,7 @@ def run():
         else:private.chmod(0o600)
         ex('sh','-c','cat > /home/deploy/.ssh/authorized_keys; chown -R deploy:deploy /home/deploy/.ssh; chmod 600 /home/deploy/.ssh/authorized_keys',data=ex('cat','/root/client.pub'))
         ex('sh','-c','cat > /root/sshd.conf',data=b'Port 22\nListenAddress 0.0.0.0\nHostKey /root/host\nPasswordAuthentication no\nKbdInteractiveAuthentication no\nPubkeyAuthentication yes\nPermitRootLogin no\nAllowUsers deploy\nUsePAM no\nSubsystem sftp internal-sftp\n')
-        ex('sh','-c','cat > /etc/sudoers.d/d16-fixture; chmod 440 /etc/sudoers.d/d16-fixture',data=(ROOT/'ops/production/server/sudoers.tio2-release').read_bytes())
+        ex('sh','-c','cat > /etc/sudoers.d/d16-fixture; chmod 440 /etc/sudoers.d/d16-fixture',data=(ROOT/'ops/production/server/sudoers.tio2-release').read_text(encoding='utf-8').encode('utf-8'))
         ex('/usr/sbin/visudo','-cf','/etc/sudoers.d/d16-fixture')
         binding={'releaseId':'transport-B','subject':'tio2-my','releaseType':'frontend-only','sourceCommit':'b'*40,'candidateManifestSha256':'c'*64,'previousProductionReceipt':'A','adapterVersion':'site-frontend-v1','runRoot':'.production/runs/transport-B','transactionSha256':'d'*64,'cmsEvidenceSha256':'e'*64,'requestId':'11111111-1111-4111-8111-111111111111'}
         ex('sh','-c','cat > /root/wire-state.json',data=json.dumps({'state':'PREPARED','details':binding}).encode())
@@ -197,18 +198,13 @@ print(json.dumps(receipt))
         assert recovered.returncode==0,recovered.stderr.decode(errors='replace')
         assert json.loads(recovered.stdout)['state']['state']=='BACKED_UP'
         assert json.loads((case/'frontend-backup.json').read_bytes())==backup
-        with (case/'ciphertext.age').open('rb') as stream:assert hashlib.file_digest(stream,'sha256').hexdigest()==backup['ciphertextSha256']
-        restore=json.loads((case/'frontend-restore.json').read_bytes())
-        assert restore==json.loads(ex('cat','/home/deploy/tio2-incoming/frontend-restore.json'))
-        assert all(restore.get(key) is True for key in ('verified','fullArchiveRead','isolated','cleanupVerified'))
-        assert restore['binding']==backup['binding'] and restore['buildId']==backup['active']['buildId'] and restore['imageId']==image_id
-        assert restore['health']['status']==200 and restore['health']['bytes']>0
-        assert restore['manifestSha256']==backup['manifestSha256'] and restore['ciphertextSha256']==backup['ciphertextSha256']
+        assert not (case/'ciphertext.age').exists(), 'Daily backup downloaded ciphertext'
+        assert not (case/'frontend-restore.json').exists(), 'Daily backup generated restore evidence'
         assert ex('cat','/root/wire-state.json')==before and (case/'backup-request.json').read_bytes()==request
         actions=ex('cat','/root/wire-actions').decode().splitlines()[offset:]
         assert actions==['status','backup','status','status','status'],actions
         result['cases'].append({'case':'ssh-killed-after-persistent-backup','state':'PASSED','remoteActions':actions,'backupId':backup['backupId'],'serverBackupCalls':actions.count('backup'),
-                                'ageRuntime':{'imageId':RUNTIME_IMAGE,'version':prepared['ageVersion']},'restore':restore})
+                                'ageRuntime':{'imageId':RUNTIME_IMAGE,'version':prepared['ageVersion']},'localReceipt':backup,'localRestorePerformed':False})
         result['remoteActions']=ex('cat','/root/wire-actions').decode().splitlines();result['passed']=True
         (folder/'sshd.log').write_bytes(ex('cat','/root/sshd.log'))
     finally:
