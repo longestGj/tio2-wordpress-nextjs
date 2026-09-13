@@ -163,5 +163,5 @@ test('renders the 13 September Trade fact closure on all four pages and the Reso
 test('serves the exact GSC HTML ownership token from the site root', async ({request}) => {
   const response = await request.get(new URL('/googleaa2e91750b47f47a.html', baseUrl).href)
   expect(response.status()).toBe(200)
-  expect(await response.body()).toEqual(Buffer.from('google-site-verification: googleaa2e91750b47f47a.html\n'))
+  expect(await response.body()).toEqual(Buffer.from('google-site-verification: googleaa2e91750b47f47a.html'))
 })
