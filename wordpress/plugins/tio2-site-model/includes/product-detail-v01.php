@@ -198,7 +198,8 @@ function tio2_validate_product_detail_v01_contract(int $post_id)
         ! (
             'PREVIEW_ONLY' === get_post_meta($post_id, TIO2_MY_ROUTE_RELEASE_STATE_META, true) ||
             ('LIVE_APPROVED' === get_post_meta($post_id, TIO2_MY_ROUTE_RELEASE_STATE_META, true) &&
-                tio2_my_product_detail_local_candidate_ready($identity))
+                ('production' === wp_get_environment_type() ||
+                    tio2_my_product_detail_local_candidate_ready($identity)))
         )
     ) {
         return new WP_Error('tio2_my_product_detail_invalid_route', 'The Product Detail route identity is invalid.');

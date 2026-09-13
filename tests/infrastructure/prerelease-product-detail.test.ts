@@ -2,7 +2,7 @@ import {spawnSync} from 'node:child_process'
 import {resolve} from 'node:path'
 import {expect, it} from 'vitest'
 
-it('accepts the fourteen local candidate grades while preserving production, tuple, scope and payload guards', () => {
+it('accepts fourteen local and production grades while preserving tuple, scope and payload guards', () => {
   const php = `<?php
 define('ABSPATH','/plugin');
 define('TIO2_MY_ROUTE_PAGE_ID_META','page');define('TIO2_MY_ROUTE_CANONICAL_META','canonical');define('TIO2_MY_ROUTE_RELEASE_STATE_META','state');
@@ -16,14 +16,14 @@ function get_post_meta($id,$key,$single){return $GLOBALS['meta'][$key]??null;}
 function get_post_field($field,$id){return $GLOBALS['slug'];}
 require '/plugin/includes/product-detail-v01.php';
 $out=[];$grades=tio2_my_product_detail_approved_grades();
-foreach($grades as $grade){
- $GLOBALS['env']='local';$GLOBALS['scope']=['tio2-my'];$GLOBALS['slug']=$grade['internal_slug'];
+foreach(['local','production'] as $environment){foreach($grades as $grade){
+ $GLOBALS['env']=$environment;$GLOBALS['scope']=['tio2-my'];$GLOBALS['slug']=$grade['internal_slug'];
  $GLOBALS['meta']=['page'=>$grade['page_id'],'canonical'=>$grade['canonical'],'state'=>'LIVE_APPROVED','public_path'=>$grade['public_path'],TIO2_MY_PRODUCT_DETAIL_CONTRACT_META=>$grade['contract_json']];
- $v=tio2_validate_product_detail_v01_contract(1);$out[$grade['page_id']]=is_wp_error($v)?$v->code:$v;
-}
+ $v=tio2_validate_product_detail_v01_contract(1);$out[$grade['page_id'].'-'.$environment]=is_wp_error($v)?$v->code:$v;
+}}
 $baseline=$GLOBALS['meta'];$baselineSlug=$GLOBALS['slug'];
 foreach(['preview','production','staging','wrong_state','wrong_page','wrong_path','wrong_canonical','wrong_slug','wrong_scope','wrong_payload'] as $case){
- $GLOBALS['meta']=$baseline;$GLOBALS['env']='local';$GLOBALS['scope']=['tio2-my'];$GLOBALS['slug']=$baselineSlug;
+ $GLOBALS['meta']=$baseline;$GLOBALS['env']='production';$GLOBALS['scope']=['tio2-my'];$GLOBALS['slug']=$baselineSlug;
  if($case==='preview'){$GLOBALS['meta']['state']='PREVIEW_ONLY';$GLOBALS['env']='production';}
  if(in_array($case,['production','staging'],true))$GLOBALS['env']=$case;
  if($case==='wrong_state')$GLOBALS['meta']['state']='UNKNOWN';
@@ -40,10 +40,11 @@ echo json_encode($out);`
   expect(result.status, result.stderr).toBe(0)
   const output = JSON.parse(result.stdout)
   const approved = Object.entries(output).filter(([key]) => key.startsWith('GRADE-'))
-  expect(approved).toHaveLength(14)
-  expect(approved.map(([, value]) => value)).toEqual(Array(14).fill(true))
+  expect(approved).toHaveLength(28)
+  expect(approved.map(([, value]) => value)).toEqual(Array(28).fill(true))
   expect(output.preview).toBe(true)
-  for (const key of ['production','staging','wrong_state','wrong_path','wrong_canonical','wrong_slug']) expect(output[key], key).toBe('tio2_my_product_detail_invalid_route')
+  expect(output.production).toBe(true)
+  for (const key of ['staging','wrong_state','wrong_path','wrong_canonical','wrong_slug']) expect(output[key], key).toBe('tio2_my_product_detail_invalid_route')
   expect(output.wrong_page).toBe('tio2_my_product_detail_invalid_identity')
   expect(output.wrong_scope).toBe('tio2_my_product_detail_invalid_scope')
   expect(output.wrong_payload).toBe('tio2_my_product_detail_contract_mismatch')
