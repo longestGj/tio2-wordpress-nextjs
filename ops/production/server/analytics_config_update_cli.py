@@ -43,7 +43,9 @@ def observation(registry, subject, old):
     _validate_record(current, subject, None, None)
     runner = SubprocessCommandRunner()
     wp = next(c['id'] for c in old['runtime']['containers'] if c['role'] == 'wordpress')
-    scope = read_cms_scope(runner, wp)
+    # Sampling time changes on every read; it is evidence metadata, not runtime
+    # identity. Keep every other field under the transaction's exact comparison.
+    scope = {key:value for key,value in read_cms_scope(runner, wp).items() if key != 'observedAt'}
     enrolled = read(subject.configuration/'frontend-enrollment.json')
     expected = enrolled['cmsEvidence']
     require(scope['siteScope'] == 'tio2-my' and scope['publishedRecords'] == expected['published_records'] and
