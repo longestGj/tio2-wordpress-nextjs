@@ -188,11 +188,10 @@ function tio2_legal_page_read_public_contract(int $post_id)
     if ($maximum < 1) return new WP_Error('tio2_my_legal_read_text_limit', 'The Legal page text limit is invalid.');
 
     foreach (['pageId', 'routeKey', 'path', 'locale'] as $field) {
-        if (($stored[$field] ?? null) !== ($route[$field] ?? null)) return new WP_Error('tio2_my_legal_read_identity', 'The Legal page identity is invalid.');
+        if (! array_key_exists($field, $stored) || $stored[$field] !== $route[$field]) return new WP_Error('tio2_my_legal_read_identity', 'The Legal page identity is invalid.');
     }
-    if (($stored['pageType'] ?? null) !== ($contract['pageType'] ?? null)
-        || ($stored['headerCurrentKey'] ?? '__missing__') !== ($contract['headerCurrentKey'] ?? '__missing__')) {
-        return new WP_Error('tio2_my_legal_read_identity', 'The Legal page identity is invalid.');
+    foreach (['pageType', 'headerCurrentKey'] as $field) {
+        if (! array_key_exists($field, $stored) || $stored[$field] !== $contract[$field]) return new WP_Error('tio2_my_legal_read_identity', 'The Legal page identity is invalid.');
     }
 
     $date = tio2_my_legal_read_text($stored['effectiveDate'] ?? null, 'effectiveDate', $maximum);

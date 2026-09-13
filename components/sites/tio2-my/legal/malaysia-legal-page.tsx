@@ -53,7 +53,12 @@ function MarkdownBody({markdown}: {readonly markdown: string}) {
     if (lines.length >= 2 && lines[0]?.startsWith('|') && /^\|[\s:|-]+\|$/.test(lines[1]!)) {
       const cells = (line: string) => line.slice(1, -1).split('|').map((cell) => cell.trim())
       const headers = cells(lines[0])
-      return <div className={styles.tableWrap} key={index}><table><thead><tr>{headers.map((header) => <th scope="col" key={header}>{header}</th>)}</tr></thead><tbody>{lines.slice(2).map((line) => <tr key={line}>{cells(line).map((cell, cellIndex) => <td key={`${cellIndex}-${cell}`} data-label={headers[cellIndex]}>{inline(cell)}</td>)}</tr>)}</tbody></table></div>
+      const followingProse = lines.slice(2).findIndex((line) => !/^\|.*\|$/.test(line))
+      const tableEnd = followingProse === -1 ? lines.length : followingProse + 2
+      return <Fragment key={index}>
+        <div className={styles.tableWrap}><table><thead><tr>{headers.map((header) => <th scope="col" key={header}>{header}</th>)}</tr></thead><tbody>{lines.slice(2, tableEnd).map((line) => <tr key={line}>{cells(line).map((cell, cellIndex) => <td key={`${cellIndex}-${cell}`} data-label={headers[cellIndex]}>{inline(cell)}</td>)}</tr>)}</tbody></table></div>
+        {tableEnd < lines.length ? <p>{inline(lines.slice(tableEnd).join('\n'))}</p> : null}
+      </Fragment>
     }
     return <p key={index}>{inline(chunk)}</p>
   })

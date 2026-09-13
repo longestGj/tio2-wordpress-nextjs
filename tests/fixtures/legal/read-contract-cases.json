@@ -65,6 +65,21 @@
       "expected": "reject"
     },
     {
+      "name": "rejects missing nullable header identity",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "delete", "path": ["headerCurrentKey"]}
+      ],
+      "expected": "reject"
+    },
+    {
+      "name": "accepts explicit null header identity",
+      "mutations": [
+        {"target": "contract", "recordIndex": 0, "operation": "set", "path": ["headerCurrentKey"], "value": null}
+      ],
+      "expected": "accept",
+      "expectedOutputText": "Privacy Policy"
+    },
+    {
       "name": "rejects unregistered public path",
       "mutations": [
         {"target": "source", "recordIndex": 0, "operation": "set", "path": ["publishingFields", "publicPath"], "value": "/terms"}

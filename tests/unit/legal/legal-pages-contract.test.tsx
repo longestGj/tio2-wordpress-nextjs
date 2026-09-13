@@ -204,6 +204,20 @@ describe('Legal/Privacy approved page contract', () => {
     expect(within(container).getAllByRole('button', {name: /manage cookie settings/i})).toHaveLength(2)
   })
 
+  it('renders a delivered table and complete prose immediately after its final row', () => {
+    const markdown = '# Updated policy\n\n**Last updated: 14 September 2026**\n\nIntroduction from the CMS.\n\n## Details\n\n| Field | Value |\n| --- | --- |\n| A | B |\nPublished final sentence.'
+    const page = toMalaysiaLegalPagesDto(sourceWithMarkdown(markdown))[0]!
+
+    render(<MalaysiaLegalPage page={page} />)
+
+    expect(screen.getByRole('columnheader', {name: 'Field'})).toBeTruthy()
+    expect(screen.getByRole('columnheader', {name: 'Value'})).toBeTruthy()
+    expect(screen.getByRole('cell', {name: 'A'})).toBeTruthy()
+    expect(screen.getByRole('cell', {name: 'B'})).toBeTruthy()
+    expect(screen.getByRole('table').querySelectorAll('tbody tr')).toHaveLength(1)
+    expect(screen.getByText('Published final sentence.', {selector: 'p'})).toBeTruthy()
+  })
+
   it('rejects an action line that would hide later section prose', () => {
     const markdown = '# Policy\n\n**Last updated: 14 September 2026**\n\nIntroduction.\n\nActions: **CONTACT US ABOUT PRIVACY**\n\n## Details\n\nBody before action.\n\nActions: **CONTACT US ABOUT PRIVACY**\n\nBody after action must not disappear.'
 
