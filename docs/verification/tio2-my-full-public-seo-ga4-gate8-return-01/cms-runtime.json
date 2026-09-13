@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-13T01:13:59.6974975+00:00",
+  "siteScope": "tio2-my",
+  "runtime": "http://127.0.0.1:8280",
+  "tradeRecords": [
+    {
+      "pageId": "RES-TRADE-EU",
+      "status": "publish",
+      "reviewDate": "2026-09-13"
+    },
+    {
+      "pageId": "RES-TRADE-UK",
+      "status": "publish",
+      "reviewDate": "2026-09-13"
+    },
+    {
+      "pageId": "RES-TRADE-IN",
+      "status": "publish",
+      "reviewDate": "2026-09-13"
+    },
+    {
+      "pageId": "RES-TRADE-BR",
+      "status": "publish",
+      "reviewDate": "2026-09-13"
+    }
+  ],
+  "resourceHubValid": true
+}

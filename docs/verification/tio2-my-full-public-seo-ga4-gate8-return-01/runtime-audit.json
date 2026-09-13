@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "siteId": "tio2-my",
+  "implementationCommit": "1bbcd0910c67d328e69afac5a78c034194ff764c",
+  "buildId": "tio2-my-seo-ga4-1bbcd091",
+  "runtime": "http://127.0.0.1:3123",
+  "cmsRuntime": "http://127.0.0.1:8280",
+  "checkedAt": "2026-09-13T01:07:11.743Z",
+  "checks": {
+    "homeStatus": 200,
+    "consent": {
+      "status": "Necessary only; Analytics unavailable",
+      "analyticsCheckbox": 0,
+      "acceptButton": 0,
+      "saveButton": 0,
+      "withdrawButton": 0,
+      "storedChoice": "necessary_only",
+      "sharedAnalytics": "denied",
+      "googleRequestCount": 0
+    },
+    "trade": [
+      {
+        "path": "/resources/eu-titanium-dioxide-anti-dumping-duty/",
+        "status": 200,
+        "lastReviewed": true
+      },
+      {
+        "path": "/resources/uk-titanium-dioxide-anti-dumping-investigation/",
+        "status": 200,
+        "lastReviewed": true
+      },
+      {
+        "path": "/resources/india-titanium-dioxide-anti-dumping-duty/",
+        "status": 200,
+        "lastReviewed": true
+      },
+      {
+        "path": "/resources/brazil-titanium-dioxide-anti-dumping-duty/",
+        "status": 200,
+        "lastReviewed": true
+      }
+    ],
+    "resourceHub": {
+      "status": 200,
+      "reviewed13September": true
+    },
+    "gsc": {
+      "status": 200,
+      "bytes": 53,
+      "sha256": "23C09B78F763724DDDB0470B133ACC3F3D2129B663209E6B8007C290D2B0B32D",
+      "exact": true
+    },
+    "sitemap": {
+      "status": 200,
+      "urlCount": 57
+    },
+    "missing": {
+      "status": 404,
+      "canonicalCount": 0
+    }
+  }
+}
