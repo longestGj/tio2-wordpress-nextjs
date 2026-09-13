@@ -6,6 +6,8 @@
 - Base: `f5386a5ac57dd82ebcfe2c21557709e30b347215`.
 - Reviewed implementation: `e11d0b424404ab3cbf7eda44a8be1f021fa2072c`.
 - Branch: `codex/fix-upgrade-status-comparison`.
+- Status: `MERGED_TO_DEVELOP`; merge `acce162f9da194b8f505784bd33035bf16be000a`.
+- Merged-checkout regression: 4 tests passed (10.909 seconds).
 
 ## Cause and correction
 
