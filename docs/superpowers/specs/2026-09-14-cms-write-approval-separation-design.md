@@ -1,6 +1,6 @@
 # W3-A1 补充设计：CMS 技术写入与内容批准分离
 
-日期：2026-09-14。状态：用户已同意对话中的职责方案；本文为正式化设计，待用户审查后编写实施计划。不是实现完成、内容批准或发布授权。
+日期：2026-09-14。状态：用户已确认正式设计；后续工作见[实施计划](../plans/2026-09-14-cms-write-approval-separation.md)。不是实现完成、内容批准或发布授权。
 
 工作区：`D:/16Wordpress_nextjs/.worktrees/cms-responsibility-audit`；分支：`codex/cms-responsibility-audit`；设计起点：`7011e406`。开发基线 `develop` 为 `a526d6ca178f2fe31ecdca24484ae0c3259242fc`，实施前重新核对。
 
