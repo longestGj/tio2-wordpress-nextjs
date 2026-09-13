@@ -1,0 +1,6 @@
+Branch: codex/tio2-my-full-public-seo-ga4
+Implementation commit: e0fa4fd1c3513bf90c7160a85b781f19650981ee
+Build directory: .next-gate8-full-public-seo-ga4
+Build ID: tio2-my-seo-ga4-e0fa4fd1
+Runtime: http://127.0.0.1:3123
+Site scope: tio2-my

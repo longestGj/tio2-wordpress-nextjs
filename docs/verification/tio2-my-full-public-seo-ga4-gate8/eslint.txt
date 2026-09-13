@@ -1,0 +1,3 @@
+Command: npx eslint -- <changed TypeScript files>
+Files checked: 83
+Exit code: 0
