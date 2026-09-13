@@ -27,7 +27,11 @@ def exercise(env):
     sha=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
     result=env['result'];low=env['low'];old=env['old']
     with patch('subject_registry.load_registry',return_value=registry),patch('release_controller.load_registry',return_value=registry):
-        observed=assemble_installation_enrollment(subject,old,dict(ok=True,content=True,status=True,seo=True,sitemap=True,contentSha256='7'*64),digest(read_state(state_root)))
+        from deployment_core import tree
+        resources={'wordpressContainer':env['wordpress'],'pluginSource':str(env['plugin']),
+                   'importerImage':env['images']['wordpress']['Id']}
+        observed=assemble_installation_enrollment(subject,old,dict(ok=True,content=True,status=True,seo=True,sitemap=True,contentSha256='7'*64),
+                    digest(read_state(state_root)),resources=resources,resource_evidence={'pluginFiles':tree(env['plugin'])})
         for name,key in [('cms-platform-enrollment.json','cmsPlatform'),('frontend-enrollment.json','frontend'),('baseline.json','baseline')]:
             atomic_write_json(subject.configuration/name,observed[key])
         def dispatch(name):

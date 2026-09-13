@@ -323,9 +323,17 @@ def outer(args):
             {'name': name, 'sourceId': image['Id'], 'material': {key: image[key] for key in ('Config', 'RootFS', 'Os', 'Architecture')}}
             for name, image in zip(image_names, inspected_images)]), encoding='utf-8')
         shutil.copyfile(__file__, inputs / 'rehearsal.py')
-        shutil.copytree(root / 'ops/production/server', inputs / 'server', ignore=shutil.ignore_patterns('__pycache__'))
-        # The development code snapshot is frozen once, with every tested hash
-        # in the receipt. Content artifact still comes exclusively from Git.
+        (inputs/'server').mkdir()
+        frozen=command('git','-C',str(root),'archive',args.revision,'ops/production/server').stdout
+        with tarfile.open(fileobj=io.BytesIO(frozen)) as sources:
+            for member in sources.getmembers():
+                if member.isdir():continue
+                prefix='ops/production/server/'
+                relative=member.name.removeprefix(prefix)
+                if not member.isfile() or not member.name.startswith(prefix) or '/' in relative or relative in {'','..'}:
+                    raise RuntimeError('unexpected committed server file')
+                (inputs/'server'/relative).write_bytes(sources.extractfile(member).read())
+        # Both the installed program and CMS artifact use exact committed bytes.
         spec = importlib.util.spec_from_file_location('backend_fixture_builder', root / 'ops/production/build_content_install_bundle.py')
         builder = importlib.util.module_from_spec(spec); spec.loader.exec_module(builder)
         artifact = builder.build(args.revision, inputs / 'install.tar.gz')
@@ -347,7 +355,7 @@ def outer(args):
                 sys.stderr.write(result.stderr.decode(errors='replace'))
                 raise RuntimeError('actual backend orchestration rehearsal failed')
             receipt = json.loads(result.stdout)
-            receipt['helperSource'] = 'frozen development worktree snapshot; per-file hashes recorded'
+            receipt['helperSource'] = 'exact committed revision; per-file hashes recorded'
             receipt['runtimeImages'] = image_ids
             receipt['harnessSha256'] = digest((inputs / 'rehearsal.py').read_bytes())
             if args.output: Path(args.output).write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8')

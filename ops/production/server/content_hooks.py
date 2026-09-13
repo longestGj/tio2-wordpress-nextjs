@@ -55,7 +55,7 @@ def validate_config(config):
         raise ReleaseError('content hooks Host invalid')
     if not isinstance(config['pages'],dict) or not config['pages']: raise ReleaseError('page verification map missing')
     for page_id,page in config['pages'].items():
-        if not re.fullmatch(r'[A-Z][A-Z0-9-]{0,95}',page_id) or not isinstance(page,dict) or not {'path','fields','robots','sitemap'} <= set(page) or set(page)-{'path','fields','robots','sitemap','canonical'}:
+        if not re.fullmatch(r'[A-Z][A-Z0-9-]{0,95}',page_id) or not isinstance(page,dict) or not {'path','fields','robots','sitemap'} <= set(page) or set(page)-{'path','fields','robots','sitemap','canonical','publishedSeo'}:
             raise ReleaseError('page verification map invalid')
         if 'canonical' in page:
             url=urlsplit(page['canonical'])
@@ -66,6 +66,18 @@ def validate_config(config):
             raise ReleaseError('page verification route invalid')
         if not isinstance(page['fields'],list) or not page['fields'] or not all(isinstance(x,str) and re.fullmatch(r'[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*',x) for x in page['fields']):
             raise ReleaseError('visible field verification map missing')
+        if 'publishedSeo' in page:
+            seo=page['publishedSeo']
+            required={'title','description','canonical','contentSeoSha256'}
+            if (not isinstance(seo,dict) or not required <= set(seo)
+                    or set(seo)-required-{'openGraphTitle'}
+                    or not all(isinstance(v,str) and v for v in seo.values())
+                    or not re.fullmatch('[a-f0-9]{64}',seo['contentSeoSha256'])):
+                raise ReleaseError('published SEO registration invalid')
+            url=urlsplit(seo['canonical'])
+            if (url.scheme not in {'http','https'} or url.netloc!=config['publicHost']
+                    or url.query or url.fragment or (url.path.rstrip('/') or '/')!=(path.rstrip('/') or '/')):
+                raise ReleaseError('published SEO canonical registration invalid')
     return config
 
 
@@ -105,6 +117,33 @@ class Page(HTMLParser):
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs): return None
+
+
+def legal_visible_fragments(markdown):
+    """Probe the restricted legal renderer's text, including every body line.
+
+    This is not a Markdown renderer: it extracts the exact inline forms used by
+    malaysia-legal-page.tsx, leaving unsupported punctuation intact to fail closed.
+    """
+    def inline(value):
+        def replace(match):
+            token=match.group()
+            if token.startswith('**'):return token[2:-2]
+            if token.startswith('`'):return token[1:-1]
+            return token[1:token.index('](')]
+        return re.sub(r'\*\*[^*]+\*\*|\[[^\]\n]+\]\([^)\n]+\)|`[^`]+`',replace,value)
+    fragments=[]
+    for line in markdown.replace('\r\n','\n').replace('\r','\n').split('\n'):
+        if not line.strip():continue
+        if re.fullmatch(r'\|[\s:|-]+\|',line):continue
+        if re.match(r'^(Actions|Tindakan):',line):
+            fragments.extend(inline(x.strip()) for x in line.split(':',1)[1].split('\u00b7') if x.strip())
+        elif line.startswith('|') and line.endswith('|'):
+            fragments.extend(inline(x.strip()) for x in line[1:-1].split('|') if x.strip())
+        elif re.match(r'^#{1,3} ',line):fragments.append(line.split(' ',1)[1])
+        else:fragments.append(inline(line[2:] if line.startswith('- ') else line))
+    if not fragments:raise ReleaseError('legal content has no visible text')
+    return fragments
 
 
 class ContentHooks:
@@ -244,9 +283,18 @@ ksort($files);echo json_encode($files,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNIC
             probe=self.config['pages'].get(record['pageId'])
             if not probe: raise ReleaseError('page verification not enrolled')
             status,body=self.request(self.config['internalOrigin'],probe['path'])
-            if status!=200: raise ReleaseError('page status verification failed')
+            if status!=200: raise ReleaseError('page status verification failed: '+record['pageId']+' HTTP '+str(status))
             page=Page(body);content=record['content'];seo=content.get('seo',{})
-            seo={**seo,'description':seo.get('description',seo.get('meta_description')),'canonical':seo.get('canonical',probe.get('canonical'))}
+            if 'publishedSeo' in probe:
+                # Root enrollment freezes the frontend's publication metadata and
+                # the unmodified CMS SEO it was reviewed against. A later content
+                # SEO edit cannot silently pass against that old registration.
+                registered=probe['publishedSeo']
+                if hashlib.sha256(canonical(seo)).hexdigest()!=registered['contentSeoSha256']:
+                    raise ReleaseError('content SEO differs from publication registration')
+                seo=registered
+            else:
+                seo={**seo,'description':seo.get('description',seo.get('meta_description')),'canonical':seo.get('canonical',probe.get('canonical'))}
             if probe.get('canonical') and canonical_url(seo['canonical'])!=canonical_url(probe['canonical']): raise ReleaseError('page canonical input differs from registration')
             if not all(isinstance(seo.get(x),str) and seo[x] for x in ('title','description','canonical')): raise ReleaseError('page SEO input missing')
             if normalize(''.join(page.titles))!=normalize(seo['title']) or page.meta.get('description')!=seo['description'] or not page.links.get('canonical') or canonical_url(page.links['canonical'])!=canonical_url(seo['canonical']):
@@ -268,7 +316,8 @@ ksort($files);echo json_encode($files,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNIC
                 except (KeyError,IndexError,ValueError,TypeError) as error: raise ReleaseError('visible field unavailable') from error
                 if not isinstance(expected,str) or not expected: raise ReleaseError('visible field must be nonempty text')
                 if field=='bodyHtml': expected=' '.join(Page(expected).parts)
-                if normalize(expected) not in visible: raise ReleaseError('visible page content verification failed')
+                fragments=legal_visible_fragments(expected) if field=='buyerVisibleMarkdown' else [expected]
+                if any(normalize(part) not in visible for part in fragments): raise ReleaseError('visible page content verification failed')
         return dict(ok=True,content=True,status=True,seo=True,sitemap=True,contentSha256=package['contentSha256'])
 
 

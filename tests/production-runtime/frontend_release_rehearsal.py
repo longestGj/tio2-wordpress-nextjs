@@ -115,6 +115,7 @@ def inside(root, run_id):
         environment = ('SITE_ID=tio2-my\nNEXT_PUBLIC_SITE_URL=https://tio2malaysia.com\nWORDPRESS_MEDIA_ORIGIN=https://cms.tio2malaysia.com\n'
                        'WORDPRESS_DB_HOST=db\nWORDPRESS_DB_NAME=fixture\nWORDPRESS_DB_USER=wordpress\nWORDPRESS_DB_PASSWORD='+password+'\n'
                        'WORDPRESS_EDITORIAL_API_TOKEN=fixture-local-build-value\nNEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY=fixture-local-public-value\n'
+                       'NEXT_PUBLIC_TIO2_MY_GTM_CONTAINER_ID=GTM-TEST123\nNEXT_PUBLIC_TIO2_MY_GA4_MEASUREMENT_ID=G-TEST123456\n'
                        'NEXTJS_REVALIDATION_URL_TIO2_MY=http://web:3000/api/revalidate\nNEXTJS_PREVIEW_URL_TIO2_MY=http://web:3000/api/preview\n'
                        "WORDPRESS_CONFIG_EXTRA=define('DISABLE_WP_CRON', true);\n")
         write(config/'environment', environment)

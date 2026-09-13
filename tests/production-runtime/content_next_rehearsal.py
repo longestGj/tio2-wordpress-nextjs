@@ -7,6 +7,7 @@ import argparse
 import copy
 import hashlib
 import hmac
+import io
 from html import unescape
 from html.parser import HTMLParser
 import json
@@ -19,6 +20,7 @@ import socket
 import subprocess
 import sys
 import tempfile
+import tarfile
 import threading
 import time
 import urllib.request
@@ -30,6 +32,24 @@ from uuid import uuid4
 from content_rehearsal import ROOT, RehearsalRuntime, docker
 from content_release import ContentRelease, canonical, validate_package
 from release_contract import ReleaseError
+
+
+def git_snapshot(target,subdirectory=None):
+    revision=os.environ.get('D16_REHEARSAL_REVISION')
+    if not revision:return False
+    if not re.fullmatch('[a-f0-9]{40}',revision):raise ReleaseError('exact rehearsal revision required')
+    raw=subprocess.check_output(['git','archive',revision,*([subdirectory] if subdirectory else [])],cwd=ROOT)
+    target=Path(target).resolve();target.mkdir(parents=True,exist_ok=True)
+    with tarfile.open(fileobj=io.BytesIO(raw)) as archive:
+        for member in archive.getmembers():
+            if member.isdir():continue
+            if subdirectory and not member.name.startswith(subdirectory+'/'):raise ReleaseError('unexpected snapshot prefix')
+            name=member.name[len(subdirectory)+1:] if subdirectory else member.name
+            destination=(target/name).resolve()
+            if not member.isfile() or not destination.is_relative_to(target):raise ReleaseError('unsafe snapshot member')
+            destination.parent.mkdir(parents=True,exist_ok=True)
+            destination.write_bytes(archive.extractfile(member).read())
+    return True
 
 
 class Page(HTMLParser):
@@ -96,13 +116,14 @@ class NextRuntime(RehearsalRuntime):
         super().__init__(config,directory,''); self.secret=secrets.token_hex(32); self.gate_owner=None
         self.checks=[]; self.next=None; self.server=None; self.log=log
         self.dist='.next-real-content-'+secrets.token_hex(5)
-        self.runtime_root=ROOT/'.tmp'/self.dist
+        self.runtime_root=Path(os.environ.get('D16_REHEARSAL_WORK_ROOT',str(ROOT/'.tmp')))/self.dist
         self.runtime_root.mkdir(parents=True,exist_ok=False)
-        tracked=subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode().split('\0')
-        for relative in filter(None,tracked):
-            source=ROOT/relative; target=self.runtime_root/relative
-            if source.is_symlink():raise ReleaseError('runtime snapshot does not accept symlink source')
-            target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
+        if not git_snapshot(self.runtime_root):
+            tracked=subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode().split('\0')
+            for relative in filter(None,tracked):
+                source=ROOT/relative; target=self.runtime_root/relative
+                if source.is_symlink():raise ReleaseError('runtime snapshot does not accept symlink source')
+                target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
         with socket.socket() as reservation:
             reservation.bind(('127.0.0.1',0)); self.port=reservation.getsockname()[1]
         info=json.loads(docker('inspect',config['wordpressContainer']))[0]
@@ -110,6 +131,7 @@ class NextRuntime(RehearsalRuntime):
         self.wp='http://127.0.0.1:'+wp_port
         binary=subprocess.check_output(['node','-p',"require.resolve('next/dist/bin/next')"],cwd=self.runtime_root,text=True).strip()
         env={**os.environ,'SITE_ID':'tio2-my','WORDPRESS_GRAPHQL_URL':self.wp+'/?graphql',
+             'WORDPRESS_EDITORIAL_API_TOKEN':(Path(directory)/'editorial-secret').read_text(),
              'NEXT_DIST_DIR':self.dist,'REVALIDATION_SECRET':self.secret,'NEXT_TELEMETRY_DISABLED':'1',
              'NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY':''}
         print('Building isolated Next snapshot against actual cloned WPGraphQL',flush=True)
@@ -198,6 +220,8 @@ def main(package_path=None, runtime_class=NextRuntime):
     resources=[]; backend=None
     with tempfile.TemporaryDirectory(prefix=token) as temporary:
         directory=Path(temporary); password=secrets.token_hex(24); app_password=secrets.token_hex(24)
+        editorial_secret=secrets.token_hex(32)
+        (directory/'editorial-secret').write_text(editorial_secret)
         try:
             print('Copying local prerelease inputs read-only; all writes use '+token,flush=True)
             plugins=directory/'plugins'; plugins.mkdir()
@@ -205,8 +229,10 @@ def main(package_path=None, runtime_class=NextRuntime):
             old_plugin=(plugins/'tio2-site-model').resolve()
             assert old_plugin.parent==plugins.resolve() and old_plugin.name=='tio2-site-model'
             shutil.rmtree(old_plugin)
-            shutil.copytree(ROOT/'wordpress/plugins/tio2-site-model',plugins/'tio2-site-model')
-            release=directory/'release';shutil.copytree(ROOT/'wordpress/release',release)
+            if not git_snapshot(plugins/'tio2-site-model','wordpress/plugins/tio2-site-model'):
+                shutil.copytree(ROOT/'wordpress/plugins/tio2-site-model',plugins/'tio2-site-model')
+            release=directory/'release'
+            if not git_snapshot(release,'wordpress/release'):shutil.copytree(ROOT/'wordpress/release',release)
             dump=docker('exec','d16-tio2-my-prerelease-db-1','sh','-c',
                 'exec mariadb-dump -uroot -p"$MARIADB_ROOT_PASSWORD" --single-transaction --skip-comments "$MARIADB_DATABASE"')
             if b'CREATE TABLE' not in dump:raise ReleaseError('local prerelease database dump missing')
@@ -224,6 +250,7 @@ def main(package_path=None, runtime_class=NextRuntime):
             else:raise ReleaseError('isolated database did not start')
             docker('exec','-i',names['db'],'mariadb','--defaults-extra-file=/run/secrets/admin.cnf','wordpress',data=dump);del dump
             common=['--network',names['network'],'-e','WORDPRESS_DB_HOST='+names['db'],'-e','WORDPRESS_DB_NAME=wordpress',
+                '-e','EDITORIAL_API_TOKEN='+editorial_secret,
                 '-e','WORDPRESS_DB_PASSWORD='+app_password,'-e',"WORDPRESS_CONFIG_EXTRA=define('DISABLE_WP_CRON',true); define('WP_ENVIRONMENT_TYPE','local');",
                 '-v',names['volume']+':/var/www/html','-v',str(release)+':/opt/d16-content:ro']
             # Populate core before mounting read-only plugins: the image's initial
@@ -280,10 +307,17 @@ def main(package_path=None, runtime_class=NextRuntime):
                     engine.finish('real-next-success')
                     print('Actual WPGraphQL → signed cache refresh → Next HTML/SEO/sitemap passed',flush=True)
                     # A fresh window deliberately fails verification and restores its entire backup.
-                    engine.begin(before,'tio2-my','real-next-failure');engine.stage('real-next-failure');engine.activate('real-next-failure')
+                    failing_package=copy.deepcopy(before)
+                    if package_path:
+                        home=next(r for r in failing_package['records'] if r['pageId']=='HOME-001')
+                        home['content']['hero']['heading']+=' isolated rollback probe '+token
+                        failing_package['contentSha256']=hashlib.sha256(canonical(failing_package['records'])).hexdigest()
+                    engine.begin(failing_package,'tio2-my','real-next-failure');engine.stage('real-next-failure');engine.activate('real-next-failure')
                     backend.fail='verify'
                     try:engine.finish('real-next-failure');raise AssertionError('failure not injected')
-                    except ReleaseError:engine.recover('real-next-failure')
+                    except ReleaseError as error:
+                        engine.recover('real-next-failure')
+                        if 'injected failure after actual' not in str(error):raise
                     assert json.loads(engine.path.read_text())['phase']=='rolled-back'
                     assert backend._php('export',package)['package']['contentSha256']==package['contentSha256']
                     evidence=ROOT/'.local-evidence';evidence.mkdir(exist_ok=True)
@@ -292,6 +326,8 @@ def main(package_path=None, runtime_class=NextRuntime):
                     subprocess.run(['node','-e',browser_script,'http://127.0.0.1:'+str(backend.port)+route(package['records'][0]),str(screenshot)],cwd=ROOT,check=True,timeout=90)
                     print(json.dumps({'result':'PASS','mode':'real-local-wordpress-wpgraphql-next-production-build','buildId':backend.identity_value['buildId'],'frontendPid':backend.next.pid,
                         'frontendRestarted':False,'databaseRestored':True,'checks':backend.checks,'screenshot':str(screenshot),'productionTouched':False,
+                        'contentSha256':package['contentSha256'],'recordsVerified':[r['pageId'] for r in package['records']],
+                        'frontendSourceRevision':os.environ.get('D16_REHEARSAL_REVISION'),
                         **getattr(backend,'evidence_context',{})}),flush=True)
                 except Exception:
                     log.flush()
