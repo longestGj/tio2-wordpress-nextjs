@@ -49,6 +49,7 @@ describe('bounded Trade successor refresh seed',()=>{
  it('binds source hash and ordering before the retained create-only seed',()=>{
   const manifest=JSON.parse(readFileSync('ops/prerelease/seed-manifest.json','utf8')).seeds as {path:string;sha256:string}[]
   const index=manifest.findIndex(item=>item.path===seed)
+  expect(readFileSync('.gitattributes','utf8')).toContain(seed+' text eol=lf')
   expect(index).toBeGreaterThanOrEqual(0)
   expect(manifest[index+1].path).toBe('wordpress/seed/apply-tio2-my-editorial.php')
   expect(readFileSync('ops/prerelease/bootstrap-wordpress.sh','utf8')).toContain('D16_TIO2_MY_PRERELEASE_TRADE_REFRESH=1')
