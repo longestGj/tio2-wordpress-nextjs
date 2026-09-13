@@ -175,12 +175,15 @@ final class Tio2_Approved_Content_Write {
             if (is_wp_error($valid)) return $valid;
             if ((int)$wpdb->get_var('SELECT @@session.in_transaction') !== 1) throw new RuntimeException('write_transaction');
             $events = self::$context['events'];
-            self::query('COMMIT'); $begun = false;
             $receipt = ['siteId'=>'tio2-my','approvalId'=>$approval_id,'operation'=>$operation,
                 'changedPages'=>$changed,'beforeDigests'=>array_map('tio2_content_digest',$before),'afterDigests'=>array_map('tio2_content_digest',$after),
                 'committed'=>true,'notificationState'=>$events ? 'pending' : 'not-needed','events'=>$events];
+            // Persist the exact notification identity in the same InnoDB transaction.
+            // A failed receipt write must not leave unrepeatable committed content.
+            if ($events) $receipt = tio2_prepare_approved_content_events($receipt,$events);
+            self::query('COMMIT'); $begun = false;
         } catch (Throwable $error) {
-            return new WP_Error(in_array($error->getMessage(),['write_database','write_identity','write_status','write_capability','write_metadata','write_readback','write_transaction'],true) ? $error->getMessage() : 'write_failed', 'Approved content write did not commit.');
+            return new WP_Error(in_array($error->getMessage(),['write_database','write_identity','write_status','write_capability','write_metadata','write_readback','write_transaction','write_receipt'],true) ? $error->getMessage() : 'write_failed', 'Approved content write did not commit.');
         } finally {
             if ($begun) $wpdb->query('ROLLBACK');
             self::$context = null;

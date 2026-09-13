@@ -246,7 +246,7 @@ if ($mode === 'expire-proof') {
     $out['bulkCommitted']=!is_wp_error($r)&&$r['committed']&&$r['changedPages']===['APP-000','HOME-001'];
     $out['nestedRejected']=is_wp_error($nested)&&$nested->get_error_code()==='write_nested'&&$borrowed===false;
     $out['otherQueuePreserved']=$GLOBALS['tio2_webhook_queue']===$other_queue;
-    $out['eventsPending']=!is_wp_error($r)&&$r['notificationState']==='pending'&&count($r['events'])===2;
+    $out['eventsFailedWithoutEndpoint']=!is_wp_error($r)&&$r['notificationState']==='failed'&&count($r['events'])===2&&isset($r['receiptId']);
     $GLOBALS['tio2_webhook_queue']=[];
 } elseif ($mode === 'publish-draft') {
     wp_update_post(['ID'=>$id,'post_status'=>'draft']); $GLOBALS['tio2_webhook_queue']=[];

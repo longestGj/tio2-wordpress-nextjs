@@ -70,7 +70,7 @@ describe('ordinary approved CMS writes against real WordPress and InnoDB', () =>
       expect(approved).toEqual({committed:true, changed:true, published:true, queueHeld:true, contextCleared:true, secondRejected:true})
       await run('setup')
       expect(await run('failures')).toEqual({persistentCacheRejected:true,denied:true, readbackRollback:true, lateCapabilityRejected:true, exceptionRollback:true, noEvents:true, contextCleared:true, duplicateRejected:true, outerTransactionRejected:true})
-      expect(await run('boundaries')).toEqual({bulkRollback:true,bulkCommitted:true,nestedRejected:true,otherQueuePreserved:true,eventsPending:true})
+      expect(await run('boundaries')).toEqual({bulkRollback:true,bulkCommitted:true,nestedRejected:true,otherQueuePreserved:true,eventsFailedWithoutEndpoint:true})
       await run('setup')
       expect(await run('publish-draft')).toEqual({committed:true,published:true,changed:true})
       await run('setup')
