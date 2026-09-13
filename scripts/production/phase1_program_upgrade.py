@@ -15,6 +15,18 @@ if __name__ == '__main__':
 from phase1_migration import Phase1Migration, MigrationPaths, COMMIT_ORDER, canonical, digest, require
 
 
+def require_upgrade_state(state):
+    """Admit only pending transactions or an evidenced safe frontend rollback."""
+    from release_controller import ReleaseController
+    details=state.get('details',{})
+    require(state.get('state') in {'PREPARED','BACKED_UP','ROLLED_BACK'}
+            and details.get('subject')=='tio2-my',
+            'upgrade requires preserved pending or safely rolled-back transaction')
+    if state['state']=='ROLLED_BACK':
+        require(ReleaseController._safe_recovery(details.get('safeRecovery'),details),
+                'upgrade requires verified frontend rollback evidence')
+
+
 class ProgramUpgrade:
     def __init__(self, migration, *, verify, checkpoint=lambda point: None):
         self.io=migration
@@ -46,8 +58,7 @@ class ProgramUpgrade:
                 and digest(canonical(payload))==plan['planHash']==receipt['planHash'],
                 'completed phase1 journal required')
         state=io._json(paths.state)
-        require(state.get('state') in {'PREPARED','BACKED_UP'} and state.get('details',{}).get('subject')=='tio2-my',
-                'upgrade requires preserved pre-deployment transaction')
+        require_upgrade_state(state)
         result={}
         for base in (paths.registry,paths.state.parent,paths.work):
             io._check(base)
@@ -165,9 +176,12 @@ def main():
         result=subprocess.run(['/usr/bin/python3','-B','-c',code],cwd=target,
                               check=True,capture_output=True,timeout=60,env={'PATH':'/usr/sbin:/usr/bin:/sbin:/bin'})
         status=json.loads(result.stdout)
-        require(status['ok'] is True and status['state']['state'] in {'PREPARED','BACKED_UP'}
+        require_upgrade_state(status['state'])
+        require(status['ok'] is True and status['subject']=='tio2-my'
+                and status['state']==io._json(io.paths.state)
                 and status['releaseCapabilities']['frontend-only'] is True
-                and status['recoveryRequired'] is False,'upgraded frontend capability unavailable')
+                and status['recoveryRequired'] is False
+                and status['sharedCmsWindowActive'] is False,'upgraded frontend capability unavailable')
     upgrade=ProgramUpgrade(io,verify=verify)
     result=upgrade.plan() if args.action=='plan' else getattr(upgrade,args.action)(args.plan_hash)
     print(json.dumps(result,sort_keys=True,separators=(',',':')))
