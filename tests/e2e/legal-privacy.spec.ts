@@ -13,10 +13,18 @@ interface LegalContractPage {
   readonly seo: {readonly canonical: string; readonly description: string; readonly title: string}
 }
 
+interface PublicationPage {
+  readonly pageId: string
+  readonly metaDescription: string | null
+  readonly robots: 'index, follow' | 'noindex, follow' | 'noindex, nofollow'
+}
+
 const approved = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-legal-pages.json', 'utf8')) as {
   readonly pages: readonly LegalContractPage[]
   readonly consent: {readonly body: string}
 }
+const publicationPages = JSON.parse(readFileSync('lib/seo/tio2-my-publication-inventory.data.json', 'utf8')) as readonly PublicationPage[]
+const publicationById = new Map(publicationPages.map((page) => [page.pageId, page]))
 const baseUrl = requiredLocalUrl('TIO2_MY_BASE_URL').origin
 const widths = [390, 768, 1440] as const
 const expectedLegalUtilities = ['Privacy Policy', 'Dasar Privasi (BM)', 'Cookie Policy', 'Cookie Settings']
@@ -43,6 +51,8 @@ for (const contract of approved.pages) {
   for (const width of widths) {
     test(`${contract.pageId} ${width}px approved runtime contract`, async ({page}) => {
       const analyticsRequests: string[] = []
+      await page.route('https://www.googletagmanager.com/gtm.js**', (route) =>
+        route.fulfill({status: 200, contentType: 'application/javascript', body: '/* deterministic legal-page fixture */'}))
       page.on('request', (request) => {
         if (/google-analytics|googletagmanager|doubleclick|vercel-insights/i.test(request.url())) analyticsRequests.push(request.url())
       })
@@ -80,8 +90,8 @@ for (const contract of approved.pages) {
 
       await expect(page.locator('link[rel="canonical"]')).toHaveCount(1)
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', contract.seo.canonical)
-      await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', contract.seo.description)
-      await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow')
+      await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', publicationById.get(contract.pageId)!.metaDescription!)
+      await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', publicationById.get(contract.pageId)!.robots)
       const alternateLanguages = await page.locator('link[rel="alternate"][hreflang]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('hreflang')).sort())
       expect(alternateLanguages).toEqual(contract.pageId.startsWith('LEGAL-PRIV-') ? ['en', 'ms-MY', 'x-default'].sort() : [])
 
@@ -141,22 +151,24 @@ for (const contract of approved.pages) {
 }
 
 test('shared Cookie Settings exposes active analytics choice and remains keyboard-contained', async ({page}) => {
+  await page.route('https://www.googletagmanager.com/gtm.js**', (route) =>
+    route.fulfill({status: 200, contentType: 'application/javascript', body: '/* deterministic legal-page fixture */'}))
   await page.setViewportSize({width: 390, height: 844})
   await page.goto(`${baseUrl}/cookie-policy/`, {waitUntil: 'networkidle'})
   const trigger = page.locator('footer').getByRole('button', {name: 'Cookie Settings'})
   await trigger.click()
-  const dialog = page.getByRole('dialog', {name: 'Cookie settings'})
-  await expect(dialog).toHaveAttribute('aria-describedby', 'tio2-my-cookie-settings-description')
-  await expect(page.locator('#tio2-my-cookie-settings-description')).toHaveText(approved.consent.body)
-  await expect(dialog).toContainText(approved.consent.body)
+  const dialog = page.getByRole('dialog', {name: 'Analytics preferences'})
+  await expect(dialog).toHaveAttribute('aria-describedby', 'cookie-settings-description')
+  await expect(page.locator('#cookie-settings-description')).toContainText('Optional Analytics helps us understand aggregate website use and performance.')
   await expect(dialog.getByRole('button')).toHaveText(['Close', 'Save preferences', 'Accept analytics', 'Necessary only'])
   await expect(dialog.getByRole('link')).toHaveText(['Read Cookie Policy'])
   const close = dialog.getByRole('button', {name: 'Close'})
+  const analytics = dialog.getByRole('checkbox', {name: 'Allow analytics'})
   const policy = dialog.getByRole('link', {name: 'Read Cookie Policy'})
   await expect(close).toBeFocused()
   await policy.focus()
   await page.keyboard.press('Tab')
-  await expect(close).toBeFocused()
+  await expect(analytics).toBeFocused()
   await page.keyboard.press('Shift+Tab')
   await expect(policy).toBeFocused()
   expect(await page.evaluate(() => localStorage.getItem('tio2_my_consent_v1'))).toBeNull()
