@@ -57,6 +57,9 @@ class ReleaseController:
         adapter = SiteFrontendAdapter()
         adapters = {(name, "frontend-only"): adapter for name in
                     ("tio2-web-bluegreen-v1", "site-frontend-v1", "d16-site-frontend-v1")}
+        legacy = SiteFrontendAdapter()
+        legacy.enrolled_subjects = frozenset({'tio2-my'})
+        adapters[('tio2-my-v1', 'frontend-only')] = legacy
         adapters.update(installed_adapters(registry))
         return cls(registry, actor=actor, adapters=adapters,
                    baseline_loader=load_live_baselines)

@@ -82,6 +82,25 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         self.assertEqual(self.slots.upstream.read_bytes(),before)
         self.assertEqual(self.cms,self.cms_before)
 
+    def test_preserved_phase1_version_can_backup_stage_activate_and_verify(self):
+        self.details['adapterVersion']='tio2-my-v1'
+        request=json.loads((self.subject.incoming/'backup-request.json').read_bytes())
+        request['adapterVersion']='tio2-my-v1'
+        atomic_write_json(self.subject.incoming/'backup-request.json',request)
+        self.stage()
+        self.assertEqual(self.adapter.activate(self.context)['active']['buildId'],'build-B')
+        self.state('ACTIVATED')
+        self.assertEqual(self.adapter.verify(self.context)['active']['buildId'],'build-B')
+        self.assertEqual(self.details['adapterVersion'],'tio2-my-v1')
+        self.assertEqual(self.cms,self.cms_before)
+
+    def test_unknown_preserved_version_is_rejected_before_backup(self):
+        self.details['adapterVersion']='unregistered-v1'
+        self.state('PREPARED')
+        with self.assertRaisesRegex(ReleaseError,'explicit compatibility'):
+            self.adapter.backup(self.context)
+        self.assertEqual(self.tools.calls,[])
+
     def test_activate_requires_internal_verified_and_exact_backup(self):
         for state in ('PREPARED','BACKED_UP','STAGED'):
             self.state(state)

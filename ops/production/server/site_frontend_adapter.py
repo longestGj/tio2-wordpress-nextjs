@@ -79,7 +79,7 @@ def compatibility_candidate(subject,state):
 class SiteFrontendAdapter:
     version='d16-site-frontend-v1'
     # Migration preserves this older declared identity; never rewrite its state.
-    compatible_versions=frozenset({'tio2-web-bluegreen-v1','site-frontend-v1'})
+    compatible_versions=frozenset({'tio2-web-bluegreen-v1','site-frontend-v1','tio2-my-v1'})
 
     def __init__(self, *, engine_factory=Deployment, validator=None, backup_tools=None, publisher=None):
         self.engine_factory=engine_factory; self.validator=validator or validate_live_context
@@ -93,6 +93,8 @@ class SiteFrontendAdapter:
         require(expected['sourceCommit']==context.candidate.source_commit and expected['releaseId']==context.candidate.release_id,
                 'frontend candidate identity changed')
         require(expected['adapterVersion'] in {self.version,*self.compatible_versions},'frontend adapter version requires explicit compatibility')
+        require(expected['adapterVersion'] != 'tio2-my-v1' or context.subject.subject_id == 'tio2-my',
+                'legacy frontend adapter subject mismatch')
         read_request(context)
         request=read_record(context.subject.incoming/'frontend-action.json')
         require(request=={'schemaVersion':'d16-frontend-action-v1','binding':expected,
