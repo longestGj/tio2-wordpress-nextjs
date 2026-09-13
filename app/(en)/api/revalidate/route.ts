@@ -27,6 +27,8 @@ import {
   marketHubContentTag,
   marketPageContentTag,
   normalizePublicPath,
+  productHubContentTag,
+  productDetailContentTag,
   productListTag,
   productProcessContentTag,
   productDetailTag,
@@ -348,6 +350,11 @@ export async function POST(request: Request): Promise<Response> {
     for (const path of payload.paths) {
       tags.add(routeTag(siteId, path))
       if (path === '/') tags.add(homepageContentTag(siteId))
+      if (siteId === 'tio2-my') {
+        if (path === '/products') tags.add(productHubContentTag(siteId))
+        const slug = malaysiaProductSlugByPath.get(path)
+        if (slug) tags.add(productDetailContentTag(siteId, slug))
+      }
       if (siteId === 'tio2-my' && path === '/markets') {
         tags.add(marketHubContentTag(siteId))
       }
