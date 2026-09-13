@@ -178,7 +178,18 @@ class ControllerTests(unittest.TestCase):
         import release_controller
         with patch.object(release_controller,'load_registry',return_value=self.registry):
             controller=release_controller.ReleaseController.system()
-        self.assertEqual(set(controller.adapters),{('tio2-web-bluegreen-v1','frontend-only'),('site-frontend-v1','frontend-only'),('d16-site-frontend-v1','frontend-only')})
+        self.assertEqual(set(controller.adapters),{('tio2-my-v1','frontend-only'),('tio2-web-bluegreen-v1','frontend-only'),('site-frontend-v1','frontend-only'),('d16-site-frontend-v1','frontend-only')})
+
+    def test_system_enables_preserved_phase1_registration(self):
+        import release_controller
+        with patch.object(release_controller,'load_registry',return_value=self.registry):
+            controller=release_controller.ReleaseController.system()
+        controller.lock_factory=lambda path:nullcontext()
+        result=controller.execute('tio2-my','status')
+        self.assertTrue(result['releaseCapabilities']['frontend-only'])
+        self.assertTrue(result['capabilities']['backup'])
+        self.assertFalse(result['releaseCapabilities']['content-only'])
+        self.assertEqual(controller.adapters[('tio2-my-v1','frontend-only')].enrolled_subjects, frozenset({'tio2-my'}))
 
     def test_registered_status_is_isolated_without_candidate_or_adapter(self):
         controller = self.controller({})
