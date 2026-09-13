@@ -752,14 +752,23 @@ function tio2_load_approved_content_event_receipt(string $receipt_id)
     }
     $registry=tio2_content_write_registry(); $paths=[]; $expected_entities=[];
     $pages=array_keys($stored['postIds']); sort($pages,SORT_STRING);
+    $after_digests=$stored['receipt']['afterDigests'] ?? null;
+    $before_digests=$stored['receipt']['beforeDigests'] ?? null;
+    $operation_pages=is_array($after_digests) ? array_keys($after_digests) : []; sort($operation_pages,SORT_STRING);
     if (($stored['receipt']['changedPages'] ?? null)!==$pages ||
         ($stored['receipt']['notificationState'] ?? null)!==$stored['notificationState'] ||
         !in_array($stored['receipt']['operation'] ?? null,['update-published','publish-draft'],true) ||
         !preg_match('/^[A-Za-z0-9][A-Za-z0-9_-]{0,95}$/D',(string)($stored['receipt']['approvalId'] ?? '')) ||
-        !is_array($stored['receipt']['afterDigests'] ?? null) ||
-        array_keys($stored['receipt']['afterDigests'])!==$pages) return new WP_Error('event_receipt','Notification identity is invalid.');
-    foreach ($stored['receipt']['afterDigests'] as $digest) {
-        if (!is_string($digest) || !preg_match('/^[a-f0-9]{64}$/D',$digest)) return new WP_Error('event_receipt','Notification digest is invalid.');
+        !is_array($after_digests) || !is_array($before_digests) ||
+        count($operation_pages)<count($pages) || count($operation_pages)>2 ||
+        array_keys($after_digests)!==$operation_pages ||
+        array_keys($before_digests)!==$operation_pages ||
+        array_diff($pages,$operation_pages)) return new WP_Error('event_receipt','Notification identity is invalid.');
+    foreach ($operation_pages as $page) {
+        if (!isset($registry[$page])) return new WP_Error('event_receipt','Notification page is invalid.');
+        foreach ([$before_digests[$page],$after_digests[$page]] as $digest) {
+            if (!is_string($digest) || !preg_match('/^[a-f0-9]{64}$/D',$digest)) return new WP_Error('event_receipt','Notification digest is invalid.');
+        }
     }
     foreach ($stored['postIds'] as $page=>$id) {
         $post=is_int($id) && $id>0 ? get_post($id) : null;

@@ -36,11 +36,14 @@ describe('committed approved-content notifications', () => {
       validFrom:now-60,validUntil:now+1800,operation:'update-published',records:[
         {pageId:'APP-000',locale:'en',beforeSha256:digest(app),afterSha256:digest(changedApp)},
         {pageId:'HOME-001',locale:'en',beforeSha256:digest(home),afterSha256:digest(changedHome)}]}
+    const mixedProof = {...proof,approvalId:'synthetic-mixed',records:[
+      {pageId:'APP-000',locale:'en',beforeSha256:digest(app),afterSha256:digest(app)},
+      {pageId:'HOME-001',locale:'en',beforeSha256:digest(home),afterSha256:digest(changedHome)}]}
     try {
       const base = isolatedPhpArgs(process.cwd())
       const proofArgs = [...base.slice(0,-3),'--user','0:0','--mount',`type=volume,source=${volume},target=/approvals`,...base.slice(-3),
         '/workspace/tests/infrastructure/php/content-write-events.php','proofs']
-      const setup = spawnSync('docker',[proofArgs[0],'-i',...proofArgs.slice(1)],{encoding:'utf8',input:JSON.stringify({proof,home,app,changedHome,changedApp})})
+      const setup = spawnSync('docker',[proofArgs[0],'-i',...proofArgs.slice(1)],{encoding:'utf8',input:JSON.stringify({proof,mixedProof,home,app,changedHome,changedApp})})
       expect(setup.status,setup.stderr).toBe(0)
       runtime = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE,runId,environment:{...process.env,TIO2_TEST_WORDPRESS_ENV:environmentPath}})
       await runtime.wp(['core','install','--url=http://example.invalid','--title=Synthetic events test','--admin_user=event-admin',
@@ -85,6 +88,19 @@ describe('committed approved-content notifications', () => {
       expect(stale).toMatchObject({writeCount:0,contentUnchanged:true})
       expect(stale.calls).toHaveLength(1)
       expect(stale.calls[0].payload.eventId).not.toBe(committed.calls[0].payload.eventId)
+      await run('setup')
+      const mixed = await run('mixed')
+      expect(mixed.receipt).toMatchObject({committed:true,notificationState:'failed',changedPages:['HOME-001'],
+        beforeDigests:{'APP-000':digest(app),'HOME-001':digest(home)},
+        afterDigests:{'APP-000':digest(app),'HOME-001':digest(changedHome)}})
+      expect(Object.values(mixed.receipt.events)).toHaveLength(1)
+      expect(mixed).toMatchObject({writeCount:1,contentMatches:true})
+      expect(mixed.calls).toHaveLength(1)
+      expect(mixed.calls[0].payload.paths).toEqual(['/'])
+      const mixedRetry = await run('retry',mixed.receipt.receiptId)
+      expect(mixedRetry.receipt).toMatchObject({committed:true,notificationState:'sent'})
+      expect(mixedRetry).toMatchObject({writeCount:0,contentUnchanged:true})
+      expect(mixedRetry.calls).toHaveLength(1)
     } finally {
       if (runtime) {
         await runtime.stop()

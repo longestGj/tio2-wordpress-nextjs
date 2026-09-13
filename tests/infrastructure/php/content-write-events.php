@@ -3,6 +3,7 @@
 if (($argv[1] ?? '') === 'proofs') {
     $input = json_decode(stream_get_contents(STDIN), true, 512, JSON_THROW_ON_ERROR);
     file_put_contents('/approvals/synthetic-events.json', json_encode($input['proof']));
+    file_put_contents('/approvals/synthetic-mixed.json', json_encode($input['mixedProof']));
     file_put_contents('/approvals/fixture.json', json_encode($input));
     exit;
 }
@@ -12,9 +13,9 @@ define('TIO2_CONTENT_WRITER_UID', 33);
 define('TIO2_CONTENT_ENVIRONMENT_ID', $args[1]);
 $fixture = json_decode(file_get_contents('/approvals/fixture.json'), true);
 function events_json($value) { return wp_json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); }
-function events_apply($fixture) {
-    return tio2_apply_approved_content('synthetic-events', 'update-published', [
-        ['pageId'=>'APP-000','content'=>events_json($fixture['changedApp'])],
+function events_apply($fixture,$mixed=false) {
+    return tio2_apply_approved_content($mixed?'synthetic-mixed':'synthetic-events', 'update-published', [
+        ['pageId'=>'APP-000','content'=>events_json($mixed?$fixture['app']:$fixture['changedApp'])],
         ['pageId'=>'HOME-001','content'=>events_json($fixture['changedHome'])],
     ]);
 }
@@ -28,12 +29,13 @@ if ($mode === 'setup') {
     if (!term_exists('tio2-my','site_scope')) wp_insert_term('tio2-my','site_scope',['slug'=>'tio2-my']);
     foreach (['home'=>['tio2_homepage','tio2-my--homepage',TIO2_MY_HOMEPAGE_CONTRACT_META,'home'],
               'app'=>['tio2_application_hub','tio2-my-applications',TIO2_MY_APPLICATION_HUB_CONTRACT_META,'app']] as $key=>$def) {
-        $id=wp_insert_post(['post_type'=>$def[0],'post_status'=>'draft','post_title'=>'SYNTHETIC EVENTS '.$key]);
-        update_option('synthetic_events_'.$key,$id);
-        $wpdb->update($wpdb->posts,['post_name'=>$def[1]],['ID'=>$id]);
+        $id=(int)get_option('synthetic_events_'.$key);
+        if (!$id) { $id=wp_insert_post(['post_type'=>$def[0],'post_status'=>'draft','post_title'=>'SYNTHETIC EVENTS '.$key]); update_option('synthetic_events_'.$key,$id); }
+        $wpdb->update($wpdb->posts,['post_status'=>'draft','post_name'=>$def[1]],['ID'=>$id]);
         wp_set_object_terms($id,['tio2-my'],'site_scope');
         foreach ([$def[2]=>events_json($fixture[$def[3]]),'homepage_schema_version'=>'homepage-v0.4-malaysia',
                   'public_path'=>$key==='home'?'/':'/applications'] as $meta=>$value) {
+            $wpdb->delete($wpdb->postmeta,['post_id'=>$id,'meta_key'=>$meta]);
             $wpdb->insert($wpdb->postmeta,['post_id'=>$id,'meta_key'=>$meta,'meta_value'=>$value]);
         }
         $wpdb->update($wpdb->posts,['post_status'=>'publish'],['ID'=>$id]); clean_post_cache($id);
@@ -45,7 +47,7 @@ $capture=static function($pre,$request,$url) use (&$calls,&$mode) {
     $payload=json_decode($request['body'],true);
     $calls[]=['url'=>$url,'payload'=>$payload,'signed'=>hash_equals(hash_hmac('sha256',$request['body'],'synthetic-events-secret'),$request['headers']['x-tio2-signature'])];
     if ($mode==='race-holder') { update_option('synthetic_events_race_held',1,false); usleep(2000000); }
-    if (in_array($mode,['commit','outcome-fail','retry-fail','race-holder'],true))
+    if (in_array($mode,['commit','outcome-fail','retry-fail','race-holder','mixed'],true))
         return ['response'=>['code'=>503,'message'=>'Synthetic failure'],'headers'=>[],'body'=>'{"ok":false}'];
     if ($mode==='bad-ack') return ['response'=>['code'=>200,'message'=>'OK'],'headers'=>[],
         'body'=>events_json(['ok'=>true,'eventId'=>$payload['eventId'],'revalidatedTags'=>[],
@@ -91,6 +93,11 @@ if ($mode === 'commit' || $mode === 'outcome-fail') {
         'otherQueuePreserved'=>$GLOBALS['tio2_webhook_queue']===$other,'writeCount'=>$writeCount,
         'persistedState'=>is_array($persisted)?$persisted['notificationState']:null,
         'contentMatches'=>events_snapshots()===[events_json($fixture['changedHome']),events_json($fixture['changedApp'])]]); return;
+}
+if ($mode === 'mixed') {
+    $result=events_apply($fixture,true);
+    echo events_json(['receipt'=>$result,'calls'=>$calls,'writeCount'=>$writeCount,
+        'contentMatches'=>events_snapshots()===[events_json($fixture['changedHome']),events_json($fixture['app'])]]); return;
 }
 if (in_array($mode,['retry','retry-fail','bad-ack','stale','noactor','tamper','race-holder','race-contender'],true)) {
     if ($mode === 'race-contender') {
