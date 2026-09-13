@@ -72,3 +72,23 @@ Executed `scripts/production.ps1 -Operation Prepare` using the existing connecti
 This was not a valid server-side test of the main candidate. The RunRoot contained no `candidate-manifest.json`; the client fetched status and then entered its legacy compatibility-binding branch, where it failed on the missing property. No candidate upload or remote prepare, backup, stage or activation occurred. This is an operator sequencing/input issue, not evidence that the server rejected main or that CMS installation is necessary. Do not interpret the failure as a CMS incompatibility test.
 
 Inventory of the authoritative local prerelease evidence found only two `production-gate.json` files, for commits eb92f147 and e2883161. Neither matches current main eebfb029. The current main's ordinary prerelease result exists, but same-candidate production gate/live submission/inbox evidence does not. Old gate evidence cannot be relabeled as this main. Resume by obtaining the actual current-main production gate and fresh independent baseline, then building its immutable candidate and retrying Prepare with that candidate. Real submissions remain outside the original authorization unless the user explicitly expands it. No client code or evidence was changed to bypass these prerequisites.
+
+## Authorized live prerelease forms
+
+The user explicitly authorized RFQ, Sample and Documents once each plus inbox verification. Fresh prerelease Status was HEALTHY for main eebfb029, run `20260913T141505Z-eebfb0299ab8`, Build `ySIrLAM-ARnG6ByKql7JS`. The existing ignored live-forms flag was already true and was not changed.
+
+Executed `pwsh -NoProfile -File scripts/prerelease.ps1 -Action TestLiveForms -RepositoryRoot D:/16Wordpress_nextjs` once. Actual Playwright testExit=0. Original evidence directory: `D:/16Wordpress_nextjs/docs/verification/prerelease/runs/20260913T223840Z-3bcd6e7d-6e19-4b9b-bf4a-6c7508e31f00`.
+
+| Workflow | Request token | Provider response UTC | Result |
+|---|---|---|---|
+| RFQ | b5f614a8-2900-489c-8f32-768209eb011c | 2026-09-13T22:38:47.373Z | HTTP 200 / accepted / quote Thank You |
+| Sample | 09165f49-d69f-4307-ac61-f03024f9e7d9 | 2026-09-13T22:38:49.918Z | HTTP 200 / accepted / sample Thank You |
+| Documents | 9f6ff816-e43c-4428-8f1b-18c10bd580e8 | 2026-09-13T22:38:52.456Z | HTTP 200 / accepted / documents Thank You |
+
+Original aggregate incorrectly returned FAILED with empty attempts/counts. Raw provider and browser fragments prove three accepted submissions, one allowed POST per workflow and zero blocked writes. No additional submission was made. Investigation reproduced PowerShell 7.6.5 JSON counts as Int64 and timestamps as DateTime, whereas the existing aggregate requires Int32 and an ISO string. Windows PowerShell 5.1 (the runtime used by the documented npm command) parses counts as Int32.
+
+Preserved all original evidence including the FAILED aggregate. Copied original fragments/screenshots byte-for-byte into sibling `20260913T223840Z-3bcd6e7d-6e19-4b9b-bf4a-6c7508e31f00-reconciled-ps51`, verified every copied hash, then invoked the unchanged `Complete-PrereleaseEvidence` only, with the original command UUID, manifest and actual testExit=0 under Windows PowerShell 5.1. It returned PASSED, evidenceValid=true, three completed checks, externalPostCount=3, allowedPostCount=3, blockedWriteCount=0. `aggregation-recovery.json` binds copies to original evidence and explicitly records testRerun=false. This is evidence re-aggregation, not a new test run or an overwritten failure.
+
+Personally inspected RFQ desktop 1440, Sample mobile 390 and Documents tablet 768 Thank You screenshots: corresponding success headings, actions and footer visible without clipping in these views. These are scoped visual checks, not a complete production business E2E.
+
+Actual inbox remains unconfirmed. The user said they will check; request tokens and submission time (2026-09-14 06:38 Asia/Shanghai) were supplied. No mailbox account was assumed, no received timestamp invented, no inbox-confirmation or production-gate was generated. Do not rerun the live test. Next: obtain the user's exact workflow/token receipt confirmation and receipt times, run the fixed inbox confirmation/sealer, then continue candidate preparation with a fresh independent production baseline.
