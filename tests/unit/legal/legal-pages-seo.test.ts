@@ -12,6 +12,21 @@ const sources = approved.pages.map((page, index) => ({
   malaysiaLegalPageContractJson: JSON.stringify(page),
 }))
 
+function sourcesWithDeliveredSeo() {
+  const seoByPageId = {
+    'LEGAL-PRIV-EN': {title: 'Updated privacy policy', description: 'Published English description.'},
+    'LEGAL-PRIV-MS': {title: 'Dasar privasi dikemas kini', description: 'Penerangan Bahasa Malaysia diterbitkan.'},
+    'LEGAL-COOKIE-EN': {title: 'Updated cookie policy', description: 'Published cookie description.'},
+  } as const
+  return sources.map((record, index) => ({
+    ...record,
+    malaysiaLegalPageContractJson: JSON.stringify({
+      ...approved.pages[index]!,
+      seo: {...approved.pages[index]!.seo, ...seoByPageId[approved.pages[index]!.pageId as keyof typeof seoByPageId]},
+    }),
+  }))
+}
+
 describe('Legal page metadata and Schema', () => {
   it('activates one exact GA4/GTM legal state across English, BM and Cookie surfaces', () => {
     expect(approved.releaseState).toBe('verified_google_analytics_active')
@@ -42,7 +57,33 @@ describe('Legal page metadata and Schema', () => {
       'x-default': 'https://tio2malaysia.com/privacy-policy/',
     }})
     expect(enMeta.robots).toEqual({index: false, follow: false})
-    expect(buildMalaysiaLegalPageMetadata(site, ms!, {}).description).toBe('Ketahui cara TiO2 Malaysia mengendalikan data pertanyaan perniagaan, penyedia perkhidmatan, tempoh penyimpanan, Kuki dan pilihan privasi.')
+    expect(buildMalaysiaLegalPageMetadata(site, ms!, {}).description).toBe('Ketahui cara TiO2 Malaysia mengendalikan data pertanyaan perniagaan, penyedia perkhidmatan, tempoh penyimpanan, kuki dan pilihan privasi yang berkenaan.')
+    expect(buildMalaysiaLegalPageMetadata(site, cookie!, {}).alternates).toEqual({canonical: cookie!.seo.canonical})
+  })
+
+  it('projects delivered multilingual SEO text without changing publication controls', () => {
+    const [en, ms, cookie] = toMalaysiaLegalPagesDto(sourcesWithDeliveredSeo())
+    const site = getSiteConfig('tio2-my')
+    const enMeta = buildMalaysiaLegalPageMetadata(site, en!, {})
+
+    expect(enMeta.title).toBe('Updated privacy policy')
+    expect(enMeta.description).toBe('Published English description.')
+    expect(enMeta.robots).toEqual({index: false, follow: false})
+    expect(enMeta.alternates).toEqual({canonical: en!.seo.canonical, languages: {
+      en: 'https://tio2malaysia.com/privacy-policy/',
+      'ms-MY': 'https://tio2malaysia.com/ms/privacy-policy/',
+      'x-default': 'https://tio2malaysia.com/privacy-policy/',
+    }})
+    expect(enMeta.openGraph).toMatchObject({
+      type: 'website', url: en!.seo.canonical, siteName: 'TiO2 Malaysia',
+      title: 'Updated privacy policy', description: 'Published English description.', images: [],
+    })
+    expect(enMeta.twitter).toEqual({
+      card: 'summary', title: 'Updated privacy policy', description: 'Published English description.', images: [],
+    })
+    expect(buildMalaysiaLegalPageMetadata(site, ms!, {})).toMatchObject({
+      title: 'Dasar privasi dikemas kini', description: 'Penerangan Bahasa Malaysia diterbitkan.',
+    })
     expect(buildMalaysiaLegalPageMetadata(site, cookie!, {}).alternates).toEqual({canonical: cookie!.seo.canonical})
   })
 

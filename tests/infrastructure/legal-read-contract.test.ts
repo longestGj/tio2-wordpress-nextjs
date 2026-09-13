@@ -5,6 +5,8 @@ import {toMalaysiaLegalPagesDto} from '@/lib/wordpress/legal-pages-v01-dto'
 import cases from '@/tests/fixtures/legal/read-contract-cases.json'
 import {isolatedPhpArgs} from '@/tests/helpers/wordpress-test-support'
 
+export const WORDPRESS_RUNTIME_MODE = {dataMode: 'isolated', hostHttp: false} as const
+
 interface HarnessResult {
   readonly phpVersion: string
   readonly intl: boolean

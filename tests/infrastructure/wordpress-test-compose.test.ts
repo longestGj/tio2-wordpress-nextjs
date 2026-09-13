@@ -98,6 +98,24 @@ describe('owned WordPress lifecycle', () => {
     await runtime.stop()
     expect(f.calls.filter(args => args.includes('down'))).toHaveLength(1)
   })
+  it('runs isolated WP-CLI plugin installation as the fixed web user in the exact owned project', async () => {
+    const f = await fixture()
+    const runtime = await f.start()
+    expect(await runtime.wpAsWebUser(['plugin', 'install', 'wp-graphql', '--activate'])).toBe('wp-result')
+    expect(f.calls.at(-1)).toEqual([
+      ...runtime.composeArgs, 'run', '--rm', '--no-deps', '-T', '--user', '33:33',
+      'wpcli', 'wp', 'plugin', 'install', 'wp-graphql', '--activate',
+    ])
+    await runtime.stop()
+    await expect(runtime.wpAsWebUser(['plugin', 'list'])).rejects.toThrow(/stopped/u)
+  })
+  it.each(['shared-read-only', 'shared-mutating'] as const)('denies web-user WP-CLI in %s mode', async (dataMode) => {
+    const f = await fixture(false)
+    const runtime = await f.start({dataMode, serialMutationAuthorized: true})
+    const before = f.calls.length
+    await expect(runtime.wpAsWebUser(['plugin', 'install', 'wp-graphql'])).rejects.toThrow(/isolated/u)
+    expect(f.calls).toHaveLength(before)
+  })
   for (const mismatch of ['owner', 'config'] as const) it(`retains resources and lease on ${mismatch} mismatch`, async () => {
     const f = await fixture()
     const runtime = await f.start()

@@ -45,7 +45,10 @@ function MarkdownBody({markdown}: {readonly markdown: string}) {
   const chunks = markdown.split(/\n{2,}/).filter(Boolean)
   return chunks.map((chunk, index) => {
     const lines = chunk.split('\n')
-    if (lines[0]?.startsWith('### ')) return <h3 key={index}>{lines[0].slice(4)}</h3>
+    if (lines[0]?.startsWith('### ')) return <Fragment key={index}>
+      <h3>{lines[0].slice(4)}</h3>
+      {lines.length > 1 ? <p>{inline(lines.slice(1).join('\n'))}</p> : null}
+    </Fragment>
     if (lines.every((line) => line.startsWith('- '))) return <ul key={index}>{lines.map((line) => <li key={line}>{inline(line.slice(2))}</li>)}</ul>
     if (lines.length >= 2 && lines[0]?.startsWith('|') && /^\|[\s:|-]+\|$/.test(lines[1]!)) {
       const cells = (line: string) => line.slice(1, -1).split('|').map((cell) => cell.trim())

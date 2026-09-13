@@ -1,4 +1,4 @@
-import {render, screen} from '@testing-library/react'
+import {render, screen, within} from '@testing-library/react'
 import {createHash} from 'node:crypto'
 import {describe, expect, it} from 'vitest'
 
@@ -190,6 +190,18 @@ describe('Legal/Privacy approved page contract', () => {
     expect(container.textContent).toContain('Second retained paragraph.')
     expect(container.textContent).toContain('CONTACT US ABOUT PRIVACY')
     expect(container.textContent).toContain('MANAGE COOKIE SETTINGS')
+  })
+
+  it('renders delivered CMS headings and preserves prose immediately after an H3', () => {
+    const markdown = '# Updated policy\n\n**Last updated: 14 September 2026**\n\nIntroduction from the CMS.\n\nActions: **CONTACT US ABOUT PRIVACY** · **MANAGE COOKIE SETTINGS**\n\n## Details\n\n### Published subsection\nPublished body.\n\nActions: **CONTACT US ABOUT PRIVACY** · **MANAGE COOKIE SETTINGS**'
+    const page = toMalaysiaLegalPagesDto(sourceWithMarkdown(markdown))[0]!
+
+    const {container} = render(<MalaysiaLegalPage page={page} />)
+
+    expect(screen.getByRole('heading', {level: 1, name: 'Updated policy'})).toBeTruthy()
+    expect(screen.getByRole('heading', {level: 3, name: 'Published subsection'})).toBeTruthy()
+    expect(screen.getByText('Published body.')).toBeTruthy()
+    expect(within(container).getAllByRole('button', {name: /manage cookie settings/i})).toHaveLength(2)
   })
 
   it('rejects an action line that would hide later section prose', () => {
