@@ -205,7 +205,11 @@ class InstallationBackend:
         import pwd
         self.database.assert_window(owner)
         old=json.loads(base64.b64decode(json.loads((self.directory/'original-files.json').read_bytes())[str(self.configuration/'baseline.json')]['data']))
-        records=assemble_installation_enrollment(self.subject,old,evidence['pages'],self.config['previousProductionReceipt'])
+        resources=self.resources.verify()
+        if resources!=evidence['resources']:
+            raise ReleaseError('installed resources changed before enrollment')
+        records=assemble_installation_enrollment(self.subject,old,evidence['pages'],self.config['previousProductionReceipt'],
+            resources=self.config['resources'],resource_evidence=resources)
         for name,key in [('baseline.json','baseline'),('cms-platform-enrollment.json','cmsPlatform'),('frontend-enrollment.json','frontend')]:
             atomic_write_json(self.configuration/name,records[key])
         atomic_write_json(self.configuration/'content-hooks.json',json.loads((self.directory/'installed-hooks.json').read_bytes()))

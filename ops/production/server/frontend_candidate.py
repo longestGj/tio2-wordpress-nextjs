@@ -11,6 +11,41 @@ from release_actions import _verify_candidate_tree
 
 FILES={'frontend/release.tar.gz','frontend/release-manifest.json','frontend/release-proof.json'}
 
+
+def bind_installed_plugin(record, resources, evidence, *, runner=None):
+    """Bind the root-approved installation to the live read-only Docker mount.
+
+    A release's archived PHP is not the WordPress runtime. Never infer this
+    directory from the old frontend source tree or from an uploaded manifest.
+    """
+    from copy import deepcopy
+    from deployment_core import tree
+    from release_baseline import protected_path
+    from release_actions import SubprocessCommandRunner
+    import json
+    import re
+    require(isinstance(resources, dict) and isinstance(evidence, dict), 'installed plugin binding required')
+    name = resources.get('wordpressContainer')
+    require(isinstance(name, str) and re.fullmatch(r'(?:[a-z][a-z0-9_-]{0,100}|[a-f0-9]{64})', name), 'installation container invalid')
+    plugin = protected_path(Path(resources['pluginSource']), directory=True)
+    wordpress = [c for c in record['runtime']['containers'] if c['role'] == 'wordpress']
+    require(len(wordpress) == 1, 'registered WordPress identity missing')
+    result = (runner or SubprocessCommandRunner().run)(('docker', 'inspect', name))
+    require(result.returncode == 0, 'installed WordPress inspection failed')
+    values = json.loads(result.stdout)
+    require(isinstance(values, list) and len(values) == 1, 'installed WordPress inspection ambiguous')
+    wp = values[0]
+    mounts = [m for m in wp['Mounts'] if m['Destination'] == '/var/www/html/wp-content/plugins/tio2-site-model']
+    require(wp['Id'] == wordpress[0]['id'] and wp['Image'] == resources['importerImage']
+            and wp['State']['Running'] is True and wp['HostConfig']['Privileged'] is False
+            and len(mounts) == 1 and mounts[0]['Type'] == 'bind' and mounts[0]['RW'] is False
+            and Path(mounts[0]['Source']) == plugin, 'installed WordPress plugin mount mismatch')
+    files = tree(plugin)
+    require(bool(files) and files == evidence.get('pluginFiles'), 'installed plugin verification bytes changed')
+    bound = deepcopy(record)
+    bound['runtime']['deployment']['pluginSourceRoot'] = str(plugin)
+    return bound
+
 def validate_source(subject,candidate,baseline,*,payload_root=None):
     require(candidate.subject==subject.subject_id=='tio2-my' and candidate.release_type=='frontend-only','frontend source subject mismatch')
     payload_root=payload_root or subject.incoming/'frontend-payload'
@@ -88,6 +123,8 @@ def load_baselines(subject,state,candidate):
     from site_frontend_adapter import _current_tls,_digest,_validate_certificate_renewal
     enrolled=enrollment(subject)
     registry=load_registry(Path('/etc/d16-release'));require(registry.resolve(subject.subject_id)==subject,'frontend registry changed')
+    from cms_enrollment_repair import assert_repair_closed
+    assert_repair_closed(registry.host.state_root.parent/'cms-enrollment-repair-532a03ae')
     reader=LocalSnapshotSource();reader._configure_tls_allowlist(registry)
     ingress=validate_registered_ingress(registry,reader._run(['/usr/sbin/nginx','-T']),reader,subject_id=subject.subject_id)
     record=_protected_record(subject.configuration/'baseline.json')
@@ -98,6 +135,9 @@ def load_baselines(subject,state,candidate):
         and scope['contentSha256']==cms['live_content_sha256'],'enrolled CMS content changed')
     plugin=Path(record['runtime']['deployment']['pluginSourceRoot']);files=enrolled_plugin_files(subject.configuration,plugin)
     require(files is not None,'verified CMS platform enrollment required')
+    wp_record=next(c for c in record['runtime']['containers'] if c['role']=='wordpress')
+    bind_installed_plugin(record,{'pluginSource':str(plugin),'wordpressContainer':wp_record['id'],
+        'importerImage':wp_record['imageId']},{'pluginFiles':files})
     runtime={'containers':[c for c in live['runtime']['containers'] if c['role']!='web'],'volumes':live['runtime']['volumes'],
         'contentSha256':scope['contentSha256'],'configurationSha256':_digest(record['configuration']['environment']),
         'wordpressSha256':_digest(files)}
@@ -168,7 +208,7 @@ def prepare(context):
     atomic_write_json(subject.state_root/'frontend-candidate-transaction.json',transaction)
     return {'ok':True,'state':'PREPARED','binding':{key:details[key] for key in BINDING_FIELDS},'preparedDetails':details}
 
-def assemble_installation_enrollment(subject,old_record,verification_evidence,previous_receipt):
+def assemble_installation_enrollment(subject,old_record,verification_evidence,previous_receipt, *, resources=None, resource_evidence=None):
     """Observe the installed topology; caller persists returned records under lock.
 
     Call only after the installed page verifier succeeds against the old frontend
@@ -186,7 +226,7 @@ def assemble_installation_enrollment(subject,old_record,verification_evidence,pr
         and valid_hash(verification_evidence.get('contentSha256')),'old frontend verification is required')
     require(subject.subject_id=='tio2-my' and isinstance(previous_receipt,str) and previous_receipt,'installation subject/receipt mismatch')
     registry=load_registry(Path('/etc/d16-release'));require(registry.resolve(subject.subject_id)==subject,'installation registry changed')
-    record=deepcopy(old_record)
+    record=bind_installed_plugin(old_record,resources,resource_evidence)
     # These are existing root-enrolled paths, never paths supplied by the upload.
     config=record['configuration']
     for role in ('environment','compose','nginx','nginxIncludes'):
