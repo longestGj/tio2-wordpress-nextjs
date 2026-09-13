@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright'
 import {expect, test, type Locator, type Page} from '@playwright/test'
 import {createHash} from 'node:crypto'
 import {readFileSync} from 'node:fs'
-import {baseUrl, capturePublicPage, recordCheck} from './support/prerelease-evidence'
+import {baseUrl, capturePublicPage, isolatePrereleaseTelemetry, recordCheck} from './support/prerelease-evidence'
 
 type Target = {pageId: string; path: string; canonical: string; roles: string[]}
 const eligibility = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-prerelease-public-paths.json', 'utf8')) as {routes: Target[]}
@@ -25,8 +25,7 @@ test.beforeEach(async ({page}) => {
     await route.continue()
   })
   // Match the dedicated consent suite's isolation without relaxing the write guard.
-  await page.route('https://www.googletagmanager.com/gtm.js**', route =>
-    route.fulfill({status: 200, contentType: 'application/javascript', body: '/* isolated prerelease telemetry */'}))
+  await isolatePrereleaseTelemetry(page)
 })
 test.afterEach(async ({}, info) => {
   recordCheck('public-paths', info, nonGetCount)

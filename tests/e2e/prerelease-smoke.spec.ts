@@ -1,5 +1,5 @@
 import {expect, test} from '@playwright/test'
-import {baseUrl, capturePublicPage, recordCheck} from './support/prerelease-evidence'
+import {baseUrl, capturePublicPage, isolatePrereleaseTelemetry, recordCheck} from './support/prerelease-evidence'
 let nonGetRequests: Array<{method: string; url: string}> = []
 let runtimeErrors = 0
 
@@ -19,8 +19,7 @@ test.beforeEach(async ({page}) => {
   })
   // Page/layout checks isolate the third-party container; GA4 consent has its own suite.
   // Keep the blanket non-GET guard above for all real application/form requests.
-  await page.route('https://www.googletagmanager.com/gtm.js**', route =>
-    route.fulfill({status: 200, contentType: 'application/javascript', body: '/* isolated prerelease telemetry */'}))
+  await isolatePrereleaseTelemetry(page)
 })
 
 test.afterEach(async ({}, testInfo) => {
