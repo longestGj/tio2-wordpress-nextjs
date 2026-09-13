@@ -277,7 +277,7 @@ require_once '/var/www/html/wp-admin/includes/plugin.php';activate_plugin('tio2-
                 assert result['phase'] == 'completed'
             except ReleaseError as error:
                 if not failing: raise
-                assert str(error) == 'visible page content verification failed', 'failure did not reach the intended real HTML check'
+                assert str(error).startswith('visible page content verification failed'), 'failure did not reach the intended real HTML check'
                 assert engine.status()['phase'] == 'rolled-back'
                 assert {item.relative_to(plugin).as_posix(): digest(item.read_bytes()) for item in plugin.rglob('*') if item.is_file()} == before_plugin
                 if upgrading:

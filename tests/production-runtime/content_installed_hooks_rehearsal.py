@@ -92,7 +92,16 @@ class InstalledHooksRuntime(NextRuntime):
 
     def _hook(self,action,value):
         if action=='verify' and 'owner' not in value:
-            return self.hooks.verify(value['package'])
+            try:return self.hooks.verify(value['package'])
+            except ReleaseError:
+                # Read-only diagnostics identify all failing page contracts in
+                # this owned runtime before cleanup, without changing expectations.
+                for record in value['package']['records']:
+                    single={**value['package'],'records':[record],
+                            'contentSha256':hashlib.sha256(canonical([record])).hexdigest()}
+                    try:self.hooks.verify(single)
+                    except ReleaseError as error:print('Page verification failed: '+record['pageId']+' '+str(error),flush=True)
+                raise
         result=self.hooks.execute(action,value)
         if action=='verify':
             self.checks.append({'installedHooks':True,'contentSha256':result['contentSha256'],'nginx':True})

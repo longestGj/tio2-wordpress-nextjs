@@ -317,7 +317,12 @@ ksort($files);echo json_encode($files,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNIC
                 if not isinstance(expected,str) or not expected: raise ReleaseError('visible field must be nonempty text')
                 if field=='bodyHtml': expected=' '.join(Page(expected).parts)
                 fragments=legal_visible_fragments(expected) if field=='buyerVisibleMarkdown' else [expected]
-                if any(normalize(part) not in visible for part in fragments): raise ReleaseError('visible page content verification failed')
+                # Text nodes split around inline links/emphasis may introduce
+                # parser separators before punctuation; compare lexical tokens
+                # for this restricted renderer while retaining every word/sign.
+                text_key=(lambda value:' '+' '.join(re.findall(r'\w+|[^\w\s]',value))+' ') if field=='buyerVisibleMarkdown' else normalize
+                if any(text_key(part) not in text_key(visible) for part in fragments):
+                    raise ReleaseError('visible page content verification failed: '+record['pageId']+' '+field)
         return dict(ok=True,content=True,status=True,seo=True,sitemap=True,contentSha256=package['contentSha256'])
 
 

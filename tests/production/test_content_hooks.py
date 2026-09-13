@@ -157,7 +157,7 @@ class ContentHooksTests(unittest.TestCase):
             '# Privacy\n\n**Last updated: today**\n\nRead our [policy](/privacy-policy/).\n\n'
             '## Storage\n\n| Name | Purpose |\n|---|---|\n| `cookie` | **Remember choice** |')
         self.package['contentSha256']=hashlib.sha256(canonical(self.package['records'])).hexdigest()
-        self.body='Privacy Last updated: today Read our policy. Storage Name Purpose cookie Remember choice'
+        self.body='Privacy Last updated: today Read our <a href="/privacy-policy/">policy</a>. Storage Name Purpose <code>cookie</code> <strong>Remember choice</strong>'
         self.assertTrue(self.hooks.verify(self.package)['content'])
         self.body='Privacy Last updated: today Read our policy. Storage Name Purpose cookie Old body'
         with self.assertRaisesRegex(ReleaseError,'visible page content verification failed'):
