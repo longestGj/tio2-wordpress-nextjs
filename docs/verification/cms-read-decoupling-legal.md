@@ -1,6 +1,6 @@
 # TiO₂ Malaysia 法律页 CMS 读取解耦：首阶段技术回执
 
-验证日期：2026-09-13。网站 `tio2-my`；范围仅 `/privacy-policy/`、`/ms/privacy-policy/`、`/cookie-policy/`。分支 `codex/cms-read-approval-decoupling`，Task 3 初版代码提交 `6164e048e651f00b083399b56880607e64a95cf4`、复审第一轮代码及最近一次真实运行提交 `2f9a30b73cff407523492a26104c6932b03c44c8`、第二轮异常清理修正代码提交 `51d207af3f0daa9711602e6985584d740a1f5046`；Task 3 起点 `3d8320133f5f2fbab68b2c0becda097403fb64c2`。这是隔离本地开发验证，不是策划侧独立验收、全站迁移、预发布、生产安装或部署。
+验证日期：2026-09-13。网站 `tio2-my`；范围仅 `/privacy-policy/`、`/ms/privacy-policy/`、`/cookie-policy/`。分支 `codex/cms-read-approval-decoupling`，Task 3 初版代码提交 `6164e048e651f00b083399b56880607e64a95cf4`、复审第一轮代码及最近一次真实运行提交 `2f9a30b73cff407523492a26104c6932b03c44c8`、第二轮异常清理修正代码提交 `51d207af3f0daa9711602e6985584d740a1f5046` 与模拟 `up` 明确断言提交 `ed183e17eab84347ef4d54d25445362fc51b5592`；Task 3 起点 `3d8320133f5f2fbab68b2c0becda097403fb64c2`。这是隔离本地开发验证，不是策划侧独立验收、全站迁移、预发布、生产安装或部署。
 
 ## 结果与边界
 
