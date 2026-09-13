@@ -1,0 +1,327 @@
+{
+  "title": "Tag Assistant [Connected]",
+  "hasContainer": true,
+  "hasMeasurement": true,
+  "hasPageView": true,
+  "hasConsent": true,
+  "approvedEventPushes": [
+    {
+      "event": "rfq_provider_accepted",
+      "site_scope": "tio2-my",
+      "page_id": "CONV-RFQ",
+      "source": "web3forms",
+      "form_type": "quote"
+    },
+    {
+      "event": "documents_provider_accepted",
+      "site_scope": "tio2-my",
+      "page_id": "CONV-DOC",
+      "source": "web3forms",
+      "form_type": "documents"
+    },
+    {
+      "event": "sample_provider_accepted",
+      "site_scope": "tio2-my",
+      "page_id": "CONV-SAMPLE",
+      "source": "web3forms",
+      "form_type": "sample"
+    }
+  ],
+  "acceptedCookies": [
+    {
+      "name": "_ga",
+      "domain": "127.0.0.1",
+      "path": "/",
+      "expires": 1823832260.547782,
+      "durationDays": 400,
+      "sameSite": "Lax",
+      "secure": false
+    },
+    {
+      "name": "_ga_QDHLMRH2WB",
+      "domain": "127.0.0.1",
+      "path": "/",
+      "expires": 1823832260.552666,
+      "durationDays": 400,
+      "sameSite": "Lax",
+      "secure": false
+    }
+  ],
+  "withdrawnCookies": [],
+  "googleRequests": [
+    {
+      "phase": "initial_denied",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G100",
+        "gcd": "13p3p3p3p5l1",
+        "en": "page_view"
+      }
+    },
+    {
+      "phase": "accept_transition",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G100",
+        "gcd": "13p3p3p3p5l1",
+        "en": "scroll"
+      }
+    },
+    {
+      "phase": "accept_transition",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G101",
+        "gcd": "13q3r3q3q5l1",
+        "en": "user_engagement"
+      }
+    },
+    {
+      "phase": "accepted_reload",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G101",
+        "gcd": "13q3r3q3q5l1",
+        "en": "page_view"
+      }
+    },
+    {
+      "phase": "accepted_reload",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G101",
+        "gcd": "13q3r3q3q5l1",
+        "en": "scroll"
+      }
+    },
+    {
+      "phase": "accepted_events",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G101",
+        "gcd": "13q3r3q3q5l1",
+        "en": "rfq_provider_accepted",
+        "ep.site_scope": "tio2-my",
+        "ep.page_id": "CONV-RFQ",
+        "ep.source": "web3forms",
+        "ep.form_type": "quote"
+      }
+    },
+    {
+      "phase": "accepted_events",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G101",
+        "gcd": "13q3r3q3q5l1",
+        "en": "documents_provider_accepted",
+        "ep.site_scope": "tio2-my",
+        "ep.page_id": "CONV-DOC",
+        "ep.source": "web3forms",
+        "ep.form_type": "documents"
+      }
+    },
+    {
+      "phase": "accepted_events",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G101",
+        "gcd": "13q3r3q3q5l1",
+        "en": "sample_provider_accepted",
+        "ep.site_scope": "tio2-my",
+        "ep.page_id": "CONV-SAMPLE",
+        "ep.source": "web3forms",
+        "ep.form_type": "sample"
+      }
+    },
+    {
+      "phase": "withdrawn_reload",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G100",
+        "gcd": "13p3p3p3p5l1",
+        "en": "page_view"
+      }
+    },
+    {
+      "phase": "withdrawn_reload",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G100",
+        "gcd": "13p3p3p3p5l1",
+        "en": "scroll"
+      }
+    }
+  ],
+  "targetMeasurementRequests": [
+    {
+      "phase": "initial_denied",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G100",
+        "gcd": "13p3p3p3p5l1",
+        "en": "page_view"
+      }
+    },
+    {
+      "phase": "accept_transition",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G100",
+        "gcd": "13p3p3p3p5l1",
+        "en": "scroll"
+      }
+    },
+    {
+      "phase": "accept_transition",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G101",
+        "gcd": "13q3r3q3q5l1",
+        "en": "user_engagement"
+      }
+    },
+    {
+      "phase": "accepted_reload",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G101",
+        "gcd": "13q3r3q3q5l1",
+        "en": "page_view"
+      }
+    },
+    {
+      "phase": "accepted_reload",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G101",
+        "gcd": "13q3r3q3q5l1",
+        "en": "scroll"
+      }
+    },
+    {
+      "phase": "accepted_events",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G101",
+        "gcd": "13q3r3q3q5l1",
+        "en": "rfq_provider_accepted",
+        "ep.site_scope": "tio2-my",
+        "ep.page_id": "CONV-RFQ",
+        "ep.source": "web3forms",
+        "ep.form_type": "quote"
+      }
+    },
+    {
+      "phase": "accepted_events",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G101",
+        "gcd": "13q3r3q3q5l1",
+        "en": "documents_provider_accepted",
+        "ep.site_scope": "tio2-my",
+        "ep.page_id": "CONV-DOC",
+        "ep.source": "web3forms",
+        "ep.form_type": "documents"
+      }
+    },
+    {
+      "phase": "accepted_events",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G101",
+        "gcd": "13q3r3q3q5l1",
+        "en": "sample_provider_accepted",
+        "ep.site_scope": "tio2-my",
+        "ep.page_id": "CONV-SAMPLE",
+        "ep.source": "web3forms",
+        "ep.form_type": "sample"
+      }
+    },
+    {
+      "phase": "withdrawn_reload",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G100",
+        "gcd": "13p3p3p3p5l1",
+        "en": "page_view"
+      }
+    },
+    {
+      "phase": "withdrawn_reload",
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "parameters": {
+        "tid": "G-QDHLMRH2WB",
+        "gcs": "G100",
+        "gcd": "13p3p3p3p5l1",
+        "en": "scroll"
+      }
+    }
+  ],
+  "crossScopeMeasurementIds": [],
+  "output": ".tmp/ga4-active-gate8-final/tagassistant-final.png",
+  "containerRequestEvidence": {
+    "container_id": "GTM-MWQVK7J4",
+    "container_version": "Preview",
+    "loader": "https://www.googletagmanager.com/gtm.js",
+    "observed": true
+  }
+}

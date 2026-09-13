@@ -1,0 +1,34 @@
+{
+  "schema_version": "gate8-ga4-active-summary-v1.0",
+  "gate8_task_id": "D16-G8-TIO2-MY-GA4-ACTIVE-20260913-01",
+  "site_scope": "tio2-my",
+  "branch": "codex/tio2-my-full-public-seo-ga4",
+  "implementation_commit": "30e026318006c141b725a1231f1942f555cd9a07",
+  "test_alignment_commit": "691ad3ed24384eea9f72a269da49035814c93bbd",
+  "build_id": "tio2-my-ga4-g8-30e02631-20260913",
+  "runtime": "http://127.0.0.1:3123",
+  "cms_runtime": "http://127.0.0.1:8280",
+  "disposition": "GATE8_IMPLEMENTATION_ACCEPTANCE_READY_PENDING_FORMAL_EVIDENCE_MANIFEST_AND_RECEIPT",
+  "verification": {
+    "targeted_vitest": "8 files passed; 37 tests passed",
+    "ga4_active_playwright": "2 passed",
+    "legal_playwright": "13 passed",
+    "typecheck": "passed",
+    "targeted_eslint": "passed",
+    "build": "passed and held under the declared Build ID",
+    "tag_assistant_preview": "initial denied, analytics-only grant, withdrawal, Google Tag, page_view and three approved events observed",
+    "real_form_submission": "not performed"
+  },
+  "gate9_open_items": [
+    "Independently rerun evidence manifest preflight and hash validation.",
+    "Independently confirm the recorded Cookie, network, consent-ordering, no-PII and cross-scope evidence against the held runtime."
+  ],
+  "prohibited_actions": {
+    "real_form_submission": false,
+    "production_wordpress_write": false,
+    "gtm_publish": false,
+    "merge": false,
+    "deploy": false,
+    "gate10": false
+  }
+}
