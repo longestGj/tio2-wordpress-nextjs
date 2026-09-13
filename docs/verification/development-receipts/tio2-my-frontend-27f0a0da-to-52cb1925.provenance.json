@@ -1,0 +1,581 @@
+{
+  "schemaVersion": "d16-frontend-receipt-provenance-v1",
+  "baselineCommit": "27f0a0da59df1e54cd01eab7d77eb7024b338d42",
+  "candidateCommit": "52cb192545fd83c31453c64df4799ba725472411",
+  "statusReceiptSha256": "1811482d752f4c44b2d8f6b44dbc8b8ec914264a2d690202c6a468308c5c5d5b",
+  "scope": "Frontend-only deployment projection for tio2-my; not the complete historical implementation scope, not live CMS equivalence or deployment approval.",
+  "paths": [
+    {
+      "path": ".gitattributes",
+      "implementationCommits": [
+        "1f6f4633da719779bf1cc024aa424e61bbc62fcd"
+      ]
+    },
+    {
+      "path": "app/(en)/api/revalidate/route.ts",
+      "implementationCommits": [
+        "ac28c7f86c258546753804bd417aae57f59f7f45"
+      ]
+    },
+    {
+      "path": "app/(en)/layout.tsx",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee",
+        "c91f5a9e2da7af46b18b0325b5d58d22c379ad19"
+      ]
+    },
+    {
+      "path": "app/(en)/request-a-quote/page.tsx",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "app/(en)/request-documents/page.tsx",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "app/(en)/request-sample/page.tsx",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "app/(en)/sitemap.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "app/(en)/thank-you/page.tsx",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "app/(ms)/ms/layout.tsx",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "app/(pt-br)/pt-br/layout.tsx",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/about/malaysia-about-page.module.css",
+      "implementationCommits": [
+        "5e4cf270a46e059345bfe2e07fde1a1402335efb"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/about/malaysia-about-page.tsx",
+      "implementationCommits": [
+        "c91f5a9e2da7af46b18b0325b5d58d22c379ad19",
+        "5e4cf270a46e059345bfe2e07fde1a1402335efb",
+        "9a98071b26e447d965d9f6e95670ff3de3cba4e7"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/analytics/malaysia-google-analytics.tsx",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/applications/malaysia-application-hub.tsx",
+      "implementationCommits": [
+        "5e4cf270a46e059345bfe2e07fde1a1402335efb",
+        "9a98071b26e447d965d9f6e95670ff3de3cba4e7"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/consent/malaysia-cookie-settings.tsx",
+      "implementationCommits": [
+        "f61fb259faaa0d691602902336d81ae3e3b92c1f",
+        "30e026318006c141b725a1231f1942f555cd9a07",
+        "b3e75568aa3c81ba79fce375655b8a7bafa79d85",
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/documents/malaysia-documents-hub.tsx",
+      "implementationCommits": [
+        "c91f5a9e2da7af46b18b0325b5d58d22c379ad19",
+        "5e4cf270a46e059345bfe2e07fde1a1402335efb",
+        "9a98071b26e447d965d9f6e95670ff3de3cba4e7"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/homepage/malaysia-homepage.tsx",
+      "implementationCommits": [
+        "5e4cf270a46e059345bfe2e07fde1a1402335efb",
+        "9a98071b26e447d965d9f6e95670ff3de3cba4e7"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/markets/malaysia-market-hub.tsx",
+      "implementationCommits": [
+        "9a98071b26e447d965d9f6e95670ff3de3cba4e7"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/products/malaysia-product-hub.tsx",
+      "implementationCommits": [
+        "5e4cf270a46e059345bfe2e07fde1a1402335efb",
+        "9a98071b26e447d965d9f6e95670ff3de3cba4e7"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/products/product-selector.tsx",
+      "implementationCommits": [
+        "5e4cf270a46e059345bfe2e07fde1a1402335efb"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/resources/malaysia-resource-hub.module.css",
+      "implementationCommits": [
+        "9a98071b26e447d965d9f6e95670ff3de3cba4e7"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/resources/malaysia-resource-hub.tsx",
+      "implementationCommits": [
+        "5e4cf270a46e059345bfe2e07fde1a1402335efb",
+        "9a98071b26e447d965d9f6e95670ff3de3cba4e7"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/root-page-hero/root-page-hero.module.css",
+      "implementationCommits": [
+        "c91f5a9e2da7af46b18b0325b5d58d22c379ad19",
+        "5e4cf270a46e059345bfe2e07fde1a1402335efb",
+        "25f7e89d4d41c0e821581757717acf05156335ce",
+        "9a98071b26e447d965d9f6e95670ff3de3cba4e7"
+      ]
+    },
+    {
+      "path": "components/sites/tio2-my/root-page-hero/root-page-hero.tsx",
+      "implementationCommits": [
+        "c91f5a9e2da7af46b18b0325b5d58d22c379ad19",
+        "5e4cf270a46e059345bfe2e07fde1a1402335efb",
+        "9a98071b26e447d965d9f6e95670ff3de3cba4e7"
+      ]
+    },
+    {
+      "path": "lib/analytics/malaysia-ga4.ts",
+      "implementationCommits": [
+        "30e026318006c141b725a1231f1942f555cd9a07",
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/consent/malaysia-consent-copy.ts",
+      "implementationCommits": [
+        "f61fb259faaa0d691602902336d81ae3e3b92c1f",
+        "30e026318006c141b725a1231f1942f555cd9a07",
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/consent/malaysia-consent.ts",
+      "implementationCommits": [
+        "f61fb259faaa0d691602902336d81ae3e3b92c1f",
+        "30e026318006c141b725a1231f1942f555cd9a07",
+        "b3e75568aa3c81ba79fce375655b8a7bafa79d85",
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/rfq/malaysia-rfq-analytics.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/about-page-jsonld.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/about-page-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/application-hub-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/contact-page-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/document-coo-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/document-reach-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/document-tds-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/documents-hub-jsonld.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/documents-hub-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/editorial-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/homepage-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/legal-page-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/market-brazil-en-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/market-brazil-pt-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/market-country-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/market-hub-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/market-page-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/market-poland-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/market-uk-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/product-detail-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/product-hub-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/product-process-chloride-jsonld.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/product-process-chloride-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/request-documents-jsonld.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/seo/request-documents-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee",
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/seo/request-sample-jsonld.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/seo/request-sample-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee",
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/seo/resource-hub-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/resource-origin-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/resource-proc-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/rfq-jsonld.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/seo/rfq-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee",
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/seo/thank-you-jsonld.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/tio2-my-publication-inventory.data.json",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/tio2-my-publication-inventory.source.sha256",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/tio2-my-publication-inventory.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/seo/tio2-my-publication-metadata.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/sites/malaysia-shared-font.ts",
+      "implementationCommits": [
+        "c91f5a9e2da7af46b18b0325b5d58d22c379ad19"
+      ]
+    },
+    {
+      "path": "lib/thank-you/malaysia-thank-you-session.ts",
+      "implementationCommits": [
+        "e0fa4fd1c3513bf90c7160a85b781f19650981ee"
+      ]
+    },
+    {
+      "path": "lib/wordpress/about-page-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/application-hub-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/contact-page-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/content-release-validation.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/document-coo-v04-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/document-reach-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/document-tds-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/documents-hub-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/editorial-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/homepage-v04-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/legal-pages-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/market-country-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/market-hub-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/market-page-uk-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/market-page-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/product-detail-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/product-hub-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/request-documents-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/request-sample-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/resource-hub-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/resource-origin-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/resource-proc-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "lib/wordpress/rfq-page-v01-dto.ts",
+      "implementationCommits": [
+        "21df958ec5e87610d26fcf85c8c84053074108a2"
+      ]
+    },
+    {
+      "path": "public/googleaa2e91750b47f47a.html",
+      "implementationCommits": [
+        "b3e75568aa3c81ba79fce375655b8a7bafa79d85"
+      ]
+    }
+  ]
+}
