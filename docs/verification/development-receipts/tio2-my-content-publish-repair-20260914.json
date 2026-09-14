@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "d16-development-receipt-v1",
+  "receiptId": "tio2-my-content-publish-repair-20260914",
+  "state": "MERGED_TO_DEVELOP",
+  "mergeCommit": "78a1a514f714b494af93ea45aacdda0e68c6660b",
+  "paths": [
+    "app/(en)/api/revalidate/route.ts",
+    "app/(en)/products/[familySlug]/page.tsx",
+    "lib/wordpress/product-detail-v01-dto.ts"
+  ],
+  "subjects": ["tio2-my"],
+  "affectedConsumers": ["tio2-my"],
+  "contentScopes": [],
+  "cmsContractChanged": false,
+  "hostPaths": []
+}

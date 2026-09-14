@@ -4,6 +4,7 @@ Reuses the isolated CMS/import/restore and one production build from the existin
 rehearsal. Only failure injection belongs here; production identity/HTTP methods
 are used directly without fake identity values or callback verifiers.
 """
+import argparse
 import hashlib
 import json
 import os
@@ -13,7 +14,7 @@ import subprocess
 import sys
 import time
 
-from content_next_rehearsal import NextRuntime, main, ROOT, docker
+from content_next_rehearsal import NextRuntime, main, ROOT, docker, Page, canonical_url
 from content_hooks import ContentHooks
 from content_release import canonical
 from release_contract import ReleaseError
@@ -28,10 +29,23 @@ class DockerProcess:
 
 
 class InstalledHooksRuntime(NextRuntime):
+    verification_pages=None
+
+    def record_path(self,record):
+        return self.verification_pages[record['pageId']]['path'] if self.verification_pages is not None else super().record_path(record)
+
+    def assert_rendered_fields(self,record,html):
+        if self.verification_pages is None:return super().assert_rendered_fields(record,html)
+        probe=self.verification_pages[record['pageId']];seo=probe['publishedSeo'];page=Page(html)
+        assert ''.join(page.titles)==seo['title'],(record['pageId'],'title')
+        assert page.meta.get('description')==seo['description'],(record['pageId'],'description')
+        assert canonical_url(page.links.get('canonical',''))==canonical_url(seo['canonical'])
+        return page
+
     def launch_next(self,binary,env,log):
         self.next_name='d16-hooks-next-'+secrets.token_hex(6)
         environment=Path(log.name).parent/'next.env'
-        values={key:env[key] for key in ('SITE_ID','NEXT_DIST_DIR','REVALIDATION_SECRET','NEXT_TELEMETRY_DISABLED','NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY')}
+        values={key:env[key] for key in ('SITE_ID','NEXT_DIST_DIR','REVALIDATION_SECRET','NEXT_TELEMETRY_DISABLED','NEXT_PUBLIC_TIO2_MY_WEB3FORMS_ACCESS_KEY','WORDPRESS_EDITORIAL_API_TOKEN')}
         values['WORDPRESS_GRAPHQL_URL']=env['WORDPRESS_GRAPHQL_URL'].replace('127.0.0.1','host.docker.internal')
         values['NODE_PATH']='/app/node_modules'
         environment.write_text(''.join(key+'='+value+'\n' for key,value in values.items()))
@@ -65,6 +79,9 @@ class InstalledHooksRuntime(NextRuntime):
             publicHost='tio2malaysia.com',revalidationSecretFile=str(secret),expectedIdentity={},
             pages={'HOME-001':{'path':'/','fields':['hero.heading'],'robots':'noindex','sitemap':True}})
         self.hooks=ContentHooks(self.hook_config)
+        if self.verification_pages is not None:
+            self.hook_config['pages']=self.verification_pages
+            self.hooks=ContentHooks(self.hook_config)
         self.hook_config['expectedIdentity']=self.hooks.observe_identity()
         self.identity_value=self.hook_config['expectedIdentity']
         self.evidence_context={'hooksImplementation':'ops/production/server/content_hooks.py','runtimeIdentity':self.identity_value,
@@ -78,9 +95,21 @@ class InstalledHooksRuntime(NextRuntime):
 
     def _hook(self,action,value):
         if action=='verify' and 'owner' not in value:
-            return self.hooks.verify(value['package'])
+            try:return self.hooks.verify(value['package'])
+            except ReleaseError:
+                # Read-only diagnostics identify all failing page contracts in
+                # this owned runtime before cleanup, without changing expectations.
+                for record in value['package']['records']:
+                    single={**value['package'],'records':[record],
+                            'contentSha256':hashlib.sha256(canonical([record])).hexdigest()}
+                    try:self.hooks.verify(single)
+                    except ReleaseError as error:print('Page verification failed: '+record['pageId']+' '+str(error),flush=True)
+                raise
         result=self.hooks.execute(action,value)
         if action=='verify':
+            if self.verification_pages is not None:
+                if self.hooks.request(self.internal_url,'/products/not-approved/')[0]!=404:
+                    raise ReleaseError('unregistered product path did not remain 404')
             self.checks.append({'installedHooks':True,'contentSha256':result['contentSha256'],'nginx':True})
             if self.fail=='verify':self.fail=None;raise ReleaseError('injected failure after actual installed page verification')
         return result
@@ -91,11 +120,21 @@ class InstalledHooksRuntime(NextRuntime):
             if name:
                 assert name.startswith('d16-hooks-')
                 if name==getattr(self,'next_name',None) and getattr(self,'log',None):
+                    runtime_log=subprocess.run(['docker','logs',name],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,check=True,timeout=30).stdout
+                    evidence=ROOT/'.local-evidence';evidence.mkdir(exist_ok=True)
+                    (evidence/(name+'-runtime.log')).write_bytes(runtime_log)
                     with Path(self.log.name).open('a',encoding='utf-8') as output:
-                        output.write(docker('logs',name).decode(errors='replace'))
+                        output.write(runtime_log.decode(errors='replace'))
                 docker('rm','-f',name)
 
 
 if __name__=='__main__':
     sys.stdout.reconfigure(encoding='utf-8',errors='replace')
-    main(runtime_class=InstalledHooksRuntime)
+    parser=argparse.ArgumentParser();parser.add_argument('--package',type=Path);parser.add_argument('--revision')
+    args=parser.parse_args()
+    if args.package:
+        os.environ['D16_REHEARSAL_REVISION']=args.revision
+        sys.path.insert(0,str(ROOT/'scripts/production'))
+        from build_content_verification_map import from_revision
+        InstalledHooksRuntime.verification_pages=from_revision(json.loads(args.package.read_bytes()),args.revision,robots='noindex')
+    main(package_path=args.package,runtime_class=InstalledHooksRuntime)

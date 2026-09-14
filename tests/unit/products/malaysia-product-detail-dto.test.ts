@@ -12,6 +12,28 @@ import {
 } from '@/tests/fixtures/tio2-my-product-detail'
 
 describe('M-350 scoped public projection DTO', () => {
+  it('accepts content-release JSON with reordered object keys without changing array order', () => {
+    const readiness = productDetailReadiness()
+    for (const key of Object.keys(readiness)) readiness[key] = true
+    const source = malaysiaProductDetailSource(readiness)
+    const canonicalize = (value: unknown): unknown => Array.isArray(value) ? value.map(canonicalize)
+      : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([key, item]) => [key, canonicalize(item)])) : value
+    expect(toMalaysiaProductDetailDto(canonicalize(source) as never)).toEqual(toMalaysiaProductDetailDto(source))
+  })
+
+  it('still rejects reordered approved actions and changed destinations', () => {
+    const readiness = productDetailReadiness()
+    readiness['CONV-RFQ'] = true
+    readiness['CONV-SAMPLE'] = true
+    const source = malaysiaProductDetailSource(readiness)
+    const reversed = structuredClone(source)
+    const actions = (reversed.publicProjection as {modules: {hero: {actions: unknown[]}}}).modules.hero.actions
+    actions.reverse()
+    expect(() => toMalaysiaProductDetailDto(reversed)).toThrow(ProductDetailContractError)
+    const changed = structuredClone(source)
+    ;(changed.publicProjection as {modules: {hero: {actions: Array<{href: string}>}}}).modules.hero.actions[0]!.href = '/unapproved'
+    expect(() => toMalaysiaProductDetailDto(changed)).toThrow(ProductDetailContractError)
+  })
   it('accepts the exact minimum projection and omits every unready contextual module', () => {
     const dto = toMalaysiaProductDetailDto(malaysiaProductDetailSource())
     expect(dto.identity).toMatchObject({

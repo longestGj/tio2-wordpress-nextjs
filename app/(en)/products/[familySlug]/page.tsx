@@ -24,7 +24,8 @@ import {isPublicRoute} from '@/sites/public-routes'
 
 interface Props {readonly params: Promise<{readonly familySlug: string}>}
 export const revalidate = 3600
-export const dynamicParams = false
+// The explicit scope/slug guards below also protect regenerated cache entries.
+export const dynamicParams = true
 
 async function loadPage({params}: Props) {
   const site = getCurrentSite()

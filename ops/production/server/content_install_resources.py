@@ -111,7 +111,7 @@ def _run(*args, data=None):
 
 
 class InstallationResources:
-    def __init__(self, config, artifact, directory, runner=None):
+    def __init__(self, config, artifact, directory, runner=None, *, previous_installation=None):
         self.config, self.artifact, self.directory = config, artifact, Path(directory)
         self.docker = runner or _run
         self.plugin = Path(config['pluginSource'])
@@ -143,6 +143,10 @@ class InstallationResources:
                 raise ReleaseError('release password file must be private')
         self.wp = config['wordpressContainer']
         self.importer = config['importerContainer']
+        self.upgrade = None
+        if previous_installation is not None:
+            from content_install_upgrade import ImporterUpgrade
+            self.upgrade = ImporterUpgrade(self, previous_installation)
 
     def _inspect(self, container):
         result = json.loads(self.docker('inspect', container))[0]
@@ -189,13 +193,16 @@ class InstallationResources:
         return snapshot, plugin, core, php
 
     def snapshot(self):
-        if self._importer_exists():
+        if self._importer_exists() and self.upgrade is None:
             raise ReleaseError('initial installation refuses an existing importer')
-        return self._capture()[0]
+        result=self._capture()[0]
+        if self.upgrade is not None: result['previousImporter']=self.upgrade.observe()
+        return result
 
     def backup(self, directory):
         baseline = self.snapshot()
         captured, plugin, core, php = self._capture()
+        if self.upgrade is not None: captured['previousImporter']=self.upgrade.observe()
         if captured != baseline:
             raise ReleaseError('WordPress changed during installation backup')
         directory = Path(directory)
@@ -257,6 +264,9 @@ class InstallationResources:
         atomic_write_json(self.directory / 'resources-sealed.json', {'owner': owner, 'executionFiles': hashes(core), 'phpFiles': hashes(php)})
         _write_tree(sealed, core)
         _write_tree(self.directory / ('php-' + owner), php)
+        if self.upgrade is not None:
+            self.upgrade.retain(owner,record['snapshot']['previousImporter'])
+        self.wp=record['snapshot']['wordpressId']
         self._replace(plugin, php)
         args = ['create', '--name', self.importer, '--label', 'd16.install.owner=' + owner,
                 '--read-only', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges',
@@ -269,11 +279,33 @@ class InstallationResources:
             args += ['--env', name + '=' + value]
         args += ['--entrypoint', 'sleep', self.config['importerImage'], 'infinity']
         importer_id = self.docker(*args).decode().strip()
-        self.docker('start', self.importer)
+        atomic_write_json(self.directory/'resources-created.json',{'owner':owner,'containerId':importer_id})
+        self.docker('start', importer_id)
         return {'newImporterId': importer_id, 'pluginFiles': hashes(plugin), 'verification': self.verify()}
 
     def verify(self):
         importer = self._inspect(self.importer)
+        created=self.directory/'resources-created.json'
+        owner=json.loads((self.directory/'resources-owner.json').read_bytes())['owner']
+        if created.exists():
+            if json.loads(created.read_bytes())!={'owner':owner,'containerId':importer['Id']}:
+                raise ReleaseError('created importer ID changed before verification')
+        else:
+            # Completed installations made by the previous program generation
+            # predate resources-created.json; their final evidence pins the ID.
+            state_path=self.directory/'state.json'
+            state=json.loads(state_path.read_bytes()) if state_path.is_file() else {}
+            if (state.get('phase')!='completed' or state.get('plan',{}).get('planSha256')!=owner
+                    or state.get('evidence',{}).get('resources',{}).get('importerId')!=importer['Id']):
+                raise ReleaseError('created importer identity evidence missing')
+        self.verify_importer(importer)
+        expected = {name[len(PREFIX):]: data for name, data in self.artifact['contents'].items() if name.startswith(PREFIX)}
+        if hashes(_tree(self.plugin)) != hashes(expected):
+            raise ReleaseError('installed plugin differs from artifact')
+        return {'importerId': importer['Id'], 'imageId': importer['Image'], 'readonly': True,
+                'pluginFiles': hashes(expected)}
+
+    def verify_importer(self, importer, *, require_running=True):
         owner = json.loads((self.directory / 'resources-owner.json').read_bytes())['owner']
         env = dict(value.split('=', 1) for value in importer['Config']['Env'] if '=' in value)
         expected_mounts = {(str(self.directory / ('sealed-' + owner)), '/var/www/html'),
@@ -282,7 +314,7 @@ class InstallationResources:
         expected_env = {'WORDPRESS_DB_USER': 'root', 'WORDPRESS_DB_PASSWORD_FILE': '/run/secrets/d16-root-password',
                         'WORDPRESS_DB_HOST': self.config['dbHost'], 'WORDPRESS_DB_NAME': self.config['database']}
         if (importer['Config']['Labels'].get('d16.install.owner') != owner
-                or importer['Image'] != self.config['importerImage'] or not importer['State']['Running']
+                or importer['Image'] != self.config['importerImage'] or (require_running and not importer['State']['Running'])
                 or not importer['HostConfig'].get('ReadonlyRootfs') or importer['HostConfig'].get('Privileged')
                 or any(mount['RW'] for mount in importer['Mounts'])
                 or any(mount['Type'] != 'bind' for mount in importer['Mounts'])
@@ -297,18 +329,20 @@ class InstallationResources:
                 or hashes(_tree(self.directory / ('sealed-' + owner))) != sealed['executionFiles']
                 or hashes(_tree(self.directory / ('php-' + owner))) != sealed['phpFiles']):
             raise ReleaseError('sealed importer execution bytes changed')
-        expected = {name[len(PREFIX):]: data for name, data in self.artifact['contents'].items() if name.startswith(PREFIX)}
-        if hashes(_tree(self.plugin)) != hashes(expected):
-            raise ReleaseError('installed plugin differs from artifact')
-        return {'importerId': importer['Id'], 'imageId': importer['Image'], 'readonly': True,
-                'pluginFiles': hashes(expected)}
+        if self.upgrade is not None: self.upgrade.check_security(importer)
 
     def restore(self, owner, backup):
+        expected=backup.get('snapshot',{}).get('previousImporter',{}).get('installationSha256')
+        actual=self.upgrade.previous.name if self.upgrade is not None else None
+        if expected!=actual: raise ReleaseError('resource recovery mode differs from saved backup')
         marker = self.directory / 'resources-owner.json'
         if not marker.exists():
             return
         if json.loads(marker.read_bytes()) != {'owner': owner}:
             raise ReleaseError('installation resource owner mismatch')
+        if self.upgrade is not None:
+            self.upgrade.recover(owner,backup)
+            return
         files = self._backup_files(backup)
         wp = self._inspect(self.wp)
         if (wp['Id'] != backup['snapshot']['wordpressId'] or wp['Image'] != backup['snapshot']['wordpressImage']
@@ -319,6 +353,7 @@ class InstallationResources:
             if importer['Config']['Labels'].get('d16.install.owner') != owner:
                 raise ReleaseError('refusing to remove another owner importer')
             self.docker('rm', '--force', importer['Id'])
+        self.wp=wp['Id']
         self._replace(files['plugin'], files['php'], backup['snapshot']['phpPresent'])
         if hashes(_tree(self.plugin)) != backup['snapshot']['pluginFiles']:
             raise ReleaseError('plugin rollback verification failed')

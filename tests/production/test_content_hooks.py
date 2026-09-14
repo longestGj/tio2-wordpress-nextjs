@@ -116,6 +116,53 @@ class ContentHooksTests(unittest.TestCase):
         self.assertEqual(result['contentSha256'],self.package['contentSha256'])
         self.assertTrue(all(result[key] for key in ('content','status','seo','sitemap')))
 
+    def register_published_seo(self):
+        seo=self.package['records'][0]['content']['seo']
+        seo['description']='CMS source description differs from approved publication metadata'
+        self.package['contentSha256']=hashlib.sha256(canonical(self.package['records'])).hexdigest()
+        self.config['pages']['HOME-001']['publishedSeo']={
+            'title':'Title','description':'Description','canonical':'https://example.test/',
+            'contentSeoSha256':hashlib.sha256(canonical(seo)).hexdigest()}
+        from content_hooks import ContentHooks
+        self.hooks=ContentHooks(self.config,run=self.command)
+        self.config['expectedIdentity']=self.hooks.observe_identity()
+
+    def test_registered_publication_metadata_preserves_original_content_package(self):
+        self.register_published_seo()
+        before=copy.deepcopy(self.package)
+        self.assertTrue(self.hooks.verify(self.package)['seo'])
+        self.assertEqual(self.package,before)
+
+    def test_registered_publication_metadata_rejects_changed_content_seo(self):
+        self.register_published_seo()
+        self.package['records'][0]['content']['seo']['description']='Unreviewed change'
+        self.package['contentSha256']=hashlib.sha256(canonical(self.package['records'])).hexdigest()
+        with self.assertRaisesRegex(ReleaseError,'content SEO differs'):
+            self.hooks.verify(self.package)
+
+    def test_registered_publication_metadata_still_rejects_wrong_rendered_seo(self):
+        self.register_published_seo();self.description='Wrong publication'
+        with self.assertRaisesRegex(ReleaseError,'page SEO verification failed'):
+            self.hooks.verify(self.package)
+
+    def test_registered_publication_metadata_rejects_other_site_canonical(self):
+        self.register_published_seo()
+        self.config['pages']['HOME-001']['publishedSeo']['canonical']='https://another.test/'
+        from content_hooks import validate_config
+        with self.assertRaises(ReleaseError):validate_config(self.config)
+
+    def test_legal_body_checks_prose_links_and_table_cells_not_just_breadcrumb(self):
+        self.config['pages']['HOME-001']['fields']=['buyerVisibleMarkdown']
+        self.package['records'][0]['content']['buyerVisibleMarkdown']=(
+            '# Privacy\n\n**Last updated: today**\n\nRead our [policy](/privacy-policy/).\n\n'
+            '## Storage\n\n| Name | Purpose |\n|---|---|\n| `cookie` | **Remember choice** |')
+        self.package['contentSha256']=hashlib.sha256(canonical(self.package['records'])).hexdigest()
+        self.body='Privacy Last updated: today Read our <a href="/privacy-policy/">policy</a>. Storage Name Purpose <code>cookie</code> <strong>Remember choice</strong>'
+        self.assertTrue(self.hooks.verify(self.package)['content'])
+        self.body='Privacy Last updated: today Read our policy. Storage Name Purpose cookie Old body'
+        with self.assertRaisesRegex(ReleaseError,'visible page content verification failed'):
+            self.hooks.verify(self.package)
+
     def test_origin_canonical_empty_path_and_slash_are_equivalent(self):
         self.package['records'][0]['content']['seo']['canonical']='https://example.test'
         self.package['contentSha256']=hashlib.sha256(canonical(self.package['records'])).hexdigest()

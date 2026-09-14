@@ -9,8 +9,34 @@ const {revalidatePath, revalidateTag} = vi.hoisted(() => ({
 vi.mock('next/cache', () => ({revalidatePath, revalidateTag}))
 
 import {POST} from '@/app/api/revalidate/route'
+import {getTio2MyIndexablePages} from '@/lib/seo/tio2-my-publication-inventory'
 
 const secret = 'revalidation-test-secret'
+
+it('refreshes every registered Malaysia publication path in one signed content batch', async () => {
+  vi.stubEnv('SITE_ID', 'tio2-my')
+  const paths = getTio2MyIndexablePages().map(page => page.pathname!)
+  expect(paths).toHaveLength(57)
+  const contentRelease = {releaseId: 'my-full-release', contentSha256: 'b'.repeat(64)}
+  const response = await POST(signedRequest({...validPayload({siteIds: ['tio2-my'], paths}), contentRelease}))
+  expect(response.status).toBe(200)
+  expect(await response.json()).toMatchObject({ok: true, contentRelease})
+  for (const path of paths) expect(revalidatePath).toHaveBeenCalledWith(path === '/' ? '/' : path.replace(/\/$/, ''))
+  expect(revalidatePath).toHaveBeenCalledWith('/', 'layout')
+  for (const [tag, profile] of revalidateTag.mock.calls) {
+    expect(tag).toContain('tio2-my')
+    expect(profile).toEqual({expire: 0})
+  }
+})
+
+it.each(['tio2-my', 'tio2-b'])('rejects unregistered Product paths for %s even in a signed batch', async siteId => {
+  vi.stubEnv('SITE_ID', siteId)
+  const response = await POST(signedRequest({...validPayload({siteIds: [siteId], paths: ['/products/not-approved/']}),
+    contentRelease: {releaseId: 'unapproved', contentSha256: 'b'.repeat(64)}}))
+  expect(response.status).toBe(400)
+  expect(revalidatePath).not.toHaveBeenCalled()
+  expect(revalidateTag).not.toHaveBeenCalled()
+})
 
 it('expires a signed completed content batch immediately and invalidates the site layout and sitemap', async () => {
   const contentRelease = {releaseId: 'release-17', contentSha256: 'a'.repeat(64)}

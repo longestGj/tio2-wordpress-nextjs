@@ -2,8 +2,8 @@
 
 A full success and verification-failure rollback were recorded on 2026-09-12.
 An earlier Docker Desktop host stopped during installation with disk pressure.
-Explicit opt-in and sufficient Docker VM storage remain required. Nested vfs
-copies images and execution trees and can grow substantially.
+Explicit opt-in and sufficient Docker VM storage remain required. The isolated
+daemon uses overlay2 to avoid vfs copying every image and execution tree.
 
 Uses real WordPress, MariaDB, Nginx, installed hooks, backup restore, resource
 installer, enrollment and journal. The frontend is an explicitly generated,
@@ -65,7 +65,7 @@ def wait_for(function):
 def inside(args):
     os.umask(0o022)
     daemon_log = open('/tmp/d16-backend-daemon.log', 'wb')
-    daemon = subprocess.Popen(['dockerd', '--storage-driver=vfs', '--host=unix:///var/run/docker.sock'],
+    daemon = subprocess.Popen(['dockerd', '--storage-driver=overlay2', '--host=unix:///var/run/docker.sock'],
                               stdout=daemon_log, stderr=subprocess.STDOUT)
     try:
         wait_for(lambda: docker('info'))
@@ -109,8 +109,10 @@ def inside(args):
         for root in roots: root.mkdir(parents=True, exist_ok=True); root.chmod(0o755)
         prod, configdir, state_root = roots[0], roots[1], roots[3]
         (prod / 'form-receipts').mkdir()
-        artifact = validate_bundle('/inputs/install.tar.gz', args.sha)
-        assert artifact['manifest']['commit'] == args.revision
+        next_artifact = validate_bundle('/inputs/install.tar.gz', args.sha)
+        assert next_artifact['manifest']['commit'] == args.revision
+        artifact = validate_bundle('/inputs/install-first.tar.gz', args.previous_sha)
+        assert artifact['manifest']['commit'] == args.previous_revision
         plugin = prod / 'plugin'
         plugin.mkdir()
         for name, data in artifact['contents'].items():
@@ -234,14 +236,25 @@ require_once '/var/www/html/wp-admin/includes/plugin.php';activate_plugin('tio2-
                       nginxFile=str(public_conf), upstreamFile=str(upstream), verificationPackageFile=str(configdir / 'package.json'),
                       previousProductionReceipt='isolated-fixture-baseline')
         cases = []
-        for case in ('verification-failure', 'success'):
+        first_directory=Path('/opt/d16-rehearsal')/args.previous_sha
+        for case in ('verification-failure', 'success','upgrade-verification-failure','upgrade-success'):
+            upgrading=case.startswith('upgrade-')
+            failing=case.endswith('verification-failure')
+            selected_artifact=next_artifact if upgrading else artifact
+            selected_sha=args.sha if upgrading else args.previous_sha
+            before_plugin={item.relative_to(plugin).as_posix():digest(item.read_bytes()) for item in plugin.rglob('*') if item.is_file()}
+            old_importer=json.loads(docker('inspect','importer'))[0]['Id'] if upgrading else None
+            if upgrading:
+                config['hooks']=json.loads((configdir/'content-hooks.json').read_bytes())
+                config['previousProductionReceipt']=digest(canonical(json.loads((state_root/'state.json').read_bytes())))
             content = json.loads(json.dumps(page))
-            if case == 'verification-failure': content['heading'] = 'Deliberately absent heading'
+            if failing: content['heading'] = 'Deliberately absent heading'
             records = [{'pageId': 'HOME-001', 'content': content}]
             package = dict(schemaVersion='d16-content-package-v1', siteId='tio2-my', files=[], records=records, contentSha256=digest(canonical(records)))
             atomic_write_json(configdir / 'package.json', package)
-            directory = Path('/opt/d16-rehearsal') / case
-            backend = ContainerServiceBackend(config, artifact, directory, registry)
+            directory = Path('/opt/d16-rehearsal') / (case if failing else selected_sha)
+            backend = ContainerServiceBackend(config, selected_artifact, directory, registry,
+                                               previous_installation=first_directory if upgrading else None)
             capture = backend.resources._capture
             previous_capture = []
             def diagnostic_capture():
@@ -255,21 +268,26 @@ require_once '/var/www/html/wp-admin/includes/plugin.php';activate_plugin('tio2-
                 previous_capture[:] = [result[0]]
                 return result
             backend.resources._capture = diagnostic_capture
-            engine = ObservedInstallation(directory / 'state.json', backend, args.sha)
+            engine = ObservedInstallation(directory / 'state.json', backend, selected_sha)
             plan = engine.plan()
             assert not Path(hooks['maintenanceFile']).exists() and sql('SELECT @@GLOBAL.read_only') == '0'
             try:
                 result = engine.apply(plan)
-                assert case == 'success'
+                assert not failing
                 assert result['phase'] == 'completed'
             except ReleaseError as error:
-                if case != 'verification-failure': raise
-                assert str(error) == 'visible page content verification failed', 'failure did not reach the intended real HTML check'
+                if not failing: raise
+                assert str(error).startswith('visible page content verification failed'), 'failure did not reach the intended real HTML check'
                 assert engine.status()['phase'] == 'rolled-back'
-                assert {item.relative_to(plugin).as_posix(): digest(item.read_bytes()) for item in plugin.rglob('*') if item.is_file()} == original_plugin
-                assert not (configdir / 'pending-content-runtime.json').exists()
-                assert not (configdir / 'frontend-enrollment.json').exists()
-                assert command('docker', 'inspect', 'importer', check=False).returncode != 0
+                assert {item.relative_to(plugin).as_posix(): digest(item.read_bytes()) for item in plugin.rglob('*') if item.is_file()} == before_plugin
+                if upgrading:
+                    assert json.loads(docker('inspect','importer'))[0]['Id']==old_importer
+                    assert (configdir/'pending-content-runtime.json').exists()
+                    assert (configdir/'frontend-enrollment.json').exists()
+                else:
+                    assert not (configdir / 'pending-content-runtime.json').exists()
+                    assert not (configdir / 'frontend-enrollment.json').exists()
+                    assert command('docker', 'inspect', 'importer', check=False).returncode != 0
             assert not Path(hooks['maintenanceFile']).exists()
             assert sql('SELECT @@GLOBAL.read_only') == '0'
             assert ContentHooks(hooks).request(hooks['publicOrigin'], '/')[0] == 200
@@ -299,18 +317,27 @@ def outer(args):
     inspected_images = [json.loads(docker('image', 'inspect', name))[0] for name in image_names]
     image_ids = [image['Id'] for image in inspected_images]
     # Keep exported image archives on the worktree drive, not Windows TEMP.
-    with tempfile.TemporaryDirectory(prefix='.tmp-' + token, dir=root) as temporary:
+    with tempfile.TemporaryDirectory(prefix='.tmp-' + token, dir=args.input_root or root) as temporary:
         inputs = Path(temporary)
         (inputs / 'image-bindings.json').write_text(json.dumps([
             {'name': name, 'sourceId': image['Id'], 'material': {key: image[key] for key in ('Config', 'RootFS', 'Os', 'Architecture')}}
             for name, image in zip(image_names, inspected_images)]), encoding='utf-8')
         shutil.copyfile(__file__, inputs / 'rehearsal.py')
-        shutil.copytree(root / 'ops/production/server', inputs / 'server', ignore=shutil.ignore_patterns('__pycache__'))
-        # The development code snapshot is frozen once, with every tested hash
-        # in the receipt. Content artifact still comes exclusively from Git.
+        (inputs/'server').mkdir()
+        frozen=command('git','-C',str(root),'archive',args.revision,'ops/production/server').stdout
+        with tarfile.open(fileobj=io.BytesIO(frozen)) as sources:
+            for member in sources.getmembers():
+                if member.isdir():continue
+                prefix='ops/production/server/'
+                relative=member.name.removeprefix(prefix)
+                if not member.isfile() or not member.name.startswith(prefix) or '/' in relative or relative in {'','..'}:
+                    raise RuntimeError('unexpected committed server file')
+                (inputs/'server'/relative).write_bytes(sources.extractfile(member).read())
+        # Both the installed program and CMS artifact use exact committed bytes.
         spec = importlib.util.spec_from_file_location('backend_fixture_builder', root / 'ops/production/build_content_install_bundle.py')
         builder = importlib.util.module_from_spec(spec); spec.loader.exec_module(builder)
         artifact = builder.build(args.revision, inputs / 'install.tar.gz')
+        first_artifact = builder.build(args.previous_revision, inputs / 'install-first.tar.gz')
         with (inputs / 'images.tar').open('wb') as output:
             result = subprocess.run(['docker', 'image', 'save', *image_names], stdout=output, stderr=subprocess.PIPE, timeout=900)
             if result.returncode: raise RuntimeError('could not freeze local runtime images')
@@ -321,13 +348,14 @@ def outer(args):
                              '--mount', f'type=volume,source={volume},target=/var/lib/docker',
                              '--mount', f'type=bind,source={inputs},target=/inputs,readonly', '--entrypoint', 'python3', image_ids[0],
                              '/inputs/rehearsal.py', '--inside', '--token', token, '--revision', args.revision,
+                             '--previous-revision',args.previous_revision,'--previous-sha',first_artifact['archiveSha256'],
                              '--sha', artifact['archiveSha256'], '--runtime-image', image_ids[0], '--wp-image', image_ids[1], '--db-image', image_ids[2],
                              check=False, timeout=2400)
             if result.returncode:
                 sys.stderr.write(result.stderr.decode(errors='replace'))
                 raise RuntimeError('actual backend orchestration rehearsal failed')
             receipt = json.loads(result.stdout)
-            receipt['helperSource'] = 'frozen development worktree snapshot; per-file hashes recorded'
+            receipt['helperSource'] = 'exact committed revision; per-file hashes recorded'
             receipt['runtimeImages'] = image_ids
             receipt['harnessSha256'] = digest((inputs / 'rehearsal.py').read_bytes())
             if args.output: Path(args.output).write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8')
@@ -346,7 +374,10 @@ def outer(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--revision', required=True)
+    parser.add_argument('--previous-revision',default='7c849af234602cf299cb75e772a0104f77b849cd')
+    parser.add_argument('--previous-sha')
     parser.add_argument('--output')
+    parser.add_argument('--input-root',type=Path,help='Existing local directory for temporary frozen image archives')
     parser.add_argument('--inside', action='store_true')
     parser.add_argument('--allow-experimental-nested-docker', action='store_true')
     for name in ('token', 'sha', 'runtime-image', 'wp-image', 'db-image'): parser.add_argument('--' + name)
