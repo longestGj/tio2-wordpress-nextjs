@@ -10,7 +10,7 @@
 
 **Spec:** [已确认正式设计](../specs/2026-09-14-cms-write-approval-separation-design.md)。本文为待执行计划，不是实现声明。
 
-**执行状态（2026-09-14）：**Task 1–5 的局部实现、定向审查和两次隔离真实页面验收已记录于[W3-A1 验证回执](../../verification/2026-09-14-cms-decoupling-w3-a1.md)；本计划的未勾选步骤保留原验收清单语义，不表示已经逐项合入 `develop`。Task 6 文档与定向验证进行中，`a526d6ca` 至最终实现的总审查、四项 deferred minor 最终裁定、目标 `develop` 漂移核对及准确合并由控制者完成。在这些条件成立前仅可记 `LOCAL_VERIFIED_REVIEW_PENDING`，不得写 `MERGED_TO_DEVELOP`；无生产安装或发布。
+**执行状态（2026-09-14）：**Task 1–5 的局部实现、定向审查和两次隔离真实页面验收，以及后续总审查发现的 fresh-map 缺陷、返修、准确合入 `develop@034a416f` 与合并后定向回归，均见[W3-A1 开发回执](../../verification/2026-09-14-cms-decoupling-w3-a1.md)。HOME-001/APP-000 本批代码状态为 `MERGED_TO_DEVELOP`；下列未勾选条目保留原执行清单和历史假设，不代表未合入或要求重跑。三项非阻断 minor 递延，两项文档 minor 已处理；W3-A2、其他工作包、生产安装和发布均未因此完成。
 
 ## Global Constraints
 

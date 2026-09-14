@@ -91,3 +91,35 @@ Task 1–4 的独立局部审查及返修复审已清；Task 5 实现提交为 `
 本批仅覆盖 `tio2-my` HOME-001/APP-000。普通保护包括 `wp_insert_post`/`wp_update_post`、REST/ACF/meta 与正常 cron，但特权代码直调低层 `wp_publish_post` 或 SQL 不在保证内；外部持久化 object cache 无法证明隔离时拒绝公开写入。批准根、环境 ID、非 root WP writer UID、真实 edit/publish capability 均须由安装/实际用户独立提供并在写入前核对；只读、其他页面族、A/B 保持先前规则。旧 `d16-content-package-v1` 对 U+2028/U+2029 的既有 canonical 传输差异仍会拒绝此类包，虽新批准摘要 PHP/Python 已一致；隔离导入器复现拒绝且所选目标 posts/meta 未变。Task 4 的目标快照未覆盖全部 post 字段、meta 行 ID 或 scope 关系，不能据此单独宣称“完整 posts/meta/整库未变”；整库恢复另据上列 Task 5 实际演练。没有安装证明、正式业务批准、Preview/Production 部署或生产能力变更；登记仍为 `content-only: not-installed`。
 
 最终复审需明确裁定原 W3-A1 ledger 的两项 minor（PHP absent/null 断言、非目标 slug 的 MY application_hub 可能额外失效），以及新计划的两项 deferred minor（Task 1 单缺陷负例夹具、Task 4 局部快照措辞）；不能因局部审查已清而静默关闭。当前分支来源 `f3099ef3`，`develop` 已从原 W3-A1 基线 `a526d6ca` 前进到 `d5a061f6`；合入前须复核目标新增的 content hooks/产品路由相关回归、全范围审查、工作树及 merge diff。**本记录现在是本地验证且待审查，不是 `MERGED_TO_DEVELOP` 开发回执。**W3-A2、其余 W3/W4/W5/W6 及生产均未因此完成。
+
+## 最终开发回执（2026-09-14；`MERGED_TO_DEVELOP`）
+
+上节 `LOCAL_VERIFIED_REVIEW_PENDING` 及更早的 `BLOCKED_UNMERGED` 是各自时点，原失败和 run 不变。本节仅对 `tio2-my` HOME-001 `/`、APP-000 `/applications/` 的本批代码与本地开发合入结果生效。原基线 `a526d6ca178f2fe31ecdca24484ae0c3259242fc`；目标 `develop` 合入前为 `d5a061f60c7521a58b59292e337fe2788394cae9`；控制者已将最终实现 `034a416f58b490ee504052e92ffc361f1228c4f4` 准确 fast-forward 到 `develop`。本次写回执前只读核对目标工作树干净、HEAD 为 `034a416f` 且该提交是 `develop` 祖先。当前回执提交由控制者另核差异后推进，不把回执写入动作冒称此前生产或主分支操作。
+
+Task 1–5 各自独立审查与返修复审已清；针对 `a526d6ca..19797e19` 的最终全范围只读审查发现一项 Important：新生成的 HOME/APP 页面验证映射仍取旧 inventory SEO，而前端已取 CMS SEO，合法候选可能在维护窗口页面验证时被误拒。修复提交 `034a416f` 只改 fresh-map 选择和直接测试，改由候选 CMS title/description 派生两页预期 SEO，仍由 inventory/环境控制 canonical、robots、sitemap；既有已登记 map 不被自动改写。修复前真实 verifier 用例 7 项中 HOME/APP 两项 RED，修复后同命令 7 项 GREEN，另有 18 项 content-hook 回归通过；定向独立复审结论为该 Important 已解决、无新增破坏。该修复是源码兼容，不是生产重新登记。
+
+控制者在准确目标 `develop@034a416f`、本地 2026-09-14 09:12（Asia/Shanghai）运行并记录：
+
+| 命令 / 环境 | 结果 | 边界 |
+|---|---|---|
+| `python -m pytest tests/production/test_content_hooks.py tests/production/test_content_verification_map.py tests/production/test_content_docker.py tests/production/test_site_content_adapter.py tests/production/test_content_release.py tests/production/test_content_rehearsal_failures.py -q` | 64 passed、1 skipped，22.47 秒，退出 0 | 唯一 skip 为未启用 `D16_TEST_REHEARSAL_DOCKER_FAILURES` 的门控 Docker probe；较早在 `f3099ef3` 上单独启用并实际通过 9 项故障/清理测试，不能记作本次未跳过 |
+| `npx --no-install vitest run tests/integration/api/revalidate.test.ts tests/integration/api/product-revalidation.test.ts tests/integration/api/home-application-revalidation.test.ts tests/unit/homepage/metadata.test.ts tests/unit/homepage/jsonld.test.ts tests/unit/applications/malaysia-application-hub-seo.test.ts tests/unit/homepage/home-application-read-contract.test.ts` | 7 文件、215 passed，4.54 秒，退出 0 | 本批刷新与正文/SEO 及直接共享消费者回归；不与前述旧命令计数相加 |
+| `npx --no-install tsc --noEmit --incremental false`；`git diff --check` | 均退出 0，类型检查无诊断、差异检查无问题 | 目标开发代码核对；不是生产构建或发布侧验收 |
+
+两次真实隔离 CMS→Next 页面验收仍严格属于前述 `f14da2a6` 冻结源码/hash 和两个独立 run；`f3099ef3` 是清理失败路径修正，`034a416f` 是 fresh-map 修正。合并后定向测试覆盖新映射及直接消费链，但未把旧 Build、截图或数据库 run 重新标为最终 SHA 的全页面运行。接收事件、失效调用与最终页面输出继续分别报告；目标站适用完整生产安装、业务批准、预发布/生产验收及发布均未发生，网站登记 `content-only: not-installed` 不变。未迁移 MY 页面族、Site A/B 和共享 chrome 仍按原边界；W3-A2 及其余 W3、W4–W6 不随本批关闭。
+
+### 技术裁定与显式代价（按执行台账原顺序）
+
+1. HOME 旧 footer 只允许保留当前完整值与存在性，`current_json=null` 不得新添；代价是新草稿 seed 须省略该字段，不用旧稿推导新运行 schema。
+2. 独立安装非 root `TIO2_CONTENT_WRITER_UID`；批准文件及祖先须 root 拥有、不可组/其他写且无符号链接，不从 CLI euid 推断写身份。代价是配置更严格、无法验证时拒写；root CLI 本身不构成受保护来源证明，未改机器权限。
+3. 完整 JSON 内容摘要拒绝浮点和超出精确 53 位范围的整数；代价是未来不受支持数据被拒，而非悄悄舍入或改批准字节。
+4. 新批准摘要在 PHP/Python 两端使用字面 U+2028/U+2029，旧内容包 canonical 保持原样；代价是将来若迁移批准格式须另做版本转换，不能静默改旧包哈希，现存分隔符传输拒绝另行披露。
+5. 普通 PHP `meta_input` 拒绝用核心 pre-SQL `wp_insert_post_empty_content` 门，REST 用明确 pre-insert 错误；代价是低层 PHP 调用得到核心通用 `empty_content`（按调用方式为 0 或 WP_Error）而非定制文案，限制仅本批目标。
+6. 无法证明隔离的外部持久化 object cache 安装拒绝普通事务；请求内暂停 cache additions 后恢复原状态。代价是此类环境中的获批写入暂不可用，而非冒险留下未提交缓存；未改生产 cache 安装。
+7. 普通保证覆盖 `wp_insert_post`/`wp_update_post`、REST/ACF/meta 与正常 cron（MY future 在低层发布前拒绝），其他族委派原行为。特权自定义 PHP 直接调用无 capability 门且先写 SQL 的低层 `wp_publish_post` 及直接 SQL 不支持；代价是可信特权代码仍可绕过普通钩子，不能声称普遍拦截所有 API。
+8. 通知重试在时效内复用原收据/事件体，过期时先持久化新事件 ID/时间并保留旧尝试身份；代价是模糊超时后可能重复失效缓存，但不重复写内容；409/超时不得记作已送达。
+9. 通知专用重试仅接受服务端存储的不透明收据 ID，重新核对固定目标的 edit/publish capability、已安装站点/环境，不要求额外 `manage_options`；代价是未来操作员模型可能需收紧权限。收据提交前持久化失败回滚，提交后结果持久化失败保留已提交内容及不确定状态，不能由调用者供应事件/终点。
+10. 受保护 runtime-v1 可选严格 `approvalId`，只由固定执行配置传给 validate/import，包不能覆盖；根/环境/writer UID 仍由 PHP 安装常量提供。代价是未来工具需协调配置版本；缺 ID 只拒本批迁移页写入，export 与其他族保持兼容；源代码支持不等于安装。
+11. 真实 POSIX root 保护/执行钩子的测试采用准确命名且归属核验的 Linux 控制器，Windows 不模拟权限；代价是多一个 Docker 测试运行依赖。Docker socket 只读挂载不限制其 API 权限，仍须以 owned 名称、标签和配置限界；未操作共享镜像或生产。
+
+最终审查的三项非阻断 minor **递延、未静默关闭**：Task 1 来源负例夹具存在替代拒绝原因（后续改为其余字段有效、每例单缺陷）；PHP absent/null 投影断言混淆（后续加存在标志/哨兵）；MY application_hub 非规范 slug 可能造成额外失效（后续精确身份过滤且保留真实身份变化的 before-image 失效）。审查未发现它们在本批造成批准绕过、内容泄漏或跨站写入。两项文档 minor **已解决**：Task 4 局部目标快照不再称完整 post/meta/整库证明；README 已披露旧包 U+2028/U+2029 限制。它们的处置及已知旧包拒绝边界不扩展本次安装、生产或其他网站授权。
