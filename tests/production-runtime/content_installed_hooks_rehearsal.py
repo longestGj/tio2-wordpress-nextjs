@@ -31,6 +31,9 @@ class DockerProcess:
 class InstalledHooksRuntime(NextRuntime):
     verification_pages=None
 
+    def record_path(self,record):
+        return self.verification_pages[record['pageId']]['path'] if self.verification_pages is not None else super().record_path(record)
+
     def assert_rendered_fields(self,record,html):
         if self.verification_pages is None:return super().assert_rendered_fields(record,html)
         probe=self.verification_pages[record['pageId']];seo=probe['publishedSeo'];page=Page(html)

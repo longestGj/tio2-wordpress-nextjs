@@ -6,6 +6,7 @@ import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {resolveProductPageIdentity} from '@/lib/products/page-graph'
 import {getCurrentSite} from '@/lib/sites/current-site'
+import {getTio2MyPublicationPageByPath} from '@/lib/seo/tio2-my-publication-inventory'
 import {editorialPageIdForPath,editorialTag} from '@/lib/editorial/malaysia-editorial-contracts'
 import {SITE_IDS} from '@/sites'
 import {
@@ -266,7 +267,8 @@ export async function POST(request: Request): Promise<Response> {
         currentSite.id === 'tio2-my' &&
         (
           path === '/products/chloride-process-titanium-dioxide' ||
-          editorialPageIdForPath(path) === 'PRODUCT-PROC-SU'
+          editorialPageIdForPath(path) === 'PRODUCT-PROC-SU' ||
+          getTio2MyPublicationPageByPath(`${path}/`)?.expectedStatus === 200
         )
       ),
   )

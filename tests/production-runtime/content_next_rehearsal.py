@@ -95,6 +95,8 @@ def canonical_url(value):
 
 
 class NextRuntime(RehearsalRuntime):
+    def record_path(self,record):return route(record)
+
     def assert_rendered_fields(self, record, html):
         page=Page(html); seo=record['content'].get('seo',{})
         title=seo.get('title'); description=seo.get('description')
@@ -302,7 +304,7 @@ def main(package_path=None, runtime_class=NextRuntime):
                     # Warm production route must still display the old cached title
                     # before the signed batch. This makes refresh effectiveness observable.
                     for record in before['records']:
-                        _,html=request(getattr(backend,'internal_url',backend.url)+route(record),headers={'X-D16-Verify':backend.secret})
+                        _,html=request(getattr(backend,'internal_url',backend.url)+backend.record_path(record),headers={'X-D16-Verify':backend.secret})
                         backend.assert_rendered_fields(record,html)
                     engine.finish('real-next-success')
                     print('Actual WPGraphQL → signed cache refresh → Next HTML/SEO/sitemap passed',flush=True)
@@ -323,7 +325,7 @@ def main(package_path=None, runtime_class=NextRuntime):
                     evidence=ROOT/'.local-evidence';evidence.mkdir(exist_ok=True)
                     screenshot=evidence/(token+'-restored.png')
                     browser_script="""const {chromium}=require('@playwright/test');(async()=>{const browser=await chromium.launch({headless:true});try{const page=await browser.newPage({viewport:{width:1440,height:1000}});await page.goto(process.argv[1],{waitUntil:'networkidle',timeout:60000});await page.screenshot({path:process.argv[2]});}finally{await browser.close()}})().catch(error=>{console.error(error);process.exit(1)})"""
-                    subprocess.run(['node','-e',browser_script,'http://127.0.0.1:'+str(backend.port)+route(package['records'][0]),str(screenshot)],cwd=ROOT,check=True,timeout=90)
+                    subprocess.run(['node','-e',browser_script,'http://127.0.0.1:'+str(backend.port)+backend.record_path(package['records'][0]),str(screenshot)],cwd=ROOT,check=True,timeout=90)
                     print(json.dumps({'result':'PASS','mode':'real-local-wordpress-wpgraphql-next-production-build','buildId':backend.identity_value['buildId'],'frontendPid':backend.next.pid,
                         'frontendRestarted':False,'databaseRestored':True,'checks':backend.checks,'screenshot':str(screenshot),'productionTouched':False,
                         'contentSha256':package['contentSha256'],'recordsVerified':[r['pageId'] for r in package['records']],
