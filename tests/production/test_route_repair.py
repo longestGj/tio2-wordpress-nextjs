@@ -55,7 +55,7 @@ global.fetch=async (url,options)=>{
 
     def test_payload_rejects_arbitrary_metadata_or_wrong_route(self):
         from route_repair import validate_payload, KEYS
-        config=json.loads((ROOT/'wordpress/plugins/tio2-site-model/config/tio2-my-prerelease-public-paths.json').read_bytes())
+        config=json.loads((ROOT/'tests/production/fixtures/tio2-my-route-repair-public-paths.json').read_bytes())
         targets={};changes=[]
         for index,route in enumerate(r for r in config['routes'] if r['pageId']!='CONV-THANK'):
             name='page:route-'+str(index)
