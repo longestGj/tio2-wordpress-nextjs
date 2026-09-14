@@ -1,0 +1,3199 @@
+{
+  "schemaVersion": "w0-planning-field-ownership-v1",
+  "baseline": "7c849af234602cf299cb75e772a0104f77b849cd",
+  "scope": "Repository contract shapes, not live CMS data or a new validation allowlist",
+  "classificationGranularity": "Top-level field/subtree ownership with mandatory nested-field rules in companion Markdown; no claim of 9056 individually approved leaf classifications",
+  "contracts": [
+    {
+      "file": "tio2-my-about-page.json",
+      "id": "ABOUT-001",
+      "pageIds": [
+        "ABOUT-001"
+      ],
+      "sha256": "058653d66b947480646873911dbfa45e2cb16e88163b95cd851340e7b5dd3ff3",
+      "leaves": 211,
+      "fields": [
+        {
+          "path": "packageId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "whoWeAre",
+          "role": "content"
+        },
+        {
+          "path": "whyMalaysia",
+          "role": "content"
+        },
+        {
+          "path": "whatWeDo",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "howWeWork",
+          "role": "content"
+        },
+        {
+          "path": "documentation",
+          "role": "content"
+        },
+        {
+          "path": "companyFacts",
+          "role": "content"
+        },
+        {
+          "path": "finalCta",
+          "role": "content"
+        },
+        {
+          "path": "schema",
+          "role": "seo"
+        },
+        {
+          "path": "media",
+          "role": "media"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-application-hub.json",
+      "id": "APP-000",
+      "pageIds": [
+        "APP-000"
+      ],
+      "sha256": "8d5579c60476bdbdda7ff87e6ce858d1d7f2a659d648530c865f6530a7d2f0f1",
+      "leaves": 302,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "applicationPaths",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "support",
+          "role": "content"
+        },
+        {
+          "path": "finalRfq",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-contact-page.json",
+      "id": "CONTACT-001",
+      "pageIds": [
+        "CONTACT-001"
+      ],
+      "sha256": "731184b9f2f3750d3e6d2f8b6062c9924590cb5cafc4af10ea38f32a94338d9b",
+      "leaves": 121,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "contactDetails",
+          "role": "content"
+        },
+        {
+          "path": "specialistRouting",
+          "role": "content"
+        },
+        {
+          "path": "form",
+          "role": "form"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "schema",
+          "role": "seo"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-document-coo.json",
+      "id": "DOC-COO",
+      "pageIds": [
+        "DOC-COO"
+      ],
+      "sha256": "ccf31eed8eeb48932c294a8b0d29ee9549c61ffb43e1c72d0fad4d50c44fb7c1",
+      "leaves": 84,
+      "fields": [
+        {
+          "path": "schemaVersion",
+          "role": "technical"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "sections",
+          "role": "content"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-document-reach.json",
+      "id": "DOC-REACH",
+      "pageIds": [
+        "DOC-REACH"
+      ],
+      "sha256": "f9d2a1f14be61eeeb585454ffc139d9ac5051b1515950f39748e8f0e1cf0b339",
+      "leaves": 226,
+      "fields": [
+        {
+          "path": "schema_version",
+          "role": "technical"
+        },
+        {
+          "path": "package_id",
+          "role": "evidence"
+        },
+        {
+          "path": "page",
+          "role": "identity"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "answer_decision",
+          "role": "policy"
+        },
+        {
+          "path": "request_contract",
+          "role": "action"
+        },
+        {
+          "path": "modules",
+          "role": "content"
+        },
+        {
+          "path": "evidence_controls",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-document-tds.json",
+      "id": "DOC-TDS",
+      "pageIds": [
+        "DOC-TDS"
+      ],
+      "sha256": "85629fd74fcce082fdce7374ddc7a9e6570dc93db46b1e0871bc194b20e387ea",
+      "leaves": 217,
+      "fields": [
+        {
+          "path": "schema_version",
+          "role": "technical"
+        },
+        {
+          "path": "package_id",
+          "role": "evidence"
+        },
+        {
+          "path": "page",
+          "role": "identity"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "request_contract",
+          "role": "action"
+        },
+        {
+          "path": "modules",
+          "role": "content"
+        },
+        {
+          "path": "evidence_controls",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-documents-hub.json",
+      "id": "DOC-000",
+      "pageIds": [
+        "DOC-000"
+      ],
+      "sha256": "6a71d67ded034f9d0680159c0c1e525b76b02544023f83e8156ed13142447ca9",
+      "leaves": 130,
+      "fields": [
+        {
+          "path": "packageId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "gradeSelector",
+          "role": "content"
+        },
+        {
+          "path": "howItWorks",
+          "role": "content"
+        },
+        {
+          "path": "reviewScenarios",
+          "role": "content"
+        },
+        {
+          "path": "documentCategories",
+          "role": "content"
+        },
+        {
+          "path": "documentGuides",
+          "role": "content"
+        },
+        {
+          "path": "whyOnRequest",
+          "role": "content"
+        },
+        {
+          "path": "buyerQuestions",
+          "role": "content"
+        },
+        {
+          "path": "closingCta",
+          "role": "content"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-app-coat.json",
+      "id": "APP-COAT",
+      "pageIds": [
+        "APP-COAT"
+      ],
+      "sha256": "7ef0e6fec51967c64af07bc5ab33d4520e0b9bb09a012a134c3d4cf829363adb",
+      "leaves": 24,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-app-ink.json",
+      "id": "APP-INK",
+      "pageIds": [
+        "APP-INK"
+      ],
+      "sha256": "cacdb72f0cc180fe86fa6d528e6fdfbd0ad74ef9a6583a2eb3f27fb1887fae39",
+      "leaves": 24,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-app-mb.json",
+      "id": "APP-MB",
+      "pageIds": [
+        "APP-MB"
+      ],
+      "sha256": "7c52e5bef6b3ab48516143acc56ab545ec9748a238d7d0d64da9dd7f4cf74c52",
+      "leaves": 24,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-app-paper.json",
+      "id": "APP-PAPER",
+      "pageIds": [
+        "APP-PAPER"
+      ],
+      "sha256": "f743529be6e887b7ac8cfe494819ea4bf69f0553ba3fa0329f4edc0c8da5cc5e",
+      "leaves": 24,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-app-plas.json",
+      "id": "APP-PLAS",
+      "pageIds": [
+        "APP-PLAS"
+      ],
+      "sha256": "05bb20290aa461fb93879133aaf2859101ea31065846a4bf964c91ca77332316",
+      "leaves": 24,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-market-eu-de.json",
+      "id": "MARKET-EU-DE",
+      "pageIds": [
+        "MARKET-EU-DE"
+      ],
+      "sha256": "037d7b19f9963fb358d576a960fa256c99700cbf0eb3a0867bce3e6af88f9bc5",
+      "leaves": 32,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-market-eu-it.json",
+      "id": "MARKET-EU-IT",
+      "pageIds": [
+        "MARKET-EU-IT"
+      ],
+      "sha256": "981cb7527d0192753314c938550ed99d9d5aec8ce9806f69e37d0e8800a25e77",
+      "leaves": 31,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-product-proc-su.json",
+      "id": "PRODUCT-PROC-SU",
+      "pageIds": [
+        "PRODUCT-PROC-SU"
+      ],
+      "sha256": "c0b2c1818e9d6d1b5fc6188585442782347f9761a5fc7bb32a18f0ab236868f9",
+      "leaves": 36,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-res-chemours.json",
+      "id": "RES-CHEMOURS",
+      "pageIds": [
+        "RES-CHEMOURS"
+      ],
+      "sha256": "70fd2ea5c865060c59badf26efc3db1e453a94b3fe3bf0464dd41d554389591d",
+      "leaves": 29,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-res-r706.json",
+      "id": "RES-R706",
+      "pageIds": [
+        "RES-R706"
+      ],
+      "sha256": "21aad6bb442a940539cc8c95e7abc8e63d62841411048033ea07ba47417b065b",
+      "leaves": 29,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-res-trade-br.json",
+      "id": "RES-TRADE-BR",
+      "pageIds": [
+        "RES-TRADE-BR"
+      ],
+      "sha256": "9638b817eb919fd2056e85f0e0cfe8ae3e4d34c04f319c9f4c3bb18c20dee211",
+      "leaves": 28,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-res-trade-eu.json",
+      "id": "RES-TRADE-EU",
+      "pageIds": [
+        "RES-TRADE-EU"
+      ],
+      "sha256": "d9cead73e68a354060beeefd92cf935eb4dd4b82d718ae6f821f07a90a409676",
+      "leaves": 28,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-res-trade-in.json",
+      "id": "RES-TRADE-IN",
+      "pageIds": [
+        "RES-TRADE-IN"
+      ],
+      "sha256": "1b26ca7e99ccd1c94b41d62f26cb407aa6690dc139d2e32be596ac11ad1679d2",
+      "leaves": 28,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-editorial-res-trade-uk.json",
+      "id": "RES-TRADE-UK",
+      "pageIds": [
+        "RES-TRADE-UK"
+      ],
+      "sha256": "8d1f37c7338377158bb06b6cf1f6f4bcd4d15dafa7fdf860d7064fd0bc6276fb",
+      "leaves": 28,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "source",
+          "role": "evidence"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "heading",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "bodyHtml",
+          "role": "content"
+        },
+        {
+          "path": "mainClass",
+          "role": "technical"
+        },
+        {
+          "path": "freshness",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-homepage.json",
+      "id": "HOME-001",
+      "pageIds": [
+        "HOME-001"
+      ],
+      "sha256": "c89cc1e7029b96c67c7183b4081e1526905a4f1875da9a9f9f6b290e2cd8554c",
+      "leaves": 277,
+      "fields": [
+        {
+          "path": "packageId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "schemaGraph",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "startHere",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "products",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "company",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "resources",
+          "role": "content"
+        },
+        {
+          "path": "pageRfq",
+          "role": "content"
+        },
+        {
+          "path": "footer",
+          "role": "content"
+        },
+        {
+          "path": "responsive",
+          "role": "technical"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-legal-pages.json",
+      "id": "LEGAL-SHARED",
+      "pageIds": [
+        "LEGAL-PRIV-EN",
+        "LEGAL-PRIV-MS",
+        "LEGAL-COOKIE-EN"
+      ],
+      "sha256": "3e275694a98382cc3edb8adfdd49839ca9e825f67082fd2050ce88e5a8c2c954",
+      "leaves": 91,
+      "fields": [
+        {
+          "path": "packageId",
+          "role": "evidence"
+        },
+        {
+          "path": "schemaVersion",
+          "role": "technical"
+        },
+        {
+          "path": "siteScope",
+          "role": "identity"
+        },
+        {
+          "path": "releaseState",
+          "role": "policy"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "pages",
+          "role": "collection"
+        },
+        {
+          "path": "consent",
+          "role": "consent"
+        },
+        {
+          "path": "activationOverlay",
+          "role": "consent"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-market-brazil-en.json",
+      "id": "MARKET-BR-EN",
+      "pageIds": [
+        "MARKET-BR-EN"
+      ],
+      "sha256": "75f5f8583c5842e6334c78fae011e9c20a6bb55fbeece571668fa979760e0d8c",
+      "leaves": 92,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "modules",
+          "role": "content"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-market-brazil-pt.json",
+      "id": "MARKET-BR-PT",
+      "pageIds": [
+        "MARKET-BR-PT"
+      ],
+      "sha256": "6f9bd30f3db034ecb209353843799ce43af6dac6f9f37edf0903334a4f04a64e",
+      "leaves": 114,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "languageNotice",
+          "role": "content"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "modules",
+          "role": "content"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-market-eu-001.json",
+      "id": "MARKET-EU-001",
+      "pageIds": [
+        "MARKET-EU-001"
+      ],
+      "sha256": "b8dc9ad4c16a732e2e0cf87b2eefc5a684f2f904294d85e707c0985e0ebdfcb6",
+      "leaves": 319,
+      "fields": [
+        {
+          "path": "packageId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "moduleOrder",
+          "role": "technical"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "relations",
+          "role": "action"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "supplierDefinition",
+          "role": "content"
+        },
+        {
+          "path": "procurement",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "grades",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "importRoles",
+          "role": "content"
+        },
+        {
+          "path": "origin",
+          "role": "content"
+        },
+        {
+          "path": "trade",
+          "role": "content"
+        },
+        {
+          "path": "destinations",
+          "role": "content"
+        },
+        {
+          "path": "buyerQuestions",
+          "role": "content"
+        },
+        {
+          "path": "conversion",
+          "role": "content"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-market-eu-be.json",
+      "id": "MARKET-EU-BE",
+      "pageIds": [
+        "MARKET-EU-BE"
+      ],
+      "sha256": "e428186712ebe6c79b95a66839fa7e57d1007730f00130c1072a5246aebd20ef",
+      "leaves": 95,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "destinationCountry",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "modules",
+          "role": "content"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-market-eu-es.json",
+      "id": "MARKET-EU-ES",
+      "pageIds": [
+        "MARKET-EU-ES"
+      ],
+      "sha256": "3a686ce9b666f071185f6d1532dc92bb36a5ad01a0fa5aec7b2f8eb678541ccb",
+      "leaves": 94,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "destinationCountry",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "modules",
+          "role": "content"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-market-eu-nl.json",
+      "id": "MARKET-EU-NL",
+      "pageIds": [
+        "MARKET-EU-NL"
+      ],
+      "sha256": "5b8ff3ceced7bedd778098174cefe42c48c5e127144adcdab039dc5a9d5220fe",
+      "leaves": 95,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "destinationCountry",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "modules",
+          "role": "content"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-market-hub.json",
+      "id": "MARKET-000",
+      "pageIds": [
+        "MARKET-000"
+      ],
+      "sha256": "bdc9229b441aeada34b9788e139bbbb60965b6edb1af0d8ae4379f1d7ce72684",
+      "leaves": 150,
+      "fields": [
+        {
+          "path": "packageId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "destinations",
+          "role": "content"
+        },
+        {
+          "path": "choice",
+          "role": "content"
+        },
+        {
+          "path": "procurement",
+          "role": "content"
+        },
+        {
+          "path": "trade",
+          "role": "content"
+        },
+        {
+          "path": "buyerQuestions",
+          "role": "content"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-market-in-001.json",
+      "id": "MARKET-IN-001",
+      "pageIds": [
+        "MARKET-IN-001"
+      ],
+      "sha256": "5c17a1035c44fb118c305ab42a978d7f278aa89ccc29d84f791eff900581e73b",
+      "leaves": 94,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "destinationCountry",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "modules",
+          "role": "content"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-market-poland.json",
+      "id": "MARKET-EU-PL",
+      "pageIds": [
+        "MARKET-EU-PL"
+      ],
+      "sha256": "2b0a91d5ebef883753b0507e667349e286603fea6bdb60fb9894b8a66dde70bf",
+      "leaves": 64,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "modules",
+          "role": "content"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-market-uk-001.json",
+      "id": "MARKET-UK-001",
+      "pageIds": [
+        "MARKET-UK-001"
+      ],
+      "sha256": "7ba05bf040580ffde50a70b6c069652b251eddf51ce37b593cc8c74f91723929",
+      "leaves": 329,
+      "fields": [
+        {
+          "path": "packageId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "directAnswer",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "grades",
+          "role": "content"
+        },
+        {
+          "path": "territory",
+          "role": "content"
+        },
+        {
+          "path": "checklist",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "origin",
+          "role": "content"
+        },
+        {
+          "path": "trade",
+          "role": "content"
+        },
+        {
+          "path": "buyerQuestions",
+          "role": "content"
+        },
+        {
+          "path": "finalRfq",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-cr901.json",
+      "id": "GRADE-CR901",
+      "pageIds": [
+        "GRADE-CR901"
+      ],
+      "sha256": "b4b804e47cc5d996957a05d6bbf4994e79d644ca193d493148cf876ef3d3f095",
+      "leaves": 234,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-m108.json",
+      "id": "GRADE-M108",
+      "pageIds": [
+        "GRADE-M108"
+      ],
+      "sha256": "67b6d5bf15385b525e19f8abadc09131bf66dea7d82bd9454f1fd8ed0b8af63f",
+      "leaves": 252,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-m200.json",
+      "id": "GRADE-M200",
+      "pageIds": [
+        "GRADE-M200"
+      ],
+      "sha256": "b05b7eafe29f939de70cbbd64d65c133095886d83b92371e0ec3f6afd62fa841",
+      "leaves": 249,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-m210.json",
+      "id": "GRADE-M210",
+      "pageIds": [
+        "GRADE-M210"
+      ],
+      "sha256": "e23a5e90d0da12bb7970938fbda337a34516de07f270bbf53a7d1d5fe0483fac",
+      "leaves": 245,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-m2196.json",
+      "id": "GRADE-M2196",
+      "pageIds": [
+        "GRADE-M2196"
+      ],
+      "sha256": "2bc805a37d8fe63d8f17a563265ad6441708aaf7ecc1a5ce974bde946cebca62",
+      "leaves": 270,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-m2377.json",
+      "id": "GRADE-M2377",
+      "pageIds": [
+        "GRADE-M2377"
+      ],
+      "sha256": "7e21662acb393bc14ad821d240af6bac1b219a0e71009728c830f4feff51eb89",
+      "leaves": 289,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-m340.json",
+      "id": "GRADE-M340",
+      "pageIds": [
+        "GRADE-M340"
+      ],
+      "sha256": "66daf1030f3474293ec3ee238caa6f8f91c3ecd1ff62a9549a34219507e74af3",
+      "leaves": 276,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-m350.json",
+      "id": "GRADE-M350",
+      "pageIds": [
+        "GRADE-M350"
+      ],
+      "sha256": "75986773edc1d2b923cc5b58035931098d0701467d953a5222b532edcb578001",
+      "leaves": 282,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "relatedGrades",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-m510.json",
+      "id": "GRADE-M510",
+      "pageIds": [
+        "GRADE-M510"
+      ],
+      "sha256": "b4e867af3dfebc6924b2c1f392b4fc894fb2100246629f04b4bca9b0bdc5273d",
+      "leaves": 262,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-m52.json",
+      "id": "GRADE-M52",
+      "pageIds": [
+        "GRADE-M52"
+      ],
+      "sha256": "bb0d6c72edf3a2aa90bacd5c11a11ecc1804dc7e10eec79aab3cb98f018c7ea2",
+      "leaves": 255,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-m886.json",
+      "id": "GRADE-M886",
+      "pageIds": [
+        "GRADE-M886"
+      ],
+      "sha256": "1bf8f7f7b72f083aa255af4e6df4507e715cc888010c23fcf6ccee357c360af9",
+      "leaves": 255,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-m895.json",
+      "id": "GRADE-M895",
+      "pageIds": [
+        "GRADE-M895"
+      ],
+      "sha256": "06b98c51382e7e9242ad666d4e2cb66b037d9d4c850f3e29d14bc710d1fe8aa2",
+      "leaves": 255,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-m896.json",
+      "id": "GRADE-M896",
+      "pageIds": [
+        "GRADE-M896"
+      ],
+      "sha256": "40c690583786cd407b1922cee6df70a12c49693d18d63250363f980682286d9c",
+      "leaves": 269,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-detail-m996.json",
+      "id": "GRADE-M996",
+      "pageIds": [
+        "GRADE-M996"
+      ],
+      "sha256": "8bf4585c8537d815e6c704adb3c4124931b0cb7ea0960ab7d9b69bfd01ecfb2c",
+      "leaves": 257,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "moduleStatus",
+          "role": "policy"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "positioning",
+          "role": "content"
+        },
+        {
+          "path": "applications",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "technical",
+          "role": "content"
+        },
+        {
+          "path": "documents",
+          "role": "content"
+        },
+        {
+          "path": "markets",
+          "role": "content"
+        },
+        {
+          "path": "sample",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        },
+        {
+          "path": "evidenceLedger",
+          "role": "evidence"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-hub.json",
+      "id": "PRODUCT-000",
+      "pageIds": [
+        "PRODUCT-000"
+      ],
+      "sha256": "ba3abbd42c87a8139e8a32080ac94946f8a024affd38d15c50dc876d1140c5b6",
+      "leaves": 319,
+      "fields": [
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "selector",
+          "role": "content"
+        },
+        {
+          "path": "process",
+          "role": "content"
+        },
+        {
+          "path": "directory",
+          "role": "content"
+        },
+        {
+          "path": "evaluation",
+          "role": "content"
+        },
+        {
+          "path": "support",
+          "role": "content"
+        },
+        {
+          "path": "buyerQuestions",
+          "role": "content"
+        },
+        {
+          "path": "finalRfq",
+          "role": "content"
+        },
+        {
+          "path": "routeRegistry",
+          "role": "action"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-product-process-chloride.json",
+      "id": "PRODUCT-PROC-CL",
+      "pageIds": [
+        "PRODUCT-PROC-CL"
+      ],
+      "sha256": "89387273442f719c466b9683f9862c828e4aa3ef641e20dfaf72f4e5955a4afd",
+      "leaves": 109,
+      "fields": [
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "modules",
+          "role": "content"
+        },
+        {
+          "path": "grades",
+          "role": "content"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-request-documents.json",
+      "id": "CONV-DOC",
+      "pageIds": [
+        "CONV-DOC"
+      ],
+      "sha256": "8931061f423ecf8414e1ce87447a200c7b26c2dfa2fd64ad4c1d32b263ec010d",
+      "leaves": 136,
+      "fields": [
+        {
+          "path": "packageId",
+          "role": "evidence"
+        },
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "moduleOrder",
+          "role": "technical"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "steps",
+          "role": "content"
+        },
+        {
+          "path": "minimumInformation",
+          "role": "content"
+        },
+        {
+          "path": "prefill",
+          "role": "action"
+        },
+        {
+          "path": "form",
+          "role": "form"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "schema",
+          "role": "seo"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-request-sample.json",
+      "id": "CONV-SAMPLE",
+      "pageIds": [
+        "CONV-SAMPLE"
+      ],
+      "sha256": "4d02112be8d07f79ae0645547238baae656ac951ea7971e6b2a394663236182b",
+      "leaves": 193,
+      "fields": [
+        {
+          "path": "packageId",
+          "role": "evidence"
+        },
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "moduleOrder",
+          "role": "technical"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "prefill",
+          "role": "action"
+        },
+        {
+          "path": "form",
+          "role": "form"
+        },
+        {
+          "path": "humanReview",
+          "role": "content"
+        },
+        {
+          "path": "faq",
+          "role": "content"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "schema",
+          "role": "seo"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-resource-hub.json",
+      "id": "RES-000",
+      "pageIds": [
+        "RES-000"
+      ],
+      "sha256": "9a766de4333a2dd047cd9bcbbbf0534ab4b0ce70024acfcf9da76ed37eda79fd",
+      "leaves": 266,
+      "fields": [
+        {
+          "path": "packageId",
+          "role": "evidence"
+        },
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "evidencePrinciples",
+          "role": "content"
+        },
+        {
+          "path": "buyerQuestions",
+          "role": "content"
+        },
+        {
+          "path": "resourceRelations",
+          "role": "action"
+        },
+        {
+          "path": "resourceInventory",
+          "role": "policy"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-resource-origin.json",
+      "id": "RES-ORIGIN",
+      "pageIds": [
+        "RES-ORIGIN"
+      ],
+      "sha256": "a6e6f481b9e4cf2ca749d2a5fe2cb8a78dcdff52d01cf3854cca9afe7332a870",
+      "leaves": 359,
+      "fields": [
+        {
+          "path": "internal",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "articleMetadata",
+          "role": "sources"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "moduleOrder",
+          "role": "technical"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "directAnswer",
+          "role": "content"
+        },
+        {
+          "path": "dueDiligence",
+          "role": "content"
+        },
+        {
+          "path": "technicalComparison",
+          "role": "content"
+        },
+        {
+          "path": "applicationContext",
+          "role": "content"
+        },
+        {
+          "path": "documentScope",
+          "role": "content"
+        },
+        {
+          "path": "destinationReview",
+          "role": "content"
+        },
+        {
+          "path": "qualificationDecision",
+          "role": "content"
+        },
+        {
+          "path": "buyerQuestions",
+          "role": "content"
+        },
+        {
+          "path": "finalAction",
+          "role": "content"
+        },
+        {
+          "path": "relations",
+          "role": "action"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-resource-proc.json",
+      "id": "RES-PROC",
+      "pageIds": [
+        "RES-PROC"
+      ],
+      "sha256": "1a77fff74656705af36f0ca129dbe022d38e4ef683ea8a4cb77a65d14478cc70",
+      "leaves": 347,
+      "fields": [
+        {
+          "path": "internal",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "articleMetadata",
+          "role": "sources"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "moduleOrder",
+          "role": "technical"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "directAnswer",
+          "role": "content"
+        },
+        {
+          "path": "onThisPage",
+          "role": "content"
+        },
+        {
+          "path": "routeDifference",
+          "role": "content"
+        },
+        {
+          "path": "labelLimit",
+          "role": "content"
+        },
+        {
+          "path": "gradeEvidence",
+          "role": "content"
+        },
+        {
+          "path": "applicationOverlap",
+          "role": "content"
+        },
+        {
+          "path": "qualificationWorkflow",
+          "role": "content"
+        },
+        {
+          "path": "buyerQuestions",
+          "role": "content"
+        },
+        {
+          "path": "sources",
+          "role": "sources"
+        },
+        {
+          "path": "externalSources",
+          "role": "sources"
+        },
+        {
+          "path": "finalAction",
+          "role": "content"
+        },
+        {
+          "path": "relations",
+          "role": "action"
+        }
+      ]
+    },
+    {
+      "file": "tio2-my-rfq-page.json",
+      "id": "CONV-RFQ",
+      "pageIds": [
+        "CONV-RFQ"
+      ],
+      "sha256": "ff286f21a3467893e45c70d3b8b6b8f67c381865ad11e56d9aff1a7c7a726e22",
+      "leaves": 183,
+      "fields": [
+        {
+          "path": "packageId",
+          "role": "evidence"
+        },
+        {
+          "path": "reviewId",
+          "role": "evidence"
+        },
+        {
+          "path": "identity",
+          "role": "identity"
+        },
+        {
+          "path": "globalChromeRef",
+          "role": "identity"
+        },
+        {
+          "path": "breadcrumb",
+          "role": "content"
+        },
+        {
+          "path": "hero",
+          "role": "content"
+        },
+        {
+          "path": "form",
+          "role": "form"
+        },
+        {
+          "path": "otherRequests",
+          "role": "content"
+        },
+        {
+          "path": "routes",
+          "role": "action"
+        },
+        {
+          "path": "seo",
+          "role": "seo"
+        },
+        {
+          "path": "schema",
+          "role": "seo"
+        },
+        {
+          "path": "prefill",
+          "role": "action"
+        },
+        {
+          "path": "releaseControls",
+          "role": "policy"
+        }
+      ]
+    }
+  ]
+}

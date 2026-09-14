@@ -1,4 +1,4 @@
-# W3-A1 开发进展与阻断记录
+# W3-A1 开发进展：历史阻断与后续本地验收
 
 - 日期：2026-09-14；状态：`BLOCKED_UNMERGED`，不是开发完成回执。
 - 网站/页面：`tio2-my`，HOME-001 `/` 与 APP-000 `/applications`。
@@ -74,3 +74,20 @@
 ## 后续设计决定（2026-09-14）
 
 用户已同意将本批 CMS 技术写入与内容批准职责分离，正式文本见[补充设计](../superpowers/specs/2026-09-14-cms-write-approval-separation-design.md)。此决定允许补充设计与后续计划，不代表本记录中的运行失败已修复；本文保持 `BLOCKED_UNMERGED`，待新实现与真实验收后另记结果。
+
+## 后续本地验证（2026-09-14；`LOCAL_VERIFIED_REVIEW_PENDING`）
+
+以上 `BLOCKED_UNMERGED`、HOME 第一轮裸 meta 写入失败、未生成截图及“Task 4 未完成”均为**当时的历史状态**，原 run 和失败归因保留，不倒写成 PASS。用户后来批准[补充设计](../superpowers/specs/2026-09-14-cms-write-approval-separation-design.md)和[执行计划](../superpowers/plans/2026-09-14-cms-write-approval-separation.md)：对本批两页以独立技术写契约、受保护批准依据、准确版本和权限替代“旧写校验完全不变/裸 meta 更新可成功”的假设。合成证明不是业务批准，两个页面的 `packageId`/`reviewId` 也不是批准凭据。
+
+Task 1–4 的独立局部审查及返修复审已清；Task 5 实现提交为 `f14da2a65fe41773c28813cf5c3601cb2be6edfe`，其两次完整真实隔离运行绑定父提交 `2f2aa847e8949ea2ce97fe29e13b833738951aff` 加冻结的 dirty-code SHA-256 `004134d026cd1bc628df15f52bc220ec5c2467831ab1c857db7565e47b144007`（提交后同一源码）。此后仅测试设施清理失败路径修正提交 `f3099ef391ae444c29f291fdfc49ccbc825fffd5`，针对该修正的 9 项故障/清理测试通过；**未**把下列旧页面 run 声称为在 `f3099ef3` 上重跑。Task 5 独立审查及 fix1 复审现已清，最终 W3-A1 全范围审查仍待控制者执行。
+
+| 原始 run / 命令 | 实际结果与身份 | 证据边界 |
+|---|---|---|
+| `4c7f13cd-8074-473b-81af-875aa7c96357`；gate 启用的 `npx --no-install vitest run tests/integration/homepage/home-application-local-runtime.test.ts` | 退出 0，3 passed，346.10 秒；真实隔离 CMS/Next，Build `Bf94Vgts_sEown13N9NxP`，同一进程 PID 39380 | HOME/APP 普通路径各两轮、批量 SQL 各两轮；失败/恢复/视觉与所有 10 项 owned 清理通过 |
+| `6d83b5e9-cdee-4858-af89-22531e4cff0f`；`python tests/production-runtime/content_approval_rehearsal.py` | 退出 0，3 passed，328.07 秒；独立资源，Build `g5_5N6yGzZmP0Kme2NLER`，同一进程 PID 61828 | 同样两条真实写入→GraphQL→签名刷新→HTML/meta/JSON-LD/站点地图路径；10 项 owned 清理通过，非前一次 run 的重播 |
+
+两次运行都在同一各自 Build/PID 内实际观察 HOME/APP 正文、SEO、数组增减及随后删减；普通回调接收、Next 失效调用、页面新值分别留痕，不能以 HTTP 200 或同 body 重播的空失效列表代替新版本。实际数据库注入读回错误时未提交目标变更；批量维护窗口内注入读回或提交后页面验证故障时以所属整库备份恢复并核对旧页面和 reopened public 入口。数据库恢复和通知失败分开：普通写入已 COMMIT 后通知失败保留新内容，可在权限约束下仅重试原收据，不重新提交内容；批量窗口关闭且新写入开放后不自动回滚旧备份。12 张桌面/移动截图及应用展开/折叠、条件链接已实际查看；长图只按缩放总览，不宣称逐像素验收。证据见本机忽略目录 `.local-evidence/cms-decoupling-w3-a1/home-application-<runId>/`，不随 Git 自动分发。
+
+本批仅覆盖 `tio2-my` HOME-001/APP-000。普通保护包括 `wp_insert_post`/`wp_update_post`、REST/ACF/meta 与正常 cron，但特权代码直调低层 `wp_publish_post` 或 SQL 不在保证内；外部持久化 object cache 无法证明隔离时拒绝公开写入。批准根、环境 ID、非 root WP writer UID、真实 edit/publish capability 均须由安装/实际用户独立提供并在写入前核对；只读、其他页面族、A/B 保持先前规则。旧 `d16-content-package-v1` 对 U+2028/U+2029 的既有 canonical 传输差异仍会拒绝此类包，虽新批准摘要 PHP/Python 已一致；隔离导入器复现拒绝且所选目标 posts/meta 未变。Task 4 的目标快照未覆盖全部 post 字段、meta 行 ID 或 scope 关系，不能据此单独宣称“完整 posts/meta/整库未变”；整库恢复另据上列 Task 5 实际演练。没有安装证明、正式业务批准、Preview/Production 部署或生产能力变更；登记仍为 `content-only: not-installed`。
+
+最终复审需明确裁定原 W3-A1 ledger 的两项 minor（PHP absent/null 断言、非目标 slug 的 MY application_hub 可能额外失效），以及新计划的两项 deferred minor（Task 1 单缺陷负例夹具、Task 4 局部快照措辞）；不能因局部审查已清而静默关闭。当前分支来源 `f3099ef3`，`develop` 已从原 W3-A1 基线 `a526d6ca` 前进到 `d5a061f6`；合入前须复核目标新增的 content hooks/产品路由相关回归、全范围审查、工作树及 merge diff。**本记录现在是本地验证且待审查，不是 `MERGED_TO_DEVELOP` 开发回执。**W3-A2、其余 W3/W4/W5/W6 及生产均未因此完成。

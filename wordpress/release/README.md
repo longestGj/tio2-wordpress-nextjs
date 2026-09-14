@@ -36,6 +36,14 @@ Python `approval_digest(raw_json)` and PHP `tio2_content_digest` share this doma
 neither function is approval authority. HOME's legacy footer must retain its exact
 semantic value and presence; initial content cannot introduce one.
 
+This new approval-digest parity does not extend to legacy package-v1 transport:
+the existing Python package canonicalization emits literal U+2028/U+2029 while
+PHP `d16_canonical` escapes them. A package containing either separator can be
+rejected by the unchanged legacy package hash check, even when its separate
+approval digest is valid. Isolated importer reproduction verified rejection
+without a target posts/meta change; this task does not migrate the package format
+or claim acceptance of every technically valid JSON value.
+
 Registry explicitly loads approval/schema code from the installed
 `WP_PLUGIN_DIR/tio2-site-model` path; standalone importer snapshots must contain that
 plugin and its schema files. Both validation and importer runtimes require installed

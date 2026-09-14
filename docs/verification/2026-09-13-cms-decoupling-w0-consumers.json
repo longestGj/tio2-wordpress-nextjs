@@ -1,0 +1,982 @@
+{
+  "baseline": "7c849af234602cf299cb75e772a0104f77b849cd",
+  "evidence": "Direct route imports plus editorial/country route-wrapper imports. Includes shared A/B imports; not a claim every import executes on MY. Homepage version dispatch and downstream renderer details require the named query/renderer source.",
+  "pages": [
+    {
+      "pageId": "HOME-001",
+      "pathname": "/",
+      "route": "app/(en)/page.tsx",
+      "family": "homepage-v04",
+      "workPackage": "W3-A",
+      "routeSha256": "ef90306204797e14c22a50b45bc8cf941aac46a62fe6161ae1b21fde0ed5a7c7",
+      "consumers": [
+        "components/homepage/homepage-renderer.tsx",
+        "lib/seo/homepage-jsonld.ts",
+        "lib/seo/homepage-metadata.ts",
+        "lib/wordpress/homepage-preview.ts",
+        "lib/wordpress/homepage-queries.ts",
+        "lib/wordpress/preview-session.ts"
+      ]
+    },
+    {
+      "pageId": "ABOUT-001",
+      "pathname": "/about/",
+      "route": "app/(en)/about/page.tsx",
+      "family": "about-page-v01",
+      "workPackage": "W3-B",
+      "routeSha256": "98926295fedb935b3bb920ec4b9aac200139e83a17837718711d0b6822848ca3",
+      "consumers": [
+        "components/sites/tio2-my/about/malaysia-about-page.tsx",
+        "lib/seo/about-page-jsonld.ts",
+        "lib/seo/about-page-metadata.ts",
+        "lib/wordpress/about-page-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "MARKET-000",
+      "pathname": "/markets/",
+      "route": "app/(en)/markets/page.tsx",
+      "family": "market-hub-v01",
+      "workPackage": "W3-D",
+      "routeSha256": "750d74899b6c6f43c9f4d05b81d82998b6e0476c6317cbe31e3f48751f050c23",
+      "consumers": [
+        "components/sites/tio2-my/markets/malaysia-market-hub.tsx",
+        "lib/seo/market-hub-jsonld.ts",
+        "lib/seo/market-hub-metadata.ts",
+        "lib/wordpress/market-hub-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "MARKET-EU-001",
+      "pathname": "/markets/european-union/",
+      "route": "app/(en)/markets/european-union/page.tsx",
+      "family": "market-page-v01",
+      "workPackage": "W3-D",
+      "routeSha256": "551aaae6650a54ca4918db701201fe0a84422d0717d64481d999948cab47c26f",
+      "consumers": [
+        "components/sites/tio2-my/markets/malaysia-eu-market-page.tsx",
+        "lib/seo/market-page-jsonld.ts",
+        "lib/seo/market-page-metadata.ts",
+        "lib/wordpress/market-page-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "MARKET-EU-DE",
+      "pathname": "/markets/germany/",
+      "route": "app/(en)/markets/germany/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "951ecba4f4b94d92749c0103a0fe41282b854301d51c989d284fee1683b30412",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "MARKET-EU-IT",
+      "pathname": "/markets/italy/",
+      "route": "app/(en)/markets/italy/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "2fd244d10ce131fa38dbee1e08aa5d44a2c73e60ac556ab2ea936ae5a345635f",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "MARKET-EU-ES",
+      "pathname": "/markets/spain/",
+      "route": "app/(en)/markets/spain/page.tsx",
+      "family": "market-country-v01",
+      "workPackage": "W3-D",
+      "routeSha256": "37bb3e119d9fa555921579caae5a6cd5d5ffd222ef2f00992966d3e7032d1218",
+      "consumers": [
+        "lib/markets/malaysia-country-market-route.tsx",
+        "components/sites/tio2-my/markets/malaysia-country-market-page.tsx",
+        "lib/seo/market-country-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "lib/wordpress/market-country-v01-queries.ts",
+        "lib/markets/malaysia-country-market-contracts.ts"
+      ]
+    },
+    {
+      "pageId": "MARKET-EU-PL",
+      "pathname": "/markets/poland/",
+      "route": "app/(en)/markets/poland/page.tsx",
+      "family": "market-page-poland-v01",
+      "workPackage": "W3-D",
+      "routeSha256": "95008a44726bce9afd3d170ca06dff8cf6c0bbc1971fb0a45118ac213f210da6",
+      "consumers": [
+        "lib/wordpress/market-page-poland-v01-queries.ts",
+        "lib/seo/market-poland-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/markets/malaysia-poland-market-page.tsx"
+      ]
+    },
+    {
+      "pageId": "MARKET-EU-NL",
+      "pathname": "/markets/netherlands/",
+      "route": "app/(en)/markets/netherlands/page.tsx",
+      "family": "market-country-v01",
+      "workPackage": "W3-D",
+      "routeSha256": "f2802b050c3d444dc599c404e52e7f35d146d4696c8c8db669a9ed1cdf056435",
+      "consumers": [
+        "lib/markets/malaysia-country-market-route.tsx",
+        "components/sites/tio2-my/markets/malaysia-country-market-page.tsx",
+        "lib/seo/market-country-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "lib/wordpress/market-country-v01-queries.ts",
+        "lib/markets/malaysia-country-market-contracts.ts"
+      ]
+    },
+    {
+      "pageId": "MARKET-EU-BE",
+      "pathname": "/markets/belgium/",
+      "route": "app/(en)/markets/belgium/page.tsx",
+      "family": "market-country-v01",
+      "workPackage": "W3-D",
+      "routeSha256": "79d429eef7358560b0f302344aa786c12e76eb38a8c8605d6788fff5daf5522c",
+      "consumers": [
+        "lib/markets/malaysia-country-market-route.tsx",
+        "components/sites/tio2-my/markets/malaysia-country-market-page.tsx",
+        "lib/seo/market-country-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "lib/wordpress/market-country-v01-queries.ts",
+        "lib/markets/malaysia-country-market-contracts.ts"
+      ]
+    },
+    {
+      "pageId": "MARKET-UK-001",
+      "pathname": "/markets/united-kingdom/",
+      "route": "app/(en)/markets/united-kingdom/page.tsx",
+      "family": "market-page-uk-v01",
+      "workPackage": "W3-D",
+      "routeSha256": "b13a4841d3861d80bdf3dccef70c723f7dc7d498b50898c018a65df6b8138a06",
+      "consumers": [
+        "lib/wordpress/market-page-uk-v01-queries.ts",
+        "lib/seo/market-uk-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/markets/malaysia-uk-market-page.tsx"
+      ]
+    },
+    {
+      "pageId": "MARKET-IN-001",
+      "pathname": "/markets/india/",
+      "route": "app/(en)/markets/india/page.tsx",
+      "family": "market-country-v01",
+      "workPackage": "W3-D",
+      "routeSha256": "5e74a3048f8ffde825e5bea7f4e20f921e99f7bbbedff1d67f410941fad9988c",
+      "consumers": [
+        "lib/markets/malaysia-country-market-route.tsx",
+        "components/sites/tio2-my/markets/malaysia-country-market-page.tsx",
+        "lib/seo/market-country-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "lib/wordpress/market-country-v01-queries.ts",
+        "lib/markets/malaysia-country-market-contracts.ts"
+      ]
+    },
+    {
+      "pageId": "MARKET-BR-EN",
+      "pathname": "/markets/brazil/",
+      "route": "app/(en)/markets/brazil/page.tsx",
+      "family": "market-page-brazil-en-v01",
+      "workPackage": "W3-D",
+      "routeSha256": "711d44bcb961e5f9ff364cc15faf647bbdcb8f145f79e397381da74b51a36c24",
+      "consumers": [
+        "lib/wordpress/market-page-brazil-en-v01-queries.ts",
+        "lib/seo/market-brazil-en-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/markets/malaysia-brazil-en-market-page.tsx"
+      ]
+    },
+    {
+      "pageId": "MARKET-BR-PT",
+      "pathname": "/pt-br/markets/brazil/",
+      "route": "app/(pt-br)/pt-br/markets/brazil/page.tsx",
+      "family": "market-page-brazil-pt-v02",
+      "workPackage": "W3-D",
+      "routeSha256": "0de7874c024eb511413fcd8763e6a850b4b665ac2a834b55a61653aca6f61d54",
+      "consumers": [
+        "components/sites/tio2-my/markets/malaysia-brazil-pt-market-page.tsx",
+        "lib/seo/market-brazil-pt-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "lib/wordpress/market-page-brazil-pt-v02-queries.ts"
+      ]
+    },
+    {
+      "pageId": "PRODUCT-000",
+      "pathname": "/products/",
+      "route": "app/(en)/products/page.tsx",
+      "family": "product-hub-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "f102b275578512c52a27504ccd02ea5f9c10e19c071ae77a6c4c1615c2d52785",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-hub.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-hub-jsonld.ts",
+        "lib/seo/product-hub-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-hub-v01-queries.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "PRODUCT-PROC-CL",
+      "pathname": "/products/chloride-process-titanium-dioxide/",
+      "route": "app/(en)/products/chloride-process-titanium-dioxide/page.tsx",
+      "family": "product-process-chloride-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "c149e4a17a0b363a334dfd04f5a90cd748a718176880535a00734f47670838c5",
+      "consumers": [
+        "components/sites/tio2-my/products/malaysia-chloride-process-page.tsx",
+        "lib/seo/product-process-chloride-jsonld.ts",
+        "lib/seo/product-process-chloride-metadata.ts",
+        "lib/wordpress/product-process-chloride-v01-queries.ts",
+        "lib/wordpress/product-process-chloride-v01-registry.ts"
+      ]
+    },
+    {
+      "pageId": "PRODUCT-PROC-SU",
+      "pathname": "/products/sulfate-process-titanium-dioxide/",
+      "route": "app/(en)/products/sulfate-process-titanium-dioxide/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "924f6bd078cbc46cad1e54e90db32f372a5255a34ffd2ca4d10a165224ec31a5",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "GRADE-M350",
+      "pathname": "/products/m-350/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "GRADE-M510",
+      "pathname": "/products/m-510/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "GRADE-M896",
+      "pathname": "/products/m-896/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "GRADE-M996",
+      "pathname": "/products/m-996/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "GRADE-M2196",
+      "pathname": "/products/m-2196/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "GRADE-M895",
+      "pathname": "/products/m-895/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "GRADE-M200",
+      "pathname": "/products/m-200/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "GRADE-M108",
+      "pathname": "/products/m-108/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "GRADE-M210",
+      "pathname": "/products/m-210/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "GRADE-M340",
+      "pathname": "/products/m-340/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "GRADE-M886",
+      "pathname": "/products/m-886/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "GRADE-M52",
+      "pathname": "/products/m-52/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "GRADE-M2377",
+      "pathname": "/products/m-2377/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "GRADE-CR901",
+      "pathname": "/products/cr-901/",
+      "route": "app/(en)/products/[familySlug]/page.tsx",
+      "family": "product-detail-v01",
+      "workPackage": "W3-C",
+      "routeSha256": "ddcb43899d0121d89bf768fa560af9b3992be2abfea76c084ae38240f50d95c5",
+      "consumers": [
+        "components/products/product-page-renderer.tsx",
+        "components/sites/tio2-my/products/malaysia-product-detail.tsx",
+        "lib/seo/product-collection-jsonld.ts",
+        "lib/seo/product-collection-metadata.ts",
+        "lib/seo/product-detail-jsonld.ts",
+        "lib/seo/product-detail-metadata.ts",
+        "lib/seo/product-jsonld.ts",
+        "lib/wordpress/product-detail-v01-queries.ts",
+        "lib/wordpress/product-detail-v01-registry.ts",
+        "lib/wordpress/product-page-queries.ts"
+      ]
+    },
+    {
+      "pageId": "APP-000",
+      "pathname": "/applications/",
+      "route": "app/(en)/applications/page.tsx",
+      "family": "application-hub-v01",
+      "workPackage": "W3-A",
+      "routeSha256": "9120d9249ce5a5377cbda7872c4419ebccf158f467b719611b735f2654fdfa9c",
+      "consumers": [
+        "components/applications/application-page.tsx",
+        "components/sites/tio2-my/applications/malaysia-application-hub.tsx",
+        "components/sites/tio2-a/site-a-brand-shell.tsx",
+        "lib/seo/application-hub-jsonld.ts",
+        "lib/seo/application-hub-metadata.ts",
+        "lib/seo/application-jsonld.ts",
+        "lib/seo/application-metadata.ts",
+        "lib/wordpress/application-queries.ts",
+        "lib/wordpress/application-hub-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "APP-COAT",
+      "pathname": "/applications/titanium-dioxide-for-coatings/",
+      "route": "app/(en)/applications/titanium-dioxide-for-coatings/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "014527e563e148451094c241ef9a6ee7f4651f34cb688b1066bdf91f296cb7c1",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "APP-PLAS",
+      "pathname": "/applications/titanium-dioxide-for-plastics/",
+      "route": "app/(en)/applications/titanium-dioxide-for-plastics/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "cda78c742ba84d315ab06e09c2520d6bf8b218da28f2fa4817e362cc84a26328",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "APP-MB",
+      "pathname": "/applications/titanium-dioxide-for-masterbatch/",
+      "route": "app/(en)/applications/titanium-dioxide-for-masterbatch/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "541e0978e486532c03080f9bcc30aab0dda806be958e1bb719ea59cda0f6618e",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "APP-INK",
+      "pathname": "/applications/titanium-dioxide-for-printing-inks/",
+      "route": "app/(en)/applications/titanium-dioxide-for-printing-inks/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "6d07531ecef1c62b98adb71487ddf1ac280adaadd6ff1f98da95a02a12a5210a",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "APP-PAPER",
+      "pathname": "/applications/titanium-dioxide-for-paper/",
+      "route": "app/(en)/applications/titanium-dioxide-for-paper/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "d2305e736e04ccd261fe1a8ecb4379f1a1aea3659b0f6af7323b2c0c3bd9d37e",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "DOC-000",
+      "pathname": "/documents/",
+      "route": "app/(en)/documents/page.tsx",
+      "family": "documents-hub-v01",
+      "workPackage": "W3-F",
+      "routeSha256": "6e16224f60742351aad797b5b04858f1170a9b9613053c663540b0ccf89654af",
+      "consumers": [
+        "components/sites/tio2-my/documents/malaysia-documents-hub.tsx",
+        "lib/seo/documents-hub-jsonld.ts",
+        "lib/seo/documents-hub-metadata.ts",
+        "lib/wordpress/documents-hub-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "DOC-REACH",
+      "pathname": "/documents/reach/",
+      "route": "app/(en)/documents/reach/page.tsx",
+      "family": "document-reach-v01",
+      "workPackage": "W3-F",
+      "routeSha256": "354f28313ccb036f715989d8fce43fe4dc10d53f5e9bff60835b96ac562c6e84",
+      "consumers": [
+        "components/sites/tio2-my/documents/document-reach-page.tsx",
+        "lib/seo/document-reach-jsonld.ts",
+        "lib/seo/document-reach-metadata.ts",
+        "lib/wordpress/document-reach-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "DOC-TDS",
+      "pathname": "/documents/tds-sds-coa/",
+      "route": "app/(en)/documents/tds-sds-coa/page.tsx",
+      "family": "document-tds-v01",
+      "workPackage": "W3-F",
+      "routeSha256": "332a52ae9ce9ea2c270a58f785d76a7c013cbed5808553361ccbd3ed405bbfae",
+      "consumers": [
+        "components/sites/tio2-my/documents/document-tds-page.tsx",
+        "lib/seo/document-tds-jsonld.ts",
+        "lib/seo/document-tds-metadata.ts",
+        "lib/wordpress/document-tds-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "DOC-COO",
+      "pathname": "/documents/certificate-of-origin/",
+      "route": "app/(en)/documents/certificate-of-origin/page.tsx",
+      "family": "document-coo-v04",
+      "workPackage": "W3-F",
+      "routeSha256": "52a5ede7be9aac1d261537f3bd92a5777d68e720b7ebc0b9da20bb8d09239000",
+      "consumers": [
+        "components/sites/tio2-my/documents/document-coo-page.tsx",
+        "lib/seo/document-coo-jsonld.ts",
+        "lib/seo/document-coo-metadata.ts",
+        "lib/wordpress/document-coo-v04-queries.ts"
+      ]
+    },
+    {
+      "pageId": "CONV-DOC",
+      "pathname": "/request-documents/",
+      "route": "app/(en)/request-documents/page.tsx",
+      "family": "request-documents-v01",
+      "workPackage": "W3-G",
+      "routeSha256": "bf7f6768f7faabe51302fba7376b72cecdbdbe98ce425df38db02a89d2e03dd9",
+      "consumers": [
+        "components/sites/tio2-my/request-documents/malaysia-request-documents-query-page.tsx",
+        "lib/seo/request-documents-jsonld.ts",
+        "lib/seo/request-documents-metadata.ts",
+        "lib/wordpress/request-documents-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "RES-000",
+      "pathname": "/resources/",
+      "route": "app/(en)/resources/page.tsx",
+      "family": "resource-hub-v01",
+      "workPackage": "W3-E",
+      "routeSha256": "44f3f70d1ba77310c0d6b8f7bef8ee53c8c9141781dd8dcf8c472f625391a90d",
+      "consumers": [
+        "components/resources/technical-resource-page.tsx",
+        "components/sites/tio2-a/site-a-brand-shell.tsx",
+        "components/sites/tio2-my/resources/malaysia-resource-hub.tsx",
+        "lib/seo/resource-jsonld.ts",
+        "lib/seo/resource-hub-jsonld.ts",
+        "lib/seo/resource-hub-metadata.ts",
+        "lib/seo/resource-metadata.ts",
+        "lib/wordpress/resource-hub-v01-queries.ts",
+        "lib/wordpress/resource-queries.ts"
+      ]
+    },
+    {
+      "pageId": "RES-ORIGIN",
+      "pathname": "/resources/non-china-titanium-dioxide/",
+      "route": "app/(en)/resources/non-china-titanium-dioxide/page.tsx",
+      "family": "resource-origin-v01",
+      "workPackage": "W3-E",
+      "routeSha256": "159809d10b0a5029f7389246d33499e297f0a5e738eb4dd4233c0cea2985dafa",
+      "consumers": [
+        "components/sites/tio2-my/resources/malaysia-resource-origin-page.tsx",
+        "lib/seo/resource-origin-jsonld.ts",
+        "lib/seo/resource-origin-metadata.ts",
+        "lib/wordpress/resource-origin-v01-queries.ts",
+        "lib/wordpress/resource-page-registry.ts"
+      ]
+    },
+    {
+      "pageId": "RES-PROC",
+      "pathname": "/resources/chloride-vs-sulfate-titanium-dioxide/",
+      "route": "app/(en)/resources/chloride-vs-sulfate-titanium-dioxide/page.tsx",
+      "family": "resource-proc-v01",
+      "workPackage": "W3-E",
+      "routeSha256": "176855ef84a231242856a074efbe53dca3afea379defb51bf8da16f8de6757a2",
+      "consumers": [
+        "components/sites/tio2-my/resources/malaysia-resource-proc-page.tsx",
+        "lib/seo/resource-proc-jsonld.ts",
+        "lib/seo/resource-proc-metadata.ts",
+        "lib/wordpress/resource-page-registry.ts",
+        "lib/wordpress/resource-proc-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "RES-CHEMOURS",
+      "pathname": "/resources/chemours-titanium-dioxide-alternatives/",
+      "route": "app/(en)/resources/chemours-titanium-dioxide-alternatives/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "8a479ce712c97dcb09a0f0c73f8204e11a73320d9349f237235e2ff8485bdf69",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "RES-R706",
+      "pathname": "/resources/ti-pure-r-706-alternative/",
+      "route": "app/(en)/resources/ti-pure-r-706-alternative/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "c75a5b12772540112fb97b629cba8aa2174f760f526087687aadc28c5ba6774f",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "RES-TRADE-EU",
+      "pathname": "/resources/eu-titanium-dioxide-anti-dumping-duty/",
+      "route": "app/(en)/resources/eu-titanium-dioxide-anti-dumping-duty/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "eaebbc1ba5bd7e128b65b46fd20b5520af026915c078dc27a64e7efe54bff6c3",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "RES-TRADE-UK",
+      "pathname": "/resources/uk-titanium-dioxide-anti-dumping-investigation/",
+      "route": "app/(en)/resources/uk-titanium-dioxide-anti-dumping-investigation/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "2f8d64f63e27c49d22e41d08d9d0f5056339d988239f23c78da375b4d85c4e95",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "RES-TRADE-IN",
+      "pathname": "/resources/india-titanium-dioxide-anti-dumping-duty/",
+      "route": "app/(en)/resources/india-titanium-dioxide-anti-dumping-duty/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "a0f228bbee42937d6ad32415b6d29e8727f8e47aac729902f69d5fd077b2f5db",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "RES-TRADE-BR",
+      "pathname": "/resources/brazil-titanium-dioxide-anti-dumping-duty/",
+      "route": "app/(en)/resources/brazil-titanium-dioxide-anti-dumping-duty/page.tsx",
+      "family": "editorial-v01",
+      "workPackage": "W3 共享 editorial",
+      "routeSha256": "355730edad8dbcfbbba389609b004febbd546da2b8b9c746b2525dbb65dee77c",
+      "consumers": [
+        "lib/editorial/malaysia-editorial-route.tsx",
+        "lib/wordpress/editorial-v01-queries.ts",
+        "lib/wordpress/editorial-v01-dto.ts",
+        "lib/wordpress/client.ts",
+        "lib/seo/editorial-metadata.ts",
+        "lib/seo/jsonld.ts",
+        "components/sites/tio2-my/editorial/malaysia-editorial-page.tsx"
+      ]
+    },
+    {
+      "pageId": "CONV-RFQ",
+      "pathname": "/request-a-quote/",
+      "route": "app/(en)/request-a-quote/page.tsx",
+      "family": "rfq-page-v01",
+      "workPackage": "W3-G",
+      "routeSha256": "2b4e7a9e7ff0cdb673ca4368ba68095b5125d4b244df81cb25a01826f7c2986c",
+      "consumers": [
+        "components/sites/tio2-my/request-a-quote/malaysia-rfq-page.tsx",
+        "lib/seo/rfq-jsonld.ts",
+        "lib/seo/rfq-metadata.ts",
+        "lib/wordpress/rfq-page-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "CONV-SAMPLE",
+      "pathname": "/request-sample/",
+      "route": "app/(en)/request-sample/page.tsx",
+      "family": "request-sample-v01",
+      "workPackage": "W3-G",
+      "routeSha256": "1fc7906c0a62dcfe5b21bc5eddd5abd3986bf041b7d7113d87bb840dae9635fe",
+      "consumers": [
+        "components/sites/tio2-my/request-sample/malaysia-request-sample-query-page.tsx",
+        "lib/seo/request-sample-jsonld.ts",
+        "lib/seo/request-sample-metadata.ts",
+        "lib/wordpress/request-sample-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "CONTACT-001",
+      "pathname": "/contact/",
+      "route": "app/(en)/contact/page.tsx",
+      "family": "contact-page-v01",
+      "workPackage": "W3-B",
+      "routeSha256": "d81fc36c2e2ee92b83fb91269f567dbd6633215ed314684ed35fc9a04ced1785",
+      "consumers": [
+        "components/sites/tio2-my/contact/malaysia-contact-page.tsx",
+        "components/sites/tio2-my/contact/malaysia-contact-form.tsx",
+        "lib/seo/contact-page-jsonld.ts",
+        "lib/seo/contact-page-metadata.ts",
+        "lib/wordpress/contact-page-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "LEGAL-PRIV-EN",
+      "pathname": "/privacy-policy/",
+      "route": "app/(en)/privacy-policy/page.tsx",
+      "family": "legal-pages-v01",
+      "workPackage": "W1",
+      "routeSha256": "f78a189217cad9b2d5da6e6f6d2d77387ecf857ca8d831a322adb9010ca03ae7",
+      "consumers": [
+        "components/sites/tio2-my/legal/malaysia-legal-page.tsx",
+        "lib/seo/legal-page-jsonld.ts",
+        "lib/seo/legal-page-metadata.ts",
+        "lib/wordpress/legal-pages-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "LEGAL-PRIV-MS",
+      "pathname": "/ms/privacy-policy/",
+      "route": "app/(ms)/ms/privacy-policy/page.tsx",
+      "family": "legal-pages-v01",
+      "workPackage": "W1",
+      "routeSha256": "3b87ef27f4450d773739f4aaf0dfb0d14c5b055c937e1368e25f19faa03a8a0c",
+      "consumers": [
+        "components/sites/tio2-my/legal/malaysia-legal-page.tsx",
+        "lib/seo/legal-page-jsonld.ts",
+        "lib/seo/legal-page-metadata.ts",
+        "lib/wordpress/legal-pages-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "LEGAL-COOKIE-EN",
+      "pathname": "/cookie-policy/",
+      "route": "app/(en)/cookie-policy/page.tsx",
+      "family": "legal-pages-v01",
+      "workPackage": "W1",
+      "routeSha256": "4c6f60bd47d169d25dde65f4f57f13bbd504f4e2c6ac8632d0b48d4c8bdce8c2",
+      "consumers": [
+        "components/sites/tio2-my/legal/malaysia-legal-page.tsx",
+        "lib/seo/legal-page-jsonld.ts",
+        "lib/seo/legal-page-metadata.ts",
+        "lib/wordpress/legal-pages-v01-queries.ts"
+      ]
+    },
+    {
+      "pageId": "SYS-404",
+      "pathname": "未匹配路径的 404",
+      "route": "app/(en)/[...path]/not-found.tsx",
+      "family": "代码系统内容",
+      "workPackage": "W6",
+      "routeSha256": "818c7c21356512cc0c5f3e00a78046acde30537d32f9f23b4dcc05d0e11aca4e",
+      "consumers": [
+        "components/sites/tio2-my/system/malaysia-not-found-page.tsx"
+      ]
+    },
+    {
+      "pageId": "CONV-THANK",
+      "pathname": "/thank-you/",
+      "route": "app/(en)/thank-you/page.tsx",
+      "family": "代码系统内容",
+      "workPackage": "W3-G/W6",
+      "routeSha256": "c7eff868a73f248dd825f10acb20d3590e15d127c3a8b0ee8cd5794a603c92ed",
+      "consumers": [
+        "components/sites/tio2-my/thank-you/malaysia-thank-you-page.tsx",
+        "lib/seo/thank-you-jsonld.ts"
+      ]
+    }
+  ]
+}
