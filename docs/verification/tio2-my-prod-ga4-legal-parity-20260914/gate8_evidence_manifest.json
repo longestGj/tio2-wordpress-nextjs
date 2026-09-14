@@ -1,0 +1,272 @@
+{
+  "schema_version": "gate8-evidence-manifest-v1.0",
+  "handoff_id": "G8-G9-TIO2-MY-PROD-GA4-LEGAL-PARITY-20260914-01",
+  "gate8_task_id": "TIO2-MY-PROD-GA4-F01",
+  "site_scope": "tio2-my",
+  "receipt_path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/gate8_handoff_receipt.md",
+  "pages": [
+    {
+      "page_id": "LEGAL-COOKIE-EN",
+      "acceptance_condition_ids": [
+        "LEGAL.COOKIE.ACTIVE",
+        "LEGAL.STORAGE.EXACT",
+        "CONSENT.ACCEPT_WITHDRAW"
+      ],
+      "runtime_path": "/cookie-policy/"
+    },
+    {
+      "page_id": "LEGAL-PRIV-EN",
+      "acceptance_condition_ids": [
+        "LEGAL.ACTIVE.EN",
+        "GA4.NO_PII",
+        "ADS.ALWAYS_DENIED"
+      ],
+      "runtime_path": "/privacy-policy/"
+    },
+    {
+      "page_id": "LEGAL-PRIV-MS",
+      "acceptance_condition_ids": [
+        "LEGAL.ACTIVE.MS",
+        "GA4.NO_PII",
+        "ADS.ALWAYS_DENIED"
+      ],
+      "runtime_path": "/ms/privacy-policy/"
+    }
+  ],
+  "git": {
+    "repository": "D:/16Wordpress_nextjs/.worktrees/tio2-my-prod-ga4-legal-parity",
+    "branch": "codex/tio2-my-prod-ga4-legal-parity",
+    "baseline_commit": "1ab1a9a02958394135b655d912463dd12d69e1cf",
+    "implementation_commit": "24065cdeffef6a887b290f542be74d78be595b71",
+    "evidence_head": "1ae56f2e93f098c66be61f02693c2fb380410827",
+    "clean_checked_at": "2026-09-14T04:09:56.234067+00:00"
+  },
+  "build": {
+    "directory": ".next-tio2-my-prod-ga4-legal-baseline-24065cde",
+    "build_id": "aoZsmmoI852RtB8oVR-vb",
+    "implementation_commit": "24065cdeffef6a887b290f542be74d78be595b71"
+  },
+  "runtime": {
+    "base_url": "http://127.0.0.1:3143",
+    "site_scope": "tio2-my",
+    "environment_type": "local-production",
+    "started_at": "2026-09-14T04:07:56.252270+00:00",
+    "hold_until": "GATE9_PASS_OR_RETURN_NOTICE",
+    "require_build_marker": false,
+    "checks": [
+      {
+        "path": "/privacy-policy/",
+        "expected_status": 200,
+        "contains": [
+          "We use Google Analytics, delivered through Google Tag Manager",
+          "Advertising storage, advertising user data and advertising personalisation remain denied"
+        ]
+      },
+      {
+        "path": "/ms/privacy-policy/",
+        "expected_status": 200,
+        "contains": [
+          "Kami menggunakan Google Analytics, yang disampaikan melalui Google Tag Manager",
+          "Penyimpanan pengiklanan, data pengguna pengiklanan dan pemperibadian pengiklanan kekal ditolak"
+        ]
+      },
+      {
+        "path": "/cookie-policy/",
+        "expected_status": 200,
+        "contains": [
+          "Google Analytics is active for aggregate website measurement",
+          "tio2_my_consent_v1",
+          "_ga_QDHLMRH2WB"
+        ]
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/build-identity.txt",
+      "sha256": "1392dfd28d100c2ffc08569b3046f7be26564be98f6d1a202dfbaaa96a9fd8f1",
+      "evidence_type": "IDENTITY",
+      "proves": [
+        "Binds site, branch, baseline, implementation, Build, runtime and content digests."
+      ],
+      "command": "Read Git and BUILD_ID identities.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/content-package.json",
+      "sha256": "c70e5951898992ba5489d329309a05b113374a140bd050372db353441968124c",
+      "evidence_type": "SOURCE_INSPECTION",
+      "proves": [
+        "Contains exactly the three active legal CMS records and their canonical content digest."
+      ],
+      "command": "Run the committed deterministic content-package builder.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/cms-public-projection-parity.json",
+      "sha256": "493498189eadde033247bccb6cf3b7e1b3b2bdbe6acaa773de33e4da11e097b8",
+      "evidence_type": "ACTUAL_RUNTIME",
+      "proves": [
+        "Shows the read-only local prerelease CMS public projection equals the package Markdown, SEO and date."
+      ],
+      "command": "Query malaysiaLegalPagesRecordJson and compare its public projection with the package.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/python-import-tests.txt",
+      "sha256": "17f059df39c30ed8d27015e99983cd27d048d75487798fcf2f51cfdd8688aee0",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "Shows 28 importer tests passed, including stale-to-active real MariaDB/WordPress import and exact export."
+      ],
+      "command": "python -m pytest -q tests/production/test_build_tio2_my_ga4_legal_package.py tests/production/test_content_approval_binding.py",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/targeted-vitest.txt",
+      "sha256": "d4d85bfb24d0e46f02a6c3accbd50b622dada41d818165d9bcc37417c3c2c506",
+      "evidence_type": "TEST_RESULT",
+      "proves": [
+        "Shows 196 content policy, legal, consent, GA4 and success-event/no-PII tests passed."
+      ],
+      "command": "npx vitest run targeted content/legal/consent/GA4/event tests",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/ga4-consent-playwright.txt",
+      "sha256": "b035fc610efba91baa50587e6a498578389f0b5c2c9983084d773c9ee2964fcd",
+      "evidence_type": "LOCAL_SIMULATION",
+      "proves": [
+        "Shows denied-before-GTM ordering, consent choices, persistence and withdrawal passed without external sends."
+      ],
+      "command": "npx playwright test tests/e2e/tio2-my-ga4-active.spec.ts --project=chromium",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/legal-existing-e2e.txt",
+      "sha256": "715ee389afd88f42e380d54b49a4783943f60f7060a959df67975eccb84a7fc5",
+      "evidence_type": "ACTUAL_RUNTIME",
+      "proves": [
+        "Shows the 11 applicable existing legal/CMP scenarios passed on the held runtime."
+      ],
+      "command": "npx playwright test tests/e2e/legal-privacy.spec.ts --project=chromium --grep-invert LEGAL-PRIV-MS",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/legal-candidate-audit.json",
+      "sha256": "6377acc50775cfccd959c411774910c257b90ce9621b76585e0c5ec244caebf4",
+      "evidence_type": "ACTUAL_RUNTIME",
+      "proves": [
+        "Shows all three candidate legal pages passed exact package checks at three widths."
+      ],
+      "command": "Run the bounded candidate-specific Playwright audit against 127.0.0.1:3143.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/runtime-audit.json",
+      "sha256": "fa99c39d58458c4fdb7a3f2b708d065e228ef48732c88f210332df8363db2ed7",
+      "evidence_type": "ACTUAL_RUNTIME",
+      "proves": [
+        "Records held listener, Build identity and HTTP 200 active-copy probes."
+      ],
+      "command": "Read BUILD_ID, listener identity and three loopback pages.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/seo-regression.json",
+      "sha256": "b641f9da07893d57e914e28134779245e430d7214f696b275a1d9addeb7075d5",
+      "evidence_type": "SOURCE_INSPECTION",
+      "proves": [
+        "Separates the changed-page SEO result from the open non-scope develop/CMS combination issue."
+      ],
+      "command": "Compare the three-record package scope with the frozen D23 57-page production baseline and candidate runtime results.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/test-oracle-note.md",
+      "sha256": "73b0571932487389f697ea2977c388878eda9b91d5967dd07e6098e68205078f",
+      "evidence_type": "SOURCE_INSPECTION",
+      "proves": [
+        "Records the unmodified BM Meta Description oracle discrepancy without relabelling failures."
+      ],
+      "command": "Compare production HTML, legal config, CMS projection and publication inventory.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/legal-priv-en-390.png",
+      "sha256": "d81918a3bbc0c666e02e02b8fa2faae681ad324fb02197540217fa064a087eb2",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "Shows active English Privacy content in the held candidate runtime at 390px."
+      ],
+      "command": "Capture the held candidate with Playwright.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/legal-priv-ms-390.png",
+      "sha256": "f4d2d35a0bcbec8b4b7b5a623905179b00e0f9aab5ac268e5885087ecdc430a0",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "Shows active BM Privacy content in the held candidate runtime at 390px."
+      ],
+      "command": "Capture the held candidate with Playwright.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    },
+    {
+      "path": "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/legal-cookie-en-390.png",
+      "sha256": "0e701dd06a2e8aecdd6e5aa3558bfd9bf7f0c62f84d438472a45a1777b7b5e39",
+      "evidence_type": "STATIC_VISUAL",
+      "proves": [
+        "Shows active Cookie content and inventory in the held candidate runtime at 390px."
+      ],
+      "command": "Capture the held candidate with Playwright.",
+      "environment": "Windows local-production Next.js at 127.0.0.1:3143; read-only local prerelease CMS at 127.0.0.1:8180; SITE_ID=tio2-my; external Google scripts stubbed; no form submission"
+    }
+  ],
+  "receipt_evidence_references": [
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/build-identity.txt",
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/content-package.json",
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/cms-public-projection-parity.json",
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/python-import-tests.txt",
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/targeted-vitest.txt",
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/ga4-consent-playwright.txt",
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/legal-existing-e2e.txt",
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/legal-candidate-audit.json",
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/runtime-audit.json",
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/seo-regression.json",
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/test-oracle-note.md",
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/legal-priv-en-390.png",
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/legal-priv-ms-390.png",
+    "docs/verification/tio2-my-prod-ga4-legal-parity-20260914/legal-cookie-en-390.png"
+  ],
+  "known_open_items": [
+    {
+      "id": "GATE9_INDEPENDENT_TIO2_MY_PROD_GA4_F01_RECHECK",
+      "owner": "09Gate9验收",
+      "blocking_layer": "PAGE_GATE9",
+      "closure_evidence": "Independently validate implementation/evidence identity, package hash, held runtime, active legal copy, exact inventory, consent/network states and no PII.",
+      "closure_timing": "Before any integration or release decision."
+    },
+    {
+      "id": "DEVELOP_CMS_57_PAGE_COMBINATION",
+      "owner": "D16 integration environment",
+      "blocking_layer": "INTEGRATION",
+      "closure_evidence": "Run one production-equivalent develop/CMS combination with all 57 approved pages passing after the unrelated 14 editorial contract records are aligned.",
+      "closure_timing": "Before release candidate closure; changed legal scope already passed."
+    },
+    {
+      "id": "LEGAL_PRIV_MS_METADATA_ORACLE_ALIGNMENT",
+      "owner": "D23/D16 contract owners",
+      "blocking_layer": "RECHECK_SCOPE",
+      "closure_evidence": "Resolve whether the publication inventory or the current production/legal contract sentence is authoritative, then update only the stale oracle.",
+      "closure_timing": "Separate from this legal GA4 wording correction."
+    },
+    {
+      "id": "CONTENT_PUBLICATION_AND_PRODUCTION_RECHECK",
+      "owner": "D16 release after explicit authorization",
+      "blocking_layer": "RELEASE",
+      "closure_evidence": "Publish the accepted content package through the enrolled content release path and repeat production read-only legal/consent checks.",
+      "closure_timing": "Only after Gate9 and separate release authorization."
+    }
+  ]
+}

@@ -13,6 +13,7 @@ import pytest
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'ops/production/server'))
 import content_release
+from scripts.production.build_tio2_my_ga4_legal_package import build_package
 
 
 def sha(value):
@@ -151,6 +152,18 @@ def test_approved_addition_imports_full_content_and_can_be_exported_again(runtim
     result,_,_=runtime.run_isolated_import(package,action='export')
     assert result.returncode==0,result.stderr.decode()
     assert json.loads(result.stdout)['package']['records']==package['records']
+
+
+def test_ga4_legal_package_replaces_stale_cms_copy_and_exports_exact_content(runtime):
+    source=json.loads((ROOT/'wordpress/plugins/tio2-site-model/config/tio2-my-legal-pages.json').read_text(encoding='utf-8'))
+    package=build_package(source)
+    result,before,after=runtime.run_isolated_import(package)
+    assert result.returncode==0,result.stderr.decode()
+    assert before!=after
+    assert json.loads(result.stdout)['contentSha256']==package['contentSha256']
+    exported,_,_=runtime.run_isolated_import(package,action='export')
+    assert exported.returncode==0,exported.stderr.decode()
+    assert json.loads(exported.stdout)['package']['records']==package['records']
 
 
 def test_php_python_shared_digest_vectors():

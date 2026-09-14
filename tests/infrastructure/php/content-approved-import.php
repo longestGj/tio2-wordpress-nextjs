@@ -5,13 +5,13 @@ if (defined('ABSPATH')) {
     define('TIO2_CONTENT_APPROVAL_ROOT', '/approvals');
     define('TIO2_CONTENT_ENVIRONMENT_ID', 'isolated-content-import');
     define('TIO2_CONTENT_WRITER_UID', 33);
-    foreach (['tio2_homepage','tio2_application_hub','tio2_market_hub'] as $type) register_post_type($type, ['public'=>false]);
-    register_taxonomy('site_scope', ['tio2_homepage','tio2_application_hub','tio2_market_hub']);
+    foreach (['tio2_homepage','tio2_application_hub','tio2_market_hub','tio2_legal_page'] as $type) register_post_type($type, ['public'=>false]);
+    register_taxonomy('site_scope', ['tio2_homepage','tio2_application_hub','tio2_market_hub','tio2_legal_page']);
     function tio2_get_homepage_site_id(int $id): string {
         $terms=wp_get_post_terms($id,'site_scope',['fields'=>'slugs']);
         return count($terms)===1 ? $terms[0] : '';
     }
-    foreach (['homepage-v04','application-hub-v01','market-hub-v01'] as $name) require_once WP_PLUGIN_DIR.'/tio2-site-model/includes/'.$name.'.php';
+    foreach (['homepage-v04','application-hub-v01','market-hub-v01','legal-pages-v01'] as $name) require_once WP_PLUGIN_DIR.'/tio2-site-model/includes/'.$name.'.php';
     if (getenv('D16_CONTENT_ACTION')==='import') {
         foreach (['updated_post_meta','post_updated','transition_post_status'] as $hook) add_action($hook,function () { throw new RuntimeException('SQL importer dispatched a per-record WordPress hook.'); });
     }
@@ -56,6 +56,34 @@ foreach ([['HOME-001','tio2_homepage','tio2-my-homepage','tio2-my-homepage.json'
     update_post_meta($id,$meta,wp_slash(file_get_contents('/opt/d16-plugin/config/'.$file)));
     update_post_meta($id,'homepage_schema_version','homepage-v0.4-malaysia');
     update_post_meta($id,'public_path',$page==='APP-000'?'/applications':($page==='MARKET-000'?'/markets':'/'));
+}
+$legal=json_decode(file_get_contents('/opt/d16-plugin/config/tio2-my-legal-pages.json'),true,512,JSON_THROW_ON_ERROR);
+foreach ($legal['pages'] as $record) {
+    $markdown=(string)$record['buyerVisibleMarkdown'];
+    if ($record['pageId']==='LEGAL-COOKIE-EN') {
+        $markdown=str_replace(
+            'Google Analytics is active for aggregate website measurement and is managed through Google Tag Manager.',
+            'No optional Analytics technology is active in the currently verified TiO2 Malaysia configuration.',
+            $markdown,
+        );
+    } elseif ($record['pageId']==='LEGAL-PRIV-EN') {
+        $markdown=str_replace(
+            'We use Google Analytics, delivered through Google Tag Manager, to measure aggregate website use and site performance.',
+            'Google Analytics and Google Tag Manager are not treated as active unless the production implementation has been verified.',
+            $markdown,
+        );
+    } elseif ($record['pageId']==='LEGAL-PRIV-MS') {
+        $markdown=str_replace(
+            'Kami menggunakan Google Analytics, yang disampaikan melalui Google Tag Manager, untuk mengukur penggunaan laman web secara agregat dan prestasi laman.',
+            'Google Analytics dan Google Tag Manager tidak dianggap aktif melainkan pelaksanaan production telah disahkan.',
+            $markdown,
+        );
+    }
+    $record['buyerVisibleMarkdown']=$markdown;
+    $id=wp_insert_post(['post_type'=>'tio2_legal_page','post_status'=>'publish','post_title'=>$record['pageId'],'post_name'=>strtolower($record['pageId'])]);
+    wp_set_object_terms($id,['tio2-my'],'site_scope');
+    update_post_meta($id,TIO2_MY_LEGAL_PAGE_CONTRACT_META,wp_slash(wp_json_encode($record,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE)));
+    update_post_meta($id,'public_path',rtrim($record['path'],'/'));
 }
 wp_insert_term('tio2-b','site_scope');
 echo "seeded\n";
