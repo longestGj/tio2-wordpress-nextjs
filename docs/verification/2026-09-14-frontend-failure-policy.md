@@ -11,3 +11,5 @@ stage、activate、verify 先验证策略归属；新前端 journal 固定记录
 验证：先测试复现原程序七个失败阶段自动回滚及错误 releaseId 未阻止构建；另复现构建中删除策略后错误清理候选。修复后在 Linux root、可遍历的受保护临时目录中运行 frontend adapter、deployment core、CMS 权限、CMS resources 和 content release，共 63 项测试通过。独立代码审查通过。
 
 当前仅本地代码完成，尚未安装到生产。main 前端源码仍冻结为 d5a061f60c7521a58b59292e337fe2788394cae9。
+
+首次安装尝试在 plan 阶段停止，未安装程序、策略或前端。原因是程序升级准入只识别自动回滚的 `safeRecovery`，未识别发布控制器正常显式 rollback 保存的 `actionEvidence`。补丁严格验证显式回执的六个字段、完整非空事务 binding、`frontend-only` 类型、备份中的旧前端身份及公开健康结果；不改写生产状态。合法回执与各字段篡改、缺失、空值和错误发布类型均有红绿测试。

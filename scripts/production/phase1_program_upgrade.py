@@ -5,6 +5,7 @@ registry, release state, wrappers, sudoers, CMS or running frontend containers.
 """
 from pathlib import Path
 import argparse
+from collections.abc import Mapping
 import json
 import os
 import sys
@@ -15,6 +16,30 @@ if __name__ == '__main__':
 from phase1_migration import Phase1Migration, MigrationPaths, COMMIT_ORDER, canonical, digest, require
 
 
+def verified_explicit_frontend_rollback(evidence, details):
+    """Validate the normal rollback action result without rewriting its receipt."""
+    from frontend_backup import BINDING_FIELDS
+    expected_binding={key:details.get(key) for key in BINDING_FIELDS}
+    if (details.get('releaseType') != 'frontend-only'
+            or not all(isinstance(value,str) and value for value in expected_binding.values())
+            or not isinstance(evidence, Mapping)
+            or set(evidence) != {'active','binding','health','ok','publicVerified','state'}
+            or evidence.get('ok') is not True or evidence.get('state') != 'ROLLED_BACK'
+            or evidence.get('publicVerified') is not True
+            or evidence.get('binding') != expected_binding
+            or not isinstance(details.get('frontendBackup'), Mapping)
+            or evidence.get('active') != details['frontendBackup'].get('active')):
+        return False
+    active=evidence.get('active'); health=evidence.get('health')
+    return (isinstance(active, Mapping)
+            and set(active) == {'commit','sourceRoot','buildId','imageId','containerId'}
+            and all(isinstance(value,str) and value for value in active.values())
+            and isinstance(health, Mapping)
+            and set(health) == {'buildId','containerId','imageId','proxy'}
+            and health.get('proxy') is True
+            and all(health.get(key) == active[key] for key in ('buildId','imageId','containerId')))
+
+
 def require_upgrade_state(state):
     """Admit only pending transactions or an evidenced safe frontend rollback."""
     from release_controller import ReleaseController
@@ -23,7 +48,8 @@ def require_upgrade_state(state):
             and details.get('subject')=='tio2-my',
             'upgrade requires preserved pending or safely rolled-back transaction')
     if state['state']=='ROLLED_BACK':
-        require(ReleaseController._safe_recovery(details.get('safeRecovery'),details),
+        require(ReleaseController._safe_recovery(details.get('safeRecovery'),details)
+                or verified_explicit_frontend_rollback(details.get('actionEvidence'),details),
                 'upgrade requires verified frontend rollback evidence')
 
 
