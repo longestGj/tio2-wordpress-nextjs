@@ -100,7 +100,7 @@ class IsolatedImporter:
 
 @pytest.fixture(scope='module')
 def runtime():
-    r=IsolatedImporter(); token='d16-approved-import-'+secrets.token_hex(5)
+    r=IsolatedImporter(); token='d16-test-approved-import-'+secrets.token_hex(5)
     r.db=token+'-db'; r.wp=token+'-wp'; r.approvals=token+'-approvals'; network=token+'-network'; created=[]
     plugin=str(ROOT/'wordpress/plugins/tio2-site-model'); fixture=str(ROOT/'tests/infrastructure/php/content-approved-import.php')
     try:
@@ -117,12 +117,24 @@ def runtime():
             if docker('exec',r.wp,'test','-f','/var/www/html/wp-config.php',check=False).returncode==0: break
             time.sleep(.5)
         docker('exec',r.wp,'php','/opt/fixture.php')
+        # Match real seed enrollment: WordPress sanitizes a newly inserted slug,
+        # so the production seed establishes its canonical fixed identity afterward.
+        r.sql("UPDATE wp_posts SET post_name='tio2-my--homepage' WHERE post_title='HOME-001'")
         r.sql('SET GLOBAL event_scheduler=OFF; SET GLOBAL read_only=ON')
         yield r
     finally:
         for kind,name in reversed(created):
             assert name.startswith(token+'-')
             docker(*(['rm','-f','-v',name] if kind=='container' else [kind,'rm',name]))
+
+
+def test_real_canonical_seed_identity_exports_without_approval(runtime):
+    assert runtime.sql("SELECT post_name FROM wp_posts WHERE post_title='HOME-001'")=='tio2-my--homepage'
+    assert runtime.sql("SELECT post_name FROM wp_posts WHERE post_title='APP-000'")=='tio2-my-applications'
+    result,before,after=runtime.run_isolated_import(runtime.package(),action='export')
+    assert result.returncode==0,result.stderr.decode()
+    assert before==after
+    assert json.loads(result.stdout)['package']['records'][0]['pageId']=='HOME-001'
 
 
 def test_test_receipt_is_not_content_approval(runtime):
@@ -228,7 +240,7 @@ def test_final_locked_identity_and_approval_are_fresh(runtime,case):
         assert code!=0,error.decode()
         assert after==concurrent
     finally:
-        runtime.sql("UPDATE wp_postmeta SET meta_value=UNHEX('"+original+"') WHERE post_id="+id+" AND meta_key='_tio2_my_homepage_contract_json'; UPDATE wp_posts SET post_name='tio2-my-homepage' WHERE ID="+id)
+        runtime.sql("UPDATE wp_postmeta SET meta_value=UNHEX('"+original+"') WHERE post_id="+id+" AND meta_key='_tio2_my_homepage_contract_json'; UPDATE wp_posts SET post_name='tio2-my--homepage' WHERE ID="+id)
         runtime.sql("DELETE tr FROM wp_term_relationships tr JOIN wp_term_taxonomy tt ON tr.term_taxonomy_id=tt.term_taxonomy_id JOIN wp_terms t ON t.term_id=tt.term_id WHERE tr.object_id="+id+" AND t.slug='tio2-b'; SET GLOBAL read_only=ON")
 
 

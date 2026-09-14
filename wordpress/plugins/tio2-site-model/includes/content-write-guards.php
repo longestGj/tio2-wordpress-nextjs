@@ -110,10 +110,12 @@ function tio2_guard_content_post_data(array $data, array $postarr, array $unsani
         if (!Tio2_Approved_Content_Write::permits_status($id, (string)$data['post_status'])) $data['post_status'] = $post->post_status;
     }
     if (!current_user_can('edit_post', $id)) $data['post_status'] = $post->post_status;
-    // Content approval never authorizes routing or record-type changes.
-    if ($post->post_status === 'publish' || Tio2_Approved_Content_Write::active()) {
+    // Ordinary draft saves must not sanitize an already established fixed slug.
+    // Initial draft enrollment may still establish that slug from its temporary name.
+    $data['post_type'] = $post->post_type;
+    if ($post->post_name === tio2_content_write_registry()[$page]['slug'] ||
+        $post->post_status === 'publish' || Tio2_Approved_Content_Write::active()) {
         $data['post_name'] = $post->post_name;
-        $data['post_type'] = $post->post_type;
     }
     return $data;
 }

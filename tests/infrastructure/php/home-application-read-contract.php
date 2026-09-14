@@ -91,6 +91,7 @@ namespace {
     $plugin = dirname(__DIR__, 3) . '/wordpress/plugins/tio2-site-model';
     require $plugin . '/includes/content-types.php';
     require $plugin . '/includes/fields.php';
+    require_once $plugin . '/includes/content-write-approval.php';
     require $plugin . '/includes/homepage-v04.php';
     require $plugin . '/includes/application-hub-v01.php';
     require $plugin . '/includes/editorial-v01.php';
@@ -113,7 +114,8 @@ namespace {
         $changed['hero']['heading'] = 'Current homepage through real read entry';
         install($changed, 'HOME-001');
         check($available(), $visibility ? 'revised homepage is public at GraphQL model visibility' : 'revised homepage is available as required product parent'); $checks++;
-        check(is_wp_error(tio2_validate_homepage_contract(1)), 'new content does not authorize a write'); $checks++;
+        check(tio2_validate_homepage_contract(1)===true, 'new content is technically valid independently of approval'); $checks++;
+        check(is_wp_error(tio2_load_content_approval('synthetic-not-installed')), 'valid content has no installed approval'); $checks++;
         foreach ([['post_status','draft'],['post_status','future'],['post_status','private'],['post_status','trash'],['post_type','post'],['post_name','wrong-slug'],['scopes',['tio2-a']],['scopes',['tio2-my','tio2-a']],['scopes',['tio2-my','tio2-my']],['revision',true],['autosave',true]] as [$key,$value]) {
             install($changed, 'HOME-001'); $GLOBALS['records'][1][$key] = $value;
             check(!$available(), 'read entry rejects ' . $key); $checks++;
@@ -179,12 +181,13 @@ namespace {
         $write = $page === 'HOME-001' ? 'tio2_validate_homepage_contract' : 'tio2_validate_application_hub_v01_contract';
         install($baseline, $page);
         check(is_wp_error($read(999)), $page . ' missing WP_Post rejected'); $record_checks++;
-        check($write(1) === true, $page . ' baseline write allowed');
+        check($write(1) === true, $page . ' baseline technical validation allowed');
         $changed = $baseline;
         $changed[$page === 'HOME-001' ? 'packageId' : 'reviewId'] = $page . '-CURRENT-READ';
         install($changed, $page);
         check(is_array($read(1)), $page . ' new tracking read allowed');
-        check(is_wp_error($write(1)), $page . ' new tracking cannot claim old approval');
+        check($write(1)===true, $page . ' new tracking passes technical validation');
+        check(is_wp_error(tio2_load_content_approval('synthetic-not-installed')), $page . ' tracking cannot manufacture installed approval');
         if ($page === 'HOME-001') check(tio2_editorial_homepage_target_ready(), 'changed homepage readiness');
         foreach ([['post_status','draft'],['post_status','future'],['post_status','private'],['post_status','trash'],['post_type','post'],['post_name','wrong-slug'],['scopes',['tio2-a']],['scopes',['tio2-my','tio2-a']],['scopes',['tio2-my','tio2-my']],['revision',true],['autosave',true]] as [$key,$value]) {
             install($changed, $page); $GLOBALS['records'][1][$key] = $value;

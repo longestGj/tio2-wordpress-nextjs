@@ -17,7 +17,7 @@ describe('PHP home / application read contract and record isolation', () => {
     expect(output.entry).toBe(entry === 'parent' ? 'required-parent' : 'visibility')
     expect(output.checks).toBeGreaterThanOrEqual(23)
   })
-  it('runs shared vectors through real resolvers and retains record and write guards', () => {
+  it('runs shared resolver vectors and separates technical validity from missing installed approval', () => {
     const result = spawnSync('docker', [...isolatedPhpArgs(process.cwd()), '/workspace/tests/infrastructure/php/home-application-read-contract.php'], {encoding:'utf8', maxBuffer: 12 * 1024 * 1024})
     if (result.status !== 0) throw new Error(`PHP harness failed (${result.status}):\n${result.stdout}\n${result.stderr}`)
     const output = JSON.parse(result.stdout)

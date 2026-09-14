@@ -7,7 +7,7 @@ import {chromium, expect as browserExpect, type Browser, type Page} from '@playw
 import {describe, expect, it} from 'vitest'
 import {startIsolatedWordPress, type OwnedWordPressRuntime} from '../../helpers/wordpress-runtime'
 import {cleanupHomeApplicationSteps, execute, ownedHttp, prepareHomeApplicationFixture, removeOwnedHomeApplicationRun,
-  removeOwnedWordPressVolume, sha256, startHomeApplicationRelay, stopOwnedNext, type CallbackEvidence} from '../../helpers/home-application-runtime-fixture'
+  removeOwnedWordPressVolume, sha256, startHomeApplicationRelay, stopOwnedNext, prepareApprovalCompose, registerSyntheticApproval, type CallbackEvidence} from '../../helpers/home-application-runtime-fixture'
 // @ts-expect-error -- Runtime leases are intentionally delivered as an MJS script.
 import {attachLease, releaseLease, reserveLease} from '../../../scripts/runtime-ports/lease-core.mjs'
 
@@ -65,7 +65,7 @@ describe.runIf(process.env.HOME_APPLICATION_LOCAL_RUNTIME === '1')('real isolate
     let browser: Browser | undefined
     let nextLease: {leaseId: string; ports: number[]; processIds: number[]} | undefined
     let nextLogs = ''
-    let nextStopped = false, wordpressStopped = false, leaseReleased = false, dbRemoved = false, wpRemoved = false
+    let nextStopped = false, wordpressStopped = false, leaseReleased = false, dbRemoved = false, wpRemoved = false, approvalsRemoved = false
     let failure: unknown
     let passed = false
     const diagnostics: string[] = []
@@ -85,9 +85,10 @@ describe.runIf(process.env.HOME_APPLICATION_LOCAL_RUNTIME === '1')('real isolate
       relay = await startHomeApplicationRelay(runId, revalidationSecret, callbackEvents)
       const environmentPath = resolve(directory, 'wordpress.env')
       const adminPassword = secret()
+      const rootPassword = secret()
       writeFileSync(environmentPath, [
         'WORDPRESS_DB_NAME=home_application_runtime', 'WORDPRESS_DB_USER=home_application_runtime',
-        `WORDPRESS_DB_PASSWORD=${secret()}`, `WORDPRESS_DB_ROOT_PASSWORD=${secret()}`,
+        `WORDPRESS_DB_PASSWORD=${secret()}`, `WORDPRESS_DB_ROOT_PASSWORD=${rootPassword}`,
         'WORDPRESS_ADMIN_USER=owned-runtime-editor', `WORDPRESS_ADMIN_PASSWORD=${adminPassword}`,
         'WORDPRESS_ADMIN_EMAIL=runtime@example.invalid',
         ...['A','B','MY'].flatMap(site => [
@@ -97,9 +98,10 @@ describe.runIf(process.env.HOME_APPLICATION_LOCAL_RUNTIME === '1')('real isolate
         ]),
       ].join('\n'))
       const fixture = prepareHomeApplicationFixture(template, directory, repository)
+      const composePath = prepareApprovalCompose(repository,directory,runId)
       progress('wordpress-start'); startupAttempted = true
       wordpress = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId, siteId:'tio2-my', worktree:repository, commit,
-        environment:{...process.env, TIO2_TEST_WORDPRESS_ENV:environmentPath}})
+        environment:{...process.env, TIO2_TEST_WORDPRESS_ENV:environmentPath,TIO2_TEST_WORDPRESS_COMPOSE:composePath}})
       save('cms-identity.json',{runId, projectName:wordpress.projectName, graphqlUrl:wordpress.graphqlUrl, composeArgs:wordpress.composeArgs, callback:relay.url})
       if (!wordpress.graphqlUrl) throw new Error('Owned GraphQL URL missing')
       progress('wordpress-install')
@@ -110,18 +112,49 @@ describe.runIf(process.env.HOME_APPLICATION_LOCAL_RUNTIME === '1')('real isolate
       }
       await wordpress.wp(['plugin','activate','tio2-site-model'])
       await wordpress.wp(['option','update','d16_home_application_run',runId])
-      for (const seed of ['homepage','application-hub','m350-product-detail']) {
+      for (const seed of ['homepage','application-hub']) {
         progress(`seed-${seed}`)
-        save(`seed-${seed}.json`,await wordpress.wp(['eval-file',`/workspace/wordpress/seed/apply-tio2-my-${seed}.php`]))
+        save(`seed-${seed}.json`,await wordpress.wp(['eval',`$args=['--initialize-draft']; require '/workspace/wordpress/seed/apply-tio2-my-${seed}.php';`,'--user=owned-runtime-editor']))
       }
-      const mutate = async (mode: string) => {
+      let operationSequence=0
+      const mutate = async (mode: string, approvalId='') => {
         relay!.phase(mode)
-        const raw = await wordpress!.wp(['eval-file','/workspace/tests/fixtures/home-application-runtime/apply-synthetic-home-application.php',mode,runId])
-        save(`${mode}-php.json`,raw)
+        const raw = await wordpress!.wp(['eval-file','/workspace/tests/fixtures/home-application-runtime/apply-synthetic-home-application.php',mode,runId,approvalId,'--user=owned-runtime-editor'])
+        save(`${++operationSequence}-${mode}-php.json`,raw)
         return JSON.parse(raw)
       }
+      let proofSequence=0
+      const approve = async (label:string, record:any, operation='update-published', changes:Record<string,unknown>={}) => {
+        const approvalId=`synthetic-${++proofSequence}-${label}`
+        const now=Math.floor(Date.now()/1000)
+        const {pageId,locale,beforeSha256,afterSha256}=record
+        const proof={schemaVersion:'d16-content-approval-v1',approvalId,siteId:'tio2-my',environmentId:runId,
+          sourceRef:`SYNTHETIC-TEST-ONLY:${runId}:${label}`,sourceSha256:sha256(`SYNTHETIC-TEST-ONLY:${runId}:${label}`),
+          validFrom:now-60,validUntil:now+3600,operation,records:[{pageId,locale,beforeSha256,afterSha256}],...changes}
+        await registerSyntheticApproval(wordpress!.projectName,runId,proof)
+        save(`${approvalId}-proof.json`,proof)
+        return approvalId
+      }
+      await mutate('setup')
+      for(const kind of ['home','app']) {
+        const beforePublishEvents=callbackEvents.length
+        const record=await mutate(`publish-${kind}`)
+        expect(callbackEvents.length).toBe(beforePublishEvents)
+        const proof=await approve(`publish-${kind}`,record,'publish-draft')
+        expect(await mutate(`publish-${kind}`,proof)).toMatchObject({draftSaved:true,unapprovedPublishRejected:true,approvedPublish:true})
+      }
+      save('seed-m350-product-detail.json',await wordpress.wp(['eval-file','/workspace/wordpress/seed/apply-tio2-my-m350-product-detail.php','--user=owned-runtime-editor']))
+      save('seed-market-hub.json',await wordpress.wp(['eval-file','/workspace/wordpress/seed/apply-tio2-my-market-hub.php','--user=owned-runtime-editor']))
+      await wordpress.wp(['eval',"if(!term_exists('tio2-b','site_scope'))wp_insert_term('tio2-b','site_scope',['slug'=>'tio2-b']);$id=wp_insert_post(['post_type'=>'post','post_status'=>'draft','post_title'=>'Synthetic foreign scope sentinel']);wp_set_object_terms($id,['tio2-b'],'site_scope');update_post_meta($id,'synthetic-isolation','preserve');",'--user=owned-runtime-editor'])
       progress('synthetic-readiness-setup')
       await mutate('setup')
+      progress('bulk-canonical-registry-probe')
+      const registryProbe=await mutate('bulk-registry-probe')
+      expect(registryProbe.filter((record:any)=>record.error)).toEqual([])
+      expect(registryProbe).toEqual(expect.arrayContaining([
+        expect.objectContaining({pageId:'HOME-001',slug:'tio2-my--homepage',error:null}),
+        expect.objectContaining({pageId:'APP-000',slug:'tio2-my-applications',error:null}),
+      ]))
       const queries = {home:readFileSync(resolve(repository,'lib/wordpress/homepage-v04-queries.graphql'),'utf8'),app:readFileSync(resolve(repository,'lib/wordpress/application-hub-v01-queries.graphql'),'utf8')}
       const graph = async (kind: 'home'|'app', label: string) => {
         const result = await ownedHttp(wordpress!.graphqlUrl!,JSON.stringify({query:queries[kind],variables:kind==='home'?{slug:'tio2-my--homepage'}:{}}))
@@ -165,6 +198,14 @@ describe.runIf(process.env.HOME_APPLICATION_LOCAL_RUNTIME === '1')('real isolate
         await sleep(250)
       }
       relay.forwardTo(base)
+      const boundConfiguration=()=>sha256(JSON.stringify({runId,base,site:'tio2-my',graphqlUrl:wordpress!.graphqlUrl,
+        nextConfig:readFileSync(resolve(fixture,'next.config.mjs'),'utf8'),environment:buildEnv}))
+      const liveIdentity={frontendImageId:`owned-next-pid-${pid}`,buildId,configurationSha256:boundConfiguration(),
+        cmsContractSha256:sha256(readFileSync(resolve(repository,'wordpress/plugins/tio2-site-model/config/tio2-my-home-application-read-contract.json'))),processId:pid}
+      relay.identity(()=>{
+        if(next!.exitCode!==null||next!.pid!==pid||readFileSync(resolve(fixture,'.next/BUILD_ID'),'utf8').trim()!==buildId||boundConfiguration()!==liveIdentity.configurationSha256)throw new Error('Owned live identity changed')
+        return liveIdentity
+      })
       save('runtime-evidence.json',{runId,branch:'codex/cms-responsibility-audit',...codeIdentity,buildId,processId:pid,base,
         wordpress:{projectName:wordpress.projectName,graphqlUrl:wordpress.graphqlUrl},callback:relay.url,
         scope:'HOME-001 + APP-000 real target routes, shared layout and real POST; one production build/process',
@@ -188,36 +229,88 @@ describe.runIf(process.env.HOME_APPLICATION_LOCAL_RUNTIME === '1')('real isolate
         for(const round of [1,2]) {
           const label=`${kind}-round-${round}`
           progress(label)
-          const started=Date.now(), beforeEvents=callbackEvents.length
-          const mutation=await mutate(label)
+          const candidate=await mutate(`prepare-${label}`)
+          const proof=await approve(label,candidate)
+          if(round===1) {
+            const beforeRejections=callbackEvents.length
+            const raw=await mutate(`${label}-raw`)
+            expect(raw).toMatchObject({rejected:true,unchanged:true})
+            if(kind==='home')expect(raw).toMatchObject({oldSummaryCount:3,candidateSummaryCount:4})
+            const absent=await mutate(label)
+            expect(absent).toMatchObject({status:'rejected',unchanged:true})
+            expect(await mutate(`${label}-tamper`,proof)).toMatchObject({status:'rejected',error:'approval_content',unchanged:true})
+            expect(await mutate(`${label}-readback`,proof)).toMatchObject({status:'rejected',error:'write_readback',unchanged:true})
+            for(const [name,changes] of [['site',{siteId:'tio2-b'}],['environment',{environmentId:`${runId}-wrong`}],['expired',{validFrom:1,validUntil:2}],
+              ['page',{records:[{pageId:kind==='home'?'APP-000':'HOME-001',locale:'en',beforeSha256:candidate.beforeSha256,afterSha256:candidate.afterSha256}]}]] as const) {
+              // Wrong environment is independently registered in this test root; the installed environment remains unchanged.
+              const bad=await approve(`${label}-${name}`,candidate,'update-published',changes)
+              expect(await mutate(label,bad)).toMatchObject({status:'rejected',unchanged:true})
+            }
+            const dangerous=await mutate(`prepare-${label}-dangerous`)
+            const unsafeProof=await approve(`${label}-dangerous`,dangerous)
+            expect(await mutate(`${label}-dangerous`,unsafeProof)).toMatchObject({status:'rejected',unchanged:true})
+            expect(callbackEvents.length).toBe(beforeRejections)
+          }
+          const actualStarted=Date.now(), actualBeforeEvents=callbackEvents.length
+          if(round===2)relay.fail(kind==='home'?'reject':'drop-ack')
+          let mutation
+          if(round===1&&kind==='app') {
+            const races=await Promise.all([mutate(label,proof),mutate(label,proof)])
+            expect(races.filter(value=>value.status==='passed')).toHaveLength(1)
+            expect(races.filter(value=>value.error==='approval_content')).toHaveLength(1)
+            save('ordinary-concurrent-same-before.json',races)
+            mutation=races.find(value=>value.status==='passed')!
+          } else mutation=await mutate(label,proof)
+          if(round===2) {
+            expect(mutation.receipt).toMatchObject({committed:true,notificationState:'failed'})
+            expect(mutation.persistedNotificationState).toBe('failed')
+            relay.fail()
+            const retried=await mutate('retry',mutation.receipt.receiptId)
+            expect(retried).toMatchObject({metaWrites:0,unchanged:true,persistedNotificationState:'sent',receipt:{committed:true,notificationState:'sent'}})
+            mutation.receipt=retried.receipt
+          }
           expect(mutation).toMatchObject({status:'passed',savePostCalls:0,postModifiedUnchanged:true})
           const contract=contractFromGraph(kind,await graph(kind,label))
           expect(contract.seo.title).toBe(`Runtime ${prefix} SEO ${round}`)
-          const events=callbackEvents.slice(beforeEvents).filter(event=>event.phase===label)
+          expect(mutation.receipt).toMatchObject({committed:true,notificationState:'sent'})
+          const allEvents=callbackEvents.slice(actualBeforeEvents)
+          const events=allEvents.filter(event=>event.forwarded&&event.status===200)
           save(`${label}-callbacks.json`,events)
+          save(`${label}-all-attempts.json`,allEvents)
           expect(events.length).toBeGreaterThan(0)
+          let invalidations=0
           for(const event of events) {
             expect(event).toMatchObject({signatureValid:true,forwarded:true,status:200})
-            expect(JSON.parse(event.body)).toMatchObject({siteIds:['tio2-my'],contentId:mutation.postId})
+            expect(JSON.parse(event.body)).toMatchObject({siteIds:['tio2-my'],contentId:mutation.postId,entityIds:kind==='home'?[]:[mutation.postId]})
             expect(JSON.parse(event.body).paths).toContain(kind==='home'?'/':'/applications')
             const reply=JSON.parse(event.response)
-            expect(reply).toMatchObject({ok:true,eventId:JSON.parse(event.body).eventId})
-            expect(reply.revalidatedTags).toContain(kind==='home'?'content:tio2-my--homepage':'content:tio2-my--applications')
-            expect(reply.revalidatedPaths).toContain(kind==='home'?'/':'/applications')
+            expect(reply).toMatchObject({ok:true,eventId:JSON.parse(event.body).eventId,contentRelease:JSON.parse(event.body).contentRelease})
+            if(reply.revalidatedTags.length) {
+              invalidations++
+              expect(reply.revalidatedTags).toContain(kind==='home'?'content:tio2-my--homepage':'content:tio2-my--applications')
+              expect(reply.revalidatedPaths).toContain(kind==='home'?'/':'/applications')
+            } else {
+              expect({kind,round}).toEqual({kind:'app',round:2})
+              expect(event.body).toBe(events[0].body)
+              expect(reply.revalidatedPaths).toEqual([])
+            }
           }
+          expect(invalidations).toBe(1)
+          save(`${label}-event-boundaries.json`,{accepted:events.length,invalidationAcknowledgements:invalidations,replayAcknowledgements:events.length-invalidations})
           let observed=false, lastHeading='', status=0
-          while(Date.now()-started<60000) {
+          while(Date.now()-actualStarted<60000) {
             const response=await page.goto(`${base}${path}`,{waitUntil:'domcontentloaded'})
             status=response?.status()??0
             lastHeading=await page.locator('h1').textContent()??''
             if(status===200 && lastHeading===`Runtime ${prefix} Round ${round}` && await page.title()===`Runtime ${prefix} SEO ${round}`) {observed=true;break}
             await sleep(300)
           }
-          save(`${label}-observation.json`,{observed,elapsedMs:Date.now()-started,status,lastHeading,buildId,pid})
+          save(`${label}-observation.json`,{observed,elapsedMs:Date.now()-actualStarted,status,lastHeading,buildId,pid})
           expect(observed,`${label} did not become visible within 60 seconds`).toBe(true)
           await browserExpect(page.getByText(`Runtime ${prefix} body round ${round}.`,{exact:true})).toBeVisible()
           await browserExpect(page.locator('meta[name="description"]')).toHaveAttribute('content',`Runtime ${prefix} description round ${round}.`)
-          await browserExpect(page.locator('link[rel="canonical"]')).toHaveAttribute('href',`https://tio2malaysia.com${path}`)
+          // Next serializes an origin-only URL without '/', which URL parsing restores.
+          expect(new URL((await page.locator('link[rel="canonical"]').getAttribute('href'))!).href).toBe(`https://tio2malaysia.com${path}`)
           await browserExpect(page.locator('meta[name="robots"]')).toHaveAttribute('content','noindex, nofollow')
           const extraTitle=kind==='home'?'Runtime extra home summary':'Runtime extra evaluation'
           await browserExpect(page.getByText(extraTitle,{exact:true})).toHaveCount(round===1?1:0)
@@ -230,9 +323,45 @@ describe.runIf(process.env.HOME_APPLICATION_LOCAL_RUNTIME === '1')('real isolate
           expect(readiness).toEqual({homeReady:true,requiredHomeReady:true,m350Ready:true,m510Ready:false})
           expect(readFileSync(resolve(fixture,'.next/BUILD_ID'),'utf8').trim()).toBe(buildId)
           expect(next.pid).toBe(pid);expect(next.exitCode).toBeNull()
+          expect(await mutate(label,proof)).toMatchObject({status:'rejected',error:'approval_content',unchanged:true})
         }
       }
+      progress('bulk-bridge-identity')
+      const ids=(await execute('docker',['ps','-q','--filter',`label=com.docker.compose.project=${wordpress.projectName}`],{windowsHide:true})).stdout.trim().split(/\s+/u)
+      const containers=JSON.parse((await execute('docker',['inspect',...ids],{windowsHide:true})).stdout)
+      const db=containers.find((value:any)=>value.Config.Labels['com.docker.compose.service']==='db')
+      const wp=containers.find((value:any)=>value.Config.Labels['com.docker.compose.service']==='wordpress')
+      const setup=await mutate('setup')
+      const content={'HOME-001':JSON.parse(setup.records.home.base),'APP-000':JSON.parse(setup.records.app.base),
+        'MARKET-000':JSON.parse(readFileSync(resolve(repository,'wordpress/plugins/tio2-site-model/config/tio2-my-market-hub.json'),'utf8'))}
+      const bridgePath=resolve(directory,'bulk-bridge.json')
+      writeFileSync(bridgePath,JSON.stringify({runId,project:wordpress.projectName,database:'home_application_runtime',
+        db:{name:db.Name.slice(1),id:db.Id},wp:{name:wp.Name.slice(1),id:wp.Id},network:Object.keys(wp.NetworkSettings.Networks)[0],
+        relay:relay.url,secret:revalidationSecret,rootPassword,identity:liveIdentity,evidence,queries,content,
+        postIds:{'HOME-001':setup.records.home.id,'APP-000':setup.records.app.id}}))
+      for(const round of [1,2]) {
+        progress(`bulk-round-${round}`);relay.phase(`bulk-round-${round}`)
+        try {
+          const bulk=await execute('python',['tests/production-runtime/content_approval_rehearsal.py','--bridge',bridgePath,String(round)],{cwd:repository,windowsHide:true,timeout:480000,maxBuffer:8*1024*1024})
+          save(`bulk-round-${round}-host.log`,bulk.stdout+'\n'+bulk.stderr)
+        } catch(error) {const failed=error as Error&{stdout?:string;stderr?:string};save(`bulk-round-${round}-host-failure.log`,`${failed.message}\n${failed.stdout}\n${failed.stderr}`);throw error}
+        for(const kind of ['home','app'] as const) {
+          const path=kind==='home'?'/':'/applications/';const prefix=kind==='home'?'Home':'Applications'
+          const actual=contractFromGraph(kind,await graph(kind,`bulk-${round}-${kind}`))
+          expect(actual.seo.title).toBe(`Bulk ${prefix} SEO ${round}`)
+          await page.goto(`${base}${path}`,{waitUntil:'domcontentloaded'})
+          await browserExpect(page.locator('h1')).toHaveText(`Bulk ${prefix} Round ${round}`)
+          await browserExpect(page).toHaveTitle(`Bulk ${prefix} SEO ${round}`)
+          await browserExpect(page.locator('meta[name="description"]')).toHaveAttribute('content',`Bulk ${prefix} description round ${round}.`)
+          await browserExpect(page.getByText(kind==='home'?'Bulk extra home summary':'Bulk extra evaluation',{exact:true})).toHaveCount(round===1?1:0)
+          expect(readFileSync(resolve(fixture,'.next/BUILD_ID'),'utf8').trim()).toBe(buildId);expect(next.exitCode).toBeNull();expect(next.pid).toBe(pid)
+        }
+        expect(await mutate('readiness')).toEqual({homeReady:true,requiredHomeReady:true,m350Ready:true,m510Ready:false})
+      }
       progress('browser-visual-and-interactions')
+      // Stored-corruption cleanup must restore the latest approved SQL version,
+      // not the earlier ordinary-write checkpoint retained by the fixture.
+      await mutate('setup')
       for(const width of [1440,390]) {
         await page.setViewportSize({width,height:width===390?844:1000})
         for(const [kind,path] of [['home','/'],['app','/applications/']] as const) {
@@ -263,17 +392,19 @@ describe.runIf(process.env.HOME_APPLICATION_LOCAL_RUNTIME === '1')('real isolate
       await page.close()
       for(const kind of ['home','app'] as const) for(const bad of ['dangerous','relation','scope','unpublished','duplicate']) {
         const mode=`${kind}-invalid-${bad}`;progress(mode)
+        const preserved=contractFromGraph(kind,await graph(kind,`${mode}-before`))
         try {
           const result=await mutate(mode)
           expect(result.status).toBe('rejected')
           if(kind==='home')expect(result.homeReady).toBe(false)
           const rejected=await graph(kind,mode)
           if(kind==='home') expect(rejected.data?.tio2Homepage??null).toBeNull()
-          else {expect(rejected.errors?.length).toBeGreaterThan(0);expect(rejected.data).toBeNull()}
+          else {expect(rejected.errors?.length).toBeGreaterThan(0);expect(rejected.data??null).toBeNull()}
         } finally {await mutate('restore')}
-        contractFromGraph(kind,await graph(kind,`${mode}-restored`))
+        expect(contractFromGraph(kind,await graph(kind,`${mode}-restored`))).toEqual(preserved)
       }
-      save('acceptance.json',{passed:true,runId,buildId,pid,rounds:4,negativeCases:10,allObservedWithinMs:60000})
+      save('acceptance.json',{passed:true,runId,buildId,pid,ordinaryPageRounds:4,bulkPageRounds:4,storedCorruptionCases:10,allObservedWithinMs:60000,
+        visualEvidence:'Screenshots captured; human/model viewing is recorded separately in Task5 report.'})
       passed=true
     } catch(error) {
       failure=error;save('failure.json',{stage,message:(error as Error).message,stack:(error as Error).stack})
@@ -287,7 +418,8 @@ describe.runIf(process.env.HOME_APPLICATION_LOCAL_RUNTIME === '1')('real isolate
         {name:'WordPress stop',run:async()=>{if(startupAttempted&&!wordpress)throw new Error('Startup returned no owner handle; retain exact recovery identity');await wordpress?.stop();wordpressStopped=true}},
         {name:'WordPress owned database volume',run:async()=>{if(!wordpressStopped)throw new Error('WordPress may remain');if(wordpress)await removeOwnedWordPressVolume(wordpress.projectName,'db_data');dbRemoved=true}},
         {name:'WordPress owned files volume',run:async()=>{if(!wordpressStopped)throw new Error('WordPress may remain');if(wordpress)await removeOwnedWordPressVolume(wordpress.projectName,'wp_data');wpRemoved=true}},
-        {name:'owned fixture and temporary credentials',run:()=>{if(!nextStopped||!wordpressStopped||!leaseReleased||!dbRemoved||!wpRemoved)throw new Error('Resource identity still needed; owned directory retained');removeOwnedHomeApplicationRun(runRoot,directory,runId,resolve(repository,'public'))}},
+        {name:'WordPress owned proof volume',run:async()=>{if(!wordpressStopped)throw new Error('WordPress may remain');if(wordpress)await removeOwnedWordPressVolume(wordpress.projectName,'approvals');approvalsRemoved=true}},
+        {name:'owned fixture and temporary credentials',run:()=>{if(!nextStopped||!wordpressStopped||!leaseReleased||!dbRemoved||!wpRemoved||!approvalsRemoved)throw new Error('Resource identity still needed; owned directory retained');removeOwnedHomeApplicationRun(runRoot,directory,runId,resolve(repository,'public'))}},
       ])
       save('cleanup-evidence.json',{runId,passed,failedStage:failure?stage:null,steps:cleanup,runDirectoryRetained:existsSync(directory),
         startupAttempted,startupUncertain:startupAttempted&&!wordpress,

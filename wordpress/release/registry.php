@@ -48,7 +48,7 @@ function d16_content_check_record(array $entry, string $page): void {
 function d16_content_check_migrated_record(array $entry, string $page): void {
     global $wpdb;
     $definitions=[
-        'HOME-001'=>['tio2_homepage','tio2-my-homepage','homepage_schema_version','homepage-v0.4-malaysia','/','_tio2_my_homepage_contract_json'],
+        'HOME-001'=>['tio2_homepage','tio2-my--homepage','homepage_schema_version','homepage-v0.4-malaysia','/','_tio2_my_homepage_contract_json'],
         'APP-000'=>['tio2_application_hub','tio2-my-applications','public_path','/applications','/applications','_tio2_my_application_hub_contract_json'],
     ];
     if (!isset($definitions[$page])) throw new RuntimeException('Unknown migrated record.');

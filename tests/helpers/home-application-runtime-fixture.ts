@@ -8,6 +8,35 @@ import {promisify} from 'node:util'
 export const execute = promisify(execFile)
 export const sha256 = (value: string | Buffer) => createHash('sha256').update(value).digest('hex')
 
+/** Installed constants and a Linux root-owned proof volume belong to this disposable Compose. */
+export function prepareApprovalCompose(repository: string, directory: string, runId: string) {
+  if (!/^home-application-[a-f0-9-]+$/u.test(runId)) throw new Error('Approval environment identity invalid')
+  const source = readFileSync(resolve(repository, 'wordpress/docker-compose.yml'), 'utf8')
+  const constants = `define('TIO2_CONTENT_APPROVAL_ROOT','/approvals'); define('TIO2_CONTENT_ENVIRONMENT_ID','${runId}'); define('TIO2_CONTENT_WRITER_UID',33); if(!defined('DISABLE_WP_CRON'))define('DISABLE_WP_CRON',true);`
+  const result = source.replaceAll('./plugins/tio2-site-model:', `${repository.replaceAll('\\','/')}/wordpress/plugins/tio2-site-model:`)
+    .replaceAll('..:/workspace', `${repository.replaceAll('\\','/')}:/workspace:ro`)
+    .replaceAll('      WORDPRESS_DB_HOST: db:3306', `      WORDPRESS_CONFIG_EXTRA: "${constants}"\n      WORDPRESS_DB_HOST: db:3306`)
+    .replaceAll('      - wp_data:/var/www/html', '      - wp_data:/var/www/html\n      - approvals:/approvals:ro')
+    + '\n  approvals:\n'
+  const path = resolve(directory, 'compose.yml')
+  writeFileSync(path, result)
+  return path
+}
+
+export async function registerSyntheticApproval(project: string, runId: string, proof: Record<string, unknown>) {
+  if (!/^d16-test-home-application-[a-z0-9-]+$/u.test(project) || !/^home-application-[a-f0-9-]+$/u.test(runId)
+    || !String(proof.sourceRef).startsWith(`SYNTHETIC-TEST-ONLY:${runId}:`)
+    || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,95}$/u.test(String(proof.approvalId))) throw new Error('Synthetic registration identity mismatch')
+  const name = `${project}_approvals`
+  const [volume] = JSON.parse((await execute('docker',['volume','inspect',name],{windowsHide:true})).stdout)
+  if (volume.Labels?.['com.docker.compose.project'] !== project || volume.Labels?.['com.docker.compose.volume'] !== 'approvals') throw new Error('Proof volume owner mismatch')
+  // Root helper has no network. WP and all CLI callers see only the read-only mount.
+  await execute('docker',['run','--rm','--network','none','--user','0:0','--volume',`${name}:/approvals`,
+    '--entrypoint','php','wordpress:php8.3-apache','-r',
+    "$p=json_decode(base64_decode($argv[1]),true,512,JSON_THROW_ON_ERROR); $f='/approvals/'.$p['approvalId'].'.json'; if(file_exists($f))throw new RuntimeException('Proof already registered'); if(file_put_contents($f,json_encode($p))===false)throw new RuntimeException('Proof write failed'); chmod('/approvals',0755); chmod($f,0644);",
+    Buffer.from(JSON.stringify(proof)).toString('base64')],{windowsHide:true})
+}
+
 /** Use an actual HTTP subprocess, outside the repository's global MSW interceptor. */
 export async function ownedHttp(url: string, body?: string, signature?: string) {
   const parsed = new URL(url)
@@ -36,6 +65,8 @@ export function prepareHomeApplicationFixture(template: string, runDirectory: st
   if (existsSync(target)) throw new Error('Owned fixture already exists')
   mkdirSync(target)
   cpSync(resolve(template, 'app'), resolve(target, 'app'), {recursive: true})
+  // The engine checks the actual production sitemap alongside target page output.
+  writeFileSync(resolve(target,'app/sitemap.ts'), "export {default} from '@/app/sitemap'\n")
   for (const name of ['next.config.mjs', 'next-env.d.ts']) copyFileSync(resolve(template, name), resolve(target, name))
   const config = JSON.parse(readFileSync(resolve(template, 'tsconfig.json'), 'utf8'))
   const source = relative(target, repository).replace(/\\/gu, '/')
@@ -72,14 +103,26 @@ export async function cleanupHomeApplicationSteps(steps: {name: string; run(): P
 
 export interface CallbackEvidence {
   phase: string; receivedAt: string; remoteAddress?: string; body: string; signatureValid: boolean
-  forwarded: boolean; status: number; response: string
+  forwarded: boolean; status: number; response: string; callerStatus?: number
 }
 
 /** A signed, run-specific Docker callback forwards unchanged bytes to the real Next handler. */
 export async function startHomeApplicationRelay(runId: string, secret: string, events: CallbackEvidence[]) {
   let destination: string | undefined
+  let failMode: 'reject'|'drop-ack'|undefined
+  let identity: (() => Record<string, unknown>)|undefined
+  let maintenanceOwner: string|undefined
   let phase = 'seed-before-next'
   const server = createServer(async (request, response) => {
+    const publicPrefix=`/${runId}/public`
+    if(request.method==='GET'&&request.url?.startsWith(publicPrefix)&&destination) {
+      const path=request.url.slice(publicPrefix.length)
+      if(!['/','/applications/','/sitemap.xml'].includes(path)) {response.writeHead(404).end();return}
+      if(maintenanceOwner) {response.writeHead(503,{'content-type':'text/plain'}).end('Synthetic owned maintenance');return}
+      try {const actual=await ownedHttp(new URL(path,destination).href);response.writeHead(actual.status,{'content-type':path==='/sitemap.xml'?'application/xml':'text/html'}).end(actual.body)}
+      catch {response.writeHead(502).end()}
+      return
+    }
     let raw = ''
     for await (const chunk of request) {
       raw += String(chunk)
@@ -88,16 +131,40 @@ export async function startHomeApplicationRelay(runId: string, secret: string, e
     const signature = String(request.headers['x-tio2-signature'] ?? '')
     const valid = /^[a-f0-9]{64}$/u.test(signature)
       && timingSafeEqual(Buffer.from(signature, 'hex'), createHmac('sha256', secret).update(raw).digest())
-    if (request.method !== 'POST' || request.url !== `/${runId}` || !valid) {response.writeHead(403).end(); return}
+    if (request.method !== 'POST' || !valid) {response.writeHead(403).end(); return}
+    if(request.url === `/${runId}/maintenance`) {
+      try {
+        const value=JSON.parse(raw)
+        if(!identity||typeof value.owner!=='string'||!/^bulk-[a-z0-9-]+$/u.test(value.owner))throw new Error('Invalid maintenance identity')
+        const observed=identity()
+        if(value.action==='enter'&&!maintenanceOwner)maintenanceOwner=value.owner
+        else if(maintenanceOwner!==value.owner)throw new Error('Maintenance owner changed')
+        if(value.action==='leave')maintenanceOwner=undefined
+        else if(!['enter','assert'].includes(value.action))throw new Error('Invalid maintenance action')
+        response.writeHead(200,{'content-type':'application/json'}).end(JSON.stringify({ok:true,identity:observed,owner:value.owner,maintenance:Boolean(maintenanceOwner)}));return
+      } catch {response.writeHead(409).end();return}
+    }
+    if (request.url === `/${runId}/observe`) {
+      try {
+        const value=JSON.parse(raw)
+        if(value.path==='identity'&&identity) {response.writeHead(200,{'content-type':'application/json'}).end(JSON.stringify(identity()));return}
+        if(!destination||!['/','/applications/','/sitemap.xml'].includes(value.path)) throw new Error('Invalid observation path')
+        const actual=await ownedHttp(new URL(value.path,destination).href)
+        response.writeHead(200,{'content-type':'application/json'}).end(JSON.stringify(actual));return
+      } catch {response.writeHead(503).end();return}
+    }
+    if(request.url !== `/${runId}`) {response.writeHead(403).end();return}
     const record: CallbackEvidence = {phase, receivedAt: new Date().toISOString(), remoteAddress: request.socket.remoteAddress,
       body: raw, signatureValid: valid, forwarded: false, status: 503, response: 'Next not started'}
     try {
-      if (destination) {
+      if (destination && failMode !== 'reject') {
         const upstream = await ownedHttp(destination, raw, signature)
         record.forwarded = true; record.status = upstream.status; record.response = upstream.body
       }
     } catch (error) {record.status = 502; record.response = (error as Error).message}
+    record.callerStatus=failMode==='drop-ack'?503:record.status
     events.push(record)
+    if (failMode === 'drop-ack') {response.writeHead(503).end('{"error":"synthetic-lost-ack"}'); return}
     response.writeHead(record.status, {'content-type': 'application/json'}).end(record.response)
   })
   await new Promise<void>((done, reject) => {server.once('error', reject); server.listen(0, '0.0.0.0', done)})
@@ -111,6 +178,8 @@ export async function startHomeApplicationRelay(runId: string, secret: string, e
       destination = `${base}/api/revalidate`
     },
     phase(value: string) {phase = value},
+    fail(value?: 'reject'|'drop-ack') {failMode = value},
+    identity(value: () => Record<string, unknown>) {identity=value},
     async stop() {server.closeAllConnections(); await new Promise<void>((done, reject) => server.close(error => error ? reject(error) : done()))},
   }
 }
@@ -124,7 +193,7 @@ export async function stopOwnedNext(child: ChildProcess) {
   finally {clearTimeout(timer)}
 }
 
-export async function removeOwnedWordPressVolume(project: string, suffix: 'db_data'|'wp_data') {
+export async function removeOwnedWordPressVolume(project: string, suffix: 'db_data'|'wp_data'|'approvals') {
   if (!/^d16-test-home-application-[a-z0-9-]+$/u.test(project)) throw new Error('Unexpected WordPress project')
   const remaining = await execute('docker', ['ps', '-aq', '--filter', `label=com.docker.compose.project=${project}`], {windowsHide: true})
   if (remaining.stdout.trim()) throw new Error('Owned WordPress containers remain')
