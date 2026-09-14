@@ -107,6 +107,9 @@ class InstalledHooksRuntime(NextRuntime):
                 raise
         result=self.hooks.execute(action,value)
         if action=='verify':
+            if self.verification_pages is not None:
+                if self.hooks.request(self.internal_url,'/products/not-approved/')[0]!=404:
+                    raise ReleaseError('unregistered product path did not remain 404')
             self.checks.append({'installedHooks':True,'contentSha256':result['contentSha256'],'nginx':True})
             if self.fail=='verify':self.fail=None;raise ReleaseError('injected failure after actual installed page verification')
         return result
@@ -117,7 +120,7 @@ class InstalledHooksRuntime(NextRuntime):
             if name:
                 assert name.startswith('d16-hooks-')
                 if name==getattr(self,'next_name',None) and getattr(self,'log',None):
-                    runtime_log=docker('logs',name)
+                    runtime_log=subprocess.run(['docker','logs',name],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,check=True,timeout=30).stdout
                     evidence=ROOT/'.local-evidence';evidence.mkdir(exist_ok=True)
                     (evidence/(name+'-runtime.log')).write_bytes(runtime_log)
                     with Path(self.log.name).open('a',encoding='utf-8') as output:
