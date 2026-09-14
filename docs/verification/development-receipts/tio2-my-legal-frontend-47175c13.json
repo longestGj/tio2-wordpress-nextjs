@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "d16-development-receipt-v1",
+  "receiptId": "tio2-my-legal-frontend-47175c13",
+  "state": "MERGED_TO_DEVELOP",
+  "mergeCommit": "47175c13fcc06c61993bd6a3d4097c12e757f5de",
+  "paths": [
+    "components/sites/tio2-my/legal/malaysia-legal-page.tsx",
+    "lib/legal/markdown.ts",
+    "lib/wordpress/legal-pages-read-contract.ts",
+    "lib/wordpress/legal-pages-v01-types.ts"
+  ],
+  "subjects": ["tio2-my"],
+  "affectedConsumers": ["tio2-my"],
+  "contentScopes": [],
+  "cmsContractChanged": false,
+  "hostPaths": []
+}
