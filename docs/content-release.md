@@ -2,6 +2,8 @@
 
 本页对应用户批准的[最小改动方案](superpowers/specs/2026-09-12-minimal-content-release-design.md)。共享 WordPress 和数据库，前台继续按 `SITE_ID` 运行；不增加网站独立数据库或内容版本指针。
 
+内容来源与写入范围按[规则 R01](release-engineering-rules.md#r01)固定；新合同不接受旧数据时按[规则 R04](release-engineering-rules.md#r04)设计迁移并验证附属元数据完整性。专用迁移要求不扩展下文普通内容包格式，也不表示通用迁移入口已经实现。
+
 ## 操作模型
 
 日常内容操作为 `Test`、`Publish`、`Rollback`；`Status` 只读查看当前状态。
