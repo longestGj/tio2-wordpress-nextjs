@@ -38,7 +38,7 @@ def git_snapshot(target,subdirectory=None):
     revision=os.environ.get('D16_REHEARSAL_REVISION')
     if not revision:return False
     if not re.fullmatch('[a-f0-9]{40}',revision):raise ReleaseError('exact rehearsal revision required')
-    raw=subprocess.check_output(['git','archive',revision,*([subdirectory] if subdirectory else [])],cwd=ROOT)
+    raw=subprocess.check_output(['git','-c','core.autocrlf=false','-c','core.eol=lf','archive',revision,*([subdirectory] if subdirectory else [])],cwd=ROOT)
     target=Path(target).resolve();target.mkdir(parents=True,exist_ok=True)
     with tarfile.open(fileobj=io.BytesIO(raw)) as archive:
         for member in archive.getmembers():

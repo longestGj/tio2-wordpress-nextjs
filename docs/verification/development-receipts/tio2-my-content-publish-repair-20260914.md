@@ -1,0 +1,9 @@
+# Content-publication frontend repair
+
+The user authorized local installer repair, complete local publication-flow testing, and subsequent production release. During that testing the main frontend rejected registered product refresh paths and failed to regenerate expired Grade pages. Grade DTOs also rejected semantically identical JSON with reordered object keys.
+
+The repair integrates develop's existing W2 product refresh paths and dependency tags, preserves strict site/slug/public-route guards while permitting cache regeneration, and compares Grade JSON independently of object key order without changing array order or permitted values. Runtime changes versus eebfb029 are exactly the three paths in the companion frontend receipt; approved business/CMS source files are unchanged. The installer changes are separately covered by the local upgrade report and are not included in this frontend-only declaration.
+
+Independent review covered the code and scope boundaries. The real 57-record WordPress/Next/Nginx content publication and failure-recovery run at caff97fe passed, as did the current-source 715-test regression, post-merge 116-test subset and 27-test Grade/scope suite (overlapping sets). See [local evidence](../2026-09-14-cms-repeat-upgrade-local.md). Windows Git archive newline conversion was subsequently identified in the rehearsal fixture; the harness now disables that conversion so its CMS bytes match the Linux administrator archive, with an additional run pending.
+
+The clean actual develop checkout fast-forwarded from a526d6ca178f2fe31ecdca24484ae0c3259242fc to 78a1a514f714b494af93ea45aacdda0e68c6660b on 2026-09-14. That is the real merge point referenced by the machine receipt. No production write or new email submission has occurred. A fresh main prerelease and its identity-bound evidence remain necessary before frontend packaging.
