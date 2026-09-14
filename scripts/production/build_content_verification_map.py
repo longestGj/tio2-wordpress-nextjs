@@ -41,7 +41,7 @@ def build_pages(package, inventory, about_evidence, *, robots='index'):
             if isinstance(value,str) and value:fields=[field];break
         if not fields:raise ReleaseError('no reviewed visible field for '+pid)
         source_seo=content['seo']
-        dynamic=pid in {'LEGAL-COOKIE-EN','LEGAL-PRIV-EN','LEGAL-PRIV-MS'}
+        dynamic=pid in {'HOME-001','APP-000','LEGAL-COOKIE-EN','LEGAL-PRIV-EN','LEGAL-PRIV-MS'}
         title=source_seo['title'] if dynamic else entry['title']
         description=source_seo['description'] if dynamic else entry['metaDescription']
         pages[pid]={'path':entry['pathname'],'fields':fields,
