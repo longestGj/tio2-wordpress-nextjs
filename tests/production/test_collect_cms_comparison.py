@@ -61,6 +61,9 @@ class CollectorTests(unittest.TestCase):
         contract = {name: sha(data) for name, data in files.items() if name.startswith('ops/production/')}
         guard = patch.dict(release_contract.FROZEN_CONTRACTS, {'fixture': (contract,)})
         guard.start(); self.addCleanup(guard.stop)
+        coverage_guard = patch.object(release_contract, 'coverage_counts',
+                                      return_value=deepcopy(self.proof['prerelease']['counts']))
+        coverage_guard.start(); self.addCleanup(coverage_guard.stop)
         self.verification = {'schemaVersion': 'd16-cms-comparison-verification-v1', 'state': 'PASSED', 'siteId': 'tio2-my',
                              'commit': 'b' * 40, 'runId': 'fresh-real-run', 'contentSnapshotSha256': sha(raw(self.snapshot)),
                              'passed': 174, 'failed': 0, 'skipped': 0, 'completedAt': self.now.isoformat()}

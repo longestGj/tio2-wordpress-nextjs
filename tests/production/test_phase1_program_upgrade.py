@@ -54,6 +54,60 @@ class ProgramUpgradeTests(fixtures.Phase1MigrationTests):
         self.assertEqual(self.upgrade().apply(plan['planHash'])['state'],'PROGRAM_UPGRADED')
         self.assertEqual(before,{path:path.read_bytes() for path in before})
 
+    def explicit_rollback(self):
+        from phase1_migration import canonical
+        state=self.rolled_back(); details=state['details']; safe=details.pop('safeRecovery')
+        details['releaseType']='frontend-only'
+        details['cmsEvidenceSha256']='c'*64
+        details['requestId']='11111111-1111-4111-8111-111111111111'
+        from frontend_backup import BINDING_FIELDS
+        details['actionEvidence']={'ok':True,'state':'ROLLED_BACK','active':safe['active'],
+            'binding':{key:details.get(key) for key in BINDING_FIELDS},
+            'publicVerified':True,'health':safe['health']}
+        self.paths.state.write_bytes(canonical(state))
+        return state
+
+    def test_explicit_rollback_upgrade_preserves_original_evidence(self):
+        self.explicit_rollback()
+        before=self.paths.state.read_bytes()
+        upgrade=self.upgrade(); plan=upgrade.plan()
+        self.assertEqual(upgrade.apply(plan['planHash'])['state'],'PROGRAM_UPGRADED')
+        self.assertEqual(self.paths.state.read_bytes(),before)
+
+    def test_invalid_explicit_rollback_never_creates_upgrade_journal(self):
+        from phase1_migration import canonical
+        state=self.explicit_rollback()
+        for field,value in [('ok',False),('state','PUBLIC_VERIFIED'),('active',{}),
+                            ('binding',{}),('publicVerified',False),('health',{}),('unexpected',True)]:
+            with self.subTest(field=field):
+                invalid=deepcopy(state); invalid['details']['actionEvidence'][field]=value
+                self.paths.state.write_bytes(canonical(invalid)); upgrade=self.upgrade()
+                with self.assertRaises(ReleaseError): upgrade.plan()
+                self.assertFalse(upgrade.journal.exists())
+
+    def test_explicit_rollback_requires_complete_nonempty_binding_and_frontend_type(self):
+        from frontend_backup import BINDING_FIELDS
+        from phase1_migration import canonical
+        state=self.explicit_rollback()
+        mutations=[]
+        missing=deepcopy(state)
+        for key in BINDING_FIELDS:
+            missing['details'].pop(key,None)
+            missing['details']['actionEvidence']['binding'][key]=None
+        mutations.append(missing)
+        for key in BINDING_FIELDS:
+            empty=deepcopy(state)
+            empty['details'][key]=''
+            empty['details']['actionEvidence']['binding'][key]=''
+            mutations.append(empty)
+        wrong_type=deepcopy(state); wrong_type['details']['releaseType']='content-only'
+        wrong_type['details']['actionEvidence']['binding']['releaseType']='content-only'
+        mutations.append(wrong_type)
+        for invalid in mutations:
+            self.paths.state.write_bytes(canonical(invalid)); upgrade=self.upgrade()
+            with self.assertRaises(ReleaseError): upgrade.plan()
+            self.assertFalse(upgrade.journal.exists())
+
     def test_invalid_rollback_evidence_never_creates_upgrade_journal(self):
         from phase1_migration import canonical
         state=self.rolled_back()

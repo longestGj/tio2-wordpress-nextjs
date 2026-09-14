@@ -332,7 +332,30 @@ class Deployment:
         journal.update(changes)
         atomic_write_json(context.subject.state_root/'frontend-deployment.json',journal)
 
+    def _automatic_frontend_rollback(self,context):
+        """Only a protected, release-bound administrator policy disables recovery."""
+        path=context.subject.configuration/'frontend-failure-policy.json'
+        from frontend_backup import read_record,binding
+        automatic=True
+        if path.exists() or path.is_symlink():
+            policy=read_record(protected_path(path))
+            require(isinstance(policy,dict) and set(policy)=={'schemaVersion','subject','releaseId','automaticRollback'}
+                and policy['schemaVersion']=='d16-frontend-failure-policy-v1'
+                and policy['subject']==context.candidate.subject
+                and policy['releaseId']==context.candidate.release_id
+                and policy['automaticRollback'] is False,'frontend failure policy identity mismatch')
+            automatic=False
+        journal_path=context.subject.state_root/'frontend-deployment.json'
+        if journal_path.exists():
+            journal=read_record(journal_path)
+            require(journal.get('binding')==binding(context),'frontend failure policy transaction mismatch')
+            enrolled=journal.get('automaticRollback',True)
+            require(type(enrolled) is bool and enrolled is automatic,'frontend failure policy changed during transaction')
+        return automatic
+
     def _frontend_reverted(self,context,journal,backup,*,switch):
+        require(self._automatic_frontend_rollback(context),
+                'automatic frontend rollback disabled; preserve slots and inspect recovery state')
         from release_adapter import SafeFrontendRollback
         from frontend_backup import binding
         old=journal['old']
@@ -351,6 +374,7 @@ class Deployment:
 
     def stage(self,context,backup):
         """Build and verify one slot. This operation never changes upstream."""
+        self._automatic_frontend_rollback(context)
         from frontend_backup import binding,plain
         require(context.state['state'] in {'BACKED_UP','STAGED','INTERNAL_VERIFIED'},'stage requires exact backed-up release')
         journal=self._frontend_journal(context,backup)
@@ -364,7 +388,7 @@ class Deployment:
         old=plain(context.subject_baseline['record']); details=plain(context.state['details'])
         if getattr(context.candidate,'build_id',None): details['buildId']=context.candidate.build_id
         journal={'schemaVersion':'d16-frontend-deployment-v1','binding':binding(context),'backup':backup,
-                 'old':old,'target':None,'phase':'building'}
+                 'old':old,'target':None,'phase':'building','automaticRollback':self._automatic_frontend_rollback(context)}
         self._frontend_save(context,journal)
         try:
             self.adapter.validate(old)
@@ -381,6 +405,7 @@ class Deployment:
             self._frontend_reverted(context,journal,backup,switch=False)
 
     def activate(self,context,backup):
+        self._automatic_frontend_rollback(context)
         from frontend_backup import binding
         require(context.state['state'] in {'INTERNAL_VERIFIED','ACTIVATED'},'activate requires INTERNAL_VERIFIED')
         journal=self._frontend_journal(context,backup)
@@ -403,6 +428,7 @@ class Deployment:
             if previous_checkpoint is not None: self.adapter.checkpoint=previous_checkpoint
 
     def verify_frontend(self,context,backup):
+        self._automatic_frontend_rollback(context)
         from frontend_backup import binding
         journal=self._frontend_journal(context,backup)
         require(journal is not None and journal['phase']=='activated','frontend activation is missing')
