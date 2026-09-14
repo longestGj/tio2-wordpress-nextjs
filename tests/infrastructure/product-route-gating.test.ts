@@ -80,7 +80,7 @@ describe('closed three-level Product routes', () => {
     expect(hub.revalidate).toBe(3600)
     expect(family.revalidate).toBe(3600)
     expect(detail.revalidate).toBe(3600)
-    expect(family.dynamicParams).toBe(false)
+    expect(family.dynamicParams).toBe(true)
     expect(detail.dynamicParams).toBe(false)
     expect(await family.generateStaticParams()).toEqual([])
     expect(await detail.generateStaticParams()).toEqual([])
@@ -112,7 +112,10 @@ describe('closed three-level Product routes', () => {
   it('rejects Site B before query even if a path is injected as approved', async () => {
     routePolicy.siteId = 'tio2-b'
     routePolicy.approved.add('/products/coatings/tp-c120')
-    const {getSiteProductPage, detail} = await loadRoutes()
+    routePolicy.approved.add('/products/coatings')
+    const {getSiteProductPage, family, detail} = await loadRoutes()
+    await expect(family.default({params: Promise.resolve({familySlug: 'coatings'})}))
+      .rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
     await expect(detail.default({params: Promise.resolve({familySlug: 'coatings', slug: 'tp-c120'})}))
       .rejects.toMatchObject({digest: 'NEXT_HTTP_ERROR_FALLBACK;404'})
     expect(getSiteProductPage).not.toHaveBeenCalled()
