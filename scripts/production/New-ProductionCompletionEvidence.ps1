@@ -136,7 +136,8 @@ foreach ($name in $bindingNames) {
     if ($details[$name] -cne $binding[$name]) { throw "Public Verify binding mismatch: $name" }
 }
 $verifyEvidence = $details['actionEvidence']
-if ($verifyEvidence -is [Collections.IDictionary]) {
+if ($details.Contains('actionEvidence')) {
+    if ($verifyEvidence -isnot [Collections.IDictionary]) { throw 'Public Verify action evidence must be an object.' }
     Assert-ExactNames $verifyEvidence @('active', 'binding', 'health', 'ok', 'publicVerified', 'state') 'Public Verify action evidence'
     if ($verifyEvidence.ok -isnot [bool] -or -not $verifyEvidence.ok -or
         $verifyEvidence.publicVerified -isnot [bool] -or -not $verifyEvidence.publicVerified -or

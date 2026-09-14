@@ -1,4 +1,5 @@
 """Offline completion contract tests; generated mail is synthetic, never inbox evidence."""
+from copy import deepcopy
 import hashlib
 import json
 import shutil
@@ -107,3 +108,16 @@ class CurrentCompletionTests(unittest.TestCase):
         self.write('verify.json',verify)
         result=self.generate()
         self.assertEqual(result.returncode,0,result.stderr)
+
+    def test_rejects_malformed_action_evidence_instead_of_using_legacy_identity(self):
+        original=json.loads((self.root/'verify.json').read_text())
+        active=original['state']['details']['actionEvidence']['active']
+        for malformed in (None, 'invalid', []):
+            with self.subTest(actionEvidence=malformed):
+                (self.root/'completion-receipt.json').unlink(missing_ok=True)
+                verify=deepcopy(original)
+                verify['state']['details']['activeFrontend']=active
+                verify['state']['details']['actionEvidence']=malformed
+                self.write('verify.json',verify)
+                self.assertNotEqual(self.generate().returncode,0)
+                self.assertFalse((self.root/'completion-receipt.json').exists())
