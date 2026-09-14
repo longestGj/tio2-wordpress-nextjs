@@ -1,0 +1,11 @@
+site_scope=tio2-my
+branch=codex/tio2-my-prod-ga4-legal-parity
+baseline_commit=1ab1a9a02958394135b655d912463dd12d69e1cf
+implementation_commit=24065cdeffef6a887b290f542be74d78be595b71
+build_directory=.next-tio2-my-prod-ga4-legal-baseline-24065cde
+build_id=aoZsmmoI852RtB8oVR-vb
+runtime=http://127.0.0.1:3143
+cms_runtime=http://127.0.0.1:8180/graphql
+content_sha256=13ac8f9984d8a4cadb8c4e34f0cc07c2d7519d88ee3effd0583d23afeeb5a3a8
+content_source_sha256=3e275694a98382cc3edb8adfdd49839ca9e825f67082fd2050ce88e5a8c2c954
+production_release_baseline=d5a061f60c7521a58b59292e337fe2788394cae9

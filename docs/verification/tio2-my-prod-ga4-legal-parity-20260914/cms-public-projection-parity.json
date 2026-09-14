@@ -1,0 +1,26 @@
+{
+  "state": "PASSED",
+  "cmsUrl": "http://127.0.0.1:8180/graphql",
+  "mode": "read-only local prerelease public projection",
+  "contentSha256": "13ac8f9984d8a4cadb8c4e34f0cc07c2d7519d88ee3effd0583d23afeeb5a3a8",
+  "rows": [
+    {
+      "pageId": "LEGAL-COOKIE-EN",
+      "markdownEqual": true,
+      "seoEqual": true,
+      "effectiveDateEqual": true
+    },
+    {
+      "pageId": "LEGAL-PRIV-EN",
+      "markdownEqual": true,
+      "seoEqual": true,
+      "effectiveDateEqual": true
+    },
+    {
+      "pageId": "LEGAL-PRIV-MS",
+      "markdownEqual": true,
+      "seoEqual": true,
+      "effectiveDateEqual": true
+    }
+  ]
+}

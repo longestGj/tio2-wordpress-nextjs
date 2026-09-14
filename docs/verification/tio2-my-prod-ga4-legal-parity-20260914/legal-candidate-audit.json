@@ -1,0 +1,117 @@
+{
+  "state": "PASSED",
+  "baseUrl": "http://127.0.0.1:3143",
+  "buildId": "aoZsmmoI852RtB8oVR-vb",
+  "sourceCommit": "24065cdeffef6a887b290f542be74d78be595b71",
+  "checks": [
+    {
+      "pageId": "LEGAL-PRIV-EN",
+      "width": 390,
+      "status": 200,
+      "ok": true,
+      "title": "Privacy Policy | TiO2 Malaysia",
+      "description": "Learn how TiO2 Malaysia handles business inquiry data, service providers, retention, Cookies and applicable privacy choices.",
+      "canonical": "https://tio2malaysia.com/privacy-policy/",
+      "robots": "index,follow",
+      "h1": "Privacy Policy",
+      "jsonLd": 1
+    },
+    {
+      "pageId": "LEGAL-PRIV-EN",
+      "width": 768,
+      "status": 200,
+      "ok": true,
+      "title": "Privacy Policy | TiO2 Malaysia",
+      "description": "Learn how TiO2 Malaysia handles business inquiry data, service providers, retention, Cookies and applicable privacy choices.",
+      "canonical": "https://tio2malaysia.com/privacy-policy/",
+      "robots": "index,follow",
+      "h1": "Privacy Policy",
+      "jsonLd": 1
+    },
+    {
+      "pageId": "LEGAL-PRIV-EN",
+      "width": 1440,
+      "status": 200,
+      "ok": true,
+      "title": "Privacy Policy | TiO2 Malaysia",
+      "description": "Learn how TiO2 Malaysia handles business inquiry data, service providers, retention, Cookies and applicable privacy choices.",
+      "canonical": "https://tio2malaysia.com/privacy-policy/",
+      "robots": "index,follow",
+      "h1": "Privacy Policy",
+      "jsonLd": 1
+    },
+    {
+      "pageId": "LEGAL-PRIV-MS",
+      "width": 390,
+      "status": 200,
+      "ok": true,
+      "title": "Dasar Privasi | TiO2 Malaysia",
+      "description": "Ketahui cara TiO2 Malaysia mengendalikan data pertanyaan perniagaan, penyedia perkhidmatan, tempoh penyimpanan, kuki dan pilihan privasi yang berkenaan.",
+      "canonical": "https://tio2malaysia.com/ms/privacy-policy/",
+      "robots": "index,follow",
+      "h1": "Dasar Privasi",
+      "jsonLd": 1
+    },
+    {
+      "pageId": "LEGAL-PRIV-MS",
+      "width": 768,
+      "status": 200,
+      "ok": true,
+      "title": "Dasar Privasi | TiO2 Malaysia",
+      "description": "Ketahui cara TiO2 Malaysia mengendalikan data pertanyaan perniagaan, penyedia perkhidmatan, tempoh penyimpanan, kuki dan pilihan privasi yang berkenaan.",
+      "canonical": "https://tio2malaysia.com/ms/privacy-policy/",
+      "robots": "index,follow",
+      "h1": "Dasar Privasi",
+      "jsonLd": 1
+    },
+    {
+      "pageId": "LEGAL-PRIV-MS",
+      "width": 1440,
+      "status": 200,
+      "ok": true,
+      "title": "Dasar Privasi | TiO2 Malaysia",
+      "description": "Ketahui cara TiO2 Malaysia mengendalikan data pertanyaan perniagaan, penyedia perkhidmatan, tempoh penyimpanan, kuki dan pilihan privasi yang berkenaan.",
+      "canonical": "https://tio2malaysia.com/ms/privacy-policy/",
+      "robots": "index,follow",
+      "h1": "Dasar Privasi",
+      "jsonLd": 1
+    },
+    {
+      "pageId": "LEGAL-COOKIE-EN",
+      "width": 390,
+      "status": 200,
+      "ok": true,
+      "title": "Cookie Policy | TiO2 Malaysia",
+      "description": "Learn which Cookies and similar technologies TiO2 Malaysia uses and how to review or change available Analytics preferences.",
+      "canonical": "https://tio2malaysia.com/cookie-policy/",
+      "robots": "index,follow",
+      "h1": "Cookie Policy",
+      "jsonLd": 1
+    },
+    {
+      "pageId": "LEGAL-COOKIE-EN",
+      "width": 768,
+      "status": 200,
+      "ok": true,
+      "title": "Cookie Policy | TiO2 Malaysia",
+      "description": "Learn which Cookies and similar technologies TiO2 Malaysia uses and how to review or change available Analytics preferences.",
+      "canonical": "https://tio2malaysia.com/cookie-policy/",
+      "robots": "index,follow",
+      "h1": "Cookie Policy",
+      "jsonLd": 1
+    },
+    {
+      "pageId": "LEGAL-COOKIE-EN",
+      "width": 1440,
+      "status": 200,
+      "ok": true,
+      "title": "Cookie Policy | TiO2 Malaysia",
+      "description": "Learn which Cookies and similar technologies TiO2 Malaysia uses and how to review or change available Analytics preferences.",
+      "canonical": "https://tio2malaysia.com/cookie-policy/",
+      "robots": "index,follow",
+      "h1": "Cookie Policy",
+      "jsonLd": 1
+    }
+  ],
+  "failures": []
+}
