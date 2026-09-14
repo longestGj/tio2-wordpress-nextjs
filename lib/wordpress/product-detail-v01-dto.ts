@@ -51,8 +51,13 @@ function exactKeys(value: UnknownRecord, keys: readonly string[], field: string)
   }
 }
 
+function canonicalJson(value: unknown): string | undefined {
+  return JSON.stringify(value, (_key, item: unknown) => item && typeof item === 'object' && !Array.isArray(item)
+    ? Object.fromEntries(Object.entries(item).sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)) : item)
+}
+
 function exactJson(value: unknown, expected: unknown, field: string): void {
-  if (JSON.stringify(value) !== JSON.stringify(expected)) throw new ProductDetailContractError(field)
+  if (canonicalJson(value) !== canonicalJson(expected)) throw new ProductDetailContractError(field)
 }
 
 function orderedSubset(value: unknown, approved: unknown, field: string, minimum = 0): readonly unknown[] {
@@ -61,7 +66,7 @@ function orderedSubset(value: unknown, approved: unknown, field: string, minimum
   }
   let lastIndex = -1
   for (const [index, item] of value.entries()) {
-    const approvedIndex = approved.findIndex((candidate) => JSON.stringify(candidate) === JSON.stringify(item))
+    const approvedIndex = approved.findIndex((candidate) => canonicalJson(candidate) === canonicalJson(item))
     if (approvedIndex <= lastIndex) throw new ProductDetailContractError(`${field}[${index}]`)
     lastIndex = approvedIndex
   }

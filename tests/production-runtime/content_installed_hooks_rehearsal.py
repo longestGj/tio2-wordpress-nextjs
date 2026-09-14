@@ -117,8 +117,11 @@ class InstalledHooksRuntime(NextRuntime):
             if name:
                 assert name.startswith('d16-hooks-')
                 if name==getattr(self,'next_name',None) and getattr(self,'log',None):
+                    runtime_log=docker('logs',name)
+                    evidence=ROOT/'.local-evidence';evidence.mkdir(exist_ok=True)
+                    (evidence/(name+'-runtime.log')).write_bytes(runtime_log)
                     with Path(self.log.name).open('a',encoding='utf-8') as output:
-                        output.write(docker('logs',name).decode(errors='replace'))
+                        output.write(runtime_log.decode(errors='replace'))
                 docker('rm','-f',name)
 
 
