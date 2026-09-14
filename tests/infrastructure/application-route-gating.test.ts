@@ -202,16 +202,16 @@ afterEach(() => {
 describe('Malaysia prerelease Application metadata policy', () => {
   it.each([
     coatContract, plasContract, mbContract, inkContract, paperContract,
-  ] as EditorialContract[])('keeps $identity.pageId provisional while its exact path is a relationship target', (page) => {
+  ] as EditorialContract[])('publishes $identity.pageId through the approved inventory while preview stays noindex', (page) => {
     const site = getSiteConfig('tio2-my')
     const pageMetadata = buildEditorialMetadata(site, page)
     const applicationJsonLd = buildEditorialJsonLd(site, page)
     const releaseSitemapPaths = getPublicRoutes('tio2-my').map(({path}) => path)
 
     expect(page.identity.provisional).toBe(true)
-    expect(pageMetadata.alternates?.canonical).toBeUndefined()
-    expect(pageMetadata.openGraph?.url).toBeUndefined()
-    expect(applicationJsonLd).toBeNull()
+    expect(pageMetadata.alternates?.canonical).toBe('https://tio2malaysia.com' + page.identity.path)
+    expect(pageMetadata.openGraph?.url).toBe('https://tio2malaysia.com' + page.identity.path)
+    expect(applicationJsonLd?.['@graph']).toEqual(expect.arrayContaining([expect.objectContaining({'@type': 'WebPage', url: 'https://tio2malaysia.com' + page.identity.path})]))
     expect(pageMetadata.robots).toEqual({index: false, follow: false})
     expect(releaseSitemapPaths).not.toContain(page.identity.path)
   })

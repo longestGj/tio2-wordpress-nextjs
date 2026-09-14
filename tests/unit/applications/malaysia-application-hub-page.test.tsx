@@ -28,6 +28,28 @@ function gradeLinkCount(markup: string): number {
 }
 
 describe('APP-000 renderer', () => {
+  it('renders the current-page breadcrumb label from the validated DTO', () => {
+    const current = dto()
+    const changed = {
+      ...current,
+      breadcrumb: current.breadcrumb.map((item) => item.targetPageId === 'APP-000'
+        ? {...item, label: 'Synthetic breadcrumb label'} : item),
+    }
+    const markup = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={changed} />)
+    expect(markup).toContain('<span aria-current="page">Synthetic breadcrumb label</span>')
+    expect(markup).toContain('APPLICATIONS')
+  })
+
+  it('does not render unrelated CMS footer data', () => {
+    const current = dto()
+    const withFooter = {
+      ...current, footer: {headline: 'Unrelated CMS footer'},
+    }
+    const markup = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={withFooter} />)
+    expect(markup).not.toContain('Unrelated CMS footer')
+    expect(markup).toContain(contract.hero.h1)
+  })
+
   it('renders the approved reading order and 30 Grade links without public internal IDs', () => {
     const markup = renderToStaticMarkup(<MalaysiaApplicationHub applicationHub={dto()} />)
     const headings = [contract.hero.h1, contract.applicationPaths.heading, contract.evaluation.heading, contract.support.heading, contract.finalRfq.heading]

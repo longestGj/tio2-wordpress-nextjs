@@ -152,23 +152,24 @@ describe('HOME-001 immutable WordPress contract', () => {
     }
   })
 
-  it('exposes only a hidden, byte-validated GraphQL contract for tio2-my', () => {
+  it('registers the hidden, scope-bound Malaysia GraphQL contract and preview serializer', () => {
     expect(existsSync(phpPath)).toBe(true)
     expect(php).toContain("'_tio2_my_homepage_contract_json'")
     expect(php).toContain("'malaysiaHomepageContractJson'")
     expect(php).toContain("'tio2-my'")
-    expect(php).toContain('hash_equals')
     expect(php).not.toContain('acf_add_local_field')
     expect(plugin).toContain("require_once __DIR__ . '/includes/homepage-v04.php';")
     expect(fields).toContain("'homepage-v0.4-malaysia' => tio2_validate_homepage_v04_contract($post_id)")
     expect(preview).toContain('tio2_serialize_homepage_v04_preview')
   })
 
-  it('provides an idempotent local seed for only tio2-my--homepage', () => {
+  it('requires approval for existing home content and explicitly initializes new drafts', () => {
     expect(existsSync(seedPath)).toBe(true)
-    expect(seed).toContain("'tio2-my--homepage'")
+    expect(seed).toContain('tio2_force_homepage_slug($id)')
+    expect(seed).toContain('tio2_apply_approved_content')
+    expect(seed).toContain("'post_status'=>'draft'")
     expect(seed).toContain("'tio2-my'")
-    expect(seed).toContain("'_tio2_my_homepage_contract_json'")
+    expect(seed).toContain('TIO2_MY_HOMEPAGE_CONTRACT_META')
     expect(seed).not.toContain("'tio2-a'")
     expect(seed).not.toContain("'tio2-b'")
   })

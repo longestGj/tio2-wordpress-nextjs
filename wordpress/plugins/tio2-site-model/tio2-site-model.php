@@ -14,6 +14,10 @@ if (! defined('ABSPATH')) {
 }
 
 require_once __DIR__ . '/includes/content-types.php';
+require_once __DIR__ . '/includes/content-write-contract.php';
+require_once __DIR__ . '/includes/content-write-approval.php';
+require_once __DIR__ . '/includes/content-write.php';
+require_once __DIR__ . '/includes/content-write-guards.php';
 require_once __DIR__ . '/includes/publication.php';
 require_once __DIR__ . '/includes/homepage-rfq-copy.php';
 require_once __DIR__ . '/includes/fields.php';

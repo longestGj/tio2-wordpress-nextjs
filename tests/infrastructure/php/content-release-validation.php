@@ -21,6 +21,8 @@ foreach(glob($base.'/config/tio2-my-*.json') as $file){
  $root=json_decode(file_get_contents($file),true);
  foreach($root['pages']??[$root] as $contract){
   $id=$contract['identity']['pageId']??$contract['page']['page_id']??$contract['pageId']??'';
+  // HOME/APP use the ordinary-write schema, exercised by content-write-approval.php.
+  if(in_array($id,['HOME-001','APP-000'],true))continue;
   if(!isset($policies[$id]))continue;
   check(tio2_my_content_matches($contract,$contract),'baseline '.$id);$count++;
   foreach($policies[$id] as $path){

@@ -25,8 +25,10 @@ HOOKS = {'identity','enter','assert','leave','refresh','verify'}
 
 def validate_config(value):
     expected = {'schemaVersion','siteId','database','dbContainer','wordpressContainer','importerContainer','dbDefaultsFile','hooks'}
-    if not isinstance(value, dict) or set(value) != expected or value['schemaVersion'] != 'd16-content-runtime-v1':
+    if not isinstance(value, dict) or set(value) not in (expected, expected | {'approvalId'}) or value['schemaVersion'] != 'd16-content-runtime-v1':
         raise ReleaseError('content runtime configuration schema mismatch')
+    if 'approvalId' in value and (not isinstance(value['approvalId'],str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]{0,95}',value['approvalId'])):
+        raise ReleaseError('content approval selector invalid')
     for key in ('siteId','dbContainer','wordpressContainer','importerContainer'):
         if not isinstance(value[key],str) or not re.fullmatch(r'[a-z][a-z0-9_-]{0,100}', value[key]): raise ReleaseError('content runtime identity invalid')
     if not isinstance(value['database'],str) or not re.fullmatch(r'[A-Za-z][A-Za-z0-9_]{0,63}', value['database']): raise ReleaseError('content database invalid')
@@ -103,6 +105,8 @@ class ContentDockerRuntime:
     def _php(self, action, package):
         container = self.config['importerContainer'] if action == 'import' else self.config['wordpressContainer']
         binding=['-e','D16_CONTENT_DB='+self.config['database'],'-e','D16_CONTENT_DB_HOSTNAME='+self.sql('SELECT @@hostname')]
+        # Always override inherited container selectors, including absent config.
+        binding += ['-e','D16_CONTENT_APPROVAL_ID='+(self.config.get('approvalId','') if action != 'export' else '')]
         result = self.docker('exec','-i','-e','D16_CONTENT_ACTION='+action,*binding,container,
                              'php',self.SCRIPT,data=canonical(package))
         try: result = json.loads(result)

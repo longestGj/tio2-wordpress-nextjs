@@ -38,10 +38,10 @@ describe('CONV-RFQ route', () => {
     expect(routeMocks.getMalaysiaRfqPage).not.toHaveBeenCalled()
   })
 
-  it('keeps route metadata noindex while the scoped contract authorization is false', async () => {
+  it('uses approved production indexing independently of the historical contract hold', async () => {
     vi.stubEnv('VERCEL_ENV', 'production')
     vi.stubEnv('TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED', 'true')
     const route = await import('@/app/request-a-quote/page')
-    await expect(route.generateMetadata()).resolves.toMatchObject({robots: {index: false, follow: false}})
+    await expect(route.generateMetadata()).resolves.toMatchObject({robots: {index: true, follow: true}})
   })
 })

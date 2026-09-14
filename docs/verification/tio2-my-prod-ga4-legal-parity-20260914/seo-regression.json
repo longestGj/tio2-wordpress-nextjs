@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "d16-tio2-my-seo-regression-v1",
+  "state": "TARGET_SCOPE_PASSED_FULL_COMBINATION_OPEN",
+  "productionBaseline": {
+    "release": "d5a061f60c7521a58b59292e337fe2788394cae9",
+    "report": "D:/23MySec/docs/architecture/TIO2_MY_PRODUCTION_SEO_DEEP_READONLY_VERIFICATION_20260914_V1.0.md",
+    "reportSha256": "e82157d37b30f264d059153bc383a965f2735a5c2b175286e478dcf2eca977cb",
+    "result": "57/57 status, index/follow, self-canonical, one Title, one H1 and parseable JSON-LD; no duplicate Title or Description groups; no orphan pages"
+  },
+  "candidateScope": {
+    "contentPackageRecords": 3,
+    "pageIds": ["LEGAL-COOKIE-EN", "LEGAL-PRIV-EN", "LEGAL-PRIV-MS"],
+    "unaffectedProductionPages": 54,
+    "changedScopeBrowserChecks": "9/9 passed at 390, 768 and 1440 CSS px"
+  },
+  "fullCandidateAttempt": {
+    "result": "43/57 passed in one develop runtime",
+    "blockedPages": 14,
+    "cause": "The current develop code rejects 14 non-scope editorial records from the available local CMS baseline as contract-incompatible.",
+    "attribution": "None of the 14 page IDs appears in this three-record package. The mismatch existed at the develop/CMS boundary and was not repaired under TIO2-MY-PROD-GA4-F01."
+  },
+  "conclusion": "No SEO regression was found in the three changed legal pages. A single-runtime 57/57 combination remains required after the develop editorial CMS baseline is aligned."
+}

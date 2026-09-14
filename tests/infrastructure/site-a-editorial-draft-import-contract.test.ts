@@ -4,7 +4,8 @@ import {tmpdir} from 'node:os'
 import {join, resolve} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
-import {describe, expect, it} from 'vitest'
+import {afterAll, beforeAll, describe, expect, it} from 'vitest'
+import {createWordPressWrapperFixture} from '../helpers/wordpress-test-support'
 
 const applyWrapperPath = fileURLToPath(
   new URL('../../scripts/apply-local-site-a-editorial-drafts.ps1', import.meta.url),
@@ -22,6 +23,27 @@ const productManifestPath = 'D:/11SEO/01ComInfo/outputs/site-a-products-v0.1.jso
 const runtimeLibraryPath = fileURLToPath(
   new URL('../../scripts/editorial/local-editorial-runtime.ps1', import.meta.url),
 )
+
+let fixtureDirectory: string
+let fixtureRoot: string
+beforeAll(() => {
+  fixtureDirectory = mkdtempSync(join(tmpdir(), 'tio2-editorial-contract-'))
+  fixtureRoot = createWordPressWrapperFixture(fixtureDirectory, [
+    'scripts/apply-local-site-a-editorial-drafts.ps1', 'scripts/audit-site-a-editorial.ps1',
+    'scripts/editorial/local-editorial-runtime.ps1', 'scripts/editorial/runtime-loader.mjs',
+    'scripts/editorial/validate-site-a-applications.mjs', 'scripts/editorial/validate-site-a-resources.mjs',
+    'scripts/editorial/validate-site-a-content-graph.mjs', 'scripts/products/validate-product-manifest.mjs',
+    'wordpress/seed/apply-site-a-editorial-drafts.php', 'wordpress/seed/export-site-a-editorial-audit.php',
+    'lib/applications/content-manifest.ts', 'lib/resources/content-manifest.ts',
+    'lib/editorial/content-graph.ts', 'lib/products/content-manifest.ts',
+    'lib/applications/schema.ts', 'lib/resources/schema.ts',
+    'lib/editorial/schema.ts', 'lib/editorial/rich-text.ts', 'lib/seo/text.ts',
+    'tests/fixtures/editorial/site-a-applications.synthetic.json',
+    'tests/fixtures/editorial/site-a-resources.synthetic.json',
+  ])
+})
+afterAll(() => { if (fixtureDirectory) rmSync(fixtureDirectory, {recursive: true, force: true}) })
+const fixtureWrapper = (path: string) => join(fixtureRoot, 'scripts', path === applyWrapperPath ? 'apply-local-site-a-editorial-drafts.ps1' : 'audit-site-a-editorial.ps1')
 
 function captureApplyCapabilities() {
   const directory = mkdtempSync(join(tmpdir(), 'tio2-editorial-wrapper-'))
@@ -41,10 +63,10 @@ function captureApplyCapabilities() {
     const quote = (value: string) => `'${value.replaceAll("'", "''")}'`
     const command = [
       'function global:docker { & $env:TIO2_FAKE_DOCKER_NODE $env:TIO2_FAKE_DOCKER_SCRIPT @args }',
-      `& ${quote(applyWrapperPath)} -Mode Apply -RelationshipMode DeferredProductRelations -ApplicationsManifestPath ${quote('tests/fixtures/editorial/site-a-applications.synthetic.json')} -ResourcesManifestPath ${quote('tests/fixtures/editorial/site-a-resources.synthetic.json')} -ProductsManifestPath ${quote(productManifestPath)}`,
+      `& ${quote(fixtureWrapper(applyWrapperPath))} -Mode Apply -RelationshipMode DeferredProductRelations -ApplicationsManifestPath ${quote('tests/fixtures/editorial/site-a-applications.synthetic.json')} -ResourcesManifestPath ${quote('tests/fixtures/editorial/site-a-resources.synthetic.json')} -ProductsManifestPath ${quote(productManifestPath)}`,
     ].join('; ')
     const result = spawnSync('pwsh', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command], {
-      cwd: process.cwd(),
+      cwd: fixtureRoot,
       encoding: 'utf8',
       env: {...process.env, TIO2_CAPABILITY_CAPTURE: capturePath, TIO2_FAKE_DOCKER_NODE: process.execPath, TIO2_FAKE_DOCKER_SCRIPT: fakeDockerPath},
       timeout: 30_000,
@@ -75,10 +97,10 @@ function runWrapperWithManifestPath(wrapperPath: string, unsafePath: string) {
       : '-RelationshipMode DeferredProductRelations'
     const command = [
       'function global:docker { & $env:TIO2_FAKE_DOCKER_NODE $env:TIO2_FAKE_DOCKER_SCRIPT @args }',
-      `& ${quote(wrapperPath)} ${mode} -ApplicationsManifestPath ${quote(unsafePath)} -ResourcesManifestPath ${quote('tests/fixtures/editorial/site-a-resources.synthetic.json')} -ProductsManifestPath ${quote(productManifestPath)}`,
+      `& ${quote(fixtureWrapper(wrapperPath))} ${mode} -ApplicationsManifestPath ${quote(unsafePath)} -ResourcesManifestPath ${quote('tests/fixtures/editorial/site-a-resources.synthetic.json')} -ProductsManifestPath ${quote(productManifestPath)}`,
     ].join('; ')
     return spawnSync('pwsh', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command], {
-      cwd: process.cwd(),
+      cwd: fixtureRoot,
       encoding: 'utf8',
       env: {...process.env, TIO2_FAKE_DOCKER_NODE: process.execPath, TIO2_FAKE_DOCKER_SCRIPT: fakeDockerPath},
       timeout: 30_000,
@@ -145,12 +167,12 @@ function runWrapperWithControlledDocker(wrapperPath: string, scenario: WrapperSc
       "function global:docker { if ($env:TIO2_WRAPPER_SCENARIO -eq 'docker-throw') { throw 'injected Docker exception' }; & $env:TIO2_FAKE_DOCKER_NODE $env:TIO2_FAKE_DOCKER_SCRIPT @args }",
       `$env:${tokenName} = 'sentinel-before-wrapper'`,
       '$CaughtMessage = $null',
-      `try { & ${quote(wrapperPath)} ${wrapperArguments} -ApplicationsManifestPath ${quote(applicationsManifestPath)} -ResourcesManifestPath ${quote('tests/fixtures/editorial/site-a-resources.synthetic.json')} -ProductsManifestPath ${quote(productManifestPath)} } catch { $CaughtMessage = $_.Exception.Message }`,
+      `try { & ${quote(fixtureWrapper(wrapperPath))} ${wrapperArguments} -ApplicationsManifestPath ${quote(applicationsManifestPath)} -ResourcesManifestPath ${quote('tests/fixtures/editorial/site-a-resources.synthetic.json')} -ProductsManifestPath ${quote(productManifestPath)} } catch { $CaughtMessage = $_.Exception.Message }`,
       `$Outcome = [ordered]@{ caught = $CaughtMessage; restored = $env:${tokenName} }`,
       `[System.IO.File]::WriteAllText(${quote(outcomePath)}, ($Outcome | ConvertTo-Json -Compress), [System.Text.UTF8Encoding]::new($false))`,
     ].join('; ')
     const result = spawnSync('pwsh', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command], {
-      cwd: process.cwd(),
+      cwd: fixtureRoot,
       encoding: 'utf8',
       env: {
         ...process.env,

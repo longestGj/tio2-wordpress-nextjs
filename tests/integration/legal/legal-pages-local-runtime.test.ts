@@ -16,7 +16,7 @@ import {attachLease, releaseLease, reserveLease} from '../../../scripts/runtime-
 const execFileAsync = promisify(execFile)
 const repositoryRoot = resolve(import.meta.dirname, '../../..')
 const fixtureTemplateRoot = resolve(repositoryRoot, 'tests/fixtures/legal-read-runtime')
-const canonicalRequire = createRequire(resolve(repositoryRoot, '../../package.json'))
+const canonicalRequire = createRequire(resolve(repositoryRoot, 'package.json'))
 const nextBin = canonicalRequire.resolve('next/dist/bin/next')
 const runLiveRuntime = process.env.LEGAL_READ_LOCAL_RUNTIME === '1'
 export const WORDPRESS_RUNTIME_MODE = {dataMode: 'isolated', hostHttp: true} as const

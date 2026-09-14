@@ -11,6 +11,7 @@ import {editorialPageIdForPath,editorialTag} from '@/lib/editorial/malaysia-edit
 import {SITE_IDS} from '@/sites'
 import {
   aboutPageContentTag,
+  applicationHubContentTag,
   applicationListTag,
   applicationTag,
   contentListTag,
@@ -350,6 +351,9 @@ export async function POST(request: Request): Promise<Response> {
     for (const path of payload.paths) {
       tags.add(routeTag(siteId, path))
       if (path === '/') tags.add(homepageContentTag(siteId))
+      if (siteId === 'tio2-my' && path === '/applications') {
+        tags.add(applicationHubContentTag(siteId))
+      }
       if (siteId === 'tio2-my') {
         if (path === '/products') tags.add(productHubContentTag(siteId))
         const slug = malaysiaProductSlugByPath.get(path)

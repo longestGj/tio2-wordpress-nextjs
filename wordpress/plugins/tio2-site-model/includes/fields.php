@@ -961,9 +961,10 @@ function tio2_homepage_has_duplicates(array $values): bool
 }
 
 /**
- * @return true|WP_Error
+ * Pure record checks shared by reads and approval-enforced writes.
+ * @return array{siteId:string,schemaVersion:string}|WP_Error
  */
-function tio2_validate_homepage_contract(int $post_id)
+function tio2_validate_homepage_record_identity(int $post_id)
 {
     $post = get_post($post_id);
     if (! $post instanceof WP_Post || 'tio2_homepage' !== $post->post_type) {
@@ -1005,7 +1006,16 @@ function tio2_validate_homepage_contract(int $post_id)
         );
     }
 
-    return match ($schema_version) {
+    return ['siteId' => $site_id, 'schemaVersion' => $schema_version];
+}
+
+/** @return true|WP_Error */
+function tio2_validate_homepage_contract(int $post_id)
+{
+    $identity = tio2_validate_homepage_record_identity($post_id);
+    if (is_wp_error($identity)) return $identity;
+    $site_id = $identity['siteId'];
+    return match ($identity['schemaVersion']) {
         'homepage-v0.4-malaysia' => tio2_validate_homepage_v04_contract($post_id),
         'homepage-v0.3-brand' => tio2_validate_homepage_v03_contract($post_id),
         'homepage-v0.2-editorial-geo' => tio2_validate_homepage_v02_contract($post_id),
@@ -1578,7 +1588,10 @@ function tio2_enforce_homepage_contract(int $post_id)
 
     $GLOBALS['tio2_enforcing_homepage_contract'] = true;
     try {
-        $identity_result = tio2_reconcile_homepage_identity($post_id);
+        // MY ordinary writes must never reconcile (mutate) another identity as validation.
+        $identity_result = 'tio2-my' === tio2_get_homepage_site_id($post_id)
+            ? tio2_validate_homepage_record_identity($post_id)
+            : tio2_reconcile_homepage_identity($post_id);
         $result = is_wp_error($identity_result)
             ? $identity_result
             : tio2_validate_homepage_contract($post_id);

@@ -15,5 +15,5 @@ export function buildMalaysiaRequestDocumentsMetadata(
   if (site.id !== 'tio2-my' || site.wordpressScope !== 'tio2-my' || site.url !== 'https://tio2malaysia.com') {
     throw new Error('CONV-DOC metadata is available only for tio2-my')
   }
-  return buildTio2MyPublicationMetadata('CONV-DOC', options.env)
+  return buildTio2MyPublicationMetadata('CONV-DOC', options.env, options.seo)
 }

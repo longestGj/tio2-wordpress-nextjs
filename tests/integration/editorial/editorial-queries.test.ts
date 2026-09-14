@@ -51,7 +51,7 @@ describe('live-shaped editorial GraphQL delivery',()=>{
  })
  it.each(EDITORIAL_CONTRACTS.filter(page=>!page.identity.provisional).map(page=>({page,id:page.identity.pageId})))('binds exact SEO, noindex and permitted Schema for final route $id',({page})=>{
   const metadata=buildEditorialMetadata(getSiteConfig('tio2-my'),page)
-  expect(metadata.title).toEqual({absolute:page.seo.title})
+  expect(metadata.title).toEqual(page.seo.title)
   expect(metadata.alternates?.canonical).toBe(page.seo.canonical??undefined)
   expect(metadata.robots).toEqual({index:false,follow:false})
   const schema=buildEditorialJsonLd(getSiteConfig('tio2-my'),page)
@@ -62,13 +62,13 @@ describe('live-shaped editorial GraphQL delivery',()=>{
   }
   expect(()=>buildEditorialMetadata(getSiteConfig('tio2-a'),page)).toThrow()
  })
- it.each(EDITORIAL_CONTRACTS.filter(page=>page.identity.section==='applications').map(page=>({page,id:page.identity.pageId})))('does not publish canonical, social URL or URL-bearing Schema for provisional route $id',({page})=>{
+ it.each(EDITORIAL_CONTRACTS.filter(page=>page.identity.section==='applications').map(page=>({page,id:page.identity.pageId})))('uses the approved public mapping for historically provisional route $id',({page})=>{
   const metadata=buildEditorialMetadata(getSiteConfig('tio2-my'),page)
-  expect(metadata.title).toEqual({absolute:page.seo.title})
-  expect(metadata.alternates).toBeUndefined()
-  expect(metadata.openGraph).not.toHaveProperty('url')
+  expect(metadata.title).toEqual(page.seo.title)
+  expect(metadata.alternates?.canonical).toBe('https://tio2malaysia.com'+page.identity.path)
+  expect(metadata.openGraph?.url).toBe('https://tio2malaysia.com'+page.identity.path)
   expect(metadata.robots).toEqual({index:false,follow:false})
-  expect(buildEditorialJsonLd(getSiteConfig('tio2-my'),page)).toBeNull()
+  expect(buildEditorialJsonLd(getSiteConfig('tio2-my'),page)?.['@graph']).toEqual(expect.arrayContaining([expect.objectContaining({'@type':'WebPage',url:'https://tio2malaysia.com'+page.identity.path})]))
  })
  it('keeps the approved UK source label while using the maintained HMRC URL',()=>{
   const page=getEditorialContract('RES-TRADE-UK')

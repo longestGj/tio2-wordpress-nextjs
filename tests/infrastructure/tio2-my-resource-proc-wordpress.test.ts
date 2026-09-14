@@ -17,7 +17,7 @@ describe('RES-PROC WordPress binding', () => {
     expect(php).toContain("'post_type' => 'tio2_document'")
     expect(php).toContain("'_tio2_my_resource_proc_contract_json'")
     expect(php).toContain('tio2-my-resource-proc.json')
-    expect(php).toContain('hash_equals')
+    expect(php).toContain('tio2_my_content_json_matches($stored, $approved)')
     expect(php).not.toContain("register_post_type('tio2_resource_proc'")
     expect(existsSync(seedPath)).toBe(true)
     expect(existsSync(seedPath) ? readFileSync(seedPath, 'utf8') : '').toContain("'resource_id', 'RES-PROC'")

@@ -9,6 +9,8 @@ import {http, passthrough} from 'msw'
 import {server} from '../mocks/server'
 import './owned-e2e-review-regressions.cases'
 import {resolveLeaseRoot} from '../../scripts/runtime-ports/lease-root.mjs'
+// @ts-expect-error -- The runtime allocator is intentionally delivered as an MJS script.
+import {releaseLease, reserveLease} from '../../scripts/runtime-ports/lease-core.mjs'
 
 beforeEach(() => server.use(http.all(/^http:\/\/127\.0\.0\.1:\d+\//u, () => passthrough())))
 
@@ -165,11 +167,42 @@ const base=requiredLocalUrl('TIO2_MY_BASE_URL').origin;
 test('owned identity',async({page})=>{await page.goto(base);await expect(page.locator('[data-site-id="tio2-my"]')).toHaveText('Owned runtime ready')});`)
   const fixture = join(root, 'fixture.mjs')
   await writeFile(fixture, `import {createServer} from 'node:http';const server=createServer((q,s)=>s.writeHead(503).end('no CMS in this test')).listen(0,'127.0.0.1',()=>{const {port}=server.address();console.log(JSON.stringify({host:'127.0.0.1',port,baseUrl:'http://127.0.0.1:'+port}))});`)
-  const result = await runOwnedE2e(['--site', 'tio2-my', '--spec', 'tests/e2e/runtime.spec.ts', '--fixture', `WORDPRESS_GRAPHQL_URL=${fixture}`], {
-    repositoryRoot: root,
-    startupTimeoutMs: 60_000,
+  const leaseRoot = resolveLeaseRoot(root)
+  const foreignLease = await reserveLease({
+    leaseRoot, runId: 'other-active-test-task', purpose: 'test-next', siteId: 'tio2-my',
+    worktree: root, commit: 'f'.repeat(40), retainUntil: '2099-01-01T00:00:00.000Z',
   })
-  expect(result.exitCode, result.output).toBe(0)
-  expect(result.urls.TIO2_MY_BASE_URL).toMatch(/^http:\/\/127\.0\.0\.1:32[1-9][0-9]{2}$/u)
-  expect(await readdir(resolveLeaseRoot(root))).toEqual([])
+  try {
+    const result = await runOwnedE2e(['--site', 'tio2-my', '--spec', 'tests/e2e/runtime.spec.ts', '--fixture', `WORDPRESS_GRAPHQL_URL=${fixture}`], {
+      repositoryRoot: root,
+      startupTimeoutMs: 60_000,
+    })
+    expect(result.exitCode, result.output).toBe(0)
+    expect(result.urls.TIO2_MY_BASE_URL).toMatch(/^http:\/\/127\.0\.0\.1:32[1-9][0-9]{2}$/u)
+    expect(JSON.parse(await readFile(join(leaseRoot, `${foreignLease.leaseId}.json`), 'utf8'))).toEqual(foreignLease)
+    const cleanup = JSON.parse(await readFile(join(result.outputRoot, 'cleanup-state.json'), 'utf8')) as {
+      runId: string
+      leaseRoot: string
+      leases: string[]
+      failures: string[]
+    }
+    expect(cleanup).toMatchObject({runId: result.runId, leaseRoot, failures: []})
+    expect(cleanup.leases).toHaveLength(2)
+    expect(new Set(cleanup.leases).size).toBe(2)
+    expect(cleanup.leases).not.toContain(foreignLease.leaseId)
+    for (const leaseId of cleanup.leases) expect(existsSync(join(leaseRoot, `${leaseId}.json`))).toBe(false)
+    const remainingOwnLeases: string[] = []
+    for (const name of await readdir(leaseRoot)) {
+      if (!name.endsWith('.json')) continue
+      try {
+        const lease = JSON.parse(await readFile(join(leaseRoot, name), 'utf8')) as {runId: string}
+        if (lease.runId === result.runId) remainingOwnLeases.push(name)
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+      }
+    }
+    expect(remainingOwnLeases).toEqual([])
+  } finally {
+    await releaseLease({leaseRoot, leaseId: foreignLease.leaseId})
+  }
 }, 90_000)

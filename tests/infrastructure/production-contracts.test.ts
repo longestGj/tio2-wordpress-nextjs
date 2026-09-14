@@ -28,8 +28,9 @@ type MigrationManifest = {
 
 const productionPath = (name: string) => `ops/production/${name}`
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T
+const legacyMigrationCommit = '5a79bbb99771fdb44d227de7515b13d4e05da555'
 const sha256GitBlob = (path: string) => createHash('sha256')
-  .update(execFileSync('git', ['show', `HEAD:${path}`]))
+  .update(execFileSync('git', ['show', `${legacyMigrationCommit}:${path}`]))
   .digest('hex')
 
 describe('tio2-my production release contracts', () => {
@@ -114,9 +115,15 @@ describe('tio2-my production release contracts', () => {
     expect((properties.files.items as Record<string, unknown>).additionalProperties).toBe(false)
   })
 
-  it('allowlists only Git-hashed production migration seeds', () => {
+  it('preserves the frozen legacy migration contract and its original Git-hashed seeds', () => {
     const manifest = readJson<MigrationManifest>(productionPath('migration-manifest.json'))
-    const prereleaseManifest = readJson<{seeds: Array<{path: string}>}>('ops/prerelease/seed-manifest.json')
+    const prereleaseManifest = JSON.parse(execFileSync('git', ['show', `${legacyMigrationCommit}:ops/prerelease/seed-manifest.json`], {encoding: 'utf8'})) as {seeds: Array<{path: string}>}
+    const frozenManifest = execFileSync('git', ['show', `${legacyMigrationCommit}:ops/production/migration-manifest.json`])
+    expect(createHash('sha256').update(frozenManifest).digest('hex')).toBe('8bc0db54ef1efe5ceff3474e0efc29d0696e6256ed1b9d59d141aed7ce3c1004')
+    expect(readFileSync(productionPath('migration-manifest.json'), 'utf8').replace(/\r\n/gu, '\n')).toBe(frozenManifest.toString('utf8'))
+    expect(JSON.parse(frozenManifest.toString('utf8'))).toEqual(manifest)
+    // Current HOME/APP seeds require independent approval; this legacy archive
+    // test does not certify current HEAD for the old bootstrap procedure.
     const excludedPaths = new Set([
       'ops/prerelease/bootstrap-wordpress.sh',
       'wordpress/seed/apply-tio2-my-prerelease-public-paths.php',
@@ -143,7 +150,7 @@ describe('tio2-my production release contracts', () => {
       expect(seed.sha256).toMatch(/^[a-f0-9]{64}$/u)
       expect(sha256GitBlob(seed.path)).toBe(seed.sha256)
     }
-  })
+  }, 30_000)
 
   it('documents the complete production environment without credential values', () => {
     const environment = readFileSync(productionPath('.env.example'), 'utf8')

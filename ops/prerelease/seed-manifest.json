@@ -4,11 +4,11 @@
   "seeds": [
     {
       "path": "wordpress/seed/apply-tio2-my-about-page.php",
-      "sha256": "e816238b5dd4d4c517a356156451e7479c18c8a1c0c360a9fbbc7d507bc84098"
+      "sha256": "8e3cc46a4198d1832bab03e4ff4076b4c9f663b66f0392f8d20c13a4b7a6f4f9"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-application-hub.php",
-      "sha256": "15a6e7e9a04f6929e4f253ccf6d3e38f154c46f271a68940e8a989a3a8adfe4f"
+      "sha256": "e207dc2ee71203528957aad3fe089fc5fa7dc748e2615056d111e23222b5e3f4"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-contact-page.php",
@@ -16,27 +16,27 @@
     },
     {
       "path": "wordpress/seed/apply-tio2-my-country-markets.php",
-      "sha256": "c0e622661580410a744b16be3c996e5e3e392dd21d2a823a0152cf17f6a50f80"
+      "sha256": "aa9742aaac3fd61f79434a07ff8f4fef103f0ff801ce0ad107a0cabe0425e925"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-cr901-product-detail.php",
-      "sha256": "a9aa04f5568f3e0b27f05e94c6b1879ca66f68a4387e2552c9172441649326ff"
+      "sha256": "af515db3baf58ccdc836436735751899e3e6537ab80437ba3439ee9d7e3744ce"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-document-coo.php",
-      "sha256": "8b31a1305076dfc6b8701535a92aec042e15893830761af62d96459d5cd05c4f"
+      "sha256": "041db18373757a9fafc1e06752f3b59fe40e255a572f741cb78cefcda59de425"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-document-reach.php",
-      "sha256": "fce5fac12abe8fb0589a8ae18310f8df2b89a31a1ff87ce770a75eb06c1f44d2"
+      "sha256": "6e3675fedf62d8c921917ce06859bd2ad960216c86875ced414ee870d202e19c"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-document-tds.php",
-      "sha256": "b11fc21ff6e05a9d9145c28d8cb69e5ba7e9fd609c905b12a9a5814f04db465d"
+      "sha256": "6e7215704016c0d2f54d4eddcd059d1edc6afd3dfcf2145fd9ae0b1b0bc5b4ac"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-documents-hub.php",
-      "sha256": "6803960b9fddf9afa6a0c48a899568b14af8e2c26ac456890b7afba42f790995"
+      "sha256": "e5ea9b762a772dcda8b578feae7de19e5c55f8ffb1c44f754d42bff9f6275404"
     },
     {
       "path": "wordpress/seed/refresh-tio2-my-resource-candidate.php",
@@ -44,7 +44,7 @@
     },
     {
       "path": "wordpress/seed/apply-tio2-my-editorial-five.php",
-      "sha256": "58a0d7f6a8158405df7dab6922b296e5b3404a9990da944e81a3cf282f7f607d"
+      "sha256": "e3782d4dc4794bfd273b515cefe6e83dadd44ab68bfb5200a8b667cc27d51465"
     },
     {
       "path": "wordpress/seed/refresh-tio2-my-trade-candidate.php",
@@ -52,107 +52,107 @@
     },
     {
       "path": "wordpress/seed/apply-tio2-my-editorial.php",
-      "sha256": "15bf9c7a92170c2549def1798408c3e72ae6f2592befc722c747cf528aad9f48"
+      "sha256": "5bbe79d37e76365d2b110c62bca69cb3b115ee144f3398da2c6185f6a240cbd1"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-homepage.php",
-      "sha256": "9f486d966e15cab46c30d7932bdffb3545b403d0ee68763bd7071451fc867b54"
+      "sha256": "d6149a8726f277d8761fbe40016c903e3031e80c6a0f4aff74c3c23863753ce3"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-legal-pages.php",
-      "sha256": "6b5c562d8dc4e10a6c62dd55fc760af44097b017c238a9b2afff055767ce512e"
+      "sha256": "75acca08d0507977dd8952aa79af65b7947c490835bd0dfe40904c6a688c0afe"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-m108-product-detail.php",
-      "sha256": "f2410a937054485d84f3a4e2477989448a950bdb25dd2d5ccda0ef03ec126434"
+      "sha256": "9b4e8f1b19f129cc2bfc53e007c0d1305d8e30283cd75574774c37002229d3d7"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-m200-product-detail.php",
-      "sha256": "14c42c99db97e03a2c0145e822da2cad0f867cf8fd20e812f8f1fa57693fd58a"
+      "sha256": "a2700bb1ae802b4333656b160e874fff924e981c242890dc7b66e85b3b5f6032"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-m210-product-detail.php",
-      "sha256": "8286d3a443fb1249fa7e1ae84a9b5f70a5f7c37d075375df67fa515772468ec1"
+      "sha256": "75cf6b0488517296cac5d5c5772b82b71d184c61cd775e7664b5012b84a22409"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-m2196-product-detail.php",
-      "sha256": "675c01a038a8683140f5f098ccc528910be11f65555583cec8c3274b74e407de"
+      "sha256": "b69b0e7ac7fbb423a4c14b03cdfa1b06902e55a2c531eaaed7049bc2d3da77e2"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-m2377-product-detail.php",
-      "sha256": "ab206ec100e978660402079c6c7dd0d6726d0b00e9d30c7431b0952c26774449"
+      "sha256": "76a51345877595d8d36965a7c72400576b1aa94ae5d8233f71032be80bdb1bd9"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-m340-product-detail.php",
-      "sha256": "b4ffbbd9520457ddcce435a930e0d77a899e0cc703a7946ffb0cfc0176b09d14"
+      "sha256": "ea0d32f52a361b63f7d879569d512b33f1f863d206b29eead506a0da0336bb6c"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-m350-product-detail.php",
-      "sha256": "be9a36ffb3d47bb7f85e61d331d7915257a3a0da049770eb09d9d32df408e08f"
+      "sha256": "a9fdb082a7ae3104474855ab06a5c6c5e7b99f38e5c6c363293fd78f4e3b7266"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-m510-product-detail.php",
-      "sha256": "016ae18b6989da3d92325d628fdc306f57d7beb7834bee359543238d991af9e8"
+      "sha256": "59a8f842f8630130c87f0a9dad238163c3dbd6619822a6d73b67ba5dbd3713c4"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-m52-product-detail.php",
-      "sha256": "c5ac4fc2dd19e5cc337643bc8ad95b66430de6397d670c1d55eecebc2e046676"
+      "sha256": "b7ba7a10a5117d850de143cdb2552888784a52ccb7a1b789e99e7bcc8b89a31c"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-m886-product-detail.php",
-      "sha256": "c8a42dcfb1d3ba97a76e779c2da1983eeab9bc0511644e860fe8a576215c9af3"
+      "sha256": "df41ca4cb72549eadf98efb3f6ed79fa234988e9e976004de0cfb29f6455dec6"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-m895-product-detail.php",
-      "sha256": "cf5afe648b6de7f778e858599ee713ba4b5f48c66dd26899164333ffed71f58e"
+      "sha256": "a39553f12b9b77cb54ba610b02714ed596e601bd113ac0f2b36975600eac9a82"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-m896-product-detail.php",
-      "sha256": "b554b6a4ca10bf4dfadfebeb51c6ddb0942b0288a8f84016816e298043a0b8f9"
+      "sha256": "f88adb60f236aeb2e491184b158591f4ee66cff1ece6210673b3395e903c3d7b"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-m996-product-detail.php",
-      "sha256": "cf4220dcc29ccd840bc623f51c17f7d6c72b8dad4fee05a6c79119ac4408d067"
+      "sha256": "f9b8ee97183bc7219f6158781ac94bd5e0e4265e3a13793e1aa82a3ca7ebc8d3"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-market-brazil-en.php",
-      "sha256": "5686699907d9e69be25f695f0dd7ce96e3239669cc5a027475cca2da7a8f0517"
+      "sha256": "a80ac83b41286308ed32a0abbd1957252f5a6b26071a72135729b499d86ecba5"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-market-brazil-pt.php",
-      "sha256": "a4539e101be70a06f35df1a584659cb6b50878685f080f074940970f96bdf7ff"
+      "sha256": "368e17caeba2a5fd3a4f9d550927eeb88c4a70e8ddd1a7b1cdd8b332e9eab987"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-market-eu-001.php",
-      "sha256": "84ecdcdc12b01627c19f7bde4cfa2a0f2883cc73ec2ff9cd58628df86af37c66"
+      "sha256": "bdad58ec80496ef9991b6c44aa29984df87c43cf702e631f43b0ef239d52fbef"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-market-hub.php",
-      "sha256": "0efe487f906e2da62bbc1f6545277d4e9cfa9e94b3a764236961140b8d6be1b0"
+      "sha256": "98343e4acf6bf4ccba24305fe950fc40bd9dd7e2e732fc6e159c71ff99c61f31"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-market-poland.php",
-      "sha256": "9f905c515529df66caa8042cf811074fb37faadc20629dd01dbadab6921b3bc5"
+      "sha256": "4e2520ec0334e134072bb77f47cee56005462347746ab24a45cf7ea693b86a17"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-market-uk-001.php",
-      "sha256": "584bcd8831b86f1b130a99aea358da78b19271b958290fb08abf8e8ba949ad39"
+      "sha256": "547f3675f97f7f1ce2d32549e2256712cc1f57ddaa8d4b5415b05fe911a7b1b9"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-product-hub.php",
-      "sha256": "05c2fd56c2108f7b0e4468750ef66fe9bbf6bb301de56ebbd64ce1d64a8ae189"
+      "sha256": "ce22c87bcd1185e3d2bf0b90ea99e3f9ac5b8cbfa8b0c46aebcbf8021a13a1a0"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-product-process-chloride.php",
-      "sha256": "8bf46aced1433faf35e9c1860bd6abac5e14a9d598319c8b8250c7c5b6e31021"
+      "sha256": "58f562ef2f1c5392f12123a19a1e360c72d29eb8af11ee1cc007e6d73e400ac4"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-request-documents.php",
-      "sha256": "aedca18e1ac015af625d47287655316860851ec606640442a4259d7cc4971c56"
+      "sha256": "fdd5893b69b2e7f187efb59df27b75401ee5ff2333bb551500577e805288270a"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-request-sample.php",
-      "sha256": "9a54c46914617029f5d6b3af2b4658d9d3bc8c725e5c091580bc08db4811276d"
+      "sha256": "baddd84815b43d484520fda04b77e7e681b910b7f2017dbf08873971d684a796"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-resource-hub.php",
@@ -160,15 +160,15 @@
     },
     {
       "path": "wordpress/seed/apply-tio2-my-resource-origin.php",
-      "sha256": "9493c1d595e781ba06f2b4d5dd3c5bff243f31393fed890c23840594736e0775"
+      "sha256": "af4230205693c887a5208e400bcc574ad32787c64a3c837b47eeb23a53a5c57e"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-resource-proc.php",
-      "sha256": "ff387d54716c46efc864a8f2e34975f386551de350ce2cbc2d0d8895ce6d2e6a"
+      "sha256": "c88fedb11483dc8aeed37edeffa5bdc30ae66c97197c7de98e0049f517b3402c"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-rfq-page.php",
-      "sha256": "850a0ec216dc0e9f10acb6899658fd51fc72e76f957ab528924e398a25f12a1b"
+      "sha256": "37c1c8d055b45372670a2bf328045ecf5b1b569b272a83d5463d41f24c4796b1"
     },
     {
       "path": "wordpress/seed/apply-tio2-my-prerelease-public-paths.php",

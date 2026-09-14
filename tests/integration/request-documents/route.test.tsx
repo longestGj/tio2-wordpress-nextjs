@@ -41,13 +41,13 @@ describe('CONV-DOC route', () => {
     expect(routeMocks.getPage).not.toHaveBeenCalled()
   })
 
-  it('keeps metadata noindex and query-independent while contract authorization is false', async () => {
+  it('uses approved production indexing with query-independent metadata', async () => {
     vi.stubEnv('VERCEL_ENV', 'production')
     vi.stubEnv('TIO2_MY_REQUEST_DOCUMENTS_INDEXING_RELEASE_AUTHORIZED', 'true')
     const route = await import('@/app/request-documents/page')
     await expect(route.generateMetadata()).resolves.toMatchObject({
       alternates: {canonical: 'https://tio2malaysia.com/request-documents/'},
-      robots: {index: false, follow: false},
+      robots: {index: true, follow: true},
     })
   })
 })

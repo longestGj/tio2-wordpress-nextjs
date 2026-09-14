@@ -16,7 +16,10 @@ describe('CONV-THANK route', () => {
     expect(markup).toContain('data-site-scope="tio2-my"')
     expect(markup).toContain('How can we help?')
     expect(markup).not.toContain('REQUEST RECEIVED')
-    expect(markup).not.toContain('application/ld+json')
+    const schemas = [...markup.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gu)].map(match => JSON.parse(match[1]))
+    expect(schemas).toHaveLength(1)
+    expect(schemas[0]).toMatchObject({'@type': 'WebPage', url: 'https://tio2malaysia.com/thank-you/'})
+    expect(JSON.stringify(schemas)).not.toMatch(/Order|Invoice|requestToken|email/u)
   })
 
   it('returns exact stable noindex metadata for every state query', async () => {

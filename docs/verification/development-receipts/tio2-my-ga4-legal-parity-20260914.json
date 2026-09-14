@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "d16-development-receipt-v1",
+  "receiptId": "tio2-my-ga4-legal-parity-20260914",
+  "state": "MERGED_TO_DEVELOP_WITH_OPEN_COMBINATION_FINDINGS",
+  "mergeCommit": "47119472b5d05500932ee88d0fa14e8ad995bf4d",
+  "candidateHead": "409053e008ccc767b01615bad73e6e38902b68b7",
+  "implementationCommit": "24065cdeffef6a887b290f542be74d78be595b71",
+  "contentSha256": "13ac8f9984d8a4cadb8c4e34f0cc07c2d7519d88ee3effd0583d23afeeb5a3a8",
+  "subjects": [
+    "tio2-my"
+  ],
+  "affectedConsumers": [
+    "tio2-my"
+  ],
+  "contentScopes": [
+    "LEGAL-COOKIE-EN",
+    "LEGAL-PRIV-EN",
+    "LEGAL-PRIV-MS"
+  ],
+  "cmsContractChanged": false,
+  "hostPaths": [],
+  "mergedResultVerification": {
+    "command": "python -m pytest tests/production/test_build_tio2_my_ga4_legal_package.py tests/production/test_content_approval_binding.py -q",
+    "result": "28 passed in 89.62s"
+  },
+  "openItems": [
+    "14 out-of-package editorial contract failures remain in the 57-page develop/CMS combination",
+    "3 generic BM Meta Description oracle mismatches require separate contract alignment",
+    "production finding remains open pending separately authorized publication and production read-only verification"
+  ],
+  "releaseAuthorized": false
+}

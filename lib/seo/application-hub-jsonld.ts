@@ -7,7 +7,8 @@ export function buildMalaysiaApplicationHubJsonLd(
   site: SiteConfig,
   applicationHub: MalaysiaApplicationHubDto,
 ): JsonLdObject {
-  if (site.id !== 'tio2-my' || applicationHub.identity.siteId !== 'tio2-my') {
+  if (site.id !== 'tio2-my' || applicationHub.identity.siteId !== 'tio2-my' ||
+    applicationHub.identity.schemaVersion !== 'application-hub-v0.1-malaysia') {
     throw new Error('APP-000 Schema is available only for tio2-my')
   }
   const canonical = new URL('/applications/', site.url).href
@@ -33,7 +34,7 @@ export function buildMalaysiaApplicationHubJsonLd(
   ]
   if (childApplications.length) {
     graph.push({
-      '@type': 'ItemList', '@id': `${canonical}#application-list`, name: 'Choose by Application',
+      '@type': 'ItemList', '@id': `${canonical}#application-list`, name: applicationHub.applicationPaths.heading,
       numberOfItems: childApplications.length,
       itemListElement: childApplications.map((item, index) => ({
         '@type': 'ListItem', position: index + 1, name: item.title,

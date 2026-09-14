@@ -4,7 +4,7 @@ import {resolve} from 'node:path'
 import {randomUUID} from 'node:crypto'
 import {fillPrivateInput} from './support/private-input'
 import type {Web3FormsWorkflow} from '../../lib/forms/web3forms-browser'
-import {baseUrl, commandUuid, evidenceRoot, recordCheck, capturePublicPage, type TransportCounts} from './support/prerelease-evidence'
+import {baseUrl, commandUuid, evidenceRoot, recordCheck, capturePublicPage, isolatePrereleaseTelemetry, type TransportCounts} from './support/prerelease-evidence'
 import {buyerEmailTestValue, providerAttempt, sanitizeLiveFailure} from './support/prerelease-live-evidence'
 
 // Installed Playwright index.js honors this flag before taking an error-context DOM snapshot.
@@ -56,6 +56,7 @@ function liveWorkflow(workflow: PrereleaseThankYouWorkflow, fill: (page: Page, e
         }
         await route.fallback()
       })
+      await isolatePrereleaseTelemetry(page)
       stage = 'public_form_fields'
       await fill(page, email, `LOCAL PRERELEASE TEST ${runId} ${workflow}`)
       stage = 'provider_response'

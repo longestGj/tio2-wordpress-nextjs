@@ -2,6 +2,8 @@
 
 本页对应用户批准的[最小改动方案](superpowers/specs/2026-09-12-minimal-content-release-design.md)。共享 WordPress 和数据库，前台继续按 `SITE_ID` 运行；不增加网站独立数据库或内容版本指针。
 
+内容来源与写入范围按[规则 R01](release-engineering-rules.md#r01)固定；新合同不接受旧数据时按[规则 R04](release-engineering-rules.md#r04)设计迁移并验证附属元数据完整性。专用迁移要求不扩展下文普通内容包格式，也不表示通用迁移入口已经实现。
+
 ## 操作模型
 
 日常内容操作为 `Test`、`Publish`、`Rollback`；`Status` 只读查看当前状态。
@@ -29,6 +31,24 @@
 既有内容发布路径仍按其[可编辑文本路径](../wordpress/plugins/tio2-site-model/includes/content-release-paths.json)及各自写入合同校验，不能据此推断所有 MY 页面在前台读取时均已脱离批准文案。2026-09-13 完成的首个读取纵向切片仅覆盖 `tio2-my` 三个法律页：独立的 PHP/TypeScript 读取合同验证已发布 CMS 记录后，将实际法律正文与 SEO 文本送到页面；原有 seed、导入和发布写入审批校验保持不变。身份、路径、结构、Markdown 安全、路由及索引控制仍受技术约束。其他 MY 页面族仍待逐族审查与迁移；详见[法律页读取回执](verification/cms-read-decoupling-legal.md)。
 
 增加字段、调整页面结构或修改受保护合同仍属于开发任务。适用业务批准要求不会因技术校验通过而消失。
+
+2026-09-13 已批准的[职责划分](superpowers/specs/2026-09-13-cms-frontend-build-responsibilities-design.md)要求后续按技术契约读取 CMS 内容，将审批证据、功能配置和显示内容分离，打通正文、SEO 与缓存刷新。支持结构内的内容变化不再依赖代码内旧批准稿相等；新增不支持的结构仍需开发，身份、安全、披露和授权检查继续保留。此为分批整改目标，不是本页所述发布工具或生产安装已经升级的证明。
+
+其他页面族仍存在批准快照与静态 SEO 绑定，具体差距见[审计](verification/2026-09-13-tio2-my-content-coupling-audit.md)；上述法律页切片不代表全站解耦。
+
+该职责调整不改变内容包审批、生产维护窗口、备份所有权或失败恢复规则；刷新接口应答不代替实际页面输出新内容的证据。
+
+### HOME-001 / APP-000 的本地写入切片（2026-09-14）
+
+本批 `tio2-my` 首页和应用中心已有独立技术读/写校验；正文、可编辑 SEO 与页面输出共用实际 CMS 内容。原首页 3→4 条摘要的裸 `update_post_meta` 在隔离 CMS 中失败，历史现场与后续合成批准运行分别见[W3-A1 验证记录](verification/2026-09-14-cms-decoupling-w3-a1.md)。现在的普通受控写入只接受固定 HOME-001/APP-000、准确前后完整 JSON 摘要、`update-published`/`publish-draft` 操作及有效批准证明；草稿可按技术规则保存，但不能因技术合法而自动公开。批量导入对这两页使用同一技术/批准边界，其他 24 个已登记 MY 内容族仍使用原 validator，A/B 不继承本批放宽。
+
+批准证明由安装配置 `TIO2_CONTENT_APPROVAL_ROOT` 的受保护根目录按严格 ID 读取，需独立登记真实人工批准来源；`TIO2_CONTENT_ENVIRONMENT_ID` 独立匹配目标环境，非 root 的 `TIO2_CONTENT_WRITER_UID` 标识 WordPress 写身份，不由 CLI 有效 UID 推断。POSIX 下证明文件及所有父目录须 root 拥有、非组/其他可写且无符号链接；无法验证权限即拒绝。包内 `approved=true`、测试 PASS、packageId/reviewId 或内容哈希均不授予业务批准；测试仅使用一次性只读挂载的合成证明。普通公开写入还核对实际 WordPress 用户的目标编辑/发布 capability、当前版本与提交前再次有效的证明。缺少独立根/环境配置时本批公开改动失败关闭，不影响读取或未迁移页面族。
+
+普通 WordPress `wp_insert_post`/`wp_update_post`、REST/ACF/meta 入口与正常 cron 公开化有前置守卫；既有 MY future 记录也须在 cron 触发低层发布前拒绝。特权自定义 PHP 直接调用核心低层 `wp_publish_post`（其 SQL 先于钩子且无 capability 门）、直接 SQL，以及拥有 root/数据库特权的操作不在普通守卫保证内；不得把它概括成所有 WordPress API 或数据库写入均受拦截。普通事务对无法证明缓存隔离的外部持久化 object cache 安装失败关闭并恢复请求内原缓存状态；本次没有修改此类安装。
+
+提交前失败（技术/批准/身份/版本/锁/回读或收据持久化）保留原内容与状态并回滚；提交后的签名通知失败或状态持久化不确定保留已提交内容，以受权限限制的原收据仅重试通知，不重写正文。接收应答、实际缓存失效与页面已显示新版本分别核对。批量 SQL 路径保持维护入口、数据库只读围栏、整库备份、事务和一次批量刷新；在维护窗口内导入/回读/页面验证失败按同一所有权备份整库恢复，窗口关闭且后续写入开放后不得自动回滚历史备份，应以新的修正包处理。Task 4 的目标 posts/meta 快照只覆盖所选记录及其元数据观察，不包括 `post_modified_gmt` 等全部 post 字段、meta 行 ID 或 scope 关系；不能把该局部快照称为整库或完整记录不变证明。整库恢复另以 Task 5 的实际数据库演练和页面读回为依据。
+
+新批准内容摘要与旧 `d16-content-package-v1` 内容包摘要是两个格式域。新摘要的 PHP/Python 共享向量允许字面 U+2028/U+2029；旧包传输遇这两个分隔符仍可能因既有两端 canonical 差异而拒绝，隔离导入测试观察到拒绝且目标 posts/meta 未变，详见[导入器说明](../wordpress/release/README.md)。本批不偷偷升级旧包格式。两次本地真实页面验收不等于生产批准、安装、发布或所有 CMS 页面族完成；`content-only` 仍为 `not-installed`。
 
 ## 生产安装边界
 

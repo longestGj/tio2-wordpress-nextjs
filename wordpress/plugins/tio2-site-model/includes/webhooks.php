@@ -52,7 +52,7 @@ function tio2_get_webhook_config(string $site_id, ?array $environment = null): ?
  */
 function tio2_webhook_post_types(): array
 {
-    return array_merge(['page', 'post', 'tio2_homepage', 'tio2_market_page', 'tio2_product_hub', 'tio2_my_editorial', 'tio2_resource_hub', 'tio2_about_page', 'tio2_documents_hub', 'tio2_doc_tds', 'tio2_legal_page', 'tio2_request_docs', 'tio2_request_sample'], array_keys(tio2_content_type_definitions()));
+    return array_merge(['page', 'post', 'tio2_homepage', 'tio2_market_page', 'tio2_product_hub', 'tio2_application_hub', 'tio2_my_editorial', 'tio2_resource_hub', 'tio2_about_page', 'tio2_documents_hub', 'tio2_doc_tds', 'tio2_legal_page', 'tio2_request_docs', 'tio2_request_sample'], array_keys(tio2_content_type_definitions()));
 }
 
 /**
@@ -449,6 +449,11 @@ function tio2_get_webhook_affected_state(
         $paths = [$product_path];
         $entity_ids = [$post_id];
         $site_paths['tio2-my'] = $paths;
+    } elseif ('tio2_application_hub' === $post->post_type) {
+        if (['tio2-my'] !== $site_ids) return null;
+        $paths = ['/applications'];
+        $entity_ids = [$post_id];
+        $site_paths['tio2-my'] = $paths;
     } elseif ('tio2_my_editorial' === $post->post_type) {
         if (['tio2-my'] !== $site_ids) return null;
         $page_id = (string) get_post_meta($post_id, '_tio2_editorial_page_id', true);
@@ -636,6 +641,7 @@ function tio2_sign_webhook_body(string $body, string $secret): string
 function tio2_send_webhook(int $post_id, ?array $affected = null): bool
 {
     $affected = $affected ?? tio2_get_webhook_affected_state($post_id);
+    if (class_exists('Tio2_Approved_Content_Write') && Tio2_Approved_Content_Write::defer_event($post_id, $affected)) return false;
     if (null === $affected || empty($affected['siteIds'])) {
         return false;
     }
@@ -686,6 +692,185 @@ function tio2_send_webhook(int $post_id, ?array $affected = null): bool
     return $attempted && $all_succeeded;
 }
 
+/** Only the approved write service calls this while it owns an InnoDB transaction. */
+function tio2_prepare_approved_content_events(array $receipt, array $events): array
+{
+    if (($receipt['siteId'] ?? null) !== 'tio2-my' || ($receipt['committed'] ?? null) !== true ||
+        ($receipt['notificationState'] ?? null) !== 'pending' || !$events || count($events) > 2 ||
+        !defined('TIO2_CONTENT_ENVIRONMENT_ID') || !is_string(TIO2_CONTENT_ENVIRONMENT_ID) || TIO2_CONTENT_ENVIRONMENT_ID === '') {
+        throw new RuntimeException('write_receipt');
+    }
+    $paths = []; $entity_ids = []; $post_ids = [];
+    $registry = tio2_content_write_registry();
+    foreach ($events as $post_id => $affected) {
+        $id = filter_var($post_id, FILTER_VALIDATE_INT);
+        if (!$id || !is_array($affected) || ($affected['contentId'] ?? null) !== $id ||
+            ($affected['siteIds'] ?? null) !== ['tio2-my'] ||
+            !isset($affected['sitePaths']['tio2-my']) || !is_array($affected['sitePaths']['tio2-my'])) {
+            throw new RuntimeException('write_receipt');
+        }
+        $page = tio2_content_write_page_for_post($id);
+        if ($page === null || !in_array($page,$receipt['changedPages'],true) ||
+            ($affected['sitePaths']['tio2-my'] ?? null) !== [$registry[$page]['path']]) throw new RuntimeException('write_receipt');
+        $post_ids[$page]=$id;
+        $paths[]=$registry[$page]['path'];
+        foreach (($affected['entityIds'] ?? []) as $entity_id) $entity_ids[]=$entity_id;
+    }
+    if (count($post_ids) !== count($receipt['changedPages']) || count($post_ids) > 2) throw new RuntimeException('write_receipt');
+    sort($paths,SORT_STRING); $entity_ids=array_values(array_unique($entity_ids)); sort($entity_ids,SORT_NUMERIC);
+    $receipt_id=wp_generate_uuid4();
+    $first_id=min(array_values($post_ids));
+    $payload=tio2_build_webhook_payload($first_id,null,['contentId'=>$first_id,'siteIds'=>['tio2-my'],
+        'paths'=>$paths,'entityIds'=>$entity_ids,'sitePaths'=>['tio2-my'=>$paths]]);
+    if ($payload === null) throw new RuntimeException('write_receipt');
+    $payload['contentRelease']=['releaseId'=>'approved-'.$receipt_id,
+        'contentSha256'=>hash('sha256',wp_json_encode($receipt['afterDigests'],JSON_UNESCAPED_SLASHES))];
+    $body=tio2_encode_webhook_payload($payload);
+    if ($body === null || strlen($body)>64*1024) throw new RuntimeException('write_receipt');
+    $receipt['receiptId']=$receipt_id;
+    $stored=['version'=>1,'environmentId'=>TIO2_CONTENT_ENVIRONMENT_ID,'receipt'=>$receipt,
+        'postIds'=>$post_ids,'payload'=>$payload,'attempts'=>[['eventId'=>$payload['eventId'],'modified'=>$payload['modified']]],
+        'notificationState'=>'pending','notificationResults'=>[]];
+    if (!add_option('tio2_content_event_'.$receipt_id,$stored,'',false)) throw new RuntimeException('write_receipt');
+    return $receipt;
+}
+
+/** These receipts are server-owned; no URL, event body or target comes from a retry caller. */
+function tio2_load_approved_content_event_receipt(string $receipt_id)
+{
+    if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/D',$receipt_id) ||
+        !defined('TIO2_CONTENT_ENVIRONMENT_ID') || !is_string(TIO2_CONTENT_ENVIRONMENT_ID) || TIO2_CONTENT_ENVIRONMENT_ID === '' ||
+        wp_using_ext_object_cache()) return new WP_Error('event_receipt','Notification receipt is unavailable.');
+    $stored=get_option('tio2_content_event_'.$receipt_id);
+    if (!is_array($stored) || ($stored['version'] ?? null)!==1 || ($stored['environmentId'] ?? null)!==TIO2_CONTENT_ENVIRONMENT_ID ||
+        ($stored['receipt']['receiptId'] ?? null)!==$receipt_id || ($stored['receipt']['siteId'] ?? null)!=='tio2-my' ||
+        ($stored['receipt']['committed'] ?? null)!==true || !in_array($stored['notificationState'] ?? null,['pending','failed','sent'],true) ||
+        !is_array($stored['postIds'] ?? null) || count($stored['postIds'])<1 || count($stored['postIds'])>2 ||
+        !is_array($stored['payload'] ?? null) || ($stored['payload']['contentRelease']['releaseId'] ?? null)!=='approved-'.$receipt_id ||
+        ($stored['payload']['siteIds'] ?? null)!==['tio2-my'] || !is_array($stored['attempts'] ?? null) || count($stored['attempts'])<1 || count($stored['attempts'])>16) {
+        return new WP_Error('event_receipt','Notification receipt is invalid.');
+    }
+    $registry=tio2_content_write_registry(); $paths=[]; $expected_entities=[];
+    $pages=array_keys($stored['postIds']); sort($pages,SORT_STRING);
+    $after_digests=$stored['receipt']['afterDigests'] ?? null;
+    $before_digests=$stored['receipt']['beforeDigests'] ?? null;
+    $operation_pages=is_array($after_digests) ? array_keys($after_digests) : []; sort($operation_pages,SORT_STRING);
+    if (($stored['receipt']['changedPages'] ?? null)!==$pages ||
+        ($stored['receipt']['notificationState'] ?? null)!==$stored['notificationState'] ||
+        !in_array($stored['receipt']['operation'] ?? null,['update-published','publish-draft'],true) ||
+        !preg_match('/^[A-Za-z0-9][A-Za-z0-9_-]{0,95}$/D',(string)($stored['receipt']['approvalId'] ?? '')) ||
+        !is_array($after_digests) || !is_array($before_digests) ||
+        count($operation_pages)<count($pages) || count($operation_pages)>2 ||
+        array_keys($after_digests)!==$operation_pages ||
+        array_keys($before_digests)!==$operation_pages ||
+        array_diff($pages,$operation_pages)) return new WP_Error('event_receipt','Notification identity is invalid.');
+    foreach ($operation_pages as $page) {
+        if (!isset($registry[$page])) return new WP_Error('event_receipt','Notification page is invalid.');
+        foreach ([$before_digests[$page],$after_digests[$page]] as $digest) {
+            if (!is_string($digest) || !preg_match('/^[a-f0-9]{64}$/D',$digest)) return new WP_Error('event_receipt','Notification digest is invalid.');
+        }
+    }
+    foreach ($stored['postIds'] as $page=>$id) {
+        $post=is_int($id) && $id>0 ? get_post($id) : null;
+        $scopes=$post ? wp_get_post_terms($id,'site_scope',['fields'=>'slugs']) : null;
+        if (!isset($registry[$page]) || !$post instanceof WP_Post ||
+            $post->post_type!==$registry[$page]['type'] || $post->post_name!==$registry[$page]['slug'] ||
+            $scopes!==['tio2-my'] ||
+            !current_user_can('edit_post',$id)) return new WP_Error('event_permission','Notification target is unavailable.');
+        $type=get_post_type_object(get_post_type($id));
+        if (!$type || !current_user_can($type->cap->publish_posts)) return new WP_Error('event_permission','Cannot refresh this content.');
+        $paths[]=$registry[$page]['path'];
+        if ($page==='APP-000') $expected_entities[]=$id;
+    }
+    sort($paths,SORT_STRING);
+    if (($stored['payload']['paths'] ?? null)!==$paths ||
+        ($stored['payload']['entityIds'] ?? null)!==$expected_entities ||
+        ($stored['payload']['contentId'] ?? null)!==min(array_values($stored['postIds'])) ||
+        ($stored['payload']['contentRelease']['contentSha256'] ?? null)!==hash('sha256',wp_json_encode($stored['receipt']['afterDigests'],JSON_UNESCAPED_SLASHES)) ||
+        !is_string($stored['payload']['eventId'] ?? null) ||
+        !preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/D',$stored['payload']['eventId']) ||
+        !is_string($stored['payload']['modified'] ?? null) || strtotime($stored['payload']['modified'])===false ||
+        ($stored['attempts'][count($stored['attempts'])-1]['eventId'] ?? null)!==($stored['payload']['eventId'] ?? null) ||
+        ($stored['attempts'][count($stored['attempts'])-1]['modified'] ?? null)!==($stored['payload']['modified'] ?? null)) {
+        return new WP_Error('event_receipt','Notification target is invalid.');
+    }
+    return $stored;
+}
+
+function tio2_save_approved_content_event_receipt(string $receipt_id,array $stored): bool
+{
+    $key='tio2_content_event_'.$receipt_id;
+    return update_option($key,$stored,false) && get_option($key)===$stored;
+}
+
+/** A 2xx is not enough: require the receiver's authenticated JSON acknowledgement. */
+function tio2_deliver_approved_content_event(array $payload): array
+{
+    $config=tio2_get_webhook_config('tio2-my');
+    $body=tio2_encode_webhook_payload($payload);
+    if ($config===null || $body===null || strlen($body)>64*1024) return ['state'=>'failed','reason'=>'configuration'];
+    $response=wp_remote_post($config['url'],['timeout'=>5,'redirection'=>0,'headers'=>[
+        'content-type'=>'application/json','x-tio2-signature'=>tio2_sign_webhook_body($body,$config['secret'])], 'body'=>$body]);
+    if (is_wp_error($response)) return ['state'=>'failed','reason'=>'transport'];
+    $status=wp_remote_retrieve_response_code($response);
+    $ack=json_decode(wp_remote_retrieve_body($response),true);
+    if ($status>=200 && $status<300 && is_array($ack) && ($ack['ok'] ?? null)===true &&
+        ($ack['eventId'] ?? null)===$payload['eventId'] && ($ack['contentRelease'] ?? null)===$payload['contentRelease'] &&
+        is_array($ack['revalidatedTags'] ?? null) &&
+        is_array($ack['revalidatedPaths'] ?? null)) return ['state'=>'sent','httpStatus'=>$status,'eventId'=>$payload['eventId'],
+            'revalidatedTags'=>$ack['revalidatedTags'],'revalidatedPaths'=>$ack['revalidatedPaths']];
+    return ['state'=>'failed','httpStatus'=>$status,'reason'=>$status===409?'replay-conflict':'unacknowledged'];
+}
+
+function tio2_notify_approved_content_event(string $receipt_id,bool $retry=false)
+{
+    global $wpdb;
+    $lock='d16-content-event-'.hash('sha256',$receipt_id);
+    if ((int)$wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s,0)',$lock))!==1) return new WP_Error('event_busy','Notification receipt is busy.');
+    try {
+        $stored=tio2_load_approved_content_event_receipt($receipt_id);
+        if (is_wp_error($stored)) return $stored;
+        if ($stored['notificationState']==='sent') return $stored['receipt']+['notificationResults'=>$stored['notificationResults']];
+        $payload=$stored['payload'];
+        if (abs(time()-strtotime($payload['modified']))>300) {
+            if (count($stored['attempts'])>=16) return new WP_Error('event_attempts','Notification retry limit reached.');
+            $payload['eventId']=wp_generate_uuid4(); $payload['modified']=gmdate('c');
+            $stored['payload']=$payload;
+            $stored['attempts'][]=['eventId'=>$payload['eventId'],'modified'=>$payload['modified']];
+            if (!tio2_save_approved_content_event_receipt($receipt_id,$stored)) return new WP_Error('event_storage','Cannot persist retry identity.');
+        }
+        $outcome=tio2_deliver_approved_content_event($payload);
+        $stored['notificationState']=$outcome['state'];
+        $stored['notificationResults'][]=$outcome;
+        if (count($stored['notificationResults'])>16) array_shift($stored['notificationResults']);
+        $receipt=$stored['receipt']; $receipt['notificationState']=$outcome['state'];
+        $receipt['notificationResults']=$stored['notificationResults'];
+        $receipt['eventId']=$payload['eventId'];
+        $receipt['retryMayDuplicateInvalidation']=count($stored['attempts'])>1;
+        $stored['receipt']=$receipt;
+        if (!tio2_save_approved_content_event_receipt($receipt_id,$stored)) {
+            $receipt['notificationState']='failed'; $receipt['notificationPersistenceUncertain']=true;
+        }
+        return $receipt;
+    } finally {
+        $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)',$lock));
+    }
+}
+
+function tio2_release_approved_content_events(array $receipt,array $events): array
+{
+    $result=tio2_notify_approved_content_event($receipt['receiptId']);
+    if (is_wp_error($result)) { $receipt['notificationState']='failed'; $receipt['notificationError']=$result->get_error_code(); return $receipt; }
+    return $result;
+}
+
+/** Retry only the committed notification from its opaque, stored receipt ID. */
+function tio2_retry_approved_content_events(string $receipt_id)
+{
+    if (!is_user_logged_in()) return new WP_Error('event_permission','An actual WordPress actor is required.');
+    return tio2_notify_approved_content_event($receipt_id,true);
+}
+
 function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = null): bool
 {
     if (in_array($meta_key, ['_tio2_my_editorial_contract', '_tio2_my_editorial_review', '_tio2_editorial_page_id'], true)) return true;
@@ -709,6 +894,22 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
     }
 
     $post = null === $post_id ? null : get_post($post_id);
+    if (
+        $post instanceof WP_Post &&
+        'tio2_homepage' === $post->post_type &&
+        TIO2_MY_HOMEPAGE_CONTRACT_META === $meta_key &&
+        ['tio2-my'] === (tio2_get_site_scope_state($post_id)['siteIds'] ?? [])
+    ) {
+        return true;
+    }
+    if (
+        $post instanceof WP_Post &&
+        'tio2_application_hub' === $post->post_type &&
+        TIO2_MY_APPLICATION_HUB_CONTRACT_META === $meta_key &&
+        ['tio2-my'] === (tio2_get_site_scope_state($post_id)['siteIds'] ?? [])
+    ) {
+        return true;
+    }
     if (
         $post instanceof WP_Post &&
         'tio2_product_hub' === $post->post_type &&
@@ -874,6 +1075,7 @@ function tio2_is_relevant_webhook_meta_key(string $meta_key, ?int $post_id = nul
 function tio2_queue_webhook(int $post_id, ?array $affected = null): void
 {
     $affected = $affected ?? tio2_get_webhook_affected_state($post_id);
+    if (class_exists('Tio2_Approved_Content_Write') && Tio2_Approved_Content_Write::defer_event($post_id, $affected)) return;
     if (null === $affected) {
         return;
     }
@@ -890,6 +1092,7 @@ function tio2_queue_webhook(int $post_id, ?array $affected = null): void
 
 function tio2_flush_webhook_queue(): void
 {
+    if (class_exists('Tio2_Approved_Content_Write') && Tio2_Approved_Content_Write::active()) return;
     $queued = isset($GLOBALS['tio2_webhook_queue']) && is_array($GLOBALS['tio2_webhook_queue'])
         ? $GLOBALS['tio2_webhook_queue']
         : [];
@@ -909,6 +1112,10 @@ function tio2_flush_webhook_queue(): void
 
 function tio2_handle_post_transition(string $new_status, string $old_status, WP_Post $post): void
 {
+    // MY contract changes have their own metadata events. Core also emits this
+    // hook for unchanged saves; those are not publication transitions.
+    if ($new_status === $old_status && function_exists('tio2_content_write_page_for_post') &&
+        tio2_content_write_page_for_post((int)$post->ID) !== null) return;
     if (
         ! in_array($post->post_type, tio2_webhook_post_types(), true) ||
         ('publish' !== $new_status && 'publish' !== $old_status) ||

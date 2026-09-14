@@ -63,7 +63,7 @@ function runPowerShell(scriptPath: string, arguments_: string[]) {
   return spawnSync(
     'powershell.exe',
     ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', scriptPath, ...arguments_],
-    {encoding: 'utf8', maxBuffer: 10 * 1024 * 1024},
+    {encoding: 'utf8', maxBuffer: 10 * 1024 * 1024, timeout: 20_000},
   )
 }
 
@@ -651,7 +651,8 @@ function runSnapshotAudit(snapshot: AuditSnapshot, expectedPerSite: number | nul
   }
 }
 
-describe('seed audit validation', () => {
+// Windows process startup under parallel builds is not a five-second unit test.
+describe('seed audit validation', {timeout: 30_000}, () => {
   it('exports every homepage record without a status-filtered WordPress query', () => {
     const source = readFileSync(exportAuditPath, 'utf8')
 

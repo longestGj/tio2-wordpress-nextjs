@@ -60,8 +60,17 @@ export function buildHomepageJsonLd(
   site: SiteConfig,
   homepage: AnyHomepageDto,
 ): JsonLdObject | JsonLdObject[] {
-  if (isMalaysiaHomepage(homepage)) {
-    return homepage.schemaGraph as unknown as JsonLdObject
+  if (site.id === 'tio2-my' || homepage.identity.siteId === 'tio2-my') {
+    if (site.id !== 'tio2-my' || !isMalaysiaHomepage(homepage)) {
+      throw new Error('HOME-001 Schema is available only for tio2-my homepage-v0.4-malaysia')
+    }
+    return {
+      ...homepage.schemaGraph,
+      '@graph': homepage.schemaGraph['@graph'].map((node) =>
+        node['@type'] === 'WebPage' ? {...node, name: homepage.hero.heading} :
+          node['@type'] === 'Organization' ? {...node, name: homepage.company.entityName} : node,
+      ),
+    }
   }
   const canonical = new URL('/', site.url).href
   const organizationId = new URL('/#organization', site.url).href

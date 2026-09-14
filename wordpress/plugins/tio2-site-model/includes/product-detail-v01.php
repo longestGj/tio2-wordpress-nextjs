@@ -280,11 +280,10 @@ function tio2_my_product_detail_required_parent_available(string $target_page_id
                 static fn (int $post_id): bool => 'publish' === get_post_status($post_id)
             ))
             : [];
-        if (1 !== count($ids) || is_wp_error(tio2_validate_homepage_contract((int) $ids[0]))) {
+        if (1 !== count($ids) || !function_exists('tio2_validate_homepage_v04_read_record')) {
             return false;
         }
-        $stored = get_post_meta((int) $ids[0], '_tio2_my_homepage_contract_json', true);
-        $parent = is_string($stored) ? json_decode($stored, true) : null;
+        $parent = tio2_validate_homepage_v04_read_record((int) $ids[0]);
         return is_array($parent) &&
             'HOME-001' === ($parent['identity']['pageId'] ?? null) &&
             '/' === ($parent['identity']['path'] ?? null);

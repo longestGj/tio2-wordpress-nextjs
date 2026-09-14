@@ -237,6 +237,11 @@ class InstallationResources:
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(data)
             os.chmod(target, 0o644)
+        # Administrator umask is private (077); Apache runs as UID 33 and must
+        # traverse every newly created plugin directory, including on restore.
+        for directory in self.plugin.rglob('*'):
+            if directory.is_dir():
+                os.chmod(directory, 0o755)
         if php_present:
             self.docker('cp', '-', self.wp + ':/', data=_tar(
                 {'opt/d16-content/' + name: data for name, data in php.items()}, 'opt/d16-content'))

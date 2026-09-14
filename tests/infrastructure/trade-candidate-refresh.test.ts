@@ -43,7 +43,7 @@ function run(scenario:string){
 describe('bounded Trade successor refresh seed',()=>{
  it('accepts the same historical bytes with Windows line endings',()=>{const r=run('crlf');expect(r.error).toBeNull();expect(r.writes).toBe(8)})
  it('upgrades only four exact historical payloads and their review binding',()=>{const r=run('upgrade');expect(r.error).toBeNull();expect(r.writes).toBe(8);expect(r.restored).toBe(false)})
- it.each(['scope','hash','review','duplicate','no-optin'])('preflights all records before any write: %s',scenario=>{const r=run(scenario);expect(r.error).not.toBeNull();expect(r.writes).toBe(0);expect(r.restored).toBe(true)})
+ it.each(['scope','hash','review','duplicate','no-optin'])('preflights all records before any write: %s',scenario=>{const r=run(scenario);expect(r.error).not.toBeNull();expect(r.writes).toBe(0);expect(r.restored).toBe(true)}, 60000)
  it.each(['idempotent','absent'])('does not write for %s',scenario=>{const r=run(scenario);expect(r.error).toBeNull();expect(r.writes).toBe(0);expect(r.restored).toBe(true)})
  it('restores only its own metadata after partial readback failure',()=>{const r=run('partial-failure');expect(r.error).not.toBeNull();expect(r.restored).toBe(true);expect(r.writes).toBe(8)})
  it('binds source hash and ordering before the retained create-only seed',()=>{

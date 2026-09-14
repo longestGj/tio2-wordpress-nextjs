@@ -26,6 +26,7 @@ export default defineConfig({
     exclude: [
       ...configDefaults.exclude,
       '.worktrees/**',
+      '.tmp/**',
       'tests/e2e/**',
       'scripts/editorial/build-alternative-payloads.test.mjs',
       'scripts/editorial/build-de-it-payloads.test.mjs',

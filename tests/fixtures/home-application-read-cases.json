@@ -1,0 +1,1108 @@
+{
+  "version": 1,
+  "cases": [
+    {"name":"home market category code stays fixed","pageId":"HOME-001","expected":"reject","mutations":[{"path":"markets.items.0.code","value":"OTHER"}],"output":[]},
+    {"name":"home application category symbol stays fixed","pageId":"HOME-001","expected":"reject","mutations":[{"path":"applications.items.0.symbol","value":"OTHER"}],"output":[]},
+    {"name":"home numeric-key object is not a prose array","pageId":"HOME-001","expected":"reject","mutations":[{"path":"company.summaries","value":{"0":{"title":"Summary","description":"Body"}}}],"output":[]},
+    {"name":"app numeric-key object is not a prose array","pageId":"APP-000","expected":"reject","mutations":[{"path":"evaluation.items","value":{"0":{"title":"Step","body":"Body"}}}],"output":[]},
+    {"name":"home Unicode edge whitespace rejected","pageId":"HOME-001","expected":"reject","mutations":[{"path":"hero.heading","value":" Heading"}],"output":[]},
+    {"name":"app missing nested CTA required field","pageId":"APP-000","expected":"reject","mutations":[{"path":"hero.rfq.label","operation":"delete"}],"output":[]},
+    {"name":"home duplicated grade member rejected","pageId":"HOME-001","expected":"reject","mutations":[{"path":"products.groups.0.gradeIds.1","value":"M-350"}],"output":[]},
+    {"name":"home schema graph missing node rejected","pageId":"HOME-001","expected":"reject","mutations":[{"path":"schemaGraph.@graph","value":[]}],"output":[]},
+    {"name":"app missing required relationship member rejected","pageId":"APP-000","expected":"reject","mutations":[{"path":"applications.0.grades","value":[]}],"output":[]},
+    {
+      "name": "HOME-001 current content",
+      "pageId": "HOME-001",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "hero.heading",
+          "value": "Current CMS heading"
+        },
+        {
+          "path": "packageId",
+          "value": "HOME-001-READ-2"
+        },
+        {
+          "path": "company.summaries",
+          "operation": "append",
+          "value": {
+            "title": "Added summary",
+            "description": "Current CMS guidance"
+          }
+        }
+      ],
+      "output": [
+        {
+          "path": "hero.heading",
+          "value": "Current CMS heading"
+        },
+        {
+          "path": "packageId",
+          "value": "HOME-001-READ-2"
+        }
+      ]
+    },
+    {
+      "name": "HOME-001 rejects identity.siteScope \"tio2-a\"",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "identity.siteScope",
+          "value": "tio2-a"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 rejects identity.locale \"de\"",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "identity.locale",
+          "value": "de"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 rejects identity.path \"/wrong/\"",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "identity.path",
+          "value": "/wrong/"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 rejects identity.schemaVersion \"wrong\"",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "identity.schemaVersion",
+          "value": "wrong"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 rejects hero.heading null",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.heading",
+          "value": null
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 rejects hero.heading \"\"",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.heading",
+          "value": ""
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 rejects hero.heading \" bad\"",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.heading",
+          "value": " bad"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 rejects hero.heading \"bad \"",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.heading",
+          "value": "bad "
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 rejects hero.heading \"<script>\"",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.heading",
+          "value": "<script>"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 rejects hero.heading \"a\\u0000b\"",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.heading",
+          "value": "a\u0000b"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 rejects hero.heading \"ab\"",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.heading",
+          "value": "ab"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 rejects packageId \"bad tracking\"",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "packageId",
+          "value": "bad tracking"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 missing heading",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.heading",
+          "operation": "delete"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 rejects excess text",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.heading",
+          "operation": "repeat",
+          "value": "𠮷",
+          "count": 100001
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 accepts codepoint limit",
+      "pageId": "HOME-001",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "hero.heading",
+          "operation": "repeat",
+          "value": "𠮷",
+          "count": 100000
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 empty prose array",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "company.summaries",
+          "value": []
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 excess prose array",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "company.summaries",
+          "operation": "repeatItem",
+          "value": {
+            "title": "Added summary",
+            "description": "Current CMS guidance"
+          },
+          "count": 33
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 one prose item",
+      "pageId": "HOME-001",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "company.summaries",
+          "value": [
+            {
+              "title": "Added summary",
+              "description": "Current CMS guidance"
+            }
+          ]
+        }
+      ],
+      "output": [
+        {
+          "path": "company.summaries",
+          "value": [
+            {
+              "title": "Added summary",
+              "description": "Current CMS guidance"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HOME-001 null prose item",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "company.summaries",
+          "value": [
+            null
+          ]
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 missing section",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero",
+          "operation": "delete"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "HOME-001 unknown field stripped",
+      "pageId": "HOME-001",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "unknown",
+          "value": "must not be projected"
+        },
+        {
+          "path": "hero.unknown",
+          "value": "must not be projected"
+        }
+      ],
+      "output": [
+        {
+          "path": "unknown",
+          "absent": true
+        },
+        {
+          "path": "hero.unknown",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "name": "HOME-001 fixed chrome",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "globalChromeRef.contractId",
+          "value": "GLOBAL-CHROME-999"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 current content",
+      "pageId": "APP-000",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "hero.h1",
+          "value": "Current CMS heading"
+        },
+        {
+          "path": "reviewId",
+          "value": "APP-000-READ-2"
+        },
+        {
+          "path": "evaluation.items",
+          "operation": "append",
+          "value": {
+            "title": "Added step",
+            "body": "Current CMS guidance"
+          }
+        }
+      ],
+      "output": [
+        {
+          "path": "hero.h1",
+          "value": "Current CMS heading"
+        },
+        {
+          "path": "reviewId",
+          "value": "APP-000-READ-2"
+        }
+      ]
+    },
+    {
+      "name": "APP-000 rejects identity.siteScope \"tio2-a\"",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "identity.siteScope",
+          "value": "tio2-a"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 rejects identity.locale \"de\"",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "identity.locale",
+          "value": "de"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 rejects identity.path \"/wrong/\"",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "identity.path",
+          "value": "/wrong/"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 rejects identity.schemaVersion \"wrong\"",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "identity.schemaVersion",
+          "value": "wrong"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 rejects hero.h1 null",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.h1",
+          "value": null
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 rejects hero.h1 \"\"",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.h1",
+          "value": ""
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 rejects hero.h1 \" bad\"",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.h1",
+          "value": " bad"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 rejects hero.h1 \"bad \"",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.h1",
+          "value": "bad "
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 rejects hero.h1 \"<script>\"",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.h1",
+          "value": "<script>"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 rejects hero.h1 \"a\\u0000b\"",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.h1",
+          "value": "a\u0000b"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 rejects hero.h1 \"ab\"",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.h1",
+          "value": "ab"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 rejects reviewId \"bad tracking\"",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "reviewId",
+          "value": "bad tracking"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 missing heading",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.h1",
+          "operation": "delete"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 rejects excess text",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.h1",
+          "operation": "repeat",
+          "value": "𠮷",
+          "count": 100001
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 accepts codepoint limit",
+      "pageId": "APP-000",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "hero.h1",
+          "operation": "repeat",
+          "value": "𠮷",
+          "count": 100000
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 empty prose array",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "evaluation.items",
+          "value": []
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 excess prose array",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "evaluation.items",
+          "operation": "repeatItem",
+          "value": {
+            "title": "Added step",
+            "body": "Current CMS guidance"
+          },
+          "count": 33
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 one prose item",
+      "pageId": "APP-000",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "evaluation.items",
+          "value": [
+            {
+              "title": "Added step",
+              "body": "Current CMS guidance"
+            }
+          ]
+        }
+      ],
+      "output": [
+        {
+          "path": "evaluation.items",
+          "value": [
+            {
+              "title": "Added step",
+              "body": "Current CMS guidance"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "APP-000 null prose item",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "evaluation.items",
+          "value": [
+            null
+          ]
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 missing section",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero",
+          "operation": "delete"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "APP-000 unknown field stripped",
+      "pageId": "APP-000",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "unknown",
+          "value": "must not be projected"
+        },
+        {
+          "path": "hero.unknown",
+          "value": "must not be projected"
+        }
+      ],
+      "output": [
+        {
+          "path": "unknown",
+          "absent": true
+        },
+        {
+          "path": "hero.unknown",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "name": "APP-000 fixed chrome",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "globalChromeRef.contractId",
+          "value": "GLOBAL-CHROME-999"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "home display order retained",
+      "pageId": "HOME-001",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "markets.items",
+          "operation": "reverse"
+        }
+      ],
+      "output": [
+        {
+          "path": "markets.items.0.targetPageId",
+          "value": "MARKET-BR-EN"
+        }
+      ]
+    },
+    {
+      "name": "home grade groups identified by members",
+      "pageId": "HOME-001",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "products.groups",
+          "operation": "reverse"
+        },
+        {
+          "path": "products.groups.0.title",
+          "value": "Renamed specialty"
+        }
+      ],
+      "output": [
+        {
+          "path": "products.groups.0.gradeIds",
+          "value": [
+            "CR-901"
+          ]
+        },
+        {
+          "path": "products.groups.0.title",
+          "value": "Renamed specialty"
+        }
+      ]
+    },
+    {
+      "name": "home grade order retained",
+      "pageId": "HOME-001",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "products.groups.0.gradeIds",
+          "operation": "reverse"
+        }
+      ],
+      "output": [
+        {
+          "path": "products.groups.0.gradeIds.0",
+          "value": "M-895"
+        }
+      ]
+    },
+    {
+      "name": "wrong target href",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "markets.items.0.href",
+          "value": "/products/"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "duplicate target",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "markets.items.1.targetPageId",
+          "value": "MARKET-EU-001"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "unapproved lifecycle",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "identity.lifecycle",
+          "value": "PUBLISHED"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "invalid mapping",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.primaryCta.mappingState",
+          "value": "APPROVED"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "invalid asset",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.media.assetState",
+          "value": "CLEARED"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "wrong media",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.media.src",
+          "value": "https://attacker.test/image"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "wrong dimensions",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.media.width",
+          "value": 1
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "invalid responsive",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "responsive.mobilePageRfq",
+          "value": true
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "grade relation",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "products.groups.0.gradeIds",
+          "value": [
+            "M-350"
+          ]
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "jsonld relation",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "schemaGraph.@graph.0.publisher.@id",
+          "value": "https://attacker.test/"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "jsonld unsafe name",
+      "pageId": "HOME-001",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "schemaGraph.@graph.0.name",
+          "value": "<img>"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "jsonld unknown property omitted",
+      "pageId": "HOME-001",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "schemaGraph.@graph.0.evil",
+          "value": "must not be projected"
+        }
+      ],
+      "output": [
+        {
+          "path": "schemaGraph.@graph.0.evil",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "name": "home footer omitted",
+      "pageId": "HOME-001",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "footer",
+          "value": {
+            "description": "must not be projected"
+          }
+        }
+      ],
+      "output": [
+        {
+          "path": "footer",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "name": "app display order retained",
+      "pageId": "APP-000",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "applications",
+          "operation": "reverse"
+        },
+        {
+          "path": "applications.0.title",
+          "value": "Renamed specialty"
+        }
+      ],
+      "output": [
+        {
+          "path": "applications.0.key",
+          "value": "SPECIALTY"
+        },
+        {
+          "path": "applications.0.title",
+          "value": "Renamed specialty"
+        }
+      ]
+    },
+    {
+      "name": "app grade order retained",
+      "pageId": "APP-000",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "applications.0.grades",
+          "operation": "reverse"
+        }
+      ],
+      "output": [
+        {
+          "path": "applications.0.grades.0.edgeId",
+          "value": "APP000-EDGE-COAT-08"
+        }
+      ]
+    },
+    {
+      "name": "app current contentRevision",
+      "pageId": "APP-000",
+      "expected": "accept",
+      "mutations": [
+        {
+          "path": "identity.contentRevision",
+          "value": "APP-000-REV-2"
+        }
+      ],
+      "output": [
+        {
+          "path": "identity.contentRevision",
+          "value": "APP-000-REV-2"
+        }
+      ]
+    },
+    {
+      "name": "wrong app href",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "applications.0.href",
+          "value": "/products/"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "wrong grade href",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "applications.0.grades.0.href",
+          "value": "/products/m-510/"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "duplicate edge",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "applications.0.grades.1.edgeId",
+          "value": "APP000-EDGE-COAT-01"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "duplicate anchor",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "applications.1.anchorId",
+          "value": "application-coatings"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "duplicate key",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "applications.1.key",
+          "value": "COAT"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "wrong grade",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "applications.0.grades.0.gradeId",
+          "value": "M-510"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "wrong registry href",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "routeRegistry.0.href",
+          "value": "/products/"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "invalid policy",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "releaseControls.indexingAuthorized",
+          "value": true
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "wrong behavior",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "routeRegistry.0.behavior",
+          "value": "conditional"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "wrong anchor link",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "hero.primaryAction.href",
+          "value": "#missing"
+        }
+      ],
+      "output": []
+    },
+    {
+      "name": "invalid type",
+      "pageId": "APP-000",
+      "expected": "reject",
+      "mutations": [
+        {
+          "path": "identity.pageType",
+          "value": "product"
+        }
+      ],
+      "output": []
+    }
+  ]
+}

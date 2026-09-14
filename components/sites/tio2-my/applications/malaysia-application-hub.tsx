@@ -41,7 +41,7 @@ export function MalaysiaApplicationHub({
           pageId="APP-000"
           variant="hub-light"
           surface="open"
-          breadcrumbLabel="Applications"
+          breadcrumbLabel={applicationHub.breadcrumb.find((item) => item.targetPageId === 'APP-000')!.label}
           headingId="application-hub-heading"
           eyebrow="APPLICATIONS"
           heading={applicationHub.hero.h1}

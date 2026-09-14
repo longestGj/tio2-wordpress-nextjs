@@ -2,6 +2,8 @@
 
 本文件只描述任务分支上的 TDD、单元/集成/任务 E2E、技术复审和开发环境。开发职责与 `develop` 合入见[开发交付流程](development-workflow.md)；预发布、候选包和生产动作见[独立发布流程](release-workflow.md)。
 
+故障诊断、真实消费者验证和测试失败分类分别执行[规则 R02](release-engineering-rules.md#r02)、[R05](release-engineering-rules.md#r05)、[R08](release-engineering-rules.md#r08)；检查范围按本次变化确定，不将全量测试作为日常文档修改前置条件。
+
 ## 1. 任务记录
 
 每个任务在开始时固定网站、任务主体、批准输入、接受条件、`develop` 基线、分支、允许修改路径、消费者、开发环境和授权边界。记录中把“要求什么”“由哪个模块负责”“怎样观察结果”连起来，避免只列文件或测试数量。

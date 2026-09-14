@@ -7,7 +7,7 @@ import {getSiteConfig} from '@/sites'
 describe('CONV-RFQ metadata and Schema', () => {
   const site = getSiteConfig('tio2-my')
 
-  it('uses one clean canonical and keeps the current contract noindex even with the other gates open', () => {
+  it('uses the approved canonical and production indexing despite legacy contract flags', () => {
     expect(buildMalaysiaRfqMetadata(site, {
       indexingAuthorized: false,
       env: {VERCEL_ENV: 'production', TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED: 'true'},
@@ -15,23 +15,23 @@ describe('CONV-RFQ metadata and Schema', () => {
       title: 'Request a Titanium Dioxide Quote | TiO2 Malaysia',
       description: 'Request a titanium dioxide quotation from TiO2 Malaysia by providing your grade, application, quantity in metric tonnes and destination for review.',
       alternates: {canonical: 'https://tio2malaysia.com/request-a-quote/'},
-      robots: {index: false, follow: false},
+      robots: {index: true, follow: true},
     })
   })
 
   it.each([
     ['preview environment', true, {VERCEL_ENV: 'preview', TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED: 'true'}],
-    ['missing release signal', true, {VERCEL_ENV: 'production'}],
-    ['non-exact release signal', true, {VERCEL_ENV: 'production', TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED: 'TRUE'}],
-    ['contract hold', false, {VERCEL_ENV: 'production', TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED: 'true'}],
+    ['missing environment', true, {}],
+    ['non-production environment', true, {VERCEL_ENV: 'development'}],
+    ['preview with historical flag', false, {VERCEL_ENV: 'preview', TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED: 'true'}],
   ] as const)('keeps noindex when the %s gate is closed', (_name, indexingAuthorized, env) => {
     expect(buildMalaysiaRfqMetadata(site, {indexingAuthorized, env}).robots).toEqual({index: false, follow: false})
   })
 
-  it('can index only when production, the page contract and the independent release signal all pass', () => {
+  it('indexes the approved production route without a legacy release signal', () => {
     expect(buildMalaysiaRfqMetadata(site, {
       indexingAuthorized: true,
-      env: {VERCEL_ENV: 'production', TIO2_MY_RFQ_INDEXING_RELEASE_AUTHORIZED: 'true'},
+      env: {VERCEL_ENV: 'production'},
     }).robots).toEqual({index: true, follow: true})
   })
 

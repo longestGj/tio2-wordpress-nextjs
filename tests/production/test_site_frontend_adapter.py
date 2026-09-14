@@ -2,6 +2,7 @@
 from copy import deepcopy
 import hashlib
 import json
+import os
 from pathlib import Path
 import unittest
 from types import SimpleNamespace
@@ -130,6 +131,55 @@ class SiteFrontendAdapterTests(unittest.TestCase):
         self.setUp(); self.stage(); self.adapter.activate(self.context); self.state('ACTIVATED'); self.slots.fail='rollback-health'
         with self.assertRaises(ReleaseError) as error: self.adapter.rollback(self.context)
         self.assertNotIsInstance(error.exception,SafeFrontendRollback)
+
+    def disable_automatic_rollback(self):
+        atomic_write_json(self.subject.configuration/'frontend-failure-policy.json',{
+            'schemaVersion':'d16-frontend-failure-policy-v1','subject':'tio2-my',
+            'releaseId':'release-B','automaticRollback':False})
+
+    @unittest.skipUnless(os.name=='posix' and os.geteuid()==0,'requires protected Linux root paths')
+    def test_disabled_automatic_rollback_preserves_each_failure_boundary(self):
+        from release_adapter import SafeFrontendRollback
+        for point in ('build','internal','before-switch','after-switch','nginx-test','reload','public'):
+            with self.subTest(point=point):
+                self.setUp(); self.disable_automatic_rollback(); self.prepare_backup()
+                if point not in ('build','internal'):
+                    result=self.adapter.stage(self.context); self.state('INTERNAL_VERIFIED',{'frontendStage':result})
+                if point=='public':
+                    self.adapter.activate(self.context); self.state('ACTIVATED')
+                self.slots.fail=point
+                operation=self.adapter.stage if point in ('build','internal') else self.adapter.verify if point=='public' else self.adapter.activate
+                with self.assertRaises(ReleaseError) as raised: operation(self.context)
+                self.assertNotIsInstance(raised.exception,SafeFrontendRollback)
+                self.assertNotIn('activate:build-A',self.slots.calls)
+                self.assertNotIn('discard',self.slots.calls)
+                self.assertEqual(self.cms,self.cms_before)
+
+    @unittest.skipUnless(os.name=='posix' and os.geteuid()==0,'requires protected Linux root paths')
+    def test_failure_policy_for_another_release_rejects_before_build(self):
+        self.disable_automatic_rollback(); self.prepare_backup()
+        path=self.subject.configuration/'frontend-failure-policy.json'
+        value=json.loads(path.read_bytes()); value['releaseId']='wrong'; atomic_write_json(path,value)
+        with self.assertRaises(ReleaseError): self.adapter.stage(self.context)
+        self.assertNotIn('build',self.slots.calls)
+
+    @unittest.skipUnless(os.name=='posix' and os.geteuid()==0,'requires protected Linux root paths')
+    def test_disabled_policy_cannot_disappear_during_build_or_stage_reentry(self):
+        for reentry in (False,True):
+            with self.subTest(reentry=reentry):
+                self.setUp(); self.disable_automatic_rollback(); self.prepare_backup()
+                policy=self.subject.configuration/'frontend-failure-policy.json'
+                def interrupted_build(*args):
+                    policy.unlink()
+                    raise ReleaseError('build interrupted after policy disappeared')
+                self.slots.build=interrupted_build
+                with self.assertRaises(ReleaseError): self.adapter.stage(self.context)
+                if reentry:
+                    with self.assertRaises(ReleaseError): self.adapter.stage(self.context)
+                self.assertNotIn('discard',self.slots.calls)
+                self.assertNotIn('activate:build-A',self.slots.calls)
+                journal=json.loads((self.subject.state_root/'frontend-deployment.json').read_bytes())
+                self.assertIs(journal['automaticRollback'],False)
 
     def test_changed_cms_and_state_identity_rejected_before_build(self):
         for changed in ('cms','state'):

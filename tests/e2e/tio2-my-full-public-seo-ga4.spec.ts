@@ -20,7 +20,8 @@ type PublicationObject = {
   }
 }
 
-const baseUrl = process.env.TIO2_PRERELEASE_BASE_URL ?? 'http://127.0.0.1:3123'
+const baseUrl = process.env.TIO2_PRERELEASE_BASE_URL
+if (!baseUrl) throw new Error('TIO2_PRERELEASE_BASE_URL must identify the owned test runtime')
 const inventory = JSON.parse(
   readFileSync('lib/seo/tio2-my-publication-inventory.data.json', 'utf8'),
 ) as PublicationObject[]

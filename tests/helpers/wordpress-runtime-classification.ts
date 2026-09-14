@@ -59,7 +59,7 @@ export function inspectReadOnlyPreviewPhp(source: string): string[] {
   return brackets.length ? reject : []
 }
 
-type Word = string | {kind: 'compose' | 'php' | 'unknown'}
+type Word = string | {kind: 'compose' | 'owned-compose' | 'php' | 'unknown'; spread?: boolean}
 const intersects = (sets: Set<string>[]) => sets.length ? new Set([...sets[0]].filter(item => sets.every(set => set.has(item)))) : new Set<string>()
 
 /** Conservative source proof: unknown arguments/control flow fail closed. */
@@ -125,6 +125,27 @@ export function inspectWordPressRuntime(source: string, readPreview = () => read
   function words(input?: ts.Expression): Word[] | null {
     if (!input) return null
     const node = unwrap(input)
+    if (ts.isPropertyAccessExpression(node) && node.name.text === 'composeArgs' && ts.isIdentifier(node.expression)) {
+      const owners = identifiers.filter(id => id.text === (node.expression as ts.Identifier).text
+        && (ts.isVariableDeclaration(id.parent) || ts.isParameter(id.parent) || ts.isBindingElement(id.parent)
+          || ts.isFunctionDeclaration(id.parent)) && id.parent.name === id)
+      const owner = owners.length === 1 && ts.isVariableDeclaration(owners[0].parent) ? owners[0].parent : null
+      const initial = owner?.initializer
+      const factory = initial && ts.isAwaitExpression(initial) && ts.isCallExpression(initial.expression)
+        && ts.isIdentifier(initial.expression.expression) ? initial.expression.expression : null
+      const imported = factory ? imports.get(factory.text) : null
+      // The factory freezes both the runtime and its argument array. Require a
+      // direct const binding; arbitrary objects and mutable aliases are unproven.
+      if (owner && ts.isVariableDeclarationList(owner.parent) && (owner.parent.flags & ts.NodeFlags.Const)
+        && initial && ts.isAwaitExpression(initial) && ts.isCallExpression(initial.expression)
+        && imported?.name === 'startIsolatedWordPress' && runtimeModule(imported.from)
+        && !identifiers.some(id => factory && id.text === factory.text && (ts.isParameter(id.parent)
+          || ts.isVariableDeclaration(id.parent) || ts.isFunctionDeclaration(id.parent) || ts.isBindingElement(id.parent)))
+        && !memberAccesses.some(member => ts.isPropertyAccessExpression(member)
+          && member.name.text === 'composeArgs' && ts.isIdentifier(member.expression)
+          && member.expression.text === (node.expression as ts.Identifier).text
+          && !ts.isSpreadElement(member.parent))) return [{kind: 'owned-compose'}]
+    }
     if (ts.isCallExpression(node)) {
       if (callName(node) === 'wordpressComposeArgs') {
         executedComposeHelpers.add(node)
@@ -134,7 +155,7 @@ export function inspectWordPressRuntime(source: string, readPreview = () => read
     }
     if (!ts.isArrayLiteralExpression(node)) return null
     return node.elements.flatMap(element => {
-      if (ts.isSpreadElement(element)) return words(element.expression) ?? [{kind: 'unknown'}]
+      if (ts.isSpreadElement(element)) return words(element.expression) ?? [{kind: 'unknown', spread: true}]
       const value = unwrap(element)
       return ts.isStringLiteral(value) || ts.isNoSubstitutionTemplateLiteral(value) ? [value.text] : [{kind: 'unknown'}]
     })
@@ -260,10 +281,26 @@ export function inspectWordPressRuntime(source: string, readPreview = () => read
     const command = call.arguments[0] && unwrap(call.arguments[0])
     if (!command || !ts.isStringLiteral(command) || command.text !== 'docker' || call.arguments.length < 2) continue
     const args = words(call.arguments[1])
+    if (args && typeof args[0] !== 'string' && args[0]?.kind === 'owned-compose') {
+      // A frozen prefix alone is insufficient: later global options can select
+      // another project. Admit only the reviewed wpcli run form and its options.
+      let index = 2
+      let safe = args[1] === 'run'
+      while (safe && index < args.length && args[index] !== 'wpcli') {
+        if (['--rm', '--no-deps', '-T'].includes(String(args[index]))) index++
+        else if (args[index] === '--volume' && args[index + 1]
+          && (typeof args[index + 1] === 'string' || !(args[index + 1] as Exclude<Word, string>).spread)) index += 2
+        else safe = false
+      }
+      if (!safe || args[index] !== 'wpcli' || args[index + 1] !== 'wp'
+        || args.some(arg => typeof arg === 'string' && /^(?:--(?:project-name|project-directory|file|env-file|context|host|profile)(?:=|$)|-[pfH])/u.test(arg))) {
+        errors.push('owned runtime command can override its isolated target')
+      }
+    }
     if (!args || typeof args[0] !== 'string' && args[0]?.kind === 'unknown') {
       errors.push('Docker arguments cannot be statically classified')
       scoped = true
-    } else if (args[0] === 'compose' || typeof args[0] !== 'string' && args[0]?.kind === 'compose') {
+    } else if (args[0] === 'compose' || typeof args[0] !== 'string' && ['compose', 'owned-compose'].includes(args[0]?.kind)) {
       scoped = true
       composeCalls.push({node: call, args})
       sharedSinks.push(call)

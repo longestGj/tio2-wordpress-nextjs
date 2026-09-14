@@ -15,4 +15,13 @@ it.each([[buildMalaysiaRequestSampleMetadata,buildMalaysiaRequestSampleJsonLd,sa
  expect(metadata(site,{indexingAuthorized:false,seo})).toMatchObject({title:seo.title,description:seo.description,openGraph:{title:seo.title,description:seo.description}})
  expect(JSON.stringify(jsonld(site,seo))).toContain('Updated CMS title')
  expect(JSON.stringify(jsonld(site,seo))).toContain('Updated CMS description.')
+ for (const environment of ['production','preview']) {
+  const env={NODE_ENV:'production',VERCEL_ENV:environment}
+  const baseline=metadata(site,{indexingAuthorized:false,env})
+  const delivered=metadata(site,{indexingAuthorized:false,seo,env})
+  expect(delivered.alternates).toEqual(baseline.alternates)
+  expect(delivered.robots).toEqual(baseline.robots)
+  expect(delivered.twitter).toMatchObject({title:seo.title,description:seo.description})
+ }
+ expect(()=>metadata(getSiteConfig('tio2-a'),{indexingAuthorized:false,seo})).toThrow('only for tio2-my')
 })

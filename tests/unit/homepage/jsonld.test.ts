@@ -57,6 +57,48 @@ describe('homepage JSON-LD', () => {
     expect(JSON.stringify(graph).match(/"manufacturer"/gu)).toHaveLength(1)
     expect(JSON.stringify(graph)).not.toMatch(/FAQPage|Offer|ItemList|ContactPoint|PostalAddress|sameAs|ProductGroup|countryOfOrigin|price|inventory|availability|rating|GTIN/u)
   })
+  it('uses validated visible CMS names without changing Malaysia graph identity or relationships', async () => {
+    const {buildHomepageJsonLd} = await import('@/lib/seo/homepage-jsonld')
+    const homepage = toMalaysiaHomepageDto({
+      id: 'homepage-my-1', modifiedGmt: '2026-08-31T01:02:03', status: 'publish',
+      siteScopes: {nodes: [{slug: 'tio2-my'}]},
+      homepageFields: {homepageSchemaVersion: 'homepage-v0.4-malaysia'},
+      malaysiaHomepageContractJson: JSON.stringify({
+        ...approvedMalaysiaContract,
+        hero: {...approvedMalaysiaContract.hero, heading: 'Synthetic home heading'},
+        company: {...approvedMalaysiaContract.company, entityName: 'Synthetic company name'},
+      }),
+    })
+    const graph = buildHomepageJsonLd(getSiteConfig('tio2-my'), homepage) as {'@graph': Array<Record<string, unknown>>}
+    expect(graph['@graph'].map((node) => [node['@type'], node['@id']]))
+      .toEqual(approvedMalaysiaContract.schemaGraph['@graph'].map((node) => [node['@type'], node['@id']]))
+    expect(graph['@graph'][1]).toMatchObject({name: 'Synthetic home heading'})
+    expect(graph['@graph'][1]).not.toHaveProperty('description')
+    expect(graph['@graph'][2]).toMatchObject({name: 'Synthetic company name'})
+    expect(graph['@graph'][4]).toHaveProperty('description', approvedMalaysiaContract.schemaGraph['@graph'][4].description)
+    for (const index of [0, 1, 2, 3, 4]) {
+      const actual = {...graph['@graph'][index]}
+      const expected: Record<string, unknown> = {...approvedMalaysiaContract.schemaGraph['@graph'][index]}
+      if (index === 1 || index === 2) {
+        delete actual.name
+        delete expected.name
+      }
+      expect(actual).toEqual(expected)
+    }
+  })
+  it('rejects a Malaysia graph under the wrong site or schema identity', async () => {
+    const {buildHomepageJsonLd} = await import('@/lib/seo/homepage-jsonld')
+    const homepage = toMalaysiaHomepageDto({
+      id: 'homepage-my-1', modifiedGmt: '2026-08-31T01:02:03', status: 'publish',
+      siteScopes: {nodes: [{slug: 'tio2-my'}]},
+      homepageFields: {homepageSchemaVersion: 'homepage-v0.4-malaysia'},
+      malaysiaHomepageContractJson: JSON.stringify(approvedMalaysiaContract),
+    })
+    expect(() => buildHomepageJsonLd(getSiteConfig('tio2-a'), homepage)).toThrow()
+    expect(() => buildHomepageJsonLd(getSiteConfig('tio2-my'), {
+      ...homepage, identity: {...homepage.identity, schemaVersion: 'homepage-v0.1'},
+    } as unknown as typeof homepage)).toThrow()
+  })
   it('emits only base schema for the Site A v0.2 visible content', async () => {
     const {buildHomepageJsonLd} = await import('@/lib/seo/homepage-jsonld')
     const graph = buildHomepageJsonLd(

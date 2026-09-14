@@ -1,10 +1,9 @@
-import {matchesInstalledContent} from './content-release-validation'
-import approvedContract from '@/wordpress/plugins/tio2-site-model/config/tio2-my-application-hub.json'
+import {validateMalaysiaApplicationHubReadContent} from './home-application-read-contract'
 import globalChrome from '@/wordpress/plugins/tio2-site-model/config/tio2-my-global-chrome.json'
 
 import {normalizeWordPressGmt} from './time'
 import {CrossSiteContentError} from './types'
-import type {MalaysiaApplicationHubDto} from './application-hub-v01-types'
+import type {MalaysiaApplicationHubContent, MalaysiaApplicationHubDto} from './application-hub-v01-types'
 
 type UnknownRecord = Record<string, unknown>
 
@@ -39,9 +38,9 @@ function exactText(value: unknown, field: string): string {
   return value
 }
 
-function validatedReadiness(value: unknown): Readonly<Record<string, boolean>> {
+function validatedReadiness(value: unknown, contract: MalaysiaApplicationHubContent): Readonly<Record<string, boolean>> {
   const readiness = record(value, 'routeReadiness')
-  const expected = approvedContract.routeRegistry.map((route) => route.targetPageId).sort()
+  const expected = contract.routeRegistry.map((route) => route.targetPageId).sort()
   const actual = Object.keys(readiness).sort()
   if (expected.length !== actual.length || expected.some((key, index) => key !== actual[index])) {
     throw new ApplicationHubContractError('routeReadiness')
@@ -78,14 +77,13 @@ export function toMalaysiaApplicationHubDto(sourceValue: MalaysiaApplicationHubS
   if (typeof contractJson !== 'string' || !contractJson.trim()) {
     throw new ApplicationHubContractError('malaysiaApplicationHubContractJson')
   }
-  let contract: typeof approvedContract
+  let contract
   try {
-    contract = JSON.parse(contractJson) as typeof approvedContract
+    contract = validateMalaysiaApplicationHubReadContent(JSON.parse(contractJson))
   } catch {
     throw new ApplicationHubContractError('malaysiaApplicationHubContractJson')
   }
   if (
-    !matchesInstalledContent(contract, approvedContract) ||
     contract.globalChromeRef.contractId !== globalChrome.contractId ||
     contract.globalChromeRef.logoManifestId !== globalChrome.logoManifestId
   ) {
@@ -104,7 +102,7 @@ export function toMalaysiaApplicationHubDto(sourceValue: MalaysiaApplicationHubS
       modified,
     },
     globalChrome,
-    routeReadiness: validatedReadiness(source.routeReadiness),
+    routeReadiness: validatedReadiness(source.routeReadiness, contract),
   }
 }
 

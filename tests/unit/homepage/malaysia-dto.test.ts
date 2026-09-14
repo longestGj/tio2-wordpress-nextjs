@@ -17,7 +17,17 @@ function source() {
 }
 
 describe('Malaysia Homepage DTO', () => {
-  it('accepts only the exact approved contract and scope', () => {
+  it('reads current CMS content, tracking and an additional company summary', () => {
+    const changed = structuredClone(approvedContract)
+    changed.packageId = 'HOME-001-READ-TEST-2'
+    changed.hero.heading = 'Current homepage test heading'
+    changed.company.summaries.push({title: 'Additional summary', description: 'Synthetic test guidance.'})
+    const dto = toMalaysiaHomepageDto({...source(), malaysiaHomepageContractJson: JSON.stringify(changed)})
+    expect(dto.packageId).toBe('HOME-001-READ-TEST-2')
+    expect(dto.hero.heading).toBe('Current homepage test heading')
+    expect(dto.company.summaries.at(-1)?.description).toBe('Synthetic test guidance.')
+  })
+  it('accepts the installed fixture with the required identity and scope', () => {
     const homepage = toMalaysiaHomepageDto(source())
     expect(homepage).toMatchObject({
       packageId: 'HOME-001-G7-HANDOFF-01',
