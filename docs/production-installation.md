@@ -2,6 +2,8 @@
 
 本说明承接已批准的[安装方案](superpowers/specs/2026-09-12-my-production-installation-design.md)。当前处于开发及隔离演练阶段；文档存在不代表服务器已安装。生产能力仍以[网站登记](site-registry.md)和现场回执为准。
 
+修改和验证安装器时执行[安装生命周期 R03](release-engineering-rules.md#r03)、[真实消费者 R05](release-engineering-rules.md#r05)及[状态消费者 R07](release-engineering-rules.md#r07)。若新 CMS 合同不能接受现有数据，还须按[迁移规则 R04](release-engineering-rules.md#r04)准备受控迁移路径，不能通过删除已有维护或安装状态绕过识别。
+
 ## 执行顺序
 
 1. 发布负责人冻结通过验证的代码，生成管理员程序包和独立 CMS 安装包。两个包都从准确 Git 提交取文件，不读取未提交工作树。旧包的授权、哈希和计划不能用于新包。
