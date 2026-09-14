@@ -11,7 +11,7 @@ describe('APP-000 immutable Malaysia Hub infrastructure', () => {
     expect(plugin).toContain("require_once __DIR__ . '/includes/application-hub-v01.php';")
     expect(php).toContain('function tio2_resolve_malaysia_application_hub_record_json(): string')
     expect(php).toContain('malaysiaApplicationHubRecordJson')
-    expect(php).toContain('hash_equals')
+    expect(php).toContain("tio2_validate_my_content_write('APP-000', $stored, $stored)")
     expect(php).toContain('tio2_my_product_target_ready')
     expect(php).not.toContain("'tio2-a'")
     expect(php).not.toContain("'tio2-b'")

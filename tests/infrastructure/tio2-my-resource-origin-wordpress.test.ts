@@ -18,7 +18,7 @@ describe('RES-ORIGIN WordPress binding', () => {
     expect(php).toContain("'post_type' => 'tio2_document'")
     expect(php).toContain("'_tio2_my_resource_origin_contract_json'")
     expect(php).toContain('tio2-my-resource-origin.json')
-    expect(php).toContain('hash_equals')
+    expect(php).toContain('tio2_my_content_json_matches($stored, $approved)')
     expect(php).not.toContain("register_post_type('tio2_resource_origin'")
     expect(existsSync(seedPath)).toBe(true)
     expect(readFileSync(seedPath, 'utf8')).toContain("'resource_id', 'RES-ORIGIN'")

@@ -9,7 +9,9 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -u root -p$${MARIADB_ROOT_PASSWORD}"]
+      # The initialization socket server can answer ping before TCP and the
+      # application database are ready. Check the connection WordPress needs.
+      test: ["CMD-SHELL", "mariadb --protocol=TCP --host=127.0.0.1 --user=\"$${MARIADB_USER}\" --password=\"$${MARIADB_PASSWORD}\" \"$${MARIADB_DATABASE}\" --execute='SELECT 1' --skip-column-names"]
       interval: 5s
       timeout: 5s
       retries: 20

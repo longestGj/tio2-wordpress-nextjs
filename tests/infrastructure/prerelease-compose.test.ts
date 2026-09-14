@@ -159,7 +159,7 @@ describe('tio2-my local prerelease Compose contract', () => {
     }
     const expectedPaths = execFileSync(
       'git',
-      ['ls-files', 'wordpress/seed/apply-tio2-my-*.php', 'wordpress/seed/refresh-tio2-my-resource-candidate.php'],
+      ['ls-files', 'wordpress/seed/apply-tio2-my-*.php', 'wordpress/seed/refresh-tio2-my-resource-candidate.php', 'wordpress/seed/refresh-tio2-my-trade-candidate.php'],
       {encoding: 'utf8'},
     ).trim().split(/\r?\n/u).filter(Boolean).sort()
     expect(manifest.schemaVersion).toBe(1)

@@ -46,7 +46,7 @@ describe('RES-000 immutable Malaysia Hub contract', () => {
     expect(plugin).toContain("require_once __DIR__ . '/includes/resource-hub-v01.php';")
     expect(php).toContain('function tio2_resolve_malaysia_resource_hub_record_json(): string')
     expect(php).toContain("'tio2-my'")
-    expect(php).toContain('hash_equals')
+    expect(php).toContain('tio2_my_content_json_matches($stored, $approved)')
     expect(php).toContain('tio2_my_resource_mapping_allows_public')
     expect(php).not.toContain('PUBLIC_ELIGIBLE')
     expect(php).toContain('publicEligibilityStatus')

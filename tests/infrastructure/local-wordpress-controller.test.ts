@@ -74,8 +74,9 @@ describe.runIf(process.platform === 'win32')('canonical development WordPress co
 
   it('refuses stopping a project without a controller record', () => {
     const test = setup()
-    expect(test.invoke('Stop').status).not.toBe(0)
-    expect(test.invoke('Stop').stderr).toContain('ownership record')
+    const result = test.invoke('Stop')
+    expect(result.status).not.toBe(0)
+    expect(result.stderr).toContain('ownership record')
     expect(test.calls().some(call => call[0] === 'compose')).toBe(false)
   })
 

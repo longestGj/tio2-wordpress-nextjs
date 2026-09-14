@@ -4,7 +4,7 @@ import {randomUUID, createHash} from 'node:crypto'
 import {mkdirSync, readFileSync, writeFileSync, rmSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {describe, expect, it} from 'vitest'
-import {startIsolatedWordPress} from '../helpers/wordpress-runtime'
+import {startIsolatedWordPress, type OwnedWordPressRuntime} from '../helpers/wordpress-runtime'
 import {isolatedPhpArgs} from '../helpers/wordpress-test-support'
 
 export const WORDPRESS_RUNTIME_MODE = {dataMode: 'isolated', hostHttp: false} as const
@@ -28,7 +28,7 @@ describe('ordinary approved CMS writes against real WordPress and InnoDB', () =>
       'WORDPRESS_DB_ROOT_PASSWORD=synthetic-only-root-password', 'WORDPRESS_ADMIN_USER=guard-admin', 'WORDPRESS_ADMIN_PASSWORD=synthetic-only-admin-password',
       'WORDPRESS_ADMIN_EMAIL=guard@example.invalid', ...['A','B','MY'].flatMap(s => [`NEXTJS_REVALIDATION_URL_TIO2_${s}=http://127.0.0.1:1/disabled`,
         `NEXTJS_REVALIDATION_SECRET_TIO2_${s}=`, `NEXTJS_PREVIEW_URL_TIO2_${s}=http://127.0.0.1:1/disabled`, `NEXTJS_PREVIEW_SECRET_TIO2_${s}=`])].join('\n'))
-    let runtime: Awaited<ReturnType<typeof startIsolatedWordPress>> | undefined
+    let ownedRuntime: OwnedWordPressRuntime | undefined
     const home = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json', 'utf8'))
     const app = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-application-hub.json', 'utf8'))
     const changed = structuredClone(home); changed.company.summaries.push({title: 'Synthetic fourth summary', description: 'Isolated test content.'})
@@ -43,16 +43,17 @@ describe('ordinary approved CMS writes against real WordPress and InnoDB', () =>
       const base = isolatedPhpArgs(process.cwd())
       const proofArgs = [...base.slice(0,-3), '--user','0:0','--mount',`type=volume,source=${volume},target=/approvals`,...base.slice(-3),
         '/workspace/tests/infrastructure/php/content-write-guards.php','proofs']
-      const setup = spawnSync('docker', [proofArgs[0],'-i',...proofArgs.slice(1)], {encoding:'utf8',input:JSON.stringify({proofs:[proof('synthetic-home'),proof('synthetic-draft','publish-draft'),proof('synthetic-bulk','update-published',true),noopProof('synthetic-noop-draft','publish-draft'),noopProof('synthetic-noop-update','update-published')],home,app,changed,changedApp})})
+      const setup = spawnSync('docker', ['run','-i',...proofArgs.slice(1)], {encoding:'utf8',input:JSON.stringify({proofs:[proof('synthetic-home'),proof('synthetic-draft','publish-draft'),proof('synthetic-bulk','update-published',true),noopProof('synthetic-noop-draft','publish-draft'),noopProof('synthetic-noop-update','update-published')],home,app,changed,changedApp})})
       expect(setup.status, setup.stderr).toBe(0)
-      runtime = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId, environment:{...process.env,TIO2_TEST_WORDPRESS_ENV:environmentPath}})
+      const runtime = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId: runId, environment:{...process.env,TIO2_TEST_WORDPRESS_ENV:environmentPath}})
+      ownedRuntime = runtime
       await runtime.wp(['core','install','--url=http://example.invalid','--title=Synthetic guard test','--admin_user=guard-admin',
         '--admin_password=synthetic-only-admin-password','--admin_email=guard@example.invalid','--skip-email'])
       await runtime.wpAsWebUser(['plugin','install','advanced-custom-fields','--activate'])
       await runtime.wp(['plugin','activate','tio2-site-model'])
       const run = async (mode: string) => {
         const sequence=++commandNumber
-        const {stdout} = await execute('docker', [...runtime!.composeArgs,'run','--rm','-T','--volume',`${volume}:/approvals:ro`,'wpcli',
+        const {stdout} = await execute('docker', [...runtime.composeArgs,'run','--rm','-T','--volume',`${volume}:/approvals:ro`,'wpcli',
           'wp','eval-file','/workspace/tests/infrastructure/php/content-write-guards.php',mode,runId,'--user=guard-admin'], {windowsHide:true,maxBuffer:4*1024*1024})
         writeFileSync(resolve(evidenceDirectory,`${String(sequence).padStart(2,'0')}-${mode}.json`),stdout)
         return JSON.parse(stdout.slice(stdout.indexOf('{')))
@@ -89,13 +90,13 @@ describe('ordinary approved CMS writes against real WordPress and InnoDB', () =>
       expect((await run('cli')).committed).toBe(true)
       await run('setup')
       const expiring={...proof('synthetic-expiring'),validUntil:Math.floor(Date.now()/1000)+10}
-      const setupExpiry=spawnSync('docker',[proofArgs[0],'-i',...proofArgs.slice(1)],{encoding:'utf8',input:JSON.stringify({proofs:[expiring],home,app,changed,changedApp})})
+      const setupExpiry=spawnSync('docker',['run','-i',...proofArgs.slice(1)],{encoding:'utf8',input:JSON.stringify({proofs:[expiring],home,app,changed,changedApp})})
       expect(setupExpiry.status,setupExpiry.stderr).toBe(0)
       expect(await run('expire-proof')).toEqual({reachedWrite:true,expired:true,unchanged:true})
     } finally {
-      if (runtime) {
-        await runtime.stop()
-        for (const suffix of ['db_data','wp_data']) await execute('docker',['volume','rm',`${runtime.projectName}_${suffix}`])
+      if (ownedRuntime) {
+        await ownedRuntime.stop()
+        for (const suffix of ['db_data','wp_data']) await execute('docker',['volume','rm',`${ownedRuntime.projectName}_${suffix}`])
       }
       await execute('docker',['volume','rm',volume])
       if (directory === resolve('.tmp',runId) && runId.startsWith('content-guards-')) rmSync(directory,{recursive:true})

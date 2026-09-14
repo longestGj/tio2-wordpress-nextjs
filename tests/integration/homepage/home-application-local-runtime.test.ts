@@ -100,7 +100,7 @@ describe.runIf(process.env.HOME_APPLICATION_LOCAL_RUNTIME === '1')('real isolate
       const fixture = prepareHomeApplicationFixture(template, directory, repository)
       const composePath = prepareApprovalCompose(repository,directory,runId)
       progress('wordpress-start'); startupAttempted = true
-      wordpress = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId, siteId:'tio2-my', worktree:repository, commit,
+      wordpress = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId: runId, siteId:'tio2-my', worktree:repository, commit:commit,
         environment:{...process.env, TIO2_TEST_WORDPRESS_ENV:environmentPath,TIO2_TEST_WORDPRESS_COMPOSE:composePath}})
       save('cms-identity.json',{runId, projectName:wordpress.projectName, graphqlUrl:wordpress.graphqlUrl, composeArgs:wordpress.composeArgs, callback:relay.url})
       if (!wordpress.graphqlUrl) throw new Error('Owned GraphQL URL missing')

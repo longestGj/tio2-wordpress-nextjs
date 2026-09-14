@@ -195,7 +195,7 @@ function runCli(args: string[], nodeArgs: string[] = []) {
   return spawnSync(
     process.execPath,
     [...nodeArgs, 'scripts/products/validate-product-manifest.mjs', ...args],
-    {cwd: process.cwd(), encoding: 'utf8'},
+    {cwd: process.cwd(), encoding: 'utf8', timeout: 20_000},
   )
 }
 
@@ -208,7 +208,7 @@ function runCliAsync(args: string[]): Promise<{
     const child = spawn(
       process.execPath,
       ['scripts/products/validate-product-manifest.mjs', ...args],
-      {cwd: process.cwd(), stdio: ['ignore', 'pipe', 'pipe']},
+      {cwd: process.cwd(), stdio: ['ignore', 'pipe', 'pipe'], timeout: 20_000},
     )
     let stdout = ''
     let stderr = ''
@@ -1137,7 +1137,8 @@ describe('Site A Product content manifest', () => {
   })
 })
 
-describe('Product manifest validator CLI', () => {
+// Include child-process startup and the deliberately injected filesystem retry.
+describe('Product manifest validator CLI', {timeout: 30_000}, () => {
   it('validates an exact file, prints JSON, and never rewrites the source', async () => {
     const fixture = await temporaryManifest(completeManifest())
     const result = runCli([fixture.path])

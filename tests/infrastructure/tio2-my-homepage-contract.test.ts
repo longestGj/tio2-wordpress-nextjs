@@ -163,11 +163,13 @@ describe('HOME-001 immutable WordPress contract', () => {
     expect(preview).toContain('tio2_serialize_homepage_v04_preview')
   })
 
-  it('provides an idempotent local seed for only tio2-my--homepage', () => {
+  it('requires approval for existing home content and explicitly initializes new drafts', () => {
     expect(existsSync(seedPath)).toBe(true)
-    expect(seed).toContain("'tio2-my--homepage'")
+    expect(seed).toContain('tio2_force_homepage_slug($id)')
+    expect(seed).toContain('tio2_apply_approved_content')
+    expect(seed).toContain("'post_status'=>'draft'")
     expect(seed).toContain("'tio2-my'")
-    expect(seed).toContain("'_tio2_my_homepage_contract_json'")
+    expect(seed).toContain('TIO2_MY_HOMEPAGE_CONTRACT_META')
     expect(seed).not.toContain("'tio2-a'")
     expect(seed).not.toContain("'tio2-b'")
   })
