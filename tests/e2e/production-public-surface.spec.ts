@@ -9,6 +9,10 @@ for(const object of surface.objects){
    if(!['GET','HEAD'].includes(r.method())&&url.origin!==new URL(baseURL!).origin){externalSubmissions.push(url.origin);await route.abort();return}
    await route.continue()
   })
+  await page.route('https://www.googletagmanager.com/gtm.js**',route=>{
+   if(route.request().method()!=='GET')return route.fallback()
+   return route.fulfill({status:200,contentType:'application/javascript',body:'/* isolated production telemetry */'})
+  })
   const raw=await request.get(object.path,{maxRedirects:0})
   const expected=canonical(object.path)
   if(expected!==object.path){expect(raw.status()).toBe(308);expect(new URL(raw.headers().location,baseURL).pathname).toBe(expected)}
