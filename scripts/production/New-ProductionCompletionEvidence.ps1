@@ -135,7 +135,25 @@ $details = $publicVerify.state.details
 foreach ($name in $bindingNames) {
     if ($details[$name] -cne $binding[$name]) { throw "Public Verify binding mismatch: $name" }
 }
-$active = $details.activeFrontend
+$verifyEvidence = $details['actionEvidence']
+if ($verifyEvidence -is [Collections.IDictionary]) {
+    Assert-ExactNames $verifyEvidence @('active', 'binding', 'health', 'ok', 'publicVerified', 'state') 'Public Verify action evidence'
+    if ($verifyEvidence.ok -isnot [bool] -or -not $verifyEvidence.ok -or
+        $verifyEvidence.publicVerified -isnot [bool] -or -not $verifyEvidence.publicVerified -or
+        $verifyEvidence.state -cne 'PUBLIC_VERIFIED') { throw 'Public Verify action evidence is incomplete.' }
+    Assert-ExactNames $verifyEvidence.binding $bindingNames 'Public Verify action binding'
+    foreach ($name in $bindingNames) {
+        if ($verifyEvidence.binding[$name] -cne $binding[$name]) { throw "Public Verify action binding mismatch: $name" }
+    }
+    $active = $verifyEvidence.active
+    Assert-ExactNames $verifyEvidence.health @('buildId', 'containerId', 'imageId', 'proxy') 'Public Verify health'
+    if ($verifyEvidence.health.proxy -isnot [bool] -or -not $verifyEvidence.health.proxy) { throw 'Public Verify proxy health is incomplete.' }
+    foreach ($name in @('buildId', 'containerId', 'imageId')) {
+        if ($verifyEvidence.health[$name] -cne $active[$name]) { throw "Public Verify health mismatch: $name" }
+    }
+} else {
+    $active = $details['activeFrontend']
+}
 Assert-ExactNames $active @('commit', 'sourceRoot', 'imageId', 'buildId', 'containerId') 'Active frontend identity'
 if ($active.commit -cne $binding.sourceCommit -or $active.imageId -cnotmatch '^sha256:[a-f0-9]{64}$' -or
     $active.containerId -cnotmatch '^[a-f0-9]{64}$' -or -not $active.sourceRoot -or -not $active.buildId) { throw 'Active frontend identity does not match the candidate.' }

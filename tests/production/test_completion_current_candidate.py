@@ -27,7 +27,10 @@ class CurrentCompletionTests(unittest.TestCase):
         active = dict(commit=fixture.envelope.source_commit, sourceRoot='/fixture/source',
             imageId='sha256:'+'c'*64, buildId='new-build', containerId='d'*64)
         self.write('verify.json', dict(ok=True,subject='tio2-my',action='verify',
-            state=dict(state='PUBLIC_VERIFIED',details=dict(**self.binding,activeFrontend=active))))
+            state=dict(state='PUBLIC_VERIFIED',details=dict(**self.binding,actionEvidence=dict(
+                active=active,binding=self.binding,
+                health=dict(buildId=active['buildId'],containerId=active['containerId'],imageId=active['imageId'],proxy=True),
+                ok=True,publicVerified=True,state='PUBLIC_VERIFIED')))))
         self.business = dict(schemaVersion='d16-production-business-e2e-evidence-v1',siteId='tio2-my',
             commit=self.binding['sourceCommit'],releaseId='new-release',
             candidateManifestSha256=self.binding['candidateManifestSha256'],cmsIdentitySha256='b'*64,
@@ -84,9 +87,23 @@ class CurrentCompletionTests(unittest.TestCase):
 
     def test_new_candidate_rejects_wrong_active_build_even_when_input_matches(self):
         verify=json.loads((self.root/'verify.json').read_text())
-        verify['state']['details']['activeFrontend']['buildId']='other-build'
+        verify['state']['details']['actionEvidence']['active']['buildId']='other-build'
         self.business['active']['buildId']='other-build'
         self.write('verify.json',verify)
         self.write('business-input.json',self.business)
         self.assertNotEqual(self.generate().returncode,0)
         self.assertFalse((self.root/'completion-receipt.json').exists())
+
+    def test_new_candidate_rejects_tampered_public_verify_health(self):
+        verify=json.loads((self.root/'verify.json').read_text())
+        verify['state']['details']['actionEvidence']['health']['buildId']='other-build'
+        self.write('verify.json',verify)
+        self.assertNotEqual(self.generate().returncode,0)
+        self.assertFalse((self.root/'completion-receipt.json').exists())
+
+    def test_legacy_public_verify_active_frontend_remains_supported(self):
+        verify=json.loads((self.root/'verify.json').read_text())
+        verify['state']['details']['activeFrontend']=verify['state']['details'].pop('actionEvidence')['active']
+        self.write('verify.json',verify)
+        result=self.generate()
+        self.assertEqual(result.returncode,0,result.stderr)
