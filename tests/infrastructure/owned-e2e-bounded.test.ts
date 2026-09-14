@@ -72,7 +72,11 @@ async function memoryLauncher(hang?: string, interrupt?: string, fault?: string)
   const running = runOwnedE2e(['--site', 'tio2-my', '--spec', 'tests/e2e/runtime.spec.ts'], {
     repositoryRoot: root, leaseRoot: join(root, 'leases'), signals,
     environment: {WORDPRESS_GRAPHQL_URL: 'http://127.0.0.1:1/graphql'},
-    acquisitionHandoffTimeoutMs: 10, cleanupOperationTimeoutMs: 10, startupTimeoutMs: 50,
+    // Ten milliseconds is deliberate only for never-settling operations.
+    // Success/order assertions also touch real files and must tolerate scheduling.
+    acquisitionHandoffTimeoutMs: hang ? 10 : 1_000,
+    cleanupOperationTimeoutMs: hang && hang !== 'consumer' ? 10 : 1_000,
+    startupTimeoutMs: 1_000,
     readSourceCommit: async () => 'a'.repeat(40), supervisorFactory,
     nextCli: 'next.mjs', playwrightCli: 'playwright.mjs',
     emit: () => {},

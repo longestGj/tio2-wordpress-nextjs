@@ -1,3 +1,4 @@
+import {Children, isValidElement, type ReactElement} from 'react'
 import {expect, it, vi} from 'vitest'
 
 vi.mock('next/font/google', () => ({Inter: () => ({variable: '--font-my-shared-test'})}))
@@ -10,6 +11,7 @@ it('uses a dedicated pt-BR root document while preserving the shared Malaysia bo
   const result = layout({children: <main/>})
   expect(result.type).toBe('html')
   expect(result.props.lang).toBe('pt-BR')
-  expect(result.props.children.type).toBe('body')
-  expect(result.props.children.props.className).toBe('--font-my-shared-test')
+  const body = Children.toArray(result.props.children).find(child => isValidElement(child) && child.type === 'body') as ReactElement<{className: string}>
+  expect(body).toBeDefined()
+  expect(body.props.className).toBe('--font-my-shared-test')
 })

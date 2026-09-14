@@ -76,6 +76,33 @@ describe('WordPress runtime ownership classification', () => {
     expect(inspectRuntime(`${isolatedMode}(await import('../helpers/wordpress-runtime'))['startIsolatedWordPress']({...WORDPRESS_RUNTIME_MODE,runId:'review'});`)).toEqual([])
   })
 
+  it('accepts Compose arguments from a directly bound immutable owned runtime', () => {
+    expect(inspectRuntime(`${runtimeImport}${isolatedMode}const runtime = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId:'x'}); spawnSync('docker', [...runtime.composeArgs, 'run', '--rm', 'wpcli', 'wp', 'post', 'list']);`)).toEqual([])
+  })
+
+  it.each([
+    "let runtime = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId:'x'});",
+    "const runtime = unknownFactory();",
+    "const runtime = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId:'x'}); runtime.composeArgs.push('down');",
+  ])('rejects Compose arguments without immutable owned provenance: %s', setup => {
+    expect(inspectRuntime(`${runtimeImport}${isolatedMode}${setup}spawnSync('docker', [...runtime.composeArgs, 'run', 'wpcli']);`)).not.toEqual([])
+  })
+
+  it.each([
+    "const fake={startIsolatedWordPress:async()=>({composeArgs:['compose','-p','shared']})}; const runtime=await fake.startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE,runId:'x'}); spawnSync('docker',[...runtime.composeArgs,'down']);",
+    "const runtime=await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE,runId:'x'}); function f(runtime){spawnSync('docker',[...runtime.composeArgs,'down'])}; f({composeArgs:['compose','-p','shared']});",
+    "const runtime=await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE,runId:'x'}); spawnSync('docker',[...runtime.composeArgs,'--project-name','shared','down']);",
+    "const runtime=await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE,runId:'x'}); spawnSync('docker',[...runtime.composeArgs,'run',...unknownArgs,'wpcli','wp']);",
+    "const runtime=await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE,runId:'x'}); spawnSync('docker',[...runtime.composeArgs,'run','--volume',...unknownArgs,'wpcli','wp']);",
+  ])('rejects counterfeit factories and shadowed owned bindings: %s', source => {
+    expect(inspectRuntime(`${runtimeImport}${isolatedMode}${source}`)).not.toEqual([])
+  })
+
+  it('applies shared read-only restrictions to arguments from the runtime factory', () => {
+    const mode = "export const WORDPRESS_RUNTIME_MODE={dataMode:'shared-read-only',hostHttp:false} as const;"
+    expect(inspectRuntime(`${runtimeImport}${mode}describe.runIf(process.env.RUN==='1')('live',async()=>{const runtime=await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE,runId:'x'}); spawnSync('docker',[...runtime.composeArgs,'run','--rm','--no-deps','wpcli','wp','option','update','danger','yes']);});`)).not.toEqual([])
+  })
+
   it('accepts an actual isolated runtime bound to the declaration', () => {
     expect(inspectRuntime(`${runtimeImport}${isolatedMode}const runtime = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE, runId:'x'}); await runtime.wp(['option','update','owned','yes']);`)).toEqual([])
   })

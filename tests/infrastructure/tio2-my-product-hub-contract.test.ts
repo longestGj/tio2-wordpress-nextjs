@@ -60,7 +60,7 @@ describe('PRODUCT-000 immutable Malaysia Hub contract', () => {
     expect(php).toContain('function tio2_resolve_malaysia_product_hub_record_json(): string')
     expect(php).toContain('malaysiaProductHubRecordJson')
     expect(php).toContain("'tio2-my'")
-    expect(php).toContain('hash_equals')
+    expect(php).toContain('tio2_my_content_json_matches($stored, $approved)')
     expect(php).toContain('routeReadiness')
     expect(php).toContain('TIO2_MY_ROUTE_PAGE_ID_META')
     expect(php).toContain('TIO2_MY_ROUTE_CANONICAL_META')

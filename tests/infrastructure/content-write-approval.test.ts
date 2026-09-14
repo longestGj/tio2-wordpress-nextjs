@@ -33,7 +33,7 @@ const unsafe = structuredClone(changed); unsafe.hero.heading = '<script>not tech
 const unsafeProof = {...proof, records: [{...proof.records[0], afterSha256: sha(canonical(unsafe))}]}
 const input = JSON.stringify({before, after, proof, bulkBefore, bulkAfter, bulkProof, unsafeProof, unsafeAfter: {'HOME-001': JSON.stringify(unsafe)}})
 function run(args: string[], phpArgs: string[] = isolatedPhpArgs(process.cwd())) {
-  const result = spawnSync('docker', [phpArgs[0], '-i', ...phpArgs.slice(1), '/workspace/tests/infrastructure/php/content-write-approval.php', ...args], {input, encoding: 'utf8', maxBuffer: 4 * 1024 * 1024})
+  const result = spawnSync('docker', ['run', '-i', ...phpArgs.slice(1), '/workspace/tests/infrastructure/php/content-write-approval.php', ...args], {input, encoding: 'utf8', maxBuffer: 4 * 1024 * 1024})
   expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0)
   return JSON.parse(result.stdout)
 }

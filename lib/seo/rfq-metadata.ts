@@ -18,5 +18,5 @@ export function buildMalaysiaRfqMetadata(
   ) {
     throw new Error('CONV-RFQ metadata is available only for tio2-my')
   }
-  return buildTio2MyPublicationMetadata('CONV-RFQ', options.env)
+  return buildTio2MyPublicationMetadata('CONV-RFQ', options.env, options.seo)
 }

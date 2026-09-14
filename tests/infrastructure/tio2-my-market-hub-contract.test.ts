@@ -55,7 +55,7 @@ describe('MARKET-000 immutable WordPress contract', () => {
     expect(php).toContain("'malaysiaMarketHubRecordJson'")
     expect(php).toContain("str_replace(' ', 'T'")
     expect(php).toContain("'tio2-my'")
-    expect(php).toContain('hash_equals')
+    expect(php).toContain('tio2_my_content_json_matches($stored, $approved)')
     expect(php).toContain("'post_type' => 'tio2_market_hub'")
     expect(plugin).toContain("require_once __DIR__ . '/includes/market-hub-v01.php';")
     expect(seed).toContain("'tio2-my-markets'")

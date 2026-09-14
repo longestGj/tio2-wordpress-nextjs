@@ -4,7 +4,7 @@ import {randomUUID, createHash} from 'node:crypto'
 import {mkdirSync, readFileSync, writeFileSync, rmSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {describe, expect, it} from 'vitest'
-import {startIsolatedWordPress} from '../helpers/wordpress-runtime'
+import {startIsolatedWordPress, type OwnedWordPressRuntime} from '../helpers/wordpress-runtime'
 import {isolatedPhpArgs} from '../helpers/wordpress-test-support'
 
 export const WORDPRESS_RUNTIME_MODE = {dataMode: 'isolated', hostHttp: false} as const
@@ -25,7 +25,7 @@ describe('committed approved-content notifications', () => {
       'WORDPRESS_DB_ROOT_PASSWORD=synthetic-only-root-password','WORDPRESS_ADMIN_USER=event-admin','WORDPRESS_ADMIN_PASSWORD=synthetic-only-admin-password',
       'WORDPRESS_ADMIN_EMAIL=events@example.invalid','NEXTJS_REVALIDATION_URL_TIO2_MY=http://127.0.0.1:3015/api/revalidate',
       'NEXTJS_REVALIDATION_SECRET_TIO2_MY=synthetic-events-secret'].join('\n'))
-    let runtime: Awaited<ReturnType<typeof startIsolatedWordPress>> | undefined
+    let ownedRuntime: OwnedWordPressRuntime | undefined
     const home = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-homepage.json','utf8'))
     const app = JSON.parse(readFileSync('wordpress/plugins/tio2-site-model/config/tio2-my-application-hub.json','utf8'))
     const changedHome = structuredClone(home); changedHome.company.summaries.push({title:'Synthetic fourth summary',description:'Isolated test content.'})
@@ -43,15 +43,16 @@ describe('committed approved-content notifications', () => {
       const base = isolatedPhpArgs(process.cwd())
       const proofArgs = [...base.slice(0,-3),'--user','0:0','--mount',`type=volume,source=${volume},target=/approvals`,...base.slice(-3),
         '/workspace/tests/infrastructure/php/content-write-events.php','proofs']
-      const setup = spawnSync('docker',[proofArgs[0],'-i',...proofArgs.slice(1)],{encoding:'utf8',input:JSON.stringify({proof,mixedProof,home,app,changedHome,changedApp})})
+      const setup = spawnSync('docker',['run','-i',...proofArgs.slice(1)],{encoding:'utf8',input:JSON.stringify({proof,mixedProof,home,app,changedHome,changedApp})})
       expect(setup.status,setup.stderr).toBe(0)
-      runtime = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE,runId,environment:{...process.env,TIO2_TEST_WORDPRESS_ENV:environmentPath}})
+      const runtime = await startIsolatedWordPress({...WORDPRESS_RUNTIME_MODE,runId: runId,environment:{...process.env,TIO2_TEST_WORDPRESS_ENV:environmentPath}})
+      ownedRuntime = runtime
       await runtime.wp(['core','install','--url=http://example.invalid','--title=Synthetic events test','--admin_user=event-admin',
         '--admin_password=synthetic-only-admin-password','--admin_email=events@example.invalid','--skip-email'])
       await runtime.wpAsWebUser(['plugin','install','advanced-custom-fields','--activate'])
       await runtime.wp(['plugin','activate','tio2-site-model'])
       const run = async (mode: string, id?: string) => {
-        const {stdout} = await execute('docker',[...runtime!.composeArgs,'run','--rm','-T','--volume',`${volume}:/approvals:ro`,'wpcli','wp','eval-file',
+        const {stdout} = await execute('docker',[...runtime.composeArgs,'run','--rm','-T','--volume',`${volume}:/approvals:ro`,'wpcli','wp','eval-file',
           '/workspace/tests/infrastructure/php/content-write-events.php',mode,runId,...(id?[id]:[]),'--user=event-admin'],{windowsHide:true,maxBuffer:4*1024*1024})
         return JSON.parse(stdout.slice(stdout.indexOf('{')))
       }
@@ -102,9 +103,9 @@ describe('committed approved-content notifications', () => {
       expect(mixedRetry).toMatchObject({writeCount:0,contentUnchanged:true})
       expect(mixedRetry.calls).toHaveLength(1)
     } finally {
-      if (runtime) {
-        await runtime.stop()
-        for (const suffix of ['db_data','wp_data']) await execute('docker',['volume','rm',`${runtime.projectName}_${suffix}`])
+      if (ownedRuntime) {
+        await ownedRuntime.stop()
+        for (const suffix of ['db_data','wp_data']) await execute('docker',['volume','rm',`${ownedRuntime.projectName}_${suffix}`])
       }
       await execute('docker',['volume','rm',volume])
       if (directory===resolve('.tmp',runId) && runId.startsWith('content-events-')) rmSync(directory,{recursive:true})
