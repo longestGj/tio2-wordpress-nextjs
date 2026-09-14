@@ -50,6 +50,20 @@ def write(path, value):
     Path(path).write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding='utf-8')
 
 
+def sanitized(value, bridge):
+    text=str(value)
+    for key in ('rootPassword','secret'):
+        secret=bridge.get(key)
+        if secret:
+            for spelling in (secret,json.dumps(secret)[1:-1],repr(secret)[1:-1]):
+                text=text.replace(spelling,'[REDACTED]')
+    return text
+
+
+def failure_evidence(path, error, bridge):
+    write(path,{'type':type(error).__name__,'message':sanitized(error,bridge)})
+
+
 def owner(bridge):
     run = bridge['runId']; project = bridge['project']
     if not re.fullmatch(r'home-application-[a-f0-9-]{36}', run) or not re.fullmatch(r'd16-test-home-application-[a-f0-9-]+', project):
@@ -230,7 +244,10 @@ def controller():
             sql_write='mariadb' in args and data is not None and not data.lstrip().upper().startswith((b'SELECT ',b'SHOW '))
             if args[:2]==['docker','exec'] and (sql_write or 'sh' in args or 'rm' in args):
                 owner(bridge)
-            result=subprocess.run(args,input=data,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=1800)
+            try: result=subprocess.run(args,input=data,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=1800)
+            except Exception as error:
+                failure_evidence(installed/'evidence'/('command-failure-'+str(time.time_ns())+'.json'),error,bridge)
+                raise ReleaseError('installed content runtime command interrupted') from None
             if result.returncode:
                 safe=result.stderr.decode(errors='replace').replace(bridge['rootPassword'],'[REDACTED]').replace(bridge['secret'],'[REDACTED]')
                 write(installed/'evidence'/('command-failure-'+str(time.time_ns())+'.json'),{'exitCode':result.returncode,'stderr':safe})
@@ -388,12 +405,71 @@ def controller():
                 owner(bridge); check_owned(name,kind)
                 docker(*(['rm','-f','-v',name] if kind=='container' else ['volume','rm',name]))
                 cleanup.append({'name':name,'removed':True})
-            except Exception as error: cleanup.append({'name':name,'removed':False,'error':str(error)})
+            except Exception as error: cleanup.append({'name':name,'removed':False,'error':sanitized(error,bridge)})
         if backend:
-            for item in state.glob('*.json'): shutil.copyfile(item,installed/'evidence'/item.name)
-            for item in state.glob('content-window.json.*'): shutil.copyfile(item,installed/'evidence'/item.name)
+            for item in [*state.glob('*.json'),*state.glob('content-window.json.*')]:
+                (installed/'evidence'/item.name).write_text(sanitized(item.read_text(),bridge),encoding='utf-8')
         write(installed/'evidence'/'cleanup.json',cleanup)
         if any(not x['removed'] for x in cleanup): raise RuntimeError('Owned bulk cleanup incomplete')
+
+
+def host_cleanup(bridge, name, controller_id, directory, evidence):
+    # The host knows these exact names before starting the controller. Killing
+    # the attached Docker client does not stop the controller or its siblings.
+    prefix=name.removesuffix('-controller'); cleanup=[]; captured=False
+    def inspect_owned(target,kind,expected_id=None):
+        result=docker(*(['inspect',target] if kind=='container' else ['volume','inspect',target]),check=False)
+        if result.returncode:
+            if b'No such' in result.stderr or b'no such' in result.stderr: return None
+            raise RuntimeError('Cannot inspect owned '+kind+' '+target)
+        specimen=json.loads(result.stdout)[0]
+        labels=specimen.get('Config',specimen).get('Labels',{})
+        if labels.get('d16.test.run')!=bridge['runId'] or specimen.get('Name','').lstrip('/')!=target or (expected_id and specimen['Id']!=expected_id):
+            raise RuntimeError('Resource ownership mismatch: '+target)
+        return specimen
+    try:
+        specimen=inspect_owned(name,'container',controller_id)
+        if specimen is None: raise RuntimeError('Controller recovery data missing')
+        if specimen['State']['Running']: docker('kill',name)
+        if inspect_owned(name,'container',controller_id)['State']['Running']: raise RuntimeError('Controller did not stop')
+        # Stage raw copies only beside the existing temporary credentials; only
+        # sanitized text enters retained evidence. Never export raw SQL backups.
+        staging=directory/'captured'; staging.mkdir(exist_ok=True)
+        try:
+            copied=docker('cp',name+':/opt/d16-test/evidence/.',str(staging),check=False)
+            state=staging/'state'; state.mkdir(exist_ok=True)
+            state_copy=docker('cp',name+':/opt/d16-test/state/.',str(state),check=False)
+            if copied.returncode or state_copy.returncode: raise RuntimeError('Recovery evidence capture incomplete')
+            for item in staging.rglob('*'):
+                if item.is_file() and (item.suffix in ('.json','.html','.log') or item.name.startswith('content-window.json.')):
+                    destination=evidence/item.name
+                    if destination.exists() and item.name=='failure.json': destination=evidence/'controller-failure.json'
+                    destination.write_text(sanitized(item.read_text(encoding='utf-8'),bridge),encoding='utf-8')
+            captured=True
+        except Exception as error:
+            cleanup.append({'name':name,'removed':False,'error':sanitized(error,bridge)})
+        for kind,suffix in [('container','importer'),('volume','code'),('volume','sealed')]:
+            target=prefix+'-'+suffix
+            try:
+                observed=inspect_owned(target,kind)
+                if observed:
+                    docker(*(['rm','-f','-v',target] if kind=='container' else ['volume','rm',target]))
+                cleanup.append({'name':target,'removed':True,'alreadyAbsent':observed is None})
+            except Exception as error: cleanup.append({'name':target,'removed':False,'error':sanitized(error,bridge)})
+        if any(not item['removed'] for item in cleanup): raise RuntimeError('Owned bulk host cleanup incomplete')
+        inspect_owned(name,'container',controller_id)
+        docker('rm','-f','-v',name); cleanup.append({'name':name,'removed':True})
+    except Exception as error:
+        cleanup.append({'name':name,'removed':False,'error':sanitized(error,bridge)})
+    finally:
+        staging=directory/'captured'
+        if staging.exists(): shutil.rmtree(staging)
+        recovery=any(not item['removed'] for item in cleanup)
+        write(evidence/'host-cleanup.json',{'runId':bridge['runId'],'controller':name,'controllerId':controller_id,
+            'resources':[prefix+'-'+suffix for suffix in ('importer','code','sealed')],
+            'steps':cleanup,'evidenceCaptured':captured,'recoveryRequired':recovery,
+            'recoveryLocation':name+':/opt/d16-test' if recovery else None})
+    if recovery: raise RuntimeError('Owned bulk cleanup incomplete; retained controller recovery identity in host-cleanup.json')
 
 
 def bridge_run(path, round_number):
@@ -407,22 +483,26 @@ def bridge_run(path, round_number):
     shutil.copyfile(root/'tests/fixtures/home-application-runtime/apply-synthetic-home-application.php',directory/'fixture.php')
     bridge['round']=round_number; write(directory/'bridge.json',bridge)
     name=bridge['project']+'-bulk-'+str(round_number)+'-controller'
-    created=False; evidence=Path(bridge['evidence'])/('bulk-'+str(round_number)); evidence.mkdir()
+    controller_id=None; evidence=Path(bridge['evidence'])/('bulk-'+str(round_number)); evidence.mkdir()
+    write(evidence/'host-resources.json',{'runId':run,'controller':name,'resources':[name.removesuffix('-controller')+'-'+suffix for suffix in ('importer','code','sealed')]})
     try:
-        docker('create','--name',name,'--label','d16.test.run='+run,'--network',bridge['network'],
+        created=docker('create','--name',name,'--label','d16.test.run='+run,'--network',bridge['network'],
             '-v',str(directory)+':/inputs:ro','-v','/var/run/docker.sock:/var/run/docker.sock:ro',
-            '--entrypoint','python3','d16-content-resources-runtime:v1','/inputs/rehearsal.py','--bootstrap'); created=True
+            '--entrypoint','python3','d16-content-resources-runtime:v1','/inputs/rehearsal.py','--bootstrap')
+        controller_id=created.stdout.decode().strip()
         result=docker('start','-a',name,check=False)
         for stream,data in [('stdout',result.stdout),('stderr',result.stderr)]:
-            (evidence/(stream+'.log')).write_text(data.decode(errors='replace').replace(bridge['rootPassword'],'[REDACTED]').replace(bridge['secret'],'[REDACTED]'),encoding='utf-8')
-        docker('cp',name+':/opt/d16-test/evidence/.',str(evidence),check=False)
+            (evidence/(stream+'.log')).write_text(sanitized(data.decode(errors='replace'),bridge),encoding='utf-8')
         if result.returncode: raise RuntimeError('Real bulk engine rehearsal failed; see '+str(evidence))
-        print(json.dumps(read(evidence/'result.json')))
+    except Exception as error:
+        failure_evidence(evidence/'failure.json',error,bridge)
+        for stream in ('stdout','stderr'):
+            value=getattr(error,stream,None)
+            if value: (evidence/(stream+'.log')).write_text(sanitized(value.decode(errors='replace') if isinstance(value,bytes) else value,bridge),encoding='utf-8')
+        raise RuntimeError('Real bulk controller failed; see retained sanitized evidence') from None
     finally:
-        if created:
-            specimen=json.loads(docker('inspect',name).stdout)[0]
-            if specimen['Config']['Labels'].get('d16.test.run')!=run: raise RuntimeError('Controller cleanup owner changed')
-            docker('rm','-f','-v',name)
+        if controller_id: host_cleanup(bridge,name,controller_id,directory,evidence)
+    print(json.dumps(read(evidence/'result.json')))
 
 
 if __name__=='__main__':
@@ -434,8 +514,8 @@ if __name__=='__main__':
         try: controller()
         except Exception as error:
             Path('/opt/d16-test/evidence').mkdir(exist_ok=True)
-            write('/opt/d16-test/evidence/failure.json',{'type':type(error).__name__,'message':str(error)})
-            raise
+            failure_evidence('/opt/d16-test/evidence/failure.json',error,read('/opt/d16-test/bridge.json'))
+            raise SystemExit('Owned controller failed; see sanitized failure.json') from None
     elif len(sys.argv)==3 and sys.argv[1]=='--hook': hook(sys.argv[2])
     elif len(sys.argv)==4 and sys.argv[1]=='--bridge': bridge_run(sys.argv[2],int(sys.argv[3]))
     elif len(sys.argv)==1:
