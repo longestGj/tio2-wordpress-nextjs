@@ -27,6 +27,7 @@ interface RevalidationPayload {
   paths: string[]
   entityIds: number[]
   modified: string
+  contentRelease?: {releaseId: string; contentSha256: string}
 }
 
 function payloadFor(
@@ -66,6 +67,99 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllEnvs()
   vi.clearAllMocks()
+})
+
+describe('Malaysia Product route admission', () => {
+  it.each(['/products', '/products/cr-901', '/products/m-108'])('accepts a registered MY path: %s', async (path) => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(payloadFor({siteIds: ['tio2-my'], paths: [path]})))
+    expect(response.status).toBe(200)
+    expect(revalidatePath).toHaveBeenCalledExactlyOnceWith(path)
+  })
+
+  it.each(['/products/unknown-grade', '/products/coatings/tp-c120'])('rejects an unknown or Site A product path on MY: %s', async (path) => {
+    vi.stubEnv('SITE_ID', 'tio2-my')
+    const response = await POST(signedRequest(payloadFor({siteIds: ['tio2-my'], paths: [path]})))
+    expect(response.status).toBe(400)
+    expect(revalidateTag).not.toHaveBeenCalled()
+    expect(revalidatePath).not.toHaveBeenCalled()
+  })
+
+  it.each(['tio2-a', 'tio2-b'])('rejects a MY event on a %s runtime', async (siteId) => {
+    vi.stubEnv('SITE_ID', siteId)
+    const response = await POST(signedRequest(payloadFor({siteIds: ['tio2-my'], paths: ['/products/cr-901']})))
+    expect(response.status).toBe(400)
+    expect(revalidateTag).not.toHaveBeenCalled()
+    expect(revalidatePath).not.toHaveBeenCalled()
+  })
+})
+
+describe('Malaysia Product invalidation', () => {
+  beforeEach(() => vi.stubEnv('SITE_ID', 'tio2-my'))
+
+  it.each([false, true])('invalidates mixed MY dependencies and deduplicates replay (content release: %s)', async (contentRelease) => {
+    const paths = ['/products', '/products/cr-901', '/products/chloride-process-titanium-dioxide', '/products/sulfate-process-titanium-dioxide']
+    const payload = payloadFor({
+      siteIds: ['tio2-my'], paths,
+      ...(contentRelease ? {contentRelease: {releaseId: 'w2-synthetic', contentSha256: 'a'.repeat(64)}} : {}),
+    })
+    const response = await POST(signedRequest(payload))
+    expect(response.status).toBe(200)
+    const policy = contentRelease ? {expire: 0} : 'max'
+    expect(revalidateTag).toHaveBeenCalledWith('content:tio2-my--products', policy)
+    expect(revalidateTag).toHaveBeenCalledWith('content:tio2-my--product-detail--cr-901', policy)
+    for (const path of paths) expect(revalidatePath).toHaveBeenCalledWith(path)
+    if (contentRelease) {
+      expect(revalidatePath).toHaveBeenCalledWith('/', 'layout')
+      expect(revalidatePath).toHaveBeenCalledWith('/sitemap.xml')
+    } else {
+      expect(revalidatePath).toHaveBeenCalledTimes(paths.length)
+    }
+    const tagCalls = revalidateTag.mock.calls.length
+    const pathCalls = revalidatePath.mock.calls.length
+    const replay = await POST(signedRequest(payload))
+    expect(replay.status).toBe(200)
+    expect(await replay.json()).toMatchObject({revalidatedTags: [], revalidatedPaths: []})
+    expect(revalidateTag).toHaveBeenCalledTimes(tagCalls)
+    expect(revalidatePath).toHaveBeenCalledTimes(pathCalls)
+  })
+
+  it('rejects an entire mixed batch containing an unknown product before invalidation', async () => {
+    const response = await POST(signedRequest(payloadFor({
+      siteIds: ['tio2-my'], paths: ['/products', '/products/unknown-grade'],
+    })))
+    expect(response.status).toBe(400)
+    expect(revalidateTag).not.toHaveBeenCalled()
+    expect(revalidatePath).not.toHaveBeenCalled()
+  })
+
+  it('rejects an invalid signature before invalidating a registered MY path', async () => {
+    const request = signedRequest(payloadFor({siteIds: ['tio2-my'], paths: ['/products']}))
+    request.headers.set('x-tio2-signature', '0'.repeat(64))
+    expect((await POST(request)).status).toBe(401)
+    expect(revalidateTag).not.toHaveBeenCalled()
+    expect(revalidatePath).not.toHaveBeenCalled()
+  })
+
+  it('normalizes trailing slashes and keeps stable product dependencies', async () => {
+    const response = await POST(signedRequest(payloadFor({
+      siteIds: ['tio2-my'], paths: ['/products/', '/products/m-108/', '/products/m-108'],
+    })))
+    expect(response.status).toBe(200)
+    expect(revalidateTag).toHaveBeenCalledWith('content:tio2-my--products', 'max')
+    expect(revalidateTag).toHaveBeenCalledWith('content:tio2-my--product-detail--m-108', 'max')
+    expect(revalidatePath.mock.calls).toEqual([['/products'], ['/products/m-108']])
+    expect(revalidateTag).toHaveBeenCalledWith('site:tio2-my', 'max')
+    expect(revalidateTag).toHaveBeenCalledWith('sitemap:tio2-my', 'max')
+  })
+
+  it('does not admit MY product paths under Site B identity', async () => {
+    vi.stubEnv('SITE_ID', 'tio2-b')
+    const response = await POST(signedRequest(payloadFor({siteIds: ['tio2-b'], paths: ['/products/cr-901']})))
+    expect(response.status).toBe(400)
+    expect(revalidateTag).not.toHaveBeenCalled()
+    expect(revalidatePath).not.toHaveBeenCalled()
+  })
 })
 
 describe('Product revalidation', () => {

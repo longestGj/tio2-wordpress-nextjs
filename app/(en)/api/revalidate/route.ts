@@ -6,7 +6,7 @@ import {SITE_A_APPLICATION_IDENTITIES} from '@/lib/applications/content-manifest
 import {SITE_A_RESOURCE_IDENTITIES} from '@/lib/resources/content-manifest'
 import {resolveProductPageIdentity} from '@/lib/products/page-graph'
 import {getCurrentSite} from '@/lib/sites/current-site'
-import {getTio2MyPublicationPageByPath} from '@/lib/seo/tio2-my-publication-inventory'
+import {isApprovedMalaysiaProductDetailSlug} from '@/lib/wordpress/product-detail-v01-registry'
 import {editorialPageIdForPath,editorialTag} from '@/lib/editorial/malaysia-editorial-contracts'
 import {SITE_IDS} from '@/sites'
 import {
@@ -27,6 +27,8 @@ import {
   marketHubContentTag,
   marketPageContentTag,
   normalizePublicPath,
+  productHubContentTag,
+  productDetailContentTag,
   productListTag,
   productProcessContentTag,
   productDetailTag,
@@ -259,6 +261,15 @@ export async function POST(request: Request): Promise<Response> {
         })
       : [],
   )
+  const malaysiaProductSlugByPath = new Map<string, string>()
+  if (currentSite.id === 'tio2-my') {
+    for (const path of payload.paths) {
+      const match = /^\/products\/([^/]+)$/u.exec(path)
+      if (match && isApprovedMalaysiaProductDetailSlug(match[1]!)) {
+        malaysiaProductSlugByPath.set(path, match[1]!)
+      }
+    }
+  }
   const unapprovedProductPath = payload.paths.find(
     (path) =>
       (path === '/products' || path.startsWith('/products/')) &&
@@ -266,9 +277,10 @@ export async function POST(request: Request): Promise<Response> {
       !(
         currentSite.id === 'tio2-my' &&
         (
+          path === '/products' ||
+          malaysiaProductSlugByPath.has(path) ||
           path === '/products/chloride-process-titanium-dioxide' ||
-          editorialPageIdForPath(path) === 'PRODUCT-PROC-SU' ||
-          getTio2MyPublicationPageByPath(`${path}/`)?.expectedStatus === 200
+          editorialPageIdForPath(path) === 'PRODUCT-PROC-SU'
         )
       ),
   )
@@ -338,6 +350,11 @@ export async function POST(request: Request): Promise<Response> {
     for (const path of payload.paths) {
       tags.add(routeTag(siteId, path))
       if (path === '/') tags.add(homepageContentTag(siteId))
+      if (siteId === 'tio2-my') {
+        if (path === '/products') tags.add(productHubContentTag(siteId))
+        const slug = malaysiaProductSlugByPath.get(path)
+        if (slug) tags.add(productDetailContentTag(siteId, slug))
+      }
       if (siteId === 'tio2-my' && path === '/markets') {
         tags.add(marketHubContentTag(siteId))
       }
